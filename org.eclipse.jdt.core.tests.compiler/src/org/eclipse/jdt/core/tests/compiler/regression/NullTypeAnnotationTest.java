@@ -6909,4 +6909,55 @@ public void testBug447088() {
 		null,
 		"");
 }
+public void testBug448777() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"DoubleInference.java",
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"public class DoubleInference {\n" + 
+			"\n" + 
+			"	@FunctionalInterface\n" + 
+			"	interface Func<@Nullable T>  {\n" + 
+			"		T a(T i);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	<X> X applyWith(Func<X> f, X x) { return x; }\n" + 
+			"\n" + 
+			"	@NonNull String test1() {\n" + 
+			"		return applyWith(i -> i, \"hallo\");\n" + 
+			"	}\n" +
+			"	void test2(Func<String> f1, Func<@NonNull String> f2) {\n" + 
+			"		f1.a(null);\n" + 
+			"		f2.a(null);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in DoubleInference.java (at line 10)\n" + 
+		"	<X> X applyWith(Func<X> f, X x) { return x; }\n" + 
+		"	                     ^\n" + 
+		"Null constraint mismatch: The type \'X\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"2. ERROR in DoubleInference.java (at line 13)\n" + 
+		"	return applyWith(i -> i, \"hallo\");\n" + 
+		"	                 ^^^^^^\n" + 
+		"The target type of this expression must be a functional interface\n" + 
+		"----------\n" + 
+		"3. ERROR in DoubleInference.java (at line 15)\n" + 
+		"	void test2(Func<String> f1, Func<@NonNull String> f2) {\n" + 
+		"	                ^^^^^^\n" + 
+		"Null constraint mismatch: The type \'String\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"4. ERROR in DoubleInference.java (at line 15)\n" + 
+		"	void test2(Func<String> f1, Func<@NonNull String> f2) {\n" + 
+		"	                                 ^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"5. ERROR in DoubleInference.java (at line 17)\n" + 
+		"	f2.a(null);\n" + 
+		"	^^^^^^^^^^\n" + 
+		"Contradictory null annotations: method was inferred as \'@NonNull @Nullable String a(@NonNull @Nullable String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"----------\n");
+}
 }
