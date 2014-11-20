@@ -68,6 +68,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
@@ -429,6 +430,12 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			if (this.lhs instanceof NameReference) {
 				if ((this.lhs.bits & ASTNode.RestrictiveFlagMASK) == Binding.TYPE) {
 					this.haveReceiver = false;
+				} else if (isConstructorReference()) {
+					scope.problemReporter().invalidType(
+							this.lhs,
+							new ProblemReferenceBinding(((NameReference) this.lhs).getName(), null,
+									ProblemReasons.NotFound));
+					return this.resolvedType = null;
 				}
 			} else if (this.lhs instanceof TypeReference) {
 				this.haveReceiver = false;

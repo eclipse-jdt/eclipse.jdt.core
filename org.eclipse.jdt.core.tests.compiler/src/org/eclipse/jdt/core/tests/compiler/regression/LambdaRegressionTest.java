@@ -509,6 +509,27 @@ public void _test451677() {
 			"}\n"
 	});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=451840
+// [1.8] java.lang.BootstrapMethodError when running code with constructor reference
+public void testBug451840() {
+	runNegativeTest(new String [] {
+		"X.java",
+		"public class X {\n" +  
+		"    public static void main(String[] args) {\n" + 
+		"    	X test = new X();\n" + 
+		"    	MySupplier<X> s = test::new; // incorrect\n" + 
+		"    }\n" + 
+		"    public interface MySupplier<T> {\n" + 
+		"        T create();\n" + 
+		"    }\n" + 
+		"}"},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	MySupplier<X> s = test::new; // incorrect\n" + 
+		"	                  ^^^^\n" + 
+		"test cannot be resolved to a type\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return LambdaRegressionTest.class;
 }
