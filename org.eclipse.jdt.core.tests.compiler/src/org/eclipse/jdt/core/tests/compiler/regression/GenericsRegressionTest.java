@@ -7,7 +7,7 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
+ *     Stephan Herrmann - Contributions for
  *								bug 282152 - [1.5][compiler] Generics code rejected by Eclipse but accepted by javac
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
  *								bug 401456 - Code compiles from javac/intellij, but fails from eclipse
@@ -29,6 +29,7 @@
  *								Bug 434044 - Java 8 generics thinks single method is ambiguous
  *								Bug 434793 - [1.8][null][compiler] AIOOBE in ParameterizedGenericMethodBinding.substitute when inlining a method
  *								Bug 438337 - StackOverflow after update from Kepler to Luna 
+ *								Bug 452194 - Code no longer compiles in 4.4.1, but with confusing error
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -5407,6 +5408,47 @@ public void test434118() {
 			   "}\n",
 		   },
 		   "");
+}
+public void testBug452194() {
+	runNegativeTest(
+		new String[]{
+			"test/Main.java",
+			"package test;\n" + 
+			"\n" + 
+			"import java.util.Map.Entry;\n" + 
+			"\n" + 
+			"public class Main {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		EcoreEMap map = new EcoreEMap();\n" + 
+			"		map.addUnique(new Object()); //Error here ONLY in 4.4\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface InternalEList<E> {\n" + 
+			"	public void addUnique(E object);\n" + 
+			"}\n" + 
+			"\n" + 
+			"class EcoreEMap<K, V> implements InternalEList<Entry<K, V>> {\n" + 
+			"	public void addUnique(Entry<K, V> object) {\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in test\\Main.java (at line 7)\n" + 
+		"	EcoreEMap map = new EcoreEMap();\n" + 
+		"	^^^^^^^^^\n" + 
+		"EcoreEMap is a raw type. References to generic type EcoreEMap<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in test\\Main.java (at line 7)\n" + 
+		"	EcoreEMap map = new EcoreEMap();\n" + 
+		"	                    ^^^^^^^^^\n" + 
+		"EcoreEMap is a raw type. References to generic type EcoreEMap<K,V> should be parameterized\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\Main.java (at line 8)\n" + 
+		"	map.addUnique(new Object()); //Error here ONLY in 4.4\n" + 
+		"	    ^^^^^^^^^\n" + 
+		"The method addUnique(Map.Entry) in the type EcoreEMap is not applicable for the arguments (Object)\n" + 
+		"----------\n");
 }
 }
 

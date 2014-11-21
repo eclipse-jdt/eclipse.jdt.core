@@ -45,6 +45,7 @@
  *								Bug 434570 - Generic type mismatch for parametrized class annotation attribute with inner class
  *								Bug 434483 - [1.8][compiler][inference] Type inference not picked up with method reference
  *								Bug 441734 - [1.8][inference] Generic method with nested parameterized type argument fails on method reference
+ *								Bug 452194 - Code no longer compiles in 4.4.1, but with confusing error
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -1701,6 +1702,8 @@ public abstract class Scope {
 					if (diff1 >= diff2)
 						continue nextMethod;
 				}
+				if (bestGuess != methodBinding && MethodVerifier.doesMethodOverride(bestGuess, methodBinding, this.environment()))
+					continue;
 				bestArgMatches = argMatches;
 				bestGuess = methodBinding;
 			}
