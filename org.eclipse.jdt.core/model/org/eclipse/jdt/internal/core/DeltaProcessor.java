@@ -133,7 +133,7 @@ public class DeltaProcessor {
 			IPackageFragmentRoot tRoot = null;
 			Object target = JavaModel.getTarget(this.rootPath, false/*don't check existence*/);
 			if (target instanceof IResource) {
-				tRoot = this.project.getPackageFragmentRoot((IResource)target);
+				tRoot = this.project.getPackageFragmentRoot((IResource)target, this.rootPath);
 			} else {
 				tRoot = this.project.getPackageFragmentRoot(this.rootPath.toOSString());
 			}
