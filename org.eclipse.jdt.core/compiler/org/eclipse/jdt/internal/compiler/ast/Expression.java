@@ -7,7 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for 
+ *     Stephan Herrmann - Contributions for 
  *								bug 292478 - Report potentially null across variable assignment
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 392862 - [1.8][compiler][null] Evaluate null annotations on array types
@@ -25,6 +25,7 @@
  *								Bug 426996 - [1.8][inference] try to avoid method Expression.unresolve()?
  *								Bug 428274 - [1.8] [compiler] Cannot cast from Number to double
  *								Bug 428352 - [1.8][compiler] Resolution errors don't always surface
+ *								Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -45,6 +46,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -1064,7 +1066,7 @@ public TypeBinding resolveTypeExpecting(BlockScope scope, TypeBinding expectedTy
 	return expressionType;
 }
 
-public Expression resolveExpressionExpecting(TypeBinding targetType, Scope scope) {
+public Expression resolveExpressionExpecting(TypeBinding targetType, Scope scope, InferenceContext18 context) {
 	return this; // subclasses should implement for a better resolved expression if required.
 }
 

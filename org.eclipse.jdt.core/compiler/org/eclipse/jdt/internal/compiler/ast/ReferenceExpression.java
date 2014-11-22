@@ -32,6 +32,7 @@
  *							Bug 434483 - [1.8][compiler][inference] Type inference not picked up with method reference
  *							Bug 441734 - [1.8][inference] Generic method with nested parameterized type argument fails on method reference
  *							Bug 438945 - [1.8] NullPointerException InferenceContext18.checkExpression in java 8 with generics, primitives, and overloading
+ *							Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contribution for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -766,7 +767,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		return this.inferenceContexts.get(method);
 	}
 	
-	public ReferenceExpression resolveExpressionExpecting(TypeBinding targetType, Scope scope) {
+	public ReferenceExpression resolveExpressionExpecting(TypeBinding targetType, Scope scope, InferenceContext18 inferenceContext) {
 		if (this.exactMethodBinding != null) { // We may see inference variables in target type.
 			MethodBinding functionType = targetType.getSingleAbstractMethod(scope, true);
 			if (functionType == null)
@@ -810,7 +811,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	public InferenceContext18 freshInferenceContext(Scope scope) {
 		if (this.expressionContext != ExpressionContext.VANILLA_CONTEXT) {
 			Expression[] arguments = createPseudoExpressions(this.freeParameters);
-			return new InferenceContext18(scope, arguments, this);
+			return new InferenceContext18(scope, arguments, this, null);
 		}
 		return null; // shouldn't happen, actually
 	}

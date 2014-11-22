@@ -179,12 +179,13 @@ public class InferenceContext18 {
 	}
 	
 	/** Construct an inference context for an invocation (method/constructor). */
-	public InferenceContext18(Scope scope, Expression[] arguments, InvocationSite site) {
+	public InferenceContext18(Scope scope, Expression[] arguments, InvocationSite site, InferenceContext18 outerContext) {
 		this.scope = scope;
 		this.environment = scope.environment();
 		this.object = scope.getJavaLangObject();
 		this.invocationArguments = arguments;
 		this.currentInvocation = site;
+		this.outerContext = outerContext;
 	}
 
 	public InferenceContext18(Scope scope) {
@@ -447,6 +448,7 @@ public class InferenceContext18 {
 		if (expri instanceof FunctionalExpression) {
 			c.add(new ConstraintExceptionFormula((FunctionalExpression) expri, substF));
 			if (expri instanceof LambdaExpression) {
+				// https://bugs.openjdk.java.net/browse/JDK-8038747
 				LambdaExpression lambda = (LambdaExpression) expri;
 				BlockScope skope = lambda.enclosingScope;
 				if (substF.isFunctionalInterface(skope)) { // could be an inference variable.
@@ -456,7 +458,7 @@ public class InferenceContext18 {
 						t = ConstraintExpressionFormula.findGroundTargetType(this, skope, lambda, withWildCards);
 					}
 					MethodBinding functionType;
-					if (t != null && (functionType = t.getSingleAbstractMethod(skope, true)) != null && (lambda = lambda.resolveExpressionExpecting(t, this.scope)) != null) {
+					if (t != null && (functionType = t.getSingleAbstractMethod(skope, true)) != null && (lambda = lambda.resolveExpressionExpecting(t, this.scope, this)) != null) {
 						TypeBinding r = functionType.returnType;
 						Expression[] resultExpressions = lambda.resultExpressions();
 						for (int i = 0, length = resultExpressions == null ? 0 : resultExpressions.length; i < length; i++) {
@@ -489,7 +491,7 @@ public class InferenceContext18 {
 			
 			if (interleaved) {
 				MethodBinding shallowMethod = innerMethod.shallowOriginal();
-				SuspendedInferenceRecord prevInvocation = enterPolyInvocation(invocation, invocation.arguments());
+				SuspendedInferenceRecord prevInvocation = enterPolyInvocation(invocation, arguments);
 				try {
 					this.inferenceKind = applicabilityKind;
 					if (innerContext != null)
@@ -501,7 +503,7 @@ public class InferenceContext18 {
 					resumeSuspendedInference(prevInvocation);
 				}
 			}
-			return addConstraintsToC(invocation.arguments(), c, innerMethod.genericMethod(), applicabilityKind, interleaved);
+			return addConstraintsToC(arguments, c, innerMethod.genericMethod(), applicabilityKind, interleaved);
 		} else if (expri instanceof ConditionalExpression) {
 			ConditionalExpression ce = (ConditionalExpression) expri;
 			return addConstraintsToC_OneExpr(ce.valueIfTrue, c, fsi, substF, method, interleaved)
@@ -845,11 +847,18 @@ public class InferenceContext18 {
 	public TypeBinding /*@Nullable*/[] getSolutions(TypeVariableBinding[] typeParameters, InvocationSite site, BoundSet boundSet) {
 		int len = typeParameters.length;
 		TypeBinding[] substitutions = new TypeBinding[len];
+		InferenceVariable[] outerVariables = null;
+		if (this.outerContext != null && this.outerContext.stepCompleted < TYPE_INFERRED)
+			outerVariables = this.outerContext.inferenceVariables;
 		for (int i = 0; i < typeParameters.length; i++) {
 			for (int j = 0; j < this.inferenceVariables.length; j++) {
 				InferenceVariable variable = this.inferenceVariables[j];
 				if (variable.site == site && TypeBinding.equalsEquals(variable.typeParameter, typeParameters[i])) {
-					substitutions[i] = boundSet.getInstantiation(variable, this.environment);
+					TypeBinding outerVar = null;
+					if (outerVariables != null && (outerVar = boundSet.getEquivalentOuterVariable(variable, outerVariables)) != null)
+						substitutions[i] = outerVar;
+					else
+						substitutions[i] = boundSet.getInstantiation(variable, this.environment);
 					break;
 				}
 			}

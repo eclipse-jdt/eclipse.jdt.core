@@ -32,6 +32,7 @@
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
  *								Bug 431581 - Eclipse compiles what it should not
  *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
+ *								Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -43,9 +44,11 @@ import java.util.Comparator;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 /*
@@ -1296,6 +1299,18 @@ private boolean isCompatibleWith0(TypeBinding otherType, /*@Nullable*/ Scope cap
 				if ((otherLowerBound = otherCapture.lowerBound) != null) {
 					if (otherLowerBound.isArrayType()) return false;
 					return isCompatibleWith(otherLowerBound);
+				}
+			}
+			if (otherType instanceof InferenceVariable) {
+				// may interpret InferenceVariable as a joker, but only when within an outer lambda inference:
+				if (captureScope != null) {
+					MethodScope methodScope = captureScope.methodScope();
+					if (methodScope != null) {
+						ReferenceContext referenceContext = methodScope.referenceContext;
+						if (referenceContext instanceof LambdaExpression
+								&& ((LambdaExpression)referenceContext).inferenceContext != null)
+							return true;
+					}
 				}
 			}
 			//$FALL-THROUGH$

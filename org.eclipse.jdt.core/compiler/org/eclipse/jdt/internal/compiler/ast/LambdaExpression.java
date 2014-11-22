@@ -33,6 +33,7 @@
  *							Bug 432110 - [1.8][compiler] nested lambda type incorrectly inferred vs javac
  *							Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *							Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
+ *							Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -124,6 +125,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	private static final Block NO_BODY = new Block(0);
 	private HashMap<TypeBinding, LambdaExpression> copiesPerTargetType;
 	protected Expression [] resultExpressions = NO_EXPRESSIONS;
+	public InferenceContext18 inferenceContext; // when performing tentative resolve keep a back reference to the driving context
 	
 	public LambdaExpression(CompilationResult compilationResult, boolean assistNode, boolean requiresGenericSignature) {
 		super(compilationResult);
@@ -777,7 +779,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		
 		LambdaExpression copy = null;
 		try {
-			copy = cachedResolvedCopy(targetType, argumentsTypeElided(), false); // if argument types are elided, we don't care for result expressions against *this* target, any valid target is OK.
+			copy = cachedResolvedCopy(targetType, argumentsTypeElided(), false, null); // if argument types are elided, we don't care for result expressions against *this* target, any valid target is OK.
 		} catch (CopyFailureException cfe) {
 			if (this.assistNode)
 				return true; // can't type check result expressions, just say yes.
@@ -815,7 +817,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		private static final long serialVersionUID = 1L;
 	}
 
-	private LambdaExpression cachedResolvedCopy(TypeBinding targetType, boolean anyTargetOk, boolean requireExceptionAnalysis) {
+	private LambdaExpression cachedResolvedCopy(TypeBinding targetType, boolean anyTargetOk, boolean requireExceptionAnalysis, InferenceContext18 context) {
 
 		targetType = findGroundTargetType(this.enclosingScope, targetType, argumentsTypeElided());
 		if (targetType == null)
@@ -848,6 +850,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 				copy.setExpressionContext(this.expressionContext);
 				copy.setExpectedType(targetType);
+				copy.inferenceContext = context;
 				TypeBinding type = copy.resolveType(this.enclosingScope);
 				if (type == null || !type.isValidBinding())
 					return null;
@@ -875,10 +878,10 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	 * @param targetType the target functional type against which inference is attempted, must be a non-null valid functional type 
 	 * @return a resolved copy of 'this' or null if significant errors where encountered
 	 */
-	public LambdaExpression resolveExpressionExpecting(TypeBinding targetType, Scope skope) {
+	public LambdaExpression resolveExpressionExpecting(TypeBinding targetType, Scope skope, InferenceContext18 context) {
 		LambdaExpression copy = null;
 		try {
-			copy = cachedResolvedCopy(targetType, false, true);
+			copy = cachedResolvedCopy(targetType, false, true, context);
 		} catch (CopyFailureException cfe) {
 			return null;
 		}
@@ -915,7 +918,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if (r1.isCompatibleWith(r2, skope))
 			return true;
 		
-		LambdaExpression copy = cachedResolvedCopy(s, true /* any resolved copy is good */, false); // we expect a cached copy - otherwise control won't reach here.
+		LambdaExpression copy = cachedResolvedCopy(s, true /* any resolved copy is good */, false, null); // we expect a cached copy - otherwise control won't reach here.
 		Expression [] returnExpressions = copy.resultExpressions;
 		int returnExpressionsLength = returnExpressions == null ? 0 : returnExpressions.length;
 		

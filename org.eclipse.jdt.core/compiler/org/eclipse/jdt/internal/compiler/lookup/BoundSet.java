@@ -1090,4 +1090,24 @@ class BoundSet {
 		}
 		return null;
 	}
+
+	public TypeBinding getEquivalentOuterVariable(InferenceVariable variable, InferenceVariable[] outerVariables) {
+		ThreeSets three = this.boundsPerVariable.get(variable);
+		if (three != null) {
+			for (TypeBound bound : three.sameBounds) {
+				for (InferenceVariable iv : outerVariables)
+					if (TypeBinding.equalsEquals(bound.right, iv))
+						return iv;
+			}
+		}
+		for (InferenceVariable iv : outerVariables) {
+			three = this.boundsPerVariable.get(outerVariables);
+			if (three != null) {
+				for (TypeBound bound : three.sameBounds)
+					if (TypeBinding.equalsEquals(bound.right, variable))
+						return iv;
+			}
+		}
+		return null;
+	}
 }

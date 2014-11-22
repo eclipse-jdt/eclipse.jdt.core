@@ -31,6 +31,7 @@
  *								Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
  *								Bug 430150 - [1.8][null] stricter checking against type variables
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
+ *								Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *     Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -347,7 +348,7 @@ public void resolve(BlockScope scope) {
 	if (TypeBinding.notEquals(methodType, expressionType)) // must call before computeConversion() and typeMismatchError()
 		scope.compilationUnitScope().recordTypeConversion(methodType, expressionType);
 	if (this.expression.isConstantValueOfTypeAssignableToType(expressionType, methodType)
-			|| expressionType.isCompatibleWith(methodType)) {
+			|| expressionType.isCompatibleWith(methodType, scope)) {
 
 		this.expression.computeConversion(scope, methodType, expressionType);
 		if (expressionType.needsUncheckedConversion(methodType)) {

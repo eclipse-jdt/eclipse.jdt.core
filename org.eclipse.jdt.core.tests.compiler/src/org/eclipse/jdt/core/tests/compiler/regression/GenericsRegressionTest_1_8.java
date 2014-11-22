@@ -4920,4 +4920,75 @@ public void test426633e() {
 		"Type safety: Potential heap pollution via varargs parameter p\n" + 
 		"----------\n");
 }
+// original:
+public void testBug452788a() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"interface Test<A> {\n" + 
+			"\n" + 
+			"	<B3> Test<B3> create(B3 b);\n" + 
+			"\n" + 
+			"	<B2> Test<B2> transform(Function<? extends A, Test<B2>> f);\n" + 
+			"\n" + 
+			"	default <B1> Test<B1> wrap(Function<? super A, ? extends B1> f) {\n" + 
+			"		return transform(a -> create(f.apply(a)));\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
+// variants:
+public void testBug452788b() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"interface Test<A> {\n" + 
+			"\n" + 
+			"	<B3> Test<B3> create(B3 b);\n" + 
+			"\n" + 
+			"	<B2> Test<B2> transform(Function<? extends A, Test<B2>> f);\n" + 
+			"\n" + 
+			"	default <B1> Test<B1> wrap(Function<? super A, ? extends B1> f) {\n" + 
+			"		return transform((A a) -> create(f.apply(a)));\n" + // explicitly typed lambda
+			"	}\n" +
+			"	default <B> Function<? extends A, Test<B>> test1(Function<? super A, ? extends B> f) {\n" + 
+			"		return a -> create(f.apply(a));\n" + // remove outer invocation
+			"	}\n" + 
+			"	default <B> Function<? extends A, Function<? extends A, Test<B>>> test2(Function<? super A, ? extends B> f) {\n" + 
+			"		return a1 -> a2 -> create(f.apply(a2));\n" + // outer lambda instead of outer invocation
+			"	}\n" + 
+			"}\n"
+		});
+}
+// diamond allocation instead of method (was OK before the patch).
+public void testBug452788c() {
+	runConformTest(
+		new String[] {
+			"Test2.java",
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"\n" + 
+			"public interface Test2<A> {\n" + 
+			"	<B2> Test2<B2> transform(Function<? extends A, Test2<B2>> f);\n" + 
+			"\n" + 
+			"	default <B1> Test2<B1> wrap(Function<? super A, ? extends B1> f) {\n" + 
+			"		return transform(a -> new TestImpl<>(f.apply(a)));\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class TestImpl<A> implements Test2<A> {\n" + 
+			"\n" + 
+			"	public TestImpl(A a) { }\n" + 
+			"\n" + 
+			"	@Override\n" + 
+			"	public <B2> Test2<B2> transform(Function<? extends A, Test2<B2>> f) {\n" + 
+			"		return null;\n" + 
+			"	}	\n" + 
+			"}\n"
+		});
+}
 }

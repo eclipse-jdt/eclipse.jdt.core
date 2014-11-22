@@ -48,6 +48,7 @@
  *								Bug 428352 - [1.8][compiler] Resolution errors don't always surface
  *								Bug 429430 - [1.8] Lambdas and method reference infer wrong exception type with generics (RuntimeException instead of IOException)
  *								Bug 441734 - [1.8][inference] Generic method with nested parameterized type argument fails on method reference
+ *								Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -120,6 +121,7 @@ public class MessageSend extends Expression implements IPolyExpression, Invocati
 	 // hold on to this context from invocation applicability inference until invocation type inference (per method candidate):
 	private SimpleLookupTable/*<PGMB,InferenceContext18>*/ inferenceContexts;
 	private HashMap<TypeBinding, MethodBinding> solutionsPerTargetType;
+	private InferenceContext18 outerInferenceContext; // resolving within the context of an outer (lambda) inference?
 	
 	private boolean receiverIsType;
 	protected boolean argsContainCast;
@@ -869,6 +871,10 @@ public TypeBinding resolveType(BlockScope scope) {
 }
 
 protected TypeBinding findMethodBinding(BlockScope scope) {
+	ReferenceContext referenceContext = scope.methodScope().referenceContext;
+	if (referenceContext instanceof LambdaExpression) {
+		this.outerInferenceContext = ((LambdaExpression) referenceContext).inferenceContext;
+	}
 	
 	if (this.expectedType != null && this.binding instanceof PolyParameterizedGenericMethodBinding) {
 		this.binding = this.solutionsPerTargetType.get(this.expectedType);
@@ -1059,7 +1065,7 @@ public ExpressionContext getExpressionContext() {
 }
 // -- Interface InvocationSite: --
 public InferenceContext18 freshInferenceContext(Scope scope) {
-	return new InferenceContext18(scope, this.arguments, this);
+	return new InferenceContext18(scope, this.arguments, this, this.outerInferenceContext);
 }
 @Override
 public boolean isQualifiedSuper() {

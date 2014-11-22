@@ -37,6 +37,7 @@
  *							Bug 429203 - [1.8][compiler] NPE in AllocationExpression.binding
  *							Bug 429430 - [1.8] Lambdas and method reference infer wrong exception type with generics (RuntimeException instead of IOException)
  *							Bug 434297 - [1.8] NPE in LamdaExpression.analyseCode with lamda expression nested in a conditional expression
+ *							Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *							bug 378674 - "The method can be declared as static" is wrong
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -80,6 +81,7 @@ public class AllocationExpression extends Expression implements IPolyExpression,
 	 // hold on to this context from invocation applicability inference until invocation type inference (per method candidate):
 	private SimpleLookupTable/*<PMB,IC18>*/ inferenceContexts;
 	public HashMap<TypeBinding, MethodBinding> solutionsPerTargetType;
+	private InferenceContext18 outerInferenceContext; // resolving within the context of an outer (lambda) inference?
 	public boolean argsContainCast;
 	public TypeBinding[] argumentTypes = Binding.NO_PARAMETERS;
 	public boolean argumentsHaveErrors = false;
@@ -723,6 +725,6 @@ public ExpressionContext getExpressionContext() {
 	return this.expressionContext;
 }
 public InferenceContext18 freshInferenceContext(Scope scope) {
-	return new InferenceContext18(scope, this.arguments, this);
+	return new InferenceContext18(scope, this.arguments, this, this.outerInferenceContext);
 }
 }
