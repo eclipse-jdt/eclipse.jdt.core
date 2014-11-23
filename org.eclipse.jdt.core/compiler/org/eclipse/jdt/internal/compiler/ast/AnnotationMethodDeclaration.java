@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -138,7 +138,8 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 			if (this.defaultValue != null) {
 				MemberValuePair pair = new MemberValuePair(this.selector, this.sourceStart, this.sourceEnd, this.defaultValue);
 				pair.binding = this.binding;
-				pair.resolveTypeExpecting(this.scope, returnTypeBinding);
+				if (pair.value.resolvedType == null)
+					pair.resolveTypeExpecting(this.scope, returnTypeBinding);
 				this.binding.setDefaultValue(org.eclipse.jdt.internal.compiler.lookup.ElementValuePair.getValue(this.defaultValue));
 			} else { // let it know it does not have a default value so it won't try to find it
 				this.binding.setDefaultValue(null);
