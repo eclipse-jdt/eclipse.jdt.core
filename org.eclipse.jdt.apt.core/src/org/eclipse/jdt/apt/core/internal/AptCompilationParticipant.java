@@ -54,7 +54,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 	private Set<AnnotationProcessorFactory> _previousRoundsBatchFactories = new LinkedHashSet<AnnotationProcessorFactory>();
 	private int _buildRound = 0;
 	private boolean _isBatch = false; 
-	private static AptCompilationParticipant INSTANCE;
+	private static final AptCompilationParticipant INSTANCE = new AptCompilationParticipant();
 	/** 
 	 * Files that has been processed by apt during the current build.
 	 * Files that has been compiled may need re-compilation (from jdt's perspective) 
@@ -85,10 +85,8 @@ public class AptCompilationParticipant extends CompilationParticipant
 	 * org.eclipse.jdt.core.compilationParticipants extension point.  Other
 	 * clients should NOT construct this object.
 	 */
-	public AptCompilationParticipant()
+	private AptCompilationParticipant()
 	{
-		INSTANCE = this;
-
 		// Bug 180107: there is no CompilationParticipant.buildComplete() method,
 		// so we have to use a resource change listener instead.
 		IResourceChangeListener listener = new IResourceChangeListener() {
