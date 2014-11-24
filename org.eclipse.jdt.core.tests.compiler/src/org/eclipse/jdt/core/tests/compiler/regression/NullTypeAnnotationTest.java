@@ -5947,7 +5947,12 @@ public void test446715() {
 			"}\n"
 		},
 		options,
-		"");
+		"----------\n" + 
+		"1. WARNING in Y.java (at line 3)\n" + 
+		"	public Z.ZI @NonNull [] zz = new Z.ZI[0];\n" + 
+		"	                             ^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'Z.ZI[]\' needs unchecked conversion to conform to \'Z.ZI @NonNull[]\'\n" + 
+		"----------\n");
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
