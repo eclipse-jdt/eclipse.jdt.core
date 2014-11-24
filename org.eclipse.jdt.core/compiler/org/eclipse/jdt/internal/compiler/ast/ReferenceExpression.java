@@ -484,17 +484,10 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         											       scope.getConstructor((ReferenceBinding) this.receiverType, descriptorParameters, this);
         int someMethodDepth = this.depth, anotherMethodDepth = 0;
     	if (someMethod != null && someMethod.isValidBinding()) {
-        	final boolean isStatic = someMethod.isStatic();
-        	if (isStatic && (this.haveReceiver || this.receiverType.isParameterizedTypeWithActualArguments())) {
+    		if (someMethod.isStatic() && (this.haveReceiver || this.receiverType.isParameterizedTypeWithActualArguments())) {
     			scope.problemReporter().methodMustBeAccessedStatically(this, someMethod);
     			return this.resolvedType = null;
     		}
-        	if (!this.haveReceiver) {
-        		if (!isStatic && !someMethod.isConstructor()) {
-        			scope.problemReporter().methodMustBeAccessedWithInstance(this, someMethod);
-        			return this.resolvedType = null;
-        		}
-        	} 
         }
     	
     	if (this.lhs.isSuper() && this.lhs.resolvedType.isInterface()) {
@@ -523,29 +516,35 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
         		anotherMethodDepth = this.depth;
         		this.depth = 0;
         	}
-        	if (anotherMethod != null && anotherMethod.isValidBinding() && anotherMethod.isStatic()) {
-        		scope.problemReporter().methodMustBeAccessedStatically(this, anotherMethod);
-        		return this.resolvedType = null;
-        	}
         }
         
-        if (someMethod != null && someMethod.isValidBinding() && anotherMethod != null && anotherMethod.isValidBinding()) {
+        if (someMethod != null && someMethod.isValidBinding() && someMethod.isStatic() && anotherMethod != null && anotherMethod.isValidBinding() && !anotherMethod.isStatic()) {
         	scope.problemReporter().methodReferenceSwingsBothWays(this, anotherMethod, someMethod);
         	return this.resolvedType = null;
         }
         
-        if (someMethod != null && someMethod.isValidBinding()) {
+        if (someMethod != null && someMethod.isValidBinding() && (anotherMethod == null || !anotherMethod.isValidBinding() || anotherMethod.isStatic())) {
         	this.binding = someMethod;
         	this.bits &= ~ASTNode.DepthMASK;
         	if (someMethodDepth > 0) {
         		this.bits |= (someMethodDepth & 0xFF) << ASTNode.DepthSHIFT;
         	}
-        } else if (anotherMethod != null && anotherMethod.isValidBinding()) {
+        	if (!this.haveReceiver) {
+        		if (!someMethod.isStatic() && !someMethod.isConstructor()) {
+        			scope.problemReporter().methodMustBeAccessedWithInstance(this, someMethod);
+        			return this.resolvedType = null;
+        		}
+        	} 
+        } else if (anotherMethod != null && anotherMethod.isValidBinding() && (someMethod == null || !someMethod.isValidBinding() || !someMethod.isStatic())) {
         	this.binding = anotherMethod;
         	this.receiverPrecedesParameters = true; // 0 is receiver, real parameters start at 1
         	this.bits &= ~ASTNode.DepthMASK;
         	if (anotherMethodDepth > 0) {
         		this.bits |= (anotherMethodDepth & 0xFF) << ASTNode.DepthSHIFT;
+        	}
+        	if (anotherMethod.isStatic()) {
+        		scope.problemReporter().methodMustBeAccessedStatically(this, anotherMethod);
+        		return this.resolvedType = null;
         	}
         } else {
         	this.binding = null;
