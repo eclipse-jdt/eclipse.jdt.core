@@ -7583,7 +7583,7 @@ public void testBug443347c() {
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=444024, Type mismatch error in annotation generics assignment which happens "sometimes"
-public void _test444024() {
+public void test444024() {
 		this.runConformTest(
 		   new String[] {
 			   "ViewpointOrganisationEntity.java",

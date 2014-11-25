@@ -317,13 +317,8 @@ public char[] computeConstantPoolName(LocalTypeBinding localType) {
 }
 
 void connectTypeHierarchy() {
-	this.connectingHierarchy = true;
-	try {
-		for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
-			this.topLevelTypes[i].scope.connectTypeHierarchy();
-	} finally {
-		this.connectingHierarchy = false;
-	}
+	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
+		this.topLevelTypes[i].scope.connectTypeHierarchy();
 }
 void faultInImports() {
 	boolean unresolvedFound = false;
