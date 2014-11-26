@@ -7436,4 +7436,36 @@ public void testBug434374c() {
 		getCompilerOptions(),
 		"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=452780 - Internal compiler error: arrayIndexOutOfBounds
+public void testBug452780() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return;
+	runConformTestWithLibs(
+		new String[] {
+			"Tools2.java",
+			"import java.util.Arrays;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Set;\n" + 
+			"import java.util.stream.Collector;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"public class Tools2 {\n" + 
+			"	@SafeVarargs\n" + 
+			"	public static <T> List<@NonNull T> asList(T... ts) {\n" + 
+			"		@SuppressWarnings(\"null\")\n" + 
+			"		@NonNull\n" + 
+			"		List<@NonNull T> res = Arrays.asList(ts);\n" + 
+			"		return res;\n" + 
+			"	}\n" + 
+			"	@SuppressWarnings(\"null\")\n" + 
+			"	public static <T> Collector<@NonNull T, @NonNull ?, @NonNull Set<@NonNull T>> toSet() {\n" + 
+			"		@NonNull\n" + 
+			"		Collector<@NonNull T, ?, @NonNull Set<@NonNull T>> res = Collectors\n" + 
+			"				.toSet();\n" + 
+			"		return res;\n" + 
+			"	}\n" + 
+			"}"
+		},
+		getCompilerOptions(),
+		"");
+}
 }
