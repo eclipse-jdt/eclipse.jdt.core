@@ -35,6 +35,7 @@
  *							bug 384380 - False positive on a "Potential null pointer access" after a continue
  *							bug 406384 - Internal error with I20130413
  *							Bug 364326 - [compiler][null] NullPointerException is not found by compiler. FindBugs finds that one
+ *							Bug 453483 - [compiler][null][loop] Improve null analysis for loops
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -63,9 +64,11 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "test0037_autounboxing_3" };
-//		TESTS_NAMES = new String[] { "testBug401088" };
-//		TESTS_NAMES = new String[] { "testBug402993" };
+//		TESTS_NAMES = new String[] { "testBug441737" };
+//		TESTS_NAMES = new String[] { "testBug453305" };
+//		TESTS_NAMES = new String[] { "testBug431016" };
+//		TESTS_NAMES = new String[] { "testBug432109" };
+//		TESTS_NAMES = new String[] { "testBug418500" }; 
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }
@@ -17010,5 +17013,216 @@ public void testBug402993a() {
 		"	    ^^^\n" + 
 		"Redundant null check: The variable exc can only be null at this location\n" + 
 		"----------\n");
+}
+public void testBug453305() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses foreach loop
+	runNegativeTest(
+		new String[] {
+			"NullTest.java",
+			"import java.util.*;\n" + 
+			"public class NullTest {\n" + 
+			"    class SomeOtherClass {\n" + 
+			"\n" + 
+			"        public SomeOtherClass m() {\n" + 
+			"            return new SomeOtherClass();\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        public void doSomething() {\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public Object m1() {\n" + 
+			"        SomeOtherClass result = null;\n" + 
+			"        List<Object> list = new ArrayList<Object>();\n" + 
+			"        for (Object next : list) {\n" + 
+			"            System.out.println(next);\n" + 
+			"            boolean bool = false;\n" + 
+			"            if (bool) {\n" + 
+			"                SomeOtherClass something = new SomeOtherClass();\n" + 
+			"                result = something.m();\n" + 
+			"            } else {\n" + 
+			"                result = new SomeOtherClass();\n" + 
+			"            }\n" + 
+			"            result.doSomething(); // warning is here\n" + 
+			"            break;\n" + 
+			"        }\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in NullTest.java (at line 25)\n" + 
+		"	result.doSomething(); // warning is here\n" + 
+		"	^^^^^^\n" + 
+		"Potential null pointer access: The variable result may be null at this location\n" + 
+		"----------\n");
+}
+// loop-limitation:
+public void _testBug431016() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses foreach loop
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" + 
+			"  void test(Object[] values) {\n" + 
+			"    Object first = null;\n" + 
+			"    for (Object current : values) {\n" + 
+			"        if (first == null) {\n" + 
+			"            first = current;\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        if (current.hashCode() > 0) {\n" + 
+			"            System.out.println(first.hashCode());\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        System.out.println(first.hashCode());\n" + 
+			"      }\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
+public void _testBug432109() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses generics & foreach loop
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.Collection;\n" +
+			"public class Test {\n" +
+			"  public void test(Collection <Object> values)\n" + 
+			"  {\n" + 
+			"      boolean condition = false;\n" + 
+			"      \n" + 
+			"      for(Object value : values)\n" + 
+			"      {\n" + 
+			"                  \n" + 
+			"          if(value == null)\n" + 
+			"          {\n" + 
+			"              if( condition )\n" + 
+			"              {\n" + 
+			"                  // without this continue statement, \n" + 
+			"                  // there is no warning below\n" + 
+			"                  continue; \n" + 
+			"              }\n" + 
+			"              \n" + 
+			"              value = getDefaultValue();\n" + 
+			"          }\n" + 
+			"          \n" + 
+			"          // IDE complains here about potential null pointer access\n" + 
+			"          value.toString();\n" + 
+			"      }\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public String getDefaultValue() { return \"<empty>\"; }\n" +
+			"}\n"
+		});
+}
+public void testBug435528() {
+	runNegativeTest(
+		new String[] {
+			"Test.java",
+			"public class Test\n" + 
+			"{\n" + 
+			"   static final String a = \"A\";\n" + 
+			"\n" + 
+			"   static void main(String args[])\n" + 
+			"   {\n" + 
+			"      String x = null;\n" + 
+			"      while (true) {\n" + 
+			"         x = Math.random() < 0.5 ? a : \"BB\";\n" + 
+			"         if (a != null) {\n" + 
+			"            System.out.println(\"s2 value: \" + x);\n" + 
+			"         }\n" + 
+			"         if (x.equals(\"A\")) {\n" + 
+			"            break;\n" + 
+			"         } else {\n" + 
+			"            x = null;\n" + 
+			"         }\n" + 
+			"      }\n" + 
+			"   }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 13)\n" + 
+		"	if (x.equals(\"A\")) {\n" + 
+		"	    ^\n" + 
+		"Potential null pointer access: The variable x may be null at this location\n" +   // FIXME: fully avoid warning?
+		"----------\n" + 
+		"2. WARNING in Test.java (at line 15)\n" + 
+		"	} else {\n" + 
+		"            x = null;\n" + 
+		"         }\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Statement unnecessarily nested within else clause. The corresponding then clause does not complete normally\n" + 
+		"----------\n");
+}
+public void testBug418500() {
+	runNegativeTest(
+		new String[] {
+			"Test.java",
+			"import java.util.*;\n" +
+			"public class Test {\n" +
+			(this.complianceLevel < ClassFileConstants.JDK1_5 ? "\n" : "  @SuppressWarnings(\"unchecked\")\n" ) +
+			"  void method() {\n" + 
+			"    Map topMap = new HashMap();\n" + 
+			"    List targets = null;\n" + 
+			"    \n" + 
+			"    for (int idx = 1; idx < 100; idx++) {\n" + 
+			"      String[] targetArray = (String[]) topMap.get(\"a\");\n" + 
+			"      if (targetArray != null) {\n" + 
+			"        targets = Arrays.asList(targetArray);\n" + 
+			"      } else {\n" + 
+			"        targets = new ArrayList(64);\n" + 
+			"      }\n" + 
+			"      if (targets.size() > 0) {\n" + 
+			"        topMap.put(\"b\", targets.toArray(new String[1]));\n" + 
+			"      } else {\n" + 
+			"        topMap.remove(\"b\");\n" + 
+			"      }\n" + 
+			"\n" + 
+			"      // BUG - this statement causes null analysis to\n" + 
+			"      // report that at the targets.size() statement above\n" + 
+			"      // targets must be null. Commenting this line eliminates the error.\n" + 
+			"      targets = null;\n" + 
+			"    }\n" + 
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 15)\n" + 
+		"	if (targets.size() > 0) {\n" + 
+		"	    ^^^^^^^\n" + 
+		"Potential null pointer access: The variable targets may be null at this location\n" +  // FIXME: fully avoid warning?
+		"----------\n");
+}
+public void _testBug441737() {
+	runConformTest(
+		new String[] {
+			"Bogus.java",
+			"public class Bogus {\n" + 
+			"    static boolean ok = true;\n" + 
+			"    static int count = 0;\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        Thing x = new Thing();\n" + 
+			"        // if y is left uninitialized here, the warning below disappears\n" + 
+			"        Thing y = null;\n" + 
+			"        do {\n" + 
+			"            y = x;\n" + 
+			"            if (ok) {\n" + 
+			"                // if this assignment is moved out of the if statement\n" + 
+			"                // or commented out, the warning below disappears\n" + 
+			"                x = y.resolve();\n" + 
+			"            }\n" + 
+			"            // a warning about y being potentially null occurs here:\n" + 
+			"            x = y.resolve();\n" + 
+			"        } while (x != y);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static class Thing {\n" + 
+			"        public Thing resolve() {\n" + 
+			"            return count++ > 2 ? this : new Thing();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		});
 }
 }

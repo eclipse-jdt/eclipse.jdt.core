@@ -30,6 +30,7 @@
  *								Bug 428352 - [1.8][compiler] Resolution errors don't always surface
  *								Bug 429430 - [1.8] Lambdas and method reference infer wrong exception type with generics (RuntimeException instead of IOException)
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
+ *								Bug 453483 - [compiler][null][loop] Improve null analysis for loops
  *        Andy Clement - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
@@ -156,7 +157,7 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 					Expression argument = arguments[i];
 					int nullStatus = argument.nullStatus(flowInfo, flowContext); // slight loss of precision: should also use the null info from the receiver.
 					if (nullStatus != FlowInfo.NON_NULL) // if required non-null is not provided
-						flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, nullStatus);
+						flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, flowInfo, nullStatus);
 				}
 			}
 		} 
@@ -167,16 +168,16 @@ void analyseOneArgument18(BlockScope currentScope, FlowContext flowContext, Flow
 	if (argument instanceof ConditionalExpression && argument.isPolyExpression()) {
 		// drill into both branches using existing nullStatus per branch:
 		ConditionalExpression ce = (ConditionalExpression) argument;
-		ce.internalAnalyseOneArgument18(currentScope, flowContext, expectedType, ce.valueIfTrue, ce.ifTrueNullStatus, expectedNonNullness, originalExpected);
-		ce.internalAnalyseOneArgument18(currentScope, flowContext, expectedType, ce.valueIfFalse, ce.ifFalseNullStatus, expectedNonNullness, originalExpected);
+		ce.internalAnalyseOneArgument18(currentScope, flowContext, expectedType, ce.valueIfTrue, flowInfo, ce.ifTrueNullStatus, expectedNonNullness, originalExpected);
+		ce.internalAnalyseOneArgument18(currentScope, flowContext, expectedType, ce.valueIfFalse, flowInfo, ce.ifFalseNullStatus, expectedNonNullness, originalExpected);
 		return;
 	}
 	int nullStatus = argument.nullStatus(flowInfo, flowContext);
-	internalAnalyseOneArgument18(currentScope, flowContext, expectedType, argument, nullStatus,
-									expectedNonNullness, originalExpected);
+	internalAnalyseOneArgument18(currentScope, flowContext, expectedType, argument, flowInfo,
+									nullStatus, expectedNonNullness, originalExpected);
 }
 void internalAnalyseOneArgument18(BlockScope currentScope, FlowContext flowContext, TypeBinding expectedType,
-		Expression argument, int nullStatus, Boolean expectedNonNullness, TypeBinding originalExpected) 
+		Expression argument, FlowInfo flowInfo, int nullStatus, Boolean expectedNonNullness, TypeBinding originalExpected) 
 {
 	// here we consume special case information generated in the ctor of ParameterizedGenericMethodBinding (see there):
 	int statusFromAnnotatedNull = expectedNonNullness == Boolean.TRUE ? nullStatus : 0;  
@@ -190,7 +191,7 @@ void internalAnalyseOneArgument18(BlockScope currentScope, FlowContext flowConte
 		// immediate reporting:
 		currentScope.problemReporter().nullityMismatchingTypeAnnotation(argument, argument.resolvedType, expectedType, annotationStatus);
 	} else if (annotationStatus.isUnchecked() || (statusFromAnnotatedNull & FlowInfo.POTENTIALLY_NULL) != 0) {
-		flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, nullStatus);
+		flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, flowInfo, nullStatus);
 	}
 }
 
@@ -198,20 +199,20 @@ protected void checkAgainstNullTypeAnnotation(BlockScope scope, TypeBinding requ
 	if (expression instanceof ConditionalExpression && expression.isPolyExpression()) {
 		// drill into both branches using existing nullStatus per branch:
 		ConditionalExpression ce = (ConditionalExpression) expression;
-		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfTrue, ce.ifTrueNullStatus, flowContext);
-		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfFalse, ce.ifFalseNullStatus, flowContext);
+		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfTrue, ce.ifTrueNullStatus, flowContext, flowInfo);
+		internalCheckAgainstNullTypeAnnotation(scope, requiredType, ce.valueIfFalse, ce.ifFalseNullStatus, flowContext, flowInfo);
 		return;
 	}
 	int nullStatus = expression.nullStatus(flowInfo, flowContext);
-	internalCheckAgainstNullTypeAnnotation(scope, requiredType, expression, nullStatus, flowContext);
+	internalCheckAgainstNullTypeAnnotation(scope, requiredType, expression, nullStatus, flowContext, flowInfo);
 }
 private void internalCheckAgainstNullTypeAnnotation(BlockScope scope, TypeBinding requiredType, Expression expression,
-		int nullStatus, FlowContext flowContext) {
+		int nullStatus, FlowContext flowContext, FlowInfo flowInfo) {
 	NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(requiredType, expression.resolvedType, nullStatus);
 	if (annotationStatus.isDefiniteMismatch()) {
 		scope.problemReporter().nullityMismatchingTypeAnnotation(expression, expression.resolvedType, requiredType, annotationStatus);
 	} else if (annotationStatus.isUnchecked()) {
-		flowContext.recordNullityMismatch(scope, expression, expression.resolvedType, requiredType, nullStatus);
+		flowContext.recordNullityMismatch(scope, expression, expression.resolvedType, requiredType, flowInfo, nullStatus);
 	}
 }
 

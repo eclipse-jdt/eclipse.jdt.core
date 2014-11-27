@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *								bug 406384 - Internal error with I20130413
  *								Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
+ *								Bug 453483 - [compiler][null][loop] Improve null analysis for loops
  *     Jesper S Moller - contributions for
  *								bug 404657 - [1.8][compiler] Analysis for effectively final variables fails to consider loops
  *******************************************************************************/
@@ -66,6 +67,7 @@ public class LoopingFlowContext extends SwitchFlowContext {
 	ASTNode[] nullReferences;	// Expressions for null checking, Statements for resource analysis
 								// cast to Expression is safe if corresponding nullCheckType != EXIT_RESOURCE
 	int[] nullCheckTypes;
+	UnconditionalFlowInfo[] nullInfos;	// detailed null info observed during the first visit of nullReferences[i], or null
 	int nullCount;
 	// see also the related field FlowContext#expectedTypes
 
@@ -160,13 +162,16 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 	}
 	this.innerFlowContextsCount = 0;
 	FlowInfo upstreamCopy = this.upstreamNullFlowInfo.copy();
-	UnconditionalFlowInfo flowInfo = this.upstreamNullFlowInfo.
+	UnconditionalFlowInfo incomingInfo = this.upstreamNullFlowInfo.
 		addPotentialNullInfoFrom(callerFlowInfo.unconditionalInitsWithoutSideEffect());
 	if ((this.tagBits & FlowContext.DEFER_NULL_DIAGNOSTIC) != 0) {
 		// check only immutable null checks on innermost looping context
 		for (int i = 0; i < this.nullCount; i++) {
 			LocalVariableBinding local = this.nullLocals[i];
 			ASTNode location = this.nullReferences[i];
+			FlowInfo flowInfo =  (this.nullInfos[i] != null)
+									? incomingInfo.copy().addNullInfoFrom(this.nullInfos[i])
+									: incomingInfo;
 			// final local variable
 			switch (this.nullCheckTypes[i] & ~HIDE_NULL_COMPARISON_WARNING_MASK) {
 				case CAN_ONLY_NON_NULL | IN_COMPARISON_NULL:
@@ -268,7 +273,7 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 				case ASSIGN_TO_NONNULL:
 					int nullStatus = flowInfo.nullStatus(local);
 					if (nullStatus != FlowInfo.NON_NULL) {
-						this.parent.recordNullityMismatch(scope, (Expression)location, this.providedExpectedTypes[i][0], this.providedExpectedTypes[i][1], nullStatus);
+						this.parent.recordNullityMismatch(scope, (Expression)location, this.providedExpectedTypes[i][0], this.providedExpectedTypes[i][1], flowInfo, nullStatus);
 					}
 					continue; // no more delegation to parent
 				case EXIT_RESOURCE:
@@ -306,6 +311,9 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 			ASTNode location = this.nullReferences[i];
 			// final local variable
 			LocalVariableBinding local = this.nullLocals[i];
+			FlowInfo flowInfo =  (this.nullInfos[i] != null)
+					? incomingInfo.copy().addNullInfoFrom(this.nullInfos[i])
+					: incomingInfo;
 			switch (this.nullCheckTypes[i] & ~HIDE_NULL_COMPARISON_WARNING_MASK) {
 				case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NULL:
 				case CAN_ONLY_NULL_NON_NULL | IN_COMPARISON_NON_NULL:
@@ -418,9 +426,9 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 		}
 	}
 	// propagate breaks
-	this.initsOnBreak.addPotentialNullInfoFrom(flowInfo);
+	this.initsOnBreak.addPotentialNullInfoFrom(incomingInfo);
 	for (int i = 0; i < this.breakTargetsCount; i++) {
-		this.breakTargetContexts[i].initsOnBreak.addPotentialNullInfoFrom(flowInfo);
+		this.breakTargetContexts[i].initsOnBreak.addPotentialNullInfoFrom(incomingInfo);
 	}
 }
 
@@ -534,11 +542,12 @@ public void recordContinueFrom(FlowContext innerFlowContext, FlowInfo flowInfo) 
 	}
 
 protected void recordNullReference(LocalVariableBinding local,
-	ASTNode expression, int checkType) {
+	ASTNode expression, int checkType, FlowInfo nullInfo) {
 	if (this.nullCount == 0) {
 		this.nullLocals = new LocalVariableBinding[5];
 		this.nullReferences = new ASTNode[5];
 		this.nullCheckTypes = new int[5];
+		this.nullInfos = new UnconditionalFlowInfo[5];
 	}
 	else if (this.nullCount == this.nullLocals.length) {
 		System.arraycopy(this.nullLocals, 0,
@@ -547,16 +556,19 @@ protected void recordNullReference(LocalVariableBinding local,
 			this.nullReferences = new ASTNode[this.nullCount * 2], 0, this.nullCount);
 		System.arraycopy(this.nullCheckTypes, 0,
 			this.nullCheckTypes = new int[this.nullCount * 2], 0, this.nullCount);
+		System.arraycopy(this.nullInfos, 0,
+			this.nullInfos = new UnconditionalFlowInfo[this.nullCount * 2], 0, this.nullCount);
 	}
 	this.nullLocals[this.nullCount] = local;
 	this.nullReferences[this.nullCount] = expression;
-	this.nullCheckTypes[this.nullCount++] = checkType;
+	this.nullCheckTypes[this.nullCount] = checkType;
+	this.nullInfos[this.nullCount++] = nullInfo.unconditionalCopy();
 }
 public void recordUnboxing(Scope scope, Expression expression, int nullStatus, FlowInfo flowInfo) {
 	if (nullStatus == FlowInfo.NULL)
 		super.recordUnboxing(scope, expression, nullStatus, flowInfo);
 	else // defer checking:
-		recordNullReference(null, expression, IN_UNBOXING);
+		recordNullReference(null, expression, IN_UNBOXING, flowInfo);
 }
 
 /** Record the fact that we see an early exit (in 'reference') while 'trackingVar' is in scope and may be unclosed. */
@@ -573,7 +585,7 @@ public boolean recordExitAgainstResource(BlockScope scope, FlowInfo flowInfo, Fa
 		scope.problemReporter().potentiallyUnclosedCloseable(trackingVar, reference);
 		return true; // handled
 	}
-	recordNullReference(trackingVar.binding, reference, EXIT_RESOURCE);
+	recordNullReference(trackingVar.binding, reference, EXIT_RESOURCE, flowInfo);
 	return true; // handled
 }
 
@@ -612,20 +624,20 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 				}
 			} else if (this.upstreamNullFlowInfo.isDefinitelyNonNull(local) && !flowInfo.isPotentiallyNull(local) && !flowInfo.isPotentiallyUnknown(local)) {
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=291418
+				recordNullReference(local, reference, checkType, flowInfo);
 				flowInfo.markAsDefinitelyNonNull(local);
-				recordNullReference(local, reference, checkType);
 			} else if (flowInfo.cannotBeDefinitelyNullOrNonNull(local)) {
 				return; // no reason to complain, since there is definitely some uncertainty making the comparison relevant.
 			} else {
 					// note: pot non-null & pot null is already captured by cannotBeDefinitelyNullOrNonNull()
 					if (flowInfo.isPotentiallyNonNull(local)) {
 						// knowing 'local' can be non-null, we're only interested in seeing whether it can *only* be non-null
-						recordNullReference(local, reference, CAN_ONLY_NON_NULL | checkType & (CONTEXT_MASK|HIDE_NULL_COMPARISON_WARNING_MASK));
+						recordNullReference(local, reference, CAN_ONLY_NON_NULL | checkType & (CONTEXT_MASK|HIDE_NULL_COMPARISON_WARNING_MASK), flowInfo);
 					} else if (flowInfo.isPotentiallyNull(local)) {
 						// knowing 'local' can be null, we're only interested in seeing whether it can *only* be null
-						recordNullReference(local, reference, CAN_ONLY_NULL | checkType & (CONTEXT_MASK|HIDE_NULL_COMPARISON_WARNING_MASK));
+						recordNullReference(local, reference, CAN_ONLY_NULL | checkType & (CONTEXT_MASK|HIDE_NULL_COMPARISON_WARNING_MASK), flowInfo);
 					} else {
-						recordNullReference(local, reference, checkType);
+						recordNullReference(local, reference, checkType, flowInfo);
 					}
 			}
 			return;
@@ -684,7 +696,7 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 						break;
 				}
 			}
-			recordNullReference(local, reference, checkType);
+			recordNullReference(local, reference, checkType, flowInfo);
 			return;
 		case MAY_NULL :
 			if (flowInfo.isDefinitelyNonNull(local)) {
@@ -698,7 +710,7 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 				scope.problemReporter().localVariablePotentialNullReference(local, location);
 				return;
 			}
-			recordNullReference(local, location, checkType);
+			recordNullReference(local, location, checkType, flowInfo);
 			return;
 		default:
 			// never happens
@@ -742,9 +754,9 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 		return this.escapingExceptionCatchSites != null;
 	}
 
-	protected boolean internalRecordNullityMismatch(Expression expression, TypeBinding providedType, int nullStatus, TypeBinding expectedType, int checkType) {
+	protected boolean internalRecordNullityMismatch(Expression expression, TypeBinding providedType, FlowInfo flowInfo, int nullStatus, TypeBinding expectedType, int checkType) {
 		recordProvidedExpectedTypes(providedType, expectedType, this.nullCount);
-		recordNullReference(expression.localVariableBinding(), expression, checkType);
+		recordNullReference(expression.localVariableBinding(), expression, checkType, flowInfo);
 		return true;
 	}
 }

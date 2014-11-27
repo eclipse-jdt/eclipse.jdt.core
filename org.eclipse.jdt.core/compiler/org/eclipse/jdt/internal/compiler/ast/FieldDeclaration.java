@@ -13,6 +13,7 @@
  *								bug 400761 - [compiler][null] null may be return as boolean without a diagnostic
  *								Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
  *								Bug 429403 - [1.8][null] null mismatch from type arguments is not reported at field initializer
+ *								Bug 453483 - [compiler][null][loop] Improve null analysis for loops
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *								Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
  *******************************************************************************/
@@ -94,7 +95,7 @@ public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowCon
 		if (options.isAnnotationBasedNullAnalysisEnabled) {
 			if (this.binding.isNonNull() || options.sourceLevel >= ClassFileConstants.JDK1_8) {
 				int nullStatus = this.initialization.nullStatus(flowInfo, flowContext);
-				NullAnnotationMatching.checkAssignment(initializationScope, flowContext, this.binding, nullStatus, this.initialization, this.initialization.resolvedType);
+				NullAnnotationMatching.checkAssignment(initializationScope, flowContext, this.binding, flowInfo, nullStatus, this.initialization, this.initialization.resolvedType);
 			}
 		}
 		this.initialization.checkNPEbyUnboxing(initializationScope, flowContext, flowInfo);

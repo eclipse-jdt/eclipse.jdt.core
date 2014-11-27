@@ -6663,7 +6663,7 @@ public void testBug415413() {
 		"1. ERROR in ClassF.java (at line 13)\n" + 
 		"	needNonNull(o);\n" + 
 		"	            ^\n" + 
-		"Null type mismatch: required \'@NonNull Object\' but the provided value is inferred as @Nullable\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
 		"----------\n");
 }
 // Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext

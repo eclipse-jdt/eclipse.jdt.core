@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@
  *								bug 385626 - @NonNull fails across loop boundaries
  *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
+ *								Bug 453483 - [compiler][null][loop] Improve null analysis for loops
  *     Jesper S Moller - Contributions for
  *								bug 404657 - [1.8][compiler] Analysis for effectively final variables fails to consider loops
  *******************************************************************************/
@@ -111,7 +112,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					int nullStatus = flowInfo.nullStatus(this.nullLocals[i]);
 					if (nullStatus != FlowInfo.NON_NULL) {
 						this.parent.recordNullityMismatch(scope, (Expression) location,
-								this.providedExpectedTypes[i][0], this.providedExpectedTypes[i][1], nullStatus);
+								this.providedExpectedTypes[i][0], this.providedExpectedTypes[i][1], flowInfo, nullStatus);
 					}
 					break;
 				case IN_UNBOXING:
@@ -423,7 +424,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 						// never happens
 				}
 			}
-			recordNullReference(local, location, checkType);
+			recordNullReference(local, location, checkType, flowInfo);
 			// prepare to re-check with try/catch flow info
 		}
 	}
@@ -439,7 +440,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 	}
 
 protected void recordNullReference(LocalVariableBinding local,
-	ASTNode expression, int checkType) {
+	ASTNode expression, int checkType, FlowInfo nullInfo) {
 	if (this.nullCount == 0) {
 		this.nullLocals = new LocalVariableBinding[5];
 		this.nullReferences = new ASTNode[5];
@@ -465,14 +466,14 @@ public void recordUnboxing(Scope scope, Expression expression, int nullStatus, F
 	if (nullStatus == FlowInfo.NULL)
 		super.recordUnboxing(scope, expression, nullStatus, flowInfo);
 	else // defer checking:
-		recordNullReference(null, expression, IN_UNBOXING);
+		recordNullReference(null, expression, IN_UNBOXING, flowInfo);
 }
-protected boolean internalRecordNullityMismatch(Expression expression, TypeBinding providedType, int nullStatus, TypeBinding expectedType, int checkType) {
+protected boolean internalRecordNullityMismatch(Expression expression, TypeBinding providedType, FlowInfo flowInfo, int nullStatus, TypeBinding expectedType, int checkType) {
 	// cf. decision structure inside FinallyFlowContext.recordUsingNullReference(..)
 	if (nullStatus == FlowInfo.UNKNOWN ||
 			((this.tagBits & FlowContext.DEFER_NULL_DIAGNOSTIC) != 0 && nullStatus != FlowInfo.NULL)) {
 		recordProvidedExpectedTypes(providedType, expectedType, this.nullCount);
-		recordNullReference(expression.localVariableBinding(), expression, checkType);
+		recordNullReference(expression.localVariableBinding(), expression, checkType, flowInfo);
 		return true;
 	}
 	return false;

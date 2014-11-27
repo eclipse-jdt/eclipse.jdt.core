@@ -77,7 +77,7 @@ public class NullAnnotationMatching {
 	
 	/** Check null-ness of 'var' against a possible null annotation */
 	public static int checkAssignment(BlockScope currentScope, FlowContext flowContext,
-									   VariableBinding var, int nullStatus, Expression expression, TypeBinding providedType)
+									   VariableBinding var, FlowInfo flowInfo, int nullStatus, Expression expression, TypeBinding providedType)
 	{
 		long lhsTagBits = 0L;
 		boolean hasReported = false;
@@ -87,8 +87,8 @@ public class NullAnnotationMatching {
 			if (expression instanceof ConditionalExpression && expression.isPolyExpression()) {
 				// drill into both branches:
 				ConditionalExpression ce = ((ConditionalExpression) expression);
-				int status1 = NullAnnotationMatching.checkAssignment(currentScope, flowContext, var, ce.ifTrueNullStatus, ce.valueIfTrue, ce.valueIfTrue.resolvedType);
-				int status2 = NullAnnotationMatching.checkAssignment(currentScope, flowContext, var, ce.ifFalseNullStatus, ce.valueIfFalse, ce.valueIfFalse.resolvedType);
+				int status1 = NullAnnotationMatching.checkAssignment(currentScope, flowContext, var, flowInfo, ce.ifTrueNullStatus, ce.valueIfTrue, ce.valueIfTrue.resolvedType);
+				int status2 = NullAnnotationMatching.checkAssignment(currentScope, flowContext, var, flowInfo, ce.ifFalseNullStatus, ce.valueIfFalse, ce.valueIfFalse.resolvedType);
 				if (status1 == status2)
 					return status1;
 				return nullStatus; // if both branches disagree use the precomputed & merged nullStatus
@@ -99,7 +99,7 @@ public class NullAnnotationMatching {
 				currentScope.problemReporter().nullityMismatchingTypeAnnotation(expression, providedType, var.type, annotationStatus);
 				hasReported = true;
 			} else if (annotationStatus.isUnchecked()) {
-				flowContext.recordNullityMismatch(currentScope, expression, providedType, var.type, nullStatus);
+				flowContext.recordNullityMismatch(currentScope, expression, providedType, var.type, flowInfo, nullStatus);
 				hasReported = true;
 			} else if (annotationStatus.nullStatus != FlowInfo.UNKNOWN) {
 				return annotationStatus.nullStatus;
@@ -107,7 +107,7 @@ public class NullAnnotationMatching {
 		}
 		if (lhsTagBits == TagBits.AnnotationNonNull && nullStatus != FlowInfo.NON_NULL) {
 			if (!hasReported)
-				flowContext.recordNullityMismatch(currentScope, expression, providedType, var.type, nullStatus);
+				flowContext.recordNullityMismatch(currentScope, expression, providedType, var.type, flowInfo, nullStatus);
 			return FlowInfo.NON_NULL;
 		} else if (lhsTagBits == TagBits.AnnotationNullable && nullStatus == FlowInfo.UNKNOWN) {	// provided a legacy type?
 			return FlowInfo.POTENTIALLY_NULL;			// -> use more specific info from the annotation

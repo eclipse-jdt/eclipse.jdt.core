@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@
  *								bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *								bug 403086 - [compiler][null] include the effect of 'assert' in syntactic null analysis for fields
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
+ *								Bug 453483 - [compiler][null][loop] Improve null analysis for loops
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -773,9 +774,10 @@ protected boolean recordFinalAssignment(VariableBinding variable, Reference fina
  *      {@link #IN_COMPARISON_NON_NULL}, {@link #IN_ASSIGNMENT} or {@link #IN_INSTANCEOF}).
  *      <br>
  *      Alternatively, a {@link #IN_UNBOXING} check can e requested.
+ * @param nullInfo the null flow info observed at this first visit of location.
  */
 protected void recordNullReference(LocalVariableBinding local,
-	ASTNode location, int checkType) {
+	ASTNode location, int checkType, FlowInfo nullInfo) {
 	// default implementation: do nothing
 }
 
@@ -986,9 +988,10 @@ public String toString() {
  * @param expression the expression violating the specification
  * @param providedType the type of the provided value, i.e., either expression or an element thereof (in ForeachStatements)
  * @param expectedType the declared type of the spec'ed variable, for error reporting.
+ * @param flowInfo the flowInfo observed when visiting expression
  * @param nullStatus the null status of expression at the current location
  */
-public void recordNullityMismatch(BlockScope currentScope, Expression expression, TypeBinding providedType, TypeBinding expectedType, int nullStatus) {
+public void recordNullityMismatch(BlockScope currentScope, Expression expression, TypeBinding providedType, TypeBinding expectedType, FlowInfo flowInfo, int nullStatus) {
 	if (providedType == null) {
 		return; // assume type error was already reported
 	}
@@ -1001,7 +1004,7 @@ public void recordNullityMismatch(BlockScope currentScope, Expression expression
 			if ((this.tagBits & FlowContext.HIDE_NULL_COMPARISON_WARNING) != 0) {
 				isInsideAssert = FlowContext.HIDE_NULL_COMPARISON_WARNING;
 			}
-			if (currentContext.internalRecordNullityMismatch(expression, providedType, nullStatus, expectedType, ASSIGN_TO_NONNULL | isInsideAssert))
+			if (currentContext.internalRecordNullityMismatch(expression, providedType, flowInfo, nullStatus, expectedType, ASSIGN_TO_NONNULL | isInsideAssert))
 				return;
 			currentContext = currentContext.parent;
 		}
@@ -1010,7 +1013,7 @@ public void recordNullityMismatch(BlockScope currentScope, Expression expression
 	char[][] annotationName = currentScope.environment().getNonNullAnnotationName();
 	currentScope.problemReporter().nullityMismatch(expression, providedType, expectedType, nullStatus, annotationName);
 }
-protected boolean internalRecordNullityMismatch(Expression expression, TypeBinding providedType, int nullStatus, TypeBinding expectedType, int checkType) {
+protected boolean internalRecordNullityMismatch(Expression expression, TypeBinding providedType, FlowInfo flowInfo, int nullStatus, TypeBinding expectedType, int checkType) {
 	// nop, to be overridden in subclasses
 	return false; // not recorded
 }
