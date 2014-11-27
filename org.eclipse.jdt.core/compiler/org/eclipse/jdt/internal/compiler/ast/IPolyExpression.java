@@ -19,7 +19,6 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /**
  	Contract to be implemented by all poly expressions and potential poly expressions for uniform integration into overload resolution and type inference.
@@ -46,7 +45,6 @@ public interface IPolyExpression {
 	public boolean sIsMoreSpecific(TypeBinding s, TypeBinding t, Scope skope);	
 	
 	// Pertinence checks.
-	public boolean isPertinentToApplicability(TypeVariableBinding typeVariable, MethodBinding method);
 	public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method);
 
 	// Polyness checks

@@ -107,22 +107,19 @@ public abstract class FunctionalExpression extends Expression {
 		return true;
 	}
 	
-	public boolean isPertinentToApplicability(TypeVariableBinding typeVariable, MethodBinding method) {
-		if (method != null) { // when called from type inference
-			if (typeVariable.declaringElement == method)
-				return false;
-			if (method.isConstructor() && typeVariable.declaringElement == method.declaringClass)
-				return false;
-		} else { // for internal calls
-			if (typeVariable.declaringElement instanceof MethodBinding)
-				return false;
-		}
-		return true;
-	}
-	
 	public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
-		if (targetType instanceof TypeVariableBinding)
-			return isPertinentToApplicability((TypeVariableBinding) targetType, method);
+		if (targetType instanceof TypeVariableBinding) {
+			TypeVariableBinding typeVariable = (TypeVariableBinding) targetType;
+			if (method != null) { // when called from type inference
+				if (typeVariable.declaringElement == method)
+					return false;
+				if (method.isConstructor() && typeVariable.declaringElement == method.declaringClass)
+					return false;
+			} else { // for internal calls
+				if (typeVariable.declaringElement instanceof MethodBinding)
+					return false;
+			}
+		}
 		return true;
 	}
 

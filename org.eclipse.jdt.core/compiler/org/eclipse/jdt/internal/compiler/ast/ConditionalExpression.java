@@ -728,12 +728,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		System.arraycopy(falsePolys, 0, allPolys, truePolys.length, falsePolys.length);
 		return allPolys;
 	}
-	
-	public boolean isPertinentToApplicability(TypeVariableBinding typeVariable, MethodBinding method) {
-		return this.valueIfTrue.isPertinentToApplicability(typeVariable, method) 
-				&& this.valueIfFalse.isPertinentToApplicability(typeVariable, method);
-	}
-	
+
 	public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
 		return this.valueIfTrue.isPertinentToApplicability(targetType, method) 
 				&& this.valueIfFalse.isPertinentToApplicability(targetType, method);

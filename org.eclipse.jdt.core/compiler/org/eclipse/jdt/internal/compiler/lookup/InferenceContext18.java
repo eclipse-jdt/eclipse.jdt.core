@@ -241,11 +241,9 @@ public class InferenceContext18 {
 			TypeBinding thetaF = substitute(parameters[i]);
 			if (this.invocationArguments[i].isPertinentToApplicability(parameters[i], method)) {
 				this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT);
-			} else {
-				if (!(parameters[i] instanceof TypeVariableBinding) || this.invocationArguments[i].isPertinentToApplicability(((TypeVariableBinding)parameters[i]), method))
-					this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.POTENTIALLY_COMPATIBLE);
-				// else we know it is potentially compatible, no need to assert.
-			}
+			} else if (!isTypeVariableOfCandidate(parameters[i], method)) {
+				this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.POTENTIALLY_COMPATIBLE);
+			} // else we know it is potentially compatible, no need to assert.
 		}
 		if (checkVararg && varArgsType instanceof ArrayBinding) {
 			varArgsType = ((ArrayBinding)varArgsType).elementsType();
@@ -253,11 +251,9 @@ public class InferenceContext18 {
 			for (int i = len; i < this.invocationArguments.length; i++) {
 				if (this.invocationArguments[i].isPertinentToApplicability(varArgsType, method)) {
 					this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT);
-				} else {
-					if (!(varArgsType instanceof TypeVariableBinding) || this.invocationArguments[i].isPertinentToApplicability(((TypeVariableBinding)varArgsType), method))
-						this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.POTENTIALLY_COMPATIBLE);
-					// else we know it is potentially compatible, no need to assert.
-				}
+				} else if (!isTypeVariableOfCandidate(varArgsType, method)) {
+					this.initialConstraints[numConstraints++] = new ConstraintExpressionFormula(this.invocationArguments[i], thetaF, ReductionResult.POTENTIALLY_COMPATIBLE);
+				} // else we know it is potentially compatible, no need to assert.
 			}
 		}
 		if (numConstraints == 0)
@@ -268,6 +264,18 @@ public class InferenceContext18 {
 			final int length = this.initialConstraints.length;
 			System.arraycopy(this.initialConstraints, 0, this.finalConstraints = new ConstraintExpressionFormula[length], 0, length);
 		}
+	}
+
+	private boolean isTypeVariableOfCandidate(TypeBinding type, MethodBinding candidate) {
+		// cf. FunctionalExpression.isPertinentToApplicability()
+		if (type instanceof TypeVariableBinding) {
+			Binding declaringElement = ((TypeVariableBinding) type).declaringElement;
+			if (declaringElement == candidate)
+				return true;
+			if (candidate.isConstructor() && declaringElement == candidate.declaringClass)
+				return true;
+		}
+		return false;
 	}
 
 	private InferenceVariable[] addInitialTypeVariableSubstitutions(TypeBinding[] typeVariables) {

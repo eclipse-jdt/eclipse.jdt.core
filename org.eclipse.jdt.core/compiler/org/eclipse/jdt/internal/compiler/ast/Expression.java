@@ -959,10 +959,6 @@ public Constant optimizedBooleanConstant() {
 	return this.constant;
 }
 
-public boolean isPertinentToApplicability(TypeVariableBinding typeVariable, MethodBinding method) {
-	return true;
-}
-
 public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
 	return true;
 }
