@@ -509,11 +509,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public boolean isPertinentToApplicability(Expression expression, MethodBinding method) {
 		return expression.isPertinentToApplicability(this, method);
 	}
-	
-	public boolean isPertinentToApplicability(TypeBinding argument, MethodBinding method) {
-		return argument != null && argument.isPertinentToApplicability(this, method);
-	}
-	
+
 	public boolean isProperType(boolean admitCapture18) {
 		// handle recursive calls:
 		if (this.inRecursiveFunction) // be optimistic, since this node is not an inference variable
