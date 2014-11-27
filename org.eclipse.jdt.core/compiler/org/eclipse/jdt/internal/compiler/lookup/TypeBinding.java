@@ -37,7 +37,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -1677,9 +1676,5 @@ public void exitRecursiveFunction() {
 
 public boolean isFunctionalType() {
 	return false;
-}
-
-public boolean isPertinentToApplicability(Expression expression, MethodBinding method) {
-	return true;
 }
 }
