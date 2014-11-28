@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -90,10 +90,12 @@ public class Argument extends LocalDeclaration {
 		Binding existingVariable = scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			final boolean localExists = existingVariable instanceof LocalVariableBinding;
-			if (localExists && (this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope()) {
-				scope.problemReporter().lambdaRedeclaresArgument(this);
-			} else if (localExists && this.hiddenVariableDepth == 0) {
-				scope.problemReporter().redefineArgument(this);
+			if (localExists && this.hiddenVariableDepth == 0) {
+				if ((this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope()) {
+					scope.problemReporter().lambdaRedeclaresArgument(this);
+				} else {
+					scope.problemReporter().redefineArgument(this);
+				}
 			} else {
 				boolean isSpecialArgument = false;
 				if (existingVariable instanceof FieldBinding) {

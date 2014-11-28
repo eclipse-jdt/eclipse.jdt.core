@@ -5496,6 +5496,91 @@ public void test449063f() {
 			"",
 			customOptions);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=445949, Lambda parameter not shadowing in nested scope producing non-existent compilation error
+public void test445949() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.function.Consumer;\n" +
+			"public class X {\n" +
+			"	void methodInFirstLevel(int y) {\n" +
+			"		class Second {\n" +
+			"			int t = y;\n" +
+			"			Consumer<Integer> myConsumer1 = (z) -> {\n" +
+			"				System.out.println(\"z = \" + z);\n" +
+			"				System.out.println(\"y = \" + y);\n" +
+			"				System.out.println(\"t = \" + t);\n" +
+			"			};\n" +
+			"			Consumer<Integer> myConsumer2 = (y) -> {\n" +
+			"				System.out.println(\"y = \" + y);\n" +
+			"				System.out.println(\"t = \" + t);\n" +
+			"			};\n" +
+			"			void foo( int y) {\n" +
+			"				System.out.println(\"y = \" + y);\n" +
+			"			}\n" +
+			"			class Third {\n" +
+			"				Consumer<Integer> myConsumer3 = (y) -> {\n" +
+			"					System.out.println(\"y = \" + y);\n" +
+			"				};\n" +
+			"			}\n" +
+			"			void bar(int y) {\n" +
+			"				new Third().myConsumer3.accept(y);\n" +
+			"			}\n" +
+			" 		}\n" +
+			"		new Second().myConsumer1.accept(10);\n" +
+			"		new Second().myConsumer2.accept(20);\n" +
+			"		new Second().foo(30);\n" +
+			"		new Second().bar(40);\n" +
+			"		\n" +
+			"	}\n" +
+			"	void foo() {\n" +
+			"  		Consumer<Integer> myConsumer2 = (y) -> {\n" +
+			"		class Inner {\n" +
+			"	  	Consumer<Integer> myConsumer4 = (y) -> { \n" +
+			"		class InnerMost {\n" +
+			"		Consumer<Integer> myConsumer3 = (y /*error without fix*/) -> {};\n" +
+			"		}\n" +
+			"	  	};\n" +
+			"		}\n" +
+			"		new Inner().myConsumer4.accept(10);\n" +
+			"	};\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X().methodInFirstLevel(5);\n" +
+			"		new X().foo();\n" +
+			"	}\n" +
+			"}\n"
+	},
+	"z = 10\ny = 5\nt = 5\ny = 20\nt = 5\ny = 30\ny = 40");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=445949, Lambda parameter not shadowing in nested scope producing non-existent compilation error
+public void test445949a() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.function.Consumer;\n" +
+			"class X {\n" +
+			"	void foo(int y) {\n" +
+			"		Consumer<Integer> c1 = (y)-> {};\n" +
+			"	}\n" +
+			"	void foo2() {\n" +
+			"		int y;\n" +
+			"		Consumer<Integer> c1 = (y)-> {};\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" +
+		"	Consumer<Integer> c1 = (y)-> {};\n" +
+		"	                        ^\n" +
+		"Lambda expression's parameter y cannot redeclare another local variable defined in an enclosing scope. \n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	Consumer<Integer> c1 = (y)-> {};\n" +
+		"	                        ^\n" +
+		"Lambda expression's parameter y cannot redeclare another local variable defined in an enclosing scope. \n" +
+		"----------\n");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
