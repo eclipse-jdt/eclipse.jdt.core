@@ -183,9 +183,9 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 	
 	public void optionsChanged(DebugOptions options) {
 		DEBUG = options.getBooleanOption(APT_DEBUG_OPTION, false);
-		DEBUG_GFM = options.getBooleanOption(APT_DEBUG_GFM_OPTION, false);
-		DEBUG_GFM_MAPS = options.getBooleanOption(APT_DEBUG_GFM_MAPS_OPTION, false);
-		DEBUG_COMPILATION_ENV = options.getBooleanOption(APT_COMPILATION_ENV_OPTION, false);
+		DEBUG_GFM = DEBUG && options.getBooleanOption(APT_DEBUG_GFM_OPTION, false);
+		DEBUG_GFM_MAPS = DEBUG && options.getBooleanOption(APT_DEBUG_GFM_MAPS_OPTION, false);
+		DEBUG_COMPILATION_ENV = DEBUG && options.getBooleanOption(APT_COMPILATION_ENV_OPTION, false);
 	}
 	
 	public static void trace(final String msg){
