@@ -1274,9 +1274,9 @@ static void copy(UnconditionalFlowInfo source, UnconditionalFlowInfo target) {
 		target.nullBit2 = source.nullBit2;
 		target.nullBit3 = source.nullBit3;
 		target.nullBit4 = source.nullBit4;
-//		target.nullBit5 = source.nullBit5;
-//		target.nullBit6 = source.nullBit6;
 	}
+	target.iNBit = source.iNBit;
+	target.iNNBit = source.iNNBit;
 	target.tagBits = source.tagBits;
 	target.maxFieldCount = source.maxFieldCount;
 	if (source.extra != null) {
@@ -1322,8 +1322,6 @@ static void init(UnconditionalFlowInfo zis, long [] nullBits, int position) {
 		zis.nullBit2 = nullBits[1] << position;
 		zis.nullBit3 = nullBits[2] << position;
 		zis.nullBit4 = nullBits[3] << position;
-//		zis.nullBit5 = nullBits[4] << position;
-//		zis.nullBit6 = nullBits[5] << position;
 	}
  	else {
 		int vectorIndex = (position / BitCacheSize) - 1,
@@ -1336,7 +1334,12 @@ static void init(UnconditionalFlowInfo zis, long [] nullBits, int position) {
 		    zis.extra[j] = new long[length];
 		    zis.extra[j][vectorIndex] = nullBits[j - 2] << position;
         }
+        // FIXME: while IN,INN are not included in nullBits:
+        Arrays.fill(zis.extra[UnconditionalFlowInfo.IN],  -1L);
+        Arrays.fill(zis.extra[UnconditionalFlowInfo.INN],  -1L);
 	}
+	zis.iNBit = -1L; // FIXME: nullBits[4] << position;
+	zis.iNNBit = -1L; // FIXME: nullBits[5] << position;
 	if (nullBits[0] != 0 || nullBits[1] != 0
 	        || nullBits[2] != 0 || nullBits[3] != 0
 	        || nullBits[4] != 0 || nullBits[5] != 0) {
@@ -1356,8 +1359,8 @@ static boolean testEquals(UnconditionalFlowInfo zis, UnconditionalFlowInfo other
 			|| zis.nullBit2 != other.nullBit2
 			|| zis.nullBit3 != other.nullBit3
 			|| zis.nullBit4 != other.nullBit4
-			/* || zis.nullBit5 != other.nullBit5
-			|| zis.nullBit6 != other.nullBit6 */) {
+			/*|| zis.iNBit != other.iNBit // FIXME: include these bits in comparison?
+			|| zis.iNNBit != other.iNNBit */) {
 		return false;
 	}
 	int left = zis.extra == null ? 0 : zis.extra[2].length,
@@ -1409,11 +1412,11 @@ static boolean testEquals(UnconditionalFlowInfo zis, UnconditionalFlowInfo other
 				((zis.nullBit3 & mask) ^
 					(other.nullBit3 & mask)) == 0 &&
 				((zis.nullBit4 & mask) ^
-					(other.nullBit4 & mask)) == 0 /* &&
-				((zis.nullBit5 & mask) ^
-					(other.nullBit5 & mask)) == 0 &&
-				((zis.nullBit6 & mask) ^
-					(other.nullBit6 & mask)) == 0 */;
+					(other.nullBit4 & mask)) == 0 /* &&  // FIXME: include these bits in comparison?
+				((zis.iNBit & mask) ^
+					(other.iNBit & mask)) == 0 &&
+				((zis.iNNBit & mask) ^
+					(other.iNNBit & mask)) == 0 */;
 	}
 	else {
 		int left = zis.extra == null ?
@@ -1461,8 +1464,8 @@ static String testString(UnconditionalFlowInfo zis, int position) {
 					+ "," + (zis.nullBit2 >> position) //$NON-NLS-1$
 					+ "," + (zis.nullBit3 >> position) //$NON-NLS-1$
 					+ "," + (zis.nullBit4 >> position) //$NON-NLS-1$
-//					+ "," + (zis.nullBit5 >> position) //$NON-NLS-1$
-//					+ "," + (zis.nullBit6 >> position) //$NON-NLS-1$
+//					+ "," + (zis.iNBit >> position) //$NON-NLS-1$
+//					+ "," + (zis.iNNBit >> position) //$NON-NLS-1$
 					+ "}"; //$NON-NLS-1$
 	}
 	else {
