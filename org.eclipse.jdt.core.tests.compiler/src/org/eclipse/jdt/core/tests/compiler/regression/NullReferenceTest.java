@@ -64,6 +64,7 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
+//		TESTS_NAMES = new String[] { "test0525_try_finally_unchecked_exception" };
 //		TESTS_NAMES = new String[] { "testBug441737" };
 //		TESTS_NAMES = new String[] { "testBug453305" };
 //		TESTS_NAMES = new String[] { "testBug431016" };
@@ -5653,7 +5654,7 @@ public void test0524_try_finally() {
 
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150082
-public void test0525_try_finally_unchecked_exception() {
+public void _test0525_try_finally_unchecked_exception() {
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -8504,7 +8505,7 @@ public void test0744_for_infinite() {
 
 // null analysis - for
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=195638
-public void _test0746_for_try_catch() {
+public void test0746_for_try_catch() {
 	runTest(
 		new String[] {
 			"X.java",
@@ -16401,8 +16402,8 @@ public void testBug345305_4() {
 }
 
 // Bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
-// DISABLED: block-less if involved - info about pot.nn. is lost when checking against loop's info (deferred check)
-public void _testBug345305_6() {
+// block-less if involved - info about pot.nn. was lost when checking against loop's info (deferred check)
+public void testBug345305_6() {
 	runNegativeTest(
 		new String[] {
 			"X.java",
@@ -17016,7 +17017,7 @@ public void testBug402993a() {
 }
 public void testBug453305() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses foreach loop
-	runNegativeTest(
+	runConformTest(
 		new String[] {
 			"NullTest.java",
 			"import java.util.*;\n" + 
@@ -17049,16 +17050,9 @@ public void testBug453305() {
 			"        return null;\n" + 
 			"    }\n" + 
 			"}\n"
-		},
-		"----------\n" + 
-		"1. ERROR in NullTest.java (at line 25)\n" + 
-		"	result.doSomething(); // warning is here\n" + 
-		"	^^^^^^\n" + 
-		"Potential null pointer access: The variable result may be null at this location\n" + 
-		"----------\n");
+		});
 }
-// loop-limitation:
-public void _testBug431016() {
+public void testBug431016() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses foreach loop
 	runConformTest(
 		new String[] {
@@ -17081,7 +17075,26 @@ public void _testBug431016() {
 			"}\n"
 		});
 }
-public void _testBug432109() {
+// originally created for documentation purpose, see https://bugs.eclipse.org/453483#c9
+public void testBug431016_simplified() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" + 
+			"  void test(Object input, boolean b) {\n" + 
+			"    Object o = null;\n" + 
+			"    while (true) {\n" + 
+			"      if (o == null)\n" + 
+			"        o = input;\n" + 
+			"      if (b)\n" + 
+			"        o.toString();\n" + 
+			"      o.toString();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
+public void testBug432109() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses generics & foreach loop
 	runConformTest(
 		new String[] {
@@ -17142,12 +17155,7 @@ public void testBug435528() {
 			"}\n"
 		},
 		"----------\n" + 
-		"1. ERROR in Test.java (at line 13)\n" + 
-		"	if (x.equals(\"A\")) {\n" + 
-		"	    ^\n" + 
-		"Potential null pointer access: The variable x may be null at this location\n" +   // FIXME: fully avoid warning?
-		"----------\n" + 
-		"2. WARNING in Test.java (at line 15)\n" + 
+		"1. WARNING in Test.java (at line 15)\n" + 
 		"	} else {\n" + 
 		"            x = null;\n" + 
 		"         }\n" + 
@@ -17156,7 +17164,7 @@ public void testBug435528() {
 		"----------\n");
 }
 public void testBug418500() {
-	runNegativeTest(
+	runConformTest(
 		new String[] {
 			"Test.java",
 			"import java.util.*;\n" +
@@ -17186,15 +17194,9 @@ public void testBug418500() {
 			"    }\n" + 
 			"  }\n" +
 			"}\n"
-		},
-		"----------\n" + 
-		"1. ERROR in Test.java (at line 15)\n" + 
-		"	if (targets.size() > 0) {\n" + 
-		"	    ^^^^^^^\n" + 
-		"Potential null pointer access: The variable targets may be null at this location\n" +  // FIXME: fully avoid warning?
-		"----------\n");
+		});
 }
-public void _testBug441737() {
+public void testBug441737() {
 	runConformTest(
 		new String[] {
 			"Bogus.java",
