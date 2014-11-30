@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 IBM Corporation and others.
+ * Copyright (c) 2005, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contribution for
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 386181 - [compiler][null] wrong transition in UnconditionalFlowInfo.mergedWith()
+ *								Bug 453635 - [compiler][null] Update NullReferenceImplTests and friends
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -19,6 +20,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -1838,6 +1840,7 @@ void reinitializeFromComputedValues(BufferedReader input, BufferedWriter output,
 						// loop
 					}
 					int i, length;
+					// definitions of two-dim trafos in natural order (by state value):
 					for (i = 0, length = consideredStates.length; i < length; i++) {
 						output.write(tab);
 						output.write("// ");
@@ -2033,26 +2036,41 @@ void hydrate() {
 abstract UnconditionalFlowInfo output(UnconditionalFlowInfo input1, UnconditionalFlowInfo input2);
 void printDefinitions(BufferedWriter output, State[] consideredStates, String tab)
 		throws IOException {
-	int i, j, length;
+	int i, j, length = consideredStates.length;
 	State result;
-	for (i = 0, length = consideredStates.length; i < length; i++) {
+	// temporary store to support lexical sorting:
+	String[] lines = new String[length * length];
+	int lCount = 0;
+	for (i = 0; i < length; i++) {
 		for (j = 0; j < length; j++) {
-			output.write(tab);
-			output.write("// ");
-			output.write(consideredStates[i].name);
-			output.write(" + ");
-			output.write(consideredStates[j].name);
-			output.write(" => ");
-			output.write(
-				(result = (State)
-					((Map) this.computedTransitions.get(consideredStates[i])).get(consideredStates[j])).name);
+			StringBuffer line = new StringBuffer();
+			line.append(tab);
+			line.append("// ");
+			line.append(consideredStates[i].name);
+			line.append(" + ");
+			line.append(consideredStates[j].name);
+			line.append(" => ");
+			line.append(
+				(result = (State) getResult(this.computedTransitions, consideredStates[i], consideredStates[j])).name);
 			if (!result.symbolic ||
-				result != this.initializedTransitions.get(consideredStates[i])) {
-				output.write("\t\t CHECK");
+				result != getResult(this.initializedTransitions, consideredStates[i], consideredStates[j])) {
+				line.append("\t\t CHECK");
 			}
-			output.write('\n');
+			line.append('\n');
+			lines[lCount++] = line.toString();
 		}
 	}
+	Arrays.sort(lines);
+	for (i = 0; i < lCount; i++) {
+		output.write(lines[i]);
+	}
+}
+Object getResult(Map transitions, State statei, State statej) {
+	Object res1 = transitions.get(statei);
+	if (res1 instanceof Map) {
+		return ((Map)res1).get(statej);
+	}
+	return null;
 }
 void printInitializers(BufferedWriter output, State[] consideredStates, String tab)
 		throws IOException {
@@ -2822,26 +2840,40 @@ void printDefinitions(BufferedWriter output, State[] consideredStates, String ta
 		throws IOException {
 	// only difference with parent is that we print only half of possible
 	// combinations
-	int i, j, length;
+	int i, j, length = consideredStates.length;
 	State result;
-	for (i = 0, length = consideredStates.length; i < length; i++) {
+	// temporary store to support lexical sorting:
+	String[] lines = new String[length * (length +1) / 2 ];
+	int lCount = 0;
+	for (i = 0; i < length; i++) {
 		for (j = i; j < length; j++) {
-			output.write(tab);
-			output.write("// ");
-			output.write(consideredStates[i].name);
-			output.write(" + ");
-			output.write(consideredStates[j].name);
-			output.write(" => ");
-			output.write(
-				(result = (State)
-					((Map) this.computedTransitions.get(consideredStates[i])).get(consideredStates[j])).name);
+			StringBuffer line = new StringBuffer();
+			line.append(tab);
+			line.append("// ");
+			line.append(consideredStates[i].name);
+			line.append(" + ");
+			line.append(consideredStates[j].name);
+			line.append(" => ");
+			line.append(
+				(result = (State) getResult(this.computedTransitions, consideredStates[i], consideredStates[j])).name);
 			if (!result.symbolic ||
-				result != this.initializedTransitions.get(consideredStates[i])) {
-				output.write("\t\t CHECK");
+				result != getResult(this.initializedTransitions, consideredStates[i], consideredStates[j])) {
+				line.append("\t\t CHECK");
 			}
-			output.write('\n');
+			line.append('\n');
+			lines[lCount++] = line.toString();
 		}
 	}
+	Arrays.sort(lines);
+	for (i = 0; i < lCount; i++) {
+		output.write(lines[i]);
+	}
+}
+Object getResult(Map transitions, State statei, State statej) {
+	Object r = super.getResult(transitions, statei, statej);
+	if (r == null)
+		r = super.getResult(transitions, statej, statei);
+	return r;
 }
 void printInitializers(BufferedWriter output, State[] consideredStates, String tab)
 		throws IOException {

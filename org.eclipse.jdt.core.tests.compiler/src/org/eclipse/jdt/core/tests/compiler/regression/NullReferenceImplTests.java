@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 IBM Corporation and others.
+ * Copyright (c) 2005, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 386181 - [compiler][null] wrong transition in UnconditionalFlowInfo.mergedWith()
  *								bug 395002 - Self bound generic class doesn't resolve bounds properly for wildcards for certain parametrisation.
+ *								Bug 453635 - [compiler][null] Update NullReferenceImplTests and friends
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -22,9 +23,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -33,6 +38,7 @@ import junit.framework.AssertionFailedError;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.jdt.core.tests.compiler.regression.NullReferenceImplTests.State;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo.AssertionFailedException;
@@ -171,7 +177,7 @@ public class NullReferenceImplTests extends NullReferenceTest {
 			new State(25), // 011001
 			new State(26), // 011010
 			new State(27), // 011011
-			new State(28), // 011100
+			new State(28, "pot. n & pot. nn & pot. un"), // 011100
 			new State(29), // 011101
 			new State(30), // 011110
 			new State(31), // 011111
@@ -511,6 +517,12 @@ public class NullReferenceImplTests extends NullReferenceTest {
 	}
 	public String toString() {
 		return this.name;
+	}
+	public boolean equals(Object other) {
+		return (other instanceof State) && ((State)other).value == this.value;
+	}
+	public int hashCode() {
+		return this.value;
 	}
 	}
 
@@ -1688,7 +1700,13 @@ private static void reinitializeFromComputedValues(String source, String target)
 			i < length; i++) {
 		NullReferenceImplTransformations.transformations[i].hydrate();
 	}
-	NullReferenceImplTests.State[] transitiveClosure = computeTransitiveClosure();
+	NullReferenceImplTests.State[] transitiveClosure = computeTransitiveClosure(); // need for initialization?
+	transitiveClosure = addSymbolicStates(transitiveClosure); // don't rely on reachibility alone, since we don't cover all operations in these tests.
+	Arrays.sort(transitiveClosure, new Comparator() {
+		public int compare(Object o1, Object o2) {
+			return new Integer(((State)o1).value).compareTo(new Integer(((State)o2).value));
+		}
+	});
 	try {
 		BufferedReader in;
 		BufferedWriter out;
@@ -1724,6 +1742,15 @@ private static void reinitializeFromComputedValues(String source, String target)
 		t.printStackTrace(System.err);
 		System.exit(2);
 	}
+}
+private static State[] addSymbolicStates(State[] transitiveClosure) {
+	Set allStates = new HashSet();
+	for (int i = 0; i < transitiveClosure.length; i++)
+		allStates.add(transitiveClosure[i]);
+	for (int i=0; i < State.statesNb; i++)
+		if (State.states[i].symbolic)
+			allStates.add(State.states[i]);
+	return (State[]) allStates.toArray(new State[allStates.size()]);
 }
 
 private static void printHelp(boolean longText) {
