@@ -36,6 +36,7 @@
  *							bug 406384 - Internal error with I20130413
  *							Bug 364326 - [compiler][null] NullPointerException is not found by compiler. FindBugs finds that one
  *							Bug 453483 - [compiler][null][loop] Improve null analysis for loops
+ *							Bug 195638 - [compiler][null][refactoring] Wrong error : "Null pointer access: The variable xxx can only be null at this location " with try..catch in loop
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -17223,6 +17224,136 @@ public void testBug441737() {
 			"        public Thing resolve() {\n" + 
 			"            return count++ > 2 ? this : new Thing();\n" + 
 			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+// fixed in 3.6.2, likely via bug 332637.
+public void testBug195638_comment3() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.sql.Connection;\n" +
+			"import java.sql.SQLException;\n" +
+			"public class Test {\n" + 
+			"  void m() throws SQLException\n" + 
+			"  {\n" + 
+			"    Connection conn = null;\n" + 
+			"    try\n" + 
+			"    {\n" + 
+			"      conn = createConnection();\n" + 
+			"\n" + 
+			"      for (; ; )\n" + 
+			"      {\n" + 
+			"        throwSomething();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    catch (MyException e)\n" + 
+			"    {\n" + 
+			"      conn.rollback(); //The variable can never be null here...\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  private void throwSomething() throws MyException\n" + 
+			"  {\n" + 
+			"    throw new MyException();\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  class MyException extends Exception\n" + 
+			"  {\n" + 
+			"\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  private Connection createConnection()\n" + 
+			"  {\n" + 
+			"    return null;\n" + 
+			"  }\n" +
+			"}\n"
+		});
+}
+public void testBug195638_comment6() {
+	runNegativeTest(
+		new String[] {
+			"CanOnlyBeNullShouldBeMayBeNull.java",
+			"public class CanOnlyBeNullShouldBeMayBeNull {\n" + 
+			"\n" + 
+			"	private void method() {\n" + 
+			"		String tblVarRpl = null;\n" + 
+			"		while (true) {\n" + 
+			"			boolean isOpenVariableMortageRateProduct = true;\n" + 
+			"			boolean tblVarRplAllElementAddedIndicator = false;\n" + 
+			"			if (isOpenVariableMortageRateProduct) {\n" + 
+			"				if (tblVarRplAllElementAddedIndicator == false)\n" + 
+			"					tblVarRpl = \"\";\n" + 
+			"				tblVarRpl.substring(1);	//Can only be null???\n" + 
+			"				return; \n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in CanOnlyBeNullShouldBeMayBeNull.java (at line 3)\n" + 
+		"	private void method() {\n" + 
+		"	             ^^^^^^^^\n" + 
+		"The method method() from the type CanOnlyBeNullShouldBeMayBeNull is never used locally\n" + 
+		"----------\n" + 
+		"2. ERROR in CanOnlyBeNullShouldBeMayBeNull.java (at line 11)\n" + 
+		"	tblVarRpl.substring(1);	//Can only be null???\n" + 
+		"	^^^^^^^^^\n" + 
+		"Potential null pointer access: The variable tblVarRpl may be null at this location\n" + 
+		"----------\n");
+}
+public void testBug195638_comment14() {
+	runNegativeTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" + 
+			"    private void test() {\n" + 
+			"        boolean x = true;\n" + 
+			"        Object o = null;\n" + 
+			"        \n" + 
+			"        for (;;) {\n" + 
+			"            if (x) o = new Object();\n" + 
+			"            \n" + 
+			"            o.toString(); // warning here\n" + // bug was: Null pointer access: The variable o can only be null at this location
+			"            \n" + 
+			"            o = null;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in Test.java (at line 2)\n" + 
+		"	private void test() {\n" + 
+		"	             ^^^^^^\n" + 
+		"The method test() from the type Test is never used locally\n" + 
+		"----------\n" + 
+		"2. ERROR in Test.java (at line 9)\n" + 
+		"	o.toString(); // warning here\n" + 
+		"	^\n" + 
+		"Potential null pointer access: The variable o may be null at this location\n" + 
+		"----------\n");
+}
+public void testBug195638_comment19() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" + 
+			"    public void testIt() {\n" + 
+			"      Object aRole = null;\n" + 
+			"      for (;;) {\n" + 
+			"        aRole = new Object();\n" + 
+			"        if (aRole.toString() == null) {\n" + 
+			"          aRole = getObject(); // changing to \"new Object()\" makes warning disappear.\n" + 
+			"        }\n" + 
+			"        aRole.toString();\n" + 
+			"        // above line gets: \"Null pointer access: The variable aRole can only be null at this location\"\n" + 
+			"        break;\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"    private Object getObject() {\n" + 
+			"      return new Object();\n" + 
 			"    }\n" + 
 			"}\n"
 		});
