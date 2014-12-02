@@ -1315,7 +1315,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("EnumConstantsCannotBeSurroundedByParenthesis", SKIP);
 		expectedProblemAttributes.put("EnumStaticFieldInInInitializerContext", SKIP);
 		expectedProblemAttributes.put("EnumSwitchCannotTargetField", SKIP);
-		expectedProblemAttributes.put("ExceptionParameterIsNeverUsed", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_PARAMETER));
+		expectedProblemAttributes.put("ExceptionParameterIsNeverUsed", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_EXCEPTION_PARAMETER));
 		expectedProblemAttributes.put("ExceptionTypeAmbiguous", SKIP);
 		expectedProblemAttributes.put("ExceptionTypeInheritedNameHidesEnclosingName", SKIP);
 		expectedProblemAttributes.put("ExceptionTypeInternalNameProvided", SKIP);

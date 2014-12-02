@@ -61,6 +61,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportHiddenCatchBlock = "org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedLocal = "org.eclipse.jdt.core.compiler.problem.unusedLocal"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedParameter = "org.eclipse.jdt.core.compiler.problem.unusedParameter"; //$NON-NLS-1$
+	public static final String OPTION_ReportUnusedExceptionParameter = "org.eclipse.jdt.core.compiler.problem.unusedExceptionParameter"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedParameterWhenImplementingAbstract = "org.eclipse.jdt.core.compiler.problem.unusedParameterWhenImplementingAbstract"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedParameterWhenOverridingConcrete = "org.eclipse.jdt.core.compiler.problem.unusedParameterWhenOverridingConcrete"; //$NON-NLS-1$
 	public static final String OPTION_ReportUnusedParameterIncludeDocCommentReference = "org.eclipse.jdt.core.compiler.problem.unusedParameterIncludeDocCommentReference"; //$NON-NLS-1$
@@ -295,6 +296,7 @@ public class CompilerOptions {
 	public static final int MissingDefaultCase = IrritantSet.GROUP2 | ASTNode.Bit16;
 	public static final int UnusedTypeParameter = IrritantSet.GROUP2 | ASTNode.Bit17;
 	public static final int NonnullParameterAnnotationDropped = IrritantSet.GROUP2 | ASTNode.Bit18;
+	public static final int UnusedExceptionParameter = IrritantSet.GROUP2 | ASTNode.Bit19;
 
 	// Severity level for handlers
 	/** 
@@ -538,6 +540,8 @@ public class CompilerOptions {
 				return OPTION_ReportUnusedLocal;
 			case UnusedArgument :
 				return OPTION_ReportUnusedParameter;
+			case UnusedExceptionParameter :
+				return OPTION_ReportUnusedExceptionParameter;
 			case NoImplicitStringConversion :
 				return OPTION_ReportNoImplicitStringConversion;
 			case AccessEmulation :
@@ -840,6 +844,7 @@ public class CompilerOptions {
 			OPTION_ReportUnusedLocal,
 			OPTION_ReportUnusedObjectAllocation,
 			OPTION_ReportUnusedParameter,
+			OPTION_ReportUnusedExceptionParameter,
 			OPTION_ReportUnusedParameterIncludeDocCommentReference,
 			OPTION_ReportUnusedParameterWhenImplementingAbstract,
 			OPTION_ReportUnusedParameterWhenOverridingConcrete,
@@ -913,6 +918,7 @@ public class CompilerOptions {
 			case RedundantSuperinterface :
 			case UnusedLocalVariable :
 			case UnusedArgument :
+			case UnusedExceptionParameter :
 			case UnusedImport :
 			case UnusedPrivateMember :
 			case UnusedDeclaredThrownException :
@@ -1054,6 +1060,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportHiddenCatchBlock, getSeverityString(MaskedCatchBlock));
 		optionsMap.put(OPTION_ReportUnusedLocal, getSeverityString(UnusedLocalVariable));
 		optionsMap.put(OPTION_ReportUnusedParameter, getSeverityString(UnusedArgument));
+		optionsMap.put(OPTION_ReportUnusedExceptionParameter, getSeverityString(UnusedExceptionParameter));
 		optionsMap.put(OPTION_ReportUnusedImport, getSeverityString(UnusedImport));
 		optionsMap.put(OPTION_ReportSyntheticAccessEmulation, getSeverityString(AccessEmulation));
 		optionsMap.put(OPTION_ReportNoEffectAssignment, getSeverityString(NoEffectAssignment));
@@ -1586,6 +1593,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportHiddenCatchBlock)) != null) updateSeverity(MaskedCatchBlock, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedLocal)) != null) updateSeverity(UnusedLocalVariable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedParameter)) != null) updateSeverity(UnusedArgument, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportUnusedExceptionParameter)) != null) updateSeverity(UnusedExceptionParameter, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedImport)) != null) updateSeverity(UnusedImport, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedPrivateMember)) != null) updateSeverity(UnusedPrivateMember, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedDeclaredThrownException)) != null) updateSeverity(UnusedDeclaredThrownException, optionValue);
@@ -1845,6 +1853,7 @@ public class CompilerOptions {
 		buf.append("\n\t- masked catch block: ").append(getSeverityString(MaskedCatchBlock)); //$NON-NLS-1$
 		buf.append("\n\t- unused local variable: ").append(getSeverityString(UnusedLocalVariable)); //$NON-NLS-1$
 		buf.append("\n\t- unused parameter: ").append(getSeverityString(UnusedArgument)); //$NON-NLS-1$
+		buf.append("\n\t- unused exception parameter: ").append(getSeverityString(UnusedExceptionParameter)); //$NON-NLS-1$
 		buf.append("\n\t- unused import: ").append(getSeverityString(UnusedImport)); //$NON-NLS-1$
 		buf.append("\n\t- synthetic access emulation: ").append(getSeverityString(AccessEmulation)); //$NON-NLS-1$
 		buf.append("\n\t- assignment with no effect: ").append(getSeverityString(NoEffectAssignment)); //$NON-NLS-1$

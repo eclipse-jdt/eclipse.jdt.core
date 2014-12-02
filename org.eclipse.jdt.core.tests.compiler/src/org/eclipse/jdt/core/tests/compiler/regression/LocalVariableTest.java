@@ -737,7 +737,7 @@ public void test412119a() {
 //Error message for exception parameter not being used.
 public void test412119b() {
 	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnusedExceptionParameter, CompilerOptions.ERROR);
 	this.runNegativeTest(
 			new String[] {
 				"p/X.java",
@@ -784,7 +784,7 @@ public void test412119c() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7)
 		return;
 	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnusedExceptionParameter, CompilerOptions.ERROR);
 	this.runNegativeTest(
 			new String[] {
 				"p/X.java",
@@ -831,6 +831,7 @@ public void test412119d() {
 		return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportUnusedExceptionParameter, CompilerOptions.WARNING);
 	this.runNegativeTest(
 			new String[] {
 				"p/X.java",

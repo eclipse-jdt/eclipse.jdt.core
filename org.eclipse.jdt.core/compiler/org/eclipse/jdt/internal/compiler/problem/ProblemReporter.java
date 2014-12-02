@@ -229,8 +229,10 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.UnusedLocalVariable;
 
 		case IProblem.ArgumentIsNeverUsed :
-		case IProblem.ExceptionParameterIsNeverUsed:
 			return CompilerOptions.UnusedArgument;
+
+		case IProblem.ExceptionParameterIsNeverUsed :
+			return CompilerOptions.UnusedExceptionParameter;
 
 		case IProblem.NoImplicitStringConversionForCharArrayExpression :
 			return CompilerOptions.NoImplicitStringConversion;
@@ -648,6 +650,7 @@ public static int getProblemCategory(int severity, int problemID) {
 
 			case CompilerOptions.UnusedLocalVariable :
 			case CompilerOptions.UnusedArgument :
+			case CompilerOptions.UnusedExceptionParameter :
 			case CompilerOptions.UnusedImport :
 			case CompilerOptions.UnusedPrivateMember :
 			case CompilerOptions.UnusedDeclaredThrownException :

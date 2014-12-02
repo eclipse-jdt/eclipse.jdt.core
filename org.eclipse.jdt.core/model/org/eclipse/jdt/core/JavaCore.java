@@ -453,6 +453,19 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_UNUSED_PARAMETER = PLUGIN_ID + ".compiler.problem.unusedParameter"; //$NON-NLS-1$
 	/**
+	 * Compiler option ID: Reporting Unused Exception Parameter.
+	 * <p>When enabled, the compiler will issue an error or a warning for unused exception
+	 *    parameters (that is, the thrown exception is never read from).</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedExceptionParameter"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
+	 * </dl>
+	 * @category CompilerOptionID
+	 * @since 3.11
+	 */
+	public static final String COMPILER_PB_UNUSED_EXCEPTION_PARAMETER = PLUGIN_ID + ".compiler.problem.unusedExceptionParameter"; //$NON-NLS-1$
+	/**
 	 * Compiler option ID: Reporting Unused Parameter if Implementing Abstract Method.
 	 * <p>When enabled, the compiler will signal unused parameters in abstract method implementations.</p>
 	 * <p>The severity of the problem is controlled with option {@link #COMPILER_PB_UNUSED_PARAMETER}.</p>

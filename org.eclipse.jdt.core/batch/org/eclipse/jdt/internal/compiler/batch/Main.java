@@ -3830,6 +3830,9 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 			} else if (token.equals("unusedArgument") || token.equals("unusedArguments")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
 				setSeverity(CompilerOptions.OPTION_ReportUnusedParameter, severity, isEnabling);
 				return;
+			} else if (token.equals("unusedExceptionParam")) { //$NON-NLS-1$
+				setSeverity(CompilerOptions.OPTION_ReportUnusedExceptionParameter, severity, isEnabling);
+				return;
 			} else if (token.equals("unusedImport") || token.equals("unusedImports")/*backward compatible*/) { //$NON-NLS-1$ //$NON-NLS-2$
 				setSeverity(CompilerOptions.OPTION_ReportUnusedImport, severity, isEnabling);
 				return;
