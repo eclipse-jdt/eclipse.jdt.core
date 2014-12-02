@@ -42438,8 +42438,6 @@ public void test1209() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=207573 - variation
 // FAIL ERRMSG
 public void test1210() {
-	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
-		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -42469,7 +42467,7 @@ public void test1210() {
 		"1. ERROR in X.java (at line 6)\n" + 
 		"	Object[] o  = throwE(objs);\n" + 
 		"	              ^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Object[]&Exception to Object[]\n" + 
+		"Type mismatch: cannot convert from RuntimeException to Object[]\n" + 
 		"----------\n"));
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=208030

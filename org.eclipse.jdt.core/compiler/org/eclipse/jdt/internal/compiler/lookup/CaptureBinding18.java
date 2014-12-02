@@ -11,6 +11,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 
 /**
  * Capture-like type variable introduced during 1.8 type inference.
@@ -109,16 +110,12 @@ public class CaptureBinding18 extends CaptureBinding {
 				// capture of ? extends X[]
 				if (aBound != null && aBound.isArrayType()) {
 					if (!aBound.isCompatibleWith(otherType))
-						continue;
-				}
-				switch (otherType.kind()) {
+						return false;
+				} else switch (otherType.kind()) {
 					case Binding.WILDCARD_TYPE :
 					case Binding.INTERSECTION_TYPE :
 						if (!((WildcardBinding) otherType).boundCheck(aBound))
 							return false;
-						break;
-					default:
-						return false;
 				}
 			}
 			return true;
@@ -127,17 +124,50 @@ public class CaptureBinding18 extends CaptureBinding {
 	}
 
 	public boolean isCompatibleWith(TypeBinding otherType, Scope captureScope) {
+		if (TypeBinding.equalsEquals(this, otherType))
+			return true;
 		if (this.inRecursiveFunction)
 			return true;
 		this.inRecursiveFunction = true; 
 		try {
 			if (this.upperBounds != null) {
-				for (int i = 0; i < this.upperBounds.length; i++) {
+				int length = this.upperBounds.length;
+
+				// need to compare two intersection types? (borrowed from IntersectionType18)
+				int rightKind = otherType.kind();
+				TypeBinding[] rightIntersectingTypes = null;
+				if (rightKind == INTERSECTION_TYPE && otherType.boundKind() == Wildcard.EXTENDS) {
+					TypeBinding allRightBounds = ((WildcardBinding) otherType).allBounds();
+					if (allRightBounds instanceof IntersectionTypeBinding18)
+						rightIntersectingTypes = ((IntersectionTypeBinding18) allRightBounds).intersectingTypes;
+				} else if (rightKind == INTERSECTION_TYPE18) {
+					rightIntersectingTypes = ((IntersectionTypeBinding18) otherType).intersectingTypes;
+				}
+				if (rightIntersectingTypes != null) {
+					int numRequired = rightIntersectingTypes.length;
+					TypeBinding[] required = new TypeBinding[numRequired];
+					System.arraycopy(rightIntersectingTypes, 0, required, 0, numRequired);
+					for (int i = 0; i < length; i++) {
+						TypeBinding provided = this.upperBounds[i];
+						for (int j = 0; j < required.length; j++) {
+							if (required[j] == null) continue;
+							if (provided.isCompatibleWith(required[j], captureScope)) {
+								required[j] = null;
+								if (--numRequired == 0)
+									return true;
+								break;
+							}
+						}
+					}
+					return false;
+				}
+
+				for (int i = 0; i < length; i++) {
 					if (this.upperBounds[i].isCompatibleWith(otherType, captureScope))
 						return true;
 				}
 			}
-			return super.isCompatibleWith(otherType, captureScope);
+			return false;
 		} finally {
 			this.inRecursiveFunction = false;
 		}
