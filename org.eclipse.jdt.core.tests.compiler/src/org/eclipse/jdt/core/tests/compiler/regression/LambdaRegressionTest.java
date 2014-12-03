@@ -530,6 +530,54 @@ public void testBug451840() {
 		"test cannot be resolved to a type\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=448556
+// [1.8][compiler] Invalid compiler error about effectively final variable outside the context of a lambda.
+public void testBug4448556() {
+	this.runConformTest(new String [] {
+		"X.java",
+		"import java.io.Serializable;\n" + 
+		"import java.util.Arrays;\n" + 
+		"import java.util.List;\n" + 
+		"public class X {\n" + 
+		"    private static final List<Integer> INTEGERS = Arrays.asList(1, 2, 3, 4);\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        for (int i = 0; i < INTEGERS.size(); i++) {\n" + 
+		"            MyPredicate<Integer> predicate = INTEGERS.get(i)::equals;\n" + 
+		"        }\n" + 
+		"    }  \n" + 
+		"    public interface MyPredicate<T> extends Serializable {\n" + 
+		"        boolean accept(T each);\n" + 
+		"    }\n" + 
+		"}"
+	},
+	"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=448556
+// [1.8][compiler] Invalid compiler error about effectively final variable outside the context of a lambda.
+public void testBug4448556a() {
+	this.runConformTest(new String [] {
+		"X.java",
+		"import java.io.Serializable;\n" + 
+		"import java.util.Arrays;\n" + 
+		"import java.util.List;\n" + 
+		"public class X {\n" + 
+		"	int value = 0; \n" + 
+		"    private static final List<Integer> INTEGERS = Arrays.asList(1, 2, 3, 4);\n" + 
+		"    public Integer next() {\n" + 
+		"    	return new Integer(++value);\n" + 
+		"    }\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"    	X t = new X();\n" + 
+		"        MyPredicate<Integer> predicate = t.next()::equals;\n" + 
+		"        System.out.println(\"Value \" + t.value + \" accept \" + predicate.accept(t.value));\n" + 
+		"    }\n" + 
+		"    public interface MyPredicate<T> extends Serializable {\n" + 
+		"        boolean accept(T each);\n" + 
+		"    }\n" + 
+		"}"
+	},
+	"Value 1 accept true");
+}
 public static Class testClass() {
 	return LambdaRegressionTest.class;
 }
