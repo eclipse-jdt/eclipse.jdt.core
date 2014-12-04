@@ -9,6 +9,7 @@
  *		IBM Corporation - initial API and implementation
  *		Stephan Herrmann - Contribution for
  *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
+ *								Bug 454031 - [compiler][null][loop] bug in null analysis; wrong "dead code" detection
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -724,7 +725,7 @@ public void testBug127575n() {
 				"		do {\n" +
 				"           if (b1)\n" + 
 				"				o1 = null;\n" +
-				"           org.eclipse.core.runtime.Assert.isLegal ((o2 = o1) != null);\n" +
+				"           org.eclipse.core.runtime.Assert.isLegal (o1 != null);\n" +
 				"		} while (true);\n" + 
 				"	}\n" + 
 				"}"	
@@ -736,9 +737,9 @@ public void testBug127575n() {
 			"Redundant assignment: The variable o1 can only be null at this location\n" + 
 			"----------\n" + 
 			"2. ERROR in DoWhileBug.java (at line 8)\n" + 
-			"	org.eclipse.core.runtime.Assert.isLegal ((o2 = o1) != null);\n" + 
-			"	                                         ^^^^^^^^^\n" + 
-			"Null comparison always yields false: The variable o2 can only be null at this location\n" + 
+			"	org.eclipse.core.runtime.Assert.isLegal (o1 != null);\n" + 
+			"	                                         ^^\n" + 
+			"Null comparison always yields false: The variable o1 can only be null at this location\n" + 
 			"----------\n",
 			this.assertLib,
 			true);

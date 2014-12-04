@@ -37,6 +37,7 @@
  *							Bug 364326 - [compiler][null] NullPointerException is not found by compiler. FindBugs finds that one
  *							Bug 453483 - [compiler][null][loop] Improve null analysis for loops
  *							Bug 195638 - [compiler][null][refactoring] Wrong error : "Null pointer access: The variable xxx can only be null at this location " with try..catch in loop
+ *							Bug 454031 - [compiler][null][loop] bug in null analysis; wrong "dead code" detection
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -11711,7 +11712,7 @@ public void testBug291418a() {
 						"  void foo(int[] argArray) {\n" +
 						"    int[] array = {2};\n" +
 						"    int[] collectionVar = {1,2};\n" +
-						"	 if(argArray == null) return;" +
+						"	 if(argArray == null) return;\n" +
 						"    for(int x:collectionVar) {\n" +
 						"        if (collectionVar == null);\n" +	// collectionVar cannot be null here
 						"        if (array == null);\n" +				// array is not null here
@@ -11723,6 +11724,8 @@ public void testBug291418a() {
 						"        if (array == null);\n" +				// array is not null here
 						"		 if (argArray == null);\n" +		// argArray cannot be null here
 						"    } while (count<10);\n" +
+						"	 array = new int[0];\n" + 			// reset tainting by null check
+						"	 if (argArray == null) return;\n" + // reset tainting by null check
 						"    for (int i=0; i<2; i++) {\n" +
 						"        if (array == null);\n" +				// array is not null here
 						"		 if (argArray == null);\n" +		// argArray cannot be null here
@@ -11734,47 +11737,47 @@ public void testBug291418a() {
 						"  }\n" +
 						"}"},
 				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
+				"1. ERROR in X.java (at line 7)\n" +
 				"	if (collectionVar == null);\n" +
 				"	    ^^^^^^^^^^^^^\n" +
 				"Null comparison always yields false: The variable collectionVar cannot be null at this location\n" +
 				"----------\n" +
-				"2. ERROR in X.java (at line 7)\n" +
+				"2. ERROR in X.java (at line 8)\n" +
 				"	if (array == null);\n" +
 				"	    ^^^^^\n" +
 				"Null comparison always yields false: The variable array cannot be null at this location\n" +
 				"----------\n" +
-				"3. ERROR in X.java (at line 8)\n" +
+				"3. ERROR in X.java (at line 9)\n" +
 				"	if (argArray == null);\n" +
 				"	    ^^^^^^^^\n" +
 				"Null comparison always yields false: The variable argArray cannot be null at this location\n" +
 				"----------\n" +
-				"4. ERROR in X.java (at line 13)\n" +
+				"4. ERROR in X.java (at line 14)\n" +
 				"	if (array == null);\n" +
 				"	    ^^^^^\n" +
 				"Null comparison always yields false: The variable array cannot be null at this location\n" +
 				"----------\n" +
-				"5. ERROR in X.java (at line 14)\n" +
+				"5. ERROR in X.java (at line 15)\n" +
 				"	if (argArray == null);\n" +
 				"	    ^^^^^^^^\n" +
 				"Null comparison always yields false: The variable argArray cannot be null at this location\n" +
 				"----------\n" +
-				"6. ERROR in X.java (at line 17)\n" +
+				"6. ERROR in X.java (at line 20)\n" +
 				"	if (array == null);\n" +
 				"	    ^^^^^\n" +
 				"Null comparison always yields false: The variable array cannot be null at this location\n" +
 				"----------\n" +
-				"7. ERROR in X.java (at line 18)\n" +
+				"7. ERROR in X.java (at line 21)\n" +
 				"	if (argArray == null);\n" +
 				"	    ^^^^^^^^\n" +
 				"Null comparison always yields false: The variable argArray cannot be null at this location\n" +
 				"----------\n" +
-				"8. ERROR in X.java (at line 21)\n" +
+				"8. ERROR in X.java (at line 24)\n" +
 				"	if (array == null);\n" +
 				"	    ^^^^^\n" +
 				"Null comparison always yields false: The variable array cannot be null at this location\n" +
 				"----------\n" +
-				"9. ERROR in X.java (at line 22)\n" +
+				"9. ERROR in X.java (at line 25)\n" +
 				"	if (argArray == null);\n" +
 				"	    ^^^^^^^^\n" +
 				"Null comparison always yields false: The variable argArray cannot be null at this location\n" +
@@ -14704,12 +14707,38 @@ public void testBug336428d() {
 		"	o1 = null;\n" + 
 		"	^^\n" + 
 		"Redundant assignment: The variable o1 can only be null at this location\n" + 
+/* In general it's safer *not* to assume that o1 is null on every iteration (see also testBug336428d2):
 		"----------\n" + 
 		"2. ERROR in DoWhileBug.java (at line 8)\n" + 
 		"	if ((o2 = o1) == null) break;\n" + 
 		"	    ^^^^^^^^^\n" + 
 		"Redundant null check: The variable o2 can only be null at this location\n" + 
-		"----------\n");
+ */
+		"----------\n"
+		);
+}
+
+// Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
+// variant after Bug 454031 to demonstrate:
+// - previously we would believe that o1 is always null in the assignment to o2 -> bogus warning re redundant null check
+// - with improved analysis we don't claim to know the value of o1 in this assignment -> no warning
+public void testBug336428d2() {
+	this.runConformTest(
+		new String[] {
+	"DoWhileBug.java",
+			"public class DoWhileBug {\n" + 
+			"	void test(boolean b1) {\n" + 
+			"		Object o1 = null;\n" + 
+			"		Object o2 = null;\n" + 
+			"		do {\n" +
+			"           if (b1)\n" + 
+			"				o1 = null;\n" +
+			"           if ((o2 = o1) == null) System.out.println(\"null\");\n" +
+			"			o1 = new Object();\n" +
+			"		} while (true);\n" + 
+			"	}\n" + 
+			"}"	
+		});
 }
 
 //Bug 336428 - [compiler][null] bogus warning "redundant null check" in condition of do {} while() loop
@@ -14736,11 +14765,13 @@ public void testBug336428e() {
 			"	o1 = null;\n" + 
 			"	^^\n" + 
 			"Redundant assignment: The variable o1 can only be null at this location\n" + 
+/* In general it's safer *not* to assume that o1 is null on every iteration:
 			"----------\n" +
 			"2. ERROR in DoWhileBug.java (at line 8)\n" + 
 			"	assert (o2 = o1) != null : \"bug\";\n" + 
 			"	       ^^^^^^^^^\n" + 
 			"Null comparison always yields false: The variable o2 can only be null at this location\n" + 
+ */
 			"----------\n");
 	}
 }
@@ -17357,5 +17388,43 @@ public void testBug195638_comment19() {
 			"    }\n" + 
 			"}\n"
 		});
+}
+public void testBug454031() {
+	runNegativeTest(
+		new String[] {
+			"xy/Try.java",
+			"package xy;\n" + 
+			"\n" + 
+			"public class Try {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        foo(new Node());\n" + 
+			"    }\n" + 
+			"    static void foo(Node n) {\n" + 
+			"        Node selectedNode= n;\n" + 
+			"        if (selectedNode == null) {\n" + 
+			"            return;\n" + 
+			"        }\n" + 
+			"        while (selectedNode != null && !(selectedNode instanceof Cloneable)) {\n" + 
+			"            selectedNode= selectedNode.getParent();\n" + 
+			"        }\n" + 
+			"        if (selectedNode == null) { //wrong problem: Null comparison always yields false: The variable selectedNode cannot be null at this location\n" + 
+			"            // wrong problem: dead code\n" + 
+			"            System.out.println(selectedNode.hashCode());\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n" +
+			"\n" + 
+			"class Node {\n" + 
+			"    Node getParent() {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in xy\\Try.java (at line 17)\n" + 
+		"	System.out.println(selectedNode.hashCode());\n" + 
+		"	                   ^^^^^^^^^^^^\n" + 
+		"Null pointer access: The variable selectedNode can only be null at this location\n" + 
+		"----------\n");
 }
 }

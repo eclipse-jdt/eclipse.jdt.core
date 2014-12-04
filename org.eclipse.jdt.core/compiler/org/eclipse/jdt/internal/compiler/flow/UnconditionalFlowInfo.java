@@ -18,6 +18,7 @@
  *							bug 386181 - [compiler][null] wrong transition in UnconditionalFlowInfo.mergedWith()
  *							bug 394768 - [compiler][resource] Incorrect resource leak warning when creating stream in conditional
  *							Bug 453483 - [compiler][null][loop] Improve null analysis for loops
+ *							Bug 454031 - [compiler][null][loop] bug in null analysis; wrong "dead code" detection
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -166,25 +167,46 @@ private FlowInfo addInfoFrom(FlowInfo inits, boolean handleInits) {
 			}
 		}
 		else {
-			long merge1 = (b1 = otherInits.nullBit1)
-                				| (a1 = this.nullBit1) & ((a3 = this.nullBit3)
-                					& (a4 = this.nullBit4) & (nb2 = ~(b2 = otherInits.nullBit2))
+			a1 = this.nullBit1;
+			a2 = this.nullBit2;
+			a3 = this.nullBit3;
+			a4 = this.nullBit4;
+
+			// state that breaks the correlation between bits and n or nn, used below:
+			long protNN1111 = a1&a2&a3&a4;
+
+			// filter 'a' using iNBit,iNNBit from otherInits:
+			// this implements that otherInit does not accept certain bits which are known to be superseded by info in otherInits.			
+			long acceptNonNull = otherInits.iNNBit;
+			long acceptNull = otherInits.iNBit
+								| protNN1111; // for 1111 don't bother suppressing incoming null, logic operation would produce wrong result
+			long dontResetToStart = ~protNN1111 | acceptNonNull; // for 1111 & ~acceptNonNull we reset all bits to 0000
+
+			a1 &= dontResetToStart;
+			a2 = dontResetToStart & acceptNull & a2;
+			a3 = dontResetToStart & acceptNonNull & a3;
+			a4 &= dontResetToStart;
+			a1 &= (a2 | a3 | a4);		// translate 1000 (undefined state) to 0000
+			
+			this.nullBit1 = (b1 = otherInits.nullBit1)
+                				| a1 & (a3
+                					& a4 & (nb2 = ~(b2 = otherInits.nullBit2))
                 					& (nb4 = ~(b4 = otherInits.nullBit4))
                         		| ((na4 = ~a4) | (na3 = ~a3))
-                        			& ((na2 = ~(a2 = this.nullBit2)) & nb2
+                        			& ((na2 = ~a2) & nb2
                         				| a2 & (nb3 = ~(b3 = otherInits.nullBit3)) & nb4));
-			long merge2  = b2 & (nb4 | nb3)
+			this.nullBit2  = b2 & (nb4 | nb3)
                     			| na3 & na4 & b2
                     			| a2 & (nb3 & nb4
                                 			| (nb1 = ~b1) & (na3 | (na1 = ~a1))
                                 			| a1 & b2);
-			long merge3 = b3 & (nb1 & (b2 | a2 | na1)
+			this.nullBit3 = b3 & (nb1 & (b2 | a2 | na1)
                         			| b1 & (b4 | nb2 | a1 & a3)
                          			| na1 & na2 & na4)
                     			| a3 & nb2 & nb4
                     			| nb1 & ((na2 & a4 | na1) & a3
                                 			| a1 & na2 & na4 & b2);
-			long merge4 = nb1 & (a4 & (na3 & nb3	| (a3 | na2) & nb2)
+			this.nullBit4 = nb1 & (a4 & (na3 & nb3	| (a3 | na2) & nb2)
                       			| a1 & (a3 & nb2 & b4
                               			| a2 & b2 & (b4	| a3 & na4 & nb3)))
                       			| b1 & (a3 & a4 & b4
@@ -195,20 +217,6 @@ private FlowInfo addInfoFrom(FlowInfo inits, boolean handleInits) {
                       			| (na1 & (na3 & nb3 | na2 & nb2)
                       				| a1 & (nb2 & nb3 | a2 & a3)) & b4;
 
-			// state that breaks the correlation between bits and n or nn, used below:
-			long protNN1111 = merge1&merge2&merge3&merge4;
-
-			// filter 'merge' using iNBit,iNNBit from otherInits:
-			// this implements that otherInit does not accept certain bits which are known to be superseded by info in otherInits.			
-			long acceptNonNull = otherInits.iNNBit;
-			long acceptNull = otherInits.iNBit
-								| b1&b2&b3&b4; // for 1111 don't bother suppressing incoming null (mixing 'merge' & 'b' would break in this case) 
-			this.nullBit1 = merge1;
-			this.nullBit2 = protNN1111 |
-				 				((acceptNull & merge2) | (~acceptNull & b2)); // iNBit selects between info from merge2 vs. b2
-			this.nullBit3 = protNN1111 |
-								((acceptNonNull & merge3) | (~acceptNonNull & b3)); // iNNBit selects between info from merge3 vs. b3
-			this.nullBit4 = merge4;
 			// unconditional sequence, must shine through both to shine through in the end:
 			this.iNBit &= otherInits.iNBit;
 			this.iNNBit &= otherInits.iNNBit;
@@ -310,25 +318,45 @@ private FlowInfo addInfoFrom(FlowInfo inits, boolean handleInits) {
 		  	mergeLimit = 0;
 		}
 		for (i = 0; i < mergeLimit; i++) {
-			long merge1 = (b1 = otherInits.extra[1 + 1][i])
-                				| (a1 = this.extra[1 + 1][i]) & ((a3 = this.extra[3 + 1][i])
-                					& (a4 = this.extra[4 + 1][i]) & (nb2 = ~(b2 = otherInits.extra[2 + 1][i]))
+			a1 = this.extra[1 + 1][i];
+			a2 = this.extra[2 + 1][i];
+			a3 = this.extra[3 + 1][i];
+			a4 = this.extra[4 + 1][i];
+			// state that breaks the correlation between bits and n or nn, used below:
+			long protNN1111 = a1&a2&a3&a4;
+
+			// filter 'a' using iNBit,iNNBit from otherInits:
+			// this implements that otherInit does not accept certain bits which are known to be superseded by info in otherInits.			
+			long acceptNonNull = otherInits.extra[INN][i];
+			long acceptNull = otherInits.extra[IN][i]
+								| protNN1111; // for 1111 don't bother suppressing incoming null, logic operation would produce wrong result
+			long dontResetToStart = ~protNN1111 | acceptNonNull; // for 1111 & ~acceptNonNull we reset all bits to 0000
+
+			a1 &= dontResetToStart;
+			a2 = dontResetToStart & acceptNull & a2;
+			a3 = dontResetToStart & acceptNonNull & a3;
+			a4 &= dontResetToStart;
+			a1 &= (a2 | a3 | a4);		// translate 1000 (undefined state) to 0000
+
+			this.extra[1 + 1][i] = (b1 = otherInits.extra[1 + 1][i])
+                				| a1 & (a3 
+                					& a4 & (nb2 = ~(b2 = otherInits.extra[2 + 1][i]))
                 					& (nb4 = ~(b4 = otherInits.extra[4 + 1][i]))
                         		| ((na4 = ~a4) | (na3 = ~a3))
-                        			& ((na2 = ~(a2 = this.extra[2 + 1][i])) & nb2
+                        			& ((na2 = ~a2) & nb2
                         				| a2 & (nb3 = ~(b3 = otherInits.extra[3 + 1][i])) & nb4));
-			long merge2 = b2 & (nb4 | nb3)
+			this.extra[2 + 1][i] = b2 & (nb4 | nb3)
                     			| na3 & na4 & b2
                     			| a2 & (nb3 & nb4
                                 			| (nb1 = ~b1) & (na3 | (na1 = ~a1))
                                 			| a1 & b2);
-			long merge3 = b3 & (nb1 & (b2 | a2 | na1)
+			this.extra[3 + 1][i] = b3 & (nb1 & (b2 | a2 | na1)
                         			| b1 & (b4 | nb2 | a1 & a3)
                          			| na1 & na2 & na4)
                     			| a3 & nb2 & nb4
                     			| nb1 & ((na2 & a4 | na1) & a3
                                 			| a1 & na2 & na4 & b2);
-			long merge4 = nb1 & (a4 & (na3 & nb3	| (a3 | na2) & nb2)
+			this.extra[4 + 1][i] = nb1 & (a4 & (na3 & nb3	| (a3 | na2) & nb2)
                       			| a1 & (a3 & nb2 & b4
                               			| a2 & b2 & (b4	| a3 & na4 & nb3)))
                       			| b1 & (a3 & a4 & b4
@@ -339,20 +367,6 @@ private FlowInfo addInfoFrom(FlowInfo inits, boolean handleInits) {
                       			| (na1 & (na3 & nb3 | na2 & nb2)
                       				| a1 & (nb2 & nb3 | a2 & a3)) & b4;
 
-			// state that breaks the correlation between bits and n or nn, used below:
-			long protNN1111 = merge1&merge2&merge3&merge4;
-
-			// filter 'merge' using iNBit,iNNBit from otherInits:
-			// this implements that otherInit does not accept certain bits which are known to be superseded by info in otherInits.			
-			long acceptNonNull = otherInits.extra[INN][i];
-			long acceptNull = otherInits.extra[IN][i]
-								| b1&b2&b3&b4; // for 1111 don't bother suppressing incoming null (mixing 'merge' & 'b' would break in this case) 
-			this.extra[1 + 1][i] = merge1;
-			this.extra[2 + 1][i] = protNN1111 |
-				 				((acceptNull & merge2) | (~acceptNull & b2)); // iNBit selects between info from merge2 vs. b2
-			this.extra[3 + 1][i] = protNN1111 |
-								((acceptNonNull & merge3) | (~acceptNonNull & b3)); // iNNBit selects between info from merge3 vs. b3
-			this.extra[4 + 1][i] = merge4;
 			// unconditional sequence, must shine through both to shine through in the end:
 			this.extra[IN][i] &= otherInits.extra[IN][i];
 			this.extra[INN][i] &= otherInits.extra[INN][i];
