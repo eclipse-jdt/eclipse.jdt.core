@@ -92,14 +92,21 @@ class DefaultBindingResolver extends BindingResolver {
 		 */
 		Map bindingKeysToBindings;
 		/**
-		 * This map is used to keep the correspondance between new bindings and the
-		 * compiler bindings as well as new annotation instances to their internal counterpart.
-		 * This is an identity map. We should only create one object for one binding or annotation.
+		 * This map is used to keep the correspondence between new bindings and the
+		 * compiler bindings to their internal counterpart.
+		 * This is an identity map. We should only create one object for one binding.
 		 */
 		Map compilerBindingsToASTBindings;
 
+		/**
+		 * This map is used to keep the correspondence between new annotation instances to their internal counterpart.
+		 * This is an identity map. We should only create one object for one annotation.
+		 */
+		Map compilerAnnotationBindingsToASTBindings;
+
 		BindingTables() {
 			this.compilerBindingsToASTBindings = new ConcurrentHashMap();
+			this.compilerAnnotationBindingsToASTBindings = new ConcurrentHashMap();
 			this.bindingKeysToBindings = new ConcurrentHashMap();
 		}
 
@@ -506,6 +513,21 @@ class DefaultBindingResolver extends BindingResolver {
 		return null;
 	}
 
+	class AnnotationIdentityBinding {
+		org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalInstance;
+		AnnotationIdentityBinding(org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalInstance) {
+			this.internalInstance = internalInstance;
+		}
+		@Override
+		public boolean equals(Object o) {
+			return o instanceof AnnotationIdentityBinding && this.internalInstance == ((AnnotationIdentityBinding)o).internalInstance;
+		}
+		@Override
+		public int hashCode() {
+			return this.internalInstance.hashCode();
+		}
+	}
+
 	synchronized IAnnotationBinding getAnnotationInstance(org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalInstance) {
 		if (internalInstance == null) return null;
 		ReferenceBinding annotationType = internalInstance.getAnnotationType();
@@ -514,12 +536,13 @@ class DefaultBindingResolver extends BindingResolver {
 				return null;
 			}
 		}
+		Object key =  new AnnotationIdentityBinding(internalInstance);
 		IAnnotationBinding domInstance =
-			(IAnnotationBinding) this.bindingTables.compilerBindingsToASTBindings.get(internalInstance);
+			(IAnnotationBinding) this.bindingTables.compilerAnnotationBindingsToASTBindings.get(key);
 		if (domInstance != null)
 			return domInstance;
 		domInstance = new AnnotationBinding(internalInstance, this);
-		this.bindingTables.compilerBindingsToASTBindings.put(internalInstance, domInstance);
+		this.bindingTables.compilerAnnotationBindingsToASTBindings.put(key, domInstance);
 		return domInstance;
 	}
 
