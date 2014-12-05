@@ -746,6 +746,8 @@ public abstract class Scope {
 			} else if (!method.isOverriding() || !isOverriddenMethodGeneric(method)) {
 				return new ProblemMethodBinding(method, method.selector, genericTypeArguments, ProblemReasons.TypeParameterArityMismatch);
 			}
+		} else if (typeVariables == Binding.NO_TYPE_VARIABLES && method instanceof PolyParameterizedGenericMethodBinding) {
+			return method;
 		}
 
 		if (tiebreakingVarargsMethods) {

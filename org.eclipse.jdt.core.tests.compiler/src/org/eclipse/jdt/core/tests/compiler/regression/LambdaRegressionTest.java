@@ -578,6 +578,27 @@ public void testBug4448556a() {
 	},
 	"Value 1 accept true");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=453687
+// [1.8][compiler]Incorrect errors when compiling code with Method References
+public void testBug453687() {
+	this.runConformTest(new String [] {
+		"X.java",
+		"import static java.util.stream.Collectors.groupingBy;\n" + 
+		"import static java.util.stream.Collectors.mapping;\n" + 
+		"import static java.util.stream.Collectors.toSet;\n" + 
+		"import java.util.Locale;\n" + 
+		"import java.util.Map;\n" + 
+		"import java.util.Set;\n" + 
+		"import java.util.stream.Stream;\n" + 
+		"public class X {\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		Map<String, Set<String>> countryLanguagesMap = Stream.of(Locale.getAvailableLocales()).collect(\n" + 
+		"				groupingBy(Locale::getDisplayCountry, mapping(Locale::getDisplayLanguage, toSet())));\n" + 
+		"	}\n" + 
+		"} "
+	},
+	"");
+}
 public static Class testClass() {
 	return LambdaRegressionTest.class;
 }
