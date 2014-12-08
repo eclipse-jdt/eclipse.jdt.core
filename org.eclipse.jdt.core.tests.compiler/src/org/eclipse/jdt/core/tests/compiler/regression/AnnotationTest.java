@@ -11232,10 +11232,9 @@ public void test433747() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 		return;
 	}
-	this.runNegativeTest(
-		new String[] {
+	String[] src = new String[] {
 			"p/package-info.java",
-			"@PackageAnnot(\"p\")\n" +
+			"@PackageAnnot(\"p123456\")\n" +
 			"package p;\n" +
 			"import java.lang.annotation.ElementType;\n" +
 			"import java.lang.annotation.Target;\n" +
@@ -11243,18 +11242,63 @@ public void test433747() throws Exception {
 			"@interface PackageAnnot {\n" +
 			"	String value();\n" +
 			"}\n"
-		},
-		"----------\n" + 
-		"1. ERROR in p\\package-info.java (at line 1)\n" + 
-		"	@PackageAnnot(\"p\")\n" + 
-		"	^^^^^^^^^^^^^\n" + 
-		"The annotation @PackageAnnot is disallowed for this location\n" + 
-		"----------\n",
-		null,
-		true,
-		null,
-		true, // generate output
-		false,
-		false);
+	};
+	if (this.complianceLevel <= ClassFileConstants.JDK1_6) {
+		this.runConformTest(src);
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p/package-info.class", "", "p123456");
+	} else {
+		this.runNegativeTest(
+			src,
+			"----------\n" +
+			"1. ERROR in p\\package-info.java (at line 1)\n" +
+			"	@PackageAnnot(\"p123456\")\n" +
+			"	^^^^^^^^^^^^^\n" +
+			"The annotation @PackageAnnot is disallowed for this location\n" +
+			"----------\n",
+			null,
+			true,
+			null,
+			true, // generate output
+			false,
+			false);
 	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=449330 - [1.6]Eclipse compiler doesn't compile annotations in class files
+public void test449330() throws Exception {
+	String[] testFiles = new String[] {
+		"p/X.java",
+		"package p;\n" +
+		"@java.lang.annotation.Target(value={java.lang.annotation.ElementType.TYPE})\n" +
+		"@interface X { public java.lang.String name(); }\n",
+		"p/package-info.java",
+		"@X(name=\"HELLO\")\n" +
+		"package p;\n"
+	};
+	if (this.complianceLevel <= ClassFileConstants.JDK1_6) {
+		this.runConformTest(testFiles, "");
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p/package-info.class", "", "HELLO");
+	} else {
+		this.runNegativeTest(testFiles,
+			"----------\n" +
+			"1. ERROR in p\\package-info.java (at line 1)\n" +
+			"	@X(name=\"HELLO\")\n" +
+			"	^^\n" +
+			"The annotation @X is disallowed for this location\n" +
+			"----------\n");
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=449330 - [1.6]Eclipse compiler doesn't compile annotations in class files
+// Annotation target not set
+public void test449330a() throws Exception {
+	String[] testFiles = new String[] {
+		"p/X.java",
+		"package p;\n" +
+		"@interface X { public java.lang.String name(); }\n",
+		"p/package-info.java",
+		"@X(name=\"HELLO\")\n" +
+		"package p;\n"
+	};
+	this.runConformTest(testFiles, "");
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p/package-info.class", "", "HELLO");
+}
 }
