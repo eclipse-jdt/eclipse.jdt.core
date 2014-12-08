@@ -181,32 +181,34 @@ public class ToolFactory {
 			currentOptions.put(DefaultCodeFormatterConstants.FORMATTER_NEVER_INDENT_LINE_COMMENTS_ON_FIRST_COLUMN, DefaultCodeFormatterConstants.FALSE);
 		}
 		String formatterId = (String) options.get(JavaCore.JAVA_FORMATTER);
-		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID,
-				JavaCore.JAVA_FORMATTER_EXTENSION_POINT_ID);
-		if (extension != null) {
-			IExtension[] extensions = extension.getExtensions();
-			for (int i = 0; i < extensions.length; i++) {
-				IConfigurationElement[] configElements = extensions[i].getConfigurationElements();
-				for (int j = 0; j < configElements.length; j++) {
-					String initializerID = configElements[j].getAttribute("id"); //$NON-NLS-1$
-					if (initializerID != null && initializerID.equals(formatterId)) {
-						try {
-							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
-							if (execExt instanceof CodeFormatter) {
-								CodeFormatter formatter = (CodeFormatter) execExt;
-								formatter.setOptions(currentOptions);
-								return formatter;
+		if (formatterId != null) {
+			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID,
+					JavaCore.JAVA_FORMATTER_EXTENSION_POINT_ID);
+			if (extension != null) {
+				IExtension[] extensions = extension.getExtensions();
+				for (int i = 0; i < extensions.length; i++) {
+					IConfigurationElement[] configElements = extensions[i].getConfigurationElements();
+					for (int j = 0; j < configElements.length; j++) {
+						String initializerID = configElements[j].getAttribute("id"); //$NON-NLS-1$
+						if (initializerID != null && initializerID.equals(formatterId)) {
+							try {
+								Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
+								if (execExt instanceof CodeFormatter) {
+									CodeFormatter formatter = (CodeFormatter) execExt;
+									formatter.setOptions(currentOptions);
+									return formatter;
+								}
+							} catch (CoreException e) {
+								org.eclipse.jdt.internal.core.util.Util.log(e.getStatus());
+								break;
 							}
-						} catch (CoreException e) {
-							org.eclipse.jdt.internal.core.util.Util.log(e.getStatus());
-							break;
 						}
 					}
 				}
 			}
+			org.eclipse.jdt.internal.core.util.Util.log(IStatus.WARNING,
+					"Unable to instantiate formatter extension '" + formatterId + "', returning built-in formatter."); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		org.eclipse.jdt.internal.core.util.Util.log(IStatus.WARNING,
-				"Unable to instantiate formatter extension, returning built-in formatter."); //$NON-NLS-1$
 		return new DefaultCodeFormatter(currentOptions);
 	}
 
