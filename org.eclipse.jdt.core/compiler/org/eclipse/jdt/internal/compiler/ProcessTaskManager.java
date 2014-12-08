@@ -28,9 +28,9 @@ public class ProcessTaskManager implements Runnable {
 
 	public static final int PROCESSED_QUEUE_SIZE = 12;
 
-public ProcessTaskManager(Compiler compiler) {
+public ProcessTaskManager(Compiler compiler, int startingIndex) {
 	this.compiler = compiler;
-	this.unitIndex = 0;
+	this.unitIndex = startingIndex;
 
 	this.currentIndex = 0;
 	this.availableIndex = 0;
@@ -122,6 +122,8 @@ public void run() {
 					return;
 				}
 				index = this.unitIndex++;
+				if (this.unitToProcess.compilationResult.hasBeenAccepted)
+					continue;
 			}
 
 			try {
