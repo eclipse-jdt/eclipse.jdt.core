@@ -5450,5 +5450,179 @@ public void testBug452194() {
 		"The method addUnique(Map.Entry) in the type EcoreEMap is not applicable for the arguments (Object)\n" + 
 		"----------\n");
 }
+public void testBug453253() {
+	runNegativeTest(
+		new String[] {
+			"example/CollectionFactory.java",
+			"/*\n" + 
+			" * Copyright 2002-2014 the original author or authors.\n" + 
+			" *\n" + 
+			" * Licensed under the Apache License, Version 2.0 (the \"License\");\n" + 
+			" * you may not use this file except in compliance with the License.\n" + 
+			" * You may obtain a copy of the License at\n" + 
+			" *\n" + 
+			" *      http://www.apache.org/licenses/LICENSE-2.0\n" + 
+			" *\n" + 
+			" * Unless required by applicable law or agreed to in writing, software\n" + 
+			" * distributed under the License is distributed on an \"AS IS\" BASIS,\n" + 
+			" * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n" + 
+			" * See the License for the specific language governing permissions and\n" + 
+			" * limitations under the License.\n" + 
+			" */\n" + 
+			"\n" + 
+			"package example;\n" + 
+			"\n" + 
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Collection;\n" + 
+			"import java.util.EnumSet;\n" + 
+			"import java.util.LinkedHashSet;\n" + 
+			"import java.util.LinkedList;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.NavigableSet;\n" + 
+			"import java.util.Set;\n" + 
+			"import java.util.SortedSet;\n" + 
+			"import java.util.TreeSet;\n" + 
+			"\n" + 
+			"/**\n" + 
+			" * The code in this class is taken directly from the Spring Framework for the purpose\n" + 
+			" * of reproducing a bug.\n" + 
+			" * <p>\n" + 
+			" * Specifically, the code comes from {@code org.springframework.core.CollectionFactory}.\n" + 
+			" *\n" + 
+			" * @author Juergen Hoeller\n" + 
+			" * @author Arjen Poutsma\n" + 
+			" * @author Sam Brannen\n" + 
+			" */\n" + 
+			"public abstract class CollectionFactory {\n" + 
+			"\n" + 
+			"	@SuppressWarnings({ \"unchecked\", \"cast\" })\n" + 
+			"	public static <E> Collection<E> createApproximateCollection(Object collection, int capacity) {\n" + 
+			"		if (collection instanceof LinkedList) {\n" + 
+			"			return new LinkedList<E>();\n" + 
+			"		}\n" + 
+			"		else if (collection instanceof List) {\n" + 
+			"			return new ArrayList<E>(capacity);\n" + 
+			"		}\n" + 
+			"		else if (collection instanceof EnumSet) {\n" + 
+			"			// superfluous cast necessary for bug in Eclipse 4.4.1.\n" + 
+			"			// return (Collection<E>) EnumSet.copyOf((EnumSet) collection);\n" + 
+			"\n" + 
+			"			// Original code which compiles using OpenJDK 1.8.0_40-ea-b11 and IntelliJ IDEA\n" + 
+			"			return EnumSet.copyOf((EnumSet) collection);\n" + 
+			"		}\n" + 
+			"		else if (collection instanceof SortedSet) {\n" + 
+			"			return new TreeSet<E>(((SortedSet<E>) collection).comparator());\n" + 
+			"		}\n" + 
+			"		else {\n" + 
+			"			return new LinkedHashSet<E>(capacity);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static <E> Collection<E> createCollection(Class<?> collectionClass, Class<?> elementType, int capacity) {\n" + 
+			"		if (collectionClass.isInterface()) {\n" + 
+			"			if (Set.class.equals(collectionClass) || Collection.class.equals(collectionClass)) {\n" + 
+			"				return new LinkedHashSet<E>(capacity);\n" + 
+			"			}\n" + 
+			"			else if (List.class.equals(collectionClass)) {\n" + 
+			"				return new ArrayList<E>(capacity);\n" + 
+			"			}\n" + 
+			"			else if (SortedSet.class.equals(collectionClass) || NavigableSet.class.equals(collectionClass)) {\n" + 
+			"				return new TreeSet<E>();\n" + 
+			"			}\n" + 
+			"			else {\n" + 
+			"				throw new IllegalArgumentException(\"Unsupported Collection interface: \" + collectionClass.getName());\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		else if (EnumSet.class.equals(collectionClass)) {\n" + 
+			"			// Assert.notNull(elementType, \"Cannot create EnumSet for unknown element type\");\n" + 
+			"\n" + 
+			"			// superfluous cast necessary for bug in Eclipse 4.4.1.\n" + 
+			"			// return (Collection<E>) EnumSet.noneOf((Class) elementType);\n" + 
+			"\n" + 
+			"			// Original code which compiles using OpenJDK 1.8.0_40-ea-b11 and IntelliJ IDEA\n" + 
+			"			return EnumSet.noneOf((Class) elementType);\n" + 
+			"		}\n" + 
+			"		else {\n" + 
+			"			if (!Collection.class.isAssignableFrom(collectionClass)) {\n" + 
+			"				throw new IllegalArgumentException(\"Unsupported Collection type: \" + collectionClass.getName());\n" + 
+			"			}\n" + 
+			"			try {\n" + 
+			"				return (Collection<E>) collectionClass.newInstance();\n" + 
+			"			}\n" + 
+			"			catch (Exception ex) {\n" + 
+			"				throw new IllegalArgumentException(\n" + 
+			"						\"Could not instantiate Collection type: \" + collectionClass.getName(), ex);\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n"
+		},
+		(this.complianceLevel < ClassFileConstants.JDK1_8 ?
+			"----------\n" + 
+			"1. WARNING in example\\CollectionFactory.java (at line 42)\n" + 
+			"	@SuppressWarnings({ \"unchecked\", \"cast\" })\n" + 
+			"	                                 ^^^^^^\n" + 
+			"Unnecessary @SuppressWarnings(\"cast\")\n" + 
+			"----------\n" + 
+			"2. WARNING in example\\CollectionFactory.java (at line 55)\n" + 
+			"	return EnumSet.copyOf((EnumSet) collection);\n" + 
+			"	                       ^^^^^^^\n" + 
+			"EnumSet is a raw type. References to generic type EnumSet<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. WARNING in example\\CollectionFactory.java (at line 87)\n" + 
+			"	return EnumSet.noneOf((Class) elementType);\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation noneOf(Class) of the generic method noneOf(Class<E>) of type EnumSet\n" + 
+			"----------\n" + 
+			"4. WARNING in example\\CollectionFactory.java (at line 87)\n" + 
+			"	return EnumSet.noneOf((Class) elementType);\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type EnumSet needs unchecked conversion to conform to Collection<E>\n" + 
+			"----------\n" + 
+			"5. WARNING in example\\CollectionFactory.java (at line 87)\n" + 
+			"	return EnumSet.noneOf((Class) elementType);\n" + 
+			"	                      ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<E>\n" + 
+			"----------\n" + 
+			"6. WARNING in example\\CollectionFactory.java (at line 87)\n" + 
+			"	return EnumSet.noneOf((Class) elementType);\n" + 
+			"	                       ^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n" + 
+			"7. WARNING in example\\CollectionFactory.java (at line 94)\n" + 
+			"	return (Collection<E>) collectionClass.newInstance();\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from capture#13-of ? to Collection<E>\n" + 
+			"----------\n"
+		:
+			"----------\n" + 
+			"1. ERROR in example\\CollectionFactory.java (at line 55)\n" + 
+			"	return EnumSet.copyOf((EnumSet) collection);\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from EnumSet<Enum<Enum<E>>> to Collection<E>\n" + 
+			"----------\n" + 
+			"2. WARNING in example\\CollectionFactory.java (at line 55)\n" + 
+			"	return EnumSet.copyOf((EnumSet) collection);\n" + 
+			"	                       ^^^^^^^\n" + 
+			"EnumSet is a raw type. References to generic type EnumSet<E> should be parameterized\n" + 
+			"----------\n" + 
+			"3. ERROR in example\\CollectionFactory.java (at line 87)\n" + 
+			"	return EnumSet.noneOf((Class) elementType);\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from EnumSet<Enum<Enum<E>>> to Collection<E>\n" + 
+			"----------\n" + 
+			"4. WARNING in example\\CollectionFactory.java (at line 87)\n" + 
+			"	return EnumSet.noneOf((Class) elementType);\n" + 
+			"	                       ^^^^^\n" + 
+			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+			"----------\n" + 
+			"5. WARNING in example\\CollectionFactory.java (at line 94)\n" + 
+			"	return (Collection<E>) collectionClass.newInstance();\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked cast from capture#13-of ? to Collection<E>\n" + 
+			"----------\n"
+			));
+}
 }
 
