@@ -6,7 +6,9 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    eclipse@cafewalter.com - initial API and implementation
+ *    eclipse@cafewalter.com 			- initial API and implementation
+ *    Harry Terkelsen <het@google.com> 	- Contribution for
+ *     											Bug 437414 - Annotation processing is broken when build is batched
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.pluggable.tests;
@@ -23,6 +25,7 @@ import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.BugsProc;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.InheritedAnnoProc;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.TestFinalRoundProc;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.internal.core.builder.AbstractImageBuilder;
 
 /**
  * Tests covering the IDE's ability to process the correct set of files.
@@ -222,5 +225,47 @@ public class BuilderTests extends TestBase
 		fullBuild();
 		expectingNoProblems();
 	}
-	
+	public void testBatchedBuild() throws Throwable {
+		int old = AbstractImageBuilder.MAX_AT_ONCE;
+		IJavaProject jproj = createJavaProject(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+		IPath root = projPath.append("src");
+		IPath packagePath = root.append("test");
+		try {
+			// Force the build to be batched
+			AbstractImageBuilder.MAX_AT_ONCE = 1;
+			ProcessorTestStatus.reset();
+			
+			env.addClass(root, "test", "Foo",
+					"package test;\n" +
+					"import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;\n" +
+			        "@GenClass6(name = \"FooGen\", pkg = \"test\")\n" +
+				    "public class Foo {\n" +
+			        "    public Bar bar;\n" +
+				    "}");
+			env.addClass(root, "test", "Bar",
+					"package test;\n" +
+					"import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;\n" +
+			        "@GenClass6(name = \"BarGen\", pkg = \"test\")\n" +
+				    "public class Bar {\n" +
+			        "    public Foo foo;\n" +
+				    "}");
+			AptConfig.setEnabled(jproj, true);
+			
+			fullBuild();
+			expectingNoProblems();
+			expectingUniqueCompiledClasses(
+					new String[] {"test.Foo", "test.Bar", "test.FooGen", "test.BarGen"});
+			
+		} finally {
+			AbstractImageBuilder.MAX_AT_ONCE = old;
+			env.removeClass(packagePath, "Foo");
+			env.removeClass(packagePath, "Bar");
+			env.removeClass(packagePath, "FooGen");
+			env.removeClass(packagePath, "BarGen");
+
+		}
+	}
 }
