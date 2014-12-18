@@ -20,6 +20,7 @@
  *								bug 406384 - Internal error with I20130413
  *								Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
  *								Bug 453483 - [compiler][null][loop] Improve null analysis for loops
+ *								Bug 455557 - [jdt] NPE LoopingFlowContext.recordNullReference
  *     Jesper S Moller - contributions for
  *								bug 404657 - [1.8][compiler] Analysis for effectively final variables fails to consider loops
  *******************************************************************************/
@@ -562,7 +563,7 @@ protected void recordNullReference(LocalVariableBinding local,
 	this.nullLocals[this.nullCount] = local;
 	this.nullReferences[this.nullCount] = expression;
 	this.nullCheckTypes[this.nullCount] = checkType;
-	this.nullInfos[this.nullCount++] = nullInfo.unconditionalCopy();
+	this.nullInfos[this.nullCount++] = nullInfo != null ? nullInfo.unconditionalCopy() : null;
 }
 public void recordUnboxing(Scope scope, Expression expression, int nullStatus, FlowInfo flowInfo) {
 	if (nullStatus == FlowInfo.NULL)

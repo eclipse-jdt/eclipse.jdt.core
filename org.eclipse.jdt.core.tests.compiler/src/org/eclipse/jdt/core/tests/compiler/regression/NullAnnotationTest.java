@@ -7877,4 +7877,35 @@ public void testBug452780() {
 		getCompilerOptions(),
 		"");
 }
+public void testBug455557() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void test(List<String> list, boolean b) {\n" + 
+			"		if (b) {\n" + 
+			"			while (true) {\n" + 
+			"				for (@NonNull Object y : list) { \n" + 
+			"				}\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		null,
+		"----------\n" + 
+		"1. WARNING in X.java (at line 10)\n" + 
+		"	for (@NonNull Object y : list) { \n" + 
+		"	                         ^^^^\n" + 
+		(this.complianceLevel < ClassFileConstants.JDK1_8
+		? "Null type safety: The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull Object\'\n"
+		: "Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull Object\'\n"
+		) +
+		"----------\n");
+}
 }
