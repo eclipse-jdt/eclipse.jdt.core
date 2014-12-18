@@ -11243,11 +11243,7 @@ public void test433747() throws Exception {
 			"	String value();\n" +
 			"}\n"
 	};
-	if (this.complianceLevel <= ClassFileConstants.JDK1_6) {
-		this.runConformTest(src);
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p/package-info.class", "", "p123456");
-	} else {
-		this.runNegativeTest(
+	this.runNegativeTest(
 			src,
 			"----------\n" +
 			"1. ERROR in p\\package-info.java (at line 1)\n" +
@@ -11261,10 +11257,9 @@ public void test433747() throws Exception {
 			true, // generate output
 			false,
 			false);
-	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449330 - [1.6]Eclipse compiler doesn't compile annotations in class files
-public void test449330() throws Exception {
+public void _test449330() throws Exception {
 	String[] testFiles = new String[] {
 		"p/X.java",
 		"package p;\n" +
@@ -11289,7 +11284,7 @@ public void test449330() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=449330 - [1.6]Eclipse compiler doesn't compile annotations in class files
 // Annotation target not set
-public void test449330a() throws Exception {
+public void _test449330a() throws Exception {
 	String[] testFiles = new String[] {
 		"p/X.java",
 		"package p;\n" +

@@ -951,13 +951,8 @@ public abstract class Annotation extends Expression {
 			} 
 			if (kind == Binding.TYPE) {
 				SourceTypeBinding sourceType = (SourceTypeBinding) this.recipient;
-				if (CharOperation.equals(sourceType.sourceName, TypeConstants.PACKAGE_INFO_NAME)) {
+				if (CharOperation.equals(sourceType.sourceName, TypeConstants.PACKAGE_INFO_NAME))
 					kind = Binding.PACKAGE;
-					if (scope.compilerOptions().sourceLevel <= ClassFileConstants.JDK1_6 &&
-							(annotationType.tagBits & TagBits.AnnotationForPackage) == 0) {
-						annotationType.tagBits |= TagBits.AnnotationForPackage;
-					}
-				}
 			}
 			checkAnnotationTarget(this, scope, annotationType, kind);
 		}
