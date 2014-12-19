@@ -997,14 +997,7 @@ public void resolve() {
 		return;
 	}
 	try {
-		boolean old = this.staticInitializerScope.insideTypeAnnotation;
-		try {
-			this.staticInitializerScope.insideTypeAnnotation = true;
-			resolveAnnotations(this.staticInitializerScope, this.annotations, sourceType);
-		} finally {
-			this.staticInitializerScope.insideTypeAnnotation = old;
-		}
-		// check @Deprecated annotation
+		// resolve annotations and check @Deprecated annotation
 		long annotationTagBits = sourceType.getAnnotationTagBits();
 		if ((annotationTagBits & TagBits.AnnotationDeprecated) == 0
 				&& (sourceType.modifiers & ClassFileConstants.AccDeprecated) != 0

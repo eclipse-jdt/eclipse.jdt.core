@@ -975,7 +975,6 @@ public long getAnnotationTagBits() {
 		}
 		if ((this.tagBits & TagBits.AnnotationDeprecated) != 0)
 			this.modifiers |= ClassFileConstants.AccDeprecated;
-		evaluateNullAnnotations(this.tagBits);
 	}
 	return this.tagBits;
 }
@@ -2009,7 +2008,7 @@ private void createArgumentBindings(MethodBinding method, CompilerOptions compil
 	}
 }
 
-private void evaluateNullAnnotations(long annotationTagBits) {
+public void evaluateNullAnnotations() {
 	
 	if (!isPrototype()) throw new IllegalStateException();
 	
@@ -2052,6 +2051,7 @@ private void evaluateNullAnnotations(long annotationTagBits) {
 		}
 	} else {
 		// transfer nullness info from tagBits to this.defaultNullness
+		long annotationTagBits = this.tagBits;
 		int newDefaultNullness = NO_NULL_DEFAULT;
 		if ((annotationTagBits & TagBits.AnnotationNullUnspecifiedByDefault) != 0) {
 			newDefaultNullness = NULL_UNSPECIFIED_BY_DEFAULT;

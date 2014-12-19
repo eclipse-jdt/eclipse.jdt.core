@@ -7909,4 +7909,58 @@ public void testBug455557() {
 		) +
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=436486
+public void test_null_with_apt() {
+	boolean apt = this.enableAPT;
+	this.enableAPT = true;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.WARNING);
+	customOptions.put(JavaCore.COMPILER_PB_UNUSED_WARNING_TOKEN, JavaCore.ERROR);
+	runConformTestWithLibs(
+		new String[] {
+			"NullWarn.java",
+			"@SuppressWarnings(\"null\")\n" + 
+			"public class NullWarn {\n" + 
+			"\n" + 
+			"    // Some code\n" + 
+			"\n" + 
+			"}\n"
+		},
+		customOptions,
+		"");
+	this.enableAPT = apt;
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=436486#c4
+public void test_null_with_apt_comment4() {
+	boolean apt = this.enableAPT;
+	this.enableAPT = true;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_UNUSED_WARNING_TOKEN, JavaCore.ERROR);
+	runConformTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"\n" + 
+			"@NonNullByDefault\n" + 
+			"public class Test {\n" + 
+			"\n" + 
+			"	public static final Test t = new Test(Integer.valueOf(0));\n" + 
+			"\n" + 
+			"	public Test(Integer integer) {\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		customOptions,
+		"----------\n" + 
+		"1. WARNING in Test.java (at line 6)\n" + 
+		"	public static final Test t = new Test(Integer.valueOf(0));\n" + 
+		"	                                      ^^^^^^^^^^^^^^^^^^\n" + 
+		(this.complianceLevel < ClassFileConstants.JDK1_8 
+		? "Null type safety: The expression of type \'Integer\' needs unchecked conversion to conform to \'@NonNull Integer\'\n"
+		: "Null type safety (type annotations): The expression of type \'Integer\' needs unchecked conversion to conform to \'@NonNull Integer\'\n"
+		) +
+		"----------\n");
+	this.enableAPT = apt;
+}
 }

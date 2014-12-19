@@ -694,6 +694,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 	public static void resolveAnnotations(BlockScope scope, Annotation[] sourceAnnotations, Binding recipient) {
 		resolveAnnotations(scope, sourceAnnotations, recipient, false);
+		if (recipient instanceof SourceTypeBinding)
+			((SourceTypeBinding) recipient).evaluateNullAnnotations();
 	}
 	
 	/**
