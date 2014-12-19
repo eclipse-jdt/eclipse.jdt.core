@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class InnerEmulationTest extends AbstractRegressionTest {
 static {
 //		TESTS_NAMES = new String[] { "Bug58069" };

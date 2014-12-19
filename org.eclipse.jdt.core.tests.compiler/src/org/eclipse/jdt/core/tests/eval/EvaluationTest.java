@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.eval.GlobalVariable;
 import org.eclipse.jdt.internal.eval.IRequestor;
 import org.eclipse.jdt.internal.eval.InstallException;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class EvaluationTest extends AbstractCompilerTest implements StopableTestCase {
 
 	public class Requestor implements IRequestor {

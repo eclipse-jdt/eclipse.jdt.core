@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class StackMapAttributeTest extends AbstractRegressionTest {
 	public StackMapAttributeTest(String name) {
 		super(name);

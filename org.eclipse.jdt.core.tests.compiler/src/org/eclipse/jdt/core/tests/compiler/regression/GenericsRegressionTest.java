@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class GenericsRegressionTest extends AbstractComparableTest {
 
 	public GenericsRegressionTest(String name) {

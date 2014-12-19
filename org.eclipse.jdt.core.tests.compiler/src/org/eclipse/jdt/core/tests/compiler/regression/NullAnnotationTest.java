@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 // see bug 186342 - [compiler][null] Using annotations for null checking
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class NullAnnotationTest extends AbstractNullAnnotationTest {
 
 private String TEST_JAR_SUFFIX = ".jar";
@@ -36,7 +37,7 @@ public NullAnnotationTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which do not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "testBug412076" };
+//		TESTS_NAMES = new String[] { "test_default_nullness_003a" };
 //		TESTS_NUMBERS = new int[] { 561 };
 //		TESTS_RANGE = new int[] { 1, 2049 };
 }

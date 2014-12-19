@@ -50,6 +50,7 @@ import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class AnnotationTest extends AbstractComparableTest {
 
 	// Static initializer to specify tests subset using TESTS_* static variables

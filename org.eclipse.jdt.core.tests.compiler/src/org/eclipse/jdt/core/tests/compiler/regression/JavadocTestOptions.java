@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=46854"
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=46976"
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class JavadocTestOptions extends JavadocTest {
 
 	/**

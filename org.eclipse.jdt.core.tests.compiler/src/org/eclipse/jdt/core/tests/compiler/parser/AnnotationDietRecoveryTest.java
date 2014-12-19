@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 // This test suite test the first implementation of the annotation recovery.
 // Tests must be updated with annotation recovery improvment
 // TODO(david) update test suite
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class AnnotationDietRecoveryTest extends AbstractCompilerTest {
 	private static final boolean CHECK_ALL_PARSE = true;
 	public static boolean optimizeStringLiterals = false;

@@ -34,6 +34,7 @@ import org.eclipse.jdt.internal.eval.InstallException;
 
 import com.sun.jdi.VirtualMachine;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class DebugEvaluationTest extends EvaluationTest {
 	static {
 //		TESTS_NAMES = new String[] { "test069" };

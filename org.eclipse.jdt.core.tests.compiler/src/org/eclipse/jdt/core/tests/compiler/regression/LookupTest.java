@@ -31,6 +31,7 @@ import junit.framework.Test;
  * Creation date: (8/2/00 12:04:53 PM)
  * @author Dennis Conway
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class LookupTest extends AbstractRegressionTest {
 public LookupTest(String name) {
 	super(name);

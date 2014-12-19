@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,6 +44,7 @@ import com.sun.jdi.event.EventSet;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.EventRequest;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class JDIStackFrame implements EvaluationConstants, RuntimeConstants {
 	VirtualMachine jdiVM;
 	ThreadReference jdiThread;
@@ -135,12 +136,12 @@ protected ThreadReference getDebuggedThread(DebugEvaluationTest test) {
 			}
 		}
 		ClassType clazz = (ClassType)classes.get(0);
-		Method method = (Method)clazz.methodsByName(this.breakpointMethodName).get(0);
+		Method method = clazz.methodsByName(this.breakpointMethodName).get(0);
 		Location location;
 		if (this.breakpointLine < 0 || this.breakpointLine == Integer.MAX_VALUE) {
 			location = method.location();
 		} else {
-			location = (Location)method.locationsOfLine(this.breakpointLine).get(0);
+			location = method.locationsOfLine(this.breakpointLine).get(0);
 		}
 		BreakpointRequest request = this.jdiVM.eventRequestManager().createBreakpointRequest(location);
 		request.setSuspendPolicy(EventRequest.SUSPEND_EVENT_THREAD);
@@ -303,7 +304,7 @@ public boolean run(String codeSnippetClassName) {
 			codeSnippetClass = (ClassType)classes.get(0);
 
 			// Create a new code snippet
-			Method constructor = (Method)codeSnippetClass.methodsByName("<init>").get(0);
+			Method constructor = codeSnippetClass.methodsByName("<init>").get(0);
 			codeSnippet = codeSnippetClass.newInstance(this.jdiThread, constructor, new ArrayList(), ClassType.INVOKE_SINGLE_THREADED);
 
 			// Install local variables and "this" into generated fields
@@ -331,7 +332,7 @@ public boolean run(String codeSnippetClassName) {
 			codeSnippetRunner = (ObjectReference)codeSnippetRunnerClass.getValue(theRunner);
 
 			// Get the method 'runCodeSnippet' and its arguments
-			method = (Method)codeSnippetRunnerClass.methodsByName(RUN_CODE_SNIPPET_METHOD).get(0);
+			method = codeSnippetRunnerClass.methodsByName(RUN_CODE_SNIPPET_METHOD).get(0);
 			arguments = new ArrayList();
 			arguments.add(codeSnippet);
 		} catch (ClassNotLoadedException e) {

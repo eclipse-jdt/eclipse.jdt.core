@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class JSR335ClassFileTest extends AbstractComparableTest {
 
 public JSR335ClassFileTest(String name) {

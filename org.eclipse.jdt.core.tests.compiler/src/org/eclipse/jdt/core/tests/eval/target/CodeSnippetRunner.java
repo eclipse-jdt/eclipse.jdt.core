@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,7 @@ import java.util.*;
  *	   loader can load such a class.
  * </ul>
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class CodeSnippetRunner {
 	public static CodeSnippetRunner theRunner;
 	static final String CODE_SNIPPET_CLASS_NAME = "org.eclipse.jdt.internal.eval.target.CodeSnippet";
@@ -227,7 +228,7 @@ public static void main(String[] args) {
 		try {
 			Class clazz = Class.forName(args[mainClass]);
 			Method mainMethod = clazz.getMethod("main", new Class[] {String[].class});
-			mainMethod.invoke(null, new String[][] {mainArgs});
+			mainMethod.invoke(null, (Object[]) mainArgs);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		} catch (NoSuchMethodException e) {

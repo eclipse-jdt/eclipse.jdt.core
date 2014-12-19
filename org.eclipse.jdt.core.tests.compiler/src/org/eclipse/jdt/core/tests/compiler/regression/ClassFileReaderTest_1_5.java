@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
+@SuppressWarnings({ "rawtypes" })
 public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	static {
 //		TESTS_NAMES = new String[] { "test127" };

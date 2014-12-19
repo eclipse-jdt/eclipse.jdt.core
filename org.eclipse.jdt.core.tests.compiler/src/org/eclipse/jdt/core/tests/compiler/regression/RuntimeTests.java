@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 import junit.framework.Test;
 
+@SuppressWarnings({ "rawtypes" })
 public class RuntimeTests extends AbstractRegressionTest {
 
 public RuntimeTests(String name) {

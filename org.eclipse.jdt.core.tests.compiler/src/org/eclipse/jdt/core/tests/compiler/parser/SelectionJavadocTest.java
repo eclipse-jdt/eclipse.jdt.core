@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,6 +40,7 @@ import junit.framework.Test;
  * Class to test selection in Javadoc comments.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=54968"
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class SelectionJavadocTest extends AbstractSelectionTest {
 
 	String source;

@@ -36,6 +36,7 @@ import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class MethodVerifyTest extends AbstractComparableTest {
 	static {
 //		TESTS_NAMES = new String[] { "testBug406928" };

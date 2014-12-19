@@ -16,6 +16,7 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class Unicode18Test extends AbstractRegressionTest {
 public Unicode18Test(String name) {
 	super(name);

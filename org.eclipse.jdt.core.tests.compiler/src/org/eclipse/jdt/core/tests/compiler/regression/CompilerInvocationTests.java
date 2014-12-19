@@ -68,6 +68,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
  * This class is meant to gather test cases related to the invocation of the
  * compiler, be it at an API or non API level.
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class CompilerInvocationTests extends AbstractRegressionTest {
 
 public CompilerInvocationTests(String name) {

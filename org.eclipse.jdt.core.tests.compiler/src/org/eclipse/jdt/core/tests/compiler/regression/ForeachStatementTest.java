@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class ForeachStatementTest extends AbstractComparableTest {
 
 public ForeachStatementTest(String name) {

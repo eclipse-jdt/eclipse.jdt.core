@@ -17,6 +17,7 @@ import java.util.Map;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import junit.framework.Test;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class ExpressionContextTests extends AbstractRegressionTest {
 
 static {

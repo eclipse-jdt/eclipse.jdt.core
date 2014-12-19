@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Jesper S Moller and others.
+ * Copyright (c) 2013, 2014 Jesper S Moller and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.IntConstant;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 
+@SuppressWarnings({ "rawtypes" })
 public class RepeatableAnnotationTest extends AbstractComparableTest {
 
 	// Static initializer to specify tests subset using TESTS_* static variables

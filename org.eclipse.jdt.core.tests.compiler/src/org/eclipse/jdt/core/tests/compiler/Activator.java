@@ -21,6 +21,7 @@ import org.osgi.framework.ServiceReference;
  * 
  * @deprecated uses deprecated class PackageAdmin.
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class Activator extends Plugin {
 
 	private static final String PLUGIN_ID = "org.eclipse.jdt.core.tests.compiler";

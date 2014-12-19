@@ -53,6 +53,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  * reference analysis. See NullReferenceTest for tests targetted at
  * the source code compiler behavior level.
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class NullReferenceImplTests extends NullReferenceTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
   	// All specified tests which does not belong to the class are skipped...
@@ -1494,6 +1495,7 @@ interface CodeAnalysis {
 		initializerStartMarker = "INITIALIZER START",
 		initializerEndMarker = "INITIALIZER END";
 }
+@SuppressWarnings({ "unchecked", "rawtypes" })
 class TransitiveClosureHolder {
 static class Element {
 	NullReferenceImplTests.State value;
@@ -1580,6 +1582,7 @@ public String toString() {
  * Tooling the production of those literals buys us flexibility.
  * {@link #printHelp printHelp} for details.
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 class Generator {
 static NullReferenceImplTests.State[] computeTransitiveClosure() {
 	TransitiveClosureHolder transitiveClosure = new TransitiveClosureHolder();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 GoPivotal, Inc. All Rights Reserved.
+ * Copyright (c) 2013, 2014 GoPivotal, Inc. All Rights Reserved.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 
+@SuppressWarnings({ "rawtypes" })
 public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 	static {
 	}

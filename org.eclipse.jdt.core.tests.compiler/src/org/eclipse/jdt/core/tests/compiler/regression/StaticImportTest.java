@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 import junit.framework.Test;
 
+@SuppressWarnings({ "rawtypes" })
 public class StaticImportTest extends AbstractComparableTest {
 
 	// Static initializer to specify tests subset using TESTS_* static variables

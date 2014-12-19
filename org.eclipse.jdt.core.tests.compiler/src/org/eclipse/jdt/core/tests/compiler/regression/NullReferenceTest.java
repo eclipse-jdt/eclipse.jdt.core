@@ -55,6 +55,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /* See also NullReferenceImplTests for low level, implementation dependent
  * tests. */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class NullReferenceTest extends AbstractRegressionTest {
 
 public NullReferenceTest(String name) {

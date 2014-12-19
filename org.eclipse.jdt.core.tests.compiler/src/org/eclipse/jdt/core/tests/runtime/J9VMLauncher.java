@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.tests.util.Util;
  * must also be specified. This port is used for the communication between the
  * Proxy and the VM.
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class J9VMLauncher extends LocalVMLauncher {
 	int internalDebugPort = -1;
 	String proxyOutFile;

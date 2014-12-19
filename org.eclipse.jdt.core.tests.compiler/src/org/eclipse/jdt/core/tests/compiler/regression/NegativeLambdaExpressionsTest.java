@@ -30,6 +30,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
+
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class NegativeLambdaExpressionsTest extends AbstractRegressionTest {
 
 static {

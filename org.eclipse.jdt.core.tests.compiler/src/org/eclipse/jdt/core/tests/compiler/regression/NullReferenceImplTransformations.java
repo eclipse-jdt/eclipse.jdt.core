@@ -29,6 +29,8 @@ import java.util.TreeMap;
 
 import org.eclipse.jdt.core.tests.compiler.regression.NullReferenceImplTests.State;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
+
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class NullReferenceImplTransformations {
 	public static final Transformation
 		markAsComparedEqualToNonNull =

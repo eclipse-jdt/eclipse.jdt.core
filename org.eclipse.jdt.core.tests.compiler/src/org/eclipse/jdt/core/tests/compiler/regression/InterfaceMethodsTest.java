@@ -24,6 +24,7 @@ import junit.framework.Test;
 
 // See https://bugs.eclipse.org/380501
 // Bug 380501 - [1.8][compiler] Add support for default methods (JSR 335)
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class InterfaceMethodsTest extends AbstractComparableTest {
 
 // Static initializer to specify tests subset using TESTS_* static variables

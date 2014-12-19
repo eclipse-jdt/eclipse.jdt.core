@@ -56,6 +56,7 @@ import org.eclipse.jdt.internal.compiler.batch.ClasspathLocation;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class BatchCompilerTest extends AbstractRegressionTest {
 	public static final String OUTPUT_DIR_PLACEHOLDER = "---OUTPUT_DIR_PLACEHOLDER---";
 	public static final String LIB_DIR_PLACEHOLDER = "---LIB_DIR_PLACEHOLDER---";
@@ -1670,7 +1671,7 @@ public void test012(){
         "    -O                 optimize for execution time (ignored)\n" +
         "\n";
 	String expandedExpectedOutput =
-		MessageFormat.format(expectedOutput, new String[] {
+		MessageFormat.format(expectedOutput, new Object[] {
 				MAIN.bind("compiler.name"),
 				MAIN.bind("compiler.version"),
 				MAIN.bind("compiler.copyright")
@@ -1836,7 +1837,7 @@ public void test012b(){
         "      warningToken       + unsupported or unnecessary @SuppressWarnings\n" + 
         "\n";
 	String expandedExpectedOutput =
-		MessageFormat.format(expectedOutput, new String[] {
+		MessageFormat.format(expectedOutput, new Object[] {
 				MAIN.bind("compiler.name"),
 				MAIN.bind("compiler.version"),
 				MAIN.bind("compiler.copyright")
@@ -2045,7 +2046,7 @@ public void test012b(){
 		String normalizedExpectedLogContents =
 				MessageFormat.format(
 						expectedLogContents,
-						new String[] {
+						new Object[] {
 								File.separator,
 								MAIN.bind("compiler.name"),
 								MAIN.bind("compiler.copyright"),

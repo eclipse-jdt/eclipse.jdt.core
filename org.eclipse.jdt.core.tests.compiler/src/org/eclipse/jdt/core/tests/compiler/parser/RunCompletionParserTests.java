@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class RunCompletionParserTests extends junit.framework.TestCase {
 
 	public final static List TEST_CLASSES = new ArrayList();

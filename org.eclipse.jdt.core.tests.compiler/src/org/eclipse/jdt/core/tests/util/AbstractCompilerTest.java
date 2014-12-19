@@ -15,7 +15,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +28,7 @@ import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class AbstractCompilerTest extends TestCase {
 
 	public static final int F_1_3 = 0x01;
@@ -44,6 +44,7 @@ public class AbstractCompilerTest extends TestCase {
 	private static int possibleComplianceLevels = UNINITIALIZED;
 
 	protected long complianceLevel;
+	protected boolean enableAPT = false;
 
 	/**
 	 * Build a test suite made of test suites for all possible running VM compliances .
@@ -517,6 +518,7 @@ public class AbstractCompilerTest extends TestCase {
 
 	public void initialize(CompilerTestSetup setUp) {
 		this.complianceLevel = setUp.complianceLevel;
+		this.enableAPT = System.getProperty("enableAPT") != null;
 	}
 
 	protected String testName() {

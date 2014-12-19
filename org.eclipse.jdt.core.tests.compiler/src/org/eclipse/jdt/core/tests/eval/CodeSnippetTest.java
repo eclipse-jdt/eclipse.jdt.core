@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.eval.IRequestor;
  * This assumes that the EvaluationContext class and that the EvaluationResult class
  * are working correctly.
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class CodeSnippetTest extends EvaluationTest {
 /**
  * Creates a new CodeSnippetTest.

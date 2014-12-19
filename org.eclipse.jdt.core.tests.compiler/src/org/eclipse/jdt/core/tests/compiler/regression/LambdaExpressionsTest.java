@@ -26,6 +26,8 @@ import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
+
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class LambdaExpressionsTest extends AbstractRegressionTest {
 
 static {

@@ -18,6 +18,7 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.Util;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	public NullTypeAnnotationTest(String name) {

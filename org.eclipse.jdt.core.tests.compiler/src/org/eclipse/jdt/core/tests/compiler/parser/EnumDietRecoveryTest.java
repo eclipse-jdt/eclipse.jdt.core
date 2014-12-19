@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class EnumDietRecoveryTest extends AbstractCompilerTest {
 	public static boolean optimizeStringLiterals = false;
 	public static long sourceLevel = ClassFileConstants.JDK1_3; //$NON-NLS-1$

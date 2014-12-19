@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.*;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class AmbiguousMethodTest extends AbstractComparableTest {
 
 	static {

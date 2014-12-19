@@ -39,7 +39,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
+
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.Processor;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.lang.model.element.TypeElement;
 
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
@@ -58,22 +65,31 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.AbstractAnnotationProcessorManager;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseAnnotationProcessorManager;
+import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.apt.dispatch.ProcessorInfo;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
 import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
 import org.osgi.framework.Bundle;
+
 import java.util.regex.Pattern;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public abstract class AbstractRegressionTest extends AbstractCompilerTest implements StopableTestCase {
 
 	// javac comparison related types, fields and methods - see runJavac for
@@ -2456,6 +2472,9 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog, b
 					}
 				}
 			};
+		if (this.enableAPT) {
+			batchCompiler.annotationProcessorManager = getAnnotationProcessorManager(batchCompiler);
+		}
 		compilerOptions.produceReferenceInfo = true;
 		Throwable exception = null;
 		try {
@@ -2553,6 +2572,70 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog, b
 		}
 	}
 
+	class DummyAnnotationProcessingManager extends BaseAnnotationProcessorManager {
+
+		ProcessorInfo processorInfo = null;
+		public ProcessorInfo discoverNextProcessor() {
+			ProcessorInfo temp = this.processorInfo;
+			this.processorInfo = null;
+			return temp;
+		}
+
+		public void reportProcessorException(Processor p, Exception e) {
+			throw new AbortCompilation(null, e);
+		}
+
+		@Override
+		public void setProcessors(Object[] processors) {
+			// Nothing to do here
+		}
+
+		@Override
+		public void configure(Object batchCompiler, String[] options) {
+			this._processingEnv = new DummyEnvironmentImpl((Compiler) batchCompiler);
+		}
+		public void processAnnotations(CompilationUnitDeclaration[] units, ReferenceBinding[] referenceBindings, boolean isLastRound) {
+			if (this.processorInfo == null) {
+				this.processorInfo = new ProcessorInfo(new DummyProcessor());
+			}
+			super.processAnnotations(units, referenceBindings, isLastRound);
+		}
+
+		@Override
+		public void configureFromPlatform(Compiler compiler, Object compilationUnitLocator, Object javaProject) {
+			// Nothing to do here
+		}
+		@SupportedAnnotationTypes("*")
+		class DummyProcessor extends AbstractProcessor {
+			@Override
+			public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+				return true;
+			}
+		}
+
+		class DummyEnvironmentImpl extends BaseProcessingEnvImpl {
+			public DummyEnvironmentImpl(Compiler compiler) {
+				this._compiler = compiler;
+			}
+			@Override
+			public Locale getLocale() {
+				return Locale.getDefault();
+			}
+		}
+	}
+
+	protected AbstractAnnotationProcessorManager getAnnotationProcessorManager(Compiler compiler) {
+		try {
+			AbstractAnnotationProcessorManager annotationManager = new DummyAnnotationProcessingManager();
+			annotationManager.configure(compiler, new String[0]);
+			annotationManager.setErr(new PrintWriter(System.err));
+			annotationManager.setOut(new PrintWriter(System.out));
+			return annotationManager;
+		} catch(UnsupportedClassVersionError e) {
+			System.err.println(e);
+		}
+		return null;
+	}
 //	runConformTest(
 //		// test directory preparation
 //		new String[] { /* test files */

@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class Compliance_1_7 extends AbstractComparableTest {
 
 public Compliance_1_7(String name) {

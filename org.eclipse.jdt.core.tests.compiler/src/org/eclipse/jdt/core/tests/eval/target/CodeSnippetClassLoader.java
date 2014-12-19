@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import java.util.*;
  * A code snippet class loader is a class loader that loads code snippet classes and global
  * variable classes.
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class CodeSnippetClassLoader extends ClassLoader {
 	/**
 	 * Whether the code snippet support classes should be given by the IDE

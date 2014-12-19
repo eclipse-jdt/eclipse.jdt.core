@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class SwitchTest extends AbstractRegressionTest {
 	
 	private static final long JDKLevelSupportingStringSwitch = ClassFileConstants.JDK1_7;

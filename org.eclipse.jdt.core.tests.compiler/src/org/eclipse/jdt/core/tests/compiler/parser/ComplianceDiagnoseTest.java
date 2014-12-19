@@ -16,6 +16,7 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
+@SuppressWarnings({ "rawtypes" })
 public class ComplianceDiagnoseTest extends AbstractRegressionTest {
 	public ComplianceDiagnoseTest(String name) {
 		super(name);

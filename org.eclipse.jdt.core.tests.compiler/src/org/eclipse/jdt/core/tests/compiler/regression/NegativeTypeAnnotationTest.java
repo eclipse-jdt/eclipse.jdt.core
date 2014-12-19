@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 
 	static { 

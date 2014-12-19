@@ -14,6 +14,7 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import junit.framework.Test;
+@SuppressWarnings({ "rawtypes" })
 public class OverloadResolutionTest8 extends AbstractRegressionTest {
 
 static {

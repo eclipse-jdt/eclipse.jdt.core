@@ -37,6 +37,7 @@ import org.eclipse.jdt.internal.core.util.BootstrapMethodsAttribute;
 
 import junit.framework.Test;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class SerializableLambdaTest extends AbstractRegressionTest {
 
 	static {

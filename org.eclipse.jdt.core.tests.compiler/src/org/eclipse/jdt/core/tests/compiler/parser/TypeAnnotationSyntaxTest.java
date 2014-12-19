@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class TypeAnnotationSyntaxTest extends AbstractSyntaxTreeTest {
 
 	private static String  jsr308TestScratchArea = "c:\\Jsr308TestScratchArea";
@@ -220,7 +221,12 @@ void traverse (File f) throws IOException {
 			System.out.println(f.getCanonicalPath());
 			char [] contents = new char[(int) f.length()];
 			FileInputStream fs = new FileInputStream(f);
-			InputStreamReader isr = new InputStreamReader(fs);
+			InputStreamReader isr = null;
+			try {
+				isr = new InputStreamReader(fs);
+			} finally {
+				if (isr != null) isr.close();
+			}
 			isr.read(contents);
 			checkParse(contents, null, f.getCanonicalPath(), null);
 		}

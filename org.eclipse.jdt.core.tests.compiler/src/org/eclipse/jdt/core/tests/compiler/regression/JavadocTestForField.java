@@ -17,6 +17,7 @@ import junit.framework.Test;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class JavadocTestForField extends JavadocTest {
 	public JavadocTestForField(String name) {
 		super(name);

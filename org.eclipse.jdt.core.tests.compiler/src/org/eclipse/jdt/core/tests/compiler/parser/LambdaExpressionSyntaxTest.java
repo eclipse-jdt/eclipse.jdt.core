@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009, 2012 IBM Corporation and others.
+ * Copyright (c) 2009, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.tests.util.CompilerTestSetup;
 
+@SuppressWarnings({ "rawtypes" })
 public class LambdaExpressionSyntaxTest extends AbstractSyntaxTreeTest {
 
 	private static String  jsr335TestScratchArea = "c:\\Jsr335TestScratchArea";

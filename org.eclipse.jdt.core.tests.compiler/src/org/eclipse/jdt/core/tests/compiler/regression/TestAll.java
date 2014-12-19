@@ -34,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 /**
  * Run all compiler regression tests
  */
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class TestAll extends junit.framework.TestCase {
 
 public TestAll(String testName) {

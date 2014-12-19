@@ -42,6 +42,7 @@ import org.eclipse.test.internal.performance.PerformanceMeterFactory;
 import org.eclipse.test.performance.Performance;
 import org.eclipse.test.performance.PerformanceTestCase;
 
+@SuppressWarnings({ "unchecked", "rawtypes" })
 public class TestCase extends PerformanceTestCase {
 
 	// Filters
