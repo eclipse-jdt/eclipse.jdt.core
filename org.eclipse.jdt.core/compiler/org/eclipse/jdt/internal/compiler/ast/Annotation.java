@@ -989,6 +989,11 @@ public abstract class Annotation extends Expression {
 			case Binding.PACKAGE :
 				if ((metaTagBits & TagBits.AnnotationForPackage) != 0)
 					return true;
+				else if (scope.compilerOptions().sourceLevel <= ClassFileConstants.JDK1_6) {
+					SourceTypeBinding sourceType = (SourceTypeBinding) annotation.recipient;
+					if (CharOperation.equals(sourceType.sourceName, TypeConstants.PACKAGE_INFO_NAME))
+						return true;
+				}
 				break;
 			case Binding.TYPE_USE :
 				if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {

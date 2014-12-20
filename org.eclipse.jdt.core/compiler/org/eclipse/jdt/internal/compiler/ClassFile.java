@@ -3574,6 +3574,14 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 	}
 
+	private boolean jdk16packageInfoAnnotation(final long annotationMask, final long targetMask) {
+		if (this.targetJDK <= ClassFileConstants.JDK1_6 &&
+				targetMask == TagBits.AnnotationForPackage && annotationMask != 0 &&
+				(annotationMask & TagBits.AnnotationForPackage) == 0) {
+			return true;
+		}
+		return false;
+	}
 	/**
 	 * @param annotations
 	 * @param targetMask allowed targets
@@ -3588,7 +3596,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 			Annotation annotation;
 			if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 			long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
-			if (annotationMask != 0 && (annotationMask & targetMask) == 0) continue;
+			if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
+				if (!jdk16packageInfoAnnotation(annotationMask, targetMask)) continue;
+			}
 			if (annotation.isRuntimeInvisible() || annotation.isRuntimeTypeInvisible()) {
 				invisibleAnnotationsCounter++;
 			} else if (annotation.isRuntimeVisible() || annotation.isRuntimeTypeVisible()) {
@@ -3619,7 +3629,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 				Annotation annotation;
 				if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 				long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
-				if (annotationMask != 0 && (annotationMask & targetMask) == 0) continue;
+				if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
+					if (!jdk16packageInfoAnnotation(annotationMask, targetMask)) continue;
+				}
 				if (annotation.isRuntimeInvisible() || annotation.isRuntimeTypeInvisible()) {
 					int currentAnnotationOffset = this.contentsOffset;
 					generateAnnotation(annotation, currentAnnotationOffset);
@@ -3669,7 +3681,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 				Annotation annotation;
 				if ((annotation = annotations[i].getPersistibleAnnotation()) == null) continue; // already packaged into container.
 				long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
-				if (annotationMask != 0 && (annotationMask & targetMask) == 0) continue;
+				if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
+					if (!jdk16packageInfoAnnotation(annotationMask, targetMask)) continue;
+				}
 				if (annotation.isRuntimeVisible() || annotation.isRuntimeTypeVisible()) {
 					visibleAnnotationsCounter--;
 					int currentAnnotationOffset = this.contentsOffset;
