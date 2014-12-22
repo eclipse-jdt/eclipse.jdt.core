@@ -603,10 +603,15 @@ public void removed(IJavaElement element, int flags) {
 protected void removeExistingChild(Key key, int index) {
 	this.affectedChildren = removeAndShrinkArray(this.affectedChildren, index);
 	if (this.childIndex != null) {
-		if (this.affectedChildren.length < NEED_CHILD_INDEX)
+		int length = this.affectedChildren.length;
+		if (length < NEED_CHILD_INDEX)
 			this.childIndex = null;
-		else
+		else {
 			this.childIndex.remove(key);
+			for (int i = index; i < length; i++) {
+				this.childIndex.put(new Key(this.affectedChildren[i].getElement()), i);
+			}
+		}
 	}
 }
 /**

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Vladimir Piskarev <pisv@1c.ru> - AIOOB in JavaElementDelta.addAffectedChild - https://bugs.eclipse.org/455882
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -3053,5 +3054,25 @@ public void testChangeExternalJar() throws CoreException {
 		deleteProject("P");
 	}
 }
+/**
+ * @bug 455882: AIOOB in JavaElementDelta.addAffectedChild
+ * @test Verify that AIOOB is not thrown when childIndex is used.
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=455882"
+ */
+public void testBug455882() {
+	JavaElementDelta delta = new JavaElementDelta(getJavaModel());
+	delta.added(getJavaProject("P1"));
+	delta.added(getJavaProject("P2"));
+	delta.added(getJavaProject("P3"));
+	delta.added(getJavaProject("P4"));
+	delta.movedFrom(getJavaProject("P3"), getJavaProject("P5"));
+	delta.movedFrom(getJavaProject("P4"), getJavaProject("P6"));
+	assertDeltas(
+		"Unexpected delta",
+		"Java Model[*]: {CHILDREN}\n" +
+		"	P1[+]: {}\n" +
+		"	P2[+]: {}",
+		delta
+	);
 }
-
+}
