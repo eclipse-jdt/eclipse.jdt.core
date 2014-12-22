@@ -297,6 +297,8 @@ public class TypeAnnotationWalker {
 	/**
 	 * Retrieve the type annotations at the current position
 	 * reached by invocations of toXYZ() methods.
+	 * @param currentTypeId the id of the type being annotated; 0 signals don't care / unknown;
+	 * 		 -1 signals if annotating a wildcard or a use of a type variable.
 	 */
 	public IBinaryAnnotation[] getAnnotationsAtCursor(int currentTypeId) {
 		int length = this.typeAnnotations.length;

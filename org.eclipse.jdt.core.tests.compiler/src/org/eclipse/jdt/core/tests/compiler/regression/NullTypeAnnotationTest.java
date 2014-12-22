@@ -7299,4 +7299,94 @@ public void testBug446442_6b() {
 		"Contradictory null annotations: method was inferred as \'@NonNull @Nullable Integer get(int)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 		"----------\n");
 }
+public void testBug453475() {
+	runConformTestWithLibs(
+		new String[] {
+			"TestMap.java",
+			"import java.util.*;\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"@NonNullByDefault\n" + 
+			"public abstract class TestMap extends AbstractMap<String,@Nullable String> {\n" + 
+			"\n" + 
+			"}\n"
+		}, null, "");
+	runConformTestWithLibs(
+			new String[] {
+			"Test.java",
+			"import java.util.*;\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"@NonNullByDefault\n" + 
+			"public class Test {\n" + 
+			"\n" + 
+			"  public static final void test(TestMap testMap) {\n" + 
+			"    testMap.putAll(new HashMap<String,@Nullable String>()); // Error: Contradictory null annotations: method was inferred as 'void putAll(Map<? extends @NonNull String,? extends @NonNull @Nullable String>)', but only one of '@NonNull' and '@Nullable' can be effective at any location\n" + 
+			"  }\n" + 
+			"\n" + 
+			"}\n"
+		}, null, "");
+}
+// also: don't apply default to use of type variable
+public void testBug453475a() {
+	runConformTestWithLibs(
+		new String[] {
+			"NamespaceStorage.java",
+			"import java.util.*;\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"public interface NamespaceStorage<T> \n" + 
+			"{\n" + 
+			"\n" + 
+			"	Set<T> getObjects(); \n" + // here <T> was wrongly read from .class as <@NonNull T>
+			"	T getObject(T in);\n" + 
+			"}\n"
+		}, null, "");
+	runConformTestWithLibs(
+		new String[] {
+			"NamespaceStorageImpl.java",
+			"import java.util.*;\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"public class NamespaceStorageImpl<T> implements NamespaceStorage<T>\n" + 
+			"{\n" + 
+			"	@Override\n" + 
+			"	public  Set<T> getObjects() \n" + 
+			"	{\n" + 
+			"		return new TreeSet<T>();\n" + 
+			"	}\n" + 
+			"	@Override\n" + 
+			"	public T getObject(T in)\n" + 
+			"	{\n" + 
+			"		return in;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		null, "");
+}
+// also: don't apply default to wildcard
+public void testBug453475b() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"public interface X {\n" + 
+			"\n" + 
+			"	void test(List<?> list);\n" +  // here <?> was wrongly read from .class as <@NonNull ?>
+			"	\n" + 
+			"}\n"
+		}, null, "");
+	runConformTestWithLibs(
+		new String[] {
+			"Y.java",
+			"import java.util.*;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Y {\n" + 
+			"	public void run(X x, @NonNull List<@Nullable String> s) \n" + 
+			"	{\n" + 
+			"		x.test(s);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		null, "");
+}
 }

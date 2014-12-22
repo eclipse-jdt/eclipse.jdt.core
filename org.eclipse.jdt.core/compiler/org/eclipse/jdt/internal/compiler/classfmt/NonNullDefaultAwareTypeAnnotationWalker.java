@@ -30,6 +30,7 @@ public class NonNullDefaultAwareTypeAnnotationWalker extends TypeAnnotationWalke
 	private boolean nextIsTypeBound;
 	private boolean isEmpty;
 	IBinaryAnnotation nonNullAnnotation;
+	LookupEnvironment environment;
 
 	/** Create initial walker with non-empty type annotations. */
 	public NonNullDefaultAwareTypeAnnotationWalker(IBinaryTypeAnnotation[] typeAnnotations,
@@ -37,31 +38,36 @@ public class NonNullDefaultAwareTypeAnnotationWalker extends TypeAnnotationWalke
 		super(typeAnnotations);
 		this.nonNullAnnotation = getNonNullAnnotation(environment);
 		this.defaultNullness = defaultNullness;
+		this.environment = environment;
 	}
 	
 	/** Create an initial walker without 'real' type annotations, but with a nonnull default. */
 	public NonNullDefaultAwareTypeAnnotationWalker(int defaultNullness, LookupEnvironment environment) {
-		this(defaultNullness, getNonNullAnnotation(environment), false, false);
+		this(defaultNullness, getNonNullAnnotation(environment), false, false, environment);
 	}
 
 	/** Get restricted walker, still with non-empty type annotations. */
 	NonNullDefaultAwareTypeAnnotationWalker(IBinaryTypeAnnotation[] typeAnnotations, long newMatches, int newPathPtr,
-						int defaultNullness, IBinaryAnnotation nonNullAnnotation, boolean atDefaultLocation, boolean atTypeBound) {
+						int defaultNullness, IBinaryAnnotation nonNullAnnotation, boolean atDefaultLocation, boolean atTypeBound,
+						LookupEnvironment environment) {
 		super(typeAnnotations, newMatches, newPathPtr);
 		this.defaultNullness = defaultNullness;
 		this.nonNullAnnotation = nonNullAnnotation;
 		this.atDefaultLocation = atDefaultLocation;
 		this.atTypeBound = atTypeBound;
+		this.environment = environment;
 	}
 
 	/** Create a restricted walker without 'real' type annotations, but with a nonnull default. */
-	NonNullDefaultAwareTypeAnnotationWalker(int defaultNullness, IBinaryAnnotation nonNullAnnotation, boolean atDefaultLocation, boolean atTypeBound) {
+	NonNullDefaultAwareTypeAnnotationWalker(int defaultNullness, IBinaryAnnotation nonNullAnnotation,
+						boolean atDefaultLocation, boolean atTypeBound, LookupEnvironment environment) {
 		super(null, 0, 0);
 		this.nonNullAnnotation = nonNullAnnotation;
 		this.defaultNullness = defaultNullness;
 		this.atDefaultLocation = atDefaultLocation;
 		this.atTypeBound = atTypeBound;
 		this.isEmpty = true;
+		this.environment = environment;
 	}
 	
 	private static IBinaryAnnotation getNonNullAnnotation(LookupEnvironment environment) {
@@ -90,10 +96,11 @@ public class NonNullDefaultAwareTypeAnnotationWalker extends TypeAnnotationWalke
 			// are we running out of real type annotations?
 			if (newMatches == 0 || this.typeAnnotations == null || this.typeAnnotations.length == 0)
 				return new NonNullDefaultAwareTypeAnnotationWalker(this.defaultNullness, this.nonNullAnnotation, 
-												this.nextIsDefaultLocation, this.nextIsTypeBound);
+												this.nextIsDefaultLocation, this.nextIsTypeBound, this.environment);
 			// proceed as normal, but pass on our specific fields, too:
 			return new NonNullDefaultAwareTypeAnnotationWalker(this.typeAnnotations, newMatches, newPathPtr,
-												this.defaultNullness, this.nonNullAnnotation, this.nextIsDefaultLocation, this.nextIsTypeBound);
+												this.defaultNullness, this.nonNullAnnotation, this.nextIsDefaultLocation,
+												this.nextIsTypeBound, this.environment);
 		} finally {
 			this.nextIsDefaultLocation = false; // expire
 			this.nextIsTypeBound = false;
@@ -149,16 +156,23 @@ public class NonNullDefaultAwareTypeAnnotationWalker extends TypeAnnotationWalke
 	@Override
 	public IBinaryAnnotation[] getAnnotationsAtCursor(int currentTypeId) {
 		IBinaryAnnotation[] normalAnnotations = this.isEmpty ? null : super.getAnnotationsAtCursor(currentTypeId);
-		if (this.atDefaultLocation && 
+		if (this.atDefaultLocation &&
+				!(currentTypeId == -1) && // never apply default on type variable use or wildcard
 				!(this.atTypeBound && currentTypeId == TypeIds.T_JavaLangObject)) // for CLIMB-to-top consider a j.l.Object type bound as no explicit type bound
 		{
 			if (normalAnnotations == null || normalAnnotations.length == 0)
 				return new IBinaryAnnotation[] { this.nonNullAnnotation };
-			int len = normalAnnotations.length;
-			IBinaryAnnotation[] newAnnots = new IBinaryAnnotation[len+1];
-			System.arraycopy(normalAnnotations, 0, newAnnots, 0, len);
-			newAnnots[len] = this.nonNullAnnotation;
-			return newAnnots;
+			if (this.environment.containsNullTypeAnnotation(normalAnnotations)) {
+				// no default annotation if explicit annotation exists
+				return normalAnnotations;
+			} else {
+				// merge:
+				int len = normalAnnotations.length;
+				IBinaryAnnotation[] newAnnots = new IBinaryAnnotation[len+1];
+				System.arraycopy(normalAnnotations, 0, newAnnots, 0, len);
+				newAnnots[len] = this.nonNullAnnotation;
+				return newAnnots;
+			}
 		}
 		return normalAnnotations;
 	}
