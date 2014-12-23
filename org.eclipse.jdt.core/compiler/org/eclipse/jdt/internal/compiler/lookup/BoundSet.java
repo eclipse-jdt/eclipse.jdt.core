@@ -317,7 +317,7 @@ class BoundSet {
 		for (int i = 0; i < length; i++) {
 			TypeVariableBinding typeParameter = typeParameters[i];
 			InferenceVariable variable = variables[i];
-			TypeBound[] someBounds = typeParameter.getTypeBounds(variable, new InferenceSubstitution(context.environment, context.inferenceVariables));
+			TypeBound[] someBounds = typeParameter.getTypeBounds(variable, new InferenceSubstitution(context));
 			boolean hasProperBound = false;
 			if (someBounds.length > 0)
 				hasProperBound = addBounds(someBounds, context.environment);
@@ -610,7 +610,7 @@ class BoundSet {
 			// construct theta = [P1:=alpha1,...]
 			final InferenceVariable[] alphas = new InferenceVariable[gAlpha.arguments.length];
 			System.arraycopy(gAlpha.arguments, 0, alphas, 0, alphas.length);
-			InferenceSubstitution theta = new InferenceSubstitution(context.environment, alphas) {
+			InferenceSubstitution theta = new InferenceSubstitution(context.environment, alphas, context.currentInvocation) {
 				@Override
 				protected TypeBinding getP(int i) {
 					return parameters[i];
