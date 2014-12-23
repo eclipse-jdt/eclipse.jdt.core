@@ -4469,6 +4469,50 @@ public void testBug435480_0002() throws CoreException {
 		deleteProject("P");
 	}
 }
+/**
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=454401"
+ */
+public void testBug454401() throws CoreException, JavaModelException {
+	try {
+		createJavaProject("P", new String[] { "src" },
+				new String[] {"JCL_LIB"}, "bin");
+		createFolder("/P/src/com/test");
+		createFile("/P/src/com/test/X.java",
+				"package com.test;\n" +
+						"public class X { \n"+
+						" \n"+
+						"	private class Y { \n"+
+						"		private class P { \n"+
+						"			 \n"+
+						"		} \n"+
+						"		@SuppressWarnings(\"unused\") \n"+
+						"		public void t1(P p) { \n"+
+						"			t2(p); \n"+
+						"		} \n"+
+						"		protected void t2(P p) { \n"+
+						"			 \n"+
+						"		} \n"+
+						"	} \n"+
+						"	public void foo() { \n"+
+						"		Y y = new X().new Y(); \n"+
+						"		y.t2(y.new P()); \n"+
+						"	} \n"+
+						"	public static void main(String[] args) { \n"+
+						"		 \n"+
+						"	} \n"+
+						"}\n" );
+		waitUntilIndexesReady();
+		IType type = getCompilationUnit("/P/src/com/test/X.java").getType("X").getType("Y");
+		IMethod[] methods = type.getMethods();
+		
+		search(methods[1], REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+
+		assertSearchResults("src/com/test/X.java void com.test.X.foo() [t2(y.new P())] EXACT_MATCH\n" + 
+			"src/com/test/X.java void com.test.X$Y.t1(P) [t2(p)] EXACT_MATCH");
+	} finally {
+		deleteProject("P");
+	}
+}
 // Add new tests in JavaSearchBugs8Tests
 }
 
