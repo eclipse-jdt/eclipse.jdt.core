@@ -73,6 +73,10 @@ public class NullAnnotationMatching {
 	public boolean isUnchecked()        { return this.severity == 1; }
 	public boolean isDefiniteMismatch() { return this.severity == 2; }
 	
+	public boolean isPotentiallyNullMismatch() {
+		return !isDefiniteMismatch() && this.nullStatus != -1 && (this.nullStatus & FlowInfo.POTENTIALLY_NULL) != 0;
+	}
+
 	public String superTypeHintName(CompilerOptions options, boolean shortNames) {
 		return String.valueOf(this.superTypeHint.nullAnnotatedReadableName(options, shortNames));
 	}
@@ -97,11 +101,8 @@ public class NullAnnotationMatching {
 			}
 			lhsTagBits = var.type.tagBits & TagBits.AnnotationNullMASK;
 			NullAnnotationMatching annotationStatus = analyse(var.type, providedType, nullStatus);
-			if (annotationStatus.isDefiniteMismatch()) {
-				currentScope.problemReporter().nullityMismatchingTypeAnnotation(expression, providedType, var.type, annotationStatus);
-				hasReported = true;
-			} else if (annotationStatus.isUnchecked()) {
-				flowContext.recordNullityMismatch(currentScope, expression, providedType, var.type, flowInfo, nullStatus);
+			if (annotationStatus.isAnyMismatch()) {
+				flowContext.recordNullityMismatch(currentScope, expression, providedType, var.type, flowInfo, nullStatus, annotationStatus);
 				hasReported = true;
 			} else if (annotationStatus.nullStatus != FlowInfo.UNKNOWN) {
 				return annotationStatus.nullStatus;
@@ -109,7 +110,7 @@ public class NullAnnotationMatching {
 		}
 		if (lhsTagBits == TagBits.AnnotationNonNull && nullStatus != FlowInfo.NON_NULL) {
 			if (!hasReported)
-				flowContext.recordNullityMismatch(currentScope, expression, providedType, var.type, flowInfo, nullStatus);
+				flowContext.recordNullityMismatch(currentScope, expression, providedType, var.type, flowInfo, nullStatus, null);
 			return FlowInfo.NON_NULL;
 		} else if (lhsTagBits == TagBits.AnnotationNullable && nullStatus == FlowInfo.UNKNOWN) {	// provided a legacy type?
 			return FlowInfo.POTENTIALLY_NULL;			// -> use more specific info from the annotation
@@ -178,14 +179,17 @@ public class NullAnnotationMatching {
 						long[] providedDimsTagBits = ((ArrayBinding)providedType).nullTagBitsPerDimension;
 						if (providedDimsTagBits == null)
 							providedDimsTagBits = new long[dims+1]; // set to unspec'd at all dimensions
+						int currentNullStatus = nullStatus;
 						for (int i=0; i<=dims; i++) {
 							long requiredBits = validNullTagBits(requiredDimsTagBits[i]);
 							long providedBits = validNullTagBits(providedDimsTagBits[i]);
 							if (i > 0)
-								nullStatus = -1; // don't use beyond the outermost dimension
-							severity = Math.max(severity, computeNullProblemSeverity(requiredBits, providedBits, nullStatus, mode == CheckMode.OVERRIDE && nullStatus == -1));
+								currentNullStatus = -1; // don't use beyond the outermost dimension
+							severity = Math.max(severity, computeNullProblemSeverity(requiredBits, providedBits, currentNullStatus, mode == CheckMode.OVERRIDE && nullStatus == -1));
 							if (severity == 2)
 								return NullAnnotationMatching.NULL_ANNOTATIONS_MISMATCH;
+							if (severity == 0)
+								nullStatus = -1;
 						}
 					} else if (providedType.id == TypeIds.T_null) {
 						if (dims > 0 && requiredDimsTagBits[0] == TagBits.AnnotationNonNull)

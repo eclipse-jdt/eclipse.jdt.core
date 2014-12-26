@@ -21,6 +21,7 @@
  *								Bug 415413 - [compiler][null] NullpointerException in Null Analysis caused by interaction of LoopingFlowContext and FinallyFlowContext
  *								Bug 453483 - [compiler][null][loop] Improve null analysis for loops
  *								Bug 455557 - [jdt] NPE LoopingFlowContext.recordNullReference
+ *								Bug 455723 - Nonnull argument not correctly inferred in loop
  *     Jesper S Moller - contributions for
  *								bug 404657 - [1.8][compiler] Analysis for effectively final variables fails to consider loops
  *******************************************************************************/
@@ -274,7 +275,7 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 				case ASSIGN_TO_NONNULL:
 					int nullStatus = flowInfo.nullStatus(local);
 					if (nullStatus != FlowInfo.NON_NULL) {
-						this.parent.recordNullityMismatch(scope, (Expression)location, this.providedExpectedTypes[i][0], this.providedExpectedTypes[i][1], flowInfo, nullStatus);
+						this.parent.recordNullityMismatch(scope, (Expression)location, this.providedExpectedTypes[i][0], this.providedExpectedTypes[i][1], flowInfo, nullStatus, null);
 					}
 					continue; // no more delegation to parent
 				case EXIT_RESOURCE:

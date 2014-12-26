@@ -31,6 +31,7 @@
  *								Bug 429430 - [1.8] Lambdas and method reference infer wrong exception type with generics (RuntimeException instead of IOException)
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *								Bug 453483 - [compiler][null][loop] Improve null analysis for loops
+ *								Bug 455723 - Nonnull argument not correctly inferred in loop
  *        Andy Clement - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409250 - [1.8][compiler] Various loose ends in 308 code generation
@@ -157,7 +158,7 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 					Expression argument = arguments[i];
 					int nullStatus = argument.nullStatus(flowInfo, flowContext); // slight loss of precision: should also use the null info from the receiver.
 					if (nullStatus != FlowInfo.NON_NULL) // if required non-null is not provided
-						flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, flowInfo, nullStatus);
+						flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, flowInfo, nullStatus, null);
 				}
 			}
 		} 
@@ -187,11 +188,11 @@ void internalAnalyseOneArgument18(BlockScope currentScope, FlowContext flowConte
 	if (!annotationStatus.isAnyMismatch() && statusFromAnnotatedNull != 0)
 		expectedType = originalExpected; // to avoid reports mentioning '@NonNull null'!
 	
-	if (annotationStatus.isDefiniteMismatch() || statusFromAnnotatedNull == FlowInfo.NULL) {
+	if (statusFromAnnotatedNull == FlowInfo.NULL) {
 		// immediate reporting:
 		currentScope.problemReporter().nullityMismatchingTypeAnnotation(argument, argument.resolvedType, expectedType, annotationStatus);
-	} else if (annotationStatus.isUnchecked() || (statusFromAnnotatedNull & FlowInfo.POTENTIALLY_NULL) != 0) {
-		flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, flowInfo, nullStatus);
+	} else if (annotationStatus.isAnyMismatch() || (statusFromAnnotatedNull & FlowInfo.POTENTIALLY_NULL) != 0) {
+		flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, flowInfo, nullStatus, annotationStatus);
 	}
 }
 
@@ -212,7 +213,7 @@ private void internalCheckAgainstNullTypeAnnotation(BlockScope scope, TypeBindin
 	if (annotationStatus.isDefiniteMismatch()) {
 		scope.problemReporter().nullityMismatchingTypeAnnotation(expression, expression.resolvedType, requiredType, annotationStatus);
 	} else if (annotationStatus.isUnchecked()) {
-		flowContext.recordNullityMismatch(scope, expression, expression.resolvedType, requiredType, flowInfo, nullStatus);
+		flowContext.recordNullityMismatch(scope, expression, expression.resolvedType, requiredType, flowInfo, nullStatus, annotationStatus);
 	}
 }
 

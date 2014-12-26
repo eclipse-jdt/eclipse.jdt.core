@@ -55,6 +55,7 @@
  *								Bug 439298 - [null] "Missing code implementation in the compiler" when using @NonNullByDefault in package-info.java
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *								Bug 446442 - [1.8] merge null annotations from super methods
+ *								Bug 455723 - Nonnull argument not correctly inferred in loop
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -9236,6 +9237,11 @@ public void nullityMismatchSpecdNullable(Expression expression, TypeBinding requ
 			shortAnnotatedTypeName(requiredType, annotationName),
 			String.valueOf(nullableName[nullableName.length-1])
 	};
+	if (expression.resolvedType != null && expression.resolvedType.hasNullTypeAnnotations()) {
+		problemId = IProblem.NullityMismatchingTypeAnnotation;
+		arguments[1] = String.valueOf(expression.resolvedType.nullAnnotatedReadableName(this.options, false));
+		argumentsShort[1] = String.valueOf(expression.resolvedType.nullAnnotatedReadableName(this.options, true));
+	}
 	this.handle(problemId, arguments, argumentsShort, expression.sourceStart, expression.sourceEnd);
 }
 public void nullityMismatchPotentiallyNull(Expression expression, TypeBinding requiredType, char[][] annotationName) {
@@ -9784,17 +9790,26 @@ public void arrayReferencePotentialNullReference(ArrayReference arrayReference) 
 }
 public void nullityMismatchingTypeAnnotation(Expression expression, TypeBinding providedType, TypeBinding requiredType, NullAnnotationMatching status) 
 {
-	if (providedType.id == TypeIds.T_null) {
+	// try to improve nonnull vs. null:
+	if (providedType.id == TypeIds.T_null || status.nullStatus == FlowInfo.NULL) {
 		nullityMismatchIsNull(expression, requiredType);
 		return;
 	}
-	String[] arguments ;
+	// try to improve nonnull vs. nullable:
+	if (status.isPotentiallyNullMismatch()
+			&& (requiredType.tagBits & TagBits.AnnotationNonNull) != 0 
+			&& (providedType.tagBits & TagBits.AnnotationNullable) == 0)
+	{
+		nullityMismatchPotentiallyNull(expression, requiredType, this.options.nonNullAnnotationName);
+		return;
+	}
+	String[] arguments;
 	String[] shortArguments;
 		
 	int problemId = 0;
 	String superHint = null;
 	String superHintShort = null;
-	if (status.superTypeHint != null) {
+	if (status.superTypeHint != null && requiredType.isParameterizedType()) {
 		problemId = (status.isUnchecked()
 			? IProblem.NullityUncheckedTypeAnnotationDetailSuperHint
 			: IProblem.NullityMismatchingTypeAnnotationSuperHint);

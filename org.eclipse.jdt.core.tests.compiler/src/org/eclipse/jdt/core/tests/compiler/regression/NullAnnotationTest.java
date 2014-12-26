@@ -7909,6 +7909,53 @@ public void testBug455557() {
 		) +
 		"----------\n");
 }
+public void testBug455723() {
+	runConformTestWithLibs(
+		new String[] {
+			"Problem.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Problem {\n" + 
+			"	public void fubar(final @Nullable String arg) {\n" + 
+			"		if (arg == null) {\n" + 
+			"			return;\n" + 
+			"		}\n" + 
+			"		\n" + 
+			"		doSomething(arg);\n" + 
+			"		// no errors here\n" + 
+			"		\n" + 
+			"		while (true) {	\n" + 
+			"			doSomething(arg);\n" + 
+			"			//          ^^^  compiler error\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private void doSomething(@NonNull String arg) {	}\n" + 
+			"}\n"
+		},
+		null,
+		"");
+}
+public void testBug455723b() {
+	runConformTestWithLibs(
+		new String[] {
+			"Problem.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Problem {\n" + 
+			"	public void fubar(final @Nullable String arg) {\n" + 
+			"		if (arg == null) {\n" + 
+			"			return;\n" + 
+			"		}\n" + 
+			"		@NonNull String local;\n" + 
+			"		\n" + 
+			"		while (true) {	\n" + 
+			"			local = arg;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		null,
+		"");
+}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=436486
 public void test_null_with_apt() {
 	boolean apt = this.enableAPT;

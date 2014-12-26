@@ -16,6 +16,7 @@
  *								bug 388996 - [compiler][resource] Incorrect 'potential resource leak'
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *								Bug 453483 - [compiler][null][loop] Improve null analysis for loops
+ *								Bug 455723 - Nonnull argument not correctly inferred in loop
  *     Jesper S Moller - Contributions for
  *								bug 404657 - [1.8][compiler] Analysis for effectively final variables fails to consider loops
  *******************************************************************************/
@@ -112,7 +113,7 @@ public void complainOnDeferredChecks(FlowInfo flowInfo, BlockScope scope) {
 					int nullStatus = flowInfo.nullStatus(this.nullLocals[i]);
 					if (nullStatus != FlowInfo.NON_NULL) {
 						this.parent.recordNullityMismatch(scope, (Expression) location,
-								this.providedExpectedTypes[i][0], this.providedExpectedTypes[i][1], flowInfo, nullStatus);
+								this.providedExpectedTypes[i][0], this.providedExpectedTypes[i][1], flowInfo, nullStatus, null);
 					}
 					break;
 				case IN_UNBOXING:

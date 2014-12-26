@@ -1703,12 +1703,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. WARNING in X.java (at line 6)\n" + 
 			"	return f == 0 ? good : dubious;\n" + 
 			"	                       ^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
+			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\', corresponding supertype is 'List<String>'\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 8)\n" + 
 			"	return f == 2 ? dubious : good;\n" + 
 			"	                ^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\'\n" + 
+			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'List<@NonNull String>\', corresponding supertype is 'List<String>'\n" + 
 			"----------\n");
 	}
 
@@ -2748,12 +2748,12 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. WARNING in Generics.java (at line 13)\n" + 
 			"	Collection<@Nullable String> result = map1(inList, f);\n" + 
 			"	                                           ^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'@NonNull List<Object>\' needs unchecked conversion to conform to \'Collection<@NonNull Object>\'\n" + 
+			"Null type safety (type annotations): The expression of type \'@NonNull List<Object>\' needs unchecked conversion to conform to \'Collection<@NonNull Object>\', corresponding supertype is 'Collection<Object>'\n" + 
 			"----------\n" + 
 			"2. WARNING in Generics.java (at line 14)\n" + 
 			"	map2(inList, f);\n" + 
 			"	     ^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'@NonNull List<Object>\' needs unchecked conversion to conform to \'Collection<@Nullable Object>\'\n" + 
+			"Null type safety (type annotations): The expression of type \'@NonNull List<Object>\' needs unchecked conversion to conform to \'Collection<@Nullable Object>\', corresponding supertype is 'Collection<Object>'\n" + 
 			"----------\n" + 
 			"3. ERROR in Generics.java (at line 14)\n" + 
 			"	map2(inList, f);\n" + 
@@ -3062,7 +3062,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. WARNING in X.java (at line 8)\n" + 
 			"	List<@NonNull ? extends @NonNull String> ls = new ArrayList<String>();\n" + 
 			"	                                              ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'List<@NonNull ? extends @NonNull String>\'\n" + 
+			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'List<@NonNull ? extends @NonNull String>\', corresponding supertype is 'List<String>'\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	ls.add(null);\n" + 
@@ -3393,7 +3393,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. WARNING in X.java (at line 10)\n" + 
 			"	s.foo(new ArrayList<String>()); // (1)\n" + 
 			"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'@NonNull List<@NonNull String>\'\n" + 
+			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'@NonNull List<@NonNull String>\', corresponding supertype is 'List<String>'\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 11)\n" + 
 			"	s.foo(null); // (2)\n" + 

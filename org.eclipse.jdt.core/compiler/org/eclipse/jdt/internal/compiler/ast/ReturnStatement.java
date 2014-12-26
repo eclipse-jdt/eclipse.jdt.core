@@ -33,6 +33,7 @@
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *								Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *								Bug 453483 - [compiler][null][loop] Improve null analysis for loops
+ *								Bug 455723 - Nonnull argument not correctly inferred in loop
  *     Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *******************************************************************************/
@@ -194,7 +195,7 @@ void checkAgainstNullAnnotation(BlockScope scope, FlowContext flowContext, FlowI
 	} else if (nullStatus != FlowInfo.NON_NULL) {
 		// if we can't prove non-null check against declared null-ness of the enclosing method:
 		if ((tagBits & TagBits.AnnotationNonNull) != 0) {
-			flowContext.recordNullityMismatch(scope, this.expression, this.expression.resolvedType, methodBinding.returnType, flowInfo, nullStatus);
+			flowContext.recordNullityMismatch(scope, this.expression, this.expression.resolvedType, methodBinding.returnType, flowInfo, nullStatus, null);
 		}
 	}
 }

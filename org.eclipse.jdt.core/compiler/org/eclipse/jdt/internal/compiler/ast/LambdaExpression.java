@@ -35,6 +35,7 @@
  *							Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
  *							Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *							Bug 453483 - [compiler][null][loop] Improve null analysis for loops
+ *							Bug 455723 - Nonnull argument not correctly inferred in loop
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -601,7 +602,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			// if we can't prove non-null check against declared null-ness of the descriptor method:
 			// Note that this.binding never has a return type declaration, always inherit null-ness from the descriptor
 			if ((this.descriptor.returnType.tagBits & TagBits.AnnotationNonNull) != 0) {
-				flowContext.recordNullityMismatch(this.scope, expression, expression.resolvedType, this.descriptor.returnType, flowInfo, nullStatus);
+				flowContext.recordNullityMismatch(this.scope, expression, expression.resolvedType, this.descriptor.returnType, flowInfo, nullStatus, null);
 			}
 		}
 	}
