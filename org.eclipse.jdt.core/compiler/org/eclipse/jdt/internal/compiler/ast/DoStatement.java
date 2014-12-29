@@ -11,6 +11,7 @@
  *								bug 319201 - [null] no warning when unboxing SingleNameReference causes NPE
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
+ *								Bug 415790 - [compiler][resource]Incorrect potential resource leak warning in for loop with close in try/catch
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -119,7 +120,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	if (loopingContext.hasEscapingExceptions()) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321926
 		FlowInfo loopbackFlowInfo = flowInfo.copy();
-		loopbackFlowInfo.mergedWith(condInfo.initsWhenTrue().unconditionalCopy());
+		// loopback | (loopback + action + condition):
+		loopbackFlowInfo = loopbackFlowInfo.mergedWith(loopbackFlowInfo.unconditionalCopy().addNullInfoFrom(condInfo.initsWhenTrue()).unconditionalInits());
 		loopingContext.simulateThrowAfterLoopBack(loopbackFlowInfo);
 	}
 	// end of loop

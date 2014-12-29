@@ -49,7 +49,7 @@ private static final String APACHE_DBUTILS_CONTENT = "package org.apache.commons
 	"}\n";
 
 static {
-//	TESTS_NAMES = new String[] { "testBug376053" };
+//	TESTS_NAMES = new String[] { "testBug415790" };
 //	TESTS_NUMBERS = new int[] { 50 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -4789,5 +4789,66 @@ public void testStream4() {
 		},
 		options
 		);
+}
+public void testBug415790_ex2() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return; // uses foreach
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" +
+			"public class X {\n" +
+			"    public void example2() throws IOException {\n" + 
+			"        for (final File file : new File[] { new File(\"/\") }) {\n" + 
+			"            BufferedReader reader = null;\n" + 
+			"            try {\n" + 
+			"                reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));\n" + 
+			"            }\n" + 
+			"            finally {\n" + 
+			"                try {\n" + 
+			"                    reader.close();\n" + 
+			"                }\n" + 
+			"                catch (IOException e) {\n" + 
+			"                }\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"" +
+			"}\n"
+		},
+		options);
+}
+public void testBug415790_ex4() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.*;\n" +
+			"public class X {\n" +
+			"    public void example2(File[] files) throws IOException {\n" + 
+			"        for (int i = 0; i < files.length; i++) {\n" +
+			"            File file = files[i];\n" + 
+			"            BufferedReader reader = null;\n" + 
+			"            try {\n" + 
+			"                reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));\n" + 
+			"            }\n" + 
+			"            finally {\n" + 
+			"                try {\n" + 
+			"                    reader.close();\n" + 
+			"                }\n" + 
+			"                catch (IOException e) {\n" + 
+			"                }\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"" +
+			"}\n"
+		},
+		options);
 }
 }

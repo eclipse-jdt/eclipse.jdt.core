@@ -16,6 +16,7 @@
  *								Bug 411964 - [1.8][null] leverage null type annotation in foreach statement
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 453483 - [compiler][null][loop] Improve null analysis for loops
+ *								Bug 415790 - [compiler][resource]Incorrect potential resource leak warning in for loop with close in try/catch
  *     Jesper S Moller -  Contribution for
  *								bug 401853 - Eclipse Java compiler creates invalid bytecode (java.lang.VerifyError)
  *******************************************************************************/
@@ -166,6 +167,14 @@ public class ForeachStatement extends Statement {
 		}
 		//end of loop
 		loopingContext.complainOnDeferredNullChecks(currentScope, actionInfo);
+		if (loopingContext.hasEscapingExceptions()) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321926
+			FlowInfo loopbackFlowInfo = flowInfo.copy();
+			if (this.continueLabel != null) {  // we do get to the bottom
+				// loopback | (loopback + action):
+				loopbackFlowInfo = loopbackFlowInfo.mergedWith(loopbackFlowInfo.unconditionalCopy().addNullInfoFrom(actionInfo).unconditionalInits());
+			}
+			loopingContext.simulateThrowAfterLoopBack(loopbackFlowInfo);
+		}
 
 		FlowInfo mergedInfo = FlowInfo.mergedOptimizedBranches(
 				(loopingContext.initsOnBreak.tagBits &

@@ -67,10 +67,10 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "test0525_try_finally_unchecked_exception" };
-//		TESTS_NAMES = new String[] { "testBug441737" };
-//		TESTS_NAMES = new String[] { "testBug453305" };
-//		TESTS_NAMES = new String[] { "testBug431016" };
+//		TESTS_NAMES = new String[] { "testBug406160a" };
+//		TESTS_NAMES = new String[] { "testBug384380" };
+//		TESTS_NAMES = new String[] { "testBug384380_b" };
+//		TESTS_NAMES = new String[] { "testBug321926a2" };
 //		TESTS_NAMES = new String[] { "testBug432109" };
 //		TESTS_NAMES = new String[] { "testBug418500" }; 
 //		TESTS_NUMBERS = new int[] { 561 };
@@ -12929,6 +12929,46 @@ public void testBug321926a() {
 			"}"},
 		"Compiler good");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321926
+// need more precise info from the throw location
+public void testBug321926a2() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses @SW annotation
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_UNUSED_WARNING_TOKEN, JavaCore.ERROR);
+	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.WARNING);
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"	@SuppressWarnings(\"null\")\n" + // expecting "redundant null check" at "if (someVariable == null)"
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"		while (true) {\n" +
+			"			if (i == 0){\n" +
+			"				someVariable = \"not null\";\n" +
+			"				i++;\n" +
+			"			}\n" +
+			"			else {\n" +
+			"				someVariable = \"value\";\n" +
+			"				throw new IOException();\n" +
+			"			}\n" +
+			"		}\n" +
+			"	 } catch (IOException e) {\n" +
+			"		// broken from loop, continue on\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler buggy\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"}"},
+		"Compiler good",
+		options);
+}
 // Test that dead code warning does show up.
 public void testBug321926b() {
 	this.runNegativeTest(
@@ -13370,6 +13410,9 @@ public void testBug321926m() {
 		"Compiler good");
 }
 public void testBug321926n() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
+	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.WARNING);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -13398,9 +13441,13 @@ public void testBug321926n() {
 			"	 }\n" +
 			"  }\n" +
 			"}"},
-		"Compiler good");
+		"Compiler good",
+		options);
 }
 public void testBug321926o() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
+	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.WARNING);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -13429,9 +13476,13 @@ public void testBug321926o() {
 			"	 }\n" +
 			"  }\n" +
 			"}"},
-		"Compiler good");
+		"Compiler good",
+		options);
 }
 public void testBug321926p() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
+	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.WARNING);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -13460,7 +13511,8 @@ public void testBug321926p() {
 			"	 }\n" +
 			"  }\n" +
 			"}"},
-		"Compiler good");
+		"Compiler good",
+		options);
 }
 public void testBug321926q() {
 	Map options = getCompilerOptions();
@@ -13591,6 +13643,8 @@ public void testBug321926t() {
 		"Compiler good");
 }
 public void testBug321926u() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -13618,9 +13672,12 @@ public void testBug321926u() {
 			"		    System.out.println(\"Compiler bad\");\n" +
 			"	}\n" +
 			"}\n"},
-		"Compiler good");
+		"Compiler good",
+		options);
 }
 public void testBug321926v() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -13648,10 +13705,14 @@ public void testBug321926v() {
 			"		    System.out.println(\"Compiler good\");\n" +
 			"	}\n" +
 			"}\n"},
-		"Compiler good");
+		"Compiler good",
+		options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
 public void testBug317829a() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
+	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.WARNING);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -13679,10 +13740,47 @@ public void testBug317829a() {
 			"	 }\n" +
 			"  }\n" +
 			"}"},
+			"Compiler good Compiler good",
+			options);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
+// assignment from unknown - not reporting redundant check
+public void testBug317829a2() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"	 String someVariable = null;\n" +
+			"	 int i = 0;\n" +
+			"	 try {\n" +
+			"       someVariable = getString();\n" +
+			"		while (true) {\n" +
+			"			throw new IOException();\n" +
+			"		}\n" +
+			"	 } catch (IOException e) {\n" +
+			"	 	if (someVariable == null) {\n" +
+			"    		System.out.println(\"Compiler bad\");\n" +
+			"	 	} else {\n" +
+			"			System.out.print(\"Compiler good \");\n" +
+			"	 	}\n" +
+			"	 }\n" +
+			"	 if (someVariable == null) {\n" +
+			"    	System.out.println(\"Compiler bad\");\n" +
+			"	 } else {\n" +
+			"		System.out.println(\"Compiler good\");\n" +
+			"	 }\n" +
+			"  }\n" +
+			"  static String getString() { return \"\"; }\n" +
+			"}"},
 			"Compiler good Compiler good");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
 public void testBug317829b() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
+	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.WARNING);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -13713,10 +13811,14 @@ public void testBug317829b() {
 			"      throw new IOException();\n" +
 			"  }\n" +
 			"}"},
-			"Compiler good Compiler good");
+			"Compiler good Compiler good",
+			options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
 public void testBug317829c() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
+	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.WARNING);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -13744,10 +13846,14 @@ public void testBug317829c() {
 			"	 }\n" +
 			"  }\n" +
 			"}"},
-			"Compiler good Compiler good");
+			"Compiler good Compiler good",
+			options);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
 public void testBug317829d() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
+	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.WARNING);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -13778,10 +13884,14 @@ public void testBug317829d() {
 			"      throw new IOException();\n" +
 			"  }\n" +
 			"}"},
-			"Compiler good Compiler good");
+			"Compiler good Compiler good",
+			options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
 public void testBug317829e() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
+	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.WARNING);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -13809,10 +13919,14 @@ public void testBug317829e() {
 			"	 }\n" +
 			"  }\n" +
 			"}"},
-			"Compiler good Compiler good");
+			"Compiler good Compiler good",
+			options);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=317829
 public void testBug317829f() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_DEAD_CODE, JavaCore.WARNING);
+	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.WARNING);
 	this.runConformTest(
 		new String[] {
 			"X.java",
@@ -13843,7 +13957,8 @@ public void testBug317829f() {
 			"      throw new IOException();\n" +
 			"  }\n" +
 			"}"},
-			"Compiler good Compiler good");
+			"Compiler good Compiler good",
+			options);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
@@ -14572,6 +14687,74 @@ public void testBug332637b() {
 		"Canceled after 3 times through the loop\n" + 
 		"number = 3\n" + 
 		"Done\n" + 
+		"-1");
+}
+
+public void testBug406160a() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	this.runConformTest(
+		new String[] {
+			"DeadCodeExample.java",
+			"public class DeadCodeExample {\n" + 
+			"\n" + 
+			"	class CanceledException extends Exception {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private interface ProgressMonitor {\n" + 
+			"		boolean isCanceled();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private void checkForCancellation(ProgressMonitor monitor)\n" + 
+			"			throws CanceledException {\n" + 
+			"		if (monitor.isCanceled()) {\n" + 
+			"			throw new CanceledException();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private int run() {\n" + 
+			"\n" + 
+			"		ProgressMonitor monitor = new ProgressMonitor() {\n" + 
+			"			private int i = 0;\n" + 
+			"\n" + 
+			"			public boolean isCanceled() {\n" + 
+			"				return (++i == 5);\n" + 
+			"			}\n" + 
+			"		};\n" + 
+			"\n" + 
+			"		Integer number = null;\n" + 
+			"\n" +
+			"		for (int j = 0; j < 1; ) {\n" + 
+			"\n" + 
+			"			try {\n" + 
+			"				checkForCancellation(monitor);\n" + 
+			"\n" + 
+			"				number = Integer.valueOf(0);\n" + 
+			"\n" + 
+			"				for (String s : new String[10]) {\n" + 
+			"					checkForCancellation(monitor);\n" + 
+			"					number++;\n" + 
+			"				}\n" + 
+			"				return 0;\n" + 
+			"			} catch (CanceledException e) {\n" + 
+			"				System.out.println(\"Canceled after \" + number\n" + 
+			"					+ \" times through the loop\");\n" + 
+			"				if (number != null) {\n" + 
+			"					System.out.println(\"number = \" + number);\n" + 
+			"				}\n" + 
+			"				return -1;\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		return 13;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(new DeadCodeExample().run());\n" + 
+			"	}\n" + 
+			"}\n"				
+		},
+		"Canceled after 3 times through the loop\n" + 
+		"number = 3\n" + 
 		"-1");
 }
 
@@ -16139,6 +16322,45 @@ public void testBug384380_a() {
 				"				// it fails even if catch is empty\n" +
 				"			} finally {\n" +
 				"				System.out.print(3);\n" +
+				"			}\n" +
+				"			c.property += 1; // \"Potential null pointer access: The variable c may be null at this location\"\n" +
+				"		}\n" +
+				"\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"");
+	}
+}
+// Bug 384380 - False positive on a "Potential null pointer access" after a continue
+// while & foreach loops
+public void testBug384380_b() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
+		this.runConformTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" +
+				"	public static class Container{\n" +
+				"		public int property;\n" +
+				"	}\n" +
+				"	public static class CustomException extends Exception {\n" +
+				"		private static final long	 serialVersionUID	= 1L;\n" +
+				"	}\n" +
+				"	public static void anotherMethod() throws CustomException {}\n" +
+				"\n" +
+				"	public static void method(final java.util.List<Container> list) {\n" +
+				"		java.util.Iterator<Container> it = list.iterator();\n" +
+				"		while (it.hasNext()) {\n" +
+				"			final Container c = it.next();\n" +
+				"			if(c == null)\n" +
+				"				continue; // return or break, are fine though\n" +
+				"\n" + 
+				"			// without this try-catch+for+exception block it does not fails\n" +
+				"			try {\n" +
+				"				for(Container c1 : list) // needs a loop here (a 'while' or a 'for') to fail\n" +
+				"					anotherMethod(); // throwing directly CustomException make it fails too\n" +
+				"			} catch (final CustomException e) {\n" +
+				"				// it fails even if catch is empty\n" +
 				"			}\n" +
 				"			c.property += 1; // \"Potential null pointer access: The variable c may be null at this location\"\n" +
 				"		}\n" +

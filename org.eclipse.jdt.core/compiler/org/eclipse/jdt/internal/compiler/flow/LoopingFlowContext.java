@@ -22,6 +22,7 @@
  *								Bug 453483 - [compiler][null][loop] Improve null analysis for loops
  *								Bug 455557 - [jdt] NPE LoopingFlowContext.recordNullReference
  *								Bug 455723 - Nonnull argument not correctly inferred in loop
+ *								Bug 415790 - [compiler][resource]Incorrect potential resource leak warning in for loop with close in try/catch
  *     Jesper S Moller - contributions for
  *								bug 404657 - [1.8][compiler] Analysis for effectively final variables fails to consider loops
  *******************************************************************************/
@@ -77,13 +78,16 @@ public class LoopingFlowContext extends SwitchFlowContext {
 	static private class EscapingExceptionCatchSite {
 		final ReferenceBinding caughtException;
 		final ExceptionHandlingFlowContext catchingContext;
-		public EscapingExceptionCatchSite(ExceptionHandlingFlowContext catchingContext,	ReferenceBinding caughtException) {
+		final FlowInfo exceptionInfo; // flow leading to the location of throwing
+		public EscapingExceptionCatchSite(ExceptionHandlingFlowContext catchingContext,	ReferenceBinding caughtException, FlowInfo exceptionInfo) {
 			this.catchingContext = catchingContext;
 			this.caughtException = caughtException;
+			this.exceptionInfo = exceptionInfo;
 		}
 		void simulateThrowAfterLoopBack(FlowInfo flowInfo) {
 			this.catchingContext.recordHandlingException(this.caughtException,
-					flowInfo.unconditionalInits(), null, // raised exception, irrelevant here,
+					flowInfo.unconditionalCopy().addNullInfoFrom(this.exceptionInfo).unconditionalInits(),
+					null, // raised exception, irrelevant here,
 					null, null, /* invocation site, irrelevant here */ true // we have no business altering the needed status.
 					);
 		}
@@ -745,11 +749,11 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 	   is caught by an outer catch block. This is used to propagate data flow
 	   along the edge back to the next iteration. See simulateThrowAfterLoopBack
 	 */
-	public void recordCatchContextOfEscapingException(ExceptionHandlingFlowContext catchingContext,	ReferenceBinding caughtException) {
+	public void recordCatchContextOfEscapingException(ExceptionHandlingFlowContext catchingContext,	ReferenceBinding caughtException, FlowInfo exceptionInfo) {
 		if (this.escapingExceptionCatchSites == null) {
 			this.escapingExceptionCatchSites = new ArrayList(5);
 		}
-		this.escapingExceptionCatchSites.add(new EscapingExceptionCatchSite(catchingContext, caughtException));
+		this.escapingExceptionCatchSites.add(new EscapingExceptionCatchSite(catchingContext, caughtException, exceptionInfo));
 	}
 
 	public boolean hasEscapingExceptions() {

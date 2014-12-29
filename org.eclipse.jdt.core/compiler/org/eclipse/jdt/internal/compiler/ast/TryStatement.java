@@ -19,6 +19,7 @@
  *								bug 401092 - [compiler][null] Wrong warning "Redundant null check" in outer catch of nested try
  *								bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *								bug 384380 - False positive on a ?? Potential null pointer access ?? after a continue
+ *								Bug 415790 - [compiler][resource]Incorrect potential resource leak warning in for loop with close in try/catch
  *     Jesper Steen Moller - Contributions for
  *								bug 404146 - [1.7][compiler] nested try-catch-finally-blocks leads to unrunnable Java byte code
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -372,29 +373,14 @@ private FlowInfo prepareCatchInfo(FlowInfo flowInfo, ExceptionHandlingFlowContex
 			addNullInfoFrom(handlingContext.initsOnFinally);
 	} else {
 		FlowInfo initsOnException = handlingContext.initsOnException(i);
-		if ((handlingContext.tagBits & (FlowContext.DEFER_NULL_DIAGNOSTIC | FlowContext.PREEMPT_NULL_DIAGNOSTIC))
-				== FlowContext.DEFER_NULL_DIAGNOSTIC)
-		{
-			// if null diagnostics are being deferred, initsOnException are incomplete,
-			// need to start with the more accurate upstream flowInfo
-			catchInfo =
-				flowInfo.unconditionalCopy()
-					.addPotentialInitializationsFrom(initsOnException)
-					.addPotentialInitializationsFrom(
-							tryInfo.unconditionalCopy())
-					.addPotentialInitializationsFrom(
-							handlingContext.initsOnReturn.nullInfoLessUnconditionalCopy());						
-		} else {
-			// here initsOnException are precise, so use them as the only source for null information into the catch block:
-			catchInfo =
-				flowInfo.nullInfoLessUnconditionalCopy()
-					.addPotentialInitializationsFrom(initsOnException)
-					.addNullInfoFrom(initsOnException)
-					.addPotentialInitializationsFrom(
-							tryInfo.nullInfoLessUnconditionalCopy())
-					.addPotentialInitializationsFrom(
-							handlingContext.initsOnReturn.nullInfoLessUnconditionalCopy());
-		}
+		catchInfo =
+			flowInfo.nullInfoLessUnconditionalCopy()
+				.addPotentialInitializationsFrom(initsOnException)
+				.addNullInfoFrom(initsOnException) // <<== Null info only from here!
+				.addPotentialInitializationsFrom(
+						tryInfo.nullInfoLessUnconditionalCopy())
+				.addPotentialInitializationsFrom(
+						handlingContext.initsOnReturn.nullInfoLessUnconditionalCopy());
 	}
 
 	// catch var is always set

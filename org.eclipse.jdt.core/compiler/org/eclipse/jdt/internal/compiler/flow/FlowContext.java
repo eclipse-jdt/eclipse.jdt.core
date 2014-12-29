@@ -19,6 +19,7 @@
  *								bug 403147 - [compiler][null] FUP of bug 400761: consolidate interaction between unboxing, NPE, and deferred checking
  *								Bug 453483 - [compiler][null][loop] Improve null analysis for loops
  *								Bug 455723 - Nonnull argument not correctly inferred in loop
+ *								Bug 415790 - [compiler][resource]Incorrect potential resource leak warning in for loop with close in try/catch
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -253,20 +254,22 @@ public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location
 					caughtIndex < caughtCount;
 					caughtIndex++) {
 					ReferenceBinding caughtException = caughtExceptions[caughtIndex];
+					FlowInfo exceptionFlow = flowInfo;
 				    int state = caughtException == null
 				    	? Scope.EQUAL_OR_MORE_SPECIFIC /* any exception */
 				        : Scope.compareTypes(raisedException, caughtException);
 				    if (abruptlyExitedLoops != null && caughtException != null && state != Scope.NOT_RELATED) {
 				    	for (int i = 0, abruptlyExitedLoopsCount = abruptlyExitedLoops.size(); i < abruptlyExitedLoopsCount; i++) {
 							LoopingFlowContext loop = (LoopingFlowContext) abruptlyExitedLoops.get(i);
-							loop.recordCatchContextOfEscapingException(exceptionContext, caughtException);
+							loop.recordCatchContextOfEscapingException(exceptionContext, caughtException, flowInfo);
 						}
+				    	exceptionFlow = FlowInfo.DEAD_END; // don't use flow info on first round, flow info will be evaluated during loopback simulation
 					}
 					switch (state) {
 						case Scope.EQUAL_OR_MORE_SPECIFIC :
 							exceptionContext.recordHandlingException(
 								caughtException,
-								flowInfo.unconditionalInits(),
+								exceptionFlow.unconditionalInits(),
 								raisedException,
 								raisedException, // precise exception that will be caught
 								location,
@@ -277,7 +280,7 @@ public void checkExceptionHandlers(TypeBinding raisedException, ASTNode location
 						case Scope.MORE_GENERIC :
 							exceptionContext.recordHandlingException(
 								caughtException,
-								flowInfo.unconditionalInits(),
+								exceptionFlow.unconditionalInits(),
 								raisedException,
 								caughtException,
 								location,
@@ -380,20 +383,22 @@ public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode locat
 					for (int raisedIndex = 0; raisedIndex < raisedCount; raisedIndex++) {
 						TypeBinding raisedException;
 						if ((raisedException = raisedExceptions[raisedIndex]) != null) {
+							FlowInfo exceptionFlow = flowInfo;
 						    int state = caughtException == null
 						    	? Scope.EQUAL_OR_MORE_SPECIFIC /* any exception */
 						        : Scope.compareTypes(raisedException, caughtException);
 						    if (abruptlyExitedLoops != null && caughtException != null && state != Scope.NOT_RELATED) {
 						    	for (int i = 0, abruptlyExitedLoopsCount = abruptlyExitedLoops.size(); i < abruptlyExitedLoopsCount; i++) {
 									LoopingFlowContext loop = (LoopingFlowContext) abruptlyExitedLoops.get(i);
-									loop.recordCatchContextOfEscapingException(exceptionContext, caughtException);
+									loop.recordCatchContextOfEscapingException(exceptionContext, caughtException, flowInfo);
 								}
+						    	exceptionFlow = FlowInfo.DEAD_END; // don't use flow info on first round, flow info will be evaluated during loopback simulation
 							}
 							switch (state) {
 								case Scope.EQUAL_OR_MORE_SPECIFIC :
 									exceptionContext.recordHandlingException(
 										caughtException,
-										flowInfo.unconditionalInits(),
+										exceptionFlow.unconditionalInits(),
 										raisedException,
 										raisedException, // precise exception that will be caught
 										location,
@@ -408,7 +413,7 @@ public void checkExceptionHandlers(TypeBinding[] raisedExceptions, ASTNode locat
 								case Scope.MORE_GENERIC :
 									exceptionContext.recordHandlingException(
 										caughtException,
-										flowInfo.unconditionalInits(),
+										exceptionFlow.unconditionalInits(),
 										raisedException,
 										caughtException, 
 										location,
