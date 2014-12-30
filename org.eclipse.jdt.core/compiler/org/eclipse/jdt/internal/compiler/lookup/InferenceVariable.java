@@ -21,7 +21,7 @@ public class InferenceVariable extends TypeVariableBinding {
 
 	InvocationSite site;
 	TypeBinding typeParameter;
-	long nullHints;
+	long nullHints; // one of TagBits.{AnnotationNonNull,AnnotationNullable} may steer inference into inferring nullness as well; set both bits to request avoidance.
 	private InferenceVariable prototype;
 	
 	public InferenceVariable(TypeBinding typeParameter, int variableRank, InvocationSite site, LookupEnvironment environment, ReferenceBinding object) {

@@ -47,6 +47,7 @@
  *								Bug 441734 - [1.8][inference] Generic method with nested parameterized type argument fails on method reference
  *								Bug 452194 - Code no longer compiles in 4.4.1, but with confusing error
  *								Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
+ *								Bug 456236 - [1.8][null] Cannot infer type when constructor argument is annotated with @Nullable
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -4888,13 +4889,13 @@ public abstract class Scope {
 					declaringElement = original.declaringElement;
 					prime += "'"; //$NON-NLS-1$
 				}
-				map.put(original, staticFactory.typeVariables[j] = new TypeVariableBinding(CharOperation.concat(original.sourceName, prime.toCharArray()),
+				map.put(original.unannotated(), staticFactory.typeVariables[j] = new TypeVariableBinding(CharOperation.concat(original.sourceName, prime.toCharArray()),
 																			staticFactory, j, environment));
 			}
 			// Rename each type variable U of method
 			prime += "'"; //$NON-NLS-1$
 			for (int j = classTypeVariablesArity, k = 0; j < factoryArity; j++, k++) {
-				map.put(methodTypeVariables[k], 
+				map.put(methodTypeVariables[k].unannotated(), 
 						(staticFactory.typeVariables[j] = new TypeVariableBinding(CharOperation.concat(methodTypeVariables[k].sourceName, prime.toCharArray()),
 																			staticFactory, j, environment)));
 
@@ -4908,7 +4909,7 @@ public abstract class Scope {
 						return false;
 					}
 					public TypeBinding substitute(TypeVariableBinding typeVariable) {
-						TypeBinding retVal = (TypeBinding) map.get(typeVariable);
+						TypeBinding retVal = (TypeBinding) map.get(typeVariable.unannotated());
 						return retVal == null ? typeVariable : typeVariable.hasTypeAnnotations() ? environment().createAnnotatedType(retVal, typeVariable.getTypeAnnotations()) : retVal;
 					}
 				};
@@ -4916,7 +4917,7 @@ public abstract class Scope {
 			// initialize new variable bounds
 			for (int j = 0; j < factoryArity; j++) {
 				TypeVariableBinding originalVariable = j < classTypeVariablesArity ? classTypeVariables[j] : methodTypeVariables[j - classTypeVariablesArity];
-				TypeVariableBinding substitutedVariable = (TypeVariableBinding) map.get(originalVariable);
+				TypeVariableBinding substitutedVariable = (TypeVariableBinding) map.get(originalVariable.unannotated());
 				
 				TypeBinding substitutedSuperclass = Scope.substitute(substitution, originalVariable.superclass);
 				ReferenceBinding[] substitutedInterfaces = Scope.substitute(substitution, originalVariable.superInterfaces);

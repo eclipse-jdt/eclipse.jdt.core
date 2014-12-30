@@ -99,6 +99,9 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			// 18.2.3:
 			return reduceSubType(inferenceContext.scope, this.right, this.left);
 		case SAME:
+			if (inferenceContext.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled)
+				if (!checkIVFreeTVmatch(this.left, this.right))
+					checkIVFreeTVmatch(this.right, this.left);
 			// 18.2.4:
 			return reduceTypeEquality(inferenceContext.object);
 		case TYPE_ARGUMENT_CONTAINED:
@@ -144,6 +147,16 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			}
 		default: throw new IllegalStateException("Unexpected relation kind "+this.relation); //$NON-NLS-1$
 		}
+	}
+
+	/** Detect when we are equating an inference variable against a free type variable. */
+	boolean checkIVFreeTVmatch(TypeBinding one, TypeBinding two) {
+		if (one instanceof InferenceVariable && two.isTypeVariable() && (two.tagBits & TagBits.AnnotationNullMASK) == 0) {
+			// found match => avoid inferring any null annotation (by marking as contradiction):
+			((InferenceVariable)one).nullHints = TagBits.AnnotationNullMASK;
+			return true;
+		}
+		return false;
 	}
 
 	private Object reduceTypeEquality(TypeBinding object) {

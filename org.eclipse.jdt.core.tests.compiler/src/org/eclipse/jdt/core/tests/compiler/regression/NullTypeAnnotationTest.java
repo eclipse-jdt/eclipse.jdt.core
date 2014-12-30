@@ -7389,4 +7389,23 @@ public void testBug453475b() {
 		},
 		null, "");
 }
+public void testBug456236() {
+	runConformTestWithLibs(
+		new String[] {
+			"Nullsafe.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"class Nullsafe<T> {\n" + 
+			"	final @Nullable T t;\n" + 
+			"\n" + 
+			"	Nullsafe(@Nullable T t) {\n" + 
+			"		this.t = t;\n" + 
+			"	}\n" + 
+			"	public static <U> Nullsafe<U> of(@Nullable U u) {\n" + 
+			"		return new Nullsafe<>(u); // compile error\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		null,
+		"");
+}
 }
