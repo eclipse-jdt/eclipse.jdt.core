@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,7 @@
  *								Bug 440143 - [1.8][null] one more case of contradictory null annotations regarding type variables
  *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
  *								Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
+ *								Bug 456497 - [1.8][null] during inference nullness from target type is lost against weaker hint from applicability analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -74,6 +75,16 @@ public class TypeVariableBinding extends ReferenceBinding {
 		computeId(environment);
 	}
 	
+	// for subclass CaptureBinding
+	protected TypeVariableBinding(char[] sourceName, LookupEnvironment environment) {
+		this.sourceName = sourceName;
+		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat type var as public
+		this.tagBits |= TagBits.HasTypeVariable;
+		this.environment = environment;
+		this.typeBits = TypeIds.BitUninitialized;
+		// don't yet compute the ID!
+	}
+
 	public TypeVariableBinding(TypeVariableBinding prototype) {
 		super(prototype);
 		this.declaringElement = prototype.declaringElement;

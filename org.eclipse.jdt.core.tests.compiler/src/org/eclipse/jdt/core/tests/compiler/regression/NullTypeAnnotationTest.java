@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 GK Software AG and others.
+ * Copyright (c) 2012, 2015 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,7 +28,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//			TESTS_NAMES = new String[] { "testBug441693other" };
+//			TESTS_NAMES = new String[] { "testBug456497" };
 //			TESTS_NUMBERS = new int[] { 561 };
 //			TESTS_RANGE = new int[] { 1, 2049 };
 	}
@@ -2642,19 +2642,15 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	                                                           ^^^^^^\n" + 
 			"Null type mismatch (type annotations): required \'X\' but this expression has type \'@Nullable X\', where 'X' is a free type variable\n" + 
 			"----------\n" + 
-			"2. WARNING in PolyNull.java (at line 9)\n" + 
-			"	return extract(i -> needNN(i), \"ola\");\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull String\'\n" + 
-			"----------\n" + 
-			"3. ERROR in PolyNull.java (at line 9)\n" + 
+			"2. ERROR in PolyNull.java (at line 9)\n" + 
 			"	return extract(i -> needNN(i), \"ola\");\n" + 
 			"	                           ^\n" + 
 			"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
 			"----------\n");
 	}
 
-	// conflicting annotations from type variable application and type variable substitution -> exclude null annotations from inference
+	// seemingly conflicting annotations from type variable application and type variable substitution 
+	// -> ignore @Nullable which overrides the type variable's nullness for this one location
 	public void testNullTypeInference3() {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
@@ -2666,7 +2662,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"public class Generics {\n" + 
 				"	<X> X m(@Nullable X a) { return null; }\n" + 
 				"	void test(@NonNull String in) {\n" + 
-				"		@NonNull String s = m(in);\n" + 
+				"		@NonNull String s = m(in);\n" +  // inferred OK as 'm(@Nullable String) -> @NonNull String'
 				"		System.out.println(s.toLowerCase());\n" + 
 				"	}\n" + 
 				"	public static void main(String[] args) {\n" + 
@@ -2680,11 +2676,6 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	<X> X m(@Nullable X a) { return null; }\n" + 
 			"	                                ^^^^\n" + 
 			"Null type mismatch (type annotations): \'null\' is not compatible to the free type variable 'X'\n" + 
-			"----------\n" + 
-			"2. ERROR in Generics.java (at line 6)\n" + 
-			"	@NonNull String s = m(in);\n" + 
-			"	                    ^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull String\'\n" + 
 			"----------\n");
 	}
 
@@ -7405,6 +7396,42 @@ public void testBug456236() {
 			"	}\n" + 
 			"}\n"
 		},
+		null,
+		"");
+}
+
+public void testBug456497() throws Exception {
+	runConformTestWithLibs(
+		new String[] {
+			"libs/Lib1.java",
+			"package libs;\n" + 
+			"\n" + 
+			"import java.util.Collection;\n" + 
+			"import java.util.Iterator;\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"\n" + 
+			"public interface Lib1 {\n" + 
+			"	<T> Iterator<T> unconstrainedTypeArguments1(Collection<@Nullable T> in);\n" + 
+			"	Iterator<@NonNull String> unconstrainedTypeArguments2(Collection<String> in);\n" + 
+			"}\n",
+			"tests/Test1.java",
+			"package tests;\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"import java.util.Collection;\n" + 
+			"import java.util.Iterator;\n" + 
+			"\n" + 
+			"import libs.Lib1;\n" + 
+			"\n" + 
+			"public class Test1 {\n" + 
+			"	Iterator<@NonNull String> test1(Lib1 lib, Collection<@Nullable String> coll) {\n" + 
+			"		return lib.unconstrainedTypeArguments1(coll);\n" + 
+			"	}\n" + 
+			"	Iterator<@NonNull String> test2(Lib1 lib, Collection<@Nullable String> coll) {\n" + 
+			"		return lib.unconstrainedTypeArguments2(coll);\n" + 
+			"	}\n" +
+			"}\n"
+		},	
 		null,
 		"");
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation and others.
+ * Copyright (c) 2013, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								Bug 434602 - Possible error with inferred null annotations leading to contradictory null annotations
+ *								Bug 456497 - [1.8][null] during inference nullness from target type is lost against weaker hint from applicability analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -384,13 +385,8 @@ public class TypeSystem {
 			System.arraycopy(derivedTypes, 0, derivedTypes = new TypeBinding[length * 2], 0, length);
 			this.types[unannotatedWildcard.id] = derivedTypes;
 		}
-		TypeBinding capture = derivedTypes[i] = new CaptureBinding(wildcard, contextType, start, end, cud, id);
-	
-		int typesLength = this.types.length;
-		if (this.typeid == typesLength)
-			System.arraycopy(this.types, 0, this.types = new TypeBinding[typesLength * 2][], 0, typesLength);
-		this.types[this.typeid] = new TypeBinding[1];
-		return (CaptureBinding) (this.types[capture.id = this.typeid++][0] = capture);
+		return (CaptureBinding) (derivedTypes[i] = new CaptureBinding(wildcard, contextType, start, end, cud, id));
+		// the above constructor already registers the capture, don't repeat that here
 	}
 	
 	public WildcardBinding getWildcard(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind, AnnotationBinding[] annotations) {

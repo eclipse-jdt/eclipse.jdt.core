@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 GK Software AG.
+ * Copyright (c) 2013, 2015 GK Software AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,7 +31,8 @@ public class InferenceSubstitution extends Scope.Substitutor implements Substitu
 		for (int i = 0; i < this.variables.length; i++) {
 			InferenceVariable variable = this.variables[i];
 			if (TypeBinding.equalsEquals(getP(i), originalType)) {
-				variable.nullHints |= originalType.tagBits & TagBits.AnnotationNullMASK;
+				if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled && originalType.hasNullTypeAnnotations())
+					return this.environment.createAnnotatedType(variable.withoutToplevelNullAnnotation(), originalType.getTypeAnnotations());
 				return variable;
 			}
 		}

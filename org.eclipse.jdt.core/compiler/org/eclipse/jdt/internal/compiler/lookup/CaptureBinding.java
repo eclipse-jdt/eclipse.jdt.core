@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 429384 - [1.8][null] implement conformance rules for null-annotated lower / upper type bounds
  *								Bug 441797 - [1.8] synchronize type annotations on capture and its wildcard
+ *								Bug 456497 - [1.8][null] during inference nullness from target type is lost against weaker hint from applicability analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -33,7 +34,7 @@ public class CaptureBinding extends TypeVariableBinding {
 	public ASTNode cud; // to facilitate recaptures.
 
 	public CaptureBinding(WildcardBinding wildcard, ReferenceBinding sourceType, int start, int end, ASTNode cud, int captureID) {
-		super(TypeConstants.WILDCARD_CAPTURE_NAME_PREFIX, null, 0, wildcard.environment);
+		super(TypeConstants.WILDCARD_CAPTURE_NAME_PREFIX, wildcard.environment);
 		this.wildcard = wildcard;
 		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat capture as public
 		this.fPackage = wildcard.fPackage;
@@ -54,6 +55,8 @@ public class CaptureBinding extends TypeVariableBinding {
 			super.setTypeAnnotations(wildcard.getTypeAnnotations(), wildcard.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
 			if (wildcard.hasNullTypeAnnotations())
 				this.tagBits |= TagBits.HasNullTypeAnnotation;
+		} else {			
+			computeId(this.environment);
 		}
 		this.cud = cud;
 	}

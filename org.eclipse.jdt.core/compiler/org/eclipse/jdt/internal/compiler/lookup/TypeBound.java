@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 GK Software AG and others.
+ * Copyright (c) 2013, 2015 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,14 +33,28 @@ public class TypeBound extends ReductionResult {
 
 	/** Create a true type bound or a dependency. */
 	TypeBound(InferenceVariable inferenceVariable, TypeBinding typeBinding, int relation) {
-		this.left = inferenceVariable;
-		this.right = safeType(typeBinding);
-		this.relation = relation;
+		this(inferenceVariable, typeBinding, relation, false);
 	}
 	
 	TypeBound(InferenceVariable inferenceVariable, TypeBinding typeBinding, int relation, boolean isSoft) {
 		this.left = inferenceVariable;
 		this.right = safeType(typeBinding);
+		if (((inferenceVariable.tagBits | this.right.tagBits) & TagBits.AnnotationNullMASK) != 0) {
+			if ((inferenceVariable.tagBits & TagBits.AnnotationNullMASK) == (this.right.tagBits & TagBits.AnnotationNullMASK)) {
+				// strip off identical nullness on both sides:
+				this.left = (InferenceVariable) inferenceVariable.withoutToplevelNullAnnotation();
+				this.right = this.right.withoutToplevelNullAnnotation();
+			} else {
+				long mask = 0;
+				// extract hint, e.g.: T#0 <: @NonNull Right  =>  T#0 hinted as @NonNull
+				switch (relation) {
+					case SAME: 		mask = TagBits.AnnotationNullMASK; break;
+					case SUBTYPE: 	mask = TagBits.AnnotationNonNull; break;  // sub of @Nullable is irrelevant
+					case SUPERTYPE: mask = TagBits.AnnotationNullable; break; // super of @NonNull is irrelevant
+				}
+				inferenceVariable.prototype().nullHints |= this.right.tagBits & mask;
+			}
+		}
 		this.relation = relation;
 		this.isSoft = isSoft;
 	}
