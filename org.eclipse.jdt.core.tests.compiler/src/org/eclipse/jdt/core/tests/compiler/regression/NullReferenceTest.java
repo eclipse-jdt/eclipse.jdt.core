@@ -17650,4 +17650,35 @@ public void testBug454031() {
 		"Null pointer access: The variable selectedNode can only be null at this location\n" + 
 		"----------\n");
 }
+// switch with fall-through nested in for:
+public void testBug451660() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"        public static void main(String[] args)\n" + 
+			"    {\n" + 
+			"        String s = null;\n" + 
+			"        for(; true;) // ok with \"while(true)\"\n" + 
+			"        {\n" + 
+			"            switch(0)\n" + 
+			"            {\n" + 
+			"            default:\n" + 
+			"                s = \"Hello!\";\n" + 
+			"            case 1:\n" + 
+			"                System.out.println(s.toString());\n" + 
+			"            }\n" + 
+			"            return;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	System.out.println(s.toString());\n" + 
+		"	                   ^\n" + 
+		"Potential null pointer access: The variable s may be null at this location\n" + 
+		"----------\n");
+}
 }
