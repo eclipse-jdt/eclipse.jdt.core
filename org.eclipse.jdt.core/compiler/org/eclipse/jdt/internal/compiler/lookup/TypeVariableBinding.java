@@ -30,6 +30,7 @@
  *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
  *								Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
  *								Bug 456497 - [1.8][null] during inference nullness from target type is lost against weaker hint from applicability analysis
+ *								Bug 456459 - Discrepancy between Eclipse compiler and javac - Enums, interfaces, and generics
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -153,7 +154,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 											return TypeConstants.MISMATCH;
 										}
 									} else {
-										if (!wildcardBound.isTypeVariable() && !substitutedSuperType.isTypeVariable()) {
+										if (denotesRelevantSuperClass(wildcardBound) && denotesRelevantSuperClass(substitutedSuperType)) {
+											// non-object real superclass should have produced a valid 'match' above
 											return TypeConstants.MISMATCH;
 										}
 									}
@@ -229,6 +231,13 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    	}
 	    }
 	    return unchecked ? TypeConstants.UNCHECKED : TypeConstants.OK;
+	}
+
+	boolean denotesRelevantSuperClass(TypeBinding type) {
+		if (!type.isTypeVariable() && !type.isInterface() && type.id != TypeIds.T_JavaLangObject)
+			return true;
+		ReferenceBinding aSuperClass = type.superclass();
+		return aSuperClass != null && aSuperClass.id != TypeIds.T_JavaLangObject && !aSuperClass.isTypeVariable();
 	}
 
 	public int boundsCount() {

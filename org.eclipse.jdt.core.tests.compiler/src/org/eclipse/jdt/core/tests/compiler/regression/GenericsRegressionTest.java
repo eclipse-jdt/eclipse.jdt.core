@@ -30,6 +30,7 @@
  *								Bug 434793 - [1.8][null][compiler] AIOOBE in ParameterizedGenericMethodBinding.substitute when inlining a method
  *								Bug 438337 - StackOverflow after update from Kepler to Luna 
  *								Bug 452194 - Code no longer compiles in 4.4.1, but with confusing error
+ *								Bug 456459 - Discrepancy between Eclipse compiler and javac - Enums, interfaces, and generics
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -52,7 +53,7 @@ public class GenericsRegressionTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "testBug435643" };
+//		TESTS_NAMES = new String[] { "testBug456459" };
 //		TESTS_NUMBERS = new int[] { 1465 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}
@@ -5624,6 +5625,97 @@ public void testBug453253() {
 			"Type safety: Unchecked cast from capture#13-of ? to Collection<E>\n" + 
 			"----------\n"
 			));
+}
+// original test case, documenting existing compiler behavior
+public void testBug456459a() {
+	runNegativeTest(
+		new String[] {
+			"EnumTest.java",
+			"import java.util.EnumSet;\n" + 
+			"public class EnumTest {\n" + 
+			"	\n" + 
+			"		static enum Cloneables implements Cloneable {\n" + 
+			"			One, Two, Three;\n" + 
+			"		}\n" + 
+			"	\n" + 
+			"		public <T extends Cloneable> T getOne(Class enumType) {\n" + 
+			"			EnumSet<? extends T> set = EnumSet.allOf(enumType);\n" + 
+			"			return set.iterator().next();\n" + 
+			"		}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in EnumTest.java (at line 8)\n" + 
+		"	public <T extends Cloneable> T getOne(Class enumType) {\n" + 
+		"	                                      ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in EnumTest.java (at line 9)\n" + 
+		"	EnumSet<? extends T> set = EnumSet.allOf(enumType);\n" + 
+		"	                           ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation allOf(Class) of the generic method allOf(Class<E>) of type EnumSet\n" + 
+		"----------\n" + 
+		"3. WARNING in EnumTest.java (at line 9)\n" + 
+		"	EnumSet<? extends T> set = EnumSet.allOf(enumType);\n" + 
+		"	                           ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type EnumSet needs unchecked conversion to conform to EnumSet<? extends T>\n" + 
+		"----------\n" + 
+		"4. WARNING in EnumTest.java (at line 9)\n" + 
+		"	EnumSet<? extends T> set = EnumSet.allOf(enumType);\n" + 
+		"	                                         ^^^^^^^^\n" +
+		(this.complianceLevel < ClassFileConstants.JDK1_8
+		? "Type safety: The expression of type Class needs unchecked conversion to conform to Class<T&Enum<T&Enum<E>>>\n"
+		: "Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum<Enum<E>>>\n") +
+		"----------\n");
+}
+// simple conflict introduced by additional wildcard bound
+public void testBug456459b() {
+	runNegativeTest(
+		new String[] {
+			"EnumTest.java",
+			"import java.util.EnumSet;\n" + 
+			"public class EnumTest {\n" + 
+			"	\n" + 
+			"		static enum Cloneables implements Cloneable {\n" + 
+			"			One, Two, Three;\n" + 
+			"		}\n" + 
+			"	\n" + 
+			"		public void getOne(Class enumType) {\n" + 
+			"			EnumSet<? extends EnumTest> set = null;\n" + 
+			"		}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in EnumTest.java (at line 8)\n" + 
+		"	public void getOne(Class enumType) {\n" + 
+		"	                   ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. ERROR in EnumTest.java (at line 9)\n" + 
+		"	EnumSet<? extends EnumTest> set = null;\n" + 
+		"	        ^^^^^^^^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends EnumTest is not a valid substitute for the bounded parameter <E extends Enum<E>> of the type EnumSet<E>\n" + 
+		"----------\n");
+}
+// indirect conflict via wildcard's bound's bound.
+public void testBug456459c() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"class A {};\n" +
+			"class B {};\n" + 
+			"public class X<T extends A> {\n" + 
+			"	<U extends B> void m() {\n" +
+			"		X<? extends U> l = null;\n" +
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	X<? extends U> l = null;\n" + 
+		"	  ^^^^^^^^^^^\n" + 
+		"Bound mismatch: The type ? extends U is not a valid substitute for the bounded parameter <T extends A> of the type X<T>\n" + 
+		"----------\n");
 }
 }
 

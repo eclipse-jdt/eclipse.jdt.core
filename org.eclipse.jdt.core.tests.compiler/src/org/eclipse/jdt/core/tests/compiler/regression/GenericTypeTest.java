@@ -35559,7 +35559,6 @@ public void test1044() {
 		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=159214 - variation
-// FIXME javac8 rejects
 public void test1045() {
 	this.runConformTest(
 		new String[] {
