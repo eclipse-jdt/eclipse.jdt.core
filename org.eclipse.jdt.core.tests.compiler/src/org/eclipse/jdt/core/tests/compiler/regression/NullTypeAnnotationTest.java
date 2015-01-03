@@ -7435,4 +7435,110 @@ public void testBug456497() throws Exception {
 		null,
 		"");
 }
+// original case
+public void testBug456487a() {
+	runConformTestWithLibs(
+		new String[]{
+			"Optional.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Optional<@NonNull T> {\n" + 
+			"  @Nullable T value;\n" + 
+			"  private Optional(T value) { this.value = value; }\n" + 
+			"  public static <@NonNull T> Optional<T> of(T value) { return new Optional<T>(value); }\n" + 
+			"  public T get() { \n" + 
+			"    @Nullable T t = this.value;\n" + 
+			"    if (t != null) return t; \n" + 
+			"    throw new RuntimeException(\"No value present\");\n" + 
+			"  }\n" + 
+			"  public @Nullable T orElse(@Nullable T other) { return (this.value != null) ? this.value : other; }\n" + 
+			"}\n"
+		},
+		null,
+		"");
+}
+// witness for NPE in NullAnnotationMatching.providedNullTagBits:
+public void testBug456487b() {
+	runNegativeTestWithLibs(
+		new String[]{
+			"Optional.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Optional<@Nullable T> {\n" + 
+			"  @Nullable T value;\n" + 
+			"  private Optional(T value) { this.value = value; }\n" + 
+			"  public static <@NonNull T> Optional<T> of(T value) { return new Optional<T>(value); }\n" + 
+			"  public T get() { \n" + 
+			"    @Nullable T t = this.value;\n" + 
+			"    if (t != null) return t; \n" + 
+			"    throw new RuntimeException(\"No value present\");\n" + 
+			"  }\n" + 
+			"  public @Nullable T orElse(@Nullable T other) { return (this.value != null) ? this.value : other; }\n" + 
+			"}\n",
+			"OTest.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" + 
+			"class OTest {\n" + 
+			"  public static void good() {\n" + 
+			"    Optional<String> os1 = Optional.of(\"yes\");\n" + 
+			"    @NonNull String s = os1.get();\n" + 
+			"    @Nullable String ns = os1.orElse(null);\n" + 
+			"  }\n" + 
+			"  public static void bad() {\n" + 
+			"    Optional<String> os = Optional.of(null);\n" + 
+			"    @NonNull String s = os.orElse(null);\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Optional.java (at line 5)\n" + 
+		"	public static <@NonNull T> Optional<T> of(T value) { return new Optional<T>(value); }\n" + 
+		"	                                    ^\n" + 
+		"Null constraint mismatch: The type \'@NonNull T\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"2. ERROR in Optional.java (at line 5)\n" + 
+		"	public static <@NonNull T> Optional<T> of(T value) { return new Optional<T>(value); }\n" + 
+		"	                                                            ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Contradictory null annotations: method was inferred as \'void <init>(@NonNull @Nullable T)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"----------\n" + 
+		"3. ERROR in Optional.java (at line 5)\n" + 
+		"	public static <@NonNull T> Optional<T> of(T value) { return new Optional<T>(value); }\n" + 
+		"	                                                                         ^\n" + 
+		"Null constraint mismatch: The type \'@NonNull T\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in OTest.java (at line 5)\n" + 
+		"	Optional<String> os1 = Optional.of(\"yes\");\n" + 
+		"	         ^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"2. ERROR in OTest.java (at line 6)\n" + 
+		"	@NonNull String s = os1.get();\n" + 
+		"	                    ^^^^^^^^^\n" + 
+		"Contradictory null annotations: method was inferred as \'@NonNull @Nullable String get()\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"----------\n" + 
+		"3. ERROR in OTest.java (at line 7)\n" + 
+		"	@Nullable String ns = os1.orElse(null);\n" + 
+		"	                      ^^^^^^^^^^^^^^^^\n" + 
+		"Contradictory null annotations: method was inferred as \'@NonNull @Nullable String orElse(@NonNull @Nullable String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"----------\n" + 
+		"4. ERROR in OTest.java (at line 10)\n" + 
+		"	Optional<String> os = Optional.of(null);\n" + 
+		"	         ^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"5. ERROR in OTest.java (at line 10)\n" + 
+		"	Optional<String> os = Optional.of(null);\n" + 
+		"	                                  ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n" + 
+		"6. ERROR in OTest.java (at line 11)\n" + 
+		"	@NonNull String s = os.orElse(null);\n" + 
+		"	                    ^^^^^^^^^^^^^^^\n" + 
+		"Contradictory null annotations: method was inferred as \'@NonNull @Nullable String orElse(@NonNull @Nullable String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"----------\n" + 
+		"7. ERROR in OTest.java (at line 11)\n" + 
+		"	@NonNull String s = os.orElse(null);\n" + 
+		"	                    ^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is inferred as @Nullable\n" + 
+		"----------\n");
+}
 }

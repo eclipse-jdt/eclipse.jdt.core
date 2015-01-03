@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contribution for
  *								Bug 434602 - Possible error with inferred null annotations leading to contradictory null annotations
  *								Bug 456497 - [1.8][null] during inference nullness from target type is lost against weaker hint from applicability analysis
+ *								Bug 456487 - [1.8][null] @Nullable type variant of @NonNull-constrained type parameter causes grief
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -191,7 +192,27 @@ public class TypeSystem {
 	
 		return this.types[type.id][0] = type;
 	}
-	
+
+	/**
+	 * Forcefully register the given type as a derived type.
+	 * If it itself is already registered as the key unannotated type of its family,
+	 * create a clone to play that role from now on and swap types in the types cache.
+	 */
+	public void forceRegisterAsDerived(TypeBinding derived) {
+		int id = derived.id;
+		if (id != TypeIds.NoId && this.types[id] != null) {
+			TypeBinding unannotated = this.types[id][0];
+			if (unannotated == derived) { //$IDENTITY-COMPARISON$
+				// was previously registered as unannotated, replace by a fresh clone to remain unannotated:
+				this.types[id][0] = unannotated = derived.clone(null);
+			}
+			// proceed as normal:
+			cacheDerivedType(unannotated, derived);
+		} else {
+			throw new IllegalStateException("Type was not yet registered as expected: "+derived); //$NON-NLS-1$
+		}
+	}
+
 	// Given a type, return all its variously annotated versions.
 	public TypeBinding[] getAnnotatedTypes(TypeBinding type) {
 		return Binding.NO_TYPES;

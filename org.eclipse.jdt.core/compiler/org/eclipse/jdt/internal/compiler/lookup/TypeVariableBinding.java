@@ -31,6 +31,7 @@
  *								Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
  *								Bug 456497 - [1.8][null] during inference nullness from target type is lost against weaker hint from applicability analysis
  *								Bug 456459 - Discrepancy between Eclipse compiler and javac - Enums, interfaces, and generics
+ *								Bug 456487 - [1.8][null] @Nullable type variant of @NonNull-constrained type parameter causes grief
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -726,12 +727,10 @@ public class TypeVariableBinding extends ReferenceBinding {
 	
 	public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNullAnnotations) {
 		if (getClass() == TypeVariableBinding.class) {
-			// TVB only: if the declaration already carries type annotations,
-			// clone the unannotated binding first to ensure TypeSystem.getUnnanotatedType() will see it at position 0:
-			TypeBinding unannotated = clone(null);
-			this.environment.getUnannotatedType(unannotated); // register unannotated
-			this.id = unannotated.id; // transfer fresh id
-			this.environment.typeSystem.cacheDerivedType(this, unannotated, this); // register this
+			// TVB only: if the declaration itself carries type annotations,
+			// make sure TypeSystem will still have an unannotated variant at position 0, to answer getUnannotated()
+			// (in this case the unannotated type is never explicit in source code, that's why we need this charade).
+			this.environment.typeSystem.forceRegisterAsDerived(this);
 		} else {
 			this.environment.getUnannotatedType(this); // exposes original TVB/capture to type system for id stamping purposes.
 		}

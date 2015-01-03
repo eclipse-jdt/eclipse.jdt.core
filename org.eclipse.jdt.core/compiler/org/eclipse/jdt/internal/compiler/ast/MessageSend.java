@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,6 +49,7 @@
  *								Bug 429430 - [1.8] Lambdas and method reference infer wrong exception type with generics (RuntimeException instead of IOException)
  *								Bug 441734 - [1.8][inference] Generic method with nested parameterized type argument fails on method reference
  *								Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
+ *								Bug 456487 - [1.8][null] @Nullable type variant of @NonNull-constrained type parameter causes grief
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -740,6 +741,10 @@ public TypeBinding resolveType(BlockScope scope) {
 			case ProblemReasons.ParameterBoundMismatch :
 				// only steal returnType in cases listed above
 				if (closestMatch != null) this.resolvedType = closestMatch.returnType;
+				break;
+			case ProblemReasons.ContradictoryNullAnnotations :
+				if (closestMatch != null && closestMatch.returnType != null)
+					this.resolvedType = closestMatch.returnType.withoutToplevelNullAnnotation();
 				break;
 		}
 		// record the closest match, for clients who may still need hint about possible method match
