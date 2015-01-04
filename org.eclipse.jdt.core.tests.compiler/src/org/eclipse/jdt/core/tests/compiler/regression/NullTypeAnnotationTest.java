@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -7540,5 +7541,23 @@ public void testBug456487b() {
 		"	                    ^^^^^^^^^^^^^^^\n" + 
 		"Null type mismatch: required \'@NonNull String\' but the provided value is inferred as @Nullable\n" + 
 		"----------\n");
+}
+public void testBug454182() {
+	
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "annot.NonNullByDefault");
+	String[] libs = this.LIBS.clone();
+	libs[libs.length-1] = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test454182.jar";
+	runConformTest(
+		new String[] {
+			"p/package-info.java",
+			"@annot.NonNullByDefault package p;\n"
+		},
+		"",
+		libs,
+		false,
+		null,
+		options,
+		null);
 }
 }

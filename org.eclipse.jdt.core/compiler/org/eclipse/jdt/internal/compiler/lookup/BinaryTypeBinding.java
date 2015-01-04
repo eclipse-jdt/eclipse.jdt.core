@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,6 +32,7 @@
  *								Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *								Bug 453475 - [1.8][null] Contradictory null annotations (4.5 M3 edition)
+ *								Bug 454182 - Internal compiler error when using 1.8 compliance for simple project
  *    Jesper Steen Moller - Contributions for
  *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -1590,6 +1591,9 @@ private void scanTypeForNullDefaultAnnotation(IBinaryType binaryType, PackageBin
 	char[][] nonNullByDefaultAnnotationName = this.environment.getNonNullByDefaultAnnotationName();
 	if (nonNullByDefaultAnnotationName == null)
 		return; // not well-configured to use null annotations
+
+	if (CharOperation.equals(CharOperation.splitOn('/', binaryType.getName()), nonNullByDefaultAnnotationName))
+		return; // don't recursively apply @NNBD on @NNBD, neither directly nor via the 'enclosing' package-info.java
 
 	IBinaryAnnotation[] annotations = binaryType.getAnnotations();
 	boolean isPackageInfo = CharOperation.equals(sourceName(), TypeConstants.PACKAGE_INFO_NAME);
