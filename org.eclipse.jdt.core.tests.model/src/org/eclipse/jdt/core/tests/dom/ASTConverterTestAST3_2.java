@@ -92,6 +92,7 @@ import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
 import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SwitchCase;
@@ -10645,5 +10646,27 @@ public class ASTConverterTestAST3_2 extends ConverterTestSetup {
 		CompilationUnit resultCompilationUnit = (CompilationUnit) parser.createAST(null);
 		Object o = resultCompilationUnit.types().get(0);
 		assertEquals(o.toString(), source);
+	}
+	/**
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=455986
+	 */
+	public void test0723() {
+		String src = "super();";
+		char[] source = src.toCharArray();
+		ASTParser parser = ASTParser.newParser(getJLS3());
+		parser.setKind (ASTParser.K_STATEMENTS);
+		parser.setIgnoreMethodBodies(true);
+		parser.setSource (source);
+		ASTNode result = parser.createAST (null);
+		assertNotNull("no result", result);
+		assertEquals("Wrong type", ASTNode.BLOCK, result.getNodeType());
+		Block block = (Block) result;
+		List statements = block.statements();
+		assertNotNull("No statements", statements);
+		assertEquals("Wrong size", 1, statements.size());
+		final ASTNode node = (ASTNode) statements.get(0);
+		assertEquals("Not a super constructor call", ASTNode.SUPER_CONSTRUCTOR_INVOCATION, node.getNodeType());
+		SuperConstructorInvocation statement = (SuperConstructorInvocation) node;
+		checkSourceRange(statement, "super();", source);
 	}
 }
