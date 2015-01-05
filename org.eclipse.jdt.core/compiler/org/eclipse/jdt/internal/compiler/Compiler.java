@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -487,8 +487,9 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 								}));
 						process(unit, i);
 					} finally {
-						// cleanup compilation unit result
-						unit.cleanUp();
+						// cleanup compilation unit result, but only if not annotation processed.
+						if (this.annotationProcessorManager == null || shouldCleanup(i))
+							unit.cleanUp();
 					}
 					if (this.annotationProcessorManager == null) {
 						this.unitsToProcess[i] = null; // release reference to processed unit declaration
@@ -540,7 +541,12 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			}
 			if (this.annotationProcessorManager != null && this.totalUnits > this.annotationProcessorStartIndex) {
 				int backup = this.annotationProcessorStartIndex;
+				int prevUnits = this.totalUnits;
 				processAnnotations();
+				// Clean up the units that were left out previously for annotation processing.
+				for (int i = backup; i < prevUnits; i++) {
+					this.unitsToProcess[i].cleanUp();
+				}
 				processCompiledUnits(backup);
 			}
 		} catch (AbortCompilation e) {
@@ -571,6 +577,15 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 			return unit;
 		}
 		return null;
+	}
+
+	/*
+	 * Returns whether the compilation unit at the given index should be
+	 * cleaned up after processing. This basically means whether or not
+	 * the unit is still required for annotation processing.
+	 */
+	public boolean shouldCleanup(int index) {
+		return index < this.annotationProcessorStartIndex;
 	}
 
 	public void setBinaryTypes(ReferenceBinding[] binaryTypes) {
