@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2389,8 +2389,8 @@ public void testBug400905_0004() throws CoreException {
 	assertSearchResults(
 					"src/b400905/I.java T b400905.I.foo() [foo] EXACT_MATCH\n" + 
 					"src/b400905/X.java b400905.Y void b400905.X.main(String[]):<lambda #1>.foo() [() /* foo */ ->] EXACT_MATCH\n" + 
-					"src/b400905/X.java b400905.Y void b400905.X.main(String[]):<lambda #1>.foo() [() /* true */->] EXACT_MATCH\n" + 
-					"src/b400905/X.java b400905.Y void b400905.X.main(String[]):<lambda #1>.foo() [() /* false */ ->] EXACT_MATCH\n" + 
+					"src/b400905/X.java b400905.Y void b400905.X.main(String[]):<lambda #1>.foo() [(() /* true */->] EXACT_MATCH\n" + 
+					"src/b400905/X.java b400905.Y void b400905.X.main(String[]):<lambda #1>.foo() [(() /* false */ ->] EXACT_MATCH\n" + 
 					"src/b400905/X.java java.lang.Object void b400905.X.main(String[]):<lambda #1>.foo() [() /* cast */ ->] EXACT_MATCH"
 	);	
 }
@@ -4513,6 +4513,56 @@ public void testBug454401() throws CoreException, JavaModelException {
 		deleteProject("P");
 	}
 }
+public void testBug454411_001() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	String content = 					
+			"package com.test;\n" +
+			"interface Function<T, R> { \n"+
+			"    R apply(T t); \n"+
+			"} \n"+
+			"interface I<T> extends Function<T, T> { \n"+
+			"    static <T> I<T> identity() { \n"+
+			"        return t -> t; \n"+
+			"    } \n"+
+			"} \n"+
+			" \n"+
+			"public class X { \n"+
+			"	private static class Multiplier { \n"+
+			"		private final long mMul; \n"+
+			" \n"+
+			"		public Multiplier(long iMul) { \n"+
+			"			this.mMul = iMul; \n"+
+			"		} \n"+
+			"		public <T, V> Long mul(Long iItem) { \n"+
+			"			return iItem * mMul; \n"+
+			"		} \n"+
+			"	} \n"+
+			" \n"+
+			"	private static void test(I<Long> iFn) { \n"+
+			"	} \n"+
+			" \n"+
+			"	public static <T, V> void main(String[] args) { \n"+
+			"		I<Long> mul/* here */ = (new Multiplier(3))::<T, V> mul; \n"+
+			"		X.test((new Multiplier(3))::<T, V> mul); \n"+
+			"	} \n"+
+			"}\n";
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/b454411/X.java", content);
+	int start = content.indexOf("mul/* here */");
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, "mul".length());
+	SearchPattern pattern = SearchPattern.createPattern(elements[0], DECLARATIONS);
+	try {
+		new SearchEngine(this.workingCopies).search(pattern,
+				new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+				getJavaSearchWorkingCopiesScope(),
+				this.resultCollector,
+				null);
+		assertSearchResults("src/b454411/X.java void b454411.X.main(String[]).mul [mul] EXACT_MATCH");
+	} catch (NullPointerException e) {
+		e.printStackTrace();
+		assertFalse("Test Failed", true);
+	}
+}
+
 // Add new tests in JavaSearchBugs8Tests
 }
 
