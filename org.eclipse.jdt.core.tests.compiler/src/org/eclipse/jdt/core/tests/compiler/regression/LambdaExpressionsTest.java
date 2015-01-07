@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 IBM Corporation and others.
+ * Copyright (c) 2011, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5582,6 +5582,26 @@ public void test445949a() {
 		"	                        ^\n" +
 		"Lambda expression's parameter y cannot redeclare another local variable defined in an enclosing scope. \n" +
 		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=456395, can't compile the Java8 code
+public void test456395() {
+	this.runConformTest(
+			new String[] {
+			"Test.java",
+			"import java.io.*;\n" +
+			"import java.util.*;\n" +
+			"import java.util.stream.*;\n" +
+			"import static java.util.stream.Collectors.*;\n" +
+			"public class Test {\n" +
+			"   public static void main(String[] args) throws IOException {\n" +
+			"      Stream<Locale> locales = Stream.of(Locale.getAvailableLocales());\n" +
+			"      locales = Stream.of(Locale.getAvailableLocales());\n" +
+			"      Map<String, Set<String>> countryToLanguages = locales.collect(\n" +
+			"         groupingBy(Locale::getDisplayCountry, \n" +
+			"            mapping(Locale::getDisplayLanguage,\n" +
+			"               toSet())));\n" +
+			"   }\n" +
+			"}\n"});
 }
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
