@@ -22,6 +22,7 @@
  *							Bug 444024 - [1.8][compiler][null] Type mismatch error in annotation generics assignment which happens "sometimes"
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 415821 - [1.8][compiler] CLASS_EXTENDS target type annotation missing for anonymous classes
+ *     het@google.com - Bug 456986 - Bogus error when annotation processor generates annotation type
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -269,6 +270,9 @@ public class ClassScope extends Scope {
 			int count = 0;
 			nextMember : for (int i = 0; i < length; i++) {
 				TypeDeclaration memberContext = this.referenceContext.memberTypes[i];
+				if (this.environment().isProcessingAnnotations && this.environment().isMissingType(memberContext.name)) {
+					throw new SourceTypeCollisionException(); // resolved a type ref before APT generated the type
+				}
 				switch(TypeDeclaration.kind(memberContext.modifiers)) {
 					case TypeDeclaration.INTERFACE_DECL :
 					case TypeDeclaration.ANNOTATION_TYPE_DECL :
