@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM Corporation and others.
+ * Copyright (c) 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -599,6 +599,70 @@ public void testBug453687() {
 		"} "
 	},
 	"");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=456481 - [1.8] VerifyError on constructor reference inside lambda
+public void testBug456481() {
+	this.runConformTest(new String [] {
+		"Test.java",
+		"public class Test  {\n" + 
+		"    interface Constructor {\n" + 
+		"        MyTest execute();\n" + 
+		"    }\n" + 
+		"    interface ArrayConstructor {\n" + 
+		"    	MyTest[] execute(int no);\n" + 
+		"    }\n" + 
+		"    interface ParameterizedConstructor {\n" + 
+		"    	MyParameterizedTest<String> execute();\n" + 
+		"    }\n" + 
+		"    class MyTest {\n" + 
+		"        MyTest() { System.out.println(\"Constructor executed\"); }\n" + 
+		"    }\n" + 
+		"    class MyParameterizedTest<T> {\n" + 
+		"    	MyParameterizedTest() {\n" + 
+		"    		System.out.println(\"Parameterized Constructor executed\");\n" + 
+		"    	}\n" + 
+		"    }\n" + 
+		"    public Constructor getConstructor() {\n" + 
+		"        return getConstructor(() -> { return MyTest::new; });\n" + 
+		"    }\n" + 
+		"    public MyTest[] getArray(int no) {\n" + 
+		"    	return new MyTest[no];\n" + 
+		"    }\n" + 
+		"    ArrayConstructor getArrayConstructor() {\n" + 
+		"    	return getArrayConstructor(() -> {return MyTest[]::new;});\n" + 
+		"    }\n" + 
+		"    ParameterizedConstructor getParameterizedConstructor() {\n" + 
+		"    	return getParameterizedConstructor(() -> {return MyParameterizedTest<String>::new;});\n" + 
+		"    }\n" + 
+		"    ArrayConstructor getArrayConstructor(ArrayWrapper w) {\n" + 
+		"    	return w.unwrap();\n" + 
+		"    }\n" + 
+		"    public static void main(String argv[]) {\n" + 
+		"        Test t = new Test();\n" + 
+		"        MyTest mytest = t.getConstructor().execute();\n" + 
+		"        MyTest[] array = t.getArrayConstructor().execute(2);\n" +
+		"        MyParameterizedTest<String> pt = t.getParameterizedConstructor().execute();\n" +
+		"    }\n" + 
+		"    ParameterizedConstructor getParameterizedConstructor(PTWrapper ptw) {\n" + 
+		"    	return ptw.unwrap();\n" + 
+		"    }\n" + 
+		"    Constructor getConstructor(Wrapper arg) {\n" + 
+		"        return arg.unwrap();\n" + 
+		"    }\n" + 
+		"    interface PTWrapper {\n" + 
+		"    	ParameterizedConstructor unwrap();\n" + 
+		"    }\n" + 
+		"    interface ArrayWrapper {\n" + 
+		"    	ArrayConstructor unwrap();\n" + 
+		"    }\n" + 
+		"    interface Wrapper {\n" + 
+		"        Constructor unwrap();\n" + 
+		"    }\n" + 
+		"}"
+	},
+	"Constructor executed\n" +
+	"Parameterized Constructor executed");
 }
 public static Class testClass() {
 	return LambdaRegressionTest.class;
