@@ -669,14 +669,14 @@ public void testBug456481() {
 public void testBug457007() {
 	this.runConformTest(new String [] {
 		"Test.java",
-		"public class Test  {\n" +
-			"void method() {\n" +
-			"  class Bar {}\n" +
-			"  java.util.function.Function<String, Bar> f = str -> new Bar();\n" +
-			"}\n" +
-			"public static void main(String[] args) {\n" +
-			"  System.out.println(\"done\");\n" +
-			"}\n" +
+		"public class Test {\n" +
+		"	void method() {\n" +
+		"  		class Bar {}\n" +
+		"  		java.util.function.Function<String, Bar> f = str -> new Bar();\n" +
+		"	}\n" +
+		"	public static void main(String[] args) {\n" +
+		"		System.out.println(\"done\");\n" +
+		"	}\n" +
 		"}"
 	},
 	"done");
