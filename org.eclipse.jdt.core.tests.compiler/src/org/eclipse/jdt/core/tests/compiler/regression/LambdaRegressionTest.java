@@ -664,6 +664,24 @@ public void testBug456481() {
 	"Constructor executed\n" +
 	"Parameterized Constructor executed");
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=457007, VerifyError
+public void testBug457007() {
+	this.runConformTest(new String [] {
+		"Test.java",
+		"public class Test  {\n" +
+			"void method() {\n" +
+			"  class Bar {}\n" +
+			"  java.util.function.Function<String, Bar> f = str -> new Bar();\n" +
+			"}\n" +
+			"public static void main(String[] args) {\n" +
+			"  System.out.println(\"done\");\n" +
+			"}\n" +
+		"}"
+	},
+	"done");
+}
+
 public static Class testClass() {
 	return LambdaRegressionTest.class;
 }
