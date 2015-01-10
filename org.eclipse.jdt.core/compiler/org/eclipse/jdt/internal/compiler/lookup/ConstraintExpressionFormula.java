@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 GK Software AG.
+ * Copyright (c) 2013, 2015 GK Software AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -94,10 +94,9 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					if (previousMethod instanceof ParameterizedGenericMethodBinding) {
 						// find the previous inner inference context to see what inference kind this invocation needs:
 						InferenceContext18 innerCtx = invocation.getInferenceContext((ParameterizedGenericMethodBinding) previousMethod);
-						if (innerCtx == null || innerCtx.stepCompleted >= InferenceContext18.TYPE_INFERRED) { 
+						if (innerCtx == null) { 
 							/* No inference context -> the method was likely manufactured by Scope.findExactMethod -> assume it wasn't really poly after all.
-							   Otherwise, either the constraints and initial bounds that would effectively reduce to b3 are already transferred to current context 
-							   during C Set construction. Otherwise all that is relevant is to relate the return type with expected type.
+							   -> proceed as for non-poly expressions.
 							*/
 							TypeBinding exprType = this.left.resolvedType;
 							if (exprType == null || !exprType.isValidBinding())

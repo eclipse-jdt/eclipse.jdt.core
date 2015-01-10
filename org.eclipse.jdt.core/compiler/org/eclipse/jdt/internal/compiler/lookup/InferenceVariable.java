@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 GK Software AG.
+ * Copyright (c) 2013, 2015 GK Software AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,9 +24,13 @@ public class InferenceVariable extends TypeVariableBinding {
 	long nullHints; // one of TagBits.{AnnotationNonNull,AnnotationNullable} may steer inference into inferring nullness as well; set both bits to request avoidance.
 	private InferenceVariable prototype;
 	
-	public InferenceVariable(TypeBinding typeParameter, int variableRank, InvocationSite site, LookupEnvironment environment, ReferenceBinding object) {
-		super(CharOperation.concat(typeParameter.shortReadableName(), Integer.toString(variableRank).toCharArray(), '#'), 
-				null/*declaringElement*/, variableRank, environment);
+	public InferenceVariable(TypeBinding typeParameter, int parameterRank, int iVarId, InvocationSite site, LookupEnvironment environment, ReferenceBinding object) {
+		this(typeParameter, parameterRank, site,
+				CharOperation.concat(typeParameter.shortReadableName(), Integer.toString(iVarId).toCharArray(), '#'),
+				environment, object);
+	}
+	private InferenceVariable(TypeBinding typeParameter, int parameterRank, InvocationSite site, char[] sourceName, LookupEnvironment environment, ReferenceBinding object) {
+		super(sourceName, null/*declaringElement*/, parameterRank, environment);
 		this.site = site;
 		this.typeParameter = typeParameter;
 		this.tagBits |= typeParameter.tagBits & TagBits.AnnotationNullMASK;
@@ -46,7 +50,7 @@ public class InferenceVariable extends TypeVariableBinding {
 	
 	@Override
 	public TypeBinding clone(TypeBinding enclosingType) {
-		InferenceVariable clone = new InferenceVariable(this.typeParameter, this.rank, this.site, this.environment, this.superclass);
+		InferenceVariable clone = new InferenceVariable(this.typeParameter, this.rank, this.site, this.sourceName, this.environment, this.superclass);
 		clone.tagBits = this.tagBits;
 		clone.nullHints = this.nullHints;
 		clone.prototype = this;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 GK Software AG, and others.
+ * Copyright (c) 2013, 2015 GK Software AG, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -128,8 +128,6 @@ public class InferenceContext18 {
 	
 	/** The inference variables for which as solution is sought. */
 	InferenceVariable[] inferenceVariables;
-	/** Number of inference variables. */
-	int variableCount = 0;
 
 	/** Constraints that have not yet been reduced and incorporated. */
 	ConstraintFormula[] initialConstraints;
@@ -158,6 +156,32 @@ public class InferenceContext18 {
 	ReferenceBinding object; // java.lang.Object
 	public BoundSet b2;
 	
+	// InferenceVariable interning:
+	private InferenceVariable[] internedVariables;
+	
+	private InferenceVariable getInferenceVariable(TypeBinding typeParameter, int rank, InvocationSite site) {
+		InferenceContext18 outermostContext = this.environment.currentInferenceContext;
+		if (outermostContext == null)
+			outermostContext = this;
+		int i = 0;
+		InferenceVariable[] interned = outermostContext.internedVariables;
+		if (interned == null) {
+			outermostContext.internedVariables = new InferenceVariable[10];
+		} else {
+			int len = interned.length;
+			for (i = 0; i < len; i++) {
+				InferenceVariable var = interned[i];
+				if (var == null)
+					break;
+				if (var.typeParameter == typeParameter && var.rank == rank && var.site == site) //$IDENTITY-COMPARISON$
+					return var;
+			}
+			if (i >= len)
+				System.arraycopy(interned, 0, outermostContext.internedVariables = new InferenceVariable[len+10], 0, len);
+		}
+		return outermostContext.internedVariables[i] = new InferenceVariable(typeParameter, rank, i, site, this.environment, this.object);
+	}
+
 	public static final int CHECK_UNKNOWN = 0;
 	public static final int CHECK_STRICT = 1;
 	public static final int CHECK_LOOSE = 2;
@@ -287,7 +311,7 @@ public class InferenceContext18 {
 		}
 		InferenceVariable[] newVariables = new InferenceVariable[len];
 		for (int i = 0; i < len; i++)
-			newVariables[i] = new InferenceVariable(typeVariables[i], this.variableCount++, this.currentInvocation, this.environment, this.object);
+			newVariables[i] = getInferenceVariable(typeVariables[i], i, this.currentInvocation);
 		if (this.inferenceVariables == null || this.inferenceVariables.length == 0) {
 			this.inferenceVariables = newVariables;
 		} else {
@@ -310,7 +334,7 @@ public class InferenceContext18 {
 				newVariables[i] = (InferenceVariable) typeVariables[i]; // prevent double substitution of an already-substituted inferenceVariable
 			else
 				toAdd[numToAdd++] =
-					newVariables[i] = new InferenceVariable(typeVariables[i], this.variableCount++, this.currentInvocation, this.environment, this.object);
+					newVariables[i] = getInferenceVariable(typeVariables[i], i, this.currentInvocation);
 		}
 		if (numToAdd > 0) {
 			int start = 0;

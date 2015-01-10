@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,7 @@
  *								Bug 434602 - Possible error with inferred null annotations leading to contradictory null annotations
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *								Bug 453475 - [1.8][null] Contradictory null annotations (4.5 M3 edition)
+ *								Bug 457079 - Regression: type inference
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -104,6 +105,9 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 	AnnotationBinding nonNullAnnotation;
 	AnnotationBinding nullableAnnotation;
+
+	/** Global access to the outermost active inference context as the universe for inference variable interning. */
+	InferenceContext18 currentInferenceContext;
 
 	final static int BUILD_FIELDS_AND_METHODS = 4;
 	final static int BUILD_TYPE_HIERARCHY = 1;

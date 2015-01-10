@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@
  *								Bug 434602 - Possible error with inferred null annotations leading to contradictory null annotations
  *								Bug 434483 - [1.8][compiler][inference] Type inference not picked up with method reference
  *								Bug 446442 - [1.8] merge null annotations from super methods
+ *								Bug 457079 - Regression: type inference
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -188,6 +189,10 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		}
 		arguments = argumentsCopy; // either way, this allows the engine to update arguments without harming the callers. 
 		
+		LookupEnvironment environment = scope.environment();
+		InferenceContext18 previousContext = environment.currentInferenceContext;
+		if (previousContext == null)
+			environment.currentInferenceContext = infCtx18;
 		try {
 			BoundSet provisionalResult = null;
 			BoundSet result = null;
@@ -260,6 +265,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			// FIXME stop-gap measure
 			scope.problemReporter().genericInferenceError(e.getMessage(), invocationSite);
 			return null;
+		} finally {
+			environment.currentInferenceContext = previousContext;
 		}
 	}
 	

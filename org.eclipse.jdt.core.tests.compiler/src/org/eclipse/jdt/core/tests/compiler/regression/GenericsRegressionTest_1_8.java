@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 GK Software AG, and others.
+ * Copyright (c) 2013, 2015 GK Software AG, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4989,6 +4989,26 @@ public void testBug452788c() {
 			"	public <B2> Test2<B2> transform(Function<? extends A, Test2<B2>> f) {\n" + 
 			"		return null;\n" + 
 			"	}	\n" + 
+			"}\n"
+		});
+}
+public void testBug457079() {
+	runConformTest(
+		new String[] {
+			"Foo.java",
+			"import java.util.Collections;\n" + 
+			"import java.util.Map;\n" + 
+			"import java.util.Set;\n" + 
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"class Foo {\n" + 
+			"    static <K, V> Map<K, V> foo(K value, Function<? super K, V> function) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static void bar(Set<String> set) {\n" + 
+			"        Map<String, Set<String>> map = foo(\"\", e -> Collections.emptySet());\n" + 
+			"    }\n" + 
 			"}\n"
 		});
 }
