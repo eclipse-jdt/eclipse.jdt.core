@@ -59,6 +59,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.IntersectionCastTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -74,7 +75,10 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 
 public class ReferenceExpression extends FunctionalExpression implements InvocationSite {
-	
+	// secret variable name
+	private static final String SecretReceiverVariableName = " receiver_"; //$NON-NLS-1$
+	// secret variable for codegen
+	public LocalVariableBinding receiverVariable;	
 	public Expression lhs;
 	public TypeReference [] typeArguments;
 	public char [] selector;
@@ -106,7 +110,35 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		this.sourceStart = expression.sourceStart;
 		this.sourceEnd = sourceEndPosition;
 	}
- 
+	private boolean shouldGenerateSecretReceiverVariable() {
+		if (isMethodReference() && this.haveReceiver) {
+			if (this.lhs instanceof Invocation)
+				return true;
+			else {
+				return new ASTVisitor() {
+					boolean accessesnonFinalOuterLocals;
+
+					public boolean visit(SingleNameReference name, BlockScope skope) {
+						Binding local = skope.getBinding(name.getName(), ReferenceExpression.this);
+						if (local instanceof LocalVariableBinding) {
+							LocalVariableBinding localBinding = (LocalVariableBinding) local;
+							if (!localBinding.isFinal() && !localBinding.isEffectivelyFinal()) {
+								this.accessesnonFinalOuterLocals = true;
+							}
+						}
+						return false;
+					}
+
+					public boolean accessesnonFinalOuterLocals() {
+						ReferenceExpression.this.lhs.traverse(this, ReferenceExpression.this.enclosingScope);
+						return this.accessesnonFinalOuterLocals;
+					}
+				}.accessesnonFinalOuterLocals();
+			}
+		}
+		return false;
+	}
+
 	public void generateImplicitLambda(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 		
 		final Parser parser = new Parser(this.enclosingScope.problemReporter(), false);
@@ -130,10 +162,17 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			String name = "arg" + (i + parameterShift); //$NON-NLS-1$
 			argv[i] = new SingleNameReference(name.toCharArray(), 0);
 		}
+		boolean generateSecretReceiverVariable = shouldGenerateSecretReceiverVariable();
 		if (isMethodReference()) {
+			if (generateSecretReceiverVariable) {
+				this.lhs.generateCode(currentScope, codeStream, true);
+				codeStream.store(this.receiverVariable, false);
+				codeStream.addVariable(this.receiverVariable);
+			}
 			MessageSend message = new MessageSend();
 			message.selector = this.selector;
-			message.receiver = this.receiverPrecedesParameters ? new SingleNameReference("arg0".toCharArray(), 0) : copy.lhs; //$NON-NLS-1$
+			Expression receiver = generateSecretReceiverVariable ? new SingleNameReference(this.receiverVariable.name, 0) : copy.lhs;
+			message.receiver = this.receiverPrecedesParameters ? new SingleNameReference("arg0".toCharArray(), 0) : receiver; //$NON-NLS-1$
 			message.typeArguments = copy.typeArguments;
 			message.arguments = argv;
 			implicitLambda.setBody(message);
@@ -183,6 +222,10 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 			implicitLambda.addSyntheticArgument(outerLocals[i].actualOuterLocalVariable);
 		
 		implicitLambda.generateCode(currentScope, codeStream, valueRequired);
+		if (generateSecretReceiverVariable) {
+			codeStream.removeVariable(this.receiverVariable);
+			this.receiverVariable = null;
+		}
 	}	
 	
 	private boolean shouldGenerateImplicitLambda(BlockScope currentScope) {
@@ -469,7 +512,14 @@ public class ReferenceExpression extends FunctionalExpression implements Invocat
 		} else if (this.lhs instanceof TypeReference) {
 			this.haveReceiver = false;
 		}
-
+		if (isMethodReference() && this.haveReceiver) {
+			this.receiverVariable = new LocalVariableBinding(
+					(SecretReceiverVariableName + this.nameSourceStart).toCharArray(), this.lhs.resolvedType,
+					ClassFileConstants.AccDefault, false);
+			scope.addLocalVariable(this.receiverVariable);
+			this.receiverVariable.setConstant(Constant.NotAConstant); // not inlinable
+			this.receiverVariable.useFlag = LocalVariableBinding.USED;
+		}
 		/* For Reference expressions unlike other call sites, we always have a receiver _type_ since LHS of :: cannot be empty. 
 		   LHS's resolved type == actual receiver type. All code below only when a valid descriptor is available.
 		 */
