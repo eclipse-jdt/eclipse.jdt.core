@@ -7560,4 +7560,27 @@ public void testBug454182() {
 		options,
 		null);
 }
+public void testBug443870() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface Listener<T> {}\n" +
+			"interface I0<T,U extends Listener<T>> {}\n" +
+			"interface I1<T> extends I0<T,Listener<T>> {}\n" +
+			"class Y<S> {\n" +
+			"	private @NonNull I0<S,Listener<S>> f;\n" +
+			"	Y (@NonNull I0<S,Listener<S>> in) { this.f = in; }\n" +
+			"	@NonNull I0<S,Listener<S>> getI() { return f; }\n" +
+			"}\n" +
+			"public class X<V> extends Y<V> {\n" +
+			"	private @NonNull I1<V> f;\n" +
+			"	X (@NonNull I1<V> in) { super(in); this.f = in; }\n" +
+			"	@Override\n" +
+			"	@NonNull I1<V> getI() { return f; }\n" +
+			"}\n"
+		},
+		null,
+		"");
+}
 }
