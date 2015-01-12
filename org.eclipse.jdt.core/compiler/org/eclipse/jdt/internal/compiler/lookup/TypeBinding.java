@@ -251,6 +251,13 @@ public int depth() {
 	return 0;
 }
 
+/* Answer the receiver's enclosing method ... null if the receiver is not a local type.
+ */
+public MethodBinding enclosingMethod() {
+	return null;
+}
+
+
 /* Answer the receiver's enclosing type... null if the receiver is a top level type or is an array or a non reference type.
  */
 public ReferenceBinding enclosingType() {
