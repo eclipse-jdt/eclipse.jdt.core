@@ -9404,6 +9404,75 @@ public void test440643b() {
 		"Ambiguous method reference: both size() and size(Object) from the type X are eligible\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=433735, [1.8] Discrepancy with javac when dealing with local classes in lambda expressions
+public void test433735() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.function.Supplier;\n" +
+			"class E {\n" +
+			"	E(Supplier<Object> factory) { }\n" +
+			"}\n" +
+			"public class X extends E {\n" +
+			"	X() {\n" +
+			"		super( () -> {\n" +
+			"			class Z extends E {\n" +
+			"				Z() {\n" +
+			"					super(new Supplier<Object>() {\n" +
+			"						@Override\n" +
+			"						public Object get() {\n" +
+			"							return new Object();\n" +
+			"						}\n" +
+			"					});\n" +
+			"				}\n" +
+			"			} \n" +
+			"			return new Z();\n" +
+			"			});\n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X();\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	super( () -> {\n" + 
+		"	       ^^^^^\n" + 
+		"No enclosing instance of type X is available due to some intermediate constructor invocation\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=432531 [1.8] VerifyError with anonymous subclass inside of lambda expression in the superclass constructor call
+public void test432531a() {
+	this.runNegativeTest(
+		new String[] {
+			"Y.java", 
+			"import java.util.function.Supplier;\n" + 
+			"class E {\n" + 
+			"	E(Supplier<Object> factory) { }\n" + 
+			"}\n" + 
+			"public class Y extends E {\n" + 
+			"	Y() {\n" + 
+			"		super( () -> {\n" + 
+			"			class Z extends E {\n" + 
+			"				Z() {\n" + 
+			"					super(() -> new Object());\n" + 
+			"				}\n" + 
+			"			}\n" + 
+			"			return new Z();\n" + 
+			"			});\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new Y();\n" + 
+			"	}\n" + 
+			"}"
+	},
+	"----------\n" + 
+	"1. ERROR in Y.java (at line 7)\n" + 
+	"	super( () -> {\n" + 
+	"	       ^^^^^\n" + 
+	"No enclosing instance of type Y is available due to some intermediate constructor invocation\n" + 
+	"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
