@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@
  *								Bug 392245 - [1.8][compiler][null] Define whether / how @NonNullByDefault applies to TYPE_USE locations
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
+ *								Bug 457210 - [1.8][compiler][null] Wrong Nullness errors given on full build build but not on incremental build?
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409517 - [1.8][compiler] Type annotation problems on more elaborate array references
@@ -954,7 +955,7 @@ public abstract class Annotation extends Expression {
 				if (CharOperation.equals(sourceType.sourceName, TypeConstants.PACKAGE_INFO_NAME))
 					kind = Binding.PACKAGE;
 			}
-			checkAnnotationTarget(this, scope, annotationType, kind);
+			checkAnnotationTarget(this, scope, annotationType, kind, this.recipient, tagBits & TagBits.AnnotationNullMASK);
 		}
 		return this.resolvedType;
 	}
@@ -1065,7 +1066,7 @@ public abstract class Annotation extends Expression {
 		return false;
 	}
 
-	static void checkAnnotationTarget(Annotation annotation, BlockScope scope, ReferenceBinding annotationType, int kind) {
+	static void checkAnnotationTarget(Annotation annotation, BlockScope scope, ReferenceBinding annotationType, int kind, Binding recipient, long tagBitsToRevert) {
 		// check (meta)target compatibility
 		if (!annotationType.isValidBinding()) {
 			// no need to check annotation usage if missing
@@ -1073,6 +1074,8 @@ public abstract class Annotation extends Expression {
 		}
 		if (! isAnnotationTargetAllowed(annotation, scope, annotationType, kind)) {
 			scope.problemReporter().disallowedTargetForAnnotation(annotation);
+			if (recipient instanceof TypeBinding)
+				((TypeBinding)recipient).tagBits &= ~tagBitsToRevert;
 		}
 	}
 

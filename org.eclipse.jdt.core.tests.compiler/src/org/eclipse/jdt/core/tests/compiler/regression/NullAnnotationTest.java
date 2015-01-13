@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 GK Software AG and others.
+ * Copyright (c) 2010, 2015 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8009,5 +8009,47 @@ public void test_null_with_apt_comment4() {
 		) +
 		"----------\n");
 	this.enableAPT = apt;
+}
+public void testBug457210() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+	runNegativeTest(
+		new String[] {
+			"org/foo/NonNull.java",
+			"package org.foo;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" +
+			"public @interface NonNull {\n" +
+			"}\n",
+			"org/foo/Nullable.java",
+			"package org.foo;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" +
+			"public @interface Nullable {\n" +
+			"}\n",
+			"TestRunner.java",
+			"import org.foo.*;\n" +
+			"public class TestRunner {\n" +
+			"	private TestRunner() {}\n" + 
+			"\n" + 
+			"	@Nullable\n" + 
+			"	OutputHelper m_outputHelper;\n" +
+			"	int foo(@NonNull OutputHelper helper) { return helper.i; }\n" +
+			"}\n",
+			"OutputHelper.java",
+			"@org.foo.NonNull public class OutputHelper {\n" +
+			"	public int i;\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in OutputHelper.java (at line 1)\n" + 
+		"	@org.foo.NonNull public class OutputHelper {\n" + 
+		"	^^^^^^^^^^^^^^^^\n" + 
+		"The nullness annotation \'NonNull\' is not applicable at this location\n" + 
+		"----------\n",
+		null,
+		true,
+		customOptions);
 }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *								Bug 416176 - [1.8][compiler][null] null type annotations cause grief on type variables
  *								Bug 424727 - [compiler][null] NullPointerException in nullAnnotationUnsupportedLocation(ProblemReporter.java:5708)
+ *								Bug 457210 - [1.8][compiler][null] Wrong Nullness errors given on full build build but not on incremental build?
  *     Keigo Imai - Contribution for  bug 388903 - Cannot extend inner class as an anonymous class when it extends the outer class
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
@@ -1007,19 +1008,6 @@ public void resolve() {
 		if ((annotationTagBits & TagBits.AnnotationFunctionalInterface) != 0) {
 			if(!this.binding.isFunctionalInterface(this.scope)) {
 				this.scope.problemReporter().notAFunctionalInterface(this);
-			}
-		}
-		if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8) {
-			if ((annotationTagBits & TagBits.AnnotationNullMASK) != 0) {
-				for (int i = 0; i < this.annotations.length; i++) {
-					ReferenceBinding annotationType = this.annotations[i].getCompilerAnnotation().getAnnotationType();
-					if (annotationType != null) {
-						if (annotationType.id == TypeIds.T_ConfiguredAnnotationNonNull
-								|| annotationType.id == TypeIds.T_ConfiguredAnnotationNullable)
-						this.scope.problemReporter().nullAnnotationUnsupportedLocation(this.annotations[i]);
-						sourceType.tagBits &= ~TagBits.AnnotationNullMASK;
-					}
-				}
 			}
 		}
 
