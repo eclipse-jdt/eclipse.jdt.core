@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,7 @@
  *								Bug 438337 - StackOverflow after update from Kepler to Luna 
  *								Bug 452194 - Code no longer compiles in 4.4.1, but with confusing error
  *								Bug 456459 - Discrepancy between Eclipse compiler and javac - Enums, interfaces, and generics
+ *								Bug 456924 - StackOverflowError during compilation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -5716,6 +5717,25 @@ public void testBug456459c() {
 		"	  ^^^^^^^^^^^\n" + 
 		"Bound mismatch: The type ? extends U is not a valid substitute for the bounded parameter <T extends A> of the type X<T>\n" + 
 		"----------\n");
+}
+public void testBug456924() {
+	runConformTest(
+		new String[] {
+			"Test1.java",
+			"class Test1<E> {\n" + 
+			"	<T extends Test1<T>> void method1(Class<T> t) {\n" + 
+			"		Test2<? super T> test2 = getTest2(t);\n" + 
+			"                // getTest2(t); // --> no error\n" + 
+			"	}\n" + 
+			"	<T extends Test1<T>> Test2<? super T> getTest2(Class<T> t){\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"}\n" + 
+			"\n",
+			"Test2.java",
+			"class Test2<E extends Test1<E>>{}\n"
+		});
 }
 }
 

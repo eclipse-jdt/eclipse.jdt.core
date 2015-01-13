@@ -12,6 +12,7 @@
  *								Bug 429384 - [1.8][null] implement conformance rules for null-annotated lower / upper type bounds
  *								Bug 441797 - [1.8] synchronize type annotations on capture and its wildcard
  *								Bug 456497 - [1.8][null] during inference nullness from target type is lost against weaker hint from applicability analysis
+ *								Bug 456924 - StackOverflowError during compilation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -32,6 +33,8 @@ public class CaptureBinding extends TypeVariableBinding {
 	public int start;
 	public int end;
 	public ASTNode cud; // to facilitate recaptures.
+
+	TypeBinding pendingSubstitute; // for substitution of recursive captures, see https://bugs.eclipse.org/456924
 
 	public CaptureBinding(WildcardBinding wildcard, ReferenceBinding sourceType, int start, int end, ASTNode cud, int captureID) {
 		super(TypeConstants.WILDCARD_CAPTURE_NAME_PREFIX, wildcard.environment);
@@ -273,6 +276,15 @@ public class CaptureBinding extends TypeVariableBinding {
 		return false;
 	}
 
+	@Override
+	public boolean isProperType(boolean admitCapture18) {
+		if (this.lowerBound != null && !this.lowerBound.isProperType(admitCapture18))
+			return false;
+		if (this.wildcard != null && !this.wildcard.isProperType(admitCapture18))
+			return false;
+		return super.isProperType(admitCapture18);
+	}
+
 	public char[] readableName() {
 		if (this.wildcard != null) {
 			StringBuffer buffer = new StringBuffer(10);
@@ -376,25 +388,32 @@ public class CaptureBinding extends TypeVariableBinding {
 
 	@Override
 	TypeBinding substituteInferenceVariable(InferenceVariable var, TypeBinding substituteType) {
-		TypeBinding substitutedWildcard = this.wildcard.substituteInferenceVariable(var, substituteType);
-		if (substitutedWildcard != this.wildcard) {  //$IDENTITY-COMPARISON$
-			CaptureBinding substitute = (CaptureBinding) clone(enclosingType());
-		    substitute.wildcard = (WildcardBinding) substitutedWildcard;
-		    if (this.lowerBound != null)
-		    	substitute.lowerBound = this.lowerBound.substituteInferenceVariable(var, substituteType);
-		    if (this.firstBound != null)
-		    	substitute.firstBound = this.firstBound.substituteInferenceVariable(var, substituteType);
-		    if (this.superclass != null)
-		    	substitute.superclass = (ReferenceBinding) this.superclass.substituteInferenceVariable(var, substituteType);
-		    if (this.superInterfaces != null) {
-		    	int length = this.superInterfaces.length;
-		    	substitute.superInterfaces = new ReferenceBinding[length];
-		    	for (int i = 0; i < length; i++)
-		    		substitute.superInterfaces[i] = (ReferenceBinding) this.superInterfaces[i].substituteInferenceVariable(var, substituteType);
-		    }
-		    return substitute;
+		if (this.pendingSubstitute != null)
+			return this.pendingSubstitute;
+		try {
+			TypeBinding substitutedWildcard = this.wildcard.substituteInferenceVariable(var, substituteType);
+			if (substitutedWildcard != this.wildcard) {  //$IDENTITY-COMPARISON$
+				CaptureBinding substitute = (CaptureBinding) clone(enclosingType());
+			    substitute.wildcard = (WildcardBinding) substitutedWildcard;
+			    this.pendingSubstitute = substitute;
+			    if (this.lowerBound != null)
+			    	substitute.lowerBound = this.lowerBound.substituteInferenceVariable(var, substituteType);
+			    if (this.firstBound != null)
+			    	substitute.firstBound = this.firstBound.substituteInferenceVariable(var, substituteType);
+			    if (this.superclass != null)
+			    	substitute.superclass = (ReferenceBinding) this.superclass.substituteInferenceVariable(var, substituteType);
+			    if (this.superInterfaces != null) {
+			    	int length = this.superInterfaces.length;
+			    	substitute.superInterfaces = new ReferenceBinding[length];
+			    	for (int i = 0; i < length; i++)
+			    		substitute.superInterfaces[i] = (ReferenceBinding) this.superInterfaces[i].substituteInferenceVariable(var, substituteType);
+			    }
+			    return substitute;
+			}
+			return this;
+		} finally {
+			this.pendingSubstitute = null;
 		}
-		return this;
 	}
 	
 	@Override
