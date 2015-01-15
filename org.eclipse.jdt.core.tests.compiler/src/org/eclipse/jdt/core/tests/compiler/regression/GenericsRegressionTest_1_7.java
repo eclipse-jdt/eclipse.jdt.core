@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 IBM Corporation.
+ * Copyright (c) 2011, 2015 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *								Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
  *								Bug 429203 - [1.8][compiler] NPE in AllocationExpression.binding
+ *								Bug 456508 - Unexpected RHS PolyTypeBinding for: <code-snippet>
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -25,7 +26,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_7 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "test0056c" };
+//	TESTS_NAMES = new String[] { "testBug456508" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -2937,6 +2938,48 @@ public void test427728b() {
 			"}\n"
 		},
 		"");
+}
+public void testBug456508() {
+	runNegativeTest(
+		new String[] {
+			"QueryAtom.java",
+			"public class QueryAtom<T, P> {\n" + 
+			"	public QueryAtom(SingularAttribute<? super T, P> path) {\n" + 
+			"	}\n" + 
+			"}\n",
+			"SubqueryIn.java",
+			"public class SubqueryIn<S, P>  {\n" + 
+			"	public SubqueryIn(QueryAtom<S, P>... subqueryAtoms) {\n" + 
+			"	}\n" + 
+			"}\n",
+			"Test.java",
+			"class PAccount {}\n" + 
+			"class PGroepAccount {}\n" + 
+			"interface SingularAttribute<X, T> {}\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"    public static volatile SingularAttribute<PGroepAccount, PAccount> account;\n" + 
+			"\n" + 
+			"	public void nietInGroep() {\n" + 
+			"		recordFilter(new SubqueryIn<>(new QueryAtom<>(account)));\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	protected <P> void recordFilter(SubqueryIn<?, P> atom) {\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in SubqueryIn.java (at line 2)\n" + 
+		"	public SubqueryIn(QueryAtom<S, P>... subqueryAtoms) {\n" + 
+		"	                                     ^^^^^^^^^^^^^\n" + 
+		"Type safety: Potential heap pollution via varargs parameter subqueryAtoms\n" + 
+		"----------\n" +
+		"----------\n" + 
+		"1. WARNING in Test.java (at line 9)\n" + 
+		"	recordFilter(new SubqueryIn<>(new QueryAtom<>(account)));\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: A generic array of QueryAtom<PGroepAccount,PAccount> is created for a varargs parameter\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
