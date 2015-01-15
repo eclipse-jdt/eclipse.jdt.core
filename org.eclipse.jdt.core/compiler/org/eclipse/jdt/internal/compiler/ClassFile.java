@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -6586,11 +6586,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 					int dimensions = u1At(bytecodes, 3, pc); // dimensions
 					frame.numberOfStackItems -= dimensions;
 					classNameLength = className.length;
-					constantPoolName = new char[classNameLength + dimensions];
-					for (int i = 0; i < dimensions; i++) {
-						constantPoolName[i] = '[';
-					}
-					System.arraycopy(className, 0, constantPoolName, dimensions, classNameLength);
+					// class name is already the name of the right array type with all dimensions
+					constantPoolName = new char[classNameLength];
+					System.arraycopy(className, 0, constantPoolName, 0, classNameLength);
 					frame.addStackItem(new VerificationTypeInfo(0, constantPoolName));
 					pc += 4;
 					break;
