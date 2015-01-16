@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8185,6 +8185,75 @@ public void test405778a() {
 		"  public E() {\n" + 
 		"  }\n" + 
 		"  void m(String[] names) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String testName = "test";
+	checkParse(
+		s.toCharArray(),
+		expectedDietUnitToString,
+		expectedDietPlusBodyUnitToString,
+		expectedDietPlusBodyPlusStatementsRecoveryUnitToString,
+		expectedFullUnitToString,
+		expectedCompletionDietUnitToString, testName);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=456861 - [recovery] NPE in RecoveryScanner since Mars M4
+public void test456861() {
+	String s =
+		"import java.awt.Point;\n" + 
+		"public class Test {\n" + 
+		"	public void foo(Point p, int[] a) {\n" + 
+		"		String s1 = \"\";\n" + 
+		"		s.;\n" + 
+		"	}\n" + 
+		" }";
+
+	String expectedDietUnitToString =
+		"import java.awt.Point;\n" + 
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public void foo(Point p, int[] a) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyUnitToString =
+		"import java.awt.Point;\n" + 
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"    super();\n" +
+		"  }\n" + 
+		"  public void foo(Point p, int[] a) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedDietPlusBodyPlusStatementsRecoveryUnitToString =
+		"import java.awt.Point;\n" + 
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"    super();\n" +
+		"  }\n" + 
+		"  public void foo(Point p, int[] a) {\n" + 
+		"    String s1 = \"\";\n" + 
+		"    s = $missing$;\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedFullUnitToString =
+		"import java.awt.Point;\n" + 
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public void foo(Point p, int[] a) {\n" + 
+		"  }\n" + 
+		"}\n";
+
+	String expectedCompletionDietUnitToString =
+		"import java.awt.Point;\n" + 
+		"public class Test {\n" + 
+		"  public Test() {\n" + 
+		"  }\n" + 
+		"  public void foo(Point p, int[] a) {\n" + 
 		"  }\n" + 
 		"}\n";
 
