@@ -198,6 +198,7 @@ public class CompilerOptions {
 	public static final String VERSION_1_6 = "1.6"; //$NON-NLS-1$
 	public static final String VERSION_1_7 = "1.7"; //$NON-NLS-1$
 	public static final String VERSION_1_8 = "1.8"; //$NON-NLS-1$
+	public static final String VERSION_1_9 = "1.9"; //$NON-NLS-1$
 	public static final String ERROR = "error"; //$NON-NLS-1$
 	public static final String WARNING = "warning"; //$NON-NLS-1$
 	public static final String IGNORE = "ignore"; //$NON-NLS-1$
@@ -718,6 +719,10 @@ public class CompilerOptions {
 				if (jdkLevel == ClassFileConstants.JDK1_8)
 					return VERSION_1_8;
 				break;
+			case ClassFileConstants.MAJOR_VERSION_1_9 :
+				if (jdkLevel == ClassFileConstants.JDK1_9)
+					return VERSION_1_9;
+				break;
 		}
 		return Util.EMPTY_STRING; // unknown version
 	}
@@ -744,6 +749,8 @@ public class CompilerOptions {
 						return ClassFileConstants.JDK1_7;
 					case '8':
 						return ClassFileConstants.JDK1_8;
+					case '9':
+						return ClassFileConstants.JDK1_9;
 					default:
 						return 0; // unknown
 				}
