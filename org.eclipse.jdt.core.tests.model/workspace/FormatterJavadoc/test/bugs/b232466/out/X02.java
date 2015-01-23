@@ -1,5 +1,5 @@
 /**
- * {@link LocalClass02#searchAllTypeNames(char[] packageName, int packageMatchRule, char[] typeName)}
+ * {@link LocalClass02#searchAllTypeNames( char[] packageName, int packageMatchRule, char[] typeName)}
  */
 public class X02 {
 

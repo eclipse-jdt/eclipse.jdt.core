@@ -7,8 +7,8 @@ interface I {
 	int id(int x, int y);
 }
 
-public abstract class A extends java.lang.Object implements Runnable,
-		Cloneable, Serializable {
+public abstract class A extends java.lang.Object
+		implements Runnable, Cloneable, Serializable {
 	public void run() {
 	}
 

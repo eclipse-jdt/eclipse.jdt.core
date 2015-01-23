@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
 import java.util.List;
@@ -20,6 +21,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	private static final Class THIS= ASTRewritingExpressionsTest.class;
@@ -230,6 +232,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 
 	public void testArrayCreation2_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		this.project1.setOption(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -2341,6 +2344,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 
 	public void testIntersectionCastExpression_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		this.project1.setOption(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
 		String content =
 				"import java.io.Serializable;\n" +
 				"public class X {\n" +

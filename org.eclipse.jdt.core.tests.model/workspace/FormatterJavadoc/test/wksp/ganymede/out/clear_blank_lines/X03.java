@@ -9,8 +9,8 @@ package test.wksp.ganymede;
  * <p>
  * The following features are supported:
  * <ul>
- * <li>{@link org.eclipse.gmf.mappings.AuditedMetricTarget#getMetric <em>Metric
- * </em>}</li>
+ * <li>{@link org.eclipse.gmf.mappings.AuditedMetricTarget#getMetric
+ * <em>Metric</em>}</li>
  * </ul>
  * </p>
  *

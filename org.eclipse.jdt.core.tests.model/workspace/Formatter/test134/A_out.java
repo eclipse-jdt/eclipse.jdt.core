@@ -86,8 +86,8 @@ public class AssistOptions {
 				if (optionValue.length() == 0) {
 					this.staticFieldPrefixes = null;
 				} else {
-					this.staticFieldPrefixes = CharOperation.splitAndTrimOn(
-							',', optionValue.toCharArray());
+					this.staticFieldPrefixes = CharOperation.splitAndTrimOn(',',
+							optionValue.toCharArray());
 				}
 				continue;
 			} else if (optionID.equals(OPTION_LocalPrefixes)) {
@@ -118,8 +118,8 @@ public class AssistOptions {
 				if (optionValue.length() == 0) {
 					this.staticFieldSuffixes = null;
 				} else {
-					this.staticFieldSuffixes = CharOperation.splitAndTrimOn(
-							',', optionValue.toCharArray());
+					this.staticFieldSuffixes = CharOperation.splitAndTrimOn(',',
+							optionValue.toCharArray());
 				}
 				continue;
 			} else if (optionID.equals(OPTION_LocalSuffixes)) {

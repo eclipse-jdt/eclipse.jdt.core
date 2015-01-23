@@ -1,4 +1,4 @@
 /*
- *			// another comment
- */
+*			// another comment
+*/
 int i;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter.comment;
 
@@ -24,7 +25,7 @@ public class MultiLineTestCase extends CommentTestCase {
 
 	protected static final String INFIX= " * "; //$NON-NLS-1$
 	protected static final String POSTFIX= " */"; //$NON-NLS-1$
-	protected static final String PREFIX= "/* "; //$NON-NLS-1$
+	private static final String PREFIX= "/* "; //$NON-NLS-1$
 
 	public static Test suite() {
 		return buildTestSuite(MultiLineTestCase.class);
@@ -93,7 +94,7 @@ public class MultiLineTestCase extends CommentTestCase {
 	}
 
 	public void testNoChange1() {
-		String content= PREFIX + DELIMITER + POSTFIX;
+		String content= "/*" + DELIMITER + POSTFIX;
 		assertEquals(content, testFormat(content));
 	}
 

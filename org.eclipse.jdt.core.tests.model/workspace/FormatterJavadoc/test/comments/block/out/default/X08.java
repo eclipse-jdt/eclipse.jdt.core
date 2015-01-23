@@ -6,9 +6,9 @@ public class X08 {
 			if (true) {
 				if (true) {
 					if (condition /*
-								 * && useChange(d.fDirection) &&
-								 * !d.fIsWhitespace
-								 */) {
+									 * && useChange(d.fDirection) &&
+									 * !d.fIsWhitespace
+									 */) {
 					}
 				}
 			}

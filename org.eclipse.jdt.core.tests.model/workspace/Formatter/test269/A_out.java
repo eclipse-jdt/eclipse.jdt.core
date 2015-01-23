@@ -7,6 +7,6 @@ public ProgressPanel(SwingSet swing)
 			return new Dimension(300, super.getPreferredSize().height);
 		}
 	};
-	progressBar.getAccessibleContext().setAccessibleName(
-			"Text loading progress");
+	progressBar.getAccessibleContext()
+			.setAccessibleName("Text loading progress");
 }

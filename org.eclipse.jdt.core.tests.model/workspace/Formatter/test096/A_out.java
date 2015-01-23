@@ -1,6 +1,6 @@
 /**
  * ssdfsd f
- * sd fsd fd 
+ * sd fsd fd
  */
 void foo() {
 }

@@ -8,7 +8,8 @@ public static Compiler getCompiler() {
 				options.getConfigurableOptions(Locale.getDefault()),
 				new ICompilerRequestor() {
 					private CompilationResult compilationResult; // toto
-					public void acceptResult(CompilationResult compilationResult) {
+					public void acceptResult(
+							CompilationResult compilationResult) {
 						this.compilationResult = compilationResult;
 					}
 					public CompilationResult retrieveCompilationResult() {

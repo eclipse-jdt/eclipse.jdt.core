@@ -4,9 +4,9 @@ import java.io.Serializable;
 import java.io.IOException;
 public abstract class A
 		implements
-			/*                                                                                  */Runnable {
+			/*                                                                                  */ Runnable {
 	public abstract class B
 			implements
-				/*                                                                                  */Runnable {
+				/*                                                                                  */ Runnable {
 	} /*            last comment: end of member class A */
 } /*            last comment: end of class A */

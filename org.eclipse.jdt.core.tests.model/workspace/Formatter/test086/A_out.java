@@ -6,8 +6,7 @@ public class FormatterProblem
 		{
 			return true;
 		} // toto
-		else
-		// here is the comment that the formatter doesn't like 
+		else // here is the comment that the formatter doesn't like 
 		{
 			return false;
 		}

@@ -177,6 +177,6 @@
 <setting id="org.eclipse.jdt.core.formatter.put_empty_statement_on_new_line" value="false"/>
 <setting id="org.eclipse.jdt.core.formatter.remove_unnecessary_semicolon" value="false"/>
 <setting id="org.eclipse.jdt.core.formatter.tabulation.char" value="space"/>
-<setting id="org.eclipse.jdt.core.formatter.tabulation.size" value="2"/>
+<setting id="org.eclipse.jdt.core.formatter.indentation.size" value="2"/>
 </profile>
 </profiles>

@@ -3,12 +3,8 @@ package test.comments.block;
 public class X17 {
 
 	public JavaModelManager_PerProjectInfo foo(String project) {
-		JavaModelManager_PerProjectInfo info = getPerProjectInfo(project, false /*
-																				 * don
-																				 * 't
-																				 * create
-																				 * info
-																				 */);
+		JavaModelManager_PerProjectInfo info = getPerProjectInfo(project,
+				false /* don't create info */);
 		if (info == null) {
 		}
 		return info;

@@ -15,8 +15,8 @@ public class FormatTest2 {
 					"d" // modifiedFlag
 			);
 			// The second line is without end of line comments
-			AccountAccessGroupBean b = new AccountAccessGroupBean("a", "b",
-					"c", "d");
+			AccountAccessGroupBean b = new AccountAccessGroupBean("a", "b", "c",
+					"d");
 		}
 	}
 	private static class AccountAccessGroupBean {
