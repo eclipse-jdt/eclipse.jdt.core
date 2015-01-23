@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,7 +9,6 @@
  *     IBM Corporation - initial API and implementation
  *     Ray V. (voidstar@gmail.com) - Contribution for bug 282988
  *     Robin Stocker - Bug 49619 - [formatting] comment formatter leaves whitespace in comments
- *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
@@ -24,7 +23,7 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.formatter.IndentManipulation;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
-import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions.Alignment;
+import org.eclipse.jdt.internal.formatter.align.Alignment;
 
 public class FormatterBugsTests extends FormatterRegressionTests {
 
@@ -304,8 +303,8 @@ public void testBug027079c() throws JavaModelException {
 		"\n" + 
 		"/* enable-formatter */\n" + 
 		"		bar(\n" + 
-		"				/** formatted comment */\n" + 
-		"				\"this\", \"is\", \"a specific\", \"line wrapping \");\n" + 
+		"		/** formatted comment */\n" + 
+		"		\"this\", \"is\", \"a specific\", \"line wrapping \");\n" + 
 		"	}\n" + 
 		"\n" + 
 		"	void bar(String... str) {\n" + 
@@ -352,8 +351,8 @@ public void testBug027079c2() throws JavaModelException {
 		"// enable-formatter\n" + 
 		"		);\n" + 
 		"		bar(\n" + 
-		"				/** formatted comment */\n" + 
-		"				\"this\", \"is\", \"a specific\", \"line wrapping \");\n" + 
+		"		/** formatted comment */\n" + 
+		"		\"this\", \"is\", \"a specific\", \"line wrapping \");\n" + 
 		"	}\n" + 
 		"\n" + 
 		"	void bar(String... str) {\n" + 
@@ -819,8 +818,7 @@ public void testBug059891_146175() throws JavaModelException {
 		"	}\n" + 
 		"\n" + 
 		"	private static class SomeOtherClass {\n" + 
-		"		public static void someMethodInInnerClass(String param1,\n" + 
-		"				String param2) {\n" + 
+		"		public static void someMethodInInnerClass(String param1, String param2) {\n" + 
 		"		}\n" + 
 		"\n" + 
 		"		public String anotherMethod(String par) {\n" + 
@@ -872,8 +870,7 @@ public void testBug059891_164093_02() throws JavaModelException {
 		"        someIdentifier(someArg).someMethodName()\n" + 
 		"                               .someMethodName(foo,\n" + 
 		"                                       bar)\n" + 
-		"                               .otherMethod(arg0,\n" + 
-		"                                       arg1);\n" + 
+		"                               .otherMethod(arg0, arg1);\n" + 
 		"    }\n" + 
 		"}\n"
 	);
@@ -914,9 +911,9 @@ public void testBug059891_wksp1_01() throws JavaModelException {
 	formatSource(source,
 		"public class X01 {\n" + 
 		"	private void reportError(String name) throws ParseError {\n" + 
-		"		throw new ParseError(MessageFormat.format(\n" + 
-		"				AntDTDSchemaMessages.getString(\"NfmParser.Ambiguous\"), //$NON-NLS-1$\n" + 
-		"				new String[] { name }));\n" + 
+		"		throw new ParseError(\n" + 
+		"				MessageFormat.format(\n" + 
+		"						AntDTDSchemaMessages.getString(\"NfmParser.Ambiguous\"), new String[] { name })); //$NON-NLS-1$\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -940,16 +937,18 @@ public void testBug059891_wksp1_02() throws JavaModelException {
 		"public class X02 {\n" + 
 		"	private void parseBuildFile(Project project) {\n" + 
 		"		if (!buildFile.exists()) {\n" + 
-		"			throw new BuildException(MessageFormat.format(\n" + 
-		"					InternalAntMessages.getString(\n" + 
-		"							\"InternalAntRunner.Buildfile__{0}_does_not_exist_!_1\"), //$NON-NLS-1$\n" + 
-		"					new String[] { buildFile.getAbsolutePath() }));\n" + 
+		"			throw new BuildException(\n" + 
+		"					MessageFormat.format(\n" + 
+		"							InternalAntMessages\n" + 
+		"									.getString(\"InternalAntRunner.Buildfile__{0}_does_not_exist_!_1\"), //$NON-NLS-1$\n" + 
+		"							new String[] { buildFile.getAbsolutePath() }));\n" + 
 		"		}\n" + 
 		"		if (!buildFile.isFile()) {\n" + 
-		"			throw new BuildException(MessageFormat.format(\n" + 
-		"					InternalAntMessages.getString(\n" + 
-		"							\"InternalAntRunner.Buildfile__{0}_is_not_a_file_1\"), //$NON-NLS-1$\n" + 
-		"					new String[] { buildFile.getAbsolutePath() }));\n" + 
+		"			throw new BuildException(\n" + 
+		"					MessageFormat.format(\n" + 
+		"							InternalAntMessages\n" + 
+		"									.getString(\"InternalAntRunner.Buildfile__{0}_is_not_a_file_1\"), //$NON-NLS-1$\n" + 
+		"							new String[] { buildFile.getAbsolutePath() }));\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
@@ -968,8 +967,9 @@ public void testBug059891_wksp1_03() throws JavaModelException {
 		"public class X03 {\n" + 
 		"\n" + 
 		"	protected void foo() {\n" + 
-		"		printTargets(project, subNames, null, InternalAntMessages\n" + 
-		"				.getString(\"InternalAntRunner.Subtargets__5\"), 0); //$NON-NLS-1$\n" + 
+		"		printTargets(project, subNames, null,\n" + 
+		"				InternalAntMessages\n" + 
+		"						.getString(\"InternalAntRunner.Subtargets__5\"), 0); //$NON-NLS-1$\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -1006,13 +1006,17 @@ public void testBug059891_wksp1_05() throws JavaModelException {
 	formatSource(source,
 		"public class X05 {\n" + 
 		"	void foo() {\n" + 
-		"		if (false && AntUIPlugin.getDefault().getPreferenceStore().getBoolean(\n" + 
-		"				AntEditorPreferenceConstants.TEMPLATES_USE_CODEFORMATTER)) {\n" + 
+		"		if (false && AntUIPlugin\n" + 
+		"				.getDefault()\n" + 
+		"				.getPreferenceStore()\n" + 
+		"				.getBoolean(\n" + 
+		"						AntEditorPreferenceConstants.TEMPLATES_USE_CODEFORMATTER)) {\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
 	);
 }
+// TODO Improve this formatting as it let the message send argument in one line over the max width
 public void testBug059891_wksp1_06() throws JavaModelException {
 	setPageWidth80();
 	String source =
@@ -1032,7 +1036,8 @@ public void testBug059891_wksp1_06() throws JavaModelException {
 		"		try {\n" + 
 		"			if ((javaProject == null) || !javaProject.exists()) {\n" + 
 		"				abort(PDEPlugin________\n" + 
-		"						.getResourceString(\"JUnitLaunchConfig_____\"), null,\n" + 
+		"						.getResourceString(\"JUnitLaunchConfig_____\"),\n" + 
+		"						null,\n" + 
 		"						IJavaLaunchConfigurationConstants.ERR_NOT_A_JAVA_PROJECT);\n" + 
 		"			}\n" + 
 		"		} catch (CoreException e) {\n" + 
@@ -1055,9 +1060,13 @@ public void testBug059891_wksp1_07() throws JavaModelException {
 		"public class X07 {\n" + 
 		"	void foo() {\n" + 
 		"		if (true) {\n" + 
-		"			configureAntObject(result, element, task, task.getTaskName(),\n" + 
-		"					InternalCoreAntMessages.getString(\n" + 
-		"							\"AntCorePreferences.No_library_for_task\")); //$NON-NLS-1$\n" + 
+		"			configureAntObject(\n" + 
+		"					result,\n" + 
+		"					element,\n" + 
+		"					task,\n" + 
+		"					task.getTaskName(),\n" + 
+		"					InternalCoreAntMessages\n" + 
+		"							.getString(\"AntCorePreferences.No_library_for_task\")); //$NON-NLS-1$\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
@@ -1077,13 +1086,13 @@ public void testBug059891_wksp1_08() throws JavaModelException {
 		"public class X08 {\n" + 
 		"	public void foo() {\n" + 
 		"		if (true) {\n" + 
-		"			IStatus status = new Status(IStatus.ERROR, AntCorePlugin.PI_ANTCORE,\n" + 
+		"			IStatus status = new Status(\n" + 
+		"					IStatus.ERROR,\n" + 
+		"					AntCorePlugin.PI_ANTCORE,\n" + 
 		"					AntCorePlugin.ERROR_RUNNING_BUILD,\n" + 
 		"					MessageFormat.format(\n" + 
 		"							InternalCoreAntMessages\n" + 
-		"									.getString(\"AntRunner.Already_in_progess\"), //$NON-NLS-1$\n" + 
-		"							new String[] { buildFileLocation }),\n" + 
-		"					null);\n" + 
+		"									.getString(\"AntRunner.Already_in_progess\"), new String[] { buildFileLocation }), null); //$NON-NLS-1$\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
@@ -1103,7 +1112,8 @@ public void testBug059891_wksp1_09() throws JavaModelException {
 		"public class X09 {\n" + 
 		"	void foo() {\n" + 
 		"		if (true) {\n" + 
-		"			String secondFileName = secondDirectoryAbsolutePath + File.separator\n" + 
+		"			String secondFileName = secondDirectoryAbsolutePath\n" + 
+		"					+ File.separator\n" + 
 		"					+ currentFile\n" + 
 		"							.substring(firstDirectoryAbsolutePath.length() + 1);\n" + 
 		"		}\n" + 
@@ -1128,8 +1138,9 @@ public void testBug059891_wksp1_10() throws JavaModelException {
 		"	void foo() {\n" + 
 		"		if (true) {\n" + 
 		"			if (true) {\n" + 
-		"				throw new BuildException(InternalAntMessages.getString(\n" + 
-		"						\"InternalAntRunner.Could_not_load_the_version_information._10\")); //$NON-NLS-1$\n" + 
+		"				throw new BuildException(\n" + 
+		"						InternalAntMessages\n" + 
+		"								.getString(\"InternalAntRunner.Could_not_load_the_version_information._10\")); //$NON-NLS-1$\n" + 
 		"			}\n" + 
 		"		}\n" + 
 		"	}\n" + 
@@ -1147,8 +1158,9 @@ public void testBug059891_wksp1_11() throws JavaModelException {
 	formatSource(source,
 		"public class X11 {\n" + 
 		"	private void antFileNotFound() {\n" + 
-		"		reportError(AntLaunchConfigurationMessages\n" + 
-		"				.getString(\"AntLaunchShortcut.Unable\"), null); //$NON-NLS-1$\n" + 
+		"		reportError(\n" + 
+		"				AntLaunchConfigurationMessages\n" + 
+		"						.getString(\"AntLaunchShortcut.Unable\"), null); //$NON-NLS-1$	\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -1245,7 +1257,8 @@ public void testBug198074_c1() throws JavaModelException {
 		"public class Test {\n" +
 		"\n" +
 		"	String foo(boolean enabled) {\n" +
-		"		if (enabled) {\n" +
+		"		if (enabled)\n" +
+		"		{\n" +
 		"			// we need x\n" +
 		"			// we need a select\n" +
 		"			return \"select x \"\n" +
@@ -1275,7 +1288,8 @@ public void testBug198074_c1b() throws JavaModelException {
 		"public class Test {\n" +
 		"\n" +
 		"    String foo(boolean enabled) {\n" +
-		"        if (enabled) {\n" +
+		"        if (enabled)\n" +
+		"        {\n" +
 		"            // we need x\n" +
 		"            // we need a select\n" +
 		"            return \"select x \"\n" +
@@ -1370,7 +1384,6 @@ public void testBug198074_comments() throws JavaModelException {
 // see also bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=287462
 public void testBug198074_dup201022() throws JavaModelException {
 	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.wrap_before_binary_operator = false;
 	String source =
 		"public class Test {\n" +
 		"\n" +
@@ -1386,10 +1399,11 @@ public void testBug198074_dup201022() throws JavaModelException {
 		"public class Test {\n" +
 		"\n" +
 		"	void foo() {\n" +
-		"		String sQuery = \"select * \" +\n" +
-		"				\"from person p, address a \" +\n" +
-		"				\"where p.person_id = a.person_id \" +\n" +
-		"				\"and p.person_id = ?\";\n" +
+		"		String sQuery =\n" +
+		"				\"select * \" +\n" +
+		"						\"from person p, address a \" +\n" +
+		"						\"where p.person_id = a.person_id \" +\n" +
+		"						\"and p.person_id = ?\";\n" +
 		"	}\n" +
 		"}\n"
 	);
@@ -1397,7 +1411,6 @@ public void testBug198074_dup201022() throws JavaModelException {
 // duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=213700
 public void testBug198074_dup213700() throws JavaModelException {
 	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.wrap_before_binary_operator = false;
 	String source =
 		"public class Test {\n" +
 		"\n" +
@@ -1450,6 +1463,7 @@ public void testBug199265b() throws JavaModelException {
 	formatSource(source,
 		"import java.util.List;\n" + 
 		"import java.util.Set;\n" + 
+		"\n" + 
 		"//import java.util.HashMap;\n" + 
 		"\n" + 
 		"public class X02 {\n" + 
@@ -1636,8 +1650,8 @@ public void testBug208541() throws JavaModelException {
 		"\n" +
 		"    public void testname() throws Exception {\n" +
 		"        int i = 5, j = 6, k = 7;\n" +
-		"        if (new String().length() != 0 \n" +
-		"              &&  (i < j && j < k)) {\n" +
+		"        if (new String().length() != 0 &&\n" +
+		"                (i < j && j < k)) {\n" +
 		"\n" +
 		"        }\n" +
 		"    }\n" +
@@ -1647,8 +1661,8 @@ public void testBug208541() throws JavaModelException {
 		"\n" +
 		"	public void testname() throws Exception {\n" +
 		"		int i = 5, j = 6, k = 7;\n" +
-		"		if (new String().length() != 0\n" +
-		"				&& (i < j && j < k)) {\n" +
+		"		if (new String().length() != 0 &&\n" +
+		"				(i < j && j < k)) {\n" +
 		"\n" +
 		"		}\n" +
 		"	}\n" +
@@ -1680,9 +1694,8 @@ public void testBug203588() throws JavaModelException {
 		"public class Test {\n" +
 		"	void foo() {\n" +
 		"		while (true) {\n" +
-		"			if (patternChar != (isCaseSensitive ? name[iName]\n" +
-		"					: Character.toLowerCase(name[iName]))\n" +
-		"					&& patternChar != \'?\') {\n" +
+		"			if (patternChar != (isCaseSensitive ? name[iName] : Character\n" +
+		"					.toLowerCase(name[iName])) && patternChar != \'?\') {\n" +
 		"				return;\n" +
 		"			}\n" +
 		"		}\n" +
@@ -1888,7 +1901,6 @@ public void testBug252556_wksp3a() {
  */
 public void testBug281655() throws JavaModelException {
 	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_COMPACT_SPLIT;
 	String source =
 		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\", \n" + 
 		"        activationConfig = { \n" + 
@@ -1904,7 +1916,8 @@ public void testBug281655() throws JavaModelException {
 		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\",\n" + 
 		"		activationConfig = {\n" + 
 		"				@ActivationConfigProperty(propertyName = \"cronTrigger\",\n" + 
-		"						propertyValue = \"0/10 * * * * ?\") })\n" + 
+		"						propertyValue = \"0/10 * * * * ?\")\n" + 
+		"		})\n" + 
 		"@RunAs(\"admin\")\n" + 
 		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
 		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
@@ -1914,7 +1927,6 @@ public void testBug281655() throws JavaModelException {
 }
 public void testBug281655a() throws JavaModelException {
 	this.formatterPrefs.alignment_for_arguments_in_annotation = Alignment.M_NO_ALIGNMENT;
-	this.formatterPrefs.alignment_for_expressions_in_array_initializer = Alignment.M_NO_ALIGNMENT;
 	String source =
 		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\", \n" + 
 		"        activationConfig = { \n" + 
@@ -1950,10 +1962,10 @@ public void testBug281655b() throws JavaModelException {
 		"public class X {\n" + 
 		"}\n";
 	formatSource(source,
-		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\",\n" + 
-		"		activationConfig = {\n" + 
-		"				@ActivationConfigProperty(propertyName = \"cronTrigger\",\n" + 
-		"						propertyValue = \"0/10 * * * * ?\") })\n" + 
+		"@MessageDriven(\n" + 
+		"		mappedName = \"filiality/SchedulerMQService\",\n" + 
+		"		activationConfig = { @ActivationConfigProperty(\n" + 
+		"				propertyName = \"cronTrigger\", propertyValue = \"0/10 * * * * ?\") })\n" + 
 		"@RunAs(\"admin\")\n" + 
 		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
 		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
@@ -1979,8 +1991,7 @@ public void testBug281655c() throws JavaModelException {
 		"@MessageDriven(\n" + 
 		"		mappedName = \"filiality/SchedulerMQService\",\n" + 
 		"		activationConfig = { @ActivationConfigProperty(\n" + 
-		"				propertyName = \"cronTrigger\",\n" + 
-		"				propertyValue = \"0/10 * * * * ?\") })\n" + 
+		"				propertyName = \"cronTrigger\", propertyValue = \"0/10 * * * * ?\") })\n" + 
 		"@RunAs(\"admin\")\n" + 
 		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
 		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
@@ -2058,9 +2069,8 @@ public void testBug281655f() throws JavaModelException {
 		"}\n";
 	formatSource(source,
 		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\",\n" + 
-		"		activationConfig = {\n" +
-		"				@ActivationConfigProperty(propertyName = \"cronTrigger\",\n" + 
-		"						propertyValue = \"0/10 * * * * ?\") })\n" + 
+		"		activationConfig = { @ActivationConfigProperty(propertyName = \"cronTrigger\",\n" + 
+		"				propertyValue = \"0/10 * * * * ?\") })\n" + 
 		"@RunAs(\"admin\")\n" + 
 		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
 		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
@@ -2218,9 +2228,9 @@ public void testBug282030h1() throws JavaModelException {
 		"public class X {\n" + 
 		"}\n";
 	formatSource(source,
-		"@MyAnnot1(\n" + 
-		"		name = \"sample1\",\n" + 
-		"		value = { @MyAnnot2(name = \"sample2\", value = \"demo\") })\n" + 
+		"@MyAnnot1(name = \"sample1\", value = { @MyAnnot2(\n" + 
+		"		name = \"sample2\",\n" + 
+		"		value = \"demo\") })\n" + 
 		"public class X {\n" + 
 		"}\n"
 	);
@@ -2650,9 +2660,12 @@ public void testBug286601() throws JavaModelException {
 		"    }\n" +
 		"}\n";
 	formatSource(source,
-		"public class Test {\n" +
-		"	public void aMethod() {\n" +
-		"		Object anObject = new Object() {\n" +
+		"public class Test\n" +
+		"{\n" +
+		"	public void aMethod()\n" +
+		"	{\n" +
+		"		Object anObject = new Object()\n" +
+		"		{\n" +
 		"			boolean aVariable;\n" +
 		"		};\n" +
 		"	}\n" +
@@ -2717,13 +2730,16 @@ public void testBug286601c() {
 		"    }\n" +
 		"}\n";
 	formatSource(source,
-		"public class Test {\n" +
-		"	public void aMethod() {\n" +
+		"public class Test\n" +
+		"{\n" +
+		"	public void aMethod()\n" +
+		"	{\n" +
 		"		Object anObject = new Object()\n" +
 		"		{\n" +
 		"			boolean aVariable;\n" +
 		"\n" +
-		"			void foo() {\n" +
+		"			void foo()\n" +
+		"			{\n" +
 		"			}\n" +
 		"		};\n" +
 		"	}\n" +
@@ -2748,8 +2764,10 @@ public void testBug286601d() {
 		"    }\n" +
 		"}\n";
 	formatSource(source,
-		"public class Test {\n" +
-		"	public void aMethod() {\n" +
+		"public class Test\n" +
+		"{\n" +
+		"	public void aMethod()\n" +
+		"	{\n" +
 		"		Object anObject = new Object() /* comment */\n" +
 		"		{\n" +
 		"			boolean aVariable;\n" +
@@ -2852,8 +2870,9 @@ public void testBug286601_massive_02() {
 		"					/*\n" + 
 		"					 * (non-Javadoc)\n" + 
 		"					 * \n" + 
-		"					 * @see org.eclipse.ant.internal.ui.editor.outline.\n" + 
-		"					 * ILocationProvider#getLocation()\n" + 
+		"					 * @see\n" + 
+		"					 * org.eclipse.ant.internal.ui.editor.outline.ILocationProvider\n" + 
+		"					 * #getLocation()\n" + 
 		"					 */\n" + 
 		"					public IPath getLocation()\n" + 
 		"					{\n" + 
@@ -2894,7 +2913,8 @@ public void testBug286601_massive_03() {
 	formatSource(source,
 		"package massive;\n" + 
 		"\n" + 
-		"public class X03 {\n" +
+		"public class X03\n" +
+		"{\n" + 
 		"\n" + 
 		"	public void foo() throws NullPointerException {\n" + 
 		"\n" + 
@@ -4364,7 +4384,8 @@ public void testBug293300_wksp2_08c() {
 		"			switch (x) {\n" + 
 		"\n" + 
 		"			}\n" + 
-		"		} /** end while */\n" + 
+		"		}\n" + 
+		"		/** end while */\n" + 
 		"\n" + 
 		"		// fill in output parameter\n" + 
 		"		if (x > 10)\n" + 
@@ -4469,6 +4490,7 @@ public void testBug293300_wksp2_11() {
 		"	 * Comment foo\n" + 
 		"	 */\n" + 
 		"	public abstract StringBuffer foo();\n" + 
+		"\n" + 
 		"	// #if defined(TEST)\n" + 
 		"	// #else\n" + 
 		"	// #endif\n" + 
@@ -5158,8 +5180,9 @@ public void testBug295238() {
 		"		/*\n" + 
 		"		 * (non-Javadoc)\n" + 
 		"		 * \n" + 
-		"		 * @see org.eclipse.jface.text.TextViewer#customizeDocumentCommand(org.\n" + 
-		"		 * eclipse.jface.text.DocumentCommand)\n" + 
+		"		 * @see\n" + 
+		"		 * org.eclipse.jface.text.TextViewer#customizeDocumentCommand(org.eclipse\n" + 
+		"		 * .jface.text.DocumentCommand)\n" + 
 		"		 */\n" + 
 		"		protected void foo() {\n" + 
 		"		}\n" + 
@@ -5321,11 +5344,13 @@ public void testBug264112_w25_S1() {
 		"class Sample1 {\n" + 
 		"	void foo() {\n" + 
 		"		Other.bar(100,\n" + 
-		"				200, 300,\n" + 
-		"				400, 500,\n" + 
-		"				600, 700,\n" + 
-		"				800,\n" + 
-		"				900);\n" + 
+		"				200,\n" + 
+		"				300,\n" + 
+		"				400,\n" + 
+		"				500,\n" + 
+		"				600,\n" + 
+		"				700,\n" + 
+		"				800, 900);\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -5456,8 +5481,8 @@ public void testBug264112_wksp1_02() {
 		"	public String toString() {\n" + 
 		"		StringBuffer buffer = new StringBuffer();\n" + 
 		"		if (true) {\n" + 
-		"			buffer.append(\"- possible values:	[\"); //$NON-NLS-1$\n" + 
-		"			buffer.append(\"]\\n\"); //$NON-NLS-1$\n" + 
+		"			buffer.append(\"- possible values:	[\"); //$NON-NLS-1$ \n" + 
+		"			buffer.append(\"]\\n\"); //$NON-NLS-1$ \n" + 
 		"			buffer.append(\"- curr. val. index:	\").append(currentValueIndex).append(\"\\n\"); //$NON-NLS-1$ //$NON-NLS-2$\n" + 
 		"		}\n" + 
 		"		buffer.append(\"- description:		\").append(description).append(\"\\n\"); //$NON-NLS-1$ //$NON-NLS-2$\n" + 
@@ -5521,7 +5546,8 @@ public void testBug264112_wksp2_01() {
 		"				sb.append(PATH_SMOOTH_QUAD_TO)\n" + 
 		"						.append(String\n" + 
 		"								.valueOf(midValue(point.x, point_plus1.x)))\n" + 
-		"						.append(XML_SPACE).append(String\n" + 
+		"						.append(XML_SPACE)\n" + 
+		"						.append(String\n" + 
 		"								.valueOf(midValue(point.y, point_plus1.y)));\n" + 
 		"			} else {\n" + 
 		"				break;\n" + 
@@ -6052,7 +6078,7 @@ public void testBug309706b() {
 		"	if (true) {\n" + 
 		"		System.out.println(\"bla\");\n" + 
 		"	}\n" + 
-		"}\n",
+		"}",
 		CodeFormatter.K_CLASS_BODY_DECLARATIONS
 	);
 }
@@ -6175,9 +6201,9 @@ public void testBug311578b() throws JavaModelException {
 		"\n" + 
 		"	char x;\n" + 
 		"\n" + 
-		"	//// J-\n" + 
+		"	// //J-\n" + 
 		"	int c = -1 + 42;\n" + 
-		"	//// J+\n" + 
+		"	// //J+\n" + 
 		"\n" + 
 		"	char y;\n" + 
 		"\n" + 
@@ -6317,9 +6343,9 @@ public void testBug311578d() throws JavaModelException {
 		"\n" + 
 		"	char x;\n" + 
 		"\n" + 
-		"	//// F--\n" + 
+		"	// //F--\n" + 
 		"	int c = -1 + 42;\n" + 
-		"	//// F++\n" + 
+		"	// //F++\n" + 
 		"\n" + 
 		"	char y;\n" + 
 		"\n" + 
@@ -6616,7 +6642,8 @@ public void testBug313524_01b() throws JavaModelException {
 	formatSource(source,
 		"public class X01 {\n" + 
 		"	void test() {\n" + 
-		"		foo(bar(1, 2, 3, 4), bar(	5, 6,\n" + 
+		"		foo(bar(1, 2, 3, 4), bar(	5,\n" + 
+		"									6,\n" + 
 		"									7,\n" + 
 		"									8));\n" + 
 		"	}\n" + 
@@ -6637,8 +6664,8 @@ public void testBug313524_02() throws JavaModelException {
 		"	void test() {\n" + 
 		"		foo(bar(1, 2, 3, 4, 5, 6, 7, 8,\n" + 
 		"				9, 10), bar(11, 12, 13,\n" + 
-		"						14, 15, 16, 17,\n" + 
-		"						18, 19, 20));\n" + 
+		"				14, 15, 16, 17, 18, 19,\n" + 
+		"				20));\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -6682,7 +6709,7 @@ public void testBug313524_03() throws JavaModelException {
 		"	void test() {\n" + 
 		"		foo(bar(1, 2, 3, 4), bar(5, 6,\n" + 
 		"				7, 8), bar(9, 10, 11,\n" + 
-		"						12));\n" + 
+		"				12));\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -6703,7 +6730,8 @@ public void testBug313524_03b() throws JavaModelException {
 	formatSource(source,
 		"public class X03 {\n" + 
 		"	void test() {\n" + 
-		"		foo(bar(1, 2, 3, 4), bar(	5, 6,\n" + 
+		"		foo(bar(1, 2, 3, 4), bar(	5,\n" + 
+		"									6,\n" + 
 		"									7,\n" + 
 		"									8),\n" + 
 		"			bar(9, 10, 11, 12));\n" + 
@@ -6747,13 +6775,12 @@ public void testBug313524_146175() throws JavaModelException {
 		"		/* The following statement demonstrates the formatter issue */\n" + 
 		"		SomeOtherClass.someMethodInInnerClass(instanceOfOtherClass\n" + 
 		"				.anotherMethod(\"Value of paramter 1\"), instanceOfOtherClass\n" + 
-		"						.anotherMethod(\"Value of paramter 2\"));\n" + 
+		"				.anotherMethod(\"Value of paramter 2\"));\n" + 
 		"\n" + 
 		"	}\n" + 
 		"\n" + 
 		"	private static class SomeOtherClass {\n" + 
-		"		public static void someMethodInInnerClass(String param1,\n" + 
-		"				String param2) {\n" + 
+		"		public static void someMethodInInnerClass(String param1, String param2) {\n" + 
 		"		}\n" + 
 		"\n" + 
 		"		public String anotherMethod(String par) {\n" + 
@@ -6807,8 +6834,7 @@ public void testBug313524_164093_02() throws JavaModelException {
 		"        someIdentifier(someArg).someMethodName()\n" + 
 		"                               .someMethodName(foo,\n" + 
 		"                                       bar)\n" + 
-		"                               .otherMethod(arg0,\n" + 
-		"                                       arg1);\n" + 
+		"                               .otherMethod(arg0, arg1);\n" + 
 		"    }\n" + 
 		"}\n"
 	);
@@ -6832,7 +6858,8 @@ public void testBug313524_203588() throws JavaModelException {
 		"	public void a() {\n" + 
 		"		if (true) {\n" + 
 		"			allocation.add(idx_ta + 1, Double.valueOf(allocation.get(idx_ta)\n" + 
-		"					.doubleValue() + q));\n" + 
+		"					.doubleValue()\n" + 
+		"					+ q));\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
@@ -6877,16 +6904,18 @@ public void testBug313524_wksp1_02() throws JavaModelException {
 		"public class X02 {\n" + 
 		"	private void parseBuildFile(Project project) {\n" + 
 		"		if (!buildFile.exists()) {\n" + 
-		"			throw new BuildException(MessageFormat.format(InternalAntMessages\n" + 
-		"					.getString(\n" + 
-		"							\"InternalAntRunner.Buildfile__{0}_does_not_exist_!_1\"), //$NON-NLS-1$\n" + 
-		"					new String[] { buildFile.getAbsolutePath() }));\n" + 
+		"			throw new BuildException(\n" + 
+		"					MessageFormat\n" + 
+		"							.format(InternalAntMessages\n" + 
+		"									.getString(\"InternalAntRunner.Buildfile__{0}_does_not_exist_!_1\"), //$NON-NLS-1$\n" + 
+		"									new String[] { buildFile.getAbsolutePath() }));\n" + 
 		"		}\n" + 
 		"		if (!buildFile.isFile()) {\n" + 
-		"			throw new BuildException(MessageFormat.format(InternalAntMessages\n" + 
-		"					.getString(\n" + 
-		"							\"InternalAntRunner.Buildfile__{0}_is_not_a_file_1\"), //$NON-NLS-1$\n" + 
-		"					new String[] { buildFile.getAbsolutePath() }));\n" + 
+		"			throw new BuildException(\n" + 
+		"					MessageFormat\n" + 
+		"							.format(InternalAntMessages\n" + 
+		"									.getString(\"InternalAntRunner.Buildfile__{0}_is_not_a_file_1\"), //$NON-NLS-1$\n" + 
+		"									new String[] { buildFile.getAbsolutePath() }));\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
@@ -6906,8 +6935,8 @@ public void testBug313524_wksp1_03() throws JavaModelException {
 		"public class X03 {\n" + 
 		"\n" + 
 		"	protected void foo() {\n" + 
-		"		printTargets(project, subNames, null, InternalAntMessages.getString(\n" + 
-		"				\"InternalAntRunner.Subtargets__5\"), 0); //$NON-NLS-1$\n" + 
+		"		printTargets(project, subNames, null, InternalAntMessages\n" + 
+		"				.getString(\"InternalAntRunner.Subtargets__5\"), 0); //$NON-NLS-1$\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -6973,8 +7002,9 @@ public void testBug313524_wksp1_06() throws JavaModelException {
 		"	public void launch() {\n" + 
 		"		try {\n" + 
 		"			if ((javaProject == null) || !javaProject.exists()) {\n" + 
-		"				abort(PDEPlugin________.getResourceString(\n" + 
-		"						\"JUnitLaunchConfig_____\"), null,\n" + 
+		"				abort(PDEPlugin________\n" + 
+		"						.getResourceString(\"JUnitLaunchConfig_____\"),\n" + 
+		"						null,\n" + 
 		"						IJavaLaunchConfigurationConstants.ERR_NOT_A_JAVA_PROJECT);\n" + 
 		"			}\n" + 
 		"		} catch (CoreException e) {\n" + 
@@ -6998,9 +7028,13 @@ public void testBug313524_wksp1_07() throws JavaModelException {
 		"public class X07 {\n" + 
 		"	void foo() {\n" + 
 		"		if (true) {\n" + 
-		"			configureAntObject(result, element, task, task.getTaskName(),\n" + 
-		"					InternalCoreAntMessages.getString(\n" + 
-		"							\"AntCorePreferences.No_library_for_task\")); //$NON-NLS-1$\n" + 
+		"			configureAntObject(\n" + 
+		"					result,\n" + 
+		"					element,\n" + 
+		"					task,\n" + 
+		"					task.getTaskName(),\n" + 
+		"					InternalCoreAntMessages\n" + 
+		"							.getString(\"AntCorePreferences.No_library_for_task\")); //$NON-NLS-1$\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
@@ -7021,11 +7055,13 @@ public void testBug313524_wksp1_08() throws JavaModelException {
 		"public class X08 {\n" + 
 		"	public void foo() {\n" + 
 		"		if (true) {\n" + 
-		"			IStatus status = new Status(IStatus.ERROR, AntCorePlugin.PI_ANTCORE,\n" + 
-		"					AntCorePlugin.ERROR_RUNNING_BUILD, MessageFormat.format(\n" + 
-		"							InternalCoreAntMessages.getString(\n" + 
-		"									\"AntRunner.Already_in_progess\"), //$NON-NLS-1$\n" + 
-		"							new String[] { buildFileLocation }), null);\n" + 
+		"			IStatus status = new Status(\n" + 
+		"					IStatus.ERROR,\n" + 
+		"					AntCorePlugin.PI_ANTCORE,\n" + 
+		"					AntCorePlugin.ERROR_RUNNING_BUILD,\n" + 
+		"					MessageFormat\n" + 
+		"							.format(InternalCoreAntMessages\n" + 
+		"									.getString(\"AntRunner.Already_in_progess\"), new String[] { buildFileLocation }), null); //$NON-NLS-1$\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
@@ -7046,9 +7082,10 @@ public void testBug313524_wksp1_09() throws JavaModelException {
 		"public class X09 {\n" + 
 		"	void foo() {\n" + 
 		"		if (true) {\n" + 
-		"			String secondFileName = secondDirectoryAbsolutePath + File.separator\n" + 
-		"					+ currentFile.substring(firstDirectoryAbsolutePath.length()\n" + 
-		"							+ 1);\n" + 
+		"			String secondFileName = secondDirectoryAbsolutePath\n" + 
+		"					+ File.separator\n" + 
+		"					+ currentFile\n" + 
+		"							.substring(firstDirectoryAbsolutePath.length() + 1);\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
@@ -7072,8 +7109,9 @@ public void testBug313524_wksp1_10() throws JavaModelException {
 		"	void foo() {\n" + 
 		"		if (true) {\n" + 
 		"			if (true) {\n" + 
-		"				throw new BuildException(InternalAntMessages.getString(\n" + 
-		"						\"InternalAntRunner.Could_not_load_the_version_information._10\")); //$NON-NLS-1$\n" + 
+		"				throw new BuildException(\n" + 
+		"						InternalAntMessages\n" + 
+		"								.getString(\"InternalAntRunner.Could_not_load_the_version_information._10\")); //$NON-NLS-1$\n" + 
 		"			}\n" + 
 		"		}\n" + 
 		"	}\n" + 
@@ -7092,8 +7130,8 @@ public void testBug313524_wksp1_11() throws JavaModelException {
 	formatSource(source,
 		"public class X11 {\n" + 
 		"	private void antFileNotFound() {\n" + 
-		"		reportError(AntLaunchConfigurationMessages.getString(\n" + 
-		"				\"AntLaunchShortcut.Unable\"), null); //$NON-NLS-1$\n" + 
+		"		reportError(AntLaunchConfigurationMessages\n" + 
+		"				.getString(\"AntLaunchShortcut.Unable\"), null); //$NON-NLS-1$	\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -7114,8 +7152,8 @@ public void testBug313524_wksp1_12() throws JavaModelException {
 		"public class X12 {\n" + 
 		"	void foo() {\n" + 
 		"		if (this.fTests.size() == 0) {\n" + 
-		"			this.addTest(TestSuite.warning(\"No tests found in \" + theClass //$NON-NLS-1$\n" +
-		"					.getName()));\n" + 
+		"			this.addTest(TestSuite\n" +
+		"					.warning(\"No tests found in \" + theClass.getName())); //$NON-NLS-1$\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
@@ -7147,13 +7185,17 @@ public void testBug317039_njl() {
 		"        }\n" + 
 		"    }\n";
 	formatSource(source,
-		"public class X01 {\n" + 
+		"public class X01\n" + 
+		"{\n" + 
 		"\n" + 
-		"	public void innerThread() {\n" + 
+		"	public void innerThread()\n" + 
+		"	{\n" + 
 		"\n" + 
-		"		new Thread(new Runnable() {\n" + 
+		"		new Thread(new Runnable()\n" + 
+		"		{\n" + 
 		"			@Override\n" + 
-		"			public void run() {\n" + 
+		"			public void run()\n" + 
+		"			{\n" + 
 		"				// TODO Auto-generated method stub\n" + 
 		"			}\n" + 
 		"		}).start();\n" + 
@@ -7492,8 +7534,7 @@ public void testBug328240() {
 		"	 * \n" +
 		"	 * @param reportHeader\n" +
 		"	 *            a <code>String</coe> value that will be the text of\n" +
-		"	\n" +
-		"	* the paragraph.\n" +
+		"	 * the paragraph.\n" +
 		"	 * @return a <code>Paragraph</code> containing the the text passed as the\n" +
 		"	 *         reportHeader parameter.\n" +
 		"	 */\n" +
@@ -7685,9 +7726,9 @@ public void testBug330313_regression_187b() {
 		"\n" + 
 		"	private String createC42PDFCommandLine(String documentName) {\n" + 
 		"		return (Registry.getConvertToolPath() + File.separator\n" + 
-		"				+ Registry.getConvertToolName()\n" + 
-		"				+ (\" -o \" + _workingDir + File.separator + documentName\n" + 
-		"						+ (\" -l \" + _workingDir + File.separator + _fileList)));\n" + 
+		"				+ Registry.getConvertToolName() + (\" -o \" + _workingDir\n" + 
+		"				+ File.separator + documentName + (\" -l \" + _workingDir\n" + 
+		"				+ File.separator + _fileList)));\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -7772,7 +7813,9 @@ public void testBug330313_wksp1_02_njl() {
 		"public class X02 {\n" + 
 		"	public void testMethod(String currentTokenVal,\n" + 
 		"			int[][] expectedTokenSequencesVal,\n" + 
-		"			String[] tokenImageVal) {\n" + 
+		"			String[] tokenImageVal\n" + 
+		"			)\n" +
+		"	{\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -7955,8 +7998,12 @@ public void testBug330313_wksp1_06_njl() {
 		"\n" + 
 		"		try\n" + 
 		"		{\n" + 
-		"			index = this.manager.getIndexForUpdate(this.containerPath, true,\n" + 
-		"					/* reuse index file */ true /* create if none */);\n" + 
+		"			index = this.manager.getIndexForUpdate(this.containerPath, true, /*\n" + 
+		"																			 * reuse\n" + 
+		"																			 * index\n" + 
+		"																			 * file\n" + 
+		"																			 */\n" + 
+		"					true /* create if none */);\n" + 
 		"		} finally\n" + 
 		"		{\n" + 
 		"		}\n" + 
@@ -8039,9 +8086,11 @@ public void testBug330313_wksp1_07_njl() {
 		"public class X07 {\n" + 
 		"\n" + 
 		"	static final long[] jjtoToken = {\n" + 
-		"			0x7fbfecffL, };\n" + 
+		"			0x7fbfecffL,\n" + 
+		"	};\n" + 
 		"	static final long[] jjtoSkip = {\n" + 
-		"			0x400000L, };\n" + 
+		"			0x400000L,\n" + 
+		"	};\n" + 
 		"\n" + 
 		"}\n"
 	);
@@ -8070,17 +8119,18 @@ public void testBug330313_wksp1_07_njl_bnl() {
 		"\n" + 
 		"	static final long[] jjtoToken =\n" + 
 		"	{\n" + 
-		"			0x7fbfecffL, };\n" + 
+		"			0x7fbfecffL,\n" + 
+		"	};\n" + 
 		"	static final long[] jjtoSkip =\n" + 
 		"	{\n" + 
-		"			0x400000L, };\n" +
+		"			0x400000L,\n" + 
+		"	};\n" + 
 		"\n" + 
 		"}\n"
 	);
 }
 public void testBug330313_wksp1_08_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.alignment_for_assignment = Alignment.M_COMPACT_SPLIT;
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8122,7 +8172,8 @@ public void testBug330313_wksp1_09_njl() {
 		"public class X09 {\n" + 
 		"	public Class[] getAdapterList() {\n" + 
 		"		return new Class[] {\n" + 
-		"				IWorkbenchAdapter.class };\n" + 
+		"				IWorkbenchAdapter.class\n" + 
+		"		};\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -8149,8 +8200,9 @@ public void testBug330313_wksp1_10_njl() {
 		"\n" + 
 		"	public void computeConstant() {\n" + 
 		"\n" + 
-		"		if (true) { // only a true 0 can be made of zeros\n" + 
-		"					// 2.00000000000000000e-324 is illegal ....\n" + 
+		"		if (true)\n" + 
+		"		{ // only a true 0 can be made of zeros\n" + 
+		"			// 2.00000000000000000e-324 is illegal ....\n" + 
 		"		}\n" + 
 		"	}\n" + 
 		"}\n"
@@ -8179,12 +8231,13 @@ public void testBug330313_wksp1_11_njl() {
 		"\n" + 
 		"public class X11 {\n" + 
 		"	X11() {\n" + 
-		"		accessFlags &= ~(AccStrictfp\n" + 
-		"				| AccProtected\n" + 
-		"				| AccPrivate\n" + 
-		"				| AccStatic\n" + 
-		"				| AccSynchronized\n" + 
-		"				| AccNative);\n" + 
+		"		accessFlags &= ~(\n" + 
+		"				AccStrictfp\n" + 
+		"						| AccProtected\n" + 
+		"						| AccPrivate\n" + 
+		"						| AccStatic\n" + 
+		"						| AccSynchronized\n" + 
+		"						| AccNative);\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -8226,18 +8279,16 @@ public void testBug330313_wksp1_12() {
 		"		Document doc = new Document(string);\n" + 
 		"		try {\n" + 
 		"			if (positions != null) {\n" + 
-		"				doc.addPositionUpdater(\n" + 
-		"						new DefaultPositionUpdater(POS_CATEGORY) {\n" + 
-		"							protected boolean notDeleted() {\n" + 
-		"								if (fOffset < fPosition.offset\n" + 
-		"										&& (fPosition.offset\n" + 
-		"												+ fPosition.length < fOffset\n" + 
-		"														+ fLength)) {\n" + 
-		"									return false;\n" + 
-		"								}\n" + 
-		"								return true;\n" + 
-		"							}\n" + 
-		"						});\n" + 
+		"				doc.addPositionUpdater(new DefaultPositionUpdater(POS_CATEGORY) {\n" + 
+		"					protected boolean notDeleted() {\n" + 
+		"						if (fOffset < fPosition.offset\n" + 
+		"								&& (fPosition.offset + fPosition.length < fOffset\n" + 
+		"										+ fLength)) {\n" + 
+		"							return false;\n" + 
+		"						}\n" + 
+		"						return true;\n" + 
+		"					}\n" + 
+		"				});\n" + 
 		"			}\n" + 
 		"		} catch (BadPositionCategoryException cannotHappen) {\n" + 
 		"			// can not happen: category is correctly set up\n" + 
@@ -8284,18 +8335,16 @@ public void testBug330313_wksp1_12_njl() {
 		"		Document doc = new Document(string);\n" + 
 		"		try {\n" + 
 		"			if (positions != null) {\n" + 
-		"				doc.addPositionUpdater(\n" + 
-		"						new DefaultPositionUpdater(POS_CATEGORY) {\n" + 
-		"							protected boolean notDeleted() {\n" + 
-		"								if (fOffset < fPosition.offset\n" + 
-		"										&& (fPosition.offset\n" + 
-		"												+ fPosition.length < fOffset\n" + 
-		"														+ fLength)) {\n" + 
-		"									return false;\n" + 
-		"								}\n" + 
-		"								return true;\n" + 
-		"							}\n" + 
-		"						});\n" + 
+		"				doc.addPositionUpdater(new DefaultPositionUpdater(POS_CATEGORY) {\n" + 
+		"					protected boolean notDeleted() {\n" + 
+		"						if (fOffset < fPosition.offset\n" + 
+		"								&& (fPosition.offset + fPosition.length < fOffset\n" + 
+		"										+ fLength)) {\n" + 
+		"							return false;\n" + 
+		"						}\n" + 
+		"						return true;\n" + 
+		"					}\n" + 
+		"				});\n" + 
 		"			}\n" + 
 		"		} catch (BadPositionCategoryException cannotHappen) {\n" + 
 		"			// can not happen: category is correctly set up\n" + 
@@ -8324,8 +8373,8 @@ public void testBug330313_wksp1_13() {
 		"\n" + 
 		"	public boolean isEmptyDelta() {\n" + 
 		"		return (this.getType() == AbstractDataTreeNode.T_NO_DATA_DELTA_NODE\n" + 
-		"				&& this.getNamesOfChildren().length == 0\n" + 
-		"				&& this.getNamesOfDeletedChildren().length == 0);\n" + 
+		"				&& this.getNamesOfChildren().length == 0 && this\n" + 
+		"					.getNamesOfDeletedChildren().length == 0);\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -8349,8 +8398,8 @@ public void testBug330313_wksp1_13_njl() {
 		"\n" + 
 		"	public boolean isEmptyDelta() {\n" + 
 		"		return (this.getType() == AbstractDataTreeNode.T_NO_DATA_DELTA_NODE\n" + 
-		"				&& this.getNamesOfChildren().length == 0\n" + 
-		"				&& this.getNamesOfDeletedChildren().length == 0);\n" + 
+		"				&& this.getNamesOfChildren().length == 0 && this\n" + 
+		"					.getNamesOfDeletedChildren().length == 0);\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -8383,10 +8432,8 @@ public void testBug330313_wksp1_14() {
 		"			if (((bits & DepthMASK) != 0) && (fieldBinding.isPrivate() // private\n" + 
 		"																		// access\n" + 
 		"					|| (fieldBinding.isProtected() // implicit protected access\n" + 
-		"							&& fieldBinding.declaringClass\n" + 
-		"									.getPackage() != currentScope\n" + 
-		"											.enclosingSourceType()\n" + 
-		"											.getPackage()))) {\n" + 
+		"					&& fieldBinding.declaringClass.getPackage() != currentScope\n" + 
+		"							.enclosingSourceType().getPackage()))) {\n" + 
 		"				return;\n" + 
 		"			}\n" + 
 		"		}\n" + 
@@ -8420,10 +8467,9 @@ public void testBug330313_wksp1_14_njl() {
 		"		if (true) {\n" + 
 		"			if (((bits & DepthMASK) != 0)\n" + 
 		"					&& (fieldBinding.isPrivate() // private access\n" + 
-		"							|| (fieldBinding.isProtected() // implicit protected\n" + 
-		"															// access\n" + 
-		"									&& fieldBinding.declaringClass.getPackage() != currentScope.enclosingSourceType()\n" + 
-		"											.getPackage()))) {\n" + 
+		"					|| (fieldBinding.isProtected() // implicit protected access\n" + 
+		"					&& fieldBinding.declaringClass.getPackage()\n" + 
+		"						!= currentScope.enclosingSourceType().getPackage()))) {\n" + 
 		"				return;\n" + 
 		"			}\n" + 
 		"		}\n" + 
@@ -8464,8 +8510,7 @@ public void testBug330313_wksp1_15_njl() {
 		"					&& !this.actualReceiverType.isArrayType()\n" + 
 		"					&& fieldBinding.declaringClass != null\n" + 
 		"					&& fieldBinding.constant == NotAConstant\n" + 
-		"					&& ((currentScope\n" + 
-		"							.environment().options.targetJDK >= ClassFileConstants.JDK1_2\n" + 
+		"					&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2\n" + 
 		"							&& !fieldBinding.isStatic()\n" + 
 		"							&& fieldBinding.declaringClass.id != T_Object) // no\n" + 
 		"																			// change\n" + 
@@ -8477,7 +8522,7 @@ public void testBug330313_wksp1_15_njl() {
 		"																			// was\n" + 
 		"																			// any)\n" + 
 		"							|| !fieldBinding.declaringClass\n" + 
-		"									.canBeSeenBy(currentScope))) {\n" + 
+		"								.canBeSeenBy(currentScope))) {\n" + 
 		"				this.codegenBinding = currentScope.enclosingSourceType()\n" + 
 		"						.getUpdatedFieldBinding(fieldBinding,\n" + 
 		"								(ReferenceBinding) this.actualReceiverType);\n" + 
@@ -8516,11 +8561,10 @@ public void testBug330313_wksp1_16() {
 		"		if (this.currentElement != null) {\n" + 
 		"			if (!(this.currentElement instanceof RecoveredType)\n" + 
 		"					&& (this.currentToken == TokenNameDOT\n" + 
-		"							// || declaration.modifiers != 0\n" + 
-		"							|| (this.scanner.getLineNumber(\n" + 
-		"									declaration.type.sourceStart) != this.scanner\n" + 
-		"											.getLineNumber(\n" + 
-		"													(int) (namePosition >>> 32))))) {\n" + 
+		"					// || declaration.modifiers != 0\n" + 
+		"					|| (this.scanner\n" + 
+		"							.getLineNumber(declaration.type.sourceStart) != this.scanner\n" + 
+		"							.getLineNumber((int) (namePosition >>> 32))))) {\n" + 
 		"				return;\n" + 
 		"			}\n" + 
 		"		}\n" + 
@@ -8557,11 +8601,11 @@ public void testBug330313_wksp1_16_njl() {
 		"		if (this.currentElement != null) {\n" + 
 		"			if (!(this.currentElement instanceof RecoveredType)\n" + 
 		"					&& (this.currentToken == TokenNameDOT\n" + 
-		"							// || declaration.modifiers != 0\n" + 
-		"							|| (this.scanner.getLineNumber(\n" + 
-		"									declaration.type.sourceStart) != this.scanner\n" + 
-		"											.getLineNumber(\n" + 
-		"													(int) (namePosition >>> 32))))) {\n" + 
+		"					// || declaration.modifiers != 0\n" + 
+		"					|| (this.scanner\n" + 
+		"							.getLineNumber(declaration.type.sourceStart)\n" + 
+		"						!= this.scanner\n" + 
+		"							.getLineNumber((int) (namePosition >>> 32))))) {\n" + 
 		"				return;\n" + 
 		"			}\n" + 
 		"		}\n" + 
@@ -8588,7 +8632,8 @@ public void testBug330313_wksp1_17_njl() {
 		"\n" + 
 		"public class X17 {\n" + 
 		"	void foo() {\n" + 
-		"		if ((currentMethodScope = this.methodScope()) != outerLocalVariable.declaringScope.methodScope()) {\n" + 
+		"		if ((currentMethodScope = this.methodScope())\n" + 
+		"				!= outerLocalVariable.declaringScope.methodScope()) {\n" + 
 		"			return;\n" + 
 		"		}\n" + 
 		"	}\n" + 
@@ -8623,8 +8668,8 @@ public void testBug330313_wksp1_18_njl() {
 		"				&& safeSubtreeMatch(node.getName(), o.getName())\n" + 
 		"				&& safeSubtreeListMatch(node.arguments(), o.arguments())\n" + 
 		"				&& safeSubtreeListMatch(\n" + 
-		"						node.bodyDeclarations(),\n" + 
-		"						o.bodyDeclarations()));\n" + 
+		"					node.bodyDeclarations(),\n" + 
+		"					o.bodyDeclarations()));\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -8658,8 +8703,8 @@ public void testBug330313_wksp1_19_njl() {
 		"				&& safeSubtreeListMatch(node.superInterfaceTypes(),\n" + 
 		"						o.superInterfaceTypes())\n" + 
 		"				&& safeSubtreeListMatch(\n" + 
-		"						node.bodyDeclarations(),\n" + 
-		"						o.bodyDeclarations()));\n" + 
+		"					node.bodyDeclarations(),\n" + 
+		"					o.bodyDeclarations()));\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -8667,7 +8712,6 @@ public void testBug330313_wksp1_19_njl() {
 // Test case extracted from org.eclipse.debug.ui/ui/org/eclipse/debug/ui/AbstractDebugView.java
 public void testBug330313_wksp1_20_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.alignment_for_assignment = Alignment.M_COMPACT_SPLIT;
 	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
@@ -8695,8 +8739,8 @@ public void testBug330313_wksp1_20_njl() {
 		"			if (entity.charAt(2) == \'X\' || entity.charAt(2) == \'x\') {\n" + 
 		"			}\n" + 
 		"			Character c =\n" + 
-		"					new Character((char) Integer\n" + 
-		"							.parseInt(entity.substring(start), radix));\n" + 
+		"					new Character((char) Integer.parseInt(\n" + 
+		"							entity.substring(start), radix));\n" + 
 		"			return c.toString();\n" + 
 		"		}\n" + 
 		"		return \"\";\n" + 
@@ -8721,8 +8765,8 @@ public void testBug330313_wksp1_21_njl() {
 		"\n" + 
 		"public class X21 {\n" + 
 		"	public boolean isAvailable() {\n" + 
-		"		return !(getViewer() == null || getViewer().getControl() == null\n" + 
-		"				|| getViewer().getControl().isDisposed());\n" + 
+		"		return !(getViewer() == null || getViewer().getControl() == null || getViewer()\n" + 
+		"				.getControl().isDisposed());\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -8752,7 +8796,7 @@ public void testBug330313_wksp1_22_njl() {
 		"				&& safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())\n" + 
 		"				&& safeSubtreeMatch(node.getName(), o.getName())\n" +
 		"				&& safeSubtreeListMatch(node.bodyDeclarations(),\n" + 
-		"						o.bodyDeclarations()));\n" + 
+		"					o.bodyDeclarations()));\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -8764,8 +8808,9 @@ public void testBug330313_wksp1_23_njl() {
 		"\n" + 
 		"public class X23 {\n" + 
 		"	void foo() {\n" + 
-		"		boolean wasError = IMarker.SEVERITY_ERROR == pb.getAttribute(IMarker.SEVERITY,\n" + 
-		"				IMarker.SEVERITY_ERROR);\n" + 
+		"		boolean wasError = IMarker.SEVERITY_ERROR\n" + 
+		"				== pb.getAttribute(IMarker.SEVERITY,\n" + 
+		"						IMarker.SEVERITY_ERROR);\n" + 
 		"	}\n" + 
 		"}\n";
 	formatSource(source	);
@@ -8794,7 +8839,6 @@ public void testBug330313_wksp1_24_njl() {
 }
 public void testBug330313_wksp1_25_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.wrap_before_binary_operator = false;
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8809,7 +8853,6 @@ public void testBug330313_wksp1_25_njl() {
 }
 public void testBug330313_wksp1_26_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.wrap_before_binary_operator = false;
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8873,8 +8916,10 @@ public void testBug330313_wksp1_27_njl() {
 		"public class X27 {\n" + 
 		"	private void foo() {\n" + 
 		"\n" + 
-		"		if (_VerificationResult.getVerificationCode() == IVerificationResult.TYPE_ENTRY_SIGNED_UNRECOGNIZED\n" + 
-		"				|| _VerificationResult.getVerificationCode() == IVerificationResult.TYPE_ENTRY_SIGNED_RECOGNIZED) {\n" + 
+		"		if (_VerificationResult.getVerificationCode()\n" + 
+		"					== IVerificationResult.TYPE_ENTRY_SIGNED_UNRECOGNIZED\n" + 
+		"				|| _VerificationResult.getVerificationCode()\n" + 
+		"					== IVerificationResult.TYPE_ENTRY_SIGNED_RECOGNIZED) {\n" + 
 		"			// Group box\n" + 
 		"		}\n" + 
 		"	}\n" + 
@@ -8915,19 +8960,18 @@ public void testBug330313_wksp1_28_njl() {
 		"				&& !lastReceiverType.isArrayType()\n" + 
 		"				&& fieldBinding.declaringClass != null\n" + 
 		"				&& fieldBinding.constant == NotAConstant\n" + 
-		"				&& ((currentScope\n" + 
-		"						.environment().options.targetJDK >= ClassFileConstants.JDK1_2\n" + 
+		"				&& ((currentScope.environment().options.targetJDK >= ClassFileConstants.JDK1_2\n" + 
 		"						&& (fieldBinding != this.binding\n" + 
-		"								|| this.indexOfFirstFieldBinding > 1\n" + 
-		"								|| !fieldBinding.isStatic())\n" + 
+		"								|| this.indexOfFirstFieldBinding > 1 || !fieldBinding\n" + 
+		"									.isStatic())\n" + 
 		"						&& fieldBinding.declaringClass.id != T_Object)\n" + 
 		"						|| !(useDelegate\n" + 
-		"								? new CodeSnippetScope(currentScope)\n" + 
-		"										.canBeSeenByForCodeSnippet(\n" + 
-		"												fieldBinding.declaringClass,\n" + 
-		"												(ReferenceBinding) this.delegateThis.type)\n" + 
-		"								: fieldBinding.declaringClass\n" +
-		"										.canBeSeenBy(currentScope)))) {\n" + 
+		"							? new CodeSnippetScope(currentScope)\n" + 
+		"									.canBeSeenByForCodeSnippet(\n" + 
+		"											fieldBinding.declaringClass,\n" + 
+		"											(ReferenceBinding) this.delegateThis.type)\n" + 
+		"							: fieldBinding.declaringClass\n" +
+		"									.canBeSeenBy(currentScope)))) {\n" + 
 		"			// code\n" + 
 		"		}\n" + 
 		"	}\n" + 
@@ -8952,15 +8996,14 @@ public void testBug330313_wksp1_29_njl() {
 		"public class X29 {\n" + 
 		"\n" + 
 		"	boolean foo() {\n" + 
-		"		return (pack != null && otherpack != null\n" + 
-		"				&& isSamePackage(pack, otherpack));\n" + 
+		"		return (pack != null && otherpack != null && isSamePackage(pack,\n" + 
+		"				otherpack));\n" + 
 		"	}\n" + 
 		"}\n"
 	);
 }
 public void testBug330313_wksp1_30_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.wrap_before_binary_operator = false;
 	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
@@ -8979,8 +9022,8 @@ public void testBug330313_wksp1_30_njl() {
 		"	private boolean isInTypeNestedInInputType(ASTNode node,\n" + 
 		"			TypeDeclaration inputType) {\n" + 
 		"		return (isInAnonymousTypeInsideInputType(node, inputType) ||\n" + 
-		"				isInLocalTypeInsideInputType(node, inputType) ||\n" + 
-		"				isInNonStaticMemberTypeInsideInputType(node, inputType));\n" + 
+		"				isInLocalTypeInsideInputType(node, inputType) || isInNonStaticMemberTypeInsideInputType(\n" + 
+		"					node, inputType));\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -9012,8 +9055,8 @@ public void testBug330313_wksp1_31_njl() {
 		"			switch (i) {\n" + 
 		"			case 0:\n" + 
 		"				if (!((offset == (hashable.length - 1)) && !has95\n" + 
-		"						&& hasOneOf(meta63, hashable, offset - 2, 2)\n" + 
-		"						&& !hasOneOf(meta64, hashable, offset - 4, 2)))\n" + 
+		"						&& hasOneOf(meta63, hashable, offset - 2, 2) && !hasOneOf(\n" + 
+		"							meta64, hashable, offset - 4, 2)))\n" + 
 		"					buffer.append(\'R\');\n" + 
 		"				break;\n" + 
 		"			}\n" + 
@@ -9040,8 +9083,8 @@ public void testBug330313_wksp1_32_njl() {
 		"public class X32 {\n" + 
 		"	public boolean equals(Object object) {\n" + 
 		"		TextAttribute a = (TextAttribute) object;\n" + 
-		"		return (a.style == style && equals(a.foreground, foreground)\n" + 
-		"				&& equals(a.background, background));\n" + 
+		"		return (a.style == style && equals(a.foreground, foreground) && equals(\n" + 
+		"				a.background, background));\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -9070,9 +9113,8 @@ public void testBug330313_wksp1_33() {
 		"public class X33 {\n" + 
 		"	void foo() {\n" + 
 		"		if (inMetaTag\n" + 
-		"				&& (t1.image.equalsIgnoreCase(\"name\")\n" + 
-		"						|| t1.image.equalsIgnoreCase(\"HTTP-EQUIV\"))\n" + 
-		"				&& t2 != null) {\n" + 
+		"				&& (t1.image.equalsIgnoreCase(\"name\") || t1.image\n" + 
+		"						.equalsIgnoreCase(\"HTTP-EQUIV\")) && t2 != null) {\n" + 
 		"			currentMetaTag = t2.image.toLowerCase();\n" + 
 		"		}\n" + 
 		"	}\n" + 
@@ -9081,7 +9123,6 @@ public void testBug330313_wksp1_33() {
 }
 public void testBug330313_wksp1_33_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.wrap_before_binary_operator = false;
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -9104,8 +9145,10 @@ public void testBug330313_wksp1_33_njl() {
 		"	void foo() {\n" + 
 		"		if (inMetaTag &&\n" + 
 		"				(t1.image.equalsIgnoreCase(\"name\") ||\n" + 
-		"						t1.image.equalsIgnoreCase(\"HTTP-EQUIV\")) &&\n" + 
-		"				t2 != null) {\n" + 
+		"				t1.image.equalsIgnoreCase(\"HTTP-EQUIV\")\n" + 
+		"				)\n" + 
+		"				&& t2 != null)\n" + 
+		"		{\n" + 
 		"			currentMetaTag = t2.image.toLowerCase();\n" + 
 		"		}\n" + 
 		"	}\n" + 
@@ -9135,12 +9178,12 @@ public void testBug330313_wksp1_34_njl() {
 		"			ResourceInfo newElement) {\n" + 
 		"		boolean bothNull = oldElement.getMarkers(false) == null\n" + 
 		"				&& newElement.getMarkers(false) == null;\n" + 
-		"		return bothNull || oldElement.getMarkerGenerationCount() == newElement\n" + 
-		"				.getMarkerGenerationCount();\n" + 
+		"		return bothNull\n" + 
+		"				|| oldElement.getMarkerGenerationCount() == newElement\n" + 
+		"						.getMarkerGenerationCount();\n" + 
 		"	}\n" + 
 		"\n" + 
-		"	private boolean compareSync(ResourceInfo oldElement,\n" + 
-		"			ResourceInfo newElement) {\n" + 
+		"	private boolean compareSync(ResourceInfo oldElement, ResourceInfo newElement) {\n" + 
 		"		return oldElement.getSyncInfoGenerationCount() == newElement\n" + 
 		"				.getSyncInfoGenerationCount();\n" + 
 		"	}\n" + 
@@ -9229,13 +9272,14 @@ public void testBug330313_wksp1_37_njl() {
 		"public class X37 {\n" + 
 		"	void foo() {\n" + 
 		"		if (true) {\n" + 
-		"			if (ignoreQuickDiffPrefPage && (info.getAnnotationType().equals(\n" + 
-		"					\"org.eclipse.ui.workbench.texteditor.quickdiffChange\") //$NON-NLS-1$\n" + 
-		"					|| (info.getAnnotationType().equals(\n" + 
-		"							\"org.eclipse.ui.workbench.texteditor.quickdiffAddition\")) //$NON-NLS-1$\n" + 
-		"					|| (info.getAnnotationType().equals(\n" + 
-		"							\"org.eclipse.ui.workbench.texteditor.quickdiffDeletion\")) //$NON-NLS-1$\n" + 
-		"			))\n" + 
+		"			if (ignoreQuickDiffPrefPage\n" + 
+		"					&& (info.getAnnotationType()\n" + 
+		"							.equals(\"org.eclipse.ui.workbench.texteditor.quickdiffChange\") //$NON-NLS-1$\n" + 
+		"							|| (info.getAnnotationType()\n" + 
+		"									.equals(\"org.eclipse.ui.workbench.texteditor.quickdiffAddition\")) //$NON-NLS-1$\n" + 
+		"					|| (info.getAnnotationType()\n" + 
+		"							.equals(\"org.eclipse.ui.workbench.texteditor.quickdiffDeletion\")) //$NON-NLS-1$\n" + 
+		"					))\n" + 
 		"				continue;\n" + 
 		"		}\n" + 
 		"	}\n" + 
@@ -9260,18 +9304,7 @@ public void testBug330313_wksp1_38_njl() {
 		"		}\n" + 
 		"	}\n" + 
 		"}\n";
-	formatSource(source	,
-			"package wksp1;\n" + 
-			"\n" + 
-			"public class X38 {\n" + 
-			"	void foo(boolean condition) {\n" + 
-			"		if (condition) {\n" + 
-			"			// block 1\n" + 
-			"		} else {\n" + 
-			"			// block 2\n" + 
-			"		}\n" + 
-			"	}\n" + 
-			"}\n");
+	formatSource(source	);
 }
 public void testBug330313_wksp1_39_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
@@ -9300,10 +9333,11 @@ public void testBug330313_wksp1_39_njl() {
 		"	/**\n" + 
 		"	 * <pre>\n" + 
 		"	 * RadioGroupFieldEditor editor = new RadioGroupFieldEditor(\n" + 
-		"	 * 		\"GeneralPage.DoubleClick\", resName, 1,\n" + 
+		"	 * 		&quot;GeneralPage.DoubleClick&quot;, resName, 1,\n" + 
 		"	 * 		new String[][] {\n" + 
-		"	 * 				{ \"Open Browser\", \"open\" },\n" + 
-		"	 * 				{ \"Expand Tree\", \"expand\" } },\n" + 
+		"	 * 				{ &quot;Open Browser&quot;, &quot;open&quot; },\n" + 
+		"	 * 				{ &quot;Expand Tree&quot;, &quot;expand&quot; }\n" + 
+		"	 * 		},\n" + 
 		"	 * 		parent);\n" + 
 		"	 * </pre>\n" + 
 		"	 */\n" + 
@@ -9331,11 +9365,12 @@ public void testBug330313_wksp1_40_njl() {
 		"\n" + 
 		"public class X40 {\n" + 
 		"	protected final static String[][] TABLE = new String[][] {\n" + 
-		"			/* INACTIVE */ /* PARTLY_ACTIVE */ /* ACTIVE */\n" + 
-		"			/* INACTIVE */ { \"INACTIVE\", \"PARTLY_ACTIVE\", \"PARTLY_ACTIVE\" },\n" + 
-		"			/* PARTLY_ACTIVE */ { \"PARTLY_ACTIVE\", \"PARTLY_ACTIVE\",\n" + 
+		"			/* INACTIVE *//* PARTLY_ACTIVE *//* ACTIVE */\n" + 
+		"			/* INACTIVE */{ \"INACTIVE\", \"PARTLY_ACTIVE\", \"PARTLY_ACTIVE\" },\n" + 
+		"			/* PARTLY_ACTIVE */{ \"PARTLY_ACTIVE\", \"PARTLY_ACTIVE\",\n" + 
 		"					\"PARTLY_ACTIVE\" },\n" + 
-		"			/* ACTIVE */ { \"PARTLY_ACTIVE\", \"PARTLY_ACTIVE\", \"ACTIVE\" } };\n" + 
+		"			/* ACTIVE */{ \"PARTLY_ACTIVE\", \"PARTLY_ACTIVE\", \"ACTIVE\" }\n" + 
+		"	};\n" + 
 		"}\n"
 	);
 }
@@ -9483,6 +9518,7 @@ public void testBug330313_wksp1_43_njl() {
 	);
 }
 public void testBug330313_wksp1_44_njl() {
+	// TODO Could be improved to put the all array statements at the same indentation...
 	this.formatterPrefs.join_wrapped_lines = false;
 	String source =
 		"package wksp1;\n" + 
@@ -9504,9 +9540,10 @@ public void testBug330313_wksp1_44_njl() {
 		"	String foo() {\n" + 
 		"		return Policy.bind(\"CVSAnnotateBlock.6\", new Object[] { //$NON-NLS-1$\n" + 
 		"				user,\n" + 
-		"				revision,\n" + 
-		"				String.valueOf(delta),\n" + 
-		"				line });\n" + 
+		"						revision,\n" + 
+		"						String.valueOf(delta),\n" + 
+		"						line\n" + 
+		"		});\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -9545,40 +9582,6 @@ public void testBug330313_wksp1_45_njl() {
 		"}\n"
 	);
 }
-public void testBug330313_wksp1_45b_njl() {
-	this.formatterPrefs.join_wrapped_lines = false;
-	setPageWidth80();
-	String source =
-			"package wksp1;\n" + 
-					"\n" + 
-					"public class X45 {\n" + 
-					"		private String[][] TABLE  = {\n" + 
-					"			{\"COL_REVISION\", \"COL_DATE\", \"COL_AUTHOR\", \"COL_COMMENT\", \"COL_TAGS\"},	// revision \n" + 
-					"			{\"COL_TAGS\", \"COL_REVISION\", \"COL_DATE\", \"COL_AUTHOR\", \"COL_COMMENT\"},	// tags \n" + 
-					"			{\"COL_DATE\", \"COL_REVISION\", \"COL_AUTHOR\", \"COL_COMMENT\", \"COL_TAGS\"},	// date \n" + 
-					"			{\"COL_AUTHOR\", \"COL_REVISION\", \"COL_DATE\", \"COL_COMMENT\", \"COL_TAGS\"},	// author \n" + 
-					"			{\"COL_COMMENT\", \"COL_REVISION\", \"COL_DATE\", \"COL_AUTHOR\", \"COL_TAGS\"}		// comment \n" + 
-					"		};\n" + 
-					"}\n";
-	formatSource(source	,
-			"package wksp1;\n" + 
-					"\n" + 
-					"public class X45 {\n" + 
-					"	private String[][] TABLE = {\n" + 
-					"			{ \"COL_REVISION\", \"COL_DATE\", \"COL_AUTHOR\", \"COL_COMMENT\",\n" + 
-					"					\"COL_TAGS\" }, // revision\n" + 
-					"			{ \"COL_TAGS\", \"COL_REVISION\", \"COL_DATE\", \"COL_AUTHOR\",\n" + 
-					"					\"COL_COMMENT\" }, // tags\n" + 
-					"			{ \"COL_DATE\", \"COL_REVISION\", \"COL_AUTHOR\", \"COL_COMMENT\",\n" + 
-					"					\"COL_TAGS\" }, // date\n" + 
-					"			{ \"COL_AUTHOR\", \"COL_REVISION\", \"COL_DATE\", \"COL_COMMENT\",\n" + 
-					"					\"COL_TAGS\" }, // author\n" + 
-					"			{ \"COL_COMMENT\", \"COL_REVISION\", \"COL_DATE\", \"COL_AUTHOR\",\n" + 
-					"					\"COL_TAGS\" } // comment\n" + 
-					"	};\n" + 
-					"}\n"
-			);
-}
 public void testBug330313_wksp1_46_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
 	setPageWidth80();
@@ -9605,11 +9608,12 @@ public void testBug330313_wksp1_46_njl() {
 		"	void foo() {\n" + 
 		"		if (getActive() == StackPresentation.AS_ACTIVE_NOFOCUS) {\n" + 
 		"			drawGradient(\n" + 
-		"					colorRegistry.get(\n" + 
-		"							IWorkbenchThemeConstants.INACTIVE_TAB_TEXT_COLOR),\n" + 
+		"					colorRegistry\n" + 
+		"							.get(IWorkbenchThemeConstants.INACTIVE_TAB_TEXT_COLOR),\n" + 
 		"					new Color[] {\n" + 
-		"							colorRegistry.get(\n" + 
-		"									IWorkbenchThemeConstants.INACTIVE_TAB_BG_START) },\n" + 
+		"					colorRegistry\n" + 
+		"							.get(IWorkbenchThemeConstants.INACTIVE_TAB_BG_START)\n" + 
+		"					},\n" + 
 		"					new int[0],\n" + 
 		"					true);\n" + 
 		"		}\n" + 
@@ -9770,15 +9774,16 @@ public void testBug330313_wksp1_50_njl() {
 		"			// Deploy CodeSnippet class (only once)\n" + 
 		"			requestor.acceptClassFiles(\n" + 
 		"					new ClassFile[] {\n" + 
-		"							new ClassFile() {\n" + 
-		"								public byte[] getBytes() {\n" + 
-		"									return getCodeSnippetBytes();\n" + 
-		"								}\n" + 
+		"					new ClassFile() {\n" + 
+		"						public byte[] getBytes() {\n" + 
+		"							return getCodeSnippetBytes();\n" + 
+		"						}\n" + 
 		"\n" + 
-		"								public char[][] getCompoundName() {\n" + 
-		"									return EvaluationConstants.ROOT_COMPOUND_NAME;\n" + 
-		"								}\n" + 
-		"							} },\n" + 
+		"						public char[][] getCompoundName() {\n" + 
+		"							return EvaluationConstants.ROOT_COMPOUND_NAME;\n" + 
+		"						}\n" + 
+		"					}\n" + 
+		"					},\n" + 
 		"					null);\n" + 
 		"		}\n" + 
 		"	}\n" + 
@@ -9822,7 +9827,8 @@ public void testBug330313_wksp1_51_njl() {
 		"					return true;\n" + 
 		"				}\n" + 
 		"			},\n" + 
-		"			IResource.NONE);\n" + 
+		"			IResource.NONE\n" + 
+		"		);\n" + 
 		"		notifier.checkCancel();\n" + 
 		"	}\n" + 
 		"}\n" + 
@@ -9869,14 +9875,16 @@ public void testBug330313_wksp1_51_njl() {
 		"											exclusionPatterns))\n" + 
 		"										return false;\n" + 
 		"								}\n" + 
-		"								if (isAlsoProject && isExcludedFromProject(\n" + 
-		"										proxy.requestFullPath()))\n" + 
+		"								if (isAlsoProject\n" + 
+		"										&& isExcludedFromProject(proxy\n" + 
+		"												.requestFullPath()))\n" + 
 		"									return false;\n" + 
 		"							}\n" + 
 		"							return true;\n" + 
 		"						}\n" + 
 		"					},\n" + 
-		"					IResource.NONE);\n" + 
+		"					IResource.NONE\n" + 
+		"					);\n" + 
 		"			notifier.checkCancel();\n" + 
 		"		}\n" + 
 		"	}\n" + 
@@ -9980,10 +9988,10 @@ public void testBug330313_wksp1_52_njl() {
 		"								SyncInfo.CONFLICTING, SyncInfo.ADDITION),\n" + 
 		"						new FastSyncInfoFilter() {\n" + 
 		"							public boolean select(SyncInfo info) {\n" + 
-		"								return info.getLocal()\n" + 
-		"										.getType() == IResource.FILE;\n" + 
+		"								return info.getLocal().getType() == IResource.FILE;\n" + 
 		"							}\n" + 
-		"						} }),\n" + 
+		"						}\n" + 
+		"				}),\n" + 
 		"				// Conflicting changes of files will fail if the local is not\n" + 
 		"				// managed\n" + 
 		"				// or is an addition\n" + 
@@ -9992,17 +10000,15 @@ public void testBug330313_wksp1_52_njl() {
 		"								SyncInfo.CONFLICTING, SyncInfo.CHANGE),\n" + 
 		"						new FastSyncInfoFilter() {\n" + 
 		"							public boolean select(SyncInfo info) {\n" + 
-		"								if (info.getLocal()\n" + 
-		"										.getType() == IResource.FILE) {\n" + 
+		"								if (info.getLocal().getType() == IResource.FILE) {\n" + 
 		"									try {\n" + 
 		"										ICVSFile cvsFile = CVSWorkspaceRoot\n" + 
 		"												.getCVSFileFor((IFile) info\n" + 
 		"														.getLocal());\n" + 
 		"										byte[] syncBytes = cvsFile\n" + 
 		"												.getSyncBytes();\n" + 
-		"										return (syncBytes == null\n" + 
-		"												|| ResourceSyncInfo\n" + 
-		"														.isAddition(syncBytes));\n" + 
+		"										return (syncBytes == null || ResourceSyncInfo\n" + 
+		"												.isAddition(syncBytes));\n" + 
 		"									} catch (CVSException e) {\n" + 
 		"										CVSUIPlugin.log(e);\n" + 
 		"										// Fall though and try to update\n" + 
@@ -10010,7 +10016,8 @@ public void testBug330313_wksp1_52_njl() {
 		"								}\n" + 
 		"								return false;\n" + 
 		"							}\n" + 
-		"						} }),\n" + 
+		"						}\n" + 
+		"				}),\n" + 
 		"				// Conflicting changes involving a deletion on one side will\n" + 
 		"				// aways fail\n" + 
 		"				new AndSyncInfoFilter(new FastSyncInfoFilter[] {\n" + 
@@ -10025,11 +10032,12 @@ public void testBug330313_wksp1_52_njl() {
 		"									return (base != null && remote == null);\n" + 
 		"								} else {\n" + 
 		"									// no local and base != remote\n" + 
-		"									return (base != null && remote != null\n" + 
-		"											&& !base.equals(remote));\n" + 
+		"									return (base != null && remote != null && !base\n" + 
+		"											.equals(remote));\n" + 
 		"								}\n" + 
 		"							}\n" + 
-		"						} }),\n" + 
+		"						}\n" + 
+		"				}),\n" + 
 		"				// Conflicts where the file type is binary will work but are not\n" + 
 		"				// merged\n" + 
 		"				// so they should be skipped\n" + 
@@ -10058,9 +10066,11 @@ public void testBug330313_wksp1_52_njl() {
 		"								}\n" + 
 		"								return false;\n" + 
 		"							}\n" + 
-		"						} }),\n" + 
+		"						}\n" + 
+		"				}),\n" + 
 		"				// Outgoing changes may not fail but they are skipped as well\n" + 
-		"				new SyncInfoDirectionFilter(SyncInfo.OUTGOING) });\n" + 
+		"				new SyncInfoDirectionFilter(SyncInfo.OUTGOING)\n" + 
+		"		});\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -10091,27 +10101,28 @@ public void testBug330313_wksp1_53_njl_bnl() {
 		"	{\n" + 
 		"			/* 9 bits */\n" + 
 		"			{\n" + 
-		"					{ 24, 15 } },\n" + 
+		"			{ 24, 15 } },\n" + 
 		"			/* 10 bits */\n" + 
 		"			{\n" + 
-		"					{ 8, 18 },\n" + 
-		"					{ 15, 64 },\n" + 
-		"					{ 23, 16 },\n" + 
-		"					{ 24, 17 },\n" + 
-		"					{ 55, 0 } },\n" + 
+		"			{ 8, 18 },\n" + 
+		"			{ 15, 64 },\n" + 
+		"			{ 23, 16 },\n" + 
+		"			{ 24, 17 },\n" + 
+		"			{ 55, 0 } },\n" + 
 		"			/* 11 bits */\n" + 
-		"			{\n" + 
-		"					/* EOL */{ 0, -1 },\n" + 
-		"					{ 8, 1792 },\n" + 
-		"					{ 23, 24 },\n" + 
-		"					{ 24, 25 },\n" + 
-		"					{ 40, 23 },\n" + 
-		"					{ 55, 22 },\n" + 
-		"					{ 103, 19 },\n" + 
-		"					{ 104, 20 },\n" + 
-		"					{ 108, 21 },\n" + 
-		"					{ 12, 1856 },\n" + 
-		"					{ 13, 1920 } }, };\n" + 
+		"			{/* EOL */\n" + 
+		"			{ 0, -1 },\n" + 
+		"			{ 8, 1792 },\n" + 
+		"			{ 23, 24 },\n" + 
+		"			{ 24, 25 },\n" + 
+		"			{ 40, 23 },\n" + 
+		"			{ 55, 22 },\n" + 
+		"			{ 103, 19 },\n" + 
+		"			{ 104, 20 },\n" + 
+		"			{ 108, 21 },\n" + 
+		"			{ 12, 1856 },\n" + 
+		"			{ 13, 1920 } },\n" + 
+		"	};\n" + 
 		"}\n"
 	);
 }
@@ -10139,13 +10150,13 @@ public void testBug330313_wksp2_01 () {
 		"public class X01 {\n" + 
 		"\n" + 
 		"	static final Object[][] contents = {\n" + 
+		"	// comment\n" + 
+		"	{ \"STR1\",\n" + 
 		"			// comment\n" + 
-		"			{ \"STR1\",\n" + 
-		"					// comment\n" + 
-		"					new String[] { \"STR\", // comment\n" + 
-		"							\"STR\", // comment\n" + 
-		"							\"STR\" } // comment\n" + 
-		"			}\n" + 
+		"			new String[] { \"STR\", // comment\n" + 
+		"					\"STR\", // comment\n" + 
+		"					\"STR\" } // comment\n" + 
+		"	}\n" + 
 		"\n" + 
 		"	};\n" + 
 		"\n" + 
@@ -10211,48 +10222,51 @@ public void testBug330313_b286601_04() {
 		"	private static final int[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" + 
 		"	{\n" + 
 		"			/* UNUSED READ READ_POTENTIAL WRTIE WRITE_POTENTIAL UNKNOWN */\n" + 
-		"			/* UNUSED */ {\n" + 
+		"			/* UNUSED */{\n" + 
 		"					UNUSED,\n" + 
 		"					READ_POTENTIAL,\n" + 
 		"					READ_POTENTIAL,\n" + 
 		"					WRITE_POTENTIAL,\n" + 
 		"					WRITE_POTENTIAL,\n" + 
 		"					UNKNOWN },\n" + 
-		"			/* READ */ {\n" + 
+		"			/* READ */{\n" + 
 		"					READ_POTENTIAL,\n" + 
 		"					READ,\n" + 
 		"					READ_POTENTIAL,\n" + 
 		"					UNKNOWN,\n" + 
 		"					UNKNOWN,\n" + 
 		"					UNKNOWN },\n" + 
-		"			/* READ_POTENTIAL */ {\n" + 
+		"			/* READ_POTENTIAL */{\n" + 
 		"					READ_POTENTIAL,\n" + 
 		"					READ_POTENTIAL,\n" + 
 		"					READ_POTENTIAL,\n" + 
 		"					UNKNOWN,\n" + 
 		"					UNKNOWN,\n" + 
 		"					UNKNOWN },\n" + 
-		"			/* WRITE */ {\n" + 
+		"			/* WRITE */{\n" + 
 		"					WRITE_POTENTIAL,\n" + 
 		"					UNKNOWN,\n" + 
 		"					UNKNOWN,\n" + 
 		"					WRITE,\n" + 
 		"					WRITE_POTENTIAL,\n" + 
 		"					UNKNOWN },\n" + 
-		"			/* WRITE_POTENTIAL */ {\n" + 
+		"			/* WRITE_POTENTIAL */{\n" + 
 		"					WRITE_POTENTIAL,\n" + 
 		"					UNKNOWN,\n" + 
 		"					UNKNOWN,\n" + 
 		"					WRITE_POTENTIAL,\n" + 
 		"					WRITE_POTENTIAL,\n" + 
 		"					UNKNOWN },\n" + 
-		"			/* UNKNOWN */ {\n" + 
-		"					UNKNOWN,\n" + 
-		"					UNKNOWN,\n" + 
-		"					UNKNOWN,\n" + 
-		"					UNKNOWN,\n" + 
-		"					UNKNOWN,\n" + 
-		"					UNKNOWN } };\n" + 
+		"			/* UNKNOWN */{ UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN, UNKNOWN }\n" + 
+		// Should be slip but that has been broken since 3.4.2 (i.e. 3.3.2 is OK)
+//		"			/* UNKNOWN */{\n" + 
+//		"					UNKNOWN,\n" + 
+//		"					UNKNOWN,\n" + 
+//		"					UNKNOWN,\n" + 
+//		"					UNKNOWN,\n" + 
+//		"					UNKNOWN,\n" + 
+//		"					UNKNOWN }\n" + 
+		"	};\n" + 
 		"\n" + 
 		"}\n"
 	);
@@ -10298,7 +10312,8 @@ public void testBug330313_b286601_05() {
 		"					\"READ_POTENTIAL\",\n" + 
 		"					\"UNKNOWN\",\n" + 
 		"					\"UNKNOWN\",\n" + 
-		"					\"UNKNOWN\" }, };\n" + 
+		"					\"UNKNOWN\" },\n" + 
+		"	};\n" + 
 		"\n" + 
 		"}\n"
 	);
@@ -10333,20 +10348,21 @@ public void testBug330313_b286601_06() {
 		"	static final String[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" + 
 		"	{\n" + 
 		"			/* Comment 1 */\n" + 
-		"			/* Comment 2 */ {\n" + 
+		"			/* Comment 2 */{\n" + 
 		"					\"UNUSED\",\n" + 
 		"					\"READ_POTENTIAL\",\n" + 
 		"					\"READ_POTENTIAL\",\n" + 
 		"					\"WRITE_POTENTIAL\",\n" + 
 		"					\"WRITE_POTENTIAL\",\n" + 
 		"					\"UNKNOWN\" },\n" + 
-		"			/* Comment 3 */ {\n" + 
+		"			/* Comment 3 */{\n" + 
 		"					\"READ_POTENTIAL\",\n" + 
 		"					\"READ\",\n" + 
 		"					\"READ_POTENTIAL\",\n" + 
 		"					\"UNKNOWN\",\n" + 
 		"					\"UNKNOWN\",\n" + 
-		"					\"UNKNOWN\" }, };\n" + 
+		"					\"UNKNOWN\" },\n" + 
+		"	};\n" + 
 		"\n" + 
 		"}\n"
 	);
@@ -10382,12 +10398,13 @@ public void testBug330313_b286601_07() {
 		"    static final String[][] ACCESS_MODE_CONDITIONAL_TABLE =\n" + 
 		"    {\n" + 
 		"            /* Comment 1 */\n" + 
-		"            /* Comment 2 */ {\n" + 
+		"            /* Comment 2 */{\n" + 
 		"                    \"1234567890123456789012345678901234567890\",\n" + 
 		"                    \"1234567890123456789012345678901234567890\" },\n" + 
-		"            /* Comment 3 */ {\n" + 
+		"            /* Comment 3 */{\n" + 
 		"                    \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\",\n" + 
-		"                    \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" }, };\n" + 
+		"                    \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" + 
+		"    };\n" + 
 		"\n" + 
 		"}\n"
 	);
@@ -10610,7 +10627,7 @@ public void testBug437639() throws Exception {
 		"\n" +
 		"	public static void main(String[] args) {\n" +
 		"		BigDecimal big = new BigDecimal(1);\n" +
-		"		BigInteger bigI = new BigInteger(\"1\");\n" +
+		"		BigInteger bigI = 	new BigInteger(\"1\");\n" +
 		"		Date d = new Date();\n" +
 		"		List list = new ArrayList<>();\n" +
 		"	}\n" +

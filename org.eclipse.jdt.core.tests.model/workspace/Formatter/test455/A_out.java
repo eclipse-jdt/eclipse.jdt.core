@@ -4,16 +4,14 @@ public class A {
 		try {
 			IJavaProject javaProject = getJavaProject(configuration);
 			if ((javaProject == null) || !javaProject.exists()) {
-				abort(PDEPlugin.getResourceString(
-						"JUnitLaunchConfiguration.error.invalidproject"), null, //$NON-NLS-1$
-						IJavaLaunchConfigurationConstants.ERR_NOT_A_JAVA_PROJECT);
+				abort(PDEPlugin
+						.getResourceString("JUnitLaunchConfiguration.error.invalidproject"), null, IJavaLaunchConfigurationConstants.ERR_NOT_A_JAVA_PROJECT); //$NON-NLS-1$
 			}
 			IType[] testTypes = getTestTypes(configuration, javaProject,
 					new SubProgressMonitor(monitor, 1));
 			if (testTypes.length == 0) {
-				abort(PDEPlugin.getResourceString(
-						"JUnitLaunchConfiguration.error.notests"), null, //$NON-NLS-1$
-						IJavaLaunchConfigurationConstants.ERR_UNSPECIFIED_MAIN_TYPE);
+				abort(PDEPlugin
+						.getResourceString("JUnitLaunchConfiguration.error.notests"), null, IJavaLaunchConfigurationConstants.ERR_UNSPECIFIED_MAIN_TYPE); //$NON-NLS-1$
 			}
 			monitor.worked(1);
 

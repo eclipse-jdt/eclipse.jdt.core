@@ -36,7 +36,7 @@
 <setting id="org.eclipse.jdt.core.formatter.insert_space_after_comma_in_method_throws" value="insert"/>
 <setting id="org.eclipse.jdt.core.formatter.insert_space_before_for_paren" value="do not insert"/>
 <setting id="org.eclipse.jdt.core.formatter.type_declaration_superinterfaces_alignment" value="16"/>
-<setting id="org.eclipse.jdt.core.formatter.indentation.size" value="3"/>
+<setting id="org.eclipse.jdt.core.formatter.tabulation.size" value="3"/>
 <setting id="org.eclipse.jdt.core.formatter.preserve_user_linebreaks" value="false"/>
 <setting id="org.eclipse.jdt.core.formatter.blank_lines_before_imports" value="1"/>
 <setting id="comment_indent_root_tags" value="true"/>

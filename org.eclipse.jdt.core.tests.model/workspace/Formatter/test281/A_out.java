@@ -7,7 +7,8 @@ public class FormaterBug {
 	}
 	public synchronized void method3() {
 	}
-	public synchronized voidmethod4() {}
+	public synchronized voidmethod4() {
+	}
 	public synchronized void method5() {
 	}
 	public synchronized void method6() {

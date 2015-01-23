@@ -7,10 +7,16 @@ interface X07 {
 	 * 
 	 * <pre>
 	 * 
+	 * 
+	 *
+	 * 
 	 * public class Example {
 	 * 	final int a = 1;
 	 * 	final boolean b = true;
 	 * }
+	 * 
+	 * 
+	 * 
 	 * 
 	 * </pre>
 	 * 

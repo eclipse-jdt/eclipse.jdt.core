@@ -1,6 +1,5 @@
-public final void addDefinitelyAssignedVariables(Scope scope,
-		int initStateIndex) {
+public final void addDefinitelyAssignedVariables(Scope scope, int initStateIndex) {
 	/*
-		
-	*/
+	
+	 */
 }

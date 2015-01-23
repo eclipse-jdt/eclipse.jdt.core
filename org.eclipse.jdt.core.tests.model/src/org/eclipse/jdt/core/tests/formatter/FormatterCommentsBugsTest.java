@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,6 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Robin Stocker - Bug 49619 - [formatting] comment formatter leaves whitespace in comments
- *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
@@ -1638,8 +1637,8 @@ public void testBug233259b() throws JavaModelException {
 	formatSource(source,
 		"public class X {\n" +
 		"	/**\n" +
-		"	 * @see <a href=\"http://0123\">Test\n" +
-		"	 *      </a>\n" +
+		"	 * @see <a\n"+
+		"	 *      href=\"http://0123\">Test</a>\n" +
 		"	 */\n" +
 		"	void foo() {\n" +
 		"	}\n" +
@@ -1659,8 +1658,8 @@ public void testBug233259c() throws JavaModelException {
 	formatSource(source,
 		"public class X {\n" +
 		"	/**\n" +
-		"	 * @see <a href=\"http://012346789\">\n" +
-		"	 *      Test</a>\n" +
+		"	 * @see <a\n" +
+		"	 *      href=\"http://012346789\">Test</a>\n" +
 		"	 */\n" +
 		"	void foo() {\n" +
 		"	}\n" +
@@ -1680,9 +1679,8 @@ public void testBug233259d() throws JavaModelException {
 	formatSource(source,
 		"public class X {\n" +
 		"	/**\n" +
-		"	 * @see <a href=\n" +
-		"	 *      \"http://012346789012346789012346789\">\n" +
-		"	 *      Test</a>\n" +
+		"	 * @see <a\n" +
+		"	 *      href=\"http://012346789012346789012346789\">Test</a>\n" +
 		"	 */\n" +
 		"	void foo() {\n" +
 		"	}\n" +
@@ -2297,7 +2295,7 @@ public void testBug236406_CDB1() {
 		"void foo3() {\n" +
 		"	/*        statement Block		comment    	    */\n" + 
 		"	System.out.println();\n" + 
-		"}\n",
+		"}",
 		CodeFormatter.K_CLASS_BODY_DECLARATIONS
 	);
 }
@@ -2325,7 +2323,7 @@ public void testBug236406_CDB2() {
 		"void foo3() {\n" + 
 		"	/* statement Block comment */\n" + 
 		"	System.out.println();\n" + 
-		"}\n",
+		"}",
 		CodeFormatter.K_CLASS_BODY_DECLARATIONS | CodeFormatter.F_INCLUDE_COMMENTS
 	);
 }
@@ -2339,7 +2337,7 @@ public void testBug236406_EX1() {
 		"//        Line		comment    	    \n" + 
 		"i =\n" + 
 		"/**        Javadoc		comment    	    */\n" + 
-		"1 + (/*      Block		comment*/++a)\n",
+		"1 + (/*      Block		comment*/++a)",
 		CodeFormatter.K_EXPRESSION
 	);
 }
@@ -2353,7 +2351,7 @@ public void testBug236406_EX2() {
 		"// Line comment\n" + 
 		"i =\n" + 
 		"/** Javadoc comment */\n" + 
-		"1 + (/* Block comment */++a)\n",
+		"1 + (/* Block comment */++a)",
 		CodeFormatter.K_EXPRESSION | CodeFormatter.F_INCLUDE_COMMENTS
 	);
 }
@@ -2376,7 +2374,7 @@ public void testBug236406_ST1() {
 		"{\n" + 
 		"	/*        indented Block		comment    	    */\n" + 
 		"	System.out.println();\n" + 
-		"}\n",
+		"}",
 		CodeFormatter.K_STATEMENTS
 	);
 }
@@ -2399,7 +2397,7 @@ public void testBug236406_ST2() {
 		"{\n" + 
 		"	/* indented Block comment */\n" + 
 		"	System.out.println();\n" + 
-		"}\n",
+		"}",
 		CodeFormatter.K_STATEMENTS | CodeFormatter.F_INCLUDE_COMMENTS
 	);
 }
@@ -2471,7 +2469,7 @@ public void testBug237051c() throws JavaModelException {
 		"	/**\n" +
 		"	 * Returns the download rate in bytes per second. If the rate is unknown,\n" +
 		"	 * \n" +
-		"	 * @{link {@link #UNKNOWN_RATE}} is returned.\n" +
+		"	 * @{link {@link #UNKNOWN_RATE} is returned.\n" +
 		"	 * @return the download rate in bytes per second\n" +
 		"	 */\n" +
 		"	public long getTransferRate() {\n" +
@@ -3409,11 +3407,11 @@ public void testBug239719() throws JavaModelException {
 		"/**\n" + 
 		" * <pre>\n" + 
 		" * public class Test implements Runnable {\n" + 
-		" * 	&#64;Override\n" + 
+		" * 	&#064;Override\n" + 
 		" * 	public void run() {\n" + 
 		" * 		// Hello really bad Ganymede formatter !!!\n" + 
 		" * 		// Shit happens when somebody tries to change a running system\n" + 
-		" * 		System.out.println(\"Press Shift+Ctrl+F to format\");\n" + 
+		" * 		System.out.println(&quot;Press Shift+Ctrl+F to format&quot;);\n" + 
 		" * 	}\n" + 
 		" * }\n" + 
 		" * </pre>\n" + 
@@ -3618,9 +3616,9 @@ public void testBug241687() throws JavaModelException {
 		"	/*---------------------\n" + 
 		"	 * END OF SETS AND GETS\n" + 
 		"	 * test test test test test test test\n" + 
-		"	test test test test test test \n" + 
+		"	 test test test test test test \n" + 
 		"	 * \n" + 
-		"	*\n" + 
+		"	 *\n" + 
 		"	 *---------------------*/\n" + 
 		"	void foo();\n" + 
 		"}\n"
@@ -4154,8 +4152,8 @@ public void testBug260011_01() throws JavaModelException {
 		"	/**\n" + 
 		"	 * some comment text here\n" + 
 		"	 * <ul style=\"font-variant:small-caps;\">\n" + 
-		"	 * <li style=\"font-variant:small-caps;\">some text to be styled a certain way\n" + 
-		"	 * </li>\n" + 
+		"	 * <li style=\"font-variant:small-caps;\">\n" + 
+		"	 * some text to be styled a certain way</li>\n" + 
 		"	 * </ul>\n" + 
 		"	 * end of comment\n" + 
 		"	 */\n" + 
@@ -4238,8 +4236,8 @@ public void testBug260011_04() throws JavaModelException {
 		"public class Test {\n" + 
 		"\n" + 
 		"	/**\n" + 
-		"	 * The list of variable declaration fragments (element type: <code\n" + 
-		"	 * VariableDeclarationFragment</code>). Defaults to an empty list.\n" + 
+		"	 * The list of variable declaration fragments (element type:\n" + 
+		"	 * <code VariableDeclarationFragment</code>). Defaults to an empty list.\n" + 
 		"	 */\n" + 
 		"	int field;\n" + 
 		"}\n"
@@ -4306,7 +4304,8 @@ public void testBug260011_06() throws JavaModelException {
 		"	 *                <ul>\n" + 
 		"	 *                <li>Failure communicating with the VM. The\n" + 
 		"	 *                DebugException\'s status code contains the underlying\n" + 
-		"	 *                exception responsible for the failure.</li> </ul\n" + 
+		"	 *                exception responsible for the failure.</li>\n" + 
+		"	 *                </ul\n" + 
 		"	 */\n" + 
 		"	public int getLength();\n" + 
 		"}\n"
@@ -4415,8 +4414,9 @@ public void testBug260011_10() throws JavaModelException {
 		"public interface Test {\n" + 
 		"\n" + 
 		"	/**\n" + 
-		"	 * Creates and opens a dialog to edit the given template. <p Subclasses may\n" + 
-		"	 * override this method to provide a custom dialog.\n" + 
+		"	 * Creates and opens a dialog to edit the given template.\n" + 
+		"	 * <p\n" + 
+		"	 * Subclasses may override this method to provide a custom dialog.\n" + 
 		"	 * </p>\n" + 
 		"	 */\n" + 
 		"	void foo();\n" + 
@@ -4442,7 +4442,8 @@ public void testBug260011_11() throws JavaModelException {
 		"	 * <p>\n" + 
 		"	 * Binary property IDS_Trinary_Operator (new).\n" + 
 		"	 * </p>\n" + 
-		"	 * <p?For programmatic determination of Ideographic Description Sequences.\n" + 
+		"	 * <p\n" + 
+		"	 * ?For programmatic determination of Ideographic Description Sequences.\n" + 
 		"	 * </p>\n" + 
 		"	 * \n" + 
 		"	 * @stable ICU 2.6\n" + 
@@ -4499,8 +4500,7 @@ public void testBug260274c() throws JavaModelException {
 		"}\n";
 	formatSource(source,
 		"class X {\n" + 
-		"	/*\n" + 
-		"	 * *********************************************\n" + 
+		"	/* *********************************************\n" + 
 		"	 * Test\n" + 
 		"	 */\n" + 
 		"}\n"
@@ -4515,8 +4515,8 @@ public void testBug260274d() throws JavaModelException {
 		"}\n";
 	formatSource(source,
 		"class X {\n" + 
-		"	/*\n" + 
-		"	 * ********************************************* Test\n" + 
+		"	/* *********************************************\n" + 
+		"	 * Test\n" + 
 		"	 */\n" + 
 		"}\n"
 	);
@@ -4533,8 +4533,8 @@ public void testBug260274e() throws JavaModelException {
 	formatSource(source,
 		"class X {\n" + 
 		"	/*\n" + 
-		"	 * ************************************************** ********** Test\n" + 
-		"	 * ********** Test **************\n" + 
+		"	 * **************************************************\n" + 
+		"	 * ********** Test ********** Test **************\n" + 
 		"	 * **************************************************\n" + 
 		"	 */\n" + 
 		"}\n"
@@ -4551,9 +4551,8 @@ public void testBug260274f() throws JavaModelException {
 		"}\n";
 	formatSource(source,
 		"class X {\n" + 
-		"	/*\n" + 
-		"	 * *************************************************************************\n" + 
-		"	 * **** Action that allows changing the model providers sort order.\n" + 
+		"	/* *****************************************************************************\n" + 
+		"	 * Action that allows changing the model providers sort order.\n" + 
 		"	 */\n" + 
 		"	void foo() {\n" + 
 		"	}\n" + 
@@ -4576,15 +4575,12 @@ public void testBug260274g() throws JavaModelException {
 	formatSource(source,
 		"class X {\n" + 
 		"	/*\n" + 
-		"	 * *************************************************************************\n" + 
-		"	 * *********\n" + 
-		"	 * *************************************************************************\n" + 
-		"	 * *********\n" + 
-		"	 * *************************************************************************\n" + 
-		"	 * ********* The code below was added to track the view with focus in order\n" + 
-		"	 * to support save actions from a view. Remove this experimental code if the\n" + 
-		"	 * decision is to not allow views to participate in save actions (see bug\n" + 
-		"	 * 10234)\n" + 
+		"	 * **********************************************************************************\n" + 
+		"	 * **********************************************************************************\n" + 
+		"	 * **********************************************************************************\n" + 
+		"	 * The code below was added to track the view with focus in order to support\n" + 
+		"	 * save actions from a view. Remove this experimental code if the decision\n" + 
+		"	 * is to not allow views to participate in save actions (see bug 10234)\n" + 
 		"	 */\n" + 
 		"}\n"
 	);
@@ -4606,21 +4602,6 @@ public void testBug260274h() throws JavaModelException {
 		"	 */\n" + 
 		"	public void foo() {\n" + 
 		"	}\n" + 
-		"}\n"
-	);
-}
-public void testBug260274i() throws JavaModelException {
-	String source = 
-		"class X {\n" + 
-		"/***********************************************\n" + 
-		" * Test \n" + 
-		" */\n" + 
-		"}\n";
-	formatSource(source,
-		"class X {\n" + 
-		"	/***********************************************\n" + 
-		"	 * Test\n" + 
-		"	 */\n" + 
 		"}\n"
 	);
 }
@@ -4719,8 +4700,7 @@ public void testBug260381b() throws JavaModelException {
 		" * Comments that can be formated in several lines...\n" + 
 		" * \n" + 
 		" * @author Myself\n" + 
-		" * @version {@code\n" + 
-		" * The  			  text		here     should     not			be   		    			     formatted....   	   }\n" + 
+		" * @version {@code The  			  text		here     should     not			be   		    			     formatted....   	   }\n" + 
 		" */\n" + 
 		"public class X01b {\n" + 
 		"}\n"
@@ -4746,7 +4726,7 @@ public void testBug260381c() throws JavaModelException {
 		" * @author Myself\n" + 
 		" * @version {@code     \n" + 
 		" *          \n" + 
-		"            \n" + 
+		" *          \n" + 
 		" *          The  			  text		here     should     not			be   		    			     formatted....   	   }\n" + 
 		" */\n" + 
 		"public class X01c {\n" + 
@@ -5131,10 +5111,9 @@ public void testBug260381_wksp2_03() throws JavaModelException {
 		"	 * \n" + 
 		"	 * <pre>\n" + 
 		"	 * {\n" + 
-		"	 * 	&#64;code\n" + 
-		"	 *\n" + 
-		"	 * 	static final ImmutableBiMap<String, Integer> WORD_TO_INT = new ImmutableBiMap.Builder<String, Integer>()\n" + 
-		"	 * 			.put(\"one\", 1).put(\"two\", 2).put(\"three\", 3).build();\n" + 
+		"	 * 	&#064;code\n" + 
+		"	 * 	static final ImmutableBiMap&lt;String, Integer&gt; WORD_TO_INT = new ImmutableBiMap.Builder&lt;String, Integer&gt;()\n" + 
+		"	 * 			.put(&quot;one&quot;, 1).put(&quot;two&quot;, 2).put(&quot;three&quot;, 3).build();\n" + 
 		"	 * }\n" + 
 		"	 * </pre>\n" + 
 		"	 *\n" + 
@@ -5215,10 +5194,10 @@ public void testBug260381_wksp2_04() throws JavaModelException {
 		"	 * yields a multiset with elements in the order {@code 2, 3, 3, 1}.\n" + 
 		"	 *\n" + 
 		"	 * <p>\n" + 
-		"	 * Note that if {@code c} is a {@code Collection<String>}, then {@code\n" + 
-		"	 * ImmutableMultiset.copyOf(c)} returns an {@code ImmutableMultiset<String>}\n" + 
-		"	 * containing each of the strings in {@code c}, while\n" + 
-		"	 * {@code ImmutableMultiset.of(c)} returns an\n" + 
+		"	 * Note that if {@code c} is a {@code Collection<String>}, then\n" + 
+		"	 * {@code ImmutableMultiset.copyOf(c)} returns an\n" + 
+		"	 * {@code ImmutableMultiset<String>} containing each of the strings in\n" + 
+		"	 * {@code c}, while {@code ImmutableMultiset.of(c)} returns an\n" + 
 		"	 * {@code ImmutableMultiset<Collection<String>>} containing one element (the\n" + 
 		"	 * given collection itself).\n" + 
 		"	 *\n" + 
@@ -5372,10 +5351,10 @@ public void testBug260381_wksp2_06() throws JavaModelException {
 		"	 *             occurrences of the element\n" + 
 		"	 * @throws NullPointerException\n" + 
 		"	 *             if {@code element} is null and this implementation does not\n" + 
-		"	 *             permit null elements. Note that if {@code\n" + 
-		"	 *     occurrences} is zero, the implementation may opt to return normally.\n" + 
+		"	 *             permit null elements. Note that if {@code occurrences} is\n" + 
+		"	 *             zero, the implementation may opt to return normally.\n" + 
 		"	 */\n" + 
-		"	boolean /* int */ add(E element, int occurrences);\n" + 
+		"	boolean /* int */add(E element, int occurrences);\n" + 
 		"}\n"
 	);
 }
@@ -5409,8 +5388,8 @@ public void testBug260381_wksp2_07() throws JavaModelException {
 		"	 * Constructs a new, empty multiset, sorted according to the specified\n" + 
 		"	 * comparator. All elements inserted into the multiset must be <i>mutually\n" + 
 		"	 * comparable</i> by the specified comparator: {@code comparator.compare(e1,\n" + 
-		"	 * e2)} must not throw a {@code ClassCastException} for any elements {@code\n" + 
-		"	 * e1} and {@code e2} in the multiset. If the user attempts to add an\n" + 
+		"	 * e2)} must not throw a {@code ClassCastException} for any elements\n" + 
+		"	 * {@code e1} and {@code e2} in the multiset. If the user attempts to add an\n" + 
 		"	 * element to the multiset that violates this constraint, the\n" + 
 		"	 * {@code add(Object)} call will throw a {@code ClassCastException}.\n" + 
 		"	 *\n" + 
@@ -5490,7 +5469,8 @@ public void testBug260381_wksp2_09() throws JavaModelException {
 		"     if condition\n" +
 		"	 then code\n" +
 		"	 else code\n" +
-		"</code> what actually gets built is <code>\n" +
+		"</code>\n" +
+		" * what actually gets built is <code>\n" +
 		"     if !condition branch to eb:\n" +
 		"	  then code\n" +
 		"	  goto end:  // skip else\n" +
@@ -5946,7 +5926,7 @@ public void testBug280061() throws JavaModelException {
 		"public interface X {\n" + 
 		"	/**\n" + 
 		"	 * <pre>\n" + 
-		"	 *   void solve(Executor e,\n" + 
+		"	 * void solve(Executor e,\n" + 
 		"	 *              Collection&lt;Callable&lt;Result&gt;&gt; solvers)\n" + 
 		"	 *     throws InterruptedException, ExecutionException {\n" + 
 		"	 *       CompletionService&lt;Result&gt; ecs\n" + 
@@ -6069,8 +6049,7 @@ public void testBug280616() throws JavaModelException {
 		"	 * <pre>\n" + 
 		"	 * void solve(Executor e, Collection&lt;Callable&lt;Result&gt;&gt; solvers)\n" + 
 		"	 * 		throws InterruptedException, ExecutionException {\n" + 
-		"	 * 	CompletionService&lt;Result&gt; ecs = new ExecutorCompletionService&lt;Result&gt;(\n" + 
-		"	 * 			e);\n" + 
+		"	 * 	CompletionService&lt;Result&gt; ecs = new ExecutorCompletionService&lt;Result&gt;(e);\n" + 
 		"	 * 	for (Callable&lt;Result&gt; s : solvers)\n" + 
 		"	 * 		ecs.submit(s);\n" + 
 		"	 * 	int n = solvers.size();\n" + 
@@ -6135,7 +6114,7 @@ public void testBug287833b() {
 	    "	/**\n"+
 	    "	 * <pre>\n"+
 	    "	 * void foo() {\n"+
-	    "	 *\r\n" +
+	    "	 * \r\n" +
 	    "	 * }\n"+
 	    "	 * </pre>\n"+
 	    "	 */\n"+
@@ -6162,7 +6141,7 @@ public void testBug287833c() {
 	    "	/**\n"+
 	    "	 * <pre>\n"+
 	    "	 * void foo() {\n"+
-	    "	 *\n" +
+	    "	 * \n" +
 	    "	 * }\n"+
 	    "	 * </pre>\n"+
 	    "	 */\n"+
@@ -6208,8 +6187,7 @@ public void testBug300379() {
 		"	/**\n" + 
 		"	 * <pre>\n" + 
 		"	 * {\n" + 
-		"	 * 	&#64;code\n" + 
-		"	 * \n" + 
+		"	 * 	&#064;code\n" + 
 		"	 * 	public class X {\n" + 
 		"	 * 	}\n" + 
 		"	 * }\n" + 
@@ -6235,8 +6213,7 @@ public void testBug300379b() {
 		"	/**\n" + 
 		"	 * <pre>\n" + 
 		"	 * {\n" + 
-		"	 * 	&#64;code\n" + 
-		"	 * \n" + 
+		"	 * 	&#064;code\n" + 
 		"	 * 	public class X {\n" + 
 		"	 * 	}\n" + 
 		"	 * }\n" + 
@@ -6406,11 +6383,11 @@ public void testBug305518() {
 		"public interface Test {\n" + 
 		"	/**\n" + 
 		"	 * <pre>\n" + 
-		"	 *    A\n" + 
-		"	 *   / \\\n" + 
-		"	 *  B   C\n" + 
-		"	 * / \\ / \\\n" + 
-		"	 *D  E F  G\n" + 
+		"	 *     A\n" + 
+		"	 *    / \\\n" + 
+		"	 *   B   C\n" + 
+		"	 *  / \\ / \\\n" + 
+		"	 * D  E F  G\n" + 
 		"	 * </pre>\n" + 
 		"	 */\n" + 
 		"	public void foo();\n" + 
@@ -6441,13 +6418,11 @@ public void testBug305518_wksp2_01() {
 		"	 * the example above with the API.\n" + 
 		"	 * \n" + 
 		"	 * <PRE>\n" + 
-		"	\n" + 
-		"	NetworkServerControl serverControl = new NetworkServerControl(InetAddress.getByName(\"myhost\"),1621)\n" + 
-		"	\n" + 
-		"	serverControl.shutdown();\n" + 
+		"	 * \n" + 
+		"	 * 	NetworkServerControl serverControl = new NetworkServerControl(InetAddress.getByName(\"myhost\"),1621)\n" + 
+		"	 * \n" + 
+		"	 * 	serverControl.shutdown();\n" + 
 		"	 * </PRE>\n" + 
-		"	 * \n" + 
-		"	 * \n" + 
 		"	 */\n" + 
 		"	public void foo() {\n" + 
 		"	}\n" + 
@@ -6469,11 +6444,12 @@ public void testBug305518_wksp2_02() {
 		"	/**\n" + 
 		"	 * Represents namespace name:\n" + 
 		"	 * \n" + 
-		"	 * <pre>\n" + 
-		"	 * e.g.\n" + 
+		"	 * <pre>e.g.\n" + 
 		"	 * \n" + 
 		"	 * <pre>\n" + 
-		"	 * MyNamespace; MyProject\\Sub\\Level; namespace\\MyProject\\Sub\\Level;\n" + 
+		"	 * MyNamespace;\n" + 
+		"	 * MyProject\\Sub\\Level;\n" + 
+		"	 * namespace\\MyProject\\Sub\\Level;\n" + 
 		"	 */\n" + 
 		"	public void foo() {\n" + 
 		"	}\n" + 
@@ -6494,8 +6470,8 @@ public void testBug305518_wksp2_03() {
 		"public class X03 {\n" + 
 		"	/**\n" + 
 		"	 * <PRE>\n" + 
-		"	*  String s = ... ; // get string from somewhere\n" + 
-		"	*  byte [] compressed = UnicodeCompressor.compress(s);\n" + 
+		"	 *  String s = ... ; // get string from somewhere\n" + 
+		"	 *  byte [] compressed = UnicodeCompressor.compress(s);\n" + 
 		"	 * </PRE>\n" + 
 		"	 */\n" + 
 		"	public void foo() {\n" + 
@@ -6523,8 +6499,7 @@ public void testBug305830() {
 	formatSource(source,
 		"public class X01 {\n" + 
 		"	void foo() {\n" + 
-		"		bar(\"a non-nls string\", //$NON-NLS-1$\n" + 
-		"				0 /* a comment */);\n" + 
+		"		bar(\"a non-nls string\", 0 /*a    comment*/); //$NON-NLS-1$\n" + 
 		"	}\n" + 
 		"\n" + 
 		"	void bar(String string, int i) {\n" + 
@@ -6571,30 +6546,6 @@ public void testBug305830c() {
 		"public class X03 {\n" + 
 		"	void foo() {\n" + 
 		"		bar(\"str\", 0 /* a comment */); //$NON-NLS-1$\n" + 
-		"	}\n" + 
-		"\n" + 
-		"	void bar(String string, int i) {\n" + 
-		"	}\n" + 
-	    "}\n"
-	);
-}
-public void testBug305830d() {
-	this.formatterPrefs = null;
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, "40");
-	this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "40");
-	String source = 
-		"public class X01 {\n" + 
-		"void foo() {\n" + 
-		"bar(\"a non-nls string\" /*a    comment*/, 0); //$NON-NLS-1$\n" + 
-		"}\n" + 
-		"void bar(String string, int i) {\n" + 
-		"}\n" + 
-	    "}\n";
-	formatSource(source,
-		"public class X01 {\n" + 
-		"	void foo() {\n" + 
-		"		bar(\"a non-nls string\" /* a comment */, //$NON-NLS-1$\n" + 
-		"				0);\n" + 
 		"	}\n" + 
 		"\n" + 
 		"	void bar(String string, int i) {\n" + 
@@ -6797,8 +6748,9 @@ public void testBug309835_wksp2_01() {
 		"	/**\n" + 
 		"	 * Given a jar file, get the names of any AnnotationProcessorFactory\n" + 
 		"	 * implementations it offers. The information is based on the Sun <a href=\n" + 
-		"	 * \"http://download.oracle.com/javase/6/docs/technotes/guides/jar/jar.html#Service%20Provider\">\n" + 
-		"	 * Jar Service Provider spec</a>: the jar file contains a META-INF/services\n" + 
+		"	 * \"http://download.oracle.com/javase/6/docs/technotes/guides/jar/jar.html#Service%20Provider\"\n" + 
+		"	 * > Jar Service Provider spec</a>: the jar file contains a\n" + 
+		"	 * META-INF/services\n" + 
 		"	 */\n" + 
 		"	public void foo() {\n" + 
 		"	}\n" + 
@@ -7080,8 +7032,8 @@ public void testBug313651_wksp3_01() {
 		"package wksp3;\n" + 
 		"\n" + 
 		"public class X01 implements\n" + 
-		"		// start of comment\n" + 
-		"		// MyFirstInterface {\n" + 
+		"// start of comment\n" + 
+		"// MyFirstInterface {\n" + 
 		"		MySecondInterface {\n" + 
 		"	// end of comment\n" + 
 	    "}\n"
@@ -7100,8 +7052,8 @@ public void testBug313651_wksp3_02() {
 		"package wksp3;\n" + 
 		"\n" + 
 		"public class X02 implements MyOtherInterface,\n" + 
-		"		// start of comment\n" + 
-		"		// MyFirstInterface {\n" + 
+		"// start of comment\n" + 
+		"// MyFirstInterface {\n" + 
 		"		MySecondInterface {\n" + 
 		"	// end of comment\n" + 
 	    "}\n"
