@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM Corporation and others.
+ * Copyright (c) 2014, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,10 +8,9 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     het@google.com - Bug 456986 - Bogus error when annotation processor generates annotation types.
+ *                      Bug 415274 - Annotation processing throws a NPE in getElementsAnnotatedWith()
  *******************************************************************************/
 package org.eclipse.jdt.compiler.apt.tests;
-
-import junit.framework.TestCase;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.tools.JavaCompiler;
+
+import junit.framework.TestCase;
 
 public class AnnotationProcessorTests extends TestCase {
 	@Override
@@ -52,6 +53,20 @@ public class AnnotationProcessorTests extends TestCase {
 		options.add("-processor");
 		options.add(PROC);
 		boolean success = BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, null);
+		assertEquals(true, success);
+	}
+
+	public void testBug415274() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug415274");
+		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug415274", targetFolder);
+		List<String> options = new ArrayList<String>();
+		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug415274Proc";
+		options.add("-processorpath");
+		options.add(" ");
+		options.add("-processor");
+		options.add(PROC);
+		boolean success = BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, null, false);
 		assertEquals(true, success);
 	}
 }

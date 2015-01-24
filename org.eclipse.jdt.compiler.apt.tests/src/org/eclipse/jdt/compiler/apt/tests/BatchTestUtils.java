@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2014 BEA Systems, Inc.
+ * Copyright (c) 2007, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,9 +8,13 @@
  * Contributors:
  *    wharley@bea.com - initial API and implementation
  *    IBM Corporation - fix for 342936
-*******************************************************************************/
+ *    het@google.com - Bug 415274 - Annotation processing throws a NPE in getElementsAnnotatedWith()
+ *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests;
+
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.Platform;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -32,9 +36,6 @@ import javax.tools.JavaCompiler;
 import javax.tools.JavaCompiler.CompilationTask;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
-
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Platform;
 
 /**
  * Helper class to support compilation and results checking for tests running in batch mode.
@@ -81,7 +82,7 @@ public class BatchTestUtils {
 		options.add(_tmpBinFolderName);
 		options.add("-s");
 		options.add(_tmpGenFolderName);
-		addProcessorPaths(options, useJLS8Processors);
+		addProcessorPaths(options, useJLS8Processors, true);
 		options.add("-XprintRounds");
 		options.add("-XprintProcessorInfo");
 		CompilationTask task = compiler.getTask(printWriter, manager, null, options, null, units);
@@ -97,8 +98,8 @@ public class BatchTestUtils {
 	public static void compileTree(JavaCompiler compiler, List<String> options, File targetFolder) {
 		compileTree(compiler, options, targetFolder, false);
 	}
-	
-	public static void compileTree(JavaCompiler compiler, List<String> options, File targetFolder, 
+
+	public static void compileTree(JavaCompiler compiler, List<String> options, File targetFolder,
 			DiagnosticListener<? super JavaFileObject> listener) {
 		compileTree(compiler, options, targetFolder, false, listener);
 	}
@@ -123,7 +124,7 @@ public class BatchTestUtils {
 		options.add(_tmpBinFolderName);
 		options.add("-s");
 		options.add(_tmpGenFolderName);
-		addProcessorPaths(options, useJLS8Processors);
+		addProcessorPaths(options, useJLS8Processors, true);
 		options.add("-XprintRounds");
 		CompilationTask task = compiler.getTask(printWriter, manager, listener, options, null, units);
 		Boolean result = task.call();
@@ -134,7 +135,7 @@ public class BatchTestUtils {
 	 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
 		}
 	}
-	
+
 	/**
 	 * Compile the contents of a directory tree, collecting errors so that they can be
 	 * compared with expected errors.
@@ -149,14 +150,22 @@ public class BatchTestUtils {
 			List<String> options,
 			File targetFolder,
 			DiagnosticListener<? super JavaFileObject> diagnosticListener) {
-		return compileTreeWithErrors(compiler, options, targetFolder, diagnosticListener, false);
+		return compileTreeWithErrors(compiler, options, targetFolder, diagnosticListener, false, true);
 	}
 	public static boolean compileTreeWithErrors(
 			JavaCompiler compiler,
 			List<String> options,
 			File targetFolder,
 			DiagnosticListener<? super JavaFileObject> diagnosticListener,
-			boolean useJLS8Processors) {
+			boolean addProcessorsToClasspath) {
+		return compileTreeWithErrors(compiler, options, targetFolder, diagnosticListener, false, addProcessorsToClasspath);
+	}
+	public static boolean compileTreeWithErrors(
+			JavaCompiler compiler,
+			List<String> options,
+			File targetFolder,
+			DiagnosticListener<? super JavaFileObject> diagnosticListener,
+			boolean useJLS8Processors, boolean addProcessorsToClasspath) {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
 		// create new list containing inputfile
@@ -168,7 +177,7 @@ public class BatchTestUtils {
 		options.add(_tmpBinFolderName);
 		options.add("-s");
 		options.add(_tmpGenFolderName);
-		addProcessorPaths(options, useJLS8Processors);
+		addProcessorPaths(options, useJLS8Processors, addProcessorsToClasspath);
 		// use writer to prevent System.out/err to be polluted with problems
 		StringWriter writer = new StringWriter();
 		CompilationTask task = compiler.getTask(writer, manager, diagnosticListener, options, null, units);
@@ -176,7 +185,7 @@ public class BatchTestUtils {
 
 		return result.booleanValue();
 	}
-	
+
 	/**
 	 * Recursively collect all the files under some root.  Ignore directories named "CVS".
 	 * Used when compiling multiple source files.
@@ -280,14 +289,16 @@ public class BatchTestUtils {
 		junit.framework.TestCase.assertNotNull("No Eclipse compiler found", _eclipseCompiler);
 	}
 
-	private static void addProcessorPaths(List<String> options, boolean useJLS8Processors) {
+	private static void addProcessorPaths(List<String> options, boolean useJLS8Processors, boolean addToNormalClasspath) {
 		String path = useJLS8Processors ? _jls8ProcessorJarPath : _processorJarPath;
-		options.add("-cp");
-		options.add(_tmpSrcFolderName + File.pathSeparator + _tmpGenFolderName + File.pathSeparator + path);
+		if (addToNormalClasspath) {
+			options.add("-cp");
+			options.add(_tmpSrcFolderName + File.pathSeparator + _tmpGenFolderName + File.pathSeparator + path);
+		}
 		options.add("-processorpath");
 		options.add(path);
 	}
-	
+
 	public static void tearDown() {
 		new File(_processorJarPath).deleteOnExit();
 		new File(_jls8ProcessorJarPath).deleteOnExit();
@@ -324,7 +335,7 @@ public class BatchTestUtils {
 		}
 		return fileBytes;
 	}
-	
+
 	/**
 	 * @return true if this file's end-of-line delimiters should be replaced with
 	 * a platform-independent value, e.g. for compilation.
@@ -332,12 +343,12 @@ public class BatchTestUtils {
 	public static boolean shouldConvertToIndependentLineDelimiter(File file) {
 		return file.getName().endsWith(".java");
 	}
-	
+
 	/**
 	 * Copy a file from one location to another, unless the destination file already exists and has
 	 * the same timestamp and file size. Create the destination location if necessary. Convert line
 	 * delimiters according to {@link #shouldConvertToIndependentLineDelimiter(File)}.
-	 * 
+	 *
 	 * @param src
 	 *            the full path to the resource location.
 	 * @param destFolder
@@ -346,12 +357,12 @@ public class BatchTestUtils {
 	 */
 	public static void copyResource(File src, File dest) throws IOException {
 		if (dest.exists() &&
-				src.lastModified() < dest.lastModified() && 
-				src.length() == dest.length()) 
+				src.lastModified() < dest.lastModified() &&
+				src.length() == dest.length())
 		{
 			return;
 		}
-		
+
 		// read source bytes
 		byte[] srcBytes = null;
 		srcBytes = read(src);
@@ -385,7 +396,7 @@ public class BatchTestUtils {
 	 * Copy a resource that is located under the <code>resources</code> folder of the plugin to a
 	 * corresponding location under the specified target folder. Convert line delimiters according
 	 * to {@link #shouldConvertToIndependentLineDelimiter(File)}.
-	 * 
+	 *
 	 * @param resourcePath
 	 *            the relative path under <code>[plugin-root]/resources</code> of the resource to
 	 *            be copied
@@ -402,25 +413,25 @@ public class BatchTestUtils {
 		copyResource(resourceFile, targetFile);
 		return targetFile;
 	}
-	
+
 	/**
 	 * Copy all the files under the directory specified by src to the directory
 	 * specified by dest.  The src and dest directories must exist; child directories
 	 * under dest will be created as required.  Existing files in dest will be
-	 * overwritten.  Newlines will be converted according to 
+	 * overwritten.  Newlines will be converted according to
 	 * {@link #shouldConvertToIndependentLineDelimiter(File)}.  Directories
 	 * named "CVS" will be ignored.
 	 * @param resourceFolderName the name of the source folder, relative to
 	 * <code>[plugin-root]/resources</code>
 	 * @param the absolute path of the destination folder
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static void copyResources(String resourceFolderName, File destFolder) throws IOException {
 		File resDir = new File(getPluginDirectoryPath(), RESOURCES_DIR);
 		File resourceFolder = new File(resDir, resourceFolderName);
 		copyResources(resourceFolder, destFolder);
 	}
-	
+
 	private static void copyResources(File resourceFolder, File destFolder) throws IOException {
 		if (resourceFolder == null) {
 			return;
@@ -445,7 +456,7 @@ public class BatchTestUtils {
 			}
 		}
 	}
-	
+
 	public static String setupProcessorJar(String processorJar, String tmpDir) throws IOException {
 		File libDir = new File(getPluginDirectoryPath());
 		File libFile = new File(libDir, processorJar);
@@ -487,7 +498,7 @@ public class BatchTestUtils {
 			return false;
 		}
 		char[] contents = new char[512];
-		
+
 		Reader r = null;
 		try {
 			r = new BufferedReader(new FileReader(genTextFile));

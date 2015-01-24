@@ -1,13 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 IBM Corporation and others.
+ * Copyright (c) 2005, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *    IBM Corporation - initial API and implementation
  *    IBM Corporation - Fix for bug 328575
+ *    het@google.com - Bug 415274 - Annotation processing throws a NPE in getElementsAnnotatedWith()
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.apt.dispatch;
 
@@ -50,7 +51,7 @@ public class RoundEnvImpl implements RoundEnvironment
 		_isLastRound = isLastRound;
 		_units = units;
 		_factory = _processingEnv.getFactory();
-		
+
 		// Discover the annotations that will be passed to Processor.process()
 		AnnotationDiscoveryVisitor visitor = new AnnotationDiscoveryVisitor(_processingEnv);
 		if (_units != null) {
@@ -73,7 +74,7 @@ public class RoundEnvImpl implements RoundEnvironment
 			}
 			AnnotationBinding[] annotationBindings = Factory.getPackedAnnotationBindings(referenceBinding.getAnnotations());
 			for (AnnotationBinding annotationBinding : annotationBindings) {
-				TypeElement anno = (TypeElement)_factory.newElement(annotationBinding.getAnnotationType()); 
+				TypeElement anno = (TypeElement)_factory.newElement(annotationBinding.getAnnotationType());
 				Element element = _factory.newElement(referenceBinding);
 				_annoToUnit.put(anno, element);
 			}
@@ -81,7 +82,7 @@ public class RoundEnvImpl implements RoundEnvironment
 			for (FieldBinding fieldBinding : fieldBindings) {
 				annotationBindings = Factory.getPackedAnnotationBindings(fieldBinding.getAnnotations());
 				for (AnnotationBinding annotationBinding : annotationBindings) {
-					TypeElement anno = (TypeElement)_factory.newElement(annotationBinding.getAnnotationType()); 
+					TypeElement anno = (TypeElement)_factory.newElement(annotationBinding.getAnnotationType());
 					Element element = _factory.newElement(fieldBinding);
 					_annoToUnit.put(anno, element);
 				}
@@ -90,7 +91,7 @@ public class RoundEnvImpl implements RoundEnvironment
 			for (MethodBinding methodBinding : methodBindings) {
 				annotationBindings = Factory.getPackedAnnotationBindings(methodBinding.getAnnotations());
 				for (AnnotationBinding annotationBinding : annotationBindings) {
-					TypeElement anno = (TypeElement)_factory.newElement(annotationBinding.getAnnotationType()); 
+					TypeElement anno = (TypeElement)_factory.newElement(annotationBinding.getAnnotationType());
 					Element element = _factory.newElement(methodBinding);
 					_annoToUnit.put(anno, element);
 				}
@@ -119,7 +120,7 @@ public class RoundEnvImpl implements RoundEnvironment
 
 	/**
 	 * From the set of root elements and their enclosed elements, return the subset that are annotated
-	 * with {@code a}.  If {@code a} is annotated with the {@link java.lang.annotation.Inherited} 
+	 * with {@code a}.  If {@code a} is annotated with the {@link java.lang.annotation.Inherited}
 	 * annotation, include those elements that inherit the annotation from their superclasses.
 	 * Note that {@link java.lang.annotation.Inherited} only applies to classes (i.e. TypeElements).
 	 */
@@ -143,7 +144,7 @@ public class RoundEnvImpl implements RoundEnvironment
 		}
 		return Collections.unmodifiableSet(_annoToUnit.getValues(a));
 	}
-	
+
 	/**
 	 * For every type in types that is a class and that is annotated with anno, either directly or by inheritance,
 	 * add that type to result.  Recursively descend on each types's child classes as well.
@@ -161,7 +162,7 @@ public class RoundEnvImpl implements RoundEnvironment
 			addAnnotatedElements(anno, element, result);
 		}
 	}
-	
+
 	/**
 	 * Check whether an element has a superclass that is annotated with an @Inherited annotation.
 	 * @param element must be a class (not an interface, enum, etc.).
@@ -184,7 +185,7 @@ public class RoundEnvImpl implements RoundEnvironment
 		} while (null != (searchedElement = searchedElement.superclass()));
 		return false;
 	}
-	
+
 	@Override
 	public Set<? extends Element> getElementsAnnotatedWith(Class<? extends Annotation> a)
 	{
@@ -194,6 +195,9 @@ public class RoundEnvImpl implements RoundEnvironment
 			throw new IllegalArgumentException("Argument must represent an annotation type"); //$NON-NLS-1$
 		}
 		TypeElement annoType = _processingEnv.getElementUtils().getTypeElement(canonicalName);
+		if (annoType == null) {
+			return Collections.emptySet();
+		}
 		return getElementsAnnotatedWith(annoType);
 	}
 
