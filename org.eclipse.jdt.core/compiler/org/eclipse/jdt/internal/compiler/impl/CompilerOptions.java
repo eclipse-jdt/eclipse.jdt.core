@@ -1971,4 +1971,14 @@ public class CompilerOptions {
 			this.warningThreshold.clear(irritant);
 		}
 	}
+
+	/** 
+	 * Note, if you have a LookupEnvironment you should instead ask
+	 * {@link org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment#usesNullTypeAnnotations()}. */
+	public boolean usesNullTypeAnnotations() {
+		if (this.useNullTypeAnnotations != null)
+			return this.useNullTypeAnnotations;
+		return this.isAnnotationBasedNullAnalysisEnabled
+				&& this.sourceLevel >=  ClassFileConstants.JDK1_8;
+	}
 }

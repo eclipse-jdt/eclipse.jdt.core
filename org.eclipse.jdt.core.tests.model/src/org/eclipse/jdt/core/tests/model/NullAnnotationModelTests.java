@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 GK Software AG and others.
+ * Copyright (c) 2011, 2015 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,6 +45,7 @@ import org.osgi.framework.Bundle;
 public class NullAnnotationModelTests extends ReconcilerTests {
 
 	String ANNOTATION_LIB;
+	String ANNOTATION_LIB_V1;
 
 	public static Test suite() {
 		return buildModelTestSuite(NullAnnotationModelTests.class);
@@ -66,6 +67,10 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 		Bundle[] bundles = org.eclipse.jdt.core.tests.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", "[2.0.0,3.0.0)");
 		File bundleFile = FileLocator.getBundleFile(bundles[0]);
 		this.ANNOTATION_LIB = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
+
+		bundles = org.eclipse.jdt.core.tests.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", "[1.1.0,2.0.0)");
+		bundleFile = FileLocator.getBundleFile(bundles[0]);
+		this.ANNOTATION_LIB_V1 = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
 	}
 
 	protected String testJarPath(String jarName) throws IOException {
@@ -641,6 +646,67 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"----------\n"
 					);
 
+		} finally {
+			if (project != null)
+				deleteProject(project);
+		}
+	}
+
+	// was: NPE in ProblemReporter.illegalReturnRedefinition() from ImplicitNullAnnotationVerifier.checkNullSpecInheritance()
+	public void testBug458361a() throws CoreException {
+		IJavaProject project = null;
+		try {
+			project = createJavaProject("Bug458361", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB}, "bin", "1.8");
+
+			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+			project.setOption(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.ERROR);
+
+			setUpWorkingCopy("/Bug458361/src/MyCollection.java",
+					"import java.util.Collection;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
+					"public interface MyCollection<T> extends Collection<T> {\n" + 
+					"    public @Nullable T get(int i);\n" +
+					"}\n");
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"1. ERROR in /Bug458361/src/MyCollection.java (at line 4)\n" + 
+					"	public @Nullable T get(int i);\n" + 
+					"	       ^^^^^^^^^^^\n" + 
+					"The return type is incompatible with the free type variable \'T\' returned from Collection<T>.get(int) (mismatching null constraints)\n" + 
+					"----------\n");
+		} finally {
+			if (project != null)
+				deleteProject(project);
+		}
+	}
+	public void testBug458361b() throws CoreException {
+		IJavaProject project = null;
+		try {
+			project = createJavaProject("Bug458361", new String[] {"src"}, new String[] {"JCL17_LIB", this.ANNOTATION_LIB_V1}, "bin", "1.7");
+
+			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+			project.setOption(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.ERROR);
+	
+			createFile("/Bug458361/src/Super.java",
+					"import org.eclipse.jdt.annotation.*;\n" +
+					"public interface Super {\n" +
+					"	@NonNull String getName();\n" +
+					"}\n");
+
+			setUpWorkingCopy("/Bug458361/src/Sub.java",
+					"import org.eclipse.jdt.annotation.*;\n" +
+					"public interface Sub extends Super {\n" + 
+					"    @Nullable String getName();\n" +
+					"}\n");
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"1. ERROR in /Bug458361/src/Sub.java (at line 3)\n" + 
+					"	@Nullable String getName();\n" + 
+					"	^^^^^^^^^^^^^^^^\n" + 
+					"The return type is incompatible with \'@NonNull String\' returned from Super.getName() (mismatching null constraints)\n" + 
+					"----------\n");
 		} finally {
 			if (project != null)
 				deleteProject(project);

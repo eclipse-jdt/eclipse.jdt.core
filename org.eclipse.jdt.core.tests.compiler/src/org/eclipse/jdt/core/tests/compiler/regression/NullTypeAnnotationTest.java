@@ -5666,7 +5666,7 @@ public void testTypeVariable15() {
 		"1. ERROR in Test.java (at line 3)\n" + 
 		"	public <T> @org.eclipse.jdt.annotation.Nullable T foo(T arg) {\n" + 
 		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"The return type is incompatible with 'T' returned from ITest.foo(T) (mismatching null constraints)\n" + 
+		"The return type is incompatible with the free type variable 'T' returned from ITest.foo(T) (mismatching null constraints)\n" + 
 		"----------\n" +
 		"----------\n" + 
 		"1. ERROR in Test2.java (at line 3)\n" + 

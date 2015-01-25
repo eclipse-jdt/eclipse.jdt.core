@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 GK Software AG, IBM Corporation and others.
+ * Copyright (c) 2012, 2015 GK Software AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -296,7 +296,8 @@ public class ImplicitNullAnnotationVerifier {
 					}
 					if (NullAnnotationMatching.analyse(inheritedMethod.returnType, currentMethod.returnType, substituteReturnType, 0, CheckMode.OVERRIDE).isAnyMismatch()) {
 						if (srcMethod != null)
-							scope.problemReporter().illegalReturnRedefinition(srcMethod, inheritedMethod, null);
+							scope.problemReporter().illegalReturnRedefinition(srcMethod, inheritedMethod,
+																	this.environment.getNonNullAnnotationName());
 						else
 							scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod, useTypeAnnotations);
 						return;
