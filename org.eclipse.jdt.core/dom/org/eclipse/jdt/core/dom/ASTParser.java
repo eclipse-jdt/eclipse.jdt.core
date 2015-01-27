@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2014 IBM Corporation and others.
+ * Copyright (c) 2004, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 458577 - IClassFile.getWorkingCopy() may lead to NPE in BecomeWorkingCopyOperation
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
@@ -1105,6 +1107,10 @@ public class ASTParser {
 					NodeSearcher searcher = null;
 					org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = null;
 					WorkingCopyOwner wcOwner = this.workingCopyOwner;
+					if (this.typeRoot instanceof ClassFileWorkingCopy) {
+						// special case: class file mimics as compilation unit, but that would use a wrong file name below, so better unwrap now:
+						this.typeRoot = ((ClassFileWorkingCopy) this.typeRoot).classFile;
+					}
 					if (this.typeRoot instanceof ICompilationUnit) {
 							/*
 							 * this.compilationUnitSource is an instance of org.eclipse.jdt.internal.core.CompilationUnit that implements

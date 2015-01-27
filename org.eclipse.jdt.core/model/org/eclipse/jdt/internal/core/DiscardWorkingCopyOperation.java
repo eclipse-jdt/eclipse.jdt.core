@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,9 +7,12 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 458577 - IClassFile.getWorkingCopy() may lead to NPE in BecomeWorkingCopyOperation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaProject;
@@ -42,16 +45,19 @@ public class DiscardWorkingCopyOperation extends JavaModelOperation {
 				addDelta(delta);
 				removeReconcileDelta(workingCopy);
 			} else {
-				if (workingCopy.getResource().isAccessible()) {
-					// report a F_PRIMARY_WORKING_COPY change delta for a primary working copy
-					JavaElementDelta delta = new JavaElementDelta(getJavaModel());
-					delta.changed(workingCopy, IJavaElementDelta.F_PRIMARY_WORKING_COPY);
-					addDelta(delta);
-				} else {
-					// report a REMOVED delta
-					JavaElementDelta delta = new JavaElementDelta(getJavaModel());
-					delta.removed(workingCopy, IJavaElementDelta.F_PRIMARY_WORKING_COPY);
-					addDelta(delta);
+				IResource resource = workingCopy.getResource();
+				if (resource != null) {
+					if (resource.isAccessible()) {
+						// report a F_PRIMARY_WORKING_COPY change delta for a primary working copy
+						JavaElementDelta delta = new JavaElementDelta(getJavaModel());
+						delta.changed(workingCopy, IJavaElementDelta.F_PRIMARY_WORKING_COPY);
+						addDelta(delta);
+					} else {
+						// report a REMOVED delta
+						JavaElementDelta delta = new JavaElementDelta(getJavaModel());
+						delta.removed(workingCopy, IJavaElementDelta.F_PRIMARY_WORKING_COPY);
+						addDelta(delta);
+					}
 				}
 			}
 		}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,12 +7,13 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 458577 - IClassFile.getWorkingCopy() may lead to NPE in BecomeWorkingCopyOperation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.JavaModelException;
 
 /**
  * Switch and ICompilationUnit to working copy mode
@@ -43,16 +44,19 @@ public class BecomeWorkingCopyOperation extends JavaModelOperation {
 			delta.added(workingCopy);
 			addDelta(delta);
 		} else {
-			if (workingCopy.getResource().isAccessible()) {
-				// report a F_PRIMARY_WORKING_COPY change delta for a primary working copy
-				JavaElementDelta delta = new JavaElementDelta(getJavaModel());
-				delta.changed(workingCopy, IJavaElementDelta.F_PRIMARY_WORKING_COPY);
-				addDelta(delta);
-			} else {
-				// report an ADDED delta
-				JavaElementDelta delta = new JavaElementDelta(getJavaModel());
-				delta.added(workingCopy, IJavaElementDelta.F_PRIMARY_WORKING_COPY);
-				addDelta(delta);
+			IResource resource = workingCopy.getResource();
+			if (resource != null) {
+				if (resource.isAccessible()) {
+					// report a F_PRIMARY_WORKING_COPY change delta for a primary working copy
+					JavaElementDelta delta = new JavaElementDelta(getJavaModel());
+					delta.changed(workingCopy, IJavaElementDelta.F_PRIMARY_WORKING_COPY);
+					addDelta(delta);
+				} else {
+					// report an ADDED delta
+					JavaElementDelta delta = new JavaElementDelta(getJavaModel());
+					delta.added(workingCopy, IJavaElementDelta.F_PRIMARY_WORKING_COPY);
+					addDelta(delta);
+				}
 			}
 		}
 
