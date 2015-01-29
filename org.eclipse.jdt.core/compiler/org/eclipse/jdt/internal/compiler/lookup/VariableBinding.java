@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contribution for
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 458396 - NPE in CodeStream.invoke()
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -38,6 +39,14 @@ public abstract class VariableBinding extends Binding {
 
 	public Constant constant() {
 		return this.constant;
+	}
+	
+	/**
+	 * Call this variant during resolve / analyse, so we can handle the case 
+	 * when a tentative lambda resolve triggers resolving of outside code.
+	 */
+	public Constant constant(Scope scope) {
+		return constant();
 	}
 
 	public abstract AnnotationBinding[] getAnnotations();

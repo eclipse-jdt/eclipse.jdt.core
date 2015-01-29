@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contribution for bug 185682 - Increment/decrement operators mark local variables as read
+ *     Stephan Herrmann - Contributions for
+ *								Bug 185682 - Increment/decrement operators mark local variables as read
+ *								Bug 458396 - NPE in CodeStream.invoke()
  *******************************************************************************/
 package org.eclipse.jdt.internal.eval;
 
@@ -101,7 +103,7 @@ public TypeBinding checkFieldAccess(BlockScope scope) {
 			return null;
 		}
 	}
-	this.constant = fieldBinding.constant();
+	this.constant = fieldBinding.constant(scope);
 
 	if (isFieldUseDeprecated(fieldBinding, scope, this.bits)) {
 		scope.problemReporter().deprecatedField(fieldBinding, this);

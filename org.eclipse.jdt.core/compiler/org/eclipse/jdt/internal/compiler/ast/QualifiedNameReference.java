@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@
  *								bug 368546 - [compiler][resource] Avoid remaining false positives found when compiling the Eclipse SDK
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								Bug 414380 - [compiler][internal] QualifiedNameReference#indexOfFirstFieldBinding does not point to the first field
+ *								Bug 458396 - NPE in CodeStream.invoke()
  *     Jesper S Moller - Contributions for
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 331649 - [compiler][null] consider null annotations for fields
@@ -725,7 +726,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 	TypeBinding type = ((VariableBinding) this.binding).type;
 	int index = this.indexOfFirstFieldBinding;
 	if (index == length) { //	restrictiveFlag == FIELD
-		this.constant = ((FieldBinding) this.binding).constant();
+		this.constant = ((FieldBinding) this.binding).constant(scope);
 		// perform capture conversion if read access
 		return (type != null && (this.bits & ASTNode.IsStrictlyAssigned) == 0)
 				? type.capture(scope, this.sourceStart, this.sourceEnd)
@@ -737,7 +738,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 	this.otherDepths = new int[otherBindingsLength];
 
 	// fill the first constant (the one of the binding)
-	this.constant = ((VariableBinding) this.binding).constant();
+	this.constant = ((VariableBinding) this.binding).constant(scope);
 	// save first depth, since will be updated by visibility checks of other bindings
 	int firstDepth = (this.bits & ASTNode.DepthMASK) >> ASTNode.DepthSHIFT;
 	// iteration on each field
@@ -769,7 +770,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			}
 			// constant propagation can only be performed as long as the previous one is a constant too.
 			if (this.constant != Constant.NotAConstant) {
-				this.constant = field.constant();
+				this.constant = field.constant(scope);
 			}
 
 			if (field.isStatic()) {
@@ -786,7 +787,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 					}					
 					// check if accessing enum static field in initializer
 					if ((TypeBinding.equalsEquals(sourceType, declaringClass) || TypeBinding.equalsEquals(sourceType.superclass, declaringClass)) // enum constant body
-							&& field.constant() == Constant.NotAConstant
+							&& field.constant(scope) == Constant.NotAConstant
 							&& !methodScope.isStatic
 							&& methodScope.isInsideInitializerOrConstructor()) {
 						scope.problemReporter().enumStaticFieldUsedDuringInitialization(field, this);
@@ -881,7 +882,7 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FieldBinding fieldBinding, int index, FlowInfo flowInfo) {
 	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0) return;
 	// index == 0 denotes the first fieldBinding, index > 0 denotes one of the 'otherBindings', index < 0 denotes a write access (to last binding)
-	if (fieldBinding.constant() != Constant.NotAConstant)
+	if (fieldBinding.constant(currentScope) != Constant.NotAConstant)
 		return;
 
 	if (fieldBinding.isPrivate()) { // private access
@@ -1046,7 +1047,7 @@ public TypeBinding resolveType(BlockScope scope) {
 						// check if accessing enum static field in initializer
 						if (declaringClass.isEnum()) {
 							if ((TypeBinding.equalsEquals(sourceType, declaringClass) || TypeBinding.equalsEquals(sourceType.superclass, declaringClass)) // enum constant body
-									&& fieldBinding.constant() == Constant.NotAConstant
+									&& fieldBinding.constant(scope) == Constant.NotAConstant
 									&& !methodScope.isStatic
 									&& methodScope.isInsideInitializerOrConstructor()) {
 								scope.problemReporter().enumStaticFieldUsedDuringInitialization(fieldBinding, this);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								Bug 412203 - [compiler] Internal compiler error: java.lang.IllegalArgumentException: info cannot be null
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *								Bug 458396 - NPE in CodeStream.invoke()
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *******************************************************************************/
@@ -515,7 +516,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	FieldBinding codegenBinding = this.binding.original();
 	if (this.binding.isPrivate()) {
 		if ((TypeBinding.notEquals(currentScope.enclosingSourceType(), codegenBinding.declaringClass))
-				&& this.binding.constant() == Constant.NotAConstant) {
+				&& this.binding.constant(currentScope) == Constant.NotAConstant) {
 			if (this.syntheticAccessors == null)
 				this.syntheticAccessors = new MethodBinding[2];
 			this.syntheticAccessors[isReadAccess ? FieldReference.READ : FieldReference.WRITE] =
@@ -673,7 +674,7 @@ public TypeBinding resolveType(BlockScope scope) {
 		scope.problemReporter().deprecatedField(fieldBinding, this);
 	}
 	boolean isImplicitThisRcv = this.receiver.isImplicitThis();
-	this.constant = isImplicitThisRcv ? fieldBinding.constant() : Constant.NotAConstant;
+	this.constant = isImplicitThisRcv ? fieldBinding.constant(scope) : Constant.NotAConstant;
 	if (fieldBinding.isStatic()) {
 		// static field accessed through receiver? legal but unoptimal (optional warning)
 		if (!(isImplicitThisRcv

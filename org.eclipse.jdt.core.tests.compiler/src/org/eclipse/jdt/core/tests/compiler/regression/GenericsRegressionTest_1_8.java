@@ -5012,4 +5012,37 @@ public void testBug457079() {
 			"}\n"
 		});
 }
+public void testBug458396() {
+	runNegativeTest(
+		new String[] {
+			"Main.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"interface MyTickContext { }\n" + 
+			"abstract class MyEntity {\n" + 
+			"	abstract void tick(MyTickContext ctx);\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class Main {\n" + 
+			"\n" + 
+			"	protected static final MyTickContext tickContext = new MyTickContext() {\n" + 
+			"		public void method1(MyEntity e) {\n" + 
+			"			removeEntity( e );\n" + 
+			"		}\n" + 
+			"	};\n" + 
+			"\n" + 
+			"	public static final class Game  {\n" + 
+			"		public void method2(List<MyEntity> ents) {\n" + 
+			"			ents.forEach( e -> e.tick(tickContext) );\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Main.java (at line 12)\n" + 
+		"	removeEntity( e );\n" + 
+		"	^^^^^^^^^^^^\n" + 
+		"The method removeEntity(MyEntity) is undefined for the type new MyTickContext(){}\n" + 
+		"----------\n");
+}
 }
