@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3600,6 +3600,12 @@ public int scanNumber(boolean dotPrefix) throws InvalidInputException {
 					throw new InvalidInputException(INVALID_HEXA);
 				}
 			} else if (getNextChar('p', 'P') >= 0) { // consume next character
+				if (end == start) { // Has no digits before exponent
+					if (this.sourceLevel < ClassFileConstants.JDK1_5) {
+						throw new InvalidInputException(ILLEGAL_HEXA_LITERAL);
+					}
+					throw new InvalidInputException(INVALID_HEXA);
+				}
 				this.unicodeAsBackSlash = false;
 				if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
 						&& (this.source[this.currentPosition] == 'u')) {

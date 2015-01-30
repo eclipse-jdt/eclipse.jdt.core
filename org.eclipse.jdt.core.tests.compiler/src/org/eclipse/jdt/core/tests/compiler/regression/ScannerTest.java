@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1397,6 +1397,77 @@ public class ScannerTest extends AbstractRegressionTest {
 				"	                        ^^^^^^\n" + 
 				"Syntax error on token \"Invalid Character\", invalid AssignmentOperator\n" + 
 				"----------\n");
+		}
+	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=458795
+	public void test065() {
+		String source =
+				"public class X {\n" + 
+				"	double d = 0XP00;\n" + 
+				"}";
+		if (this.complianceLevel > ClassFileConstants.JDK1_4) {
+			this.runNegativeTest(
+					new String[] {
+							"X.java",
+							source
+					},
+					"----------\n" + 
+							"1. ERROR in X.java (at line 2)\n" + 
+							"	double d = 0XP00;\n" + 
+							"	           ^^^\n" + 
+							"Invalid hex literal number\n" + 
+					"----------\n");
+		}
+	}
+	public void test066() {
+		String source =
+				"public class X {\n" + 
+				"	double d = 0X.p02d;\n" + 
+				"}";
+		if (this.complianceLevel > ClassFileConstants.JDK1_4) {
+			this.runNegativeTest(
+					new String[] {
+							"X.java",
+							source
+					},
+					"----------\n" + 
+							"1. ERROR in X.java (at line 2)\n" + 
+							"	double d = 0X.p02d;\n" + 
+							"	           ^^^\n" + 
+							"Invalid hex literal number\n" + 
+					"----------\n");
+		}
+	}
+	public void test067() {
+		String source =
+				"public class X {\n" + 
+				"	float f = 0Xp02f;\n" + 
+				"}";
+		if (this.complianceLevel > ClassFileConstants.JDK1_4) {
+			this.runNegativeTest(
+					new String[] {
+							"X.java",
+							source
+					},
+					"----------\n" + 
+					"1. ERROR in X.java (at line 2)\n" + 
+					"	float f = 0Xp02f;\n" + 
+					"	          ^^^\n" + 
+					"Invalid hex literal number\n" + 
+					"----------\n");
+		}
+	}
+	public void test068() {
+		String source =
+				"public class X {\n" + 
+				"	float f = 0X0p02f;\n" + 
+				"}";
+		if (this.complianceLevel > ClassFileConstants.JDK1_4) {
+			this.runConformTest(
+					new String[] {
+							"X.java",
+							source
+					});
 		}
 	}
 }
