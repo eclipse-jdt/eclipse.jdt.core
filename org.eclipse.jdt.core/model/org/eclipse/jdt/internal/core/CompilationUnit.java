@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -505,6 +505,9 @@ public boolean equals(Object obj) {
  * @see ICompilationUnit#findElements(IJavaElement)
  */
 public IJavaElement[] findElements(IJavaElement element) {
+	if (element instanceof IType && ((IType) element).isLambda()) {
+		return null;
+	}
 	ArrayList children = new ArrayList();
 	while (element != null && element.getElementType() != IJavaElement.COMPILATION_UNIT) {
 		children.add(element);

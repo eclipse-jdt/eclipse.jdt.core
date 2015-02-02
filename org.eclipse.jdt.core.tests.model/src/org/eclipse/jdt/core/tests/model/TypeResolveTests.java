@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,6 +35,8 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.LambdaExpression;
+import org.eclipse.jdt.internal.core.LambdaMethod;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.NameLookup.Answer;
@@ -1007,6 +1009,37 @@ public void test405026b() throws CoreException, IOException {
 
 		answer = nameLookup.findType("test13out", "p", true, NameLookup.ACCEPT_ALL, /* considerSecondaryTypes */ true, true, false, null);
 		assertEquals("test13outer", answer.type.getElementName());
+	} finally {
+		deleteProject("P");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=433404
+public void test433404() throws CoreException, IOException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
+		String source = "package p;\n"  +
+						"public class X {\n"  +
+						" 	FI fi = (i_) -> { return 0;};\n" +
+						"}\n" +
+						"interface FI {\n" +
+						"	public int foo(int i);\n" +
+						"}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String lambdaString = "i_";
+		IJavaElement[] elements = unit.codeSelect(source.indexOf(lambdaString), lambdaString.length());
+		assertEquals("Array size should be 1", 1, elements.length);
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		elements = unit.findElements(variable);
+		assertNull("Should be null", elements);
+		LambdaMethod method = (LambdaMethod) variable.getParent();
+		LambdaExpression lambda = (LambdaExpression) method.getParent();
+		assertTrue("Should be a lambda", lambda.isLambda());
+		elements = unit.findElements(lambda);
+		assertNull("Should be null", elements);
 	} finally {
 		deleteProject("P");
 	}

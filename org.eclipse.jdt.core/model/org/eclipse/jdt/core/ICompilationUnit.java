@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -333,8 +333,12 @@ void discardWorkingCopy() throws JavaModelException;
  *     their respective compilation units.
  * <li>A exists.
  * </ul>
- * Returns <code>null</code> if no such java elements can be found
- * or if the given element is not included in a compilation unit.
+ * Returns <code>null</code> for the following cases:
+ * <ul>
+ * <li>if no such java elements can be found or if the given element is not included in this compilation unit</li>
+ * <li>the element is a lambda expression, i.e. calling {@link IType#isLambda()} returns true</li>
+ * <li>the element is an {@link ILocalVariable}</li>
+ * </ul>
  *
  * @param element the given element
  * @return the found elements in this compilation unit that correspond to the given element
