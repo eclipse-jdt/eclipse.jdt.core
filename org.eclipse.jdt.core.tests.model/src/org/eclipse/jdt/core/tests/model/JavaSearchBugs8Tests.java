@@ -4563,6 +4563,80 @@ public void testBug454411_001() throws CoreException {
 	}
 }
 
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=458614
+//[1.8][search] Constructor reference not found in search
+public void testBug458614_001() throws CoreException {
+	try {
+		// Create project and files
+		IJavaProject project = createJavaProject("P1", new String[] {"src"}, new String[] {"bin"}, "bin");
+		createFile(
+			"/P1/src/X.java",
+			"interface Function<T, R> {\n" +
+			"	R apply(T); \n" +
+			"};\n" +
+			"@SuppressWarnings(\"unused\")\n" +
+			"public class X<T> {\n" +
+			"	private void foo() {\n" +
+			"		Function<Integer, int[]> a1 = int[]::new;\n" +
+			"	}\n" +
+			"}\n");
+		waitUntilIndexesReady();
+
+		IndexManager indexManager = JavaModelManager.getIndexManager();
+		indexManager.indexAll(project.getProject());
+		waitUntilIndexesReady();
+
+		MethodPattern pattern = (MethodPattern) SearchPattern.createPattern("*", METHOD, IJavaSearchConstants.METHOD_REFERENCE_EXPRESSION, EXACT_RULE );
+
+		new SearchEngine(this.workingCopies).search(pattern,
+				new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+				SearchEngine.createWorkspaceScope(),
+				this.resultCollector,
+				null);
+		assertSearchResults("");
+	}
+	finally {
+		deleteProject("P1");
+	}
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=458614
+//[1.8][search] Constructor reference not found in search
+public void testBug458614_002() throws CoreException {
+	try {
+		// Create project and files
+		IJavaProject project = createJavaProject("P1", new String[] {"src"}, new String[] {"bin"}, "bin");
+		createFile(
+			"/P1/src/X.java",
+			"interface Function<T, R> {\n" +
+			"	R apply(T); \n" +
+			"};\n" +
+			"//@SuppressWarnings(\"unused\")\n" +
+			"public class X<T> {\n" +
+			"	private void foo() {\n" +
+			"		Function<Integer, int[]> a1 = int[]::new;\n" +
+			"	}\n" +
+			"}\n");
+		waitUntilIndexesReady();
+
+		IndexManager indexManager = JavaModelManager.getIndexManager();
+		indexManager.indexAll(project.getProject());
+		waitUntilIndexesReady();
+
+		MethodPattern pattern = (MethodPattern) SearchPattern.createPattern("*new", METHOD, IJavaSearchConstants.METHOD_REFERENCE_EXPRESSION, EXACT_RULE );
+
+		new SearchEngine(this.workingCopies).search(pattern,
+				new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+				SearchEngine.createWorkspaceScope(),
+				this.resultCollector,
+				null);
+		assertSearchResults("");
+	}
+	finally {
+		deleteProject("P1");
+	}
+}
+
 // Add new tests in JavaSearchBugs8Tests
 }
 

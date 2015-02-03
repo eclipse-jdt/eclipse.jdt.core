@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import org.eclipse.core.resources.IResource;
@@ -243,6 +244,8 @@ public int match(MessageSend node, MatchingNodeSet nodeSet) {
 public int match(ReferenceExpression node, MatchingNodeSet nodeSet) {
 	if (!this.pattern.findReferences) return IMPOSSIBLE_MATCH;
 	if (!matchesName(this.pattern.selector, node.selector)) return IMPOSSIBLE_MATCH;
+	if (node.selector != null &&  Arrays.equals(node.selector, org.eclipse.jdt.internal.compiler.codegen.ConstantPool.Init))
+		return IMPOSSIBLE_MATCH; // :: new
 	nodeSet.mustResolve = true;
 	return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 }
