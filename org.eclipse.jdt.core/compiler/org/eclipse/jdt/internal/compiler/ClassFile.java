@@ -2390,9 +2390,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				try {
 					generateElementValue(singleMemberAnnotation.memberValue, methodBinding.returnType, memberValuePairOffset);
 					if (this.contentsOffset == memberValuePairOffset) {
-						// ignore annotation value
-						this.contents[this.contentsOffset++] = 0;
-						this.contents[this.contentsOffset++] = 0;
+						// completely remove the annotation as its value is invalid
+						this.contentsOffset = startingContentsOffset;
 					}
 				} catch(ClassCastException e) {
 					this.contentsOffset = startingContentsOffset;

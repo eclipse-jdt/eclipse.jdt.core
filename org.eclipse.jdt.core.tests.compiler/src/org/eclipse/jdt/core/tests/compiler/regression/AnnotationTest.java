@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11296,5 +11296,63 @@ public void _test449330a() throws Exception {
 	};
 	this.runConformTest(testFiles, "");
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p/package-info.class", "", "HELLO");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=456960 - Broken classfile generated for incorrect annotation usage - case 2
+public void test456960() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+		return;
+	}
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"@Bar(String)\n" + 
+			"public class X {\n" +
+			"}",
+			"Bar.java",
+			"import java.lang.annotation.Retention;\n" + 
+			"import java.lang.annotation.RetentionPolicy;\n" + 
+			"@Retention(RetentionPolicy.RUNTIME)\n" + 
+			"@interface Bar {\n" + 
+			"	Class<?>[] value();\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 1)\n" + 
+		"	@Bar(String)\n" + 
+		"	     ^^^^^^\n" + 
+		"String cannot be resolved to a variable\n" + 
+		"----------\n",
+		null,
+		true,
+		null,
+		true, // generate output
+		false,
+		false);
+
+	String expectedOutput =
+			"public class X {\n" + 
+			"  \n" + 
+			"  // Method descriptor #6 ()V\n" + 
+			"  // Stack: 3, Locals: 1\n" + 
+			"  public X();\n" + 
+			"     0  new java.lang.Error [8]\n" + 
+			"     3  dup\n" + 
+			"     4  ldc <String \"Unresolved compilation problem: \\n\\tString cannot be resolved to a variable\\n\"> [10]\n" + 
+			"     6  invokespecial java.lang.Error(java.lang.String) [12]\n" + 
+			"     9  athrow\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 1]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" + 
+			"}";
+	try {
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
+	} catch(org.eclipse.jdt.core.util.ClassFormatException cfe) {
+		fail("Error reading classfile");
+	}
 }
 }
