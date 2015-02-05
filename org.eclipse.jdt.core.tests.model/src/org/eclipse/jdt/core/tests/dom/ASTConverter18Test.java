@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1768,7 +1768,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		ITypeBinding typeBinding = typeMethodReference.resolveTypeBinding();
 		assertNotNull(typeBinding);
 		IMethodBinding methodBinding = typeMethodReference.resolveMethodBinding();
-		assertNotNull(methodBinding);
+		assertNull(methodBinding);
 		Type type = typeMethodReference.getType();
 		checkSourceRange(type, "@Marker int []", contents);
 		assertTrue(type.isArrayType());
@@ -2892,11 +2892,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		Expression expression = fragment.getInitializer();
 		CreationReference creationReference = (CreationReference) expression;
 		IMethodBinding methodBinding = creationReference.resolveMethodBinding();
-		assertNotNull(methodBinding);
-		assertEquals("Wrong name", "lambda$0", methodBinding.getName());
-		ITypeBinding [] parameterTypes = methodBinding.getParameterTypes();
-		assertTrue("Incorrect Number of parameter type", parameterTypes.length == 1);
-		assertEquals("Incorrect parameter type", "int", parameterTypes[0].getName());
+		assertNull(methodBinding);
 	}
 
 	/**
@@ -4935,5 +4931,32 @@ public void testBug447062() throws JavaModelException {
 	} catch (IllegalArgumentException e) {
 		assertTrue("Test Failed", false);
 	}
+}
+/**
+ * {@link https://bugs.eclipse.org/bugs/show_bug.cgi?id=44000}
+ * 
+ * @bug Bug 440000 [1.8][dom] MethodReference#resolveMethodBinding() API should return null for CreationReference of an ArrayType 
+ * @
+ * @throws JavaModelException
+ */
+public void testBug440000_001() throws JavaModelException {
+	String contents =
+			"interface I<T, R> {\n" +
+			"    R apply(T t);\n" +
+			"}\n" +
+			"public class X {\n" +
+			"    I<Integer, int[]> m1 = int[]::new;\n" +
+			"}\n";
+	this.workingCopy = getWorkingCopy("/Converter18/src/X.java", contents, true/*computeProblems*/);
+	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
+	FieldDeclaration fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(0);
+	VariableDeclarationFragment fragment = (VariableDeclarationFragment)fieldDeclaration.fragments().get(0);
+	Expression expression = fragment.getInitializer();
+	assertTrue(expression instanceof CreationReference);
+	CreationReference creationReference = (CreationReference) expression;
+	assertEquals("int[]::new", creationReference.toString());
+	IMethodBinding binding = creationReference.resolveMethodBinding();
+	assertNull(binding);
 }
 }

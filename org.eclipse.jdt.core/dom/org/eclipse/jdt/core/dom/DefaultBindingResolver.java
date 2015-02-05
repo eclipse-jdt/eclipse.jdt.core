@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -956,6 +956,8 @@ class DefaultBindingResolver extends BindingResolver {
 		Object oldNode = this.newAstToOldAst.get(methodReference);
 		if (oldNode instanceof org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) {
 			org.eclipse.jdt.internal.compiler.ast.ReferenceExpression referenceExpression = (org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) oldNode;
+			if (referenceExpression.receiverType != null && referenceExpression.receiverType.isArrayType())
+				return null;
 			IMethodBinding methodBinding = getMethodBinding(referenceExpression.getMethodBinding());
 			if (methodBinding == null) {
 				return null;
