@@ -4933,10 +4933,9 @@ public void testBug447062() throws JavaModelException {
 	}
 }
 /**
- * {@link https://bugs.eclipse.org/bugs/show_bug.cgi?id=44000}
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44000
  * 
  * @bug Bug 440000 [1.8][dom] MethodReference#resolveMethodBinding() API should return null for CreationReference of an ArrayType 
- * @
  * @throws JavaModelException
  */
 public void testBug440000_001() throws JavaModelException {
