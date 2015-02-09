@@ -962,11 +962,6 @@ class DefaultBindingResolver extends BindingResolver {
 			if (methodBinding == null) {
 				return null;
 			}
-			this.bindingsToAstNodes.put(methodBinding, methodReference);
-			String key = methodBinding.getKey();
-			if (key != null) {
-				this.bindingTables.bindingKeysToBindings.put(key, methodBinding);
-			}
 			return methodBinding;
 		}
 		return null;

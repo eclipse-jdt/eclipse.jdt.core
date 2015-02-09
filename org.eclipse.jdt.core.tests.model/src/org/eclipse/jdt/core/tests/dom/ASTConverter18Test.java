@@ -4958,4 +4958,33 @@ public void testBug440000_001() throws JavaModelException {
 	IMethodBinding binding = creationReference.resolveMethodBinding();
 	assertNull(binding);
 }
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=459344
+ * 
+ * @throws JavaModelException
+ */
+public void testBug459344_001() throws JavaModelException {
+	this.workingCopy = getWorkingCopy("/Converter18/src/test459344/X.java",
+			true/* resolve */);
+	String contents = "package test459344;" +
+			"interface I {\n" +
+			"	int foo();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	private void foo(Object arg) {\n" +
+			"		I i = arg :: hashCode;\n" +
+			"	}\n" +
+			"}\n";
+
+	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+	TypeDeclaration typeDeclaration = (TypeDeclaration) getASTNode(cu, 1);
+	MethodDeclaration methodDeclaration = typeDeclaration.getMethods()[0];
+	VariableDeclarationStatement stmt = (VariableDeclarationStatement) methodDeclaration.getBody().statements().get(0);
+	VariableDeclarationFragment fragment = (VariableDeclarationFragment) stmt.fragments().get(0);
+	ExpressionMethodReference reference = (ExpressionMethodReference) fragment.getInitializer();
+	IMethodBinding methodBinding = reference.resolveMethodBinding();
+	assertNotNull(methodBinding);
+	assertEquals("Wrong name", "hashCode", methodBinding.getName());
+	assertNull("Non-Null",cu.findDeclaringNode(methodBinding));
+}
 }
