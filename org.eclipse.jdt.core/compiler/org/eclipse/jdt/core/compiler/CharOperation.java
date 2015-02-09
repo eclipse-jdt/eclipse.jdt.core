@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -67,6 +67,44 @@ public static final char[] append(char[] array, char suffix) {
 	System.arraycopy(array, 0, array = new char[length + 1], 0, length);
 	array[length] = suffix;
 	return array;
+}
+
+/**
+ * Answers a new array with appending the sub-array at the end of the array.
+ * <br>
+ * <br>
+ * For example:<br>
+ * <ol>
+ * <li><pre>
+ *    array = { 'a', 'b' }
+ *    suffix = { 'c', 'd' }
+ *    => result = { 'a', 'b' , 'c' , d' }
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    array = null
+ *    suffix = { 'c' }
+ *    => result = { 'c' }
+ * </pre></li>
+ * </ol>
+ *
+ * @param target the array that is concatenated with the suffix array.
+ * @param suffix the array that will be concatenated to the target
+ * @return the new array
+ * @throws NullPointerException if the target array is null
+ * @since 3.11
+ */
+public static final char[] append(char[] target, char[] suffix) {
+	if(suffix == null || suffix.length == 0)
+		return target;
+	int targetLength = target.length;
+	int subLength = suffix.length;
+	int newTargetLength = targetLength + subLength;
+	if (newTargetLength > targetLength) {
+		System.arraycopy(target, 0, target = new char[newTargetLength], 0, targetLength);
+	}
+	System.arraycopy(suffix, 0, target, targetLength, subLength);
+	return target;
 }
 
 /**

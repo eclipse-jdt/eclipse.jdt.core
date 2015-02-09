@@ -5603,6 +5603,26 @@ public void test456395() {
 			"   }\n" +
 			"}\n"});
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=459305
+public void test459305() {
+	this.runConformTest(
+			new String[] {
+			"X.java",
+			"import java.io.Serializable;\n" +
+			"import java.util.function.BiConsumer;\n" +
+			"import java.util.function.Consumer;\n" +
+			"public class X {\n" +
+			"   public static void main(String[] args) {\n" +
+			"      foo(arg1 -> bar(X::baz));\n" +
+			"   }\n" +
+			"   private static <A1> void foo(Consumer<A1> c) { c.accept(null); }\n" +
+			"   private static void baz(String s1, String s2) { System.out.println(s1 + \"::\" + s2); }\n" +
+			"   private static void bar(VoidMethodRef2<String, String> mr2) { mr2.accept(\"one\", \"two\"); }\n" +
+			"   private static interface VoidMethodRef2<A1, A2> extends BiConsumer<A1, A2>, Serializable {}\n" +
+			"}\n"},
+			"one::two");
+}
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
