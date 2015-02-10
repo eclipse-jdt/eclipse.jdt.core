@@ -85,7 +85,7 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 public class ReferenceExpression extends FunctionalExpression implements IPolyExpression, InvocationSite {
 	// secret variable name
 	private static final String SecretReceiverVariableName = " rec_"; //$NON-NLS-1$
-	private static final char[] implicitArgName = " arg".toCharArray(); //$NON-NLS-1$
+	private static final char[] ImplicitArgName = " arg".toCharArray(); //$NON-NLS-1$
 	// secret variable for codegen
 	public LocalVariableBinding receiverVariable;
 	public Expression lhs;
@@ -174,7 +174,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		LambdaExpression implicitLambda = new LambdaExpression(this.compilationResult, false, (this.binding.modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0);
 		Argument [] arguments = new Argument[argc];
 		for (int i = 0; i < argc; i++)
-			arguments[i] = new Argument(CharOperation.append(implicitArgName, Integer.toString(i).toCharArray()), 0, null, 0, true);
+			arguments[i] = new Argument(CharOperation.append(ImplicitArgName, Integer.toString(i).toCharArray()), 0, null, 0, true);
 		implicitLambda.setArguments(arguments);
 		implicitLambda.setExpressionContext(this.expressionContext);
 		implicitLambda.setExpectedType(this.expectedType);
@@ -182,7 +182,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		int parameterShift = this.receiverPrecedesParameters ? 1 : 0;
 		Expression [] argv = new SingleNameReference[argc - parameterShift];
 		for (int i = 0, length = argv.length; i < length; i++) {
-			char[] name = CharOperation.append(implicitArgName, Integer.toString((i + parameterShift)).toCharArray());
+			char[] name = CharOperation.append(ImplicitArgName, Integer.toString((i + parameterShift)).toCharArray());
 			argv[i] = new SingleNameReference(name, 0);
 		}
 		boolean generateSecretReceiverVariable = shouldGenerateSecretReceiverVariable();
@@ -195,7 +195,8 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			MessageSend message = new MessageSend();
 			message.selector = this.selector;
 			Expression receiver = generateSecretReceiverVariable ? new SingleNameReference(this.receiverVariable.name, 0) : copy.lhs;
-			message.receiver = this.receiverPrecedesParameters ? new SingleNameReference(new char[]{' ', 'a', 'r', 'g', '0'}, 0) : receiver;
+			message.receiver = this.receiverPrecedesParameters ? 
+					new SingleNameReference(CharOperation.append(ImplicitArgName, Integer.toString(0).toCharArray()), 0) : receiver;
 			message.typeArguments = copy.typeArguments;
 			message.arguments = argv;
 			implicitLambda.setBody(message);
