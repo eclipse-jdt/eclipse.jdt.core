@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM Corporation and others.
+ * Copyright (c) 2014, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *							Bug 458613 - [1.8] lambda not shown in quick type hierarchy
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -20,6 +22,12 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.Substitution;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -41,10 +49,49 @@ public class LambdaExpression extends SourceType {
 		this.sourceStart = lambdaExpression.sourceStart;
 		this.sourceEnd = lambdaExpression.sourceEnd;
 		this.arrowPosition = lambdaExpression.arrowPosition;
-		this.interphase = new String(CharOperation.replaceOnCopy(lambdaExpression.resolvedType.genericTypeSignature(), '/', '.'));
+		
+		TypeBinding supertype = findLambdaSuperType(lambdaExpression);
+		this.interphase = new String(CharOperation.replaceOnCopy(supertype.genericTypeSignature(), '/', '.'));
 		this.elementInfo = makeTypeElementInfo(this, this.interphase, this.sourceStart, this.sourceEnd, this.arrowPosition); 
 		this.lambdaMethod = LambdaFactory.createLambdaMethod(this, lambdaExpression);
 		this.elementInfo.children = new IJavaElement[] { this.lambdaMethod };
+	}
+
+	public TypeBinding findLambdaSuperType(org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression) {
+		// start from the specific type, ignoring type arguments:
+		TypeBinding original = lambdaExpression.resolvedType.original();
+		// infer type arguments from here:
+		final TypeBinding descType = lambdaExpression.descriptor.declaringClass;
+		if (descType instanceof ParameterizedTypeBinding) {
+			final ParameterizedTypeBinding descPTB = (ParameterizedTypeBinding) descType;
+			// intermediate type: original pulled up to the level of descType:
+			final TypeBinding originalSuper = original.findSuperTypeOriginatingFrom(descType);
+			return Scope.substitute(new Substitution() {
+							@Override
+							public TypeBinding substitute(TypeVariableBinding typeVariable) {
+								if (originalSuper instanceof ParameterizedTypeBinding) {
+									ParameterizedTypeBinding originalSuperPTB = (ParameterizedTypeBinding) originalSuper;
+									TypeBinding[] superArguments = originalSuperPTB.arguments;
+									for (int i = 0; i < superArguments.length; i++) {
+										// if originalSuper holds typeVariable as it i'th argument, then the i'th argument of descType is our answer:
+										if (TypeBinding.equalsEquals(superArguments[i], typeVariable))
+											return descPTB.arguments[i];
+									}
+								}
+								// regular substitution:
+								return descPTB.substitute(typeVariable);
+							}
+							@Override
+							public boolean isRawSubstitution() {
+								return descPTB.isRawType();
+							}
+							@Override
+							public LookupEnvironment environment() {
+								return descPTB.environment;
+							}
+						}, original);
+		}
+		return original;
 	}
 	
 	// Construction from memento

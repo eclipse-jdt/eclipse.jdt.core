@@ -1044,4 +1044,84 @@ public void test433404() throws CoreException, IOException {
 		deleteProject("P");
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=458613
+public void testBug458613() throws CoreException, IOException {
+	IJavaProject prj = null;
+	try {
+		prj = createJavaProject("Bug458613", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
+		createFolder("/Bug458613/src/p");
+		String source = "package p;\n" +
+				"interface I9<T> {\n" +
+				"  void foo(T x);\n" +
+				"}\n" +
+				"public class X {\n" +
+				"  public static void main(String[] args) {\n" +
+				"    A.sort(new String[2], x_ -> { // not shown in Ctrl+T\n" +
+				"    });\n" +
+				"  }\n" +
+				"}\n" +
+				"class A {\n" +
+				"  static <T> void sort(T[] t, I9<? super T> i9b) {}\n" +
+				"}\n";
+		createFile("/Bug458613/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/Bug458613/src/p/X.java");
+		String lambdaString = "x_";
+		IJavaElement[] elements = unit.codeSelect(source.indexOf(lambdaString), lambdaString.length());
+		assertEquals("Array size should be 1", 1, elements.length);
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		LambdaMethod method = (LambdaMethod) variable.getParent();
+		LambdaExpression lambda = (LambdaExpression) method.getParent();
+			assertEquals(
+					"Incorrect handle",
+					"=Bug458613/src<p{X.java[X~main~\\[QString;=)=\"Lp.I9\\<Ljava.lang.String;>;!134!169!138=&foo!1=\"Ljava.lang.String;=\"x_=\"V=\"Lp\\/X\\~I9\\"
+					+ "<Ljava\\/lang\\/String;>;.foo\\(Ljava\\/lang\\/String;)V@x_!134!135!134!135!Ljava\\/lang\\/String;!0!true=)",
+					lambda.getHandleMemento());
+	} finally {
+		if (prj != null)
+			deleteProject(prj);
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=458613
+public void testBug458613b() throws CoreException, IOException {
+	IJavaProject prj = null;
+	try {
+		prj = createJavaProject("Bug458613", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
+		createFolder("/Bug458613/src/p");
+		String source = "package p;\n" +
+				"interface I9<U, T> {\n" +
+				"  void foo(T x);\n" +
+				"}\n" +
+				"interface I10<T> extends I9<Number,T> {}\n" +
+				"public class X {\n" +
+				"	I9<Number,String> i9a = x -> {};\n" +
+				"  public static void main(String[] args) {\n" +
+				"    B.sort(new String[2], x_ -> {\n" +
+				"    });\n" +
+				"  }\n" +
+				"}\n" +
+				"class B {\n" +
+				"  static <T> void sort(T[] t, I10<? super T> i10) {} \n" +
+				"}\n";
+		createFile("/Bug458613/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/Bug458613/src/p/X.java");
+		String lambdaString = "x_";
+		IJavaElement[] elements = unit.codeSelect(source.indexOf(lambdaString), lambdaString.length());
+		assertEquals("Array size should be 1", 1, elements.length);
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		LambdaMethod method = (LambdaMethod) variable.getParent();
+		LambdaExpression lambda = (LambdaExpression) method.getParent();
+			assertEquals(
+					"Incorrect handle",
+					"=Bug458613/src<p{X.java[X~main~\\[QString;=)=\"Lp.I10\\<Ljava.lang.String;>;!212!224!216=&foo!1=\"Ljava.lang.String;=\"x_=\"V=\"Lp\\/X\\"
+					+ "~I9\\<LNumber;Ljava\\/lang\\/String;>;.foo\\(Ljava\\/lang\\/String;)V@x_!212!213!212!213!Ljava\\/lang\\/String;!0!true=)",
+					lambda.getHandleMemento());
+	} finally {
+		if (prj != null)
+			deleteProject(prj);
+	}
+}
 }
