@@ -4933,6 +4933,96 @@ public void testBug447062() throws JavaModelException {
 	}
 }
 /**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
+ * 
+ * @throws JavaModelException
+ */
+public void testBug425601_001() throws JavaModelException {
+	this.workingCopy = getWorkingCopy("/Converter18/src/testBug425601_001/Outer.java",
+			true/* resolve */);
+	String contents = "package testBug425601_001;\n" +
+			"@Deprecated\n"+
+			"public class Outer<O> {\n"+
+			"    @Deprecated\n"+
+			"    public class Middle<X> {\n"+
+			"        @Deprecated\n"+
+			"        public class Inner<E> {\n"+
+			"        }\n"+
+			"    }\n"+
+			"    \n"+
+			"    Outer<String> o;\n"+
+			"    Middle<String> m; // Middle should be deprecated - Middle Case one\n"+
+			"    Outer<String>.Middle<String> m2; // Middle should be deprecated - Middle Case Two \n"+
+			"    @SuppressWarnings(\"rawtypes\")"+
+			"    Outer.Middle m3; \n"+
+			"    Middle<String>.Inner<Object> i; // Inner should be deprecated - Inner Case One\n"+
+			"}\n"+
+			"class Ref {\n"+
+			"    Outer<String> o;\n"+
+			"    Outer<String>.Middle<String> m;\n"+
+			"    Outer<String>.Middle<String>.Inner<Object> i;\n"+
+			"}\n";
+	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
+	FieldDeclaration[] fields = typedeclaration.getFields();
+	ITypeBinding binding = fields[0].getType().resolveBinding();
+	assertTrue(binding.isDeprecated());
+	binding = fields[3].getType().resolveBinding(); 
+	assertTrue(binding.isDeprecated());
+	binding = fields[1].getType().resolveBinding(); // Middle Case One
+	assertTrue(binding.isDeprecated());
+	binding = fields[2].getType().resolveBinding(); // Middle Case Two
+	assertTrue(binding.isDeprecated());
+	binding = fields[4].getType().resolveBinding(); // Inner Case One
+	assertTrue(binding.isDeprecated());
+}
+
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
+ * 
+ * @throws JavaModelException
+ */
+public void testBug425601_002() throws JavaModelException {
+	this.workingCopy = getWorkingCopy("/Converter18/src/testBug425601_002/Outer.java",
+			true/* resolve */);
+	String contents = "package testBug425601_002;\n" +
+			//"@Deprecated\n"+
+			"public class Outer<O> {\n"+
+			"    @Deprecated\n"+
+			"    public class Middle<X> {\n"+
+			"        @Deprecated\n"+
+			"        public class Inner<E> {\n"+
+			"        }\n"+
+			"    }\n"+
+			"    \n"+
+			"    Outer<String> o;\n"+
+			"    Middle<String> m; // Middle should be deprecated - Middle Case one\n"+
+			"    Outer<String>.Middle<String> m2; // Middle should be deprecated - Middle Case Two \n"+
+			"    @SuppressWarnings(\"rawtypes\")"+
+			"    Outer.Middle m3; \n"+
+			"    Middle<String>.Inner<Object> i; // Inner should be deprecated - Inner Case One\n"+
+			"}\n"+
+			"class Ref {\n"+
+			"    Outer<String> o;\n"+
+			"    Outer<String>.Middle<String> m;\n"+
+			"    Outer<String>.Middle<String>.Inner<Object> i;\n"+
+			"}\n";
+	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
+	FieldDeclaration[] fields = typedeclaration.getFields();
+	ITypeBinding binding = fields[0].getType().resolveBinding();
+	assertTrue(!binding.isDeprecated());
+	binding = fields[3].getType().resolveBinding(); 
+	assertTrue(binding.isDeprecated());
+	binding = fields[1].getType().resolveBinding(); // Middle Case One
+	assertTrue(binding.isDeprecated());
+	binding = fields[2].getType().resolveBinding(); // Middle Case Two
+	assertTrue(binding.isDeprecated());
+	binding = fields[4].getType().resolveBinding(); // Inner Case One
+	assertTrue(binding.isDeprecated());
+}
+
+/**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44000
  * 
  * @bug Bug 440000 [1.8][dom] MethodReference#resolveMethodBinding() API should return null for CreationReference of an ArrayType 

@@ -852,11 +852,11 @@ void faultInTypesForFieldsAndMethods() {
 	ReferenceBinding enclosingType = enclosingType();
 	if (enclosingType != null && enclosingType.isViewedAsDeprecated() && !isDeprecated())
 		this.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-	fields();
-	methods();
 
 	for (int i = 0, length = this.memberTypes.length; i < length; i++)
 		((SourceTypeBinding) this.memberTypes[i]).faultInTypesForFieldsAndMethods();
+	fields();
+	methods();
 }
 // NOTE: the type of each field of a source type is resolved when needed
 public FieldBinding[] fields() {
