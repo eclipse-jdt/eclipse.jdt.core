@@ -42,9 +42,8 @@ public class ConfigurationActivator implements BundleActivator {
 		installBundles();
 	}
 	private void computeIgnoredBundles() {
-		String ignoreList = System
-				.getProperty("eclipse.ignore",
-						"org.eclipse.osgi,org.eclipse.core.boot,org.eclipse.core.runtime.adaptor");
+		String ignoreList = System.getProperty("eclipse.ignore",
+				"org.eclipse.osgi,org.eclipse.core.boot,org.eclipse.core.runtime.adaptor");
 		ignore = new HashSet();
 		StringTokenizer tokenizer = new StringTokenizer(ignoreList, ",");
 		while (tokenizer.hasMoreTokens())
@@ -88,8 +87,8 @@ public class ConfigurationActivator implements BundleActivator {
 	private void obtainArgs() {
 		// all this is only to get the application args		
 		EnvironmentInfo envInfo = null;
-		ServiceReference envInfoSR = context
-				.getServiceReference(EnvironmentInfo.class.getName());
+		ServiceReference envInfoSR = context.getServiceReference(
+				EnvironmentInfo.class.getName());
 		if (envInfoSR != null)
 			envInfo = (EnvironmentInfo) context.getService(envInfoSR);
 		if (envInfo == null)
@@ -187,8 +186,8 @@ public class ConfigurationActivator implements BundleActivator {
 		Runnable postReconciler = new Runnable() {
 			public void run() {
 				try {
-					Bundle apprunner = context
-							.getBundle("org.eclipse.core.applicationrunner");
+					Bundle apprunner = context.getBundle(
+							"org.eclipse.core.applicationrunner");
 					apprunner.stop();
 					context.removeBundleListener(reconcilerListener);
 					try {
@@ -228,8 +227,8 @@ public class ConfigurationActivator implements BundleActivator {
 		// bail if the install location is not writable and we don't know where else to write to
 		if (cacheLocation == null)
 			return;
-		File generationLocation = new File(cacheLocation,
-				computeFileName(pluginDir.getPath()) + ".MF");
+		File generationLocation = new File(cacheLocation, computeFileName(
+				pluginDir.getPath()) + ".MF");
 		if (generationLocation.exists())
 			return;
 		if (!converter.convertManifest(pluginDir, generationLocation))
@@ -264,10 +263,10 @@ public class ConfigurationActivator implements BundleActivator {
 				String message = e.getMessage();
 				if (message == null)
 					message = "";
-				IStatus status = new Status(IStatus.ERROR,
-						IPlatform.PI_RUNTIME, IStatus.OK, message, e);
-				((IPlatform) platformTracker.getService()).getLog(
-						context.getBundle()).log(status);
+				IStatus status = new Status(IStatus.ERROR, IPlatform.PI_RUNTIME,
+						IStatus.OK, message, e);
+				((IPlatform) platformTracker.getService()).getLog(context
+						.getBundle()).log(status);
 			}
 		}
 		return PlatformConfiguration.getCurrent();
@@ -281,8 +280,8 @@ public class ConfigurationActivator implements BundleActivator {
 	private void refreshPackages(Bundle[] bundles) {
 		if (bundles.length == 0)
 			return;
-		ServiceReference packageAdminRef = context
-				.getServiceReference(PackageAdmin.class.getName());
+		ServiceReference packageAdminRef = context.getServiceReference(
+				PackageAdmin.class.getName());
 		PackageAdmin packageAdmin = null;
 		if (packageAdminRef != null) {
 			packageAdmin = (PackageAdmin) context.getService(packageAdminRef);
@@ -323,8 +322,8 @@ public class ConfigurationActivator implements BundleActivator {
 	private void loadOptions() {
 		// all this is only to get the application args		
 		DebugOptions service = null;
-		ServiceReference reference = context
-				.getServiceReference(DebugOptions.class.getName());
+		ServiceReference reference = context.getServiceReference(
+				DebugOptions.class.getName());
 		if (reference != null)
 			service = (DebugOptions) context.getService(reference);
 		if (service == null)

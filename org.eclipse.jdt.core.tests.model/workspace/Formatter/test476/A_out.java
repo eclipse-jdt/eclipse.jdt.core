@@ -4,10 +4,10 @@ public class FormatTest
 	{
 
 	/************************************
-	 * method_one
-	 * 
-	 * 		nothing special.
-	 ************************************/
+	* method_one
+	* 
+	* 		nothing special.
+	************************************/
 
 	public void method_one()
 		{

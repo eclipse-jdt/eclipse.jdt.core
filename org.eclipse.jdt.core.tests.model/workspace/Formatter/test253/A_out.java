@@ -3,6 +3,6 @@
  */
 public ProgressPanel(SwingSet swing)
 {
-	progressBar.getAccessibleContext().setAccessibleName(
-			"Text loading progress");
+	progressBar.getAccessibleContext()
+			.setAccessibleName("Text loading progress");
 }

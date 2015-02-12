@@ -101,15 +101,14 @@ public final class DirectoryComparator {
             String currentFile = files[i].getAbsolutePath();
             String firstFileName = currentFile;
             // extract the second file name
-            String secondFileName = secondDirectoryAbsolutePath
-                    + File.separator
+            String secondFileName = secondDirectoryAbsolutePath + File.separator
                     + currentFile
                             .substring(firstDirectoryAbsolutePath.length() + 1);
             if (new File(secondFileName).exists()) {
                 if (firstFileName.toLowerCase().endsWith(".jar")) {
                     new JarFileComparator(new String[] { firstFileName,
                             secondFileName, resultFile.getAbsolutePath() })
-                            .compare();
+                                    .compare();
                 } else {
                     // do a binary compare byte per byte
                     File firstFile = new File(firstFileName);
@@ -164,7 +163,8 @@ public final class DirectoryComparator {
                 if (contentsLength + amountRequested > contents.length) {
                     System.arraycopy(contents, 0,
                             contents = new byte[contentsLength
-                                    + amountRequested], 0, contentsLength);
+                                    + amountRequested],
+                            0, contentsLength);
                 }
 
                 // read as many bytes as possible
@@ -194,8 +194,8 @@ public final class DirectoryComparator {
     private void logError(String message) {
         try {
             if (this.writer == null) {
-                this.writer = new BufferedWriter(new FileWriter(
-                        this.resultFile, true));
+                this.writer = new BufferedWriter(
+                        new FileWriter(this.resultFile, true));
             }
             writer.write(message);
         } catch (IOException e) {

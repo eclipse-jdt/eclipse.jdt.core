@@ -2,8 +2,8 @@
 package p1.p2.test;
 import java.io.Serializable;
 import java.io.IOException;
-public abstract/*  */class A implements Serializable, Toto, Titi, Tata {
-	boolean value = /* */true; // boolean 
+public abstract /*  */ class A implements Serializable, Toto, Titi, Tata {
+	boolean value = /* */ true; // boolean 
 	Object s = null; // test 
 	protected synchronized void foo(final java.lang.String s1, long l)
 			throws IOException, Exception {

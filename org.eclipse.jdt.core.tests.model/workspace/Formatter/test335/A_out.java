@@ -7,8 +7,8 @@ public class Test {
 				new Object() {
 					public Something buildSomething() {
 						// Comment
-						Expression s = getBuilder().get("name").equal(
-								getArgument("name", String.class, 0));
+						Expression s = getBuilder().get("name")
+								.equal(getArgument("name", String.class, 0));
 						return s;
 					}
 				});

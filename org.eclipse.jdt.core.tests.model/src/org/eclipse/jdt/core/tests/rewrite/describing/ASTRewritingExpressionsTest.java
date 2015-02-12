@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 	private static final Class THIS= ASTRewritingExpressionsTest.class;
@@ -230,6 +231,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 
 	public void testArrayCreation2_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		this.project1.setOption(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("public class E {\n");
@@ -2341,6 +2343,7 @@ public class ASTRewritingExpressionsTest extends ASTRewritingTest {
 
 	public void testIntersectionCastExpression_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		this.project1.setOption(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
 		String content =
 				"import java.io.Serializable;\n" +
 				"public class X {\n" +

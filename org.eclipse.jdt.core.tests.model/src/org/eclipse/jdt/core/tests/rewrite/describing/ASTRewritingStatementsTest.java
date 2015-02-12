@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
+import java.util.Hashtable;
 import java.util.List;
 
 import junit.framework.Test;
@@ -77,6 +78,7 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFormatter;
 import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.TextEdit;
@@ -5225,18 +5227,15 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			ListRewrite listRewrite = rewrite.getListRewrite(tryStatement, TryStatement.RESOURCES_PROPERTY);
 			listRewrite.insertLast(newVariableDeclarationExpression, null);
 
-			Document document1= new Document(cu.getSource());
-			TextEdit res= rewrite.rewriteAST(document1, null);
-			res.apply(document1);
-			String preview = document1.get();
-			
+			String preview = evaluateRewrite(cu, rewrite);
+
 			buf= new StringBuffer();
 			buf.append("package test0017;\n");
 			buf.append("\n");
 			buf.append("public class X {\n");
 			buf.append("	void foo() {\n");
 			buf.append("		try (FileReader reader1 = new FileReader(\"file1\");\n");
-			buf.append("				FileReader reader2 = new FileReader(\"file2\")) {\n");
+			buf.append("                FileReader reader2 = new FileReader(\"file2\")) {\n");
 			buf.append("			int ch;\n");
 			buf.append("			while ((ch = reader1.read()) != -1) {\n");
 			buf.append("				System.out.println(ch);\n");
@@ -5303,18 +5302,15 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			ListRewrite listRewrite = rewrite.getListRewrite(tryStatement, TryStatement.RESOURCES_PROPERTY);
 			listRewrite.insertLast(newVariableDeclarationExpression, null);
 
-			Document document1= new Document(cu.getSource());
-			TextEdit res= rewrite.rewriteAST(document1, null);
-			res.apply(document1);
-			String preview = document1.get();
-			
+			String preview = evaluateRewrite(cu, rewrite);
+
 			buf= new StringBuffer();
 			buf.append("package test0017;\n");
 			buf.append("\n");
 			buf.append("public class X {\n");
 			buf.append("	void foo() {\n");
 			buf.append("		try (FileReader reader1 = new FileReader(\"file1\");\n");
-			buf.append("				FileReader reader2 = new FileReader(\"file2\");) {\n");
+			buf.append("                FileReader reader2 = new FileReader(\"file2\");) {\n");
 			buf.append("			int ch;\n");
 			buf.append("			while ((ch = reader1.read()) != -1) {\n");
 			buf.append("				System.out.println(ch);\n");
@@ -6133,24 +6129,28 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	
-	public void testBug413592a() throws Exception {
+	public void testBug413592a_since_8() throws Exception {
 		String buf = "default int func2(){return 1;}";
 		Document doc = new Document(buf);
 		String formattedString = "\tdefault int func2() {\n" +
 								 "\t\treturn 1;\n" + 
 								 "\t}";
-		TextEdit edit = new ASTRewriteFormatter(null, null, JavaCore.getOptions(), "\n").formatString(CodeFormatter.K_CLASS_BODY_DECLARATIONS, buf, 0, buf.length(), 1);
+		Hashtable options = JavaCore.getOptions();
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+		TextEdit edit = new ASTRewriteFormatter(null, null, options, "\n").formatString(CodeFormatter.K_CLASS_BODY_DECLARATIONS, buf, 0, buf.length(), 1);
 		edit.apply(doc);
 		assertTrue("Incorrect Formatting", doc.get().equals(formattedString));
 	}
 
-	public void testBug413592b() throws Exception {
+	public void testBug413592b_since_8() throws Exception {
 		String buf = "default int func2(){return 2*(3+4)/5/(6+7);}";
 		Document doc = new Document(buf);
 		String formattedString = "\tdefault int func2() {\n" +
 								 "\t\treturn 2 * (3 + 4) / 5 / (6 + 7);\n" + 
 								 "\t}";
-		TextEdit edit = new ASTRewriteFormatter(null, null, JavaCore.getOptions(), "\n").formatString(CodeFormatter.K_CLASS_BODY_DECLARATIONS, buf, 0, buf.length(), 1);
+		Hashtable options = JavaCore.getOptions();
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+		TextEdit edit = new ASTRewriteFormatter(null, null, options, "\n").formatString(CodeFormatter.K_CLASS_BODY_DECLARATIONS, buf, 0, buf.length(), 1);
 		edit.apply(doc);
 		assertTrue("Incorrect Formatting", doc.get().equals(formattedString));
 	}
@@ -6980,6 +6980,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 
 	public void testBugASTFormatter_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		this.project1.setOption(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
 		StringBuffer buf= new StringBuffer();
 		buf.append("package test1;\n");
 		buf.append("import java.lang.annotation.ElementType;\n");

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter.comment;
 
@@ -18,10 +19,12 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
-
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.text.edits.TextEdit;
 
 public class JavaDocTestCase extends MultiLineTestCase {
+
+	private static final String PREFIX = "/**";
 
 	static {
 //		TESTS_NAMES = new String[] { "test109636_2" } ;
@@ -153,8 +156,8 @@ public class JavaDocTestCase extends MultiLineTestCase {
 				" * public Object[] getChildren(Object parentElement) {\n" +
 				" * 	if (parentElement instanceof MovingBox) {\n" +
 				" * 		MovingBox box = (MovingBox) parentElement;\n" +
-				" * 		return concat(box.getBoxes().toArray(), box.getBooks().toArray(), box\n" +
-				" * 				.getGames().toArray());\n" +
+				" * 		return concat(box.getBoxes().toArray(), box.getBooks().toArray(),\n" +
+				" * 				box.getGames().toArray());\n" +
 				" * 	}\n" +
 				" * 	return EMPTY_ARRAY;\n" +
 				" * }\n" +
@@ -183,8 +186,8 @@ public class JavaDocTestCase extends MultiLineTestCase {
 				" * public Object[] getChildren(Object parentElement) {\n" +
 				" * 	if (parentElement instanceof MovingBox) {\n" +
 				" * 		MovingBox box = (MovingBox) parentElement;\n" +
-				" * 		return concat(box.getBoxes().toArray(), box.getBooks().toArray(), box\n" +
-				" * 				.getGames().toArray());\n" +
+				" * 		return concat(box.getBoxes().toArray(), box.getBooks().toArray(),\n" +
+				" * 				box.getGames().toArray());\n" +
 				" * 	}\n" +
 				" * 	return EMPTY_ARRAY;\n" +
 				" * }\n" +
@@ -213,8 +216,8 @@ public class JavaDocTestCase extends MultiLineTestCase {
 				" * public Object[] getChildren(Object parentElement) {\n" +
 				" * 	if (parentElement instanceof MovingBox) {\n" +
 				" * 		MovingBox box = (MovingBox) parentElement;\n" +
-				" * 		return concat(box.getBoxes().toArray(), box.getBooks().toArray(), box\n" +
-				" * 				.getGames().toArray());\n" +
+				" * 		return concat(box.getBoxes().toArray(), box.getBooks().toArray(),\n" +
+				" * 				box.getGames().toArray());\n" +
 				" * 	}\n" +
 				" * 	return EMPTY_ARRAY;\n" +
 				" * }\n" +
@@ -228,8 +231,8 @@ public class JavaDocTestCase extends MultiLineTestCase {
 	public void testMultiLineCommentCodeSnippetHtmlEntities1() {
 		String prefix= PREFIX + DELIMITER + INFIX + "<pre>" + DELIMITER + INFIX; //$NON-NLS-1$
 		String postfix= DELIMITER + INFIX + "</pre>" + DELIMITER + POSTFIX; //$NON-NLS-1$
-		String input= prefix + "System.out.println(\"test\");" + postfix; //$NON-NLS-1$
-		String expected= prefix + "System.out.println(&quot;test&quot;);" + postfix; //$NON-NLS-1$
+		String input= prefix + "System.out.  println(\"test\");" + postfix; //$NON-NLS-1$
+		String expected= prefix + "System.out.println(\"test\");" + postfix; //$NON-NLS-1$
 		String result= testFormat(input);
 		assertEquals(expected, result);
 
@@ -260,7 +263,8 @@ public class JavaDocTestCase extends MultiLineTestCase {
 		String postfix= DELIMITER + "}"; //$NON-NLS-1$
 		String expected= PREFIX + DELIMITER + "   " + INFIX + "test test" + DELIMITER + "   " + POSTFIX;  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "3"); //$NON-NLS-1$
+		// note: FORMATTER_INDENTATION_SIZE translates to tab_size
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE, "3"); //$NON-NLS-1$
 		assertEquals(prefix + expected + postfix, testFormat(prefix + content + postfix, prefix.length(), content.length()));
 	}
 
@@ -268,9 +272,8 @@ public class JavaDocTestCase extends MultiLineTestCase {
 		String prefix= "public class Test {" + DELIMITER + "    "; //$NON-NLS-1$ //$NON-NLS-2$
 		String content= PREFIX + DELIMITER + "\t\t" + INFIX + "test test" + DELIMITER + "        " + POSTFIX;  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		String postfix= DELIMITER + "}"; //$NON-NLS-1$
-		String expected= PREFIX + DELIMITER + "      " + INFIX + "test test" + DELIMITER + "      " + POSTFIX;  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+		String expected= PREFIX + DELIMITER + "    " + INFIX + "test test" + DELIMITER + "    " + POSTFIX;  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "3"); //$NON-NLS-1$
 		assertEquals(prefix + expected + postfix, testFormat(prefix + content + postfix, prefix.length(), content.length()));
 	}
 
@@ -280,7 +283,6 @@ public class JavaDocTestCase extends MultiLineTestCase {
 		String postfix= DELIMITER + "}"; //$NON-NLS-1$
 		String expected= PREFIX + DELIMITER + "      " + INFIX + "test test" + DELIMITER + "      " + POSTFIX;  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "3"); //$NON-NLS-1$
 		assertEquals(prefix + expected + postfix, testFormat(prefix + content + postfix, prefix.length(), content.length()));
 	}
 
@@ -290,7 +292,8 @@ public class JavaDocTestCase extends MultiLineTestCase {
 		String postfix= DELIMITER + "}"; //$NON-NLS-1$
 		String expected= PREFIX + DELIMITER + "         " + INFIX + "test test" + DELIMITER + "         " + POSTFIX;  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
-		setUserOption(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "3"); //$NON-NLS-1$
+		// note: FORMATTER_INDENTATION_SIZE translates to tab_size
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE, "3"); //$NON-NLS-1$
 		assertEquals(prefix + expected + postfix, testFormat(prefix + content + postfix, prefix.length(), content.length()));
 	}
 
@@ -772,12 +775,12 @@ public class JavaDocTestCase extends MultiLineTestCase {
 		String expected = "/**" + DELIMITER +
 				" * <pre>" + DELIMITER +
 				" * Object[] objects = new Object[3];" + DELIMITER +
-				" * objects[0] = new String(&quot;Hallo Welt !!!&quot;);" + DELIMITER +
-				" * objects[1] = new String(&quot;Test !!!&quot;);" + DELIMITER +
-				" * objects[2] = new Integer(&quot;1980&quot;);" + DELIMITER +
+				" * objects[0] = new String(\"Hallo Welt !!!\");" + DELIMITER +
+				" * objects[1] = new String(\"Test !!!\");" + DELIMITER +
+				" * objects[2] = new Integer(\"1980\");" + DELIMITER +
 				" * ObjectFile.write(pathname, objects);" + DELIMITER +
 				" * Object[] objs = ObjectFile.read(pathname);" + DELIMITER +
-				" * for (int i = 0; i &lt; objs.length; i++) {" + DELIMITER +
+				" * for (int i = 0; i < objs.length; i++) {" + DELIMITER +
 				" * 	System.out.println(objs[i].toString());" + DELIMITER +
 				" * }" + DELIMITER +
 				" * </pre>" + DELIMITER +
@@ -812,7 +815,7 @@ public class JavaDocTestCase extends MultiLineTestCase {
 		String expected = "/**" + DELIMITER +
 				" * <pre>" + DELIMITER +
 				// No space after "world".
-				" * System.out.println(&quot;hello world&quot;);" + DELIMITER +
+				" * System.out.println(&#34;hello world&#34;);" + DELIMITER +
 				" * </pre>" + DELIMITER +
 				" */";
 		String result=testFormat(input, options);
@@ -821,6 +824,7 @@ public class JavaDocTestCase extends MultiLineTestCase {
 
 	public void test197169() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 
 		String input = "/**" + DELIMITER +
 				" * <pre>" + DELIMITER +
@@ -843,7 +847,7 @@ public class JavaDocTestCase extends MultiLineTestCase {
 				" * }" + DELIMITER +
 				" * " + DELIMITER +
 				// Non-initial &#064; expanded.
-				" * &#064;Anno2(@Anno1)" + DELIMITER +
+				" * &#064;Anno2(&#064;Anno1)" + DELIMITER +
 				" * class Baz {" + DELIMITER +
 				" * }" + DELIMITER +
 				" * </pre>" + DELIMITER +
@@ -937,13 +941,13 @@ public class JavaDocTestCase extends MultiLineTestCase {
 		String expected =
 				"/**" + DELIMITER +
 				" * <pre>" + DELIMITER +
-				" * setLeadingComment(&quot;/* traditional comment &#42;/&quot;); // correct" + DELIMITER +
-				" * setLeadingComment(&quot;missing comment delimiters&quot;); // wrong" + DELIMITER +
-				" * setLeadingComment(&quot;/* unterminated traditional comment &quot;); // wrong" + DELIMITER +
-				" * setLeadingComment(&quot;/* broken\\n traditional comment &#42;/&quot;); // correct" + DELIMITER +
-				" * setLeadingComment(&quot;// end-of-line comment\\n&quot;); // correct" + DELIMITER +
-				" * setLeadingComment(&quot;// end-of-line comment without line terminator&quot;); // correct" + DELIMITER +
-				" * setLeadingComment(&quot;// broken\\n end-of-line comment\\n&quot;); // wrong" + DELIMITER +
+				" * setLeadingComment(\"/&#42; traditional comment &#42;/\"); // correct" + DELIMITER +
+				" * setLeadingComment(\"missing comment delimiters\"); // wrong" + DELIMITER +
+				" * setLeadingComment(\"/&#42; unterminated traditional comment \"); // wrong" + DELIMITER +
+				" * setLeadingComment(\"/&#42; broken\\n traditional comment &#42;/\"); // correct" + DELIMITER +
+				" * setLeadingComment(\"// end-of-line comment\\n\"); // correct" + DELIMITER +
+				" * setLeadingComment(\"// end-of-line comment without line terminator\"); // correct" + DELIMITER +
+				" * setLeadingComment(\"// broken\\n end-of-line comment\\n\"); // wrong" + DELIMITER +
 				" * </pre>" + DELIMITER +
 				" */";
 		String result=testFormat(input, options);

@@ -6,8 +6,8 @@ public class EclipseFormatTest {
 		{
 			{
 				{
-					String a = ((String) v2.get(0)).trim(), b = (String) v2
-							.get(1), c = (String) v2.get(2);
+					String a = ((String) v2.get(0)).trim(),
+							b = (String) v2.get(1), c = (String) v2.get(2);
 				}
 			}
 		}

@@ -14,14 +14,10 @@ public class X15 {
 	}
 
 	int computeRelevanceForCaseMatching(char[] token, char[] proposalName) {
-		if (CharOperation.prefixEquals(token, proposalName, true /*
-																 * do not ignore
-																 * case
-																 */)) {
-			if (CharOperation.equals(token, proposalName, true /*
-																 * do not ignore
-																 * case
-																 */)) {
+		if (CharOperation.prefixEquals(token, proposalName,
+				true /* do not ignore case */)) {
+			if (CharOperation.equals(token, proposalName,
+					true /* do not ignore case */)) {
 				return 0;
 			} else {
 				return 1;

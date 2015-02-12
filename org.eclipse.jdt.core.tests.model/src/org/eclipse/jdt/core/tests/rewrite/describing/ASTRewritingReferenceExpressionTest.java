@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 
@@ -476,6 +477,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 	 */
 	public void testReferenceExpressions_test006_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test407131", false, null);
+		this.project1.setOption(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
 		String contents = "package test407131;\n" +
 				"import java.lang.annotation.*;\n" +
 				"interface J {\n" +

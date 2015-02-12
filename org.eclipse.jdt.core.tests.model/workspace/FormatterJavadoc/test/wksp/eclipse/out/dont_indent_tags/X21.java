@@ -33,7 +33,8 @@ public class X21 {
 	 * interfaces</li>
 	 * <li><code>IJavaSearchConstants.FIELD</code>: look for fields</li>
 	 * <li><code>IJavaSearchConstants.METHOD</code>: look for methods</li>
-	 * <li><code>IJavaSearchConstants.CONSTRUCTOR</code>: look for constructors</li>
+	 * <li><code>IJavaSearchConstants.CONSTRUCTOR</code>: look for constructors
+	 * </li>
 	 * <li><code>IJavaSearchConstants.PACKAGE</code>: look for packages</li>
 	 * </ul>
 	 * @param limitTo

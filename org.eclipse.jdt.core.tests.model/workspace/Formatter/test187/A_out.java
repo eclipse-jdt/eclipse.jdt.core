@@ -72,8 +72,8 @@ import java.util.Arrays;
  */
 public class RemotePublication extends Publication {
 	private static final String PDF_FILETYPE = "PDF";
-	private static Log log = LogFactory.getLog(RemotePublication.class
-			.getName());
+	private static Log log = LogFactory
+			.getLog(RemotePublication.class.getName());
 	private String _fileList;
 	private String _fileType;
 	protected String _pages[];
@@ -171,8 +171,8 @@ public class RemotePublication extends Publication {
 	protected void createPDFFile() throws CreatePDFFileException {
 		String cmdLine = null;
 		try {
-			File newPdfFile = new File(_workingDir + File.separator
-					+ _localFilename + EXTENTION);
+			File newPdfFile = new File(
+					_workingDir + File.separator + _localFilename + EXTENTION);
 			if (Registry.isCommandLineMode()) {
 				handleMultipleDocuments(newPdfFile);
 			}
@@ -210,9 +210,9 @@ public class RemotePublication extends Publication {
 	 */
 	private String createC42PDFCommandLine(String documentName) {
 		return (Registry.getConvertToolPath() + File.separator
-				+ Registry.getConvertToolName() + (" -o " + _workingDir
-				+ File.separator + documentName + " -l " + _workingDir
-				+ File.separator + _fileList));
+				+ Registry.getConvertToolName()
+				+ (" -o " + _workingDir + File.separator + documentName + " -l "
+						+ _workingDir + File.separator + _fileList));
 	}
 	/**
 	 * there a special cases within WSSRD where there may be more
@@ -240,7 +240,8 @@ public class RemotePublication extends Publication {
 					.append(_localFilename).append(documentCount)
 					.append(EXTENTION)).toString();
 			if (log.isDebugEnabled()) {
-				log.debug("File already exists. Check to see if we need rename existing file");
+				log.debug(
+						"File already exists. Check to see if we need rename existing file");
 			}
 			if (documentCount == 1) {
 				File backupPdfFile = new File(newFilename);
@@ -256,7 +257,8 @@ public class RemotePublication extends Publication {
 		// Must have pages to sort! 
 		if (_pages.length == 0) {
 			log.error("Internal Error: _tiffPage == null!");
-			throw new createListFileException("No pages found in the document!");
+			throw new createListFileException(
+					"No pages found in the document!");
 		}
 		// Sort TIFF files into the correct page order
 		WssrdFileComparator fileComparator = new WssrdFileComparator();
@@ -265,8 +267,8 @@ public class RemotePublication extends Publication {
 			log.debug("Creating list file for C42PDF");
 		}
 		try {
-			File tiffFileList = new File(_workingDir + File.separator
-					+ _fileList);
+			File tiffFileList = new File(
+					_workingDir + File.separator + _fileList);
 			if (tiffFileList.exists()) {
 				tiffFileList.delete();
 			}

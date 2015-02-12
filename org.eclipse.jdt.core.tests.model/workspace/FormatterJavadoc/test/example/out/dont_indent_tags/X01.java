@@ -1,6 +1,6 @@
 /**
- * An example for comment formatting. This example is meant to illustrate the various possibilities offered by <i>Eclipse</i> in order to format comments.
- */
+* An example for comment formatting. This example is meant to illustrate the various possibilities offered by <i>Eclipse</i> in order to format comments.
+*/
 package test.prefs.example;
 
 /**

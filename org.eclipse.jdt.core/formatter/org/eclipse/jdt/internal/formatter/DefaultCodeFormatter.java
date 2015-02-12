@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,32 +10,42 @@
  *     Jesper Steen Moller - Contributions for
  *								bug 404146 - [1.7][compiler] nested try-catch-finally-blocks leads to unrunnable Java byte code
  *     Harry Terkelsen (het@google.com) - Bug 449262 - Allow the use of third-party Java formatters
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
-import java.util.HashMap;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameEOF;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_BLOCK;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.compiler.ITerminalSymbols;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.Comment;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Javadoc;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Expression;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
-import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.Util;
-import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
+import org.eclipse.jdt.internal.formatter.linewrap.CommentWrapExecutor;
+import org.eclipse.jdt.internal.formatter.linewrap.WrapPreparator;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
+import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class DefaultCodeFormatter extends CodeFormatter {
 
 	/**
@@ -43,50 +53,70 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	 */
 	public static boolean DEBUG = false;
 
-	// Mask for code formatter kinds
-	private static final int K_MASK = K_UNKNOWN
-		|  K_EXPRESSION
-		| K_STATEMENTS
-		| K_CLASS_BODY_DECLARATIONS
-		| K_COMPILATION_UNIT
-		| K_SINGLE_LINE_COMMENT
+	private static final int K_COMMENTS_MASK = K_SINGLE_LINE_COMMENT
 		| K_MULTI_LINE_COMMENT
 		| K_JAVA_DOC;
 
-	// Scanner use to probe the kind of the source given to the formatter
-	private static Scanner PROBING_SCANNER;
+	// Mask for code formatter kinds
+	private static final int K_MASK = K_UNKNOWN
+		| K_EXPRESSION
+		| K_STATEMENTS
+		| K_CLASS_BODY_DECLARATIONS
+		| K_COMPILATION_UNIT
+		| K_COMMENTS_MASK;
 
-	private CodeSnippetParsingUtil codeSnippetParsingUtil;
-	private Map defaultCompilerOptions;
+	private DefaultCodeFormatterOptions originalOptions;
+	private DefaultCodeFormatterOptions workingOptions;
 
-	private CodeFormatterVisitor newCodeFormatter;
-	private Map options;
+	private Object oldCommentFormatOption;
+	private String sourceLevel;
 
-	private DefaultCodeFormatterOptions preferences;
+	private String sourceString;
+	private char[] sourceArray;
+
+	private ASTNode astRoot;
+	private List<Token> tokens = new ArrayList<Token>();
+	private TokenManager tokenManager;
 
 	public DefaultCodeFormatter() {
 		this(new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSettings()), null);
 	}
 
-	public DefaultCodeFormatter(DefaultCodeFormatterOptions preferences) {
-		this(preferences, null);
+	public DefaultCodeFormatter(DefaultCodeFormatterOptions options) {
+		this(options, null);
 	}
 
-	public DefaultCodeFormatter(DefaultCodeFormatterOptions defaultCodeFormatterOptions, Map options) {
-		if (options == null) {
-			this.options = JavaCore.getOptions();
-			this.preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getJavaConventionsSettings());
-			setDefaultCompilerOptions();
+	public DefaultCodeFormatter(Map<String, String> options) {
+		this(null, options);
+	}
+
+	public DefaultCodeFormatter(DefaultCodeFormatterOptions defaultCodeFormatterOptions, Map<String, String> options) {
+		initOptions(defaultCodeFormatterOptions, options);
+	}
+
+	private void initOptions(DefaultCodeFormatterOptions defaultCodeFormatterOptions, Map<String, String> options) {
+		if (options != null) {
+			this.originalOptions = new DefaultCodeFormatterOptions(options);
+			this.workingOptions = new DefaultCodeFormatterOptions(options);
+			this.oldCommentFormatOption = getOldCommentFormatOption(options);
+			String compilerSource = options.get(CompilerOptions.OPTION_Source);
+			this.sourceLevel = compilerSource != null ? compilerSource : CompilerOptions.VERSION_1_8;
 		} else {
-			setOptions(options);
+			Map<String, String> settings = DefaultCodeFormatterConstants.getJavaConventionsSettings();
+			this.originalOptions = new DefaultCodeFormatterOptions(settings);
+			this.workingOptions = new DefaultCodeFormatterOptions(settings);
+			this.oldCommentFormatOption = DefaultCodeFormatterConstants.TRUE;
+			this.sourceLevel = CompilerOptions.VERSION_1_8;
 		}
 		if (defaultCodeFormatterOptions != null) {
-			this.preferences.set(defaultCodeFormatterOptions.getMap());
+			this.originalOptions.set(defaultCodeFormatterOptions.getMap());
+			this.workingOptions.set(defaultCodeFormatterOptions.getMap());
 		}
 	}
 
-	public DefaultCodeFormatter(Map options) {
-		this(null, options);
+	@Deprecated
+	private Object getOldCommentFormatOption(Map<String, String> options) {
+		return options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT);
 	}
 
 	public String createIndentationString(final int indentationLevel) {
@@ -94,59 +124,18 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			throw new IllegalArgumentException();
 		}
 
-		int tabs = 0;
-		int spaces = 0;
-		switch(this.preferences.tab_char) {
-			case DefaultCodeFormatterOptions.SPACE :
-				spaces = indentationLevel * this.preferences.tab_size;
-				break;
-			case DefaultCodeFormatterOptions.TAB :
-				tabs = indentationLevel;
-				break;
-			case DefaultCodeFormatterOptions.MIXED :
-				int tabSize = this.preferences.tab_size;
-				if (tabSize != 0) {
-					int spaceEquivalents = indentationLevel * this.preferences.indentation_size;
-					tabs = spaceEquivalents / tabSize;
-					spaces = spaceEquivalents % tabSize;
-				}
-				break;
-			default:
-				return Util.EMPTY_STRING;
-		}
-		if (tabs == 0 && spaces == 0) {
-			return Util.EMPTY_STRING;
-		}
-		StringBuffer buffer = new StringBuffer(tabs + spaces);
-		for(int i = 0; i < tabs; i++) {
-			buffer.append('\t');
-		}
-		for(int i = 0; i < spaces; i++) {
-			buffer.append(' ');
-		}
-		return buffer.toString();
+		StringBuilder sb = new StringBuilder();
+		int indent = indentationLevel * this.originalOptions.indentation_size;
+		TextEditsBuilder.appendIndentationString(sb, this.originalOptions.tab_char, this.originalOptions.tab_size,
+				indent, 0);
+		return sb.toString();
 	}
 
 	/**
 	 * @see org.eclipse.jdt.core.formatter.CodeFormatter#format(int, java.lang.String, int, int, int, java.lang.String)
 	 */
 	public TextEdit format(int kind, String source, int offset, int length, int indentationLevel, String lineSeparator) {
-		if (offset < 0 || length < 0 || length > source.length()) {
-			throw new IllegalArgumentException();
-		}
-
-		switch(kind & K_MASK) {
-			case K_JAVA_DOC :
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102780
-				// use the integrated comment formatter to format comment
-                return formatComment(kind & K_MASK, source, indentationLevel, lineSeparator, new IRegion[] {new Region(offset, length)});
-				// $FALL-THROUGH$ - fall through next case when old comment formatter is activated
-			case K_MULTI_LINE_COMMENT :
-			case K_SINGLE_LINE_COMMENT :
-                return formatComment(kind & K_MASK, source, indentationLevel, lineSeparator, new IRegion[] {new Region(offset, length)});
-		}
-
-		return format(kind, source, new IRegion[] {new Region(offset, length)}, indentationLevel, lineSeparator);
+		return format(kind, source, new IRegion[] { new Region(offset, length) }, indentationLevel, lineSeparator);
 	}
 
 	/**
@@ -157,320 +146,237 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			throw new IllegalArgumentException();
 		}
 
-		this.codeSnippetParsingUtil = new CodeSnippetParsingUtil();
-		boolean includeComments =  (kind & F_INCLUDE_COMMENTS) != 0;
-		switch(kind & K_MASK) {
-			case K_CLASS_BODY_DECLARATIONS :
-				return formatClassBodyDeclarations(source, indentationLevel, lineSeparator, regions, includeComments);
-			case K_COMPILATION_UNIT :
-				return formatCompilationUnit(source, indentationLevel, lineSeparator, regions, includeComments);
-			case K_EXPRESSION :
-				return formatExpression(source, indentationLevel, lineSeparator, regions, includeComments);
-			case K_STATEMENTS :
-				return formatStatements(source, indentationLevel, lineSeparator, regions, includeComments);
-			case K_UNKNOWN :
-				return probeFormatting(source, indentationLevel, lineSeparator, regions, includeComments);
-			case K_JAVA_DOC :
-			case K_MULTI_LINE_COMMENT :
-			case K_SINGLE_LINE_COMMENT :
-				//https://bugs.eclipse.org/bugs/show_bug.cgi?id=204091
+		updateWorkingOptions(indentationLevel, lineSeparator, kind);
+
+		if ((kind & K_COMMENTS_MASK) != 0)
+			return formatComments(source, kind & K_COMMENTS_MASK, regions);
+
+		if (prepareFormattedCode(source, kind) == null)
+			return this.tokens.isEmpty() ? new MultiTextEdit() : null;
+
+		MultiTextEdit result = new MultiTextEdit();
+		TextEditsBuilder resultBuilder = new TextEditsBuilder(this.sourceString, regions, this.tokenManager,
+				this.workingOptions);
+		this.tokenManager.traverse(0, resultBuilder);
+		for (TextEdit edit : resultBuilder.getEdits()) {
+			result.addChild(edit);
+		}
+		return result;
+	}
+
+	private boolean init(String source) {
+
+		// this is convenient for debugging (see Token.toString())
+		// Token.source = source;
+
+		this.sourceString = source;
+		this.sourceArray = source.toCharArray();
+		this.tokens.clear();
+		this.tokenManager = new TokenManager(this.tokens, source, this.workingOptions);
+
+		tokenizeSource();
+		return !this.tokens.isEmpty();
+	}
+
+	List<Token> prepareFormattedCode(String source, int kind) {
+		if (!init(source))
+			return null;
+
+		this.astRoot = parseSourceCode(kind);
+		if (this.astRoot == null)
+			return null;
+
+		if (kind != CodeFormatter.K_UNKNOWN)
+			findHeader();
+
+		prepareSpaces();
+		prepareLineBreaks();
+		prepareComments();
+		prepareWraps();
+
+		this.tokenManager.applyFormatOff();
+
+		return this.tokens;
+	}
+
+	private void findHeader() {
+		if (this.astRoot instanceof CompilationUnit) {
+			List<TypeDeclaration> types = ((CompilationUnit) this.astRoot).types();
+			if (!types.isEmpty()) {
+				int headerEndIndex = this.tokenManager.firstIndexIn(types.get(0), -1);
+				this.tokenManager.setHeaderEndIndex(headerEndIndex);
+			}
+		}
+	}
+
+	private TextEdit formatComments(String source, int kind, IRegion[] regions) {
+		MultiTextEdit result = new MultiTextEdit();
+		if (!init(source))
+			return result;
+
+		CommentsPreparator commentsPreparator = new CommentsPreparator(this.tokenManager, this.workingOptions,
+				this.sourceLevel);
+		CommentWrapExecutor commentWrapper = new CommentWrapExecutor(this.tokenManager, this.workingOptions);
+		switch (kind) {
+			case K_JAVA_DOC:
+				ASTParser parser = ASTParser.newParser(AST.JLS8);
+				for (Token token : this.tokens) {
+					if (token.tokenType == TokenNameCOMMENT_JAVADOC) {
+						parser.setSourceRange(token.originalStart, token.countChars());
+						CompilationUnit cu = (CompilationUnit) parseSourceCode(parser, ASTParser.K_COMPILATION_UNIT,
+								true);
+						Javadoc javadoc = (Javadoc) cu.getCommentList().get(0);
+						javadoc.accept(commentsPreparator);
+						int startPosition = this.tokenManager.findSourcePositionInLine(token.originalStart);
+						commentWrapper.wrapMultiLineComment(token, startPosition, false, false);
+					}
+				}
+				break;
+			case K_MULTI_LINE_COMMENT:
+				for (int i = 0; i < this.tokens.size(); i++) {
+					Token token = this.tokens.get(i);
+					if (token.tokenType == TokenNameCOMMENT_BLOCK) {
+						commentsPreparator.handleBlockComment(i);
+						int startPosition = this.tokenManager.findSourcePositionInLine(token.originalStart);
+						commentWrapper.wrapMultiLineComment(token, startPosition, false, false);
+					}
+				}
+				break;
+			case K_SINGLE_LINE_COMMENT:
+				for (int i = 0; i < this.tokens.size(); i++) {
+					Token token = this.tokens.get(i);
+					if (token.tokenType == TokenNameCOMMENT_LINE) {
+						commentsPreparator.handleLineComment(i);
+						if (i >= this.tokens.size() || this.tokens.get(i) != token) {
+							// current token has been removed and merged with previous one
+							i--;
+							token = this.tokens.get(i);
+						}
+						int startPosition = this.tokenManager.findSourcePositionInLine(token.originalStart);
+						commentWrapper.wrapLineComment(token, startPosition);
+					}
+				}
+				break;
+			default:
+				throw new AssertionError(String.valueOf(kind));
+		}
+
+		this.tokenManager.applyFormatOff();
+
+		TextEditsBuilder resultBuilder = new TextEditsBuilder(source, regions, this.tokenManager, this.workingOptions);
+		resultBuilder.setAlignChar(DefaultCodeFormatterOptions.SPACE);
+		for (Token token : this.tokens) {
+			List<Token> structure = token.getInternalStructure();
+			if (structure != null && !structure.isEmpty())
+				resultBuilder.processComment(token);
+		}
+
+		for (TextEdit edit : resultBuilder.getEdits()) {
+			result.addChild(edit);
+		}
+		return result;
+	}
+
+	private ASTNode parseSourceCode(int kind) {
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		Map<String, String> parserOptions = JavaCore.getOptions();
+		parserOptions.put(CompilerOptions.OPTION_Source, this.sourceLevel);
+		parser.setCompilerOptions(parserOptions);
+
+		switch (kind & K_MASK) {
+			case K_COMPILATION_UNIT:
+				return parseSourceCode(parser, ASTParser.K_COMPILATION_UNIT, true);
+			case K_CLASS_BODY_DECLARATIONS:
+				return parseSourceCode(parser, ASTParser.K_CLASS_BODY_DECLARATIONS, false);
+			case K_STATEMENTS:
+				return parseSourceCode(parser, ASTParser.K_STATEMENTS, false);
+			case K_EXPRESSION:
+				return parseSourceCode(parser, ASTParser.K_EXPRESSION, false);
+			case K_UNKNOWN:
+				int[] parserModes = { ASTParser.K_COMPILATION_UNIT, ASTParser.K_EXPRESSION,
+						ASTParser.K_CLASS_BODY_DECLARATIONS, ASTParser.K_STATEMENTS };
+				for (int parserMode : parserModes) {
+					ASTNode astNode = parseSourceCode(parser, parserMode, false);
+					if (astNode != null)
+						return astNode;
+					parser.setCompilerOptions(parserOptions); // parser loses compiler options after every use
+				}
+				return null;
+			default:
 				throw new IllegalArgumentException();
 		}
-		return null;
 	}
 
-	private TextEdit formatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, IRegion[] regions, boolean includeComments) {
-		ASTNode[] bodyDeclarations = this.codeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), this.defaultCompilerOptions, true);
+	private ASTNode parseSourceCode(ASTParser parser, int parserMode, boolean ignoreErrors) {
+		parser.setKind(parserMode);
+		parser.setSource(this.sourceArray);
+		ASTNode astNode = parser.createAST(null);
+		if (ignoreErrors)
+			return astNode;
 
-		if (bodyDeclarations == null) {
-			// a problem occurred while parsing the source
-			return null;
-		}
-		return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, regions, includeComments);
-	}
-
-	/*
-	 * Format a javadoc comment.
-	 * Since bug 102780 this is done by a specific method when new javadoc formatter is activated.
-	 */
-	private TextEdit formatComment(int kind, String source, int indentationLevel, String lineSeparator, IRegion[] regions) {
-		Object oldOption = oldCommentFormatOption();
-		boolean isFormattingComments = false;
-		if (oldOption == null) {
-			switch (kind & K_MASK) {
-				case K_SINGLE_LINE_COMMENT:
-					isFormattingComments = DefaultCodeFormatterConstants.TRUE.equals(this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_LINE_COMMENT));
-					break;
-				case K_MULTI_LINE_COMMENT:
-					isFormattingComments = DefaultCodeFormatterConstants.TRUE.equals(this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_BLOCK_COMMENT));
-					break;
-				case K_JAVA_DOC:
-					isFormattingComments = DefaultCodeFormatterConstants.TRUE.equals(this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT_JAVADOC_COMMENT));
+		boolean hasErrors = false;
+		CompilationUnit root = (CompilationUnit) astNode.getRoot();
+		for (IProblem problem : root.getProblems()) {
+			if (problem.isError()) {
+				hasErrors = true;
+				break;
 			}
-		} else {
-			isFormattingComments = DefaultCodeFormatterConstants.TRUE.equals(oldOption);
 		}
-		if (isFormattingComments) {
-			if (lineSeparator != null) {
-				this.preferences.line_separator = lineSeparator;
-			} else {
-				this.preferences.line_separator = Util.LINE_SEPARATOR;
-			}
-			this.preferences.initial_indentation_level = indentationLevel;
-			if (this.codeSnippetParsingUtil == null) this.codeSnippetParsingUtil = new CodeSnippetParsingUtil();
-			this.codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), this.defaultCompilerOptions, true);
-			this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil, true);
-			IRegion coveredRegion = getCoveredRegion(regions);
-			int start = coveredRegion.getOffset();
-			int end = start + coveredRegion.getLength();
-			this.newCodeFormatter.formatComment(kind, source, start, end, indentationLevel);
-			return this.newCodeFormatter.scribe.getRootEdit();
-		}
-		return null;
+		return hasErrors ? null : astNode;
 	}
 
-	private TextEdit formatCompilationUnit(String source, int indentationLevel, String lineSeparator, IRegion[] regions, boolean includeComments) {
-		CompilationUnitDeclaration compilationUnitDeclaration = this.codeSnippetParsingUtil.parseCompilationUnit(source.toCharArray(), this.defaultCompilerOptions, true);
-
-		if (lineSeparator != null) {
-			this.preferences.line_separator = lineSeparator;
-		} else {
-			this.preferences.line_separator = Util.LINE_SEPARATOR;
-		}
-		this.preferences.initial_indentation_level = indentationLevel;
-
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil, includeComments);
-
-		return this.newCodeFormatter.format(source, compilationUnitDeclaration);
-	}
-
-	private TextEdit formatExpression(String source, int indentationLevel, String lineSeparator, IRegion[] regions, boolean includeComments) {
-		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), this.defaultCompilerOptions, true);
-
-		if (expression == null) {
-			// a problem occurred while parsing the source
-			return null;
-		}
-		return internalFormatExpression(source, indentationLevel, lineSeparator, expression, regions, includeComments);
-	}
-
-	private TextEdit formatStatements(String source, int indentationLevel, String lineSeparator, IRegion[] regions, boolean includeComments) {
-		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), this.defaultCompilerOptions, true, false);
-
-		if (constructorDeclaration.statements == null) {
-			// a problem occured while parsing the source
-			return null;
-		}
-		return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, regions, includeComments);
-	}
-
-	private IRegion getCoveredRegion(IRegion[] regions) {
-		int length = regions.length;
-		if (length == 1) {
-			return regions[0];
-		}
-
-		int offset = regions[0].getOffset();
-		IRegion lastRegion = regions[length - 1];
-
-		return new Region(offset, lastRegion.getOffset() + lastRegion.getLength() - offset);
-	}
-
-	public String getDebugOutput() {
-		return this.newCodeFormatter.scribe.toString();
-	}
-
-	private void setDefaultCompilerOptions() {
-		if (this.defaultCompilerOptions ==  null) {
-			Map optionsMap = new HashMap(30);
-			optionsMap.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
-			optionsMap.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
-			optionsMap.put(CompilerOptions.OPTION_SourceFileAttribute, CompilerOptions.DO_NOT_GENERATE);
-			optionsMap.put(CompilerOptions.OPTION_MethodParametersAttribute, CompilerOptions.DO_NOT_GENERATE);
-			optionsMap.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
-			optionsMap.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.DISABLED);
-			optionsMap.put(CompilerOptions.OPTION_ReportMethodWithConstructorName, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportOverridingPackageDefaultMethod, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.DISABLED);
-			optionsMap.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, CompilerOptions.DISABLED);
-			optionsMap.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportNoEffectAssignment, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportNoImplicitStringConversion, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportIncompatibleNonInheritedInterfaceMethod, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportPossibleAccidentalBooleanAssignment, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportAssertIdentifier, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportEnumIdentifier, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, CompilerOptions.PUBLIC);
-			optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadocTags, CompilerOptions.DISABLED);
-			optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocTagDescription, CompilerOptions.RETURN_TAG);
-			optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef, CompilerOptions.DISABLED);
-			optionsMap.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsNotVisibleRef, CompilerOptions.DISABLED);
-			optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocTags, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility, CompilerOptions.PUBLIC);
-			optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocTagsOverriding, CompilerOptions.DISABLED);
-			optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocComments, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocCommentsVisibility, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportMissingJavadocCommentsOverriding, CompilerOptions.DISABLED);
-			optionsMap.put(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding, CompilerOptions.DISABLED);
-			optionsMap.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
-			optionsMap.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
-			optionsMap.put(CompilerOptions.OPTION_TaskTags, Util.EMPTY_STRING);
-			optionsMap.put(CompilerOptions.OPTION_TaskPriorities, Util.EMPTY_STRING);
-			optionsMap.put(CompilerOptions.OPTION_TaskCaseSensitive, CompilerOptions.DISABLED);
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.DISABLED);
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, CompilerOptions.DISABLED);
-			optionsMap.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED);
-			optionsMap.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.ENABLED);
-			optionsMap.put(CompilerOptions.OPTION_MaxProblemPerUnit, String.valueOf(100));
-			optionsMap.put(CompilerOptions.OPTION_InlineJsr, CompilerOptions.DISABLED);
-			optionsMap.put(CompilerOptions.OPTION_ShareCommonFinallyBlocks, CompilerOptions.DISABLED);
-			optionsMap.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.IGNORE);
-			optionsMap.put(CompilerOptions.OPTION_ReportUnusedTypeParameter, CompilerOptions.IGNORE);
-			this.defaultCompilerOptions = optionsMap;
-		}
-		Object sourceOption = this.options.get(CompilerOptions.OPTION_Source);
-		if (sourceOption != null) {
-			this.defaultCompilerOptions.put(CompilerOptions.OPTION_Source, sourceOption);
-		} else {
-			this.defaultCompilerOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_3);
-		}
-	}
-
-	private TextEdit internalFormatClassBodyDeclarations(String source, int indentationLevel, String lineSeparator, ASTNode[] bodyDeclarations, IRegion[] regions, boolean includeComments) {
-		if (lineSeparator != null) {
-			this.preferences.line_separator = lineSeparator;
-		} else {
-			this.preferences.line_separator = Util.LINE_SEPARATOR;
-		}
-		this.preferences.initial_indentation_level = indentationLevel;
-
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil, includeComments);
-		return this.newCodeFormatter.format(source, bodyDeclarations);
-	}
-
-	private TextEdit internalFormatExpression(String source, int indentationLevel, String lineSeparator, Expression expression, IRegion[] regions, boolean includeComments) {
-		if (lineSeparator != null) {
-			this.preferences.line_separator = lineSeparator;
-		} else {
-			this.preferences.line_separator = Util.LINE_SEPARATOR;
-		}
-		this.preferences.initial_indentation_level = indentationLevel;
-
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil, includeComments);
-
-		TextEdit textEdit = this.newCodeFormatter.format(source, expression);
-		return textEdit;
-	}
-
-	private TextEdit internalFormatStatements(String source, int indentationLevel, String lineSeparator, ConstructorDeclaration constructorDeclaration, IRegion[] regions, boolean includeComments) {
-		if (lineSeparator != null) {
-			this.preferences.line_separator = lineSeparator;
-		} else {
-			this.preferences.line_separator = Util.LINE_SEPARATOR;
-		}
-		this.preferences.initial_indentation_level = indentationLevel;
-
-		this.newCodeFormatter = new CodeFormatterVisitor(this.preferences, this.options, regions, this.codeSnippetParsingUtil, includeComments);
-
-		return this.newCodeFormatter.format(source, constructorDeclaration);
-	}
-
-	/**
-	 * Deprecated as using old option constant
-	 * @deprecated
-	 */
-	private Object oldCommentFormatOption() {
-	    return this.options.get(DefaultCodeFormatterConstants.FORMATTER_COMMENT_FORMAT);
-    }
-
-	private TextEdit probeFormatting(String source, int indentationLevel, String lineSeparator, IRegion[] regions, boolean includeComments) {
-		if (PROBING_SCANNER == null) {
-			// scanner use to check if the kind could be K_JAVA_DOC, K_MULTI_LINE_COMMENT or K_SINGLE_LINE_COMMENT
-			// do not tokenize white spaces to get single comments even with spaces before...
-			PROBING_SCANNER = new Scanner(true, false/*do not tokenize whitespaces*/, false/*nls*/, ClassFileConstants.JDK1_6, ClassFileConstants.JDK1_6, null/*taskTags*/, null/*taskPriorities*/, true/*taskCaseSensitive*/);
-		}
-		PROBING_SCANNER.setSource(source.toCharArray());
-
-		IRegion coveredRegion = getCoveredRegion(regions);
-		int offset = coveredRegion.getOffset();
-		int length = coveredRegion.getLength();
-
-		PROBING_SCANNER.resetTo(offset, offset + length - 1);
-		try {
-			int kind = -1;
-			switch(PROBING_SCANNER.getNextToken()) {
-				case ITerminalSymbols.TokenNameCOMMENT_BLOCK :
-					if (PROBING_SCANNER.getNextToken() == TerminalTokens.TokenNameEOF) {
-						kind = K_MULTI_LINE_COMMENT;
-					}
+	private void tokenizeSource() {
+		this.tokens.clear();
+		Scanner scanner = new Scanner(true, false, false/* nls */, CompilerOptions.versionToJdkLevel(this.sourceLevel),
+				null/* taskTags */, null/* taskPriorities */, false/* taskCaseSensitive */);
+		scanner.setSource(this.sourceArray);
+		while (true) {
+			try {
+				int tokenType = scanner.getNextToken();
+				if (tokenType == TokenNameEOF)
 					break;
-				case ITerminalSymbols.TokenNameCOMMENT_LINE :
-					if (PROBING_SCANNER.getNextToken() == TerminalTokens.TokenNameEOF) {
-						kind = K_SINGLE_LINE_COMMENT;
-					}
-					break;
-				case ITerminalSymbols.TokenNameCOMMENT_JAVADOC :
-					if (PROBING_SCANNER.getNextToken() == TerminalTokens.TokenNameEOF) {
-						kind = K_JAVA_DOC;
-					}
-					break;
+				Token token = Token.fromCurrent(scanner, tokenType);
+				this.tokens.add(token);
+			} catch (InvalidInputException e) {
+				Token token = Token.fromCurrent(scanner, TokenNameNotAToken);
+				this.tokens.add(token);
 			}
-			if (kind != -1) {
-				return formatComment(kind, source, indentationLevel, lineSeparator, regions);
-			}
-		} catch (InvalidInputException e) {
-			// ignore
 		}
-		PROBING_SCANNER.setSource((char[]) null);
+	}
 
-		// probe for expression
-		Expression expression = this.codeSnippetParsingUtil.parseExpression(source.toCharArray(), this.defaultCompilerOptions, true);
-		if (expression != null) {
-			return internalFormatExpression(source, indentationLevel, lineSeparator, expression, regions, includeComments);
+	private void prepareSpaces() {
+		SpacePreparator spacePreparator = new SpacePreparator(this.tokenManager, this.workingOptions);
+		this.astRoot.accept(spacePreparator);
+		spacePreparator.finishUp();
+	}
+
+	private void prepareLineBreaks() {
+		LineBreaksPreparator breaksPreparator = new LineBreaksPreparator(this.tokenManager, this.workingOptions);
+		this.astRoot.accept(breaksPreparator);
+		breaksPreparator.finishUp();
+	}
+
+	private void prepareComments() {
+		CommentsPreparator commentsPreparator = new CommentsPreparator(this.tokenManager, this.workingOptions,
+				this.sourceLevel);
+		List<Comment> comments = ((CompilationUnit) this.astRoot.getRoot()).getCommentList();
+		for (Comment comment : comments) {
+			comment.accept(commentsPreparator);
 		}
+		commentsPreparator.finishUp();
+	}
 
-		// probe for body declarations (fields, methods, constructors)
-		ASTNode[] bodyDeclarations = this.codeSnippetParsingUtil.parseClassBodyDeclarations(source.toCharArray(), this.defaultCompilerOptions, true);
-		if (bodyDeclarations != null) {
-			return internalFormatClassBodyDeclarations(source, indentationLevel, lineSeparator, bodyDeclarations, regions, includeComments);
-		}
-
-		// probe for statements
-		ConstructorDeclaration constructorDeclaration = this.codeSnippetParsingUtil.parseStatements(source.toCharArray(), this.defaultCompilerOptions, true, false);
-		if (constructorDeclaration.statements != null) {
-			return internalFormatStatements(source, indentationLevel, lineSeparator, constructorDeclaration, regions, includeComments);
-		}
-
-		// this has to be a compilation unit
-		return formatCompilationUnit(source, indentationLevel, lineSeparator, regions, includeComments);
+	private void prepareWraps() {
+		WrapPreparator wrapPreparator = new WrapPreparator(this.tokenManager, this.workingOptions);
+		this.astRoot.accept(wrapPreparator);
+		wrapPreparator.finishUp();
 	}
 
 	/**
 	 * True if
-	 * 1. All regions are within maxLength
-	 * 2. regions are sorted
-	 * 3. regions are not overlapping
+	 * <li>1. All regions are within maxLength
+	 * <li>2. regions are sorted
+	 * <li>3. regions are not overlapping
 	 */
 	private boolean regionsSatisfiesPreconditions(IRegion[] regions, int maxLength) {
 		int regionsLength = regions == null ? 0 : regions.length;
@@ -484,13 +390,14 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		}
 
 		int lastOffset = first.getOffset() + first.getLength() - 1;
-		for (int i= 1; i < regionsLength; i++) {
+		for (int i = 1; i < regionsLength; i++) {
 			IRegion current = regions[i];
 			if (lastOffset > current.getOffset()) {
 				return false;
 			}
 
-			if (current.getOffset() < 0 || current.getLength() < 0 || current.getOffset() + current.getLength() > maxLength) {
+			if (current.getOffset() < 0 || current.getLength() < 0
+					|| current.getOffset() + current.getLength() > maxLength) {
 				return false;
 			}
 
@@ -500,17 +407,36 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		return true;
 	}
 
+	private void updateWorkingOptions(int indentationLevel, String lineSeparator, int kind) {
+		this.workingOptions.line_separator = lineSeparator != null ? lineSeparator
+				: this.originalOptions.line_separator;
+		if (this.workingOptions.line_separator == null)
+			this.workingOptions.line_separator = Util.LINE_SEPARATOR;
+
+		this.workingOptions.initial_indentation_level = indentationLevel;
+
+		this.workingOptions.comment_format_javadoc_comment = this.originalOptions.comment_format_javadoc_comment
+				&& canFormatComment(kind, K_JAVA_DOC);
+		this.workingOptions.comment_format_block_comment = this.originalOptions.comment_format_block_comment
+				&& canFormatComment(kind, K_MULTI_LINE_COMMENT);
+		this.workingOptions.comment_format_line_comment = this.originalOptions.comment_format_line_comment
+				&& canFormatComment(kind, K_SINGLE_LINE_COMMENT);
+	}
+
+	private boolean canFormatComment(int kind, int commentKind) {
+		if ((kind & F_INCLUDE_COMMENTS) != 0)
+			return true;
+		if (DefaultCodeFormatterConstants.FALSE.equals(this.oldCommentFormatOption))
+			return false;
+		if ((kind & K_MASK) == commentKind)
+			return true;
+		if (kind == K_UNKNOWN && DefaultCodeFormatterConstants.TRUE.equals(this.oldCommentFormatOption))
+			return true;
+		return false;
+	}
+
 	@Override
 	public void setOptions(Map<String, String> options) {
-		this.options = options;
-		Map<String, String> formatterPrefs = new HashMap<String, String>(options.size());
-		for (String key : options.keySet()) {
-			Object value = options.get(key);
-			if (value instanceof String) {
-				formatterPrefs.put(key, (String) value);
-			}
-		}
-		this.preferences = new DefaultCodeFormatterOptions(formatterPrefs);
-		setDefaultCompilerOptions();
+		initOptions(null, options);
 	}
 }

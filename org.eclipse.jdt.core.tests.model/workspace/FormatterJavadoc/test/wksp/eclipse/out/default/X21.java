@@ -32,7 +32,8 @@ public class X21 {
 	 *            interfaces</li>
 	 *            <li><code>IJavaSearchConstants.TYPE</code>: look for both
 	 *            classes and interfaces</li>
-	 *            <li><code>IJavaSearchConstants.FIELD</code>: look for fields</li>
+	 *            <li><code>IJavaSearchConstants.FIELD</code>: look for fields
+	 *            </li>
 	 *            <li><code>IJavaSearchConstants.METHOD</code>: look for methods
 	 *            </li>
 	 *            <li><code>IJavaSearchConstants.CONSTRUCTOR</code>: look for

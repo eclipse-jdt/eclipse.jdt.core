@@ -436,7 +436,8 @@ public class ReflectionToStringBuilder extends ToStringBuilder {
      * @throws IllegalArgumentException
      *                  if the Object is <code>null</code>
      */
-    public static String toString(Object object, ToStringStyle style, boolean outputTransients, Class reflectUpToClass) {
+    public static String toString(Object object, ToStringStyle style, boolean outputTransients,
+            Class reflectUpToClass) {
         return new ReflectionToStringBuilder(object, style, null, reflectUpToClass, outputTransients).toString();
     }
 

@@ -7,7 +7,8 @@ public class X06 {
 	 *
 	 * @param projectGroup
 	 * the parent composite
-	 * @param boolean - the initial enabled state of the widgets created
+	 * @param boolean
+	 * - the initial enabled state of the widgets created
 	 */
 	void foo(Object projectGroup, boolean enabled) {
 	}

@@ -5,7 +5,7 @@ public class X05 {
 	/**
 	 * <p>
 	 * <ul>
-	 * <li> <code>some code in first table</code></li>
+	 * <li><code>some code in first table</code></li>
 	 * <li>
 	 * <ol>
 	 * <li>first line other table</li>
