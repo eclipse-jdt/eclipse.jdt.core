@@ -4860,7 +4860,46 @@ public void testDefault06() {
 		"	       ^^^^\n" + 
 		"Null type mismatch: required \'@NonNull T\' but the provided value is null\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	void test(Inner<Number> inum) {\n" + 
+		"	                ^^^^^^\n" + 
+		"Null constraint mismatch: The type \'Number\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
+		"	@NonNull Number nnn = inum.process(null); // ERR on argument\n" + 
+		"	                                   ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
+		"----------\n");
+}
+
+//apply default to type parameter - class above
+public void testDefault06_b() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault({DefaultLocation.TYPE_PARAMETER, DefaultLocation.TYPE_ARGUMENT})\n" +
+			"	class Inner<T> {\n" +
+			"		T process(T t) {\n" +
+			"			@NonNull T t2 = t; // OK\n" +
+			"			return null; // ERR\n" +
+			" 		}\n" +
+			"	}\n" +
+			"@NonNullByDefault({DefaultLocation.TYPE_PARAMETER, DefaultLocation.TYPE_ARGUMENT})\n" +
+			"public class X {\n" +
+			"	void test(Inner<Number> inum) {\n" +
+			"		@NonNull Number nnn = inum.process(null); // ERR on argument\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	return null; // ERR\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull T\' but the provided value is null\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 12)\n" + 
 		"	@NonNull Number nnn = inum.process(null); // ERR on argument\n" + 
 		"	                                   ^^^^\n" + 
 		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
