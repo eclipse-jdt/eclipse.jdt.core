@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,8 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Terry Parker <tparker@google.com> (Google Inc.)  https://bugs.eclipse.org/365499
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 import java.util.HashMap;
@@ -261,6 +263,9 @@ protected void removeInfo(JavaElement element) {
 }
 protected void resetJarTypeCache() {
 	this.jarTypeCache = new LRUCache((int) (DEFAULT_OPENABLE_SIZE * getMemoryRatio() * getJarTypeRatio()));
+}
+protected void removeFromJarTypeCache(BinaryType type) {
+	this.jarTypeCache.flush(type);
 }
 public String toString() {
 	return toStringFillingRation(""); //$NON-NLS-1$

@@ -1,0 +1,12 @@
+class java/util/Map Version=1.8
+ <K:V:>
+
+get
+ (Ljava/lang/Object;)TV;
+ (Ljava/lang/Object;)T0V; Source=manual Author=Au@th.or
+put
+ (TK;TV;)TV;
+ (TK;TV;)T0V;
+remove
+ (Ljava/lang/Object;)TV;
+ (Ljava/lang/Object;)T0V;

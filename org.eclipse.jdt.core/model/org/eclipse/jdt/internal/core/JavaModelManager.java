@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,9 @@
  *     Theodora Yeung (tyeung@bea.com) - ensure that JarPackageFragmentRoot make it into cache
  *                                                           before its contents
  *                                                           (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=102422)
- *     Stephan Herrmann - Contribution for Bug 346010 - [model] strange initialization dependency in OptionTests
+ *     Stephan Herrmann - Contributions for
+ *								Bug 346010 - [model] strange initialization dependency in OptionTests
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *     Terry Parker <tparker@google.com> - DeltaProcessor misses state changes in archive files, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=357425
  *     Thirumala Reddy Mutchukota <thirumala@google.com> - Contribution to bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=411423
  *     Terry Parker <tparker@google.com> - [performance] Low hit rates in JavaModel caches - https://bugs.eclipse.org/421165
@@ -3896,6 +3898,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return null;
 	}
 
+	void removeFromJarTypeCache(BinaryType type) {
+		this.cache.removeFromJarTypeCache(type);
+	}
+
 	public void removePerProjectInfo(JavaProject javaProject, boolean removeExtJarInfo) {
 		synchronized(this.perProjectInfos) { // use the perProjectInfo collection as its own lock
 			IProject project = javaProject.getProject();
@@ -5005,6 +5011,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					| IResourceChangeEvent.PRE_CLOSE
 					| IResourceChangeEvent.PRE_REFRESH);
 
+			// listen to resource changes affecting external annotations
+			ExternalAnnotationTracker.start(workspace);
+
 			startIndexing();
 
 			// process deltas since last activated in indexer thread so that indexes are up-to-date.
@@ -5060,6 +5069,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		workspace.removeResourceChangeListener(this.deltaState);
 		workspace.removeSaveParticipant(JavaCore.PLUGIN_ID);
+
+		ExternalAnnotationTracker.shutdown(workspace);
 
 		// Stop listening to content-type changes
 		Platform.getContentTypeManager().removeContentTypeChangeListener(this);

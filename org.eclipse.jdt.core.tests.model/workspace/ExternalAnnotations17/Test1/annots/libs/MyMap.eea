@@ -1,0 +1,12 @@
+class libs/MyMap
+ <K:V:>
+
+get
+ (Ljava/lang/Object;)TV;
+ (L1java/lang/Object;)T0V;
+put
+ (TK;TV;)TV;
+ (T0K;T1V;)T0V;
+remove
+ (Ljava/lang/Object;)TV;
+ (Ljava/lang/Object;)T0V;

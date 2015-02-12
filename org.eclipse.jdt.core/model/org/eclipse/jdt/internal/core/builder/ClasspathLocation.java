@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
@@ -26,16 +28,16 @@ public static ClasspathLocation forBinaryFolder(IContainer binaryFolder, boolean
 	return new ClasspathDirectory(binaryFolder, isOutputFolder, accessRuleSet);
 }
 
-static ClasspathLocation forLibrary(String libraryPathname, long lastModified, AccessRuleSet accessRuleSet) {
-	return new ClasspathJar(libraryPathname, lastModified, accessRuleSet);
+static ClasspathLocation forLibrary(String libraryPathname, long lastModified, AccessRuleSet accessRuleSet, IPath annotationsPath) {
+	return new ClasspathJar(libraryPathname, lastModified, accessRuleSet, annotationsPath);
 }
 
-static ClasspathLocation forLibrary(String libraryPathname, AccessRuleSet accessRuleSet) {
-	return forLibrary(libraryPathname, 0, accessRuleSet);
+static ClasspathLocation forLibrary(String libraryPathname, AccessRuleSet accessRuleSet, IPath annotationsPath) {
+	return forLibrary(libraryPathname, 0, accessRuleSet, annotationsPath);
 }
 
-static ClasspathLocation forLibrary(IFile library, AccessRuleSet accessRuleSet) {
-	return new ClasspathJar(library, accessRuleSet);
+static ClasspathLocation forLibrary(IFile library, AccessRuleSet accessRuleSet, IPath annotationsPath) {
+	return new ClasspathJar(library, accessRuleSet, annotationsPath);
 }
 
 public abstract NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName);

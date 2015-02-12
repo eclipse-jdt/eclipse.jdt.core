@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -27,6 +29,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.DeltaProcessor.RootInfo;
@@ -121,6 +124,17 @@ public class ClasspathChange {
 							if (!exclusionPatterns[j].toString().equals(otherExcludes[j].toString()))
 								continue nextEntry;
 						}
+					}
+					if (JavaCore.ENABLED.equals(this.project.getOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, true))) {
+						// if null annotations are enabled, also check for changes in external annotation attachment
+						String annotationPath = ClasspathEntry.getRawExternalAnnotationPath(entry);
+						String otherAnnotationPath = ClasspathEntry.getRawExternalAnnotationPath(other);
+						if (annotationPath != null && otherAnnotationPath != null) {
+							if (!annotationPath.equals(otherAnnotationPath))
+								continue;
+						} else if (annotationPath != otherAnnotationPath) {
+							continue; // null and not-null
+						}						
 					}
 					return i;
 			}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@
  *     IBM Corporation - initial API and implementation
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *         bug 407191 - [1.8] Binary access support for type annotations
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440474 - [null] textual encoding of external null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.hierarchy;
 
@@ -22,6 +24,8 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
+import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class HierarchyBinaryType implements IBinaryType {
@@ -264,5 +268,8 @@ public String toString() {
 		}
 	}
 	return buffer.toString();
+}
+public ITypeAnnotationWalker enrichWithExternalAnnotationsFor(ITypeAnnotationWalker walker, Object member, LookupEnvironment environment) {
+	return walker;
 }
 }

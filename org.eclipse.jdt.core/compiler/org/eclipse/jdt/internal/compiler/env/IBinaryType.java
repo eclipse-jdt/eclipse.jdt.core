@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,10 +9,13 @@
  *     IBM Corporation - initial API and implementation
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *         bug 407191 - [1.8] Binary access support for type annotations
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440474 - [null] textual encoding of external null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 
 public interface IBinaryType extends IGenericType {
 
@@ -147,5 +150,14 @@ boolean isMember();
  */
 
 char[] sourceFileName();
+
+/**
+ * Answer a type annotation walker that takes into consideration also external annotations.
+ * @param walker previous walker, may be empty, otherwise it will be returned unchanged
+ * @param member if either a IBinaryField or a IBinaryMethod is provided, answer a walker specifically for that member
+ * @param environment for use by the walker
+ * @return either a matching walker with data from external annotations or the walker provided via argument 'walker'.
+ */
+ITypeAnnotationWalker enrichWithExternalAnnotationsFor(ITypeAnnotationWalker walker, Object member, LookupEnvironment environment);
 
 }

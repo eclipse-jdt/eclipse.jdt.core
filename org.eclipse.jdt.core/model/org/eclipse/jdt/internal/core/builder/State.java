@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
@@ -45,7 +47,7 @@ private long previousStructuralBuildTime;
 private StringSet structurallyChangedTypes;
 public static int MaxStructurallyChangedTypes = 100; // keep track of ? structurally changed types, otherwise consider all to be changed
 
-public static final byte VERSION = 0x001B;
+public static final byte VERSION = 0x001C;
 
 static final byte SOURCE_FOLDER = 1;
 static final byte BINARY_FOLDER = 2;
@@ -269,10 +271,10 @@ static State read(IProject project, DataInputStream in) throws IOException {
 				newState.binaryLocations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean(), readRestriction(in));
 				break;
 			case EXTERNAL_JAR :
-				newState.binaryLocations[i] = ClasspathLocation.forLibrary(in.readUTF(), in.readLong(), readRestriction(in));
+				newState.binaryLocations[i] = ClasspathLocation.forLibrary(in.readUTF(), in.readLong(), readRestriction(in), new Path(in.readUTF()));
 				break;
 			case INTERNAL_JAR :
-				newState.binaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(new Path(in.readUTF())), readRestriction(in));
+				newState.binaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(new Path(in.readUTF())), readRestriction(in), new Path(in.readUTF()));
 		}
 	}
 
@@ -463,6 +465,7 @@ void write(DataOutputStream out) throws IOException {
 				out.writeUTF(jar.resource.getFullPath().toString());
 			}
 			writeRestriction(jar.accessRuleSet, out);
+			out.writeUTF(jar.externalAnnotationPath != null ? jar.externalAnnotationPath : ""); //$NON-NLS-1$
 		}
 	}
 

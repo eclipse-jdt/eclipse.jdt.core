@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 IBM Corporation and others.
+ * Copyright (c) 2005, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -111,6 +113,17 @@ public interface IClasspathAttribute {
 	 * @since 3.2
 	 */
 	String OPTIONAL = "optional"; //$NON-NLS-1$
+
+	/**
+	 * Constant for the name of the external annotation path attribute. 
+	 * 
+	 * <p>The value for this attribute has to be the string representation of a path.
+	 * It should point to an existing directory where external annotations can be
+	 * found to support annotation based null analysis involving 3rd party libraries.</p>
+	 * 
+	 * @since 3.11
+	 */
+	String EXTERNAL_ANNOTATION_PATH = "annotationpath"; //$NON-NLS-1$
 
 	/**
 	 * Returns the name of this classpath attribute.

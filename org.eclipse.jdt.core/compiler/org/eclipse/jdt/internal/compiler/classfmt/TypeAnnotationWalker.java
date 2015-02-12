@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 GK Software AG.
+ * Copyright (c) 2013, 2015 GK Software AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,37 +13,11 @@ package org.eclipse.jdt.internal.compiler.classfmt;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
+import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 
-/**
- * A TypeAnnotationWalker is initialized with all type annotations found at a given element.
- * It can be used to walk into the types at the given element and finally answer the
- * actual annotations at any node of the walk.
- * 
- * The walker is implemented as immutable objects. During the walk either new instances
- * are created, or the current instance is shared if no difference is encountered.
- */
-public class TypeAnnotationWalker {
+/** Type annotation walker implementation based an actual annotations decoded from a .class file. */
+public class TypeAnnotationWalker implements ITypeAnnotationWalker {
 
-	public static final IBinaryAnnotation[] NO_ANNOTATIONS = new IBinaryAnnotation[0];
-
-	/**
-	 * A no-effect annotation walker, all walking methods are implemented as identity-functions.
-	 * At the end of any walk an empty array of annotations is returned.
-	 */
-	public static final TypeAnnotationWalker EMPTY_ANNOTATION_WALKER = new TypeAnnotationWalker(new IBinaryTypeAnnotation[0], 0L) {
-		public TypeAnnotationWalker toField() { return this; }
-		public TypeAnnotationWalker toTarget(int targetType) { return this; }
-		public TypeAnnotationWalker toThrows(int rank) { return this; }
-		public TypeAnnotationWalker toTypeArgument(int rank) { return this; }
-		public TypeAnnotationWalker toMethodParameter(short index) { return this; }
-		public TypeAnnotationWalker toSupertype(short index) { return this; }
-		public TypeAnnotationWalker toTypeParameterBounds(boolean isClassTypeParameter, int parameterRank) { return this; }
-		public TypeAnnotationWalker toTypeBound(short boundIndex) { return this; }
-		public TypeAnnotationWalker toTypeParameter(boolean isClassTypeParameter, int rank) { return this; }
-		public TypeAnnotationWalker toNextDetail(int detailKind) { return this; }
-		public IBinaryAnnotation[] getAnnotationsAtCursor(int currentTypeId) { return NO_ANNOTATIONS; }
-	};
-	
 	final protected IBinaryTypeAnnotation[] typeAnnotations;	// the actual material we're managing here
 	final protected long matches;								// bit mask of indices into typeAnnotations, 1 means active, 0 is filtered during the walk
 	final protected int pathPtr;								// pointer into the typePath
@@ -61,7 +35,7 @@ public class TypeAnnotationWalker {
 		this.pathPtr = pathPtr;
 	}
 
-	protected TypeAnnotationWalker restrict(long newMatches, int newPathPtr) {
+	protected ITypeAnnotationWalker restrict(long newMatches, int newPathPtr) {
 		if (this.matches == newMatches && this.pathPtr == newPathPtr) return this;
 		if (newMatches == 0 || this.typeAnnotations == null || this.typeAnnotations.length == 0)
 			return EMPTY_ANNOTATION_WALKER;
@@ -70,28 +44,25 @@ public class TypeAnnotationWalker {
 
 	// ==== filter by top-level targetType: ====
 	
-	/** Walk to a field. */
-	public TypeAnnotationWalker toField() {
+	@Override
+	public ITypeAnnotationWalker toField() {
 		return toTarget(AnnotationTargetTypeConstants.FIELD);
 	}
 
-	/** Walk to the return type of a method. */
-	public TypeAnnotationWalker toMethodReturn() {
+	@Override
+	public ITypeAnnotationWalker toMethodReturn() {
 		return toTarget(AnnotationTargetTypeConstants.METHOD_RETURN);
 	}
 
-	/**
-	 * Walk to the receiver type of a method.
-	 * Note: Type annotations on receiver are not currently used by the compiler.
-	 */
-	public TypeAnnotationWalker toReceiver() {
+	@Override
+	public ITypeAnnotationWalker toReceiver() {
 		return toTarget(AnnotationTargetTypeConstants.METHOD_RECEIVER);
 	}
 
 	/*
 	 * Implementation for walking to methodReturn, receiver type or field.
 	 */
-	protected TypeAnnotationWalker toTarget(int targetType) {
+	protected ITypeAnnotationWalker toTarget(int targetType) {
 		long newMatches = this.matches;
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
@@ -104,12 +75,8 @@ public class TypeAnnotationWalker {
 		return restrict(newMatches, 0);
 	}
 
-	/**
-	 * Walk to the type parameter of the given rank.
-	 * @param isClassTypeParameter whether we are looking for a class type parameter (else: method type type parameter)
-	 * @param rank rank of the type parameter
-	 */
-	public TypeAnnotationWalker toTypeParameter(boolean isClassTypeParameter, int rank) {
+	@Override
+	public ITypeAnnotationWalker toTypeParameter(boolean isClassTypeParameter, int rank) {
 		long newMatches = this.matches;
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
@@ -125,13 +92,8 @@ public class TypeAnnotationWalker {
 		return restrict(newMatches, 0);		
 	}
 
-	/**
-	 * Walk to the bounds of a type parameter of either a class or a method (signaled by isClassTypeParameter).
-	 * Clients must then call {@link #toTypeBound(short)} on the resulting walker.
-	 * @param isClassTypeParameter whether we are looking at a class type parameter (else: method type type parameter)
-	 * @param parameterRank rank of the type parameter.
-	 */
-	public TypeAnnotationWalker toTypeParameterBounds(boolean isClassTypeParameter, int parameterRank) {
+	@Override
+	public ITypeAnnotationWalker toTypeParameterBounds(boolean isClassTypeParameter, int parameterRank) {
 		long newMatches = this.matches;
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
@@ -147,12 +109,9 @@ public class TypeAnnotationWalker {
 		}
 		return restrict(newMatches, 0);	
 	}
-	/**
-	 * Detail of {@link #toTypeParameterBounds(boolean, int)}: walk to the bounds
-	 * of the previously selected type parameter. 
-	 * @param boundIndex
-	 */
-	public TypeAnnotationWalker toTypeBound(short boundIndex) {
+
+	@Override
+	public ITypeAnnotationWalker toTypeBound(short boundIndex) {
 		long newMatches = this.matches;
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
@@ -168,8 +127,12 @@ public class TypeAnnotationWalker {
 	}
 	
 	
-	/** Walk to the specified supertype: -1 is superclass, else the superinterface at the given index. */
-	public TypeAnnotationWalker toSupertype(short index) {
+	/**
+	 * {@inheritDoc}
+	 * <p>(superTypesSignature is ignored in this implementation).</p>
+	 */
+	@Override
+	public ITypeAnnotationWalker toSupertype(short index, char[] superTypeSignature) {
 		long newMatches = this.matches;
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
@@ -184,8 +147,8 @@ public class TypeAnnotationWalker {
 		return restrict(newMatches, 0);		
 	}
 
-	/** Walk to the index'th visible formal method parameter (i.e., not counting synthetic args). */
-	public TypeAnnotationWalker toMethodParameter(short index) {
+	@Override
+	public ITypeAnnotationWalker toMethodParameter(short index) {
 		long newMatches = this.matches;
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
@@ -200,10 +163,8 @@ public class TypeAnnotationWalker {
 		return restrict(newMatches, 0);		
 	}
 
-	/**
-	 * Walk to the throws type at the given index.
-	 */
-	public TypeAnnotationWalker toThrows(int index) {
+	@Override
+	public ITypeAnnotationWalker toThrows(int index) {
 		long newMatches = this.matches;
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
@@ -220,8 +181,8 @@ public class TypeAnnotationWalker {
 
 	// ==== descending into details: ====
 
-	/** Walk to the type argument of the given rank. */
-	public TypeAnnotationWalker toTypeArgument(int rank) {
+	@Override
+	public ITypeAnnotationWalker toTypeArgument(int rank) {
 		// like toNextDetail() but also checking byte 2 against rank
 		long newMatches = this.matches;
 		if (newMatches == 0)
@@ -240,8 +201,8 @@ public class TypeAnnotationWalker {
 		return restrict(newMatches, this.pathPtr+2);		
 	}
 
-	/** Walk to the bound of a wildcard. */
-	public TypeAnnotationWalker toWildcardBound() {
+	@Override
+	public ITypeAnnotationWalker toWildcardBound() {
 		long newMatches = this.matches;
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
@@ -258,25 +219,20 @@ public class TypeAnnotationWalker {
 		return restrict(newMatches, this.pathPtr+2);		
 	}
 
-	/**
-	 * Descend down one level of array dimensions.
-	 */
-	public TypeAnnotationWalker toNextArrayDimension() {
+	@Override
+	public ITypeAnnotationWalker toNextArrayDimension() {
 		return toNextDetail(AnnotationTargetTypeConstants.NEXT_ARRAY_DIMENSION);
 	}
 	
-	/**
-	 * Descend down one level of type nesting.
-	 */
-	public TypeAnnotationWalker toNextNestedType() {
+	@Override
+	public ITypeAnnotationWalker toNextNestedType() {
 		return toNextDetail(AnnotationTargetTypeConstants.NEXT_NESTED_TYPE);
 	}
 
 	/*
 	 * Implementation for walking along the type_path for array dimensions & nested types.
-	 * FIXME(stephan): support wildcard bounds.
 	 */
-	protected TypeAnnotationWalker toNextDetail(int detailKind) {
+	protected ITypeAnnotationWalker toNextDetail(int detailKind) {
 		long newMatches = this.matches;
 		if (newMatches == 0)
 			return EMPTY_ANNOTATION_WALKER;
@@ -294,12 +250,7 @@ public class TypeAnnotationWalker {
 	
 	// ==== leaves: the actual annotations: ====
 	
-	/**
-	 * Retrieve the type annotations at the current position
-	 * reached by invocations of toXYZ() methods.
-	 * @param currentTypeId the id of the type being annotated; 0 signals don't care / unknown;
-	 * 		 -1 signals if annotating a wildcard or a use of a type variable.
-	 */
+	@Override
 	public IBinaryAnnotation[] getAnnotationsAtCursor(int currentTypeId) {
 		int length = this.typeAnnotations.length;
 		IBinaryAnnotation[] filtered = new IBinaryAnnotation[length];

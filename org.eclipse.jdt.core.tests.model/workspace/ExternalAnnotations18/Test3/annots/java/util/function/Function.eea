@@ -1,0 +1,6 @@
+class java/util/function/Function
+ <T:R:>
+
+compose
+ <V:Ljava/lang/Object;>(Ljava/util/function/Function<-TV;+TT;>;)Ljava/util/function/Function<TV;TR;>;
+ <V:Ljava/lang/Object;>(Ljava/util/function/Function<-TV;+T0T;>;)Ljava/util/function/Function<TV;TR;>;

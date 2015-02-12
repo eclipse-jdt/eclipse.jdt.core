@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@
  *								bug 375366 - ECJ ignores unusedParameterIncludeDocCommentReference unless enableJavadoc option is set
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *     Jesper S Moller   - Contributions for
  *								bug 407297 - [1.8][compiler] Control generation of parameter names by option
  *    Mat Booth - Contribution for bug 405176 
@@ -1296,6 +1297,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	/* Bundle containing messages */
 	public ResourceBundle bundle;
 	protected FileSystem.Classpath[] checkedClasspaths;
+	// path to external annotations:
+	protected String annotationPath;
 
 	public Locale compilerLocale;
 	public CompilerOptions compilerOptions; // read-only
@@ -1757,6 +1760,7 @@ public void configure(String[] argv) {
 	final int INSIDE_S_start = 19;
 	final int INSIDE_CLASS_NAMES = 20;
 	final int INSIDE_WARNINGS_PROPERTIES = 21;
+	final int INSIDE_ANNOTATIONPATH_start = 22;
 
 	final int DEFAULT = 0;
 	ArrayList bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
@@ -1765,6 +1769,7 @@ public void configure(String[] argv) {
 	ArrayList classpaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 	ArrayList extdirsClasspaths = null;
 	ArrayList endorsedDirClasspaths = null;
+	this.annotationPath = null;
 
 	int index = -1;
 	int filesCount = 0;
@@ -2450,6 +2455,10 @@ public void configure(String[] argv) {
 					this.options.put(CompilerOptions.OPTION_ReportMissingNonNullByDefaultAnnotation, CompilerOptions.WARNING);
 					continue;
 				}
+				if (currentArg.equals("-annotationpath")) { //$NON-NLS-1$
+					mode = INSIDE_ANNOTATIONPATH_start;
+					continue;
+				}
 				break;
 			case INSIDE_TARGET :
 				if (this.didSpecifyTarget) {
@@ -2648,6 +2657,10 @@ public void configure(String[] argv) {
 			case INSIDE_WARNINGS_PROPERTIES :
 				initializeWarnings(currentArg);
 				mode = DEFAULT;
+				continue;
+			case INSIDE_ANNOTATIONPATH_start:
+				mode = DEFAULT;
+				this.annotationPath = currentArg;
 				continue;
 		}
 
@@ -4558,6 +4571,13 @@ protected void setPaths(ArrayList bootclasspaths,
 	this.checkedClasspaths = new FileSystem.Classpath[classpaths.size()];
 	classpaths.toArray(this.checkedClasspaths);
 	this.logger.logClasspath(this.checkedClasspaths);
+
+	if (this.annotationPath != null) {
+		for (FileSystem.Classpath cp : this.checkedClasspaths) {
+			if (cp instanceof ClasspathJar)
+				((ClasspathJar) cp).annotationPath = this.annotationPath;
+		}
+	}
 }
 private static boolean shouldIgnoreOptionalProblems(char[][] folderNames, char[] fileName) {
 	if (folderNames == null || fileName == null) {

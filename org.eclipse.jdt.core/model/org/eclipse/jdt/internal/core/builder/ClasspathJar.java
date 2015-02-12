@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,8 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tal Lev-Ami - added package cache for zip files
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
@@ -81,12 +83,14 @@ static SimpleSet findPackageSet(ClasspathJar jar) {
 String zipFilename; // keep for equals
 IFile resource;
 ZipFile zipFile;
+ZipFile annotationZipFile;
 long lastModified;
 boolean closeZipFileAtEnd;
 SimpleSet knownPackageNames;
 AccessRuleSet accessRuleSet;
+String externalAnnotationPath;
 
-ClasspathJar(IFile resource, AccessRuleSet accessRuleSet) {
+ClasspathJar(IFile resource, AccessRuleSet accessRuleSet, IPath externalAnnotationPath) {
 	this.resource = resource;
 	try {
 		java.net.URI location = resource.getLocationURI();
@@ -102,31 +106,46 @@ ClasspathJar(IFile resource, AccessRuleSet accessRuleSet) {
 	this.zipFile = null;
 	this.knownPackageNames = null;
 	this.accessRuleSet = accessRuleSet;
+	if (externalAnnotationPath != null)
+		this.externalAnnotationPath = externalAnnotationPath.toString();
 }
 
-ClasspathJar(String zipFilename, long lastModified, AccessRuleSet accessRuleSet) {
+ClasspathJar(String zipFilename, long lastModified, AccessRuleSet accessRuleSet, IPath externalAnnotationPath) {
 	this.zipFilename = zipFilename;
 	this.lastModified = lastModified;
 	this.zipFile = null;
 	this.knownPackageNames = null;
 	this.accessRuleSet = accessRuleSet;
+	if (externalAnnotationPath != null)
+		this.externalAnnotationPath = externalAnnotationPath.toString();
 }
 
-public ClasspathJar(ZipFile zipFile, AccessRuleSet accessRuleSet) {
+public ClasspathJar(ZipFile zipFile, AccessRuleSet accessRuleSet, IPath externalAnnotationPath) {
 	this.zipFilename = zipFile.getName();
 	this.zipFile = zipFile;
 	this.closeZipFileAtEnd = false;
 	this.knownPackageNames = null;
 	this.accessRuleSet = accessRuleSet;
+	if (externalAnnotationPath != null)
+		this.externalAnnotationPath = externalAnnotationPath.toString();
 }
 
 public void cleanup() {
-	if (this.zipFile != null && this.closeZipFileAtEnd) {
-		try {
-			this.zipFile.close();
-		} catch(IOException e) { // ignore it
+	if (this.closeZipFileAtEnd) {
+		if (this.zipFile != null) {
+			try {
+				this.zipFile.close();
+			} catch(IOException e) { // ignore it
+			}
+			this.zipFile = null;
 		}
-		this.zipFile = null;
+		if (this.annotationZipFile != null) {
+			try {
+				this.annotationZipFile.close();
+			} catch(IOException e) { // ignore it
+			}
+			this.annotationZipFile = null;
+		}
 	}
 	this.knownPackageNames = null;
 }
@@ -148,9 +167,16 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	try {
 		ClassFileReader reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		if (reader != null) {
+			String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
+			if (this.externalAnnotationPath != null) {
+				try {
+					this.annotationZipFile = reader.setExternalAnnotationProvider(this.externalAnnotationPath, fileNameWithoutExtension, this.annotationZipFile, null);
+				} catch (IOException e) {
+					// don't let error on annotations fail class reading
+				}
+			}
 			if (this.accessRuleSet == null)
 				return new NameEnvironmentAnswer(reader, null);
-			String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
 			return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()));
 		}
 	} catch (IOException e) { // treat as if class file is missing

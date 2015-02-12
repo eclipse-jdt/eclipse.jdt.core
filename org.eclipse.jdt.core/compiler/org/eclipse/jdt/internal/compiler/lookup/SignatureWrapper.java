@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440474 - [null] textual encoding of external null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -90,6 +92,42 @@ public class SignatureWrapper {
 			this.end = dot;
 
 		return CharOperation.subarray(this.signature, this.start, this.start = this.end); // skip word
+	}
+	/**  similar to nextWord() but don't stop at '.' */
+	public char[] nextName() {
+		this.end = CharOperation.indexOf(';', this.signature, this.start);
+		if (this.bracket <= this.start) // already know it if its > start
+			this.bracket = CharOperation.indexOf('<', this.signature, this.start);
+
+		if (this.bracket > this.start && this.bracket < this.end)
+			this.end = this.bracket;
+
+		return CharOperation.subarray(this.signature, this.start, this.start = this.end); // skip name
+	}
+
+	/**  answer the next type (incl. type arguments), but don't advance any cursors */
+	public char[] peekFullType() {
+		int s = this.start, b = this.bracket, e = this.end;
+		int peekEnd = skipAngleContents(computeEnd());
+		this.start = s;
+		this.bracket = b;
+		this.end = e;
+		return CharOperation.subarray(this.signature, s, peekEnd+1);
+	}
+
+	/**
+	 * assuming a previously stored start of 's' followed by a call to computeEnd()
+	 * now retrieve the content between these bounds including trailing angle content
+	 */
+	public char[] getFrom(int s) {
+		if (this.end == this.bracket) {
+			this.end = skipAngleContents(this.bracket);
+			this.start = this.end + 1;
+		}
+		return CharOperation.subarray(this.signature, s, this.end+1);
+	}
+	public char[] tail() {
+		return CharOperation.subarray(this.signature, this.start, this.signature.length);
 	}
 	public String toString() {
 		return new String(this.signature) + " @ " + this.start; //$NON-NLS-1$

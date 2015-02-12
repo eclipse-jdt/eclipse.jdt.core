@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -193,6 +195,9 @@ private static Class[] getAllTestClasses() {
 		
 		// Tests regarding null-annotations:
 		NullAnnotationModelTests.class,
+		ExternalAnnotations17Test.class,
+		ExternalAnnotations18Test.class,
+
 		// Java model changes related to Java 8
 		JavaElement8Tests.class,
 	};

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@
  *     IBM Corporation - initial API and implementation
  *     Terry Parker <tparker@google.com> - DeltaProcessor misses state changes in archive files, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=357425
  *     Thirumala Reddy Mutchukota <thirumala@google.com> - Avoid optional library classpath entries validation - https://bugs.eclipse.org/bugs/show_bug.cgi?id=412882
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -330,12 +332,21 @@ public class ClasspathEntry implements IClasspathEntry {
 	}
 
 	/**
-	 * Used to perform export/restriction propagation across referring projects/containers
+	 * Used to perform export/restriction propagation across referring projects/containers.
+	 * Also: propagating extraAttributes.
 	 */
 	public ClasspathEntry combineWith(ClasspathEntry referringEntry) {
 		if (referringEntry == null) return this;
-		if (referringEntry.isExported() || referringEntry.getAccessRuleSet() != null ) {
+		IClasspathAttribute[] referringExtraAttributes = referringEntry.getExtraAttributes();
+		if (referringEntry.isExported() || referringEntry.getAccessRuleSet() != null || referringExtraAttributes.length > 0) {
 			boolean combine = this.entryKind == CPE_SOURCE || referringEntry.combineAccessRules();
+			IClasspathAttribute[] combinedAttributes = this.extraAttributes;
+			int lenRefer = referringExtraAttributes.length;
+			if (lenRefer > 0) {
+				int lenCombined = combinedAttributes.length;
+				System.arraycopy(combinedAttributes, 0, combinedAttributes=new IClasspathAttribute[lenCombined+lenRefer], 0, lenCombined);
+				System.arraycopy(referringExtraAttributes, 0, combinedAttributes, lenCombined, lenRefer);
+			}
 			return new ClasspathEntry(
 								getContentKind(),
 								getEntryKind(),
@@ -348,7 +359,7 @@ public class ClasspathEntry implements IClasspathEntry {
 								referringEntry.isExported() || this.isExported, // duplicate container entry for tagging it as exported
 								combine(referringEntry.getAccessRules(), getAccessRules(), combine),
 								this.combineAccessRules,
-								this.extraAttributes);
+								combinedAttributes);
 		}
 		// no need to clone
 		return this;
@@ -1245,7 +1256,74 @@ public class ClasspathEntry implements IClasspathEntry {
 		return this.sourceAttachmentRootPath;
 	}
 
+	/**
+	 * Internal API: answer the path for external annotations (for null analysis) associated with
+	 * the given classpath entry.
+	 * Four shapes of paths are supported:
+	 * <ol>
+	 * <li>relative, variable (VAR/relpath): resolve classpath variable VAR and append relpath</li>
+	 * <li>relative, project (relpath): interpret relpath as a relative path within the given project</li>
+	 * <li>absolute, workspace (/Proj/relpath): an absolute path in the workspace</li>
+	 * <li>absolute, filesystem (/abspath): an absolute path in the filesystem</li>
+	 * </ol>
+	 * In case of ambiguity, workspace lookup has higher priority than filesystem lookup
+	 * (in fact filesystem paths are never validated).
+	 * 
+	 * @param entry classpath entry to work on
+	 * @param project project whose classpath we are analysing
+	 * @param resolve if true, any workspace-relative paths will be resolved to filesystem paths.
+	 * @return a path (in the workspace or filesystem-absolute) or null
+	 */
+	public static IPath getExternalAnnotationPath(IClasspathEntry entry, IProject project, boolean resolve) {
+		String rawAnnotationPath = getRawExternalAnnotationPath(entry);
+		if (rawAnnotationPath != null) {
+			IPath annotationPath = new Path(rawAnnotationPath);
+			if (annotationPath.isAbsolute()) {
+				if (!resolve)
+					return annotationPath;
 
+				if (annotationPath.segmentCount() > 1) {
+					// try Workspace-absolute:
+					IProject targetProject = project.getWorkspace().getRoot().getProject(annotationPath.segment(0));
+					if (targetProject.exists())
+						return targetProject.getLocation().append(annotationPath.removeFirstSegments(1));
+				}
+				// absolute, not in workspace, must be Filesystem-absolute:
+				return annotationPath;
+			} else {
+				// try Variable (always resolved):
+				IPath resolved = JavaCore.getResolvedVariablePath(annotationPath);
+				if (resolved != null)
+					return resolved;
+
+				// Project-relative:
+				if (project != null) {
+					if (resolve)
+						return project.getLocation().append(annotationPath);
+					else
+						return new Path(project.getName()).append(annotationPath).makeAbsolute();
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Answer the raw external annotation path as specified in .classpath, or null.
+	 * @param entry where to look
+	 * @return the attached external annotation path, or null.
+	 */
+	static String getRawExternalAnnotationPath(IClasspathEntry entry) {
+		IClasspathAttribute[] extraAttributes = entry.getExtraAttributes();
+		for (int i = 0, length = extraAttributes.length; i < length; i++) {
+			IClasspathAttribute attribute = extraAttributes[i];
+			if (IClasspathAttribute.EXTERNAL_ANNOTATION_PATH.equals(attribute.getName())) {
+				return attribute.getValue();
+			}
+		}
+		return null;
+	}
+	
 	public IClasspathEntry getReferencingEntry() {
 		return this.referencingEntry;
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  *           -  Another problem with inner classes referenced from jars or class folders: "The type ... cannot be resolved"
  *     Stephan Herrmann - Contribution for
  *								Bug 392727 - Cannot compile project when a java file contains $ in its file name
+ *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
@@ -103,6 +104,7 @@ private void computeClasspathLocations(
 		ClasspathEntry entry = (ClasspathEntry) classpathEntries[i];
 		IPath path = entry.getPath();
 		Object target = JavaModel.getTarget(path, true);
+		IPath externalAnnotationPath = ClasspathEntry.getExternalAnnotationPath(entry, javaProject.getProject(), true);
 		if (target == null) continue nextEntry;
 
 		switch(entry.getEntryKind()) {
@@ -172,7 +174,7 @@ private void computeClasspathLocations(
 							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
 								? null
 								: entry.getAccessRuleSet();
-						bLocation = ClasspathLocation.forLibrary((IFile) resource, accessRuleSet);
+						bLocation = ClasspathLocation.forLibrary((IFile) resource, accessRuleSet, externalAnnotationPath);
 					} else if (resource instanceof IContainer) {
 						AccessRuleSet accessRuleSet =
 							(JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true))
@@ -200,7 +202,7 @@ private void computeClasspathLocations(
 							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
 								? null
 								: entry.getAccessRuleSet();
-					bLocations.add(ClasspathLocation.forLibrary(path.toString(), accessRuleSet));
+					bLocations.add(ClasspathLocation.forLibrary(path.toString(), accessRuleSet, externalAnnotationPath));
 				}
 				continue nextEntry;
 		}
