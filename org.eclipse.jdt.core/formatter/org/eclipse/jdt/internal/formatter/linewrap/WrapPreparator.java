@@ -10,7 +10,22 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter.linewrap;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.*;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOLON;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_BLOCK;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameDOT;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameEQUAL;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameLBRACE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameLPAREN;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameOR;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameQUESTION;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRPAREN;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameextends;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameimplements;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamenew;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamethrows;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,12 +67,13 @@ import org.eclipse.jdt.core.dom.UnionType;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
+import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions.Alignment;
 import org.eclipse.jdt.internal.formatter.Token;
+import org.eclipse.jdt.internal.formatter.Token.WrapPolicy;
 import org.eclipse.jdt.internal.formatter.TokenManager;
 import org.eclipse.jdt.internal.formatter.TokenTraverser;
-import org.eclipse.jdt.internal.formatter.Token.WrapPolicy;
-import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions.Alignment;
 
 public class WrapPreparator extends ASTVisitor {
 
@@ -85,7 +101,8 @@ public class WrapPreparator extends ASTVisitor {
 
 	final TokenManager tm;
 	final DefaultCodeFormatterOptions options;
-
+	final int kind;
+	
 	FieldAligner fieldAligner;
 
 	int importsStart = -1, importsEnd = -1;
@@ -101,9 +118,10 @@ public class WrapPreparator extends ASTVisitor {
 
 	private int currentDepth = 0;
 
-	public WrapPreparator(TokenManager tokenManager, DefaultCodeFormatterOptions options) {
+	public WrapPreparator(TokenManager tokenManager, DefaultCodeFormatterOptions options, int kind) {
 		this.tm = tokenManager;
 		this.options = options;
+		this.kind = kind;
 	}
 
 	@Override
@@ -722,7 +740,8 @@ public class WrapPreparator extends ASTVisitor {
 		endingBreaks = Math.min(endingBreaks, this.options.number_of_empty_lines_to_preserve);
 		if (endingBreaks > 0) {
 			last.putLineBreaksAfter(endingBreaks);
-		} else if (this.options.insert_new_line_at_end_of_file_if_missing) {
+		} else if ((this.kind & CodeFormatter.K_COMPILATION_UNIT) != 0
+				&& this.options.insert_new_line_at_end_of_file_if_missing) {
 			last.breakAfter();
 		}
 	}

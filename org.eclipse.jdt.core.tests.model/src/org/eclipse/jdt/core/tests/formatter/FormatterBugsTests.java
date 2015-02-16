@@ -10617,4 +10617,26 @@ public void testBug437639() throws Exception {
 		"}\n"
     );
 }
+/**
+ * @bug 460008: [formatter] Inserts wrong line breaks on ASTRewrite (Extract Constant, Extract Local Variable)
+ * @test test line break is not added at end of expression
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=460008"
+ */
+public void testBug460008() throws Exception {
+	this.formatterPrefs.insert_new_line_at_end_of_file_if_missing = true;
+	String source = "name";
+	
+	formatSource(source, source, CodeFormatter.K_EXPRESSION);
+	formatSource(source, source, CodeFormatter.K_UNKNOWN);
+	
+	source = "public int field = 1;";
+	formatSource(source, source, CodeFormatter.K_STATEMENTS | CodeFormatter.F_INCLUDE_COMMENTS);
+	
+	source = "/**Javadoc*/public int field=1;";
+	String result = "/** Javadoc */\n" +
+		"public int field = 1;";
+	formatSource(source, result, CodeFormatter.K_CLASS_BODY_DECLARATIONS | CodeFormatter.F_INCLUDE_COMMENTS);
+	
+	// K_COMPILATION_UNIT is tested by FormatterRegressionTests#test512() and #test643()
+}
 }
