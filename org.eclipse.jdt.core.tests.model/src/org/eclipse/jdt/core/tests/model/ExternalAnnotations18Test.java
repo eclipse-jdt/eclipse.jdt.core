@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.ClasspathAttribute;
 import org.osgi.framework.Bundle;
@@ -195,7 +196,8 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	}
 	
 	protected void tearDown() throws Exception {
-		this.project.getProject().delete(true, true, null);
+		if (this.project != null)
+			this.project.getProject().delete(true, true, null);
 		this.project = null;
 		this.root = null;
 		super.tearDown();
@@ -262,6 +264,10 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				System.err.println("Unmatched problem "+messages[i]);
 		}
 		assertEquals("Number of problems", messages.length, nMatch);
+	}
+
+	protected boolean hasJRE18() {
+		return ((AbstractCompilerTest.getPossibleComplianceLevels() & AbstractCompilerTest.F_1_8) != 0);
 	}
 
 	/** Perform full build. */
@@ -748,8 +754,9 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		}, new int[] { 8, 9 });
 	}
 
-	/** Project with real JRE8. */
+	/** Project with real JRE. */
 	public void test2() throws Exception {
+		// library type used: j.u.Map (no need for JRE8)
 		Hashtable options = JavaCore.getOptions();
 		try {
 			setupJavaProject("Test2");
@@ -767,6 +774,10 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	 * .classpath uses var TESTWORK for path to external annotations.
 	 */
 	public void test3() throws Exception {
+		if (!hasJRE18()) {
+			System.out.println("Skipping ExternalAnnotations18Test.test3(), needs JRE8");
+			return;
+		}
 		final String TESTWORK_VAR_NAME = "TESTWORK";
 		JavaCore.setClasspathVariable(TESTWORK_VAR_NAME, new Path(getSourceWorkspacePath()), null);
 		Hashtable options = JavaCore.getOptions();
