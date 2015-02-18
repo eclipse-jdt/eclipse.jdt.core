@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2014 IBM Corporation and others.
+ * Copyright (c) 2006, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -305,13 +305,8 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		addFilesFrom(javaHomeFile, "java.endorsed.dirs", "/lib/endorsed", files);//$NON-NLS-1$//$NON-NLS-2$
 		if (javaHomeFile != null) {
 			File[] directoriesToCheck = null;
-			if (System.getProperty("os.name").startsWith("Mac")) {//$NON-NLS-1$//$NON-NLS-2$
-				directoriesToCheck = new File[] { new File(javaHomeFile, "../Classes"), //$NON-NLS-1$
-				};
-			} else {
-				directoriesToCheck = new File[] { new File(javaHomeFile, "lib") //$NON-NLS-1$
-				};
-			}
+			String libs = System.getProperty("os.name").startsWith("Mac") && jdkLevel == ClassFileConstants.JDK1_6 ? "../Classes" : "lib";//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			directoriesToCheck = new File[] { new File(javaHomeFile, libs)};
 			File[][] jars = Main.getLibrariesFiles(directoriesToCheck);
 			addFiles(jars, files);
 		}

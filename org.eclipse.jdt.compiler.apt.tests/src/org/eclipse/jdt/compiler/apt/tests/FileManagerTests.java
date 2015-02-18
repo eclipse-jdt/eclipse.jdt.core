@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2014 BEA Systems, Inc. and others
+ * Copyright (c) 2007, 2015 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -163,5 +163,27 @@ public class FileManagerTests extends TestCase {
 		}
 		assertTrue("delete failed", inputFile.delete());
 		assertTrue("delete failed", dir.delete());
+	}
+
+	public void testBug460085() {
+		try {
+			boolean found = false;
+			EclipseFileManager fileManager = null;
+			fileManager = new EclipseFileManager(Locale.getDefault(), Charset.defaultCharset());
+			Iterable <? extends File> files = fileManager.getLocation(javax.tools.StandardLocation.PLATFORM_CLASS_PATH);
+			Iterator<? extends File> iter = files.iterator();
+			while (iter.hasNext()) {
+				File f = iter.next();
+				if ("rt.jar".equals(f.getName())) {
+					found = true;
+					break;
+				}
+			}
+			fileManager.close();
+			assertTrue("rt.jar not found", found);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
 	}
 }
