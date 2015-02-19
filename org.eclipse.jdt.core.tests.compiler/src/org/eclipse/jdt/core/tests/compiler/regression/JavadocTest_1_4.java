@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3136,6 +3136,26 @@ public class JavadocTest_1_4 extends JavadocTest {
 			"4. ERROR in X.java (at line 7)\n" + 
 			"	class Entry<L, R> {\n" + 
 			"	            ^^^^\n" + 
+			"Syntax error, type parameters are only available if source level is 1.5 or greater\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug101283e() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"/**\n" +
+				" * @see #foo()\n" +
+				" */\n" +
+				"public interface X<T> {\n" +
+				"\n" +
+				"	public T foo();\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	public interface X<T> {\n" + 
+			"	                   ^\n" + 
 			"Syntax error, type parameters are only available if source level is 1.5 or greater\n" + 
 			"----------\n"
 		);

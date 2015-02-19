@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -478,7 +478,7 @@ public class Javadoc extends ASTNode {
 
 		// Verify that there's no type variable reference
 		// (javadoc does not accept them and this is not a referenced bug or requested enhancement)
-		if (reference.resolvedType != null && reference.resolvedType.isTypeVariable()) {
+		else if (reference instanceof JavadocSingleTypeReference && reference.resolvedType != null && reference.resolvedType.isTypeVariable()) {
 			scope.problemReporter().javadocInvalidReference(reference.sourceStart, reference.sourceEnd);
 		}
 	}
