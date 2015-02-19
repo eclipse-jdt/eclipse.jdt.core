@@ -20,6 +20,7 @@
  *								bug 388281 - [compiler][null] inheritance of null annotations as an option
  *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
  *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
+ *								Bug 440687 - [compiler][batch][null] improve command line option for external annotations
  *     Jesper S Moller   - Contributions for
  *								bug 407297 - [1.8][compiler] Control generation of parameter names by option
  *    Mat Booth - Contribution for bug 405176 
@@ -1287,6 +1288,10 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			return bundle;
 		}
 	}
+
+	// used with -annotationpath to declare that annotations should be read from the classpath:
+	private static final String ANNOTATION_SOURCE_CLASSPATH = "CLASSPATH"; //$NON-NLS-1$
+
 	// javadoc analysis tuning
 	boolean enableJavadocOn;
 
@@ -1297,8 +1302,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	/* Bundle containing messages */
 	public ResourceBundle bundle;
 	protected FileSystem.Classpath[] checkedClasspaths;
-	// path to external annotations:
-	protected String annotationPath;
+	// paths to external annotations:
+	protected List<String> annotationPaths;
+	protected boolean annotationsFromClasspath;
 
 	public Locale compilerLocale;
 	public CompilerOptions compilerOptions; // read-only
@@ -1769,7 +1775,8 @@ public void configure(String[] argv) {
 	ArrayList classpaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 	ArrayList extdirsClasspaths = null;
 	ArrayList endorsedDirClasspaths = null;
-	this.annotationPath = null;
+	this.annotationPaths = null;
+	this.annotationsFromClasspath = false;
 
 	int index = -1;
 	int filesCount = 0;
@@ -2660,7 +2667,17 @@ public void configure(String[] argv) {
 				continue;
 			case INSIDE_ANNOTATIONPATH_start:
 				mode = DEFAULT;
-				this.annotationPath = currentArg;
+				if (currentArg.isEmpty() || currentArg.charAt(0) == '-')
+					throw new IllegalArgumentException(this.bind("configure.missingAnnotationPath", currentArg)); //$NON-NLS-1$
+				if (ANNOTATION_SOURCE_CLASSPATH.equals(currentArg)) {
+					this.annotationsFromClasspath = true;
+				} else {
+					if (this.annotationPaths == null)
+						this.annotationPaths = new ArrayList<String>();
+					StringTokenizer tokens = new StringTokenizer(currentArg, File.pathSeparator);
+					while (tokens.hasMoreTokens())
+						this.annotationPaths.add(tokens.nextToken());
+				}
 				continue;
 		}
 
@@ -3060,7 +3077,8 @@ public File getJavaHome() {
 }
 
 public FileSystem getLibraryAccess() {
-	return new FileSystem(this.checkedClasspaths, this.filenames);
+	return new FileSystem(this.checkedClasspaths, this.filenames, 
+					this.annotationsFromClasspath && CompilerOptions.ENABLED.equals(this.options.get(CompilerOptions.OPTION_AnnotationBasedNullAnalysis)));
 }
 
 /*
@@ -4572,10 +4590,10 @@ protected void setPaths(ArrayList bootclasspaths,
 	classpaths.toArray(this.checkedClasspaths);
 	this.logger.logClasspath(this.checkedClasspaths);
 
-	if (this.annotationPath != null) {
+	if (this.annotationPaths != null && CompilerOptions.ENABLED.equals(this.options.get(CompilerOptions.OPTION_AnnotationBasedNullAnalysis))) {
 		for (FileSystem.Classpath cp : this.checkedClasspaths) {
 			if (cp instanceof ClasspathJar)
-				((ClasspathJar) cp).annotationPath = this.annotationPath;
+				((ClasspathJar) cp).annotationPaths = this.annotationPaths;
 		}
 	}
 }

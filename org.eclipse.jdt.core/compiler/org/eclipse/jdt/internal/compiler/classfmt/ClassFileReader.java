@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contribution for
  *								Bug 365992 - [builder] [null] Change of nullness for a parameter doesn't trigger a build for the files that call the method
  *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
+ *								Bug 440687 - [compiler][batch][null] improve command line option for external annotations
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *         						bug 407191 - [1.8] Binary access support for type annotations
  *******************************************************************************/
@@ -445,6 +446,9 @@ public ZipFile setExternalAnnotationProvider(String basePath, String qualifiedBi
 	if (entry != null)
 		this.annotationProvider = new ExternalAnnotationProvider(zipFile.getInputStream(entry), String.valueOf(getName()));
 	return zipFile;
+}
+public boolean hasAnnotationProvider() {
+	return this.annotationProvider != null;
 }
 
 /**

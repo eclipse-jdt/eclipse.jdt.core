@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 IBM Corporation and others.
+ * Copyright (c) 2010, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440687 - [compiler][batch][null] improve command line option for external annotations
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
@@ -26,7 +28,7 @@ class NameEnvironmentWithProgress extends FileSystem implements INameEnvironment
 	IProgressMonitor monitor;
 	
 	public NameEnvironmentWithProgress(Classpath[] paths, String[] initialFileNames, IProgressMonitor monitor) {
-		super(paths, initialFileNames);
+		super(paths, initialFileNames, false);
 		setMonitor(monitor);
 	}
 	private void checkCanceled() {

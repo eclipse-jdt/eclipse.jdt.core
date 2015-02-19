@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
  *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
+ *								Bug 440687 - [compiler][batch][null] improve command line option for external annotations
  *     Jesper Steen Moller - Contributions for
  *								bug 404146 - [1.7][compiler] nested try-catch-finally-blocks leads to unrunnable Java byte code
  *								bug 407297 - [1.8][compiler] Control generation of parameter names by option
@@ -110,6 +111,14 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 			"@Retention(RetentionPolicy.CLASS)\n" +
 			"@Target({ ElementType.TYPE_USE })\n" +
 			"public @interface NonNull{\n" +
+			"}\n";
+	private static final String NULLABLE_ANNOTATION_18_CONTENT = "package org.eclipse.jdt.annotation;\n" +
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Documented\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" +
+			"@Target({ ElementType.TYPE_USE })\n" +
+			"public @interface Nullable{\n" +
 			"}\n";
 	private static final String NONNULL_BY_DEFAULT_ANNOTATION_18_CONTENT = "package org.eclipse.jdt.annotation;\n" +
 			"import java.lang.annotation.ElementType;\n" + 
@@ -1704,9 +1713,11 @@ public void test012(){
         "    -Xemacs            used to enable emacs-style output in the console.\n" +
         "                       It does not affect the xml log output\n" +
         "    -missingNullDefault  report missing default nullness annotation\n" +
-        "    -annotationpath <path>\n" + 
-        "                       Path to a base directory or zip file holding external\n" + 
-        "                       annotations to support annotation-based null analysis\n" + 
+        "    -annotationpath <directories and ZIP archives separated by " + File.pathSeparator + ">\n" + 
+        "                       specify locations where to find external annotations\n" + 
+        "                       to support annotation-based null analysis.\n" + 
+        "                       The special name CLASSPATH will cause lookup of\n" + 
+        "                       external annotations from the classpath and sourcepath.\n" + 
         " \n" + 
         "    -? -help           print this help message\n" +
         "    -v -version        print compiler version\n" +
@@ -14105,18 +14116,7 @@ public void test440477() throws IOException {
 	new File(annots_java_util).mkdirs();
 	Util.createFile(
 			annots_java_util + File.separator + "Map.eea", 
-			"class java/util/Map\n" +
-			" <K:V:>\n" + 
-			"\n" + 
-			"get\n" + 
-			" (Ljava/lang/Object;)TV;\n" + 
-			" (Ljava/lang/Object;)T0V;\n" + 
-			"put\n" + 
-			" (TK;TV;)TV;\n" + 
-			" (TK;TV;)T0V;\n" + 
-			"remove\n" + 
-			" (Ljava/lang/Object;)TV;\n" + 
-			" (Ljava/lang/Object;)T0V;\n");
+			TEST_440687_MAP_EEA_CONTENT);
 
 	String o_e_j_annotation_dir = OUTPUT_DIR + File.separator +
 			"org" + File.separator + "eclipse" + File.separator + "jdt" + File.separator + "annotation";
@@ -14128,6 +14128,8 @@ public void test440477() throws IOException {
 			ELEMENT_TYPE_18_CONTENT,
 			"org/eclipse/jdt/annotation/NonNull.java",
 			NONNULL_ANNOTATION_18_CONTENT,
+			"org/eclipse/jdt/annotation/Nullable.java",
+			NULLABLE_ANNOTATION_18_CONTENT,
 			"org/eclipse/jdt/annotation/DefaultLocation.java",				
 			DEFAULT_LOCATION_CONTENT,
 			"org/eclipse/jdt/annotation/NonNullByDefault.java",				
@@ -14158,6 +14160,160 @@ public void test440477() throws IOException {
 			"",
 			"",
 			true);
+}
+// file content for tests below:
+private static final String TEST_440687_MAP_EEA_CONTENT =
+			"class java/util/Map\n" +
+			" <K:V:>\n" + 
+			"\n" + 
+			"get\n" + 
+			" (Ljava/lang/Object;)TV;\n" + 
+			" (Ljava/lang/Object;)T0V;\n" + 
+			"put\n" + 
+			" (TK;TV;)TV;\n" + 
+			" (TK;TV;)T0V;\n" + 
+			"remove\n" + 
+			" (Ljava/lang/Object;)TV;\n" + 
+			" (Ljava/lang/Object;)T0V;\n";
+private static final String TEST_440687_OBJECT_EEA_CONTENT =
+			"class java/lang/Object\n" +
+			"\n" + 
+			"equals\n" + 
+			" (Ljava/lang/Object;)Z\n" + 
+			" (L0java/lang/Object;)Z\n";
+// Bug 440687 - [compiler][batch][null] improve command line option for external annotations
+// work horse for tests below
+void runTest440687(String compilerPathArgs, String extraSourcePaths, String expectedCompilerMessage, boolean isSuccess) {
+
+	String[] testFiles = new String[] {
+				"java/lang/annotation/ElementType.java",
+				ELEMENT_TYPE_18_CONTENT,
+				"org/eclipse/jdt/annotation/NonNull.java",
+				NONNULL_ANNOTATION_18_CONTENT,
+				"org/eclipse/jdt/annotation/Nullable.java",
+				NULLABLE_ANNOTATION_18_CONTENT,
+				"org/eclipse/jdt/annotation/DefaultLocation.java",				
+				DEFAULT_LOCATION_CONTENT,
+				"org/eclipse/jdt/annotation/NonNullByDefault.java",				
+				NONNULL_BY_DEFAULT_ANNOTATION_18_CONTENT,
+				"test1/Test1.java",
+				"package test1;\n" + 
+				"\n" + 
+				"import java.util.Map;\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"@NonNullByDefault\n" + 
+				"public class Test1 {\n" + 
+				"	void test(Map<String,Test1> map, String key) {\n" + 
+				"		Test1 v = map.get(key);\n" + 
+				"		if (v == null)\n" + 
+				"			throw new RuntimeException(); // should not be reported as dead code, although V is a '@NonNull Test1'\n" + 
+				"	}\n" +
+				"	public boolean equals(@NonNull Object other) { return false; }\n" + 
+				"}\n"
+			};
+
+	String o_e_j_annotation_dir = OUTPUT_DIR + File.separator +
+			"org" + File.separator + "eclipse" + File.separator + "jdt" + File.separator + "annotation";
+	String j_l_annotation_dir = OUTPUT_DIR +  File.separator +
+			"java" + File.separator + "lang" + File.separator + "annotation";
+	
+	String commandLine = " -1.8 -proc:none -d none -warn:+nullAnnot " + compilerPathArgs +
+			" -sourcepath \"" + OUTPUT_DIR + extraSourcePaths + "\" " +
+			// explicitly mention all files to ensure a good order, cannot pull in source of NNBD on demand
+			"\"" + j_l_annotation_dir   +  File.separator + "ElementType.java\" " +
+			"\"" + o_e_j_annotation_dir +  File.separator + "NonNull.java\" " +
+			"\"" + o_e_j_annotation_dir +  File.separator + "DefaultLocation.java\" " +
+			"\"" + o_e_j_annotation_dir +  File.separator + "NonNullByDefault.java\" " +
+			"\"" + OUTPUT_DIR +  File.separator + "test1" + File.separator + "Test1.java\"";
+	
+	if (expectedCompilerMessage == null)
+		expectedCompilerMessage =
+				"----------\n" + 
+				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 13)\n" + 
+				"	public boolean equals(@NonNull Object other) { return false; }\n" + 
+				"	                      ^^^^^^^^^^^^^^^\n" + 
+				"Illegal redefinition of parameter other, inherited method from Object declares this parameter as @Nullable\n" + 
+				"----------\n" + 
+				"1 problem (1 warning)\n";
+	
+	if (isSuccess)
+		this.runConformTest(testFiles, commandLine, "", expectedCompilerMessage, true);
+	else
+		this.runNegativeTest(testFiles, commandLine, "", expectedCompilerMessage, true);
+}
+// Bug 440687 - [compiler][batch][null] improve command line option for external annotations
+// - two external annotation directories as part of the sourcepath/classpath
+public void test440687a() throws IOException {
+
+	String annots_dir1 = Util.getOutputDirectory() + File.separator + "annots1";
+	String annots_java_util = annots_dir1 + File.separator + "java/util";
+	new File(annots_java_util).mkdirs();
+	Util.createFile(annots_java_util + File.separator + "Map.eea",
+			TEST_440687_MAP_EEA_CONTENT);
+
+	String annots_dir2 = Util.getOutputDirectory() + File.separator + "annots2";
+	String annots_java_lang = annots_dir2 + File.separator + "java/lang";
+	new File(annots_java_lang).mkdirs();
+	Util.createFile(annots_java_lang + File.separator + "Object.eea",
+			TEST_440687_OBJECT_EEA_CONTENT);
+
+	runTest440687("-annotationpath CLASSPATH -classpath \"" + annots_dir2 + "\"", 
+			File.pathSeparator + annots_dir1, // extra source path 
+			null, // expect normal error
+			true);
+}
+// Bug 440687 - [compiler][batch][null] improve command line option for external annotations
+// - two external annotation directories specifically configured.
+public void test440687b() throws IOException {
+	
+	String annots_dir = Util.getOutputDirectory() + File.separator + "annots1";
+	String annots_java_util = annots_dir + File.separator + "java/util";
+	new File(annots_java_util).mkdirs();
+	Util.createFile(
+			annots_java_util + File.separator + "Map.eea", 
+			TEST_440687_MAP_EEA_CONTENT);
+
+	String annots_dir2 = Util.getOutputDirectory() + File.separator + "annots2";
+	String annots_java_lang = annots_dir2 + File.separator + "java/lang";
+	new File(annots_java_lang).mkdirs();
+	Util.createFile(
+			annots_java_lang + File.separator + "Object.eea", 
+			TEST_440687_OBJECT_EEA_CONTENT);
+	
+	runTest440687("-annotationpath \"" + annots_dir + File.pathSeparator + annots_dir2 + "\" ",
+				"", // no extra source path
+				null, // expect normal error
+				true);
+}
+// Bug 440687 - [compiler][batch][null] improve command line option for external annotations
+// - single external annotation zip with 2 entries
+public void test440687c() throws IOException {
+	
+	String annots_dir = Util.getOutputDirectory() + File.separator + "annots";
+	new File(annots_dir).mkdirs();
+	String annotsZipFile = annots_dir+ File.separator + "jre-annots.zip";
+	Util.createSourceZip(
+		new String[] {
+			"java/util/Map.eea",
+			TEST_440687_MAP_EEA_CONTENT,
+			"java/lang/Object.eea", 
+			TEST_440687_OBJECT_EEA_CONTENT
+		},
+		annotsZipFile);
+
+	runTest440687("-annotationpath CLASSPATH -classpath \"" + annotsZipFile + "\"",
+					"", // no extra source path
+					null, // expect normal error
+					true);
+}
+// Bug 440687 - [compiler][batch][null] improve command line option for external annotations
+// - missing argument after -annotationpath
+public void test440687d() throws IOException {
+	runTest440687("-annotationpath", // missing argument 
+					"",
+					"Missing argument to -annotationpath at \'-sourcepath\'\n",
+					false);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=439750
 public void test439750() {

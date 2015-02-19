@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
+ *								Bug 440687 - [compiler][batch][null] improve command line option for external annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -26,6 +27,7 @@ import java.util.zip.ZipFile;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
@@ -40,7 +42,7 @@ protected ZipFile zipFile;
 protected ZipFile annotationZipFile;
 protected boolean closeZipFileAtEnd;
 protected Hashtable packageCache;
-protected String annotationPath;
+protected List<String> annotationPaths;
 
 public ClasspathJar(File file, boolean closeZipFileAtEnd,
 		AccessRuleSet accessRuleSet, String destinationPath) {
@@ -102,12 +104,16 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 	try {
 		ClassFileReader reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		if (reader != null) {
-			if (this.annotationPath != null) {
+			if (this.annotationPaths != null) {
 				String qualifiedClassName = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length()-SuffixConstants.EXTENSION_CLASS.length()-1);
-				try {
-					this.annotationZipFile = reader.setExternalAnnotationProvider(this.annotationPath, qualifiedClassName, this.annotationZipFile, null);
-				} catch (IOException e) {
-					// don't let error on annotations fail class reading
+				for (String annotationPath : this.annotationPaths) {
+					try {
+						this.annotationZipFile = reader.setExternalAnnotationProvider(annotationPath, qualifiedClassName, this.annotationZipFile, null);
+						if (reader.hasAnnotationProvider())
+							break;
+					} catch (IOException e) {
+						// don't let error on annotations fail class reading
+					}
 				}
 			}
 			return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName));
@@ -118,6 +124,10 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 		// treat as if class file is missing
 	}
 	return null;
+}
+@Override
+public boolean hasAnnotationFileFor(String qualifiedTypeName) {
+	return this.zipFile.getEntry(qualifiedTypeName+'.'+ExternalAnnotationProvider.ANNOTION_FILE_EXTENSION) != null; 
 }
 public char[][][] findTypeNames(String qualifiedPackageName) {
 	if (!isPackage(qualifiedPackageName))

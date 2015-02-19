@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 440687 - [compiler][batch][null] improve command line option for external annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -19,6 +21,7 @@ import java.util.List;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
@@ -134,6 +137,15 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 		}
 	}
 	return null;
+}
+@Override
+public boolean hasAnnotationFileFor(String qualifiedTypeName) {
+	int pos = qualifiedTypeName.lastIndexOf('/');
+	if (pos != -1 && (pos + 1 < qualifiedTypeName.length())) {
+		String fileName = qualifiedTypeName.substring(pos + 1) + '.' + ExternalAnnotationProvider.ANNOTION_FILE_EXTENSION;
+		return doesFileExist(fileName, qualifiedTypeName.substring(0, pos));
+	}
+	return false;
 }
 public char[][][] findTypeNames(String qualifiedPackageName) {
 	if (!isPackage(qualifiedPackageName)) {
