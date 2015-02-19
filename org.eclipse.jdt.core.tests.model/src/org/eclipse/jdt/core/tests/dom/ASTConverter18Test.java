@@ -5077,4 +5077,35 @@ public void testBug459344_001() throws JavaModelException {
 	assertEquals("Wrong name", "hashCode", methodBinding.getName());
 	assertNull("Non-Null",cu.findDeclaringNode(methodBinding));
 }
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=460186
+ * @bug Bug 460186 IAE in ASTNode.setSourceRange with broken code case 2
+ * @throws JavaModelException
+ */
+public void testBug460186() throws JavaModelException {
+	String contents =
+			"package test460186;\n" +
+			"public class NPE {\n" + 
+			"	void foo(String[] args) throws Exception {\n" + 
+			"		if (args == null) error(); \n" + 
+			"		error();[]\n" + 
+			"	}\n" + 
+			"	void error() throws Exception {\n" + 
+			"		throw new Exception();\n" + 
+			"	}\n" + 
+			"}";
+	this.workingCopy = getWorkingCopy("/Converter18/src/test460186/NPE.java", contents, false/*computeProblems*/);
+	IJavaProject javaProject = this.workingCopy.getJavaProject();
+
+	final ASTParser parser = ASTParser.newParser(AST.JLS8);
+	parser.setResolveBindings(false);
+	parser.setProject(javaProject);
+	parser.setIgnoreMethodBodies(false);
+	ASTRequestor requestor = new ASTRequestor() {};
+	try {
+		parser.createASTs(new ICompilationUnit[] {this.workingCopy}, new String[0], requestor, null);
+	} catch (IllegalArgumentException e) {
+		assertTrue("Test Failed", false);
+	}
+}
 }
