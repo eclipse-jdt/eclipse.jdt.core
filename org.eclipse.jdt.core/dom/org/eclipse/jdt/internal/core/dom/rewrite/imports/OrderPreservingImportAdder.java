@@ -59,6 +59,8 @@ final class OrderPreservingImportAdder implements ImportAdder {
 			boolean atEndOfName2Segment = i == name2.length() || name2.charAt(i) == '.';
 			if (atEndOfName1Segment && atEndOfName2Segment) {
 				matchingSegments++;
+			} else if (atEndOfName1Segment || atEndOfName2Segment) {
+				break;
 			} else if (name1.charAt(i) != name2.charAt(i)) {
 				break;
 			}
