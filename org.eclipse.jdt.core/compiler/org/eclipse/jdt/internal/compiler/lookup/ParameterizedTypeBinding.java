@@ -287,6 +287,9 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
         	default :
         		return;
         }
+        if (formalArguments == null || actualArguments == null) { // band-aid for https://bugs.eclipse.org/460491 TODO: remove once really fixed
+        	return;
+        }
         inferenceContext.depth++;
         for (int i = 0, length = formalArguments.length; i < length; i++) {
         	TypeBinding formalArgument = formalArguments[i];

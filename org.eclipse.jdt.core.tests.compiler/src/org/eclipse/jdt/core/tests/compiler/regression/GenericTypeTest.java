@@ -20,6 +20,7 @@
  *								Bug 426676 - [1.8][compiler] Wrong generic method type inferred from lambda expression
  *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
  *								Bug 434483 - [1.8][compiler][inference] Type inference not picked up with method reference
+ *     Harry Terkelsen - Bug 460491 - NPE in ParameterizedTypeBinding.collectSubstitutes
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -52165,4 +52166,23 @@ public void testBug469201_B(){
 		"The method bar(Bar) from the type A is not visible\n" + 
 		"----------\n");
 		}
+public void testBug460491() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.WARNING);
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"class A {\n" +
+				"	private static final B.C c = new B.D<Void>();\n" +
+				"}",
+				"B.java",
+				"class B<T> {\n" +
+				"	public interface C {}\n" +
+				"	public static class D<R> implements C {}\n" +
+				"}"
+			},
+			customOptions);
+	}
+}
 }
