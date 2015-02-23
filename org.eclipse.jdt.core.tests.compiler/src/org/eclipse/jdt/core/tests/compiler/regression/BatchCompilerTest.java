@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -8909,7 +8913,7 @@ public void test217_warn_options() {
 // white-box test for internal API
 public void test218_batch_classpath_apis() {
 	assertFalse("path should be absolute",
-		new ClasspathJar(new File("relative.jar"), true, null, null).
+		new ClasspathJar(new File("relative.jar"), true, null, null, false).
 		getPath().indexOf(File.separator) == -1);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=214731
@@ -8917,7 +8921,7 @@ public void test218_batch_classpath_apis() {
 public void test219_batch_classpath_apis() {
 	assertFalse("path should be absolute",
 		CharOperation.indexOf('/',
-			new ClasspathJar(new File("relative.jar"), true, null, null).
+			new ClasspathJar(new File("relative.jar"), true, null, null, false).
 			normalizedPath()) == -1);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524

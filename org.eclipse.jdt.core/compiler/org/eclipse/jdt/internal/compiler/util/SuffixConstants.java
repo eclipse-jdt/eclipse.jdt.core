@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -15,6 +19,8 @@ public interface SuffixConstants {
 	public final static String EXTENSION_CLASS = "CLASS"; //$NON-NLS-1$
 	public final static String EXTENSION_java = "java"; //$NON-NLS-1$
 	public final static String EXTENSION_JAVA = "JAVA"; //$NON-NLS-1$
+	public final static String EXTENSION_jimage = "jimage"; //$NON-NLS-1$
+	public final static String EXTENSION_JIMAGE = "JIMAGE"; //$NON-NLS-1$
 
 	public final static String SUFFIX_STRING_class = "." + EXTENSION_class; //$NON-NLS-1$
 	public final static String SUFFIX_STRING_CLASS = "." + EXTENSION_CLASS; //$NON-NLS-1$

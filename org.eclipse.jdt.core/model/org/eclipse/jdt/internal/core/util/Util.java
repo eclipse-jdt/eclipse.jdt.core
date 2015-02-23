@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -46,6 +50,7 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.ClassSignature;
@@ -845,13 +850,18 @@ public class Util {
 						}
 					}
 					if (path != null) {
-						jar = JavaModelManager.getJavaModelManager().getZipFile(path);
-						for (Enumeration e= jar.entries(); e.hasMoreElements();) {
-							ZipEntry member= (ZipEntry) e.nextElement();
-							String entryName= member.getName();
-							if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
-								reader = ClassFileReader.read(jar, entryName);
-								break;
+						if (JavaModelManager.isJimage(path)) {
+							// TODO: Revisit: Possibly a wrong assumption depending on how things turn out in Java 9 world.
+							return ClassFileConstants.JDK1_9;
+						} else {
+							jar = JavaModelManager.getJavaModelManager().getZipFile(path);
+							for (Enumeration e= jar.entries(); e.hasMoreElements();) {
+								ZipEntry member= (ZipEntry) e.nextElement();
+								String entryName= member.getName();
+								if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entryName)) {
+									reader = ClassFileReader.read(jar, entryName);
+									break;
+								}
 							}
 						}
 					}

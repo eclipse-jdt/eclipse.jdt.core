@@ -55,7 +55,7 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 	fragInfo.setChildren(computeChildren(entries[0/*class files*/]));
 
 	// compute non-Java resources
-	fragInfo.setNonJavaResources(computeNonJavaResources(entries[1/*non Java resources*/]));
+	fragInfo.setNonJavaResources(computeNonJavaResources(entries[1/*non Java resources*/], root.isJimage));
 
 	newElements.put(this, fragInfo);
 	return true;
@@ -78,7 +78,7 @@ private IJavaElement[] computeChildren(ArrayList namesWithoutExtension) {
 /**
  * Compute all the non-java resources according to the given entry names.
  */
-private Object[] computeNonJavaResources(ArrayList entryNames) {
+private Object[] computeNonJavaResources(ArrayList entryNames, boolean isJimage) {
 	int length = entryNames.size();
 	if (length == 0)
 		return JavaElementInfo.NO_NON_JAVA_RESOURCES;
@@ -95,7 +95,7 @@ private Object[] computeNonJavaResources(ArrayList entryNames) {
 				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=222665
 				continue;
 			}
-			JarEntryFile file = new JarEntryFile(filePath.lastSegment());
+			JarEntryFile file = new JarEntryFile(filePath.lastSegment(), isJimage);
 			jarEntries.put(childPath, file);
 			if (childPath.segmentCount() == 1) {
 				file.setParent(this);

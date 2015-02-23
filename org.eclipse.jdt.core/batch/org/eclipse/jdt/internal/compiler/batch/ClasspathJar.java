@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -16,6 +20,8 @@ package org.eclipse.jdt.internal.compiler.batch;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -24,6 +30,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
@@ -43,11 +50,13 @@ protected ZipFile annotationZipFile;
 protected boolean closeZipFileAtEnd;
 protected Hashtable packageCache;
 protected List<String> annotationPaths;
+protected boolean isJimage;
 
 public ClasspathJar(File file, boolean closeZipFileAtEnd,
-		AccessRuleSet accessRuleSet, String destinationPath) {
+		AccessRuleSet accessRuleSet, String destinationPath, boolean jimage) {
 	super(accessRuleSet, destinationPath);
 	this.file = file;
+	this.isJimage = jimage;
 	this.closeZipFileAtEnd = closeZipFileAtEnd;
 }
 
@@ -77,7 +86,7 @@ public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemRe
 				int lastSeparator = directoryPath.lastIndexOf(File.separatorChar);
 				directoryPath = directoryPath.substring(0, lastSeparator + 1); // potentially empty (see bug 214731)
 				while (calledFilesIterator.hasNext()) {
-					result.add(new ClasspathJar(new File(directoryPath + (String) calledFilesIterator.next()), this.closeZipFileAtEnd, this.accessRuleSet, this.destinationPath));
+					result.add(new ClasspathJar(new File(directoryPath + (String) calledFilesIterator.next()), this.closeZipFileAtEnd, this.accessRuleSet, this.destinationPath, false));
 				}
 			}
 		}
@@ -102,7 +111,12 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 		return null; // most common case
 
 	try {
-		ClassFileReader reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
+		ClassFileReader reader = null;
+		if (this.isJimage) {
+			reader = ClassFileReader.readFromJimage(this.file.getPath(), qualifiedBinaryFileName);
+		} else {
+			reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
+		}
 		if (reader != null) {
 			if (this.annotationPaths != null) {
 				String qualifiedClassName = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length()-SuffixConstants.EXTENSION_CLASS.length()-1);
@@ -164,8 +178,20 @@ public char[][][] findTypeNames(String qualifiedPackageName) {
 	return null;
 }
 public void initialize() throws IOException {
-	if (this.zipFile == null) {
+	if (this.zipFile == null && !this.isJimage) {
 		this.zipFile = new ZipFile(this.file);
+	}
+}
+
+protected void addToPackageCache(String fileName, boolean endsWithSep) {
+	int last = endsWithSep ? fileName.length() : fileName.lastIndexOf('/');
+	while (last > 0) {
+		// extract the package name
+		String packageName = fileName.substring(0, last);
+		if (this.packageCache.containsKey(packageName))
+			return;
+		this.packageCache.put(packageName, packageName);
+		last = packageName.lastIndexOf('/');
 	}
 }
 public boolean isPackage(String qualifiedPackageName) {
@@ -174,19 +200,29 @@ public boolean isPackage(String qualifiedPackageName) {
 
 	this.packageCache = new Hashtable(41);
 	this.packageCache.put(Util.EMPTY_STRING, Util.EMPTY_STRING);
+	if (this.isJimage) {
+		try {
+			Util.walkModuleImage(this.file, new Util.JimageVisitor<java.nio.file.Path>() {
 
-	nextEntry : for (Enumeration e = this.zipFile.entries(); e.hasMoreElements(); ) {
-		String fileName = ((ZipEntry) e.nextElement()).getName();
+				@Override
+				public FileVisitResult visitPackage(java.nio.file.Path dir, BasicFileAttributes attrs) throws IOException {
+					addToPackageCache(dir.toString(), true);
+					return FileVisitResult.CONTINUE;
+				}
 
-		// add the package name & all of its parent packages
-		int last = fileName.lastIndexOf('/');
-		while (last > 0) {
-			// extract the package name
-			String packageName = fileName.substring(0, last);
-			if (this.packageCache.containsKey(packageName))
-				continue nextEntry;
-			this.packageCache.put(packageName, packageName);
-			last = packageName.lastIndexOf('/');
+				@Override
+				public FileVisitResult visitFile(java.nio.file.Path dir, BasicFileAttributes attrs) throws IOException {
+					return FileVisitResult.CONTINUE;
+				}
+
+			});
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+		}
+	} else {
+		for (Enumeration e = this.zipFile.entries(); e.hasMoreElements(); ) {
+			String fileName = ((ZipEntry) e.nextElement()).getName();
+			addToPackageCache(fileName, false);
 		}
 	}
 	return this.packageCache.containsKey(qualifiedPackageName);

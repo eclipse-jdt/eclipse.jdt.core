@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -175,7 +179,8 @@ public static Classpath getClasspath(String classpathName, String encoding,
 						convertPathSeparators(destinationPath));
 		}
 	} else {
-		if (Util.isPotentialZipArchive(classpathName)) {
+		int format = Util.archiveFormat(classpathName);
+		if (format > -1) {
 			if (isSourceOnly) {
 				// source only mode
 				result = new ClasspathSourceJar(file, true, accessRuleSet,
@@ -185,7 +190,7 @@ public static Classpath getClasspath(String classpathName, String encoding,
 						convertPathSeparators(destinationPath));
 			} else if (destinationPath == null) {
 				// class file only mode
-				result = new ClasspathJar(file, true, accessRuleSet, null);
+				result = new ClasspathJar(file, true, accessRuleSet, null, (format == Util.JIMAGE_FILE));
 			}
 		}
 	}

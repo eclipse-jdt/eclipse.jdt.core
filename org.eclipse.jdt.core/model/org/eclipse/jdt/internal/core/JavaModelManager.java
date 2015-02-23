@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Theodora Yeung (tyeung@bea.com) - ensure that JarPackageFragmentRoot make it into cache
@@ -239,6 +243,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * The default value is represented by <code>AbstractImageBuilder#MAX_AT_ONCE</code>.
 	 */
 	public static final String MAX_COMPILED_UNITS_AT_ONCE = "maxCompiledUnitsAtOnce"; //$NON-NLS-1$
+
+	public static final String JIMAGE_EXT = "jimage"; //$NON-NLS-1$
 
 	/**
 	 * Special value used for recognizing ongoing initialization and breaking initialization cycles
@@ -2624,7 +2630,22 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return this.workspaceScope;
 	}
 
+	public static boolean isJimage(IPath path) {
+		if (path.getFileExtension() != null && path.getFileExtension().equalsIgnoreCase(JIMAGE_EXT)) {
+			return true;
+		}
+		return false;
+	}
+
+	public static boolean isJimage(String path) {
+		return isJimage(new Path(path));
+	}
+
 	public void verifyArchiveContent(IPath path) throws CoreException {
+		// TODO: We don't yet know how to open a jimage file given its path. So, simply don't attempt.
+		if (isJimage(path)) {
+			return;
+		}
 		if (isInvalidArchive(path)) {
 			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.status_IOException, new ZipException()));			
 		}

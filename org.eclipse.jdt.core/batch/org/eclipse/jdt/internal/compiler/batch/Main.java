@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tom Tromey - Contribution for bug 125961
@@ -110,6 +114,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private static final String CLASSPATH_FOLDER = "FOLDER"; //$NON-NLS-1$
 		private static final String CLASSPATH_ID = "id"; //$NON-NLS-1$
 		private static final String CLASSPATH_JAR = "JAR"; //$NON-NLS-1$
+		private static final String CLASSPATH_JIMAGE = "JIMAGE"; //$NON-NLS-1$
 		private static final String CLASSPATHS = "classpaths"; //$NON-NLS-1$
 		private static final String COMMAND_LINE_ARGUMENT = "argument"; //$NON-NLS-1$
 		private static final String COMMAND_LINE_ARGUMENTS = "command_line"; //$NON-NLS-1$
@@ -505,10 +510,17 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						File f = new File(classpath);
 						String id = null;
 						if (f.isFile()) {
-							if (Util.isPotentialZipArchive(classpath)) {
-								id = Logger.CLASSPATH_JAR;
-							} else {
-								id = Logger.CLASSPATH_FILE;
+							int kind = Util.archiveFormat(classpath);
+							switch (kind) {
+								case Util.JIMAGE_FILE:
+									id = Logger.CLASSPATH_JIMAGE;
+									break;
+								case Util.ZIP_FILE:
+									id = Logger.CLASSPATH_JAR;
+									break;
+								default:
+									id = Logger.CLASSPATH_FILE;
+									break;
 							}
 						} else if (f.isDirectory()) {
 							id = Logger.CLASSPATH_FOLDER;
@@ -1396,7 +1408,7 @@ public static boolean compile(String[] commandLineArguments, PrintWriter outWrit
 public static File[][] getLibrariesFiles(File[] files) {
 	FilenameFilter filter = new FilenameFilter() {
 		public boolean accept(File dir, String name) {
-			return Util.isPotentialZipArchive(name);
+			return Util.archiveFormat(name) > -1;
 		}
 	};
 	final int filesLength = files.length;
@@ -1552,8 +1564,9 @@ protected void addNewEntry(ArrayList paths, String currentClasspathName,
 	if (NONE.equals(destPath)) {
 		destPath = NONE; // keep == comparison valid
 	}
+	
 	if (rejectDestinationPathOnJars && destPath != null &&
-			Util.isPotentialZipArchive(currentClasspathName)) {
+			Util.archiveFormat(currentClasspathName) > -1) {
 		throw new IllegalArgumentException(
 			this.bind("configure.unexpectedDestinationPathEntryFile", //$NON-NLS-1$
 						currentClasspathName));
