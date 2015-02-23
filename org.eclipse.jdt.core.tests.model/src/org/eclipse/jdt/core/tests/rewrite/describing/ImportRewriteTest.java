@@ -1411,6 +1411,37 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		assertEqualString(cuWithoutFiltering.getSource(), expectedWithoutFiltering.toString());
 	}
 
+	/**
+	 * Addresses https://bugs.eclipse.org/460484 ("ImportRewrite throws SIOOBE when trying to add
+	 * import").
+	 */
+	public void testAddAdjacentImportWithCommonPrefixButLongerInitialSegment() throws Exception {
+		StringBuffer contents = new StringBuffer();
+		contents.append("package pack1;\n");
+		contents.append("\n");
+		contents.append("import a.FromA;\n");
+		contents.append("import b.FromB;\n");
+		contents.append("\n");
+		contents.append("public class Clazz {}\n");
+		ICompilationUnit cu = createCompilationUnit("pack1", "Clazz", contents.toString());
+
+		ImportRewrite rewrite = newImportsRewrite(cu, new String[] {}, 999, 999, true);
+		rewrite.setUseContextToFilterImplicitImports(true);
+		// Expect that no exception is thrown when "ab" is compared with "a".
+		rewrite.addImport("ab.FromAb");
+		apply(rewrite);
+
+		StringBuffer expected = new StringBuffer();
+		expected.append("package pack1;\n");
+		expected.append("\n");
+		expected.append("import a.FromA;\n");
+		expected.append("import ab.FromAb;\n");
+		expected.append("import b.FromB;\n");
+		expected.append("\n");
+		expected.append("public class Clazz {}\n");
+		assertEqualString(cu.getSource(), expected.toString());
+	}
+
 	public void testAddImports1() throws Exception {
 
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
