@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -83,6 +83,7 @@ import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 import org.eclipse.jdt.internal.core.search.matching.PatternLocator;
 import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
+import org.eclipse.jdt.internal.core.search.matching.TypeReferencePattern;
 
 /**
  * Non-regression tests for bugs fixed in Java Search engine.
@@ -14226,6 +14227,52 @@ public void _testBug431357_016() throws CoreException {
 		// delete files
 		deleteFolder(folder);
 	}
+}
+public void testBug460465_since_5() throws CoreException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/test/TestE.java",
+		"package test;\n" +
+		"public enum TestE {\n" +
+		"	TEST1,\n" +
+		"	TEST2;\n" +
+		"}\n" );
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/test/ClassWithoutStaticImports.java",
+			"package test;\n" +
+			"public class ClassWithoutStaticImports {\n" +
+			"	public ClassWithoutStaticImports() {\n" +
+			"		System.out.println(TestE.TEST1);\n" +
+			"		System.out.println(TestE.TEST2);\n" +
+			"	}\n" +
+			"}\n" );
+	this.workingCopies[2] = getWorkingCopy("/JavaSearchBugs/src/test/ClassWithStaticImports.java",
+			"package test;\n" +
+			"\n" +
+			"import static test.TestE.TEST1;\n" +
+			"import static test.TestE.TEST2;\n" +
+			"\n" +
+			"public class ClassWithStaticImports {\n" +
+			"\n" +
+			"	public ClassWithStaticImports() {\n" +
+			"\n" +
+			"		System.out.println(TEST1);\n" +
+			"		System.out.println(TEST2);\n" +
+			"	}\n" +
+			"}\n");
+
+
+	IType type = this.workingCopies[0].getTypes()[0]; 	
+	TypeReferencePattern pattern = (TypeReferencePattern) SearchPattern.createPattern(type, REFERENCES, EXACT_RULE | ERASURE_RULE);
+
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(		
+			"src/test/ClassWithStaticImports.java [test.TestE] EXACT_MATCH\n" + 
+			"src/test/ClassWithStaticImports.java [test.TestE] EXACT_MATCH\n" + 
+			"src/test/ClassWithoutStaticImports.java test.ClassWithoutStaticImports() [TestE] EXACT_MATCH\n" + 
+			"src/test/ClassWithoutStaticImports.java test.ClassWithoutStaticImports() [TestE] EXACT_MATCH");
 }
 
 }
