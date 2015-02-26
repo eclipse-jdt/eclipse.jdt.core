@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11565,5 +11565,29 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertTrue(type.isQualifiedType());
 		assertTrue(type.isQualifiedType());
 		assertTrue(isMalformed(type));
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=460422
+	public void testBug460422() throws JavaModelException {
+		String str =
+				"enum TestEnum {\n" +
+				"\n" +
+				"    FIRST_ENUM(\"a\", null),\n" +
+				"    \n" +
+				"    FOURTH_ENUM(\"b\", new X[] { });\n" +
+				"\n" +
+				"	private TestEnum(String s, Object o) {}\n" +
+				"}\n" +
+				" public class X {\n" +
+				"	          Runnable r= new R  \n" + // error intended
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(str,this.workingCopy, false);
+
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		EnumDeclaration eDecl = (EnumDeclaration) compilationUnit.types().get(0);
+		EnumConstantDeclaration ec = (EnumConstantDeclaration) eDecl.enumConstants().get(1);
+		checkSourceRange(ec, "FOURTH_ENUM(\"b\", new X[] { }", str); //recovery parser propagated
 	}
 }
