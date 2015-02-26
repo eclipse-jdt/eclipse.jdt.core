@@ -51,6 +51,7 @@ import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
  * 	<li>{@link FormatterJavadocDontIndentTagsDescriptionTests}</li>
  * </ul>
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class FormatterCommentsTests extends FormatterRegressionTests {
 
 	private static final IPath OUTPUT_FOLDER = new Path("out").append("default");

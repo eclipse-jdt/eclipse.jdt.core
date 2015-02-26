@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 
 import junit.framework.Test;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class MultiLineTestCase extends CommentTestCase {
 	static {
 //		TESTS_NAMES = new String[] { "test170580" } ;

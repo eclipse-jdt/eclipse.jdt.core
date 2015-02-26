@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.text.edits.TextEdit;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaDocTestCase extends MultiLineTestCase {
 
 	private static final String PREFIX = "/**";

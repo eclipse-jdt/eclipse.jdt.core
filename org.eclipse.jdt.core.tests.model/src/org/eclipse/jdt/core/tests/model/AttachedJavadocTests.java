@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.util.Util;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class AttachedJavadocTests extends ModifyingResourceTests {
 	private static final String DEFAULT_DOC_FOLDER = "doc";
 
@@ -258,7 +259,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		IClasspathEntry[] savedEntries = null;
 		try {
 			IClasspathEntry[] entries = this.project.getRawClasspath();
-			savedEntries = (IClasspathEntry[]) entries.clone();
+			savedEntries = entries.clone();
 			IResource resource = this.project.getProject().findMember("/doc.zip"); //$NON-NLS-1$
 			assertNotNull("doc folder cannot be null", resource); //$NON-NLS-1$
 			URI locationURI = resource.getLocationURI();
@@ -368,7 +369,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		IClasspathEntry[] savedEntries = null;
 		try {
 			IClasspathEntry[] entries = this.project.getRawClasspath();
-			savedEntries = (IClasspathEntry[]) entries.clone();
+			savedEntries = entries.clone();
 			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME, "invalid_path");
 			for (int i = 0, max = entries.length; i < max; i++) {
 				final IClasspathEntry entry = entries[i];
@@ -570,7 +571,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		IClasspathEntry[] savedEntries = null;
 		try {
 			IClasspathEntry[] entries = this.project.getRawClasspath();
-			savedEntries = (IClasspathEntry[]) entries.clone();
+			savedEntries = entries.clone();
 			final String path = "http:/download.oracle.com/javase/6/docs/api/"; //$NON-NLS-1$
 			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME, path);
 			for (int i = 0, max = entries.length; i < max; i++) {
@@ -611,7 +612,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		IClasspathEntry[] savedEntries = null;
 		try {
 			IClasspathEntry[] entries = this.project.getRawClasspath();
-			savedEntries = (IClasspathEntry[]) entries.clone();
+			savedEntries = entries.clone();
 			IClasspathEntry chainedJar = null;
 			int max = entries.length;
 			for (int i = 0; i < max; i++) {
@@ -664,7 +665,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		IClasspathEntry[] savedEntries = null;
 		try {
 			IClasspathEntry[] entries = this.project.getRawClasspath();
-			savedEntries = (IClasspathEntry[]) entries.clone();
+			savedEntries = entries.clone();
 			IClasspathEntry chainedJar = null;
 			int max = entries.length;
 			for (int i = 0; i < max; i++) {

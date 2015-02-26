@@ -16,6 +16,7 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.JavaCore;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class FormatterOldBugsGistTests extends FormatterRegressionTests {
 
 	private static String lineSeparator = System.getProperty("line.separator");

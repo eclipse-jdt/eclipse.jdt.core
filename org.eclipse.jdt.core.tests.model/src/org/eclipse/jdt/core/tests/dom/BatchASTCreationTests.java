@@ -36,6 +36,7 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.tests.util.Util;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class BatchASTCreationTests extends AbstractASTTests {
 
 	/**

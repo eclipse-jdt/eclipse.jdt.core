@@ -49,6 +49,7 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.osgi.service.prefs.BackingStoreException;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	/**

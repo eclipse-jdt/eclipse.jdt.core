@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.NameLookup.Answer;
 import org.eclipse.jdt.internal.core.SourceType;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class TypeResolveTests extends ModifyingResourceTests {
 	ICompilationUnit cu;
 public TypeResolveTests(String name) {

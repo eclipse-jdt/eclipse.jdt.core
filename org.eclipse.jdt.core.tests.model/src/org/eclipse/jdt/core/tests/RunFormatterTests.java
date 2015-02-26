@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 IBM Corporation and others.
+ * Copyright (c) 2005, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 /**
  * Runs all formatter tests.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class RunFormatterTests extends junit.framework.TestCase {
 
 	public final static List TEST_SUITES = new ArrayList();

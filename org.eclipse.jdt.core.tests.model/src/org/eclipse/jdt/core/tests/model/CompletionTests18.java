@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class CompletionTests18 extends AbstractJavaModelCompletionTests {
 
 static {

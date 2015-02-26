@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005 IBM Corporation and others.
+ * Copyright (c) 2005, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import junit.framework.TestSuite;
  * Use -Dcompliance=1.4 as a VM argument if you want to run in 1.4 compliance mode only.
  * See AbstractCompilerTests for more details.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class RunCompilerTests extends TestCase {
 
 public RunCompilerTests(String name) {

@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.core.tests.util.Util;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class ASTConverter15Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;

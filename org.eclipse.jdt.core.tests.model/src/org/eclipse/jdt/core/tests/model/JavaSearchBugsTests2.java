@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM Corporation and others.
+ * Copyright (c) 2014, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 
 // The size of JavaSearchBugsTests.java is very big, Hence continuing here.
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 
 	public JavaSearchBugsTests2(String name) {

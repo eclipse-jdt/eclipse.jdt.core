@@ -17,6 +17,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.Util;
 import junit.framework.*;
 
+@SuppressWarnings({"rawtypes"})
 public class ResolveTests2 extends ModifyingResourceTests {
 
 static {

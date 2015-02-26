@@ -61,6 +61,10 @@ public final class CheckDebugAttributes extends Task {
 					jarFile = new ZipFile(this.file);
 				} catch (ZipException e) {
 					throw new BuildException(AntAdapterMessages.getString("checkDebugAttributes.file.argument.must.be.a.classfile.or.a.jarfile")); //$NON-NLS-1$
+				} finally {
+					if (jarFile != null) {
+						jarFile.close();
+					}
 				}
 				for (Enumeration entries = jarFile.entries(); !hasDebugAttributes && entries.hasMoreElements(); ) {
 					ZipEntry entry = (ZipEntry) entries.nextElement();

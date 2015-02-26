@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 /**
  * Tests the Java search engine accross multiple projects.
  */
+@SuppressWarnings("rawtypes")
 public class JavaSearchScopeTests extends ModifyingResourceTests implements IJavaSearchConstants {
 public JavaSearchScopeTests(String name) {
 	super(name);

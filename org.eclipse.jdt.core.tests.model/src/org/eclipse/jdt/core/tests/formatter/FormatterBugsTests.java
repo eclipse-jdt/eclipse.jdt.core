@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions.Alignment;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class FormatterBugsTests extends FormatterRegressionTests {
 
 public static Test suite() {

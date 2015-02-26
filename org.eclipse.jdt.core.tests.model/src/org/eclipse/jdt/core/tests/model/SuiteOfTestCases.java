@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,7 @@ import junit.framework.TestSuite;
  * A test case class that can be set up (using the setUpSuite() method) and torn down (using the tearDownSuite() method)
  * once for all test cases of this class.
  */
+@SuppressWarnings("rawtypes")
 public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 
 	/*

@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 /**
  * Non-regression tests for bugs fixed in Java Search engine.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaSearchBugs8Tests extends AbstractJavaSearchTests {
 
 	static {

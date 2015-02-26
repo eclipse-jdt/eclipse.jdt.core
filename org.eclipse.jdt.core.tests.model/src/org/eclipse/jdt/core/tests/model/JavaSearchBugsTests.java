@@ -88,6 +88,7 @@ import org.eclipse.jdt.internal.core.search.matching.TypeReferencePattern;
 /**
  * Non-regression tests for bugs fixed in Java Search engine.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaSearchBugsTests extends AbstractJavaSearchTests {
 	private final static int UI_DECLARATIONS = DECLARATIONS|IGNORE_DECLARING_TYPE|IGNORE_RETURN_TYPE;
 

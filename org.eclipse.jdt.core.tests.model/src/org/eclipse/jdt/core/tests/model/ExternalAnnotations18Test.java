@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.ClasspathAttribute;
 import org.osgi.framework.Bundle;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class ExternalAnnotations18Test extends ModifyingResourceTests {
 
 	/** Bridge to hook the host JRE into the registered ContainerInitializer. */

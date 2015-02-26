@@ -48,6 +48,7 @@ import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.text.edits.TextEdit;
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 	protected static IJavaProject JAVA_PROJECT;

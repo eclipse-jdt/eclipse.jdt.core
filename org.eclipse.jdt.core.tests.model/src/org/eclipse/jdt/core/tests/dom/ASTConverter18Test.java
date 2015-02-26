@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.ResolvedBinaryMethod;
 
+@SuppressWarnings({"rawtypes"})
 public class ASTConverter18Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
