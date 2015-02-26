@@ -228,6 +228,17 @@ public final class ExternalAnnotationUtil {
 	{
 
 		if (!file.exists()) {
+			// assemble full annotatedSignature:
+			switch (updatePosition) {
+				case POSITION_FULL_SIGNATURE:
+					break;
+				case POSITION_RETURN_TYPE:
+					annotatedSignature = updateMethodReturnType(annotatedSignature, originalSignature, mergeStrategy);
+					break;
+				default:
+					// parameter at updatePosition
+			}
+
 			StringBuffer newContent= new StringBuffer();
 			// header:
 			newContent.append(ExternalAnnotationProvider.CLASS_PREFIX);
