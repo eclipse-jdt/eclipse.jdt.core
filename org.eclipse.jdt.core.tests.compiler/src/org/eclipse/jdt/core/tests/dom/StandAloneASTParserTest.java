@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 461250 - ArrayIndexOutOfBoundsException in SourceTypeBinding.fields
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
@@ -16,6 +18,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
@@ -405,5 +408,25 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			file.delete();
 			fileY.delete();
 		}
+	}
+
+	public void testBug461250() {
+		String source =
+				"class QH<T> implements QR.Q {\n" +
+				"  QR.Q q;\n" +
+				"  @V(v = A, d = \"\") Map p;\n" +
+				"}\n";
+		Map options = JavaCore.getOptions();
+		JavaCore.setComplianceOptions(JavaCore.VERSION_1_7, options);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setCompilerOptions(options);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setSource(source.toCharArray());
+		parser.setResolveBindings(true);
+		String[] emptyStringArray = new String[0];
+		parser.setEnvironment(emptyStringArray, emptyStringArray, emptyStringArray, true /* includeRunningVMBootclasspath */);
+		parser.setUnitName("dontCare");
+		ASTNode ast = parser.createAST(null);
+		assertTrue("should have parsed a CUD", ast instanceof CompilationUnit);
 	}
 }
