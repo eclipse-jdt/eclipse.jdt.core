@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1212,7 +1212,7 @@ public abstract class Scope {
 			// in >= 1.5 mode, ensure the exactMatch did not match raw types
 			if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5)
 				for (int i = argumentTypes.length; --i >= 0;)
-					if (isPossibleSubtypeOfRawType(argumentTypes[i]))
+					if (isSubtypeOfRawType(argumentTypes[i]))
 						return null;
 			// must find both methods for this case: <S extends A> void foo() {}  and  <N extends B> N foo() { return null; }
 			// or find an inherited method when the exact match is to a bridge method
@@ -2795,7 +2795,8 @@ public abstract class Scope {
 
 			// retrieve an exact visible match (if possible)
 			MethodBinding methodBinding = findExactMethod(currentType, selector, argumentTypes, invocationSite);
-			if (methodBinding != null) return methodBinding;
+			if (methodBinding != null && methodBinding.isValidBinding())
+				return methodBinding;
 
 			methodBinding = findMethod(currentType, selector, argumentTypes, invocationSite, false);
 			if (methodBinding == null)
@@ -3625,7 +3626,7 @@ public abstract class Scope {
 		return false;
 	}
 
-	public boolean isPossibleSubtypeOfRawType(TypeBinding paramType) {
+	public boolean isSubtypeOfRawType(TypeBinding paramType) {
 		TypeBinding t = paramType.leafComponentType();
 		if (t.isBaseType()) return false;
 
@@ -3634,7 +3635,6 @@ public abstract class Scope {
 		int nextPosition = 0;
 		do {
 			if (currentType.isRawType()) return true;
-			if (!currentType.isHierarchyConnected()) return true; // do not fault in super types right now, so assume one is a raw type
 	
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
