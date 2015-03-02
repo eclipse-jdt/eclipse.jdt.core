@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,10 +7,16 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Terry Parker <tparker@google.com> - Enable the Java model caches to recover from IO errors - https://bugs.eclipse.org/455042
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileTime;
+import java.util.Arrays;
 
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.runtime.CoreException;
@@ -18,7 +24,10 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.NameLookup;
 
@@ -343,6 +352,84 @@ public void testFindTypeWithUnrelatedWorkingCopy() throws Exception {
 			workingCopy.discardWorkingCopy();
 		deleteProject("P1");
 		deleteProject("P2");
+	}
+}
+/*
+ * A test for bug 162621. Tests that a library jar that is initially invalid but transitions
+ * to being valid becomes visible in name lookup. Previously the jar would stay in the invalid
+ * archive cache until a classpath change was generated, and would not make it into the project's
+ * JavaProjectElementInfo cache without restarting Eclipse or closing and reopening the project.
+ */
+public void testTransitionFromInvalidToValidJar() throws CoreException, IOException {
+	/*
+	 * Since it is difficult to test intermittent IO errors, simulate it
+	 * by creating two jars of equal size, one of which has an invalid format.
+	 * Set up the classpath with the invalid jar, and then swap in the valid jar
+	 * and reset its timestamp to be the same as the original file.
+	 */
+	String goodJar = getExternalPath() + "goodJar.jar";
+	String transitioningJar = getExternalPath() + "transitioningJar.jar";
+	java.nio.file.Path goodJarPath = FileSystems.getDefault().getPath(goodJar);
+	java.nio.file.Path transitioningJarPath = FileSystems.getDefault().getPath(transitioningJar);
+	IPath transitioningIPath = Path.fromOSString(transitioningJar);
+
+	try {
+		Util.createJar(
+				new String[] {
+						"test1/IResource.java", //$NON-NLS-1$
+						"package test1;\n" + //$NON-NLS-1$
+						"public class IResource {\n" + //$NON-NLS-1$
+						"}" //$NON-NLS-1$
+					},
+				new String[] {
+					"META-INF/MANIFEST.MF",
+					"Manifest-Version: 1.0\n"
+				},
+				goodJar,
+				JavaCore.VERSION_1_4);
+		char[] invalidContents = new char[(int) goodJarPath.toFile().length()];
+		Arrays.fill(invalidContents, ' ');
+		Util.createFile(transitioningJar, String.copyValueOf(invalidContents));
+
+		// Set up the project with the invalid jar and allow all of the classpath validation
+		// and delta processing to complete.
+		JavaProject proj = (JavaProject) createJavaProject("P", new String[] {}, new String[] {transitioningJar}, "bin");
+		JavaModelManager.getJavaModelManager().getJavaModel().refreshExternalArchives(null, null);
+		waitForAutoBuild();
+
+		assertTrue("The invalid archive cache should report that the jar is invalid",
+				JavaModelManager.getJavaModelManager().isInvalidArchive(transitioningIPath));
+		IType type = getNameLookup(proj).findType("test1.IResource", false, NameLookup.ACCEPT_CLASSES);
+		assertEquals("Name lookup should fail when the jar is invalid", null, type);
+
+		// Substitute the good jar, maintaining the timestamp.
+		FileTime fileTime = Files.getLastModifiedTime(transitioningJarPath);
+		Files.move(goodJarPath, transitioningJarPath, StandardCopyOption.REPLACE_EXISTING);
+		Files.setLastModifiedTime(transitioningJarPath, fileTime);
+
+		// Since the timestamp hasn't changed, an external archive refresh isn't going
+		// to update the caches or cause name lookups to work.
+		JavaModelManager.getJavaModelManager().getJavaModel().refreshExternalArchives(null, null);
+		assertTrue("External archive refresh sees no changes, so the invalid archive cache should be unchanged",
+				JavaModelManager.getJavaModelManager().isInvalidArchive(transitioningIPath));
+		type = getNameLookup(proj).findType("test1.IResource", false, NameLookup.ACCEPT_CLASSES);
+		assertEquals("External archive refresh sees no changes, so the project cache should be unchanged",
+				null, type);
+
+		// Re-validating the jar via validateClasspathEntry() forces eviction from the
+		// invalid archive cache more quickly than waiting for the time-based eviction,
+		// allowing the test to run more quickly.
+		IClasspathEntry transitioningEntry = JavaCore.newLibraryEntry(transitioningIPath, null, null);
+		ClasspathEntry.validateClasspathEntry(proj, transitioningEntry, false, false);
+
+		assertFalse("The invalid archive cache should no longer report the jar as invalid",
+				JavaModelManager.getJavaModelManager().isInvalidArchive(transitioningIPath));
+		type = getNameLookup(proj).findType("test1.IResource", false, NameLookup.ACCEPT_CLASSES);
+		assertFalse("Name lookup should be able to find types in the valid jar", type == null);
+	} finally {
+		Files.deleteIfExists(goodJarPath);
+		Files.deleteIfExists(transitioningJarPath);
+		deleteProject("P");
 	}
 }
 }
