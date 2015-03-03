@@ -222,6 +222,31 @@ public final class ExternalAnnotationUtil {
 		annotateMember(typeName, file, selector, originalSignature, annotatedReturnType, POSITION_RETURN_TYPE, mergeStrategy, monitor);
 	}
 
+	/**
+	 * Update the given external annotation file with details regarding annotations of a parameter type of a given method.
+	 * If the specified method already has external annotations, old and new annotations will be merged,
+	 * with priorities controlled by the parameter 'mergeStrategy'.
+	 * <p>
+	 * This method is suitable for declaration annotations and type use annotations.
+	 * </p>
+	 * @param typeName binary name (slash separated) of the type being annotated
+	 * @param file a file assumed to be in .eea format, will be created if it doesn't exist.
+	 * @param selector selector of the method
+	 * @param originalSignature unannotated signature of the member, used for identification
+	 * @param annotatedParameterType signature of the new parameter type whose annotations should be superimposed on the method
+	 * @param paramIdx 0-based index of the parameter to which the annotation should be attached
+	 * @param mergeStrategy controls how old and new signatures should be merged
+	 * @param monitor progress monitor to be passed through into file operations, or null if no reporting is desired
+	 * @throws CoreException if access to the file fails
+	 * @throws IOException if reading file content fails
+	 */
+	public static void annotateMethodParameterType(String typeName, IFile file, String selector, String originalSignature,
+										String annotatedParameterType, int paramIdx, MergeStrategy mergeStrategy, IProgressMonitor monitor)
+			throws CoreException, IOException
+	{
+		annotateMember(typeName, file, selector, originalSignature, annotatedParameterType, paramIdx, mergeStrategy, monitor);
+	}
+
 	static void annotateMember(String typeName, IFile file, String selector, String originalSignature, String annotatedSignature,
 										int updatePosition, MergeStrategy mergeStrategy, IProgressMonitor monitor)
 			throws CoreException, IOException
@@ -236,7 +261,7 @@ public final class ExternalAnnotationUtil {
 					annotatedSignature = updateMethodReturnType(annotatedSignature, originalSignature, mergeStrategy);
 					break;
 				default:
-					// parameter at updatePosition
+					annotatedSignature = updateParameterType(annotatedSignature, updatePosition, originalSignature, mergeStrategy);
 			}
 
 			StringBuffer newContent= new StringBuffer();
@@ -302,7 +327,7 @@ public final class ExternalAnnotationUtil {
 										} else if (updatePosition == POSITION_RETURN_TYPE) {
 											annotatedSignature = updateMethodReturnType(annotatedSignature, nextLine.trim(), mergeStrategy);
 										} else {
-											// parameter i
+											annotatedSignature = updateParameterType(annotatedSignature, updatePosition, nextLine.trim(), mergeStrategy);
 										}
 										break;
 									default:
@@ -324,7 +349,7 @@ public final class ExternalAnnotationUtil {
 				} else if (updatePosition == POSITION_RETURN_TYPE) {
 					annotatedSignature = updateMethodReturnType(annotatedSignature, originalSignature, mergeStrategy);
 				} else {
-					// parameter i
+					annotatedSignature = updateParameterType(annotatedSignature, updatePosition, originalSignature, mergeStrategy);
 				}
 				writeFile(file, newContent, annotatedSignature, line, reader, monitor);
 			} finally {
@@ -406,6 +431,22 @@ public final class ExternalAnnotationUtil {
 		int close = oldSignature.indexOf(')');
 		buf.append(oldSignature, 0, close+1);
 		updateType(buf, oldSignature.substring(close+1).toCharArray(), newReturnType.toCharArray(), mergeStrategy);
+		return buf.toString();
+	}
+
+	private static String updateParameterType(String newParameterType, int paramIdx, String oldSignature, MergeStrategy mergeStrategy) {
+		StringBuffer buf = new StringBuffer();
+
+		SignatureWrapper wrapper = new SignatureWrapper(oldSignature.toCharArray());
+		wrapper.start = 1;
+		for (int i = 0; i < paramIdx; i++)
+			wrapper.start = wrapper.computeEnd() + 1;
+		int start = wrapper.start;
+		int end = wrapper.computeEnd();
+		end = wrapper.skipAngleContents(end);
+		buf.append(oldSignature, 0, start);
+		updateType(buf, oldSignature.substring(start, end+1).toCharArray(), newParameterType.toCharArray(), mergeStrategy);
+		buf.append(oldSignature, end+1, oldSignature.length());
 		return buf.toString();
 	}
 
@@ -497,8 +538,14 @@ public final class ExternalAnnotationUtil {
 						break;
 					case NO_ANNOTATION:
 						newS.start++; // don't insert
-						switch (oldAnn) { case NULLABLE: case NONNULL: oldS.start++; } // just skip // skip
+						switch (oldAnn) { case NULLABLE: case NONNULL: oldS.start++; } // just skip
 						break;
+					default:
+						switch (oldAnn) { 
+							case NULLABLE: case NONNULL: 
+								oldS.start++;
+								buf.append(oldAnn); // keep
+						}
 				}
 		}
 	}
