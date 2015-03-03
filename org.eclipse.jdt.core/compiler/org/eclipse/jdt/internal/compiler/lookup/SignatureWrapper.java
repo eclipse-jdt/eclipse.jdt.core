@@ -13,6 +13,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 
 public class SignatureWrapper {
 	public char[] signature;
@@ -20,12 +21,20 @@ public class SignatureWrapper {
 	public int end;
 	public int bracket;
 	private boolean use15specifics;
+	private boolean useExternalAnnotations;
 
 	public SignatureWrapper(char[] signature, boolean use15specifics) {
 		this.signature = signature;
 		this.start = 0;
 		this.end = this.bracket = -1;
 		this.use15specifics = use15specifics;
+	}
+	public SignatureWrapper(char[] signature, boolean use15specifics, boolean useExternalAnnotations) {
+		this.signature = signature;
+		this.start = 0;
+		this.end = this.bracket = -1;
+		this.use15specifics = use15specifics;
+		this.useExternalAnnotations = useExternalAnnotations;
 	}
 	public SignatureWrapper(char [] signature) {
 		this(signature, true);
@@ -37,6 +46,13 @@ public class SignatureWrapper {
 		int index = this.start;
 		while (this.signature[index] == '[')
 			index++;
+		if (this.useExternalAnnotations && index > 0) {
+			switch (this.signature[index]) {
+				case ExternalAnnotationProvider.NONNULL :
+				case ExternalAnnotationProvider.NULLABLE :
+					index++; // skip null annotation token after '['
+			}
+		}
 		switch (this.signature[index]) {
 			case 'L' :
 			case 'T' :

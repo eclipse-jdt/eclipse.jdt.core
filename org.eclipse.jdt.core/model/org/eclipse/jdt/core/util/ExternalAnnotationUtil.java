@@ -48,10 +48,10 @@ import org.eclipse.jdt.internal.core.ClasspathEntry;
 public final class ExternalAnnotationUtil {
 
 	/** Representation of a 'nullable' annotation, independent of the concrete annotation name used in Java sources. */
-	public static final char NULLABLE = '0';
+	public static final char NULLABLE = ExternalAnnotationProvider.NULLABLE;
 
 	/** Representation of a 'nonnull' annotation, independent of the concrete annotation name used in Java sources. */
-	public static final char NONNULL = '1';
+	public static final char NONNULL = ExternalAnnotationProvider.NONNULL;
 
 	/**
 	 * Represents absence of a null annotation. Useful for removing an existing null annotation.
@@ -437,7 +437,7 @@ public final class ExternalAnnotationUtil {
 	private static String updateParameterType(String newParameterType, int paramIdx, String oldSignature, MergeStrategy mergeStrategy) {
 		StringBuffer buf = new StringBuffer();
 
-		SignatureWrapper wrapper = new SignatureWrapper(oldSignature.toCharArray());
+		SignatureWrapper wrapper = new SignatureWrapper(oldSignature.toCharArray(), true, true); // may already contain annotations
 		wrapper.start = 1;
 		for (int i = 0; i < paramIdx; i++)
 			wrapper.start = wrapper.computeEnd() + 1;
@@ -455,8 +455,8 @@ public final class ExternalAnnotationUtil {
 	 * The result is written into 'buf' as we go.
 	 */
 	private static boolean updateType(StringBuffer buf, char[] oldType, char[] newType, MergeStrategy mergeStrategy) {
-		SignatureWrapper oWrap = new SignatureWrapper(oldType, true);
-		SignatureWrapper nWrap = new SignatureWrapper(newType, true);
+		SignatureWrapper oWrap = new SignatureWrapper(oldType, true, true); // may already contain annotations
+		SignatureWrapper nWrap = new SignatureWrapper(newType, true, true); // may already contain annotations
 		if (match(buf, oWrap, nWrap, 'L', false)
 			|| match(buf, oWrap, nWrap, 'T', false))
 		{
@@ -589,5 +589,103 @@ public final class ExternalAnnotationUtil {
 			ensureExists(parent, monitor);
 		}
 		((IFolder) container).create(false, true, monitor);
+	}
+
+	/**
+	 * Retrieve the annotated signature of a specified member as found in the given external annotation file, if any.
+	 * @param typeName fully qualified slash-separated name of the type for which the file defines external annotations
+	 * @param file a file assumed to be in .eea format, must not be null, but may not exist
+	 * @param selector name of the member whose annotation we are looking for
+	 * @param originalSignature the unannotated signature by which the member is identified
+	 * @return the annotated signature as found in the file, or null.
+	 */
+	public static String getAnnotatedSignature(String typeName, IFile file, String selector, String originalSignature) {
+		if (file.exists()) {
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getContents()))) {
+				ExternalAnnotationProvider.assertClassHeader(reader.readLine(), typeName);
+				while (true) {
+					String line = reader.readLine();
+					// selector:
+					if (selector.equals(line)) {
+						// original signature:
+						line = reader.readLine();
+						if (originalSignature.equals(ExternalAnnotationProvider.extractSignature(line))) {
+							// annotated signature:
+							return ExternalAnnotationProvider.extractSignature(reader.readLine());
+						}
+					}
+					if (line == null)
+						break;
+				}
+			} catch (IOException | CoreException e) {
+				return null;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Apply the specified changes on the return type of the given signature.
+	 * This method can be used as a dry run without modifying an annotation file.
+	 * 
+	 * @param originalSignature the original full signature, may be annotated already
+	 * @param annotatedType a type signature with additional annotations (incl. {@link #NO_ANNOTATION}).
+	 * @param mergeStrategy controls how old and new signatures should be merged
+	 * @return an array of length four: <ul>
+	 * <li>prefix up-to the changed type</li>
+	 * <li>original type</li>
+	 * <li>changed type</li>
+	 * <li>postfix after the changed type <em>(here: empty string)</li>
+	 * </ul>
+	 */
+	public static String[] annotateReturnType(String originalSignature, String annotatedType, MergeStrategy mergeStrategy)
+	{
+		String[] result = new String[4]; // prefix, orig, replacement, postfix
+		StringBuffer buf;
+		assert originalSignature.charAt(0) == '(' : "signature must start with '('"; //$NON-NLS-1$
+		int close = originalSignature.indexOf(')');
+		result[0] = originalSignature.substring(0, close+1);
+		buf = new StringBuffer();
+		result[1] = originalSignature.substring(close+1);
+		updateType(buf, result[1].toCharArray(), annotatedType.toCharArray(), mergeStrategy);
+		result[2] = buf.toString();
+		result[3] = ""; //$NON-NLS-1$
+		return result;
+	}
+	
+
+	/**
+	 * Apply the specified changes on a parameter within the given signature.
+	 * This method can be used as a dry run without modifying an annotation file.
+	 * 
+	 * @param originalSignature the original full signature, may be annotated already
+	 * @param annotatedType a type signature with additional annotations (incl. {@link #NO_ANNOTATION}).
+	 * @param paramIdx the index of a parameter to annotated
+	 * @param mergeStrategy controls how old and new signatures should be merged
+	 * @return an array of length four: <ul>
+	 * <li>prefix up-to the changed type</li>
+	 * <li>original type</li>
+	 * <li>changed type</li>
+	 * <li>postfix after the changed type</li>
+	 * </ul>
+	 */
+	public static String[] annotateParameterType(String originalSignature, String annotatedType, int paramIdx, MergeStrategy mergeStrategy)
+	{
+		String[] result = new String[4]; // prefix, orig, replacement, postfix
+		StringBuffer buf;
+		SignatureWrapper wrapper = new SignatureWrapper(originalSignature.toCharArray(), true, true); // may already contain annotations
+		wrapper.start = 1;
+		for (int i = 0; i < paramIdx; i++)
+			wrapper.start = wrapper.computeEnd() + 1;
+		int start = wrapper.start;
+		int end = wrapper.computeEnd();
+		end = wrapper.skipAngleContents(end);
+		result[0] = originalSignature.substring(0, start);				
+		buf = new StringBuffer();
+		result[1] = originalSignature.substring(start, end+1);
+		updateType(buf, result[1].toCharArray(), annotatedType.toCharArray(), mergeStrategy);
+		result[2] = buf.toString();
+		result[3] = originalSignature.substring(end+1, originalSignature.length());
+		return result;
 	}
 }

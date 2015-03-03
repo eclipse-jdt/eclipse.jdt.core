@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
-import static org.eclipse.jdt.core.util.ExternalAnnotationUtil.NONNULL;
-import static org.eclipse.jdt.core.util.ExternalAnnotationUtil.NULLABLE;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,6 +31,12 @@ public class ExternalAnnotationProvider {
 	public static final String ANNOTION_FILE_EXTENSION= "eea"; //$NON-NLS-1$
 	public static final String CLASS_PREFIX = "class "; //$NON-NLS-1$
 	public static final String SUPER_PREFIX = "super "; //$NON-NLS-1$
+
+	/** Representation of a 'nullable' annotation, independent of the concrete annotation name used in Java sources. */
+	public static final char NULLABLE = '0';
+
+	/** Representation of a 'nonnull' annotation, independent of the concrete annotation name used in Java sources. */
+	public static final char NONNULL = '1';
 
 	static final String ANNOTATION_FILE_SUFFIX = ".eea"; //$NON-NLS-1$
 
@@ -60,15 +63,9 @@ public class ExternalAnnotationProvider {
 	private void initialize(InputStream input) throws IOException {
 		LineNumberReader reader = new LineNumberReader(new InputStreamReader(input));
 		try {
-			String line = reader.readLine().trim();
-			if (line.startsWith(CLASS_PREFIX)) {
-				line = line.substring(CLASS_PREFIX.length());
-			} else {
-				throw new IOException("missing class header in annotation file"); //$NON-NLS-1$
-			}
-			if (!trimTail(line).equals(this.typeName)) {
-				throw new IOException("mismatching class name in annotation file, expected "+this.typeName+", but header said "+line); //$NON-NLS-1$ //$NON-NLS-2$
-			}
+			assertClassHeader(reader.readLine(), this.typeName);
+
+			String line;
 			if ((line = reader.readLine()) == null) {
 				return;
 			}
@@ -132,8 +129,32 @@ public class ExternalAnnotationProvider {
 		}
 	}
 
+	/**
+	 * Assert that the given line is a class header for 'typeName' (slash-separated qualified name).
+	 */
+	public static void assertClassHeader(String line, String typeName) throws IOException {
+		if (line.startsWith(CLASS_PREFIX)) {
+			line = line.substring(CLASS_PREFIX.length());
+		} else {
+			throw new IOException("missing class header in annotation file"); //$NON-NLS-1$
+		}
+		if (!trimTail(line).equals(typeName)) {
+			throw new IOException("mismatching class name in annotation file, expected "+typeName+", but header said "+line); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+	}
+
+	/**
+	 * Extract the signature from a line of an external annotation file.
+	 * Answers null if line is not in the expected format.
+	 */
+	public static String extractSignature(String line) {
+		if (line == null || line.isEmpty() || line.charAt(0) != ' ')
+			return null;
+		return trimTail(line.substring(1));
+	}
+
 	/** Lines may contain arbitrary trailing data, separated by white space. */
-	protected String trimTail(String line) {
+	protected static String trimTail(String line) {
 		int tail = line.indexOf(' ');
 		if (tail == -1)
 			tail = line.indexOf('\t');
