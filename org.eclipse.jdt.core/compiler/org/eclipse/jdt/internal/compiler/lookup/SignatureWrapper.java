@@ -44,14 +44,25 @@ public class SignatureWrapper {
 	}
 	public int computeEnd() {
 		int index = this.start;
-		while (this.signature[index] == '[')
-			index++;
-		if (this.useExternalAnnotations && index > 0) {
-			switch (this.signature[index]) {
-				case ExternalAnnotationProvider.NONNULL :
-				case ExternalAnnotationProvider.NULLABLE :
-					index++; // skip null annotation token after '['
+		if (this.useExternalAnnotations) {
+			// in addition to '[' tokens accept null annotations after the first '['
+			skipDimensions: while(true) {
+				switch (this.signature[index]) {
+					case ExternalAnnotationProvider.NONNULL :
+					case ExternalAnnotationProvider.NULLABLE :
+						if (index == this.start)
+							break skipDimensions;
+						//$FALL-THROUGH$
+					case '[':
+						index++;
+						break;
+					default:
+						break skipDimensions;
+				}
 			}
+		} else {
+			while (this.signature[index] == '[')
+				index++;
 		}
 		switch (this.signature[index]) {
 			case 'L' :
@@ -66,7 +77,7 @@ public class SignatureWrapper {
 					this.end = this.signature.length + 1;
 				break;
 			default :
-				this.end = this.start;
+				this.end = index;
 		}
 
 		if (this.use15specifics || this.end != this.bracket) {

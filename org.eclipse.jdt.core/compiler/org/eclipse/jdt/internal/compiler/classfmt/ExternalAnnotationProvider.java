@@ -78,7 +78,9 @@ public class ExternalAnnotationProvider {
 						return;
 				} 
 			}
+			String pendingLine;
 			do {
+				pendingLine = null;
 				line = line.trim();
 				if (line.isEmpty()) continue;
 				String rawSig = null, annotSig = null;
@@ -99,8 +101,11 @@ public class ExternalAnnotationProvider {
 					line = reader.readLine();
 					if (line == null || line.isEmpty())
 						continue; // skip since optional line with annotations is missing
-					if (line.charAt(0) == ' ')
-						annotSig = line.substring(1);
+					if (line.charAt(0) != ' ') {
+						pendingLine = line; // push back what appears to be the next selector, not a signature
+						continue;
+					}
+					annotSig = line.substring(1);
 				} catch (Exception ex) {
 					// continue to escalate below
 				}
@@ -123,7 +128,7 @@ public class ExternalAnnotationProvider {
 						this.fieldAnnotationSources = new HashMap<String, String>();
 					this.fieldAnnotationSources.put(selector+':'+rawSig, annotSig);
 				}
-			} while ((line = reader.readLine()) != null);
+			} while (((line = pendingLine) != null) || (line = reader.readLine()) != null);
 		} finally {
 			reader.close();
 		}

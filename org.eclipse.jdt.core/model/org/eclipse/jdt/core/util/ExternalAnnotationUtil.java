@@ -214,10 +214,11 @@ public final class ExternalAnnotationUtil {
 	 * @param monitor progress monitor to be passed through into file operations, or null if no reporting is desired
 	 * @throws CoreException if access to the file fails
 	 * @throws IOException if reading file content fails
+	 * @throws IllegalArgumentException if the annotatedReturnType does not structurally match to originalSignature
 	 */
 	public static void annotateMethodReturnType(String typeName, IFile file, String selector, String originalSignature,
 										String annotatedReturnType, MergeStrategy mergeStrategy, IProgressMonitor monitor)
-			throws CoreException, IOException
+			throws CoreException, IOException, IllegalArgumentException
 	{
 		annotateMember(typeName, file, selector, originalSignature, annotatedReturnType, POSITION_RETURN_TYPE, mergeStrategy, monitor);
 	}
@@ -239,17 +240,18 @@ public final class ExternalAnnotationUtil {
 	 * @param monitor progress monitor to be passed through into file operations, or null if no reporting is desired
 	 * @throws CoreException if access to the file fails
 	 * @throws IOException if reading file content fails
+	 * @throws IllegalArgumentException if the annotatedParameterType does not structurally match to originalSignature
 	 */
 	public static void annotateMethodParameterType(String typeName, IFile file, String selector, String originalSignature,
 										String annotatedParameterType, int paramIdx, MergeStrategy mergeStrategy, IProgressMonitor monitor)
-			throws CoreException, IOException
+			throws CoreException, IOException, IllegalArgumentException
 	{
 		annotateMember(typeName, file, selector, originalSignature, annotatedParameterType, paramIdx, mergeStrategy, monitor);
 	}
 
 	static void annotateMember(String typeName, IFile file, String selector, String originalSignature, String annotatedSignature,
 										int updatePosition, MergeStrategy mergeStrategy, IProgressMonitor monitor)
-			throws CoreException, IOException
+			throws CoreException, IOException, IllegalArgumentException
 	{
 
 		if (!file.exists()) {
@@ -301,6 +303,9 @@ public final class ExternalAnnotationUtil {
 					if (relation == 0) {
 						StringBuffer pending = new StringBuffer(line).append('\n');
 						pending.append(line = reader.readLine());
+						if (line == null) {
+							break; // found only the selector at EOF, append right here, ignoring 'pending'
+						}
 						// compare original signatures:
 						relation = line.trim().compareTo(originalSignature);
 						if (relation > 0) { // past the insertion point
@@ -313,28 +318,30 @@ public final class ExternalAnnotationUtil {
 							continue;
 						if (relation == 0) {
 							// update existing entry:
-							String nextLine = reader.readLine();
-							if (nextLine == null)
-								nextLine = line; // no annotated line yet, use unannotated line instead
-							if (nextLine.startsWith(" ")) { //$NON-NLS-1$
+							String annotationLine = reader.readLine();
+							String nextLine = null;
+							if (annotationLine == null || annotationLine.isEmpty() || !annotationLine.startsWith(" ")) { //$NON-NLS-1$
+								nextLine = annotationLine; // push back, since not a signature line
+								annotationLine = line; // no annotated line yet, use unannotated line instead
+							}
+							if (annotationLine.startsWith(" ")) { //$NON-NLS-1$
 								switch (mergeStrategy) {
 									case REPLACE_SIGNATURE:
 										break; // unconditionally use annotatedSignature
 									case OVERWRITE_ANNOTATIONS:
 									case ADD_ANNOTATIONS:
 										if (updatePosition == POSITION_FULL_SIGNATURE) {
-											annotatedSignature = addAnnotationsTo(annotatedSignature, nextLine.trim(), mergeStrategy);
+											annotatedSignature = addAnnotationsTo(annotatedSignature, annotationLine.trim(), mergeStrategy);
 										} else if (updatePosition == POSITION_RETURN_TYPE) {
-											annotatedSignature = updateMethodReturnType(annotatedSignature, nextLine.trim(), mergeStrategy);
+											annotatedSignature = updateMethodReturnType(annotatedSignature, annotationLine.trim(), mergeStrategy);
 										} else {
-											annotatedSignature = updateParameterType(annotatedSignature, updatePosition, nextLine.trim(), mergeStrategy);
+											annotatedSignature = updateParameterType(annotatedSignature, updatePosition, annotationLine.trim(), mergeStrategy);
 										}
 										break;
 									default:
 										JavaCore.getJavaCore().getLog().log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID,
 																				"Unexpected value for enum MergeStrategy")); //$NON-NLS-1$
 								}
-								nextLine = null; // discard old annotated signature (may have been merged above)
 							}
 							writeFile(file, newContent, annotatedSignature, nextLine, reader, monitor);
 							return;
@@ -455,35 +462,40 @@ public final class ExternalAnnotationUtil {
 	 * The result is written into 'buf' as we go.
 	 */
 	private static boolean updateType(StringBuffer buf, char[] oldType, char[] newType, MergeStrategy mergeStrategy) {
-		SignatureWrapper oWrap = new SignatureWrapper(oldType, true, true); // may already contain annotations
-		SignatureWrapper nWrap = new SignatureWrapper(newType, true, true); // may already contain annotations
-		if (match(buf, oWrap, nWrap, 'L', false)
-			|| match(buf, oWrap, nWrap, 'T', false))
-		{
-			mergeAnnotation(buf, oWrap, nWrap, mergeStrategy);
-			buf.append(oWrap.nextName());
-			nWrap.nextName(); // skip
-			if (match(buf, oWrap, nWrap, '<', false)) {
-				do {
-					int oStart = oWrap.start;
-					int nStart = nWrap.start;
-					oWrap.computeEnd();
-					nWrap.computeEnd();
-					if (updateType(buf, oWrap.getFrom(oStart), nWrap.getFrom(nStart), mergeStrategy))
-						mergeAnnotation(buf, oWrap, nWrap, mergeStrategy);
-				} while (!match(buf, oWrap, nWrap, '>', false));
+		try {
+			SignatureWrapper oWrap = new SignatureWrapper(oldType, true, true); // may already contain annotations
+			SignatureWrapper nWrap = new SignatureWrapper(newType, true, true); // may already contain annotations
+			if (match(buf, oWrap, nWrap, 'L', false)
+				|| match(buf, oWrap, nWrap, 'T', false))
+			{
+				mergeAnnotation(buf, oWrap, nWrap, mergeStrategy);
+				buf.append(oWrap.nextName());
+				nWrap.nextName(); // skip
+				if (match(buf, oWrap, nWrap, '<', false)) {
+					do {
+						int oStart = oWrap.start;
+						int nStart = nWrap.start;
+						oWrap.computeEnd();
+						nWrap.computeEnd();
+						if (updateType(buf, oWrap.getFrom(oStart), nWrap.getFrom(nStart), mergeStrategy))
+							mergeAnnotation(buf, oWrap, nWrap, mergeStrategy);
+					} while (!match(buf, oWrap, nWrap, '>', false));
+				}
+				match(buf, oWrap, nWrap, ';', true);
+			} else if (match(buf, oWrap, nWrap, '[', false)) {
+				mergeAnnotation(buf, oWrap, nWrap, mergeStrategy);
+				updateType(buf, oWrap.tail(), nWrap.tail(), mergeStrategy);
+			} else if (match(buf, oWrap, nWrap, '*', false)
+					|| match(buf, oWrap, nWrap, '+', false)
+					|| match(buf, oWrap, nWrap, '-', false))
+			{
+				return true; // annotation allowed after this (not included in oldType / newType)
+			} else {			
+				buf.append(oldType);
 			}
-			match(buf, oWrap, nWrap, ';', true);
-		} else if (match(buf, oWrap, nWrap, '[', false)) {
-			mergeAnnotation(buf, oWrap, nWrap, mergeStrategy);
-			updateType(buf, oWrap.tail(), nWrap.tail(), mergeStrategy);
-		} else if (match(buf, oWrap, nWrap, '*', false)
-				|| match(buf, oWrap, nWrap, '+', false)
-				|| match(buf, oWrap, nWrap, '-', false))
-		{
-			return true; // annotation allowed after this (not included in oldType / newType)
-		} else {			
-			buf.append(oldType);
+		} catch (ArrayIndexOutOfBoundsException aioobe) { // from several locations inside match() or mergeAnnotation().
+			StringBuilder msg = new StringBuilder("Structural mismatch between ").append(oldType).append(" and ").append(newType); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new IllegalArgumentException(msg.toString(), aioobe);
 		}
 		return false;
 	}
@@ -496,8 +508,9 @@ public final class ExternalAnnotationUtil {
 		boolean match1 = sig1.signature[sig1.start] == expected;
 		boolean match2 = sig2.signature[sig2.start] == expected;
 		if (match1 != match2) {
-			throw new IllegalArgumentException("Mismatching type structures" //$NON-NLS-1$
-					+ new String(sig1.signature)+" vs "+new String(sig2.signature)); //$NON-NLS-1$ 
+			StringBuilder msg = new StringBuilder("Mismatching type structures ") //$NON-NLS-1$
+									.append(sig1.signature).append(" vs ").append(sig2.signature); //$NON-NLS-1$
+			throw new IllegalArgumentException(msg.toString()); 
 		}
 		if (match1) {
 			buf.append(expected);
