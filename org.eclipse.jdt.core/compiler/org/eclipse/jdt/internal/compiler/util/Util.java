@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -31,8 +35,10 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -245,6 +251,8 @@ public class Util implements SuffixConstants {
 	private static URI JRT_URI = URI.create("jrt:/"); //$NON-NLS-1$
 
 	private static String JAVA_BASE_PATH = "java.base"; //$NON-NLS-1$
+
+	private static final Map<String, String> packageToModule = new HashMap<String, String>();
 
 	/**
 	 * Build all the directories and subdirectories corresponding to the packages names
@@ -724,58 +732,67 @@ public class Util implements SuffixConstants {
 	public static void walkModuleImage(File image, final JimageVisitor<java.nio.file.Path> visitor) throws JavaModelException {
 		java.nio.file.FileSystem fs = FileSystems.getFileSystem(JRT_URI);
 		Iterable<java.nio.file.Path> roots = fs.getRootDirectories();
-		java.nio.file.Path basePath = null;
-		roots: for (java.nio.file.Path path : roots) {
+		for (java.nio.file.Path path : roots) {
 			try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(path)) {
-				for (java.nio.file.Path subdir: stream) {
-					if (subdir.toString().indexOf(JAVA_BASE_PATH) != -1) {
-						basePath = subdir;
-						break roots;
-					}
+				for (final java.nio.file.Path subdir: stream) {
+					Files.walkFileTree(subdir, new FileVisitor<java.nio.file.Path>() {
+
+						@Override
+						public FileVisitResult preVisitDirectory(java.nio.file.Path dir, BasicFileAttributes attrs) throws IOException {
+							java.nio.file.Path relative = subdir.relativize(dir);
+							// This being a stop-gap solution, let's assume we don't have any types in a single level package
+							if (relative.getNameCount() <= 1) return FileVisitResult.CONTINUE;
+							cachePackage(relative.toString(), subdir.toString());
+							return visitor.visitPackage(relative, attrs);
+						}
+
+						@Override
+						public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
+							return visitor.visitFile(subdir.relativize(file), attrs);
+						}
+
+						@Override
+						public FileVisitResult visitFileFailed(java.nio.file.Path file, IOException exc) throws IOException {
+							return FileVisitResult.CONTINUE;
+						}
+
+						@Override
+						public FileVisitResult postVisitDirectory(java.nio.file.Path dir, IOException exc) throws IOException {
+							return FileVisitResult.CONTINUE;
+						}
+					});
 			    }
 			} catch (Exception e) {
 				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 			}
 		}
-		try {
-			if (basePath != null) {
-				final java.nio.file.Path base = basePath;
-				Files.walkFileTree(basePath, new FileVisitor<java.nio.file.Path>() {
+	}
 
-					@Override
-					public FileVisitResult preVisitDirectory(java.nio.file.Path dir, BasicFileAttributes attrs) throws IOException {
-						return visitor.visitPackage(base.relativize(dir), attrs);
-					}
+	static void cachePackage(String packageName, String module) {
+		module = module.substring(1);
+		if (packageToModule.containsKey(packageName)) return;
+		packageToModule.put(packageName, module);
+	}
 
-					@Override
-					public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
-						return visitor.visitFile(base.relativize(file), attrs);
-					}
-
-					@Override
-					public FileVisitResult visitFileFailed(java.nio.file.Path file, IOException exc) throws IOException {
-						return FileVisitResult.CONTINUE;
-					}
-
-					@Override
-					public FileVisitResult postVisitDirectory(java.nio.file.Path dir, IOException exc) throws IOException {
-						return FileVisitResult.CONTINUE;
-					}
-				});
-			}
-		} catch (IOException e) {
-			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+	static String getModuleName(String fileName) {
+		int idx = fileName.lastIndexOf('/');
+		if (idx != -1) {
+			String module = packageToModule.get((fileName.substring(0, idx)));
+			if (module != null) return module;
 		}
+		return JAVA_BASE_PATH;
 	}
 
 	public static InputStream getContentFromJimage(String fileName) throws IOException {
 		java.nio.file.FileSystem fs = FileSystems.getFileSystem(JRT_URI);
-		return Files.newInputStream(fs.getPath(JAVA_BASE_PATH, fileName));
+		String module = getModuleName(fileName);
+		return Files.newInputStream(fs.getPath(module, fileName));
 	}
 
 	public static byte[] getClassfileContent(String fileName) throws IOException {
 		java.nio.file.FileSystem fs = FileSystems.getFileSystem(JRT_URI);
-		return Files.readAllBytes(fs.getPath(JAVA_BASE_PATH, fileName));
+		String module = getModuleName(fileName);
+		return Files.readAllBytes(fs.getPath(module, fileName));
 	}
 	public static int hashCode(Object[] array) {
 		int prime = 31;
