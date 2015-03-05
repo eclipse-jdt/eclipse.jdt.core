@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4738,6 +4738,36 @@ public final class JavaCore extends Plugin {
 			extraAttributes);
 	}
 
+	/**
+	 * Creates and returns a new classpath entry of kind <code>CPE_JIMAGE</code> for the jimage
+	 * identified by the given absolute path. 
+	 * <p>
+	 *
+	 * @param path the path to the jimage
+	 * @return a new jimage classpath entry
+	 * @since 3.11
+	 */
+	public static IClasspathEntry newJimageEntry(
+			IPath path) {
+
+		if (path == null) throw new ClasspathEntry.AssertionFailedException("Jimage path cannot be null"); //$NON-NLS-1$
+		boolean hasDotDot = ClasspathEntry.hasDotDot(path);
+		if (!hasDotDot && !path.isAbsolute()) throw new ClasspathEntry.AssertionFailedException("Path for IClasspathEntry must be absolute: " + path); //$NON-NLS-1$
+		return new ClasspathEntry(
+			IPackageFragmentRoot.K_BINARY,
+			IClasspathEntry.CPE_JIMAGE,
+			hasDotDot ? path : JavaProject.canonicalizedPath(path),
+			ClasspathEntry.INCLUDE_ALL, // inclusion patterns
+			ClasspathEntry.EXCLUDE_NONE, // exclusion patterns
+			null,//sourceAttachmentPath,
+			null,//sourceAttachmentRootPath,
+			null, // specific output folder
+			true,//isExported,
+			null,//accessRules,
+			false, // no access rules to combine
+			null //extraAttributes
+			);
+	}
 	/**
 	 * Creates and returns a new non-exported classpath entry of kind <code>CPE_PROJECT</code>
 	 * for the project identified by the given absolute path.

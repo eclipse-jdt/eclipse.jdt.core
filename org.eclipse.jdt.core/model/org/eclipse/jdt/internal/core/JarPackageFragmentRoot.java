@@ -308,6 +308,13 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	public boolean isReadOnly() {
 		return true;
 	}
+	/**
+	 * return true if jimage
+	 */
+	public boolean isJimage() {
+		return this.isJimage;
+	}
+
 
 	/**
 	 * Returns whether the corresponding resource or associated file exists

@@ -246,24 +246,27 @@ public static ClassFileReader classFileReader(IType type) {
 		if (!root.isArchive())
 			return Util.newClassFileReader(((JavaElement) type).resource());
 
-		ZipFile zipFile = null;
-		try {
-			IPath zipPath = root.getPath();
-			if (JavaModelManager.ZIP_ACCESS_VERBOSE)
-				System.out.println("(" + Thread.currentThread() + ") [MatchLocator.classFileReader()] Creating ZipFile on " + zipPath); //$NON-NLS-1$	//$NON-NLS-2$
-			zipFile = manager.getZipFile(zipPath);
+		String rootPath = root.getPath().toOSString();
+		if (org.eclipse.jdt.internal.compiler.util.Util.archiveFormat(rootPath) == org.eclipse.jdt.internal.compiler.util.Util.JIMAGE_FILE) {
 			String classFileName = classFile.getElementName();
 			String path = Util.concatWith(pkg.names, classFileName, '/');
-			return ClassFileReader.read(zipFile, path);
-		} finally {
-			manager.closeZipFile(zipFile);
+			return ClassFileReader.readFromJimage(rootPath, path);
+		} else {
+			ZipFile zipFile = null;
+			try {
+				IPath zipPath = root.getPath();
+				if (JavaModelManager.ZIP_ACCESS_VERBOSE)
+					System.out.println("(" + Thread.currentThread() + ") [MatchLocator.classFileReader()] Creating ZipFile on " + zipPath); //$NON-NLS-1$	//$NON-NLS-2$
+				zipFile = manager.getZipFile(zipPath);
+				String classFileName = classFile.getElementName();
+				String path = Util.concatWith(pkg.names, classFileName, '/');
+				return ClassFileReader.read(zipFile, path);
+			} finally {
+				manager.closeZipFile(zipFile);
+			}
 		}
-	} catch (ClassFormatException e) {
+	} catch (ClassFormatException | CoreException | IOException e) {
 		// invalid class file: return null
-	} catch (CoreException e) {
-		// cannot read class file: return null
-	} catch (IOException e) {
-		// cannot read class file: return null
 	}
 	return null;
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -62,6 +65,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.compiler.util.Util.JimageVisitor;
 import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 
 /**
@@ -453,6 +457,57 @@ public class SourceMapper
 		return -1;
 	}
 
+	class JimagePackageNamesAdderVisitor implements JimageVisitor<java.nio.file.Path> {
+
+		public final HashSet firstLevelPackageNames;
+		final IPackageFragmentRoot root;
+		public String sourceLevel = null;
+		public String complianceLevel = null;
+		public boolean containsADefaultPackage;
+		public boolean containsJavaSource;
+
+		JimagePackageNamesAdderVisitor(HashSet firstLevelPackageNames, String sourceLevel, String complianceLevel,
+				boolean containsADefaultPackage, boolean containsJavaSource, IPackageFragmentRoot root) {
+			this.firstLevelPackageNames = firstLevelPackageNames;
+			this.root = root;
+			this.sourceLevel = sourceLevel;
+			this.complianceLevel = complianceLevel;
+			this.containsADefaultPackage = containsADefaultPackage;
+			this.containsJavaSource = containsJavaSource;
+		}
+		
+		@Override
+		public FileVisitResult visitPackage(java.nio.file.Path dir, BasicFileAttributes attrs) throws IOException {
+			return FileVisitResult.CONTINUE;
+		}
+		
+		@Override
+		public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
+			String entryName = file.toString();
+			if (Util.isClassFileName(entryName)) {
+				int index = entryName.indexOf('/');
+				if (index != -1) {
+					String firstLevelPackageName = entryName.substring(0, index);
+					if (!this.firstLevelPackageNames.contains(firstLevelPackageName)) {
+						if (this.sourceLevel == null) {
+							IJavaProject project = this.root.getJavaProject();
+							this.sourceLevel = project.getOption(JavaCore.COMPILER_SOURCE, true);
+							this.complianceLevel = project.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+						}
+						IStatus status = JavaConventions.validatePackageName(firstLevelPackageName, this.sourceLevel, this.complianceLevel);
+						if (status.isOK() || status.getSeverity() == IStatus.WARNING) {
+							this.firstLevelPackageNames.add(firstLevelPackageName);
+						}
+					}
+				} else {
+					this.containsADefaultPackage = true;
+				}
+			} else if (!this.containsJavaSource && org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(entryName)) {
+				this.containsJavaSource = true;
+			}
+			return FileVisitResult.CONTINUE;
+		}
+	}
 	private synchronized void computeAllRootPaths(IType type) {
 		if (this.areRootPathsComputed) {
 			return;
@@ -471,7 +526,22 @@ public class SourceMapper
 
 		String sourceLevel = null;
 		String complianceLevel = null;
-		if (root.isArchive()) {
+		boolean isJimage = root instanceof JarPackageFragmentRoot ?
+				((JarPackageFragmentRoot) root).isJimage() : false;
+		if (isJimage) {
+			try {
+				JimagePackageNamesAdderVisitor jimagePackageNamesAdderVisitor = new JimagePackageNamesAdderVisitor(firstLevelPackageNames, 
+						sourceLevel, complianceLevel, containsADefaultPackage, containsJavaSource, root);
+				org.eclipse.jdt.internal.compiler.util.Util.walkModuleImage(new File(root.toString()), jimagePackageNamesAdderVisitor);
+				sourceLevel = jimagePackageNamesAdderVisitor.sourceLevel;
+				complianceLevel = jimagePackageNamesAdderVisitor.complianceLevel;
+				containsADefaultPackage = jimagePackageNamesAdderVisitor.containsADefaultPackage;
+				containsJavaSource = jimagePackageNamesAdderVisitor.containsJavaSource;
+			} catch (JavaModelException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else if (root.isArchive()) {
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			ZipFile zip = null;
 			try {

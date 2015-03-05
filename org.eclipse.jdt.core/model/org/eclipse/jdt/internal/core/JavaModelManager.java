@@ -1444,6 +1444,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public static boolean CP_RESOLVE_VERBOSE_ADVANCED = false;
 	public static boolean CP_RESOLVE_VERBOSE_FAILURE = false;
 	public static boolean ZIP_ACCESS_VERBOSE = false;
+	public static boolean JIMAGE_ACCESS_VERBOSE = false;
 	
 	/**
 	 * A cache of opened zip files per thread.

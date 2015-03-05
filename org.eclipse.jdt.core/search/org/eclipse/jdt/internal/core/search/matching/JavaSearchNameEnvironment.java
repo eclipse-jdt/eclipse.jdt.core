@@ -101,7 +101,9 @@ private ClasspathLocation mapToClassPathLocation( JavaModelManager manager, Pack
 	try {
 		if (root.isArchive()) {
 			ClasspathEntry rawClasspathEntry = (ClasspathEntry) root.getRawClasspathEntry();
-			cp = new ClasspathJar(manager.getZipFile(path), rawClasspathEntry.getAccessRuleSet(), ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry, ((IJavaProject)root.getParent()).getProject(), true));
+			cp = JavaModelManager.isJimage(path) ? 
+					new ClasspathJar(path.toOSString(), rawClasspathEntry.getAccessRuleSet(), ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry, ((IJavaProject)root.getParent()).getProject(), true)) :
+			new ClasspathJar(manager.getZipFile(path), rawClasspathEntry.getAccessRuleSet(), ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry, ((IJavaProject)root.getParent()).getProject(), true));
 		} else {
 			Object target = JavaModel.getTarget(path, true);
 			if (target != null) 

@@ -156,13 +156,19 @@ ClasspathJar(String zipFilename, long lastModified, AccessRuleSet accessRuleSet,
 }
 
 public ClasspathJar(ZipFile zipFile, AccessRuleSet accessRuleSet, IPath externalAnnotationPath) {
-	this.zipFilename = zipFile.getName();
+	this(zipFile.getName(), accessRuleSet, externalAnnotationPath);
 	this.zipFile = zipFile;
+}
+
+public ClasspathJar(String fileName, AccessRuleSet accessRuleSet, IPath externalAnnotationPath) {
+	this.zipFilename = fileName;
 	this.closeZipFileAtEnd = false;
 	this.knownPackageNames = null;
 	this.accessRuleSet = accessRuleSet;
 	if (externalAnnotationPath != null)
 		this.externalAnnotationPath = externalAnnotationPath.toString();
+	this.isJimage = JavaModelManager.isJimage(fileName);
+
 }
 
 public void cleanup() {
