@@ -18,8 +18,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.Test;
-
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
@@ -48,6 +47,8 @@ import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.osgi.service.prefs.BackingStoreException;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ImportRewriteTest extends AbstractJavaModelTests {
@@ -1440,6 +1441,30 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		expected.append("\n");
 		expected.append("public class Clazz {}\n");
 		assertEqualString(cu.getSource(), expected.toString());
+	}
+	
+	// https://bugs.eclipse.org/459320
+	public void testAddImportToCuNotOnClasspath() throws Exception {
+		StringBuffer contents = new StringBuffer();
+		contents.append("package pack1;\n");
+		contents.append("\n");
+		contents.append("public class Clazz {}\n");
+		
+		createFolder("/P/alt-src/pack1/");
+		IFile clazz = createFile("/P/alt-src/pack1/Clazz.java", contents.toString());
+		ICompilationUnit cu = (ICompilationUnit) JavaCore.create(clazz);
+		cu.becomeWorkingCopy(null);
+		
+		try {
+			ImportRewrite rewrite = newImportsRewrite(cu, new String[] {}, 999, 999, true);
+			rewrite.setUseContextToFilterImplicitImports(true);
+			rewrite.addImport("pack1.AnotherClass");
+			apply(rewrite);
+			
+			assertEqualString(cu.getSource(), contents.toString());
+		} finally {
+			cu.discardWorkingCopy();
+		}
 	}
 
 	public void testAddImports1() throws Exception {
