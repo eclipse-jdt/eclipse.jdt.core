@@ -5109,4 +5109,32 @@ public void testBug460186() throws JavaModelException {
 		assertTrue("Test Failed", false);
 	}
 }
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=443232
+ * @bug Bug 443232 IAE in ASTNode.setSourceRange with broken code
+ * @throws JavaModelException
+ */
+public void testBug443232() throws JavaModelException {
+	String contents =
+			"package test443232;\n" +
+			"public class E21 {\n" + 
+			"	{private int[] nums;\n" + 
+			"	void foo() {\n" + 
+			"        nums\n" + 
+			"	}\n" + 
+			"}";
+	this.workingCopy = getWorkingCopy("/Converter18/src/test443232/E21.java", contents, false/*computeProblems*/);
+	IJavaProject javaProject = this.workingCopy.getJavaProject();
+
+	final ASTParser parser = ASTParser.newParser(AST.JLS8);
+	parser.setResolveBindings(false);
+	parser.setProject(javaProject);
+	parser.setIgnoreMethodBodies(false);
+	ASTRequestor requestor = new ASTRequestor() {};
+	try {
+		parser.createASTs(new ICompilationUnit[] {this.workingCopy}, new String[0], requestor, null);
+	} catch (IllegalArgumentException e) {
+		assertTrue("Test Failed", false);
+	}
+}
 }

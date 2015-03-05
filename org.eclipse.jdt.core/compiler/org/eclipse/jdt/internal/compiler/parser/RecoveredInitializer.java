@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -316,8 +316,19 @@ public void updateSourceEndIfNecessary(int braceStart, int braceEnd){
 				initializer.bodyEnd = initializer.bodyStart;
 			}
 		} else {
-			initializer.declarationSourceEnd = braceEnd;
-			initializer.bodyEnd  = braceStart - 1;
+			if (braceEnd < initializer.declarationSourceStart) {
+				initializer.declarationSourceEnd = initializer.declarationSourceStart;
+				initializer.bodyEnd  = initializer.declarationSourceEnd;
+			} else {
+				initializer.declarationSourceEnd = braceEnd;
+				initializer.bodyEnd  = braceStart - 1;
+			}
+			if (initializer.bodyStart > initializer.declarationSourceEnd) {
+				initializer.bodyStart = initializer.declarationSourceEnd;
+				if(initializer.block != null) {
+					initializer.block.sourceStart = initializer.declarationSourceStart;
+				}
+			}
 		}
 		if(initializer.block != null) {
 			initializer.block.sourceEnd = initializer.declarationSourceEnd;
