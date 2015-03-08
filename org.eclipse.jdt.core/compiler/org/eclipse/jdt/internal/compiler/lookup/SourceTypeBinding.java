@@ -1959,12 +1959,9 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 			if (nullTagBits != 0) {
 				TypeReference returnTypeRef = ((MethodDeclaration)methodDecl).returnType;
 				if (this.scope.environment().usesNullTypeAnnotations()) {
-					if (nullTagBits != (method.returnType.tagBits & TagBits.AnnotationNullMASK)) {
-						if (!this.scope.validateNullAnnotation(nullTagBits, returnTypeRef, methodDecl.annotations)) {
-							method.returnType.tagBits &= ~TagBits.AnnotationNullMASK;
-						}
-						method.tagBits &= ~TagBits.AnnotationNullMASK;
-					}
+					if (!this.scope.validateNullAnnotation(nullTagBits, returnTypeRef, methodDecl.annotations))
+						method.returnType.tagBits &= ~TagBits.AnnotationNullMASK;
+					method.tagBits &= ~TagBits.AnnotationNullMASK;
 				} else {
 					if (!this.scope.validateNullAnnotation(nullTagBits, returnTypeRef, methodDecl.annotations))
 						method.tagBits &= ~TagBits.AnnotationNullMASK;

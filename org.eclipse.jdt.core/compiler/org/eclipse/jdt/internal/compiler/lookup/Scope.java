@@ -48,6 +48,7 @@
  *								Bug 452194 - Code no longer compiles in 4.4.1, but with confusing error
  *								Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *								Bug 456236 - [1.8][null] Cannot infer type when constructor argument is annotated with @Nullable
+ *								Bug 437072 - [compiler][null] Null analysis emits possibly incorrect warning for new int[][] despite @NonNullByDefault 
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -4977,12 +4978,23 @@ public abstract class Scope {
 	}
 
 	public boolean validateNullAnnotation(long tagBits, TypeReference typeRef, Annotation[] annotations) {
-		long nullAnnotationTagBit = tagBits & (TagBits.AnnotationNullMASK);
+		if (typeRef == null)
+			return true;
+		TypeBinding type = typeRef.resolvedType;
+
+		boolean usesNullTypeAnnotations = this.environment().usesNullTypeAnnotations();
+		long nullAnnotationTagBit;
+		if (usesNullTypeAnnotations) {
+			type = type.leafComponentType(); // if it's an array, the annotation applies to the leaf component type
+			nullAnnotationTagBit = type.tagBits & TagBits.AnnotationNullMASK;
+		} else {
+			nullAnnotationTagBit = tagBits & (TagBits.AnnotationNullMASK);
+		}
+		
 		if (nullAnnotationTagBit != 0) {
-			TypeBinding type = typeRef.resolvedType;
 			if (type != null && type.isBaseType()) {
 				// type annotations are *always* illegal for 'void' (already reported)
-				if (!(typeRef.resolvedType.id == TypeIds.T_void && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8))
+				if (!(typeRef.resolvedType.id == TypeIds.T_void && usesNullTypeAnnotations))
 					problemReporter().illegalAnnotationForBaseType(typeRef, annotations, nullAnnotationTagBit);
 				return false;
 			}

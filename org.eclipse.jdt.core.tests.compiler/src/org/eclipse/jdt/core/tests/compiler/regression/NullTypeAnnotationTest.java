@@ -7569,11 +7569,6 @@ public void testBug456487b() {
 		"	@NonNull String s = os.orElse(null);\n" + 
 		"	                    ^^^^^^^^^^^^^^^\n" + 
 		"Contradictory null annotations: method was inferred as \'@NonNull @Nullable String orElse(@NonNull @Nullable String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
-		"----------\n" + 
-		"7. ERROR in OTest.java (at line 11)\n" + 
-		"	@NonNull String s = os.orElse(null);\n" + 
-		"	                    ^^^^^^^^^^^^^^^\n" + 
-		"Null type mismatch: required \'@NonNull String\' but the provided value is inferred as @Nullable\n" + 
 		"----------\n");
 }
 public void testBug454182() {
@@ -7616,5 +7611,53 @@ public void testBug443870() {
 		},
 		null,
 		"");
+}
+public void testBug437072() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	@NonNull int[][] ints = new int[3][4];\n" +
+			"	@NonNull int[][] test1() { return new int[3][4]; }\n" +
+			"	void test2(@NonNull boolean[][] bools) {\n" +
+			"		@NonNull boolean[][] bools2 = bools;\n" +
+			"	}\n" +
+			"	List<@NonNull int[]> intslist;\n" +
+			"	List<@NonNull int> intlist;\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	@NonNull int[][] ints = new int[3][4];\n" + 
+		"	^^^^^^^^\n" + 
+		"The nullness annotation @NonNull is not applicable for the primitive type int\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 5)\n" + 
+		"	@NonNull int[][] test1() { return new int[3][4]; }\n" + 
+		"	^^^^^^^^\n" + 
+		"The nullness annotation @NonNull is not applicable for the primitive type int\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 6)\n" + 
+		"	void test2(@NonNull boolean[][] bools) {\n" + 
+		"	           ^^^^^^^^\n" + 
+		"The nullness annotation @NonNull is not applicable for the primitive type boolean\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 7)\n" + 
+		"	@NonNull boolean[][] bools2 = bools;\n" + 
+		"	^^^^^^^^\n" + 
+		"The nullness annotation @NonNull is not applicable for the primitive type boolean\n" + 
+		"----------\n" + 
+		"5. ERROR in X.java (at line 9)\n" + 
+		"	List<@NonNull int[]> intslist;\n" + 
+		"	     ^^^^^^^^\n" + 
+		"The nullness annotation @Nullable is not applicable for the primitive type int\n" + 
+		"----------\n" + 
+		"6. ERROR in X.java (at line 10)\n" + 
+		"	List<@NonNull int> intlist;\n" + 
+		"	              ^^^\n" + 
+		"Syntax error, insert \"Dimensions\" to complete ReferenceType\n" + 
+		"----------\n");
 }
 }
