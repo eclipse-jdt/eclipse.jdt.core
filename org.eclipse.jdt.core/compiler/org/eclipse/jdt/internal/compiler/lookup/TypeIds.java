@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@
  *								bug 358903 - Filter practically unimportant resource leak warnings
  *								bug 400421 - [compiler] Null analysis for fields does not take @com.google.inject.Inject into account
  *								bug 382069 - [null] Make the null analysis consider JUnit's assertNotNull similarly to assertions
+ *								Bug 410218 - Optional warning for arguments of "unexpected" types to Map#get(Object), Collection#remove(Object) et al.
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *******************************************************************************/
@@ -129,6 +130,11 @@ public interface TypeIds {
 	final int T_ComGoogleInjectInject = 81;
 	// Java 8 - JEP 120
 	final int T_JavaLangAnnotationRepeatable = 90;
+	
+	// classes with methods with "dangerous" signatures:
+	final int T_JavaUtilMap = 91;
+	final int T_JavaUtilList = 92;
+
 	// If you add new type id, make sure to bump up T_LastWellKnownTypeId if there is a cross over.
 	final int T_LastWellKnownTypeId = 128;
 	
@@ -240,8 +246,18 @@ public interface TypeIds {
 	final int BitResourceFreeCloseable = 8;
 	
 	final int BitUninternedType = 16;
+	
+	/** Mark subtypes of Map to analyze dangerous get/remove et al. */
+	final int BitMap = 0x10;
+
+	/** Mark subtypes of Collection to analyze dangerous contains/remove. */
+	final int BitCollection = 0x20;
+
+	/** Mark subtypes of List to analyze dangerous indexOf. */
+	final int BitList = 0x40;
+
 	/**
 	 * Set of type bits that should be inherited by any sub types.
 	 */
-	final int InheritableBits = BitAutoCloseable | BitCloseable | BitUninternedType;
+	final int InheritableBits = BitAutoCloseable | BitCloseable | BitUninternedType | BitMap | BitCollection | BitList ;
 }

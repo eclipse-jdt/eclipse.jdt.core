@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@
  *								bug 374605 - Unreasonable warning for enum-based switch statements
  *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
  *								Bug 441208 - [1.8][null]SuppressWarnings("null") does not suppress / marked Unnecessary
+ *								Bug 410218 - Optional warning for arguments of "unexpected" types to Map#get(Object), Collection#remove(Object) et al.
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.impl;
@@ -67,6 +68,7 @@ public class IrritantSet {
 	public static final IrritantSet UNCHECKED = new IrritantSet(CompilerOptions.UncheckedTypeOperation);
 	public static final IrritantSet UNQUALIFIED_FIELD_ACCESS = new IrritantSet(CompilerOptions.UnqualifiedFieldAccess);
 	public static final IrritantSet RESOURCE = new IrritantSet(CompilerOptions.UnclosedCloseable);
+	public static final IrritantSet UNLIKELY_ARGUMENT_TYPE = new IrritantSet(CompilerOptions.UnlikelyArgumentType|CompilerOptions.UnlikelyArgumentTypeNotCastable);
 
 	public static final IrritantSet JAVADOC = new IrritantSet(CompilerOptions.InvalidJavadoc);
 	public static final IrritantSet COMPILER_DEFAULT_ERRORS = new IrritantSet(0); // no optional error by default	
@@ -114,7 +116,9 @@ public class IrritantSet {
 				|CompilerOptions.UnclosedCloseable
 				|CompilerOptions.NullUncheckedConversion
 				|CompilerOptions.RedundantNullAnnotation
-				|CompilerOptions.NonnullParameterAnnotationDropped);
+				|CompilerOptions.NonnullParameterAnnotationDropped
+				|CompilerOptions.UnlikelyArgumentType
+				|CompilerOptions.UnlikelyArgumentTypeNotCastable);
 		// default errors IF AnnotationBasedNullAnalysis is enabled:
 		COMPILER_DEFAULT_ERRORS.set(
 				CompilerOptions.NullSpecViolation

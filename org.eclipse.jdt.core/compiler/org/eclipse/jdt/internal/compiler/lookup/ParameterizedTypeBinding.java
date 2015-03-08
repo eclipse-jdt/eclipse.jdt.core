@@ -87,6 +87,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (enclosingType != null && enclosingType.hasNullTypeAnnotations())
 			this.tagBits |= TagBits.HasNullTypeAnnotation;
 		this.tagBits |=  TagBits.HasUnresolvedTypeVariables; // cleared in resolve()
+		this.typeBits = type.typeBits;
 	}
 
 	/**

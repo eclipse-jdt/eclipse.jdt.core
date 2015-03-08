@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -98,6 +98,8 @@
  *									COMPILER_INHERIT_NULL_ANNOTATIONS
  *									COMPILER_PB_NONNULL_PARAMETER_ANNOTATION_DROPPED
  *									COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS
+ *									COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_TYPE
+ *									COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_NOT_CASTABLE
  *     Jesper S Moller   - Contributions for bug 381345 : [1.8] Take care of the Java 8 major version
  *                       - added the following constants:
  *									COMPILER_CODEGEN_METHOD_PARAMETERS_ATTR
@@ -1496,6 +1498,42 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_EXPLICITLY_CLOSED_AUTOCLOSEABLE = PLUGIN_ID + ".compiler.problem.explicitlyClosedAutoCloseable"; //$NON-NLS-1$
+
+	/**
+	 * Compiler option ID: Reporting a method invocation providing an argument of an unlikely type.
+	 * <p>When enabled, the compiler will issue an error or a warning against certain invocations
+	 *    of well-known methods with error-prone signatures, like {@link Map#get(Object)}.
+	 * 	  These methods of generic types have very general parameters, whereas in typical use 
+	 *    the argument should be of the type of one of the declaring type's type arguments,
+	 *    because values will be compared to values typed by that type argument.
+	 *    The error or warning is raised when the provided argument is compatible by the
+	 *    declared signature but not compatible with the corresponding type argument.
+	 *    In these cases the intended effect of the invocation is unlikely to be achieved.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.discouragedInvocationIncompatibleArgument"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
+	 * </dl>
+	 * @since 3.11
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_TYPE = PLUGIN_ID + ".compiler.problem.discouragedInvocationIncompatibleArgument"; //$NON-NLS-1$
+
+	/**
+	 * Compiler option ID: Reporting a method invocation providing an argument of a very unlikely type.
+	 * <p>This option is stronger variant of {@link #COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_TYPE}.
+	 *    The error or waring is reported when the provided argument is not only incompatible with the expected type
+	 *    (in accordance with the declaring type's type argument) but even a cast to the expected type would not be possible.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.discouragedInvocationArgumentNotCastable"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
+	 * </dl>
+	 * @since 3.11
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_NOT_CASTABLE = PLUGIN_ID + ".compiler.problem.discouragedInvocationArgumentNotCastable"; //$NON-NLS-1$
+
 	/**
 	 * Compiler option ID: Annotation-based Null Analysis.
 	 * <p>This option controls whether the compiler will use null annotations for

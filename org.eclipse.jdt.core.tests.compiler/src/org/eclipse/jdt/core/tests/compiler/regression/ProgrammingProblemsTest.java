@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001, 2014 IBM Corporation and others.
+ * Copyright (c) 2001, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
  *     						bug 185682 - Increment/decrement operators mark local variables as read
  *     						bug 328281 - visibility leaks not detected when analyzing unused field in private class
+ *							Bug 410218 - Optional warning for arguments of "unexpected" types to Map#get(Object), Collection#remove(Object) et al.
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -2698,6 +2699,247 @@ public void test0063() throws Exception {
 		"	if (t1 == t2) { \n" + 
 		"	    ^^^^^^^^\n" + 
 		"The uninterned types TypeBinding and TypeBinding should not be compared using ==/!= operators.\n" + 
+		"----------\n",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		customOptions);
+}
+// Collection: contains & remove & get
+public void testBug410218a() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"class X {\n" +
+			"  void test() {\n" +
+			"	Set<Short> set = new HashSet<Short>();\n" + 
+			"	short one = 1;\n" + 
+			"	set.add(one);\n" + 
+			"\n" + 
+			"	if (set.contains(\"ONE\")) // bad\n" +
+			"		set.remove(\"ONE\"); // bad\n" + 
+			"	if (set.contains(1)) // bad\n" +
+			"		set.remove(1); // bad (tries to remove \"Integer 1\")\n" + 
+			"	System.out.println(set); // shows that the \"Short 1\" is still in!\n" + 
+			"\n" + 
+			"	if (set.contains(one)) // ok\n" +
+			"		set.remove(one); // ok\n" + 
+			"	if (set.contains(Short.valueOf(one))) // ok\n" +
+			"		set.remove(Short.valueOf(one)); // ok\n" + 
+			"	System.out.println(set);\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	if (set.contains(\"ONE\")) // bad\n" + 
+		"	                 ^^^^^\n" + 
+		"Discouraged invocation of method contains(Object). Argument type String cannot be cast to the likely type Short according to the declaring type Collection<Short>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 9)\n" + 
+		"	set.remove(\"ONE\"); // bad\n" + 
+		"	           ^^^^^\n" + 
+		"Discouraged invocation of method remove(Object). Argument type String cannot be cast to the likely type Short according to the declaring type Collection<Short>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 10)\n" + 
+		"	if (set.contains(1)) // bad\n" + 
+		"	                 ^\n" + 
+		"Discouraged invocation of method contains(Object). Argument type int cannot be cast to the likely type Short according to the declaring type Collection<Short>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 11)\n" + 
+		"	set.remove(1); // bad (tries to remove \"Integer 1\")\n" + 
+		"	           ^\n" + 
+		"Discouraged invocation of method remove(Object). Argument type int cannot be cast to the likely type Short according to the declaring type Collection<Short>\n" + 
+		"----------\n");
+}
+// HashSet vs. TreeSet or: to be castable or not
+public void testBug410218b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"class X {\n" +
+			"  <T> void test(Set<HashSet<T>> hss, TreeSet<T> ts) {\n" +
+			"	if (hss.contains(ts)) // bad\n" +
+			"		hss.remove(ts); // bad\n" + 
+			"	if (hss.contains((Set<T>)ts)) // less bad\n" +
+			"		hss.remove((Set<T>)ts); // less bad\n" + 
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	if (hss.contains(ts)) // bad\n" + 
+		"	                 ^^\n" + 
+		"Discouraged invocation of method contains(Object). Argument type TreeSet<T> cannot be cast to the likely type HashSet<T> according to the declaring type Collection<HashSet<T>>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	hss.remove(ts); // bad\n" + 
+		"	           ^^\n" + 
+		"Discouraged invocation of method remove(Object). Argument type TreeSet<T> cannot be cast to the likely type HashSet<T> according to the declaring type Collection<HashSet<T>>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 6)\n" + 
+		"	if (hss.contains((Set<T>)ts)) // less bad\n" + 
+		"	                 ^^^^^^^^^^\n" + 
+		"Discouraged invocation of method contains(Object). Argument type Set<T> is incompatible with the likely type HashSet<T> according to the declaring type Collection<HashSet<T>>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 7)\n" + 
+		"	hss.remove((Set<T>)ts); // less bad\n" + 
+		"	           ^^^^^^^^^^\n" + 
+		"Discouraged invocation of method remove(Object). Argument type Set<T> is incompatible with the likely type HashSet<T> according to the declaring type Collection<HashSet<T>>\n" + 
+		"----------\n");
+}
+// Map: contains* & remove & get
+public void testBug410218c() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"class X {\n" +
+			"  Number test(Map<? extends Number, Number> m, boolean f) {\n" +
+			"	if (m.containsKey(\"ONE\")) // bad\n" + 
+			"		m.remove(\"ONE\"); // bad\n" +
+			"	if (m.containsValue(\"ONE\")) // bad\n" + 
+			"		m.remove(\"ONE\"); // bad\n" + 
+			"	short one = 1;\n" +
+			"	if (m.containsKey(one)) // almost ok\n" +
+			"		m.remove(one); // almost ok\n" +
+			"	if (m.containsValue(Short.valueOf(one))) // ok\n" + 
+			"		m.remove(Short.valueOf(one)); // almost ok\n" + 
+			"	if (f)\n" +
+			"		return m.get(\"ONE\"); // bad\n" +
+			"	return m.get(one);\n // almost ok\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	if (m.containsKey(\"ONE\")) // bad\n" + 
+		"	                  ^^^^^\n" + 
+		"Discouraged invocation of method containsKey(Object). Argument type String cannot be cast to the likely type capture#1-of ? extends Number according to the declaring type Map<capture#1-of ? extends Number,Number>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	m.remove(\"ONE\"); // bad\n" + 
+		"	         ^^^^^\n" + 
+		"Discouraged invocation of method remove(Object). Argument type String cannot be cast to the likely type capture#2-of ? extends Number according to the declaring type Map<capture#2-of ? extends Number,Number>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 6)\n" + 
+		"	if (m.containsValue(\"ONE\")) // bad\n" + 
+		"	                    ^^^^^\n" + 
+		"Discouraged invocation of method containsValue(Object). Argument type String cannot be cast to the likely type Number according to the declaring type Map<capture#3-of ? extends Number,Number>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 7)\n" + 
+		"	m.remove(\"ONE\"); // bad\n" + 
+		"	         ^^^^^\n" + 
+		"Discouraged invocation of method remove(Object). Argument type String cannot be cast to the likely type capture#4-of ? extends Number according to the declaring type Map<capture#4-of ? extends Number,Number>\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 9)\n" + 
+		"	if (m.containsKey(one)) // almost ok\n" + 
+		"	                  ^^^\n" + 
+		"Discouraged invocation of method containsKey(Object). Argument type short is incompatible with the likely type capture#5-of ? extends Number according to the declaring type Map<capture#5-of ? extends Number,Number>\n" + 
+		"----------\n" + 
+		"6. WARNING in X.java (at line 10)\n" + 
+		"	m.remove(one); // almost ok\n" + 
+		"	         ^^^\n" + 
+		"Discouraged invocation of method remove(Object). Argument type short is incompatible with the likely type capture#6-of ? extends Number according to the declaring type Map<capture#6-of ? extends Number,Number>\n" + 
+		"----------\n" + 
+		"7. WARNING in X.java (at line 12)\n" + 
+		"	m.remove(Short.valueOf(one)); // almost ok\n" + 
+		"	         ^^^^^^^^^^^^^^^^^^\n" + 
+		"Discouraged invocation of method remove(Object). Argument type Short is incompatible with the likely type capture#8-of ? extends Number according to the declaring type Map<capture#8-of ? extends Number,Number>\n" + 
+		"----------\n" + 
+		"8. WARNING in X.java (at line 14)\n" + 
+		"	return m.get(\"ONE\"); // bad\n" + 
+		"	             ^^^^^\n" + 
+		"Discouraged invocation of method get(Object). Argument type String cannot be cast to the likely type capture#9-of ? extends Number according to the declaring type Map<capture#9-of ? extends Number,Number>\n" + 
+		"----------\n" + 
+		"9. WARNING in X.java (at line 15)\n" + 
+		"	return m.get(one);\n" + 
+		"	             ^^^\n" + 
+		"Discouraged invocation of method get(Object). Argument type short is incompatible with the likely type capture#10-of ? extends Number according to the declaring type Map<capture#10-of ? extends Number,Number>\n" + 
+		"----------\n");
+}
+// Collection: {contains,remove,retain}All, non-generic sub type of Collection, configured to be ERROR
+public void testBug410218d() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_NOT_CASTABLE, JavaCore.ERROR);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"interface NumberCollection extends Collection<Number> {}\n" +
+			"class X {\n" +
+			"  void test(NumberCollection numbers, List<Integer> ints, Set<Number> numberSet) {\n" +
+			"	if (numbers.containsAll(ints)) // bad\n" +
+			"		numbers.removeAll(ints); // bad\n" + 
+			"	else\n" +
+			"		numbers.retainAll(ints); // bad\n" + 
+			"\n" + 
+			"	numbers.removeAll(numberSet); // ok\n" + 
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	if (numbers.containsAll(ints)) // bad\n" + 
+		"	                        ^^^^\n" + 
+		"Discouraged invocation of method containsAll(Collection<?>). Argument type List<Integer> cannot be cast to the likely type Collection<Number> according to the declaring type Collection<Number>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 6)\n" + 
+		"	numbers.removeAll(ints); // bad\n" + 
+		"	                  ^^^^\n" + 
+		"Discouraged invocation of method removeAll(Collection<?>). Argument type List<Integer> cannot be cast to the likely type Collection<Number> according to the declaring type Collection<Number>\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	numbers.retainAll(ints); // bad\n" + 
+		"	                  ^^^^\n" + 
+		"Discouraged invocation of method retainAll(Collection<?>). Argument type List<Integer> cannot be cast to the likely type Collection<Number> according to the declaring type Collection<Number>\n" + 
+		"----------\n",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		customOptions);
+}
+// List.indexOf: w/ and w/o @SuppressWarnings
+public void testBug410218e() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_TYPE, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_NOT_CASTABLE, JavaCore.WARNING);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"class X {\n" +
+			"  int test1(List<Integer> ints, Object o) {\n" +
+			"	return ints.indexOf(\"ONE\"); // bad\n" + 
+			"  }\n" +
+			"  @SuppressWarnings(\"unlikely-arg-type\")\n" +
+			"  int test2(List<Integer> ints, boolean f, Object o) {\n" +
+			"	if (f)\n" +
+			"		return ints.indexOf(\"ONE\"); // bad but suppressed\n" +
+			"	return ints.indexOf(o); // not suppressable error\n" + 
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	return ints.indexOf(\"ONE\"); // bad\n" + 
+		"	                    ^^^^^\n" + 
+		"Discouraged invocation of method indexOf(Object). Argument type String cannot be cast to the likely type Integer according to the declaring type List<Integer>\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	return ints.indexOf(o); // not suppressable error\n" + 
+		"	                    ^\n" + 
+		"Discouraged invocation of method indexOf(Object). Argument type Object is incompatible with the likely type Integer according to the declaring type List<Integer>\n" + 
 		"----------\n",
 		null/*classLibraries*/,
 		true/*shouldFlushOutputDirectory*/,

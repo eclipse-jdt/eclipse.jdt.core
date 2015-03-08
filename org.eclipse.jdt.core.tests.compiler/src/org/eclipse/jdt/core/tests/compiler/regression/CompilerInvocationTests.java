@@ -458,6 +458,8 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("DisallowedTargetForContainerAnnotationType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DisallowedTargetForAnnotation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DisallowedExplicitThisParameter", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("DiscouragedInvocationIncompatibleArgument", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("DiscouragedInvocationArgumentNotCastable", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("DiscouragedReference", new ProblemAttributes(CategorizedProblem.CAT_RESTRICTION));
 		expectedProblemAttributes.put("DuplicateAnnotation", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DuplicateAnnotationNotMarkedRepeatable", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1284,6 +1286,8 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("DirectInvocationOfAbstractMethod", SKIP);
 		expectedProblemAttributes.put("DisallowedTargetForAnnotation", SKIP);
 		expectedProblemAttributes.put("DisallowedTargetForContainerAnnotationType", SKIP);
+		expectedProblemAttributes.put("DiscouragedInvocationIncompatibleArgument", new ProblemAttributes(JavaCore.COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_TYPE));
+		expectedProblemAttributes.put("DiscouragedInvocationArgumentNotCastable", new ProblemAttributes(JavaCore.COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_NOT_CASTABLE));
 		expectedProblemAttributes.put("DiscouragedReference", new ProblemAttributes(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE));
 		expectedProblemAttributes.put("DuplicateAnnotation", SKIP);
 		expectedProblemAttributes.put("DuplicateAnnotationNotMarkedRepeatable", SKIP);

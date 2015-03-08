@@ -196,6 +196,8 @@
  *									IllegalParameterNullityRedefinition
  *									ContradictoryNullAnnotationsInferredFunctionType
  *									IllegalReturnNullityRedefinitionFreeTypeVariable
+ *									DiscouragedInvocationIncompatibleArgument
+ *									DiscouragedInvocationArgumentNotCastable
  *      Jesper S Moller  - added the following constants
  *									TargetTypeNotAFunctionalInterface
  *									OuterLocalMustBeEffectivelyFinal
@@ -1845,4 +1847,9 @@ void setSourceStart(int sourceStart);
 	/** @deprecated - problem is no longer generated (implementation issue has been resolved)
 	 * @since 3.10 */
 	int LambdaShapeComputationError = 1101;
+	
+	/** @since 3.11 */
+	int DiscouragedInvocationIncompatibleArgument = 1200;
+	/** @since 3.11 */
+	int DiscouragedInvocationArgumentNotCastable = 1201;
 }

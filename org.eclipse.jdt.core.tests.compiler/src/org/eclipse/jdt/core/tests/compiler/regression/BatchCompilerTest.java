@@ -1983,6 +1983,8 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecation\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.discouragedInvocationArgumentNotCastable\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.discouragedInvocationIncompatibleArgument\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.discouragedReference\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.emptyStatement\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.enumIdentifier\" value=\"warning\"/>\n" + 
@@ -2961,7 +2963,7 @@ public void test032(){
 				"	public void foo5(final Map<XX<?, ?>, XY> p1) {\n" +
 				"		p1.putAll(m1);\n" +
 				"	}\n" +
-				"\n" +
+				"	@SuppressWarnings(\"unlikely-arg-type\")\n" +
 				"	public void foo6(final Map<XX<?, ?>, XY> p1) {\n" +
 				"		m1.keySet().retainAll(p1.keySet());\n" +
 				"		m2.keySet().retainAll(p1.keySet());\n" +
@@ -3142,7 +3144,7 @@ public void test032(){
 			"	public void foo5(final Map<XX<?, ?>, XY> p1) {\n" +
 			"		p1.putAll(m1);\n" +
 			"	}\n" +
-			"\n" +
+			"	@SuppressWarnings(\"unlikely-arg-type\")\n" +
 			"	public void foo6(final Map<XX<?, ?>, XY> p1) {\n" +
 			"		m1.keySet().retainAll(p1.keySet());\n" +
 			"		m2.keySet().retainAll(p1.keySet());\n" +
