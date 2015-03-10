@@ -56,15 +56,19 @@ class OnDemandComputer {
 
 		for (Map.Entry<ImportName, Collection<ImportName>> containerAndImports : importsByContainer.entrySet()) {
 			ImportName containerOnDemand = containerAndImports.getKey();
-			Collection<ImportName> containerImports = containerAndImports.getValue();
 
-			Set<String> explicitSimpleNames =
-					containerOnDemand.isStatic ? staticExplicitSimpleNames : typeExplicitSimpleNames;
+			// Imports from an unnamed package should not be reduced (see bug 461863).
+			boolean isUnnamedPackage = containerOnDemand.containerName.isEmpty();
 
-			int onDemandThreshold =
-					containerOnDemand.isStatic ? this.staticOnDemandThreshold : this.typeOnDemandThreshold;
+			if (touchedContainers.contains(containerOnDemand) && !isUnnamedPackage) {
+				Collection<ImportName> containerImports = containerAndImports.getValue();
 
-			if (touchedContainers.contains(containerOnDemand)) {
+				Set<String> explicitSimpleNames =
+						containerOnDemand.isStatic ? staticExplicitSimpleNames : typeExplicitSimpleNames;
+
+				int onDemandThreshold =
+						containerOnDemand.isStatic ? this.staticOnDemandThreshold : this.typeOnDemandThreshold;
+
 				OnDemandReduction candidate = maybeReduce(
 						containerOnDemand, containerImports, onDemandThreshold, explicitSimpleNames);
 				if (candidate != null) {

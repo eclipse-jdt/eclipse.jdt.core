@@ -108,6 +108,40 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	}
 
 	/**
+	 * Expects that imports can be added for types from an unnamed (default) package, and that such
+	 * imports are not reduced into an on-demand import. Imports of types from an unnamed package
+	 * were legal in versions of Java prior to 1.4.
+	 *
+	 * Addresses https://bugs.eclipse.org/461863 ("addImport creates .ypename for unqualified type
+	 * from default package").
+	 */
+	public void testAddImportsFromUnnamedPackage() throws Exception {
+		ICompilationUnit cu = createCompilationUnit("pack1", "C");
+
+		String[] order = new String[] { "java" };
+
+		ImportRewrite imports = newImportsRewrite(cu, order, 2, 2, false);
+		imports.setUseContextToFilterImplicitImports(true);
+		imports.addImport("java.util.ArrayDeque");
+		imports.addImport("java.util.ArrayList");
+		imports.addImport("Bar");
+		imports.addImport("Foo");
+
+		apply(imports);
+
+		StringBuffer expected = new StringBuffer();
+		expected.append("package pack1;\n");
+		expected.append("\n");
+		expected.append("import java.util.*;\n");
+		expected.append("\n");
+		expected.append("import Bar;\n");
+		expected.append("import Foo;\n");
+		expected.append("\n");
+		expected.append("public class C {}");
+		assertEqualString(cu.getSource(), expected.toString());
+	}
+
+	/**
 	 * Addresses https://bugs.eclipse.org/412929 ("Adding a type results in adding a package and
 	 * later does not honor order").
 	 */
