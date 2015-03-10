@@ -50,6 +50,7 @@ public class SignatureWrapper {
 				switch (this.signature[index]) {
 					case ExternalAnnotationProvider.NONNULL :
 					case ExternalAnnotationProvider.NULLABLE :
+					case ExternalAnnotationProvider.NO_ANNOTATION :
 						if (index == this.start)
 							break skipDimensions;
 						//$FALL-THROUGH$

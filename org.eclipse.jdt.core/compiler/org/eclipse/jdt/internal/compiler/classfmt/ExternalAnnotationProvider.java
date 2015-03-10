@@ -38,6 +38,12 @@ public class ExternalAnnotationProvider {
 	/** Representation of a 'nonnull' annotation, independent of the concrete annotation name used in Java sources. */
 	public static final char NONNULL = '1';
 
+	/**
+	 * Represents absence of a null annotation. Useful for removing an existing null annotation.
+	 * This character is used only internally, it is not part of the Eclipse External Annotation file format.
+	 */
+	public static final char NO_ANNOTATION = '@';
+
 	static final String ANNOTATION_FILE_SUFFIX = ".eea"; //$NON-NLS-1$
 
 	private static final String TYPE_PARAMETER_PREFIX = " <"; //$NON-NLS-1$
