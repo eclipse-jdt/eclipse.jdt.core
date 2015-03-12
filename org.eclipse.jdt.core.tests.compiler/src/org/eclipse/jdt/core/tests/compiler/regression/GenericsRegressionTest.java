@@ -5737,5 +5737,42 @@ public void testBug456924() {
 			"class Test2<E extends Test1<E>>{}\n"
 		});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=425203, [compiler][1.7][inference] ECJ rejects valid code using bounded wildcards 
+public void test425203() {
+	String source = 
+			"import java.util.Arrays;\n" + 
+			"import java.util.List;\n" + 
+			"interface MyFunction<Input, Output> {\n" + 
+			"	Output apply(Input input);\n" + 
+			"}\n" + 
+			"public class Test {\n" + 
+			"	public <Input, Output> List<Output> wrap(MyFunction<? super Input, ? extends Output> function, Input input) {\n" + 
+			"		return Arrays.asList(function.apply(input));\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"Done\");\n" + 
+			"	}\n" + 
+			"}";
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"Test.java",
+				source,
+			},
+			"----------\n" +
+			"1. WARNING in Test.java (at line 8)\n" + 
+			"	return Arrays.asList(function.apply(input));\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: A generic array of capture#2-of ? extends Output is created for a varargs parameter\n" + 
+			"----------\n" +
+			"2. ERROR in Test.java (at line 8)\n" +
+			"	return Arrays.asList(function.apply(input));\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Type mismatch: cannot convert from List<capture#2-of ? extends Output> to List<Output>\n" +
+			"----------\n");
+	} else {
+		runConformTest(new String[]{ "Test.java", source }, "Done");
+	}
+}
 }
 

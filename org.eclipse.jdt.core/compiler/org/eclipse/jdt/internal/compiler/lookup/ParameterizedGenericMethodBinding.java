@@ -107,6 +107,35 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				methodSubstitute = methodSubstitute.inferFromExpectedType(scope, inferenceContext);
 				if (methodSubstitute == null)
 					return null;
+			} else if (compilerOptions.sourceLevel == ClassFileConstants.JDK1_7) {
+				// bug 425203 - consider additional constraints to conform to buggy javac behavior
+				if (methodSubstitute.returnType != TypeBinding.VOID) {
+					TypeBinding expectedType = invocationSite.invocationTargetType();
+					// In case of a method like <T> List<T> foo(T arg), solution based on return type
+					// should not be preferred vs solution based on parameter types, so do not attempt
+					// to use return type based inference in this case
+ 					if (expectedType != null && !originalMethod.returnType.mentionsAny(originalMethod.parameters, -1)) {
+						TypeBinding uncaptured = methodSubstitute.returnType.uncapture(scope);
+						if (!methodSubstitute.returnType.isCompatibleWith(expectedType) &&
+								expectedType.isCompatibleWith(uncaptured)) { 
+							InferenceContext oldContext = inferenceContext;
+							inferenceContext = new InferenceContext(originalMethod);
+							// Include additional constraint pertaining to the expected type
+							originalMethod.returnType.collectSubstitutes(scope, expectedType, inferenceContext, TypeConstants.CONSTRAINT_EXTENDS);
+							ParameterizedGenericMethodBinding substitute = inferFromArgumentTypes(scope, originalMethod, arguments, parameters, inferenceContext);
+							if (substitute != null && substitute.returnType.isCompatibleWith(expectedType)) {
+								// Do not use the new solution if it results in incompatibilities in parameter types
+								if ((scope.parameterCompatibilityLevel(substitute, arguments, false)) > Scope.NOT_COMPATIBLE) {
+									methodSubstitute = substitute;
+								} else {
+									inferenceContext = oldContext;
+								}
+							} else {
+								inferenceContext = oldContext;
+							}
+						}
+					}					
+				}
 			}
 		}
 
