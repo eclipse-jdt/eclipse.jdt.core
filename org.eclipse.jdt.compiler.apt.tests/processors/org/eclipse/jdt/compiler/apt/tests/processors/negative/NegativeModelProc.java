@@ -147,18 +147,18 @@ public class NegativeModelProc extends AbstractProcessor
 		"  </type-element>\n" + 
 		"  <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative5.I1\" sname=\"I1\">\n" + 
 		"   <superclass>\n" + 
-		"    <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"    <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"   </superclass>\n" + 
 		"  </type-element>\n" + 
 		"  <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative5.I2\" sname=\"I2\">\n" + 
 		"   <superclass>\n" + 
-		"    <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"    <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"   </superclass>\n" + 
 		"  </type-element>\n" + 
 		" </type-element>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.INegative5\" sname=\"INegative5\">\n" + 
 		"  <superclass>\n" + 
-		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"  </superclass>\n" + 
 		"  <type-element kind=\"CLASS\" qname=\"targets.negative.pa.INegative5.C101\" sname=\"C101\">\n" + 
 		"   <superclass>\n" + 
@@ -174,12 +174,12 @@ public class NegativeModelProc extends AbstractProcessor
 		"  </type-element>\n" + 
 		"  <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.INegative5.I101\" sname=\"I101\">\n" + 
 		"   <superclass>\n" + 
-		"    <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"    <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"   </superclass>\n" + 
 		"  </type-element>\n" + 
 		"  <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.INegative5.I102\" sname=\"I102\">\n" + 
 		"   <superclass>\n" + 
-		"    <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"    <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"   </superclass>\n" + 
 		"  </type-element>\n" + 
 		" </type-element>\n" + 
@@ -248,7 +248,7 @@ public class NegativeModelProc extends AbstractProcessor
 		"<model>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative7\" sname=\"Negative7\">\n" + 
 		"  <superclass>\n" + 
-		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"  </superclass>\n" + 
 		"  <executable-element kind=\"METHOD\" sname=\"method1\">\n" + 
 		"   <annotations>\n" + 
@@ -263,7 +263,7 @@ public class NegativeModelProc extends AbstractProcessor
 		" </type-element>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative7A\" sname=\"Negative7A\">\n" + 
 		"  <superclass>\n" + 
-		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"  </superclass>\n" + 
 		"  <interfaces>\n" + 
 		"   <type-mirror kind=\"DECLARED\" to-string=\"java.lang.Cloneable\"/>\n" + 
@@ -297,7 +297,7 @@ public class NegativeModelProc extends AbstractProcessor
 		" </type-element>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8b\" sname=\"Negative8b\">\n" + 
 		"  <superclass>\n" + 
-		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"  </superclass>\n" + 
 		"  <interfaces>\n" + 
 		"   <type-mirror kind=\"ERROR\" to-string=\"RemoteNegative8a\"/>\n" + 
@@ -314,7 +314,7 @@ public class NegativeModelProc extends AbstractProcessor
 		" </type-element>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8d\" sname=\"Negative8d\">\n" + 
 		"  <superclass>\n" + 
-		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"  </superclass>\n" + 
 		"  <interfaces>\n" + 
 		"   <type-mirror kind=\"ERROR\" to-string=\"RemoteNegative8b&lt;T&gt;\"/>\n" + 
@@ -322,7 +322,7 @@ public class NegativeModelProc extends AbstractProcessor
 		" </type-element>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8e\" sname=\"Negative8e\">\n" + 
 		"  <superclass>\n" + 
-		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"  </superclass>\n" + 
 		"  <interfaces>\n" + 
 		"   <type-mirror kind=\"ERROR\" to-string=\"targets.negative.pa.Negative8f&lt;T&gt;\"/>\n" + 
@@ -330,7 +330,7 @@ public class NegativeModelProc extends AbstractProcessor
 		" </type-element>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8f\" sname=\"Negative8f\">\n" + 
 		"  <superclass>\n" + 
-		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"  </superclass>\n" + 
 		" </type-element>\n" + 
 		"</model>\n";
@@ -349,7 +349,7 @@ public class NegativeModelProc extends AbstractProcessor
 		" </type-element>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8b\" sname=\"Negative8b\">\n" + 
 		"  <superclass>\n" + 
-		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"  </superclass>\n" + 
 		" </type-element>\n" + 
 		" <type-element kind=\"CLASS\" qname=\"targets.negative.pa.Negative8c\" sname=\"Negative8c\">\n" + 
@@ -360,17 +360,17 @@ public class NegativeModelProc extends AbstractProcessor
 		" </type-element>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8d\" sname=\"Negative8d\">\n" + 
 		"  <superclass>\n" + 
-		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"  </superclass>\n" + 
 		" </type-element>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8e\" sname=\"Negative8e\">\n" + 
 		"  <superclass>\n" + 
-		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"  </superclass>\n" + 
 		" </type-element>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative8f\" sname=\"Negative8f\">\n" + 
 		"  <superclass>\n" + 
-		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"  </superclass>\n" + 
 		" </type-element>\n" + 
 		"</model>\n";
@@ -383,12 +383,12 @@ public class NegativeModelProc extends AbstractProcessor
 		"<model>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative9a\" sname=\"Negative9a\">\n" + 
 		"  <superclass>\n" + 
-		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"  </superclass>\n" + 
 		" </type-element>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative9b\" sname=\"Negative9b\">\n" + 
 		"  <superclass>\n" + 
-		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"  </superclass>\n" + 
 		"  <interfaces>\n" + 
 		"   <type-mirror kind=\"ERROR\" to-string=\"targets.negative.pa.Negative9a&lt;T&gt;\"/>\n" + 
@@ -404,12 +404,12 @@ public class NegativeModelProc extends AbstractProcessor
 		"<model>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative9a\" sname=\"Negative9a\">\n" + 
 		"  <superclass>\n" + 
-		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"  </superclass>\n" + 
 		" </type-element>\n" + 
 		" <type-element kind=\"INTERFACE\" qname=\"targets.negative.pa.Negative9b\" sname=\"Negative9b\">\n" + 
 		"  <superclass>\n" + 
-		"   <type-mirror kind=\"NONE\" to-string=\"&lt;none&gt;\"/>\n" + 
+		"   <type-mirror kind=\"NONE\" to-string=\"none\"/>\n" + 
 		"  </superclass>\n" + 
 		" </type-element>\n" + 
 		"</model>\n";

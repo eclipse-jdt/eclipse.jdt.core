@@ -21,4 +21,8 @@
   <artifactId>org.eclipse.jdt.apt.pluggable.tests</artifactId>
   <version>3.3.500-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
+  <properties>
+  	<testSuite>${project.artifactId}</testSuite>
+  	<testClass>org.eclipse.jdt.apt.pluggable.tests.TestAll</testClass>
+  </properties>
 </project>

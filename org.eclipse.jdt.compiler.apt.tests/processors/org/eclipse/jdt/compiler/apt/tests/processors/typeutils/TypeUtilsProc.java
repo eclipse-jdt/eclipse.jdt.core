@@ -179,8 +179,9 @@ public class TypeUtilsProc extends BaseProcessor
 			reportError("getNoType() didn't return a TypeKind.NONE type");
 			return false;
 		}
-		if (!"<none>".equals(noType.toString())) {
-			reportError("NoType has the wrong name: " + noType.toString());
+		String noTypeString = noType.toString();
+		if (!("none".equals(noTypeString) || "<none>".equals(noTypeString))) {
+			reportError("NoType has the wrong name: " + noTypeString);
 			return false;
 		}
 		return true;
