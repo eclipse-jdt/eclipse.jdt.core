@@ -17,6 +17,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
@@ -33,12 +34,22 @@ import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.NodeFinder;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.core.util.ExternalAnnotationUtil;
+import org.eclipse.jdt.core.util.ExternalAnnotationUtil.MergeStrategy;
 import org.eclipse.jdt.internal.core.ClasspathAttribute;
 import org.osgi.framework.Bundle;
 
@@ -216,7 +227,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		IClasspathAttribute[] extraAttributes = new IClasspathAttribute[] { new ClasspathAttribute(IClasspathAttribute.EXTERNAL_ANNOTATION_PATH, externalAnnotationPath) };
 		IClasspathEntry entry = JavaCore.newLibraryEntry(
 				new Path(jarPath),
-				null/*src attach*/,
+				new Path('/'+javaProject.getProject().getName()+"/src.zip"),
 				null/*src attach root*/,
 				null/*access rules*/,
 				extraAttributes,
@@ -794,4 +805,146 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		}
 	}
 
+	// ===== Full round trip: detect problem - annotated - detect problem change =====
+
+	public void testAnnotateFieldWithParameterizedType() throws Exception {
+		myCreateJavaProject("TestLibs");
+		String lib1Content =
+				"package libs;\n" + 
+				"\n" +
+				"public abstract class Lib1<T> {\n" +
+				"	public Lib1<T> one;\n" +
+				"	public abstract T get();\n" +
+				"}\n";
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+				"/UnannotatedLib/libs/Lib1.java",
+				lib1Content
+			}, null);
+
+		// type check sources:
+		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+		ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
+				"package tests;\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"import libs.Lib1;\n" + 
+				"\n" + 
+				"public class Test1 {\n" + 
+				"	@NonNull String test0(Lib1<String> stringLib) {\n" + 
+				"		return stringLib.one.get();\n" + 
+				"	}\n" +
+				"}\n",
+				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+		CompilationUnit reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		assertProblems(reconciled.getProblems(), new String[] {
+				"Pb(955) Null type safety (type annotations): The expression of type 'String' needs unchecked conversion to conform to '@NonNull String'",
+		}, new int[] { 8 });
+
+		// acquire library AST:
+		IType type = this.project.findType("libs.Lib1");
+		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setSource(libWorkingCopy);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(false);
+		parser.setBindingsRecovery(false);
+		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+		libWorkingCopy.discardWorkingCopy();
+		
+		// find type binding:
+		int start = lib1Content.indexOf("one");
+		ASTNode name = NodeFinder.perform(unit, start, 0);
+		assertTrue("should be simple name", name.getNodeType() == ASTNode.SIMPLE_NAME);
+		IVariableBinding fieldBinding = (IVariableBinding) ((SimpleName)name).resolveBinding();
+		
+		// find annotation file (not yet existing):
+		IFile annotationFile = ExternalAnnotationUtil.getAnnotationFile(this.project, fieldBinding.getDeclaringClass(), null);
+		assertFalse("file should not exist", annotationFile.exists());
+		assertEquals("file path", "/TestLibs/annots/libs/Lib1.eea", annotationFile.getFullPath().toString());
+
+		// annotate:
+		String originalSignature = ExternalAnnotationUtil.extractGenericTypeSignature(fieldBinding.getVariableDeclaration().getType());
+		ExternalAnnotationUtil.annotateMember("libs/Lib1", annotationFile,
+				"one", 
+				originalSignature, 
+				"Llibs/Lib1<T0T;>;", 
+				MergeStrategy.OVERWRITE_ANNOTATIONS, null);
+		assertTrue("file should exist", annotationFile.exists());
+
+		// check that the error is even worse now:
+		reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		assertProblems(reconciled.getProblems(), new String[] {
+				"Pb(953) Null type mismatch (type annotations): required '@NonNull String' but this expression has type '@Nullable String'",
+		}, new int[] { 8 });
+	}
+	
+
+	public void testAnnotateMethodParameter() throws Exception {
+		myCreateJavaProject("TestLibs");
+		String lib1Content =
+				"package libs;\n" + 
+				"\n" +
+				"public abstract class Lib1<T,U> {\n" +
+				"	public abstract void take(Lib1<X,U> lx);\n" +
+				"	public static class X {}\n" +
+				"}\n";
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+				"/UnannotatedLib/libs/Lib1.java",
+				lib1Content
+			}, null);
+
+		// type check sources:
+		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+		ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
+				"package tests;\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"import libs.Lib1;\n" + 
+				"\n" + 
+				"public class Test1 {\n" + 
+				"	void test0(Lib1<Lib1.X,@Nullable String> xLib1, Lib1<Lib1.@Nullable X,@NonNull String> xLib2) {\n" + 
+				"		xLib1.take(xLib2);\n" + 
+				"	}\n" +
+				"}\n",
+				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+		CompilationUnit reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		assertProblems(reconciled.getProblems(), new String[] {
+				"Pb(953) Null type mismatch (type annotations): required 'Lib1<Lib1.X,@Nullable String>' but this expression has type 'Lib1<Lib1.@Nullable X,@NonNull String>'",
+		}, new int[] { 7 });
+
+		// acquire library AST:
+		IType type = this.project.findType("libs.Lib1");
+		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setSource(libWorkingCopy);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(false);
+		parser.setBindingsRecovery(false);
+		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+		libWorkingCopy.discardWorkingCopy();
+		
+		// find type binding:
+		int start = lib1Content.indexOf("take");
+		ASTNode name = NodeFinder.perform(unit, start, 0);
+		assertTrue("should be simple name", name.getNodeType() == ASTNode.SIMPLE_NAME);
+		ASTNode method = name.getParent();
+		IMethodBinding methodBinding = ((MethodDeclaration)method).resolveBinding();
+		
+		// find annotation file (not yet existing):
+		IFile annotationFile = ExternalAnnotationUtil.getAnnotationFile(this.project, methodBinding.getDeclaringClass(), null);
+		assertFalse("file should not exist", annotationFile.exists());
+		assertEquals("file path", "/TestLibs/annots/libs/Lib1.eea", annotationFile.getFullPath().toString());
+
+		// annotate:
+		String originalSignature = ExternalAnnotationUtil.extractGenericSignature(methodBinding);
+		ExternalAnnotationUtil.annotateMember("libs/Lib1", annotationFile,
+				"take", 
+				originalSignature, 
+				"(Llibs/Lib1<L0libs/Lib1$X;T1U;>;)V", // <- two annotations: @Nullable X and @NonNull U
+				MergeStrategy.OVERWRITE_ANNOTATIONS, null);
+		assertTrue("file should exist", annotationFile.exists());
+
+		// check that the error is even worse now:
+		reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		assertNoProblems(reconciled.getProblems());
+	}
 }

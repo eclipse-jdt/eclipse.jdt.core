@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *	   Stephan Herrmann - Contribution for
  *								Bug 425183 - [1.8][inference] make CaptureBinding18 safe
+ *								Bug 462025 - [null][test] create tests for manipulating external null annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
@@ -32,6 +33,7 @@ public class KeyToSignature extends BindingKeyParser {
 
 	public StringBuffer signature = new StringBuffer();
 	private int kind;
+	private boolean asBinarySignature = false; // '.' vs. '/' and '$'
 	private ArrayList arguments = new ArrayList();
 	private ArrayList typeArguments = new ArrayList();
 	private ArrayList typeParameters = new ArrayList();
@@ -42,12 +44,20 @@ public class KeyToSignature extends BindingKeyParser {
 
 	public KeyToSignature(BindingKeyParser parser) {
 		super(parser);
-		this.kind = ((KeyToSignature) parser).kind;
+		KeyToSignature keyToSignature = (KeyToSignature) parser;
+		this.kind = keyToSignature.kind;
+		this.asBinarySignature = keyToSignature.asBinarySignature;
 	}
 
 	public KeyToSignature(String key, int kind) {
 		super(key);
 		this.kind = kind;
+	}
+
+	public KeyToSignature(String key, int kind, boolean asBinarySignature) {
+		super(key);
+		this.kind = kind;
+		this.asBinarySignature = asBinarySignature;
 	}
 
 	public void consumeArrayDimension(char[] brakets) {
@@ -74,14 +84,16 @@ public class KeyToSignature extends BindingKeyParser {
 		this.signature = new StringBuffer();
 		// remove trailing semi-colon as it is added later in comsumeType()
 		uniqueKey = CharOperation.subarray(uniqueKey, 0, uniqueKey.length-1);
-		CharOperation.replace(uniqueKey, '/', '.');
+		if (!this.asBinarySignature)
+			CharOperation.replace(uniqueKey, '/', '.');
 		this.signature.append(uniqueKey);
 	}
 
 	public void consumeMethod(char[] selector, char[] methodSignature) {
 		this.arguments = new ArrayList();
 		this.typeArguments = new ArrayList();
-		CharOperation.replace(methodSignature, '/', '.');
+		if (!this.asBinarySignature)
+			CharOperation.replace(methodSignature, '/', '.');
 		switch(this.kind) {
 			case SIGNATURE:
 				this.signature = new StringBuffer();
@@ -198,7 +210,7 @@ public class KeyToSignature extends BindingKeyParser {
 	public void consumeParameterizedType(char[] simpleTypeName, boolean isRaw) {
 		if (simpleTypeName != null) {
 			// member type
-			this.signature.append('.');
+			this.signature.append(this.asBinarySignature ? '$' : '.');
 			this.signature.append(simpleTypeName);
 		}
 		if (!isRaw) {
@@ -237,12 +249,14 @@ public class KeyToSignature extends BindingKeyParser {
 	public void consumeFullyQualifiedName(char[] fullyQualifiedName) {
 		this.typeSigStart = this.signature.length();
 		this.signature.append('L');
-		this.signature.append(CharOperation.replaceOnCopy(fullyQualifiedName, '/', '.'));
+		if (!this.asBinarySignature)
+			fullyQualifiedName = CharOperation.replaceOnCopy(fullyQualifiedName, '/', '.');
+		this.signature.append(fullyQualifiedName);
 	}
 
 	public void consumeSecondaryType(char[] simpleTypeName) {
 		this.signature.append('~');
-		this.mainTypeStart = this.signature.lastIndexOf(".") + 1; //$NON-NLS-1$
+		this.mainTypeStart = this.signature.lastIndexOf(this.asBinarySignature ? "/" : ".") + 1; //$NON-NLS-1$ //$NON-NLS-2$
 		if (this.mainTypeStart == 0) {
 			this.mainTypeStart = 1; // default package (1 for the 'L')
 			int i = 0;

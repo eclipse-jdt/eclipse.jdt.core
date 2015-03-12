@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.lookup.SignatureWrapper;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
+import org.eclipse.jdt.internal.core.util.KeyToSignature;
 
 /**
  * Utilities for accessing and manipulating text files that externally define annotations for a given Java type.
@@ -78,12 +79,10 @@ public final class ExternalAnnotationUtil {
 	 * @return a signature in class file format
 	 */
 	public static String extractGenericSignature(IMethodBinding methodBinding) {
-		// Note that IMethodBinding.binding is not accessible, hence we need to reverse engineer from the key:
-		
-		// method key contains the signature between '(' and '|': "class.selector(params)return|throws"
-		int open= methodBinding.getKey().indexOf('(');
-		int throwStart= methodBinding.getKey().indexOf('|');
-		return throwStart == -1 ? methodBinding.getKey().substring(open) : methodBinding.getKey().substring(open, throwStart);
+		// Note that IMethodBinding.binding is not accessible, hence we need to recover the signature from the key:
+		KeyToSignature parser = new KeyToSignature(methodBinding.getKey(), KeyToSignature.SIGNATURE, true);
+		parser.parse();
+		return parser.toString();
 	}
 
 	/**
@@ -92,13 +91,9 @@ public final class ExternalAnnotationUtil {
 	 * @return a signature in class file format
 	 */
 	public static String extractGenericTypeSignature(ITypeBinding type) {
-		String key = type.getKey();
-		if (type.isTypeVariable()) {
-			int colon= key.indexOf(':');
-			if (colon > -1)
-				return key.substring(colon+1); // cut of unwanted declaring type prefix
-		}
-		return key;
+		KeyToSignature parser = new KeyToSignature(type.getKey(), KeyToSignature.SIGNATURE, true);
+		parser.parse();
+		return parser.toString();
 	}
 
 	/**
@@ -172,7 +167,7 @@ public final class ExternalAnnotationUtil {
 		if (!targetType.exists())
 			return null;
 
-		String binaryTypeName = targetType.getFullyQualifiedName('.').replace('.', '/');
+		String binaryTypeName = targetType.getFullyQualifiedName('$').replace('.', '/');
 		
 		IPackageFragmentRoot packageRoot = (IPackageFragmentRoot) targetType.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 		IClasspathEntry entry = packageRoot.getResolvedClasspathEntry();
