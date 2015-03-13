@@ -48,7 +48,8 @@
  *								Bug 452194 - Code no longer compiles in 4.4.1, but with confusing error
  *								Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *								Bug 456236 - [1.8][null] Cannot infer type when constructor argument is annotated with @Nullable
- *								Bug 437072 - [compiler][null] Null analysis emits possibly incorrect warning for new int[][] despite @NonNullByDefault 
+ *								Bug 437072 - [compiler][null] Null analysis emits possibly incorrect warning for new int[][] despite @NonNullByDefault
+ *								Bug 462083 - [1.8][inference] Java 8 generic return type mismatch with interface involving type parameter.
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -549,7 +550,15 @@ public abstract class Scope {
 				        }
 			        } 
 					break;
-	
+
+				case Binding.INTERSECTION_TYPE18:
+					IntersectionTypeBinding18 intersection = (IntersectionTypeBinding18) originalType;
+					ReferenceBinding[] types = intersection.getIntersectingTypes();
+					TypeBinding[] substitutes = substitute(substitution, types);
+					ReferenceBinding[] refSubsts = new ReferenceBinding[substitutes.length];
+					System.arraycopy(substitutes, 0, refSubsts, 0, substitutes.length);
+					return substitution.environment().createIntersectionType18(refSubsts);
+
 				case Binding.TYPE:
 					if (!originalType.isMemberType()) break;
 					ReferenceBinding originalReferenceType = (ReferenceBinding) originalType;
