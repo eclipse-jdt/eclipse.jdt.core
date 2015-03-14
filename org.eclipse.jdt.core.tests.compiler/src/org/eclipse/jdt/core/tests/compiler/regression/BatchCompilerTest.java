@@ -26,6 +26,7 @@
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
  *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *								Bug 440687 - [compiler][batch][null] improve command line option for external annotations
+ *								Bug 408815 - [batch][null] Add CLI option for COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS
  *     Jesper Steen Moller - Contributions for
  *								bug 404146 - [1.7][compiler] nested try-catch-finally-blocks leads to unrunnable Java byte code
  *								bug 407297 - [1.8][compiler] Control generation of parameter names by option
@@ -78,7 +79,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 			"import java.lang.annotation.*;\n" +
 			"@Documented\n" +
 			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target({ METHOD, PARAMETER })\n" +
+			"@Target({ METHOD, PARAMETER, FIELD })\n" +
 			"public @interface Nullable{\n" +
 			"}\n";
 	private static final String NONNULL_ANNOTATION_CONTENT = "package org.eclipse.jdt.annotation;\n" +
@@ -86,7 +87,7 @@ public class BatchCompilerTest extends AbstractRegressionTest {
 			"import java.lang.annotation.*;\n" +
 			"@Documented\n" +
 			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target({ METHOD, PARAMETER })\n" +
+			"@Target({ METHOD, PARAMETER, FIELD })\n" +
 			"public @interface NonNull{\n" +
 			"}\n";
 
@@ -1861,12 +1862,14 @@ public void test012b(){
         "                           errors and warnings\n" + 
         "      switchDefault      + switch statement lacking a default case\n" + 
         "      syncOverride         missing synchronized in synchr. method override\n" + 
+        "      syntacticAnalysis    perform syntax-based null analysis for fields\n" + 
         "      syntheticAccess      synthetic access for innerclass\n" + 
         "      tasks(<tags separated by |>) tasks identified by tags inside comments\n" + 
         "      typeHiding         + type parameter hiding another type\n" + 
         "      unavoidableGenericProblems + ignore unavoidable type safety problems\n" + 
         "                                   due to raw APIs\n" + 
         "      unchecked          + unchecked type operation\n" + 
+        "      unlikelyArgumentType invoking Map.get() et al with an unlikely argument\n" + 
         "      unnecessaryElse      unnecessary else clause\n" + 
         "      unqualifiedField     unqualified reference to field\n" + 
         "      unused               macro for unusedAllocation, unusedArgument,\n" + 
@@ -12902,6 +12905,39 @@ public void test316_warn_options() {
 		true);
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=408815
+// -warn option - regression tests to check option syntacticAnalysis
+// Null warnings because of annotations, null spec violations, suppressed by null-check
+public void test316b_warn_options() {
+	this.runConformTest(
+		new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class X {\n" +
+				"  @Nullable Object f;\n" +
+				"  @NonNull Object foo() {\n" +
+				"    if (this.f != null)\n" +
+				"      return this.f;\n" +
+				"	 return this;\n" +
+				"  }\n" +
+				"}\n",
+				"org/eclipse/jdt/annotation/NonNull.java",
+				NONNULL_ANNOTATION_CONTENT,
+				"org/eclipse/jdt/annotation/Nullable.java",
+				NULLABLE_ANNOTATION_CONTENT,
+				"org/eclipse/jdt/annotation/NonNullByDefault.java",				
+				NONNULL_BY_DEFAULT_ANNOTATION_CONTENT
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -1.5"
+		+ " -warn:+nullAnnot -warn:+null,syntacticAnalysis -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+}
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=374605
 // -warn/-error option : enumSwitchPedantic 
 public void test317_warn_options() {
@@ -13383,6 +13419,29 @@ public void test329_nowarn_options() {
 			"----------\n" +
 			"1 problem (1 warning)\n",
 			true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=408815
+// -warn option - regression tests to check option unlikelyArgumentType
+public void test330_warn_options() {
+	this.runConformTest(
+		new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"import java.util.Map;\n" +
+				"public class X {\n" +
+				"  Integer foo(Map<String,Integer> map) {\n" +
+				"	 return map.get(3);\n" +
+				"  }\n" +
+				"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -1.5"
+		+ " -warn:-unlikelyArgumentType -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375409
