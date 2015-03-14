@@ -593,9 +593,8 @@ public static int getIrritant(int problemID) {
 			return CompilerOptions.UnusedTypeParameter;
 
 		case IProblem.DiscouragedInvocationIncompatibleArgument:
-			return CompilerOptions.UnlikelyArgumentType;
 		case IProblem.DiscouragedInvocationArgumentNotCastable:
-			return CompilerOptions.UnlikelyArgumentTypeNotCastable;
+			return CompilerOptions.UnlikelyArgumentType;
 }
 	return 0;
 }
@@ -654,7 +653,6 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.UnclosedCloseable :
 			case CompilerOptions.PotentiallyUnclosedCloseable :
 			case CompilerOptions.UnlikelyArgumentType :
-			case CompilerOptions.UnlikelyArgumentTypeNotCastable :
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 			
 			case CompilerOptions.OverriddenPackageDefaultMethod :
@@ -10239,6 +10237,8 @@ public void invalidTypeArguments(TypeReference[] typeReference) {
 public void discouragedInvocationIncompatibleArgument(MethodBinding method, Expression argument,
 							TypeBinding expectedType, TypeBinding declaringType, boolean castable)
 {
+	if (castable && this.options.acceptCastableArgInDiscouragedInvocation)
+		return;
 	this.handle(
 			castable ? IProblem.DiscouragedInvocationIncompatibleArgument : IProblem.DiscouragedInvocationArgumentNotCastable,
 			new String[] {

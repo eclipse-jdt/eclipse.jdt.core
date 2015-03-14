@@ -186,7 +186,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportNonnullParameterAnnotationDropped = "org.eclipse.jdt.core.compiler.problem.nonnullParameterAnnotationDropped";  //$NON-NLS-1$
 
 	public static final String OPTION_ReportDiscouragedInvocationIncompatibleArgument = "org.eclipse.jdt.core.compiler.problem.discouragedInvocationIncompatibleArgument"; //$NON-NLS-1$
-	public static final String OPTION_ReportDiscouragedInvocationArgumenNotCastable = "org.eclipse.jdt.core.compiler.problem.discouragedInvocationArgumentNotCastable"; //$NON-NLS-1$
+	public static final String OPTION_ReportDiscouragedInvocationAcceptCastableArgument = "org.eclipse.jdt.core.compiler.problem.discouragedInvocationAcceptCastableArgument"; //$NON-NLS-1$
 
 	/**
 	 * Possible values for configurable options
@@ -306,7 +306,6 @@ public class CompilerOptions {
 	public static final int NonnullParameterAnnotationDropped = IrritantSet.GROUP2 | ASTNode.Bit18;
 	public static final int UnusedExceptionParameter = IrritantSet.GROUP2 | ASTNode.Bit19;
 	public static final int UnlikelyArgumentType = IrritantSet.GROUP2 | ASTNode.Bit20;
-	public static final int UnlikelyArgumentTypeNotCastable = IrritantSet.GROUP2 | ASTNode.Bit21;
 
 	// Severity level for handlers
 	/** 
@@ -455,6 +454,9 @@ public class CompilerOptions {
 	/** Should missing enum cases be reported even if a default case exists in the same switch? */
 	public boolean reportMissingEnumCaseDespiteDefault;
 	
+	/** In a discouraged invocation to Map.get() et al, should args castable to the likely type be accepted? */
+	public boolean acceptCastableArgInDiscouragedInvocation;
+
 	/** Should the compiler tolerate illegal ambiguous varargs invocation in compliance < 1.7 
 	 * to be bug compatible with javac? (bug 383780) */
 	public static boolean tolerateIllegalAmbiguousVarargsInvocation;
@@ -693,8 +695,6 @@ public class CompilerOptions {
 				return OPTION_ReportNonnullParameterAnnotationDropped;
 			case UnlikelyArgumentType:
 				return OPTION_ReportDiscouragedInvocationIncompatibleArgument;
-			case UnlikelyArgumentTypeNotCastable:
-				return OPTION_ReportDiscouragedInvocationArgumenNotCastable;
 		}
 		return null;
 	}
@@ -890,7 +890,6 @@ public class CompilerOptions {
 			OPTION_InheritNullAnnotations,
 			OPTION_ReportNonnullParameterAnnotationDropped,
 			OPTION_ReportDiscouragedInvocationIncompatibleArgument,
-			OPTION_ReportDiscouragedInvocationArgumenNotCastable
 		};
 		return result;
 	}
@@ -981,7 +980,6 @@ public class CompilerOptions {
 			case MissingSynchronizedModifierInInheritedMethod:
 				return "sync-override";	 //$NON-NLS-1$
 			case UnlikelyArgumentType:
-			case UnlikelyArgumentTypeNotCastable:
 				return "unlikely-arg-type"; //$NON-NLS-1$
 		}
 		return null;
@@ -1206,7 +1204,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportNonnullParameterAnnotationDropped, getSeverityString(NonnullParameterAnnotationDropped));
 		optionsMap.put(OPTION_ReportUninternedIdentityComparison, this.complainOnUninternedIdentityComparison ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportDiscouragedInvocationIncompatibleArgument, getSeverityString(UnlikelyArgumentType));
-		optionsMap.put(OPTION_ReportDiscouragedInvocationArgumenNotCastable, getSeverityString(UnlikelyArgumentTypeNotCastable));
+		optionsMap.put(OPTION_ReportDiscouragedInvocationAcceptCastableArgument, this.acceptCastableArgInDiscouragedInvocation ? ENABLED : DISABLED);
 		return optionsMap;
 	}
 
@@ -1691,7 +1689,9 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportExplicitlyClosedAutoCloseable)) != null) updateSeverity(ExplicitlyClosedAutoCloseable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedTypeParameter)) != null) updateSeverity(UnusedTypeParameter, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportDiscouragedInvocationIncompatibleArgument)) != null) updateSeverity(UnlikelyArgumentType, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportDiscouragedInvocationArgumenNotCastable)) != null) updateSeverity(UnlikelyArgumentTypeNotCastable, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportDiscouragedInvocationAcceptCastableArgument)) != null) {
+			this.acceptCastableArgInDiscouragedInvocation = ENABLED.equals(optionValue);
+		}
 		if (getSeverity(UnclosedCloseable) == ProblemSeverities.Ignore
 				&& getSeverity(PotentiallyUnclosedCloseable) == ProblemSeverities.Ignore
 				&& getSeverity(ExplicitlyClosedAutoCloseable) == ProblemSeverities.Ignore) {
@@ -1982,7 +1982,7 @@ public class CompilerOptions {
 		buf.append("\n\t- resource should be handled by try-with-resources: ").append(getSeverityString(ExplicitlyClosedAutoCloseable)); //$NON-NLS-1$
 		buf.append("\n\t- Unused Type Parameter: ").append(getSeverityString(UnusedTypeParameter)); //$NON-NLS-1$
 		buf.append("\n\t- discouraged invocation, unlikely argument: ").append(getSeverityString(UnlikelyArgumentType)); //$NON-NLS-1$
-		buf.append("\n\t- discouraged invocation, unlikely argument, not castable: ").append(getSeverityString(UnlikelyArgumentTypeNotCastable)); //$NON-NLS-1$
+		buf.append("\n\t- discouraged invocation, accept castable argument: ").append(this.acceptCastableArgInDiscouragedInvocation ? ENABLED : DISABLED); //$NON-NLS-1$
 		return buf.toString();
 	}
 	

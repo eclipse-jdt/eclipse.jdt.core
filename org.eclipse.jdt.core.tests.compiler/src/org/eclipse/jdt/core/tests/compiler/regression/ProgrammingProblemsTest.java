@@ -2793,6 +2793,40 @@ public void testBug410218b() {
 		"Discouraged invocation of method remove(Object). Argument type Set<T> is incompatible with the likely type HashSet<T> according to the declaring type Collection<HashSet<T>>\n" + 
 		"----------\n");
 }
+// HashSet vs. TreeSet or: to be castable or not - accept castable cases
+public void testBug410218b2() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_DISCOURAGED_INVOCATION_ACCEPT_CASTABLE_ARGUMENT, JavaCore.ENABLED);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"class X {\n" +
+			"  <T> void test(Set<HashSet<T>> hss, TreeSet<T> ts) {\n" +
+			"	if (hss.contains(ts)) // bad\n" +
+			"		hss.remove(ts); // bad\n" + 
+			"	if (hss.contains((Set<T>)ts)) // less bad\n" +
+			"		hss.remove((Set<T>)ts); // less bad\n" + 
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	if (hss.contains(ts)) // bad\n" + 
+		"	                 ^^\n" + 
+		"Discouraged invocation of method contains(Object). Argument type TreeSet<T> cannot be cast to the likely type HashSet<T> according to the declaring type Collection<HashSet<T>>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	hss.remove(ts); // bad\n" + 
+		"	           ^^\n" + 
+		"Discouraged invocation of method remove(Object). Argument type TreeSet<T> cannot be cast to the likely type HashSet<T> according to the declaring type Collection<HashSet<T>>\n" + 
+		"----------\n",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		customOptions);
+}
 // Map: contains* & remove & get
 public void testBug410218c() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5)
@@ -2870,7 +2904,7 @@ public void testBug410218d() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5)
 		return;
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_NOT_CASTABLE, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_TYPE, JavaCore.ERROR);
 	runNegativeTest(
 		new String[] {
 			"X.java",
@@ -2912,8 +2946,7 @@ public void testBug410218e() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5)
 		return;
 	Map customOptions = getCompilerOptions();
-	customOptions.put(JavaCore.COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_TYPE, JavaCore.ERROR);
-	customOptions.put(JavaCore.COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_NOT_CASTABLE, JavaCore.WARNING);
+	customOptions.put(JavaCore.COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_TYPE, JavaCore.WARNING);
 	runNegativeTest(
 		new String[] {
 			"X.java",
@@ -2925,8 +2958,8 @@ public void testBug410218e() {
 			"  @SuppressWarnings(\"unlikely-arg-type\")\n" +
 			"  int test2(List<Integer> ints, boolean f, Object o) {\n" +
 			"	if (f)\n" +
-			"		return ints.indexOf(\"ONE\"); // bad but suppressed\n" +
-			"	return ints.indexOf(o); // not suppressable error\n" + 
+			"		return ints.indexOf(\"ONE\"); // really bad but suppressed\n" +
+			"	return ints.indexOf(o); // bad but suppressed\n" + 
 			"  }\n" +
 			"}\n"
 		},
@@ -2935,11 +2968,6 @@ public void testBug410218e() {
 		"	return ints.indexOf(\"ONE\"); // bad\n" + 
 		"	                    ^^^^^\n" + 
 		"Discouraged invocation of method indexOf(Object). Argument type String cannot be cast to the likely type Integer according to the declaring type List<Integer>\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 10)\n" + 
-		"	return ints.indexOf(o); // not suppressable error\n" + 
-		"	                    ^\n" + 
-		"Discouraged invocation of method indexOf(Object). Argument type Object is incompatible with the likely type Integer according to the declaring type List<Integer>\n" + 
 		"----------\n",
 		null/*classLibraries*/,
 		true/*shouldFlushOutputDirectory*/,

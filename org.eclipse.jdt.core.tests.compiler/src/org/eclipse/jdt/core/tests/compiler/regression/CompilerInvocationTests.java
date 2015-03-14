@@ -1287,7 +1287,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("DisallowedTargetForAnnotation", SKIP);
 		expectedProblemAttributes.put("DisallowedTargetForContainerAnnotationType", SKIP);
 		expectedProblemAttributes.put("DiscouragedInvocationIncompatibleArgument", new ProblemAttributes(JavaCore.COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_TYPE));
-		expectedProblemAttributes.put("DiscouragedInvocationArgumentNotCastable", new ProblemAttributes(JavaCore.COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_NOT_CASTABLE));
+		expectedProblemAttributes.put("DiscouragedInvocationArgumentNotCastable", new ProblemAttributes(JavaCore.COMPILER_PB_DISCOURAGED_INVOCATION_UNLIKELY_ARGUMENT_TYPE));
 		expectedProblemAttributes.put("DiscouragedReference", new ProblemAttributes(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE));
 		expectedProblemAttributes.put("DuplicateAnnotation", SKIP);
 		expectedProblemAttributes.put("DuplicateAnnotationNotMarkedRepeatable", SKIP);
