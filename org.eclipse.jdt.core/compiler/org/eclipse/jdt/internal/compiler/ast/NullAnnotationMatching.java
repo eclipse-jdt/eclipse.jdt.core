@@ -421,32 +421,65 @@ public class NullAnnotationMatching {
 		return 0; // OK by tagBits
 	}
 
+	static class SearchContradictions extends TypeBindingVisitor {
+		ReferenceBinding typeWithContradiction;
+		@Override
+		public boolean visit(ReferenceBinding referenceBinding) {
+			if ((referenceBinding.tagBits & TagBits.AnnotationNullMASK) == TagBits.AnnotationNullMASK) {
+				this.typeWithContradiction = referenceBinding;
+				return false;
+			}
+			return true;
+		}
+		@Override
+		public boolean visit(TypeVariableBinding typeVariable) {
+			if (!visit((ReferenceBinding)typeVariable))
+				return false;
+			long allNullBits = typeVariable.tagBits & TagBits.AnnotationNullMASK;
+			if (typeVariable.firstBound != null)
+				allNullBits = typeVariable.firstBound.tagBits & TagBits.AnnotationNullMASK;
+			for (TypeBinding otherBound : typeVariable.otherUpperBounds())
+				allNullBits |= otherBound.tagBits & TagBits.AnnotationNullMASK;
+			if (allNullBits == TagBits.AnnotationNullMASK) {
+				this.typeWithContradiction = typeVariable;
+				return false;
+			}
+			return true;
+		}
+		@Override
+		public boolean visit(RawTypeBinding rawType) {
+			return visit((ReferenceBinding)rawType);
+		}
+		@Override
+		public boolean visit(WildcardBinding wildcardBinding) {
+			long allNullBits = wildcardBinding.tagBits & TagBits.AnnotationNullMASK;
+			switch (wildcardBinding.boundKind) {
+				case Wildcard.EXTENDS:
+					allNullBits |= wildcardBinding.bound.tagBits & TagBits.AnnotationNonNull;
+					break;
+				case Wildcard.SUPER:
+					allNullBits |= wildcardBinding.bound.tagBits & TagBits.AnnotationNullable;
+					break;
+			}
+			if (allNullBits == TagBits.AnnotationNullMASK) {
+				this.typeWithContradiction = wildcardBinding;
+				return false;
+			}
+			return true;
+		}
+		@Override
+		public boolean visit(ParameterizedTypeBinding parameterizedTypeBinding) {
+			if (!visit((ReferenceBinding) parameterizedTypeBinding))
+				return false;
+			return super.visit(parameterizedTypeBinding);
+		}
+	}
+
 	/**
 	 * After a method has substituted type parameters, check if this resulted in any contradictory null annotations.
 	 * Problems are either reported directly (if scope != null) or by returning a ProblemMethodBinding.
 	 */
-	public static MethodBinding checkForContradictions(
-			final MethodBinding method, final Object location, final Scope scope) {
-		
-		class SearchContradictions extends TypeBindingVisitor {
-			ReferenceBinding typeWithContradiction;
-			@Override
-			public boolean visit(ReferenceBinding referenceBinding) {
-				if ((referenceBinding.tagBits & TagBits.AnnotationNullMASK) == TagBits.AnnotationNullMASK) {
-					this.typeWithContradiction = referenceBinding;
-					return false;
-				}
-				return true;
-			}
-			@Override
-			public boolean visit(TypeVariableBinding typeVariable) {
-				return visit((ReferenceBinding)typeVariable);
-			}
-			@Override
-			public boolean visit(RawTypeBinding rawType) {
-				return visit((ReferenceBinding)rawType);
-			}
-		}
+	public static MethodBinding checkForContradictions(MethodBinding method, Object location, Scope scope) {
 
 		int start = 0, end = 0;
 		if (location instanceof InvocationSite) {
@@ -482,6 +515,12 @@ public class NullAnnotationMatching {
 			}
 		}
 		return method;
+	}
+
+	public static boolean hasContradictions(TypeBinding type) {
+		SearchContradictions searchContradiction = new SearchContradictions();
+		TypeBindingVisitor.visit(searchContradiction, type);
+		return searchContradiction.typeWithContradiction != null;
 	}
 
 	public static TypeBinding strongerType(TypeBinding type1, TypeBinding type2, LookupEnvironment environment) {

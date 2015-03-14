@@ -7660,4 +7660,83 @@ public void testBug437072() {
 		"Syntax error, insert \"Dimensions\" to complete ReferenceType\n" + 
 		"----------\n");
 }
+public void testBug448709() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.WARNING); // ensure program is runnable
+	runConformTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import java.util.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"\n" + 
+			"  /**\n" + 
+			"   * A null-annotated version of {@link Objects#requireNonNull(Object)}.\n" + 
+			"   */\n" + 
+			"  public static final <T> @NonNull T requireNonNull(final @Nullable T obj) {\n" + 
+			"    if (obj == null) throw new NullPointerException();\n" + 
+			"    return obj;\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  /**\n" + 
+			"   * A null-annotated version of {@link Optional#map(Function)}.\n" + 
+			"   */\n" + 
+			"  public static final <T,U> @NonNull Optional<U> map(final @NonNull Optional<T> optional, final Function<@NonNull ? super T,? extends U> mapper) {\n" + 
+			"    if (!optional.isPresent()) return requireNonNull(Optional.empty());\n" + 
+			"    final T source = optional.get();\n" + 
+			"    final U result = mapper.apply(source);\n" +
+			"    System.out.println(source+\"->\"+result);\n" + 
+			"    return requireNonNull(Optional.<U> ofNullable(result));\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  /**\n" + 
+			"   * A method with a {@link NonNull} {@link DefaultLocation#PARAMETER} and {@link DefaultLocation#RETURN_TYPE}.\n" + 
+			"   */\n" + 
+			"  public static final @NonNull Integer testMethod(final @NonNull String s) {\n" + 
+			"    final Integer r = Integer.valueOf(s);\n" + 
+			"    if (r == null) throw new NullPointerException();\n" + 
+			"    return r+1;\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static void main(final String[] args) {\n" + 
+			"    final @NonNull Optional<@Nullable String> optNullableString = requireNonNull(Optional.ofNullable(\"1\"));\n" + 
+			"\n" + 
+			"    final Function<@NonNull String,@NonNull Integer> testMethodRef = Test::testMethod;\n" + 
+			"    map(optNullableString, testMethodRef);\n" + 
+			"\n" + 
+			"    map(optNullableString, Test::testMethod); // Error: Null type mismatch at parameter 1: required '@NonNull String' but provided '@Nullable String' via method descriptor Function<String,Integer>.apply(String)\n" +
+			"\n" +
+			"    map(optNullableString, (s) -> Test.testMethod(s));\n" + 
+			"  }\n" + 
+			"\n" + 
+			"}\n"
+		},
+		compilerOptions,
+		"----------\n" + 
+		"1. WARNING in Test.java (at line 39)\n" + 
+		"	map(optNullableString, testMethodRef);\n" + 
+		"	                       ^^^^^^^^^^^^^\n" + 
+		"Contradictory null annotations: method was inferred as \'@NonNull Optional<@NonNull Integer> map(@NonNull Optional<@Nullable String>, Function<@NonNull ? super @Nullable String,? extends @NonNull Integer>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"----------\n" + 
+		"2. WARNING in Test.java (at line 41)\n" + 
+		"	map(optNullableString, Test::testMethod); // Error: Null type mismatch at parameter 1: required \'@NonNull String\' but provided \'@Nullable String\' via method descriptor Function<String,Integer>.apply(String)\n" + 
+		"	                       ^^^^^^^^^^^^^^^^\n" + 
+		"Contradictory null annotations: method was inferred as \'@NonNull Optional<@NonNull Integer> map(@NonNull Optional<@Nullable String>, Function<@NonNull ? super @Nullable String,? extends @NonNull Integer>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"----------\n" + 
+		"3. WARNING in Test.java (at line 43)\n" + 
+		"	map(optNullableString, (s) -> Test.testMethod(s));\n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Contradictory null annotations: method was inferred as \'@NonNull Optional<@NonNull Integer> map(@NonNull Optional<@Nullable String>, Function<@NonNull ? super @Nullable String,? extends @NonNull Integer>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"----------\n" + 
+		"4. WARNING in Test.java (at line 43)\n" + 
+		"	map(optNullableString, (s) -> Test.testMethod(s));\n" + 
+		"	                                              ^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
+		"----------\n",
+		"1->2\n" +
+		"1->2\n" +
+		"1->2");
+}
 }
