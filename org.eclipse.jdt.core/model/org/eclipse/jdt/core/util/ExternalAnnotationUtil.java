@@ -514,6 +514,9 @@ public final class ExternalAnnotationUtil {
 								buf.append(oldAnn); // keep
 						}
 				}
+				break;
+			default:
+				throw new IllegalArgumentException("Unexpected merge strategy"); // REPLACE_SIGNATURE does not reach this point, see initial check in updateType() //$NON-NLS-1$
 		}
 	}
 

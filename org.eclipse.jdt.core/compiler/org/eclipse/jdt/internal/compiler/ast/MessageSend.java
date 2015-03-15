@@ -346,6 +346,8 @@ TypeBinding[] detectAndReplaceDangerousSignature(Scope scope) {
 					mapType = this.actualReceiverType.findSuperTypeOriginatingFrom(TypeIds.T_JavaUtilMap, false);
 					if (mapType != null && mapType.isParameterizedType())
 						return new TypeBinding[] { ((ParameterizedTypeBinding)mapType).typeArguments()[1], mapType };
+					break;
+				default: // no other suspects are detected in java.util.Map
 			}
 		}
 	}
@@ -358,6 +360,8 @@ TypeBinding[] detectAndReplaceDangerousSignature(Scope scope) {
 					ReferenceBinding collectionType = this.actualReceiverType.findSuperTypeOriginatingFrom(TypeIds.T_JavaUtilCollection, false);
 					if (collectionType != null && collectionType.isParameterizedType())
 						return new TypeBinding[] { ((ParameterizedTypeBinding)collectionType).typeArguments()[0], collectionType };
+					break;
+				default: // no other suspects with Object-parameter are detected in java.util.Collection
 			}
 		} else if (paramTypeId == TypeIds.T_JavaUtilCollection) {
 			switch (suspect) {
@@ -368,6 +372,8 @@ TypeBinding[] detectAndReplaceDangerousSignature(Scope scope) {
 					ReferenceBinding collectionType = this.actualReceiverType.findSuperTypeOriginatingFrom(TypeIds.T_JavaUtilCollection, false);
 					if (collectionType != null)
 						return new TypeBinding[] { collectionType, collectionType };
+					break;
+				default: // no other suspects with Collection-parameter are detected in java.util.Collection
 			}
 		}
 		if (this.actualReceiverType.hasTypeBit(TypeIds.BitList)) {
@@ -379,6 +385,8 @@ TypeBinding[] detectAndReplaceDangerousSignature(Scope scope) {
 						ReferenceBinding listType = this.actualReceiverType.findSuperTypeOriginatingFrom(TypeIds.T_JavaUtilList, false);
 						if (listType != null && listType.isParameterizedType())
 							return new TypeBinding[] { ((ParameterizedTypeBinding)listType).typeArguments()[0], listType };
+						break;
+					default: // no other suspects are detected in java.util.List
 				}
 			}
 		}
