@@ -57,7 +57,6 @@
  *								Bug 446442 - [1.8] merge null annotations from super methods
  *								Bug 455723 - Nonnull argument not correctly inferred in loop
  *								Bug 458361 - [1.8][null] reconciler throws NPE in ProblemReporter.illegalReturnRedefinition()
- *								Bug 410218 - Optional warning for arguments of "unexpected" types to Map#get(Object), Collection#remove(Object) et al.
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -591,10 +590,6 @@ public static int getIrritant(int problemID) {
 			
 		case IProblem.UnusedTypeParameter:
 			return CompilerOptions.UnusedTypeParameter;
-
-		case IProblem.DiscouragedInvocationIncompatibleArgument:
-		case IProblem.DiscouragedInvocationArgumentNotCastable:
-			return CompilerOptions.UnlikelyArgumentType;
 }
 	return 0;
 }
@@ -652,7 +647,6 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.UnusedObjectAllocation :
 			case CompilerOptions.UnclosedCloseable :
 			case CompilerOptions.PotentiallyUnclosedCloseable :
-			case CompilerOptions.UnlikelyArgumentType :
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 			
 			case CompilerOptions.OverriddenPackageDefaultMethod :
@@ -10232,28 +10226,5 @@ public void invalidTypeArguments(TypeReference[] typeReference) {
 			NoArgument, NoArgument,
 			typeReference[0].sourceStart,
 			typeReference[typeReference.length - 1].sourceEnd);
-}
-
-public void discouragedInvocationIncompatibleArgument(MethodBinding method, Expression argument,
-							TypeBinding expectedType, TypeBinding declaringType, boolean castable)
-{
-	if (castable && this.options.acceptCastableArgInDiscouragedInvocation)
-		return;
-	this.handle(
-			castable ? IProblem.DiscouragedInvocationIncompatibleArgument : IProblem.DiscouragedInvocationArgumentNotCastable,
-			new String[] {
-				new String(method.readableName()),
-				new String(argument.resolvedType.readableName()),
-				new String(expectedType.readableName()),
-				new String(declaringType.readableName())
-			}, 
-			new String[] {
-				new String(method.shortReadableName()),
-				new String(argument.resolvedType.shortReadableName()),
-				new String(expectedType.shortReadableName()),
-				new String(declaringType.shortReadableName())
-			}, 
-			argument.sourceStart, 
-			argument.sourceEnd);
 }
 }

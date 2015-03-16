@@ -1869,7 +1869,6 @@ public void test012b(){
         "      unavoidableGenericProblems + ignore unavoidable type safety problems\n" + 
         "                                   due to raw APIs\n" + 
         "      unchecked          + unchecked type operation\n" + 
-        "      unlikelyArgumentType invoking Map.get() et al with an unlikely argument\n" + 
         "      unnecessaryElse      unnecessary else clause\n" + 
         "      unqualifiedField     unqualified reference to field\n" + 
         "      unused               macro for unusedAllocation, unusedArgument,\n" + 
@@ -1986,8 +1985,6 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecation\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode\" value=\"disabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.discouragedInvocationAcceptCastableArgument\" value=\"disabled\"/>\n" + 
-			"		<option key=\"org.eclipse.jdt.core.compiler.problem.discouragedInvocationIncompatibleArgument\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.discouragedReference\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.emptyStatement\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.enumIdentifier\" value=\"warning\"/>\n" + 
@@ -2966,7 +2963,7 @@ public void test032(){
 				"	public void foo5(final Map<XX<?, ?>, XY> p1) {\n" +
 				"		p1.putAll(m1);\n" +
 				"	}\n" +
-				"	@SuppressWarnings(\"unlikely-arg-type\")\n" +
+				"\n" +
 				"	public void foo6(final Map<XX<?, ?>, XY> p1) {\n" +
 				"		m1.keySet().retainAll(p1.keySet());\n" +
 				"		m2.keySet().retainAll(p1.keySet());\n" +
@@ -3147,7 +3144,7 @@ public void test032(){
 			"	public void foo5(final Map<XX<?, ?>, XY> p1) {\n" +
 			"		p1.putAll(m1);\n" +
 			"	}\n" +
-			"	@SuppressWarnings(\"unlikely-arg-type\")\n" +
+			"\n" +
 			"	public void foo6(final Map<XX<?, ?>, XY> p1) {\n" +
 			"		m1.keySet().retainAll(p1.keySet());\n" +
 			"		m2.keySet().retainAll(p1.keySet());\n" +
@@ -13419,29 +13416,6 @@ public void test329_nowarn_options() {
 			"----------\n" +
 			"1 problem (1 warning)\n",
 			true);
-}
-
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=408815
-// -warn option - regression tests to check option unlikelyArgumentType
-public void test330_warn_options() {
-	this.runConformTest(
-		new String[] {
-				"p/X.java",
-				"package p;\n" +
-				"import java.util.Map;\n" +
-				"public class X {\n" +
-				"  Integer foo(Map<String,Integer> map) {\n" +
-				"	 return map.get(3);\n" +
-				"  }\n" +
-				"}\n",
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
-		+ " -sourcepath \"" + OUTPUT_DIR + "\""
-		+ " -1.5"
-		+ " -warn:-unlikelyArgumentType -proc:none -d \"" + OUTPUT_DIR + "\"",
-		"",
-		"",
-		true);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375409

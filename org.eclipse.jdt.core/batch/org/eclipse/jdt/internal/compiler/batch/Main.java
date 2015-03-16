@@ -3888,9 +3888,6 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 			} else if (token.equals("unchecked") || token.equals("unsafe")) {//$NON-NLS-1$ //$NON-NLS-2$
 				setSeverity(CompilerOptions.OPTION_ReportUncheckedTypeOperation, severity, isEnabling);
 				return;
-			} else if (token.equals("unlikelyArgumentType")) { //$NON-NLS-1$
-				setSeverity(CompilerOptions.OPTION_ReportDiscouragedInvocationIncompatibleArgument, severity, isEnabling);
-				return;
 			} else if (token.equals("unnecessaryElse")) {//$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportUnnecessaryElse, severity, isEnabling);
 				return;

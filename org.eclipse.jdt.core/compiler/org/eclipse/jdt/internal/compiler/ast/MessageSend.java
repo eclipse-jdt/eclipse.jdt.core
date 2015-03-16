@@ -50,7 +50,6 @@
  *								Bug 441734 - [1.8][inference] Generic method with nested parameterized type argument fails on method reference
  *								Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *								Bug 456487 - [1.8][null] @Nullable type variant of @NonNull-constrained type parameter causes grief
- *								Bug 410218 - Optional warning for arguments of "unexpected" types to Map#get(Object), Collection#remove(Object) et al.
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -73,7 +72,6 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -86,7 +84,6 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
@@ -158,23 +155,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					for (int j=0; j<len; j++)
 						recordCallingClose(currentScope, flowContext, flowInfo, this.arguments[j]);
 					break;
-				}
-			}
-		}
-	}
-	if (compilerOptions.isAnyEnabled(IrritantSet.UNLIKELY_ARGUMENT_TYPE) && this.binding.isValidBinding()) {
-		TypeBinding[] signatureReplacement = detectAndReplaceDangerousSignature(currentScope);
-		if (signatureReplacement != null) {
-			int len = this.argumentTypes.length;
-			for (int i = 0; i < len; i++) {
-				TypeBinding expectedArgumentType = signatureReplacement[i];
-				TypeBinding argumentType = this.argumentTypes[i];
-				if (argumentType.isBaseType())
-					argumentType = currentScope.boxing(argumentType);
-				if (!argumentType.isCompatibleWith(expectedArgumentType, currentScope)) {
-					boolean castable = checkCastTypesCompatibility(currentScope, expectedArgumentType, argumentType, this.arguments[i]);
-					currentScope.problemReporter().discouragedInvocationIncompatibleArgument(this.binding, this.arguments[i],
-								expectedArgumentType, signatureReplacement[len], castable);
 				}
 			}
 		}
@@ -314,86 +294,6 @@ private int detectAssertionUtility(int argumentIdx) {
 	}
 	return 0;
 }
-// when targeting a well-known dangerous method, returns the "expected" signature plus the declaring type (as the last array element)
-TypeBinding[] detectAndReplaceDangerousSignature(Scope scope) {
-
-	// detecting only methods with a single argument, typed either as Object or as Collection:
-	TypeBinding[] parameters = this.binding.parameters;
-	if (parameters.length != 1)
-		return null;
-	int paramTypeId = parameters[0].original().id;
-	if (paramTypeId != TypeIds.T_JavaLangObject && paramTypeId != TypeIds.T_JavaUtilCollection)
-		return null;
-
-	// check selectors before typeBits as to avoid unnecessary super-traversals for the receiver type
-	DangerousMethod suspect = DangerousMethod.detectSelector(this.selector);
-	if (suspect == null) 
-		return null;
-
-	if (this.actualReceiverType.hasTypeBit(TypeIds.BitMap)) {
-		if (paramTypeId == TypeIds.T_JavaLangObject) {
-			switch (suspect) {
-				case ContainsKey:
-				case Get:
-				case Remove:
-					// map operations taking a key
-					ReferenceBinding mapType = this.actualReceiverType.findSuperTypeOriginatingFrom(TypeIds.T_JavaUtilMap, false);
-					if (mapType != null && mapType.isParameterizedType())
-						return new TypeBinding[] { ((ParameterizedTypeBinding)mapType).typeArguments()[0], mapType };
-					break;
-				case ContainsValue:
-					// map operation taking a value
-					mapType = this.actualReceiverType.findSuperTypeOriginatingFrom(TypeIds.T_JavaUtilMap, false);
-					if (mapType != null && mapType.isParameterizedType())
-						return new TypeBinding[] { ((ParameterizedTypeBinding)mapType).typeArguments()[1], mapType };
-					break;
-				default: // no other suspects are detected in java.util.Map
-			}
-		}
-	}
-	if (this.actualReceiverType.hasTypeBit(TypeIds.BitCollection)) {
-		if (paramTypeId == TypeIds.T_JavaLangObject) {
-			switch (suspect) {
-				case Remove:
-				case Contains:
-					// collection operations taking a single element
-					ReferenceBinding collectionType = this.actualReceiverType.findSuperTypeOriginatingFrom(TypeIds.T_JavaUtilCollection, false);
-					if (collectionType != null && collectionType.isParameterizedType())
-						return new TypeBinding[] { ((ParameterizedTypeBinding)collectionType).typeArguments()[0], collectionType };
-					break;
-				default: // no other suspects with Object-parameter are detected in java.util.Collection
-			}
-		} else if (paramTypeId == TypeIds.T_JavaUtilCollection) {
-			switch (suspect) {
-				case RemoveAll:
-				case ContainsAll:
-				case RetainAll:
-					// collection operations taking another collection
-					ReferenceBinding collectionType = this.actualReceiverType.findSuperTypeOriginatingFrom(TypeIds.T_JavaUtilCollection, false);
-					if (collectionType != null)
-						return new TypeBinding[] { collectionType, collectionType };
-					break;
-				default: // no other suspects with Collection-parameter are detected in java.util.Collection
-			}
-		}
-		if (this.actualReceiverType.hasTypeBit(TypeIds.BitList)) {
-			if (paramTypeId == TypeIds.T_JavaLangObject) {
-				switch (suspect) {
-					case IndexOf:
-					case LastIndexOf:
-						// list operations taking a single element
-						ReferenceBinding listType = this.actualReceiverType.findSuperTypeOriginatingFrom(TypeIds.T_JavaUtilList, false);
-						if (listType != null && listType.isParameterizedType())
-							return new TypeBinding[] { ((ParameterizedTypeBinding)listType).typeArguments()[0], listType };
-						break;
-					default: // no other suspects are detected in java.util.List
-				}
-			}
-		}
-	} 
-	return null; // not replacing
-}
-
 private FlowInfo analyseBooleanAssertion(BlockScope currentScope, Expression argument,
 		FlowContext flowContext, FlowInfo flowInfo, boolean wasInsideAssert, boolean passOnTrue)
 {

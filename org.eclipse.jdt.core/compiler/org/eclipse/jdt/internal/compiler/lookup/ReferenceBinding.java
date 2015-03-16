@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,7 +34,6 @@
  *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
  *								Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *								Bug 446442 - [1.8] merge null annotations from super methods
- *								Bug 410218 - Optional warning for arguments of "unexpected" types to Map#get(Object), Collection#remove(Object) et al.
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -498,26 +497,12 @@ public void computeId() {
 						if (CharOperation.equals(packageName, TypeConstants.UTIL)) {
 							switch (typeName[0]) {
 								case 'C' :
-									if (CharOperation.equals(typeName, TypeConstants.JAVA_UTIL_COLLECTION[2])) {
+									if (CharOperation.equals(typeName, TypeConstants.JAVA_UTIL_COLLECTION[2]))
 										this.id = TypeIds.T_JavaUtilCollection;
-										this.typeBits |= TypeIds.BitCollection;
-									}										
 									return;
 								case 'I' :
 									if (CharOperation.equals(typeName, TypeConstants.JAVA_UTIL_ITERATOR[2]))
 										this.id = TypeIds.T_JavaUtilIterator;
-									return;
-								case 'L' :
-									if (CharOperation.equals(typeName, TypeConstants.JAVA_UTIL_LIST[2])) {
-										this.id = TypeIds.T_JavaUtilList;
-										this.typeBits |= TypeIds.BitList;
-									}										
-									return;
-								case 'M' :
-									if (CharOperation.equals(typeName, TypeConstants.JAVA_UTIL_MAP[2])) {
-										this.id = TypeIds.T_JavaUtilMap;
-										this.typeBits |= TypeIds.BitMap;
-									}
 									return;
 								case 'O' :
 									if (CharOperation.equals(typeName, TypeConstants.JAVA_UTIL_OBJECTS[2]))

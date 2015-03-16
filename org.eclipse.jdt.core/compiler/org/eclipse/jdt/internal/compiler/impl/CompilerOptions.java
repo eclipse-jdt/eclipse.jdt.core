@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2014 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,6 @@
  *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
- *								Bug 410218 - Optional warning for arguments of "unexpected" types to Map#get(Object), Collection#remove(Object) et al.
  *     Jesper Steen Moller - Contributions for
  *								bug 404146 - [1.7][compiler] nested try-catch-finally-blocks leads to unrunnable Java byte code
  *								bug 407297 - [1.8][compiler] Control generation of parameter names by option
@@ -162,11 +161,9 @@ public class CompilerOptions {
 	public static final String OPTION_ReportMethodCanBeStatic = "org.eclipse.jdt.core.compiler.problem.reportMethodCanBeStatic";  //$NON-NLS-1$
 	public static final String OPTION_ReportMethodCanBePotentiallyStatic = "org.eclipse.jdt.core.compiler.problem.reportMethodCanBePotentiallyStatic";  //$NON-NLS-1$
 	public static final String OPTION_ReportRedundantSpecificationOfTypeArguments =  "org.eclipse.jdt.core.compiler.problem.redundantSpecificationOfTypeArguments"; //$NON-NLS-1$
-
 	public static final String OPTION_ReportUnclosedCloseable = "org.eclipse.jdt.core.compiler.problem.unclosedCloseable"; //$NON-NLS-1$
 	public static final String OPTION_ReportPotentiallyUnclosedCloseable = "org.eclipse.jdt.core.compiler.problem.potentiallyUnclosedCloseable"; //$NON-NLS-1$
 	public static final String OPTION_ReportExplicitlyClosedAutoCloseable = "org.eclipse.jdt.core.compiler.problem.explicitlyClosedAutoCloseable"; //$NON-NLS-1$
-
 	public static final String OPTION_ReportNullSpecViolation = "org.eclipse.jdt.core.compiler.problem.nullSpecViolation";  //$NON-NLS-1$
 	public static final String OPTION_ReportNullAnnotationInferenceConflict = "org.eclipse.jdt.core.compiler.problem.nullAnnotationInferenceConflict";  //$NON-NLS-1$
 	public static final String OPTION_ReportNullUncheckedConversion = "org.eclipse.jdt.core.compiler.problem.nullUncheckedConversion";  //$NON-NLS-1$
@@ -184,10 +181,6 @@ public class CompilerOptions {
 	public static final String OPTION_SyntacticNullAnalysisForFields = "org.eclipse.jdt.core.compiler.problem.syntacticNullAnalysisForFields"; //$NON-NLS-1$
 	public static final String OPTION_InheritNullAnnotations = "org.eclipse.jdt.core.compiler.annotation.inheritNullAnnotations";  //$NON-NLS-1$
 	public static final String OPTION_ReportNonnullParameterAnnotationDropped = "org.eclipse.jdt.core.compiler.problem.nonnullParameterAnnotationDropped";  //$NON-NLS-1$
-
-	public static final String OPTION_ReportDiscouragedInvocationIncompatibleArgument = "org.eclipse.jdt.core.compiler.problem.discouragedInvocationIncompatibleArgument"; //$NON-NLS-1$
-	public static final String OPTION_ReportDiscouragedInvocationAcceptCastableArgument = "org.eclipse.jdt.core.compiler.problem.discouragedInvocationAcceptCastableArgument"; //$NON-NLS-1$
-
 	/**
 	 * Possible values for configurable options
 	 */
@@ -305,7 +298,6 @@ public class CompilerOptions {
 	public static final int UnusedTypeParameter = IrritantSet.GROUP2 | ASTNode.Bit17;
 	public static final int NonnullParameterAnnotationDropped = IrritantSet.GROUP2 | ASTNode.Bit18;
 	public static final int UnusedExceptionParameter = IrritantSet.GROUP2 | ASTNode.Bit19;
-	public static final int UnlikelyArgumentType = IrritantSet.GROUP2 | ASTNode.Bit20;
 
 	// Severity level for handlers
 	/** 
@@ -320,12 +312,12 @@ public class CompilerOptions {
 	protected IrritantSet warningThreshold;
 	
 	/**
-	 * Default settings are to be defined in {@link CompilerOptions#resetDefaults()}
+	 * Default settings are to be defined in {@lnk CompilerOptions#resetDefaults()}
 	 */
 	
 	/** Classfile debug information, may contain source file name, line numbers, local variable tables, etc... */
 	public int produceDebugAttributes; 
-	/** Classfile method parameters information as per JEP 118... */
+	/** Classfile method patameters information as per JEP 118... */
 	public boolean produceMethodParameters;
 	/** Indicates whether generic signature should be generated for lambda expressions */
 	public boolean generateGenericSignatureForLambdaExpressions;
@@ -454,9 +446,6 @@ public class CompilerOptions {
 	/** Should missing enum cases be reported even if a default case exists in the same switch? */
 	public boolean reportMissingEnumCaseDespiteDefault;
 	
-	/** In a discouraged invocation to Map.get() et al, should args castable to the likely type be accepted? */
-	public boolean acceptCastableArgInDiscouragedInvocation;
-
 	/** Should the compiler tolerate illegal ambiguous varargs invocation in compliance < 1.7 
 	 * to be bug compatible with javac? (bug 383780) */
 	public static boolean tolerateIllegalAmbiguousVarargsInvocation;
@@ -501,7 +490,6 @@ public class CompilerOptions {
 		"synthetic-access", //$NON-NLS-1$
 		"sync-override",	//$NON-NLS-1$
 		"unchecked", //$NON-NLS-1$
-		"unlikely-arg-type",  //$NON-NLS-1$
 		"unqualified-field-access", //$NON-NLS-1$
 		"unused", //$NON-NLS-1$
 	};
@@ -693,8 +681,6 @@ public class CompilerOptions {
 				return OPTION_ReportRedundantNullAnnotation;
 			case NonnullParameterAnnotationDropped:
 				return OPTION_ReportNonnullParameterAnnotationDropped;
-			case UnlikelyArgumentType:
-				return OPTION_ReportDiscouragedInvocationIncompatibleArgument;
 		}
 		return null;
 	}
@@ -888,8 +874,7 @@ public class CompilerOptions {
 			OPTION_SyntacticNullAnalysisForFields,
 			OPTION_ReportUnusedTypeParameter,
 			OPTION_InheritNullAnnotations,
-			OPTION_ReportNonnullParameterAnnotationDropped,
-			OPTION_ReportDiscouragedInvocationIncompatibleArgument,
+			OPTION_ReportNonnullParameterAnnotationDropped
 		};
 		return result;
 	}
@@ -979,8 +964,6 @@ public class CompilerOptions {
 				return "javadoc"; //$NON-NLS-1$
 			case MissingSynchronizedModifierInInheritedMethod:
 				return "sync-override";	 //$NON-NLS-1$
-			case UnlikelyArgumentType:
-				return "unlikely-arg-type"; //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -1061,8 +1044,6 @@ public class CompilerOptions {
 					return IrritantSet.UNCHECKED;
 				if ("unqualified-field-access".equals(warningToken)) //$NON-NLS-1$
 					return IrritantSet.UNQUALIFIED_FIELD_ACCESS;
-				if ("unlikely-arg-type".equals(warningToken)) //$NON-NLS-1$
-					return IrritantSet.UNLIKELY_ARGUMENT_TYPE;
 				break;
 		}
 		return null;
@@ -1203,8 +1184,6 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_InheritNullAnnotations, this.inheritNullAnnotations ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportNonnullParameterAnnotationDropped, getSeverityString(NonnullParameterAnnotationDropped));
 		optionsMap.put(OPTION_ReportUninternedIdentityComparison, this.complainOnUninternedIdentityComparison ? ENABLED : DISABLED);
-		optionsMap.put(OPTION_ReportDiscouragedInvocationIncompatibleArgument, getSeverityString(UnlikelyArgumentType));
-		optionsMap.put(OPTION_ReportDiscouragedInvocationAcceptCastableArgument, this.acceptCastableArgInDiscouragedInvocation ? ENABLED : DISABLED);
 		return optionsMap;
 	}
 
@@ -1688,10 +1667,6 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportPotentiallyUnclosedCloseable)) != null) updateSeverity(PotentiallyUnclosedCloseable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportExplicitlyClosedAutoCloseable)) != null) updateSeverity(ExplicitlyClosedAutoCloseable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedTypeParameter)) != null) updateSeverity(UnusedTypeParameter, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportDiscouragedInvocationIncompatibleArgument)) != null) updateSeverity(UnlikelyArgumentType, optionValue);
-		if ((optionValue = optionsMap.get(OPTION_ReportDiscouragedInvocationAcceptCastableArgument)) != null) {
-			this.acceptCastableArgInDiscouragedInvocation = ENABLED.equals(optionValue);
-		}
 		if (getSeverity(UnclosedCloseable) == ProblemSeverities.Ignore
 				&& getSeverity(PotentiallyUnclosedCloseable) == ProblemSeverities.Ignore
 				&& getSeverity(ExplicitlyClosedAutoCloseable) == ProblemSeverities.Ignore) {
@@ -1981,8 +1956,6 @@ public class CompilerOptions {
 		buf.append("\n\t- resource may not be closed: ").append(getSeverityString(PotentiallyUnclosedCloseable)); //$NON-NLS-1$
 		buf.append("\n\t- resource should be handled by try-with-resources: ").append(getSeverityString(ExplicitlyClosedAutoCloseable)); //$NON-NLS-1$
 		buf.append("\n\t- Unused Type Parameter: ").append(getSeverityString(UnusedTypeParameter)); //$NON-NLS-1$
-		buf.append("\n\t- discouraged invocation, unlikely argument: ").append(getSeverityString(UnlikelyArgumentType)); //$NON-NLS-1$
-		buf.append("\n\t- discouraged invocation, accept castable argument: ").append(this.acceptCastableArgInDiscouragedInvocation ? ENABLED : DISABLED); //$NON-NLS-1$
 		return buf.toString();
 	}
 	
