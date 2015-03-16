@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2011 IBM Corporation and others.
+ * Copyright (c) 2006, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,10 @@
 
 package org.eclipse.jdt.internal.compiler.tool;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -164,8 +168,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	 */
 	@Override
 	public InputStream openInputStream() throws IOException {
-		// TODO (olivier) should use buffered input stream
-		return new FileInputStream(this.f);
+		return new BufferedInputStream(new FileInputStream(this.f));
 	}
 
 	/**
@@ -174,7 +177,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	@Override
 	public OutputStream openOutputStream() throws IOException {
 		ensureParentDirectoriesExist();
-		return new FileOutputStream(this.f);
+		return new BufferedOutputStream(new FileOutputStream(this.f));
 	}
 
 	/**
@@ -182,7 +185,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	 */
 	@Override
 	public Reader openReader(boolean ignoreEncodingErrors) throws IOException {
-		return new FileReader(this.f);
+		return new BufferedReader(new FileReader(this.f));
 	}
 
 	/**
@@ -191,7 +194,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	@Override
 	public Writer openWriter() throws IOException {
 		ensureParentDirectoriesExist();
-		return new FileWriter(this.f);
+		return new BufferedWriter(new FileWriter(this.f));
 	}
 	
 	@Override

@@ -21,7 +21,7 @@ public class AllTests extends TestCase {
 	// run all tests
 	public static Test suite() {
 		TestSuite suite = new TestSuite();
-		suite.addTest(CompilerToolTests.suite());
+		suite.addTestSuite(CompilerToolTests.class);
 		suite.addTest(CompilerInvocationTests.suite());
 		return suite;
 	}

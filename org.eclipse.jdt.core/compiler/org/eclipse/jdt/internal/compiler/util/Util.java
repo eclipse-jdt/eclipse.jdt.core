@@ -24,6 +24,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -677,7 +678,7 @@ public class Util implements SuffixConstants {
 	}
 	/**
 	 * Returns the contents of the given zip entry as a byte array.
-	 * @throws IOException if a problem occured reading the zip entry.
+	 * @throws IOException if a problem occurred reading the zip entry.
 	 */
 	public static byte[] getZipEntryByteContent(ZipEntry ze, ZipFile zip)
 		throws IOException {
@@ -1086,6 +1087,15 @@ public class Util implements SuffixConstants {
 	}
 
 	public static void collectRunningVMBootclasspath(List bootclasspaths) {
+		for (String filePath : collectFilesNames()) {
+			FileSystem.Classpath currentClasspath = FileSystem.getClasspath(filePath, null, null);
+			if (currentClasspath != null) {
+				bootclasspaths.add(currentClasspath);
+			}
+		}
+	}
+
+	public static List<String> collectFilesNames() {
 		/* no bootclasspath specified
 		 * we can try to retrieve the default librairies of the VM used to run
 		 * the batch compiler
@@ -1108,15 +1118,11 @@ public class Util implements SuffixConstants {
 				bootclasspathProperty = System.getProperty("org.apache.harmony.boot.class.path"); //$NON-NLS-1$
 			}
 		}
+		List<String> filePaths = new ArrayList<>();
 		if ((bootclasspathProperty != null) && (bootclasspathProperty.length() != 0)) {
 			StringTokenizer tokenizer = new StringTokenizer(bootclasspathProperty, File.pathSeparator);
-			String token;
 			while (tokenizer.hasMoreTokens()) {
-				token = tokenizer.nextToken();
-				FileSystem.Classpath currentClasspath = FileSystem.getClasspath(token, null, null);
-				if (currentClasspath != null) {
-					bootclasspaths.add(currentClasspath);
-				}
+				filePaths.add(tokenizer.nextToken());
 			}
 		} else {
 			// try to get all jars inside the lib folder of the java home
@@ -1139,18 +1145,14 @@ public class Util implements SuffixConstants {
 						File[] current = systemLibrariesJars[i];
 						if (current != null) {
 							for (int j = 0, max2 = current.length; j < max2; j++) {
-								FileSystem.Classpath classpath =
-									FileSystem.getClasspath(current[j].getAbsolutePath(),
-										null, false, null, null);
-								if (classpath != null) {
-									bootclasspaths.add(classpath);
-								}
+								filePaths.add(current[j].getAbsolutePath());
 							}
 						}
 					}
 				}
 			}
 		}
+		return filePaths;
 	}
 	public static int getParameterCount(char[] methodSignature) {
 		try {
