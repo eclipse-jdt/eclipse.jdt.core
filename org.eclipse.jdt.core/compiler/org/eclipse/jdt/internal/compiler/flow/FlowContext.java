@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@
  *								Bug 453483 - [compiler][null][loop] Improve null analysis for loops
  *								Bug 455723 - Nonnull argument not correctly inferred in loop
  *								Bug 415790 - [compiler][resource]Incorrect potential resource leak warning in for loop with close in try/catch
+ *								Bug 446691 - [1.8][null][compiler] NullPointerException in SingleNameReference.analyseCode
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -510,7 +511,7 @@ public FlowInfo getInitsForFinalBlankInitializationCheck(TypeBinding declaringTy
 			current = initializationContext.initializationParent;
 		} else if (current instanceof ExceptionHandlingFlowContext) {
 			ExceptionHandlingFlowContext exceptionContext = (ExceptionHandlingFlowContext) current;
-			current = exceptionContext.initializationParent == null ? exceptionContext.getLocalParent() : exceptionContext.initializationParent;
+			current = exceptionContext.initializationParent == null ? exceptionContext.parent : exceptionContext.initializationParent;
 		} else {
 			current = current.getLocalParent();
 		}

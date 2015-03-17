@@ -7,6 +7,8 @@
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 446691 - [1.8][null][compiler] NullPointerException in SingleNameReference.analyseCode
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -681,7 +683,105 @@ public void testBug457007() {
 	},
 	"done");
 }
-
+public void testBug446691_comment5() {
+	runConformTest(new String [] {
+		"Test.java",
+		"import java.util.*;\n" + 
+		"\n" + 
+		"public class Test {\n" + 
+		"  protected final Integer myInt;\n" + 
+		"\n" + 
+		"  public Test() {\n" + 
+		"    myInt = Integer.valueOf(0);\n" + 
+		"    try {\n" + 
+		"      Optional.empty().orElseThrow(() -> new IllegalArgumentException(myInt.toString()));\n" + 
+		"    } catch (IllegalArgumentException e) {\n" + 
+		"      throw new RuntimeException();\n" + 
+		"    }\n" + 
+		"    return;\n" + 
+		"  }\n" + 
+		"}\n"
+	});
+}
+public void testBug446691_comment8() {
+	runConformTest(new String [] {
+		"Boom.java",
+		"public class Boom {\n" + 
+		"  private final String field;\n" + 
+		"  public Boom(String arg) {\n" + 
+		"    this.field = arg;\n" + 
+		"    try {\n" + 
+		"      java.util.function.Supplier<String> supplier = () -> field;\n" + 
+		"    } catch (Exception e) {\n" + 
+		"      \n" + 
+		"    }\n" + 
+		"  }\n" + 
+		"}\n"
+	});
+}
+public void testBug446691_comment14() {
+	runNegativeTest(new String [] {
+		"test/Main.java",
+		"package test;\n" + 
+		"\n" + 
+		"import java.util.logging.Logger;\n" + 
+		"\n" + 
+		"public class Main {\n" + 
+		"\n" + 
+		"	private static final Logger LOG = Logger.getLogger(\"test\");\n" + 
+		"	private final static String value;\n" + 
+		"\n" + 
+		"	static {\n" + 
+		"		try {\n" + 
+		"			LOG.info(() -> String.format(\"Value is: %s\", value));\n" + 
+		"		} catch (final Exception ex) {\n" + 
+		"			throw new ExceptionInInitializerError(ex);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}"
+	},
+	"----------\n" + 
+	"1. ERROR in test\\Main.java (at line 8)\n" + 
+	"	private final static String value;\n" + 
+	"	                            ^^^^^\n" + 
+	"The blank final field value may not have been initialized\n" + 
+	"----------\n" + 
+	"2. ERROR in test\\Main.java (at line 12)\n" + 
+	"	LOG.info(() -> String.format(\"Value is: %s\", value));\n" + 
+	"	                                             ^^^^^\n" + 
+	"The blank final field value may not have been initialized\n" + 
+	"----------\n");
+}
+// error in lambda even if field is assigned later
+public void testBug446691_comment14b() {
+	runNegativeTest(new String [] {
+		"test/Main.java",
+		"package test;\n" + 
+		"\n" + 
+		"import java.util.logging.Logger;\n" + 
+		"\n" + 
+		"public class Main {\n" + 
+		"\n" + 
+		"	private static final Logger LOG = Logger.getLogger(\"test\");\n" + 
+		"	private final static String value;\n" + 
+		"\n" + 
+		"	static {\n" + 
+		"		try {\n" + 
+		"			LOG.info(() -> String.format(\"Value is: %s\", value));\n" + 
+		"		} catch (final Exception ex) {\n" + 
+		"			throw new ExceptionInInitializerError(ex);\n" + 
+		"		}\n" +
+		"		value = \"\";" + 
+		"	}\n" + 
+		"}"
+	},
+	"----------\n" + 
+	"1. ERROR in test\\Main.java (at line 12)\n" + 
+	"	LOG.info(() -> String.format(\"Value is: %s\", value));\n" + 
+	"	                                             ^^^^^\n" + 
+	"The blank final field value may not have been initialized\n" + 
+	"----------\n");
+}
 public static Class testClass() {
 	return LambdaRegressionTest.class;
 }
