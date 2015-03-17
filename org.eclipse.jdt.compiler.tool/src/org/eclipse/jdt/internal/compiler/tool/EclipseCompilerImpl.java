@@ -8,6 +8,8 @@
  * Contributors:
  *    IBM Corporation - initial API and implementation
  *    IBM Corporation - fix for 342936
+ *    Kenneth Olson - Contribution for bug 188796 - [jsr199] Using JSR199 to extend ECJ
+ *    Dennis Hendriks - Contribution for bug 188796 - [jsr199] Using JSR199 to extend ECJ
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.tool;
 

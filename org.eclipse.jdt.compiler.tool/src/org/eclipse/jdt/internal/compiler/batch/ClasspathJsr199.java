@@ -6,7 +6,9 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
+ *     Kenneth Olson - initial API and implementation
+ *     Dennis Hendriks - initial API and implementation
+ *     IBM Corporation - Contribution for bug 188796
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
