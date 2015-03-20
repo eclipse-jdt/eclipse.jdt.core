@@ -5106,4 +5106,125 @@ public void testBug455945() {
 			"}\n"
 		});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=445231, [compiler] IllegalAccessError running Eclipse-compiled class
+public void testBug445231() {
+	runConformTest(
+		true,
+		new String[] {
+		"com/n/Bug.java",
+		"package com.n;\n" +
+		"public class Bug {\n" +
+		"  public static void main(String[] args) {\n" +
+		"    try {\n" +
+		"      new Bug().go();\n" +
+		"      System.err.println(\"Ok\");\n" +
+		"    } catch (IllegalAccessError e) {\n" +
+		"      System.err.println(\"Error\");\n" +
+		"      e.printStackTrace();\n" +
+		"    }\n" +
+		"  }\n" +
+		"  public void go() {\n" +
+		"    Class<?> clazz = Buggered.Foo.class;\n" +
+		"    System.err.println(\"Here we go\");\n" +
+		"    if (clazz.isAnonymousClass()) {\n" +
+		"      System.err.println(\"is anon\");\n" +
+		"    } else {\n" +
+		"      System.err.println(\"not anon\");\n" +
+		"    }\n" +
+		"  }\n" +
+		"}\n",
+		"com/g/Base.java",
+		"package com.g;\n" +
+		"class Base2{}\n" +
+		"class Base {\n" +
+		"	class A {}\n" +
+		"	static class Builder<B extends Builder<B>> {\n" +
+		"		public B setJobName() {\n" +
+		"			return null;\n" +
+		"		}\n" +
+		"		public Base2 setJobName2(B b) {\n" +
+		"			return null;\n" +
+		"		}\n" +
+
+		//  Wildcard
+		"		public void foo(H<? super H<Base3.A>> h) {\n" +
+		"			return;\n" +
+		"  		}\n" +
+		"		private class H<T> {}\n" +
+		"	}\n" +
+		"   static class Builder2 {\n" +
+		"       public <B extends Builder<B>> B setJobName3() {\n" +
+		"	        return null;\n" +
+		"       }\n" +
+		"   }\n" +
+		"	static class R {}\n" +
+		"	public static class Builder3<B extends R> {\n" +
+		"		public B setJobName() {\n" +
+		"			return null;\n" +
+		"		}\n" +
+		"	}\n" +
+		"	public static class Builder4<B extends R> {\n" +
+		"		public <Q extends R> Builder3<Q> setJobName() {\n" +
+		"			return null;\n" +
+		"		}\n" +
+		"	}\n" +
+
+		// Testing Parameters
+		"	static class Builder5 {\n" +
+		"		public <B extends Builder<B>> void  foo(B b) {}\n" +
+		"	}\n" +
+
+		"}\n" +
+
+		"class Base3 {\n" +
+		"	static class A{}\n" +
+		"}\n"
+		,
+
+		"com/g/Child.java",
+		"package com.g;\n" +
+		"import com.g.Base.R;\n" +
+		"public final class Child {\n" +
+		"  public static class Builder<I> extends Base.Builder<Builder<I>> {\n" +
+		"	  public void setDummyName(){}\n" +
+		"  }\n" +
+		"  public static class Builder2 extends Base.Builder2 {}\n" +
+		"  public static class Builder3<I> extends  Base.Builder3<R> {}\n" +
+		"  public static class Builder4<I> extends  Base.Builder4<R> {}\n" +
+
+		"  public static class Builder5 extends Base.Builder5 {} \n" +
+		"}\n",
+		"com/n/Buggered.java",
+		"package com.n;\n" +
+		"import com.g.Child;\n" +
+		"class Z{}\n" +
+		"public final class Buggered {\n" +
+		"  public static final class Foo {}\n" +
+		"  void unused() {\n" +
+		"    Child.Builder<Void> c = new Child.Builder<Void>();\n" +
+		"    c.setJobName();\n" +
+		"    c.setJobName2(new Child.Builder<Void>());\n" +
+		"    Child.Builder<Z> cb = new Child.Builder<Z>();\n" +
+		"    cb.setJobName();\n" +
+		"    cb.setJobName2(new Child.Builder<Z>());\n" +
+		"    Child.Builder2 cb2 = new Child.Builder2();\n" +
+		"    cb2.setJobName3();\n" +
+		"    Child.Builder3<Void> cb3 = new Child.Builder3<Void>();\n" +
+		"    cb3.setJobName();\n" +
+		"    Child.Builder4<Void> cb4 = new Child.Builder4<Void>();\n" +
+		"    cb4.setJobName();\n" +
+
+		"    Child.Builder5 cb5 = new Child.Builder5();\n" +
+		"    cb5.foo(null);\n" +
+
+		//   Wildcard
+		"	c.foo(null);\n" +
+		"  }\n" +
+		"}\n"
+	},
+	null, null,
+	"Here we go\n" +
+	"not anon\n" +
+	"Ok", null);
+}
 }
