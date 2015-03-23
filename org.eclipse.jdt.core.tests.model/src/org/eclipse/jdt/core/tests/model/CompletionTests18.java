@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM Corporation and others.
+ * Copyright (c) 2014, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -919,7 +919,10 @@ public void test425084() throws JavaModelException {
 	String completeBehind = "try";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("tryit[LOCAL_VARIABLE_REF]{tryit, null, I, null, null, tryit, null, [99, 102], 27}", requestor.getResults());
+	assertResults(
+			"tryit[LOCAL_VARIABLE_REF]{tryit, null, I, null, null, tryit, null, [99, 102], 27}\n" +
+			"try[KEYWORD]{try, null, null, null, null, try, null, [99, 102], 28}", 
+			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422901, [1.8][code assist] Code assistant sensitive to scope.referenceContext type identity.
 public void test422901() throws JavaModelException {
@@ -2321,5 +2324,110 @@ public void test449358a() throws JavaModelException {
 	assertResults("localmethod1[METHOD_REF]{localmethod1(), LLambdaBug;, ()V, null, null, localmethod1, null, [282, 291], 17}\n" +
 				  "localmethod2[METHOD_REF]{localmethod2(), LLambdaBug;, ()V, null, null, localmethod2, null, [282, 291], 17}", requestor.getResults());
 	
+}
+public void testBug459189_001() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public class X {\n"+
+			"	Integer foo(){\n"+
+			"		I <Integer, X> i2 = (x) -> {ret /* type ctrl-space after ret */};\n"+
+			"		return 0;\n"+
+			"	}\n"+
+			"	Integer bar(Integer x) { return null;}\n"+
+			"}\n"+
+			"interface I <T,R> {\n"+
+			"	R apply(T t);\n"+
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "ret";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"Retention[TYPE_REF]{java.lang.annotation.Retention, java.lang.annotation, Ljava.lang.annotation.Retention;, null, null, 14}\n"+
+			"RetentionPolicy[TYPE_REF]{java.lang.annotation.RetentionPolicy, java.lang.annotation, Ljava.lang.annotation.RetentionPolicy;, null, null, 14}\n"+
+			"return[KEYWORD]{return, null, null, return, null, 24}",
+			requestor.getResults());
+}
+public void testBug459189_002() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"	Integer bar(Integer x) { return null;}\n"+
+			"public class X {\n"+
+			"	Integer foo(){\n"+
+			"		I <Integer, X> i2 = (x) -> {/* HERE */ret /* type ctrl-space after ret */};\n"+
+			"		return 0;\n"+
+			"	}\n"+
+			"}\n"+
+			"interface I <T,R> {\n"+
+			"	R apply(T t);\n"+
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/* HERE */ret";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"Retention[TYPE_REF]{java.lang.annotation.Retention, java.lang.annotation, Ljava.lang.annotation.Retention;, null, null, 14}\n"+
+			"RetentionPolicy[TYPE_REF]{java.lang.annotation.RetentionPolicy, java.lang.annotation, Ljava.lang.annotation.RetentionPolicy;, null, null, 14}\n" +
+			"return[KEYWORD]{return, null, null, return, null, 24}",
+			requestor.getResults());
+}
+public void testBug459189_003() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public class X {\n"+
+			"	Integer foo(){\n"+
+			"		I <Integer, X> i2 = (x) -> {try{} /* HERE */\n"+
+			"		return 0;\n"+
+			"	}\n"+
+			"	Integer bar(Integer x) { return null;}\n"+
+			"}\n"+
+			"interface I <T,R> {\n"+
+			"	R apply(T t);\n"+
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/* HERE */";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"catch[KEYWORD]{catch, null, null, catch, null, 24}\n"+
+			"finally[KEYWORD]{finally, null, null, finally, null, 24}",
+			requestor.getResults());
+}
+public void testBug459189_004() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public class X {\n"+
+			"	Integer foo(){\n"+
+			"		I <Integer, X> i2 = (x) -> {do{} /* HERE */\n"+
+			"		return 0;\n"+
+			"	}\n"+
+			"	Integer bar(Integer x) { return null;}\n"+
+			"}\n"+
+			"interface I <T,R> {\n"+
+			"	R apply(T t);\n"+
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/* HERE */";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"while[KEYWORD]{while, null, null, while, null, 24}",
+			requestor.getResults());
 }
 }

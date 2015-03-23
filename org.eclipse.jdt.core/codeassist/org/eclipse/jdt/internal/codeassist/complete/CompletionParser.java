@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4407,11 +4407,11 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 		return new CompletionOnSingleNameReference(assistName, position, isInsideAttributeValue());
 	} else {
 		boolean canBeExplicitConstructorCall = false;
-		if(kind == K_BLOCK_DELIMITER
+		if((kind == K_BLOCK_DELIMITER || kind == K_LAMBDA_EXPRESSION_DELIMITER)
 			&& this.previousKind == K_BLOCK_DELIMITER
 			&& this.previousInfo == DO) {
 			return new CompletionOnKeyword3(assistName, position, Keywords.WHILE);
-		} else if(kind == K_BLOCK_DELIMITER
+		} else if((kind == K_BLOCK_DELIMITER || kind == K_LAMBDA_EXPRESSION_DELIMITER)
 			&& this.previousKind == K_BLOCK_DELIMITER
 			&& this.previousInfo == TRY) {
 			return new CompletionOnKeyword3(assistName, position, new char[][]{Keywords.CATCH, Keywords.FINALLY});
@@ -4430,7 +4430,7 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=269493: Keywords are not proposed in a for
 			// loop without block. Completion while at K_CONTROL_STATEMENT_DELIMITER case needs to handled
 			// similar to the K_BLOCK_DELIMITER with minor differences.
-			if(kind == K_BLOCK_DELIMITER || kind == K_CONTROL_STATEMENT_DELIMITER) {
+			if(kind == K_BLOCK_DELIMITER || kind == K_CONTROL_STATEMENT_DELIMITER || kind == K_LAMBDA_EXPRESSION_DELIMITER) {
 				if(this.canBeExplicitConstructor == YES) {
 					canBeExplicitConstructorCall = true;
 				}
