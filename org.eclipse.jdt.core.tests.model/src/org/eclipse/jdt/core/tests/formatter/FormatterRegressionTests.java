@@ -66,6 +66,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	static {
 //		TESTS_NUMBERS = new int[] { 783 };
 //		TESTS_RANGE = new int[] { 734, -1 };
+//		TESTS_NAMES = new String[] {"testBug432593"};
 	}
 	public static Test suite() {
 		return buildModelTestSuite(FormatterRegressionTests.class);
@@ -13053,4 +13054,25 @@ public void testBug405038_5() throws Exception {
 		"}\n"
 	);
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=432593
+public void testBug432593() throws IOException {
+	ICompilationUnit sourceUnit;
+	try {
+		sourceUnit = getCompilationUnit("Formatter" , "", "test432593", getIn("A.java"));
+		String src = sourceUnit.getSource();
+		assertNotNull(src);
+		String source = src.toString();
+		final Map options = JavaCore.getOptions();
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		final CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(options);
+		final TextEdit edit = codeFormatter.format(CodeFormatter.K_COMPILATION_UNIT, source, 0, source.length(), 0, "\r\n");
+		assertTrue(edit != null);
+	} catch (JavaModelException e) {
+		e.printStackTrace();
+	} 
+}
+
 }
