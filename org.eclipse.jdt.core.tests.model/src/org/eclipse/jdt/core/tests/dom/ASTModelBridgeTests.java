@@ -1222,6 +1222,45 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	}
 
 	/*
+	 * Ensures that the correct IBindings are created for a given set of IJavaElement
+	 * (method arguments)
+	 */
+	public void testCreateBindings25() throws JavaModelException {
+		this.workingCopy.getBuffer().setContents(
+				"public class X {\n" +
+				"  void foo(String str, int i) {}\n" +
+				"}");
+		this.workingCopy.makeConsistent(null);
+		IMethod method = this.workingCopy.getType("X").getMethod("foo", new String[]{"QString;", "I"});
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setProject(getJavaProject("P"));
+		IBinding[] bindings = parser.createBindings(method.getParameters(), null);
+		assertBindingsEqual(
+			"LX;.foo(Ljava/lang/String;I)V#str\n" +
+			"LX;.foo(Ljava/lang/String;I)V#i",
+			bindings);
+	}
+
+	/*
+	 * Ensures that the correct IBindings are created for a given set of IJavaElement
+	 * (binary method arguments)
+	 */
+	public void testCreateBindings26() throws CoreException {
+		createClassFile("/P/lib", "A.class",
+				"public class A {\n" +
+				"  void foo(String str, int i) {}\n" +
+				"}");
+		IMethod method = getClassFile("/P/lib/A.class").getType().getMethod("foo", new String[] {"Ljava.lang.String;", "I"});
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setProject(getJavaProject("P"));
+		IBinding[] bindings = parser.createBindings(method.getParameters(), null);
+		assertBindingsEqual(
+			"LA;.foo(Ljava/lang/String;I)V#str\n" +
+			"LA;.foo(Ljava/lang/String;I)V#i",
+			bindings);
+	}
+
+	/*
 	 * Ensures that the IJavaElement of an IBinding representing a field is correct.
 	 */
 	public void testField1() throws JavaModelException {

@@ -58,6 +58,7 @@ import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
 import org.eclipse.jdt.internal.core.CancelableProblemFactory;
 import org.eclipse.jdt.internal.core.INameEnvironmentWithProgress;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.SourceRefElement;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
@@ -753,9 +754,15 @@ class CompilationUnitResolver extends Compiler {
 				}
 				intList.add(i);
 			} else {
-				// binary member
+				// binary member or method argument
 				try {
-					String key = ((BinaryMember) element).getKey(true/*open to get resolved info*/);
+					String key;
+					if (element instanceof BinaryMember)
+						key = ((BinaryMember) element).getKey(true/*open to get resolved info*/);
+					else if (element instanceof LocalVariable)
+						key = ((LocalVariable) element).getKey(true/*open to get resolved info*/);
+					else
+						throw new IllegalArgumentException(element + " has an unexpected type"); //$NON-NLS-1$
 					binaryElementPositions.put(key, i);
 				} catch (JavaModelException e) {
 					throw new IllegalArgumentException(element + " does not exist"); //$NON-NLS-1$

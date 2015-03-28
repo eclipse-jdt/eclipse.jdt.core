@@ -18,6 +18,7 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ArrayReference;
 import org.eclipse.jdt.internal.compiler.ast.Assignment;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
@@ -55,6 +56,44 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class BindingKeyResolver extends BindingKeyParser {
+
+	/** Synthetic bindings for local variables (method arguments) restored from a binding key. */
+	private final class SyntheticLocalVariableBinding extends LocalVariableBinding {
+
+		private final MethodBinding enclosingMethod;
+		private char[] key;
+
+		SyntheticLocalVariableBinding(char[] name, TypeBinding type, MethodBinding enclosingMethod) {
+			super(name, type, 0, true);
+			this.enclosingMethod = enclosingMethod;
+		}
+
+		@Override
+		public char[] computeUniqueKey() {
+			if (this.key == null) {
+				// have no scope to find the enclosing method, so use the captured method:
+				StringBuilder buf = new StringBuilder().append(this.enclosingMethod.computeUniqueKey());
+				buf.append('#');
+				buf.append(this.name);
+				int length = buf.length();
+				this.key = new char[length];
+				buf.getChars(0, length, this.key, 0);
+			}
+			return this.key;
+		}
+		
+		@Override
+		public int hashCode() {
+			return CharOperation.hashCode(computeUniqueKey());
+		}
+
+		public boolean equals(Object obj) {
+			if (!(obj instanceof SyntheticLocalVariableBinding))
+				return false;
+			return CharOperation.equals(computeUniqueKey(), ((SyntheticLocalVariableBinding) obj).computeUniqueKey());
+		}
+	}
+
 	Compiler compiler;
 	Binding compilerBinding;
 
@@ -290,15 +329,30 @@ public class BindingKeyResolver extends BindingKeyParser {
 		if (this.scope == null) {
 			if (this.methodBinding == null)
 				return;
-			this.scope = this.methodBinding.sourceMethod().scope;
+			AbstractMethodDeclaration sourceMethod = this.methodBinding.sourceMethod();
+			if (sourceMethod != null) {
+				this.scope = sourceMethod.scope;
+			} else {
+				char[][] parameterNames = this.methodBinding.parameterNames;
+				for (int i = 0; i < parameterNames.length; i++) {
+					if (CharOperation.equals(parameterNames[i], varName)) {
+						// we don't have a compiler binding for this argument, but we can craft one:
+						this.compilerBinding = new SyntheticLocalVariableBinding(varName, this.methodBinding.parameters[i], this.methodBinding);
+						this.methodBinding = null;
+						return;
+					}
+				}
+			}
 		}
-	 	for (int i = 0; i < this.scope.localIndex; i++) {
-			LocalVariableBinding local = this.scope.locals[i];
-			if (CharOperation.equals(local.name, varName)
-					&& occurrenceCount-- == 0) {
-				this.methodBinding = null;
-				this.compilerBinding = local;
-				return;
+		if (this.scope != null) {
+		 	for (int i = 0; i < this.scope.localIndex; i++) {
+				LocalVariableBinding local = this.scope.locals[i];
+				if (CharOperation.equals(local.name, varName)
+						&& occurrenceCount-- == 0) {
+					this.methodBinding = null;
+					this.compilerBinding = local;
+					return;
+				}
 			}
 		}
 	}

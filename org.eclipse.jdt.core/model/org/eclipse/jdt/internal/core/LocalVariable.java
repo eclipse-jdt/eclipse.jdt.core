@@ -459,6 +459,19 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 		return true;
 	}
 
+	/**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#computeUniqueKey()
+	 */
+	public String getKey(boolean forceOpen) throws JavaModelException {
+		if (this.parent.getElementType() == IJavaElement.METHOD) {
+			StringBuilder buf = new StringBuilder(((IMethod)this.parent).getKey());
+			buf.append('#');
+			buf.append(this.name);
+			return buf.toString();
+		}
+		return null;
+	}
+
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 		buffer.append(tabString(tab));
 		if (info != NO_INFO) {
