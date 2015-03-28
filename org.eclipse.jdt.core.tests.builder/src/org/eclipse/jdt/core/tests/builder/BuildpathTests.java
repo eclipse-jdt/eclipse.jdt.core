@@ -639,7 +639,7 @@ public void testMissingLibrary1() throws JavaModelException {
 	env.removeProject(projectPath);
 }
 
-public void testMissingLibrary2() throws JavaModelException {
+public void _testMissingLibrary2() throws JavaModelException {
 	IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 	env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 	IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$

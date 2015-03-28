@@ -573,7 +573,7 @@ public class BasicBuildTests extends BuilderTests {
 		}
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=386901
-	public void testbBug386901() throws JavaModelException {
+	public void _testbBug386901() throws JavaModelException {
 		
 		int previous = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
 		try {
