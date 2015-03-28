@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@
  *								bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *								bug 384380 - False positive on a ?? Potential null pointer access ?? after a continue
  *								Bug 415790 - [compiler][resource]Incorrect potential resource leak warning in for loop with close in try/catch
+ *								Bug 371614 - [compiler][resource] Wrong "resource leak" problem on return/throw inside while loop
  *     Jesper Steen Moller - Contributions for
  *								bug 404146 - [1.7][compiler] nested try-catch-finally-blocks leads to unrunnable Java byte code
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -151,8 +152,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			resourceBinding.useFlag = LocalVariableBinding.USED; // Is implicitly used anyways.
 			if (resourceBinding.closeTracker != null) {
 				// this was false alarm, we don't need to track the resource
-				this.tryBlock.scope.removeTrackingVar(resourceBinding.closeTracker);
-				// keep the tracking variable in the resourceBinding in order to prevent creating a new one while analyzing the try block
+				resourceBinding.closeTracker.withDraw();
+				resourceBinding.closeTracker = null;
 			}
 			MethodBinding closeMethod = findCloseMethod(resource, resourceBinding);
 			if (closeMethod != null && closeMethod.isValidBinding() && closeMethod.returnType.id == TypeIds.T_void) {
