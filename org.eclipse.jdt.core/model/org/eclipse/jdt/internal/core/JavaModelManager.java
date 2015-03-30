@@ -1522,19 +1522,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					propertyName.equals(JavaCore.CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE)) {
 					JavaModelManager manager = JavaModelManager.getJavaModelManager();
 					IJavaModel model = manager.getJavaModel();
-					IJavaProject[] projects;
+					IJavaProject[] jProjects;
 					try {
-						projects = model.getJavaProjects();
-						for (int i = 0, pl = projects.length; i < pl; i++) {
-							JavaProject javaProject = (JavaProject) projects[i];
+						jProjects = model.getJavaProjects();
+						IProject[] projects = new IProject[jProjects.length];
+						for (int i = 0, pl = jProjects.length; i < pl; i++) {
+							JavaProject javaProject = (JavaProject) jProjects[i];
+							projects[i] = javaProject.getProject();
 							manager.deltaState.addClasspathValidation(javaProject);
-							try {
-								// need to touch the project to force validation by DeltaProcessor
-					            javaProject.getProject().touch(null);
-					        } catch (CoreException e) {
-					            // skip
-					        }
 						}
+						manager.touchProjects(projects, null);
 					} catch (JavaModelException e) {
 						// skip
 					}
@@ -3059,6 +3056,36 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		this.symbols.put(s, new WeakReference(s));
 		return s;
 		*/
+	}
+
+	void touchProjects(final IProject[] projectsToTouch, IProgressMonitor progressMonitor) throws JavaModelException {
+		WorkspaceJob touchJob = new WorkspaceJob(Messages.synchronizing_projects_job) {
+			public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
+				try {
+					if (monitor != null) {
+						monitor.beginTask("", projectsToTouch.length); //$NON-NLS-1$
+					}
+					for (IProject iProject : projectsToTouch) {
+						IProgressMonitor subMonitor = monitor == null ? null: new SubProgressMonitor(monitor, 1);
+						if (JavaBuilder.DEBUG) {
+							System.out.println("Touching project " + iProject.getName()); //$NON-NLS-1$
+						}
+						iProject.touch(subMonitor);
+					}
+				}
+				finally {
+					if (monitor != null) {
+						monitor.done();
+					}
+				}
+				return Status.OK_STATUS;
+			}
+
+			public boolean belongsTo(Object family) {
+				return ResourcesPlugin.FAMILY_MANUAL_REFRESH == family;
+			}
+		};
+		touchJob.schedule();
 	}
 
 	private HashSet getClasspathBeingResolved() {

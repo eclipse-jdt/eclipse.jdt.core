@@ -7213,7 +7213,7 @@ public void testBug396299() throws Exception {
 		map = proj1.getOptions(false);
 		map.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_1);
 		proj1.setOptions(map);
-
+		waitForManualRefresh();
 		assertMarkers("Unexpected markers",
 				"Incompatible .class files version in required binaries. Project \'P1\' is targeting a 1.1 runtime, but is compiled against \'P1/abc.jar\' which requires a 1.4 runtime", proj1);
 		 eclipsePreferences.removePreferenceChangeListener(prefListener);

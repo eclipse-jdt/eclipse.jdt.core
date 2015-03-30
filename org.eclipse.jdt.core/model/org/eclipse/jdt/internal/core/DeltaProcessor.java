@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,7 +30,6 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -41,7 +40,6 @@ import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
-import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -815,26 +813,7 @@ public class DeltaProcessor {
 				}
 				if (projectsToTouch.length > 0) {
 					if (asynchronous){
-						WorkspaceJob touchJob = new WorkspaceJob(Messages.updating_external_archives_jobName) {
-							
-							public IStatus runInWorkspace(IProgressMonitor progressMonitor) throws CoreException {
-								try {
-									if (progressMonitor != null)
-										progressMonitor.beginTask("", projectsToTouch.length); //$NON-NLS-1$
-									touchProjects(projectsToTouch, progressMonitor);
-								}
-								finally {
-									if (progressMonitor != null)
-										progressMonitor.done();
-								}
-								return Status.OK_STATUS;
-							}
-							
-							public boolean belongsTo(Object family) {
-								return ResourcesPlugin.FAMILY_MANUAL_REFRESH == family;
-							}
-						};
-						touchJob.schedule();
+						this.manager.touchProjects(projectsToTouch, monitor);
 					}
 					else {
 						// touch the projects to force them to be recompiled while taking the workspace lock
@@ -870,18 +849,6 @@ public class DeltaProcessor {
 		} finally {
 			this.currentDelta = null;
 			if (monitor != null) monitor.done();
-		}
-	}
-
-	protected void touchProjects(final IProject[] projectsToTouch, IProgressMonitor progressMonitor)
-			throws CoreException {
-		for (int i = 0; i < projectsToTouch.length; i++) {
-			IProgressMonitor monitor = progressMonitor == null ? null: new SubProgressMonitor(progressMonitor, 1);
-			IProject project = projectsToTouch[i];
-			// touch to force a build of this project
-			if (JavaBuilder.DEBUG)
-				System.out.println("Touching project " + project.getName() + " due to external jar file change"); //$NON-NLS-1$ //$NON-NLS-2$
-			project.touch(monitor);
 		}
 	}
 
