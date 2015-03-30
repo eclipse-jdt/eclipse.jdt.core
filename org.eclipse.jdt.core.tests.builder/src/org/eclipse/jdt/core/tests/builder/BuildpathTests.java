@@ -639,21 +639,21 @@ public void testMissingLibrary1() throws JavaModelException {
 	env.removeProject(projectPath);
 }
 
-public void _testMissingLibrary2() throws JavaModelException {
+public void testMissingLibrary2() throws JavaModelException {
 	IPath projectPath = env.addProject("Project"); //$NON-NLS-1$
 	env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
 	IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 	IPath bin = env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
-	IPath classTest1 = env.addClass(root, "p1", "Test1", //$NON-NLS-1$ //$NON-NLS-2$
-		"package p1;\n"+ //$NON-NLS-1$
+	IPath classTest1 = env.addClass(root, "p2", "Test1", //$NON-NLS-1$ //$NON-NLS-2$
+		"package p2;\n"+ //$NON-NLS-1$
 		"public class Test1 {}" //$NON-NLS-1$
 	);
 	IPath classTest2 = env.addClass(root, "p2", "Test2", //$NON-NLS-1$ //$NON-NLS-2$
 		"package p2;\n"+ //$NON-NLS-1$
 		"public class Test2 {}" //$NON-NLS-1$
 	);
-	IPath classTest3 = env.addClass(root, "p2", "Test3", //$NON-NLS-1$ //$NON-NLS-2$
-		"package p2;\n"+ //$NON-NLS-1$
+	IPath classTest3 = env.addClass(root, "p3", "Test3", //$NON-NLS-1$ //$NON-NLS-2$
+		"package p3;\n"+ //$NON-NLS-1$
 		"public class Test3 {}" //$NON-NLS-1$
 	);
 
@@ -667,11 +667,11 @@ public void _testMissingLibrary2() throws JavaModelException {
 	Problem[] prob3 = env.getProblemsFor(classTest3);
 	assertEquals("too many problems", prob1.length + prob2.length + prob3.length, 1); //$NON-NLS-1$
 	if(prob1.length == 1) {
-		expectingSpecificProblemFor(classTest1, new Problem("p1", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest1, -1, -1, -1, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(classTest1, new Problem("p2", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest1, 0, 1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 	} else if (prob2.length == 1) {
 		expectingSpecificProblemFor(classTest2, new Problem("p2", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest2, -1, -1, -1, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 	} else {
-		expectingSpecificProblemFor(classTest3, new Problem("p2", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest3, 0, 1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(classTest3, new Problem("p3", "The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files", classTest3, -1, -1, -1, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	//----------------------------
@@ -682,9 +682,9 @@ public void _testMissingLibrary2() throws JavaModelException {
 	incrementalBuild();
 	expectingNoProblems();
 	expectingPresenceOf(new IPath[]{
-		bin.append("p1").append("Test1.class"), //$NON-NLS-1$ //$NON-NLS-2$
+		bin.append("p2").append("Test1.class"), //$NON-NLS-1$ //$NON-NLS-2$
 		bin.append("p2").append("Test2.class"), //$NON-NLS-1$ //$NON-NLS-2$
-		bin.append("p2").append("Test3.class") //$NON-NLS-1$ //$NON-NLS-2$
+		bin.append("p3").append("Test3.class") //$NON-NLS-1$ //$NON-NLS-2$
 	});
 	env.removeProject(projectPath);
 }

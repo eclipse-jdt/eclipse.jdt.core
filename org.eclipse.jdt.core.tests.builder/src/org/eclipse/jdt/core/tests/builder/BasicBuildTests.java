@@ -573,7 +573,7 @@ public class BasicBuildTests extends BuilderTests {
 		}
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=386901
-	public void _testbBug386901() throws JavaModelException {
+	public void testbBug386901() throws JavaModelException {
 		
 		int previous = org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE;
 		try {
@@ -586,20 +586,20 @@ public class BasicBuildTests extends BuilderTests {
 			IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
 			env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
-			env.addClass(root, "p", "AA", //$NON-NLS-1$ //$NON-NLS-2$
+			env.addClass(root, "p", "AB", //$NON-NLS-1$ //$NON-NLS-2$
 				"package p;	\n"+ //$NON-NLS-1$
-				"public class AA {}	\n"+ //$NON-NLS-1$
+				"public class AB {}	\n"+ //$NON-NLS-1$
 				"class AZ {}"); //$NON-NLS-1$
 
-			IPath pathToAB = env.addClass(root, "p", "AB", //$NON-NLS-1$ //$NON-NLS-2$
+			IPath pathToAA = env.addClass(root, "p", "AA", //$NON-NLS-1$ //$NON-NLS-2$
 				"package p;	\n"+ //$NON-NLS-1$
-				"public class AB extends AZ {}"); //$NON-NLS-1$
+				"public class AA extends AZ {}"); //$NON-NLS-1$
 
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = 1; // units compiled in batches of '1' unit
 			fullBuild(projectPath);
 			expectingProblemsFor(
-					pathToAB,
-					"Problem : AZ cannot be resolved to a type [ resource : </Project/src/p/AB.java> range : <36,38> category : <40> severity : <2>]"
+					pathToAA,
+					"Problem : AZ cannot be resolved to a type [ resource : </Project/src/p/AA.java> range : <36,38> category : <40> severity : <2>]"
 				);
 
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = 0; // All units compiled at once
