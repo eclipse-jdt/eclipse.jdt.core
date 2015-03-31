@@ -857,6 +857,18 @@ public void testGetSimpleNames04() {
 		"List<java.lang.String>\n",
 		Signature.getSimpleNames("java.util.List<java.lang.String>"));
 }
+public void testGetSignaturesSimpleName01() {
+	assertEquals(
+		"Unexpected simple names",
+		"? extends CharSequence",
+		Signature.getSignatureSimpleName("+Ljava.lang.CharSequence;"));
+}
+public void testGetSignaturesSimpleName02() {
+	assertEquals(
+		"Unexpected simple names",
+		"? extends CharSequence",
+		Signature.getSignatureSimpleName("+QCharSequence;"));
+}
 /**
  * @see Signature
  */
