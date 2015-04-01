@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2014 IBM Corporation and others.
+ * Copyright (c) 2010, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -344,6 +345,185 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			assertEquals("Wrong type of binding", IBinding.TYPE, bindings[1].getKind());
 			typeBinding = (ITypeBinding) bindings[1];
 			assertEquals("Wrong binding", "java.lang.Object", typeBinding.getQualifiedName());
+		} finally {
+			file.delete();
+			fileY.delete();
+		}
+	}
+	
+	/**
+	 * @deprecated
+	 * @throws IOException
+	 */
+	public void testBug415066_001() throws IOException {
+		File rootDir = new File(System.getProperty("java.io.tmpdir"));
+		ASTParser parser = ASTParser.newParser(AST.JLS4);
+		parser.setEnvironment(null, null, null, true);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(true);
+		parser.setBindingsRecovery(true);
+		parser.setCompilerOptions(getCompilerOptions());
+
+		final String key = "Lp/C;";
+		final IBinding[] bindings = new IBinding[2];
+
+		String contents = 
+			"package p;\n" + 
+			"public class A{}\n" + 
+			"class B{}";
+		
+		File packageDir = new File(rootDir, "p");
+		packageDir.mkdir();
+		File file = new File(packageDir, "A.java");
+		Writer writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(file));
+			writer.write(contents);
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch(IOException e) {
+					// ignore
+				}
+			}
+		}
+
+		String contents2 =
+			"package p;\n" + 
+			"public class C extends B {}";
+		File fileY = new File(packageDir, "C.java");
+		Writer writer2 = null;
+		try {
+			writer2 = new BufferedWriter(new FileWriter(fileY));
+			writer2.write(contents2);
+		} finally {
+			if (writer2 != null) {
+				try {
+					writer2.close();
+				} catch(IOException e) {
+					// ignore
+				}
+			}
+		}
+
+		try {
+			final String canonicalPath = fileY.getCanonicalPath();
+			final CompilationUnit[] units = new CompilationUnit[1];
+	
+			FileASTRequestor requestor = new FileASTRequestor() {
+				public void acceptBinding(String bindingKey, IBinding binding) {
+					if (key.equals(bindingKey)) {
+						bindings[0] = binding;
+						IBinding[] temp = createBindings(new String[] {"Lp/C;"});
+						for (int i = 0; i < temp.length; ++i) {
+							bindings[i + 1] = temp[i];
+						}
+					}
+				}
+				public void acceptAST(String sourceFilePath, CompilationUnit ast) {
+					if (canonicalPath.equals(sourceFilePath)) {
+						units[0] = ast;
+					}
+				}
+			};
+	
+			parser.setEnvironment(null, new String[] { rootDir.getCanonicalPath() }, null, true);
+			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = 0;
+			parser.createASTs(new String[] {canonicalPath}, null, new String[] {key}, requestor, null);
+			assertNotNull("No ast", units[0]);
+			assertEquals("No problem", 0, units[0].getProblems().length);
+		} finally {
+			file.delete();
+			fileY.delete();
+		}
+	}
+
+	/**
+	 * Negative test case
+	 * @deprecated
+	 * @throws IOException
+	 */
+	public void testBug415066_002() throws IOException {
+		File rootDir = new File(System.getProperty("java.io.tmpdir"));
+		ASTParser parser = ASTParser.newParser(AST.JLS4);
+		parser.setEnvironment(null, null, null, true);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(true);
+		parser.setBindingsRecovery(true);
+		parser.setCompilerOptions(getCompilerOptions());
+
+		final String key = "Lp/C;";
+		final IBinding[] bindings = new IBinding[2];
+
+		String contents = 
+			"package p;\n" + 
+			"public class A{}\n" + 
+			"class B{}";
+		
+		File packageDir = new File(rootDir, "p");
+		packageDir.mkdir();
+		File file = new File(packageDir, "A.java");
+		Writer writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(file));
+			writer.write(contents);
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch(IOException e) {
+					// ignore
+				}
+			}
+		}
+
+		String contents2 =
+			"package q;\n" +
+			"import p.*;\n" +
+			"public class C extends B {}";
+		File fileY = new File(packageDir, "C.java");
+		Writer writer2 = null;
+		try {
+			writer2 = new BufferedWriter(new FileWriter(fileY));
+			writer2.write(contents2);
+		} finally {
+			if (writer2 != null) {
+				try {
+					writer2.close();
+				} catch(IOException e) {
+					// ignore
+				}
+			}
+		}
+
+		try {
+			final String canonicalPath = fileY.getCanonicalPath();
+			final CompilationUnit[] units = new CompilationUnit[1];
+	
+			FileASTRequestor requestor = new FileASTRequestor() {
+				public void acceptBinding(String bindingKey, IBinding binding) {
+					if (key.equals(bindingKey)) {
+						bindings[0] = binding;
+						IBinding[] temp = createBindings(new String[] {"Lq/C;"});
+						for (int i = 0; i < temp.length; ++i) {
+							bindings[i + 1] = temp[i];
+						}
+					}
+				}
+				public void acceptAST(String sourceFilePath, CompilationUnit ast) {
+					if (canonicalPath.equals(sourceFilePath)) {
+						units[0] = ast;
+					}
+				}
+			};
+	
+			parser.setEnvironment(null, new String[] { rootDir.getCanonicalPath() }, null, true);
+			parser.createASTs(new String[] {canonicalPath}, null, new String[] {key}, requestor, null);
+			assertNotNull("No ast", units[0]);
+			IProblem[] problems = units[0].getProblems();
+			assertEquals("No problem", 1, problems.length);
+			assertEquals("Pb(3) The type B is not visible", problems[0].toString());
 		} finally {
 			file.delete();
 			fileY.delete();

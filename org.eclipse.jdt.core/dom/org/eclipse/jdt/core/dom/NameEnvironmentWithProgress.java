@@ -14,6 +14,8 @@ package org.eclipse.jdt.core.dom;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.batch.ClasspathDirectory;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
@@ -41,8 +43,29 @@ class NameEnvironmentWithProgress extends FileSystem implements INameEnvironment
 	}
 	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 		checkCanceled();
-		return super.findType(typeName, packageName);
+		NameEnvironmentAnswer answer = super.findType(typeName, packageName);
+		if (answer == null) {
+			NameEnvironmentAnswer suggestedAnswer = null;
+			String qualifiedPackageName = new String(CharOperation.concatWith(packageName, '/'));
+			String qualifiedTypeName = new String(CharOperation.concatWith(packageName, typeName, '/'));
+			String qualifiedBinaryFileName = qualifiedTypeName + SUFFIX_STRING_class;
+			for (int i = 0, length = this.classpaths.length; i < length; i++) {
+				if (!(this.classpaths[i] instanceof ClasspathDirectory)) continue;
+				ClasspathDirectory classpathDirectory = (ClasspathDirectory) this.classpaths[i];
+				answer = classpathDirectory.findSecondaryInClass(typeName, qualifiedPackageName, qualifiedBinaryFileName);
+				if (answer != null) {
+					if (!answer.ignoreIfBetter()) {
+						if (answer.isBetter(suggestedAnswer))
+							return answer;
+					} else if (answer.isBetter(suggestedAnswer))
+						// remember suggestion and keep looking
+						suggestedAnswer = answer;
+				}
+			}
+		}
+		return answer;
 	}
+
 	public NameEnvironmentAnswer findType(char[][] compoundName) {
 		checkCanceled();
 		return super.findType(compoundName);
