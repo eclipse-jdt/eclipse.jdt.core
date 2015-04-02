@@ -240,6 +240,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			ConditionalExpression conditional = (ConditionalExpression) location;
 			return containsAllocation(conditional.valueIfTrue) || containsAllocation(conditional.valueIfFalse);
 		}
+		if (location instanceof CastExpression)
+			return containsAllocation(((CastExpression) location).expression);
 		return false;
 	}
 
@@ -249,6 +251,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			preConnectTrackerAcrossAssignment(location, local, flowInfo, (AllocationExpression) expression, closeTracker);
 		} else if (expression instanceof ConditionalExpression) {
 			preConnectTrackerAcrossAssignment(location, local, flowInfo, (ConditionalExpression) expression, closeTracker);
+		} else if (expression instanceof CastExpression) {
+			preConnectTrackerAcrossAssignment(location, local, ((CastExpression) expression).expression, flowInfo);
 		}
 	}
 
@@ -689,7 +693,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				int finallyStatus = currentScope.finallyInfo.nullStatus(local);
 				if (finallyStatus == FlowInfo.NON_NULL)
 					return finallyStatus;
-				if (finallyStatus != FlowInfo.NULL) // neither is NON_NULL, but not both are NULL => call it POTENTIALLY_NULL
+				if (finallyStatus != FlowInfo.NULL && currentScope.finallyInfo.hasNullInfoFor(local)) // neither is NON_NULL, but not both are NULL => call it POTENTIALLY_NULL
 					status = FlowInfo.POTENTIALLY_NULL;
 			}
 			if (currentScope != outerScope && currentScope.parent instanceof BlockScope)
@@ -841,14 +845,20 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		this.recordedLocations.put(location, new Integer(nullStatus));
 	}
 
-	public boolean reportRecordedErrors(Scope scope, int mergedStatus) {
+	public boolean reportRecordedErrors(Scope scope, int mergedStatus, boolean atDeadEnd) {
 		FakedTrackingVariable current = this;
 		while (current.globalClosingState == 0) {
 			current = current.innerTracker;
 			if (current == null) {
 				// no relevant state found -> report:
-				reportError(scope.problemReporter(), null, mergedStatus);
-				return true;
+				if (atDeadEnd && neverClosedAtLocations())
+					mergedStatus = FlowInfo.NULL;
+				if ((mergedStatus & (FlowInfo.NULL|FlowInfo.POTENTIALLY_NULL|FlowInfo.POTENTIALLY_NON_NULL)) != 0) {
+					reportError(scope.problemReporter(), null, mergedStatus);
+					return true;
+				} else {
+					break;
+				}
 			}
 		}
 		boolean hasReported = false;
@@ -871,6 +881,15 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		return hasReported;
 	}
 	
+	private boolean neverClosedAtLocations() {
+		if (this.recordedLocations != null) {
+			for (Object value : this.recordedLocations.values())
+				if (!value.equals(FlowInfo.NULL))
+					return false;
+		}
+		return true;
+	}
+
 	public int reportError(ProblemReporter problemReporter, ASTNode location, int nullStatus) {
 		if ((this.globalClosingState & OWNED_BY_OUTSIDE) != 0) {
 			return 0; // TODO: should we still propagate some flags??

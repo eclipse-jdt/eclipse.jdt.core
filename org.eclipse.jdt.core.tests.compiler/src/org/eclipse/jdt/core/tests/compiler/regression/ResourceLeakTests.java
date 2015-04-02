@@ -5066,4 +5066,30 @@ public void _testBug462371_shouldWarn() {
 		true,
 		options);
 }
+public void testBug421035() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.io.BufferedReader;\n" + 
+			"import java.io.FileNotFoundException;\n" + 
+			"import java.io.FileReader;\n" + 
+			"import java.io.IOException;\n" + 
+			"import java.io.Reader;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"  void test() throws FileNotFoundException {\n" + 
+			"    Reader a = (Reader)new BufferedReader(new FileReader(\"a\"));\n" + 
+			"    try {\n" + 
+			"		a.close();\n" + 
+			"	} catch (IOException e) {\n" + 
+			"		e.printStackTrace();\n" + 
+			"	}\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		options);
+}
 }

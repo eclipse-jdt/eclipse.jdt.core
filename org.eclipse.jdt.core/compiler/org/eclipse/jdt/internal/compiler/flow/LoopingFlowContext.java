@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@
  *								Bug 455557 - [jdt] NPE LoopingFlowContext.recordNullReference
  *								Bug 455723 - Nonnull argument not correctly inferred in loop
  *								Bug 415790 - [compiler][resource]Incorrect potential resource leak warning in for loop with close in try/catch
+ *								Bug 421035 - [resource] False alarm of resource leak warning when casting a closeable in its assignment
  *     Jesper S Moller - contributions for
  *								bug 404657 - [1.8][compiler] Analysis for effectively final variables fails to consider loops
  *******************************************************************************/
@@ -417,7 +418,7 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 							}
 							nullStatus = closeTracker.findMostSpecificStatus(flowInfo, scope, null);
 							closeTracker.recordErrorLocation(this.nullReferences[i], nullStatus);
-							closeTracker.reportRecordedErrors(scope, nullStatus);
+							closeTracker.reportRecordedErrors(scope, nullStatus, flowInfo.reachMode() != FlowInfo.REACHABLE);
 							this.nullReferences[i] = null;
 							continue;
 						}
