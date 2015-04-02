@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
-import static org.eclipse.jdt.core.util.ExternalAnnotationUtil.NONNULL;
-import static org.eclipse.jdt.core.util.ExternalAnnotationUtil.NULLABLE;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -34,6 +31,18 @@ public class ExternalAnnotationProvider {
 	public static final String ANNOTION_FILE_EXTENSION= "eea"; //$NON-NLS-1$
 	public static final String CLASS_PREFIX = "class "; //$NON-NLS-1$
 	public static final String SUPER_PREFIX = "super "; //$NON-NLS-1$
+
+	/** Representation of a 'nullable' annotation, independent of the concrete annotation name used in Java sources. */
+	public static final char NULLABLE = '0';
+
+	/** Representation of a 'nonnull' annotation, independent of the concrete annotation name used in Java sources. */
+	public static final char NONNULL = '1';
+
+	/**
+	 * Represents absence of a null annotation. Useful for removing an existing null annotation.
+	 * This character is used only internally, it is not part of the Eclipse External Annotation file format.
+	 */
+	public static final char NO_ANNOTATION = '@';
 
 	static final String ANNOTATION_FILE_SUFFIX = ".eea"; //$NON-NLS-1$
 
@@ -60,15 +69,9 @@ public class ExternalAnnotationProvider {
 	private void initialize(InputStream input) throws IOException {
 		LineNumberReader reader = new LineNumberReader(new InputStreamReader(input));
 		try {
-			String line = reader.readLine().trim();
-			if (line.startsWith(CLASS_PREFIX)) {
-				line = line.substring(CLASS_PREFIX.length());
-			} else {
-				throw new IOException("missing class header in annotation file"); //$NON-NLS-1$
-			}
-			if (!trimTail(line).equals(this.typeName)) {
-				throw new IOException("mismatching class name in annotation file, expected "+this.typeName+", but header said "+line); //$NON-NLS-1$ //$NON-NLS-2$
-			}
+			assertClassHeader(reader.readLine(), this.typeName);
+
+			String line;
 			if ((line = reader.readLine()) == null) {
 				return;
 			}
@@ -81,7 +84,9 @@ public class ExternalAnnotationProvider {
 						return;
 				} 
 			}
+			String pendingLine;
 			do {
+				pendingLine = null;
 				line = line.trim();
 				if (line.isEmpty()) continue;
 				String rawSig = null, annotSig = null;
@@ -102,8 +107,11 @@ public class ExternalAnnotationProvider {
 					line = reader.readLine();
 					if (line == null || line.isEmpty())
 						continue; // skip since optional line with annotations is missing
-					if (line.charAt(0) == ' ')
-						annotSig = line.substring(1);
+					if (line.charAt(0) != ' ') {
+						pendingLine = line; // push back what appears to be the next selector, not a signature
+						continue;
+					}
+					annotSig = line.substring(1);
 				} catch (Exception ex) {
 					// continue to escalate below
 				}
@@ -126,14 +134,38 @@ public class ExternalAnnotationProvider {
 						this.fieldAnnotationSources = new HashMap<String, String>();
 					this.fieldAnnotationSources.put(selector+':'+rawSig, annotSig);
 				}
-			} while ((line = reader.readLine()) != null);
+			} while (((line = pendingLine) != null) || (line = reader.readLine()) != null);
 		} finally {
 			reader.close();
 		}
 	}
 
+	/**
+	 * Assert that the given line is a class header for 'typeName' (slash-separated qualified name).
+	 */
+	public static void assertClassHeader(String line, String typeName) throws IOException {
+		if (line.startsWith(CLASS_PREFIX)) {
+			line = line.substring(CLASS_PREFIX.length());
+		} else {
+			throw new IOException("missing class header in annotation file"); //$NON-NLS-1$
+		}
+		if (!trimTail(line).equals(typeName)) {
+			throw new IOException("mismatching class name in annotation file, expected "+typeName+", but header said "+line); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+	}
+
+	/**
+	 * Extract the signature from a line of an external annotation file.
+	 * Answers null if line is not in the expected format.
+	 */
+	public static String extractSignature(String line) {
+		if (line == null || line.isEmpty() || line.charAt(0) != ' ')
+			return null;
+		return trimTail(line.substring(1));
+	}
+
 	/** Lines may contain arbitrary trailing data, separated by white space. */
-	protected String trimTail(String line) {
+	protected static String trimTail(String line) {
 		int tail = line.indexOf(' ');
 		if (tail == -1)
 			tail = line.indexOf('\t');

@@ -12,6 +12,7 @@
  *								Bug 424205 - [1.8] Cannot infer type for diamond type with lambda on method invocation
  *								Bug 429203 - [1.8][compiler] NPE in AllocationExpression.binding
  *								Bug 456508 - Unexpected RHS PolyTypeBinding for: <code-snippet>
+ *								Bug 462083 - [1.8][inference] Java 8 generic return type mismatch with interface involving type parameter.
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -2980,6 +2981,29 @@ public void testBug456508() {
 		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type safety: A generic array of QueryAtom<PGroepAccount,PAccount> is created for a varargs parameter\n" + 
 		"----------\n");
+}
+public void testBug462083() {
+	runConformTest(
+		new String[] {
+			"Java8InterfaceTest.java",
+			"public abstract class Java8InterfaceTest\n" + 
+			"{\n" + 
+			"	public static interface Entity {}\n" + 
+			"\n" + 
+			"	public static interface Service<T1 extends Entity> {}\n" + 
+			"\n" + 
+			"    public static interface ServiceLocator<T2 extends Entity> {}\n" + 
+			"\n" + 
+			"    public static class ConcreteClass<T3 extends Entity, S extends Service<T3>> implements ServiceLocator<T3> {}\n" + 
+			"\n" + 
+			"    protected abstract <T4 extends Entity> ConcreteClass<T4, ?> getParameterized(T4 entity);\n" + 
+			"\n" + 
+			"    protected <T5 extends Entity> ServiceLocator<T5> getInterface(T5 entity)\n" + 
+			"    {\n" + 
+			"    	return getParameterized(entity);\n" + 
+			"    }\n" + 
+			"}\n"
+		});
 }
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;

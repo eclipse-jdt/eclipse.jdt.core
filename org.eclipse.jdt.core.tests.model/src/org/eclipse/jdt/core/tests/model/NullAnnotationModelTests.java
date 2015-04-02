@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.osgi.framework.Bundle;
 
+@SuppressWarnings("rawtypes")
 public class NullAnnotationModelTests extends ReconcilerTests {
 
 	String ANNOTATION_LIB;

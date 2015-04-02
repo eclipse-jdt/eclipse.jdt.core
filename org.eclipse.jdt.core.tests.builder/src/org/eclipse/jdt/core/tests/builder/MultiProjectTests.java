@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,10 +12,9 @@ package org.eclipse.jdt.core.tests.builder;
 
 import java.util.Hashtable;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IAccessRule;
@@ -23,8 +22,12 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.test.OrderedTestSuite;
+
+import junit.framework.Test;
 
 
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class MultiProjectTests extends BuilderTests {
 
 	public MultiProjectTests(String name) {
@@ -32,33 +35,7 @@ public class MultiProjectTests extends BuilderTests {
 	}
 	
 	public static Test suite() {
-		TestSuite suite = new TestSuite(MultiProjectTests.class.getName());
-		suite.addTest(new MultiProjectTests("testCompileOnlyDependent"));
-		suite.addTest(new MultiProjectTests("testCompileOnlyStructuralDependent"));
-		suite.addTest(new MultiProjectTests("testRemoveField"));
-		suite.addTest(new MultiProjectTests("testCompileOrder"));
-		suite.addTest(new MultiProjectTests("testCycle1"));
-		suite.addTest(new MultiProjectTests("testCycle2"));
-		suite.addTest(new MultiProjectTests("testCycle3"));
-		suite.addTest(new MultiProjectTests("testCycle4"));
-		suite.addTest(new MultiProjectTests("testCycle5"));
-		suite.addTest(new MultiProjectTests("testCycle6"));
-		suite.addTest(new MultiProjectTests("testCycle7"));
-		suite.addTest(new MultiProjectTests("testExcludePartOfAnotherProject1"));
-		suite.addTest(new MultiProjectTests("testExcludePartOfAnotherProject2"));
-		suite.addTest(new MultiProjectTests("testExcludePartOfAnotherProject3"));
-		suite.addTest(new MultiProjectTests("testIncludePartOfAnotherProject1"));
-		suite.addTest(new MultiProjectTests("testIncludePartOfAnotherProject2"));
-		suite.addTest(new MultiProjectTests("testIncludePartOfAnotherProject3"));
-		suite.addTest(new MultiProjectTests("testIgnoreIfBetterNonAccessibleRule1"));
-		suite.addTest(new MultiProjectTests("testIgnoreIfBetterNonAccessibleRule2"));
-		suite.addTest(new MultiProjectTests("testMissingRequiredBinaries"));
-		suite.addTest(new MultiProjectTests("test100_class_folder_exported"));
-		suite.addTest(new MultiProjectTests("test101_class_folder_non_exported"));
-		suite.addTest(new MultiProjectTests("test102_missing_required_binaries"));
-		suite.addTest(new MultiProjectTests("test103_missing_required_binaries"));
-		suite.addTest(new MultiProjectTests("test438923"));
-		return suite;
+		return new OrderedTestSuite(MultiProjectTests.class);
 	}
 
 	public void testCompileOnlyDependent() throws JavaModelException {
@@ -1607,6 +1584,80 @@ public void test103_missing_required_binaries() throws JavaModelException {
 		env.setBuildOrder(null);
 	}
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=460993
+public void test104_missing_required_binaries() throws CoreException {
+	
+	IPath p0 = env.addProject("JRE17", "1.7");
+	env.addExternalJars(p0, Util.getJavaClassLibs());
+	env.removePackageFragmentRoot(p0, "");
+	IPath root0 = env.addPackageFragmentRoot(p0, "src");
+	env.setOutputFolder(p0, "bin");
+	
+	IPath p1 = env.addProject("org.eclipse.jgit", "1.7");
+	env.addExternalJars(p1, Util.getJavaClassLibs());
+	env.removePackageFragmentRoot(p1, "");
+	IPath root1 = env.addPackageFragmentRoot(p1, "src");
+	env.addRequiredProject(p1, p0);
+	env.setOutputFolder(p1, "bin");
+	
+	IPath p2 = env.addProject("org.eclipse.releng.tools", "1.5");
+	env.addExternalJars(p2, Util.getJavaClassLibs());
+	env.removePackageFragmentRoot(p2, "");
+	IPath root2 = env.addPackageFragmentRoot(p2, "src");
+//	env.addRequiredProject(p2, p0); - missing dependency
+	env.addRequiredProject(p2, p1);
+	env.setOutputFolder(p2, "bin");
+	
+	env.addClass(root0, "jre17", "AutoClosable",
+			"package jre17;\n" +
+			"public interface AutoClosable {\n" +
+			"	void closeIt();\n" +
+			"}\n"
+			);
+	
+	env.addClass(root1, "org.eclipse.jgit.lib", "Repository",
+			"package org.eclipse.jgit.lib;\n" + 
+			"import jre17.AutoClosable;\n" + 
+			"public abstract class Repository implements AutoClosable {\n" +
+			"	public void resolve(final String revstr) { }\n" + 
+			"}\n"
+			);
+	
+	IPath gca = env.addClass(root2, "org.eclipse.releng.tools.git", "GitCopyrightAdapter",
+			"package org.eclipse.releng.tools.git;\n" + 
+			"import org.eclipse.jgit.lib.Repository;\n" + 
+			"public class GitCopyrightAdapter {\n" + 
+			"	void foo(Repository repo) {\n" + 
+			"		repo.resolve(\"Head\");\n" + 
+			"	}\n" + 
+			"}\n"
+			);
+	env.addClass(root2, "org.eclipse.releng.tools.preferences", "Messages",
+			"package org.eclipse.releng.tools.preferences;\n" + 
+			"final class Messages {\n" + 
+			"	{\n" + 
+			"		@SuppressWarnings(\"unused\")\n" + 
+			"		Object o = \"\"; // triggers the bug\n" + 
+			"	}\n" + 
+			"}\n"
+			);
+	
+	try {
+		fullBuild();
+		expectingNoProblems();
+		
+		IFile gcaFile = (IFile) env.getWorkspace().getRoot().findMember(gca);
+		gcaFile.touch(null);
+		incrementalBuild(p2);
+		expectingNoProblems();
+		
+	} finally {
+		env.setBuildOrder(null);
+	}
+}
+
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=438923, [compiler]Type is inappropriately considered "indirectly referenced"
 public void test438923() throws JavaModelException {
 	//----------------------------

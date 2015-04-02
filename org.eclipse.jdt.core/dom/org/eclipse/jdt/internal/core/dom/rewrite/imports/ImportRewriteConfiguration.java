@@ -18,6 +18,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IPackageDeclaration;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.JavaProject;
 
 /**
@@ -159,7 +162,25 @@ public final class ImportRewriteConfiguration {
 
 				implicitImportContainerNames.add("java.lang"); //$NON-NLS-1$
 
-				String compilationUnitPackageName = compilationUnit.getParent().getElementName();
+				IJavaElement packageFragment = compilationUnit.getParent();
+				String compilationUnitPackageName = packageFragment.getElementName();
+				if (compilationUnitPackageName.isEmpty() && !packageFragment.exists() && compilationUnit.exists()) {
+					/*
+					 * For a file outside of the build path, JavaCore#create(IFile) creates an
+					 * ICompilationUnit with the file's parent folder as package fragment root, and a default package.
+					 * That "wrong" package is problematic for the ImportRewrite, since it doesn't get filtered
+					 * and eventually leads to unused import statements.
+					 */
+					try {
+						IPackageDeclaration[] packageDeclarations = compilationUnit.getPackageDeclarations();
+						if (packageDeclarations.length > 0) {
+							implicitImportContainerNames.add(packageDeclarations[0].getElementName());
+							return implicitImportContainerNames;
+						}
+					} catch (JavaModelException e) {
+						// continue
+					}
+				}
 				implicitImportContainerNames.add(compilationUnitPackageName);
 
 				return implicitImportContainerNames;

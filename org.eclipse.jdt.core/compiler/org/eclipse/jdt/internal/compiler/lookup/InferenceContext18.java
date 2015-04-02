@@ -239,7 +239,7 @@ public class InferenceContext18 {
 	 * Substitute any type variables mentioned in 'type' by the corresponding inference variable, if one exists. 
 	 */
 	public TypeBinding substitute(TypeBinding type) {
-		InferenceSubstitution inferenceSubstitution = new InferenceSubstitution(this.environment, this.inferenceVariables);
+		InferenceSubstitution inferenceSubstitution = new InferenceSubstitution(this);
 		return 	inferenceSubstitution.substitute(inferenceSubstitution, type);
 	}
 
@@ -391,7 +391,7 @@ public class InferenceContext18 {
 			}
 			// 4. bullet: assemble C:
 			Set<ConstraintFormula> c = new HashSet<ConstraintFormula>();
-			if (!addConstraintsToC(this.invocationArguments, c, method, this.inferenceKind, false))
+			if (!addConstraintsToC(this.invocationArguments, c, method, this.inferenceKind, false, invocationSite))
 				return null;
 			// 5. bullet: determine B4 from C
 			while (!c.isEmpty()) {
@@ -443,7 +443,9 @@ public class InferenceContext18 {
 		}
 	}
 
-	private boolean addConstraintsToC(Expression[] exprs, Set<ConstraintFormula> c, MethodBinding method, int inferenceKindForMethod, boolean interleaved) throws InferenceFailureException {
+	private boolean addConstraintsToC(Expression[] exprs, Set<ConstraintFormula> c, MethodBinding method, int inferenceKindForMethod, boolean interleaved, InvocationSite site)
+			throws InferenceFailureException
+	{
 		TypeBinding[] fs;
 		if (exprs != null) {
 			int k = exprs.length;
@@ -463,7 +465,8 @@ public class InferenceContext18 {
 			}
 			for (int i = 0; i < k; i++) {
 				TypeBinding fsi = fs[Math.min(i, p-1)];
-				TypeBinding substF = substitute(fsi);
+				InferenceSubstitution inferenceSubstitution = new InferenceSubstitution(this.environment, this.inferenceVariables, site);
+				TypeBinding substF = inferenceSubstitution.substitute(inferenceSubstitution,fsi);
 				if (!addConstraintsToC_OneExpr(exprs[i], c, fsi, substF, method, interleaved))
 					return false;
 	        }
@@ -471,8 +474,9 @@ public class InferenceContext18 {
 		return true;
 	}
 
-	private boolean addConstraintsToC_OneExpr(Expression expri, Set<ConstraintFormula> c, TypeBinding fsi, TypeBinding substF, MethodBinding method, boolean interleaved) throws InferenceFailureException {
-		
+	private boolean addConstraintsToC_OneExpr(Expression expri, Set<ConstraintFormula> c, TypeBinding fsi, TypeBinding substF, MethodBinding method, boolean interleaved)
+			throws InferenceFailureException
+	{	
 		// For all i (1 ≤ i ≤ k), if ei is not pertinent to applicability, the set contains ⟨ei → θ Fi⟩.
 		if (!expri.isPertinentToApplicability(fsi, method)) {
 			c.add(new ConstraintExpressionFormula(expri, substF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT));
@@ -535,7 +539,7 @@ public class InferenceContext18 {
 					resumeSuspendedInference(prevInvocation);
 				}
 			}
-			return addConstraintsToC(arguments, c, innerMethod.genericMethod(), applicabilityKind, interleaved);
+			return addConstraintsToC(arguments, c, innerMethod.genericMethod(), applicabilityKind, interleaved, invocation);
 		} else if (expri instanceof ConditionalExpression) {
 			ConditionalExpression ce = (ConditionalExpression) expri;
 			return addConstraintsToC_OneExpr(ce.valueIfTrue, c, fsi, substF, method, interleaved)

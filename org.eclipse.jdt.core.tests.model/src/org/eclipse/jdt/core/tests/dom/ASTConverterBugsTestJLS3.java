@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.core.JavaElement;
  * running it, all superclass {@link ASTConverterBugsTest} tests will be run
  * as well.
  */
+@SuppressWarnings("rawtypes")
 public class ASTConverterBugsTestJLS3 extends ASTConverterBugsTest {
 
 public ASTConverterBugsTestJLS3(String name) {

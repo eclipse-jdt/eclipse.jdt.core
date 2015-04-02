@@ -18,8 +18,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import junit.framework.Test;
-
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Platform;
@@ -49,6 +48,9 @@ import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
 import org.osgi.service.prefs.BackingStoreException;
 
+import junit.framework.Test;
+
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class ImportRewriteTest extends AbstractJavaModelTests {
 
 	/**
@@ -103,6 +105,40 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	protected void tearDown() throws Exception {
 		deleteProject("P");
 		super.tearDown();
+	}
+
+	/**
+	 * Expects that imports can be added for types from an unnamed (default) package, and that such
+	 * imports are not reduced into an on-demand import. Imports of types from an unnamed package
+	 * were legal in versions of Java prior to 1.4.
+	 *
+	 * Addresses https://bugs.eclipse.org/461863 ("addImport creates .ypename for unqualified type
+	 * from default package").
+	 */
+	public void testAddImportsFromUnnamedPackage() throws Exception {
+		ICompilationUnit cu = createCompilationUnit("pack1", "C");
+
+		String[] order = new String[] { "java" };
+
+		ImportRewrite imports = newImportsRewrite(cu, order, 2, 2, false);
+		imports.setUseContextToFilterImplicitImports(true);
+		imports.addImport("java.util.ArrayDeque");
+		imports.addImport("java.util.ArrayList");
+		imports.addImport("Bar");
+		imports.addImport("Foo");
+
+		apply(imports);
+
+		StringBuffer expected = new StringBuffer();
+		expected.append("package pack1;\n");
+		expected.append("\n");
+		expected.append("import java.util.*;\n");
+		expected.append("\n");
+		expected.append("import Bar;\n");
+		expected.append("import Foo;\n");
+		expected.append("\n");
+		expected.append("public class C {}");
+		assertEqualString(cu.getSource(), expected.toString());
 	}
 
 	/**
@@ -1408,6 +1444,61 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		expectedWithoutFiltering.append("\n");
 		expectedWithoutFiltering.append("public class CuWithoutFiltering {}");
 		assertEqualString(cuWithoutFiltering.getSource(), expectedWithoutFiltering.toString());
+	}
+
+	/**
+	 * Addresses https://bugs.eclipse.org/460484 ("ImportRewrite throws SIOOBE when trying to add
+	 * import").
+	 */
+	public void testAddAdjacentImportWithCommonPrefixButLongerInitialSegment() throws Exception {
+		StringBuffer contents = new StringBuffer();
+		contents.append("package pack1;\n");
+		contents.append("\n");
+		contents.append("import a.FromA;\n");
+		contents.append("import b.FromB;\n");
+		contents.append("\n");
+		contents.append("public class Clazz {}\n");
+		ICompilationUnit cu = createCompilationUnit("pack1", "Clazz", contents.toString());
+
+		ImportRewrite rewrite = newImportsRewrite(cu, new String[] {}, 999, 999, true);
+		rewrite.setUseContextToFilterImplicitImports(true);
+		// Expect that no exception is thrown when "ab" is compared with "a".
+		rewrite.addImport("ab.FromAb");
+		apply(rewrite);
+
+		StringBuffer expected = new StringBuffer();
+		expected.append("package pack1;\n");
+		expected.append("\n");
+		expected.append("import a.FromA;\n");
+		expected.append("import ab.FromAb;\n");
+		expected.append("import b.FromB;\n");
+		expected.append("\n");
+		expected.append("public class Clazz {}\n");
+		assertEqualString(cu.getSource(), expected.toString());
+	}
+	
+	// https://bugs.eclipse.org/459320
+	public void testAddImportToCuNotOnClasspath() throws Exception {
+		StringBuffer contents = new StringBuffer();
+		contents.append("package pack1;\n");
+		contents.append("\n");
+		contents.append("public class Clazz {}\n");
+		
+		createFolder("/P/alt-src/pack1/");
+		IFile clazz = createFile("/P/alt-src/pack1/Clazz.java", contents.toString());
+		ICompilationUnit cu = (ICompilationUnit) JavaCore.create(clazz);
+		cu.becomeWorkingCopy(null);
+		
+		try {
+			ImportRewrite rewrite = newImportsRewrite(cu, new String[] {}, 999, 999, true);
+			rewrite.setUseContextToFilterImplicitImports(true);
+			rewrite.addImport("pack1.AnotherClass");
+			apply(rewrite);
+			
+			assertEqualString(cu.getSource(), contents.toString());
+		} finally {
+			cu.discardWorkingCopy();
+		}
 	}
 
 	public void testAddImports1() throws Exception {

@@ -960,7 +960,103 @@ public abstract class Annotation extends Expression {
 		return this.resolvedType;
 	}
 
+	private static boolean isAnnotationTargetAllowed(Binding recipient, BlockScope scope, TypeBinding annotationType, int kind, long metaTagBits) {
+		switch (kind) {
+			case Binding.PACKAGE :
+				if ((metaTagBits & TagBits.AnnotationForPackage) != 0)
+					return true;
+				else if (scope.compilerOptions().sourceLevel <= ClassFileConstants.JDK1_6) {
+					SourceTypeBinding sourceType = (SourceTypeBinding) recipient;
+					if (CharOperation.equals(sourceType.sourceName, TypeConstants.PACKAGE_INFO_NAME))
+						return true;
+				}
+				break;
+			case Binding.TYPE_USE :
+				if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
+					// jsr 308
+					return true;
+				}
+				if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) {
+					// already reported as syntax error; don't report secondary problems
+					return true;
+				}
+				break;
+			case Binding.TYPE :
+			case Binding.GENERIC_TYPE :
+				if (((ReferenceBinding)recipient).isAnnotationType()) {
+					if ((metaTagBits & (TagBits.AnnotationForAnnotationType | TagBits.AnnotationForType | TagBits.AnnotationForTypeUse)) != 0)
+					return true;
+				} else if ((metaTagBits & (TagBits.AnnotationForType | TagBits.AnnotationForTypeUse)) != 0) {
+					return true;
+				} else if ((metaTagBits & TagBits.AnnotationForPackage) != 0) {
+					if (CharOperation.equals(((ReferenceBinding) recipient).sourceName, TypeConstants.PACKAGE_INFO_NAME))
+						return true;
+				}
+				break;
+			case Binding.METHOD :
+				MethodBinding methodBinding = (MethodBinding) recipient;
+				if (methodBinding.isConstructor()) {
+					if ((metaTagBits & (TagBits.AnnotationForConstructor | TagBits.AnnotationForTypeUse)) != 0)
+						return true;
+				} else if ((metaTagBits & TagBits.AnnotationForMethod) != 0) {
+					return true;
+				} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
+					SourceTypeBinding sourceType = (SourceTypeBinding) methodBinding.declaringClass;
+					MethodDeclaration methodDecl = (MethodDeclaration) sourceType.scope.referenceContext.declarationOf(methodBinding);
+					if (isTypeUseCompatible(methodDecl.returnType, scope)) {
+						return true;
+					}
+				}
+				break;
+			case Binding.FIELD :
+				if ((metaTagBits & TagBits.AnnotationForField) != 0) {
+					return true;
+				} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
+					FieldBinding sourceField = (FieldBinding) recipient;
+					SourceTypeBinding sourceType = (SourceTypeBinding) sourceField.declaringClass;
+					FieldDeclaration fieldDeclaration = sourceType.scope.referenceContext.declarationOf(sourceField);
+					if (isTypeUseCompatible(fieldDeclaration.type, scope)) {
+						return true;
+					}
+				}
+				break;
+			case Binding.LOCAL :
+				LocalVariableBinding localVariableBinding = (LocalVariableBinding) recipient;
+				if ((localVariableBinding.tagBits & TagBits.IsArgument) != 0) {
+					if ((metaTagBits & TagBits.AnnotationForParameter) != 0) {
+						return true;
+					} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
+						if (isTypeUseCompatible(localVariableBinding.declaration.type, scope)) {
+							return true;
+						}
+					}
+				} else if ((annotationType.tagBits & TagBits.AnnotationForLocalVariable) != 0) {
+					return true;
+				} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
+					if (isTypeUseCompatible(localVariableBinding.declaration.type, scope)) {
+						return true;
+					}
+				}
+				break;
+			case Binding.TYPE_PARAMETER : // jsr308
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391196
+				if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) != 0) {
+					return true;
+				}
+		}
+		return false;
+	}
+
+	public static boolean isAnnotationTargetAllowed(BlockScope scope, TypeBinding annotationType, Binding recipient) {
+		long metaTagBits = annotationType.getAnnotationTagBits(); // could be forward reference
+		if ((metaTagBits & TagBits.AnnotationTargetMASK) == 0) {
+			return true;
+		}
+		return isAnnotationTargetAllowed(recipient, scope, annotationType, recipient.kind(), metaTagBits);
+	}
+
 	static boolean isAnnotationTargetAllowed(Annotation annotation, BlockScope scope, TypeBinding annotationType, int kind) {
+
 		long metaTagBits = annotationType.getAnnotationTagBits(); // could be forward reference
 		if ((metaTagBits & TagBits.AnnotationTargetMASK) == 0) {
 			// does not specify any target restriction - all locations supported in Java 7 and before are possible
@@ -985,90 +1081,7 @@ public abstract class Annotation extends Expression {
 				}
 			}
 		}
-		switch (kind) {
-			case Binding.PACKAGE :
-				if ((metaTagBits & TagBits.AnnotationForPackage) != 0)
-					return true;
-				else if (scope.compilerOptions().sourceLevel <= ClassFileConstants.JDK1_6) {
-					SourceTypeBinding sourceType = (SourceTypeBinding) annotation.recipient;
-					if (CharOperation.equals(sourceType.sourceName, TypeConstants.PACKAGE_INFO_NAME))
-						return true;
-				}
-				break;
-			case Binding.TYPE_USE :
-				if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-					// jsr 308
-					return true;
-				}
-				if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) {
-					// already reported as syntax error; don't report secondary problems
-					return true;
-				}
-				break;
-			case Binding.TYPE :
-			case Binding.GENERIC_TYPE :
-				if (((ReferenceBinding)annotation.recipient).isAnnotationType()) {
-					if ((metaTagBits & (TagBits.AnnotationForAnnotationType | TagBits.AnnotationForType | TagBits.AnnotationForTypeUse)) != 0)
-					return true;
-				} else if ((metaTagBits & (TagBits.AnnotationForType | TagBits.AnnotationForTypeUse)) != 0) {
-					return true;
-				} else if ((metaTagBits & TagBits.AnnotationForPackage) != 0) {
-					if (CharOperation.equals(((ReferenceBinding) annotation.recipient).sourceName, TypeConstants.PACKAGE_INFO_NAME))
-						return true;
-				}
-				break;
-			case Binding.METHOD :
-				MethodBinding methodBinding = (MethodBinding) annotation.recipient;
-				if (methodBinding.isConstructor()) {
-					if ((metaTagBits & (TagBits.AnnotationForConstructor | TagBits.AnnotationForTypeUse)) != 0)
-						return true;
-				} else if ((metaTagBits & TagBits.AnnotationForMethod) != 0) {
-					return true;
-				} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-					SourceTypeBinding sourceType = (SourceTypeBinding) methodBinding.declaringClass;
-					MethodDeclaration methodDecl = (MethodDeclaration) sourceType.scope.referenceContext.declarationOf(methodBinding);
-					if (isTypeUseCompatible(methodDecl.returnType, scope)) {
-						return true;
-					}
-				}
-				break;
-			case Binding.FIELD :
-				if ((metaTagBits & TagBits.AnnotationForField) != 0) {
-					return true;
-				} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-					FieldBinding sourceField = (FieldBinding) annotation.recipient;
-					SourceTypeBinding sourceType = (SourceTypeBinding) sourceField.declaringClass;
-					FieldDeclaration fieldDeclaration = sourceType.scope.referenceContext.declarationOf(sourceField);
-					if (isTypeUseCompatible(fieldDeclaration.type, scope)) {
-						return true;
-					}
-				}
-				break;
-			case Binding.LOCAL :
-				LocalVariableBinding localVariableBinding = (LocalVariableBinding) annotation.recipient;
-				if ((localVariableBinding.tagBits & TagBits.IsArgument) != 0) {
-					if ((metaTagBits & TagBits.AnnotationForParameter) != 0) {
-						return true;
-					} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-						if (isTypeUseCompatible(localVariableBinding.declaration.type, scope)) {
-							return true;
-						}
-					}
-				} else if ((annotationType.tagBits & TagBits.AnnotationForLocalVariable) != 0) {
-					return true;
-				} else if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
-					if (isTypeUseCompatible(localVariableBinding.declaration.type, scope)) {
-						return true;
-					}
-				}
-				break;
-			case Binding.TYPE_PARAMETER : // jsr308
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391196
-				if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) != 0) {
-					return true;
-				}
-		}
-		return false;
+		return isAnnotationTargetAllowed(annotation.recipient, scope, annotationType, kind, metaTagBits);
 	}
 
 	static void checkAnnotationTarget(Annotation annotation, BlockScope scope, ReferenceBinding annotationType, int kind, Binding recipient, long tagBitsToRevert) {

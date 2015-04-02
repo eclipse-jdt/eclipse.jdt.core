@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -33,9 +34,9 @@ import java.util.zip.ZipException;
 
 import javax.tools.FileObject;
 import javax.tools.JavaFileObject;
+import javax.tools.JavaFileObject.Kind;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.StandardLocation;
-import javax.tools.JavaFileObject.Kind;
 
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
@@ -67,8 +68,8 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	public EclipseFileManager(Locale locale, Charset charset) {
 		this.locale = locale == null ? Locale.getDefault() : locale;
 		this.charset = charset == null ? Charset.defaultCharset() : charset;
-		this.locations = new HashMap<String, Iterable<? extends File>>();
-		this.archivesCache = new HashMap<File, Archive>();
+		this.locations = new HashMap<>();
+		this.archivesCache = new HashMap<>();
 		try {
 			this.setLocation(StandardLocation.PLATFORM_CLASS_PATH, getDefaultBootclasspath());
 			Iterable<? extends File> defaultClasspath = getDefaultClasspath();
@@ -84,55 +85,16 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		}
 	}
 
-	private void addFiles(File[][] jars, ArrayList<File> files) {
-		if (jars != null) {
-			for (File[] currentJars : jars) {
-				if (currentJars != null) {
-					for (File currentJar : currentJars) {
-						if (currentJar.exists()) {
-							files.add(currentJar);
-						}
-					}
-				}
-			}
-		}
-	}
-	
-	
-	private void addFilesFrom(File javaHome, String propertyName, String defaultPath, ArrayList<File> files) {
-		String extdirsStr = System.getProperty(propertyName);
-		File[] directoriesToCheck = null;
-		if (extdirsStr == null) {
-			if (javaHome != null) {
-				directoriesToCheck = new File[] { new File(javaHome, defaultPath) };
-			}
-		} else {
-			StringTokenizer tokenizer = new StringTokenizer(extdirsStr, File.pathSeparator);
-			ArrayList<String> paths = new ArrayList<String>();
-			while (tokenizer.hasMoreTokens()) {
-				paths.add(tokenizer.nextToken());
-			}
-			if (paths.size() != 0) {
-				directoriesToCheck = new File[paths.size()];
-				for (int i = 0; i < directoriesToCheck.length; i++)  {
-					directoriesToCheck[i] = new File(paths.get(i));
-				}
-			}
-		}
-		if (directoriesToCheck != null) {
-			addFiles(Main.getLibrariesFiles(directoriesToCheck), files);
-		}
-		
-	}
-	
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#close()
 	 */
+	@Override
 	public void close() throws IOException {
-		this.locations = null;
+		if (this.locations != null) this.locations.clear();
 		for (Archive archive : this.archivesCache.values()) {
 			archive.close();
 		}
+		this.archivesCache.clear();
 	}
 	
 	private void collectAllMatchingFiles(File file, String normalizedPackageName, Set<Kind> kinds, boolean recurse, ArrayList<JavaFileObject> collector) {
@@ -165,6 +127,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			}
 		} else {
 			Archive archive = this.getArchive(file);
+			if (archive == Archive.UNKNOWN_ARCHIVE) return;
 			String key = normalizedPackageName;
 			if (!normalizedPackageName.endsWith("/")) {//$NON-NLS-1$
 				key += '/';
@@ -173,7 +136,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			if (recurse) {
 				for (String packageName : archive.allPackages()) {
 					if (packageName.startsWith(key)) {
-						ArrayList<String> types = archive.getTypes(packageName);
+						List<String> types = archive.getTypes(packageName);
 						if (types != null) {
 							for (String typeName : types) {
 								final Kind kind = getKind(getExtension(typeName));
@@ -185,12 +148,12 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					}
 				}
 			} else {
-				ArrayList<String> types = archive.getTypes(key);
+				List<String> types = archive.getTypes(key);
 				if (types != null) {
 					for (String typeName : types) {
-						final Kind kind = getKind(typeName);
+						final Kind kind = getKind(getExtension(typeName));
 						if (kinds.contains(kind)) {
-							collector.add(archive.getArchiveFileObject(normalizedPackageName + typeName, this.charset));
+							collector.add(archive.getArchiveFileObject(key + typeName, this.charset));
 						}
 					}
 				}
@@ -199,7 +162,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	}
 
 	private Iterable<? extends File> concatFiles(Iterable<? extends File> iterable, Iterable<? extends File> iterable2) {
-		ArrayList<File> list = new ArrayList<File>();
+		ArrayList<File> list = new ArrayList<>();
 		if (iterable2 == null) return iterable;
 		for (Iterator<? extends File> iterator = iterable.iterator(); iterator.hasNext(); ) {
 			list.add(iterator.next());
@@ -213,6 +176,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#flush()
 	 */
+	@Override
 	public void flush() throws IOException {
 		for (Archive archive : this.archivesCache.values()) {
 			archive.flush();
@@ -223,23 +187,21 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		// check the archive (jar/zip) cache
 		Archive archive = this.archivesCache.get(f);
 		if (archive == null) {
+			archive = Archive.UNKNOWN_ARCHIVE;
 			// create a new archive
 			if (f.exists()) {
-    			try {
-    				archive = new Archive(f);
-    			} catch (ZipException e) {
-    				// ignore
-    			} catch (IOException e) {
-    				// ignore
-    			}
-    			if (archive != null) {
-    				this.archivesCache.put(f, archive);
-    			} else {
-    				this.archivesCache.put(f, Archive.UNKNOWN_ARCHIVE);
-    			}
-			} else {
-				this.archivesCache.put(f, Archive.UNKNOWN_ARCHIVE);
+				try {
+					archive = new Archive(f);
+				} catch (ZipException e) {
+					// ignore
+				} catch (IOException e) {
+					// ignore
+				}
+				if (archive != null) {
+					this.archivesCache.put(f, archive);
+				}
 			}
+			this.archivesCache.put(f, archive);
 		}
 		return archive;
 	}
@@ -247,13 +209,14 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#getClassLoader(javax.tools.JavaFileManager.Location)
 	 */
+	@Override
 	public ClassLoader getClassLoader(Location location) {
 		Iterable<? extends File> files = getLocation(location);
 		if (files == null) {
 			// location is unknown
 			return null;
 		}
-		ArrayList<URL> allURLs = new ArrayList<URL>();
+		ArrayList<URL> allURLs = new ArrayList<>();
 		for (File f : files) {
 			try {
 				allURLs.add(f.toURI().toURL());
@@ -267,8 +230,8 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	}
 
 	private Iterable<? extends File> getPathsFrom(String path) {
-		ArrayList<FileSystem.Classpath> paths = new ArrayList<FileSystem.Classpath>();
-		ArrayList<File> files = new ArrayList<File>();
+		ArrayList<FileSystem.Classpath> paths = new ArrayList<>();
+		ArrayList<File> files = new ArrayList<>();
 		try {
 			this.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.name(), false, false);
 		} catch (IllegalArgumentException e) {
@@ -281,7 +244,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	}
 
 	Iterable<? extends File> getDefaultBootclasspath() {
-		ArrayList<File> files = new ArrayList<File>();
+		List<File> files = new ArrayList<>();
 		String javaversion = System.getProperty("java.version");//$NON-NLS-1$
 		if(javaversion.length() > 3)
 			javaversion = javaversion.substring(0, 3);
@@ -291,32 +254,15 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			return null;
 		}
 
-		/*
-		 * Handle >= JDK 1.6
-		 */
-		String javaHome = System.getProperty("java.home"); //$NON-NLS-1$
-		File javaHomeFile = null;
-		if (javaHome != null) {
-			javaHomeFile = new File(javaHome);
-			if (!javaHomeFile.exists())
-				javaHomeFile = null;
+		for (String fileName : org.eclipse.jdt.internal.compiler.util.Util.collectFilesNames()) {
+			files.add(new File(fileName));
 		}
-
-		addFilesFrom(javaHomeFile, "java.endorsed.dirs", "/lib/endorsed", files);//$NON-NLS-1$//$NON-NLS-2$
-		if (javaHomeFile != null) {
-			File[] directoriesToCheck = null;
-			String libs = System.getProperty("os.name").startsWith("Mac") && jdkLevel == ClassFileConstants.JDK1_6 ? "../Classes" : "lib";//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			directoriesToCheck = new File[] { new File(javaHomeFile, libs)};
-			File[][] jars = Main.getLibrariesFiles(directoriesToCheck);
-			addFiles(jars, files);
-		}
-		addFilesFrom(javaHomeFile, "java.ext.dirs", "/lib/ext", files);//$NON-NLS-1$//$NON-NLS-2$
 		return files;
 	}
 
 	Iterable<? extends File> getDefaultClasspath() {
 		// default classpath
-		ArrayList<File> files = new ArrayList<File>();
+		ArrayList<File> files = new ArrayList<>();
 		String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
 		if ((classProp == null) || (classProp.length() == 0)) {
 			return null;
@@ -335,8 +281,8 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	}
 
 	private Iterable<? extends File> getEndorsedDirsFrom(String path) {
-		ArrayList<FileSystem.Classpath> paths = new ArrayList<FileSystem.Classpath>();
-		ArrayList<File> files = new ArrayList<File>();
+		ArrayList<FileSystem.Classpath> paths = new ArrayList<>();
+		ArrayList<File> files = new ArrayList<>();
 		try {
 			this.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.name(), false, false);
 		} catch (IllegalArgumentException e) {
@@ -349,8 +295,8 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	}
 
 	private Iterable<? extends File> getExtdirsFrom(String path) {
-		ArrayList<FileSystem.Classpath> paths = new ArrayList<FileSystem.Classpath>();
-		ArrayList<File> files = new ArrayList<File>();
+		ArrayList<FileSystem.Classpath> paths = new ArrayList<>();
+		ArrayList<File> files = new ArrayList<>();
 		try {
 			this.processPathEntries(Main.DEFAULT_SIZE_CLASSPATH, paths, path, this.charset.name(), false, false);
 		} catch (IllegalArgumentException e) {
@@ -377,6 +323,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#getFileForInput(javax.tools.JavaFileManager.Location, java.lang.String, java.lang.String)
 	 */
+	@Override
 	public FileObject getFileForInput(Location location, String packageName, String relativeName) throws IOException {
 		Iterable<? extends File> files = getLocation(location);
 		if (files == null) {
@@ -408,6 +355,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#getFileForOutput(javax.tools.JavaFileManager.Location, java.lang.String, java.lang.String, javax.tools.FileObject)
 	 */
+	@Override
 	public FileObject getFileForOutput(Location location, String packageName, String relativeName, FileObject sibling)
 			throws IOException {
 		Iterable<? extends File> files = getLocation(location);
@@ -428,6 +376,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#getJavaFileForInput(javax.tools.JavaFileManager.Location, java.lang.String, javax.tools.JavaFileObject.Kind)
 	 */
+	@Override
 	public JavaFileObject getJavaFileForInput(Location location, String className, Kind kind) throws IOException {
 		if (kind != Kind.CLASS && kind != Kind.SOURCE) {
 			throw new IllegalArgumentException("Invalid kind : " + kind);//$NON-NLS-1$
@@ -463,6 +412,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#getJavaFileForOutput(javax.tools.JavaFileManager.Location, java.lang.String, javax.tools.JavaFileObject.Kind, javax.tools.FileObject)
 	 */
+	@Override
 	public JavaFileObject getJavaFileForOutput(Location location, String className, Kind kind, FileObject sibling)
 			throws IOException {
 		if (kind != Kind.CLASS && kind != Kind.SOURCE) {
@@ -517,6 +467,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.StandardJavaFileManager#getJavaFileObjects(java.io.File[])
 	 */
+	@Override
 	public Iterable<? extends JavaFileObject> getJavaFileObjects(File... files) {
 		return getJavaFileObjectsFromFiles(Arrays.asList(files));
 	}
@@ -524,6 +475,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.StandardJavaFileManager#getJavaFileObjects(java.lang.String[])
 	 */
+	@Override
 	public Iterable<? extends JavaFileObject> getJavaFileObjects(String... names) {
 		return getJavaFileObjectsFromStrings(Arrays.asList(names));
 	}
@@ -531,8 +483,9 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.StandardJavaFileManager#getJavaFileObjectsFromFiles(java.lang.Iterable)
 	 */
+	@Override
 	public Iterable<? extends JavaFileObject> getJavaFileObjectsFromFiles(Iterable<? extends File> files) {
-		ArrayList<JavaFileObject> javaFileArrayList = new ArrayList<JavaFileObject>();
+		ArrayList<JavaFileObject> javaFileArrayList = new ArrayList<>();
 		for (File f : files) {
 			if (f.isDirectory()) {
 				throw new IllegalArgumentException("file : " + f.getAbsolutePath() + " is a directory"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -545,8 +498,9 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.StandardJavaFileManager#getJavaFileObjectsFromStrings(java.lang.Iterable)
 	 */
+	@Override
 	public Iterable<? extends JavaFileObject> getJavaFileObjectsFromStrings(Iterable<String> names) {
-		ArrayList<File> files = new ArrayList<File>();
+		ArrayList<File> files = new ArrayList<>();
 		for (String name : names) {
 			files.add(new File(name));
 		}
@@ -571,6 +525,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.StandardJavaFileManager#getLocation(javax.tools.JavaFileManager.Location)
 	 */
+	@Override
 	public Iterable<? extends File> getLocation(Location location) {
 		if (this.locations == null) return null;
 		return this.locations.get(location.getName());
@@ -584,7 +539,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		if (file.exists() && !file.isDirectory()) {
 			throw new IllegalArgumentException("file : " + file.getAbsolutePath() + " is not a directory");//$NON-NLS-1$//$NON-NLS-2$
 		}
-		ArrayList<File> list = new ArrayList<File>(1);
+		ArrayList<File> list = new ArrayList<>(1);
 		list.add(file);
 		return list;
 	}
@@ -592,19 +547,19 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#handleOption(java.lang.String, java.util.Iterator)
 	 */
+	@Override
 	public boolean handleOption(String current, Iterator<String> remaining) {
 		try {
 			if ("-bootclasspath".equals(current)) {//$NON-NLS-1$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> bootclasspaths = getPathsFrom(remaining.next());
 					if (bootclasspaths != null) {
 						Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
-						if ((this.flags & HAS_ENDORSED_DIRS) == 0
-								&& (this.flags & HAS_EXT_DIRS) == 0) {
+						if ((this.flags & EclipseFileManager.HAS_ENDORSED_DIRS) == 0
+								&& (this.flags & EclipseFileManager.HAS_EXT_DIRS) == 0) {
 							// override default bootclasspath
 							setLocation(StandardLocation.PLATFORM_CLASS_PATH, bootclasspaths);
-						} else if ((this.flags & HAS_ENDORSED_DIRS) != 0) {
+						} else if ((this.flags & EclipseFileManager.HAS_ENDORSED_DIRS) != 0) {
 							// endorseddirs have been processed first
 							setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
 									concatFiles(iterable, bootclasspaths));
@@ -614,15 +569,13 @@ public class EclipseFileManager implements StandardJavaFileManager {
 									prependFiles(iterable, bootclasspaths));
 						}
 					}
-					remaining.remove();
-					this.flags |= HAS_BOOTCLASSPATH;
+					this.flags |= EclipseFileManager.HAS_BOOTCLASSPATH;
 					return true;
 				} else {
 					throw new IllegalArgumentException();
 				}
 			}
 			if ("-classpath".equals(current) || "-cp".equals(current)) {//$NON-NLS-1$//$NON-NLS-2$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> classpaths = getPathsFrom(remaining.next());
 					if (classpaths != null) {
@@ -633,98 +586,83 @@ public class EclipseFileManager implements StandardJavaFileManager {
 						} else {
 							setLocation(StandardLocation.CLASS_PATH, classpaths);
 						}
-						if ((this.flags & HAS_PROCESSORPATH) == 0) {
+						if ((this.flags & EclipseFileManager.HAS_PROCESSORPATH) == 0) {
 							setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, classpaths);
 						}
 					}
-					remaining.remove();
 					return true;
 				} else {
 					throw new IllegalArgumentException();
 				}
 			}
 			if ("-encoding".equals(current)) {//$NON-NLS-1$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					this.charset = Charset.forName(remaining.next());
-					remaining.remove();
 					return true;
 				} else {
 					throw new IllegalArgumentException();
 				}
 			}
 			if ("-sourcepath".equals(current)) {//$NON-NLS-1$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> sourcepaths = getPathsFrom(remaining.next());
 					if (sourcepaths != null) setLocation(StandardLocation.SOURCE_PATH, sourcepaths);
-					remaining.remove();
 					return true;
 				} else {
 					throw new IllegalArgumentException();
 				}
 			}
 			if ("-extdirs".equals(current)) {//$NON-NLS-1$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
 					setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
 							concatFiles(iterable, getExtdirsFrom(remaining.next())));
-					remaining.remove();
-					this.flags |= HAS_EXT_DIRS;
+					this.flags |= EclipseFileManager.HAS_EXT_DIRS;
 					return true;
 				} else {
 					throw new IllegalArgumentException();
 				}
 			}
 			if ("-endorseddirs".equals(current)) {//$NON-NLS-1$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					Iterable<? extends File> iterable = getLocation(StandardLocation.PLATFORM_CLASS_PATH);
 					setLocation(StandardLocation.PLATFORM_CLASS_PATH, 
 							prependFiles(iterable, getEndorsedDirsFrom(remaining.next())));
-					remaining.remove();
-					this.flags |= HAS_ENDORSED_DIRS;
+					this.flags |= EclipseFileManager.HAS_ENDORSED_DIRS;
 					return true;
 				} else {
 					throw new IllegalArgumentException();
 				}
 			}
 			if ("-d".equals(current)) { //$NON-NLS-1$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> outputDir = getOutputDir(remaining.next());
 					if (outputDir != null) {
 						setLocation(StandardLocation.CLASS_OUTPUT, outputDir);
 					}
-					remaining.remove();
 					return true;
 				} else {
 					throw new IllegalArgumentException();
 				}
 			}
 			if ("-s".equals(current)) { //$NON-NLS-1$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> outputDir = getOutputDir(remaining.next());
 					if (outputDir != null) {
 						setLocation(StandardLocation.SOURCE_OUTPUT, outputDir);
 					}
-					remaining.remove();
 					return true;
 				} else {
 					throw new IllegalArgumentException();
 				}				
 			}
 			if ("-processorpath".equals(current)) {//$NON-NLS-1$
-				remaining.remove(); // remove the current option
 				if (remaining.hasNext()) {
 					final Iterable<? extends File> processorpaths = getPathsFrom(remaining.next());
 					if (processorpaths != null) {
 						setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, processorpaths);
 					}
-					remaining.remove();
-					this.flags |= HAS_PROCESSORPATH;
+					this.flags |= EclipseFileManager.HAS_PROCESSORPATH;
 					return true;
 				} else {
 					throw new IllegalArgumentException();
@@ -739,6 +677,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#hasLocation(javax.tools.JavaFileManager.Location)
 	 */
+	@Override
 	public boolean hasLocation(Location location) {
 		return this.locations != null && this.locations.containsKey(location.getName());
 	}
@@ -746,6 +685,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#inferBinaryName(javax.tools.JavaFileManager.Location, javax.tools.JavaFileObject)
 	 */
+	@Override
 	public String inferBinaryName(Location location, JavaFileObject file) {
 		String name = file.getName();
 		JavaFileObject javaFileObject = null;
@@ -763,7 +703,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		if (javaFileObject == null) {
 			return null;
 		}
-		return normalized(name);
+		return name.replace('/', '.');
 	}
 
 	private boolean isArchive(File f) {
@@ -774,6 +714,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.StandardJavaFileManager#isSameFile(javax.tools.FileObject, javax.tools.FileObject)
 	 */
+	@Override
 	public boolean isSameFile(FileObject fileObject1, FileObject fileObject2) {
 		// EclipseFileManager creates only EcliseFileObject
 		if (!(fileObject1 instanceof EclipseFileObject)) throw new IllegalArgumentException("Unsupported file object class : " + fileObject1.getClass());//$NON-NLS-1$
@@ -783,6 +724,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.OptionChecker#isSupportedOption(java.lang.String)
 	 */
+	@Override
 	public int isSupportedOption(String option) {
 		return Options.processOptionsFileManager(option);
 	}
@@ -790,6 +732,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#list(javax.tools.JavaFileManager.Location, java.lang.String, java.util.Set, boolean)
 	 */
+	@Override
 	public Iterable<JavaFileObject> list(Location location, String packageName, Set<Kind> kinds, boolean recurse)
 			throws IOException {
 		
@@ -798,7 +741,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			throw new IllegalArgumentException("Unknown location : " + location);//$NON-NLS-1$
 		}
 		
-		ArrayList<JavaFileObject> collector = new ArrayList<JavaFileObject>();
+		ArrayList<JavaFileObject> collector = new ArrayList<>();
 		String normalizedPackageName = normalized(packageName);
 		for (File file : allFilesInLocations) {
 			collectAllMatchingFiles(file, normalizedPackageName, kinds, recurse, collector);
@@ -823,7 +766,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	private Iterable<? extends File> prependFiles(Iterable<? extends File> iterable,
 			Iterable<? extends File> iterable2) {
 		if (iterable2 == null) return iterable;
-		ArrayList<File> list = new ArrayList<File>();
+		ArrayList<File> list = new ArrayList<>();
 		for (Iterator<? extends File> iterator = iterable2.iterator(); iterator.hasNext(); ) {
 			list.add(iterator.next());
 		}
@@ -836,6 +779,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	/* (non-Javadoc)
 	 * @see javax.tools.StandardJavaFileManager#setLocation(javax.tools.JavaFileManager.Location, java.lang.Iterable)
 	 */
+	@Override
 	public void setLocation(Location location, Iterable<? extends File> path) throws IOException {
 		if (path != null) {
 			if (location.isOutputLocation()) {
@@ -863,7 +807,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		}
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	public void processPathEntries(final int defaultSize, final ArrayList paths,
 			final String currentPath, String customEncoding, boolean isSourceOnly,
 			boolean rejectDestinationPathOnJars) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2014 IBM Corporation and others.
+ * Copyright (c) 2006, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -57,7 +57,7 @@ public class EclipseCompiler implements JavaCompiler {
 	public DiagnosticListener<? super JavaFileObject> diagnosticListener;
 
 	public EclipseCompiler() {
-		this.threadCache = new WeakHashMap<Thread, EclipseCompilerImpl>();
+		this.threadCache = new WeakHashMap<>();
 	}
 	/*
 	 * (non-Javadoc)
@@ -119,7 +119,7 @@ public class EclipseCompiler implements JavaCompiler {
 		eclipseCompiler2.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
 		eclipseCompiler2.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
 
-		ArrayList<String> allOptions = new ArrayList<String>();
+		ArrayList<String> allOptions = new ArrayList<>();
 		if (options != null) {
 			for (Iterator<String> iterator = options.iterator(); iterator.hasNext(); ) {
 				eclipseCompiler2.fileManager.handleOption(iterator.next(), iterator);
@@ -139,7 +139,11 @@ public class EclipseCompiler implements JavaCompiler {
 				if (!uri.isAbsolute()) {
 					uri = URI.create("file://" + uri.toString()); //$NON-NLS-1$
 				}
-				allOptions.add(new File(uri).getAbsolutePath());
+				if (uri.getScheme().equals("file")) { //$NON-NLS-1$
+					allOptions.add(new File(uri).getAbsolutePath());
+				} else {
+					allOptions.add(uri.toString());
+				}
 			}
 		}
 
@@ -192,7 +196,7 @@ public class EclipseCompiler implements JavaCompiler {
 			}
 			@Override
 			public void setProcessors(Iterable<? extends Processor> processors) {
-				ArrayList<Processor> temp = new ArrayList<Processor>();
+				ArrayList<Processor> temp = new ArrayList<>();
 				for (Processor processor : processors) {
 					temp.add(processor);
 				}

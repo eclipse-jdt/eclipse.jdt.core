@@ -13,6 +13,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 
 public class SignatureWrapper {
 	public char[] signature;
@@ -20,12 +21,20 @@ public class SignatureWrapper {
 	public int end;
 	public int bracket;
 	private boolean use15specifics;
+	private boolean useExternalAnnotations;
 
 	public SignatureWrapper(char[] signature, boolean use15specifics) {
 		this.signature = signature;
 		this.start = 0;
 		this.end = this.bracket = -1;
 		this.use15specifics = use15specifics;
+	}
+	public SignatureWrapper(char[] signature, boolean use15specifics, boolean useExternalAnnotations) {
+		this.signature = signature;
+		this.start = 0;
+		this.end = this.bracket = -1;
+		this.use15specifics = use15specifics;
+		this.useExternalAnnotations = useExternalAnnotations;
 	}
 	public SignatureWrapper(char [] signature) {
 		this(signature, true);
@@ -35,8 +44,27 @@ public class SignatureWrapper {
 	}
 	public int computeEnd() {
 		int index = this.start;
-		while (this.signature[index] == '[')
-			index++;
+		if (this.useExternalAnnotations) {
+			// in addition to '[' tokens accept null annotations after the first '['
+			skipDimensions: while(true) {
+				switch (this.signature[index]) {
+					case ExternalAnnotationProvider.NONNULL :
+					case ExternalAnnotationProvider.NULLABLE :
+					case ExternalAnnotationProvider.NO_ANNOTATION :
+						if (index == this.start)
+							break skipDimensions;
+						//$FALL-THROUGH$
+					case '[':
+						index++;
+						break;
+					default:
+						break skipDimensions;
+				}
+			}
+		} else {
+			while (this.signature[index] == '[')
+				index++;
+		}
 		switch (this.signature[index]) {
 			case 'L' :
 			case 'T' :
@@ -50,7 +78,7 @@ public class SignatureWrapper {
 					this.end = this.signature.length + 1;
 				break;
 			default :
-				this.end = this.start;
+				this.end = index;
 		}
 
 		if (this.use15specifics || this.end != this.bracket) {

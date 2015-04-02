@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2014 IBM Corporation and others.
+ * Copyright (c) 2006, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,7 @@ public final class Options {
 	private static final Set<String> ONE_ARGUMENT_OPTIONS;
 	private static final Set<String> FILE_MANAGER_OPTIONS;
 	static {
-		ZERO_ARGUMENT_OPTIONS = new HashSet<String>();
+		ZERO_ARGUMENT_OPTIONS = new HashSet<>();
 		Options.ZERO_ARGUMENT_OPTIONS.add("-progress");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-proceedOnError");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-proceedOnError:Fatal");//$NON-NLS-1$
@@ -60,6 +60,9 @@ public final class Options {
 		Options.ZERO_ARGUMENT_OPTIONS.add("-1.7");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-7");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-7.0");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-1.8");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-8");//$NON-NLS-1$
+		Options.ZERO_ARGUMENT_OPTIONS.add("-8.0");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-proc:only");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-proc:none");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-XprintProcessorInfo");//$NON-NLS-1$
@@ -67,7 +70,7 @@ public final class Options {
 		Options.ZERO_ARGUMENT_OPTIONS.add("-parameters");//$NON-NLS-1$
 		Options.ZERO_ARGUMENT_OPTIONS.add("-genericsignature");//$NON-NLS-1$
 
-		FILE_MANAGER_OPTIONS = new HashSet<String>();
+		FILE_MANAGER_OPTIONS = new HashSet<>();
 		Options.FILE_MANAGER_OPTIONS.add("-bootclasspath");//$NON-NLS-1$
 		Options.FILE_MANAGER_OPTIONS.add("-encoding");//$NON-NLS-1$
 		Options.FILE_MANAGER_OPTIONS.add("-d");//$NON-NLS-1$
@@ -79,7 +82,7 @@ public final class Options {
 		Options.FILE_MANAGER_OPTIONS.add("-s");//$NON-NLS-1$
 		Options.FILE_MANAGER_OPTIONS.add("-processorpath");//$NON-NLS-1$
 
-		ONE_ARGUMENT_OPTIONS = new HashSet<String>();
+		ONE_ARGUMENT_OPTIONS = new HashSet<>();
 		Options.ONE_ARGUMENT_OPTIONS.addAll(Options.FILE_MANAGER_OPTIONS);
 		Options.ONE_ARGUMENT_OPTIONS.add("-log");//$NON-NLS-1$
 		Options.ONE_ARGUMENT_OPTIONS.add("-repeat");//$NON-NLS-1$

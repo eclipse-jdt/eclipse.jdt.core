@@ -20,6 +20,7 @@
  *     Terry Parker <tparker@google.com> - DeltaProcessor misses state changes in archive files, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=357425
  *     Thirumala Reddy Mutchukota <thirumala@google.com> - Contribution to bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=411423
  *     Terry Parker <tparker@google.com> - [performance] Low hit rates in JavaModel caches - https://bugs.eclipse.org/421165
+ *     Terry Parker <tparker@google.com> - Enable the Java model caches to recover from IO errors - https://bugs.eclipse.org/455042
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -100,7 +101,6 @@ import org.xml.sax.SAXException;
 public class JavaModelManager implements ISaveParticipant, IContentTypeChangeListener {
 	private static ServiceRegistration<DebugOptionsListener> DEBUG_REGISTRATION;
 	private static final String NON_CHAINING_JARS_CACHE = "nonChainingJarsCache"; //$NON-NLS-1$
-	private static final String INVALID_ARCHIVES_CACHE = "invalidArchivesCache";  //$NON-NLS-1$
 	private static final String EXTERNAL_FILES_CACHE = "externalFilesCache";  //$NON-NLS-1$
 	private static final String ASSUMED_EXTERNAL_FILES_CACHE = "assumedExternalFilesCache";  //$NON-NLS-1$
 
@@ -1458,11 +1458,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * A set of IPaths for jars that are known to not contain a chaining (through MANIFEST.MF) to another library
 	 */
 	private Set nonChainingJars;
-	
+
+	// The amount of time from when an invalid archive is first sensed until that state is considered stale.
+	private static long INVALID_ARCHIVE_TTL_MILLISECONDS = 2 * 60 * 1000;
+
 	/*
-	 * A set of IPaths for jars that are known to be invalid - such as not being a valid/known format
+	 * A map of IPaths for jars that are known to be invalid (such as not being in a valid/known format), to an eviction timestamp.
 	 */
-	private Set invalidArchives;
+	private Map<IPath, Long> invalidArchives;
 
 	/*
 	 * A set of IPaths for files that are known to be external to the workspace.
@@ -1529,19 +1532,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					propertyName.equals(JavaCore.CORE_OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE)) {
 					JavaModelManager manager = JavaModelManager.getJavaModelManager();
 					IJavaModel model = manager.getJavaModel();
-					IJavaProject[] projects;
+					IJavaProject[] jProjects;
 					try {
-						projects = model.getJavaProjects();
-						for (int i = 0, pl = projects.length; i < pl; i++) {
-							JavaProject javaProject = (JavaProject) projects[i];
+						jProjects = model.getJavaProjects();
+						IProject[] projects = new IProject[jProjects.length];
+						for (int i = 0, pl = jProjects.length; i < pl; i++) {
+							JavaProject javaProject = (JavaProject) jProjects[i];
+							projects[i] = javaProject.getProject();
 							manager.deltaState.addClasspathValidation(javaProject);
-							try {
-								// need to touch the project to force validation by DeltaProcessor
-					            javaProject.getProject().touch(null);
-					        } catch (CoreException e) {
-					            // skip
-					        }
 						}
+						manager.touchProjects(projects, null);
 					} catch (JavaModelException e) {
 						// skip
 					}
@@ -1609,7 +1609,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (Platform.isRunning()) {
 			this.indexManager = new IndexManager();
 			this.nonChainingJars = loadClasspathListCache(NON_CHAINING_JARS_CACHE);
-			this.invalidArchives = loadClasspathListCache(INVALID_ARCHIVES_CACHE);
 			this.externalFiles = loadClasspathListCache(EXTERNAL_FILES_CACHE);
 			this.assumedExternalFiles = loadClasspathListCache(ASSUMED_EXTERNAL_FILES_CACHE);
 			String includeContainerReferencedLib = System.getProperty(RESOLVE_REFERENCED_LIBRARIES_FOR_CONTAINERS);
@@ -1633,11 +1632,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public void addInvalidArchive(IPath path) {
 		// unlikely to be null
 		if (this.invalidArchives == null) {
-			this.invalidArchives = Collections.synchronizedSet(new HashSet());
+			this.invalidArchives = Collections.synchronizedMap(new HashMap());
 		}
-		if(this.invalidArchives != null) {
-			this.invalidArchives.add(path);
-		}
+		this.invalidArchives.put(path, System.currentTimeMillis() + INVALID_ARCHIVE_TTL_MILLISECONDS);
 	}
 
 	/**
@@ -2666,8 +2663,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * @exception CoreException If unable to create/open the ZipFile
 	 */
 	public ZipFile getZipFile(IPath path) throws CoreException {
+		return getZipFile(path, true);
+	}
 
-		if (isInvalidArchive(path))
+	private ZipFile getZipFile(IPath path, boolean checkInvalidArchiveCache) throws CoreException {
+		if (checkInvalidArchiveCache && isInvalidArchive(path))
 			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.status_IOException, new ZipException()));
 		
 		ZipCache zipCache;
@@ -3083,6 +3083,36 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		*/
 	}
 
+	void touchProjects(final IProject[] projectsToTouch, IProgressMonitor progressMonitor) throws JavaModelException {
+		WorkspaceJob touchJob = new WorkspaceJob(Messages.synchronizing_projects_job) {
+			public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
+				try {
+					if (monitor != null) {
+						monitor.beginTask("", projectsToTouch.length); //$NON-NLS-1$
+					}
+					for (IProject iProject : projectsToTouch) {
+						IProgressMonitor subMonitor = monitor == null ? null: new SubProgressMonitor(monitor, 1);
+						if (JavaBuilder.DEBUG) {
+							System.out.println("Touching project " + iProject.getName()); //$NON-NLS-1$
+						}
+						iProject.touch(subMonitor);
+					}
+				}
+				finally {
+					if (monitor != null) {
+						monitor.done();
+					}
+				}
+				return Status.OK_STATUS;
+			}
+
+			public boolean belongsTo(Object family) {
+				return ResourcesPlugin.FAMILY_MANUAL_REFRESH == family;
+			}
+		};
+		touchJob.schedule();
+	}
+
 	private HashSet getClasspathBeingResolved() {
 	    HashSet result = (HashSet) this.classpathsBeingResolved.get();
 	    if (result == null) {
@@ -3109,12 +3139,41 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 	
 	public boolean isInvalidArchive(IPath path) {
-		return this.invalidArchives != null && this.invalidArchives.contains(path);
+		if (this.invalidArchives == null)
+			return false;
+		Long evictionTime = this.invalidArchives.get(path);
+		if (evictionTime == null)
+			return false;
+		long now = System.currentTimeMillis();
+
+		// If the TTL for this cache entry has expired, directly check whether the archive is still invalid.
+		// If it transitioned to being valid, remove it from the cache and force an update to project caches.
+		if (now > evictionTime) {
+			try {
+				getZipFile(path, false);
+				removeFromInvalidArchiveCache(path);
+				return false;
+			} catch (CoreException e) {
+				// Archive is still invalid, fall through to reporting it is invalid.
+			}
+		}
+		return true;
 	}
 
 	public void removeFromInvalidArchiveCache(IPath path) {
 		if (this.invalidArchives != null) {
-			this.invalidArchives.remove(path);
+			if (this.invalidArchives.remove(path) != null) {
+				try {
+					// Bug 455042: Force an update of the JavaProjectElementInfo project caches.
+					for (IJavaProject project : getJavaModel().getJavaProjects()) {
+						if (project.findPackageFragmentRoot(path) != null) {
+							((JavaProject) project).resetCaches();
+						}
+					}
+				} catch (JavaModelException e) {
+					Util.log(e, "Unable to retrieve the Java model."); //$NON-NLS-1$
+				}
+			}
 		}
 	}
 
@@ -3230,8 +3289,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private Set getClasspathListCache(String cacheName) throws CoreException {
 		if (cacheName == NON_CHAINING_JARS_CACHE) 
 			return getNonChainingJarsCache();
-		else if (cacheName == INVALID_ARCHIVES_CACHE)
-			return this.invalidArchives;
 		else if (cacheName == EXTERNAL_FILES_CACHE)
 			return this.externalFiles;
 		else if (cacheName == ASSUMED_EXTERNAL_FILES_CACHE)
@@ -4333,7 +4390,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			case ISaveContext.FULL_SAVE : {
 				// save non-chaining jar, invalid jar and external file caches on full save
 				saveClasspathListCache(NON_CHAINING_JARS_CACHE);
-				saveClasspathListCache(INVALID_ARCHIVES_CACHE);
 				saveClasspathListCache(EXTERNAL_FILES_CACHE);
 				saveClasspathListCache(ASSUMED_EXTERNAL_FILES_CACHE);
 	

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 Stephan Herrmann and others.
+ * Copyright (c) 2014, 2015 Stephan Herrmann and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import org.osgi.framework.ServiceReference;
  * 
  * @deprecated uses deprecated class PackageAdmin.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class Activator extends Plugin {
 
 	private static final String PLUGIN_ID = "org.eclipse.jdt.core.tests.model";

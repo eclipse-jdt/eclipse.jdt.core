@@ -412,8 +412,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 		if (haveDescriptor && !argumentsHaveErrors && blockScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
 			if (!argumentsTypeElided) {
-				AbstractMethodDeclaration.createArgumentBindings(this.arguments, this.binding, this.scope);
-				validateNullAnnotations();
+				AbstractMethodDeclaration.createArgumentBindings(this.arguments, this.binding, this.scope); // includes validation
 				// no application of null-ness default, hence also no warning regarding redundant null annotation
 				mergeParameterNullAnnotations(blockScope);
 			}

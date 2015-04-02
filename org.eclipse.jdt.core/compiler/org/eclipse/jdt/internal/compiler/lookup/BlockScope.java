@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@
  *								bug 394768 - [compiler][resource] Incorrect resource leak warning when creating stream in conditional
  *								bug 404649 - [1.8][compiler] detect illegal reference to indirect or redundant super
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
+ *								Bug 371614 - [compiler][resource] Wrong "resource leak" problem on return/throw inside while loop
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *								bug 378674 - "The method can be declared as static" is wrong
  *     Keigo Imai - Contribution for  bug 388903 - Cannot extend inner class as an anonymous class when it extends the outer class
@@ -1123,12 +1124,6 @@ public void checkUnclosedCloseables(FlowInfo flowInfo, FlowContext flowContext, 
 		for (int i=0; i<this.localIndex; i++)
 			this.locals[i].closeTracker = null;		
 		this.trackingVariables = null;
-	} else {
-		int size = this.trackingVariables.size();
-		for (int i=0; i<size; i++) {
-			FakedTrackingVariable tracker = (FakedTrackingVariable) this.trackingVariables.get(i);
-			tracker.resetReportingBits();
-		}
 	}
 }
 

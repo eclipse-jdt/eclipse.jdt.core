@@ -25,6 +25,7 @@
  *								bug 381443 - [compiler][null] Allow parameter widening from @NonNull to unannotated
  *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *								Bug 440687 - [compiler][batch][null] improve command line option for external annotations
+ *								Bug 408815 - [batch][null] Add CLI option for COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS
  *     Jesper S Moller   - Contributions for
  *								bug 407297 - [1.8][compiler] Control generation of parameter names by option
  *    Mat Booth - Contribution for bug 405176 
@@ -3841,6 +3842,11 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				return;
 			} else if (token.equals("switchDefault")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportMissingDefaultCase, severity, isEnabling);
+				return;
+			} else if (token.equals("syntacticAnalysis")) { //$NON-NLS-1$
+				this.options.put(
+						CompilerOptions.OPTION_SyntacticNullAnalysisForFields,
+						isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 				return;
 			}
 			break;

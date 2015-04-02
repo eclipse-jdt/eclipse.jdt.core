@@ -386,6 +386,7 @@ public class TestUtil
 	            }
 			}
 		}
+		zf.close(); // Will do 
 	}
 	
 	public static void unzip (ZipInputStream srcZip, File destDir) throws IOException {

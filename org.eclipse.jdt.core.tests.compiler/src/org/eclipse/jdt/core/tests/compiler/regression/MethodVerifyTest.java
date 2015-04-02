@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,8 +39,8 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class MethodVerifyTest extends AbstractComparableTest {
 	static {
-//		TESTS_NAMES = new String[] { "testBug406928" };
-//		TESTS_NUMBERS = new int[] { 213 };
+//		TESTS_NAMES = new String[] { "test124", "test124b" };
+//		TESTS_NUMBERS = new int[] { 124 };
 //		TESTS_RANGE = new int[] { 190, -1};
 	}
 
@@ -8641,6 +8641,35 @@ public void test124() {
 			"  }\n" +
 			"}"},
 			this.complianceLevel <= ClassFileConstants.JDK1_6 ? "ab" : "Stack Overflow");
+}
+// Bug 460993: [compiler] Incremental build not always reports the same errors (type cannot be resolved - indirectly referenced)
+public void test124b() {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"public class A {\n" +
+			"  public Object o = \"\";\n" +
+			"  public static void main(String args[]) {\n" +
+			"    X.main(args);\n" +
+			"  }\n" +
+			"}\n",
+			"X.java",
+			"public class X {\n" +
+			"  public static String choose(String one, String two) {\n" +
+			"    return one + X.<String>choose(one, two);\n" +
+			"  }\n" +
+			"  public static <T> T choose(T one, T two) {\n" +
+			"    return two;\n" +
+			"  }\n" +
+			"  public static void main(String args[]) {\n" +
+			"    try {\n" +
+			"        System.out.println(choose(\"a\", \"b\"));\n" +
+			"    } catch (StackOverflowError e) {\n" +
+			"        System.out.println(\"Stack Overflow\");\n" +
+			"    }\n" +
+			"  }\n" +
+			"}"},
+		this.complianceLevel <= ClassFileConstants.JDK1_6 ? "ab" : "Stack Overflow");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150655
 // variant

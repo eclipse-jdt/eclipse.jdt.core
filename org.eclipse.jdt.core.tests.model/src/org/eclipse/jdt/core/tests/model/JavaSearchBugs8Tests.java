@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 /**
  * Non-regression tests for bugs fixed in Java Search engine.
  */
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaSearchBugs8Tests extends AbstractJavaSearchTests {
 
 	static {
@@ -4635,6 +4636,47 @@ public void testBug458614_002() throws CoreException {
 	finally {
 		deleteProject("P1");
 	}
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=461025
+//[1.8][search] Constructor reference not found in search
+public void testBug461025_001() throws CoreException {
+this.workingCopies = new ICompilationUnit[1];
+this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"@FunctionalInterface\n" +
+		"interface Y<T> {\n" +
+		"    T get();\n" +
+		"}\n" +
+		"\n" +
+		"public class X {\n" +
+		"	public X() {}\n" +
+		"	public X(int i) {}\n" +
+		"\n" +
+		"	private void m1() {\n" +
+		"		Y<X> s1 = X::new;\n" +
+		"\n" +
+		"		Y<X> s2 = new Y<X>() {\n" +
+		"\n" +
+		"			@Override\n" +
+		"			public X get() {\n" +
+		"				return null;\n" +
+		"			}\n" +
+		"		};\n" +
+		"	}\n" +
+		"}\n");
+SearchPattern pattern = SearchPattern.createPattern(
+		"*",
+		CONSTRUCTOR,
+		METHOD_REFERENCE_EXPRESSION,
+		EXACT_RULE);
+new SearchEngine(this.workingCopies).search(pattern,
+new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+getJavaSearchWorkingCopiesScope(),
+this.resultCollector,
+null);
+assertSearchResults(
+		"src/X.java void X.m1() [X::new] EXACT_MATCH"  
+);	
 }
 
 // Add new tests in JavaSearchBugs8Tests

@@ -37,7 +37,7 @@ public final class ImportName {
 
 	public static ImportName createFor(boolean isStatic, String qualifiedName) {
 		String containerName = Signature.getQualifier(qualifiedName);
-		String simpleName = qualifiedName.substring(containerName.length() + 1);
+		String simpleName = Signature.getSimpleName(qualifiedName);
 		return new ImportName(isStatic, containerName, simpleName);
 	}
 
@@ -51,7 +51,7 @@ public final class ImportName {
 		this.containerName = containerName;
 		this.simpleName = simpleName;
 
-		this.qualifiedName = this.containerName + "." + this.simpleName; //$NON-NLS-1$;
+		this.qualifiedName = containerName.isEmpty() ? simpleName : containerName + "." + simpleName; //$NON-NLS-1$;
 	}
 
 	@Override

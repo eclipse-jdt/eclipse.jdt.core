@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,6 +48,8 @@
  *								Bug 452194 - Code no longer compiles in 4.4.1, but with confusing error
  *								Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *								Bug 456236 - [1.8][null] Cannot infer type when constructor argument is annotated with @Nullable
+ *								Bug 437072 - [compiler][null] Null analysis emits possibly incorrect warning for new int[][] despite @NonNullByDefault
+ *								Bug 462083 - [1.8][inference] Java 8 generic return type mismatch with interface involving type parameter.
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *  							Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
@@ -548,7 +550,15 @@ public abstract class Scope {
 				        }
 			        } 
 					break;
-	
+
+				case Binding.INTERSECTION_TYPE18:
+					IntersectionTypeBinding18 intersection = (IntersectionTypeBinding18) originalType;
+					ReferenceBinding[] types = intersection.getIntersectingTypes();
+					TypeBinding[] substitutes = substitute(substitution, types);
+					ReferenceBinding[] refSubsts = new ReferenceBinding[substitutes.length];
+					System.arraycopy(substitutes, 0, refSubsts, 0, substitutes.length);
+					return substitution.environment().createIntersectionType18(refSubsts);
+
 				case Binding.TYPE:
 					if (!originalType.isMemberType()) break;
 					ReferenceBinding originalReferenceType = (ReferenceBinding) originalType;
@@ -1212,7 +1222,7 @@ public abstract class Scope {
 			// in >= 1.5 mode, ensure the exactMatch did not match raw types
 			if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5)
 				for (int i = argumentTypes.length; --i >= 0;)
-					if (isPossibleSubtypeOfRawType(argumentTypes[i]))
+					if (isSubtypeOfRawType(argumentTypes[i]))
 						return null;
 			// must find both methods for this case: <S extends A> void foo() {}  and  <N extends B> N foo() { return null; }
 			// or find an inherited method when the exact match is to a bridge method
@@ -2795,7 +2805,8 @@ public abstract class Scope {
 
 			// retrieve an exact visible match (if possible)
 			MethodBinding methodBinding = findExactMethod(currentType, selector, argumentTypes, invocationSite);
-			if (methodBinding != null) return methodBinding;
+			if (methodBinding != null && methodBinding.isValidBinding())
+				return methodBinding;
 
 			methodBinding = findMethod(currentType, selector, argumentTypes, invocationSite, false);
 			if (methodBinding == null)
@@ -3625,7 +3636,7 @@ public abstract class Scope {
 		return false;
 	}
 
-	public boolean isPossibleSubtypeOfRawType(TypeBinding paramType) {
+	public boolean isSubtypeOfRawType(TypeBinding paramType) {
 		TypeBinding t = paramType.leafComponentType();
 		if (t.isBaseType()) return false;
 
@@ -3634,7 +3645,6 @@ public abstract class Scope {
 		int nextPosition = 0;
 		do {
 			if (currentType.isRawType()) return true;
-			if (!currentType.isHierarchyConnected()) return true; // do not fault in super types right now, so assume one is a raw type
 	
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
@@ -4977,12 +4987,23 @@ public abstract class Scope {
 	}
 
 	public boolean validateNullAnnotation(long tagBits, TypeReference typeRef, Annotation[] annotations) {
-		long nullAnnotationTagBit = tagBits & (TagBits.AnnotationNullMASK);
+		if (typeRef == null)
+			return true;
+		TypeBinding type = typeRef.resolvedType;
+
+		boolean usesNullTypeAnnotations = this.environment().usesNullTypeAnnotations();
+		long nullAnnotationTagBit;
+		if (usesNullTypeAnnotations) {
+			type = type.leafComponentType(); // if it's an array, the annotation applies to the leaf component type
+			nullAnnotationTagBit = type.tagBits & TagBits.AnnotationNullMASK;
+		} else {
+			nullAnnotationTagBit = tagBits & (TagBits.AnnotationNullMASK);
+		}
+		
 		if (nullAnnotationTagBit != 0) {
-			TypeBinding type = typeRef.resolvedType;
 			if (type != null && type.isBaseType()) {
 				// type annotations are *always* illegal for 'void' (already reported)
-				if (!(typeRef.resolvedType.id == TypeIds.T_void && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8))
+				if (!(typeRef.resolvedType.id == TypeIds.T_void && usesNullTypeAnnotations))
 					problemReporter().illegalAnnotationForBaseType(typeRef, annotations, nullAnnotationTagBit);
 				return false;
 			}

@@ -598,6 +598,8 @@ public class ElementsImpl implements Elements {
 			case TYPE_PARAMETER :
 			case LOCAL_VARIABLE :
 				return null;
+		default:
+			break;
 		}
 		// unreachable
 		return null;

@@ -5045,4 +5045,65 @@ public void testBug458396() {
 		"The method removeEntity(MyEntity) is undefined for the type new MyTickContext(){}\n" + 
 		"----------\n");
 }
+public void testBug455945() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.function.BiFunction;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.function.Predicate;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"\n" + 
+			"    static <T> Tuple2<Seq<T>, Seq<T>> splitAtDoesntCompile(Stream<T> stream, long position) {\n" + 
+			"        return seq(stream)\n" + 
+			"            .zipWithIndex()\n" + 
+			"            .partition(t -> t.v2 < position)\n" + 
+			"            .map((v1, v2) -> tuple(\n" + 
+			"                v1.map(t -> t.v1),\n" + 
+			"                v2.map(t -> t.v1)\n" + 
+			"            ));\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static <T> Tuple2<Seq<T>, Seq<T>> splitAtCompiles(Stream<T> stream, long position) {\n" + 
+			"        return seq(stream)\n" + 
+			"            .zipWithIndex()\n" + 
+			"            .partition(t -> t.v2 < position)\n" + 
+			"            .map((v1, v2) -> Test.<Seq<T>, Seq<T>>tuple(\n" + 
+			"                v1.map(t -> t.v1),\n" + 
+			"                v2.map(t -> t.v1)\n" + 
+			"            ));\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static <T> Seq<T> seq(Stream<T> stream) {\n" + 
+			"    	return null;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static <T1, T2> Tuple2<T1, T2> tuple(T1 v1, T2 v2) {\n" + 
+			"    	return null;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface I<T> {\n" + 
+			"	T get();\n" + 
+			"	<U> I<U> map(Function<T, U> f);\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Seq<T> {\n" + 
+			"	Seq<Tuple2<T, Long>> zipWithIndex();\n" + 
+			"	Tuple2<Seq<T>, Seq<T>> partition(Predicate<? super T> predicate);\n" + 
+			"	<R> Seq<R> map(Function<? super T, ? extends R> mapper);\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Tuple2<T1, T2> {\n" + 
+			"	T1 v1;\n" + 
+			"	T2 v2;\n" + 
+			"	\n" + 
+			"	<R> R map(BiFunction<T1, T2, R> function) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
 }

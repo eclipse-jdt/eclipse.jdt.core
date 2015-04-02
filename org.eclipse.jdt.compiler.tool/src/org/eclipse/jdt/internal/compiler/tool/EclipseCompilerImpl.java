@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2013 IBM Corporation and others.
+ * Copyright (c) 2007, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,8 @@
  * Contributors:
  *    IBM Corporation - initial API and implementation
  *    IBM Corporation - fix for 342936
+ *    Kenneth Olson - Contribution for bug 188796 - [jsr199] Using JSR199 to extend ECJ
+ *    Dennis Hendriks - Contribution for bug 188796 - [jsr199] Using JSR199 to extend ECJ
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.tool;
 
@@ -35,8 +37,9 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.CompilationProgress;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
+import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.batch.ClasspathJsr199;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
@@ -44,6 +47,7 @@ import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
@@ -104,7 +108,7 @@ public class EclipseCompilerImpl extends Main {
 	@Override
 	public CompilationUnit[] getCompilationUnits() {
 		if (this.compilationUnits == null) return EclipseCompilerImpl.NO_UNITS;
-		ArrayList<CompilationUnit> units = new ArrayList<CompilationUnit>();
+		ArrayList<CompilationUnit> units = new ArrayList<>();
 		for (final JavaFileObject javaFileObject : this.compilationUnits) {
 			if (javaFileObject.getKind() != JavaFileObject.Kind.SOURCE) {
 				throw new IllegalArgumentException();
@@ -155,14 +159,158 @@ public class EclipseCompilerImpl extends Main {
 	}
 
 	@Override
-    public ICompilerRequestor getBatchRequestor() {
-        return new EclipseCompilerRequestor(this, this.diagnosticListener, (DefaultProblemFactory) getProblemFactory());
+	public IProblemFactory getProblemFactory() {
+		return new DefaultProblemFactory() {
+			@Override
+			public CategorizedProblem createProblem(
+					final char[] originatingFileName,
+					final int problemId,
+					final String[] problemArguments,
+					final String[] messageArguments,
+					final int severity,
+					final int startPosition,
+					final int endPosition,
+					final int lineNumber,
+					final int columnNumber) {
+
+				DiagnosticListener<? super JavaFileObject> diagListener = EclipseCompilerImpl.this.diagnosticListener;
+				if (diagListener != null) {
+					diagListener.report(new Diagnostic<JavaFileObject>() {
+						@Override
+						public String getCode() {
+							return Integer.toString(problemId);
+						}
+						@Override
+						public long getColumnNumber() {
+							return columnNumber;
+						}
+						@Override
+						public long getEndPosition() {
+							return endPosition;
+						}
+						@Override
+						public Kind getKind() {
+							if ((severity & ProblemSeverities.Error) != 0) {
+								return Diagnostic.Kind.ERROR;
+							}
+							if ((severity & ProblemSeverities.Optional) != 0) {
+								return Diagnostic.Kind.WARNING;
+							}
+							if ((severity & ProblemSeverities.Warning) != 0) {
+								return Diagnostic.Kind.MANDATORY_WARNING;
+							}
+							return Diagnostic.Kind.OTHER;
+						}
+						@Override
+						public long getLineNumber() {
+							return lineNumber;
+						}
+						@Override
+						public String getMessage(Locale locale) {
+							if (locale != null) {
+								setLocale(locale);
+							}
+							return getLocalizedMessage(problemId, problemArguments);
+						}
+						@Override
+						public long getPosition() {
+							return startPosition;
+						}
+						@Override
+						public JavaFileObject getSource() {
+							File f = new File(new String(originatingFileName));
+							if (f.exists()) {
+								return new EclipseFileObject(null, f.toURI(), JavaFileObject.Kind.SOURCE, null);
+							}
+							return null;
+						}
+						@Override
+						public long getStartPosition() {
+							return startPosition;
+						}
+					});
+				}
+				return super.createProblem(originatingFileName, problemId, problemArguments, messageArguments, severity, startPosition, endPosition, lineNumber, columnNumber);
+			}
+			@Override
+			public CategorizedProblem createProblem(
+					final char[] originatingFileName,
+					final int problemId,
+					final String[] problemArguments,
+					final int elaborationID,
+					final String[] messageArguments,
+					final int severity,
+					final int startPosition,
+					final int endPosition,
+					final int lineNumber,
+					final int columnNumber) {
+
+				DiagnosticListener<? super JavaFileObject> diagListener = EclipseCompilerImpl.this.diagnosticListener;
+				if (diagListener != null) {
+					diagListener.report(new Diagnostic<JavaFileObject>() {
+						@Override
+						public String getCode() {
+							return Integer.toString(problemId);
+						}
+						@Override
+						public long getColumnNumber() {
+							return columnNumber;
+						}
+						@Override
+						public long getEndPosition() {
+							return endPosition;
+						}
+						@Override
+						public Kind getKind() {
+							if ((severity & ProblemSeverities.Error) != 0) {
+								return Diagnostic.Kind.ERROR;
+							}
+							if ((severity & ProblemSeverities.Optional) != 0) {
+								return Diagnostic.Kind.WARNING;
+							}
+							if ((severity & ProblemSeverities.Warning) != 0) {
+								return Diagnostic.Kind.MANDATORY_WARNING;
+							}
+							return Diagnostic.Kind.OTHER;
+						}
+						@Override
+						public long getLineNumber() {
+							return lineNumber;
+						}
+						@Override
+						public String getMessage(Locale locale) {
+							if (locale != null) {
+								setLocale(locale);
+							}
+							return getLocalizedMessage(problemId, problemArguments);
+						}
+						@Override
+						public long getPosition() {
+							return startPosition;
+						}
+						@Override
+						public JavaFileObject getSource() {
+							File f = new File(new String(originatingFileName));
+							if (f.exists()) {
+								return new EclipseFileObject(null, f.toURI(), JavaFileObject.Kind.SOURCE, null);
+							}
+							return null;
+						}
+						@Override
+						public long getStartPosition() {
+							return startPosition;
+						}
+					});
+				}
+				return super.createProblem(originatingFileName, problemId, problemArguments, elaborationID, messageArguments, severity, startPosition, endPosition, lineNumber, columnNumber);
+			}
+		};
 	}
 
-						@Override
+	@Override
 	protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean systemExit, Map customDefaultOptions, CompilationProgress compilationProgress) {
 		super.initialize(outWriter, errWriter, systemExit, customDefaultOptions, compilationProgress);
-		this.javaFileObjectMap = new HashMap<CompilationUnit, JavaFileObject>();
+		this.javaFileObjectMap = new HashMap<>();
 	}
 
 	@Override
@@ -209,11 +357,11 @@ public class EclipseCompilerImpl extends Main {
 				}
 				try {
 					JavaFileObject javaFileForOutput =
-					this.fileManager.getJavaFileForOutput(
-							StandardLocation.CLASS_OUTPUT,
-							new String(filename),
-							JavaFileObject.Kind.CLASS,
-							this.javaFileObjectMap.get(unitResult.compilationUnit));
+						this.fileManager.getJavaFileForOutput(
+								StandardLocation.CLASS_OUTPUT,
+								new String(filename),
+								JavaFileObject.Kind.CLASS,
+								this.javaFileObjectMap.get(unitResult.compilationUnit));
 
 					if (generateClasspathStructure) {
 						if (currentDestinationPath != null) {
@@ -234,12 +382,11 @@ public class EclipseCompilerImpl extends Main {
 						}
 					}
 
-					OutputStream openOutputStream = javaFileForOutput.openOutputStream();
-					BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(openOutputStream);
-					bufferedOutputStream.write(classFile.header, 0, classFile.headerOffset);
-					bufferedOutputStream.write(classFile.contents, 0, classFile.contentsOffset);
-					bufferedOutputStream.flush();
-					bufferedOutputStream.close();
+					try (OutputStream openOutputStream = javaFileForOutput.openOutputStream(); BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(openOutputStream)) {
+						bufferedOutputStream.write(classFile.header, 0, classFile.headerOffset);
+						bufferedOutputStream.write(classFile.contents, 0, classFile.contentsOffset);
+						bufferedOutputStream.flush();
+					}
 				} catch (IOException e) {
 					this.logger.logNoClassFileCreated(currentDestinationPath, relativeStringName, e);
 				}
@@ -262,78 +409,95 @@ public class EclipseCompilerImpl extends Main {
 			ArrayList endorsedDirClasspaths,
 			String customEncoding) {
 
-		ArrayList<FileSystem.Classpath> fileSystemClasspaths = new ArrayList<FileSystem.Classpath>();
-		EclipseFileManager javaFileManager = null;
+		ArrayList<FileSystem.Classpath> fileSystemClasspaths = new ArrayList<>();
+		EclipseFileManager eclipseJavaFileManager = null;
 		StandardJavaFileManager standardJavaFileManager = null;
+		JavaFileManager javaFileManager = null;
+		boolean havePlatformPaths = false;
+		boolean haveClassPaths = false;
 		if (this.fileManager instanceof EclipseFileManager) {
-			javaFileManager = (EclipseFileManager) this.fileManager;
+			eclipseJavaFileManager = (EclipseFileManager) this.fileManager;
 		}
 		if (this.fileManager instanceof StandardJavaFileManager) {
 			standardJavaFileManager = (StandardJavaFileManager) this.fileManager;
 		}
+		javaFileManager = this.fileManager;
 
-		if (javaFileManager != null) {
-			if ((javaFileManager.flags & EclipseFileManager.HAS_ENDORSED_DIRS) == 0
-					&& (javaFileManager.flags & EclipseFileManager.HAS_BOOTCLASSPATH) != 0) {
+		if (eclipseJavaFileManager != null) {
+			if ((eclipseJavaFileManager.flags & EclipseFileManager.HAS_ENDORSED_DIRS) == 0
+					&& (eclipseJavaFileManager.flags & EclipseFileManager.HAS_BOOTCLASSPATH) != 0) {
 				fileSystemClasspaths.addAll(this.handleEndorseddirs(null));
 			}
 		}
 		Iterable<? extends File> location = null;
 		if (standardJavaFileManager != null) {
 			location = standardJavaFileManager.getLocation(StandardLocation.PLATFORM_CLASS_PATH);
-		}
-		if (location != null) {
-			for (File file : location) {
-				Classpath classpath = FileSystem.getClasspath(
-					file.getAbsolutePath(),
-					null,
-					null);
-				if (classpath != null) {
-					fileSystemClasspaths.add(classpath);
+			if (location != null) {
+				for (File file : location) {
+					Classpath classpath = FileSystem.getClasspath(
+						file.getAbsolutePath(),
+						null,
+						null);
+					if (classpath != null) {
+						fileSystemClasspaths.add(classpath);
+						havePlatformPaths = true;
+					}
 				}
 			}
+		} else if (javaFileManager != null) {
+			Classpath classpath = new ClasspathJsr199(this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
+			fileSystemClasspaths.add(classpath);
+			havePlatformPaths = true;
 		}
-		if (javaFileManager != null) {
-			if ((javaFileManager.flags & EclipseFileManager.HAS_EXT_DIRS) == 0
-					&& (javaFileManager.flags & EclipseFileManager.HAS_BOOTCLASSPATH) != 0) {
+		if (eclipseJavaFileManager != null) {
+			if ((eclipseJavaFileManager.flags & EclipseFileManager.HAS_EXT_DIRS) == 0
+					&& (eclipseJavaFileManager.flags & EclipseFileManager.HAS_BOOTCLASSPATH) != 0) {
 				fileSystemClasspaths.addAll(this.handleExtdirs(null));
 			}
 		}
 		if (standardJavaFileManager != null) {
 			location = standardJavaFileManager.getLocation(StandardLocation.SOURCE_PATH);
-		} else {
-			location = null;
-		}
-		if (location != null) {
-			for (File file : location) {
-				Classpath classpath = FileSystem.getClasspath(
+			if (location != null) {
+				for (File file : location) {
+					Classpath classpath = FileSystem.getClasspath(
+							file.getAbsolutePath(),
+							null,
+							null);
+					if (classpath != null) {
+						fileSystemClasspaths.add(classpath);
+					}
+				}
+			}
+			location = standardJavaFileManager.getLocation(StandardLocation.CLASS_PATH);
+			if (location != null) {
+				for (File file : location) {
+					Classpath classpath = FileSystem.getClasspath(
 						file.getAbsolutePath(),
 						null,
 						null);
-				if (classpath != null) {
-					fileSystemClasspaths.add(classpath);
+					if (classpath != null) {
+						fileSystemClasspaths.add(classpath);
+						haveClassPaths = true;
+					}
 				}
 			}
-		}
-		if (standardJavaFileManager != null) {
-			location = standardJavaFileManager.getLocation(StandardLocation.CLASS_PATH);
-		} else {
-			location = null;
-		}
-		if (location != null) {
-			for (File file : location) {
-				Classpath classpath = FileSystem.getClasspath(
-					file.getAbsolutePath(),
-					null,
-					null);
-				if (classpath != null) {
-					fileSystemClasspaths.add(classpath);
-				}
+		} else if (javaFileManager != null) {
+			Classpath classpath = null;
+			if (this.fileManager.hasLocation(StandardLocation.SOURCE_PATH)) {
+				classpath = new ClasspathJsr199(this.fileManager, StandardLocation.SOURCE_PATH);
+				fileSystemClasspaths.add(classpath);
 			}
+			classpath = new ClasspathJsr199(this.fileManager, StandardLocation.CLASS_PATH);
+			fileSystemClasspaths.add(classpath);
+			haveClassPaths = true;
 		}
 		if (this.checkedClasspaths == null) {
-			fileSystemClasspaths.addAll(this.handleBootclasspath(null, null));
-			fileSystemClasspaths.addAll(this.handleClasspath(null, null));
+			// It appears to be necessary to handleBootclasspath() for IBM JVMs
+			// in order to have visibility to java.lang.String (not present in rt.jar).
+			// The jars returned by StandardFileManager.getLocation(PLATFORM_CLASS_PATH) are
+			// not sufficient to resolve all standard classes.
+			if (!havePlatformPaths) fileSystemClasspaths.addAll(this.handleBootclasspath(null, null));
+			if (!haveClassPaths) fileSystemClasspaths.addAll(this.handleClasspath(null, null));
 		}
 		fileSystemClasspaths = FileSystem.ClasspathNormalizer.normalize(fileSystemClasspaths);
 		final int size = fileSystemClasspaths.size();

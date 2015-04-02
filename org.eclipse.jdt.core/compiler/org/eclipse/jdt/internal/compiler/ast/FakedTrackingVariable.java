@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 GK Software AG and others.
+ * Copyright (c) 2011, 2015 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
@@ -182,6 +183,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 					return local.closeTracker;
 				if (!isAnyCloseable(expression.resolvedType))
 					return null;
+				if ((local.tagBits & TagBits.IsResource) != 0)
+					return null;
 				// tracking var doesn't yet exist. This happens in finally block
 				// which is analyzed before the corresponding try block
 				Statement location = local.declaration;
@@ -328,7 +331,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			if (isWrapper) {
 				// remove unnecessary attempts (wrapper has no relevant inner)
 				if (allocation.closeTracker != null) {
-					scope.removeTrackingVar(allocation.closeTracker);
+					allocation.closeTracker.withDraw();
 					allocation.closeTracker = null;
 				}
 			} else {
@@ -824,6 +827,11 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		return false;
 	}
 
+	public void withDraw() {
+		// must unregister at the declaringScope, note that twr resources are owned by the scope enclosing the twr
+		this.originalBinding.declaringScope.removeTrackingVar(this);
+	}
+
 	public void recordErrorLocation(ASTNode location, int nullStatus) {
 		if ((this.globalClosingState & OWNED_BY_OUTSIDE) != 0) {
 			return;
@@ -901,14 +909,6 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			this.globalClosingState |= REPORTED_EXPLICIT_CLOSE;
 			problemReporter.explicitlyClosedAutoCloseable(this);
 		}
-	}
-
-	public void resetReportingBits() {
-		FakedTrackingVariable current = this;
-		do {
-			current.globalClosingState &= ~(REPORTED_POTENTIAL_LEAK|REPORTED_DEFINITIVE_LEAK);
-			current = current.innerTracker;
-		} while (current != null);
 	}
 
 	public String nameForReporting(ASTNode location, ReferenceContext referenceContext) {

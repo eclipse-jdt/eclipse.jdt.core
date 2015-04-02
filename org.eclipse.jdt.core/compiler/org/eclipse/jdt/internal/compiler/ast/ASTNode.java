@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,7 @@
  *								Bug 441693 - [1.8][null] Bogus warning for type argument annotated with @NonNull
  *								Bug 434483 - [1.8][compiler][inference] Type inference not picked up with method reference
  *								Bug 446442 - [1.8] merge null annotations from super methods
+ *								Bug 437072 - [compiler][null] Null analysis emits possibly incorrect warning for new int[][] despite @NonNullByDefault 
  *     Jesper S Moller - Contributions for
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -1047,10 +1048,15 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					scope.problemReporter().contradictoryNullAnnotations(se8NullAnnotation);
 				}
 				se8Annotations = Binding.NO_ANNOTATIONS;
+				se8nullBits = 0;
 			}
 			existingType = existingType.withoutToplevelNullAnnotation();
 		}
 		TypeBinding oldLeafType = (unionRef == null) ? existingType.leafComponentType() : unionRef.resolvedType;
+		if (se8nullBits != 0 && oldLeafType.isBaseType()) {
+			scope.problemReporter().illegalAnnotationForBaseType(typeRef, new Annotation[] { se8NullAnnotation }, se8nullBits);
+			return existingType;
+		}
 		AnnotationBinding [][] goodies = new AnnotationBinding[typeRef.getAnnotatableLevels()][];
 		goodies[0] = se8Annotations;  // @T X.Y.Z local; ==> @T should annotate X
 		TypeBinding newLeafType = scope.environment().createAnnotatedType(oldLeafType, goodies);
