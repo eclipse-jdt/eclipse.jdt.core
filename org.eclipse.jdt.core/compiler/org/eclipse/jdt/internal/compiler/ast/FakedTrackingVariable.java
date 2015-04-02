@@ -280,7 +280,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		if (((ReferenceBinding)allocation.resolvedType).hasTypeBit(TypeIds.BitResourceFreeCloseable)) {
 			// remove unnecessary attempts (closeable is not relevant)
 			if (allocation.closeTracker != null) {
-				scope.removeTrackingVar(allocation.closeTracker);
+				allocation.closeTracker.withdraw();
 				allocation.closeTracker = null;
 			}
 		} else if (((ReferenceBinding)allocation.resolvedType).hasTypeBit(TypeIds.BitWrapperCloseable)) {
@@ -335,7 +335,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			if (isWrapper) {
 				// remove unnecessary attempts (wrapper has no relevant inner)
 				if (allocation.closeTracker != null) {
-					allocation.closeTracker.withDraw();
+					allocation.closeTracker.withdraw();
 					allocation.closeTracker = null;
 				}
 			} else {
@@ -360,7 +360,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	}
 
 	private static FakedTrackingVariable pick(FakedTrackingVariable tracker1, FakedTrackingVariable tracker2, BlockScope scope) {
-		scope.removeTrackingVar(tracker2);
+		tracker2.withdraw();
 		return tracker1;
 	}
 
@@ -607,14 +607,14 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		if (expression instanceof AllocationExpression) {
 			FakedTrackingVariable tracker = ((AllocationExpression) expression).closeTracker;
 			if (tracker != null && tracker.originalBinding == null) {
-				currentScope.removeTrackingVar(tracker);
+				tracker.withdraw();
 				((AllocationExpression) expression).closeTracker = null;
 			}
 		} else {
 			// assignment passing a local into a field?
 			LocalVariableBinding local = expression.localVariableBinding();
 			if (local != null && local.closeTracker != null && ((lhsBits & Binding.FIELD) != 0))
-				currentScope.removeTrackingVar(local.closeTracker); // TODO: may want to use local.closeTracker.markPassedToOutside(..,true)
+				local.closeTracker.withdraw(); // TODO: may want to use local.closeTracker.markPassedToOutside(..,true)
 		}
 	}
 
@@ -831,9 +831,9 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		return false;
 	}
 
-	public void withDraw() {
+	public void withdraw() {
 		// must unregister at the declaringScope, note that twr resources are owned by the scope enclosing the twr
-		this.originalBinding.declaringScope.removeTrackingVar(this);
+		this.binding.declaringScope.removeTrackingVar(this);
 	}
 
 	public void recordErrorLocation(ASTNode location, int nullStatus) {

@@ -20,6 +20,7 @@
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
  *								Bug 371614 - [compiler][resource] Wrong "resource leak" problem on return/throw inside while loop
  *								Bug 421035 - [resource] False alarm of resource leak warning when casting a closeable in its assignment
+ *								Bug 444964 - [1.7+][resource] False resource leak warning (try-with-resources for ByteArrayOutputStream - return inside for loop)
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *								bug 378674 - "The method can be declared as static" is wrong
  *     Keigo Imai - Contribution for  bug 388903 - Cannot extend inner class as an anonymous class when it extends the outer class
@@ -1050,7 +1051,7 @@ public int registerTrackingVariable(FakedTrackingVariable fakedTrackingVariable)
 /** When are no longer interested in this tracking variable - remove it. */
 public void removeTrackingVar(FakedTrackingVariable trackingVariable) {
 	if (trackingVariable.innerTracker != null) {
-		removeTrackingVar(trackingVariable.innerTracker);
+		trackingVariable.innerTracker.withdraw();
 		trackingVariable.innerTracker = null;
 	}
 	if (this.trackingVariables != null)

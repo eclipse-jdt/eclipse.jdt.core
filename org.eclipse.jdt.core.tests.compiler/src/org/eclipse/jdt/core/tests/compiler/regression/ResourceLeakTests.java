@@ -5092,4 +5092,145 @@ public void testBug421035() {
 		},
 		options);
 }
+public void testBug444964() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"Bug444964.java",
+			"import java.io.*;\n" + 
+			"\n" + 
+			"public class Bug444964 {\n" + 
+			"  void wrong() {\n" + 
+			"    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {\n" + 
+			"      for (;;) {\n" + 
+			"        return;\n" + 
+			"      }\n" + 
+			"    } catch (Exception e) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  void right() {\n" + 
+			"    try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {\n" + 
+			"      while (true) {\n" + 
+			"        return;\n" + 
+			"      }\n" + 
+			"    } catch (Exception e) {\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"\n" + 
+			"}\n"
+		},
+		options);
+}
+public void testBug397204() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"HostIdTest.java",
+			"import java.io.*;\n" + 
+			"import java.net.InetAddress;\n" + 
+			"import java.net.NetworkInterface;\n" + 
+			"import java.util.Enumeration;\n" + 
+			"import java.util.Formatter;\n" + 
+			"import java.util.Locale;\n" + 
+			"\n" + 
+			"\n" + 
+			"public class HostIdTest {\n" + 
+			"\n" + 
+			"    public final void primaryNetworkInterface() throws IOException {\n" + 
+			"        System.out.println(InetAddress.getLocalHost());\n" + 
+			"        System.out.println(InetAddress.getLocalHost().getHostName());\n" + 
+			"        System.out.println(hostId());\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    String hostId() throws IOException {\n" + 
+			"        try (StringWriter s = new StringWriter(); PrintWriter p = new PrintWriter(s)) {\n" + 
+			"            p.print(InetAddress.getLocalHost().getHostName());\n" + 
+			"            p.print('/');\n" + 
+			"            Enumeration<NetworkInterface> e = NetworkInterface.getNetworkInterfaces();\n" + 
+			"            while (e.hasMoreElements()) {\n" + 
+			"                NetworkInterface i = e.nextElement();\n" + 
+			"                System.out.println(i);\n" + 
+			"                if (i.getHardwareAddress() == null || i.getHardwareAddress().length == 0)\n" + 
+			"                    continue;\n" + 
+			"                for (byte b : i.getHardwareAddress())\n" + 
+			"                    p.printf(\"%02x\", b);\n" + 
+			"                return s.toString();\n" + 
+			"            }\n" + 
+			"            throw new RuntimeException(\"Unable to determine Host ID\");\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public void otherHostId() throws Exception {\n" + 
+			"        InetAddress addr = InetAddress.getLocalHost();\n" + 
+			"        byte[] ipaddr = addr.getAddress();\n" + 
+			"        if (ipaddr.length == 4) {\n" + 
+			"            int hostid = ipaddr[1] << 24 | ipaddr[0] << 16 | ipaddr[3] << 8 | ipaddr[2];\n" + 
+			"            StringBuilder sb = new StringBuilder();\n" + 
+			"            try (Formatter formatter = new Formatter(sb, Locale.US)) {\n" + 
+			"                formatter.format(\"%08x\", hostid);\n" + 
+			"                System.out.println(sb.toString());\n" + 
+			"            }\n" + 
+			"        } else {\n" + 
+			"            throw new Exception(\"hostid for IPv6 addresses not implemented yet\");\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"}\n"
+		},
+		options);
+}
+public void testBug397204_comment4() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"HostIdTest.java",
+			"import java.io.*;\n" + 
+			"\n" + 
+			"public class HostIdTest {\n" + 
+			"\n" + 
+			"  void simple() throws Exception {\n" + 
+			"    try (InputStream x = new ByteArrayInputStream(null)) {\n" + 
+			"      while (Math.abs(1) == 1)\n" + 
+			"        if (Math.abs(1) == 1)\n" + 
+			"            return;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		options);
+}
+public void testBug444510() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runConformTest(
+		new String[] {
+			"Bug433510.java",
+			"import java.io.*;\n" + 
+			"\n" + 
+			"public class Bug433510 {\n" + 
+			"\n" + 
+			"	void test() throws Exception {\n" + 
+			"		try (Reader r = new StringReader(\"Hello World!\")) {\n" + 
+			"			int c;\n" + 
+			"			while ((c = r.read()) != -1) {\n" + 
+			"				if (c == ' ')\n" + 
+			"					throw new IOException(\"Unexpected space\");\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		options);
+}
 }
