@@ -5208,7 +5208,7 @@ public void testBug397204_comment4() {
 		},
 		options);
 }
-public void testBug444510() {
+public void testBug433510() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // t-w-r used
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -5231,6 +5231,88 @@ public void testBug444510() {
 			"	}\n" + 
 			"}\n"
 		},
+		options);
+}
+public void testBug440282() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	runNegativeTest(
+		new String[] {
+			"ResourceLeakFalseNegative.java",
+			"import java.io.FileInputStream;\n" + 
+			"import java.io.IOException;\n" + 
+			"import java.io.InputStreamReader;\n" + 
+			"\n" + 
+			"public final class ResourceLeakFalseNegative {\n" + 
+			"\n" + 
+			"  private static final class Foo implements AutoCloseable {\n" + 
+			"    final InputStreamReader reader;\n" + 
+			"\n" + 
+			"    Foo(final InputStreamReader reader) {\n" + 
+			"      this.reader = reader;\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public int read() throws IOException {\n" + 
+			"      return reader.read();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public void close() throws IOException {\n" + 
+			"      reader.close();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  private static final class Bar {\n" + 
+			"    final int read;\n" + 
+			"\n" + 
+			"    Bar(final InputStreamReader reader) throws IOException {\n" + 
+			"      read = reader.read();\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public int read() {\n" + 
+			"      return read;\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public final static int foo() throws IOException {\n" + 
+			"    final FileInputStream in = new FileInputStream(\"/dev/null\");\n" + 
+			"    final InputStreamReader reader = new InputStreamReader(in);\n" + 
+			"    try {\n" + 
+			"      return new Foo(reader).read();\n" + 
+			"    } finally {\n" + 
+			"      // even though Foo is not closed, no potential resource leak is reported.\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public final static int bar() throws IOException {\n" + 
+			"    final FileInputStream in = new FileInputStream(\"/dev/null\");\n" + 
+			"    final InputStreamReader reader = new InputStreamReader(in);\n" + 
+			"    try {\n" + 
+			"      final Bar bar = new Bar(reader);\n" + 
+			"      return bar.read();\n" + 
+			"    } finally {\n" + 
+			"      // Removing the close correctly reports potential resource leak as a warning,\n" + 
+			"      // because Bar does not implement AutoCloseable.\n" + 
+			"      reader.close();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static void main(String[] args) throws IOException {\n" + 
+			"    for (;;) {\n" + 
+			"      foo();\n" + 
+			"      bar();\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in ResourceLeakFalseNegative.java (at line 39)\n" + 
+		"	return new Foo(reader).read();\n" + 
+		"	       ^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n",
+		null,
+		true,
 		options);
 }
 }
