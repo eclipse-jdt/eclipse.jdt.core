@@ -5315,4 +5315,62 @@ public void testBug440282() {
 		true,
 		options);
 }
+public void testBug390064() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // generics used
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
+	runNegativeTest(
+		new String[] {
+			"Redundant.java",
+			"public class Redundant\n" + 
+			"{\n" + 
+			"   private static class A<T> implements AutoCloseable\n" + 
+			"   {\n" + 
+			"      public void close()\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"   }\n" + 
+			"\n" + 
+			"   private static class B extends A<Object>\n" + 
+			"   {\n" + 
+			"      \n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   private static class C implements AutoCloseable\n" + 
+			"   {\n" + 
+			"      public void close()\n" + 
+			"      {\n" + 
+			"      }\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   private static class D extends C\n" + 
+			"   {\n" + 
+			"      \n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public static void main(String[] args)\n" + 
+			"   {\n" + 
+			"      new B();\n" + 
+			"      \n" + 
+			"      new D();\n" + 
+			"   }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Redundant.java (at line 29)\n" + 
+		"	new B();\n" + 
+		"	^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n" + 
+		"2. ERROR in Redundant.java (at line 31)\n" + 
+		"	new D();\n" + 
+		"	^^^^^^^\n" + 
+		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
 }
