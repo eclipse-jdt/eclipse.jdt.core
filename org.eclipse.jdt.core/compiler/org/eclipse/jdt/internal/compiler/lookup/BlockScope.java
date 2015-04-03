@@ -21,6 +21,7 @@
  *								Bug 371614 - [compiler][resource] Wrong "resource leak" problem on return/throw inside while loop
  *								Bug 421035 - [resource] False alarm of resource leak warning when casting a closeable in its assignment
  *								Bug 444964 - [1.7+][resource] False resource leak warning (try-with-resources for ByteArrayOutputStream - return inside for loop)
+ *								Bug 396575 - [compiler][resources] Incorrect Errors/Warnings check for potential resource leak when surrounding with try-catch
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *								bug 378674 - "The method can be declared as static" is wrong
  *     Keigo Imai - Contribution for  bug 388903 - Cannot extend inner class as an anonymous class when it extends the outer class
@@ -28,9 +29,8 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -1081,10 +1081,10 @@ public void checkUnclosedCloseables(FlowInfo flowInfo, FlowContext flowContext, 
 	FakedTrackingVariable returnVar = (location instanceof ReturnStatement) ?
 			FakedTrackingVariable.getCloseTrackingVariable(((ReturnStatement)location).expression, flowInfo, flowContext) : null;
 
-	Set varSet = new HashSet(this.trackingVariables);
-	FakedTrackingVariable trackingVar;
-	// pick one outer-most variable from the set at a time
-	while ((trackingVar = FakedTrackingVariable.pickVarForReporting(varSet, this, location != null)) != null) {
+	// iterate variables according to the priorities defined in FakedTrackingVariable.IteratorForReporting.Stage
+	Iterator<FakedTrackingVariable> iterator = new FakedTrackingVariable.IteratorForReporting(this.trackingVariables, this, location != null);
+	while (iterator.hasNext()) {
+		FakedTrackingVariable trackingVar = iterator.next();
 
 		if (returnVar != null && trackingVar.isResourceBeingReturned(returnVar)) {
 			continue;

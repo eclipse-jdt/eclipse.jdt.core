@@ -13,7 +13,9 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -708,7 +710,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		do {
 			flowInfo.markAsDefinitelyNonNull(current.binding);
 			current.globalClosingState |= CLOSE_SEEN;
-			flowContext.markFinallyNullStatus(this.binding, FlowInfo.NON_NULL);
+			flowContext.markFinallyNullStatus(current.binding, FlowInfo.NON_NULL);
 			current = current.innerTracker;
 		} while (current != null);
 	}
@@ -746,44 +748,100 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		return flowInfo;
 	}
 
-	/** 
-	 * Pick tracking variables from 'varsOfScope' to establish a proper order of processing:
-	 * As much as possible pick wrapper resources before their inner resources.
-	 * Also consider cases of wrappers and their inners being declared at different scopes.
+	/**
+	 * Iterator for a set of FakedTrackingVariable, which dispenses the elements 
+	 * according to the priorities defined by enum {@link Stage}.
+	 * Resources whose outer is owned by an enclosing scope are never answered,
+	 * unless we are analysing on behalf of an exit (return/throw).
 	 */
-	public static FakedTrackingVariable pickVarForReporting(Set varsOfScope, BlockScope scope, boolean atExit) {
-		if (varsOfScope.isEmpty()) return null;
-		FakedTrackingVariable trackingVar = (FakedTrackingVariable) varsOfScope.iterator().next();
-		while (trackingVar.outerTracker != null) {
-			// resource is wrapped, is wrapper defined in this scope?
-			if (varsOfScope.contains(trackingVar.outerTracker)) {
-				// resource from same scope, travel up the wrapper chain
-				trackingVar = trackingVar.outerTracker;
-			} else if (atExit) {
-				// at an exit point we report against inner despite a wrapper that may/may not be closed later
-				break;
-			} else {
-				BlockScope outerTrackerScope = trackingVar.outerTracker.binding.declaringScope;
-				if (outerTrackerScope == scope) {
-					// outerTracker is from same scope and already processed -> pick trackingVar now
-					break;
-				} else {
-					// outer resource is from other (outer?) scope
-					Scope currentScope = scope;
-					while ((currentScope = currentScope.parent) instanceof BlockScope) {
-						if (outerTrackerScope == currentScope) {
-							// at end of block pass responsibility for inner resource to outer scope holding a wrapper
-							varsOfScope.remove(trackingVar); // drop this one
-							// pick a next candidate:
-							return pickVarForReporting(varsOfScope, scope, atExit);
+	public static class IteratorForReporting implements Iterator<FakedTrackingVariable> {
+
+		private final Set<FakedTrackingVariable> varSet;
+		private final Scope scope;
+		private final boolean atExit;
+
+		private Stage stage;
+		private Iterator<FakedTrackingVariable> iterator;
+		private FakedTrackingVariable next;
+		
+		enum Stage {
+			/** 1. prio: all top-level resources, ie., resources with no outer. */
+			OuterLess,
+			/** 2. prio: resources whose outer has already been processed (element of the same varSet). */
+			InnerOfProcessed,
+			/** 3. prio: resources whose outer is not owned by any enclosing scope. */
+			InnerOfNotEnclosing,
+			/** 4. prio: when analysing on behalf of an exit point: anything not picked before. */
+			AtExit
+		}
+
+		public IteratorForReporting(List<FakedTrackingVariable> variables, Scope scope, boolean atExit) {
+			this.varSet = new HashSet<>(variables);
+			this.scope = scope;
+			this.atExit = atExit;
+			setUpForStage(Stage.OuterLess);
+		}
+		@Override
+		public boolean hasNext() {
+			FakedTrackingVariable trackingVar;
+			switch (this.stage) {
+				case OuterLess:
+					while (this.iterator.hasNext()) {
+						trackingVar = this.iterator.next();
+						if (trackingVar.outerTracker == null)
+							return found(trackingVar);
+					}
+					setUpForStage(Stage.InnerOfProcessed);
+					//$FALL-THROUGH$
+				case InnerOfProcessed:
+					while (this.iterator.hasNext()) {
+						trackingVar = this.iterator.next();
+						FakedTrackingVariable outer = trackingVar.outerTracker;
+						if (outer.binding.declaringScope == this.scope && !this.varSet.contains(outer))
+							return found(trackingVar);
+					}
+					setUpForStage(Stage.InnerOfNotEnclosing);
+					//$FALL-THROUGH$
+				case InnerOfNotEnclosing:
+					searchAlien: while (this.iterator.hasNext()) {
+						trackingVar = this.iterator.next();
+						FakedTrackingVariable outer = trackingVar.outerTracker;
+						if (!this.varSet.contains(outer)) {
+							Scope outerTrackerScope = outer.binding.declaringScope;
+							Scope currentScope = this.scope;
+							while ((currentScope = currentScope.parent) instanceof BlockScope) {
+								if (outerTrackerScope == currentScope)
+									break searchAlien;
+							}
+							return found(trackingVar);
 						}
 					}
-					break; // not parent owned -> pick this var
-				}
+					setUpForStage(Stage.AtExit);
+					//$FALL-THROUGH$
+				case AtExit:
+					if (this.atExit && this.iterator.hasNext())
+						return found(this.iterator.next());
+					return false;
+				default: throw new IllegalStateException("Unexpected Stage "+this.stage); //$NON-NLS-1$
 			}
 		}
-		varsOfScope.remove(trackingVar);
-		return trackingVar;
+		private boolean found(FakedTrackingVariable trackingVar) {
+			this.iterator.remove();
+			this.next = trackingVar;
+			return true;
+		}
+		private void setUpForStage(Stage nextStage) {
+			this.iterator = this.varSet.iterator();
+			this.stage = nextStage;
+		}
+		@Override
+		public FakedTrackingVariable next() {
+			return this.next;
+		}
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	/**

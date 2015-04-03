@@ -5373,4 +5373,65 @@ public void testBug390064() {
 		true,
 		options);
 }
+public void testBug396575() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
+	runNegativeTest(
+		new String[] {
+			"Bug396575.java",
+			"import java.io.*;\n" + 
+			"\n" + 
+			"public class Bug396575 {\n" + 
+			"  void test1(File myFile) {\n" + 
+			"   OutputStream out = null;\n" + 
+			"   BufferedWriter bw = null;\n" + 
+			"   try {\n" + 
+			"       // code...\n" + 
+			"       out = new FileOutputStream(myFile);\n" + 
+			"       OutputStreamWriter writer = new OutputStreamWriter(out);\n" + 
+			"       bw = new BufferedWriter(writer);\n" + 
+			"       // more code...\n" + 
+			"   } catch (Exception e) {\n" + 
+			"       try {\n" + 
+			"           bw.close(); // WARN: potential null pointer access\n" + 
+			"       } catch (Exception ignored) {}\n" + 
+			"       return;  // WARN: resource leak - bw may not be closed\n" + 
+			"   }\n" + 
+			"  }\n" + 
+			"  \n" + 
+			"  void test2(File myFile) {\n" + 
+			"       BufferedWriter bw = null;\n" + 
+			"   try {\n" + 
+			"       // code...\n" + 
+			"                                                       // declare \"out\" here inside try-catch as a temp variable\n" + 
+			"       OutputStream out = new FileOutputStream(myFile); // WARN: out is never closed.\n" + 
+			"       OutputStreamWriter writer = new OutputStreamWriter(out);\n" + 
+			"       bw = new BufferedWriter(writer);\n" + 
+			"       // more code...\n" + 
+			"   } catch (Exception e) {\n" + 
+			"       try {\n" + 
+			"           bw.close(); // WARN: potential null pointer access\n" + 
+			"       } catch (Exception ignored) {}\n" + 
+			"       return;  // WARN: resource leak - bw may not be closed\n" + 
+			"   }\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Bug396575.java (at line 11)\n" + 
+		"	bw = new BufferedWriter(writer);\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'bw\' is never closed\n" + 
+		"----------\n" + 
+		"2. ERROR in Bug396575.java (at line 28)\n" + 
+		"	bw = new BufferedWriter(writer);\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Resource leak: \'bw\' is never closed\n" + 
+		"----------\n",
+		null,
+		true,
+		options);
+}
 }
