@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contribution for
  *								Bug 458577 - IClassFile.getWorkingCopy() may lead to NPE in BecomeWorkingCopyOperation
  *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
+ *								Bug 462768 - [null] NPE when using linked folder for external annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -30,6 +31,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
@@ -382,12 +384,22 @@ private void setupExternalAnnotationProvider(IProject project, final IPath exter
 {
 	// try resolve path within the workspace:
 	IWorkspaceRoot root = project.getWorkspace().getRoot();
-	IResource resource = root.getFolder(externalAnnotationPath);
+	IResource resource = externalAnnotationPath.segmentCount() == 1
+			? root.getProject(externalAnnotationPath.lastSegment())
+			: root.getFolder(externalAnnotationPath);
 	if (!resource.exists())
 		resource = root.getFile(externalAnnotationPath);
-	String resolvedPath = resource.exists()
-							? resource.getLocation().toString() // workspace lookup succeeded -> resolve it
-							: externalAnnotationPath.toString(); // not in workspace, use as is
+	String resolvedPath;
+	if (resource.exists()) {
+		if (resource.isVirtual()) {
+			Util.log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, 
+					"Virtual resource "+externalAnnotationPath+" cannot be used as annotationpath for project "+project.getName())); //$NON-NLS-1$ //$NON-NLS-2$
+			return;
+		}
+		resolvedPath = resource.getLocation().toString(); // workspace lookup succeeded -> resolve it
+	} else {
+		resolvedPath = externalAnnotationPath.toString(); // not in workspace, use as is
+	}
 	try {
 		annotationZip = reader.setExternalAnnotationProvider(resolvedPath, typeName, annotationZip, new ClassFileReader.ZipFileProducer() {
 			@Override public ZipFile produce() throws IOException {

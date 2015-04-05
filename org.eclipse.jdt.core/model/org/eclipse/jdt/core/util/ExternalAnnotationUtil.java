@@ -175,11 +175,15 @@ public final class ExternalAnnotationUtil {
 	
 		if (annotationPath == null) 
 			return null;
+
 		IWorkspaceRoot workspaceRoot = project.getProject().getWorkspace().getRoot();
-		IFile annotationZip = workspaceRoot.getFile(annotationPath);
-		if (annotationZip.exists())
-			return null;
-	
+
+		if (annotationPath.segmentCount() > 1) {
+			IFile annotationZip = workspaceRoot.getFile(annotationPath);
+			if (annotationZip.exists())
+				return null;
+		}
+		
 		annotationPath = annotationPath.append(binaryTypeName).addFileExtension(ExternalAnnotationProvider.ANNOTION_FILE_EXTENSION);
 		return workspaceRoot.getFile(annotationPath);
 	}

@@ -11,6 +11,7 @@
  *     Thirumala Reddy Mutchukota <thirumala@google.com> - Avoid optional library classpath entries validation - https://bugs.eclipse.org/bugs/show_bug.cgi?id=412882
  *     Stephan Herrmann - Contribution for
  *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
+ *								Bug 462768 - [null] NPE when using linked folder for external annotations
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -1282,11 +1283,13 @@ public class ClasspathEntry implements IClasspathEntry {
 				if (!resolve)
 					return annotationPath;
 
-				if (annotationPath.segmentCount() > 1) {
-					// try Workspace-absolute:
-					IProject targetProject = project.getWorkspace().getRoot().getProject(annotationPath.segment(0));
-					if (targetProject.exists())
+				// try Workspace-absolute:
+				IProject targetProject = project.getWorkspace().getRoot().getProject(annotationPath.segment(0));
+				if (targetProject.exists()) {
+					if (annotationPath.segmentCount() > 1)
 						return targetProject.getLocation().append(annotationPath.removeFirstSegments(1));
+					else
+						return targetProject.getLocation();
 				}
 				// absolute, not in workspace, must be Filesystem-absolute:
 				return annotationPath;

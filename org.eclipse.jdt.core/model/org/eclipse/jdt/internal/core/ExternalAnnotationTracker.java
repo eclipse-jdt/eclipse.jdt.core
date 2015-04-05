@@ -44,6 +44,7 @@ public class ExternalAnnotationTracker implements IResourceChangeListener {
 	static class DirectoryNode {
 
 		DirectoryNode parent;		
+		IPath path;
 		
 		/** Key is a full workspace path. */
 		Map<IPath,DirectoryNode> children;
@@ -54,8 +55,9 @@ public class ExternalAnnotationTracker implements IResourceChangeListener {
 		Map<IPath, ClassFile> classFiles;
 		IPackageFragmentRoot modelRoot; // TODO: for handling zipped annotations
 		
-		public DirectoryNode(DirectoryNode parent) {
+		public DirectoryNode(DirectoryNode parent, IPath path) {
 			this.parent = parent;
+			this.path = path;
 		}
 
 		Map<IPath, DirectoryNode> getChildren() {
@@ -80,9 +82,9 @@ public class ExternalAnnotationTracker implements IResourceChangeListener {
 			}
 		}
 		void unregisterDirectory(DirectoryNode child) {
-			if (this.children == null) return;
-			this.children.remove(child);
-			if (this.children.isEmpty() && this.parent != null)
+			if (this.children != null)
+				this.children.remove(child.path);
+			if ((this.children == null || this.children.isEmpty()) && this.parent != null)
 				this.parent.unregisterDirectory(this);
 		}
 
@@ -106,10 +108,13 @@ public class ExternalAnnotationTracker implements IResourceChangeListener {
 					count += child.numClassFiles();
 			return count;
 		}
+		boolean isEmpty() {
+			return (this.children == null || this.children.isEmpty()) && (this.classFiles == null || this.classFiles.isEmpty());
+		}
 	}
 
 	/** The tree of tracked annotation bases and class files. */
-	DirectoryNode tree = new DirectoryNode(null);
+	DirectoryNode tree = new DirectoryNode(null, null);
 
 	private static ExternalAnnotationTracker singleton;
 	private ExternalAnnotationTracker() { }
@@ -170,7 +175,7 @@ public class ExternalAnnotationTracker implements IResourceChangeListener {
 		Map<IPath, DirectoryNode> children = current.getChildren(); // create if necessary
 		DirectoryNode nextHeadNode = children.get(nextHead);
 		if (nextHeadNode == null)
-			children.put(nextHead, nextHeadNode = new DirectoryNode(current));
+			children.put(nextHead, nextHeadNode = new DirectoryNode(current, nextHead));
 		if (baseDepth == nextDepth)
 			return nextHeadNode;
 		return getAnnotationBase(nextHeadNode, annotationBase, baseDepth, nextDepth+1);
@@ -207,14 +212,16 @@ public class ExternalAnnotationTracker implements IResourceChangeListener {
 						traverseForDirectories(childDir, child);
 				}
 			}
-		}			
+		}
+		if (directoryNode.isEmpty())
+			directoryNode.parent.children.remove(matchedDelta.getFullPath());
 	}
 
 	// traversal of delta nodes to be matched against map of class files:
 	private void traverseForClassFiles(Map<IPath, ClassFile> classFiles, IResourceDelta matchedDelta, int baseDepth) {
 		for (IResourceDelta delta : matchedDelta.getAffectedChildren()) {
 			IPath deltaRelativePath = delta.getFullPath().removeFirstSegments(baseDepth);
-			ClassFile classFile = classFiles.get(deltaRelativePath);
+			ClassFile classFile = classFiles.remove(deltaRelativePath);
 			if (classFile != null) {
 				try {
 					// the payload: unload the class file corresponding to a changed external annotation file:
