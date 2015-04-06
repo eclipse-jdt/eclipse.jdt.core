@@ -32,6 +32,7 @@
  *								Bug 456497 - [1.8][null] during inference nullness from target type is lost against weaker hint from applicability analysis
  *								Bug 456459 - Discrepancy between Eclipse compiler and javac - Enums, interfaces, and generics
  *								Bug 456487 - [1.8][null] @Nullable type variant of @NonNull-constrained type parameter causes grief
+ *								Bug 462790 - [null] NPE in Expression.computeConversion()
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -896,10 +897,11 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public TypeBinding setFirstBound(TypeBinding firstBound) {
 		this.firstBound = firstBound;
 		if ((this.tagBits & TagBits.HasAnnotatedVariants) != 0) {
-			TypeBinding [] annotatedTypes = this.environment.getAnnotatedTypes(this);
+			TypeBinding [] annotatedTypes = getDerivedTypesForDeferredInitialization();
 			for (int i = 0, length = annotatedTypes == null ? 0 : annotatedTypes.length; i < length; i++) {
 				TypeVariableBinding annotatedType = (TypeVariableBinding) annotatedTypes[i];
-				annotatedType.firstBound = firstBound;
+				if (annotatedType.firstBound == null)
+					annotatedType.firstBound = firstBound;
 			}
 		}
 		if (firstBound != null && firstBound.hasNullTypeAnnotations())
@@ -912,10 +914,11 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public ReferenceBinding setSuperClass(ReferenceBinding superclass) {
 		this.superclass = superclass;
 		if ((this.tagBits & TagBits.HasAnnotatedVariants) != 0) {
-			TypeBinding [] annotatedTypes = this.environment.getAnnotatedTypes(this);
+			TypeBinding [] annotatedTypes = getDerivedTypesForDeferredInitialization();
 			for (int i = 0, length = annotatedTypes == null ? 0 : annotatedTypes.length; i < length; i++) {
 				TypeVariableBinding annotatedType = (TypeVariableBinding) annotatedTypes[i];
-				annotatedType.superclass = superclass;
+				if (annotatedType.superclass == null)
+					annotatedType.superclass = superclass;
 			}
 		}
 		return superclass;
@@ -926,13 +929,18 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public ReferenceBinding [] setSuperInterfaces(ReferenceBinding[] superInterfaces) {
 		this.superInterfaces = superInterfaces;
 		if ((this.tagBits & TagBits.HasAnnotatedVariants) != 0) {
-			TypeBinding [] annotatedTypes = this.environment.getAnnotatedTypes(this);
+			TypeBinding [] annotatedTypes = getDerivedTypesForDeferredInitialization();
 			for (int i = 0, length = annotatedTypes == null ? 0 : annotatedTypes.length; i < length; i++) {
 				TypeVariableBinding annotatedType = (TypeVariableBinding) annotatedTypes[i];
-				annotatedType.superInterfaces = superInterfaces;
+				if (annotatedType.superInterfaces == null)
+					annotatedType.superInterfaces = superInterfaces;
 			}
 		}
 		return superInterfaces;
+	}
+
+	protected TypeBinding[] getDerivedTypesForDeferredInitialization() {
+		return this.environment.getAnnotatedTypes(this);
 	}
 
 	public TypeBinding combineTypeAnnotations(TypeBinding substitute) {

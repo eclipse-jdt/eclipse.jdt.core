@@ -8052,4 +8052,47 @@ public void testBug457210() {
 		true,
 		customOptions);
 }
+public void testBug462790() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // multi catch used
+	runConformTestWithLibs(
+		new String[] {
+			"EclipseBug.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"public class EclipseBug {\n" + 
+			"\n" + 
+			"	public void method(Class<? extends String> commandType) {\n" + 
+			"		String command = (String)getCommand(commandType);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static <T extends String> T getCommand(Class<T> commandType) {\n" + 
+			"		try {\n" + 
+			"			return commandType.newInstance();\n" + 
+			"		} catch (InstantiationException | IllegalAccessException e) {\n" + 
+			"			throw new RuntimeException();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in EclipseBug.java (at line 5)\n" + 
+		"	String command = (String)getCommand(commandType);\n" + 
+		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unnecessary cast from capture#1-of ? extends String to String\n" + 
+		"----------\n" + 
+		"2. WARNING in EclipseBug.java (at line 8)\n" + 
+		"	public static <T extends String> T getCommand(Class<T> commandType) {\n" + 
+		"	                         ^^^^^^\n" + 
+		"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
+		"----------\n" +
+		(this.complianceLevel < ClassFileConstants.JDK1_8
+		?
+		"3. WARNING in EclipseBug.java (at line 10)\n" + 
+		"	return commandType.newInstance();\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type safety: The expression of type \'T\' needs unchecked conversion to conform to \'@NonNull T\'\n" + 
+		"----------\n"
+		:
+		""));
+}
 }
