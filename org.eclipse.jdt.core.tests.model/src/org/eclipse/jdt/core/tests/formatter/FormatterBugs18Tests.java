@@ -204,5 +204,37 @@ public void testBug433177() throws Exception {
 
 	formatSource(source,expected);
 }
+public void testBug434821() throws Exception {
+	String source ="public class FormatterTest {\n"+
+			"	public void doNothing() {\n"+
+			"		new Thread(() -> {\n"+
+			"			synchronized (this) {\n"+
+			"				try {\n"+
+			"					Thread.sleep(0); // blah\n"+
+			"			} catch (final InterruptedException e2) {\n"+
+			"				e2.printStackTrace();\n"+
+			"			}\n"+
+			"		}\n"+
+			"\n"+
+			"	}	).start();\n"+
+			"	}\n"+
+			"}\n";
+	String expected = "public class FormatterTest {\n"+
+			"	public void doNothing() {\n"+
+			"		new Thread(() -> {\n"+
+			"			synchronized (this) {\n"+
+			"				try {\n"+
+			"					Thread.sleep(0); // blah\n"+
+			"				} catch (final InterruptedException e2) {\n"+
+			"					e2.printStackTrace();\n"+
+			"				}\n"+
+			"			}\n"+
+			"\n"+
+			"		} ).start();\n"+
+			"	}\n"+
+			"}\n";
+
+	formatSource(source,expected);
+}
 
 }
