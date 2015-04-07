@@ -4938,7 +4938,7 @@ public void testBug447062() throws JavaModelException {
  * 
  * @throws JavaModelException
  */
-public void testBug425601_001() throws JavaModelException {
+public void _testBug425601_001() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/testBug425601_001/Outer.java",
 			true/* resolve */);
 	String contents = "package testBug425601_001;\n" +
@@ -4983,7 +4983,7 @@ public void testBug425601_001() throws JavaModelException {
  * 
  * @throws JavaModelException
  */
-public void testBug425601_002() throws JavaModelException {
+public void _testBug425601_002() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/testBug425601_002/Outer.java",
 			true/* resolve */);
 	String contents = "package testBug425601_002;\n" +

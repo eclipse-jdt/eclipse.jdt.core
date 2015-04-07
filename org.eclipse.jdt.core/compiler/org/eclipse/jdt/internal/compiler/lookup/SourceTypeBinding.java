@@ -846,29 +846,18 @@ public char[] computeUniqueKey(boolean isLeaf) {
 	return uniqueKey;
 }
 
-private void checkAnnotationsInType() {
+void faultInTypesForFieldsAndMethods() {
+	if (!isPrototype()) throw new IllegalStateException();
 	// check @Deprecated annotation
 	getAnnotationTagBits(); // marks as deprecated by side effect
 	ReferenceBinding enclosingType = enclosingType();
 	if (enclosingType != null && enclosingType.isViewedAsDeprecated() && !isDeprecated())
 		this.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-
-	for (int i = 0, length = this.memberTypes.length; i < length; i++)
-		((SourceTypeBinding) this.memberTypes[i]).checkAnnotationsInType();
-}
-
-void faultInTypesForFieldsAndMethods() {
-	if (!isPrototype()) throw new IllegalStateException();
-	checkAnnotationsInType();
-	internalFaultInTypeForFieldsAndMethods();
-}
-
-private void internalFaultInTypeForFieldsAndMethods() {
 	fields();
 	methods();
 
 	for (int i = 0, length = this.memberTypes.length; i < length; i++)
-		((SourceTypeBinding) this.memberTypes[i]).internalFaultInTypeForFieldsAndMethods();
+		((SourceTypeBinding) this.memberTypes[i]).faultInTypesForFieldsAndMethods();
 }
 // NOTE: the type of each field of a source type is resolved when needed
 public FieldBinding[] fields() {
