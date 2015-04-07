@@ -4860,7 +4860,12 @@ public void testDefault06() {
 		"	       ^^^^\n" + 
 		"Null type mismatch: required \'@NonNull T\' but the provided value is null\n" + 
 		"----------\n" + 
-		"2. ERROR in X.java (at line 11)\n" + 
+		"2. ERROR in X.java (at line 10)\n" + 
+		"	void test(Inner<Number> inum) {\n" + 
+		"	                ^^^^^^\n" + 
+		"Null constraint mismatch: The type \'Number\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 11)\n" + 
 		"	@NonNull Number nnn = inum.process(null); // ERR on argument\n" + 
 		"	                                   ^^^^\n" + 
 		"Null type mismatch: required \'@NonNull Number\' but the provided value is null\n" + 
