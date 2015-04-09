@@ -7744,4 +7744,86 @@ public void testBug448709() {
 		"1->2\n" +
 		"1->2");
 }
+public void testBug459967_Array_constructor() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface FI<T> {\n" +
+			"	T @NonNull[] getArray(int size);" +
+			"}\n" +
+			"public class X {\n" +
+			"	void consumer(FI<String> fis) {}\n" +
+			"	void test() {\n" +
+			"		consumer(String[]::new);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug459967_Array_constructor_b() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface FI<T> {\n" +
+			"	@NonNull T @NonNull[] getArray(int size);" +
+			"}\n" +
+			"public class X {\n" +
+			"	void consumer(FI<String> fis) {}\n" +
+			"	void test() {\n" +
+			"		consumer(String[]::new);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	consumer(String[]::new);\n" + 
+		"	         ^^^^^^^^^^^^^\n" + 
+		"Null type safety at method return type: Method descriptor FI<String>.getArray(int) promises \'@NonNull String @NonNull[]\' but referenced method provides \'String @NonNull[]\'\n" + 
+		"----------\n");
+}
+public void testBug459967_Array_clone() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface FI<T> {\n" +
+			"	T @NonNull[] getArray(T[] orig);" +
+			"}\n" +
+			"public class X {\n" +
+			"	void consumer(FI<String> fis) {}\n" +
+			"	void test() {\n" +
+			"		consumer(String[]::clone);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug459967_Array_clone_b() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface FI<T> {\n" +
+			"	@NonNull T @NonNull[] getArray(T[] orig);" +
+			"}\n" +
+			"public class X {\n" +
+			"	void consumer(FI<String> fis) {}\n" +
+			"	void test() {\n" +
+			"		consumer(String[]::clone);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in X.java (at line 7)\n" + 
+		"	consumer(String[]::clone);\n" + 
+		"	         ^^^^^^^^^^^^^^^\n" + 
+		"Null type safety at method return type: Method descriptor FI<String>.getArray(String[]) promises \'@NonNull String @NonNull[]\' but referenced method provides \'String @NonNull[]\'\n" + 
+		"----------\n");
+}
 }

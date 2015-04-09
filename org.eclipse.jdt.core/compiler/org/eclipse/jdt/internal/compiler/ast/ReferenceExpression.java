@@ -34,6 +34,7 @@
  *							Bug 438945 - [1.8] NullPointerException InferenceContext18.checkExpression in java 8 with generics, primitives, and overloading
  *							Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *							Bug 448709 - [1.8][null] ensure we don't infer types that violate null constraints on a type parameter's bound
+ *							Bug 459967 - [null] compiler should know about nullness of special methods like MyEnum.valueOf()
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contribution for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -57,6 +58,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -576,6 +578,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         		scope.problemReporter().constructedArrayIncompatible(this, lhsType, this.descriptor.returnType);
         		return this.resolvedType = null;
         	}
+            checkNullAnnotations(scope);
         	return this.resolvedType;
         }
 
@@ -697,44 +700,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         	}
         	scope.problemReporter().unhandledException(methodExceptions[i], this);
         }
-        if (scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
-        	if (this.expectedType == null || !NullAnnotationMatching.hasContradictions(this.expectedType)) { // otherwise assume it has been reported and we can do nothing here
-	        	// TODO: simplify by using this.freeParameters?
-	        	int len;
-	        	int expectedlen = this.binding.parameters.length;
-	        	int providedLen = this.descriptor.parameters.length;
-	        	if (this.receiverPrecedesParameters)
-	        		providedLen--; // one parameter is 'consumed' as the receiver
-	        	boolean isVarArgs = false;
-	        	if (this.binding.isVarargs()) {
-	        		isVarArgs = (providedLen == expectedlen)
-						? !this.descriptor.parameters[expectedlen-1].isCompatibleWith(this.binding.parameters[expectedlen-1])
-						: true;
-	        		len = providedLen; // binding parameters will be padded from InferenceContext18.getParameter()
-	        	} else {
-	        		len = Math.min(expectedlen, providedLen);
-	        	}
-	    		for (int i = 0; i < len; i++) {
-	    			TypeBinding descriptorParameter = this.descriptor.parameters[i + (this.receiverPrecedesParameters ? 1 : 0)];
-	    			TypeBinding bindingParameter = InferenceContext18.getParameter(this.binding.parameters, i, isVarArgs);
-	    			NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(bindingParameter, descriptorParameter, FlowInfo.UNKNOWN);
-	    			if (annotationStatus.isAnyMismatch()) {
-	    				// immediate reporting:
-	    				scope.problemReporter().referenceExpressionArgumentNullityMismatch(this, bindingParameter, descriptorParameter, this.descriptor, i, annotationStatus);
-	    			}
-	    		}
-	        	if (!this.binding.isConstructor() && (this.descriptor.returnType.tagBits & TagBits.AnnotationNonNull) != 0) {
-	        		// since constructors never return null we don't have to check those anyway.
-	        		if ((this.binding.returnType.tagBits & TagBits.AnnotationNonNull) == 0) {
-	        			char[][] providedAnnotationName = ((this.binding.returnType.tagBits & TagBits.AnnotationNullable) != 0) ?
-	        					scope.environment().getNullableAnnotationName() : null;
-	        			scope.problemReporter().illegalReturnRedefinition(this, this.descriptor,
-	        					scope.environment().getNonNullAnnotationName(),
-	        					providedAnnotationName, this.binding.returnType);
-	        		}
-	        	}
-        	}
-        }
+        checkNullAnnotations(scope);
         this.freeParameters = null; // not used after method lookup
         
     	if (checkInvocationArguments(scope, null, this.receiverType, this.binding, null, descriptorParameters, false, this))
@@ -769,6 +735,45 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
     	}
 
     	return this.resolvedType; // Phew !
+	}
+
+	protected void checkNullAnnotations(BlockScope scope) {
+		if (scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
+        	if (this.expectedType == null || !NullAnnotationMatching.hasContradictions(this.expectedType)) { // otherwise assume it has been reported and we can do nothing here
+	        	// TODO: simplify by using this.freeParameters?
+	        	int len;
+	        	int expectedlen = this.binding.parameters.length;
+	        	int providedLen = this.descriptor.parameters.length;
+	        	if (this.receiverPrecedesParameters)
+	        		providedLen--; // one parameter is 'consumed' as the receiver
+	        	boolean isVarArgs = false;
+	        	if (this.binding.isVarargs()) {
+	        		isVarArgs = (providedLen == expectedlen)
+						? !this.descriptor.parameters[expectedlen-1].isCompatibleWith(this.binding.parameters[expectedlen-1])
+						: true;
+	        		len = providedLen; // binding parameters will be padded from InferenceContext18.getParameter()
+	        	} else {
+	        		len = Math.min(expectedlen, providedLen);
+	        	}
+	    		for (int i = 0; i < len; i++) {
+	    			TypeBinding descriptorParameter = this.descriptor.parameters[i + (this.receiverPrecedesParameters ? 1 : 0)];
+	    			TypeBinding bindingParameter = InferenceContext18.getParameter(this.binding.parameters, i, isVarArgs);
+	    			NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(bindingParameter, descriptorParameter, FlowInfo.UNKNOWN);
+	    			if (annotationStatus.isAnyMismatch()) {
+	    				// immediate reporting:
+	    				scope.problemReporter().referenceExpressionArgumentNullityMismatch(this, bindingParameter, descriptorParameter, this.descriptor, i, annotationStatus);
+	    			}
+	    		}
+	    		TypeBinding returnType = this.binding.returnType;
+	    		if (this.binding.isConstructor() || this.binding == scope.environment().arrayClone) {
+	    			returnType = scope.environment().createAnnotatedType(this.receiverType, new AnnotationBinding[]{ scope.environment().getNonNullAnnotation() });
+	    		}
+	    		NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(this.descriptor.returnType, returnType, FlowInfo.UNKNOWN);
+	        	if (annotationStatus.isAnyMismatch()) {
+        			scope.problemReporter().illegalReturnRedefinition(this, this.descriptor, annotationStatus.isUnchecked(), returnType);
+	        	}
+        	}
+        }
 	}
 
 	private TypeBinding[] descriptorParametersAsArgumentExpressions() {

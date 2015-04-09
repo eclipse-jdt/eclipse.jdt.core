@@ -57,6 +57,7 @@
  *								Bug 446442 - [1.8] merge null annotations from super methods
  *								Bug 455723 - Nonnull argument not correctly inferred in loop
  *								Bug 458361 - [1.8][null] reconciler throws NPE in ProblemReporter.illegalReturnRedefinition()
+ *								Bug 459967 - [null] compiler should know about nullness of special methods like MyEnum.valueOf()
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -9425,8 +9426,7 @@ public void referenceExpressionArgumentNullityMismatch(ReferenceExpression locat
 			location.sourceEnd);
 }
 public void illegalReturnRedefinition(ASTNode location, MethodBinding descriptorMethod,
-			char[][] nonNullAnnotationName, 
-			char/*@Nullable*/[][] providedAnnotationName, TypeBinding providedType) {
+			boolean isUnchecked, TypeBinding providedType) {
 	StringBuffer methodSignature = new StringBuffer()
 		.append(descriptorMethod.declaringClass.readableName())
 		.append('.')
@@ -9435,22 +9435,16 @@ public void illegalReturnRedefinition(ASTNode location, MethodBinding descriptor
 		.append(descriptorMethod.declaringClass.shortReadableName())
 		.append('.')
 		.append(descriptorMethod.shortReadableName());
-	StringBuffer providedPrefix = new StringBuffer(); 
-	StringBuffer providedShortPrefix = new StringBuffer(); 
-	if (providedAnnotationName != null) {
-		providedPrefix.append('@').append(CharOperation.toString(providedAnnotationName)).append(' ');
-		providedShortPrefix.append('@').append(providedAnnotationName[providedAnnotationName.length-1]).append(' ');
-	}
 	this.handle(
-		providedAnnotationName == null
+		isUnchecked
 			? IProblem.ReferenceExpressionReturnNullRedefUnchecked
 			: IProblem.ReferenceExpressionReturnNullRedef,
 		new String[] { methodSignature.toString(),
-						CharOperation.toString(nonNullAnnotationName), String.valueOf(descriptorMethod.returnType.readableName()),
-						providedPrefix.toString(), String.valueOf(providedType.readableName())},
+						String.valueOf(descriptorMethod.returnType.nullAnnotatedReadableName(this.options, false)),
+						String.valueOf(providedType.nullAnnotatedReadableName(this.options, false))},
 		new String[] { shortSignature.toString(),
-						String.valueOf(nonNullAnnotationName[nonNullAnnotationName.length-1]), String.valueOf(descriptorMethod.returnType.shortReadableName()),
-						providedShortPrefix.toString(), String.valueOf(providedType.shortReadableName())},
+						String.valueOf(descriptorMethod.returnType.nullAnnotatedReadableName(this.options, true)),
+						String.valueOf(providedType.nullAnnotatedReadableName(this.options, true))},
 		location.sourceStart,
 		location.sourceEnd);
 }

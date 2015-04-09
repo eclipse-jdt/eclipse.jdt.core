@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@
  *							Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
  *							Bug 434570 - Generic type mismatch for parametrized class annotation attribute with inner class
  *							Bug 444024 - [1.8][compiler][null] Type mismatch error in annotation generics assignment which happens "sometimes"
+ *							Bug 459967 - [null] compiler should know about nullness of special methods like MyEnum.valueOf()
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 415821 - [1.8][compiler] CLASS_EXTENDS target type annotation missing for anonymous classes
  *     het@google.com - Bug 456986 - Bogus error when annotation processor generates annotation type
@@ -382,6 +383,12 @@ public class ClassScope extends Scope {
 			for (int i = 0; i < fields.length; i++) {
 				fields[i].modifiers |= ExtraCompilerModifiers.AccLocallyUsed;	
 			}
+		}
+		if (isEnum && compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
+			// mark return types of values & valueOf as nonnull (needed to wait till after setMethods() to avoid reentrance):
+			LookupEnvironment environment = this.environment();
+			((SyntheticMethodBinding)methodBindings[0]).markNonNull(environment);
+			((SyntheticMethodBinding)methodBindings[1]).markNonNull(environment);
 		}
 	}
 
