@@ -58,6 +58,7 @@
  *								Bug 455723 - Nonnull argument not correctly inferred in loop
  *								Bug 458361 - [1.8][null] reconciler throws NPE in ProblemReporter.illegalReturnRedefinition()
  *								Bug 459967 - [null] compiler should know about nullness of special methods like MyEnum.valueOf()
+ *								Bug 461878 - [1.7][1.8][compiler][null] ECJ compiler does not allow to use null annotations on annotations
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -5788,8 +5789,15 @@ public void nullAnnotationUnsupportedLocation(Annotation annotation) {
 	String[] shortArguments = new String[] {
 		String.valueOf(annotation.resolvedType.shortReadableName())
 	};
+	int severity = ProblemSeverities.Error | ProblemSeverities.Fatal;
+	if (annotation.recipient instanceof ReferenceBinding) {
+		if (((ReferenceBinding) annotation.recipient).isAnnotationType())
+			severity = ProblemSeverities.Warning; // special case for https://bugs.eclipse.org/461878
+	}
 	handle(IProblem.NullAnnotationUnsupportedLocation,
-		arguments, shortArguments, annotation.sourceStart, annotation.sourceEnd);
+			arguments, shortArguments,
+			severity,
+			annotation.sourceStart, annotation.sourceEnd);
 }
 public void nullAnnotationUnsupportedLocation(TypeReference type) {
 	int sourceEnd = type.sourceEnd;

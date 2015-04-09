@@ -8494,4 +8494,32 @@ public void testBug418236() {
 		getCompilerOptions(),
 		"");
 }
+public void testBug461878() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "javax.annotation.Nonnull");
+	runNegativeTest(
+		new String[] {
+			"javax/annotation/Nonnull.java",
+			"package javax.annotation;\n" + 
+			"import java.lang.annotation.Retention;\n" + 
+			"import java.lang.annotation.RetentionPolicy;\n" + 
+			"@Retention(RetentionPolicy.RUNTIME)\n" + 
+			"public @interface Nonnull {\n" + 
+			"}\n",
+			"edu/umd/cs/findbugs/annotations/PossiblyNull.java",
+			"package edu.umd.cs.findbugs.annotations;\n" + 
+			"@javax.annotation.Nonnull // <-- error!!!\n" + 
+			"public @interface PossiblyNull {\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in edu\\umd\\cs\\findbugs\\annotations\\PossiblyNull.java (at line 2)\n" + 
+		"	@javax.annotation.Nonnull // <-- error!!!\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The nullness annotation \'Nonnull\' is not applicable at this location\n" + 
+		"----------\n",
+		null,
+		true,
+		compilerOptions);
+}
 }
