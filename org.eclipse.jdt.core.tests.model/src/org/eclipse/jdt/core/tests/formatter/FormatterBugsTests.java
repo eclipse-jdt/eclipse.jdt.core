@@ -10696,4 +10696,9 @@ public void testBug407629() throws Exception {
 	formatSource(source, expected);
 }
 
+public void testBug464312() throws Exception {
+	String source = "/**/int f;";
+	formatSource(source, source, CodeFormatter.K_STATEMENTS);
+}
+
 }

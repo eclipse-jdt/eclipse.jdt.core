@@ -251,13 +251,17 @@ public class LineBreaksPreparator extends ASTVisitor {
 		if (this.options.keep_guardian_clause_on_one_line && this.tm.isGuardClause(node))
 			return true;
 
+		// is this a fake block created by parsing in statements mode?
+		boolean isFakeBlock = node.getParent().getLength() == 0;
+
 		List<Statement> statements = node.statements();
-		for (Statement statement : statements) {
+		for (int i = isFakeBlock ? 1 : 0; i < statements.size(); i++) {
+			Statement statement = statements.get(i);
 			if (this.options.put_empty_statement_on_new_line || !(statement instanceof EmptyStatement))
 				breakLineBefore(statement);
 		}
-		if (node.getParent().getLength() == 0)
-			return true; // this is a fake block created by parsing in statements mode
+		if (isFakeBlock)
+			return true;
 
 		ASTNode parent = node.getParent();
 		if (parent instanceof MethodDeclaration)
