@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2013 IBM Corporation and others.
+ * Copyright (c) 2004, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contributions for
+ *								Bug 463330 - [dom] DOMFinder doesn't find the VariableBinding corresponding to a method argument
+ *								Bug 464463 - [dom] DOMFinder doesn't find an ITypeParameter
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
@@ -1052,6 +1055,36 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 	public void testCreateBindings14() throws JavaModelException {
 		IBinding[] bindings = createBindings(
 			"public class X<T> {\n" +
+			"}",
+			this.workingCopy.getType("X").getTypeParameter("T")
+		);
+		assertBindingsEqual(
+			"LX;:TT;",
+			bindings);
+	}
+
+	/*
+	 * Ensures that the correct IBindings are created for a given set of IJavaElement
+	 * (type parameter with bound)
+	 */
+	public void testCreateBindings14a() throws JavaModelException {
+		IBinding[] bindings = createBindings(
+			"public class X<T extends java.lang.Number> {\n" +
+			"}",
+			this.workingCopy.getType("X").getTypeParameter("T")
+		);
+		assertBindingsEqual(
+			"LX;:TT;",
+			bindings);
+	}
+
+	/*
+	 * Ensures that the correct IBindings are created for a given set of IJavaElement
+	 * (type parameter with parameterized bound)
+	 */
+	public void testCreateBindings14b() throws JavaModelException {
+		IBinding[] bindings = createBindings(
+			"public class X<T extends java.util.List<String>> {\n" +
 			"}",
 			this.workingCopy.getType("X").getTypeParameter("T")
 		);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2010 IBM Corporation and others.
+ * Copyright (c) 2005, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,12 +7,16 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contributions for
+ *								Bug 463330 - [dom] DOMFinder doesn't find the VariableBinding corresponding to a method argument
+ *								Bug 464463 - [dom] DOMFinder doesn't find an ITypeParameter
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.ISourceRange;
+import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -66,6 +70,8 @@ public class DOMFinder extends ASTVisitor {
 		ISourceRange range = null;
 		if (this.element instanceof IMember && !(this.element instanceof IInitializer))
 			range = ((IMember) this.element).getNameRange();
+		else if (this.element instanceof ITypeParameter)
+			range = ((ITypeParameter) this.element).getNameRange();
 		else
 			range = this.element.getSourceRange();
 		this.rangeStart = range.getOffset();
