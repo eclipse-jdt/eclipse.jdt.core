@@ -1212,7 +1212,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"1. ERROR in Y1.java (at line 5)\n" + 
 				"	X1<@Nullable String> maybeStrings;\n" + 
 				"	   ^^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'@NonNull T extends @NonNull Object\'\n" + 
+				"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'T extends @NonNull Object\'\n" + 
 				"----------\n" + 
 				"2. ERROR in Y1.java (at line 6)\n" + 
 				"	X2<@NonNull String> strings;\n" + 
@@ -1222,7 +1222,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"3. ERROR in Y1.java (at line 8)\n" + 
 				"	x.<Y1, @NonNull Object>foo(this, new Object());\n" + 
 				"	       ^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type \'@NonNull Object\' is not a valid substitute for the type parameter \'@Nullable V extends @Nullable Object'\n" + 
+				"Null constraint mismatch: The type \'@NonNull Object\' is not a valid substitute for the type parameter \'V extends @Nullable Object'\n" + 
 				"----------\n"
 				);
 	}
@@ -1288,7 +1288,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"1. ERROR in Y1.java (at line 3)\n" + 
 				"	p.X1<java.lang.@Nullable String> maybeStrings;\n" + 
 				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'@NonNull T extends @NonNull Object\'\n" + 
+				"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'T extends @NonNull Object\'\n" + 
 				"----------\n" + 
 				"2. ERROR in Y1.java (at line 4)\n" + 
 				"	p.X2<java.lang.@NonNull String> strings;\n" + 
@@ -1298,7 +1298,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"3. ERROR in Y1.java (at line 6)\n" + 
 				"	x.<Y1, java.lang.@NonNull Object>foo(this, new Object());\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type \'@NonNull Object\' is not a valid substitute for the type parameter \'@Nullable V extends @Nullable Object\'\n" + 
+				"Null constraint mismatch: The type \'@NonNull Object\' is not a valid substitute for the type parameter \'V extends @Nullable Object\'\n" + 
 				"----------\n"
 				);
 	}
@@ -1342,7 +1342,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"1. ERROR in Y1.java (at line 5)\n" + 
 				"	x.<@NonNull Y1, @NonNull Object>foo(this, new Object())\n" + 
 				"	                ^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type \'@NonNull Object\' is not a valid substitute for the type parameter \'@Nullable V extends @Nullable Object\'\n" + 
+				"Null constraint mismatch: The type \'@NonNull Object\' is not a valid substitute for the type parameter \'V extends @Nullable Object\'\n" + 
 				"----------\n" + 
 				"2. ERROR in Y1.java (at line 6)\n" + 
 				"	.get(0).put(null, null);\n" + 
@@ -6989,7 +6989,7 @@ public void testBug448777() {
 		"5. ERROR in DoubleInference.java (at line 17)\n" + 
 		"	f2.a(null);\n" + 
 		"	^^^^^^^^^^\n" + 
-		"Contradictory null annotations: method was inferred as \'@NonNull @Nullable String a(@NonNull @Nullable String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"Contradictory null annotations: method was inferred as \'@Nullable @NonNull String a(@Nullable @NonNull String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 		"----------\n");
 }
 public void testBug446442_comment2a() {
@@ -7317,17 +7317,17 @@ public void testBug446442_6b() {
 		"		return x;\n" + 
 		"	};\n" + 
 		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Contradictory null annotations: function type was inferred as \'ArrayList<@NonNull @Nullable Integer> (ArrayList<@NonNull @Nullable Integer>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"Contradictory null annotations: function type was inferred as \'ArrayList<@NonNull @Nullable Integer> (ArrayList<@Nullable @NonNull Integer>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 		"----------\n" + 
 		"4. ERROR in Test.java (at line 17)\n" + 
 		"	x.add(null);\n" + 
 		"	^^^^^^^^^^^\n" + 
-		"Contradictory null annotations: method was inferred as \'boolean add(@NonNull @Nullable Integer)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"Contradictory null annotations: method was inferred as \'boolean add(@Nullable @NonNull Integer)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 		"----------\n" + 
 		"5. ERROR in Test.java (at line 18)\n" + 
 		"	x.get(0);\n" + 
 		"	^^^^^^^^\n" + 
-		"Contradictory null annotations: method was inferred as \'@NonNull @Nullable Integer get(int)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"Contradictory null annotations: method was inferred as \'@Nullable @NonNull Integer get(int)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 		"----------\n");
 }
 public void testBug453475() {
@@ -7537,7 +7537,7 @@ public void testBug456487b() {
 		"2. ERROR in Optional.java (at line 5)\n" + 
 		"	public static <@NonNull T> Optional<T> of(T value) { return new Optional<T>(value); }\n" + 
 		"	                                                            ^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Contradictory null annotations: method was inferred as \'void <init>(@NonNull @Nullable T)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"Contradictory null annotations: method was inferred as \'void <init>(@Nullable @NonNull T)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 		"----------\n" + 
 		"3. ERROR in Optional.java (at line 5)\n" + 
 		"	public static <@NonNull T> Optional<T> of(T value) { return new Optional<T>(value); }\n" + 
@@ -7553,12 +7553,12 @@ public void testBug456487b() {
 		"2. ERROR in OTest.java (at line 6)\n" + 
 		"	@NonNull String s = os1.get();\n" + 
 		"	                    ^^^^^^^^^\n" + 
-		"Contradictory null annotations: method was inferred as \'@NonNull @Nullable String get()\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"Contradictory null annotations: method was inferred as \'@Nullable @NonNull String get()\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 		"----------\n" + 
 		"3. ERROR in OTest.java (at line 7)\n" + 
 		"	@Nullable String ns = os1.orElse(null);\n" + 
 		"	                      ^^^^^^^^^^^^^^^^\n" + 
-		"Contradictory null annotations: method was inferred as \'@NonNull @Nullable String orElse(@NonNull @Nullable String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"Contradictory null annotations: method was inferred as \'@Nullable @NonNull String orElse(@Nullable @NonNull String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 		"----------\n" + 
 		"4. ERROR in OTest.java (at line 10)\n" + 
 		"	Optional<String> os = Optional.of(null);\n" + 
@@ -7573,7 +7573,7 @@ public void testBug456487b() {
 		"6. ERROR in OTest.java (at line 11)\n" + 
 		"	@NonNull String s = os.orElse(null);\n" + 
 		"	                    ^^^^^^^^^^^^^^^\n" + 
-		"Contradictory null annotations: method was inferred as \'@NonNull @Nullable String orElse(@NonNull @Nullable String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
+		"Contradictory null annotations: method was inferred as \'@Nullable @NonNull String orElse(@Nullable @NonNull String)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 		"----------\n");
 }
 public void testBug454182() {

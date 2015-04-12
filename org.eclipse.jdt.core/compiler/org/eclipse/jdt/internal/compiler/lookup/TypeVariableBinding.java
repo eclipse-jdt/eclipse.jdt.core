@@ -33,6 +33,7 @@
  *								Bug 456459 - Discrepancy between Eclipse compiler and javac - Enums, interfaces, and generics
  *								Bug 456487 - [1.8][null] @Nullable type variant of @NonNull-constrained type parameter causes grief
  *								Bug 462790 - [null] NPE in Expression.computeConversion()
+ *								Bug 456532 - [1.8][null] ReferenceBinding.appendNullAnnotation() includes phantom annotations in error messages
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -807,6 +808,27 @@ public class TypeVariableBinding extends ReferenceBinding {
 		char[] readableName = new char[nameLength];
 		nameBuffer.getChars(0, nameLength, readableName, 0);
 	    return readableName;
+	}
+
+	protected void appendNullAnnotation(StringBuffer nameBuffer, CompilerOptions options) {
+		int oldSize = nameBuffer.length();
+		super.appendNullAnnotation(nameBuffer, options);
+		if (oldSize == nameBuffer.length()) { // nothing appended in super.appendNullAnnotation()?
+			if (hasNullTypeAnnotations()) {
+				// see if the prototype has null type annotations:
+				TypeVariableBinding[] typeVariables = null;
+				if (this.declaringElement instanceof ReferenceBinding) {
+					typeVariables = ((ReferenceBinding) this.declaringElement).typeVariables();
+				} else if (this.declaringElement instanceof MethodBinding) {
+					typeVariables = ((MethodBinding) this.declaringElement).typeVariables();
+				}
+				if (typeVariables != null && typeVariables.length > this.rank) {
+					TypeVariableBinding prototype = typeVariables[this.rank];
+					if (prototype != this)//$IDENTITY-COMPARISON$
+						prototype.appendNullAnnotation(nameBuffer, options);
+				}
+			}
+		}
 	}
 
 	public TypeBinding unannotated() {

@@ -34,6 +34,7 @@
  *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
  *								Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *								Bug 446442 - [1.8] merge null annotations from super methods
+ *								Bug 456532 - [1.8][null] ReferenceBinding.appendNullAnnotation() includes phantom annotations in error messages
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -1646,15 +1647,24 @@ public char[] readableName() /*java.lang.Object,  p.X<T> */ {
 
 protected void appendNullAnnotation(StringBuffer nameBuffer, CompilerOptions options) {
 	if (options.isAnnotationBasedNullAnalysisEnabled) {
-		// restore applied null annotation from tagBits:
-	    if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
-	    	char[][] nonNullAnnotationName = options.nonNullAnnotationName;
-			nameBuffer.append('@').append(nonNullAnnotationName[nonNullAnnotationName.length-1]).append(' ');
-	    }
-	    if ((this.tagBits & TagBits.AnnotationNullable) != 0) {
-	    	char[][] nullableAnnotationName = options.nullableAnnotationName;
-			nameBuffer.append('@').append(nullableAnnotationName[nullableAnnotationName.length-1]).append(' ');
-	    }
+		if (options.usesNullTypeAnnotations()) {
+			for (AnnotationBinding annotation : this.typeAnnotations) {
+				TypeBinding annotationType = annotation.getAnnotationType();
+				if (annotationType.id == TypeIds.T_ConfiguredAnnotationNonNull || annotation.type.id == TypeIds.T_ConfiguredAnnotationNullable) {
+					nameBuffer.append('@').append(annotationType.shortReadableName()).append(' ');
+				}
+			}
+		} else {
+			// restore applied null annotation from tagBits:
+		    if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
+		    	char[][] nonNullAnnotationName = options.nonNullAnnotationName;
+				nameBuffer.append('@').append(nonNullAnnotationName[nonNullAnnotationName.length-1]).append(' ');
+		    }
+		    if ((this.tagBits & TagBits.AnnotationNullable) != 0) {
+		    	char[][] nullableAnnotationName = options.nullableAnnotationName;
+				nameBuffer.append('@').append(nullableAnnotationName[nullableAnnotationName.length-1]).append(' ');
+		    }
+		}
 	}
 }
 
