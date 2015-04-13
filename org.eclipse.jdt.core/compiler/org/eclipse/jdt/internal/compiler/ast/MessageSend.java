@@ -1034,7 +1034,7 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	visitor.endVisit(this, blockScope);
 }
 public boolean statementExpression() {
-	return true;
+	return ((this.bits & ASTNode.ParenthesizedMASK) == 0);
 }
 public boolean receiverIsImplicitThis() {
 	return this.receiver.isImplicitThis();
