@@ -870,6 +870,25 @@ public void testBug463526c() {
 	"Void methods cannot return a value\n" +
 	"----------\n");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=464408
+public void testBug464408() {
+	runNegativeTest(new String[]{
+		"test/X.java",
+		"import java.util.ArrayList;\n" +
+		"import java.util.List;\n" +
+		"public class X {\n" +
+		"   void x() {\n" +
+		"       List<List<String>> list = new ArrayList<>();\n" +
+		"       list.stream().toArray(List<String>[]::new);\n" +
+		"   }" +
+		"}"
+	}, "----------\n" + 
+		"1. ERROR in test\\X.java (at line 6)\n" + 
+		"	list.stream().toArray(List<String>[]::new);\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot create a generic array of List<String>\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return LambdaRegressionTest.class;
 }

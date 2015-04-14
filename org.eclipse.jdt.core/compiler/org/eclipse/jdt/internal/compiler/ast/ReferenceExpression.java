@@ -955,7 +955,15 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 
 	@Override
 	public boolean isPotentiallyCompatibleWith(TypeBinding targetType, Scope scope) {
-		
+
+        final boolean isConstructorRef = isConstructorReference();
+		if (isConstructorRef && this.receiverType.isArrayType()) {
+			final TypeBinding leafComponentType = this.receiverType.leafComponentType();
+			if (!leafComponentType.isReifiable()) {
+				return false;
+			}
+		}
+
 		// We get here only when the reference expression is NOT pertinent to applicability.
 		if (!super.isPertinentToApplicability(targetType, null))
 			return true;
@@ -985,14 +993,12 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		}
 		
 		// 15.13.1
-        final boolean isMethodReference = isMethodReference();
         this.freeParameters = descriptorParameters;
         this.checkingPotentialCompatibility = true;
         try {
-        	MethodBinding compileTimeDeclaration = 
-        			this.exactMethodBinding != null ? this.exactMethodBinding :
-        							isMethodReference ? scope.getMethod(this.receiverType, this.selector, descriptorParameters, this) :
-        												scope.getConstructor((ReferenceBinding) this.receiverType, descriptorParameters, this);
+			MethodBinding compileTimeDeclaration = this.exactMethodBinding != null ? this.exactMethodBinding : isConstructorRef
+							? scope.getConstructor((ReferenceBinding) this.receiverType, descriptorParameters, this)
+							: scope.getMethod(this.receiverType, this.selector, descriptorParameters, this);
 
         	if (compileTimeDeclaration != null && compileTimeDeclaration.isValidBinding()) // we have the mSMB.
         		this.potentialMethods = new MethodBinding [] { compileTimeDeclaration };
