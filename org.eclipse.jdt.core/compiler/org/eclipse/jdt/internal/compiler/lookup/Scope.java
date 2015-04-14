@@ -1550,13 +1550,13 @@ public abstract class Scope {
 		ObjectVector found = new ObjectVector(3);
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordTypeReferences(argumentTypes);
-
+		List<TypeBinding> visitedTypes = new ArrayList<TypeBinding>();
 		if (receiverTypeIsInterface) {
 			unitScope.recordTypeReference(receiverType);
 			MethodBinding[] receiverMethods = receiverType.getMethods(selector, argumentTypes.length);
 			if (receiverMethods.length > 0)
 				found.addAll(receiverMethods);
-			findMethodInSuperInterfaces(receiverType, selector, found, null, invocationSite);
+			findMethodInSuperInterfaces(receiverType, selector, found, visitedTypes, invocationSite);
 			currentType = getJavaLangObject();
 		}
 

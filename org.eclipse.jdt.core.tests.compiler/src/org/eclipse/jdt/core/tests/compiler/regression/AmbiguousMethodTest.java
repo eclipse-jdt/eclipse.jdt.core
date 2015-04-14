@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4497,5 +4497,45 @@ public void testBug428845() {
 			"	                   ^^^^^^\n" + 
 			"The method method(File) is ambiguous for the type AmbiguousTest.AbstractClass\n" + 
 			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=458563 - invalid ambiguous method error on Java 8 that isn't seen on Java 7 (or with javac)
+public void testBug458563() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface IStoredNode<T> extends INodeHandle<DocumentImpl>, NodeHandle { }\n" + 
+			"interface NodeHandle extends INodeHandle<DocumentImpl> { }\n" + 
+			"class DocumentImpl implements INodeHandle<DocumentImpl> {\n" + 
+			"	public Object getNodeId() {return null;}\n" + 
+			"}\n" + 
+			"interface INodeHandle<D> {\n" + 
+			"    public Object  getNodeId();\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"	public void foo(IStoredNode bar) {\n" + 
+			"		bar.getNodeId();\n" + 
+			"	}\n" + 
+			"}"
+	});
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=458563 - invalid ambiguous method error on Java 8 that isn't seen on Java 7 (or with javac)
+public void testBug458563a() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface IStoredNode<T> extends INodeHandle<DocumentImpl>, NodeHandle { }\n" + 
+			"interface NodeHandle extends INodeHandle<DocumentImpl> { }\n" + 
+			"class DocumentImpl implements INodeHandle<DocumentImpl> {\n" + 
+			"	public Object getNodeId() {return null;}\n" + 
+			"}\n" + 
+			"interface INodeHandle<D> {\n" + 
+			"    public Object  getNodeId();\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"	public void foo(IStoredNode<?> bar) {\n" + 
+			"		bar.getNodeId();\n" + 
+			"	}\n" + 
+			"}"
+	});
 }
 }
