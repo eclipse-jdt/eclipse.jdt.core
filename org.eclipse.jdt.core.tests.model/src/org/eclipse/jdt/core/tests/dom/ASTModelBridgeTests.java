@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contributions for
  *								Bug 463330 - [dom] DOMFinder doesn't find the VariableBinding corresponding to a method argument
  *								Bug 464463 - [dom] DOMFinder doesn't find an ITypeParameter
+ *								Bug 464615 - [dom] ASTParser.createBindings() ignores parameterization of a method invocation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
@@ -1291,6 +1292,44 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			"LA;.foo(Ljava/lang/String;I)V#str\n" +
 			"LA;.foo(Ljava/lang/String;I)V#i",
 			bindings);
+	}
+
+	/*
+	 * Ensures that the correct IBindings are created for a given set of IJavaElement
+	 * (invocation of a generic method - binary)
+	 */
+	public void testCreateBinding27() throws Exception {
+		createClassFile("/P/lib", "p/A.class",
+				"package p;\n" +
+				"public class A {\n" +
+				"  public static <T> T foo(T[] arg) { return arg[0]; }\n" +
+				"}");
+		this.workingCopies = new ICompilationUnit[1];
+		String xSource = "public class X {\n" +
+						"  public String test(String[] args) {\n" +
+						"    return p.A.foo(args);\n" +
+						"  }\n" +
+						"}";
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/X.java",
+			xSource,
+			this.wcOwner
+		);
+
+		IJavaElement elem= this.workingCopies[0].codeSelect(xSource.indexOf("foo"), 0)[0];
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setProject(getJavaProject("P"));
+		IBinding[] bindings = parser.createBindings(new IJavaElement[]{ elem }, null);
+		assertBindingsEqual(
+			"Lp/A;.foo<T:Ljava/lang/Object;>([TT;)TT;%<Ljava/lang/String;>",
+			bindings);
+		IMethodBinding method = (IMethodBinding) bindings[0];
+		assertBindingsEqual(
+			"[Ljava/lang/String;",
+			method.getParameterTypes());
+			assertBindingsEqual(
+				"Ljava/lang/String;",
+				new IBinding[] {method.getReturnType()});
 	}
 
 	/*
