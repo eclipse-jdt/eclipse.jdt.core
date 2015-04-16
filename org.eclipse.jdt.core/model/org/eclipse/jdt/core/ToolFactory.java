@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -102,7 +102,7 @@ public class ToolFactory {
 			Plugin jdtCorePlugin = JavaCore.getPlugin();
 			if (jdtCorePlugin == null) return null;
 
-			IExtensionPoint extension = jdtCorePlugin.getDescriptor().getExtensionPoint(JavaModelManager.FORMATTER_EXTPOINT_ID);
+			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.FORMATTER_EXTPOINT_ID);
 			if (extension != null) {
 				IExtension[] extensions =  extension.getExtensions();
 				for(int i = 0; i < extensions.length; i++){
