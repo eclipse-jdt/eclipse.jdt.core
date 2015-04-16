@@ -480,9 +480,11 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	}
 	
 	protected void backupAptProblems() {
+		if (this.unitsToProcess == null) return;
 		for (CompilationUnitDeclaration unitDecl : this.unitsToProcess) {
+			if (unitDecl == null) continue;
 			CompilationResult result = unitDecl.compilationResult;
-			if (result.hasErrors()) {
+			if (result != null && result.hasErrors()) {
 				CategorizedProblem[] errors = result.getErrors();
 				for (CategorizedProblem problem : errors) {
 					if (problem.getCategoryID() == CategorizedProblem.CAT_UNSPECIFIED) {
