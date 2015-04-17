@@ -10,10 +10,12 @@
  *     Stephan Herrmann - Contributions for
  *								Bug 463330 - [dom] DOMFinder doesn't find the VariableBinding corresponding to a method argument
  *								Bug 464463 - [dom] DOMFinder doesn't find an ITypeParameter
+ *								Bug 429813 - [1.8][dom ast] IMethodBinding#getJavaElement() should return IMethod for lambda
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
 import org.eclipse.jdt.core.IInitializer;
+import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.ITypeParameter;
@@ -30,6 +32,7 @@ import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.Initializer;
+import org.eclipse.jdt.core.dom.LambdaExpression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
@@ -40,6 +43,7 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.internal.core.LambdaMethod;
 import org.eclipse.jdt.internal.core.SourceRefElement;
 
 public class DOMFinder extends ASTVisitor {
@@ -68,10 +72,11 @@ public class DOMFinder extends ASTVisitor {
 
 	public ASTNode search() throws JavaModelException {
 		ISourceRange range = null;
-		if (this.element instanceof IMember && !(this.element instanceof IInitializer))
+		if (this.element instanceof IMember && !(this.element instanceof IInitializer)
+				&& !(this.element instanceof LambdaMethod) && !(this.element instanceof org.eclipse.jdt.internal.core.LambdaExpression))
 			range = ((IMember) this.element).getNameRange();
-		else if (this.element instanceof ITypeParameter)
-			range = ((ITypeParameter) this.element).getNameRange();
+		else if (this.element instanceof ITypeParameter || this.element instanceof ILocalVariable)
+			range = this.element.getNameRange();
 		else
 			range = this.element.getSourceRange();
 		this.rangeStart = range.getOffset();
@@ -186,8 +191,14 @@ public class DOMFinder extends ASTVisitor {
 	}
 
 	public boolean visit(SingleVariableDeclaration node) {
-		if (found(node, node) && this.resolveBinding)
+		if (found(node, node.getName()) && this.resolveBinding)
 			this.foundBinding = node.resolveBinding();
 		return true;		
+	}
+
+	public boolean visit(LambdaExpression node) {
+		if (found(node, node) && this.resolveBinding)
+			this.foundBinding = node.resolveMethodBinding();
+		return true;
 	}
 }

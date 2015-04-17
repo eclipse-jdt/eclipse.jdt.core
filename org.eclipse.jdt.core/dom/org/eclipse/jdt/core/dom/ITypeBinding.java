@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 429813 - [1.8][dom ast] IMethodBinding#getJavaElement() should return IMethod for lambda
  *******************************************************************************/
 
 package org.eclipse.jdt.core.dom;
@@ -249,6 +251,30 @@ public interface ITypeBinding extends IBinding {
 	 * @since 3.1
 	 */
 	public IMethodBinding getDeclaringMethod();
+
+	/**
+	 * If this type binding represents a local type, possibly an anonymous class, then:
+	 * <ul>
+	 * <li>If the local type is declared in the body of a method,
+	 *   answers the binding of that declaring method.
+	 * </li>
+	 * <li>Otherwise, if the local type (an anonymous class in this case) is declared
+	 *   in the initializer of a field, answers the binding of that declaring field.
+	 * </li>
+	 * <li>Otherwise, if the local type is declared in a static initializer or
+	 *   an instance initializer, a method binding is returned to represent that initializer
+	 *   (selector is an empty string in this case).
+	 * </li>
+	 * </ul>
+	 * <p>
+	 * If this type binding does not represent a local type, <code>null</code> is returned.
+	 * </p>
+	 * @return a method binding or field binding representing the member that
+	 * contains the local type represented by this type binding,
+	 * or null for non-local type bindings.
+	 * @since 3.11
+	 */
+	public IBinding getDeclaringMember();
 
 	/**
 	 * Returns the dimensionality of this array type, or <code>0</code> if this

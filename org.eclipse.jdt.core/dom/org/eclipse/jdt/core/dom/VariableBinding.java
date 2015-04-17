@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 429813 - [1.8][dom ast] IMethodBinding#getJavaElement() should return IMethod for lambda
  *******************************************************************************/
 
 package org.eclipse.jdt.core.dom;
@@ -152,6 +154,9 @@ class VariableBinding implements IVariableBinding {
 					case ASTNode.METHOD_DECLARATION :
 						MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 						return methodDeclaration.resolveBinding();
+					case ASTNode.LAMBDA_EXPRESSION :
+						LambdaExpression lambdaExpression = (LambdaExpression) node;
+						return lambdaExpression.resolveMethodBinding();
 					default:
 						node = node.getParent();
 				}
