@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -54,14 +54,13 @@ static {
 //		TESTS_RANGE = new int[] { 21, 38 };
 }
 public static Test suite() {
-	return buildModelTestSuite(CopyMoveElementsTests.class);
+	return buildModelTestSuite(CopyMoveElementsTests.class, BYTECODE_DECLARATION_ORDER);
 }
 /**
  * Cleanup after the previous test.
  */
 public void tearDown() throws Exception {
 	this.deleteProject("P");
-
 	super.tearDown();
 }
 public void tearDownSuite() throws Exception {
@@ -394,9 +393,9 @@ public void testCopyFieldsMultiStatus() throws CoreException {
 	}
 	dests[1] = fieldsSource[0]; //invalid destination
 	dests[2]=  fieldsSource[0];
-
+	DeltaListener listener = new DeltaListener();
 	try {
-		startDeltas();
+		startDeltas(listener);
 		boolean e= false;
 		try {
 			typeDest.getJavaModel().copy(fieldsSource, dests, null, null, false, null);
@@ -415,18 +414,19 @@ public void testCopyFieldsMultiStatus() throws CoreException {
 			"			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
 			"				Y[*]: {CHILDREN | FINE GRAINED}\n" +
 			"					foo[+]: {}"
-		);
+		, listener);
 
 		IJavaElement copy= generateHandle(fieldsSource[0], null, typeDest);
 		assertTrue("Copy should exist", copy.exists());
 	} finally {
-		stopDeltas();
+		stopDeltas(listener);
 	}
 }
 /**
  * Ensures that a multi status exception is generated when copying fields.
  */
 public void testCopyFieldsMultiStatusInDifferentProject() throws CoreException {
+	DeltaListener listener = new DeltaListener();
 	try {
 		this.createFile(
 			"/P/src/X.java",
@@ -454,7 +454,7 @@ public void testCopyFieldsMultiStatusInDifferentProject() throws CoreException {
 		dests[1] = fieldsSource[0]; //invalid destination
 		dests[2]=  fieldsSource[0];
 
-		startDeltas();
+		startDeltas(listener);
 		boolean e= false;
 		try {
 			typeDest.getJavaModel().copy(fieldsSource, dests, null, null, false, null);
@@ -473,12 +473,12 @@ public void testCopyFieldsMultiStatusInDifferentProject() throws CoreException {
 			"			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n" +
 			"				Y[*]: {CHILDREN | FINE GRAINED}\n" +
 			"					foo[+]: {}"
-		);
+		, listener);
 
 		IJavaElement copy= generateHandle(fieldsSource[0], null, typeDest);
 		assertTrue("Copy should exist", copy.exists());
 	} finally {
-		stopDeltas();
+		stopDeltas(listener);
 		this.deleteProject("P2");
 	}
 }

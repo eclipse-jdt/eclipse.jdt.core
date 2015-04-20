@@ -1013,6 +1013,22 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			assertTrue("Element should not be present after deletion: " + elementToDelete, !elementToDelete.exists());
 		}
 	}
+	protected void assertDeltas(String message, String expected, DeltaListener listener) {
+		assertDeltas(message, expected, expected.length() > 0/*wait for resource delta iff a delta is expected*/, listener);
+	}
+	protected void assertDeltas(String message, String expected, boolean waitForResourceDelta, DeltaListener listener) {
+		if (waitForResourceDelta)
+			listener.waitForResourceDelta();
+		String actual = listener.toString();
+		if (!expected.equals(actual)) {
+			System.out.println(displayString(actual, 2));
+			System.err.println(listener.stackTraces());
+		}
+		assertEquals(
+			message,
+			expected,
+			actual);
+	}
 	protected void assertDeltas(String message, String expected) {
 		assertDeltas(message, expected, expected.length() > 0/*wait for resource delta iff a delta is expected*/);
 	}
@@ -1131,6 +1147,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	/**
 	 * Empties the current deltas.
 	 */
+	public void clearDeltas(DeltaListener listener) {
+		listener.flush();
+	}
 	public void clearDeltas() {
 		this.deltaListener.flush();
 	}
@@ -2989,6 +3008,22 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		JavaModelManager.doNotUse(); // reset the MANAGER singleton
 		JavaModelManager.getJavaModelManager().startup();
 		new JavaCorePreferenceInitializer().initializeDefaultPreferences();
+	}
+	/**
+	 * Starts listening to element deltas, and queues them in fgDeltas.
+	 */
+	public void startDeltas(DeltaListener listener) {
+		clearDeltas(listener);
+		JavaCore.addElementChangedListener(listener);
+		getWorkspace().addResourceChangeListener(listener, IResourceChangeEvent.POST_CHANGE);
+	}
+	/**
+	 * Stops listening to element deltas, and clears the current deltas.
+	 */
+	public void stopDeltas(DeltaListener listener) {
+		getWorkspace().removeResourceChangeListener(listener);
+		JavaCore.removeElementChangedListener(listener);
+		clearDeltas(listener);
 	}
 	/**
 	 * Starts listening to element deltas, and queues them in fgDeltas.

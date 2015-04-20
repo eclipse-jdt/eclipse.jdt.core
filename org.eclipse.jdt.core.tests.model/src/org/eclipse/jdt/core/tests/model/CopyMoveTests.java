@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,10 +59,10 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 		IJavaElement collision = generateHandle(element, rename, container);
 		assertTrue("Collision does not exist", collision.exists());
 	}
-
+	DeltaListener listener = new DeltaListener();
 	IJavaElement copy;
 	try {
-		startDeltas();
+		startDeltas(listener);
 
 		// copy
 	 	((ISourceManipulation) element).copy(container, sibling, rename, force, null);
@@ -106,12 +106,12 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 		}
 		if (copy.getElementType() == IJavaElement.IMPORT_DECLARATION)
 			container = ((ICompilationUnit) container).getImportContainer();
-		IJavaElementDelta destDelta = this.deltaListener.getDeltaFor(container, true);
+		IJavaElementDelta destDelta = listener.getDeltaFor(container, true);
 		assertTrue("Destination container not changed", destDelta != null && destDelta.getKind() == IJavaElementDelta.CHANGED);
 		IJavaElementDelta[] deltas = destDelta.getAddedChildren();
 		assertTrue("Added children not correct for element copy", deltas[0].getElement().equals(copy));
 	} finally {
-		stopDeltas();
+		stopDeltas(listener);
 	}
 	return copy;
 }
@@ -276,9 +276,9 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 			assertTrue("Collision does not exist", collision.exists());
 		}
 	}
-
+	DeltaListener listener = new DeltaListener();
 	try {
-		if(checkDelta)	startDeltas();
+		if(checkDelta)	startDeltas(listener);
 
 		// move
 		getJavaModel().move(elements, destinations, siblings, names, force, monitor);
@@ -347,23 +347,23 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 			if(checkDelta) {
 				IJavaElementDelta destDelta = null;
 				if (isMainType(element, destinations[i]) && names != null && names[i] != null) { //moved/renamed main type to same cu
-					destDelta = this.deltaListener.getDeltaFor(moved.getParent());
+					destDelta = listener.getDeltaFor(moved.getParent());
 					assertTrue("Renamed compilation unit as result of main type not added", destDelta != null && destDelta.getKind() == IJavaElementDelta.ADDED);
 					assertTrue("flag should be F_MOVED_FROM", (destDelta.getFlags() & IJavaElementDelta.F_MOVED_FROM) > 0);
 					assertTrue("moved from handle should be original", destDelta.getMovedFromElement().equals(element.getParent()));
 				} else {
-					destDelta = this.deltaListener.getDeltaFor(destinations[i], true);
+					destDelta = listener.getDeltaFor(destinations[i], true);
 					assertTrue("Destination container not changed", destDelta != null && destDelta.getKind() == IJavaElementDelta.CHANGED);
 					IJavaElementDelta[] deltas = destDelta.getAddedChildren();
 					assertTrue("Added children not correct for element copy", deltas[i].getElement().equals(moved));
 					assertTrue("should be K_ADDED", deltas[i].getKind() == IJavaElementDelta.ADDED);
-					IJavaElementDelta sourceDelta= this.deltaListener.getDeltaFor(element, false);
+					IJavaElementDelta sourceDelta= listener.getDeltaFor(element, false);
 					assertTrue("should be K_REMOVED", sourceDelta.getKind() == IJavaElementDelta.REMOVED);
 				}
 			}
 		}
 	} finally {
-		if(checkDelta)	stopDeltas();
+		if(checkDelta)	stopDeltas(listener);
 	}
 }
 }
