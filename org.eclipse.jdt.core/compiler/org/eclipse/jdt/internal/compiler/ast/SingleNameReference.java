@@ -14,6 +14,7 @@
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								Bug 412203 - [compiler] Internal compiler error: java.lang.IllegalArgumentException: info cannot be null
  *								Bug 458396 - NPE in CodeStream.invoke()
+ *								Bug 407414 - [compiler][null] Incorrect warning on a primitive type being null
  *     Jesper S Moller - <jesper@selskabet.org>   - Contributions for 
  *     							bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *								bug 378674 - "The method can be declared as static" is wrong
@@ -866,6 +867,8 @@ public VariableBinding nullAnnotatedVariableBinding(boolean supportTypeAnnotatio
 }
 
 public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
+	if ((this.implicitConversion & TypeIds.BOXING) != 0)
+		return FlowInfo.NON_NULL;
 	LocalVariableBinding local = localVariableBinding();
 	if (local != null) {
 		return flowInfo.nullStatus(local);

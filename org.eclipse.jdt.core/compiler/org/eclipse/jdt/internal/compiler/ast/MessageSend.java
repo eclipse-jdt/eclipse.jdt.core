@@ -50,6 +50,7 @@
  *								Bug 441734 - [1.8][inference] Generic method with nested parameterized type argument fails on method reference
  *								Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *								Bug 456487 - [1.8][null] @Nullable type variant of @NonNull-constrained type parameter causes grief
+ *								Bug 407414 - [compiler][null] Incorrect warning on a primitive type being null
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -527,6 +528,8 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 	}
 }
 public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
+	if ((this.implicitConversion & TypeIds.BOXING) != 0)
+		return FlowInfo.NON_NULL;
 	if (this.binding.isValidBinding()) {
 		// try to retrieve null status of this message send from an annotation of the called method:
 		long tagBits = this.binding.tagBits;

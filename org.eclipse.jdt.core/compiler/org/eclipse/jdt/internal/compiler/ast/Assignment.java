@@ -28,6 +28,7 @@
  *							Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
  *							Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
  *							Bug 453483 - [compiler][null][loop] Improve null analysis for loops
+ *							Bug 407414 - [compiler][null] Incorrect warning on a primitive type being null
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -159,6 +160,8 @@ FieldBinding getLastField(Expression someExpression) {
 }
 
 public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
+	if ((this.implicitConversion & TypeIds.BOXING) != 0)
+		return FlowInfo.NON_NULL;
 	return this.expression.nullStatus(flowInfo, flowContext);
 }
 

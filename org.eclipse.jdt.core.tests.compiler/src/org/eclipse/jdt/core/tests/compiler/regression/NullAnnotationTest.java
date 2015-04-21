@@ -8149,4 +8149,349 @@ public void testBug459967_Enum_values() {
 				"");
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=407414
+// Incorrect warning on a primitive type being null.
+public void test407414a()  {
+	 String testCode = "package p1;\n" +
+			 "public class Test {\n" +
+			 "	void fooI(int i) { \n" +
+			 "		barI(i);\n" +
+			 "	}\n" +
+			 "	void fooB(boolean i) {\n" +
+			 "		barB(i);\n" +
+			 "	}\n" +
+			 "	void fooBy(byte i) {\n" +
+			 "		barBy(i);\n" +
+			 "	}\n" +
+			 "	void fooF(float i) {\n" +
+			 "		barF(i);\n" +
+			 "	}\n" +
+			 "	void fooL(long i) {\n" +
+			 "		barL(i);\n" +
+			 "	}\n" +
+			 "	void fooC(char i) {\n" +
+			 "		barC(i);\n" +
+			 "	}\n" +
+			 "	void fooS(short i) {\n" +
+			 "		barS(i);\n" +
+			 "	}\n" +
+			 "	static void barI(Integer i) {}\n" +
+			 "	static void barB(Boolean i) {}\n" +
+			 "	static void barBy(Byte i) {}\n" +
+			 "	static void barF(Float i) {}\n" +
+			 "	static void barL(Long i) {}\n" +
+			 "	static void barC(Character i) {}\n" +
+			 "	static void barS(Short i) {}\n" +
+			 "}";
+	 String pcode = "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			 "package p1;";
+	 runConformTestWithLibs(
+		new String[] {
+			"p1/package-info.java",
+			pcode,
+			"p1/Test.java",
+			testCode
+		},
+		getCompilerOptions(),
+		"");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=407414
+// Incorrect warning on a primitive type being null.
+// The information that boxing is happening at i2 = i
+// and therefore there cannot be null values in i2 is
+// not flowing down to access of i2.
+// The test case also illustrates array access and Qualified access.
+public void test407414b() {
+	 String testCode = "package p1;\n" +
+			 "  public class Test {\n" +
+			 "  class Y {\n" +
+			 "		class Z {\n" +
+			 "			int i;\n" +
+			 "          int a[];\n" +
+			 "      	Z() {\n" +
+			 "				a = new int[0];\n" +
+			 "      	}\n" +
+			 "		}\n" +
+			 "  }\n" +
+			 "	void foo(int i) {\n" +
+			 "		Integer i2 = i;\n" +
+			 "		bar(i2);\n" +
+			 "	}\n" +
+			 "	void fooA(int a[], int i) {\n" +
+			 "		Integer i2 = a[i];\n" +
+			 "		bar(i2);\n" +
+			 "	}\n" +
+			 "  void fooQ(Y.Z yz, int i) {\n" +
+			 "		Integer i2 = yz.i;\n" +
+			 "		bar(i2);\n" +
+			 "      i2 = yz.a[i];\n" +
+			 "      bar(i2);\n" +
+			 "  }\n" +
+			 "	static void bar(Integer i) { }\n" +
+			 "}";
+	 String pcode = "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			 "package p1;";
+	 runConformTestWithLibs(
+		new String[] {
+			"p1/package-info.java",
+			pcode,
+			"p1/Test.java",
+			testCode
+		},
+		getCompilerOptions(),
+		"");
+}
+
+public void test407414b2() {
+	 String testCode = "package p1;\n" +
+			 "  public class Test {\n" +
+			 "  int a[];\n" +
+			 "  Test() {\n" +
+			 "		a = new int[0];\n" +
+			 "      a[0] = 0;\n" +
+			 "  }\n" +
+			 "	void fooA(int i) {\n" +
+			 "		Integer i2 = a[i];\n" +
+			 "		bar(i2);\n" +
+			 "	}\n" +
+			 "	static void bar(Integer i) { }\n" +
+			 "}";
+	 String pcode = "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			 "package p1;";
+	 runConformTestWithLibs(
+		new String[] {
+			"p1/package-info.java",
+			pcode,
+			"p1/Test.java",
+			testCode
+		},
+		getCompilerOptions(),
+		"");
+}
+
+// FieldReference.
+public void test407414b3() {
+	 String testCode = "package p1;\n" +
+			 "public class Test {\n" +
+			 "  class Z {\n" +
+			 "		int a[];\n" +
+			 "		Z() {\n" +
+			 "	  		a = new int[0];\n" +
+			 "	  		a[0] = 0;\n" +
+			 "		}\n" +
+			 "  }\n" +
+			 "  class Y {\n" +
+			 "		Z[] z;\n" +
+			 "		Y () {\n" +
+			 "	 		z = new Z[0];\n" +
+			 "		}\n" +
+			 "  }\n" +
+			 "  void fooQ(Y y, int i) {\n" +
+			 "		Integer i2 = y.z[i].a[i];\n" +
+			 "		bar(i2);\n" +
+			 "  }\n" +
+			 "  static void bar(Integer i) { }\n" +
+			 "}";
+	 String pcode = "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			 "package p1;";
+	 runConformTestWithLibs(
+		new String[] {
+			"p1/package-info.java",
+			pcode,
+			"p1/Test.java",
+			testCode
+		},
+		getCompilerOptions(),
+		"");
+}
+
+// arrayRefrence
+public void test407414b4() {
+	 String testCode = "package p1;\n" +
+			 "public class Test {\n" +
+			 "  class Y {\n" +
+			 "		int a[];\n" +
+			 "		Y() {\n" +
+			 "		  a = new int[0];\n" +
+			 "		  a[0] = 0;\n" +
+			 "		}\n" +
+			 "  }\n" +
+			 "  void fooQ(Y[] y, int i) {\n" +
+			 "		Integer i2 = y[i].a[i];\n" +
+			 "		bar(i2);\n" +
+			 "  }\n" +
+			 "  static void bar(Integer i) { }\n" +
+			 "}";
+	 String pcode = "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			 "package p1;";
+	 runConformTestWithLibs(
+		new String[] {
+			"p1/package-info.java",
+			pcode,
+			"p1/Test.java",
+			testCode
+		},
+		getCompilerOptions(),
+		"");
+}
+
+// value of a (compound) assignment
+public void testBug407414c() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  int fI;\n" +
+			"  @org.eclipse.jdt.annotation.NonNull Integer test1(int i) {\n" +
+			"		return fI = i;\n" +
+			"  }\n" + 
+			"  @org.eclipse.jdt.annotation.NonNull Integer test2(int i) {\n" +
+			"		return fI += i;\n" +
+			"  }\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+
+// primitive cast
+public void testBug407414d() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  @org.eclipse.jdt.annotation.NonNull Long test(int i) {\n" +
+			"		return (long)i;\n" +
+			"  }\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+
+// conditional
+public void testBug407414e() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  @org.eclipse.jdt.annotation.NonNull Long test(long l, boolean b) {\n" +
+			"		return b ? l : 3;\n" +
+			"  }\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+
+// operators
+public void testBug407414f() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  @org.eclipse.jdt.annotation.NonNull Long test1(long l) {\n" +
+			"		return l + 3;\n" +
+			"  }\n" + 
+			"  @org.eclipse.jdt.annotation.NonNull Long test2(long l) {\n" +
+			"		return l << 3;\n" +
+			"  }\n" + 
+			"  @org.eclipse.jdt.annotation.NonNull Long test3(long l) {\n" +
+			"		return l++;\n" +
+			"  }\n" +
+			"  @org.eclipse.jdt.annotation.NonNull Long test4(long l) {\n" +
+			"		return -l;\n" +
+			"  }\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=428104
+// Null annotation heuristics does not understand autoboxed primitives to be non-null.
+public void test428104() {
+	 String testCode = "package p1;\n" +
+			 "import org.eclipse.jdt.annotation.NonNull;\n" +
+			 "public class Test {\n" +
+			 "    @NonNull\n" +
+			 "    Boolean case1Parent() {\n" +
+			 "        return case1Child();\n" +
+			 "    }\n" +
+			 "    boolean case1Child() {\n" +
+			 "        return Math.random() > 0.5;\n" +
+			 "    }\n" +
+			 "}\n";
+	 String pcode = "package p1;";
+	 runConformTestWithLibs(
+		new String[] {
+			"p1/package-info.java",
+			pcode,
+			"p1/Test.java",
+			testCode
+		},
+		getCompilerOptions(),
+		"");
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=424702
+// Warning at an assignment of a boolean-Variable to an Boolean-Variable
+public void test424702() {
+	 String testCode = "package p1;\n" +
+			 "import org.eclipse.jdt.annotation.NonNull;\n" +
+			 "public class Test {\n" +
+			 "    private @NonNull Boolean t = true;\n" +
+			 "    Boolean foo() {\n" +
+			 "		boolean y = false;\n" +
+			 "      t = y;\n" +
+			 "		return t;\n" +
+			 "    }\n" +
+			 "}\n";
+	 String pcode = "package p1;";
+	 runConformTestWithLibs(
+		new String[] {
+			"p1/package-info.java",
+			pcode,
+			"p1/Test.java",
+			testCode
+		},
+		getCompilerOptions(),
+		"");
+}
+
+public void testBug237236() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class X {\n" +
+			"  public void x(Long l) {}\n" + 
+			"  public long z() { return 0L; }\n" + 
+			"  public void y() { x(z()); }\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug418236() {
+	runConformTestWithLibs(
+		new String[] {
+			"MyClass.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"public class MyClass {\n" + 
+			"  private static final int CONSTANT = 24;\n" + 
+			"\n" + 
+			"  public Integer returnConstant() {\n" + 
+			"    return CONSTANT; // <-- incorrect error. Integer.valueOf is declared as non-null.\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public Integer returnInteger() {\n" + 
+			"    return 24; // <-- no error reported here\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 }

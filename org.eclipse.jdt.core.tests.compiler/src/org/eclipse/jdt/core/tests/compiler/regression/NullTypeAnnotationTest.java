@@ -4923,7 +4923,7 @@ public void testDefault07() {
 			" 		}\n" +
 			"	}\n" +
 			"	void test(Inner inner) {\n" +
-			"		@NonNull Number nnn = inner.process(Integer.MAX_VALUE, new ArrayList<@Nullable Integer>()); // WARN on 1. arg; ERR on 2. arg\n" +
+			"		@NonNull Number nnn = inner.process(Integer.valueOf(3), new ArrayList<@Nullable Integer>()); // WARN on 1. arg; ERR on 2. arg\n" +
 			"	}\n" +
 			"}\n"
 		},
@@ -4935,13 +4935,13 @@ public void testDefault07() {
 		"Null type mismatch: required \'T extends @NonNull Number\' but the provided value is null\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 13)\n" + 
-		"	@NonNull Number nnn = inner.process(Integer.MAX_VALUE, new ArrayList<@Nullable Integer>()); // WARN on 1. arg; ERR on 2. arg\n" + 
-		"	                                    ^^^^^^^^^^^^^^^^^\n" + 
-		"Null type safety (type annotations): The expression of type \'int\' needs unchecked conversion to conform to \'@NonNull Integer\'\n" + 
+		"	@NonNull Number nnn = inner.process(Integer.valueOf(3), new ArrayList<@Nullable Integer>()); // WARN on 1. arg; ERR on 2. arg\n" + 
+		"	                                    ^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'Integer\' needs unchecked conversion to conform to \'@NonNull Integer\'\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 13)\n" + 
-		"	@NonNull Number nnn = inner.process(Integer.MAX_VALUE, new ArrayList<@Nullable Integer>()); // WARN on 1. arg; ERR on 2. arg\n" + 
-		"	                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"	@NonNull Number nnn = inner.process(Integer.valueOf(3), new ArrayList<@Nullable Integer>()); // WARN on 1. arg; ERR on 2. arg\n" + 
+		"	                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Null type mismatch (type annotations): required \'List<? extends @NonNull Number>\' but this expression has type \'ArrayList<@Nullable Integer>\', corresponding supertype is \'List<@Nullable Integer>\'\n" + 
 		"----------\n");
 }
@@ -5192,16 +5192,16 @@ public void testDefault07_bin() {
 			"import java.util.*;\n" +
 			"public class Y {\n" +
 			"	void test(X.Inner inner) {\n" +
-			"		@NonNull Number nnn = inner.process(Integer.MAX_VALUE, new ArrayList<@Nullable Integer>()); // WARN on 1. arg; ERR on 2. arg\n" +
+			"		@NonNull Number nnn = inner.process(Integer.valueOf(3), new ArrayList<@Nullable Integer>()); // WARN on 1. arg; ERR on 2. arg\n" +
 			"	}\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
 		"----------\n" +  // FIXME: this should not be a warning, a case of unrecognized boxing
 		"1. WARNING in Y.java (at line 5)\n" + 
-		"	@NonNull Number nnn = inner.process(Integer.MAX_VALUE, new ArrayList<@Nullable Integer>()); // WARN on 1. arg; ERR on 2. arg\n" + 
-		"	                                    ^^^^^^^^^^^^^^^^^\n" + 
-		"Null type safety (type annotations): The expression of type \'int\' needs unchecked conversion to conform to \'@NonNull Integer\'\n" + 
+		"	@NonNull Number nnn = inner.process(Integer.valueOf(3), new ArrayList<@Nullable Integer>()); // WARN on 1. arg; ERR on 2. arg\n" + 
+		"	                                    ^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'Integer\' needs unchecked conversion to conform to \'@NonNull Integer\'\n" + 
 		"----------\n");
 }
 public void testBug431269() {
