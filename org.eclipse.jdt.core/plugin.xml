@@ -291,7 +291,7 @@
    <javaFormatter
          class="org.eclipse.jdt.internal.formatter.DefaultCodeFormatter"
          id="org.eclipse.jdt.core.defaultJavaFormatter"
-         name="Eclipse [built-in]">
+         name="%defaultJavaFormatterName">
    </javaFormatter>
 </extension>
 
