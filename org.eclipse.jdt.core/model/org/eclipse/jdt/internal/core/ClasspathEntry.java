@@ -12,6 +12,7 @@
  *     Stephan Herrmann - Contribution for
  *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *								Bug 462768 - [null] NPE when using linked folder for external annotations
+ *                              Bug 465296 - precedence of extra attributes on a classpath container
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -344,9 +345,9 @@ public class ClasspathEntry implements IClasspathEntry {
 			IClasspathAttribute[] combinedAttributes = this.extraAttributes;
 			int lenRefer = referringExtraAttributes.length;
 			if (lenRefer > 0) {
-				int lenCombined = combinedAttributes.length;
-				System.arraycopy(combinedAttributes, 0, combinedAttributes=new IClasspathAttribute[lenCombined+lenRefer], 0, lenCombined);
-				System.arraycopy(referringExtraAttributes, 0, combinedAttributes, lenCombined, lenRefer);
+				int lenEntry = combinedAttributes.length;
+				System.arraycopy(combinedAttributes, 0, combinedAttributes=new IClasspathAttribute[lenEntry+lenRefer], lenRefer, lenEntry);
+				System.arraycopy(referringExtraAttributes, 0, combinedAttributes, 0, lenRefer);
 			}
 			return new ClasspathEntry(
 								getContentKind(),
