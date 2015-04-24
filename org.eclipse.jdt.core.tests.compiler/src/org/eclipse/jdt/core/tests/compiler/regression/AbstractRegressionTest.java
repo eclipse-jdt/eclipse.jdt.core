@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -901,16 +901,17 @@ protected static class JavacTestOptions {
 			.append(fileName)
 			.append("\" -d \"")
 			.append(EVAL_DIRECTORY);
+		String processAnnot = this.enableAPT ? "" : "-proc:none";
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 			buffer.append("\" -1.4 -source 1.3 -target 1.2");
 		} else if (this.complianceLevel == ClassFileConstants.JDK1_5) {
 			buffer.append("\" -1.5");
 		} else if (this.complianceLevel == ClassFileConstants.JDK1_6) {
-			buffer.append("\" -1.6 -proc:none");
+			buffer.append("\" -1.6 " + processAnnot);
 		} else if (this.complianceLevel == ClassFileConstants.JDK1_7) {
-			buffer.append("\" -1.7 -proc:none");
+			buffer.append("\" -1.7 " + processAnnot);
 		} else if (this.complianceLevel == ClassFileConstants.JDK1_8) {
-			buffer.append("\" -1.8 -proc:none");
+			buffer.append("\" -1.8 " + processAnnot);
 		}
 		buffer
 			.append(" -preserveAllLocals -nowarn -g -classpath \"")

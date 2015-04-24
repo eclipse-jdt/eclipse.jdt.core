@@ -11421,4 +11421,44 @@ public void testBug386692() {
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=464977
+public void testBug464977() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_6 || this.complianceLevel > ClassFileConstants.JDK1_8) {
+		return; // Enough to run in 3 levels rather!
+	}
+	boolean apt = this.enableAPT;
+	String source = "@Deprecated\n" +
+			"public class DeprecatedClass {\n" +
+			"}";
+	String version = "";
+	if  (this.complianceLevel == ClassFileConstants.JDK1_8) {
+		version = "1.8 : 52.0";
+	} else if  (this.complianceLevel == ClassFileConstants.JDK1_7) {
+		version = "1.7 : 51.0";
+	} else if  (this.complianceLevel == ClassFileConstants.JDK1_6) {
+		version = "1.6 : 50.0";
+	}
+	String expectedOutput = "// Compiled from DeprecatedClass.java (version " + version + ", super bit, deprecated)\n" + 
+							"@Deprecated\n" + 
+							"public class DeprecatedClass {\n" + 
+							"  \n" + 
+							"  // Method descriptor #6 ()V\n" + 
+							"  // Stack: 1, Locals: 1\n" + 
+							"  public DeprecatedClass();\n" + 
+							"    0  aload_0 [this]\n" + 
+							"    1  invokespecial Object() [8]\n" + 
+							"    4  return\n" + 
+							"      Line numbers:\n" + 
+							"        [pc: 0, line: 2]\n" + 
+							"      Local variable table:\n" + 
+							"        [pc: 0, pc: 5] local: this index: 0 type: DeprecatedClass\n" + 
+							"\n" + 
+							"}";
+	try {
+		this.enableAPT = true;
+		checkClassFile("DeprecatedClass", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+	} finally {
+		this.enableAPT = apt;
+	}
+}
 }
