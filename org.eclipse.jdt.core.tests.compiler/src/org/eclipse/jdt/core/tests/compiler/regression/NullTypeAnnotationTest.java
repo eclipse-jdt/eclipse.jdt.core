@@ -7826,4 +7826,68 @@ public void testBug459967_Array_clone_b() {
 		"Null type safety at method return type: Method descriptor FI<String>.getArray(String[]) promises \'@NonNull String @NonNull[]\' but referenced method provides \'String @NonNull[]\'\n" + 
 		"----------\n");
 }
+public void testBug448709_allocationExpression1() {
+	// inference prioritizes constraint (<@Nullable T>) over expected type (@NonNull String), hence a null type mismatch results
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface F0<T> {}\n" +
+			"class FI<@Nullable T> implements F0<T> {\n" +
+			"}\n" +
+			"public abstract class X {\n" +
+			"	abstract <Z> Z zork(F0<Z> f);\n" +
+			"	@NonNull String test() {\n" +
+			"		 return zork(new FI<>());\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	return zork(new FI<>());\n" + 
+		"	            ^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'F0<@NonNull String>\' but this expression has type \'FI<@Nullable String>\', corresponding supertype is \'F0<@Nullable String>\'\n" + 
+		"----------\n");
+}
+public void testBug448709_allocationExpression2() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"class F {\n" +
+			"	<@Nullable U> F(U arg1, U arg2) {}\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	F f = new <@NonNull Integer>F(1,2);\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	F f = new <@NonNull Integer>F(1,2);\n" + 
+		"	           ^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull Integer\' is not a valid substitute for the type parameter \'@Nullable U\'\n" + 
+		"----------\n");
+}
+public void testBug448709_allocationExpression3() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	class F {\n" +
+			"		<@Nullable U> F(U arg1, U arg2) {}\n" +
+			"	}\n" +
+			"	F f = this.new <@NonNull Integer>F(1,2);\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	F f = this.new <@NonNull Integer>F(1,2);\n" + 
+		"	                ^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull Integer\' is not a valid substitute for the type parameter \'@Nullable U\'\n" + 
+		"----------\n");
+}
 }
