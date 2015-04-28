@@ -10,6 +10,7 @@
  *     Ray V. (voidstar@gmail.com) - Contribution for bug 282988
  *     Robin Stocker - Bug 49619 - [formatting] comment formatter leaves whitespace in comments
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] IndexOutOfBoundsException in TokenManager - https://bugs.eclipse.org/462945
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
@@ -10639,6 +10640,25 @@ public void testBug460008() throws Exception {
 	formatSource(source, result, CodeFormatter.K_CLASS_BODY_DECLARATIONS | CodeFormatter.F_INCLUDE_COMMENTS);
 	
 	// K_COMPILATION_UNIT is tested by FormatterRegressionTests#test512() and #test643()
+}
+/**
+ * @bug 462945 - [formatter] IndexOutOfBoundsException in TokenManager
+ * @test no exception is thrown for malformed code
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=462945"
+ */
+public void testBug462945() throws Exception {
+	String source =
+		"package p1;\n" + 
+		"enum ReviewResult {\n" + 
+		"	Good{, Bad\n" + 
+		"}\n";
+	formatSource(source,
+		"package p1;\n" + 
+		"\n" + 
+		"enum ReviewResult {\n" + 
+		"	Good{, Bad\n" + 
+		"}\n"
+	);
 }
 public void testBug407629() throws Exception {
 	String source =

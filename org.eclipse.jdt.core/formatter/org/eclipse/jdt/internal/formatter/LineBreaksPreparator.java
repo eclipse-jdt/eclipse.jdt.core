@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] IndexOutOfBoundsException in TokenManager - https://bugs.eclipse.org/462945
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -74,6 +75,12 @@ public class LineBreaksPreparator extends ASTVisitor {
 	public LineBreaksPreparator(TokenManager tokenManager, DefaultCodeFormatterOptions options) {
 		this.tm = tokenManager;
 		this.options = options;
+	}
+
+	@Override
+	public boolean preVisit2(ASTNode node) {
+		boolean isMalformed = (node.getFlags() & ASTNode.MALFORMED) != 0;
+		return !isMalformed;
 	}
 
 	@Override
