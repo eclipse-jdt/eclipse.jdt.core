@@ -7890,4 +7890,25 @@ public void testBug448709_allocationExpression3() {
 		"Null constraint mismatch: The type \'@NonNull Integer\' is not a valid substitute for the type parameter \'@Nullable U\'\n" + 
 		"----------\n");
 }
+public void testBug465513() {
+	runConformTestWithLibs(
+		new String[] {
+			"pack1/A.java",
+			"package pack1;\r\n" + 
+			"import java.math.BigInteger;\r\n" + 
+			"\r\n" + 
+			"interface A { Object m(Class c); }\r\n" + 
+			"interface B<S extends Number> { Object m(Class<S> c); }\r\n" + 
+			"interface C<T extends BigInteger> { Object m(Class<T> c); }\r\n" + 
+			"@FunctionalInterface\r\n" + 
+			"interface D<S,T> extends A, B<BigInteger>, C<BigInteger> {}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in pack1\\A.java (at line 4)\n" + 
+		"	interface A { Object m(Class c); }\n" + 
+		"	                       ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n");
+}
 }

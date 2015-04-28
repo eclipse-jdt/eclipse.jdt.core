@@ -553,7 +553,7 @@ public class NullAnnotationMatching {
 			if (otherAnnotations != Binding.NO_ANNOTATIONS)
 				mainType = environment.createAnnotatedType(type, otherAnnotations);
 		}
-		if (mainType instanceof ParameterizedTypeBinding && otherType instanceof ParameterizedTypeBinding) {
+		if (mainType.isParameterizedType() && otherType.isParameterizedType()) {
 			ParameterizedTypeBinding ptb = (ParameterizedTypeBinding) type, otherPTB = (ParameterizedTypeBinding) otherType;
 			TypeBinding[] typeArguments = ptb.arguments;
 			TypeBinding[] otherTypeArguments = otherPTB.arguments;
