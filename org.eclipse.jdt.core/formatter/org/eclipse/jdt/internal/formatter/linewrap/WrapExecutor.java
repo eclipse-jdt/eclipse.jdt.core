@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] follow up bug for comments - https://bugs.eclipse.org/458208
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter.linewrap;
 
@@ -631,7 +632,7 @@ public class WrapExecutor {
 
 	int getWrapIndent(Token token) {
 		WrapPolicy policy = token.getWrapPolicy();
-		if (policy == null || (token.getLineBreaksBefore() > 1 && !policy.isForced))
+		if (policy == null || (token.getLineBreaksBefore() > 1 && !policy.isForced && !policy.isTopPriority()))
 			return token.getIndent(); // no additional indentation after an empty line
 
 		if (this.options.never_indent_line_comments_on_first_column && token.tokenType == TokenNameCOMMENT_LINE

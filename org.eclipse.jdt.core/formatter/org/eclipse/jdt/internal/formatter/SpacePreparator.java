@@ -8,6 +8,7 @@
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] IndexOutOfBoundsException in TokenManager - https://bugs.eclipse.org/462945
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] follow up bug for comments - https://bugs.eclipse.org/458208
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -497,9 +498,11 @@ public class SpacePreparator extends ASTVisitor {
 		handleToken(node, TokenNameLBRACE, this.options.insert_space_before_opening_brace_in_block, false);
 		if (this.options.insert_space_after_closing_brace_in_block) {
 			int closeBraceIndex = this.tm.lastIndexIn(node, TokenNameRBRACE);
-			if (closeBraceIndex + 1 < this.tm.size()
-					&& this.tm.get(closeBraceIndex + 1).tokenType != TokenNameSEMICOLON)
-				this.tm.get(closeBraceIndex).spaceAfter();
+			if (closeBraceIndex + 1 < this.tm.size()) {
+				int nextToken = this.tm.get(closeBraceIndex + 1).tokenType;
+				if (nextToken != TokenNameSEMICOLON && nextToken != TokenNameRPAREN)
+					this.tm.get(closeBraceIndex).spaceAfter();
+			}
 		}
 		return true;
 	}

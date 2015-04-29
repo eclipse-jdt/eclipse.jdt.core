@@ -8,6 +8,7 @@
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] IndexOutOfBoundsException in TokenManager - https://bugs.eclipse.org/462945
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] follow up bug for comments - https://bugs.eclipse.org/458208
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -54,6 +55,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
@@ -291,35 +293,41 @@ public class LineBreaksPreparator extends ASTVisitor {
 		handleBracedCode(node, node.getExpression(), this.options.brace_position_for_switch,
 				this.options.indent_switchstatements_compare_to_switch, true);
 
+		List<Statement> statements = node.statements();
 		if (this.options.indent_switchstatements_compare_to_cases) {
-			int openBraceIndex = this.tm.firstIndexIn(node, TokenNameLBRACE);
-			this.tm.get(openBraceIndex + 1).indent();
-			int closeBraceIndex = this.tm.lastIndexIn(node, TokenNameRBRACE);
-			this.tm.get(closeBraceIndex).unindent();
+			int nonBreakStatementEnd = -1;
+			for (Statement statement : statements) {
+				if (statement instanceof SwitchCase) {
+					if (nonBreakStatementEnd >= 0) {
+						// indent only comments between previous and current statement
+						this.tm.get(nonBreakStatementEnd + 1).indent();
+						this.tm.firstTokenIn(statement, -1).unindent();
+					}
+				} else if (!(statement instanceof BreakStatement || statement instanceof Block)) {
+					indent(statement);
+				}
+				nonBreakStatementEnd = (statement instanceof BreakStatement || statement instanceof ReturnStatement)
+						? -1 : this.tm.lastIndexIn(statement, -1);
+			}
+			if (nonBreakStatementEnd >= 0) {
+				// indent comments between last statement and closing brace 
+				this.tm.get(nonBreakStatementEnd + 1).indent();
+				this.tm.lastTokenIn(node, TokenNameRBRACE).unindent();
+			}
+		}
+		if (this.options.indent_breaks_compare_to_cases) {
+			for (Statement statement : statements) {
+				if (statement instanceof BreakStatement)
+					indent(statement);
+			}
 		}
 
-		boolean isBreakStatement = false;
-		List<Statement> statements = node.statements();
 		for (Statement statement : statements) {
-			if (isBreakStatement) // actually, was break statement
-				this.tm.firstTokenIn(statement, -1).indent();
-			isBreakStatement = statement instanceof BreakStatement;
-			if (this.options.indent_switchstatements_compare_to_cases
-					&& (isBreakStatement || statement instanceof SwitchCase || statement instanceof Block)) {
-				unindent(statement);
-			}
 			if (statement instanceof Block)
 				continue; // will add break in visit(Block) if necessary
 			if (this.options.put_empty_statement_on_new_line || !(statement instanceof EmptyStatement))
 				breakLineBefore(statement);
-			if (isBreakStatement) {
-				if (this.options.indent_breaks_compare_to_cases)
-					indent(statement);
-				this.tm.firstTokenAfter(statement, -1).unindent();
-			}
 		}
-		if (isBreakStatement) // actually, was break statement
-			this.tm.lastTokenIn(node, -1).indent();
 
 		return true;
 	}
@@ -569,23 +577,12 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	private void indent(ASTNode node) {
 		int startIndex = this.tm.firstIndexIn(node, -1);
-		while (startIndex > 0 && this.tm.get(startIndex - 1).isComment()
-				&& !(node.getParent() instanceof SwitchStatement))
+		while (startIndex > 0 && this.tm.get(startIndex - 1).isComment())
 			startIndex--;
 		this.tm.get(startIndex).indent();
 		int lastIndex = this.tm.lastIndexIn(node, -1);
 		if (lastIndex + 1 < this.tm.size())
 			this.tm.get(lastIndex + 1).unindent();
-	}
-
-	private void unindent(ASTNode node) {
-		int startIndex = this.tm.firstIndexIn(node, -1);
-		// no symmetry with indent(): unindent is only used in switch statement
-		// and should not include preceding comments
-		this.tm.get(startIndex).unindent();
-		int lastIndex = this.tm.lastIndexIn(node, -1);
-		if (lastIndex + 1 < this.tm.size())
-			this.tm.get(lastIndex + 1).indent();
 	}
 
 	public void finishUp() {

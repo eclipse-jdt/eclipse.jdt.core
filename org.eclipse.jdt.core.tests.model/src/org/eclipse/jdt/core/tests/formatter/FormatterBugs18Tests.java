@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] follow up bug for comments - https://bugs.eclipse.org/458208
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
@@ -185,7 +186,7 @@ public void testBug433177() throws Exception {
 			"			// nothing\n" +
 			"			System.out.println(\"\");\n" +
 			"			return \"\";\n" +
-			"		} );\n" +
+			"		});\n" +
 			"	}\n" +
 			"\n" +
 			"	public Function<String, String> testBad() {\n" +
@@ -193,7 +194,7 @@ public void testBug433177() throws Exception {
 			"			// nothing\n" +
 			"			System.out.println(\"\");\n" +
 			"			return \"\";\n" +
-			"		} );\n" +
+			"		});\n" +
 			"	}\n" +
 			"\n" +
 			"	public Function<String, String> foo(Function<String, String> f) {\n" +
@@ -230,7 +231,7 @@ public void testBug434821() throws Exception {
 			"				}\n"+
 			"			}\n"+
 			"\n"+
-			"		} ).start();\n"+
+			"		}).start();\n"+
 			"	}\n"+
 			"}\n";
 

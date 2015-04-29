@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contribution for bug 402173
  *                       Contribution for bug 402892
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] follow up bug for comments - https://bugs.eclipse.org/458208
  *******************************************************************************/
 package org.eclipse.jdt.core.tests;
 
@@ -37,6 +38,7 @@ public class RunFormatterTests extends junit.framework.TestCase {
 		TEST_SUITES.add(FormatterCommentsClearBlankLinesTests.class);
 		TEST_SUITES.add(FormatterJavadocDontIndentTagsTests.class);
 		TEST_SUITES.add(FormatterJavadocDontIndentTagsDescriptionTests.class);
+		TEST_SUITES.add(FormatterOldBugsGistTests.class);
 	}
 
 	public static Class[] getTestClasses() {

@@ -11,6 +11,7 @@
  *								bug 404146 - [1.7][compiler] nested try-catch-finally-blocks leads to unrunnable Java byte code
  *     Harry Terkelsen (het@google.com) - Bug 449262 - Allow the use of third-party Java formatters
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] follow up bug for comments - https://bugs.eclipse.org/458208
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -369,7 +370,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	private void prepareWraps(int kind) {
 		WrapPreparator wrapPreparator = new WrapPreparator(this.tokenManager, this.workingOptions, kind);
 		this.astRoot.accept(wrapPreparator);
-		wrapPreparator.finishUp();
+		wrapPreparator.finishUp(this.astRoot);
 	}
 
 	/**
