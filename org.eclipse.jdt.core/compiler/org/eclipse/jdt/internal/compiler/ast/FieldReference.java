@@ -16,6 +16,8 @@
  *								Bug 458396 - NPE in CodeStream.invoke()
  *     Jesper S Moller - Contributions for
  *								Bug 378674 - "The method can be declared as static" is wrong
+ *     Robert Roth <robert.roth.off@gmail.com> - Contributions for
+ *								Bug 361039 - NPE in FieldReference.optimizedBooleanConstant
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -552,6 +554,8 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 }
 
 public Constant optimizedBooleanConstant() {
+	if (this.resolvedType == null)
+		return Constant.NotAConstant;
 	switch (this.resolvedType.id) {
 		case T_boolean :
 		case T_JavaLangBoolean :
