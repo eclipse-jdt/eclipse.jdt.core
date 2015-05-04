@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 IBM Corporation and others.
+ * Copyright (c) 2004, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 466279 - [hovering] IAE on hover when annotation-based null analysis is enabled
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -76,6 +78,25 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 
 	protected char getHandleMementoDelimiter() {
 		return JavaElement.JEM_TYPE_PARAMETER;
+	}
+	
+	public String getKey(boolean forceOpen) throws JavaModelException {
+		StringBuilder buf = new StringBuilder();
+		if (this.parent instanceof IType) {
+			if (this.parent instanceof BinaryType)
+				buf.append(((BinaryType) this.parent).getKey(forceOpen));
+			else 
+				buf.append(((IType) this.parent).getKey());
+		} else if (this.parent instanceof IMember) {
+			if (this.parent instanceof BinaryMember)
+				buf.append(((BinaryMember) this.parent).getKey(forceOpen));
+			else 
+				buf.append(((IMethod) this.parent).getKey());
+		}
+		buf.append(":T"); //$NON-NLS-1$
+		buf.append(this.name);
+		buf.append(';');
+		return buf.toString();
 	}
 
 	public ISourceRange getNameRange() throws JavaModelException {
