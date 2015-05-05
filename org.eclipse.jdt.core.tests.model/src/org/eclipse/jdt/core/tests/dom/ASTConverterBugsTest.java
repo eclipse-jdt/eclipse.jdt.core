@@ -709,7 +709,7 @@ public void testBug215759a() throws CoreException {
 			"}\n" +
 			"\n" +
 			"===== Details =====\n" +
-			"1:SIMPLE_NAME,[66,6],,,[VARIABLE,Lp/X;.foo(Ljava/lang/String;)Ljava/lang/String;#string,]\n" +
+			"1:SIMPLE_NAME,[66,6],,,[VARIABLE,Lp/X;.foo(Ljava/lang/String;)Ljava/lang/String;#string#0#0,]\n" +
 			"2:SIMPLE_TYPE,[97,6],,,[TYPE,Ljava/lang/String;,]\n" +
 			"2:SIMPLE_NAME,[97,6],,,[TYPE,Ljava/lang/String;,]\n" +
 			"3:PARENTHESIZED_EXPRESSION,[134,18],,,[N/A]\n" +
@@ -768,7 +768,7 @@ public void testBug215759b() throws CoreException {
 			"}\n" +
 			"\n" +
 			"===== Details =====\n" +
-			"1:SIMPLE_NAME,[66,6],,,[VARIABLE,Lp/X;.foo(Ljava/lang/String;)Ljava/lang/String;#string,]\n" +
+			"1:SIMPLE_NAME,[66,6],,,[VARIABLE,Lp/X;.foo(Ljava/lang/String;)Ljava/lang/String;#string#0#0,]\n" +
 			"2:SIMPLE_TYPE,[97,6],,,[TYPE,Ljava/lang/String;,]\n" +
 			"2:SIMPLE_NAME,[97,6],,,[TYPE,Ljava/lang/String;,]\n" +
 			"3:PARENTHESIZED_EXPRESSION,[134,18],,,[N/A]\n" +

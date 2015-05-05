@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@
  *								bug 186342 - [compiler][null] Using annotations for null checking
  *								bug 365859 - [compiler][null] distinguish warnings based on flow analysis vs. null annotations
  *								bug 331649 - [compiler][null] consider null annotations for fields
+ *								Bug 466308 - [hovering] Javadoc header for parameter is wrong with annotation-based null analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -21,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
+import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -76,7 +78,14 @@ public class LocalVariableBinding extends VariableBinding {
 
 	/*
 	 * declaringUniqueKey # scopeIndex(0-based) # varName [# occurrenceCount(0-based)]
-	 * p.X { void foo() { int local; int local;} } --> Lp/X;.foo()V#1#local#1
+	 *    p.X { void foo() { int local; int local;} } --> Lp/X;.foo()V#1#local#1
+	 *
+	 * for method parameter, we have no scopeIndex, but instead we append the parameter rank:
+	 * declaringUniqueKey # varName # occurrenceCount(always 0) # argument rank (0-based)
+	 * with parameter names:
+	 *    p.X { void foo(int i0, int i1) { } } --> Lp/X;.foo()V#i1#0#1
+	 * without parameter names (see org.eclipse.jdt.internal.core.util.BindingKeyResolver.SyntheticLocalVariableBinding):
+	 *    p.X { void foo(int i0, int i1) { } } --> Lp/X;.foo()V#arg1#0#1
 	 */
 	public char[] computeUniqueKey(boolean isLeaf) {
 		StringBuffer buffer = new StringBuffer();
@@ -123,11 +132,26 @@ public class LocalVariableBinding extends VariableBinding {
 		buffer.append('#');
 		buffer.append(this.name);
 
+		boolean addParameterRank = this.isParameter() && this.declaringScope != null;
 		// add occurence count to avoid same key for duplicate variables
 		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=149590)
-		if (occurenceCount > 0) {
+		if (occurenceCount > 0 || addParameterRank) {
 			buffer.append('#');
 			buffer.append(occurenceCount);
+			if (addParameterRank) {
+				int pos = -1;
+				LocalVariableBinding[] params = this.declaringScope.locals;
+				for (int i = 0; i < params.length; i++) {
+					if (params[i] == this) {
+						pos = i;
+						break;
+					}
+				}
+				if (pos > -1) {
+					buffer.append('#');
+					buffer.append(pos);
+				}
+			}
 		}
 
 		int length = buffer.length();
@@ -269,5 +293,19 @@ public class LocalVariableBinding extends VariableBinding {
 	
 	public boolean isCatchParameter() {
 		return false;
+	}
+
+	public MethodBinding getEnclosingMethod() {
+		BlockScope blockScope = this.declaringScope;
+		if (blockScope != null) {
+			ReferenceContext referenceContext = blockScope.referenceContext();
+			if (referenceContext instanceof Initializer) {
+				return null;
+			}
+			if (referenceContext instanceof AbstractMethodDeclaration) {
+				return ((AbstractMethodDeclaration) referenceContext).binding;
+			}
+		}
+		return null;
 	}
 }

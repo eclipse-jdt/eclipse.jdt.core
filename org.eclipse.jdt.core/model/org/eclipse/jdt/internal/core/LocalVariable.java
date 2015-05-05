@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 466308 - [hovering] Javadoc header for parameter is wrong with annotation-based null analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -464,9 +466,22 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	 */
 	public String getKey(boolean forceOpen) throws JavaModelException {
 		if (this.parent.getElementType() == IJavaElement.METHOD) {
-			StringBuilder buf = new StringBuilder(((IMethod)this.parent).getKey());
+			StringBuilder buf = new StringBuilder();
+			if (this.parent instanceof BinaryMethod)
+				buf.append(((BinaryMethod) this.parent).getKey(forceOpen));
+			else
+				buf.append(((IMethod)this.parent).getKey());
 			buf.append('#');
 			buf.append(this.name);
+			if (this.isParameter) {
+				ILocalVariable[] parameters = ((IMethod) this.parent).getParameters();
+				for (int i = 0; i < parameters.length; i++) {
+					if (this.equals(parameters[i])) {
+						buf.append("#0#").append(i); // always first occurrence, followed by parameter rank //$NON-NLS-1$
+						break;
+					}
+				}
+			}
 			return buf.toString();
 		}
 		return null;

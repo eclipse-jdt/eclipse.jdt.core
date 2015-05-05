@@ -1271,8 +1271,8 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		parser.setProject(getJavaProject("P"));
 		IBinding[] bindings = parser.createBindings(method.getParameters(), null);
 		assertBindingsEqual(
-			"LX;.foo(Ljava/lang/String;I)V#str\n" +
-			"LX;.foo(Ljava/lang/String;I)V#i",
+			"LX;.foo(Ljava/lang/String;I)V#str#0#0\n" + // occurrence 0, rank 0
+			"LX;.foo(Ljava/lang/String;I)V#i#0#1", // occurrence 0, rank 1
 			bindings);
 	}
 
@@ -1290,8 +1290,8 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 		parser.setProject(getJavaProject("P"));
 		IBinding[] bindings = parser.createBindings(method.getParameters(), null);
 		assertBindingsEqual(
-			"LA;.foo(Ljava/lang/String;I)V#str\n" +
-			"LA;.foo(Ljava/lang/String;I)V#i",
+			"LA;.foo(Ljava/lang/String;I)V#str#0#0\n" + // occurrence 0, rank 0
+			"LA;.foo(Ljava/lang/String;I)V#i#0#1", // occurrence 0, rank 1
 			bindings);
 	}
 
@@ -1331,6 +1331,43 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 			assertBindingsEqual(
 				"Ljava/lang/String;",
 				new IBinding[] {method.getReturnType()});
+	}
+
+	/*
+	 * Ensures that the correct IBindings are created for a given set of IJavaElement
+	 * (method parameter - binary)
+	 */
+	public void testCreateBinding28() throws Exception {
+		IJavaProject javaProject = getJavaProject("P");
+		String codeGenOption = javaProject.getOption(JavaCore.COMPILER_LOCAL_VARIABLE_ATTR, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_LOCAL_VARIABLE_ATTR, JavaCore.DISABLED);
+			createClassFile("/P/lib", "p/A.class",
+					"package p;\n" +
+					"public class A {\n" +
+					"  public static <T> T foo(int i, boolean f) { return null; }\n" +
+					"}");
+			IType typeA = javaProject.findType("p.A");
+			
+			IJavaElement[] elems= typeA.getMethod("foo", new String[]{"I", "Z"}).getParameters();
+			ASTParser parser = ASTParser.newParser(AST.JLS8);
+			parser.setProject(javaProject);
+			IBinding[] bindings = parser.createBindings(elems, null);
+			assertBindingsEqual(
+				"Lp/A;.foo<T:Ljava/lang/Object;>(IZ)TT;#arg0#0#0\n" + 
+				"Lp/A;.foo<T:Ljava/lang/Object;>(IZ)TT;#arg1#0#1",
+				bindings);
+			IVariableBinding param1 = (IVariableBinding) bindings[0];
+			IVariableBinding param2 = (IVariableBinding) bindings[1];
+			assertBindingsEqual(
+				"I\n" +
+				"Z",
+				new IBinding[] {
+					param1.getType(),
+					param2.getType()});
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_LOCAL_VARIABLE_ATTR, codeGenOption);
+		}
 	}
 
 	/*

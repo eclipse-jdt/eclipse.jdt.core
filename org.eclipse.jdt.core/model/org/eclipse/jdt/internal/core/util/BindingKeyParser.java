@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 IBM Corporation and others.
+ * Copyright (c) 2005, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *     							Bug 425183 - [1.8][inference] make CaptureBinding18 safe
+ *								Bug 466308 - [hovering] Javadoc header for parameter is wrong with annotation-based null analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
@@ -515,7 +516,7 @@ public class BindingKeyParser {
 		// default is to do nothing
 	}
 
-	public void consumeLocalVar(char[] varName, int occurrenceCount) {
+	public void consumeLocalVar(char[] varName, int occurrenceCount, int argumentPosition) {
 		// default is to do nothing
 	}
 
@@ -823,7 +824,16 @@ public class BindingKeyParser {
 				char[] occurrence = this.scanner.getTokenSource();
 				occurrenceCount = Integer.parseInt(new String(occurrence));
 			}
-			consumeLocalVar(varName, occurrenceCount);
+			int position = -1;
+			if (this.scanner.isAtLocalVariableStart()) {
+				if (this.scanner.nextToken() != Scanner.LOCAL_VAR) {
+					malformedKey();
+					return;
+				}
+				char[] posToken = this.scanner.getTokenSource();
+				position = Integer.parseInt(new String(posToken));
+			}
+			consumeLocalVar(varName, occurrenceCount, position);
 		}
 	}
 

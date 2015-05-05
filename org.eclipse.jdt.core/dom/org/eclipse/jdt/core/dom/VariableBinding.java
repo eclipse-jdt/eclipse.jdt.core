@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								Bug 429813 - [1.8][dom ast] IMethodBinding#getJavaElement() should return IMethod for lambda
+ *								Bug 466308 - [hovering] Javadoc header for parameter is wrong with annotation-based null analysis
  *******************************************************************************/
 
 package org.eclipse.jdt.core.dom;
@@ -16,13 +17,10 @@ package org.eclipse.jdt.core.dom;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.util.IModifierConstants;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
@@ -135,16 +133,9 @@ class VariableBinding implements IVariableBinding {
 				if (node == null) {
 					if (this.binding instanceof LocalVariableBinding) {
 						LocalVariableBinding localVariableBinding = (LocalVariableBinding) this.binding;
-						BlockScope blockScope = localVariableBinding.declaringScope;
-						if (blockScope != null) {
-							ReferenceContext referenceContext = blockScope.referenceContext();
-							if (referenceContext instanceof Initializer) {
-								return null;
-							}
-							if (referenceContext instanceof AbstractMethodDeclaration) {
-								return this.resolver.getMethodBinding(((AbstractMethodDeclaration) referenceContext).binding);
-							}
-						}
+						org.eclipse.jdt.internal.compiler.lookup.MethodBinding enclosingMethod = localVariableBinding.getEnclosingMethod();
+						if (enclosingMethod != null)
+							return this.resolver.getMethodBinding(enclosingMethod);
 					}
 					return null;
 				}

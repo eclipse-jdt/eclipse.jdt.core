@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 IBM Corporation and others.
+ * Copyright (c) 2005, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *     							Bug 425183 - [1.8][inference] make CaptureBinding18 safe
+ *								Bug 466308 - [hovering] Javadoc header for parameter is wrong with annotation-based null analysis
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
@@ -61,11 +62,13 @@ public class BindingKeyResolver extends BindingKeyParser {
 	private final class SyntheticLocalVariableBinding extends LocalVariableBinding {
 
 		private final MethodBinding enclosingMethod;
+		private int paramPosition;
 		private char[] key;
 
-		SyntheticLocalVariableBinding(char[] name, TypeBinding type, MethodBinding enclosingMethod) {
+		SyntheticLocalVariableBinding(char[] name, TypeBinding type, MethodBinding enclosingMethod, int paramPosition) {
 			super(name, type, 0, true);
 			this.enclosingMethod = enclosingMethod;
+			this.paramPosition = paramPosition;
 		}
 
 		@Override
@@ -75,6 +78,8 @@ public class BindingKeyResolver extends BindingKeyParser {
 				StringBuilder buf = new StringBuilder().append(this.enclosingMethod.computeUniqueKey());
 				buf.append('#');
 				buf.append(this.name);
+				buf.append("#0#"); //$NON-NLS-1$
+				buf.append(this.paramPosition);
 				int length = buf.length();
 				this.key = new char[length];
 				buf.getChars(0, length, this.key, 0);
@@ -82,6 +87,11 @@ public class BindingKeyResolver extends BindingKeyParser {
 			return this.key;
 		}
 		
+		@Override
+		public MethodBinding getEnclosingMethod() {
+			return this.enclosingMethod;
+		}
+
 		@Override
 		public int hashCode() {
 			return CharOperation.hashCode(computeUniqueKey());
@@ -325,7 +335,7 @@ public class BindingKeyResolver extends BindingKeyParser {
  			}
 	}
 
-	public void consumeLocalVar(char[] varName, int occurrenceCount) {
+	public void consumeLocalVar(char[] varName, int occurrenceCount, int argumentPosition) {
 		if (this.scope == null) {
 			if (this.methodBinding == null)
 				return;
@@ -334,13 +344,22 @@ public class BindingKeyResolver extends BindingKeyParser {
 				this.scope = sourceMethod.scope;
 			} else {
 				char[][] parameterNames = this.methodBinding.parameterNames;
-				for (int i = 0; i < parameterNames.length; i++) {
-					if (CharOperation.equals(parameterNames[i], varName)) {
-						// we don't have a compiler binding for this argument, but we can craft one:
-						this.compilerBinding = new SyntheticLocalVariableBinding(varName, this.methodBinding.parameters[i], this.methodBinding);
-						this.methodBinding = null;
-						return;
+				int paramPosition = -1;
+				if (parameterNames.length == 0) {
+					paramPosition = argumentPosition;
+				} else {
+					for (int i = 0; i < parameterNames.length; i++) {
+						if (CharOperation.equals(parameterNames[i], varName)) {
+							paramPosition = i;
+							break;
+						}
 					}
+				}
+				if (paramPosition != -1) {
+					// we don't have a compiler binding for this argument, but we can craft one:
+					this.compilerBinding = new SyntheticLocalVariableBinding(varName, this.methodBinding.parameters[paramPosition], this.methodBinding, paramPosition);
+					this.methodBinding = null;
+					return;
 				}
 			}
 		}
