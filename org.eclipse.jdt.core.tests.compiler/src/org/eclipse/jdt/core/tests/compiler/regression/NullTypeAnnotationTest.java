@@ -7911,4 +7911,100 @@ public void testBug465513() {
 		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
 		"----------\n");
 }
+
+public void testBug455180() {
+    runNegativeTestWithLibs(
+            new String[] {
+                "projA/GenericType.java",
+                "package projA;\n"+
+                "public class GenericType<T> {\n" +
+                "}\n",
+                "projA/ClassWithRawUsage.java",
+                "package projA;\n"+
+                "@org.eclipse.jdt.annotation.NonNullByDefault\n"+
+                "public class ClassWithRawUsage {\n"+
+                "   public java.util.List<GenericType> method() {\n"+
+                "           throw new RuntimeException();\n"+
+                "   }\n"+
+                "}\n"
+            },
+            "----------\n" +
+    		"1. WARNING in projA\\ClassWithRawUsage.java (at line 4)\n" + 
+    		"	public java.util.List<GenericType> method() {\n" + 
+    		"	                      ^^^^^^^^^^^\n" + 
+            "GenericType is a raw type. References to generic type GenericType<T> should be parameterized\n" +
+            "----------\n");
+    runNegativeTestWithLibs(
+            new String[] {
+                "projB/ClassThatImports.java",
+                "package projB;\n" +
+                "import projA.ClassWithRawUsage;\n" +
+                "import projA.GenericType;\n" +
+                "import org.eclipse.jdt.annotation.*;\n" +
+                "public class ClassThatImports {\n" +
+                "	void test(ClassWithRawUsage cwru) {\n" +
+                "		@NonNull GenericType gt = cwru.method().get(0);\n" +
+                "	}\n" +
+                "}\n"
+            },
+            getCompilerOptions(),
+            "----------\n" + 
+    		"1. WARNING in projB\\ClassThatImports.java (at line 7)\n" + 
+    		"	@NonNull GenericType gt = cwru.method().get(0);\n" + 
+    		"	         ^^^^^^^^^^^\n" + 
+    		"GenericType is a raw type. References to generic type GenericType<T> should be parameterized\n" + 
+    		"----------\n");
+}
+
+public void testBug455180WithOtherAnnotation() {
+	runConformTestWithLibs(
+			new String[] {
+				"proj0/MyAnnotation.java",
+				"package proj0;\n"+
+				"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS)"+
+				"@java.lang.annotation.Target({ java.lang.annotation.ElementType.TYPE_USE })"+
+				"public @interface MyAnnotation {}"
+			}, null, "");
+	runNegativeTestWithLibs(
+			new String[] {
+				"projA/GenericType.java",
+				"package projA;\n"+
+				"public class GenericType<T> {\n" +
+				"}\n",
+				"projA/ClassWithRawUsage.java",
+				"package projA;\n"+
+				"public class ClassWithRawUsage {\n"+
+				"   public java.util.List<@proj0.MyAnnotation GenericType> method() {\n"+
+				"      		throw new RuntimeException();\n"+
+				"   }\n"+
+				"}\n"
+			},
+			"----------\n" +
+			"1. WARNING in projA\\ClassWithRawUsage.java (at line 3)\n" +
+			"	public java.util.List<@proj0.MyAnnotation GenericType> method() {\n" +
+			"	                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"GenericType is a raw type. References to generic type GenericType<T> should be parameterized\n" +
+			"----------\n");
+	runNegativeTestWithLibs(
+			new String[] {
+				"projB/ClassThatImports.java",
+				"package projB;\n" +
+				"import projA.ClassWithRawUsage;\n" +
+				"import projA.GenericType;\n" +
+				"public class ClassThatImports {\n" +
+				"}\n"
+			},
+			getCompilerOptions(),
+			"----------\n" +
+			"1. WARNING in projB\\ClassThatImports.java (at line 2)\n" +
+			"	import projA.ClassWithRawUsage;\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The import projA.ClassWithRawUsage is never used\n" +
+			"----------\n" +
+			"2. WARNING in projB\\ClassThatImports.java (at line 3)\n" +
+			"	import projA.GenericType;\n" +
+			"	       ^^^^^^^^^^^^^^^^^\n" +
+			"The import projA.GenericType is never used\n" +
+			"----------\n");
+}
 }
