@@ -22,7 +22,8 @@
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
  *								Bug 435570 - [1.8][null] @NonNullByDefault illegally tries to affect "throws E"
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
- *								Bug 437072 - [compiler][null] Null analysis emits possibly incorrect warning for new int[][] despite @NonNullByDefault 
+ *								Bug 437072 - [compiler][null] Null analysis emits possibly incorrect warning for new int[][] despite @NonNullByDefault
+ *								Bug 466713 - Null Annotations: NullPointerException using <int @Nullable []> as Type Param 
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *                          Bug 409236 - [1.8][compiler] Type annotations on intersection cast types dropped by code generator
@@ -60,6 +61,24 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class TypeReference extends Expression {
 	public static final TypeReference[] NO_TYPE_ARGUMENTS = new TypeReference[0];
+
+	/**
+	 * Simplified specification of where in a (possibly complex) type reference
+	 * we are looking for type annotations.
+	 * @see TypeReference#hasNullTypeAnnotation(AnnotationPosition)
+	 */
+	public static enum AnnotationPosition {
+		/**
+		 * For arrays: the outermost dimension, for parameterized types the type, for nested types the innermost type.
+		 * This is the level that a declaration annotation would apply to.
+		 */
+		MAIN_TYPE,
+		/** For arrays: the leaf component type, else like MAIN_TYPE. */
+		LEAF_TYPE,
+		/** Any position admitting type annotations. */
+		ANY
+	}
+	
 static class AnnotationCollector extends ASTVisitor {
 	List annotationContexts;
 	Expression typeReference;
@@ -672,8 +691,9 @@ protected void checkNullConstraints(Scope scope, TypeBinding[] variables, int ra
 				scope.problemReporter().nullityMismatchTypeArgument(variable, this.resolvedType, this);
     	}
 	}
-	if (this.resolvedType.leafComponentType().isBaseType() && hasNullTypeAnnotation())
+	if (this.resolvedType.leafComponentType().isBaseType() && hasNullTypeAnnotation(AnnotationPosition.LEAF_TYPE)) {
 		scope.problemReporter().illegalAnnotationForBaseType(this, this.annotations[0], this.resolvedType.tagBits & TagBits.AnnotationNullMASK);
+	}
 }
 /** Retrieve the null annotation that has been translated to the given nullTagBits. */
 public Annotation findAnnotation(long nullTagBits) {
@@ -691,11 +711,17 @@ public Annotation findAnnotation(long nullTagBits) {
 	}
 	return null;
 }
-public boolean hasNullTypeAnnotation() {
+public boolean hasNullTypeAnnotation(AnnotationPosition position) {
 	if (this.annotations != null) {
-		Annotation[] innerAnnotations = this.annotations[this.annotations.length-1];
-		if (containsNullAnnotation(innerAnnotations))
-			return true;
+		if (position == AnnotationPosition.MAIN_TYPE) {
+			Annotation[] innerAnnotations = this.annotations[this.annotations.length-1];
+			return containsNullAnnotation(innerAnnotations);
+		} else {
+			for (Annotation[] someAnnotations: this.annotations) {
+				if (containsNullAnnotation(someAnnotations))
+					return true;
+			}
+		}
 	}
 	return false;
 }

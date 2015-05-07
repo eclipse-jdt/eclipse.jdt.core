@@ -35,6 +35,7 @@
  *							Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *							Bug 448709 - [1.8][null] ensure we don't infer types that violate null constraints on a type parameter's bound
  *							Bug 459967 - [null] compiler should know about nullness of special methods like MyEnum.valueOf()
+ *							Bug 466713 - Null Annotations: NullPointerException using <int @Nullable []> as Type Param
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contribution for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -48,6 +49,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
@@ -506,7 +508,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
     			return this.resolvedType = null;
     		}
     		
-    		if (this.lhs instanceof TypeReference && ((TypeReference)this.lhs).hasNullTypeAnnotation()) {
+    		if (this.lhs instanceof TypeReference && ((TypeReference)this.lhs).hasNullTypeAnnotation(AnnotationPosition.ANY)) {
     			scope.problemReporter().nullAnnotationUnsupportedLocation((TypeReference) this.lhs);
     		}
 

@@ -8007,4 +8007,80 @@ public void testBug455180WithOtherAnnotation() {
 			"The import projA.GenericType is never used\n" +
 			"----------\n");
 }
+// original test, witnessing NPE
+public void testBug466713() {
+	runConformTestWithLibs(
+		new String[] {
+			"Bug.java",
+			"class Bug {\n" + 
+			"    java.util.Iterator<int @org.eclipse.jdt.annotation.Nullable []> x;\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+// variant to ensure we are still reporting the error at the other location
+public void testBug466713b() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Bug.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"class Bug {\n" + 
+			"    java.util.Iterator<@Nullable int @Nullable []> x;\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in Bug.java (at line 3)\n" + 
+		"	java.util.Iterator<@Nullable int @Nullable []> x;\n" + 
+		"	                   ^^^^^^^^^\n" + 
+		"The nullness annotation @Nullable is not applicable for the primitive type int\n" + 
+		"----------\n");
+}
+// variant to ensure we are not complaining against an unrelated annotation
+public void testBug466713c() {
+	runConformTestWithLibs(
+		new String[] {
+			"MyAnnot.java",
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface MyAnnot {}\n",
+			"Bug.java",
+			"class Bug {\n" + 
+			"    java.util.Iterator<@MyAnnot int @org.eclipse.jdt.annotation.Nullable []> x;\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+// variant for https://bugs.eclipse.org/bugs/show_bug.cgi?id=466713#c5
+public void testBug466713d() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"MyAnnot.java",
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface MyAnnot {}\n",
+			"Bug.java",
+			"class Bug {\n" +
+			"	boolean test(Object o) {\n" + 
+			"		return o instanceof java.util.Iterator<java.lang. @MyAnnot @org.eclipse.jdt.annotation.Nullable String>;\n" +
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in Bug.java (at line 3)\n" + 
+		"	return o instanceof java.util.Iterator<java.lang. @MyAnnot @org.eclipse.jdt.annotation.Nullable String>;\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot perform instanceof check against parameterized type Iterator<String>. Use the form Iterator<?> instead since further generic type information will be erased at runtime\n" + 
+		"----------\n" + 
+		"2. ERROR in Bug.java (at line 3)\n" + 
+		"	return o instanceof java.util.Iterator<java.lang. @MyAnnot @org.eclipse.jdt.annotation.Nullable String>;\n" + 
+		"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Nullness annotations are not applicable at this location \n" + 
+		"----------\n");
+}
 }

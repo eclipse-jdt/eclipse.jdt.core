@@ -16,6 +16,7 @@
  *								Bug 434600 - Incorrect null analysis error reporting on type parameters
  *								Bug 435570 - [1.8][null] @NonNullByDefault illegally tries to affect "throws E"
  *								Bug 456508 - Unexpected RHS PolyTypeBinding for: <code-snippet>
+ *								Bug 466713 - Null Annotations: NullPointerException using <int @Nullable []> as Type Param
  *        Andy Clement - Contributions for
  *                          Bug 383624 - [1.8][compiler] Revive code generation support for type annotations (from Olivier's work)
  *******************************************************************************/
@@ -124,17 +125,19 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
     }
 
     @Override
-    public boolean hasNullTypeAnnotation() {
-    	if (super.hasNullTypeAnnotation())
-    		return true;
-    	if (this.resolvedType != null && !this.resolvedType.hasNullTypeAnnotations())
-    		return false; // shortcut
-    	if (this.typeArguments != null) {
-    		for (int i = 0; i < this.typeArguments.length; i++) {
-				if (this.typeArguments[i].hasNullTypeAnnotation())
-					return true;
-			}
-    	}
+    public boolean hasNullTypeAnnotation(AnnotationPosition position) {
+		if (super.hasNullTypeAnnotation(position))
+			return true;
+		if (position == AnnotationPosition.ANY) {
+	    	if (this.resolvedType != null && !this.resolvedType.hasNullTypeAnnotations())
+	    		return false; // shortcut
+	    	if (this.typeArguments != null) {
+	    		for (int i = 0; i < this.typeArguments.length; i++) {
+					if (this.typeArguments[i].hasNullTypeAnnotation(position))
+						return true;
+				}
+	    	}
+		}
     	return false;
     }
 
