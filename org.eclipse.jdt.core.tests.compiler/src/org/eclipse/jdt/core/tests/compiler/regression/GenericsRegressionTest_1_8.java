@@ -5107,6 +5107,7 @@ public void testBug455945() {
 		});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=445231, [compiler] IllegalAccessError running Eclipse-compiled class
+// This is a bug in Oracle JREs. Workaround in ECJ: https://bugs.eclipse.org/bugs/show_bug.cgi?id=466675
 public void testBug445231() {
 	runConformTest(
 		true,

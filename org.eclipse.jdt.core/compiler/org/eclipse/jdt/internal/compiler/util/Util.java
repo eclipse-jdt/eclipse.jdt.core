@@ -1075,8 +1075,8 @@ public class Util implements SuffixConstants {
 					break;
 				enclosingType = enclosingType.enclosingType();
 			} while (enclosingType != null);
-			if (enclosingType == null)
-				classFile.recordInnerClasses(typeBinding);
+			boolean onBottomForBug445231 = enclosingType != null;
+			classFile.recordInnerClasses(typeBinding, onBottomForBug445231);
 		}
 	}
 	/*
