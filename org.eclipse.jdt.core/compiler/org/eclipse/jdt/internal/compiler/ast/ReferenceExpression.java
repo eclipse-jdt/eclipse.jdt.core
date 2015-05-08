@@ -522,7 +522,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	            }
 	        	this.binding = this.exactMethodBinding = scope.getExactConstructor(lhsType, this);
 	        }
-			if (isMethodReference() && this.haveReceiver) {
+			if (isMethodReference() && this.haveReceiver && (this.original == this)) {
 				this.receiverVariable = new LocalVariableBinding(
 						(SecretReceiverVariableName + this.nameSourceStart).toCharArray(), this.lhs.resolvedType,
 						ClassFileConstants.AccDefault, false);

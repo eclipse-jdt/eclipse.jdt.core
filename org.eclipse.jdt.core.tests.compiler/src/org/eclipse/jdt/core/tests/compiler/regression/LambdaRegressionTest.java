@@ -889,6 +889,29 @@ public void testBug464408() {
 		"Cannot create a generic array of List<String>\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=465900
+// Internal compiler error: java.lang.IllegalArgumentException: info cannot be null at org.eclipse.jdt.internal.compiler.codegen.StackMapFrame.addStackItem(StackMapFrame.java:81)
+public void testBug465900() {
+	this.runConformTest(new String [] {
+		"X.java",
+		"import java.io.Serializable;\n" + 
+		"import java.util.ArrayList;\n" + 
+		"import java.util.List;\n" + 
+		"import java.util.function.Supplier;\n" + 
+		"public class X {\n" + 
+		"	private static final long serialVersionUID = 1L;\n" + 
+		"	protected void x() {\n" + 
+		"		String str = \"groep.koppeling.\" + (\"\".isEmpty() ? \"toevoegen\" : \"bewerken\");\n" + 
+		"		List<String> bean = new ArrayList<>();\n" + 
+		"		test(bean.get(0)::isEmpty);\n" + 
+		"	}\n" + 
+		"	private void test(SerializableSupplier<Boolean> test) {}\n" + 
+		"}\n" + 
+		"@FunctionalInterface\n" + 
+		"interface SerializableSupplier<T> extends Supplier<T>, Serializable {}\n"
+	},
+	"");
+}
 public static Class testClass() {
 	return LambdaRegressionTest.class;
 }
