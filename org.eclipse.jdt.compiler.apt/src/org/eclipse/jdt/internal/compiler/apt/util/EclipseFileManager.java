@@ -329,7 +329,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		if (files == null) {
 			throw new IllegalArgumentException("Unknown location : " + location);//$NON-NLS-1$
 		}
-		String normalizedFileName = normalized(packageName) + '/' + relativeName.replace('\\', '/');
+		String normalizedFileName = normalizedFileName(packageName, relativeName);
 		for (File file : files) {
 			if (file.isDirectory()) {
 				// handle directory
@@ -351,7 +351,17 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		}
 		return null;
 	}
-	
+
+	private String normalizedFileName(String packageName, String relativeName) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(normalized(packageName));
+		if (sb.length() > 0) {
+			sb.append('/');
+		}
+		sb.append(relativeName.replace('\\', '/'));
+		return sb.toString();
+	}
+
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#getFileForOutput(javax.tools.JavaFileManager.Location, java.lang.String, java.lang.String, javax.tools.FileObject)
 	 */
