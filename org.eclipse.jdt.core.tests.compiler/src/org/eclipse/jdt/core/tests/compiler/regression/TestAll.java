@@ -126,6 +126,7 @@ public static Test suite() {
 	since_1_7.add(GenericsRegressionTest_1_7.class);
 	since_1_7.add(PolymorphicSignatureTest.class);
 	since_1_7.add(Compliance_1_7.class);
+	since_1_7.add(MethodHandleTest.class);
 	
 	ArrayList since_1_8 = new ArrayList();
 	since_1_8.add(NegativeTypeAnnotationTest.class);
