@@ -1309,7 +1309,7 @@ public void test402081() throws JavaModelException {
 	String completeBehind = "long";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("longMethodName[METHOD_IMPORT]{longMethodName, LX;, (Ljava.lang.String;)Ljava.lang.String;, null, null, longMethodName, (x), [183, 187], 35}", requestor.getResults());
+	assertResults("longMethodName[METHOD_NAME_REFERENCE]{longMethodName, LX;, (Ljava.lang.String;)Ljava.lang.String;, null, null, longMethodName, (x), [183, 187], 35}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402081, [1.8][code complete] No proposals while completing at method/constructor references
 public void test402081a() throws JavaModelException {
@@ -1339,7 +1339,7 @@ public void test402081a() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"longMethodName[METHOD_IMPORT]{longMethodName, Ltest.X;, (Ljava.lang.String;)Ljava.lang.String;, longMethodName, (x), 35}",
+			"longMethodName[METHOD_NAME_REFERENCE]{longMethodName, Ltest.X;, (Ljava.lang.String;)Ljava.lang.String;, longMethodName, (x), 35}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402081, [1.8][code complete] No proposals while completing at method/constructor references
@@ -1365,7 +1365,7 @@ public void test402081b() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"longMethodName[METHOD_IMPORT]{longMethodName, Ltest.X<Ljava.lang.String;>;, (Ljava.lang.String;)Ljava.lang.String;, longMethodName, (x), 35}",
+			"longMethodName[METHOD_NAME_REFERENCE]{longMethodName, Ltest.X<Ljava.lang.String;>;, (Ljava.lang.String;)Ljava.lang.String;, longMethodName, (x), 35}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402081, [1.8][code complete] No proposals while completing at method/constructor references
@@ -1394,7 +1394,7 @@ public void test402081c() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"longMethodName[METHOD_IMPORT]{longMethodName, Ltest.Y;, (Ljava.lang.String;)Ljava.lang.String;, longMethodName, (x), 35}",
+			"longMethodName[METHOD_NAME_REFERENCE]{longMethodName, Ltest.Y;, (Ljava.lang.String;)Ljava.lang.String;, longMethodName, (x), 35}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402081, [1.8][code complete] No proposals while completing at method/constructor references
@@ -1423,7 +1423,7 @@ public void test402081d() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"longMethodName[METHOD_IMPORT]{longMethodName, Ltest.Y;, (Ljava.lang.String;)Ljava.lang.String;, longMethodName, (x), 35}",
+			"longMethodName[METHOD_NAME_REFERENCE]{longMethodName, Ltest.Y;, (Ljava.lang.String;)Ljava.lang.String;, longMethodName, (x), 35}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=431402, [assist] NPE in AssistParser.triggerRecoveryUponLambdaClosure:483 using Content Assist
@@ -1567,8 +1567,8 @@ public void test430656() throws JavaModelException {
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"getClass[METHOD_IMPORT]{getClass, Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 35}\n" +
-			"getLastName[METHOD_IMPORT]{getLastName, Ltest.Person;, ()Ljava.lang.String;, getLastName, null, 35}",
+			"getClass[METHOD_NAME_REFERENCE]{getClass, Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 35}\n" +
+			"getLastName[METHOD_NAME_REFERENCE]{getLastName, Ltest.Person;, ()Ljava.lang.String;, getLastName, null, 35}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=433178
@@ -1750,27 +1750,27 @@ public void test435219d() throws JavaModelException {
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (C)V, null, null, print, null, [219, 222], 30}\n" +
-			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (D)V, null, null, print, null, [219, 222], 30}\n" +
-			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (F)V, null, null, print, null, [219, 222], 30}\n" +
-			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (I)V, null, null, print, null, [219, 222], 30}\n" +
-			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (J)V, null, null, print, null, [219, 222], 30}\n" +
-			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (Ljava.lang.Object;)V, null, null, print, null, [219, 222], 30}\n" +
-			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (Ljava.lang.String;)V, null, null, print, null, [219, 222], 30}\n" +
-			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (Z)V, null, null, print, null, [219, 222], 30}\n" +
-			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, ([C)V, null, null, print, null, [219, 222], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, ()V, null, null, println, null, [219, 222], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (C)V, null, null, println, null, [219, 222], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (D)V, null, null, println, null, [219, 222], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (F)V, null, null, println, null, [219, 222], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (I)V, null, null, println, null, [219, 222], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (J)V, null, null, println, null, [219, 222], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (Ljava.lang.Object;)V, null, null, println, null, [219, 222], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (Ljava.lang.String;)V, null, null, println, null, [219, 222], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (Z)V, null, null, println, null, [219, 222], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, ([C)V, null, null, println, null, [219, 222], 30}\n" +
-			"printf[METHOD_IMPORT]{printf, Ljava.io.PrintStream;, (Ljava.lang.String;[Ljava.lang.Object;)Ljava.io.PrintStream;, null, null, printf, null, [219, 222], 35}\n" +
-			"printf[METHOD_IMPORT]{printf, Ljava.io.PrintStream;, (Ljava.util.Locale;Ljava.lang.String;[Ljava.lang.Object;)Ljava.io.PrintStream;, null, null, printf, null, [219, 222], 35}", requestor.getResults());
+	assertResults("print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, (C)V, null, null, print, null, [219, 222], 30}\n" +
+			"print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, (D)V, null, null, print, null, [219, 222], 30}\n" +
+			"print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, (F)V, null, null, print, null, [219, 222], 30}\n" +
+			"print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, (I)V, null, null, print, null, [219, 222], 30}\n" +
+			"print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, (J)V, null, null, print, null, [219, 222], 30}\n" +
+			"print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, (Ljava.lang.Object;)V, null, null, print, null, [219, 222], 30}\n" +
+			"print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, (Ljava.lang.String;)V, null, null, print, null, [219, 222], 30}\n" +
+			"print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, (Z)V, null, null, print, null, [219, 222], 30}\n" +
+			"print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, ([C)V, null, null, print, null, [219, 222], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, ()V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, (C)V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, (D)V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, (F)V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, (I)V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, (J)V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, (Ljava.lang.Object;)V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, (Ljava.lang.String;)V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, (Z)V, null, null, println, null, [219, 222], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, ([C)V, null, null, println, null, [219, 222], 30}\n" +
+			"printf[METHOD_NAME_REFERENCE]{printf, Ljava.io.PrintStream;, (Ljava.lang.String;[Ljava.lang.Object;)Ljava.io.PrintStream;, null, null, printf, null, [219, 222], 35}\n" +
+			"printf[METHOD_NAME_REFERENCE]{printf, Ljava.io.PrintStream;, (Ljava.util.Locale;Ljava.lang.String;[Ljava.lang.Object;)Ljava.io.PrintStream;, null, null, printf, null, [219, 222], 35}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
 public void test435219e() throws JavaModelException {
@@ -1991,15 +1991,15 @@ public void test443932() throws JavaModelException {
 	String completeBehind = "to";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("toBinaryString[METHOD_IMPORT]{toBinaryString, Ljava.lang.Integer;, (I)Ljava.lang.String;, null, null, toBinaryString, null, [90, 98], 24}\n" +
-			"toHexString[METHOD_IMPORT]{toHexString, Ljava.lang.Integer;, (I)Ljava.lang.String;, null, null, toHexString, null, [90, 98], 24}\n" +
-			"toOctalString[METHOD_IMPORT]{toOctalString, Ljava.lang.Integer;, (I)Ljava.lang.String;, null, null, toOctalString, null, [90, 98], 24}\n" +
-			"toString[METHOD_IMPORT]{toString, Ljava.lang.Integer;, (I)Ljava.lang.String;, null, null, toString, null, [90, 98], 24}\n" +
-			"toString[METHOD_IMPORT]{toString, Ljava.lang.Integer;, (II)Ljava.lang.String;, null, null, toString, null, [90, 98], 24}\n" +
-			"toUnsignedLong[METHOD_IMPORT]{toUnsignedLong, Ljava.lang.Integer;, (I)J, null, null, toUnsignedLong, null, [90, 98], 24}\n" +
-			"toUnsignedString[METHOD_IMPORT]{toUnsignedString, Ljava.lang.Integer;, (I)Ljava.lang.String;, null, null, toUnsignedString, null, [90, 98], 24}\n" +
-			"toUnsignedString[METHOD_IMPORT]{toUnsignedString, Ljava.lang.Integer;, (II)Ljava.lang.String;, null, null, toUnsignedString, null, [90, 98], 24}\n" +
-			"toString[METHOD_IMPORT]{toString, Ljava.lang.Integer;, ()Ljava.lang.String;, null, null, toString, null, [90, 98], 35}", requestor.getResults());
+	assertResults("toBinaryString[METHOD_NAME_REFERENCE]{toBinaryString, Ljava.lang.Integer;, (I)Ljava.lang.String;, null, null, toBinaryString, null, [90, 98], 24}\n" +
+			"toHexString[METHOD_NAME_REFERENCE]{toHexString, Ljava.lang.Integer;, (I)Ljava.lang.String;, null, null, toHexString, null, [90, 98], 24}\n" +
+			"toOctalString[METHOD_NAME_REFERENCE]{toOctalString, Ljava.lang.Integer;, (I)Ljava.lang.String;, null, null, toOctalString, null, [90, 98], 24}\n" +
+			"toString[METHOD_NAME_REFERENCE]{toString, Ljava.lang.Integer;, (I)Ljava.lang.String;, null, null, toString, null, [90, 98], 24}\n" +
+			"toString[METHOD_NAME_REFERENCE]{toString, Ljava.lang.Integer;, (II)Ljava.lang.String;, null, null, toString, null, [90, 98], 24}\n" +
+			"toUnsignedLong[METHOD_NAME_REFERENCE]{toUnsignedLong, Ljava.lang.Integer;, (I)J, null, null, toUnsignedLong, null, [90, 98], 24}\n" +
+			"toUnsignedString[METHOD_NAME_REFERENCE]{toUnsignedString, Ljava.lang.Integer;, (I)Ljava.lang.String;, null, null, toUnsignedString, null, [90, 98], 24}\n" +
+			"toUnsignedString[METHOD_NAME_REFERENCE]{toUnsignedString, Ljava.lang.Integer;, (II)Ljava.lang.String;, null, null, toUnsignedString, null, [90, 98], 24}\n" +
+			"toString[METHOD_NAME_REFERENCE]{toString, Ljava.lang.Integer;, ()Ljava.lang.String;, null, null, toString, null, [90, 98], 35}", requestor.getResults());
 	assertTrue(str.substring(90, 98).equals("toString"));
 	
 }
@@ -2067,27 +2067,27 @@ public void test435219i() throws JavaModelException {
 	String completeBehind = "pri";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (C)V, null, null, print, null, [188, 191], 30}\n" +
-			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (D)V, null, null, print, null, [188, 191], 30}\n" +
-			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (F)V, null, null, print, null, [188, 191], 30}\n" +
-			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (I)V, null, null, print, null, [188, 191], 30}\n" +
-			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (J)V, null, null, print, null, [188, 191], 30}\n" +
-			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (Ljava.lang.Object;)V, null, null, print, null, [188, 191], 30}\n" +
-			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (Ljava.lang.String;)V, null, null, print, null, [188, 191], 30}\n" +
-			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, (Z)V, null, null, print, null, [188, 191], 30}\n" +
-			"print[METHOD_IMPORT]{print, Ljava.io.PrintStream;, ([C)V, null, null, print, null, [188, 191], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, ()V, null, null, println, null, [188, 191], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (C)V, null, null, println, null, [188, 191], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (D)V, null, null, println, null, [188, 191], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (F)V, null, null, println, null, [188, 191], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (I)V, null, null, println, null, [188, 191], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (J)V, null, null, println, null, [188, 191], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (Ljava.lang.Object;)V, null, null, println, null, [188, 191], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (Ljava.lang.String;)V, null, null, println, null, [188, 191], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, (Z)V, null, null, println, null, [188, 191], 30}\n" +
-			"println[METHOD_IMPORT]{println, Ljava.io.PrintStream;, ([C)V, null, null, println, null, [188, 191], 30}\n" +
-			"printf[METHOD_IMPORT]{printf, Ljava.io.PrintStream;, (Ljava.lang.String;[Ljava.lang.Object;)Ljava.io.PrintStream;, null, null, printf, null, [188, 191], 35}\n" +
-			"printf[METHOD_IMPORT]{printf, Ljava.io.PrintStream;, (Ljava.util.Locale;Ljava.lang.String;[Ljava.lang.Object;)Ljava.io.PrintStream;, null, null, printf, null, [188, 191], 35}", requestor.getResults());
+	assertResults("print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, (C)V, null, null, print, null, [188, 191], 30}\n" +
+			"print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, (D)V, null, null, print, null, [188, 191], 30}\n" +
+			"print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, (F)V, null, null, print, null, [188, 191], 30}\n" +
+			"print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, (I)V, null, null, print, null, [188, 191], 30}\n" +
+			"print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, (J)V, null, null, print, null, [188, 191], 30}\n" +
+			"print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, (Ljava.lang.Object;)V, null, null, print, null, [188, 191], 30}\n" +
+			"print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, (Ljava.lang.String;)V, null, null, print, null, [188, 191], 30}\n" +
+			"print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, (Z)V, null, null, print, null, [188, 191], 30}\n" +
+			"print[METHOD_NAME_REFERENCE]{print, Ljava.io.PrintStream;, ([C)V, null, null, print, null, [188, 191], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, ()V, null, null, println, null, [188, 191], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, (C)V, null, null, println, null, [188, 191], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, (D)V, null, null, println, null, [188, 191], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, (F)V, null, null, println, null, [188, 191], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, (I)V, null, null, println, null, [188, 191], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, (J)V, null, null, println, null, [188, 191], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, (Ljava.lang.Object;)V, null, null, println, null, [188, 191], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, (Ljava.lang.String;)V, null, null, println, null, [188, 191], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, (Z)V, null, null, println, null, [188, 191], 30}\n" +
+			"println[METHOD_NAME_REFERENCE]{println, Ljava.io.PrintStream;, ([C)V, null, null, println, null, [188, 191], 30}\n" +
+			"printf[METHOD_NAME_REFERENCE]{printf, Ljava.io.PrintStream;, (Ljava.lang.String;[Ljava.lang.Object;)Ljava.io.PrintStream;, null, null, printf, null, [188, 191], 35}\n" +
+			"printf[METHOD_NAME_REFERENCE]{printf, Ljava.io.PrintStream;, (Ljava.util.Locale;Ljava.lang.String;[Ljava.lang.Object;)Ljava.io.PrintStream;, null, null, printf, null, [188, 191], 35}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=435219, [1.8][content assist] No proposals for some closure cases 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=444300, [1.8] content assist not working inside lambda expression in case of fields

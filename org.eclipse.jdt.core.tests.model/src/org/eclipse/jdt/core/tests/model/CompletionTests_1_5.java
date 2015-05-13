@@ -2009,8 +2009,8 @@ public void test0072() throws JavaModelException {
 
 		assertResults(
 				"ZZZ1[FIELD_REF]{ZZZ1;, Ltest0072.p.ImportedClass;, I, ZZZ1, null, ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"ZZZ2[METHOD_IMPORT]{ZZZ2;, Ltest0072.p.ImportedClass;, ()V, ZZZ2, null, ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"ZZZ2[METHOD_IMPORT]{ZZZ2;, Ltest0072.p.ImportedClass;, (I)V, ZZZ2, (i), ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				"ZZZ2[METHOD_NAME_REFERENCE]{ZZZ2;, Ltest0072.p.ImportedClass;, ()V, ZZZ2, null, ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZ2[METHOD_NAME_REFERENCE]{ZZZ2;, Ltest0072.p.ImportedClass;, (I)V, ZZZ2, (i), ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		if(importedClass != null) {
@@ -2049,8 +2049,8 @@ public void test0073() throws JavaModelException {
 
 		assertResults(
 				"ZZZ1[FIELD_REF]{ZZZ1;, Ltest0073.p.ImportedClass$Inner;, I, ZZZ1, null, ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"ZZZ2[METHOD_IMPORT]{ZZZ2;, Ltest0073.p.ImportedClass$Inner;, ()V, ZZZ2, null, ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"ZZZ2[METHOD_IMPORT]{ZZZ2;, Ltest0073.p.ImportedClass$Inner;, (I)V, ZZZ2, (i), ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				"ZZZ2[METHOD_NAME_REFERENCE]{ZZZ2;, Ltest0073.p.ImportedClass$Inner;, ()V, ZZZ2, null, ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZ2[METHOD_NAME_REFERENCE]{ZZZ2;, Ltest0073.p.ImportedClass$Inner;, (I)V, ZZZ2, (i), ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		if(importedClass != null) {
@@ -2089,8 +2089,8 @@ public void test0074() throws JavaModelException {
 
 		assertResults(
 				"ZZZ1[FIELD_REF]{ZZZ1;, Ltest0074.p.ImportedClass$Inner;, I, ZZZ1, null, ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"ZZZ2[METHOD_IMPORT]{ZZZ2;, Ltest0074.p.ImportedClass$Inner;, ()V, ZZZ2, null, ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"ZZZ2[METHOD_IMPORT]{ZZZ2;, Ltest0074.p.ImportedClass$Inner;, (I)V, ZZZ2, (i), ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				"ZZZ2[METHOD_NAME_REFERENCE]{ZZZ2;, Ltest0074.p.ImportedClass$Inner;, ()V, ZZZ2, null, ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"ZZZ2[METHOD_NAME_REFERENCE]{ZZZ2;, Ltest0074.p.ImportedClass$Inner;, (I)V, ZZZ2, (i), ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		if(importedClass != null) {
@@ -8038,8 +8038,8 @@ public void test0250() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 		assertResults(
-				"oneTwoThree[METHOD_IMPORT]{oneTwoThree;, Lcamelcase.ImportedType;, ()V, oneTwoThree, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CAMEL_CASE + R_NON_RESTRICTED) + "}\n" +
-				"oTTMethod[METHOD_IMPORT]{oTTMethod;, Lcamelcase.ImportedType;, ()V, oTTMethod, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				"oneTwoThree[METHOD_NAME_REFERENCE]{oneTwoThree;, Lcamelcase.ImportedType;, ()V, oneTwoThree, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CAMEL_CASE + R_NON_RESTRICTED) + "}\n" +
+				"oTTMethod[METHOD_NAME_REFERENCE]{oTTMethod;, Lcamelcase.ImportedType;, ()V, oTTMethod, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		JavaCore.setOptions(this.oldOptions);
@@ -10656,8 +10656,8 @@ public void test0330() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"foo1[METHOD_IMPORT]{foo1;, Ltest0330.q.Y;, ()Ltest0330.p.X;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-			"foo2[METHOD_IMPORT]{foo2;, Ltest0330.q.Y;, ()V, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			"foo1[METHOD_NAME_REFERENCE]{foo1;, Ltest0330.q.Y;, ()Ltest0330.p.X;, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+			"foo2[METHOD_NAME_REFERENCE]{foo2;, Ltest0330.q.Y;, ()V, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=185318
@@ -10677,7 +10677,7 @@ public void test0331() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"foo2[METHOD_IMPORT]{foo2;, Ltest0331.q.Y;, ()V, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+			"foo2[METHOD_NAME_REFERENCE]{foo2;, Ltest0331.q.Y;, ()V, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=185318
