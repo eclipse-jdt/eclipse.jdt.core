@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 BEA Systems, Inc. and others
+ * Copyright (c) 2007, 2015 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
@@ -32,15 +33,26 @@ import junit.framework.TestCase;
 public class MessagerTests extends TestCase {
 	
 	public final class DiagnosticReport<S> implements DiagnosticListener<S> {
-		public int errors;
-
+		public int count;
+		public StringBuffer buffer;
+		private List<Diagnostic<? extends S>> errors = new ArrayList<>();
 		DiagnosticReport() {
-			this.errors = 0;
+			this.count = 0;
+			this.buffer = new StringBuffer();
 		}
 		public void report(Diagnostic<? extends S> diagnostic) {
 			if (diagnostic.getKind() ==  Diagnostic.Kind.ERROR) {
-				errors++;
+				errors.add(diagnostic);
+				count++;
+				buffer.append(diagnostic.getMessage(Locale.getDefault()));
+				buffer.append("\n");
 			}
+		}
+		public Diagnostic<? extends S> getErrorAt(int index) {
+			return errors.get(index);
+		}
+		public String toString() {
+			return this.buffer.toString();
 		}
 	}
 	// See corresponding usages in the MessagerProc class
@@ -66,7 +78,7 @@ public class MessagerTests extends TestCase {
 		internalTestMessager(compiler, diagnosticListener);
 		// surprisingly enough javac 1.7 only reports 3 errors
 		// javac 1.6 reports 4 errors as expected
-		assertTrue("Wrong number of reported errors", diagnosticListener.errors >= 3);
+		assertTrue("Wrong number of reported errors", diagnosticListener.count >= 3);
 	}
 
 	/**
@@ -77,7 +89,13 @@ public class MessagerTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<JavaFileObject>();
 		internalTestMessager(compiler, diagnosticListener);
-		assertEquals("Wrong number of reported errors", 4, diagnosticListener.errors);
+		assertEquals("Wrong number of reported errors", 5, diagnosticListener.count);
+		@SuppressWarnings("unchecked")
+		Diagnostic<JavaFileObject> diag = (Diagnostic<JavaFileObject>) diagnosticListener.getErrorAt(2);
+		JavaFileObject fileObject = diag.getSource();
+		CharSequence content = fileObject.getCharContent(true);
+		String marker = content.subSequence((int) diag.getStartPosition(), (int) diag.getEndPosition() + 1).toString();
+		assertEquals("Wrong error postion", "@Nested", marker);
 	}
 
 	/**
