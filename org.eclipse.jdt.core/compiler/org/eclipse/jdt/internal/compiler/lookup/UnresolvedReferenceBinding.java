@@ -11,6 +11,7 @@
  *								bug 349326 - [1.7] new warning for missing try-with-resources
  *								bug 392384 - [1.8][compiler][null] Restore nullness info from type annotations in class files
  *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 467032 - TYPE_USE Null Annotations: IllegalStateException with annotated arrays of Enum when accessed via BinaryTypeBinding
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -108,6 +109,9 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 			}
 			// create a proxy for the missing BinaryType
 			targetType = environment.createMissingType(null, this.compoundName);
+		}
+		if (targetType.id != TypeIds.NoId) {
+			this.id = targetType.id;
 		}
 		setResolvedType(targetType, environment);
 	}

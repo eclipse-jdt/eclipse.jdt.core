@@ -8,6 +8,8 @@
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *     IBM Corporation
+ *     Till Brychcy - Contribution for
+ *								Bug 467032 - TYPE_USE Null Annotations: IllegalStateException with annotated arrays of Enum when accessed via BinaryTypeBinding
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -8082,5 +8084,22 @@ public void testBug466713d() {
 		"	                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Nullness annotations are not applicable at this location \n" + 
 		"----------\n");
+}
+public void testBug467032() {
+	runConformTestWithLibs(
+			new String[] {
+				"Class1.java",
+				"class Class1 {;\n"+
+				"   enum E {}\n"+
+				"   void m1(E @org.eclipse.jdt.annotation.Nullable [] a) {}\n"+
+				"}\n"
+			}, getCompilerOptions(), "");
+	runConformTestWithLibs(
+			new String[] {
+				"Class2.java",
+				"class Class2 {;\n"+
+				"  Class1 x;"+
+				"}\n"
+			}, getCompilerOptions(), "");
 }
 }
