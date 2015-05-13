@@ -8,6 +8,7 @@
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] follow up bug for comments - https://bugs.eclipse.org/458208
+ *     Mateusz Matela <mateusz.matela@gmail.com> - NPE in WrapExecutor during Java text formatting  - https://bugs.eclipse.org/465669
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter.linewrap;
 
@@ -316,6 +317,7 @@ public class WrapExecutor {
 					if (shouldForceWrap(token, currentIndent)) {
 						currentIndent = token.getIndent();
 						wrapInfo = new WrapInfo(index, currentIndent);
+						findWrapsCached(index, currentIndent);
 						break;
 					}
 					token.setIndent(currentIndent);

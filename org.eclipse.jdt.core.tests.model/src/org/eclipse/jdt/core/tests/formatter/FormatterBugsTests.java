@@ -12,6 +12,7 @@
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] IndexOutOfBoundsException in TokenManager - https://bugs.eclipse.org/462945
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] follow up bug for comments - https://bugs.eclipse.org/458208
+ *     Mateusz Matela <mateusz.matela@gmail.com> - NPE in WrapExecutor during Java text formatting  - https://bugs.eclipse.org/465669
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
@@ -10886,6 +10887,49 @@ public void testBug458208d() throws Exception {
 		"public enum TestEnum {\n" + 
 		"	ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, ELEVEN, TWELWE,\n" + 
 		"	THIRTEEN, FOURTEEN, FIFTEEN;\n" + 
+		"}"
+	);
+}
+/**
+ * @bug 465669: NPE in WrapExecutor during Java text formatting
+ * @test test that no NPE is thrown
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=465669"
+ */
+public void testBug465669() throws Exception {
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.indentation_size = 2;
+	setPageWidth80();
+	String source = 
+		"public class ffffffffffffffffff\r\n" + 
+		"{\r\n" + 
+		"  private static void test(String s)\r\n" + 
+		"  {\r\n" + 
+		"    dddd = (aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff)new dddddddddddddddd()\r\n" + 
+		"  .ttt(null, aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff.class)\r\n" + 
+		"      .ttt(\"bbbbbbb\", xxxxxxxxx.class)\r\n" + 
+		"      .ttt(\"sssssssvvvvvvv\", new fffffffffff(\"xxxx\")\r\n" + 
+		"           .add(\"eeeeeeee\", aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff.ssssssssssssss.class)\r\n" + 
+		"           .add(\"cccccccccc\", aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff.wwwwwwwwwwwwwwww.class)\r\n" + 
+		"           )\r\n" + 
+		"      .bbbbbbbbbbb(s);\r\n" + 
+		"  }\r\n" + 
+		"  \r\n" + 
+		"}";
+	formatSource(source,
+		"public class ffffffffffffffffff {\r\n" + 
+		"  private static void test(String s) {\r\n" + 
+		"    dddd = (aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff) new dddddddddddddddd()\r\n" + 
+		"        .ttt(null, aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff.class)\r\n" + 
+		"        .ttt(\"bbbbbbb\", xxxxxxxxx.class)\r\n" + 
+		"        .ttt(\"sssssssvvvvvvv\",\r\n" + 
+		"            new fffffffffff(\"xxxx\")\r\n" + 
+		"                .add(\"eeeeeeee\",\r\n" + 
+		"                    aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff.ssssssssssssss.class)\r\n" + 
+		"                .add(\"cccccccccc\",\r\n" + 
+		"                    aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff.wwwwwwwwwwwwwwww.class))\r\n" + 
+		"        .bbbbbbbbbbb(s);\r\n" + 
+		"  }\r\n" + 
+		"\r\n" + 
 		"}"
 	);
 }
