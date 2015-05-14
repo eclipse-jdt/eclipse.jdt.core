@@ -15,6 +15,8 @@
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *								Bug 458396 - NPE in CodeStream.invoke()
  *								Bug 446217 - [null] @NonNullByDefault in package-info.java causes bogus "null type safety" warning
+ *     Till Brychcy - Contribution for
+ *     						    bug 467094 - [1.8][null] TYPE_USE NullAnnotations of array contents are applied to field.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -245,21 +247,23 @@ public Constant constant(Scope scope) {
 }
 
 public void fillInDefaultNonNullness(FieldDeclaration sourceField, Scope scope) {
+	if (this.type == null || this.type.isBaseType())
+		return;
 	LookupEnvironment environment = scope.environment();
-	if (this.type == null)
-		return;
-	if (environment.usesNullTypeAnnotations() && !this.type.acceptsNonNullDefault())
-		return;
-	if (   !this.type.isBaseType()
-		&& (this.tagBits & TagBits.AnnotationNullMASK) == 0 		// declaration annotation?
-		&& (this.type.tagBits & TagBits.AnnotationNullMASK) == 0)	// type annotation? (java.lang.@Nullable String)
-	{
-		if (environment.usesNullTypeAnnotations())
+	if (environment.usesNullTypeAnnotations()) {
+		if (!this.type.acceptsNonNullDefault())
+			return;
+		if ( (this.type.tagBits & TagBits.AnnotationNullMASK) == 0) {
 			this.type = environment.createAnnotatedType(this.type, new AnnotationBinding[]{environment.getNonNullAnnotation()});
-		else
+		} else if ((this.type.tagBits & TagBits.AnnotationNonNull) != 0) {
+			scope.problemReporter().nullAnnotationIsRedundant(sourceField);
+		}
+	} else {
+		if ( (this.tagBits & TagBits.AnnotationNullMASK) == 0 ) {
 			this.tagBits |= TagBits.AnnotationNonNull;
-	} else if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
-		scope.problemReporter().nullAnnotationIsRedundant(sourceField);
+		} else if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
+			scope.problemReporter().nullAnnotationIsRedundant(sourceField);
+		}		
 	}
 }
 

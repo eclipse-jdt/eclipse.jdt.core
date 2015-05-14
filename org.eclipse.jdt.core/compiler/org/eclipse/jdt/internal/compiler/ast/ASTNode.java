@@ -40,6 +40,8 @@
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *								bug 412149 - [1.8][compiler] Emit repeated annotations into the designated container
  *								bug 419209 - [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
+ *     Till Brychcy - Contributions for
+ *     						    bug 467094 - [1.8][null] TYPE_USE NullAnnotations of array contents are applied to field.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -988,6 +990,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						local.declaration.bits |= HasTypeAnnotations;
 						typeRef.bits |= HasTypeAnnotations;
 						local.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, typeRef, local.type);
+						if(scope.environment().usesNullTypeAnnotations()) {
+							local.tagBits &= ~(se8nullBits);
+						}
 					}
 					break;
 				case Binding.FIELD:
@@ -998,6 +1003,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						fieldDeclaration.bits |= HasTypeAnnotations;
 						fieldDeclaration.type.bits |= HasTypeAnnotations;
 						field.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, fieldDeclaration.type, field.type);
+						if(scope.environment().usesNullTypeAnnotations()) {
+							field.tagBits &= ~(se8nullBits);
+						}
 					}
 					break;
 				case Binding.METHOD:
@@ -1009,6 +1017,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 							methodDecl.bits |= HasTypeAnnotations;
 							methodDecl.returnType.bits |= HasTypeAnnotations;
 							method.returnType = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, methodDecl.returnType, method.returnType);
+							if(scope.environment().usesNullTypeAnnotations()) {
+								method.tagBits &= ~(se8nullBits);
+							}
 						}
 					}
 					break;
