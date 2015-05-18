@@ -10,6 +10,7 @@
  *     IBM Corporation
  *     Till Brychcy - Contribution for
  *								Bug 467032 - TYPE_USE Null Annotations: IllegalStateException with annotated arrays of Enum when accessed via BinaryTypeBinding
+ *								Bug 467482 - TYPE_USE null annotations: Incorrect "Redundant null check"-warning
  *								Bug 473713 - [1.8][null] Type mismatch: cannot convert from @NonNull A1 to @NonNull A1
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
@@ -8373,6 +8374,181 @@ public void testBug474239() {
 		},
 		options,
 		"");
+}
+
+public void testBug467482() {
+	runConformTestWithLibs(
+		new String[]{
+			"Util.java",
+			"public abstract class Util {\n" +
+			"	public static <T> @org.eclipse.jdt.annotation.Nullable T f(T[] valuesArray, java.util.Comparator<T> comparator) {\n" +
+			"		@org.eclipse.jdt.annotation.Nullable\n" +
+			"		T winner = null;\n" +
+			"		for (T value : valuesArray) {\n" +
+			"			if (winner == null) {\n" +
+			"				winner = value;\n" +
+			"			} else {\n" +
+			"				if (comparator.compare(winner, value) < 0) {\n" +
+			"					winner = value;\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"		return winner;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug467482simple() {
+	// reduced example without generics that still exhibits the bug
+	runConformTestWithLibs(
+		new String[]{
+			"Util.java",
+			"public abstract class Util {\n" +
+				"public static void f(Object unknown) {\n" +
+				"	@org.eclipse.jdt.annotation.Nullable\n" +
+				"	Object winner = null;\n" +
+				"	for (int i = 0; i < 1; i++) {\n" +
+				"			winner = unknown;\n" +
+				"	}\n" +
+				"	if (winner == null) {\n" +
+				"		assert false;\n" +
+				"	}\n" +
+				"}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug467482while() {
+	// even simpler with while loop
+	runConformTestWithLibs(
+		new String[]{
+			"Util.java",
+			"public abstract class Util {\n" +
+				"public static void f(Object unknown, boolean flag) {\n" +
+				"	@org.eclipse.jdt.annotation.Nullable\n" +
+				"	Object winner = null;\n" +
+				"	while (flag) {\n" +
+				"			winner = unknown;\n" +
+				"			flag = false;\n" +
+				"	}\n" +
+				"	if (winner == null) {\n" +
+				"		assert false;\n" +
+				"	}\n" +
+				"}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug467482switch() {
+	// bug behaviour visible via switch
+	runConformTestWithLibs(
+		new String[]{
+			"Util.java",
+			"public abstract class Util {\n" +
+				"public static void f(Object unknown, boolean flag) {\n" +
+				"	@org.eclipse.jdt.annotation.Nullable\n" +
+				"	Object winner = null;\n" +
+				"	switch (1) {\n" +
+				"	case 1:	winner = unknown;\n" +
+				"	}\n" +
+				"	if (winner == null) {\n" +
+				"		assert false;\n" +
+				"	}\n" +
+				"}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+
+public void testBug467482regression() {
+	// simple regression test that verifies that possibly be the patch affected messages stay unchanged
+	runNegativeTestWithLibs(
+		new String[]{
+			"Check.java",
+			"public abstract class Check {\n" +
+			"	public static void check(@org.eclipse.jdt.annotation.NonNull Object x) {\n" +
+			"	}\n" +
+	
+			"	public static void f(Object unknown, boolean flag) {\n" +
+			"		check(unknown); // expected: null type safety warning\n" +
+			"		@org.eclipse.jdt.annotation.Nullable\n" +
+			"		Object nullable = unknown;\n" +
+			"		check(nullable); // expected: null type mismatch error\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in Check.java (at line 5)\n" + 
+		"	check(unknown); // expected: null type safety warning\n" + 
+		"	      ^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'Object\' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
+		"----------\n" + 
+		"2. ERROR in Check.java (at line 8)\n" + 
+		"	check(nullable); // expected: null type mismatch error\n" + 
+		"	      ^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'@Nullable Object\'\n" + 
+		"----------\n");
+}
+public void testBug484735() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/NullabilityLoopBug.java",
+			"package test;\n" + 
+			"\n" + 
+			"import java.util.HashMap;\n" + 
+			"import java.util.Map;\n" + 
+			"import java.util.Map.Entry;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"public class NullabilityLoopBug {\n" + 
+			"\n" + 
+			"	public static void main(String[] args)\n" + 
+			"	{\n" + 
+			"		Map<String, String> map = new HashMap<>();\n" + 
+			"		\n" + 
+			"		map.put(\"key\", \"value\");\n" + 
+			"		\n" + 
+			"		System.out.println(getKeyByValue(map, \"value\"));\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private static <K, V> K getKeyByValue(Map<K, V> map, @Nullable V value)\n" + 
+			"	{\n" + 
+			"		@Nullable K result = null; // some nullability bug? assigning null results in compiler complaining 'result can only be null' below\n" + 
+			"		for (Entry<K, V> entry : map.entrySet())\n" + 
+			"		{\n" + 
+			"			boolean equals;\n" + 
+			"			if (value == null)\n" + 
+			"				equals = (entry.getValue() == null);\n" + 
+			"			else\n" + 
+			"				equals = value.equals(entry.getValue());\n" + 
+			"			\n" + 
+			"			if (equals)\n" + 
+			"			{\n" + 
+			"				if (result == null) // Incorrect warning: Redundant null check: The variable result can only be null at this location\n" + 
+			"					result = entry.getKey();\n" + 
+			"				else\n" + 
+			"					throw new IllegalStateException(\"Multiple matches for looking up key via value [\" + value + \"]: [\" + result + \"] and [\" + entry.getKey() + \"]\");\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		\n" + 
+			"		if (result == null) // Incorrect warning: Redundant null check: The variable result can only be null at this location\n" + 
+			"			throw new IllegalStateException(\"No matches for looking up key via value [\" + value + \"]\");\n" + 
+			"		\n" + 
+			"		return result; // Incorrect warning: Dead code\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"",
+		"key");
 }
 public void testBug474239b() {
 	Map options = getCompilerOptions();

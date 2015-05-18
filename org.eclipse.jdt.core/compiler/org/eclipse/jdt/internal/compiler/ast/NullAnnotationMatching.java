@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
+ *     Till Brychcy - Contributions for
+ *                              Bug 467482 - TYPE_USE null annotations: Incorrect "Redundant null check"-warning
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -115,7 +117,8 @@ public class NullAnnotationMatching {
 		if (providedType == null) return FlowInfo.UNKNOWN; // assume we already reported an error
 		long lhsTagBits = 0L;
 		boolean hasReported = false;
-		if (!currentScope.environment().usesNullTypeAnnotations()) {
+		boolean usesNullTypeAnnotations = currentScope.environment().usesNullTypeAnnotations();
+		if (!usesNullTypeAnnotations) {
 			lhsTagBits = var.tagBits & TagBits.AnnotationNullMASK;
 		} else {
 			if (expression instanceof ConditionalExpression && expression.isPolyExpression()) {
@@ -141,7 +144,9 @@ public class NullAnnotationMatching {
 				flowContext.recordNullityMismatch(currentScope, expression, providedType, var.type, flowInfo, nullStatus, null);
 			return FlowInfo.NON_NULL;
 		} else if (lhsTagBits == TagBits.AnnotationNullable && nullStatus == FlowInfo.UNKNOWN) {	// provided a legacy type?
-			return FlowInfo.POTENTIALLY_NULL;			// -> use more specific info from the annotation
+			if (usesNullTypeAnnotations && providedType.isTypeVariable() && (providedType.tagBits & TagBits.AnnotationNullMASK) == 0)
+				return FlowInfo.POTENTIALLY_NULL | FlowInfo.POTENTIALLY_NON_NULL;		// -> free type variable can mean either nullable or nonnull
+			return FlowInfo.POTENTIALLY_NULL | FlowInfo.POTENTIALLY_UNKNOWN;			// -> combine info from lhs & rhs
 		}
 		return nullStatus;
 	}
