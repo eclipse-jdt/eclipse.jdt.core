@@ -636,8 +636,8 @@ public class WrapExecutor {
 
 	int getWrapIndent(Token token) {
 		WrapPolicy policy = token.getWrapPolicy();
-		if (policy == null || (token.getLineBreaksBefore() > 1 && !policy.isForced && !policy.isTopPriority()))
-			return token.getIndent(); // no additional indentation after an empty line
+		if (policy == null)
+			return token.getIndent();
 
 		if (this.options.never_indent_line_comments_on_first_column && token.tokenType == TokenNameCOMMENT_LINE
 				&& token.getIndent() == 0)
