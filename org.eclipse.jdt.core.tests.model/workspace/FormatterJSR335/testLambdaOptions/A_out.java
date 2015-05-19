@@ -51,7 +51,7 @@ public abstract class A extends java.lang.Object
 				}
 			}
 
-			.howMany();
+					.howMany();
 		};
 	}
 

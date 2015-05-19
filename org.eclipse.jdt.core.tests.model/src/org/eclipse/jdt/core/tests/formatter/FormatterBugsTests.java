@@ -11182,4 +11182,29 @@ public void testBug474629() {
 	String source = "aaaaa + bbbb";
 	formatSource(source, source, CodeFormatter.K_EXPRESSION, 0, true);
 }
+/**
+ * https://bugs.eclipse.org/467618 - [formatter] Empty lines should not affect indentation of wrapped elements
+ */
+public void testBug467618() {
+	this.formatterPrefs.alignment_for_enum_constants = Alignment.M_NEXT_PER_LINE_SPLIT + Alignment.M_INDENT_ON_COLUMN + Alignment.M_FORCE;
+	String source =
+		"public enum E2 {\r\n" + 
+		"\r\n" + 
+		"	FOOBAR,\r\n" + 
+		"\r\n" + 
+		"	FOOBARBAZ,\r\n" + 
+		"\r\n" + 
+		"	FOO;\r\n" + 
+		"}";
+	formatSource(source,
+		"public enum E2 {\r\n" + 
+		"\r\n" + 
+		"				FOOBAR,\r\n" + 
+		"\r\n" + 
+		"				FOOBARBAZ,\r\n" + 
+		"\r\n" + 
+		"				FOO;\r\n" + 
+		"}"
+	);
+}
 }
