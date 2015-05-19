@@ -8522,4 +8522,31 @@ public void testBug461878() {
 		true,
 		compilerOptions);
 }
+public void testBug467610() {
+	runConformTestWithLibs(
+		new String[] {
+			"SuperClass.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" + 
+			"public abstract class SuperClass<T> {\n" + 
+			"\n" + 
+			"	abstract T doSomething(T arg);\n" + 
+			"\n" + 
+			"	abstract String returnAString();\n" + 
+			"\n" + 
+			"	public static abstract class SubClass<S> extends SuperClass<S> {\n" + 
+			"\n" + 
+			"		@Override\n" + 
+			"		abstract S doSomething(S arg);\n" + 
+			"\n" + 
+			"		@Override\n" + 
+			"		abstract String returnAString();\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}"
+		},
+		getCompilerOptions(),
+		"");
+}
 }
