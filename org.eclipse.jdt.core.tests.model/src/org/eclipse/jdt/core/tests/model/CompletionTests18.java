@@ -2430,4 +2430,27 @@ public void testBug459189_004() throws JavaModelException {
 			"while[KEYWORD]{while, null, null, while, null, 24}",
 			requestor.getResults());
 }
+public void testBug460410() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.function.Supplier;\n" +
+			"public class X {\n"+
+			"	public static void main(String[] args) {\n"+
+			"		ArrayList<Supplier<Runnable>> list = new ArrayList<>();\n"+
+			"		list.forEach((supp) -> {\n"+
+			"			Supplier<Run/* HERE */>}\n"+
+			"		});\n"+
+			"	}\n"+
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/* HERE */";
+	int cursorLocation = str.indexOf(completeBehind);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("", requestor.getResults());
+}
 }
