@@ -5622,7 +5622,56 @@ public void test459305() {
 			"}\n"},
 			"one::two");
 }
-
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=467825 Missing code implementation in the compiler
+public void test467825() {
+	this.runConformTest(
+		new String[] {
+			"Main.java",
+			"import java.util.function.Function;\n" + 
+			"public class Main {\n" + 
+			"    public Function<String, String> f(int x) {\n" + 
+			"    	class A {\n" + 
+			"    		void g() {\n" + 
+			"    	        System.out.println(x);\n" + 
+			"    		}\n" + 
+			"    	}\n" + 
+			"        return s -> {\n" + 
+			"        	A a = new A();\n" + 
+			"            return s;\n" + 
+			"        };\n" + 
+			"    }\n" + 
+			"}\n" 
+	});
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=467825 Missing code implementation in the compiler
+public void test467825a() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.function.Function;\n" + 
+			"interface Foo {void alpha(Bar pBar);}\n" + 
+			"class Bar {Object bravo() {return null;}}\n" + 
+			"class Test {\n" + 
+			"	Foo foo(Function pFunction) {\n" + 
+			"	    class Baz {\n" + 
+			"	    	public Baz(Object pObj) {\n" + 
+			"	    	}\n" + 
+			"	    	class NestedBaz extends Baz {\n" + 
+			"	    		NestedBaz(Object pObj) {\n" + 
+			"	    			super(pObj);\n" + 
+			"	    			pFunction.apply(pObj);\n" + 
+			"	    		}\n" + 
+			"	    	}\n" + 
+			"	    }\n" + 
+			"	    return pBar -> {\n" + 
+			"	    		Object o = new Baz(pBar).new NestedBaz(pBar.bravo());\n" + 
+			"	    	};\n" + 
+			"	  }\n" + 
+			"	  void charlie(Object pRemovals) {}\n" + 
+			"	  void delta(Foo pListener) {}\n" + 
+			"}\n"
+	});
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
