@@ -5355,4 +5355,25 @@ public void testBug470826() {
 			"}\n"
 		});
 }
+public void testBug466487() {
+	runConformTest(
+		new String[] {
+			"C.java",
+			"import java.util.*;\n" + 
+			"import java.util.stream.*;\n" + 
+			"import static java.util.Arrays.asList;\n" + 
+			"\n" + 
+			"public class C {\n" + 
+			"  static final List<Integer> DIGITS = Collections.unmodifiableList(asList(0,1,2,3,4,5,6,7,8,9));\n" + 
+			"    \n" + 
+			"    Collection<String> flatMapSolutions(final boolean b) {\n" + 
+			"      Collection<String> solutions = \n" + 
+			"          DIGITS.stream().flatMap( s -> {\n" + 
+			"               return b ? Stream.empty() : Stream.of(\"\");\n" + 
+			"          }) .collect(Collectors.toList());\n" + 
+			"      return solutions;\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
 }
