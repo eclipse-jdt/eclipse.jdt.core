@@ -15,9 +15,6 @@ package org.eclipse.jdt.apt.pluggable.tests;
 
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
@@ -27,6 +24,9 @@ import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.TestFinalRou
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.internal.core.builder.AbstractImageBuilder;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * Tests covering the IDE's ability to process the correct set of files.
@@ -292,6 +292,50 @@ public class BuilderTests extends TestBase
 			env.removeClass(packagePath, "FooGen");
 			env.removeClass(packagePath, "BarGen");
 
+		}
+	}
+	
+	public void testBug468853() throws Throwable {
+		int old = AbstractImageBuilder.MAX_AT_ONCE;
+		IJavaProject jproj = createJavaProject(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+		IPath root = projPath.append("src");
+		IPath packagePath = root.append("test");
+		try {
+			// Force the build to be batched
+			AbstractImageBuilder.MAX_AT_ONCE = 2;
+			ProcessorTestStatus.reset();
+			
+			env.addClass(root, "test", "Foo",
+					"package test;\n" +
+							"import org.eclipse.jdt.apt.pluggable.tests.annotations.GenClass6;\n" +
+							"import org.eclipse.jdt.apt.pluggable.tests.annotations.Message6;\n" +
+							"import javax.tools.Diagnostic.Kind;\n" +
+							"@GenClass6(name = \"FooGen\", pkg = \"test\", rounds = 2)\n" +
+							"@Message6(text = \"APT message\", value = Kind.ERROR)\n" +
+							"public class Foo extends FooGen {\n" +
+							"    public Bar bar;\n" +
+					"}");
+			env.addClass(root, "test", "Bar",
+					"package test;\n" +
+							"public class Bar {\n" +
+							"    public Foo foo;\n" +
+					"}");
+			AptConfig.setEnabled(jproj, true);
+			
+			fullBuild();
+			expectingNoProblems();
+			expectingUniqueCompiledClasses(
+					new String[] {"test.Foo", "test.Bar", "test.FooGen", "test.FooGenGen"});
+			
+		} finally {
+			AbstractImageBuilder.MAX_AT_ONCE = old;
+			env.removeClass(packagePath, "Foo");
+			env.removeClass(packagePath, "Bar");
+			env.removeClass(packagePath, "FooGen");
+			
 		}
 	}
 }
