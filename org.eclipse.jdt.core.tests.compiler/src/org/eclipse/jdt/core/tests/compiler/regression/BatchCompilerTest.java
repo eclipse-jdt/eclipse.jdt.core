@@ -1860,7 +1860,7 @@ public void test012b(){
         "      suppress           + enable @SuppressWarnings\n" + 
         "                           When used with -err:, it can also silent optional\n" + 
         "                           errors and warnings\n" + 
-        "      switchDefault      + switch statement lacking a default case\n" + 
+        "      switchDefault        switch statement lacking a default case\n" +
         "      syncOverride         missing synchronized in synchr. method override\n" + 
         "      syntacticAnalysis    perform syntax-based null analysis for fields\n" + 
         "      syntheticAccess      synthetic access for innerclass\n" + 
