@@ -34,12 +34,14 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -251,9 +253,13 @@ public class Util implements SuffixConstants {
 
 	private static URI JRT_URI = URI.create("jrt:/"); //$NON-NLS-1$
 
-	private static String JAVA_BASE_PATH = "java.base"; //$NON-NLS-1$
+	private static String[] JAVA_BASE_PATH = new String[]{"java.base"}; //$NON-NLS-1$
+
+	private static final String MULTIPLE = "MULTIPLE"; //$NON-NLS-1$
 
 	private static final Map<String, String> packageToModule = new HashMap<String, String>();
+
+	private static final Map<String, Set<String>> packageToModules = new HashMap<String, Set<String>>();
 
 	/**
 	 * Build all the directories and subdirectories corresponding to the packages names
@@ -771,29 +777,57 @@ public class Util implements SuffixConstants {
 
 	static void cachePackage(String packageName, String module) {
 		module = module.substring(1);
-		if (packageToModule.containsKey(packageName)) return;
-		packageToModule.put(packageName, module);
+		Object current = packageToModule.get(packageName);
+		if (current == null) {
+			packageToModule.put(packageName, module);
+		} else if (current == MULTIPLE) {
+			Set<String> set = packageToModules.get(packageName);
+			set.add(module);
+		} else {
+			String first = (String) current;
+			packageToModule.put(packageName, MULTIPLE);
+			Set<String> set = new HashSet<String>();
+			set.add(first);
+			set.add(module);
+			packageToModules.put(packageName, set);
+		}
 	}
 
-	static String getModuleName(String fileName) {
+	static String[] getModuleName(String fileName) {
 		int idx = fileName.lastIndexOf('/');
 		if (idx != -1) {
-			String module = packageToModule.get((fileName.substring(0, idx)));
-			if (module != null) return module;
+			String pack = fileName.substring(0, idx);
+			String module = packageToModule.get(pack);
+			if (module != null) {
+				if (module == MULTIPLE) {
+					Set<String> set = packageToModules.get(pack);
+					return set.toArray(new String[set.size()]);
+				} else {
+					return new String[]{module};
+				}
+			}
 		}
 		return JAVA_BASE_PATH;
 	}
 
 	public static InputStream getContentFromJimage(String fileName) throws IOException {
 		java.nio.file.FileSystem fs = FileSystems.getFileSystem(JRT_URI);
-		String module = getModuleName(fileName);
-		return Files.newInputStream(fs.getPath(module, fileName));
+		String[] modules = getModuleName(fileName);
+		return Files.newInputStream(fs.getPath(modules[0], fileName)); // Danger of AIOBE!
 	}
 
 	public static byte[] getClassfileContent(String fileName) throws IOException {
 		java.nio.file.FileSystem fs = FileSystems.getFileSystem(JRT_URI);
-		String module = getModuleName(fileName);
-		return Files.readAllBytes(fs.getPath(module, fileName));
+		String[] modules = getModuleName(fileName);
+		for (String string : modules) {
+			try {
+				byte[] bytes = Files.readAllBytes(fs.getPath(string, fileName));
+				if (bytes != null) return bytes;
+			} catch(NoSuchFileException e) {
+				continue;
+			}
+		}
+		return null;
 	}
 	public static int hashCode(Object[] array) {
 		int prime = 31;

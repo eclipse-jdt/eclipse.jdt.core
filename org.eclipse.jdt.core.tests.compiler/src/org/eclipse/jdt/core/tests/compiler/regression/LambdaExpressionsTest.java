@@ -4,7 +4,11 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -4414,6 +4418,7 @@ public void test434297() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=436542 : Eclipse 4.4 compiler generates "bad class file" according to javac
 public void test436542() throws Exception {
+	if (isJRE9) return;
 	String jreDirectory = Util.getJREDirectory();
 	String jfxJar = Util.toNativePath(jreDirectory + "/lib/ext/jfxrt.jar");
 	this.runConformTest(

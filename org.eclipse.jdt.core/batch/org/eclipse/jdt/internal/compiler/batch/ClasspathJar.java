@@ -63,6 +63,7 @@ public ClasspathJar(File file, boolean closeZipFileAtEnd,
 public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemReporter) {
 	// expected to be called once only - if multiple calls desired, consider
 	// using a cache
+	if (this.isJimage) return null;
 	InputStream inputStream = null;
 	try {
 		initialize();
@@ -141,6 +142,7 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 }
 @Override
 public boolean hasAnnotationFileFor(String qualifiedTypeName) {
+	if (this.isJimage) return false; // For now;
 	return this.zipFile.getEntry(qualifiedTypeName+'.'+ExternalAnnotationProvider.ANNOTION_FILE_EXTENSION) != null; 
 }
 public char[][][] findTypeNames(String qualifiedPackageName) {

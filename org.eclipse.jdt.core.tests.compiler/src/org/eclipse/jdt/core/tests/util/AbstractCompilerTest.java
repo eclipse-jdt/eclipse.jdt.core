@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -45,6 +49,7 @@ public class AbstractCompilerTest extends TestCase {
 
 	protected long complianceLevel;
 	protected boolean enableAPT = false;
+	protected static boolean isJRE9 = false; // Stop gap, so tests need not be run at 1.9, but some tests can be adjusted for JRE 1.9
 
 	/**
 	 * Build a test suite made of test suites for all possible running VM compliances .
@@ -304,6 +309,8 @@ public class AbstractCompilerTest extends TestCase {
 	 */
 	public static int getPossibleComplianceLevels() {
 		if (possibleComplianceLevels == UNINITIALIZED) {
+			String specVersion = System.getProperty("java.specification.version");
+			isJRE9 = CompilerOptions.VERSION_1_9.equals(specVersion);
 			String compliance = System.getProperty("compliance");
 			if (compliance != null) {
 				if (CompilerOptions.VERSION_1_3.equals(compliance)) {
@@ -331,7 +338,6 @@ public class AbstractCompilerTest extends TestCase {
 				}
 			}
 			if (possibleComplianceLevels == UNINITIALIZED) {
-				String specVersion = System.getProperty("java.specification.version");
 				if (!RUN_JAVAC) {
 					possibleComplianceLevels = F_1_3;
 					boolean canRun1_4 = !"1.0".equals(specVersion)
