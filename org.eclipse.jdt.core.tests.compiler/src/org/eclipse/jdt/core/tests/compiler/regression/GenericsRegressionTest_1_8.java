@@ -5296,4 +5296,37 @@ public void testBug470942() {
 			"}\n"
 		});
 }
+public void testBug468999() {
+	runConformTest(
+		new String[] {
+			"Main.java",
+			"interface ExceptionAction<T>\n" + 
+			"{\n" + 
+			"    T run() throws Exception;\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Action<U> extends ExceptionAction<U>\n" + 
+			"{\n" + 
+			"    @Override\n" + 
+			"    U run();\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class Main\n" + 
+			"{\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        runAction(() -> {                              // ERROR HERE\n" + 
+			"            return \"\";\n" + 
+			"        });\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static <V> void runAction(ExceptionAction<V> action) {\n" + 
+			"        System.out.println(\"run with exceptions\");\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static <W> void runAction(Action<W> action) {\n" + 
+			"        System.out.println(\"run without exceptions\");\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }

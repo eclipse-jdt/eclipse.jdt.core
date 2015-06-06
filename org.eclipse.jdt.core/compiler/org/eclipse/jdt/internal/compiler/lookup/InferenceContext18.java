@@ -676,39 +676,44 @@ public class InferenceContext18 {
 	
 	// FALSE: inference fails
 	// TRUE:  constraints have been incorporated
-	// null:  need the otherwise branch
+	// null:  need to create the si <: ti constraint
 	private Boolean moreSpecificMain(TypeBinding si, TypeBinding ti, Expression expri) throws InferenceFailureException {
 		if (si.isProperType(true) && ti.isProperType(true)) {
 			return expri.sIsMoreSpecific(si, ti, this.scope) ? Boolean.TRUE : Boolean.FALSE;
 		}
-		if (si.isFunctionalInterface(this.scope)) {
-			TypeBinding funcI = ti.original();
-			if (funcI.isFunctionalInterface(this.scope)) {
-				// "... none of the following is true:" 
-				if (siSuperI(si, funcI) || siSubI(si, funcI))
-					return null;
-				if (si instanceof IntersectionTypeBinding18) {
-					TypeBinding[] elements = ((IntersectionTypeBinding18)si).intersectingTypes;
-					checkSuper: {
-						for (int i = 0; i < elements.length; i++)
-							if (!siSuperI(elements[i], funcI))
-								break checkSuper;
-						return null; // each element of the intersection is a superinterface of I, or a parameterization of a superinterface of I.
-					}
+		// "if Ti is not a functional interface type" specifically requests the si <: ti constraint created by our caller
+		if (!ti.isFunctionalInterface(this.scope))
+			return null;
+
+		TypeBinding funcI = ti.original();
+		// "It must be determined whether Si satisfies the following five conditions:"
+		// (we negate each condition for early exit):
+		if (si.isFunctionalInterface(this.scope)) {			// bullet 1
+			if (siSuperI(si, funcI) || siSubI(si, funcI))
+				return null;								// bullets 2 & 3
+			if (si instanceof IntersectionTypeBinding18) {
+				TypeBinding[] elements = ((IntersectionTypeBinding18)si).intersectingTypes;
+				checkSuper: {
 					for (int i = 0; i < elements.length; i++)
-						if (siSubI(elements[i], funcI))
-							return null; // some element of the intersection is a subinterface of I, or a parameterization of a subinterface of I.	
+						if (!siSuperI(elements[i], funcI))
+							break checkSuper;
+					return null;							// bullet 4 
+					// each element of the intersection is a superinterface of I, or a parameterization of a superinterface of I.
 				}
-				// all passed, time to do some work:
-				TypeBinding siCapture = si.capture(this.scope, expri.sourceStart, expri.sourceEnd);
-				MethodBinding sam = siCapture.getSingleAbstractMethod(this.scope, false); // no wildcards should be left needing replacement
-				TypeBinding[] u = sam.parameters;
-				TypeBinding r1 = sam.isConstructor() ? sam.declaringClass : sam.returnType;
-				sam = ti.getSingleAbstractMethod(this.scope, true); // TODO
-				TypeBinding[] v = sam.parameters;
-				TypeBinding r2 = sam.isConstructor() ? sam.declaringClass : sam.returnType;
-				return Boolean.valueOf(checkExpression(expri, u, r1, v, r2));
+				for (int i = 0; i < elements.length; i++)
+					if (siSubI(elements[i], funcI))
+						return null;						// bullet 5
+						// some element of the intersection is a subinterface of I, or a parameterization of a subinterface of I.	
 			}
+			// all passed, time to do some work:
+			TypeBinding siCapture = si.capture(this.scope, expri.sourceStart, expri.sourceEnd);
+			MethodBinding sam = siCapture.getSingleAbstractMethod(this.scope, false); // no wildcards should be left needing replacement
+			TypeBinding[] u = sam.parameters;
+			TypeBinding r1 = sam.isConstructor() ? sam.declaringClass : sam.returnType;
+			sam = ti.getSingleAbstractMethod(this.scope, true); // TODO
+			TypeBinding[] v = sam.parameters;
+			TypeBinding r2 = sam.isConstructor() ? sam.declaringClass : sam.returnType;
+			return Boolean.valueOf(checkExpression(expri, u, r1, v, r2));
 		}
 		return null;
 	}
@@ -778,7 +783,7 @@ public class InferenceContext18 {
 		TypeBinding[] superIfcs = funcI.superInterfaces();
 		if (superIfcs == null) return false;
 		for (int i = 0; i < superIfcs.length; i++) {
-			if (siSuperI(si, superIfcs[i]))
+			if (siSuperI(si, superIfcs[i].original()))
 				return true;
 		}
 		return false;
