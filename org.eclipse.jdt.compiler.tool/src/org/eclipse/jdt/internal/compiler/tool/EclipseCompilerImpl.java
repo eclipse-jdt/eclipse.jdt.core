@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -568,7 +569,9 @@ public class EclipseCompilerImpl extends Main {
 						if (problem instanceof DefaultProblem) {
 							File f = new File(new String(((DefaultProblem) problem).getOriginatingFileName()));
 							if (f.exists()) {
-								return new EclipseFileObject(null, f.toURI(), JavaFileObject.Kind.SOURCE, null);
+								Charset charset = (EclipseCompilerImpl.this.fileManager instanceof EclipseFileManager) ?
+														((EclipseFileManager) EclipseCompilerImpl.this.fileManager).charset : Charset.defaultCharset();
+								return new EclipseFileObject(null, f.toURI(), JavaFileObject.Kind.SOURCE, charset);
 							}
 							return null;
 						}

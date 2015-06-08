@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *		IBM Corporation - initial API and implementation
  *		Stephan Herrmann - Contribution for
  *								bug 400710 - [1.8][compiler] synthetic access to default method generates wrong code
+ *								Bug 459967 - [null] compiler should know about nullness of special methods like MyEnum.valueOf()
  *      Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          	Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -347,6 +348,14 @@ public class SyntheticMethodBinding extends MethodBinding {
 	    this.modifiers = ClassFileConstants.AccSynthetic | ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic;
 		this.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 	    this.returnType = arrayType;
+	    LookupEnvironment environment = declaringClass.environment;
+		if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+			// mark X[]::new and X[]::clone as returning 'X @NonNull' (don't wait (cf. markNonNull()), because we're called as late as codeGen):
+	    	if (environment.usesNullTypeAnnotations())
+	    		this.returnType = environment.createAnnotatedType(this.returnType, new AnnotationBinding[]{ environment.getNonNullAnnotation() });
+	    	else
+	    		this.tagBits |= TagBits.AnnotationNonNull;
+	    }
 	    this.parameters = new TypeBinding[] { purpose == SyntheticMethodBinding.ArrayConstructor ? TypeBinding.INT : (TypeBinding) arrayType};
 	    this.thrownExceptions = Binding.NO_EXCEPTIONS;
 	    this.purpose = purpose;
@@ -549,5 +558,28 @@ public class SyntheticMethodBinding extends MethodBinding {
 	
 	public LambdaExpression sourceLambda() {
 		return this.lambda;
+	}
+
+	public void markNonNull(LookupEnvironment environment) {
+		// deferred update of the return type
+	    switch (this.purpose) {
+			case EnumValues:
+				if (environment.usesNullTypeAnnotations()) {
+					TypeBinding elementType = ((ArrayBinding)this.returnType).leafComponentType();
+					AnnotationBinding nonNullAnnotation = environment.getNonNullAnnotation();
+					elementType = environment.createAnnotatedType(elementType, new AnnotationBinding[]{ environment.getNonNullAnnotation() });
+					this.returnType = environment.createArrayType(elementType, 1, new AnnotationBinding[]{ nonNullAnnotation, null });
+				} else {
+					this.tagBits |= TagBits.AnnotationNonNull;
+				}
+				return;
+			case EnumValueOf:
+				if (environment.usesNullTypeAnnotations()) {
+					this.returnType = environment.createAnnotatedType(this.returnType, new AnnotationBinding[]{ environment.getNonNullAnnotation() });
+				} else {
+					this.tagBits |= TagBits.AnnotationNonNull;
+				}
+				return;
+		}
 	}
 }

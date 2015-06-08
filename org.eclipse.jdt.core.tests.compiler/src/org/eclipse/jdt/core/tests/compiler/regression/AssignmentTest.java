@@ -1440,8 +1440,8 @@ public void test057_definite_unassignment_infinite_while_loop() {
 		JavacTestOptions.EclipseJustification.EclipseBug235546 /* javac test options */);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235550
-public void _test058_definite_unassignment_try_finally() {
-	runNegativeTest(
+public void test058_definite_unassignment_try_finally() {
+	runConformTest(
 		// test directory preparation
 		new String[] { /* test files */
 			"X.java",
@@ -1455,13 +1455,14 @@ public void _test058_definite_unassignment_try_finally() {
 			"        i = 0;\n" +
 			"      }\n" +
 			"    } while (args.length > 0);\n" +
+			"    System.out.println(i);\n" +
 			"  }\n" +
 			"}"
 	 	},
-		// compiler results
-	 	"----------\n" + /* expected compiler log */
-		"1. ERROR in X.java...\n" +
-		"----------\n");
+		// runtime result:
+	 	"0");
+		// NB: javac reports: "error: variable i might be assigned in loop"
+		// I hold to be wrong
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235555
 public void test059_definite_unassignment_assign_in_for_condition() {

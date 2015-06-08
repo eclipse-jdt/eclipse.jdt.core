@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -310,6 +310,9 @@ public void resolve(BlockScope scope) {
 	if (this.expression != null) {
 		this.expression.setExpressionContext(ASSIGNMENT_CONTEXT);
 		this.expression.setExpectedType(methodType);
+		if (lambda != null && lambda.argumentsTypeElided() && this.expression instanceof CastExpression) {
+			this.expression.bits |= ASTNode.DisableUnnecessaryCastCheck;
+		}
 	}
 	
 	if (methodType == TypeBinding.VOID) {
@@ -356,9 +359,14 @@ public void resolve(BlockScope scope) {
 		if (expressionType.needsUncheckedConversion(methodType)) {
 		    scope.problemReporter().unsafeTypeConversion(this.expression, expressionType, methodType);
 		}
-		if (this.expression instanceof CastExpression
-				&& (this.expression.bits & (ASTNode.UnnecessaryCast|ASTNode.DisableUnnecessaryCastCheck)) == 0) {
-			CastExpression.checkNeedForAssignedCast(scope, methodType, (CastExpression) this.expression);
+		if (this.expression instanceof CastExpression) {
+			if ((this.expression.bits & (ASTNode.UnnecessaryCast|ASTNode.DisableUnnecessaryCastCheck)) == 0) {
+				CastExpression.checkNeedForAssignedCast(scope, methodType, (CastExpression) this.expression);
+			} else if (lambda != null && lambda.argumentsTypeElided() && (this.expression.bits & ASTNode.UnnecessaryCast) != 0) {
+				if (TypeBinding.equalsEquals(((CastExpression)this.expression).expression.resolvedType, methodType)) {
+					scope.problemReporter().unnecessaryCast((CastExpression)this.expression);
+				}
+			}
 		}
 		return;
 	} else if (isBoxingCompatible(expressionType, methodType, this.expression, scope)) {

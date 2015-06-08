@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@
  *     							bug 332637 - Dead Code detection removing code that isn't dead
  *								bug 394768 - [compiler][resource] Incorrect resource leak warning when creating stream in conditional
  *								Bug 411964 - [1.8][null] leverage null type annotation in foreach statement
+ *								Bug 421035 - [resource] False alarm of resource leak warning when casting a closeable in its assignment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -49,6 +50,8 @@ public abstract class FlowInfo {
 	public final static int POTENTIALLY_UNKNOWN = 8;
 	public final static int POTENTIALLY_NULL = 16;
 	public final static int POTENTIALLY_NON_NULL = 32;
+
+	public final static int UNROOTED = 64; // marks a flowInfo that may be appended to another flowInfo (accepting incoming nulls/nonnulls, see UFI.iNBit/iNNBit).
 
 	public static final UnconditionalFlowInfo DEAD_END; // Represents a dead branch status of initialization
 	static {

@@ -17,7 +17,6 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.apt.model.ElementImpl;
 import org.eclipse.jdt.internal.compiler.apt.model.Factory;
 import org.eclipse.jdt.internal.compiler.apt.util.ManyToMany;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
@@ -231,7 +230,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 		
 		boolean old = scope.insideTypeAnnotation;
 		scope.insideTypeAnnotation = true;
-		ASTNode.resolveAnnotations(scope, annotations, currentBinding);
+		currentBinding.getAnnotationTagBits();
 		scope.insideTypeAnnotation = old;
 		ElementImpl element = (ElementImpl) _factory.newElement(currentBinding);
 		AnnotationBinding [] annotationBindings = element.getPackedAnnotationBindings(); // discovery is never in terms of repeating annotation.

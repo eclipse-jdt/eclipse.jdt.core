@@ -108,6 +108,52 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		}
 	}
 
+	public void test1Full_ProjectRoot() throws Exception {
+		// cf. testLibsWithFields but with annotations at the project root:
+		myCreateJavaProject("TestLibs");
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "/TestLibs", new String[] {
+				"/UnannotatedLib/libs/Lib1.java",
+				"package libs;\n" + 
+				"\n" +
+				"public interface Lib1 {\n" + 
+				"	String one = \"1\";\n" + 
+				"	String none = null;\n" + 
+				"}\n"
+			}, null);
+		createFileInProject("libs", "Lib1.eea", 
+				"class libs/Lib1\n" +
+				"\n" + 
+				"one\n" + 
+				" Ljava/lang/String;\n" + 
+				" L1java/lang/String;\n" + 
+				"\n" + 
+				"none\n" + 
+				" Ljava/lang/String;\n" +
+				" L0java/lang/String;\n" +
+				"\n");
+		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+		ICompilationUnit unit = fragment.createCompilationUnit("Test1.java", 
+				"package tests;\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"import libs.Lib1;\n" + 
+				"\n" + 
+				"public class Test1 {\n" + 
+				"	@NonNull String test0() {\n" + 
+				"		return Lib1.none;\n" + 
+				"	}\n" +
+				"	@NonNull String test1() {\n" + 
+				"		return Lib1.one;\n" + 
+				"	}\n" +
+				"}\n",
+				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		IProblem[] problems = reconciled.getProblems();
+		assertProblems(problems, new String[] {
+			"Pb(933) Null type mismatch: required '@NonNull String' but the provided value is specified as @Nullable",
+		}, new int[] { 8 });
+	}
+
 	/** Reconcile an individual CU. */
 	public void test1Reconcile() throws Exception {
 		setupJavaProject("Test1");

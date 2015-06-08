@@ -346,9 +346,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	}
 	public static boolean checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {
 		boolean is1_7 = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_7;
-		if (is1_7 && method.isPolymorphic()) {
-			return false;
-		}
 		TypeBinding[] params = method.parameters;
 		int paramLength = params.length;
 		boolean isRawMemberInvocation = !method.isStatic()
@@ -766,7 +763,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			Annotation annotation = sourceAnnotations[i];
 			final Binding annotationRecipient = annotation.recipient;
 			if (annotationRecipient != null && recipient != null) {
-				// only local and field can share annnotations and their types.
+				// only local and field can share annotations and their types.
 				switch (recipient.kind()) {
 					case Binding.TYPE_USE:
 						if (annotations != null) {

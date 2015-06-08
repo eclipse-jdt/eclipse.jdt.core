@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,9 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     Stephan Herrmann - Contribution for bug 363858 - [dom] early throwing of AbortCompilation causes NPE in CompilationUnitResolver
+ *     Stephan Herrmann - Contribution for
+ *								bug 363858 - [dom] early throwing of AbortCompilation causes NPE in CompilationUnitResolver
+ *								Bug 466279 - [hovering] IAE on hover when annotation-based null analysis is enabled
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
@@ -58,6 +60,7 @@ import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
 import org.eclipse.jdt.internal.core.CancelableProblemFactory;
 import org.eclipse.jdt.internal.core.INameEnvironmentWithProgress;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.SourceRefElement;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
@@ -753,9 +756,17 @@ class CompilationUnitResolver extends Compiler {
 				}
 				intList.add(i);
 			} else {
-				// binary member
+				// binary member or method argument
 				try {
-					String key = ((BinaryMember) element).getKey(true/*open to get resolved info*/);
+					String key;
+					if (element instanceof BinaryMember)
+						key = ((BinaryMember) element).getKey(true/*open to get resolved info*/);
+					else if (element instanceof LocalVariable)
+						key = ((LocalVariable) element).getKey(true/*open to get resolved info*/);
+					else if (element instanceof org.eclipse.jdt.internal.core.TypeParameter)
+						key = ((org.eclipse.jdt.internal.core.TypeParameter) element).getKey(true/*open to get resolved info*/);
+					else
+						throw new IllegalArgumentException(element + " has an unexpected type"); //$NON-NLS-1$
 					binaryElementPositions.put(key, i);
 				} catch (JavaModelException e) {
 					throw new IllegalArgumentException(element + " does not exist"); //$NON-NLS-1$

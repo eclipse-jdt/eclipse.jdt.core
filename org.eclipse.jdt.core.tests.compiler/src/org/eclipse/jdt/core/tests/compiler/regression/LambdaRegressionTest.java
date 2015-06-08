@@ -782,6 +782,136 @@ public void testBug446691_comment14b() {
 	"The blank final field value may not have been initialized\n" + 
 	"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=463526
+// Parenthesis are incorrectly allowed in lambda when LambdaBody is an expression statement 
+public void testBug463526() {
+	runNegativeTest(new String [] {
+		"Test.java",
+		"public class Test {\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        Receiver r = new Receiver();\n" + 
+		"        r.accept((l) -> (doItOnTheClass(new Object())));\n" + 
+		"    }\n" + 
+		"    public static void doItOnTheClass(Object o) {\n" + 
+		"        System.out.println(\"done it\");\n" + 
+		"    }\n" + 
+		"    public static class Receiver {\n" + 
+		"        public void accept(Listener l) {\n" + 
+		"            l.doIt(new Object());\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"    public static interface Listener {\n" + 
+		"        public void doIt(Object o);\n" + 
+		"    }\n" + 
+		"}"
+	},
+	"----------\n" + 
+	"1. ERROR in Test.java (at line 4)\n" + 
+	"	r.accept((l) -> (doItOnTheClass(new Object())));\n" + 
+	"	  ^^^^^^\n" + 
+	"The method accept(Test.Listener) in the type Test.Receiver is not applicable for the arguments ((<no type> l) -> {})\n" +
+	"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=463526
+// Parenthesis are incorrectly allowed in lambda when LambdaBody is an expression statement 
+public void testBug463526b() {
+	runNegativeTest(new String [] {
+		"Test.java",
+		"import java.util.function.Consumer;\n" + 
+		"public class Test {\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        Receiver r = new Receiver();\n" + 
+		"        r.process((o) -> (new Object()));\n" + 
+		"    }\n" + 
+		"    public static class Receiver {\n" + 
+		"        public void process(Consumer<Object> p) {\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"}"
+	},
+	"----------\n" + 
+	"1. ERROR in Test.java (at line 5)\n" + 
+	"	r.process((o) -> (new Object()));\n" + 
+	"	  ^^^^^^^\n" + 
+	"The method process(Consumer<Object>) in the type Test.Receiver is not applicable for the arguments ((<no type> o) -> {})\n" +
+	"----------\n" + 
+	"2. ERROR in Test.java (at line 5)\n" + 
+	"	r.process((o) -> (new Object()));\n" + 
+	"	                 ^^^^^^^^^^^^^^\n" + 
+	"Void methods cannot return a value\n" +
+	"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=463526
+// Parenthesis are incorrectly allowed in lambda when LambdaBody is an expression statement 
+public void testBug463526c() {
+	runNegativeTest(new String [] {
+		"Test.java",
+		"import java.util.function.Consumer;\n" + 
+		"public class Test {\n" + 
+		"    public static void main(String[] args) {\n" + 
+		"        Receiver r = new Receiver();\n" + 
+		"        r.assign((o) -> (o = new Object()));\n" + 
+		"    }\n" + 
+		"    public static class Receiver {\n" + 
+		"        public void assign(Consumer<Object> a) {\n" + 
+		"        }\n" + 
+		"    }\n" + 
+		"}"
+	},
+	"----------\n" + 
+	"1. ERROR in Test.java (at line 5)\n" + 
+	"	r.assign((o) -> (o = new Object()));\n" + 
+	"	  ^^^^^^\n" + 
+	"The method assign(Consumer<Object>) in the type Test.Receiver is not applicable for the arguments ((<no type> o) -> {})\n" + 
+	"----------\n" + 
+	"2. ERROR in Test.java (at line 5)\n" + 
+	"	r.assign((o) -> (o = new Object()));\n" + 
+	"	                ^^^^^^^^^^^^^^^^^^\n" + 
+	"Void methods cannot return a value\n" +
+	"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=464408
+public void testBug464408() {
+	runNegativeTest(new String[]{
+		"test/X.java",
+		"import java.util.ArrayList;\n" +
+		"import java.util.List;\n" +
+		"public class X {\n" +
+		"   void x() {\n" +
+		"       List<List<String>> list = new ArrayList<>();\n" +
+		"       list.stream().toArray(List<String>[]::new);\n" +
+		"   }" +
+		"}"
+	}, "----------\n" + 
+		"1. ERROR in test\\X.java (at line 6)\n" + 
+		"	list.stream().toArray(List<String>[]::new);\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot create a generic array of List<String>\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=465900
+// Internal compiler error: java.lang.IllegalArgumentException: info cannot be null at org.eclipse.jdt.internal.compiler.codegen.StackMapFrame.addStackItem(StackMapFrame.java:81)
+public void testBug465900() {
+	this.runConformTest(new String [] {
+		"X.java",
+		"import java.io.Serializable;\n" + 
+		"import java.util.ArrayList;\n" + 
+		"import java.util.List;\n" + 
+		"import java.util.function.Supplier;\n" + 
+		"public class X {\n" + 
+		"	private static final long serialVersionUID = 1L;\n" + 
+		"	protected void x() {\n" + 
+		"		String str = \"groep.koppeling.\" + (\"\".isEmpty() ? \"toevoegen\" : \"bewerken\");\n" + 
+		"		List<String> bean = new ArrayList<>();\n" + 
+		"		test(bean.get(0)::isEmpty);\n" + 
+		"	}\n" + 
+		"	private void test(SerializableSupplier<Boolean> test) {}\n" + 
+		"}\n" + 
+		"@FunctionalInterface\n" + 
+		"interface SerializableSupplier<T> extends Supplier<T>, Serializable {}\n"
+	},
+	"");
+}
 public static Class testClass() {
 	return LambdaRegressionTest.class;
 }

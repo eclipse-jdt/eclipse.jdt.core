@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,7 +58,7 @@ public class CompilationResult {
 	public int problemCount;
 	public int taskCount;
 	public ICompilationUnit compilationUnit;
-	private Map problemsMap;
+	private Map<CategorizedProblem, ReferenceContext> problemsMap;
 	private Set firstErrors;
 	private int maxProblemPerUnit;
 	public char[][][] qualifiedReferences;
@@ -112,7 +112,7 @@ private int computePriority(CategorizedProblem problem){
 	if (problem.isError()){
 		priority += P_ERROR;
 	}
-	ReferenceContext context = this.problemsMap == null ? null : (ReferenceContext) this.problemsMap.get(problem);
+	ReferenceContext context = this.problemsMap == null ? null : this.problemsMap.get(problem);
 	if (context != null){
 		if (context instanceof AbstractMethodDeclaration){
 			AbstractMethodDeclaration method = (AbstractMethodDeclaration) context;
@@ -397,6 +397,13 @@ public void record(CategorizedProblem newProblem, ReferenceContext referenceCont
 			this.hasSyntaxError = true;
 		}
 	}
+}
+
+ReferenceContext getContext(CategorizedProblem problem) {
+	if (problem != null) {
+		return this.problemsMap.get(problem);
+	}
+	return null;
 }
 
 /**

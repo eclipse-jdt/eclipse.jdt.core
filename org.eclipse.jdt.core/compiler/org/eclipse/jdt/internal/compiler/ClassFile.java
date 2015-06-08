@@ -141,7 +141,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	public byte[] header;
 	// that collection contains all the remaining bytes of the .class file
 	public int headerOffset;
-	public Set innerClassesBindings;
+	public Map<TypeBinding, Boolean> innerClassesBindings;
 	public List bootstrapMethods = null;
 	public int methodCount;
 	public int methodCountOffset;
@@ -394,11 +394,22 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int numberOfInnerClasses = this.innerClassesBindings == null ? 0 : this.innerClassesBindings.size();
 		if (numberOfInnerClasses != 0) {
 			ReferenceBinding[] innerClasses = new ReferenceBinding[numberOfInnerClasses];
-			this.innerClassesBindings.toArray(innerClasses);
+			this.innerClassesBindings.keySet().toArray(innerClasses);
 			Arrays.sort(innerClasses, new Comparator() {
 				public int compare(Object o1, Object o2) {
 					TypeBinding binding1 = (TypeBinding) o1;
 					TypeBinding binding2 = (TypeBinding) o2;
+					Boolean onBottom1 = ClassFile.this.innerClassesBindings.get(o1);
+					Boolean onBottom2 = ClassFile.this.innerClassesBindings.get(o2);
+					if (onBottom1) {
+						if (!onBottom2) {
+							return 1;
+						}
+					} else {
+						if (onBottom2) {
+							return -1;
+						}
+					}
 					return CharOperation.compareTo(binding1.constantPoolName(), binding2.constantPoolName());
 				}
 			});
@@ -5177,15 +5188,18 @@ public class ClassFile implements TypeConstants, TypeIds {
 	}
 
 	public void recordInnerClasses(TypeBinding binding) {
+		recordInnerClasses(binding, false);
+	}
+	public void recordInnerClasses(TypeBinding binding, boolean onBottomForBug445231) {
 		if (this.innerClassesBindings == null) {
-			this.innerClassesBindings = new HashSet(INNER_CLASSES_SIZE);
+			this.innerClassesBindings = new HashMap(INNER_CLASSES_SIZE);
 		}
 		ReferenceBinding innerClass = (ReferenceBinding) binding;
-		this.innerClassesBindings.add(innerClass.erasure().unannotated());  // should not emit yet another inner class for Outer.@Inner Inner.
+		this.innerClassesBindings.put(innerClass.erasure().unannotated(), onBottomForBug445231);  // should not emit yet another inner class for Outer.@Inner Inner.
 		ReferenceBinding enclosingType = innerClass.enclosingType();
 		while (enclosingType != null
 				&& enclosingType.isNestedType()) {
-			this.innerClassesBindings.add(enclosingType.erasure().unannotated());
+			this.innerClassesBindings.put(enclosingType.erasure().unannotated(), onBottomForBug445231);
 			enclosingType = enclosingType.enclosingType();
 		}
 	}

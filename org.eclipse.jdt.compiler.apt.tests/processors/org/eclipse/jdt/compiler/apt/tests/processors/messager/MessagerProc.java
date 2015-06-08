@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 BEA Systems, Inc. and others
+ * Copyright (c) 2007, 2015 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -92,6 +92,8 @@ public class MessagerProc extends AbstractProcessor {
 
 	// Initialized in collectElements()
 	private AnnotationMirror _annotationMirror;
+
+	private AnnotationMirror _nestedAnnotation;
 
 	// Initialized in collectElements()
 	private AnnotationValue _annotationValue;
@@ -228,6 +230,12 @@ public class MessagerProc extends AbstractProcessor {
 		for (AnnotationMirror mirror : annotationMirrors) {
 			if (_annotationMirror == null) {
 				_annotationMirror = mirror;
+			} else if (_nestedAnnotation == null) {
+				Collection<? extends AnnotationValue> values = mirror.getElementValues().values();
+				for (AnnotationValue annotationValue : values) {
+					_nestedAnnotation = (AnnotationMirror) annotationValue.getValue();
+				}
+			} else {
 				break;
 			}
 		}
@@ -310,6 +318,7 @@ public class MessagerProc extends AbstractProcessor {
 		_messager.printMessage(Kind.NOTE, "Informational message not associated with an element");
 		_messager.printMessage(Kind.ERROR, "Error on element D", _elementD);
 		_messager.printMessage(Kind.ERROR, "Error on element D", _elementD, _annotationMirror);
+		_messager.printMessage(Kind.ERROR, "Error on element D", _elementD, _nestedAnnotation);
 		_messager.printMessage(Kind.ERROR, "Error on element D", _elementD, _annotationMirror, _annotationValue);
 		_messager.printMessage(Kind.ERROR, "Error on element java.lang.String", _element2);
 		_messager.printMessage(Kind.WARNING, "Warning on method foo", _methodElement);

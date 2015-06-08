@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] IndexOutOfBoundsException in TokenManager - https://bugs.eclipse.org/462945
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -19,6 +20,7 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameR
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRPAREN;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameWHITESPACE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamepackage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -116,6 +118,12 @@ public class CommentsPreparator extends ASTVisitor {
 		this.sourceLevel = sourceLevel;
 		this.formatDisableTag = options.disabling_tag != null ? new String(options.disabling_tag) : null;
 		this.formatEnableTag = options.enabling_tag != null ? new String(options.enabling_tag) : null;
+	}
+
+	@Override
+	public boolean preVisit2(ASTNode node) {
+		boolean isMalformed = (node.getFlags() & ASTNode.MALFORMED) != 0;
+		return !isMalformed;
 	}
 
 	@Override
@@ -425,7 +433,7 @@ public class CommentsPreparator extends ASTVisitor {
 				commentToken.putLineBreaksAfter(previous.getLineBreaksAfter());
 				previous.clearLineBreaksAfter();
 			} else if (existingBreaksAfter <= existingBreaksBefore && next != null
-					&& commentIndex > 0 /* doesn't apply to a comment before the package declaration */) {
+					&& next.tokenType != TokenNamepackage /* doesn't apply to a comment before the package declaration */) {
 				commentToken.putLineBreaksBefore(next.getLineBreaksBefore());
 				next.clearLineBreaksBefore();
 			}

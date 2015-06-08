@@ -12,7 +12,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -65,7 +64,7 @@ public class MethodHandleTest extends AbstractRegressionTest {
 				"\n" + 
 				"		mt = MethodType.methodType(Object.class, String.class, int.class);\n" + 
 				"		mh = lookup.findVirtual(X.class, \"foo\", mt);\n" + 
-				"		Object o = mh.invokeGeneric(new X(), (Object)\"foo:\", i);\n" +
+				"		Object o = mh.invoke(new X(), (Object)\"foo:\", i);\n" +
 				"\n" +
 				"		mt = MethodType.methodType(void.class);\n" + 
 				"		mh = lookup.findStatic(X.class, \"bar\", mt);\n" + 
@@ -111,7 +110,7 @@ public class MethodHandleTest extends AbstractRegressionTest {
 				"		try {\n" + 
 				"			MethodHandle handle = MethodHandles.lookup().findStatic(X.class, \"foo\", MethodType.methodType(void.class));\n" + 
 				"			try {\n" + 
-				"				handle.invokeGeneric(null);\n" + 
+				"				handle.invoke(null);\n" + 
 				"			} catch (WrongMethodTypeException ok) {\n" + 
 				"				System.out.println(\"This is ok\");\n" + 
 				"			} catch (Throwable e) {\n" + 
@@ -142,7 +141,7 @@ public class MethodHandleTest extends AbstractRegressionTest {
 				"		try {\n" + 
 				"			MethodHandle handle = MethodHandles.lookup().findStatic(X.class, \"foo\", MethodType.methodType(Object.class, Object.class));\n" + 
 				"			try {\n" + 
-				"				handle.invokeGeneric(null);\n" + 
+				"				handle.invoke(null);\n" + 
 				"			} catch (Throwable e) {\n" + 
 				"				e.printStackTrace();\n" + 
 				"			}\n" + 
@@ -171,7 +170,7 @@ public class MethodHandleTest extends AbstractRegressionTest {
 				"		try {\n" + 
 				"			MethodHandle handle = MethodHandles.lookup().findStatic(X.class, \"foo\", MethodType.methodType(Object.class, Object.class));\n" + 
 				"			try {\n" + 
-				"				handle.invokeGeneric(new Object());\n" + 
+				"				handle.invoke(new Object());\n" + 
 				"			} catch (Throwable e) {\n" + 
 				"				e.printStackTrace();\n" + 
 				"			}\n" + 
@@ -200,7 +199,7 @@ public class MethodHandleTest extends AbstractRegressionTest {
 				"		try {\n" + 
 				"			MethodHandle handle = MethodHandles.lookup().findStatic(X.class, \"foo\", MethodType.methodType(Object.class, Object.class));\n" + 
 				"			try {\n" + 
-				"				Object o = handle.invokeGeneric(new Object());\n" + 
+				"				Object o = handle.invoke(new Object());\n" + 
 				"			} catch (Throwable e) {\n" + 
 				"				e.printStackTrace();\n" + 
 				"			}\n" + 
@@ -269,45 +268,6 @@ public class MethodHandleTest extends AbstractRegressionTest {
 			"Inside foo\n" + 
 			"foo\n" + 
 			"Inside foo");
-	}
-	public void test008() {
-		Map options = getCompilerOptions();
-		options.put(JavaCore.COMPILER_PB_DEPRECATION, JavaCore.ERROR);
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"import java.lang.invoke.MethodHandle;\n" + 
-				"import java.lang.invoke.MethodHandles;\n" + 
-				"import java.lang.invoke.MethodType;\n" + 
-				"import java.lang.invoke.WrongMethodTypeException;\n" + 
-				"\n" + 
-				"public class X {\n" + 
-				"	public static <T> T foo(T param){\n" + 
-				"		return null;\n" + 
-				"	}\n" + 
-				"	public static void main(String[] args) {\n" + 
-				"		try {\n" + 
-				"			MethodHandle handle = MethodHandles.lookup().findStatic(X.class, \"foo\", MethodType.methodType(Object.class, Object.class));\n" + 
-				"			try {\n" + 
-				"				Object o = handle.invokeGeneric(new Object());\n" + 
-				"			} catch (Throwable e) {\n" + 
-				"				e.printStackTrace();\n" + 
-				"			}\n" + 
-				"		} catch (Throwable e) {\n" + 
-				"			e.printStackTrace();\n" + 
-				"		}\n" + 
-				"	}\n" + 
-				"}"
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 14)\n" + 
-			"	Object o = handle.invokeGeneric(new Object());\n" + 
-			"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The method invokeGeneric(Object...) from the type MethodHandle is deprecated\n" + 
-			"----------\n",
-			null,
-			true,
-			options);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=386259, wrong unnecessary cast warning.
 	public void test009() {
@@ -385,5 +345,47 @@ public class MethodHandleTest extends AbstractRegressionTest {
 				"----------\n",
 				// javac options
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=466748
+	public void test011() {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.invoke.MethodHandle;\n" + 
+				"import java.lang.invoke.MethodHandles;\n" + 
+				"import java.lang.reflect.Method;\n" + 
+				"\n" + 
+				"public class X {\n" + 
+				"	public static void test1(Integer i){\n" + 
+				"		System.out.println(\"test1:\" + i);\n" + 
+				"	}\n" + 
+				"	public static void test2(int i){\n" + 
+				"		System.out.println(\"test2:\" + i);\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static void main(String[] args) throws Throwable{\n" + 
+				"		Method m1 = X.class.getMethod(\"test1\", Integer.class);\n" + 
+				"		Method m2 = X.class.getMethod(\"test2\", int.class);\n" + 
+				"\n" + 
+				"		MethodHandle test1Handle = MethodHandles.lookup().unreflect(m1);\n" + 
+				"		MethodHandle test2Handle = MethodHandles.lookup().unreflect(m2);\n" + 
+				"		\n" + 
+				"		Integer arg_Integer = 1;\n" + 
+				"		int arg_int = 1;\n" + 
+				"		\n" + 
+				"		// results in a java.lang.VerifyError - but should work without error\n" + 
+				"		test1Handle.invokeExact(Integer.class.cast(arg_int));\n" + 
+				"		\n" + 
+				"		// The following line also results in a java.lang.VerifyError, but should actually throw a ClassCastException\n" + 
+				"		try {\n" + 
+				"			test2Handle.invokeExact(int.class.cast(arg_Integer)); \n" + 
+				"		} catch(ClassCastException e) {\n" + 
+				"			System.out.println(\"SUCCESS\");\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+			},
+			"test1:1\n" + 
+			"SUCCESS");
 	}
 }

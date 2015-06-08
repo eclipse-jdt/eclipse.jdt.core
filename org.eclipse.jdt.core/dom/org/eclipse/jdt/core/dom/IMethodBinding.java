@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 429813 - [1.8][dom ast] IMethodBinding#getJavaElement() should return IMethod for lambda
  *******************************************************************************/
 
 package org.eclipse.jdt.core.dom;
@@ -84,6 +86,31 @@ public interface IMethodBinding extends IBinding {
 	 *    or constructor
 	 */
 	public ITypeBinding getDeclaringClass();
+
+	/**
+	 * If this method binding represents a lambda expression then:
+	 * <ul>
+	 * <li>If the lambda expression is declared in the body of a method,
+	 *   answers the binding of that declaring method.
+	 * </li>
+	 * <li>Otherwise, if the lambda expression is declared in the 
+	 *   initializer of a field, answers the binding of that declaring field.
+	 * </li>
+	 * <li>Otherwise, if the lambda expression is declared in a static initializer or an
+	 *   instance initializer, a method binding is returned to represent that initializer
+	 *   (selector is an empty string in this case).
+	 * </li>
+	 * </ul>
+	 * <p>
+	 * If this method binding does not represent a lambda expression,
+	 * <code>null</code> is returned.
+	 * </p>
+	 * @return a method binding or field binding representing the member that
+	 * contains the lambda expression represented by this method binding,
+	 * or null for regular method bindings.
+	 * @since 3.11
+	 */
+	public IBinding getDeclaringMember();
 
 	/**
 	 * Returns the resolved default value of an annotation type member,
@@ -292,6 +319,8 @@ public interface IMethodBinding extends IBinding {
 	 * <li>For references to a signature polymorphic method from class MethodHandle,
 	 * returns the declaration of the method. In the reference binding, the parameter types and
 	 * the return type are determined by the concrete invocation context.</li>
+	 * <li>For lambda methods, returns the (possibly parameterized) single abstract method
+	 * of the functional type.</li>
 	 * <li>For other method bindings, this returns the same binding.</li>
 	 * </ul>
 	 *

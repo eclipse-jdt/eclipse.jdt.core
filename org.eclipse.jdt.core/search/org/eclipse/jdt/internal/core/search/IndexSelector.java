@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -301,7 +301,11 @@ public IndexLocation[] getIndexLocations() {
  * Returns null if the path doesn't correspond to a project.
  */
 private static IJavaProject getJavaProject(IPath path, IJavaModel model) {
-	IJavaProject project = model.getJavaProject(path.lastSegment());
+	String lastSeg = path.lastSegment();
+	if (lastSeg == null) {
+		lastSeg = path.toOSString();
+	}
+	IJavaProject project = model.getJavaProject(lastSeg);
 	if (project.exists()) {
 		return project;
 	}

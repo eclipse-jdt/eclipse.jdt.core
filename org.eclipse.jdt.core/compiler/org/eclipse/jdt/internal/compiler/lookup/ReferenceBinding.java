@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,9 +34,12 @@
  *								Bug 440759 - [1.8][null] @NonNullByDefault should never affect wildcards and uses of a type variable
  *								Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
  *								Bug 446442 - [1.8] merge null annotations from super methods
+ *								Bug 456532 - [1.8][null] ReferenceBinding.appendNullAnnotation() includes phantom annotations in error messages
  *      Jesper S Moller - Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
+ *     Ulrich Grave <ulrich.grave@gmx.de> - Contributions for
+ *                              bug 386692 - Missing "unused" warning on "autowired" fields
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -850,10 +853,20 @@ public void computeId() {
 			}
 			break;
 		case 6:
-			if (!CharOperation.equals(TypeConstants.JDT, this.compoundName[2]) || !CharOperation.equals(TypeConstants.ITYPEBINDING, this.compoundName[5]))
-				return;
-			if (CharOperation.equals(TypeConstants.ORG_ECLIPSE_JDT_CORE_DOM_ITYPEBINDING, this.compoundName))
-				this.typeBits |= TypeIds.BitUninternedType;
+			if (CharOperation.equals(TypeConstants.ORG, this.compoundName[0])) {
+				if (CharOperation.equals(TypeConstants.SPRING, this.compoundName[1])) {
+					if (CharOperation.equals(TypeConstants.AUTOWIRED, this.compoundName[5])) {
+						if (CharOperation.equals(TypeConstants.ORG_SPRING_AUTOWIRED, this.compoundName)) {
+							this.id = TypeIds.T_OrgSpringframeworkBeansFactoryAnnotationAutowired;
+						}
+					}
+					return;
+				}
+				if (!CharOperation.equals(TypeConstants.JDT, this.compoundName[2]) || !CharOperation.equals(TypeConstants.ITYPEBINDING, this.compoundName[5]))
+					return;
+				if (CharOperation.equals(TypeConstants.ORG_ECLIPSE_JDT_CORE_DOM_ITYPEBINDING, this.compoundName))
+					this.typeBits |= TypeIds.BitUninternedType;
+			}
 			break;
 		case 7 :
 			if (!CharOperation.equals(TypeConstants.JDT, this.compoundName[2]) || !CharOperation.equals(TypeConstants.TYPEBINDING, this.compoundName[6]))
@@ -1634,15 +1647,24 @@ public char[] readableName() /*java.lang.Object,  p.X<T> */ {
 
 protected void appendNullAnnotation(StringBuffer nameBuffer, CompilerOptions options) {
 	if (options.isAnnotationBasedNullAnalysisEnabled) {
-		// restore applied null annotation from tagBits:
-	    if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
-	    	char[][] nonNullAnnotationName = options.nonNullAnnotationName;
-			nameBuffer.append('@').append(nonNullAnnotationName[nonNullAnnotationName.length-1]).append(' ');
-	    }
-	    if ((this.tagBits & TagBits.AnnotationNullable) != 0) {
-	    	char[][] nullableAnnotationName = options.nullableAnnotationName;
-			nameBuffer.append('@').append(nullableAnnotationName[nullableAnnotationName.length-1]).append(' ');
-	    }
+		if (options.usesNullTypeAnnotations()) {
+			for (AnnotationBinding annotation : this.typeAnnotations) {
+				TypeBinding annotationType = annotation.getAnnotationType();
+				if (annotationType.id == TypeIds.T_ConfiguredAnnotationNonNull || annotation.type.id == TypeIds.T_ConfiguredAnnotationNullable) {
+					nameBuffer.append('@').append(annotationType.shortReadableName()).append(' ');
+				}
+			}
+		} else {
+			// restore applied null annotation from tagBits:
+		    if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
+		    	char[][] nonNullAnnotationName = options.nonNullAnnotationName;
+				nameBuffer.append('@').append(nonNullAnnotationName[nonNullAnnotationName.length-1]).append(' ');
+		    }
+		    if ((this.tagBits & TagBits.AnnotationNullable) != 0) {
+		    	char[][] nullableAnnotationName = options.nullableAnnotationName;
+				nameBuffer.append('@').append(nullableAnnotationName[nullableAnnotationName.length-1]).append(' ');
+		    }
+		}
 	}
 }
 

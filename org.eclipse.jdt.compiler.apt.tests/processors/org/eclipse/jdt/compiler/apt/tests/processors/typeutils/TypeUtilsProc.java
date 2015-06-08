@@ -1,16 +1,19 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 BEA Systems, Inc. and others
+ * Copyright (c) 2007 - 2012 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
- *    wharley@bea.com - initial API and implementation
+ *    Walter Harley - initial API and implementation
  *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests.processors.typeutils;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,15 +22,19 @@ import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.ArrayType;
 import javax.lang.model.type.DeclaredType;
+import javax.lang.model.type.ExecutableType;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Types;
 
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
+import org.eclipse.jdt.internal.compiler.apt.model.DeclaredTypeImpl;
 
 /**
  * A processor that exercises the methods on the Elements utility.  To enable this processor, add 
@@ -38,7 +45,6 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 @SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class TypeUtilsProc extends BaseProcessor
 {
-
 	// Always return false from this processor, because it supports "*".
 	// The return value does not signify success or failure!
 	@Override
@@ -54,28 +60,44 @@ public class TypeUtilsProc extends BaseProcessor
 			return false;
 		}
 		
-		if (!examinePrimitives()) {
-			return false;
-		}
-		
-		if (!examineNoType()) {
-			return false;
-		}
-		
-		if (!examineGetDeclaredType()) {
-			return false;
-		}
-		
-		if (!examineGetDeclaredTypeParameterized()) {
-			return false;
-		}
-
-		if (!examineGetDeclaredTypeNested()) {
-			return false;
-		}
-		
-		if (!examineGetArrayTypeParameterized()) {
-			return false;
+		try {
+    		if (!examinePrimitives()) {
+    			return false;
+    		}
+    		
+    		if (!examineNoType()) {
+    			return false;
+    		}
+    		
+    		if (!examineGetDeclaredType()) {
+    			return false;
+    		}
+    		
+    		if (!examineGetDeclaredTypeParameterized()) {
+    			return false;
+    		}
+    
+    		if (!examineGetDeclaredTypeNested()) {
+    			return false;
+    		}
+    		
+    		if (!examineGetArrayTypeParameterized()) {
+    			return false;
+    		}
+    		
+    		if (!examineTypesAsMemberOf()) {
+    			return false;
+    		}
+    		
+    		if (!examineTypesAsMemberOfSubclass()) {
+    		    return false;
+    		}
+		} catch (RuntimeException e) {
+		    StringWriter sw = new StringWriter();
+		    PrintWriter w = new PrintWriter(sw);
+		    e.printStackTrace(w);
+		    reportError(sw.toString());
+		    return false;
 		}
 
 		reportSuccess();
@@ -246,7 +268,7 @@ public class TypeUtilsProc extends BaseProcessor
 	 */
 	private boolean examineGetDeclaredTypeParameterized() {
 		TypeElement stringDecl = _elementUtils.getTypeElement(String.class.getName());
-		TypeElement mapDecl = _elementUtils.getTypeElement("java.util.Map");
+		TypeElement mapDecl = _elementUtils.getTypeElement(Map.class.getName());
 		DeclaredType stringType = _typeUtils.getDeclaredType(stringDecl);
 		ArrayType stringArrayType = _typeUtils.getArrayType(stringType);
 
@@ -297,7 +319,7 @@ public class TypeUtilsProc extends BaseProcessor
 		}
 		return true;
 	}
-
+	
 	/**
 	 * Test getArrayType() for a parameterized type
 	 * @return true if tests passed
@@ -321,5 +343,119 @@ public class TypeUtilsProc extends BaseProcessor
 		
 		return true;
 	}
+
+	/**
+	 * Test {@link Types#asMemberOf()}.
+	 * @return true if tests passed
+	 */
+	private boolean examineTypesAsMemberOf() {
+	    TypeElement containerElement = _elementUtils.getTypeElement("targets.model.pc.AsMemberOf");
+	    DeclaredType longType = (DeclaredType)_elementUtils.getTypeElement("java.lang.Long").asType();
+		DeclaredType container = _typeUtils.getDeclaredType(containerElement, longType);
+		return innerTestAsMemberOf("examineTypesAsMemberOf", container, containerElement);
+	}
+	/**
+	 * Test {@link Types#asMemberOf()} where the elements are members of a superclass of the
+	 * declared container. See <a href="http://bugs.eclipse.org/382590">Bug 382590</a>. Note that
+	 * the asMemberOf() javadoc says the element is viewed "as a member of, or otherwise directly 
+	 * contained by, a given type." It is not clear what "directly" means here, but javac 1.6
+	 * supports this case, so we will too.
+	 * @return true if tests passed
+	 */
+	private boolean examineTypesAsMemberOfSubclass() {
+	    DeclaredType declaredContainer = (DeclaredType) _elementUtils.getTypeElement("targets.model.pc.AsMemberOfSub").asType();
+	    TypeElement containerElement = _elementUtils.getTypeElement("targets.model.pc.AsMemberOf");
+	    return innerTestAsMemberOf("examineTypesAsMemberOfSubclass", declaredContainer, containerElement);
+	}
+
+	/**
+	 * @return true if tests passed
+	 */
+    private boolean innerTestAsMemberOf(String method, DeclaredType declaredContainer,
+            TypeElement containerElement) {
+        DeclaredType longType = (DeclaredType)_elementUtils.getTypeElement("java.lang.Long").asType();
+        Map<String, Element> members = new HashMap<String, Element>();
+	    for (Element element : containerElement.getEnclosedElements()) {
+	        members.put(element.getSimpleName().toString(), element);
+	    }
+	    for (String m : new String[] {"f2", "m2"}) {
+	        if (members.get(m) != null) {
+	            reportError(method + ": Should not have found member named '" + m + "' in container " + declaredContainer);
+	            return false;
+	        }
+	    }
+	    for (String m : new String[] {"f", "m", "C", "D", "e"}) {
+	        Element memberElement = members.get(m);
+	        if (memberElement == null) {
+	            reportError(method + ": Couldn't find member named '" + m + "' in container " + declaredContainer);
+	            return false;
+	        }
+	        TypeMirror tm = _typeUtils.asMemberOf(declaredContainer, memberElement);
+	        
+            if ("f".equals(m)) {
+                // Long field
+                if (!_typeUtils.isSameType(tm, longType)) {
+                    reportError(method + ": member f should be of type Long, but was " + tm);
+                    return false;
+                }
+            } else if ("m".equals(m)) {
+                // void method returning Long
+                if (tm.getKind() != TypeKind.EXECUTABLE) {
+                    reportError(method + ": member m() should be executable but was " + tm.getKind());
+                    return false;
+                }
+                ExecutableType etm = (ExecutableType)tm;
+                if (!etm.getParameterTypes().isEmpty()) {
+                    reportError(method + ": member m() should be void, but it had parameters");
+                    return false;
+                }
+                if (!_typeUtils.isSameType(etm.getReturnType(), longType)) {
+                    reportError(method + ": member m() should have Long return type, but found " + etm.getReturnType());
+                    return false;
+                }
+            } else if ("C".equals(m)) {
+	            // Not clear what to expect in the case of a static nested class. Outer parameterization doesn't
+	            // apply to the nested class; and the method spec doesn't say what to do when the contained
+	            // member is incompletely parameterized. 
+	            TypeElement c = _elementUtils.getTypeElement("targets.model.pc.AsMemberOf.C");
+	            TypeMirror tmExpected = c.asType();
+	            
+	            // In javac, we get A.C<T> whether C is directly contained or accessed via a subclass.
+	            // In Eclipse, when accessing through a subclass, the binding to C is lazily created 
+	            // within ParameterizedTypeBinding.memberTypes(), so it gets created as a PTB itself,
+	            // with no type arguments. Thus it is A<Long>.C instead of A.C<T>. This is probably a
+	            // compiler bug, but given that asMemberOf() is documented to apply only to "directly
+	            // contained" members it's probably not worth worrying about. So, we accept that case.
+	            if (!_typeUtils.isSameType(tm, tmExpected) && 
+	                    !(tm instanceof DeclaredTypeImpl && 
+	                            "targets.model.pc.AsMemberOf<java.lang.Long>.C".equals(tm.toString()))) {
+	                reportError(method + ": member C: Expected type " + tmExpected + " but found " + tm);
+	                return false;
+	            }
+	        } else if ("D".equals(m)) {
+	            // Expected type of D is AsMemberOf2<Long>.D
+	            DeclaredType tmContainer = _typeUtils.getDeclaredType(containerElement, longType);
+	            TypeElement d = _elementUtils.getTypeElement("targets.model.pc.AsMemberOf.D");
+	            TypeMirror tmExpected = _typeUtils.getDeclaredType(tmContainer, d);
+	            if (!_typeUtils.isSameType(tm, tmExpected)) {
+	                reportError(method + ": member D: Expected type " + tmExpected +
+	                        " but found " + tm);
+	                return false;
+	            }
+    		} else if ("e".equals(m)) {
+    		    // Expected type of e is A<Long>.E<Integer>
+                DeclaredType tmContainer = _typeUtils.getDeclaredType(containerElement, longType);
+                TypeElement eTypeElem = _elementUtils.getTypeElement("targets.model.pc.AsMemberOf.E");
+                DeclaredType tmInt = (DeclaredType) _elementUtils.getTypeElement("java.lang.Integer").asType();
+                TypeMirror tmExpected = _typeUtils.getDeclaredType(tmContainer, eTypeElem, tmInt);
+                if (!_typeUtils.isSameType(tm, tmExpected)) {
+                    reportError(method + ": member e: Expected type " + tmExpected +
+                            " but found " + tm);
+                    return false;
+                }
+    		}
+	    }
+	    return true;
+    }
 
 }

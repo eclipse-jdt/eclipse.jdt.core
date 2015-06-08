@@ -1247,7 +1247,14 @@ public class Util implements SuffixConstants {
 				}
 			}
 		} else if (typeBinding.isNestedType()) {
-			classFile.recordInnerClasses(typeBinding);
+			TypeBinding enclosingType = typeBinding;
+			do {
+				if (!enclosingType.canBeSeenBy(classFile.referenceBinding.scope))
+					break;
+				enclosingType = enclosingType.enclosingType();
+			} while (enclosingType != null);
+			boolean onBottomForBug445231 = enclosingType != null;
+			classFile.recordInnerClasses(typeBinding, onBottomForBug445231);
 		}
 	}
 	/*

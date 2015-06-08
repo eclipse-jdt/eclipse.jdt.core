@@ -8,9 +8,12 @@
 package targets.errors.pb;
 
 import target.errors.pa.AnnoZ;
+import target.errors.pa.Outer;
+import target.errors.pa.Nested;
 
 @AnnoZ(
 		annoZString = "annoZOnD")
+@Outer(@Nested())
 @SuppressWarnings("all")
 public class D {
 	public enum DEnum { DEnum1, DEnum2, DEnum3 }

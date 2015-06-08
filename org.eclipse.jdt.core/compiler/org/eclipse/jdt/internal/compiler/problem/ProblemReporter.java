@@ -57,6 +57,8 @@
  *								Bug 446442 - [1.8] merge null annotations from super methods
  *								Bug 455723 - Nonnull argument not correctly inferred in loop
  *								Bug 458361 - [1.8][null] reconciler throws NPE in ProblemReporter.illegalReturnRedefinition()
+ *								Bug 459967 - [null] compiler should know about nullness of special methods like MyEnum.valueOf()
+ *								Bug 461878 - [1.7][1.8][compiler][null] ECJ compiler does not allow to use null annotations on annotations
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -66,6 +68,8 @@
  *								bug 419209 - [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
  *								Bug 429384 - [1.8][null] implement conformance rules for null-annotated lower / upper type bounds
  *								Bug 416182 - [1.8][compiler][null] Contradictory null annotations not rejected
+ *     Ulrich Grave <ulrich.grave@gmx.de> - Contributions for
+ *                              bug 386692 - Missing "unused" warning on "autowired" fields
  ********************************************************************************/
 package org.eclipse.jdt.internal.compiler.problem;
 
@@ -5785,8 +5789,15 @@ public void nullAnnotationUnsupportedLocation(Annotation annotation) {
 	String[] shortArguments = new String[] {
 		String.valueOf(annotation.resolvedType.shortReadableName())
 	};
+	int severity = ProblemSeverities.Error | ProblemSeverities.Fatal;
+	if (annotation.recipient instanceof ReferenceBinding) {
+		if (((ReferenceBinding) annotation.recipient).isAnnotationType())
+			severity = ProblemSeverities.Warning; // special case for https://bugs.eclipse.org/461878
+	}
 	handle(IProblem.NullAnnotationUnsupportedLocation,
-		arguments, shortArguments, annotation.sourceStart, annotation.sourceEnd);
+			arguments, shortArguments,
+			severity,
+			annotation.sourceStart, annotation.sourceEnd);
 }
 public void nullAnnotationUnsupportedLocation(TypeReference type) {
 	int sourceEnd = type.sourceEnd;
@@ -8770,6 +8781,7 @@ private boolean excludeDueToAnnotation(Annotation[] annotations, int problemId) 
 					break;
 				case TypeIds.T_JavaxInjectInject:
 				case TypeIds.T_ComGoogleInjectInject:
+				case TypeIds.T_OrgSpringframeworkBeansFactoryAnnotationAutowired:
 					if (problemId != IProblem.UnusedPrivateField)
 						return true; // @Inject on method/ctor does constitute a relevant use, just on fields it doesn't
 					break;
@@ -9422,8 +9434,7 @@ public void referenceExpressionArgumentNullityMismatch(ReferenceExpression locat
 			location.sourceEnd);
 }
 public void illegalReturnRedefinition(ASTNode location, MethodBinding descriptorMethod,
-			char[][] nonNullAnnotationName, 
-			char/*@Nullable*/[][] providedAnnotationName, TypeBinding providedType) {
+			boolean isUnchecked, TypeBinding providedType) {
 	StringBuffer methodSignature = new StringBuffer()
 		.append(descriptorMethod.declaringClass.readableName())
 		.append('.')
@@ -9432,22 +9443,16 @@ public void illegalReturnRedefinition(ASTNode location, MethodBinding descriptor
 		.append(descriptorMethod.declaringClass.shortReadableName())
 		.append('.')
 		.append(descriptorMethod.shortReadableName());
-	StringBuffer providedPrefix = new StringBuffer(); 
-	StringBuffer providedShortPrefix = new StringBuffer(); 
-	if (providedAnnotationName != null) {
-		providedPrefix.append('@').append(CharOperation.toString(providedAnnotationName)).append(' ');
-		providedShortPrefix.append('@').append(providedAnnotationName[providedAnnotationName.length-1]).append(' ');
-	}
 	this.handle(
-		providedAnnotationName == null
+		isUnchecked
 			? IProblem.ReferenceExpressionReturnNullRedefUnchecked
 			: IProblem.ReferenceExpressionReturnNullRedef,
 		new String[] { methodSignature.toString(),
-						CharOperation.toString(nonNullAnnotationName), String.valueOf(descriptorMethod.returnType.readableName()),
-						providedPrefix.toString(), String.valueOf(providedType.readableName())},
+						String.valueOf(descriptorMethod.returnType.nullAnnotatedReadableName(this.options, false)),
+						String.valueOf(providedType.nullAnnotatedReadableName(this.options, false))},
 		new String[] { shortSignature.toString(),
-						String.valueOf(nonNullAnnotationName[nonNullAnnotationName.length-1]), String.valueOf(descriptorMethod.returnType.shortReadableName()),
-						providedShortPrefix.toString(), String.valueOf(providedType.shortReadableName())},
+						String.valueOf(descriptorMethod.returnType.nullAnnotatedReadableName(this.options, true)),
+						String.valueOf(providedType.nullAnnotatedReadableName(this.options, true))},
 		location.sourceStart,
 		location.sourceEnd);
 }

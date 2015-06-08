@@ -38,6 +38,7 @@
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *								Bug 457210 - [1.8][compiler][null] Wrong Nullness errors given on full build build but not on incremental build?
  *								Bug 461250 - ArrayIndexOutOfBoundsException in SourceTypeBinding.fields
+ *								Bug 466713 - Null Annotations: NullPointerException using <int @Nullable []> as Type Param
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
  *      Till Brychcy - Contributions for
@@ -62,6 +63,7 @@ import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -846,18 +848,29 @@ public char[] computeUniqueKey(boolean isLeaf) {
 	return uniqueKey;
 }
 
-void faultInTypesForFieldsAndMethods() {
-	if (!isPrototype()) throw new IllegalStateException();
+private void checkAnnotationsInType() {
 	// check @Deprecated annotation
 	getAnnotationTagBits(); // marks as deprecated by side effect
 	ReferenceBinding enclosingType = enclosingType();
 	if (enclosingType != null && enclosingType.isViewedAsDeprecated() && !isDeprecated())
 		this.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
+
+	for (int i = 0, length = this.memberTypes.length; i < length; i++)
+		((SourceTypeBinding) this.memberTypes[i]).checkAnnotationsInType();
+}
+
+void faultInTypesForFieldsAndMethods() {
+	if (!isPrototype()) throw new IllegalStateException();
+	checkAnnotationsInType();
+	internalFaultInTypeForFieldsAndMethods();
+}
+
+private void internalFaultInTypeForFieldsAndMethods() {
 	fields();
 	methods();
 
 	for (int i = 0, length = this.memberTypes.length; i < length; i++)
-		((SourceTypeBinding) this.memberTypes[i]).faultInTypesForFieldsAndMethods();
+		((SourceTypeBinding) this.memberTypes[i]).internalFaultInTypeForFieldsAndMethods();
 }
 // NOTE: the type of each field of a source type is resolved when needed
 public FieldBinding[] fields() {
@@ -1821,7 +1834,7 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 			if ((resolvedExceptionType.tagBits & TagBits.HasMissingType) != 0) {
 				method.tagBits |= TagBits.HasMissingType;
 			}
-			if (exceptionTypes[i].hasNullTypeAnnotation()) {
+			if (exceptionTypes[i].hasNullTypeAnnotation(AnnotationPosition.ANY)) {
 				methodDecl.scope.problemReporter().nullAnnotationUnsupportedLocation(exceptionTypes[i]);
 			}
 			method.modifiers |= (resolvedExceptionType.modifiers & ExtraCompilerModifiers.AccGenericSignature);

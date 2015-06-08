@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] follow up bug for comments - https://bugs.eclipse.org/458208
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter.linewrap;
 
@@ -20,10 +21,12 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameL
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameLPAREN;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameOR;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameQUESTION;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRBRACE;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRPAREN;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameextends;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameimplements;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameIdentifier;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamenew;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamethrows;
 
@@ -358,14 +361,22 @@ public class WrapPreparator extends ASTVisitor {
 			if (operand instanceof InfixExpression && samePrecedence(node, (InfixExpression) operand)) {
 				findTokensToWrap((InfixExpression) operand, depth + 1);
 			}
-			if (this.options.wrap_before_binary_operator) {
-				int index = this.tm.firstIndexBefore(operand, -1);
-				while (this.tm.get(index).isComment())
-					index--;
-				assert node.getOperator().toString().equals(this.tm.toString(index));
-				this.wrapIndexes.add(index);
-			} else {
-				this.wrapIndexes.add(this.tm.firstIndexIn(operand, -1));
+			int indexBefore = this.tm.firstIndexBefore(operand, -1);
+			while (this.tm.get(indexBefore).isComment())
+				indexBefore--;
+			assert node.getOperator().toString().equals(this.tm.toString(indexBefore));
+			int indexAfter = this.tm.firstIndexIn(operand, -1);
+			this.wrapIndexes.add(this.options.wrap_before_binary_operator ? indexBefore : indexAfter);
+
+			if (!this.options.join_wrapped_lines) {
+				// TODO there should be an option for never joining wraps on opposite side of the operator
+				if (this.options.wrap_before_binary_operator) {
+					if (this.tm.countLineBreaksBetween(this.tm.get(indexAfter - 1), this.tm.get(indexAfter)) > 0)
+						this.wrapIndexes.add(indexAfter);
+				} else {
+					if (this.tm.countLineBreaksBetween(this.tm.get(indexBefore), this.tm.get(indexBefore - 1)) > 0)
+						this.wrapIndexes.add(indexBefore);
+				}
 			}
 		}
 	}
@@ -397,6 +408,17 @@ public class WrapPreparator extends ASTVisitor {
 			this.wrapParentIndex = this.tm.firstIndexBefore(expressions.get(0), TokenNameLBRACE);
 			this.wrapGroupEnd = this.tm.lastIndexIn(node, -1);
 			handleWrap(this.options.alignment_for_expressions_in_array_initializer, node);
+		}
+		if (!this.options.join_wrapped_lines
+				&& !this.options.insert_new_line_before_closing_brace_in_array_initializer) {
+			// if there is a line break before the closing brace, formatter should treat it as a valid wrap to preserve
+			int closingBraceIndex = this.tm.lastIndexIn(node, TokenNameRBRACE);
+			Token closingBrace = this.tm.get(closingBraceIndex);
+			if (this.tm.countLineBreaksBetween(this.tm.get(closingBraceIndex - 1), closingBrace) == 1) {
+				int openingBraceIndex = this.tm.firstIndexIn(node, TokenNameLBRACE);
+				closingBrace.setWrapPolicy(
+						new WrapPolicy(0, openingBraceIndex, this.currentDepth, 1, true, false, -1, false));
+			}
 		}
 		return true;
 	}
@@ -679,12 +701,13 @@ public class WrapPreparator extends ASTVisitor {
 				indentOnColumn, topPriorityGroupEnd, false);
 	}
 
-	public void finishUp() {
+	public void finishUp(ASTNode astRoot) {
 		preserveExistingLineBreaks();
 		new WrapExecutor(this.tm, this.options).executeWraps();
 		if (this.fieldAligner != null)
 			this.fieldAligner.alignComments();
 		wrapComments();
+		fixEnumConstantIndents(astRoot);
 	}
 
 	private void preserveExistingLineBreaks() {
@@ -767,6 +790,20 @@ public class WrapPreparator extends ASTVisitor {
 					commentWrapper.wrapMultiLineComment(token, startPosition, false, false);
 				}
 			}
+		}
+	}
+
+	private void fixEnumConstantIndents(ASTNode astRoot) {
+		if (this.options.use_tabs_only_for_leading_indentations) {
+			// enum constants should be indented like other declarations, not like wrapped elements
+			astRoot.accept(new ASTVisitor() {
+
+				@Override
+				public boolean visit(EnumConstantDeclaration node) {
+					WrapPreparator.this.tm.firstTokenIn(node, TokenNameIdentifier).setWrapPolicy(null);
+					return true;
+				}
+			});
 		}
 	}
 }

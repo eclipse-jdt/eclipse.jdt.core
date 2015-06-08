@@ -13,6 +13,7 @@
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *								bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
+ *								Bug 440282 - [resource] Resource leak detection false negative with empty finally block
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -48,9 +49,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			flowContext.expireNullCheckedFieldInfo();
 		}
 	}
-	if (this.explicitDeclarations > 0) {
-		// if block has its own scope analyze tracking vars now:
+	if (this.scope != currentScope) {
+		// if block is tracking any resources other than the enclosing 'currentScope', analyse them now:
 		this.scope.checkUnclosedCloseables(flowInfo, flowContext, null, null);
+	}
+	if (this.explicitDeclarations > 0) {
 		// cleanup assignment info for locals that are scoped to this block:
 		LocalVariableBinding[] locals = this.scope.locals;
 		if (locals != null) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@
  *								Bug 392238 - [1.8][compiler][null] Detect semantically invalid null type annotations
  *								Bug 435570 - [1.8][null] @NonNullByDefault illegally tries to affect "throws E"
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
+ *								Bug 466713 - Null Annotations: NullPointerException using <int @Nullable []> as Type Param
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -30,6 +31,7 @@ import java.util.List;
 
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -605,7 +607,7 @@ public abstract class AbstractMethodDeclaration
 			this.scope.problemReporter().illegalTypeForExplicitThis(this.receiver, enclosingReceiver);
 		}
 
-		if (this.receiver.type.hasNullTypeAnnotation()) {
+		if (this.receiver.type.hasNullTypeAnnotation(AnnotationPosition.ANY)) {
 			this.scope.problemReporter().nullAnnotationUnsupportedLocation(this.receiver.type);
 		}
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM Corporation and others.
+ * Copyright (c) 2014, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] follow up bug for comments - https://bugs.eclipse.org/458208
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
@@ -144,6 +145,97 @@ public void testBug425040() throws JavaModelException {
 			"@interface Annot5 {\n" +
 			"}\n"
 			);
+}
+public void testBug433177() throws Exception {
+	String source =
+			"interface Function<T, R> {\n" +
+		"	R apply(T t);\n" +
+		"}\n" +
+		"\n" +
+		"public class X {\n" +
+		"\n" +
+		"	  public Function<String, String> testOK() {\n" +
+		"	    return foo((s) -> {\n" +
+		"	      // nothing\n" +
+		"	      System.out.println(\"\");\n" +
+		"	      return \"\";\n" +
+		"	    });\n" +
+		"	  }\n" +
+		"\n" +
+		"	  public Function<String, String> testBad() {\n" +
+		"	    return this.foo((s) -> {\n" +
+		"	      // nothing\n" +
+		"	        System.out.println(\"\");\n" +
+		"	        return \"\";\n" +
+		"	      });\n" +
+		"	  }\n" +
+		"\n" +
+		"	  public Function<String, String> foo(Function<String, String> f) {\n" +
+		"	    return null;\n" +
+		"	  }\n" +
+		"\n" +
+		"	}\n";
+	String expected = "interface Function<T, R> {\n" +
+			"	R apply(T t);\n" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			"\n" +
+			"	public Function<String, String> testOK() {\n" +
+			"		return foo((s) -> {\n" +
+			"			// nothing\n" +
+			"			System.out.println(\"\");\n" +
+			"			return \"\";\n" +
+			"		});\n" +
+			"	}\n" +
+			"\n" +
+			"	public Function<String, String> testBad() {\n" +
+			"		return this.foo((s) -> {\n" +
+			"			// nothing\n" +
+			"			System.out.println(\"\");\n" +
+			"			return \"\";\n" +
+			"		});\n" +
+			"	}\n" +
+			"\n" +
+			"	public Function<String, String> foo(Function<String, String> f) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"\n" +
+			"}\n";
+
+	formatSource(source,expected);
+}
+public void testBug434821() throws Exception {
+	String source ="public class FormatterTest {\n"+
+			"	public void doNothing() {\n"+
+			"		new Thread(() -> {\n"+
+			"			synchronized (this) {\n"+
+			"				try {\n"+
+			"					Thread.sleep(0); // blah\n"+
+			"			} catch (final InterruptedException e2) {\n"+
+			"				e2.printStackTrace();\n"+
+			"			}\n"+
+			"		}\n"+
+			"\n"+
+			"	}	).start();\n"+
+			"	}\n"+
+			"}\n";
+	String expected = "public class FormatterTest {\n"+
+			"	public void doNothing() {\n"+
+			"		new Thread(() -> {\n"+
+			"			synchronized (this) {\n"+
+			"				try {\n"+
+			"					Thread.sleep(0); // blah\n"+
+			"				} catch (final InterruptedException e2) {\n"+
+			"					e2.printStackTrace();\n"+
+			"				}\n"+
+			"			}\n"+
+			"\n"+
+			"		}).start();\n"+
+			"	}\n"+
+			"}\n";
+
+	formatSource(source,expected);
 }
 
 }

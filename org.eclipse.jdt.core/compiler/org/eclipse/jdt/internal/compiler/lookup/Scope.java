@@ -1221,9 +1221,20 @@ public abstract class Scope {
 		if (exactMethod != null && exactMethod.typeVariables == Binding.NO_TYPE_VARIABLES && !exactMethod.isBridge()) {
 			// in >= 1.5 mode, ensure the exactMatch did not match raw types
 			if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5)
-				for (int i = argumentTypes.length; --i >= 0;)
-					if (isSubtypeOfRawType(argumentTypes[i]))
+				for (int i = argumentTypes.length; --i >= 0;) {
+					// workaround for bug 464229: The type * cannot be resolved. It is indirectly referenced from required .class files
+					TypeBinding t = argumentTypes[i].leafComponentType();
+					if (! (t instanceof ReferenceBinding))
+						continue;
+					ReferenceBinding r = (ReferenceBinding)t;
+					if (r.isHierarchyConnected()) {
+						if (isSubtypeOfRawType(r))
+							return null;
+					} else if (r.isRawType()) {
 						return null;
+					}
+					//TODO: should also check if any supertype of r is raw, but can't do this without resolving the whole hierarchy
+				}
 			// must find both methods for this case: <S extends A> void foo() {}  and  <N extends B> N foo() { return null; }
 			// or find an inherited method when the exact match is to a bridge method
 			unitScope.recordTypeReferences(exactMethod.thrownExceptions);
@@ -1550,13 +1561,13 @@ public abstract class Scope {
 		ObjectVector found = new ObjectVector(3);
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordTypeReferences(argumentTypes);
-
+		List<TypeBinding> visitedTypes = new ArrayList<TypeBinding>();
 		if (receiverTypeIsInterface) {
 			unitScope.recordTypeReference(receiverType);
 			MethodBinding[] receiverMethods = receiverType.getMethods(selector, argumentTypes.length);
 			if (receiverMethods.length > 0)
 				found.addAll(receiverMethods);
-			findMethodInSuperInterfaces(receiverType, selector, found, null, invocationSite);
+			findMethodInSuperInterfaces(receiverType, selector, found, visitedTypes, invocationSite);
 			currentType = getJavaLangObject();
 		}
 
@@ -3645,7 +3656,7 @@ public abstract class Scope {
 		int nextPosition = 0;
 		do {
 			if (currentType.isRawType()) return true;
-	
+			//if (!currentType.isHierarchyConnected()) return true; !! not correct, see bug 460993
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (interfacesToVisit == null) {

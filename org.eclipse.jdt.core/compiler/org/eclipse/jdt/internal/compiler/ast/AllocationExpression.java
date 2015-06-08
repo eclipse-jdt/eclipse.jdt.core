@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,6 +38,7 @@
  *							Bug 429430 - [1.8] Lambdas and method reference infer wrong exception type with generics (RuntimeException instead of IOException)
  *							Bug 434297 - [1.8] NPE in LamdaExpression.analyseCode with lamda expression nested in a conditional expression
  *							Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
+ *							Bug 448709 - [1.8][null] ensure we don't infer types that violate null constraints on a type parameter's bound
  *     Jesper S Moller <jesper@selskabet.org> - Contributions for
  *							bug 378674 - "The method can be declared as static" is wrong
  *     Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
@@ -263,7 +264,7 @@ public void manageEnclosingInstanceAccessIfNecessary(BlockScope currentScope, Fl
 
 	// perform some emulation work in case there is some and we are inside a local type only
 	if (allocatedTypeErasure.isNestedType()
-		&& (currentScope.enclosingSourceType().isLocalType() || currentScope.isLambdaScope())) {
+		&& (currentScope.enclosingSourceType().isLocalType() || currentScope.isLambdaSubscope())) {
 
 		if (allocatedTypeErasure.isLocalType()) {
 			((LocalTypeBinding) allocatedTypeErasure).addInnerEmulationDependent(currentScope, false);
@@ -488,9 +489,18 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (!isDiamond && this.resolvedType.isParameterizedTypeWithActualArguments()) {
  		checkTypeArgumentRedundancy((ParameterizedTypeBinding) this.resolvedType, scope);
  	}
-	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled && (this.binding.tagBits & TagBits.IsNullnessKnown) == 0) {
-		new ImplicitNullAnnotationVerifier(scope.environment(), compilerOptions.inheritNullAnnotations)
-				.checkImplicitNullAnnotations(this.binding, null/*srcMethod*/, false, scope);
+	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled) {
+		if ((this.binding.tagBits & TagBits.IsNullnessKnown) == 0) {
+			new ImplicitNullAnnotationVerifier(scope.environment(), compilerOptions.inheritNullAnnotations)
+					.checkImplicitNullAnnotations(this.binding, null/*srcMethod*/, false, scope);
+		}
+		if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
+			if (this.binding instanceof ParameterizedGenericMethodBinding && this.typeArguments != null) {
+				TypeVariableBinding[] typeVariables = this.binding.original().typeVariables();
+				for (int i = 0; i < this.typeArguments.length; i++)
+					this.typeArguments[i].checkNullConstraints(scope, typeVariables, i);
+			}
+		}
 	}
 	return this.resolvedType;
 }
@@ -689,7 +699,7 @@ public TypeBinding invocationTargetType() {
 }
 
 public boolean statementExpression() {
-	return true;
+	return ((this.bits & ASTNode.ParenthesizedMASK) == 0);
 }
 
 //-- interface Invocation: --

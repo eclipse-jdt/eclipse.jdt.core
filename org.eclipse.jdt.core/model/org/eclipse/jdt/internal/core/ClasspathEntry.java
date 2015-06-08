@@ -11,6 +11,8 @@
  *     Thirumala Reddy Mutchukota <thirumala@google.com> - Avoid optional library classpath entries validation - https://bugs.eclipse.org/bugs/show_bug.cgi?id=412882
  *     Stephan Herrmann - Contribution for
  *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
+ *								Bug 462768 - [null] NPE when using linked folder for external annotations
+ *                              Bug 465296 - precedence of extra attributes on a classpath container
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -343,9 +345,9 @@ public class ClasspathEntry implements IClasspathEntry {
 			IClasspathAttribute[] combinedAttributes = this.extraAttributes;
 			int lenRefer = referringExtraAttributes.length;
 			if (lenRefer > 0) {
-				int lenCombined = combinedAttributes.length;
-				System.arraycopy(combinedAttributes, 0, combinedAttributes=new IClasspathAttribute[lenCombined+lenRefer], 0, lenCombined);
-				System.arraycopy(referringExtraAttributes, 0, combinedAttributes, lenCombined, lenRefer);
+				int lenEntry = combinedAttributes.length;
+				System.arraycopy(combinedAttributes, 0, combinedAttributes=new IClasspathAttribute[lenEntry+lenRefer], lenRefer, lenEntry);
+				System.arraycopy(referringExtraAttributes, 0, combinedAttributes, 0, lenRefer);
 			}
 			return new ClasspathEntry(
 								getContentKind(),
@@ -1282,11 +1284,13 @@ public class ClasspathEntry implements IClasspathEntry {
 				if (!resolve)
 					return annotationPath;
 
-				if (annotationPath.segmentCount() > 1) {
-					// try Workspace-absolute:
-					IProject targetProject = project.getWorkspace().getRoot().getProject(annotationPath.segment(0));
-					if (targetProject.exists())
+				// try Workspace-absolute:
+				IProject targetProject = project.getWorkspace().getRoot().getProject(annotationPath.segment(0));
+				if (targetProject.exists()) {
+					if (annotationPath.segmentCount() > 1)
 						return targetProject.getLocation().append(annotationPath.removeFirstSegments(1));
+					else
+						return targetProject.getLocation();
 				}
 				// absolute, not in workspace, must be Filesystem-absolute:
 				return annotationPath;

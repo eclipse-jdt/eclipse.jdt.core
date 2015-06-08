@@ -13,7 +13,9 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -240,6 +242,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			ConditionalExpression conditional = (ConditionalExpression) location;
 			return containsAllocation(conditional.valueIfTrue) || containsAllocation(conditional.valueIfFalse);
 		}
+		if (location instanceof CastExpression)
+			return containsAllocation(((CastExpression) location).expression);
 		return false;
 	}
 
@@ -249,6 +253,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			preConnectTrackerAcrossAssignment(location, local, flowInfo, (AllocationExpression) expression, closeTracker);
 		} else if (expression instanceof ConditionalExpression) {
 			preConnectTrackerAcrossAssignment(location, local, flowInfo, (ConditionalExpression) expression, closeTracker);
+		} else if (expression instanceof CastExpression) {
+			preConnectTrackerAcrossAssignment(location, local, ((CastExpression) expression).expression, flowInfo);
 		}
 	}
 
@@ -276,7 +282,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		if (((ReferenceBinding)allocation.resolvedType).hasTypeBit(TypeIds.BitResourceFreeCloseable)) {
 			// remove unnecessary attempts (closeable is not relevant)
 			if (allocation.closeTracker != null) {
-				scope.removeTrackingVar(allocation.closeTracker);
+				allocation.closeTracker.withdraw();
 				allocation.closeTracker = null;
 			}
 		} else if (((ReferenceBinding)allocation.resolvedType).hasTypeBit(TypeIds.BitWrapperCloseable)) {
@@ -331,7 +337,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			if (isWrapper) {
 				// remove unnecessary attempts (wrapper has no relevant inner)
 				if (allocation.closeTracker != null) {
-					allocation.closeTracker.withDraw();
+					allocation.closeTracker.withdraw();
 					allocation.closeTracker = null;
 				}
 			} else {
@@ -356,7 +362,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	}
 
 	private static FakedTrackingVariable pick(FakedTrackingVariable tracker1, FakedTrackingVariable tracker2, BlockScope scope) {
-		scope.removeTrackingVar(tracker2);
+		tracker2.withdraw();
 		return tracker1;
 	}
 
@@ -603,14 +609,14 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		if (expression instanceof AllocationExpression) {
 			FakedTrackingVariable tracker = ((AllocationExpression) expression).closeTracker;
 			if (tracker != null && tracker.originalBinding == null) {
-				currentScope.removeTrackingVar(tracker);
+				tracker.withdraw();
 				((AllocationExpression) expression).closeTracker = null;
 			}
 		} else {
 			// assignment passing a local into a field?
 			LocalVariableBinding local = expression.localVariableBinding();
 			if (local != null && local.closeTracker != null && ((lhsBits & Binding.FIELD) != 0))
-				currentScope.removeTrackingVar(local.closeTracker); // TODO: may want to use local.closeTracker.markPassedToOutside(..,true)
+				local.closeTracker.withdraw(); // TODO: may want to use local.closeTracker.markPassedToOutside(..,true)
 		}
 	}
 
@@ -689,7 +695,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				int finallyStatus = currentScope.finallyInfo.nullStatus(local);
 				if (finallyStatus == FlowInfo.NON_NULL)
 					return finallyStatus;
-				if (finallyStatus != FlowInfo.NULL) // neither is NON_NULL, but not both are NULL => call it POTENTIALLY_NULL
+				if (finallyStatus != FlowInfo.NULL && currentScope.finallyInfo.hasNullInfoFor(local)) // neither is NON_NULL, but not both are NULL => call it POTENTIALLY_NULL
 					status = FlowInfo.POTENTIALLY_NULL;
 			}
 			if (currentScope != outerScope && currentScope.parent instanceof BlockScope)
@@ -704,7 +710,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		do {
 			flowInfo.markAsDefinitelyNonNull(current.binding);
 			current.globalClosingState |= CLOSE_SEEN;
-			flowContext.markFinallyNullStatus(this.binding, FlowInfo.NON_NULL);
+			flowContext.markFinallyNullStatus(current.binding, FlowInfo.NON_NULL);
 			current = current.innerTracker;
 		} while (current != null);
 	}
@@ -742,44 +748,100 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		return flowInfo;
 	}
 
-	/** 
-	 * Pick tracking variables from 'varsOfScope' to establish a proper order of processing:
-	 * As much as possible pick wrapper resources before their inner resources.
-	 * Also consider cases of wrappers and their inners being declared at different scopes.
+	/**
+	 * Iterator for a set of FakedTrackingVariable, which dispenses the elements 
+	 * according to the priorities defined by enum {@link Stage}.
+	 * Resources whose outer is owned by an enclosing scope are never answered,
+	 * unless we are analysing on behalf of an exit (return/throw).
 	 */
-	public static FakedTrackingVariable pickVarForReporting(Set varsOfScope, BlockScope scope, boolean atExit) {
-		if (varsOfScope.isEmpty()) return null;
-		FakedTrackingVariable trackingVar = (FakedTrackingVariable) varsOfScope.iterator().next();
-		while (trackingVar.outerTracker != null) {
-			// resource is wrapped, is wrapper defined in this scope?
-			if (varsOfScope.contains(trackingVar.outerTracker)) {
-				// resource from same scope, travel up the wrapper chain
-				trackingVar = trackingVar.outerTracker;
-			} else if (atExit) {
-				// at an exit point we report against inner despite a wrapper that may/may not be closed later
-				break;
-			} else {
-				BlockScope outerTrackerScope = trackingVar.outerTracker.binding.declaringScope;
-				if (outerTrackerScope == scope) {
-					// outerTracker is from same scope and already processed -> pick trackingVar now
-					break;
-				} else {
-					// outer resource is from other (outer?) scope
-					Scope currentScope = scope;
-					while ((currentScope = currentScope.parent) instanceof BlockScope) {
-						if (outerTrackerScope == currentScope) {
-							// at end of block pass responsibility for inner resource to outer scope holding a wrapper
-							varsOfScope.remove(trackingVar); // drop this one
-							// pick a next candidate:
-							return pickVarForReporting(varsOfScope, scope, atExit);
+	public static class IteratorForReporting implements Iterator<FakedTrackingVariable> {
+
+		private final Set<FakedTrackingVariable> varSet;
+		private final Scope scope;
+		private final boolean atExit;
+
+		private Stage stage;
+		private Iterator<FakedTrackingVariable> iterator;
+		private FakedTrackingVariable next;
+		
+		enum Stage {
+			/** 1. prio: all top-level resources, ie., resources with no outer. */
+			OuterLess,
+			/** 2. prio: resources whose outer has already been processed (element of the same varSet). */
+			InnerOfProcessed,
+			/** 3. prio: resources whose outer is not owned by any enclosing scope. */
+			InnerOfNotEnclosing,
+			/** 4. prio: when analysing on behalf of an exit point: anything not picked before. */
+			AtExit
+		}
+
+		public IteratorForReporting(List<FakedTrackingVariable> variables, Scope scope, boolean atExit) {
+			this.varSet = new HashSet<>(variables);
+			this.scope = scope;
+			this.atExit = atExit;
+			setUpForStage(Stage.OuterLess);
+		}
+		@Override
+		public boolean hasNext() {
+			FakedTrackingVariable trackingVar;
+			switch (this.stage) {
+				case OuterLess:
+					while (this.iterator.hasNext()) {
+						trackingVar = this.iterator.next();
+						if (trackingVar.outerTracker == null)
+							return found(trackingVar);
+					}
+					setUpForStage(Stage.InnerOfProcessed);
+					//$FALL-THROUGH$
+				case InnerOfProcessed:
+					while (this.iterator.hasNext()) {
+						trackingVar = this.iterator.next();
+						FakedTrackingVariable outer = trackingVar.outerTracker;
+						if (outer.binding.declaringScope == this.scope && !this.varSet.contains(outer))
+							return found(trackingVar);
+					}
+					setUpForStage(Stage.InnerOfNotEnclosing);
+					//$FALL-THROUGH$
+				case InnerOfNotEnclosing:
+					searchAlien: while (this.iterator.hasNext()) {
+						trackingVar = this.iterator.next();
+						FakedTrackingVariable outer = trackingVar.outerTracker;
+						if (!this.varSet.contains(outer)) {
+							Scope outerTrackerScope = outer.binding.declaringScope;
+							Scope currentScope = this.scope;
+							while ((currentScope = currentScope.parent) instanceof BlockScope) {
+								if (outerTrackerScope == currentScope)
+									break searchAlien;
+							}
+							return found(trackingVar);
 						}
 					}
-					break; // not parent owned -> pick this var
-				}
+					setUpForStage(Stage.AtExit);
+					//$FALL-THROUGH$
+				case AtExit:
+					if (this.atExit && this.iterator.hasNext())
+						return found(this.iterator.next());
+					return false;
+				default: throw new IllegalStateException("Unexpected Stage "+this.stage); //$NON-NLS-1$
 			}
 		}
-		varsOfScope.remove(trackingVar);
-		return trackingVar;
+		private boolean found(FakedTrackingVariable trackingVar) {
+			this.iterator.remove();
+			this.next = trackingVar;
+			return true;
+		}
+		private void setUpForStage(Stage nextStage) {
+			this.iterator = this.varSet.iterator();
+			this.stage = nextStage;
+		}
+		@Override
+		public FakedTrackingVariable next() {
+			return this.next;
+		}
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	/**
@@ -827,9 +889,9 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		return false;
 	}
 
-	public void withDraw() {
+	public void withdraw() {
 		// must unregister at the declaringScope, note that twr resources are owned by the scope enclosing the twr
-		this.originalBinding.declaringScope.removeTrackingVar(this);
+		this.binding.declaringScope.removeTrackingVar(this);
 	}
 
 	public void recordErrorLocation(ASTNode location, int nullStatus) {
@@ -841,14 +903,20 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		this.recordedLocations.put(location, new Integer(nullStatus));
 	}
 
-	public boolean reportRecordedErrors(Scope scope, int mergedStatus) {
+	public boolean reportRecordedErrors(Scope scope, int mergedStatus, boolean atDeadEnd) {
 		FakedTrackingVariable current = this;
 		while (current.globalClosingState == 0) {
 			current = current.innerTracker;
 			if (current == null) {
 				// no relevant state found -> report:
-				reportError(scope.problemReporter(), null, mergedStatus);
-				return true;
+				if (atDeadEnd && neverClosedAtLocations())
+					mergedStatus = FlowInfo.NULL;
+				if ((mergedStatus & (FlowInfo.NULL|FlowInfo.POTENTIALLY_NULL|FlowInfo.POTENTIALLY_NON_NULL)) != 0) {
+					reportError(scope.problemReporter(), null, mergedStatus);
+					return true;
+				} else {
+					break;
+				}
 			}
 		}
 		boolean hasReported = false;
@@ -871,6 +939,15 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		return hasReported;
 	}
 	
+	private boolean neverClosedAtLocations() {
+		if (this.recordedLocations != null) {
+			for (Object value : this.recordedLocations.values())
+				if (!value.equals(FlowInfo.NULL))
+					return false;
+		}
+		return true;
+	}
+
 	public int reportError(ProblemReporter problemReporter, ASTNode location, int nullStatus) {
 		if ((this.globalClosingState & OWNED_BY_OUTSIDE) != 0) {
 			return 0; // TODO: should we still propagate some flags??

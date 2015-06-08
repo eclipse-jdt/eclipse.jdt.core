@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *								bug 402993 - [null] Follow up of bug 401088: Missing warning about redundant null check
  *								Bug 453483 - [compiler][null][loop] Improve null analysis for loops
+ *								Bug 421035 - [resource] False alarm of resource leak warning when casting a closeable in its assignment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -83,6 +84,7 @@ public ExceptionHandlingFlowContext(
 	UnconditionalFlowInfo unconditionalCopy = flowInfo.unconditionalCopy();
 	unconditionalCopy.iNBit = -1L;
 	unconditionalCopy.iNNBit = -1L;
+	unconditionalCopy.tagBits |= FlowInfo.UNROOTED;
 	this.initsOnFinally = unconditionalCopy;
 }
 ExceptionHandlingFlowContext(

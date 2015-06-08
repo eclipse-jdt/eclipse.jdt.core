@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,12 +7,15 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 429813 - [1.8][dom ast] IMethodBinding#getJavaElement() should return IMethod for lambda
  *******************************************************************************/
 
 package org.eclipse.jdt.core.dom;
 
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
@@ -34,8 +37,8 @@ class MethodBinding implements IMethodBinding {
 		Modifier.ABSTRACT | Modifier.STATIC | Modifier.FINAL | Modifier.SYNCHRONIZED | Modifier.NATIVE |
 		Modifier.STRICTFP | Modifier.DEFAULT;
 	private static final ITypeBinding[] NO_TYPE_BINDINGS = new ITypeBinding[0];
-	private org.eclipse.jdt.internal.compiler.lookup.MethodBinding binding;
-	private BindingResolver resolver;
+	protected org.eclipse.jdt.internal.compiler.lookup.MethodBinding binding;
+	protected BindingResolver resolver;
 	private ITypeBinding[] parameterTypes;
 	private ITypeBinding[] exceptionTypes;
 	private String name;
@@ -112,6 +115,11 @@ class MethodBinding implements IMethodBinding {
 			this.declaringClass = this.resolver.getTypeBinding(this.binding.declaringClass);
 		}
 		return this.declaringClass;
+	}
+
+	@Override
+	public IBinding getDeclaringMember() {
+		return null;
 	}
 
 	public IAnnotationBinding[] getParameterAnnotations(int index) {
@@ -462,5 +470,70 @@ class MethodBinding implements IMethodBinding {
 	 */
 	public String toString() {
 		return this.binding.toString();
+	}
+
+	/*
+	 * Method binding representing a lambda expression.
+	 * Most properties are read from the SAM descriptor,
+	 * but key, parameter types, and annotations are taken from the lambda implementation.
+	 * Additionally we store the declaring member (see #getDeclaringMember()).
+	 */
+	static class LambdaMethod extends MethodBinding {
+
+		private MethodBinding implementation;
+		private IBinding declaringMember;
+
+		public LambdaMethod(DefaultBindingResolver resolver,
+							org.eclipse.jdt.internal.compiler.lookup.MethodBinding lambdaDescriptor,
+							org.eclipse.jdt.internal.compiler.lookup.MethodBinding implementation,
+							IBinding declaringMember)
+		{
+			super(resolver, lambdaDescriptor);
+			this.implementation = new MethodBinding(resolver, implementation);
+			this.declaringMember = declaringMember;
+		}
+
+		/**
+		 * @see IBinding#getModifiers()
+		 */
+		public int getModifiers() {
+			return super.getModifiers() & ~ClassFileConstants.AccAbstract;
+		}
+
+		/**
+		 * @see IBinding#getKey()
+		 */
+		public String getKey() {
+			return this.implementation.getKey();
+		}
+
+		@Override
+		public ITypeBinding[] getParameterTypes() {
+			return this.implementation.getParameterTypes();
+		}
+
+		@Override
+		public IAnnotationBinding[] getParameterAnnotations(int paramIndex) {
+			return this.implementation.getParameterAnnotations(paramIndex);
+		}
+
+		public IAnnotationBinding[] getAnnotations() {
+			return this.implementation.getAnnotations();
+		}
+
+		@Override
+		public IBinding getDeclaringMember() {
+			return this.declaringMember;
+		}
+
+		@Override
+		public IMethodBinding getMethodDeclaration() {
+			return this.resolver.getMethodBinding(this.binding);
+		}
+
+		@Override
+		public String toString() {
+			return super.toString().replace("public abstract ", "public ");  //$NON-NLS-1$//$NON-NLS-2$
+		}
 	}
 }

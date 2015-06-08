@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,8 +33,9 @@ public CopyMoveResourcesTests(String name) {
  * encountered are thrown.
  */
 public IJavaElement copyPositive(IJavaElement element, IJavaElement container, IJavaElement sibling, String rename, boolean force) throws JavaModelException {
+	DeltaListener listener = new DeltaListener();
 	try {
-		startDeltas();
+		startDeltas(listener);
 
 		// if forcing, ensure that a name collision exists
 		if (force) {
@@ -78,7 +79,7 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 				assertTrue("Did not find package decl", found);
 			}
 		}
-		IJavaElementDelta destDelta = this.deltaListener.getDeltaFor(container, true);
+		IJavaElementDelta destDelta = listener.getDeltaFor(container, true);
 		assertTrue("Destination container not changed", destDelta != null && destDelta.getKind() == IJavaElementDelta.CHANGED);
 		IJavaElementDelta[] deltas = null;
 		if (force) {
@@ -96,7 +97,7 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 		assertTrue("Added children not correct for element copy", found);
 		return copy;
 	} finally {
-		stopDeltas();
+		stopDeltas(listener);
 	}
 }
 
@@ -106,8 +107,9 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
  * encountered are thrown.
  */
 public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, IJavaElement[] siblings, String[] names, boolean force, IProgressMonitor monitor) throws JavaModelException {
+	DeltaListener listener = new DeltaListener();
 	try {
-		startDeltas();
+		startDeltas(listener);
 
 		// if forcing, ensure that a name collision exists
 		int i;
@@ -169,14 +171,14 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 			}
 			IJavaElementDelta destDelta = null;
 			if (isMainType(element, destinations[i]) && names != null && names[i] != null) { //moved/renamed main type to same cu
-				destDelta = this.deltaListener.getDeltaFor(moved.getParent());
+				destDelta = listener.getDeltaFor(moved.getParent());
 				assertTrue("Renamed compilation unit as result of main type not added", destDelta != null && destDelta.getKind() == IJavaElementDelta.ADDED);
 				IJavaElementDelta[] deltas = destDelta.getAddedChildren();
 				assertTrue("Added children not correct for element copy", deltas[0].getElement().equals(moved));
 				assertTrue("flag should be F_MOVED_FROM", (deltas[0].getFlags() & IJavaElementDelta.F_MOVED_FROM) > 0);
 				assertTrue("moved from handle should be original", deltas[0].getMovedFromElement().equals(element));
 			} else {
-				destDelta = this.deltaListener.getDeltaFor(destinations[i], true);
+				destDelta = listener.getDeltaFor(destinations[i], true);
 				assertTrue("Destination container not changed", destDelta != null && destDelta.getKind() == IJavaElementDelta.CHANGED);
 				IJavaElementDelta[] deltas = destDelta.getAddedChildren();
 				for (int j = 0; j < deltas.length - 1; j++) {
@@ -189,12 +191,12 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 				assertTrue("Added children not correct for element copy", pkgDelta.getElement().equals(moved));
 				assertTrue("flag should be F_MOVED_FROM", (pkgDelta.getFlags() & IJavaElementDelta.F_MOVED_FROM) > 0);
 				assertTrue("moved from handle shoud be original", pkgDelta.getMovedFromElement().equals(element));
-				IJavaElementDelta sourceDelta = this.deltaListener.getDeltaFor(element, true);
+				IJavaElementDelta sourceDelta = listener.getDeltaFor(element, true);
 				assertTrue("moved to handle should be original", sourceDelta.getMovedToElement().equals(moved));
 			}
 		}
 	} finally {
-		stopDeltas();
+		stopDeltas(listener);
 	}
 }
 /**
@@ -815,6 +817,7 @@ public void testMoveCU02() throws CoreException {
  * existing CU.
  */
 public void testMoveCU03() throws CoreException {
+	DeltaListener listener = new DeltaListener();
 	try {
 		this.createFolder("/P/src/p1");
 		this.createFile(
@@ -833,7 +836,7 @@ public void testMoveCU03() throws CoreException {
 			"}"
 		);
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
-		startDeltas();
+		startDeltas(listener);
 		movePositive(new IJavaElement[] {cuSource}, new IJavaElement[] {pkgDest}, null, null, true, false, null);
 			assertDeltas(
 					"Incorrect delta",
@@ -842,10 +845,10 @@ public void testMoveCU03() throws CoreException {
 							+ "		p1[*]: {CHILDREN}\n"
 							+ "			X.java[-]: {MOVED_TO(X.java [in p2 [in src [in P]]])}\n"
 							+ "		p2[*]: {CHILDREN}\n"
-							+ "			X.java[*]: {CONTENT | PRIMARY RESOURCE}");
+							+ "			X.java[*]: {CONTENT | PRIMARY RESOURCE}", listener);
 	}
 	finally {
-		stopDeltas();
+		stopDeltas(listener);
 	}
 }
 /**
@@ -872,6 +875,7 @@ public void testMoveCU04() throws CoreException {
  * be renamed, overwriting an existing resource.
  */
 public void testMoveCU05() throws CoreException {
+	DeltaListener listener = new DeltaListener();
 	try {
 		this.createFolder("/P/src/p1");
 		this.createFile(
@@ -890,7 +894,7 @@ public void testMoveCU05() throws CoreException {
 			"}"
 		);
 		IPackageFragment pkgDest = getPackage("/P/src/p2");
-		startDeltas();
+		startDeltas(listener);
 		movePositive(new IJavaElement[] {cuSource}, new IJavaElement[] {pkgDest}, null, new String[]{"Y.java"}, true, false, null);
 		assertDeltas(
 					"Incorrect delta",
@@ -900,10 +904,10 @@ public void testMoveCU05() throws CoreException {
 							+ "			X.java[-]: {MOVED_TO(Y.java [in p2 [in src [in P]]])}\n"
 							+ "		p2[*]: {CHILDREN}\n"
 							+ "			Y.java[*]: {CHILDREN | FINE GRAINED | PRIMARY RESOURCE}\n"
-							+ "				Y[+]: {MOVED_FROM(X [in X.java [in p1 [in src [in P]]]])}");
+							+ "				Y[+]: {MOVED_FROM(X [in X.java [in p1 [in src [in P]]]])}", listener);
 	}
 	finally {
-		stopDeltas();
+		stopDeltas(listener);
 	}
 }
 /**

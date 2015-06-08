@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2003, 2014 IBM Corporation and others.
+ * Copyright (c) 2003, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3184,6 +3184,86 @@ public void test448112() throws Exception {
 	if (index == -1) {
 		assertEquals("Wrong contents", expectedOutput, actualOutput);
 	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=461706 [1.8][compiler] "Unnecessary cast" problems for necessary cast in lambda expression
+public void test461706() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"Bug.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"public class Bug {\n" + 
+			"	private static class AndCondition implements ICondition {\n" + 
+			"		public AndCondition(ICondition cond1, ICondition cond2) {\n" + 
+			"			// todo\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	private static class SimpleCondition implements ICondition {\n" + 
+			"	}\n" + 
+			"	private static interface ICondition {\n" + 
+			"		ICondition TRUE = new SimpleCondition();\n" + 
+			"		default ICondition and(final ICondition cond) {\n" + 
+			"			return new AndCondition(this, cond);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public static void main(final String[] args) {\n" + 
+			"		final List<SimpleCondition> conditions = new ArrayList<>();\n" + 
+			"		conditions.stream()\n" + 
+			"				.map(x -> (ICondition)x)\n" + 
+			"				.reduce((x, y) -> x.and(y))\n" + 
+			"				.orElse(ICondition.TRUE);\n" + 
+			"	}\n" + 
+			"}"
+		},
+		customOptions);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=461706 [1.8][compiler] "Unnecessary cast" problems for necessary cast in lambda expression
+public void test461706a() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		new String[] {
+			"Bug.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"public class Bug {\n" + 
+			"	private static class AndCondition implements ICondition {\n" + 
+			"		public AndCondition(ICondition cond1, ICondition cond2) {\n" + 
+			"			// todo\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	static class SimpleCondition implements ICondition {\n" + 
+			"	}\n" + 
+			"	private static interface ICondition {\n" + 
+			"		ICondition TRUE = new SimpleCondition();\n" + 
+			"		default ICondition and(final ICondition cond) {\n" + 
+			"			return new AndCondition(this, cond);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public static void main(final String[] args) {\n" + 
+			"		final List<ICondition> conditions = new ArrayList<>();\n" + 
+			"		conditions.stream()\n" + 
+			"				.map(x -> (ICondition)x)\n" + 
+			"				.reduce((x, y) -> x.and(y))\n" + 
+			"				.orElse(ICondition.TRUE);\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in Bug.java (at line 20)\n" +
+		"	.map(x -> (ICondition)x)\n" +
+		"	          ^^^^^^^^^^^^^\n" +
+		"Unnecessary cast from Bug.ICondition to Bug.ICondition\n" +
+		"----------\n",
+		null,
+		true,
+		customOptions);
 }
 public static Class testClass() {
 	return CastTest.class;

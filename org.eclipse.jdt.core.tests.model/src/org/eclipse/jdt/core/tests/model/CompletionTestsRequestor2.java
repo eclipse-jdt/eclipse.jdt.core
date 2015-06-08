@@ -367,7 +367,7 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 				buffer.append("POTENTIAL_METHOD_DECLARATION"); //$NON-NLS-1$
 				break;
 			case CompletionProposal.METHOD_NAME_REFERENCE :
-				buffer.append("METHOD_IMPORT"); //$NON-NLS-1$
+				buffer.append("METHOD_NAME_REFERENCE"); //$NON-NLS-1$
 				break;
 			case CompletionProposal.ANNOTATION_ATTRIBUTE_REF :
 				buffer.append("ANNOTATION_ATTRIBUTE_REF"); //$NON-NLS-1$

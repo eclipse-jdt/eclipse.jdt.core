@@ -717,9 +717,9 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			"Pb(953) Null type mismatch (type annotations): required '@NonNull String' but this expression has type '@Nullable String'",
 			"Pb(964) Null constraint mismatch: The type '@NonNull String' is not a valid substitute for the type parameter '@Nullable U extends Object'",
 			"Pb(964) Null constraint mismatch: The type 'String' is not a valid substitute for the type parameter '@NonNull V extends Object'",
-			"Pb(964) Null constraint mismatch: The type '@Nullable String' is not a valid substitute for the type parameter '@NonNull W extends @NonNull U extends Object'", // FIXME(stephan): @NonNull before W is bogus, see https://bugs.eclipse.org/456532
+			"Pb(964) Null constraint mismatch: The type '@Nullable String' is not a valid substitute for the type parameter 'W extends @NonNull U extends Object'",
 			"Pb(964) Null constraint mismatch: The type '@Nullable String' is not a valid substitute for the type parameter '@NonNull X extends Object'",
-			"Pb(964) Null constraint mismatch: The type '@Nullable String' is not a valid substitute for the type parameter '@NonNull Y extends @NonNull CharSequence'", // FIXME(see above)
+			"Pb(964) Null constraint mismatch: The type '@Nullable String' is not a valid substitute for the type parameter 'Y extends @NonNull CharSequence'",
 		}, new int[] { 8, 16, 17, 18, 20, 20 });
 	}
 

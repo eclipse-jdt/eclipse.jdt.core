@@ -138,7 +138,7 @@ public interface TagBits {
 	long AnnotationSuppressWarnings = ASTNode.Bit51L;
 	/** @since 3.7 - java 7 safe vargs invocation */
 	long AnnotationSafeVarargs = ASTNode.Bit52L;
-	/** @since 3.7 - java 7 MethodHandle.invokeExact(..)/invokeGeneric(..)*/
+	/** @since 3.7 - java 7 MethodHandle.invokeExact(..)/invoke(..)*/
 	long AnnotationPolymorphicSignature = ASTNode.Bit53L;
 	/** @since 3.8 null annotation for MethodBinding or LocalVariableBinding (argument): */
 	long AnnotationNullable = ASTNode.Bit56L;

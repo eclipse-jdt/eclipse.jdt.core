@@ -38,6 +38,7 @@
  *								Bug 446434 - [1.8][null] Enable interned captures also when analysing null type annotations
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *								Bug 456508 - Unexpected RHS PolyTypeBinding for: <code-snippet>
+ *								Bug 390064 - [compiler][resource] Resource leak warning missing when extending parameterized class
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -87,6 +88,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (enclosingType != null && enclosingType.hasNullTypeAnnotations())
 			this.tagBits |= TagBits.HasNullTypeAnnotation;
 		this.tagBits |=  TagBits.HasUnresolvedTypeVariables; // cleared in resolve()
+		this.typeBits = type.typeBits;
 	}
 
 	/**

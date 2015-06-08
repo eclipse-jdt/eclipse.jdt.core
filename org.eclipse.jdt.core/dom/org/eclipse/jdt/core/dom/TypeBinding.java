@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								Bug 438458 - [1.8][null] clean up handling of null type annotations wrt type variables
+ *								Bug 429813 - [1.8][dom ast] IMethodBinding#getJavaElement() should return IMethod for lambda
  *******************************************************************************/
 
 package org.eclipse.jdt.core.dom;
@@ -25,7 +26,6 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.IntersectionTypeBinding18;
-import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
@@ -60,7 +60,7 @@ class TypeBinding implements ITypeBinding {
 	org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding;
 	private TypeBinding prototype = null;
 	private String key;
-	private BindingResolver resolver;
+	protected BindingResolver resolver;
 	private IVariableBinding[] fields;
 	private IAnnotationBinding[] annotations;
 	private IAnnotationBinding[] typeAnnotations;
@@ -70,6 +70,18 @@ class TypeBinding implements ITypeBinding {
 	private ITypeBinding[] typeArguments;
 	private ITypeBinding[] bounds;
 	private ITypeBinding[] typeParameters;
+
+	/**
+	 * Create either a regular TypeBinding or an AnonymousTypeBinding (if declaringMember is given).
+	 */
+	public static TypeBinding createTypeBinding(BindingResolver resolver,
+												org.eclipse.jdt.internal.compiler.lookup.TypeBinding referenceBinding,
+												IBinding declaringMember)
+	{
+		return declaringMember != null
+					? new LocalTypeBinding(resolver, referenceBinding, declaringMember)
+					: new TypeBinding(resolver, referenceBinding);
+	}
 
 	public TypeBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding) {
 		this.binding = binding;
@@ -369,8 +381,8 @@ class TypeBinding implements ITypeBinding {
 	 * @see ITypeBinding#getDeclaringMethod()
 	 */
 	public synchronized IMethodBinding getDeclaringMethod() {
-		if (this.binding instanceof LocalTypeBinding) {
-			LocalTypeBinding localTypeBinding = (LocalTypeBinding) this.binding;
+		if (this.binding instanceof org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding) {
+			org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding localTypeBinding = (org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding) this.binding;
 			MethodBinding methodBinding = localTypeBinding.enclosingMethod;
 			if (methodBinding != null) {
 				try {
@@ -437,6 +449,11 @@ class TypeBinding implements ITypeBinding {
 				}
 			}
 		}
+		return null;
+	}
+
+	@Override
+	public IBinding getDeclaringMember() {
 		return null;
 	}
 
@@ -1344,5 +1361,23 @@ class TypeBinding implements ITypeBinding {
 		}
 		this.typeAnnotations = resolveAnnotationBindings(this.binding.getTypeAnnotations(), true);
 		return this.typeAnnotations;
+	}
+
+	static class LocalTypeBinding extends TypeBinding {
+
+		private IBinding declaringMember;
+
+		public LocalTypeBinding(BindingResolver resolver,
+									org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding,
+									IBinding declaringMember)
+		{
+			super(resolver, binding);
+			this.declaringMember = declaringMember;
+		}
+
+		@Override
+		public IBinding getDeclaringMember() {
+			return this.declaringMember;
+		}
 	}
 }

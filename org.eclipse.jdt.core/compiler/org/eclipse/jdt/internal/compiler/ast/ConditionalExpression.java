@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@
  *							Bug 427438 - [1.8][compiler] NPE at org.eclipse.jdt.internal.compiler.ast.ConditionalExpression.generateCode(ConditionalExpression.java:280)
  *							Bug 418537 - [1.8][null] Fix null type annotation analysis for poly conditional expressions
  *							Bug 428352 - [1.8][compiler] Resolution errors don't always surface
+ *							Bug 407414 - [compiler][null] Incorrect warning on a primitive type being null
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -418,6 +419,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	}
 
 	public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
+		if ((this.implicitConversion & TypeIds.BOXING) != 0)
+			return FlowInfo.NON_NULL;
 		return this.nullStatus;
 	}
 

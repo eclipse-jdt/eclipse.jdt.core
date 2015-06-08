@@ -19,6 +19,7 @@
  *							bug 394768 - [compiler][resource] Incorrect resource leak warning when creating stream in conditional
  *							Bug 453483 - [compiler][null][loop] Improve null analysis for loops
  *							Bug 454031 - [compiler][null][loop] bug in null analysis; wrong "dead code" detection
+ *							Bug 421035 - [resource] False alarm of resource leak warning when casting a closeable in its assignment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.flow;
 
@@ -430,10 +431,7 @@ public FlowInfo addPotentialInitializationsFrom(FlowInfo inits) {
 	else if (otherInits.extra != null) {
 		// no storage here, but other has extra storage.
 		int otherLength = otherInits.extra[0].length;
-		this.extra = new long[extraLength][];
-		for (int j = 0; j < extraLength; j++) {
-			this.extra[j] = new long[otherLength];
-		}
+		createExtraSpace(otherLength);
 		System.arraycopy(otherInits.extra[1], 0, this.extra[1], 0,
 			otherLength);
 	}
@@ -518,10 +516,7 @@ public UnconditionalFlowInfo addPotentialNullInfoFrom(
 	if (otherInits.extra != null) {
 		int mergeLimit = 0, copyLimit = otherInits.extra[0].length;
 		if (this.extra == null) {
-			this.extra = new long[extraLength][];
-			for (int j = 0; j < extraLength; j++) {
-				this.extra[j] = new long[copyLimit];
-			}
+			createExtraSpace(copyLimit);
 			if (COVERAGE_TEST_FLAG) {
 				if (CoverageTestId == 11) {
 					throw new AssertionFailedException("COVERAGE 11"); //$NON-NLS-1$
@@ -1167,10 +1162,7 @@ public void markAsComparedEqualToNonNull(LocalVariableBinding local) {
 			int vectorIndex = (position / BitCacheSize) - 1;
 			if (this.extra == null) {
 				int length = vectorIndex + 1;
-				this.extra = new long[extraLength][];
-				for (int j = 0; j < extraLength; j++) {
-					this.extra[j] = new long[length];
-				}
+				createExtraSpace(length);
 				if (COVERAGE_TEST_FLAG) {
 					if (CoverageTestId == 16) {
 						throw new AssertionFailedException("COVERAGE 16"); //$NON-NLS-1$
@@ -1266,10 +1258,7 @@ public void markAsComparedEqualToNull(LocalVariableBinding local) {
 			mask = 1L << (position % BitCacheSize);
 			if (this.extra == null) {
 				int length = vectorIndex + 1;
-				this.extra = new long[extraLength][];
-				for (int j = 0; j < extraLength; j++) {
-					this.extra[j] = new long[length ];
-				}
+				createExtraSpace(length);
 				if (COVERAGE_TEST_FLAG) {
 					if(CoverageTestId == 20) {
 						throw new AssertionFailedException("COVERAGE 20"); //$NON-NLS-1$
@@ -1334,10 +1323,7 @@ final private void markAsDefinitelyAssigned(int position) {
 			int vectorIndex = (position / BitCacheSize) - 1;
 			if (this.extra == null) {
 				int length = vectorIndex + 1;
-				this.extra = new long[extraLength][];
-				for (int j = 0; j < extraLength; j++) {
-					this.extra[j] = new long[length];
-				}
+				createExtraSpace(length);
 			}
 			else {
 				int oldLength; // might need to grow the arrays
@@ -1395,10 +1381,7 @@ public void markAsDefinitelyNonNull(LocalVariableBinding local) {
     		int vectorIndex = (position / BitCacheSize) - 1;
     		if (this.extra == null) {
     			int length = vectorIndex + 1;
-    			this.extra = new long[extraLength][];
-    			for (int j = 0; j < extraLength; j++) {
-    				this.extra[j] = new long[length];
-    			}
+    			createExtraSpace(length);
     		}
     		else {
     			int oldLength; // might need to grow the arrays
@@ -1455,10 +1438,7 @@ public void markAsDefinitelyNull(LocalVariableBinding local) {
     		int vectorIndex = (position / BitCacheSize) - 1;
     		if (this.extra == null) {
     			int length = vectorIndex + 1;
-    			this.extra = new long[extraLength][];
-    			for (int j = 0; j < extraLength; j++) {
-    				this.extra[j] = new long[length];
-    			}
+    			createExtraSpace(length);
     		}
     		else {
     			int oldLength; // might need to grow the arrays
@@ -1522,10 +1502,7 @@ public void markAsDefinitelyUnknown(LocalVariableBinding local) {
 			int vectorIndex = (position / BitCacheSize) - 1;
 			if (this.extra == null) {
 				int length = vectorIndex + 1;
-				this.extra = new long[extraLength][];
-				for (int j = 0; j < extraLength; j++) {
-					this.extra[j] = new long[length];
-				}
+				createExtraSpace(length);
 			}
 			else {
 				int oldLength; // might need to grow the arrays
@@ -1611,10 +1588,7 @@ public void markPotentiallyUnknownBit(LocalVariableBinding local) {
     		int vectorIndex = (position / BitCacheSize) - 1;
     		if (this.extra == null) {
 				int length = vectorIndex + 1;
-				this.extra = new long[extraLength][];
-				for (int j = 0; j < extraLength; j++) {
-					this.extra[j] = new long[length];
-				}
+				createExtraSpace(length);
 			}
 			else {
 				int oldLength; // might need to grow the arrays
@@ -1661,10 +1635,7 @@ public void markPotentiallyNullBit(LocalVariableBinding local) {
     		int vectorIndex = (position / BitCacheSize) - 1;
     		if (this.extra == null) {
 				int length = vectorIndex + 1;
-				this.extra = new long[extraLength][];
-				for (int j = 0; j < extraLength; j++) {
-					this.extra[j] = new long[length];
-				}
+				createExtraSpace(length);
 			}
 			else {
 				int oldLength; // might need to grow the arrays
@@ -1711,10 +1682,7 @@ public void markPotentiallyNonNullBit(LocalVariableBinding local) {
     		int vectorIndex  = (position / BitCacheSize) - 1;
     		if (this.extra == null) {
 				int length = vectorIndex + 1;
-				this.extra = new long[extraLength][];
-				for (int j = 0; j < extraLength; j++) {
-					this.extra[j] = new long[length];
-				}
+				createExtraSpace(length);
 			}
 			else {
 				int oldLength; // might need to grow the arrays
@@ -2034,6 +2002,7 @@ public UnconditionalFlowInfo nullInfoLessUnconditionalCopy() {
 	copy.iNBit = -1L;
 	copy.iNNBit = -1L;
 	copy.tagBits = this.tagBits & ~NULL_FLAG_MASK;
+	copy.tagBits |= UNROOTED;
 	copy.maxFieldCount = this.maxFieldCount;
 	if (this.extra != null) {
 		int length;
@@ -2194,9 +2163,7 @@ public UnconditionalFlowInfo unconditionalFieldLessCopy() {
 		}
 	}
 	else if (vectorIndex >= 0) {
-		for (int j = 0; j < extraLength; j++) {
-			copy.extra[j] = new long[length];
-		}
+		copy.createExtraSpace(length);
 	}
 	if (vectorIndex >= 0) {
 		mask = ~((1L << (limit % BitCacheSize))-1);
@@ -2238,6 +2205,17 @@ public void resetAssignmentInfo(int position) {
 				(mask = ~(1L << (position % BitCacheSize)));
 			this.extra[1][vectorIndex] &= mask;
 		}
+	}
+}
+
+private void createExtraSpace(int length) {
+	this.extra = new long[extraLength][];
+	for (int j = 0; j < extraLength; j++) {
+		this.extra[j] = new long[length];
+	}
+	if ((this.tagBits & UNROOTED) != 0) {
+		Arrays.fill(this.extra[IN], -1L);
+		Arrays.fill(this.extra[INN], -1L);
 	}
 }
 }

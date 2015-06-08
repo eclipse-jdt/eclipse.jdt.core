@@ -13,6 +13,7 @@
  *								Bug 441797 - [1.8] synchronize type annotations on capture and its wildcard
  *								Bug 456497 - [1.8][null] during inference nullness from target type is lost against weaker hint from applicability analysis
  *								Bug 456924 - StackOverflowError during compilation
+ *								Bug 462790 - [null] NPE in Expression.computeConversion()
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -46,6 +47,7 @@ public class CaptureBinding extends TypeVariableBinding {
 		this.end = end;
 		this.captureID = captureID;
 		this.tagBits |= TagBits.HasCapturedWildcard;
+		this.cud = cud;
 		if (wildcard.hasTypeAnnotations()) {
 			// register an unannoted version before adding the annotated wildcard:
 			CaptureBinding unannotated = (CaptureBinding) clone(null);
@@ -61,7 +63,6 @@ public class CaptureBinding extends TypeVariableBinding {
 		} else {			
 			computeId(this.environment);
 		}
-		this.cud = cud;
 	}
 	
 	// for subclass CaptureBinding18
@@ -428,6 +429,26 @@ public class CaptureBinding extends TypeVariableBinding {
 	@Override
 	public TypeBinding uncapture(Scope scope) {
 		return this.wildcard;
+	}
+
+	/*
+	 * CaptureBinding needs even more propagation, because we are creating a naked type
+	 * (during CaptureBinding(WildcardBinding,ReferenceBinding,int,int,ASTNode,int)
+	 * that has no firstBound / superclass / superInterfaces set.
+	 */
+	@Override
+	protected TypeBinding[] getDerivedTypesForDeferredInitialization() {
+		TypeBinding[] derived = this.environment.typeSystem.getDerivedTypes(this);
+		if (derived.length > 0) {
+			int count = 0;
+			for (int i = 0; i < derived.length; i++) {
+				if (derived[i] != null && derived[i].id == this.id)
+					derived[count++] = derived[i];
+			}
+			if (count < derived.length)
+				System.arraycopy(derived, 0, derived = new TypeBinding[count], 0, count);
+		}
+		return derived;
 	}
 
 	public String toString() {

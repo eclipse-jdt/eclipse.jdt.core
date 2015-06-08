@@ -1,14 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Stephan Herrmann - Contribution for
+ *								Bug 429813 - [1.8][dom ast] IMethodBinding#getJavaElement() should return IMethod for lambda
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
@@ -22,6 +25,8 @@ public class Initializer extends FieldDeclaration {
 	public int lastVisibleFieldID;
 	public int bodyStart;
 	public int bodyEnd;
+
+	private MethodBinding methodBinding;
 
 	public Initializer(Block block, int modifiers) {
 		this.block = block;
@@ -123,6 +128,17 @@ public class Initializer extends FieldDeclaration {
 		    scope.initializedField = previousField;
 			scope.lastVisibleFieldID = previousFieldID;
 		}
+	}
+
+	/** Method used only by DOM to support bindings of initializers. */
+	public MethodBinding getMethodBinding() {
+		if (this.methodBinding == null) {
+			Scope scope = this.block.scope;
+			this.methodBinding = isStatic() 
+					? new MethodBinding(ClassFileConstants.AccStatic, CharOperation.NO_CHAR, TypeBinding.VOID, Binding.NO_PARAMETERS, Binding.NO_EXCEPTIONS, scope.enclosingSourceType())
+					: new MethodBinding(0, CharOperation.NO_CHAR, TypeBinding.VOID, Binding.NO_PARAMETERS, Binding.NO_EXCEPTIONS, scope.enclosingSourceType());
+		}
+		return this.methodBinding;
 	}
 
 	public void traverse(ASTVisitor visitor, MethodScope scope) {

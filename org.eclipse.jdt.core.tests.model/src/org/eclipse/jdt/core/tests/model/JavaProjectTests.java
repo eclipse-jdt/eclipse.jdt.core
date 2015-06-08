@@ -662,21 +662,21 @@ public void testChangeOutputLocation() throws JavaModelException, CoreException 
 	IJavaProject project= getJavaProject("JavaProjectTests");
 	IContainer underLyingResource = (IContainer)project.getUnderlyingResource();
 	IFolder folder= underLyingResource.getFolder(new Path("output"));
-
+	DeltaListener listener = new DeltaListener();
 	try {
-		startDeltas();
+		startDeltas(listener);
 		project.setOutputLocation(folder.getFullPath(), null);
 		assertDeltas(
 			"Unexpected delta 1",
 			"JavaProjectTests[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
 			"	<project root>[*]: {CHILDREN}\n" +
 			"		bin[+]: {}\n" +
-			"	ResourceDelta(/JavaProjectTests/.classpath)[*]"
-		);
+			"	ResourceDelta(/JavaProjectTests/.classpath)[*]",
+			listener);
 	} finally {
-		stopDeltas();
+		stopDeltas(listener);
 		try {
-			startDeltas();
+			startDeltas(listener);
 			folder= underLyingResource.getFolder(new Path("bin"));
 			project.setOutputLocation(folder.getFullPath(), null);
 			assertDeltas(
@@ -684,10 +684,10 @@ public void testChangeOutputLocation() throws JavaModelException, CoreException 
 				"JavaProjectTests[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}\n" +
 				"	<project root>[*]: {CHILDREN}\n" +
 				"		bin[-]: {}\n" +
-				"	ResourceDelta(/JavaProjectTests/.classpath)[*]"
-			);
+				"	ResourceDelta(/JavaProjectTests/.classpath)[*]",
+				listener);
 		} finally {
-			stopDeltas();
+			stopDeltas(listener);
 		}
 	}
 }
@@ -730,8 +730,8 @@ public void lastlyTestDeletePackageWithAutobuild() throws CoreException {
 	IWorkspaceDescription description = workspace.getDescription();
 	description.setAutoBuilding(true);
 	workspace.setDescription(description);
-
-	startDeltas();
+	DeltaListener listener = new DeltaListener();
+	startDeltas(listener);
 	IPackageFragment frag = getPackageFragment("JavaProjectTests", "", "x.y");
 	IFolder folder = (IFolder) frag.getUnderlyingResource();
 	try {
@@ -740,10 +740,10 @@ public void lastlyTestDeletePackageWithAutobuild() throws CoreException {
 			"Unexpected delta",
 			"JavaProjectTests[*]: {CHILDREN}\n" +
 			"	<project root>[*]: {CHILDREN}\n" +
-			"		x.y[-]: {}"
-		);
+			"		x.y[-]: {}",
+		listener);
 	} finally {
-		stopDeltas();
+		stopDeltas(listener);
 
 		// turn autobuild off
 		description.setAutoBuilding(autoBuild);
@@ -937,15 +937,16 @@ public void testFindTypeAfterSetClasspath() throws CoreException {
 public void testFolderWithDotName() throws JavaModelException, CoreException {
 	IPackageFragmentRoot root= getPackageFragmentRoot("JavaProjectTests", "");
 	IContainer folder= (IContainer)root.getCorrespondingResource();
+	DeltaListener listener = new DeltaListener();
 	try {
-		startDeltas();
+		startDeltas(listener);
 		folder.getFolder(new Path("org.eclipse")).create(false, true, null);
 		assertDeltas(
 			"Unexpected delta", 
 			"JavaProjectTests[*]: {CONTENT}\n" + 
-			"	ResourceDelta(/JavaProjectTests/org.eclipse)[+]"
-		);
-		stopDeltas();
+			"	ResourceDelta(/JavaProjectTests/org.eclipse)[+]",
+		listener);
+		stopDeltas(listener);
 
 		IJavaElement[] children = root.getChildren();
 		IPackageFragment bogus = root.getPackageFragment("org.eclipse");
@@ -1171,15 +1172,15 @@ public void testOutputLocationNotAddedAsPackageFragment() throws JavaModelExcept
 	// as a package fragment
 	IContainer underLyingResource = (IContainer)root.getUnderlyingResource();
 	IFolder newFolder= underLyingResource.getFolder(new Path("bin")).getFolder(new Path("nested"));
+	DeltaListener listener = new DeltaListener();
 	try {
-		startDeltas();
+		startDeltas(listener);
 		newFolder.create(false, true, null);
 		assertDeltas(
 			"Unexpected delta", 
-			""
-		);
+			"", listener);
 	} finally {
-		stopDeltas();
+		stopDeltas(listener);
 		deleteResource(newFolder);
 	}
 }
@@ -1766,17 +1767,17 @@ public void testProjectOpen2() throws JavaModelException, CoreException {
 	IJavaProject jproject= getJavaProject("JavaProjectTests");
 	IProject project= jproject.getProject();
 	project.close(null);
-
+	DeltaListener listener = new DeltaListener();
 	try {
-		startDeltas();
+		startDeltas(listener);
 		project.open(null);
 		assertDeltas(
 			"Unexpected delta 2",
 			"JavaProjectTests[*]: {OPENED}\n" +
-			"ResourceDelta(/JavaProjectTests)"
+			"ResourceDelta(/JavaProjectTests)", listener
 		);
 	} finally {
-		stopDeltas();
+		stopDeltas(listener);
 	}
 }
 /**
@@ -1801,17 +1802,17 @@ public void testProjectOpen3() throws JavaModelException, CoreException {
 public void testProjectClose() throws JavaModelException, CoreException {
 	IJavaProject jproject= getJavaProject("JavaProjectTests");
 	IProject project= jproject.getProject();
-
+	DeltaListener listener = new DeltaListener();
 	try {
-		startDeltas();
+		startDeltas(listener);
 		project.close(null);
 		assertDeltas(
 			"Unexpected delta 1",
 			"JavaProjectTests[*]: {CLOSED}\n" +
-			"ResourceDelta(/JavaProjectTests)"
+			"ResourceDelta(/JavaProjectTests)", listener
 		);
 	} finally {
-		stopDeltas();
+		stopDeltas(listener);
 		project.open(null);
 	}
 }

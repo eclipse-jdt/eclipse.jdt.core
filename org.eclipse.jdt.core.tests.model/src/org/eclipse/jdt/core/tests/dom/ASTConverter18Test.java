@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.ResolvedBinaryMethod;
 
 @SuppressWarnings({"rawtypes"})
@@ -1579,7 +1580,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("vlambda -> {\n  return 200;\n}\n", lambdaExpression.toString());
 		assertTrue(lambdaExpression.parameters().size() == 1);
 		IMethodBinding binding = lambdaExpression.resolveMethodBinding();
-		assertEquals("private static int lambda$0(int) ", binding.toString());
+		assertEquals("public int foo(int) ", binding.toString());
+		assertEquals("real modifiers", ClassFileConstants.AccPublic, binding.getModifiers());
 		VariableDeclaration variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
 		assertTrue(variableDeclaration instanceof VariableDeclarationFragment);
 		fragment = (VariableDeclarationFragment)variableDeclaration;
@@ -1614,7 +1616,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		LambdaExpression lambdaExpression = (LambdaExpression)expression;
 		assertEquals("vlambda -> 200", lambdaExpression.toString());
 		IMethodBinding binding = lambdaExpression.resolveMethodBinding();
-		assertEquals("private static int lambda$0(int) ", binding.toString());
+		assertEquals("public int foo(int) ", binding.toString());
+		assertEquals("real modifiers", ClassFileConstants.AccPublic, binding.getModifiers());
 		assertTrue(lambdaExpression.parameters().size() == 1);
 		VariableDeclaration variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
 		assertTrue(variableDeclaration instanceof VariableDeclarationFragment);
@@ -1648,7 +1651,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		LambdaExpression lambdaExpression = (LambdaExpression)expression;
 		assertEquals("(int[] ia) -> {\n  return ia.clone();\n}\n", lambdaExpression.toString());
 		IMethodBinding binding = lambdaExpression.resolveMethodBinding();
-		assertEquals("private static java.lang.Object lambda$0(int[]) ", binding.toString());
+		assertEquals("public java.lang.Object foo(int[]) ", binding.toString());
+		assertEquals("real modifiers", ClassFileConstants.AccPublic, binding.getModifiers());
 		assertTrue(lambdaExpression.parameters().size() == 1);
 		VariableDeclaration variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
 		assertTrue(variableDeclaration instanceof SingleVariableDeclaration);
@@ -1690,7 +1694,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		LambdaExpression lambdaExpression = (LambdaExpression)expression;
 		assertEquals("() -> {\n  System.out.println(this);\n  I j=() -> {\n    System.out.println(this);\n    I k=() -> {\n      System.out.println(this);\n    }\n;\n  }\n;\n}\n", lambdaExpression.toString());
 		IMethodBinding binding = lambdaExpression.resolveMethodBinding();
-		assertEquals("private void lambda$0() ", binding.toString());
+		assertEquals("public void doit() ", binding.toString());
+		assertEquals("real modifiers", ClassFileConstants.AccPublic, binding.getModifiers());
 		assertTrue(lambdaExpression.parameters().size() == 0);
 	}
 
@@ -1943,7 +1948,8 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		LambdaExpression lambdaExpression = (LambdaExpression)expression;
 		assertEquals("() -> () -> 10", lambdaExpression.toString());
 		IMethodBinding binding = lambdaExpression.resolveMethodBinding();
-		assertEquals("private static test399793.J lambda$0() ", binding.toString());
+		assertEquals("public test399793.J foo() ", binding.toString());
+		assertEquals("real modifiers", ClassFileConstants.AccPublic, binding.getModifiers());
 		assertTrue(lambdaExpression.parameters().size() == 0);
 	}	
 	
@@ -4938,7 +4944,7 @@ public void testBug447062() throws JavaModelException {
  * 
  * @throws JavaModelException
  */
-public void _testBug425601_001() throws JavaModelException {
+public void testBug425601_001() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/testBug425601_001/Outer.java",
 			true/* resolve */);
 	String contents = "package testBug425601_001;\n" +
@@ -4983,7 +4989,7 @@ public void _testBug425601_001() throws JavaModelException {
  * 
  * @throws JavaModelException
  */
-public void _testBug425601_002() throws JavaModelException {
+public void testBug425601_002() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/testBug425601_002/Outer.java",
 			true/* resolve */);
 	String contents = "package testBug425601_002;\n" +
@@ -5137,4 +5143,53 @@ public void testBug443232() throws JavaModelException {
 		assertTrue("Test Failed", false);
 	}
 }
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=429813
+ * 
+ * @throws JavaModelException
+ */
+public void test429813() throws JavaModelException {
+	this.workingCopy = getWorkingCopy("/Converter18/src/test429813/Snippet.java",
+			true/* resolve */);
+	String contents = "package test429813;"
+			+ "public class Snippet {\n"
+			+ "		Function<Integer, int[]> m1L = n -> new int[n];\n"
+			+ "}"
+			+ "interface Function<T, R> {\n"
+			+ "   public R apply(T t);\n"
+			+ "}\n";
+	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 0);
+	FieldDeclaration fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(0);
+	VariableDeclarationFragment fragment = (VariableDeclarationFragment)fieldDeclaration.fragments().get(0);
+	Expression expression = fragment.getInitializer();
+	assertTrue(expression instanceof LambdaExpression);
+	LambdaExpression lambdaExpression = (LambdaExpression)expression;
+	IMethodBinding binding = lambdaExpression.resolveMethodBinding();
+	IJavaElement element = binding.getJavaElement();
+	assertEquals("Not a method", IJavaElement.METHOD, element.getElementType());
+	assertFalse("Should not be a synthetic", binding.isSynthetic());
+}
+
+public void test429813a() throws JavaModelException {
+	this.workingCopy = getWorkingCopy("/Converter18/src/test429813/Snippet.java",
+			true/* resolve */);
+	String contents = "package test429813;"
+			+ "interface FTest {\n"
+			+ "		Object foo (int[]... ints);\n"
+			+ "};"
+			+ "class TestX {"
+			+ "		FTest fi= ints -> null;\n"
+			+ "}\n";
+	CompilationUnit cu = (CompilationUnit) buildAST(contents, this.workingCopy);
+	TypeDeclaration typedeclaration = (TypeDeclaration) getASTNode(cu, 1);
+	FieldDeclaration fieldDeclaration = (FieldDeclaration) typedeclaration.bodyDeclarations().get(0);
+	VariableDeclarationFragment fragment = (VariableDeclarationFragment)fieldDeclaration.fragments().get(0);
+	Expression expression = fragment.getInitializer();
+	assertTrue(expression instanceof LambdaExpression);
+	LambdaExpression lambdaExpression = (LambdaExpression)expression;
+	IMethodBinding binding = lambdaExpression.resolveMethodBinding();
+	assertTrue("Should be a varargs", binding.isVarargs());
+}
+
 }

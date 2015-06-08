@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *     Stephan Herrmann - Contribution for
  *								Bug 429958 - [1.8][null] evaluate new DefaultLocation attribute of @NonNullByDefault
  *								Bug 435570 - [1.8][null] @NonNullByDefault illegally tries to affect "throws E"
+ *								Bug 466713 - Null Annotations: NullPointerException using <int @Nullable []> as Type Param
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -182,18 +183,31 @@ public class ArrayTypeReference extends SingleTypeReference {
 	}
 	
 	@Override
-	public boolean hasNullTypeAnnotation() {
-    	if (super.hasNullTypeAnnotation())
-    		return true;
-    	if (this.resolvedType != null && !this.resolvedType.hasNullTypeAnnotations())
-    		return false; // shortcut
-    	if (this.annotationsOnDimensions != null) {
-    		for (int i = 0; i < this.annotationsOnDimensions.length; i++) {
-				Annotation[] innerAnnotations = this.annotationsOnDimensions[i];
-				if (containsNullAnnotation(innerAnnotations))
+	public boolean hasNullTypeAnnotation(AnnotationPosition position) {
+		switch (position) {
+			case LEAF_TYPE:
+				// ignore annotationsOnDimensions:
+				return super.hasNullTypeAnnotation(position);
+			case MAIN_TYPE:
+				// outermost dimension only:
+				if (this.annotationsOnDimensions != null && this.annotationsOnDimensions.length > 0) {
+					Annotation[] innerAnnotations = this.annotationsOnDimensions[0];
+					return containsNullAnnotation(innerAnnotations);
+				}
+				break;
+			case ANY:
+				if (super.hasNullTypeAnnotation(position))
 					return true;
-			}
-    	}
+				if (this.resolvedType != null && !this.resolvedType.hasNullTypeAnnotations())
+					return false; // shortcut
+				if (this.annotationsOnDimensions != null) {
+					for (int i = 0; i < this.annotationsOnDimensions.length; i++) {
+						Annotation[] innerAnnotations = this.annotationsOnDimensions[i];
+						if (containsNullAnnotation(innerAnnotations))
+							return true;
+					}
+				}
+		}
     	return false;
 	}
 }

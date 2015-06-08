@@ -10,6 +10,9 @@
  *     Ray V. (voidstar@gmail.com) - Contribution for bug 282988
  *     Robin Stocker - Bug 49619 - [formatting] comment formatter leaves whitespace in comments
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] IndexOutOfBoundsException in TokenManager - https://bugs.eclipse.org/462945
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] follow up bug for comments - https://bugs.eclipse.org/458208
+ *     Mateusz Matela <mateusz.matela@gmail.com> - NPE in WrapExecutor during Java text formatting  - https://bugs.eclipse.org/465669
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
@@ -1371,7 +1374,6 @@ public void testBug198074_comments() throws JavaModelException {
 // see also bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=287462
 public void testBug198074_dup201022() throws JavaModelException {
 	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.wrap_before_binary_operator = false;
 	String source =
 		"public class Test {\n" +
 		"\n" +
@@ -1398,7 +1400,6 @@ public void testBug198074_dup201022() throws JavaModelException {
 // duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=213700
 public void testBug198074_dup213700() throws JavaModelException {
 	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.wrap_before_binary_operator = false;
 	String source =
 		"public class Test {\n" +
 		"\n" +
@@ -1905,7 +1906,8 @@ public void testBug281655() throws JavaModelException {
 		"@MessageDriven(mappedName = \"filiality/SchedulerMQService\",\n" + 
 		"		activationConfig = {\n" + 
 		"				@ActivationConfigProperty(propertyName = \"cronTrigger\",\n" + 
-		"						propertyValue = \"0/10 * * * * ?\") })\n" + 
+		"						propertyValue = \"0/10 * * * * ?\")\n" + 
+		"		})\n" + 
 		"@RunAs(\"admin\")\n" + 
 		"@ResourceAdapter(\"quartz-ra.rar\")\n" + 
 		"@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)\n" + 
@@ -8040,9 +8042,11 @@ public void testBug330313_wksp1_07_njl() {
 		"public class X07 {\n" + 
 		"\n" + 
 		"	static final long[] jjtoToken = {\n" + 
-		"			0x7fbfecffL, };\n" + 
+		"			0x7fbfecffL,\n" + 
+		"	};\n" + 
 		"	static final long[] jjtoSkip = {\n" + 
-		"			0x400000L, };\n" + 
+		"			0x400000L,\n" + 
+		"	};\n" + 
 		"\n" + 
 		"}\n"
 	);
@@ -8071,10 +8075,12 @@ public void testBug330313_wksp1_07_njl_bnl() {
 		"\n" + 
 		"	static final long[] jjtoToken =\n" + 
 		"	{\n" + 
-		"			0x7fbfecffL, };\n" + 
+		"			0x7fbfecffL,\n" + 
+		"	};\n" + 
 		"	static final long[] jjtoSkip =\n" + 
 		"	{\n" + 
-		"			0x400000L, };\n" +
+		"			0x400000L,\n" +
+		"	};\n" + 
 		"\n" + 
 		"}\n"
 	);
@@ -8123,7 +8129,8 @@ public void testBug330313_wksp1_09_njl() {
 		"public class X09 {\n" + 
 		"	public Class[] getAdapterList() {\n" + 
 		"		return new Class[] {\n" + 
-		"				IWorkbenchAdapter.class };\n" + 
+		"				IWorkbenchAdapter.class\n" + 
+		"		};\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -8795,7 +8802,6 @@ public void testBug330313_wksp1_24_njl() {
 }
 public void testBug330313_wksp1_25_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.wrap_before_binary_operator = false;
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8810,7 +8816,6 @@ public void testBug330313_wksp1_25_njl() {
 }
 public void testBug330313_wksp1_26_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.wrap_before_binary_operator = false;
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -8961,7 +8966,6 @@ public void testBug330313_wksp1_29_njl() {
 }
 public void testBug330313_wksp1_30_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.wrap_before_binary_operator = false;
 	setPageWidth80();
 	String source =
 		"package wksp1;\n" + 
@@ -9082,7 +9086,6 @@ public void testBug330313_wksp1_33() {
 }
 public void testBug330313_wksp1_33_njl() {
 	this.formatterPrefs.join_wrapped_lines = false;
-	this.formatterPrefs.wrap_before_binary_operator = false;
 	String source =
 		"package wksp1;\n" + 
 		"\n" + 
@@ -9105,8 +9108,8 @@ public void testBug330313_wksp1_33_njl() {
 		"	void foo() {\n" + 
 		"		if (inMetaTag &&\n" + 
 		"				(t1.image.equalsIgnoreCase(\"name\") ||\n" + 
-		"						t1.image.equalsIgnoreCase(\"HTTP-EQUIV\")) &&\n" + 
-		"				t2 != null) {\n" + 
+		"						t1.image.equalsIgnoreCase(\"HTTP-EQUIV\"))\n" + 
+		"				&& t2 != null) {\n" + 
 		"			currentMetaTag = t2.image.toLowerCase();\n" + 
 		"		}\n" + 
 		"	}\n" + 
@@ -9304,7 +9307,8 @@ public void testBug330313_wksp1_39_njl() {
 		"	 * 		\"GeneralPage.DoubleClick\", resName, 1,\n" + 
 		"	 * 		new String[][] {\n" + 
 		"	 * 				{ \"Open Browser\", \"open\" },\n" + 
-		"	 * 				{ \"Expand Tree\", \"expand\" } },\n" + 
+		"	 * 				{ \"Expand Tree\", \"expand\" }\n" + 
+		"	 * 		},\n" + 
 		"	 * 		parent);\n" + 
 		"	 * </pre>\n" + 
 		"	 */\n" + 
@@ -9336,7 +9340,8 @@ public void testBug330313_wksp1_40_njl() {
 		"			/* INACTIVE */ { \"INACTIVE\", \"PARTLY_ACTIVE\", \"PARTLY_ACTIVE\" },\n" + 
 		"			/* PARTLY_ACTIVE */ { \"PARTLY_ACTIVE\", \"PARTLY_ACTIVE\",\n" + 
 		"					\"PARTLY_ACTIVE\" },\n" + 
-		"			/* ACTIVE */ { \"PARTLY_ACTIVE\", \"PARTLY_ACTIVE\", \"ACTIVE\" } };\n" + 
+		"			/* ACTIVE */ { \"PARTLY_ACTIVE\", \"PARTLY_ACTIVE\", \"ACTIVE\" }\n" + 
+		"	};\n" + 
 		"}\n"
 	);
 }
@@ -9507,7 +9512,8 @@ public void testBug330313_wksp1_44_njl() {
 		"				user,\n" + 
 		"				revision,\n" + 
 		"				String.valueOf(delta),\n" + 
-		"				line });\n" + 
+		"				line\n" + 
+		"		});\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -9610,7 +9616,8 @@ public void testBug330313_wksp1_46_njl() {
 		"							IWorkbenchThemeConstants.INACTIVE_TAB_TEXT_COLOR),\n" + 
 		"					new Color[] {\n" + 
 		"							colorRegistry.get(\n" + 
-		"									IWorkbenchThemeConstants.INACTIVE_TAB_BG_START) },\n" + 
+		"									IWorkbenchThemeConstants.INACTIVE_TAB_BG_START)\n" + 
+		"					},\n" + 
 		"					new int[0],\n" + 
 		"					true);\n" + 
 		"		}\n" + 
@@ -9779,7 +9786,8 @@ public void testBug330313_wksp1_50_njl() {
 		"								public char[][] getCompoundName() {\n" + 
 		"									return EvaluationConstants.ROOT_COMPOUND_NAME;\n" + 
 		"								}\n" + 
-		"							} },\n" + 
+		"							}\n" + 
+		"					},\n" + 
 		"					null);\n" + 
 		"		}\n" + 
 		"	}\n" + 
@@ -9984,7 +9992,8 @@ public void testBug330313_wksp1_52_njl() {
 		"								return info.getLocal()\n" + 
 		"										.getType() == IResource.FILE;\n" + 
 		"							}\n" + 
-		"						} }),\n" + 
+		"						}\n" + 
+		"				}),\n" + 
 		"				// Conflicting changes of files will fail if the local is not\n" + 
 		"				// managed\n" + 
 		"				// or is an addition\n" + 
@@ -10011,7 +10020,8 @@ public void testBug330313_wksp1_52_njl() {
 		"								}\n" + 
 		"								return false;\n" + 
 		"							}\n" + 
-		"						} }),\n" + 
+		"						}\n" + 
+		"				}),\n" + 
 		"				// Conflicting changes involving a deletion on one side will\n" + 
 		"				// aways fail\n" + 
 		"				new AndSyncInfoFilter(new FastSyncInfoFilter[] {\n" + 
@@ -10030,7 +10040,8 @@ public void testBug330313_wksp1_52_njl() {
 		"											&& !base.equals(remote));\n" + 
 		"								}\n" + 
 		"							}\n" + 
-		"						} }),\n" + 
+		"						}\n" + 
+		"				}),\n" + 
 		"				// Conflicts where the file type is binary will work but are not\n" + 
 		"				// merged\n" + 
 		"				// so they should be skipped\n" + 
@@ -10059,9 +10070,11 @@ public void testBug330313_wksp1_52_njl() {
 		"								}\n" + 
 		"								return false;\n" + 
 		"							}\n" + 
-		"						} }),\n" + 
+		"						}\n" + 
+		"				}),\n" + 
 		"				// Outgoing changes may not fail but they are skipped as well\n" + 
-		"				new SyncInfoDirectionFilter(SyncInfo.OUTGOING) });\n" + 
+		"				new SyncInfoDirectionFilter(SyncInfo.OUTGOING)\n" + 
+		"		});\n" + 
 		"	}\n" + 
 		"}\n"
 	);
@@ -10112,7 +10125,8 @@ public void testBug330313_wksp1_53_njl_bnl() {
 		"					{ 104, 20 },\n" + 
 		"					{ 108, 21 },\n" + 
 		"					{ 12, 1856 },\n" + 
-		"					{ 13, 1920 } }, };\n" + 
+		"					{ 13, 1920 } },\n" + 
+		"	};\n" + 
 		"}\n"
 	);
 }
@@ -10253,7 +10267,8 @@ public void testBug330313_b286601_04() {
 		"					UNKNOWN,\n" + 
 		"					UNKNOWN,\n" + 
 		"					UNKNOWN,\n" + 
-		"					UNKNOWN } };\n" + 
+		"					UNKNOWN }\n" + 
+		"	};\n" + 
 		"\n" + 
 		"}\n"
 	);
@@ -10299,7 +10314,8 @@ public void testBug330313_b286601_05() {
 		"					\"READ_POTENTIAL\",\n" + 
 		"					\"UNKNOWN\",\n" + 
 		"					\"UNKNOWN\",\n" + 
-		"					\"UNKNOWN\" }, };\n" + 
+		"					\"UNKNOWN\" },\n" + 
+		"	};\n" + 
 		"\n" + 
 		"}\n"
 	);
@@ -10347,7 +10363,8 @@ public void testBug330313_b286601_06() {
 		"					\"READ_POTENTIAL\",\n" + 
 		"					\"UNKNOWN\",\n" + 
 		"					\"UNKNOWN\",\n" + 
-		"					\"UNKNOWN\" }, };\n" + 
+		"					\"UNKNOWN\" },\n" + 
+		"	};\n" + 
 		"\n" + 
 		"}\n"
 	);
@@ -10388,7 +10405,8 @@ public void testBug330313_b286601_07() {
 		"                    \"1234567890123456789012345678901234567890\" },\n" + 
 		"            /* Comment 3 */ {\n" + 
 		"                    \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\",\n" + 
-		"                    \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" }, };\n" + 
+		"                    \"ABCDEFGHIJKLMNOPQRSTUVWXYZ______________\" },\n" + 
+		"    };\n" + 
 		"\n" + 
 		"}\n"
 	);
@@ -10639,5 +10657,280 @@ public void testBug460008() throws Exception {
 	formatSource(source, result, CodeFormatter.K_CLASS_BODY_DECLARATIONS | CodeFormatter.F_INCLUDE_COMMENTS);
 	
 	// K_COMPILATION_UNIT is tested by FormatterRegressionTests#test512() and #test643()
+}
+/**
+ * @bug 462945 - [formatter] IndexOutOfBoundsException in TokenManager
+ * @test no exception is thrown for malformed code
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=462945"
+ */
+public void testBug462945() throws Exception {
+	String source =
+		"package p1;\n" + 
+		"enum ReviewResult {\n" + 
+		"	Good{, Bad\n" + 
+		"}\n";
+	formatSource(source,
+		"package p1;\n" + 
+		"\n" + 
+		"enum ReviewResult {\n" + 
+		"	Good{, Bad\n" + 
+		"}\n"
+	);
+}
+public void testBug407629() throws Exception {
+	String source =
+			"public class X {\n" +
+		"	/**\n" +
+		"	 * Builds a {@link Level}.\n" +
+		"	 * <p>\n" +
+		"	 * Does <b>not</b> set :\n" +
+		"	 * <ul>\n" +
+		"	 * <li>{@link Level#setA(Boolean)</li>\n" +
+		"	 * <li>{@link Level#setB(Long)}</li>\n" +
+		"	 * <li>{@link Level#setC(Integer)}</li>\n" +
+		"	 * </ul>\n" +
+		"	 * </p>\n" +
+		"	 */\n" +
+		"	public static Level buildLevel() {\n" +
+		"		return null;\n" +
+		"	}\n" +
+		"	 \n" +
+		"}\n" +
+		"\n" +
+		"class Level {\n" +
+		"	void setA(Boolean b) {}\n" +
+		"	void setB(Long l) {}\n" +
+		"	void setC(Integer i){}\n" +
+		"}\n";
+	String expected = "public class X {\n" +
+			"	/**\n" +
+			"	 * Builds a {@link Level}.\n" +
+			"	 * <p>\n" +
+			"	 * Does <b>not</b> set :\n" +
+			"	 * <ul>\n" +
+			"	 * <li>{@link Level#setA(Boolean)</li>\n" +
+			"	 * <li>{@link Level#setB(Long)}</li>\n" +
+			"	 * <li>{@link Level#setC(Integer)}</li>\n" +
+			"	 * </ul>\n" +
+			"	 * </p>\n" +
+			"	 */\n" +
+			"	public static Level buildLevel() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"\n" +
+			"}\n" +
+			"\n" +
+			"class Level {\n" +
+			"	void setA(Boolean b) {\n" +
+			"	}\n" +
+			"\n" +
+			"	void setB(Long l) {\n" +
+			"	}\n" +
+			"\n" +
+			"	void setC(Integer i) {\n" +
+			"	}\n" +
+			"}\n";
+	formatSource(source, expected);
+}
+
+public void testBug464312() throws Exception {
+	String source = "/**/int f;";
+	formatSource(source, source, CodeFormatter.K_STATEMENTS);
+}
+/**
+ * @bug 458208: [formatter] follow up bug for comments 
+ * @test test a space is not added after a lambda expression in parenthesis
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=458208#c2"
+ */
+public void testBug458208() throws Exception {
+	String source =
+		"package p;\n" + 
+		"import java.util.function.IntConsumer;\n" + 
+		"class TestInlineLambda1 {\n" + 
+		"	{\n" + 
+		"		IntConsumer op = (x -> {}    );\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source,
+		"package p;\n" + 
+		"\n" + 
+		"import java.util.function.IntConsumer;\n" + 
+		"\n" + 
+		"class TestInlineLambda1 {\n" + 
+		"	{\n" + 
+		"		IntConsumer op = (x -> {\n" + 
+		"		});\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+/**
+ * @bug 458208: [formatter] follow up bug for comments 
+ * @test test that comments in switch statements are properly indented
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=458208#c21"
+ */
+public void testBug458208b() throws Exception {
+	formatSource(
+		"package p;\n" + 
+		"\n" + 
+		"public class C1 {\n" + 
+		"	void foo(int x) {\n" + 
+		"		switch (x) {\n" + 
+		"		// case 1\n" + 
+		"		case 1:\n" + 
+		"			break;\n" + 
+		"		// case 2\n" + 
+		"		case 2:\n" + 
+		"			break;\n" + 
+		"		// no more cases\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	int bar(int x) {\n" + 
+		"		while (true) {\n" + 
+		"			int y = 9;\n" + 
+		"			switch (x) {\n" + 
+		"			// case 1\n" + 
+		"			case 1:\n" + 
+		"				// should return\n" + 
+		"				return y;\n" + 
+		"			// case 2\n" + 
+		"			case 2:\n" + 
+		"				// should break\n" + 
+		"				break;\n" + 
+		"			case 3:\n" + 
+		"				// TODO\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+/**
+ * @bug 458208: [formatter] follow up bug for comments 
+ * @test test that elements separated with empty lines are properly indented
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=458208#c18"
+ */
+public void testBug458208c() throws Exception {
+	final int wrapAllOnColumn = Alignment.M_NEXT_PER_LINE_SPLIT + Alignment.M_INDENT_ON_COLUMN + Alignment.M_FORCE;
+	this.formatterPrefs.alignment_for_enum_constants = wrapAllOnColumn;
+	this.formatterPrefs.alignment_for_arguments_in_enum_constant = wrapAllOnColumn;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = wrapAllOnColumn;
+	String source = 
+		"package p;\n" + 
+		"\n" + 
+		"public enum TestEnum {\n" + 
+		"	FIRST_ENUM(\"first type\",\n" + 
+		"	           new SomeClass(),\n" + 
+		"	           new OtherEnumType[] { OtherEnumType.FOO }),\n" + 
+		"\n" + 
+		"	SECOND_ENUM(\"second type\",\n" + 
+		"	            new SomeClassOtherClass(),\n" + 
+		"	            new OtherEnumType[] { OtherEnumType.BAR }),\n" + 
+		"\n" + 
+		"	THIRD_ENUM(\"third type\",\n" + 
+		"	            new YetAnotherClass(),\n" + 
+		"	            new OtherEnumType[] { OtherEnumType.FOOBAR,\n" + 
+		"	                                  OtherEnumType.FOOBARBAZ,\n" + 
+		"\n" + 
+		"	                                  OtherEnumType.LONGERFOOBARBAZ,\n" + 
+		"	                                  OtherEnumType.MORELETTERSINHERE });\n" + 
+		"\n" + 
+		"	/* data members and methods go here */\n" + 
+		"	TestEnum(String s, Cls s1, OtherEnumType[] e) {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"package p;\n" + 
+		"\n" + 
+		"public enum TestEnum {\n" + 
+		"						FIRST_ENUM(	\"first type\",\n" + 
+		"									new SomeClass(),\n" + 
+		"									new OtherEnumType[] { OtherEnumType.FOO }),\n" + 
+		"\n" + 
+		"						SECOND_ENUM(\"second type\",\n" + 
+		"									new SomeClassOtherClass(),\n" + 
+		"									new OtherEnumType[] { OtherEnumType.BAR }),\n" + 
+		"\n" + 
+		"						THIRD_ENUM(	\"third type\",\n" + 
+		"									new YetAnotherClass(),\n" + 
+		"									new OtherEnumType[] {	OtherEnumType.FOOBAR,\n" + 
+		"															OtherEnumType.FOOBARBAZ,\n" + 
+		"\n" + 
+		"															OtherEnumType.LONGERFOOBARBAZ,\n" + 
+		"															OtherEnumType.MORELETTERSINHERE });\n" + 
+		"\n" + 
+		"	/* data members and methods go here */\n" + 
+		"	TestEnum(String s, Cls s1, OtherEnumType[] e) {\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+/**
+ * @bug 458208: [formatter] follow up bug for comments 
+ * @test test that enum constants are not indented with spaces when "Use spaces to indent wrapped lines" is on
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=458208#c24"
+ */
+public void testBug458208d() throws Exception {
+	this.formatterPrefs.alignment_for_enum_constants = Alignment.M_COMPACT_SPLIT;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	setPageWidth80();
+	String source = 
+		"package p;\n" + 
+		"\n" + 
+		"public enum TestEnum {\n" + 
+		"	ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, ELEVEN, TWELWE, THIRTEEN, FOURTEEN, FIFTEEN;\n" + 
+		"}";
+	formatSource(source,
+		"package p;\n" + 
+		"\n" + 
+		"public enum TestEnum {\n" + 
+		"	ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE, TEN, ELEVEN, TWELWE,\n" + 
+		"	THIRTEEN, FOURTEEN, FIFTEEN;\n" + 
+		"}"
+	);
+}
+/**
+ * @bug 465669: NPE in WrapExecutor during Java text formatting
+ * @test test that no NPE is thrown
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=465669"
+ */
+public void testBug465669() throws Exception {
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.indentation_size = 2;
+	setPageWidth80();
+	String source = 
+		"public class ffffffffffffffffff\r\n" + 
+		"{\r\n" + 
+		"  private static void test(String s)\r\n" + 
+		"  {\r\n" + 
+		"    dddd = (aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff)new dddddddddddddddd()\r\n" + 
+		"  .ttt(null, aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff.class)\r\n" + 
+		"      .ttt(\"bbbbbbb\", xxxxxxxxx.class)\r\n" + 
+		"      .ttt(\"sssssssvvvvvvv\", new fffffffffff(\"xxxx\")\r\n" + 
+		"           .add(\"eeeeeeee\", aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff.ssssssssssssss.class)\r\n" + 
+		"           .add(\"cccccccccc\", aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff.wwwwwwwwwwwwwwww.class)\r\n" + 
+		"           )\r\n" + 
+		"      .bbbbbbbbbbb(s);\r\n" + 
+		"  }\r\n" + 
+		"  \r\n" + 
+		"}";
+	formatSource(source,
+		"public class ffffffffffffffffff {\r\n" + 
+		"  private static void test(String s) {\r\n" + 
+		"    dddd = (aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff) new dddddddddddddddd()\r\n" + 
+		"        .ttt(null, aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff.class)\r\n" + 
+		"        .ttt(\"bbbbbbb\", xxxxxxxxx.class)\r\n" + 
+		"        .ttt(\"sssssssvvvvvvv\",\r\n" + 
+		"            new fffffffffff(\"xxxx\")\r\n" + 
+		"                .add(\"eeeeeeee\",\r\n" + 
+		"                    aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff.ssssssssssssss.class)\r\n" + 
+		"                .add(\"cccccccccc\",\r\n" + 
+		"                    aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff.wwwwwwwwwwwwwwww.class))\r\n" + 
+		"        .bbbbbbbbbbb(s);\r\n" + 
+		"  }\r\n" + 
+		"\r\n" + 
+		"}"
+	);
 }
 }
