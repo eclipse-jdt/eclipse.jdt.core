@@ -108,6 +108,37 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 	}
 
 	/**
+	 * Addresses https://bugs.eclipse.org/465566 ("Organize imports does not remove duplicated
+	 * imports").
+	 */
+	public void testDuplicateImportOmittedWhenRestoreExistingImportsIsFalse() throws Exception {
+		StringBuffer contents = new StringBuffer();
+		contents.append("package pack1;\n");
+		contents.append("\n");
+		contents.append("import java.io.Serializable;\n");
+		contents.append("import java.io.Serializable;\n");
+		contents.append("\n");
+		contents.append("public class Clazz {}");
+		ICompilationUnit cu = createCompilationUnit("pack1", "Clazz", contents.toString());
+
+		String[] order = new String[] { "java" };
+
+		ImportRewrite imports = newImportsRewrite(cu, order, 2, 2, false);
+		imports.setUseContextToFilterImplicitImports(true);
+		imports.addImport("java.io.Serializable");
+
+		apply(imports);
+
+		StringBuffer expected = new StringBuffer();
+		expected.append("package pack1;\n");
+		expected.append("\n");
+		expected.append("import java.io.Serializable;\n");
+		expected.append("\n");
+		expected.append("public class Clazz {}");
+		assertEqualString(cu.getSource(), expected.toString());
+	}
+
+	/**
 	 * Expects that imports can be added for types from an unnamed (default) package, and that such
 	 * imports are not reduced into an on-demand import. Imports of types from an unnamed package
 	 * were legal in versions of Java prior to 1.4.
