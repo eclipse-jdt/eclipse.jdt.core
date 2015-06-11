@@ -11018,4 +11018,33 @@ public void testBug471145() throws JavaModelException {
 		"	}\r\n" + 
 		"}");
 }
+/**
+ * @Bug 469438: ArrayIndexOutOfBoundsException in TokenManager.applyFormatOff (443)
+ * @test test that no exception is thrown
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=469438"
+ */
+public void testBug469438() {
+	this.formatterPrefs.use_tags = true;
+	String source =
+			"public class C1 {\r\n" + 
+			"	int     b;\r\n" + 
+			"\r\n" + 
+			"	/** @formatter:off */\r\n" + 
+			"	private void  a() {\r\n" + 
+			"		// @formatter:on\r\n" + 
+			"		if ()\r\n" + 
+			"	}\r\n" + 
+			"}";
+	formatSource(source,
+			"public class C1 {\r\n" + 
+			"	int b;\r\n" + 
+			"\r\n" + 
+			"	/** @formatter:off */\r\n" + 
+			"	private void  a() {\r\n" + 
+			"		// @formatter:on\r\n" + 
+			"		if ()\r\n" + 
+			"	}\r\n" + 
+			"}"
+			);
+}
 }
