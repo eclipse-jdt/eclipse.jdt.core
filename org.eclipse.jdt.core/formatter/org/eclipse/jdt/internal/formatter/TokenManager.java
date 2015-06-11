@@ -430,8 +430,8 @@ public class TokenManager implements Iterable<Token> {
 		if (this.formatOffTagPairs == null)
 			return;
 		for (Token[] pair : this.formatOffTagPairs) {
-			int index1 = indexOf(pair[0]);
-			int index2 = indexOf(pair[1]);
+			int index1 = findIndex(pair[0].originalStart, -1, false);
+			int index2 = findIndex(pair[1].originalEnd, -1, false);
 			Token unformatted = new Token(pair[0].originalStart, pair[1].originalEnd, TokenNameWHITESPACE);
 			unformatted.setIndent(Math.min(pair[0].getIndent(), findSourcePositionInLine(pair[0].originalStart)));
 			unformatted.putLineBreaksBefore(pair[0].getLineBreaksBefore());
