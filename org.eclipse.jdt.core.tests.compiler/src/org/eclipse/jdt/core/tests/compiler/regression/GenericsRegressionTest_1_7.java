@@ -3005,6 +3005,35 @@ public void testBug462083() {
 			"}\n"
 		});
 }
+public void testBug469653() {
+	String codeContent =
+		"import java.util.*;\n" + 
+		"\n" +
+		"class ImmutableList<E> {\n" +
+		"	static <F> ImmutableList<F> copyOf(Iterable<? extends F> in) { return null; }\n" +
+		"	ImmutableList<E> reverse() { return this; }\n" +
+		"	Iterator<E> iterator() { return null; }\n" +
+		"}\n" + 
+		"public class Code {\n" + 
+		"  public static void test() {\n" + 
+		"      Iterable<? extends String> services = null;\n" + 
+		"      Iterator<String> reverseServices = ImmutableList.copyOf(services).reverse().iterator();\n" + 
+		"  }\n" + 
+		"}";
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		runConformTest(
+			new String[] { "Code.java", codeContent });
+	} else {
+		runNegativeTest(
+			new String[] { "Code.java", codeContent },
+			"----------\n" + 
+			"1. ERROR in Code.java (at line 11)\n" + 
+			"	Iterator<String> reverseServices = ImmutableList.copyOf(services).reverse().iterator();\n" + 
+			"	                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Iterator<capture#1-of ? extends String> to Iterator<String>\n" + 
+			"----------\n");
+	}
+}
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;
 }
