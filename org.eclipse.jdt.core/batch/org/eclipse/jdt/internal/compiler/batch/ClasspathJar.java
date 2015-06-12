@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
@@ -218,8 +217,8 @@ public boolean isPackage(String qualifiedPackageName) {
 				}
 
 			});
-		} catch (JavaModelException e) {
-			e.printStackTrace();
+		} catch (IOException e) {
+			// Ignore and move on
 		}
 	} else {
 		for (Enumeration e = this.zipFile.entries(); e.hasMoreElements(); ) {

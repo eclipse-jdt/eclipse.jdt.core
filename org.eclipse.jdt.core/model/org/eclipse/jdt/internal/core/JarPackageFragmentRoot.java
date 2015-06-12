@@ -100,20 +100,24 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			rawPackageInfo.put(CharOperation.NO_STRINGS, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
 
 			if (this.isJimage) {
-				org.eclipse.jdt.internal.compiler.util.Util.walkModuleImage(getPath().toFile(),
-								new org.eclipse.jdt.internal.compiler.util.Util.JimageVisitor<Path>() {
-					@Override
-					public FileVisitResult visitPackage(Path dir, BasicFileAttributes attrs) throws IOException {
-						initRawPackageInfo(rawPackageInfo, dir.toString(), true, compliance);
-						return FileVisitResult.CONTINUE;
-					}
+				try {
+					org.eclipse.jdt.internal.compiler.util.Util.walkModuleImage(getPath().toFile(),
+									new org.eclipse.jdt.internal.compiler.util.Util.JimageVisitor<Path>() {
+						@Override
+						public FileVisitResult visitPackage(Path dir, BasicFileAttributes attrs) throws IOException {
+							initRawPackageInfo(rawPackageInfo, dir.toString(), true, compliance);
+							return FileVisitResult.CONTINUE;
+						}
 
-					@Override
-					public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
-						initRawPackageInfo(rawPackageInfo, path.toString(), false, compliance);
-						return FileVisitResult.CONTINUE;
-					}
-				});
+						@Override
+						public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+							initRawPackageInfo(rawPackageInfo, path.toString(), false, compliance);
+							return FileVisitResult.CONTINUE;
+						}
+					});
+				} catch (IOException e) {
+					// We are not reading any specific Jimage file, so, move on for now
+				}
 			} else {
 				jar = getJar();
 				for (Enumeration e= jar.entries(); e.hasMoreElements();) {

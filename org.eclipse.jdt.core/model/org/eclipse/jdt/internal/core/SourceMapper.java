@@ -541,9 +541,8 @@ public class SourceMapper
 				complianceLevel = jimagePackageNamesAdderVisitor.complianceLevel;
 				containsADefaultPackage = jimagePackageNamesAdderVisitor.containsADefaultPackage;
 				containsJavaSource = jimagePackageNamesAdderVisitor.containsJavaSource;
-			} catch (JavaModelException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (IOException e) {
+				// We are not reading any specific Jimage file, so, move on for now
 			}
 		} else if (root.isArchive()) {
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();

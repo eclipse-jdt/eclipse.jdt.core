@@ -19,7 +19,6 @@ package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
@@ -90,8 +89,8 @@ static SimpleSet findPackageSet(ClasspathJar jar) {
 					return FileVisitResult.CONTINUE;
 				}
 			});
-		} catch (JavaModelException e) {
-			e.printStackTrace();
+		} catch (IOException e) {
+			// Move on
 		}
 		// TODO: What about caching?
 	} else {

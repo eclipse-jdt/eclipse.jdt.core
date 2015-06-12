@@ -46,8 +46,6 @@ import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -734,9 +732,9 @@ public class Util implements SuffixConstants {
 	 *   
 	 * @param image a java.io.File handle to the JRT image.
 	 * @param visitor an instance of JimageVisitor to be notified of the entries in the JRT image.
-	 * @throws JavaModelException
+	 * @throws IOException
 	 */
-	public static void walkModuleImage(File image, final JimageVisitor<java.nio.file.Path> visitor) throws JavaModelException {
+	public static void walkModuleImage(File image, final JimageVisitor<java.nio.file.Path> visitor) throws IOException {
 		java.nio.file.FileSystem fs = FileSystems.getFileSystem(JRT_URI);
 		Iterable<java.nio.file.Path> roots = fs.getRootDirectories();
 		for (java.nio.file.Path path : roots) {
@@ -770,7 +768,7 @@ public class Util implements SuffixConstants {
 					});
 			    }
 			} catch (Exception e) {
-				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+				throw new IOException(e.getMessage());
 			}
 		}
 	}
