@@ -5228,4 +5228,40 @@ public void testBug445231() {
 	"not anon\n" +
 	"Ok", null);
 }
+public void testBug463728() {
+	runConformTest(
+		new String[] {
+			"Main.java",
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"\n" + 
+			"class Color {\n" + 
+			"	\n" + 
+			"}\n" + 
+			"\n" + 
+			"class TypeMapper<R> {\n" + 
+			"\n" + 
+			"	public TypeMapper() {\n" + 
+			"	}\n" + 
+			"	public R orElse(R result) {\n" + 
+			"		return result;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class Main {\n" + 
+			"	Color A;\n" + 
+			"	Color B;\n" + 
+			"\n" + 
+			"	public static <T, R> TypeMapper<R> mapType(Function<T, R> mapper) {\n" + 
+			"		return new TypeMapper<R>();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public Color getForeground(Object element) {\n" + 
+			"		return mapType(library -> {\n" + 
+			"				return (element != null ? A : B);\n" + 
+			"			}).orElse(null);\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
 }
