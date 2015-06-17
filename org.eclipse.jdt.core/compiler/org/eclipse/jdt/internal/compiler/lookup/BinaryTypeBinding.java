@@ -34,6 +34,7 @@
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *								Bug 453475 - [1.8][null] Contradictory null annotations (4.5 M3 edition)
  *								Bug 454182 - Internal compiler error when using 1.8 compliance for simple project
+ *								Bug 470467 - [null] Nullness of special Enum methods not detected from .class file
  *    Jesper Steen Moller - Contributions for
  *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *								Bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -1552,6 +1553,26 @@ private void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBi
 
 private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding methodBinding, ITypeAnnotationWalker externalAnnotationWalker) {
 	if (!isPrototype()) throw new IllegalStateException();
+	if (isEnum()) {
+		int purpose = 0;
+		if (CharOperation.equals(TypeConstants.VALUEOF, method.getSelector())
+				&& methodBinding.parameters.length == 1
+				&& methodBinding.parameters[0].id == TypeIds.T_JavaLangString)
+		{
+			purpose = SyntheticMethodBinding.EnumValueOf;
+		} else if (CharOperation.equals(TypeConstants.VALUES, method.getSelector())
+				&& methodBinding.parameters == Binding.NO_PARAMETERS) {
+			purpose = SyntheticMethodBinding.EnumValues;
+		}
+		if (purpose != 0) {
+			boolean needToDefer = this.environment.globalOptions.useNullTypeAnnotations == null;
+			if (needToDefer)
+				this.environment.deferredEnumMethods.add(methodBinding);
+			else
+				SyntheticMethodBinding.markNonNull(methodBinding, purpose, this.environment);
+			return;
+		}
+	}
 	char[][] nullableAnnotationName = this.environment.getNullableAnnotationName();
 	char[][] nonNullAnnotationName = this.environment.getNonNullAnnotationName();
 	char[][] nonNullByDefaultAnnotationName = this.environment.getNonNullByDefaultAnnotationName();

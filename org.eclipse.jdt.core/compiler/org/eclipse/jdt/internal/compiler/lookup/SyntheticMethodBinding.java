@@ -10,6 +10,7 @@
  *		Stephan Herrmann - Contribution for
  *								bug 400710 - [1.8][compiler] synthetic access to default method generates wrong code
  *								Bug 459967 - [null] compiler should know about nullness of special methods like MyEnum.valueOf()
+ *								Bug 470467 - [null] Nullness of special Enum methods not detected from .class file
  *      Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          	Bug 405104 - [1.8][compiler][codegen] Implement support for serializeable lambdas
  *******************************************************************************/
@@ -561,23 +562,27 @@ public class SyntheticMethodBinding extends MethodBinding {
 	}
 
 	public void markNonNull(LookupEnvironment environment) {
+		markNonNull(this, this.purpose, environment);
+	}
+
+	static void markNonNull(MethodBinding method, int purpose, LookupEnvironment environment) {
 		// deferred update of the return type
-	    switch (this.purpose) {
+	    switch (purpose) {
 			case EnumValues:
 				if (environment.usesNullTypeAnnotations()) {
-					TypeBinding elementType = ((ArrayBinding)this.returnType).leafComponentType();
+					TypeBinding elementType = ((ArrayBinding)method.returnType).leafComponentType();
 					AnnotationBinding nonNullAnnotation = environment.getNonNullAnnotation();
 					elementType = environment.createAnnotatedType(elementType, new AnnotationBinding[]{ environment.getNonNullAnnotation() });
-					this.returnType = environment.createArrayType(elementType, 1, new AnnotationBinding[]{ nonNullAnnotation, null });
+					method.returnType = environment.createArrayType(elementType, 1, new AnnotationBinding[]{ nonNullAnnotation, null });
 				} else {
-					this.tagBits |= TagBits.AnnotationNonNull;
+					method.tagBits |= TagBits.AnnotationNonNull;
 				}
 				return;
 			case EnumValueOf:
 				if (environment.usesNullTypeAnnotations()) {
-					this.returnType = environment.createAnnotatedType(this.returnType, new AnnotationBinding[]{ environment.getNonNullAnnotation() });
+					method.returnType = environment.createAnnotatedType(method.returnType, new AnnotationBinding[]{ environment.getNonNullAnnotation() });
 				} else {
-					this.tagBits |= TagBits.AnnotationNonNull;
+					method.tagBits |= TagBits.AnnotationNonNull;
 				}
 				return;
 		}
