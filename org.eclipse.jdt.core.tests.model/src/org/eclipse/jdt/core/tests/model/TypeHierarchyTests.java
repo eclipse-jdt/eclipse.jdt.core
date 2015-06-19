@@ -2807,4 +2807,54 @@ public void testBug436139() throws CoreException, IOException {
 			deleteProject(prj);
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=469668
+public void testBug469668() throws CoreException, IOException {
+	IJavaProject project = null;
+	try {
+		project = createJavaProject("Bug469668", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
+		createFolder("/Bug469668/src/hierarchy");
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 1; i < 21; i++) {
+			String unitName = "I" + i;
+			String content = "package hierarchy;\n" +
+			"public interface " + unitName + " " + buffer.toString() + " {}";
+			createFile("/Bug469668/src/hierarchy/" + unitName + ".java", content);
+			if (i == 1) {
+				buffer.append(" extends ");
+			}
+			if (i > 1 && i < 20) buffer.append(", ");
+			buffer.append(unitName);
+		}
+
+		IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
+		IRegion region = JavaCore.newRegion();
+		for (IPackageFragmentRoot root: roots) {
+			if(root.getRawClasspathEntry().getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+				region.add(root);
+			}
+		}
+
+		ITypeHierarchy hierarchy = JavaCore.newTypeHierarchy(region, null, new NullProgressMonitor());
+		IType type = project.findType("hierarchy.I15");
+		IType[] supertypes = hierarchy.getAllSupertypes(type);
+		assertEquals(14, supertypes.length);
+
+		type = project.findType("hierarchy.I5");
+		IType[]	subtypes = hierarchy.getAllSubtypes(type);
+		assertEquals("Incorrect number of entries for subtype", 15, subtypes.length);
+
+		int i20Count = 0;
+		for (IType t: subtypes) {
+			if("hierarchy.I20".equals(t.getFullyQualifiedName())) {
+				i20Count++;
+			}
+		}
+		assertEquals("Multiple entries of the same type in the hierarchy", 1, i20Count);
+		assertEquals(15, subtypes.length);
+
+	} finally {
+		if (project != null)
+			deleteProject(project);
+	}
+}
 }

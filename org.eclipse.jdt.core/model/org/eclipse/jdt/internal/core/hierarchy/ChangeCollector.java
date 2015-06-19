@@ -368,7 +368,7 @@ public class ChangeCollector {
 	private void getAllTypesFromHierarchy(JavaElement element, ArrayList allTypes) {
 		switch (element.getElementType()) {
 			case IJavaElement.COMPILATION_UNIT:
-				ArrayList types = (ArrayList)this.hierarchy.files.get(element);
+				ArrayList types = this.hierarchy.files.get(element);
 				if (types != null) {
 					allTypes.addAll(types);
 				}
@@ -377,7 +377,7 @@ public class ChangeCollector {
 			case IJavaElement.INITIALIZER:
 			case IJavaElement.FIELD:
 			case IJavaElement.METHOD:
-				types = (ArrayList)this.hierarchy.files.get(((IMember)element).getCompilationUnit());
+				types = this.hierarchy.files.get(((IMember)element).getCompilationUnit());
 				if (types != null) {
 					for (int i = 0, length = types.size(); i < length; i++) {
 						IType type = (IType)types.get(i);

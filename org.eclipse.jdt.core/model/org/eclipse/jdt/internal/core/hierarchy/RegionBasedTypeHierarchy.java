@@ -21,7 +21,6 @@ import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.Region;
 import org.eclipse.jdt.internal.core.TypeVector;
 
-@SuppressWarnings({"rawtypes"})
 public class RegionBasedTypeHierarchy extends TypeHierarchy {
 	/**
 	 * The region of types for which to build the hierarchy
@@ -80,11 +79,11 @@ protected void initializeRegions() {
 	for (int i = 0; i < roots.length; i++) {
 		IJavaElement root = roots[i];
 		if (root instanceof IOpenable) {
-			this.files.put(root, new ArrayList());
+			this.files.put((IOpenable) root, new ArrayList<IType>());
 		} else {
 			Openable o = (Openable) ((JavaElement) root).getOpenableParent();
 			if (o != null) {
-				this.files.put(o, new ArrayList());
+				this.files.put(o, new ArrayList<IType>());
 			}
 		}
 		checkCanceled();
@@ -124,10 +123,10 @@ public void pruneDeadBranches() {
  * Returns whether all subtypes of the given type have been pruned.
  */
 private boolean pruneDeadBranches(IType type) {
-	TypeVector subtypes = (TypeVector)this.typeToSubtypes.get(type);
+	TypeVector subtypes = this.typeToSubtypes.get(type);
 	if (subtypes == null) return true;
 	pruneDeadBranches(subtypes.copy().elements());
-	subtypes = (TypeVector)this.typeToSubtypes.get(type);
+	subtypes = this.typeToSubtypes.get(type);
 	return (subtypes == null || subtypes.size == 0);
 }
 private void pruneDeadBranches(IType[] types) {
@@ -150,16 +149,16 @@ protected void removeType(IType type) {
 			removeType(subtypes[i]);
 		}
 	}
-	IType superclass = (IType)this.classToSuperclass.remove(type);
+	IType superclass = this.classToSuperclass.remove(type);
 	if (superclass != null) {
-		TypeVector types = (TypeVector)this.typeToSubtypes.get(superclass);
+		TypeVector types = this.typeToSubtypes.get(superclass);
 		if (types != null) types.remove(type);
 	}
-	IType[] superinterfaces = (IType[])this.typeToSuperInterfaces.remove(type);
+	IType[] superinterfaces = this.typeToSuperInterfaces.remove(type);
 	if (superinterfaces != null) {
 		for (int i = 0, length = superinterfaces.length; i < length; i++) {
 			IType superinterface = superinterfaces[i];
-			TypeVector types = (TypeVector)this.typeToSubtypes.get(superinterface);
+			TypeVector types = this.typeToSubtypes.get(superinterface);
 			if (types != null) types.remove(type);
 		}
 	}
