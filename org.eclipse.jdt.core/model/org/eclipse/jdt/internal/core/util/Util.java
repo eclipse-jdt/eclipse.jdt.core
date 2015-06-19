@@ -851,8 +851,8 @@ public class Util {
 					}
 					if (path != null) {
 						if (JavaModelManager.isJimage(path)) {
-							// TODO: Revisit: Possibly a wrong assumption depending on how things turn out in Java 9 world.
-							return ClassFileConstants.JDK1_9;
+							// TODO(BETA_JAVA9): At the moment, there's no new class file version for Java 9.
+							return ClassFileConstants.JDK1_8;
 						} else {
 							jar = JavaModelManager.getJavaModelManager().getZipFile(path);
 							for (Enumeration e= jar.entries(); e.hasMoreElements();) {

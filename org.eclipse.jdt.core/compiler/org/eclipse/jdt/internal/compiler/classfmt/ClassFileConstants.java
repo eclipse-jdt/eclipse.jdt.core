@@ -112,7 +112,7 @@ public interface ClassFileConstants {
 	int MAJOR_VERSION_1_6 = 50;
 	int MAJOR_VERSION_1_7 = 51;
 	int MAJOR_VERSION_1_8 = 52;
-	int MAJOR_VERSION_1_9 = 52; // This needs change, but at the moment runtime don't support this class version.
+	int MAJOR_VERSION_1_9 = 53; // At the moment, runtime don't support this class version.
 
 	int MINOR_VERSION_0 = 0;
 	int MINOR_VERSION_1 = 1;
