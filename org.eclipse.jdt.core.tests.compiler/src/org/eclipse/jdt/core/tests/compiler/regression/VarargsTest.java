@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 IBM Corporation and others.
+ * Copyright (c) 2005, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3705,4 +3705,26 @@ public class VarargsTest extends AbstractComparableTest {
 			"    }\n" +
 			"}\n"});
 	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=470370, [1.8] Wrong varargs behaviour causes ArrayStoreException
+		public void test470370() {
+			runConformTest(
+			new String[] {
+				"TestVarargs.java",
+				"import java.util.*;\n" + 
+				"public class TestVarargs {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        bar(new Class<?>[]{});\n" + 
+				"        foo(new Class<?>[]{});\n" + 
+				"    }\n" + 
+				"    public static Object foo(Class<?>[] sig) {\n" + 
+				"        return Arrays.asList(Arrays.copyOfRange(sig, 0, sig.length));\n" + 
+				"    }\n" + 
+				"    public static List<Class<?>> bar(Class<?>[] sig) {\n" + 
+				"        return Arrays.asList(Arrays.copyOfRange(sig, 0, sig.length));\n" + 
+				"    }\n" + 
+				"}"
+			},
+			"");
+		}
 }
