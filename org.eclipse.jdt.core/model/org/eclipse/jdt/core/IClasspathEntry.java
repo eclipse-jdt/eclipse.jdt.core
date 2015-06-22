@@ -154,13 +154,6 @@ public interface IClasspathEntry {
 	int CPE_CONTAINER = 5;
 
 	/**
-	 * Entry kind constant describing a jrt - jimage 
-	 *
-	 * @since 3.11
-	 */
-	int CPE_JIMAGE = 6;
-
-	/**
 	 * Returns whether the access rules of the project's exported entries should be combined with this entry's access rules.
 	 * Returns true for container entries.
 	 * Returns false otherwise.
