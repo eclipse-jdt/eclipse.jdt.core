@@ -8102,4 +8102,41 @@ public void testBug467032() {
 				"}\n"
 			}, getCompilerOptions(), "");
 }
+public void testBug446217() {
+	runConformTestWithLibs(
+		new String[] {
+			"sol/package-info.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"package sol;",
+			"sol/FuncList.java",
+			"\n" + 
+			"package sol;\n" + 
+			"\n" + 
+			"interface FuncList<A> {}\n" + 
+			"	\n"	+
+			"@SuppressWarnings(\"unused\")\n" + 
+			"final class Node<A> implements FuncList<A> {\n" + 
+			"	private final A a;\n" + 
+			"	private final FuncList<A> tail;\n" + 
+			"	\n" + 
+			"	Node(final A a, final FuncList<A> tail) {\n" + 
+			"		this.a = a;\n" + 
+			"		this.tail = tail;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"final class Empty<A> implements FuncList<A> {\n" + 
+			"	Empty() {}\n" + 
+			"}\n",
+			"sol/Test.java",
+			"package sol;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"	public static void main(final String[] args) {\n" + 
+			"		 System.out.println(new Node<>(\"A\", new Empty<>()));\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(), "");
+}
 }
