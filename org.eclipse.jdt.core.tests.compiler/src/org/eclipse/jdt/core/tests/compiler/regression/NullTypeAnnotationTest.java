@@ -8139,4 +8139,29 @@ public void testBug446217() {
 		},
 		getCompilerOptions(), "");
 }
+public void testBug456584() {
+	runConformTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import java.util.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"@NonNullByDefault\n" + 
+			"public class Test {\n" + 
+			"\n" + 
+			"  public static final <T,R> @NonNull R applyRequired(final T input, final Function<? super T,? extends R> function) { // Warning on '@NonNull R': \"The nullness annotation is redundant with a default that applies to this location\"\n" + 
+			"    return Objects.requireNonNull(function.apply(input));\n" + 
+			"  }\n" + 
+			"\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in Test.java (at line 9)\n" + 
+		"	return Objects.requireNonNull(function.apply(input));\n" + 
+		"	                              ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'capture#of ? extends R\' needs unchecked conversion to conform to \'@NonNull capture#of ? extends R\'\n" + 
+		"----------\n");
+}
 }
