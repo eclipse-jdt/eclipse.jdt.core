@@ -25,6 +25,7 @@
  *								Bug 443347 - [1.8][null] @NonNullByDefault should not affect constructor arguments of an anonymous instantiation
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *								Bug 466713 - Null Annotations: NullPointerException using <int @Nullable []> as Type Param
+ *								Bug 456584 - [1.8][null] Bogus warning for return type variable's @NonNull annotation being 'redundant'
  *     Jesper Steen Moller - Contributions for
  *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *******************************************************************************/
@@ -541,8 +542,8 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 		if (added)
 			this.tagBits |= TagBits.HasParameterAnnotations;
 	}
-	if (this.returnType != null && hasNonNullDefaultFor(DefaultLocationReturnType, true)) {
-		if (this.returnType.acceptsNonNullDefault() && (this.returnType.tagBits & TagBits.AnnotationNullMASK) == 0) {
+	if (this.returnType != null && hasNonNullDefaultFor(DefaultLocationReturnType, true) && this.returnType.acceptsNonNullDefault()) {
+		if ((this.returnType.tagBits & TagBits.AnnotationNullMASK) == 0) {
 			this.returnType = env.createAnnotatedType(this.returnType, new AnnotationBinding[]{env.getNonNullAnnotation()});
 		} else if (sourceMethod instanceof MethodDeclaration && (this.returnType.tagBits & TagBits.AnnotationNonNull) != 0 
 						&& ((MethodDeclaration)sourceMethod).hasNullTypeAnnotation(AnnotationPosition.MAIN_TYPE)) {
