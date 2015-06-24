@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -946,5 +947,170 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		// check that the error is even worse now:
 		reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
 		assertNoProblems(reconciled.getProblems());
+	}
+	
+	// ===== white box tests for ExternalAnnotationUtil =====
+
+	public void testBug470666a() throws CoreException, IOException {
+		myCreateJavaProject("TestAnnot");
+		String lib1Content =
+				"package libs;\n" + 
+				"\n" +
+				"interface Function<T,U> {}\n" +
+				"interface Collector<T,A,R> {}\n" +
+				"public class Collectors {\n" +
+				"	 public static <T, U, A, R>\n" + 
+				"    Collector<T, ?, R> mapping(Function<? super T, ? extends U> mapper,\n" + 
+				"                               Collector<? super U, A, R> downstream) { return null; }\n" +
+				"}\n";
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+				"/UnannotatedLib/libs/Collectors.java",
+				lib1Content
+			}, null);
+
+		// acquire library AST:
+		IType type = this.project.findType("libs.Collectors");
+		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setSource(libWorkingCopy);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(false);
+		parser.setBindingsRecovery(false);
+		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+		libWorkingCopy.discardWorkingCopy();
+		
+		// find type binding:
+		int start = lib1Content.indexOf("T, ? extends U>"); // bound of type param of method param
+		ASTNode name = NodeFinder.perform(unit, start, 0);
+		assertTrue("should be simple name", name.getNodeType() == ASTNode.SIMPLE_NAME);
+		ASTNode method = name.getParent();
+		while (!(method instanceof MethodDeclaration))
+			method = method.getParent();
+		IMethodBinding methodBinding = ((MethodDeclaration)method).resolveBinding();
+		
+		// find annotation file (not yet existing):
+		IFile annotationFile = ExternalAnnotationUtil.getAnnotationFile(this.project, methodBinding.getDeclaringClass(), null);
+		assertFalse("file should not exist", annotationFile.exists());
+		assertEquals("file path", "/TestAnnot/annots/libs/Collectors.eea", annotationFile.getFullPath().toString());
+
+		// annotate:
+		String originalSignature = ExternalAnnotationUtil.extractGenericSignature(methodBinding);
+		String[] annotatedSign = ExternalAnnotationUtil.annotateParameterType(
+				originalSignature, 
+				"Llibs/Function<-T1T;+TU;>;",  // <- @NonNull T
+				0, MergeStrategy.OVERWRITE_ANNOTATIONS);
+		assertEquals("dry-run result", "[<T:Ljava/lang/Object;U:Ljava/lang/Object;A:Ljava/lang/Object;R:Ljava/lang/Object;>(, " + 
+				"Llibs/Function<-TT;+TU;>;, " + 
+				"Llibs/Function<-T1T;+TU;>;, " +  // <- @NonNull T
+				"Llibs/Collector<-TU;TA;TR;>;)Llibs/Collector<TT;*TR;>;]",
+				Arrays.toString(annotatedSign));
+	}
+
+	public void testBug470666b() throws CoreException, IOException {
+		myCreateJavaProject("TestAnnot");
+		String lib1Content =
+				"package libs;\n" + 
+				"\n" +
+				"interface Function<T,U> {}\n" +
+				"interface Collector<T,A,R> {}\n" +
+				"public class Collectors {\n" +
+				"	 public static <T, U, A, R>\n" + 
+				"    Collector<T, ?, R> mapping(Function<? super T, ? extends U> mapper,\n" + 
+				"                               Collector<? super U, A, R> downstream) { return null; }\n" +
+				"}\n";
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+				"/UnannotatedLib/libs/Collectors.java",
+				lib1Content
+			}, null);
+
+		// acquire library AST:
+		IType type = this.project.findType("libs.Collectors");
+		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setSource(libWorkingCopy);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(false);
+		parser.setBindingsRecovery(false);
+		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+		libWorkingCopy.discardWorkingCopy();
+		
+		// find type binding:
+		int start = lib1Content.indexOf("T, ?, R>"); // bound of return type
+		ASTNode name = NodeFinder.perform(unit, start, 0);
+		assertTrue("should be simple name", name.getNodeType() == ASTNode.SIMPLE_NAME);
+		ASTNode method = name.getParent();
+		while (!(method instanceof MethodDeclaration))
+			method = method.getParent();
+		IMethodBinding methodBinding = ((MethodDeclaration)method).resolveBinding();
+		
+		// find annotation file (not yet existing):
+		IFile annotationFile = ExternalAnnotationUtil.getAnnotationFile(this.project, methodBinding.getDeclaringClass(), null);
+		assertFalse("file should not exist", annotationFile.exists());
+		assertEquals("file path", "/TestAnnot/annots/libs/Collectors.eea", annotationFile.getFullPath().toString());
+
+		// annotate:
+		String originalSignature = ExternalAnnotationUtil.extractGenericSignature(methodBinding);
+		String[] annotatedSign = ExternalAnnotationUtil.annotateReturnType(
+				originalSignature, 
+				"Llibs/Collector<T1T;*TR;>;",  // <- @NonNull T
+				MergeStrategy.OVERWRITE_ANNOTATIONS);
+		assertEquals("dry-run result", "[<T:Ljava/lang/Object;U:Ljava/lang/Object;A:Ljava/lang/Object;R:Ljava/lang/Object;>(Llibs/Function<-TT;+TU;>;Llibs/Collector<-TU;TA;TR;>;), " + 
+				"Llibs/Collector<TT;*TR;>;, " +
+				"Llibs/Collector<T1T;*TR;>;, " +  // <- @NonNull T
+				"]",
+				Arrays.toString(annotatedSign));
+	}
+
+	public void testBug464081() throws CoreException, IOException {
+		myCreateJavaProject("TestAnnot");
+		String lib1Content =
+				"package libs;\n" + 
+				"\n" +
+				"interface List<T> {}\n" +
+				"public class Collections {\n" +
+				"	 public static <T> List<T> unmodifiableList(List<? extends T> list) { return null; }\n" +
+				"}\n";
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+				"/UnannotatedLib/libs/Collections.java",
+				lib1Content
+			}, null);
+
+		// acquire library AST:
+		IType type = this.project.findType("libs.Collections");
+		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setSource(libWorkingCopy);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(false);
+		parser.setBindingsRecovery(false);
+		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+		libWorkingCopy.discardWorkingCopy();
+		
+		// find type binding:
+		int start = lib1Content.indexOf("List<? extends T>");
+		ASTNode name = NodeFinder.perform(unit, start, 0);
+		assertTrue("should be simple name", name.getNodeType() == ASTNode.SIMPLE_NAME);
+		ASTNode method = name.getParent();
+		while (!(method instanceof MethodDeclaration))
+			method = method.getParent();
+		IMethodBinding methodBinding = ((MethodDeclaration)method).resolveBinding();
+		
+		// find annotation file (not yet existing):
+		IFile annotationFile = ExternalAnnotationUtil.getAnnotationFile(this.project, methodBinding.getDeclaringClass(), null);
+		assertFalse("file should not exist", annotationFile.exists());
+		assertEquals("file path", "/TestAnnot/annots/libs/Collections.eea", annotationFile.getFullPath().toString());
+
+		// annotate:
+		String originalSignature = ExternalAnnotationUtil.extractGenericSignature(methodBinding);
+		String[] annotatedSign = ExternalAnnotationUtil.annotateParameterType(
+				originalSignature, 
+				"Llibs/List<+T1T;>;",  // <- @NonNull T
+				0, MergeStrategy.OVERWRITE_ANNOTATIONS);
+		assertEquals("dry-run result",
+				"[<T:Ljava/lang/Object;>(, " +
+				"Llibs/List<+TT;>;, " + 
+				"Llibs/List<+T1T;>;, " +  // <- @NonNull T
+				")Llibs/List<TT;>;]",
+				Arrays.toString(annotatedSign));
 	}
 }
