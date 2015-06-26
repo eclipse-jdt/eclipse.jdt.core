@@ -13,6 +13,7 @@
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] IndexOutOfBoundsException in TokenManager - https://bugs.eclipse.org/462945
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] follow up bug for comments - https://bugs.eclipse.org/458208
  *     Mateusz Matela <mateusz.matela@gmail.com> - NPE in WrapExecutor during Java text formatting  - https://bugs.eclipse.org/465669
+ *     Till Brychcy - Bug 471090 - Java Code Formatter breaks code if single line comments contain unicode escape - https://bugs.eclipse.org/471090
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
@@ -11096,5 +11097,18 @@ public void testBug470506() {
 		"\r\n" + 
 		"}";
 	formatSource(source);
+}
+public void testBug471090() throws JavaModelException {
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.indentation_size = 2;
+	String source = 
+		"class FormatterBug {\n" + 
+		"// \\u00C4\n" +
+		"}\n";
+	formatSource(source, 
+		"class FormatterBug {\n" + 
+		"  // \\u00C4\n" + 
+		"}\n"
+	);
 }
 }
