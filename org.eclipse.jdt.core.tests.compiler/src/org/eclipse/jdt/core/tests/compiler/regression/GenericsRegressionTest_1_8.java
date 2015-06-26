@@ -5264,4 +5264,36 @@ public void testBug463728() {
 			"}\n"
 		});
 }
+public void testBug470942() {
+	runConformTest(
+		new String[] {
+			"EclipeMarsLamdaIssueWontBuild.java",
+			"import java.util.function.Supplier;\n" + 
+			"\n" + 
+			"public class EclipeMarsLamdaIssueWontBuild {\n" + 
+			"	class MyClass {\n" + 
+			"		long getNumber() {\n" + 
+			"			return 0;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private interface VoidSupplier {\n" + 
+			"		void perform();\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	long processTxContent() {\n" + 
+			"		return withLogging(() -> new MyClass().getNumber());\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static void withLogging(final VoidSupplier supplier) {\n" + 
+			"		// Do some logging\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private static <T> T withLogging(final Supplier<T> supplier) {\n" + 
+			"		// Do some logging\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
 }
