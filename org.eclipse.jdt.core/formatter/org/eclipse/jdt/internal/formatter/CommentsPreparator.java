@@ -221,6 +221,7 @@ public class CommentsPreparator extends ASTVisitor {
 			if (structure == null || structure.isEmpty()) {
 				structure = new ArrayList<Token>();
 				structure.add(new Token(previous.originalEnd + 1, commentToken.originalEnd, TokenNameCOMMENT_LINE));
+				commentToken.setInternalStructure(structure);
 			} else {
 				structure.add(0, new Token(previous.originalEnd + 1, commentToken.originalStart - 1,
 						TokenNameWHITESPACE));

@@ -7107,5 +7107,17 @@ public void testBug313651_wksp3_02() {
 	    "}\n"
 	);
 }
-
+public void testBug470986() {
+	this.formatterPrefs.comment_format_line_comment = false;
+	this.formatterPrefs.comment_preserve_white_space_between_code_and_line_comments = true;
+	String source =
+		"class Example {  	 // test\n" + 
+		"\n" + 
+		"	void method1() {   	  // test\n" + 
+		"		int a = 1; // test\n" + 
+		"	}// test\n" + 
+		"\n" + 
+		"}";
+	formatSource(source);
+}
 }
