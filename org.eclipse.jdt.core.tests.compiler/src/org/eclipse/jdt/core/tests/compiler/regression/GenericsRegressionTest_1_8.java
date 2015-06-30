@@ -5329,4 +5329,30 @@ public void testBug468999() {
 			"}\n"
 		});
 }
+public void testBug470826() {
+	runConformTest(
+		new String[] {
+			"EcjVsCollect.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"\n" + 
+			"public class EcjVsCollect {\n" + 
+			"\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    try (final Stream<Record<String>> stream = getStream()) {\n" + 
+			"      stream.collect(ArrayList::new, ArrayList::add, ArrayList::addAll);\n" + 
+			"//      ArrayList<Record<String>> foo = stream.collect(ArrayList::new, ArrayList::add, ArrayList::addAll);\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  private static <K> Stream<Record<K>> getStream() {\n" + 
+			"    return Stream.empty();\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  private interface Record<K> {\n" + 
+			"    K getKey();\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
 }
