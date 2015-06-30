@@ -14275,5 +14275,58 @@ public void testBug460465_since_5() throws CoreException {
 			"src/test/ClassWithoutStaticImports.java test.ClassWithoutStaticImports() [TestE] EXACT_MATCH\n" + 
 			"src/test/ClassWithoutStaticImports.java test.ClassWithoutStaticImports() [TestE] EXACT_MATCH");
 }
+public void testBug469320_0001() throws CoreException {
+	IJavaProject ProjectA = null;
+	IJavaProject ProjectB = null;
+	try	{
+		ProjectA = createJavaProject("ProjectA", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+		IFile f = getFile("/JavaSearchBugs/lib/common.jar");
+		this.createFile("/ProjectA/common.jar", f.getContents());
+		this.addLibraryEntry(ProjectA, "/ProjectA/common.jar", false);
+		createFolder("/ProjectA/test");
+		createFile("/ProjectA/test/Validation.java", 
+				"package test;\n"+
+				"public final class Validation {\n"+
+				"    public static boolean validate(String traceTypeName, String fileName) {\n"+
+				"        ValidationHelper helper = new ValidationHelper();\n"+
+				"        helper.validate(\"\"); //$NON-NLS1$\n"+
+				"        return true;\n"+
+				"    }\n"+
+				"}\n");
+		createFile("/ProjectA/test/ValidationHelper.java", 
+				"package test;\n"+
+				"public class ValidationHelper {\n"+
+				"	public String validate(String path) {\n" +
+				"		return null;\n" +	
+				"	}\n" +
+				"}\n");
+		ProjectB = createJavaProject("ProjectB", new String[] {""}, new String[] {"JCL15_LIB"}, "","1.5");
+		//this.createFile("/ProjectB/common.jar", f.getContents());
+		this.addLibraryEntry(ProjectB, "/ProjectA/common.jar", false);
+		createFolder("/ProjectB/testReferences");
+		createFile("/ProjectB/testReferences/Main.java", 
+				"package testReferences;\n" +
+				"import validator.*;\n" +
+				"public class Main {\n" +
+				"\n" +
+				"	public static void main(String[] args) {\n" +
+				"        Validator validator = new Validator();\n" +
+				"        validator.validate(new StreamSource());\n" +
+				"	}\n" +
+				"\n" +
+				"}\n");
+
+		waitUntilIndexesReady();
+		// search
+		IClassFile classFile = getClassFile("ProjectA", "common.jar", "validator", "Validator.class");
+		IType type = classFile.getType();
+		IMethod method = type.getMethods()[1];
+		search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+		assertSearchResults("testReferences/Main.java void testReferences.Main.main(String[]) [validate(new StreamSource())] EXACT_MATCH");
+	} finally {
+		if (ProjectB != null) deleteProject(ProjectB);
+		if (ProjectA != null) deleteProject(ProjectA);
+	}
+}
 
 }
