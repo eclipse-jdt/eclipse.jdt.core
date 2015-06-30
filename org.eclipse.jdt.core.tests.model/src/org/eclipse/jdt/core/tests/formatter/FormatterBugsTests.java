@@ -10947,4 +10947,44 @@ public void testBug471090() throws JavaModelException {
 		"}\n"
 	);
 }
+/**
+ * @bug 471364: [formatter] Method declarations in interfaces are sometimes indented incorrectly
+ * @test test that methods without modifiers are properly indented
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=471364"
+ */
+public void testBug471364() throws JavaModelException {
+	this.formatterPrefs.blank_lines_before_method = 0;
+	this.formatterPrefs.alignment_for_method_declaration = Alignment.M_COMPACT_SPLIT;
+	String source = 
+		"interface Example {\r\n" + 
+		"\r\n" + 
+		"	void method2();\r\n" + 
+		"	void method2();\r\n" + 
+		"\r\n" + 
+		"	void method3();\r\n" + 
+		"\r\n" + 
+		"	/**\r\n" + 
+		"	 * \r\n" + 
+		"	 */\r\n" + 
+		"	void method4();\r\n" + 
+		"\r\n" + 
+		"}";
+	formatSource(source);
+
+	source = 
+		"public class Example {\r\n" + 
+		"\r\n" + 
+		"	void method2();\r\n" + 
+		"	void method2();\r\n" + 
+		"\r\n" + 
+		"	void method3();\r\n" + 
+		"\r\n" + 
+		"	/**\r\n" + 
+		"	 * \r\n" + 
+		"	 */\r\n" + 
+		"	void method4();\r\n" + 
+		"\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
