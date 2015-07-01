@@ -1946,15 +1946,16 @@ private MethodBinding [] getInterfaceAbstractContracts(Scope scope) throws Inval
 			continue;
 		if (!method.isValidBinding()) 
 			throw new InvalidInputException("Not a functional interface"); //$NON-NLS-1$
-		for (int j = 0; j < contractsCount; j++) {
-			if (contracts[j] == null)
-				continue;
-			if (MethodVerifier.doesMethodOverride(method, contracts[j], scope.environment())) {
+		for (int j = 0; j < contractsCount;) {
+			if ( contracts[j] != null && MethodVerifier.doesMethodOverride(method, contracts[j], scope.environment())) {
 				contractsCount--;
 				// abstract method from super type overridden by present interface ==> contracts[j] = null;
-				if (j < contractsCount)
+				if (j < contractsCount) {
 					System.arraycopy(contracts, j+1, contracts, j, contractsCount - j);
+					continue;
+				}
 			}
+			j++;
 		}
 		if (method.isDefaultMethod())
 			continue; // skip default method itself

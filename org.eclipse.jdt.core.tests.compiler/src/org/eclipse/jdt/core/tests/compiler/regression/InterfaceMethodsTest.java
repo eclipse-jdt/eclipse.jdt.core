@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 GK Software AG, IBM Corporation and others.
+ * Copyright (c) 2013, 2015 GK Software AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2795,5 +2795,50 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"((T1)this).x= 1\n" +
 			"((I)this).x= 0",
 			"", JavacTestOptions.DEFAULT);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=453552, Invalid '@FunctionalInterface error when two interfaces extend the same functional interface.
+	public void test453552() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"FunctionalInterface1.java",
+				"@FunctionalInterface\n" + 
+				"interface FunctionalInterface1 {\n" + 
+				"    void methodWithoutDefault();\n" + 
+				"}\n" + 
+				"@FunctionalInterface\n" + 
+				"interface FunctionalInterface2 extends FunctionalInterface1{}\n" + 
+				"@FunctionalInterface\n" + 
+				"interface FunctionalInterface3 extends FunctionalInterface1{}\n" + 
+				"@FunctionalInterface\n" + 
+				"interface FunctionalInterface4 extends FunctionalInterface2, FunctionalInterface3{}\n" + 
+				"@FunctionalInterface\n" + 
+				"interface RunnableFunctionalInterface extends Runnable, FunctionalInterface4{\n" + 
+				"	default void methodWithoutDefault(){\n" + 
+				"		// implements methodWithoutDefault\n" + 
+				"	}\n" + 
+				"}\n"
+			});
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=453552, Invalid '@FunctionalInterface error when two interfaces extend the same functional interface.
+	public void test453552_comment2() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"FI1.java",
+				"interface FI1<T,R> {\n" + 
+				"	R call(T input);\n" + 
+				"}\n" + 
+				"interface FI2<U,V> {\n" + 
+				"	V call(U input);\n" + 
+				"}\n" + 
+				"@FunctionalInterface\n" + 
+				"interface FI3<X,Y> extends FI1<X,Y>, FI2<X,Y> {\n" + 
+				"	Y apply(X input);\n" + 
+				"\n" + 
+				"   @Override\n" + 
+				"   default Y call(X input) {\n" + 
+				"       return apply(input);\n" + 
+				"   }\n" + 
+				"}"
+			});
 	}
 }
