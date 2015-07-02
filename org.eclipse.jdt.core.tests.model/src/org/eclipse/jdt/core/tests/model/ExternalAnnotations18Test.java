@@ -1158,13 +1158,178 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		String originalSignature = ExternalAnnotationUtil.extractGenericSignature(methodBinding);
 		String[] annotatedSign = ExternalAnnotationUtil.annotateParameterType(
 				originalSignature, 
-				"L1libs/Random;",  // <- @NonNull T
+				"L1libs/Random;",  // <- @NonNull Random
 				1, MergeStrategy.OVERWRITE_ANNOTATIONS);
 		assertEquals("dry-run result",
 				"[(Llibs/List<*>;, " +
 				"Llibs/Random;, " + 
-				"L1libs/Random;, " +  // <- @NonNull T
+				"L1libs/Random;, " +  // <- @NonNull Random
 				")V]",
+				Arrays.toString(annotatedSign));
+	}
+
+	// array content
+	public void testBug471034a() throws CoreException, IOException {
+		myCreateJavaProject("TestAnnot");
+		String lib1Content =
+				"package libs;\n" + 
+				"\n" +
+				"interface List<T> {}\n" +
+				"class Random {}\n" +
+				"public class Thread {\n" +
+				"	 public static int enumerate(Thread tarray[]) { return 1; }\n" + 
+				"}\n";
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+				"/UnannotatedLib/libs/Thread.java",
+				lib1Content
+			}, null);
+
+		// acquire library AST:
+		IType type = this.project.findType("libs.Thread");
+		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setSource(libWorkingCopy);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(false);
+		parser.setBindingsRecovery(false);
+		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+		libWorkingCopy.discardWorkingCopy();
+		
+		// find type binding:
+		int start = lib1Content.indexOf("Thread tarray[]");
+		ASTNode name = NodeFinder.perform(unit, start, 0);
+		assertTrue("should be simple name", name.getNodeType() == ASTNode.SIMPLE_NAME);
+		ASTNode method = name.getParent();
+		while (!(method instanceof MethodDeclaration))
+			method = method.getParent();
+		IMethodBinding methodBinding = ((MethodDeclaration)method).resolveBinding();
+		
+		// find annotation file (not yet existing):
+		IFile annotationFile = ExternalAnnotationUtil.getAnnotationFile(this.project, methodBinding.getDeclaringClass(), null);
+		assertFalse("file should not exist", annotationFile.exists());
+		assertEquals("file path", "/TestAnnot/annots/libs/Thread.eea", annotationFile.getFullPath().toString());
+
+		// annotate:
+		String originalSignature = ExternalAnnotationUtil.extractGenericSignature(methodBinding);
+		String[] annotatedSign = ExternalAnnotationUtil.annotateParameterType(
+				originalSignature, 
+				"[L1libs/Thread;",  // <- @NonNull Thread
+				0, MergeStrategy.OVERWRITE_ANNOTATIONS);
+		assertEquals("dry-run result",
+				"[(, " +
+				"[Llibs/Thread;, " + 
+				"[L1libs/Thread;, " +  // <- @NonNull Thread
+				")I]",
+				Arrays.toString(annotatedSign));
+	}
+
+	// array dimension
+	public void testBug471034b() throws CoreException, IOException {
+		myCreateJavaProject("TestAnnot");
+		String lib1Content =
+				"package libs;\n" + 
+				"\n" +
+				"interface List<T> {}\n" +
+				"class Random {}\n" +
+				"public class Thread {\n" +
+				"	 public static int enumerate(Thread tarray[][]) { return 1; }\n" + 
+				"}\n";
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+				"/UnannotatedLib/libs/Thread.java",
+				lib1Content
+			}, null);
+
+		// acquire library AST:
+		IType type = this.project.findType("libs.Thread");
+		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setSource(libWorkingCopy);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(false);
+		parser.setBindingsRecovery(false);
+		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+		libWorkingCopy.discardWorkingCopy();
+		
+		// find type binding:
+		int start = lib1Content.indexOf("[][]");
+		ASTNode name = NodeFinder.perform(unit, start, 0);
+		assertTrue("should be dimension", name.getNodeType() == ASTNode.DIMENSION);
+		ASTNode method = name.getParent();
+		while (!(method instanceof MethodDeclaration))
+			method = method.getParent();
+		IMethodBinding methodBinding = ((MethodDeclaration)method).resolveBinding();
+		
+		// find annotation file (not yet existing):
+		IFile annotationFile = ExternalAnnotationUtil.getAnnotationFile(this.project, methodBinding.getDeclaringClass(), null);
+		assertFalse("file should not exist", annotationFile.exists());
+		assertEquals("file path", "/TestAnnot/annots/libs/Thread.eea", annotationFile.getFullPath().toString());
+
+		// annotate:
+		String originalSignature = ExternalAnnotationUtil.extractGenericSignature(methodBinding);
+		String[] annotatedSign = ExternalAnnotationUtil.annotateParameterType(
+				originalSignature, 
+				"[1[Llibs/Thread;",  // <- @NonNull array
+				0, MergeStrategy.OVERWRITE_ANNOTATIONS);
+		assertEquals("dry-run result",
+				"[(, " +
+				"[[Llibs/Thread;, " + 
+				"[1[Llibs/Thread;, " +  // <- @NonNull array
+				")I]",
+				Arrays.toString(annotatedSign));
+	}
+
+	// varargs
+	public void testBug471034c() throws CoreException, IOException {
+		myCreateJavaProject("TestAnnot");
+		String lib1Content =
+				"package libs;\n" + 
+				"\n" +
+				"interface List<T> {}\n" +
+				"class Random {}\n" +
+				"public class Thread {\n" +
+				"	 public static int enumerate(Thread ... tarray) { return 1; }\n" + 
+				"}\n";
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+				"/UnannotatedLib/libs/Thread.java",
+				lib1Content
+			}, null);
+
+		// acquire library AST:
+		IType type = this.project.findType("libs.Thread");
+		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setSource(libWorkingCopy);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(false);
+		parser.setBindingsRecovery(false);
+		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+		libWorkingCopy.discardWorkingCopy();
+		
+		// find type binding:
+		int start = lib1Content.indexOf("...");
+		ASTNode name = NodeFinder.perform(unit, start, 0);
+		assertTrue("should be variable", name.getNodeType() == ASTNode.SINGLE_VARIABLE_DECLARATION);
+		ASTNode method = name.getParent();
+		while (!(method instanceof MethodDeclaration))
+			method = method.getParent();
+		IMethodBinding methodBinding = ((MethodDeclaration)method).resolveBinding();
+		
+		// find annotation file (not yet existing):
+		IFile annotationFile = ExternalAnnotationUtil.getAnnotationFile(this.project, methodBinding.getDeclaringClass(), null);
+		assertFalse("file should not exist", annotationFile.exists());
+		assertEquals("file path", "/TestAnnot/annots/libs/Thread.eea", annotationFile.getFullPath().toString());
+
+		// annotate:
+		String originalSignature = ExternalAnnotationUtil.extractGenericSignature(methodBinding);
+		String[] annotatedSign = ExternalAnnotationUtil.annotateParameterType(
+				originalSignature, 
+				"[1Llibs/Thread;",  // <- @NonNull array
+				0, MergeStrategy.OVERWRITE_ANNOTATIONS);
+		assertEquals("dry-run result",
+				"[(, " +
+				"[Llibs/Thread;, " + 
+				"[1Llibs/Thread;, " +  // <- @NonNull array
+				")I]",
 				Arrays.toString(annotatedSign));
 	}
 }
