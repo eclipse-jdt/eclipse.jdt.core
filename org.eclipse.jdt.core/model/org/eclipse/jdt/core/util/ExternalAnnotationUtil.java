@@ -378,10 +378,9 @@ public final class ExternalAnnotationUtil {
 				SignatureWrapper wrapper = new SignatureWrapper(originalSignature.toCharArray(), true, true); // may already contain annotations
 				wrapper.start = CharOperation.indexOf('(', wrapper.signature) + 1; // possibly skipping type parameters
 				for (int i = 0; i < updatePosition; i++)
-					wrapper.start = wrapper.computeEnd() + 1;
+					wrapper.start = wrapper.skipAngleContents(wrapper.computeEnd()) + 1;
 				int start = wrapper.start;
-				int end = wrapper.computeEnd();
-				end = wrapper.skipAngleContents(end);
+				int end = wrapper.skipAngleContents(wrapper.computeEnd());
 				buf.append(originalSignature, 0, start);
 				signatureToReplace = originalSignature.substring(start, end+1);
 				postfix = originalSignature.substring(end+1, originalSignature.length());
@@ -678,10 +677,9 @@ public final class ExternalAnnotationUtil {
 		SignatureWrapper wrapper = new SignatureWrapper(originalSignature.toCharArray(), true, true); // may already contain annotations
 		wrapper.start = CharOperation.indexOf('(', wrapper.signature) + 1; // possibly skip type parameters
 		for (int i = 0; i < paramIdx; i++)
-			wrapper.start = wrapper.computeEnd() + 1;
+			wrapper.start = wrapper.skipAngleContents(wrapper.computeEnd()) + 1;
 		int start = wrapper.start;
-		int end = wrapper.computeEnd();
-		end = wrapper.skipAngleContents(end);
+		int end = wrapper.skipAngleContents(wrapper.computeEnd());
 		result[0] = originalSignature.substring(0, start);				
 		buf = new StringBuffer();
 		result[1] = originalSignature.substring(start, end+1);

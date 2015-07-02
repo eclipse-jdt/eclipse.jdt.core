@@ -1113,4 +1113,58 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				")Llibs/List<TT;>;]",
 				Arrays.toString(annotatedSign));
 	}
+
+	public void testBug471352() throws CoreException, IOException {
+		myCreateJavaProject("TestAnnot");
+		String lib1Content =
+				"package libs;\n" + 
+				"\n" +
+				"interface List<T> {}\n" +
+				"class Random {}\n" +
+				"public class Collections {\n" +
+				"	 public static void shuffle(List<?> list, Random rnd) { }\n" +
+				"}\n";
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+				"/UnannotatedLib/libs/Collections.java",
+				lib1Content
+			}, null);
+
+		// acquire library AST:
+		IType type = this.project.findType("libs.Collections");
+		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setSource(libWorkingCopy);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(false);
+		parser.setBindingsRecovery(false);
+		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
+		libWorkingCopy.discardWorkingCopy();
+		
+		// find type binding:
+		int start = lib1Content.indexOf("Random rnd");
+		ASTNode name = NodeFinder.perform(unit, start, 0);
+		assertTrue("should be simple name", name.getNodeType() == ASTNode.SIMPLE_NAME);
+		ASTNode method = name.getParent();
+		while (!(method instanceof MethodDeclaration))
+			method = method.getParent();
+		IMethodBinding methodBinding = ((MethodDeclaration)method).resolveBinding();
+		
+		// find annotation file (not yet existing):
+		IFile annotationFile = ExternalAnnotationUtil.getAnnotationFile(this.project, methodBinding.getDeclaringClass(), null);
+		assertFalse("file should not exist", annotationFile.exists());
+		assertEquals("file path", "/TestAnnot/annots/libs/Collections.eea", annotationFile.getFullPath().toString());
+
+		// annotate:
+		String originalSignature = ExternalAnnotationUtil.extractGenericSignature(methodBinding);
+		String[] annotatedSign = ExternalAnnotationUtil.annotateParameterType(
+				originalSignature, 
+				"L1libs/Random;",  // <- @NonNull T
+				1, MergeStrategy.OVERWRITE_ANNOTATIONS);
+		assertEquals("dry-run result",
+				"[(Llibs/List<*>;, " +
+				"Llibs/Random;, " + 
+				"L1libs/Random;, " +  // <- @NonNull T
+				")V]",
+				Arrays.toString(annotatedSign));
+	}
 }
