@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Robin Stocker - Bug 49619 - [formatting] comment formatter leaves whitespace in comments
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Bad line breaking in Eclipse javadoc comments - https://bugs.eclipse.org/348338
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
@@ -5444,8 +5445,8 @@ public void testBug260381_wksp2_08() throws JavaModelException {
 		"\n" +
 		"	/**\n" +
 		"	 * Returns the composition of a function and a predicate. For every\n" +
-		"	 * {@code x}, the generated predicate returns {@code predicate(function(x))}\n" +
-		"	 * .\n" +
+		"	 * {@code x}, the generated predicate returns\n" +
+		"	 * {@code predicate(function(x))}.\n" +
 		"	 *\n" +
 		"	 * @return the composition of the provided function and predicate\n" +
 		"	 */\n" +
@@ -7107,5 +7108,52 @@ public void testBug313651_wksp3_02() {
 	    "}\n"
 	);
 }
-
+public void testBug348338() {
+	String source = 
+		"public class X03 {\n" + 
+		"	/**\n" + 
+		"	 * Check wrapping of javadoc tags surrounded wit punctuation [{@code marks}].\n" + 
+		"	 * <p>\n" + 
+		"	 * Check wrapping of string literals surrounded with punctuation marks (\"e.g. in parenthesis\" wraps).\n" + 
+		"	 * <p>\n" + 
+		"	 * {@code Sometimes wrapping on punctuation is necessary because line is too}. long otherwise.\n" + 
+		"	 */\n" + 
+		"	public void test() {\n" + 
+		"\n" + 
+		"		/*\n" + 
+		"		 * Check wrapping of string literals surrounded with punctuation marks (\"e.g. in parenthesis\" wraps).\n" + 
+		"		 * \n" + 
+		"		 * The dot at the end of this sentence is beyond the line \"length limit\".\n" + 
+		"		 * \n" + 
+		"		 * But this sentence should fit in the line length limit \"with the dot\".\n" + 
+		"		 */\n" + 
+		"	}\n" + 
+	    "}\n";
+	formatSource(source,
+		"public class X03 {\n" + 
+		"	/**\n" + 
+		"	 * Check wrapping of javadoc tags surrounded wit punctuation\n" + 
+		"	 * [{@code marks}].\n" + 
+		"	 * <p>\n" + 
+		"	 * Check wrapping of string literals surrounded with punctuation marks\n" + 
+		"	 * (\"e.g. in parenthesis\" wraps).\n" + 
+		"	 * <p>\n" + 
+		"	 * {@code Sometimes wrapping on punctuation is necessary because line is too}\n" + 
+		"	 * . long otherwise.\n" + 
+		"	 */\n" + 
+		"	public void test() {\n" + 
+		"\n" + 
+		"		/*\n" + 
+		"		 * Check wrapping of string literals surrounded with punctuation marks\n" + 
+		"		 * (\"e.g. in parenthesis\" wraps).\n" + 
+		"		 * \n" + 
+		"		 * The dot at the end of this sentence is beyond the line\n" + 
+		"		 * \"length limit\".\n" + 
+		"		 * \n" + 
+		"		 * But this sentence should fit in the line length limit \"with the dot\".\n" + 
+		"		 */\n" + 
+		"	}\n" + 
+	    "}\n"
+	);
+}
 }

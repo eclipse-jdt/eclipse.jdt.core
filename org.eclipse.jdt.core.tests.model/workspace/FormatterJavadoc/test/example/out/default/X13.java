@@ -3,8 +3,8 @@ package test.prefs.example;
 /**
  * A <code>TreeViewerAdvisor</code> that works with TreeViewers. Two default
  * tree viewers are provided that support navigation:
- * <code>NavigableTreeViewer</code> and <code>NavigableCheckboxTreeViewer</code>
- * .
+ * <code>NavigableTreeViewer</code> and
+ * <code>NavigableCheckboxTreeViewer</code>.
  * <p>
  * Note that this advisor can be used with any tree viewer. By default it
  * provides an expand all action, double click behavior on containers, and

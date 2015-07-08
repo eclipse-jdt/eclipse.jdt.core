@@ -8,6 +8,7 @@
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] IndexOutOfBoundsException in TokenManager - https://bugs.eclipse.org/462945
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Bad line breaking in Eclipse javadoc comments - https://bugs.eclipse.org/348338
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -600,13 +601,11 @@ public class CommentsPreparator extends ASTVisitor {
 			handleHtml(node);
 		}
 
-		else if (IMMUTABLE_TAGS.contains(tagName)) {
-			if (startIndex < endIndex)
+		if (node.isNested()) {
+			substituteWrapIfTouching(startIndex);
+			substituteWrapIfTouching(endIndex + 1);
+			if (IMMUTABLE_TAGS.contains(tagName) && startIndex < endIndex)
 				disableFormatting(startIndex, endIndex);
-			noSubstituteWrapping(node.getStartPosition(), nodeEnd);
-		}
-
-		else if (node.isNested()) {
 			noSubstituteWrapping(node.getStartPosition(), nodeEnd);
 		}
 		return true;
@@ -631,22 +630,14 @@ public class CommentsPreparator extends ASTVisitor {
 			int endPos = matcher.end() - 1 + node.getStartPosition();
 			boolean isOpeningTag = (matcher.start(1) == matcher.end(1));
 
-			int firstTokenIndex = 0, lastTokenIndex = 0;
 			if (this.options.comment_format_html) {
 				// make sure tokens inside the tag are wrapped only as a substitute
-				firstTokenIndex = tokenStartingAt(startPos);
-				lastTokenIndex = tokenEndingAt(endPos);
-				Token startToken = this.ctm.get(firstTokenIndex);
-				if (!isOpeningTag && startToken.getWrapPolicy() == null)
-					startToken.setWrapPolicy(WrapPolicy.SUBSTITUTE_ONLY);
+				int firstTokenIndex = tokenStartingAt(startPos), lastTokenIndex = tokenEndingAt(endPos);
 				for (int i = firstTokenIndex + 1; i <= lastTokenIndex; i++) {
 					Token token = this.ctm.get(i);
 					if (token.getWrapPolicy() == null)
 						token.setWrapPolicy(WrapPolicy.SUBSTITUTE_ONLY);
 				}
-				Token nextToken = this.ctm.get(lastTokenIndex + 1);
-				if (isOpeningTag && nextToken.getWrapPolicy() == null)
-					nextToken.setWrapPolicy(WrapPolicy.SUBSTITUTE_ONLY);
 
 				// never break tags on special characters
 				noSubstituteWrapping(startPos, endPos - 1);
@@ -680,6 +671,8 @@ public class CommentsPreparator extends ASTVisitor {
 					handleBreakAfterTag(startPos, endPos);
 				} else if (matcher.start(6) < matcher.end(6)) {
 					handleNoFormatTag(startPos, endPos, isOpeningTag);
+				} else if (matcher.start(7) < matcher.end(7)) {
+					handleOtherTag(startPos, endPos);
 				}
 			}
 		}
@@ -719,8 +712,13 @@ public class CommentsPreparator extends ASTVisitor {
 			int startIndex = this.ctm.findIndex(startPosition, -1, false);
 			int endPosition = textStartPosition + matcher.end() - 1;
 			int endIndex = this.ctm.findIndex(endPosition, -1, false);
-			if (startIndex != endIndex)
-				disableFormatting(tokenStartingAt(startPosition), tokenEndingAt(endPosition));
+			if (startIndex != endIndex) {
+				startIndex = tokenStartingAt(startPosition);
+				endIndex = tokenEndingAt(endPosition);
+				substituteWrapIfTouching(startIndex);
+				substituteWrapIfTouching(endIndex + 1);
+				disableFormatting(startIndex, endIndex);
+			}
 			noSubstituteWrapping(startPosition, endPosition);
 		}
 	}
@@ -760,16 +758,27 @@ public class CommentsPreparator extends ASTVisitor {
 		if (isOpeningTag) {
 			if (this.noFormatTagOpenStart < 0)
 				this.noFormatTagOpenStart = start;
+			handleOtherTag(start, end);
 		} else if (this.noFormatTagOpenStart >= 0) {
 			int openingTagIndex = tokenStartingAt(this.noFormatTagOpenStart);
 			int closingTagIndex = tokenEndingAt(end);
-			if (openingTagIndex < closingTagIndex)
+			substituteWrapIfTouching(openingTagIndex);
+			substituteWrapIfTouching(closingTagIndex + 1);
+			if (openingTagIndex < closingTagIndex) {
 				disableFormatting(openingTagIndex, closingTagIndex);
-			closingTagIndex = tokenEndingAt(end);
+				closingTagIndex = tokenEndingAt(end);
+			}
 			cleanupHTMLElement(openingTagIndex, closingTagIndex, false);
 			noSubstituteWrapping(this.noFormatTagOpenStart, end);
 			this.noFormatTagOpenStart = -1;
+		} else {
+			handleOtherTag(start, end);
 		}
+	}
+
+	private void handleOtherTag(int start, int end) {
+		substituteWrapIfTouching(tokenStartingAt(start));
+		substituteWrapIfTouching(tokenEndingAt(end) + 1);
 	}
 
 	private void handleFormatCodeTag(int startPos, int endPos, boolean isOpeningTag) {
@@ -830,13 +839,14 @@ public class CommentsPreparator extends ASTVisitor {
 			tokensToReplace.clear();
 			tokensToReplace.addAll(commentToLines(noFormatToken, commentStart));
 		}
+		Token first = tokensToReplace.get(0), last = tokensToReplace.get(tokensToReplace.size() - 1);
 		if (startToken.isSpaceBefore())
-			tokensToReplace.get(0).spaceBefore();
-		tokensToReplace.get(0).putLineBreaksBefore(startToken.getLineBreaksBefore());
-		Token lastToReplace = tokensToReplace.get(tokensToReplace.size() - 1);
+			first.spaceBefore();
+		first.putLineBreaksBefore(startToken.getLineBreaksBefore());
+		first.setWrapPolicy(startToken.getWrapPolicy());
 		if (endToken.isSpaceAfter())
-			lastToReplace.spaceAfter();
-		lastToReplace.putLineBreaksAfter(endToken.getLineBreaksAfter());
+			last.spaceAfter();
+		last.putLineBreaksAfter(endToken.getLineBreaksAfter());
 		for (Token token : tokensToReplace)
 			if (token.tokenType == TokenNameCOMMENT_JAVADOC)
 				token.setIndent(startToken.getIndent());
@@ -1034,6 +1044,12 @@ public class CommentsPreparator extends ASTVisitor {
 				}
 			}
 		}
+	}
+
+	private void substituteWrapIfTouching(int index) {
+		Token token = this.ctm.get(index);
+		if (token.getWrapPolicy() == null && token.originalStart == this.ctm.get(index - 1).originalEnd + 1)
+			token.setWrapPolicy(WrapPolicy.SUBSTITUTE_ONLY);
 	}
 
 	private void formatCode(int javadocNoFormatCloseStart, int javadocNoFormatCloseEnd) {
