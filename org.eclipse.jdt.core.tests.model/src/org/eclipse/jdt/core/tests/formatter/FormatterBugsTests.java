@@ -11047,4 +11047,23 @@ public void testBug469438() {
 			"}"
 			);
 }
+/**
+ * @bug 471883: NullPointerException in TokenManager.firstIndexIn (188)
+ * @test test that no NPE is thrown
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=471883"
+ */
+public void testBug471883() throws Exception {
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	this.formatterPrefs.indentation_size = 2;
+	setPageWidth80();
+	String source = 
+			"/**\r\n" + 
+			" * <pre>\r\n" + 
+			" * isInEncoding(char ch);\r\n" + 
+			" * </pre>\r\n" + 
+			" */\r\n" + 
+			"public class Try {\r\n" + 
+			"}";
+	formatSource(source);
+}
 }
