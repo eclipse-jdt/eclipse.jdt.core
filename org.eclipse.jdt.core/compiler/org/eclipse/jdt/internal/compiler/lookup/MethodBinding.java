@@ -26,6 +26,7 @@
  *								Bug 435805 - [1.8][compiler][null] Java 8 compiler does not recognize declaration style null annotations
  *								Bug 466713 - Null Annotations: NullPointerException using <int @Nullable []> as Type Param
  *								Bug 456584 - [1.8][null] Bogus warning for return type variable's @NonNull annotation being 'redundant'
+ *								Bug 471611 - Error on hover on call to generic method with null annotation
  *     Jesper Steen Moller - Contributions for
  *								Bug 412150 [1.8] [compiler] Enable reflected parameter names during annotation processing
  *******************************************************************************/
@@ -695,7 +696,7 @@ public AnnotationBinding[][] getParameterAnnotations() {
 		if (this.declaringClass instanceof SourceTypeBinding) {
 			SourceTypeBinding sourceType = (SourceTypeBinding) this.declaringClass;
 			if (sourceType.scope != null) {
-				AbstractMethodDeclaration methodDecl = sourceType.scope.referenceType().declarationOf(this);
+				AbstractMethodDeclaration methodDecl = sourceType.scope.referenceType().declarationOf(originalMethod);
 				for (int i = 0; i < length; i++) {
 					Argument argument = methodDecl.arguments[i];
 					if (argument.annotations != null) {
