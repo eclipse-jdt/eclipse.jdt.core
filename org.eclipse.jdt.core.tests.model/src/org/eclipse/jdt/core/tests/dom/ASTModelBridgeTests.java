@@ -505,6 +505,48 @@ public class ASTModelBridgeTests extends AbstractASTTests {
 				element
 		);
 	}
+
+	/*
+	 * Ensures that the correct IBindings can be retrieved from an AST
+	 * (parameter annotation)
+	 */
+	public void testAnnotation15() throws Exception {
+		createFolder("/P/src/lib");
+		createFile("/P/src/lib/NonNull.java",
+				"package lib;\n" +
+				"import java.lang.annotation.*;\n" +
+				"@Target(ElementType.PARAMETER)\n" +
+				"public @interface NonNull{}\n");
+		createFile("/P/src/lib/Foo.java",
+				"package lib;\n" +
+				"public class Foo {\n" + 
+				"	public <T> void bug1(@NonNull T x) { return; }\n" + 
+				"	public static <T> void bug2(@NonNull String x) { return; }\n" + 
+				"}\n");
+		
+		String barSource =
+				"import lib.Foo;\n" +
+				"public class Bar {\n" + 
+				"	void m() { new Foo().bug1(\"x\"); Foo.bug2(\"x\"); }\n" + 
+				"}\n";
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[1] = getWorkingCopy("/P/src/Bar.java", barSource, this.wcOwner);
+		
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setProject(getJavaProject("P"));
+		parser.setSource(this.workingCopies[1]);
+		parser.setResolveBindings(true);
+		ASTNode send = NodeFinder.perform(parser.createAST(null), barSource.indexOf("bug1"), 0).getParent();
+		IBinding[] bindings = new IBinding[] { ((MethodInvocation) send).resolveMethodBinding() };
+		assertBindingsEqual(
+			"Llib/Foo;.bug1<T:Ljava/lang/Object;>(TT;)V%<Ljava/lang/String;>",
+			bindings);
+		IMethodBinding method = (IMethodBinding) bindings[0];
+		assertBindingsEqual(
+			"@Llib/NonNull;",
+			method.getParameterAnnotations(0));
+	}
+
 	/*
 	 * Ensures that the IJavaElement of an IBinding representing an anonymous type is correct.
 	 */
