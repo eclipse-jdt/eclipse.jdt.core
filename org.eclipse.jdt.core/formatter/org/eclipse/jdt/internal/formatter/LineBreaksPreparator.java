@@ -239,11 +239,16 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(MethodDeclaration node) {
+		this.declarationModifierVisited = false;
+
+		if (node.getBody() == null)
+			return true;
+
 		if (node.isConstructor()) {
 			handleBracedCode(node.getBody(), null, this.options.brace_position_for_constructor_declaration,
 					this.options.indent_statements_compare_to_body,
 					this.options.insert_new_line_in_empty_method_body);
-		} else if (node.getBody() != null) {
+		} else {
 			handleBracedCode(node.getBody(), null, this.options.brace_position_for_method_declaration,
 					this.options.indent_statements_compare_to_body,
 					this.options.insert_new_line_in_empty_method_body);
@@ -251,7 +256,6 @@ public class LineBreaksPreparator extends ASTVisitor {
 			if (openBrace.getLineBreaksAfter() > 0) // if not, these are empty braces
 				openBrace.putLineBreaksAfter(this.options.blank_lines_at_beginning_of_method_body + 1);
 		}
-		this.declarationModifierVisited = false;
 		return true;
 	}
 
