@@ -111,6 +111,11 @@ public class SpacePreparator extends ASTVisitor {
 		List<TypeParameter> typeParameters = node.typeParameters();
 		handleTypeParameters(typeParameters);
 
+		if (!node.isInterface() && !node.superInterfaceTypes().isEmpty()) {
+			// fix for: class A<E> extends ArrayList<String>implements Callable<String>
+			handleToken(node.getName(), TokenNameimplements, true, false);
+		}
+
 		handleToken(node.getName(), TokenNameLBRACE,
 				this.options.insert_space_before_opening_brace_in_type_declaration, false);
 		handleCommas(node.superInterfaceTypes(), this.options.insert_space_before_comma_in_superinterfaces,
@@ -572,7 +577,7 @@ public class SpacePreparator extends ASTVisitor {
 	@Override
 	public boolean visit(MethodInvocation node) {
 		handleTypeArguments(node.typeArguments());
-		handleInvocation(node, node.getName(), node.typeArguments());
+		handleInvocation(node, node.getName());
 		handleCommas(node.arguments(), this.options.insert_space_before_comma_in_method_invocation_arguments,
 				this.options.insert_space_after_comma_in_method_invocation_arguments);
 		return true;
@@ -580,7 +585,8 @@ public class SpacePreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(SuperMethodInvocation node) {
-		handleInvocation(node, node.getName(), node.typeArguments());
+		handleTypeArguments(node.typeArguments());
+		handleInvocation(node, node.getName());
 		handleCommas(node.arguments(), this.options.insert_space_before_comma_in_method_invocation_arguments,
 				this.options.insert_space_after_comma_in_method_invocation_arguments);
 		return true;
@@ -588,7 +594,12 @@ public class SpacePreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(ClassInstanceCreation node) {
-		handleInvocation(node, node.getType(), node.typeArguments());
+		List<Type> typeArguments = node.typeArguments();
+		handleTypeArguments(typeArguments);
+		handleInvocation(node, node.getType());
+		if (!typeArguments.isEmpty()) {
+			handleTokenBefore(typeArguments.get(0), TokenNamenew, false, true); // fix for: new<Integer>A<String>()
+		}
 		handleCommas(node.arguments(), this.options.insert_space_before_comma_in_allocation_expression,
 				this.options.insert_space_after_comma_in_allocation_expression);
 		return true;
@@ -596,7 +607,8 @@ public class SpacePreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(ConstructorInvocation node) {
-		handleInvocation(node, node, node.typeArguments());
+		handleTypeArguments(node.typeArguments());
+		handleInvocation(node, node);
 		handleCommas(node.arguments(),
 				this.options.insert_space_before_comma_in_explicit_constructor_call_arguments,
 				this.options.insert_space_after_comma_in_explicit_constructor_call_arguments);
@@ -605,14 +617,15 @@ public class SpacePreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(SuperConstructorInvocation node) {
-		handleInvocation(node, node, node.typeArguments());
+		handleTypeArguments(node.typeArguments());
+		handleInvocation(node, node);
 		handleCommas(node.arguments(),
 				this.options.insert_space_before_comma_in_explicit_constructor_call_arguments,
 				this.options.insert_space_after_comma_in_explicit_constructor_call_arguments);
 		return true;
 	}
 
-	private void handleInvocation(ASTNode invocationNode, ASTNode nodeBeforeOpeningParen, List<Type> typeArguments) {
+	private void handleInvocation(ASTNode invocationNode, ASTNode nodeBeforeOpeningParen) {
 		if (handleEmptyParens(nodeBeforeOpeningParen,
 				this.options.insert_space_between_empty_parens_in_method_invocation)) {
 			handleToken(nodeBeforeOpeningParen, TokenNameLPAREN,
@@ -624,14 +637,6 @@ public class SpacePreparator extends ASTVisitor {
 			if (this.options.insert_space_before_closing_paren_in_method_invocation) {
 				this.tm.lastTokenIn(invocationNode, TokenNameRPAREN).spaceBefore();
 			}
-		}
-
-		if (!typeArguments.isEmpty()) {
-			handleTokenAfter(typeArguments.get(typeArguments.size() - 1), TokenNameGREATER, false,
-					this.options.insert_space_after_closing_angle_bracket_in_type_arguments);
-			handleCommas(typeArguments,
-					this.options.insert_space_before_comma_in_parameterized_type_reference,
-					this.options.insert_space_after_comma_in_parameterized_type_reference);
 		}
 	}
 

@@ -11,7 +11,7 @@ public class X {
 	}
 
 	public static void main(String[] args) {
-		i = @Marker W<@Marker Integer>::<@Marker String> new;
+		i = @Marker W<@Marker Integer>::<@Marker String>new;
 	}
 }
 

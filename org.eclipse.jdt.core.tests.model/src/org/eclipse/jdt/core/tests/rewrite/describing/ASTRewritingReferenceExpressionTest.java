@@ -605,7 +605,7 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 				"		J j1 = Y.@Marker Z::foo;\n" +
 				"		J j2 = super::foo;\n" +
 				"		J j3 = X.super::bar;\n" +
-				"		J jx = W<Integer>::<String> new;\n" +
+				"		J jx = W<Integer>::<String>new;\n" +
 				"		J jz = Y.Z::foo;\n" +
 				"	}\n" +
 				"}\n" +

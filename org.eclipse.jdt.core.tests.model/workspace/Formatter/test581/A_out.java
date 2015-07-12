@@ -6,7 +6,7 @@ public class X {
 	}
 
 	static <T extends X> T f1() throws Exception {
-		return new X().<T> ctor().newInstance(new Object[0]);
+		return new X().<T>ctor().newInstance(new Object[0]);
 	}
 
 	static <T extends X> T f2() throws Exception {

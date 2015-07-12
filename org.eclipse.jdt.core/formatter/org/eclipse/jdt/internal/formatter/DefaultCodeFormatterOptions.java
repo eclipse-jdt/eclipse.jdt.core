@@ -2377,7 +2377,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_at_in_annotation = false;
 		this.insert_space_after_at_in_annotation_type_declaration = false;
 		this.insert_space_after_binary_operator = true;
-		this.insert_space_after_closing_angle_bracket_in_type_arguments = true;
+		this.insert_space_after_closing_angle_bracket_in_type_arguments = false;
 		this.insert_space_after_closing_angle_bracket_in_type_parameters = true;
 		this.insert_space_after_closing_paren_in_cast = true;
 		this.insert_space_after_closing_brace_in_block = true;
@@ -2668,7 +2668,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_at_in_annotation = false;
 		this.insert_space_after_at_in_annotation_type_declaration = false;
 		this.insert_space_after_binary_operator = true;
-		this.insert_space_after_closing_angle_bracket_in_type_arguments = true;
+		this.insert_space_after_closing_angle_bracket_in_type_arguments = false;
 		this.insert_space_after_closing_angle_bracket_in_type_parameters = true;
 		this.insert_space_after_closing_paren_in_cast = true;
 		this.insert_space_after_closing_brace_in_block = true;
