@@ -5376,4 +5376,40 @@ public void testBug466487() {
 			"}\n"
 		});
 }
+public void testBug472426() {
+	runConformTest(
+		new String[] {
+			"InferenceBug.java",
+			"import java.util.Collections;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.function.BiFunction;\n" + 
+			"\n" + 
+			"public class InferenceBug {\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"\n" + 
+			"        // compiles\n" + 
+			"        List<String> l = Collections.singletonList(\"foo\");\n" + 
+			"        apply(Foo::foo, l);\n" + 
+			"\n" + 
+			"        // won't compile\n" + 
+			"        apply(Foo::foo, Collections.singletonList(\"foo\"));\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static <T> void apply(BiFunction<Foo, T, Foo> fun, T value) {\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    static class Foo {\n" + 
+			"        public Foo foo(List<String> i) {\n" + 
+			"            return this;\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        public Foo foo(String... i) {\n" + 
+			"            return this;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"}\n"
+		});
+}
 }
