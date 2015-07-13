@@ -557,13 +557,9 @@ class DefaultBindingResolver extends BindingResolver {
 			}
 		}
 		Object key =  new AnnotationIdentityBinding(internalInstance);
-		IAnnotationBinding domInstance =
-			(IAnnotationBinding) this.bindingTables.compilerAnnotationBindingsToASTBindings.get(key);
-		if (domInstance != null)
-			return domInstance;
-		domInstance = new AnnotationBinding(internalInstance, this);
-		this.bindingTables.compilerAnnotationBindingsToASTBindings.put(key, domInstance);
-		return domInstance;
+		IAnnotationBinding newDomInstance = new AnnotationBinding(internalInstance, this);
+		IAnnotationBinding domInstance = (IAnnotationBinding) ((ConcurrentHashMap)this.bindingTables.compilerBindingsToASTBindings).putIfAbsent(key, newDomInstance);
+		return domInstance != null ? domInstance : newDomInstance;
 	}
 
 	boolean isResolvedTypeInferredFromExpectedType(MethodInvocation methodInvocation) {
