@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3619,7 +3619,7 @@ public final class JavaCore extends Plugin {
 	 *
 	 * @return a table of all known configurable options with their default values
 	 */
-	public static Hashtable getDefaultOptions(){
+	public static Hashtable<String, String> getDefaultOptions(){
 		return JavaModelManager.getJavaModelManager().getDefaultOptions();
 	}
 
@@ -3923,7 +3923,7 @@ public final class JavaCore extends Plugin {
 	 * @see #getDefaultOptions()
 	 * @see JavaCorePreferenceInitializer for changing default settings
 	 */
-	public static Hashtable getOptions() {
+	public static Hashtable<String, String> getOptions() {
 		return JavaModelManager.getJavaModelManager().getOptions();
 	}
 
@@ -5668,7 +5668,7 @@ public final class JavaCore extends Plugin {
 	 * @see JavaCore#getDefaultOptions()
 	 * @see JavaCorePreferenceInitializer for changing default settings
 	 */
-	public static void setOptions(Hashtable newOptions) {
+	public static void setOptions(Hashtable<String, String> newOptions) {
 		JavaModelManager.getJavaModelManager().setOptions(newOptions);
 	}
 

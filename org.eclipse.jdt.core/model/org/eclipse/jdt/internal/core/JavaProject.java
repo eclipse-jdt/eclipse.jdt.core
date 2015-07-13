@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1660,10 +1660,10 @@ public class JavaProject
 	/**
 	 * @see org.eclipse.jdt.core.IJavaProject#getOptions(boolean)
 	 */
-	public Map getOptions(boolean inheritJavaCoreOptions) {
+	public Map<String, String> getOptions(boolean inheritJavaCoreOptions) {
 
 		// initialize to the defaults from JavaCore options pool
-		Map options = inheritJavaCoreOptions ? JavaCore.getOptions() : new Hashtable(5);
+		Map<String, String> options = inheritJavaCoreOptions ? JavaCore.getOptions() : new Hashtable<String, String>(5);
 
 		// Get project specific options
 		JavaModelManager.PerProjectInfo perProjectInfo = null;
@@ -2962,7 +2962,7 @@ public class JavaProject
 	/**
 	 * @see org.eclipse.jdt.core.IJavaProject#setOptions(Map)
 	 */
-	public void setOptions(Map newOptions) {
+	public void setOptions(Map<String, String> newOptions) {
 
 		IEclipsePreferences projectPreferences = getEclipsePreferences();
 		if (projectPreferences == null) return;
@@ -2970,12 +2970,12 @@ public class JavaProject
 			if (newOptions == null){
 				projectPreferences.clear();
 			} else {
-				Iterator entries = newOptions.entrySet().iterator();
+				Iterator<Map.Entry<String, String>> entries = newOptions.entrySet().iterator();
 				JavaModelManager javaModelManager = JavaModelManager.getJavaModelManager();
 				while (entries.hasNext()){
-					Map.Entry entry = (Map.Entry) entries.next();
-					String key = (String) entry.getKey();
-					String value = (String) entry.getValue();
+					Map.Entry<String, String> entry = entries.next();
+					String key = entry.getKey();
+					String value = entry.getValue();
 					javaModelManager.storePreference(key, value, projectPreferences, newOptions);
 				}
 
