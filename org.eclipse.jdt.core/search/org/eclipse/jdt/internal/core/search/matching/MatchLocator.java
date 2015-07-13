@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.ISourceRange;
@@ -2815,7 +2816,24 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	} else if (enclosingElement instanceof IMember) {
 	    IMember member = (IMember) parent;
 		if (member.isBinary())  {
-			enclosingElement = ((IClassFile)this.currentPossibleMatch.openable).getType();
+			IOpenable openable = enclosingElement.getOpenable();
+			IJavaElement anonType = null;
+			if (openable instanceof ClassFile) {
+				BinaryType binaryType = (BinaryType)((ClassFile) openable).getType();
+				String fileName = binaryType.getPath().toOSString();
+				if ((type.bits & ASTNode.IsAnonymousType) != 0) {
+					if (fileName != null) {
+						if (fileName.endsWith("jar") || fileName.endsWith(SuffixConstants.SUFFIX_STRING_class)) { //$NON-NLS-1$
+							IClassFile classFile= binaryType.getPackageFragment().getClassFile(binaryType.getTypeQualifiedName() + 
+									"$" + Integer.toString(occurrenceCount) + SuffixConstants.SUFFIX_STRING_class);//$NON-NLS-1$
+							anonType =  classFile.getType();
+						}
+					} else {
+						// TODO: JAVA 9 - JIMAGE to be included later - currently assuming that only .class files will be dealt here.
+					}
+				}
+			}
+			enclosingElement = anonType != null ? anonType : ((IClassFile)this.currentPossibleMatch.openable).getType() ;
 		} else {
 			enclosingElement = member.getType(new String(type.name), occurrenceCount);
 		}
