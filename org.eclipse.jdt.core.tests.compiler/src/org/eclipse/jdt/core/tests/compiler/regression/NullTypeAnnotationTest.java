@@ -8164,4 +8164,34 @@ public void testBug456584() {
 		"Null type safety (type annotations): The expression of type \'capture#of ? extends R\' needs unchecked conversion to conform to \'@NonNull capture#of ? extends R\'\n" + 
 		"----------\n");
 }
+public void testBug447661() {
+	runConformTestWithLibs(
+		new String[] {
+			"Two.java",
+			"import java.util.*;\n" +
+			"public class Two {\n" + 
+			"\n" + 
+			"	@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"	public static Set<String> getSet() {\n" + 
+			"		return new HashSet<>();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+	runConformTestWithLibs(
+		new String[] {
+			"One.java",
+			"import java.util.*;\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"public class One {\n" + 
+			"\n" + 
+			"	public void test() {\n" + 
+			"		Set<String> set = Two.getSet();\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 }
