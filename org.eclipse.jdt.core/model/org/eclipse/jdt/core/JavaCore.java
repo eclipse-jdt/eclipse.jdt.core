@@ -102,6 +102,7 @@
  *                       - added the following constants:
  *									COMPILER_CODEGEN_METHOD_PARAMETERS_ATTR
  *     Harry Terkelsen (het@google.com) - Bug 449262 - Allow the use of third-party Java formatters
+ *     Gábor Kövesdán - Contribution for Bug 350000 - [content assist] Include non-prefix matches in auto-complete suggestions
  *     
  *******************************************************************************/
 
@@ -2407,6 +2408,19 @@ public final class JavaCore extends Plugin {
 	 * @category CodeAssistOptionID
 	 */
 	public static final String CODEASSIST_CAMEL_CASE_MATCH = PLUGIN_ID + ".codeComplete.camelCaseMatch"; //$NON-NLS-1$
+	/**
+	 * Code assist option ID: Activate Substring Code Completion.
+	 * <p>When enabled, completion shows proposals in which the pattern can
+	 *    be found as a substring in a case-insensitive way.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.codeComplete.substringMatch"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"enabled"</code></dd>
+	 * </dl>
+	 * @since 3.12
+	 * @category CodeAssistOptionID
+	 */
+	public static final String CODEASSIST_SUBSTRING_MATCH = PLUGIN_ID + ".codeComplete.substringMatch"; //$NON-NLS-1$
 	/**
 	 * Code assist option ID: Automatic Qualification of Implicit Members.
 	 * <p>When active, completion automatically qualifies completion on implicit

@@ -6,9 +6,12 @@
  * http://www.eclipse.org/legal/epl-v10.html
  *
  * Contributors:
+ *     Timo Kinnunen - Contributions for bug 377373 - [subwords] known limitations with JDT 3.8
+ *     							Bug 420953 - [subwords] Constructors that don't match prefix not found
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
+ *     Gábor Kövesdán - Contribution for Bug 350000 - [content assist] Include non-prefix matches in auto-complete suggestions
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
@@ -4842,8 +4845,7 @@ public final class CompletionEngine
 		nextAttribute: for (int i = 0; i < methods.length; i++) {
 			MethodBinding method = methods[i];
 
-			if(!CharOperation.prefixEquals(token, method.selector, false)
-					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, method.selector))) continue nextAttribute;
+			if(isFailedMatch(token, method.selector)) continue nextAttribute;
 
 			int length = attributesFound == null ? 0 : attributesFound.length;
 			for (int j = 0; j < length; j++) {
@@ -5770,8 +5772,7 @@ public final class CompletionEngine
 
 			if (enumConstantLength > field.name.length) continue next;
 
-			if (!CharOperation.prefixEquals(enumConstantName, field.name, false /* ignore case */)
-					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(enumConstantName, field.name)))	continue next;
+			if (isFailedMatch(enumConstantName, field.name))	continue next;
 
 			char[] fieldName = field.name;
 
@@ -5959,8 +5960,7 @@ public final class CompletionEngine
 		if (typeName.length > exceptionType.sourceName.length)
 			return;
 
-		if (!CharOperation.prefixEquals(typeName, exceptionType.sourceName, false/* ignore case */)
-				&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(typeName, exceptionType.sourceName)))
+		if (isFailedMatch(typeName, exceptionType.sourceName))
 			return;
 
 		if (this.options.checkDeprecation &&
@@ -6297,8 +6297,7 @@ public final class CompletionEngine
 
 			if (fieldLength > field.name.length) continue next;
 
-			if (!CharOperation.prefixEquals(fieldName, field.name, false /* ignore case */)
-					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(fieldName, field.name)))	continue next;
+			if (isFailedMatch(fieldName, field.name))	continue next;
 
 			if (this.options.checkDeprecation &&
 					field.isViewedAsDeprecated() &&
@@ -7540,8 +7539,7 @@ public final class CompletionEngine
 
 			if (fieldLength > field.name.length) continue next;
 
-			if (!CharOperation.prefixEquals(fieldName, field.name, false /* ignore case */)
-					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(fieldName, field.name)))	continue next;
+			if (isFailedMatch(fieldName, field.name))	continue next;
 
 			if (this.options.checkDeprecation &&
 					field.isViewedAsDeprecated() &&
@@ -7781,8 +7779,7 @@ public final class CompletionEngine
 			if (typeLength > memberType.sourceName.length)
 				continue next;
 
-			if (!CharOperation.prefixEquals(typeName, memberType.sourceName, false/* ignore case */)
-					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(typeName, memberType.sourceName)))
+			if (isFailedMatch(typeName, memberType.sourceName))
 				continue next;
 
 			if (this.options.checkDeprecation && memberType.isViewedAsDeprecated()) continue next;
@@ -7838,8 +7835,7 @@ public final class CompletionEngine
 			if (!field.isStatic())
 				continue next;
 
-			if (!CharOperation.prefixEquals(fieldName, field.name, false/* ignore case */)
-				&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(fieldName, field.name)))
+			if (isFailedMatch(fieldName, field.name))
 				continue next;
 
 			if (this.options.checkDeprecation && field.isViewedAsDeprecated()) continue next;
@@ -7903,8 +7899,7 @@ public final class CompletionEngine
 			if (methodLength > method.selector.length)
 				continue next;
 
-			if (!CharOperation.prefixEquals(methodName, method.selector, false/* ignore case */)
-					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(methodName, method.selector)))
+			if (isFailedMatch(methodName, method.selector))
 				continue next;
 
 			int length = method.parameters.length;
@@ -8400,8 +8395,7 @@ public final class CompletionEngine
 				if (methodLength > method.selector.length)
 					continue next;
 
-				if (!CharOperation.prefixEquals(methodName, method.selector, false/* ignore case */)
-						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(methodName, method.selector)))
+				if (isFailedMatch(methodName, method.selector))
 					continue next;
 			}
 
@@ -8555,8 +8549,7 @@ public final class CompletionEngine
 				}
 			} else {
 				if (methodLength > method.selector.length) continue next;
-				if (!CharOperation.prefixEquals(methodName, method.selector, false /* ignore case */)
-						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(methodName, method.selector))) {
+				if (isFailedMatch(methodName, method.selector)) {
 					continue next;
 				}
 			}
@@ -8890,8 +8883,7 @@ public final class CompletionEngine
 
 				if (methodLength > method.selector.length) continue next;
 
-				if (!CharOperation.prefixEquals(methodName, method.selector, false /* ignore case */)
-						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(methodName, method.selector))) {
+				if (isFailedMatch(methodName, method.selector)) {
 					continue next;
 				}
 
@@ -9628,8 +9620,7 @@ public final class CompletionEngine
 			if (typeLength > memberType.sourceName.length)
 				continue next;
 
-			if (!CharOperation.prefixEquals(typeName, memberType.sourceName, false/* ignore case */)
-					&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(typeName, memberType.sourceName)))
+			if (isFailedMatch(typeName, memberType.sourceName))
 				continue next;
 
 			if (this.options.checkDeprecation &&
@@ -10160,8 +10151,7 @@ public final class CompletionEngine
 
 								if (typeLength > localType.sourceName.length)
 									continue next;
-								if (!CharOperation.prefixEquals(typeName, localType.sourceName, false/* ignore case */)
-										&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(typeName, localType.sourceName)))
+								if (isFailedMatch(typeName, localType.sourceName))
 									continue next;
 
 								for (int j = typesFound.size; --j >= 0;) {
@@ -10437,8 +10427,7 @@ public final class CompletionEngine
 
 					if (typeLength > typeParameter.name.length) continue;
 
-					if (!CharOperation.prefixEquals(token, typeParameter.name, false)
-							&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, typeParameter.name))) continue;
+					if (isFailedMatch(token, typeParameter.name)) continue;
 
 					int relevance = computeBaseRelevance();
 					relevance += computeRelevanceForResolution();
@@ -10538,8 +10527,7 @@ public final class CompletionEngine
 
 				if (typeLength > sourceType.sourceName.length) continue next;
 
-				if (!CharOperation.prefixEquals(token, sourceType.sourceName, false)
-						&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, sourceType.sourceName))) continue next;
+				if (isFailedMatch(token, sourceType.sourceName)) continue next;
 
 				if (this.assistNodeIsAnnotation && !hasPossibleAnnotationTarget(sourceType, scope)) {
 					continue next;
@@ -10917,8 +10905,7 @@ public final class CompletionEngine
 					if (typeLength > 0) {
 						if (typeLength > refBinding.sourceName.length) continue next;
 	
-						if (!CharOperation.prefixEquals(token, refBinding.sourceName, false)
-								&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, refBinding.sourceName))) continue next;
+						if (isFailedMatch(token, refBinding.sourceName)) continue next;
 					}
 
 
@@ -11084,8 +11071,7 @@ public final class CompletionEngine
 
 							if (typeLength > typeBinding.sourceName.length)	continue next;
 
-							if (!CharOperation.prefixEquals(token, typeBinding.sourceName, false)
-									&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, typeBinding.sourceName))) continue next;
+							if (isFailedMatch(token, typeBinding.sourceName)) continue next;
 							
 							int accessibility = IAccessRule.K_ACCESSIBLE;
 							if(typeBinding.hasRestrictedAccess()) {
@@ -11209,8 +11195,7 @@ public final class CompletionEngine
 
 							if (typeLength > typeBinding.sourceName.length)	continue;
 
-							if (!CharOperation.prefixEquals(token, typeBinding.sourceName, false)
-									&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, typeBinding.sourceName)))	continue;
+							if (isFailedMatch(token, typeBinding.sourceName))	continue;
 
 							if (typesFound.contains(typeBinding))  continue;
 
@@ -11734,8 +11719,7 @@ public final class CompletionEngine
 							if (tokenLength > local.name.length)
 								continue next;
 
-							if (!CharOperation.prefixEquals(token, local.name, false /* ignore case */)
-									&& !(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, local.name)))
+							if (isFailedMatch(token, local.name))
 								continue next;
 
 							if (local.isSecret())
@@ -12149,6 +12133,26 @@ public final class CompletionEngine
 	}
 	private boolean isAllowingLongComputationProposals() {
 		return this.monitor != null;
+	}
+	
+	/**
+	 * Checks whether name matches the token according to the current
+	 * code completion settings (substring match, camel case match etc.)
+	 * and sets whether the current match is a suffix proposal.
+	 * 
+	 * @param token the token that is tested
+	 * @param name the name to match
+	 * @return <code>true</code> if the token does not match,
+	 * <code>false</code> otherwise
+	 */
+	private boolean isFailedMatch(char[] token, char[] name) {
+		if ((this.options.substringMatch && CharOperation.substringMatch(token, name))
+				|| (this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, name))
+				|| CharOperation.prefixEquals(token, name, false)) {
+			return false;
+		}
+
+		return true;
 	}
 	private boolean isForbidden(ReferenceBinding binding) {
 		for (int i = 0; i <= this.forbbidenBindingsPtr; i++) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Gábor Kövesdán - Contribution for Bug 350000 - [content assist] Include non-prefix matches in auto-complete suggestions
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.impl;
 
@@ -51,6 +52,8 @@ public class AssistOptions {
 		"org.eclipse.jdt.core.codeComplete.discouragedReferenceCheck"; 	//$NON-NLS-1$
 	public static final String OPTION_CamelCaseMatch =
 		"org.eclipse.jdt.core.codeComplete.camelCaseMatch"; 	//$NON-NLS-1$
+	public static final String OPTION_SubstringMatch =
+			"org.eclipse.jdt.core.codeComplete.substringMatch"; 	//$NON-NLS-1$
 	public static final String OPTION_SuggestStaticImports =
 		"org.eclipse.jdt.core.codeComplete.suggestStaticImports"; 	//$NON-NLS-1$
 
@@ -63,6 +66,7 @@ public class AssistOptions {
 	public boolean checkDiscouragedReference = false;
 	public boolean forceImplicitQualification = false;
 	public boolean camelCaseMatch = true;
+	public boolean substringMatch = true;
 	public boolean suggestStaticImport = true;
 	public char[][] fieldPrefixes = null;
 	public char[][] staticFieldPrefixes = null;
@@ -227,6 +231,13 @@ public class AssistOptions {
 				this.camelCaseMatch = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.camelCaseMatch = false;
+			}
+		}
+		if ((optionValue = optionsMap.get(OPTION_SubstringMatch)) != null) {
+			if (ENABLED.equals(optionValue)) {
+				this.substringMatch = true;
+			} else if (DISABLED.equals(optionValue)) {
+				this.substringMatch = false;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_PerformDeprecationCheck)) != null) {
