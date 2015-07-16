@@ -493,6 +493,10 @@ public class InferenceContext18 {
 					if (withWildCards != null) {
 						t = ConstraintExpressionFormula.findGroundTargetType(this, skope, lambda, withWildCards);
 					}
+					if (!t.isProperType(true) && t.isParameterizedType()) {
+						// prevent already resolved inference variables from leaking into the lambda
+						t = (ReferenceBinding) Scope.substitute(getResultSubstitution(this.currentBounds, false), t);
+					}
 					MethodBinding functionType;
 					if (t != null && (functionType = t.getSingleAbstractMethod(skope, true)) != null && (lambda = lambda.resolveExpressionExpecting(t, this.scope, this)) != null) {
 						TypeBinding r = functionType.returnType;
@@ -1414,7 +1418,7 @@ public class InferenceContext18 {
 		this.usesUncheckedConversion = record.usesUncheckedConversion;
 	}
 
-	private Substitution getResultSubstitution(final BoundSet result) {
+	private Substitution getResultSubstitution(final BoundSet result, final boolean full) {
 		return new Substitution() {
 			public LookupEnvironment environment() { 
 				return InferenceContext18.this.environment;
@@ -1424,7 +1428,9 @@ public class InferenceContext18 {
 			}
 			public TypeBinding substitute(TypeVariableBinding typeVariable) {
 				if (typeVariable instanceof InferenceVariable) {
-					return result.getInstantiation((InferenceVariable) typeVariable, InferenceContext18.this.environment);
+					TypeBinding instantiation = result.getInstantiation((InferenceVariable) typeVariable, InferenceContext18.this.environment);
+					if (instantiation != null || full)
+						return instantiation;
 				}
 				return typeVariable;
 			}
@@ -1549,7 +1555,7 @@ public class InferenceContext18 {
 	void reportUncheckedConversions(BoundSet solution) {
 		if (this.constraintsWithUncheckedConversion != null) {
 			int len = this.constraintsWithUncheckedConversion.size();
-			Substitution substitution = getResultSubstitution(solution);
+			Substitution substitution = getResultSubstitution(solution, true);
 			for (int i = 0; i < len; i++) {
 				ConstraintTypeFormula constraint = (ConstraintTypeFormula) this.constraintsWithUncheckedConversion.get(i);
 				TypeBinding expectedType = constraint.right;

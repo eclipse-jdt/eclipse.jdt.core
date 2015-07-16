@@ -5412,4 +5412,37 @@ public void testBug472426() {
 			"}\n"
 		});
 }
+public void testBug469753() {
+	runConformTest(
+		new String[] {
+			"LambdaBug.java",
+			"import java.util.AbstractMap;\n" + 
+			"import java.util.Iterator;\n" + 
+			"import java.util.Map.Entry;\n" + 
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"public class LambdaBug {\n" + 
+			"\n" + 
+			"    class Item {\n" + 
+			"        String foo;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public void bug(String catalogKey, Iterator<Item> items) {\n" + 
+			"        go(transform(items, i -> pair(i.foo, i)));\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static <K, V> Entry<K, V> pair(K key, V value) {\n" + 
+			"        return new AbstractMap.SimpleImmutableEntry<K, V>(key, value);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    void go(Iterator<Entry<String, Item>> items) {\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static <F, T> Iterator<T> transform(Iterator<F> fromIterator, Function<? super F, ? extends T> function) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"}\n"
+		});
+}
 }
