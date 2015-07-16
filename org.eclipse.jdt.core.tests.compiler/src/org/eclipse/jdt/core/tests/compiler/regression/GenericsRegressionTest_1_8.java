@@ -5296,4 +5296,30 @@ public void testBug470942() {
 			"}\n"
 		});
 }
+public void testBug470958() {
+	runConformTest(
+		new String[] {
+			"Bug470958.java",
+			"import java.time.*;\n" + 
+			"import java.util.*;\n" + 
+			"import java.util.concurrent.*;\n" + 
+			"import static java.util.concurrent.CompletableFuture.*;\n" + 
+			"import static java.util.stream.Collectors.*;\n" + 
+			"\n" + 
+			"class Hotel {}\n" + 
+			"\n" + 
+			"class Bug470958 {\n" + 
+			"  public Map<String, CompletableFuture<List<Hotel>>> asyncLoadMany(List<String> codes, LocalDate begin, LocalDate end) {\n" + 
+			"    return loadMany(codes, begin, end)\n" + 
+			"    .entrySet()\n" + 
+			"    .stream()\n" + 
+			"    .collect(toMap(Map.Entry::getKey, entry -> completedFuture(entry.getValue())));\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public Map<String, List<Hotel>> loadMany(List<String> codes, LocalDate begin, LocalDate end) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
 }
