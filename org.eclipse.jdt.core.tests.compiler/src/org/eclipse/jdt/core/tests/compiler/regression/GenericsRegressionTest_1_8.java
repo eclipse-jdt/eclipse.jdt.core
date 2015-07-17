@@ -5471,4 +5471,25 @@ public void testBug470958() {
 			"}\n"
 		});
 }
+public void testBug470542() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.function.Consumer;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void test() {\n" + 
+			"		process(missing::new);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	<T> void process(Consumer<T> c) { }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	process(missing::new);\n" + 
+		"	        ^^^^^^^\n" + 
+		"missing cannot be resolved\n" + 
+		"----------\n");
+}
 }
