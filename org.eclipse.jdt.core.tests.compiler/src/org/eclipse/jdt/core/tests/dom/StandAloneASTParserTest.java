@@ -596,7 +596,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 				"  QR.Q q;\n" +
 				"  @V(v = A, d = \"\") Map p;\n" +
 				"}\n";
-		Map options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getOptions();
 		JavaCore.setComplianceOptions(JavaCore.VERSION_1_7, options);
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		parser.setCompilerOptions(options);

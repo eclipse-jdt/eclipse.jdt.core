@@ -61,7 +61,6 @@ import org.eclipse.jdt.internal.core.util.Util;
  * - don't use assertTrue where assertEquals should be used
  * - don't hardcode positions
 */
-@SuppressWarnings("rawtypes")
 public class AttachSourceTests extends ModifyingResourceTests {
 	static {
 //		TESTS_NAMES = new String[] { "testConstructorAccess" };
@@ -1734,7 +1733,7 @@ public void testConstructorAccess() throws JavaModelException {
 public void testBug336046() throws Exception {
 	String externalSourceLocation = getExternalFolder() + File.separator + "336046src";
 	IJavaProject project = this.getJavaProject("/AttachSourceTests");
-	Hashtable javaCoreOptions = JavaCore.getOptions();
+	Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 	IJavaProject importedProject = null;
 	try {
 		

@@ -624,7 +624,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		return runConversion(astLevel, source, unitName, project, null, resolveBindings);
 	}
 
-	public ASTNode runConversion(int astLevel, char[] source, String unitName, IJavaProject project, Map options, boolean resolveBindings) {
+	public ASTNode runConversion(int astLevel, char[] source, String unitName, IJavaProject project, Map<String, String> options, boolean resolveBindings) {
 		ASTParser parser = ASTParser.newParser(astLevel);
 		parser.setSource(source);
 		parser.setUnitName(unitName);
@@ -636,14 +636,14 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		return parser.createAST(null);
 	}
 
-	public ASTNode runConversion(int astLevel, char[] source, String unitName, IJavaProject project, Map options) {
+	public ASTNode runConversion(int astLevel, char[] source, String unitName, IJavaProject project, Map<String, String> options) {
 		return runConversion(astLevel, source, unitName, project, options, false);
 	}
 
-	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map options, boolean resolveBindings) {
+	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map<String, String> options, boolean resolveBindings) {
 		return runConversion(astInternalJLS2(), source, unitName, project, options, resolveBindings);
 	}
-	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map options) {
+	public ASTNode runConversion(char[] source, String unitName, IJavaProject project, Map<String, String> options) {
 		return runConversion(astInternalJLS2(), source, unitName, project, options);
 	}
 

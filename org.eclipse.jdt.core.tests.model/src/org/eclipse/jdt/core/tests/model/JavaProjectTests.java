@@ -2599,9 +2599,8 @@ public void testBug351697() throws Exception {
  * 
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=462756"
  */
-@SuppressWarnings("rawtypes")
 public void testBug462756() throws CoreException {
-	Hashtable javaCoreOptions = JavaCore.getOptions();
+	Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 	try {
 		IJavaProject proj = this.createJavaProject("P", new String[] {"src"}, new String[]{}, "bin");
 		proj.getProject().open(null);

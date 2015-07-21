@@ -33,7 +33,7 @@ public abstract class AbstractJavaModelCompletionTests extends AbstractJavaModel
 		public int tokenStart;
 		public int tokenEnd;
 	}
-	Hashtable oldOptions;
+	Hashtable<String, String> oldOptions;
 	ICompilationUnit wc = null;
 public AbstractJavaModelCompletionTests(String name) {
 	super(name);
