@@ -814,10 +814,10 @@ public class AnnotationProcessorFactoryLoader {
 		
 		ClassLoader cl;
 		if ( fileList.size() > 0 ) {
-			cl = createClassLoader( fileList, AnnotationProcessorFactoryLoader.class.getClassLoader() );
+			cl = createClassLoader( fileList, getParentClassLoader());
 		}
 		else {
-			cl = AnnotationProcessorFactoryLoader.class.getClassLoader();
+			cl = getParentClassLoader();
 		}
 		return cl;
 	}
@@ -845,7 +845,7 @@ public class AnnotationProcessorFactoryLoader {
 		synchronized (cacheMutex) {
 			ClassLoader parentCL = _iterativeLoaders.get(p);
 			if (parentCL == null) {
-				parentCL = AnnotationProcessorFactoryLoader.class.getClassLoader();
+				parentCL = getParentClassLoader();
 			}
 			
 			if ( fileList.size() > 0 ) {
@@ -855,7 +855,26 @@ public class AnnotationProcessorFactoryLoader {
 		}
 		return result;
 	}
-	
+
+	private static ClassLoader getParentClassLoader() {
+		final ClassLoader loaderForComSunMirrorClasses = AnnotationProcessorFactoryLoader.class.getClassLoader();
+		final ClassLoader loaderForEverythingElse = ClassLoader.getSystemClassLoader();
+		return new ClassLoader() {
+			@Override
+			protected Class<?> findClass(String name) throws ClassNotFoundException {
+				if (name.startsWith("com.sun.mirror.")) { //$NON-NLS-1$
+					if (name.startsWith("com.sun.mirror.apt") //$NON-NLS-1$
+							|| name.startsWith("com.sun.mirror.declaration") //$NON-NLS-1$
+							|| name.startsWith("com.sun.mirror.type") //$NON-NLS-1$
+							|| name.startsWith("com.sun.mirror.util")) { //$NON-NLS-1$
+						return loaderForComSunMirrorClasses.loadClass(name);
+					}
+				}
+				return loaderForEverythingElse.loadClass(name);
+			}
+		};
+	}
+
 	private static ClassLoader createClassLoader(List<File> files, ClassLoader parentCL) {
 		//return new JarClassLoader(files, parentCL);
 		List<URL> urls = new ArrayList<URL>(files.size());
