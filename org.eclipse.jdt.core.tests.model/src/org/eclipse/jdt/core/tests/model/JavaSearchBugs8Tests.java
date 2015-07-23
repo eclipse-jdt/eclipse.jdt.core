@@ -10,13 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import junit.framework.Test;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -26,7 +24,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -37,7 +34,6 @@ import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
-import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.AndPattern;
@@ -4697,75 +4693,15 @@ public void testBug468127_0001() throws CoreException {
 			"	static private void foo(int i) {}\n" +
 			"}\n"
 		);
+		addLibraryEntry(project, "/JavaSearchBugs/lib/b468127.jar", false);
 
-		String libSource = "final class MyDistinctOps {\n" +
-				"    static <T> MyStatefulOp<T> makeRef() {\n" +
-				"        return new MyStatefulOp<T>() {\n" +
-				"			@SuppressWarnings(\"unused\")\n" +
-				"			@Override\n" +
-				"		 	void opEvaluateParallel() {\n" +
-				"                TerminalOp<T, Void> forEachOp = ForEachOps.makeRef(t -> {}, false);\n" +
-				"			}\n" +
-				"    @SuppressWarnings({ \"unchecked\", \"rawtypes\", \"unused\" })\n" +
-				"	 MySink<T> opWrapSink(MySink<T> sink) {\n" +
-				"           return new MySink.ChainedReference(sink) {\n" +
-				"\n" +
-				"				@Override\n" +
-				"				public void accept(Object t) {\n" +
-				"                     downstream.accept(t);					\n" +
-				"				}\n" +
-				"            };\n" +
-				"        }\n" +
-				"        };\n" +
-				"}\n" +
-				"\n" +
-				"interface TerminalOp<E_IN, R> {}\n" +
-				"final static class ForEachOps {\n" +
-				"    public static <T> TerminalOp<T, Void> makeRef(IY<? super T> action,\n" +
-				"                                                  boolean ordered) {\n" +
-				"    	return null;\n" +
-				"    }\n" +
-				"\n" +
-				"}\n" +
-				"\n" +
-				"abstract static class MyStatefulOp<T> {\n" +
-				"	abstract void opEvaluateParallel();\n" +
-				"}\n" +
-				"}\n" +
-				"\n" +
-				"interface MySink<T> extends IY<T> {\n" +
-				"    static abstract class ChainedReference<T, E_OUT> implements MySink<T> {\n" +
-				"    protected final MySink<T> downstream;\n" +
-				"\n" +
-				"    public ChainedReference(MySink<T> downstream) {\n" +
-				"        this.downstream = downstream;\n" +
-				"    }\n" +
-				"}\n" +
-				"}\n";
-
-		String iy = "@FunctionalInterface\n" +
-					"public interface IY<T> {\n" +
-					"  public void accept(T t);\n" +
-					"}\n";	
-		try {
-			String jarFileName = "lib468127.jar";
-			String srcZipName = "lib468127.src.zip";
-			createLibrary(project, jarFileName, srcZipName, new String[] {"IY.java", iy, "MyDistinctOps.java",libSource},
-					new String[0], JavaCore.VERSION_1_8);
-			IFile srcZip=(IFile) project.getProject().findMember(srcZipName);
-			IFile jar = (IFile) project.getProject().findMember(jarFileName);
-			JarPackageFragmentRoot root = (JarPackageFragmentRoot) project.getPackageFragmentRoot(jar);
-			root.attachSource(srcZip.getFullPath(), null, null);
-			waitUntilIndexesReady();
-
-			SearchPattern pattern = SearchPattern.createPattern("IY.accept(T)", METHOD, REFERENCES, ERASURE_RULE);
-			search(pattern, SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES), this.resultCollector);
-			assertSearchResults(
-					"src/X.java void X.main(String[]) [accept(0)] EXACT_MATCH\n" + 
-					"lib468127.jar void <anonymous>.accept(java.lang.Object) EXACT_MATCH");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		waitUntilIndexesReady();
+		
+		SearchPattern pattern = SearchPattern.createPattern("IY.accept(T)", METHOD, REFERENCES, ERASURE_RULE);
+		search(pattern, SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES), this.resultCollector);
+		assertSearchResults(
+				"src/X.java void X.main(String[]) [accept(0)] EXACT_MATCH\n" + 
+				"lib/b468127.jar void <anonymous>.accept(java.lang.Object) EXACT_MATCH");
 	}
 	finally {
 		deleteProject("P");
