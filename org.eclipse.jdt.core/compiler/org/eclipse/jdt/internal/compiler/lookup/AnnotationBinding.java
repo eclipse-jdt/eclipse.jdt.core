@@ -292,8 +292,6 @@ public boolean equals(Object object) {
 		}
 		return false;
 	}
-	if (this.hashCode() != object.hashCode()) 
-		System.out.println("ERROR: HASHCODE UNEQUAL");
 	return true;
 }
 }
