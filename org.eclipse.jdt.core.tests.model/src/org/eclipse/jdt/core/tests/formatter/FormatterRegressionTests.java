@@ -13074,5 +13074,44 @@ public void testBug432593() throws IOException {
 		e.printStackTrace();
 	} 
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=467229
+public void testBug467229() throws IOException {
+	final Map<String, String> optionsMap = JavaCore.getOptions();
+	int tabSize = 3;
+	int indentSize = 5;
+	String[] keysToCheck = {
+			DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE,
+			DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE };
+
+	optionsMap.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, tabSize + "");
+	optionsMap.put(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE, indentSize + "");
+
+	/* compare with org.eclipse.jdt.internal.ui.preferences.formatter.IndentationTabPage.updateTabPreferences() */
+	optionsMap.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, DefaultCodeFormatterConstants.MIXED);
+	DefaultCodeFormatterOptions options = new DefaultCodeFormatterOptions(optionsMap);
+	assertEquals(tabSize, options.tab_size);
+	assertEquals(indentSize, options.indentation_size);
+	Map<String, String> optionsMap2 = options.getMap();
+	for (String key : keysToCheck) {
+		assertEquals(key, optionsMap.get(key), optionsMap2.get(key));
+	}
+
+	optionsMap.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
+	options.set(optionsMap);
+	assertEquals(indentSize, options.tab_size);
+	assertEquals(tabSize, options.indentation_size);
+	optionsMap2 = options.getMap();
+	for (String key : keysToCheck) {
+		assertEquals(key, optionsMap.get(key), optionsMap2.get(key));
+	}
+
+	optionsMap.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.TAB);
+	options.set(optionsMap);
+	assertEquals(tabSize, options.tab_size);
+	assertEquals(tabSize, options.indentation_size);
+	optionsMap2 = options.getMap();
+	String key = keysToCheck[0]; // the other is lost in this conversion
+	assertEquals(key, optionsMap.get(key), optionsMap2.get(key));
+}
 
 }
