@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 - 2012 BEA Systems, Inc. and others
+ * Copyright (c) 2007 - 2015 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -194,13 +194,20 @@ public class TypesImpl implements Types {
         TypeMirrorImpl typeMirrorImpl = (TypeMirrorImpl) t;
         Binding binding = typeMirrorImpl._binding;
         if (binding instanceof ReferenceBinding) {
-            return _env.getFactory().newTypeMirror(((ReferenceBinding) binding).erasure());
+        	TypeBinding type = ((ReferenceBinding) binding).erasure();
+        	if (type.isGenericType()) {
+        		type = _env.getLookupEnvironment().convertToRawType(type, false);
+        	}
+            return _env.getFactory().newTypeMirror(type);
         }
         if (binding instanceof ArrayBinding) {
             TypeBinding typeBinding = (TypeBinding) binding;
+            TypeBinding leafType = typeBinding.leafComponentType().erasure();
+            if (leafType.isGenericType()) {
+            	leafType = _env.getLookupEnvironment().convertToRawType(leafType, false);
+            }
             return _env.getFactory().newTypeMirror(
-                    this._env.getLookupEnvironment().createArrayType(
-                            typeBinding.leafComponentType().erasure(),
+                    this._env.getLookupEnvironment().createArrayType(leafType,
                             typeBinding.dimensions()));
         }
         return t;
