@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
@@ -123,15 +125,15 @@ public class ExternalAnnotationProvider {
 				annotSig = trimTail(annotSig);
 				if (isSuper) {
 					if (this.supertypeAnnotationSources == null)
-						this.supertypeAnnotationSources = new HashMap<String, String>();
+						this.supertypeAnnotationSources = new HashMap<>();
 					this.supertypeAnnotationSources.put('L'+selector+rawSig+';', annotSig);
 				} else if (rawSig.contains("(")) { //$NON-NLS-1$
 					if (this.methodAnnotationSources == null)
-						this.methodAnnotationSources = new HashMap<String, String>();
+						this.methodAnnotationSources = new HashMap<>();
 					this.methodAnnotationSources.put(selector+rawSig, annotSig);
 				} else {
 					if (this.fieldAnnotationSources == null)
-						this.fieldAnnotationSources = new HashMap<String, String>();
+						this.fieldAnnotationSources = new HashMap<>();
 					this.fieldAnnotationSources.put(selector+':'+rawSig, annotSig);
 				}
 			} while (((line = pendingLine) != null) || (line = reader.readLine()) != null);

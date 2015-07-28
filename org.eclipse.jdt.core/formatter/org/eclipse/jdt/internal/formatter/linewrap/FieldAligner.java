@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter.linewrap;
 
@@ -62,7 +64,7 @@ public class FieldAligner {
 		}
 	}
 
-	private final List<List<FieldDeclaration>> fieldAlignGroups = new ArrayList<List<FieldDeclaration>>();
+	private final List<List<FieldDeclaration>> fieldAlignGroups = new ArrayList<>();
 
 	final TokenManager tm;
 
@@ -75,7 +77,7 @@ public class FieldAligner {
 
 	public void prepareAlign(TypeDeclaration node) {
 		List<FieldDeclaration> bodyDeclarations = node.bodyDeclarations();
-		ArrayList<FieldDeclaration> alignGroup = new ArrayList<FieldDeclaration>();
+		ArrayList<FieldDeclaration> alignGroup = new ArrayList<>();
 		BodyDeclaration previous = null;
 		for (BodyDeclaration declaration : bodyDeclarations) {
 			if (!alignGroup.isEmpty()) {
@@ -83,7 +85,7 @@ public class FieldAligner {
 					alignGroup.add((FieldDeclaration) declaration);
 				} else {
 					alignFields(alignGroup);
-					alignGroup = new ArrayList<FieldDeclaration>();
+					alignGroup = new ArrayList<>();
 				}
 			}
 			if (alignGroup.isEmpty()) {

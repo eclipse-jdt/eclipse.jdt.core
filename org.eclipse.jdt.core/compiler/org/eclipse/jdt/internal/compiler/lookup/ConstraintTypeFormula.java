@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -240,7 +242,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				}
 			case Binding.PARAMETERIZED_TYPE:
 				{
-					List<ConstraintFormula> constraints = new ArrayList<ConstraintFormula>();
+					List<ConstraintFormula> constraints = new ArrayList<>();
 					while (superCandidate != null && superCandidate.kind() == Binding.PARAMETERIZED_TYPE && subCandidate != null)  {
 						if (!addConstraintsFromTypeParameters(subCandidate, (ParameterizedTypeBinding) superCandidate, constraints))
 							return FALSE;

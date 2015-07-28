@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 Google Inc and others.
+ * Copyright (c) 2014, 2015 Google Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     John Glassmyer <jogl@google.com> - import group sorting is broken - https://bugs.eclipse.org/430303
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.dom.rewrite.imports;
 
@@ -29,8 +31,8 @@ public class ConflictIdentifier {
 		final Set<String> staticConflicts;
 
 		Conflicts(Set<String> typeConflicts, Set<String> staticConflicts) {
-			this.typeConflicts = Collections.unmodifiableSet(new HashSet<String>(typeConflicts));
-			this.staticConflicts = Collections.unmodifiableSet(new HashSet<String>(staticConflicts));
+			this.typeConflicts = Collections.unmodifiableSet(new HashSet<>(typeConflicts));
+			this.staticConflicts = Collections.unmodifiableSet(new HashSet<>(staticConflicts));
 		}
 
 		@Override
@@ -83,8 +85,8 @@ public class ConflictIdentifier {
 		Collection<OnDemandReduction> onDemandCandidates = this.onDemandComputer.identifyPossibleReductions(
 				imports, addedImports, typeExplicitSimpleNames, staticExplicitSimpleNames);
 
-		Set<String> typeOnDemandContainers = new HashSet<String>(extractContainerNames(onDemandCandidates, false));
-		Set<String> staticOnDemandContainers = new HashSet<String>(extractContainerNames(onDemandCandidates, true));
+		Set<String> typeOnDemandContainers = new HashSet<>(extractContainerNames(onDemandCandidates, false));
+		Set<String> staticOnDemandContainers = new HashSet<>(extractContainerNames(onDemandCandidates, true));
 
 		if (!typeOnDemandContainers.isEmpty()) {
 			// Existing on-demands might conflict with new or existing on-demands.
@@ -113,7 +115,7 @@ public class ConflictIdentifier {
 
 	private Collection<String> extractContainerNames(
 			Collection<OnDemandReduction> onDemandCandidates, boolean isStatic) {
-		Collection<String> containerNames = new ArrayList<String>(onDemandCandidates.size());
+		Collection<String> containerNames = new ArrayList<>(onDemandCandidates.size());
 		for (OnDemandReduction onDemandCandidate : onDemandCandidates) {
 			ImportName containerOnDemand = onDemandCandidate.containerOnDemand;
 			if (containerOnDemand.isStatic == isStatic) {
@@ -126,7 +128,7 @@ public class ConflictIdentifier {
 
 	private Collection<String> extractOnDemandContainerNames(
 			Collection<ImportName> imports, boolean isStatic) {
-		Collection<String> onDemandContainerNames = new ArrayList<String>(imports.size());
+		Collection<String> onDemandContainerNames = new ArrayList<>(imports.size());
 		for (ImportName importName : imports) {
 			if (importName.isOnDemand() && importName.isStatic == isStatic) {
 				onDemandContainerNames.add(importName.containerName);
@@ -146,7 +148,7 @@ public class ConflictIdentifier {
 			return Collections.emptySet();
 		}
 
-		Set<String> simpleNames = new HashSet<String>();
+		Set<String> simpleNames = new HashSet<>();
 		for (ImportName currentImport : imports) {
 			if (currentImport.isStatic == isStatic) {
 				simpleNames.add(currentImport.simpleName);

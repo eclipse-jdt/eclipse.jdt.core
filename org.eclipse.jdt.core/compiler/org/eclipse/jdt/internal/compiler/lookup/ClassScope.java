@@ -24,6 +24,8 @@
  *        Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
  *                          Bug 415821 - [1.8][compiler] CLASS_EXTENDS target type annotation missing for anonymous classes
  *     het@google.com - Bug 456986 - Bogus error when annotation processor generates annotation type
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -1137,7 +1139,7 @@ public class ClassScope extends Scope {
 	public boolean deferCheck(Runnable check) {
 		if (compilationUnitScope().connectingHierarchy) {
 			if (this.deferredBoundChecks == null)
-				this.deferredBoundChecks = new ArrayList<Object>();
+				this.deferredBoundChecks = new ArrayList<>();
 			this.deferredBoundChecks.add(check);
 			return true;
 		} else {

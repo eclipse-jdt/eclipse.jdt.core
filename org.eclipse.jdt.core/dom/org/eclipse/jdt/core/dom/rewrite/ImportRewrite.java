@@ -8,6 +8,8 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     John Glassmyer <jogl@google.com> - import group sorting is broken - https://bugs.eclipse.org/430303
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 
 package org.eclipse.jdt.core.dom.rewrite;
@@ -296,10 +298,10 @@ public final class ImportRewrite {
 				return findInImports(qualifier, name, kind);
 			}
 		};
-		this.addedImports= new ArrayList<String>();
-		this.removedImports= new ArrayList<String>();
-		this.typeExplicitSimpleNames = new HashSet<String>();
-		this.staticExplicitSimpleNames = new HashSet<String>();
+		this.addedImports= new ArrayList<>();
+		this.removedImports= new ArrayList<>();
+		this.typeExplicitSimpleNames = new HashSet<>();
+		this.staticExplicitSimpleNames = new HashSet<>();
 		this.createdImports= null;
 		this.createdStaticImports= null;
 
@@ -1287,7 +1289,7 @@ public final class ImportRewrite {
 		if (imports == null) {
 			return CharOperation.NO_STRINGS;
 		}
-		List<String> res= new ArrayList<String>();
+		List<String> res= new ArrayList<>();
 		for (String curr : imports) {
 			if (prefix == curr.charAt(0)) {
 				res.add(curr.substring(1));

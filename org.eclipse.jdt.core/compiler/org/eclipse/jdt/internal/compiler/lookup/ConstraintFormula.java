@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 GK Software AG.
+ * Copyright (c) 2013, 2015 GK Software AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -35,7 +37,7 @@ abstract class ConstraintFormula extends ReductionResult {
 	}
 	
 	Collection<InferenceVariable> outputVariables(InferenceContext18 context) {
-		Set<InferenceVariable> variables = new HashSet<InferenceVariable>();
+		Set<InferenceVariable> variables = new HashSet<>();
 		this.right.collectInferenceVariables(variables);
 		if (!variables.isEmpty())
 			variables.removeAll(inputVariables(context));

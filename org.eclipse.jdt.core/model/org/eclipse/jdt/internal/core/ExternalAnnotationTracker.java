@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -62,13 +64,13 @@ public class ExternalAnnotationTracker implements IResourceChangeListener {
 
 		Map<IPath, DirectoryNode> getChildren() {
 			if (this.children == null)
-				this.children = new HashMap<IPath, DirectoryNode>();
+				this.children = new HashMap<>();
 			return this.children;
 		}
 
 		void registerClassFile(IPath relativeAnnotationPath, ClassFile classFile) {
 			if (this.classFiles == null)
-				this.classFiles = new HashMap<IPath, ClassFile>();
+				this.classFiles = new HashMap<>();
 			this.classFiles.put(relativeAnnotationPath, classFile);
 			if (this.modelRoot == null)
 				this.modelRoot = classFile.getPackageFragmentRoot();

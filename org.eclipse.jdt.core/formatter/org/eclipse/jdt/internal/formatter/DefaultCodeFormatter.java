@@ -12,6 +12,8 @@
  *     Harry Terkelsen (het@google.com) - Bug 449262 - Allow the use of third-party Java formatters
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] follow up bug for comments - https://bugs.eclipse.org/458208
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -76,7 +78,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	private char[] sourceArray;
 
 	private ASTNode astRoot;
-	private List<Token> tokens = new ArrayList<Token>();
+	private List<Token> tokens = new ArrayList<>();
 	private TokenManager tokenManager;
 
 	public DefaultCodeFormatter() {

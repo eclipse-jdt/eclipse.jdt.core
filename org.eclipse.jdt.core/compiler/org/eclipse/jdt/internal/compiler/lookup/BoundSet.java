@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -49,13 +51,13 @@ class BoundSet {
 		public boolean addBound(TypeBound bound) {
 			switch (bound.relation) {
 				case ReductionResult.SUPERTYPE:
-					if (this.superBounds == null) this.superBounds = new HashSet<TypeBound>();
+					if (this.superBounds == null) this.superBounds = new HashSet<>();
 					return this.superBounds.add(bound);
 				case ReductionResult.SAME:
-					if (this.sameBounds == null) this.sameBounds = new HashSet<TypeBound>();
+					if (this.sameBounds == null) this.sameBounds = new HashSet<>();
 					return this.sameBounds.add(bound);
 				case ReductionResult.SUBTYPE:
-					if (this.subBounds == null) this.subBounds = new HashSet<TypeBound>();
+					if (this.subBounds == null) this.subBounds = new HashSet<>();
 					return this.subBounds.add(bound);
 				default:
 					throw new IllegalArgumentException("Unexpected bound relation in : " + bound); //$NON-NLS-1$
@@ -171,11 +173,11 @@ class BoundSet {
 		public ThreeSets copy() {
 			ThreeSets copy = new ThreeSets();
 			if (this.superBounds != null)
-				copy.superBounds = new HashSet<TypeBound>(this.superBounds);
+				copy.superBounds = new HashSet<>(this.superBounds);
 			if (this.sameBounds != null)
-				copy.sameBounds = new HashSet<TypeBound>(this.sameBounds);
+				copy.sameBounds = new HashSet<>(this.sameBounds);
 			if (this.subBounds != null)
-				copy.subBounds = new HashSet<TypeBound>(this.subBounds);
+				copy.subBounds = new HashSet<>(this.subBounds);
 			copy.instantiation = this.instantiation;
 			return copy;
 		}
@@ -294,15 +296,15 @@ class BoundSet {
 		}
 	}
 	// main storage of type bounds:
-	HashMap<InferenceVariable, ThreeSets> boundsPerVariable = new HashMap<InferenceVariable, ThreeSets>();
+	HashMap<InferenceVariable, ThreeSets> boundsPerVariable = new HashMap<>();
 	
 	/**
 	 * 18.1.3 bullet 4: G<α1, ..., αn> = capture(G<A1, ..., An>)
 	 * On both sides we only enter types with nonnull arguments. 
 	 */
-	HashMap<ParameterizedTypeBinding,ParameterizedTypeBinding> captures = new HashMap<ParameterizedTypeBinding, ParameterizedTypeBinding>();
+	HashMap<ParameterizedTypeBinding,ParameterizedTypeBinding> captures = new HashMap<>();
 	/** 18.1.3 bullet 5: throws α */
-	Set<InferenceVariable> inThrows = new HashSet<InferenceVariable>();
+	Set<InferenceVariable> inThrows = new HashSet<>();
 
 	private TypeBound [] incorporatedBounds = new TypeBound[0];
 	private TypeBound [] unincorporatedBounds = new TypeBound [1024];
@@ -410,7 +412,7 @@ class BoundSet {
 				if (three == null)
 					this.boundsPerVariable.put(rightIV, (three = new ThreeSets()));
 				if (three.inverseBounds == null)
-					three.inverseBounds = new HashMap<InferenceVariable,TypeBound>();
+					three.inverseBounds = new HashMap<>();
 				three.inverseBounds.put(rightIV, bound);
 			}
 		}
@@ -822,7 +824,7 @@ class BoundSet {
 		TypeBinding[] tis = t.typeArguments();
 		if (sis == null || tis == null || sis.length != tis.length)
 			return null;
-		List<ConstraintTypeFormula> result = new ArrayList<ConstraintTypeFormula>(); 
+		List<ConstraintTypeFormula> result = new ArrayList<>(); 
 		for (int i = 0; i < sis.length; i++) {
 			TypeBinding si = sis[i];
 			TypeBinding ti = tis[i];
@@ -1010,7 +1012,7 @@ class BoundSet {
 		// ii) B2 contains two bounds of the forms S1 <: α and S2 <: α, where
 		//     S1 and S2 have supertypes (4.10) that are two different parameterizations of the same generic class or interface.
 		if (ts.superBounds != null) {
-			ArrayList<TypeBound> superBounds = new ArrayList<TypeBound>(ts.superBounds);
+			ArrayList<TypeBound> superBounds = new ArrayList<>(ts.superBounds);
 			int len = superBounds.size();
 			for (int i=0; i<len; i++) {
 				TypeBinding s1 = superBounds.get(i).right;
