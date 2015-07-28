@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2014 Walter Harley and others
+ * Copyright (c) 2008, 2015 Walter Harley and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    eclipse@cafewalter.com - initial API and implementation
+ *    IBM Corporation - 	Added new test testInfoProblems()
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.pluggable.tests;
@@ -88,6 +89,41 @@ public class ModelTests extends TestBase
 		assertTrue("Processor did not run", ProcessorTestStatus.processorRan());
 		assertEquals("Processor reported errors", ProcessorTestStatus.NO_ERRORS, ProcessorTestStatus.getErrors());
 	}	
+	/**
+	 * Test whether problems with severity Info are flagged accordingly.
+	 * 
+	 * @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=83548
+	 */
+	public void testInfoProblems() throws Throwable {
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJavaProject(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IPath projPath = proj.getFullPath();
+
+		jproj.setOption(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
+		jproj.setOption(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.INFO);
+		jproj.setOption(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.INFO);
+
+		IPath className = env.addClass(projPath.append("src"),
+				ModelTesterProc.TEST_METHOD_TYPE_PKG,
+				"X",
+				"package p;\n" +
+				"public class X { \n" +
+				"	int i;\n" +
+				"	public int foo(int p) {\n" +
+				"		int k = 0;\n" +
+				"		return i;\n" +
+				"	}\n" +
+				"}");
+
+		fullBuild();
+		expectingProblemsFor(className,
+				"Problem : The value of the local variable k is not used [ resource : </"+ _projectName + "/src/p/X.java> range : <68,69> category : <120> severity : <0>]\n" +
+				"Problem : The value of the parameter p is not used [ resource : </"+ _projectName + "/src/p/X.java> range : <57,58> category : <120> severity : <1>]\n" +
+				"Problem : Unqualified access to the field X.i  [ resource : </"+ _projectName + "/src/p/X.java> range : <84,85> category : <80> severity : <0>]");
+		env.removeClass(projPath.append("src").append(ModelTesterProc.TEST_METHOD_TYPE_PKG), ModelTesterProc.TEST_METHOD_TYPE_CLASS);
+	}
 
 	/**
 	 * Call ModelTester8Proc.testMethodParameters(), which checks the type of a method

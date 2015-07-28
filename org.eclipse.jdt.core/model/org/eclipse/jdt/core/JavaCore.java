@@ -354,7 +354,7 @@ public final class JavaCore extends Plugin {
 	 *    error or a warning.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @category CompilerOptionID
@@ -367,7 +367,7 @@ public final class JavaCore extends Plugin {
 	 *    scenario either as an error or a warning.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.methodWithConstructorName"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @category CompilerOptionID
@@ -379,7 +379,7 @@ public final class JavaCore extends Plugin {
 	 *    error or a warning.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.deprecation"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @category CompilerOptionID
@@ -423,7 +423,7 @@ public final class JavaCore extends Plugin {
 	 *    catch blocks corresponding to checked exceptions.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @category CompilerOptionID
@@ -435,7 +435,7 @@ public final class JavaCore extends Plugin {
 	 *    variables (that is, variables never read from).</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedLocal"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @category CompilerOptionID
@@ -447,7 +447,7 @@ public final class JavaCore extends Plugin {
 	 *    parameters (that is, parameters never read from).</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedParameter"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @category CompilerOptionID
@@ -459,7 +459,7 @@ public final class JavaCore extends Plugin {
 	 *    parameters (that is, the thrown exception is never read from).</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedExceptionParameter"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @category CompilerOptionID
@@ -514,7 +514,7 @@ public final class JavaCore extends Plugin {
 	 *    reference.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedImport"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 2.0
@@ -528,7 +528,7 @@ public final class JavaCore extends Plugin {
 	 *    in an error. From Java7 on, unused type arguments are being tolerated, and optionally warned against.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedTypeArgumentsForMethodInvocation"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.4
@@ -542,7 +542,7 @@ public final class JavaCore extends Plugin {
 	 *    performance implications.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @category CompilerOptionID
@@ -555,7 +555,7 @@ public final class JavaCore extends Plugin {
 	 * unused type parameter. </p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedTypeParameter"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.9
@@ -569,7 +569,7 @@ public final class JavaCore extends Plugin {
 	 *    String literal (that is, not tagged with <code>//$NON-NLS-&lt;n&gt;$</code>).</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.nonExternalizedStringLiteral"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 2.0
@@ -582,7 +582,7 @@ public final class JavaCore extends Plugin {
 	 *    used as an identifier (reserved keyword in 1.4).</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.assertIdentifier"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 2.0
@@ -595,7 +595,7 @@ public final class JavaCore extends Plugin {
 	 *    used as an identifier (reserved keyword in 1.5).</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.enumIdentifier"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.1
@@ -609,7 +609,7 @@ public final class JavaCore extends Plugin {
 	 *    be qualified with a type name.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.staticAccessReceiver"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 2.1
@@ -623,7 +623,7 @@ public final class JavaCore extends Plugin {
 	 *    preferably be qualified with its declaring type name.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.indirectStaticAccess"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.0
@@ -636,7 +636,7 @@ public final class JavaCore extends Plugin {
 	 *    has no effect (e.g <code>'x = x'</code>).</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.noEffectAssignment"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 2.1
@@ -655,7 +655,7 @@ public final class JavaCore extends Plugin {
 	 *    </pre>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.incompatibleNonInheritedInterfaceMethod"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 2.1
@@ -668,7 +668,7 @@ public final class JavaCore extends Plugin {
 	 *    method or field is declared but never used within the same unit.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedPrivateMember"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 2.1
@@ -681,7 +681,7 @@ public final class JavaCore extends Plugin {
 	 *    declaration is hiding some field or local variable (either locally, inherited or defined in enclosing type).</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.localVariableHiding"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.0
@@ -708,7 +708,7 @@ public final class JavaCore extends Plugin {
 	 *    declaration is hiding some field or local variable (either locally, inherited or defined in enclosing type).</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.fieldHiding"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.0
@@ -722,7 +722,7 @@ public final class JavaCore extends Plugin {
 	 *    a nested type is hiding another nested type defined in same unit.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.typeParameterHiding"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.1
@@ -735,7 +735,7 @@ public final class JavaCore extends Plugin {
 	 *    of a control statement  (where it probably was meant to be a boolean comparison).</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.possibleAccidentalBooleanAssignment"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.0
@@ -748,7 +748,7 @@ public final class JavaCore extends Plugin {
 	 *    entered by falling through previous case. Empty cases are allowed.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.fallthroughCase"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.2
@@ -761,7 +761,7 @@ public final class JavaCore extends Plugin {
 	 *    unnecessary semicolon is encountered.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.emptyStatement"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.0
@@ -772,7 +772,7 @@ public final class JavaCore extends Plugin {
 	 * Compiler option ID.
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.booleanMethodThrowingException"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.0
@@ -786,7 +786,7 @@ public final class JavaCore extends Plugin {
 	 *    is unnecessary.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.0
@@ -799,7 +799,7 @@ public final class JavaCore extends Plugin {
 	 *    nested within an <code>else</code> clause (in situation where then clause is not completing normally).</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unnecessaryElse"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.0
@@ -812,7 +812,7 @@ public final class JavaCore extends Plugin {
 	 *    documented with any comment.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.0
@@ -824,7 +824,7 @@ public final class JavaCore extends Plugin {
 	 * <p>When enabled, the compiler will issue an error or a warning when a finally block does not complete normally.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.finallyBlockNotCompletingNormally"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.0
@@ -843,7 +843,7 @@ public final class JavaCore extends Plugin {
 	 *    and {@link #COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_WHEN_OVERRIDING}.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedDeclaredThrownException"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.0
@@ -921,7 +921,7 @@ public final class JavaCore extends Plugin {
 	 *    In order to improve code readability, it should be qualified, e.g. <code>'x'</code> should rather be written <code>'this.x'</code>.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.0
@@ -940,7 +940,7 @@ public final class JavaCore extends Plugin {
 	 *    invalidates type safety since involving raw types (e.g. invoking <code>#foo(X&lt;String&gt;)</code> with arguments <code>(X)</code>).</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.1
@@ -954,7 +954,7 @@ public final class JavaCore extends Plugin {
 	 *    reject raw references to generic types.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.rawTypeReference"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.2
@@ -984,7 +984,7 @@ public final class JavaCore extends Plugin {
 	 *    bound corresponding to a final type; since final types cannot be further extended, the parameter is pretty useless.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.finalParameterBound"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.1
@@ -997,7 +997,7 @@ public final class JavaCore extends Plugin {
 	 *    of a <code>serialVersionUID</code> field. This field must be declared as static final and be of type <code>long</code>.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingSerialVersion"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.1
@@ -1011,7 +1011,7 @@ public final class JavaCore extends Plugin {
 	 *    invoked with arguments <code>("foo", null)</code>).</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.varargsArgumentNeedCast"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.1
@@ -1024,7 +1024,7 @@ public final class JavaCore extends Plugin {
 	 *    conversion is performed.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.autoboxing"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.1
@@ -1037,7 +1037,7 @@ public final class JavaCore extends Plugin {
 	 *    as a super-interface. Though legal, this is discouraged.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.annotationSuperInterface"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.1
@@ -1050,7 +1050,7 @@ public final class JavaCore extends Plugin {
 	 *    declaration which overrides a superclass method but has no <code>@Override</code> annotation.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingOverrideAnnotation"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.1
@@ -1078,7 +1078,7 @@ public final class JavaCore extends Plugin {
 	 *    carrying a <code>@deprecated</code> doc tag but having no corresponding <code>@Deprecated</code> annotation.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingDeprecatedAnnotation"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.1
@@ -1091,7 +1091,7 @@ public final class JavaCore extends Plugin {
 	 * overrides Object.equals(Object) but does not override hashCode().</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingHashCodeMethod"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.5
@@ -1105,7 +1105,7 @@ public final class JavaCore extends Plugin {
 	 * going to be signaled as being dead code.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.deadCode"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.5
@@ -1132,7 +1132,7 @@ public final class JavaCore extends Plugin {
 	 * 		Reporting is further controlled by the option {@link #COMPILER_PB_MISSING_ENUM_CASE_DESPITE_DEFAULT}.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.incompleteEnumSwitch"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.1
@@ -1163,7 +1163,7 @@ public final class JavaCore extends Plugin {
 	 * 		against each switch statement that lacks a default case.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingDefaultCase"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.8
@@ -1184,7 +1184,7 @@ public final class JavaCore extends Plugin {
 	 *    <code>LABEL: { break; }</code>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedLabel"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.2
@@ -1197,7 +1197,7 @@ public final class JavaCore extends Plugin {
 	 *    When enabled, the compiler will issue an error or a warning for a problem in Javadoc.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.invalidJavadoc"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.0
@@ -1284,7 +1284,7 @@ public final class JavaCore extends Plugin {
 	 *    also see the setting {@link #COMPILER_PB_MISSING_JAVADOC_TAGS_VISIBILITY}.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingJavadocTags"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.0
@@ -1338,7 +1338,7 @@ public final class JavaCore extends Plugin {
 	 *    also see the setting {@link #COMPILER_PB_MISSING_JAVADOC_COMMENTS_VISIBILITY}.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingJavadocComments"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.0
@@ -1375,7 +1375,7 @@ public final class JavaCore extends Plugin {
 	 *    is used in String concatenations (for example, <code>"hello" + new char[]{'w','o','r','l','d'}</code>).</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.noImplicitStringConversion"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 2.1
@@ -1416,7 +1416,7 @@ public final class JavaCore extends Plugin {
 	 *    assigned to.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.parameterAssignment"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.2
@@ -1429,7 +1429,7 @@ public final class JavaCore extends Plugin {
 	 *    not been declared as <code>static</code>, even though it qualifies as one.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.reportMethodCanBeStatic"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.7
@@ -1443,7 +1443,7 @@ public final class JavaCore extends Plugin {
 	 *    when another method doesn't override it.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.reportMethodCanBePotentiallyStatic"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.7
@@ -1458,7 +1458,7 @@ public final class JavaCore extends Plugin {
 	 *    flow analysis shows that the method <code>close()</code> is not invoked locally on that value.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.reportUnclosedCloseable"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.8
@@ -1474,7 +1474,7 @@ public final class JavaCore extends Plugin {
 	 *    not invoked locally on that value for all execution paths.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.reportPotentiallyUnclosedCloseable"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.8
@@ -1489,7 +1489,7 @@ public final class JavaCore extends Plugin {
 	 *    not managed by a try-with-resources block.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.reportPotentiallyUnclosedCloseable"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.8
@@ -1600,7 +1600,7 @@ public final class JavaCore extends Plugin {
 	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.missingNonNullByDefaultAnnotation"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code>.</dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code>.</dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.8
@@ -1667,7 +1667,7 @@ public final class JavaCore extends Plugin {
 	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.nullAnnotationInferenceConflict"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"error"</code></dd>
 	 * </dl>
 	 * @since 3.8
@@ -1699,7 +1699,7 @@ public final class JavaCore extends Plugin {
 	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.nullUncheckedConversion"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.8
@@ -1717,7 +1717,7 @@ public final class JavaCore extends Plugin {
 	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.redundantNullAnnotation"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.8
@@ -1776,7 +1776,7 @@ public final class JavaCore extends Plugin {
 	 *    in order to make this (legal) change of contract explicit.</p>   
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.nonnullParameterAnnotationDropped"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.9
@@ -1884,7 +1884,7 @@ public final class JavaCore extends Plugin {
 	 *    to the access rule specifications.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.forbiddenReference"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"error"</code></dd>
 	 * </dl>
 	 * @since 3.1
@@ -1897,7 +1897,7 @@ public final class JavaCore extends Plugin {
 	 *    to the access rule specifications.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.discouragedReference"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.1
@@ -1953,7 +1953,7 @@ public final class JavaCore extends Plugin {
 	 *    it cannot handle inside a <code>@SuppressWarnings</code> annotation.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unhandledWarningToken"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.1
@@ -1968,7 +1968,7 @@ public final class JavaCore extends Plugin {
 	 *    silencing the warning for unnecessary <code>@SuppressWarnings</code>, as it is the master switch to silence ALL warnings.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedWarningToken"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.4
@@ -1984,7 +1984,7 @@ public final class JavaCore extends Plugin {
 	 *    is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.nullReference"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.2
@@ -2001,7 +2001,7 @@ public final class JavaCore extends Plugin {
 	 *    is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.potentialNullReference"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.3
@@ -2017,7 +2017,7 @@ public final class JavaCore extends Plugin {
 	 *    is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.redundantNullCheck"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.3
@@ -2030,7 +2030,7 @@ public final class JavaCore extends Plugin {
 	 *    the super invocation.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.overridingMethodWithoutSuperInvocation"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.3
@@ -2044,7 +2044,7 @@ public final class JavaCore extends Plugin {
 	 *    of its supertypes.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.redundantSuperinterface"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.4
@@ -2057,7 +2057,7 @@ public final class JavaCore extends Plugin {
 	 * is involving identical operands (e.g <code>'x == x'</code>).</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.comparingIdentical"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
 	 * @since 3.5
@@ -2070,7 +2070,7 @@ public final class JavaCore extends Plugin {
 	 * overrides a synchronized method without having a synchronized modifier.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.missingSynchronizedOnInheritedMethod"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.5
@@ -2083,7 +2083,7 @@ public final class JavaCore extends Plugin {
 	 * neither by holding a reference nor by invoking one of the object's methods.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unusedObjectAllocation"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.6
@@ -2097,7 +2097,7 @@ public final class JavaCore extends Plugin {
 	 * <p>This option only has an effect if the compiler compliance is 1.7 or greater.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.redundantSpecificationOfTypeArguments"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "ignore" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
 	 * @since 3.7.1
@@ -2726,6 +2726,12 @@ public final class JavaCore extends Plugin {
 	 * @category OptionValue
 	 */
 	public static final String IGNORE = "ignore"; //$NON-NLS-1$
+	/**
+	 * Configurable option value: {@value}.
+	 * @category OptionValue
+	 * @since 3.12
+	 */
+	public static final String INFO = "info"; //$NON-NLS-1$
 	/**
 	 * Configurable option value: {@value}.
 	 * @category OptionValue
@@ -3891,7 +3897,7 @@ public final class JavaCore extends Plugin {
 	 * <code>null</code> otherwise. Non-null return values are taken from the
 	 * constants defined by this class whose names start with
 	 * <code>COMPILER_PB</code> and for which the possible values of the
-	 * option are defined by <code>{ "error", "warning", "ignore" }</code>. A
+	 * option are defined by <code>{ "error", "warning", "info", "ignore" }</code>. A
 	 * null return value means that the provided problem ID is unknown or that
 	 * it matches a problem whose severity cannot be configured.
 	 * @param problemID one of the problem IDs defined by {@link IProblem}
