@@ -11,6 +11,8 @@
  *								Bug 434602 - Possible error with inferred null annotations leading to contradictory null annotations
  *								Bug 456497 - [1.8][null] during inference nullness from target type is lost against weaker hint from applicability analysis
  *								Bug 456487 - [1.8][null] @Nullable type variant of @NonNull-constrained type parameter causes grief
+ *     Till Brychcy - Contribution for
+ *								Bug 473713 - [1.8][null] Type mismatch: cannot convert from @NonNull A1 to @NonNull A1
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -162,14 +164,19 @@ public class TypeSystem {
 	// Given a type, answer its unannotated aka naked prototype. This is also a convenient way to "register" a type with TypeSystem and have it id stamped.
 	public final TypeBinding getUnannotatedType(TypeBinding type) {
 		UnresolvedReferenceBinding urb = null;
-		if (type.isUnresolvedType() && CharOperation.indexOf('$', type.sourceName()) > 0) {
+		if (type.isUnresolvedType()) {
 			urb = (UnresolvedReferenceBinding) type;
-			boolean mayTolerateMissingType = this.environment.mayTolerateMissingType;
-			this.environment.mayTolerateMissingType = true;
-			try {
-				type = BinaryTypeBinding.resolveType(type, this.environment, true); // to ensure unique id assignment (when enclosing type is parameterized, inner type is also) 
-			} finally {
-				this.environment.mayTolerateMissingType = mayTolerateMissingType;
+			ReferenceBinding resolvedType = urb.resolvedType;
+			if (resolvedType != null) {
+				type = resolvedType;
+			} else if (CharOperation.indexOf('$', type.sourceName()) > 0) {
+				boolean mayTolerateMissingType = this.environment.mayTolerateMissingType;
+				this.environment.mayTolerateMissingType = true;
+				try {
+					type = BinaryTypeBinding.resolveType(type, this.environment, true); // to ensure unique id assignment (when enclosing type is parameterized, inner type is also) 
+				} finally {
+					this.environment.mayTolerateMissingType = mayTolerateMissingType;
+				}
 			}
 		}
 		if (type.id == TypeIds.NoId) {

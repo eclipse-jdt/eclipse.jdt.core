@@ -10,6 +10,7 @@
  *     IBM Corporation
  *     Till Brychcy - Contribution for
  *								Bug 467032 - TYPE_USE Null Annotations: IllegalStateException with annotated arrays of Enum when accessed via BinaryTypeBinding
+ *								Bug 473713 - [1.8][null] Type mismatch: cannot convert from @NonNull A1 to @NonNull A1
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -8762,5 +8763,37 @@ public void testBug483146b() {
 		},
 		getCompilerOptions(),
 		"");
+}
+public void testBug473713() {
+	runConformTestWithLibs(
+		new String[] {
+			"a/A1.java",
+			"package a;\n" +		
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class A1 {\n" +
+			"	public class NestedInA1 {\n" +
+			"	}\n" +
+			"}\n",
+			"a/A2.java",
+			"package a;\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class A2 {\n" +
+			"	public static abstract class NestedInA2 {\n" +
+			"		public final A1 a1 = new A1();\n" +
+			"		protected abstract void handleApplicationSpecific(A1.NestedInA1 detail);\n" +
+			"	}\n" +
+			"}\n",
+		}, getCompilerOptions(), "");
+	runConformTestWithLibs(
+		new String[] {
+			"b/B.java",
+			"package b;\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class B {\n" +
+			"	public static a.A1 m(a.A2.NestedInA2 nestedInA2) {\n" +
+			"		return nestedInA2.a1;\n" +
+			"	}\n" +
+			"}\n",
+		}, getCompilerOptions(), "");
 }
 }
