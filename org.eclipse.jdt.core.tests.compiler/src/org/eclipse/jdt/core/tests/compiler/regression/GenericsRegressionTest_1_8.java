@@ -5567,4 +5567,34 @@ public void testBug464496() {
 		},
 		"42");
 }
+public void testBug473657() {
+	runConformTest(
+		new String[] {
+			"T2.java",
+			"interface I<T> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"@SuppressWarnings({\"unchecked\", \"rawtypes\"})\n" + 
+			"abstract class T1<T> implements I<T> {\n" + 
+			"    public I<T> t(I<? extends Number> l2) {\n" + 
+			"        return T2.m((I) this, (I) l2);\n" + 
+			"    }\n" + 
+			"    public I<T> t(Number l2) {\n" + 
+			"        return T2.m((I) this, (I) T2.t(l2));\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"public abstract class T2 {\n" + 
+			"    public static <T> I<T> t(T t) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"    public static <T extends Number> I<T> m(I<T> l1, I<? extends Number> l2) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"    public static <T extends Number> I<T> m(T l1, Number l2) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }

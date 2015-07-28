@@ -810,6 +810,11 @@ public ParameterizedGenericMethodBinding createParameterizedGenericMethod(Method
 }
 
 public ParameterizedGenericMethodBinding createParameterizedGenericMethod(MethodBinding genericMethod, TypeBinding[] typeArguments) {
+	return createParameterizedGenericMethod(genericMethod, typeArguments, false, false);
+}
+public ParameterizedGenericMethodBinding createParameterizedGenericMethod(MethodBinding genericMethod, TypeBinding[] typeArguments,
+																			boolean inferredWithUncheckedConversion, boolean hasReturnProblem)
+{
 	// cached info is array of already created parameterized types for this type
 	ParameterizedGenericMethodBinding[] cachedInfo = (ParameterizedGenericMethodBinding[])this.uniqueParameterizedGenericMethodBindings.get(genericMethod);
 	int argLength = typeArguments == null ? 0: typeArguments.length;
@@ -828,6 +833,12 @@ public ParameterizedGenericMethodBinding createParameterizedGenericMethod(Method
 				for (int j = 0; j < cachedArgLength; j++){
 					if (typeArguments[j] != cachedArguments[j]) continue nextCachedMethod; //$IDENTITY-COMPARISON$
 				}
+				if (inferredWithUncheckedConversion) { // JSL 18.5.2: "If unchecked conversion was necessary..."
+					// don't tolerate remaining parameterized types / type variables, should have been eliminated by erasure:
+					if (cachedMethod.returnType.isParameterizedType() || cachedMethod.returnType.isTypeVariable()) continue;
+					for (TypeBinding exc : cachedMethod.thrownExceptions)
+						if (exc.isParameterizedType() || exc.isTypeVariable()) continue nextCachedMethod;
+				}
 				// all arguments match, reuse current
 				return cachedMethod;
 		}
@@ -843,7 +854,8 @@ public ParameterizedGenericMethodBinding createParameterizedGenericMethod(Method
 		this.uniqueParameterizedGenericMethodBindings.put(genericMethod, cachedInfo);
 	}
 	// add new binding
-	ParameterizedGenericMethodBinding parameterizedGenericMethod = new ParameterizedGenericMethodBinding(genericMethod, typeArguments, this);
+	ParameterizedGenericMethodBinding parameterizedGenericMethod =
+			new ParameterizedGenericMethodBinding(genericMethod, typeArguments, this, inferredWithUncheckedConversion, hasReturnProblem);
 	cachedInfo[index] = parameterizedGenericMethod;
 	return parameterizedGenericMethod;
 }

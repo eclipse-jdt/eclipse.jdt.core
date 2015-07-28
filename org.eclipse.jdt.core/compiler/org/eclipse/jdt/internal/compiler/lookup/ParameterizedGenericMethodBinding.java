@@ -263,7 +263,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				// assemble the solution etc:
 				TypeBinding[] solutions = infCtx18.getSolutions(typeVariables, invocationSite, result);
 				if (solutions != null) {
-					methodSubstitute = scope.environment().createParameterizedGenericMethod(originalMethod, solutions);
+					methodSubstitute = scope.environment().createParameterizedGenericMethod(originalMethod, solutions, infCtx18.usesUncheckedConversion, hasReturnProblem);
 					if (invocationSite instanceof Invocation)
 						infCtx18.forwardResults(result, (Invocation) invocationSite, methodSubstitute, expectedType);
 					if (hasReturnProblem) { // illegally working from the provisional result?
@@ -529,7 +529,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
     /**
      * Create method of parameterized type, substituting original parameters with type arguments.
      */
-	public ParameterizedGenericMethodBinding(MethodBinding originalMethod, TypeBinding[] typeArguments, LookupEnvironment environment) {
+	public ParameterizedGenericMethodBinding(MethodBinding originalMethod, TypeBinding[] typeArguments, LookupEnvironment environment, boolean inferredWithUncheckConversion, boolean hasReturnProblem) {
 	    this.environment = environment;
 		this.modifiers = originalMethod.modifiers;
 		this.selector = originalMethod.selector;
@@ -541,8 +541,16 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    this.originalMethod = originalMethod;
 	    this.parameters = Scope.substitute(this, originalMethod.parameters);
 	    // error case where exception type variable would have been substituted by a non-reference type (207573)
-	    this.returnType = Scope.substitute(this, originalMethod.returnType);
-	    this.thrownExceptions = Scope.substitute(this, originalMethod.thrownExceptions);
+	    if (inferredWithUncheckConversion) { // JSL 18.5.2: "If unchecked conversion was necessary..."
+	    	this.returnType = getErasure18_5_2(originalMethod.returnType, environment, hasReturnProblem); // propagate simulation of Bug JDK_8026527
+	    	this.thrownExceptions = new ReferenceBinding[originalMethod.thrownExceptions.length];
+	    	for (int i = 0; i < originalMethod.thrownExceptions.length; i++) {
+	    		this.thrownExceptions[i] = (ReferenceBinding) getErasure18_5_2(originalMethod.thrownExceptions[i], environment, false); // no excuse for exceptions
+			}
+	    } else {
+	    	this.returnType = Scope.substitute(this, originalMethod.returnType);
+	    	this.thrownExceptions = Scope.substitute(this, originalMethod.thrownExceptions);
+	    }
 	    if (this.thrownExceptions == null) this.thrownExceptions = Binding.NO_EXCEPTIONS;
 		checkMissingType: {
 			if ((this.tagBits & TagBits.HasMissingType) != 0)
@@ -580,6 +588,16 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	    		}
 	    	}
 	    }
+	}
+
+	TypeBinding getErasure18_5_2(TypeBinding type, LookupEnvironment env, boolean substitute) {
+		// opportunistic interpretation of (JLS 18.5.2):
+		// "If unchecked conversion was necessary ..., then ... 
+		// the return type and thrown types of the invocation type of m are given by
+		// the erasure of the return type and thrown types of m's type."
+		if (substitute)
+			type = Scope.substitute(this, type);
+		return env.convertToRawType(type, true);
 	}
 
 	/*

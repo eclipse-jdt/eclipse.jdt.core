@@ -16827,7 +16827,9 @@ public void test0500(){
 			"6. WARNING in X.java (at line 10)\n" + 
 			"	EnumSet<Enum> eSet = EnumSet.allOf(c);\n" + 
 			"	                                   ^\n" + 
-			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum>\n" + 
+			(this.complianceLevel < ClassFileConstants.JDK1_8
+			? "Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum>\n"
+			: "Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum<Enum<E>>>\n") + 
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=86838 - variation
@@ -32091,7 +32093,9 @@ public void test0961() {
 		"5. WARNING in X.java (at line 7)\n" +
 		"	Comparable c = newInstance2(x);\n" +
 		"	                            ^\n" +
-		"Type safety: The expression of type X needs unchecked conversion to conform to X<Comparable>\n" +
+		(this.complianceLevel < ClassFileConstants.JDK1_8
+		? "Type safety: The expression of type X needs unchecked conversion to conform to X<Comparable>\n"
+		: "Type safety: The expression of type X needs unchecked conversion to conform to X<Comparable<Comparable<B>>>\n") +
 		"----------\n" +
 		"6. ERROR in X.java (at line 9)\n" +
 		"	Zork z;\n" +
@@ -33467,7 +33471,9 @@ public void test0999() {
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
 			"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<Number>[]\n" +
+			(this.complianceLevel < ClassFileConstants.JDK1_8
+			? "Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<Number>[]\n"
+			: "Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<Object>[]\n") +
 			"----------\n" + 
 			"5. ERROR in X.java (at line 14)\n" + 
 			"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
@@ -33605,7 +33611,7 @@ public void test1000() {
 			"4. WARNING in X.java (at line 9)\n" + 
 			"	Iterator<Number> it1 = X.chain(new Iterator[] { l1.iterator(), l2.iterator() });\n" + 
 			"	                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<? extends Number>[]\n" + 
+			"Type safety: The expression of type Iterator[] needs unchecked conversion to conform to Iterator<? extends Object>[]\n" + 
 			"----------\n" + 
 			"5. WARNING in X.java (at line 14)\n" + 
 			"	Iterator<Number> it2 = X.chain(l1.iterator(), l2.iterator());\n" + 
@@ -50350,10 +50356,23 @@ public void test1436() {
 			"	^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation foo(List, IllegalArgumentException) of the generic method foo(List<U>, T) of type X\n" + 
 			"----------\n" +
-			"3. WARNING in X.java (at line 8)\n" + 
-			"	foo(l, iae);\n" + 
-			"	    ^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<List<?>>\n" + 
+			(this.complianceLevel < ClassFileConstants.JDK1_8
+			?
+				"3. WARNING in X.java (at line 8)\n" + 
+				"	foo(l, iae);\n" + 
+				"	    ^\n" + 
+				"Type safety: The expression of type List needs unchecked conversion to conform to List<List<?>>\n"
+			:
+				"3. ERROR in X.java (at line 8)\n" + 
+				"	foo(l, iae);\n" + 
+				"	^^^^^^^^^^^\n" + 
+				"Unhandled exception type Throwable\n" + // new error since 1.8 (bug 473657)
+				"----------\n" + 
+				"4. WARNING in X.java (at line 8)\n" + 
+				"	foo(l, iae);\n" + 
+				"	    ^\n" + 
+				"Type safety: The expression of type List needs unchecked conversion to conform to List<List<?>>\n"				
+			) +
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=258798 - variation
@@ -50385,10 +50404,23 @@ public void test1437() {
 			"	^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation X(List, IllegalArgumentException) of the generic constructor X(List<U>, T) of type X\n" + 
 			"----------\n" +
-			"3. WARNING in X.java (at line 8)\n" + 
-			"	new X(l, iae);\n" + 
-			"	      ^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<List<?>>\n" + 
+			(this.complianceLevel < ClassFileConstants.JDK1_8
+			?
+				"3. WARNING in X.java (at line 8)\n" + 
+				"	new X(l, iae);\n" + 
+				"	      ^\n" + 
+				"Type safety: The expression of type List needs unchecked conversion to conform to List<List<?>>\n"
+			:
+				"3. ERROR in X.java (at line 8)\n" + 
+				"	new X(l, iae);\n" + 
+				"	^^^^^^^^^^^^^\n" + 
+				"Unhandled exception type Throwable\n" + // new error since 1.8 (bug 473657)
+				"----------\n" + 
+				"4. WARNING in X.java (at line 8)\n" + 
+				"	new X(l, iae);\n" + 
+				"	      ^\n" + 
+				"Type safety: The expression of type List needs unchecked conversion to conform to List<List<?>>\n"				
+			) +
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=258798 - variation
@@ -50420,10 +50452,23 @@ public void test1438() {
 			"	^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation X(List, IllegalArgumentException) of the generic constructor X(List<U>, T) of type X\n" + 
 			"----------\n" +
-			"3. WARNING in X.java (at line 8)\n" + 
-			"	new X(l, iae){};\n" + 
-			"	      ^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<List<?>>\n" + 
+			(this.complianceLevel < ClassFileConstants.JDK1_8
+			?
+				"3. WARNING in X.java (at line 8)\n" + 
+				"	new X(l, iae){};\n" + 
+				"	      ^\n" + 
+				"Type safety: The expression of type List needs unchecked conversion to conform to List<List<?>>\n"
+			:
+				"3. ERROR in X.java (at line 8)\n" + 
+				"	new X(l, iae){};\n" + 
+				"	^^^^^^^^^^^^^^^\n" + 
+				"Unhandled exception type Throwable\n" + // new error since 1.8 (bug 473657)
+				"----------\n" + 
+				"4. WARNING in X.java (at line 8)\n" + 
+				"	new X(l, iae){};\n" + 
+				"	      ^\n" + 
+				"Type safety: The expression of type List needs unchecked conversion to conform to List<List<?>>\n"				
+			) +
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=258798 - variation
@@ -50446,7 +50491,6 @@ public void test1439() {
 				"	}\n" + 
 				"}\n",//-----------------------------------------------------------------------
 			},
-			(this.complianceLevel < ClassFileConstants.JDK1_8 ?
 			"----------\n" + 
 			"1. WARNING in X.java (at line 7)\n" + 
 			"	this((List) null, null);\n" + 
@@ -50487,44 +50531,7 @@ public void test1439() {
 			"	super((List)lu, t);\n" + 
 			"	       ^^^^\n" + 
 			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-			"----------\n"
-			: // 1.8 infers T in this((List) null, null) to RuntimeException, hence no error here (2. above)
-			"----------\n" + 
-			"1. WARNING in X.java (at line 7)\n" + 
-			"	this((List) null, null);\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked invocation X(List, null) of the generic constructor X(List<U>, T) of type X\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 7)\n" + 
-			"	this((List) null, null);\n" + 
-			"	     ^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<List<?>>\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 7)\n" + 
-			"	this((List) null, null);\n" + 
-			"	      ^^^^\n" + 
-			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 12)\n" + 
-			"	super((List)lu, t);\n" + 
-			"	^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked invocation X(List, T) of the generic constructor X(List<U>, T) of type X\n" + 
-			"----------\n" + 
-			"5. ERROR in X.java (at line 12)\n" + 
-			"	super((List)lu, t);\n" + 
-			"	^^^^^^^^^^^^^^^^^^^\n" + 
-			"Unhandled exception type Throwable\n" + 
-			"----------\n" + 
-			"6. WARNING in X.java (at line 12)\n" + 
-			"	super((List)lu, t);\n" + 
-			"	      ^^^^^^^^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<List<?>>\n" + 
-			"----------\n" + 
-			"7. WARNING in X.java (at line 12)\n" + 
-			"	super((List)lu, t);\n" + 
-			"	       ^^^^\n" + 
-			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-			"----------\n"));
+			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=260567
 public void test1440() {
@@ -50762,7 +50769,6 @@ public void test1445() {
 				"\n" + 
 				"}\n",
 			},
-			(this.complianceLevel < ClassFileConstants.JDK1_8 ?
 			"----------\n" + 
 			"1. WARNING in X.java (at line 8)\n" + 
 			"	static void bar(List l) {\n" + 
@@ -50792,12 +50798,16 @@ public void test1445() {
 			"6. WARNING in X.java (at line 9)\n" + 
 			"	new X(l).foo(l);\n" + 
 			"	      ^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<Throwable>\n" + 
+			(this.complianceLevel < ClassFileConstants.JDK1_8
+			? "Type safety: The expression of type List needs unchecked conversion to conform to List<Throwable>\n"
+			: "Type safety: The expression of type List needs unchecked conversion to conform to List<RuntimeException>\n" ) +
 			"----------\n" + 
 			"7. WARNING in X.java (at line 9)\n" + 
 			"	new X(l).foo(l);\n" + 
 			"	             ^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<Throwable>\n" + 
+			(this.complianceLevel < ClassFileConstants.JDK1_8
+			? "Type safety: The expression of type List needs unchecked conversion to conform to List<Throwable>\n"
+			: "Type safety: The expression of type List needs unchecked conversion to conform to List<RuntimeException>\n" ) +
 			"----------\n" + 
 			"8. WARNING in X.java (at line 11)\n" + 
 			"	static void baz(List l) throws IOException {\n" + 
@@ -50863,100 +50873,7 @@ public void test1445() {
 			"	new <IOException> X(l){}. <IOException> foo(l);\n" + 
 			"	                                            ^\n" + 
 			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
-			"----------\n"
-			: // 1.8 infers type parameters in throws clauses to RuntimeException, hence no errors
-			"----------\n" + 
-			"1. WARNING in X.java (at line 8)\n" + 
-			"	static void bar(List l) {\n" + 
-			"	                ^^^^\n" + 
-			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-			"----------\n" + 
-			"2. WARNING in X.java (at line 9)\n" + 
-			"	new X(l).foo(l);\n" + 
-			"	^^^^^^^^\n" + 
-			"Type safety: Unchecked invocation X(List) of the generic constructor X(List<T>) of type X\n" + 
-			"----------\n" + 
-			"3. WARNING in X.java (at line 9)\n" + 
-			"	new X(l).foo(l);\n" + 
-			"	^^^^^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>) of type X\n" + 
-			"----------\n" + 
-			"4. WARNING in X.java (at line 9)\n" + 
-			"	new X(l).foo(l);\n" + 
-			"	      ^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<RuntimeException>\n" + 
-			"----------\n" + 
-			"5. WARNING in X.java (at line 9)\n" + 
-			"	new X(l).foo(l);\n" + 
-			"	             ^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<RuntimeException>\n" + 
-			"----------\n" + 
-			"6. WARNING in X.java (at line 11)\n" + 
-			"	static void baz(List l) throws IOException {\n" + 
-			"	                ^^^^\n" + 
-			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-			"----------\n" + 
-			"7. WARNING in X.java (at line 12)\n" + 
-			"	new <IOException> X(l). <IOException> foo(l);\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked invocation X(List) of the generic constructor X(List<T>) of type X\n" + 
-			"----------\n" + 
-			"8. WARNING in X.java (at line 12)\n" + 
-			"	new <IOException> X(l). <IOException> foo(l);\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>) of type X\n" + 
-			"----------\n" + 
-			"9. WARNING in X.java (at line 12)\n" + 
-			"	new <IOException> X(l). <IOException> foo(l);\n" + 
-			"	                    ^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
-			"----------\n" + 
-			"10. WARNING in X.java (at line 12)\n" + 
-			"	new <IOException> X(l). <IOException> foo(l);\n" + 
-			"	                                          ^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
-			"----------\n" + 
-			"11. WARNING in X.java (at line 15)\n" + 
-			"	X(List l, long l2) throws IOException {\n" + 
-			"	  ^^^^\n" + 
-			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-			"----------\n" + 
-			"12. WARNING in X.java (at line 16)\n" + 
-			"	<IOException> this(l);\n" + 
-			"	              ^^^^^^^^\n" + 
-			"Type safety: Unchecked invocation X(List) of the generic constructor X(List<T>) of type X\n" + 
-			"----------\n" + 
-			"13. WARNING in X.java (at line 16)\n" + 
-			"	<IOException> this(l);\n" + 
-			"	                   ^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
-			"----------\n" + 
-			"14. WARNING in X.java (at line 19)\n" + 
-			"	static void baz2(List l) throws IOException {\n" + 
-			"	                 ^^^^\n" + 
-			"List is a raw type. References to generic type List<E> should be parameterized\n" + 
-			"----------\n" + 
-			"15. WARNING in X.java (at line 20)\n" + 
-			"	new <IOException> X(l){}. <IOException> foo(l);\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked invocation X(List) of the generic constructor X(List<T>) of type X\n" + 
-			"----------\n" + 
-			"16. WARNING in X.java (at line 20)\n" + 
-			"	new <IOException> X(l){}. <IOException> foo(l);\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked invocation foo(List) of the generic method foo(List<T>) of type X\n" + 
-			"----------\n" + 
-			"17. WARNING in X.java (at line 20)\n" + 
-			"	new <IOException> X(l){}. <IOException> foo(l);\n" + 
-			"	                    ^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
-			"----------\n" + 
-			"18. WARNING in X.java (at line 20)\n" + 
-			"	new <IOException> X(l){}. <IOException> foo(l);\n" + 
-			"	                                            ^\n" + 
-			"Type safety: The expression of type List needs unchecked conversion to conform to List<IOException>\n" + 
-			"----------\n"
-			));
+			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=202393
 public void test1446() {
