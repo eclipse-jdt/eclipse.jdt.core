@@ -1795,4 +1795,116 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			if (egit != null) deleteProject(egit);
 		}
 	}
+	public void testBug469965_0001() throws CoreException {
+		try {
+
+			IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] { "/P/lib469965.jar", "JCL18_LIB" }, "bin", "1.8");
+			String libsource = "package f3;\n" +
+			"public class X {\n" +
+			"	void foo() {\n" +
+			"		final Y y = new Y();\n" +
+			"		new X() {\n" +
+			"			void goo() { y.bar();}\n" +
+			"		};\n" +
+			"		new X() {\n" +
+			"			void goo() { y.bar();}\n" +
+			"		};\n" +
+			"	}\n" +
+			"	void goo() {\n" +
+			"		final Y y = new Y();\n" +
+			"		new X() {\n" +
+			"			void goo() { y.bar();}\n" +
+			"		};\n" +
+			"		new X() {\n" +
+			"			void goo() { y.bar();}\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y {\n" +
+			"	void bar() {}	\n" +
+			"}\n";
+			String jarFileName = "lib469965.jar";
+			String srcZipName = "lib469965.src.zip";
+			createLibrary(project, jarFileName, srcZipName, new String[] {"f3/X.java",libsource}, new String[0], JavaCore.VERSION_1_5);
+			IFile srcZip=(IFile) project.getProject().findMember(srcZipName);
+			IFile jar = (IFile) project.getProject().findMember(jarFileName);
+			project.getPackageFragmentRoot(jar).attachSource(srcZip.getFullPath(), null, null);
+			waitUntilIndexesReady();
+
+			IType type = getClassFile("P", jarFileName, "f3", "Y.class").getType();
+			IMethod method = type.getMethods()[1];
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES);
+			search(method, REFERENCES, scope);
+			assertSearchResults(
+					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" + 
+					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" + 
+					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" + 
+					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug469965_0002() throws CoreException {
+		try {
+
+			IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] { "/P/lib469965.jar", "JCL18_LIB" }, "bin", "1.8");
+			String libsource = "package f3;\n" +
+			"public class X {\n" +
+			"	void foo() {\n" +
+			"		final Y y = new Y();\n" +
+			"		new X() {\n" +
+			"			void goo() { y.bar();}\n" +
+			"		};\n" +
+			"		new X() {\n" +
+			"			void goo() { y.bar();}\n" +
+			"		};\n" +
+			"	}\n" +
+			"	void goo() {\n" +
+			"		final Y y = new Y();\n" +
+			"		new X() {\n" +
+			"			void goo() {\n" + 
+			"		        new X() {\n" +
+			"			        void goo() { y.bar();}\n" +
+			"		        };\n" +
+			"               y.bar();\n" + 
+			"           }\n" +
+			"		};\n" +
+			"		new X() {\n" +
+			"			void goo() { y.bar();}\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y {\n" +
+			"	void bar() {}	\n" +
+			"}\n";
+			String jarFileName = "lib469965.jar";
+			String srcZipName = "lib469965.src.zip";
+			createLibrary(project, jarFileName, srcZipName, new String[] {"f3/X.java",libsource}, new String[0], JavaCore.VERSION_1_5);
+			IFile srcZip=(IFile) project.getProject().findMember(srcZipName);
+			IFile jar = (IFile) project.getProject().findMember(jarFileName);
+			project.getPackageFragmentRoot(jar).attachSource(srcZip.getFullPath(), null, null);
+			waitUntilIndexesReady();
+
+			IType type = getClassFile("P", jarFileName, "f3", "Y.class").getType();
+			IMethod method = type.getMethods()[1];
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES);
+			search(method, REFERENCES, scope);
+			assertSearchResults(
+					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" + 
+					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" + 
+					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" + 
+					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH\n" + 
+					"lib469965.jar void f3.<anonymous>.goo() EXACT_MATCH");
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		finally {
+			deleteProject("P");
+		}
+	}
 }

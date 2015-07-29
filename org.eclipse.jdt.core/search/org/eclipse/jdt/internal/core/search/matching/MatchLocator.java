@@ -55,6 +55,7 @@ import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfIntValues;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
@@ -151,6 +152,7 @@ int progressWorked;
 CompilationUnitScope unitScope;
 SimpleLookupTable bindings;
 
+HashtableOfIntValues inTypeOccurrencesCounts = new HashtableOfIntValues();
 // Cache for method handles
 HashSet methodHandles;
 
@@ -2665,6 +2667,7 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 			TypeDeclaration type = types[i];
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(type);
 			int accuracy = (level != null && matchedUnitContainer) ? level.intValue() : -1;
+			this.inTypeOccurrencesCounts = new HashtableOfIntValues();
 			reportMatching(type, null, accuracy, nodeSet, 1);
 		}
 	}
