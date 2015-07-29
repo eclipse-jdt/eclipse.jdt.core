@@ -28,6 +28,8 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.builder.BuilderTests;
 import org.eclipse.jdt.core.tests.util.Util;
 
+import junit.framework.Test;
+
 public class TestBase extends BuilderTests
 {
 
@@ -39,6 +41,11 @@ public class TestBase extends BuilderTests
 	
 	public TestBase(String name) {
 		super(name);
+	}
+
+	public static Test suite() {
+		throw new IllegalStateException("This is a base test class whose suite() method must not be called.\n"
+				+ "This exception is thrown to avoid running org.eclipse.jdt.core.tests.builder.BuilderTests#suite() twice.");
 	}
 
 	/**
