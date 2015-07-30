@@ -731,7 +731,12 @@ public class Util implements SuffixConstants {
 	 * notifies the supplied visitor about packages and files visited.
 	 * Note: At the moment, there's no way to open any arbitrary image. Currently,
 	 * this method uses the JRT file system provider to look inside the JRE.
-	 *   
+	 *
+	 * The file system contains the following top level directories:
+	 *  /modules/$MODULE/$PATH
+	 *  /packages/$PACKAGE/$MODULE 
+	 *  The latter provides quick look up of the module that contains a particular package.
+	 *  
 	 * @param image a java.io.File handle to the JRT image.
 	 * @param visitor an instance of JimageVisitor to be notified of the entries in the JRT image.
 	 * @throws IOException
@@ -763,6 +768,7 @@ public class Util implements SuffixConstants {
 							@Override
 							public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
 								int count = file.getNameCount();
+								// This happens when a file in a default package is present. E.g. /modules/some.module/file.name
 								if (count == 3) {
 									cachePackage(DEFAULT_PACKAGE, file.getName(1).toString());
 								}
