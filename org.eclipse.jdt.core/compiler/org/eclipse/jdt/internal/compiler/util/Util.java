@@ -41,7 +41,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -251,13 +250,16 @@ public class Util implements SuffixConstants {
 
 	private static URI JRT_URI = URI.create("jrt:/"); //$NON-NLS-1$
 
-	private static String[] JAVA_BASE_PATH = new String[]{"java.base"}; //$NON-NLS-1$
-
-	private static final String MULTIPLE = "MULTIPLE"; //$NON-NLS-1$
+	static final String JAVA_BASE = "java.base"; //$NON-NLS-1$
+	private static final String MODULES_SUBDIR = "/modules"; //$NON-NLS-1$
+	private static final String[] SINGLE_MODULE_ARRAY = new String[]{null};
+	private static final String[] DEFAULT_MODULE = new String[]{JAVA_BASE};
+	private static final String MULTIPLE = "MU"; //$NON-NLS-1$
+	private static final String DEFAULT_PACKAGE = ""; //$NON-NLS-1$
 
 	private static final Map<String, String> packageToModule = new HashMap<String, String>();
 
-	private static final Map<String, Set<String>> packageToModules = new HashMap<String, Set<String>>();
+	private static final Map<String, List<String>> packageToModules = new HashMap<String, List<String>>();
 
 	/**
 	 * Build all the directories and subdirectories corresponding to the packages names
@@ -740,32 +742,34 @@ public class Util implements SuffixConstants {
 		for (java.nio.file.Path path : roots) {
 			try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(path)) {
 				for (final java.nio.file.Path subdir: stream) {
-					Files.walkFileTree(subdir, new FileVisitor<java.nio.file.Path>() {
+					if (!subdir.toString().equals(MODULES_SUBDIR)) {
+						Files.walkFileTree(subdir, new AbstractFileVisitor<java.nio.file.Path>() {
+							@Override
+							public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
+								java.nio.file.Path relative = subdir.relativize(file);
+								cachePackage(relative.getParent().toString(), relative.getFileName().toString());
+								return FileVisitResult.CONTINUE;
+							}
+						});
+					} else {
+						Files.walkFileTree(subdir, new AbstractFileVisitor<java.nio.file.Path>() {
+							@Override
+							public FileVisitResult preVisitDirectory(java.nio.file.Path dir, BasicFileAttributes attrs) throws IOException {
+								int count = dir.getNameCount();
+								if (dir == subdir || count < 3) return FileVisitResult.CONTINUE;
+								return visitor.visitPackage(dir.subpath(2, count), attrs);
+							}
 
-						@Override
-						public FileVisitResult preVisitDirectory(java.nio.file.Path dir, BasicFileAttributes attrs) throws IOException {
-							java.nio.file.Path relative = subdir.relativize(dir);
-							// This being a stop-gap solution, let's assume we don't have any types in a single level package
-							if (relative.getNameCount() <= 1) return FileVisitResult.CONTINUE;
-							cachePackage(relative.toString(), subdir.toString());
-							return visitor.visitPackage(relative, attrs);
-						}
-
-						@Override
-						public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
-							return visitor.visitFile(subdir.relativize(file), attrs);
-						}
-
-						@Override
-						public FileVisitResult visitFileFailed(java.nio.file.Path file, IOException exc) throws IOException {
-							return FileVisitResult.CONTINUE;
-						}
-
-						@Override
-						public FileVisitResult postVisitDirectory(java.nio.file.Path dir, IOException exc) throws IOException {
-							return FileVisitResult.CONTINUE;
-						}
-					});
+							@Override
+							public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
+								int count = file.getNameCount();
+								if (count == 3) {
+									cachePackage(DEFAULT_PACKAGE, file.getName(1).toString());
+								}
+								return visitor.visitFile(file.subpath(2, file.getNameCount()), attrs);
+							}
+						});
+					}
 			    }
 			} catch (Exception e) {
 				throw new IOException(e.getMessage());
@@ -773,53 +777,98 @@ public class Util implements SuffixConstants {
 		}
 	}
 
-	static void cachePackage(String packageName, String module) {
-		module = module.substring(1);
-		Object current = packageToModule.get(packageName);
-		if (current == null) {
-			packageToModule.put(packageName, module);
-		} else if (current == MULTIPLE) {
-			Set<String> set = packageToModules.get(packageName);
-			set.add(module);
-		} else {
-			String first = (String) current;
-			packageToModule.put(packageName, MULTIPLE);
-			Set<String> set = new HashSet<String>();
-			set.add(first);
-			set.add(module);
-			packageToModules.put(packageName, set);
+	static abstract class AbstractFileVisitor<T> implements FileVisitor<T> {
+		@Override
+		public FileVisitResult preVisitDirectory(T dir, BasicFileAttributes attrs) throws IOException {
+			return FileVisitResult.CONTINUE;
+		}
+
+		@Override
+		public FileVisitResult visitFile(T file, BasicFileAttributes attrs) throws IOException {
+			return FileVisitResult.CONTINUE;
+		}
+
+		@Override
+		public FileVisitResult visitFileFailed(T file, IOException exc) throws IOException {
+			return FileVisitResult.CONTINUE;
+		}
+
+		@Override
+		public FileVisitResult postVisitDirectory(T dir, IOException exc) throws IOException {
+			return FileVisitResult.CONTINUE;
 		}
 	}
 
-	static String[] getModuleName(String fileName) {
-		int idx = fileName.lastIndexOf('/');
-		if (idx != -1) {
-			String pack = fileName.substring(0, idx);
-			String module = packageToModule.get(pack);
-			if (module != null) {
-				if (module == MULTIPLE) {
-					Set<String> set = packageToModules.get(pack);
-					return set.toArray(new String[set.size()]);
+	static void cachePackage(String packageName, String module) {
+		packageName = packageName.intern();
+		module = module.intern();
+		packageName = packageName.replace('.', '/');
+		Object current = packageToModule.get(packageName);
+		if (current == null) {
+			packageToModule.put(packageName, module);
+		} else if(current == module || current.equals(module)) {
+			return;
+		} else if (current == MULTIPLE) {
+			List<String> list = packageToModules.get(packageName);
+			if (!list.contains(module)) {
+				if (JAVA_BASE == module || JAVA_BASE.equals(module)) {
+					list.add(0, JAVA_BASE);
 				} else {
-					return new String[]{module};
+					list.add(module);
 				}
 			}
+		} else {
+			String first = (String) current;
+			packageToModule.put(packageName, MULTIPLE);
+			List<String> list = new ArrayList<String>();
+			// Just do this as comparator might be overkill
+			if (JAVA_BASE == current || JAVA_BASE.equals(current)) {
+				list.add(first);
+				list.add(module);
+			} else {
+				list.add(module);
+				list.add(first);
+			}
+			packageToModules.put(packageName, list);
 		}
-		return JAVA_BASE_PATH;
+	}
+
+	private static String[] getModules(String fileName) {
+		int idx = fileName.lastIndexOf('/');
+		String pack = null;
+		if (idx != -1) {
+			pack = fileName.substring(0, idx);
+		} else {
+			pack = DEFAULT_PACKAGE;
+		}
+		String module = packageToModule.get(pack);
+		if (module != null) {
+			if (module == MULTIPLE) {
+				List<String> list = packageToModules.get(pack);
+				return list.toArray(new String[list.size()]);
+			} else {
+				SINGLE_MODULE_ARRAY[0] = module;
+				return SINGLE_MODULE_ARRAY;
+			}
+		}
+		return DEFAULT_MODULE;
 	}
 
 	public static InputStream getContentFromJimage(String fileName) throws IOException {
 		java.nio.file.FileSystem fs = FileSystems.getFileSystem(JRT_URI);
-		String[] modules = getModuleName(fileName);
-		return Files.newInputStream(fs.getPath(modules[0], fileName)); // Danger of AIOBE!
+		String[] modules = getModules(fileName);
+		for (String mod : modules) {
+			return Files.newInputStream(fs.getPath(MODULES_SUBDIR, mod, fileName));
+		}
+		return null;
 	}
 
 	public static byte[] getClassfileContent(String fileName) throws IOException {
 		java.nio.file.FileSystem fs = FileSystems.getFileSystem(JRT_URI);
-		String[] modules = getModuleName(fileName);
+		String[] modules = getModules(fileName);
 		for (String string : modules) {
 			try {
-				byte[] bytes = Files.readAllBytes(fs.getPath(string, fileName));
+				byte[] bytes = Files.readAllBytes(fs.getPath(MODULES_SUBDIR, string, fileName));
 				if (bytes != null) return bytes;
 			} catch(NoSuchFileException e) {
 				continue;
