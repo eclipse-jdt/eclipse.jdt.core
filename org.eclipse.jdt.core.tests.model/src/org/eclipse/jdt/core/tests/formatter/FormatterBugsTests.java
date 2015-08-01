@@ -10987,4 +10987,35 @@ public void testBug471364() throws JavaModelException {
 		"}";
 	formatSource(source);
 }
+/**
+ * @bug 471145: [Formatter] doesn't remove space before "{" on the if line
+ * @test test that no unnecessary space is added
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=471145"
+ */
+public void testBug471145() throws JavaModelException {
+	this.formatterPrefs.insert_space_before_opening_brace_in_block = false;
+	this.formatterPrefs.keep_simple_if_on_one_line = true;
+	String source = 
+		"class C {\r\n" + 
+		"	void method() {\r\n" + 
+		"		if (condition) {\r\n" + 
+		"			operation();\r\n" + 
+		"		}\r\n" + 
+		"		if (condition)// don't add space before comment\r\n" + 
+		"			operation();\r\n" + 
+		"		if (condition)operation();\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source,
+		"class C {\r\n" + 
+		"	void method() {\r\n" + 
+		"		if (condition){\r\n" + 
+		"			operation();\r\n" + 
+		"		}\r\n" + 
+		"		if (condition)// don't add space before comment\r\n" + 
+		"			operation();\r\n" + 
+		"		if (condition) operation();\r\n" + 
+		"	}\r\n" + 
+		"}");
+}
 }

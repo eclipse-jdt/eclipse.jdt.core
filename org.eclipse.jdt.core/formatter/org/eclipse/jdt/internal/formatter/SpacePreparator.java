@@ -516,11 +516,14 @@ public class SpacePreparator extends ASTVisitor {
 	public boolean visit(IfStatement node) {
 		handleToken(node, TokenNameLPAREN, this.options.insert_space_before_opening_paren_in_if,
 				this.options.insert_space_after_opening_paren_in_if);
-		handleTokenBefore(node.getThenStatement(), TokenNameRPAREN,
-				this.options.insert_space_before_closing_paren_in_if, true);
 
 		Statement thenStatement = node.getThenStatement();
-		if (thenStatement instanceof Block && this.tm.isGuardClause((Block) node.getThenStatement())) {
+		int closingParenIndex = this.tm.firstIndexBefore(thenStatement, TokenNameRPAREN);
+		handleToken(this.tm.get(closingParenIndex), this.options.insert_space_before_closing_paren_in_if,
+				/* space before then statement may be needed if it will stay on the same line */
+				!(thenStatement instanceof Block) && !this.tm.get(closingParenIndex + 1).isComment());
+
+		if (thenStatement instanceof Block && this.tm.isGuardClause((Block) thenStatement)) {
 			handleToken(thenStatement, TokenNameLBRACE, false, true);
 			this.tm.lastTokenIn(node, TokenNameRBRACE).spaceBefore();
 		}
