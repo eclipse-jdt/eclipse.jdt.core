@@ -216,6 +216,7 @@ public class CommentsPreparator extends ASTVisitor {
 				structure.get(0).clearSpaceBefore();
 
 			Token previous = this.tm.get(commentIndex - 1);
+			previous.clearSpaceAfter();
 			if (previous.originalEnd + 1 >= commentToken.originalStart)
 				return;
 			if (structure == null || structure.isEmpty()) {
