@@ -691,7 +691,7 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 					// 'paramAnnotations' line up with 'parameters'
 					// int parameter to method.getParameterAnnotations() include the synthetic arg
 					if (paramAnnotations != null)
-						paramAnnotations[i - startIndex] = createAnnotations(method.getParameterAnnotations(i - startIndex), this.environment, missingTypeNames);
+						paramAnnotations[i - startIndex] = createAnnotations(method.getParameterAnnotations(i - startIndex, this.fileName), this.environment, missingTypeNames);
 				}
 				index = end + 1;
 			}
@@ -753,7 +753,7 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 				if (this.environment.globalOptions.storeAnnotations) {
 					paramAnnotations = new AnnotationBinding[numParam][];
 					for (int i = 0; i < numParam; i++)
-						paramAnnotations[i] = createAnnotations(method.getParameterAnnotations(i), this.environment, missingTypeNames);
+						paramAnnotations[i] = createAnnotations(method.getParameterAnnotations(i,  this.fileName), this.environment, missingTypeNames);
 				}
 			}
 		}
@@ -1632,7 +1632,7 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 				ITypeAnnotationWalker parameterWalker = externalAnnotationWalker.toMethodParameter((short) (j+startIndex));
 				IBinaryAnnotation[] paramAnnotations = parameterWalker != ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER
 															? parameterWalker.getAnnotationsAtCursor(parameters[j].id)
-															: method.getParameterAnnotations(j+startIndex);
+															: method.getParameterAnnotations(j+startIndex, this.fileName);
 				if (paramAnnotations != null) {
 					for (int i = 0; i < paramAnnotations.length; i++) {
 						char[] annotationTypeName = paramAnnotations[i].getTypeName();

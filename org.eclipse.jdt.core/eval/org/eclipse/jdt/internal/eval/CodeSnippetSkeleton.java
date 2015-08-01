@@ -69,7 +69,7 @@ public class CodeSnippetSkeleton implements IBinaryType, EvaluationConstants {
 		public int getModifiers() {
 			return ClassFileConstants.AccPublic;
 		}
-		public IBinaryAnnotation[] getParameterAnnotations(int index) {
+		public IBinaryAnnotation[] getParameterAnnotations(int index, char[] classFileName) {
 			return null;
 		}
 		public int getAnnotatedParametersCount() {

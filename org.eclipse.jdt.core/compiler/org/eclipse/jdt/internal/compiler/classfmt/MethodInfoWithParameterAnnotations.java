@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,8 +21,26 @@ MethodInfoWithParameterAnnotations(MethodInfo methodInfo, AnnotationInfo[] annot
 	super(methodInfo, annotations);
 	this.parameterAnnotations = parameterAnnotations;
 }
-public IBinaryAnnotation[] getParameterAnnotations(int index) {
-	return this.parameterAnnotations == null ? null : this.parameterAnnotations[index];
+public IBinaryAnnotation[] getParameterAnnotations(int index, char[] classFileName) {
+	try {
+		return this.parameterAnnotations == null ? null : this.parameterAnnotations[index];
+	} catch (ArrayIndexOutOfBoundsException aioobe) {
+		// detailed reporting to track down https://bugs.eclipse.org/474081
+		StringBuffer message = new StringBuffer("Mismatching number of parameter annotations, "); //$NON-NLS-1$
+		message.append(index);
+		message.append('>');
+		message.append(this.parameterAnnotations.length-1);
+		message.append(" in "); //$NON-NLS-1$
+		message.append(getSelector());
+		char[] desc = getGenericSignature();
+		if (desc != null)
+			message.append(desc);
+		else
+			message.append(getMethodDescriptor());
+		if (classFileName != null)
+			message.append(" in ").append(classFileName); //$NON-NLS-1$
+		throw new IllegalStateException(message.toString(), aioobe);
+	}
 }
 public int getAnnotatedParametersCount() {
 	return this.parameterAnnotations == null ? 0 : this.parameterAnnotations.length;
