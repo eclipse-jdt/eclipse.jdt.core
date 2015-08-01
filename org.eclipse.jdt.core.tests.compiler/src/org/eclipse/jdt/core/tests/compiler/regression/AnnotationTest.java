@@ -15,7 +15,8 @@
  *								bug 386356 - Type mismatch error with annotations and generics
  *								bug 331649 - [compiler][null] consider null annotations for fields
  *								bug 376590 - Private fields with @Inject are ignored by unused field validation
- *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis 
+ *								Bug 392099 - [1.8][compiler][null] Apply null annotation on types for null analysis
+ *								Bug 469584 - ClassCastException in Annotation.detectStandardAnnotation (320)
  *     Jesper S Moller  - Contributions for
  *								bug 384567 - [1.5][compiler] Compiler accepts illegal modifiers on package declaration
  *								bug 412153 - [1.8][compiler] Check validity of annotations which may be repeatable
@@ -11460,5 +11461,23 @@ public void testBug464977() throws Exception {
 	} finally {
 		this.enableAPT = apt;
 	}
+}
+public void testBug469584() {
+	runNegativeTest(
+		new String[] {
+			"CCETest.java",
+			"import java.lang.annotation.*;\n" + 
+			"\n" + 
+			"@Retention({RetentionPolicy.CLASS, RetentionPolicy.RUNTIME})\n" + 
+			"public @interface CCETest {\n" + 
+			"\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in CCETest.java (at line 3)\n" + 
+		"	@Retention({RetentionPolicy.CLASS, RetentionPolicy.RUNTIME})\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from RetentionPolicy[] to RetentionPolicy\n" + 
+		"----------\n");
 }
 }
