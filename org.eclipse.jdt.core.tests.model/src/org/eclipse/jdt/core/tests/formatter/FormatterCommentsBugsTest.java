@@ -7169,4 +7169,17 @@ public void testBug470986() {
 		"}";
 	formatSource(source);
 }
+public void testBug471062() {
+	this.formatterPrefs.comment_preserve_white_space_between_code_and_line_comments = true;
+	String source = 
+		"class C {\r\n" + 
+		"	void method() {\r\n" + 
+		"		Arrays.asList(1, 2,   // test\r\n" + 
+		"				3, 4);\r\n" + 
+		"		if (condition)        // test\r\n" + 
+		"			operation();\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
