@@ -596,7 +596,8 @@ public class CommentsPreparator extends ASTVisitor {
 			}
 
 			Token startTokeen = this.ctm.get(startIndex);
-			startTokeen.breakBefore();
+			if (startIndex > 1)
+				startTokeen.breakBefore();
 			int firstTagIndex;
 			if (this.firstTagToken == null || (firstTagIndex = this.ctm.indexOf(this.firstTagToken)) < 0
 					|| startIndex < firstTagIndex)
