@@ -422,6 +422,7 @@ public class SpacePreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(AnnotationTypeMemberDeclaration node) {
+		handleToken(node.getName(), TokenNameIdentifier, true, false);
 		handleToken(node.getName(), TokenNameLPAREN,
 				this.options.insert_space_before_opening_paren_in_annotation_type_member_declaration, false);
 		handleEmptyParens(node.getName(),
@@ -919,7 +920,7 @@ public class SpacePreparator extends ASTVisitor {
 
 	private void handleToken(ASTNode node, int tokenType, boolean spaceBefore, boolean spaceAfter) {
 		if (spaceBefore || spaceAfter) {
-			Token token = this.tm.get(this.tm.findIndex(node.getStartPosition(), tokenType, true));
+			Token token = this.tm.firstTokenIn(node, tokenType);
 			handleToken(token, spaceBefore, spaceAfter);
 		}
 	}
