@@ -7133,4 +7133,18 @@ public void testBug471062() {
 		"}";
 	formatSource(source);
 }
+public void testBug471918() {
+	String source = 
+		"class C {\n" + 
+		"\n" + 
+		"	/** Returns a new foo instance. */\n" + 
+		"	public Foo createFoo1() {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	/** @return a new foo instance. */\n" + 
+		"	public Foo createFoo2() {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
+}
 }
