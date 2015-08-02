@@ -11089,4 +11089,18 @@ public void testBug470977() throws Exception {
 		"}";
 	formatSource(source);
 }
+/**
+ * @bug 472962: [formatter] Missing whitespace after >, ] in annotation type declaration
+ * @test test that there is whitespace before element identifiers
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=472962"
+ */
+public void testBug472962() {
+	String source = 
+		"public @interface A {\r\n" + 
+		"	String[] strings();\r\n" + 
+		"\r\n" + 
+		"	Class<String> stringClasses();\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
