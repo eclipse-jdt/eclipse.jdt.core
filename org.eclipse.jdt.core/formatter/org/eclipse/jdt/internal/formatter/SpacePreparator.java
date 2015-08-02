@@ -374,6 +374,7 @@ public class SpacePreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(AssertStatement node) {
+		this.tm.firstTokenIn(node, TokenNameassert).spaceAfter();
 		if (node.getMessage() != null) {
 			handleTokenBefore(node.getMessage(), TokenNameCOLON, this.options.insert_space_before_colon_in_assert,
 					this.options.insert_space_after_colon_in_assert);

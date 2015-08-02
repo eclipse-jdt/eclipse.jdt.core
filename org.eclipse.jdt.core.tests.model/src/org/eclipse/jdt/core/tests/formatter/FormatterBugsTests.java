@@ -11043,4 +11043,27 @@ public void testBug471883() throws Exception {
 			"}";
 	formatSource(source);
 }
+/**
+ * @bug 470977: [formatter] Whitespace removed between assert and unary operator or primary expression
+ * @test test that spaces after assert are correct
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=470977"
+ */
+public void testBug470977() throws Exception {
+	String source = 
+		"public class TestFormat {\r\n" + 
+		"	public static void main(String[] args) {\r\n" + 
+		"		assert \"\".length() == 0;\r\n" + 
+		"		assert (!false);\r\n" + 
+		"\r\n" + 
+		"		assert !false;\r\n" + 
+		"		assert +0 == 0;\r\n" + 
+		"		assert -0 == 0;\r\n" + 
+		"\r\n" + 
+		"		int i = 0;\r\n" + 
+		"		assert ++i == 1;\r\n" + 
+		"		assert --i == 0;\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
