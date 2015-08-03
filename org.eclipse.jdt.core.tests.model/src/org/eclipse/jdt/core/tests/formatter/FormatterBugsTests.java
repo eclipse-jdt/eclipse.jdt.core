@@ -11103,4 +11103,21 @@ public void testBug472962() {
 		"}";
 	formatSource(source);
 }
+/**
+ * @bug 470506: formatter option "align field in columns" changed in Mars
+ * @test test that fields separated by extra blank lines are not considered separate groups when aligning
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=470506"
+ */
+public void testBug470506() {
+	this.formatterPrefs.align_type_members_on_columns = true;
+	String source = 
+		"class C {\r\n" + 
+		"	private int						iii;\r\n" + 
+		"	String							sss;\r\n" + 
+		"\r\n" + 
+		"	protected ArrayList<Integer>	aaa;\r\n" + 
+		"\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
