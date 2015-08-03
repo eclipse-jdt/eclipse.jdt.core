@@ -182,7 +182,7 @@ public class WrapPreparator extends ASTVisitor {
 
 		if (this.options.align_type_members_on_columns) {
 			if (this.fieldAligner == null) {
-				this.fieldAligner = new FieldAligner(this.tm, this.options);
+				this.fieldAligner = new FieldAligner(this.tm);
 			}
 			this.fieldAligner.prepareAlign(node);
 		}
