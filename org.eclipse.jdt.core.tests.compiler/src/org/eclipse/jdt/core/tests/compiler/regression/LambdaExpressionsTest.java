@@ -4994,6 +4994,9 @@ public void test447119d() {
 				"import java.lang.reflect.Method;\n" +
 				"import java.util.List;\n" +
 				"import java.util.function.Function;\n" +
+				"import java.util.ArrayList;\n" +
+				"import java.util.Collections;\n" +
+				"import java.util.Comparator;\n" +
 				"public class X {\n" +
 				"	private static interface SerializableFunction<A, R> extends Function<A, R>, Serializable { }\n" +
 				"	private static List<String> noop(List<String> l) { return l; }\n" +
@@ -5004,18 +5007,24 @@ public void test447119d() {
 				"		SerializedLambda l = (SerializedLambda)invokeWriteReplaceMethod.invoke(ObjectStreamClass.lookupAny(f.getClass()), f);\n" +
 				"		System.out.println(\"Lambda binds to: \" + l.getImplClass() + \".\" + l.getImplMethodName());\n" +
 				"		System.out.println(\"Methods (with generics):\");\n" +
+				"		List<String> list = new ArrayList<String>();\n" +
 				"		for(Method m : X.class.getDeclaredMethods()) {\n" +
 				"			if(m.getName().equals(\"main\")) continue;\n" +
 				"			if(m.getName().contains(\"deserializeLambda\")) continue;\n" +
-				"			System.out.println(\"- \" + m.getGenericReturnType() + \" \" + m.getName() + \"(\" + m.getGenericParameterTypes()[0] + \")\");\n" +
+				"			list.add(\"- \" + m.getGenericReturnType() + \" \" + m.getName() + \"(\" + m.getGenericParameterTypes()[0] + \")\");\n" +
 				"		}\n" +
+				"		Collections.sort(list, new Comparator<String>() {\n" +
+				"			public int compare(String s1, String s2) {\n" +
+				"				return s1.compareTo(s2);\n" +
+			    "			}\n" +
+				"		});\n" +
+				"		System.out.println(list.toString());\n" +
 				"	}\n" +
 				"}\n"
 			},
 			"Lambda binds to: X.lambda$0\n" + 
 			"Methods (with generics):\n" + 
-			"- java.util.List<java.lang.String> noop(java.util.List<java.lang.String>)\n" + 
-			"- java.util.List<java.lang.String> lambda$0(java.util.List<java.lang.String>)",
+			"[- java.util.List<java.lang.String> lambda$0(java.util.List<java.lang.String>), - java.util.List<java.lang.String> noop(java.util.List<java.lang.String>)]",
 			null,
 			true,
 			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
