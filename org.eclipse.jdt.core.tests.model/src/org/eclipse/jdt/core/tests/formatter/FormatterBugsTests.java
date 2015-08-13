@@ -11207,4 +11207,26 @@ public void testBug467618() {
 		"}"
 	);
 }
+/**
+ * @bug 473727:  ASCII Art in Javadoc cause hanging Eclipse when formatting
+ * @test test that formatting finishes in reasonable time
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=473727"
+ */
+public void testBug473727() {
+    String source = 
+        "/**\r\n" + 
+        " * <                                                           \r\n" + 
+        " * >  <p style='color:red'> Test    </p> */\r\n" + 
+        "class A {}";
+    formatSource(source,
+        "/**\r\n" + 
+        " * < >\r\n" + 
+        " * <p style='color:red'>\r\n" + 
+        " * Test\r\n" + 
+        " * </p>\r\n" + 
+        " */\r\n" + 
+        "class A {\r\n" + 
+        "}"
+    );
+}
 }

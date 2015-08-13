@@ -57,16 +57,17 @@ public class CommentsPreparator extends ASTVisitor {
 	private final static Pattern HTML_TAG_PATTERN;
 	private final static Pattern HTML_ATTRIBUTE_PATTERN;
 	static {
-		String formatCodeTags = "(pre)?"; //$NON-NLS-1$
-		String separateLineTags = "(dl|hr|nl|p|ul|ol|table|tr)?"; //$NON-NLS-1$
-		String breakBeforeTags = "(dd|dt|li|td|th|h1|h2|h3|h4|h5|h6|q)?"; //$NON-NLS-1$
-		String breakAfterTags = "(br)?"; //$NON-NLS-1$
-		String noFormatTags = "(code|em|tt)?"; //$NON-NLS-1$
-		String otherTags = "([^<>&&\\S]+)??"; //$NON-NLS-1$
-		String ws = "(?:[ \\t]+|[\\r\\n]+[ \\t]*\\*?)"; // whitespace or line break with optional asterisk //$NON-NLS-1$
-		String attribute = "(?:" + ws + "+[^=&&\\S]+" + ws + "*(=)" + ws + "*\"?[^\"]*\"?)"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		HTML_TAG_PATTERN = Pattern.compile("<(/)?" //$NON-NLS-1$
-				+ formatCodeTags + separateLineTags + breakBeforeTags + breakAfterTags + noFormatTags + otherTags
+		String formatCodeTags = "(pre)"; //$NON-NLS-1$
+		String separateLineTags = "(dl|hr|nl|p|ul|ol|table|tr)"; //$NON-NLS-1$
+		String breakBeforeTags = "(dd|dt|li|td|th|h1|h2|h3|h4|h5|h6|q)"; //$NON-NLS-1$
+		String breakAfterTags = "(br)"; //$NON-NLS-1$
+		String noFormatTags = "(code|em|tt)"; //$NON-NLS-1$
+		String otherTags = "([^<>&&\\S]++)"; //$NON-NLS-1$
+		String ws = "(?>[ \\t]++|[\\r\\n]++[ \\t]*+\\*?)"; // whitespace or line break with optional asterisk //$NON-NLS-1$
+		String attributeValue = "(?>\"[^\"]*\")|(?>\'[^\']*\')|[^/>\"\'&&\\S]++"; //$NON-NLS-1$
+		String attribute = "(?>" + ws + "+[^=&&\\S]+" + ws + "*(=)" + ws + "*(?>" + attributeValue  + "))"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
+		HTML_TAG_PATTERN = Pattern.compile("<(/)?+(?:" //$NON-NLS-1$
+				+ formatCodeTags + '|' + separateLineTags + '|' + breakBeforeTags + '|' + breakAfterTags + '|' + noFormatTags + '|' + otherTags + ')'
 				+ "(" + attribute + "*)" + ws + "*/?>", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		HTML_ATTRIBUTE_PATTERN = Pattern.compile(attribute);
 	}
