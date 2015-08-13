@@ -11161,4 +11161,29 @@ public void testBug472009() {
 		"}";
 	formatSource(source);
 }
+/**
+ * @bug 474916: [formatter] Formatting GridBagLayout from Java 8 takes too long
+ * @test test that formatting finishes in reasonable time
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=474916"
+ */
+public void testBug474916() {
+	String source = 
+			"/**\r\n" + 
+			" * <                                                           \r\n" + 
+			" * >  <p style='color:red'> Test    </p>\r\n" + 
+			" *  <a title=\"I like to 'quote' it\" \r\n" + 
+			"href = 'http://www.eclipse.org'>Toast</a> */\r\n" + 
+			"class A {}";
+	formatSource(source,
+			"/**\r\n" + 
+			" * < >\r\n" + 
+			" * <p style='color:red'>\r\n" + 
+			" * Test\r\n" + 
+			" * </p>\r\n" + 
+			" * <a title=\"I like to 'quote' it\" href = 'http://www.eclipse.org'>Toast</a>\r\n" + 
+			" */\r\n" + 
+			"class A {\r\n" + 
+			"}"
+	);
+}
 }
