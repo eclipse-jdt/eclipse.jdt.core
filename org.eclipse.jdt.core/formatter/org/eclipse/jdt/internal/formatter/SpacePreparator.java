@@ -923,7 +923,8 @@ public class SpacePreparator extends ASTVisitor {
 
 	private void handleToken(ASTNode node, int tokenType, boolean spaceBefore, boolean spaceAfter) {
 		if (spaceBefore || spaceAfter) {
-			Token token = this.tm.firstTokenIn(node, tokenType);
+			Token token = this.tm.get(this.tm.findIndex(node.getStartPosition(), tokenType, true));
+			// ^not the same as "firstTokenIn(node, tokenType)" - do not assert the token is inside the node
 			handleToken(token, spaceBefore, spaceAfter);
 		}
 	}
