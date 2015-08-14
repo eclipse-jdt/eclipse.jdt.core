@@ -11142,4 +11142,17 @@ public void testBug472205() {
 		"}\n";
 	formatSource(source);
 }
+/**
+ * @bug 471780 - [formatter] Regression in enum value Javadoc formatting
+ */
+public void testBug471780() {
+	String source = 
+		"public enum MyEnum {\r\n" + 
+		"	/** A. */\r\n" + 
+		"	A,\r\n" + 
+		"	/** B. */\r\n" + 
+		"	B\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
