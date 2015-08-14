@@ -7196,4 +7196,31 @@ public void testBug471918() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/474011 - [formatter] non-nls strings are duplicated by formatter
+ */
+public void testBug474011() {
+	String source = 
+		"class A {\n" + 
+		"	String aaaaaaaaaaaaaaaa = \"11111111111111111111111111111111111111\"; //$NON-NLS-1$ aaa bbb ccc\n" + 
+		"	String bbbbbbbbbbbbbbbb = \"22222222222222222222222222222222222222\"; //$NON-NLS-1$ //$NON-NLS-1$\n" + 
+		"	String cccccccccccccccc = \"33333333333333333333333333333333333333\"; //$NON-NLS-1$ //$NON-NLS-2$\n" + 
+		"	String dddddddddddddddd = \"44444444444444444444444444444444444444\"; //$NON-NLS-1$ // $NON-NLS-2$\n" + 
+		"	String eeeeeeeeeeeeeeee = \"55555555555555555555555555555555555555\"; //$NON-NLS-1$ // aaa // bbb\n" + 
+		"}";
+	formatSource(source,
+		"class A {\n" + 
+		"	String aaaaaaaaaaaaaaaa = \"11111111111111111111111111111111111111\"; //$NON-NLS-1$ aaa\n" + 
+		"																		// bbb\n" + 
+		"																		// ccc\n" + 
+		"	String bbbbbbbbbbbbbbbb = \"22222222222222222222222222222222222222\"; //$NON-NLS-1$\n" + 
+		"	String cccccccccccccccc = \"33333333333333333333333333333333333333\"; //$NON-NLS-1$ //$NON-NLS-2$\n" + 
+		"	String dddddddddddddddd = \"44444444444444444444444444444444444444\"; //$NON-NLS-1$ //\n" + 
+		"																		// $NON-NLS-2$\n" + 
+		"	String eeeeeeeeeeeeeeee = \"55555555555555555555555555555555555555\"; //$NON-NLS-1$ //\n" + 
+		"																		// aaa\n" + 
+		"																		// //\n" + 
+		"																		// bbb\n" + 
+		"}");
+}
 }
