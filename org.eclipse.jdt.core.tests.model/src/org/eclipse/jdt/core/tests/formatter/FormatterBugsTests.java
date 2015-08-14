@@ -10973,4 +10973,26 @@ public void testBug471364() throws JavaModelException {
 		"}";
 	formatSource(source);
 }
+
+/**
+ * @bug 472205: Class extends generic type and implements another type, missing space after ">"
+ */
+public void testBug472205() {
+	String source = 
+		"public class Test<E> extends ArrayList<String> implements Callable<String> {\n" +
+		"}\n" +
+		"\n" +
+		"class A extends B<ClientListener> implements C {\n" +
+		"}\n" +
+		"\n" +
+		"class D extends E<ClientListener> {\n" +
+		"}\n" +
+		"\n" +
+		"class F implements G<ClientListener> {\n" +
+		"}\n" +
+		"\n" +
+		"interface H extends I<ClientListener> {\n" +
+		"}\n";
+	formatSource(source);
+}
 }

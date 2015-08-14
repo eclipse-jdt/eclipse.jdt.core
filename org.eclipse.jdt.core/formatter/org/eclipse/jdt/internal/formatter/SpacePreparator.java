@@ -111,6 +111,11 @@ public class SpacePreparator extends ASTVisitor {
 		List<TypeParameter> typeParameters = node.typeParameters();
 		handleTypeParameters(typeParameters);
 
+		if (!node.isInterface() && !node.superInterfaceTypes().isEmpty()) {
+			// fix for: class A<E> extends ArrayList<String>implements Callable<String>
+			handleToken(node.getName(), TokenNameimplements, true, false);
+		}
+
 		handleToken(node.getName(), TokenNameLBRACE,
 				this.options.insert_space_before_opening_brace_in_type_declaration, false);
 		handleCommas(node.superInterfaceTypes(), this.options.insert_space_before_comma_in_superinterfaces,
