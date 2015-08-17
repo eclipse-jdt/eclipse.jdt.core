@@ -457,7 +457,7 @@ public class WrapPreparator extends ASTVisitor {
 				this.wrapIndexes.add(thenIndex);
 		}
 		Statement elseStatement = node.getElseStatement();
-		if (elseStatement != null && !(elseStatement instanceof Block)) {
+		if (elseStatement != null && !(elseStatement instanceof Block) && !(elseStatement instanceof IfStatement)) {
 			int elseIndex = this.tm.firstIndexIn(elseStatement, -1);
 			if (this.tm.get(elseIndex).getLineBreaksBefore() == 0)
 				this.wrapIndexes.add(elseIndex);

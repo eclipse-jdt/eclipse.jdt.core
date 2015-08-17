@@ -11155,4 +11155,23 @@ public void testBug471780() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/472009 - Formatter does not respect "keep else if on one line"
+ */
+public void testBug472009() {
+	this.formatterPrefs.alignment_for_compact_if |= Alignment.M_FORCE;
+	String source = 
+		"public class A {\r\n" + 
+		"	void a() {\r\n" + 
+		"		if (a == b) {\r\n" + 
+		"\r\n" + 
+		"		} else if (c == d) {\r\n" + 
+		"\r\n" + 
+		"		} else if (e == f) {\r\n" + 
+		"\r\n" + 
+		"		}\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
