@@ -786,8 +786,7 @@ class ASTConverter {
 				 			temp = (InfixExpression) temp.getLeftOperand();
 				 		}
 				 	}
-					int startPosition = infixExpression.getLeftOperand().getStartPosition();
-					infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
+				 	setInfixSourcePositions(infixExpression, expression.sourceStart);
 					if (this.resolveBindings) {
 						this.recordNodes(infixExpression, expression);
 					}
@@ -799,16 +798,14 @@ class ASTConverter {
 			Expression leftExpression = convert(leftOperand);
 			infixExpression.setLeftOperand(leftExpression);
 			infixExpression.setRightOperand((Expression)infixExpression.extendedOperands().remove(0));
-			int startPosition = leftExpression.getStartPosition();
-			infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
+		 	setInfixSourcePositions(infixExpression, expression.sourceStart);
 			return infixExpression;
 		}
 		Expression leftExpression = convert(expression.left);
 		infixExpression.setLeftOperand(leftExpression);
 		infixExpression.setRightOperand(convert(expression.right));
 		infixExpression.setOperator(InfixExpression.Operator.CONDITIONAL_AND);
-		int startPosition = leftExpression.getStartPosition();
-		infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
+	 	setInfixSourcePositions(infixExpression, expression.sourceStart);
 		return infixExpression;
 	}
 
@@ -1205,8 +1202,7 @@ class ASTConverter {
 				 			temp = (InfixExpression) temp.getLeftOperand();
 				 		}
 				 	}
-					int startPosition = infixExpression.getLeftOperand().getStartPosition();
-					infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
+					setInfixSourcePositions(infixExpression, infixExpression.getLeftOperand().getStartPosition());
 					if (this.resolveBindings) {
 						this.recordNodes(infixExpression, expression);
 					}
@@ -1219,7 +1215,7 @@ class ASTConverter {
 			infixExpression.setLeftOperand(leftExpression);
 			infixExpression.setRightOperand((Expression)infixExpression.extendedOperands().remove(0));
 			int startPosition = leftExpression.getStartPosition();
-			infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
+			setInfixSourcePositions(infixExpression, startPosition);
 			return infixExpression;
 		} else if (expression.left instanceof StringLiteralConcatenation
 				&& ((expression.left.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.ParenthesizedMASK) == 0)
@@ -1233,14 +1229,14 @@ class ASTConverter {
 			}
 			infixExpression.extendedOperands().add(convert(expression.right));
 			int startPosition = literal.sourceStart;
-			infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
+			setInfixSourcePositions(infixExpression, startPosition);
 			return infixExpression;
 		}
 		Expression leftExpression = convert(expression.left);
 		infixExpression.setLeftOperand(leftExpression);
 		infixExpression.setRightOperand(convert(expression.right));
 		int startPosition = leftExpression.getStartPosition();
-		infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
+		setInfixSourcePositions(infixExpression, startPosition);
 		return infixExpression;
 	}
 
@@ -1491,10 +1487,11 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			recordNodes(conditionalExpression, expression);
 		}
-		conditionalExpression.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
 		conditionalExpression.setExpression(convert(expression.condition));
 		conditionalExpression.setThenExpression(convert(expression.valueIfTrue));
-		conditionalExpression.setElseExpression(convert(expression.valueIfFalse));
+		Expression elseExpression = convert(expression.valueIfFalse);
+		conditionalExpression.setElseExpression(elseExpression);
+		conditionalExpression.setSourceRange(expression.sourceStart, elseExpression.getStartPosition() + elseExpression.getLength() - expression.sourceStart);
 		return conditionalExpression;
 	}
 
@@ -1598,7 +1595,7 @@ class ASTConverter {
 		infixExpression.setLeftOperand(leftExpression);
 		infixExpression.setRightOperand(convert(expression.right));
 		int startPosition = leftExpression.getStartPosition();
-		infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
+		setInfixSourcePositions(infixExpression, startPosition);
 		switch ((expression.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OperatorMASK) >> org.eclipse.jdt.internal.compiler.ast.ASTNode.OperatorSHIFT) {
 			case org.eclipse.jdt.internal.compiler.ast.OperatorIds.EQUAL_EQUAL :
 				infixExpression.setOperator(InfixExpression.Operator.EQUALS);
@@ -2405,8 +2402,7 @@ class ASTConverter {
 				 			temp = (InfixExpression) temp.getLeftOperand();
 				 		}
 				 	}
-					int startPosition = infixExpression.getLeftOperand().getStartPosition();
-					infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
+				 	setInfixSourcePositions(infixExpression, expression.sourceStart);
 					if (this.resolveBindings) {
 						this.recordNodes(infixExpression, expression);
 					}
@@ -2418,17 +2414,24 @@ class ASTConverter {
 			Expression leftExpression = convert(leftOperand);
 			infixExpression.setLeftOperand(leftExpression);
 			infixExpression.setRightOperand((Expression)infixExpression.extendedOperands().remove(0));
-			int startPosition = leftExpression.getStartPosition();
-			infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
+		 	setInfixSourcePositions(infixExpression, expression.sourceStart);
 			return infixExpression;
 		}
 		Expression leftExpression = convert(expression.left);
 		infixExpression.setLeftOperand(leftExpression);
 		infixExpression.setRightOperand(convert(expression.right));
 		infixExpression.setOperator(InfixExpression.Operator.CONDITIONAL_OR);
-		int startPosition = leftExpression.getStartPosition();
-		infixExpression.setSourceRange(startPosition, expression.sourceEnd - startPosition + 1);
+	 	setInfixSourcePositions(infixExpression, expression.sourceStart);
 		return infixExpression;
+	}
+
+	private void setInfixSourcePositions(InfixExpression infixExpression, int sourceStart) {
+		int n = infixExpression.extendedOperands().size();
+		Expression rightMostExp = n <= 0 ? infixExpression.getRightOperand() : (Expression) infixExpression.extendedOperands().get(n - 1);
+		int rightSourceEnd = rightMostExp.getStartPosition() + rightMostExp.getLength() - 1;
+		int infixSourceEnd = infixExpression.getStartPosition() + infixExpression.getLength() - 1;
+		infixSourceEnd = rightSourceEnd > infixSourceEnd ? rightSourceEnd : infixSourceEnd;
+		infixExpression.setSourceRange(sourceStart, infixSourceEnd - sourceStart + 1);
 	}
 
 	public PostfixExpression convert(org.eclipse.jdt.internal.compiler.ast.PostfixExpression expression) {
