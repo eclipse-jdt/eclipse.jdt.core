@@ -333,7 +333,8 @@ public class WrapPreparator extends ASTVisitor {
 		findTokensToWrap(node, 0);
 		this.wrapParentIndex = this.wrapIndexes.remove(0);
 		this.wrapGroupEnd = this.tm.lastIndexIn(node, -1);
-		if ((this.options.alignment_for_binary_expression & Alignment.M_INDENT_ON_COLUMN) != 0)
+		if ((this.options.alignment_for_binary_expression & Alignment.M_INDENT_ON_COLUMN) != 0
+				&& this.wrapParentIndex > 0)
 			this.wrapParentIndex--;
 		for (int i = this.wrapParentIndex; i >= 0; i--) {
 			if (!this.tm.get(i).isComment()) {
