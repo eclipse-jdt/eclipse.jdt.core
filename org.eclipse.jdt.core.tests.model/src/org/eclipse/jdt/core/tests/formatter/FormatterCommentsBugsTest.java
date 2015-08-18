@@ -7223,4 +7223,103 @@ public void testBug474011() {
 		"																		// bbb\n" + 
 		"}");
 }
+/**
+ * https://bugs.eclipse.org/475294 - [formatter] "Preserve whitespace..." problems with wrapped line comments
+ */
+public void testBug475294() {
+	this.formatterPrefs.comment_preserve_white_space_between_code_and_line_comments = true;
+	String source = 
+		"public class A {\n" + 
+		"	void a() {\n" + 
+		"		System.out.println();// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println(); // aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();  // aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();   // aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println(); 	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();  	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();   	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();    	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();  	  // aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();		// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"public class A {\n" + 
+		"	void a() {\n" + 
+		"		System.out.println();// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"								// ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println(); // aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"								 // ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();  // aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"								  // ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();   // aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"								   // ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"									// ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println(); 	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"								 	// ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();  	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"								  	// ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();   	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"								   	// ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();    	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"								    	// ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();  	  // aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"								  	  // ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();		// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"										// ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"	}\n" + 
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/475294 - [formatter] "Preserve whitespace..." problems with wrapped line comments
+ */
+public void testBug475294b() {
+	this.formatterPrefs.comment_preserve_white_space_between_code_and_line_comments = true;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	String source = 
+		"public class A {\n" + 
+		"	void a() {\n" + 
+		"		System.out.println();// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println(); // aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();  // aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();   // aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println(); 	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();  	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();   	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();    	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();  	  // aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();		// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"public class A {\n" + 
+		"	void a() {\n" + 
+		"		System.out.println();// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"		                     // ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println(); // aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"		                      // ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();  // aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"		                       // ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();   // aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"		                        // ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"		                     	// ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println(); 	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"		                      	// ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();  	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"		                       	// ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();   	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"		                        	// ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();    	// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"		                         	// ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();  	  // aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"		                       	  // ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"		System.out.println();		// aaaaaaa bbbbbbbbbbbbbbb ccccccccccccc\n" + 
+		"		                     		// ddddddddddddddd eeeeeeeeeeeeeee\n" + 
+		"	}\n" + 
+		"}");
+}
 }
