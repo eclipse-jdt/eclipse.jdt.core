@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Walter Harley and others
+ * Copyright (c) 2015 Walter Harley and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,7 +15,7 @@ package targets.model.pc;
  */
 public class AsMemberOf<T> {
     private T f;
-    private T m() { return f; }
+    protected T m(T[] t1, T t2) { return f; }
     E<Integer> e = new E<Integer>();
     
     // Type parameter 'T' of static class is unrelated to 'T' of containing class
@@ -39,7 +39,7 @@ public class AsMemberOf<T> {
     // even when accesed through a subclass; this is not explicitly specified, but 
     // is true for javac 1.6.
     T publicize() {
-        return (m() == null) ? new C<T>().x() : new D().x();
+        return (m(null, null) == null) ? new C<T>().x() : new D().x();
     }
 }
 

@@ -7,7 +7,7 @@
  *
  * Contributors:
  *    Walter Harley - initial API and implementation
- *    IBM Corporation - fix for 342598
+ *    IBM Corporation - fix for 342598, 382590
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.model;
@@ -85,8 +85,8 @@ public class TypesImpl implements Types {
     			MethodBinding methodBinding = (MethodBinding) elementImpl._binding;
     			while (referenceBinding != null) {
                     for (MethodBinding method : referenceBinding.methods()) {
-                        if (CharOperation.equals(method.selector, methodBinding.selector)
-                                && method.areParameterErasuresEqual(methodBinding)) {
+                        if (CharOperation.equals(method.selector, methodBinding.selector) &&
+                                (method.original() == methodBinding || method.areParameterErasuresEqual(methodBinding))) {
                             return this._env.getFactory().newTypeMirror(method);
                         }
                     }
