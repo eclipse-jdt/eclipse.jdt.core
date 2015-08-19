@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  Copyright (c) 2012, 2013 Eclipse Foundation and others.
+  Copyright (c) 2012, 2015 Eclipse Foundation and others.
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Distribution License v1.0
   which accompanies this distribution, and is available at
@@ -28,18 +28,28 @@
     <tycho.scmUrl>scm:git:git://git.eclipse.org/gitroot/jdt/eclipse.jdt.core.git</tycho.scmUrl>
   </properties>
 
-  <repositories>
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-      <id>eclipse-hosted</id>
-      <url>https://repo.eclipse.org/content/repositories/eclipse/</url>
-    </repository>
-  </repositories>
+<!--
+    To build individual bundles, we specify a repository where to find parent pom,
+    in case it is not in local maven cache already
+    and that parent pom also has fuller individual-bundle profile
+    defined that is combined with this one. -->
+  <profiles>
+    <profile>
+      <id>build-individual-bundles</id>
+      <repositories>
+        <repository>
+          <releases>
+            <enabled>true</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+          <id>eclipse-hosted</id>
+          <url>https://repo.eclipse.org/content/repositories/eclipse/</url>
+        </repository>
+      </repositories>
+    </profile>
+  </profiles>
 
   <modules>
     <module>org.eclipse.jdt.annotation</module>
