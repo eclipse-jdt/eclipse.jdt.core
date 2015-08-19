@@ -28,11 +28,11 @@
     <tycho.scmUrl>scm:git:git://git.eclipse.org/gitroot/jdt/eclipse.jdt.core.git</tycho.scmUrl>
   </properties>
 
-<!--
-    To build individual bundles, we specify a repository where to find parent pom,
+  <!-- 
+    To build individual bundles, we specify a repository where to find parent pom, 
     in case it is not in local maven cache already
-    and that parent pom also has fuller individual-bundle profile
-    defined that is combined with this one. -->
+    and that parent pom also has fuller individual-bundle profile 
+    defined that is combined with this one. --> 
   <profiles>
     <profile>
       <id>build-individual-bundles</id>
