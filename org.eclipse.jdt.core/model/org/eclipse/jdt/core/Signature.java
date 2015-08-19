@@ -2416,6 +2416,14 @@ public static char[][] getTypeParameters(char[] methodOrTypeSignature) throws Il
 							// not a type variable signature -> it is a new type parameter
 						}
 						break;
+					case C_CAPTURE:
+						try {
+							i = Util.scanCaptureTypeSignature(methodOrTypeSignature, i);
+							i++; // position at start of next param if any
+						} catch (IllegalArgumentException e) {
+							// not a capture variable signature -> it is a new type parameter
+						}
+						break;
 					// default: another type parameter is starting
 				}
 			}
