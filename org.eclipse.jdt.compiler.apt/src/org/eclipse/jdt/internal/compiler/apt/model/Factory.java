@@ -769,7 +769,8 @@ public class Factory {
 	}
 
 	/* Wrap repeating annotations into their container, return an array of bindings.
-	   Incoming array is not modified.
+	   Incoming array is not modified. The resulting array may be null but will not contain null
+	   entries.
 	*/
 	public static AnnotationBinding [] getPackedAnnotationBindings(AnnotationBinding [] annotations) {
 		
@@ -815,14 +816,17 @@ public class Factory {
 				repackagedBindings[i] = new AnnotationBinding(containerType, elementValuePairs);
 			}
 		}
-		if (repackagedBindings == annotations)
-			return annotations;
-		
+
 		int finalTally = 0;
 		for (int i = 0; i < length; i++) {
 			if (repackagedBindings[i] != null)
 				finalTally++;
 		}
+
+		if (repackagedBindings == annotations && finalTally == length) {
+			return annotations;
+		}
+
 		annotations = new AnnotationBinding [finalTally];
 		for (int i = 0, j = 0; i < length; i++) {
 			if (repackagedBindings[i] != null)

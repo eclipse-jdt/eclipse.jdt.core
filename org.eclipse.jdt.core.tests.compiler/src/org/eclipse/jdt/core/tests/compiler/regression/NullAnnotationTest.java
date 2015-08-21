@@ -8111,6 +8111,25 @@ public void testBug459967_Enum_valueOf() {
 		getCompilerOptions(),
 		"");
 }
+public void testBug459967_Enum_valueOf_binary() {
+	runConformTest(
+		new String[] {
+			"MyEnum.java",
+			"public enum MyEnum { V1, V2 }\n"			
+		});
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	@NonNull MyEnum forString(String name) {\n" +
+			"		return MyEnum.valueOf(name);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 public void testBug459967_Enum_values() {
 	String[] testFiles = new String[] {
 		"MyEnum.java",
@@ -8132,6 +8151,47 @@ public void testBug459967_Enum_values() {
 		"	}\n" +
 		"}\n"
 	};
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		runConformTestWithLibs(
+				testFiles,
+				getCompilerOptions(),
+				"----------\n" + 
+				"1. WARNING in X.java (at line 7)\n" + 
+				"	for (@NonNull MyEnum value : MyEnum.values())\n" + 
+				"	                             ^^^^^^^^^^^^^^^\n" + 
+				"Null type safety: The expression of type \'MyEnum\' needs unchecked conversion to conform to \'@NonNull MyEnum\'\n" + 
+				"----------\n");		
+	} else {
+		runConformTestWithLibs(
+				testFiles,
+				getCompilerOptions(),
+				"");
+	}
+}
+public void testBug459967_Enum_values_binary() {
+	String[] testFiles = new String[] {
+		"X.java",
+		"import org.eclipse.jdt.annotation.*;\n" +
+		"public class X {\n" +
+		(this.complianceLevel < ClassFileConstants.JDK1_8
+		?
+		"	@NonNull MyEnum[] getValues() {\n"
+		:
+		"	MyEnum @NonNull[] getValues() {\n"
+		)+
+		"		return MyEnum.values();\n" +
+		"	}\n" +
+		"	void printAll() {\n" +
+		"		for (@NonNull MyEnum value : MyEnum.values())\n" +
+		"			System.out.println(value);\n" +
+		"	}\n" +
+		"}\n"
+	};
+	runConformTest(
+		new String[] {
+			"MyEnum.java",
+			"public enum MyEnum { V1, V2 }\n",
+		});
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
 		runConformTestWithLibs(
 				testFiles,
@@ -8521,5 +8581,32 @@ public void testBug461878() {
 		null,
 		true,
 		compilerOptions);
+}
+public void testBug467610() {
+	runConformTestWithLibs(
+		new String[] {
+			"SuperClass.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" + 
+			"public abstract class SuperClass<T> {\n" + 
+			"\n" + 
+			"	abstract T doSomething(T arg);\n" + 
+			"\n" + 
+			"	abstract String returnAString();\n" + 
+			"\n" + 
+			"	public static abstract class SubClass<S> extends SuperClass<S> {\n" + 
+			"\n" + 
+			"		@Override\n" + 
+			"		abstract S doSomething(S arg);\n" + 
+			"\n" + 
+			"		@Override\n" + 
+			"		abstract String returnAString();\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}"
+		},
+		getCompilerOptions(),
+		"");
 }
 }

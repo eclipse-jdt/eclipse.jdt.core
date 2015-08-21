@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,8 @@
  *								Bug 428274 - [1.8] [compiler] Cannot cast from Number to double
  *								Bug 428352 - [1.8][compiler] Resolution errors don't always surface
  *								Bug 452788 - [1.8][compiler] Type not correctly inferred in lambda expression
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -843,7 +845,7 @@ public void generateOptimizedStringConcatenationCreation(BlockScope blockScope, 
 }
 
 private MethodBinding[] getAllOriginalInheritedMethods(ReferenceBinding binding) {
-	ArrayList<MethodBinding> collector = new ArrayList<MethodBinding>();
+	ArrayList<MethodBinding> collector = new ArrayList<>();
 	getAllInheritedMethods0(binding, collector);
 	for (int i = 0, len = collector.size(); i < len; i++) {
 		collector.set(i, collector.get(i).original());

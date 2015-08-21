@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -440,6 +440,17 @@ public void testGetTypeParameters6() {
 	assertStringsEqual(
 			"Unexpected type parameters",
 			"E::Lp/I;\n",
+			Signature.getTypeParameters(sig));
+}
+/**
+ * @see Signature
+ * (regression test for Bug 466512: Unexpected runtime error while computing a text hover)
+ */
+public void testGetTypeParameters7() {
+	String sig = "<S:!-TT;>(Ljava.lang.Class<!-TT;>;)Lxy.HoverTest$TestClass<!-TT;>;";
+	assertStringsEqual(
+			"Unexpected type parameters",
+			"S:!-TT;\n",
 			Signature.getTypeParameters(sig));
 }
 /**

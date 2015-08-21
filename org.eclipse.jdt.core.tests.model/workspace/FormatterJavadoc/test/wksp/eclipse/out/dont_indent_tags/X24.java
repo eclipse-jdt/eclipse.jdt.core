@@ -6,10 +6,11 @@ public class X24 {
 	 * Creates a new unparented expression statement node owned by this AST, for
 	 * the given expression.
 	 * <p>
-	 * This method can be used to convert an expression (<code>Expression</code>
-	 * ) into a statement (<code>Type</code>) by wrapping it. Note, however,
-	 * that the result is only legal for limited expression types, including
-	 * method invocations, assignments, and increment/decrement operations.
+	 * This method can be used to convert an expression
+	 * (<code>Expression</code>) into a statement (<code>Type</code>) by
+	 * wrapping it. Note, however, that the result is only legal for limited
+	 * expression types, including method invocations, assignments, and
+	 * increment/decrement operations.
 	 * </p>
 	 * 
 	 * @param expression

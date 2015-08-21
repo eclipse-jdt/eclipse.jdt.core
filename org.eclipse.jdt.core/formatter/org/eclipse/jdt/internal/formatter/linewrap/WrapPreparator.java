@@ -182,7 +182,7 @@ public class WrapPreparator extends ASTVisitor {
 
 		if (this.options.align_type_members_on_columns) {
 			if (this.fieldAligner == null) {
-				this.fieldAligner = new FieldAligner(this.tm, this.options);
+				this.fieldAligner = new FieldAligner(this.tm);
 			}
 			this.fieldAligner.prepareAlign(node);
 		}
@@ -221,7 +221,7 @@ public class WrapPreparator extends ASTVisitor {
 			List<TypeParameter> typeParameters = node.typeParameters();
 			if (!typeParameters.isEmpty())
 				this.wrapIndexes.add(this.tm.firstIndexIn(typeParameters.get(0), -1));
-			if (node.getReturnType2() != null)
+			if (node.getReturnType2() != null && !node.modifiers().isEmpty())
 				this.wrapIndexes.add(this.tm.firstIndexIn(node.getReturnType2(), -1));
 			this.wrapIndexes.add(this.tm.firstIndexIn(node.getName(), -1));
 			this.wrapParentIndex = this.tm.findFirstTokenInLine(this.tm.firstIndexIn(node.getName(), -1));
@@ -457,7 +457,7 @@ public class WrapPreparator extends ASTVisitor {
 				this.wrapIndexes.add(thenIndex);
 		}
 		Statement elseStatement = node.getElseStatement();
-		if (elseStatement != null && !(elseStatement instanceof Block)) {
+		if (elseStatement != null && !(elseStatement instanceof Block) && !(elseStatement instanceof IfStatement)) {
 			int elseIndex = this.tm.firstIndexIn(elseStatement, -1);
 			if (this.tm.get(elseIndex).getLineBreaksBefore() == 0)
 				this.wrapIndexes.add(elseIndex);

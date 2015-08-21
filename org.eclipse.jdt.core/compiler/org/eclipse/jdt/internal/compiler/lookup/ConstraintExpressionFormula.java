@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -23,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ExpressionContext;
 import org.eclipse.jdt.internal.compiler.ast.Invocation;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
+import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18.SuspendedInferenceRecord;
 
@@ -67,8 +70,11 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 		}
 		if (!canBePolyExpression(this.left)) {
 			TypeBinding exprType = this.left.resolvedType;
-			if (exprType == null || !exprType.isValidBinding())
+			if (exprType == null || !exprType.isValidBinding()) {
+				if (this.left instanceof MessageSend && ((MessageSend)this.left).actualReceiverType instanceof InferenceVariable)
+					return null; // nothing valuable to infer from this
 				return FALSE;
+			}
 			return ConstraintTypeFormula.create(exprType, this.right, COMPATIBLE, this.isSoft);
 		} else {
 			// shapes of poly expressions (18.2.1)
@@ -164,7 +170,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					if (!lambda.isValueCompatible())
 						return FALSE;
 				}
-				List<ConstraintFormula> result = new ArrayList<ConstraintFormula>();
+				List<ConstraintFormula> result = new ArrayList<>();
 				if (!lambda.argumentsTypeElided()) {
 					Argument[] arguments = lambda.arguments();
 					for (int i = 0; i < parameters.length; i++)
@@ -242,7 +248,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 		if (potentiallyApplicable == null)
 			return FALSE;
 		if (reference.isExactMethodReference()) {
-			List<ConstraintFormula> newConstraints = new ArrayList<ConstraintFormula>();
+			List<ConstraintFormula> newConstraints = new ArrayList<>();
 			TypeBinding[] p = functionType.parameters;
 			int n = p.length;
 			TypeBinding[] pPrime = potentiallyApplicable.parameters;
@@ -424,7 +430,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			if (this.right.isFunctionalInterface(context.scope)) {
 				LambdaExpression lambda = (LambdaExpression) this.left;
 				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope, true); // TODO derive with target type?
-				final Set<InferenceVariable> variables = new HashSet<InferenceVariable>();
+				final Set<InferenceVariable> variables = new HashSet<>();
 				if (lambda.argumentsTypeElided()) {
 					// i)
 					int len = sam.parameters.length;
@@ -449,7 +455,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			}
 			if (this.right.isFunctionalInterface(context.scope) && !this.left.isExactMethodReference()) {
 				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope, true);
-				final Set<InferenceVariable> variables = new HashSet<InferenceVariable>();
+				final Set<InferenceVariable> variables = new HashSet<>();
 				int len = sam.parameters.length;
 				for (int i = 0; i < len; i++) {
 					sam.parameters[i].collectInferenceVariables(variables);
@@ -458,7 +464,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			}			
 		} else if (this.left instanceof ConditionalExpression && this.left.isPolyExpression()) {
 			ConditionalExpression expr = (ConditionalExpression) this.left;
-			Set<InferenceVariable> variables = new HashSet<InferenceVariable>();
+			Set<InferenceVariable> variables = new HashSet<>();
 			variables.addAll(new ConstraintExpressionFormula(expr.valueIfTrue, this.right, COMPATIBLE).inputVariables(context));
 			variables.addAll(new ConstraintExpressionFormula(expr.valueIfFalse, this.right, COMPATIBLE).inputVariables(context));
 			return variables;

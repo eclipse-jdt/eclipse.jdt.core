@@ -327,6 +327,10 @@ public class BindingKeyResolver extends BindingKeyParser {
 	}
 
 	public void consumeLocalType(char[] uniqueKey) {
+		if (this.parsedUnit == null) {
+			this.typeBinding = null;
+			return;
+		}
  		LocalTypeBinding[] localTypeBindings  = this.parsedUnit.localTypes;
  		for (int i = 0; i < this.parsedUnit.localTypeCount; i++)
  			if (CharOperation.equals(uniqueKey, localTypeBindings[i].computeUniqueKey(false/*not a leaf*/))) {

@@ -112,6 +112,6 @@ public class ASTParserTest extends org.eclipse.jdt.core.tests.junit.extension.Te
 	    this.parser.setFocalPosition(0);
 
 	    this.parser.setCompilerOptions(null);
-	    this.parser.setCompilerOptions(new HashMap());
+	    this.parser.setCompilerOptions(new HashMap<String, String>());
 	}
 }

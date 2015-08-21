@@ -90,7 +90,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * @since 3.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
+@SuppressWarnings("rawtypes")
 public class ASTParser {
 
 	/**
@@ -142,7 +142,7 @@ public class ASTParser {
 	/**
 	 * Compiler options. Defaults to JavaCore.getOptions().
 	 */
-	private Map compilerOptions;
+	private Map<String, String> compilerOptions;
 	
     /**
 	 * The focal point for a partial AST request.
@@ -281,7 +281,7 @@ public class ASTParser {
 		this.classpaths = null;
 		this.sourcepaths = null;
 		this.sourcepathsEncodings = null;
-		Map options = JavaCore.getOptions();
+		Map<String, String> options = JavaCore.getOptions();
 		options.remove(JavaCore.COMPILER_TASK_TAGS); // no need to parse task tags
 		this.compilerOptions = options;
 	}
@@ -369,12 +369,12 @@ public class ASTParser {
 	 * value type: <code>String</code>), or <code>null</code>
 	 * to set it back to the default
 	 */
-	public void setCompilerOptions(Map options) {
+	public void setCompilerOptions(Map<String, String> options) {
 		if (options == null) {
 			options = JavaCore.getOptions();
 		} else {
 			// copy client's options so as to not do any side effect on them
-			options = new HashMap(options);
+			options = new HashMap<>(options);
 		}
 		options.remove(JavaCore.COMPILER_TASK_TAGS); // no need to parse task tags
 		this.compilerOptions = options;
@@ -649,7 +649,7 @@ public class ASTParser {
 		this.rawSource = null;
 		if (source != null) {
 			this.project = source.getJavaProject();
-			Map options = this.project.getOptions(true);
+			Map<String, String> options = this.project.getOptions(true);
 			options.remove(JavaCore.COMPILER_TASK_TAGS); // no need to parse task tags
 			this.compilerOptions = options;
 		}
@@ -781,7 +781,7 @@ public class ASTParser {
 	public void setProject(IJavaProject project) {
 		this.project = project;
 		if (project != null) {
-			Map options = project.getOptions(true);
+			Map<String, String> options = project.getOptions(true);
 			options.remove(JavaCore.COMPILER_TASK_TAGS); // no need to parse task tags
 			this.compilerOptions = options;
 		}

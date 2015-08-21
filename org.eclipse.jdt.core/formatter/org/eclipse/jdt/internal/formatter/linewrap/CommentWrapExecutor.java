@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter.linewrap;
 
@@ -30,7 +32,7 @@ public class CommentWrapExecutor extends TokenTraverser {
 	private final TokenManager tm;
 	private final DefaultCodeFormatterOptions options;
 
-	private final ArrayList<Token> nlsTags = new ArrayList<Token>();
+	private final ArrayList<Token> nlsTags = new ArrayList<>();
 
 	private int lineStartPosition;
 	private List<Token> blockStructure;
@@ -227,10 +229,11 @@ public class CommentWrapExecutor extends TokenTraverser {
 			whitespace.breakBefore();
 			whitespace.setWrapPolicy(new WrapPolicy(0, commentIndex, false));
 			prefix = structure.get(1);
+			assert prefix.tokenType == TokenNameCOMMENT_LINE;
 		}
 		int prefixEnd = commentToken.originalStart + 1;
-		if (prefix.tokenType == TokenNameCOMMENT_LINE)
-			prefixEnd = Math.max(prefixEnd, prefix.originalEnd);
+		if (!prefix.hasNLSTag())
+			prefixEnd = Math.max(prefixEnd, prefix.originalEnd); // comments can start with more than 2 slashes
 		prefix = new Token(commentToken.originalStart, prefixEnd, TokenNameCOMMENT_LINE);
 		if (whitespace == null) {
 			prefix.breakBefore();

@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
+ *     Till Brychcy - Java Code Formatter breaks code if single line comments contain unicode escape - https://bugs.eclipse.org/471090
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -119,9 +120,8 @@ public class Token {
 		int end = scanner.getCurrentTokenEndPosition();
 		if (currentToken == TokenNameCOMMENT_LINE) {
 			// don't include line separator
-			String source = scanner.getCurrentTokenString();
-			for (int i = source.length() - 1; i > 0; i--) {
-				char c = source.charAt(i);
+			while(end >= start) {
+				char c = scanner.source[end];
 				if (c != '\r' && c != '\n')
 					break;
 				end--;

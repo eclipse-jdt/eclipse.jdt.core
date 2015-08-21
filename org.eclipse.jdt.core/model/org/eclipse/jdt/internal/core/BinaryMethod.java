@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -129,7 +129,7 @@ public ILocalVariable[] getParameters() throws JavaModelException {
 					-1,
 					true);
 			localVariables[i] = localVariable;
-			IAnnotation[] annotations = getAnnotations(localVariable, info.getParameterAnnotations(i - startIndex));
+			IAnnotation[] annotations = getAnnotations(localVariable, info.getParameterAnnotations(i - startIndex, getDeclaringType().getElementName().toCharArray()));
 			localVariable.annotations = annotations;
 		}
 	}

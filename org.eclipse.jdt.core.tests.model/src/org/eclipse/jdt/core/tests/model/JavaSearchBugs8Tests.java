@@ -4678,6 +4678,35 @@ assertSearchResults(
 		"src/X.java void X.m1() [X::new] EXACT_MATCH"  
 );	
 }
+public void testBug468127_0001() throws CoreException {
+	try {
+
+		IJavaProject project = createJavaProject("P", new String[] {"src"}, new String[] { "/P/lib468127.jar", "JCL18_LIB" }, "bin", "1.8");
+		createFile(
+			"/P/src/X.java",
+			"public class X {\n" +
+			"	@SuppressWarnings({ \"rawtypes\", \"unchecked\" })\n" +
+			"	public static void main(String[] args) {\n" +
+			"		IY y = s -> foo(0);\n" +
+			"		y.accept(0);\n" +
+			"	}\n" +
+			"	static private void foo(int i) {}\n" +
+			"}\n"
+		);
+		addLibraryEntry(project, "/JavaSearchBugs/lib/b468127.jar", false);
+
+		waitUntilIndexesReady();
+		
+		SearchPattern pattern = SearchPattern.createPattern("IY.accept(T)", METHOD, REFERENCES, ERASURE_RULE);
+		search(pattern, SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.APPLICATION_LIBRARIES | IJavaSearchScope.SOURCES), this.resultCollector);
+		assertSearchResults(
+				"src/X.java void X.main(String[]) [accept(0)] EXACT_MATCH\n" + 
+				"lib/b468127.jar void <anonymous>.accept(java.lang.Object) EXACT_MATCH");
+	}
+	finally {
+		deleteProject("P");
+	}
+}
 
 // Add new tests in JavaSearchBugs8Tests
 }

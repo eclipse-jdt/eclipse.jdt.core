@@ -212,7 +212,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 
 	// DISABLED: no longer a problem since bug 365531 - [compiler][null] investigate alternative strategy for internally encoding nullness defaults
 	public void _testMissingAnnotation2() throws CoreException {
-		Hashtable javaOptions = JavaCore.getOptions();
+		Hashtable<String, String> javaOptions = JavaCore.getOptions();
     	try {
 			// Resources creation
 			IJavaProject p = createJavaProject("P", new String[] {""}, new String[] {"JCL15_LIB", this.ANNOTATION_LIB}, "bin", "1.5");

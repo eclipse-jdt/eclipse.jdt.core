@@ -11,6 +11,8 @@
  *     Ray V. (voidstar@gmail.com) - Contribution for bug 282988
  *     Jesper S Moller - Contribution for bug 402173
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
@@ -423,7 +425,7 @@ public class DefaultCodeFormatterOptions {
 	}
 
 	public Map<String, String> getMap() {
-		Map<String, String> options = new HashMap<String, String>();
+		Map<String, String> options = new HashMap<>();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_ALLOCATION_EXPRESSION, getAlignment(this.alignment_for_arguments_in_allocation_expression));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_ANNOTATION, getAlignment(this.alignment_for_arguments_in_annotation));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_ENUM_CONSTANT, getAlignment(this.alignment_for_arguments_in_enum_constant));
@@ -710,7 +712,7 @@ public class DefaultCodeFormatterOptions {
 				options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, DefaultCodeFormatterConstants.MIXED);
 				break;
 		}
-		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, Integer.toString(this.tab_char == MIXED ? this.tab_size : this.indentation_size)); // reverse values swapping performed by IndentationTabPage
+		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, Integer.toString(this.tab_char == SPACE ? this.indentation_size : this.tab_size)); // reverse values swapping performed by IndentationTabPage
 		options.put(DefaultCodeFormatterConstants.FORMATTER_USE_TABS_ONLY_FOR_LEADING_INDENTATIONS, this.use_tabs_only_for_leading_indentations ?  DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_BEFORE_BINARY_OPERATOR, this.wrap_before_binary_operator ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_BEFORE_OR_OPERATOR_MULTICATCH, this.wrap_before_or_operator_multicatch ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
@@ -1326,7 +1328,7 @@ public class DefaultCodeFormatterOptions {
 			// reverse values swapping performed by IndentationTabPage
 			if (DefaultCodeFormatterConstants.MIXED.equals(settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR)))
 				this.indentation_size = indentationSize;
-			else
+			else if (JavaCore.SPACE.equals(settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR)))
 				this.tab_size = indentationSize;
 		}
 		final Object insertNewLineAfterOpeningBraceInArrayInitializerOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_OPENING_BRACE_IN_ARRAY_INITIALIZER);
@@ -2098,9 +2100,9 @@ public class DefaultCodeFormatterOptions {
 				// keep default
 			}
 			// reverse values swapping performed by IndentationTabPage
-			if (DefaultCodeFormatterConstants.MIXED.equals(settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR)))
+			if (!JavaCore.SPACE.equals(settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR)))
 				this.tab_size = tabSize;
-			else
+			if (!DefaultCodeFormatterConstants.MIXED.equals(settings.get(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR)))			
 				this.indentation_size = tabSize;
 		}
 		final Object useTabsOnlyForLeadingIndentationsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_USE_TABS_ONLY_FOR_LEADING_INDENTATIONS);
@@ -2377,7 +2379,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_at_in_annotation = false;
 		this.insert_space_after_at_in_annotation_type_declaration = false;
 		this.insert_space_after_binary_operator = true;
-		this.insert_space_after_closing_angle_bracket_in_type_arguments = true;
+		this.insert_space_after_closing_angle_bracket_in_type_arguments = false;
 		this.insert_space_after_closing_angle_bracket_in_type_parameters = true;
 		this.insert_space_after_closing_paren_in_cast = true;
 		this.insert_space_after_closing_brace_in_block = true;
@@ -2668,7 +2670,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_at_in_annotation = false;
 		this.insert_space_after_at_in_annotation_type_declaration = false;
 		this.insert_space_after_binary_operator = true;
-		this.insert_space_after_closing_angle_bracket_in_type_arguments = true;
+		this.insert_space_after_closing_angle_bracket_in_type_arguments = false;
 		this.insert_space_after_closing_angle_bracket_in_type_parameters = true;
 		this.insert_space_after_closing_paren_in_cast = true;
 		this.insert_space_after_closing_brace_in_block = true;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 GK Software AG.
+ * Copyright (c) 2013, 2015 GK Software AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -93,7 +95,7 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 		if (ePrime == null)
 			return TRUE;
 		int m = ePrime.length;
-		List<ConstraintFormula> result = new ArrayList<ConstraintFormula>();
+		List<ConstraintFormula> result = new ArrayList<>();
 		actual: for (int i = 0; i < m; i++) {
 			if (ePrime[i].isUncheckedException(false))
 				continue;
@@ -117,7 +119,7 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 			if (this.right.isFunctionalInterface(context.scope)) {
 				LambdaExpression lambda = (LambdaExpression) this.left;
 				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope, true); // TODO derive with target type?
-				final Set<InferenceVariable> variables = new HashSet<InferenceVariable>();
+				final Set<InferenceVariable> variables = new HashSet<>();
 				if (lambda.argumentsTypeElided()) {
 					// i)
 					int len = sam.parameters.length;
@@ -137,7 +139,7 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 			}
 			if (this.right.isFunctionalInterface(context.scope)) { // TODO: && this.left is inexact
 				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope, true); // TODO derive with target type?
-				final Set<InferenceVariable> variables = new HashSet<InferenceVariable>();
+				final Set<InferenceVariable> variables = new HashSet<>();
 				int len = sam.parameters.length;
 				for (int i = 0; i < len; i++) {
 					sam.parameters[i].collectInferenceVariables(variables);

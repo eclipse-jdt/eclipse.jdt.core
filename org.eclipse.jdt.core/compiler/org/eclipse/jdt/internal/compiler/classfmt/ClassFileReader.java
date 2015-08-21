@@ -1211,7 +1211,7 @@ private boolean hasStructuralMethodChanges(MethodInfo currentMethodInfo, MethodI
 	if (currentAnnotatedParamsCount != otherAnnotatedParamsCount)
 		return true;
 	for (int i=0; i<currentAnnotatedParamsCount; i++) {
-		if (hasStructuralAnnotationChanges(currentMethodInfo.getParameterAnnotations(i), otherMethodInfo.getParameterAnnotations(i)))
+		if (hasStructuralAnnotationChanges(currentMethodInfo.getParameterAnnotations(i, this.classFileName), otherMethodInfo.getParameterAnnotations(i, this.classFileName)))
 			return true;
 	}
 

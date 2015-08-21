@@ -30,9 +30,9 @@ public class X {
 	public void main(String[] args) {
 		I i = System::getProperty;
 		J j = "abc"::length;
-		K k = String::<String, Integer> length;
+		K k = String::<String, Integer>length;
 		L l = super::toString;
-		M m = java.util.List<String>::<X> size;
+		M m = java.util.List<String>::<X>size;
 		N n = java.util.ArrayList<String>::new;
 		O o = int[]::new;
 	}

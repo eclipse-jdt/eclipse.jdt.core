@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     John Glassmyer <jogl@google.com> - import group sorting is broken - https://bugs.eclipse.org/430303
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.dom.rewrite.imports;
 
@@ -81,7 +83,7 @@ final class ImportEditor {
 	 */
 	private static Map<ImportName, ImportEntry> mapPrecedingImports(Collection<? extends ImportEntry> importEntries) {
 		Map<ImportName, ImportEntry> precedingImports =
-				new IdentityHashMap<ImportName, ImportEntry>(importEntries.size());
+				new IdentityHashMap<>(importEntries.size());
 
 		ImportEntry previousImport = null;
 		for (ImportEntry currentImport : importEntries) {
@@ -251,7 +253,7 @@ final class ImportEditor {
 	private Collection<TextEdit> determineEditsForImports(
 			IRegion importsRegion,
 			Collection<ImportEntry> resultantImports) {
-		Collection<TextEdit> edits = new ArrayList<TextEdit>();
+		Collection<TextEdit> edits = new ArrayList<>();
 
 		Map<ImportEntry, Collection<ImportComment>> commentReassignments =
 				this.commentReassigner.reassignComments(resultantImports);
@@ -264,7 +266,7 @@ final class ImportEditor {
 		edits.addAll(deleteRemainingText(importsRegion, edits));
 
 		// Omit the RangeMarkers used temporarily to mark the text of non-relocated imports.
-		Collection<TextEdit> editsWithoutRangeMarkers = new ArrayList<TextEdit>(edits.size());
+		Collection<TextEdit> editsWithoutRangeMarkers = new ArrayList<>(edits.size());
 		for (TextEdit edit : edits) {
 			if (!(edit instanceof RangeMarker)) {
 				editsWithoutRangeMarkers.add(edit);
@@ -281,7 +283,7 @@ final class ImportEditor {
 			OriginalImportsCursor cursor,
 			Collection<ImportEntry> resultantImports,
 			Map<ImportEntry, Collection<ImportComment>> commentReassignments) {
-		Collection<TextEdit> edits = new ArrayList<TextEdit>();
+		Collection<TextEdit> edits = new ArrayList<>();
 
 		ImportEntry lastResultantImport = null;
 		for (ImportEntry currentResultantImport : resultantImports) {
@@ -478,7 +480,7 @@ final class ImportEditor {
 			return Collections.emptyList();
 		}
 
-		Collection<TextEdit> edits = new ArrayList<TextEdit>(reassignedComments.size() * 3);
+		Collection<TextEdit> edits = new ArrayList<>(reassignedComments.size() * 3);
 
 		ImportComment lastComment = null;
 		for (ImportComment currentComment : reassignedComments) {
@@ -505,7 +507,7 @@ final class ImportEditor {
 	 * Creates TextEdits that delete text remaining between and after resultant imports.
 	 */
 	private static Collection<TextEdit> deleteRemainingText(IRegion importRegion, Collection<TextEdit> edits) {
-		List<TextEdit> sortedEdits = new ArrayList<TextEdit>(edits);
+		List<TextEdit> sortedEdits = new ArrayList<>(edits);
 		Collections.sort(sortedEdits, new Comparator<TextEdit>() {
 			@Override
 			public int compare(TextEdit o1, TextEdit o2) {
@@ -515,7 +517,7 @@ final class ImportEditor {
 
 		int deletePosition = importRegion.getOffset();
 
-		Collection<TextEdit> deleteRemainingTextEdits = new ArrayList<TextEdit>();
+		Collection<TextEdit> deleteRemainingTextEdits = new ArrayList<>();
 		for (TextEdit edit : sortedEdits) {
 			if (edit.getOffset() > deletePosition) {
 				deleteRemainingTextEdits.add(new DeleteEdit(deletePosition, edit.getOffset() - deletePosition));

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,7 +59,7 @@ public void acceptProblem(CategorizedProblem problem, char[] fragmentSource, int
 		marker.setAttribute(IMarker.LINE_NUMBER, problem.getSourceLineNumber());
 		//marker.setAttribute(IMarker.LOCATION, "#" + problem.getSourceLineNumber());
 		marker.setAttribute(IMarker.MESSAGE, problem.getMessage());
-		marker.setAttribute(IMarker.SEVERITY, (problem.isWarning() ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_ERROR));
+		marker.setAttribute(IMarker.SEVERITY, (problem.isError() ? IMarker.SEVERITY_ERROR : problem.isWarning() ? IMarker.SEVERITY_WARNING : IMarker.SEVERITY_INFO));
 		marker.setAttribute(IMarker.SOURCE_ID, JavaBuilder.SOURCE_ID);
 		this.requestor.acceptProblem(marker, new String(fragmentSource), fragmentKind);
 	} catch (CoreException e) {

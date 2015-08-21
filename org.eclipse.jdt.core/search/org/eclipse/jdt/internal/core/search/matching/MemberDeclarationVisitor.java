@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.search.matching;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IAnnotatable;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -38,7 +39,8 @@ class MemberDeclarationVisitor extends ASTVisitor {
 	private final ASTNode matchingNode;
 
 	// Local type storage
-	HashtableOfIntValues occurrencesCounts = new HashtableOfIntValues(); // key = class name (char[]), value = occurrenceCount (int)
+	HashtableOfIntValues occurrencesCounts;
+	HashtableOfIntValues inTypeOccurrencesCounts;
 	int nodesCount = 0;
 
 	// Local and other elements storage
@@ -56,6 +58,8 @@ public MemberDeclarationVisitor(IJavaElement element, ASTNode[] nodes, MatchingN
 	this.typeInHierarchy = typeInHierarchy;
 	this.nodeSet = set;
 	this.locator = locator;
+	this.occurrencesCounts = new HashtableOfIntValues();
+	this.inTypeOccurrencesCounts = this.locator.inTypeOccurrencesCounts;
 	if (nodes == null) {
 		this.matchingNode = null;
 		this.matchingNodes = null;
@@ -271,6 +275,20 @@ public boolean visit(SingleTypeReference typeReference, BlockScope unused) {
 	}
 	return false;
 }
+
+int getInTypeOccurrenceCountForBinaryAnonymousType(TypeDeclaration typeDeclaration, char[] name,
+		IJavaElement parent, int occurrenceCount) {
+	int ret = occurrenceCount;
+	if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0 && this.enclosingElement instanceof IMember) {
+	    IMember member = (IMember) parent;
+		if (member.isBinary())  {
+			int tmp = this.inTypeOccurrencesCounts.get(name);
+			ret =  (tmp == HashtableOfIntValues.NO_VALUE) ? 1 : tmp + 1;
+			this.inTypeOccurrencesCounts.put(name, ret);
+		}
+	}
+	return ret;
+}
 public boolean visit(TypeDeclaration typeDeclaration, BlockScope unused) {
 	try {
 		char[] simpleName;
@@ -285,13 +303,17 @@ public boolean visit(TypeDeclaration typeDeclaration, BlockScope unused) {
 		} else {
 			occurrenceCount = occurrenceCount + 1;
 		}
+		occurrenceCount = getInTypeOccurrenceCountForBinaryAnonymousType(typeDeclaration, simpleName, this.enclosingElement, occurrenceCount);
 		this.occurrencesCounts.put(simpleName, occurrenceCount);
+		HashtableOfIntValues oldOccurencesCount = this.inTypeOccurrencesCounts;
+		this.locator.inTypeOccurrencesCounts = new HashtableOfIntValues();
 		if ((typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
 			this.locator.reportMatching(typeDeclaration, this.enclosingElement, -1, this.nodeSet, occurrenceCount);
 		} else {
 			Integer level = (Integer) this.nodeSet.matchingNodes.removeKey(typeDeclaration);
 			this.locator.reportMatching(typeDeclaration, this.enclosingElement, level != null ? level.intValue() : -1, this.nodeSet, occurrenceCount);
 		}
+		this.locator.inTypeOccurrencesCounts = oldOccurencesCount;
 		return false; // don't visit members as this was done during reportMatching(...)
 	} catch (CoreException e) {
 		throw new WrappedCoreException(e);

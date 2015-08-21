@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -331,7 +331,7 @@ public void generateArguments(MethodBinding binding, Expression[] arguments, Blo
 			TypeBinding lastType = arguments[varArgIndex].resolvedType;
 			if (lastType == TypeBinding.NULL
 				|| (varArgsType.dimensions() == lastType.dimensions()
-					&& lastType.isCompatibleWith(varArgsType))) {
+					&& lastType.isCompatibleWith(codeGenVarArgsType))) {
 				// foo(1, new int[]{2, 3}) or foo(1, null) --> last arg is passed as-is
 				arguments[varArgIndex].generateCode(currentScope, codeStream, true);
 			} else {

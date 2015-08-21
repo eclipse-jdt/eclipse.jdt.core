@@ -65,13 +65,14 @@ char[] getMethodDescriptor();
 /**
  * Answer the annotations on the <code>index</code>th parameter or null if none
  * @param index the index of the parameter of interest
+ * @param classFileName (file) name of the declaring class for error reporting
  */
-IBinaryAnnotation[] getParameterAnnotations(int index);
+IBinaryAnnotation[] getParameterAnnotations(int index, char[] classFileName);
 
 /**
  * Answer the number of parameter annotations that can be retrieved
- * using {@link #getParameterAnnotations(int)}.
- * @return one beyond the highest legal argument to {@link #getParameterAnnotations(int)}.
+ * using {@link #getParameterAnnotations(int, char[])}.
+ * @return one beyond the highest legal argument to {@link #getParameterAnnotations(int, char[])}.
  */
 int getAnnotatedParametersCount();
 

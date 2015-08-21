@@ -18,6 +18,7 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameC
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameLBRACE;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRBRACE;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameSEMICOLON;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameelse;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamefinally;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamepackage;
@@ -185,9 +186,11 @@ public class LineBreaksPreparator extends ASTVisitor {
 		handleBodyDeclarations(node.bodyDeclarations());
 
 		List<EnumConstantDeclaration> enumConstants = node.enumConstants();
-		for (int i = 0; i < enumConstants.size() - 1; i++) {
+		for (int i = 0; i < enumConstants.size(); i++) {
 			EnumConstantDeclaration declaration = enumConstants.get(i);
-			if (declaration.getAnonymousClassDeclaration() != null)
+			if (declaration.getJavadoc() != null)
+				this.tm.firstTokenIn(declaration, TokenNameCOMMENT_JAVADOC).breakBefore();
+			if (declaration.getAnonymousClassDeclaration() != null && i < enumConstants.size() - 1)
 				this.tm.firstTokenAfter(declaration, TokenNameCOMMA).breakAfter();
 		}
 
@@ -239,11 +242,16 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(MethodDeclaration node) {
+		this.declarationModifierVisited = false;
+
+		if (node.getBody() == null)
+			return true;
+
 		if (node.isConstructor()) {
 			handleBracedCode(node.getBody(), null, this.options.brace_position_for_constructor_declaration,
 					this.options.indent_statements_compare_to_body,
 					this.options.insert_new_line_in_empty_method_body);
-		} else if (node.getBody() != null) {
+		} else {
 			handleBracedCode(node.getBody(), null, this.options.brace_position_for_method_declaration,
 					this.options.indent_statements_compare_to_body,
 					this.options.insert_new_line_in_empty_method_body);
@@ -251,7 +259,6 @@ public class LineBreaksPreparator extends ASTVisitor {
 			if (openBrace.getLineBreaksAfter() > 0) // if not, these are empty braces
 				openBrace.putLineBreaksAfter(this.options.blank_lines_at_beginning_of_method_body + 1);
 		}
-		this.declarationModifierVisited = false;
 		return true;
 	}
 

@@ -9,6 +9,8 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								Bug 440687 - [compiler][batch][null] improve command line option for external annotations
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
@@ -168,7 +170,7 @@ public boolean hasAnnotationFileFor(String qualifiedTypeName) {
  *  Add all the secondary types in the package
  */
 private Hashtable<String, String> getPackageTypes(char[] typeName, String qualifiedPackageName) {
-	Hashtable<String, String> packageEntry = new Hashtable<String, String>();
+	Hashtable<String, String> packageEntry = new Hashtable<>();
 
 	String[] dirList = (String[]) this.directoryCache.get(qualifiedPackageName);
 	if (dirList == this.missingPackageHolder // package exists in another classpath directory or jar 
@@ -207,7 +209,7 @@ private Hashtable<String, String> getPackageTypes(char[] typeName, String qualif
 }
 private NameEnvironmentAnswer findSourceSecondaryType(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
 	
-	if (this.packageSecondaryTypes == null) this.packageSecondaryTypes = new Hashtable<String, Hashtable<String,String>>();
+	if (this.packageSecondaryTypes == null) this.packageSecondaryTypes = new Hashtable<>();
 	Hashtable<String, String> packageEntry = this.packageSecondaryTypes.get(qualifiedPackageName);
 	if (packageEntry == null) {
 		packageEntry = 	getPackageTypes(typeName, qualifiedPackageName);

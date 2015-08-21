@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -242,7 +242,11 @@ public boolean isError() {
  * @return boolean
  */
 public boolean isWarning() {
-	return (this.severity & ProblemSeverities.Error) == 0;
+	return (this.severity & ProblemSeverities.Error) == 0
+			&& (this.severity & ProblemSeverities.Info) == 0;
+}
+public boolean isInfo() {
+	return (this.severity & ProblemSeverities.Info) != 0;
 }
 
 public void setOriginatingFileName(char[] fileName) {

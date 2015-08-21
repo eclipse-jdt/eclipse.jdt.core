@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM Corporation and others.
+ * Copyright (c) 2014, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3220,6 +3220,63 @@ public void testLabeledStatement5() {
 			"}\n" 
 		},
 		"I");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=470232 NPE at org.eclipse.jdt.internal.compiler.ast.WhileStatement.doesNotCompleteNormally
+public void testBug470232_While() {
+	this.runConformTest(
+		new String[] {
+			"While.java",
+			"import java.util.function.Consumer;\n" + 
+			"class While {\n" + 
+			"    void m() {\n" + 
+			"        t(Long.class, value -> {\n" + 
+			"            int x = 1;\n" + 
+			"            while (--x >= 0)\n" + 
+			"                ;\n" + 
+			"        });\n" + 
+			"    }\n" + 
+			"    <T> void t(Class<T> clazz, Consumer<T> object) {\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=470232 NPE at org.eclipse.jdt.internal.compiler.ast.WhileStatement.doesNotCompleteNormally
+public void testBug470232_Do() {
+	this.runConformTest(
+		new String[] {
+			"While.java",
+			"import java.util.function.Consumer;\n" + 
+			"class While {\n" + 
+			"    void m() {\n" + 
+			"        t(Long.class, value -> {\n" + 
+			"            int x = 1;\n" + 
+			"            do {\n" + 
+			"            }while (--x >= 0);\n" + 
+			"        });\n" + 
+			"    }\n" + 
+			"    <T> void t(Class<T> clazz, Consumer<T> object) {\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=470232 NPE at org.eclipse.jdt.internal.compiler.ast.WhileStatement.doesNotCompleteNormally
+public void testBug470232_For() {
+	this.runConformTest(
+		new String[] {
+			"While.java",
+			"import java.util.function.Consumer;\n" + 
+			"class While {\n" + 
+			"    void m() {\n" + 
+			"        t(Long.class, value -> {\n" + 
+			"            int x = 1;\n" + 
+			"            for(;--x >= 0;)\n" + 
+			"            	;\n" + 
+			"        });\n" + 
+			"    }\n" + 
+			"    <T> void t(Class<T> clazz, Consumer<T> object) {\n" + 
+			"    }\n" + 
+			"}\n"
+		});
 }
 public static Class testClass() {
 	return LambdaShapeTests.class;

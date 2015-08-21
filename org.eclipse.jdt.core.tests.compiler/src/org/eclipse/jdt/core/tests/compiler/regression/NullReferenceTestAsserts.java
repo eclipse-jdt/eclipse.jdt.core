@@ -1063,4 +1063,34 @@ public void testBug401159() throws IOException {
 			"Null pointer access: The variable x can only be null at this location\n" + 
 			"----------\n");
 }
+
+// https://bugs.eclipse.org/472618 - [compiler][null] assertNotNull vs. Assert.assertNotNull
+// junit's assertNotNull
+public void testBug472618() throws IOException {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses auto-unboxing
+	this.runConformTest(
+		new String[] {
+			JUNIT_ASSERT_NAME,
+			JUNIT_ASSERT_CONTENT,
+			"AssertionTest.java",
+			"import junit.framework.Assert;\n" + 
+			"\n" + 
+			"public class AssertionTest extends Assert\n" + 
+			"{\n" + 
+			"    void test()\n" + 
+			"    {\n" + 
+			"        Long test = null;\n" + 
+			"\n" + 
+			"        if(Boolean.TRUE)\n" + 
+			"        {\n" + 
+			"            test = 0L;\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        assertNotNull(test);\n" + 
+			"\n" + 
+			"        test.longValue();  // <- potential null pointer access\n" + 
+			"    }\n" + 
+			"}\n"},
+		"");
+}
 }

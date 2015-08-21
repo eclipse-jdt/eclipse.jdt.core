@@ -493,6 +493,10 @@ public class InferenceContext18 {
 					if (withWildCards != null) {
 						t = ConstraintExpressionFormula.findGroundTargetType(this, skope, lambda, withWildCards);
 					}
+					if (!t.isProperType(true) && t.isParameterizedType()) {
+						// prevent already resolved inference variables from leaking into the lambda
+						t = (ReferenceBinding) Scope.substitute(getResultSubstitution(this.currentBounds, false), t);
+					}
 					MethodBinding functionType;
 					if (t != null && (functionType = t.getSingleAbstractMethod(skope, true)) != null && (lambda = lambda.resolveExpressionExpecting(t, this.scope, this)) != null) {
 						TypeBinding r = functionType.returnType;
@@ -676,39 +680,44 @@ public class InferenceContext18 {
 	
 	// FALSE: inference fails
 	// TRUE:  constraints have been incorporated
-	// null:  need the otherwise branch
+	// null:  need to create the si <: ti constraint
 	private Boolean moreSpecificMain(TypeBinding si, TypeBinding ti, Expression expri) throws InferenceFailureException {
 		if (si.isProperType(true) && ti.isProperType(true)) {
 			return expri.sIsMoreSpecific(si, ti, this.scope) ? Boolean.TRUE : Boolean.FALSE;
 		}
-		if (si.isFunctionalInterface(this.scope)) {
-			TypeBinding funcI = ti.original();
-			if (funcI.isFunctionalInterface(this.scope)) {
-				// "... none of the following is true:" 
-				if (siSuperI(si, funcI) || siSubI(si, funcI))
-					return null;
-				if (si instanceof IntersectionTypeBinding18) {
-					TypeBinding[] elements = ((IntersectionTypeBinding18)si).intersectingTypes;
-					checkSuper: {
-						for (int i = 0; i < elements.length; i++)
-							if (!siSuperI(elements[i], funcI))
-								break checkSuper;
-						return null; // each element of the intersection is a superinterface of I, or a parameterization of a superinterface of I.
-					}
+		// "if Ti is not a functional interface type" specifically requests the si <: ti constraint created by our caller
+		if (!ti.isFunctionalInterface(this.scope))
+			return null;
+
+		TypeBinding funcI = ti.original();
+		// "It must be determined whether Si satisfies the following five conditions:"
+		// (we negate each condition for early exit):
+		if (si.isFunctionalInterface(this.scope)) {			// bullet 1
+			if (siSuperI(si, funcI) || siSubI(si, funcI))
+				return null;								// bullets 2 & 3
+			if (si instanceof IntersectionTypeBinding18) {
+				TypeBinding[] elements = ((IntersectionTypeBinding18)si).intersectingTypes;
+				checkSuper: {
 					for (int i = 0; i < elements.length; i++)
-						if (siSubI(elements[i], funcI))
-							return null; // some element of the intersection is a subinterface of I, or a parameterization of a subinterface of I.	
+						if (!siSuperI(elements[i], funcI))
+							break checkSuper;
+					return null;							// bullet 4 
+					// each element of the intersection is a superinterface of I, or a parameterization of a superinterface of I.
 				}
-				// all passed, time to do some work:
-				TypeBinding siCapture = si.capture(this.scope, expri.sourceStart, expri.sourceEnd);
-				MethodBinding sam = siCapture.getSingleAbstractMethod(this.scope, false); // no wildcards should be left needing replacement
-				TypeBinding[] u = sam.parameters;
-				TypeBinding r1 = sam.isConstructor() ? sam.declaringClass : sam.returnType;
-				sam = ti.getSingleAbstractMethod(this.scope, true); // TODO
-				TypeBinding[] v = sam.parameters;
-				TypeBinding r2 = sam.isConstructor() ? sam.declaringClass : sam.returnType;
-				return Boolean.valueOf(checkExpression(expri, u, r1, v, r2));
+				for (int i = 0; i < elements.length; i++)
+					if (siSubI(elements[i], funcI))
+						return null;						// bullet 5
+						// some element of the intersection is a subinterface of I, or a parameterization of a subinterface of I.	
 			}
+			// all passed, time to do some work:
+			TypeBinding siCapture = si.capture(this.scope, expri.sourceStart, expri.sourceEnd);
+			MethodBinding sam = siCapture.getSingleAbstractMethod(this.scope, false); // no wildcards should be left needing replacement
+			TypeBinding[] u = sam.parameters;
+			TypeBinding r1 = sam.isConstructor() ? sam.declaringClass : sam.returnType;
+			sam = ti.getSingleAbstractMethod(this.scope, true); // TODO
+			TypeBinding[] v = sam.parameters;
+			TypeBinding r2 = sam.isConstructor() ? sam.declaringClass : sam.returnType;
+			return Boolean.valueOf(checkExpression(expri, u, r1, v, r2));
 		}
 		return null;
 	}
@@ -778,7 +787,7 @@ public class InferenceContext18 {
 		TypeBinding[] superIfcs = funcI.superInterfaces();
 		if (superIfcs == null) return false;
 		for (int i = 0; i < superIfcs.length; i++) {
-			if (siSuperI(si, superIfcs[i]))
+			if (siSuperI(si, superIfcs[i].original()))
 				return true;
 		}
 		return false;
@@ -1106,14 +1115,29 @@ public class InferenceContext18 {
 	 * on any uninstantiated variable outside the set.
 	 */
 	private Set<InferenceVariable> getSmallestVariableSet(BoundSet bounds, InferenceVariable[] subSet) {
+		// "Given a set of inference variables to resolve, let V be the union of this set and
+		//  all variables upon which the resolution of at least one variable in this set depends." 
+		Set<InferenceVariable> v = new HashSet<InferenceVariable>();
+		Map<InferenceVariable,Set<InferenceVariable>> dependencies = new HashMap<>(); // compute only once, store for the final loop over 'v'.
+		for (InferenceVariable iv : subSet) {
+			Set<InferenceVariable> tmp = new HashSet<>();
+			addDependencies(bounds, tmp, iv);
+			dependencies.put(iv, tmp);
+			v.addAll(tmp);
+		}
+		// "If every variable in V has an instantiation, then resolution succeeds and this procedure terminates."
+		//  -> (implicit if result remains unassigned)
+		// "Otherwise, let { α1, ..., αn } be a non-empty subset of uninstantiated variables in V such that ...
 		int min = Integer.MAX_VALUE;
 		Set<InferenceVariable> result = null;
-		for (int i = 0; i < subSet.length; i++) {
-			InferenceVariable currentVariable = subSet[i];
+		// "i) for all i (1 ≤ i ≤ n), ..."
+		for (InferenceVariable currentVariable : v) {
 			if (!bounds.isInstantiated(currentVariable)) {
-				Set<InferenceVariable> set = new HashSet<InferenceVariable>();
-				if (!addDependencies(bounds, set, currentVariable, min))
-					continue;
+				// "... if αi depends on the resolution of a variable β, then either β has an instantiation or there is some j such that β = αj; ..."
+				Set<InferenceVariable> set = dependencies.get(currentVariable);
+				if (set == null) // not an element of the original subSet, still need to fetch this var's dependencies
+					addDependencies(bounds, set = new HashSet<>(), currentVariable);
+				//  "... and ii) there exists no non-empty proper subset of { α1, ..., αn } with this property."
 				int cur = set.size();
 				if (cur == 1)
 					return set; // won't get smaller
@@ -1126,19 +1150,15 @@ public class InferenceContext18 {
 		return result;
 	}
 
-	private boolean addDependencies(BoundSet boundSet, Set<InferenceVariable> variableSet, InferenceVariable currentVariable, int min) {
-		if (variableSet.size() >= min)
-			return false; // no improvement
-		if (boundSet.isInstantiated(currentVariable)) return true; // not added
-		if (!variableSet.add(currentVariable)) return true; // already present
+	private void addDependencies(BoundSet boundSet, Set<InferenceVariable> variableSet, InferenceVariable currentVariable) {
+		if (boundSet.isInstantiated(currentVariable)) return; // not added
+		if (!variableSet.add(currentVariable)) return; // already present
 		for (int j = 0; j < this.inferenceVariables.length; j++) {
 			InferenceVariable nextVariable = this.inferenceVariables[j];
 			if (TypeBinding.equalsEquals(nextVariable, currentVariable)) continue;
 			if (boundSet.dependsOnResolutionOf(currentVariable, nextVariable))
-				if (!addDependencies(boundSet, variableSet, nextVariable, min))
-					return false; // abort traversal: no improvement
+				addDependencies(boundSet, variableSet, nextVariable);
 		}
-		return true;
 	}
 
 	private ConstraintFormula pickFromCycle(Set<ConstraintFormula> c) {
@@ -1398,7 +1418,7 @@ public class InferenceContext18 {
 		this.usesUncheckedConversion = record.usesUncheckedConversion;
 	}
 
-	private Substitution getResultSubstitution(final BoundSet result) {
+	private Substitution getResultSubstitution(final BoundSet result, final boolean full) {
 		return new Substitution() {
 			public LookupEnvironment environment() { 
 				return InferenceContext18.this.environment;
@@ -1408,7 +1428,9 @@ public class InferenceContext18 {
 			}
 			public TypeBinding substitute(TypeVariableBinding typeVariable) {
 				if (typeVariable instanceof InferenceVariable) {
-					return result.getInstantiation((InferenceVariable) typeVariable, InferenceContext18.this.environment);
+					TypeBinding instantiation = result.getInstantiation((InferenceVariable) typeVariable, InferenceContext18.this.environment);
+					if (instantiation != null || full)
+						return instantiation;
 				}
 				return typeVariable;
 			}
@@ -1533,7 +1555,7 @@ public class InferenceContext18 {
 	void reportUncheckedConversions(BoundSet solution) {
 		if (this.constraintsWithUncheckedConversion != null) {
 			int len = this.constraintsWithUncheckedConversion.size();
-			Substitution substitution = getResultSubstitution(solution);
+			Substitution substitution = getResultSubstitution(solution, true);
 			for (int i = 0; i < len; i++) {
 				ConstraintTypeFormula constraint = (ConstraintTypeFormula) this.constraintsWithUncheckedConversion.get(i);
 				TypeBinding expectedType = constraint.right;

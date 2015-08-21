@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 IBM Corporation and others.
+ * Copyright (c) 2011, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9764,6 +9764,43 @@ public void testGroundTargetTypeWithWithWildcards() {
 		"	return m((X x1, X x2) -> { return new Y(); });\n" + 
 		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Type mismatch: cannot convert from I<X,X,? extends C> to I<? extends A,? extends B,? extends C>\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=474522, [1.8][compiler] ecj doesn't handle captured final fields correctly in lambdas
+public void test474522() {
+	this.runNegativeTest(
+		new String[] {
+			"Bug.java",
+			"import java.awt.event.ActionEvent;\n" + 
+			"import java.awt.event.ActionListener;\n" + 
+			"public class Bug {\n" + 
+			"    final String s;\n" + 
+			"    public Bug() {\n" + 
+			"        this.s = \"\";\n" + 
+			"    }\n" + 
+			"    private final ActionListener listener1 = new ActionListener() {\n" + 
+			"        @Override public void actionPerformed(ActionEvent e) {\n" + 
+			"            System.out.println(s);\n" + 
+			"        }\n" + 
+			"    };\n" + 
+			"    private final ActionListener listener2 = e -> System.out.println(s);\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in Bug.java (at line 8)\n" + 
+		"	private final ActionListener listener1 = new ActionListener() {\n" + 
+		"	                             ^^^^^^^^^\n" + 
+		"The value of the field Bug.listener1 is not used\n" + 
+		"----------\n" + 
+		"2. WARNING in Bug.java (at line 13)\n" + 
+		"	private final ActionListener listener2 = e -> System.out.println(s);\n" + 
+		"	                             ^^^^^^^^^\n" + 
+		"The value of the field Bug.listener2 is not used\n" + 
+		"----------\n" + 
+		"3. ERROR in Bug.java (at line 13)\n" + 
+		"	private final ActionListener listener2 = e -> System.out.println(s);\n" + 
+		"	                                                                 ^\n" + 
+		"The blank final field s may not have been initialized\n" + 
 		"----------\n");
 }
 public static Class testClass() {

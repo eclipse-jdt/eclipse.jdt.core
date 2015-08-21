@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -82,6 +82,7 @@ public final static String[] JAVA_TASK_MARKER_ATTRIBUTE_NAMES = {
 };
 public final static Integer S_ERROR = new Integer(IMarker.SEVERITY_ERROR);
 public final static Integer S_WARNING = new Integer(IMarker.SEVERITY_WARNING);
+public final static Integer S_INFO = new Integer(IMarker.SEVERITY_INFO);
 public final static Integer P_HIGH = new Integer(IMarker.PRIORITY_HIGH);
 public final static Integer P_NORMAL = new Integer(IMarker.PRIORITY_NORMAL);
 public final static Integer P_LOW = new Integer(IMarker.PRIORITY_LOW);
@@ -763,7 +764,7 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 			// standard attributes
 			int index = 0;
 			allValues[index++] = problem.getMessage(); // message
-			allValues[index++] = problem.isError() ? S_ERROR : S_WARNING; // severity
+			allValues[index++] = problem.isError() ? S_ERROR : problem.isWarning() ? S_WARNING : S_INFO; // severity
 			allValues[index++] = new Integer(id); // ID
 			allValues[index++] = new Integer(problem.getSourceStart()); // start
 			allValues[index++] = new Integer(problem.getSourceEnd() + 1); // end

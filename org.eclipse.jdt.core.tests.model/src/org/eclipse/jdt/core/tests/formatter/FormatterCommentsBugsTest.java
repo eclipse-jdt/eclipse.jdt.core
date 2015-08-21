@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Robin Stocker - Bug 49619 - [formatting] comment formatter leaves whitespace in comments
  *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Formatter does not format Java code correctly, especially when max line width is set - https://bugs.eclipse.org/303519
+ *     Mateusz Matela <mateusz.matela@gmail.com> - [formatter] Bad line breaking in Eclipse javadoc comments - https://bugs.eclipse.org/348338
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
@@ -5444,8 +5445,8 @@ public void testBug260381_wksp2_08() throws JavaModelException {
 		"\n" +
 		"	/**\n" +
 		"	 * Returns the composition of a function and a predicate. For every\n" +
-		"	 * {@code x}, the generated predicate returns {@code predicate(function(x))}\n" +
-		"	 * .\n" +
+		"	 * {@code x}, the generated predicate returns\n" +
+		"	 * {@code predicate(function(x))}.\n" +
 		"	 *\n" +
 		"	 * @return the composition of the provided function and predicate\n" +
 		"	 */\n" +
@@ -7107,5 +7108,119 @@ public void testBug313651_wksp3_02() {
 	    "}\n"
 	);
 }
-
+public void testBug348338() {
+	String source = 
+		"public class X03 {\n" + 
+		"	/**\n" + 
+		"	 * Check wrapping of javadoc tags surrounded wit punctuation [{@code marks}].\n" + 
+		"	 * <p>\n" + 
+		"	 * Check wrapping of string literals surrounded with punctuation marks (\"e.g. in parenthesis\" wraps).\n" + 
+		"	 * <p>\n" + 
+		"	 * {@code Sometimes wrapping on punctuation is necessary because line is too}. long otherwise.\n" + 
+		"	 */\n" + 
+		"	public void test() {\n" + 
+		"\n" + 
+		"		/*\n" + 
+		"		 * Check wrapping of string literals surrounded with punctuation marks (\"e.g. in parenthesis\" wraps).\n" + 
+		"		 * \n" + 
+		"		 * The dot at the end of this sentence is beyond the line \"length limit\".\n" + 
+		"		 * \n" + 
+		"		 * But this sentence should fit in the line length limit \"with the dot\".\n" + 
+		"		 */\n" + 
+		"	}\n" + 
+	    "}\n";
+	formatSource(source,
+		"public class X03 {\n" + 
+		"	/**\n" + 
+		"	 * Check wrapping of javadoc tags surrounded wit punctuation\n" + 
+		"	 * [{@code marks}].\n" + 
+		"	 * <p>\n" + 
+		"	 * Check wrapping of string literals surrounded with punctuation marks\n" + 
+		"	 * (\"e.g. in parenthesis\" wraps).\n" + 
+		"	 * <p>\n" + 
+		"	 * {@code Sometimes wrapping on punctuation is necessary because line is too}\n" + 
+		"	 * . long otherwise.\n" + 
+		"	 */\n" + 
+		"	public void test() {\n" + 
+		"\n" + 
+		"		/*\n" + 
+		"		 * Check wrapping of string literals surrounded with punctuation marks\n" + 
+		"		 * (\"e.g. in parenthesis\" wraps).\n" + 
+		"		 * \n" + 
+		"		 * The dot at the end of this sentence is beyond the line\n" + 
+		"		 * \"length limit\".\n" + 
+		"		 * \n" + 
+		"		 * But this sentence should fit in the line length limit \"with the dot\".\n" + 
+		"		 */\n" + 
+		"	}\n" + 
+	    "}\n"
+	);
+}
+public void testBug470986() {
+	this.formatterPrefs.comment_format_line_comment = false;
+	this.formatterPrefs.comment_preserve_white_space_between_code_and_line_comments = true;
+	String source =
+		"class Example {  	 // test\n" + 
+		"\n" + 
+		"	void method1() {   	  // test\n" + 
+		"		int a = 1; // test\n" + 
+		"	}// test\n" + 
+		"\n" + 
+		"}";
+	formatSource(source);
+}
+public void testBug471062() {
+	this.formatterPrefs.comment_preserve_white_space_between_code_and_line_comments = true;
+	String source = 
+		"class C {\r\n" + 
+		"	void method() {\r\n" + 
+		"		Arrays.asList(1, 2,   // test\r\n" + 
+		"				3, 4);\r\n" + 
+		"		if (condition)        // test\r\n" + 
+		"			operation();\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
+public void testBug471918() {
+	String source = 
+		"class C {\n" + 
+		"\n" + 
+		"	/** Returns a new foo instance. */\n" + 
+		"	public Foo createFoo1() {\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	/** @return a new foo instance. */\n" + 
+		"	public Foo createFoo2() {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/474011 - [formatter] non-nls strings are duplicated by formatter
+ */
+public void testBug474011() {
+	String source = 
+		"class A {\n" + 
+		"	String aaaaaaaaaaaaaaaa = \"11111111111111111111111111111111111111\"; //$NON-NLS-1$ aaa bbb ccc\n" + 
+		"	String bbbbbbbbbbbbbbbb = \"22222222222222222222222222222222222222\"; //$NON-NLS-1$ //$NON-NLS-1$\n" + 
+		"	String cccccccccccccccc = \"33333333333333333333333333333333333333\"; //$NON-NLS-1$ //$NON-NLS-2$\n" + 
+		"	String dddddddddddddddd = \"44444444444444444444444444444444444444\"; //$NON-NLS-1$ // $NON-NLS-2$\n" + 
+		"	String eeeeeeeeeeeeeeee = \"55555555555555555555555555555555555555\"; //$NON-NLS-1$ // aaa // bbb\n" + 
+		"}";
+	formatSource(source,
+		"class A {\n" + 
+		"	String aaaaaaaaaaaaaaaa = \"11111111111111111111111111111111111111\"; //$NON-NLS-1$ aaa\n" + 
+		"																		// bbb\n" + 
+		"																		// ccc\n" + 
+		"	String bbbbbbbbbbbbbbbb = \"22222222222222222222222222222222222222\"; //$NON-NLS-1$\n" + 
+		"	String cccccccccccccccc = \"33333333333333333333333333333333333333\"; //$NON-NLS-1$ //$NON-NLS-2$\n" + 
+		"	String dddddddddddddddd = \"44444444444444444444444444444444444444\"; //$NON-NLS-1$ //\n" + 
+		"																		// $NON-NLS-2$\n" + 
+		"	String eeeeeeeeeeeeeeee = \"55555555555555555555555555555555555555\"; //$NON-NLS-1$ //\n" + 
+		"																		// aaa\n" + 
+		"																		// //\n" + 
+		"																		// bbb\n" + 
+		"}");
+}
 }

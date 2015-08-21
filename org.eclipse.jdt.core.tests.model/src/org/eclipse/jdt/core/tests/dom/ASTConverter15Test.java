@@ -11591,4 +11591,158 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		EnumConstantDeclaration ec = (EnumConstantDeclaration) eDecl.enumConstants().get(1);
 		checkSourceRange(ec, "FOURTH_ENUM(\"b\", new X[] { }", str); //recovery parser propagated
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=474922
+	public void testBug474922_001() throws JavaModelException {
+		String str =
+				"package xy;\n"+
+				"public class X {\n"+
+				"	static <T> void comparableValueFrom(T t) {\n"+
+				"		if (t == null || t instanceof Comparable<?>)\n"+
+				"			return;\n"+
+				"	}\n"+
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter15/src/xy/X.java", false/*resolve*/);
+		ASTNode node = buildAST(str,this.workingCopy, false);
+
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		TypeDeclaration type = (TypeDeclaration) compilationUnit.types().get(0);
+		MethodDeclaration method = type.getMethods()[0];
+		IfStatement ifStatement = (IfStatement) method.getBody().statements().get(0);
+		InfixExpression infixExpression = (InfixExpression) ifStatement.getExpression();
+		checkSourceRange(infixExpression, "t == null || t instanceof Comparable<?>", str); //recovery parser propagated
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=474922
+	public void testBug474922_002() throws JavaModelException {
+		String str =
+				"package xy;\n"+
+				"public class X {\n"+
+				"	static <T> void comparableValueFrom(T t) {\n"+
+				"		if (t == null && t instanceof Comparable<?>)\n"+
+				"			return;\n"+
+				"	}\n"+
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter15/src/xy/X.java", false/*resolve*/);
+		ASTNode node = buildAST(str,this.workingCopy, false);
+
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		TypeDeclaration type = (TypeDeclaration) compilationUnit.types().get(0);
+		MethodDeclaration method = type.getMethods()[0];
+		IfStatement ifStatement = (IfStatement) method.getBody().statements().get(0);
+		InfixExpression infixExpression = (InfixExpression) ifStatement.getExpression();
+		checkSourceRange(infixExpression, "t == null && t instanceof Comparable<?>", str); //recovery parser propagated
+	}
+
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=474922
+	public void testBug474922_003() throws JavaModelException {
+		String str =
+				"package xy;\n"+
+				"public class X {\n"+
+				"	static <T> void comparableValueFrom(T t) {\n"+
+				"		if (t == null ? true : t instanceof Comparable<?>)\n"+
+				"			return;\n"+
+				"	}\n"+
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter15/src/xy/X.java", false/*resolve*/);
+		ASTNode node = buildAST(str,this.workingCopy, false);
+
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		TypeDeclaration type = (TypeDeclaration) compilationUnit.types().get(0);
+		MethodDeclaration method = type.getMethods()[0];
+		IfStatement ifStatement = (IfStatement) method.getBody().statements().get(0);
+		checkSourceRange(ifStatement.getExpression(), "t == null ? true : t instanceof Comparable<?>", str); //recovery parser propagated
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=474922
+	public void testBug474922_004() throws JavaModelException {
+		String str =
+				"package xy;\n"+
+				"public class X {\n"+
+				"	static <T> void comparableValueFrom(T t, int i) {\n"+
+				"		if (t == null || t instanceof Comparable<?> || i != 0)\n"+
+				"			return;\n"+
+				"	}\n"+
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter15/src/xy/X.java", false/*resolve*/);
+		ASTNode node = buildAST(str,this.workingCopy, false);
+
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		TypeDeclaration type = (TypeDeclaration) compilationUnit.types().get(0);
+		MethodDeclaration method = type.getMethods()[0];
+		IfStatement ifStatement = (IfStatement) method.getBody().statements().get(0);
+		InfixExpression infixExpression = (InfixExpression) ifStatement.getExpression();
+		checkSourceRange(infixExpression, "t == null || t instanceof Comparable<?> || i != 0", str); //recovery parser propagated
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=474922
+	public void testBug474922_005() throws JavaModelException {
+		String str =
+				"package xy;\n"+
+				"public class X {\n"+
+				"	static <T> void comparableValueFrom(T t, int i) {\n"+
+				"		if (i != 0 || t == null || t instanceof Comparable<?>)\n"+
+				"			return;\n"+
+				"	}\n"+
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter15/src/xy/X.java", false/*resolve*/);
+		ASTNode node = buildAST(str,this.workingCopy, false);
+
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		TypeDeclaration type = (TypeDeclaration) compilationUnit.types().get(0);
+		MethodDeclaration method = type.getMethods()[0];
+		IfStatement ifStatement = (IfStatement) method.getBody().statements().get(0);
+		InfixExpression infixExpression = (InfixExpression) ifStatement.getExpression();
+		checkSourceRange(infixExpression, "i != 0 || t == null || t instanceof Comparable<?>", str); //recovery parser propagated
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=474922
+	public void testBug474922_006() throws JavaModelException {
+		String str =
+				"package xy;\n"+
+				"public class X {\n"+
+				"	static <T> void comparableValueFrom(T t) {\n"+
+				"		if (true == t instanceof Comparable<?>)\n"+
+				"			return;\n"+
+				"	}\n"+
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter15/src/xy/X.java", false/*resolve*/);
+		ASTNode node = buildAST(str,this.workingCopy, false);
+
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		TypeDeclaration type = (TypeDeclaration) compilationUnit.types().get(0);
+		MethodDeclaration method = type.getMethods()[0];
+		IfStatement ifStatement = (IfStatement) method.getBody().statements().get(0);
+		InfixExpression infixExpression = (InfixExpression) ifStatement.getExpression();
+		checkSourceRange(infixExpression, "true == t instanceof Comparable<?>", str); //recovery parser propagated
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=474922
+	public void testBug474922_007() throws JavaModelException {
+		String str =
+				"package xy;\n"+
+				"public class X {\n"+
+				"	static <T> void comparableValueFrom(T t) {\n"+
+				"		if (t == null & t instanceof Comparable<?>)\n"+
+				"			return;\n"+
+				"	}\n"+
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter15/src/xy/X.java", false/*resolve*/);
+		ASTNode node = buildAST(str,this.workingCopy, false);
+
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		TypeDeclaration type = (TypeDeclaration) compilationUnit.types().get(0);
+		MethodDeclaration method = type.getMethods()[0];
+		IfStatement ifStatement = (IfStatement) method.getBody().statements().get(0);
+		InfixExpression infixExpression = (InfixExpression) ifStatement.getExpression();
+		checkSourceRange(infixExpression, "t == null & t instanceof Comparable<?>", str); //recovery parser propagated
+	}
 }

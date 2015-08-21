@@ -25,10 +25,9 @@ import org.eclipse.jdt.core.search.SearchEngine;
  * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=45518">bug 45518</a>
  * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=46761">bug 46761</a>
  */
-@SuppressWarnings("rawtypes")
 public class JavaSearchJavadocTests extends JavaSearchTests {
 
-	Map originalOptions;
+	Map<String, String> originalOptions;
 
 	/**
 	 * @param name

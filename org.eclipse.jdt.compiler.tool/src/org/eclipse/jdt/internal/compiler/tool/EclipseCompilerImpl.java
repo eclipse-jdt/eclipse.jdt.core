@@ -266,6 +266,9 @@ public class EclipseCompilerImpl extends Main {
 							if ((severity & ProblemSeverities.Error) != 0) {
 								return Diagnostic.Kind.ERROR;
 							}
+							if ((severity & ProblemSeverities.Info) != 0) {
+								return Diagnostic.Kind.NOTE;
+							}
 							if ((severity & ProblemSeverities.Optional) != 0) {
 								return Diagnostic.Kind.WARNING;
 							}
@@ -543,6 +546,8 @@ public class EclipseCompilerImpl extends Main {
 						}
 						if (problem.isWarning()) {
 							return Diagnostic.Kind.WARNING;
+						} else if (problem instanceof DefaultProblem && ((DefaultProblem) problem).isInfo()) {
+							return Diagnostic.Kind.NOTE;
 						}
 						return Diagnostic.Kind.OTHER;
 					}

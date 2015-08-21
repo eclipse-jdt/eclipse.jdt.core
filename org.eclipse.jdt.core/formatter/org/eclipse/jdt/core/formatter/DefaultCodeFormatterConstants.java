@@ -1685,10 +1685,10 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_AFTER_BINARY_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_binary_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space after the closing angle bracket in type arguments
+	 * FORMATTER / Option to insert a space after the closing angle bracket in explicit type arguments on method/constructor invocations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_closing_angle_bracket_in_type_arguments"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
-	 *     - default:           INSERT
+	 *     - default:           DO_NOT_INSERT
 	 * </pre>
 	 * @see JavaCore#INSERT
 	 * @see JavaCore#DO_NOT_INSERT
@@ -1697,7 +1697,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_AFTER_CLOSING_ANGLE_BRACKET_IN_TYPE_ARGUMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_closing_angle_bracket_in_type_arguments"; //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space after the closing angle bracket in type parameters
+	 * FORMATTER / Option to insert a space after the closing angle bracket in type parameter declarations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_closing_angle_bracket_in_type_parameters"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           INSERT
@@ -1997,7 +1997,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SUPERINTERFACES = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_comma_in_superinterfaces"; //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space after the comma in type arguments
+	 * FORMATTER / Option to insert a space after the comma in explicit type arguments on method/constructor invocations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_comma_in_type_arguments"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           INSERT
@@ -2009,7 +2009,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_TYPE_ARGUMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_comma_in_type_arguments"; //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space after the comma in type parameters
+	 * FORMATTER / Option to insert a space after the comma in type parameter declarations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_comma_in_type_parameters"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           INSERT
@@ -2057,7 +2057,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_AFTER_OPENING_ANGLE_BRACKET_IN_PARAMETERIZED_TYPE_REFERENCE = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_opening_angle_bracket_in_parameterized_type_reference";//$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space after the opening angle bracket in type arguments
+	 * FORMATTER / Option to insert a space after the opening angle bracket in explicit type arguments on method/constructor invocations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_opening_angle_bracket_in_type_arguments"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           DO_NOT_INSERT
@@ -2069,7 +2069,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_AFTER_OPENING_ANGLE_BRACKET_IN_TYPE_ARGUMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_opening_angle_bracket_in_type_arguments";//$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space after the opening angle bracket in type parameters
+	 * FORMATTER / Option to insert a space after the opening angle bracket in type parameter declarations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_opening_angle_bracket_in_type_parameters"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           DO_NOT_INSERT
@@ -2430,7 +2430,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_CLOSING_ANGLE_BRACKET_IN_PARAMETERIZED_TYPE_REFERENCE = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_closing_angle_bracket_in_parameterized_type_reference";		//$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space before the closing angle bracket in type arguments
+	 * FORMATTER / Option to insert a space before the closing angle bracket in explicit type arguments on method/constructor invocations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_closing_angle_bracket_in_type_arguments"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           DO_NOT_INSERT
@@ -2442,7 +2442,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_CLOSING_ANGLE_BRACKET_IN_TYPE_ARGUMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_closing_angle_bracket_in_type_arguments";		//$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space before the closing angle bracket in type parameters
+	 * FORMATTER / Option to insert a space before the closing angle bracket in type parameter declarations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_closing_angle_bracket_in_type_parameters"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           DO_NOT_INSERT
@@ -2934,7 +2934,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_comma_in_superinterfaces";	//$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space before comma in type arguments
+	 * FORMATTER / Option to insert a space before comma in explicit type arguments on method/constructor invocations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_comma_in_type_arguments"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           DO_NOT_INSERT
@@ -2946,7 +2946,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_TYPE_ARGUMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_comma_in_type_arguments";	//$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space before comma in type parameters
+	 * FORMATTER / Option to insert a space before comma in type parameter declarations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_comma_in_type_parameters"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           DO_NOT_INSERT
@@ -2994,7 +2994,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_OPENING_ANGLE_BRACKET_IN_PARAMETERIZED_TYPE_REFERENCE  = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_opening_angle_bracket_in_parameterized_type_reference";	//$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space before the opening angle bracket in type arguments
+	 * FORMATTER / Option to insert a space before the opening angle bracket in explicit type arguments on method/constructor invocations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_opening_angle_bracket_in_type_arguments"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           DO_NOT_INSERT
@@ -3006,7 +3006,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_OPENING_ANGLE_BRACKET_IN_TYPE_ARGUMENTS = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_opening_angle_bracket_in_type_arguments";	//$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space before the opening angle bracket in type parameters
+	 * FORMATTER / Option to insert a space before the opening angle bracket in type parameter declarations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_opening_angle_bracket_in_type_parameters"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           DO_NOT_INSERT

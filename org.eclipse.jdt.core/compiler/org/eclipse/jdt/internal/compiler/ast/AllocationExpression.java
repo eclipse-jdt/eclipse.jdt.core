@@ -46,6 +46,8 @@
  *                          Bug 409245 - [1.8][compiler] Type annotations dropped when call is routed through a synthetic bridge method
  *     Till Brychcy - Contributions for
  *     						bug 413460 - NonNullByDefault is not inherited to Constructors when accessed via Class File
+ *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
+ *     						Bug 473178
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -720,7 +722,7 @@ public void registerInferenceContext(ParameterizedGenericMethodBinding method, I
 public void registerResult(TypeBinding targetType, MethodBinding method) {
 	if (method != null && method.isConstructor()) { // ignore the factory.
 		if (this.solutionsPerTargetType == null)
-			this.solutionsPerTargetType = new HashMap<TypeBinding, MethodBinding>();
+			this.solutionsPerTargetType = new HashMap<>();
 		this.solutionsPerTargetType.put(targetType, method);
 	}
 }

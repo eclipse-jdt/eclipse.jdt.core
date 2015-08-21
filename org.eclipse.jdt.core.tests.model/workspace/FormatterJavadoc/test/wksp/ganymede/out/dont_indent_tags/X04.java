@@ -1,8 +1,8 @@
 package test.wksp.ganymede;
 
 /**
- * <!-- begin-user-doc --> A representation of the model object '
- * <em><b>Feature Value Spec</b></em>'. <!-- end-user-doc -->
+ * <!-- begin-user-doc --> A representation of the model object
+ * '<em><b>Feature Value Spec</b></em>'. <!-- end-user-doc -->
  *
  * <!-- begin-model-doc --> Value specification associated with a specific
  * feature <!-- end-model-doc -->

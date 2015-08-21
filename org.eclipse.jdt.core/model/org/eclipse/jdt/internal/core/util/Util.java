@@ -2513,11 +2513,11 @@ public class Util {
 		int length = string.length;
 		// need a minimum 2 char
 		if (start >= length - 1) {
-			throw new IllegalArgumentException();
+			throw raiseIllegalSignatureException(string, start);
 		}
 		char c = string[start];
 		if (c != Signature.C_ARRAY) {
-			throw new IllegalArgumentException();
+			throw raiseUnexpectedCharacterException(string, start, c);
 		}
 
 		int index = start;
@@ -2525,7 +2525,7 @@ public class Util {
 		while(c == Signature.C_ARRAY) {
 			// need a minimum 2 char
 			if (index >= length - 1) {
-				throw new IllegalArgumentException();
+				throw raiseIllegalSignatureException(string, start);
 			}
 			c = string[++index];
 		}
@@ -3012,7 +3012,7 @@ public class Util {
 	public static char[] toAnchor(int startingIndex, char[] methodSignature, char[] methodName, boolean isVargArgs) {
 		int firstParen = CharOperation.indexOf(Signature.C_PARAM_START, methodSignature);
 		if (firstParen == -1) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(new String(methodSignature));
 		}
 
 		StringBuffer buffer = new StringBuffer(methodSignature.length + 10);
@@ -3045,7 +3045,7 @@ public class Util {
 	private static int appendTypeSignatureForAnchor(char[] string, int start, StringBuffer buffer, boolean isVarArgs) {
 		// need a minimum 1 char
 		if (start >= string.length) {
-			throw new IllegalArgumentException();
+			throw raiseIllegalSignatureException(string, start);
 		}
 		char c = string[start];
 		if (isVarArgs) {
@@ -3068,7 +3068,8 @@ public class Util {
 				case Signature.C_SUPER:
 				case Signature.C_CAPTURE:
 				default:
-					throw new IllegalArgumentException(); // a var args is an array type
+					// a var args is an array type
+					throw raiseUnexpectedCharacterException(string, start, c);
 			}
 		} else {
 			switch (c) {
@@ -3114,14 +3115,15 @@ public class Util {
 				case Signature.C_SUPER:
 					return appendTypeArgumentSignatureForAnchor(string, start, buffer);
 				default :
-					throw new IllegalArgumentException();
+					throw raiseIllegalSignatureException(string, start);
 			}
 		}
 	}
+
 	private static int appendTypeArgumentSignatureForAnchor(char[] string, int start, StringBuffer buffer) {
 		// need a minimum 1 char
 		if (start >= string.length) {
-			throw new IllegalArgumentException();
+			throw raiseIllegalSignatureException(string, start);
 		}
 		char c = string[start];
 		switch(c) {
@@ -3138,11 +3140,11 @@ public class Util {
 	private static int appendCaptureTypeSignatureForAnchor(char[] string, int start, StringBuffer buffer) {
 		// need a minimum 2 char
 		if (start >= string.length - 1) {
-			throw new IllegalArgumentException();
+			throw raiseIllegalSignatureException(string, start);
 		}
 		char c = string[start];
 		if (c != Signature.C_CAPTURE) {
-			throw new IllegalArgumentException();
+			throw raiseUnexpectedCharacterException(string, start, c);
 		}
 		return appendTypeArgumentSignatureForAnchor(string, start + 1, buffer);
 	}
@@ -3150,11 +3152,11 @@ public class Util {
 		int length = string.length;
 		// need a minimum 2 char
 		if (start >= length - 1) {
-			throw new IllegalArgumentException();
+			throw raiseIllegalSignatureException(string, start);
 		}
 		char c = string[start];
 		if (c != Signature.C_ARRAY) {
-			throw new IllegalArgumentException();
+			throw raiseUnexpectedCharacterException(string, start, c);
 		}
 
 		int index = start;
@@ -3162,7 +3164,7 @@ public class Util {
 		while(c == Signature.C_ARRAY) {
 			// need a minimum 2 char
 			if (index >= length - 1) {
-				throw new IllegalArgumentException();
+				throw raiseIllegalSignatureException(string, start);
 			}
 			c = string[++index];
 		}
@@ -3183,17 +3185,17 @@ public class Util {
 	private static int appendClassTypeSignatureForAnchor(char[] string, int start, StringBuffer buffer) {
 		// need a minimum 3 chars "Lx;"
 		if (start >= string.length - 2) {
-			throw new IllegalArgumentException();
+			throw raiseIllegalSignatureException(string, start);
 		}
 		// must start in "L" or "Q"
 		char c = string[start];
 		if (c != Signature.C_RESOLVED && c != Signature.C_UNRESOLVED) {
-			throw new IllegalArgumentException();
+			throw raiseUnexpectedCharacterException(string, start, c);
 		}
 		int p = start + 1;
 		while (true) {
 			if (p >= string.length) {
-				throw new IllegalArgumentException();
+				throw raiseIllegalSignatureException(string, start);
 			}
 			c = string[p];
 			switch(c) {
@@ -3227,6 +3229,15 @@ public class Util {
 			p++;
 		}
 	}
+
+	private static IllegalArgumentException raiseIllegalSignatureException(char[] string, int start) {
+		throw new IllegalArgumentException("\"" + new String(string) + "\" starting at " + start); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	private static IllegalArgumentException raiseUnexpectedCharacterException(char[] string, int start, char unexpected) {
+		throw new IllegalArgumentException("Unexpected '" + unexpected + "' in \"" + new String(string) + "\" starting at " + start); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+
 	private static int scanGenericEnd(char[] string, int start) {
 		if (string[start] == Signature.C_GENERIC_END) {
 			return start;

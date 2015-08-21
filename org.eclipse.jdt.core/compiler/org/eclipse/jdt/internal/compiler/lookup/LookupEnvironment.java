@@ -32,12 +32,14 @@
  *								Bug 457079 - Regression: type inference
  *								Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
  *								Bug 455180 - IllegalStateException in AnnotatableTypeSystem.getRawType
+ *								Bug 470467 - [null] Nullness of special Enum methods not detected from .class file
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -106,6 +108,8 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 	AnnotationBinding nonNullAnnotation;
 	AnnotationBinding nullableAnnotation;
+
+	final List<MethodBinding> deferredEnumMethods = new ArrayList<>(); // during early initialization we cannot mark Enum-methods as nonnull.
 
 	/** Global access to the outermost active inference context as the universe for inference variable interning. */
 	InferenceContext18 currentInferenceContext;
@@ -1097,22 +1101,38 @@ public boolean usesNullTypeAnnotations() {
 	if (this.globalOptions.useNullTypeAnnotations != null)
 		return this.globalOptions.useNullTypeAnnotations;
 
+	initializeUsesNullTypeAnnotation();
+	for (MethodBinding enumMethod : this.deferredEnumMethods) {
+		int purpose = 0;
+		if (CharOperation.equals(enumMethod.selector, TypeConstants.VALUEOF)) {
+			purpose = SyntheticMethodBinding.EnumValueOf;
+		} else if (CharOperation.equals(enumMethod.selector, TypeConstants.VALUES)) {
+			purpose = SyntheticMethodBinding.EnumValues;
+		}
+		if (purpose != 0)
+			SyntheticMethodBinding.markNonNull(enumMethod, purpose, this);
+	}
+	this.deferredEnumMethods.clear();
+	return this.globalOptions.useNullTypeAnnotations;
+}
+
+private void initializeUsesNullTypeAnnotation() {
 	this.globalOptions.useNullTypeAnnotations = Boolean.FALSE;
 	if (!this.globalOptions.isAnnotationBasedNullAnalysisEnabled || this.globalOptions.sourceLevel < ClassFileConstants.JDK1_8)
-		return false;
+		return;
 	ReferenceBinding nullable = this.nullableAnnotation != null ? this.nullableAnnotation.getAnnotationType() : getType(this.getNullableAnnotationName());
 	ReferenceBinding nonNull = this.nonNullAnnotation != null ? this.nonNullAnnotation.getAnnotationType() : getType(this.getNonNullAnnotationName());
 	if (nullable == null && nonNull == null)
-		return false;
+		return;
 	if (nullable == null || nonNull == null)
-		return false; // TODO should report an error about inconsistent setup
+		return; // TODO should report an error about inconsistent setup
 	long nullableMetaBits = nullable.getAnnotationTagBits() & TagBits.AnnotationForTypeUse;
 	long nonNullMetaBits = nonNull.getAnnotationTagBits() & TagBits.AnnotationForTypeUse;
 	if (nullableMetaBits != nonNullMetaBits)
-		return false; // TODO should report an error about inconsistent setup
+		return; // TODO should report an error about inconsistent setup
 	if (nullableMetaBits == 0)
-		return false;
-	return this.globalOptions.useNullTypeAnnotations = Boolean.TRUE;
+		return;
+	this.globalOptions.useNullTypeAnnotations = Boolean.TRUE;
 }
 
 /* Answer the top level package named name if it exists in the cache.

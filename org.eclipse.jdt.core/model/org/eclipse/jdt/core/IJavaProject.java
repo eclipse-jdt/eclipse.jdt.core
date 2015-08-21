@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -62,7 +62,6 @@ import org.eclipse.jdt.core.eval.IEvaluationContext;
  * @see IClasspathEntry
  * @noimplement This interface is not intended to be implemented by clients.
  */
-@SuppressWarnings("rawtypes")
 public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 
 	/**
@@ -467,7 +466,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @see JavaCore#getDefaultOptions()
 	 * @since 2.1
 	 */
-	Map getOptions(boolean inheritJavaCoreOptions);
+	Map<String, String> getOptions(boolean inheritJavaCoreOptions);
 
 	/**
 	 * Returns the default output location for this project as a workspace-
@@ -913,7 +912,7 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	 * @see JavaCore#getDefaultOptions()
 	 * @since 2.1
 	 */
-	void setOptions(Map newOptions);
+	void setOptions(Map<String, String> newOptions);
 
 	/**
 	 * Sets the default output location of this project to the location

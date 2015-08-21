@@ -16,12 +16,45 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
+import javax.tools.Diagnostic;
+import javax.tools.DiagnosticListener;
 import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
 
 import junit.framework.TestCase;
 
 public class AnnotationProcessorTests extends TestCase {
+
+	public final class DiagnosticReport<S> implements DiagnosticListener<S> {
+		public int count;
+		public StringBuffer buffer;
+		private List<Diagnostic<? extends S>> warnings = new ArrayList<>();
+		DiagnosticReport() {
+			this.count = 0;
+			this.buffer = new StringBuffer();
+		}
+		public void report(Diagnostic<? extends S> diagnostic) {
+			if (diagnostic.getKind() ==  Diagnostic.Kind.WARNING) {
+				warnings.add(diagnostic);
+				count++;
+				buffer.append(diagnostic.getMessage(Locale.getDefault()));
+				buffer.append("\n");
+			}
+		}
+		public Diagnostic<? extends S> getErrorAt(int index) {
+			return warnings.get(index);
+		}
+		public String toString() {
+			return this.buffer.toString();
+		}
+		public void clear() {
+			this.count = 0;
+			this.buffer = new StringBuffer();
+		}
+	}
+
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -82,5 +115,21 @@ public class AnnotationProcessorTests extends TestCase {
 		options.add(PROC);
 		BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, null, true);
 		assertNull(System.getProperty(PROC));
+	}
+	public void testBug340635() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug340635");
+		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug340635", targetFolder);
+		List<String> options = new ArrayList<String>();
+		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug340635Proc";
+		options.add("-processorpath");
+		options.add(" ");
+		options.add("-processor");
+		options.add(PROC);
+		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<JavaFileObject>();
+		BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, diagnosticListener, true);
+		assertNull(System.getProperty(PROC));
+		assertEquals("incorrect number of messages", 1, diagnosticListener.count);
+		assertEquals("Erased type: classes.MyInterface - type arguments: \n", diagnosticListener.buffer.toString());
 	}
 }
