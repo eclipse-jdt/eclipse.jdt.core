@@ -320,6 +320,7 @@ public class WrapExecutor {
 						findWrapsCached(index, currentIndent);
 						break;
 					}
+					currentIndent = Math.max(currentIndent, token.getAlign());
 					token.setIndent(currentIndent);
 				}
 				token = this.tm.get(index);
@@ -346,6 +347,7 @@ public class WrapExecutor {
 					break;
 				if (shouldForceWrap(token, currentIndent))
 					currentIndent = token.getIndent();
+				currentIndent = Math.max(currentIndent, token.getAlign());
 				token.setIndent(currentIndent);
 			}
 		}

@@ -11229,4 +11229,198 @@ public void testBug473727() {
         "}"
     );
 }
+/**
+ * https://bugs.eclipse.org/474918 - [formatter] doesn't align fields in declarations of annotations, enums and anonymous classes
+ */
+public void testBug474918() {
+	this.formatterPrefs.align_type_members_on_columns = true;
+	String source = 
+		"import java.util.function.Function;\r\n" + 
+		"\r\n" + 
+		"public class A {\r\n" + 
+		"	private Function mapper = (Object a) -> {\r\n" + 
+		"		return a.toString().equals(\"test\");\r\n" + 
+		"	};\r\n" + 
+		"	String ssssssssssssssss = \"dsadaaaaaaaaaaaaaaaaaaaaaaaaa\";   //$NON-NLS-1$ // B // A\r\n" + 
+		"\r\n" + 
+		"	int bb = 4;\r\n" + 
+		"\r\n" + 
+		"	Object c = new Object() {\r\n" + 
+		"		int a = 55;\r\n" + 
+		"		Object cdddddddddddd = null;\r\n" + 
+		"	};\r\n" + 
+		"\r\n" + 
+		"	private enum E {\r\n" + 
+		"		AAA, BBB;\r\n" + 
+		"		int a = 55;\r\n" + 
+		"		String sssss = \"ssssss\";\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	private @interface II {\r\n" + 
+		"		int aaaaaa = 1;\r\n" + 
+		"		String bbbbbbbbb = \"default\";\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source,
+		"import java.util.function.Function;\r\n" + 
+		"\r\n" + 
+		"public class A {\r\n" + 
+		"	private Function	mapper				= (Object a) -> {\r\n" + 
+		"												return a.toString().equals(\"test\");\r\n" + 
+		"											};\r\n" + 
+		"	String				ssssssssssssssss	= \"dsadaaaaaaaaaaaaaaaaaaaaaaaaa\";		//$NON-NLS-1$ //\r\n" + 
+		"																					// B\r\n" + 
+		"																					// //\r\n" + 
+		"																					// A\r\n" + 
+		"\r\n" + 
+		"	int					bb					= 4;\r\n" + 
+		"\r\n" + 
+		"	Object				c					= new Object() {\r\n" + 
+		"												int			a				= 55;\r\n" + 
+		"												Object		cdddddddddddd	= null;\r\n" + 
+		"											};\r\n" + 
+		"\r\n" + 
+		"	private enum E {\r\n" + 
+		"		AAA, BBB;\r\n" + 
+		"		int		a		= 55;\r\n" + 
+		"		String	sssss	= \"ssssss\";\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	private @interface II {\r\n" + 
+		"		int		aaaaaa		= 1;\r\n" + 
+		"		String	bbbbbbbbb	= \"default\";\r\n" + 
+		"	}\r\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/474918 - [formatter] doesn't align fields in declarations of annotations, enums and anonymous classes
+ */
+public void testBug474918b() {
+	this.formatterPrefs.align_type_members_on_columns = true;
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	String source = 
+		"import java.util.function.Function;\r\n" + 
+		"\r\n" + 
+		"public class A {\r\n" + 
+		"	private Function mapper = (Object a) -> {\r\n" + 
+		"		return a.toString().equals(\"test\");\r\n" + 
+		"	};\r\n" + 
+		"	String ssssssssssssssss = \"dsadaaaaaaaaaaaaaaaaaaaaaaaaa\";   //$NON-NLS-1$ // B // A\r\n" + 
+		"\r\n" + 
+		"	int bb = 4;\r\n" + 
+		"\r\n" + 
+		"	Object c = new Object() {\r\n" + 
+		"		int a = 55;\r\n" + 
+		"		Object cdddddddddddd = null;\r\n" + 
+		"	};\r\n" + 
+		"\r\n" + 
+		"	private enum E {\r\n" + 
+		"		AAA, BBB;\r\n" + 
+		"		int a = 55;\r\n" + 
+		"		String sssss = \"ssssss\";\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	private @interface II {\r\n" + 
+		"		int aaaaaa = 1;\r\n" + 
+		"		String bbbbbbbbb = \"default\";\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source,
+		"import java.util.function.Function;\r\n" + 
+		"\r\n" + 
+		"public class A {\r\n" + 
+		"    private Function mapper           = (Object a) -> {\r\n" + 
+		"                                          return a.toString().equals(\"test\");\r\n" + 
+		"                                      };\r\n" + 
+		"    String           ssssssssssssssss = \"dsadaaaaaaaaaaaaaaaaaaaaaaaaa\";     //$NON-NLS-1$ //\r\n" + 
+		"                                                                             // B\r\n" + 
+		"                                                                             // //\r\n" + 
+		"                                                                             // A\r\n" + 
+		"\r\n" + 
+		"    int              bb               = 4;\r\n" + 
+		"\r\n" + 
+		"    Object           c                = new Object() {\r\n" + 
+		"                                          int      a             = 55;\r\n" + 
+		"                                          Object   cdddddddddddd = null;\r\n" + 
+		"                                      };\r\n" + 
+		"\r\n" + 
+		"    private enum E {\r\n" + 
+		"        AAA, BBB;\r\n" + 
+		"        int    a     = 55;\r\n" + 
+		"        String sssss = \"ssssss\";\r\n" + 
+		"    }\r\n" + 
+		"\r\n" + 
+		"    private @interface II {\r\n" + 
+		"        int    aaaaaa    = 1;\r\n" + 
+		"        String bbbbbbbbb = \"default\";\r\n" + 
+		"    }\r\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/474918 - [formatter] doesn't align fields in declarations of annotations, enums and anonymous classes
+ */
+public void testBug474918c() {
+	this.formatterPrefs.align_type_members_on_columns = true;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	String source = 
+		"import java.util.function.Function;\r\n" + 
+		"\r\n" + 
+		"public class A {\r\n" + 
+		"	private Function mapper = (Object a) -> {\r\n" + 
+		"		return a.toString().equals(\"test\");\r\n" + 
+		"	};\r\n" + 
+		"	String ssssssssssssssss = \"dsadaaaaaaaaaaaaaaaaaaaaaaaaa\";   //$NON-NLS-1$ // B // A\r\n" + 
+		"\r\n" + 
+		"	int bb = 4;\r\n" + 
+		"\r\n" + 
+		"	Object c = new Object() {\r\n" + 
+		"		int a = 55;\r\n" + 
+		"		Object cdddddddddddd = null;\r\n" + 
+		"	};\r\n" + 
+		"\r\n" + 
+		"	private enum E {\r\n" + 
+		"		AAA, BBB;\r\n" + 
+		"		int a = 55;\r\n" + 
+		"		String sssss = \"ssssss\";\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	private @interface II {\r\n" + 
+		"		int aaaaaa = 1;\r\n" + 
+		"		String bbbbbbbbb = \"default\";\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source,
+		"import java.util.function.Function;\r\n" + 
+		"\r\n" + 
+		"public class A {\r\n" + 
+		"	private Function	mapper				= (Object a) -> {\r\n" + 
+		"		                                        return a.toString().equals(\"test\");\r\n" + 
+		"	                                        };\r\n" + 
+		"	String				ssssssssssssssss	= \"dsadaaaaaaaaaaaaaaaaaaaaaaaaa\";		//$NON-NLS-1$ //\r\n" + 
+		"	                                                                                // B\r\n" + 
+		"	                                                                                // //\r\n" + 
+		"	                                                                                // A\r\n" + 
+		"\r\n" + 
+		"	int					bb					= 4;\r\n" + 
+		"\r\n" + 
+		"	Object				c					= new Object() {\r\n" + 
+		"		                                        int			a				= 55;\r\n" + 
+		"		                                        Object		cdddddddddddd	= null;\r\n" + 
+		"	                                        };\r\n" + 
+		"\r\n" + 
+		"	private enum E {\r\n" + 
+		"		AAA, BBB;\r\n" + 
+		"		int		a		= 55;\r\n" + 
+		"		String	sssss	= \"ssssss\";\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	private @interface II {\r\n" + 
+		"		int		aaaaaa		= 1;\r\n" + 
+		"		String	bbbbbbbbb	= \"default\";\r\n" + 
+		"	}\r\n" + 
+		"}"
+	);
+}
 }
