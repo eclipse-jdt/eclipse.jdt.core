@@ -21,7 +21,6 @@ import java.util.List;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.internal.formatter.Token;
 import org.eclipse.jdt.internal.formatter.TokenManager;
@@ -69,21 +68,14 @@ public class FieldAligner {
 		this.tm = tokenManager;
 	}
 
-	public void prepareAlign(TypeDeclaration node) {
-		List<FieldDeclaration> bodyDeclarations = node.bodyDeclarations();
+	public void prepareAlign(List<FieldDeclaration> bodyDeclarations) {
 		ArrayList<FieldDeclaration> alignGroup = new ArrayList<>();
 		for (BodyDeclaration declaration : bodyDeclarations) {
-			if (!alignGroup.isEmpty()) {
-				if ((declaration instanceof FieldDeclaration)) {
-					alignGroup.add((FieldDeclaration) declaration);
-				} else {
-					alignFields(alignGroup);
-					alignGroup = new ArrayList<>();
-				}
-			}
-			if (alignGroup.isEmpty()) {
-				if (declaration instanceof FieldDeclaration)
-					alignGroup.add((FieldDeclaration) declaration);
+			if ((declaration instanceof FieldDeclaration)) {
+				alignGroup.add((FieldDeclaration) declaration);
+			} else {
+				alignFields(alignGroup);
+				alignGroup = new ArrayList<>();
 			}
 		}
 		alignFields(alignGroup);
@@ -102,7 +94,7 @@ public class FieldAligner {
 			int positionInLine = this.tm.getPositionInLine(nameIndex);
 			maxNameAlign = Math.max(maxNameAlign, positionInLine);
 		}
-		maxNameAlign = this.tm.toIndent(maxNameAlign, true);
+		maxNameAlign = this.tm.toIndent(maxNameAlign, false);
 
 		int maxAssignAlign = 0;
 		for (FieldDeclaration declaration : alignGroup) {
@@ -119,7 +111,7 @@ public class FieldAligner {
 				maxAssignAlign = Math.max(maxAssignAlign, positionInLine);
 			}
 		}
-		maxAssignAlign = this.tm.toIndent(maxAssignAlign, true);
+		maxAssignAlign = this.tm.toIndent(maxAssignAlign, false);
 
 		for (FieldDeclaration declaration : alignGroup) {
 			List<VariableDeclarationFragment> fragments = declaration.fragments();
@@ -153,7 +145,7 @@ public class FieldAligner {
 				maxCommentAlign = Math.max(maxCommentAlign,
 						positionCounter.findMaxPosition(firstIndexInLine, lastIndex));
 			}
-			maxCommentAlign = this.tm.toIndent(maxCommentAlign, true);
+			maxCommentAlign = this.tm.toIndent(maxCommentAlign, false);
 
 			for (FieldDeclaration declaration : alignGroup) {
 				int typeIndex = this.tm.firstIndexIn(declaration.getType(), -1);

@@ -38,6 +38,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.Assignment;
@@ -106,7 +107,7 @@ public class WrapPreparator extends ASTVisitor {
 	final DefaultCodeFormatterOptions options;
 	final int kind;
 	
-	FieldAligner fieldAligner;
+	final FieldAligner fieldAligner;
 
 	int importsStart = -1, importsEnd = -1;
 
@@ -125,6 +126,8 @@ public class WrapPreparator extends ASTVisitor {
 		this.tm = tokenManager;
 		this.options = options;
 		this.kind = kind;
+
+		this.fieldAligner = new FieldAligner(this.tm);
 	}
 
 	@Override
@@ -180,12 +183,23 @@ public class WrapPreparator extends ASTVisitor {
 			handleWrap(this.options.alignment_for_superinterfaces_in_type_declaration, PREFERRED);
 		}
 
-		if (this.options.align_type_members_on_columns) {
-			if (this.fieldAligner == null) {
-				this.fieldAligner = new FieldAligner(this.tm);
-			}
-			this.fieldAligner.prepareAlign(node);
-		}
+		if (this.options.align_type_members_on_columns)
+			this.fieldAligner.prepareAlign(node.bodyDeclarations());
+
+		return true;
+	}
+
+	@Override
+	public boolean visit(AnnotationTypeDeclaration node) {
+		if (this.options.align_type_members_on_columns)
+			this.fieldAligner.prepareAlign(node.bodyDeclarations());
+		return true;
+	}
+
+	@Override
+	public boolean visit(AnonymousClassDeclaration node) {
+		if (this.options.align_type_members_on_columns)
+			this.fieldAligner.prepareAlign(node.bodyDeclarations());
 		return true;
 	}
 
@@ -252,6 +266,10 @@ public class WrapPreparator extends ASTVisitor {
 			this.wrapPenalties.add(PREFERRED);
 			handleWrap(this.options.alignment_for_superinterfaces_in_enum_declaration, node);
 		}
+
+		if (this.options.align_type_members_on_columns)
+			this.fieldAligner.prepareAlign(node.bodyDeclarations());
+
 		return true;
 	}
 
@@ -705,8 +723,7 @@ public class WrapPreparator extends ASTVisitor {
 	public void finishUp(ASTNode astRoot) {
 		preserveExistingLineBreaks();
 		new WrapExecutor(this.tm, this.options).executeWraps();
-		if (this.fieldAligner != null)
-			this.fieldAligner.alignComments();
+		this.fieldAligner.alignComments();
 		wrapComments();
 		fixEnumConstantIndents(astRoot);
 	}
