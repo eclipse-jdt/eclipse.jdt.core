@@ -18,10 +18,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -34,7 +33,11 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.TypeNameMatch;
+import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
+
+import junit.framework.Test;
 
 // The size of JavaSearchBugsTests.java is very big, Hence continuing here.
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -1904,6 +1907,57 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			e.printStackTrace();
 		}
 		finally {
+			deleteProject("P");
+		}
+	}
+
+	public void testBug473921() throws Exception {
+		try {
+			IJavaProject p = this.createJavaProject(
+				"P",
+				new String[] {},
+				new String[] { "/P/lib473921.jar", "JCL17_LIB" },
+				new String[][] {{ "p/*" }, { }},
+				new String[][] {{ "**/*" }, { }},
+				null/*no project*/,
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				null/*no exported project*/,
+				"",
+				null/*no source outputs*/,
+				null/*no inclusion pattern*/,
+				null/*no exclusion pattern*/,
+				"1.7"
+			);
+			org.eclipse.jdt.core.tests.util.Util.createJar(
+					new String[] {
+							"p/Enclosing.java",
+							"package p;\n" +
+							"public class Enclosing { enum Nested { A, B } }\n"
+					},
+					p.getProject().getLocation().append("lib473921.jar").toOSString(),
+					"1.7");
+			refresh(p);
+			
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p });
+			class Collector extends TypeNameMatchRequestor {
+				List<TypeNameMatch> matches = new ArrayList<>();
+				@Override
+				public void acceptTypeNameMatch(TypeNameMatch match) {
+					this.matches.add(match);
+				}
+			}
+			Collector collector = new Collector();
+			new SearchEngine().searchAllTypeNames(
+				null,
+				new char[][] { "Nested".toCharArray() },
+				scope,
+				collector,
+				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+				null);
+			assertEquals(1, collector.matches.size());
+			assertEquals(IAccessRule.K_ACCESSIBLE, collector.matches.get(0).getAccessibility());
+		} finally {
 			deleteProject("P");
 		}
 	}

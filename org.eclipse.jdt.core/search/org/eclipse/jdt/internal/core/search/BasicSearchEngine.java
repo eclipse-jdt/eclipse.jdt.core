@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1359,7 +1359,9 @@ public class BasicSearchEngine {
 					if (qualificationLength > 0) {
 						System.arraycopy(record.qualification, 0, path, pos, qualificationLength - 1);
 						CharOperation.replace(path, '.', '/');
-						path[qualificationLength-1] = '/';
+
+						// Do not use '/'. Access rules work on package level and should not discriminate on enclosing types.
+						path[qualificationLength-1] = '$';
 						pos += qualificationLength;
 					}
 					if (nameLength > 0) {
