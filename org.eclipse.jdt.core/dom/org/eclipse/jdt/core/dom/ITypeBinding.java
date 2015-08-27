@@ -584,8 +584,8 @@ public interface ITypeBinding extends IBinding {
 	public ITypeBinding[] getTypeArguments();
 
 	/**
-	 * Returns the upper type bounds of this type variable, wildcard, or capture. If the
-	 * variable, wildcard, or capture had no explicit bound, then it returns an empty list.
+	 * Returns the upper type bounds of this type variable, wildcard, capture, or intersectionType. 
+	 * If the variable, wildcard, or capture had no explicit bound, then it returns an empty list.
      * <p>
      * Note that per construction, it can only contain one class or array type,
      * at most, and then it is located in first position.
@@ -595,11 +595,12 @@ public interface ITypeBinding extends IBinding {
      * binding, e.g. <code>capture-of ? extends Object[]</code>
      * </p>
 	 *
-	 * @return the list of upper bounds for this type variable, wildcard, or capture,
+	 * @return the list of upper bounds for this type variable, wildcard, capture, or intersection type
      * or otherwise the empty list
      * @see #isTypeVariable()
      * @see #isWildcardType()
 	 * @see #isCapture()
+	 * @see #isIntersectionType()
 	 * @since 3.1
 	 */
 	public ITypeBinding[] getTypeBounds();
@@ -817,6 +818,28 @@ public interface ITypeBinding extends IBinding {
 	 *    and <code>false</code> otherwise
 	 */
 	public boolean isInterface();
+
+	/**
+	 * Returns whether this type binding represents an intersection binding.
+	 * <p>
+	 * Intersection types can be derived from type parameter bounds and cast
+	 * expressions; they also arise in the processes of capture conversion 
+	 * and least upper bound computation as specified in section 4.9 of 
+	 * <em>The Java Language Specification, Java SE 8 Edition</em> (JLS8).
+	 * </p>
+	 * <p>
+	 * All the types in the intersection type can be accessed using
+	 * {@link #getTypeBounds()}. Wildcard types with more than one
+	 * bound will also be reported as intersection type. To check whether this
+	 * is a wildcard type, use {@link #isWildcardType()}.
+	 * </p>
+	 * @return <code>true</code> if this type binding is an intersecting type,
+	 *   and <code>false</code> otherwise
+	 * @see #getTypeBounds()
+	 * @see ITypeBinding#isWildcardType()
+	 * @since 3.12
+	 */
+	public boolean isIntersectionType();
 
 	/**
 	 * Returns whether this type binding represents a local class.

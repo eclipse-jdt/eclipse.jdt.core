@@ -554,6 +554,19 @@ class TypeBinding implements ITypeBinding {
 		return this.interfaces = NO_TYPE_BINDINGS;
 	}
 
+	private ITypeBinding[] getIntersectingTypes() {
+		ITypeBinding[] intersectionBindings = TypeBinding.NO_TYPE_BINDINGS;
+		if (this.binding instanceof IntersectionTypeBinding18) {
+			ReferenceBinding[] intersectingTypes = this.binding.getIntersectingTypes();
+			int l = intersectingTypes.length;
+			intersectionBindings = new ITypeBinding[l];
+			for (int i = 0; i < l; ++i) {
+				intersectionBindings[i] = this.resolver.getTypeBinding(intersectingTypes[i]);
+			}
+		}
+		return intersectionBindings;
+	}
+
 	public IJavaElement getJavaElement() {
 		JavaElement element = getUnresolvedJavaElement();
 		if (element != null)
@@ -926,6 +939,8 @@ class TypeBinding implements ITypeBinding {
 		} else if (this.binding instanceof WildcardBinding) {
 			WildcardBinding wildcardBinding = (WildcardBinding) this.binding;
 			typeVariableBinding = wildcardBinding.typeVariable();
+		} else if (this.binding instanceof IntersectionTypeBinding18) {
+			return this.bounds = getIntersectingTypes();
 		}
 		if (typeVariableBinding != null) {
 			ReferenceBinding varSuperclass = typeVariableBinding.superclass();
@@ -1211,6 +1226,14 @@ class TypeBinding implements ITypeBinding {
 				return false;
 		}
 		return this.binding.isInterface();
+	}
+
+	/*
+	 * @see ITypeBinding#isIntersectionType18
+	 */
+	public boolean isIntersectionType() {
+		int kind = this.binding.kind();
+		return kind == Binding.INTERSECTION_TYPE18 || kind == Binding.INTERSECTION_TYPE;
 	}
 
 	/*
