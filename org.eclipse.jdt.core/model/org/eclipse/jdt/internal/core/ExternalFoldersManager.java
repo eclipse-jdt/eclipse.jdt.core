@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - inconsistent initialization of classpath container backed by external class folder, see https://bugs.eclipse.org/320618
  *     Thirumala Reddy Mutchukota <thirumala@google.com> - Contribution to bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=411423
  *     Terry Parker <tparker@google.com> - [performance] Low hit rates in JavaModel caches - https://bugs.eclipse.org/421165
+ *     Andrey Loskutov <loskutov@gmx.de> - ExternalFoldersManager.RefreshJob interrupts auto build job - https://bugs.eclipse.org/476059
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -31,6 +32,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceStatus;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -192,7 +194,7 @@ public class ExternalFoldersManager {
 		}
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=368152
 		// To avoid race condition (from addFolder and removeFolder, load the map elements into an array and clear the map immediately.
-		// The createLinkFolder being in the synchronized block can cause a deadlock and hence keep it out of the synchronized block. 
+		// The createLinkFolder being in the synchronized block can cause a deadlock and hence keep it out of the synchronized block.
 		Object[] arrayOfFolders = null;
 		synchronized (this.pendingFolders) {
 			arrayOfFolders = this.pendingFolders.toArray();
@@ -434,6 +436,10 @@ public class ExternalFoldersManager {
 		RefreshJob(Vector externalFolders){
 			super(Messages.refreshing_external_folders);
 			this.externalFolders = externalFolders;
+			// bug 476059: don't interrupt autobuild by using rule and system flag.
+			setSystem(true);
+			IWorkspace workspace = ResourcesPlugin.getWorkspace();
+			setRule(workspace.getRuleFactory().refreshRule(workspace.getRoot()));
 		}
 		
 		public boolean belongsTo(Object family) {
