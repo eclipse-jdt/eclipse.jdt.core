@@ -11426,4 +11426,18 @@ public void testBug467618() {
 		"}"
 	);
 }
+/**
+ * https://bugs.eclipse.org/475865 - JDT deletes code
+ */
+public void testBug475865() {
+	String source = 
+		"public class Snippet {\r\n" + 
+		"\r\n" + 
+		"	Runnable disposeRunnable = this::dispose();\r\n" + 
+		"\r\n" + 
+		"	void dispose() {\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
