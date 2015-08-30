@@ -5492,4 +5492,55 @@ public void testBug470542() {
 		"missing cannot be resolved\n" + 
 		"----------\n");
 }
+public void testBug471280_comment0() {
+	runConformTest(
+		new String[] {
+			"Test0.java",
+			"import java.util.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"import java.util.concurrent.*;\n" + 
+			"\n" + 
+			"public class Test0 {\n" + 
+			"  public CompletableFuture<List<String>> does_not_compile() throws Exception {\n" + 
+			"    CompletableFuture<List<String>> firstAsync = new CompletableFuture<>();\n" + 
+			"    firstAsync.complete(Collections.singletonList(\"test\"));\n" + 
+			"    // The following line gives error \"Type mismatch: cannot convert from CompletableFuture<Object> to CompletableFuture<List<String>>\"\n" + 
+			"    return transform(firstAsync, first -> Collections.singletonList(first.get(0)));\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public CompletableFuture<List<String>> does_compile() throws Exception {\n" + 
+			"    CompletableFuture<List<String>> firstAsync = new CompletableFuture<>();\n" + 
+			"    firstAsync.complete(Collections.singletonList(\"test\"));\n" + 
+			"    return transform(firstAsync, first -> {\n" + 
+			"      return Collections.singletonList(first.get(0));\n" + 
+			"    });\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public <T, R> CompletableFuture<R> transform(CompletableFuture<T> future, Function<T, R> fun) throws Exception {\n" + 
+			"    return future.thenApply(fun);\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
+public void testBug471280_comment3() {
+	runConformTest(
+		new String[] {
+			"Test3.java",
+			"import java.util.*;\n" + 
+			"import java.util.stream.*;\n" + 
+			"\n" + 
+			"public class Test3 {\n" + 
+			"    public <T> T generic(T value) {\n" + 
+			"        return value;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public void mapExample(Map<String, String> input) {\n" + 
+			"        // does not compile with ejc: Type mismatch: cannot convert from Map<Object,Object> to Map<String,String>\n" + 
+			"        Map<String, String> mapped = input.entrySet()\n" + 
+			"            .stream()\n" + 
+			"            .collect(Collectors.toMap(e -> e.getKey(), e -> generic(e.getValue())));\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }
