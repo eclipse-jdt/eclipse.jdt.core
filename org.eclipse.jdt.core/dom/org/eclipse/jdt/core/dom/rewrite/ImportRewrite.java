@@ -1391,7 +1391,7 @@ public final class ImportRewrite {
 		} else {
 			normalizedBinding= normalizeTypeBinding(binding);
 			if (normalizedBinding == null) {
-				type = ast.newSimpleType(ast.newSimpleName("invalid")); //$NON-NLS-1$
+				 return ast.newSimpleType(ast.newSimpleName("invalid")); //$NON-NLS-1$
 			} else if (normalizedBinding.isTypeVariable()) {
 					// no import
 				type = ast.newSimpleType(ast.newSimpleName(binding.getName()));
