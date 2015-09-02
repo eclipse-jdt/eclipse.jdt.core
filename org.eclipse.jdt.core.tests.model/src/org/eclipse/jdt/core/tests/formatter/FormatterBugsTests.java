@@ -11440,4 +11440,27 @@ public void testBug475865() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/435241 - [1.8][lambda][formatter] if/else within lambda is incorrectly formatted
+ */
+public void testBug435241() {
+	this.formatterPrefs.brace_position_for_block = DefaultCodeFormatterConstants.NEXT_LINE;
+	this.formatterPrefs.insert_new_line_before_else_in_if_statement = true;
+	String source = 
+		"public class Snippet {\r\n" + 
+		"	public static void main(String[] args) {\r\n" + 
+		"		Executors.newSingleThreadExecutor().execute(() -> {\r\n" + 
+		"			if (true)\r\n" + 
+		"			{\r\n" + 
+		"				System.err.println(\"foo\");\r\n" + 
+		"			}\r\n" + 
+		"			else\r\n" + 
+		"			{\r\n" + 
+		"				System.err.println(\"bar\");\r\n" + 
+		"			}\r\n" + 
+		"		});\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
