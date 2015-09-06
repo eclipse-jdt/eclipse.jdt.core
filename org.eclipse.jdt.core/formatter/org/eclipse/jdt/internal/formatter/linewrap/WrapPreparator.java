@@ -740,51 +740,54 @@ public class WrapPreparator extends ASTVisitor {
 
 			@Override
 			protected boolean token(Token token, int index) {
-				int lineBreaks = getLineBreaksBetween(getPrevious(), token);
-				if (index > WrapPreparator.this.importsStart && index < WrapPreparator.this.importsEnd) {
-					lineBreaks = lineBreaks > 1 ? (this.options2.blank_lines_between_import_groups + 1) : 0;
-				} else {
-					lineBreaks = Math.min(lineBreaks, this.options2.number_of_empty_lines_to_preserve + 1);
-				}
+				boolean isBetweenImports = index > WrapPreparator.this.importsStart && index < WrapPreparator.this.importsEnd;
+				int lineBreaks = getLineBreaksToPreserve(getPrevious(), token, isBetweenImports);
 				if (lineBreaks <= getLineBreaksBefore())
 					return true;
 
-				if (!this.options2.join_wrapped_lines && token.isWrappable() && lineBreaks == 1) {
-					token.breakBefore();
+				if (lineBreaks == 1) {
+					if ((!this.options2.join_wrapped_lines && token.isWrappable()) || index == 0)
+						token.breakBefore();
 				} else if (lineBreaks > 1) {
-					if (index == 0)
-						lineBreaks--;
 					token.putLineBreaksBefore(lineBreaks);
 				}
 				return true;
 			}
 
-			private int getLineBreaksBetween(Token token1, Token token2) {
-				if (token1 != null) {
-					List<Token> structure1 = token1.getInternalStructure();
-					if (structure1 != null && !structure1.isEmpty())
-						token1 = structure1.get(structure1.size() - 1);
-				}
-				List<Token> structure2 = token2.getInternalStructure();
-				if (structure2 != null && !structure2.isEmpty())
-					token2 = structure2.get(0);
-				int lineBreaks = WrapPreparator.this.tm.countLineBreaksBetween(token1, token2);
-				if (token1 == null)
-					lineBreaks++;
-				return lineBreaks;
-			}
 		});
 
 		Token last = this.tm.get(this.tm.size() - 1);
 		last.clearLineBreaksAfter();
-		int endingBreaks = this.tm.countLineBreaksBetween(last, null);
-		endingBreaks = Math.min(endingBreaks, this.options.number_of_empty_lines_to_preserve);
+		int endingBreaks = getLineBreaksToPreserve(last, null, false);
 		if (endingBreaks > 0) {
 			last.putLineBreaksAfter(endingBreaks);
 		} else if ((this.kind & CodeFormatter.K_COMPILATION_UNIT) != 0
 				&& this.options.insert_new_line_at_end_of_file_if_missing) {
 			last.breakAfter();
 		}
+	}
+
+	int getLineBreaksToPreserve(Token token1, Token token2, boolean isBetweenImports) {
+		if (token1 != null) {
+			List<Token> structure = token1.getInternalStructure();
+			if (structure != null && !structure.isEmpty())
+				token1 = structure.get(structure.size() - 1);
+		}
+		if (token2 != null) {
+			List<Token> structure = token2.getInternalStructure();
+			if (structure != null && !structure.isEmpty())
+				token2 = structure.get(0);
+		}
+		int lineBreaks = WrapPreparator.this.tm.countLineBreaksBetween(token1, token2);
+		if (isBetweenImports)
+			return lineBreaks > 1 ? (this.options.blank_lines_between_import_groups + 1) : 0;
+
+		int toPreserve = this.options.number_of_empty_lines_to_preserve;
+		if (token1 != null && token2 != null)
+			toPreserve++; // n empty lines = n+1 line breaks, except for file start and end
+		if (token1 != null && token1.tokenType == Token.TokenNameEMPTY_LINE)
+			toPreserve--;
+		return Math.min(lineBreaks, toPreserve);
 	}
 
 	private void wrapComments() {

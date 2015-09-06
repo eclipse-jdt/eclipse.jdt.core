@@ -11463,4 +11463,163 @@ public void testBug435241() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/472815 - [formatter] 'Indent Empty lines' option doesn't work inside empty blocks
+ */
+public void testBug472815() {
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 2;
+	String source = 
+		"public class Snippet {\r\n" + 
+		"\r\n" + 
+		"	int[] a1 = { };\r\n" + 
+		"	int[] a2 = {\r\n" + 
+		"	};\r\n" + 
+		"	int[] a3 = {\r\n" + 
+		"\r\n" + 
+		"	};\r\n" + 
+		"	int[] a4 = {\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	};\r\n" + 
+		"	int[] a5 = {\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	};\r\n" + 
+		"\r\n" + 
+		"	void f1() { }\r\n" + 
+		"	void f2() {\r\n" + 
+		"	}\r\n" + 
+		"	void f3() {\r\n" + 
+		"\r\n" + 
+		"	}\r\n" + 
+		"	void f4() {\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	}\r\n" + 
+		"	void f5() {\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source,
+		"public class Snippet {\r\n" + 
+		"\r\n" + 
+		"	int[] a1 = {};\r\n" + 
+		"	int[] a2 = {};\r\n" + 
+		"	int[] a3 = {\r\n" + 
+		"\r\n" + 
+		"	};\r\n" + 
+		"	int[] a4 = {\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	};\r\n" + 
+		"	int[] a5 = {\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	};\r\n" + 
+		"\r\n" + 
+		"	void f1() {\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	void f2() {\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	void f3() {\r\n" + 
+		"\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	void f4() {\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	void f5() {\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	}\r\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/472815 - [formatter] 'Indent Empty lines' option doesn't work inside empty blocks
+ */
+public void testBug472815b() {
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 2;
+	this.formatterPrefs.indent_empty_lines = true;
+	String source = 
+		"public class Snippet {\r\n" + 
+		"\r\n" + 
+		"	int[] a1 = { };\r\n" + 
+		"	int[] a2 = {\r\n" + 
+		"	};\r\n" + 
+		"	int[] a3 = {\r\n" + 
+		"\r\n" + 
+		"	};\r\n" + 
+		"	int[] a4 = {\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	};\r\n" + 
+		"	int[] a5 = {\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	};\r\n" + 
+		"\r\n" + 
+		"	void f1() { }\r\n" + 
+		"	void f2() {\r\n" + 
+		"	}\r\n" + 
+		"	void f3() {\r\n" + 
+		"\r\n" + 
+		"	}\r\n" + 
+		"	void f4() {\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	}\r\n" + 
+		"	void f5() {\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source,
+		"public class Snippet {\r\n" + 
+		"	\r\n" + 
+		"	int[] a1 = {};\r\n" + 
+		"	int[] a2 = {};\r\n" + 
+		"	int[] a3 = {\r\n" + 
+		"			\r\n" + 
+		"	};\r\n" + 
+		"	int[] a4 = {\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"	};\r\n" + 
+		"	int[] a5 = {\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"	};\r\n" + 
+		"	\r\n" + 
+		"	void f1() {\r\n" + 
+		"	}\r\n" + 
+		"	\r\n" + 
+		"	void f2() {\r\n" + 
+		"	}\r\n" + 
+		"	\r\n" + 
+		"	void f3() {\r\n" + 
+		"		\r\n" + 
+		"	}\r\n" + 
+		"	\r\n" + 
+		"	void f4() {\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"	}\r\n" + 
+		"	\r\n" + 
+		"	void f5() {\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"	}\r\n" + 
+		"}"
+	);
+}
 }

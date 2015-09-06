@@ -361,27 +361,28 @@ public class LineBreaksPreparator extends ASTVisitor {
 	@Override
 	public boolean visit(ArrayInitializer node) {
 		int openBraceIndex = this.tm.firstIndexIn(node, TokenNameLBRACE);
-		Token afterOpenBraceToken = this.tm.get(openBraceIndex + 1);
-		boolean isEmpty = afterOpenBraceToken.tokenType == TokenNameRBRACE;
-		if (isEmpty && this.options.keep_empty_array_initializer_on_one_line)
-			return true;
+		boolean isEmpty = handleEmptyLinesIndentation(openBraceIndex);
 
-		Token openBraceToken = this.tm.get(openBraceIndex);
 		int closeBraceIndex = this.tm.lastIndexIn(node, TokenNameRBRACE);
-		handleBracePosition(openBraceToken, closeBraceIndex, this.options.brace_position_for_array_initializer);
+		Token openBraceToken = this.tm.get(openBraceIndex);
+		Token closeBraceToken = this.tm.get(closeBraceIndex);
+
+		if (!(node.getParent() instanceof ArrayInitializer)) {
+			Token afterOpenBraceToken = this.tm.get(openBraceIndex + 1);
+			for (int i = 0; i < this.options.continuation_indentation_for_array_initializer; i++) {
+				afterOpenBraceToken.indent();
+				closeBraceToken.unindent();
+			}
+		}
+
+		if (!isEmpty || !this.options.keep_empty_array_initializer_on_one_line)
+			handleBracePosition(openBraceToken, closeBraceIndex, this.options.brace_position_for_array_initializer);
 
 		if (!isEmpty) {
-			Token closeBraceToken = this.tm.get(closeBraceIndex);
 			if (this.options.insert_new_line_after_opening_brace_in_array_initializer)
 				openBraceToken.breakAfter();
 			if (this.options.insert_new_line_before_closing_brace_in_array_initializer)
 				closeBraceToken.breakBefore();
-			if (!(node.getParent() instanceof ArrayInitializer)) {
-				for (int i = 0; i < this.options.continuation_indentation_for_array_initializer; i++) {
-					afterOpenBraceToken.indent();
-					closeBraceToken.unindent();
-				}
-			}
 		}
 		return true;
 	}
@@ -550,6 +551,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 				: this.tm.firstIndexAfter(nodeBeforeOpenBrace, TokenNameLBRACE);
 		int closeBraceIndex = this.tm.lastIndexIn(node, TokenNameRBRACE);
 		Token openBraceToken = this.tm.get(openBraceIndex);
+		Token closeBraceToken = this.tm.get(closeBraceIndex);
 		handleBracePosition(openBraceToken, closeBraceIndex, bracePosition);
 
 		boolean isEmpty = true;
@@ -559,13 +561,16 @@ public class LineBreaksPreparator extends ASTVisitor {
 				break;
 			}
 		}
+
+		handleEmptyLinesIndentation(openBraceIndex);
+
 		if (!isEmpty || newLineInEmpty) {
 			openBraceToken.breakAfter();
-			this.tm.get(closeBraceIndex).breakBefore();
+			closeBraceToken.breakBefore();
 		}
 		if (indentBody) {
 			this.tm.get(openBraceIndex + 1).indent();
-			this.tm.get(closeBraceIndex).unindent();
+			closeBraceToken.unindent();
 		}
 	}
 
@@ -580,6 +585,31 @@ public class LineBreaksPreparator extends ASTVisitor {
 		} else if (bracePosition.equals(DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP)) {
 			openBraceToken.setNextLineOnWrap();
 		}
+	}
+
+	private boolean handleEmptyLinesIndentation(int openBraceIndex) {
+		Token open = this.tm.get(openBraceIndex);
+		Token next = this.tm.get(openBraceIndex + 1);
+		boolean isEmpty = next.tokenType == TokenNameRBRACE;
+		if (!isEmpty || this.tm.countLineBreaksBetween(open, next) < 2 || !this.options.indent_empty_lines)
+			return isEmpty;
+
+		// find a line break and make a token out of it
+		for (int i = open.originalEnd + 1; i < next.originalStart; i++) {
+			char c = this.tm.charAt(i);
+			char c2 = this.tm.charAt(i + 1);
+			int lineBreakStart = (c == '\r' || c == '\n') ? i : -1;
+			int lineBreakEnd = ((c2 == '\r' || c2 == '\n') && c2 != c) ? i + 1 : lineBreakStart;
+			if (lineBreakStart >= 0) {
+				Token emptyLineToken = new Token(lineBreakStart, lineBreakEnd, Token.TokenNameEMPTY_LINE);
+				emptyLineToken.breakBefore();
+				emptyLineToken.breakAfter();
+				emptyLineToken.setToEscape(true); // force text builder to use toString()
+				this.tm.insert(openBraceIndex + 1, emptyLineToken);
+				return true;
+			}
+		}
+		return true;
 	}
 
 	private void indent(ASTNode node) {
