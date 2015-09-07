@@ -14328,5 +14328,110 @@ public void testBug469320_0001() throws CoreException {
 		if (ProjectA != null) deleteProject(ProjectA);
 	}
 }
+/** @bug 476738
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=476738"
+ */
+public void testBug476738_001() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+			"interface I { \n" +
+			"    public void query(Foo.InnerKey key);// Search result of method query(Foo.InnerKey) returns the method query(Bar.InnerKey) too \n" +
+			"    public void query(Bar.InnerKey key);\n" +
+			"}\n" +
+			"\n" +
+			"class Foo { \n" +
+			"    static class InnerKey  {}\n" +
+			"}\n" +
+			"class Bar {\n" +
+			"    static class InnerKey {}\n" +
+			"}\n" +
+			"\n" +
+			"class X {\n" +
+			"	public static void foo(I i, Foo.InnerKey key) {\n" +
+			"		i.query(key);\n" +
+			"	}\n" +
+			"	public static void bar(I i, Bar.InnerKey key) {\n" +
+			"		i.query(key);\n" +
+			"	}\n" +
+			"	public static I getInstance() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n"
+	);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "query";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern leftPattern = (MethodPattern) SearchPattern.createPattern(elements[0], REFERENCES, EXACT_RULE | ERASURE_RULE);
+	MethodPattern rightPattern = (MethodPattern) SearchPattern.createPattern(elements[0], REFERENCES, EXACT_RULE | ERASURE_RULE);
+	SearchPattern pattern = SearchPattern.createOrPattern(leftPattern, rightPattern);
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(
+			"src/X.java void X.foo(I, Foo.InnerKey) [query(key)] EXACT_MATCH"
+	);
+}
+/** @bug 476738
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=476738"
+ */
+public void testBug476738_002() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+			"interface I { \n" +
+			"    public void query/* one */(Foo.InnerKey key);// Search result of method query(Foo.InnerKey) returns the method query(Bar.InnerKey) too \n" +
+			"    public void query/* two */(Bar.InnerKey key);\n" +
+			"}\n" +
+			"\n" +
+			"class Foo { \n" +
+			"    static class InnerKey  {}\n" +
+			"}\n" +
+			"class Bar {\n" +
+			"    static class InnerKey {}\n" +
+			"}\n" +
+			"\n" +
+			"class X {\n" +
+			"	public static void foo(I i, Foo.InnerKey key) {\n" +
+			"		i.query(key);\n" +
+			"	}\n" +
+			"	public static void bar(I i, Bar.InnerKey key) {\n" +
+			"		i.query(key);\n" +
+			"	}\n" +
+			"	public static I getInstance() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n"
+	);
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "query";
+	String selection1 = "query/* one */";
+	String selection2 = "query/* two */";
+	int start = str.indexOf(selection1);
+	int length = selection.length();
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern leftPattern = (MethodPattern) SearchPattern.createPattern(elements[0], REFERENCES, EXACT_RULE | ERASURE_RULE);
+
+	start = str.indexOf(selection2);
+	length = selection.length();
+	elements = this.workingCopies[0].codeSelect(start, length);
+	MethodPattern rightPattern = (MethodPattern) SearchPattern.createPattern(elements[0], REFERENCES, EXACT_RULE | ERASURE_RULE);
+
+	SearchPattern pattern = SearchPattern.createOrPattern(leftPattern, rightPattern);
+	new SearchEngine(this.workingCopies).search(pattern,
+			new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+			getJavaSearchWorkingCopiesScope(),
+			this.resultCollector,
+			null);
+	assertSearchResults(
+			"src/X.java void X.foo(I, Foo.InnerKey) [query(key)] EXACT_MATCH\n" + 
+			"src/X.java void X.bar(I, Bar.InnerKey) [query(key)] EXACT_MATCH"
+	);
+}
 
 }
