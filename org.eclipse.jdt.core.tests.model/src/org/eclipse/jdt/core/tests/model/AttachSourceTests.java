@@ -194,6 +194,12 @@ private void setUpInnerClassesJar() throws IOException, CoreException {
 		"  class Inner {\n" +
 		"    Inner() {\n" +
 		"    }\n" +
+		"    class WW {\n" +
+		"      WW() {}\n" +
+		"      class WWW {\n" +
+		"        WWW() {}\n" +
+		"      }\n" +
+		"    }\n" +
 		"  }\n" +
 		"}"
 	};
@@ -900,6 +906,12 @@ public void testInnerClass1() throws JavaModelException {
 		"  class Inner {\n" + 
 		"    Inner() {\n" + 
 		"    }\n" + 
+		"    class WW {\n" + 
+		"      WW() {}\n" + 
+		"      class WWW {\n" + 
+		"        WWW() {}\n" + 
+		"      }\n" + 
+		"    }\n" + 
 		"  }\n" + 
 		"}",
 		type.getSource());
@@ -1042,6 +1054,32 @@ public void testInnerClass9() throws JavaModelException {
 		"class U {\n" +
 		"        U(String s) {\n" +
 		"        }\n" +
+		"      }",
+		type.getSource());
+	attachSource(root, null, null); // detach source
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=476304
+public void testInnerClass10() throws JavaModelException {
+	IJavaProject project = this.getJavaProject("/AttachSourceTests");
+	IPackageFragmentRoot root = project.getPackageFragmentRoot(getFile("/AttachSourceTests/innerClasses.jar"));
+	attachSource(root, "/AttachSourceTests/innerClassessrc.zip", null);
+	IPackageFragment fragment = root.getPackageFragment("inner");
+
+	IType type = fragment.getClassFile("X$Inner$WW.class").getType();
+	assertSourceEquals(
+		"Unexpected source",
+		"class WW {\n" + 
+		"      WW() {}\n" + 
+		"      class WWW {\n" + 
+		"        WWW() {}\n" + 
+		"      }\n" + 
+		"    }",
+		type.getSource());
+	type = fragment.getClassFile("X$Inner$WW$WWW.class").getType();
+	assertSourceEquals(
+		"Unexpected source",
+		"class WWW {\n" + 
+		"        WWW() {}\n" + 
 		"      }",
 		type.getSource());
 	attachSource(root, null, null); // detach source

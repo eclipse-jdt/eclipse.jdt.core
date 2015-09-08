@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1246,7 +1246,7 @@ public class SourceMapper
 		} else if (this.binaryType.getElementName().equals(typeName))
 			return this.binaryType;
 		else
-			return this.binaryType.getType(typeName);
+			return ((this.typeDepth <= 1) ? this.binaryType : this.types[this.typeDepth - 1]).getType(typeName);
 	}
 
 	/**
