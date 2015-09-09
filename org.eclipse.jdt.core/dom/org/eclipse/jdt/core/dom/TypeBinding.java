@@ -14,6 +14,8 @@
 
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -64,6 +66,7 @@ class TypeBinding implements ITypeBinding {
 	private IVariableBinding[] fields;
 	private IAnnotationBinding[] annotations;
 	private IAnnotationBinding[] typeAnnotations;
+	private IAnnotationBinding[][] typeAnnotationsOnDimensions;
 	private IMethodBinding[] methods;
 	private ITypeBinding[] members;
 	private ITypeBinding[] interfaces;
@@ -144,6 +147,34 @@ class TypeBinding implements ITypeBinding {
 		return AnnotationBinding.NoAnnotations;
 	}
 
+	private IAnnotationBinding[][] resolveAnnotationBindingsOnDimensions(org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding[] internalAnnotations) {
+		int length = internalAnnotations == null ? 0 : internalAnnotations.length;
+		if (length != 0) {
+			IAnnotationBinding[][] dimAnnotations = new IAnnotationBinding[length][];
+			int row = 0;
+			List <IAnnotationBinding> tmpList = new ArrayList<>();
+			for (int i = 0; i < length; i++) {
+				org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding internalAnnotation = internalAnnotations[i];
+				if (internalAnnotation == null) {
+					if (tmpList.size() > 0) {
+						dimAnnotations[row] = tmpList.toArray(new AnnotationBinding[0]);
+						tmpList.clear();
+					} else {
+						dimAnnotations[row] = AnnotationBinding.NoAnnotations;
+					}
+					++row;
+				}
+				IAnnotationBinding annotationInstance = this.resolver.getAnnotationInstance(internalAnnotation);
+				if (annotationInstance == null) {
+					continue;
+				}
+				tmpList.add(annotationInstance);
+			}
+			System.arraycopy(dimAnnotations, 0, (dimAnnotations = new IAnnotationBinding[row][]), 0, row);
+			return dimAnnotations;
+		}
+		return AnnotationBinding.NoAnnotationsOnDimensions;
+	}
 	/*
 	 * @see ITypeBinding#getBinaryName()
 	 * @since 3.0
@@ -1384,6 +1415,17 @@ class TypeBinding implements ITypeBinding {
 		}
 		this.typeAnnotations = resolveAnnotationBindings(this.binding.getTypeAnnotations(), true);
 		return this.typeAnnotations;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#getTypeAnnotationsOnDimensions()
+	 */
+	public IAnnotationBinding[][] getTypeAnnotationsOnDimensions() {
+		if (this.typeAnnotationsOnDimensions == null) {
+			this.typeAnnotationsOnDimensions = resolveAnnotationBindingsOnDimensions(this.binding.getTypeAnnotations());
+		}
+		return this.typeAnnotationsOnDimensions;
 	}
 
 	static class LocalTypeBinding extends TypeBinding {

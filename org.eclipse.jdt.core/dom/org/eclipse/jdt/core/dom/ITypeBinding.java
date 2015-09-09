@@ -562,6 +562,23 @@ public interface ITypeBinding extends IBinding {
 	public IAnnotationBinding[] getTypeAnnotations();
 
 	/**
+	 * Returns the type use annotations on dimensions, or the empty array if there
+	 * are no annotations on dimensions.
+	 * 
+	 * <p>
+	 *  Since JLS8, (Section 9.7.4) type annotations can appear at array dimensions. These annotations
+	 *  are returned in a 2-d array with each row containing annotations for that dimension. If only some
+	 *  of the dimensions have type annotations, the rows corresponding to the dimensions without
+	 *  annotations will have an empty single dimensional array.
+	 * </p>
+	 * 
+	 * @return type annotations specified on the dimensions of this type reference, or an empty array if
+	 * either there is no dimension or no type use annotation is found on the dimensions.
+	 * @since 3.12
+	 */
+	public IAnnotationBinding[][] getTypeAnnotationsOnDimensions();
+
+	/**
 	 * Returns the type arguments of this generic type instance, or the
 	 * empty list for other type bindings.
 	 * <p>
