@@ -5543,4 +5543,28 @@ public void testBug471280_comment3() {
 			"}\n"
 		});
 }
+public void testBug464496() {
+	runConformTest(
+		new String[] {
+			"Value.java",
+			"public class Value<V> {\n" + 
+			"    private final V value;\n" + 
+			"    public Value(V value) {\n" + 
+			"        this.value = value;\n" + 
+			"    }\n" + 
+			"    public V get() {\n" + 
+			"        return value;\n" + 
+			"    }\n" + 
+			"    public static <V> V getValue(Value<V> value) {\n" + 
+			"        return value.get();\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        Value<Integer> intValue = new Value<>(42);\n" + 
+			"        long longPrimitive = getValue(intValue); // fails in 1.8 compiler \n" + 
+			"        System.out.println(longPrimitive);\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"42");
+}
 }
