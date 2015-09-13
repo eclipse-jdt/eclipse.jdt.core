@@ -8336,4 +8336,63 @@ public void testBug474239b() {
 		options,
 		"");
 }
+public void testBug472663() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Callee.java",
+			"package test;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"\n" + 
+			"@NonNullByDefault\n" + 
+			"public class Callee {\n" + 
+			"	public static String staticOtherClass(String foo) {\n" + 
+			"		return foo;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public String instanceOtherClass(String foo) {\n" + 
+			"		return foo;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+	// and now consume Callee.class:
+	runConformTestWithLibs(
+			new String[] {
+				"test/Caller.java",
+				"package test;\n" + 
+				"\n" + 
+				"import java.util.function.Function;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+				"\n" + 
+				"@NonNullByDefault\n" + 
+				"public class Caller {\n" + 
+				"	public void foo(final Callee callee) {\n" + 
+				"		Function<String, String> function;\n" + 
+				"\n" + 
+				"		// assignments with warnings (wrong):\n" + 
+				"		function = Callee::staticOtherClass;\n" + 
+				"		function = callee::instanceOtherClass;\n" + 
+				"\n" + 
+				"		// assignments with no warnings (ok):\n" + 
+				"		function = foo -> Callee.staticOtherClass(foo);\n" + 
+				"		function = foo -> callee.instanceOtherClass(foo);\n" + 
+				"		function = Caller::staticSameClass;\n" + 
+				"		function = this::instanceSameClass;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static String staticSameClass(String foo) {\n" + 
+				"		return foo;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public String instanceSameClass(String foo) {\n" + 
+				"		return foo;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"");
+	}
 }

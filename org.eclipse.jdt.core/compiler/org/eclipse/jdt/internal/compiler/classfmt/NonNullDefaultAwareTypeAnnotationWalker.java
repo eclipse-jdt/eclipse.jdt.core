@@ -116,14 +116,14 @@ public class NonNullDefaultAwareTypeAnnotationWalker extends TypeAnnotationWalke
 
 	@Override
 	public ITypeAnnotationWalker toMethodParameter(short index) {
-		// don't set nextIsDefaultLocation, because signature-level nullness is handled by ImplicitNullAnnotationVerifier
+		// don't set nextIsDefaultLocation, because signature-level nullness is handled by ImplicitNullAnnotationVerifier (triggered per invocation via MessageSend.resolveType() et al)
 		if (this.isEmpty) return restrict(this.matches, this.pathPtr);
 		return super.toMethodParameter(index);
 	}
 
 	@Override
 	public ITypeAnnotationWalker toMethodReturn() {
-		// don't set nextIsDefaultLocation, because signature-level nullness is handled by ImplicitNullAnnotationVerifier
+		// don't set nextIsDefaultLocation, because signature-level nullness is handled by ImplicitNullAnnotationVerifier (triggered per invocation via MessageSend.resolveType() et al)
 		if (this.isEmpty) return restrict(this.matches, this.pathPtr);
 		return super.toMethodReturn();
 	}
