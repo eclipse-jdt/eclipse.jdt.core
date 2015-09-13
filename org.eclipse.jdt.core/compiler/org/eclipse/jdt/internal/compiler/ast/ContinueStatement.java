@@ -42,6 +42,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 
 	targetContext.recordAbruptExit();
+	targetContext.expireNullCheckedFieldInfo();
 
 	if (targetContext == FlowContext.NotContinuableContext) {
 		currentScope.problemReporter().invalidContinue(this);

@@ -8281,4 +8281,59 @@ public void testBug436091() {
 		getCompilerOptions(),
 		"");
 }
+public void testBug474239() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runConformTestWithLibs(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" + 
+			"	static String s1 = null, s2 = null;\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		int val = (int) System.currentTimeMillis();\n" + 
+			"		switch (val % 2) {\n" + 
+			"		case 0:\n" + 
+			"			if (s1 != null)\n" + 
+			"				s2 = \"\";\n" + 
+			"			break;\n" + 
+			"		case 1:\n" + 
+			"			if (s1 != null) // compiler thinks s1 is never null at this point\n" + 
+			"				throw new RuntimeException(\"\");\n" + 
+			"			break;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		options,
+		"");
+}
+public void testBug474239b() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runConformTestWithLibs(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" + 
+			"	static String s2 = null;\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		int val = (int) System.currentTimeMillis();\n" + 
+			"		switch (val % 2) {\n" + 
+			"		case 0:\n" + 
+			"			s2 = \"\";\n" + 
+			"			break;\n" + 
+			"		case 1:\n" + 
+			"			if (s2 != null)\n" + 
+			"				throw new RuntimeException(\"\");\n" + 
+			"			break;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		options,
+		"");
+}
 }

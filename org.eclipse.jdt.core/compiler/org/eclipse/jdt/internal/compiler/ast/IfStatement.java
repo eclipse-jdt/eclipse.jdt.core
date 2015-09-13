@@ -103,6 +103,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			}
 		}
 		thenFlowInfo = this.thenStatement.analyseCode(currentScope, flowContext, thenFlowInfo);
+		if (!(this.thenStatement instanceof Block))
+			flowContext.expireNullCheckedFieldInfo();
 	}
 	// any null check from the condition is now expired
 	flowContext.expireNullCheckedFieldInfo();
@@ -131,6 +133,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			}
 		}
 		elseFlowInfo = this.elseStatement.analyseCode(currentScope, flowContext, elseFlowInfo);
+		if (!(this.elseStatement instanceof Block))
+			flowContext.expireNullCheckedFieldInfo();
 	}
 	// process AutoCloseable resources closed in only one branch:
 	currentScope.correlateTrackingVarsIfElse(thenFlowInfo, elseFlowInfo);
