@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -29,7 +33,7 @@ public static ClasspathLocation forBinaryFolder(IContainer binaryFolder, boolean
 }
 
 static ClasspathLocation forLibrary(String libraryPathname, long lastModified, AccessRuleSet accessRuleSet, IPath annotationsPath) {
-	return new ClasspathJar(libraryPathname, lastModified, accessRuleSet, annotationsPath);
+	return ClasspathJar.getClasspathJar(libraryPathname, lastModified, accessRuleSet, annotationsPath);
 }
 
 static ClasspathLocation forLibrary(String libraryPathname, AccessRuleSet accessRuleSet, IPath annotationsPath) {

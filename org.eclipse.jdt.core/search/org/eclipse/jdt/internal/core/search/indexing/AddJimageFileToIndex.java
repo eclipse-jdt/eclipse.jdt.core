@@ -100,19 +100,23 @@ public class AddJimageFileToIndex extends IndexRequest {
 		}
 
 		@Override
-		public FileVisitResult visitPackage(java.nio.file.Path dir, BasicFileAttributes attrs)
+		public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs)
 				throws IOException {
 			return FileVisitResult.CONTINUE;
 		}
 
 		@Override
-		public FileVisitResult visitFile(java.nio.file.Path path, BasicFileAttributes attrs)
+		public FileVisitResult visitFile(java.nio.file.Path path, java.nio.file.Path mod, BasicFileAttributes attrs)
 				throws IOException {
 			String name = path.getFileName().toString();
 			if (Util.isClassFileName(name) && 
 					isValidPackageNameForClass(name)) {
 				this.indexedFileNames.put(name, FILE_INDEX_STATE.EXISTS);
 			}
+			return FileVisitResult.CONTINUE;
+		}
+		@Override
+		public FileVisitResult visitModule(java.nio.file.Path mod) throws IOException {
 			return FileVisitResult.CONTINUE;
 		}
 	}
@@ -133,14 +137,14 @@ public class AddJimageFileToIndex extends IndexRequest {
 			this.indexManager = indexManager;
 		}
 
-		public FileVisitResult visitFile(java.nio.file.Path path, BasicFileAttributes attrs)
+		public FileVisitResult visitFile(java.nio.file.Path path, java.nio.file.Path mod, BasicFileAttributes attrs)
 				throws IOException {
 			String name = path.getFileName().toString();
 			if (Util.isClassFileName(name) && 
 					isValidPackageNameForClass(name)) {
 				try {
 					String fullPath = path.toString();
-					final byte[] classFileBytes = Util.getClassfileContent(fullPath);
+					final byte[] classFileBytes = Util.getClassfileContent(fullPath, mod.toString());
 					String docFullPath =  this.container.toString() + JAR_SEPARATOR + fullPath;
 					JavaSearchDocument entryDocument = new JavaSearchDocument(docFullPath, classFileBytes, this.participant);
 					this.indexManager.indexDocument(entryDocument, this.participant, this.index, this.indexPath);

@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -136,24 +140,24 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			if (recurse) {
 				for (String packageName : archive.allPackages()) {
 					if (packageName.startsWith(key)) {
-						List<String> types = archive.getTypes(packageName);
+						List<String[]> types = archive.getTypes(packageName);
 						if (types != null) {
-							for (String typeName : types) {
-								final Kind kind = getKind(getExtension(typeName));
+							for (String[] entry : types) {
+								final Kind kind = getKind(getExtension(entry[0]));
 								if (kinds.contains(kind)) {
-									collector.add(archive.getArchiveFileObject(packageName + typeName, this.charset));
+									collector.add(archive.getArchiveFileObject(packageName + entry[0], entry[1], this.charset));
 								}
 							}
 						}
 					}
 				}
 			} else {
-				List<String> types = archive.getTypes(key);
+				List<String[]> types = archive.getTypes(key);
 				if (types != null) {
-					for (String typeName : types) {
-						final Kind kind = getKind(getExtension(typeName));
+					for (String[] entry : types) {
+						final Kind kind = getKind(getExtension(entry[0]));
 						if (kinds.contains(kind)) {
-							collector.add(archive.getArchiveFileObject(key + typeName, this.charset));
+							collector.add(archive.getArchiveFileObject(key + entry[0], entry[1], this.charset));
 						}
 					}
 				}
@@ -191,7 +195,11 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			// create a new archive
 			if (f.exists()) {
 				try {
-					archive = new Archive(f);
+					if (isJimage(f)) {
+						archive = new Jimage(f);
+					} else {
+						archive = new Archive(f);
+					}
 				} catch (ZipException e) {
 					// ignore
 				} catch (IOException e) {
@@ -344,7 +352,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				Archive archive = getArchive(file);
 				if (archive != Archive.UNKNOWN_ARCHIVE) {
 					if (archive.contains(normalizedFileName)) {
-						return archive.getArchiveFileObject(normalizedFileName, this.charset);
+						return archive.getArchiveFileObject(normalizedFileName, null, this.charset);
 					}
 				}
 			}
@@ -401,7 +409,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				Archive archive = getArchive(file);
 				if (archive != Archive.UNKNOWN_ARCHIVE) {
 					if (archive.contains(normalizedFileName)) {
-						return archive.getArchiveFileObject(normalizedFileName, this.charset);
+						return archive.getArchiveFileObject(normalizedFileName, null, this.charset);
 					}
 				}
 			}
@@ -708,7 +716,13 @@ public class EclipseFileManager implements StandardJavaFileManager {
 
 	private boolean isArchive(File f) {
 		String extension = getExtension(f);
-		return extension.equalsIgnoreCase(".jar") || extension.equalsIgnoreCase(".zip");//$NON-NLS-1$//$NON-NLS-2$
+		return extension.equalsIgnoreCase(".jar") || extension.equalsIgnoreCase(".zip") ||  //$NON-NLS-1$ //$NON-NLS-2$
+				extension.equalsIgnoreCase(".jimage");//$NON-NLS-1$
+	}
+	
+	private boolean isJimage(File f) {
+		String extension = getExtension(f);
+		return extension.equalsIgnoreCase(".jimage");//$NON-NLS-1$
 	}
 
 	/* (non-Javadoc)

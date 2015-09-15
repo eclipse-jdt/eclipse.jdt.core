@@ -206,13 +206,18 @@ public boolean isPackage(String qualifiedPackageName) {
 			Util.walkModuleImage(this.file, new Util.JimageVisitor<java.nio.file.Path>() {
 
 				@Override
-				public FileVisitResult visitPackage(java.nio.file.Path dir, BasicFileAttributes attrs) throws IOException {
+				public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
 					addToPackageCache(dir.toString(), true);
 					return FileVisitResult.CONTINUE;
 				}
 
 				@Override
-				public FileVisitResult visitFile(java.nio.file.Path dir, BasicFileAttributes attrs) throws IOException {
+				public FileVisitResult visitFile(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
+					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult visitModule(java.nio.file.Path mod) throws IOException {
 					return FileVisitResult.CONTINUE;
 				}
 

@@ -481,12 +481,12 @@ public class SourceMapper
 		}
 		
 		@Override
-		public FileVisitResult visitPackage(java.nio.file.Path dir, BasicFileAttributes attrs) throws IOException {
+		public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
 			return FileVisitResult.CONTINUE;
 		}
 		
 		@Override
-		public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
+		public FileVisitResult visitFile(java.nio.file.Path file, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
 			String entryName = file.toString();
 			if (Util.isClassFileName(entryName)) {
 				int index = entryName.indexOf('/');
@@ -509,6 +509,11 @@ public class SourceMapper
 			} else if (!this.containsJavaSource && org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(entryName)) {
 				this.containsJavaSource = true;
 			}
+			return FileVisitResult.CONTINUE;
+		}
+
+		@Override
+		public FileVisitResult visitModule(java.nio.file.Path mod) throws IOException {
 			return FileVisitResult.CONTINUE;
 		}
 	}

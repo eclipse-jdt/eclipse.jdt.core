@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -23,6 +27,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.eclipse.jdt.internal.compiler.apt.util.ArchiveFileObject;
+
 /**
  * Used as a zip file cache.
  */
@@ -33,9 +39,9 @@ public class Archive {
 	ZipFile zipFile;
 	File file;
 
-	protected Hashtable<String, ArrayList<String>> packagesCache;
+	protected Hashtable<String, ArrayList<String[]>> packagesCache;
 	
-	private Archive() {
+	protected Archive() {
 		// used to construct UNKNOWN_ARCHIVE
 	}
 
@@ -56,23 +62,23 @@ public class Archive {
 			// extract the package name
 			String packageName = fileName.substring(0, last + 1);
 			String typeName = fileName.substring(last + 1);
-			ArrayList<String> types = this.packagesCache.get(packageName);
+			ArrayList<String[]> types = this.packagesCache.get(packageName);
 			if (types == null) {
 				// might be empty if this is a directory entry
 				if (typeName.length() == 0) {
 					continue nextEntry;
 				}
 				types = new ArrayList<>();
-				types.add(typeName);
+				types.add(new String[]{typeName, null});
 				this.packagesCache.put(packageName, types);
 			} else {
-				types.add(typeName);
+				types.add(new String[]{typeName, null});
 			}
 		}
 	}
 	
-	public ArchiveFileObject getArchiveFileObject(String entryName, Charset charset) {
-		return new ArchiveFileObject(this.file, entryName, charset);
+	public ArchiveFileObject getArchiveFileObject(String fileName, String module, Charset charset) {
+		return new ArchiveFileObject(this.file, fileName, charset);
 	}
 	
 	public boolean contains(String entryName) {
@@ -86,13 +92,13 @@ public class Archive {
 		return this.packagesCache.keySet();
 	}
 	
-	public List<String> getTypes(String packageName) {
+	public List<String[]> getTypes(String packageName) {
 		// package name is expected to ends with '/'
 		if (this.packagesCache == null) {
 			try {
 				this.zipFile = new ZipFile(this.file);
 			} catch(IOException e) {
-				return Collections.<String>emptyList();
+				return Collections.<String[]>emptyList();
 			}
 			this.initialize();
 		}

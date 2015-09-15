@@ -250,12 +250,13 @@ public class Util implements SuffixConstants {
 
 	private static URI JRT_URI = URI.create("jrt:/"); //$NON-NLS-1$
 
-	static final String JAVA_BASE = "java.base"; //$NON-NLS-1$
+	public static final String JAVA_BASE = "java.base"; //$NON-NLS-1$
 	private static final String MODULES_SUBDIR = "/modules"; //$NON-NLS-1$
 	private static final String[] SINGLE_MODULE_ARRAY = new String[]{null};
 	private static final String[] DEFAULT_MODULE = new String[]{JAVA_BASE};
 	private static final String MULTIPLE = "MU"; //$NON-NLS-1$
 	private static final String DEFAULT_PACKAGE = ""; //$NON-NLS-1$
+	static final String MODULES_ON_DEMAND = System.getProperty("modules"); //$NON-NLS-1$
 
 	private static final Map<String, String> packageToModule = new HashMap<String, String>();
 
@@ -761,8 +762,15 @@ public class Util implements SuffixConstants {
 							@Override
 							public FileVisitResult preVisitDirectory(java.nio.file.Path dir, BasicFileAttributes attrs) throws IOException {
 								int count = dir.getNameCount();
+								if (count == 2) {
+									java.nio.file.Path mod = dir.getName(1);
+									if (MODULES_ON_DEMAND != null && MODULES_ON_DEMAND.indexOf(mod.toString()) == -1) {
+										return FileVisitResult.SKIP_SUBTREE;
+									}
+									return visitor.visitModule(mod);
+								}
 								if (dir == subdir || count < 3) return FileVisitResult.CONTINUE;
-								return visitor.visitPackage(dir.subpath(2, count), attrs);
+								return visitor.visitPackage(dir.subpath(2, count), dir.getName(1), attrs);
 							}
 
 							@Override
@@ -772,7 +780,7 @@ public class Util implements SuffixConstants {
 								if (count == 3) {
 									cachePackage(DEFAULT_PACKAGE, file.getName(1).toString());
 								}
-								return visitor.visitFile(file.subpath(2, file.getNameCount()), attrs);
+								return visitor.visitFile(file.subpath(2, file.getNameCount()), file.getName(1), attrs);
 							}
 						});
 					}
@@ -861,7 +869,14 @@ public class Util implements SuffixConstants {
 	}
 
 	public static InputStream getContentFromJimage(String fileName) throws IOException {
+		return getContentFromJimage(fileName, null);
+	}
+
+	public static InputStream getContentFromJimage(String fileName, String module) throws IOException {
 		java.nio.file.FileSystem fs = FileSystems.getFileSystem(JRT_URI);
+		if (module != null) {
+			return Files.newInputStream(fs.getPath(MODULES_SUBDIR, module, fileName));
+		}
 		String[] modules = getModules(fileName);
 		for (String mod : modules) {
 			return Files.newInputStream(fs.getPath(MODULES_SUBDIR, mod, fileName));
@@ -870,7 +885,14 @@ public class Util implements SuffixConstants {
 	}
 
 	public static byte[] getClassfileContent(String fileName) throws IOException {
+		return getClassfileContent(fileName, null);
+	}
+
+	public static byte[] getClassfileContent(String fileName, String module) throws IOException {
 		java.nio.file.FileSystem fs = FileSystems.getFileSystem(JRT_URI);
+		if (module != null) {
+			return Files.readAllBytes(fs.getPath(MODULES_SUBDIR, module, fileName));
+		}
 		String[] modules = getModules(fileName);
 		for (String string : modules) {
 			try {
@@ -1863,9 +1885,16 @@ public class Util implements SuffixConstants {
 
 	public interface JimageVisitor<T> {
 
-		public FileVisitResult visitPackage(T dir, BasicFileAttributes attrs) throws IOException;
+		public FileVisitResult visitPackage(T dir, T mod, BasicFileAttributes attrs) throws IOException;
 
-		public FileVisitResult visitFile(T file, BasicFileAttributes attrs) throws IOException;
+		public FileVisitResult visitFile(T file, T mod, BasicFileAttributes attrs) throws IOException;
+		/**
+		 * Invoked when a root directory of a module being visited. The element returned 
+		 * contains only the module name segment - e.g. "java.base". Clients can use this to control
+		 * how the Jimage needs to be processed, for e.g., clients can skip a particular module
+		 * by returning FileVisitResult.SKIP_SUBTREE
+		 */
+		public FileVisitResult visitModule(T mod) throws IOException;
 
 	}
 }

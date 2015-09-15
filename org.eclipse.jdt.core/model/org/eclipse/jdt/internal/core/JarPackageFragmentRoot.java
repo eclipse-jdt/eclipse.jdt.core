@@ -104,14 +104,19 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 					org.eclipse.jdt.internal.compiler.util.Util.walkModuleImage(getPath().toFile(),
 									new org.eclipse.jdt.internal.compiler.util.Util.JimageVisitor<Path>() {
 						@Override
-						public FileVisitResult visitPackage(Path dir, BasicFileAttributes attrs) throws IOException {
+						public FileVisitResult visitPackage(Path dir, Path mod, BasicFileAttributes attrs) throws IOException {
 							initRawPackageInfo(rawPackageInfo, dir.toString(), true, compliance);
 							return FileVisitResult.CONTINUE;
 						}
 
 						@Override
-						public FileVisitResult visitFile(Path path, BasicFileAttributes attrs) throws IOException {
+						public FileVisitResult visitFile(Path path, Path mod, BasicFileAttributes attrs) throws IOException {
 							initRawPackageInfo(rawPackageInfo, path.toString(), false, compliance);
+							return FileVisitResult.CONTINUE;
+						}
+
+						@Override
+						public FileVisitResult visitModule(Path mod) throws IOException {
 							return FileVisitResult.CONTINUE;
 						}
 					});

@@ -123,7 +123,16 @@ public static ClassFileReader readFromJimage(
 		String filename)
 		throws ClassFormatException, java.io.IOException {
 
-		byte classFileBytes[] = Util.getClassfileContent(filename);
+		byte classFileBytes[] = Util.getClassfileContent(filename, null /* no track of modules here */);
+		return new ClassFileReader(classFileBytes, filename.toCharArray());
+	}
+public static ClassFileReader readFromJimage(
+		String jimge,
+		String filename,
+		String module)
+
+		throws ClassFormatException, java.io.IOException {
+		byte classFileBytes[] = Util.getClassfileContent(filename, module);
 		return new ClassFileReader(classFileBytes, filename.toCharArray());
 	}
 

@@ -79,13 +79,18 @@ static SimpleSet findPackageSet(ClasspathJar jar) {
 					new org.eclipse.jdt.internal.compiler.util.Util.JimageVisitor<Path>() {
 
 				@Override
-				public FileVisitResult visitPackage(Path dir, BasicFileAttributes attrs) throws IOException {
+				public FileVisitResult visitPackage(Path dir, Path mod, BasicFileAttributes attrs) throws IOException {
 					ClasspathJar.addToPackageSet(packageSet, dir.toString(), true);
 					return FileVisitResult.CONTINUE;
 				}
 
 				@Override
-				public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+				public FileVisitResult visitFile(Path file, Path mod, BasicFileAttributes attrs) throws IOException {
+					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult visitModule(Path mod) throws IOException {
 					return FileVisitResult.CONTINUE;
 				}
 			});
@@ -121,8 +126,8 @@ SimpleSet knownPackageNames;
 AccessRuleSet accessRuleSet;
 String externalAnnotationPath;
 boolean isJimage;
+static ClasspathJar jimage; // This assumes there will ever only be one jimage in the system.
 
-// TODO: This might need updates. At the moment, we are interested only in jimage files from JDK (which are external)
 ClasspathJar(IFile resource, AccessRuleSet accessRuleSet, IPath externalAnnotationPath) {
 	this.resource = resource;
 	try {
@@ -168,6 +173,16 @@ public ClasspathJar(String fileName, AccessRuleSet accessRuleSet, IPath external
 		this.externalAnnotationPath = externalAnnotationPath.toString();
 	this.isJimage = JavaModelManager.isJimage(fileName);
 
+}
+
+public static ClasspathJar getClasspathJar(String zipFilename, long lastModified, AccessRuleSet accessRuleSet, IPath externalAnnotationPath) {
+	if (JavaModelManager.isJimage(zipFilename)) {
+		if (jimage == null) {
+			jimage = new ClasspathJar(zipFilename, lastModified, accessRuleSet, externalAnnotationPath);
+		}
+		return jimage;
+	}
+	return new ClasspathJar(zipFilename, lastModified, accessRuleSet, externalAnnotationPath);
 }
 
 public void cleanup() {
@@ -244,7 +259,7 @@ public boolean isPackage(String qualifiedPackageName) {
 		return this.knownPackageNames.includes(qualifiedPackageName);
 
 	try {
-		if (this.isJimage) {
+		if (this.isJimage && this.knownPackageNames == null) {
 			this.knownPackageNames = findPackageSet(this);
 		} else if (this.zipFile == null) {
 			if (org.eclipse.jdt.internal.core.JavaModelManager.ZIP_ACCESS_VERBOSE) {
@@ -252,8 +267,10 @@ public boolean isPackage(String qualifiedPackageName) {
 			}
 			this.zipFile = new ZipFile(this.zipFilename);
 			this.closeZipFileAtEnd = true;
+			this.knownPackageNames = findPackageSet(this);
+		} else {
+			this.knownPackageNames = findPackageSet(this);
 		}
-		this.knownPackageNames = findPackageSet(this);
 	} catch(Exception e) {
 		this.knownPackageNames = new SimpleSet(); // assume for this build the zipFile is empty
 	}
