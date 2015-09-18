@@ -11599,4 +11599,104 @@ public void testBug472815b() {
 		"}"
 	);
 }
+/**
+ * https://bugs.eclipse.org/472413 - [formatter] Wrap all arguments on new lines and prefer outer expressions result is inconsistent
+ */
+public void testBug472413() {
+	this.formatterPrefs.alignment_for_arguments_in_method_invocation = 
+		DefaultCodeFormatterOptions.Alignment.M_ONE_PER_LINE_SPLIT
+		+ DefaultCodeFormatterOptions.Alignment.M_INDENT_BY_ONE;
+	this.formatterPrefs.page_width = 80;
+	String source = 
+		"class Snippet {\r\n" + 
+		"\r\n" + 
+		"	void foo1() {\r\n" + 
+		"		Other.bar(\r\n" + 
+		"			100,\r\n" + 
+		"			nestedMethod2Arg(\r\n" + 
+		"				nestedMethod1Arg(\r\n" + 
+		"					nestedMethod2Arg(nestedMethod1Arg(nestedMethod2Arg(\r\n" + 
+		"						nestedMethod1Arg(nestedMethod1Arg(nestedMethod1Arg(\r\n" + 
+		"							nested(200, 300, 400, 500, 600, 700, 800, 900)))),\r\n" + 
+		"						null)), null)),\r\n" + 
+		"				null),\r\n" + 
+		"			100);\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	void foo2() {\r\n" + 
+		"		nestedMethodAAAA(\r\n" + 
+		"			nestedMethodBBBB(\r\n" + 
+		"				nestedMethodCCC(dddddd(200, 300, 400, 500, 600, 700, 800, 900)),\r\n" + 
+		"				null));\r\n" + 
+		"		nestedMethodAAAA(nestedMethodBBBB(\r\n" + 
+		"			nestedMethodCCC(dddddd(200, 300, 400, 500, 600, 700, 800, 900)),\r\n" + 
+		"			null));\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	void foo3() {\r\n" + 
+		"		nestedMethodAAAA(\r\n" + 
+		"			nestedMethodBBBB(\r\n" + 
+		"				nestedMethodCCC(dddddd(200, 300, 400, 500, 600, 700, 800, 900)),\r\n" + 
+		"				null),\r\n" + 
+		"			null);\r\n" + 
+		"		nestedMethodAAAA(nestedMethodBBBB(\r\n" + 
+		"			nestedMethodCCC(dddddd(200, 300, 400, 500, 600, 700, 800, 900)),\r\n" + 
+		"			null), null);\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source,
+		"class Snippet {\r\n" + 
+		"\r\n" + 
+		"	void foo1() {\r\n" + 
+		"		Other.bar(\r\n" + 
+		"			100,\r\n" + 
+		"			nestedMethod2Arg(\r\n" + 
+		"				nestedMethod1Arg(\r\n" + 
+		"					nestedMethod2Arg(\r\n" + 
+		"						nestedMethod1Arg(\r\n" + 
+		"							nestedMethod2Arg(\r\n" + 
+		"								nestedMethod1Arg(\r\n" + 
+		"									nestedMethod1Arg(\r\n" + 
+		"										nestedMethod1Arg(\r\n" + 
+		"											nested(\r\n" + 
+		"												200,\r\n" + 
+		"												300,\r\n" + 
+		"												400,\r\n" + 
+		"												500,\r\n" + 
+		"												600,\r\n" + 
+		"												700,\r\n" + 
+		"												800,\r\n" + 
+		"												900)))),\r\n" + 
+		"								null)),\r\n" + 
+		"						null)),\r\n" + 
+		"				null),\r\n" + 
+		"			100);\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	void foo2() {\r\n" + 
+		"		nestedMethodAAAA(\r\n" + 
+		"			nestedMethodBBBB(\r\n" + 
+		"				nestedMethodCCC(dddddd(200, 300, 400, 500, 600, 700, 800, 900)),\r\n" + 
+		"				null));\r\n" + 
+		"		nestedMethodAAAA(\r\n" + 
+		"			nestedMethodBBBB(\r\n" + 
+		"				nestedMethodCCC(dddddd(200, 300, 400, 500, 600, 700, 800, 900)),\r\n" + 
+		"				null));\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	void foo3() {\r\n" + 
+		"		nestedMethodAAAA(\r\n" + 
+		"			nestedMethodBBBB(\r\n" + 
+		"				nestedMethodCCC(dddddd(200, 300, 400, 500, 600, 700, 800, 900)),\r\n" + 
+		"				null),\r\n" + 
+		"			null);\r\n" + 
+		"		nestedMethodAAAA(\r\n" + 
+		"			nestedMethodBBBB(\r\n" + 
+		"				nestedMethodCCC(dddddd(200, 300, 400, 500, 600, 700, 800, 900)),\r\n" + 
+		"				null),\r\n" + 
+		"			null);\r\n" + 
+		"	}\r\n" + 
+		"}"
+	);
+}
 }
