@@ -133,6 +133,10 @@ public class WrapPreparator extends ASTVisitor {
 	@Override
 	public boolean preVisit2(ASTNode node) {
 		this.currentDepth++;
+
+		assert this.wrapIndexes.isEmpty() && this.wrapPenalties.isEmpty();
+		assert this.wrapParentIndex == -1 && this.wrapGroupEnd == -1;
+
 		boolean isMalformed = (node.getFlags() & ASTNode.MALFORMED) != 0;
 		if (isMalformed) {
 			this.tm.addDisableFormatTokenPair(this.tm.firstTokenIn(node, -1), this.tm.lastTokenIn(node, -1));
@@ -232,13 +236,16 @@ public class WrapPreparator extends ASTVisitor {
 		}
 
 		if (!node.isConstructor()) {
+			this.wrapParentIndex = this.tm.findFirstTokenInLine(this.tm.firstIndexIn(node.getName(), -1));
 			List<TypeParameter> typeParameters = node.typeParameters();
 			if (!typeParameters.isEmpty())
 				this.wrapIndexes.add(this.tm.firstIndexIn(typeParameters.get(0), -1));
-			if (node.getReturnType2() != null && !node.modifiers().isEmpty())
-				this.wrapIndexes.add(this.tm.firstIndexIn(node.getReturnType2(), -1));
+			if (node.getReturnType2() != null) {
+				int returTypeIndex = this.tm.firstIndexIn(node.getReturnType2(), -1);
+				if (returTypeIndex != this.wrapParentIndex)
+					this.wrapIndexes.add(returTypeIndex);
+			}
 			this.wrapIndexes.add(this.tm.firstIndexIn(node.getName(), -1));
-			this.wrapParentIndex = this.tm.findFirstTokenInLine(this.tm.firstIndexIn(node.getName(), -1));
 			this.wrapGroupEnd = this.tm.lastIndexIn(node.getName(), -1);
 			handleWrap(this.options.alignment_for_method_declaration);
 		}
@@ -581,7 +588,6 @@ public class WrapPreparator extends ASTVisitor {
 			this.wrapParentIndex = this.tm.findIndex(firstToken.originalStart - 1, TokenNameLPAREN, false);
 			if (!arguments.isEmpty() && this.wrapGroupEnd < 0)
 				this.wrapGroupEnd = this.tm.lastIndexIn(arguments.get(arguments.size() - 1), -1);
-			assert this.wrapGroupEnd >= 0;
 			handleWrap(wrappingOption, 1 / PREFERRED);
 		}
 	}
@@ -596,17 +602,22 @@ public class WrapPreparator extends ASTVisitor {
 	}
 
 	private void handleWrap(int wrappingOption, ASTNode parentNode) {
+		doHandleWrap(wrappingOption, parentNode);
+		this.wrapIndexes.clear();
+		this.wrapPenalties.clear();
+		this.wrapParentIndex = this.wrapGroupEnd = -1;
+	}
+
+	private void doHandleWrap(int wrappingOption, ASTNode parentNode) {
 		if (this.wrapIndexes.isEmpty())
 			return;
-		assert this.wrapParentIndex >= 0;
+		assert this.wrapParentIndex >= 0 && this.wrapParentIndex < this.wrapIndexes.get(0);
+		assert this.wrapGroupEnd >= this.wrapIndexes.get(this.wrapIndexes.size() - 1);
 		float penalty = this.wrapPenalties.isEmpty() ? 1 : this.wrapPenalties.get(0);
 		WrapPolicy policy = getWrapPolicy(wrappingOption, penalty, true, parentNode);
-		if (policy == null) {
-			this.wrapIndexes.clear();
-			this.wrapPenalties.clear();
-			this.wrapParentIndex = this.wrapGroupEnd = -1;
+		if (policy == null)
 			return;
-		}
+
 		setTokenWrapPolicy(this.wrapIndexes.get(0), policy, true);
 
 		boolean wrapPreceedingComments = !(parentNode instanceof InfixExpression)
@@ -634,9 +645,6 @@ public class WrapPreparator extends ASTVisitor {
 					this.tm.get(this.wrapIndexes.get(0)).breakBefore();
 			}
 		}
-		this.wrapIndexes.clear();
-		this.wrapPenalties.clear();
-		this.wrapParentIndex = this.wrapGroupEnd = -1;
 	}
 
 	private void setTokenWrapPolicy(int index, WrapPolicy policy, boolean wrapPreceedingComments) {
