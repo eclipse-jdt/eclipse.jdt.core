@@ -886,6 +886,8 @@ class BoundSet {
 	public boolean dependsOnResolutionOf(InferenceVariable alpha, InferenceVariable beta) {
 		alpha = alpha.prototype();
 		beta = beta.prototype();
+		if (TypeBinding.equalsEquals(alpha, beta))
+			return true; // An inference variable α depends on the resolution of itself.
 		Iterator<Map.Entry<ParameterizedTypeBinding, ParameterizedTypeBinding>> captureIter = this.captures.entrySet().iterator();
 		boolean betaIsInCaptureLhs = false;
 		while (captureIter.hasNext()) { // TODO: optimization: consider separate index structure (by IV)

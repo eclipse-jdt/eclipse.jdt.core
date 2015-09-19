@@ -5656,4 +5656,26 @@ public void testBug479167() {
 		},
 		"[[Ljava.lang.String;");
 }
+public void testBug477751() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.function.Function;\n" + 
+			"class Test {\n" + 
+			"	public static <T, U> U map(T value, Function<T, U> mapper) {\n" + 
+			"		if (value != null)\n" + 
+			"			return mapper.apply(value);\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	String value;\n" + 
+			"	\n" + 
+			"	void test() {\n" + 
+			"		map(map(value, nnVal1 -> nnVal1.toLowerCase()),\n" + 
+			"				nnVal2 -> nnVal2.length());\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n"
+		});
+}
 }

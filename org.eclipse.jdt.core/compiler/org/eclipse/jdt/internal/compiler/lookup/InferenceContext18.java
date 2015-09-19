@@ -1339,22 +1339,18 @@ public class InferenceContext18 {
 	}
 
 	private Set<ConstraintFormula> findBottomSet(Set<ConstraintFormula> constraints, Set<InferenceVariable> allOutputVariables) {
-		// 18.5.2 bullet 6.1
-		//  A subset of constraints is selected, satisfying the property
-		// that, for each constraint, no input variable depends on an
-		// output variable of another constraint in C ...
+		// 18.5.2 bullet 5.(1)
+		//  A subset of constraints is selected, satisfying the property that,
+		//  for each constraint, no input variable can influence an output variable of another constraint in C. ...
+		//  An inference variable α can influence an inference variable β if α depends on the resolution of β (§18.4), or vice versa;
+		//  or if there exists a third inference variable γ such that α can influence γ and γ can influence β.  ...
+		// TODO: is indirect influence respected?
 		Set<ConstraintFormula> result = new HashSet<ConstraintFormula>();
-		Iterator<ConstraintFormula> it = constraints.iterator();
-		constraintLoop: while (it.hasNext()) {
-			ConstraintFormula constraint = it.next();
-			Iterator<InferenceVariable> inputIt = constraint.inputVariables(this).iterator();
-			Iterator<InferenceVariable> outputIt = allOutputVariables.iterator();
-			while (inputIt.hasNext()) {
-				InferenceVariable in = inputIt.next();
-				if (allOutputVariables.contains(in)) // not explicit in the spec, but let's assume any inference variable depends on itself
-					continue constraintLoop;
-				while (outputIt.hasNext()) {
-					if (this.currentBounds.dependsOnResolutionOf(in, outputIt.next()))
+	  constraintLoop:
+		for (ConstraintFormula constraint : constraints) {
+			for (InferenceVariable in : constraint.inputVariables(this)) {
+				for (InferenceVariable out : allOutputVariables) {
+					if (this.currentBounds.dependsOnResolutionOf(in, out) || this.currentBounds.dependsOnResolutionOf(out, in))
 						continue constraintLoop;
 				}
 			}
