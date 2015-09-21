@@ -425,6 +425,8 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if (this.body instanceof Expression) {
 			Expression expression = (Expression) this.body;
 			new ReturnStatement(expression, expression.sourceStart, expression.sourceEnd, true).resolve(this.scope); // :-) ;-)
+			if (expression.resolvedType == TypeBinding.VOID && !expression.statementExpression())
+				this.scope.problemReporter().invalidExpressionAsStatement(expression);
 		} else {
 			this.body.resolve(this.scope);
 			/* At this point, shape analysis is complete for ((see returnsExpression(...))

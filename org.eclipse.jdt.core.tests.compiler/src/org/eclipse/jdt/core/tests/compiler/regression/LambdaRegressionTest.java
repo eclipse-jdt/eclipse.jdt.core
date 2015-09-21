@@ -360,6 +360,11 @@ public void test449410() {
 	"	.forEach(entry -> test() ? bad() : returnType());\n" + 
 	"	 ^^^^^^^\n" + 
 	"The method forEach(Consumer<? super Map.Entry<Object,Object>>) in the type Iterable<Map.Entry<Object,Object>> is not applicable for the arguments ((<no type> entry) -> {})\n" + 
+	"----------\n" + 
+	"2. ERROR in X.java (at line 6)\n" + 
+	"	.forEach(entry -> test() ? bad() : returnType());\n" + 
+	"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+	"Invalid expression as statement\n" +
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449824, [1.8] Difference in behaviour with method references and lambdas  
@@ -810,6 +815,11 @@ public void testBug463526() {
 	"	r.accept((l) -> (doItOnTheClass(new Object())));\n" + 
 	"	  ^^^^^^\n" + 
 	"The method accept(Test.Listener) in the type Test.Receiver is not applicable for the arguments ((<no type> l) -> {})\n" +
+	"----------\n" + 
+	"2. ERROR in Test.java (at line 4)\n" + 
+	"	r.accept((l) -> (doItOnTheClass(new Object())));\n" + 
+	"	                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+	"Invalid expression as statement\n" +
 	"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=463526
@@ -911,6 +921,85 @@ public void testBug465900() {
 		"interface SerializableSupplier<T> extends Supplier<T>, Serializable {}\n"
 	},
 	"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=477888
+// [1.8][compiler] Compiler silently produces garbage but editor shows no errors
+public void testBug477888() {
+	runNegativeTest(new String [] {
+		"Test.java",
+		"import java.io.IOException;\n" + 
+		"import java.nio.file.Files;\n" + 
+		"import java.nio.file.Paths;\n" + 
+		"import java.util.function.Consumer;\n" + 
+		"public class Test {\n" + 
+		"	public static void main(String[] args) throws IOException {\n" + 
+		"		Files.lines(Paths.get(args[0])).filter(x -> {return !x.startsWith(\".\");}).forEach(printMe());\n" + 
+		"	}\n" + 
+		"	private static Consumer<String> printMe() {\n" + 
+		"		return x -> x.isEmpty() ? System.out.println() : System.out.println(getIndex() + \" \" + x); // error must be reported here!\n" + 
+		"	}\n" + 
+		"	static int idx;\n" + 
+		"\n" + 
+		"	private static int getIndex() {\n" + 
+		"		return ++idx;\n" + 
+		"	}\n" + 
+		"}\n"
+	},
+	"----------\n" + 
+	"1. ERROR in Test.java (at line 10)\n" + 
+	"	return x -> x.isEmpty() ? System.out.println() : System.out.println(getIndex() + \" \" + x); // error must be reported here!\n" + 
+	"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+	"Invalid expression as statement\n" + 
+	"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=472648
+// [compiler][1.8] Lambda expression referencing method with generic type has incorrect compile errors
+public void testBug472648() {
+	runNegativeTest(new String [] {
+		"Test.java",
+		"import java.util.ArrayList;\n" + 
+		"import java.util.List;\n" + 
+		"import java.util.function.Consumer;\n" + 
+		"public class Test {\n" + 
+		"	public static void main(String argv[]) {\n" + 
+		"		new Test();\n" + 
+		"	}\n" + 
+		"	public Test() {\n" + 
+		"		List<Number> numList = new ArrayList<>();\n" + 
+		"		numList.add(1);\n" + 
+		"		numList.add(1.5);\n" + 
+		"		numList.add(2);\n" + 
+		"		numList.add(2.5);\n" + 
+		"		forEachValueOfType(numList, Integer.class, (Integer i) -> (System.out.println(Integer.toString(i))));\n" + 
+		"	}\n" + 
+		"	private <T> void forEachValueOfType(List<?> list, Class<T> type, Consumer<T> action) {\n" + 
+		"		\n" + 
+		"		for (Object o : list) {\n" + 
+		"			if (type.isAssignableFrom(o.getClass())) {\n" + 
+		"				@SuppressWarnings(\"unchecked\")\n" + 
+		"				T convertedObject = (T) o;\n" + 
+		"				action.accept(convertedObject);\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}"
+	},
+	"----------\n" + 
+	"1. ERROR in Test.java (at line 14)\n" + 
+	"	forEachValueOfType(numList, Integer.class, (Integer i) -> (System.out.println(Integer.toString(i))));\n" + 
+	"	^^^^^^^^^^^^^^^^^^\n" + 
+	"The method forEachValueOfType(List<?>, Class<T>, Consumer<T>) in the type Test is not applicable for the arguments (List<Number>, Class<Integer>, (Integer i) -> {})\n" +
+	"----------\n" + 
+	"2. ERROR in Test.java (at line 14)\n" + 
+	"	forEachValueOfType(numList, Integer.class, (Integer i) -> (System.out.println(Integer.toString(i))));\n" + 
+	"	                                            ^^^^^^^\n" + 
+	"Incompatible type specified for lambda expression's parameter i\n" + 
+	"----------\n" + 
+	"3. ERROR in Test.java (at line 14)\n" + 
+	"	forEachValueOfType(numList, Integer.class, (Integer i) -> (System.out.println(Integer.toString(i))));\n" + 
+	"	                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+	"Invalid expression as statement\n" + 
+	"----------\n");
 }
 public static Class testClass() {
 	return LambdaRegressionTest.class;
