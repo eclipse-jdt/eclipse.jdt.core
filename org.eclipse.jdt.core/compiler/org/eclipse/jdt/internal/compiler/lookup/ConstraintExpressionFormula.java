@@ -110,11 +110,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 							return ConstraintTypeFormula.create(exprType, this.right, COMPATIBLE, this.isSoft);
 						}
 						if (innerCtx.stepCompleted >= InferenceContext18.APPLICABILITY_INFERRED) {
-							inferenceContext.currentBounds.addBounds(innerCtx.b2, inferenceContext.environment);
-							inferenceContext.inferenceVariables = innerCtx.inferenceVariables;
-							inferenceContext.inferenceKind = innerCtx.inferenceKind;
-							innerCtx.outerContext = inferenceContext;
-							inferenceContext.usesUncheckedConversion = innerCtx.usesUncheckedConversion;
+							inferenceContext.integrateInnerInferenceB2(innerCtx);
 						} else {
 							return FALSE; // should not reach here.
 						}

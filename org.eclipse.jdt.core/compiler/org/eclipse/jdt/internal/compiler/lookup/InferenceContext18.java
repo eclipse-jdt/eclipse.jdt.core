@@ -128,6 +128,7 @@ public class InferenceContext18 {
 	
 	/** The inference variables for which as solution is sought. */
 	InferenceVariable[] inferenceVariables;
+	int nextVarId;
 
 	/** Constraints that have not yet been reduced and incorporated. */
 	ConstraintFormula[] initialConstraints;
@@ -179,7 +180,7 @@ public class InferenceContext18 {
 			if (i >= len)
 				System.arraycopy(interned, 0, outermostContext.internedVariables = new InferenceVariable[len+10], 0, len);
 		}
-		return outermostContext.internedVariables[i] = new InferenceVariable(typeParameter, rank, i, site, this.environment, this.object);
+		return outermostContext.internedVariables[i] = new InferenceVariable(typeParameter, rank, this.nextVarId++, site, this.environment, this.object);
 	}
 
 	public static final int CHECK_UNKNOWN = 0;
@@ -1397,6 +1398,16 @@ public class InferenceContext18 {
 		this.currentInvocation = null;
 		this.usesUncheckedConversion = false;
 		return record;
+	}
+
+	public void integrateInnerInferenceB2(InferenceContext18 innerCtx) {
+		this.currentBounds.addBounds(innerCtx.b2, this.environment);
+		this.inferenceVariables = innerCtx.inferenceVariables;
+		this.inferenceKind = innerCtx.inferenceKind;
+		innerCtx.outerContext = this;
+		this.usesUncheckedConversion = innerCtx.usesUncheckedConversion;
+		for (InferenceVariable variable : this.inferenceVariables)
+			variable.updateSourceName(this.nextVarId++);
 	}
 
 	public void resumeSuspendedInference(SuspendedInferenceRecord record) {
