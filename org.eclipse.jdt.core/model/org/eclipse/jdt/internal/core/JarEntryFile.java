@@ -52,12 +52,10 @@ public class JarEntryFile  extends JarEntryResource {
 		IPackageFragmentRoot root = getPackageFragmentRoot();
 		if (root.isModule()) {
 			try {
-				if (this.parent instanceof JarPackageFragmentRoot) {
-					IPath rootPath = ((JarPackageFragmentRoot) this.parent).getPath();
-					Object target = JavaModel.getTarget(rootPath, false);
-					if (target != null && target instanceof File) {
-						return JimageUtil.getContentFromJimage((File) target, getEntryName(), root.getElementName());
-					}
+				IPath rootPath = root.getPath();
+				Object target = JavaModel.getTarget(rootPath, false);
+				if (target != null && target instanceof File) {
+					return JimageUtil.getContentFromJimage((File) target, getEntryName(), root.getElementName());
 				}
 			} catch (IOException e) {
 				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
