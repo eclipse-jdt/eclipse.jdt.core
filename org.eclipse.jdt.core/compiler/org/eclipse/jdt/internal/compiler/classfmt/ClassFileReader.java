@@ -37,6 +37,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.util.JimageUtil;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ClassFileReader extends ClassFileStruct implements IBinaryType {
@@ -119,24 +120,23 @@ public static ClassFileReader read(
 }
 
 public static ClassFileReader readFromJimage(
-		String jimge,
+		File jimage,
 		String filename)
 		throws ClassFormatException, java.io.IOException {
 
-		byte classFileBytes[] = Util.getClassfileContent(filename, null /* no track of modules here */);
-		return new ClassFileReader(classFileBytes, filename.toCharArray());
+		return readFromJimage(jimage, filename, null);
 	}
 public static ClassFileReader readFromJimage(
-		String jimge,
+		File jimage,
 		String filename,
 		String module)
 
 		throws ClassFormatException, java.io.IOException {
-		byte classFileBytes[] = Util.getClassfileContent(filename, module);
+		byte classFileBytes[] = JimageUtil.getClassfileContent(jimage, filename, module);
+		if (classFileBytes == null) return null;
 		return new ClassFileReader(classFileBytes, filename.toCharArray());
 	}
 
-// TODO: Doesn't appear to be used anywhere. Revisit to remove.
 public static ClassFileReader read(
 	java.util.zip.ZipFile zip,
 	String filename,

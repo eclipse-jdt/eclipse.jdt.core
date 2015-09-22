@@ -172,7 +172,7 @@ public class Jimage extends Archive {
 		protected ClassFileReader getClassReader() {
 			ClassFileReader reader = null;
 			try {
-				reader = ClassFileReader.readFromJimage(this.file.toPath().toString(), this.entryName, this.module);
+				reader = ClassFileReader.readFromJimage(this.file, this.entryName, this.module);
 			} catch (ClassFormatException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -188,7 +188,7 @@ public class Jimage extends Archive {
 		@Override
 		public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
 			return Util.getCharContents(this, ignoreEncodingErrors,
-					org.eclipse.jdt.internal.compiler.util.Util.getClassfileContent(this.entryName, this.module),
+					org.eclipse.jdt.internal.compiler.util.JimageUtil.getClassfileContent(this.file, this.entryName, this.module),
 					this.charset.name());
 		}
 
@@ -213,7 +213,7 @@ public class Jimage extends Archive {
 		 */
 		@Override
 		public InputStream openInputStream() throws IOException {
-			return org.eclipse.jdt.internal.compiler.util.Util.getContentFromJimage(this.entryName, null);
+			return org.eclipse.jdt.internal.compiler.util.JimageUtil.getContentFromJimage(this.file, this.entryName, null);
 		}
 
 		/* (non-Javadoc)

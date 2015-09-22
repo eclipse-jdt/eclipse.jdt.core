@@ -15,6 +15,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.zip.ZipEntry;
@@ -22,9 +23,12 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJarEntryResource;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.util.JimageUtil;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
@@ -34,23 +38,31 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  */
 public class JarEntryFile  extends JarEntryResource {
 	private static final IJarEntryResource[] NO_CHILDREN = new IJarEntryResource[0];
-	public JarEntryFile(String simpleName, boolean isJimage) {
-		super(simpleName, isJimage);
+	public JarEntryFile(String simpleName) {
+		super(simpleName);
 	}
 
 	public JarEntryResource clone(Object newParent) {
-		JarEntryFile file = new JarEntryFile(this.simpleName, this.isJimage);
+		JarEntryFile file = new JarEntryFile(this.simpleName);
 		file.setParent(newParent);
 		return file;
 	}
 
 	public InputStream getContents() throws CoreException {
-		if (this.isJimage) {
+		IPackageFragmentRoot root = getPackageFragmentRoot();
+		if (root.isModule()) {
 			try {
-				return Util.getContentFromJimage(getEntryName());
+				if (this.parent instanceof JarPackageFragmentRoot) {
+					IPath rootPath = ((JarPackageFragmentRoot) this.parent).getPath();
+					Object target = JavaModel.getTarget(rootPath, false);
+					if (target != null && target instanceof File) {
+						return JimageUtil.getContentFromJimage((File) target, getEntryName(), root.getElementName());
+					}
+				}
 			} catch (IOException e) {
 				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
 			}
+			return null;
 		} else {
 			ZipFile zipFile = null;
 			try {

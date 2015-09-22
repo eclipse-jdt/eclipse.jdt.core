@@ -16,6 +16,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -257,7 +258,7 @@ public static ClassFileReader classFileReader(IType type) {
 		if (org.eclipse.jdt.internal.compiler.util.Util.archiveFormat(rootPath) == org.eclipse.jdt.internal.compiler.util.Util.JIMAGE_FILE) {
 			String classFileName = classFile.getElementName();
 			String path = Util.concatWith(pkg.names, classFileName, '/');
-			return ClassFileReader.readFromJimage(rootPath, path);
+			return ClassFileReader.readFromJimage(new File(rootPath), rootPath, path);
 		} else {
 			ZipFile zipFile = null;
 			try {

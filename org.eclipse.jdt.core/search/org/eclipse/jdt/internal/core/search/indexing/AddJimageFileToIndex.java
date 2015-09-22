@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
+import org.eclipse.jdt.internal.compiler.util.JimageUtil;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -90,7 +91,7 @@ public class AddJimageFileToIndex extends IndexRequest {
 		return -1;
 	}
 	
-	private class JimageTraverser implements org.eclipse.jdt.internal.compiler.util.Util.JimageVisitor<java.nio.file.Path> {
+	private class JimageTraverser implements org.eclipse.jdt.internal.compiler.util.JimageUtil.JimageVisitor<java.nio.file.Path> {
 		
 		SimpleLookupTable indexedFileNames;
 		public JimageTraverser() {
@@ -127,8 +128,10 @@ public class AddJimageFileToIndex extends IndexRequest {
 		final IndexManager indexManager;
 		final IPath container;
 		final Index index;
+		final File jimage;
 
-		public JimageIndexer(SearchParticipant participant, Index index, IPath container, IndexManager indexManager) {
+		public JimageIndexer(File jimage, SearchParticipant participant, Index index, IPath container, IndexManager indexManager) {
+			this.jimage = jimage;
 			this.participant = (participant != null) ? participant : SearchEngine.getDefaultSearchParticipant();
 			this.index = index;
 			IndexLocation indexLocation = index.getIndexLocation();
@@ -144,7 +147,7 @@ public class AddJimageFileToIndex extends IndexRequest {
 					isValidPackageNameForClass(name)) {
 				try {
 					String fullPath = path.toString();
-					final byte[] classFileBytes = Util.getClassfileContent(fullPath, mod.toString());
+					final byte[] classFileBytes = JimageUtil.getClassfileContent(this.jimage, fullPath, mod.toString());
 					String docFullPath =  this.container.toString() + JAR_SEPARATOR + fullPath;
 					JavaSearchDocument entryDocument = new JavaSearchDocument(docFullPath, classFileBytes, this.participant);
 					this.indexManager.indexDocument(entryDocument, this.participant, this.index, this.indexPath);
@@ -238,7 +241,7 @@ public class AddJimageFileToIndex extends IndexRequest {
 					for (int i = 0; i < max; i++)
 						indexedFileNames.put(paths[i], FILE_INDEX_STATE.DELETED);
 					
-					org.eclipse.jdt.internal.compiler.util.Util.walkModuleImage(new File(fileName), 
+					org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(new File(fileName), 
 							new JimageTraverser(indexedFileNames));
 
 					boolean needToReindex = indexedFileNames.elementSize != max; // a new file was added
@@ -269,9 +272,9 @@ public class AddJimageFileToIndex extends IndexRequest {
 					return false;
 				}
 				
-				
-				org.eclipse.jdt.internal.compiler.util.Util.walkModuleImage(new File(fileName), 
-						new JimageIndexer(SearchEngine.getDefaultSearchParticipant(), index, container, this.manager));
+				File jimage = new File(fileName);
+				org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(jimage, 
+						new JimageIndexer(jimage, SearchEngine.getDefaultSearchParticipant(), index, container, this.manager));
 
 				if(this.forceIndexUpdate) {
 					this.manager.savePreBuiltIndex(index);

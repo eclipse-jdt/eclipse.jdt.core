@@ -521,6 +521,9 @@ public IPackageFragment getPackageFragment(String packageName) {
 public PackageFragment getPackageFragment(String[] pkgName) {
 	return new PackageFragment(this, pkgName);
 }
+public PackageFragment getPackageFragment(String[] pkgName, String mod) {
+	return new PackageFragment(this, pkgName); // Overridden in JImageModuleFragmentBridge
+}
 /**
  * Returns the package name for the given folder
  * (which is a decendent of this root).
@@ -828,4 +831,8 @@ protected void verifyAttachSource(IPath sourcePath) throws JavaModelException {
 	}
 }
 
+@Override
+public boolean isModule() {
+	return false;
+}
 }

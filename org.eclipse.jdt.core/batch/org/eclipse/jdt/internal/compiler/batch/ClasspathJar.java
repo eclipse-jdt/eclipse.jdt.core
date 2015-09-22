@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.util.JimageUtil;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -113,7 +114,7 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 	try {
 		ClassFileReader reader = null;
 		if (this.isJimage) {
-			reader = ClassFileReader.readFromJimage(this.file.getPath(), qualifiedBinaryFileName);
+			reader = ClassFileReader.readFromJimage(this.file, qualifiedBinaryFileName);
 		} else {
 			reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		}
@@ -141,32 +142,65 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 }
 @Override
 public boolean hasAnnotationFileFor(String qualifiedTypeName) {
-	if (this.isJimage) return false; // For now;
+	if (this.isJimage) return false; // TODO: Revisit
 	return this.zipFile.getEntry(qualifiedTypeName+'.'+ExternalAnnotationProvider.ANNOTION_FILE_EXTENSION) != null; 
 }
-public char[][][] findTypeNames(String qualifiedPackageName) {
+public char[][][] findTypeNames(final String qualifiedPackageName) {
 	if (!isPackage(qualifiedPackageName))
 		return null; // most common case
 
-	ArrayList answers = new ArrayList();
-	nextEntry : for (Enumeration e = this.zipFile.entries(); e.hasMoreElements(); ) {
-		String fileName = ((ZipEntry) e.nextElement()).getName();
+	final ArrayList answers = new ArrayList();
+	if (this.isJimage) {
+		try {
+			JimageUtil.walkModuleImage(this.file, new JimageUtil.JimageVisitor<java.nio.file.Path>() {
 
-		// add the package name & all of its parent packages
-		int last = fileName.lastIndexOf('/');
-		while (last > 0) {
-			// extract the package name
-			String packageName = fileName.substring(0, last);
-			if (!qualifiedPackageName.equals(packageName))
-				continue nextEntry;
-			int indexOfDot = fileName.lastIndexOf('.');
-			if (indexOfDot != -1) {
-				String typeName = fileName.substring(last + 1, indexOfDot);
-				char[] packageArray = packageName.toCharArray();
-				answers.add(
-					CharOperation.arrayConcat(
-						CharOperation.splitOn('/', packageArray),
-						typeName.toCharArray()));
+				@Override
+				public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
+					if (!dir.toString().equals(qualifiedPackageName)) {
+						return FileVisitResult.SKIP_SUBTREE;
+					}
+					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult visitFile(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
+					char[] packageArray = qualifiedPackageName.toCharArray();
+					answers.add(
+							CharOperation.arrayConcat(
+								CharOperation.splitOn('/', packageArray),
+								dir.toString().toCharArray()));
+					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult visitModule(java.nio.file.Path mod) throws IOException {
+					return FileVisitResult.CONTINUE;
+				}
+
+			});
+		} catch (IOException e) {
+			// Ignore and move on
+		}
+	} else {
+		nextEntry : for (Enumeration e = this.zipFile.entries(); e.hasMoreElements(); ) {
+			String fileName = ((ZipEntry) e.nextElement()).getName();
+
+			// add the package name & all of its parent packages
+			int last = fileName.lastIndexOf('/');
+			while (last > 0) {
+				// extract the package name
+				String packageName = fileName.substring(0, last);
+				if (!qualifiedPackageName.equals(packageName))
+					continue nextEntry;
+				int indexOfDot = fileName.lastIndexOf('.');
+				if (indexOfDot != -1) {
+					String typeName = fileName.substring(last + 1, indexOfDot);
+					char[] packageArray = packageName.toCharArray();
+					answers.add(
+						CharOperation.arrayConcat(
+							CharOperation.splitOn('/', packageArray),
+							typeName.toCharArray()));
+				}
 			}
 		}
 	}
@@ -195,7 +229,7 @@ protected void addToPackageCache(String fileName, boolean endsWithSep) {
 		last = packageName.lastIndexOf('/');
 	}
 }
-public boolean isPackage(String qualifiedPackageName) {
+public synchronized boolean isPackage(String qualifiedPackageName) {
 	if (this.packageCache != null)
 		return this.packageCache.containsKey(qualifiedPackageName);
 
@@ -203,7 +237,7 @@ public boolean isPackage(String qualifiedPackageName) {
 	this.packageCache.put(Util.EMPTY_STRING, Util.EMPTY_STRING);
 	if (this.isJimage) {
 		try {
-			Util.walkModuleImage(this.file, new Util.JimageVisitor<java.nio.file.Path>() {
+			JimageUtil.walkModuleImage(this.file, new JimageUtil.JimageVisitor<java.nio.file.Path>() {
 
 				@Override
 				public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
@@ -252,7 +286,8 @@ public void reset() {
 			this.annotationZipFile = null;
 		}
 	}
-	this.packageCache = null;
+	if (!this.isJimage)
+		this.packageCache = null;
 }
 public String toString() {
 	return "Classpath for jar file " + this.file.getPath(); //$NON-NLS-1$

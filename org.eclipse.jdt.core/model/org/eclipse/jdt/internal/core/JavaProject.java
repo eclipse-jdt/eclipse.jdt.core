@@ -15,6 +15,8 @@ package org.eclipse.jdt.internal.core;
 
 import java.io.*;
 import java.net.URI;
+import java.nio.file.FileVisitResult;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,6 +71,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
+import org.eclipse.jdt.internal.compiler.util.JimageUtil;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
@@ -616,7 +619,20 @@ public class JavaProject
 				} else if (target instanceof File) {
 					// external target
 					if (JavaModel.isFile(target)) {
-						root = new JarPackageFragmentRoot(entryPath, this);
+						if (JavaModel.isJimage((File) target)) {
+							PerProjectInfo info = getPerProjectInfo();
+							if (info.jimageRoots == null || !info.jimageRoots.containsKey(entryPath)) {
+								ObjectVector imageRoots = new ObjectVector();
+								loadModulesInJimage(entryPath, imageRoots, rootToResolvedEntries, resolvedEntry, referringEntry);
+								info.setJimagePackageRoots(entryPath, imageRoots);
+								accumulatedRoots.addAll(imageRoots);
+								rootIDs.add(rootID);
+							} else {
+								accumulatedRoots.addAll(info.jimageRoots.get(entryPath));
+							}
+						} else {
+							root = new JarPackageFragmentRoot(entryPath, this);
+						}
 					} else if (((File) target).isDirectory()) {
 						root = new ExternalPackageFragmentRoot(entryPath, this);
 					}
@@ -650,6 +666,60 @@ public class JavaProject
 			accumulatedRoots.add(root);
 			rootIDs.add(rootID);
 			if (rootToResolvedEntries != null) rootToResolvedEntries.put(root, ((ClasspathEntry)resolvedEntry).combineWith((ClasspathEntry) referringEntry));
+		}
+	}
+
+	/**
+	 * This bogus package fragment root acts as placeholder plus bridge for the
+	 * real one until the module name becomes available. It is useful in certain
+	 * scenarios like creating package roots from delta processors, search etc.
+	 */
+	class JImageModuleFragmentBridge extends JarPackageFragmentRoot {
+
+		protected JImageModuleFragmentBridge(IPath externalJarPath) {
+			super(externalJarPath, JavaProject.this);
+		}
+		public PackageFragment getPackageFragment(String[] pkgName) {
+			return getPackageFragment(pkgName, null);
+		}
+		public PackageFragment getPackageFragment(String[] pkgName, String mod) {
+			PackageFragmentRoot realRoot = new ModulePackageFragmentRoot(this.jarPath,
+												mod == null ?  JimageUtil.JAVA_BASE : mod,
+														JavaProject.this);
+			return new JarPackageFragment(realRoot, pkgName);
+		}
+		protected boolean computeChildren(OpenableElementInfo info, IResource underlyingResource) throws JavaModelException {
+			// Do nothing, idea is to avoid this being read in JarPackageFragmentRoot as a Jar.
+			return true;
+		}
+	}
+
+	private void loadModulesInJimage(final IPath imagePath, final ObjectVector roots, final Map rootToResolvedEntries, 
+				final IClasspathEntry resolvedEntry, final IClasspathEntry referringEntry) {
+		try {
+			org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(imagePath.toFile(),
+					new org.eclipse.jdt.internal.compiler.util.JimageUtil.JimageVisitor<java.nio.file.Path>() {
+				@Override
+				public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
+					return FileVisitResult.SKIP_SIBLINGS;
+				}
+
+				@Override
+				public FileVisitResult visitFile(java.nio.file.Path path, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
+					return FileVisitResult.SKIP_SIBLINGS;
+				}
+
+				@Override
+				public FileVisitResult visitModule(java.nio.file.Path mod) throws IOException {
+					ModulePackageFragmentRoot root = new ModulePackageFragmentRoot(imagePath, mod.toString(), JavaProject.this);
+					roots.add(root);
+					if (rootToResolvedEntries != null) 
+						rootToResolvedEntries.put(root, ((ClasspathEntry)resolvedEntry).combineWith((ClasspathEntry) referringEntry));
+					return FileVisitResult.SKIP_SUBTREE;
+				}
+			});
+		} catch (IOException e) {
+			Util.log(IStatus.ERROR, "Error reading modules from " + imagePath.toOSString()); //$NON-NLS-1$
 		}
 	}
 
@@ -1231,7 +1301,7 @@ public class JavaProject
 		}
 		for (int i= 0; i < allRoots.length; i++) {
 			IPackageFragmentRoot classpathRoot= allRoots[i];
-			if (classpathRoot.getPath().equals(path)) {
+			if (classpathRoot.getPath() != null && classpathRoot.getPath().equals(path)) {
 				return classpathRoot;
 			}
 		}
@@ -1833,6 +1903,9 @@ public class JavaProject
 		IFolder linkedFolder = JavaModelManager.getExternalManager().getFolder(externalLibraryPath);
 		if (linkedFolder != null)
 			return new ExternalPackageFragmentRoot(linkedFolder, externalLibraryPath, this);
+		if (JavaModelManager.isJimage(externalLibraryPath)) {
+			return this.new JImageModuleFragmentBridge(externalLibraryPath);
+		}
 		return new JarPackageFragmentRoot(externalLibraryPath, this);
 	}
 

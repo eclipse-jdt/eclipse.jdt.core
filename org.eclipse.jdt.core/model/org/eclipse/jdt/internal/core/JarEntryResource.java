@@ -29,15 +29,9 @@ public abstract class JarEntryResource  extends PlatformObject implements IJarEn
 
 	protected Object parent;
 	protected String simpleName;
-	protected boolean isJimage;
 
 	public JarEntryResource(String simpleName) {
-		this(simpleName, false);
-	}
-
-	public JarEntryResource(String simpleName, boolean isJimage) {
 		this.simpleName = simpleName;
-		this.isJimage = isJimage;
 	}
 
 	public abstract JarEntryResource clone(Object newParent);

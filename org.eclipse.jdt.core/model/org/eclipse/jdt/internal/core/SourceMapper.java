@@ -67,9 +67,9 @@ import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.util.JimageUtil;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
-import org.eclipse.jdt.internal.compiler.util.Util.JimageVisitor;
 import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 
 /**
@@ -461,7 +461,7 @@ public class SourceMapper
 		return -1;
 	}
 
-	class JimagePackageNamesAdderVisitor implements JimageVisitor<java.nio.file.Path> {
+	class JimagePackageNamesAdderVisitor implements JimageUtil.JimageVisitor<java.nio.file.Path> {
 
 		public final HashSet firstLevelPackageNames;
 		final IPackageFragmentRoot root;
@@ -535,13 +535,11 @@ public class SourceMapper
 
 		String sourceLevel = null;
 		String complianceLevel = null;
-		boolean isJimage = root instanceof JarPackageFragmentRoot ?
-				((JarPackageFragmentRoot) root).isJimage() : false;
-		if (isJimage) {
+		if (root.isModule()) {
 			try {
 				JimagePackageNamesAdderVisitor jimagePackageNamesAdderVisitor = new JimagePackageNamesAdderVisitor(firstLevelPackageNames, 
 						sourceLevel, complianceLevel, containsADefaultPackage, containsJavaSource, root);
-				org.eclipse.jdt.internal.compiler.util.Util.walkModuleImage(new File(root.toString()), jimagePackageNamesAdderVisitor);
+				org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(new File(root.toString()), jimagePackageNamesAdderVisitor);
 				sourceLevel = jimagePackageNamesAdderVisitor.sourceLevel;
 				complianceLevel = jimagePackageNamesAdderVisitor.complianceLevel;
 				containsADefaultPackage = jimagePackageNamesAdderVisitor.containsADefaultPackage;

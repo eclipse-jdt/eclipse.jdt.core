@@ -18,6 +18,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -347,8 +348,11 @@ public byte[] getBytes() throws JavaModelException {
 }
 private byte[] getClassFileContent(JarPackageFragmentRoot root, String className) throws CoreException, IOException {
 	byte[] contents = null;
-	if (root.isJimage) {
-		contents = org.eclipse.jdt.internal.compiler.util.Util.getClassfileContent(className);
+	if (root.isModule()) {
+			contents = org.eclipse.jdt.internal.compiler.util.JimageUtil.getClassfileContent(
+					new File(root.getPath().toOSString()),
+					className,
+					root.getElementName());
 	} else {
 		ZipFile zip = root.getJar();
 		try {

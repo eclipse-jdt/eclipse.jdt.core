@@ -361,6 +361,15 @@ public interface IPackageFragmentRoot
 	public boolean isArchive();
 
 	/**
+	 * Returns whether this package fragment root represents a Java module
+	 * or not. The module could either be a source or a binary coming from
+	 * the jimage. Note: This needs more work.
+	 *
+	 * @since 3.12 BETA_JAVA9
+	 */
+	public boolean isModule();
+
+	/**
 	 * Returns whether this package fragment root is external
 	 * to the workbench (that is, a local file), and has no
 	 * underlying resource.

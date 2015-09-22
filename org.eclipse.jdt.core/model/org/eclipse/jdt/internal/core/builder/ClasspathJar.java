@@ -72,11 +72,17 @@ protected static void addToPackageSet(SimpleSet packageSet, String fileName, boo
  */
 static SimpleSet findPackageSet(ClasspathJar jar) {
 	String zipFileName = jar.zipFilename;
+	PackageCacheEntry cacheEntry = (PackageCacheEntry) PackageCache.get(zipFileName);
+	long lastModified = jar.lastModified();
+	long fileSize = new File(zipFileName).length();
+	if (cacheEntry != null && cacheEntry.lastModified == lastModified && cacheEntry.fileSize == fileSize)
+		return cacheEntry.packageSet;
 	final SimpleSet packageSet = new SimpleSet(41);
+	packageSet.add(""); //$NON-NLS-1$
 	if (jar.isJimage) {
 		try {
-			org.eclipse.jdt.internal.compiler.util.Util.walkModuleImage(new File(jar.zipFilename), 
-					new org.eclipse.jdt.internal.compiler.util.Util.JimageVisitor<Path>() {
+			org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(new File(zipFileName), 
+					new org.eclipse.jdt.internal.compiler.util.JimageUtil.JimageVisitor<Path>() {
 
 				@Override
 				public FileVisitResult visitPackage(Path dir, Path mod, BasicFileAttributes attrs) throws IOException {
@@ -95,15 +101,10 @@ static SimpleSet findPackageSet(ClasspathJar jar) {
 				}
 			});
 		} catch (IOException e) {
-			// Move on
+			// TODO: Should report better
 		}
-		// TODO: What about caching?
+		PackageCache.put(zipFileName, new PackageCacheEntry(0, 0, packageSet));
 	} else {
-		long lastModified = jar.lastModified();
-		long fileSize = new File(zipFileName).length();
-		PackageCacheEntry cacheEntry = (PackageCacheEntry) PackageCache.get(zipFileName);
-		if (cacheEntry != null && cacheEntry.lastModified == lastModified && cacheEntry.fileSize == fileSize)
-			return cacheEntry.packageSet;
 		packageSet.add(""); //$NON-NLS-1$
 		for (Enumeration e = jar.zipFile.entries(); e.hasMoreElements(); ) {
 			String fileName = ((ZipEntry) e.nextElement()).getName();
@@ -111,7 +112,6 @@ static SimpleSet findPackageSet(ClasspathJar jar) {
 		}
 		PackageCache.put(zipFileName, new PackageCacheEntry(lastModified, fileSize, packageSet));
 	}
-
 	return packageSet;
 }
 
@@ -126,7 +126,6 @@ SimpleSet knownPackageNames;
 AccessRuleSet accessRuleSet;
 String externalAnnotationPath;
 boolean isJimage;
-static ClasspathJar jimage; // This assumes there will ever only be one jimage in the system.
 
 ClasspathJar(IFile resource, AccessRuleSet accessRuleSet, IPath externalAnnotationPath) {
 	this.resource = resource;
@@ -165,24 +164,11 @@ public ClasspathJar(ZipFile zipFile, AccessRuleSet accessRuleSet, IPath external
 }
 
 public ClasspathJar(String fileName, AccessRuleSet accessRuleSet, IPath externalAnnotationPath) {
-	this.zipFilename = fileName;
-	this.closeZipFileAtEnd = false;
-	this.knownPackageNames = null;
-	this.accessRuleSet = accessRuleSet;
+	this(fileName, 0, accessRuleSet, externalAnnotationPath);
 	if (externalAnnotationPath != null)
 		this.externalAnnotationPath = externalAnnotationPath.toString();
 	this.isJimage = JavaModelManager.isJimage(fileName);
 
-}
-
-public static ClasspathJar getClasspathJar(String zipFilename, long lastModified, AccessRuleSet accessRuleSet, IPath externalAnnotationPath) {
-	if (JavaModelManager.isJimage(zipFilename)) {
-		if (jimage == null) {
-			jimage = new ClasspathJar(zipFilename, lastModified, accessRuleSet, externalAnnotationPath);
-		}
-		return jimage;
-	}
-	return new ClasspathJar(zipFilename, lastModified, accessRuleSet, externalAnnotationPath);
 }
 
 public void cleanup() {
@@ -208,8 +194,8 @@ public void cleanup() {
 public boolean equals(Object o) {
 	if (this == o) return true;
 	if (!(o instanceof ClasspathJar)) return false;
-
 	ClasspathJar jar = (ClasspathJar) o;
+	if (this.isJimage && jar.isJimage) return this.zipFilename.endsWith(jar.zipFilename);
 	if (this.accessRuleSet != jar.accessRuleSet)
 		if (this.accessRuleSet == null || !this.accessRuleSet.equals(jar.accessRuleSet))
 			return false;
@@ -222,7 +208,7 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	try {
 		ClassFileReader reader = null;
 		if (this.isJimage) {
-			reader = ClassFileReader.readFromJimage(this.zipFilename, qualifiedBinaryFileName);
+			reader = ClassFileReader.readFromJimage(new File(this.zipFilename), qualifiedBinaryFileName);
 		} else {
 			reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		}
@@ -259,8 +245,12 @@ public boolean isPackage(String qualifiedPackageName) {
 		return this.knownPackageNames.includes(qualifiedPackageName);
 
 	try {
-		if (this.isJimage && this.knownPackageNames == null) {
-			this.knownPackageNames = findPackageSet(this);
+		if (this.isJimage) {
+			synchronized (this) {
+				if (this.knownPackageNames == null) {
+					this.knownPackageNames = findPackageSet(this);
+				}
+			}
 		} else if (this.zipFile == null) {
 			if (org.eclipse.jdt.internal.core.JavaModelManager.ZIP_ACCESS_VERBOSE) {
 				System.out.println("(" + Thread.currentThread() + ") [ClasspathJar.isPackage(String)] Creating ZipFile on " + this.zipFilename); //$NON-NLS-1$	//$NON-NLS-2$

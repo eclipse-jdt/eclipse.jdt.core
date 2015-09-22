@@ -59,6 +59,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
+import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.JavaProjectElementInfo.ProjectCache;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.dom.SourceRangeVerifier;
@@ -1153,6 +1154,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		public Map rootPathToRawEntries; // reverse map from a package fragment root's path to the raw entry
 		public Map rootPathToResolvedEntries; // map from a package fragment root's path to the resolved entry
 		public IPath outputLocation;
+		public Map<IPath, ObjectVector> jimageRoots; // A map between a Jimage classpath entry (as a string) and the package fragment roots found in it.
 
 		public IEclipsePreferences preferences;
 		public Hashtable options;
@@ -1260,6 +1262,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (this.rawTimeStamp != timeStamp)
 				return null;
 			return setClasspath(this.rawClasspath, referencedEntries, this.outputLocation, this.rawClasspathStatus, newResolvedClasspath, newRootPathToRawEntries, newRootPathToResolvedEntries, newUnresolvedEntryStatus, addClasspathChange);
+		}
+
+		public synchronized void setJimagePackageRoots(IPath jimagePath, ObjectVector roots) {
+			if (this.jimageRoots == null) this.jimageRoots = new HashMap<>();
+			this.jimageRoots.put(jimagePath, roots);
 		}
 
 		/**
