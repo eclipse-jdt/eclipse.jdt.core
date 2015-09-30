@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
@@ -692,6 +696,9 @@ public class JavaProject
 			// Do nothing, idea is to avoid this being read in JarPackageFragmentRoot as a Jar.
 			return true;
 		}
+		public boolean isModule() {
+			return true;
+		}
 	}
 
 	private void loadModulesInJimage(final IPath imagePath, final ObjectVector roots, final Map rootToResolvedEntries, 
@@ -717,7 +724,7 @@ public class JavaProject
 						rootToResolvedEntries.put(root, ((ClasspathEntry)resolvedEntry).combineWith((ClasspathEntry) referringEntry));
 					return FileVisitResult.SKIP_SUBTREE;
 				}
-			});
+			}, JimageUtil.NOTIFY_MODULES);
 		} catch (IOException e) {
 			Util.log(IStatus.ERROR, "Error reading modules from " + imagePath.toOSString()); //$NON-NLS-1$
 		}
@@ -1658,6 +1665,7 @@ public class JavaProject
 	 * @see JavaElement
 	 */
 	public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento, WorkingCopyOwner owner) {
+		String mod = null;
 		switch (token.charAt(0)) {
 			case JEM_PACKAGEFRAGMENTROOT:
 				String rootPath = IPackageFragmentRoot.DEFAULT_PACKAGEROOT_PATH;
@@ -1667,11 +1675,22 @@ public class JavaProject
 					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=331821
 					if (token == MementoTokenizer.PACKAGEFRAGMENT || token == MementoTokenizer.COUNT) {
 						break;
+					} else if (token == MementoTokenizer.PACKAGEFRAGMENTROOT) {
+						if (memento.hasMoreTokens()) {
+							token = memento.nextToken();
+							if (token != null) {
+								mod = token;
+							
+							}
+						}
+						continue;
 					}
 					rootPath += token;
 				}
-				JavaElement root = (JavaElement)getPackageFragmentRoot(new Path(rootPath));
-				if (token != null && token.charAt(0) == JEM_PACKAGEFRAGMENT) {
+				JavaElement root = (mod == null) ?
+						(JavaElement)getPackageFragmentRoot(new Path(rootPath)) :
+							new ModulePackageFragmentRoot(new Path(rootPath), mod, this);
+				if (token != null && (token.charAt(0) == JEM_PACKAGEFRAGMENT)) {
 					return root.getHandleFromMemento(token, memento, owner);
 				} else {
 					return root.getHandleFromMemento(memento, owner);

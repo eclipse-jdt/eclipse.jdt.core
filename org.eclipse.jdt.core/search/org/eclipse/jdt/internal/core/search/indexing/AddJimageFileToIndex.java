@@ -242,7 +242,7 @@ public class AddJimageFileToIndex extends IndexRequest {
 						indexedFileNames.put(paths[i], FILE_INDEX_STATE.DELETED);
 					
 					org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(new File(fileName), 
-							new JimageTraverser(indexedFileNames));
+							new JimageTraverser(indexedFileNames), JimageUtil.NOTIFY_FILES);
 
 					boolean needToReindex = indexedFileNames.elementSize != max; // a new file was added
 					if (!needToReindex) {
@@ -274,7 +274,7 @@ public class AddJimageFileToIndex extends IndexRequest {
 				
 				File jimage = new File(fileName);
 				org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(jimage, 
-						new JimageIndexer(jimage, SearchEngine.getDefaultSearchParticipant(), index, container, this.manager));
+						new JimageIndexer(jimage, SearchEngine.getDefaultSearchParticipant(), index, container, this.manager), JimageUtil.NOTIFY_FILES);
 
 				if(this.forceIndexUpdate) {
 					this.manager.savePreBuiltIndex(index);

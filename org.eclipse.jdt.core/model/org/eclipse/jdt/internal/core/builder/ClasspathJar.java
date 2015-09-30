@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.util.JimageUtil;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -99,7 +100,7 @@ static SimpleSet findPackageSet(ClasspathJar jar) {
 				public FileVisitResult visitModule(Path mod) throws IOException {
 					return FileVisitResult.CONTINUE;
 				}
-			});
+			}, JimageUtil.NOTIFY_PACKAGES);
 		} catch (IOException e) {
 			// TODO: Should report better
 		}
@@ -188,7 +189,8 @@ public void cleanup() {
 			this.annotationZipFile = null;
 		}
 	}
-	this.knownPackageNames = null;
+	if (!this.isJimage)
+		this.knownPackageNames = null;
 }
 
 public boolean equals(Object o) {

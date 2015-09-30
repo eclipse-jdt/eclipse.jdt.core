@@ -373,7 +373,13 @@ private IBinaryType getJarBinaryTypeInfo(PackageFragment pkg, boolean fullyIniti
 		String entryName = Util.concatWith(pkg.names, getElementName(), '/');
 		byte[] contents = getClassFileContent(root, entryName);
 		if (contents != null) {
-			String fileName = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
+			String fileName;
+			if (root.isModule()) {
+				fileName = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + 
+						root.getElementName() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
+			} else {
+				fileName = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
+			}
 			ClassFileReader reader = new ClassFileReader(contents, fileName.toCharArray(), fullyInitialize);
 			if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
 				JavaProject javaProject = (JavaProject) getAncestor(IJavaElement.JAVA_PROJECT);

@@ -539,7 +539,7 @@ public class SourceMapper
 			try {
 				JimagePackageNamesAdderVisitor jimagePackageNamesAdderVisitor = new JimagePackageNamesAdderVisitor(firstLevelPackageNames, 
 						sourceLevel, complianceLevel, containsADefaultPackage, containsJavaSource, root);
-				org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(new File(root.toString()), jimagePackageNamesAdderVisitor);
+				org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(new File(root.toString()), jimagePackageNamesAdderVisitor, JimageUtil.NOTIFY_FILES);
 				sourceLevel = jimagePackageNamesAdderVisitor.sourceLevel;
 				complianceLevel = jimagePackageNamesAdderVisitor.complianceLevel;
 				containsADefaultPackage = jimagePackageNamesAdderVisitor.containsADefaultPackage;

@@ -1,3 +1,17 @@
+/*******************************************************************************
+ * Copyright (c) 2015 IBM Corporation.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.util;
 
 import java.io.File;
@@ -28,7 +42,11 @@ public class JimageUtil {
 	static final String DEFAULT_PACKAGE = ""; //$NON-NLS-1$
 	static final String MODULES_ON_DEMAND = System.getProperty("modules"); //$NON-NLS-1$
 	static URI JRT_URI = URI.create("jrt:/"); //$NON-NLS-1$
-
+	public static int NOTIFY_FILES = 0x0001;
+	public static int NOTIFY_PACKAGES = 0x0002;
+	public static int NOTIFY_MODULES = 0x0004;
+	public static int NOTIFY_ALL = NOTIFY_FILES | NOTIFY_PACKAGES | NOTIFY_MODULES;
+			
 	private static Map<File, JimageFileSystem> images = null;
 
 	public interface JimageVisitor<T> {
@@ -91,14 +109,17 @@ public class JimageUtil {
 	 *  /modules/$MODULE/$PATH
 	 *  /packages/$PACKAGE/$MODULE 
 	 *  The latter provides quick look up of the module that contains a particular package. However,
-	 *  this method only notifies its clients of the entries within the modules sub-directory.
+	 *  this method only notifies its clients of the entries within the modules sub-directory. The
+	 *  clients can decide which notifications they want to receive. See {@link JimageUtil#NOTIFY_ALL},
+	 *  {@link JimageUtil#NOTIFY_FILES}, {@link JimageUtil#NOTIFY_PACKAGES} and {@link JimageUtil#NOTIFY_MODULES}.
 	 *  
 	 * @param image a java.io.File handle to the JRT image.
 	 * @param visitor an instance of JimageVisitor to be notified of the entries in the JRT image.
+	 * @param notify flag indicating the notifications the client is interested in.
 	 * @throws IOException
 	 */
-	public static void walkModuleImage(File image, final JimageUtil.JimageVisitor<java.nio.file.Path> visitor) throws IOException {
-		getJimageSystem(image).walkModuleImage(visitor, false);
+	public static void walkModuleImage(File image, final JimageUtil.JimageVisitor<java.nio.file.Path> visitor, int notify) throws IOException {
+		getJimageSystem(image).walkModuleImage(visitor, false, notify);
 	}
 
 	public static InputStream getContentFromJimage(File jimage, String fileName, String module) throws IOException {
@@ -127,7 +148,7 @@ class JimageFileSystem {
 	}
 	void initialize(File image) {
 		try {
-			walkModuleImage(null, true);
+			walkModuleImage(null, true, 0 /* doesn't matter */);
 		} catch (IOException e) {
 			// Continue to exist as a dummy file system?
 		}
@@ -185,7 +206,7 @@ class JimageFileSystem {
 		return null;
 	}
 
-	void walkModuleImage(final JimageUtil.JimageVisitor<java.nio.file.Path> visitor, boolean visitPackageMapping) throws IOException {
+	void walkModuleImage(final JimageUtil.JimageVisitor<java.nio.file.Path> visitor, boolean visitPackageMapping, final int notify) throws IOException {
 		java.nio.file.FileSystem fs = FileSystems.getFileSystem(JimageUtil.JRT_URI);
 		Iterable<java.nio.file.Path> roots = fs.getRootDirectories();
 		for (java.nio.file.Path path : roots) {
@@ -198,18 +219,25 @@ class JimageFileSystem {
 							public FileVisitResult preVisitDirectory(java.nio.file.Path dir, BasicFileAttributes attrs) throws IOException {
 								int count = dir.getNameCount();
 								if (count == 2) {
+									// e.g. /modules/java.base
 									java.nio.file.Path mod = dir.getName(1);
 									if (JimageUtil.MODULES_ON_DEMAND != null && JimageUtil.MODULES_ON_DEMAND.indexOf(mod.toString()) == -1) {
 										return FileVisitResult.SKIP_SUBTREE;
 									}
-									return visitor.visitModule(mod);
+									return ((notify & JimageUtil.NOTIFY_MODULES) == 0) ? 
+											FileVisitResult.CONTINUE : visitor.visitModule(mod);
 								}
-								if (dir == subdir || count < 3) return FileVisitResult.CONTINUE;
+								if (dir == subdir || count < 3 || (notify & JimageUtil.NOTIFY_PACKAGES) == 0) {
+									// We are dealing with a module or not client is not interested in packages
+									return FileVisitResult.CONTINUE;
+								}
 								return visitor.visitPackage(dir.subpath(2, count), dir.getName(1), attrs);
 							}
 
 							@Override
 							public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
+								if ((notify & JimageUtil.NOTIFY_FILES) == 0)
+									return FileVisitResult.CONTINUE;
 								int count = file.getNameCount();
 								// This happens when a file in a default package is present. E.g. /modules/some.module/file.name
 								if (count == 3) {

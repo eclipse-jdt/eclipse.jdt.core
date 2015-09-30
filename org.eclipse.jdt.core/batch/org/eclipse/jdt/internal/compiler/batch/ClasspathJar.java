@@ -24,9 +24,10 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -48,7 +49,7 @@ protected File file;
 protected ZipFile zipFile;
 protected ZipFile annotationZipFile;
 protected boolean closeZipFileAtEnd;
-protected Hashtable packageCache;
+private Set<String> packageCache;
 protected List<String> annotationPaths;
 protected boolean isJimage;
 
@@ -148,7 +149,7 @@ public boolean hasAnnotationFileFor(String qualifiedTypeName) {
 public char[][][] findTypeNames(final String qualifiedPackageName) {
 	if (!isPackage(qualifiedPackageName))
 		return null; // most common case
-
+	final char[] packageArray = qualifiedPackageName.toCharArray();
 	final ArrayList answers = new ArrayList();
 	if (this.isJimage) {
 		try {
@@ -156,19 +157,20 @@ public char[][][] findTypeNames(final String qualifiedPackageName) {
 
 				@Override
 				public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
-					if (!dir.toString().equals(qualifiedPackageName)) {
-						return FileVisitResult.SKIP_SUBTREE;
+					if (qualifiedPackageName.startsWith(dir.toString())) {
+						return FileVisitResult.CONTINUE;	
 					}
-					return FileVisitResult.CONTINUE;
+					return FileVisitResult.SKIP_SUBTREE;
 				}
 
 				@Override
 				public FileVisitResult visitFile(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
-					char[] packageArray = qualifiedPackageName.toCharArray();
-					answers.add(
-							CharOperation.arrayConcat(
-								CharOperation.splitOn('/', packageArray),
-								dir.toString().toCharArray()));
+					if (!dir.getParent().toString().equals(qualifiedPackageName)) {
+						return FileVisitResult.CONTINUE;
+					}
+					String fileName = dir.getName(dir.getNameCount() - 1).toString();
+					// The path already excludes the folders and all the '/', hence the -1 for last index of '/'
+					addTypeName(answers, fileName, -1, packageArray);
 					return FileVisitResult.CONTINUE;
 				}
 
@@ -177,7 +179,7 @@ public char[][][] findTypeNames(final String qualifiedPackageName) {
 					return FileVisitResult.CONTINUE;
 				}
 
-			});
+			}, JimageUtil.NOTIFY_ALL);
 		} catch (IOException e) {
 			// Ignore and move on
 		}
@@ -187,20 +189,12 @@ public char[][][] findTypeNames(final String qualifiedPackageName) {
 
 			// add the package name & all of its parent packages
 			int last = fileName.lastIndexOf('/');
-			while (last > 0) {
+			if (last > 0) {
 				// extract the package name
 				String packageName = fileName.substring(0, last);
 				if (!qualifiedPackageName.equals(packageName))
 					continue nextEntry;
-				int indexOfDot = fileName.lastIndexOf('.');
-				if (indexOfDot != -1) {
-					String typeName = fileName.substring(last + 1, indexOfDot);
-					char[] packageArray = packageName.toCharArray();
-					answers.add(
-						CharOperation.arrayConcat(
-							CharOperation.splitOn('/', packageArray),
-							typeName.toCharArray()));
-				}
+				addTypeName(answers, fileName, last, packageArray);
 			}
 		}
 	}
@@ -208,9 +202,20 @@ public char[][][] findTypeNames(final String qualifiedPackageName) {
 	if (size != 0) {
 		char[][][] result = new char[size][][];
 		answers.toArray(result);
-		return null;
+		return result;
 	}
 	return null;
+}
+
+protected void addTypeName(final ArrayList answers, String fileName, int last, char[] packageName) {
+	int indexOfDot = fileName.lastIndexOf('.');
+	if (indexOfDot != -1) {
+		String typeName = fileName.substring(last + 1, indexOfDot);
+		answers.add(
+			CharOperation.arrayConcat(
+				CharOperation.splitOn('/', packageName),
+				typeName.toCharArray()));
+	}
 }
 public void initialize() throws IOException {
 	if (this.zipFile == null && !this.isJimage) {
@@ -223,18 +228,18 @@ protected void addToPackageCache(String fileName, boolean endsWithSep) {
 	while (last > 0) {
 		// extract the package name
 		String packageName = fileName.substring(0, last);
-		if (this.packageCache.containsKey(packageName))
+		if (this.packageCache.contains(packageName))
 			return;
-		this.packageCache.put(packageName, packageName);
+		this.packageCache.add(packageName);
 		last = packageName.lastIndexOf('/');
 	}
 }
 public synchronized boolean isPackage(String qualifiedPackageName) {
 	if (this.packageCache != null)
-		return this.packageCache.containsKey(qualifiedPackageName);
+		return this.packageCache.contains(qualifiedPackageName);
 
-	this.packageCache = new Hashtable(41);
-	this.packageCache.put(Util.EMPTY_STRING, Util.EMPTY_STRING);
+	this.packageCache = new HashSet<>(41);
+	this.packageCache.add(Util.EMPTY_STRING);
 	if (this.isJimage) {
 		try {
 			JimageUtil.walkModuleImage(this.file, new JimageUtil.JimageVisitor<java.nio.file.Path>() {
@@ -255,7 +260,7 @@ public synchronized boolean isPackage(String qualifiedPackageName) {
 					return FileVisitResult.CONTINUE;
 				}
 
-			});
+			}, JimageUtil.NOTIFY_PACKAGES);
 		} catch (IOException e) {
 			// Ignore and move on
 		}
@@ -265,7 +270,7 @@ public synchronized boolean isPackage(String qualifiedPackageName) {
 			addToPackageCache(fileName, false);
 		}
 	}
-	return this.packageCache.containsKey(qualifiedPackageName);
+	return this.packageCache.contains(qualifiedPackageName);
 }
 public void reset() {
 	if (this.closeZipFileAtEnd) {
@@ -286,8 +291,10 @@ public void reset() {
 			this.annotationZipFile = null;
 		}
 	}
-	if (!this.isJimage)
+	if (!this.isJimage || this.annotationPaths != null) {
 		this.packageCache = null;
+		this.annotationPaths = null;
+	}
 }
 public String toString() {
 	return "Classpath for jar file " + this.file.getPath(); //$NON-NLS-1$

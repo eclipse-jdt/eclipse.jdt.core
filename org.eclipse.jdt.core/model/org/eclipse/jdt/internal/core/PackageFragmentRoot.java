@@ -482,6 +482,10 @@ protected void getHandleMemento(StringBuffer buff) {
 	((JavaElement)getParent()).getHandleMemento(buff);
 	buff.append(getHandleMementoDelimiter());
 	escapeMementoName(buff, path.toString());
+	if (isModule()) {
+		buff.append(getHandleMementoDelimiter());
+		escapeMementoName(buff, getElementName());
+	}
 }
 /**
  * @see IPackageFragmentRoot

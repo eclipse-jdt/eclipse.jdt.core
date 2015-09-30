@@ -76,7 +76,6 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.LambdaFactory;
 import org.eclipse.jdt.internal.core.LocalVariable;
-import org.eclipse.jdt.internal.core.ModulePackageFragmentRoot;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.PackageFragment;
@@ -256,11 +255,10 @@ public static ClassFileReader classFileReader(IType type) {
 			return Util.newClassFileReader(((JavaElement) type).resource());
 
 		String rootPath = root.getPath().toOSString();
-		if (org.eclipse.jdt.internal.compiler.util.Util.archiveFormat(rootPath) == org.eclipse.jdt.internal.compiler.util.Util.JIMAGE_FILE) {
+		if (root.isModule()) {
 			String classFileName = classFile.getElementName();
 			String path = Util.concatWith(pkg.names, classFileName, '/');
-			String module = root.isModule() ? ((ModulePackageFragmentRoot) root).getElementName() : null;
-			return ClassFileReader.readFromJimage(new File(rootPath), path, module);
+			return ClassFileReader.readFromJimage(new File(rootPath), path, root.getElementName());
 		} else {
 			ZipFile zipFile = null;
 			try {

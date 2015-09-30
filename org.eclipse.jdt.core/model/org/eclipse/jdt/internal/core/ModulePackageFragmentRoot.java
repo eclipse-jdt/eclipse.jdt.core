@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.util.JimageUtil;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -77,7 +78,7 @@ public class ModulePackageFragmentRoot extends JarPackageFragmentRoot {
 					}
 					return FileVisitResult.CONTINUE;
 				}
-			});
+			}, JimageUtil.NOTIFY_ALL);
 		} catch (IOException e) {
 			Util.log(IStatus.ERROR, "Error reading modules" + toStringWithAncestors()); //$NON-NLS-1$
 		}

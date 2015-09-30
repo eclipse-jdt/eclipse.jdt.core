@@ -118,7 +118,7 @@ public class FileSystem implements INameEnvironment, SuffixConstants {
 	protected Classpath[] classpaths;
 	Set knownFileNames;
 	protected boolean annotationsFromClasspath; // should annotation files be read from the classpath (vs. explicit separate path)?
-	private static HashMap<File, Classpath> jimages = null;
+	private static HashMap<File, Classpath> JIMAGES = null;
 
 /*
 	classPathNames is a collection is Strings representing the full path of each class path
@@ -193,14 +193,14 @@ public static Classpath getClasspath(String classpathName, String encoding,
 			} else if (destinationPath == null) {
 				// class file only mode
 				if (format == Util.JIMAGE_FILE) {
-					if (jimages == null) {
-						jimages = new HashMap<>();
+					if (JIMAGES == null) {
+						JIMAGES = new HashMap<>();
 					} else {
-						result = jimages.get(file);
+						result = JIMAGES.get(file);
 					}
 					if (result == null) {
 						result = new ClasspathJar(file, true, accessRuleSet, null, true);
-						jimages.put(file, result);
+						JIMAGES.put(file, result);
 					}
 				} else {
 					result = new ClasspathJar(file, true, accessRuleSet, null, false);

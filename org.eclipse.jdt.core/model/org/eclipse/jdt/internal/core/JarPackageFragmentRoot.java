@@ -14,12 +14,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.IOException;
 import java.net.URL;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -91,36 +88,10 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			// always create the default package
 			rawPackageInfo.put(CharOperation.NO_STRINGS, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
 
-			if (this.isModule()) {
-				try {
-					org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(getPath().toFile(),
-									new org.eclipse.jdt.internal.compiler.util.JimageUtil.JimageVisitor<Path>() {
-						@Override
-						public FileVisitResult visitPackage(Path dir, Path mod, BasicFileAttributes attrs) throws IOException {
-							initRawPackageInfo(rawPackageInfo, dir.toString(), true, compliance);
-							return FileVisitResult.CONTINUE;
-						}
-
-						@Override
-						public FileVisitResult visitFile(Path path, Path mod, BasicFileAttributes attrs) throws IOException {
-							initRawPackageInfo(rawPackageInfo, path.toString(), false, compliance);
-							return FileVisitResult.CONTINUE;
-						}
-
-						@Override
-						public FileVisitResult visitModule(Path mod) throws IOException {
-							return FileVisitResult.CONTINUE;
-						}
-					});
-				} catch (IOException e) {
-					// We are not reading any specific Jimage file, so, move on for now
-				}
-			} else {
-				jar = getJar();
-				for (Enumeration e= jar.entries(); e.hasMoreElements();) {
-					ZipEntry member= (ZipEntry) e.nextElement();
-					initRawPackageInfo(rawPackageInfo, member.getName(), member.isDirectory(), compliance);
-				}
+			jar = getJar();
+			for (Enumeration e= jar.entries(); e.hasMoreElements();) {
+				ZipEntry member= (ZipEntry) e.nextElement();
+				initRawPackageInfo(rawPackageInfo, member.getName(), member.isDirectory(), compliance);
 			}
 			// loop through all of referenced packages, creating package fragments if necessary
 			// and cache the entry names in the rawPackageInfo table
