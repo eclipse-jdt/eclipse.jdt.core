@@ -1308,6 +1308,7 @@ private boolean isLocalDeclaration() {
 }
 protected void parse() {
 	this.diet = true;
+	this.dietInt = 0;
 	super.parse();
 }
 /*
