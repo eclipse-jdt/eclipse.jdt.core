@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -763,7 +763,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		if (this.originalValueIfTrueType == null || this.originalValueIfFalseType == null) // resolution error.
 			return false;
 		
-		if (this.originalValueIfTrueType.kind() == Binding.POLY_TYPE || this.originalValueIfFalseType.kind() == Binding.POLY_TYPE)
+		if (this.valueIfTrue.isPolyExpression() || this.valueIfFalse.isPolyExpression())
 			return true;
 		
 		// "... unless both operands produce primitives (or boxed primitives)":

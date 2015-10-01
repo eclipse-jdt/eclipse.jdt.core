@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBM Corporation and others.
+ * Copyright (c) 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1000,6 +1000,52 @@ public void testBug472648() {
 	"	                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 	"Invalid expression as statement\n" + 
 	"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=473432
+// Internal compiler error: java.lang.IllegalArgumentException: info cannot be null at org.eclipse.jdt.internal.compiler.codegen.StackMapFrame.addStackItem(StackMapFrame.java:81)
+public void testBug473432() {
+	this.runConformTest(new String [] {
+		"Tester.java",
+		"import java.util.function.Function;\n" + 
+		"public class Tester {\n" + 
+		"	private static class ValueWrapper<O> {\n" + 
+		"		private O val_;\n" + 
+		"		public ValueWrapper(O val) {\n" + 
+		"			val_ = val;\n" + 
+		"		}\n" + 
+		"		public <R> R mapOrElse(Function<O, R> func, R defaultValue) {\n" + 
+		"			if(val_ != null) {\n" + 
+		"				return func.apply(val_);\n" + 
+		"			}\n" + 
+		"			return defaultValue;\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"	private static void handleObject(Object object) {\n" + 
+		"		System.out.println(\"Handled: \" + object);\n" + 
+		"	}\n" + 
+		"	public static void main(String[] args) {\n" + 
+		"		ValueWrapper<String> wrapper = new ValueWrapper<>(\"value\");\n" + 
+		"		boolean skipMethod = false;\n" + 
+		"		// works on both JDT 3.9.2 and 3.11.0\n" + 
+		"		Boolean result = skipMethod ? true : wrapper.mapOrElse(v -> false, null);\n" + 
+		"		System.out.println(result);\n" + 
+		"		wrapper = new ValueWrapper<>(null);\n" + 
+		"		// works on JDT 3.9.2\n" + 
+		"		handleObject(skipMethod ?\n" + 
+		"				true :\n" + 
+		"				wrapper.mapOrElse(v -> false, null));\n" + 
+		"		wrapper = new ValueWrapper<>(null);\n" + 
+		"		// works on neither version\n" + 
+		"		result = skipMethod ?\n" + 
+		"				true :\n" + 
+		"				wrapper.mapOrElse(v -> false, null);\n" + 
+		"		System.out.println(result);\n" + 
+		"	}\n" + 
+		"}\n"
+	},
+	"false\n" +
+	"Handled: null\n" +
+	"null");
 }
 public static Class testClass() {
 	return LambdaRegressionTest.class;
