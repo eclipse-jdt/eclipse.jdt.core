@@ -11718,4 +11718,62 @@ public void testBug475793() {
 		"}"
 	);
 }
+/**
+ * https://bugs.eclipse.org/475746 - [formatter] insert-space rules sometimes ignored with anonymous subclass or when Annotations present
+ */
+public void testBug475746() {
+	this.formatterPrefs.insert_new_line_in_empty_block = false;
+	this.formatterPrefs.insert_space_after_opening_paren_in_method_invocation = true;
+	this.formatterPrefs.insert_space_before_closing_paren_in_method_invocation = true;
+	this.formatterPrefs.insert_space_after_opening_paren_in_method_declaration = true;
+	this.formatterPrefs.insert_space_before_closing_paren_in_method_declaration = true;
+	this.formatterPrefs.insert_space_after_opening_paren_in_constructor_declaration = true;
+	this.formatterPrefs.insert_space_before_closing_paren_in_constructor_declaration = true;
+	this.formatterPrefs.insert_space_after_opening_paren_in_annotation = true;
+	this.formatterPrefs.insert_space_before_closing_paren_in_annotation = true;
+	String source =
+		"import java.awt.*;\r\n" + 
+		"\r\n" + 
+		"public class MyClass {\r\n" + 
+		"\r\n" + 
+		"	@Annotation( Arrays.asList( \"\" ))\r\n" + 
+		"	static Point p = new Point( x, y) {\r\n" + 
+		"		@Override\r\n" + 
+		"		public int hashCode( ) {\r\n" + 
+		"			return 42;\r\n" + 
+		"		}\r\n" + 
+		"	};\r\n" + 
+		"\r\n" + 
+		"	MyClass( @Annotation( \"annotationVal\" ) String s)\r\n" + 
+		"	{\r\n" + 
+		"		Foo.bar( ( @Annotation( \"annotationVal\" ) int a) -> { } , IllegalArgumentException.class );\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	public interface I {\r\n" + 
+		"		void m(int a);\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source,
+		"import java.awt.*;\r\n" + 
+		"\r\n" + 
+		"public class MyClass {\r\n" + 
+		"\r\n" + 
+		"	@Annotation( Arrays.asList( \"\" ) )\r\n" + 
+		"	static Point p = new Point( x, y ) {\r\n" + 
+		"		@Override\r\n" + 
+		"		public int hashCode() {\r\n" + 
+		"			return 42;\r\n" + 
+		"		}\r\n" + 
+		"	};\r\n" + 
+		"\r\n" + 
+		"	MyClass( @Annotation( \"annotationVal\" ) String s ) {\r\n" + 
+		"		Foo.bar( ( @Annotation( \"annotationVal\" ) int a ) -> {}, IllegalArgumentException.class );\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	public interface I {\r\n" + 
+		"		void m( int a );\r\n" + 
+		"	}\r\n" + 
+		"}"
+	);
+}
 }
