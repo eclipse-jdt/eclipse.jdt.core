@@ -497,19 +497,17 @@ public class SpacePreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(Block node) {
-		if (node.getParent().getLength() == 0)
+		ASTNode parent = node.getParent();
+		if (parent.getLength() == 0)
 			return true; // this is a fake block created by parsing in statements mode
-		if (node.getParent() instanceof MethodDeclaration)
+		if (parent instanceof MethodDeclaration)
 			return true; // spaces handled in #visit(MethodDeclaration)
 
 		handleToken(node, TokenNameLBRACE, this.options.insert_space_before_opening_brace_in_block, false);
-		if (this.options.insert_space_after_closing_brace_in_block) {
+		if (this.options.insert_space_after_closing_brace_in_block
+				&& (parent instanceof Statement || parent instanceof CatchClause)) {
 			int closeBraceIndex = this.tm.lastIndexIn(node, TokenNameRBRACE);
-			if (closeBraceIndex + 1 < this.tm.size()) {
-				int nextToken = this.tm.get(closeBraceIndex + 1).tokenType;
-				if (nextToken != TokenNameSEMICOLON && nextToken != TokenNameRPAREN)
-					this.tm.get(closeBraceIndex).spaceAfter();
-			}
+			this.tm.get(closeBraceIndex).spaceAfter();
 		}
 		return true;
 	}
