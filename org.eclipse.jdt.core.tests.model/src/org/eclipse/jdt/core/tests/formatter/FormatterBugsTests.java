@@ -11699,4 +11699,23 @@ public void testBug472413() {
 		"}"
 	);
 }
+/**
+ * https://bugs.eclipse.org/475793 - [formatter] Incorrect whitespace after lambda block
+ */
+public void testBug475793() {
+	this.formatterPrefs.insert_new_line_in_empty_block = false;
+	String source =
+		"public class C {\r\n" + 
+		"	public void f() {\r\n" + 
+		"		Foo.bar(() -> {} , IllegalArgumentException.class);\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source,
+		"public class C {\r\n" + 
+		"	public void f() {\r\n" + 
+		"		Foo.bar(() -> {}, IllegalArgumentException.class);\r\n" + 
+		"	}\r\n" + 
+		"}"
+	);
+}
 }
