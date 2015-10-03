@@ -103,14 +103,6 @@ static class JavacCompiler {
 	long compliance;
 	public static final long EXIT_VALUE_MASK = 0x00000000FFFFFFFFL;
 	public static final long ERROR_LOG_MASK =  0xFFFFFFFF00000000L;
-	private static final String[] jarsNames = new String[] {
-		"/lib/vm.jar",
-		"/lib/rt.jar",
-		"/lib/core.jar",
-		"/lib/security.jar",
-		"/lib/xml.jar",
-		"/lib/graphics.jar"
-	};
 	private String classpath;
 	JavacCompiler(String rootDirectoryPath) throws IOException, InterruptedException {
 		this(rootDirectoryPath, null);
@@ -163,11 +155,6 @@ static class JavacCompiler {
 		this.minor = minorFromRawVersion(this.version, rawVersion);
 		this.rawVersion = rawVersion;
 		StringBuffer classpathBuffer = new StringBuffer(" -classpath ");
-		for (int i = 0, l = jarsNames.length; i < l; i++) {
-			classpathBuffer.append(rootDirectoryPath);
-			classpathBuffer.append(jarsNames[i]);
-			classpathBuffer.append(File.pathSeparator);
-		}
 		this.classpath = classpathBuffer.toString();
 	}
 	// projects known raw versions to minors; minors should grow with time, so
@@ -1740,6 +1727,9 @@ protected void runJavac(
 	if (newOptions.indexOf(" -d ") < 0) {
 		options.setCompilerOptions(newOptions.concat(" -d ."));
 	}
+	if (newOptions.indexOf(" -Xlint") < 0) {
+		options.setCompilerOptions(newOptions.concat(" -Xlint"));
+	}
 	String testName = testName();
 	Iterator compilers = javacCompilers.iterator();
 	while (compilers.hasNext()) {
@@ -3017,7 +3007,7 @@ protected void runNegativeTest(
 					version = version.substring(0, eol);
 					cmdLineHeader.append(" -d ");
 					cmdLineHeader.append(JAVAC_OUTPUT_DIR_NAME.indexOf(" ") != -1 ? "\"" + JAVAC_OUTPUT_DIR_NAME + "\"" : JAVAC_OUTPUT_DIR_NAME);
-					cmdLineHeader.append(" -source 1.5 -deprecation -Xlint:unchecked "); // enable recommended warnings
+					cmdLineHeader.append(" -source 1.5 -deprecation -Xlint "); // enable recommended warnings
 					// WORK new javac system does not do that... reconsider
 					// REVIEW consider enabling all warnings instead? Philippe does not see
 					//        this as ez to use (too many changes in logs)
