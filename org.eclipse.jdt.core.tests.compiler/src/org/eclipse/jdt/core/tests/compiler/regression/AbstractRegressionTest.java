@@ -206,6 +206,12 @@ static class JavacCompiler {
 			if ("1.8.0-ea".equals(rawVersion) || ("1.8.0".equals(rawVersion))) {
 				return 0000;
 			}
+			if ("1.8.0_40".equals(rawVersion)) {
+				return 1000; // corresponds to JLS maintenance release 2015-02-13
+			}
+			if ("1.8.0_60".equals(rawVersion)) {
+				return 1500;
+			}
 		}
 		throw new RuntimeException("unknown raw javac version: " + rawVersion);
 	}
