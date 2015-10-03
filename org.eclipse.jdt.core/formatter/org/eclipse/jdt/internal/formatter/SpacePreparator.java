@@ -191,9 +191,10 @@ public class SpacePreparator extends ASTVisitor {
 		} else {
 			handleToken(node.getName(), TokenNameLPAREN, spaceBeforeOpenParen, spaceAfterOpenParen);
 
-			if (node.isConstructor() ? this.options.insert_space_before_closing_paren_in_constructor_declaration
-					: this.options.insert_space_before_closing_paren_in_method_declaration)
-				handleToken(node.getName(), TokenNameRPAREN, true, false);
+			boolean spaceBeforeCloseParen = node.isConstructor()
+					? this.options.insert_space_before_closing_paren_in_constructor_declaration
+					: this.options.insert_space_before_closing_paren_in_method_declaration;
+			handleTokenBefore(node.getBody(), TokenNameRPAREN, spaceBeforeCloseParen, false);
 		}
 
 		if ((node.isConstructor() ? this.options.insert_space_before_opening_brace_in_constructor_declaration
@@ -464,7 +465,8 @@ public class SpacePreparator extends ASTVisitor {
 		if (handleParenthesis) {
 			handleToken(node, TokenNameLPAREN, this.options.insert_space_before_opening_paren_in_annotation,
 					this.options.insert_space_after_opening_paren_in_annotation);
-			handleToken(node, TokenNameRPAREN, this.options.insert_space_before_closing_paren_in_annotation, false);
+			if (this.options.insert_space_before_closing_paren_in_annotation)
+				this.tm.lastTokenIn(node, TokenNameRPAREN).spaceBefore();
 		}
 
 		ASTNode parent = node.getParent();
@@ -486,7 +488,7 @@ public class SpacePreparator extends ASTVisitor {
 						this.options.insert_space_before_opening_paren_in_method_declaration,
 						this.options.insert_space_after_opening_paren_in_method_declaration);
 
-				handleToken(node, TokenNameRPAREN,
+				handleTokenBefore(node.getBody(), TokenNameRPAREN,
 						this.options.insert_space_before_closing_paren_in_method_declaration, false);
 			}
 			handleCommas(parameters, this.options.insert_space_before_comma_in_method_declaration_parameters,
@@ -599,7 +601,7 @@ public class SpacePreparator extends ASTVisitor {
 	public boolean visit(ClassInstanceCreation node) {
 		List<Type> typeArguments = node.typeArguments();
 		handleTypeArguments(typeArguments);
-		handleInvocation(node, node.getType());
+		handleInvocation(node, node.getType(), node.getAnonymousClassDeclaration());
 		if (!typeArguments.isEmpty()) {
 			handleTokenBefore(typeArguments.get(0), TokenNamenew, false, true); // fix for: new<Integer>A<String>()
 		}
@@ -629,6 +631,11 @@ public class SpacePreparator extends ASTVisitor {
 	}
 
 	private void handleInvocation(ASTNode invocationNode, ASTNode nodeBeforeOpeningParen) {
+		handleInvocation(invocationNode, nodeBeforeOpeningParen, null);
+	}
+
+	private void handleInvocation(ASTNode invocationNode, ASTNode nodeBeforeOpeningParen,
+			ASTNode nodeAfterClosingParen) {
 		if (handleEmptyParens(nodeBeforeOpeningParen,
 				this.options.insert_space_between_empty_parens_in_method_invocation)) {
 			handleToken(nodeBeforeOpeningParen, TokenNameLPAREN,
@@ -638,7 +645,10 @@ public class SpacePreparator extends ASTVisitor {
 					this.options.insert_space_before_opening_paren_in_method_invocation,
 					this.options.insert_space_after_opening_paren_in_method_invocation);
 			if (this.options.insert_space_before_closing_paren_in_method_invocation) {
-				this.tm.lastTokenIn(invocationNode, TokenNameRPAREN).spaceBefore();
+				Token closingParen = nodeAfterClosingParen == null
+						? this.tm.lastTokenIn(invocationNode, TokenNameRPAREN)
+						: this.tm.firstTokenBefore(nodeAfterClosingParen, TokenNameRPAREN);
+				closingParen.spaceBefore();
 			}
 		}
 	}
