@@ -153,7 +153,7 @@ public class TextEditsBuilder extends TokenTraverser {
 			if (getLineBreaksBefore() > 1) {
 				Token indentToken = null;
 				if (this.options.indent_empty_lines && token.tokenType != TokenNameNotAToken)
-					indentToken = token.getIndent() > getPrevious().getIndent() ? token : getPrevious();
+					indentToken = (index == 0 || token.getIndent() > getPrevious().getIndent()) ? token : getPrevious();
 				for (int i = 1; i < getLineBreaksBefore(); i++) {
 					bufferLineSeparator(token, true);
 					if (indentToken != null)
