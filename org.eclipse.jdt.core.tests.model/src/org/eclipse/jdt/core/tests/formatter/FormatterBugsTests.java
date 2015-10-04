@@ -11793,4 +11793,19 @@ public void testBug475746() {
 		"}"
 	);
 }
+/**
+ * https://bugs.eclipse.org/477005 - [formatter] NullPointerException when first line is empty and indented
+ */
+public void testBug477005() {
+	this.formatterPrefs.indent_empty_lines = true;
+	this.formatterPrefs.blank_lines_before_package = 2;
+	String source =
+		"\r\n" + 
+		"\r\n" + 
+		"package test;\r\n" + 
+		"\r\n" + 
+		"public class MyClass {\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
