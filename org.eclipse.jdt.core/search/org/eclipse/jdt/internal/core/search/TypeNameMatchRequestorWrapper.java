@@ -9,6 +9,10 @@
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for bug 215139
@@ -156,7 +160,7 @@ private IType createTypeFromJar(String resourcePath, int separatorIndex) throws 
 	if (this.lastPkgFragmentRootPath == null
 			|| this.lastPkgFragmentRootPath.length() > resourcePath.length()
 			|| !resourcePath.startsWith(this.lastPkgFragmentRootPath)) {
-		String jarPath= resourcePath.substring(0, separatorIndex);
+		String jarPath= resourcePath.substring(0, separatorIndex); 
 		IPackageFragmentRoot root= ((AbstractJavaSearchScope)this.scope).packageFragmentRoot(resourcePath, separatorIndex, jarPath);
 		if (root == null) return null;
 		this.lastPkgFragmentRootPath= jarPath;
@@ -165,6 +169,9 @@ private IType createTypeFromJar(String resourcePath, int separatorIndex) throws 
 	}
 	// create handle
 	String classFilePath= resourcePath.substring(separatorIndex + 1);
+	int actualClassIndexSeparator = classFilePath.indexOf(IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR);
+	String moduleName = actualClassIndexSeparator == -1 ? null : classFilePath.substring(0, actualClassIndexSeparator);
+	classFilePath = moduleName != null ? classFilePath.substring(actualClassIndexSeparator + 1, classFilePath.length()) : classFilePath;
 	String[] simpleNames = new Path(classFilePath).segments();
 	String[] pkgName;
 	int length = simpleNames.length-1;
@@ -176,7 +183,7 @@ private IType createTypeFromJar(String resourcePath, int separatorIndex) throws 
 	}
 	IPackageFragment pkgFragment= (IPackageFragment) this.packageHandles.get(pkgName);
 	if (pkgFragment == null) {
-		pkgFragment= ((PackageFragmentRoot) this.lastPkgFragmentRoot).getPackageFragment(pkgName, null);
+		pkgFragment= ((PackageFragmentRoot) this.lastPkgFragmentRoot).getPackageFragment(pkgName, moduleName); //BUG 478143
 		// filter org.apache.commons.lang.enum package for projects above 1.5 
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=317264
 		if (length == 5 && pkgName[4].equals("enum")) { //$NON-NLS-1$

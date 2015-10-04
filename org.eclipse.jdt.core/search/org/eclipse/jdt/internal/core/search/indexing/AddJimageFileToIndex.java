@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -148,7 +148,7 @@ public class AddJimageFileToIndex extends IndexRequest {
 				try {
 					String fullPath = path.toString();
 					final byte[] classFileBytes = JimageUtil.getClassfileContent(this.jimage, fullPath, mod.toString());
-					String docFullPath =  this.container.toString() + JAR_SEPARATOR + fullPath;
+					String docFullPath =  this.container.toString() + JAR_SEPARATOR + mod.toString() + JAR_SEPARATOR + fullPath;
 					JavaSearchDocument entryDocument = new JavaSearchDocument(docFullPath, classFileBytes, this.participant);
 					this.indexManager.indexDocument(entryDocument, this.participant, this.index, this.indexPath);
 				} catch (IOException e) {

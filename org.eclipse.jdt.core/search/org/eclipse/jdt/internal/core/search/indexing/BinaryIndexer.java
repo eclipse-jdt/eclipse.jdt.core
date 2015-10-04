@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -633,6 +637,10 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			final String path = this.document.getPath();
 			ClassFileReader reader = new ClassFileReader(contents, path == null ? null : path.toCharArray());
 
+			//extract the module name
+			String[] pathParts = path.split("\\|"); //$NON-NLS-1$
+			char[] moduleName = pathParts != null && pathParts.length > 2 ? pathParts[1].toCharArray() : null;
+
 			// first add type references
 			char[] className = replace('/', '.', reader.getName()); // looks like java/lang/String
 			// need to extract the package name and the simple name
@@ -685,17 +693,17 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			switch (TypeDeclaration.kind(modifiers)) {
 				case TypeDeclaration.CLASS_DECL :
 					char[] superclass = replace('/', '.', reader.getSuperclassName());
-					addClassDeclaration(modifiers, packageName, name, enclosingTypeNames, superclass, superinterfaces, typeParameterSignatures, false);
+					addClassDeclaration(modifiers, packageName, name, enclosingTypeNames, superclass, superinterfaces, typeParameterSignatures, false, moduleName);
 					break;
 				case TypeDeclaration.INTERFACE_DECL :
-					addInterfaceDeclaration(modifiers, packageName, name, enclosingTypeNames, superinterfaces, typeParameterSignatures, false);
+					addInterfaceDeclaration(modifiers, packageName, name, enclosingTypeNames, superinterfaces, typeParameterSignatures, false, moduleName);
 					break;
 				case TypeDeclaration.ENUM_DECL :
 					superclass = replace('/', '.', reader.getSuperclassName());
-					addEnumDeclaration(modifiers, packageName, name, enclosingTypeNames, superclass, superinterfaces, false);
+					addEnumDeclaration(modifiers, packageName, name, enclosingTypeNames, superclass, superinterfaces, false, moduleName);
 					break;
 				case TypeDeclaration.ANNOTATION_TYPE_DECL :
-					addAnnotationTypeDeclaration(modifiers, packageName, name, enclosingTypeNames, false);
+					addAnnotationTypeDeclaration(modifiers, packageName, name, enclosingTypeNames, false, moduleName);
 					break;
 			}
 
