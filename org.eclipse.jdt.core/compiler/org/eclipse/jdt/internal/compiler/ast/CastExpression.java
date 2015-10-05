@@ -447,7 +447,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		if (valueRequired || needRuntimeCheckcast || annotatedCast) { // Added for: 1F1W9IG: IVJCOM:WINNT - Compiler omits casting check
 			codeStream.generateConstant(this.constant, this.implicitConversion);
 			if (needRuntimeCheckcast || annotatedCast) {
-				codeStream.checkcast(this.type, this.resolvedType);
+				codeStream.checkcast(this.type, this.resolvedType, pc);
 			}
 			if (!valueRequired) {
 				// the resolveType cannot be double or long
@@ -459,7 +459,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 	this.expression.generateCode(currentScope, codeStream, annotatedCast || valueRequired || needRuntimeCheckcast);
 	if (annotatedCast || (needRuntimeCheckcast && TypeBinding.notEquals(this.expression.postConversionType(currentScope), this.resolvedType.erasure()))) { // no need to issue a checkcast if already done as genericCast
-		codeStream.checkcast(this.type, this.resolvedType);
+		codeStream.checkcast(this.type, this.resolvedType, pc);
 	}
 	if (valueRequired) {
 		codeStream.generateImplicitConversion(this.implicitConversion);

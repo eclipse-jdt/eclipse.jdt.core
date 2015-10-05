@@ -656,10 +656,10 @@ public void checkcast(int baseId) {
 }
 
 public void checkcast(TypeBinding typeBinding) {
-	this.checkcast(null, typeBinding);
+	this.checkcast(null, typeBinding, -1);
 }
 
-public void checkcast(TypeReference typeReference, TypeBinding typeBinding) {
+public void checkcast(TypeReference typeReference, TypeBinding typeBinding, int currentPosition) {
 	this.countLabels = 0;
 	if (this.classFileOffset + 2 >= this.bCodeStream.length) {
 		resizeByteArray();

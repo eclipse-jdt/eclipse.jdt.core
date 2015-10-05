@@ -11480,4 +11480,120 @@ public void testBug469584() {
 		"Type mismatch: cannot convert from RetentionPolicy[] to RetentionPolicy\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=472178 
+public void test472178() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		return; // Enough to run in 3 levels rather!
+	}
+	String source =
+			"import java.lang.annotation.ElementType;\n" + 
+			"import java.lang.annotation.Retention;\n" + 
+			"import java.lang.annotation.RetentionPolicy;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Iterator;\n" + 
+			" \n" + 
+			"/**\n" + 
+			" * @author gglab\n" + 
+			" */\n" + 
+			"public class Test<X> extends ArrayList<X> {\n" + 
+			"    public void iterateRemove()\n" + 
+			"    {\n" + 
+			"        for (Iterator<X> iter = this.iterator(); iter.hasNext();) {\n" + 
+			"            Object key = iter.next();\n" + 
+			"            @Flowannotation\n" + 
+			"            Foo<@Flowannotation String> f = new Foo<String>();\n" + 
+			"            @Flowannotation long l = (@Flowannotation long)f.getI(); // this line causes parse error\n" + 
+			"            iter.remove();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			" \n" + 
+			"    @Flowannotation\n" + 
+			"    class Foo<@Flowannotation T>\n" + 
+			"    {\n" + 
+			"        @Flowannotation\n" + 
+			"        public int getI()\n" + 
+			"        {\n" + 
+			"            return 3;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			" \n" + 
+			"    @Target({ ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.METHOD, ElementType.LOCAL_VARIABLE,           ElementType.TYPE, ElementType.FIELD,\n" + 
+			"            ElementType.TYPE_PARAMETER, ElementType.TYPE_USE})\n" + 
+			"    @Retention(RetentionPolicy.RUNTIME)\n" + 
+			"    @interface Flowannotation {}\n" + 
+			"    public static void main(String[] args) {}\n" + 
+			"}";
+	String expectedOutput =
+			"  // Method descriptor #6 ()V\n" + 
+			"  // Stack: 3, Locals: 6\n" + 
+			"  public void iterateRemove();\n" + 
+			"     0  aload_0 [this]\n" + 
+			"     1  invokevirtual Test.iterator() : Iterator [17]\n" + 
+			"     4  astore_1 [iter]\n" + 
+			"     5  goto 37\n" + 
+			"     8  aload_1 [iter]\n" + 
+			"     9  invokeinterface Iterator.next() : Object [21] [nargs: 1]\n" + 
+			"    14  astore_2 [key]\n" + 
+			"    15  new Test$Foo [27]\n" + 
+			"    18  dup\n" + 
+			"    19  aload_0 [this]\n" + 
+			"    20  invokespecial Test$Foo(Test) [29]\n" + 
+			"    23  astore_3 [f]\n" + 
+			"    24  aload_3 [f]\n" + 
+			"    25  invokevirtual Test$Foo.getI() : int [32]\n" + 
+			"    28  i2l\n" + 
+			"    29  lstore 4 [l]\n" + 
+			"    31  aload_1 [iter]\n" + 
+			"    32  invokeinterface Iterator.remove() : void [36] [nargs: 1]\n" + 
+			"    37  aload_1 [iter]\n" + 
+			"    38  invokeinterface Iterator.hasNext() : boolean [39] [nargs: 1]\n" + 
+			"    43  ifne 8\n" + 
+			"    46  return\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 14]\n" + 
+			"        [pc: 8, line: 15]\n" + 
+			"        [pc: 15, line: 17]\n" + 
+			"        [pc: 24, line: 18]\n" + 
+			"        [pc: 31, line: 19]\n" + 
+			"        [pc: 37, line: 14]\n" + 
+			"        [pc: 46, line: 21]\n" + 
+			"      Local variable table:\n" + 
+			"        [pc: 0, pc: 47] local: this index: 0 type: Test\n" + 
+			"        [pc: 5, pc: 46] local: iter index: 1 type: Iterator\n" + 
+			"        [pc: 15, pc: 37] local: key index: 2 type: Object\n" + 
+			"        [pc: 24, pc: 37] local: f index: 3 type: Foo\n" + 
+			"        [pc: 31, pc: 37] local: l index: 4 type: long\n" + 
+			"      Local variable type table:\n" + 
+			"        [pc: 0, pc: 47] local: this index: 0 type: Test<X>\n" + 
+			"        [pc: 5, pc: 46] local: iter index: 1 type: Iterator<X>\n" + 
+			"        [pc: 24, pc: 37] local: f index: 3 type: String>\n" + 
+			"      Stack map table: number of frames 2\n" + 
+			"        [pc: 8, append: {Iterator}]\n" + 
+			"        [pc: 37, same]\n" + 
+			"    RuntimeVisibleTypeAnnotations: \n" + 
+			"      #55 @Flowannotation(\n" + 
+			"        target type = 0x47 CAST\n" + 
+			"        offset = 24\n" + 
+			"        type argument index = 0\n" + 
+			"      )\n" + 
+			"      #55 @Flowannotation(\n" + 
+			"        target type = 0x40 LOCAL_VARIABLE\n" + 
+			"        local variable entries:\n" + 
+			"          [pc: 24, pc: 37] index: 3\n" + 
+			"        location = [INNER_TYPE]\n" + 
+			"      )\n" + 
+			"      #55 @Flowannotation(\n" + 
+			"        target type = 0x40 LOCAL_VARIABLE\n" + 
+			"        local variable entries:\n" + 
+			"          [pc: 24, pc: 37] index: 3\n" + 
+			"        location = [INNER_TYPE, TYPE_ARGUMENT(0)]\n" + 
+			"      )\n" + 
+			"      #55 @Flowannotation(\n" + 
+			"        target type = 0x40 LOCAL_VARIABLE\n" + 
+			"        local variable entries:\n" + 
+			"          [pc: 31, pc: 37] index: 4\n" + 
+			"      )\n";
+	checkClassFile("Test", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+}
 }
