@@ -4969,14 +4969,14 @@ public void test447119c() {
 				"        SerializableFunction<List<String>, List<String>> f = X::foo;\n" +
 				"        Method[] methods = X.class.getDeclaredMethods();\n" +
 				"        for (Method m : methods) {\n" +
-				"        	if (m.getName().contains(\"lambda\")) {\n" +
+				"        	if (m.getName().contains(\"foo\")) {\n" +
 				"        		System.out.println(\"- \" + m.getGenericReturnType() + \" \" + m.getName() + \"(\" + Arrays.asList(m.getGenericParameterTypes()) + \")\");\n" +
 				"        	}\n" +
 				"        }\n" +
 				"    }\n" +
 				"}\n"
 			},
-			"- java.util.List<java.lang.String> lambda$0([java.util.List<java.lang.String>])");
+			"- java.util.List<java.lang.String> foo([java.util.List<java.lang.String>])");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression) 
 public void test447119d() {
@@ -5017,9 +5017,9 @@ public void test447119d() {
 				"	}\n" +
 				"}\n"
 			},
-			"Lambda binds to: X.lambda$0\n" + 
+			"Lambda binds to: X.noop\n" + 
 			"Methods (with generics):\n" + 
-			"[- java.util.List<java.lang.String> lambda$0(java.util.List<java.lang.String>), - java.util.List<java.lang.String> noop(java.util.List<java.lang.String>)]",
+			"[- java.util.List<java.lang.String> noop(java.util.List<java.lang.String>)]",
 			null,
 			true,
 			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.

@@ -60,6 +60,7 @@ import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -615,17 +616,47 @@ public SyntheticMethodBinding addSyntheticMethod(LambdaExpression lambda) {
 	
 	// Create a $deserializeLambda$ method if necessary, one is shared amongst all lambdas
 	if (lambda.isSerializable) {
-		SyntheticMethodBinding[] deserializeLambdaMethods = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(TypeConstants.DESERIALIZE_LAMBDA);
-		if (deserializeLambdaMethods == null) {
-			SyntheticMethodBinding deserializeLambdaMethod = new SyntheticMethodBinding(this);
-			this.synthetics[SourceTypeBinding.METHOD_EMUL].put(TypeConstants.DESERIALIZE_LAMBDA,deserializeLambdaMethods = new SyntheticMethodBinding[1]);
-			deserializeLambdaMethods[0] = deserializeLambdaMethod;
-		}
+		addDeserializeLambdaMethod();
 	}
 	
 	return lambdaMethod;
 }
+/*
+ * Add a synthetic method for the reference expression as a place holder for code generation
+ * only if the reference expression's target is serializable 
+ * 
+ */
+public SyntheticMethodBinding addSyntheticMethod(ReferenceExpression ref) {
+	if (!isPrototype()) throw new IllegalStateException();
+	if (!ref.isSerializable)
+		return null;
+	if (this.synthetics == null)
+		this.synthetics = new HashMap[MAX_SYNTHETICS];
+	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+	
+	SyntheticMethodBinding lambdaMethod = null;
+	SyntheticMethodBinding[] lambdaMethods = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(ref);
+	if (lambdaMethods == null) {
+		lambdaMethod = new SyntheticMethodBinding(ref, this);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL].put(ref, lambdaMethods = new SyntheticMethodBinding[1]);
+		lambdaMethods[0] = lambdaMethod;
+	} else {
+		lambdaMethod = lambdaMethods[0];
+	}
 
+	// Create a $deserializeLambda$ method, one is shared amongst all lambdas
+	addDeserializeLambdaMethod();	
+	return lambdaMethod;
+}
+private void addDeserializeLambdaMethod() {
+	SyntheticMethodBinding[] deserializeLambdaMethods = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(TypeConstants.DESERIALIZE_LAMBDA);
+	if (deserializeLambdaMethods == null) {
+		SyntheticMethodBinding deserializeLambdaMethod = new SyntheticMethodBinding(this);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL].put(TypeConstants.DESERIALIZE_LAMBDA,deserializeLambdaMethods = new SyntheticMethodBinding[1]);
+		deserializeLambdaMethods[0] = deserializeLambdaMethod;
+	}
+}
 /* Add a new synthetic access method for access to <targetMethod>.
  * Must distinguish access method used for super access from others (need to use invokespecial bytecode)
 	Answer the new method or the existing method if one already existed.

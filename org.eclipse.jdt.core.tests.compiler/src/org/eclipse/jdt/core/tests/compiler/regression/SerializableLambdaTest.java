@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 GoPivotal, Inc. All Rights Reserved.
+ * Copyright (c) 2014, 2016 GoPivotal, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@
  *        Olivier Tardieu tardieu@us.ibm.com - Contributions for
  *                          Bug 442416 - $deserializeLambda$ missing cases for nested lambdas
  *                          Bug 442418 - $deserializeLambda$ off-by-one error when deserializing the captured arguments of a lambda that also capture this
+ *        IBM Corporation - Additional tests
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -1532,7 +1533,254 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 				null,true,
 				new String[]{"-Ddummy"}); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 	}
-	
+
+	public void testbug479119() {
+		this.runConformTest(
+			new String[]{
+				"Testbed.java",
+				"import java.io.ObjectStreamClass;\n" + 
+				"import java.io.Serializable;\n" + 
+				"import java.lang.invoke.SerializedLambda;\n" + 
+				"import java.lang.reflect.Method;\n" + 
+				"import java.util.function.IntFunction;\n" + 
+				"import java.util.stream.Stream;\n" + 
+				"public class Testbed {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(getMethod(Testbed::foo).equals(getMethod(Testbed::foo)));\n" + 
+				"	}\n" + 
+				"	private static void foo() { }\n" + 
+				"	static interface MethodRef extends Runnable, Serializable { }\n" + 
+				"	private static Method getMethod(MethodRef methodRef) {\n" + 
+				"		try {\n" + 
+				"			final Method invokeWriteReplaceMethod = ObjectStreamClass.class.getDeclaredMethod(\"invokeWriteReplace\", Object.class);\n" + 
+				"			invokeWriteReplaceMethod.setAccessible(true);\n" + 
+				"			final SerializedLambda l = (SerializedLambda)invokeWriteReplaceMethod.invoke(\n" + 
+				"					ObjectStreamClass.lookupAny(methodRef.getClass()),\n" + 
+				"					methodRef\n" + 
+				"				);\n" + 
+				"			System.out.println(\"Looking for \" + l.getImplClass() + \".\" + l.getImplMethodName());\n" + 
+				"			final Method[] methods = Stream.of(Class.forName(l.getImplClass()).getDeclaredMethods()).\n" + 
+				"				filter(m -> m.getName().equals(l.getImplMethodName())).\n" + 
+				"				toArray(Method[]::new);\n" + 
+				"			if(methods.length != 1) throw new AssertionError(\"TODO: check signature\");\n" + 
+				"			return methods[0];\n" + 
+				"		} catch(Exception e) {\n" + 
+				"			throw new RuntimeException(e);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+		},
+		"Looking for Testbed.foo\n" +
+		"Looking for Testbed.foo\n" +
+		"true",
+		null,true,
+		new String[]{"-Ddummy"});
+		
+		String bootstrapEntries = printBootstrapMethodsAttribute(OUTPUT_DIR + File.separator + "Testbed.class");
+		String expectedOutput = 
+				"0: invokestatic java/lang/invoke/LambdaMetafactory.altMetafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;\n"+
+				"  Method arguments:\n"+
+				"    ()V\n"+
+				"    invokestatic Testbed.foo:()V\n"+
+				"    ()V\n"+
+				"    1\n"+
+				"1: invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n"+
+				"  Method arguments:\n"+
+				"    (Ljava/lang/Object;)Z\n"+
+				"    invokestatic Testbed.lambda$0:(Ljava/lang/invoke/SerializedLambda;Ljava/lang/reflect/Method;)Z\n"+
+				"    (Ljava/lang/reflect/Method;)Z\n"+
+				"2: invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n"+
+				"  Method arguments:\n"+
+				"    (I)Ljava/lang/Object;\n"+
+				"    invokestatic Testbed.lambda$1:(I)[Ljava/lang/reflect/Method;\n"+
+				"    (I)[Ljava/lang/reflect/Method;\n";
+
+		checkExpected(expectedOutput, bootstrapEntries);
+	}
+
+	public void testbug479119a() {
+		this.runConformTest(
+			new String[]{
+				"Testbed.java",
+				"import java.io.ObjectStreamClass;\n" + 
+				"import java.io.Serializable;\n" + 
+				"import java.lang.invoke.SerializedLambda;\n" + 
+				"import java.lang.reflect.Constructor;\n" + 
+				"import java.lang.reflect.Executable;\n" + 
+				"import java.lang.reflect.Method;\n" + 
+				"import java.util.function.IntFunction;\n" + 
+				"import java.util.stream.Stream;\n" + 
+				"public class Testbed {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		System.out.println(getMethod(Testbed::foo).equals(getMethod(Testbed::foo)));\n" + 
+				"		System.out.println(getMethod(new Foo()::method).equals(getMethod(new Bar()::method)));\n" + 
+				"		System.out.println(getMethod(MethodRefImpl::new).equals(getMethod(MethodRefImpl::new)));\n" + 
+				"	}\n" + 
+				"	static class MethodRefImpl implements MethodRef {\n" + 
+				"		@Override\n" + 
+				"		public void run() {}\n" + 
+				"	}\n" + 
+				"	public static class Base {\n" + 
+				"        public void method () {}\n" + 
+				"    }\n" + 
+				"    public static class Foo extends Base {}\n" + 
+				"    public static class Bar extends Base {}\n" + 
+				"	private static void foo() { }\n" + 
+				"	static interface MethodRef extends Runnable, Serializable { }\n" + 
+				"	private static Executable getMethod(MethodRef methodRef) {\n" + 
+				"		try {\n" + 
+				"			final Method invokeWriteReplaceMethod = ObjectStreamClass.class.getDeclaredMethod(\"invokeWriteReplace\", Object.class);\n" + 
+				"			invokeWriteReplaceMethod.setAccessible(true);\n" + 
+				"			final SerializedLambda l = (SerializedLambda)invokeWriteReplaceMethod.invoke(\n" + 
+				"					ObjectStreamClass.lookupAny(methodRef.getClass()),\n" + 
+				"					methodRef\n" + 
+				"				);\n" + 
+				"			System.out.println(\"Looking for \" + l.getImplClass() + \".\" + l.getImplMethodName());\n" + 
+				"			boolean isConstructor = l.getImplMethodName().indexOf(\"<init>\") >= 0;\n" + 
+				"			final Executable[] methods = Stream.of(isConstructor ? Class.forName(l.getImplClass()).getDeclaredConstructors() : Class.forName(l.getImplClass()).getDeclaredMethods()).\n" + 
+				"				filter(m -> m.getName().equals(isConstructor ? l.getImplClass() : l.getImplMethodName())).\n" + 
+				"				toArray(isConstructor ? Constructor[]::new : Method[]::new);\n" + 
+				"			if(methods.length != 1) throw new AssertionError(\"TODO: check signature\");\n" + 
+				"			return methods[0];\n" + 
+				"		} catch(Exception e) {\n" + 
+				"			throw new RuntimeException(e);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}\n"
+		},
+		"Looking for Testbed.foo\n" +
+		"Looking for Testbed.foo\n" +
+		"true\n" +
+		"Looking for Testbed$Base.method\n" +
+		"Looking for Testbed$Base.method\n" +
+		"true\n" +
+		"Looking for Testbed$MethodRefImpl.<init>\n" +
+		"Looking for Testbed$MethodRefImpl.<init>\n" +
+		"true",
+		null,true,
+		new String[]{"-Ddummy"});
+	}
+
+	// Serializable reference expressions that share the same name
+	public void testbug479119b() {
+		this.runConformTest(
+			new String[]{
+				"X.java",
+				"import java.io.ByteArrayInputStream;\n" + 
+				"import java.io.ByteArrayOutputStream;\n" + 
+				"import java.io.IOException;\n" + 
+				"import java.io.ObjectInputStream;\n" + 
+				"import java.io.ObjectOutputStream;\n" + 
+				"import java.io.Serializable;\n" + 
+				"public class X {\n" + 
+				"    public static interface Consumer<T> extends Serializable {\n" + 
+				"        void accept(T t);\n" + 
+				"    }\n" + 
+				"    public static class Foo {\n" + 
+				"    	public void method () {\n" + 
+				"        	System.out.println(\"Foo\");\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"    public static class Bar {\n" + 
+				"    	public void method () {\n" + 
+				"        	System.out.println(\"Bar\");\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"    public static void main (String[] args) throws IOException, ClassNotFoundException {\n" + 
+				"        Consumer<Foo> foo = Foo::method;\n" + 
+				"        Consumer<Bar> bar = Bar::method;\n" + 
+				"        Consumer<Foo> baz = (b) -> {b.method();};\n" + 
+				"        ByteArrayOutputStream debug=new ByteArrayOutputStream();\n" + 
+				"		try(ObjectOutputStream oo=new ObjectOutputStream(debug)) {\n" + 
+				"			oo.writeObject(bar);\n" + 
+				"		}\n" + 
+				"		try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray()))) {\n" + 
+				"			Consumer<Bar> x = (Consumer)oi.readObject();\n" + 
+				"			x.accept(new Bar());\n" + 
+				"		}\n" + 
+				"		debug.reset();\n" + 
+				"		try(ObjectOutputStream oo=new ObjectOutputStream(debug)) {\n" + 
+				"			oo.writeObject(foo);\n" + 
+				"		}\n" + 
+				"		try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray()))) {\n" + 
+				"			Consumer<Foo> x = (Consumer)oi.readObject();\n" + 
+				"			x.accept(new Foo());\n" + 
+				"		}\n" + 
+				"    }\n" + 
+				"}\n"
+		},
+		"Bar\n" +
+		"Foo",
+		null,true,
+		new String[]{"-Ddummy"});
+	}
+	public void testbug479119_comment20() {
+		this.runConformTest(
+			new String[]{
+				"Testbed.java",
+				"import java.io.ByteArrayInputStream;\n" + 
+				"import java.io.ByteArrayOutputStream;\n" + 
+				"import java.io.IOException;\n" + 
+				"import java.io.ObjectInputStream;\n" + 
+				"import java.io.ObjectOutputStream;\n" + 
+				"import java.io.Serializable;\n" + 
+				"interface FI extends Serializable{\n" + 
+				"	void run(Testbed args);\n" + 
+				"}\n" + 
+				"interface IF extends Serializable{\n" + 
+				"	void run();\n" + 
+				"}\n" + 
+				"public class Testbed implements Serializable{\n" + 
+				"	String f;\n" + 
+				"	Testbed(String str) {\n" + 
+				"		f = str;\n" + 
+				"	}\n" + 
+				"	void test() throws IOException, ClassNotFoundException {\n" + 
+				"		accept(Testbed::foo);\n" + 
+				"		accept(this::foo);		\n" + 
+				"	}\n" + 
+				"	void foo() {\n" + 
+				"		System.out.println(this.f);\n" + 
+				"	}\n" + 
+				"	void accept(FI fi) {\n" + 
+				"		fi.run(this);\n" + 
+				"	}\n" + 
+				"	void accept(IF i) {\n" + 
+				"		i.run();\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) throws ClassNotFoundException, IOException {\n" + 
+				"		Testbed t = new Testbed(\"IF\");\n" + 
+				"		Testbed t2 = new Testbed(\"FI\");\n" + 
+				"		IF i = t::foo;\n" + 
+				"		FI f = Testbed::foo;\n" + 
+				"		ByteArrayOutputStream debug=new ByteArrayOutputStream();\n" + 
+				"		try(ObjectOutputStream oo=new ObjectOutputStream(debug))\n" + 
+				"		{\n" + 
+				"			oo.writeObject(i);\n" + 
+				"		}\n" + 
+				"		try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray())))\n" + 
+				"		{\n" + 
+				"			IF x = (IF)oi.readObject();\n" + 
+				"			t.accept(x);\n" + 
+				"		}\n" + 
+				"		debug=new ByteArrayOutputStream();\n" + 
+				"		try(ObjectOutputStream oo=new ObjectOutputStream(debug))\n" + 
+				"		{\n" + 
+				"			oo.writeObject(f);\n" + 
+				"		}\n" + 
+				"		try(ObjectInputStream oi=new ObjectInputStream(new ByteArrayInputStream(debug.toByteArray())))\n" + 
+				"		{\n" + 
+				"			FI x = (FI)oi.readObject();\n" + 
+				"			t2.accept(x);\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+		},
+		"IF\n" +
+		"FI",
+		null,true,
+		new String[]{"-Ddummy"});
+	}
 	// ---
 	
 	private void checkExpected(String expected, String actual) {

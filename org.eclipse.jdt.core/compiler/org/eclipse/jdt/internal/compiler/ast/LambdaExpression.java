@@ -110,7 +110,6 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	boolean voidCompatible = true;
 	boolean valueCompatible = false;
 	boolean returnsValue;
-	public boolean isSerializable;
 	private boolean requiresGenericSignature;
 	boolean returnsVoid;
 	public LambdaExpression original = this;
@@ -433,18 +432,6 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		    */
 			if (!this.returnsVoid && !this.returnsValue)
 				this.valueCompatible = this.body.doesNotCompleteNormally();
-		}
-		if (this.expectedType instanceof IntersectionTypeBinding18) {
-			ReferenceBinding[] intersectingTypes =  ((IntersectionTypeBinding18)this.expectedType).intersectingTypes;
-			for (int t = 0, max = intersectingTypes.length; t < max; t++) {
-				if (intersectingTypes[t].findSuperTypeOriginatingFrom(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null) {
-					this.isSerializable = true;
-					break;
-				}
-			}
-		} else if (this.expectedType != null && 
-				   this.expectedType.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null) {
-			this.isSerializable = true;
 		}
 		if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
 			this.scope.problemReporter().missingTypeInLambda(this, this.binding);
