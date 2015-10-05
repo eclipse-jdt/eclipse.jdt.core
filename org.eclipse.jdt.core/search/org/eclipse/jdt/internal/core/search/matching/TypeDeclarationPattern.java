@@ -1,14 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
-
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -26,7 +22,6 @@ public class TypeDeclarationPattern extends JavaSearchPattern {
 public char[] simpleName;
 public char[] pkg;
 public char[][] enclosingTypeNames;
-public char[] moduleName = null;
 
 // set to CLASS_SUFFIX for only matching classes
 // set to INTERFACE_SUFFIX for only matching interfaces
@@ -86,14 +81,13 @@ void rehash() {
 
 /*
  * Create index key for type declaration pattern:
- *		key = typeName / packageName / enclosingTypeName / modifiers/ moduleName / 'P'
+ *		key = typeName / packageName / enclosingTypeName / modifiers
  * or for secondary types
- *		key = typeName / packageName / enclosingTypeName / modifiers / moduleName / 'S'
+ *		key = typeName / packageName / enclosingTypeName / modifiers / 'S'
  */
-public static char[] createIndexKey(int modifiers, char[] typeName, char[] packageName, char[][] enclosingTypeNames, boolean secondary, char[] moduleName) { //, char typeSuffix) {
+public static char[] createIndexKey(int modifiers, char[] typeName, char[] packageName, char[][] enclosingTypeNames, boolean secondary) { //, char typeSuffix) {
 	int typeNameLength = typeName == null ? 0 : typeName.length;
 	int packageLength = packageName == null ? 0 : packageName.length;
-	int moduleLength = moduleName == null ? 0 : moduleName.length;
 	int enclosingNamesLength = 0;
 	if (enclosingTypeNames != null) {
 		for (int i = 0, length = enclosingTypeNames.length; i < length;) {
@@ -103,8 +97,8 @@ public static char[] createIndexKey(int modifiers, char[] typeName, char[] packa
 		}
 	}
 
-	int resultLength = typeNameLength + packageLength + enclosingNamesLength + moduleLength + 6;
-	resultLength += 2;
+	int resultLength = typeNameLength + packageLength + enclosingNamesLength + 5;
+	if (secondary) resultLength += 2;
 	char[] result = new char[resultLength];
 	int pos = 0;
 	if (typeNameLength > 0) {
@@ -130,32 +124,11 @@ public static char[] createIndexKey(int modifiers, char[] typeName, char[] packa
 	result[pos++] = SEPARATOR;
 	result[pos++] = (char) modifiers;
 	result[pos] = (char) (modifiers>>16);
-	result[++pos] = SEPARATOR;
-	if (moduleLength > 0) {
-		System.arraycopy(moduleName, 0, result, ++pos, moduleLength);
-		pos += moduleLength; // uncomment if adding another field
-	}
-	result[pos++] = SEPARATOR;
 	if (secondary) {
-		result[pos] = 'S';
-	} else {
-		result[pos] = 'P';
+		result[++pos] = SEPARATOR;
+		result[++pos] = 'S';
 	}
 	return result;
-}
-public static char[] createIndexKey(int modifiers, char[] typeName, char[] packageName, char[][] enclosingTypeNames, boolean secondary) { //, char typeSuffix) {
-	return createIndexKey(modifiers, typeName, packageName, enclosingTypeNames, secondary, null);
-}
-
-public TypeDeclarationPattern(
-		char[] moduleName,
-		char[] pkg,
-		char[][] enclosingTypeNames,
-		char[] simpleName,
-		char typeSuffix,
-		int matchRule) {
-	this(pkg, enclosingTypeNames, simpleName, typeSuffix, matchRule);
-	this.moduleName = moduleName;
 }
 
 public TypeDeclarationPattern(
@@ -186,20 +159,18 @@ TypeDeclarationPattern(int matchRule) {
 }
 /*
  * Type entries are encoded as:
- * 	simpleTypeName / packageName / enclosingTypeName / modifiers / moduleName / 'P'
- *			e.g. Object/java.lang//0/P/java.base
- * 		e.g. Cloneable/java.lang//512/P/java.base
- * 		e.g. LazyValue/javax.swing/UIDefaults/0/<module_name>/P
+ * 	simpleTypeName / packageName / enclosingTypeName / modifiers
+ *			e.g. Object/java.lang//0
+ * 		e.g. Cloneable/java.lang//512
+ * 		e.g. LazyValue/javax.swing/UIDefaults/0
  * or for secondary types as:
- * 	simpleTypeName / packageName / enclosingTypeName / modifiers / moduleName / 'S'
+ * 	simpleTypeName / packageName / enclosingTypeName / modifiers / S
  */
 public void decodeIndexKey(char[] key) {
 	int slash = CharOperation.indexOf(SEPARATOR, key, 0);
 	this.simpleName = CharOperation.subarray(key, 0, slash);
 
 	int start = ++slash;
-
-	// read package
 	if (key[start] == SEPARATOR) {
 		this.pkg = CharOperation.NO_CHAR;
 	} else {
@@ -207,32 +178,27 @@ public void decodeIndexKey(char[] key) {
 		this.pkg = internedPackageNames.add(CharOperation.subarray(key, start, slash));
 	}
 
-	// read enclosingtype
-	start = ++slash;
-	int last;
-	if (key[start] == SEPARATOR) {
-		this.enclosingTypeNames = CharOperation.NO_CHAR_CHAR;		
-	} else {
-		last = slash = CharOperation.indexOf(SEPARATOR, key, start);
-		this.enclosingTypeNames = last == (start+1) && key[start] == ZERO_CHAR ? ONE_ZERO_CHAR : CharOperation.splitOn('.', key, start, last);
+	// Continue key read by the end to decode modifiers
+	int last = key.length-1;
+	this.secondary = key[last] == 'S';
+	if (this.secondary) {
+		last -= 2;
 	}
-
-	// read modifiers
-	start = slash + 1;
-	slash = CharOperation.indexOf(SEPARATOR, key, start);
-	last = slash - 1;
 	this.modifiers = key[last-1] + (key[last]<<16);
 	decodeModifiers();
 
-	// module name
-	start = slash + 1; // beginning of module name;
-	slash = CharOperation.indexOf(SEPARATOR, key, start); // should be start + 1 if not corrupted
-	this.moduleName = start == slash ? CharOperation.NO_CHAR : CharOperation.subarray(key, start, slash);
-
-	// Primary or Secondary
+	// Retrieve enclosing type names
 	start = slash + 1;
-	this.secondary = key[start] == 'S';
-	
+	last -= 2; // position of ending slash
+	if (start == last) {
+		this.enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
+	} else {
+		if (last == (start+1) && key[start] == ZERO_CHAR) {
+			this.enclosingTypeNames = ONE_ZERO_CHAR;
+		} else {
+			this.enclosingTypeNames = CharOperation.splitOn('.', key, start, last);
+		}
+	}
 }
 protected void decodeModifiers() {
 
@@ -275,10 +241,6 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 
 	// check package - exact match only
 	if (this.pkg != null && !CharOperation.equals(this.pkg, pattern.pkg, isCaseSensitive()))
-		return false;
-
-	// check module name if present
-	if (this.moduleName != null && !CharOperation.equals(this.moduleName, pattern.moduleName))
 		return false;
 
 	// check enclosingTypeNames - exact match only
@@ -350,36 +312,30 @@ public EntryResult[] queryIn(Index index) throws IOException {
 protected StringBuffer print(StringBuffer output) {
 	switch (this.typeSuffix){
 		case CLASS_SUFFIX :
-			output.append("ClassDeclarationPattern:"); //$NON-NLS-1$
+			output.append("ClassDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 		case CLASS_AND_INTERFACE_SUFFIX:
-			output.append("ClassAndInterfaceDeclarationPattern:"); //$NON-NLS-1$
+			output.append("ClassAndInterfaceDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 		case CLASS_AND_ENUM_SUFFIX :
-			output.append("ClassAndEnumDeclarationPattern:"); //$NON-NLS-1$
+			output.append("ClassAndEnumDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 		case INTERFACE_SUFFIX :
-			output.append("InterfaceDeclarationPattern:"); //$NON-NLS-1$
+			output.append("InterfaceDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 		case INTERFACE_AND_ANNOTATION_SUFFIX:
-			output.append("InterfaceAndAnnotationDeclarationPattern:"); //$NON-NLS-1$
+			output.append("InterfaceAndAnnotationDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 		case ENUM_SUFFIX :
-			output.append("EnumDeclarationPattern:"); //$NON-NLS-1$
+			output.append("EnumDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 		case ANNOTATION_TYPE_SUFFIX :
-			output.append("AnnotationTypeDeclarationPattern:"); //$NON-NLS-1$
+			output.append("AnnotationTypeDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 		default :
-			output.append("TypeDeclarationPattern:"); //$NON-NLS-1$
+			output.append("TypeDeclarationPattern: pkg<"); //$NON-NLS-1$
 			break;
 	}
-	if (this.moduleName != null) {
-		output.append(" module<"); //$NON-NLS-1$
-		output.append(this.moduleName);
-		output.append(">"); //$NON-NLS-1$
-	}
-	output.append(" pkg<");//$NON-NLS-1$
 	if (this.pkg != null)
 		output.append(this.pkg);
 	else

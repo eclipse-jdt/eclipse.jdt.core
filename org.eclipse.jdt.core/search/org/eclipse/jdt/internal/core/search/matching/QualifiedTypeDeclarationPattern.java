@@ -1,14 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2008 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -24,10 +20,6 @@ PackageDeclarationPattern packagePattern;
 public int packageIndex = -1;
 
 public QualifiedTypeDeclarationPattern(char[] qualification, char[] simpleName, char typeSuffix, int matchRule) {
-	this(qualification, simpleName, typeSuffix, matchRule, null);
-}
-
-public QualifiedTypeDeclarationPattern(char[] qualification, char[] simpleName, char typeSuffix, int matchRule, char[] moduleName) {
 	this(matchRule);
 
 	this.qualification = this.isCaseSensitive ? qualification : CharOperation.toLowerCase(qualification);
@@ -35,12 +27,8 @@ public QualifiedTypeDeclarationPattern(char[] qualification, char[] simpleName, 
 	this.typeSuffix = typeSuffix;
 
 	this.mustResolve = this.qualification != null || typeSuffix != TYPE_SUFFIX;
-	this.moduleName = moduleName;
 }
 public QualifiedTypeDeclarationPattern(char[] qualification, int qualificationMatchRule, char[] simpleName, char typeSuffix, int matchRule) {
-	this(qualification, qualificationMatchRule, simpleName, typeSuffix, matchRule, null);
-}
-public QualifiedTypeDeclarationPattern(char[] qualification, int qualificationMatchRule, char[] simpleName, char typeSuffix, int matchRule, char[] moduleName) {
 	this(qualification, simpleName, typeSuffix, matchRule);
 	this.packagePattern = new PackageDeclarationPattern(qualification, qualificationMatchRule);
 }
@@ -52,8 +40,6 @@ public void decodeIndexKey(char[] key) {
 	this.simpleName = CharOperation.subarray(key, 0, slash);
 
 	int start = ++slash;
-	
-	// read package
 	if (key[start] == SEPARATOR) {
 		this.pkg = CharOperation.NO_CHAR;
 	} else {
@@ -62,13 +48,21 @@ public void decodeIndexKey(char[] key) {
 	}
 	this.qualification = this.pkg;
 
+	// Continue key read by the end to decode modifiers
+	int last = key.length-1;
+	this.secondary = key[last] == 'S';
+	if (this.secondary) {
+		last -= 2;
+	}
+	this.modifiers = key[last-1] + (key[last]<<16);
+	decodeModifiers();
+
 	// Retrieve enclosing type names
-	start = ++slash;
-	int last;
-	if (key[start] == SEPARATOR) {
-		this.enclosingTypeNames = CharOperation.NO_CHAR_CHAR;		
+	start = slash + 1;
+	last -= 2; // position of ending slash
+	if (start == last) {
+		this.enclosingTypeNames = CharOperation.NO_CHAR_CHAR;
 	} else {
-		last = slash = CharOperation.indexOf(SEPARATOR, key, start);
 		int length = this.qualification.length;
 		int size = last - start;
 		System.arraycopy(this.qualification, 0, this.qualification = new char[length+1+size], 0, length);
@@ -81,22 +75,6 @@ public void decodeIndexKey(char[] key) {
 			System.arraycopy(key, start, this.qualification, length+1, size);
 		}
 	}
-
-	// read modifiers
-	start = slash + 1;
-	slash = CharOperation.indexOf(SEPARATOR, key, start);
-	last = slash - 1;
-	this.modifiers = key[last-1] + (key[last]<<16);
-	decodeModifiers();
-	
-	// module name
-	start = slash + 1; // beginning of module name;
-	slash = CharOperation.indexOf(SEPARATOR, key, start); 
-	this.moduleName = start == slash ? CharOperation.NO_CHAR : CharOperation.subarray(key, start, slash);
-
-	// Primary or Secondary
-	start = slash + 1;
-	this.secondary = key[start] == 'S';
 }
 public SearchPattern getBlankPattern() {
 	return new QualifiedTypeDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
