@@ -14134,4 +14134,75 @@ public void testBug438812() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=469454, The compiler generates wrong code during inheritance
+public void testBug469454() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"TestClass.java",
+			"public class TestClass {\n" + 
+			"    public static class A {\n" + 
+			"        public static A method() {\n" + 
+			"            return null;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    public static class B extends A {\n" + 
+			"        public static B method() {\n" + 
+			"            return null;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        System.out.println(B.class.getDeclaredMethods().length);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"1");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=469454, The compiler generates wrong code during inheritance
+public void testBug469454a() throws Exception {
+	this.runNegativeTest(
+		new String[] {
+			"TestClass.java",
+			"public class TestClass {\n" + 
+			"    public static class A {\n" + 
+			"        public final A method() {\n" + 
+			"            return null;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    public static class B extends A {\n" + 
+			"        @Override\n" + 
+			"        public B method() {\n" + 
+			"            return null;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        System.out.println(B.class.getDeclaredMethods().length);\n" + 
+			"    }\n" + 
+			"}\n",
+		},
+		"----------\n" + 
+		"1. ERROR in TestClass.java (at line 9)\n" + 
+		"	public B method() {\n" + 
+		"	         ^^^^^^^^\n" + 
+		"Cannot override the final method from TestClass.A\n" + 
+		"----------\n",
+		null,
+		true,
+		null,
+		true,
+		false,
+		false);
+	String expectedOutput = "  public bridge synthetic TestClass.A method();";
+
+	File f = new File(OUTPUT_DIR + File.separator + "TestClass$B.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index != -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index != -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
 }
