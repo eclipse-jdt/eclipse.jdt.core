@@ -11596,4 +11596,46 @@ public void test472178() throws Exception {
 			"      )\n";
 	checkClassFile("Test", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=470665
+public void testBug470665() throws Exception {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_7) {
+		return; // Enough to run in the last two levels!
+	}
+	boolean apt = this.enableAPT;
+	String[] sources = new String[] {
+			"A.java",
+			"public final class A {\n" +
+			"	String myString;\n" +
+			"	public interface B {\n" +
+			"		void test();\n" +
+			"	}\n" +
+			"	private final B b = new B() {\n" +
+			"		@Override\n" +
+			"		public void test() {}\n" +
+			"	}\n" +
+			"};\n" +
+			"}",
+			"B.java",
+			"public class B {\n" +
+			"	  private static class X {\n" +
+			"	    static final Object instance1;\n" +
+			"	    static {\n" +
+			"	      try {\n" +
+			"	        instance1 = new Object();\n" +
+			"	      } catch (Throwable e) {\n" +
+			"	        throw new AssertionError(e);\n" +
+			"	      }\n" +
+			"	    }\n" +
+			"	  }\n" +
+			"	  X x = new X();\n" +
+			"	  Object o = X.instance1;\n" +
+			"}"
+	};
+	try {
+		this.enableAPT = true;
+		runConformTest(sources);
+	} finally {
+		this.enableAPT = apt;
+	}
+}
 }
