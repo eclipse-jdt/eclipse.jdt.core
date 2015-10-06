@@ -293,7 +293,7 @@ public final class JavaCore extends Plugin {
 	 * <p><code>"cldc1.1"</code> requires the source version to be <code>"1.3"</code> and the compliance version to be <code>"1.4"</code> or lower.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.codegen.targetPlatform"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "cldc1.1" }</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "1.1", "cldc1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"1.2"</code></dd>
 	 * </dl>
 	 * @category CompilerOptionID
@@ -5676,6 +5676,23 @@ public final class JavaCore extends Plugin {
 	 */
 	public static void setOptions(Hashtable<String, String> newOptions) {
 		JavaModelManager.getJavaModelManager().setOptions(newOptions);
+	}
+
+	/**
+	 * Compares two given versions of the Java platform. The versions being compared must both be
+	 * one of the supported values mentioned in
+	 * {@link #COMPILER_CODEGEN_TARGET_PLATFORM COMPILER_CODEGEN_TARGET_PLATFORM},
+	 * both values from {@link #COMPILER_COMPLIANCE},  or both values from {@link #COMPILER_SOURCE}.
+	 *
+	 * @param first first version to be compared
+	 * @param second second version to be compared
+	 * @return the value {@code 0} if both versions are the same;
+	 * 			a value less than {@code 0} if <code>first</code> is smaller than <code>second</code>; and
+	 * 			a value greater than {@code 0} if <code>first</code> is higher than <code>second</code>
+	 * @since 3.12
+	 */
+	public static int compareJavaVersions(String first, String second) {
+		return Long.compare(CompilerOptions.versionToJdkLevel(first), CompilerOptions.versionToJdkLevel(second));
 	}
 
 	/* (non-Javadoc)
