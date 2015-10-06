@@ -5634,4 +5634,26 @@ public void testBug478848() {
 		"Can only iterate over an array or an instance of java.lang.Iterable\n" + 
 		"----------\n");
 }
+public void testBug479167() {
+	runConformTest(
+		new String[] {
+			"ToArray.java",
+			"import java.io.Serializable;\n" + 
+			"interface ArrayFunction<E> {\n" + 
+			"	<S extends E> E[] apply(@SuppressWarnings(\"unchecked\") S... es);\n" + 
+			"}\n" + 
+			"public class ToArray<E extends Cloneable & Serializable> implements ArrayFunction<E> {\n" + 
+			"	public final @SafeVarargs @Override <S extends E> E[] apply(S... es) {\n" + 
+			"		return es;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		ArrayFunction<String[]> toArray = new ToArray<>();\n" + 
+			"		String[][] array = toArray.apply(args);\n" + 
+			"		System.out.print(array.getClass().getName());\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"[[Ljava.lang.String;");
+}
 }
