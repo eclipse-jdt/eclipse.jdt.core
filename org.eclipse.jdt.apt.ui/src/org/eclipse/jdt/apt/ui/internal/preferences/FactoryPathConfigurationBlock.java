@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2011 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -164,14 +164,14 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		// CONVERSION TO/FROM INDIVIDUAL ELEMENTS
 		public static Map<FactoryContainer, Attributes> pathMapFromList(List<FactoryPathEntry> list) {
 			Map<FactoryContainer, FactoryPath.Attributes> map =
-				new LinkedHashMap<FactoryContainer, FactoryPath.Attributes>(list.size());
+				new LinkedHashMap<>(list.size());
 			for (FactoryPathEntry fpe : list) {
 				map.put(fpe._fc, fpe._attr);
 			}
 			return map;
 		}
 		public static List<FactoryPathEntry> pathListFromMap(Map<FactoryContainer, Attributes> map) {
-			List<FactoryPathEntry> list = new ArrayList<FactoryPathEntry>(map.size());
+			List<FactoryPathEntry> list = new ArrayList<>(map.size());
 			for (Map.Entry<FactoryContainer, Attributes> entry : map.entrySet()) {
 				FactoryPathEntry fpe = new FactoryPathEntry(entry.getKey(), entry.getValue());
 				list.add(fpe);
@@ -225,7 +225,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 		FactoryPathAdapter adapter= new FactoryPathAdapter();
 		FactoryPathLabelProvider labelProvider = new FactoryPathLabelProvider();
 		
-		fFactoryPathList= new CheckedListDialogField<FactoryPathEntry>(adapter, buttonLabels, labelProvider);
+		fFactoryPathList= new CheckedListDialogField<>(adapter, buttonLabels, labelProvider);
 		fFactoryPathList.setDialogFieldListener(adapter);
 		fFactoryPathList.setLabelText(Messages.FactoryPathConfigurationBlock_pluginsAndJars);
 		fFactoryPathList.setUpButtonIndex(IDX_UP);
@@ -558,7 +558,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			if (results == null) {
 				return null;
 			}
-			ArrayList<FactoryPathEntry> res= new ArrayList<FactoryPathEntry>();
+			ArrayList<FactoryPathEntry> res= new ArrayList<>();
 			for (int i= 0; i < results.length; i++) {
 				IResource resource= root.findMember(results[i]);
 				if (resource instanceof IFile) {
@@ -603,7 +603,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			if (selected == null) {
 				return null;
 			}
-			ArrayList<FactoryPathEntry> res= new ArrayList<FactoryPathEntry>();
+			ArrayList<FactoryPathEntry> res= new ArrayList<>();
 			for (int i= 0; i < selected.length; i++) {
 				FactoryContainer fc = FactoryPathUtil.newExtJarFactoryContainer(selected[i].toFile());
 				// assume defaults of enabled=true, runInAptMode=false
@@ -639,7 +639,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 			if (selected == null) {
 				return null;
 			}
-			ArrayList<FactoryPathEntry> res= new ArrayList<FactoryPathEntry>();
+			ArrayList<FactoryPathEntry> res= new ArrayList<>();
 			for (int i= 0; i < selected.length; i++) {
 				FactoryContainer fc= FactoryPathUtil.newVarJarFactoryContainer(selected[i]);
 				// assume defaults of enabled=true, runInAptMode=false
