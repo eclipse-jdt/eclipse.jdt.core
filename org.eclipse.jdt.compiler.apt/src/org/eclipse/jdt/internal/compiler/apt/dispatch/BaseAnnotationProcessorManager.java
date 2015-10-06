@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2015 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,7 +49,7 @@ public abstract class BaseAnnotationProcessorManager extends AbstractAnnotationP
 	 * The list of processors that have been loaded so far.  A processor on this
 	 * list has been initialized, but may not yet have been called to process().
 	 */
-	protected List<ProcessorInfo> _processors = new ArrayList<ProcessorInfo>();
+	protected List<ProcessorInfo> _processors = new ArrayList<>();
 	
 	// Tracing
 	protected boolean _printProcessorInfo = false;

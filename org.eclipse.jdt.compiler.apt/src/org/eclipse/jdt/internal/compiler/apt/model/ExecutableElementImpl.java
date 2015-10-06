@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 IBM Corporation and others.
+ * Copyright (c) 2005, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -135,7 +135,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 		int length = binding.parameters == null ? 0 : binding.parameters.length;
 		if (0 != length) {
 			AbstractMethodDeclaration methodDeclaration = binding.sourceMethod();
-			List<VariableElement> params = new ArrayList<VariableElement>(length);
+			List<VariableElement> params = new ArrayList<>(length);
 			if (methodDeclaration != null) {
 				for (Argument argument : methodDeclaration.arguments) {
 					VariableElement param = new VariableElementImpl(_env, argument.binding);
@@ -197,7 +197,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 		if (binding.thrownExceptions.length == 0) {
 			return Collections.emptyList();
 		}
-		List<TypeMirror> list = new ArrayList<TypeMirror>(binding.thrownExceptions.length);
+		List<TypeMirror> list = new ArrayList<>(binding.thrownExceptions.length);
 		for (ReferenceBinding exception : binding.thrownExceptions) {
 			list.add(_env.getFactory().newTypeMirror(exception));
 		}
@@ -211,7 +211,7 @@ public class ExecutableElementImpl extends ElementImpl implements
 		if (variables.length == 0) {
 			return Collections.emptyList();
 		}
-		List<TypeParameterElement> params = new ArrayList<TypeParameterElement>(variables.length); 
+		List<TypeParameterElement> params = new ArrayList<>(variables.length); 
 		for (TypeVariableBinding variable : variables) {
 			params.add(_env.getFactory().newTypeParameterElement(variable, this));
 		}

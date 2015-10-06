@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2011 IBM Corporation and others.
+ * Copyright (c) 2005, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -90,7 +90,7 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 				_printRounds = true;
 			}
 			else if ("-processor".equals(option)) { //$NON-NLS-1$
-				commandLineProcessors = new ArrayList<String>();
+				commandLineProcessors = new ArrayList<>();
 				String procs = commandLineArguments[++i];
 				for (String proc : procs.split(",")) { //$NON-NLS-1$
 					commandLineProcessors.add(proc);
@@ -221,7 +221,7 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 		}
 		// Cast all the processors here, rather than failing later.
 		// But don't call init() until the processor is actually needed.
-		_setProcessors = new ArrayList<Processor>(processors.length);
+		_setProcessors = new ArrayList<>(processors.length);
 		for (Object o : processors) {
 			Processor p = (Processor)o;
 			_setProcessors.add(p);

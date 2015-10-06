@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2013 BEA Systems, Inc.
+ * Copyright (c) 2007, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -92,7 +92,7 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 			superinterfacesLength = superinterfaces.length;
 			boundsLength += superinterfacesLength;
 		}
-		List<TypeMirror> typeBounds = new ArrayList<TypeMirror>(boundsLength);
+		List<TypeMirror> typeBounds = new ArrayList<>(boundsLength);
 		if (boundsLength != 0) {
 			if (firstClassOrArrayBound != null) {
 				TypeMirror typeBinding = _env.getFactory().newTypeMirror(firstClassOrArrayBound);

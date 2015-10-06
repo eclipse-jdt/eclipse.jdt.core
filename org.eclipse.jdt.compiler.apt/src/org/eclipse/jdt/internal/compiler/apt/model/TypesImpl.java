@@ -176,7 +176,7 @@ public class TypesImpl implements Types {
         Binding binding = typeMirrorImpl._binding;
         if (binding instanceof ReferenceBinding) {
             ReferenceBinding referenceBinding = (ReferenceBinding) binding;
-            ArrayList<TypeMirror> list = new ArrayList<TypeMirror>();
+            ArrayList<TypeMirror> list = new ArrayList<>();
             ReferenceBinding superclass = referenceBinding.superclass();
             if (superclass != null) {
                 list.add(this._env.getFactory().newTypeMirror(superclass));
