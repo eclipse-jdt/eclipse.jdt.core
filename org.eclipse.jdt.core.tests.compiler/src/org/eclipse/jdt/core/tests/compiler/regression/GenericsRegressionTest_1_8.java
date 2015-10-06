@@ -5597,4 +5597,41 @@ public void testBug473657() {
 			"}\n"
 		});
 }
+public void testBug478848() {
+	runNegativeTest(
+		new String[] {
+			"InferenceBug.java",
+			"import java.util.Optional;\n" + 
+			"public class InferenceBug {\n" + 
+			"    \n" + 
+			"    static class Wrapper<T> {\n" + 
+			"        T value;\n" + 
+			"        public T getValue() {\n" + 
+			"            return null;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    static class C1 {\n" + 
+			"        //an optional array of String wrappers\n" + 
+			"        public Optional<? extends Wrapper<String>[]> optionalArrayOfStringWrappers() {\n" + 
+			"            return Optional.empty();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        C1 c1 = new C1();\n" + 
+			"        for (Wrapper<String> attribute: c1.optionalArrayOfStringWrappers().get()) {\n" + 
+			"            // error in previous line:\n" + 
+			"            // Can only iterate over an array or an instance of java.lang.Iterable\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in InferenceBug.java (at line 20)\n" + 
+		"	for (Wrapper<String> attribute: c1.optionalArrayOfStringWrappers().get()) {\n" + 
+		"	                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Can only iterate over an array or an instance of java.lang.Iterable\n" + 
+		"----------\n");
+}
 }
