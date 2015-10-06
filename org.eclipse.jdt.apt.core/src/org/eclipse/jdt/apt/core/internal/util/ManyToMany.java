@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 BEA Systems, Inc.
+ * Copyright (c) 2006, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,8 +37,8 @@ import java.util.Set;
  */
 public class ManyToMany<T1, T2> {
 	
-	private final Map<T1, Set<T2>> _forward = new HashMap<T1, Set<T2>>();
-	private final Map<T2, Set<T1>> _reverse = new HashMap<T2, Set<T1>>();
+	private final Map<T1, Set<T2>> _forward = new HashMap<>();
+	private final Map<T2, Set<T1>> _reverse = new HashMap<>();
 	private boolean _dirty = false;
 	
 	/**
@@ -105,7 +105,7 @@ public class ManyToMany<T1, T2> {
 		if (null == keys) {
 			return Collections.emptySet();
 		}
-		return new HashSet<T1>(keys);
+		return new HashSet<>(keys);
 	}
 	
 	/**
@@ -119,7 +119,7 @@ public class ManyToMany<T1, T2> {
 		if (null == values) {
 			return Collections.emptySet();
 		}
-		return new HashSet<T2>(values);
+		return new HashSet<>(values);
 	}
 
 	/**
@@ -129,7 +129,7 @@ public class ManyToMany<T1, T2> {
 	 * @see #getValueSet()
 	 */
 	public synchronized Set<T1> getKeySet() {
-		Set<T1> keys = new HashSet<T1>(_forward.keySet());
+		Set<T1> keys = new HashSet<>(_forward.keySet());
 		return keys;
 	}
 	
@@ -140,7 +140,7 @@ public class ManyToMany<T1, T2> {
 	 * @see #getKeySet()
 	 */
 	public synchronized Set<T2> getValueSet() {
-		Set<T2> values = new HashSet<T2>(_reverse.keySet());
+		Set<T2> values = new HashSet<>(_reverse.keySet());
 		return values;
 	}
 	
@@ -193,7 +193,7 @@ public class ManyToMany<T1, T2> {
 		// Add to forward map
 		Set<T2> values = _forward.get(key);
 		if (null == values) {
-			values = new HashSet<T2>();
+			values = new HashSet<>();
 			_forward.put(key, values);
 		}
 		boolean added = values.add(value);
@@ -202,7 +202,7 @@ public class ManyToMany<T1, T2> {
 		// Add to reverse map
 		Set<T1> keys = _reverse.get(value);
 		if (null == keys) {
-			keys = new HashSet<T1>();
+			keys = new HashSet<>();
 			_reverse.put(value, keys);
 		}
 		keys.add(key);

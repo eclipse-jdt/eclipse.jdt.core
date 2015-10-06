@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 BEA Systems, Inc. and others.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,7 +81,7 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 	// Entries are added lazily in getAptProject(), and removed upon
 	// project deletion in deleteAptProject().
 	private static final Map<IJavaProject,AptProject> PROJECT_MAP = 
-		new HashMap<IJavaProject,AptProject>();
+		new HashMap<>();
 
 	// Qualified names of services for which these containers may provide implementations
 	public static final String JAVA5_FACTORY_NAME = "com.sun.mirror.apt.AnnotationProcessorFactory"; //$NON-NLS-1$
@@ -92,7 +92,7 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 		super.start(context);
 
 		// register debug options listener
-		Hashtable<String, String> properties = new Hashtable<String, String>(2);
+		Hashtable<String, String> properties = new Hashtable<>(2);
 		properties.put(DebugOptions.LISTENER_SYMBOLICNAME, PLUGIN_ID);
 		debugRegistration = context.registerService(DebugOptionsListener.class, this, properties);
 

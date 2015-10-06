@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 BEA Systems Inc. and others
+ * Copyright (c) 2005, 2015 BEA Systems Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -132,7 +132,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	// This type cache exists for the duration of a single round. 
 	// We store positive as well as negative hits. Negative hits are
 	// stored with a value of null
-	protected final Map<String,TypeDeclaration> _typeCache = new HashMap<String,TypeDeclaration>();
+	protected final Map<String,TypeDeclaration> _typeCache = new HashMap<>();
 	
 	protected IPackageFragmentRoot[] _packageRootsCache;
 	
@@ -146,8 +146,8 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 		_javaProject = javaProj;
 		_phase = phase;
 		_options = initOptions(javaProj);
-		_modelCompUnit2astCompUnit = new HashMap<ICompilationUnit, CompilationUnit>();
-		_typeBinding2ModelCompUnit = new HashMap<ITypeBinding, ICompilationUnit>();
+		_modelCompUnit2astCompUnit = new HashMap<>();
+		_typeBinding2ModelCompUnit = new HashMap<>();
 		_aptProject = AptPlugin.getAptProject(javaProj);
 	}
   
@@ -170,7 +170,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	private Map<String, String> initOptions(IJavaProject jproj) {
 		Map<String, String> procOptions = AptConfig.getProcessorOptions(jproj);
 		// options is large enough to include the translated -A options
-		Map<String, String> options = new HashMap<String, String>(procOptions.size() * 2);
+		Map<String, String> options = new HashMap<>(procOptions.size() * 2);
 		
 		// Add configured options
 		for (Map.Entry<String, String> entry : procOptions.entrySet()) {
@@ -221,7 +221,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     	final List<ITypeBinding> bindings = getTypeBindings();
 		if( bindings.isEmpty() )
 			return Collections.emptyList();
-		final List<TypeDeclaration> mirrorDecls = new ArrayList<TypeDeclaration>(bindings.size());
+		final List<TypeDeclaration> mirrorDecls = new ArrayList<>(bindings.size());
 
 		for( ITypeBinding binding : bindings ){
 			final TypeDeclaration mirrorDecl = Factory.createReferenceType(binding, this);
@@ -242,7 +242,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     	final List<AbstractTypeDeclaration> declTypes = searchLocallyForTypeDeclarations();    	
 		if( declTypes == null || declTypes.isEmpty() )
 			return Collections.emptyList();
-		final List<ITypeBinding> typeBindings = new ArrayList<ITypeBinding>(declTypes.size());
+		final List<ITypeBinding> typeBindings = new ArrayList<>(declTypes.size());
 
 		for( AbstractTypeDeclaration decl : declTypes ){
 			getTypeBindings(decl.resolveBinding(), typeBindings);
@@ -284,7 +284,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
      */
     protected Map<ASTNode, List<Annotation>> getASTNodesWithAnnotations()
     {
-    	final Map<ASTNode, List<Annotation>> astNode2Anno = new HashMap<ASTNode, List<Annotation>>();
+    	final Map<ASTNode, List<Annotation>> astNode2Anno = new HashMap<>();
         final AnnotatedNodeVisitor visitor = new AnnotatedNodeVisitor(astNode2Anno);
         _astRoot.accept(visitor);
         return astNode2Anno;
@@ -295,7 +295,7 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
         final Map<ASTNode, List<Annotation>> astNode2Anno = getASTNodesWithAnnotations();       
 		if( astNode2Anno.isEmpty() )
 			return Collections.emptyList();
-		final List<Declaration> decls = new ArrayList<Declaration>();
+		final List<Declaration> decls = new ArrayList<>();
 		for(Map.Entry<ASTNode, List<Annotation>> entry : astNode2Anno.entrySet() ){
 			final ASTNode node = entry.getKey();
 			for( Annotation anno : entry.getValue() ){

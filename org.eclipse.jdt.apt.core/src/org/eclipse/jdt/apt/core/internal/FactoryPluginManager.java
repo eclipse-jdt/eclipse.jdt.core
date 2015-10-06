@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -41,7 +41,7 @@ public class FactoryPluginManager {
 	 * To support lazy initialization, this should only be accessed by calling
 	 * @see #getJava5PluginFactoryMap() . 
 	 */
-	private static final HashMap<String, AnnotationProcessorFactory> PLUGIN_JAVA5_FACTORY_MAP = new HashMap<String, AnnotationProcessorFactory>();
+	private static final HashMap<String, AnnotationProcessorFactory> PLUGIN_JAVA5_FACTORY_MAP = new HashMap<>();
 	
 	/** 
 	 * Map of factory names -> factories.  A single plugin factory container may 
@@ -49,7 +49,7 @@ public class FactoryPluginManager {
 	 * To support lazy initialization, this should only be accessed by calling
 	 * @see #getJava5PluginFactoryMap() . 
 	 */
-	private static final HashMap<String, IServiceFactory> PLUGIN_JAVA6_FACTORY_MAP = new HashMap<String, IServiceFactory>();
+	private static final HashMap<String, IServiceFactory> PLUGIN_JAVA6_FACTORY_MAP = new HashMap<>();
 
 	/** 
 	 * Map of plugin names -> plugin factory containers, sorted by plugin name.
@@ -58,7 +58,7 @@ public class FactoryPluginManager {
 	 * To support lazy initialization, this should only be accessed by calling
 	 * @see #getPluginFactoryContainerMap() . 
 	 */
-	private static final TreeMap<String, PluginFactoryContainer> PLUGIN_CONTAINER_MAP = new TreeMap<String, PluginFactoryContainer>();
+	private static final TreeMap<String, PluginFactoryContainer> PLUGIN_CONTAINER_MAP = new TreeMap<>();
 
 	/** 
 	 * true if PLUGIN_FACTORY_MAP and PLUGIN_CONTAINER_MAP have been initialized,
@@ -77,7 +77,7 @@ public class FactoryPluginManager {
 	public static synchronized Map<FactoryContainer, FactoryPath.Attributes> getAllPluginFactoryContainers()
 	{
 		Map<FactoryContainer, FactoryPath.Attributes> map = 
-			new LinkedHashMap<FactoryContainer, FactoryPath.Attributes>(getPluginContainerMap().size());
+			new LinkedHashMap<>(getPluginContainerMap().size());
 		for (PluginFactoryContainer pfc : getPluginContainerMap().values()) {
 			FactoryPath.Attributes a = new FactoryPath.Attributes(pfc.getEnableDefault(), false);
 			map.put(pfc, a);

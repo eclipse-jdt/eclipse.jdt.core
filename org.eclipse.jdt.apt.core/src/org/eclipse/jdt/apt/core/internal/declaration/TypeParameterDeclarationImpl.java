@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -65,7 +65,7 @@ public class TypeParameterDeclarationImpl extends DeclarationImpl implements
         if( bounds == null || bounds.length == 0 )
             return Collections.emptyList();
 
-        final Collection<ReferenceType> result = new ArrayList<ReferenceType>(4);
+        final Collection<ReferenceType> result = new ArrayList<>(4);
         for( ITypeBinding bound : bounds ){
             final ReferenceType type = Factory.createReferenceType(bound, _env);
              if( type != null )

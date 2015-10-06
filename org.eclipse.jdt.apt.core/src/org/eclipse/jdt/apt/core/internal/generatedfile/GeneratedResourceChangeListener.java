@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -150,9 +150,9 @@ public class GeneratedResourceChangeListener implements IResourceChangeListener
 	private class PreBuildVisitor implements IResourceDeltaVisitor
 	{
 		// projects that we need to add the generated source folder to.
-		private final Set<IProject> _addGenFolderTo = new HashSet<IProject>();
+		private final Set<IProject> _addGenFolderTo = new HashSet<>();
 		// any projects that is closed or about to be deleted
-		private final Set<IProject> _removedProjects = new HashSet<IProject>();
+		private final Set<IProject> _removedProjects = new HashSet<>();
 		public boolean visit(IResourceDelta delta) throws CoreException 
 		{
 			IResource r = delta.getResource();

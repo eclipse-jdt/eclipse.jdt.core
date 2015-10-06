@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -82,7 +82,7 @@ public abstract class ASTBasedDeclarationImpl extends EclipseDeclarationImpl {
 	
 	private Collection<Modifier> getModifiers(int modBits)
 	{	
-		final List<Modifier> mods = new ArrayList<Modifier>(4);
+		final List<Modifier> mods = new ArrayList<>(4);
         if( org.eclipse.jdt.core.dom.Modifier.isAbstract(modBits) )		
         	mods.add(Modifier.ABSTRACT);
         if( org.eclipse.jdt.core.dom.Modifier.isFinal(modBits) ) 		

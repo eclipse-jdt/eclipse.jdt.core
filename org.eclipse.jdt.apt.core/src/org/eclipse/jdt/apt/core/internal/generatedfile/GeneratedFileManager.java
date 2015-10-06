@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 BEA Systems, Inc. and others
+ * Copyright (c) 2005, 2015 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -318,11 +318,11 @@ public class GeneratedFileManager
 		_jProject = aptProject.getJavaProject();
 		_gsfm = gsfm;
 		_buildDeps = new GeneratedFileMap(_jProject.getProject());
-		_clearDuringReconcile = new HashSet<IFile>();
-		_reconcileDeps = new ManyToMany<IFile, IFile>();
-		_reconcileNonDeps = new ManyToMany<IFile, IFile>();
-		_hiddenBuiltTypes = new HashMap<IFile, ICompilationUnit>();
-		_reconcileGenTypes = new HashMap<IFile, ICompilationUnit>();
+		_clearDuringReconcile = new HashSet<>();
+		_reconcileDeps = new ManyToMany<>();
+		_reconcileNonDeps = new ManyToMany<>();
+		_hiddenBuiltTypes = new HashMap<>();
+		_reconcileGenTypes = new HashMap<>();
 		_generatedPackageFragmentRoot = new GeneratedPackageFragmentRoot();
 	}
 
@@ -386,8 +386,8 @@ public class GeneratedFileManager
 	public Set<IFile> deleteObsoleteFilesAfterBuild(IFile parentFile, Set<IFile> newlyGeneratedFiles)
 	{
 		Set<IFile> deleted;
-		List<ICompilationUnit> toDiscard = new ArrayList<ICompilationUnit>();
-		Set<IFile> toReport = new HashSet<IFile>();
+		List<ICompilationUnit> toDiscard = new ArrayList<>();
+		Set<IFile> toReport = new HashSet<>();
 		deleted = computeObsoleteFiles(parentFile, newlyGeneratedFiles, toDiscard, toReport);
 		
 		for (IFile toDelete : deleted) {
@@ -427,8 +427,8 @@ public class GeneratedFileManager
 	{
 		IFile parentFile = (IFile) parentWC.getResource();
 
-		List<ICompilationUnit> toSetBlank = new ArrayList<ICompilationUnit>();
-		List<ICompilationUnit> toDiscard = new ArrayList<ICompilationUnit>();
+		List<ICompilationUnit> toSetBlank = new ArrayList<>();
+		List<ICompilationUnit> toDiscard = new ArrayList<>();
 		computeObsoleteReconcileTypes(parentFile, newlyGeneratedFiles, _CUHELPER, toSetBlank, toDiscard);
 
 		for (ICompilationUnit wcToDiscard : toDiscard) {
@@ -774,7 +774,7 @@ public class GeneratedFileManager
 		// keys in _reconcileGenTypes.
 		Set<IFile> depChildren = _reconcileDeps.getValueSet(); // copy - safe to modify
 		Set<IFile> genTypes = _reconcileGenTypes.keySet(); // not a copy!
-		List<IFile> extraFiles = new ArrayList<IFile>(); 
+		List<IFile> extraFiles = new ArrayList<>();
 		for (IFile f : genTypes) {
 			if (!depChildren.remove(f)) {
 				extraFiles.add(f);
@@ -790,7 +790,7 @@ public class GeneratedFileManager
 		}
 		
 		// Every file in _clearDuringReconcile must be a value in _buildDeps.
-		List<IFile> extraClearDuringReconcileFiles = new ArrayList<IFile>();
+		List<IFile> extraClearDuringReconcileFiles = new ArrayList<>();
 		for (IFile clearDuringReconcile : _clearDuringReconcile) {
 			if (!_buildDeps.containsValue(clearDuringReconcile)) {
 				extraClearDuringReconcileFiles.add(clearDuringReconcile);
@@ -802,7 +802,7 @@ public class GeneratedFileManager
 		}
 		
 		// Every key in _hiddenBuiltTypes must be a value in _reconcileNonDeps.
-		List<IFile> extraHiddenTypes = new ArrayList<IFile>();
+		List<IFile> extraHiddenTypes = new ArrayList<>();
 		for (IFile hidden : _hiddenBuiltTypes.keySet()) {
 			if (!_reconcileNonDeps.containsValue(hidden)) {
 				extraHiddenTypes.add(hidden);
@@ -815,7 +815,7 @@ public class GeneratedFileManager
 		
 		// There can be no parent/child pairs that exist in both _reconcileDeps
 		// and _reconcileNonDeps.
-		Map<IFile, IFile> reconcileOverlaps = new HashMap<IFile, IFile>();
+		Map<IFile, IFile> reconcileOverlaps = new HashMap<>();
 		for (IFile parent : _reconcileNonDeps.getKeySet()) {
 			for (IFile child : _reconcileNonDeps.getValues(parent)) {
 				if (_reconcileDeps.containsKeyValuePair(parent, child)) {
@@ -830,7 +830,7 @@ public class GeneratedFileManager
 		
 		// Every parent/child pair in _reconcileNonDeps must have a matching
 		// parent/child pair in _buildDeps.
-		Map<IFile, IFile> extraNonDeps = new HashMap<IFile, IFile>();
+		Map<IFile, IFile> extraNonDeps = new HashMap<>();
 		for (IFile parent : _reconcileNonDeps.getKeySet()) {
 			for (IFile child : _reconcileNonDeps.getValues(parent)) {
 				if (!_buildDeps.containsKeyValuePair(parent, child)) {
@@ -844,7 +844,7 @@ public class GeneratedFileManager
 		}
 		
 		// Values in _hiddenBuiltTypes must not be null
-		List<IFile> nullHiddenTypes = new ArrayList<IFile>();
+		List<IFile> nullHiddenTypes = new ArrayList<>();
 		for (Map.Entry<IFile, ICompilationUnit> entry : _hiddenBuiltTypes.entrySet()) {
 			if (entry.getValue() == null) {
 				nullHiddenTypes.add(entry.getKey());
@@ -855,7 +855,7 @@ public class GeneratedFileManager
 		}
 		
 		// Values in _reconcileGenTypes must not be null
-		List<IFile> nullReconcileTypes = new ArrayList<IFile>();
+		List<IFile> nullReconcileTypes = new ArrayList<>();
 		for (Map.Entry<IFile, ICompilationUnit> entry : _reconcileGenTypes.entrySet()) {
 			if (entry.getValue() == null) {
 				nullReconcileTypes.add(entry.getKey());
@@ -889,7 +889,7 @@ public class GeneratedFileManager
 	private synchronized List<ICompilationUnit> computeProjectClosed(boolean deleteState)
 	{
 		int size = _hiddenBuiltTypes.size() + _reconcileGenTypes.size();
-		List<ICompilationUnit> toDiscard = new ArrayList<ICompilationUnit>(size);
+		List<ICompilationUnit> toDiscard = new ArrayList<>(size);
 		toDiscard.addAll(_hiddenBuiltTypes.values());
 		toDiscard.addAll(_reconcileGenTypes.values());
 		_reconcileGenTypes.clear();
@@ -963,7 +963,7 @@ public class GeneratedFileManager
 		_buildDeps.clearState();
 		_clearDuringReconcile.clear();
 		_reconcileNonDeps.clear();
-		List<ICompilationUnit> toDiscard = new ArrayList<ICompilationUnit>(_hiddenBuiltTypes.values());
+		List<ICompilationUnit> toDiscard = new ArrayList<>(_hiddenBuiltTypes.values());
 		_hiddenBuiltTypes.clear();
 		
 		assert checkIntegrity();
@@ -980,7 +980,7 @@ public class GeneratedFileManager
 	 */
 	private Set<IFolder> computeNewPackageFolders(String pkgName, IFolder parent)
 	{
-		Set<IFolder> newFolders = new HashSet<IFolder>();
+		Set<IFolder> newFolders = new HashSet<>();
 		String[] folders = _PACKAGE_DELIMITER.split(pkgName);
 		for (String folderName : folders) {
 			final IFolder folder = parent.getFolder(folderName);
@@ -1018,7 +1018,7 @@ public class GeneratedFileManager
 			List<ICompilationUnit> toDiscard,
 			Set<IFile> toReport)
 	{
-		Set<IFile> deleted = new HashSet<IFile>();
+		Set<IFile> deleted = new HashSet<>();
 		Set<IFile> obsoleteFiles = _buildDeps.getValues(parentFile);
 		// spare all the newly generated files
 		obsoleteFiles.removeAll(newlyGeneratedFiles);
@@ -1071,7 +1071,7 @@ public class GeneratedFileManager
 		{
 			// Get types previously but no longer generated during reconcile
 			Set<IFile> obsoleteFiles = _reconcileDeps.getValues(parentFile);
-			Map<IFile, ICompilationUnit> typesToDiscard = new HashMap<IFile, ICompilationUnit>();
+			Map<IFile, ICompilationUnit> typesToDiscard = new HashMap<>();
 			obsoleteFiles.removeAll(newlyGeneratedFiles);
 			for (IFile obsoleteFile : obsoleteFiles) {
 				_reconcileDeps.remove(parentFile, obsoleteFile);
@@ -1137,7 +1137,7 @@ public class GeneratedFileManager
 	 */
 	private synchronized List<ICompilationUnit> computeObsoleteHiddenTypes(IFile parentFile, Set<IFile> deletedFiles)
 	{
-		List<ICompilationUnit> toDiscard = new ArrayList<ICompilationUnit>();
+		List<ICompilationUnit> toDiscard = new ArrayList<>();
 		for (IFile deletedFile : deletedFiles) {
 			if (_reconcileNonDeps.remove(parentFile, deletedFile)) {
 				ICompilationUnit wc = _hiddenBuiltTypes.remove(deletedFile);
@@ -1396,7 +1396,7 @@ public class GeneratedFileManager
 	 */
 	private synchronized List<IFile> removeFileFromBuildMaps(IFile f)
 	{
-		List<IFile> toDelete = new ArrayList<IFile>();
+		List<IFile> toDelete = new ArrayList<>();
 		// Is this file the sole parent of files generated during build?
 		// If so, add them to the deletion list. Then remove the file from
 		// the build dependency list.
@@ -1435,7 +1435,7 @@ public class GeneratedFileManager
 	 */
 	private synchronized List<ICompilationUnit> removeFileFromReconcileMaps(IFile file)
 	{
-		List<ICompilationUnit> toDiscard = new ArrayList<ICompilationUnit>();
+		List<ICompilationUnit> toDiscard = new ArrayList<>();
 		// remove all the orphaned children
 		Set<IFile> genFiles = _reconcileDeps.getValues(file);
 		for (IFile child : genFiles) {

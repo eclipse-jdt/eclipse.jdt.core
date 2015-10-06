@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -44,13 +44,13 @@ public class JarClassLoader extends ClassLoader {
 	// This is nulled out when the classloader is closed
 	private List<JarFile> _jars;
 	private final LinkedHashSet<File> _files;
-	private List<JarCLInputStream> _openStreams = new LinkedList<JarCLInputStream>();
+	private List<JarCLInputStream> _openStreams = new LinkedList<>();
 	private boolean _open = true;
 	
 	public JarClassLoader(List<File> jarFiles, final ClassLoader parent) {
 		super(parent);
 		// Handle manifest classpath entries
-		_files = new LinkedHashSet<File>(jarFiles);
+		_files = new LinkedHashSet<>(jarFiles);
 		for (File f : jarFiles) {
 			_recursiveGetManifestJars(f, _files);
 		}
@@ -59,7 +59,7 @@ public class JarClassLoader extends ClassLoader {
 	
 	private void open() {
 		// Create all jar files
-		_jars = new ArrayList<JarFile>(_files.size());
+		_jars = new ArrayList<>(_files.size());
 		for (File f : _files) {
 			try {
 				JarFile jar = new JarFile(f);

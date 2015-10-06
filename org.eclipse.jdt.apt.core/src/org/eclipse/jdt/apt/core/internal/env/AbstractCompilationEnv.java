@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -61,13 +61,13 @@ public abstract class AbstractCompilationEnv
 	
 	private Set<AnnotationProcessorListener> _listeners = null;
 	
-	protected List<APTProblem> _problems = new ArrayList<APTProblem>();
+	protected List<APTProblem> _problems = new ArrayList<>();
 	private boolean _isClosed = false;
 	
 	EnvCallback _callback;
 
-    private Set<IFile> _allGeneratedSourceFiles = new HashSet<IFile>();
-    private Set<IFile> _modifiedGeneratedSourceFiles = new HashSet<IFile>();	
+    private Set<IFile> _allGeneratedSourceFiles = new HashSet<>();
+    private Set<IFile> _modifiedGeneratedSourceFiles = new HashSet<>();
 
     /**
 	 * Currently open dom pipeline, used to request type bindings.
@@ -145,7 +145,7 @@ public abstract class AbstractCompilationEnv
     {
 		checkValid();
         if(_listeners == null )
-			_listeners = new HashSet<AnnotationProcessorListener>();
+			_listeners = new HashSet<>();
 		_listeners.add(listener);
     }
 
@@ -162,12 +162,12 @@ public abstract class AbstractCompilationEnv
 			return Collections.emptySet();
 		// Return a copy, to avoid ConcurrentModificationException if a listener
 		// removes itself in response to the callback.
-		return new HashSet<AnnotationProcessorListener>(_listeners);
+		return new HashSet<>(_listeners);
 	}
 	
 	public Map<String, String> getOptions()
     {
-        final HashMap<String, String> options = new HashMap<String, String>(_options);
+        final HashMap<String, String> options = new HashMap<>(_options);
 		options.put("phase", getPhase().toString()); //$NON-NLS-1$
 		return options;
     }
@@ -259,9 +259,9 @@ public abstract class AbstractCompilationEnv
 	public Map<String, AnnotationTypeDeclaration> getAnnotationTypes()
     {
     	checkValid();
-    	final List<Annotation> instances = new ArrayList<Annotation>();
+    	final List<Annotation> instances = new ArrayList<>();
 		final Map<String, AnnotationTypeDeclaration> decls = 
-			new HashMap<String, AnnotationTypeDeclaration>();
+			new HashMap<>();
 		final AnnotationVisitor visitor = new AnnotationVisitor(instances);
 		_astRoot.accept(visitor);
 			

@@ -1,5 +1,5 @@
  /*******************************************************************************
- * Copyright (c) 2005, 2011 BEA Systems, Inc. and others
+ * Copyright (c) 2005, 2015 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -391,13 +391,13 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 				allGeneratedFiles = java5GeneratedFiles;
 			}
 			else {
-				allGeneratedFiles = new HashSet<IFile>(java6GeneratedFiles);
+				allGeneratedFiles = new HashSet<>(java6GeneratedFiles);
 				allGeneratedFiles.addAll(java5GeneratedFiles);
 			}
 		}
 		
 		// figure out exactly what got deleted
-		final List<IFile> deletedFiles = new ArrayList<IFile>(); 
+		final List<IFile> deletedFiles = new ArrayList<>(); 
 		IFile parentFile = curResult.getFile();
 		cleanupNoLongerGeneratedFiles(
 				parentFile, 
@@ -448,7 +448,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	{
 		final BuildContext[] cpResults = processorEnv.getFilesWithAnnotation();
 		final Map<BuildContext, Set<AnnotationTypeDeclaration>> file2AnnotationDecls = 
-			new HashMap<BuildContext, Set<AnnotationTypeDeclaration>>(cpResults.length * 4/3 + 1);
+			new HashMap<>(cpResults.length * 4/3 + 1);
 		final Map<String, AnnotationTypeDeclaration> annotationDecls = 
 			processorEnv.getAllAnnotationTypes(file2AnnotationDecls);
 		
@@ -465,11 +465,11 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 
 		// file based processing factory to the set of annotations that it 'claims'
 		final Map<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>> fileFactory2Annos =
-			new HashMap<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>>( _factories.size() * 4/3 + 1 );
+			new HashMap<>( _factories.size() * 4/3 + 1 );
 		
 		// batch processing factory to the set of annotations that it 'claims'
 		final Map<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>> batchFactory2Annos =
-			new HashMap<AnnotationProcessorFactory, Set<AnnotationTypeDeclaration>>( _factories.size() * 4/3 + 1 );		
+			new HashMap<>( _factories.size() * 4/3 + 1 );
 		
 		for( Map.Entry<AnnotationProcessorFactory, FactoryPath.Attributes> entry : _factories.entrySet() ){
 			AnnotationProcessorFactory factory = entry.getKey();
@@ -481,7 +481,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 					batch ? batchFactory2Annos : fileFactory2Annos;
 				if( annotationTypes.size() == 0 ){
 					// this factory is claiming all (remaining) annotations. 
-					annotationTypes = new HashSet<AnnotationTypeDeclaration>(annotationDecls.values());
+					annotationTypes = new HashSet<>(annotationDecls.values());
 					factory2Annos.put(factory, annotationTypes);
 					annotationDecls.clear();
 					break;
@@ -509,7 +509,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 				// the order of the factory doesn't matter.
 				// But in order to make things consists between runs, will 
 				// dispatch base on factory order.
-				_currentDispatchBatchFactories = new LinkedHashSet<AnnotationProcessorFactory>();
+				_currentDispatchBatchFactories = new LinkedHashSet<>();
 				for(AnnotationProcessorFactory factory : _factories.keySet() ){			
 					final Set<AnnotationTypeDeclaration> annotationTypes = batchFactory2Annos.get(factory);
 					if( annotationTypes == null ) continue;
@@ -639,7 +639,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 			Set<AnnotationTypeDeclaration> factoryDecls = getFactorySupportedAnnotations(factory, annotationDecls);
 			if( factoryDecls != null ){
 				if(factoryDecls.size() == 0 ){
-					factoryDecls = new HashSet<AnnotationTypeDeclaration>(annotationDecls.values());
+					factoryDecls = new HashSet<>(annotationDecls.values());
 					annotationDecls.clear();
 				}
 			}
@@ -729,7 +729,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		for( AnnotationTypeDeclaration obj : one ){
 			if( two.contains(obj) ){
 				if( intersect == null )
-					intersect = new HashSet<AnnotationTypeDeclaration>();
+					intersect = new HashSet<>();
 				intersect.add(obj);
 			}
 		}
@@ -745,7 +745,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		if (cpResults == null) {
 			return;
 		}
-		final Set<IFile> deleted = new HashSet<IFile>();
+		final Set<IFile> deleted = new HashSet<>();
 		GeneratedFileManager gfm = _aptProject.getGeneratedFileManager();
 		Set<IFile> java6GeneratedFiles = AptCompilationParticipant.getInstance().getJava6GeneratedFiles();
 		for( BuildContext cpResult : cpResults){
@@ -813,7 +813,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 		if (supportedTypes == null || supportedTypes.size() == 0)
 			return Collections.emptySet();
 
-		final Set<AnnotationTypeDeclaration> fDecls = new HashSet<AnnotationTypeDeclaration>();
+		final Set<AnnotationTypeDeclaration> fDecls = new HashSet<>();
 
 		for (Iterator<String> it = supportedTypes.iterator(); it.hasNext();) {
 			final String typeName = it.next();

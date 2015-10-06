@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -53,7 +53,7 @@ public class BuildEnv extends AbstractCompilationEnv
 	 * Set of strings that indicate new type dependencies introduced on the file
 	 * each string is a fully-qualified type name.
 	 */
-	private Set<String> _typeDependencies = new HashSet<String>();
+	private Set<String> _typeDependencies = new HashSet<>();
 	
 	/**
 	 * Indicates whether we are in batch mode or not. This gets flipped only 
@@ -100,8 +100,8 @@ public class BuildEnv extends AbstractCompilationEnv
 		_filer = new BuildFilerImpl(this);
 		_filesWithAnnotation = filesWithAnnotations;
 		_additionFiles = additionalFiles;
-		_problems = new ArrayList<APTProblem>();
-		_markerInfos = new ArrayList<MarkerInfo>();
+		_problems = new ArrayList<>();
+		_markerInfos = new ArrayList<>();
 		
 		if (AptPlugin.DEBUG_COMPILATION_ENV) AptPlugin.trace( 
 				"constructed " + this + " for " + _filesWithAnnotation.length + " files"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -287,15 +287,15 @@ public class BuildEnv extends AbstractCompilationEnv
     	if( _filesWithAnnotation == null )  
     		return getAnnotationTypes();
     	
-		final List<Annotation> instances = new ArrayList<Annotation>();
+		final List<Annotation> instances = new ArrayList<>();
 		final Map<String, AnnotationTypeDeclaration> decls = 
-			new HashMap<String, AnnotationTypeDeclaration>();
+			new HashMap<>();
 		final AnnotationVisitor visitor = new AnnotationVisitor(instances);
 		for( int astIndex=0, len=_astRoots.length; astIndex<len; astIndex++ ){
 			if( _astRoots == null || _astRoots[astIndex] == null  )
 				System.err.println();
 			_astRoots[astIndex].accept(visitor);
-			final Set<AnnotationTypeDeclaration> perFileAnnos = new HashSet<AnnotationTypeDeclaration>(); 
+			final Set<AnnotationTypeDeclaration> perFileAnnos = new HashSet<>();
 			
 			for (int instanceIndex=0, size = instances.size(); instanceIndex < size; instanceIndex++) {
 				final Annotation instance = instances.get(instanceIndex);
@@ -426,7 +426,7 @@ public class BuildEnv extends AbstractCompilationEnv
     {
 		if( !_batchMode )
 			return super.searchLocallyForTypeDeclarations();
-		final List<AbstractTypeDeclaration> typeDecls = new ArrayList<AbstractTypeDeclaration>();
+		final List<AbstractTypeDeclaration> typeDecls = new ArrayList<>();
 		for( int i=0, len=_astRoots.length; i<len; i++ )
         	typeDecls.addAll( _astRoots[i].types() );
 		
@@ -460,7 +460,7 @@ public class BuildEnv extends AbstractCompilationEnv
     {
 		if( !_batchMode )
 			return super.getASTNodesWithAnnotations();
-    	final Map<ASTNode, List<Annotation>> astNode2Anno = new HashMap<ASTNode, List<Annotation>>();
+    	final Map<ASTNode, List<Annotation>> astNode2Anno = new HashMap<>();
         final AnnotatedNodeVisitor visitor = new AnnotatedNodeVisitor(astNode2Anno);        
         for( int i=0, len=_astRoots.length; i<len; i++ )
         	_astRoots[i].accept( visitor );

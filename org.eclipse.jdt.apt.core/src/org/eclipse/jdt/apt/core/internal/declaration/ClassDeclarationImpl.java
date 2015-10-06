@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -77,7 +77,7 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
 
     public Collection<ConstructorDeclaration> getConstructors()
     {
-    	final List<ConstructorDeclaration> results = new ArrayList<ConstructorDeclaration>();
+    	final List<ConstructorDeclaration> results = new ArrayList<>();
     	if( isFromSource() ){
     		// need to consult the ast since methods with broken signature 
     		// do not appear in bindings.

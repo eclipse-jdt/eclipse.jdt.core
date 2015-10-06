@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -211,7 +211,7 @@ public class FactoryPath implements IFactoryPath {
 			// so we're forced to do two copies.  Make the new map
 			// large enough that we don't have to rehash midway through the putAll().
 			Map<FactoryContainer, Attributes> newPath = 
-				new LinkedHashMap<FactoryContainer, Attributes>(1 + 4*(_path.size() + 1)/3);
+				new LinkedHashMap<>(1 + 4*(_path.size() + 1)/3);
 			newPath.put(fc, a);
 			newPath.putAll(_path);
 			_path.clear();
@@ -220,7 +220,7 @@ public class FactoryPath implements IFactoryPath {
 	}
 
 	public Map<FactoryContainer, Attributes> getEnabledContainers() {
-		Map<FactoryContainer, Attributes> map = new LinkedHashMap<FactoryContainer, Attributes>();
+		Map<FactoryContainer, Attributes> map = new LinkedHashMap<>();
 		synchronized(_path) {
 			for (Map.Entry<FactoryContainer, Attributes> entry : _path.entrySet()) {
 				Attributes attr = entry.getValue();
@@ -237,7 +237,7 @@ public class FactoryPath implements IFactoryPath {
 	 * @return a copy of the path
 	 */
 	public Map<FactoryContainer, Attributes> getAllContainers() {
-		Map<FactoryContainer, Attributes> map = new LinkedHashMap<FactoryContainer, Attributes>(_path.size());
+		Map<FactoryContainer, Attributes> map = new LinkedHashMap<>(_path.size());
 		synchronized(_path) {
 			for( Map.Entry<FactoryContainer, Attributes> entry : _path.entrySet() ){
 				map.put( entry.getKey(), new Attributes(entry.getValue()) );

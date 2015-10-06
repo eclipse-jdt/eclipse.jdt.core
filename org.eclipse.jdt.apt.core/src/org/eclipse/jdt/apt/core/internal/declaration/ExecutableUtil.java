@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,7 +55,7 @@ class ExecutableUtil {
 			if (methodAstNode == null)
 				return Collections.emptyList();
 	    	final List<TypeParameter> typeParams = methodAstNode.typeParameters();
-	    	final List<TypeParameterDeclaration> result = new ArrayList<TypeParameterDeclaration>();
+	    	final List<TypeParameterDeclaration> result = new ArrayList<>();
 	    	for(TypeParameter typeParam : typeParams){
 	    		final ITypeBinding typeBinding = typeParam.resolveBinding();
 	    		if( typeBinding == null ){
@@ -77,7 +77,7 @@ class ExecutableUtil {
 				final ITypeBinding[] typeParams = methodBinding.getTypeParameters();        
 		        if( typeParams == null || typeParams.length == 0 )
 		            return Collections.emptyList();
-		        final List<TypeParameterDeclaration> result = new ArrayList<TypeParameterDeclaration>();
+		        final List<TypeParameterDeclaration> result = new ArrayList<>();
 		        for( ITypeBinding typeVar : typeParams ){
 		            final TypeParameterDeclaration typeParamDecl = 
 		            	(TypeParameterDeclaration)Factory.createDeclaration(typeVar, env);
@@ -119,7 +119,7 @@ class ExecutableUtil {
 	    	final List<SingleVariableDeclaration> params = methodAstNode.parameters();
 	    	if( params == null || params.size() == 0 )
 	    		return Collections.emptyList();  
-	    	final List<ParameterDeclaration> result = new ArrayList<ParameterDeclaration>(params.size());
+	    	final List<ParameterDeclaration> result = new ArrayList<>(params.size());
 	    	for( int i=0, size=params.size(); i<size; i++ ){   		
 	    		final SingleVariableDeclaration varDecl = params.get(i);
 	    		final ParameterDeclaration param = 
@@ -138,7 +138,7 @@ class ExecutableUtil {
 	        final ITypeBinding[] paramTypes = methodBinding.getParameterTypes();
 	        if( paramTypes == null || paramTypes.length == 0 )
 	            return Collections.emptyList();        
-	        final List<ParameterDeclaration> result = new ArrayList<ParameterDeclaration>(paramTypes.length);        
+	        final List<ParameterDeclaration> result = new ArrayList<>(paramTypes.length);
 	        
 	        for( int i=0; i<paramTypes.length; i++ ){
 	            final ITypeBinding type = paramTypes[i];
@@ -178,7 +178,7 @@ class ExecutableUtil {
 	    	final List<Type> exceptions = methodAstNode.thrownExceptionTypes();
 	    	if(exceptions == null || exceptions.size() == 0 )
 	    		return Collections.emptyList();
-	    	final List<ReferenceType> results = new ArrayList<ReferenceType>(4);
+	    	final List<ReferenceType> results = new ArrayList<>(4);
 	    	for(Type exception : exceptions ){
 	    		final ITypeBinding eType = exception.resolveBinding();
 	    		final ReferenceType refType;
@@ -197,7 +197,7 @@ class ExecutableUtil {
 			final ExecutableDeclarationImpl impl = (ExecutableDeclarationImpl)executable;
 			final IMethodBinding methodBinding = impl.getDeclarationBinding();			
 	        final ITypeBinding[] exceptions = methodBinding.getExceptionTypes();
-	        final List<ReferenceType> results = new ArrayList<ReferenceType>(4);
+	        final List<ReferenceType> results = new ArrayList<>(4);
 	        for( ITypeBinding exception : exceptions ){
 	            final TypeDeclaration mirrorDecl = Factory.createReferenceType(exception, env);
 	            if( mirrorDecl != null)

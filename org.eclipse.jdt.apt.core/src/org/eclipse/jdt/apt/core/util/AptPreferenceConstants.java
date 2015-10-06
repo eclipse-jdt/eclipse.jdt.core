@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,7 +58,7 @@ public class AptPreferenceConstants {
 	public static Map<String,String> DEFAULT_OPTIONS_MAP;
 	
 	static {
-		Map<String,String> options = new HashMap<String,String>();
+		Map<String,String> options = new HashMap<>();
 		options.put(AptPreferenceConstants.APT_ENABLED, "false"); //$NON-NLS-1$
 		options.put(AptPreferenceConstants.APT_GENSRCDIR, DEFAULT_GENERATED_SOURCE_FOLDER_NAME);
 		options.put(AptPreferenceConstants.APT_PROCESSOROPTIONS, ""); //$NON-NLS-1$

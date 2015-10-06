@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -106,7 +106,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
     public Collection<ClassDeclaration> getClasses() {
     	initFragments();
     	List<IType> types = getTypesInPackage(_pkgFragments);
-		List<ClassDeclaration> classes = new ArrayList<ClassDeclaration>();
+		List<ClassDeclaration> classes = new ArrayList<>();
 		for (IType type : types) {
 			try {
 				// isClass() will return true if TypeDeclaration is an InterfaceDeclaration
@@ -126,7 +126,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
     public Collection<EnumDeclaration> getEnums() {
     	initFragments();
     	List<IType> types = getTypesInPackage(_pkgFragments);
-		List<EnumDeclaration> enums = new ArrayList<EnumDeclaration>();
+		List<EnumDeclaration> enums = new ArrayList<>();
 		for (IType type : types) {
 			try {
 				if (type.isEnum()) {
@@ -142,7 +142,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
     public Collection<InterfaceDeclaration> getInterfaces() {
     	initFragments();
     	List<IType> types = getTypesInPackage(_pkgFragments);
-		List<InterfaceDeclaration> interfaces = new ArrayList<InterfaceDeclaration>();
+		List<InterfaceDeclaration> interfaces = new ArrayList<>();
 		for (IType type : types) {
 			try {
 				if (type.isInterface()) {
@@ -219,7 +219,7 @@ public class PackageDeclarationImpl extends DeclarationImpl implements PackageDe
 	}
 	
 	private static List<IType> getTypesInPackage(final IPackageFragment[] fragments) {
-		List<IType> types = new ArrayList<IType>();
+		List<IType> types = new ArrayList<>();
 		try {
 			// Get all top-level classes -- ignore local, member, and anonymous classes
 			for (IPackageFragment fragment : fragments) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -213,7 +213,7 @@ public final class FactoryPathUtil {
 	public static Map<FactoryContainer, FactoryPath.Attributes> decodeFactoryPath(final String xmlFactoryPath) 
 	throws CoreException
 	{
-		Map<FactoryContainer, FactoryPath.Attributes> result = new LinkedHashMap<FactoryContainer, FactoryPath.Attributes>();
+		Map<FactoryContainer, FactoryPath.Attributes> result = new LinkedHashMap<>();
 		StringReader reader = new StringReader(xmlFactoryPath);
 		Element fpElement = null;
 
@@ -357,7 +357,7 @@ public final class FactoryPathUtil {
 		}
 		// if no project and no workspace data was found, we'll get the defaults
 		if (map == null) {
-			map = new LinkedHashMap<FactoryContainer, FactoryPath.Attributes>();
+			map = new LinkedHashMap<>();
 		}
 		boolean disableNewPlugins = (jproj != null) && foundPerProjFile;
 		updatePluginContainers(map, disableNewPlugins);
