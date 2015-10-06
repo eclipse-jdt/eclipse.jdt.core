@@ -11633,7 +11633,19 @@ public void testBug470665() throws Exception {
 	};
 	try {
 		this.enableAPT = true;
-		runConformTest(sources);
+		runNegativeTest(sources,
+				"----------\n" + 
+				"1. ERROR in A.java (at line 10)\n" + 
+				"	};\n" + 
+				"	^\n" + 
+				"Syntax error on token \"}\", delete this token\n" + 
+				"----------\n" + 
+				"----------\n" + 
+				"1. WARNING in B.java (at line 12)\n" + 
+				"	X x = new X();\n" + 
+				"	      ^^^^^^^\n" + 
+				"Access to enclosing constructor B.X() is emulated by a synthetic accessor method\n" + 
+				"----------\n");
 	} finally {
 		this.enableAPT = apt;
 	}
