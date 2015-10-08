@@ -757,8 +757,13 @@ public abstract class Scope {
 			} else if (!method.isOverriding() || !isOverriddenMethodGeneric(method)) {
 				return new ProblemMethodBinding(method, method.selector, genericTypeArguments, ProblemReasons.TypeParameterArityMismatch);
 			}
-		} else if (typeVariables == Binding.NO_TYPE_VARIABLES && method instanceof PolyParameterizedGenericMethodBinding) {
-			return method;
+		} else if (typeVariables == Binding.NO_TYPE_VARIABLES && method instanceof ParameterizedGenericMethodBinding) {
+			if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8 && invocationSite instanceof Invocation) {
+				Invocation invocation = (Invocation) invocationSite;
+				InferenceContext18 infCtx = invocation.getInferenceContext((ParameterizedGenericMethodBinding) method);
+				if (infCtx != null)
+					return method; // inference is responsible, no need to recheck.
+			}
 		}
 
 		if (tiebreakingVarargsMethods) {
