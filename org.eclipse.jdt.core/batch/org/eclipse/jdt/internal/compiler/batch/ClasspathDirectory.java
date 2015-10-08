@@ -19,8 +19,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.List;
-
-import org.eclipse.jdt.core.JavaCore;
+import java.util.Map;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
@@ -46,9 +45,10 @@ private String[] missingPackageHolder = new String[1];
 private int mode; // ability to only consider one kind of files (source vs. binaries), by default use both
 private String encoding; // only useful if referenced in the source path
 private Hashtable<String, Hashtable<String, String>> packageSecondaryTypes = null;
+Map options;
 
 ClasspathDirectory(File directory, String encoding, int mode,
-		AccessRuleSet accessRuleSet, String destinationPath) {
+		AccessRuleSet accessRuleSet, String destinationPath, Map options) {
 	super(accessRuleSet, destinationPath);
 	this.mode = mode;
 	try {
@@ -151,8 +151,8 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 	return null;
 }
 public NameEnvironmentAnswer findSecondaryInClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
-	boolean sourceExists = isPackage(qualifiedPackageName) && ((this.mode & SOURCE) != 0) && doesFileExist( new String(typeName) + SUFFIX_STRING_java, qualifiedPackageName);
-	return sourceExists ? null : findSourceSecondaryType(typeName, qualifiedPackageName, qualifiedBinaryFileName); /* only secondary types */
+	boolean prereqs = this.options != null && isPackage(qualifiedPackageName) && ((this.mode & SOURCE) != 0) && doesFileExist( new String(typeName) + SUFFIX_STRING_java, qualifiedPackageName);
+	return prereqs ? null : findSourceSecondaryType(typeName, qualifiedPackageName, qualifiedBinaryFileName); /* only secondary types */
 }
 
 @Override
@@ -191,7 +191,7 @@ private Hashtable<String, String> getPackageTypes(char[] typeName, String qualif
 		ProblemReporter problemReporter = 
 				new ProblemReporter(
 					DefaultErrorHandlingPolicies.proceedWithAllProblems(),
-					new CompilerOptions(JavaCore.getOptions()),
+					new CompilerOptions(this.options),
 					new DefaultProblemFactory());
 		Parser parser = new Parser(problemReporter, false);
 

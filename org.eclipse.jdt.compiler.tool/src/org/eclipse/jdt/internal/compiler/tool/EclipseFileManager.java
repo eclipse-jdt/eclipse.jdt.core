@@ -1053,7 +1053,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				customEncoding,
 				isSourceOnly,
 				accessRuleSet,
-				destPath);
+				destPath, null);
 		if (currentClasspath != null) {
 			paths.add(currentClasspath);
 		}

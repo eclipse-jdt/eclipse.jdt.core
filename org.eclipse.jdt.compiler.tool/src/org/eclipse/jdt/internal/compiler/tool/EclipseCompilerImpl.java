@@ -441,7 +441,7 @@ public class EclipseCompilerImpl extends Main {
 					Classpath classpath = FileSystem.getClasspath(
 						file.getAbsolutePath(),
 						null,
-						null);
+						null, this.options);
 					if (classpath != null) {
 						fileSystemClasspaths.add(classpath);
 						havePlatformPaths = true;
@@ -466,7 +466,7 @@ public class EclipseCompilerImpl extends Main {
 					Classpath classpath = FileSystem.getClasspath(
 							file.getAbsolutePath(),
 							null,
-							null);
+							null, this.options);
 					if (classpath != null) {
 						fileSystemClasspaths.add(classpath);
 					}
@@ -478,7 +478,7 @@ public class EclipseCompilerImpl extends Main {
 					Classpath classpath = FileSystem.getClasspath(
 						file.getAbsolutePath(),
 						null,
-						null);
+						null, this.options);
 					if (classpath != null) {
 						fileSystemClasspaths.add(classpath);
 						haveClassPaths = true;

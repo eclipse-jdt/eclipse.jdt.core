@@ -1572,7 +1572,7 @@ protected void addNewEntry(ArrayList paths, String currentClasspathName,
 			customEncoding,
 			isSourceOnly,
 			accessRuleSet,
-			destPath);
+			destPath, this.options);
 	if (currentClasspath != null) {
 		paths.add(currentClasspath);
 	} else if (currentClasspathName.length() != 0) {
@@ -3146,7 +3146,7 @@ protected ArrayList handleClasspath(ArrayList classpaths, String customEncoding)
 		String classProp = System.getProperty("java.class.path"); //$NON-NLS-1$
 		if ((classProp == null) || (classProp.length() == 0)) {
 			addPendingErrors(this.bind("configure.noClasspath")); //$NON-NLS-1$
-			final Classpath classpath = FileSystem.getClasspath(System.getProperty("user.dir"), customEncoding, null);//$NON-NLS-1$
+			final Classpath classpath = FileSystem.getClasspath(System.getProperty("user.dir"), customEncoding, null, this.options);//$NON-NLS-1$
 			if (classpath != null) {
 				classpaths.add(classpath);
 			}
@@ -3156,7 +3156,7 @@ protected ArrayList handleClasspath(ArrayList classpaths, String customEncoding)
 			while (tokenizer.hasMoreTokens()) {
 				token = tokenizer.nextToken();
 				FileSystem.Classpath currentClasspath = FileSystem
-						.getClasspath(token, customEncoding, null);
+						.getClasspath(token, customEncoding, null, this.options);
 				if (currentClasspath != null) {
 					classpaths.add(currentClasspath);
 				} else if (token.length() != 0) {
@@ -3234,7 +3234,7 @@ protected ArrayList handleEndorseddirs(ArrayList endorsedDirClasspaths) {
 						FileSystem.Classpath classpath =
 							FileSystem.getClasspath(
 									current[j].getAbsolutePath(),
-									null, null);
+									null, null, this.options);
 						if (classpath != null) {
 							endorsedDirClasspaths.add(classpath);
 						}
@@ -3294,7 +3294,7 @@ protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
 						FileSystem.Classpath classpath =
 							FileSystem.getClasspath(
 									current[j].getAbsolutePath(),
-									null, null);
+									null, null, this.options);
 						if (classpath != null) {
 							extdirsClasspaths.add(classpath);
 						}

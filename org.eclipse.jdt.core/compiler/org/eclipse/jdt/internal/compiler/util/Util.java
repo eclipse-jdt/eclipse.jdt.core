@@ -1095,7 +1095,7 @@ public class Util implements SuffixConstants {
 
 	public static void collectRunningVMBootclasspath(List bootclasspaths) {
 		for (String filePath : collectFilesNames()) {
-			FileSystem.Classpath currentClasspath = FileSystem.getClasspath(filePath, null, null);
+			FileSystem.Classpath currentClasspath = FileSystem.getClasspath(filePath, null, null, null);
 			if (currentClasspath != null) {
 				bootclasspaths.add(currentClasspath);
 			}
