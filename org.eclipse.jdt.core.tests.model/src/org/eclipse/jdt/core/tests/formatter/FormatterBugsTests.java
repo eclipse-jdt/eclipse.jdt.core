@@ -11808,4 +11808,25 @@ public void testBug477005() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/471202 - [formatter] Extra line break after annotation default expression
+ */
+public void testBug471202() {
+	String source =
+		"public @interface MyAnnotation {\r\n" + 
+		"	Attributes attributes() default @Attributes()\r\n" + 
+		"	;\r\n" + 
+		"\r\n" + 
+		"	@MyAnnotation(attributes = @Attributes() )\r\n" + 
+		"	String test();\r\n" + 
+		"}";
+	formatSource(source,
+		"public @interface MyAnnotation {\r\n" + 
+		"	Attributes attributes() default @Attributes();\r\n" + 
+		"\r\n" + 
+		"	@MyAnnotation(attributes = @Attributes())\r\n" + 
+		"	String test();\r\n" + 
+		"}"
+	);
+}
 }

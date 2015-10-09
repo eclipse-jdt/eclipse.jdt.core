@@ -470,7 +470,11 @@ public class SpacePreparator extends ASTVisitor {
 		}
 
 		ASTNode parent = node.getParent();
-		if (!(parent instanceof Annotation) && !(parent instanceof ArrayInitializer))
+		boolean skipSpaceAfter = parent instanceof Annotation || parent instanceof MemberValuePair
+				|| (parent instanceof AnnotationTypeMemberDeclaration
+						&& ((AnnotationTypeMemberDeclaration) parent).getDefault() == node)
+				|| parent instanceof ArrayInitializer;
+		if (!skipSpaceAfter)
 			this.tm.lastTokenIn(node, -1).spaceAfter();
 	}
 
