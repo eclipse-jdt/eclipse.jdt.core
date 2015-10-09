@@ -457,9 +457,11 @@ public class LineBreaksPreparator extends ASTVisitor {
 			breakAfter = this.options.insert_new_line_after_annotation_on_type;
 		} else if (parentNode instanceof FieldDeclaration) {
 			breakAfter = this.options.insert_new_line_after_annotation_on_field;
-		} else if (parentNode instanceof MethodDeclaration
-				|| parentNode instanceof AnnotationTypeMemberDeclaration) {
+		} else if (parentNode instanceof MethodDeclaration) {
 			breakAfter = this.options.insert_new_line_after_annotation_on_method;
+		} else if (parentNode instanceof AnnotationTypeMemberDeclaration) {
+			breakAfter = this.options.insert_new_line_after_annotation_on_method
+					&& ((AnnotationTypeMemberDeclaration) parentNode).getDefault() != node;
 		} else if (parentNode instanceof VariableDeclarationStatement
 				|| parentNode instanceof VariableDeclarationExpression) {
 			breakAfter = this.options.insert_new_line_after_annotation_on_local_variable;
