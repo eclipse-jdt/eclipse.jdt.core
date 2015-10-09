@@ -16,7 +16,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -539,7 +538,7 @@ public class SourceMapper
 			try {
 				JimagePackageNamesAdderVisitor jimagePackageNamesAdderVisitor = new JimagePackageNamesAdderVisitor(firstLevelPackageNames, 
 						sourceLevel, complianceLevel, containsADefaultPackage, containsJavaSource, root);
-				org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(new File(root.toString()), jimagePackageNamesAdderVisitor, JimageUtil.NOTIFY_FILES);
+				org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(root.getPath().toFile(), jimagePackageNamesAdderVisitor, JimageUtil.NOTIFY_FILES);
 				sourceLevel = jimagePackageNamesAdderVisitor.sourceLevel;
 				complianceLevel = jimagePackageNamesAdderVisitor.complianceLevel;
 				containsADefaultPackage = jimagePackageNamesAdderVisitor.containsADefaultPackage;

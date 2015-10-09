@@ -18,12 +18,16 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +38,7 @@ import java.util.Set;
 
 public class JimageUtil {
 
+	public static final String JAVA_DOT = "java."; //$NON-NLS-1$
 	public static final String JAVA_BASE = "java.base"; //$NON-NLS-1$
 	static final String MODULES_SUBDIR = "/modules"; //$NON-NLS-1$
 	static final String[] DEFAULT_MODULE = new String[]{JAVA_BASE};
@@ -41,13 +46,17 @@ public class JimageUtil {
 	static final String MULTIPLE = "MU"; //$NON-NLS-1$
 	static final String DEFAULT_PACKAGE = ""; //$NON-NLS-1$
 	static final String MODULES_ON_DEMAND = System.getProperty("modules"); //$NON-NLS-1$
+	static final String JRT_FS_JAR = "jrt-fs.jar"; //$NON-NLS-1$
 	static URI JRT_URI = URI.create("jrt:/"); //$NON-NLS-1$
 	public static int NOTIFY_FILES = 0x0001;
 	public static int NOTIFY_PACKAGES = 0x0002;
 	public static int NOTIFY_MODULES = 0x0004;
 	public static int NOTIFY_ALL = NOTIFY_FILES | NOTIFY_PACKAGES | NOTIFY_MODULES;
-			
+
+	// TODO: Think about clearing the cache too.
 	private static Map<File, JimageFileSystem> images = null;
+
+	private static final Object lock = new Object();
 
 	public interface JimageVisitor<T> {
 
@@ -86,17 +95,28 @@ public class JimageUtil {
 	}
 
 	public static JimageFileSystem getJimageSystem(File image) {
-		JimageFileSystem system = null;
+		Map<File, JimageFileSystem> i = images;
 		if (images == null) {
-			images = new HashMap<>();
-			images.put(image, system = new JimageFileSystem(image));
-			return system;
+			synchronized (lock) {
+	            i = images;
+	            if (i == null) {
+	            	images = i = new HashMap<>();
+	            }
+	        }
 		}
-		system = images.get(image);
-		if (system == null) {
-			images.put(image, system = new JimageFileSystem(image));
+		JimageFileSystem system = null;
+		synchronized(i) {
+			if ((system = images.get(image)) == null) {
+				try {
+					images.put(image, system = new JimageFileSystem(image));
+				} catch (IOException e) {
+					e.printStackTrace();
+					// Needs better error handling downstream? But for now, make sure 
+					// a dummy JimageFileSystem is not created.
+				}
+			}
 		}
-		return system;
+	    return system;
 	}
 
 	/**
@@ -134,6 +154,8 @@ class JimageFileSystem {
 	private final Map<String, String> packageToModule = new HashMap<String, String>();
 
 	private final Map<String, List<String>> packageToModules = new HashMap<String, List<String>>();
+
+	FileSystem jrt = null;
 	
 	private final Set<String> notFound = new HashSet<>();
 
@@ -142,16 +164,18 @@ class JimageFileSystem {
 	 * when we know how to read a particular jimage, we will make use of this.
 	 *
 	 * @param image
+	 * @throws IOException 
 	 */
-	public JimageFileSystem(File image) {
+	public JimageFileSystem(File image) throws IOException {
 		initialize(image);
 	}
-	void initialize(File image) {
-		try {
-			walkModuleImage(null, true, 0 /* doesn't matter */);
-		} catch (IOException e) {
-			// Continue to exist as a dummy file system?
-		}
+	void initialize(File image) throws IOException {
+		String jdkHome = image.getParentFile().getParentFile().getParent();
+		URL url = Paths.get(jdkHome, JimageUtil.JRT_FS_JAR).toUri().toURL();
+		URLClassLoader loader = new URLClassLoader(new URL[] { url });
+		HashMap<String, ?> env = new HashMap<>();
+		this.jrt = FileSystems.newFileSystem(JimageUtil.JRT_URI, env, loader);
+		walkModuleImage(null, true, 0 /* doesn't matter */);
 	}
 
 	public String[] getModules(String fileName) {
@@ -175,13 +199,12 @@ class JimageFileSystem {
 	}
 
 	public InputStream getContentFromJimage(String fileName, String module) throws IOException {
-		java.nio.file.FileSystem fs = FileSystems.getFileSystem(JimageUtil.JRT_URI);
 		if (module != null) {
-			return Files.newInputStream(fs.getPath(JimageUtil.MODULES_SUBDIR, module, fileName));
+			return Files.newInputStream(this.jrt.getPath(JimageUtil.MODULES_SUBDIR, module, fileName));
 		}
 		String[] modules = getModules(fileName);
 		for (String mod : modules) {
-			return Files.newInputStream(fs.getPath(JimageUtil.MODULES_SUBDIR, mod, fileName));
+			return Files.newInputStream(this.jrt.getPath(JimageUtil.MODULES_SUBDIR, mod, fileName));
 		}
 		return null;
 	}
@@ -189,14 +212,13 @@ class JimageFileSystem {
 	public byte[] getClassfileContent(String fileName, String module) throws IOException {
 		if (this.notFound.contains(fileName)) 
 			return null;
-		java.nio.file.FileSystem fs = FileSystems.getFileSystem(JimageUtil.JRT_URI);
 		if (module != null) {
-			return Files.readAllBytes(fs.getPath(JimageUtil.MODULES_SUBDIR, module, fileName));
+			return Files.readAllBytes(this.jrt.getPath(JimageUtil.MODULES_SUBDIR, module, fileName));
 		}
 		String[] modules = getModules(fileName);
 		for (String string : modules) {
 			try {
-				byte[] bytes = Files.readAllBytes(fs.getPath(JimageUtil.MODULES_SUBDIR, string, fileName));
+				byte[] bytes = Files.readAllBytes(this.jrt.getPath(JimageUtil.MODULES_SUBDIR, string, fileName));
 				if (bytes != null) return bytes;
 			} catch(NoSuchFileException e) {
 				continue;
@@ -207,8 +229,7 @@ class JimageFileSystem {
 	}
 
 	void walkModuleImage(final JimageUtil.JimageVisitor<java.nio.file.Path> visitor, boolean visitPackageMapping, final int notify) throws IOException {
-		java.nio.file.FileSystem fs = FileSystems.getFileSystem(JimageUtil.JRT_URI);
-		Iterable<java.nio.file.Path> roots = fs.getRootDirectories();
+		Iterable<java.nio.file.Path> roots = this.jrt.getRootDirectories();
 		for (java.nio.file.Path path : roots) {
 			try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(path)) {
 				for (final java.nio.file.Path subdir: stream) {
@@ -221,7 +242,9 @@ class JimageFileSystem {
 								if (count == 2) {
 									// e.g. /modules/java.base
 									java.nio.file.Path mod = dir.getName(1);
-									if (JimageUtil.MODULES_ON_DEMAND != null && JimageUtil.MODULES_ON_DEMAND.indexOf(mod.toString()) == -1) {
+									if (!mod.toString().startsWith(JimageUtil.JAVA_DOT) ||
+											(JimageUtil.MODULES_ON_DEMAND != null &&
+											JimageUtil.MODULES_ON_DEMAND.indexOf(mod.toString()) == -1)) {
 										return FileVisitResult.SKIP_SUBTREE;
 									}
 									return ((notify & JimageUtil.NOTIFY_MODULES) == 0) ? 
@@ -250,6 +273,11 @@ class JimageFileSystem {
 						Files.walkFileTree(subdir, new JimageUtil.AbstractFileVisitor<java.nio.file.Path>() {
 							@Override
 							public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
+								// e.g. /modules/java.base
+								java.nio.file.Path mod = file.getName(file.getNameCount() - 1);
+								if (!mod.toString().startsWith(JimageUtil.JAVA_DOT)) {
+									return FileVisitResult.CONTINUE;
+								}
 								java.nio.file.Path relative = subdir.relativize(file);
 								cachePackage(relative.getParent().toString(), relative.getFileName().toString());
 								return FileVisitResult.CONTINUE;
