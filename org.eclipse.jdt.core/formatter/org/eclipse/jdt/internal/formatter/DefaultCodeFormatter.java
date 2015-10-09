@@ -202,9 +202,11 @@ public class DefaultCodeFormatter extends CodeFormatter {
 
 	private void findHeader() {
 		if (this.astRoot instanceof CompilationUnit) {
-			List<TypeDeclaration> types = ((CompilationUnit) this.astRoot).types();
-			if (!types.isEmpty()) {
-				int headerEndIndex = this.tokenManager.firstIndexIn(types.get(0), -1);
+			CompilationUnit unit = (CompilationUnit) this.astRoot;
+			List<TypeDeclaration> types = unit.types();
+			ASTNode firstElement = types.isEmpty() ? unit.getPackage() : types.get(0);
+			if (firstElement != null) {
+				int headerEndIndex = this.tokenManager.firstIndexIn(firstElement, -1);
 				this.tokenManager.setHeaderEndIndex(headerEndIndex);
 			}
 		}
