@@ -11812,4 +11812,133 @@ public void testBug471202() {
 		"}"
 	);
 }
+/**
+ * https://bugs.eclipse.org/475791 - [formatter] Additional blank line before static initializer
+ */
+public void testBug475791() {
+	this.formatterPrefs.blank_lines_before_new_chunk = 0;
+	String source =
+		"public class Example {\r\n" + 
+		"	static String staticField;\r\n" + 
+		"	static {}\r\n" + 
+		"	String field;\r\n" + 
+		"	{}\r\n" + 
+		"	static String staticField2;\r\n" + 
+		"	{}\r\n" + 
+		"	String field2;\r\n" + 
+		"	static {}\r\n" + 
+		"	static void staticMethod() {};\r\n" + 
+		"	static {}\r\n" + 
+		"	void method() {}\r\n" + 
+		"	static{}\r\n" + 
+		"	{}\r\n" + 
+		"	static class staticClass {};\r\n" + 
+		"	{}\r\n" + 
+		"	static{}\r\n" + 
+		"}";
+	formatSource(source,
+		"public class Example {\r\n" + 
+		"	static String staticField;\r\n" + 
+		"	static {\r\n" + 
+		"	}\r\n" + 
+		"	String field;\r\n" + 
+		"	{\r\n" + 
+		"	}\r\n" + 
+		"	static String staticField2;\r\n" + 
+		"	{\r\n" + 
+		"	}\r\n" + 
+		"	String field2;\r\n" + 
+		"	static {\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	static void staticMethod() {\r\n" + 
+		"	};\r\n" + 
+		"	static {\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	void method() {\r\n" + 
+		"	}\r\n" + 
+		"	static {\r\n" + 
+		"	}\r\n" + 
+		"	{\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	static class staticClass {\r\n" + 
+		"	};\r\n" + 
+		"	{\r\n" + 
+		"	}\r\n" + 
+		"	static {\r\n" + 
+		"	}\r\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/475791 - [formatter] Additional blank line before static initializer
+ */
+public void testBug475791b() {
+	this.formatterPrefs.blank_lines_before_new_chunk = 2;
+	String source =
+		"public class Example {\r\n" + 
+		"	static String staticField;\r\n" + 
+		"	static {}\r\n" + 
+		"	String field;\r\n" + 
+		"	{}\r\n" + 
+		"	static String staticField2;\r\n" + 
+		"	{}\r\n" + 
+		"	String field2;\r\n" + 
+		"	static {}\r\n" + 
+		"	static void staticMethod() {};\r\n" + 
+		"	static {}\r\n" + 
+		"	void method() {}\r\n" + 
+		"	static{}\r\n" + 
+		"	{}\r\n" + 
+		"	static class staticClass {};\r\n" + 
+		"	{}\r\n" + 
+		"	static{}\r\n" + 
+		"}";
+	formatSource(source,
+		"public class Example {\r\n" + 
+		"	static String staticField;\r\n" + 
+		"	static {\r\n" + 
+		"	}\r\n" + 
+		"	String field;\r\n" + 
+		"	{\r\n" + 
+		"	}\r\n" + 
+		"	static String staticField2;\r\n" + 
+		"	{\r\n" + 
+		"	}\r\n" + 
+		"	String field2;\r\n" + 
+		"	static {\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	static void staticMethod() {\r\n" + 
+		"	};\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	static {\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	void method() {\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	static {\r\n" + 
+		"	}\r\n" + 
+		"	{\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	static class staticClass {\r\n" + 
+		"	};\r\n" + 
+		"\r\n" + 
+		"\r\n" + 
+		"	{\r\n" + 
+		"	}\r\n" + 
+		"	static {\r\n" + 
+		"	}\r\n" + 
+		"}"
+	);
+}
 }
