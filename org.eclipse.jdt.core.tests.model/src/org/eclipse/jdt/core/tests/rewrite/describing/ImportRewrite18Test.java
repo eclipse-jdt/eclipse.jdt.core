@@ -22,11 +22,14 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.Annotation;
+import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -750,6 +753,48 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 			cu = getCompilationUnit("/" + PROJECT + "/src/pack1/A.java");
 			assertEqualStringIgnoreDelim(cu.getSource(), contents);
 		}
+	}
+
+	public void testBug474270_since_8() throws Exception {
+		String contents = 
+				"package pack1;\n" +
+				"import java.util.Comparator;\n" +
+				"interface Comparator<T> {\n" +
+				"    int compare(T o1, T o2);\n" +
+				"    public static <T extends Comparable<? super T>> Comparator<T> naturalOrder() {\n" +
+				"		return null;\n" +
+				"    }\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    Comparator mComparator1 = null;\n" +
+				"	 Comparator mComparator2 = (pObj1, pObj2) -> mComparator1.compare(pObj1, pObj2);\n" +
+				"    X() {mComparator1 = Comparator.naturalOrder();}\n" +
+				"}\n";
+		createFolder("/" + PROJECT + "/src/pack1");
+		createFile("/" + PROJECT + "/src/pack1/X.java", contents);
+
+		ICompilationUnit cu = getCompilationUnit("/" + PROJECT + "/src/pack1/X.java");
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setSource(cu);
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(true);
+		CompilationUnit astRoot = (CompilationUnit) parser.createAST(null);	
+		TypeDeclaration type= (TypeDeclaration) astRoot.types().get(1);
+		MethodDeclaration [] methods =  type.getMethods();
+		MethodDeclaration method = methods[0];
+		ExpressionStatement stmt =  (ExpressionStatement) method.getBody().statements().get(0);
+		Assignment assignment = (Assignment) stmt.getExpression();
+		MethodInvocation invocation = (MethodInvocation) assignment.getRightHandSide();
+		ITypeBinding typeBinding = invocation.resolveTypeBinding();
+		typeBinding = typeBinding.getDeclaredMethods()[0].getParameterTypes()[0];
+		contents = "package pack2;\n" +
+				"\n" +
+				"public class A{}\n";
+		createFolder("/" + PROJECT + "/src/pack2");
+		createFile("/" + PROJECT + "/src/pack2/A.java", contents);
+		cu = getCompilationUnit("/" + PROJECT + "/src/pack2/A.java");
+		ImportRewrite rewrite = newImportsRewrite(cu, new String[0], 99, 99, true);
+		rewrite.addImport(typeBinding, astRoot.getAST());
 	}
 
 	private void assertEqualStringIgnoreDelim(String actual, String expected) throws IOException {

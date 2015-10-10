@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -338,7 +338,7 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 		} else {
 			if (concreteMethod != null && concreteMethod.isDefaultMethod()) {
 				if (this.environment.globalOptions.complianceLevel >= ClassFileConstants.JDK1_8) {
-					if (!checkInheritedDefaultMethods(methods, length))
+					if (!checkInheritedDefaultMethods(methods, isOverridden, length))
 						return;
 				}
 			}
@@ -346,21 +346,21 @@ void checkInheritedMethods(MethodBinding[] methods, int length, boolean[] isOver
 		super.checkInheritedMethods(methods, length, isOverridden, isInherited);
 	}
 }
-boolean checkInheritedDefaultMethods(MethodBinding[] methods, int length) {
-	// JLS8  9.4.1 (interface) and  8.4.8.4 (class):
+boolean checkInheritedDefaultMethods(MethodBinding[] methods, boolean[] isOverridden, int length) {
+	// JLS8  9.4.1.3 (interface) and  8.4.8.4 (class):
 	// default method clashes with other inherited method which is override-equivalent 
 	if (length < 2) return true;
 	boolean ok = true;
 	findDefaultMethod: for (int i=0; i<length; i++) {
-		if (methods[i].isDefaultMethod()) {
+		if (methods[i].isDefaultMethod() && !isOverridden[i]) {
 			findEquivalent: for (int j=0; j<length; j++) {
-				if (j == i) continue findEquivalent;
+				if (j == i || isOverridden[j]) continue findEquivalent;
 				if (isMethodSubsignature(methods[i], methods[j])) {
 					if (!doesMethodOverride(methods[i], methods[j]) && !doesMethodOverride(methods[j], methods[i])) { 
 						problemReporter().inheritedDefaultMethodConflictsWithOtherInherited(this.type, methods[i], methods[j]);
 						ok = false;
+						continue findDefaultMethod;
 					}
-					continue findDefaultMethod;
 				}
 			}
 		}

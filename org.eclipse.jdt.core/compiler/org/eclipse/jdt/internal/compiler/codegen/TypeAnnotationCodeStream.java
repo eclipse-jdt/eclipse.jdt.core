@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2014 IBM Corporation and others.
+ * Copyright (c) 2012, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -81,7 +81,7 @@ public class TypeAnnotationCodeStream extends StackMapFrameCodeStream {
 		super.newArray(typeReference, allocationExpression, arrayBinding);
 	}
 	
-	public void checkcast(TypeReference typeReference, TypeBinding typeBinding) {
+	public void checkcast(TypeReference typeReference, TypeBinding typeBinding, int currentPosition) {
 		/* We use a slightly sub-optimal generation for intersection casts by resorting to a runtime cast for every intersecting type, but in
 		   reality this should not matter. In its intended use form such as (I & Serializable) () -> {}, no cast is emitted at all. Also note
 		   intersection cast type references cannot nest i.e ((X & I) & J) is not valid syntax.
@@ -91,13 +91,21 @@ public class TypeAnnotationCodeStream extends StackMapFrameCodeStream {
 			for (int i = typeReferences.length - 1; i >= 0; i--) {  // need to emit right to left.
 				typeReference = typeReferences[i];
 				if (typeReference != null) {
-					if ((typeReference.bits & ASTNode.HasTypeAnnotations) != 0)
-						addAnnotationContext(typeReference, this.position, i, AnnotationTargetTypeConstants.CAST);
-					super.checkcast(typeReference, typeReference.resolvedType);
+					if ((typeReference.bits & ASTNode.HasTypeAnnotations) != 0) {
+						if (!typeReference.resolvedType.isBaseType()) {
+							addAnnotationContext(typeReference, this.position, i, AnnotationTargetTypeConstants.CAST);
+						} else {
+							// for base type record it against the start position of the expression
+							addAnnotationContext(typeReference, currentPosition, i, AnnotationTargetTypeConstants.CAST);
+						}
+					}
+					if (!typeReference.resolvedType.isBaseType()) {
+						super.checkcast(typeReference, typeReference.resolvedType, currentPosition);
+					}
 				}
 			}
 		} else {
-			super.checkcast(null, typeBinding);
+			super.checkcast(null, typeBinding, currentPosition);
 		}
 	}
 	

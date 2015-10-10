@@ -70,6 +70,9 @@ public class Token {
 		}
 	}
 
+	/** Special token type used to mark tokens that store empty line indentation */
+	public static final int TokenNameEMPTY_LINE = 10000;
+
 	/** Position in source of the first character. */
 	public final int originalStart;
 	/** Position in source of the last character (this position is included in the token). */
@@ -276,6 +279,8 @@ public class Token {
 	}
 
 	public String toString(String source) {
+		if (this.tokenType == TokenNameEMPTY_LINE)
+			return ""; //$NON-NLS-1$
 		return source.substring(this.originalStart, this.originalEnd + 1);
 	}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2015 BEA Systems, Inc and others. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
+ *    IBM Corporation - Bug 478427
  *    
  *******************************************************************************/
 
@@ -97,7 +98,7 @@ public class IdeAnnotationProcessorManager extends BaseAnnotationProcessorManage
 				}
 				_processors.add(pi);
 				return pi;
-			} catch (CoreException e) {
+			} catch (CoreException | NoClassDefFoundError e) {
 				Apt6Plugin.log(e, "Unable to create instance of annotation processor " + entry.getKey()); //$NON-NLS-1$
 			}
 		}

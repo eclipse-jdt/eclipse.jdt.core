@@ -123,6 +123,7 @@ public class SwitchStatement extends Statement {
 						if (caseInits == FlowInfo.DEAD_END) {
 							fallThroughState = ESCAPING;
 						}
+						switchContext.expireNullCheckedFieldInfo();
 					}
 				}
 			}

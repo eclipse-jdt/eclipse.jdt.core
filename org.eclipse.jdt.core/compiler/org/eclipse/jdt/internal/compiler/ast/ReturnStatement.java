@@ -171,6 +171,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	currentScope.checkUnclosedCloseables(flowInfo, flowContext, this, currentScope);
 	// inside conditional structure respect that a finally-block may conditionally be entered directly from here
 	flowContext.recordAbruptExit();
+	flowContext.expireNullCheckedFieldInfo();
 	return FlowInfo.DEAD_END;
 }
 @Override

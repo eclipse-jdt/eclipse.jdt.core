@@ -110,11 +110,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 							return ConstraintTypeFormula.create(exprType, this.right, COMPATIBLE, this.isSoft);
 						}
 						if (innerCtx.stepCompleted >= InferenceContext18.APPLICABILITY_INFERRED) {
-							inferenceContext.currentBounds.addBounds(innerCtx.b2, inferenceContext.environment);
-							inferenceContext.inferenceVariables = innerCtx.inferenceVariables;
-							inferenceContext.inferenceKind = innerCtx.inferenceKind;
-							innerCtx.outerContext = inferenceContext;
-							inferenceContext.usesUncheckedConversion = innerCtx.usesUncheckedConversion;
+							inferenceContext.integrateInnerInferenceB2(innerCtx);
 						} else {
 							return FALSE; // should not reach here.
 						}
@@ -362,11 +358,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				// spec says erasure, but we don't really have compatibility rules for erasure, use raw type instead:
 				TypeBinding erasure = inferenceContext.environment.convertToRawType(returnType, false);
 				ConstraintTypeFormula newConstraint = ConstraintTypeFormula.create(erasure, targetType, COMPATIBLE);
-				if (!inferenceContext.reduceAndIncorporate(newConstraint))
-					return false;
-				// continuing at true is not spec'd but needed for javac-compatibility,
-				// see org.eclipse.jdt.core.tests.compiler.regression.GenericsRegressionTest_1_8.testBug428198()
-				// and org.eclipse.jdt.core.tests.compiler.regression.GenericsRegressionTest_1_8.testBug428264()
+				return inferenceContext.reduceAndIncorporate(newConstraint);
 			}
 			TypeBinding rTheta = inferenceContext.substitute(returnType);
 			ParameterizedTypeBinding parameterizedType = InferenceContext18.parameterizedWithWildcard(rTheta);

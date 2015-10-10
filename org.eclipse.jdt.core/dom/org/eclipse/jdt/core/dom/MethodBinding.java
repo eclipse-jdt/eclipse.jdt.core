@@ -39,16 +39,16 @@ class MethodBinding implements IMethodBinding {
 	private static final ITypeBinding[] NO_TYPE_BINDINGS = new ITypeBinding[0];
 	protected org.eclipse.jdt.internal.compiler.lookup.MethodBinding binding;
 	protected BindingResolver resolver;
-	private ITypeBinding[] parameterTypes;
-	private ITypeBinding[] exceptionTypes;
-	private String name;
-	private ITypeBinding declaringClass;
-	private ITypeBinding returnType;
-	private String key;
-	private ITypeBinding[] typeParameters;
-	private ITypeBinding[] typeArguments;
-	private IAnnotationBinding[] annotations;
-	private IAnnotationBinding[][] parameterAnnotations;
+	private volatile ITypeBinding[] parameterTypes;
+	private volatile ITypeBinding[] exceptionTypes;
+	private volatile String name;
+	private volatile ITypeBinding declaringClass;
+	private volatile ITypeBinding returnType;
+	private volatile String key;
+	private volatile ITypeBinding[] typeParameters;
+	private volatile ITypeBinding[] typeArguments;
+	private volatile IAnnotationBinding[] annotations;
+	private volatile IAnnotationBinding[][] parameterAnnotations;
 
 	MethodBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.MethodBinding binding) {
 		this.resolver = resolver;

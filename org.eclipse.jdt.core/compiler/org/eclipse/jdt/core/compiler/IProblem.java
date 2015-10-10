@@ -302,6 +302,14 @@ boolean isError();
 boolean isWarning();
 
 /**
+ * Checks the severity to see if the problem is an information.
+ *
+ * @return true if the information bit is set for the severity, false otherwise
+ * @since 3.12
+ */
+boolean isInfo();
+
+/**
  * Set the end position of the problem (inclusive), or -1 if unknown.
  * Used for shifting problem positions.
  *

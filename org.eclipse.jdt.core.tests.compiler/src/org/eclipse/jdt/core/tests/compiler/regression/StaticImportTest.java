@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3192,6 +3192,39 @@ public class StaticImportTest extends AbstractComparableTest {
 						"	  ^\n" + 
 						"The type I is ambiguous\n" + 
 						"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=479287
+	// erroneous compile error using static imports and generics
+	public void testBug479287() {
+		this.runConformTest(
+			new String[] {
+				"joetest/GenericsIssue.java",
+				"package joetest;\n" + 
+				"import static joetest.GenericsIssueCollaborator.takesAnything;\n" + 
+				"import java.util.Collection;\n" + 
+				"import java.util.Collections;\n" + 
+				"public class GenericsIssue {\n" + 
+				"	private void oddCompileError() {\n" + 
+				"		takesAnything(returnThings(\"works without wildcard in return value\"));\n" + 
+				"		GenericsIssueCollaborator.takesAnything(returnThingsWildcard(\"works without static import\"));\n" + 
+				"		takesAnything(returnThingsWildcard(\"doesn\'t work with static import\"));\n" + 
+				"	}\n" + 
+				"	private <T> Collection<T> returnThings(T thing) {\n" + 
+				"		return Collections.singleton(thing);\n" + 
+				"	}\n" + 
+				"		\n" + 
+				"	private <T> Collection<? extends T> returnThingsWildcard(T toReturn) {\n" + 
+				"		return Collections.singleton(toReturn);\n" + 
+				"	}\n" + 
+				"}",
+				"joetest/GenericsIssueCollaborator.java",
+				"package joetest;\n" + 
+				"public class GenericsIssueCollaborator {\n" + 
+				"	public static <T> void takesAnything(T thing) {\n" + 
+				"		System.out.println(\"TOOK IT: \" + thing);\n" + 
+				"	}\n" + 
+				"}"
+			});
 	}
 }
 

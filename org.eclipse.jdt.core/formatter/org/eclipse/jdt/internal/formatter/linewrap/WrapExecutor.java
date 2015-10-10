@@ -320,6 +320,7 @@ public class WrapExecutor {
 						findWrapsCached(index, currentIndent);
 						break;
 					}
+					currentIndent = Math.max(currentIndent, token.getAlign());
 					token.setIndent(currentIndent);
 				}
 				token = this.tm.get(index);
@@ -346,6 +347,7 @@ public class WrapExecutor {
 					break;
 				if (shouldForceWrap(token, currentIndent))
 					currentIndent = token.getIndent();
+				currentIndent = Math.max(currentIndent, token.getAlign());
 				token.setIndent(currentIndent);
 			}
 		}
@@ -634,8 +636,8 @@ public class WrapExecutor {
 
 	int getWrapIndent(Token token) {
 		WrapPolicy policy = token.getWrapPolicy();
-		if (policy == null || (token.getLineBreaksBefore() > 1 && !policy.isForced && !policy.isTopPriority()))
-			return token.getIndent(); // no additional indentation after an empty line
+		if (policy == null)
+			return token.getIndent();
 
 		if (this.options.never_indent_line_comments_on_first_column && token.tokenType == TokenNameCOMMENT_LINE
 				&& token.getIndent() == 0)

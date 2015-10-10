@@ -1047,11 +1047,10 @@ private Map<Integer, List<String>> getSplitNames(MethodBinding method) {
  * Selects the most applicable method (though similar but not to be confused with its namesake in jls)
  * All this machinery for that elusive uncommon case referred in bug 431357.
  */
-private MethodBinding getMostApplicableMethod(List<MethodBinding> possibleMethods) {
+private MethodBinding getMostApplicableMethod(List<MethodBinding> possibleMethods, MethodPattern methodPattern) {
 	int size = possibleMethods.size();
 	MethodBinding result = size != 0 ? possibleMethods.get(0) : null;
 	if (size > 1) {
-		MethodPattern methodPattern =  ((MethodPattern) this.pattern);
 		// can cache but may not be worth since this is not a common case
 		Map<Integer, List<String>> methodPatternReverseNames = getSplitNames(methodPattern.parameterQualifications, methodPattern.parameterSimpleNames);
 		int len = possibleMethods.size();
@@ -1133,7 +1132,7 @@ private MethodBinding getMethodBinding0(MethodPattern methodPattern) {
 					possibleMethods.add(methods[i]);
 				}
 			}
-			result =  getMostApplicableMethod(possibleMethods);
+			result =  getMostApplicableMethod(possibleMethods, methodPattern);
 		}
 	}
 	this.bindings.put(methodPattern, result != null ? result : new ProblemMethodBinding(methodPattern.selector, null, ProblemReasons.NotFound));

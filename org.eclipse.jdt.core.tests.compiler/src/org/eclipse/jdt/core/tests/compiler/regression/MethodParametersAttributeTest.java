@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 Jesper Steen Moeller and others.
+ * Copyright (c) 2013, 2015 Jesper Steen Moeller and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -873,6 +873,65 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 			"        final synthetic this$0\n" + 
 			"        final synthetic this$1\n";
 		assertSubstring(actualOutput, expectedOutput);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=476528
+	public void test016() throws Exception {
+		// Test that the name argument of enum valueOf shows up as mandated
+		
+		this.runParameterNameTest(
+			"Foo.java",
+			"public enum Foo {\n" + 
+			"	BAR;\n" +
+			"   public static Foo valueOf(int intParameter) {\n" + 
+			"		return BAR;\n" +
+			"   }\n" + 
+			"   public static Foo valueOf2(int intParameter) {\n" + 
+			"		return BAR;\n" +
+			"   } \n" + 
+			"}\n");
+
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String path = OUTPUT_DIR + File.separator + "Foo.class";
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(path));
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED);
+
+		String expectedOutput =
+			"  // Stack: 1, Locals: 1\n" + 
+			"  public static Foo valueOf(int intParameter);\n" + 
+			"    0  getstatic Foo.BAR : Foo [17]\n" + 
+			"    3  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 4]\n" + 
+			"      Method Parameters:\n" + 
+			"        intParameter\n" + 
+			"  \n" + 
+			"  // Method descriptor #27 (I)LFoo;\n" + 
+			"  // Stack: 1, Locals: 1\n" + 
+			"  public static Foo valueOf2(int intParameter);\n" + 
+			"    0  getstatic Foo.BAR : Foo [17]\n" + 
+			"    3  areturn\n" + 
+			"      Line numbers:\n" + 
+			"        [pc: 0, line: 7]\n" + 
+			"      Method Parameters:\n" + 
+			"        intParameter\n"; 
+		assertSubstring(actualOutput, expectedOutput);
+		// Test that synthetic method gets the right parameter names
+		expectedOutput =
+				"  public static Foo valueOf(java.lang.String name);\n" + 
+				"     0  ldc <Class Foo> [1]\n" + 
+				"     2  aload_0 [name]\n" + 
+				"     3  invokestatic java.lang.Enum.valueOf(java.lang.Class, java.lang.String) : java.lang.Enum [39]\n" + 
+				"     6  checkcast Foo [1]\n" + 
+				"     9  areturn\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 1]\n" + 
+				"      Method Parameters:\n" + 
+				"        mandated name\n"; 
+			assertSubstring(actualOutput, expectedOutput);
 	}
 
 	private void runParameterNameTest(String fileName, String body) {

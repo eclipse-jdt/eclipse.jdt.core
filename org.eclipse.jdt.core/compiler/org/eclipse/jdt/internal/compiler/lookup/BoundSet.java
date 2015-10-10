@@ -9,6 +9,7 @@
  *     Stephan Herrmann - initial API and implementation
  *     Lars Vogel <Lars.Vogel@vogella.com> - Contributions for
  *     						Bug 473178
+ *     IBM Corporation - Bug fixes
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
@@ -182,7 +183,21 @@ class BoundSet {
 			return copy;
 		}
 		public TypeBinding findSingleWrapperType() {
-			TypeBinding wrapperBound = null;
+			if (this.instantiation != null) {
+				if (this.instantiation.isProperType(true)) {
+					switch (this.instantiation.id) {
+						case TypeIds.T_JavaLangByte:
+						case TypeIds.T_JavaLangShort:
+						case TypeIds.T_JavaLangCharacter:
+						case TypeIds.T_JavaLangInteger:
+						case TypeIds.T_JavaLangLong:
+						case TypeIds.T_JavaLangFloat:
+						case TypeIds.T_JavaLangDouble:
+						case TypeIds.T_JavaLangBoolean:
+							return this.instantiation;
+					}
+				}
+			}
 			if (this.subBounds != null) {
 				Iterator<TypeBound> it = this.subBounds.iterator();
 				while(it.hasNext()) {
@@ -197,9 +212,7 @@ class BoundSet {
 							case TypeIds.T_JavaLangFloat:
 							case TypeIds.T_JavaLangDouble:
 							case TypeIds.T_JavaLangBoolean:
-								if (wrapperBound != null)
-									return null;
-								wrapperBound = boundType;
+								return boundType;
 						}
 					}
 				}		
@@ -218,14 +231,12 @@ class BoundSet {
 							case TypeIds.T_JavaLangFloat:
 							case TypeIds.T_JavaLangDouble:
 							case TypeIds.T_JavaLangBoolean:
-								if (wrapperBound != null)
-									return null;
-								wrapperBound = boundType;
+								return boundType;
 						}
 					}
 				}		
 			}
-			return wrapperBound;
+			return null;
 		}
 		/**
 		 * Not per JLS: enhance the given type bounds using the nullHints, if useful.

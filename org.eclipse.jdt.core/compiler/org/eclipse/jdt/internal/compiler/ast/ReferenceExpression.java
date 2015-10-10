@@ -66,6 +66,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.ImplicitNullAnnotationVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.IntersectionTypeBinding18;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
@@ -741,8 +742,14 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	}
 
 	protected void checkNullAnnotations(BlockScope scope) {
-		if (scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
+		CompilerOptions compilerOptions = scope.compilerOptions();
+		if (compilerOptions.isAnnotationBasedNullAnalysisEnabled) {
         	if (this.expectedType == null || !NullAnnotationMatching.hasContradictions(this.expectedType)) { // otherwise assume it has been reported and we can do nothing here
+        		if ((this.binding.tagBits & TagBits.IsNullnessKnown) == 0) {
+        			// not interested in reporting problems against this.binding:
+        			new ImplicitNullAnnotationVerifier(scope.environment(), compilerOptions.inheritNullAnnotations)
+        					.checkImplicitNullAnnotations(this.binding, null/*srcMethod*/, false, scope);
+        		}
 	        	// TODO: simplify by using this.freeParameters?
 	        	int len;
 	        	int expectedlen = this.binding.parameters.length;

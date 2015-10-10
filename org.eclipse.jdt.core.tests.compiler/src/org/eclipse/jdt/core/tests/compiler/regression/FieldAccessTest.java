@@ -14,6 +14,7 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -767,6 +768,26 @@ public void test025() {
 		"	protected int field;\n" + 
 		"	              ^^^^^\n" + 
 		"The field B.field is hiding a field from type Interface\n" + 
+		"----------\n");
+}
+public void testBug361039() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // to leverage autounboxing
+	runNegativeTest(
+		new String[] {
+			"Bug361039.java",
+			"public class Bug361039 {\n" + 
+			"	public Bug361039(boolean b) {\n" + 
+			"	}\n" + 
+			"	private Object foo() {\n" + 
+			"		return new Bug361039(!((Boolean)this.f));\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Bug361039.java (at line 5)\n" + 
+		"	return new Bug361039(!((Boolean)this.f));\n" + 
+		"	                                     ^\n" + 
+		"f cannot be resolved or is not a field\n" + 
 		"----------\n");
 }
 public static Class testClass() {

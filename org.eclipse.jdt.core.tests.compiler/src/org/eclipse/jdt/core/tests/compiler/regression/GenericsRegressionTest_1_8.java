@@ -5492,4 +5492,168 @@ public void testBug470542() {
 		"missing cannot be resolved\n" + 
 		"----------\n");
 }
+public void testBug471280_comment0() {
+	runConformTest(
+		new String[] {
+			"Test0.java",
+			"import java.util.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"import java.util.concurrent.*;\n" + 
+			"\n" + 
+			"public class Test0 {\n" + 
+			"  public CompletableFuture<List<String>> does_not_compile() throws Exception {\n" + 
+			"    CompletableFuture<List<String>> firstAsync = new CompletableFuture<>();\n" + 
+			"    firstAsync.complete(Collections.singletonList(\"test\"));\n" + 
+			"    // The following line gives error \"Type mismatch: cannot convert from CompletableFuture<Object> to CompletableFuture<List<String>>\"\n" + 
+			"    return transform(firstAsync, first -> Collections.singletonList(first.get(0)));\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public CompletableFuture<List<String>> does_compile() throws Exception {\n" + 
+			"    CompletableFuture<List<String>> firstAsync = new CompletableFuture<>();\n" + 
+			"    firstAsync.complete(Collections.singletonList(\"test\"));\n" + 
+			"    return transform(firstAsync, first -> {\n" + 
+			"      return Collections.singletonList(first.get(0));\n" + 
+			"    });\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public <T, R> CompletableFuture<R> transform(CompletableFuture<T> future, Function<T, R> fun) throws Exception {\n" + 
+			"    return future.thenApply(fun);\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
+public void testBug471280_comment3() {
+	runConformTest(
+		new String[] {
+			"Test3.java",
+			"import java.util.*;\n" + 
+			"import java.util.stream.*;\n" + 
+			"\n" + 
+			"public class Test3 {\n" + 
+			"    public <T> T generic(T value) {\n" + 
+			"        return value;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public void mapExample(Map<String, String> input) {\n" + 
+			"        // does not compile with ejc: Type mismatch: cannot convert from Map<Object,Object> to Map<String,String>\n" + 
+			"        Map<String, String> mapped = input.entrySet()\n" + 
+			"            .stream()\n" + 
+			"            .collect(Collectors.toMap(e -> e.getKey(), e -> generic(e.getValue())));\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+public void testBug464496() {
+	runConformTest(
+		new String[] {
+			"Value.java",
+			"public class Value<V> {\n" + 
+			"    private final V value;\n" + 
+			"    public Value(V value) {\n" + 
+			"        this.value = value;\n" + 
+			"    }\n" + 
+			"    public V get() {\n" + 
+			"        return value;\n" + 
+			"    }\n" + 
+			"    public static <V> V getValue(Value<V> value) {\n" + 
+			"        return value.get();\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        Value<Integer> intValue = new Value<>(42);\n" + 
+			"        long longPrimitive = getValue(intValue); // fails in 1.8 compiler \n" + 
+			"        System.out.println(longPrimitive);\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"42");
+}
+public void testBug473657() {
+	runConformTest(
+		new String[] {
+			"T2.java",
+			"interface I<T> {\n" + 
+			"}\n" + 
+			"\n" + 
+			"@SuppressWarnings({\"unchecked\", \"rawtypes\"})\n" + 
+			"abstract class T1<T> implements I<T> {\n" + 
+			"    public I<T> t(I<? extends Number> l2) {\n" + 
+			"        return T2.m((I) this, (I) l2);\n" + 
+			"    }\n" + 
+			"    public I<T> t(Number l2) {\n" + 
+			"        return T2.m((I) this, (I) T2.t(l2));\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"public abstract class T2 {\n" + 
+			"    public static <T> I<T> t(T t) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"    public static <T extends Number> I<T> m(I<T> l1, I<? extends Number> l2) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"    public static <T extends Number> I<T> m(T l1, Number l2) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+public void testBug478848() {
+	runNegativeTest(
+		new String[] {
+			"InferenceBug.java",
+			"import java.util.Optional;\n" + 
+			"public class InferenceBug {\n" + 
+			"    \n" + 
+			"    static class Wrapper<T> {\n" + 
+			"        T value;\n" + 
+			"        public T getValue() {\n" + 
+			"            return null;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    static class C1 {\n" + 
+			"        //an optional array of String wrappers\n" + 
+			"        public Optional<? extends Wrapper<String>[]> optionalArrayOfStringWrappers() {\n" + 
+			"            return Optional.empty();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        C1 c1 = new C1();\n" + 
+			"        for (Wrapper<String> attribute: c1.optionalArrayOfStringWrappers().get()) {\n" + 
+			"            // error in previous line:\n" + 
+			"            // Can only iterate over an array or an instance of java.lang.Iterable\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in InferenceBug.java (at line 20)\n" + 
+		"	for (Wrapper<String> attribute: c1.optionalArrayOfStringWrappers().get()) {\n" + 
+		"	                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Can only iterate over an array or an instance of java.lang.Iterable\n" + 
+		"----------\n");
+}
+public void testBug479167() {
+	runConformTest(
+		new String[] {
+			"ToArray.java",
+			"import java.io.Serializable;\n" + 
+			"interface ArrayFunction<E> {\n" + 
+			"	<S extends E> E[] apply(@SuppressWarnings(\"unchecked\") S... es);\n" + 
+			"}\n" + 
+			"public class ToArray<E extends Cloneable & Serializable> implements ArrayFunction<E> {\n" + 
+			"	public final @SafeVarargs @Override <S extends E> E[] apply(S... es) {\n" + 
+			"		return es;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		ArrayFunction<String[]> toArray = new ToArray<>();\n" + 
+			"		String[][] array = toArray.apply(args);\n" + 
+			"		System.out.print(array.getClass().getName());\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"[[Ljava.lang.String;");
+}
 }

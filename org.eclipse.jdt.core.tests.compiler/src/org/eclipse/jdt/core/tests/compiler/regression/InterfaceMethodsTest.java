@@ -2841,4 +2841,170 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"}"
 			});
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=477891, [1.8] regression caused by the fix for bug 438812: order dependencies in analysis of default method inheritance
+	public void test477891_comment0() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"D.java",
+				"interface A {\n" + 
+				"    public default void display() {\n" +
+				"        System.out.println(\"Display from A\");\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"interface B extends A {\n" + 
+				"	@Override\n" +
+				"    public default void display() {\n" + 
+				"        System.out.println(\"Display from B\");\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"interface C extends A {\n" + 
+				"	@Override\n" +
+				"    public void display();\n" + 
+				"}\n" + 
+				"public interface D extends B, C {\n" + 
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in D.java (at line 16)\n" +
+			"	public interface D extends B, C {\n" +
+			"	                 ^\n" +
+			"The default method display() inherited from B conflicts with another method inherited from C\n" +
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=477891, [1.8] regression caused by the fix for bug 438812: order dependencies in analysis of default method inheritance
+	public void test477891_comment0_a() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"D.java",
+				"interface A {\n" + 
+				"    public default void display() {\n" + 
+				"        System.out.println(\"Display from A\");\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"interface B extends A {\n" + 
+				"	@Override\n" +
+				"    public default void display() {\n" + 
+				"        System.out.println(\"Display from B\");\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"interface C extends A {\n" + 
+				"	@Override\n" +
+				"    public void display();\n" + 
+				"}\n" + 
+				"public interface D extends C, B {\n" + 
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in D.java (at line 16)\n" +
+			"	public interface D extends C, B {\n" +
+			"	                 ^\n" +
+			"The default method display() inherited from B conflicts with another method inherited from C\n" +
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=477891, [1.8] regression caused by the fix for bug 438812: order dependencies in analysis of default method inheritance
+	public void test477891_comment3_a() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"Z.java",
+				"import java.util.*;\n" + 
+				"interface Z<E> extends X<E>, Y<E> {\n" + 
+				"}\n" + 
+				"interface Y<E> extends AB<E> {\n" + 
+				"	@Override\n" +
+				"	default Spliterator<E> spliterator() { return null; };\n" + 
+				"}\n" + 
+				"interface X<E> extends AB<E> {\n" + 
+				"	@Override\n" +
+				"	Spliterator<E> spliterator();\n" + 
+				"}\n" + 
+				"interface AB<E> {\n" + 
+				"	default Spliterator<E> spliterator() { return null; }\n" + 
+				"}\n" 
+			},
+			"----------\n" +
+			"1. ERROR in Z.java (at line 2)\n" +
+			"	interface Z<E> extends X<E>, Y<E> {\n" +
+			"	          ^\n" +
+			"The default method spliterator() inherited from Y<E> conflicts with another method inherited from X<E>\n" +
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=477891, [1.8] regression caused by the fix for bug 438812: order dependencies in analysis of default method inheritance
+	public void test477891_comment3_b() throws Exception {
+		this.runNegativeTest(
+			new String[] {
+				"Z.java",
+				"import java.util.*;\n" + 
+				"interface Z<E> extends Y<E>, X<E> {\n" + 
+				"}\n" + 
+				"interface Y<E> extends AB<E> {\n" + 
+				"	@Override\n" +
+				"	default Spliterator<E> spliterator() { return null; };\n" + 
+				"}\n" + 
+				"interface X<E> extends AB<E> {\n" + 
+				"	@Override\n" +
+				"	Spliterator<E> spliterator();\n" + 
+				"}\n" + 
+				"interface AB<E> {\n" + 
+				"	default Spliterator<E> spliterator() { return null; }\n" + 
+				"}\n" 
+			},
+			"----------\n" +
+			"1. ERROR in Z.java (at line 2)\n" +
+			"	interface Z<E> extends Y<E>, X<E> {\n" +
+			"	          ^\n" +
+			"The default method spliterator() inherited from Y<E> conflicts with another method inherited from X<E>\n" +
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=477891, [1.8] regression caused by the fix for bug 438812: order dependencies in analysis of default method inheritance
+		public void test477891_comment3_c() throws Exception {
+			this.runNegativeTest(
+				new String[] {
+					"Z.java",
+					"import java.util.*;\n" + 
+					"interface Z<E> extends X<E>, Y<E> {\n" + 
+					"}\n" + 
+					"interface Y<E> extends AB<E> {\n" + 
+					"	@Override\n" +
+					"	default Spliterator<E> spliterator() { return null; };\n" + 
+					"}\n" + 
+					"interface X<E> {\n" + 
+					"	Spliterator<E> spliterator();\n" + 
+					"}\n" + 
+					"interface AB<E> {\n" + 
+					"	default Spliterator<E> spliterator() { return null; }\n" + 
+					"}\n" 
+				},
+				"----------\n" +
+				"1. ERROR in Z.java (at line 2)\n" +
+				"	interface Z<E> extends X<E>, Y<E> {\n" +
+				"	          ^\n" +
+				"The default method spliterator() inherited from Y<E> conflicts with another method inherited from X<E>\n" +
+				"----------\n");
+		}
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=477891, [1.8] regression caused by the fix for bug 438812: order dependencies in analysis of default method inheritance
+		public void test477891_comment3_d() throws Exception {
+			this.runNegativeTest(
+				new String[] {
+					"Z.java",
+					"import java.util.*;\n" + 
+					"interface Z<E> extends Y<E>, X<E> {\n" + 
+					"}\n" + 
+					"interface Y<E> extends AB<E> {\n" + 
+					"	@Override\n" +
+					"	default Spliterator<E> spliterator() { return null; };\n" + 
+					"}\n" + 
+					"interface X<E> {\n" + 
+					"	Spliterator<E> spliterator();\n" + 
+					"}\n" + 
+					"interface AB<E> {\n" + 
+					"	default Spliterator<E> spliterator() { return null; }\n" + 
+					"}\n" 
+				},
+				"----------\n" +
+				"1. ERROR in Z.java (at line 2)\n" +
+				"	interface Z<E> extends Y<E>, X<E> {\n" +
+				"	          ^\n" +
+				"The default method spliterator() inherited from Y<E> conflicts with another method inherited from X<E>\n" +
+				"----------\n");
+		}
 }

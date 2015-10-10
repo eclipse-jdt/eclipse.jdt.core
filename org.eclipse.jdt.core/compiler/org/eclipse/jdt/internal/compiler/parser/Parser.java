@@ -9727,11 +9727,14 @@ public CompilationUnitDeclaration dietParse(ICompilationUnit sourceUnit, Compila
 
 	CompilationUnitDeclaration parsedUnit;
 	boolean old = this.diet;
+	int oldInt = this.dietInt;
 	try {
+		this.dietInt = 0;
 		this.diet = true;
 		parsedUnit = parse(sourceUnit, compilationResult);
 	} finally {
 		this.diet = old;
+		this.dietInt = oldInt;
 	}
 	return parsedUnit;
 }
@@ -11498,6 +11501,7 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 }
 public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int length, CompilationUnitDeclaration unit) {
 	boolean oldDiet = this.diet;
+	int oldInt = this.dietInt;
 	boolean oldTolerateDefaultClassMethods = this.tolerateDefaultClassMethods;
 	/* automaton initialization */
 	initialize();
@@ -11525,12 +11529,14 @@ public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int lengt
 	/* run automaton */
 	try {
 		this.diet = true;
+		this.dietInt = 0;
 		this.tolerateDefaultClassMethods = this.parsingJava8Plus;
 		parse();
 	} catch (AbortCompilation ex) {
 		this.lastAct = ERROR_ACTION;
 	} finally {
 		this.diet = oldDiet;
+		this.dietInt = oldInt;
 		this.tolerateDefaultClassMethods = oldTolerateDefaultClassMethods;
 	}
 
@@ -12339,6 +12345,7 @@ protected int resumeAfterRecovery() {
 		if (this.referenceContext instanceof CompilationUnitDeclaration){
 			goForHeaders();
 			this.diet = true; // passed this point, will not consider method bodies
+			this.dietInt = 0;
 			return RESTART;
 		}
 

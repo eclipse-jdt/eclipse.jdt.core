@@ -683,6 +683,14 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 
+		public void logUnavaibleAPT(String className) {
+			if ((this.tagBits & Logger.XML) != 0) {
+				this.parameters.put(Logger.MESSAGE, this.main.bind("configure.unavailableAPT", className)); //$NON-NLS-1$
+				printTag(Logger.ERROR_TAG, this.parameters, true, true);
+			}
+			this.printlnErr(this.main.bind("configure.unavailableAPT", className)); //$NON-NLS-1$
+		}
+
 		public void logIncorrectVMVersionForAnnotationProcessing() {
 			if ((this.tagBits & Logger.XML) != 0) {
 				this.parameters.put(Logger.MESSAGE, this.main.bind("configure.incorrectVMVersionforAPT")); //$NON-NLS-1$
@@ -4030,17 +4038,16 @@ protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean 
 	this.classNames = null;
 }
 protected void initializeAnnotationProcessorManager() {
+	String className = "org.eclipse.jdt.internal.compiler.apt.dispatch.BatchAnnotationProcessorManager"; //$NON-NLS-1$
 	try {
-		Class c = Class.forName("org.eclipse.jdt.internal.compiler.apt.dispatch.BatchAnnotationProcessorManager"); //$NON-NLS-1$
+		Class c = Class.forName(className);
 		AbstractAnnotationProcessorManager annotationManager = (AbstractAnnotationProcessorManager) c.newInstance();
 		annotationManager.configure(this, this.expandedCommandLine);
 		annotationManager.setErr(this.err);
 		annotationManager.setOut(this.out);
 		this.batchCompiler.annotationProcessorManager = annotationManager;
-	} catch (ClassNotFoundException e) {
-		// ignore
-	} catch (InstantiationException e) {
-		// should not happen
+	} catch (ClassNotFoundException | InstantiationException e) {
+		this.logger.logUnavaibleAPT(className);
 		throw new org.eclipse.jdt.internal.compiler.problem.AbortCompilation();
 	} catch (IllegalAccessException e) {
 		// should not happen

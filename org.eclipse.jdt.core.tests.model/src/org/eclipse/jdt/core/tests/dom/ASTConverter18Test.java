@@ -5191,5 +5191,126 @@ public void test429813a() throws JavaModelException {
 	IMethodBinding binding = lambdaExpression.resolveMethodBinding();
 	assertTrue("Should be a varargs", binding.isVarargs());
 }
+// 	https://bugs.eclipse.org/bugs/show_bug.cgi?id=463942
+public void testBug463942_001() throws JavaModelException {
+	String contents = 
+			"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+			"@interface Marker {\n" +
+			" 	String value() default \"\";\n" +
+			"}\n" +
+			"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
+			"@interface Marker2 {\n" +
+			" 	String value() default \"22\";\n" +
+			"}\n" +
+			"public class X {\n" +
+			"   public String @Marker(\"i0\") @Marker2 [] [] @Marker(\"i1\") [] str = null;\n" +
+			"}";
+
+	this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+	ASTNode node = buildAST(contents, this.workingCopy);
+	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+	CompilationUnit compilationUnit = (CompilationUnit) node;
+	assertProblemsSize(compilationUnit, 0);
+
+	/* public String @Marker("i0") @Marker2 [] [] @Marker("i1") [] str = null; */
+	node = getASTNode(compilationUnit, 2, 0);
+	assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
+	FieldDeclaration field = (FieldDeclaration) node;
+	List fragments = field.fragments();
+	assertEquals("Incorrect no of fragments", 1, fragments.size());
+	VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+	IVariableBinding variable = fragment.resolveBinding();
+	assertNotNull("Should not be null", variable);
+	ITypeBinding typeBinding = variable.getType();
+	assertNotNull("Should not be null", typeBinding);
+	IAnnotationBinding[][] dimAnnotations = typeBinding.getTypeAnnotationsOnDimensions();
+
+	assertEquals("Incorrect type annotations", 3, dimAnnotations.length);
+	IAnnotationBinding[] annotations = dimAnnotations[0];
+	assertTrue("Incorrect number of annotations", annotations.length == 2);
+	assertEquals("Incorrect type annotations", "@Marker(value = i0)", annotations[0].toString());
+	assertEquals("Incorrect type annotations", "@Marker2()", annotations[1].toString());
+	annotations = dimAnnotations[1];
+	assertTrue("Incorrect number of annotations", annotations.length == 0);
+	annotations = dimAnnotations[2];
+	assertTrue("Incorrect number of annotations", annotations.length == 1);
+	assertEquals("Incorrect type annotations", "@Marker(value = i1)", annotations[0].toString());
+
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399792
+public void testBug470794_001() throws JavaModelException {
+	String content =
+			"public class X {\n" +
+			"      Object o = (I & J) () -> {};" +
+			"      public K main(Object o) {\n" +
+			"    	  K oo = (I & J & K) o;\n" +
+			"    	  return oo;\n" +
+			"      }\n" +
+			"}\n" +
+			"interface I {\n" +
+			"  public void foo();\n" +
+			"}\n" +
+			"interface J {\n" +
+			"  public void foo();\n" +
+			"  public void bar();\n" +
+			"}\n" +
+			"interface K {\n" +
+			"  public void foo();\n" +
+			"  public void bar();\n" +
+			"}\n";
+
+	this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
+	ASTNode node = buildAST(content, this.workingCopy, true);
+	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+	CompilationUnit unit = (CompilationUnit) node;
+	TypeDeclaration type =  (TypeDeclaration) unit.types().get(0);
+	node = (ASTNode) type.bodyDeclarations().get(0);
+	assertEquals("Not a field Declaration", ASTNode.FIELD_DECLARATION, node.getNodeType());
+	FieldDeclaration field = (FieldDeclaration) node;
+	assertEquals("Field should not be malformed", 0, (field.getFlags() & ASTNode.MALFORMED));
+
+	List fragments = field.fragments();
+	assertEquals("Incorrect no of fragments", 1, fragments.size());
+	VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+	CastExpression cast = (CastExpression) fragment.getInitializer();
+	Type castType = cast.getType();
+	assertEquals("Not an intersection cast type", ASTNode.INTERSECTION_TYPE, castType.getNodeType());
+	assertTrue("Not an intersection cast type", castType.isIntersectionType());
+	assertEquals("Type should not be malformed", 0, (castType.getFlags() & ASTNode.MALFORMED));
+	ITypeBinding binding = castType.resolveBinding();
+	assertNotNull("binding is null", binding);
+	assertTrue("Not an intersection type binding", binding.isIntersectionType());
+	{
+		ITypeBinding [] intersectionBindings = binding.getTypeBounds();
+		String[] expectedTypes = new String[]{"I", "J"};
+		assertTrue("Incorrect number of intersection bindings", intersectionBindings.length == expectedTypes.length);
+		for (int i = 0, l = intersectionBindings.length; i < l; ++i) {
+			assertTrue("Unexpected Intersection Type", expectedTypes[i].equals(intersectionBindings[i].getName()));
+		}
+	}
+
+	node = (ASTNode) type.bodyDeclarations().get(1);
+	assertEquals("Not a method Declaration", ASTNode.METHOD_DECLARATION, node.getNodeType());
+	MethodDeclaration method = (MethodDeclaration) node;
+	assertEquals("Method should not be malformed", 0, (method.getFlags() & ASTNode.MALFORMED));
+	
+	List statements = method.getBody().statements();
+	VariableDeclarationStatement statement = (VariableDeclarationStatement) statements.get(0);
+	fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+	cast = (CastExpression) fragment.getInitializer();
+	castType = cast.getType();
+	binding = castType.resolveBinding();
+	assertNotNull("binding is null", binding);
+	assertTrue("Not an intersection type binding", binding.isIntersectionType());
+	{
+		ITypeBinding [] intersectionBindings = binding.getTypeBounds();
+		String[] expectedTypes = new String[]{"I", "J", "K"};
+		assertTrue("Incorrect number of intersection bindings", intersectionBindings.length == expectedTypes.length);
+		for (int i = 0, l = intersectionBindings.length; i < l; ++i) {
+			assertTrue("Unexpected Intersection Type", expectedTypes[i].equals(intersectionBindings[i].getName()));
+		}
+	}
+}
 
 }

@@ -42,6 +42,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 
 	targetContext.recordAbruptExit();
+	targetContext.expireNullCheckedFieldInfo();
 
 	this.initStateIndex =
 		currentScope.methodScope().recordInitializationStates(flowInfo);

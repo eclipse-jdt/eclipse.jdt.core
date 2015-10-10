@@ -5453,7 +5453,7 @@ public void testBug452194() {
 		"The method addUnique(Map.Entry) in the type EcoreEMap is not applicable for the arguments (Object)\n" + 
 		"----------\n");
 }
-public void testBug453253() {
+public void testBug454644() {
 	runNegativeTest(
 		new String[] {
 			"example/CollectionFactory.java",
@@ -5561,71 +5561,45 @@ public void testBug453253() {
 			"\n" + 
 			"}\n"
 		},
-		(this.complianceLevel < ClassFileConstants.JDK1_8 ?
-			"----------\n" + 
-			"1. WARNING in example\\CollectionFactory.java (at line 42)\n" + 
-			"	@SuppressWarnings({ \"unchecked\", \"cast\" })\n" + 
-			"	                                 ^^^^^^\n" + 
-			"Unnecessary @SuppressWarnings(\"cast\")\n" + 
-			"----------\n" + 
-			"2. WARNING in example\\CollectionFactory.java (at line 55)\n" + 
-			"	return EnumSet.copyOf((EnumSet) collection);\n" + 
-			"	                       ^^^^^^^\n" + 
-			"EnumSet is a raw type. References to generic type EnumSet<E> should be parameterized\n" + 
-			"----------\n" + 
-			"3. WARNING in example\\CollectionFactory.java (at line 87)\n" + 
-			"	return EnumSet.noneOf((Class) elementType);\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked invocation noneOf(Class) of the generic method noneOf(Class<E>) of type EnumSet\n" + 
-			"----------\n" + 
-			"4. WARNING in example\\CollectionFactory.java (at line 87)\n" + 
-			"	return EnumSet.noneOf((Class) elementType);\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type EnumSet needs unchecked conversion to conform to Collection<E>\n" + 
-			"----------\n" + 
-			"5. WARNING in example\\CollectionFactory.java (at line 87)\n" + 
-			"	return EnumSet.noneOf((Class) elementType);\n" + 
-			"	                      ^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: The expression of type Class needs unchecked conversion to conform to Class<E>\n" + 
-			"----------\n" + 
-			"6. WARNING in example\\CollectionFactory.java (at line 87)\n" + 
-			"	return EnumSet.noneOf((Class) elementType);\n" + 
-			"	                       ^^^^^\n" + 
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-			"----------\n" + 
-			"7. WARNING in example\\CollectionFactory.java (at line 94)\n" + 
-			"	return (Collection<E>) collectionClass.newInstance();\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked cast from capture#13-of ? to Collection<E>\n" + 
-			"----------\n"
-		:
-			"----------\n" + 
-			"1. ERROR in example\\CollectionFactory.java (at line 55)\n" + 
-			"	return EnumSet.copyOf((EnumSet) collection);\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from EnumSet<Enum<Enum<E>>> to Collection<E>\n" + 
-			"----------\n" + 
-			"2. WARNING in example\\CollectionFactory.java (at line 55)\n" + 
-			"	return EnumSet.copyOf((EnumSet) collection);\n" + 
-			"	                       ^^^^^^^\n" + 
-			"EnumSet is a raw type. References to generic type EnumSet<E> should be parameterized\n" + 
-			"----------\n" + 
-			"3. ERROR in example\\CollectionFactory.java (at line 87)\n" + 
-			"	return EnumSet.noneOf((Class) elementType);\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from EnumSet<Enum<Enum<E>>> to Collection<E>\n" + 
-			"----------\n" + 
-			"4. WARNING in example\\CollectionFactory.java (at line 87)\n" + 
-			"	return EnumSet.noneOf((Class) elementType);\n" + 
-			"	                       ^^^^^\n" + 
-			"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
-			"----------\n" + 
-			"5. WARNING in example\\CollectionFactory.java (at line 94)\n" + 
-			"	return (Collection<E>) collectionClass.newInstance();\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type safety: Unchecked cast from capture#13-of ? to Collection<E>\n" + 
-			"----------\n"
-			));
+		"----------\n" + 
+		"1. WARNING in example\\CollectionFactory.java (at line 42)\n" + 
+		"	@SuppressWarnings({ \"unchecked\", \"cast\" })\n" + 
+		"	                                 ^^^^^^\n" + 
+		"Unnecessary @SuppressWarnings(\"cast\")\n" + 
+		"----------\n" + 
+		"2. WARNING in example\\CollectionFactory.java (at line 55)\n" + 
+		"	return EnumSet.copyOf((EnumSet) collection);\n" + 
+		"	                       ^^^^^^^\n" + 
+		"EnumSet is a raw type. References to generic type EnumSet<E> should be parameterized\n" + 
+		"----------\n" + 
+		"3. WARNING in example\\CollectionFactory.java (at line 87)\n" + 
+		"	return EnumSet.noneOf((Class) elementType);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation noneOf(Class) of the generic method noneOf(Class<E>) of type EnumSet\n" + 
+		"----------\n" + 
+		"4. WARNING in example\\CollectionFactory.java (at line 87)\n" + 
+		"	return EnumSet.noneOf((Class) elementType);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type EnumSet needs unchecked conversion to conform to Collection<E>\n" + 
+		"----------\n" + 
+		"5. WARNING in example\\CollectionFactory.java (at line 87)\n" + 
+		"	return EnumSet.noneOf((Class) elementType);\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^^^\n" + 
+		(this.complianceLevel < ClassFileConstants.JDK1_8 
+		? "Type safety: The expression of type Class needs unchecked conversion to conform to Class<E>\n"
+		: "Type safety: The expression of type Class needs unchecked conversion to conform to Class<Enum<Enum<E>>>\n") + 
+		"----------\n" + 
+		"6. WARNING in example\\CollectionFactory.java (at line 87)\n" + 
+		"	return EnumSet.noneOf((Class) elementType);\n" + 
+		"	                       ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n" + 
+		"7. WARNING in example\\CollectionFactory.java (at line 94)\n" + 
+		"	return (Collection<E>) collectionClass.newInstance();\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked cast from capture#13-of ? to Collection<E>\n" + 
+		"----------\n"
+		);
 }
 // original test case, documenting existing compiler behavior
 public void testBug456459a() {

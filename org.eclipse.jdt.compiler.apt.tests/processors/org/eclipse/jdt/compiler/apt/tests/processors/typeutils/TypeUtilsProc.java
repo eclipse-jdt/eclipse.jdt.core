@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 - 2012 BEA Systems, Inc. and others
+ * Copyright (c) 2007 - 2015 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    Walter Harley - initial API and implementation
+ *    IBM Corporation - Bug 382590
  *******************************************************************************/
 
 package org.eclipse.jdt.compiler.apt.tests.processors.typeutils;
@@ -405,10 +406,6 @@ public class TypeUtilsProc extends BaseProcessor
                     return false;
                 }
                 ExecutableType etm = (ExecutableType)tm;
-                if (!etm.getParameterTypes().isEmpty()) {
-                    reportError(method + ": member m() should be void, but it had parameters");
-                    return false;
-                }
                 if (!_typeUtils.isSameType(etm.getReturnType(), longType)) {
                     reportError(method + ": member m() should have Long return type, but found " + etm.getReturnType());
                     return false;

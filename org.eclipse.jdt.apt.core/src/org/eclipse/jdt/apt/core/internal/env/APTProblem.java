@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -100,6 +100,10 @@ class APTProblem extends CategorizedProblem
 	
 	public boolean isWarning() {
 		return _severity == Severity.WARNING;
+	}
+
+	public boolean isInfo() {
+		return _severity == Severity.INFO;
 	}
 	
 	public String toString()

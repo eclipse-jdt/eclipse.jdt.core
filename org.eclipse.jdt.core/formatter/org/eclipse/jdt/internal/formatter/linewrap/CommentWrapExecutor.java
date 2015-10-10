@@ -227,6 +227,7 @@ public class CommentWrapExecutor extends TokenTraverser {
 		if (prefix.tokenType == TokenNameWHITESPACE) {
 			whitespace = new Token(prefix);
 			whitespace.breakBefore();
+			whitespace.setIndent(indent);
 			whitespace.setWrapPolicy(new WrapPolicy(0, commentIndex, false));
 			prefix = structure.get(1);
 			assert prefix.tokenType == TokenNameCOMMENT_LINE;

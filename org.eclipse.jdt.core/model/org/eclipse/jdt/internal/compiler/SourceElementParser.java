@@ -946,9 +946,11 @@ public CompilationUnitDeclaration parseCompilationUnit(
 	IProgressMonitor pm) {
 
 	boolean old = this.diet;
+	int oldInt = this.dietInt;
 	CompilationUnitDeclaration parsedUnit = null;
 	try {
 		this.diet = true;
+		this.dietInt = 0;
 		this.reportReferenceInfo = fullParse;
 		CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.options.maxProblemsPerUnit);
 		parsedUnit = parse(unit, compilationUnitResult);
@@ -976,6 +978,7 @@ public CompilationUnitDeclaration parseCompilationUnit(
 		// ignore this exception
 	} finally {
 		this.diet = old;
+		this.dietInt = oldInt;
 		reset();
 	}
 	return parsedUnit;

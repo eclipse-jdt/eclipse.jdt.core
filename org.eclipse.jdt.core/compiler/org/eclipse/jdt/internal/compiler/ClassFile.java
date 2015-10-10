@@ -4004,7 +4004,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (isConstructor) { // insert String name,int ordinal
 				length = writeArgumentName(ConstantPool.EnumName, ClassFileConstants.AccSynthetic, length);
 				length = writeArgumentName(ConstantPool.EnumOrdinal, ClassFileConstants.AccSynthetic, length);
-			} else if (CharOperation.equals(ConstantPool.ValueOf, binding.selector)) { // insert String name
+			} else if (binding instanceof SyntheticMethodBinding
+					&& CharOperation.equals(ConstantPool.ValueOf, binding.selector)) { // insert String name
 				length = writeArgumentName(ConstantPool.Name, ClassFileConstants.AccMandated, length);
 				targetParameters =  Binding.NO_PARAMETERS; // Override "unknown" synthetics below
 			}

@@ -8286,4 +8286,226 @@ public void testBug436091() {
 		getCompilerOptions(),
 		"");
 }
+public void testBug474239() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runConformTestWithLibs(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" + 
+			"	static String s1 = null, s2 = null;\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		int val = (int) System.currentTimeMillis();\n" + 
+			"		switch (val % 2) {\n" + 
+			"		case 0:\n" + 
+			"			if (s1 != null)\n" + 
+			"				s2 = \"\";\n" + 
+			"			break;\n" + 
+			"		case 1:\n" + 
+			"			if (s1 != null) // compiler thinks s1 is never null at this point\n" + 
+			"				throw new RuntimeException(\"\");\n" + 
+			"			break;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		options,
+		"");
+}
+public void testBug474239b() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runConformTestWithLibs(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" + 
+			"	static String s2 = null;\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		int val = (int) System.currentTimeMillis();\n" + 
+			"		switch (val % 2) {\n" + 
+			"		case 0:\n" + 
+			"			s2 = \"\";\n" + 
+			"			break;\n" + 
+			"		case 1:\n" + 
+			"			if (s2 != null)\n" + 
+			"				throw new RuntimeException(\"\");\n" + 
+			"			break;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		options,
+		"");
+}
+public void testBug472663() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Callee.java",
+			"package test;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"\n" + 
+			"@NonNullByDefault\n" + 
+			"public class Callee {\n" + 
+			"	public static String staticOtherClass(String foo) {\n" + 
+			"		return foo;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public String instanceOtherClass(String foo) {\n" + 
+			"		return foo;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+	// and now consume Callee.class:
+	runConformTestWithLibs(
+		new String[] {
+			"test/Caller.java",
+			"package test;\n" + 
+			"\n" + 
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"\n" + 
+			"@NonNullByDefault\n" + 
+			"public class Caller {\n" + 
+			"	public void foo(final Callee callee) {\n" + 
+			"		Function<String, String> function;\n" + 
+			"\n" + 
+			"		// assignments with warnings (wrong):\n" + 
+			"		function = Callee::staticOtherClass;\n" + 
+			"		function = callee::instanceOtherClass;\n" + 
+			"\n" + 
+			"		// assignments with no warnings (ok):\n" + 
+			"		function = foo -> Callee.staticOtherClass(foo);\n" + 
+			"		function = foo -> callee.instanceOtherClass(foo);\n" + 
+			"		function = Caller::staticSameClass;\n" + 
+			"		function = this::instanceSameClass;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static String staticSameClass(String foo) {\n" + 
+			"		return foo;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public String instanceSameClass(String foo) {\n" + 
+			"		return foo;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug467094() {
+	runConformTestWithLibs(
+		new String[] {
+			"A.java",
+			"class A {;\n"+
+			"   @org.eclipse.jdt.annotation.NonNull String @org.eclipse.jdt.annotation.Nullable [] x;\n"+
+			"}\n"
+		}, 
+		getCompilerOptions(), 
+		"");
+}
+public void testBug467094_local() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"public class X {\n"+
+			"	void foo(@org.eclipse.jdt.annotation.NonNull Object[] o) {\n"+
+			"		o.hashCode();\n"+
+			"		if (o != null) {\n"+
+			"			System.out.print(o.toString());\n"+
+			"		}\n"+
+			"	}\n"+
+			"}\n"
+		},
+		getCompilerOptions(), 
+		"----------\n"+
+		"1. ERROR in X.java (at line 4)\n" +
+		"	if (o != null) {\n" +
+		"	    ^\n" +
+		"Redundant null check: The variable o cannot be null at this location\n" +
+		"----------\n");
+}
+public void testBug467094_method() {
+	runConformTestWithLibs(
+			new String[] {
+				"A.java",
+				"class A {;\n"+
+				"	@org.eclipse.jdt.annotation.NonNull String @org.eclipse.jdt.annotation.Nullable [] m(){\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"	int usage(){\n" +
+				"		if(m() == null) return 1; \n" +
+				"		return 0; \n" +
+				"	}\n"+
+				"}\n"
+			}, getCompilerOptions(), "");
+}
+public void testBug440398() {
+	runConformTestWithLibs(
+		new String[] { 
+			"NullTest.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault({})\r\n" + 
+			"public class NullTest {\r\n" + 
+			"    public static @NonNull Object[] obj = null;\r\n" + 
+			"    public static void main(String[] args) {\r\n" + 
+			"        obj = null;\r\n" + 
+			"        if (obj == null) { // WARNING 1\r\n" + 
+			"            System.out.println(\"NULL\"); // WARNING 2\r\n" + 
+			"        }\r\n" + 
+			"    }\r\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"",
+		"NULL");
+}
+public void testBug440398_comment2() {
+	runConformTestWithLibs(
+		new String[] { 
+			"MyClass.java",
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"@NonNullByDefault({DefaultLocation.FIELD})\n" + 
+			"public class MyClass {\n" + 
+			"    private @NonNull String [] names = new @NonNull String[]{\"Alice\", \"Bob\", \"Charlie\"};\n" + 
+			"\n" + 
+			"    public String getName(int index) {\n" + 
+			"        String name = names[index];\n" + 
+			"        return name; /* statement A */\n" + 
+			"    }\n" + 
+			"}",
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug440398_comment2a() {
+	runConformTestWithLibs(
+		new String[] { 
+			"p/package-info.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault({org.eclipse.jdt.annotation.DefaultLocation.FIELD})\n" +
+			"package p;\n",
+			"p/MyClass.java",
+			"package p;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"public class MyClass {\n" + 
+			"    private @NonNull String [] names = new @NonNull String[]{\"Alice\", \"Bob\", \"Charlie\"};\n" + 
+			"\n" + 
+			"    public String getName(int index) {\n" + 
+			"        String name = names[index];\n" + 
+			"        return name; /* statement A */\n" + 
+			"    }\n" + 
+			"}",
+		},
+		getCompilerOptions(),
+		"");
+}
 }

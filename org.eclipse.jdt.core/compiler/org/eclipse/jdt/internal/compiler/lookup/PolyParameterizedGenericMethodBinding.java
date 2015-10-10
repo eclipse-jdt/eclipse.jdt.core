@@ -14,7 +14,7 @@ public class PolyParameterizedGenericMethodBinding extends ParameterizedGenericM
 
 	private ParameterizedGenericMethodBinding wrappedBinding; 
 	public PolyParameterizedGenericMethodBinding(ParameterizedGenericMethodBinding applicableMethod) {
-		super(applicableMethod.originalMethod, applicableMethod.typeArguments, applicableMethod.environment);
+		super(applicableMethod.originalMethod, applicableMethod.typeArguments, applicableMethod.environment, false, false);
 		this.wrappedBinding = applicableMethod;
 	}
 	

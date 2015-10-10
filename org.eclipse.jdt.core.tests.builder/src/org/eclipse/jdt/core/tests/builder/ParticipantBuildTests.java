@@ -69,6 +69,7 @@ public class ParticipantBuildTests extends BuilderTests {
 		public int getSourceLineNumber() { return 1; }
 		public boolean isError() { return true; }
 		public boolean isWarning() { return false; }
+		public boolean isInfo() { return false; }
 		public void setSourceEnd(int sourceEnd) {/* not needed */}
 		public void setSourceLineNumber(int lineNumber)  {/* not needed */}
 		public void setSourceStart(int sourceStart) {/* not needed */}

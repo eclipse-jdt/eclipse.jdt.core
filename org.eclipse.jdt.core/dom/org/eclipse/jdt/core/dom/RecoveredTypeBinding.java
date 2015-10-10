@@ -467,6 +467,13 @@ class RecoveredTypeBinding implements ITypeBinding {
 	}
 
 	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isIntersectionType18()
+	 */
+	public boolean isIntersectionType() {
+		return false;
+	}
+
+	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ITypeBinding#isLocal()
 	 */
 	public boolean isLocal() {
@@ -727,5 +734,10 @@ class RecoveredTypeBinding implements ITypeBinding {
 
 	public IAnnotationBinding[] getTypeAnnotations() {
 		return AnnotationBinding.NoAnnotations;
+	}
+
+	@Override
+	public IAnnotationBinding[][] getTypeAnnotationsOnDimensions() {
+		return AnnotationBinding.NoAnnotationsOnDimensions;
 	}
 }

@@ -1321,7 +1321,7 @@ public class SourceMapper
 		} else if (this.binaryType.getElementName().equals(typeName))
 			return this.binaryType;
 		else
-			return this.binaryType.getType(typeName);
+			return ((this.typeDepth <= 1) ? this.binaryType : this.types[this.typeDepth - 1]).getType(typeName);
 	}
 
 	/**
