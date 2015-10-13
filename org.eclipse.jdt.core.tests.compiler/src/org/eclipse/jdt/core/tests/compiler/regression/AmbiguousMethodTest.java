@@ -2702,6 +2702,9 @@ public void test050() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
 public void test051() {
 	this.runNegativeTest(
+		false /* skipJavac */,
+		this.complianceLevel < ClassFileConstants.JDK1_8 ?
+				null : JavacTestOptions.EclipseHasABug.EclipseBug427719,
 		new String[] { /* test files */
 			"X.java",
 			"interface I<T> {\n" +
@@ -2773,6 +2776,9 @@ public void test052() {
 // variant
 public void test053() {
 	this.runNegativeTest(
+		false /* skipJavac */,
+		this.complianceLevel < ClassFileConstants.JDK1_8 ?
+				null : JavacTestOptions.EclipseHasABug.EclipseBug427719,
 		new String[] { /* test files */
 			"X.java",
 			"interface I<T> {\n" +
@@ -3481,6 +3487,9 @@ public void test073() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=206930
 public void test074() {
 	this.runNegativeTest(
+		false /* skipJavac */,
+		this.complianceLevel < ClassFileConstants.JDK1_8 ? 
+				null : JavacTestOptions.EclipseHasABug.EclipseBug427719,
 		new String[] {
 			"Y.java",
 			"interface I<T> {}\n" +
