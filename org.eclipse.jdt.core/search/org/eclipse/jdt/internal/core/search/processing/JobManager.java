@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -186,7 +186,7 @@ public abstract class JobManager implements Runnable {
 							Util.verbose("-> NOT READY - forcing immediate - " + searchJob);//$NON-NLS-1$
 						try {
 							disable(); // pause indexing
-							status = searchJob.execute(progress == null ? null : new SubProgressMonitor(progress, concurrentJobWork));
+							status = searchJob.execute(progress == null ? null : SubMonitor.convert(progress, concurrentJobWork));
 						} finally {
 							enable();
 						}
@@ -206,7 +206,7 @@ public abstract class JobManager implements Runnable {
 						try {
 							int totalWork = 1000;
 							if (progress != null) {
-								subProgress = new SubProgressMonitor(progress, concurrentJobWork * 8 / 10);
+								subProgress = SubMonitor.convert(progress, concurrentJobWork * 8 / 10);
 								subProgress.beginTask("", totalWork); //$NON-NLS-1$
 								concurrentJobWork = concurrentJobWork * 2 / 10;
 							}
@@ -274,7 +274,7 @@ public abstract class JobManager implements Runnable {
 						}
 				}
 			}
-			status = searchJob.execute(progress == null ? null : new SubProgressMonitor(progress, concurrentJobWork));
+			status = searchJob.execute(progress == null ? null : SubMonitor.convert(progress, concurrentJobWork));
 		} finally {
 			if (progress != null)
 				progress.done();

@@ -25,7 +25,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IImportDeclaration;
@@ -1149,7 +1149,7 @@ public final class ImportRewrite {
 				parser.setSource(this.compilationUnit);
 				parser.setFocalPosition(0); // reduced AST
 				parser.setResolveBindings(false);
-				usedAstRoot= (CompilationUnit) parser.createAST(new SubProgressMonitor(monitor, 1));
+				usedAstRoot= (CompilationUnit) parser.createAST(SubMonitor.convert(monitor, 1));
 			}
 
 			ImportRewriteConfiguration config= buildImportRewriteConfiguration();
@@ -1177,7 +1177,7 @@ public final class ImportRewrite {
 				computer.requireExplicitImport(true, staticExplicitSimpleName);
 			}
 
-			ImportRewriteAnalyzer.RewriteResult result= computer.analyzeRewrite(new SubProgressMonitor(monitor, 1));
+			ImportRewriteAnalyzer.RewriteResult result= computer.analyzeRewrite(SubMonitor.convert(monitor, 1));
 
 			this.createdImports= result.getCreatedImports();
 			this.createdStaticImports= result.getCreatedStaticImports();

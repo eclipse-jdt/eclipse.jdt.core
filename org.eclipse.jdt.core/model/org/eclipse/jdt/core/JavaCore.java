@@ -124,7 +124,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -4061,10 +4061,10 @@ public final class JavaCore extends Plugin {
 
 			// initialize all containers and variables
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			SubProgressMonitor subMonitor = null;
+			SubMonitor subMonitor = null;
 			try {
 				if (monitor != null) {
-					subMonitor = new SubProgressMonitor(monitor, 50); // 50% of the time is spent in initializing containers and variables
+					subMonitor = SubMonitor.convert(monitor, 50); // 50% of the time is spent in initializing containers and variables
 					subMonitor.beginTask("", 100); //$NON-NLS-1$
 					subMonitor.worked(5); // give feedback to the user that something is happening
 					manager.batchContainerInitializationsProgress.initializeAfterLoadMonitor.set(subMonitor);
@@ -4143,7 +4143,7 @@ public final class JavaCore extends Plugin {
 					monitor.subTask(Messages.javamodel_refreshing_external_jars);
 				model.refreshExternalArchives(
 					null/*refresh all projects*/,
-					monitor == null ? null : new SubProgressMonitor(monitor, 1) // 1% of the time is spent in jar refresh
+					monitor == null ? null : SubMonitor.convert(monitor, 1) // 1% of the time is spent in jar refresh
 				);
 			} catch (JavaModelException e) {
 				// refreshing failed: ignore
@@ -4181,7 +4181,7 @@ public final class JavaCore extends Plugin {
 					// will not activate index query caches if indexes are not ready, since it would take to long
 					// to wait until indexes are fully rebuild
 					IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
-					monitor == null ? null : new SubProgressMonitor(monitor, 49) // 49% of the time is spent in the dummy search
+					monitor == null ? null : SubMonitor.convert(monitor, 49) // 49% of the time is spent in the dummy search
 				);
 			} catch (JavaModelException e) {
 				// /search failed: ignore

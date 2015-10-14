@@ -3069,7 +3069,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 						monitor.beginTask("", projectsToTouch.length); //$NON-NLS-1$
 					}
 					for (IProject iProject : projectsToTouch) {
-						IProgressMonitor subMonitor = monitor == null ? null: new SubProgressMonitor(monitor, 1);
+						IProgressMonitor subMonitor = monitor == null ? null: SubMonitor.convert(monitor, 1);
 						if (JavaBuilder.DEBUG) {
 							System.out.println("Touching project " + iProject.getName()); //$NON-NLS-1$
 						}
