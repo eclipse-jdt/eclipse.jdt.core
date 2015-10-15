@@ -637,7 +637,7 @@ public class AnnotationProcessorFactoryLoader {
 					try {
 						clazz = classLoader.loadClass(factoryName);
 						factory = new ClassServiceFactory(clazz);
-					} catch (ClassNotFoundException e) {
+					} catch (ClassNotFoundException | ClassFormatError e) {
 						AptPlugin.trace("Unable to load annotation processor " + factoryName, e); //$NON-NLS-1$
 						failureHandler.addFailedFactory(factoryName);
 					} 

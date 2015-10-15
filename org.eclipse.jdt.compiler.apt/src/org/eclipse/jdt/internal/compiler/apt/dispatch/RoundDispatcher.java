@@ -163,10 +163,10 @@ public class RoundDispatcher {
 					}
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			// If a processor throws an exception (as opposed to reporting an error),
 			// report it and abort compilation by throwing AbortCompilation.
-			_provider.reportProcessorException(pi._processor, e);
+			_provider.reportProcessorException(pi._processor, new Exception(e));
 		}
 	}
 	
