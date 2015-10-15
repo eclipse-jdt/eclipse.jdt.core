@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
@@ -113,7 +113,7 @@ public void build(boolean computeSubtypes) {
 			IProgressMonitor possibleSubtypesMonitor =
 				this.hierarchy.progressMonitor == null ?
 					null :
-					SubMonitor.convert(this.hierarchy.progressMonitor, amountOfWorkForSubtypes);
+					new SubProgressMonitor(this.hierarchy.progressMonitor, amountOfWorkForSubtypes);
 			HashSet localTypes = new HashSet(10); // contains the paths that have potential subtypes that are local/anonymous types
 			String[] allPossibleSubtypes;
 			if (((Member)focusType).getOuterMostLocalContext() == null) {
@@ -127,7 +127,7 @@ public void build(boolean computeSubtypes) {
 				IProgressMonitor buildMonitor =
 					this.hierarchy.progressMonitor == null ?
 						null :
-						SubMonitor.convert(this.hierarchy.progressMonitor, 100 - amountOfWorkForSubtypes);
+						new SubProgressMonitor(this.hierarchy.progressMonitor, 100 - amountOfWorkForSubtypes);
 				this.hierarchy.initialize(allPossibleSubtypes.length);
 				buildFromPotentialSubtypes(allPossibleSubtypes, localTypes, buildMonitor);
 			}

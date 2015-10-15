@@ -215,7 +215,7 @@ public class BasicSearchEngine {
 					indexManager.performConcurrentJob(
 						new PatternSearchJob(pattern, participant, scope, pathCollector),
 						IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-						monitor==null ? null : SubMonitor.convert(monitor, 50));
+						monitor==null ? null : new SubProgressMonitor(monitor, 50));
 					if (monitor != null && monitor.isCanceled()) throw new OperationCanceledException();
 
 					// locate index matches if any (note that all search matches could have been issued during index querying)
@@ -229,7 +229,7 @@ public class BasicSearchEngine {
 							indexMatches[j] = participant.getDocument(indexMatchPaths[j]);
 						}
 						SearchDocument[] matches = MatchLocator.addWorkingCopies(pattern, indexMatches, getWorkingCopies(), participant);
-						participant.locateMatches(matches, pattern, scope, requestor, monitor==null ? null : SubMonitor.convert(monitor, 50));
+						participant.locateMatches(matches, pattern, scope, requestor, monitor==null ? null : new SubProgressMonitor(monitor, 50));
 					}
 				} finally {
 					requestor.exitParticipant(participant);
@@ -646,7 +646,7 @@ public class BasicSearchEngine {
 					scope,
 					searchRequestor),
 				waitingPolicy,
-				progressMonitor == null ? null : SubMonitor.convert(progressMonitor, 1000-copiesLength));
+				progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 1000-copiesLength));
 
 			// add type names from working copies
 			if (copies != null) {
@@ -968,7 +968,7 @@ public class BasicSearchEngine {
 				waitForIndexes
 					? IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH
 					: IJavaSearchConstants.FORCE_IMMEDIATE_SEARCH,
-				progressMonitor == null ? null : SubMonitor.convert(progressMonitor, 100));
+				progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 100));
 		} catch (OperationCanceledException oce) {
 			// do nothing
 		} finally {
@@ -1140,7 +1140,7 @@ public class BasicSearchEngine {
 					scope,
 					searchRequestor),
 				waitingPolicy,
-				progressMonitor == null ? null : SubMonitor.convert(progressMonitor, 1000-copiesLength));
+				progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 1000-copiesLength));
 
 			// add type names from working copies
 			if (copies != null) {
@@ -1390,7 +1390,7 @@ public class BasicSearchEngine {
 					scope,
 					searchRequestor),
 				waitingPolicy,
-				progressMonitor == null ? null : SubMonitor.convert(progressMonitor, 100));
+				progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 100));
 
 			// add type names from working copies
 			if (copies != null) {

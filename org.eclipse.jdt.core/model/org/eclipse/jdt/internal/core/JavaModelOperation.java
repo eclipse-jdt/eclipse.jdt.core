@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -517,7 +517,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	protected IProgressMonitor getSubProgressMonitor(int workAmount) {
 		IProgressMonitor sub = null;
 		if (this.progressMonitor != null) {
-			sub = SubMonitor.convert(this.progressMonitor, workAmount);
+			sub = new SubProgressMonitor(this.progressMonitor, workAmount, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK);
 		}
 		return sub;
 	}
@@ -578,7 +578,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	protected void moveResources(IResource[] resources, IPath container) throws JavaModelException {
 		IProgressMonitor subProgressMonitor = null;
 		if (this.progressMonitor != null) {
-			subProgressMonitor = SubMonitor.convert(this.progressMonitor, resources.length);
+			subProgressMonitor = new SubProgressMonitor(this.progressMonitor, resources.length, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK);
 		}
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		try {
