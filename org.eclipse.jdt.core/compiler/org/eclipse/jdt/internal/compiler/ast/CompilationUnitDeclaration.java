@@ -55,6 +55,7 @@ public class CompilationUnitDeclaration extends ASTNode implements ProblemSeveri
 	public ImportReference currentPackage;
 	public ImportReference[] imports;
 	public TypeDeclaration[] types;
+	public ModuleDeclaration moduleDeclaration;
 	public int[][] comments;
 
 	public boolean ignoreFurtherInvestigation = false; // once pointless to investigate due to errors
@@ -196,6 +197,14 @@ public CompilationResult compilationResult() {
 public void createPackageInfoType() {
 	TypeDeclaration declaration = new TypeDeclaration(this.compilationResult);
 	declaration.name = TypeConstants.PACKAGE_INFO_NAME;
+	declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
+	declaration.javadoc = this.javadoc;
+	this.types[0] = declaration; // Assumes the first slot is meant for this type
+}
+
+public void createModuleInfoType() {
+	TypeDeclaration declaration = new TypeDeclaration(this.compilationResult);
+	declaration.name = TypeConstants.MODULE_INFO_NAME;
 	declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
 	declaration.javadoc = this.javadoc;
 	this.types[0] = declaration; // Assumes the first slot is meant for this type
@@ -407,6 +416,10 @@ public boolean isEmpty() {
 
 public boolean isPackageInfo() {
 	return CharOperation.equals(getMainTypeName(), TypeConstants.PACKAGE_INFO_NAME);
+}
+
+public boolean isModuleInfo() {
+	return CharOperation.equals(getMainTypeName(), TypeConstants.MODULE_INFO_NAME);
 }
 
 public boolean isSuppressed(CategorizedProblem problem) {

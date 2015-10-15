@@ -48,7 +48,7 @@ $Terminals
 	interface long native new null package private
 	protected public return short static strictfp super switch
 	synchronized this throw throws transient true try void
-	volatile while
+	volatile while module requires exports to uses provides with
 
 	IntegerLiteral
 	LongLiteral
@@ -417,6 +417,71 @@ InternalCompilationUnit ::= ImportDeclarations ReduceImports TypeDeclarations
 InternalCompilationUnit ::= $empty
 /.$putCase consumeEmptyInternalCompilationUnit(); $break ./
 /:$readableName CompilationUnit:/
+
+--1.9 feature
+InternalCompilationUnit ::= ModuleDeclaration
+/:$compliance 1.9:/
+/.$putCase consumeInternalCompilationUnitWithModuleDeclaration(); $break ./
+
+ModuleDeclaration ::= ModuleHeader ModuleBody
+/:$compliance 1.9:/
+/.$putCase consumeModuleDeclaration(); $break ./
+
+ModuleHeader ::= 'module' Name
+/:$compliance 1.9:/
+/.$putCase consumeModuleHeader(); $break ./
+
+ModuleBody ::= '{' ModuleStatementsOpt '}'
+/:$compliance 1.9:/
+/:$no_statements_recovery:/
+ModuleStatementsOpt ::= $empty
+/:$compliance 1.9:/
+ModuleStatementsOpt ::= ModuleStatementsOpt ModuleStatement
+/:$compliance 1.9:/
+
+ModuleStatement ::= RequiresStatement
+/:$compliance 1.9:/
+ModuleStatement ::= ExportsStatement
+/:$compliance 1.9:/
+ModuleStatement ::= UsesStatement
+/:$compliance 1.9:/
+ModuleStatement ::= ProvidesStatement
+/:$compliance 1.9:/
+
+RequiresStatement ::=  SingleRequiresModuleName ';'
+/:$compliance 1.9:/
+/.$putCase consumeRequiresStatement(); $break ./
+SingleRequiresModuleName ::= 'requires' Modifiersopt Name
+/:$compliance 1.9:/
+/.$putCase consumeSingleRequiresModuleName(); $break ./
+
+ExportsStatement ::=  SingleExportsPkgName ExportTargetopt ';'
+/:$compliance 1.9:/
+/.$putCase consumeExportsStatement(); $break ./
+ExportTargetopt ::= $empty
+ExportTargetopt ::= 'to' ExportTargetNameList
+/:$compliance 1.9:/
+/.$putCase consumeExportTarget(); $break ./
+ExportTargetNameList ::= Name
+/:$compliance 1.9:/
+/.$putCase consumeSingleExportsTargetName(); $break ./
+ExportTargetNameList ::= ExportTargetNameList ',' Name
+/:$compliance 1.9:/
+/.$putCase consumeExportsTargetNameList(); $break ./
+SingleExportsPkgName ::= 'exports' Name
+/:$compliance 1.9:/
+/.$putCase consumeSingleExportsPkgName(); $break ./
+
+UsesStatement ::=  'uses' Name ';'
+/:$compliance 1.9:/
+/.$putCase consumeUsesStatement(); $break ./
+
+ProvidesStatement ::= 'provides' Name WithClause ';'
+/:$compliance 1.9:/
+/.$putCase consumeProvidesStatement(); $break ./
+WithClause ::= 'with' Name
+/:$compliance 1.9:/
+/.$putCase consumeWithClause(); $break ./
 
 ReduceImports ::= $empty
 /.$putCase consumeReduceImports(); $break ./

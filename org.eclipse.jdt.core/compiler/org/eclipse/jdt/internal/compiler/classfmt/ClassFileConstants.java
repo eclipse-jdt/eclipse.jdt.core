@@ -44,6 +44,7 @@ public interface ClassFileConstants {
 	int AccSynthetic    = 0x1000;
 	int AccAnnotation   = 0x2000;
 	int AccEnum         = 0x4000;
+	int AccModule		= 0x8000;
 
 	/**
 	 * From classfile version 52 (compliance 1.8 up), meaning that a formal parameter is mandated
