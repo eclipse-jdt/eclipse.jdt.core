@@ -539,6 +539,19 @@ public class BuilderTests extends TestCase {
 		return classes;
 	}
 
+	public static Test buildTestSuite(Class evaluationTestClass, long ordering) {
+		TestSuite suite = new TestSuite(evaluationTestClass.getName());
+		List tests = buildTestsList(evaluationTestClass, 0, ordering);
+		for (int index=0, size=tests.size(); index<size; index++) {
+			suite.addTest((Test)tests.get(index));
+		}
+		return suite;
+	}
+
+	public static Test buildTestSuite(Class evaluationTestClas) {
+		return buildTestSuite(evaluationTestClas, BYTECODE_DECLARATION_ORDER);
+	}
+
 	public static Test suite() {
 		TestSuite suite = new TestSuite(BuilderTests.class.getName());
 

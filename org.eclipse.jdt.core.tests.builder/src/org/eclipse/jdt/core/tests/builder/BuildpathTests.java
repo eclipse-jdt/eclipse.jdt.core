@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,7 +39,13 @@ public BuildpathTests(String name) {
 }
 
 public static Test suite() {
-	return buildTestSuite(BuildpathTests.class);
+//	return buildTestSuite(BuildpathTests.class);
+	return buildTestSuite(BuildpathTests.class, BYTECODE_DECLARATION_ORDER);
+}
+@Override
+protected void setUp() throws Exception {
+	super.setUp();
+	JavaBuilder.DEBUG = true; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=464369
 }
 
 private String getJdkLevelProblem(String expectedRuntime, String path, int severity) {
@@ -1011,5 +1018,10 @@ public void testMissingOutputFolder() throws JavaModelException {
 	expectingPresenceOf(bin); // check that bin folder was recreated and is marked as derived
 	if (!env.getProject(projectPath).getFolder("bin").isDerived())
 		fail("output folder is not derived");
+}
+@Override
+protected void tearDown() throws Exception {
+	super.tearDown();
+	JavaBuilder.DEBUG = false;
 }
 }
