@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -644,7 +644,11 @@ private boolean isClasspathBroken(IClasspathEntry[] classpath, IProject p) throw
 private boolean isWorthBuilding() throws CoreException {
 	boolean abortBuilds =
 		JavaCore.ABORT.equals(this.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, true));
-	if (!abortBuilds) return true;
+	if (!abortBuilds) {
+		if (DEBUG)
+			System.out.println("JavaBuilder: Ignoring invalid classpath"); //$NON-NLS-1$
+		return true;
+	}
 
 	// Abort build only if there are classpath errors
 	if (isClasspathBroken(this.javaProject.getRawClasspath(), this.currentProject)) {

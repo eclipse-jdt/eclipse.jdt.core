@@ -192,9 +192,7 @@ public void testClosedProject() throws JavaModelException, IOException {
 	env.openProject(project1Path);
 	incrementalBuild();
 	expectingNoProblems();
-
-	options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.ABORT);
-	JavaCore.setOptions(options);
+	env.removeProject(project1Path);
 }
 
 public void testCorruptBuilder() throws JavaModelException {
@@ -235,13 +233,11 @@ public void testCorruptBuilder() throws JavaModelException {
 
 	incrementalBuild();
 	expectingNoProblems();
-
-	options.put(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER, JavaCore.IGNORE);
-	JavaCore.setOptions(options);
+	env.removeProject(project1Path);
 }
 
 public void testCorruptBuilder2() throws JavaModelException {
-	IPath project1Path = env.addProject("P1"); //$NON-NLS-1$
+	IPath project1Path = env.addProject("P2"); //$NON-NLS-1$
 	env.addExternalJars(project1Path, Util.getJavaClassLibs());
 	env.removePackageFragmentRoot(project1Path, ""); //$NON-NLS-1$
 	IPath src = env.addPackageFragmentRoot(project1Path, "src"); //$NON-NLS-1$
@@ -282,9 +278,7 @@ public void testCorruptBuilder2() throws JavaModelException {
 
 	incrementalBuild();
 	expectingNoProblems();
-
-	options.put(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER, JavaCore.IGNORE);
-	JavaCore.setOptions(options);
+	env.removeProject(project1Path);
 }
 
 /*
@@ -292,6 +286,7 @@ public void testCorruptBuilder2() throws JavaModelException {
  */
 public void testChangeExternalFolder() throws CoreException {
 	String externalLib = Util.getOutputDirectory() + File.separator + "externalLib";
+	IPath projectPath = env.addProject("Project");
 	try {
 		new File(externalLib).mkdirs();
 		Util.compile(
@@ -307,7 +302,6 @@ public void testChangeExternalFolder() throws CoreException {
 			externalLib
 		);
 
-		IPath projectPath = env.addProject("Project");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.addExternalFolders(projectPath, new String[] {externalLib});
 
@@ -354,6 +348,7 @@ public void testChangeExternalFolder() throws CoreException {
 		);
 	} finally {
 		new File(externalLib).delete();
+		env.removeProject(projectPath);
 	}
 }
 
@@ -362,6 +357,7 @@ public void testChangeExternalFolder() throws CoreException {
  */
 public void testChangeZIPArchive1() throws Exception {
 	String externalLib = Util.getOutputDirectory() + File.separator + "externalLib.abc";
+	IPath projectPath = env.addProject("Project");
 	try {
 		org.eclipse.jdt.core.tests.util.Util.createJar(
 			new String[] {
@@ -375,7 +371,6 @@ public void testChangeZIPArchive1() throws Exception {
 			externalLib,
 			"1.4");
 
-		IPath projectPath = env.addProject("Project");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.addExternalJars(projectPath, new String[] {externalLib});
 
@@ -414,6 +409,7 @@ public void testChangeZIPArchive1() throws Exception {
 		);
 	} finally {
 		new File(externalLib).delete();
+		env.removeProject(projectPath);
 	}
 }
 
@@ -470,6 +466,7 @@ public void testChangeZIPArchive2() throws Exception {
 		classY,
 		"Problem : The method foo() is undefined for the type X [ resource : </Project/q/Y.java> range : <54,57> category : <50> severity : <2>]"
 	);
+	env.removeProject(projectPath);
 }
 
 /*
@@ -528,7 +525,7 @@ public void testExternalJarChange() throws JavaModelException, IOException {
 	project.getJavaModel().refreshExternalArchives(new IJavaElement[] {project}, null);
 	incrementalBuild();
 	expectingNoProblems();
-
+	env.removeProject(projectPath);
 }
 
 public void testMissingBuilder() throws JavaModelException {
@@ -571,6 +568,8 @@ public void testMissingBuilder() throws JavaModelException {
 
 	incrementalBuild();
 	expectingNoProblems();
+	env.removeProject(project1Path);
+	env.removeProject(project2Path);
 }
 
 public void testMissingFieldType() throws JavaModelException {
@@ -612,6 +611,7 @@ public void testMissingFieldType() throws JavaModelException {
 
 	incrementalBuild();
 	expectingNoProblems();
+	env.removeProject(projectPath);
 }
 
 public void testMissingLibrary1() throws JavaModelException {
@@ -920,9 +920,8 @@ public void testMissingProject() throws JavaModelException {
 
 	incrementalBuild();
 	expectingNoProblems();
-
-	options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.ABORT);
-	JavaCore.setOptions(options);
+	env.removeProject(project1Path);
+	env.removeProject(project2Path);
 }
 
 public void testMissingOptionalProject() throws JavaModelException {
@@ -966,9 +965,8 @@ public void testMissingOptionalProject() throws JavaModelException {
 
 	incrementalBuild();
 	expectingNoProblems();
-
-	options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.ABORT);
-	JavaCore.setOptions(options);
+	env.removeProject(project1Path);
+	env.removeProject(project2Path);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=160132
@@ -999,6 +997,7 @@ public void test0100() throws JavaModelException {
 		"}");
 	incrementalBuild();
 	expectingNoProblems();
+	env.removeProject(projectPath);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=143025
@@ -1018,6 +1017,7 @@ public void testMissingOutputFolder() throws JavaModelException {
 	expectingPresenceOf(bin); // check that bin folder was recreated and is marked as derived
 	if (!env.getProject(projectPath).getFolder("bin").isDerived())
 		fail("output folder is not derived");
+	env.removeProject(projectPath);
 }
 @Override
 protected void tearDown() throws Exception {
