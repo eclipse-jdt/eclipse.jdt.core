@@ -24,13 +24,14 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
  * <p>
  * A categorized problem provides access to:
  * <ul>
- * <li> its location (originating source file name, source position, line number), </li>
- * <li> its message description and a predicate to check its severity (warning or error). </li>
+ * <li> its location (originating source file name, source position, line number) </li>
+ * <li> its message description </li>
+ * <li> predicates to check its severity (error, warning, or info) </li>
  * <li> its ID : a number identifying the very nature of this problem. All possible IDs for standard Java
- * problems are listed as constants on {@link IProblem}, </li>
+ * problems are listed as constants on {@link IProblem}. </li>
  * <li> its marker type : a string identifying the problem creator. It corresponds to the marker type
  * chosen if this problem was to be persisted. Standard Java problems are associated to marker
- * type "org.eclipse.jdt.core.problem"), </li>
+ * type "org.eclipse.jdt.core.problem"). </li>
  * <li> its category ID : a number identifying the category this problem belongs to. All possible IDs for
  * standard Java problem categories are listed in this class. </li>
  * </ul>
@@ -120,8 +121,9 @@ public abstract String getMarkerType();
  * markers. By default, no EXTRA attributes is persisted, and a categorized problem only persists the following attributes:
  * <ul>
  * <li>	<code>IMarker#MESSAGE</code> -&gt; {@link IProblem#getMessage()}</li>
- * <li>	<code>IMarker#SEVERITY</code> -&gt; <code> IMarker#SEVERITY_ERROR</code> or
- *         <code>IMarker#SEVERITY_WARNING</code> depending on {@link IProblem#isError()} or {@link IProblem#isWarning()}</li>
+ * <li>	<code>IMarker#SEVERITY</code> -&gt;
+ *         <code> IMarker#SEVERITY_ERROR</code>, <code>IMarker#SEVERITY_WARNING</code>, or <code>IMarker#SEVERITY_INFO</code>,
+ *         depending on {@link IProblem#isError()}, {@link IProblem#isWarning()}, or or {@link IProblem#isInfo()}</li>
  * <li>	<code>IJavaModelMarker#ID</code> -&gt; {@link IProblem#getID()}</li>
  * <li>	<code>IMarker#CHAR_START</code>  -&gt; {@link IProblem#getSourceStart()}</li>
  * <li>	<code>IMarker#CHAR_END</code>  -&gt; {@link IProblem#getSourceEnd()}</li>
