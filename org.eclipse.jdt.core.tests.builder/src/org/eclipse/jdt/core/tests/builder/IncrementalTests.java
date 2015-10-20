@@ -69,6 +69,7 @@ public class IncrementalTests extends BuilderTests {
 			"Problem : The type CC is already defined [ resource : </Project/src/p/D.java> range : <37,39> category : <-1> severity : <2>]"
 		);
 		expectingSpecificProblemsFor(pathToD, new Problem[] {new Problem("", "The type CC is already defined", pathToD, 37, 39, -1, IMarker.SEVERITY_ERROR)});
+		env.removeProject(projectPath);
 	}
 
 	public void testDefaultPackage() throws JavaModelException {
@@ -90,6 +91,7 @@ public class IncrementalTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingNoProblems();
+		env.removeProject(projectPath);
 	}
 
 	public void testDefaultPackage2() throws JavaModelException {
@@ -111,6 +113,7 @@ public class IncrementalTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingNoProblems();
+		env.removeProject(projectPath);
 	}
 
 	public void testNewJCL() {
@@ -148,6 +151,7 @@ public class IncrementalTests extends BuilderTests {
 
 		incrementalBuild();
 		expectingNoProblems();
+		env.removeProject(projectPath);
 	}
 
 	/*
@@ -208,6 +212,7 @@ public class IncrementalTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingNoProblems();
+		env.removeProject(projectPath);
 	}
 
 	/*
@@ -278,6 +283,7 @@ public class IncrementalTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingNoProblems();
+		env.removeProject(projectPath);
 	}
 
 	/*
@@ -348,6 +354,7 @@ public class IncrementalTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingNoProblems();
+		env.removeProject(projectPath);
 	}
 
 	public void testMoveSecondaryType() throws JavaModelException {
@@ -401,6 +408,7 @@ public class IncrementalTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingNoProblems();
+		env.removeProject(projectPath);
 	}
 
 	public void testMoveMemberType() throws JavaModelException {
@@ -471,6 +479,7 @@ public class IncrementalTests extends BuilderTests {
 			new Problem[]{
 				new Problem("", "The import p.ZA is never used", new Path("/Project/src/p/AB.java"), 35, 39, CategorizedProblem.CAT_UNNECESSARY_CODE, IMarker.SEVERITY_WARNING), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			});
+		env.removeProject(projectPath);
 	}
 
 	public void testMovePackage() throws JavaModelException {
@@ -496,6 +505,7 @@ public class IncrementalTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingNoProblems();
+		env.removeProject(projectPath);
 	}
 
 	public void testMovePackage2() throws JavaModelException {
@@ -533,6 +543,7 @@ public class IncrementalTests extends BuilderTests {
 
 		incrementalBuild(projectPath);
 		expectingNoProblems();
+		env.removeProject(projectPath);
 	}
 
 	public void testMemberTypeFromClassFile() throws JavaModelException {
@@ -585,6 +596,7 @@ public class IncrementalTests extends BuilderTests {
 		incrementalBuild(projectPath);
 		org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = previous;
 		expectingNoProblems();
+		env.removeProject(projectPath);
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=372418
@@ -645,6 +657,7 @@ public class IncrementalTests extends BuilderTests {
 		fullBuild(projectPath1);
 		org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = previous;
 		expectingNoProblems();
+		env.removeProject(projectPath1);
 	}
 
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=377401
@@ -701,6 +714,7 @@ public class IncrementalTests extends BuilderTests {
 		fullBuild(projectPath1);
 		org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = previous;
 		expectingNoProblems();
+		env.removeProject(projectPath1);
 	}
 
 	// http://dev.eclipse.org/bugs/show_bug.cgi?id=27658
@@ -751,6 +765,7 @@ public class IncrementalTests extends BuilderTests {
 				new Problem[]{
 					new Problem("", "The type java.lang.Object cannot have a superclass or superinterfaces", new Path("/Project/src/java/lang/Object.java"), 33, 39, CategorizedProblem.CAT_INTERNAL, IMarker.SEVERITY_ERROR), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				});
+			env.removeProject(projectPath);
 
 		} catch(StackOverflowError e){
 			assertTrue("Infinite loop in cycle detection", false); //$NON-NLS-1$
@@ -793,6 +808,7 @@ public class IncrementalTests extends BuilderTests {
 		incrementalBuild();
 		expectingProblemsFor(x, "???");
 		expectingNoPresenceOf(bin.append("X.class")); //$NON-NLS-1$
+		env.removeProject(projectPath);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=100631
@@ -837,6 +853,7 @@ public class IncrementalTests extends BuilderTests {
 
 			incrementalBuild(projectPath);
 			expectingNoProblems();
+			env.removeProject(projectPath);
 		} finally {
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = max;
 		}
@@ -898,6 +915,7 @@ public class IncrementalTests extends BuilderTests {
 
 			incrementalBuild(projectPath);
 			expectingNoProblems();
+			env.removeProject(projectPath);
 		} finally {
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = max;
 		}
@@ -945,6 +963,7 @@ public class IncrementalTests extends BuilderTests {
 		incrementalBuild(projectPath);
 		expectingSpecificProblemFor(yPath, new Problem("Y", "Zork cannot be resolved to a type", yPath, 34, 38, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingNoProblemsFor(xPath);
+		env.removeProject(projectPath);
 	}
 
 	public void testSecondaryType() throws JavaModelException {
@@ -972,6 +991,7 @@ public class IncrementalTests extends BuilderTests {
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = max;
 		}
 		expectingNoProblems();
+		env.removeProject(projectPath);
 	}
 
 	// http://dev.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
@@ -1013,6 +1033,7 @@ public class IncrementalTests extends BuilderTests {
 			);
 		incrementalBuild(projectPath);
 		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
+		env.removeProject(projectPath);
 	}
 
 	// http://dev.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
@@ -1057,6 +1078,7 @@ public class IncrementalTests extends BuilderTests {
 			);
 		incrementalBuild(projectPath);
 		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
+		env.removeProject(projectPath);
 	}
 
 	// http://dev.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
@@ -1101,6 +1123,7 @@ public class IncrementalTests extends BuilderTests {
 			);
 		incrementalBuild(projectPath);
 		expectingSpecificProblemFor(xPath, new Problem("X", "This method has a constructor name", xPath, 73, 76, CategorizedProblem.CAT_CODE_STYLE, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
+		env.removeProject(projectPath);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=334377
 	public void testBug334377() throws JavaModelException {
@@ -1165,6 +1188,7 @@ public class IncrementalTests extends BuilderTests {
 
 			incrementalBuild(projectPath);
 			expectingNoProblems();
+			env.removeProject(projectPath);
 		} finally {
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = max;
 			JavaCore.setOptions(options);
@@ -1189,8 +1213,9 @@ public class IncrementalTests extends BuilderTests {
 			"import w.I;\n" +
 			"import w.W;\n" +
 			"public class A {}"); //$NON-NLS-1$
-
+		env.waitForManualRefresh();
 		fullBuild(projectPath);
+		env.waitForAutoBuild();
 		expectingSpecificProblemFor(wPath, new Problem("W", "w.I cannot be resolved to a type", wPath, 37, 40, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 		expectingSpecificProblemFor(aPath, new Problem("A", "The import w.I cannot be resolved", aPath, 18, 21, CategorizedProblem.CAT_IMPORT, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -1200,7 +1225,10 @@ public class IncrementalTests extends BuilderTests {
 				"import w.W;\n" +
 				"public class A {}"); //$NON-NLS-1$
 
+		env.waitForManualRefresh();
 		incrementalBuild(projectPath);
+		env.waitForAutoBuild();
 		expectingSpecificProblemFor(aPath, new Problem("A", "The import w.I cannot be resolved", aPath, 18, 21, CategorizedProblem.CAT_IMPORT, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		env.removeProject(projectPath);
 	}
 }
