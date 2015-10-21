@@ -5708,6 +5708,78 @@ public void test461004() {
 			"}\n"
 	});
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=478533 [compiler][1.8][lambda] check visibility of target context is broken
+public void test478533() {
+	this.runConformTest(
+		new String[] {
+			"test/BugDemonstrator.java",
+			"package test;\n" + 
+			"import test.subpackage.B;\n" + 
+			"public class BugDemonstrator {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		// OK\n" + 
+			"		invoke(new B() {\n" + 
+			"			public String invoke(Integer input) {\n" + 
+			"				return null;\n" + 
+			"			}\n" + 
+			"		});\n" + 
+			"		// ERROR\n" + 
+			"		invoke((Integer i) -> { // Error is here: The type A<Object,Integer> from the descriptor computed for the target context is not visible here.\n" + 
+			"			return null;\n" + 
+			"		});\n" + 
+			"	}\n" + 
+			"	private static String invoke(B b) {\n" + 
+			"		return b.invoke(1);\n" + 
+			"	}\n" + 
+			"}\n",
+			"test/subpackage/A.java",
+			"package test.subpackage;\n" + 
+			"interface A<I> {\n" + 
+			"	String invoke(I input);\n" + 
+			"}\n",
+			"test/subpackage/B.java",
+			"package test.subpackage;\n" + 
+			"public interface B extends A<Integer> {}\n" 
+	});
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=478533 [compiler][1.8][lambda] check visibility of target context is broken
+public void test478533a() {
+	this.runNegativeTest(
+		new String[] {
+			"test/BugDemonstrator.java",
+			"package test;\n" + 
+			"import test.subpackage.C;\n" + 
+			"public class BugDemonstrator {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		C c = new C();\n" + 
+			"		c.invoke((Integer i) -> { \n" + 
+			"			return null;\n" + 
+			"		}, 2);\n" + 
+			"	}\n" + 
+			"}\n",
+			"test/subpackage/A.java",
+			"package test.subpackage;\n" + 
+			"public interface A<I> {\n" + 
+			"	String invoke(I input);\n" + 
+			"}\n",
+			"test/subpackage/B.java",
+			"package test.subpackage;\n" + 
+			"interface B extends A<Integer> {}\n" ,
+			"test/subpackage/C.java",
+			"package test.subpackage;\n" + 
+			"public class C {\n" + 
+			"	public String invoke(B b, Integer input) {\n" + 
+			"		return b.invoke(input);\n" + 
+			"	}\n" + 
+			"}\n"
+	},
+	"----------\n" +
+	"1. ERROR in test\\BugDemonstrator.java (at line 6)\n" +
+	"	c.invoke((Integer i) -> { \n" +
+	"	         ^^^^^^^^^^^^^^\n" +
+	"The type B from the descriptor computed for the target context is not visible here.  \n" +
+	"----------\n");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
