@@ -501,6 +501,52 @@ public class BasicSearchEngine {
 
 	}
 
+boolean match(char[] patternName, int matchRule, char[] name) {
+		boolean isCaseSensitive = (matchRule & SearchPattern.R_CASE_SENSITIVE) != 0;
+		if (patternName != null) {
+			boolean isCamelCase = (matchRule & (SearchPattern.R_CAMELCASE_MATCH | SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH)) != 0;
+			int matchMode = matchRule & JavaSearchPattern.MATCH_MODE_MASK;
+			if (!isCaseSensitive && !isCamelCase) {
+				patternName = CharOperation.toLowerCase(patternName);
+			}
+			boolean matchFirstChar = !isCaseSensitive || patternName[0] == name[0];
+			switch(matchMode) {
+				case SearchPattern.R_EXACT_MATCH :
+					return matchFirstChar && CharOperation.equals(patternName, name, isCaseSensitive);
+				case SearchPattern.R_PREFIX_MATCH :
+					return matchFirstChar && CharOperation.prefixEquals(patternName, name, isCaseSensitive);
+				case SearchPattern.R_PATTERN_MATCH :
+					return CharOperation.match(patternName, name, isCaseSensitive);
+				case SearchPattern.R_REGEXP_MATCH :
+					// TODO implement regular expression match
+					break;
+				case SearchPattern.R_CAMELCASE_MATCH:
+					if (matchFirstChar && CharOperation.camelCaseMatch(patternName, name, false)) {
+						return true;
+					}
+					return !isCaseSensitive && matchFirstChar && CharOperation.prefixEquals(patternName, name, false);
+				case SearchPattern.R_CAMELCASE_SAME_PART_COUNT_MATCH:
+					return matchFirstChar && CharOperation.camelCaseMatch(patternName, name, true);
+			}
+		}
+		return true;		
+	}
+
+	boolean match(char[] patternPkg, int matchRulePkg, 
+			char[] patternDeclaringQualifier, int matchRuleDeclaringQualifier,
+			char[] patternDeclaringSimpleName, int matchRuleDeclaringSimpleName,
+			char[] patternMethodName, int methodMatchRule, 
+			char[] packageName, char[] declaringQualifier, char[] declaringSimpleName, char[] methodName) {
+		
+		if (patternPkg != null && !CharOperation.equals(patternPkg, packageName, (matchRulePkg & SearchPattern.R_CASE_SENSITIVE) != 0))
+			return false;
+		
+		return match(patternDeclaringQualifier, matchRuleDeclaringQualifier, declaringQualifier) &&
+				match(patternDeclaringSimpleName, matchRuleDeclaringSimpleName, declaringSimpleName) &&
+				match(patternMethodName, methodMatchRule, methodName);
+		
+	}
+	
 	/**
 	 * Searches for matches of a given search pattern. Search patterns can be created using helper
 	 * methods (from a String pattern or a Java element) and encapsulate the description of what is
@@ -848,6 +894,370 @@ public class BasicSearchEngine {
 		} finally {
 			if (progressMonitor != null) {
 				progressMonitor.done();
+			}
+		}
+	}
+
+	public void searchAllMethodNames(
+			final char[] packageName,
+			final int pkgMatchRule,
+			final char[] declaringQualification,
+			final int declQualificationMatchRule,
+			final char[] declaringSimpleName,
+			final int declSimpleNameMatchRule,
+			final char[] methodName,
+			final int methodMatchRule,
+			IJavaSearchScope scope,
+			final IRestrictedAccessMethodRequestor nameRequestor,
+			int waitingPolicy,
+			IProgressMonitor progressMonitor)  throws JavaModelException {
+
+			// Validate match rule first
+			final int validatedMethodMatchRule = SearchPattern.validateMatchRule(methodName == null ? null : new String (methodName), methodMatchRule);
+			// Debug
+			if (VERBOSE) {
+				Util.verbose("BasicSearchEngine.searchAllMethodDeclarations(char[] packageName, char[] declaringQualification, char[] declaringSimpleName, "//$NON-NLS-1$
+						+ "char[] methodName, int methodMatchRule, IJavaSearchScope, IRestrictedAccessConstructorRequestor, int waitingPolicy, IProgressMonitor)"); //$NON-NLS-1$
+				Util.verbose("	- package name: "+(packageName==null?"null":new String(packageName))); //$NON-NLS-1$ //$NON-NLS-2$
+				Util.verbose("	- declaringQualification name: "+(declaringQualification==null?"null":new String(declaringQualification))); //$NON-NLS-1$ //$NON-NLS-2$
+				Util.verbose("	- declaringSimple name: "+(declaringSimpleName==null?"null":new String(declaringSimpleName))); //$NON-NLS-1$ //$NON-NLS-2$
+				Util.verbose("	- method name: "+(methodName==null?"null":new String(methodName))); //$NON-NLS-1$ //$NON-NLS-2$
+				Util.verbose("	- method match rule: "+getMatchRuleString(methodMatchRule)); //$NON-NLS-1$
+				if (validatedMethodMatchRule != methodMatchRule) {
+					Util.verbose("	- validated method match rule: "+getMatchRuleString(validatedMethodMatchRule)); //$NON-NLS-1$
+				}
+				Util.verbose("	- scope: "+scope); //$NON-NLS-1$
+			}
+			if (validatedMethodMatchRule == -1) return; // invalid match rule => return no results
+
+			// Create pattern
+			IndexManager indexManager = JavaModelManager.getIndexManager();
+			final MethodDeclarationPattern pattern = new MethodDeclarationPattern(packageName, declaringQualification, declaringSimpleName, methodName, methodMatchRule);
+
+			// Get working copy path(s). Store in a single string in case of only one to optimize comparison in requestor
+			final HashSet workingCopyPaths = new HashSet();
+			String workingCopyPath = null;
+			ICompilationUnit[] copies = getWorkingCopies();
+			final int copiesLength = copies == null ? 0 : copies.length;
+			if (copies != null) {
+				if (copiesLength == 1) {
+					workingCopyPath = copies[0].getPath().toString();
+				} else {
+					for (int i = 0; i < copiesLength; i++) {
+						ICompilationUnit workingCopy = copies[i];
+						workingCopyPaths.add(workingCopy.getPath().toString());
+					}
+				}
+			}
+			final String singleWkcpPath = workingCopyPath;
+
+			// Index requestor
+			IndexQueryRequestor searchRequestor = new IndexQueryRequestor(){
+				public boolean acceptIndexMatch(String documentPath, SearchPattern indexRecord, SearchParticipant participant, AccessRuleSet access) {
+					MethodDeclarationPattern record = (MethodDeclarationPattern)indexRecord;
+					
+					if ((record.extraFlags & ExtraFlags.IsLocalType) != 0) {
+						return true; // filter out local and anonymous classes
+					}
+					switch (copiesLength) {
+						case 0:
+							break;
+						case 1:
+							if (singleWkcpPath.equals(documentPath)) {
+								return true; // filter out *the* working copy
+							}
+							break;
+						default:
+							if (workingCopyPaths.contains(documentPath)) {
+								return true; // filter out working copies
+							}
+							break;
+					}
+
+					// Accept document path
+					AccessRestriction accessRestriction = null;
+					if (access != null) {
+						// Compute document relative path
+						int pkgLength = (record.declaringPackageName==null || record.declaringPackageName.length==0) ? 0 : record.declaringPackageName.length+1;
+						int qualificationLength = (record.declaringQualification == null || record.declaringQualification.length == 0) ? 0 : record.declaringQualification.length;
+						int nameLength = record.declaringSimpleName==null ? 0 : record.declaringSimpleName.length;
+						char[] path = new char[pkgLength + qualificationLength + nameLength];
+						int pos = 0;
+						if (pkgLength > 0) {
+							System.arraycopy(record.declaringPackageName, 0, path, pos, pkgLength-1);
+							CharOperation.replace(path, '.', '/');
+							path[pkgLength-1] = '/';
+							pos += pkgLength;
+						}
+						if (qualificationLength > 0) {
+							System.arraycopy(record.declaringQualification, 0, path, pos, qualificationLength);
+						}
+						if (nameLength > 0) {
+							System.arraycopy(record.declaringSimpleName, 0, path, pos, nameLength);
+							pos += nameLength;
+						}
+						// Update access restriction if path is not empty
+						if (pos > 0) {
+							accessRestriction = access.getViolatedRestriction(path);
+						}
+					}
+					if (match(packageName, pkgMatchRule, declaringQualification, declQualificationMatchRule, declaringSimpleName, declSimpleNameMatchRule, methodName, methodMatchRule, 
+							record.declaringPackageName, record.declaringQualification, record.declaringSimpleName, record.selector)) {
+						nameRequestor.acceptMethod(
+								record.selector, 
+								record.parameterCount,
+								record.declaringQualification,
+								record.declaringSimpleName, 
+								record.declaringTypeModifiers, 
+								record.declaringPackageName,
+								record.signature, 
+								record.parameterTypes, 
+								record.parameterNames,
+								record.returnSimpleName,
+								record.modifiers, 
+								documentPath, 
+								accessRestriction,
+								-1 /* method index not applicable as there is no IType here */);
+					}
+					return true;
+				}
+			};
+
+			try {
+				if (progressMonitor != null) {
+					progressMonitor.beginTask(Messages.engine_searching, 1000);
+				}
+				// add type names from indexes
+				indexManager.performConcurrentJob(
+					new PatternSearchJob(
+						pattern,
+						getDefaultSearchParticipant(), // Java search only
+						scope,
+						searchRequestor),
+					waitingPolicy,
+					progressMonitor == null ? null : new SubProgressMonitor(progressMonitor, 1000-copiesLength));
+
+				// add type names from working copies
+				if (copies != null) {
+					boolean isPkgCaseSensitive = (pkgMatchRule & SearchPattern.R_CASE_SENSITIVE) != 0; 
+					for (int i = 0; i < copiesLength; i++) {
+						final ICompilationUnit workingCopy = copies[i];
+						if (scope instanceof HierarchyScope) {
+							if (!((HierarchyScope)scope).encloses(workingCopy, progressMonitor)) continue;
+						} else {
+							if (!scope.encloses(workingCopy)) continue;
+						}
+
+						final String path = workingCopy.getPath().toString();
+						if (workingCopy.isConsistent()) {
+							IPackageDeclaration[] packageDeclarations = workingCopy.getPackageDeclarations();
+							char[] packageDeclaration = packageDeclarations.length == 0 ? CharOperation.NO_CHAR : packageDeclarations[0].getElementName().toCharArray();
+							if (packageName != null && !CharOperation.equals(packageName, packageDeclaration, isPkgCaseSensitive))
+								continue;
+							
+							IType[] allTypes = workingCopy.getAllTypes();
+							for (int j = 0, allTypesLength = allTypes.length; j < allTypesLength; j++) {
+								IType type = allTypes[j];
+								IJavaElement parent = type.getParent();
+								char[] rDeclaringQualification = parent instanceof IType ? ((IType) parent).getTypeQualifiedName('.').toCharArray() : CharOperation.NO_CHAR;
+								char[] rSimpleName = type.getElementName().toCharArray();
+								if (!match(declaringQualification, declQualificationMatchRule, rDeclaringQualification) ||
+										!match(declaringSimpleName, declSimpleNameMatchRule, rSimpleName))
+									continue;
+								reportMatchingMethods(methodName, methodMatchRule, nameRequestor, path,
+										packageDeclaration, type, rDeclaringQualification, rSimpleName); 
+							}
+						} else {
+							Parser basicParser = getParser();
+							org.eclipse.jdt.internal.compiler.env.ICompilationUnit unit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) workingCopy;
+							CompilationResult compilationUnitResult = new CompilationResult(unit, 0, 0, this.compilerOptions.maxProblemsPerUnit);
+							CompilationUnitDeclaration parsedUnit = basicParser.dietParse(unit, compilationUnitResult);
+							if (parsedUnit != null) {
+								final char[] packageDeclaration = parsedUnit.currentPackage == null ? CharOperation.NO_CHAR : CharOperation.concatWith(parsedUnit.currentPackage.getImportName(), '.');
+								class AllMethodDeclarationVisitor extends ASTVisitor {
+
+									class TypeInfo {
+										public TypeDeclaration typeDecl;
+										public IType type;
+										public boolean visitMethods;
+										public char[] enclosingTypeName;
+										
+										TypeInfo(TypeDeclaration typeDecl, boolean visitMethods, char[] enclosingTypeName) {
+											this.typeDecl = typeDecl;
+											this.type = workingCopy.getType(new String(typeDecl.name));
+											this.visitMethods = visitMethods;
+											this.enclosingTypeName = enclosingTypeName;
+										}
+									}
+									Stack<TypeInfo> typeInfoStack = new Stack<>();
+									IType getCurrentType() {
+										int l = this.typeInfoStack.size();
+										if (l <= 0) return null;
+										TypeInfo typeInfo = this.typeInfoStack.get(0);
+										IType type = typeInfo.type;
+										if (type == null) {
+											TypeInfo ti = this.typeInfoStack.get(0);
+											ti.type = ti.type == null ? workingCopy.getType(new String(ti.typeDecl.name)) : ti.type;
+											type = ti.type;
+											for (int j = 1; j < l && type != null; ++j) {
+												ti = this.typeInfoStack.get(j);
+												if (ti.type == null) {
+													ti.type = type.getType(new String(ti.typeDecl.name));
+												}
+												type = ti.type;
+											}
+										}
+										return type;
+									}
+
+									private void addStackEntry(TypeDeclaration typeDeclaration, char[] enclosingTypeName) {
+										boolean visitMethods = match(declaringQualification, declQualificationMatchRule, enclosingTypeName) &&
+												match(declaringSimpleName, declSimpleNameMatchRule, typeDeclaration.name);
+										this.typeInfoStack.push(new TypeInfo(typeDeclaration, visitMethods, enclosingTypeName));
+									}
+									public void endVisit(TypeDeclaration typeDeclaration, CompilationUnitScope s) {
+										this.typeInfoStack.pop();
+									}
+									public void endVisit(TypeDeclaration memberTypeDeclaration, ClassScope s) {
+										this.typeInfoStack.pop();
+									}
+									public boolean visit(MethodDeclaration methodDeclaration, ClassScope classScope) {
+										TypeInfo typeInfo = this.typeInfoStack.peek();
+										if (typeInfo.visitMethods &&
+											match(methodName, methodMatchRule, methodDeclaration.selector)) {
+											reportMatchingMethod(path, packageDeclaration,
+													typeInfo.enclosingTypeName, 
+													typeInfo.typeDecl, 
+													methodDeclaration,
+													getCurrentType(),
+													nameRequestor);
+										}
+										
+										return false; // no need to find methods from local/anonymous type
+									}
+									public boolean visit(TypeDeclaration typeDeclaration, BlockScope blockScope) {
+										return false; // do not visit local/anonymous types
+									}
+									public boolean visit(TypeDeclaration typeDeclaration, CompilationUnitScope s) {
+										addStackEntry(typeDeclaration, CharOperation.NO_CHAR);
+										return true;
+									}
+									public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope s) {
+										TypeInfo typeInfo = this.typeInfoStack.peek();
+										addStackEntry(memberTypeDeclaration, typeInfo.enclosingTypeName == CharOperation.NO_CHAR ? typeInfo.typeDecl.name :
+												CharOperation.concat(typeInfo.enclosingTypeName, typeInfo.typeDecl.name, '.'));
+										return true;
+									}
+								}
+								if (match(packageName, pkgMatchRule, packageDeclaration))
+									parsedUnit.traverse(new AllMethodDeclarationVisitor(), parsedUnit.scope);
+							}
+						}
+						if (progressMonitor != null) {
+							if (progressMonitor.isCanceled()) throw new OperationCanceledException();
+							progressMonitor.worked(1);
+						}
+					}
+				}
+			} finally {
+				if (progressMonitor != null) {
+					progressMonitor.done();
+				}
+			}
+		}
+
+	void reportMatchingMethod(
+			final String path,
+			final char[] packageDeclaration,
+			final char[] declaringQualifier,
+			final TypeDeclaration typeDeclaration, 
+			final MethodDeclaration methodDeclaration,
+			final IType type,
+			final IRestrictedAccessMethodRequestor nameRequestor) {
+
+		Argument[] arguments = methodDeclaration.arguments;
+		int argsLength = 0;
+		char[][] parameterTypes = CharOperation.NO_CHAR_CHAR;
+		char[][] parameterNames = CharOperation.NO_CHAR_CHAR;
+		if (arguments != null) {
+			argsLength = arguments.length;
+			parameterTypes = new char[argsLength][];
+			parameterNames = new char[argsLength][];
+		}
+		for (int i = 0; i < argsLength; ++i) {
+			Argument argument = arguments[i];
+			parameterNames[i] = argument.name;
+			parameterTypes[i] = CharOperation.concatWith(argument.type.getTypeName(), '.');
+		}
+		if (nameRequestor instanceof MethodNameMatchRequestorWrapper) {
+			IMethod method = type.getMethod(new String(methodDeclaration.selector), CharOperation.toStrings(parameterTypes));
+			((MethodNameMatchRequestorWrapper)nameRequestor).requestor.acceptMethodNameMatch(new JavaSearchMethodNameMatch(method, methodDeclaration.modifiers));
+		} else {
+			char[] returnType = CharOperation.toString(methodDeclaration.returnType.getTypeName()).toCharArray();
+			nameRequestor.acceptMethod(
+					methodDeclaration.selector, 
+					argsLength, 
+					declaringQualifier, 
+					typeDeclaration.name, 
+					typeDeclaration.modifiers, 
+					packageDeclaration, 
+					null, 
+					parameterTypes, 
+					parameterNames, 
+					returnType, 
+					methodDeclaration.modifiers, 
+					path, 
+					null, 
+					-1 /* method index */);
+		}
+	}
+	void reportMatchingMethods(final char[] methodName, final int methodMatchRule,
+			final IRestrictedAccessMethodRequestor nameRequestor, final String path, char[] packageDeclaration,
+			IType type, char[] rDeclaringQualification, char[] rSimpleName)
+					throws JavaModelException {
+		IMethod[] methods = type.getMethods();
+		
+		for (int k = 0; k < methods.length; k++) {
+			IMethod method = methods[k];
+			if (method.isConstructor()) continue;
+			
+			char[] rMethodName = method.getElementName().toCharArray();
+			if (match(methodName, methodMatchRule, rMethodName)) {
+				if (nameRequestor instanceof MethodNameMatchRequestorWrapper) {
+					((MethodNameMatchRequestorWrapper) nameRequestor).requestor.acceptMethodNameMatch(new JavaSearchMethodNameMatch(method, method.getFlags()));
+				} else {
+
+					String[] stringParameterNames = method.getParameterNames();
+					String[] stringParameterTypes = method.getParameterTypes();
+					int length = stringParameterNames.length;
+					char[][] parameterNames = new char[length][];
+					char[][] parameterTypes = new char[length][];
+					for (int l = 0; l < length; l++) {
+						parameterNames[l] = stringParameterNames[l].toCharArray();
+						parameterTypes[l] = Signature.toCharArray(Signature.getTypeErasure(stringParameterTypes[l]).toCharArray());
+					}
+					String returnSignature = method.getReturnType();
+					char[] signature = returnSignature.toCharArray();
+					char[] returnErasure = Signature.toCharArray(Signature.getTypeErasure(signature));
+					CharOperation.replace(returnErasure, '$', '.');
+					char[] returnTypeName =  returnErasure;
+					
+					nameRequestor.acceptMethod(
+							rMethodName, 
+							parameterNames.length, 
+							rDeclaringQualification, 
+							rSimpleName, 
+							type.getFlags(),
+							packageDeclaration, 
+							null, // signature not used for source 
+							parameterTypes, 
+							parameterNames, 
+							returnTypeName, 
+							method.getFlags(), 
+							path, 
+							null,
+							k);
+				}
 			}
 		}
 	}

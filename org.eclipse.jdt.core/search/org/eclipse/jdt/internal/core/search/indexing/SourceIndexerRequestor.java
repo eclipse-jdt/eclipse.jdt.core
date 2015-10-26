@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.ExtraFlags;
@@ -302,7 +304,54 @@ private void enterInterface(TypeInfo typeInfo) {
  */
 public void enterMethod(MethodInfo methodInfo) {
 	this.indexer.addMethodDeclaration(methodInfo.name, methodInfo.parameterTypes, methodInfo.returnType, methodInfo.exceptionTypes);
+	int argCount = methodInfo.parameterTypes == null ? 0 : methodInfo.parameterTypes.length;
+	char[] typeName = methodInfo.enclosingType != null ? methodInfo.enclosingType.name : null;
+	if (typeName == null || typeName.length == 0) return;
+	this.indexer.addMethodDeclaration(
+			typeName,
+			getDeclaringQualification(methodInfo.enclosingType),
+			methodInfo.name,
+			argCount,
+			null,
+			methodInfo.parameterTypes,
+			methodInfo.parameterNames,
+			methodInfo.returnType,
+			methodInfo.modifiers,
+			methodInfo.declaringPackageName,
+			methodInfo.declaringTypeModifiers,
+			methodInfo.exceptionTypes,
+			getMoreExtraFlags(methodInfo.extraFlags));
 	this.methodDepth++;
+}
+
+private static char[] getDeclaringQualification(TypeDeclaration typeDecl) {
+	if (typeDecl.name == null) return null;
+	TypeDeclaration enclosingType = typeDecl.enclosingType;
+
+	List<char[]> nlist = new ArrayList<>();
+	char[] name = null;
+	int size = 0;
+	while (enclosingType != null && (name = enclosingType.name) != null) {
+		nlist.add(0, name);
+		size += name.length + 1;
+		enclosingType = enclosingType.enclosingType;
+	}
+	if (name == null) return null;
+
+	int l = nlist.size();
+	if (l == 1) return name;
+	
+	name = new char[size];
+	int index = 0;
+	for (int i = 0; i < l - 1; ++i) {
+		char[] e = nlist.get(i);
+		System.arraycopy(e, 0, name, index, e.length);
+		index += e.length;
+		name[index++] = '.';
+	}
+	char[] e = nlist.get(l - 1);
+	System.arraycopy(e, 0, name, index, e.length);
+	return name;
 }
 /**
  * @see ISourceElementRequestor#enterType(ISourceElementRequestor.TypeInfo)

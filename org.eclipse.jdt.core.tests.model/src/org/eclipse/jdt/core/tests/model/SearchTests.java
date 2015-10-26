@@ -74,6 +74,90 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 		public void worked(int work) {
 		}
 	}
+	public static class SearchMethodNameRequestor extends MethodNameRequestor {
+		Vector results = new Vector<>();
+		@Override
+		public void acceptMethod(
+				char[] methodName, 
+				int parameterCount, 
+				char[] declaringQualifier, 
+				char[] simpleTypeName, 
+				int typeModifiers, 
+				char[] packageName, 
+				char[] signature, 
+				char[][] parameterTypes, 
+				char[][] parameterNames, 
+				char[] returnType, 
+				int modifiers, 
+				String path, 
+				int methodIndex) {
+			StringBuffer buffer = new StringBuffer();
+			char c = '.';
+			char[] noname = new String("<NONAME>").toCharArray();
+			buffer.append(path);
+			buffer.append(' ');
+			buffer.append(returnType == null ? CharOperation.NO_CHAR: returnType);
+			buffer.append(' ');
+			checkAndAddtoBuffer(buffer, packageName, c);
+			checkAndAddtoBuffer(buffer, declaringQualifier, c);
+			checkAndAddtoBuffer(buffer, simpleTypeName == null ? noname : simpleTypeName, c);
+			buffer.append(methodName);
+			buffer.append('(');
+			parameterTypes = signature == null ? parameterTypes : Signature.getParameterTypes(signature);
+			
+			for (int i = 0; i < parameterCount; i++) {
+				
+				if (parameterTypes != null) {
+					char[] parameterType;
+					if (parameterTypes.length != parameterCount) {
+						System.out.println("Error");
+					}
+					if (signature != null) {
+						parameterType = Signature.toCharArray(Signature.getTypeErasure(parameterTypes[i]));
+						CharOperation.replace(parameterType, '/', '.');
+					} else {
+						parameterType = parameterTypes[i];
+					}
+					buffer.append(parameterType);
+				} else {
+					buffer.append('?'); // parameter type names are not stored in the indexes
+					buffer.append('?');
+					buffer.append('?');
+				}
+				buffer.append(' ');
+				if (parameterNames != null) {
+					buffer.append(parameterNames[i]);
+				} else {
+					buffer.append("arg"+i);
+				}
+				if (parameterCount > 1 && i < parameterCount - 1) buffer.append(',');
+			}
+			buffer.append(')');
+			this.results.addElement(buffer.toString());
+		}
+		static void checkAndAddtoBuffer(StringBuffer buffer, char[] precond, char c) {
+			if (precond == null || precond.length == 0) return;
+			buffer.append(precond);
+			buffer.append(c);
+		}
+		public String toString(){
+			int length = this.results.size();
+			String[] strings = new String[length];
+			this.results.toArray(strings);
+			org.eclipse.jdt.internal.core.util.Util.sort(strings);
+			StringBuffer buffer = new StringBuffer(100);
+			for (int i = 0; i < length; i++){
+				buffer.append(strings[i]);
+				if (i != length-1) {
+					buffer.append('\n');
+				}
+			}
+			return buffer.toString();
+		}
+		public int size() {
+			return this.results.size();
+		}
+	}
 	public static class SearchTypeNameRequestor extends TypeNameRequestor {
 		Vector results = new Vector();
 		public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path) {

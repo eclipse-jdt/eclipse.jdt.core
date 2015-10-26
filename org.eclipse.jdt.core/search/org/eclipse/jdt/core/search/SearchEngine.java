@@ -585,6 +585,115 @@ public class SearchEngine {
 	}
 
 	/**
+	 * Searches for all method declarations in the given scope. Accepted matches will be returned by
+	 * {@link MethodNameRequestor#acceptMethod}
+	 * 
+	 * @param packageName the full name of the package of the searched types, or a prefix for this
+	 *						package, or a wild-carded string for this package.
+	 *						May be <code>null</code>, then any package name is accepted.
+	 * @param pkgMatchRule match rule for package.
+	 * @param declaringQualification Qualification of the declaring type.
+	 * @param declQualificationMatchRule match rule for declaring qualifier of parent of the type.
+	 * @param declaringSimpleName simple name of the declaring type.
+	 * @param declSimpleNameMatchRule match rule for the simple name of the enclosing type.
+	 * @param methodName the method name searched for.
+	 * @param methodMatchRule match rule for the method name.
+	 * @param scope the scope to search in
+	 * @param nameRequestor the requestor that collects the results of the search.
+	 * @param waitingPolicy one of
+	 * <ul>
+	 *		<li>{@link IJavaSearchConstants#FORCE_IMMEDIATE_SEARCH} if the search should start immediately</li>
+	 *		<li>{@link IJavaSearchConstants#CANCEL_IF_NOT_READY_TO_SEARCH} if the search should be cancelled if the
+	 *			underlying indexer has not finished indexing the workspace</li>
+	 *		<li>{@link IJavaSearchConstants#WAIT_UNTIL_READY_TO_SEARCH} if the search should wait for the
+	 *			underlying indexer to finish indexing the workspace</li>
+	 * </ul>
+	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
+	 *							monitor is provided
+	 * @exception JavaModelException if the search failed.
+	 * 
+	 * @since 3.12
+	 */
+	public void searchAllMethodNames(
+			final char[] packageName,
+			final int pkgMatchRule,
+			final char[] declaringQualification,
+			final int declQualificationMatchRule,
+			final char[] declaringSimpleName,
+			final int declSimpleNameMatchRule,
+			final char[] methodName,
+			final int methodMatchRule,
+			IJavaSearchScope scope,
+			final MethodNameRequestor nameRequestor,
+			int waitingPolicy,
+			IProgressMonitor progressMonitor)  throws JavaModelException {
+		MethodNameRequestorWrapper requestorWrapper = new MethodNameRequestorWrapper(nameRequestor);
+		this.basicEngine.searchAllMethodNames(
+				packageName, pkgMatchRule, 
+				declaringQualification, declQualificationMatchRule, 
+				declaringSimpleName, declSimpleNameMatchRule, 
+				methodName, methodMatchRule, 
+				scope, requestorWrapper, 
+				waitingPolicy, progressMonitor);
+	}
+
+	/**
+	 * Searches for all method declarations in the given scope. 
+	 * <p>
+	 * Provided {@link MethodNameMatchRequestor} requestor will collect the {@link MethodNameMatch}
+	 * matches found during the search.
+	 * </p>
+	 * 
+	 * @param packageName the full name of the package of the searched types, or a prefix for this
+	 *						package, or a wild-carded string for this package.
+	 *						May be <code>null</code>, then any package name is accepted.
+	 * @param pkgMatchRule match rule for package.
+	 * @param declaringQualification Qualification of the declaring type.
+	 * @param declQualificationMatchRule match rule for declaring qualifier of parent of the type.
+	 * @param declaringSimpleName simple name of the declaring type.
+	 * @param declSimpleNameMatchRule match rule for the simple name of the enclosing type.
+	 * @param methodName the method name searched for.
+	 * @param methodMatchRule match rule for the method name.
+	 * @param scope the scope to search in
+	 * @param nameRequestor the {@link MethodNameMatchRequestor}
+	 * @param waitingPolicy one of
+	 * <ul>
+	 *		<li>{@link IJavaSearchConstants#FORCE_IMMEDIATE_SEARCH} if the search should start immediately</li>
+	 *		<li>{@link IJavaSearchConstants#CANCEL_IF_NOT_READY_TO_SEARCH} if the search should be cancelled if the
+	 *			underlying indexer has not finished indexing the workspace</li>
+	 *		<li>{@link IJavaSearchConstants#WAIT_UNTIL_READY_TO_SEARCH} if the search should wait for the
+	 *			underlying indexer to finish indexing the workspace</li>
+	 * </ul>
+	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
+	 *							monitor is provided
+	 * @exception JavaModelException if the search failed.
+	 * 
+	 * @since 3.12
+	 */
+	public void searchAllMethodNames(
+			final char[] packageName,
+			final int pkgMatchRule,
+			final char[] declaringQualification,
+			final int declQualificationMatchRule,
+			final char[] declaringSimpleName,
+			final int declSimpleNameMatchRule,
+			final char[] methodName,
+			final int methodMatchRule,
+			IJavaSearchScope scope,
+			final MethodNameMatchRequestor nameRequestor,
+			int waitingPolicy,
+			IProgressMonitor progressMonitor)  throws JavaModelException {
+		MethodNameMatchRequestorWrapper requestorWrapper = new MethodNameMatchRequestorWrapper(nameRequestor, scope);
+		this.basicEngine.searchAllMethodNames(
+				packageName, pkgMatchRule,
+				declaringQualification, declQualificationMatchRule,
+				declaringSimpleName, declSimpleNameMatchRule,
+				methodName, methodMatchRule,
+				scope, requestorWrapper, 
+				waitingPolicy, progressMonitor);
+	}
+
+	/**
 	 * Searches for all top-level types and member types in the given scope.
 	 * The search can be selecting specific types (given a package exact full name or
 	 * a type name with specific match mode).
