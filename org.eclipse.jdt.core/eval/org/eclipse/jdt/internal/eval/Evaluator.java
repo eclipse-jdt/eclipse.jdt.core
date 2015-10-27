@@ -36,13 +36,13 @@ import org.eclipse.jdt.internal.core.util.Util;
 public abstract class Evaluator {
 	EvaluationContext context;
 	INameEnvironment environment;
-	Map options;
+	Map<String, String> options;
 	IRequestor requestor;
 	IProblemFactory problemFactory;
 /**
  * Creates a new evaluator.
  */
-Evaluator(EvaluationContext context, INameEnvironment environment, Map options, IRequestor requestor, IProblemFactory problemFactory) {
+Evaluator(EvaluationContext context, INameEnvironment environment, Map<String, String> options, IRequestor requestor, IProblemFactory problemFactory) {
 	this.context = context;
 	this.environment = environment;
 	this.options = options;

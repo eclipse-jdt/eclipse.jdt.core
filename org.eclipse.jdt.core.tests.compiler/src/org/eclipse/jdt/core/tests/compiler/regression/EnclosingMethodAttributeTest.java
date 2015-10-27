@@ -239,7 +239,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 		requestor.outputPath = OUTPUT_DIR.endsWith(File.separator) ? OUTPUT_DIR : OUTPUT_DIR + File.separator;
 				// WORK should not have to test a constant?
 
-		Map options = getCompilerOptions();
+		Map<String, String> options = getCompilerOptions();
 		CompilerOptions compilerOptions = new CompilerOptions(options);
 		compilerOptions.performMethodsFullRecovery = true;
 		compilerOptions.performStatementsRecovery = true;

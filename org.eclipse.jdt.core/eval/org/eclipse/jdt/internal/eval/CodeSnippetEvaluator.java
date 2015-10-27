@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
  * A code snippet evaluator compiles and returns class file for a code snippet.
  * Or it reports problems against the code snippet.
  */
-@SuppressWarnings({ "rawtypes" })
 public class CodeSnippetEvaluator extends Evaluator implements EvaluationConstants {
 	/**
 	 * Whether the code snippet support classes should be found in the provided name environment
@@ -49,7 +48,7 @@ public class CodeSnippetEvaluator extends Evaluator implements EvaluationConstan
 /**
  * Creates a new code snippet evaluator.
  */
-CodeSnippetEvaluator(char[] codeSnippet, EvaluationContext context, INameEnvironment environment, Map options, IRequestor requestor, IProblemFactory problemFactory) {
+CodeSnippetEvaluator(char[] codeSnippet, EvaluationContext context, INameEnvironment environment, Map<String, String> options, IRequestor requestor, IProblemFactory problemFactory) {
 	super(context, environment, options, requestor, problemFactory);
 	this.codeSnippet = codeSnippet;
 }

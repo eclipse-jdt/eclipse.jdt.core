@@ -106,7 +106,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public Compiler(
 			INameEnvironment environment,
 			IErrorHandlingPolicy policy,
-			Map settings,
+			Map<String, String> settings,
 			final ICompilerRequestor requestor,
 			IProblemFactory problemFactory) {
 		this(environment, policy, new CompilerOptions(settings), requestor, problemFactory, null /* printwriter */, null /* progress */);

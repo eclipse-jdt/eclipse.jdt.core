@@ -23,7 +23,6 @@ import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.SimpleSetOfCharArray;
 
-@SuppressWarnings("rawtypes")
 public class InternalNamingConventions {
 	private static final char[] DEFAULT_NAME = "name".toCharArray(); //$NON-NLS-1$
 
@@ -549,7 +548,7 @@ public class InternalNamingConventions {
 		if(baseName == null || baseName.length == 0)
 			return;
 		
-		Map options;
+		Map<String, String> options;
 		if (javaProject != null) {
 			options = javaProject.getOptions(true);
 		} else {
