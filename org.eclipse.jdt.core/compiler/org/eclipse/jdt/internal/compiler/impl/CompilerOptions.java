@@ -736,7 +736,7 @@ public class CompilerOptions {
 	public static long versionToJdkLevel(String versionID) {
 		String version = versionID;
 		// verification is optimized for all versions with same length and same "1." prefix
-		if (version.length() == 3 && version.charAt(0) == '1' && version.charAt(1) == '.') {
+		if (version != null && version.length() == 3 && version.charAt(0) == '1' && version.charAt(1) == '.') {
 			switch (version.charAt(2)) {
 				case '1':
 					return ClassFileConstants.JDK1_1;
