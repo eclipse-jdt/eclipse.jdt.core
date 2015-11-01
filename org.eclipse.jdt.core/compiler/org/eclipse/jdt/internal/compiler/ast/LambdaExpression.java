@@ -465,10 +465,14 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if (targetType instanceof ReferenceBinding && targetType.isValidBinding()) {
 			ParameterizedTypeBinding withWildCards = InferenceContext18.parameterizedWithWildcard(targetType);
 			if (withWildCards != null) {
-				if (!argumentTypesElided)
-					return new InferenceContext18(blockScope).inferFunctionalInterfaceParameterization(this, blockScope, withWildCards);
-				else
+				if (!argumentTypesElided) {
+					InferenceContext18 freshInferenceContext = new InferenceContext18(blockScope);
+					ReferenceBinding inferredType = freshInferenceContext.inferFunctionalInterfaceParameterization(this, blockScope, withWildCards);
+					freshInferenceContext.cleanUp();
+					return inferredType;
+				} else {
 					return findGroundTargetTypeForElidedLambda(blockScope, withWildCards);
+				}
 			}
 			return (ReferenceBinding) targetType;
 		}
