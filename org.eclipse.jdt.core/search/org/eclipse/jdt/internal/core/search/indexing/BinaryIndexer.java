@@ -748,7 +748,8 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 								extraFlags);
 					} else {
 						if (!method.isClinit()) {
-							addMethodDeclaration(method.getSelector(), parameterTypes, returnType, exceptionTypes);
+							char[] selector = method.getSelector();
+							addMethodDeclaration(selector, parameterTypes, returnType, exceptionTypes);
 							char[] signature = method.getGenericSignature();
 							if (signature == null) {
 								signature = descriptor;
@@ -757,7 +758,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 								addMethodDeclaration(
 										name,
 										null,
-										method.getSelector(),
+										selector,
 										parameterTypes == null ? 0 : parameterTypes.length,
 												signature,	
 												parameterTypes,

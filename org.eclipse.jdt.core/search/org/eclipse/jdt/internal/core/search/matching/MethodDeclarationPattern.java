@@ -57,7 +57,7 @@ public class MethodDeclarationPattern extends MethodPattern {
 		char[] parameterNamesChars = null;
 		
 		
-		countChars = argCount < 10 ? COUNTS[argCount]: ("/" + String.valueOf(argCount)).toCharArray(); //$NON-NLS-1$
+		countChars = argCount < 10 ? new char[] {COUNTS[argCount][1]}:  String.valueOf(argCount).toCharArray(); 
 		if (argCount > 0) {
 			if (signature == null) {
 				if (parameterTypes != null && parameterTypes.length == argCount) {
@@ -70,94 +70,34 @@ public class MethodDeclarationPattern extends MethodPattern {
 			} else {
 				extraFlags |= ExtraFlags.ParameterTypesStoredAsSignature;
 			}
-			
 			if (parameterNames != null && parameterNames.length == argCount) {
 				parameterNamesChars = CharOperation.concatWith(parameterNames, PARAMETER_SEPARATOR);
 			}
 		}
 				
-		char[] returnTypeChars = returnType == null ? CharOperation.NO_CHAR : getTypeErasure(returnType);
-		
-		
-		int typeNameLength = typeName == null ? 0 : typeName.length;
-		int qualifierLength = declaringQualification == null ? 0 : declaringQualification.length;
-		int methodNameLength = methodName == null ? 0 : methodName.length;
-		int packageNameLength = packageName == null ? 0 : packageName.length;
-		int countCharsLength = countChars.length;
-		int parameterTypesLength = signature == null ? (parameterTypesChars == null ? 0 : parameterTypesChars.length): signature.length;
-		int parameterNamesLength = parameterNamesChars == null ? 0 : parameterNamesChars.length;
-		int returnTypeLength = returnTypeChars.length;
-		
-		int resultLength = methodNameLength + countCharsLength + qualifierLength + typeNameLength + 2 /* type modifiers */
-				+ packageNameLength + parameterTypesLength + parameterNamesLength + returnTypeLength + 2 /* modifiers*/ + 9; // SEPARATOR = 9
-		char[] result = new char[resultLength];
-		
-		int pos = 0;
-		if (methodNameLength > 0) {
-			System.arraycopy(methodName, 0, result, pos, methodNameLength);
-			pos += methodNameLength;
-		}
-		if (countCharsLength > 0) {
-			System.arraycopy(countChars, 0, result, pos, countCharsLength);
-			pos += countCharsLength;
-		}
-		result[pos++] = SEPARATOR;
-		if (qualifierLength > 0) {
-			System.arraycopy(declaringQualification, 0, result, pos, qualifierLength);
-			pos += qualifierLength;
-		}
-		result[pos++] = SEPARATOR;
-
-		if (typeNameLength > 0) {
-			System.arraycopy(typeName, 0, result, pos, typeNameLength);
-			pos += typeNameLength;
-		}
-
-		
+		char[] returnTypeChars = returnType == null ? CharOperation.NO_CHAR : getTypeErasure(returnType);		
 		int typeModifiersWithExtraFlags = typeModifiers | encodeExtraFlags(extraFlags);
-		result[pos++] = SEPARATOR;
-		result[pos++] = (char) typeModifiersWithExtraFlags;
-		result[pos++] = (char) (typeModifiersWithExtraFlags>>16);
+		int entryIndex = 0;
+		int numEntries = 10;
+		char [][] tmp = new char[numEntries][];
 		
-		result[pos++] = SEPARATOR;
-		if (packageNameLength > 0) {
-			System.arraycopy(packageName, 0, result, pos, packageNameLength);
-			pos += packageNameLength;
-		}
+		tmp[entryIndex++] = methodName != null ? methodName : CharOperation.NO_CHAR;
+		tmp[entryIndex++] = countChars;
+		tmp[entryIndex++] = declaringQualification != null ? declaringQualification : CharOperation.NO_CHAR;
+		tmp[entryIndex++] = typeName != null ? typeName : CharOperation.NO_CHAR;
+		tmp[entryIndex++] = new char[] {(char) typeModifiersWithExtraFlags, (char) (typeModifiersWithExtraFlags>>16)};
+		tmp[entryIndex++] = packageName != null ? packageName : CharOperation.NO_CHAR;
 		
 		if (argCount == 0) {
-			result[pos++] = SEPARATOR;
-			result[pos++] = SEPARATOR;
-			result[pos++] = SEPARATOR;
+			tmp[entryIndex++] = CharOperation.NO_CHAR;
+			tmp[entryIndex++] = CharOperation.NO_CHAR;
 		} else if (argCount > 0) {
-			result[pos++] = SEPARATOR;
-			if (parameterTypesLength > 0) {
-				if (signature == null) {
-					System.arraycopy(parameterTypesChars, 0, result, pos, parameterTypesLength);
-				} else {
-					System.arraycopy(CharOperation.replaceOnCopy(signature, SEPARATOR, '\\'), 0, result, pos, parameterTypesLength);
-				}
-				pos += parameterTypesLength;
-			}
-			
-			result[pos++] = SEPARATOR;
-			if (parameterNamesLength > 0) {
-				System.arraycopy(parameterNamesChars, 0, result, pos, parameterNamesLength);
-				pos += parameterNamesLength;
-			}
-			
-			result[pos++] = SEPARATOR;
+			tmp[entryIndex++] = signature != null ? CharOperation.replaceOnCopy(signature, SEPARATOR, '\\') : parameterTypesChars != null ? parameterTypesChars  : CharOperation.NO_CHAR;
+			tmp[entryIndex++] = parameterNamesChars != null ? parameterNamesChars : CharOperation.NO_CHAR;
 		}
-		result[pos++] = (char) modifiers;
-		result[pos++] = (char) (modifiers>>16);
-		result[pos++] = SEPARATOR;
-
-		if (returnTypeLength > 0) {
-			System.arraycopy(returnTypeChars, 0, result, pos, returnTypeLength);
-			pos += returnTypeLength;
-		}
-		result[pos++] = SEPARATOR;
-		return result;
+		tmp[entryIndex++] = new char[] {(char) modifiers, (char) (modifiers>>16)};
+		tmp[entryIndex] = returnTypeChars;
+		return CharOperation.concatWithAll(tmp, '/');
 	}
 	
 	private static int encodeExtraFlags(int extraFlags) {
