@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -474,7 +474,7 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 			return false;
 		}
 	}
-	
+
 	if (lambdaClosed && this.currentElement != null && !(this.currentElement instanceof RecoveredField)) {
 		if (!(statement instanceof AbstractVariableDeclaration)) { // added already as part of standard recovery since these contribute a name to the scope prevailing at the cursor.
 			/* See if CompletionParser.attachOrphanCompletionNode has already added bits and pieces of AST to the recovery tree. If so, we want to
@@ -482,31 +482,42 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 			   art/precedent in the Java 7 world to this: Search for recoveredBlock.statements[--recoveredBlock.statementCount] = null;
 			   See also that this concern does not arise in the case of field/local initialization since the initializer is replaced with full tree by consumeExitVariableWithInitialization.
 			*/
-			RecoveredBlock recoveredBlock = (RecoveredBlock) (this.currentElement instanceof RecoveredBlock ? this.currentElement : 
-				(this.currentElement.parent instanceof RecoveredBlock) ? this.currentElement.parent : 
-					this.currentElement instanceof RecoveredMethod ? ((RecoveredMethod) this.currentElement).methodBody : null);
-			if (recoveredBlock != null) {
-				RecoveredStatement recoveredStatement = recoveredBlock.statementCount > 0 ? recoveredBlock.statements[recoveredBlock.statementCount - 1] : null;
-				ASTNode parseTree = recoveredStatement != null ? recoveredStatement.updatedStatement(0, new HashSet()) : null;
-				if (parseTree != null) {
-					if ((parseTree.sourceStart == 0 || parseTree.sourceEnd == 0) || (parseTree.sourceStart >= statementStart && parseTree.sourceEnd <= statementEnd)) {
-						recoveredBlock.statements[recoveredBlock.statementCount - 1] = new RecoveredStatement(statement, recoveredBlock, 0);
-						statement = null;
-					} else if (recoveredStatement instanceof RecoveredLocalVariable && statement instanceof Expression) {
-						RecoveredLocalVariable local = (RecoveredLocalVariable) recoveredStatement;
-						if (local.localDeclaration != null && local.localDeclaration.initialization != null) {
-							if ((local.localDeclaration.initialization.sourceStart == 0 || local.localDeclaration.initialization.sourceEnd == 0) || 
-							        (local.localDeclaration.initialization.sourceStart >= statementStart && local.localDeclaration.initialization.sourceEnd <= statementEnd) ){
-								local.localDeclaration.initialization = (Expression) statement;
-								local.localDeclaration.declarationSourceEnd = statement.sourceEnd;
-								local.localDeclaration.declarationEnd = statement.sourceEnd;
-								statement = null;
+			/*
+			 * All the above comments will not work if the assist node is buried deeper. This happens when there the 
+			 * lambda was part of a complex statement, such as it was one of the arguments to a method invocation. In which case,
+			 * we start from the topmost recovery element and look for assist nodes. If the operation is successful, the method
+			 * replaceAssistStatement() returns null. Else, it returns the original statement, thus falling back to replacing the
+			 * last statement in the current recovered element.
+			 */
+			statement = replaceAssistStatement(this.currentElement.topElement(),
+					this.assistNodeParent(), statementStart, statementEnd, statement);
+			
+			if (statement != null) {
+				RecoveredBlock recoveredBlock = (RecoveredBlock) (this.currentElement instanceof RecoveredBlock ? this.currentElement : 
+					(this.currentElement.parent instanceof RecoveredBlock) ? this.currentElement.parent : 
+						this.currentElement instanceof RecoveredMethod ? ((RecoveredMethod) this.currentElement).methodBody : null);
+				if (recoveredBlock != null) {
+					RecoveredStatement recoveredStatement = recoveredBlock.statementCount > 0 ? recoveredBlock.statements[recoveredBlock.statementCount - 1] : null;
+					ASTNode parseTree = recoveredStatement != null ? recoveredStatement.updatedStatement(0, new HashSet()) : null;
+					if (parseTree != null) {
+						if ((parseTree.sourceStart == 0 || parseTree.sourceEnd == 0) || (parseTree.sourceStart >= statementStart && parseTree.sourceEnd <= statementEnd)) {
+							recoveredBlock.statements[recoveredBlock.statementCount - 1] = new RecoveredStatement(statement, recoveredBlock, 0);
+							statement = null;
+						} else if (recoveredStatement instanceof RecoveredLocalVariable && statement instanceof Expression) {
+							RecoveredLocalVariable local = (RecoveredLocalVariable) recoveredStatement;
+							if (local.localDeclaration != null && local.localDeclaration.initialization != null) {
+								if ((local.localDeclaration.initialization.sourceStart == 0 || local.localDeclaration.initialization.sourceEnd == 0) || 
+								        (local.localDeclaration.initialization.sourceStart >= statementStart && local.localDeclaration.initialization.sourceEnd <= statementEnd) ){
+									local.localDeclaration.initialization = (Expression) statement;
+									local.localDeclaration.declarationSourceEnd = statement.sourceEnd;
+									local.localDeclaration.declarationEnd = statement.sourceEnd;
+									statement = null;
+								}
 							}
 						}
 					}
 				}
 			}
-			
 			if (statement != null) {
 				while (this.currentElement != null) {
 					ASTNode tree = this.currentElement.parseTree();
@@ -521,6 +532,38 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 	}
 	this.snapShot = null;
 	return lambdaClosed;
+}
+public Statement replaceAssistStatement(RecoveredElement top, ASTNode assistParent, int start, int end, Statement stmt) {
+	if (top == null) return null;
+	if (top instanceof RecoveredBlock) {
+		RecoveredBlock blk = (RecoveredBlock) top;
+		RecoveredStatement[] statements = blk.statements;
+		boolean found = false;
+		if (statements != null) {
+			for(int i = 0; i < statements.length; i++) {
+				if (statements[i] == null) break;
+				ASTNode node = statements[i].parseTree();
+				if ((node.sourceStart >= start && node.sourceEnd <= end)) {
+					if (!found) {
+						statements[i] = new RecoveredStatement(stmt, blk, 0);
+						found = true;
+						blk.statementCount = i + 1;
+					} else {
+						// Proceed to wipe out the nodes after the assist node. Most likely
+						// these are wrapped inside the just-closed-lambda. Even otherwise,
+						// they are not much useful for completion.
+						statements[i] = null;
+					}
+				}
+			}
+			if (found) return null;
+		}
+	} else if (top instanceof RecoveredMethod) {
+		stmt = replaceAssistStatement(((RecoveredMethod) top).methodBody, assistParent, start, end, stmt);
+	} else if (top instanceof RecoveredInitializer) {
+		stmt = replaceAssistStatement(((RecoveredInitializer) top).initializerBody, assistParent, start, end, stmt);
+	}
+	return stmt;
 }
 protected ASTNode assistNodeParent() {
 	return null;

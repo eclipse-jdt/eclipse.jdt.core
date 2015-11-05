@@ -51,7 +51,7 @@ public void test0001() {
 	int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
 
 	String expectedCompletionNodeToString = "<CompleteOnName:first.>";
-	String expectedParentNodeToString = "<NONE>";
+	String expectedParentNodeToString = "(<no type> xyz, <no type> pqr) -> <CompleteOnName:first.>";
 	String completionIdentifier = "";
 	String expectedReplacedSource = "first.";
 	String expectedUnitDisplayString =
@@ -414,7 +414,7 @@ public void test417935() {
 			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
 
 			String expectedCompletionNodeToString = "<CompleteOnName:o1.compa>";
-			String expectedParentNodeToString = "<NONE>";
+			String expectedParentNodeToString = "(X o1, X o2) -> <CompleteOnName:o1.compa>";
 			String completionIdentifier = "compa";
 			String expectedReplacedSource = "o1.compa";
 			String expectedUnitDisplayString =
@@ -613,7 +613,7 @@ public void testElidedCompletion() {
 			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
 
 			String expectedCompletionNodeToString = "<CompleteOnName:o1.compa>";
-			String expectedParentNodeToString = "<NONE>";
+			String expectedParentNodeToString = "(X o1, X o2) -> <CompleteOnName:o1.compa>";
 			String completionIdentifier = "compa";
 			String expectedReplacedSource = "o1.compa";
 			String expectedUnitDisplayString =
@@ -672,7 +672,7 @@ public void testElidedCompletion2() {
 			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
 
 			String expectedCompletionNodeToString = "<CompleteOnName:o1.compa>";
-			String expectedParentNodeToString = "<NONE>";
+			String expectedParentNodeToString = "(<no type> o1, <no type> o2) -> <CompleteOnName:o1.compa>";
 			String completionIdentifier = "compa";
 			String expectedReplacedSource = "o1.compa";
 			String expectedUnitDisplayString =
@@ -1270,7 +1270,7 @@ public void test428735a() {
 			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
 
 			String expectedCompletionNodeToString = "<CompleteOnName:x.>";
-			String expectedParentNodeToString = "<NONE>";
+			String expectedParentNodeToString = "(<no type> x, <no type> y) -> <CompleteOnName:x.>";
 			String completionIdentifier = "";
 			String expectedReplacedSource = "x.";
 			String expectedUnitDisplayString =
@@ -1816,7 +1816,7 @@ public void test435682() {
 			int cursorLocation = string.lastIndexOf(completeBehind) + completeBehind.length() - 1;
 
 			String expectedCompletionNodeToString = "<CompleteOnName:so.>";
-			String expectedParentNodeToString = "<NONE>";
+			String expectedParentNodeToString = "(<no type> so) -> <CompleteOnName:so.>";
 			String completionIdentifier = "";
 			String expectedReplacedSource = "so.";
 			String expectedUnitDisplayString =
