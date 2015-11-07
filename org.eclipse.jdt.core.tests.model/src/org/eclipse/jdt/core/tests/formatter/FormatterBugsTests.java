@@ -5746,7 +5746,7 @@ public void testBug302123() {
 		"public class Test {\n" + 
 		"	public static void main(String[] args) {\n" + 
 		"		String s = \"X\" + /** ***/\n" + 
-		"		\"Y\";\n" + 
+		"				\"Y\";\n" + 
 		"	}\n" + 
 		"\n" + 
 		"}\n"
@@ -5767,7 +5767,7 @@ public void testBug302123b() {
 		"public class Test {\n" + 
 		"	public static void main(String[] args) {\n" + 
 		"		String s = \"X\" + /** XXX ***/\n" + 
-		"		\"Y\";\n" + 
+		"				\"Y\";\n" + 
 		"	}\n" + 
 		"\n" + 
 		"}\n"
@@ -5788,7 +5788,7 @@ public void testBug302123c() {
 		"public class Test {\n" + 
 		"	public static void main(String[] args) {\n" + 
 		"		String s = \"X\" + /** ** XXX ** ***/\n" + 
-		"		\"Y\";\n" + 
+		"				\"Y\";\n" + 
 		"	}\n" + 
 		"\n" + 
 		"}\n"
@@ -5809,7 +5809,7 @@ public void testBug302123d() {
 		"public class Test {\n" + 
 		"	public static void main(String[] args) {\n" + 
 		"		String s = \"X\" + /** AAA *** BBB *** CCC ***/\n" + 
-		"		\"Y\";\n" + 
+		"				\"Y\";\n" + 
 		"	}\n" + 
 		"\n" + 
 		"}\n"
@@ -11254,8 +11254,8 @@ public void testBug474918() {
 		"	int					bb					= 4;\r\n" + 
 		"\r\n" + 
 		"	Object				c					= new Object() {\r\n" + 
-		"												int			a				= 55;\r\n" + 
-		"												Object		cdddddddddddd	= null;\r\n" + 
+		"												int		a				= 55;\r\n" + 
+		"												Object	cdddddddddddd	= null;\r\n" + 
 		"											};\r\n" + 
 		"\r\n" + 
 		"	private enum E {\r\n" + 
@@ -11319,8 +11319,8 @@ public void testBug474918b() {
 		"    int              bb               = 4;\r\n" + 
 		"\r\n" + 
 		"    Object           c                = new Object() {\r\n" + 
-		"                                          int      a             = 55;\r\n" + 
-		"                                          Object   cdddddddddddd = null;\r\n" + 
+		"                                          int    a             = 55;\r\n" + 
+		"                                          Object cdddddddddddd = null;\r\n" + 
 		"                                      };\r\n" + 
 		"\r\n" + 
 		"    private enum E {\r\n" + 
@@ -11384,8 +11384,8 @@ public void testBug474918c() {
 		"	int					bb					= 4;\r\n" + 
 		"\r\n" + 
 		"	Object				c					= new Object() {\r\n" + 
-		"		                                        int			a				= 55;\r\n" + 
-		"		                                        Object		cdddddddddddd	= null;\r\n" + 
+		"		                                        int		a				= 55;\r\n" + 
+		"		                                        Object	cdddddddddddd	= null;\r\n" + 
 		"	                                        };\r\n" + 
 		"\r\n" + 
 		"	private enum E {\r\n" + 

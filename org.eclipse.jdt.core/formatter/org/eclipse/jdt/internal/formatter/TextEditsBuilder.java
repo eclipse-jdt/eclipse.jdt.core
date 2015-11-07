@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
+import org.eclipse.jdt.internal.formatter.Token.WrapMode;
 import org.eclipse.jdt.internal.formatter.Token.WrapPolicy;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
@@ -229,8 +230,17 @@ public class TextEditsBuilder extends TokenTraverser {
 			additionalSpaces = indent - wrapRootIndent;
 			indent = wrapRootIndent;
 
-			if (wrapPolicy != null && wrapPolicy.isForced) {
-				int extraIndent = wrapPolicy.extraIndent;
+			if (wrapPolicy != null && wrapPolicy.wrapMode == WrapMode.FORCED) {
+				int parentIndex = wrapPolicy.wrapParentIndex;
+				int parentAlign = 0;
+				int lineStart = this.tm.findFirstTokenInLine(parentIndex);
+				for (int i = parentIndex; i >= lineStart; i--) {
+					parentAlign = this.tm.get(i).getAlign();
+					if (parentAlign > 0)
+						break;
+				}
+
+				int extraIndent = parentAlign == 0 ? wrapPolicy.extraIndent : (token.getIndent() - parentAlign);
 				additionalSpaces -= extraIndent;
 				indent += extraIndent;
 			}
@@ -316,29 +326,43 @@ public class TextEditsBuilder extends TokenTraverser {
 		String buffered = this.buffer.toString();
 		boolean sourceMatch = this.source.startsWith(buffered, this.counter)
 				&& this.counter + buffered.length() == currentPosition;
-		if (!sourceMatch && checkRegions(this.counter, currentPosition)) {
-			TextEdit edit = getReplaceEdit(this.counter, currentPosition, buffered);
-			this.edits.add(edit);
+		while (!sourceMatch && this.currentRegion < this.regions.size()) {
+			IRegion region = this.regions.get(this.currentRegion);
+			if (currentPosition < region.getOffset())
+				break;
+			int regionEnd = region.getOffset() + region.getLength();
+			if (this.counter >= regionEnd) {
+				this.currentRegion++;
+				continue;
+			}
+			if (this.currentRegion == this.regions.size() - 1
+					|| this.regions.get(this.currentRegion + 1).getOffset() > currentPosition) {
+				this.edits.add(getReplaceEdit(this.counter, currentPosition, buffered, region));
+				break;
+			}
+
+			// this edit will span more than one region, split it
+			IRegion nextRegion = this.regions.get(this.currentRegion + 1);
+			int bestSplit = 0;
+			int bestSplitScore = Integer.MAX_VALUE;
+			for (int i = 0; i < buffered.length(); i++) {
+				ReplaceEdit edit1 = getReplaceEdit(this.counter, regionEnd, buffered.substring(0, i), region);
+				ReplaceEdit edit2 = getReplaceEdit(regionEnd, currentPosition, buffered.substring(i), nextRegion);
+				int score = edit1.getLength() + edit1.getText().length() + edit2.getLength() + edit2.getText().length();
+				if (score < bestSplitScore) {
+					bestSplit = i;
+					bestSplitScore = score;
+				}
+			}
+			this.edits.add(getReplaceEdit(this.counter, regionEnd, buffered.substring(0, bestSplit), region));
+			buffered = buffered.substring(bestSplit);
+			this.counter = regionEnd;
 		}
 		this.buffer.setLength(0);
 		this.counter = currentPosition;
 	}
 
-	private boolean checkRegions(int editStart, int editEnd) {
-		while (true) {
-			if (this.currentRegion >= this.regions.size())
-				return false;
-			IRegion region = this.regions.get(this.currentRegion);
-			if (editEnd < region.getOffset())
-				return false;
-			if (editStart < region.getOffset() + region.getLength())
-				return true;
-			this.currentRegion++;
-		}
-	}
-
-	private TextEdit getReplaceEdit(int editStart, int editEnd, String text) {
-		IRegion region = this.regions.get(this.currentRegion);
+	private ReplaceEdit getReplaceEdit(int editStart, int editEnd, String text, IRegion region) {
 		int regionEnd = region.getOffset() + region.getLength();
 		if (editStart < region.getOffset() && regionEnd < editEnd) {
 			int breaksInReplacement = this.tm.countLineBreaksBetween(text, 0, text.length());

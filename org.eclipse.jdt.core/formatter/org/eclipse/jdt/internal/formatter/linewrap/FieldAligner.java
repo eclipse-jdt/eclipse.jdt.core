@@ -120,13 +120,6 @@ public class FieldAligner {
 				int assingIndex = this.tm.firstIndexAfter(fragment.getName(), TokenNameEQUAL);
 				Token assignToken = this.tm.get(assingIndex);
 				assignToken.setAlign(maxAssignAlign);
-
-				int baseIndent = this.tm.getPositionInLine(assingIndex + 1) - assignToken.getIndent();
-				int lastIndex = this.tm.lastIndexIn(declaration, -1);
-				for (int i = assingIndex + 1; i <= lastIndex; i++) {
-					Token token = this.tm.get(i);
-					token.setIndent(baseIndent + token.getIndent());
-				}
 			}
 		}
 	}

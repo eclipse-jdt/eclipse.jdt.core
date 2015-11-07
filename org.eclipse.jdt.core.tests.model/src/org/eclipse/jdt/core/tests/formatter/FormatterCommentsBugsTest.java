@@ -2055,7 +2055,7 @@ public void testBug234583_Bug237592() throws JavaModelException {
 		"	\n" + 
 		"	\n" + 
 		"	\n" + 
-		"	 \n" + 
+		"\n" + 
 		"	\n" + 
 		"	\n" + 
 		"	\n" + 
@@ -2338,8 +2338,8 @@ public void testBug236406_EX1() {
 	formatSource(source,
 		"//        Line		comment    	    \n" + 
 		"i =\n" + 
-		"/**        Javadoc		comment    	    */\n" + 
-		"1 + (/*      Block		comment*/++a)\n",
+		"		/**        Javadoc		comment    	    */\n" + 
+		"		1 + (/*      Block		comment*/++a)\n",
 		CodeFormatter.K_EXPRESSION
 	);
 }
@@ -2352,8 +2352,8 @@ public void testBug236406_EX2() {
 	formatSource(source,
 		"// Line comment\n" + 
 		"i =\n" + 
-		"/** Javadoc comment */\n" + 
-		"1 + (/* Block comment */++a)\n",
+		"		/** Javadoc comment */\n" + 
+		"		1 + (/* Block comment */++a)\n",
 		CodeFormatter.K_EXPRESSION | CodeFormatter.F_INCLUDE_COMMENTS
 	);
 }
