@@ -17,10 +17,7 @@ package org.eclipse.jdt.internal.formatter;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_BLOCK;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameLBRACE;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRBRACE;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRPAREN;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameWHITESPACE;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamepackage;
@@ -46,6 +43,7 @@ import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
+import org.eclipse.jdt.internal.formatter.Token.WrapMode;
 import org.eclipse.jdt.internal.formatter.Token.WrapPolicy;
 
 public class CommentsPreparator extends ASTVisitor {
@@ -87,11 +85,6 @@ public class CommentsPreparator extends ASTVisitor {
 			"@throws"); //$NON-NLS-1$
 
 	private final static List<String> IMMUTABLE_TAGS = Arrays.asList("@code", "@literal"); //$NON-NLS-1$ //$NON-NLS-2$
-
-	private final static int[] NO_INDENT_AFTER_COMMENT = { TokenNameRPAREN, TokenNameLBRACE, TokenNameRBRACE };
-	static {
-		Arrays.sort(NO_INDENT_AFTER_COMMENT);
-	}
 
 	private final TokenManager tm;
 	private final DefaultCodeFormatterOptions options;
@@ -176,7 +169,7 @@ public class CommentsPreparator extends ASTVisitor {
 				if (policy == null) {
 					int lineStart = this.tm.getPositionInLine(this.tm.findFirstTokenInLine(commentIndex - 1));
 					int commentStart = this.tm.getPositionInLine(commentIndex - 1);
-					policy = new WrapPolicy(commentStart - lineStart, commentIndex - 1, true);
+					policy = new WrapPolicy(WrapMode.WHERE_NECESSARY, commentIndex - 1, commentStart - lineStart);
 				}
 				commentToken.setWrapPolicy(policy);
 				this.lastLineComment = commentToken;
@@ -191,7 +184,8 @@ public class CommentsPreparator extends ASTVisitor {
 		if (isContinuation) {
 			Token first = structure.get(0);
 			first.breakBefore();
-			first.setWrapPolicy(new WrapPolicy(this.lastLineCommentPosition, commentIndex - 1, false));
+			first.setWrapPolicy(
+					new WrapPolicy(WrapMode.WHERE_NECESSARY, commentIndex - 1, this.lastLineCommentPosition));
 
 			// merge previous and current line comment
 			Token previous = this.lastLineComment;
@@ -422,17 +416,6 @@ public class CommentsPreparator extends ASTVisitor {
 				Token next2 = this.tm.get(i++);
 				existingBreaksAfter = this.tm.countLineBreaksBetween(next, next2);
 				next = next2;
-			}
-
-			if (previous != null && previous.getLineBreaksAfter() == 0
-					&& next != null && next.getLineBreaksBefore() == 0
-					&& Arrays.binarySearch(NO_INDENT_AFTER_COMMENT, next.tokenType) < 0) {
-				int policyIndent = (commentToken.getIndent() - previous.getIndent());
-				WrapPolicy wrapPolicy = new WrapPolicy(policyIndent, commentIndex - 1, true);
-				if (this.tm.countLineBreaksBetween(previous, commentToken) == 1)
-					commentToken.setWrapPolicy(wrapPolicy);
-				if (this.tm.countLineBreaksBetween(commentToken, next) == 1)
-					next.setWrapPolicy(wrapPolicy);
 			}
 
 			if (existingBreaksBefore < existingBreaksAfter && previous != null) {

@@ -15,6 +15,7 @@ package org.eclipse.jdt.core.tests.formatter;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -74,6 +75,16 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 	public FormatterRegressionTests(String name) {
 		super(name);
+	}
+
+	/**
+	 * Helper method for tests that require a certain compiler compliance level.
+	 * @param level use one of the {@code CompilerOptions.VERSION_***} constants
+	 */
+	protected void setComplianceLevel(String level) {
+		this.formatterOptions.put(CompilerOptions.OPTION_Compliance, level);
+		this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, level);
+		this.formatterOptions.put(CompilerOptions.OPTION_Source, level);
 	}
 
 	/* 
@@ -277,8 +288,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	void formatSource(String source, String formattedOutput, int kind, int indentationLevel, boolean repeat) {
 		int regionStart = source.indexOf("[#");
 		if (regionStart != -1) {
-			IRegion[] regions =  new Region[10];
-			int idx = 0;
+			ArrayList<IRegion> regions =  new ArrayList<>();
 			int start = 0;
 			int delta = 0;
 			StringBuffer buffer = new StringBuffer();
@@ -286,7 +296,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				buffer.append(source.substring(start, regionStart));
 				int regionEnd = source.indexOf("#]", regionStart+2);
 				buffer.append(source.substring(regionStart+2, regionEnd));
-				regions[idx++] = new Region(regionStart-delta, regionEnd-(regionStart+2));
+				regions.add(new Region(regionStart-delta, regionEnd-(regionStart+2)));
 				delta += 4;
 				start = regionEnd + 2;
 				regionStart = source.indexOf("[#", start);
@@ -294,12 +304,12 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			buffer.append(source.substring(start, source.length()));
 			String newSource = buffer.toString();
 			String result;
-			if (idx == 1) {
+			if (regions.size() == 1) {
 				// Use offset and length until bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=233967 is fixed
-				result = runFormatter(codeFormatter(), newSource, kind, indentationLevel, regions[0].getOffset(), regions[0].getLength(), LINE_SEPARATOR, repeat);
+				result = runFormatter(codeFormatter(), newSource, kind, indentationLevel, regions.get(0).getOffset(), regions.get(0).getLength(), LINE_SEPARATOR, repeat);
 			} else {
-				System.arraycopy(regions, 0, regions = new Region[idx], 0, idx);
-				result = runFormatter(codeFormatter(), newSource, kind, indentationLevel, regions, LINE_SEPARATOR);
+				IRegion[] regionsArray = regions.toArray(new IRegion[regions.size()]);
+				result = runFormatter(codeFormatter(), newSource, kind, indentationLevel, regionsArray, LINE_SEPARATOR);
 			}
 			assertLineEquals(result, newSource, formattedOutput);
 		} else {
@@ -13113,5 +13123,26 @@ public void testBug467229() throws IOException {
 	String key = keysToCheck[0]; // the other is lost in this conversion
 	assertEquals(key, optionsMap.get(key), optionsMap2.get(key));
 }
-
+/**
+ * https://bugs.eclipse.org/477476 - Auto-formatter gets indentation wrong when used as post-save action
+ */
+public void testBug477476a() {
+	setComplianceLevel(CompilerOptions.VERSION_1_5);
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	runTest(codeFormatter(), "test477476a", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);
+}
+/**
+ * https://bugs.eclipse.org/477476 - Auto-formatter gets indentation wrong when used as post-save action
+ */
+public void testBug477476b() {
+	setComplianceLevel(CompilerOptions.VERSION_1_5);
+	try {
+		String input = getCompilationUnit("Formatter" , "", "test477476b", "A_in.java").getSource();
+		String output = getCompilationUnit("Formatter" , "", "test477476b", "A_out.java").getSource();
+		formatSource(input, output);
+	} catch (JavaModelException e) {
+		e.printStackTrace();
+		assertTrue(false);
+	}
+}
 }
