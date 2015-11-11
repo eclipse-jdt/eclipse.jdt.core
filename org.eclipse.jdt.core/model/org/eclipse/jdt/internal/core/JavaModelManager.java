@@ -3066,22 +3066,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	void touchProjects(final IProject[] projectsToTouch, IProgressMonitor progressMonitor) throws JavaModelException {
 		WorkspaceJob touchJob = new WorkspaceJob(Messages.synchronizing_projects_job) {
 			public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
-				try {
-					if (monitor != null) {
-						monitor.beginTask("", projectsToTouch.length); //$NON-NLS-1$
+				SubMonitor subMonitor = SubMonitor.convert(monitor, projectsToTouch.length);
+				for (IProject iProject : projectsToTouch) {
+					if (JavaBuilder.DEBUG) {
+						System.out.println("Touching project " + iProject.getName()); //$NON-NLS-1$
 					}
-					for (IProject iProject : projectsToTouch) {
-						IProgressMonitor subMonitor = monitor == null ? null: new SubProgressMonitor(monitor, 1);
-						if (JavaBuilder.DEBUG) {
-							System.out.println("Touching project " + iProject.getName()); //$NON-NLS-1$
-						}
-						iProject.touch(subMonitor);
-					}
-				}
-				finally {
-					if (monitor != null) {
-						monitor.done();
-					}
+					iProject.touch(subMonitor.split(1));
 				}
 				return Status.OK_STATUS;
 			}
