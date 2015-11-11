@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -47,17 +46,9 @@ public void build(boolean computeSubtypes) {
 		manager.cacheZipFiles(this);
 
 		if (this.hierarchy.focusType == null || computeSubtypes) {
-			IProgressMonitor typeInRegionMonitor =
-				this.hierarchy.progressMonitor == null ?
-					null :
-					new SubProgressMonitor(this.hierarchy.progressMonitor, 30);
-			HashMap allOpenablesInRegion = determineOpenablesInRegion(typeInRegionMonitor);
+			HashMap allOpenablesInRegion = determineOpenablesInRegion(this.hierarchy.progressMonitor.split(30));
 			this.hierarchy.initialize(allOpenablesInRegion.size());
-			IProgressMonitor buildMonitor =
-				this.hierarchy.progressMonitor == null ?
-					null :
-					new SubProgressMonitor(this.hierarchy.progressMonitor, 70);
-			createTypeHierarchyBasedOnRegion(allOpenablesInRegion, buildMonitor);
+			createTypeHierarchyBasedOnRegion(allOpenablesInRegion, this.hierarchy.progressMonitor.split(70));
 			((RegionBasedTypeHierarchy)this.hierarchy).pruneDeadBranches();
 		} else {
 			this.hierarchy.initialize(1);
