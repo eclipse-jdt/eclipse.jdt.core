@@ -515,7 +515,11 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Creates and returns a subprogress monitor if appropriate.
 	 */
 	protected IProgressMonitor getSubProgressMonitor(int workAmount) {
-		return SubMonitor.convert(this.progressMonitor, workAmount);
+		IProgressMonitor sub = null;
+		if (this.progressMonitor != null) {
+			sub = new SubProgressMonitor(this.progressMonitor, workAmount, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK);
+		}
+		return sub;
 	}
 
 	/**
@@ -572,14 +576,17 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Convenience method to move resources
 	 */
 	protected void moveResources(IResource[] resources, IPath container) throws JavaModelException {
-		SubMonitor subProgressMonitor = SubMonitor.convert(this.progressMonitor, resources.length);
+		IProgressMonitor subProgressMonitor = null;
+		if (this.progressMonitor != null) {
+			subProgressMonitor = new SubProgressMonitor(this.progressMonitor, resources.length, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK);
+		}
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		try {
 			for (int i = 0, length = resources.length; i < length; i++) {
 				IResource resource = resources[i];
 				IPath destination = container.append(resource.getName());
 				if (root.findMember(destination) == null) {
-					resource.move(destination, false, subProgressMonitor.split(1));
+					resource.move(destination, false, subProgressMonitor);
 				}
 			}
 			setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
