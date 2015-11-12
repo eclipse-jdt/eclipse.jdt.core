@@ -96,7 +96,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	/**
 	 * The progress monitor passed into this operation
 	 */
-	public IProgressMonitor progressMonitor= null;
+	public SubMonitor progressMonitor= SubMonitor.convert(null);
 	/**
 	 * A flag indicating whether this operation is nested.
 	 */
@@ -515,11 +515,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Creates and returns a subprogress monitor if appropriate.
 	 */
 	protected IProgressMonitor getSubProgressMonitor(int workAmount) {
-		IProgressMonitor sub = null;
-		if (this.progressMonitor != null) {
-			sub = new SubProgressMonitor(this.progressMonitor, workAmount, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK);
-		}
-		return sub;
+		return this.progressMonitor.split(workAmount);
 	}
 
 	/**
@@ -576,17 +572,14 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * Convenience method to move resources
 	 */
 	protected void moveResources(IResource[] resources, IPath container) throws JavaModelException {
-		IProgressMonitor subProgressMonitor = null;
-		if (this.progressMonitor != null) {
-			subProgressMonitor = new SubProgressMonitor(this.progressMonitor, resources.length, SubProgressMonitor.PREPEND_MAIN_LABEL_TO_SUBTASK);
-		}
+		SubMonitor subProgressMonitor = this.progressMonitor.newChild(resources.length);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		try {
 			for (int i = 0, length = resources.length; i < length; i++) {
 				IResource resource = resources[i];
 				IPath destination = container.append(resource.getName());
 				if (root.findMember(destination) == null) {
-					resource.move(destination, false, subProgressMonitor);
+					resource.move(destination, false, subProgressMonitor.split(1));
 				}
 			}
 			setAttribute(HAS_MODIFIED_RESOURCE_ATTR, TRUE);
@@ -717,7 +710,7 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 		DeltaProcessor deltaProcessor = manager.getDeltaProcessor();
 		int previousDeltaCount = deltaProcessor.javaModelDeltas.size();
 		try {
-			this.progressMonitor = monitor;
+			this.progressMonitor = SubMonitor.convert(monitor);
 			pushOperation(this);
 			try {
 				if (canModifyRoots()) {
