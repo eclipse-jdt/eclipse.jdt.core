@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
@@ -266,15 +266,14 @@ protected String[] getPathsOfDeclaringType() {
 			return true;
 		}
 	};
-
+	SubMonitor subMonitor = SubMonitor.convert(this.progressMonitor, 100);
 	indexManager.performConcurrentJob(
 		new PatternSearchJob(
 			searchPattern,
 			new JavaSearchParticipant(),
 			scope,
 			searchRequestor),
-		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-		this.progressMonitor == null ? null : new SubProgressMonitor(this.progressMonitor, 100));
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, subMonitor.split(100));
 	return pathCollector.getPaths();
 }
 public char[][][] getSamePackageSuperTypeNames() {
