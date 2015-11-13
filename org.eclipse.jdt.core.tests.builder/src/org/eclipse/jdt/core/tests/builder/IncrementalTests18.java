@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 IBM Corporation and others.
+ * Copyright (c) 2013, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -25,6 +29,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.osgi.framework.Bundle;
 
 public class IncrementalTests18 extends BuilderTests {
@@ -34,7 +39,7 @@ public class IncrementalTests18 extends BuilderTests {
 	}
 
 	public static Test suite() {
-		return AbstractCompilerTest.buildMinimalComplianceTestSuite(IncrementalTests18.class, AbstractCompilerTest.F_1_8);
+		return AbstractCompilerTest.buildUniqueComplianceTestSuite(IncrementalTests18.class, ClassFileConstants.JDK1_8);
 	}
 	
 	private void setupProjectForNullAnnotations() throws IOException, JavaModelException {

@@ -2070,6 +2070,16 @@ public void configure(String[] argv) {
 					mode = DEFAULT;
 					continue;
 				}
+				if (currentArg.equals("-1.9") || currentArg.equals("-9") || currentArg.equals("-9.0")) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					if (didSpecifyCompliance) {
+						throw new IllegalArgumentException(
+							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
+					}
+					didSpecifyCompliance = true;
+					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_9);
+					mode = DEFAULT;
+					continue;
+				}
 				if (currentArg.equals("-d")) { //$NON-NLS-1$
 					if (this.destinationPath != null) {
 						StringBuffer errorMessage = new StringBuffer();
@@ -4709,6 +4719,26 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 			} else {
 				this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
 				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
+			}
+		} else if (CompilerOptions.VERSION_1_9.equals(version)) {
+			if (this.didSpecifySource) {
+				Object source = this.options.get(CompilerOptions.OPTION_Source);
+				if (CompilerOptions.VERSION_1_3.equals(source)
+						|| CompilerOptions.VERSION_1_4.equals(source)) {
+					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+				} else if (CompilerOptions.VERSION_1_5.equals(source)
+						|| CompilerOptions.VERSION_1_6.equals(source)) {
+					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
+				} else if (CompilerOptions.VERSION_1_7.equals(source)) {
+					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+				} else if (CompilerOptions.VERSION_1_8.equals(source)) {
+					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
+				} else if (CompilerOptions.VERSION_1_9.equals(source)) {
+					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_9);
+				}
+			} else {
+				this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_9);
+				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_9);
 			}
 		}
 	} else if (this.didSpecifySource) {

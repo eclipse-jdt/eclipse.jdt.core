@@ -41,6 +41,7 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int F_1_6 = 0x08;
 	public static final int F_1_7 = 0x10;
 	public static final int F_1_8 = 0x20;
+	public static final int F_1_9 = 0x40;
 
 	public static final boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
 	private static final int UNINITIALIZED = -1;
@@ -84,6 +85,9 @@ public class AbstractCompilerTest extends TestCase {
 		if ((complianceLevels & AbstractCompilerTest.F_1_8) != 0) {
 			suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.JDK1_8));
 		}
+		if ((complianceLevels & AbstractCompilerTest.F_1_9) != 0) {
+			suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.JDK1_9));
+		}
 	}
 
 	/**
@@ -116,6 +120,9 @@ public class AbstractCompilerTest extends TestCase {
 		}
 		if ((complianceLevels & AbstractCompilerTest.F_1_8) != 0) {
 			suite.addTest(buildComplianceTestSuite(testClasses, setupClass, ClassFileConstants.JDK1_8));
+		}
+		if ((complianceLevels & AbstractCompilerTest.F_1_9) != 0) {
+			suite.addTest(buildComplianceTestSuite(testClasses, setupClass, ClassFileConstants.JDK1_9));
 		}
 		return suite;
 	}
@@ -240,6 +247,14 @@ public class AbstractCompilerTest extends TestCase {
 				suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.JDK1_8));
 			}
 		}
+		int level19 = complianceLevels & AbstractCompilerTest.F_1_9;
+		if (level19 != 0) {
+			if (level19 < minimalCompliance) {
+				System.err.println("Cannot run "+evaluationTestClass.getName()+" at compliance "+CompilerOptions.versionFromJdkLevel(ClassFileConstants.JDK1_9)+"!");
+			} else {
+				suite.addTest(buildUniqueComplianceTestSuite(evaluationTestClass, ClassFileConstants.JDK1_9));
+			}
+		}
 		return suite;
 	}
 
@@ -256,7 +271,9 @@ public class AbstractCompilerTest extends TestCase {
 		long highestLevel = highestComplianceLevels();
 		if (highestLevel < uniqueCompliance) {
 			String complianceString;
-			if (highestLevel == ClassFileConstants.JDK1_8)
+			if (highestLevel == ClassFileConstants.JDK1_9)
+				complianceString = "1.9";
+			else if (highestLevel == ClassFileConstants.JDK1_8)
 				complianceString = "1.8";
 			else if (highestLevel == ClassFileConstants.JDK1_7)
 				complianceString = "1.7";
@@ -286,6 +303,9 @@ public class AbstractCompilerTest extends TestCase {
 	 */
 	public static long highestComplianceLevels() {
 		int complianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
+		if ((complianceLevels & AbstractCompilerTest.F_1_9) != 0) {
+			return ClassFileConstants.JDK1_9;
+		}
 		if ((complianceLevels & AbstractCompilerTest.F_1_8) != 0) {
 			return ClassFileConstants.JDK1_8;
 		}
@@ -325,6 +345,8 @@ public class AbstractCompilerTest extends TestCase {
 					possibleComplianceLevels = F_1_7;
 				} else if (CompilerOptions.VERSION_1_8.equals(compliance)) {
 					possibleComplianceLevels = F_1_8;
+				} else if (CompilerOptions.VERSION_1_9.equals(compliance)) {
+					possibleComplianceLevels = F_1_9;
 				} else {
 					System.out.println("Invalid compliance specified (" + compliance + ")");
 					System.out.print("Use one of ");
@@ -333,7 +355,8 @@ public class AbstractCompilerTest extends TestCase {
 					System.out.print(CompilerOptions.VERSION_1_5 + ", ");
 					System.out.print(CompilerOptions.VERSION_1_6 + ", ");
 					System.out.print(CompilerOptions.VERSION_1_7 + ", ");
-					System.out.println(CompilerOptions.VERSION_1_8);
+					System.out.print(CompilerOptions.VERSION_1_8 + ", ");
+					System.out.println(CompilerOptions.VERSION_1_9);
 					System.out.println("Defaulting to all possible compliances");
 				}
 			}
@@ -363,6 +386,10 @@ public class AbstractCompilerTest extends TestCase {
 					if (canRun1_8) {
 						possibleComplianceLevels |= F_1_8;
 					}
+					boolean canRun1_9 = canRun1_8 && !CompilerOptions.VERSION_1_8.equals(specVersion);
+					if (canRun1_9) {
+						possibleComplianceLevels |= F_1_9;
+					}
 				} else if ("1.0".equals(specVersion)
 							|| CompilerOptions.VERSION_1_1.equals(specVersion)
 							|| CompilerOptions.VERSION_1_2.equals(specVersion)
@@ -377,6 +404,9 @@ public class AbstractCompilerTest extends TestCase {
 							possibleComplianceLevels |= F_1_7;
 							if (!CompilerOptions.VERSION_1_7.equals(specVersion)) {
 								possibleComplianceLevels |= F_1_8;
+								if (!CompilerOptions.VERSION_1_8.equals(specVersion)) {
+									possibleComplianceLevels |= F_1_9;
+								}
 							}
 						}
 					}
@@ -510,6 +540,10 @@ public class AbstractCompilerTest extends TestCase {
 			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
 			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
+		} else if (this.complianceLevel == ClassFileConstants.JDK1_9) {
+			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_9);
+			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8); // The runtimes don't yet support the new class file version.
+			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);  // The runtimes don't yet support the new class file version.
 		}
 		return options;
 	}

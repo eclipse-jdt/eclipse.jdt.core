@@ -729,6 +729,10 @@ public class CompilerOptions {
 				if (jdkLevel == ClassFileConstants.JDK1_8)
 					return VERSION_1_8;
 				break;
+			case ClassFileConstants.MAJOR_VERSION_1_9 :
+				if (jdkLevel == ClassFileConstants.JDK1_9)
+					return VERSION_1_9;
+				break;
 		}
 		return Util.EMPTY_STRING; // unknown version
 	}

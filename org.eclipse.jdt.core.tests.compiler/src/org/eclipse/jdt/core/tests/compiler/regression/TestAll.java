@@ -151,6 +151,9 @@ public static Test suite() {
 	since_1_8.add(Unicode18Test.class);
 	since_1_8.add(LambdaShapeTests.class);
 
+	ArrayList since_1_9 = new ArrayList();
+	since_1_9.add(Unicode19Test.class);
+	
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	all.addTest(new TestSuite(StandAloneASTParserTest.class));
@@ -235,6 +238,22 @@ public static Test suite() {
 		TestCase.TESTS_RANGE = null;
 		TestCase.RUN_ONLY_ID = null;
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_8, tests_1_8));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_9) != 0) {
+		ArrayList tests_1_9 = (ArrayList)standardTests.clone();
+		tests_1_9.addAll(since_1_4);
+		tests_1_9.addAll(since_1_5);
+		tests_1_9.addAll(since_1_6);
+		tests_1_9.addAll(since_1_7);
+		tests_1_9.addAll(since_1_8);
+		tests_1_9.addAll(since_1_9);
+		// Reset forgotten subsets tests
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
+		TestCase.RUN_ONLY_ID = null;
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_9, tests_1_9));
 	}
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;
