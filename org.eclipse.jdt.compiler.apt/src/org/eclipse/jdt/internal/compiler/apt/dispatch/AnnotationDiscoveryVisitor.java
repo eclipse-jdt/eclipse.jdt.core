@@ -55,7 +55,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 	public AnnotationDiscoveryVisitor(BaseProcessingEnvImpl env) {
 		_env = env;
 		_factory = env.getFactory();
-		_annoToElement = new ManyToMany<TypeElement, Element>();
+		_annoToElement = new ManyToMany<>();
 	}
 
 	@Override

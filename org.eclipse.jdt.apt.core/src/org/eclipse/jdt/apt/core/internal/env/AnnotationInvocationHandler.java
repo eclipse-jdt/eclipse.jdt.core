@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -92,7 +92,7 @@ public class AnnotationInvocationHandler implements InvocationHandler
                 if( classTypes == null || classTypes.length == 0 )
                     mirrorTypes = Collections.emptyList();
                 else{
-                    mirrorTypes = new ArrayList<TypeMirror>(classTypes.length);
+                    mirrorTypes = new ArrayList<>(classTypes.length);
                     for( ITypeBinding type : classTypes ){
                         TypeMirror mirror = Factory.createTypeMirror(type, _instance.getEnvironment() );
                         if( mirror == null )

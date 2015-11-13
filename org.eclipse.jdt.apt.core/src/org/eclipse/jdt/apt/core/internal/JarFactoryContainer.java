@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -69,7 +69,7 @@ public abstract class JarFactoryContainer extends FactoryContainer
      */
     protected static Map<String, String> getServiceClassnamesFromJar(File jar) throws IOException
     {
-        Map<String, String> classNames = new LinkedHashMap<String, String>();
+        Map<String, String> classNames = new LinkedHashMap<>();
         JarFile jarFile = null;
         try {
             jarFile = new JarFile(jar);

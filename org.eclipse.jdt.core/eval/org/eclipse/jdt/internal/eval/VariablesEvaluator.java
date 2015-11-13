@@ -26,12 +26,11 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
  * A variables evaluator compiles the global variables of an evaluation context and returns
  * the corresponding class files. Or it reports problems against these variables.
  */
-@SuppressWarnings({"rawtypes"})
 public class VariablesEvaluator extends Evaluator implements EvaluationConstants {
 /**
  * Creates a new global variables evaluator.
  */
-VariablesEvaluator(EvaluationContext context, INameEnvironment environment, Map options, IRequestor requestor, IProblemFactory problemFactory) {
+VariablesEvaluator(EvaluationContext context, INameEnvironment environment, Map<String, String> options, IRequestor requestor, IProblemFactory problemFactory) {
 	super(context, environment, options, requestor, problemFactory);
 }
 /**

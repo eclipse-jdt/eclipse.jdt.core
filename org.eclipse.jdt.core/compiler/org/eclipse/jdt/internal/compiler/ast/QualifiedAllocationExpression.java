@@ -167,6 +167,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 	}
 
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
+		cleanUpInferenceContexts();
 		if (!valueRequired)
 			currentScope.problemReporter().unusedObjectAllocation(this);
 		int pc = codeStream.position;

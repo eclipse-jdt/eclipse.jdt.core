@@ -39,7 +39,6 @@ import org.eclipse.jdt.internal.core.util.Util;
 /**
  * @see org.eclipse.jdt.core.eval.IEvaluationContext
  */
-@SuppressWarnings("rawtypes")
 public class EvaluationContext implements EvaluationConstants, SuffixConstants {
 	/**
 	 * Global counters so that several evaluation context can deploy on the same runtime.
@@ -112,7 +111,7 @@ public void complete(
 		int completionPosition,
 		SearchableEnvironment environment,
 		CompletionRequestor requestor,
-		Map options,
+		Map<String, String> options,
 		final IJavaProject project,
 		WorkingCopyOwner owner,
 		IProgressMonitor monitor) {
@@ -241,7 +240,7 @@ public void evaluate(
 	boolean contextIsStatic,
 	boolean contextIsConstructorCall,
 	INameEnvironment environment,
-	Map options,
+	Map<String, String> options,
 	final IRequestor requestor,
 	IProblemFactory problemFactory) throws InstallException {
 
@@ -312,7 +311,7 @@ public void evaluate(
  * @see org.eclipse.jdt.core.eval.IEvaluationContext
  * @exception org.eclipse.jdt.internal.eval.InstallException if the code snippet class files could not be deployed.
  */
-public void evaluate(char[] codeSnippet, INameEnvironment environment, Map options, final IRequestor requestor, IProblemFactory problemFactory) throws InstallException {
+public void evaluate(char[] codeSnippet, INameEnvironment environment, Map<String, String> options, final IRequestor requestor, IProblemFactory problemFactory) throws InstallException {
 	this.evaluate(
 		codeSnippet,
 		null,
@@ -375,14 +374,14 @@ public void evaluateImports(INameEnvironment environment, IRequestor requestor, 
  * @exception org.eclipse.jdt.internal.eval.InstallException if the code snippet class files could not be deployed.
  * @exception java.lang.IllegalArgumentException if the global has not been installed yet.
  */
-public void evaluateVariable(GlobalVariable variable, INameEnvironment environment, Map options, IRequestor requestor, IProblemFactory problemFactory) throws InstallException {
+public void evaluateVariable(GlobalVariable variable, INameEnvironment environment, Map<String, String> options, IRequestor requestor, IProblemFactory problemFactory) throws InstallException {
 	this.evaluate(variable.getName(), environment, options, requestor, problemFactory);
 }
 /**
  * @see org.eclipse.jdt.core.eval.IEvaluationContext
  * @exception org.eclipse.jdt.internal.eval.InstallException if the code snippet class files could not be deployed.
  */
-public void evaluateVariables(INameEnvironment environment, Map options, IRequestor requestor, IProblemFactory problemFactory) throws InstallException {
+public void evaluateVariables(INameEnvironment environment, Map<String, String> options, IRequestor requestor, IProblemFactory problemFactory) throws InstallException {
 	deployCodeSnippetClassIfNeeded(requestor);
 	VariablesEvaluator evaluator = new VariablesEvaluator(this, environment, options, requestor, problemFactory);
 	ClassFile[] classes = evaluator.getClasses();
@@ -574,7 +573,7 @@ public void select(
 	int selectionSourceEnd,
 	SearchableEnvironment environment,
 	ISelectionRequestor requestor,
-	Map options,
+	Map<String, String> options,
 	WorkingCopyOwner owner) {
 
 	final char[] className = "CodeSnippetSelection".toCharArray(); //$NON-NLS-1$

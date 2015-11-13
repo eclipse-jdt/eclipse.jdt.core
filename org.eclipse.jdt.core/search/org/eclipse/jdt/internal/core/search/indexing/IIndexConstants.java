@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ public interface IIndexConstants {
 	char[] SUPER_REF = "superRef".toCharArray(); //$NON-NLS-1$
 	char[] TYPE_DECL = "typeDecl".toCharArray(); //$NON-NLS-1$
 	char[] METHOD_DECL= "methodDecl".toCharArray(); //$NON-NLS-1$
+	char[] METHOD_DECL_PLUS= "methodDeclPlus".toCharArray(); //$NON-NLS-1$
 	char[] CONSTRUCTOR_DECL= "constructorDecl".toCharArray(); //$NON-NLS-1$
 	char[] FIELD_DECL= "fieldDecl".toCharArray(); //$NON-NLS-1$
 	char[] OBJECT = "Object".toCharArray(); //$NON-NLS-1$

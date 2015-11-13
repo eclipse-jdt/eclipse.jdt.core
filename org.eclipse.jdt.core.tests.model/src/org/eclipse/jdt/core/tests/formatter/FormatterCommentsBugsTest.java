@@ -7322,4 +7322,37 @@ public void testBug475294b() {
 		"	}\n" + 
 		"}");
 }
+/**
+ * https://bugs.eclipse.org/479292 - [formatter] Header comment formatting for package-info.java occurs even when "Format header comment" is unchecked
+ */
+public void testBug479292() {
+	String source = 
+		"/** This   is   a   header   comment */\n" + 
+		"\n" + 
+		"/** This   is   a   package   javadoc */\n" + 
+		"package test;";
+	formatSource(source,
+		"/** This   is   a   header   comment */\n" + 
+		"\n" + 
+		"/** This is a package javadoc */\n" + 
+		"package test;"
+	);
+}
+/**
+ * https://bugs.eclipse.org/479292 - [formatter] Header comment formatting for package-info.java occurs even when "Format header comment" is unchecked
+ */
+public void testBug479292b() {
+	this.formatterPrefs.comment_format_header = true;
+	String source = 
+		"/** This   is   a   header   comment */\n" + 
+		"\n" + 
+		"/** This   is   a   package   javadoc */\n" + 
+		"package test;";
+	formatSource(source,
+		"/** This is a header comment */\n" + 
+		"\n" + 
+		"/** This is a package javadoc */\n" + 
+		"package test;"
+	);
+}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2011 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -235,7 +235,7 @@ public abstract class BaseConfigurationBlock {
 		if (fProject == null || hasProjectSpecificOptionsNoCache(fProject)) {
 			fDisabledProjectSettings= null;
 		} else {
-			fDisabledProjectSettings= new IdentityHashMap<Key, String>();
+			fDisabledProjectSettings= new IdentityHashMap<>();
 			for (int i= 0; i < keys.length; i++) {
 				Key curr= keys[i];
 				fDisabledProjectSettings.put(curr, curr.getStoredValue(fLookupOrder, false, fManager));
@@ -244,11 +244,11 @@ public abstract class BaseConfigurationBlock {
 		
 		settingsUpdated();
 		
-		fCheckBoxes= new ArrayList<Button>();
-		fComboBoxes= new ArrayList<Combo>();
-		fTextBoxes= new ArrayList<Text>(2);
-		fLabels= new HashMap<Scrollable, Label>();
-		fExpandedComposites= new ArrayList<ExpandableComposite>();
+		fCheckBoxes= new ArrayList<>();
+		fComboBoxes= new ArrayList<>();
+		fTextBoxes= new ArrayList<>(2);
+		fLabels= new HashMap<>();
+		fExpandedComposites= new ArrayList<>();
 	}
 	
 	protected Button addCheckBox(Composite parent, String label, Key key, String[] values, int indent) {
@@ -918,7 +918,7 @@ public abstract class BaseConfigurationBlock {
 				fDisabledProjectSettings= null;
 				updateControls();
 			} else {
-				fDisabledProjectSettings= new IdentityHashMap<Key, String>();
+				fDisabledProjectSettings= new IdentityHashMap<>();
 				for (int i= 0; i < fAllKeys.length; i++) {
 					Key curr= fAllKeys[i];
 					String oldSetting= curr.getStoredValue(fLookupOrder, false, fManager);

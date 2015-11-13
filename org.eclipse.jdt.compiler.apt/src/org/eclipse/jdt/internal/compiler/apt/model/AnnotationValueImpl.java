@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 IBM Corporation and others.
+ * Copyright (c) 2005, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -96,12 +96,12 @@ public class AnnotationValueImpl implements AnnotationValue, TypeIds {
 			TypeBinding valueType = ((ArrayBinding)type).elementsType();
 			if (value instanceof Object[]) {
 				Object[] values = (Object[])value;
-				convertedValues = new ArrayList<AnnotationValue>(values.length);
+				convertedValues = new ArrayList<>(values.length);
 				for (Object oneValue : values) {
 					convertedValues.add(new AnnotationValueImpl(_env, oneValue, valueType));
 				}
 			} else {
-				convertedValues = new ArrayList<AnnotationValue>(1);
+				convertedValues = new ArrayList<>(1);
 				convertedValues.add(new AnnotationValueImpl(_env, value, valueType));
 			}
 			_value = Collections.unmodifiableList(convertedValues);

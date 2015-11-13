@@ -130,11 +130,11 @@ public class AnnotationProcessorFactoryLoader {
 	// See class comments for lifecycle of items in this cache.
 	// Guarded by cacheMutex
 	private final Map<IJavaProject, Map<AnnotationProcessorFactory, FactoryPath.Attributes>> _project2Java5Factories = 
-		new HashMap<IJavaProject, Map<AnnotationProcessorFactory, FactoryPath.Attributes>>();
+		new HashMap<>();
 	
 	// Guarded by cacheMutex
 	private final Map<IJavaProject, Map<IServiceFactory, FactoryPath.Attributes>> _project2Java6Factories =
-		new HashMap<IJavaProject, Map<IServiceFactory, FactoryPath.Attributes>>();
+		new HashMap<>();
     
 	// Caches the iterative classloaders so that iterative processors
 	// are not reloaded on every batch build, unlike batch processors 
@@ -142,18 +142,18 @@ public class AnnotationProcessorFactoryLoader {
 	// See class comments for lifecycle of items in this cache.
 	// Guarded by cacheMutex
 	private final Map<IJavaProject, ClassLoader> _iterativeLoaders = 
-		new HashMap<IJavaProject, ClassLoader>();
+		new HashMap<>();
 	
 	// Guarded by cacheMutex
 	private final Map<IJavaProject,ClassLoader> _batchLoaders = 
-		new HashMap<IJavaProject,ClassLoader>();
+		new HashMap<>();
 	
 	// Caches information about which resources affect which projects'
 	// factory paths.
 	// See class comments for lifecycle of items in this cache.
 	// Guarded by cacheMutex	
 	private final Map<String, Set<IJavaProject>> _container2Project =
-		new HashMap<String, Set<IJavaProject>>();
+		new HashMap<>();
 	
    
 	/**
@@ -164,7 +164,7 @@ public class AnnotationProcessorFactoryLoader {
 
 		@Override
 		public void resourceChanged(IResourceChangeEvent event) {
-			Map<IJavaProject, LoadFailureHandler> failureHandlers = new HashMap<IJavaProject, LoadFailureHandler>();
+			Map<IJavaProject, LoadFailureHandler> failureHandlers = new HashMap<>();
 			switch (event.getType()) {
 			
 			// Project deletion
@@ -213,7 +213,7 @@ public class AnnotationProcessorFactoryLoader {
 		
 		private void addAffected(Set<IJavaProject> projects) {
 			if (_affected == null) {
-				 _affected = new HashSet<IJavaProject>(5);
+				 _affected = new HashSet<>(5);
 			}
 			_affected.addAll(projects);
 		}
@@ -322,7 +322,7 @@ public class AnnotationProcessorFactoryLoader {
      */
     public void resetAll() {
     	removeAptBuildProblemMarkers( null );
-    	Set<ClassLoader> toClose = new HashSet<ClassLoader>();
+    	Set<ClassLoader> toClose = new HashSet<>();
     	
     	synchronized (cacheMutex) {
     		toClose.addAll(_iterativeLoaders.values());
@@ -475,7 +475,7 @@ public class AnnotationProcessorFactoryLoader {
     	Map<AnnotationProcessorFactory, FactoryPath.Attributes> factoriesAndAttrs = 
     		getJava5FactoriesAndAttributesForProject(jproj);
     	final List<AnnotationProcessorFactory> factories = 
-    		new ArrayList<AnnotationProcessorFactory>(factoriesAndAttrs.keySet());
+    		new ArrayList<>(factoriesAndAttrs.keySet());
     	return Collections.unmodifiableList(factories);
     }
     
@@ -489,7 +489,7 @@ public class AnnotationProcessorFactoryLoader {
 		synchronized (cacheMutex) {
 			Set<IJavaProject> s = _container2Project.get(key);
 			if (s == null) {
-				s = new HashSet<IJavaProject>();
+				s = new HashSet<>();
 				_container2Project.put(key, s);
 			}
 			s.add(jproj);
@@ -531,9 +531,9 @@ public class AnnotationProcessorFactoryLoader {
 			LoadFailureHandler failureHandler)
 	{
 		Map<AnnotationProcessorFactory, FactoryPath.Attributes> java5Factories = 
-			new LinkedHashMap<AnnotationProcessorFactory, FactoryPath.Attributes>();
+			new LinkedHashMap<>();
 		Map<IServiceFactory, FactoryPath.Attributes> java6Factories =
-			new LinkedHashMap<IServiceFactory, FactoryPath.Attributes>();
+			new LinkedHashMap<>();
 		
 		removeAptBuildProblemMarkers(project);
 		Set<FactoryContainer> badContainers = verifyFactoryPath(project);
@@ -600,7 +600,7 @@ public class AnnotationProcessorFactoryLoader {
 			throws IOException
 	{
 		Map<String, String> factoryNames = fc.getFactoryNames();
-		List<AnnotationProcessorFactory> factories = new ArrayList<AnnotationProcessorFactory>(); 
+		List<AnnotationProcessorFactory> factories = new ArrayList<>();
 		for ( Entry<String, String> entry : factoryNames.entrySet() )
 		{
 			if (AptPlugin.JAVA5_FACTORY_NAME.equals(entry.getValue())) {
@@ -623,7 +623,7 @@ public class AnnotationProcessorFactoryLoader {
 			throws IOException
 	{
 		Map<String, String> factoryNames = fc.getFactoryNames();
-		List<IServiceFactory> factories = new ArrayList<IServiceFactory>(); 
+		List<IServiceFactory> factories = new ArrayList<>();
 		for ( Entry<String, String> entry : factoryNames.entrySet() )
 		{
 			if (AptPlugin.JAVA6_FACTORY_NAME.equals(entry.getValue())) {
@@ -637,7 +637,7 @@ public class AnnotationProcessorFactoryLoader {
 					try {
 						clazz = classLoader.loadClass(factoryName);
 						factory = new ClassServiceFactory(clazz);
-					} catch (ClassNotFoundException e) {
+					} catch (ClassNotFoundException | ClassFormatError e) {
 						AptPlugin.trace("Unable to load annotation processor " + factoryName, e); //$NON-NLS-1$
 						failureHandler.addFailedFactory(factoryName);
 					} 
@@ -715,7 +715,7 @@ public class AnnotationProcessorFactoryLoader {
 		// note that _project2Java6Factories.keySet() should be same as that for Java5.
 		Set<IJavaProject> jprojects;
 		synchronized (cacheMutex) {
-			jprojects = (jproj == null) ? new HashSet<IJavaProject>(_project2Java5Factories.keySet())
+			jprojects = (jproj == null) ? new HashSet<>(_project2Java5Factories.keySet())
 					: Collections.singleton(jproj);
 		}
 		try {
@@ -789,7 +789,7 @@ public class AnnotationProcessorFactoryLoader {
 			}
 			if ( !fc.exists() ) {
 				if (badContainers == null) {
-					badContainers = new HashSet<FactoryContainer>();
+					badContainers = new HashSet<>();
 				}
 				badContainers.add(fc);
 			}
@@ -802,7 +802,7 @@ public class AnnotationProcessorFactoryLoader {
 	 */
 	private static ClassLoader _createIterativeClassLoader( Map<FactoryContainer, FactoryPath.Attributes> containers )
 	{
-		ArrayList<File> fileList = new ArrayList<File>( containers.size() );
+		ArrayList<File> fileList = new ArrayList<>( containers.size() );
 		for (Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : containers.entrySet()) {
 			FactoryPath.Attributes attr = entry.getValue();
 			FactoryContainer fc = entry.getKey();
@@ -827,7 +827,7 @@ public class AnnotationProcessorFactoryLoader {
 	 */
 	private ClassLoader _createBatchClassLoader(Map<FactoryContainer, FactoryPath.Attributes> containers,
 			IJavaProject p) {		
-		ArrayList<File> fileList = new ArrayList<File>( containers.size() );
+		ArrayList<File> fileList = new ArrayList<>( containers.size() );
 		for (Map.Entry<FactoryContainer, FactoryPath.Attributes> entry : containers.entrySet()) {
 			FactoryPath.Attributes attr = entry.getValue();
 			FactoryContainer fc = entry.getKey();
@@ -877,7 +877,7 @@ public class AnnotationProcessorFactoryLoader {
 
 	private static ClassLoader createClassLoader(List<File> files, ClassLoader parentCL) {
 		//return new JarClassLoader(files, parentCL);
-		List<URL> urls = new ArrayList<URL>(files.size());
+		List<URL> urls = new ArrayList<>(files.size());
 		for (int i=0;i<files.size();i++) {
 			try {
 				urls.add(files.get(i).toURI().toURL());

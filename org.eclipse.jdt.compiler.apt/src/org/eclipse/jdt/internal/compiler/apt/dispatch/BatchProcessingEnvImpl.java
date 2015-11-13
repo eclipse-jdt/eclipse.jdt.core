@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2011 BEA Systems, Inc.
+ * Copyright (c) 2006, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -80,7 +80,7 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 			String encoding = (String) batchCompiler.options.get(CompilerOptions.OPTION_Encoding);
 			Charset charset = encoding != null ? Charset.forName(encoding) : null;
 			JavaFileManager manager = new EclipseFileManager(batchCompiler.compilerLocale, charset);
-			ArrayList<String> options = new ArrayList<String>();
+			ArrayList<String> options = new ArrayList<>();
 			for (String argument : commandLineArguments) {
 				options.add(argument);
 			}
@@ -107,7 +107,7 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 	 * value "bar".
 	 */
 	private Map<String, String> parseProcessorOptions(String[] args) {
-		Map<String, String> options = new LinkedHashMap<String, String>();
+		Map<String, String> options = new LinkedHashMap<>();
 		for (String arg : args) {
 			if (!arg.startsWith("-A")) { //$NON-NLS-1$
 				continue;

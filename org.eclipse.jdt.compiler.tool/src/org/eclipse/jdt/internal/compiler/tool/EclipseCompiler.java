@@ -87,7 +87,6 @@ public class EclipseCompiler implements JavaCompiler {
 	 *      java.lang.Iterable, java.lang.Iterable, java.lang.Iterable)
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	public CompilationTask getTask(Writer out, JavaFileManager fileManager, DiagnosticListener<? super JavaFileObject> someDiagnosticListener, Iterable<String> options, Iterable<String> classes, Iterable<? extends JavaFileObject> compilationUnits) {
 		PrintWriter writerOut = null;
 		PrintWriter writerErr = null;

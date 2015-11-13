@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2013 IBM Corporation and others.
+ * Copyright (c) 2006, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -53,14 +53,14 @@ public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType
 			if (length == 2) {
 				return Collections.emptyList();
 			}
-			ArrayList<TypeMirror> list = new ArrayList<TypeMirror>();
+			ArrayList<TypeMirror> list = new ArrayList<>();
 			for (int i = 2; i < length; i++) {
 				list.add(_env.getFactory().newTypeMirror(parameters[i]));
 			}
 			return Collections.unmodifiableList(list);
 		}
 		if (length != 0) {
-			ArrayList<TypeMirror> list = new ArrayList<TypeMirror>();
+			ArrayList<TypeMirror> list = new ArrayList<>();
 			for (TypeBinding typeBinding : parameters) {
 				list.add(_env.getFactory().newTypeMirror(typeBinding));
 			}
@@ -82,7 +82,7 @@ public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType
 	 */
 	@Override
 	public List<? extends TypeMirror> getThrownTypes() {
-		ArrayList<TypeMirror> list = new ArrayList<TypeMirror>();
+		ArrayList<TypeMirror> list = new ArrayList<>();
 		ReferenceBinding[] thrownExceptions = ((MethodBinding) this._binding).thrownExceptions;
 		if (thrownExceptions.length != 0) {
 			for (ReferenceBinding referenceBinding : thrownExceptions) {
@@ -97,7 +97,7 @@ public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType
 	 */
 	@Override
 	public List<? extends TypeVariable> getTypeVariables() {
-		ArrayList<TypeVariable> list = new ArrayList<TypeVariable>();
+		ArrayList<TypeVariable> list = new ArrayList<>();
 		TypeVariableBinding[] typeVariables = ((MethodBinding) this._binding).typeVariables();
 		if (typeVariables.length != 0) {
 			for (TypeVariableBinding typeVariableBinding : typeVariables) {

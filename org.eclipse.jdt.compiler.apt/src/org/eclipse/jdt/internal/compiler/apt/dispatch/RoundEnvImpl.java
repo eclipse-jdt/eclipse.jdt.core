@@ -132,7 +132,7 @@ public class RoundEnvImpl implements RoundEnvironment
 		}
 		Binding annoBinding = ((TypeElementImpl)a)._binding;
 		if (0 != (annoBinding.getAnnotationTagBits() & TagBits.AnnotationInherited)) {
-			Set<Element> annotatedElements = new HashSet<Element>(_annoToUnit.getValues(a));
+			Set<Element> annotatedElements = new HashSet<>(_annoToUnit.getValues(a));
 			// For all other root elements that are TypeElements, and for their recursively enclosed
 			// types, add each element if it has a superclass are annotated with 'a'
 			ReferenceBinding annoTypeBinding = (ReferenceBinding) annoBinding;
@@ -208,7 +208,7 @@ public class RoundEnvImpl implements RoundEnvironment
 			return Collections.emptySet();
 		}
 		if (_rootElements == null) {
-			Set<Element> elements = new HashSet<Element>(_units.length);
+			Set<Element> elements = new HashSet<>(_units.length);
 			for (CompilationUnitDeclaration unit : _units) {
 				if (null == unit.scope || null == unit.scope.topLevelTypes)
 					continue;

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.zip.ZipFile;
 
@@ -129,7 +130,7 @@ public FileSystem(String[] classpathNames, String[] initialFileNames, String enc
 	this.classpaths = new Classpath[classpathSize];
 	int counter = 0;
 	for (int i = 0; i < classpathSize; i++) {
-		Classpath classpath = getClasspath(classpathNames[i], encoding, null);
+		Classpath classpath = getClasspath(classpathNames[i], encoding, null, null);
 		try {
 			classpath.initialize();
 			this.classpaths[counter++] = classpath;
@@ -162,12 +163,12 @@ protected FileSystem(Classpath[] paths, String[] initialFileNames, boolean annot
 	initializeKnownFileNames(initialFileNames);
 	this.annotationsFromClasspath = annotationsFromClasspath;
 }
-public static Classpath getClasspath(String classpathName, String encoding, AccessRuleSet accessRuleSet) {
-	return getClasspath(classpathName, encoding, false, accessRuleSet, null);
+public static Classpath getClasspath(String classpathName, String encoding, AccessRuleSet accessRuleSet, Map options) {
+	return getClasspath(classpathName, encoding, false, accessRuleSet, null, options);
 }
 public static Classpath getClasspath(String classpathName, String encoding,
 		boolean isSourceOnly, AccessRuleSet accessRuleSet,
-		String destinationPath) {
+		String destinationPath, Map options) {
 	Classpath result = null;
 	File file = new File(convertPathSeparators(classpathName));
 	if (file.isDirectory()) {
@@ -178,7 +179,7 @@ public static Classpath getClasspath(String classpathName, String encoding,
 					accessRuleSet,
 					destinationPath == null || destinationPath == Main.NONE ?
 						destinationPath : // keep == comparison valid
-						convertPathSeparators(destinationPath));
+						convertPathSeparators(destinationPath), options);
 		}
 	} else {
 		int format = Util.archiveFormat(classpathName);

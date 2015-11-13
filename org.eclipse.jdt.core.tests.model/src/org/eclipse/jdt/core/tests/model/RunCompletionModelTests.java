@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Gábor Kövesdán - Contribution for Bug 350000 - [content assist] Include non-prefix matches in auto-complete suggestions
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -37,6 +38,7 @@ public class RunCompletionModelTests extends junit.framework.TestCase {
 			COMPLETION_SUITES.add(CompletionWithMissingTypesTests2.class);
 			COMPLETION_SUITES.add(CompletionWithMissingTypesTests_1_5.class);
 			COMPLETION_SUITES.add(SnippetCompletionContextTests.class);
+			COMPLETION_SUITES.add(SubstringCompletionTests.class);
 		}
 		COMPLETION_SUITES.add(JavadocTypeCompletionModelTest.class);
 		COMPLETION_SUITES.add(JavadocFieldCompletionModelTest.class);

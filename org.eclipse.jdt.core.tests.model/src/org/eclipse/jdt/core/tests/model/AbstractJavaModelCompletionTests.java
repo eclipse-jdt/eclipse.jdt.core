@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Gábor Kövesdán - Contribution for Bug 350000 - [content assist] Include non-prefix matches in auto-complete suggestions
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
@@ -158,6 +159,9 @@ protected CompletionResult snippetContextComplete(
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	this.oldOptions = JavaCore.getOptions();
+	Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
+	options.put(JavaCore.CODEASSIST_SUBSTRING_MATCH, JavaCore.DISABLED);
+	JavaCore.setOptions(options);
 	waitUntilIndexesReady();
 }
 protected void setUp() throws Exception {

@@ -2453,4 +2453,32 @@ public void testBug460410() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults("", requestor.getResults());
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=481564
+public void testBug481564() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.function.Consumer;\n" +
+			"public class X {\n" +
+			"	public void foo() {\n" +
+			"		new Thread(() -> {\n" +
+			"			som/*here*/\n" +
+			"		});\n" +
+			"	}\n" +
+			"	public void poisonMethod() {\n" +
+			"		ArrayList<String> views = new ArrayList<>();\n" +
+			"		views.stream().filter(String::isEmpty).forEach(s -> s.length());\n" +
+			"	}\n" +
+			"	public void someMethod() {}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/*here*/";
+	int cursorLocation = str.indexOf(completeBehind) ;
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"someMethod[METHOD_REF]{someMethod(), LX;, ()V, someMethod, null, 27}", requestor.getResults());
+}
 }

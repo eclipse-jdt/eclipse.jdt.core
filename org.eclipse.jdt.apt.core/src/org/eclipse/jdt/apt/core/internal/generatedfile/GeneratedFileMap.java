@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2008 BEA Systems, Inc.
+ * Copyright (c) 2006, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,7 +49,7 @@ public class GeneratedFileMap extends ManyToMany<IFile, IFile> {
 	
 	private final IProject _proj;
 	
-	private final Map<IFile, Set<Flags>> _flags = new HashMap<IFile, Set<Flags>>();
+	private final Map<IFile, Set<Flags>> _flags = new HashMap<>();
 	
 	public GeneratedFileMap(IProject proj) {
 		_proj = proj;

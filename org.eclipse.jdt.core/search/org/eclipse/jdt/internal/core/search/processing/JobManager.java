@@ -175,9 +175,7 @@ public abstract class JobManager implements Runnable {
 
 		boolean status = IJob.FAILED;
 		try {
-			int concurrentJobWork = 100;
-			if (progress != null)
-				progress.beginTask("", concurrentJobWork); //$NON-NLS-1$
+			SubMonitor subMonitor = SubMonitor.convert(progress);
 			if (awaitingJobsCount() > 0) {
 				switch (waitingPolicy) {
 
@@ -186,7 +184,7 @@ public abstract class JobManager implements Runnable {
 							Util.verbose("-> NOT READY - forcing immediate - " + searchJob);//$NON-NLS-1$
 						try {
 							disable(); // pause indexing
-							status = searchJob.execute(progress == null ? null : new SubProgressMonitor(progress, concurrentJobWork));
+							status = searchJob.execute(subMonitor);
 						} finally {
 							enable();
 						}
@@ -202,82 +200,70 @@ public abstract class JobManager implements Runnable {
 						throw new OperationCanceledException();
 
 					case IJob.WaitUntilReady :
-						IProgressMonitor subProgress = null;
+						int totalWork = 1000;
+						SubMonitor subProgress = subMonitor.setWorkRemaining(10).split(8).setWorkRemaining(totalWork);
+						// use local variable to avoid potential NPE (see bug 20435 NPE when searching java method
+						// and bug 42760 NullPointerException in JobManager when searching)
+						Thread t = this.processingThread;
+						int originalPriority = t == null ? -1 : t.getPriority();
 						try {
-							int totalWork = 1000;
-							if (progress != null) {
-								subProgress = new SubProgressMonitor(progress, concurrentJobWork * 8 / 10);
-								subProgress.beginTask("", totalWork); //$NON-NLS-1$
-								concurrentJobWork = concurrentJobWork * 2 / 10;
+							if (t != null)
+								t.setPriority(Thread.currentThread().getPriority());
+							synchronized(this) {
+								this.awaitingClients++;
 							}
-							// use local variable to avoid potential NPE (see bug 20435 NPE when searching java method
-							// and bug 42760 NullPointerException in JobManager when searching)
-							Thread t = this.processingThread;
-							int originalPriority = t == null ? -1 : t.getPriority();
-							try {
-								if (t != null)
-									t.setPriority(Thread.currentThread().getPriority());
-								synchronized(this) {
-									this.awaitingClients++;
-								}
-								IJob previousJob = null;
-								int awaitingJobsCount;
-								int lastJobsCount = totalWork;
-								float lastWorked = 0;
-								float totalWorked = 0;
-								while ((awaitingJobsCount = awaitingJobsCount()) > 0) {
-									if ((subProgress != null && subProgress.isCanceled())
-											|| this.processingThread == null)
-										throw new OperationCanceledException();
-									IJob currentJob = currentJob();
-									// currentJob can be null when jobs have been added to the queue but job manager is not enabled
-									if (currentJob != null && currentJob != previousJob) {
-										if (VERBOSE)
-											Util.verbose("-> NOT READY - waiting until ready - " + searchJob);//$NON-NLS-1$
-										if (subProgress != null) {
-											String indexing = Messages.bind(Messages.jobmanager_filesToIndex, currentJob.getJobFamily(), Integer.toString(awaitingJobsCount));
-											subProgress.subTask(indexing);
-											// ratio of the amount of work relative to the total work
-											float ratio = awaitingJobsCount < totalWork ? 1 : ((float) totalWork) / awaitingJobsCount;
-											if (lastJobsCount > awaitingJobsCount) {
-												totalWorked += (lastJobsCount - awaitingJobsCount) * ratio;
-											} else {
-												// more jobs were added, just increment by the ratio
-												totalWorked += ratio;
-											}
-											if (totalWorked - lastWorked >= 1) {
-												subProgress.worked((int) (totalWorked - lastWorked));
-												lastWorked = totalWorked;
-											}
-											lastJobsCount = awaitingJobsCount;
+							IJob previousJob = null;
+							int awaitingJobsCount;
+							int lastJobsCount = totalWork;
+							float lastWorked = 0;
+							float totalWorked = 0;
+							while ((awaitingJobsCount = awaitingJobsCount()) > 0) {
+								if ((subProgress != null && subProgress.isCanceled())
+										|| this.processingThread == null)
+									throw new OperationCanceledException();
+								IJob currentJob = currentJob();
+								// currentJob can be null when jobs have been added to the queue but job manager is not enabled
+								if (currentJob != null && currentJob != previousJob) {
+									if (VERBOSE)
+										Util.verbose("-> NOT READY - waiting until ready - " + searchJob);//$NON-NLS-1$
+									if (subProgress != null) {
+										String indexing = Messages.bind(Messages.jobmanager_filesToIndex, currentJob.getJobFamily(), Integer.toString(awaitingJobsCount));
+										subProgress.subTask(indexing);
+										// ratio of the amount of work relative to the total work
+										float ratio = awaitingJobsCount < totalWork ? 1 : ((float) totalWork) / awaitingJobsCount;
+										if (lastJobsCount > awaitingJobsCount) {
+											totalWorked += (lastJobsCount - awaitingJobsCount) * ratio;
+										} else {
+											// more jobs were added, just increment by the ratio
+											totalWorked += ratio;
 										}
-										previousJob = currentJob;
+										if (totalWorked - lastWorked >= 1) {
+											subProgress.worked((int) (totalWorked - lastWorked));
+											lastWorked = totalWorked;
+										}
+										lastJobsCount = awaitingJobsCount;
 									}
-									try {
-										if (VERBOSE)
-											Util.verbose("-> GOING TO SLEEP - " + searchJob);//$NON-NLS-1$
-										Thread.sleep(50);
-									} catch (InterruptedException e) {
-										// ignore
-									}
+									previousJob = currentJob;
 								}
-							} finally {
-								synchronized(this) {
-									this.awaitingClients--;
+								try {
+									if (VERBOSE)
+										Util.verbose("-> GOING TO SLEEP - " + searchJob);//$NON-NLS-1$
+									Thread.sleep(50);
+								} catch (InterruptedException e) {
+									// ignore
 								}
-								if (t != null && originalPriority > -1 && t.isAlive())
-									t.setPriority(originalPriority);
 							}
 						} finally {
-							if (subProgress != null)
-								subProgress.done();
+							synchronized(this) {
+								this.awaitingClients--;
+							}
+							if (t != null && originalPriority > -1 && t.isAlive())
+								t.setPriority(originalPriority);
 						}
 				}
 			}
-			status = searchJob.execute(progress == null ? null : new SubProgressMonitor(progress, concurrentJobWork));
+			status = searchJob.execute(subMonitor);
 		} finally {
-			if (progress != null)
-				progress.done();
 			if (VERBOSE)
 				Util.verbose("FINISHED  concurrent job - " + searchJob); //$NON-NLS-1$
 		}

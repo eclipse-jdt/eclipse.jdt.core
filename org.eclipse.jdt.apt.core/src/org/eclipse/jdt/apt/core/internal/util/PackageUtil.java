@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,7 +29,7 @@ public class PackageUtil {
 			final String packageName, 
 			final BaseProcessorEnv env) {
 		
-		List<IPackageFragment> packages = new ArrayList<IPackageFragment>();
+		List<IPackageFragment> packages = new ArrayList<>();
 		try {
 			// The environment caches our package fragment roots
 			IPackageFragmentRoot[] roots = env.getAllPackageFragmentRoots();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -134,7 +134,7 @@ public class ScannerUtil {
 	};
 	
 	private static final Set<String> SINGLE_BYTE_ENCODINGS = 
-		new HashSet<String>(SINGLE_BYTE_ENCODING_ARRAY.length);
+		new HashSet<>(SINGLE_BYTE_ENCODING_ARRAY.length);
 		
 	static {
 		for (String encoding : SINGLE_BYTE_ENCODING_ARRAY) {

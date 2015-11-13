@@ -49,7 +49,7 @@ static {
 //	TESTS_NAMES = new String[] { "testBug351697" };
 }
 public static Test suite() {
-	TestSuite suite = (TestSuite) buildModelTestSuite(JavaProjectTests.class, ALPHABETICAL_SORT);
+	TestSuite suite = (TestSuite) buildModelTestSuite(JavaProjectTests.class, BYTECODE_DECLARATION_ORDER);
 
 	// The following test must be at the end as it deletes a package and this would have side effects
 	// on other tests
@@ -205,6 +205,7 @@ public void testAddExternalLibFolder6() throws CoreException, IOException {
 		
 		// build should find no errors:
 		p.build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForAutoBuild();
 		IMarker[] markers = p.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 		for (int i=0; i<markers.length; i++)
 			System.out.println("unexpected marker: "+markers[i].getType()+": "+markers[i].getAttribute(IMarker.MESSAGE));
@@ -236,6 +237,7 @@ public void testAddExternalLibFolder6() throws CoreException, IOException {
 		
 		// build should find no errors:
 		p.build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForAutoBuild();
 		IMarker[] markers = p.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
 		for (int i=0; i<markers.length; i++)
 			System.out.println("unexpected marker: "+markers[i].getType()+": "+markers[i].getAttribute(IMarker.MESSAGE));
@@ -246,7 +248,46 @@ public void testAddExternalLibFolder6() throws CoreException, IOException {
 		deleteProject("ExternalContainer");
 	}
 }
-
+/**
+ * Test adding a non-java resource in a package fragment root that correspond to
+ * the project.
+ * (Regression test for PR #1G58NB8)
+ */
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423280.
+public void testAddNonJavaResourcePackageFragmentRoot() throws JavaModelException, CoreException {
+	// get resources of source package fragment root at project level
+	IPackageFragmentRoot root = getPackageFragmentRoot("JavaProjectTests", "");
+	Object[] resources = root.getNonJavaResources();
+	assertResourceNamesEqual(
+		"unexpected non Java resources",
+		".classpath\n" +
+		".project\n" +
+		".settings",
+		resources);
+	IFile resource = (IFile)resources[0];
+	IPath newPath = root.getUnderlyingResource().getFullPath().append("TestNonJavaResource.abc");
+	try {
+		// copy and rename resource
+		resource.copy(
+			newPath,
+			true,
+			null);
+		waitForManualRefresh();
+		waitForAutoBuild();
+		// ensure the new resource is present
+		resources = root.getNonJavaResources();
+		assertResourcesEqual(
+			"incorrect non java resources",
+			"/JavaProjectTests/.classpath\n" +
+			"/JavaProjectTests/.project\n" +
+			"/JavaProjectTests/.settings\n" +
+			"/JavaProjectTests/TestNonJavaResource.abc",
+			resources);
+	} finally {
+		// clean up
+		deleteResource(resource.getWorkspace().getRoot().getFile(newPath));
+	}
+}
 /*
  * Ensures that adding a library entry for an existing empty external ZIP archive updates the model
  */
@@ -303,6 +344,8 @@ public void testAddZIPArchive3() throws CoreException, IOException {
 			},
 			getExternalResourcePath("externalLib.abc"));
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path(getExternalResourcePath("externalLib.abc")), null, null)});
+		refreshExternalArchives(p);
+		waitForManualRefresh();
 		assertElementDescendants(
 			"Unexpected project content",
 			"P\n" +
@@ -391,6 +434,7 @@ public void testAddZIPArchive6() throws Exception {
 				},
 				JavaCore.VERSION_1_4);
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("/P/internalLib.abc"), null, null)});
+		waitForAutoBuild();
 		assertElementDescendants(
 			"Unexpected project content",
 			"P\n" + 
@@ -403,45 +447,6 @@ public void testAddZIPArchive6() throws Exception {
 	}
 }
 
-/**
- * Test adding a non-java resource in a package fragment root that correspond to
- * the project.
- * (Regression test for PR #1G58NB8)
- */
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=423280.
-public void _testAddNonJavaResourcePackageFragmentRoot() throws JavaModelException, CoreException {
-	// get resources of source package fragment root at project level
-	IPackageFragmentRoot root = getPackageFragmentRoot("JavaProjectTests", "");
-	Object[] resources = root.getNonJavaResources();
-	assertResourceNamesEqual(
-		"unexpected non Java resources",
-		".classpath\n" +
-		".project\n" +
-		".settings",
-		resources);
-	IFile resource = (IFile)resources[0];
-	IPath newPath = root.getUnderlyingResource().getFullPath().append("TestNonJavaResource.abc");
-	try {
-		// copy and rename resource
-		resource.copy(
-			newPath,
-			true,
-			null);
-
-		// ensure the new resource is present
-		resources = root.getNonJavaResources();
-		assertResourcesEqual(
-			"incorrect non java resources",
-			"/JavaProjectTests/.classpath\n" +
-			"/JavaProjectTests/.project\n" +
-			"/JavaProjectTests/.settings\n" +
-			"/JavaProjectTests/TestNonJavaResource.abc",
-			resources);
-	} finally {
-		// clean up
-		deleteResource(resource.getWorkspace().getRoot().getFile(newPath));
-	}
-}
 /*
  * Ensures that adding a project prerequisite in the classpath updates the referenced projects
  */
@@ -717,6 +722,7 @@ public void testCompilationUnitCorrespondingResource() throws JavaModelException
  */
 public void lastlyTestDeletePackageWithAutobuild() throws CoreException {
 	// close all project except JavaProjectTests so as to avoid side effects while autobuilding
+	waitForManualRefresh();
 	IProject[] projects = getWorkspaceRoot().getProjects();
 	for (int i = 0; i < projects.length; i++) {
 		IProject project = projects[i];
@@ -736,6 +742,7 @@ public void lastlyTestDeletePackageWithAutobuild() throws CoreException {
 	IFolder folder = (IFolder) frag.getUnderlyingResource();
 	try {
 		deleteResource(folder);
+		waitForManualRefresh();
 		assertDeltas(
 			"Unexpected delta",
 			"JavaProjectTests[*]: {CHILDREN}\n" +
@@ -880,6 +887,7 @@ public void testFindElementPrereqSimpleProject() throws CoreException {
 			"public class X {\n" +
 			"}"
 		);
+		waitForManualRefresh();
 		assertTrue("X.java not found", project.findElement(new Path("X.java")) != null);
 	} finally {
 		this.deleteProject("R");
@@ -923,6 +931,8 @@ public void testFindTypeAfterSetClasspath() throws CoreException {
 				}
 			},
 			null);
+		waitForManualRefresh();
+		waitForAutoBuild();
 		assertElementsEqual(
 			"Unexpected type found",
 			"X [in X.java [in p [in src2 [in P]]]]",
@@ -1455,6 +1465,7 @@ public void testPackageFragmentRenameAndCreate() throws JavaModelException, Core
 	}
 	// restore the original state
 	deleteResource(yFolder);
+	waitForManualRefresh();
 	IPackageFragment foo = getPackageFragment("JavaProjectTests", "", "x.foo");
 	IFolder fooFolder = (IFolder) foo.getUnderlyingResource();
 	fooFolder.move(yPath, true, null);
@@ -1595,6 +1606,7 @@ public void testPackageFragmentRootNonJavaResources9() throws Exception {
 				zip.close();
 		}
 		createJavaProject("P", new String[0], new String[] {getExternalResourcePath("lib.jar")}, "");
+		waitForManualRefresh();
 		IPackageFragmentRoot root = getPackageFragmentRoot("P", getExternalResourcePath("lib.jar"));
 		Object[] resources = root.getNonJavaResources();
 		assertResourceTreeEquals(
@@ -1626,7 +1638,7 @@ public void testPackageFragmentRootRawEntry1() throws CoreException, IOException
 			classpath[i] = JavaCore.newVariableEntry(new Path("/MyVar/lib"+i+".jar"), null, null);
 		}
 		proj.setRawClasspath(classpath, null);
-
+		waitForManualRefresh();
 		IPackageFragmentRoot[] roots = proj.getPackageFragmentRoots();
 		assertEquals("wrong number of entries:", length, roots.length);
 		//long start = System.currentTimeMillis();
@@ -1663,7 +1675,8 @@ public void testPackageFragmentRootRawEntry2() throws CoreException, IOException
 		classpath[1] = JavaCore.newVariableEntry(new Path("/MyVar").append("lib.jar"), null, null);
 		proj.setRawClasspath(classpath, null);
 		JavaCore.setClasspathVariable("MyVar", new Path(libPath), null); // change CP var value to cause collision
-
+		waitForManualRefresh();
+		waitForAutoBuild();
 		IPackageFragmentRoot[] roots = proj.getPackageFragmentRoots();
 		assertEquals("wrong number of entries:", 1, roots.length);
 		IClasspathEntry rawEntry = roots[0].getRawClasspathEntry();
@@ -1704,7 +1717,8 @@ public void testPackageFragmentRootRawEntry3() throws CoreException, IOException
 		// remove last classpath entry
 		System.arraycopy(classpath, 0, classpath = new IClasspathEntry[length-1], 0, length-1);
 		proj.setRawClasspath(classpath, null);
-
+		waitForManualRefresh();
+		waitForAutoBuild();
 		// verify that JME occurs
 		IPackageFragmentRoot lastRoot = roots[length-1];
 		String rootPath = ((PackageFragmentRoot)lastRoot).toStringWithAncestors();
@@ -1732,6 +1746,8 @@ public void testPackageFragmentRootRawEntry4() throws CoreException, IOException
 		IJavaProject p = createJavaProject("P");
 		org.eclipse.jdt.core.tests.util.Util.writeToFile("", externalJarPath);
 		setClasspath(p, new IClasspathEntry[] {JavaCore.newLibraryEntry(new Path("../../external.jar"), null, null)});
+		waitForManualRefresh();
+		waitForAutoBuild();
 		IPackageFragmentRoot root = p.getPackageFragmentRoots()[0];
 		IPath path = root.getRawClasspathEntry().getPath();
 		assertEquals("Unexpected path for raw classpath entry", "../../external.jar", path.toString());
@@ -1751,6 +1767,8 @@ public void testProjectOpen() throws CoreException {
 		IProject p2 = getProject("P2");
 		p2.close(null);
 		p2.open(null);
+		waitForManualRefresh();
+		waitForAutoBuild();
 		IProject[] references = p2.getDescription().getDynamicReferences();
 		assertResourcesEqual(
 			"Unexpected referenced projects",
@@ -1771,6 +1789,7 @@ public void testProjectOpen2() throws JavaModelException, CoreException {
 	try {
 		startDeltas(listener);
 		project.open(null);
+		waitForManualRefresh();
 		assertDeltas(
 			"Unexpected delta 2",
 			"JavaProjectTests[*]: {OPENED}\n" +
@@ -1790,6 +1809,7 @@ public void testProjectOpen3() throws JavaModelException, CoreException {
 	project.close(null);
 
 	project.open(null);
+	waitForManualRefresh();
 	IPackageFragmentRoot[] openRoots = jproject.getPackageFragmentRoots();
 	assertTrue("should have same number of roots", openRoots.length == originalRoots.length);
 	for (int i = 0; i < openRoots.length; i++) {
@@ -1806,6 +1826,7 @@ public void testProjectClose() throws JavaModelException, CoreException {
 	try {
 		startDeltas(listener);
 		project.close(null);
+		waitForManualRefresh();
 		assertDeltas(
 			"Unexpected delta 1",
 			"JavaProjectTests[*]: {CLOSED}\n" +
@@ -2011,6 +2032,7 @@ public void testProjectImport3() throws CoreException {
 			"	</natures>\n" +
 			"</projectDescription>"
 		);
+		waitForManualRefresh();
 		waitForAutoBuild();
 		IProject[] referencedProjects = getProject("P2").getReferencedProjects();
 		assertResourcesEqual(
@@ -2221,7 +2243,7 @@ public void testRootGetPackageFragments2() throws CoreException {
  * Test that the correct package fragments exist in the project.
  * (regression test for bug 65693 Package Explorer shows .class files instead of .java)
  */
-public void _testRootGetPackageFragments3() throws CoreException {
+public void testRootGetPackageFragments3() throws CoreException {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=403414
 	// Test disabled temporarily
 	try {
@@ -2232,6 +2254,7 @@ public void _testRootGetPackageFragments3() throws CoreException {
 			"}"
 		);
 		getProject("Bug65693_1").build(IncrementalProjectBuilder.FULL_BUILD, null);
+		waitForAutoBuild();
 		IJavaProject p2 = createJavaProject("Bug65693_2");
 		editFile(
 			"/Bug65693_2/.classpath",
@@ -2242,6 +2265,7 @@ public void _testRootGetPackageFragments3() throws CoreException {
 			"    <classpathentry kind=\"output\" path=\"\"/>\n" +
 			"</classpath>"
 		);
+		waitForManualRefresh();
 		IPackageFragment pkg = p1.getPackageFragmentRoot(p1.getProject()).getPackageFragment("");
 		assertElementsEqual(
 			"Unexpected packages for Bug65693_1",
@@ -2377,6 +2401,8 @@ public void testBug148859() throws CoreException {
 				}
 			},
 			null);
+		waitForManualRefresh();
+		waitForAutoBuild();
 		IPackageFragmentRoot root = getPackageFragmentRoot("P", "");
 		assertElementsEqual(
 			"Unexpected children size in 'P' default source folder",

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2015 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -58,7 +58,7 @@ public class RoundDispatcher {
 		_provider = provider;
 		_processors = provider.getDiscoveredProcessors();
 		_roundEnv = env;
-		_unclaimedAnnotations = new HashSet<TypeElement>(rootAnnotations);
+		_unclaimedAnnotations = new HashSet<>(rootAnnotations);
 		_traceProcessorInfo = traceProcessorInfo;
 		_traceRounds = traceRounds;
 	}
@@ -132,7 +132,7 @@ public class RoundDispatcher {
 	private void handleProcessor(ProcessorInfo pi)
 	{
 		try {
-			Set<TypeElement> annotationsToProcess = new HashSet<TypeElement>();
+			Set<TypeElement> annotationsToProcess = new HashSet<>();
 			boolean shouldCall = pi.computeSupportedAnnotations(
 					_unclaimedAnnotations, annotationsToProcess);
 			if (shouldCall) {
@@ -163,10 +163,10 @@ public class RoundDispatcher {
 					}
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			// If a processor throws an exception (as opposed to reporting an error),
 			// report it and abort compilation by throwing AbortCompilation.
-			_provider.reportProcessorException(pi._processor, e);
+			_provider.reportProcessorException(pi._processor, new Exception(e));
 		}
 	}
 	

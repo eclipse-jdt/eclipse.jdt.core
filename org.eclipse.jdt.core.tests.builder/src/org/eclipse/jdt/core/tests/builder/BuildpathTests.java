@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,6 +40,11 @@ public BuildpathTests(String name) {
 
 public static Test suite() {
 	return buildTestSuite(BuildpathTests.class);
+}
+@Override
+protected void setUp() throws Exception {
+	super.setUp();
+	JavaBuilder.DEBUG = true; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=464369
 }
 
 private String getJdkLevelProblem(String expectedRuntime, String path, int severity) {
@@ -172,8 +178,9 @@ public void testClosedProject() throws JavaModelException, IOException {
 	options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.IGNORE);
 	JavaCore.setOptions(options);
 	env.closeProject(project1Path);
-
+	env.waitForManualRefresh();
 	incrementalBuild();
+	env.waitForAutoBuild();
 	expectingOnlyProblemsFor(new IPath[] {project2Path, project3Path});
 	expectingOnlySpecificProblemFor(project2Path,
 		new Problem("Build path", "Project 'CP2' is missing required Java project: 'CP1'", project2Path, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR) //$NON-NLS-1$ //$NON-NLS-2$
@@ -185,9 +192,7 @@ public void testClosedProject() throws JavaModelException, IOException {
 	env.openProject(project1Path);
 	incrementalBuild();
 	expectingNoProblems();
-
-	options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.ABORT);
-	JavaCore.setOptions(options);
+	env.removeProject(project1Path);
 }
 
 public void testCorruptBuilder() throws JavaModelException {
@@ -225,16 +230,15 @@ public void testCorruptBuilder() throws JavaModelException {
 	JavaCore.setOptions(options);
 
 	env.removeBinaryClass(outputFolderPackage, "Test"); //$NON-NLS-1$
-
+	env.waitForManualRefresh();
 	incrementalBuild();
+	env.waitForAutoBuild();
 	expectingNoProblems();
-
-	options.put(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER, JavaCore.IGNORE);
-	JavaCore.setOptions(options);
+	env.removeProject(project1Path);
 }
 
 public void testCorruptBuilder2() throws JavaModelException {
-	IPath project1Path = env.addProject("P1"); //$NON-NLS-1$
+	IPath project1Path = env.addProject("P2"); //$NON-NLS-1$
 	env.addExternalJars(project1Path, Util.getJavaClassLibs());
 	env.removePackageFragmentRoot(project1Path, ""); //$NON-NLS-1$
 	IPath src = env.addPackageFragmentRoot(project1Path, "src"); //$NON-NLS-1$
@@ -246,6 +250,7 @@ public void testCorruptBuilder2() throws JavaModelException {
 	);
 
 	fullBuild();
+	env.waitForAutoBuild();
 	expectingNoProblems();
 
 	IPath outputFolderPackage = bin.append("p"); //$NON-NLS-1$
@@ -257,6 +262,7 @@ public void testCorruptBuilder2() throws JavaModelException {
 	);
 
 	incrementalBuild();
+	env.waitForAutoBuild();
 	expectingOnlySpecificProblemFor(subTest, new Problem("", "p.Test cannot be resolved to a type", subTest, 40, 46, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$)
 
 	env.addClass(src, "p", "Test", //$NON-NLS-1$ //$NON-NLS-2$
@@ -265,6 +271,7 @@ public void testCorruptBuilder2() throws JavaModelException {
 	);
 
 	fullBuild();
+	env.waitForAutoBuild();
 	expectingNoProblems();
 
 	Hashtable options = JavaCore.getOptions();
@@ -272,12 +279,10 @@ public void testCorruptBuilder2() throws JavaModelException {
 	JavaCore.setOptions(options);
 
 	env.removeBinaryClass(outputFolderPackage, "Test"); //$NON-NLS-1$
-
+	env.waitForManualRefresh();
 	incrementalBuild();
 	expectingNoProblems();
-
-	options.put(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER, JavaCore.IGNORE);
-	JavaCore.setOptions(options);
+	env.removeProject(project1Path);
 }
 
 /*
@@ -285,6 +290,7 @@ public void testCorruptBuilder2() throws JavaModelException {
  */
 public void testChangeExternalFolder() throws CoreException {
 	String externalLib = Util.getOutputDirectory() + File.separator + "externalLib";
+	IPath projectPath = env.addProject("Project");
 	try {
 		new File(externalLib).mkdirs();
 		Util.compile(
@@ -300,7 +306,6 @@ public void testChangeExternalFolder() throws CoreException {
 			externalLib
 		);
 
-		IPath projectPath = env.addProject("Project");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.addExternalFolders(projectPath, new String[] {externalLib});
 
@@ -317,6 +322,7 @@ public void testChangeExternalFolder() throws CoreException {
 		);
 
 		fullBuild(projectPath);
+		env.waitForAutoBuild();
 		expectingNoProblems();
 
 		String externalClassFile = externalLib + File.separator + "p" + File.separator + "X.class";
@@ -341,12 +347,14 @@ public void testChangeExternalFolder() throws CoreException {
 		env.waitForManualRefresh();
 
 		incrementalBuild(projectPath);
+		env.waitForAutoBuild();
 		expectingProblemsFor(
 			classY,
 			"Problem : The method foo() is undefined for the type X [ resource : </Project/q/Y.java> range : <54,57> category : <50> severity : <2>]"
 		);
 	} finally {
 		new File(externalLib).delete();
+		env.removeProject(projectPath);
 	}
 }
 
@@ -355,6 +363,7 @@ public void testChangeExternalFolder() throws CoreException {
  */
 public void testChangeZIPArchive1() throws Exception {
 	String externalLib = Util.getOutputDirectory() + File.separator + "externalLib.abc";
+	IPath projectPath = env.addProject("Project");
 	try {
 		org.eclipse.jdt.core.tests.util.Util.createJar(
 			new String[] {
@@ -368,7 +377,6 @@ public void testChangeZIPArchive1() throws Exception {
 			externalLib,
 			"1.4");
 
-		IPath projectPath = env.addProject("Project");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 		env.addExternalJars(projectPath, new String[] {externalLib});
 
@@ -407,6 +415,7 @@ public void testChangeZIPArchive1() throws Exception {
 		);
 	} finally {
 		new File(externalLib).delete();
+		env.removeProject(projectPath);
 	}
 }
 
@@ -463,6 +472,7 @@ public void testChangeZIPArchive2() throws Exception {
 		classY,
 		"Problem : The method foo() is undefined for the type X [ resource : </Project/q/Y.java> range : <54,57> category : <50> severity : <2>]"
 	);
+	env.removeProject(projectPath);
 }
 
 /*
@@ -521,7 +531,7 @@ public void testExternalJarChange() throws JavaModelException, IOException {
 	project.getJavaModel().refreshExternalArchives(new IJavaElement[] {project}, null);
 	incrementalBuild();
 	expectingNoProblems();
-
+	env.removeProject(projectPath);
 }
 
 public void testMissingBuilder() throws JavaModelException {
@@ -564,6 +574,8 @@ public void testMissingBuilder() throws JavaModelException {
 
 	incrementalBuild();
 	expectingNoProblems();
+	env.removeProject(project1Path);
+	env.removeProject(project2Path);
 }
 
 public void testMissingFieldType() throws JavaModelException {
@@ -605,6 +617,7 @@ public void testMissingFieldType() throws JavaModelException {
 
 	incrementalBuild();
 	expectingNoProblems();
+	env.removeProject(projectPath);
 }
 
 public void testMissingLibrary1() throws JavaModelException {
@@ -658,6 +671,7 @@ public void testMissingLibrary2() throws JavaModelException {
 	);
 
 	fullBuild();
+	env.waitForAutoBuild();
 	expectingSpecificProblemFor(
 		projectPath,
 		new Problem("", "The project was not built since its build path is incomplete. Cannot find the class file for java.lang.Object. Fix the build path then try building this project", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -680,6 +694,7 @@ public void testMissingLibrary2() throws JavaModelException {
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
 	incrementalBuild();
+	env.waitForAutoBuild();
 	expectingNoProblems();
 	expectingPresenceOf(new IPath[]{
 		bin.append("p2").append("Test1.class"), //$NON-NLS-1$ //$NON-NLS-2$
@@ -697,19 +712,23 @@ public void testMissingLibrary3() throws JavaModelException {
 	fullBuild();
 	expectingNoProblems();
 	project.setOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, CompilerOptions.WARNING);
+	env.waitForManualRefresh();
 	env.addLibrary(projectPath, projectPath.append("/lib/dummy.jar"), null, null);
 	fullBuild();
+	env.waitForAutoBuild();
 	expectingSpecificProblemFor(
 		projectPath,
 		new Problem("Build path", "Project 'Project' is missing required library: 'lib/dummy.jar'", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH,
 				IMarker.SEVERITY_WARNING));
 	project.setOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, CompilerOptions.ERROR);
+	env.waitForManualRefresh();
 	// force classpath change delta - should not have to do this
 	IClasspathEntry[] classpath = project.getRawClasspath();
 	IPath outputLocation;
 	project.setRawClasspath(null, outputLocation = project.getOutputLocation(), false, null);
 	project.setRawClasspath(classpath, outputLocation, false, null);
 	fullBuild();
+	env.waitForAutoBuild();
 	expectingSpecificProblemFor(
 		projectPath,
 		new Problem("", "The project cannot be built until build path errors are resolved", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR));
@@ -727,7 +746,9 @@ public void testMissingLibrary4() throws JavaModelException {
 	fullBuild();
 	expectingNoProblems();
 	env.addLibrary(projectPath, projectPath.append("/lib/dummy.jar"), null, null);
+	env.waitForManualRefresh();
 	fullBuild();
+	env.waitForAutoBuild();
 	expectingSpecificProblemFor(
 		projectPath,
 		new Problem("", "The project cannot be built until build path errors are resolved", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR));
@@ -735,7 +756,9 @@ public void testMissingLibrary4() throws JavaModelException {
 		projectPath,
 		new Problem("Build path", "Project 'Project' is missing required library: 'lib/dummy.jar'", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR));
 	project.setOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, CompilerOptions.WARNING);
+	env.waitForManualRefresh();
 	incrementalBuild();
+	env.waitForManualRefresh();
 	expectingSpecificProblemFor(
 		projectPath,
 		new Problem("Build path", "Project 'Project' is missing required library: 'lib/dummy.jar'", projectPath, -1, -1, CategorizedProblem.CAT_BUILDPATH,
@@ -761,7 +784,9 @@ public void testIncompatibleJdkLEvelOnProject() throws JavaModelException {
 
 	// Change project incompatible jdk level preferences to warning, perform incremental build and expect 1 problem
 	project.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, CompilerOptions.WARNING);
+	env.waitForManualRefresh();
 	incrementalBuild();
+	env.waitForAutoBuild();
 	long projectRuntimeJDKLevel = CompilerOptions.versionToJdkLevel(projectRuntime);
 	int max = classlibs.length;
 	List expectedProblems = new ArrayList();
@@ -777,7 +802,9 @@ public void testIncompatibleJdkLEvelOnProject() throws JavaModelException {
 
 	// Change project incompatible jdk level preferences to error, perform incremental build and expect 2 problems
 	project.setOption(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, CompilerOptions.ERROR);
+	env.waitForManualRefresh();
 	incrementalBuild();
+	env.waitForAutoBuild();
 
 	expectedProblems = new ArrayList();
 	for (int i = 0; i < max; i++) {
@@ -812,6 +839,7 @@ public void testIncompatibleJdkLEvelOnWksp() throws JavaModelException {
 
 		// Build it expecting no problem
 		fullBuild();
+		env.waitForAutoBuild();
 		expectingNoProblems();
 
 		// Build incompatible jdk level problem string
@@ -821,8 +849,9 @@ public void testIncompatibleJdkLEvelOnWksp() throws JavaModelException {
 		Arrays.sort(classlibs);
 		// Change workspace  incompatible jdk level preferences to warning, perform incremental build and expect 1 problem
 		preferences.put(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.WARNING);
+		env.waitForManualRefresh();
 		incrementalBuild();
-
+		env.waitForAutoBuild();
 		List expectedProblems = new ArrayList();
 		int max = classlibs.length;
 		for (int i = 0; i < max; i++) {
@@ -837,8 +866,9 @@ public void testIncompatibleJdkLEvelOnWksp() throws JavaModelException {
 
 		// Change workspace incompatible jdk level preferences to error, perform incremental build and expect 2 problems
 		preferences.put(JavaCore.CORE_INCOMPATIBLE_JDK_LEVEL, JavaCore.ERROR);
+		env.waitForManualRefresh();
 		incrementalBuild();
-
+		env.waitForAutoBuild();
 		expectedProblems = new ArrayList();
 		for (int i = 0; i < max; i++) {
 			String path = project.getPackageFragmentRoot(classlibs[i]).getPath().makeRelative().toString();
@@ -880,6 +910,7 @@ public void testMissingProject() throws JavaModelException {
 	env.removeProject(project1Path);
 
 	incrementalBuild();
+	env.waitForAutoBuild();
 	expectingOnlyProblemsFor(project2Path);
 	expectingOnlySpecificProblemsFor(project2Path,
 		new Problem[] {
@@ -892,6 +923,7 @@ public void testMissingProject() throws JavaModelException {
 	env.addExternalJars(project1Path, Util.getJavaClassLibs());
 
 	incrementalBuild();
+	env.waitForAutoBuild();
 	expectingNoProblems();
 
 	//----------------------------
@@ -900,9 +932,11 @@ public void testMissingProject() throws JavaModelException {
 	Hashtable options = JavaCore.getOptions();
 	options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.IGNORE);
 	JavaCore.setOptions(options);
+	env.waitForManualRefresh();
 	env.removeProject(project1Path);
 
 	incrementalBuild();
+	env.waitForAutoBuild();
 	expectingOnlyProblemsFor(project2Path);
 	expectingOnlySpecificProblemFor(project2Path,
 		new Problem("Build path", "Project 'MP2' is missing required Java project: 'MP1'", project2Path, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR) //$NON-NLS-1$ //$NON-NLS-2$
@@ -912,10 +946,10 @@ public void testMissingProject() throws JavaModelException {
 	env.addExternalJars(project1Path, Util.getJavaClassLibs());
 
 	incrementalBuild();
+	env.waitForAutoBuild();
 	expectingNoProblems();
-
-	options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.ABORT);
-	JavaCore.setOptions(options);
+	env.removeProject(project1Path);
+	env.removeProject(project2Path);
 }
 
 public void testMissingOptionalProject() throws JavaModelException {
@@ -949,9 +983,11 @@ public void testMissingOptionalProject() throws JavaModelException {
 	Hashtable options = JavaCore.getOptions();
 	options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.IGNORE);
 	JavaCore.setOptions(options);
+	env.waitForManualRefresh();
 	env.removeProject(project1Path);
 
 	incrementalBuild();
+	env.waitForAutoBuild();
 	expectingNoProblems();
 
 	project1Path = env.addProject("MP1"); //$NON-NLS-1$
@@ -959,9 +995,8 @@ public void testMissingOptionalProject() throws JavaModelException {
 
 	incrementalBuild();
 	expectingNoProblems();
-
-	options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.ABORT);
-	JavaCore.setOptions(options);
+	env.removeProject(project1Path);
+	env.removeProject(project2Path);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=160132
@@ -992,6 +1027,7 @@ public void test0100() throws JavaModelException {
 		"}");
 	incrementalBuild();
 	expectingNoProblems();
+	env.removeProject(projectPath);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=143025
@@ -1011,5 +1047,11 @@ public void testMissingOutputFolder() throws JavaModelException {
 	expectingPresenceOf(bin); // check that bin folder was recreated and is marked as derived
 	if (!env.getProject(projectPath).getFolder("bin").isDerived())
 		fail("output folder is not derived");
+	env.removeProject(projectPath);
+}
+@Override
+protected void tearDown() throws Exception {
+	super.tearDown();
+	JavaBuilder.DEBUG = false;
 }
 }

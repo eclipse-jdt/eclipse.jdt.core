@@ -27,10 +27,36 @@ import org.eclipse.core.runtime.ISafeRunnable;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SafeRunner;
-import org.eclipse.jdt.core.*;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.jdt.core.ElementChangedEvent;
+import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IElementChangedListener;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaElementDelta;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IOpenable;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeHierarchy;
+import org.eclipse.jdt.core.ITypeHierarchyChangedListener;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
-import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.ClassFile;
+import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.JavaModelStatus;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.Openable;
+import org.eclipse.jdt.internal.core.PackageFragment;
+import org.eclipse.jdt.internal.core.Region;
+import org.eclipse.jdt.internal.core.TypeVector;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -90,7 +116,7 @@ public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
 	/**
 	 * The progress monitor to report work completed too.
 	 */
-	protected IProgressMonitor progressMonitor = null;
+	protected SubMonitor progressMonitor = SubMonitor.convert(null);
 
 	/**
 	 * Change listeners - null if no one is listening.
@@ -1239,14 +1265,11 @@ protected boolean packageRegionContainsSamePackageFragment(PackageFragment eleme
  */
 public synchronized void refresh(IProgressMonitor monitor) throws JavaModelException {
 	try {
-		this.progressMonitor = monitor;
-		if (monitor != null) {
-			monitor.beginTask(
-					this.focusType != null ?
-							Messages.bind(Messages.hierarchy_creatingOnType, this.focusType.getFullyQualifiedName()) :
-							Messages.hierarchy_creating,
-					100);
-		}
+		this.progressMonitor = SubMonitor.convert(monitor,
+			this.focusType != null ?
+					Messages.bind(Messages.hierarchy_creatingOnType, this.focusType.getFullyQualifiedName()) :
+					Messages.hierarchy_creating,
+			100);
 		long start = -1;
 		if (DEBUG) {
 			start = System.currentTimeMillis();

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -160,6 +160,41 @@ public abstract class AbstractIndexer implements IIndexConstants {
 			}
 		}
 	}
+	public void addMethodDeclaration(
+			char[] typeName,
+			char[] declaringQualification,
+			char[] methodName,
+			int argCount,
+			char[] signature,
+			char[][] parameterTypes,
+			char[][] parameterNames,
+			char[] returnType,
+			int modifiers,
+			char[] packageName,
+			int typeModifiers,
+			char[][] exceptionTypes,
+			int extraFlags) {
+		try {
+			addIndexEntry(
+					METHOD_DECL_PLUS,
+					MethodDeclarationPattern.createDeclarationIndexKey(
+							typeName,
+							declaringQualification,
+							methodName,
+							argCount,
+							signature,
+							parameterTypes,
+							parameterNames,
+							returnType,
+							modifiers,
+							packageName,
+							typeModifiers,
+							extraFlags));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public void addMethodDeclaration(char[] methodName, char[][] parameterTypes, char[] returnType, char[][] exceptionTypes) {
 		int argCount = parameterTypes == null ? 0 : parameterTypes.length;
 		addIndexEntry(METHOD_DECL, MethodPattern.createIndexKey(methodName, argCount));

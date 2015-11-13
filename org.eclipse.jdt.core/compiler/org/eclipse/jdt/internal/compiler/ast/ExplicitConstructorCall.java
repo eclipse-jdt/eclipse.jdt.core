@@ -508,6 +508,11 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 		return null;
 	}
 	
+	@Override
+	public void cleanUpInferenceContexts() {
+		// Nothing to do.
+	}
+
 	public Expression[] arguments() {
 		return this.arguments;
 	}

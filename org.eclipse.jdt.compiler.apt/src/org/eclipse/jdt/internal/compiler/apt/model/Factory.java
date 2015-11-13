@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2014 BEA Systems, Inc. and others
+ * Copyright (c) 2007, 2015 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -89,7 +89,7 @@ public class Factory {
 		if (null == annotations || 0 == annotations.length) {
 			return Collections.emptyList();
 		}
-		List<AnnotationMirror> list = new ArrayList<AnnotationMirror>(annotations.length);
+		List<AnnotationMirror> list = new ArrayList<>(annotations.length);
 		for (AnnotationBinding annotation : annotations) {
 			if (annotation == null) continue;
 			list.add(newAnnotationMirror(annotation));
@@ -117,7 +117,7 @@ public class Factory {
 		String annoTypeName = annotationClass.getName();
 		if(annoTypeName == null ) return null;
 
-		List<A> list = new ArrayList<A>(annoInstances.length);
+		List<A> list = new ArrayList<>(annoInstances.length);
 		for(AnnotationBinding annoInstance : annoInstances) {
 			if (annoInstance == null)
 				continue;
@@ -805,7 +805,7 @@ public class Factory {
 						System.arraycopy(repackagedBindings, 0, repackagedBindings = new AnnotationBinding[length], 0, length);
 					repackagedBindings[j] = null; // so it is not double packed.
 					if (containees == null) {
-						containees = new ArrayList<AnnotationBinding>();
+						containees = new ArrayList<>();
 						containees.add(annotation);
 					}
 					containees.add(otherAnnotation);
@@ -843,7 +843,7 @@ public class Factory {
 		if (length == 0)
 			return annotations;
 		
-		List<AnnotationBinding> unpackedAnnotations = new ArrayList<AnnotationBinding>();
+		List<AnnotationBinding> unpackedAnnotations = new ArrayList<>();
 		for (int i = 0; i < length; i++) {
 			AnnotationBinding annotation = annotations[i];
 			if (annotation == null) continue;

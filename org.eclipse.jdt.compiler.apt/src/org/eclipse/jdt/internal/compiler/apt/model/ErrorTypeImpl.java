@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2013 IBM Corporation and others.
+ * Copyright (c) 2007, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -62,7 +62,7 @@ public class ErrorTypeImpl extends DeclaredTypeImpl implements ErrorType {
 			TypeBinding[] arguments = ptb.arguments;
 			int length = arguments == null ? 0 : arguments.length;
 			if (length == 0) return Collections.emptyList();
-			List<TypeMirror> args = new ArrayList<TypeMirror>(length);
+			List<TypeMirror> args = new ArrayList<>(length);
 			for (TypeBinding arg : arguments) {
 				args.add(_env.getFactory().newTypeMirror(arg));
 			}
@@ -70,7 +70,7 @@ public class ErrorTypeImpl extends DeclaredTypeImpl implements ErrorType {
 		}
 		if (binding.isGenericType()) {
 			TypeVariableBinding[] typeVariables = binding.typeVariables();
-			List<TypeMirror> args = new ArrayList<TypeMirror>(typeVariables.length);
+			List<TypeMirror> args = new ArrayList<>(typeVariables.length);
 			for (TypeBinding arg : typeVariables) {
 				args.add(_env.getFactory().newTypeMirror(arg));
 			}

@@ -659,7 +659,7 @@ public void testCycle2() throws JavaModelException {
 	);
 }
 /*
- * Ensures that creating a type hierarchy accross multiple project is efficient enough.
+ * Ensures that creating a type hierarchy accross multiple project checks for cancellation regularly.
  */
 public void testEfficiencyMultipleProjects() throws CoreException {
 	try {
@@ -681,7 +681,7 @@ public void testEfficiencyMultipleProjects() throws CoreException {
 		}
 		ProgressCounter counter = new ProgressCounter();
 		type.newTypeHierarchy(counter);
-		assertEquals("Unexpected work count", 85, counter.count);
+		assertTrue("Not enough cancellation checks", counter.count >= 85); 
 	} finally {
 		deleteProjects(new String[] {"P1", "P2", "P3"});
 	}
@@ -2361,7 +2361,7 @@ public void testBug215841() throws JavaModelException, CoreException, Interrupte
 		IType type = getClassFile("TypeHierarchy", getExternalJCLPathString(), "java.lang", "Throwable.class").getType();
 		LocalProgressMonitor monitor = new LocalProgressMonitor();
 		type.newTypeHierarchy(monitor);
-		assertEquals("Unexpected indexing of non-existent external jar file while building hierarchy!", 2, monitor.count);
+		assertEquals("Unexpected indexing of non-existent external jar file while building hierarchy!", 1, monitor.count);
 	} finally {
 		project.setRawClasspath(originalClasspath, null);
 	}

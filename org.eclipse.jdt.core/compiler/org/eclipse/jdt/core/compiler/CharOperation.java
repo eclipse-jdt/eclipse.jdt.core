@@ -8,6 +8,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Luiz-Otavio Zorzella <zorzella at gmail dot com> - Improve CamelCase algorithm
+ *     Gábor Kövesdán - Contribution for Bug 350000 - [content assist] Include non-prefix matches in auto-complete suggestions
  *******************************************************************************/
 package org.eclipse.jdt.core.compiler;
 
@@ -691,6 +692,94 @@ public static final boolean camelCaseMatch(char[] pattern, int patternStart, int
 		// At this point, either name has been exhausted, or it is at an uppercase letter.
 		// Since pattern is also at an uppercase letter
 	}
+}
+
+/**
+ * Answers true if the characters of the pattern are contained in the
+ * name as a substring, in a case-insensitive way.
+ *
+ * @param pattern the given pattern
+ * @param name the given name
+ * @return true if the pattern matches the given name, false otherwise
+ * @since 3.12
+ */
+public static final boolean substringMatch(String pattern, String name) {
+	if (pattern == null || pattern.length() == 0) {
+		return true;
+	}
+	if (name == null) {
+		return false;
+	}
+	return checkSubstringMatch(pattern.toCharArray(), name.toCharArray());
+}
+
+/**
+ * Answers true if the characters of the pattern are contained in the
+ * name as a substring, in a case-insensitive way.
+ *
+ * @param pattern the given pattern
+ * @param name the given name
+ * @return true if the pattern matches the given name, false otherwise
+ * @since 3.12
+ */
+public static final boolean substringMatch(char[] pattern, char[] name) {
+	if (pattern == null || pattern.length == 0) {
+		return true;
+	}
+	if (name == null) {
+		return false;
+	}
+	return checkSubstringMatch(pattern, name);
+}
+
+/**
+ * Internal substring matching method; called after the null and length
+ * checks are performed.
+ *
+ * @param pattern the given pattern
+ * @param name the given name
+ * @return true if the pattern matches the given name, false otherwise
+ *
+ * @see CharOperation#substringMatch(char[], char[])
+ */
+private static final boolean checkSubstringMatch(char[] pattern, char[] name) {
+
+/* XXX: to be revised/enabled
+
+	// allow non-consecutive occurrence of pattern characters
+	if (pattern.length >= 3) {
+		int pidx = 0;
+
+		for (int nidx = 0; nidx < name.length; nidx++) {
+			if (Character.toLowerCase(name[nidx]) ==
+					Character.toLowerCase(pattern[pidx]))
+				pidx++;
+			if (pidx == pattern.length)
+				return true;
+		}
+
+	// for short patterns only allow consecutive occurrence
+	} else {
+*/
+		// outer loop iterates on the characters of the name; trying to
+		// match at any possible position
+		outer: for (int nidx = 0; nidx < name.length - pattern.length + 1; nidx++) {
+			// inner loop iterates on pattern characters
+			for (int pidx = 0; pidx < pattern.length; pidx++) {
+				if (Character.toLowerCase(name[nidx + pidx]) !=
+						Character.toLowerCase(pattern[pidx])) {
+					// no match until parameter list; do not match parameter list
+					if ((name[nidx + pidx] == '(') || (name[nidx + pidx] == ':'))
+						return false;
+					continue outer;
+				}
+				if (pidx == pattern.length - 1)
+					return true;
+			}
+		}
+	// XXX: }
+
+	return false;
 }
 
 /**
@@ -1379,6 +1468,65 @@ public static final char[] concatWith(char[][] array, char separator) {
 			if (--size >= 0)
 				result[size] = separator;
 		}
+	}
+	return result;
+}
+
+/**
+ * Answers the concatenation of the given array parts using the given separator between each part 
+ * irrespective of whether an element is a zero length array or not.
+ * <br>
+ * <br>
+ * For example:<br>
+ * <ol>
+ * <li><pre>
+ *    array = { { 'a' }, {}, { 'b' } }
+ *    separator = ''
+ *    => result = { 'a', '/', '/', 'b' }
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    array = { { 'a' }, { 'b' } }
+ *    separator = '.'
+ *    => result = { 'a', '.', 'b' }
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    array = null
+ *    separator = '.'
+ *    => result = { }
+ * </pre></li>
+ * </ol>
+ *
+ * @param array the given array
+ * @param separator the given separator
+ * @return the concatenation of the given array parts using the given separator between each part
+ * @since 3.12
+ */
+public static final char[] concatWithAll(char[][] array, char separator) {
+	int length = array == null ? 0 : array.length;
+	if (length == 0)
+		return CharOperation.NO_CHAR;
+
+	int size = length - 1;
+	int index = length;
+	while (--index >= 0) {
+		size += array[index].length;
+	}
+	char[] result = new char[size];
+	index = length;
+	while (--index >= 0) {
+		length = array[index].length;
+		if (length > 0) {
+			System.arraycopy(
+				array[index],
+				0,
+				result,
+				(size -= length),
+				length);
+		}
+		if (--size >= 0)
+			result[size] = separator;
 	}
 	return result;
 }

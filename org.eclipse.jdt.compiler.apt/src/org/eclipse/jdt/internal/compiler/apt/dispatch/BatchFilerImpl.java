@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2011 BEA Systems, Inc. 
+ * Copyright (c) 2006, 2015 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,7 +47,7 @@ public class BatchFilerImpl implements Filer {
 		_dispatchManager = dispatchManager;
 		_fileManager = env._fileManager;
 		_env = env;
-		_createdFiles = new HashSet<URI>();
+		_createdFiles = new HashSet<>();
 	}
 
 	public void addNewUnit(ICompilationUnit unit) {

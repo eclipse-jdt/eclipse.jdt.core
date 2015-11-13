@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -103,7 +103,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
 
     public Collection<FieldDeclaration> getFields()
     {
-    	final List<FieldDeclaration> results = new ArrayList<FieldDeclaration>();
+    	final List<FieldDeclaration> results = new ArrayList<>();
     	final ITypeBinding typeBinding = getDeclarationBinding();
     	if( isFromSource() ){
     		final ASTNode node = 
@@ -144,7 +144,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
     public Collection<TypeDeclaration> getNestedTypes()
     {
         final ITypeBinding[] memberTypes = getDeclarationBinding().getDeclaredTypes();
-        final List<TypeDeclaration> results = new ArrayList<TypeDeclaration>(memberTypes.length);
+        final List<TypeDeclaration> results = new ArrayList<>(memberTypes.length);
         for( ITypeBinding type : memberTypes ){
             Declaration mirrorDecl = Factory.createReferenceType(type, _env);
             if( mirrorDecl != null )
@@ -156,7 +156,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
     public Collection<TypeParameterDeclaration> getFormalTypeParameters()
     {
         final ITypeBinding[] typeParams = getDeclarationBinding().getTypeParameters();
-        final List<TypeParameterDeclaration> results = new ArrayList<TypeParameterDeclaration>(typeParams.length);
+        final List<TypeParameterDeclaration> results = new ArrayList<>(typeParams.length);
         for( ITypeBinding typeParam : typeParams ){
             Declaration mirrorDecl = Factory.createDeclaration(typeParam, _env);
             if( mirrorDecl != null )
@@ -181,7 +181,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
         if( typeArgs == null || typeArgs.length == 0 )
     		return Collections.emptyList();
 
-        final Collection<TypeMirror> result = new ArrayList<TypeMirror>(typeArgs.length);
+        final Collection<TypeMirror> result = new ArrayList<>(typeArgs.length);
         for( ITypeBinding arg : typeArgs ){
             final TypeMirror mirror = Factory.createTypeMirror(arg, _env);
             if (mirror == null)
@@ -211,7 +211,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
         final ITypeBinding[] superInterfaceBindings = getDeclarationBinding().getInterfaces();
         if( superInterfaceBindings == null || superInterfaceBindings.length == 0 )
             return Collections.emptyList();
-        final List<InterfaceType> results = new ArrayList<InterfaceType>(superInterfaceBindings.length);
+        final List<InterfaceType> results = new ArrayList<>(superInterfaceBindings.length);
         for( ITypeBinding binding : superInterfaceBindings ){
             if( binding.isInterface() ){
                 final TypeDeclarationImpl mirrorDecl = Factory.createReferenceType(binding, _env);
@@ -282,7 +282,7 @@ public abstract class TypeDeclarationImpl extends MemberDeclarationImpl
 
     protected List<? extends MethodDeclaration> _getMethods()
     {
-    	final List<MethodDeclaration> results = new ArrayList<MethodDeclaration>();
+    	final List<MethodDeclaration> results = new ArrayList<>();
     	if( isFromSource() ){
     		// need to consult the ast since methods with broken signature 
     		// do not appear in bindings.

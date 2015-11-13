@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2011 IBM Corporation and others.
+ * Copyright (c) 2005, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,7 +55,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	 *
 	 */
 	private static final class SourceLocationComparator implements Comparator<Element> {
-		private final IdentityHashMap<ElementImpl, Integer> sourceStartCache = new IdentityHashMap<ElementImpl, Integer>();
+		private final IdentityHashMap<ElementImpl, Integer> sourceStartCache = new IdentityHashMap<>();
 
 		@Override
 		public int compare(Element o1, Element o2) {
@@ -146,7 +146,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	@Override
 	public List<? extends Element> getEnclosedElements() {
 		ReferenceBinding binding = (ReferenceBinding)_binding;
-		List<Element> enclosed = new ArrayList<Element>(binding.fieldCount() + binding.methods().length + binding.memberTypes().length);
+		List<Element> enclosed = new ArrayList<>(binding.fieldCount() + binding.methods().length + binding.memberTypes().length);
 		for (MethodBinding method : binding.methods()) {
 			ExecutableElement executable = new ExecutableElementImpl(_env, method);
 			enclosed.add(executable);
@@ -195,7 +195,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		if (null == binding.superInterfaces() || binding.superInterfaces().length == 0) {
 			return Collections.emptyList();
 		}
-		List<TypeMirror> interfaces = new ArrayList<TypeMirror>(binding.superInterfaces().length);
+		List<TypeMirror> interfaces = new ArrayList<>(binding.superInterfaces().length);
 		for (ReferenceBinding interfaceBinding : binding.superInterfaces()) {
 			TypeMirror interfaceType = _env.getFactory().newTypeMirror(interfaceBinding);
 			if (interfaceType.getKind() == TypeKind.ERROR) {
@@ -309,7 +309,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		if (variables.length == 0) {
 			return Collections.emptyList();
 		}
-		List<TypeParameterElement> params = new ArrayList<TypeParameterElement>(variables.length); 
+		List<TypeParameterElement> params = new ArrayList<>(variables.length); 
 		for (TypeVariableBinding variable : variables) {
 			params.add(_env.getFactory().newTypeParameterElement(variable, this));
 		}

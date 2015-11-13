@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2015 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,7 +70,7 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 		if (nameEnvironment instanceof FileSystem) {
 			typeNames = ((FileSystem) nameEnvironment).findTypeNames(binding.compoundName);
 		}
-		HashSet<Element> set = new HashSet<Element>(); 
+		HashSet<Element> set = new HashSet<>(); 
 		if (typeNames != null) {
 			for (char[][] typeName : typeNames) {
 				ReferenceBinding type = environment.getType(typeName);
@@ -79,7 +79,7 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 				}
 			}
 		}
-		ArrayList<Element> list = new ArrayList<Element>(set.size());
+		ArrayList<Element> list = new ArrayList<>(set.size());
 		list.addAll(set);
 		return Collections.unmodifiableList(list);
 	}

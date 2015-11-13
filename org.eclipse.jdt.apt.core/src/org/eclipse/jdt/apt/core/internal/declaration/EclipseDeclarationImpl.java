@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -88,7 +88,7 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
     {
         if( annoInstances == null || annoInstances.length == 0 ) 
         	return Collections.emptyList();
-        final List<AnnotationMirror> result = new ArrayList<AnnotationMirror>(annoInstances.length);
+        final List<AnnotationMirror> result = new ArrayList<>(annoInstances.length);
         for(IAnnotationBinding annoInstance : annoInstances){
         	if (annoInstance != null) {
 	            final AnnotationMirrorImpl annoMirror =
@@ -102,7 +102,7 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
 	Collection<AnnotationMirror> _getAnnotationMirrors(List<org.eclipse.jdt.core.dom.Annotation> annoInstances)
 	{
 		if( annoInstances == null || annoInstances.size() == 0 ) return Collections.emptyList();
-		final List<AnnotationMirror> result = new ArrayList<AnnotationMirror>(annoInstances.size());
+		final List<AnnotationMirror> result = new ArrayList<>(annoInstances.size());
 		for( org.eclipse.jdt.core.dom.Annotation annoInstance : annoInstances){
 			if (annoInstance != null) {
 				final AnnotationMirrorImpl annoMirror =

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 BEA Systems, Inc. and others.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -225,7 +225,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 			Messages.AptConfigurationBlock_remove
 		};
 		ProcessorOptionsAdapter optionsAdapter = new ProcessorOptionsAdapter();
-		fProcessorOptionsField = new ListDialogField<ProcessorOption>(optionsAdapter, buttons, new ProcessorOptionsLabelProvider());
+		fProcessorOptionsField = new ListDialogField<>(optionsAdapter, buttons, new ProcessorOptionsLabelProvider());
 		fProcessorOptionsField.setDialogFieldListener(optionsAdapter);
 		fProcessorOptionsField.setRemoveButtonIndex(IDX_REMOVE);
 		String[] columnHeaders= new String[] {
@@ -426,7 +426,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	 * @return true if they did.
 	 */
 	private boolean procOptionsChanged() {
-		Map<String, String> savedProcOptions = new HashMap<String, String>(fOriginalProcOptions);
+		Map<String, String> savedProcOptions = new HashMap<>(fOriginalProcOptions);
 		for (ProcessorOption o : getListElements()) {
 			final String savedVal = savedProcOptions.get(o.key);
 			if (savedVal != null && savedVal.equals(o.value)) {
@@ -559,7 +559,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	 * Save the contents of the options list.
 	 */
 	private void saveProcessorOptions(List<ProcessorOption> elements) {
-		Map<String, String> map = new LinkedHashMap<String, String>(elements.size());
+		Map<String, String> map = new LinkedHashMap<>(elements.size());
 		for (ProcessorOption o : elements) {
 			map.put(o.key, (o.value.length() > 0) ? o.value : null);
 		}
@@ -570,7 +570,7 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	 * Set the processor options list contents
 	 */
 	private void loadProcessorOptions(IJavaProject jproj) {
-		List<ProcessorOption> options= new ArrayList<ProcessorOption>();
+		List<ProcessorOption> options= new ArrayList<>();
 		Map<String, String> parsedOptions = AptConfig.getRawProcessorOptions(jproj);
 		for (Map.Entry<String, String> entry : parsedOptions.entrySet()) {
 			ProcessorOption o = new ProcessorOption();

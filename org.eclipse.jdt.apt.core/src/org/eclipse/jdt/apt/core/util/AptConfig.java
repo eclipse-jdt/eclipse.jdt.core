@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -168,7 +168,7 @@ public class AptConfig {
     public static Map<String, String> getProcessorOptions(IJavaProject jproj) {
     	Map<String,String> rawOptions = getRawProcessorOptions(jproj);
     	// map is large enough to also include the programmatically generated options
-    	Map<String, String> options = new HashMap<String, String>(rawOptions.size() + 6);
+    	Map<String, String> options = new HashMap<>(rawOptions.size() + 6);
     	
     	// Resolve path metavariables like %ROOT%
     	for (Map.Entry<String, String> entry : rawOptions.entrySet()) {
@@ -187,12 +187,12 @@ public class AptConfig {
     	// Add sourcepath and classpath variables
     	try {
     		IClasspathEntry[] classpathEntries = jproj.getResolvedClasspath(true);
-    		Set<String> classpath = new LinkedHashSet<String>();
-    		Set<String> sourcepath = new LinkedHashSet<String>();
+    		Set<String> classpath = new LinkedHashSet<>();
+    		Set<String> sourcepath = new LinkedHashSet<>();
     		
     		// For projects on the classpath, loops can exist; need to make sure we 
     		// don't loop forever
-    		Set<IJavaProject> projectsProcessed = new HashSet<IJavaProject>();
+    		Set<IJavaProject> projectsProcessed = new HashSet<>();
     		projectsProcessed.add(jproj);
     		for (IClasspathEntry entry : classpathEntries) {
     			int kind = entry.getEntryKind();
@@ -478,7 +478,7 @@ public class AptConfig {
      * The value part can contain spaces, if it is quoted: -Afoo="bar baz".
      */
 	public static Map<String, String> getRawProcessorOptions(IJavaProject jproj) {
-		Map<String, String> options = new HashMap<String, String>();
+        Map<String, String> options = new HashMap<>();
 		
 	    // TODO: this code is needed only for backwards compatibility with
 	    // settings files previous to 2005.11.13.  At some point it should be
@@ -532,7 +532,7 @@ public class AptConfig {
 		Map<String, String> options;
 		String allOptions = getString(jproj, AptPreferenceConstants.APT_PROCESSOROPTIONS);
 		if (null == allOptions) {
-    		options = new HashMap<String, String>();
+    		options = new HashMap<>();
     	}
     	else {
     		ProcessorOptionsParser op = new ProcessorOptionsParser(allOptions);
@@ -562,7 +562,7 @@ public class AptConfig {
     	}
     	
      	public Map<String, String> parse() {
-        	Map<String, String> options = new HashMap<String, String>();
+        	Map<String, String> options = new HashMap<>();
         	String key;
         	while (null != (key = parseKey())) {
        			options.put(key, parseVal());

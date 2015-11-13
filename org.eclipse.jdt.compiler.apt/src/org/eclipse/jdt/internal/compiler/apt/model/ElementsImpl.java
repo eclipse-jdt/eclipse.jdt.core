@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2013 BEA Systems, Inc. and others
+ * Copyright (c) 2006, 2015 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,9 +86,9 @@ public class ElementsImpl implements Elements {
 	public List<? extends AnnotationMirror> getAllAnnotationMirrors(Element e) {
 		// if e is a class, walk up its superclass hierarchy looking for @Inherited annotations not already in the list
 		if (e.getKind() == ElementKind.CLASS && e instanceof TypeElementImpl) {
-			List<AnnotationBinding> annotations = new ArrayList<AnnotationBinding>();
+			List<AnnotationBinding> annotations = new ArrayList<>();
 			// A class can only have one annotation of a particular annotation type.
-			Set<ReferenceBinding> annotationTypes = new HashSet<ReferenceBinding>();
+			Set<ReferenceBinding> annotationTypes = new HashSet<>();
 			ReferenceBinding binding = (ReferenceBinding)((TypeElementImpl)e)._binding;
 			boolean checkIfInherited = false;
 			while (null != binding) {
@@ -108,7 +108,7 @@ public class ElementsImpl implements Elements {
 				binding = binding.superclass();
 				checkIfInherited = true;
 			}
-			List<AnnotationMirror> list = new ArrayList<AnnotationMirror>(annotations.size());
+			List<AnnotationMirror> list = new ArrayList<>(annotations.size());
 			for (AnnotationBinding annotation : annotations) {
 				list.add(_env.getFactory().newAnnotationMirror(annotation));
 			}
@@ -144,16 +144,16 @@ public class ElementsImpl implements Elements {
 		}
 		ReferenceBinding binding = (ReferenceBinding)((TypeElementImpl)type)._binding;
 		// Map of element simple name to binding
-		Map<String, ReferenceBinding> types = new HashMap<String, ReferenceBinding>();
+		Map<String, ReferenceBinding> types = new HashMap<>();
 		// Javac implementation does not take field name collisions into account
-		List<FieldBinding> fields = new ArrayList<FieldBinding>();
+		List<FieldBinding> fields = new ArrayList<>();
 		// For methods, need to compare parameters, not just names
-		Map<String, Set<MethodBinding>> methods = new HashMap<String, Set<MethodBinding>>();
-		Set<ReferenceBinding> superinterfaces = new LinkedHashSet<ReferenceBinding>();
+		Map<String, Set<MethodBinding>> methods = new HashMap<>();
+		Set<ReferenceBinding> superinterfaces = new LinkedHashSet<>();
 		boolean ignoreVisibility = true;
 		while (null != binding) {
 			addMembers(binding, ignoreVisibility, types, fields, methods);
-			Set<ReferenceBinding> newfound = new LinkedHashSet<ReferenceBinding>();
+			Set<ReferenceBinding> newfound = new LinkedHashSet<>();
 			collectSuperInterfaces(binding, superinterfaces, newfound);
 			for (ReferenceBinding superinterface : newfound) {
 				addMembers(superinterface, false, types, fields, methods);
@@ -162,7 +162,7 @@ public class ElementsImpl implements Elements {
 			binding = binding.superclass();
 			ignoreVisibility = false;
 		}
-		List<Element> allMembers = new ArrayList<Element>();
+		List<Element> allMembers = new ArrayList<>();
 		for (ReferenceBinding nestedType : types.values()) {
 			allMembers.add(_env.getFactory().newElement(nestedType));
 		}
@@ -229,7 +229,7 @@ public class ElementsImpl implements Elements {
 				if (null == sameNamedMethods) {
 					// New method name.  Create a set for it and add it to the list.
 					// We don't expect many methods with same name, so only 4 slots:
-					sameNamedMethods = new HashSet<MethodBinding>(4);
+					sameNamedMethods = new HashSet<>(4);
 					methods.put(methodName, sameNamedMethods);
 					sameNamedMethods.add(method);
 				}

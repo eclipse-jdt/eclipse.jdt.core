@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 BEA Systems, Inc. and others
+ * Copyright (c) 2005, 2015 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -337,7 +337,7 @@ public class Factory
 		{
 			final Object[] elements = (Object[])domValue;
 			final int len = elements.length;
-            final List<AnnotationValue> annoValues = new ArrayList<AnnotationValue>(len);
+            final List<AnnotationValue> annoValues = new ArrayList<>(len);
             final TypeMirror leaf; 
             if( expectedType instanceof ArrayType )
             	leaf = ((ArrayType)expectedType).getComponentType();

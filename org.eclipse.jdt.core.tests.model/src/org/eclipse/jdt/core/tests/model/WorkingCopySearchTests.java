@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -449,6 +449,124 @@ public class WorkingCopySearchTests extends JavaSearchTests {
 			"src/wc/X.java wc.X [X]",
 			this.resultCollector);
 
+	}
+	/*
+	 * Search all method names in working copies test (without reconciling working copies).
+	 */
+	public void testBug478042_dirtyWC_001() throws CoreException {
+		this.workingCopy.getBuffer().setContents(
+				"package p478042;\n" +
+				"public class AllMethodDeclarations01 {\n" +
+				"  public void foo01() {}\n" +
+				"  public int foo02(Object o) {return 0;}\n" +
+				"  public char foo03(Object o, String s) {return '0';}\n" +
+				"}\n"
+		);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
+		SearchTests.SearchMethodNameRequestor requestor = new SearchTests.SearchMethodNameRequestor();
+		new SearchEngine(new ICompilationUnit[] {this.workingCopy}).searchAllMethodNames(
+				"p478042".toCharArray(), SearchPattern.R_EXACT_MATCH, //package
+				null, SearchPattern.R_EXACT_MATCH,  // declaring Qualification
+				"AllMethod".toCharArray(), SearchPattern.R_PREFIX_MATCH, // declaring SimpleType
+				"foo".toCharArray(), SearchPattern.R_PREFIX_MATCH, 
+				scope, requestor, 
+				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+		assertSearchResults(
+				"/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
+				"/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
+				"/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.foo01()",
+				requestor
+		);
+	}
+	/*
+	 * Search all method names in working copies test (without reconciling working copies).
+	 */
+	public void testBug478042_dirtyWC_002() throws CoreException {
+		this.workingCopy.getBuffer().setContents(
+				"package p478042;\n" +
+				"public class AllMethodDeclarations01 {\n" +
+				"public class Nested {\n" +
+				"  public void foo01() {}\n" +
+				"  public int foo02(Object o) {return 0;}\n" +
+				"  public char foo03(Object o, String s) {return '0';}\n" +
+				"}\n" +
+				"}\n"
+		);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
+		SearchTests.SearchMethodNameRequestor requestor = new SearchTests.SearchMethodNameRequestor();
+		new SearchEngine(new ICompilationUnit[] {this.workingCopy}).searchAllMethodNames(
+				"p478042".toCharArray(), SearchPattern.R_EXACT_MATCH, //package
+				"AllMethod".toCharArray(), SearchPattern.R_PREFIX_MATCH,  // declaring Qualification
+				"Nested".toCharArray(), SearchPattern.R_EXACT_MATCH, // declaring SimpleType
+				"foo".toCharArray(), SearchPattern.R_PREFIX_MATCH, 
+				scope, requestor, 
+				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+		assertSearchResults(
+				"/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.Nested.foo03(Object o,String s)\n" + 
+				"/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.Nested.foo02(Object o)\n" + 
+				"/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.Nested.foo01()",
+				requestor
+		);
+	}
+	/*
+	 * Search all method names in working copies test (without reconciling working copies).
+	 */
+	public void testBug478042_dirtyWC_003() throws CoreException {
+		this.workingCopy.getBuffer().setContents(
+				"package p478042;\n" +
+				"public class AllMethodDeclarations01 {\n" +
+				"public class Nested {\n" +
+				"public class Inner {\n" +
+				"  public void foo01() {}\n" +
+				"  public int foo02(Object o) {return 0;}\n" +
+				"  public char foo03(Object o, String s) {return '0';}\n" +
+				"}\n" +
+				"}\n" +
+				"}\n"
+		);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
+		SearchTests.SearchMethodNameRequestor requestor = new SearchTests.SearchMethodNameRequestor();
+		new SearchEngine(new ICompilationUnit[] {this.workingCopy}).searchAllMethodNames(
+				"p478042".toCharArray(), SearchPattern.R_EXACT_MATCH, //package
+				"AllMethod".toCharArray(), SearchPattern.R_PREFIX_MATCH,  // declaring Qualification
+				"Inner".toCharArray(), SearchPattern.R_EXACT_MATCH, // declaring SimpleType
+				"foo".toCharArray(), SearchPattern.R_PREFIX_MATCH, 
+				scope, requestor, 
+				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+		assertSearchResults(
+				"/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.Nested.Inner.foo03(Object o,String s)\n" + 
+				"/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.Nested.Inner.foo02(Object o)\n" + 
+				"/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.Nested.Inner.foo01()",
+				requestor
+		);
+	}
+	/*
+	 * Search all method names in working copies test (without reconciling working copies).
+	 */
+	public void testBug478042_dirtyWC_004() throws CoreException {
+		this.workingCopy.getBuffer().setContents(
+				"package p478042;\n" +
+				"public class AllMethodDeclarations01 {\n" +
+				"  public void foo01() {}\n" +
+				"  public int foo02(Object o) {return 0;}\n" +
+				"  public char foo03(Object o, String s) {return '0';}\n" +
+				"}\n"
+		);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {this.workingCopy.getParent()});
+		SearchTests.SearchMethodNameRequestor requestor = new SearchTests.SearchMethodNameRequestor();
+		new SearchEngine(new ICompilationUnit[] {this.workingCopy}).searchAllMethodNames(
+				"p478042".toCharArray(), SearchPattern.R_EXACT_MATCH, //package
+				null, SearchPattern.R_EXACT_MATCH,  // declaring Qualification
+				"AllMethod".toCharArray(), SearchPattern.R_PREFIX_MATCH, // declaring SimpleType
+				"foo".toCharArray(), SearchPattern.R_PREFIX_MATCH, 
+				scope, requestor, 
+				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+		assertSearchResults(
+				"/JavaSearch/src/wc/X.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
+				"/JavaSearch/src/wc/X.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
+				"/JavaSearch/src/wc/X.java void p478042.AllMethodDeclarations01.foo01()",
+				requestor
+		);
 	}
 
 }

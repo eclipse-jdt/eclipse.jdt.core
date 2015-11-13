@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -88,7 +88,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, EclipseMirrorObje
 		}
 
 		final Map<AnnotationTypeElementDeclaration, AnnotationValue> result =
-			new LinkedHashMap<AnnotationTypeElementDeclaration, AnnotationValue>(pairs.length * 4 / 3 + 1 );
+			new LinkedHashMap<>(pairs.length * 4 / 3 + 1 );
 		for( IMemberValuePairBinding pair : pairs ){
 			 final String name = pair.getName();
              if( name == null ) continue;

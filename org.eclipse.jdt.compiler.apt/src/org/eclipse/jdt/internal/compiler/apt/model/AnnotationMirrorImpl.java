@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 IBM Corporation and others.
+ * Copyright (c) 2005, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -115,7 +115,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 		}
 		ElementValuePair[] pairs = _binding.getElementValuePairs();
 		Map<ExecutableElement, AnnotationValue> valueMap =
-			new LinkedHashMap<ExecutableElement, AnnotationValue>(pairs.length);
+			new LinkedHashMap<>(pairs.length);
 		for (ElementValuePair pair : pairs) {
 			MethodBinding method = pair.getMethodBinding();
 			if (method == null) {
@@ -141,7 +141,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 		ElementValuePair[] pairs = _binding.getElementValuePairs();
 		ReferenceBinding annoType = _binding.getAnnotationType();
 		Map<ExecutableElement, AnnotationValue> valueMap =
-			new LinkedHashMap<ExecutableElement, AnnotationValue>();
+			new LinkedHashMap<>();
 		for (MethodBinding method : annoType.methods()) {
 			// if binding is in ElementValuePair list, then get value from there
 			boolean foundExplicitValue = false;
@@ -323,7 +323,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 				if (actualType.isArrayType() && actualValue instanceof Object[] &&
 						((ArrayBinding)actualType).leafComponentType.erasure().id == TypeIds.T_JavaLangClass) {
 					Object[] bindings = (Object[])actualValue;
-					List<TypeMirror> mirrors = new ArrayList<TypeMirror>(bindings.length);
+					List<TypeMirror> mirrors = new ArrayList<>(bindings.length);
 					for (int i = 0; i < bindings.length; ++i) {
 						if (bindings[i] instanceof TypeBinding) {
 							mirrors.add(_env.getFactory().newTypeMirror((TypeBinding)bindings[i]));

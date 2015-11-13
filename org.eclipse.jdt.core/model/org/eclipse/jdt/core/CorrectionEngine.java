@@ -236,7 +236,7 @@ public class CorrectionEngine {
 	private void correct(char[] argument) {
 		try {
 			String source = this.compilationUnit.getSource();
-			Map currentProjectOptions = this.compilationUnit.getJavaProject().getOptions(true);
+			Map<String,String> currentProjectOptions = this.compilationUnit.getJavaProject().getOptions(true);
 			long sourceLevel = CompilerOptions.versionToJdkLevel(currentProjectOptions.get(JavaCore.COMPILER_SOURCE));
 			long complianceLevel = CompilerOptions.versionToJdkLevel(currentProjectOptions.get(JavaCore.COMPILER_COMPLIANCE));
 			

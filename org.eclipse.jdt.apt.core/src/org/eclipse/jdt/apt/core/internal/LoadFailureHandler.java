@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2008 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,8 +33,8 @@ import org.eclipse.jdt.core.IJavaProject;
 public class LoadFailureHandler {
 	
 	private final IProject _project;
-	private final List<String> _missingLibraries = new ArrayList<String>();
-	private final List<String> _failedFactories = new ArrayList<String>();
+	private final List<String> _missingLibraries = new ArrayList<>();
+	private final List<String> _failedFactories = new ArrayList<>();
 	
 	public LoadFailureHandler(IJavaProject proj) {
 		_project = proj.getProject();

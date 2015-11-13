@@ -105,5 +105,16 @@ public void test4() {
 		JavaCore.setOptions(options);
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=464845
+public void test5() {
+	assertTrue(JavaCore.compareJavaVersions("1.1", "1.3") < 0);
+	assertTrue(JavaCore.compareJavaVersions("1.4", "1.1") > 0);
+	assertTrue(JavaCore.compareJavaVersions("1.8", "cldc1.1") > 0);
+	assertTrue(JavaCore.compareJavaVersions("cldc1.1", "1.1") > 0);
+	assertTrue(JavaCore.compareJavaVersions("1.1", "cldc1.1") < 0);
+	assertTrue(JavaCore.compareJavaVersions("1.8", "1.8") == 0);
+	assertTrue(JavaCore.compareJavaVersions("1.8", "1.9") < 0);
+	assertTrue(JavaCore.compareJavaVersions("1.9", "1.8") > 0);
+}
 }
 

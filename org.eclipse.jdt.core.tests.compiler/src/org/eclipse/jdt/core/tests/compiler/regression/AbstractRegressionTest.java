@@ -357,7 +357,19 @@ protected static class JavacTestOptions {
 			EclipseWarningConfiguredAsError = RUN_JAVAC ?
 				new Excuse(MismatchType.EclipseErrorsJavacWarnings | MismatchType.EclipseErrorsJavacNone) : null,
 			JavacCompilesBogusReferencedFileAgain = RUN_JAVAC ?
-				new Excuse(MismatchType.JavacErrorsEclipseNone) : null;
+				new Excuse(MismatchType.JavacErrorsEclipseNone) : null,
+				// bugs not found on javac bug site, but points to a javac bug.
+			JavacDoesNotCompileCorrectSource = RUN_JAVAC ?
+				new JavacHasABug(MismatchType.JavacErrorsEclipseNone) : null,
+			/* A General Excuse - Revisit periodically */
+			JavacCompilesIncorrectSource = RUN_JAVAC ?
+				new JavacHasABug(MismatchType.EclipseErrorsJavacNone |
+						MismatchType.EclipseErrorsJavacWarnings |
+						MismatchType.EclipseWarningsJavacNone) : null,
+			JavacGeneratesIncorrectCode = RUN_JAVAC ?
+					new JavacHasABug(MismatchType.StandardOutputMismatch) : null,
+			JavacHasWarningsEclipseNotConfigured = RUN_JAVAC ?
+					new JavacHasABug(MismatchType.JavacWarningsEclipseNone) : null;
 	}
 	Excuse excuseFor(JavacCompiler compiler) {
 		return null;
@@ -418,7 +430,18 @@ protected static class JavacTestOptions {
 					Excuse excuseFor(JavacCompiler compiler) {
 						return compiler.compliance > ClassFileConstants.JDK1_5 ? this : null;
 					}
-				}: null;
+				}: null,
+			EclipseBug424410 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424410
+				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
+			EclipseBug427719 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427719
+				new EclipseHasABug(MismatchType.JavacErrorsEclipseWarnings) : null,
+			EclipseBug427745 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427745
+				new EclipseHasABug(MismatchType.StandardOutputMismatch) : null,
+			EclipseBug421922 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421922
+						new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) : null,
+			EclipseBug428061 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428061
+								new EclipseHasABug(MismatchType.JavacErrorsEclipseNone |
+										MismatchType.JavacErrorsEclipseWarnings) : null;
 	}
 	// Justification based upon:
 	// - Eclipse bugs opened to investigate differences and closed as INVALID
@@ -629,7 +652,10 @@ protected static class JavacTestOptions {
 			JavacBug6575821 = RUN_JAVAC ? // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6575821
 				new JavacHasABug(
 					MismatchType.JavacErrorsEclipseNone,
-					ClassFileConstants.JDK1_6, 10 /* 1.6.0_10_b08 or better - maybe before */) : null;
+					ClassFileConstants.JDK1_6, 10 /* 1.6.0_10_b08 or better - maybe before */) : null,
+			JavacBug8033810 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8033810
+				new JavacHasABug(MismatchType.EclipseErrorsJavacNone) : null;
+
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
 			JavacBugFixed_6_10 = RUN_JAVAC ?
@@ -1261,6 +1287,9 @@ protected static class JavacTestOptions {
 	}
 
 	protected void runConformTest(String[] testFiles, String expectedOutputString) {
+		runConformTest(false, JavacTestOptions.DEFAULT, testFiles, expectedOutputString);
+	}
+	protected void runConformTest(boolean skipJavac, JavacTestOptions javacTestOptions, String[] testFiles, String expectedOutputString) {
 		runTest(
 			// test directory preparation
 			true /* flush output directory */,
@@ -1280,7 +1309,8 @@ protected static class JavacTestOptions {
 			expectedOutputString /* expected output string */,
 			null /* do not check error string */,
 			// javac options
-			JavacTestOptions.DEFAULT /* default javac test options */);
+			skipJavac ? JavacTestOptions.SKIP :
+				javacTestOptions != null ? javacTestOptions : JavacTestOptions.DEFAULT /* default javac test options */);
 	}
 	protected void runConformTest(String[] testFiles, Map customOptions) {
 		runTest(
@@ -1929,33 +1959,49 @@ protected void runJavac(
 //	// compiler results
 //	"" /* expected compiler log */);
 protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		runTest(
-	 		// test directory preparation
-			true /* flush output directory */,
-			testFiles /* test files */,
-			// compiler options
-			null /* no class libraries */,
-			null /* no custom options */,
-			false /* do not perform statements recovery */,
-			new Requestor( /* custom requestor */
-					false,
-					null /* no custom requestor */,
-					false,
-					false),
-			// compiler results
-			expectedCompilerLog == null || /* expecting compiler errors */
-				expectedCompilerLog.indexOf("ERROR") != -1,
-			expectedCompilerLog /* expected compiler log */,
-			// runtime options
-			false /* do not force execution */,
-			null /* no vm arguments */,
-			// runtime results
-			null /* do not check output string */,
-			null /* do not check error string */,
-			// javac options
-			JavacTestOptions.DEFAULT /* default javac test options */);
-	}
+	runNegativeTest(false/*skipJavac*/, null, testFiles, expectedCompilerLog);
+}
+//runNegativeTest(
+// skipJavac
+// javacTestOptions
+//// test directory preparation
+//new String[] { /* test files */
+//	},
+//// compiler results
+//"" /* expected compiler log */);
+protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOptions, String[] testFiles, String expectedCompilerLog) {
+	runTest(
+ 		// test directory preparation
+		true /* flush output directory */,
+		testFiles /* test files */,
+		// compiler options
+		null /* no class libraries */,
+		null /* no custom options */,
+		false /* do not perform statements recovery */,
+		new Requestor( /* custom requestor */
+				false,
+				null /* no custom requestor */,
+				false,
+				false),
+		// compiler results
+		expectedCompilerLog == null || /* expecting compiler errors */
+			expectedCompilerLog.indexOf("ERROR") != -1,
+		expectedCompilerLog /* expected compiler log */,
+		// runtime options
+		false /* do not force execution */,
+		null /* no vm arguments */,
+		// runtime results
+		null /* do not check output string */,
+		null /* do not check error string */,
+		// javac options
+		skipJavac ? JavacTestOptions.SKIP :
+			javacTestOptions != null ? javacTestOptions :
+		JavacTestOptions.DEFAULT /* default javac test options */);
+}
 protected void runNegativeTest(String[] testFiles, String expectedCompilerLog, boolean performStatementRecovery) {
+	runNegativeTest(false/*skipJavac*/, null, testFiles, expectedCompilerLog, performStatementRecovery);
+}
+protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOptions, String[] testFiles, String expectedCompilerLog, boolean performStatementRecovery) {
 	runTest(
  		// test directory preparation
 		true /* flush output directory */,
@@ -1980,6 +2026,8 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog, b
 		null /* do not check output string */,
 		null /* do not check error string */,
 		// javac options
+		skipJavac ? JavacTestOptions.SKIP :
+			javacTestOptions != null ? javacTestOptions :
 		JavacTestOptions.DEFAULT /* default javac test options */);
 }
 	// WORK potential elimination candidate (24 calls) - else clean up inline
@@ -1988,32 +2036,41 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog, b
 		String expectedProblemLog,
 		String[] classLib,
 		boolean shouldFlushOutputDirectory) {
-		runTest(
-			shouldFlushOutputDirectory,
-			testFiles,
-			classLib,
-			null,
-			false,
-			new Requestor( /* custom requestor */
-					false,
-					null /* no custom requestor */,
-					false,
-					false),
-			// compiler results
-			expectedProblemLog == null || /* expecting compiler errors */
-				expectedProblemLog.indexOf("ERROR") != -1,
-			expectedProblemLog,
-			// runtime options
-			false /* do not force execution */,
-			null /* no vm arguments */,
-			// runtime results
-			null /* do not check output string */,
-			null /* do not check error string */,
-			// javac options
-			/* false ?
-					JavacTestOptions.SKIP :*/
-					JavacTestOptions.DEFAULT /* javac test options */);
+		runNegativeTest(false, null, testFiles, expectedProblemLog, classLib, shouldFlushOutputDirectory);
 	}
+	protected void runNegativeTest(
+			boolean skipJavac,
+			JavacTestOptions javacTestOptions,
+			String[] testFiles,
+			String expectedProblemLog,
+			String[] classLib,
+			boolean shouldFlushOutputDirectory) {
+			runTest(
+				shouldFlushOutputDirectory,
+				testFiles,
+				classLib,
+				null,
+				false,
+				new Requestor( /* custom requestor */
+						false,
+						null /* no custom requestor */,
+						false,
+						false),
+				// compiler results
+				expectedProblemLog == null || /* expecting compiler errors */
+					expectedProblemLog.indexOf("ERROR") != -1,
+				expectedProblemLog,
+				// runtime options
+				false /* do not force execution */,
+				null /* no vm arguments */,
+				// runtime results
+				null /* do not check output string */,
+				null /* do not check error string */,
+				// javac options
+				skipJavac ? JavacTestOptions.SKIP :
+					javacTestOptions != null ? javacTestOptions :
+						JavacTestOptions.DEFAULT /* javac test options */);
+		}
 	protected void runNegativeTest(
 		String[] testFiles,
 		String expectedCompilerLog,
@@ -2046,6 +2103,42 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog, b
 			// javac options
 			JavacTestOptions.DEFAULT /* default javac test options */);
 	}
+	protected void runNegativeTest(
+			boolean skipJavac,
+			JavacTestOptions javacTestOptions,
+			String[] testFiles,
+			String expectedCompilerLog,
+			String[] classLibraries,
+			boolean shouldFlushOutputDirectory,
+			Map customOptions) {
+			runTest(
+		 		// test directory preparation
+				shouldFlushOutputDirectory /* should flush output directory */,
+				testFiles /* test files */,
+				// compiler options
+				classLibraries /* class libraries */,
+				customOptions /* custom options */,
+				false /* do not perform statements recovery */,
+				new Requestor( /* custom requestor */
+						false,
+						null /* no custom requestor */,
+						false,
+						false),
+				// compiler results
+				expectedCompilerLog == null || /* expecting compiler errors */
+					expectedCompilerLog.indexOf("ERROR") != -1,
+				expectedCompilerLog /* expected compiler log */,
+				// runtime options
+				false /* do not force execution */,
+				null /* no vm arguments */,
+				// runtime results
+				null /* do not check output string */,
+				null /* do not check error string */,
+				// javac options
+				skipJavac ? JavacTestOptions.SKIP :
+				javacTestOptions != null ? javacTestOptions :
+				JavacTestOptions.DEFAULT /* default javac test options */);
+		}
 	protected void runNegativeTest(
 			String[] testFiles,
 			String expectedCompilerLog,

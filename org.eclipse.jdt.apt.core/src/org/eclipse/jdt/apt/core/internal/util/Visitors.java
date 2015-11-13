@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2013 BEA Systems, Inc.
+ * Copyright (c) 2005, 2015 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -185,7 +185,7 @@ public class Visitors {
             for( IExtendedModifier extMod : extMods ){
                 if( extMod.isAnnotation() ){
 					if( annos == null ){
-                        annos = new ArrayList<Annotation>(2);
+                        annos = new ArrayList<>(2);
                         _result.put(node, annos);
 					}
                     annos.add((Annotation)extMod);
@@ -203,7 +203,7 @@ public class Visitors {
             for( IExtendedModifier extMod : extMods ){
                 if( extMod.isAnnotation() ){
 					if( annos == null ){
-                        annos = new ArrayList<Annotation>(2);
+                        annos = new ArrayList<>(2);
                         _result.put(node, annos);
 					}
                     annos.add((Annotation)extMod);

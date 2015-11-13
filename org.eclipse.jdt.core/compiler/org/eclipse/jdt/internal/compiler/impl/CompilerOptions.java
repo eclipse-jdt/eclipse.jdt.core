@@ -515,7 +515,7 @@ public class CompilerOptions {
 	 * Initializing the compiler options with external settings
 	 * @param settings
 	 */
-	public CompilerOptions(Map settings){
+	public CompilerOptions(Map<String, String> settings){
 		resetDefaults();
 		if (settings != null) {
 			set(settings);
@@ -733,40 +733,38 @@ public class CompilerOptions {
 		return Util.EMPTY_STRING; // unknown version
 	}
 
-	public static long versionToJdkLevel(Object versionID) {
-		if (versionID instanceof String) {
-			String version = (String) versionID;
-			// verification is optimized for all versions with same length and same "1." prefix
-			if (version.length() == 3 && version.charAt(0) == '1' && version.charAt(1) == '.') {
-				switch (version.charAt(2)) {
-					case '1':
-						return ClassFileConstants.JDK1_1;
-					case '2':
-						return ClassFileConstants.JDK1_2;
-					case '3':
-						return ClassFileConstants.JDK1_3;
-					case '4':
-						return ClassFileConstants.JDK1_4;
-					case '5':
-						return ClassFileConstants.JDK1_5;
-					case '6':
-						return ClassFileConstants.JDK1_6;
-					case '7':
-						return ClassFileConstants.JDK1_7;
-					case '8':
-						return ClassFileConstants.JDK1_8;
-					case '9':
-						return ClassFileConstants.JDK1_9;
-					default:
-						return 0; // unknown
-				}
+	public static long versionToJdkLevel(String versionID) {
+		String version = versionID;
+		// verification is optimized for all versions with same length and same "1." prefix
+		if (version != null && version.length() == 3 && version.charAt(0) == '1' && version.charAt(1) == '.') {
+			switch (version.charAt(2)) {
+				case '1':
+					return ClassFileConstants.JDK1_1;
+				case '2':
+					return ClassFileConstants.JDK1_2;
+				case '3':
+					return ClassFileConstants.JDK1_3;
+				case '4':
+					return ClassFileConstants.JDK1_4;
+				case '5':
+					return ClassFileConstants.JDK1_5;
+				case '6':
+					return ClassFileConstants.JDK1_6;
+				case '7':
+					return ClassFileConstants.JDK1_7;
+				case '8':
+					return ClassFileConstants.JDK1_8;
+				case '9':
+					return ClassFileConstants.JDK1_9;
+				default:
+					return 0; // unknown
 			}
-			if (VERSION_JSR14.equals(versionID)) {
-				return ClassFileConstants.JDK1_4;
-			}
-			if (VERSION_CLDC1_1.equals(versionID)) {
-				return ClassFileConstants.CLDC_1_1;
-			}
+		}
+		if (VERSION_JSR14.equals(versionID)) {
+			return ClassFileConstants.JDK1_4;
+		}
+		if (VERSION_CLDC1_1.equals(versionID)) {
+			return ClassFileConstants.CLDC_1_1;
 		}
 		return 0; // unknown
 	}
@@ -1056,8 +1054,8 @@ public class CompilerOptions {
 	}
 
 	
-	public Map getMap() {
-		Map optionsMap = new HashMap(30);
+	public Map<String, String> getMap() {
+		Map<String, String> optionsMap = new HashMap<>(30);
 		optionsMap.put(OPTION_LocalVariableAttribute, (this.produceDebugAttributes & ClassFileConstants.ATTR_VARS) != 0 ? GENERATE : DO_NOT_GENERATE);
 		optionsMap.put(OPTION_LineNumberAttribute, (this.produceDebugAttributes & ClassFileConstants.ATTR_LINES) != 0 ? GENERATE : DO_NOT_GENERATE);
 		optionsMap.put(OPTION_SourceFileAttribute, (this.produceDebugAttributes & ClassFileConstants.ATTR_SOURCE) != 0 ? GENERATE : DO_NOT_GENERATE);
@@ -1369,8 +1367,8 @@ public class CompilerOptions {
 		this.complainOnUninternedIdentityComparison = false;
 	}
 
-	public void set(Map optionsMap) {
-		Object optionValue;
+	public void set(Map<String, String> optionsMap) {
+		String optionValue;
 		if ((optionValue = optionsMap.get(OPTION_LocalVariableAttribute)) != null) {
 			if (GENERATE.equals(optionValue)) {
 				this.produceDebugAttributes |= ClassFileConstants.ATTR_VARS;
@@ -1450,16 +1448,14 @@ public class CompilerOptions {
 			if (this.targetJDK >= ClassFileConstants.JDK1_5) this.inlineJsrBytecode = true; // forced from 1.5 mode on
 		}
 		if ((optionValue = optionsMap.get(OPTION_Encoding)) != null) {
-			if (optionValue instanceof String) {
-				this.defaultEncoding = null;
-				String stringValue = (String) optionValue;
-				if (stringValue.length() > 0){
-					try {
-						new InputStreamReader(new ByteArrayInputStream(new byte[0]), stringValue);
-						this.defaultEncoding = stringValue;
-					} catch(UnsupportedEncodingException e){
-						// ignore unsupported encoding
-					}
+			this.defaultEncoding = null;
+			String stringValue = optionValue;
+			if (stringValue.length() > 0){
+				try {
+					new InputStreamReader(new ByteArrayInputStream(new byte[0]), stringValue);
+					this.defaultEncoding = stringValue;
+				} catch(UnsupportedEncodingException e){
+					// ignore unsupported encoding
 				}
 			}
 		}
@@ -1506,34 +1502,28 @@ public class CompilerOptions {
 			}
 		}		
 		if ((optionValue = optionsMap.get(OPTION_MaxProblemPerUnit)) != null) {
-			if (optionValue instanceof String) {
-				String stringValue = (String) optionValue;
-				try {
-					int val = Integer.parseInt(stringValue);
-					if (val >= 0) this.maxProblemsPerUnit = val;
-				} catch(NumberFormatException e){
-					// ignore ill-formatted limit
-				}
+			String stringValue = optionValue;
+			try {
+				int val = Integer.parseInt(stringValue);
+				if (val >= 0) this.maxProblemsPerUnit = val;
+			} catch(NumberFormatException e){
+				// ignore ill-formatted limit
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_TaskTags)) != null) {
-			if (optionValue instanceof String) {
-				String stringValue = (String) optionValue;
-				if (stringValue.length() == 0) {
-					this.taskTags = null;
-				} else {
-					this.taskTags = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
-				}
+			String stringValue = optionValue;
+			if (stringValue.length() == 0) {
+				this.taskTags = null;
+			} else {
+				this.taskTags = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_TaskPriorities)) != null) {
-			if (optionValue instanceof String) {
-				String stringValue = (String) optionValue;
-				if (stringValue.length() == 0) {
-					this.taskPriorities = null;
-				} else {
-					this.taskPriorities = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
-				}
+			String stringValue = optionValue;
+			if (stringValue.length() == 0) {
+				this.taskPriorities = null;
+			} else {
+				this.taskPriorities = CharOperation.splitAndTrimOn(',', stringValue.toCharArray());
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_TaskCaseSensitive)) != null) {
@@ -1707,13 +1697,13 @@ public class CompilerOptions {
 			if ((optionValue = optionsMap.get(OPTION_ReportNullUncheckedConversion)) != null) updateSeverity(NullUncheckedConversion, optionValue);
 			if ((optionValue = optionsMap.get(OPTION_ReportRedundantNullAnnotation)) != null) updateSeverity(RedundantNullAnnotation, optionValue);
 			if ((optionValue = optionsMap.get(OPTION_NullableAnnotationName)) != null) {
-				this.nullableAnnotationName = CharOperation.splitAndTrimOn('.', ((String)optionValue).toCharArray());
+				this.nullableAnnotationName = CharOperation.splitAndTrimOn('.', optionValue.toCharArray());
 			}
 			if ((optionValue = optionsMap.get(OPTION_NonNullAnnotationName)) != null) {
-				this.nonNullAnnotationName = CharOperation.splitAndTrimOn('.', ((String)optionValue).toCharArray());
+				this.nonNullAnnotationName = CharOperation.splitAndTrimOn('.', optionValue.toCharArray());
 			}
 			if ((optionValue = optionsMap.get(OPTION_NonNullByDefaultAnnotationName)) != null) {
-				this.nonNullByDefaultAnnotationName = CharOperation.splitAndTrimOn('.', ((String)optionValue).toCharArray());
+				this.nonNullByDefaultAnnotationName = CharOperation.splitAndTrimOn('.', optionValue.toCharArray());
 			}
 			if ((optionValue = optionsMap.get(OPTION_ReportMissingNonNullByDefaultAnnotation)) != null) updateSeverity(MissingNonNullByDefaultAnnotation, optionValue);
 			if ((optionValue = optionsMap.get(OPTION_SyntacticNullAnalysisForFields)) != null) {
@@ -1800,7 +1790,7 @@ public class CompilerOptions {
 			updateSeverity(MissingJavadocComments, optionValue);
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocTagDescription)) != null) {
-			this.reportMissingJavadocTagDescription = (String) optionValue;
+			this.reportMissingJavadocTagDescription = optionValue;
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocCommentsVisibility)) != null) {
 			if (PUBLIC.equals(optionValue)) {

@@ -150,13 +150,15 @@ public class LineBreaksPreparator extends ASTVisitor {
 				this.tm.firstTokenIn(bodyDeclaration, -1).putLineBreaksBefore(
 						this.options.blank_lines_before_first_class_body_declaration + 1);
 			} else {
-				int blankLines;
-				if (bodyDeclaration instanceof FieldDeclaration)
+				int blankLines = 0;
+				if (bodyDeclaration instanceof FieldDeclaration) {
 					blankLines = this.options.blank_lines_before_field;
-				else if (bodyDeclaration instanceof AbstractTypeDeclaration)
+				} else if (bodyDeclaration instanceof AbstractTypeDeclaration) {
 					blankLines = this.options.blank_lines_before_member_type;
-				else
+				} else if (bodyDeclaration instanceof MethodDeclaration
+						|| bodyDeclaration instanceof AnnotationTypeMemberDeclaration) {
 					blankLines = this.options.blank_lines_before_method;
+				}
 
 				if (!sameChunk(previous, bodyDeclaration))
 					blankLines = Math.max(blankLines, this.options.blank_lines_before_new_chunk);
@@ -172,8 +174,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 			return true;
 		if (bd1 instanceof AbstractTypeDeclaration && bd2 instanceof AbstractTypeDeclaration)
 			return true;
-		if ((bd1 instanceof MethodDeclaration || bd1 instanceof Initializer)
-				&& (bd2 instanceof MethodDeclaration || bd2 instanceof Initializer))
+		if ((bd1 instanceof FieldDeclaration || bd1 instanceof Initializer)
+				&& (bd2 instanceof FieldDeclaration || bd2 instanceof Initializer))
 			return true;
 		return false;
 	}
@@ -457,9 +459,11 @@ public class LineBreaksPreparator extends ASTVisitor {
 			breakAfter = this.options.insert_new_line_after_annotation_on_type;
 		} else if (parentNode instanceof FieldDeclaration) {
 			breakAfter = this.options.insert_new_line_after_annotation_on_field;
-		} else if (parentNode instanceof MethodDeclaration
-				|| parentNode instanceof AnnotationTypeMemberDeclaration) {
+		} else if (parentNode instanceof MethodDeclaration) {
 			breakAfter = this.options.insert_new_line_after_annotation_on_method;
+		} else if (parentNode instanceof AnnotationTypeMemberDeclaration) {
+			breakAfter = this.options.insert_new_line_after_annotation_on_method
+					&& ((AnnotationTypeMemberDeclaration) parentNode).getDefault() != node;
 		} else if (parentNode instanceof VariableDeclarationStatement
 				|| parentNode instanceof VariableDeclarationExpression) {
 			breakAfter = this.options.insert_new_line_after_annotation_on_local_variable;

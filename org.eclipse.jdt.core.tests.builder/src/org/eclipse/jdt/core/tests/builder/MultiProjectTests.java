@@ -75,8 +75,9 @@ public class MultiProjectTests extends BuilderTests {
 			"public class C {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-
+		env.waitForManualRefresh();
 		fullBuild();
+		env.waitForAutoBuild();
 		expectingNoProblems();
 
 		//----------------------------
@@ -87,9 +88,13 @@ public class MultiProjectTests extends BuilderTests {
 			"   int x;\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-
+		env.waitForManualRefresh();
 		incrementalBuild();
+		env.waitForAutoBuild();
 		expectingCompiledClasses(new String[]{"A", "B"}); //$NON-NLS-1$ //$NON-NLS-2$
+		env.removeProject(project1Path);
+		env.removeProject(project2Path);
+		env.removeProject(project3Path);
 	}
 
 	// 14103 - avoid recompiling unaffected sources in dependent projects
@@ -135,7 +140,9 @@ public class MultiProjectTests extends BuilderTests {
 			"}\n" //$NON-NLS-1$
 			);
 
+		env.waitForManualRefresh();
 		fullBuild();
+		env.waitForAutoBuild();
 		expectingNoProblems();
 
 		//----------------------------
@@ -153,9 +160,13 @@ public class MultiProjectTests extends BuilderTests {
 			"   int x; //structural change\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-
+		env.waitForManualRefresh();
 		incrementalBuild();
+		env.waitForAutoBuild();
 		expectingCompiledClasses(new String[]{"A", "Unreferenced"}); //$NON-NLS-1$ //$NON-NLS-2$
+		env.removeProject(project1Path);
+		env.removeProject(project2Path);
+		env.removeProject(project3Path);
 	}
 
 	public void testRemoveField() throws JavaModelException {
@@ -192,8 +203,9 @@ public class MultiProjectTests extends BuilderTests {
 			"   }\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-
+		env.waitForManualRefresh();
 		fullBuild();
+		env.waitForAutoBuild();
 		expectingNoProblems();
 
 		//----------------------------
@@ -203,9 +215,12 @@ public class MultiProjectTests extends BuilderTests {
 			"public class A {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-
+		env.waitForManualRefresh();
 		incrementalBuild();
+		env.waitForAutoBuild();
 		expectingSpecificProblemFor(b, new Problem("B.foo()", "x cannot be resolved or is not a field", b, 61, 62, CategorizedProblem.CAT_MEMBER, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		env.removeProject(project1Path);
+		env.removeProject(project2Path);
 	}
 
 	public void testCompileOrder() throws JavaModelException {
@@ -267,7 +282,9 @@ public class MultiProjectTests extends BuilderTests {
 			);
 
 		env.setBuildOrder(new String[]{"P1", "P3", "P2"});//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+		env.waitForManualRefresh();
 		fullBuild();
+		env.waitForAutoBuild();
 
 		expectingCompilingOrder(new String[]{"p1.X", "p3.Z", "p2.Y"}); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 		IPath workspaceRootPath = env.getWorkspaceRootPath();
@@ -277,6 +294,9 @@ public class MultiProjectTests extends BuilderTests {
 				new Problem("p1", "W cannot be resolved to a type", c1, 31, 32, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)//$NON-NLS-1$ //$NON-NLS-2$
 		});
 		JavaCore.setOptions(options);
+		env.removeProject(p1);
+		env.removeProject(p2);
+		env.removeProject(p3);
 	}
 
 	public void testCycle1() throws JavaModelException {
@@ -360,7 +380,9 @@ public class MultiProjectTests extends BuilderTests {
 
 		try {
 			env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+			env.waitForManualRefresh();
 			fullBuild();
+			env.waitForAutoBuild();
 
 			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});//$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$//$NON-NLS-5$//$NON-NLS-6$//$NON-NLS-7$
 			expectingOnlySpecificProblemFor(p1, new Problem("p1", "A cycle was detected in the build path of project 'P1'. The cycle consists of projects {P1, P2, P3}", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
@@ -370,6 +392,9 @@ public class MultiProjectTests extends BuilderTests {
 			JavaCore.setOptions(options);
 		} finally {
 			env.setBuildOrder(null);
+			env.removeProject(p1);
+			env.removeProject(p2);
+			env.removeProject(p3);
 		}
 	}
 
@@ -454,8 +479,9 @@ public class MultiProjectTests extends BuilderTests {
 
 		try {
 			env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+			env.waitForManualRefresh();
 			fullBuild();
-
+			env.waitForAutoBuild();
 			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$ //$NON-NLS-6$//$NON-NLS-7$
 			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project 'P1'. The cycle consists of projects {P1, P2, P3}", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			expectingOnlySpecificProblemsFor(p2,new Problem[]{
@@ -467,6 +493,9 @@ public class MultiProjectTests extends BuilderTests {
 			JavaCore.setOptions(options);
 		} finally {
 			env.setBuildOrder(null);
+			env.removeProject(p1);
+			env.removeProject(p2);
+			env.removeProject(p3);
 		}
 	}
 
@@ -551,7 +580,9 @@ public class MultiProjectTests extends BuilderTests {
 
 		try {
 			env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+			env.waitForManualRefresh();
 			fullBuild();
+			env.waitForAutoBuild();
 
 			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y", "p3.Z", "p1.X"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$ //$NON-NLS-6$//$NON-NLS-7$
 			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project 'P1'. The cycle consists of projects {P1, P2, P3}", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
@@ -568,7 +599,7 @@ public class MultiProjectTests extends BuilderTests {
 				"}\n" //$NON-NLS-1$
 				);
 			incrementalBuild();
-
+			env.waitForAutoBuild();
 			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z"}); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
 			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project 'P1'. The cycle consists of projects {P1, P2, P3}", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			expectingOnlySpecificProblemsFor(p2,new Problem[]{
@@ -580,6 +611,9 @@ public class MultiProjectTests extends BuilderTests {
 			JavaCore.setOptions(options);
 		} finally {
 			env.setBuildOrder(null);
+			env.removeProject(p1);
+			env.removeProject(p2);
+			env.removeProject(p3);
 		}
 	}
 	public void testCycle4() throws JavaModelException {
@@ -653,7 +687,9 @@ public class MultiProjectTests extends BuilderTests {
 
 		try {
 			env.setBuildOrder(new String[]{"P1", "P2", "P3"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
+			env.waitForManualRefresh();
 			fullBuild();
+			env.waitForAutoBuild();
 
 			expectingCompilingOrder(new String[]{"p2.Y", "p3.Z", "p2.Y"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$
 			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project 'P1'. The cycle consists of projects {P1, P2, P3}", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
@@ -680,6 +716,7 @@ public class MultiProjectTests extends BuilderTests {
 				"}\n" //$NON-NLS-1$
 				);
 			incrementalBuild();
+			env.waitForAutoBuild();
 			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p3.Z", "p1.X", "p2.Y"}); //$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$//$NON-NLS-5$
 			expectingOnlySpecificProblemFor(p1,new Problem("p1", "A cycle was detected in the build path of project 'P1'. The cycle consists of projects {P1, P2, P3}", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
 			expectingOnlySpecificProblemFor(p2,new Problem("p2", "A cycle was detected in the build path of project 'P2'. The cycle consists of projects {P1, P2, P3}", p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING));//$NON-NLS-1$ //$NON-NLS-2$
@@ -688,6 +725,9 @@ public class MultiProjectTests extends BuilderTests {
 			JavaCore.setOptions(options);
 		} finally {
 			env.setBuildOrder(null);
+			env.removeProject(p1);
+			env.removeProject(p2);
+			env.removeProject(p3);
 		}
 	}
 
@@ -744,7 +784,9 @@ public class MultiProjectTests extends BuilderTests {
 
 		try {
 			env.setBuildOrder(new String[]{"P1", "P2"});//$NON-NLS-1$ //$NON-NLS-2$
+			env.waitForManualRefresh();
 			fullBuild();
+			env.waitForAutoBuild();
 
 			expectingCompilingOrder(new String[]{"p1.X", "p2.Y", "p1.X", "p2.Y"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
 			expectingOnlySpecificProblemsFor(p1,new Problem[]{
@@ -768,7 +810,7 @@ public class MultiProjectTests extends BuilderTests {
 				);
 
 			incrementalBuild();
-
+			env.waitForAutoBuild();
 			expectingCompilingOrder(new String[]{"p11.XX", "p22.YY", "p2.Y", "p1.X"});//$NON-NLS-1$ //$NON-NLS-2$//$NON-NLS-3$ //$NON-NLS-4$
 			expectingOnlySpecificProblemsFor(p1,new Problem[]{
 				new Problem("p1", "The import p22 is never used", c1, 32, 35, CategorizedProblem.CAT_UNNECESSARY_CODE, IMarker.SEVERITY_WARNING),//$NON-NLS-1$ //$NON-NLS-2$
@@ -782,6 +824,8 @@ public class MultiProjectTests extends BuilderTests {
 			JavaCore.setOptions(options);
 		} finally {
 			env.setBuildOrder(null);
+			env.removeProject(p1);
+			env.removeProject(p2);
 		}
 	}
 
@@ -854,8 +898,9 @@ public void testCycle6() throws JavaModelException {
 	env.addRequiredProject(p3, p2, accessiblePaths, forbiddenPaths, false);
 
 	try {
+		env.waitForManualRefresh();
 		fullBuild();
-
+		env.waitForAutoBuild();
 		expectingOnlySpecificProblemsFor(p1,new Problem[]{
 			new Problem("p1", "A cycle was detected in the build path of project 'P1'. The cycle consists of projects {P1, P2, P3}", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 		});
@@ -868,6 +913,9 @@ public void testCycle6() throws JavaModelException {
 
 	} finally {
 		JavaCore.setOptions(options);
+		env.removeProject(p1);
+		env.removeProject(p2);
+		env.removeProject(p3);
 	}
 }
 
@@ -940,8 +988,9 @@ public void testCycle7() throws JavaModelException {
 	env.addRequiredProject(p3, p2, accessiblePaths, forbiddenPaths, false);
 
 	try {
+		env.waitForManualRefresh();
 		fullBuild();
-
+		env.waitForAutoBuild();
 		expectingOnlySpecificProblemsFor(p1,new Problem[]{
 			new Problem("p1", "A cycle was detected in the build path of project 'P1'. The cycle consists of projects {P1, P2, P3}", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_WARNING)//$NON-NLS-1$ //$NON-NLS-2$
 		});
@@ -954,6 +1003,9 @@ public void testCycle7() throws JavaModelException {
 
 	} finally {
 		JavaCore.setOptions(options);
+		env.removeProject(p1);
+		env.removeProject(p2);
+		env.removeProject(p3);
 	}
 }
 
@@ -993,9 +1045,12 @@ public void testCycle7() throws JavaModelException {
 			"public class D extends p.internal.B {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-
+		env.waitForManualRefresh();
 		fullBuild();
+		env.waitForAutoBuild();
 		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not API (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		env.removeProject(project1Path);
+		env.removeProject(project2Path);
 	}
 
 	/*
@@ -1033,8 +1088,9 @@ public void testCycle7() throws JavaModelException {
 			"public class C extends p.api.A {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-
+		env.waitForManualRefresh();
 		fullBuild();
+		env.waitForAutoBuild();
 		expectingNoProblems();
 
 		//----------------------------
@@ -1046,7 +1102,10 @@ public void testCycle7() throws JavaModelException {
 			);
 
 		incrementalBuild();
+		env.waitForAutoBuild();
 		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not API (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		env.removeProject(project1Path);
+		env.removeProject(project2Path);
 	}
 
 	/*
@@ -1088,8 +1147,9 @@ public void testCycle7() throws JavaModelException {
 			"public class D extends p.internal.B {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-
+		env.waitForManualRefresh();
 		fullBuild();
+		env.waitForAutoBuild();
 		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not API (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		//----------------------------
@@ -1099,7 +1159,10 @@ public void testCycle7() throws JavaModelException {
 		env.addRequiredProject(project2Path, project1Path, new IPath[] {}, new IPath[] {}, false);
 
 		incrementalBuild();
+		env.waitForAutoBuild();
 		expectingNoProblems();
+		env.removeProject(project1Path);
+		env.removeProject(project2Path);
 	}
 
 	/*
@@ -1140,7 +1203,10 @@ public void testCycle7() throws JavaModelException {
 			);
 
 		fullBuild();
+		env.waitForAutoBuild();
 		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not API (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		env.removeProject(project1Path);
+		env.removeProject(project2Path);
 	}
 
 	/*
@@ -1178,8 +1244,9 @@ public void testCycle7() throws JavaModelException {
 			"public class C extends p.api.A {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-
+		env.waitForManualRefresh();
 		fullBuild();
+		env.waitForAutoBuild();
 		expectingNoProblems();
 
 		//----------------------------
@@ -1191,7 +1258,10 @@ public void testCycle7() throws JavaModelException {
 			);
 
 		incrementalBuild();
+		env.waitForAutoBuild();
 		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not API (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		env.removeProject(project1Path);
+		env.removeProject(project2Path);
 	}
 
 	/*
@@ -1233,8 +1303,9 @@ public void testCycle7() throws JavaModelException {
 			"public class D extends p.internal.B {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-
+		env.waitForManualRefresh();
 		fullBuild();
+		env.waitForAutoBuild();
 		expectingSpecificProblemFor(project2Path, new Problem("", "Access restriction: The type 'B' is not API (restriction on required project 'Project1')", d, 23, 35, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		//----------------------------
@@ -1244,7 +1315,10 @@ public void testCycle7() throws JavaModelException {
 		env.addRequiredProject(project2Path, project1Path, new IPath[] {}, new IPath[] {}, false);
 
 		incrementalBuild();
+		env.waitForAutoBuild();
 		expectingNoProblems();
+		env.removeProject(project1Path);
+		env.removeProject(project2Path);
 	}
 
 	/*
@@ -1290,9 +1364,13 @@ public void testCycle7() throws JavaModelException {
 			"public class B extends p.A {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-
+		env.waitForManualRefresh();
 		fullBuild();
+		env.waitForAutoBuild();
 		expectingNoProblems();
+		env.removeProject(project1Path);
+		env.removeProject(project2Path);
+		env.removeProject(project3Path);
 	}
 
 	/*
@@ -1338,9 +1416,13 @@ public void testCycle7() throws JavaModelException {
 			"public class B extends p.A {\n"+ //$NON-NLS-1$
 			"}\n" //$NON-NLS-1$
 			);
-
+		env.waitForManualRefresh();
 		fullBuild();
+		env.waitForAutoBuild();
 		expectingSpecificProblemFor(project3Path, new Problem("", "Discouraged access: The type 'A' is not API (restriction on required project 'Project2')", b, 35, 38, CategorizedProblem.CAT_RESTRICTION, IMarker.SEVERITY_WARNING)); //$NON-NLS-1$ //$NON-NLS-2$
+		env.removeProject(project1Path);
+		env.removeProject(project2Path);
+		env.removeProject(project3Path);
 	}
 
 	public void testMissingRequiredBinaries() throws JavaModelException {
@@ -1390,7 +1472,9 @@ public void testCycle7() throws JavaModelException {
 			);
 
 		try {
+			env.waitForManualRefresh();
 			fullBuild();
+			env.waitForAutoBuild();
 
 			expectingOnlySpecificProblemsFor(p1,new Problem[]{
 				new Problem("p1", "The type p3.Z cannot be resolved. It is indirectly referenced from required .class files", x, 48, 49, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
@@ -1398,6 +1482,9 @@ public void testCycle7() throws JavaModelException {
 			});
 		} finally {
 			env.setBuildOrder(null);
+			env.removeProject(p1);
+			env.removeProject(p1);
+			env.removeProject(p3);
 		}
 	}
 
@@ -1416,7 +1503,9 @@ public void test100_class_folder_exported() throws JavaModelException {
 		"public class A {\n" +
 		"}\n"
 		);
+	env.waitForManualRefresh();
 	fullBuild();
+	env.waitForAutoBuild();
 	expectingNoProblems();
 	env.removePackageFragmentRoot(P1, "");
 	env.addClassFolder(P1, P1.append("bin"), true);
@@ -1430,8 +1519,12 @@ public void test100_class_folder_exported() throws JavaModelException {
 		"public class X {\n" +
 		"  A f;\n" +
 		"}");
+	env.waitForManualRefresh();
 	fullBuild();
+	env.waitForAutoBuild();
 	expectingNoProblems();
+	env.removeProject(P1);
+	env.removeProject(P2);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=159118
@@ -1463,13 +1556,17 @@ public void test101_class_folder_non_exported() throws JavaModelException {
 		"public class X {\n" +
 		"  A f;\n" +
 		"}");
+	env.waitForManualRefresh();
 	fullBuild();
+	env.waitForAutoBuild();
 	expectingSpecificProblemsFor(P2,
 		new Problem[] {
 			new Problem("", "The import p cannot be resolved",
 					c, 7 , 8, CategorizedProblem.CAT_IMPORT, IMarker.SEVERITY_ERROR),
 			new Problem("", "A cannot be resolved to a type",
 					c, 31 , 32, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)});
+	env.removeProject(P1);
+	env.removeProject(P2);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=164622
@@ -1514,7 +1611,9 @@ public void test102_missing_required_binaries() throws JavaModelException {
 		);
 
 	try {
+		env.waitForManualRefresh();
 		fullBuild();
+		env.waitForAutoBuild();
 		expectingOnlySpecificProblemsFor(p3, new Problem[]{
 			new Problem("p3",
 				"The project was not built since its build path is incomplete. Cannot find the class file for I. Fix the build path then try building this project",
@@ -1525,6 +1624,9 @@ public void test102_missing_required_binaries() throws JavaModelException {
 		});
 	} finally {
 		env.setBuildOrder(null);
+		env.removeProject(p1);
+		env.removeProject(p2);
+		env.removeProject(p3);
 	}
 }
 
@@ -1571,7 +1673,9 @@ public void test103_missing_required_binaries() throws JavaModelException {
 		);
 
 	try {
+		env.waitForManualRefresh();
 		fullBuild();
+		env.waitForAutoBuild();
 		expectingOnlySpecificProblemsFor(p3, new Problem[]{
 				new Problem("p3",
 					"The project was not built since its build path is incomplete. Cannot find the class file for I. Fix the build path then try building this project",
@@ -1582,6 +1686,10 @@ public void test103_missing_required_binaries() throws JavaModelException {
 		});
 	} finally {
 		env.setBuildOrder(null);
+		env.setBuildOrder(null);
+		env.removeProject(p1);
+		env.removeProject(p2);
+		env.removeProject(p3);
 	}
 }
 
@@ -1644,16 +1752,24 @@ public void test104_missing_required_binaries() throws CoreException {
 			);
 	
 	try {
+		env.waitForManualRefresh();
 		fullBuild();
+		env.waitForAutoBuild();
 		expectingNoProblems();
 		
 		IFile gcaFile = (IFile) env.getWorkspace().getRoot().findMember(gca);
 		gcaFile.touch(null);
+		env.waitForManualRefresh();
 		incrementalBuild(p2);
+		env.waitForAutoBuild();
 		expectingNoProblems();
 		
 	} finally {
 		env.setBuildOrder(null);
+		env.setBuildOrder(null);
+		env.removeProject(p1);
+		env.removeProject(p2);
+		env.removeProject(p0);
 	}
 }
 
@@ -1715,8 +1831,13 @@ public void test438923() throws JavaModelException {
 	// for Project1
 	env.addRequiredProject(p2, p1);
 	env.addRequiredProject(p3, p2);
-
+	env.waitForManualRefresh();
 	fullBuild();
+	env.waitForAutoBuild();
 	expectingNoProblems();
+	env.setBuildOrder(null);
+	env.removeProject(p1);
+	env.removeProject(p2);
+	env.removeProject(p3);
 }
 }
