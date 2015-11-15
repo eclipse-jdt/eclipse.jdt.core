@@ -8796,4 +8796,44 @@ public void testBug473713() {
 			"}\n",
 		}, getCompilerOptions(), "");
 }
+public void testBug482228() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"class Super<S> {\n" + 
+			"	<T extends List<S>> S pick(T list) {\n" + 
+			"		return list.get(0);\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"public class X extends Super<@NonNull String> {\n" + 
+			"	@Override\n" + 
+			"	<T extends List<@Nullable String>> @NonNull String pick(T list) {\n" + 
+			"		return super.pick(list);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		List<@Nullable String> withNulls = new ArrayList<>();\n" + 
+			"		withNulls.add(null);\n" + 
+			"		System.out.println(new X().pick(withNulls).toUpperCase());\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	<T extends List<@Nullable String>> @NonNull String pick(T list) {\n" + 
+		"	 ^\n" + 
+		"Cannot redefine null constraints of type variable \'T extends List<@NonNull String>\' declared in \'Super<String>.pick(T)\'\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 15)\n" + 
+		"	return super.pick(list);\n" + 
+		"	       ^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'T extends List<@Nullable String>\' is not a valid substitute for the type parameter \'T extends List<@NonNull String>\'\n" + 
+		"----------\n");
+}
 }

@@ -434,6 +434,18 @@ public class ImplicitNullAnnotationVerifier {
 				}
 			}
 		}
+
+		if (shouldComplain && useTypeAnnotations && srcMethod != null) {
+			TypeVariableBinding[] currentTypeVariables = currentMethod.typeVariables();
+			TypeVariableBinding[] inheritedTypeVariables = inheritedMethod.typeVariables();
+			if (currentTypeVariables != Binding.NO_TYPE_VARIABLES && currentTypeVariables.length == inheritedTypeVariables.length) {
+				for (int i = 0; i < currentTypeVariables.length; i++) {
+					TypeVariableBinding inheritedVariable = inheritedTypeVariables[i];
+					if (NullAnnotationMatching.analyse(inheritedVariable, currentTypeVariables[i], null, null, -1, CheckMode.BOUND_CHECK).isAnyMismatch())
+						scope.problemReporter().cannotRedefineTypeArgumentNullity(inheritedVariable, inheritedMethod, srcMethod.typeParameters()[i]);
+				}
+			}
+		}
 	}
 
 	void applyReturnNullBits(MethodBinding method, long nullnessBits) {

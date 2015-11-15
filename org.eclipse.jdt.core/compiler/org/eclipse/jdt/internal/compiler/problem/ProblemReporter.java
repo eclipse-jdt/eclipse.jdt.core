@@ -400,6 +400,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.IllegalReturnNullityRedefinition:
 		case IProblem.IllegalReturnNullityRedefinitionFreeTypeVariable:
 		case IProblem.IllegalRedefinitionToNonNullParameter:
+		case IProblem.IllegalRedefinitionOfTypeVariable:
 		case IProblem.IllegalDefinitionToNonNullParameter:
 		case IProblem.ParameterLackingNullableAnnotation:
 		case IProblem.CannotImplementIncompatibleNullness:
@@ -9875,6 +9876,27 @@ public void nullityMismatchTypeArgument(TypeBinding typeVariable, TypeBinding ty
 	};
 	this.handle(
 			IProblem.NullityMismatchTypeArgument, 
+			arguments, 
+			shortArguments, 
+			location.sourceStart, 
+			location.sourceEnd);
+}
+
+public void cannotRedefineTypeArgumentNullity(TypeBinding typeVariable, Binding superElement, ASTNode location) {
+	String[] arguments = new String[2];
+	String[] shortArguments = new String[2];
+	arguments[0]		= String.valueOf(typeVariable.nullAnnotatedReadableName(this.options, false));
+	shortArguments[0] 	= String.valueOf(typeVariable.nullAnnotatedReadableName(this.options, true));
+	if (superElement instanceof MethodBinding) {
+		ReferenceBinding declaringClass = ((MethodBinding) superElement).declaringClass;
+		arguments[1] 		= String.valueOf(CharOperation.concat(declaringClass.readableName(), superElement.shortReadableName(), '.'));
+		shortArguments[1] 	= String.valueOf(CharOperation.concat(declaringClass.shortReadableName(), superElement.shortReadableName(), '.'));
+	} else {
+		arguments[1] 		= String.valueOf(superElement.readableName());
+		shortArguments[1] 	= String.valueOf(superElement.shortReadableName());
+	}
+	this.handle(
+			IProblem.IllegalRedefinitionOfTypeVariable, 
 			arguments, 
 			shortArguments, 
 			location.sourceStart, 
