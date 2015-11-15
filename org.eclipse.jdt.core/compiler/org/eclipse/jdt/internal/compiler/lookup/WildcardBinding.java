@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 IBM Corporation and others.
+ * Copyright (c) 2005, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -940,5 +940,23 @@ public class WildcardBinding extends ReferenceBinding {
 
 	public boolean acceptsNonNullDefault() {
 		return false;
+	}
+
+	@Override
+	public long updateTagBits() {
+		if (!this.inRecursiveFunction) {
+			this.inRecursiveFunction = true;
+			try {
+				if (this.bound != null)
+					this.tagBits |= this.bound.updateTagBits();
+				if (this.otherBounds != null) {
+					for (int i = 0, length = this.otherBounds.length; i < length; i++)
+						this.tagBits |= this.otherBounds[i].updateTagBits();
+				}
+			} finally {
+				this.inRecursiveFunction = false;
+			}
+		}
+		return super.updateTagBits();
 	}
 }

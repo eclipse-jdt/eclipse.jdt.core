@@ -3034,6 +3034,31 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	// overriding an unconstrained return with nullable
+	public void testNullableReturn() {
+		runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"public abstract class X {\n" + 
+				"	X foo1() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class Z extends X {\n" + 
+				"	@Override\n" +
+				"	@Nullable X foo1() {\n" +
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"");
+	}
+
 	public void testBug416175() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -6080,6 +6105,22 @@ public void testTypeVariable19a() {
 		"Potential null pointer access: The method get2() may return null\n" + 
 		"----------\n");
 }
+public void testTypeVariable20() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"interface I<@Nullable T> { }\n" +
+			"public class X implements I<String> {}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	public class X implements I<String> {}\n" + 
+		"	                            ^^^^^^\n" + 
+		"Null constraint mismatch: The type \'String\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n");
+}
 public void testBug434600() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6154,28 +6195,33 @@ public void testBug434600b() {
 			"I.java",
 			"import java.util.*;\n" +
 			"import org.eclipse.jdt.annotation.*;\n" +
-			"interface I<S, T extends @Nullable List<@NonNull List<S>>> {\n" +
+			"interface I<S, T extends @NonNull List<@NonNull List<S>>> {\n" +
 			"}\n",
 			"C.java",
 			"import java.util.*;\n" +
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"public class C implements I<@Nullable String, ArrayList<@NonNull List<@Nullable String>>> {}\n" +
 			"class C1 {\n" +
-			"	I<String, @Nullable ArrayList<@Nullable List<String>>> field;\n" +
+			"	I<String, @NonNull ArrayList<@Nullable List<String>>> field;\n" +
 			"}\n" +
-			"class C2 implements I<@NonNull String, @Nullable ArrayList<@NonNull List<@Nullable String>>> {}\n" // FIXME: cross checking for contradictory substitution for 'S' NYI
+			"class C2 implements I<@NonNull String, @NonNull ArrayList<@NonNull List<@Nullable String>>> {}\n"
 		},
 		getCompilerOptions(),
 		"----------\n" + 
 		"1. ERROR in C.java (at line 3)\n" + 
 		"	public class C implements I<@Nullable String, ArrayList<@NonNull List<@Nullable String>>> {}\n" + 
 		"	                                              ^^^^^^^^^\n" + 
-		"Null constraint mismatch: The type \'ArrayList<@NonNull List<@Nullable String>>\' is not a valid substitute for the type parameter \'T extends @Nullable List<@NonNull List<S>>\'\n" + 
+		"Null constraint mismatch: The type \'ArrayList<@NonNull List<@Nullable String>>\' is not a valid substitute for the type parameter \'T extends @NonNull List<@NonNull List<S>>\'\n" + 
 		"----------\n" + 
 		"2. ERROR in C.java (at line 5)\n" + 
-		"	I<String, @Nullable ArrayList<@Nullable List<String>>> field;\n" + 
-		"	          ^^^^^^^^^^^^^^^^^^^\n" + 
-		"Null constraint mismatch: The type \'@Nullable ArrayList<@Nullable List<String>>\' is not a valid substitute for the type parameter \'T extends @Nullable List<@NonNull List<S>>\'\n" + 
+		"	I<String, @NonNull ArrayList<@Nullable List<String>>> field;\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull ArrayList<@Nullable List<String>>\' is not a valid substitute for the type parameter \'T extends @NonNull List<@NonNull List<S>>\'\n" + 
+		"----------\n" + 
+		"3. ERROR in C.java (at line 7)\n" + 
+		"	class C2 implements I<@NonNull String, @NonNull ArrayList<@NonNull List<@Nullable String>>> {}\n" + 
+		"	                                       ^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull ArrayList<@NonNull List<@Nullable String>>\' is not a valid substitute for the type parameter \'T extends @NonNull List<@NonNull List<S>>\'\n" + 
 		"----------\n");
 }
 public void testBug434600b_qualified() {
@@ -6194,19 +6240,19 @@ public void testBug434600b_qualified() {
 			"class C1 {\n" +
 			"	p.I<String, @Nullable ArrayList<@Nullable List<String>>> field;\n" +
 			"}\n" +
-			"class C2 implements p.I<@NonNull String, @Nullable ArrayList<@NonNull List<@Nullable String>>> {}\n" // FIXME: cross checking for contradictory substitution for 'S' NYI
+			"class C2 implements p.I<@NonNull String, @Nullable ArrayList<@NonNull List<@Nullable String>>> {}\n"
 		},
 		getCompilerOptions(),
 		"----------\n" + 
-		"1. ERROR in C.java (at line 3)\n" + 
-		"	public class C implements p.I<@Nullable String, ArrayList<@NonNull List<@Nullable String>>> {}\n" + 
-		"	                                                ^^^^^^^^^\n" + 
-		"Null constraint mismatch: The type \'ArrayList<@NonNull List<@Nullable String>>\' is not a valid substitute for the type parameter \'T extends @Nullable List<@NonNull List<S>>\'\n" + 
-		"----------\n" + 
-		"2. ERROR in C.java (at line 5)\n" + 
+		"1. ERROR in C.java (at line 5)\n" + 
 		"	p.I<String, @Nullable ArrayList<@Nullable List<String>>> field;\n" + 
 		"	            ^^^^^^^^^^^^^^^^^^^\n" + 
 		"Null constraint mismatch: The type \'@Nullable ArrayList<@Nullable List<String>>\' is not a valid substitute for the type parameter \'T extends @Nullable List<@NonNull List<S>>\'\n" + 
+		"----------\n" + 
+		"2. ERROR in C.java (at line 7)\n" + 
+		"	class C2 implements p.I<@NonNull String, @Nullable ArrayList<@NonNull List<@Nullable String>>> {}\n" + 
+		"	                                         ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable ArrayList<@NonNull List<@Nullable String>>\' is not a valid substitute for the type parameter \'T extends @Nullable List<@NonNull List<S>>\'\n" + 
 		"----------\n");
 }
 public void testBug435399() {
@@ -8502,5 +8548,102 @@ public void testBug440398_comment2a() {
 		},
 		getCompilerOptions(),
 		"");
+}
+public void testBug481332() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	public void foo() {\n" + 
+			"		@Nullable\n" + 
+			"		List<@NonNull String> list = new ArrayList<>();\n" + 
+			"		checkNotNull(list); // OK\n" + 
+			"\n" + 
+			"		@Nullable\n" + 
+			"		Map<@NonNull String, @NonNull String> map = new HashMap<>();\n" + 
+			"		checkNotNull(map); // OK\n" + 
+			"\n" + 
+			"		@NonNull\n" + 
+			"		Object @Nullable [] objects = null;\n" + 
+			"		// Error: Null type mismatch (type annotations): required '@NonNull Object @NonNull[]' but this expression ...\n" + 
+			"		checkNotNull(objects);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static <@Nullable T> T[] checkNotNull(T @Nullable [] array) {\n" + 
+			"		if (array == null) {\n" + 
+			"			throw new NullPointerException();\n" + 
+			"		}\n" + 
+			"		return array;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static <@Nullable T, C extends Iterable<T>> C checkNotNull(@Nullable C container) {\n" + 
+			"		if (container == null) {\n" + 
+			"			throw new NullPointerException();\n" + 
+			"		}\n" + 
+			"		return container;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static <@Nullable K, @Nullable V, M extends Map<K, V>> M checkNotNull(@Nullable M map) {\n" + 
+			"		if (map == null) {\n" + 
+			"			throw new NullPointerException();\n" + 
+			"		}\n" + 
+			"		return map;\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	checkNotNull(list); // OK\n" + 
+		"	^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'List<@NonNull String>\' is not a valid substitute for the type parameter \'C extends Iterable<@Nullable T>\'\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	checkNotNull(map); // OK\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'Map<@NonNull String,@NonNull String>\' is not a valid substitute for the type parameter \'M extends Map<@Nullable K,@Nullable V>\'\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 16)\n" + 
+		"	checkNotNull(objects);\n" + 
+		"	             ^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@Nullable Object @Nullable[]\' but this expression has type \'@NonNull Object @Nullable[]\'\n" + 
+		"----------\n");
+}
+public void testBug481322a() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"class Super<S, T extends List<S>> {\n" + 
+			"	S pick(T list) {\n" + 
+			"		return list.get(0);\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"public class X extends Super<@NonNull String, List<@Nullable String>> {\n" + 
+			"	@Override\n" + 
+			"	public @NonNull String pick(List<@Nullable String> list) {\n" + 
+			"		return super.pick(list);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		List<@Nullable String> withNulls = new ArrayList<@Nullable String>();\n" + 
+			"		withNulls.add(null);\n" + 
+			"		System.out.println(new X().pick(withNulls).toUpperCase());\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	public class X extends Super<@NonNull String, List<@Nullable String>> {\n" + 
+		"	                                              ^^^^\n" + 
+		"Null constraint mismatch: The type \'List<@Nullable String>\' is not a valid substitute for the type parameter \'T extends List<S>\'\n" + 
+		"----------\n");
 }
 }

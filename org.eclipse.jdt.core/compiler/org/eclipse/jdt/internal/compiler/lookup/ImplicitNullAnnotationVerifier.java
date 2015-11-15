@@ -294,7 +294,7 @@ public class ImplicitNullAnnotationVerifier {
 						ParameterizedGenericMethodBinding substitute = this.environment.createParameterizedGenericMethod(currentMethod, typeVariables);
 						substituteReturnType = substitute.returnType;
 					}
-					if (NullAnnotationMatching.analyse(inheritedMethod.returnType, currentMethod.returnType, substituteReturnType, 0, CheckMode.OVERRIDE).isAnyMismatch()) {
+					if (NullAnnotationMatching.analyse(inheritedMethod.returnType, currentMethod.returnType, substituteReturnType, null, 0, CheckMode.OVERRIDE_RETURN).isAnyMismatch()) {
 						if (srcMethod != null)
 							scope.problemReporter().illegalReturnRedefinition(srcMethod, inheritedMethod,
 																	this.environment.getNonNullAnnotationName());
@@ -425,7 +425,7 @@ public class ImplicitNullAnnotationVerifier {
 				if (useTypeAnnotations) {
 					TypeBinding inheritedParameter = inheritedMethod.parameters[i];
 					TypeBinding substituteParameter = substituteParameters != null ? substituteParameters[i] : null;
-					if (NullAnnotationMatching.analyse(currentMethod.parameters[i], inheritedParameter, substituteParameter, 0, CheckMode.OVERRIDE).isAnyMismatch()) {
+					if (NullAnnotationMatching.analyse(currentMethod.parameters[i], inheritedParameter, substituteParameter, null, 0, CheckMode.OVERRIDE).isAnyMismatch()) {
 						if (currentArgument != null)
 							scope.problemReporter().illegalParameterRedefinition(currentArgument, inheritedMethod.declaringClass, inheritedParameter);
 						else

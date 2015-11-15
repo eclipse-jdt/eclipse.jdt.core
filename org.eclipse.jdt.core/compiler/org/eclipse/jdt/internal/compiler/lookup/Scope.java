@@ -944,8 +944,14 @@ public abstract class Scope {
 		}
 		// after bounds have been resolved we're ready for resolving the type parameter itself,
 		// which includes resolving/evaluating type annotations and checking for inconsistencies
-		for (int i = 0; i < paramLength; i++)
+		boolean declaresNullTypeAnnotation = false;
+		for (int i = 0; i < paramLength; i++) {
 			resolveTypeParameter(typeParameters[i]);
+			declaresNullTypeAnnotation |= typeParameters[i].binding.hasNullTypeAnnotations();
+		}
+		if (declaresNullTypeAnnotation)
+			for (int i = 0; i < paramLength; i++)
+				typeParameters[i].binding.updateTagBits(); // <T extends List<U>, @NonNull U> --> tag T as having null type annotations 
 		return noProblems;
 	}
 

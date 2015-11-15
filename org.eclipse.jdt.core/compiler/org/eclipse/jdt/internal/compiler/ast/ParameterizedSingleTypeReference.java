@@ -61,14 +61,11 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 
 		if (this.resolvedType.leafComponentType() instanceof ParameterizedTypeBinding) {
 			ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) this.resolvedType.leafComponentType();
-			ReferenceBinding currentType = parameterizedType.genericType();
-			TypeVariableBinding[] typeVariables = currentType.typeVariables();
 			TypeBinding[] argTypes = parameterizedType.arguments;
-			if (argTypes != null && typeVariables != null) { // may be null in error cases
+			if (argTypes != null) { // may be null in error cases
 				parameterizedType.boundCheck(scope, this.typeArguments);
 			}
 		}
-		checkNullConstraints(scope, this.typeArguments);
 	}
 	
 	public TypeReference augmentTypeWithAdditionalDimensions(int additionalDimensions, Annotation [][] additionalAnnotations, boolean isVarargs) {
@@ -171,21 +168,15 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		if (type == null) {
 			this.resolvedType = createArrayType(scope, this.resolvedType);
 			resolveAnnotations(scope, 0); // no defaultNullness for buggy type
-			if (checkBounds)
-				checkNullConstraints(scope, this.typeArguments);
 			return null;							// (1) no useful type, but still captured dimensions into this.resolvedType
 		} else {
 			type = createArrayType(scope, type);
 			if (!this.resolvedType.isValidBinding() && this.resolvedType.dimensions() == type.dimensions()) {
 				resolveAnnotations(scope, 0); // no defaultNullness for buggy type
-				if (checkBounds)
-					checkNullConstraints(scope, this.typeArguments);
 				return type;						// (2) found some error, but could recover useful type (like closestMatch)
 			} else {
 				this.resolvedType = type; 			// (3) no complaint, keep fully resolved type (incl. dimensions)
 				resolveAnnotations(scope, location);
-				if (checkBounds)
-					checkNullConstraints(scope, this.typeArguments);
 				return this.resolvedType; // pick up any annotated type.
 			}
 		}
@@ -320,6 +311,8 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
     	}
 		if (isTypeUseDeprecated(parameterizedType, scope))
 			reportDeprecatedType(parameterizedType, scope);
+
+		checkIllegalNullAnnotations(scope, this.typeArguments);
 
 		if (!this.resolvedType.isValidBinding()) {
 			return parameterizedType;

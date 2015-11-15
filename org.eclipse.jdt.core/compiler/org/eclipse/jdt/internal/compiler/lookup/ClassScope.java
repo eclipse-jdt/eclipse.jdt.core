@@ -1012,7 +1012,7 @@ public class ClassScope extends Scope {
 		sourceType.tagBits |= (superType.tagBits & TagBits.HierarchyHasProblems); // propagate if missing supertpye
 		sourceType.setSuperClass(superType);
 		// bound check (in case of bogus definition of Enum type)
-		if (refTypeVariables[0].boundCheck(superType, sourceType, this) != TypeConstants.OK) {
+		if (!refTypeVariables[0].boundCheck(superType, sourceType, this, null).isOKbyJLS()) {
 			problemReporter().typeMismatchError(rootEnumType, refTypeVariables[0], sourceType, null);
 		}
 		return !foundCycle;

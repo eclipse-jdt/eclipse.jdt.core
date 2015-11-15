@@ -85,7 +85,6 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 				parameterizedType.boundCheck(scope, this.typeArguments[index]);
 			}
 		}
-		checkNullConstraints(scope, this.typeArguments[index]);
 	}
 	public TypeReference augmentTypeWithAdditionalDimensions(int additionalDimensions, Annotation[][] additionalAnnotations, boolean isVarargs) {
 		int totalDimensions = this.dimensions() + additionalDimensions;
@@ -198,9 +197,9 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 		TypeBinding type = internalResolveLeafType(scope, checkBounds);
 		createArrayType(scope);
 		resolveAnnotations(scope, location);
-		if (this.typeArguments != null && checkBounds)
+		if (this.typeArguments != null)
 			// relevant null annotations are on the inner most type:
-			checkNullConstraints(scope, this.typeArguments[this.typeArguments.length-1]); 
+			checkIllegalNullAnnotations(scope, this.typeArguments[this.typeArguments.length-1]);
 		return type == null ? type : this.resolvedType;
 	}
 	private TypeBinding internalResolveLeafType(Scope scope, boolean checkBounds) {

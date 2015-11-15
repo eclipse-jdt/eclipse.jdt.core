@@ -296,7 +296,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					if (this.binding instanceof ParameterizedGenericMethodBinding && this.typeArguments != null) {
 						TypeVariableBinding[] typeVariables = this.binding.original().typeVariables();
 						for (int i = 0; i < this.typeArguments.length; i++)
-							this.typeArguments[i].checkNullConstraints(scope, typeVariables, i);
+							this.typeArguments[i].checkNullConstraints(scope, (ParameterizedGenericMethodBinding) this.binding, typeVariables, i);
 					}
 				}
 			}

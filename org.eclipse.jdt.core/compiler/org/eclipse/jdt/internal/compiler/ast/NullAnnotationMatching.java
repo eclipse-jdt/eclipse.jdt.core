@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.Substitution;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
@@ -50,10 +51,26 @@ public class NullAnnotationMatching {
 	public enum CheckMode {
 		/** in this mode we check normal assignment compatibility. */
 		COMPATIBLE,
-		/** in this mode we do not tolerate incompatibly missing annotations on type parameters (for overriding analysis) */
-		OVERRIDE,
+		/** in this mode we check similar to isTypeArgumentContained. */
+		EXACT,
 		/** in this mode we check compatibility of a type argument against the corresponding type parameter. */
-		BOUND_CHECK
+		BOUND_CHECK,
+		/** allow covariant return types, but no other deviations. */
+		OVERRIDE_RETURN {
+			@Override CheckMode toDetail() {
+				return OVERRIDE;
+			}			
+		},
+		/** in this mode we do not tolerate incompatibly missing annotations on type parameters (for overriding analysis) */
+		OVERRIDE {
+			@Override CheckMode toDetail() {
+				return OVERRIDE;
+			}
+		};
+		
+		CheckMode toDetail() {
+			return CheckMode.EXACT;
+		}
 	}
 
 	/** 0 = OK, 1 = unchecked, 2 = definite mismatch */
@@ -126,7 +143,7 @@ public class NullAnnotationMatching {
 	 * @return a status object representing the severity of mismatching plus optionally a supertype hint
 	 */
 	public static NullAnnotationMatching analyse(TypeBinding requiredType, TypeBinding providedType, int nullStatus) {
-		return analyse(requiredType, providedType, null, nullStatus, CheckMode.COMPATIBLE);
+		return analyse(requiredType, providedType, null, null, nullStatus, CheckMode.COMPATIBLE);
 	}
 	/**
 	 * Find any mismatches between the two given types, which are caused by null type annotations.
@@ -134,11 +151,12 @@ public class NullAnnotationMatching {
 	 * @param providedType
 	 * @param providedSubstitute in inheritance situations this maps the providedType into the realm of the subclass, needed for TVB identity checks.
 	 * 		Pass null if not interested in these added checks.
+	 * @param substitution TODO
 	 * @param nullStatus we are only interested in NULL or NON_NULL, -1 indicates that we are in a recursion, where flow info is ignored
 	 * @param mode controls the kind of check performed (see {@link CheckMode}).
 	 * @return a status object representing the severity of mismatching plus optionally a supertype hint
 	 */
-	public static NullAnnotationMatching analyse(TypeBinding requiredType, TypeBinding providedType, TypeBinding providedSubstitute, int nullStatus, CheckMode mode) {
+	public static NullAnnotationMatching analyse(TypeBinding requiredType, TypeBinding providedType, TypeBinding providedSubstitute, Substitution substitution, int nullStatus, CheckMode mode) {
 		if (!requiredType.enterRecursiveFunction())
 			return NullAnnotationMatching.NULL_ANNOTATIONS_OK;
 		try {
@@ -150,23 +168,32 @@ public class NullAnnotationMatching {
 					return NullAnnotationMatching.NULL_ANNOTATIONS_OK_NONNULL;
 				return okStatus;
 			}
+			if (requiredType instanceof TypeVariableBinding && substitution != null && (mode == CheckMode.EXACT || mode == CheckMode.COMPATIBLE)) {
+				requiredType.exitRecursiveFunction();
+				requiredType = Scope.substitute(substitution, requiredType);
+				if (!requiredType.enterRecursiveFunction())
+					return NullAnnotationMatching.NULL_ANNOTATIONS_OK;
+			}
 			if (mode == CheckMode.BOUND_CHECK && requiredType instanceof TypeVariableBinding) {
-				// during bound check against a type variable check the provided type against all upper bounds:
-				TypeBinding superClass = requiredType.superclass();
-				if (superClass != null && superClass.hasNullTypeAnnotations()) {
-					NullAnnotationMatching status = analyse(superClass, providedType, null, nullStatus, mode);
-					severity = Math.max(severity, status.severity);
-					if (severity == 2)
-						return new NullAnnotationMatching(severity, nullStatus, superTypeHint);
-				}
-				TypeBinding[] superInterfaces = requiredType.superInterfaces();
-				if (superInterfaces != null) {
-					for (int i = 0; i < superInterfaces.length; i++) {
-						if (superInterfaces[i].hasNullTypeAnnotations()) {
-							NullAnnotationMatching status = analyse(superInterfaces[i], providedType, null, nullStatus, mode);
-							severity = Math.max(severity, status.severity);
-							if (severity == 2)
-								return new NullAnnotationMatching(severity, nullStatus, superTypeHint);						
+				boolean passedBoundCheck = (substitution instanceof ParameterizedTypeBinding) && (((ParameterizedTypeBinding) substitution).tagBits & TagBits.PassedBoundCheck) != 0;
+				if (!passedBoundCheck) {
+					// during bound check against a type variable check the provided type against all upper bounds:
+					TypeBinding superClass = requiredType.superclass();
+					if (superClass != null && (superClass.hasNullTypeAnnotations() || substitution != null)) { // annotations may enter when substituting a nested type variable
+						NullAnnotationMatching status = analyse(superClass, providedType, null, substitution, nullStatus, CheckMode.COMPATIBLE);
+						severity = Math.max(severity, status.severity);
+						if (severity == 2)
+							return new NullAnnotationMatching(severity, nullStatus, superTypeHint);
+					}
+					TypeBinding[] superInterfaces = requiredType.superInterfaces();
+					if (superInterfaces != null) {
+						for (int i = 0; i < superInterfaces.length; i++) {
+							if (superInterfaces[i].hasNullTypeAnnotations() || substitution != null) { // annotations may enter when substituting a nested type variable
+								NullAnnotationMatching status = analyse(superInterfaces[i], providedType, null, substitution, nullStatus, CheckMode.COMPATIBLE);
+								severity = Math.max(severity, status.severity);
+								if (severity == 2)
+									return new NullAnnotationMatching(severity, nullStatus, superTypeHint);
+							}
 						}
 					}
 				}
@@ -185,7 +212,7 @@ public class NullAnnotationMatching {
 							long providedBits = validNullTagBits(providedDimsTagBits[i]);
 							if (i > 0)
 								currentNullStatus = -1; // don't use beyond the outermost dimension
-							severity = Math.max(severity, computeNullProblemSeverity(requiredBits, providedBits, currentNullStatus, mode == CheckMode.OVERRIDE && nullStatus == -1));
+							severity = Math.max(severity, computeNullProblemSeverity(requiredBits, providedBits, currentNullStatus, i == 0 ? mode : mode.toDetail(), false));
 							if (severity == 2)
 								return NullAnnotationMatching.NULL_ANNOTATIONS_MISMATCH;
 							if (severity == 0)
@@ -202,7 +229,7 @@ public class NullAnnotationMatching {
 						|| nullStatus == -1) // only at detail/recursion even nullable must be matched exactly
 				{
 					long providedBits = providedNullTagBits(providedType);
-					int s = computeNullProblemSeverity(requiredBits, providedBits, nullStatus, mode == CheckMode.OVERRIDE && nullStatus == -1);
+					int s = computeNullProblemSeverity(requiredBits, providedBits, nullStatus, mode, requiredType.isTypeVariable());
 					severity = Math.max(severity, s);
 					if (severity == 0 && (providedBits & TagBits.AnnotationNonNull) != 0)
 						okStatus = NullAnnotationMatching.NULL_ANNOTATIONS_OK_NONNULL;
@@ -219,7 +246,7 @@ public class NullAnnotationMatching {
 						if (requiredArguments != null && providedArguments != null && requiredArguments.length == providedArguments.length) {
 							for (int i = 0; i < requiredArguments.length; i++) {
 								TypeBinding providedArgSubstitute = providedSubstitutes != null ? providedSubstitutes[i] : null;
-								NullAnnotationMatching status = analyse(requiredArguments[i], providedArguments[i], providedArgSubstitute, -1, mode);
+								NullAnnotationMatching status = analyse(requiredArguments[i], providedArguments[i], providedArgSubstitute, substitution, -1, mode.toDetail());
 								severity = Math.max(severity, status.severity);
 								if (severity == 2)
 									return new NullAnnotationMatching(severity, nullStatus, superTypeHint);
@@ -230,7 +257,7 @@ public class NullAnnotationMatching {
 					TypeBinding providedEnclosing = providedType.enclosingType();
 					if (requiredEnclosing != null && providedEnclosing != null) {
 						TypeBinding providedEnclSubstitute = providedSubstitute != null ? providedSubstitute.enclosingType() : null;
-						NullAnnotationMatching status = analyse(requiredEnclosing, providedEnclosing, providedEnclSubstitute, -1, mode);
+						NullAnnotationMatching status = analyse(requiredEnclosing, providedEnclosing, providedEnclSubstitute, substitution, -1, mode);
 						severity = Math.max(severity, status.severity);
 					}
 				}
@@ -307,8 +334,13 @@ public class NullAnnotationMatching {
 						return TagBits.AnnotationNullable; // type cannot require @NonNull
 				}
 			}
-			if (mode != CheckMode.BOUND_CHECK) // no pessimistic checks during boundcheck (we *have* the instantiation)
-				return TagBits.AnnotationNonNull; // instantiation could require @NonNull
+			switch (mode) {
+				case BOUND_CHECK: // no pessimistic checks during boundcheck (we *have* the instantiation)
+				case OVERRIDE_RETURN: // allow covariance
+					break;
+				default:
+					return TagBits.AnnotationNonNull; // instantiation could require @NonNull
+			}
 		}
 
 		return 0;
@@ -398,27 +430,60 @@ public class NullAnnotationMatching {
 	 * @param requiredBits null tagBits of the required type
 	 * @param providedBits null tagBits of the provided type
 	 * @param nullStatus -1 means: don't use, other values see constants in FlowInfo
-	 * @param overrideDetailChecking true enables strictest mode during override analysis when checking type details (type argument, array content)
+	 * @param mode check mode (see {@link CheckMode})
+	 * @param requiredIsTypeVariable is the required type a type variable (possibly: "free type variable")?
 	 * @return see {@link #severity} for interpretation of values
 	 */
-	private static int computeNullProblemSeverity(long requiredBits, long providedBits, int nullStatus, boolean overrideDetailChecking) {
-		// nullStatus: 
-		// overrideDetailChecking: 
-		if ((requiredBits != 0 || overrideDetailChecking) && requiredBits != providedBits) {
-			if (requiredBits == TagBits.AnnotationNonNull && nullStatus == FlowInfo.NON_NULL) {
-				return 0; // OK by flow analysis
+	private static int computeNullProblemSeverity(long requiredBits, long providedBits, int nullStatus, CheckMode mode, boolean requiredIsTypeVariable) {
+		if (requiredBits == providedBits)
+			return 0;
+		if (requiredBits == 0) { 
+			switch (mode) {
+				case COMPATIBLE:
+				case BOUND_CHECK:
+				case EXACT:
+					return 0;
+				case OVERRIDE_RETURN:
+					if (providedBits == TagBits.AnnotationNonNull)
+						return 0; // covariant redefinition to nonnull is good
+					if (!requiredIsTypeVariable)
+						return 0; // refining an unconstrained non-TVB return to nullable is also legal
+					return 1;
+				case OVERRIDE:
+					return 1; // warn about dropped annotation
 			}
-			if (requiredBits == TagBits.AnnotationNullMASK)
-				return 0; // OK since LHS accepts either
-			if (nullStatus != -1 && !overrideDetailChecking && requiredBits == TagBits.AnnotationNullable)
-				return 0; // when using flow info, everything is compatible to nullable
-			if (providedBits != 0) {
-				return 2; // mismatching annotations
-			} else {
-				return 1; // need unchecked conversion regarding type detail
+		} else if (requiredBits == TagBits.AnnotationNullMASK) {
+			return 0; // OK since LHS accepts either
+		} else if (requiredBits == TagBits.AnnotationNonNull) {
+			switch (mode) {
+				case COMPATIBLE:
+					if (nullStatus == FlowInfo.NON_NULL)
+						return 0; // OK by flow analysis
+					//$FALL-THROUGH$
+				case BOUND_CHECK:
+				case EXACT:
+				case OVERRIDE_RETURN:
+				case OVERRIDE:
+					if (providedBits == 0)
+						return 1;
+					return 2;
+			}
+			
+		} else if (requiredBits == TagBits.AnnotationNullable) {
+			switch (mode) {
+				case COMPATIBLE:
+				case OVERRIDE_RETURN:
+					return 0; // in these modes everything is compatible to nullable
+				case BOUND_CHECK:
+				case EXACT:
+					if (providedBits == 0)
+						return 1;
+					return 2;
+				case OVERRIDE:
+					return 2;
 			}
 		}
-		return 0; // OK by tagBits
+		return 0; // shouldn't get here, requiredBits should be one of the listed cases
 	}
 
 	static class SearchContradictions extends TypeBindingVisitor {
@@ -565,4 +630,17 @@ public class NullAnnotationMatching {
 		}
 		return mainType;
 	}
+
+	@SuppressWarnings("nls")
+	@Override
+	public String toString() {
+		if (this == NULL_ANNOTATIONS_OK) return "OK";
+		if (this == NULL_ANNOTATIONS_MISMATCH) return "MISMATCH";
+		if (this == NULL_ANNOTATIONS_OK_NONNULL) return "OK NonNull";
+		if (this == NULL_ANNOTATIONS_UNCHECKED) return "UNCHECKED";
+		StringBuilder buf = new StringBuilder();
+		buf.append("Analysis result: severity="+this.severity);
+		buf.append(" nullStatus="+this.nullStatus);
+		return buf.toString();
+	} 
 }

@@ -345,10 +345,25 @@ public interface TypeConstants {
 	int CONSTRAINT_EXTENDS = 1;	// Actual << Formal
 	int CONSTRAINT_SUPER = 2;		// Actual >> Formal
 
-	// Constants used to perform bound checks
-	int OK = 0;
-	int UNCHECKED = 1;
-	int MISMATCH = 2;
+	// status of bound checks
+	public static enum BoundCheckStatus {
+		OK, NULL_PROBLEM, UNCHECKED, MISMATCH;
+		/** true if no problem or only a null problem. */
+		boolean isOKbyJLS() {
+			switch (this) {
+				case OK:
+				case NULL_PROBLEM:
+					return true;
+				default:
+					return false;
+			}
+		}
+		public BoundCheckStatus betterOf(BoundCheckStatus other) {
+			if (this.ordinal() < other.ordinal())
+				return this;
+			return other;
+		}
+	}
 
 	// Synthetics
 	char[] INIT = "<init>".toCharArray(); //$NON-NLS-1$

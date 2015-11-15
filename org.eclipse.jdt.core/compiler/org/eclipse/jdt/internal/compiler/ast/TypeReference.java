@@ -53,10 +53,10 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.Substitution;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
-import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class TypeReference extends Expression {
@@ -669,31 +669,30 @@ protected void resolveAnnotations(Scope scope, int location) {
 public int getAnnotatableLevels() {
 	return 1;
 }
-/** Check all typeArguments against null constraints on their corresponding type variables. */
-protected void checkNullConstraints(Scope scope, TypeReference[] typeArguments) {
-	if (scope.environment().usesNullTypeAnnotations()
-			&& typeArguments != null)
-	{
-		TypeVariableBinding[] typeVariables = this.resolvedType.original().typeVariables();
+/** Check all typeArguments for illegal null annotations on base types. */
+protected void checkIllegalNullAnnotations(Scope scope, TypeReference[] typeArguments) {
+	if (scope.environment().usesNullTypeAnnotations() && typeArguments != null) {
 		for (int i = 0; i < typeArguments.length; i++) {
 			TypeReference arg = typeArguments[i];
 			if (arg.resolvedType != null)
-				arg.checkNullConstraints(scope, typeVariables, i);
+				arg.checkIllegalNullAnnotation(scope);
 		}
 	}
 }
 /** Check whether this type reference conforms to the null constraints defined for the corresponding type variable. */
-protected void checkNullConstraints(Scope scope, TypeBinding[] variables, int rank) {
+protected void checkNullConstraints(Scope scope, Substitution substitution, TypeBinding[] variables, int rank) {
 	if (variables != null && variables.length > rank) {
 		TypeBinding variable = variables[rank];
 		if (variable.hasNullTypeAnnotations()) {
-			if (NullAnnotationMatching.analyse(variable, this.resolvedType, null, -1, CheckMode.BOUND_CHECK).isAnyMismatch())
+			if (NullAnnotationMatching.analyse(variable, this.resolvedType, null, substitution, -1, CheckMode.BOUND_CHECK).isAnyMismatch())
 				scope.problemReporter().nullityMismatchTypeArgument(variable, this.resolvedType, this);
     	}
 	}
-	if (this.resolvedType.leafComponentType().isBaseType() && hasNullTypeAnnotation(AnnotationPosition.LEAF_TYPE)) {
-		scope.problemReporter().illegalAnnotationForBaseType(this, this.annotations[0], this.resolvedType.tagBits & TagBits.AnnotationNullMASK);
-	}
+	checkIllegalNullAnnotation(scope);
+}
+protected void checkIllegalNullAnnotation(Scope scope) {
+	if (this.resolvedType.leafComponentType().isBaseType() && hasNullTypeAnnotation(AnnotationPosition.LEAF_TYPE))
+		scope.problemReporter().illegalAnnotationForBaseType(this, this.annotations[0], this.resolvedType.tagBits & TagBits.AnnotationNullMASK);	
 }
 /** Retrieve the null annotation that has been translated to the given nullTagBits. */
 public Annotation findAnnotation(long nullTagBits) {
