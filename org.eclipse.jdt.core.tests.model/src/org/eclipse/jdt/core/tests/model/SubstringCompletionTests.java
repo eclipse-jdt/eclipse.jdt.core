@@ -23,9 +23,9 @@ public class SubstringCompletionTests extends AbstractJavaModelCompletionTests {
 
 public static Test suite() {
 	if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS != null || TESTS_RANGE != null) {
-		return buildModelTestSuite(CompletionTests.class);
+		return buildModelTestSuite(SubstringCompletionTests.class);
 	}
-	TestSuite suite = new Suite(CompletionTests.class.getName());
+	TestSuite suite = new Suite(SubstringCompletionTests.class.getName());
 	suite.addTest(new SubstringCompletionTests("testQualifiedNonStaticMethod"));
 	suite.addTest(new SubstringCompletionTests("testQualifiedStaticMethod"));
 	suite.addTest(new SubstringCompletionTests("testUnqualifiedNonStaticMethod"));
@@ -113,8 +113,8 @@ public void testQualifiedNonStaticMethod() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
+			"removeBar[METHOD_REF]{removeBar(), Ltest.Test;, ()V, removeBar, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_STATIC + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
 			"Bar2[METHOD_REF]{Bar2(), Ltest.Test;, ()LZork;, Bar2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
-			"removeBar[METHOD_REF]{removeBar(), Ltest.Test;, ()V, removeBar, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
 			"bar1[METHOD_REF]{bar1(), Ltest.Test;, ()Ljava.lang.Object;, bar1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
@@ -140,8 +140,8 @@ public void testUnqualifiedNonStaticMethod() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
+			"removeBar[METHOD_REF]{removeBar(), Ltest.Test;, ()V, removeBar, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
 			"Bar2[METHOD_REF]{Bar2(), Ltest.Test;, ()LZork;, Bar2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"removeBar[METHOD_REF]{removeBar(), Ltest.Test;, ()V, removeBar, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"bar1[METHOD_REF]{bar1(), Ltest.Test;, ()Ljava.lang.Object;, bar1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
@@ -166,7 +166,7 @@ public void testQualifiedStaticMethod() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"removeBar[METHOD_REF]{removeBar(), Ltest.Test;, ()V, removeBar, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_NON_INHERITED) + "}\n" +
+			"removeBar[METHOD_REF]{removeBar(), Ltest.Test;, ()V, removeBar, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_NON_INHERITED + R_SUBSTRING) + "}\n" +
 			"bar1[METHOD_REF]{bar1(), Ltest.Test;, ()Ljava.lang.Object;, bar1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_NON_INHERITED) + "}",
 			requestor.getResults());
 }
@@ -191,8 +191,8 @@ public void testUnqualifiedStaticMethod() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
+			"removeBar[METHOD_REF]{removeBar(), Ltest.Test;, ()V, removeBar, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
 			"bar1[METHOD_REF]{bar1(), Ltest.Test;, ()Ljava.lang.Object;, bar1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"removeBar[METHOD_REF]{removeBar(), Ltest.Test;, ()V, removeBar, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"Bar2[METHOD_REF]{Bar2(), Ltest.Test;, ()LZork;, Bar2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
@@ -217,7 +217,7 @@ public void testQualifiedNonStaticField() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
+			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_STATIC + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
 			"element[FIELD_REF]{element, Ltest.Test;, I, element, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
 			"elementCount[FIELD_REF]{elementCount, Ltest.Test;, J, elementCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
@@ -245,7 +245,7 @@ public void testUnqualifiedNonStaticField() throws JavaModelException {
 
 	assertResults(
 			"ElementType[TYPE_REF]{java.lang.annotation.ElementType, java.lang.annotation, Ljava.lang.annotation.ElementType;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
 			"element[FIELD_REF]{element, Ltest.Test;, I, element, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"elementCount[FIELD_REF]{elementCount, Ltest.Test;, J, elementCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
@@ -297,7 +297,7 @@ public void testUnqualifiedStaticField() throws JavaModelException {
 
 	assertResults(
 			"ElementType[TYPE_REF]{java.lang.annotation.ElementType, java.lang.annotation, Ljava.lang.annotation.ElementType;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
 			"element[FIELD_REF]{element, Ltest.Test;, I, element, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"elementCount[FIELD_REF]{elementCount, Ltest.Test;, J, elementCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
@@ -325,8 +325,8 @@ public void testLocalVariable() throws JavaModelException {
 
 	assertResults(
 			"ElementType[TYPE_REF]{java.lang.annotation.ElementType, java.lang.annotation, Ljava.lang.annotation.ElementType;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"temporaryElement[LOCAL_VARIABLE_REF]{temporaryElement, null, I, temporaryElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"temporaryElement[LOCAL_VARIABLE_REF]{temporaryElement, null, I, temporaryElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
 			"element[FIELD_REF]{element, Ltest.Test;, I, element, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"elementCount[FIELD_REF]{elementCount, Ltest.Test;, J, elementCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
@@ -353,8 +353,8 @@ public void testMethodParamVariable() throws JavaModelException {
 
 	assertResults(
 			"ElementType[TYPE_REF]{java.lang.annotation.ElementType, java.lang.annotation, Ljava.lang.annotation.ElementType;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"initElement[LOCAL_VARIABLE_REF]{initElement, null, I, initElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"initElement[LOCAL_VARIABLE_REF]{initElement, null, I, initElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
 			"element[FIELD_REF]{element, Ltest.Test;, I, element, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
 			"elementCount[FIELD_REF]{elementCount, Ltest.Test;, J, elementCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
@@ -382,9 +382,9 @@ public void testClassTypeInstantiation() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"EvenMoreSpecificFooBar[TYPE_REF]{EvenMoreSpecificFooBar, test, Ltest.EvenMoreSpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"SpecificFooBar[TYPE_REF]{SpecificFooBar, test, Ltest.SpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"Foobar[TYPE_REF]{Foobar, test, Ltest.Foobar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"EvenMoreSpecificFooBar[TYPE_REF]{EvenMoreSpecificFooBar, test, Ltest.EvenMoreSpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"SpecificFooBar[TYPE_REF]{SpecificFooBar, test, Ltest.SpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"Foobar[TYPE_REF]{Foobar, test, Ltest.Foobar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testClassTypeFieldDeclaration() throws JavaModelException {
@@ -408,9 +408,9 @@ public void testClassTypeFieldDeclaration() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"EvenMoreSpecificFooBar[TYPE_REF]{EvenMoreSpecificFooBar, test, Ltest.EvenMoreSpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"Foobar[TYPE_REF]{Foobar, test, Ltest.Foobar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"SpecificFooBar[TYPE_REF]{SpecificFooBar, test, Ltest.SpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"EvenMoreSpecificFooBar[TYPE_REF]{EvenMoreSpecificFooBar, test, Ltest.EvenMoreSpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"Foobar[TYPE_REF]{Foobar, test, Ltest.Foobar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"SpecificFooBar[TYPE_REF]{SpecificFooBar, test, Ltest.SpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testClassTypeParamDeclaration() throws JavaModelException {
@@ -434,9 +434,9 @@ public void testClassTypeParamDeclaration() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"EvenMoreSpecificFooBar[TYPE_REF]{EvenMoreSpecificFooBar, test, Ltest.EvenMoreSpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"Foobar[TYPE_REF]{Foobar, test, Ltest.Foobar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"SpecificFooBar[TYPE_REF]{SpecificFooBar, test, Ltest.SpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"EvenMoreSpecificFooBar[TYPE_REF]{EvenMoreSpecificFooBar, test, Ltest.EvenMoreSpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"Foobar[TYPE_REF]{Foobar, test, Ltest.Foobar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"SpecificFooBar[TYPE_REF]{SpecificFooBar, test, Ltest.SpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testClassTypeLocalVarDeclaration() throws JavaModelException {
@@ -462,9 +462,9 @@ public void testClassTypeLocalVarDeclaration() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"EvenMoreSpecificFooBar[TYPE_REF]{EvenMoreSpecificFooBar, test, Ltest.EvenMoreSpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"Foobar[TYPE_REF]{Foobar, test, Ltest.Foobar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"SpecificFooBar[TYPE_REF]{SpecificFooBar, test, Ltest.SpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"EvenMoreSpecificFooBar[TYPE_REF]{EvenMoreSpecificFooBar, test, Ltest.EvenMoreSpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"Foobar[TYPE_REF]{Foobar, test, Ltest.Foobar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"SpecificFooBar[TYPE_REF]{SpecificFooBar, test, Ltest.SpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testClassTypeThrowsDeclaration() throws JavaModelException {
@@ -489,8 +489,8 @@ public void testClassTypeThrowsDeclaration() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"EvenMoreSpecificFooBar[TYPE_REF]{EvenMoreSpecificFooBar, test, Ltest.EvenMoreSpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"SpecificFooBar[TYPE_REF]{SpecificFooBar, test, Ltest.SpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"EvenMoreSpecificFooBar[TYPE_REF]{EvenMoreSpecificFooBar, test, Ltest.EvenMoreSpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"SpecificFooBar[TYPE_REF]{SpecificFooBar, test, Ltest.SpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testClassTypeExtends() throws JavaModelException {
@@ -514,8 +514,8 @@ public void testClassTypeExtends() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"EvenMoreSpecificFooBar[TYPE_REF]{EvenMoreSpecificFooBar, test, Ltest.EvenMoreSpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_CLASS) + "}\n" +
-			"SpecificFooBar[TYPE_REF]{SpecificFooBar, test, Ltest.SpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_CLASS) + "}",
+			"EvenMoreSpecificFooBar[TYPE_REF]{EvenMoreSpecificFooBar, test, Ltest.EvenMoreSpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_CLASS + R_SUBSTRING) + "}\n" +
+			"SpecificFooBar[TYPE_REF]{SpecificFooBar, test, Ltest.SpecificFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_CLASS + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testClassTypeImplements() throws JavaModelException {
@@ -540,8 +540,8 @@ public void testClassTypeImplements() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Foobar[TYPE_REF]{Foobar, test, Ltest.Foobar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_INTERFACE) + "}\n" +
-			"FoobarExtension[TYPE_REF]{FoobarExtension, test, Ltest.FoobarExtension;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_INTERFACE) + "}",
+			"Foobar[TYPE_REF]{Foobar, test, Ltest.Foobar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_INTERFACE + R_SUBSTRING) + "}\n" +
+			"FoobarExtension[TYPE_REF]{FoobarExtension, test, Ltest.FoobarExtension;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_INTERFACE + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testInnerClassTypeInstantiation() throws JavaModelException {
@@ -564,7 +564,7 @@ public void testInnerClassTypeInstantiation() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testInnerClassTypeFieldDeclaration() throws JavaModelException {
@@ -584,7 +584,7 @@ public void testInnerClassTypeFieldDeclaration() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testInnerClassTypeParamDeclaration() throws JavaModelException {
@@ -604,7 +604,7 @@ public void testInnerClassTypeParamDeclaration() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testInnerClassTypeLocalVarDeclaration() throws JavaModelException {
@@ -626,7 +626,7 @@ public void testInnerClassTypeLocalVarDeclaration() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testInnerClassTypeThrowsDeclaration() throws JavaModelException {
@@ -646,7 +646,7 @@ public void testInnerClassTypeThrowsDeclaration() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testInnerClassTypeExtends() throws JavaModelException {
@@ -666,7 +666,7 @@ public void testInnerClassTypeExtends() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testInnerClassTypeImplements() throws JavaModelException {
@@ -686,7 +686,7 @@ public void testInnerClassTypeImplements() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testStaticNestedClassTypeInstantiation() throws JavaModelException {
@@ -708,7 +708,7 @@ public void testStaticNestedClassTypeInstantiation() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testStaticNestedClassTypeFieldDeclaration() throws JavaModelException {
@@ -728,7 +728,7 @@ public void testStaticNestedClassTypeFieldDeclaration() throws JavaModelExceptio
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testStaticNestedClassTypeParamDeclaration() throws JavaModelException {
@@ -748,7 +748,7 @@ public void testStaticNestedClassTypeParamDeclaration() throws JavaModelExceptio
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testStaticNestedClassTypeLocalVarDeclaration() throws JavaModelException {
@@ -770,7 +770,7 @@ public void testStaticNestedClassTypeLocalVarDeclaration() throws JavaModelExcep
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testStaticNestedClassTypeThrowsDeclaration() throws JavaModelException {
@@ -790,7 +790,7 @@ public void testStaticNestedClassTypeThrowsDeclaration() throws JavaModelExcepti
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testStaticNestedClassTypeExtends() throws JavaModelException {
@@ -810,7 +810,7 @@ public void testStaticNestedClassTypeExtends() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testStaticNestedClassTypeImplements() throws JavaModelException {
@@ -830,7 +830,7 @@ public void testStaticNestedClassTypeImplements() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"Test.FooBar[TYPE_REF]{FooBar, test, Ltest.Test$FooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testLocalClassTypeInstantiation() throws JavaModelException {
@@ -852,7 +852,7 @@ public void testLocalClassTypeInstantiation() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"FooBar[TYPE_REF]{FooBar, test, LFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"FooBar[TYPE_REF]{FooBar, test, LFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testLocalClassTypeLocalVarDeclaration() throws JavaModelException {
@@ -874,7 +874,7 @@ public void testLocalClassTypeLocalVarDeclaration() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"FooBar[TYPE_REF]{FooBar, test, LFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"FooBar[TYPE_REF]{FooBar, test, LFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 public void testLocalClassTypeExtends() throws JavaModelException {
@@ -896,7 +896,7 @@ public void testLocalClassTypeExtends() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"FooBar[TYPE_REF]{FooBar, test, LFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED) + "}",
+			"FooBar[TYPE_REF]{FooBar, test, LFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
 			requestor.getResults());
 }
 }

@@ -4101,24 +4101,17 @@ public final class CompletionEngine
 		return 0;
 	}
 	int computeRelevanceForCaseMatching(char[] token, char[] proposalName){
-		if (this.options.camelCaseMatch) {
-			if(CharOperation.equals(token, proposalName, true /* do not ignore case */)) {
-				return R_CASE + R_EXACT_NAME;
-			} else if (CharOperation.prefixEquals(token, proposalName, true /* do not ignore case */)) {
-				return R_CASE;
-			} else if (CharOperation.camelCaseMatch(token, proposalName)){
-				return R_CAMEL_CASE;
-			} else if(CharOperation.equals(token, proposalName, false /* ignore case */)) {
-				return R_EXACT_NAME;
-			}
-		} else if (CharOperation.prefixEquals(token, proposalName, true /* do not ignore case */)) {
-			if(CharOperation.equals(token, proposalName, true /* do not ignore case */)) {
-				return R_CASE + R_EXACT_NAME;
-			} else {
-				return R_CASE;
-			}
-		} else if(CharOperation.equals(token, proposalName, false /* ignore case */)) {
+		if(CharOperation.equals(token, proposalName, true)) {
+			return R_EXACT_NAME + R_CASE;
+		} else if(CharOperation.equals(token, proposalName, false)) {
 			return R_EXACT_NAME;
+		} else if (CharOperation.prefixEquals(token, proposalName, false)) {
+			if (CharOperation.prefixEquals(token, proposalName, true))
+				return R_CASE;
+		} else if (this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, proposalName)){
+				return R_CAMEL_CASE;
+		} else if (this.options.substringMatch && CharOperation.substringMatch(token, proposalName)) {
+			return R_SUBSTRING;
 		}
 		return 0;
 	}
