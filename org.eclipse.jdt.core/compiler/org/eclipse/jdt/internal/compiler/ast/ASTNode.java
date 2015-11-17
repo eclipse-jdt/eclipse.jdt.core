@@ -972,10 +972,10 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					System.arraycopy(se8Annotations, 0, se8Annotations = new AnnotationBinding[se8count + 1], 0, se8count);
 					se8Annotations[se8count++] = annotation;
 				}
-				if (annotationType.id == TypeIds.T_ConfiguredAnnotationNonNull) {
+				if (annotationType.hasNullBit(TypeIds.BitNonNullAnnotation)) {
 					se8nullBits |= TagBits.AnnotationNonNull;
 					se8NullAnnotation = annotations[i];
-				} else if (annotationType.id == TypeIds.T_ConfiguredAnnotationNullable) {
+				} else if (annotationType.hasNullBit(TypeIds.BitNullableAnnotation)) {
 					se8nullBits |= TagBits.AnnotationNullable;
 					se8NullAnnotation = annotations[i];
 				}

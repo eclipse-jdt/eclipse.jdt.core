@@ -109,6 +109,8 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	AnnotationBinding nonNullAnnotation;
 	AnnotationBinding nullableAnnotation;
 
+	Map<String,Integer> allNullAnnotations = null;
+
 	final List<MethodBinding> deferredEnumMethods = new ArrayList<>(); // during early initialization we cannot mark Enum-methods as nonnull.
 
 	/** Global access to the outermost active inference context as the universe for inference variable interning. */
@@ -1003,9 +1005,10 @@ public TypeBinding createAnnotatedType(TypeBinding type, AnnotationBinding[] new
 				continue;
 			}
 			long tagBits = 0;
-			switch (newbies[i].type.id) {
-				case TypeIds.T_ConfiguredAnnotationNonNull  : tagBits = TagBits.AnnotationNonNull; break;
-				case TypeIds.T_ConfiguredAnnotationNullable : tagBits = TagBits.AnnotationNullable; break;
+			if (newbies[i].type.hasNullBit(TypeIds.BitNonNullAnnotation)) {
+				tagBits = TagBits.AnnotationNonNull;
+			} else if (newbies[i].type.hasNullBit(TypeIds.BitNullableAnnotation)) {
+				tagBits = TagBits.AnnotationNullable;
 			}
 			if ((tagBitsSeen & tagBits) == 0) {
 				tagBitsSeen |= tagBits;
@@ -1107,6 +1110,27 @@ public char[][] getNonNullAnnotationName() {
 
 public char[][] getNonNullByDefaultAnnotationName() {
 	return this.globalOptions.nonNullByDefaultAnnotationName;
+}
+
+int getNullAnnotationBit(char[][] qualifiedTypeName) {
+	if (this.allNullAnnotations == null) {
+		this.allNullAnnotations = new HashMap<>();
+		this.allNullAnnotations.put(CharOperation.toString(this.globalOptions.nonNullAnnotationName), TypeIds.BitNonNullAnnotation);
+		this.allNullAnnotations.put(CharOperation.toString(this.globalOptions.nullableAnnotationName), TypeIds.BitNullableAnnotation);
+		this.allNullAnnotations.put(CharOperation.toString(this.globalOptions.nonNullByDefaultAnnotationName), TypeIds.BitNonNullByDefaultAnnotation);
+		for (String name : this.globalOptions.nullableAnnotationSecondaryNames)
+			this.allNullAnnotations.put(name, TypeIds.BitNullableAnnotation);
+		for (String name : this.globalOptions.nonNullAnnotationSecondaryNames)
+			this.allNullAnnotations.put(name, TypeIds.BitNonNullAnnotation);
+		for (String name : this.globalOptions.nonNullByDefaultAnnotationSecondaryNames)
+			this.allNullAnnotations.put(name, TypeIds.BitNonNullByDefaultAnnotation);
+	}
+	String qualifiedTypeString = CharOperation.toString(qualifiedTypeName);
+	Integer typeBit = this.allNullAnnotations.get(qualifiedTypeString);
+	return typeBit == null ? 0 : typeBit;
+}
+public boolean isNullnessAnnotationPackage(PackageBinding pkg) {
+	return this.nonnullAnnotationPackage == pkg || this.nullableAnnotationPackage == pkg || this.nonnullByDefaultAnnotationPackage == pkg;
 }
 
 public boolean usesNullTypeAnnotations() {
@@ -1695,8 +1719,7 @@ public AnnotationBinding[] filterNullTypeAnnotations(AnnotationBinding[] typeAnn
 		if (typeAnnotation == null) {
 			count++; // sentinel in annotation sequence for array dimensions
 		} else {
-			int id = typeAnnotation.type.id;
-			if (id != TypeIds.T_ConfiguredAnnotationNonNull && id != TypeIds.T_ConfiguredAnnotationNullable)
+			if (!typeAnnotation.type.hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation))
 				filtered[count++] = typeAnnotation;
 		}
 	}
@@ -1711,15 +1734,13 @@ public AnnotationBinding[] filterNullTypeAnnotations(AnnotationBinding[] typeAnn
 public boolean containsNullTypeAnnotation(IBinaryAnnotation[] typeAnnotations) {
 	if (typeAnnotations.length == 0)
 		return false;
-	char[][] nonNullAnnotationName = this.getNonNullAnnotationName();
-	char[][] nullableAnnotationName = this.getNullableAnnotationName();
 	for (int i = 0; i < typeAnnotations.length; i++) {
 		IBinaryAnnotation typeAnnotation = typeAnnotations[i];
 		char[] typeName = typeAnnotation.getTypeName();
 		// typeName must be "Lfoo/X;"
 		if (typeName == null || typeName.length < 3 || typeName[0] != 'L') continue;
 		char[][] name = CharOperation.splitOn('/', typeName, 1, typeName.length-1);
-		if (CharOperation.equals(name, nonNullAnnotationName) || CharOperation.equals(name, nullableAnnotationName))
+		if (getNullAnnotationBit(name) != 0)
 			return true;
 	}
 	return false;

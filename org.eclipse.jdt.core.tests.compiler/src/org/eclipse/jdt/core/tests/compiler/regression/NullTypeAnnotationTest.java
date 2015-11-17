@@ -15,12 +15,14 @@
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
@@ -8853,5 +8855,63 @@ public void testBug483527() {
 		},
 		compilerOptions,
 		"");
+}
+public void testMultipleAnnotations1() {
+	Map options1 = new HashMap<>(getCompilerOptions());
+	options1.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+	options1.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+	runConformTest(
+		new String[] {
+			"org/foo/Nullable.java",
+			"package org.foo;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ElementType.TYPE_USE})\n" + 
+			"public @interface Nullable {}\n",
+			"org/foo/NonNull.java",
+			"package org.foo;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ElementType.TYPE_USE})\n" + 
+			"public @interface NonNull {}\n",
+			"p1/TestNulls.java",
+			"package p1;\n" +
+			"import org.foo.*;\n" + 
+			"\n" + 
+			"public class TestNulls {\n" + 
+			"	public @Nullable String weaken(@NonNull String theValue) {\n" + 
+			"		return theValue;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}"
+		},
+		options1);
+	Map options2 = getCompilerOptions();
+	options2.put(CompilerOptions.OPTION_NonNullAnnotationSecondaryNames, "org.foo.NonNull");
+	options2.put(CompilerOptions.OPTION_NullableAnnotationSecondaryNames, "org.foo.Nullable");
+	runNegativeTestWithLibs(
+		new String[] {
+			"p2/Test.java",
+			"package p2;\n" +
+			"import p1.TestNulls;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Test {\n" +
+			"	@NonNull String test(TestNulls test, @Nullable String input) {\n" +
+			"		return test.weaken(input);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		options2,
+		"----------\n" + 
+		"1. ERROR in p2\\Test.java (at line 6)\n" + 
+		"	return test.weaken(input);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
+		"----------\n" + 
+		"2. ERROR in p2\\Test.java (at line 6)\n" + 
+		"	return test.weaken(input);\n" + 
+		"	                   ^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
+ 		"----------\n");
 }
 }

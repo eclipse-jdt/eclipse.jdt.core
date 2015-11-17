@@ -1545,6 +1545,29 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_NULLABLE_ANNOTATION_NAME = PLUGIN_ID + ".compiler.annotation.nullable"; //$NON-NLS-1$
 	/**
+	 * Compiler option ID: Names of Secondary Annotation Types for Nullable Types.
+	 * <p>This option defines a comma-separated list of fully qualified Java type names
+	 *    that the compiler may use to perform special null analysis.</p>
+	 * <p>The annotation types identified by the names in this list are interpreted in the same way
+	 *    as the annotation identified by {@link #COMPILER_NULLABLE_ANNOTATION_NAME}.
+	 *    The intention is to support libraries using different sets of null annotations,
+	 *    in addition to those used by the current project. Secondary null annotations should not be
+	 *    used in the project's own source code.</p>
+	 * <p>JDT will never actively use any secondary annotation names from this list,
+	 *    i.e., inferred null annotations and content assist proposals mentioning null annotations
+	 *    are always rendered using the primary name from {@link #COMPILER_NULLABLE_ANNOTATION_NAME}.</p>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nullable.secondary"</code></dd>
+	 * <dt>Possible values:</dt><dd>a comma-separated list of legal, fully qualified Java type names;
+	 *     each name in the list must resolve to an annotation type.</dd>
+	 * <dt>Default:</dt><dd><code>""</code></dd>
+	 * </dl>
+	 * @since 3.12
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_NULLABLE_ANNOTATION_SECONDARY_NAMES = PLUGIN_ID + ".compiler.annotation.nullable.secondary"; //$NON-NLS-1$
+	/**
 	 * Compiler option ID: Name of Annotation Type for Non-Null Types.
 	 * <p>This option defines a fully qualified Java type name that the compiler may use
 	 *    to perform special null analysis.</p>
@@ -1571,6 +1594,29 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_NONNULL_ANNOTATION_NAME = PLUGIN_ID + ".compiler.annotation.nonnull"; //$NON-NLS-1$
 	/**
+	 * Compiler option ID: Names of Secondary Annotation Types for Non-Null Types.
+	 * <p>This option defines a comma-separated list of fully qualified Java type names
+	 *    that the compiler may use to perform special null analysis.</p>
+	 * <p>The annotation types identified by the names in this list are interpreted in the same way
+	 *    as the annotation identified by {@link #COMPILER_NONNULL_ANNOTATION_NAME}.
+	 *    The intention is to support libraries using different sets of null annotations,
+	 *    in addition to those used by the current project. Secondary null annotations should not be
+	 *    used in the project's own source code.</p>
+	 * <p>JDT will never actively use any secondary annotation names from this list,
+	 *    i.e., inferred null annotations and content assist proposals mentioning null annotations
+	 *    are always rendered using the primary name from {@link #COMPILER_NONNULL_ANNOTATION_NAME}.</p>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nonnull.secondary"</code></dd>
+	 * <dt>Possible values:</dt><dd>a comma-separated list of legal, fully qualified Java type names;
+	 *     each name in the list must resolve to an annotation type.</dd>
+	 * <dt>Default:</dt><dd><code>""</code></dd>
+	 * </dl>
+	 * @since 3.12
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_NONNULL_ANNOTATION_SECONDARY_NAMES = PLUGIN_ID + ".compiler.annotation.nonnull.secondary"; //$NON-NLS-1$
+	/**
 	 * Compiler option ID: Name of Annotation Type to specify a nullness default for unannotated types.
 	 * <p>This option defines a fully qualified Java type name that the compiler may use
 	 *    to perform special null analysis.</p>
@@ -1590,6 +1636,26 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME = PLUGIN_ID + ".compiler.annotation.nonnullbydefault"; //$NON-NLS-1$
+	/**
+	 * Compiler option ID: Names of Secondary Annotation Types to specify a nullness default for unannotated types.
+	 * <p>This option defines a comma-separated list of fully qualified Java type names
+	 *    that the compiler may use to perform special null analysis.</p>
+	 * <p>The annotation types identified by the names in this list are interpreted in the same way
+	 *    as the annotation identified by {@link #COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME}.
+	 *    The intention is to support libraries using different sets of null annotations,
+	 *    in addition to those used by the current project. Secondary null annotations should not be
+	 *    used in the project's own source code.</p>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nonnullbydefault.secondary"</code></dd>
+	 * <dt>Possible values:</dt><dd>a comma-separated list of legal, fully qualified Java type names;
+	 *     each name in the list must resolve to an annotation type.</dd>
+	 * <dt>Default:</dt><dd><code>""</code></dd>
+	 * </dl>
+	 * @since 3.12
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_SECONDARY_NAMES = PLUGIN_ID + ".compiler.annotation.nonnullbydefault.secondary"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting missing default nullness annotation.
 	 * <p>When enabled, the compiler will issue an error or a warning in the following cases:</p>

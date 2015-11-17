@@ -2033,8 +2033,7 @@ public void evaluateNullAnnotations() {
 		for (int i = 0; i < annotations.length; i++) {
 			ReferenceBinding annotationType = annotations[i].getCompilerAnnotation().getAnnotationType();
 			if (annotationType != null) {
-				if (annotationType.id == TypeIds.T_ConfiguredAnnotationNonNull
-						|| annotationType.id == TypeIds.T_ConfiguredAnnotationNullable) {
+				if (annotationType.hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation)) {
 					this.scope.problemReporter().nullAnnotationUnsupportedLocation(annotations[i]);
 					this.tagBits &= ~TagBits.AnnotationNullMASK;
 				}
@@ -2046,10 +2045,7 @@ public void evaluateNullAnnotations() {
 	PackageBinding pkg = getPackage();
 	boolean isInDefaultPkg = (pkg.compoundName == CharOperation.NO_CHAR_CHAR);
 	if (!isPackageInfo) {
-		boolean isInNullnessAnnotationPackage = 
-				pkg == this.scope.environment().nonnullAnnotationPackage
-				|| pkg == this.scope.environment().nullableAnnotationPackage
-				|| pkg == this.scope.environment().nonnullByDefaultAnnotationPackage;
+		boolean isInNullnessAnnotationPackage = this.scope.environment().isNullnessAnnotationPackage(pkg);
 		if (pkg.defaultNullness == NO_NULL_DEFAULT && !isInDefaultPkg && !isInNullnessAnnotationPackage && !(this instanceof NestedTypeBinding)) {
 			ReferenceBinding packageInfo = pkg.getType(TypeConstants.PACKAGE_INFO_NAME);
 			if (packageInfo == null) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -273,22 +273,24 @@ private boolean isPackageOfQualifiedTypeName(char[][] packageName, char[][] type
 
 void checkIfNullAnnotationType(ReferenceBinding type) {
 	// check if type is one of the configured null annotation types
-	// if so mark as a well known type using the corresponding typeID:
+	// if so mark as a well known type using the corresponding typeBit:
 	if (this.environment.nullableAnnotationPackage == this
 			&& CharOperation.equals(type.compoundName, this.environment.getNullableAnnotationName())) {
-		type.id = TypeIds.T_ConfiguredAnnotationNullable;
+		type.typeBits |= TypeIds.BitNullableAnnotation;
 		if (!(type instanceof UnresolvedReferenceBinding)) // unresolved will need to check back for the resolved type
 			this.environment.nullableAnnotationPackage = null; // don't check again
 	} else if (this.environment.nonnullAnnotationPackage == this
 			&& CharOperation.equals(type.compoundName, this.environment.getNonNullAnnotationName())) {
-		type.id = TypeIds.T_ConfiguredAnnotationNonNull;
+		type.typeBits |= TypeIds.BitNonNullAnnotation;
 		if (!(type instanceof UnresolvedReferenceBinding)) // unresolved will need to check back for the resolved type
 			this.environment.nonnullAnnotationPackage = null; // don't check again
 	} else if (this.environment.nonnullByDefaultAnnotationPackage == this
 			&& CharOperation.equals(type.compoundName, this.environment.getNonNullByDefaultAnnotationName())) {
-		type.id = TypeIds.T_ConfiguredAnnotationNonNullByDefault;
+		type.typeBits |= TypeIds.BitNonNullByDefaultAnnotation;
 		if (!(type instanceof UnresolvedReferenceBinding)) // unresolved will need to check back for the resolved type
 			this.environment.nonnullByDefaultAnnotationPackage = null; // don't check again
+	} else {
+		type.typeBits |= this.environment.getNullAnnotationBit(type.compoundName);
 	}
 }
 

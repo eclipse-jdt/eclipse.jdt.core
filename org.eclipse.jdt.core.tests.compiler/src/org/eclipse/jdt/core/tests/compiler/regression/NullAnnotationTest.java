@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -8659,5 +8660,153 @@ public void testBug482075() {
 		options,
 		""
 	);
+}
+public void testMultipleAnnotations() {
+	Map options1 = new HashMap<>(getCompilerOptions());
+	options1.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo1.NonNull");
+	options1.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo1.Nullable");
+	runConformTest(
+		new String[] {
+			"org/foo1/Nullable.java",
+			"package org.foo1;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" + 
+			"public @interface Nullable {}\n",
+			"org/foo1/NonNull.java",
+			"package org.foo1;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" + 
+			"public @interface NonNull {}\n",
+			"p1/TestNulls.java",
+			"package p1;\n" +
+			"import org.foo1.*;\n" + 
+			"\n" + 
+			"public class TestNulls {\n" + 
+			"	public @Nullable String weaken(@NonNull String theValue) {\n" + 
+			"		return theValue;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}"
+		},
+		options1);
+	Map options2 = new HashMap<>(getCompilerOptions());
+	options2.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo2.NonNull2");
+	options2.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo2.Nullable2");
+	options2.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "org.foo2.NoNulls2");
+	runConformTest(
+		false, // flush
+		new String[] {
+			"org/foo2/Nullable2.java",
+			"package org.foo2;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" + 
+			"public @interface Nullable2 {}\n",
+			"org/foo2/NonNull2.java",
+			"package org.foo2;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" + 
+			"public @interface NonNull2 {}\n",
+			"org/foo2/NoNulls2.java",
+			"package org.foo2;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.TYPE})\n" + 
+			"public @interface NoNulls2 {}\n",
+			"p2/TestNulls2.java",
+			"package p2;\n" +
+			"import org.foo2.*;\n" + 
+			"\n" + 
+			"public class TestNulls2 {\n" + 
+			"	public @Nullable2 String weaken(@NonNull2 String theValue) {\n" + 
+			"		return theValue;\n" + 
+			"	}\n" +
+			"	@NoNulls2\n" + 
+			"	public String strong(String theValue) {\n" + 
+			"		return theValue;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}",
+			"p2/TestNulls2a.java",
+			"package p2;\n" +
+			"import org.foo2.*;\n" + 
+			"\n" + 
+			"@NoNulls2\n" + 
+			"public class TestNulls2a {\n" + 
+			"	public String strong(String theValue) {\n" + 
+			"		return theValue;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}"
+		},
+		null, //libs
+		options1,
+		"",
+		"",
+		"",
+		JavacTestOptions.DEFAULT);
+	Map options3 = getCompilerOptions();
+	options3.put(JavaCore.COMPILER_NONNULL_ANNOTATION_SECONDARY_NAMES, "org.foo1.NonNull,org.foo2.NonNull2");
+	options3.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_SECONDARY_NAMES, " org.foo1.Nullable , org.foo2.Nullable2 "); // some spaces to test trimming
+	options3.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_SECONDARY_NAMES, "org.foo2.NoNulls2");
+	String specifiedOrInferred = (this.complianceLevel < ClassFileConstants.JDK1_8 ? "specified" : "inferred");
+	runNegativeTestWithLibs(
+			new String[] {
+				"p3/Test.java",
+				"package p3;\n" +
+				"import p1.TestNulls;\n" +
+				"import p2.TestNulls2;\n" +
+				"import p2.TestNulls2a;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class Test {\n" +
+				"	@NonNull String test1(TestNulls test, @Nullable String input) {\n" +
+				"		return test.weaken(input);\n" +
+				"	}\n" +
+				"	@NonNull String test2(TestNulls2 test, @Nullable String input) {\n" +
+				"		return test.weaken(input);\n" +
+				"	}\n" +
+				"	@NonNull String test3(TestNulls2 test, @Nullable String input) {\n" +
+				"		return test.strong(input); // requires nonnull due to method-level default\n" +
+				"	}\n" +
+				"	@NonNull String test4(TestNulls2a test, @Nullable String input) {\n" +
+				"		return test.strong(input); // requires nonnull due to type-level default\n" +
+				"	}\n" +
+				"}\n"
+			},
+			options3,
+				"----------\n" + 
+				"1. ERROR in p3\\Test.java (at line 8)\n" + 
+				"	return test.weaken(input);\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^\n" + 
+				"Null type mismatch: required \'@NonNull String\' but the provided value is "+specifiedOrInferred+" as @Nullable\n" +
+				"----------\n" + 
+				"2. ERROR in p3\\Test.java (at line 8)\n" + 
+				"	return test.weaken(input);\n" + 
+				"	                   ^^^^^\n" + 
+				mismatch_NonNull_Nullable("String") +
+				"----------\n" + 
+				"3. ERROR in p3\\Test.java (at line 11)\n" + 
+				"	return test.weaken(input);\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^\n" + 
+				"Null type mismatch: required \'@NonNull String\' but the provided value is "+specifiedOrInferred+" as @Nullable\n" +
+				"----------\n" + 
+				"4. ERROR in p3\\Test.java (at line 11)\n" + 
+				"	return test.weaken(input);\n" + 
+				"	                   ^^^^^\n" + 
+				mismatch_NonNull_Nullable("String") +
+				"----------\n" + 
+				"5. ERROR in p3\\Test.java (at line 14)\n" + 
+				"	return test.strong(input); // requires nonnull due to method-level default\n" + 
+				"	                   ^^^^^\n" + 
+				mismatch_NonNull_Nullable("String") +
+				"----------\n" + 
+				"6. ERROR in p3\\Test.java (at line 17)\n" + 
+				"	return test.strong(input); // requires nonnull due to type-level default\n" + 
+				"	                   ^^^^^\n" + 
+				mismatch_NonNull_Nullable("String") +
+				"----------\n");
 }
 }

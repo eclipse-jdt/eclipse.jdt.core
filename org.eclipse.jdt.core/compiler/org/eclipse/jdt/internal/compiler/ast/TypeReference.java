@@ -699,11 +699,9 @@ public Annotation findAnnotation(long nullTagBits) {
 	if (this.annotations != null) {
 		Annotation[] innerAnnotations = this.annotations[this.annotations.length-1];
 		if (innerAnnotations != null) {
-			int annId = nullTagBits == TagBits.AnnotationNonNull ? TypeIds.T_ConfiguredAnnotationNonNull : TypeIds.T_ConfiguredAnnotationNullable;
+			int annBit = nullTagBits == TagBits.AnnotationNonNull ? TypeIds.BitNonNullAnnotation : TypeIds.BitNullableAnnotation;
 			for (int i = 0; i < innerAnnotations.length; i++) {
-				if (innerAnnotations[i] != null 
-						&& innerAnnotations[i].resolvedType != null 
-						&& innerAnnotations[i].resolvedType.id == annId)
+				if (innerAnnotations[i] != null && innerAnnotations[i].hasNullBit(annBit))
 					return innerAnnotations[i];
 			}
 		}
@@ -727,10 +725,7 @@ public boolean hasNullTypeAnnotation(AnnotationPosition position) {
 public static boolean containsNullAnnotation(Annotation[] annotations) {
 	if (annotations != null) {
 		for (int i = 0; i < annotations.length; i++) {
-			if (annotations[i] != null 
-					&& annotations[i].resolvedType != null 
-					&& (annotations[i].resolvedType.id == TypeIds.T_ConfiguredAnnotationNonNull
-						|| annotations[i].resolvedType.id == TypeIds.T_ConfiguredAnnotationNullable))
+			if (annotations[i] != null && (annotations[i].hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation)))
 				return true;
 		}
 	}

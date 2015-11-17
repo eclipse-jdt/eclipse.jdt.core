@@ -581,13 +581,8 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 					AnnotationBinding [] annotations = descParameters[i].getTypeAnnotations();
 					for (int j = 0, length = annotations.length; j < length; j++) {
 						AnnotationBinding annotation = annotations[j];
-						if (annotation != null) {
-							switch (annotation.getAnnotationType().id) {
-								case TypeIds.T_ConfiguredAnnotationNullable :
-								case TypeIds.T_ConfiguredAnnotationNonNull :
-									ourParameters[i] = env.createAnnotatedType(ourParameters[i], new AnnotationBinding [] { annotation });
-									break;
-							}
+						if (annotation != null && annotation.getAnnotationType().hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation)) {
+							ourParameters[i] = env.createAnnotatedType(ourParameters[i], new AnnotationBinding [] { annotation });
 						}
 					}
 				}

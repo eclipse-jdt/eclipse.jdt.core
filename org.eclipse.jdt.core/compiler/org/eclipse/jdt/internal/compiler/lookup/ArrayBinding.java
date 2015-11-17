@@ -400,15 +400,12 @@ public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNull
 		for (int i = 0, length = annotations.length; i < length; i++) {
 			AnnotationBinding annotation = annotations[i];
 			if (annotation != null) {
-				switch (annotation.type.id) {
-					case TypeIds.T_ConfiguredAnnotationNullable :
-						nullTagBits  |= TagBits.AnnotationNullable;
-						this.tagBits |= TagBits.HasNullTypeAnnotation;
-						break;
-					case TypeIds.T_ConfiguredAnnotationNonNull :
-						nullTagBits  |= TagBits.AnnotationNonNull;
-						this.tagBits |= TagBits.HasNullTypeAnnotation;
-						break;
+				if (annotation.type.hasNullBit(TypeIds.BitNullableAnnotation)) {
+					nullTagBits  |= TagBits.AnnotationNullable;
+					this.tagBits |= TagBits.HasNullTypeAnnotation;
+				} else if (annotation.type.hasNullBit(TypeIds.BitNonNullAnnotation)) {
+					nullTagBits  |= TagBits.AnnotationNonNull;
+					this.tagBits |= TagBits.HasNullTypeAnnotation;
 				}
 			} else {
 				// null signals end of annotations for the current dimension in the serialized form.

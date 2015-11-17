@@ -8776,9 +8776,6 @@ private boolean excludeDueToAnnotation(Annotation[] annotations, int problemId) 
 				case TypeIds.T_JavaLangSuppressWarnings:
 				case TypeIds.T_JavaLangDeprecated:
 				case TypeIds.T_JavaLangSafeVarargs:
-				case TypeIds.T_ConfiguredAnnotationNonNull:
-				case TypeIds.T_ConfiguredAnnotationNullable:
-				case TypeIds.T_ConfiguredAnnotationNonNullByDefault:
 					break;
 				case TypeIds.T_JavaxInjectInject:
 				case TypeIds.T_ComGoogleInjectInject:
@@ -8787,8 +8784,10 @@ private boolean excludeDueToAnnotation(Annotation[] annotations, int problemId) 
 						return true; // @Inject on method/ctor does constitute a relevant use, just on fields it doesn't
 					break;
 				default:
-					// non-standard annotation found, don't warn
-					return true;
+					if (resolvedType instanceof ReferenceBinding)
+						if (((ReferenceBinding) resolvedType).hasNullBit(TypeIds.BitNullableAnnotation|TypeIds.BitNonNullAnnotation|TypeIds.BitNonNullByDefaultAnnotation))
+							break;
+					return true; // non-standard annotation found, don't warn
 			}
 		}
 	}
@@ -9289,9 +9288,7 @@ public void illegalRedefinitionToNonNullParameter(Argument argument, ReferenceBi
 	if (argument.annotations != null) {
 		for (int i=0; i<argument.annotations.length; i++) {
 			Annotation annotation = argument.annotations[i];
-			if (   annotation.resolvedType.id == TypeIds.T_ConfiguredAnnotationNullable
-				|| annotation.resolvedType.id == TypeIds.T_ConfiguredAnnotationNonNull)
-			{
+			if (annotation.hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation)) {
 				sourceStart = annotation.sourceStart;
 				break;
 			}
@@ -9342,9 +9339,7 @@ public void illegalParameterRedefinition(Argument argument, ReferenceBinding dec
 	if (argument.annotations != null) {
 		for (int i=0; i<argument.annotations.length; i++) {
 			Annotation annotation = argument.annotations[i];
-			if (   annotation.resolvedType.id == TypeIds.T_ConfiguredAnnotationNullable
-				|| annotation.resolvedType.id == TypeIds.T_ConfiguredAnnotationNonNull)
-			{
+			if (annotation.hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation)) {
 				sourceStart = annotation.sourceStart;
 				break;
 			}
@@ -9373,7 +9368,7 @@ public void illegalReturnRedefinition(AbstractMethodDeclaration abstractMethodDe
 		.append(inheritedMethod.shortReadableName());
 	int sourceStart = methodDecl.returnType.sourceStart;
 	Annotation[] annotations = methodDecl.annotations;
-	Annotation annotation = findAnnotation(annotations, TypeIds.T_ConfiguredAnnotationNullable);
+	Annotation annotation = findAnnotation(annotations, TypeIds.BitNullableAnnotation);
 	if (annotation != null) {
 		sourceStart = annotation.sourceStart;
 	}
@@ -9528,7 +9523,7 @@ public void nullAnnotationIsRedundant(AbstractMethodDeclaration sourceMethod, in
 	int sourceStart, sourceEnd;
 	if (i == -1) {
 		MethodDeclaration methodDecl = (MethodDeclaration) sourceMethod;
-		Annotation annotation = findAnnotation(methodDecl.annotations, TypeIds.T_ConfiguredAnnotationNonNull);
+		Annotation annotation = findAnnotation(methodDecl.annotations, TypeIds.BitNonNullAnnotation);
 		sourceStart = annotation != null ? annotation.sourceStart : methodDecl.returnType.sourceStart;
 		sourceEnd = methodDecl.returnType.sourceEnd;
 	} else {
@@ -9540,14 +9535,14 @@ public void nullAnnotationIsRedundant(AbstractMethodDeclaration sourceMethod, in
 }
 
 public void nullAnnotationIsRedundant(FieldDeclaration sourceField) {
-	Annotation annotation = findAnnotation(sourceField.annotations, TypeIds.T_ConfiguredAnnotationNonNull);
+	Annotation annotation = findAnnotation(sourceField.annotations, TypeIds.BitNonNullAnnotation);
 	int sourceStart = annotation != null ? annotation.sourceStart : sourceField.type.sourceStart;
 	int sourceEnd = sourceField.type.sourceEnd;
 	this.handle(IProblem.RedundantNullAnnotation, ProblemHandler.NoArgument, ProblemHandler.NoArgument, sourceStart, sourceEnd);
 }
 
 public void nullDefaultAnnotationIsRedundant(ASTNode location, Annotation[] annotations, Binding outer) {
-	Annotation annotation = findAnnotation(annotations, TypeIds.T_ConfiguredAnnotationNonNullByDefault);
+	Annotation annotation = findAnnotation(annotations, TypeIds.BitNonNullByDefaultAnnotation);
 	int start = annotation != null ? annotation.sourceStart : location.sourceStart;
 	int end = annotation != null ? annotation.sourceEnd : location.sourceStart;
 	String[] args = NoArgument;
@@ -9667,13 +9662,13 @@ public void conflictingInheritedNullAnnotations(ASTNode location, boolean previo
 
 public void illegalAnnotationForBaseType(TypeReference type, Annotation[] annotations, long nullAnnotationTagBit)
 {
-	int typeId = (nullAnnotationTagBit == TagBits.AnnotationNullable) 
-			? TypeIds.T_ConfiguredAnnotationNullable : TypeIds.T_ConfiguredAnnotationNonNull;
+	int typeBit = (nullAnnotationTagBit == TagBits.AnnotationNullable) 
+			? TypeIds.BitNullableAnnotation : TypeIds.BitNonNullAnnotation;
 	char[][] annotationNames = (nullAnnotationTagBit == TagBits.AnnotationNonNull)
 			? this.options.nonNullAnnotationName
 			: this.options.nullableAnnotationName;
 	String[] args = new String[] { new String(annotationNames[annotationNames.length-1]), new String(type.getLastToken()) };
-	Annotation annotation = findAnnotation(annotations, typeId);
+	Annotation annotation = findAnnotation(annotations, typeBit);
 	int start = annotation != null ? annotation.sourceStart : type.sourceStart;
 	int end = annotation != null ? annotation.sourceEnd : type.sourceEnd;
 	this.handle(IProblem.IllegalAnnotationForBaseType,
@@ -9735,12 +9730,12 @@ String internalAnnotatedTypeName(char[] annotationName, char[] typeName, int dim
 	}
 	return String.valueOf(fullName);
 }
-private Annotation findAnnotation(Annotation[] annotations, int typeId) {
+private Annotation findAnnotation(Annotation[] annotations, int typeBit) {
 	if (annotations != null) {
 		// should have a @NonNull/@Nullable annotation, search for it:
 		int length = annotations.length;
 		for (int j=0; j<length; j++) {
-			if (annotations[j].resolvedType != null && annotations[j].resolvedType.id == typeId) {
+			if (annotations[j].hasNullBit(typeBit)) {
 				return annotations[j];
 			}
 		}

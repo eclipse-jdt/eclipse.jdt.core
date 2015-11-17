@@ -1526,14 +1526,10 @@ public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNull
 		for (int i = 0, length = annotations.length; i < length; i++) {
 			AnnotationBinding annotation = annotations[i];
 			if (annotation != null) {
-				switch (annotation.type.id) {
-					case TypeIds.T_ConfiguredAnnotationNullable :
-						this.tagBits |= TagBits.AnnotationNullable | TagBits.HasNullTypeAnnotation;
-						break;
-					case TypeIds.T_ConfiguredAnnotationNonNull :
-						this.tagBits |= TagBits.AnnotationNonNull  | TagBits.HasNullTypeAnnotation;
-						break;
-				}
+				if (annotation.type.hasNullBit(TypeIds.BitNullableAnnotation))
+					this.tagBits |= TagBits.AnnotationNullable | TagBits.HasNullTypeAnnotation;
+				else if (annotation.type.hasNullBit(TypeIds.BitNonNullAnnotation))
+					this.tagBits |= TagBits.AnnotationNonNull  | TagBits.HasNullTypeAnnotation;
 			}
 		}
 		// we do accept contradictory tagBits here, to support detecting contradictions caused by type substitution
