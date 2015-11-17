@@ -3284,7 +3284,7 @@ public abstract class Scope {
 		unitScope.recordSimpleReference(name);
 		if ((mask & Binding.PACKAGE) != 0) {
 			PackageBinding packageBinding = unitScope.environment.getTopLevelPackage(name);
-			if (packageBinding != null) {
+			if (packageBinding != null && (packageBinding.tagBits & TagBits.HasMissingType) == 0) {
 				if (typeOrPackageCache != null)
 					typeOrPackageCache.put(name, packageBinding);
 				return packageBinding;
