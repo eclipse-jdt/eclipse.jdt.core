@@ -110,6 +110,9 @@ private IType createTypeFromJar(String resourcePath, int separatorIndex) throws 
 	}
 	// create handle
 	String classFilePath= resourcePath.substring(separatorIndex + 1);
+	int actualClassIndexSeparator = classFilePath.indexOf(IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR);
+	String moduleName = actualClassIndexSeparator == -1 ? null : classFilePath.substring(0, actualClassIndexSeparator);
+	classFilePath = moduleName != null ? classFilePath.substring(actualClassIndexSeparator + 1, classFilePath.length()) : classFilePath;
 	String[] simpleNames = new Path(classFilePath).segments();
 	String[] pkgName;
 	int length = simpleNames.length-1;
@@ -121,7 +124,7 @@ private IType createTypeFromJar(String resourcePath, int separatorIndex) throws 
 	}
 	IPackageFragment pkgFragment= (IPackageFragment) this.packageHandles.get(pkgName);
 	if (pkgFragment == null) {
-		pkgFragment= ((PackageFragmentRoot) this.lastPkgFragmentRoot).getPackageFragment(pkgName);
+		pkgFragment= ((PackageFragmentRoot) this.lastPkgFragmentRoot).getPackageFragment(pkgName, moduleName); //BUG 478143
 		// filter org.apache.commons.lang.enum package for projects above 1.5 
 		// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=317264
 		if (length == 5 && pkgName[4].equals("enum")) { //$NON-NLS-1$
