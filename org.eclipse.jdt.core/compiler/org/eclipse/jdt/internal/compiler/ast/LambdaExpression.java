@@ -613,7 +613,30 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		}
 	}
 
-	public boolean isPertinentToApplicability(TypeBinding targetType, MethodBinding method) {
+	public boolean isPertinentToApplicability(final TypeBinding targetType, final MethodBinding method) {
+
+		class NotPertientToApplicability extends RuntimeException {
+			private static final long serialVersionUID = 1L;
+		}
+		class ResultsAnalyser extends ASTVisitor {
+			public boolean visit(TypeDeclaration type, BlockScope skope) {
+				return false;
+			}
+			public boolean visit(TypeDeclaration type, ClassScope skope) {
+				return false;
+			}
+			public boolean visit(LambdaExpression type, BlockScope skope) {
+				return false;
+			}
+		    public boolean visit(ReturnStatement returnStatement, BlockScope skope) {
+		    	if (returnStatement.expression != null) {
+					if (!returnStatement.expression.isPertinentToApplicability(targetType, method))
+						throw new NotPertientToApplicability();
+		    	}
+		    	return false;
+		    }
+		}
+
 		if (targetType == null) // assumed to signal another primary error
 			return true;
 		
@@ -628,9 +651,18 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				return false;
 		} else {
 			Expression [] returnExpressions = this.resultExpressions;
-			for (int i = 0, length = returnExpressions.length; i < length; i++) {
-				if (!returnExpressions[i].isPertinentToApplicability(targetType, method))
+			if (returnExpressions != NO_EXPRESSIONS) {
+				for (int i = 0, length = returnExpressions.length; i < length; i++) {
+					if (!returnExpressions[i].isPertinentToApplicability(targetType, method))
+						return false;
+				}
+			} else {
+				// return expressions not yet discovered by resolveType(), so traverse no looking just for one that's not pertinent
+				try {
+					this.body.traverse(new ResultsAnalyser(), this.scope);
+				} catch (NotPertientToApplicability npta) {
 					return false;
+				}
 			}
 		}
 		

@@ -5678,4 +5678,47 @@ public void testBug477751() {
 			"}\n"
 		});
 }
+public void testBug482416() {
+	runConformTest(
+		new String[] {
+			"CompilerRegression.java",
+			"import java.util.Comparator;\n" + 
+			"import java.util.concurrent.Callable;\n" + 
+			"\n" + 
+			"public class CompilerRegression<T> {\n" + 
+			"	private ObjectProperty<Comparator<TreeItem<T>>> comparator = new ObjectProperty<Comparator<TreeItem<T>>>();\n" + 
+			"\n" + 
+			"	void sample() {\n" + 
+			"		//Fails in Mars.1 succeeds in Mars.0\n" + 
+			"		{\n" + 
+			"			ObjectBinding<Comparator<TreeItem<T>>> b = Bindings.createObjectBinding(() -> {\n" + 
+			"				if (this.comparator.get() == null)\n" + 
+			"					return null;\n" + 
+			"				return (o1, o2) -> this.comparator.get().compare(o1, o2);\n" + 
+			"			}, this.comparator);\n" + 
+			"		}\n" + 
+			"\n" + 
+			"		// Succeeds in both\n" + 
+			"		{\n" + 
+			"			ObjectBinding<Comparator<TreeItem<T>>> b = Bindings.createObjectBinding(() -> {\n" + 
+			"				if (this.comparator.get() == null)\n" + 
+			"					return null;\n" + 
+			"				Comparator<TreeItem<T>> cp = (o1, o2) -> this.comparator.get().compare(o1, o2);\n" + 
+			"				return cp;\n" + 
+			"			}, this.comparator);\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Bindings {\n" + 
+			"    public static <X> ObjectBinding<X> createObjectBinding(final Callable<X> func, final Observable... dependencies) { return null; }\n" + 
+			"}\n" + 
+			"class ObjectBinding<U> { }\n" + 
+			"class TreeItem<V> { }\n" + 
+			"class ObjectProperty<W> implements Observable  {\n" + 
+			"	W get() { return null; }\n" + 
+			"}\n" + 
+			"interface Observable {}\n"
+		});
+}
 }
