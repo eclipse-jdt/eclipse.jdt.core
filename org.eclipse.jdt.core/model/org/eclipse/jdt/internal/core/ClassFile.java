@@ -464,7 +464,7 @@ public IBuffer getBuffer() throws JavaModelException {
 		case IJavaModelStatusConstants.INVALID_ELEMENT_TYPES: // don't throw a JavaModelException to be able to open .class file in proj==src case without source (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=221904 )
 			return null;
 		default:
-			throw new JavaModelException((IJavaModelStatus) status);
+			throw new JavaModelException(status);
 		}
 	}
 }

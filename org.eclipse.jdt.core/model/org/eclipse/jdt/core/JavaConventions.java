@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -38,7 +42,6 @@ import org.eclipse.jdt.internal.core.util.Messages;
 public final class JavaConventions {
 
 	private static final char DOT= '.';
-	private static final String PACKAGE_INFO = new String(TypeConstants.PACKAGE_INFO_NAME);
 	private static final Scanner SCANNER = new Scanner(false /*comment*/, true /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
 
 	private JavaConventions() {
@@ -157,7 +160,8 @@ public final class JavaConventions {
 		// JSR-175 metadata strongly recommends "package-info.java" as the
 		// file in which to store package annotations and
 		// the package-level spec (replaces package.html)
-		if (!identifier.equals(PACKAGE_INFO)) {
+		if (!CharOperation.equals(identifier.toCharArray(), TypeConstants.PACKAGE_INFO_NAME)
+				&& !CharOperation.equals(identifier.toCharArray(), TypeConstants.MODULE_INFO_NAME)) {
 			IStatus status = validateIdentifier(identifier, sourceLevel, complianceLevel);
 			if (!status.isOK()) {
 				return status;
@@ -229,7 +233,8 @@ public final class JavaConventions {
 		// JSR-175 metadata strongly recommends "package-info.java" as the
 		// file in which to store package annotations and
 		// the package-level spec (replaces package.html)
-		if (!identifier.equals(PACKAGE_INFO)) {
+		if (!CharOperation.equals(identifier.toCharArray(), TypeConstants.PACKAGE_INFO_NAME)
+				&& !CharOperation.equals(identifier.toCharArray(), TypeConstants.MODULE_INFO_NAME)) {
 			IStatus status = validateIdentifier(identifier, sourceLevel, complianceLevel);
 			if (!status.isOK()) {
 				return status;

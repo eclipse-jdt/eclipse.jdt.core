@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -200,9 +204,17 @@ public class JavaConventionTests extends AbstractJavaModelTests {
 		for (int i = 0; i < invalidNames.length; i++) {
 			assertEquals("compilation unit name not recognized as invalid: " + invalidNames[i], IStatus.ERROR, validate(invalidNames[i], COMPILATION_UNIT_NAME));
 		}
-		String[] validNames = new String[] {"Object.java", "OBJECT.java", "object.java", "package-info.java"};
+		invalidNames = new String[] {"module-package.class"};
+		for (int i = 0; i < invalidNames.length; i++) {
+			assertEquals("compilation unit name not recognized as valid: " + invalidNames[i], IStatus.ERROR, validate(invalidNames[i], CLASS_FILE_NAME));
+		}
+		String[] validNames = new String[] {"Object.java", "OBJECT.java", "object.java", "package-info.java", "module-info.java"};
 		for (int i = 0; i < validNames.length; i++) {
 			assertEquals("compilation unit name not recognized as valid: " + validNames[i], IStatus.OK, validate(validNames[i], COMPILATION_UNIT_NAME));
+		}
+		validNames = new String[] {"module-info.class"};
+		for (int i = 0; i < validNames.length; i++) {
+			assertEquals("compilation unit name not recognized as valid: " + validNames[i], IStatus.OK, validate(validNames[i], CLASS_FILE_NAME));
 		}
 	}
 	/**
