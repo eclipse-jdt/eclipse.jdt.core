@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2009 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2015 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,6 +26,7 @@ import javax.lang.model.element.VariableElement;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.AptBinaryLocalVariableBinding;
@@ -111,7 +112,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 	@Override
 	public ElementKind getKind() {
 		if (_binding instanceof FieldBinding) {
-			if (((FieldBinding)_binding).declaringClass.isEnum()) {
+			if ((((FieldBinding) _binding).modifiers & ClassFileConstants.AccEnum) != 0) {
 				return ElementKind.ENUM_CONSTANT;
 			}
 			else {

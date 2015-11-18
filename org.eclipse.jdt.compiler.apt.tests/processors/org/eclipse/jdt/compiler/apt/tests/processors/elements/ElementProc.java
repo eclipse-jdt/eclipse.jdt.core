@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2012 BEA Systems, Inc. and others
+ * Copyright (c) 2007, 2015 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -148,11 +148,43 @@ public class ElementProc extends BaseProcessor {
 		if(!bug300408()) {
 			return false;
 		}
-		
+
+		if (!bug467928_enumFields()) {
+			return false;
+		}
+
 		reportSuccess();
 		return false;
 	}
-	
+
+	private boolean bug467928_enumFields() {
+		TypeElement type =  _elementUtils.getTypeElement( "targets.model.enumfields.EnumWithFields");
+		Map<String, VariableElement> fields = new HashMap<>();
+		for (Element element : type.getEnclosedElements()) {
+			if (element instanceof VariableElement) {
+				fields.put(element.getSimpleName().toString(), (VariableElement) element);
+			} else if (element instanceof ExecutableElement) {
+				ExecutableElement method = (ExecutableElement) element;
+				if (method.getSimpleName().toString().equals("setField")) {
+					fields.put("param", method.getParameters().get(0));
+				}
+			}
+		}
+
+		if (fields.get("CONST").getKind() != ElementKind.ENUM_CONSTANT) {
+			return false;
+		}
+
+		if (fields.get("field").getKind() != ElementKind.FIELD) {
+			return false;
+		}
+		if (fields.get("param").getKind() != ElementKind.PARAMETER) {
+			return false;
+		}
+
+		return true;
+	}
+
 	/**
 	 * Regression test for Bug 300408, checking if TypeElement.getEnclosedTypes() returns the elements
 	 * in the order as declared in the source
