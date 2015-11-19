@@ -8664,4 +8664,37 @@ public void testBug477719() {
 		getCompilerOptions(),
 		"");
 }
+public void testBug482247() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	@NonNull String @NonNull[] s1 = new String[0];\n" + // expected type drives typing
+			"	@Nullable String @NonNull[] s2 = new String[0];\n" + // expected type drives typing
+			"	<T> @NonNull T first(@NonNull T @NonNull[] arr) {\n" +
+			"		return arr[0];\n" +
+			"	}\n" +
+			"	void other(@Nullable String[] s) {\n" +
+			"		s[0] = null;\n" +
+			"	}\n" +
+			"	@NonNull String test()  {\n" +
+			"		other(new String[0]);\n" + // unchanged semantics
+			"		return first(new String[0]);\n" + // unchanged semantics
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in X.java (at line 12)\n" + 
+		"	other(new String[0]);\n" + 
+		"	      ^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'@Nullable String []\'\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 13)\n" + 
+		"	return first(new String[0]);\n" + 
+		"	             ^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'@NonNull String @NonNull[]\'\n" + 
+		"----------\n");
+}
 }
