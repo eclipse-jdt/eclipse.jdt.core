@@ -1204,24 +1204,30 @@ class CompilationUnitResolver extends Compiler {
 			}
 
 			if (unit.scope != null) {
-				// fault in fields & methods
-				unit.scope.faultInTypes();
-				if (unit.scope != null && verifyMethods) {
-					// http://dev.eclipse.org/bugs/show_bug.cgi?id=23117
- 					// verify inherited methods
-					unit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
+				CompilationUnitDeclaration previousUnit = this.lookupEnvironment.unitBeingCompleted;
+				this.lookupEnvironment.unitBeingCompleted = unit;
+				try {
+					// fault in fields & methods
+					unit.scope.faultInTypes();
+					if (unit.scope != null && verifyMethods) {
+						// http://dev.eclipse.org/bugs/show_bug.cgi?id=23117
+	 					// verify inherited methods
+						unit.scope.verifyMethods(this.lookupEnvironment.methodVerifier());
+					}
+					// type checking
+					unit.resolve();
+	
+					// flow analysis
+					if (analyzeCode) unit.analyseCode();
+	
+					// code generation
+					if (generateCode) unit.generateCode();
+	
+					// finalize problems (suppressWarnings)
+					unit.finalizeProblems();
+				} finally {
+					this.lookupEnvironment.unitBeingCompleted = previousUnit; // paranoia, always null in org.eclipse.jdt.core.tests.dom.RunAllTests
 				}
-				// type checking
-				unit.resolve();
-
-				// flow analysis
-				if (analyzeCode) unit.analyseCode();
-
-				// code generation
-				if (generateCode) unit.generateCode();
-
-				// finalize problems (suppressWarnings)
-				unit.finalizeProblems();
 			}
 			if (this.unitsToProcess != null) this.unitsToProcess[0] = null; // release reference to processed unit declaration
 			this.requestor.acceptResult(unit.compilationResult.tagAsAccepted());
