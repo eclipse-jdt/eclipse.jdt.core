@@ -8646,4 +8646,22 @@ public void testBug481322a() {
 		"Null constraint mismatch: The type \'List<@Nullable String>\' is not a valid substitute for the type parameter \'T extends List<S>\'\n" + 
 		"----------\n");
 }
+public void testBug477719() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	@NonNull Number instantiate(@NonNull Class<? extends @NonNull Number> c) throws Exception {\n" +
+			"		return c.newInstance();\n" +
+			"	}\n" +
+			"	void test(Double d) throws Exception {\n" +
+			"		instantiate(Integer.class);\n" +
+			"		instantiate(d.getClass());\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 }

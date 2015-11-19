@@ -8609,4 +8609,20 @@ public void testBug467610() {
 		getCompilerOptions(),
 		"");
 }
+public void testBug477719() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	void consume(@NonNull Class<? extends Number> c) {}\n" +
+			"	void test(Double d) {\n" +
+			"		consume(Integer.class);\n" +
+			"		consume(d.getClass());\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 }
