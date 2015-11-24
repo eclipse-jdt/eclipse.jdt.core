@@ -141,7 +141,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	boolean nonStatic = !this.binding.isStatic();
 	this.receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic);
 	if (nonStatic) {
-		this.receiver.checkNPE(currentScope, flowContext, flowInfo);
+		this.receiver.checkNPE(currentScope, flowContext, flowInfo, 1);
 	}
 
 	if (valueRequired || currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
@@ -150,11 +150,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return flowInfo;
 }
 
-public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, int ttlForFieldCheck) {
 	if (flowContext.isNullcheckedFieldAccess(this)) {
 		return true; // enough seen
 	}
-	return checkNullableFieldDereference(scope, this.binding, this.nameSourcePosition);
+	return checkNullableFieldDereference(scope, this.binding, this.nameSourcePosition, flowContext, ttlForFieldCheck);
 }
 
 /**

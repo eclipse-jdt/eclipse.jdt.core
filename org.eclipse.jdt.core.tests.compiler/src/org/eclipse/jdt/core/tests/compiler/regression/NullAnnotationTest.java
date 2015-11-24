@@ -8625,4 +8625,39 @@ public void testBug477719() {
 		getCompilerOptions(),
 		"");
 }
+public void testBug482075() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	options.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
+	runConformTestWithLibs(
+		new String[] {
+			"TestIncidentImports2.java",
+			"public class TestIncidentImports2 {\n" + 
+			"\n" + 
+			"    private String arg0;\n" + 
+			"    private TestIncidentImports2 arg2;\n" + 
+			"\n" + 
+			"    public TestIncidentImports2(String arg0) {\n" + 
+			"        this.arg0 = arg0;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    protected void apply(Object o) throws Exception {\n" + 
+			"        arg0.length();\n" + 
+			"        other(arg0);\n" + // arg0 is protected by dereference as MessageSend.receiver
+// still triggers an error: QualifiedNameReference doesn't have an ASTNode representing the receiver
+//			"        if (arg2.arg0 != null && other(arg2))\n" + // arg2 is protected by dereference from QualifiedNameReference
+//			"			System.out.println(7);\n" + 
+			"        if (this.arg2.arg0 != null && other(arg2))\n" + // arg2 is protected by dereference as FieldReference.receiver
+			"			System.out.println(9);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    boolean other(@org.eclipse.jdt.annotation.NonNull Object o) {\n" + 
+			"		return true;\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		options,
+		""
+	);
+}
 }

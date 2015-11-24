@@ -187,7 +187,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		return mergedInfo;
 	}
 
-	public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+	public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, int ttlForFieldCheck) {
 		if ((this.nullStatus & FlowInfo.NULL) != 0)
 			scope.problemReporter().expressionNullReference(this);
 		else if ((this.nullStatus & FlowInfo.POTENTIALLY_NULL) != 0)

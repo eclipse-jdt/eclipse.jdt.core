@@ -165,7 +165,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 
 	if (nonStatic) {
-		this.receiver.checkNPE(currentScope, flowContext, flowInfo);
+		int timeToLive = ((this.bits & ASTNode.InsideExpressionStatement) != 0) ? 3 : 2;
+		this.receiver.checkNPE(currentScope, flowContext, flowInfo, timeToLive);
 	}
 
 	if (this.arguments != null) {
@@ -372,7 +373,7 @@ private FlowInfo analyseNullAssertion(BlockScope currentScope, Expression argume
 	return flowInfo;
 }
 
-public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, int ttlForFieldCheck) {
 	// message send as a receiver
 	if ((nullStatus(flowInfo, flowContext) & FlowInfo.POTENTIALLY_NULL) != 0) // note that flowInfo is not used inside nullStatus(..)
 		scope.problemReporter().messageSendPotentialNullReference(this.binding, this);

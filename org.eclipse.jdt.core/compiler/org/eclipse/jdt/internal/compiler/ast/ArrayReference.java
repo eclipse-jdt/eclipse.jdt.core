@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,7 +60,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 }
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-	this.receiver.checkNPE(currentScope, flowContext, flowInfo);
+	this.receiver.checkNPE(currentScope, flowContext, flowInfo, 1);
 	flowInfo = this.receiver.analyseCode(currentScope, flowContext, flowInfo);
 	flowInfo = this.position.analyseCode(currentScope, flowContext, flowInfo);
 	this.position.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
@@ -69,12 +69,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return flowInfo;
 }
 
-public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, int ttlForFieldCheck) {
 	if ((this.resolvedType.tagBits & TagBits.AnnotationNullable) != 0) {
 		scope.problemReporter().arrayReferencePotentialNullReference(this);
 		return true;
 	} else {
-		return super.checkNPE(scope, flowContext, flowInfo);
+		return super.checkNPE(scope, flowContext, flowInfo, ttlForFieldCheck);
 	}
 }
 
