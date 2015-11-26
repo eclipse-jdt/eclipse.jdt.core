@@ -641,4 +641,18 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 
 		assertEquals("InnerClass", innerClassBinding.getName());
 	}
+
+	/**
+	 * Verifies that ASTParser doesn't throw an IllegalArgumentException when given
+	 * this valid input.
+	 */
+	public void testBug480545() {
+	    String input = "class Test2 { void f(Test2... xs) {} }";
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    parser.setSource(input.toCharArray());
+	    Map<String, String> options = JavaCore.getOptions();
+	    JavaCore.setComplianceOptions(JavaCore.VERSION_1_8, options);
+	    parser.setCompilerOptions(options);
+	    assertNotNull(parser.createAST(null));
+	}
 }

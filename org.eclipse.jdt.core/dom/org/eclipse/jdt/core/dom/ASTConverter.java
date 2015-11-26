@@ -3417,12 +3417,24 @@ class ASTConverter {
 	private void setTypeAnnotationsAndSourceRangeOnArray(ArrayType arrayType, org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDimensions) {
 		List dimensions = arrayType.dimensions();
 		Type elementType = arrayType.getElementType();
+
+		// Object[] a
+		// ^
 		int start = elementType.getStartPosition();
-		int endElement = start + elementType.getLength() - 1;
-		int end = retrieveProperRightBracketPosition(dimensions.size(), endElement);
+
+		// Object[] a
+		//       ^
+		int startArray = start + elementType.getLength();
+
+		// Object[] a
+		//        ^
+		int end = retrieveProperRightBracketPosition(dimensions.size(), startArray);
+		if (end == -1) {
+			end = startArray - 1;
+		}
 		arrayType.setSourceRange(start, end - start + 1);
 		
-		start = endElement + 1;
+		start = startArray;
 		for (int i = 0; i < dimensions.size(); i++) {
 			Dimension currentDimension = (Dimension) dimensions.get(i);
 			setTypeAnnotationsOnDimension(currentDimension, annotationsOnDimensions, i);
