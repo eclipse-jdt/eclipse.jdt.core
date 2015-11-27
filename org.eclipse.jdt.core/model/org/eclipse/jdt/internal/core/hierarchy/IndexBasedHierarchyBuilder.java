@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.hierarchy;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -49,6 +51,14 @@ import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
+import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.java.JavaIndex;
+import org.eclipse.jdt.internal.core.pdom.java.JavaNames;
+import org.eclipse.jdt.internal.core.pdom.java.JavaPDOM;
+import org.eclipse.jdt.internal.core.pdom.java.PDOMType;
+import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeId;
+import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeInterface;
+import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeSignature;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
 import org.eclipse.jdt.internal.core.search.SubTypeSearchJob;
@@ -457,6 +467,99 @@ private String[] determinePossibleSubTypes(final HashSet localTypes, IProgressMo
  * @param monitor
  */
 public static void searchAllPossibleSubTypes(
+	IType type,
+	IJavaSearchScope scope,
+	final Map binariesFromIndexMatches,
+	final IPathRequestor pathRequestor,
+	int waitingPolicy,	// WaitUntilReadyToSearch | ForceImmediateSearch | CancelIfNotReadyToSearch
+	final IProgressMonitor progressMonitor) {
+	
+	if (JavaPDOM.isEnabled()) {
+		newSearchAllPossibleSubTypes(type, scope, binariesFromIndexMatches, pathRequestor, waitingPolicy,
+				progressMonitor);
+	} else {
+		legacySearchAllPossibleSubTypes(type, scope, binariesFromIndexMatches, pathRequestor, waitingPolicy,
+				progressMonitor);
+	}
+}
+
+private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope scope2, Map binariesFromIndexMatches2,
+		IPathRequestor pathRequestor, int waitingPolicy, IProgressMonitor progressMonitor) {
+	SubMonitor subMonitor = SubMonitor.convert(progressMonitor);
+	JavaIndex index = JavaPDOM.getIndex();
+	PDOM pdom = index.getPDOM();
+	String fieldDefinition = JavaNames.fullyQualifiedNameToFieldDescriptor(type.getFullyQualifiedName());
+	PDOMTypeId foundType = index.findType(fieldDefinition);
+
+	if (foundType == null) {
+		return;
+	}
+
+	ArrayDeque<PDOMType> typesToVisit = new ArrayDeque<>();
+	Set<PDOMType> discoveredTypes = new HashSet<>();
+	typesToVisit.addAll(foundType.getTypes());
+	discoveredTypes.addAll(typesToVisit);
+
+	pdom.acquireReadLock();
+	try {
+		while (!typesToVisit.isEmpty()) {
+			PDOMType nextType = typesToVisit.removeFirst();
+
+			String typePath = JavaNames.getIndexPathFor(nextType);
+			if (!scope2.encloses(typePath)) {
+				continue;
+			}
+
+			SubMonitor iterationMonitor = subMonitor
+					.setWorkRemaining(Math.max(typesToVisit.size(), 10))
+					.split(1)
+					.setWorkRemaining(3);
+
+			boolean isLocalClass = nextType.getDeclaringType() != null;
+			pathRequestor.acceptPath(typePath, isLocalClass);
+
+			HierarchyBinaryType binaryType = (HierarchyBinaryType)binariesFromIndexMatches2.get(typePath);
+			if (binaryType == null) {
+				binaryType = createBinaryTypeFrom(nextType);
+				binariesFromIndexMatches2.put(typePath, binaryType);
+			}
+
+			for (PDOMType subType : nextType.getTypeId().getSubTypes()) {
+				if (!discoveredTypes.contains(subType)) {
+					discoveredTypes.add(subType);
+					typesToVisit.add(subType);
+				}
+			}
+		}
+	} finally {
+		pdom.releaseReadLock();
+	}
+}
+
+private static HierarchyBinaryType createBinaryTypeFrom(PDOMType type) {
+	char[] enclosingTypeName = null;
+	PDOMTypeId enclosingType = type.getDeclaringType();
+	if (enclosingType != null) {
+		enclosingTypeName = enclosingType.getSimpleName().getChars();
+	}
+	//final char[][] typeParameterSignatures;
+	PDOMTypeId typeId = type.getTypeId();
+	HierarchyBinaryType result = new HierarchyBinaryType(type.getModifiers(), typeId.getBinaryName().toCharArray(), 
+			typeId.getSimpleName().getChars(), enclosingTypeName, null);
+	// TODO(sxenos): Fill in the correct generic signature rather than passing null here
+
+	PDOMTypeSignature superClass = type.getSuperclass();
+	if (superClass != null) {
+		result.recordSuperclass(superClass.getRawType().getBinaryName().toCharArray());
+	}
+
+	for (PDOMTypeInterface interf : type.getInterfaces()) {
+		result.recordInterface(interf.getInterface().getRawType().getBinaryName().toCharArray());
+	}
+	return result;
+}
+
+private static void legacySearchAllPossibleSubTypes(
 	IType type,
 	IJavaSearchScope scope,
 	final Map binariesFromIndexMatches,

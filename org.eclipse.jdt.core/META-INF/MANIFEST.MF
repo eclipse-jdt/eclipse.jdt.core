@@ -47,6 +47,11 @@ Export-Package: org.eclipse.jdt.core,
  org.eclipse.jdt.internal.core.hierarchy;x-internal:=true,
  org.eclipse.jdt.internal.core.index;x-internal:=true,
  org.eclipse.jdt.internal.core.jdom;x-internal:=true,
+ org.eclipse.jdt.internal.core.pdom,
+ org.eclipse.jdt.internal.core.pdom.db,
+ org.eclipse.jdt.internal.core.pdom.field,
+ org.eclipse.jdt.internal.core.pdom.java,
+ org.eclipse.jdt.internal.core.pdom.util,
  org.eclipse.jdt.internal.core.search;x-internal:=true,
  org.eclipse.jdt.internal.core.search.indexing;x-internal:=true,
  org.eclipse.jdt.internal.core.search.matching;x-internal:=true,
@@ -60,7 +65,8 @@ Require-Bundle: org.eclipse.core.resources;bundle-version="[3.3.0,4.0.0)",
  org.eclipse.core.runtime;bundle-version="[3.3.0,4.0.0)",
  org.eclipse.core.filesystem;bundle-version="[1.0.0,2.0.0)",
  org.eclipse.text;bundle-version="[3.1.0,4.0.0)",
- org.eclipse.team.core;bundle-version="[3.1.0,4.0.0)";resolution:=optional
+ org.eclipse.team.core;bundle-version="[3.1.0,4.0.0)";resolution:=optional,
+ com.ibm.icu;bundle-version="54.1.1"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Eclipse-ExtensibleAPI: true
 Bundle-ActivationPolicy: lazy
