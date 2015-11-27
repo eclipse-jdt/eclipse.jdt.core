@@ -590,8 +590,10 @@ class BoundSet {
 							// not per JLS: if the new constraint relates types where at least one has a null annotations,
 							// record all null tagBits as hints for the final inference solution.
 							long nullHints = (newConstraint.left.tagBits | newConstraint.right.tagBits) & TagBits.AnnotationNullMASK;
-							boundI.nullHints |= nullHints;
-							boundJ.nullHints |= nullHints;
+							if (nullHints != 0 && TypeBinding.equalsEquals(boundI.left, boundJ.left)) {
+								boundI.nullHints |= nullHints;
+								boundJ.nullHints |= nullHints;
+							}
 						}
 					}
 					ConstraintFormula[] typeArgumentConstraints = deriveTypeArgumentConstraints ? deriveTypeArgumentConstraints(boundI, boundJ) : null;
@@ -778,9 +780,12 @@ class BoundSet {
 		//  α = U and S <: T imply ⟨S[α:=U] <: T[α:=U]⟩ 
 		TypeBinding u = boundS.right;
 		if (u.isProperType(true)) {
-			TypeBinding left = (TypeBinding.equalsEquals(alpha, boundT.left)) ? u : boundT.left;
+			boolean substitute = TypeBinding.equalsEquals(alpha, boundT.left);
+			TypeBinding left = substitute ? u : boundT.left;
 			TypeBinding right = boundT.right.substituteInferenceVariable(alpha, u);
-			return ConstraintTypeFormula.create(left, right, boundT.relation, boundT.isSoft||boundS.isSoft);
+			substitute |= TypeBinding.notEquals(right, boundT.right);
+			if (substitute) // avoid redundant constraint
+				return ConstraintTypeFormula.create(left, right, boundT.relation, boundT.isSoft||boundS.isSoft);
 		}
 		return null;
 	}

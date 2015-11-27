@@ -8697,4 +8697,70 @@ public void testBug482247() {
 		"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'@NonNull String @NonNull[]\'\n" + 
 		"----------\n");
 }
+public void testBug483146() {
+	runConformTestWithLibs(
+		new String[] {
+			"Foo.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"class Foo {\n" + 
+			"\n" + 
+			"	void example1() {\n" + 
+			"        @Nullable List<String> container = new ArrayList<>();\n" + 
+			"        @NonNull List<String> list = checkNotNull(container);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	void example2() {\n" + 
+			"        @Nullable List<String> container= new ArrayList<>();\n" + 
+			"        @NonNull List<String> list = checkNotNull(container);\n" + 
+			"	}\n" + 
+			"    \n" + 
+			"    @NonNull <T, C extends  Iterable<T>> C checkNotNull(C container) {\n" + 
+			"        if (container == null) {\n" + 
+			"            throw new NullPointerException();\n" + 
+			"        }\n" + 
+			"		return container;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug483146b() {
+	runConformTestWithLibs(
+		new String[] {
+			"Foo.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"class Foo {\n" + 
+			"\n" + 
+			"	void example1() {\n" + 
+			"        @Nullable List<String> container = new ArrayList<>();\n" + 
+			"        @NonNull List<String> list = checkNotNull(container);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	void example2() {\n" + 
+			"        @Nullable List<String> container= new ArrayList<>();\n" + 
+			"        @NonNull List<String> list = checkNotNull(container);\n" + 
+			"	}\n" + 
+			"    \n" + 
+			"    <T, C extends  Iterable<T>> @NonNull C checkNotNull(@Nullable C container) {\n" + // <- variation: param is @Nullable
+			"        if (container == null) {\n" + 
+			"            throw new NullPointerException();\n" + 
+			"        }\n" + 
+			"		return container;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 }
