@@ -26,6 +26,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -971,6 +972,9 @@ public boolean hasStructuralChanges(byte[] newBytes, boolean orderRequired, bool
 		// annotations
 		if (hasStructuralAnnotationChanges(getAnnotations(), newClassFile.getAnnotations()))
 			return true;
+		if (this.version >= ClassFileConstants.JDK1_8
+				&& hasStructuralTypeAnnotationChanges(getTypeAnnotations(), newClassFile.getTypeAnnotations()))
+			return true;
 
 		// generic signature
 		if (!CharOperation.equals(getGenericSignature(), newClassFile.getGenericSignature()))
@@ -1097,43 +1101,48 @@ private boolean hasStructuralAnnotationChanges(IBinaryAnnotation[] currentAnnota
 	if (currentAnnotationsLength != otherAnnotationsLength)
 		return true;
 	for (int i = 0; i < currentAnnotationsLength; i++) {
-		if (!CharOperation.equals(currentAnnotations[i].getTypeName(), otherAnnotations[i].getTypeName()))
-			return true;
-		IBinaryElementValuePair[] currentPairs = currentAnnotations[i].getElementValuePairs();
-		IBinaryElementValuePair[] otherPairs = otherAnnotations[i].getElementValuePairs();
-		int currentPairsLength = currentPairs == null ? 0 : currentPairs.length;
-		int otherPairsLength = otherPairs == null ? 0 : otherPairs.length;
-		if (currentPairsLength != otherPairsLength)
-			return true;
-		for (int j = 0; j < currentPairsLength; j++) {
-			if (!CharOperation.equals(currentPairs[j].getName(), otherPairs[j].getName()))
-				return true;
-			final Object value = currentPairs[j].getValue();
-			final Object value2 = otherPairs[j].getValue();
-			if (value instanceof Object[]) {
-				Object[] currentValues = (Object[]) value;
-				if (value2 instanceof Object[]) {
-					Object[] currentValues2 = (Object[]) value2;
-					final int length = currentValues.length;
-					if (length != currentValues2.length) {
-						return true;
-					}
-					for (int n = 0; n < length; n++) {
-						if (!currentValues[n].equals(currentValues2[n])) {
-							return true;
-						}
-					}
-					return false;
-				}
-				return true;
-			} else if (!value.equals(value2)) {
-				return true;
-			}
-		}
+		Boolean match = matchAnnotations(currentAnnotations[i], otherAnnotations[i]);
+		if (match != null)
+			return match.booleanValue();
 	}
 	return false;
 }
-
+private Boolean matchAnnotations(IBinaryAnnotation currentAnnotation, IBinaryAnnotation otherAnnotation) {
+	if (!CharOperation.equals(currentAnnotation.getTypeName(), otherAnnotation.getTypeName()))
+		return true;
+	IBinaryElementValuePair[] currentPairs = currentAnnotation.getElementValuePairs();
+	IBinaryElementValuePair[] otherPairs = otherAnnotation.getElementValuePairs();
+	int currentPairsLength = currentPairs == null ? 0 : currentPairs.length;
+	int otherPairsLength = otherPairs == null ? 0 : otherPairs.length;
+	if (currentPairsLength != otherPairsLength)
+		return Boolean.TRUE;
+	for (int j = 0; j < currentPairsLength; j++) {
+		if (!CharOperation.equals(currentPairs[j].getName(), otherPairs[j].getName()))
+			return Boolean.TRUE;
+		final Object value = currentPairs[j].getValue();
+		final Object value2 = otherPairs[j].getValue();
+		if (value instanceof Object[]) {
+			Object[] currentValues = (Object[]) value;
+			if (value2 instanceof Object[]) {
+				Object[] currentValues2 = (Object[]) value2;
+				final int length = currentValues.length;
+				if (length != currentValues2.length) {
+					return Boolean.TRUE;
+				}
+				for (int n = 0; n < length; n++) {
+					if (!currentValues[n].equals(currentValues2[n])) {
+						return Boolean.TRUE;
+					}
+				}
+				return Boolean.FALSE;
+			}
+			return Boolean.TRUE;
+		} else if (!value.equals(value2)) {
+			return Boolean.TRUE;
+		}
+	}
+	return null;
+}
 private boolean hasStructuralFieldChanges(FieldInfo currentFieldInfo, FieldInfo otherFieldInfo) {
 	// generic signature
 	if (!CharOperation.equals(currentFieldInfo.getGenericSignature(), otherFieldInfo.getGenericSignature()))
@@ -1143,6 +1152,9 @@ private boolean hasStructuralFieldChanges(FieldInfo currentFieldInfo, FieldInfo 
 	if ((currentFieldInfo.getTagBits() & TagBits.AnnotationDeprecated) != (otherFieldInfo.getTagBits() & TagBits.AnnotationDeprecated))
 		return true;
 	if (hasStructuralAnnotationChanges(currentFieldInfo.getAnnotations(), otherFieldInfo.getAnnotations()))
+		return true;
+	if (this.version >= ClassFileConstants.JDK1_8
+			&& hasStructuralTypeAnnotationChanges(currentFieldInfo.getTypeAnnotations(), otherFieldInfo.getTypeAnnotations()))
 		return true;
 	if (!CharOperation.equals(currentFieldInfo.getName(), otherFieldInfo.getName()))
 		return true;
@@ -1200,6 +1212,9 @@ private boolean hasStructuralMethodChanges(MethodInfo currentMethodInfo, MethodI
 		if (hasStructuralAnnotationChanges(currentMethodInfo.getParameterAnnotations(i, this.classFileName), otherMethodInfo.getParameterAnnotations(i, this.classFileName)))
 			return true;
 	}
+	if (this.version >= ClassFileConstants.JDK1_8
+			&& hasStructuralTypeAnnotationChanges(currentMethodInfo.getTypeAnnotations(), otherMethodInfo.getTypeAnnotations()))
+		return true;
 
 	if (!CharOperation.equals(currentMethodInfo.getSelector(), otherMethodInfo.getSelector()))
 		return true;
@@ -1220,6 +1235,45 @@ private boolean hasStructuralMethodChanges(MethodInfo currentMethodInfo, MethodI
 				return true;
 	}
 	return false;
+}
+
+private boolean hasStructuralTypeAnnotationChanges(IBinaryTypeAnnotation[] currentTypeAnnotations, IBinaryTypeAnnotation[] otherTypeAnnotations) {
+	if (otherTypeAnnotations != null) {
+		// copy so we can delete matched annotations:
+		int len = otherTypeAnnotations.length;
+		System.arraycopy(otherTypeAnnotations, 0, otherTypeAnnotations = new IBinaryTypeAnnotation[len], 0, len);
+	}
+	if (currentTypeAnnotations != null) {
+		loopCurrent:
+		for (IBinaryTypeAnnotation currentAnnotation : currentTypeAnnotations) {
+			if (!affectsSignature(currentAnnotation)) continue;
+			if (otherTypeAnnotations == null)
+				return true;
+			for (int i = 0; i < otherTypeAnnotations.length; i++) {
+				IBinaryTypeAnnotation otherAnnotation = otherTypeAnnotations[i];
+				if (matchAnnotations(currentAnnotation.getAnnotation(), otherAnnotation.getAnnotation()) == Boolean.TRUE) {
+					otherTypeAnnotations[i] = null; // matched
+					continue loopCurrent;
+				}
+			}
+			return true; // not matched
+		}
+	}
+	if (otherTypeAnnotations != null) {
+		for (IBinaryTypeAnnotation otherAnnotation : otherTypeAnnotations) {
+			if (affectsSignature(otherAnnotation))
+				return true;
+		}
+	}
+	return false;
+}
+
+private boolean affectsSignature(IBinaryTypeAnnotation typeAnnotation) {
+	if (typeAnnotation == null) return false;
+	int targetType = typeAnnotation.getTargetType();
+	if (targetType >= AnnotationTargetTypeConstants.LOCAL_VARIABLE && targetType <= AnnotationTargetTypeConstants.METHOD_REFERENCE_TYPE_ARGUMENT)
+		return false; // affects detail within a block
+	return true;
 }
 
 /**
