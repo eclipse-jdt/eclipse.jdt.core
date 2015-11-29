@@ -1458,7 +1458,7 @@ public final class JavaCore extends Plugin {
 	 *    or a value of type <code>java.io.Closeable</code> (compliance<=1.6) and if
 	 *    flow analysis shows that the method <code>close()</code> is not invoked locally on that value.</p>
 	 * <dl>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.reportUnclosedCloseable"</code></dd>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unclosedCloseable"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
@@ -1474,7 +1474,7 @@ public final class JavaCore extends Plugin {
 	 *    flow analysis shows that the method <code>close()</code> is 
 	 *    not invoked locally on that value for all execution paths.</p>
 	 * <dl>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.reportPotentiallyUnclosedCloseable"</code></dd>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.potentiallyUnclosedCloseable"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
@@ -1489,7 +1489,7 @@ public final class JavaCore extends Plugin {
 	 *    <code>close()</code> is explicitly invoked on that resource, but the resource is
 	 *    not managed by a try-with-resources block.</p>
 	 * <dl>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.reportPotentiallyUnclosedCloseable"</code></dd>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.explicitlyClosedAutoCloseable"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>

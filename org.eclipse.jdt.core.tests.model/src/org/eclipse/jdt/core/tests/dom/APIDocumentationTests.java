@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.net.URL;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
@@ -24,6 +25,8 @@ import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -32,6 +35,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.osgi.framework.Bundle;
 
 /**
  * The intent of this tests series is to check the consistency of parts of our
@@ -66,7 +70,10 @@ public class APIDocumentationTests extends AbstractASTTests {
 /**
  * Helper class able to analyze JavaCore options javadocs.
  */
-class JavaCoreJavadocAnalyzer {
+static class JavaCoreJavadocAnalyzer {
+	static final String OPTION_BEGIN = "<dt>Option id:</dt><dd><code>\"";
+	static final String DEFAULT_BEGIN = "<dt>Default:</dt><dd><code>\"";
+	static final String END = "\"</code></dd>";
 	private String javadoc;
 	void reset(String newJavadoc) {
 		// do not pass null - unchecked
@@ -84,12 +91,18 @@ class JavaCoreJavadocAnalyzer {
 			String line;
 			try {
 				while ((line = javadocReader.readLine()) != null) {
-					if (line.startsWith(" * <dt>Option id:")) {
-						this.optionID = line.substring(33, line.length() - 13);
-					} else if (line.startsWith(" * <dt>Default:")) {
-						this.defaultValue = line.substring(31, line.length() - 13);
-						return;
+					int start = line.indexOf(OPTION_BEGIN);
+					if (start > -1) {
+						int end = line.indexOf(END, start);
+						this.optionID = line.substring(start+OPTION_BEGIN.length(), end);
 					}
+					start = line.indexOf(DEFAULT_BEGIN);
+					if (start > -1) {
+						int end = line.indexOf(END, start);
+						this.defaultValue = line.substring(start+DEFAULT_BEGIN.length(), end);
+					}
+					if (this.optionID != null && this.defaultValue != null)
+						return;
 				}
 			} catch (IOException e) {
 				// silent
@@ -111,12 +124,20 @@ class JavaCoreJavadocAnalyzer {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=202490
 // checks that option ids and option default values match between the code and
 // the javadoc
-// TODO maxime: reactivate in early 3.4 M6 and refine for remote execution
 public void test001() throws CoreException, IllegalArgumentException, IllegalAccessException, IOException {
 	// fetch JavaCore class
 	Class javaCoreClass = JavaCore.class;
 	// fetch JavaCore source file
-	File javaCoreSourceFile = new File(FileLocator.toFileURL(JavaCore.getJavaCore().getBundle().getEntry("/model/org/eclipse/jdt/core/JavaCore.java")).getPath());
+	@SuppressWarnings("deprecation")Bundle bundle = org.eclipse.jdt.core.tests.Activator.getInstance().getBundle();
+	URL url = bundle.getEntry("/");
+System.err.println("Bundle URL = "+url);
+	IPath path = new Path(FileLocator.toFileURL(url).getPath());
+System.err.println("Bundle path = "+path);
+	path = path.removeLastSegments(1).append("org.eclipse.jdt.core");
+System.err.println("jdt.core path = "+path);
+	String stringPath = path.toString() + "/model/org/eclipse/jdt/core/JavaCore.java"; 
+	File javaCoreSourceFile = new File(stringPath);
+System.err.println("JavaCore.java = "+javaCoreSourceFile+" exists?"+javaCoreSourceFile.exists());
 	if (javaCoreSourceFile.exists()) {
 		// load field values in a map
 		Hashtable realOptionIDs = new Hashtable();
@@ -139,6 +160,7 @@ public void test001() throws CoreException, IllegalArgumentException, IllegalAcc
 		realOptionIDs.remove("JAVA_SOURCE_CONTENT_TYPE");
 		realOptionIDs.remove("MODEL_ID");
 		realOptionIDs.remove("NATURE_ID");
+		realOptionIDs.remove("DEFAULT_JAVA_FORMATTER");
 		// build cross-index
 		Hashtable realOptionNames = new Hashtable();
 		Iterator optionIDs = realOptionIDs.entrySet().iterator();

@@ -28,6 +28,8 @@ public class Activator extends Plugin {
 
 	static org.osgi.service.packageadmin.PackageAdmin packageAdmin = null;
 
+	static Plugin instance;
+
 
 	public void start(BundleContext context) throws Exception {
 		
@@ -36,6 +38,8 @@ public class Activator extends Plugin {
 			packageAdmin = (org.osgi.service.packageadmin.PackageAdmin)context.getService(ref);
 		else
 			getLog().log(new Status(IStatus.ERROR, PLUGIN_ID, "Failed to load PackageAdmin service. Will not be able to access bundles org.eclipse.jdt.annotation."));
+		
+		instance = this;
 	}
 
 	public void stop(BundleContext context) throws Exception {
@@ -45,5 +49,8 @@ public class Activator extends Plugin {
 	public static org.osgi.service.packageadmin.PackageAdmin getPackageAdmin() {
 		return packageAdmin;
 	}
-	
+
+	public static Plugin getInstance() {
+		return instance;
+	}
 }
