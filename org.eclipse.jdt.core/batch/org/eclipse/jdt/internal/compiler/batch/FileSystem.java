@@ -157,6 +157,9 @@ protected FileSystem(Classpath[] paths, String[] initialFileNames, boolean annot
 	initializeKnownFileNames(initialFileNames);
 	this.annotationsFromClasspath = annotationsFromClasspath;
 }
+public static Classpath getClasspath(String classpathName, String encoding, AccessRuleSet accessRuleSet) {
+	return getClasspath(classpathName, encoding, false, accessRuleSet, null, null);
+}
 public static Classpath getClasspath(String classpathName, String encoding, AccessRuleSet accessRuleSet, Map options) {
 	return getClasspath(classpathName, encoding, false, accessRuleSet, null, options);
 }
