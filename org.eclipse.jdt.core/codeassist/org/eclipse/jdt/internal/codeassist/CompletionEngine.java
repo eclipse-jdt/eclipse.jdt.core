@@ -6274,13 +6274,15 @@ public final class CompletionEngine
 			if (fieldBeingCompletedId >= 0 && field.id >= fieldBeingCompletedId) {
 				// Don't propose field which is being declared currently
 				// Don't propose fields declared after the current field declaration statement
-				// Though, if field is static, then it can be still be proposed
-				if (!field.isStatic()) { 
-					continue next;
-				} else if (isFieldBeingCompletedStatic) {
-					// static fields can't be proposed before they are actually declared if the 
-					// field currently being declared is also static
-					continue next;
+				// Though, if field is static or completion happens in Javadoc, then it can be still be proposed
+				if (this.assistNodeInJavadoc == 0) {
+					if (!field.isStatic()) {
+						continue next;
+					} else if (isFieldBeingCompletedStatic) {
+						// static fields can't be proposed before they are actually declared if the
+						// field currently being declared is also static
+						continue next;
+					}
 				}
 			}
 			

@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
+import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class CompletionTests_1_5 extends AbstractJavaModelCompletionTests {
@@ -14430,5 +14431,57 @@ public void testBug326610e() throws JavaModelException {
 	assertResults(
 			"",
 			requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=482775
+public void test482775() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/MyEnum.java",
+			"public enum MyEnum {\n" +
+			"	/**\n" +
+			"	 * @see #B\n" +
+			"	 */\n" +
+			"	ALPHA,\n" +
+			"	/**\n" +
+			"	 * @see #\n" +
+			"	 */\n" +
+			"	BETA,\n" +
+			"}\n");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "@see #B";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevanceEnum = RelevanceConstants.R_DEFAULT + RelevanceConstants.R_RESOLVED + RelevanceConstants.R_INTERESTING +
+			RelevanceConstants.R_NON_RESTRICTED + RelevanceConstants.R_CASE;
+
+	int relevanceObject = RelevanceConstants.R_DEFAULT + RelevanceConstants.R_RESOLVED + RelevanceConstants.R_INTERESTING +
+				RelevanceConstants.R_NON_STATIC + RelevanceConstants.R_NON_RESTRICTED + RelevanceConstants.R_CASE;
+
+	assertResults("BETA[FIELD_REF]{BETA, LMyEnum;, LMyEnum;, null, null, BETA, null, [36, 37], " +
+				relevanceEnum + "}", requestor.getResults());
+	requestor = new CompletionTestsRequestor2(true, true, true, false);
+	completeBehind = "@see #";
+	cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("MyEnum[METHOD_REF<CONSTRUCTOR>]{MyEnum(), LMyEnum;, ()V, null, null, MyEnum, null, [66, 66], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+					"ALPHA[FIELD_REF]{ALPHA, LMyEnum;, LMyEnum;, null, null, ALPHA, null, [66, 66], " + relevanceEnum +  "}\n" +
+					"BETA[FIELD_REF]{BETA, LMyEnum;, LMyEnum;, null, null, BETA, null, [66, 66], " + relevanceEnum + "}\n" +
+					"valueOf[METHOD_REF]{valueOf(String), LMyEnum;, (Ljava.lang.String;)LMyEnum;, null, null, valueOf, (arg0), [66, 66], " + relevanceEnum + "}\n" +
+					"values[METHOD_REF]{values(), LMyEnum;, ()[LMyEnum;, null, null, values, null, [66, 66], " + relevanceEnum + "}\n" +
+					"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, null, null, clone, null, [66, 66], " + relevanceObject + "}\n" +
+					"equals[METHOD_REF]{equals(Object), Ljava.lang.Object;, (Ljava.lang.Object;)Z, null, null, equals, (obj), [66, 66], " + relevanceObject + "}\n" +
+					"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, null, null, finalize, null, [66, 66], " + relevanceObject + "}\n" +
+					"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, null, null, getClass, null, [66, 66], " + relevanceObject + "}\n" +
+					"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, null, null, hashCode, null, [66, 66], " + relevanceObject + "}\n" +
+					"name[METHOD_REF]{name(), Ljava.lang.Enum<LMyEnum;>;, ()Ljava.lang.String;, null, null, name, null, [66, 66], " + relevanceObject + "}\n" +
+					"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, null, null, notify, null, [66, 66], " + relevanceObject + "}\n" +
+					"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, null, null, notifyAll, null, [66, 66], " + relevanceObject + "}\n" +
+					"ordinal[METHOD_REF]{ordinal(), Ljava.lang.Enum<LMyEnum;>;, ()I, null, null, ordinal, null, [66, 66], " + relevanceObject + "}\n" +
+					"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [66, 66], " + relevanceObject + "}\n" +
+					"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, null, null, wait, null, [66, 66], " + relevanceObject + "}\n" +
+					"wait[METHOD_REF]{wait(long), Ljava.lang.Object;, (J)V, null, null, wait, (millis), [66, 66], " + relevanceObject + "}\n" +
+					"wait[METHOD_REF]{wait(long, int), Ljava.lang.Object;, (JI)V, null, null, wait, (millis, nanos), [66, 66], " + relevanceObject + "}", requestor.getResults());
 }
 }
