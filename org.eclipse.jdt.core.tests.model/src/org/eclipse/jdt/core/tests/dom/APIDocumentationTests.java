@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.dom;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -20,6 +21,8 @@ import java.net.URL;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import junit.framework.Test;
 
@@ -137,8 +140,37 @@ System.err.println("Bundle path = "+path);
 System.err.println("jdt.core path = "+path);
 	String stringPath = path.toString() + "/model/org/eclipse/jdt/core/JavaCore.java"; 
 	File javaCoreSourceFile = new File(stringPath);
-System.err.println("JavaCore.java = "+javaCoreSourceFile+" exists?"+javaCoreSourceFile.exists());
+System.err.println("JavaCore.java = "+javaCoreSourceFile+" exists? "+javaCoreSourceFile.exists());
+	char[] sourceChars = null;
 	if (javaCoreSourceFile.exists()) {
+		sourceChars = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(javaCoreSourceFile, null);
+	} else {
+		// experimental Q&D tweak: try to find the source bundle by manipulating the file name of the regular bundle's location:
+		@SuppressWarnings("deprecation")Bundle[] sourceBundles = org.eclipse.jdt.core.tests.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.core", null);
+		if (sourceBundles != null && sourceBundles.length > 0) {
+			bundle = sourceBundles[0];
+System.err.println("Source Bundle = "+bundle);
+			stringPath = bundle.getLocation();
+System.err.println("Bundle Location = "+stringPath);
+			if (stringPath.startsWith("reference:file:"))
+				stringPath = stringPath.substring("reference:file:".length());
+			stringPath = stringPath.replace("org.eclipse.jdt.core", "org.eclipse.jdt.core.source");
+System.err.println("Source Bundle Location = "+stringPath);
+			if (stringPath.endsWith(".jar")) {
+				File jarFile = new File(stringPath);
+System.err.println("Jar File = "+jarFile+" exists? "+jarFile.exists());
+				try (ZipFile zipFile = new ZipFile(jarFile)) {
+					ZipEntry entry = zipFile.getEntry("org/eclipse/jdt/core/JavaCore.java");
+System.err.println("Zip Entry = "+entry);
+System.err.println("Zip Entry Size = "+entry.getSize());
+					try (InputStream inputStream = zipFile.getInputStream(entry)) {
+						sourceChars = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(inputStream, (int)entry.getSize(), null);
+					}
+				}
+			}
+		}
+	}
+	if (sourceChars != null) {
 		// load field values in a map
 		Hashtable realOptionIDs = new Hashtable();
 		Field[] fields = javaCoreClass.getDeclaredFields();
@@ -173,7 +205,7 @@ System.err.println("JavaCore.java = "+javaCoreSourceFile+" exists?"+javaCoreSour
 		Hashtable realDefaultValues = JavaCore.getDefaultOptions();
 		// load documented values in a map
 		ASTParser parser = ASTParser.newParser(JLS3_INTERNAL);
-		parser.setSource(org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(javaCoreSourceFile, null));
+		parser.setSource(sourceChars);
 		ASTNode rootNode = parser.createAST(null);
 		final JavaCoreJavadocAnalyzer analyzer = new JavaCoreJavadocAnalyzer();
 		final Hashtable javadocOptionIDs = new Hashtable();
