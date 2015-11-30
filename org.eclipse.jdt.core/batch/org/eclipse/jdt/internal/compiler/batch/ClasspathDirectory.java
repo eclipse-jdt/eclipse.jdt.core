@@ -51,6 +51,7 @@ ClasspathDirectory(File directory, String encoding, int mode,
 		AccessRuleSet accessRuleSet, String destinationPath, Map options) {
 	super(accessRuleSet, destinationPath);
 	this.mode = mode;
+	this.options = options;
 	try {
 		this.path = directory.getCanonicalPath();
 	} catch (IOException e) {
