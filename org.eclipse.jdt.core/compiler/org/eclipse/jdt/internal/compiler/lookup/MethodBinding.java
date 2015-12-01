@@ -376,7 +376,7 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 		}
 		PackageBinding currentPackage = currentType.fPackage;
 		// package could be null for wildcards/intersection types, ignore and recurse in superclass
-		if (currentPackage != null && currentPackage != declaringPackage) return false;
+		if (!currentType.isCapture() && currentPackage != null && currentPackage != declaringPackage) return false;
 	} while ((currentType = currentType.superclass()) != null);
 	return false;
 }

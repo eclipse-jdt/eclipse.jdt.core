@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -52084,4 +52084,68 @@ public void testBug433989a() {
 		"The member type A.Nested.In must be parameterized, since it is qualified with a parameterized type\n" + 
 		"----------\n");
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=469201
+public void testBug469201_A(){
+	this.runConformTest(
+		new String[]{
+			"T2.java",
+			"import java.util.*;\n" + 
+					"\n" + 
+					"class Bar {  }\n" + 
+					"\n" + 
+					"class FooPrime extends Bar {\n" + 
+					"      void bar(Bar bar) { }\n" + 
+					"}\n" + 
+					"\n" + 
+					"class Foo extends FooPrime { }\n" + 
+					"\n" + 
+					"public class T2 {\n" + 
+					"\n" + 
+					"	public static void someMethod(List<? extends Foo> foos ) {\n" + 
+					"		Bar bar = new Bar(); \n" + 
+					"		foos.get(0).bar(bar);\n" + 
+					"	}\n" + 
+					"  public static void main(String... args) {\n" + 
+					"      List<Foo> foos = new ArrayList<Foo>();\n" + 
+					"      foos.add(new Foo());\n" + 
+					"      someMethod(foos);\n" + 
+					"  }\n" + 
+					"}"
+		});
+}
+
+public void testBug469201_B(){
+	this.runNegativeTest(
+		new String[]{
+				"A.java",
+				"package bug469201.p1;\n" + 
+				"public class A {\n" + 
+				"	void bar(Bar bar) { }\n" + 
+				"}\n" + 
+				"class Bar {}\n", 
+				"D.java",
+				"package bug469201.p1;\n" +
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"import bug469201.p2.B;\n" + 
+				"public class D{\n" + 
+				"	public static void main(String... args) {\n" + 
+				"	      List<? extends B> foos = new ArrayList<B>();\n" + 
+				"	      Bar bar = new Bar();\n" + 
+				"	      foos.get(0).bar(bar);\n" + 
+				"	}\n" + 
+				"}",
+				"B.java",
+				"package bug469201.p2;\n" + 
+				"import bug469201.p1.A;\n" + 
+				"public class B extends A {}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in D.java (at line 9)\n" + 
+		"	foos.get(0).bar(bar);\n" + 
+		"	            ^^^\n" + 
+		"The method bar(Bar) from the type A is not visible\n" + 
+		"----------\n");
+		}
 }
