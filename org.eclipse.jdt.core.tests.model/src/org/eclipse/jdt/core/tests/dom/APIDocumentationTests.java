@@ -38,6 +38,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.osgi.framework.Bundle;
 
 /**
@@ -46,6 +47,12 @@ import org.osgi.framework.Bundle;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class APIDocumentationTests extends AbstractASTTests {
+
+	private static final String PATH_JAVA_CORE_JAVA = "org/eclipse/jdt/core/JavaCore.java";
+	private static final String ORG_ECLIPSE_JDT_CORE_SOURCE = "org.eclipse.jdt.core.source";
+	private static final String ORG_ECLIPSE_JDT_CORE = "org.eclipse.jdt.core";
+	private static final String REFERENCE_FILE_SCHEMA = "reference:file:";
+
 	public APIDocumentationTests(String name) {
 		super(name);
 	}
@@ -127,49 +134,44 @@ static class JavaCoreJavadocAnalyzer {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=202490
 // checks that option ids and option default values match between the code and
 // the javadoc
-public void test001() throws CoreException, IllegalArgumentException, IllegalAccessException, IOException {
+public void testJavaCoreAPI() throws CoreException, IllegalArgumentException, IllegalAccessException, IOException {
+
 	// fetch JavaCore class
 	Class javaCoreClass = JavaCore.class;
+
 	// fetch JavaCore source file
+	// 1. attempt: workspace relative location in project org.eclipse.jdt.core:
 	@SuppressWarnings("deprecation")Bundle bundle = org.eclipse.jdt.core.tests.Activator.getInstance().getBundle();
 	URL url = bundle.getEntry("/");
-System.err.println("Bundle URL = "+url);
 	IPath path = new Path(FileLocator.toFileURL(url).getPath());
-System.err.println("Bundle path = "+path);
-	path = path.removeLastSegments(1).append("org.eclipse.jdt.core");
-System.err.println("jdt.core path = "+path);
-	String stringPath = path.toString() + "/model/org/eclipse/jdt/core/JavaCore.java"; 
+	path = path.removeLastSegments(1).append(ORG_ECLIPSE_JDT_CORE);
+	String stringPath = path.toString() + "/model/" + PATH_JAVA_CORE_JAVA; 
 	File javaCoreSourceFile = new File(stringPath);
-System.err.println("JavaCore.java = "+javaCoreSourceFile+" exists? "+javaCoreSourceFile.exists());
 	char[] sourceChars = null;
 	if (javaCoreSourceFile.exists()) {
-		sourceChars = org.eclipse.jdt.internal.compiler.util.Util.getFileCharContent(javaCoreSourceFile, null);
+		sourceChars = Util.getFileCharContent(javaCoreSourceFile, null);
 	} else {
-		// experimental Q&D tweak: try to find the source bundle by manipulating the file name of the regular bundle's location:
-		@SuppressWarnings("deprecation")Bundle[] sourceBundles = org.eclipse.jdt.core.tests.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.core", null);
+		// 2. attempt: locate org.eclipse.jdt.core.source jar next to org.eclipse.jdt.core jar:
+		@SuppressWarnings("deprecation")Bundle[] sourceBundles =
+				org.eclipse.jdt.core.tests.Activator.getPackageAdmin().getBundles(ORG_ECLIPSE_JDT_CORE, null);
 		if (sourceBundles != null && sourceBundles.length > 0) {
 			bundle = sourceBundles[0];
-System.err.println("Source Bundle = "+bundle);
 			stringPath = bundle.getLocation();
-System.err.println("Bundle Location = "+stringPath);
-			if (stringPath.startsWith("reference:file:"))
-				stringPath = stringPath.substring("reference:file:".length());
-			stringPath = stringPath.replace("org.eclipse.jdt.core", "org.eclipse.jdt.core.source");
-System.err.println("Source Bundle Location = "+stringPath);
+			if (stringPath.startsWith(REFERENCE_FILE_SCHEMA))
+				stringPath = stringPath.substring(REFERENCE_FILE_SCHEMA.length());
+			stringPath = stringPath.replace(ORG_ECLIPSE_JDT_CORE, ORG_ECLIPSE_JDT_CORE_SOURCE);
 			if (stringPath.endsWith(".jar")) {
 				File jarFile = new File(stringPath);
-System.err.println("Jar File = "+jarFile+" exists? "+jarFile.exists());
 				try (ZipFile zipFile = new ZipFile(jarFile)) {
-					ZipEntry entry = zipFile.getEntry("org/eclipse/jdt/core/JavaCore.java");
-System.err.println("Zip Entry = "+entry);
-System.err.println("Zip Entry Size = "+entry.getSize());
+					ZipEntry entry = zipFile.getEntry(PATH_JAVA_CORE_JAVA);
 					try (InputStream inputStream = zipFile.getInputStream(entry)) {
-						sourceChars = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(inputStream, (int)entry.getSize(), null);
+						sourceChars = Util.getInputStreamAsCharArray(inputStream, (int)entry.getSize(), null);
 					}
 				}
 			}
 		}
 	}
+	
 	if (sourceChars != null) {
 		// load field values in a map
 		Hashtable realOptionIDs = new Hashtable();
