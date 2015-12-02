@@ -2240,4 +2240,44 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			deleteProject(project);
 		}
 	}
+	public void testBug483303_001() throws Exception {
+		IJavaProject project = null;
+		try {
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			createFolder("P/src/p478042");
+			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+				"package p478042;\n" +
+				"public class AllMethodDeclarations01 {\n" +
+				"  public void m1(int i) {}\n" +
+				"  public void foo01() {}\n" +
+				"  public int foo02(Object o) {return null;}\n" +
+				"  public char foo03(Object o, String s) {return null;}\n" +
+				"    }");
+			createFile("/P/src/p478042/AllMethodDeclarations01b.java", 
+				"package p478042;\n" +
+				"public class AllMethodDeclarations01b {\n" +
+				"  public Integer fooInt() {return null;}\n" +
+				"    }");
+			class Collector extends MethodNameMatchRequestor {
+				List<MethodNameMatch> matches = new ArrayList<>();
+				@Override
+				public void acceptMethodNameMatch(MethodNameMatch match) {
+					this.matches.add(match);					
+				}
+			}
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
+			Collector collector = new Collector();
+			new SearchEngine().searchAllMethodNames(
+					null, SearchPattern.R_EXACT_MATCH,
+					null, SearchPattern.R_EXACT_MATCH,
+					"AllMethodDeclarations01".toCharArray(), SearchPattern.R_EXACT_MATCH,
+					"m1".toCharArray(), SearchPattern.R_PREFIX_MATCH,
+					scope, collector, IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+			assertEquals(1, collector.matches.size());
+			IMethod method = collector.matches.get(0).getMethod();
+			assertTrue(method.exists());
+		} finally {
+			deleteProject("P");
+		}
+	}
 }

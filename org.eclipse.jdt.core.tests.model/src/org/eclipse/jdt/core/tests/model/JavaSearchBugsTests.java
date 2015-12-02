@@ -55,6 +55,8 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.MethodNameMatch;
+import org.eclipse.jdt.core.search.MethodNameMatchRequestor;
 import org.eclipse.jdt.core.search.MethodReferenceMatch;
 import org.eclipse.jdt.core.search.ReferenceMatch;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -14701,5 +14703,66 @@ public void testBug478042_wScope_008() throws Exception {
 			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.Nested.Inner.foo03(Object o,String s)", 
 			collector
 	);
+}
+public void testBug483303_001() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/com/test/C1.java",
+			"package com.test;\n" +
+			"public class C1 {\n" +
+			"  void m1(int i) {\n" +
+			"  }\n" +
+			"}\n"
+	);
+	
+	MethodNameMatchCollector collector = new MethodNameMatchCollector() {
+		@Override
+		public String toString() {
+			return toFullyQualifiedNamesString();
+		}
+	};
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
+	searchAllMethodNames(
+			null, SearchPattern.R_PREFIX_MATCH, //package
+			null, SearchPattern.R_PREFIX_MATCH,  // declaring Qualification
+			null, SearchPattern.R_PREFIX_MATCH, // declaring SimpleType
+			"m1", SearchPattern.R_PREFIX_MATCH, 
+			scope, collector);
+	assertSearchResults(
+			"/JavaSearchBugs/src/com/test/C1.java void com.test.C1.m1(int i)", 
+			collector
+	);
+}
+public void testBug483303_002() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/com/test/C1.java",
+			"package com.test;\n" +
+			"public class C1 {\n" +
+			"  void m1(int i) {\n" +
+			"  }\n" +
+			"}\n"
+	);
+	
+	class Collector extends MethodNameMatchRequestor {
+		List<MethodNameMatch> matches = new ArrayList<>();
+		@Override
+		public void acceptMethodNameMatch(MethodNameMatch match) {
+			this.matches.add(match);					
+		}
+	}
+	Collector collector = new Collector();
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
+	new SearchEngine(this.workingCopies).searchAllMethodNames(
+			null, SearchPattern.R_PREFIX_MATCH, //package
+			null, SearchPattern.R_PREFIX_MATCH,  // declaring Qualification
+			null, SearchPattern.R_PREFIX_MATCH, // declaring SimpleType
+			"m1".toCharArray(), SearchPattern.R_PREFIX_MATCH, 
+			scope, collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+	assertTrue(collector.matches.size() == 1);
+	IMethod method = collector.matches.get(0).getMethod();
+	String name = method.toString();
+	String expectedName = "void m1(int) [in C1 [in [Working copy] C1.java [in com.test [in src [in JavaSearchBugs]]]]]";
+	assertTrue("Unexpected Method Name", expectedName.equals(name));
+	assertTrue("IJavaElement Does not exist", method.exists());
 }
 }
