@@ -171,6 +171,13 @@ public class BasicSearchEngine {
 	}
 
 	/**
+	 * @see SearchEngine#createMethodNameMatch(IMethod, int) for detailed comment.
+	 */
+	public static MethodNameMatch createMethodNameMatch(IMethod method, int modifiers) {
+		return new JavaSearchMethodNameMatch(method, modifiers);
+	}
+
+	/**
 	 * @see SearchEngine#createWorkspaceScope() for detailed comment.
 	 */
 	public static IJavaSearchScope createWorkspaceScope() {
