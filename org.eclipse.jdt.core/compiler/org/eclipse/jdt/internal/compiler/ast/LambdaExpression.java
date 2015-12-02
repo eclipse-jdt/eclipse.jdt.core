@@ -1065,8 +1065,12 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			switch(parent.kind) {
 				case Scope.CLASS_SCOPE:
 				case Scope.METHOD_SCOPE:
-					parent.referenceContext().tagAsHavingErrors();
-					return;
+					ReferenceContext parentAST = parent.referenceContext();
+					if (parentAST != this) {
+						parentAST.tagAsHavingErrors();
+						return;
+					}
+					break;
 				default:
 					parent = parent.parent;
 					break;
