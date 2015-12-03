@@ -8836,4 +8836,22 @@ public void testBug482228() {
 		"Null constraint mismatch: The type \'T extends List<@Nullable String>\' is not a valid substitute for the type parameter \'T extends List<@NonNull String>\'\n" + 
 		"----------\n");
 }
+public void testBug483527() {
+	final Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runConformTestWithLibs(
+		new String[] {
+			"Test.java",
+			"public class Test  {\n" + 
+			"    static final short foo;\n" + 
+			"	static {\n" + 
+			"		foo = 1;\n" + 
+			"		for (int i=0; i<10; i++) {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		compilerOptions,
+		"");
+}
 }

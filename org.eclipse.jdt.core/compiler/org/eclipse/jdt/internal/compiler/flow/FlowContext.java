@@ -131,6 +131,7 @@ public FlowContext(FlowContext parent, ASTNode associatedNode) {
 		this.initsOnFinally = parent.initsOnFinally;
 		this.conditionalLevel = parent.conditionalLevel;
 		this.nullCheckedFieldReferences = parent.nullCheckedFieldReferences; // re-use list if there is one
+		this.timesToLiveForNullCheckInfo = parent.timesToLiveForNullCheckInfo;
 	}
 }
 
@@ -199,7 +200,7 @@ public boolean isNullcheckedFieldAccess(Reference reference) {
 	for (int i=0; i<len; i++) {
 		Reference checked = this.nullCheckedFieldReferences[i];
 		if (checked == null) {
-			return false;
+			continue;
 		}
 		if (checked.isEquivalent(reference)) {
 			return true;
