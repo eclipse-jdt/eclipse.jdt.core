@@ -5721,4 +5721,64 @@ public void testBug482416() {
 			"interface Observable {}\n"
 		});
 }
+public void testBug483019() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import sub.B;\n" + 
+			"import sub.Marker;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"  public int test(B b) {\n" + 
+			"    return (((B & Marker) b).getValue());\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    System.out.println(new Test().test(new B()));\n" + 
+			"  }\n" + 
+			"}",
+			"sub/A.java",
+			"package sub;\n" + 
+			"class A {\n" + 
+			"  public int getValue() {\n" + 
+			"    return 1;\n" + 
+			"  }\n" + 
+			"}\n",
+			"sub/B.java",
+			"package sub;\n" + 
+			"public class B extends A implements Marker{ }\n",
+			"sub/Marker.java",
+			"package sub;\n" + 
+			"public interface Marker{ }\n"
+		},
+		"1");
+}
+public void testBug483019a() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import sub.J;\n" + 
+			"import sub.Marker;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"  public int test(J j) {\n" + 
+			"    return (((Marker & J) j).getValue());\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    System.out.println(new Test().test((J & Marker)() -> 0));\n" + 
+			"  }\n" + 
+			"}",
+			"sub/I.java",
+			"package sub;\n" + 
+			"interface I {\n" + 
+			"  int getValue();\n" + 
+			"}\n",
+			"sub/J.java",
+			"package sub;\n" + 
+			"public interface J extends I{ }\n",
+			"sub/Marker.java",
+			"package sub;\n" + 
+			"public interface Marker{ }\n"
+		},
+		"0");
+}
 }

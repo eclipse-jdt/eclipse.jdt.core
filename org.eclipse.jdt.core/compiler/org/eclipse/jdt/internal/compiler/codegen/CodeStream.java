@@ -3373,8 +3373,17 @@ public static TypeBinding getConstantPoolDeclaringClass(Scope currentScope, Meth
 						&& (options.complianceLevel >= ClassFileConstants.JDK1_4 || !(isImplicitThisReceiver && codegenBinding.isStatic()))
 						&& codegenBinding.declaringClass.id != TypeIds.T_JavaLangObject) // no change for Object methods
 					|| !codegenBinding.declaringClass.canBeSeenBy(currentScope)) {
-				if (!actualReceiverType.isIntersectionType18()) // no constant pool representation. FIXME, visibility issue not handled.
+				if (actualReceiverType.isIntersectionType18()) {
+					TypeBinding[] intersectingTypes = ((IntersectionTypeBinding18)actualReceiverType).getIntersectingTypes();
+					for(int i = 0; i < intersectingTypes.length; i++) {
+						if (intersectingTypes[i].findSuperTypeOriginatingFrom(constantPoolDeclaringClass) != null) {
+							constantPoolDeclaringClass = intersectingTypes[i];
+							break;
+						}
+					}
+				} else {
 					constantPoolDeclaringClass = actualReceiverType.erasure();
+				}
 			}
 		}				
 	}
