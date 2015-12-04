@@ -3702,6 +3702,94 @@ public static final char[][] splitOn(
 }
 
 /**
+ * Return a new array which is the split of the given array using the given divider ignoring the
+ * text between (possibly nested) openEncl and closingEncl. If there are no openEncl in the code
+ * this is identical to {@link CharOperation#splitOn(char, char[], int, int)}. The given end
+ * is exclusive and the given start is inclusive.
+ * <br>
+ * <br>
+ * For example:
+ * <ol>
+ * <li><pre>
+ *    divider = ','
+ *    array = { 'A' , '<', 'B', ',', 'C', '>', ',', 'D' }
+ *    start = 0
+ *    end = 8
+ *    result => { {  'A' , '<', 'B', ',', 'C', '>'}, { 'D' }}
+ * </pre>
+ * </li>
+ * </ol>
+ *
+ * @param divider the given divider
+ * @param openEncl the opening enclosure
+ * @param closeEncl the closing enclosure
+ * @param array the given array
+ * @param start the given starting index
+ * @param end the given ending index
+ * @return a new array which is the split of the given array using the given divider
+ * @throws ArrayIndexOutOfBoundsException if start is lower than 0 or end is greater than the array length
+ * @since 3.12
+ */
+public static final char[][] splitOnWithEnclosures(
+		char divider,
+		char openEncl,
+		char closeEncl,
+		char[] array,
+		int start,
+		int end) {
+		int length = array == null ? 0 : array.length;
+		if (length == 0 || start > end)
+			return NO_CHAR_CHAR;
+
+		int wordCount = 1;
+		int enclCount = 0;
+		for (int i = start; i < end; i++) {
+			if (array[i] == openEncl)
+				enclCount++; 
+			else if (array[i] == divider)
+				wordCount++;
+		}
+		if (enclCount == 0)
+			return CharOperation.splitOn(divider, array, start, end);
+		
+		int nesting = 0;
+		if (openEncl == divider || closeEncl == divider) // divider should be distinct
+			return CharOperation.NO_CHAR_CHAR;
+
+		int[][] splitOffsets = new int[wordCount][2]; //maximum
+		int last = start, currentWord = 0, prevOffset = start;
+		for (int i = start; i < end; i++) {
+			if (array[i] == openEncl) {
+				++nesting;
+				continue;
+			}
+			if (array[i] == closeEncl) {
+				if (nesting > 0) 
+					--nesting;
+				continue;
+			}
+			if (array[i] == divider && nesting == 0) {
+				splitOffsets[currentWord][0] = prevOffset;
+				last = splitOffsets[currentWord++][1] = i;
+				prevOffset = last + 1;
+			}
+		}
+		if (last < end - 1) {
+			splitOffsets[currentWord][0] = prevOffset;
+			splitOffsets[currentWord++][1] = end;
+		}
+		char[][] split = new char[currentWord][];
+		for (int i = 0; i < currentWord; ++i) {
+			int sStart = splitOffsets[i][0];
+			int sEnd = splitOffsets[i][1];
+			int size = sEnd - sStart;
+			split[i] = new char[size];
+			System.arraycopy(array, sStart, split[i], 0, size);
+		}
+		return split;
+	}
+
+/**
  * Answers a new array which is a copy of the given array starting at the given start and
  * ending at the given end. The given start is inclusive and the given end is exclusive.
  * Answers null if start is greater than end, if start is lower than 0 or if end is greater

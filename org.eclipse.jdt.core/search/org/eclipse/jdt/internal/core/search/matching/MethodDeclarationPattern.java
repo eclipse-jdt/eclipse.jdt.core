@@ -61,11 +61,7 @@ public class MethodDeclarationPattern extends MethodPattern {
 		if (argCount > 0) {
 			if (signature == null) {
 				if (parameterTypes != null && parameterTypes.length == argCount) {
-					char[][] parameterTypeErasures = new char[argCount][];
-					for (int i = 0; i < parameterTypes.length; i++) {
-						parameterTypeErasures[i] = getTypeErasure(parameterTypes[i]);
-					}
-					parameterTypesChars = CharOperation.concatWith(parameterTypeErasures, PARAMETER_SEPARATOR);
+					parameterTypesChars = CharOperation.concatWith(parameterTypes, PARAMETER_SEPARATOR);
 				}
 			} else {
 				extraFlags |= ExtraFlags.ParameterTypesStoredAsSignature;
@@ -230,7 +226,7 @@ public void decodeIndexKey(char[] key) {
 			this.signature  = CharOperation.subarray(key, start, slash);
 			CharOperation.replace(this.signature , '\\', SEPARATOR);
 		} else {
-			this.parameterTypes = CharOperation.splitOn(PARAMETER_SEPARATOR, key, start, slash);
+			this.parameterTypes = CharOperation.splitOnWithEnclosures(PARAMETER_SEPARATOR, '<', '>', key, start, slash);
 		}
 		start = slash + 1;
 		slash = CharOperation.indexOf(SEPARATOR, key, start);

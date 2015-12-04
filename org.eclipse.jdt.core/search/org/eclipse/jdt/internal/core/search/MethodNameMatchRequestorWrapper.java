@@ -70,7 +70,15 @@ public class MethodNameMatchRequestorWrapper extends NameMatchRequestorWrapper i
 		if (!(!(this.scope instanceof HierarchyScope) || ((HierarchyScope) this.scope).enclosesFineGrained(type))) return;
 		parameterTypes = parameterTypes == null ? CharOperation.NO_CHAR_CHAR : parameterTypes;
 		String[] paramTypeSigs = CharOperation.NO_STRINGS;
-		if (parameterTypes.length > 0) {
+		if (signature != null) {
+			char[][] parTypes = Signature.getParameterTypes(signature);
+			if (parTypes.length > 0) {
+				for (int i = 0, l = parTypes.length; i < l; ++i) {
+					CharOperation.replace(parTypes[i], '/', '.');
+				}
+			}
+			paramTypeSigs = CharOperation.toStrings(parTypes);
+		} else if (parameterTypes.length > 0) {
 			int l = parameterTypes.length;
 			paramTypeSigs = new String[l];
 			for (int i = 0; i < l; ++i) {
