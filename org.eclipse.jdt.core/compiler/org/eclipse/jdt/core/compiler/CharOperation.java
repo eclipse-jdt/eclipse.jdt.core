@@ -1245,6 +1245,148 @@ public static final char[] concat(
 	System.arraycopy(third, 0, result, length1 + length2 + 2, length3);
 	return result;
 }
+/**
+ * Answers the concatenation of the two arrays inserting the separator character between the two arrays.
+ * It answers null if the two arrays are null.
+ * If the first array is null or is empty, then the second array is returned.
+ * If the second array is null or is empty, then the first array is returned.
+ * <br>
+ * <br>
+ * For example:
+ * <ol>
+ * <li><pre>
+ *    first = null
+ *    second = { 'a' }
+ *    separator = '/'
+ *    => result = { ' a' }
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    first = { ' a' }
+ *    second = null
+ *    separator = '/'
+ *    => result = { ' a' }
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    first = { ' a' }
+ *    second = { ' b' }
+ *    separator = '/'
+ *    => result = { ' a' , '/', 'b' }
+ * </pre>
+ * </li>
+ *  * <li><pre>
+ *    first = { ' a' }
+ *    second = {  }
+ *    separator = '/'
+ *    => result = { ' a'}
+ * </pre>
+ * </li>
+
+ * </ol>
+ *
+ * @param first the first array to concatenate
+ * @param second the second array to concatenate
+ * @param separator the character to insert
+ * @return the concatenation of the two arrays inserting the separator character
+ * between the two arrays , or null if the two arrays are null.
+ * @since 3.12
+ */
+public static final char[] concatNonEmpty(
+	char[] first,
+	char[] second,
+	char separator) {
+	if (first == null || first.length == 0)
+		return second;
+	if (second == null || second.length == 0)
+		return first;
+	return concat(first, second, separator);
+}
+/**
+ * Answers the concatenation of the three arrays inserting the sep1 character between the
+ * first two arrays and sep2 between the last two.
+ * It answers null if the three arrays are null.
+ * If the first array is null or empty, then it answers the concatenation of second and third inserting
+ * the sep2 character between them.
+ * If the second array is null or empty, then it answers the concatenation of first and third inserting
+ * the sep1 character between them.
+ * If the third array is null or empty, then it answers the concatenation of first and second inserting
+ * the sep1 character between them.
+ * <br>
+ * <br>
+ * For example:
+ * <ol>
+ * <li><pre>
+ *    first = null
+ *    sep1 = '/'
+ *    second = { 'a' }
+ *    sep2 = ':'
+ *    third = { 'b' }
+ *    => result = { ' a' , ':', 'b' }
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    first = { 'a' }
+ *    sep1 = '/'
+ *    second = null
+ *    sep2 = ':'
+ *    third = { 'b' }
+ *    => result = { ' a' , '/', 'b' }
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    first = { 'a' }
+ *    sep1 = '/'
+ *    second = { 'b' }
+ *    sep2 = ':'
+ *    third = null
+ *    => result = { ' a' , '/', 'b' }
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    first = { 'a' }
+ *    sep1 = '/'
+ *    second = { 'b' }
+ *    sep2 = ':'
+ *    third = { 'c' }
+ *    => result = { ' a' , '/', 'b' , ':', 'c' }
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    first = { 'a' }
+ *    sep1 = '/'
+ *    second = { }
+ *    sep2 = ':'
+ *    third = { 'c' }
+ *    => result = { ' a', ':', 'c' }
+ * </pre>
+ * </li>
+ * </ol>
+ *
+ * @param first the first array to concatenate
+ * @param sep1 the character to insert
+ * @param second the second array to concatenate
+ * @param sep2 the character to insert
+ * @param third the second array to concatenate
+ * @return the concatenation of the three arrays inserting the sep1 character between the
+ * two arrays and sep2 between the last two.
+ * @since 3.12
+ */
+public static final char[] concatNonEmpty(
+	char[] first,
+	char sep1,
+	char[] second,
+	char sep2,
+	char[] third) {
+	if (first == null || first.length  == 0)
+		return concatNonEmpty(second, third, sep2);
+	if (second == null || second.length == 0)
+		return concatNonEmpty(first, third, sep1);
+	if (third == null || third.length == 0)
+		return concatNonEmpty(first, second, sep1);
+
+	return concat(first, sep1, second, sep2, third);
+}
 
 /**
  * Answers a new array with prepending the prefix character and appending the suffix

@@ -26,6 +26,7 @@ public class MethodDeclarationPattern extends MethodPattern {
 	public char[] signature;
 	public char[][] parameterTypes;
 	public char[][] parameterNames;
+	public char[] fusedDeclaringQualifier = null; // TODO: do we need this; cleanup?
 	/**
 	 * Method Declaration entries are encoded as described
 	 * 
@@ -156,6 +157,16 @@ public MethodDeclarationPattern(
 			null, null, null, null, null, 
 			IJavaSearchConstants.DECLARATIONS, matchRule);
 	this.declaringPackageName = declaringPackageName;
+}
+
+public MethodDeclarationPattern(
+		char[] declaringQualifier, 
+		char[] methodName,
+		int matchRule) {
+	super(methodName, CharOperation.NO_CHAR, CharOperation.NO_CHAR, 
+			null, null, null, null, null, 
+			IJavaSearchConstants.DECLARATIONS, matchRule);
+	this.fusedDeclaringQualifier = declaringQualifier;
 }
 
 public MethodDeclarationPattern(int matchRule) {

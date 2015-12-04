@@ -2280,4 +2280,347 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			deleteProject("P");
 		}
 	}
+	public void testBug483650_0001() throws Exception {
+		IJavaProject project = null;
+		try
+		{
+			// create the common project and create an interface
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			createFolder("P/src/p478042");
+			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+				"package p478042;\n" +
+				"public class AllMethodDeclarations01 {\n" +
+				"  public void foo01() {}\n" +
+				"  public int foo02(Object o) {return null;}\n" +
+				"  public char foo03(Object o, String s) {return null;}\n" +
+				"    }");
+			createFile("/P/src/p478042/AllMethodDeclarations01b.java", 
+				"package p478042;\n" +
+				"public class AllMethodDeclarations01b {\n" +
+				"  public Integer fooInt() {return null;}\n" +
+				"    }");
+			MethodNameMatchCollector collector = new MethodNameMatchCollector() {
+				@Override
+				public String toString() {
+					return toFullyQualifiedNamesString();
+				}
+			};
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
+			searchAllMethodNames("*", SearchPattern.R_PATTERN_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
+			assertSearchResults(
+					"/P/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
+					"/P/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
+					"/P/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
+					"/P/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
+					collector
+			);
+		} finally {
+			deleteProject(project);
+		}
+	}
+	public void testBug483650_0002() throws Exception {
+		IJavaProject project = null;
+		try
+		{
+			// create the common project and create an interface
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			createFolder("P/src/p478042");
+			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+				"package p478042;\n" +
+				"public class AllMethodDeclarations01 {\n" +
+				"  public void foo01() {}\n" +
+				"  public int foo02(Object o) {return null;}\n" +
+				"  public char foo03(Object o, String s) {return null;}\n" +
+				"    }");
+			createFile("/P/src/p478042/AllMethodDeclarations01b.java", 
+				"package p478042;\n" +
+				"public class AllMethodDeclarations01b {\n" +
+				"  public Integer fooInt() {return null;}\n" +
+				"    }");
+			MethodNameMatchCollector collector = new MethodNameMatchCollector() {
+				@Override
+				public String toString() {
+					return toFullyQualifiedNamesString();
+				}
+			};
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
+			searchAllMethodNames("*", SearchPattern.R_PATTERN_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
+			assertSearchResults(
+					"/P/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
+					"/P/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
+					"/P/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
+					"/P/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
+					collector
+			);
+		} finally {
+			deleteProject(project);
+		}
+	}
+	public void testBug483650_0003() throws Exception {
+		IJavaProject project = null;
+		try {
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			createFolder("P/src/p478042");
+			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+				"package p478042;\n" +
+				"public class AllMethodDeclarations01 {\n" +
+				"  public void foo() {}\n" +
+				"  public void foo01() {}\n" +
+				"  public int foo02(Object o) {return null;}\n" +
+				"  public char foo03(Object o, String s) {return null;}\n" +
+				"    }");
+			createFile("/P/src/p478042/AllMethodDeclarations01b.java", 
+				"package p478042;\n" +
+				"public class AllMethodDeclarations01b {\n" +
+				"  public Integer fooInt() {return null;}\n" +
+				"    }");
+			class Collector extends MethodNameMatchRequestor {
+				List<MethodNameMatch> matches = new ArrayList<>();
+				@Override
+				public void acceptMethodNameMatch(MethodNameMatch match) {
+					this.matches.add(match);					
+				}
+			}
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
+			Collector collector = new Collector();
+			new SearchEngine().searchAllMethodNames(
+					"*.AllMethodDeclarations01".toCharArray(), SearchPattern.R_PATTERN_MATCH,
+					"foo".toCharArray(), SearchPattern.R_PREFIX_MATCH,
+					scope, collector, IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+			assertEquals(4, collector.matches.size());
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug483650_0004() throws Exception {
+		IJavaProject project = null;
+		try
+		{
+			// create the common project and create an interface
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			createFolder("P/src/p478042");
+			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+					"package p478042;\n" +
+					"class Y<T> {}\n" +
+					"class X<T> {}\n" +
+					"public class AllMethodDeclarations01 {\n" +
+					"  public Y<X> foo01(Y<X> t) {}\n" +
+					"  public int foo02(Object o) {return null;}\n" +
+					"  public char foo03(Object o, String s) {return null;}\n" +
+					"}");
+			createFile("/P/src/p478042/AllMethodDeclarations01b.java", 
+					"package p478042;\n" +
+					"public class AllMethodDeclarations01b {\n" +
+					"  public Integer fooInt() {return null;}\n" +
+					"}");
+			MethodNameMatchCollector collector = new MethodNameMatchCollector() {
+				@Override
+				public String toString() {
+					return toFullyQualifiedNamesString();
+				}
+			};
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
+			searchAllMethodNames("*", SearchPattern.R_PATTERN_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
+			assertSearchResults(
+					"/P/src/p478042/AllMethodDeclarations01.java Y p478042.AllMethodDeclarations01.foo01(Y t)\n" + 
+					"/P/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
+					"/P/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
+					"/P/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
+					collector
+			);
+		} finally {
+			deleteProject(project);
+		}
+	}
+	public void testBug483650_005() throws Exception {
+		try {
+			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib478042.jar", "JCL15_LIB" }, "", "1.5");
+			createJar(new String[] {
+				"p478042/AllMethodDeclarations02.java",
+				"package p478042;\n" +
+				"class X {}\n" +
+				"class Y<T>{}\n" +
+				"public class AllMethodDeclarations02 {\n" +
+				"  public Y<X> foo01(Y<X> t) { return null;}\n" +
+				"  public int foo02(Object o) {return 0;}\n" +
+				"  public char foo03(Object o, String s) {return '0';}\n" +
+				"}",
+				"p478042/AllMethodDeclarations02b.java",
+				"package p478042;\n" +
+				"class AllMethodDeclarations02b {\n" +
+				"  public void fooInt() {}\n" +
+				"}"
+			}, p.getProject().getLocation().append("lib478042.jar").toOSString(),
+				new String[] { p.getProject().getLocation().append("lib478042.jar").toOSString() },
+				"1.5");
+			refresh(p);
+			
+			MethodNameMatchCollector collector = new MethodNameMatchCollector() {
+				@Override
+				public String toString() {
+					return toFullyQualifiedNamesString();
+				}
+			};
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, IJavaSearchScope.SOURCES|IJavaSearchScope.APPLICATION_LIBRARIES);
+			searchAllMethodNames("*", SearchPattern.R_PATTERN_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
+			assertSearchResults(
+					"/P/lib478042.jar p478042.Y p478042.AllMethodDeclarations02.foo01(p478042.Y t)\n" + 
+					"/P/lib478042.jar void p478042.AllMethodDeclarations02b.fooInt()\n" + 
+					"/P/lib478042.jar int p478042.AllMethodDeclarations02.foo02(java.lang.Object o)\n" + 
+					"/P/lib478042.jar char p478042.AllMethodDeclarations02.foo03(java.lang.Object o,java.lang.String s)",
+					collector
+			);
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug483650_006() throws Exception {
+		try {
+			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib478042.jar", "JCL15_LIB" }, "", "1.5");
+			createJar(new String[] {
+				"p478042/AllMethodDeclarations01.java",
+				"package p478042;\n" +
+				"public class AllMethodDeclarations01 {\n" +
+				"    public class Nested {\n" +
+				"        public class Inner {\n" +
+				"            public void foo01() {}\n" +
+				"            public int foo02(Object o) {return 0;}\n" +
+				"            public char foo03(Object o, String s) {return '0';}\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+			}, p.getProject().getLocation().append("lib478042.jar").toOSString(),
+				new String[] { p.getProject().getLocation().append("lib478042.jar").toOSString() },
+				"1.5");
+			refresh(p);
+			
+			MethodNameMatchCollector collector = new MethodNameMatchCollector() {
+				@Override
+				public String toString() {
+					return toFullyQualifiedNamesString();
+				}
+			};
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, IJavaSearchScope.SOURCES|IJavaSearchScope.APPLICATION_LIBRARIES);
+			searchAllMethodNames("*", SearchPattern.R_PATTERN_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
+			assertSearchResults(
+					"/P/lib478042.jar void p478042.AllMethodDeclarations01.Nested.Inner.foo01()\n" + 
+					"/P/lib478042.jar int p478042.AllMethodDeclarations01.Nested.Inner.foo02(java.lang.Object o)\n" + 
+					"/P/lib478042.jar char p478042.AllMethodDeclarations01.Nested.Inner.foo03(java.lang.Object o,java.lang.String s)",
+					collector
+			);
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug483650_007() throws Exception {
+		try {
+			IJavaProject p = createJavaProject("P", new String[] {}, new String[] { "/P/lib478042.jar", "JCL15_LIB" }, "", "1.5");
+			createJar(new String[] {
+				"p478042/AllMethodDeclarations01.java",
+				"package p478042;\n" +
+				"public class AllMethodDeclarations01 {\n" +
+				"    public class Nested {\n" +
+				"        public class Inner {\n" +
+				"            public void foo01() {}\n" +
+				"            public int foo02(Object o) {return 0;}\n" +
+				"            public char foo03(Object o, String s) {return '0';}\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+			}, p.getProject().getLocation().append("lib478042.jar").toOSString(),
+				new String[] { p.getProject().getLocation().append("lib478042.jar").toOSString() },
+				"1.5");
+			refresh(p);
+			
+			MethodNameMatchCollector collector = new MethodNameMatchCollector() {
+				@Override
+				public String toString() {
+					return toFullyQualifiedNamesString();
+				}
+			};
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { p }, IJavaSearchScope.SOURCES|IJavaSearchScope.APPLICATION_LIBRARIES);
+			searchAllMethodNames(
+					"*Inner", SearchPattern.R_PATTERN_MATCH,
+					"foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
+			assertSearchResults(
+					"/P/lib478042.jar void p478042.AllMethodDeclarations01.Nested.Inner.foo01()\n" + 
+					"/P/lib478042.jar int p478042.AllMethodDeclarations01.Nested.Inner.foo02(java.lang.Object o)\n" + 
+					"/P/lib478042.jar char p478042.AllMethodDeclarations01.Nested.Inner.foo03(java.lang.Object o,java.lang.String s)",
+					collector
+			);
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug483650_008() throws Exception {
+		IJavaProject project = null;
+		try
+		{
+			// create the common project and create an interface
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			createFolder("P/src/p478042");
+			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+					"package p478042;\n" +
+					"public class AllMethodDeclarations01 {\n" +
+					"    public class Nested {\n" +
+					"        public class Inner {\n" +
+					"            public void foo01() {}\n" +
+					"            public int foo02(Object o) {return 0;}\n" +
+					"            public char foo03(Object o, String s) {return '0';}\n" +
+					"        }\n" +
+					"    }\n" +
+					"}");
+			MethodNameMatchCollector collector = new MethodNameMatchCollector() {
+				@Override
+				public String toString() {
+					return toFullyQualifiedNamesString();
+				}
+			};
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
+			searchAllMethodNames("*", SearchPattern.R_PATTERN_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
+			assertTrue(collector.matches.size() == 3);
+		} catch(Exception e) {
+			e.printStackTrace();
+		} finally {
+			deleteProject(project);
+		}
+	}
+	public void testBug483650_009() throws Exception {
+		IJavaProject project = null;
+		try {
+			project = createJavaProject("P", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin","1.5");
+			createFolder("P/src/p478042");
+			createFile("/P/src/p478042/AllMethodDeclarations01.java", 
+				"package p478042;\n" +
+				"public class AllMethodDeclarations01 {\n" +
+				"  public void m1(int i) {}\n" +
+				"  public void foo01() {}\n" +
+				"  public int foo02(Object o) {return null;}\n" +
+				"  public char foo03(Object o, String s) {return null;}\n" +
+				"    }");
+			createFile("/P/src/p478042/AllMethodDeclarations01b.java", 
+				"package p478042;\n" +
+				"public class AllMethodDeclarations01b {\n" +
+				"  public Integer fooInt() {return null;}\n" +
+				"    }");
+			class Collector extends MethodNameMatchRequestor {
+				List<MethodNameMatch> matches = new ArrayList<>();
+				@Override
+				public void acceptMethodNameMatch(MethodNameMatch match) {
+					this.matches.add(match);					
+				}
+			}
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES);
+			Collector collector = new Collector();
+			new SearchEngine().searchAllMethodNames(
+					"*.AllMethodDeclarations01".toCharArray(), SearchPattern.R_PATTERN_MATCH,
+					"m1".toCharArray(), SearchPattern.R_PREFIX_MATCH,
+					scope, collector, IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+			assertEquals(1, collector.matches.size());
+			IMethod method = collector.matches.get(0).getMethod();
+			assertTrue(method.exists());
+		} finally {
+			deleteProject("P");
+		}
+	}
 }

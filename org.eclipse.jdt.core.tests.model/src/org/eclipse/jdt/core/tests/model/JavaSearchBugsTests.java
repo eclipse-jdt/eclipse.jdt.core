@@ -14765,4 +14765,341 @@ public void testBug483303_002() throws Exception {
 	assertTrue("Unexpected Method Name", expectedName.equals(name));
 	assertTrue("IJavaElement Does not exist", method.exists());
 }
+
+public void testBug483650_wScope_0001() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java",
+		"package p478042;\n" +
+		"public class AllMethodDeclarations01 {\n" +
+		"  public void foo01() {}\n" +
+		"  public int foo02(Object o) {return null;}\n" +
+		"  public char foo03(Object o, String s) {return null;}\n" +
+		"}\n"
+	);
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
+		"package p478042;\n" +
+		"public class AllMethodDeclarations01b {\n" +
+		"  public Integer fooInt() {return null;}\n" +
+		"}\n"
+	);
+	MethodNameMatchCollector collector = new MethodNameMatchCollector() {
+		@Override
+		public String toString() {
+			return toFullyQualifiedNamesString();
+		}
+	};
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
+	searchAllMethodNames("p478042*.AllMethodDeclarations0*", SearchPattern.R_PATTERN_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
+	assertSearchResults(
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
+			collector
+	);
+}
+public void testBug483650_wScope_0002() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java",
+		"package p478042;\n" +
+		"public class AllMethodDeclarations01 {\n" +
+		"  public void foo01() {}\n" +
+		"  public int foo02(Object o) {return null;}\n" +
+		"  public char foo03(Object o, String s) {return null;}\n" +
+		"}\n"
+	);
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
+		"package p478042;\n" +
+		"public class AllMethodDeclarations01b {\n" +
+		"  public Integer fooInt() {return null;}\n" +
+		"}\n"
+	);
+	MethodNameMatchCollector collector = new MethodNameMatchCollector() {
+		@Override
+		public String toString() {
+			return toFullyQualifiedNamesString();
+		}
+	};
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
+	searchAllMethodNames("p478042*.AllMethodDeclarations0*", SearchPattern.R_PATTERN_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
+	assertSearchResults(
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
+			collector
+	);
+}
+public void testBug483650_wScope_003() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java",
+		"package p478042;\n" +
+		"public class AllMethodDeclarations01 {\n" +
+		"  public void foo01() {}\n" +
+		"  public int foo02(Object o) {return null;}\n" +
+		"  public char foo03(Object o, String s) {return null;}\n" +
+		"}\n"
+	);
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
+		"package p478042;\n" +
+		"public class AllMethodDeclarations01b {\n" +
+		"  public Integer fooInt() {return null;}\n" +
+		"}\n"
+	);
+	MethodNameMatchCollector collector = new MethodNameMatchCollector() {
+		@Override
+		public String toString() {
+			return toFullyQualifiedNamesString();
+		}
+	};
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
+	searchAllMethodNames("*AllMethod*", SearchPattern.R_PATTERN_MATCH, "foo", SearchPattern.R_PREFIX_MATCH, scope, collector);
+	assertSearchResults(
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
+			collector
+	);
+}
+public void testBug483650_wScope_004() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java",
+		"package p478042;\n" +
+		"public class AllMethodDeclarations01 {\n" +
+		"  public void foo01() {}\n" +
+		"  public int foo02(Object o) {return null;}\n" +
+		"  public char foo03(Object o, String s) {return null;}\n" +
+		"}\n"
+	);
+	
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
+		"package p478042;\n" +
+		"public class AllMethodDeclarations01b {\n" +
+		"  public Integer fooInt() {return null;}\n" +
+		"}\n"
+	);
+	MethodNameMatchCollector collector = new MethodNameMatchCollector() {
+		@Override
+		public String toString() {
+			return toFullyQualifiedNamesString();
+		}
+	};
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
+	searchAllMethodNames(
+			"p478042.AllMethod*", SearchPattern.R_PATTERN_MATCH, //qualifier
+			"foo", SearchPattern.R_PREFIX_MATCH, 
+			scope, collector);
+	assertSearchResults(
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
+			collector
+	);
+}
+public void testBug483650_wScope_005() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java",
+		"package p478042;\n" +
+		"public class AllMethodDeclarations01 {\n" +
+		"  public void foo01() {}\n" +
+		"  public int foo02(Object o) {return null;}\n" +
+		"  public char foo03(Object o, String s) {return null;}\n" +
+		"}\n"
+	);
+	
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
+		"package p478042;\n" +
+		"public class AllMethodDeclarations01b {\n" +
+		"  public Integer fooInt() {return null;}\n" +
+		"}\n"
+	);
+	MethodNameMatchCollector collector = new MethodNameMatchCollector() {
+		@Override
+		public String toString() {
+			return toFullyQualifiedNamesString();
+		}
+	};
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
+	searchAllMethodNames(
+			"p478042.AllMethod*", SearchPattern.R_PATTERN_MATCH,
+			"foo", SearchPattern.R_PREFIX_MATCH, 
+			scope, collector);
+	assertSearchResults(
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.foo01()\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.foo02(Object o)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.foo03(Object o,String s)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooInt()",
+			collector
+	);
+}
+public void testBug483650_wScope_006() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java",
+		"package p478042;\n" +
+		"public class AllMethodDeclarations01 {\n" +
+		"  public void fooCamelCase01() {}\n" +
+		"  public int fooCamelCase02(Object o) {return null;}\n" +
+		"  public char fooCamel03(Object o, String s) {return null;}\n" +
+		"}\n"
+	);
+	
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
+		"package p478042;\n" +
+		"public class AllMethodDeclarations01b {\n" +
+		"  public Integer fooCamelCaseInt() {return null;}\n" +
+		"}\n"
+	);
+	MethodNameMatchCollector collector = new MethodNameMatchCollector() {
+		@Override
+		public String toString() {
+			return toFullyQualifiedNamesString();
+		}
+	};
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
+	searchAllMethodNames(
+			"p478042.AllMethod*", SearchPattern.R_PATTERN_MATCH, 
+			"fooCC", SearchPattern.R_CAMELCASE_MATCH, 
+			scope, collector);
+	assertSearchResults(
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.fooCamelCase01()\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.fooCamelCase02(Object o)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooCamelCaseInt()",
+			collector
+	);
+}
+public void testBug483650_wScope_007() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java",
+		"package p478042;\n" +
+		"class Y<T> {}\n" +
+		"class X<T> {}\n" +
+		"public class AllMethodDeclarations01 {\n" +
+		"  public Y<X> fooCamelCase01(Y<X> t) {}\n" +
+		"  public int fooCamelCase02(Object o) {return null;}\n" +
+		"  public char fooCamel03(Object o, String s) {return null;}\n" +
+		"}\n"
+	);
+	
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
+		"package p478042;\n" +
+		"public class AllMethodDeclarations01b {\n" +
+		"  public Integer fooCamelCaseInt() {return null;}\n" +
+		"}\n"
+	);
+	MethodNameMatchCollector collector = new MethodNameMatchCollector() {
+		@Override
+		public String toString() {
+			return toFullyQualifiedNamesString();
+		}
+	};
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
+	searchAllMethodNames(
+			"p478042.AllMethod*", SearchPattern.R_PATTERN_MATCH,
+			"fooCC", SearchPattern.R_CAMELCASE_MATCH, 
+			scope, collector);
+	assertSearchResults(
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java Y p478042.AllMethodDeclarations01.fooCamelCase01(Y t)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.fooCamelCase02(Object o)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java Integer p478042.AllMethodDeclarations01b.fooCamelCaseInt()",
+			collector
+	);
+}
+public void testBug483650_wScope_008() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java",
+			"package p478042;\n" +
+			"public class AllMethodDeclarations01 {\n" +
+			"public class Nested {\n" +
+			"public class Inner {\n" +
+			"  public void foo01() {}\n" +
+			"  public int foo02(Object o) {return 0;}\n" +
+			"  public char foo03(Object o, String s) {return '0';}\n" +
+			"}\n" +
+			"}\n" +
+			"}\n"
+	);
+	
+	this.workingCopies[1] = getWorkingCopy("/JavaSearchBugs/src/p478042/AllMethodDeclarations01b.java",
+		"package p478042;\n" +
+		"public class AllMethodDeclarations01b {\n" +
+		"  public Integer fooInt() {return null;}\n" +
+		"}\n"
+	);
+	MethodNameMatchCollector collector = new MethodNameMatchCollector() {
+		@Override
+		public String toString() {
+			return toFullyQualifiedNamesString();
+		}
+	};
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
+	searchAllMethodNames(
+			"p478042.AllMethod*.Inn*", SearchPattern.R_PATTERN_MATCH,
+			"foo", SearchPattern.R_PREFIX_MATCH, 
+			scope, collector);
+	assertSearchResults(
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java void p478042.AllMethodDeclarations01.Nested.Inner.foo01()\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java int p478042.AllMethodDeclarations01.Nested.Inner.foo02(Object o)\n" + 
+			"/JavaSearchBugs/src/p478042/AllMethodDeclarations01.java char p478042.AllMethodDeclarations01.Nested.Inner.foo03(Object o,String s)", 
+			collector
+	);
+}
+public void testBug483650_009() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/com/test/C1.java",
+			"package com.test;\n" +
+			"public class C1 {\n" +
+			"  void m1(int i) {\n" +
+			"  }\n" +
+			"}\n"
+	);
+	
+	MethodNameMatchCollector collector = new MethodNameMatchCollector() {
+		@Override
+		public String toString() {
+			return toFullyQualifiedNamesString();
+		}
+	};
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
+	searchAllMethodNames(
+			null, SearchPattern.R_PREFIX_MATCH, 
+			"m1", SearchPattern.R_PREFIX_MATCH, 
+			scope, collector);
+	assertSearchResults(
+			"/JavaSearchBugs/src/com/test/C1.java void com.test.C1.m1(int i)", 
+			collector
+	);
+}
+public void testBug483650_010() throws Exception {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/com/test/C1.java",
+			"package com.test;\n" +
+			"public class C1 {\n" +
+			"  void m1(int i) {\n" +
+			"  }\n" +
+			"}\n"
+	);
+	
+	class Collector extends MethodNameMatchRequestor {
+		List<MethodNameMatch> matches = new ArrayList<>();
+		@Override
+		public void acceptMethodNameMatch(MethodNameMatch match) {
+			this.matches.add(match);					
+		}
+	}
+	Collector collector = new Collector();
+	IJavaSearchScope scope = SearchEngine.createJavaSearchScope(this.workingCopies);
+	new SearchEngine(this.workingCopies).searchAllMethodNames(
+			null, SearchPattern.R_PREFIX_MATCH,
+			"m1".toCharArray(), SearchPattern.R_PREFIX_MATCH, 
+			scope, collector,
+			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, null);
+	assertTrue(collector.matches.size() == 1);
+	IMethod method = collector.matches.get(0).getMethod();
+	String name = method.toString();
+	String expectedName = "void m1(int) [in C1 [in [Working copy] C1.java [in com.test [in src [in JavaSearchBugs]]]]]";
+	assertTrue("Unexpected Method Name", expectedName.equals(name));
+	assertTrue("IJavaElement Does not exist", method.exists());
+}
 }

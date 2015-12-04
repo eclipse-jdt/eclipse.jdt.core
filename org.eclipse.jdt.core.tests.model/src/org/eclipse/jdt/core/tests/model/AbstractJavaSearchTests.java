@@ -1138,48 +1138,6 @@ protected JavaSearchResultCollector resultCollector;
 	}
 
 	public void searchAllMethodNames(
-			String methodName,
-			final int methodMatchRule,
-			IJavaSearchScope scope,
-			final MethodNameMatchRequestor nameRequestor) {
-		searchAllMethodNames(
-				null, SearchPattern.R_EXACT_MATCH, 
-				null, SearchPattern.R_EXACT_MATCH, 
-				null, SearchPattern.R_EXACT_MATCH, 
-				methodName, methodMatchRule, 
-				scope, nameRequestor);
-	}
-	public void searchAllMethodNames(
-			String declaringSimpleName,
-			final int declSimpleNameMatchRule,
-			String methodName,
-			final int methodMatchRule,
-			IJavaSearchScope scope,
-			final MethodNameMatchRequestor nameRequestor) {
-		searchAllMethodNames(
-				null, SearchPattern.R_EXACT_MATCH, 
-				null, SearchPattern.R_EXACT_MATCH, 
-				declaringSimpleName, declSimpleNameMatchRule, 
-				methodName, methodMatchRule, 
-				scope, nameRequestor);
-	}
-	public void searchAllMethodNames(
-			String declaringQualification,
-			final int declQualificationMatchRule,
-			String declaringSimpleName,
-			final int declSimpleNameMatchRule,
-			String methodName,
-			final int methodMatchRule,
-			IJavaSearchScope scope,
-			final MethodNameMatchRequestor nameRequestor) {
-		searchAllMethodNames(
-				null, SearchPattern.R_EXACT_MATCH, 
-				declaringQualification, declQualificationMatchRule, 
-				declaringSimpleName, declSimpleNameMatchRule, 
-				methodName, methodMatchRule, 
-				scope, nameRequestor);
-	}
-	public void searchAllMethodNames(
 			String packageName,
 			final int pkgMatchRule,
 			String declaringQualification,
@@ -1195,6 +1153,26 @@ protected JavaSearchResultCollector resultCollector;
 					packageName != null ? packageName.toCharArray() : null, pkgMatchRule, 
 					declaringQualification != null ? declaringQualification.toCharArray() : null, declQualificationMatchRule, 
 					declaringSimpleName != null ? declaringSimpleName.toCharArray() : null, declSimpleNameMatchRule, 
+					methodName != null ? methodName.toCharArray() : null, methodMatchRule, 
+					scope, nameRequestor, 
+					IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, 
+					null);
+		} catch (JavaModelException e) {
+			e.printStackTrace();
+		}
+		
+	}
+
+	public void searchAllMethodNames(
+			String qualifier,
+			final int qualifierMatchRule,
+			String methodName,
+			final int methodMatchRule,
+			IJavaSearchScope scope,
+			final MethodNameMatchRequestor nameRequestor) {
+		try {
+			new SearchEngine(this.workingCopies).searchAllMethodNames(
+					qualifier != null ? qualifier.toCharArray() : null, qualifierMatchRule, 
 					methodName != null ? methodName.toCharArray() : null, methodMatchRule, 
 					scope, nameRequestor, 
 					IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH, 
