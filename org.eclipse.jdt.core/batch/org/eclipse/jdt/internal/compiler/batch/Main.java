@@ -1343,6 +1343,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	private File javaHomeCache;
 
 	private boolean javaHomeChecked = false;
+	private boolean primaryNullAnnotationsSeen = false;
 	public long lineCount0;
 
 	public String log;
@@ -3714,20 +3715,40 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				int end = token.indexOf(')');
 				String nonNullAnnotName = null, nullableAnnotName = null, nonNullByDefaultAnnotName = null;
 				if (isEnabling && start >= 0 && end >= 0 && start < end){
+					boolean isPrimarySet = !this.primaryNullAnnotationsSeen;
 					annotationNames = token.substring(start+1, end).trim();
 					int separator1 = annotationNames.indexOf('|');
 					if (separator1 == -1) throw new IllegalArgumentException(this.bind("configure.invalidNullAnnot", token)); //$NON-NLS-1$
 					nullableAnnotName = annotationNames.substring(0, separator1).trim();
-					if (nullableAnnotName.length() == 0) throw new IllegalArgumentException(this.bind("configure.invalidNullAnnot", token)); //$NON-NLS-1$
+					if (isPrimarySet && nullableAnnotName.length() == 0) throw new IllegalArgumentException(this.bind("configure.invalidNullAnnot", token)); //$NON-NLS-1$
 					int separator2 = annotationNames.indexOf('|', separator1 + 1);
 					if (separator2 == -1) throw new IllegalArgumentException(this.bind("configure.invalidNullAnnot", token)); //$NON-NLS-1$
 					nonNullAnnotName = annotationNames.substring(separator1 + 1, separator2).trim();
-					if (nonNullAnnotName.length() == 0) throw new IllegalArgumentException(this.bind("configure.invalidNullAnnot", token)); //$NON-NLS-1$
+					if (isPrimarySet && nonNullAnnotName.length() == 0) throw new IllegalArgumentException(this.bind("configure.invalidNullAnnot", token)); //$NON-NLS-1$
 					nonNullByDefaultAnnotName = annotationNames.substring(separator2 + 1).trim();
-					if (nonNullByDefaultAnnotName.length() == 0) throw new IllegalArgumentException(this.bind("configure.invalidNullAnnot", token)); //$NON-NLS-1$
-					this.options.put(CompilerOptions.OPTION_NullableAnnotationName, nullableAnnotName);
-					this.options.put(CompilerOptions.OPTION_NonNullAnnotationName, nonNullAnnotName);
-					this.options.put(CompilerOptions.OPTION_NonNullByDefaultAnnotationName, nonNullByDefaultAnnotName);
+					if (isPrimarySet && nonNullByDefaultAnnotName.length() == 0) throw new IllegalArgumentException(this.bind("configure.invalidNullAnnot", token)); //$NON-NLS-1$
+					if (isPrimarySet) {
+						this.primaryNullAnnotationsSeen = true;
+						this.options.put(CompilerOptions.OPTION_NullableAnnotationName, nullableAnnotName);
+						this.options.put(CompilerOptions.OPTION_NonNullAnnotationName, nonNullAnnotName);
+						this.options.put(CompilerOptions.OPTION_NonNullByDefaultAnnotationName, nonNullByDefaultAnnotName);
+					} else {
+						if (nullableAnnotName.length() > 0) {
+							String nullableList = this.options.get(CompilerOptions.OPTION_NullableAnnotationSecondaryNames);
+							nullableList = nullableList.isEmpty() ? nullableAnnotName : nullableList + ',' + nullableAnnotName;
+							this.options.put(CompilerOptions.OPTION_NullableAnnotationSecondaryNames, nullableList);
+						}
+						if (nonNullAnnotName.length() > 0) {
+							String nonnullList = this.options.get(CompilerOptions.OPTION_NonNullAnnotationSecondaryNames);
+							nonnullList = nonnullList.isEmpty() ? nonNullAnnotName : nonnullList + ',' + nonNullAnnotName;
+							this.options.put(CompilerOptions.OPTION_NonNullAnnotationSecondaryNames, nonnullList);
+						}
+						if (nonNullByDefaultAnnotName.length() > 0) {
+							String nnbdList = this.options.get(CompilerOptions.OPTION_NonNullByDefaultAnnotationSecondaryNames);
+							nnbdList = nnbdList.isEmpty() ? nonNullByDefaultAnnotName : nnbdList + ',' + nonNullByDefaultAnnotName;
+							this.options.put(CompilerOptions.OPTION_NonNullByDefaultAnnotationSecondaryNames, nnbdList);
+						}
+					}
 				}
 				this.options.put(
 						CompilerOptions.OPTION_AnnotationBasedNullAnalysis,
