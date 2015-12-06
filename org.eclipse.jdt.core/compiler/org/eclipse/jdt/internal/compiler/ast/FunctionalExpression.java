@@ -167,6 +167,10 @@ public abstract class FunctionalExpression extends Expression {
 	}
 
 	public TypeBinding resolveType(BlockScope blockScope) {
+		return resolveType(blockScope, false);
+	}
+
+	public TypeBinding resolveType(BlockScope blockScope, boolean skipKosherCheck) {
 		this.constant = Constant.NotAConstant;
 		this.enclosingScope = blockScope;
 		MethodBinding sam = this.expectedType == null ? null : this.expectedType.getSingleAbstractMethod(blockScope, argumentsTypeElided());
@@ -179,7 +183,7 @@ public abstract class FunctionalExpression extends Expression {
 		}
 		
 		this.descriptor = sam;
-		if (kosherDescriptor(blockScope, sam, true)) {
+		if (skipKosherCheck || kosherDescriptor(blockScope, sam, true)) {
 			if (blockScope.environment().globalOptions.isAnnotationBasedNullAnalysisEnabled)
 				NullAnnotationMatching.checkForContradictions(sam, this, blockScope);
 			return this.resolvedType = this.expectedType;		

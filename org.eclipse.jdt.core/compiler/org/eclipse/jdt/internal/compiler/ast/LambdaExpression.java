@@ -233,7 +233,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	 * @see org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding.resolveTypesFor(MethodBinding)
 	 * @see org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration.resolve(ClassScope)
 	 */
-	public TypeBinding resolveType(BlockScope blockScope) {
+	public TypeBinding resolveType(BlockScope blockScope, boolean skipKosherCheck) {
 		
 		boolean argumentsTypeElided = argumentsTypeElided();
 		int argumentsLength = this.arguments == null ? 0 : this.arguments.length;
@@ -257,11 +257,11 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		this.scope = new MethodScope(blockScope, this, methodScope.isStatic, methodScope.lastVisibleFieldID);
 		this.scope.isConstructorCall = methodScope.isConstructorCall;
 
-		super.resolveType(blockScope); // compute & capture interface function descriptor.
+		super.resolveType(blockScope, skipKosherCheck); // compute & capture interface function descriptor.
 		
 		final boolean haveDescriptor = this.descriptor != null;
 		
-		if (!haveDescriptor || this.descriptor.typeVariables != Binding.NO_TYPE_VARIABLES) // already complained in kosher*
+		if (!skipKosherCheck && (!haveDescriptor || this.descriptor.typeVariables != Binding.NO_TYPE_VARIABLES)) // already complained in kosher*
 			return this.resolvedType = null;
 		
 		this.binding = new MethodBinding(ClassFileConstants.AccPrivate | ClassFileConstants.AccSynthetic | ExtraCompilerModifiers.AccUnresolved,
@@ -837,6 +837,10 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if (!isPertinentToApplicability(targetType, null))
 			return true;
 
+		// catch up on one check deferred via skipKosherCheck=true (only if pertinent for applicability)
+		if (!kosherDescriptor(this.enclosingScope, sam, false))
+			return false;
+
 		Expression [] returnExpressions = copy.resultExpressions;
 		for (int i = 0, length = returnExpressions.length; i < length; i++) {
 			if (this.enclosingScope.parameterCompatibilityLevel(returnExpressions[i].resolvedType, sam.returnType) == Scope.NOT_COMPATIBLE) {
@@ -886,7 +890,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				copy.setExpressionContext(this.expressionContext);
 				copy.setExpectedType(targetType);
 				copy.inferenceContext = context;
-				TypeBinding type = copy.resolveType(this.enclosingScope);
+				TypeBinding type = copy.resolveType(this.enclosingScope, true);
 				if (type == null || !type.isValidBinding())
 					return null;
 
