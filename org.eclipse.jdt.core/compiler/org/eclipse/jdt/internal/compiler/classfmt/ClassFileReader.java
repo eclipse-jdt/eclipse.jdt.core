@@ -1251,7 +1251,7 @@ private boolean hasStructuralTypeAnnotationChanges(IBinaryTypeAnnotation[] curre
 				return true;
 			for (int i = 0; i < otherTypeAnnotations.length; i++) {
 				IBinaryTypeAnnotation otherAnnotation = otherTypeAnnotations[i];
-				if (matchAnnotations(currentAnnotation.getAnnotation(), otherAnnotation.getAnnotation()) == Boolean.TRUE) {
+				if (otherAnnotation != null && matchAnnotations(currentAnnotation.getAnnotation(), otherAnnotation.getAnnotation()) == Boolean.TRUE) {
 					otherTypeAnnotations[i] = null; // matched
 					continue loopCurrent;
 				}
