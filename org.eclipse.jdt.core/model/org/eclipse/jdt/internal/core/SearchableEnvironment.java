@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.IRestrictedAccessConstructorRequestor;
 import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -589,16 +590,34 @@ public class SearchableEnvironment
 			if (camelCaseMatch) matchRule |= SearchPattern.R_CAMELCASE_MATCH;
 			if (monitor != null) {
 				IndexManager indexManager = JavaModelManager.getIndexManager();
-				while (indexManager.awaitingJobsCount() > 0) {
-					try {
-						Thread.sleep(50); // indexes are not ready,  sleep 50ms...
-					} catch (InterruptedException e) {
-						// Do nothing
+				// Wait for the end of indexing or a cancel
+				indexManager.performConcurrentJob(new IJob() {
+					@Override
+					public boolean belongsTo(String jobFamily) {
+						return true;
 					}
-					if (monitor.isCanceled()) {
-						throw new OperationCanceledException();
+
+					@Override
+					public void cancel() {
+						// job is cancelled through progress
 					}
-				}
+
+					@Override
+					public void ensureReadyToRun() {
+						// always ready
+					}
+
+					@Override
+					public boolean execute(IProgressMonitor progress) {
+						return progress == null || !progress.isCanceled();
+					}
+
+					@Override
+					public String getJobFamily() {
+						return ""; //$NON-NLS-1$
+					}
+				
+				}, IJob.WaitUntilReady, monitor);
 				new BasicSearchEngine(this.workingCopies).searchAllConstructorDeclarations(
 						qualification,
 						simpleName,
