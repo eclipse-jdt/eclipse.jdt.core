@@ -8281,4 +8281,30 @@ public void testBug436091() {
 		getCompilerOptions(),
 		"");
 }
+public void test483952 () {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"import java.util.function.Function;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"public class Test {\n" +
+			"	void test1() {\n" +
+			"		Function function = x -> x;\n" +
+			"		String @Nullable [] z = test2(function, \"\");\n" +
+			"	}\n" +
+			"	<T> T @Nullable [] test2(Function<T, T> function, T t) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}"
+
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in test\\Test.java (at line 6)\n" + 
+		"	Function function = x -> x;\n" + 
+		"	^^^^^^^^\n" + 
+		"Function is a raw type. References to generic type Function<T,R> should be parameterized\n" + 
+		"----------\n");
+}
 }
