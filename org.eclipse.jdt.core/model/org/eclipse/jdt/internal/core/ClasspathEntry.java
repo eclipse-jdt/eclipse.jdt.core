@@ -35,6 +35,7 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -47,6 +48,7 @@ import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
@@ -1285,15 +1287,13 @@ public class ClasspathEntry implements IClasspathEntry {
 					return annotationPath;
 
 				// try Workspace-absolute:
-				IProject targetProject = project.getWorkspace().getRoot().getProject(annotationPath.segment(0));
-				if (targetProject.exists()) {
-					if (annotationPath.segmentCount() > 1)
-						return targetProject.getLocation().append(annotationPath.removeFirstSegments(1));
-					else
-						return targetProject.getLocation();
+				IResource resource = project.getWorkspace().getRoot().findMember(annotationPath);
+				if (resource != null) {
+					return resource.getLocation();
+				} else if (new File(annotationPath.toOSString()).exists()) { // absolute, not in workspace, must be Filesystem-absolute
+					return annotationPath;
 				}
-				// absolute, not in workspace, must be Filesystem-absolute:
-				return annotationPath;
+				invalidExternalAnnotationPath(project);
 			} else {
 				// try Variable (always resolved):
 				IPath resolved = JavaCore.getResolvedVariablePath(annotationPath);
@@ -1302,10 +1302,14 @@ public class ClasspathEntry implements IClasspathEntry {
 
 				// Project-relative:
 				if (project != null) {
-					if (resolve)
-						return project.getLocation().append(annotationPath);
-					else
+					if (resolve) {
+						IResource member = project.findMember(annotationPath);
+						if (member != null)
+							return member.getLocation();
+						invalidExternalAnnotationPath(project);
+					} else {
 						return new Path(project.getName()).append(annotationPath).makeAbsolute();
+					}
 				}
 			}
 		}
@@ -1327,7 +1331,42 @@ public class ClasspathEntry implements IClasspathEntry {
 		}
 		return null;
 	}
-	
+
+	private static void invalidExternalAnnotationPath(IProject project) {
+		try {
+			IMarker[] markers = project.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+			for (int i = 0, l = markers.length; i < l; i++) {
+				if (markers[i].getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_ERROR)
+					return; // one marker is enough
+			}
+		} catch (CoreException ce) {
+			return;
+		}
+		// no buildpath marker yet, trigger validation to create one:
+		new ClasspathValidation((JavaProject) JavaCore.create(project)).validate();
+	}
+
+	private IJavaModelStatus validateExternalAnnotationPath(IJavaProject javaProject, IPath annotationPath) {
+		IProject project = javaProject.getProject();
+		if (annotationPath.isAbsolute()) {
+			if (project.getWorkspace().getRoot().exists(annotationPath) // workspace absolute
+					|| new File(annotationPath.toOSString()).exists())  // file system abolute
+			{
+				return null;
+			}
+		} else {
+			if (JavaCore.getResolvedVariablePath(annotationPath) != null // variable (relative)
+					|| project.exists(annotationPath))					 // project relative
+			{
+				return null;
+			}
+		}
+		return new JavaModelStatus(IJavaModelStatusConstants.CP_INVALID_EXTERNAL_ANNOTATION_PATH,
+				javaProject,
+				Messages.bind(Messages.classpath_invalidExternalAnnotationPath, 
+						new String[] { annotationPath.toString(), project.getName(), this.path.toString()}));
+	}
+
 	public IClasspathEntry getReferencingEntry() {
 		return this.referencingEntry;
 	}
@@ -2027,6 +2066,14 @@ public class ClasspathEntry implements IClasspathEntry {
 								if (!set.add(attName)) {
 									status = new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION, Messages.bind(Messages.classpath_duplicateEntryExtraAttribute, new String[] {attName, entryPathMsg, projectName}));
 									break;
+								}
+							}
+							if (status == null) {
+								String annotationPath = getRawExternalAnnotationPath(entry);
+								if (annotationPath != null) {
+									status = ((ClasspathEntry) entry).validateExternalAnnotationPath(project, new Path(annotationPath));
+									if (status != null)
+										return status;
 								}
 							}
 						}
