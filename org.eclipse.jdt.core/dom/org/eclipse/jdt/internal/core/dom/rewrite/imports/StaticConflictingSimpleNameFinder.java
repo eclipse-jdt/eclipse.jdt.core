@@ -47,6 +47,9 @@ final class StaticConflictingSimpleNameFinder implements ConflictingSimpleNameFi
 		for (String containerName : onDemandAndImplicitContainerNames) {
 			IType containingType = this.project.findType(containerName, monitor);
 			if (containingType != null) {
+				if (!containingType.exists()) { // workaround for https://bugs.eclipse.org/483887
+					continue;
+				}
 				for (String memberName : extractStaticMemberNames(containingType)) {
 					if (simpleNames.contains(memberName)) {
 						if (foundMemberNames.contains(memberName)) {
