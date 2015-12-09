@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7116,5 +7116,52 @@ public void test434442() {
 			"} \n" +
 			"\n"
 	});
+}
+public void test476281() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	this.runConformTest(new String[] {
+			"LambdaEnumLocalClassBug.java",
+			"public enum LambdaEnumLocalClassBug {\n" + 
+			"  A(() -> {\n" + 
+			"    class Foo {\n" + 
+			"    }\n" + 
+			"    new Foo();\n" + 
+			"    System.out.println(\"Success\");\n" +
+			"  })\n" + 
+			";\n" + 
+			"  private final Runnable runnable;\n" + 
+			"  private LambdaEnumLocalClassBug(Runnable runnable) {\n" + 
+			"    this.runnable = runnable;\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    A.runnable.run();\n" + 
+			"  }\n" + 
+			"}"},
+			"Success");
+}
+public void test476281a() {
+	this.runConformTest(new String[] {
+			"Test.java",
+			"public enum Test {\n" + 
+			"  B(new Runnable() {\n" + 
+			"	public void run() {\n" + 
+			"		//\n" + 
+			"		class Foo {\n" + 
+			"			\n" + 
+			"		}\n" + 
+			"		new Foo();\n" + 
+			"    System.out.println(\"Success\");\n" +
+			"	}\n" + 
+			"});\n" + 
+			"  private final Runnable runnable;\n" + 
+			"  private Test(Runnable runnable) {\n" + 
+			"    this.runnable = runnable;\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    B.runnable.run();\n" + 
+			"  }\n" + 
+			"}"},
+			"Success");
 }
 }
