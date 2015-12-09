@@ -28,7 +28,9 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.osgi.framework.Bundle;
 
 public class IncrementalTests18 extends BuilderTests {
-	
+	static {
+		TESTS_NAMES = new String[] { "testBug481276b" };
+	}
 	public IncrementalTests18(String name) {
 		super(name);
 	}
@@ -636,7 +638,7 @@ public class IncrementalTests18 extends BuilderTests {
 				"public class Snippet {\n" + 
 				"	@SuppressWarnings(\"unused\")\n" + 
 				"	public void foo() {\n" + 
-				"        @NonNull Object @Nullable [] objects = null;\n" + 
+				"        @NonNull Object @Nullable [] objects = new @NonNull Object[0];\n" + 
 				"        @NonNull Object @NonNull [] checked3 = checkNotNull(objects); \n" + 
 				"	}\n" + 
 				"}\n");
@@ -645,9 +647,9 @@ public class IncrementalTests18 extends BuilderTests {
 		expectingProblemsFor(
 				projectPath,
 				"Problem : Null type mismatch (type annotations): required \'@NonNull Object @NonNull[]\' but this expression has type \'@Nullable Object @NonNull[]\' [" +
-				" resource : </Project/src/testNullAnnotations/Snippet.java> range : <303,324> category : <90> severity : <2>]\n" + 
+				" resource : </Project/src/testNullAnnotations/Snippet.java> range : <321,342> category : <90> severity : <2>]\n" + 
 				"Problem : Null type mismatch (type annotations): required \'@Nullable Object @Nullable[]\' but this expression has type \'@NonNull Object @Nullable[]\' [" +
-				" resource : </Project/src/testNullAnnotations/Snippet.java> range : <316,323> category : <90> severity : <2>]");		
+				" resource : </Project/src/testNullAnnotations/Snippet.java> range : <334,341> category : <90> severity : <2>]");		
 
 		// fix error according to https://bugs.eclipse.org/bugs/show_bug.cgi?id=481276#c4
 		env.addClass(root, "testNullAnnotations", "NonNullUtils",

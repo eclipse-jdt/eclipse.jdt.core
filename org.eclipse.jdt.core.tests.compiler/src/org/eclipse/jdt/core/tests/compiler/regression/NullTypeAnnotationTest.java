@@ -12,6 +12,7 @@
  *								Bug 467032 - TYPE_USE Null Annotations: IllegalStateException with annotated arrays of Enum when accessed via BinaryTypeBinding
  *								Bug 467482 - TYPE_USE null annotations: Incorrect "Redundant null check"-warning
  *								Bug 473713 - [1.8][null] Type mismatch: cannot convert from @NonNull A1 to @NonNull A1
+ *								Bug 467430 - TYPE_USE Null Annotations: Confusing error message with known null value
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -8160,6 +8161,77 @@ public void testBug467032() {
 				"}\n"
 			}, getCompilerOptions(), "");
 }
+public void testBug467430() {
+	runConformTestWithLibs(
+		new String[] {
+				"A.java",
+				"public class A {\n" +
+				"	@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+				"	void m(java.util.@org.eclipse.jdt.annotation.Nullable Map<String, Integer> map) {\n" +
+				"	}\n" +
+				"	void m2(A a) {\n" +
+				"		final java.util.Map<String, Integer> v = null;\n" +
+				"		a.m(v);\n" +
+				"	}\n" +
+				"}"
+			}, 
+			getCompilerOptions(),
+			"");
+}
+public void testBug467430mismatch() {
+	runConformTestWithLibs(
+		new String[] {
+				"A.java",
+				"public class A {\n" +
+				"	@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+				"	void m(java.util.@org.eclipse.jdt.annotation.Nullable Map<String, Integer> map) {\n" +
+				"	}\n" +
+				"	void m2(A a) {\n" +
+				"		final java.util.Map<String, @org.eclipse.jdt.annotation.Nullable Integer> v = null;\n" +
+				"		a.m(v);\n" +
+				"	}\n" +
+				"}"
+			}, 
+			getCompilerOptions(),
+			"");
+}
+public void testBug467430array() {
+	runConformTestWithLibs(
+		new String[] {
+				"A.java",
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"public class A {\n" +
+				"	@NonNullByDefault\n" +
+				"	void m(@NonNull String @Nullable [] array) {\n" +
+				"	}\n" +
+				"	void m2(A a) {\n" +
+				"		final String[] v = null;\n" +
+				"		a.m(v);\n" +
+				"	}\n" +
+				"}"
+			}, 
+			getCompilerOptions(),
+			"");
+}
+public void testBug467430arrayMismatch() {
+	runConformTestWithLibs(
+		new String[] {
+				"A.java",
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"public class A {\n" +
+				"	@NonNullByDefault\n" +
+				"	void m(@NonNull String @Nullable [] array) {\n" +
+				"	}\n" +
+				"	void m2(A a) {\n" +
+				"		final @Nullable String @Nullable [] v = null;\n" +
+				"		a.m(v);\n" +
+				"	}\n" +
+				"}"
+			}, 
+			getCompilerOptions(),
+			"");
+}
+
 public void testBug446217() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8748,7 +8820,7 @@ public void testBug481332() {
 			"		checkNotNull(map); // OK\n" + 
 			"\n" + 
 			"		@NonNull\n" + 
-			"		Object @Nullable [] objects = null;\n" + 
+			"		Object @Nullable [] objects = new @NonNull Object[0];\n" + 
 			"		// Error: Null type mismatch (type annotations): required '@NonNull Object @NonNull[]' but this expression ...\n" + 
 			"		checkNotNull(objects);\n" + 
 			"	}\n" + 

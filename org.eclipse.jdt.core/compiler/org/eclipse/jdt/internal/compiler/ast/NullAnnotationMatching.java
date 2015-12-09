@@ -235,6 +235,8 @@ public class NullAnnotationMatching {
 							long providedBits = validNullTagBits(providedDimsTagBits[i]);
 							if (i == 0 && requiredBits == TagBits.AnnotationNullable && nullStatus != -1 && mode.requiredNullableMatchesAll()) {
 								// toplevel nullable array: no need to check 
+								if (nullStatus == FlowInfo.NULL)
+									break; // null value has no details
 							} else {
 								if (i > 0)
 									currentNullStatus = -1; // don't use beyond the outermost dimension
@@ -261,7 +263,7 @@ public class NullAnnotationMatching {
 					if (severity == 0 && (providedBits & TagBits.AnnotationNonNull) != 0)
 						okStatus = NullAnnotationMatching.NULL_ANNOTATIONS_OK_NONNULL;
 				}
-				if (severity < 2) {
+				if (severity < 2 && nullStatus != FlowInfo.NULL) {  // null value has no details
 					TypeBinding providedSuper = providedType.findSuperTypeOriginatingFrom(requiredType);
 					TypeBinding providedSubstituteSuper = providedSubstitute != null ? providedSubstitute.findSuperTypeOriginatingFrom(requiredType) : null;
 					if(severity == 1 && requiredType.isTypeVariable() && providedType.isTypeVariable() && (providedSuper == requiredType || providedSubstituteSuper == requiredType)) { //$IDENTITY-COMPARISON$
