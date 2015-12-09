@@ -8956,4 +8956,25 @@ public void test483952 () {
 		"Function is a raw type. References to generic type Function<T,R> should be parameterized\n" + 
 		"----------\n");
 }
+public void test484055() {
+	runConformTestWithLibs(
+		new String[] {
+			"B.java",
+			"interface A {\n" + 
+			"	public void f(String[] x);\n" + 
+			"\n" + 
+			"	public void f2(String x);\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class B implements A {\n" + 
+			"	public void f(String @org.eclipse.jdt.annotation.Nullable [] x) {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public void f2(@org.eclipse.jdt.annotation.Nullable String x) {\n" + 
+			"	}\n" + 
+			"}"
+		},
+		null,
+		"");
+}
 }

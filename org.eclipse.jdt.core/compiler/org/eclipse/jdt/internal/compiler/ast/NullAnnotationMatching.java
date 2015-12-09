@@ -50,7 +50,11 @@ public class NullAnnotationMatching {
 
 	public enum CheckMode {
 		/** in this mode we check normal assignment compatibility. */
-		COMPATIBLE,
+		COMPATIBLE {
+			@Override boolean requiredNullableMatchesAll() {
+				return true;
+			}
+		},
 		/** in this mode we check similar to isTypeArgumentContained. */
 		EXACT,
 		/** in this mode we check compatibility of a type argument against the corresponding type parameter. */
@@ -63,11 +67,17 @@ public class NullAnnotationMatching {
 		},
 		/** in this mode we do not tolerate incompatibly missing annotations on type parameters (for overriding analysis) */
 		OVERRIDE {
+			@Override boolean requiredNullableMatchesAll() {
+				return true;
+			}
 			@Override CheckMode toDetail() {
 				return OVERRIDE;
 			}
 		};
 		
+		boolean requiredNullableMatchesAll() {
+			return false;
+		}
 		CheckMode toDetail() {
 			return CheckMode.EXACT;
 		}
@@ -211,11 +221,15 @@ public class NullAnnotationMatching {
 						for (int i=0; i<=dims; i++) {
 							long requiredBits = validNullTagBits(requiredDimsTagBits[i]);
 							long providedBits = validNullTagBits(providedDimsTagBits[i]);
-							if (i > 0)
-								currentNullStatus = -1; // don't use beyond the outermost dimension
-							severity = Math.max(severity, computeNullProblemSeverity(requiredBits, providedBits, currentNullStatus, i == 0 ? mode : mode.toDetail(), false));
-							if (severity == 2)
-								return NullAnnotationMatching.NULL_ANNOTATIONS_MISMATCH;
+							if (i == 0 && requiredBits == TagBits.AnnotationNullable && nullStatus != -1 && mode.requiredNullableMatchesAll()) {
+								// toplevel nullable array: no need to check 
+							} else {
+								if (i > 0)
+									currentNullStatus = -1; // don't use beyond the outermost dimension
+								severity = Math.max(severity, computeNullProblemSeverity(requiredBits, providedBits, currentNullStatus, i == 0 ? mode : mode.toDetail(), false));
+								if (severity == 2)
+									return NullAnnotationMatching.NULL_ANNOTATIONS_MISMATCH;
+							}
 							if (severity == 0)
 								nullStatus = -1;
 						}
@@ -226,9 +240,9 @@ public class NullAnnotationMatching {
 				}
 			} else if (requiredType.hasNullTypeAnnotations() || providedType.hasNullTypeAnnotations() || requiredType.isTypeVariable()) {
 				long requiredBits = requiredNullTagBits(requiredType, mode);
-				if (requiredBits != TagBits.AnnotationNullable // nullable lhs accepts everything, ...
-						|| nullStatus == -1) // only at detail/recursion even nullable must be matched exactly
-				{
+				if (requiredBits == TagBits.AnnotationNullable && nullStatus != -1 && mode.requiredNullableMatchesAll()) {
+					// at toplevel (having a nullStatus) nullable matches all
+				} else {
 					long providedBits = providedNullTagBits(providedType);
 					int s = computeNullProblemSeverity(requiredBits, providedBits, nullStatus, mode, requiredType.isTypeVariable());
 					severity = Math.max(severity, s);
