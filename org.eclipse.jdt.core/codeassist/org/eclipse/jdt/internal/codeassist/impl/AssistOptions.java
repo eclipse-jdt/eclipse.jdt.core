@@ -66,7 +66,7 @@ public class AssistOptions {
 	public boolean checkDiscouragedReference = false;
 	public boolean forceImplicitQualification = false;
 	public boolean camelCaseMatch = true;
-	public boolean substringMatch = /*true*/false;
+	public boolean substringMatch = true;
 	public boolean suggestStaticImport = true;
 	public char[][] fieldPrefixes = null;
 	public char[][] staticFieldPrefixes = null;
@@ -234,12 +234,11 @@ public class AssistOptions {
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_SubstringMatch)) != null) {
-			/*if (ENABLED.equals(optionValue)) {
+			if (ENABLED.equals(optionValue)) {
 				this.substringMatch = true;
 			} else if (DISABLED.equals(optionValue)) {
 				this.substringMatch = false;
-			}*/
-			this.substringMatch = false;
+			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_PerformDeprecationCheck)) != null) {
 			if (ENABLED.equals(optionValue)) {
