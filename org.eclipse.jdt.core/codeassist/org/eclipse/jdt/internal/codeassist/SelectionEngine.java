@@ -1427,7 +1427,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						System.out.println(parsedUnit.toString());
 					}
 					// find the type declaration that corresponds to the original source type
-					if (context.isLambda() && context.getParent() != null) {
+					while (context.isLambda() && context.getParent() != null) {
+						// It is easier to find the first enclosing proper type than the corresponding 
+						// lambda expression ast to add the selection node to.
 						context = (IType) context.getParent().getAncestor(IJavaElement.TYPE);
 					}
 					typeDeclaration = new ASTNodeFinder(parsedUnit).findType(context);
