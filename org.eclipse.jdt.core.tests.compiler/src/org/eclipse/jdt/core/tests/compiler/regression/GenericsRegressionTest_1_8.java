@@ -5780,4 +5780,29 @@ public void testBug483019a() {
 		},
 		"0");
 }
+
+public void testBug484448() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
+
+	runConformTest(
+			new String[] {
+				"test/Test.java",
+				"package test;\n" +
+				"\n" + 
+				"public final class Test {\n" +
+				"	/**\n" +
+				"	 * @see #g(T, Class)\n" +
+				"	 */\n" +
+				"	public static <T> T f(T t, Class<T> c1) {\n" +
+				"		return g(t, c1);\n" +
+				"	}\n" +
+				"\n" + 
+				"	public static <U> U g(U u, Class<U> c2) {\n" +
+				"		return u;\n" +
+				"	}\n" +
+				"}\n"
+			},
+			options);	
+}
 }

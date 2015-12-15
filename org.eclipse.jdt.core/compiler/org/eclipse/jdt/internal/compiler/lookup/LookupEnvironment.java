@@ -829,6 +829,7 @@ public ParameterizedGenericMethodBinding createParameterizedGenericMethod(Method
 				ParameterizedGenericMethodBinding cachedMethod = cachedInfo[index];
 				if (cachedMethod == null) break nextCachedMethod;
 				if (cachedMethod.isRaw) continue nextCachedMethod;
+				if (cachedMethod.inferredWithUncheckedConversion != inferredWithUncheckedConversion) continue nextCachedMethod;
 				TypeBinding[] cachedArguments = cachedMethod.typeArguments;
 				int cachedArgLength = cachedArguments == null ? 0 : cachedArguments.length;
 				if (argLength != cachedArgLength) continue nextCachedMethod;
