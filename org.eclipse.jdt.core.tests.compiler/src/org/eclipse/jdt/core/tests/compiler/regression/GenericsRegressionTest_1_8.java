@@ -7550,4 +7550,44 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	public void testBug479802() {
+		runConformTest(
+			new String[] {
+				"CompilerBugUncheckedCast.java",
+				"public class CompilerBugUncheckedCast {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Create(true);\n" + 
+				"        Create(false);\n" + 
+				"    }\n" + 
+				"    public interface Base {\n" + 
+				"        default String def() { return \"Base\"; }\n" + 
+				"    }\n" + 
+				"    public interface Intermediate extends Base {\n" + 
+				"        @Override default String def() { return \"Intermediate\"; }\n" + 
+				"    }\n" + 
+				"    public interface Derived extends Intermediate { }\n" + 
+				"    public static class MyObject implements Base { }\n" + 
+				"    public static final class OldObject extends MyObject implements Derived { }\n" + 
+				"    public static final class NewObject extends MyObject implements Derived { }\n" + 
+				"    public static <OBJECT extends MyObject & Derived> void Make(OBJECT o) { }\n" + 
+				"    public static MyObject Create(boolean old) {\n" + 
+				"        MyObject f;\n" + 
+				"        if (old) {\n" + 
+				"            f = new OldObject();\n" + 
+				"        } else {\n" + 
+				"            f = new NewObject();\n" + 
+				"        }\n" + 
+				"        Make(uncheckedCast(f));\n" + 
+				"        System.out.println(old);\n" + 
+				"        return f;\n" + 
+				"    }\n" + 
+				"    @SuppressWarnings(\"unchecked\")\n" + 
+				"    private static <T extends MyObject & Derived> T uncheckedCast(MyObject f) {\n" + 
+				"        return (T) f;\n" + 
+				"    }\n" + 
+				"}"
+			},
+			"true\n" +
+			"false");
+	}
 }
