@@ -11745,4 +11745,52 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		InfixExpression infixExpression = (InfixExpression) ifStatement.getExpression();
 		checkSourceRange(infixExpression, "t == null & t instanceof Comparable<?>", str); //recovery parser propagated
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=484220
+	public void testBug484220_001() throws JavaModelException {
+		String str =
+				"import java.util.Collection;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public void foo(Collection collection) {\n" +
+				"		/** javadoc */\n" +
+				"		for (final Object obj : collection) {\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", false/*resolve*/);
+		ASTNode node = buildAST(str,this.workingCopy, false);
+
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		TypeDeclaration type = (TypeDeclaration) compilationUnit.types().get(0);
+		MethodDeclaration method = type.getMethods()[0];
+		EnhancedForStatement eh = (EnhancedForStatement) method.getBody().statements().get(0);
+		SingleVariableDeclaration var = eh.getParameter();
+		checkSourceRange(var, "final Object obj", str); 
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=484220
+	public void testBug484220_002() throws JavaModelException {
+		String str =
+				"import java.util.Collection;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public void foo(Collection collection) {\n" +
+				"		/** javadoc */\n" +
+				"		for (final Object obj;;) {\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n";
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", false/*resolve*/);
+		ASTNode node = buildAST(str,this.workingCopy, false);
+
+		assertNotNull("No node", node);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		TypeDeclaration type = (TypeDeclaration) compilationUnit.types().get(0);
+		MethodDeclaration method = type.getMethods()[0];
+		ForStatement forStmt = (ForStatement) method.getBody().statements().get(0);
+		VariableDeclarationExpression var = (VariableDeclarationExpression) forStmt.initializers().get(0);
+		checkSourceRange(var, "final Object obj", str); 
+	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -144,9 +144,12 @@ public void checkComment() {
 		}
 	}
 	if (lastComment >= 0) {
-		// consider all remaining leading comments to be part of current declaration
-		this.modifiersSourceStart = this.scanner.commentStarts[0];
-		if (this.modifiersSourceStart < 0) this.modifiersSourceStart = -this.modifiersSourceStart;
+		int lastCommentStart = this.scanner.commentStarts[0];
+		if (lastCommentStart < 0) lastCommentStart = -lastCommentStart;
+		if (this.forStartPosition == 0 || this.forStartPosition < lastCommentStart) {
+			// consider all remaining leading comments to be part of current declaration
+			this.modifiersSourceStart = lastCommentStart;
+		}
 
 		// check deprecation in last comment if javadoc (can be followed by non-javadoc comments which are simply ignored)
 		while (lastComment >= 0 && this.scanner.commentStops[lastComment] < 0) lastComment--; // non javadoc comment have negative end positions

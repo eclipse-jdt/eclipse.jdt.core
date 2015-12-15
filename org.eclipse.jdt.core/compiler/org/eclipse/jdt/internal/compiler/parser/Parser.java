@@ -971,6 +971,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 	protected int modifiersSourceStart;
 	protected int colonColonStart = -1;
 	protected int[] nestedMethod; //the ptr is nestedType
+	protected int forStartPosition = 0;
 
 	protected int nestedType, dimensions;
 	ASTNode [] noAstNodes = new ASTNode[AstStackIncrement];
@@ -1280,8 +1281,11 @@ public void checkComment() {
 	}
 	if (lastComment >= 0) {
 		// consider all remaining leading comments to be part of current declaration
-		this.modifiersSourceStart = this.scanner.commentStarts[0];
-		if (this.modifiersSourceStart < 0) this.modifiersSourceStart = -this.modifiersSourceStart;
+		int lastCommentStart = this.scanner.commentStarts[0];
+		if (lastCommentStart < 0) lastCommentStart = -lastCommentStart;
+		if (this.forStartPosition != 0 || this.forStartPosition  < lastCommentStart) {// if there is no 'for' in-between.
+			this.modifiersSourceStart = lastCommentStart;
+		}
 
 		// check deprecation in last comment if javadoc (can be followed by non-javadoc comments which are simply ignored)
 		while (lastComment >= 0 && this.scanner.commentStops[lastComment] < 0) lastComment--; // non javadoc comment have negative end positions
@@ -3268,6 +3272,7 @@ protected void consumeEmptyExpression() {
 protected void consumeEmptyForInitopt() {
 	// ForInitopt ::= $empty
 	pushOnAstLengthStack(0);
+	this.forStartPosition = 0;
 }
 protected void consumeEmptyForUpdateopt() {
 	// ForUpdateopt ::= $empty
@@ -3435,6 +3440,7 @@ protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
 	pushOnAstStack(iteratorForStatement);
 
 	iteratorForStatement.sourceEnd = localDeclaration.declarationSourceEnd;
+	this.forStartPosition = 0;
 }
 protected void consumeEnterAnonymousClassBody(boolean qualified) {
 	// EnterAnonymousClassBody ::= $empty
@@ -4231,6 +4237,7 @@ protected void consumeForceNoDiet() {
 protected void consumeForInit() {
 	// ForInit ::= StatementExpressionList
 	pushOnAstLengthStack(-1);
+	this.forStartPosition = 0;
 }
 protected void consumeFormalParameter(boolean isVarArgs) {
 	// FormalParameter ::= Modifiersopt Type VariableDeclaratorIdOrThis
@@ -4827,6 +4834,7 @@ protected void consumeLocalVariableDeclaration() {
 	this.astPtr--; // remove the type reference
 	this.astLengthStack[--this.astLengthPtr] = variableDeclaratorsCounter;
 	this.variablesCounter[this.nestedType] = 0;
+	this.forStartPosition = 0;
 }
 protected void consumeLocalVariableDeclarationStatement() {
 	
@@ -9082,13 +9090,15 @@ protected void consumeToken(int type) {
 			this.endPosition = this.scanner.currentPosition - 1;
 			pushOnIntStack(this.scanner.startPosition);
 			break;
+		case TokenNamefor :
+			this.forStartPosition = this.scanner.startPosition;
+			//$FALL-THROUGH$
 		case TokenNameassert :
 		case TokenNameimport :
 		case TokenNamepackage :
 		case TokenNamethrow :
 		case TokenNamedo :
 		case TokenNameif :
-		case TokenNamefor :
 		case TokenNameswitch :
 		case TokenNametry :
 		case TokenNamewhile :
