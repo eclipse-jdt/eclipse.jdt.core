@@ -21,7 +21,6 @@ import java.util.Map;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -6828,30 +6827,27 @@ public void testBug434582a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=443467, [1.8][null]InternalError: Unexpected binding type
 public void test443467() throws Exception {
-	String jreDirectory = Util.getJREDirectory();
-	String jfxJar = Util.toNativePath(jreDirectory + "/lib/ext/jfxrt.jar");
-	this.runNegativeTestWithExtraLibs(
+	runNegativeTestWithLibs(
 		new String[] {
 			"BuildIdeMain.java",
 			"import java.nio.file.Path;\n" +
 			"import java.time.Instant;\n" +
+			"import java.util.AbstractMap.SimpleEntry;\n" +
 			"import java.util.HashMap;\n" +
 			"import java.util.stream.Stream;\n" +
-			"import javafx.util.Pair;\n" +
 			"\n" +
 			"public class BuildIdeMain {\n" +
-			"static void writeUpdates(Stream<Path> filter2, HashMap<Path, Pair<byte[], Instant>> ideFiles, HashMap<Path, Path> updateToFile) {\n" +
-			"   filter2.map(p -> new Pair<>(updateToFile.get(p), p->ideFiles.get(p)));\n" +
+			"static void writeUpdates(Stream<Path> filter2, HashMap<Path, SimpleEntry<byte[], Instant>> ideFiles, HashMap<Path, Path> updateToFile) {\n" +
+			"   filter2.map(p -> new SimpleEntry<>(updateToFile.get(p), p->ideFiles.get(p)));\n" +
 			"}\n" +
 			"}\n",
 		},
 		"----------\n" + 
 		"1. ERROR in BuildIdeMain.java (at line 9)\n" + 
-		"	filter2.map(p -> new Pair<>(updateToFile.get(p), p->ideFiles.get(p)));\n" + 
-		"	                                                 ^^^^^^^^^^^^^^^^^^\n" + 
+		"	filter2.map(p -> new SimpleEntry<>(updateToFile.get(p), p->ideFiles.get(p)));\n" + 
+		"	                                                        ^^^^^^^^^^^^^^^^^^\n" + 
 		"The target type of this expression must be a functional interface\n" + 
-		"----------\n",
-		new String[]{jfxJar});
+		"----------\n");
 }
 public void testBug445227() {
 	runConformTestWithLibs(

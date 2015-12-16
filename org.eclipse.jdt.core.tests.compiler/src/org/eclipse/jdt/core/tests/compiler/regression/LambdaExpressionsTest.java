@@ -4414,8 +4414,6 @@ public void test434297() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=436542 : Eclipse 4.4 compiler generates "bad class file" according to javac
 public void test436542() throws Exception {
-	String jreDirectory = Util.getJREDirectory();
-	String jfxJar = Util.toNativePath(jreDirectory + "/lib/ext/jfxrt.jar");
 	this.runConformTest(
 		new String[] {
 			"Utility.java",
@@ -4423,42 +4421,35 @@ public void test436542() throws Exception {
 			"import java.util.List;\n" + 
 			"import java.util.function.Function;\n" + 
 			"import java.util.stream.Collectors;\n" + 
-			"import javafx.collections.ListChangeListener;\n" + 
-			"import javafx.collections.ObservableList;\n" + 
 			"public class Utility {\n" + 
-			"	public static void main(String[] args) {\n" + 
-			"		System.out.println(\"Success\");\n" + 
-			"	}\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        System.out.println(\"Success\");\n" + 
+			"    }\n" + 
 			"    public static <T, R> List<R> mapList(Collection<T> original, Function<T, R> func) {\n" + 
 			"        return original.stream().map(func).collect(Collectors.toList());\n" + 
 			"    }\n" + 
-			"    /**\n" + 
-			"     * \"Binds\" the destination list to the observable source list with a transformation function applied.\n" + 
-			"     * Whenever the source list changes, the destination list is altered to match by applying\n" + 
-			"     * the given function to each element in the source list.\n" + 
-			"     */\n" + 
 			"    public static <S, T> void bindMap(List<T> dest, ObservableList<S> src, Function<S, T> func) {\n" + 
-			"        dest.clear();\n" + 
 			"        dest.addAll(mapList(src, func));\n" + 
 			"        src.addListener((ListChangeListener<S>) changes -> {\n" + 
-			"            while (changes.next()) {\n" + 
-			"                if (changes.wasPermutated() || changes.wasUpdated()) {\n" + 
-			"                    // Same code for updated, replaced and permutation, just recalc the range:\n" + 
-			"                    for (int i = changes.getFrom(); i < changes.getTo(); i++)\n" + 
-			"                        dest.set(i, func.apply(src.get(i)));\n" + 
-			"                } else {\n" + 
-			"                    for (int i = 0; i < changes.getRemovedSize(); i++)\n" + 
-			"                        dest.remove(changes.getFrom());\n" + 
-			"                    for (int i = 0; i < changes.getAddedSubList().size();i++)\n" + 
-			"                        dest.add(i + changes.getFrom(), func.apply(changes.getAddedSubList().get(i)));\n" + 
-			"                }\n" + 
-			"            }\n" + 
+			"            for (int i = changes.getFrom(); i < changes.getTo(); i++)\n" + 
+			"                dest.set(i, func.apply(src.get(i)));\n" + 
 			"        });\n" + 
+			"    }\n" + 
+			"    public interface ObservableList<E> extends List<E> {\n" + 
+			"        public void addListener(ListChangeListener<? super E> listener);\n" + 
+			"    }\n" + 
+			"    @FunctionalInterface\n" + 
+			"    public interface ListChangeListener<E> {\n" + 
+			"        public abstract static class Change<E> {\n" + 
+			"            public abstract int getFrom();\n" + 
+			"            public abstract int getTo();\n" + 
+			"        }\n" + 
+			"        public void onChanged(Change<? extends E> c);\n" + 
 			"    }\n" + 
 			"}",
 		},
 		"Success",
-		Util.concatWithClassLibs(new String[]{jfxJar,OUTPUT_DIR}, false),
+		Util.concatWithClassLibs(new String[]{OUTPUT_DIR}, false),
 		true,
 		null);
 	IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "Utility.class", IClassFileReader.ALL);
