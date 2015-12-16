@@ -2810,9 +2810,9 @@ public final class CompletionEngine
 			
 			TypeBinding receiverType = (TypeBinding) qualifiedBinding;
 			if (receiverType != null && receiverType instanceof ReferenceBinding) {
+				setSourceAndTokenRange(referenceExpression.nameSourceStart, referenceExpression.sourceEnd);
 				if (!(receiverType.isInterface() || this.requestor.isIgnored(CompletionProposal.KEYWORD))) {
 					this.assistNodeIsConstructor = true;
-					setSourceAndTokenRange(referenceExpression.nameSourceStart, referenceExpression.sourceEnd);
 					findKeywords(this.completionToken, new char[][] { Keywords.NEW }, false, false);
 				}
 				findMethods(

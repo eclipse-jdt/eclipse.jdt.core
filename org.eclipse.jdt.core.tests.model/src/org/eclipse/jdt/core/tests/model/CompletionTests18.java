@@ -2622,4 +2622,32 @@ public void testBug481215d() throws JavaModelException {
 			"result[LOCAL_VARIABLE_REF]{result, null, Ljava.lang.String;, result, null, 27}\n" +
 			"result2[LOCAL_VARIABLE_REF]{result2, null, Ljava.lang.String;, result2, null, 27}", requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=484479
+public void test484479() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Bar.java",
+			"interface Supplier<T> {\n" +
+			"   T get();\n" +
+			"}\n" +
+			"public interface Bar {\n" +
+			"    static public Bar print() {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}\n" +
+			"class A {\n" +
+			"    	Supplier<Bar> c = Bar::pr\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "::pr";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("print[METHOD_NAME_REFERENCE]{print, LBar;, ()LBar;, null, null, print, null, [160, 162], " + 
+											(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_RESOLVED + 
+													RelevanceConstants.R_INTERESTING + RelevanceConstants.R_NON_RESTRICTED +
+													RelevanceConstants.R_CASE) + "}", requestor.getResults());
+}
 }
