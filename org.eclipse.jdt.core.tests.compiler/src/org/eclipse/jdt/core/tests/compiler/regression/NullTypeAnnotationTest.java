@@ -8139,6 +8139,26 @@ public void testBug466713d() {
 		"Nullness annotations are not applicable at this location \n" + 
 		"----------\n");
 }
+public void testBug466969() {
+	runConformTestWithLibs(
+		new String[] {
+			"GenericType.java",
+			"public abstract class GenericType<T extends @org.eclipse.jdt.annotation.NonNull Runnable> {\n" +
+			"	abstract T get();\n"+
+			"}",	
+			"WildcardUsage.java",
+			"import static org.eclipse.jdt.annotation.DefaultLocation.*;\n" +
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" + 
+			"@NonNullByDefault({ ARRAY_CONTENTS, FIELD, PARAMETER, RETURN_TYPE, TYPE_ARGUMENT, TYPE_BOUND, TYPE_PARAMETER })\n" +
+			"public class WildcardUsage {\n" +
+			"	void f(GenericType<?> p) {\n" +
+			"		p.get().run();\n" +
+			"	}\n" +
+			"}"
+			}, getCompilerOptions(), "");
+}
 public void testBug467032() {
 	runConformTestWithLibs(
 			new String[] {
