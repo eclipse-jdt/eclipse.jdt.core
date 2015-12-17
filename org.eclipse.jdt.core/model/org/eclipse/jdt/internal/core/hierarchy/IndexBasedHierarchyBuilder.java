@@ -54,7 +54,6 @@ import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.pdom.PDOM;
 import org.eclipse.jdt.internal.core.pdom.java.JavaIndex;
 import org.eclipse.jdt.internal.core.pdom.java.JavaNames;
-import org.eclipse.jdt.internal.core.pdom.java.JavaPDOM;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMType;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeId;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeInterface;
@@ -474,7 +473,7 @@ public static void searchAllPossibleSubTypes(
 	int waitingPolicy,	// WaitUntilReadyToSearch | ForceImmediateSearch | CancelIfNotReadyToSearch
 	final IProgressMonitor progressMonitor) {
 	
-	if (JavaPDOM.isEnabled()) {
+	if (JavaIndex.isEnabled()) {
 		newSearchAllPossibleSubTypes(type, scope, binariesFromIndexMatches, pathRequestor, waitingPolicy,
 				progressMonitor);
 	} else {
@@ -486,7 +485,7 @@ public static void searchAllPossibleSubTypes(
 private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope scope2, Map binariesFromIndexMatches2,
 		IPathRequestor pathRequestor, int waitingPolicy, IProgressMonitor progressMonitor) {
 	SubMonitor subMonitor = SubMonitor.convert(progressMonitor);
-	JavaIndex index = JavaPDOM.getIndex();
+	JavaIndex index = JavaIndex.getIndex();
 	PDOM pdom = index.getPDOM();
 	String fieldDefinition = JavaNames.fullyQualifiedNameToFieldDescriptor(type.getFullyQualifiedName());
 	pdom.acquireReadLock();
@@ -516,7 +515,7 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 					.split(1)
 					.setWorkRemaining(3);
 
-			boolean isLocalClass = nextType.getDeclaringType() != null;
+			boolean isLocalClass = nextType.getTypeId().getDeclaringType() != null;
 			pathRequestor.acceptPath(typePath, isLocalClass);
 
 			HierarchyBinaryType binaryType = (HierarchyBinaryType)binariesFromIndexMatches2.get(typePath);
@@ -539,9 +538,9 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 
 private static HierarchyBinaryType createBinaryTypeFrom(PDOMType type) {
 	char[] enclosingTypeName = null;
-	PDOMTypeId enclosingType = type.getDeclaringType();
+	PDOMTypeSignature enclosingType = type.getTypeId().getDeclaringType();
 	if (enclosingType != null) {
-		enclosingTypeName = enclosingType.getSimpleName().getChars();
+		enclosingTypeName = enclosingType.getRawType().getSimpleName().getChars();
 	}
 	//final char[][] typeParameterSignatures;
 	PDOMTypeId typeId = type.getTypeId();

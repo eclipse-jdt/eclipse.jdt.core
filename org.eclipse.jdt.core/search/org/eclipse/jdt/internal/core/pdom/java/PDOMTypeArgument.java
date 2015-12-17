@@ -6,6 +6,9 @@ import org.eclipse.jdt.internal.core.pdom.field.FieldByte;
 import org.eclipse.jdt.internal.core.pdom.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.pdom.field.StructDef;
 
+/**
+ * @since 3.12
+ */
 public class PDOMTypeArgument extends PDOMNode {
 	public static final FieldManyToOne<PDOMComplexTypeSignature> PARENT;
 	public static final FieldManyToOne<PDOMTypeSignature> TYPE_SIGNATURE;
@@ -33,7 +36,7 @@ public class PDOMTypeArgument extends PDOMNode {
 	public PDOMTypeArgument(PDOM pdom, PDOMComplexTypeSignature typeSignature) {
 		super(pdom);
 
-		TYPE_SIGNATURE.put(pdom, this.address, typeSignature);
+		PARENT.put(pdom, this.address, typeSignature);
 	}
 
 	/**

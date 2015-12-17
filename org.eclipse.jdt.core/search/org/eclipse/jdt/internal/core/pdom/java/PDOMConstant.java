@@ -8,6 +8,9 @@ import org.eclipse.jdt.internal.core.pdom.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.pdom.field.FieldOneToOne;
 import org.eclipse.jdt.internal.core.pdom.field.StructDef;
 
+/**
+ * @since 3.12
+ */
 public abstract class PDOMConstant extends PDOMNode {
 	// Parent pointers. Only one will be non-null.
 	// TODO(sxenos): Create something like a union to hold these, to eliminate this

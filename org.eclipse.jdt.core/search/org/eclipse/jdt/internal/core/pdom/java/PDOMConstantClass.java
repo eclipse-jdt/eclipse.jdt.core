@@ -4,6 +4,9 @@ import org.eclipse.jdt.internal.core.pdom.PDOM;
 import org.eclipse.jdt.internal.core.pdom.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.pdom.field.StructDef;
 
+/**
+ * @since 3.12
+ */
 public final class PDOMConstantClass extends PDOMConstant {
 	public static final FieldManyToOne<PDOMTypeSignature> VALUE;
 

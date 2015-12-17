@@ -8,6 +8,9 @@ import org.eclipse.jdt.internal.core.pdom.field.FieldOneToOne;
 import org.eclipse.jdt.internal.core.pdom.field.FieldString;
 import org.eclipse.jdt.internal.core.pdom.field.StructDef;
 
+/**
+ * @since 3.12
+ */
 public class PDOMAnnotationValuePair extends PDOMNode {
 	public static final FieldManyToOne<PDOMAnnotation> APPLIES_TO;
 	public static final FieldString NAME;

@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom.java;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.jdt.internal.core.pdom.PDOM;
 import org.eclipse.jdt.internal.core.pdom.PDOMNode;
+import org.eclipse.jdt.internal.core.pdom.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.pdom.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.pdom.field.StructDef;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Corresponds roughly to a JavaTypeSignature, as described in section 4.7.9.1 of the Java VM spec version 4, with the
@@ -38,21 +39,14 @@ import org.eclipse.jdt.internal.core.pdom.field.StructDef;
 public abstract class PDOMTypeSignature extends PDOMNode {
 	public static final FieldOneToMany<PDOMType> SUBCLASSES;
 	public static final FieldOneToMany<PDOMAnnotation> ANNOTATIONS_OF_THIS_TYPE;
-//	public static final FieldOneToMany<PDOMType> USED_AS_BOUND;
-//	public static final FieldOneToMany<PDOMType> USED_AS_GENERIC_TYPE_OF_WILDCARD_TYPE;
-//	public static final FieldOneToMany<PDOMType> USED_AS_COMPONENT_TYPE;
-//	public static final FieldOneToMany<PDOMType> USED_AS_ELEMENT_TYPE;
-//	public static final FieldOneToMany<PDOMType> USED_AS_ERASURE;
 	public static final FieldOneToMany<PDOMTypeInterface> IMPLEMENTATIONS;
-//	public static final FieldOneToMany<PDOMTypeArgument> USED_AS_TYPE_ARGUMENT;
-//	public static final FieldOneToMany<PDOMTypeBounds> USED_AS_TYPE_BOUNDS;
-//	public static final FieldOneToMany<PDOMType> USED_AS_TYPE_DECLARATION;
-//	public static final FieldOneToMany<PDOMTypeParameter> USED_AS_TYPE_PARAMETER;
-//	public static final FieldOneToMany<PDOMType> USED_AS_WILDCARD;
 	public static final FieldOneToMany<PDOMVariable> VARIABLES_OF_TYPE;
 	public static final FieldOneToMany<PDOMConstantClass> USED_AS_CONSTANT;
 	public static final FieldOneToMany<PDOMConstantEnum> USED_AS_ENUM_CONSTANT;
 	public static final FieldOneToMany<PDOMTypeArgument> USED_AS_TYPE_ARGUMENT;
+	public static final FieldOneToMany<PDOMTypeBound> USED_AS_TYPE_BOUND;
+	public static final FieldManyToOne<PDOMTypeSignature> DECLARING_TYPE;
+	public static final FieldOneToMany<PDOMTypeSignature> DECLARED_TYPES;
 
 	@SuppressWarnings("hiding")
 	public static StructDef<PDOMTypeSignature> type;
@@ -60,22 +54,15 @@ public abstract class PDOMTypeSignature extends PDOMNode {
 	static {
 		type = StructDef.createAbstract(PDOMTypeSignature.class, PDOMNode.type);
 		SUBCLASSES = FieldOneToMany.create(type, PDOMType.SUPERCLASS);
-//		USED_AS_BOUND = FieldOneToMany.create(type, PDOMType.class, PDOMType.BOUND);
 		ANNOTATIONS_OF_THIS_TYPE = FieldOneToMany.create(type, PDOMAnnotation.ANNOTATION_TYPE);
-//		USED_AS_GENERIC_TYPE_OF_WILDCARD_TYPE = FieldOneToMany.create(type, PDOMType.class, PDOMType.GENERIC_TYPE_OF_WILDCARD_TYPE);
-//		USED_AS_COMPONENT_TYPE = FieldOneToMany.create(type, PDOMType.class, PDOMType.COMPONENT_TYPE);
-//		USED_AS_ELEMENT_TYPE = FieldOneToMany.create(type, PDOMType.class, PDOMType.ELEMENT_TYPE);
-//		USED_AS_ERASURE = FieldOneToMany.create(type, PDOMType.class, PDOMType.ERASURE);
 		IMPLEMENTATIONS = FieldOneToMany.create(type, PDOMTypeInterface.IMPLEMENTS);
-//		USED_AS_TYPE_ARGUMENT = FieldOneToMany.create(type, PDOMTypeArgument.class, PDOMTypeArgument.ARGUMENT);
-//		USED_AS_TYPE_BOUNDS = FieldOneToMany.create(type, PDOMTypeBounds.class, PDOMTypeBounds.BOUNDS);
-//		USED_AS_TYPE_DECLARATION = FieldOneToMany.create(type, PDOMType.class, PDOMType.TYPE_DECLARATION);
-//		USED_AS_TYPE_PARAMETER = FieldOneToMany.create(type, PDOMTypeParameter.class, PDOMTypeParameter.PARAMETER);
-//		USED_AS_WILDCARD = FieldOneToMany.create(type, PDOMType.class, PDOMType.WILDCARD);
 		VARIABLES_OF_TYPE = FieldOneToMany.create(type, PDOMVariable.TYPE);
 		USED_AS_CONSTANT = FieldOneToMany.create(type, PDOMConstantClass.VALUE);
 		USED_AS_ENUM_CONSTANT = FieldOneToMany.create(type, PDOMConstantEnum.ENUM_TYPE);
 		USED_AS_TYPE_ARGUMENT = FieldOneToMany.create(type, PDOMTypeArgument.TYPE_SIGNATURE);
+		USED_AS_TYPE_BOUND = FieldOneToMany.create(type, PDOMTypeBound.TYPE);
+		DECLARING_TYPE = FieldManyToOne.create(type, null);
+		DECLARED_TYPES = FieldOneToMany.create(type, DECLARING_TYPE);
 		type.useStandardRefCounting().done();
 	}
 
@@ -107,6 +94,14 @@ public abstract class PDOMTypeSignature extends PDOMNode {
 		}
 
 		return result;
+	}
+
+	public void setDeclaringType(PDOMTypeSignature enclosingType) {
+		DECLARING_TYPE.put(getPDOM(), this.address, enclosingType);
+	}
+
+	public PDOMTypeSignature getDeclaringType() {
+		return DECLARING_TYPE.get(getPDOM(), this.address);
 	}
 
 	/**

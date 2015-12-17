@@ -58,6 +58,10 @@ public class PDOMAnnotation extends PDOMNode {
 		PARENT_CONSTANT.put(getPDOM(), this.address, constant);
 	}
 
+	public void setParent(PDOMComplexTypeSignature signature) {
+		PARENT_TYPE_SIGNATURE.put(getPDOM(), this.address, signature);
+	}
+
 	public PDOMTypeSignature getType() {
 		return ANNOTATION_TYPE.get(getPDOM(), this.address);
 	}

@@ -4,6 +4,9 @@ import org.eclipse.jdt.internal.core.pdom.PDOM;
 import org.eclipse.jdt.internal.core.pdom.field.FieldChar;
 import org.eclipse.jdt.internal.core.pdom.field.StructDef;
 
+/**
+ * @since 3.12
+ */
 public final class PDOMConstantChar extends PDOMConstant {
 	public static final FieldChar VALUE;
 

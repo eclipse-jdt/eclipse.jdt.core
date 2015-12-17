@@ -5,6 +5,9 @@ import org.eclipse.jdt.internal.core.pdom.db.IString;
 import org.eclipse.jdt.internal.core.pdom.field.FieldString;
 import org.eclipse.jdt.internal.core.pdom.field.StructDef;
 
+/**
+ * @since 3.12
+ */
 public final class PDOMConstantString extends PDOMConstant {
 	public static final FieldString VALUE;
 

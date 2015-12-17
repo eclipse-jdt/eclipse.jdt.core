@@ -5,6 +5,9 @@ import org.eclipse.jdt.internal.core.pdom.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.pdom.field.FieldString;
 import org.eclipse.jdt.internal.core.pdom.field.StructDef;
 
+/**
+ * @since 3.12
+ */
 public final class PDOMConstantEnum extends PDOMConstant {
 	public static final FieldManyToOne<PDOMTypeSignature> ENUM_TYPE;
 	public static final FieldString ENUM_VALUE;

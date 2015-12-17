@@ -4,23 +4,30 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.classfmt.TypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.env.ClassSignature;
 import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
+import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.SignatureWrapper;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.db.IndexException;
 import org.eclipse.jdt.internal.core.pdom.java.JavaIndex;
 import org.eclipse.jdt.internal.core.pdom.java.JavaNames;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMAnnotation;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMAnnotationValuePair;
+import org.eclipse.jdt.internal.core.pdom.java.PDOMComplexTypeSignature;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMConstant;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMConstantAnnotation;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMConstantArray;
@@ -29,14 +36,21 @@ import org.eclipse.jdt.internal.core.pdom.java.PDOMConstantEnum;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMMethodId;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMResourceFile;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMType;
+import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeArgument;
+import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeBound;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeId;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeInterface;
+import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeParameter;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeSignature;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMVariable;
 import org.eclipse.jdt.internal.core.util.Util;
 
+import java.util.Objects;
+
 public class ClassFileToIndexConverter {
 	private static final boolean ENABLE_LOGGING = false;
+	private static final char[][] EMPTY_CHAR_ARRAY_ARRAY = new char[0][];
+	private static final char[] EMPTY_CHAR_ARRAY = new char[0];
 	private PDOMResourceFile resource;
 	private JavaIndex index;
 
@@ -102,7 +116,7 @@ public class ClassFileToIndexConverter {
 		return info;
 	}
 
-	public PDOMType addType(IBinaryType binaryType, IProgressMonitor monitor) {
+	public PDOMType addType(IBinaryType binaryType, IProgressMonitor monitor) throws CoreException {
 		char[] binaryName = binaryType.getName();
 		logInfo("adding binary type " + new String(binaryName));
 
@@ -113,10 +127,69 @@ public class ClassFileToIndexConverter {
 			type = new PDOMType(getPDOM(), this.resource);
 		}
 
+		ITypeAnnotationWalker typeAnnotations = getTypeAnnotationWalker(binaryType.getTypeAnnotations());
+		ITypeAnnotationWalker supertypeAnnotations = typeAnnotations.toSupertype((short)-1, binaryType.getSuperclassName());
+
 		type.setTypeId(name);
-		type.setSuperclass(createTypeIdFromBinaryName(binaryType.getSuperclassName()));
+
+		char[][] interfaces = binaryType.getInterfaceNames();
+		if (interfaces == null) {
+			interfaces = EMPTY_CHAR_ARRAY_ARRAY;
+		}
+		// Create the default generic signature if the .class file didn't supply one
+		char[] genericSignature = binaryType.getGenericSignature();
+		if (genericSignature == null) {
+			int startIndex = binaryType.getSuperclassName() != null ? 3 : 0; 
+			char[][] toCatenate = new char[startIndex + (interfaces.length * 3)][];
+			char[] prefix = new char[]{'L'};
+			char[] suffix = new char[]{';'};
+
+			if (binaryType.getSuperclassName() != null) {
+				toCatenate[0] = prefix;
+				toCatenate[1] = binaryType.getSuperclassName();
+				toCatenate[2] = suffix;
+			}
+
+			for (int idx = 0; idx < interfaces.length; idx++) {
+				int catIndex = startIndex + idx * 3;
+				toCatenate[catIndex] = prefix;
+				toCatenate[catIndex + 1] = interfaces[idx];
+				toCatenate[catIndex + 2] = suffix;
+			}
+
+			genericSignature = CharUtil.concat(toCatenate);
+		}
+
 		type.setModifiers(binaryType.getModifiers());
-		type.setDeclaringType(createTypeIdFromBinaryName(binaryType.getEnclosingTypeName()));
+ 
+		char[] enclosingTypeName = binaryType.getEnclosingTypeName();
+		// TODO(sxenos): There are some classes for which enclosingTypeName is null but which have classnames that
+		// resemble inner classes (ie: the classnames contain a '$'). Figure out what this means.
+//		assertThat((enclosingTypeName == null) == (name.getDeclaringType() == null), 
+//				"Declaring type should be null if and only if there is no enclosing type"); //$NON-NLS-1$
+		if (enclosingTypeName != null) {
+			String realEnclosingFieldDescriptor = JavaNames.binaryNameToFieldDescriptor(new String(enclosingTypeName));
+			String indexedFieldDescriptor = name.getDeclaringType().getRawType().getFieldDescriptor().getString();
+			assertThat(Objects.equals(realEnclosingFieldDescriptor, indexedFieldDescriptor),
+				"Incorrect field descriptor for declaring type"); //$NON-NLS-1$
+		}
+
+		SignatureWrapper signatureWrapper = new SignatureWrapper(genericSignature);
+		readTypeParameters(type, typeAnnotations, signatureWrapper);
+		type.setSuperclass(createTypeSignature(supertypeAnnotations, signatureWrapper));
+
+		short interfaceIdx = 0;
+		while (signatureWrapper.start < signatureWrapper.signature.length) {
+			// Note that there may be more interfaces listed in the generic signature than in the interfaces list.
+			// Although the VM spec doesn't discuss this case specifically, there are .class files in the wild with
+			// this characteristic. In such cases, we take what's in the generic signature and discard what's in the
+			// interfaces list.
+			char[] interfaceSpec = interfaceIdx < interfaces.length ? interfaces[interfaceIdx] : EMPTY_CHAR_ARRAY;
+			new PDOMTypeInterface(getPDOM(), type, createTypeSignature(
+					typeAnnotations.toSupertype(interfaceIdx, interfaceSpec),
+					signatureWrapper));
+			interfaceIdx++;
+		}
 
 		IBinaryAnnotation[] annotations = binaryType.getAnnotations();
 		if (annotations != null) {
@@ -150,19 +223,266 @@ public class ClassFileToIndexConverter {
 			}
 		}
 
-		// genericSignature = binaryType.getGenericSignature();
-
-		char[][] interfaces = binaryType.getInterfaceNames();
-		if (interfaces != null) {
-			for (char[] next : interfaces) {
-				new PDOMTypeInterface(getPDOM(), type, createTypeIdFromBinaryName(next));
-			}
-		}
-
 		return type;
 	}
 
-	private PDOMTypeSignature createTypeIdFromFieldDescriptor(char[] typeName) {
+	/**
+	 * Reads and attaches any generic type parameters at the current start position in the given wrapper.
+	 * Sets wrapper.start to the character following the type parameters.
+	 * @throws CoreException 
+	 */
+	private void readTypeParameters(PDOMType type, ITypeAnnotationWalker annotationWalker, SignatureWrapper wrapper)
+			throws CoreException {
+		char[] genericSignature = wrapper.signature;
+		if (genericSignature.length == 0 || genericSignature[wrapper.start] != '<') {
+			return;
+		}
+
+		int parameterIndex = 0;
+		int boundIndex = 0;
+		int indexOfClosingBracket = wrapper.skipAngleContents(wrapper.start) - 1;
+		wrapper.start++;
+		PDOMTypeParameter parameter = null;
+		while (wrapper.start < indexOfClosingBracket) {
+			int colonPos = CharOperation.indexOf(':', genericSignature, wrapper.start, indexOfClosingBracket);
+
+			if (colonPos > wrapper.start) {
+				String identifier = new String(CharOperation.subarray(genericSignature, wrapper.start, colonPos));
+				parameter = new PDOMTypeParameter(type, identifier);
+				wrapper.start = colonPos + 1;
+				parameterIndex++;
+				boundIndex = 0;
+			}
+
+			// Class files insert an empty bound if there is an interface bound but no class bound. We just omit
+			// the bound entirely.
+			while (genericSignature[wrapper.start] == ':') {
+				wrapper.start++;
+			}
+
+			PDOMTypeSignature boundSignature = createTypeSignature(
+					annotationWalker.toTypeParameter(true, parameterIndex).toTypeBound((short)boundIndex),
+					wrapper);
+ 
+			new PDOMTypeBound(parameter, boundSignature);
+			boundIndex++;
+		}
+
+		if (genericSignature[wrapper.start] == '>') {
+			wrapper.start++;
+		}
+	}
+
+	/**
+	 * Reads a type signature from the given {@link SignatureWrapper}, starting at the character pointed to by
+	 * wrapper.start. On return, wrapper.start will point to the first character following the type signature.
+	 * 
+	 * @param supertypeAnnotations
+	 * @param superclassName
+	 * @param genericSignature
+	 * @return
+	 * @throws CoreException 
+	 */
+	private PDOMTypeSignature createTypeSignature(ITypeAnnotationWalker annotations, SignatureWrapper wrapper) throws CoreException {
+		char[] genericSignature = wrapper.signature;
+
+		if (genericSignature == null || genericSignature.length == 0) {
+			return null;
+		}
+
+		char firstChar = genericSignature[wrapper.start];
+		switch (firstChar) {
+			case 'T': {
+				// Skip the 'T' prefix
+				wrapper.start++;
+				PDOMComplexTypeSignature typeSignature = new PDOMComplexTypeSignature(getPDOM());
+				typeSignature.setVariableIdentifier(new String(wrapper.nextWord()));
+				attachAnnotations(typeSignature, annotations);
+				// Skip the trailing semicolon
+				wrapper.start++;
+				return typeSignature;
+			}
+			case '[': {
+				// Skip the '[' prefix
+				wrapper.start++;
+				// We encode arrays as though they were a one-argument generic type called '[' whose element
+				// type is the generic argument.
+				PDOMComplexTypeSignature typeSignature = new PDOMComplexTypeSignature(getPDOM());
+				typeSignature.setRawType(createTypeIdFromFieldDescriptor(new char[] {'['}));
+				PDOMTypeArgument typeArgument = new PDOMTypeArgument(getPDOM(), typeSignature);
+				PDOMTypeSignature elementType = createTypeSignature(annotations.toNextArrayDimension(), wrapper);
+				typeArgument.setType(elementType);
+				attachAnnotations(typeSignature, annotations);
+				return typeSignature;
+			}
+			case 'B':
+			case 'C':
+			case 'D':
+			case 'F':
+			case 'I':
+			case 'J':
+			case 'S':
+			case 'Z':
+				wrapper.start++;
+				return createTypeIdFromFieldDescriptor(new char[]{firstChar});
+			case 'L':
+				return parseClassTypeSignature(null, annotations, wrapper);
+			case '+':
+			case '-':
+			case '*':
+				throw new CoreException(Package.createStatus("Unexpected wildcard in top-level of generic signature: " //$NON-NLS-1$
+						+ genericSignature.toString()));
+			default:
+				throw new CoreException(Package.createStatus("Generic signature starts with unknow character: " //$NON-NLS-1$
+						+ genericSignature.toString()));
+		}
+	}
+
+	/**
+	 * Parses a ClassTypeSignature (as described in section 4.7.9.1 of the Java VM Specification Java SE 8 Edition).
+	 * The read pointer should be located just after the identifier. The caller is expected to have already read
+	 * the field descriptor for the type.
+	 * 
+	 * @param annotations
+	 * @param wrapper
+	 * @param genericSignature
+	 * @param fieldDescriptor
+	 * @return
+	 * @throws CoreException
+	 */
+	private PDOMTypeSignature parseClassTypeSignature(PDOMTypeSignature parentTypeOrNull,
+			ITypeAnnotationWalker annotations, SignatureWrapper wrapper) throws CoreException {
+		char[] identifier = wrapper.nextName();
+		char[] fieldDescriptor;
+
+		if (parentTypeOrNull != null) {
+			fieldDescriptor = CharUtil.concat(parentTypeOrNull.getRawType().getFieldDescriptor().getChars(),
+					new char[] {'$'},
+					identifier);
+		} else {
+			fieldDescriptor = identifier;
+		}
+
+		char[] genericSignature = wrapper.signature;
+		boolean hasGenericArguments = (genericSignature.length > wrapper.start) && genericSignature[wrapper.start] == '<';
+		PDOMTypeId rawType = createTypeIdFromFieldDescriptor(fieldDescriptor);
+		PDOMTypeSignature result = rawType;
+
+		// Special optimization for signatures with no type annotations, no arrays, and no generic arguments that
+		// are not an inner type of a class that can't use this optimization. Basically, if there would be no attributes
+		// set on a PDOMComplexTypeSignature besides what it picks up from its raw type, we just use the raw type.
+		IBinaryAnnotation[] annotationList = annotations.getAnnotationsAtCursor(0);
+		if (annotationList.length != 0 || hasGenericArguments
+				|| !Objects.equals(parentTypeOrNull, rawType.getDeclaringType())) {
+			PDOMComplexTypeSignature typeSignature = new PDOMComplexTypeSignature(getPDOM());
+			typeSignature.setRawType(rawType);
+			attachAnnotations(typeSignature, annotations);
+	
+			if (hasGenericArguments) {
+				wrapper.start++;
+				short argumentIndex = 0;
+				while (wrapper.start < genericSignature.length && (genericSignature[wrapper.start] != '>')) {
+					PDOMTypeArgument typeArgument = new PDOMTypeArgument(getPDOM(), typeSignature);
+	
+					switch(genericSignature[wrapper.start]) {
+						case '+': {
+							typeArgument.setWildcard(PDOMTypeArgument.WILDCARD_SUPER);
+							wrapper.start++;
+							break;
+						}
+						case '-': {
+							typeArgument.setWildcard(PDOMTypeArgument.WILDCARD_EXTENDS);
+							wrapper.start++;
+							break;
+						}
+						case '*': {
+							typeArgument.setWildcard(PDOMTypeArgument.WILDCARD_QUESTION);
+							wrapper.start++;
+							argumentIndex++;
+							continue;
+						}
+					}
+	
+					PDOMTypeSignature nextSignature = createTypeSignature(annotations.toTypeArgument(argumentIndex), wrapper);
+					typeArgument.setType(nextSignature);
+					argumentIndex++;
+				}
+	
+				// Skip over the trailing '>'
+				wrapper.start++;
+			}
+			result = typeSignature;
+
+			if (parentTypeOrNull != null) {
+				result.setDeclaringType(parentTypeOrNull);
+			}
+		}
+
+		if (wrapper.start >= genericSignature.length) {
+			throw new IndexException("Read beyond end of the type signature!"); //$NON-NLS-1$
+		}
+
+		switch (genericSignature[wrapper.start]) {
+			case ';': 
+				wrapper.start++; 
+				break;
+			case '.':
+				PDOMTypeSignature nestedType = parseClassTypeSignature(result, annotations.toNextNestedType(), wrapper);
+				
+				PDOMTypeSignature detectedNestedType = nestedType.getDeclaringType();
+				
+				// Perform a sanity-test
+				assertThat(Objects.equals(detectedNestedType, result),
+						"Incorrect declaring type for nested type");
+				assertThat(Objects.equals(nestedType.getDeclaringType().getRawType(), result.getRawType()),
+						"Incorrect declaring type for nested raw type");
+
+				result = nestedType;
+				break;
+		}
+
+		return result;
+	}
+
+	/**
+	 * @param equals
+	 * @param string
+	 */
+	private void assertThat(boolean toTest, String errorMessage) {
+		if (!toTest) {
+			throw new IndexException(errorMessage);
+		}
+	}
+
+	/**
+	 * @param typeSignature
+	 * @param annotations
+	 */
+	private void attachAnnotations(PDOMComplexTypeSignature typeSignature, ITypeAnnotationWalker annotations) {
+		IBinaryAnnotation[] annotationList = annotations.getAnnotationsAtCursor(0);
+
+		for (IBinaryAnnotation next: annotationList) {
+			PDOMAnnotation annotation = createAnnotation(next);
+
+			annotation.setParent(typeSignature);
+		}
+	}
+
+	private ITypeAnnotationWalker getTypeAnnotationWalker(IBinaryTypeAnnotation[] typeAnnotations) {
+		if (typeAnnotations == null) {
+			return ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER;
+		}
+		return new TypeAnnotationWalker(typeAnnotations);
+	}
+
+	private PDOMTypeId createTypeIdFromFieldDescriptor(String typeName) {
+		if (typeName == null) {
+			return null;
+		}
+		return this.index.createTypeId(typeName);
+	}
+
+	private PDOMTypeId createTypeIdFromFieldDescriptor(char[] typeName) {
 		if (typeName == null) {
 			return null;
 		}

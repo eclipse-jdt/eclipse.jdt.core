@@ -10,9 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom.java;
 
+import java.io.File;
 import java.util.List;
 
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.PDOMNode;
+import org.eclipse.jdt.internal.core.pdom.PDOMNodeTypeRegistry;
+import org.eclipse.jdt.internal.core.pdom.db.ChunkCache;
 import org.eclipse.jdt.internal.core.pdom.db.Database;
 import org.eclipse.jdt.internal.core.pdom.field.FieldSearchIndex;
 import org.eclipse.jdt.internal.core.pdom.field.FieldSearchIndex.IResultRank;
@@ -23,6 +29,12 @@ import org.eclipse.jdt.internal.core.pdom.field.StructDef;
  * @since 3.12
  */
 public class JavaIndex {
+	// Version constants
+	static final int CURRENT_VERSION = PDOM.version(1, 8);
+	static final int MAX_SUPPORTED_VERSION= PDOM.version(1, Short.MAX_VALUE);
+	static final int MIN_SUPPORTED_VERSION= PDOM.version(1, 8);
+
+	// Fields for the search header
 	public static final FieldSearchIndex<PDOMResourceFile> FILES;
 	public static final FieldSearchIndex<PDOMTypeId> SIMPLE_INDEX;
 	public static final FieldSearchIndex<PDOMTypeId> TYPES;
@@ -58,14 +70,13 @@ public class JavaIndex {
 			return 1;
 		}
 	};
+	private static PDOM globalPdom;
+	private static final String INDEX_FILENAME = "index.db"; //$NON-NLS-1$
+	private final static Object pdomMutex = new Object();
 
 	public JavaIndex(PDOM dom, long address) {
 		this.address = address;
 		this.pdom = dom;
-	}
-
-	public static JavaIndex getIndex(PDOM pdom) {
-		return new JavaIndex(pdom, Database.DATA_AREA);
 	}
 
 	/**
@@ -85,7 +96,7 @@ public class JavaIndex {
 		return TYPES.findBest(this.pdom, this.address, searchCriteria, this.anyResult);
 	}
 
-	public PDOMTypeSignature createTypeId(char[] fieldDescriptor) {
+	public PDOMTypeId createTypeId(char[] fieldDescriptor) {
 		return createTypeId(new String(fieldDescriptor));
 	}
 	
@@ -100,7 +111,15 @@ public class JavaIndex {
 			return existingType;
 		}
 
-		return new PDOMTypeId(this.pdom, fieldDescriptor);
+		int positionOfSeparator = fieldDescriptor.lastIndexOf('$');
+
+		PDOMTypeId result = new PDOMTypeId(this.pdom, fieldDescriptor);
+
+		if (positionOfSeparator != -1) {
+			result.setDeclaringType(createTypeId(fieldDescriptor.substring(0, positionOfSeparator)));
+		}
+
+		return result;
 	}
 
 	public PDOM getPDOM() {
@@ -121,6 +140,84 @@ public class JavaIndex {
 		}
 
 		return new PDOMMethodId(this.pdom, methodId);
+	}
+
+	public static boolean isEnabled() {
+		return true;
+	}
+
+	public static PDOM getGlobalPDOM() {
+		PDOM localPdom;
+		synchronized (pdomMutex) {
+			localPdom = globalPdom;
+		}
+	
+		if (localPdom != null) {
+			return localPdom;
+		}
+	
+		localPdom = new PDOM(getDBFile(), ChunkCache.getSharedInstance(), createTypeRegistry(),
+				MIN_SUPPORTED_VERSION, MAX_SUPPORTED_VERSION, CURRENT_VERSION);
+	
+		synchronized (pdomMutex) {
+			if (globalPdom == null) {
+				globalPdom = localPdom;
+			}
+			return globalPdom;
+		}
+	}
+
+	public static JavaIndex getIndex(PDOM pdom) {
+		return new JavaIndex(pdom, Database.DATA_AREA);
+	}
+
+	public static JavaIndex getIndex() {
+		return getIndex(getGlobalPDOM());
+	}
+
+	public static int getCurrentVersion() {
+		return CURRENT_VERSION;
+	}
+
+	static File getDBFile() {
+		IPath stateLocation = JavaCore.getPlugin().getStateLocation();
+		return stateLocation.append(INDEX_FILENAME).toFile();
+	}
+
+	static PDOMNodeTypeRegistry<PDOMNode> createTypeRegistry() {
+		PDOMNodeTypeRegistry<PDOMNode> registry = new PDOMNodeTypeRegistry<>();
+		registry.register(0x0000, PDOMAnnotation.type.getFactory());
+		registry.register(0x0010, PDOMAnnotationValuePair.type.getFactory());
+		registry.register(0x0020, PDOMBinding.type.getFactory());
+		registry.register(0x0028, PDOMComplexTypeSignature.type.getFactory());
+		registry.register(0x0030, PDOMConstant.type.getFactory());
+		registry.register(0x0040, PDOMConstantAnnotation.type.getFactory());
+		registry.register(0x0050, PDOMConstantArray.type.getFactory());
+		registry.register(0x0060, PDOMConstantBoolean.type.getFactory());
+		registry.register(0x0070, PDOMConstantByte.type.getFactory());
+		registry.register(0x0080, PDOMConstantChar.type.getFactory());
+		registry.register(0x0090, PDOMConstantClass.type.getFactory());
+		registry.register(0x00A0, PDOMConstantDouble.type.getFactory());
+		registry.register(0x00B0, PDOMConstantEnum.type.getFactory());
+		registry.register(0x00C0, PDOMConstantFloat.type.getFactory());
+		registry.register(0x00D0, PDOMConstantInt.type.getFactory());
+		registry.register(0x00E0, PDOMConstantLong.type.getFactory());
+		registry.register(0x00F0, PDOMConstantShort.type.getFactory());
+		registry.register(0x0100, PDOMConstantString.type.getFactory());
+		registry.register(0x0110, PDOMMethod.type.getFactory());
+		registry.register(0x0120, PDOMMethodId.type.getFactory());
+		registry.register(0x0150, PDOMResourceFile.type.getFactory());
+		registry.register(0x0160, PDOMTreeNode.type.getFactory());
+		registry.register(0x0170, PDOMType.type.getFactory());
+		registry.register(0x0180, PDOMTypeArgument.type.getFactory());
+		registry.register(0x0190, PDOMTypeBound.type.getFactory());
+		registry.register(0x01A0, PDOMTypeInterface.type.getFactory());
+		registry.register(0x01B0, PDOMTypeParameter.type.getFactory());
+		registry.register(0x01C0, PDOMTypeSignature.type.getFactory());
+		registry.register(0x01D0, PDOMTypeId.type.getFactory());
+		registry.register(0x01E0, PDOMTypeInterface.type.getFactory());
+		registry.register(0x01F0, PDOMVariable.type.getFactory());
+		return registry;
 	}
 
 //	/**

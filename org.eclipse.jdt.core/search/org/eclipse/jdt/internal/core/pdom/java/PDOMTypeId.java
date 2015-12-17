@@ -9,11 +9,13 @@ import org.eclipse.jdt.internal.core.pdom.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.pdom.field.FieldSearchKey;
 import org.eclipse.jdt.internal.core.pdom.field.StructDef;
 
+/**
+ * @since 3.12
+ */
 public class PDOMTypeId extends PDOMTypeSignature {
 	public static final FieldSearchKey<JavaIndex> FIELD_DESCRIPTOR;
 	public static final FieldSearchKey<JavaIndex> SIMPLE_NAME;
 	public static final FieldOneToMany<PDOMType> TYPES;
-	public static final FieldOneToMany<PDOMType> DECLARED_TYPES;
 	public static final FieldOneToMany<PDOMComplexTypeSignature> USED_AS_COMPLEX_TYPE;
 
 	@SuppressWarnings("hiding")
@@ -26,7 +28,6 @@ public class PDOMTypeId extends PDOMTypeSignature {
 		FIELD_DESCRIPTOR = FieldSearchKey.create(type, JavaIndex.TYPES);
 		SIMPLE_NAME = FieldSearchKey.create(type, JavaIndex.SIMPLE_INDEX);
 		TYPES = FieldOneToMany.create(type, PDOMType.TYPENAME, 2);
-		DECLARED_TYPES = FieldOneToMany.create(type, PDOMType.DECLARING_TYPE);
 		USED_AS_COMPLEX_TYPE = FieldOneToMany.create(type, PDOMComplexTypeSignature.RAW_TYPE);
 		type.useStandardRefCounting().done();
 	}

@@ -29,8 +29,6 @@ public class PDOMVariable extends PDOMBinding {
 	public static final FieldManyToOne<PDOMBinding> PARENT;
 	public static final FieldString NAME;
 	public static final FieldOneToOne<PDOMConstant> CONSTANT;
-	// TODO: Add field for getConstantValue() 
-	// TODO: Add field for getVariableDeclaration()
 
 	@SuppressWarnings("hiding")
 	public static StructDef<PDOMVariable> type;

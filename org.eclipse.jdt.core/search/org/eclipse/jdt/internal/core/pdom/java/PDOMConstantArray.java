@@ -6,6 +6,9 @@ import org.eclipse.jdt.internal.core.pdom.PDOM;
 import org.eclipse.jdt.internal.core.pdom.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.pdom.field.StructDef;
 
+/**
+ * @since 3.12
+ */
 public final class PDOMConstantArray extends PDOMConstant {
 	public static final FieldOneToMany<PDOMConstant> ELEMENTS;
 

@@ -40,8 +40,9 @@ public class PDOMType extends PDOMBinding {
 //	public static final FieldManyToOne<PDOMTypeSignature> TYPE_DECLARATION;
 //	public static final FieldOneToMany<PDOMTypeParameter> TYPE_PARAMETERS;
 //	public static final FieldManyToOne<PDOMTypeSignature> WILDCARD;
-	public static final FieldManyToOne<PDOMTypeId> DECLARING_TYPE;
+//	public static final FieldManyToOne<PDOMTypeId> DECLARING_TYPE;
 	public static final FieldManyToOne<PDOMMethodId> DECLARING_METHOD;
+	public static final FieldOneToMany<PDOMTypeParameter> TYPE_PARAMETERS;
 //	public static final FieldLong TYPE_FLAGS;
 
 	@SuppressWarnings("hiding")
@@ -50,7 +51,7 @@ public class PDOMType extends PDOMBinding {
 	static {
 		type = StructDef.create(PDOMType.class, PDOMBinding.type);
 		TYPENAME = FieldManyToOne.create(type, PDOMTypeId.TYPES);
-		DECLARING_TYPE = FieldManyToOne.create(type, PDOMTypeId.DECLARED_TYPES);
+//		DECLARING_TYPE = FieldManyToOne.create(type, PDOMTypeId.DECLARED_TYPES);
 //		BOUND = FieldManyToOne.create(type, PDOMTypeSignature.class, PDOMTypeSignature.USED_AS_BOUND);
 //		GENERIC_TYPE_OF_WILDCARD_TYPE = FieldManyToOne.create(type, PDOMTypeSignature.class, PDOMTypeSignature.USED_AS_GENERIC_TYPE_OF_WILDCARD_TYPE);
 //		RANK = type.addInt();
@@ -71,6 +72,7 @@ public class PDOMType extends PDOMBinding {
 //		WILDCARD = FieldManyToOne.create(type, PDOMTypeSignature.class, PDOMTypeSignature.USED_AS_WILDCARD);
 //		TYPE_FLAGS = type.addLong();
 		DECLARING_METHOD = FieldManyToOne.create(type, PDOMMethodId.DECLARED_TYPES);
+		TYPE_PARAMETERS = FieldOneToMany.create(type, PDOMTypeParameter.PARENT);
 		type.done();
 	}
 
@@ -143,14 +145,6 @@ public class PDOMType extends PDOMBinding {
 
 	public PDOMResourceFile getResourceFile() {
 		return FILE.get(getPDOM(), this.address);
-	}
-
-	public void setDeclaringType(PDOMTypeId enclosingType) {
-		DECLARING_TYPE.put(getPDOM(), this.address, enclosingType);
-	}
-
-	public PDOMTypeId getDeclaringType() {
-		return DECLARING_TYPE.get(getPDOM(), this.address);
 	}
 
 	public void setDeclaringMethod(PDOMMethodId createMethodId) {

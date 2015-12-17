@@ -40,7 +40,6 @@ import org.eclipse.jdt.internal.core.pdom.PDOM;
 import org.eclipse.jdt.internal.core.pdom.java.FileFingerprint;
 import org.eclipse.jdt.internal.core.pdom.java.FileFingerprint.FingerprintTestResult;
 import org.eclipse.jdt.internal.core.pdom.java.JavaIndex;
-import org.eclipse.jdt.internal.core.pdom.java.JavaPDOM;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMResourceFile;
 
 public final class Indexer {
@@ -61,7 +60,7 @@ public final class Indexer {
 	public static Indexer getInstance() {
 		synchronized (mutex) {
 			if (indexer == null) {
-				indexer = new Indexer(JavaPDOM.getPDOM(), ResourcesPlugin.getWorkspace().getRoot());
+				indexer = new Indexer(JavaIndex.getGlobalPDOM(), ResourcesPlugin.getWorkspace().getRoot());
 			}
 			return indexer;
 		}
