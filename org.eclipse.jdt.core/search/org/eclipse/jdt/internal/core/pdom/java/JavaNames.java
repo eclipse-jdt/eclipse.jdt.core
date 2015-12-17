@@ -3,6 +3,9 @@ package org.eclipse.jdt.internal.core.pdom.java;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 
+/**
+ * @since 3.12
+ */
 public class JavaNames {
 	/**
 	 * Converts a java binary name to a simple name.

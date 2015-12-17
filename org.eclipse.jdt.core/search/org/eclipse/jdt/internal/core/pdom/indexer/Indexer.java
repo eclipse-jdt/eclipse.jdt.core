@@ -116,13 +116,13 @@ public final class Indexer {
 
 	private void cleanGarbage(List<IJavaElement> allRoots, IProgressMonitor monitor) {
 		// TODO: lazily clean up unneeded files here... but only do so if we're under heavy space pressure
-		// or it's been a long time since the file was last scanned. Being to eager about removing old files
+		// or it's been a long time since the file was last scanned. Being too eager about removing old files
 		// means that operations which temporarily cause a file to become unreferenced will run really slowly
 
 		// We should also eagerly clean up any partially-indexed files we discover during the scan. That is,
 		// if we discover a file with a timestamp of 0, it indicates that the indexer or all of Eclipse crashed
 		// midway through indexing the file. Such garbage should be cleaned up as soon as possible, since it
-		// will never be useful
+		// will never be useful.
 	}
 
 	private List<IJavaElement> removeDuplicatePaths(List<IJavaElement> allRoots) {
