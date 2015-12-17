@@ -148,7 +148,7 @@ public class SearchKeyTests extends BaseTestCase {
 		assertEquals(this.elementA, this.index.findNickName(SEARCH_STRING_B));
 
 		this.elementA.delete();
-
+		this.pdom.processDeletions();
 		assertEquals(null, this.index.findName(SEARCH_STRING_A));
 		assertEquals(null, this.index.findNickName(SEARCH_STRING_B));
 	}

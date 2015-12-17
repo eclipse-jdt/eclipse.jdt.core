@@ -127,6 +127,7 @@ public class PDOM {
 	private final HashMap<Object, Object> fResultCache= new HashMap<>();
 	protected ChangeEvent fEvent= new ChangeEvent();
 	private final PDOMNodeTypeRegistry<PDOMNode> fNodeTypeRegistry;
+	private LongArray pendingDeletions = new LongArray();
 
 	public PDOM(File dbPath, PDOMNodeTypeRegistry<PDOMNode> nodeTypes, int minVersion, int maxVersion,
 			int currentVersion) throws IndexException {
@@ -143,6 +144,21 @@ public class PDOM {
 		if (sDEBUG_LOCKS) {
 			this.fLockDebugging = new HashMap<>();
 			System.out.println("Debugging PDOM Locks"); //$NON-NLS-1$
+		}
+	}
+
+	public void scheduleDeletion(long addressOfNodeToDelete) {
+		this.pendingDeletions.addLast(addressOfNodeToDelete);
+	}
+
+	/**
+	 * Synchronously processes all pending deletions
+	 */
+	public void processDeletions() {
+		while (!this.pendingDeletions.isEmpty()) {
+			long next = this.pendingDeletions.removeLast();
+
+			delete(next);
 		}
 	}
 
@@ -300,6 +316,7 @@ public class PDOM {
 	public void releaseWriteLock(int establishReadLocks, boolean flush) {
 		// When all locks are released we can clear the result cache.
 		if (establishReadLocks == 0) {
+			processDeletions();
 			clearResultCache();
 		}
 		try {
@@ -555,5 +572,21 @@ public class PDOM {
 	 */
 	public short getNodeType(Class<? extends PDOMNode> toQuery) {
 		return this.fNodeTypeRegistry.getTypeForClass(toQuery);
+	}
+
+	private void delete(long address) {
+		if (address == 0) {
+			return;
+		}
+		short nodeType = PDOMNode.NODE_TYPE.get(this, address);
+	
+		// Look up the type
+		ITypeFactory<? extends PDOMNode> factory1 = getTypeFactory(nodeType);
+	
+		// Call its destructor
+		factory1.destruct(this, address);
+	
+		// Free up its memory
+		getDB().free(address);
 	}
 }

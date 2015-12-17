@@ -163,7 +163,7 @@ public class FieldOneToMany<T extends PDOMNode> implements IDestructableField, I
 			this.forwardPointer.clearedByBackPointer(pdom, target);
 
 			if (isOwner) {
-				PDOMNode.delete(pdom, target);
+				pdom.scheduleDeletion(target);
 			}
 		}
 

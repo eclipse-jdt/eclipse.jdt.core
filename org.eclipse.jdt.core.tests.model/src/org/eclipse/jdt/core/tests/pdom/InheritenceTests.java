@@ -176,6 +176,7 @@ public class InheritenceTests extends BaseTestCase {
 		assertTrue(this.allObjects.contains(this.subClass));
 		this.refA.setSubClassReference(this.subClass);
 		this.refA.setSubClassReference(null);
+		this.pdom.processDeletions();
 		assertFalse(this.allObjects.contains(this.subClass));
 	}
 
@@ -185,8 +186,10 @@ public class InheritenceTests extends BaseTestCase {
 		this.refB.setBaseClassReference(this.subClass);
 		assertTrue(this.allObjects.contains(this.subClass));
 		this.refA.setSubClassReference(null);
+		this.pdom.processDeletions();
 		assertTrue(this.allObjects.contains(this.subClass));
 		this.refB.setBaseClassReference(null);
+		this.pdom.processDeletions();
 		assertFalse(this.allObjects.contains(this.subClass));
 	}
 
@@ -194,20 +197,26 @@ public class InheritenceTests extends BaseTestCase {
 		// Test what happens when the base class reference is removed first.
 		this.refA.setSubClassReference(this.subClass);
 		this.refB.setBaseClassReference(this.subClass);
+		this.pdom.processDeletions();
 		assertTrue(this.allObjects.contains(this.subClass));
 		this.refB.setBaseClassReference(null);
+		this.pdom.processDeletions();
 		assertTrue(this.allObjects.contains(this.subClass));
 		this.refA.setSubClassReference(null);
+		this.pdom.processDeletions();
 		assertFalse(this.allObjects.contains(this.subClass));
 	}
 
 	public void testOwnedPointersDontCountTowardsRefCount() {
 		this.refA.setOwner(this.subClass);
+		this.pdom.processDeletions();
 		assertTrue(this.allObjects.contains(this.subClass));
 		this.refB.setBaseClassReference(this.subClass);
+		this.pdom.processDeletions();
 		assertTrue(this.allObjects.contains(this.subClass));
 		assertTrue(this.allObjects.contains(this.refA));
 		this.refB.setBaseClassReference(null);
+		this.pdom.processDeletions();
 		assertFalse(this.allObjects.contains(this.subClass));
 		assertFalse(this.allObjects.contains(this.refA));
 	}
@@ -216,8 +225,10 @@ public class InheritenceTests extends BaseTestCase {
 		this.refA.setBaseClassReference(this.subClass);
 		this.refB.setBaseClassReference(this.subClass);
 		this.refA.setBaseClassReference(null);
+		this.pdom.processDeletions();
 		assertTrue(this.allObjects.contains(this.subClass));
 		this.refB.setBaseClassReference(null);
+		this.pdom.processDeletions();
 		assertFalse(this.allObjects.contains(this.subClass));
 	}
 }

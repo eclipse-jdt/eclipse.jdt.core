@@ -6,6 +6,7 @@ import org.eclipse.jdt.internal.core.pdom.db.Database;
 
 /**
  * Represents a 1-to-0..1 relationship in a PDOM database.
+ * @since 3.12
  */
 public class FieldOneToOne<T extends PDOMNode> implements IField, IDestructableField {
 	private int offset;
@@ -71,7 +72,7 @@ public class FieldOneToOne<T extends PDOMNode> implements IField, IDestructableF
 		if (ptr != 0) {
 			// If we own our target, delete it
 			if (this.backPointer.pointsToOwner) {
-				PDOMNode.delete(pdom, ptr);
+				pdom.scheduleDeletion(ptr);
 			} else {
 				db.putRecPtr(ptr + this.backPointer.offset, 0);
 			}

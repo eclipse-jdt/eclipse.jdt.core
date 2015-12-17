@@ -75,27 +75,11 @@ public abstract class PDOMNode implements IInternalPDOMNode, IDestructable {
 		return (T)result;
 	}
 
-	public static void delete(PDOM pdom, long address) {
-		if (address == 0) {
-			return;
-		}
-		short nodeType = NODE_TYPE.get(pdom, address);
-
-		// Look up the type
-		ITypeFactory<? extends PDOMNode> factory1 = pdom.getTypeFactory(nodeType);
-
-		// Call its destructor
-		factory1.destruct(pdom, address);
-
-		// Free up its memory
-		pdom.getDB().free(address);
-	}
-
 	/**
 	 * Invokes the destructor on this node and frees up its memory
 	 */
 	public final void delete() {
-		delete(getPDOM(), this.address);
+		getPDOM().scheduleDeletion(this.address);
 	}
 
 	protected PDOMNode(PDOM pdom, long address) {

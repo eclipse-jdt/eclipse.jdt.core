@@ -131,7 +131,7 @@ public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, I
 				ITypeFactory<T> typeFactory = pdom.getTypeFactory(targetType);
 
 				if (typeFactory.isRefCounted() && !typeFactory.hasReferences(pdom, oldTargetAddress)) {
-					PDOMNode.delete(pdom, oldTargetAddress);
+					pdom.scheduleDeletion(oldTargetAddress);
 				}
 			}
 		}

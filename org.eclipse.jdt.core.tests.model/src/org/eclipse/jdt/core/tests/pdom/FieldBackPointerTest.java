@@ -221,6 +221,7 @@ public class FieldBackPointerTest extends BaseTestCase {
 		this.fc.setBp(this.ba);
 
 		this.fb.delete();
+		this.pdom.processDeletions();
 
 		assertBackPointers(this.ba, this.fa, this.fc);
 	}
@@ -231,6 +232,7 @@ public class FieldBackPointerTest extends BaseTestCase {
 		this.fc.setBp(this.ba);
 
 		this.ba.delete();
+		this.pdom.processDeletions();
 
 		assertEquals(null, this.fa.getBp());
 		assertEquals(null, this.fb.getBp());
@@ -256,6 +258,7 @@ public class FieldBackPointerTest extends BaseTestCase {
 		this.fc.setBp(this.ba);
 
 		this.bb.delete();
+		this.pdom.processDeletions();
 
 		assertBackPointers(this.ba, this.fc);
 	}
