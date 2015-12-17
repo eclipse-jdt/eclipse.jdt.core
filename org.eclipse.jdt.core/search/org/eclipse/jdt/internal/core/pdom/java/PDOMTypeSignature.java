@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.core.pdom.java;
 
 import org.eclipse.jdt.internal.core.pdom.PDOM;
 import org.eclipse.jdt.internal.core.pdom.PDOMNode;
-import org.eclipse.jdt.internal.core.pdom.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.pdom.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.pdom.field.StructDef;
 
@@ -45,8 +44,6 @@ public abstract class PDOMTypeSignature extends PDOMNode {
 	public static final FieldOneToMany<PDOMConstantEnum> USED_AS_ENUM_CONSTANT;
 	public static final FieldOneToMany<PDOMTypeArgument> USED_AS_TYPE_ARGUMENT;
 	public static final FieldOneToMany<PDOMTypeBound> USED_AS_TYPE_BOUND;
-	public static final FieldManyToOne<PDOMTypeSignature> DECLARING_TYPE;
-	public static final FieldOneToMany<PDOMTypeSignature> DECLARED_TYPES;
 
 	@SuppressWarnings("hiding")
 	public static StructDef<PDOMTypeSignature> type;
@@ -61,8 +58,6 @@ public abstract class PDOMTypeSignature extends PDOMNode {
 		USED_AS_ENUM_CONSTANT = FieldOneToMany.create(type, PDOMConstantEnum.ENUM_TYPE);
 		USED_AS_TYPE_ARGUMENT = FieldOneToMany.create(type, PDOMTypeArgument.TYPE_SIGNATURE);
 		USED_AS_TYPE_BOUND = FieldOneToMany.create(type, PDOMTypeBound.TYPE);
-		DECLARING_TYPE = FieldManyToOne.create(type, null);
-		DECLARED_TYPES = FieldOneToMany.create(type, DECLARING_TYPE);
 		type.useStandardRefCounting().done();
 	}
 
@@ -94,14 +89,6 @@ public abstract class PDOMTypeSignature extends PDOMNode {
 		}
 
 		return result;
-	}
-
-	public void setDeclaringType(PDOMTypeSignature enclosingType) {
-		DECLARING_TYPE.put(getPDOM(), this.address, enclosingType);
-	}
-
-	public PDOMTypeSignature getDeclaringType() {
-		return DECLARING_TYPE.get(getPDOM(), this.address);
 	}
 
 	/**

@@ -22,6 +22,8 @@ public class PDOMComplexTypeSignature extends PDOMTypeSignature {
 	public static final FieldManyToOne<PDOMTypeId> RAW_TYPE;
 	public static final FieldOneToMany<PDOMAnnotation> ANNOTATIONS;
 	public static final FieldOneToMany<PDOMTypeArgument> TYPE_ARGUMENTS;
+	public static final FieldManyToOne<PDOMComplexTypeSignature> DECLARING_TYPE;
+	public static final FieldOneToMany<PDOMComplexTypeSignature> DECLARED_TYPES;
 
 	@SuppressWarnings("hiding")
 	public static final StructDef<PDOMComplexTypeSignature> type;
@@ -32,6 +34,8 @@ public class PDOMComplexTypeSignature extends PDOMTypeSignature {
 		RAW_TYPE = FieldManyToOne.create(type, PDOMTypeId.USED_AS_COMPLEX_TYPE);
 		ANNOTATIONS = FieldOneToMany.create(type, PDOMAnnotation.PARENT_TYPE_SIGNATURE);
 		TYPE_ARGUMENTS = FieldOneToMany.create(type, PDOMTypeArgument.PARENT);
+		DECLARING_TYPE = FieldManyToOne.create(type, null);
+		DECLARED_TYPES = FieldOneToMany.create(type, DECLARING_TYPE);
 
 		type.useStandardRefCounting().done();
 	}
@@ -64,5 +68,21 @@ public class PDOMComplexTypeSignature extends PDOMTypeSignature {
 
 	public void setRawType(PDOMTypeId rawType) {
 		RAW_TYPE.put(getPDOM(), this.address, rawType);
+	}
+
+	public void setGenericDeclaringType(PDOMComplexTypeSignature enclosingType) {
+		DECLARING_TYPE.put(getPDOM(), this.address, enclosingType);
+	}
+
+	/**
+	 * Returns the declaring type (as reported by the type's generic signature).
+	 * Not to be confused with the declaring type as stored in the class file.
+	 * That is stored in {@link PDOMType#getDeclaringType}. Any class that is
+	 * nested inside another class with generic arguments will have one of
+	 * these. Classes nested inside non-generic classes won't have one of these,
+	 * and neither will non-nested classes.
+	 */
+	public PDOMComplexTypeSignature getGenericDeclaringType() {
+		return DECLARING_TYPE.get(getPDOM(), this.address);
 	}
 }

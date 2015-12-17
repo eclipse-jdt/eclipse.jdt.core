@@ -10,14 +10,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom.java;
 
-import java.util.List;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.internal.core.pdom.IPDOMVisitor;
 import org.eclipse.jdt.internal.core.pdom.PDOM;
 import org.eclipse.jdt.internal.core.pdom.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.pdom.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.pdom.field.StructDef;
+
+import java.util.List;
 
 /**
  * @since 3.12
@@ -40,7 +40,7 @@ public class PDOMType extends PDOMBinding {
 //	public static final FieldManyToOne<PDOMTypeSignature> TYPE_DECLARATION;
 //	public static final FieldOneToMany<PDOMTypeParameter> TYPE_PARAMETERS;
 //	public static final FieldManyToOne<PDOMTypeSignature> WILDCARD;
-//	public static final FieldManyToOne<PDOMTypeId> DECLARING_TYPE;
+	public static final FieldManyToOne<PDOMTypeId> DECLARING_TYPE;
 	public static final FieldManyToOne<PDOMMethodId> DECLARING_METHOD;
 	public static final FieldOneToMany<PDOMTypeParameter> TYPE_PARAMETERS;
 //	public static final FieldLong TYPE_FLAGS;
@@ -51,7 +51,7 @@ public class PDOMType extends PDOMBinding {
 	static {
 		type = StructDef.create(PDOMType.class, PDOMBinding.type);
 		TYPENAME = FieldManyToOne.create(type, PDOMTypeId.TYPES);
-//		DECLARING_TYPE = FieldManyToOne.create(type, PDOMTypeId.DECLARED_TYPES);
+		DECLARING_TYPE = FieldManyToOne.create(type, PDOMTypeId.DECLARED_TYPES);
 //		BOUND = FieldManyToOne.create(type, PDOMTypeSignature.class, PDOMTypeSignature.USED_AS_BOUND);
 //		GENERIC_TYPE_OF_WILDCARD_TYPE = FieldManyToOne.create(type, PDOMTypeSignature.class, PDOMTypeSignature.USED_AS_GENERIC_TYPE_OF_WILDCARD_TYPE);
 //		RANK = type.addInt();
@@ -149,5 +149,16 @@ public class PDOMType extends PDOMBinding {
 
 	public void setDeclaringMethod(PDOMMethodId createMethodId) {
 		DECLARING_METHOD.put(getPDOM(), this.address, createMethodId);
+	}
+
+	/**
+	 * @param createTypeIdFromBinaryName
+	 */
+	public void setDeclaringType(PDOMTypeId createTypeIdFromBinaryName) {
+		DECLARING_TYPE.put(getPDOM(), this.address, createTypeIdFromBinaryName);
+	}
+
+	public PDOMTypeId getDeclaringType() {
+		return DECLARING_TYPE.get(getPDOM(), this.address);
 	}
 }

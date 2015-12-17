@@ -30,9 +30,9 @@ import org.eclipse.jdt.internal.core.pdom.field.StructDef;
  */
 public class JavaIndex {
 	// Version constants
-	static final int CURRENT_VERSION = PDOM.version(1, 8);
+	static final int CURRENT_VERSION = PDOM.version(1, 9);
 	static final int MAX_SUPPORTED_VERSION= PDOM.version(1, Short.MAX_VALUE);
-	static final int MIN_SUPPORTED_VERSION= PDOM.version(1, 8);
+	static final int MIN_SUPPORTED_VERSION= PDOM.version(1, 9);
 
 	// Fields for the search header
 	public static final FieldSearchIndex<PDOMResourceFile> FILES;
@@ -99,7 +99,7 @@ public class JavaIndex {
 	public PDOMTypeId createTypeId(char[] fieldDescriptor) {
 		return createTypeId(new String(fieldDescriptor));
 	}
-	
+
 	/**
 	 * Returns a type ID or creates a new one if it does not exist. The caller must
 	 * attach a reference to it after calling this method or it may leak.
@@ -111,15 +111,7 @@ public class JavaIndex {
 			return existingType;
 		}
 
-		int positionOfSeparator = fieldDescriptor.lastIndexOf('$');
-
-		PDOMTypeId result = new PDOMTypeId(this.pdom, fieldDescriptor);
-
-		if (positionOfSeparator != -1) {
-			result.setDeclaringType(createTypeId(fieldDescriptor.substring(0, positionOfSeparator)));
-		}
-
-		return result;
+		return new PDOMTypeId(this.pdom, fieldDescriptor);
 	}
 
 	public PDOM getPDOM() {

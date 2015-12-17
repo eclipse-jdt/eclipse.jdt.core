@@ -45,8 +45,6 @@ import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeSignature;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMVariable;
 import org.eclipse.jdt.internal.core.util.Util;
 
-import java.util.Objects;
-
 public class ClassFileToIndexConverter {
 	private static final boolean ENABLE_LOGGING = false;
 	private static final char[][] EMPTY_CHAR_ARRAY_ARRAY = new char[0][];
@@ -161,18 +159,7 @@ public class ClassFileToIndexConverter {
 		}
 
 		type.setModifiers(binaryType.getModifiers());
- 
-		char[] enclosingTypeName = binaryType.getEnclosingTypeName();
-		// TODO(sxenos): There are some classes for which enclosingTypeName is null but which have classnames that
-		// resemble inner classes (ie: the classnames contain a '$'). Figure out what this means.
-//		assertThat((enclosingTypeName == null) == (name.getDeclaringType() == null), 
-//				"Declaring type should be null if and only if there is no enclosing type"); //$NON-NLS-1$
-		if (enclosingTypeName != null) {
-			String realEnclosingFieldDescriptor = JavaNames.binaryNameToFieldDescriptor(new String(enclosingTypeName));
-			String indexedFieldDescriptor = name.getDeclaringType().getRawType().getFieldDescriptor().getString();
-			assertThat(Objects.equals(realEnclosingFieldDescriptor, indexedFieldDescriptor),
-				"Incorrect field descriptor for declaring type"); //$NON-NLS-1$
-		}
+		type.setDeclaringType(createTypeIdFromBinaryName(binaryType.getEnclosingTypeName()));
 
 		SignatureWrapper signatureWrapper = new SignatureWrapper(genericSignature);
 		readTypeParameters(type, typeAnnotations, signatureWrapper);
@@ -350,7 +337,7 @@ public class ClassFileToIndexConverter {
 	 * @return
 	 * @throws CoreException
 	 */
-	private PDOMTypeSignature parseClassTypeSignature(PDOMTypeSignature parentTypeOrNull,
+	private PDOMTypeSignature parseClassTypeSignature(PDOMComplexTypeSignature parentTypeOrNull,
 			ITypeAnnotationWalker annotations, SignatureWrapper wrapper) throws CoreException {
 		char[] identifier = wrapper.nextName();
 		char[] fieldDescriptor;
@@ -365,6 +352,7 @@ public class ClassFileToIndexConverter {
 
 		char[] genericSignature = wrapper.signature;
 		boolean hasGenericArguments = (genericSignature.length > wrapper.start) && genericSignature[wrapper.start] == '<';
+		boolean isRawTypeWithNestedClass = genericSignature[wrapper.start] == '.';
 		PDOMTypeId rawType = createTypeIdFromFieldDescriptor(fieldDescriptor);
 		PDOMTypeSignature result = rawType;
 
@@ -372,8 +360,7 @@ public class ClassFileToIndexConverter {
 		// are not an inner type of a class that can't use this optimization. Basically, if there would be no attributes
 		// set on a PDOMComplexTypeSignature besides what it picks up from its raw type, we just use the raw type.
 		IBinaryAnnotation[] annotationList = annotations.getAnnotationsAtCursor(0);
-		if (annotationList.length != 0 || hasGenericArguments
-				|| !Objects.equals(parentTypeOrNull, rawType.getDeclaringType())) {
+		if (annotationList.length != 0 || hasGenericArguments || parentTypeOrNull != null || isRawTypeWithNestedClass) {
 			PDOMComplexTypeSignature typeSignature = new PDOMComplexTypeSignature(getPDOM());
 			typeSignature.setRawType(rawType);
 			attachAnnotations(typeSignature, annotations);
@@ -414,31 +401,16 @@ public class ClassFileToIndexConverter {
 			result = typeSignature;
 
 			if (parentTypeOrNull != null) {
-				result.setDeclaringType(parentTypeOrNull);
+				typeSignature.setGenericDeclaringType(parentTypeOrNull);
 			}
-		}
 
-		if (wrapper.start >= genericSignature.length) {
-			throw new IndexException("Read beyond end of the type signature!"); //$NON-NLS-1$
-		}
-
-		switch (genericSignature[wrapper.start]) {
-			case ';': 
-				wrapper.start++; 
-				break;
-			case '.':
-				PDOMTypeSignature nestedType = parseClassTypeSignature(result, annotations.toNextNestedType(), wrapper);
-				
-				PDOMTypeSignature detectedNestedType = nestedType.getDeclaringType();
-				
-				// Perform a sanity-test
-				assertThat(Objects.equals(detectedNestedType, result),
-						"Incorrect declaring type for nested type");
-				assertThat(Objects.equals(nestedType.getDeclaringType().getRawType(), result.getRawType()),
-						"Incorrect declaring type for nested raw type");
-
-				result = nestedType;
-				break;
+			if (genericSignature[wrapper.start] == '.') {
+				result = parseClassTypeSignature(typeSignature, annotations.toNextNestedType(), wrapper);
+			}
+		} else {
+			if (genericSignature[wrapper.start] == ';') {
+				wrapper.start++;
+			}
 		}
 
 		return result;

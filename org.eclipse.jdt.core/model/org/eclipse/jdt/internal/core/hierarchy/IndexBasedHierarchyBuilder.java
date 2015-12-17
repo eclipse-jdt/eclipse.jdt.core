@@ -515,7 +515,7 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 					.split(1)
 					.setWorkRemaining(3);
 
-			boolean isLocalClass = nextType.getTypeId().getDeclaringType() != null;
+			boolean isLocalClass = nextType.getDeclaringType() != null;
 			pathRequestor.acceptPath(typePath, isLocalClass);
 
 			HierarchyBinaryType binaryType = (HierarchyBinaryType)binariesFromIndexMatches2.get(typePath);
@@ -538,7 +538,7 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 
 private static HierarchyBinaryType createBinaryTypeFrom(PDOMType type) {
 	char[] enclosingTypeName = null;
-	PDOMTypeSignature enclosingType = type.getTypeId().getDeclaringType();
+	PDOMTypeSignature enclosingType = type.getDeclaringType();
 	if (enclosingType != null) {
 		enclosingTypeName = enclosingType.getRawType().getSimpleName().getChars();
 	}

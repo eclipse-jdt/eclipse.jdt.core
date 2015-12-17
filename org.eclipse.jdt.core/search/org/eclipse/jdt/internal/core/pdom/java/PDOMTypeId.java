@@ -17,6 +17,7 @@ public class PDOMTypeId extends PDOMTypeSignature {
 	public static final FieldSearchKey<JavaIndex> SIMPLE_NAME;
 	public static final FieldOneToMany<PDOMType> TYPES;
 	public static final FieldOneToMany<PDOMComplexTypeSignature> USED_AS_COMPLEX_TYPE;
+	public static final FieldOneToMany<PDOMType> DECLARED_TYPES;
 
 	@SuppressWarnings("hiding")
 	public static final StructDef<PDOMTypeId> type;
@@ -29,6 +30,7 @@ public class PDOMTypeId extends PDOMTypeSignature {
 		SIMPLE_NAME = FieldSearchKey.create(type, JavaIndex.SIMPLE_INDEX);
 		TYPES = FieldOneToMany.create(type, PDOMType.TYPENAME, 2);
 		USED_AS_COMPLEX_TYPE = FieldOneToMany.create(type, PDOMComplexTypeSignature.RAW_TYPE);
+		DECLARED_TYPES = FieldOneToMany.create(type, PDOMType.DECLARING_TYPE);
 		type.useStandardRefCounting().done();
 	}
 
