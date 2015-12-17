@@ -489,19 +489,20 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 	JavaIndex index = JavaPDOM.getIndex();
 	PDOM pdom = index.getPDOM();
 	String fieldDefinition = JavaNames.fullyQualifiedNameToFieldDescriptor(type.getFullyQualifiedName());
-	PDOMTypeId foundType = index.findType(fieldDefinition);
-
-	if (foundType == null) {
-		return;
-	}
-
-	ArrayDeque<PDOMType> typesToVisit = new ArrayDeque<>();
-	Set<PDOMType> discoveredTypes = new HashSet<>();
-	typesToVisit.addAll(foundType.getTypes());
-	discoveredTypes.addAll(typesToVisit);
-
 	pdom.acquireReadLock();
+
 	try {
+		PDOMTypeId foundType = index.findType(fieldDefinition);
+
+		if (foundType == null) {
+			return;
+		}
+
+		ArrayDeque<PDOMType> typesToVisit = new ArrayDeque<>();
+		Set<PDOMType> discoveredTypes = new HashSet<>();
+		typesToVisit.addAll(foundType.getTypes());
+		discoveredTypes.addAll(typesToVisit);
+
 		while (!typesToVisit.isEmpty()) {
 			PDOMType nextType = typesToVisit.removeFirst();
 

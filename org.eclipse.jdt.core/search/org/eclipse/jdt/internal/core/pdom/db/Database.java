@@ -266,6 +266,9 @@ public class Database {
 	 * @throws IndexException
 	 */
 	public Chunk getChunk(long offset) throws IndexException {
+		if (!this.fLocked) {
+			throw new IllegalStateException("Database not locked!");
+		}
 		if (offset < CHUNK_SIZE) {
 			return fHeaderChunk;
 		}
