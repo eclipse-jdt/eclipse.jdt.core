@@ -318,10 +318,10 @@ public class ClassFileToIndexConverter {
 			case '-':
 			case '*':
 				throw new CoreException(Package.createStatus("Unexpected wildcard in top-level of generic signature: " //$NON-NLS-1$
-						+ genericSignature.toString()));
+						+ wrapper.toString()));
 			default:
-				throw new CoreException(Package.createStatus("Generic signature starts with unknow character: " //$NON-NLS-1$
-						+ genericSignature.toString()));
+				throw new CoreException(Package.createStatus("Generic signature starts with unknown character: " //$NON-NLS-1$
+						+ wrapper.toString()));
 		}
 	}
 
@@ -356,6 +356,7 @@ public class ClassFileToIndexConverter {
 		PDOMTypeId rawType = createTypeIdFromFieldDescriptor(fieldDescriptor);
 		PDOMTypeSignature result = rawType;
 
+		boolean checkForSemicolon = true;
 		// Special optimization for signatures with no type annotations, no arrays, and no generic arguments that
 		// are not an inner type of a class that can't use this optimization. Basically, if there would be no attributes
 		// set on a PDOMComplexTypeSignature besides what it picks up from its raw type, we just use the raw type.
@@ -405,12 +406,15 @@ public class ClassFileToIndexConverter {
 			}
 
 			if (genericSignature[wrapper.start] == '.') {
+				// Don't check for a semicolon if we hit this branch since the recursive call to parseClassTypeSignature
+				// will do this
+				checkForSemicolon = false;
 				result = parseClassTypeSignature(typeSignature, annotations.toNextNestedType(), wrapper);
 			}
-		} else {
-			if (genericSignature[wrapper.start] == ';') {
-				wrapper.start++;
-			}
+		}
+
+		if (checkForSemicolon && wrapper.start < genericSignature.length && genericSignature[wrapper.start] == ';') {
+			wrapper.start++;
 		}
 
 		return result;
