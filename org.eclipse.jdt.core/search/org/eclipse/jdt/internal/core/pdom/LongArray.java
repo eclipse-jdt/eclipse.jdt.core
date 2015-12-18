@@ -39,6 +39,7 @@ public class LongArray {
 		long[] newContents = new long[newSize];
 
 		System.arraycopy(this.contents, 0, newContents, 0, this.contents.length);
+		this.contents = newContents;
 	}
 
 	int size() {
