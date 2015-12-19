@@ -5598,10 +5598,10 @@ public void testBug473657() {
 		});
 }
 public void testBug478848() {
-	runNegativeTest(
+	runConformTest(
 		new String[] {
 			"InferenceBug.java",
-			"import java.util.Optional;\n" + 
+			"import java.util.*;\n" + 
 			"public class InferenceBug {\n" + 
 			"    \n" + 
 			"    static class Wrapper<T> {\n" + 
@@ -5620,19 +5620,18 @@ public void testBug478848() {
 			"    \n" + 
 			"    public static void main(String[] args) {\n" + 
 			"        C1 c1 = new C1();\n" + 
-			"        for (Wrapper<String> attribute: c1.optionalArrayOfStringWrappers().get()) {\n" + 
-			"            // error in previous line:\n" + 
-			"            // Can only iterate over an array or an instance of java.lang.Iterable\n" + 
+			"        try {\n" + 
+			"            for (Wrapper<String> attribute: c1.optionalArrayOfStringWrappers().get()) {\n" + 
+			"                // error in previous line:\n" + 
+			"                // Can only iterate over an array or an instance of java.lang.Iterable\n" +
+			"            }\n" + 
+			"        } catch (NoSuchElementException nsee) {\n" +
+			"            System.out.print(\"No such element\");\n" +
 			"        }\n" + 
 			"    }\n" + 
 			"}\n"
 		},
-		"----------\n" + 
-		"1. ERROR in InferenceBug.java (at line 20)\n" + 
-		"	for (Wrapper<String> attribute: c1.optionalArrayOfStringWrappers().get()) {\n" + 
-		"	                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Can only iterate over an array or an instance of java.lang.Iterable\n" + 
-		"----------\n");
+		"No such element");
 }
 public void testBug479167() {
 	runConformTest(
