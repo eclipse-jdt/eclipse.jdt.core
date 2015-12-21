@@ -337,7 +337,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		int pc = codeStream.position;
 
 		if ((this.constant != Constant.NotAConstant) && (this.constant.typeID() == T_boolean) // constant
-			|| ((this.valueIfTrue.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_boolean) { // non boolean values
+			|| ((this.valueIfTrue.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_boolean
+			|| ((this.valueIfFalse.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_boolean) { // non boolean values
 			super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 			return;
 		}

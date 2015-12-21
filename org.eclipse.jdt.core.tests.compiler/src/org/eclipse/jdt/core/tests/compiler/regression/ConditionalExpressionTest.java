@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 IBM Corporation and others.
+ * Copyright (c) 2005, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -581,5 +581,24 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 						"interface Z {}\n",
 				},
 				"");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=484425: [bytecode] Bad type on operand stack - compiler omitted instructions for unboxing null Boolean
+	public void test484425() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_5)
+			return;
+		this.runConformTest(
+				new String[] {
+						"Main.java",
+						"public class Main {\n" + 
+						"	public static void main(String[] args) {\n" + 
+						"		try {\n" + 
+						"			if ((false) ? true: null);\n" + 
+						"		} catch(NullPointerException npe) {\n" + 
+						"			System.out.println(\"Success\");\n" + 
+						"		}\n" + 
+						"	}\n" + 
+						"}\n"
+				},
+				"Success");
 	}
 }
