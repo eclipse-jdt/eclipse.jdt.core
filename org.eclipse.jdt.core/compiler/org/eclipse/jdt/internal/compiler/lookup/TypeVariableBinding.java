@@ -98,7 +98,12 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.rank = prototype.rank;
 		this.firstBound = prototype.firstBound;
 		this.superclass = prototype.superclass;
-		this.superInterfaces = prototype.superInterfaces;
+		this.superInterfaces = Binding.NO_SUPERINTERFACES;
+		if (prototype.superInterfaces != null) {
+			int len = prototype.superInterfaces.length;
+			if (len > 0)
+				System.arraycopy(prototype.superInterfaces, 0, this.superInterfaces = new ReferenceBinding[len], 0, len);
+		}
 		this.genericTypeSignature = prototype.genericTypeSignature;
 		this.environment = prototype.environment;
 		prototype.tagBits |= TagBits.HasAnnotatedVariants;

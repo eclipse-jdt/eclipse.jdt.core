@@ -8977,4 +8977,51 @@ public void test484055() {
 		null,
 		"");
 }
+public void testBug484108() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"\n" + 
+			"public interface Test <T0 extends Other> {\n" + 
+			"    public void a ( @NonNull T0 test );\n" + 
+			"}\n",
+			"test/Other.java",
+			"package test;\n" + 
+			"\n" + 
+			"public interface Other { }\n"
+		},
+		getCompilerOptions(),
+		"");
+	runConformTestWithLibs(
+		new String[] {
+			"test/TestImpl.java",
+			"package test;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import java.lang.reflect.*;\n" + 
+			"\n" + 
+			"public class TestImpl <T extends Other> implements Test<T> {\n" + 
+			"\n" + 
+			"    /**\n" + 
+			"     * {@inheritDoc}\n" + 
+			"     *\n" + 
+			"     * @see test.Test#a(java.lang.Object)\n" + 
+			"     */\n" + 
+			"    @Override\n" + 
+			"    public void a ( @NonNull T test ) {\n" + 
+			"    }\n" +
+			"	public static void main(String... args) {\n" +
+			"		Class<?> c = TestImpl.class;\n" +
+			"		Method[] ms = c.getDeclaredMethods();\n" +
+			"		System.out.println(ms.length);\n" +
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"",
+		"2");
+}
 }
