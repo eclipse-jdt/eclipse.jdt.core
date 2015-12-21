@@ -8307,4 +8307,74 @@ public void test483952 () {
 		"Function is a raw type. References to generic type Function<T,R> should be parameterized\n" + 
 		"----------\n");
 }
+public void testBug484108() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"\n" + 
+			"public interface Test <T0 extends Other> {\n" + 
+			"    public void a ( @NonNull T0 test );\n" + 
+			"}\n",
+			"test/Other.java",
+			"package test;\n" + 
+			"\n" + 
+			"public interface Other { }\n"
+		},
+		getCompilerOptions(),
+		"");
+	runConformTestWithLibs(
+		new String[] {
+			"test/TestImpl.java",
+			"package test;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import java.lang.reflect.*;\n" + 
+			"\n" + 
+			"public class TestImpl <T extends Other> implements Test<T> {\n" + 
+			"\n" + 
+			"    /**\n" + 
+			"     * {@inheritDoc}\n" + 
+			"     *\n" + 
+			"     * @see test.Test#a(java.lang.Object)\n" + 
+			"     */\n" + 
+			"    @Override\n" + 
+			"    public void a ( @NonNull T test ) {\n" + 
+			"    }\n" +
+			"	public static void main(String... args) {\n" +
+			"		Class<?> c = TestImpl.class;\n" +
+			"		Method[] ms = c.getDeclaredMethods();\n" +
+			"		System.out.println(ms.length);\n" +
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"",
+		"2");
+}
+public void testBug485056() {
+	runConformTestWithLibs(
+		new String[] {
+			"TestExplainedValue.java",
+			"import java.io.Serializable;\n" +
+		
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+		
+			"class ExplainedValue<T extends Serializable> {\n" +
+			"	public @Nullable T featureValue;\n" +
+			"}\n" +
+		
+			"public class TestExplainedValue {\n" +
+			"	static @Nullable Serializable g(ExplainedValue<? extends @NonNull Serializable> explainedValue) {\n" +
+			"		return explainedValue.featureValue;\n" +
+			"	}\n" +
+			"}"
+		}, 
+		getCompilerOptions(), 
+		""
+	);				
+}
 }
