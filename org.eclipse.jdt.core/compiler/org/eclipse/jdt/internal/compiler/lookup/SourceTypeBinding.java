@@ -776,11 +776,11 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 	if (accessors == null) {
 		accessMethod = new SyntheticMethodBinding(inheritedMethodToBridge, this);
 		this.synthetics[SourceTypeBinding.METHOD_EMUL].put(inheritedMethodToBridge, accessors = new SyntheticMethodBinding[2]);
-		accessors[0] = accessMethod;
+		accessors[1] = accessMethod;
 	} else {
-		if ((accessMethod = accessors[0]) == null) {
+		if ((accessMethod = accessors[1]) == null) {
 			accessMethod = new SyntheticMethodBinding(inheritedMethodToBridge, this);
-			accessors[0] = accessMethod;
+			accessors[1] = accessMethod;
 		}
 	}
 	return accessMethod;
