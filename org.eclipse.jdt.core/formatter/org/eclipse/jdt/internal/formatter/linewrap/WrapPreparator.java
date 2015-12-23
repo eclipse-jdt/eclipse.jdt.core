@@ -692,7 +692,7 @@ public class WrapPreparator extends ASTVisitor {
 		for (int i = from; i <= to; i++) {
 			Token token = this.tm.get(i);
 			if ((token.getLineBreaksBefore() > 0 || (previous != null && previous.getLineBreaksAfter() > 0))
-					&& token.getWrapPolicy() == null) {
+					&& (token.getWrapPolicy() == null || token.getWrapPolicy().wrapMode == WrapMode.FORCED)) {
 				int extraIndent = token.getIndent() + indentChange;
 				token.setWrapPolicy(new WrapPolicy(WrapMode.FORCED, parentIndex, extraIndent));
 				token.setIndent(parentIndent + extraIndent);
