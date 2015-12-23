@@ -79,10 +79,10 @@ public class CommentsPreparator extends ASTVisitor {
 	// TODO (frederic) should have another name than 'param' for the following tags
 	// TODO (frederic) investigate how and why this list was created
 	private final static List<String> PARAM_TAGS = Arrays.asList(
-			"@param", //$NON-NLS-1$
-			"@exception", //$NON-NLS-1$
-			"@serialField", //$NON-NLS-1$
-			"@throws"); //$NON-NLS-1$
+			TagElement.TAG_PARAM,
+			TagElement.TAG_EXCEPTION,
+			TagElement.TAG_SERIALFIELD,
+			TagElement.TAG_THROWS);
 
 	private final static List<String> IMMUTABLE_TAGS = Arrays.asList("@code", "@literal"); //$NON-NLS-1$ //$NON-NLS-2$
 
@@ -652,6 +652,11 @@ public class CommentsPreparator extends ASTVisitor {
 				handleFormatCodeTag(startPos, endPos, isOpeningTag);
 			}
 			if (this.options.comment_format_html) {
+				if (TagElement.TAG_PARAM.equals(node.getTagName())
+						&& this.ctm.findIndex(startPos, -1, false) == 1 + this.ctm.firstIndexIn(node, -1)) {
+					continue; // it's a generic class parameter name, not an HTML tag
+				}
+
 				if (matcher.start(3) < matcher.end(3)) {
 					handleSeparateLineTag(startPos, endPos);
 				} else if (matcher.start(4) < matcher.end(4)) {
