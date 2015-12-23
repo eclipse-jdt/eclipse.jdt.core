@@ -7306,4 +7306,19 @@ public void testBug479292b() {
 		"package test;"
 	);
 }
+/**
+ * https://bugs.eclipse.org/121728 - [formatter] Code formatter thinks <P> generic class parameter is a HTML <p> tag
+ */
+public void testBug121728() {
+	this.formatterPrefs.comment_insert_new_line_for_parameter = false;
+	String source = 
+			"/**\n" + 
+			" * Test Class\n" + 
+			" *\n" + 
+			" * @param <P> Some generic class parameter\n" + 
+			" */\n" + 
+			"public class Test<P> {\n" + 
+			"}";
+	formatSource(source);
+}
 }
