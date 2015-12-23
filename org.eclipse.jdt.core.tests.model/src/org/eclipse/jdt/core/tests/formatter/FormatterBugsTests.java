@@ -11958,4 +11958,29 @@ public void testBug475791b() {
 		"}"
 	);
 }
+/**
+ * https://bugs.eclipse.org/477430 - [formatter] wrong indentation when nesting anonymous classes
+ */
+public void testBug477430() {
+	this.formatterPrefs.alignment_for_arguments_in_method_invocation = 
+		DefaultCodeFormatterOptions.Alignment.M_ONE_PER_LINE_SPLIT
+		+ DefaultCodeFormatterOptions.Alignment.M_FORCE;
+	String source =
+		"public class Example {\r\n" + 
+		"	void foo() {\r\n" + 
+		"		Object o = new AbstractRegistryConfiguration() {\r\n" + 
+		"			public void configureRegistry() {\r\n" + 
+		"				registerConfigAttribute(\r\n" + 
+		"						new IExportFormatter() {\r\n" + 
+		"							public Object formatForExport() {\r\n" + 
+		"								return null;\r\n" + 
+		"							}\r\n" + 
+		"						},\r\n" + 
+		"						null);\r\n" + 
+		"			}\r\n" + 
+		"		};\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
