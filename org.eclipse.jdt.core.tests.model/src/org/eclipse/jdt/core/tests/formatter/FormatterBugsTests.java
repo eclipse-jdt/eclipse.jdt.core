@@ -11983,4 +11983,20 @@ public void testBug477430() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/480074 - [formatter] Wrong indentation on column for enum constants with javadoc
+ */
+public void testBug480074() {
+	this.formatterPrefs.alignment_for_enum_constants = Alignment.M_NEXT_PER_LINE_SPLIT + Alignment.M_INDENT_ON_COLUMN;
+	String source =
+		"public class Example {\n" + 
+		"	private enum Something {\n" + 
+		"							/** hello */\n" + 
+		"							AAA,\n" + 
+		"							/** hello */\n" + 
+		"							BBB\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
+}
 }
