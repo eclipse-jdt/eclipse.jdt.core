@@ -7410,4 +7410,33 @@ public void testBug480029() {
 		"}\n"
 	);
 }
+/**
+ * https://bugs.eclipse.org/480030 - [formatter] Comments indentation error in switch statements
+ */
+public void testBug480030() {
+	String source = 
+		"public class SwitchCommentIssue {\n" + 
+		"	public void switchIssue(int a) {\n" + 
+		"		while (a > 0) {\n" + 
+		"			switch (a) {\n" + 
+		"			// Test\n" + 
+		"			case 1:\n" + 
+		"				break;\n" + 
+		"			// Test\n" + 
+		"			case 2:\n" + 
+		"				continue;\n" + 
+		"			// Test\n" + 
+		"			case 3:\n" + 
+		"				return;\n" + 
+		"			// Test\n" + 
+		"			case 4: {\n" + 
+		"				return;\n" + 
+		"			}\n" + 
+		"			// test\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source);
+}
 }
