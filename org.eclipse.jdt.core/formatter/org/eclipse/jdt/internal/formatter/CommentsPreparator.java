@@ -35,6 +35,7 @@ import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.LineComment;
 import org.eclipse.jdt.core.dom.MemberRef;
 import org.eclipse.jdt.core.dom.MethodRef;
+import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
@@ -81,7 +82,7 @@ public class CommentsPreparator extends ASTVisitor {
 			TagElement.TAG_SERIALFIELD,
 			TagElement.TAG_THROWS);
 
-	private final static List<String> IMMUTABLE_TAGS = Arrays.asList("@code", "@literal"); //$NON-NLS-1$ //$NON-NLS-2$
+	private final static List<String> IMMUTABLE_TAGS = Arrays.asList(TagElement.TAG_CODE, TagElement.TAG_LITERAL);
 
 	private final TokenManager tm;
 	private final DefaultCodeFormatterOptions options;
@@ -687,6 +688,12 @@ public class CommentsPreparator extends ASTVisitor {
 	public boolean visit(MemberRef node) {
 		handleReference(node);
 		return true;
+	}
+
+	@Override
+	public boolean visit(QualifiedName node) {
+		handleReference(node);
+		return false;
 	}
 
 	private void handleReference(ASTNode node) {
