@@ -7370,4 +7370,36 @@ public void testBug121728() {
 			"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/479469 - [formatter] Line wrap for long @see references
+ */
+public void testBug479469() {
+	String source = 
+		"/**\n" + 
+		" * Test Class\n" + 
+		" * @see a.very.loong.reference.with.a.fully.qualified.paackage.that.should.not.be.wrapped.Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n" + 
+		" *\n" + 
+		" * @see a.very.loong.reference.with.a.fully.qualified.paackage.that.should.not.be.wrapped.Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa Label can be wrapped\n" + 
+		" *\n" + 
+		" * @see <a href=\"a.very.loong.reference.with.a.fully.qualified.paackage.that.should.not.be.wrapped.Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\">Label can be wrapped</a>\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"}";
+	formatSource(source,
+		"/**\n" + 
+		" * Test Class\n" + 
+		" * \n" + 
+		" * @see a.very.loong.reference.with.a.fully.qualified.paackage.that.should.not.be.wrapped.Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n" + 
+		" *\n" + 
+		" * @see a.very.loong.reference.with.a.fully.qualified.paackage.that.should.not.be.wrapped.Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n" + 
+		" *      Label can be wrapped\n" + 
+		" *\n" + 
+		" * @see <a href=\n" + 
+		" *      \"a.very.loong.reference.with.a.fully.qualified.paackage.that.should.not.be.wrapped.Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\">\n" + 
+		" *      Label can be wrapped</a>\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"}"
+	);
+}
 }
