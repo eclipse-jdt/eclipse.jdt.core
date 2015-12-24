@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.BreakStatement;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ContinueStatement;
 import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EmptyStatement;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
@@ -315,8 +316,9 @@ public class LineBreaksPreparator extends ASTVisitor {
 				} else if (!(statement instanceof BreakStatement || statement instanceof Block)) {
 					indent(statement);
 				}
-				nonBreakStatementEnd = (statement instanceof BreakStatement || statement instanceof ReturnStatement)
-						? -1 : this.tm.lastIndexIn(statement, -1);
+				boolean isBreaking = statement instanceof BreakStatement || statement instanceof ReturnStatement
+						|| statement instanceof ContinueStatement || statement instanceof Block;
+				nonBreakStatementEnd = isBreaking ? -1 : this.tm.lastIndexIn(statement, -1);
 			}
 			if (nonBreakStatementEnd >= 0) {
 				// indent comments between last statement and closing brace 
