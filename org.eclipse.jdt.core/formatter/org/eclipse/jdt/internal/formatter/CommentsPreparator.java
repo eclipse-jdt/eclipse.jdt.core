@@ -741,12 +741,12 @@ public class CommentsPreparator extends ASTVisitor {
 		int firstPartIndex = tokenStartingAt(start);
 		int lastPartIndex = tokenEndingAt(end);
 		Token firstPartToken = this.ctm.get(firstPartIndex);
+		firstPartToken.setWrapPolicy(null);
 		if (isOpeningTag) {
 			firstPartToken.breakBefore();
 			this.ctm.get(lastPartIndex + 1).clearSpaceBefore();
 		} else {
 			firstPartToken.clearSpaceBefore();
-			firstPartToken.setWrapPolicy(null);
 		}
 	}
 

@@ -7402,4 +7402,28 @@ public void testBug479469() {
 		"}"
 	);
 }
+/**
+ * https://bugs.eclipse.org/480029 - [formatter] Comments indentation error in javadoc @return statements
+ */
+public void testBug480029() {
+	String source = 
+		"public class JavadocCommentIssue\n" + 
+		"{\n" + 
+		"	/** @return <ul><li>Case 1</b></li></ul> */\n" + 
+		"	public int foo() {return 0;}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class JavadocCommentIssue {\n" + 
+		"	/**\n" + 
+		"	 * @return\n" + 
+		"	 *         <ul>\n" + 
+		"	 *         <li>Case 1</b></li>\n" + 
+		"	 *         </ul>\n" + 
+		"	 */\n" + 
+		"	public int foo() {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
 }
