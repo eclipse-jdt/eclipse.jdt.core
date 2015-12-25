@@ -127,6 +127,8 @@ public class SpacePreparator extends ASTVisitor {
 	public boolean visit(EnumDeclaration node) {
 		handleToken(node.getName(), TokenNameLBRACE,
 				this.options.insert_space_before_opening_brace_in_enum_declaration, false);
+		handleCommas(node.superInterfaceTypes(), this.options.insert_space_before_comma_in_superinterfaces,
+				this.options.insert_space_after_comma_in_superinterfaces);
 		handleCommas(node.enumConstants(), this.options.insert_space_before_comma_in_enum_declarations,
 				this.options.insert_space_after_comma_in_enum_declarations);
 		return true;

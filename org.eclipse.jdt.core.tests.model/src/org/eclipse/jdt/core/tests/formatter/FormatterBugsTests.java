@@ -12102,4 +12102,13 @@ public void testBug480086() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/480735 - [formatter] whitespace after comma in enum declaration is removed
+ */
+public void testBug480735() {
+	String source =
+		"public enum Example implements Serializable, Cloneable {\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
