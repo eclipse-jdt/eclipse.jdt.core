@@ -12090,4 +12090,16 @@ public void testBug479959() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/480086 - [formatter] unwanted spaces in generic diamond
+ */
+public void testBug480086() {
+	this.formatterPrefs.insert_space_after_opening_angle_bracket_in_parameterized_type_reference = true;
+	this.formatterPrefs.insert_space_before_closing_angle_bracket_in_parameterized_type_reference = true;
+	String source =
+		"public class Test {\r\n" + 
+		"	private ArrayList< String > ss = new ArrayList<>();\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
