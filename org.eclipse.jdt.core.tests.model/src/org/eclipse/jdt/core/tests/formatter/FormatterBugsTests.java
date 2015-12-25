@@ -11996,4 +11996,95 @@ public void testBug483922b() {
 			"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/479959 - [formatter] indented empty lines after ifs and loops without braces
+ */
+public void testBug479959() {
+	this.formatterPrefs.indent_empty_lines = true;
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 2;
+	String source =
+		"public class Example {\r\n" + 
+		"	\r\n" + 
+		"	\r\n" + 
+		"	public boolean foo() {\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		if (foo())\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			return foo();\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		while (foo())\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			foo();\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		do\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			foo();\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		while (foo());\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		if (foo()) {\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			foo();\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"		}\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		if (foo())\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			foo();\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		else\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			foo();\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		for (int i = 0; i < 5; i++)\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			foo();\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		switch (4) {\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		case 4:\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			foo();\r\n" + 
+		"			break;\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		case 5: {\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			break;\r\n" + 
+		"		}\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		case 6:\r\n" + 
+		"		}\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		return false;\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"	}\r\n" + 
+		"	\r\n" + 
+		"	\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
