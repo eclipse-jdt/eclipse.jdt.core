@@ -302,13 +302,34 @@ public class WrapPreparator extends ASTVisitor {
 	@Override
 	public boolean visit(EnumDeclaration node) {
 		List<EnumConstantDeclaration> enumConstants = node.enumConstants();
+		int constantsEnd = -1;
 		if (!enumConstants.isEmpty()) {
 			for (EnumConstantDeclaration constant : enumConstants)
 				this.wrapIndexes.add(this.tm.firstIndexIn(constant, -1));
 			this.wrapParentIndex = (this.options.alignment_for_enum_constants & Alignment.M_INDENT_ON_COLUMN) > 0
 					? this.tm.firstIndexBefore(enumConstants.get(0), TokenNameLBRACE) : this.tm.firstIndexIn(node, -1);
-			this.wrapGroupEnd = this.tm.lastIndexIn(enumConstants.get(enumConstants.size() - 1), -1);
+			this.wrapGroupEnd = constantsEnd = this.tm.lastIndexIn(enumConstants.get(enumConstants.size() - 1), -1);
 			handleWrap(this.options.alignment_for_enum_constants, node);
+		}
+
+		if (!this.options.join_wrapped_lines) {
+			// preserve a line break between the last comma and semicolon
+			int commaIndex = -1;
+			int i = constantsEnd > 0 ? constantsEnd : this.tm.firstIndexAfter(node.getName(), TokenNameLBRACE);
+			while (++i < this.tm.size()) {
+				Token t = this.tm.get(i);
+				if (t.isComment())
+					continue;
+				if (t.tokenType == TokenNameCOMMA) {
+					commaIndex = i;
+					continue;
+				}
+				if (t.tokenType == TokenNameSEMICOLON && commaIndex >= 0
+						&& this.tm.countLineBreaksBetween(this.tm.get(commaIndex), t) == 1) {
+					t.setWrapPolicy(new WrapPolicy(WrapMode.WHERE_NECESSARY, commaIndex, 0));
+				}
+				break;
+			}
 		}
 
 		List<Type> superInterfaceTypes = node.superInterfaceTypes();

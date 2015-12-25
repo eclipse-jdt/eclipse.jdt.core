@@ -12111,4 +12111,58 @@ public void testBug480735() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/481221 - [formatter] New formatter incorrectly formats ", ;" in enum declaration
+ */
+public void testBug481221a() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"public class Test {\r\n" + 
+		"	public enum Enum0 {\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	public enum Enum1 {\r\n" + 
+		"		;\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	public enum Enum2 {\r\n" + 
+		"		,;\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	public enum Enum3 {\r\n" + 
+		"		,\r\n" + 
+		"		;\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	public enum Enum4 {\r\n" + 
+		"		AAA,;\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	public enum Enum5 {\r\n" + 
+		"		AAA,\r\n" + 
+		"		;\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/481221 - [formatter] New formatter incorrectly formats ", ;" in enum declaration
+ */
+public void testBug481221b() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.alignment_for_enum_constants = Alignment.M_COMPACT_SPLIT + Alignment.M_INDENT_ON_COLUMN;
+	String source =
+		"public class Test {\r\n" + 
+		"	public enum Enum1 {\r\n" + 
+		"		,\r\n" + 
+		"		;\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	public enum Enum2 {\r\n" + 
+		"						AAA,\r\n" + 
+		"						;\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
