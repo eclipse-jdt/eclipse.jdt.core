@@ -289,6 +289,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		ASTParser parser = ASTParser.newParser(AST.JLS8);
 		Map<String, String> parserOptions = JavaCore.getOptions();
 		parserOptions.put(CompilerOptions.OPTION_Source, this.sourceLevel);
+		parserOptions.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
 		parser.setCompilerOptions(parserOptions);
 
 		switch (kind & K_MASK) {

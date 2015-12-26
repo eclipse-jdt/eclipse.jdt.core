@@ -13,8 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
+import java.util.Hashtable;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
@@ -7454,5 +7457,34 @@ public void testBug480030() {
 		"	}\n" + 
 		"}\n";
 	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/479474 - [formatter] Problems when doc.comment.support=disabled
+ */
+public void testBug479474() {
+	Hashtable<String, String> parserOptions = JavaCore.getOptions();
+	try {
+		Hashtable<String, String> newParserOptions = JavaCore.getOptions();
+		newParserOptions.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.DISABLED);
+		JavaCore.setOptions(newParserOptions);
+		String source = 
+			"/**\n" + 
+			" * Test\n" + 
+			" * @author mr.awesome\n" + 
+			" */\n" + 
+			"public class Test {\n" + 
+			"}";
+		formatSource(source,
+			"/**\n" + 
+			" * Test\n" + 
+			" * \n" + 
+			" * @author mr.awesome\n" + 
+			" */\n" + 
+			"public class Test {\n" + 
+			"}"
+		);
+	} finally {
+		JavaCore.setOptions(parserOptions);
+	}
 }
 }
