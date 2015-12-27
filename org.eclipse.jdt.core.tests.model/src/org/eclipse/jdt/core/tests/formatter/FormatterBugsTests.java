@@ -11966,4 +11966,34 @@ public void testBug477430() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/483922 - [formatter] Wrong indentation base for wrapped "throws" elements in method declaration
+ */
+public void testBug483922a() {
+	this.formatterPrefs.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_FIRST_BREAK_SPLIT + Alignment.M_FORCE + Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_FIRST_BREAK_SPLIT + Alignment.M_FORCE;
+	String source =
+		"public class Test {\r\n" + 
+		"	public void foo(\r\n" + 
+		"					int a, int b)\r\n" + 
+		"			throws Exception {\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/483922 - [formatter] [formatter] Wrong indentation base for wrapped "throws" elements in method declaration
+ */
+public void testBug483922b() {
+	this.formatterPrefs.alignment_for_parameters_in_constructor_declaration = Alignment.M_COMPACT_FIRST_BREAK_SPLIT + Alignment.M_FORCE + Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.alignment_for_throws_clause_in_constructor_declaration = Alignment.M_COMPACT_FIRST_BREAK_SPLIT + Alignment.M_FORCE;
+	String source =
+			"public class Test {\r\n" + 
+			"	public Test(\r\n" + 
+			"				int a, int b)\r\n" + 
+			"			throws Exception {\r\n" + 
+			"	}\r\n" + 
+			"}";
+	formatSource(source);
+}
 }
