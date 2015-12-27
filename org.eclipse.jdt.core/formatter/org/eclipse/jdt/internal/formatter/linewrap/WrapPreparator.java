@@ -276,6 +276,8 @@ public class WrapPreparator extends ASTVisitor {
 			int wrappingOption = node.isConstructor()
 					? this.options.alignment_for_throws_clause_in_constructor_declaration
 					: this.options.alignment_for_throws_clause_in_method_declaration;
+			if ((wrappingOption & Alignment.M_INDENT_ON_COLUMN) == 0)
+				this.wrapParentIndex = this.tm.firstIndexAfter(node.getName(), TokenNameLPAREN);
 			prepareElementsList(exceptionTypes, TokenNameCOMMA, TokenNameRPAREN);
 			// instead of the first exception type, wrap the "throws" token
 			this.wrapIndexes.set(0, this.tm.firstIndexBefore(exceptionTypes.get(0), TokenNamethrows));
