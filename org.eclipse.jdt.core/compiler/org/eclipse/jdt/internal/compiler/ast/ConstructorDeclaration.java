@@ -145,10 +145,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 		}
 
 		// nullity and mark as assigned
-		if (classScope.environment().usesNullTypeAnnotations())
-			analyseArguments18(flowInfo, this.arguments, this.binding);
-		else
-			analyseArguments(flowInfo, this.arguments, this.binding);
+		analyseArguments(classScope.environment(), flowInfo, this.arguments, this.binding);
 
 		// propagate to constructor call
 		if (this.constructorCall != null) {

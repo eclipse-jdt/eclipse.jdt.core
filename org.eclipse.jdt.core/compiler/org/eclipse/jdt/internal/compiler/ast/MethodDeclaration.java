@@ -109,10 +109,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					FlowInfo.DEAD_END);
 
 			// nullity and mark as assigned
-			if (classScope.environment().usesNullTypeAnnotations())
-				analyseArguments18(flowInfo, this.arguments, this.binding);
-			else
-				analyseArguments(flowInfo, this.arguments, this.binding);
+			analyseArguments(classScope.environment(), flowInfo, this.arguments, this.binding);
 
 			if (this.binding.declaringClass instanceof MemberTypeBinding && !this.binding.declaringClass.isStatic()) {
 				// method of a non-static member type can't be static.

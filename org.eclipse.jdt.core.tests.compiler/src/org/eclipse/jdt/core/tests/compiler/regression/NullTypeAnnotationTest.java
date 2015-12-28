@@ -9200,4 +9200,32 @@ public void testBug484108() {
 		"",
 		"2");
 }
+public void testBug484954() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
+	runConformTest(
+		new String[] {
+			CUSTOM_NULLABLE_NAME,
+			CUSTOM_NULLABLE_CONTENT, // sic: declaration annotation
+			CUSTOM_NONNULL_NAME,
+			CUSTOM_NONNULL_CONTENT, // sic: declaration annotation
+			"Snippet.java",
+			"import java.util.function.*;\n" + 
+			"import org.foo.*;\n" + 
+			"\n" + 
+			"public class Snippet {\n" + 
+			"\n" + 
+			"	public void test() {\n" + 
+			"		doStuff((@NonNull Object[] data) -> updateSelectionData(data)); \n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private void doStuff(Consumer<Object[]> postAction) { }\n" + 
+			"	private void updateSelectionData(final @NonNull Object data) { }\n" + 
+			"}\n"
+		},
+		customOptions,
+		"");
+}
 }
