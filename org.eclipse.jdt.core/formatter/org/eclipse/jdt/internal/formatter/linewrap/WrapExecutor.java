@@ -425,7 +425,8 @@ public class WrapExecutor {
 
 		if ((!lineExceeded || firstPotentialWrap < 0) && lastIndex + 1 < this.tm.size()) {
 			Token nextLineToken = this.tm.get(lastIndex + 1);
-			if (nextLineToken.isWrappable() && (this.tm.get(lastIndex).isComment() || nextLineToken.isComment())) {
+			if ((nextLineToken.getWrapPolicy() != null && nextLineToken.getWrapPolicy().wrapMode != WrapMode.FORCED)
+					&& (this.tm.get(lastIndex).isComment() || nextLineToken.isComment())) {
 				// this might be a pre-existing wrap forced by a comment, calculate penalties as normal
 				bestIndent = getWrapIndent(nextLineToken);
 				bestNextWrap = lastIndex + 1;

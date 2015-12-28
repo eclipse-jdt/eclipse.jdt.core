@@ -814,7 +814,7 @@ public class WrapPreparator extends ASTVisitor {
 
 		if (!this.secondaryWrapIndexes.isEmpty()) {
 			int optionNoAlignment = (wrappingOption & ~Alignment.SPLIT_MASK) | Alignment.M_NO_ALIGNMENT;
-			policy = getWrapPolicy(optionNoAlignment, 0, false, parentNode);
+			policy = getWrapPolicy(optionNoAlignment, 1, false, parentNode);
 			for (int index : this.secondaryWrapIndexes) {
 				Token token = this.tm.get(index);
 				if (token.getWrapPolicy() == null)
