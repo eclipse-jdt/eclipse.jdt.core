@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1514,6 +1514,30 @@ public void test0325() {
 	int[] regions = SearchPattern.getMatchingRegions("IOExceptiö",  name, SearchPattern.R_CAMELCASE_MATCH);
 	assertEquals("Unexpected regions length", 2, regions.length);
 	assertEquals("Unexpected matching regions", "[IOExceptiö]n", printRegions(name, regions));
+}
+public void test0326() {
+	String name = "removeBarBar";
+	int[] regions = SearchPattern.getMatchingRegions("bar",  name, SearchPattern.R_SUBSTRING_MATCH);
+	assertEquals("Unexpected regions length", 2, regions.length);
+	assertEquals("Unexpected matching regions", "remove[Bar]Bar", printRegions(name, regions));
+}
+public void test0327() {
+	String name = "Bar2Bar";
+	int[] regions = SearchPattern.getMatchingRegions("bar",  name, SearchPattern.R_SUBSTRING_MATCH);
+	assertEquals("Unexpected regions length", 2, regions.length);
+	assertEquals("Unexpected matching regions", "[Bar]2Bar", printRegions(name, regions));
+}
+public void test0328() {
+	String name = "bar1Bar";
+	int[] regions = SearchPattern.getMatchingRegions("bar",  name, SearchPattern.R_SUBSTRING_MATCH);
+	assertEquals("Unexpected regions length", 2, regions.length);
+	assertEquals("Unexpected matching regions", "[bar]1Bar", printRegions(name, regions));
+}
+public void test0329() {
+	String name = "checkBackground";
+	int[] regions = SearchPattern.getMatchingRegions("k",  name, SearchPattern.R_SUBSTRING_MATCH);
+	assertEquals("Unexpected regions length", 2, regions.length);
+	assertEquals("Unexpected matching regions", "chec[k]Background", printRegions(name, regions));
 }
 
 }
