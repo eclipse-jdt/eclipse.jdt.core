@@ -7321,4 +7321,37 @@ public void testBug121728() {
 			"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/484957 - [formatter] Extra blank lines between consecutive javadoc comments
+ */
+public void testBug484957() {
+	String source = 
+		"import java.io.Serializable;\n" + 
+		"\n" + 
+		"/**********/\n" + 
+		"/*** A ****/\n" + 
+		"/**********/\n" + 
+		"\n" + 
+		"public class MyClass implements Serializable {\n" + 
+		"\tprivate int field1;\n" + 
+		"\n" + 
+		"\t/**********/\n" + 
+		"\t/*** B ****/\n" + 
+		"\t/**********/\n" + 
+		"\tpublic void foo() {\n" + 
+		"\t}\n" + 
+		"\n" + 
+		"\t/**********/\n" + 
+		"\t/*** C ****/\n" + 
+		"\t/**********/\n" + 
+		"\tprivate int field2;\n" + 
+		"\n" + 
+		"\t/**********/\n" + 
+		"\t/*** D ****/\n" + 
+		"\t/**********/\n" + 
+		"\tprivate class NestedType {\n" + 
+		"\t}\n" + 
+		"}";
+	formatSource(source);
+}
 }

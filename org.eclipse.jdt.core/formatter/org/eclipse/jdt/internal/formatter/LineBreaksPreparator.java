@@ -98,11 +98,9 @@ public class LineBreaksPreparator extends ASTVisitor {
 		List<AnnotationTypeDeclaration> types = node.types();
 		if (!types.isEmpty()) {
 			if (!imports.isEmpty())
-				this.tm.firstTokenIn(types.get(0), -1).putLineBreaksBefore(this.options.blank_lines_after_imports + 1);
-			for (int i = 1; i < types.size(); i++) {
-				this.tm.firstTokenIn(types.get(i), -1).putLineBreaksBefore(
-						this.options.blank_lines_between_type_declarations + 1);
-			}
+				putBlankLinesBefore(types.get(0), this.options.blank_lines_after_imports);
+			for (int i = 1; i < types.size(); i++)
+				putBlankLinesBefore(types.get(i), this.options.blank_lines_between_type_declarations);
 		}
 		return true;
 	}
@@ -147,8 +145,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 		BodyDeclaration previous = null;
 		for (BodyDeclaration bodyDeclaration : bodyDeclarations) {
 			if (previous == null) {
-				this.tm.firstTokenIn(bodyDeclaration, -1).putLineBreaksBefore(
-						this.options.blank_lines_before_first_class_body_declaration + 1);
+				putBlankLinesBefore(bodyDeclaration, this.options.blank_lines_before_first_class_body_declaration);
 			} else {
 				int blankLines = 0;
 				if (bodyDeclaration instanceof FieldDeclaration) {
@@ -163,7 +160,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 				if (!sameChunk(previous, bodyDeclaration))
 					blankLines = Math.max(blankLines, this.options.blank_lines_before_new_chunk);
 
-				this.tm.firstTokenIn(bodyDeclaration, -1).putLineBreaksBefore(blankLines + 1);
+				putBlankLinesBefore(bodyDeclaration, blankLines);
 			}
 			previous = bodyDeclaration;
 		}
@@ -178,6 +175,13 @@ public class LineBreaksPreparator extends ASTVisitor {
 				&& (bd2 instanceof FieldDeclaration || bd2 instanceof Initializer))
 			return true;
 		return false;
+	}
+
+	private void putBlankLinesBefore(ASTNode node, int linesCount) {
+		int index = this.tm.firstIndexIn(node, -1);
+		while (index > 0 && this.tm.get(index - 1).tokenType == TokenNameCOMMENT_JAVADOC)
+			index--;
+		this.tm.get(index).putLineBreaksBefore(linesCount + 1);
 	}
 
 	@Override
