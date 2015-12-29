@@ -11772,6 +11772,9 @@ public void testBug475746() {
 		"		Foo.bar( ( @Annotation( \"annotationVal\" ) int a) -> { } , IllegalArgumentException.class );\r\n" + 
 		"	}\r\n" + 
 		"\r\n" + 
+		"	public interface I {\r\n" + 
+		"		void m(int a);\r\n" + 
+		"	}\r\n" + 
 		"}";
 	formatSource(source,
 		"import java.awt.*;\r\n" + 
@@ -11790,6 +11793,9 @@ public void testBug475746() {
 		"		Foo.bar( ( @Annotation( \"annotationVal\" ) int a ) -> {}, IllegalArgumentException.class );\r\n" + 
 		"	}\r\n" + 
 		"\r\n" + 
+		"	public interface I {\r\n" + 
+		"		void m( int a );\r\n" + 
+		"	}\r\n" + 
 		"}"
 	);
 }

@@ -196,7 +196,11 @@ public class SpacePreparator extends ASTVisitor {
 			boolean spaceBeforeCloseParen = node.isConstructor()
 					? this.options.insert_space_before_closing_paren_in_constructor_declaration
 					: this.options.insert_space_before_closing_paren_in_method_declaration;
-			handleTokenBefore(node.getBody(), TokenNameRPAREN, spaceBeforeCloseParen, false);
+			if (spaceBeforeCloseParen) {
+				List<SingleVariableDeclaration> params = node.parameters();
+				ASTNode beforeBrace = params.isEmpty() ? node.getName() : params.get(params.size() - 1);
+				handleTokenAfter(beforeBrace, TokenNameRPAREN, true, false);
+			}
 		}
 
 		if ((node.isConstructor() ? this.options.insert_space_before_opening_brace_in_constructor_declaration
