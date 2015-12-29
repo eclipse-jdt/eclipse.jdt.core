@@ -100,7 +100,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 				scope.problemReporter().typeHiding(this, existingType);
 			}
 		}
-		if (this.annotations != null) {
+		if (this.annotations != null || scope.environment().usesNullTypeAnnotations()) {
 			resolveAnnotations(scope);
 		}
 	}
@@ -117,11 +117,15 @@ public class TypeParameter extends AbstractVariableDeclaration {
 		BlockScope resolutionScope = Scope.typeAnnotationsResolutionScope(scope);
 		if (resolutionScope != null) {
 			AnnotationBinding [] annotationBindings = resolveAnnotations(resolutionScope, this.annotations, this.binding, false);
+			boolean isAnnotationBasedNullAnalysisEnabled = scope.environment().globalOptions.isAnnotationBasedNullAnalysisEnabled;
 			if (annotationBindings != null && annotationBindings.length > 0) {
-				this.binding.setTypeAnnotations(annotationBindings, scope.environment().globalOptions.isAnnotationBasedNullAnalysisEnabled);
+				this.binding.setTypeAnnotations(annotationBindings, isAnnotationBasedNullAnalysisEnabled);
 				scope.referenceCompilationUnit().compilationResult.hasAnnotations = true;
-				if (this.binding != null && this.binding.isValidBinding())
+			}
+			if (isAnnotationBasedNullAnalysisEnabled) {
+				if (this.binding != null && this.binding.isValidBinding()) {
 					this.binding.evaluateNullAnnotations(scope, this);
+				}
 			}
 		}	
 	}

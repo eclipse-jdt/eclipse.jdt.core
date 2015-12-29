@@ -1208,7 +1208,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"	X1<@Nullable String> maybeStrings;\n" + // incompatible: T has a bound constrained to @NonNull
 					"   X2<@NonNull String> strings;\n" +       // incompatible: W is constrained to @Nullable
 					"	void test(X1<@NonNull String> x) {\n" + // OK
-					"		x.<Y1, @NonNull Object>foo(this, new Object());\n" + // incompatible: V is constrained to @Nullable via superclass
+					"		x.<Y1, @NonNull Object>foo(this, new Object());\n" + // OK: 'extends @Nullable' is no restriction
 					"	}\n" +
 					"}\n"
 				}, 
@@ -1223,11 +1223,6 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	X2<@NonNull String> strings;\n" + 
 				"	   ^^^^^^^^^^^^^^^\n" + 
 				"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'@Nullable W extends Object\'\n" + 
-				"----------\n" + 
-				"3. ERROR in Y1.java (at line 8)\n" + 
-				"	x.<Y1, @NonNull Object>foo(this, new Object());\n" + 
-				"	       ^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type \'@NonNull Object\' is not a valid substitute for the type parameter \'V extends @Nullable Object'\n" + 
 				"----------\n"
 				);
 	}
@@ -1284,7 +1279,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"	p.X1<java.lang.@Nullable String> maybeStrings;\n" + // incompatible: T has a bound constrained to @NonNull
 					"   p.X2<java.lang.@NonNull String> strings;\n" +       // incompatible: W is constrained to @Nullable
 					"	void test(p.X1<java.lang.@NonNull String> x) {\n" + // OK
-					"		x.<Y1, java.lang.@NonNull Object>foo(this, new Object());\n" + // incompatible: V is constrained to @Nullable via superclass
+					"		x.<Y1, java.lang.@NonNull Object>foo(this, new Object());\n" + // // OK: 'extends @Nullable' is no restriction
 					"	}\n" +
 					"}\n"
 				}, 
@@ -1299,11 +1294,6 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	p.X2<java.lang.@NonNull String> strings;\n" + 
 				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'@Nullable W extends Object\'\n" + 
-				"----------\n" + 
-				"3. ERROR in Y1.java (at line 6)\n" + 
-				"	x.<Y1, java.lang.@NonNull Object>foo(this, new Object());\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type \'@NonNull Object\' is not a valid substitute for the type parameter \'V extends @Nullable Object\'\n" + 
 				"----------\n"
 				);
 	}
@@ -1337,19 +1327,14 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"import org.eclipse.jdt.annotation.*;\n" +
 					"public class Y1 {\n" +
 					"	void test(X1 x) {\n" +
-					"		x.<@NonNull Y1, @NonNull Object>foo(this, new Object())\n" + // @NonNull Object conflicts with "V extends @Nullable Object"
+					"		x.<@NonNull Y1, @NonNull Object>foo(this, new Object())\n" + // // OK: 'extends @Nullable' is no restriction
 					"			.get(0).put(null, null);\n" + // second null is illegal
 					"	}\n" +
 					"}\n"
 				}, 
 				customOptions,
 				"----------\n" + 
-				"1. ERROR in Y1.java (at line 5)\n" + 
-				"	x.<@NonNull Y1, @NonNull Object>foo(this, new Object())\n" + 
-				"	                ^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type \'@NonNull Object\' is not a valid substitute for the type parameter \'V extends @Nullable Object\'\n" + 
-				"----------\n" + 
-				"2. ERROR in Y1.java (at line 6)\n" + 
+				"1. ERROR in Y1.java (at line 6)\n" + 
 				"	.get(0).put(null, null);\n" + 
 				"	                  ^^^^\n" + 
 				"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
@@ -9227,6 +9212,323 @@ public void testBug484954() {
 		},
 		customOptions,
 		"");
+}
+public void testBug484981() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test1/GenericWithNullableBound.java",
+			"package test1;\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+
+			"@NonNullByDefault\n" + 
+			"public class GenericWithNullableBound<T extends @Nullable Number> {\n" + 
+			"}\n", 
+			
+			"test1/GenericWithNullableBound2.java",
+			"package test1;\n" + 
+			"import static java.lang.annotation.ElementType.TYPE_USE;\n" + 
+			"import java.lang.annotation.Retention;\n" + 
+			"import java.lang.annotation.RetentionPolicy;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ TYPE_USE })\n" + 
+			"@interface SomeAnnotation {\n" + 
+			"}\n" + 
+
+			"@NonNullByDefault\n" + 
+			"public class GenericWithNullableBound2<@SomeAnnotation T extends @Nullable Number> {\n" + 
+			"}\n", 
+
+			"test1/GenericWithNullable.java",			
+			"package test1;\n" + 
+
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+
+			"@NonNullByDefault\n" + 
+			"public class GenericWithNullable<@Nullable T> {\n" + 
+			"}\n",
+			
+			"test1/GenericWithNonNullBound.java",			
+			"package test1;\n" + 
+
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+
+			"public class GenericWithNonNullBound<T extends @NonNull Number> {\n" + 
+			"}\n",
+			"test1/ClassInSameProject.java",
+			"package test1;\n" + 
+
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+
+			"public class ClassInSameProject {\n" + 
+			"	static void f1() {\n" + 
+			"		new GenericWithNullableBound<@NonNull Number>();\n" + 
+			"	}\n" + 
+
+			"	static void f2() {\n" + 
+			"		new GenericWithNullableBound2<@NonNull Number>();\n" + 
+			"	}\n" + 
+
+			"	static void f3() {\n" + 
+			"		new GenericWithNonNullBound<@Nullable Number>(); // error 1 expected\n" + 
+			"	}\n" + 
+
+			"	static void f4() {\n" + 
+			"		new GenericWithNullable<@NonNull Number>(); // error 2 expected\n" + 
+			"	}\n" + 
+			"}"			
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test1\\ClassInSameProject.java (at line 12)\n" + 
+		"	new GenericWithNonNullBound<@Nullable Number>(); // error 1 expected\n" + 
+		"	                            ^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable Number\' is not a valid substitute for the type parameter \'T extends @NonNull Number\'\n" + 
+		"----------\n" + 
+		"2. ERROR in test1\\ClassInSameProject.java (at line 15)\n" + 
+		"	new GenericWithNullable<@NonNull Number>(); // error 2 expected\n" + 
+		"	                        ^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull Number\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n"
+	);
+	runNegativeTestWithLibs(
+			new String[] {
+				"test2/ClassInOtherProject.java",
+				"package test2;\n" + 
+
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"import org.eclipse.jdt.annotation.Nullable;\n" + 
+
+				"import test1.GenericWithNonNullBound;\n" + 
+				"import test1.GenericWithNullable;\n" + 
+				"import test1.GenericWithNullableBound;\n" + 
+				"import test1.GenericWithNullableBound2;\n" + 
+
+				"public class ClassInOtherProject {\n" + 
+				"	static void g1() {\n" + 
+				"		new GenericWithNullableBound<@NonNull Number>();\n" + 
+				"	}\n" + 
+
+				"	static void g2() {\n" + 
+				"		new GenericWithNullableBound2<@NonNull Number>();\n" + 
+				"	}\n" + 
+
+				"	static void g3() {\n" + 
+				"		new GenericWithNonNullBound<@Nullable Number>(); // error 3 expected\n" + 
+				"	}\n" + 
+
+				"	static void g4() {\n" + 
+				"		new GenericWithNullable<@NonNull Number>(); // error 4 expected\n" + 
+				"	}\n" + 
+				"}"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in test2\\ClassInOtherProject.java (at line 16)\n" + 
+			"	new GenericWithNonNullBound<@Nullable Number>(); // error 3 expected\n" + 
+			"	                            ^^^^^^^^^^^^^^^^\n" + 
+			"Null constraint mismatch: The type \'@Nullable Number\' is not a valid substitute for the type parameter \'T extends @NonNull Number\'\n" + 
+			"----------\n" + 
+			"2. ERROR in test2\\ClassInOtherProject.java (at line 19)\n" + 
+			"	new GenericWithNullable<@NonNull Number>(); // error 4 expected\n" + 
+			"	                        ^^^^^^^^^^^^^^^\n" + 
+			"Null constraint mismatch: The type \'@NonNull Number\' is not a valid substitute for the type parameter \'@Nullable T extends Object\'\n" + 
+			"----------\n"
+	);
+}
+// same testBinary06 but via SourceTypeBindings
+public void testBug484981b() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
+	runNegativeTestWithLibs(
+			new String[] {
+				"p/X1.java",
+				"package p;\n" +
+				"import java.util.ArrayList;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public abstract class X1<T extends @NonNull Object> extends ArrayList<T> {\n" +
+				"    public <U, V extends @Nullable Object> void foo(U u, V v) {}\n" +
+				"}\n",
+				"p/X2.java", 
+				"package p;\n"+
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class X2<@Nullable W extends Object> {}\n",
+				"Y1.java",
+				"import p.X1;\n" +
+				"import p.X2;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class Y1 {\n" +
+				"	X1<@Nullable String> maybeStrings;\n" + // incompatible: T has a bound constrained to @NonNull
+				"   X2<@NonNull String> strings;\n" +       // incompatible: W is constrained to @Nullable
+				"	void test(X1<@NonNull String> x) {\n" + // OK
+				"		x.<Y1, @NonNull Object>foo(this, new Object());\n" + // OK: 'extends @Nullable' is no restriction
+				"	}\n" +
+				"}\n"
+			}, 
+			customOptions,
+			"----------\n" + 
+			"1. ERROR in Y1.java (at line 5)\n" + 
+			"	X1<@Nullable String> maybeStrings;\n" + 
+			"	   ^^^^^^^^^^^^^^^^\n" + 
+			"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'T extends @NonNull Object\'\n" + 
+			"----------\n" + 
+			"2. ERROR in Y1.java (at line 6)\n" + 
+			"	X2<@NonNull String> strings;\n" + 
+			"	   ^^^^^^^^^^^^^^^\n" + 
+			"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'@Nullable W extends Object\'\n" + 
+			"----------\n"
+			);
+}
+
+// same testBinary06b but via SourceTypeBindings
+public void testBug484981c() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
+	// fix the bug:		
+	runNegativeTestWithLibs(
+			new String[] {
+				"p/X1.java",
+				"package p;\n" +
+				"import java.util.ArrayList;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public abstract class X1<T extends java.lang.@NonNull Object> extends ArrayList<T> {\n" +
+				"    public <U, V extends java.lang.@Nullable Object> void foo(U u, V v) {}\n" +
+				"}\n",
+				"p/X2.java", 
+				"package p;\n"+
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class X2<@Nullable W extends Object> {}\n",
+				"Y1.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class Y1 {\n" +
+				"	p.X1<java.lang.@Nullable String> maybeStrings;\n" + // incompatible: T has a bound constrained to @NonNull
+				"   p.X2<java.lang.@NonNull String> strings;\n" +       // incompatible: W is constrained to @Nullable
+				"	void test(p.X1<java.lang.@NonNull String> x) {\n" + // OK
+				"		x.<Y1, java.lang.@NonNull Object>foo(this, new Object());\n" + // OK: 'extends @Nullable' is no restriction
+				"	}\n" +
+				"}\n"
+			}, 
+			customOptions,
+			"----------\n" + 
+			"1. ERROR in Y1.java (at line 3)\n" + 
+			"	p.X1<java.lang.@Nullable String> maybeStrings;\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'T extends @NonNull Object\'\n" + 
+			"----------\n" + 
+			"2. ERROR in Y1.java (at line 4)\n" + 
+			"	p.X2<java.lang.@NonNull String> strings;\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'@Nullable W extends Object\'\n" + 
+			"----------\n"
+			);
+}
+
+// same testBinary07 but via SourceTypeBindings
+public void testBug484981d() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
+	runNegativeTestWithLibs(
+			new String[] {
+				"p/X1.java",
+				"package p;\n" +
+				"import java.util.*;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*;\n" +
+				"import java.lang.annotation.*;\n" +
+				"@Retention(RetentionPolicy.CLASS)\n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface Immutable {}\n" +
+				"public abstract class X1 {\n" +
+				"    public <@NonNull U, V extends @Nullable Object> List<@NonNull Map<Object, @NonNull String>> foo(@Immutable X1 this, U u, V v) { return null; }\n" +
+				"}\n",
+				"Y1.java",
+				"import p.X1;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class Y1 {\n" +
+				"	void test(X1 x) {\n" +
+				"		x.<@NonNull Y1, @NonNull Object>foo(this, new Object())\n" + // OK: 'extends @Nullable' is no restriction
+				"			.get(0).put(null, null);\n" + // second null is illegal
+				"	}\n" +
+				"}\n"
+			}, 
+			customOptions,
+			"----------\n" + 
+			"1. ERROR in Y1.java (at line 6)\n" + 
+			"	.get(0).put(null, null);\n" + 
+			"	                  ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+			"----------\n");
+}
+public void testBug466562() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"x/C.java",
+			"package x;\n" + 
+
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+
+			"@NonNullByDefault({})\n" + 
+			"public class C <T1 extends @Nullable Number> {\n" + 
+			"    String consume(T1 t) {\n" + 
+			"        @NonNull Object x = t; // error, should warn?\n" + 
+			"        x.toString();\n" + 
+			"        return t.toString(); // legal???\n" + 
+			"    }\n" + 
+
+			"    void y() {\n" + 
+			"        consume(null);  // illegal - OK\n" + 
+			"        @NonNull Object t = provide();  // error, should warn?\n" + 
+			"        t.toString();\n" + 
+			"    }\n" + 
+
+			"    T1 provide() {\n" + 
+			"        return null; // error, should warn?\n" + 
+			"    }\n" + 
+
+			"    C<Integer> cString;  // OK - Null constraint mismatch: The type 'Integer' is not a valid substitute for the type parameter 'T1 extends @Nullable Number'\n" + 
+			"    C<@NonNull Integer> c1String;  // Wrong: Null constraint mismatch: The type '@NonNull Integer' is not a valid substitute for the type parameter 'T1 extends @Nullable Number'\n" + 
+			"    C<@Nullable Integer> c2String; // legal - OK\n" + 
+			"}" 						
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in x\\C.java (at line 5)\n" + 
+		"	@NonNullByDefault({})\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"Nullness default is redundant with a default specified for the enclosing package x\n" + 
+		"----------\n" + 
+		"2. ERROR in x\\C.java (at line 8)\n" + 
+		"	@NonNull Object x = t; // error, should warn?\n" + 
+		"	                    ^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'T1 extends @Nullable Number\'\n" + 
+		"----------\n" + 
+		"3. ERROR in x\\C.java (at line 13)\n" + 
+		"	consume(null);  // illegal - OK\n" + 
+		"	        ^^^^\n" + 
+		"Null type mismatch: required \'T1 extends @Nullable Number\' but the provided value is null\n" + 
+		"----------\n" + 
+		"4. ERROR in x\\C.java (at line 14)\n" + 
+		"	@NonNull Object t = provide();  // error, should warn?\n" + 
+		"	                    ^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'T1 extends @Nullable Number\'\n" + 
+		"----------\n" + 
+		"5. ERROR in x\\C.java (at line 18)\n" + 
+		"	return null; // error, should warn?\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'T1 extends @Nullable Number\' but the provided value is null\n" + 
+		"----------\n"
+	);	
 }
 public void testBug485056() {
 	runConformTestWithLibs(

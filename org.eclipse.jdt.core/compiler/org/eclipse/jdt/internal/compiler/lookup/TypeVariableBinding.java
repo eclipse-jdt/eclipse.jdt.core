@@ -713,7 +713,9 @@ public class TypeVariableBinding extends ReferenceBinding {
 			long superNullTagBits = resolveType.tagBits & TagBits.AnnotationNullMASK;
 			if (superNullTagBits != 0L) {
 				if (nullTagBits == 0L) {
-					this.tagBits |= (superNullTagBits | TagBits.HasNullTypeAnnotation);
+					if ((superNullTagBits & TagBits.AnnotationNonNull) != 0) {
+						nullTagBits = superNullTagBits;
+					}
 				} else {
 //					System.err.println("TODO(stephan): report proper error: conflict binary TypeVariable vs. first bound");
 				}
@@ -730,7 +732,9 @@ public class TypeVariableBinding extends ReferenceBinding {
 				long superNullTagBits = resolveType.tagBits & TagBits.AnnotationNullMASK;
 				if (superNullTagBits != 0L) {
 					if (nullTagBits == 0L) {
-						this.tagBits |= (superNullTagBits | TagBits.HasNullTypeAnnotation);
+						if ((superNullTagBits & TagBits.AnnotationNonNull) != 0) {
+							nullTagBits = superNullTagBits;
+						}
 					} else {
 //						System.err.println("TODO(stephan): report proper error: conflict binary TypeVariable vs. bound "+i);
 					}
@@ -738,6 +742,9 @@ public class TypeVariableBinding extends ReferenceBinding {
 				interfaces[i] = resolveType;
 			}
 		}
+		if (nullTagBits != 0)
+			this.tagBits |= nullTagBits | TagBits.HasNullTypeAnnotation;
+
 		// refresh the firstBound in case it changed
 		if (this.firstBound != null) {
 			if (TypeBinding.equalsEquals(this.firstBound, oldSuperclass)) {
@@ -884,7 +891,9 @@ public class TypeVariableBinding extends ReferenceBinding {
 			long superNullTagBits = NullAnnotationMatching.validNullTagBits(this.firstBound.tagBits);
 			if (superNullTagBits != 0L) {
 				if (nullTagBits == 0L) {
-					nullTagBits |= superNullTagBits;
+					if ((superNullTagBits & TagBits.AnnotationNonNull) != 0) {
+						nullTagBits = superNullTagBits;
+					}
 				} else if (superNullTagBits != nullTagBits) {
 					this.firstBound = nullMismatchOnBound(parameter, this.firstBound, superNullTagBits, nullTagBits, scope);
 				}
@@ -898,12 +907,13 @@ public class TypeVariableBinding extends ReferenceBinding {
 				long superNullTagBits = NullAnnotationMatching.validNullTagBits(resolveType.tagBits);
 				if (superNullTagBits != 0L) {
 					if (nullTagBits == 0L) {
-						nullTagBits |= superNullTagBits;
+						if ((superNullTagBits & TagBits.AnnotationNonNull) != 0) {
+							nullTagBits = superNullTagBits;
+						}
 					} else if (superNullTagBits != nullTagBits) {
 						interfaces[i] = (ReferenceBinding) nullMismatchOnBound(parameter, resolveType, superNullTagBits, nullTagBits, scope);
 					}
 				}
-				interfaces[i] = resolveType;
 			}
 		}
 		if (nullTagBits != 0)
