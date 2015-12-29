@@ -90,12 +90,13 @@ public class WrapExecutor {
 		}
 	}
 
-	private static class WrapRestartException extends Exception {
+	private static class WrapRestartThrowable extends Throwable {
 		private static final long serialVersionUID = -2980600077230803443L; // backward compatible
 
 		public final int topPriorityWrap;
 
-		public WrapRestartException(int topPriorityWrap) {
+		public WrapRestartThrowable(int topPriorityWrap) {
+			super(null, null, false, false);
 			this.topPriorityWrap = topPriorityWrap;
 		}
 	}
@@ -301,7 +302,7 @@ public class WrapExecutor {
 					this.wrapSearchResults.clear();
 					index = applyWraps(index, currentIndent);
 					break;
-				} catch (WrapRestartException e) {
+				} catch (WrapRestartThrowable e) {
 					handleTopPriorityWraps(e);
 				}
 			}
@@ -312,7 +313,7 @@ public class WrapExecutor {
 		this.tm.traverse(0, new NLSTagHandler());
 	}
 
-	private int applyWraps(int index, int indent) throws WrapRestartException {
+	private int applyWraps(int index, int indent) throws WrapRestartThrowable {
 		WrapInfo wrapInfo = findWrapsCached(index, indent).nextWrap;
 		Token token = this.tm.get(index);
 		index++;
@@ -360,7 +361,7 @@ public class WrapExecutor {
 		return index;
 	}
 
-	private WrapResult findWrapsCached(int startTokenIndex, int indent) throws WrapRestartException {
+	private WrapResult findWrapsCached(int startTokenIndex, int indent) throws WrapRestartThrowable {
 		this.wrapInfoTemp.wrapTokenIndex = startTokenIndex;
 		this.wrapInfoTemp.indent = indent;
 		WrapResult wrapResult = this.wrapSearchResults.get(this.wrapInfoTemp);
@@ -400,7 +401,7 @@ public class WrapExecutor {
 	 * The main algorithm that looks for optimal places to wrap.
 	 * Calls itself recursively to get results for wrapped sub-lines.  
 	 */
-	private WrapResult findWraps(int wrapTokenIndex, int indent) throws WrapRestartException {
+	private WrapResult findWraps(int wrapTokenIndex, int indent) throws WrapRestartThrowable {
 		final int lastIndex = this.lineAnalyzer.analyzeLine(wrapTokenIndex, indent);
 		final boolean lineExceeded = this.lineAnalyzer.lineExceeded;
 		final int lastPosition = this.lineAnalyzer.getLastPosition();
@@ -496,7 +497,7 @@ public class WrapExecutor {
 	}
 
 	private double getWrapPenalty(int lineStartIndex, int lineIndent, int wrapIndex, int wrapIndent,
-			WrapResult wrapResult) throws WrapRestartException {
+			WrapResult wrapResult) throws WrapRestartThrowable {
 		WrapPolicy wrapPolicy = null;
 		Token wrapToken = null;
 		if (wrapIndex < this.tm.size()) {
@@ -564,7 +565,7 @@ public class WrapExecutor {
 		return Math.exp(policy.structureDepth) * policy.penaltyMultiplier;
 	}
 
-	private void checkForceWrap(Token token, int currentIndent) throws WrapRestartException {
+	private void checkForceWrap(Token token, int currentIndent) throws WrapRestartThrowable {
 		// A token that will have smaller indent when wrapped than the current line indent,
 		// should be wrapped because it's a low depth token following some complex wraps of higher depth.
 		// This rule could not be implemented in getWrapPenalty() because a token's wrap indent may depend
@@ -573,19 +574,19 @@ public class WrapExecutor {
 			int indent = getWrapIndent(token);
 			if (indent < currentIndent) {
 				token.breakBefore();
-				throw new WrapRestartException(-1);
+				throw new WrapRestartThrowable(-1);
 			}
 		}
 	}
 
-	private void checkTopPriorityWraps(int wrapIndex) throws WrapRestartException {
+	private void checkTopPriorityWraps(int wrapIndex) throws WrapRestartThrowable {
 		WrapPolicy wrapPolicy = this.tm.get(wrapIndex).getWrapPolicy();
 		if (wrapPolicy != null && wrapPolicy.wrapMode == WrapMode.TOP_PRIORITY
 				&& !this.usedTopPriorityWraps.contains(wrapPolicy))
-			throw new WrapRestartException(wrapIndex);
+			throw new WrapRestartThrowable(wrapIndex);
 	}
 
-	private void handleTopPriorityWraps(WrapRestartException restartException) {
+	private void handleTopPriorityWraps(WrapRestartThrowable restartException) {
 		int wrapIndex = restartException.topPriorityWrap;
 		if (wrapIndex < 0)
 			return;
