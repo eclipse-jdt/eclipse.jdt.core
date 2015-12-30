@@ -33088,7 +33088,7 @@ public void test0988() {
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
 			"	               ^^^^^^^^^^^^^^^^\n" + 
-			"The return types are incompatible for the inherited methods ILinkViewElement.getViewer(), EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
+			"The return types are incompatible for the inherited methods EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 11)\n" + 
 			"	public SheetViewer getViewer() { return null; }	\n" + 
