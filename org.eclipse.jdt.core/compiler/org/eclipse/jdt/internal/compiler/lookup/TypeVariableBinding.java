@@ -895,7 +895,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 						nullTagBits = superNullTagBits;
 					}
 				} else if (superNullTagBits != nullTagBits) {
-					this.firstBound = nullMismatchOnBound(parameter, this.firstBound, superNullTagBits, nullTagBits, scope);
+					if(parameter != null)
+						this.firstBound = nullMismatchOnBound(parameter, this.firstBound, superNullTagBits, nullTagBits, scope);
 				}
 			}
 		}	
@@ -911,7 +912,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 							nullTagBits = superNullTagBits;
 						}
 					} else if (superNullTagBits != nullTagBits) {
-						interfaces[i] = (ReferenceBinding) nullMismatchOnBound(parameter, resolveType, superNullTagBits, nullTagBits, scope);
+						if(parameter != null)
+							interfaces[i] = (ReferenceBinding) nullMismatchOnBound(parameter, resolveType, superNullTagBits, nullTagBits, scope);
 					}
 				}
 			}

@@ -10225,4 +10225,51 @@ public void testBug484471SubclassNonNull() {
 				"----------\n"
 	);
 }
+public void testBug485058() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/Test4.java",
+			"package test;\n" +
+			"\n" +
+			"import java.io.Serializable;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"class Feature4<Q extends Serializable> {\n" +
+			"		Q q() {\n" +
+			"			throw new RuntimeException();\n" +
+			"		}\n" +
+			"}\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Test4 {\n" +
+			"	public static <Q1 extends java.io.Serializable, F extends Feature4<Q1>> Q1[] getValues(F feature) {\n" +
+			"		throw new RuntimeException();\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void f(Feature4<?> feature) {\n" +
+			"		getValues(feature);\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void g(Feature4<@Nullable ? extends @NonNull Serializable> feature) {\n" +
+			"		getValues(feature);\n" +
+			"	}\n" +
+			"}"
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\Test4.java (at line 25)\n" + 
+		"	public static void g(Feature4<@Nullable ? extends @NonNull Serializable> feature) {\n" + 
+		"	                                                  ^^^^^^^^\n" + 
+		"This nullness annotation conflicts with a \'@Nullable\' annotation which is effective on the same type parameter \n" + 
+		"----------\n" + 
+		"2. ERROR in test\\Test4.java (at line 26)\n" + 
+		"	getValues(feature);\n" + 
+		"	^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull Feature4<@Nullable capture#of ? extends @NonNull Serializable>\' is not a valid substitute for the type parameter \'F extends @NonNull Feature4<Q1 extends @NonNull Serializable>\'\n" + 
+		"----------\n"
+	);	
+}
 }
