@@ -10346,4 +10346,28 @@ public void testBug485058() {
 		"----------\n"
 	);	
 }
+public void testBug485030() {
+	runConformTestWithLibs(new String[] {
+			"SomeAnnotation.java",
+			"import static java.lang.annotation.ElementType.TYPE_USE;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+
+			"@Target({ TYPE_USE })\n" + 
+			"@interface SomeAnnotation {\n" + 
+			"}\n", 
+
+			"TestContradictoryOnGenericArray.java",
+			"import java.io.Serializable;\n" +
+
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+
+			"@NonNullByDefault\n" +
+			"public class TestContradictoryOnGenericArray {\n" +
+			"	public <@SomeAnnotation Q extends Serializable> void f() {\n" +
+			"		final @Nullable Q[] array = null;\n" +
+			"	}\n" +
+			"}\n"
+	}, getCompilerOptions(), "");
+}
 }

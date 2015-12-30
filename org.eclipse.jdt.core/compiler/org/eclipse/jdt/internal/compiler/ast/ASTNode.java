@@ -1055,22 +1055,24 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		TypeReference unionRef = typeRef.isUnionType() ? ((UnionTypeReference) typeRef).typeReferences[0] : null;
 		
 		// for arrays: @T X[] SE7 associates @T to the type, but in SE8 it affects the leaf component type
-		long prevNullBits = existingType.leafComponentType().tagBits & TagBits.AnnotationNullMASK;
+		TypeBinding oldLeafType = (unionRef == null) ? existingType.leafComponentType() : unionRef.resolvedType;
+		if (se8nullBits != 0 && oldLeafType.isBaseType()) {
+			scope.problemReporter().illegalAnnotationForBaseType(typeRef, new Annotation[] { se8NullAnnotation }, se8nullBits);
+			return existingType;
+		}
+
+		long prevNullBits = oldLeafType.tagBits & TagBits.AnnotationNullMASK;
 		if ((prevNullBits | se8nullBits) == TagBits.AnnotationNullMASK) { // contradiction after merge?
-			if (!(existingType instanceof TypeVariableBinding)) { // let type-use annotations override annotations on the type parameter declaration
+			if (!(oldLeafType instanceof TypeVariableBinding)) { // let type-use annotations override annotations on the type parameter declaration
 				if (prevNullBits != TagBits.AnnotationNullMASK && se8nullBits != TagBits.AnnotationNullMASK) { // conflict caused by the merge?
 					scope.problemReporter().contradictoryNullAnnotations(se8NullAnnotation);
 				}
 				se8Annotations = Binding.NO_ANNOTATIONS;
 				se8nullBits = 0;
 			}
-			existingType = existingType.withoutToplevelNullAnnotation();
+			oldLeafType = oldLeafType.withoutToplevelNullAnnotation();
 		}
-		TypeBinding oldLeafType = (unionRef == null) ? existingType.leafComponentType() : unionRef.resolvedType;
-		if (se8nullBits != 0 && oldLeafType.isBaseType()) {
-			scope.problemReporter().illegalAnnotationForBaseType(typeRef, new Annotation[] { se8NullAnnotation }, se8nullBits);
-			return existingType;
-		}
+
 		AnnotationBinding [][] goodies = new AnnotationBinding[typeRef.getAnnotatableLevels()][];
 		goodies[0] = se8Annotations;  // @T X.Y.Z local; ==> @T should annotate X
 		TypeBinding newLeafType = scope.environment().createAnnotatedType(oldLeafType, goodies);
