@@ -172,7 +172,14 @@ public static TypeBinding resolveType(TypeBinding type, LookupEnvironment enviro
 			return ((WildcardBinding) type).resolve();
 
 		case Binding.ARRAY_TYPE :
-			resolveType(((ArrayBinding) type).leafComponentType, environment, convertGenericToRawType);
+			ArrayBinding arrayBinding = (ArrayBinding) type;
+			TypeBinding leafComponentType = arrayBinding.leafComponentType;
+			resolveType(leafComponentType, environment, convertGenericToRawType);
+			if (leafComponentType.hasNullTypeAnnotations() && environment.usesNullTypeAnnotations()) {
+				if (arrayBinding.nullTagBitsPerDimension == null)
+					arrayBinding.nullTagBitsPerDimension = new long[arrayBinding.dimensions+1];
+				arrayBinding.nullTagBitsPerDimension[arrayBinding.dimensions] = leafComponentType.tagBits & TagBits.AnnotationNullMASK;
+			}
 			break;
 
 		case Binding.TYPE_PARAMETER :

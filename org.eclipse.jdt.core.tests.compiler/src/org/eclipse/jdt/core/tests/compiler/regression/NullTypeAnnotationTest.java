@@ -10450,4 +10450,46 @@ public void testBug485302() {
 		"----------\n"
 	);
 }
+
+public void testBug485027() {
+	runConformTestWithLibs(new String[] {
+			"SomeAnnotation.java",
+			"import static java.lang.annotation.ElementType.TYPE_USE;\n" + 
+			"import java.lang.annotation.Retention;\n" + 
+			"import java.lang.annotation.RetentionPolicy;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ TYPE_USE })\n" + 
+			"@interface SomeAnnotation {\n" + 
+			"}\n", 
+
+			"Base.java",
+			"import java.io.Serializable;\n" +
+
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+
+			"@NonNullByDefault\n" +
+			"public class Base {\n" +
+			"	public <@SomeAnnotation Q extends Serializable> void setValuesArray(Q @Nullable [] value) {\n" +
+			"	}\n" +
+			"}\n"
+	}, getCompilerOptions(), "");
+			
+	runConformTestWithLibs(new String[] {
+			"Derived.java",
+			"import java.io.Serializable;\n" +
+
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+
+			"@NonNullByDefault\n" +
+			"public class Derived extends Base {\n" +
+			"	@Override\n" +
+			"	public final <@SomeAnnotation Q1 extends Serializable> void setValuesArray(Q1 @Nullable [] value) {\n" +
+			"	}\n" +
+			"}"
+	}, getCompilerOptions(), "");
+}
 }
