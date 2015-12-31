@@ -9228,4 +9228,27 @@ public void testBug484954() {
 		customOptions,
 		"");
 }
+public void testBug485056() {
+	runConformTestWithLibs(
+		new String[] {
+			"TestExplainedValue.java",
+			"import java.io.Serializable;\n" +
+		
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+		
+			"class ExplainedValue<T extends Serializable> {\n" +
+			"	public @Nullable T featureValue;\n" +
+			"}\n" +
+		
+			"public class TestExplainedValue {\n" +
+			"	static @Nullable Serializable g(ExplainedValue<? extends @NonNull Serializable> explainedValue) {\n" +
+			"		return explainedValue.featureValue;\n" +
+			"	}\n" +
+			"}"
+		}, 
+		getCompilerOptions(), 
+		""
+	);				
+}
 }
