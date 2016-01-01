@@ -1492,7 +1492,7 @@ public class InferenceContext18 {
 		   best and nothing more to do than to signal error. 
 		 */
 		ProblemMethodBinding problemMethod = new ProblemMethodBinding(method, method.selector, method.parameters, ProblemReasons.InvocationTypeInferenceFailure);
-		problemMethod.returnType = expectedType;
+		problemMethod.returnType = expectedType != null ? expectedType : method.returnType;
 		problemMethod.inferenceContext = this;
 		return problemMethod;
 	}

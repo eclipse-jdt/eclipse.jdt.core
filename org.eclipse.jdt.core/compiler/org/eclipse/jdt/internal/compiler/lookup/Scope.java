@@ -1655,7 +1655,8 @@ public abstract class Scope {
 				MethodBinding methodBinding = (MethodBinding) found.elementAt(i);
 				MethodBinding compatibleMethod = computeCompatibleMethod(methodBinding, argumentTypes, invocationSite);
 				if (compatibleMethod != null) {
-					if (compatibleMethod.isValidBinding()) {
+					if (compatibleMethod.isValidBinding() || compatibleMethod.problemId() == ProblemReasons.InvocationTypeInferenceFailure) {
+						// we need to accept methods with InvocationTypeInferenceFailure, because logically overload resolution happens *before* invocation type inference
 						if (foundSize == 1 && compatibleMethod.canBeSeenBy(receiverType, invocationSite, this)) {
 							// return the single visible match now
 							if (searchForDefaultAbstractMethod)
@@ -1789,8 +1790,8 @@ public abstract class Scope {
 		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
 			for (int i = 0; i < visiblesCount; i++) {
 				MethodBinding candidate = candidates[i];
-				if (candidate instanceof ParameterizedGenericMethodBinding)
-					candidate = ((ParameterizedGenericMethodBinding) candidate).originalMethod;
+				if (candidate.isParameterizedGeneric())
+					candidate = candidate.shallowOriginal();
 				if (candidate.hasSubstitutedParameters()) {
 					for (int j = i + 1; j < visiblesCount; j++) {
 						MethodBinding otherCandidate = candidates[j];
@@ -4626,6 +4627,12 @@ public abstract class Scope {
 	
 	// Version that just answers based on inference kind (at 1.8+) when available.
 	public int parameterCompatibilityLevel(MethodBinding method, TypeBinding[] arguments, InvocationSite site) {
+		if (method.problemId() == ProblemReasons.InvocationTypeInferenceFailure) {
+			// we need to accept methods with InvocationTypeInferenceFailure, because logically overload resolution happens *before* invocation type inference
+			method = ((ProblemMethodBinding)method).closestMatch; // for compatibility checks use the actual method
+			if (method == null)
+				return NOT_COMPATIBLE;
+		}
 		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8 && method instanceof ParameterizedGenericMethodBinding) {
 			int inferenceKind = InferenceContext18.CHECK_UNKNOWN;
 			InferenceContext18 context = null;
@@ -4649,8 +4656,14 @@ public abstract class Scope {
 					if (!argument.isFunctionalType())
 						continue;
 					TypeBinding parameter = InferenceContext18.getParameter(method.parameters, i, context.isVarArgs());
-					if (!argument.isCompatibleWith(parameter, this))
+					if (!argument.isCompatibleWith(parameter, this)) {
+						if (argument.isPolyType()) {
+							parameter = InferenceContext18.getParameter(method.original().parameters, i, context.isVarArgs());
+							if (!((PolyTypeBinding)argument).expression.isPertinentToApplicability(parameter, method))
+								continue;
+						}
 						return NOT_COMPATIBLE;
+					}
 				}
 			}
 			switch (inferenceKind) {

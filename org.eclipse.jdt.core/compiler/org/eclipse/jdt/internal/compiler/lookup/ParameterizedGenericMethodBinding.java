@@ -270,26 +270,29 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					methodSubstitute = scope.environment().createParameterizedGenericMethod(originalMethod, solutions, infCtx18.usesUncheckedConversion, hasReturnProblem);
 					if (invocationSite instanceof Invocation)
 						infCtx18.forwardResults(result, (Invocation) invocationSite, methodSubstitute, expectedType);
-					if (hasReturnProblem) { // illegally working from the provisional result?
-						MethodBinding problemMethod = infCtx18.getReturnProblemMethodIfNeeded(expectedType, methodSubstitute);
-						if (problemMethod instanceof ProblemMethodBinding) {
-							return problemMethod;
+					try {
+						if (hasReturnProblem) { // illegally working from the provisional result?
+							MethodBinding problemMethod = infCtx18.getReturnProblemMethodIfNeeded(expectedType, methodSubstitute);
+							if (problemMethod instanceof ProblemMethodBinding) {
+								return problemMethod;
+							}
 						}
-					}
-					if (invocationTypeInferred) {
-						if (compilerOptions.isAnnotationBasedNullAnalysisEnabled)
-							NullAnnotationMatching.checkForContradictions(methodSubstitute, invocationSite, scope);
-						MethodBinding problemMethod = methodSubstitute.boundCheck18(scope, arguments, invocationSite);
-						if (problemMethod != null) {
-							return problemMethod;
+						if (invocationTypeInferred) {
+							if (compilerOptions.isAnnotationBasedNullAnalysisEnabled)
+								NullAnnotationMatching.checkForContradictions(methodSubstitute, invocationSite, scope);
+							MethodBinding problemMethod = methodSubstitute.boundCheck18(scope, arguments, invocationSite);
+							if (problemMethod != null) {
+								return problemMethod;
+							}
+						} else {
+							methodSubstitute = new PolyParameterizedGenericMethodBinding(methodSubstitute);
 						}
-					} else {
-						methodSubstitute = new PolyParameterizedGenericMethodBinding(methodSubstitute);
+					} finally {
+						if (invocationSite instanceof Invocation)
+							((Invocation) invocationSite).registerInferenceContext(methodSubstitute, infCtx18); // keep context so we can finish later
+						else if (invocationSite instanceof ReferenceExpression)
+							((ReferenceExpression) invocationSite).registerInferenceContext(methodSubstitute, infCtx18); // keep context so we can finish later
 					}
-					if (invocationSite instanceof Invocation)
-						((Invocation) invocationSite).registerInferenceContext(methodSubstitute, infCtx18); // keep context so we can finish later
-					else if (invocationSite instanceof ReferenceExpression)
-						((ReferenceExpression) invocationSite).registerInferenceContext(methodSubstitute, infCtx18); // keep context so we can finish later
 					return methodSubstitute; 
 				}
 			}
@@ -740,6 +743,11 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			}
 		}
 	    return this;
+	}
+
+	@Override
+	public boolean isParameterizedGeneric() {
+		return true;
 	}
 
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=347600 && https://bugs.eclipse.org/bugs/show_bug.cgi?id=242159

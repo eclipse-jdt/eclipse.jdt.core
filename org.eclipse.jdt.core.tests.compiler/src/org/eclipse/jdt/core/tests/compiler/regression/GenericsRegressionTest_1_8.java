@@ -2063,20 +2063,8 @@ public void testBug427626() {
 			"}"
 		},
 		// 8u20 emits just one message inferred type not conforming to upper bound. ECJ's message is actually better.
-		// We used to emit only 1 error here. Here the lambda is broken, so inference fails leading to two messages.			
 		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
-		"	ss.stream().map(s -> {\n" + 
-		"          class L1 {};\n" + 
-		"          class L2 {\n" + 
-		"            void mm(L1 l) {}\n" + 
-		"          }\n" + 
-		"          return new L2().mm(new L1());\n" + 
-		"        }).forEach(e -> System.out.println(e));\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Stream<Object> to <unknown>\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 13)\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
 		"	return new L2().mm(new L1());\n" + 
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Cannot return a void result\n" + 
@@ -6146,6 +6134,65 @@ public void testBug491485() {
 		"	return method((SAM<?,?,?> & I <?>) this::foo);\n" + 
 		"	                                   ^^^^^^^^^\n" + 
 		"The type of foo(Object, Object) from the type Tester is Object, this is incompatible with the descriptor\'s return type: X3\n" + 
+		"----------\n");
+}
+
+public void testBug485057() {
+	runNegativeTest(
+		new String[] {
+			"Task.java",
+			"public class Task {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		foo(rt -> true); // PROBLEM HERE\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static <T extends java.io.Serializable> Task foo(T serialiable) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static Task foo(java.util.function.Predicate<?> predicate) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Task.java (at line 4)\n" + 
+		"	foo(rt -> true); // PROBLEM HERE\n" + 
+		"	^^^\n" + 
+		"The method foo(Serializable) is ambiguous for the type Task\n" + 
+		"----------\n" + 
+		"2. ERROR in Task.java (at line 4)\n" + 
+		"	foo(rt -> true); // PROBLEM HERE\n" + 
+		"	    ^^^^^^^^^^\n" + 
+		"The target type of this expression must be a functional interface\n" + 
+		"----------\n");
+}
+
+public void testBug485373() {
+	runNegativeTest(
+		new String[] {
+			"TestGenericsFunctional.java",
+			"import java.util.Collection;\n" + 
+			"import java.util.function.Consumer;\n" + 
+			"\n" + 
+			"public class TestGenericsFunctional {\n" + 
+			"\n" + 
+			"	public static void doStuff(String str, Consumer<String> consumer) {\n" + 
+			"		consumer.accept(str);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static <C extends Collection<String>> C doStuff(String str, C collection) {\n" + 
+			"		doStuff(str, st -> collection.add(st));\n" + 
+			"		return collection;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in TestGenericsFunctional.java (at line 11)\n" + 
+		"	doStuff(str, st -> collection.add(st));\n" + 
+		"	^^^^^^^\n" + 
+		"The method doStuff(String, Consumer<String>) is ambiguous for the type TestGenericsFunctional\n" + 
 		"----------\n");
 }
 }
