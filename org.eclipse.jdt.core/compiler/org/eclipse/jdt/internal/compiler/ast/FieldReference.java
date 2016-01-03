@@ -90,6 +90,9 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 		this.receiver
 			.analyseCode(currentScope, flowContext, flowInfo, !this.binding.isStatic())
 			.unconditionalInits();
+	
+	this.receiver.checkNPE(currentScope, flowContext, flowInfo);
+	
 	if (assignment.expression != null) {
 		flowInfo =
 			assignment

@@ -60,8 +60,8 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 }
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-	this.receiver.checkNPE(currentScope, flowContext, flowInfo, 1);
 	flowInfo = this.receiver.analyseCode(currentScope, flowContext, flowInfo);
+	this.receiver.checkNPE(currentScope, flowContext, flowInfo, 1);
 	flowInfo = this.position.analyseCode(currentScope, flowContext, flowInfo);
 	this.position.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 	// account for potential ArrayIndexOutOfBoundsException:

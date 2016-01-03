@@ -68,13 +68,13 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 								this.left.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits())
 							.unconditionalInits();
 		} else {
-			this.left.checkNPE(currentScope, flowContext, flowInfo);
 			flowInfo = this.left.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
+			this.left.checkNPE(currentScope, flowContext, flowInfo);
 			if (((this.bits & OperatorMASK) >> OperatorSHIFT) != AND) {
 				flowContext.expireNullCheckedFieldInfo();
 			}
-			this.right.checkNPE(currentScope, flowContext, flowInfo);
 			flowInfo = this.right.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
+			this.right.checkNPE(currentScope, flowContext, flowInfo);
 			if (((this.bits & OperatorMASK) >> OperatorSHIFT) != AND) {
 				flowContext.expireNullCheckedFieldInfo();
 			}

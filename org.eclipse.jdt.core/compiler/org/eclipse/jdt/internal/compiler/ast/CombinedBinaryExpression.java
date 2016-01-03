@@ -125,26 +125,26 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	}
 	try {
 		BinaryExpression cursor;
-		if ((cursor = this.referencesTable[0]).resolvedType.id !=
-				TypeIds.T_JavaLangString) {
+		cursor = this.referencesTable[0];
+		flowInfo = cursor.left.analyseCode(currentScope, flowContext, flowInfo).
+				unconditionalInits();
+		if (cursor.resolvedType.id != TypeIds.T_JavaLangString) {
 			cursor.left.checkNPE(currentScope, flowContext, flowInfo);
 		}
-		flowInfo = cursor.left.analyseCode(currentScope, flowContext, flowInfo).
-			unconditionalInits();
 		for (int i = 0, end = this.arity; i < end; i ++) {
-			if ((cursor = this.referencesTable[i]).resolvedType.id !=
-					TypeIds.T_JavaLangString) {
+			cursor = this.referencesTable[i];
+			flowInfo = cursor.right.
+					analyseCode(currentScope, flowContext, flowInfo).
+						unconditionalInits();
+			if (cursor.resolvedType.id != TypeIds.T_JavaLangString) {
 				cursor.right.checkNPE(currentScope, flowContext, flowInfo);
 			}
-			flowInfo = cursor.right.
-				analyseCode(currentScope, flowContext, flowInfo).
-					unconditionalInits();
 		}
+		flowInfo = this.right.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
 		if (this.resolvedType.id != TypeIds.T_JavaLangString) {
 			this.right.checkNPE(currentScope, flowContext, flowInfo);
 		}
-		return this.right.analyseCode(currentScope, flowContext, flowInfo).
-			unconditionalInits();
+		return flowInfo;
 	} finally {
 		// account for exception possibly thrown by arithmetics
 		flowContext.recordAbruptExit();

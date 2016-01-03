@@ -17974,4 +17974,181 @@ public void testBug486912PotNullInLoop() {
 		"----------\n"
 	);
 }
+public void testBug447695() {
+	runConformTest(
+		new String[] {
+		"test/Test447695.java",
+			"package test;\n" +
+			"\n" +
+			"public class Test447695 {\n" +
+			"	public static void f() {\n" +
+			"		int[] array = null;\n" +
+			"		(array = new int[1])[0] = 42;\n" +
+			"	}\n" +
+			"	public static int g() {\n" +
+			"		int[] array = null;\n" +
+			"		return (array = new int[1])[0];\n" +
+			"	}\n" +
+			"}\n"
+		} 
+	);
+}
+public void testBug447695b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses foreach
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"public class X {\n" +
+			"	void test(String[] ss) {\n" +
+			"		List<String> strings = null;\n" +
+			"		for (String s : (strings = Arrays.asList(ss)))\n" +
+			"			System.out.println(s);\n" +
+			"	}\n" +
+			"}\n"
+		});
+}
+public void testBug447695c() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses autoboxing
+	runConformTest(
+		new String[] {
+			"test/Test447695.java",
+			"package test;\n" +
+			"\n" +
+			"public class Test447695 {\n" +
+			"	void f() {\n" +
+			"		Integer l1 = null;\n" +
+			"		Integer l2 = null;\n" +
+			"		int b = (l1 = new Integer(2)) + (l2 = new Integer(1));\n" +
+			"	}\n" +
+			"}\n"
+		}
+	);
+}
+public void testBug447695d() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return; // uses reference expression
+	runConformTest(
+		new String[] {
+			"test/Test447695.java",
+			"package test;\n" +
+			"\n" +
+			"import java.util.function.Supplier;\n" +
+			"\n" +
+			"public class Test447695 {\n" +
+			"	void f() {\n" +
+			"		String s = null;\n" +
+			"		Supplier<String> l = (s = \"\")::toString;\n" +
+			"	}\n" +
+			"}\n"
+		} 
+	);
+}
+public void testBug447695e() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses autoboxing
+	runConformTest(
+		new String[] {
+			"test/Test447695.java",
+			"package test;\n" +
+			"\n" +
+			"public class Test447695 {\n" +
+			"	void f() {\n" +
+			"		Integer i = null;\n" +
+			"		int j = -(i = new Integer(1));\n" +
+			"		Boolean b1 = null;\n" +
+			"		boolean b = !(b1 = new Boolean(false));\n" +
+			"	}\n" +
+			"}\n"
+		}
+	);
+}
+public void testBug447695f() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses autoboxing
+	runConformTest(
+		new String[] {
+			"test/Test447695.java",
+			"package test;\n" +
+			"\n" +
+			"public class Test447695 {\n" +
+			"	void f() {\n" +
+			"		int i = 0;\n" +
+			"		Integer i1 = null;\n" +
+			"		Integer i2 = null;\n" +
+			"		Integer i3 = null;\n" +
+			"		int j = (i1 = new Integer(1)) \n" +
+			"				+ (i2 = new Integer(1)) \n" +
+			"				+ i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i + i \n" +
+			"				+ (i3 = new Integer(2)) + i;\n" +
+			"	}\n" +
+			"}\n"
+		}
+	);
+}
+public void testBug447695g() {
+	runNegativeTest(
+		new String[] {
+			"test/Test447695.java",
+			"package test;\n" +
+			"\n" +
+			"class X {\n" +
+			"	int i;\n" +
+			"}\n" +
+			"\n" +
+			"public class Test447695 {\n" +
+			"	void f() {\n" +
+			"		X x1 = null;\n" +
+			"		X x2 = null;\n" +
+			"		X x3 = null;\n" +
+			"		X x4 = null;\n" +
+			"		X x5 = null;\n" +
+			"		X x6 = null;\n" +
+			"		X x7 = null;\n" +
+			"		X x8 = null;\n" +
+			"		X x9 = null;\n" +
+			"		X x10 = null;\n" +
+			"		X x11 = null;\n" +
+			"		x1.i = 1; // error 1 expected\n" +
+			"		x2.i += 1; // error 2 expected\n" +
+			"		(x3).i = 1; // error 3 expected\n" +
+			"		(x4).i += 1; // error 4 expected\n" +
+			"		(x5 = new X()).i = (x6 = new X()).i;\n" +
+			"		(x7 = new X()).i += (x8 = new X()).i;\n" +
+			"		int i1 = x9.i; // error 5 expected\n" +
+			"		int i2 = (x10).i; // error 6 expected\n" +
+			"		int i3 = (x11 = new X()).i;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in test\\Test447695.java (at line 20)\n" + 
+		"	x1.i = 1; // error 1 expected\n" + 
+		"	^^\n" + 
+		"Null pointer access: The variable x1 can only be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\Test447695.java (at line 21)\n" + 
+		"	x2.i += 1; // error 2 expected\n" + 
+		"	^^\n" + 
+		"Null pointer access: The variable x2 can only be null at this location\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\Test447695.java (at line 22)\n" + 
+		"	(x3).i = 1; // error 3 expected\n" + 
+		"	^^^^\n" + 
+		"Null pointer access: The variable x3 can only be null at this location\n" + 
+		"----------\n" + 
+		"4. ERROR in test\\Test447695.java (at line 23)\n" + 
+		"	(x4).i += 1; // error 4 expected\n" + 
+		"	^^^^\n" + 
+		"Null pointer access: The variable x4 can only be null at this location\n" + 
+		"----------\n" + 
+		"5. ERROR in test\\Test447695.java (at line 26)\n" + 
+		"	int i1 = x9.i; // error 5 expected\n" + 
+		"	         ^^\n" + 
+		"Null pointer access: The variable x9 can only be null at this location\n" + 
+		"----------\n" + 
+		"6. ERROR in test\\Test447695.java (at line 27)\n" + 
+		"	int i2 = (x10).i; // error 6 expected\n" + 
+		"	         ^^^^^\n" + 
+		"Null pointer access: The variable x10 can only be null at this location\n" + 
+		"----------\n"
+	);
+}
 }
