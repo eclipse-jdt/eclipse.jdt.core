@@ -9251,4 +9251,676 @@ public void testBug485056() {
 		""
 	);				
 }
+public void testBug484741() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" + 			
+			"public class Test {\n" +
+			"	static <T, E extends T> void f(java.util.ArrayList<T> list, E element) {\n" +
+			"		list.add(element);" +
+			"	}\n" +
+			"\n" + 			
+			"	static <A> void g(A a) {\n" +
+			"		f(new java.util.ArrayList<A>(), a);\n" +
+			"	}\n" +
+			"\n" + 			
+			"	static <T1, E1 extends T1> void h(E1 element1, java.util.ArrayList<T1> list1) {\n" +
+			"		f(list1, element1);\n" +
+			"	}\n" +
+			"}"
+	}, getCompilerOptions(), "");	
+}	
+public void testBug484741b() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/TestDep.java",
+			"package test;\n" +
+			"public class TestDep {\n" +
+			"	static <T, E extends T> T f(E e) {\n" +
+			"		return e;\n" +
+			"	}\n" +
+			"}"
+	}, getCompilerOptions(), "");	
+}
+public void testBug484741c() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Test3.java",
+			"package test;\n" +
+			"import org.eclipse.jdt.annotation.DefaultLocation;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+
+			"@NonNullByDefault({ DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_ARGUMENT })\n" +
+			"class Feature3<ValueType extends java.io.Serializable, PartitionKeyType> {\n" +
+			"}\n" +
+
+			"@NonNullByDefault({ DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_ARGUMENT })\n" +
+			"public class Test3 {\n" +
+			"	public static <T extends java.io.Serializable, F extends Feature3<T, ?>> T[] getValues(F feature) {\n" +
+			"		throw new RuntimeException();\n" +
+			"	}\n" +
+
+			"	public static void f(Feature3<?, ?> feature) {\n" +
+			"		getValues(feature);\n" +
+			"	}\n" +
+			"}"
+	}, getCompilerOptions(), "");	
+}
+public void testBug484741d() {
+	runConformTestWithLibs(
+		new String[] {
+			"BaseNNBD.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class BaseNNBD<S extends Runnable, I extends S> {\n" +
+			"}\n",
+			"DerivedNNBD.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class DerivedNNBD<S1 extends Runnable, I1 extends S1> extends BaseNNBD<S1, I1> {	\n" +
+			"}\n"				
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug484741e() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/AbstractFeature.java",
+			"package test;\n" +
+			"import java.io.Serializable;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n"+
+			"abstract class AbstractFeature<T extends @NonNull Serializable> {\n" +
+			"}\n", 
+			"test/SubFeature.java",
+			"package test;\n" +
+			"import java.io.Serializable;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n"+
+			"public class SubFeature<T1 extends @NonNull Serializable> extends AbstractFeature<T1> {\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug484741Invoke() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/TestInterdepInvoke.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class TestInterdepInvoke {\n" +
+			"	static <T, E extends T> T f1(E e) {\n" +
+			"		return e;\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T, @Nullable E extends T> T f2(E e) {\n" +
+			"		return e; // error 1 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T, E extends T> T f3(E e) {\n" +
+			"		return e;\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T, @Nullable E extends T> T f4(E e) {\n" +
+			"		return e;\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations of f1 --------\n" +
+			"\n" +
+			"	static <T11, E11 extends T11> T11 g11(E11 e) {\n" +
+			"		return f1(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T12, @Nullable E12 extends T12> T12 g12(E12 e) {\n" +
+			"		return f1(e); // error 2 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T13, E13 extends T13> T13 g13(E13 e) {\n" +
+			"		return f1(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T14, @Nullable E14 extends T14> T14 g14(E14 e) {\n" +
+			"		return f1(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations of f2 --------\n" +
+			"\n" +
+			"	static <T21, E21 extends T21> T21 g21(E21 e) {\n" +
+			"		return f2(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T22, @Nullable E22 extends T22> T22 g22(E22 e) {\n" +
+			"		return f2(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T23, E23 extends T23> T23 g23(E23 e) {\n" +
+			"		return f2(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T24, @Nullable E24 extends T24> T24 g24(E24 e) {\n" +
+			"		return f2(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations of f3 --------\n" +
+			"\n" +
+			"	static <T31, E31 extends T31> T31 g31(E31 e) {\n" +
+			"		return f3(e); // error 3 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T32, @Nullable E32 extends T32> T32 g32(E32 e) {\n" +
+			"		return f3(e); // error 4 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T33, E33 extends T33> T33 g33(E33 e) {\n" +
+			"		return f3(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T34, @Nullable E34 extends T34> T34 g34(E34 e) {\n" +
+			"		return f3(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations of f4 --------\n" +
+			"\n" +
+			"	static <T41, E41 extends T41> T41 g41(E41 e) {\n" +
+			"		return f4(e); /// error 5 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T42, @Nullable E42 extends T42> T42 g42(E42 e) {\n" +
+			"		return f4(e); // error 6 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T43, E43 extends T43> T43 g43(E43 e) {\n" +
+			"		return f4(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T44, @Nullable E44 extends T44> T44 g44(E44 e) {\n" +
+			"		return f4(e);\n" +
+			"	}\n" +
+			"}\n"
+		}, 
+		getCompilerOptions(), 
+		"----------\n" + 
+		"1. ERROR in test\\TestInterdepInvoke.java (at line 11)\n" + 
+		"	return e; // error 1 expected\n" + 
+		"	       ^\n" + 
+		"Null type mismatch (type annotations): required \'T\' but this expression has type \'@Nullable E extends T\', where \'T\' is a free type variable\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\TestInterdepInvoke.java (at line 29)\n" + 
+		"	return f1(e); // error 2 expected\n" + 
+		"	       ^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'T12\' but this expression has type \'@Nullable E12 extends T12\', where \'T12\' is a free type variable\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\TestInterdepInvoke.java (at line 61)\n" + 
+		"	return f3(e); // error 3 expected\n" + 
+		"	       ^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'T31\' but this expression has type \'@Nullable E31 extends T31\', where \'T31\' is a free type variable\n" + 
+		"----------\n" + 
+		"4. ERROR in test\\TestInterdepInvoke.java (at line 65)\n" + 
+		"	return f3(e); // error 4 expected\n" + 
+		"	       ^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'T32\' but this expression has type \'@Nullable E32 extends T32\', where \'T32\' is a free type variable\n" + 
+		"----------\n" + 
+		"5. ERROR in test\\TestInterdepInvoke.java (at line 79)\n" + 
+		"	return f4(e); /// error 5 expected\n" + 
+		"	       ^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'T41\' but this expression has type \'@Nullable E41 extends T41\', where \'T41\' is a free type variable\n" + 
+		"----------\n" + 
+		"6. ERROR in test\\TestInterdepInvoke.java (at line 83)\n" + 
+		"	return f4(e); // error 6 expected\n" + 
+		"	       ^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'T42\' but this expression has type \'@Nullable E42 extends T42\', where \'T42\' is a free type variable\n" + 
+		"----------\n"
+	);
+}
+public void testBug484741Invoke2() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/TestInterdepInvokeNN.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"@java.lang.annotation.Target({ java.lang.annotation.ElementType.TYPE_USE })\n" +
+			"@interface SomeAnnotation {\n" +
+			"	// just needed as workaround if bug 484981 is not fixed\n" +
+			"}\n" +
+			"\n" +
+			"public class TestInterdepInvokeNN {\n" +
+			"	static <T, @SomeAnnotation E extends T> T f1(E e) {\n" +
+			"		return e;\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T, @NonNull E extends T> T f2(E e) {\n" +
+			"		return e;\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T, @SomeAnnotation E extends T> T f3(E e) {\n" +
+			"		return e;\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T, @NonNull E extends T> T f4(E e) {\n" +
+			"		return e;\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations of f1 --------\n" +
+			"\n" +
+			"	static <T11, @SomeAnnotation E11 extends T11> T11 g11(E11 e) {\n" +
+			"		return f1(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T12, @NonNull E12 extends T12> T12 g12(E12 e) {\n" +
+			"		return f1(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T13, @SomeAnnotation E13 extends T13> T13 g13(E13 e) {\n" +
+			"		return f1(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T14, @NonNull E14 extends T14> T14 g14(E14 e) {\n" +
+			"		return f1(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations of f2 --------\n" +
+			"\n" +
+			"	static <T21, @SomeAnnotation E21 extends T21> T21 g21(E21 e) {\n" +
+			"		return f2(e); // error 1 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T22, @NonNull E22 extends T22> T22 g22(E22 e) {\n" +
+			"		return f2(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T23, @SomeAnnotation E23 extends T23> T23 g23(E23 e) {\n" +
+			"		return f2(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T24, @NonNull E24 extends T24> T24 g24(E24 e) {\n" +
+			"		return f2(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations of f3 --------\n" +
+			"\n" +
+			"	static <T31, @SomeAnnotation E31 extends T31> T31 g31(E31 e) {\n" +
+			"		return f3(e); // error 2 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T32, @NonNull E32 extends T32> T32 g32(E32 e) {\n" +
+			"		return f3(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T33, @SomeAnnotation E33 extends T33> T33 g33(E33 e) {\n" +
+			"		return f3(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T34, @NonNull E34 extends T34> T34 g34(E34 e) {\n" +
+			"		return f3(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations of f4 --------\n" +
+			"\n" +
+			"	static <T41, @SomeAnnotation E41 extends T41> T41 g41(E41 e) {\n" +
+			"		return f4(e); // error 3 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T42, @NonNull E42 extends T42> T42 g42(E42 e) {\n" +
+			"		return f4(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T43, @SomeAnnotation E43 extends T43> T43 g43(E43 e) {\n" +
+			"		return f4(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T44, @NonNull E44 extends T44> T44 g44(E44 e) {\n" +
+			"		return f4(e);\n" +
+			"	}\n" +
+			"}\n"
+		}, 
+		getCompilerOptions(), 
+		"----------\n" + 
+		"1. WARNING in test\\TestInterdepInvokeNN.java (at line 48)\n" + 
+		"	return f2(e); // error 1 expected\n" + 
+		"	          ^\n" + 
+		"Null type safety (type annotations): The expression of type \'E21 extends T21\' needs unchecked conversion to conform to \'@NonNull E21 extends T21\'\n" + 
+		"----------\n" + 
+		"2. WARNING in test\\TestInterdepInvokeNN.java (at line 66)\n" + 
+		"	return f3(e); // error 2 expected\n" + 
+		"	          ^\n" + 
+		"Null type safety (type annotations): The expression of type \'E31 extends T31\' needs unchecked conversion to conform to \'@NonNull E31 extends T31\'\n" + 
+		"----------\n" + 
+		"3. WARNING in test\\TestInterdepInvokeNN.java (at line 84)\n" + 
+		"	return f4(e); // error 3 expected\n" + 
+		"	          ^\n" + 
+		"Null type safety (type annotations): The expression of type \'E41 extends T41\' needs unchecked conversion to conform to \'@NonNull E41 extends T41\'\n" + 
+		"----------\n"
+	);
+}
+public void testBug484741Invoke3() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/TestInterdepInvoke.java",
+			"package test;\n" +
+			"\n" +
+			"import java.util.ArrayList;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class TestInterdepInvoke {\n" +
+			"	static <T1, E1 extends T1> void f1(ArrayList<T1> list, E1 e) {\n" +
+			"		list.add(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T2, @Nullable E2 extends T2> void f2(ArrayList<T2> list, E2 e) {\n" +
+			"		list.add(e); // error expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T3, @NonNull E3 extends T3> void f3(ArrayList<T3> list, E3 e) {\n" +
+			"		list.add(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T4, E4 extends T4> void f4(ArrayList<T4> list, E4 e) {\n" +
+			"		list.add(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T5, @Nullable E5 extends T5> void f5(ArrayList<T5> list, E5 e) {\n" +
+			"		list.add(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T6, @NonNull E6 extends T6> void f6(ArrayList<T6> list, E6 e) {\n" +
+			"		list.add(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T7, E7 extends T7> void f7(ArrayList<T7> list, E7 e) {\n" +
+			"		list.add(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T8, @Nullable E8 extends T8> void f8(ArrayList<T8> list, E8 e) {\n" +
+			"		list.add(e); // error expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T9, @NonNull E9 extends T9> void f9(ArrayList<T9> list, E9 e) {\n" +
+			"		list.add(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations, but all of the 81 combinations removed, that were already handled correctly  -----\n" +
+			"\n" +
+			"	static <S1, F1 extends S1> void g1(ArrayList<S1> list, F1 e) {\n" +
+			"		f1(list, e);\n" +
+			"		f2(list, e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <S2, @Nullable F2 extends S2> void g2(ArrayList<S2> list, F2 e) {\n" +
+			"		f1(list, e);\n" +
+			"		f2(list, e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <S3, @NonNull F3 extends S3> void g3(ArrayList<S3> list, F3 e) {\n" +
+			"		f2(list, e);\n" +
+			"	}\n" +
+			"}\n",
+		}, 
+		getCompilerOptions(), 
+		"----------\n" + 
+		"1. ERROR in test\\TestInterdepInvoke.java (at line 14)\n" + 
+		"	list.add(e); // error expected\n" + 
+		"	         ^\n" + 
+		"Null type mismatch (type annotations): required \'T2\' but this expression has type \'@Nullable E2 extends T2\', where \'T2\' is a free type variable\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\TestInterdepInvoke.java (at line 38)\n" + 
+		"	list.add(e); // error expected\n" + 
+		"	         ^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull T8\' but this expression has type \'@Nullable E8 extends @NonNull T8\'\n" + 
+		"----------\n"
+	);				
+}	
+
+
+public void testBug484471SubclassNullable() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/TestInterdepSubClass.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class TestInterdepSubClass {\n" +
+			"	static class A1<T, E extends T> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class A2<T, @Nullable E extends T> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class A3<@Nullable T, E extends T> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class A4<@Nullable T, @Nullable E extends T> {\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- subclasses of A1<T, E extends T> --------\n" +
+			"\n" +
+			"	static class B11<T11, E11 extends T11> extends A1<T11, E11> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B12<T12, @Nullable E12 extends T12> extends A1<T12, E12> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B13<@Nullable T13, E13 extends T13> extends A1<T13, E13> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B14<@Nullable T14, @Nullable E14 extends T14> extends A1<T14, E14> {\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- subclasses of A2<T, @Nullable E extends T> --------\n" +
+			"\n" +
+			"	static class B21<T21, E21 extends T21> extends A2<T21, E21> { // expect error 1\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B22<T22, @Nullable E22 extends T22> extends A2<T22, E22> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B23<@Nullable T23, E23 extends T23> extends A2<T23, E23> { // expect error 2\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B24<@Nullable T24, @Nullable E24 extends T24> extends A2<T24, E24> {\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- subclasses of A3<@Nullable T, E extends T> --------\n" +
+			"\n" +
+			"	static class B31<T31, E31 extends T31> extends A3<T31, E31> { // expect error 3\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B32<T32, @Nullable E32 extends T32> extends A3<T32, E32> { // expect error 4\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B33<@Nullable T33, E33 extends T33> extends A3<T33, E33> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B34<@Nullable T34, @Nullable E34 extends T34> extends A3<T34, E34> {\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- subclasses of A4<@Nullable T, @Nullable E extends T> --------\n" +
+			"\n" +
+			"	static class B41<T41, E41 extends T41> extends A4<T41, E41> { // expect errors 5 & 6\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B42<T42, @Nullable E42 extends T42> extends A4<T42, E42> { // expect error 7\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B43<@Nullable T43, E43 extends T43> extends A4<T43, E43> { // expect error 8\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B44<@Nullable T44, @Nullable E44 extends T44> extends A4<T44, E44> {\n" +
+			"	}\n" +
+			"}\n" 
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\TestInterdepSubClass.java (at line 34)\n" + 
+		"	static class B21<T21, E21 extends T21> extends A2<T21, E21> { // expect error 1\n" + 
+		"	                                                       ^^^\n" + 
+		"Null constraint mismatch: The type \'E21 extends T21\' is not a valid substitute for the type parameter \'@Nullable E extends T\'\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\TestInterdepSubClass.java (at line 40)\n" + 
+		"	static class B23<@Nullable T23, E23 extends T23> extends A2<T23, E23> { // expect error 2\n" + 
+		"	                                                                 ^^^\n" + 
+		"Null constraint mismatch: The type \'E23 extends @Nullable T23\' is not a valid substitute for the type parameter \'@Nullable E extends T\'\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\TestInterdepSubClass.java (at line 48)\n" + 
+		"	static class B31<T31, E31 extends T31> extends A3<T31, E31> { // expect error 3\n" + 
+		"	                                                  ^^^\n" + 
+		"Null constraint mismatch: The type \'T31\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"4. ERROR in test\\TestInterdepSubClass.java (at line 51)\n" + 
+		"	static class B32<T32, @Nullable E32 extends T32> extends A3<T32, E32> { // expect error 4\n" + 
+		"	                                                            ^^^\n" + 
+		"Null constraint mismatch: The type \'T32\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"5. ERROR in test\\TestInterdepSubClass.java (at line 62)\n" + 
+		"	static class B41<T41, E41 extends T41> extends A4<T41, E41> { // expect errors 5 & 6\n" + 
+		"	                                                  ^^^\n" + 
+		"Null constraint mismatch: The type \'T41\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"6. ERROR in test\\TestInterdepSubClass.java (at line 62)\n" + 
+		"	static class B41<T41, E41 extends T41> extends A4<T41, E41> { // expect errors 5 & 6\n" + 
+		"	                                                       ^^^\n" + 
+		"Null constraint mismatch: The type \'E41 extends T41\' is not a valid substitute for the type parameter \'@Nullable E extends @Nullable T\'\n" + 
+		"----------\n" + 
+		"7. ERROR in test\\TestInterdepSubClass.java (at line 65)\n" + 
+		"	static class B42<T42, @Nullable E42 extends T42> extends A4<T42, E42> { // expect error 7\n" + 
+		"	                                                            ^^^\n" + 
+		"Null constraint mismatch: The type \'T42\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"8. ERROR in test\\TestInterdepSubClass.java (at line 68)\n" + 
+		"	static class B43<@Nullable T43, E43 extends T43> extends A4<T43, E43> { // expect error 8\n" + 
+		"	                                                                 ^^^\n" + 
+		"Null constraint mismatch: The type \'E43 extends @Nullable T43\' is not a valid substitute for the type parameter \'@Nullable E extends @Nullable T\'\n" + 
+		"----------\n"
+	);
+}
+public void testBug484471SubclassNonNull() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/TestInterdepSubClassNN.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"@java.lang.annotation.Target({ java.lang.annotation.ElementType.TYPE_USE })\n" +
+			"@interface SomeAnnotation {\n" +
+			"	// just needed as workaround if bug 484981 is not fixed\n" +
+			"}\n" +
+			"\n" +
+			"public class TestInterdepSubClassNN {\n" +
+			"	static class A1<T, @SomeAnnotation E extends T> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class A2<T, @NonNull E extends T> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class A3<@NonNull T, @SomeAnnotation E extends T> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class A4<@NonNull T, @NonNull E extends T> {\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- subclasses of A1<T, E extends T> --------\n" +
+			"\n" +
+			"	static class B11<T11, @SomeAnnotation E11 extends T11> extends A1<T11, E11> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B12<T12, @NonNull E12 extends T12> extends A1<T12, E12> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B13<@NonNull T13, @SomeAnnotation E13 extends T13> extends A1<T13, E13> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B14<@NonNull T14, @NonNull E14 extends T14> extends A1<T14, E14> {\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- subclasses of A2<T, @NonNull E extends T> --------\n" +
+			"\n" +
+			"	static class B21<T21, @SomeAnnotation E21 extends T21> extends A2<T21, E21> { // expect error 1\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B22<T22, @NonNull E22 extends T22> extends A2<T22, E22> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B23<@NonNull T23, @SomeAnnotation E23 extends T23> extends A2<T23, E23> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B24<@NonNull T24, @NonNull E24 extends T24> extends A2<T24, E24> {\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- subclasses of A3<@NonNull T, E extends T> --------\n" +
+			"\n" +
+			"	static class B31<T31, @SomeAnnotation E31 extends T31> extends A3<T31, E31> { // expect errors 2 & 3\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B32<T32, @NonNull E32 extends T32> extends A3<T32, E32> { // expect error 4\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B33<@NonNull T33, @SomeAnnotation E33 extends T33> extends A3<T33, E33> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B34<@NonNull T34, @NonNull E34 extends T34> extends A3<T34, E34> {\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- subclasses of A4<@NonNull T, @NonNull E extends T> --------\n" +
+			"\n" +
+			"	static class B41<T41, @SomeAnnotation E41 extends T41> extends A4<T41, E41> { // expect error 5 & 6\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B42<T42, @NonNull E42 extends T42> extends A4<T42, E42> { // expect error 7\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B43<@NonNull T43, @SomeAnnotation E43 extends T43> extends A4<T43, E43> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B44<@NonNull T44, @NonNull E44 extends T44> extends A4<T44, E44> {\n" +
+			"	}\n" +
+			"}\n"
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+				"1. ERROR in test\\TestInterdepSubClassNN.java (at line 39)\n" + 
+				"	static class B21<T21, @SomeAnnotation E21 extends T21> extends A2<T21, E21> { // expect error 1\n" + 
+				"	                                                                       ^^^\n" + 
+				"Null constraint mismatch: The type \'E21 extends T21\' is not a valid substitute for the type parameter \'@NonNull E extends T\'\n" + 
+				"----------\n" + 
+				"2. ERROR in test\\TestInterdepSubClassNN.java (at line 53)\n" + 
+				"	static class B31<T31, @SomeAnnotation E31 extends T31> extends A3<T31, E31> { // expect errors 2 & 3\n" + 
+				"	                                                                  ^^^\n" + 
+				"Null constraint mismatch: The type \'T31\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+				"----------\n" + 
+				"3. ERROR in test\\TestInterdepSubClassNN.java (at line 53)\n" + 
+				"	static class B31<T31, @SomeAnnotation E31 extends T31> extends A3<T31, E31> { // expect errors 2 & 3\n" + 
+				"	                                                                       ^^^\n" + 
+				"Null constraint mismatch: The type \'E31 extends T31\' is not a valid substitute for the type parameter \'E extends @NonNull T\'\n" + 
+				"----------\n" + 
+				"4. ERROR in test\\TestInterdepSubClassNN.java (at line 56)\n" + 
+				"	static class B32<T32, @NonNull E32 extends T32> extends A3<T32, E32> { // expect error 4\n" + 
+				"	                                                           ^^^\n" + 
+				"Null constraint mismatch: The type \'T32\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+				"----------\n" + 
+				"5. ERROR in test\\TestInterdepSubClassNN.java (at line 67)\n" + 
+				"	static class B41<T41, @SomeAnnotation E41 extends T41> extends A4<T41, E41> { // expect error 5 & 6\n" + 
+				"	                                                                  ^^^\n" + 
+				"Null constraint mismatch: The type \'T41\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+				"----------\n" + 
+				"6. ERROR in test\\TestInterdepSubClassNN.java (at line 67)\n" + 
+				"	static class B41<T41, @SomeAnnotation E41 extends T41> extends A4<T41, E41> { // expect error 5 & 6\n" + 
+				"	                                                                       ^^^\n" + 
+				"Null constraint mismatch: The type \'E41 extends T41\' is not a valid substitute for the type parameter \'@NonNull E extends @NonNull T\'\n" + 
+				"----------\n" + 
+				"7. ERROR in test\\TestInterdepSubClassNN.java (at line 70)\n" + 
+				"	static class B42<T42, @NonNull E42 extends T42> extends A4<T42, E42> { // expect error 7\n" + 
+				"	                                                           ^^^\n" + 
+				"Null constraint mismatch: The type \'T42\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+				"----------\n"
+	);
+}
 }
