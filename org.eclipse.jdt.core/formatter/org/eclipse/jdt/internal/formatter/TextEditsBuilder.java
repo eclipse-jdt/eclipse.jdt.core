@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 Mateusz Matela and others.
+ * Copyright (c) 2014, 2016 Mateusz Matela and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -153,8 +153,16 @@ public class TextEditsBuilder extends TokenTraverser {
 			this.stringLiteralsInLine.clear();
 			if (getLineBreaksBefore() > 1) {
 				Token indentToken = null;
-				if (this.options.indent_empty_lines && token.tokenType != TokenNameNotAToken)
-					indentToken = (index == 0 || token.getIndent() > getPrevious().getIndent()) ? token : getPrevious();
+				if (this.options.indent_empty_lines && token.tokenType != TokenNameNotAToken) {
+					if (index == 0) {
+						indentToken = token;
+					} else {
+						boolean isForced = token.getWrapPolicy() != null
+								&& token.getWrapPolicy().wrapMode == WrapMode.FORCED;
+						Token previous = this.tm.get(this.tm.findFirstTokenInLine(index - 1, true, !isForced));
+						indentToken = (token.getIndent() > previous.getIndent()) ? token : previous;
+					}
+				}
 				for (int i = 1; i < getLineBreaksBefore(); i++) {
 					bufferLineSeparator(token, true);
 					if (indentToken != null)
@@ -223,9 +231,9 @@ public class TextEditsBuilder extends TokenTraverser {
 			int wrapRootIndent = indent;
 			if (index == -1) { // this means we print a line separator in a multi-line comment
 				TokenManager tm2 = this.parent.tm;
-				wrapRootIndent = tm2.get(tm2.findFirstTokenInLine(this.parentTokenIndex, true)).getIndent();
+				wrapRootIndent = tm2.get(tm2.findFirstTokenInLine(this.parentTokenIndex, true, true)).getIndent();
 			} else if (wrapPolicy != null) {
-				wrapRootIndent = this.tm.get(this.tm.findFirstTokenInLine(index, true)).getIndent();
+				wrapRootIndent = this.tm.get(this.tm.findFirstTokenInLine(index, true, true)).getIndent();
 			}
 			additionalSpaces = indent - wrapRootIndent;
 			indent = wrapRootIndent;
