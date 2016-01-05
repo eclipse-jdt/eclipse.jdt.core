@@ -1591,6 +1591,8 @@ public void test055() {
 }
 public void test056() {
 	  this.runConformTest(
+		false /* skipJavac */,
+		JavacTestOptions.Excuse.JavacGeneratesIncorrectCode,
 	    new String[] {
 	      "X.java",
 	      "interface I {\n" +
@@ -1899,6 +1901,8 @@ public void testReferenceExpressionInference2() {
 
 public void testReferenceExpressionInference3a() {
 	runConformTest(
+		false /* skipJavac*/,
+		JavacTestOptions.Excuse.JavacDoesNotCompileCorrectSource,
 		new String[] {
 			"X.java",
 			"interface I<E,F> {\n" +
@@ -1912,7 +1916,7 @@ public void testReferenceExpressionInference3a() {
 			"	<Z> Z i2s (Integer i) { return null; }\n" +
 			"	<V,W extends Number> W bar(V v) { return null; }\n" +
 			"}\n"
-		});
+		}, null);
 }
 
 // previous test demonstrates that a solution exists, just inference doesn't find it.

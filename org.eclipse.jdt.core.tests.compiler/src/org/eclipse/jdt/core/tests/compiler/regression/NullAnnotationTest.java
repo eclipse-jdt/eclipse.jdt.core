@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2015 GK Software AG and others.
+ * Copyright (c) 2010, 2016 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -171,7 +171,11 @@ public void test_nullable_paramter_002() {
 	    "",
 	    this.LIBS,
 	    false/*shouldFlush*/,
-	    null/*vmArgs*/);
+	    null/*vmArgs*/,
+	    null /*customOptions*/,
+	    null /*clientRequester*/,
+	    false/*skipJavac*/,
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // a non-null argument is checked for null
@@ -212,7 +216,11 @@ public void test_nonnull_parameter_002() {
 	    "OK",
 	    this.LIBS,
 	    false/*shouldFlush*/,
-	    null/*vmArgs*/);
+	    null/*vmArgs*/,
+	    null /*customOptions*/,
+	    null /*clientRequester*/,
+	    false/*skipJavac*/,
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // passing null to nonnull parameter - many fields in enclosing class
 public void test_nonnull_parameter_003() {
@@ -847,7 +855,11 @@ public void test_parameter_specification_inheritance_002() {
 		"",
 	    this.LIBS,
 	    false/*shouldFlush*/,
-	    null/*vmArgs*/);
+	    null/*vmArgs*/,
+	    null /*customOtions*/,
+	    null /*clientRequester*/,
+	    false/*skipJavac*/,
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	runNegativeTestWithLibs(
 		false, // don't flush
 		new String[] {
@@ -887,7 +899,11 @@ public void test_parameter_specification_inheritance_003() {
 		"",
 	    this.LIBS,
 	    false/*shouldFlush*/,
-	    null/*vmArgs*/);
+	    null/*vmArgs*/,
+	    null /*customOptions*/,
+	    null /*clientRequester*/,
+	    false/*skipJavac*/,
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // a method adds a @NonNull annotation, super interface has no null annotation
 // changing other from unconstrained to @Nullable is OK
@@ -1362,7 +1378,11 @@ public void test_parameter_specification_inheritance_015() {
 		"",
 	    this.LIBS,
 	    false/*shouldFlush*/,
-	    null/*vmArgs*/);
+	    null/*vmArgs*/,
+	    null /*customOptions*/,
+	    null /*clientRequester*/,
+	    false/*skipJavac*/,
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // a method relaxes the parameter null specification from @NonNull to un-annotated

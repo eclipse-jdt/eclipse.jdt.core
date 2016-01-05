@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2015 GK Software AG, and others.
+ * Copyright (c) 2013, 2016 GK Software AG, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -456,6 +457,9 @@ public void testBug424403() {
 }
 public void testBug401850a() {
 	runNegativeTest(
+		false /* skipJavac */,
+		this.complianceLevel < ClassFileConstants.JDK1_8 ?
+		null : JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 		new String[] {
 			"X.java",
 			"import java.util.List;\n" + 
@@ -2884,6 +2888,8 @@ public void testBug429203() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
 	runNegativeTest(
+		false /*skipJavac */,
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 		new String[] {
 			"DTest.java",
 			"import java.util.function.Function;\n" + 
@@ -3368,6 +3374,8 @@ public void testBug433845() {
 }
 public void testBug435187() {
 	runNegativeTest(
+		false /*skipJavac */,
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 		new String[] {
 			"ExtractLocalLambda.java",
 			"\n" + 
@@ -5753,6 +5761,8 @@ public void testBug483019() {
 }
 public void testBug483019a() {
 	runConformTest(
+		false /*skipJavac */,
+		JavacTestOptions.Excuse.JavacHasErrorsEclipseHasNone,
 		new String[] {
 			"Test.java",
 			"import sub.J;\n" + 

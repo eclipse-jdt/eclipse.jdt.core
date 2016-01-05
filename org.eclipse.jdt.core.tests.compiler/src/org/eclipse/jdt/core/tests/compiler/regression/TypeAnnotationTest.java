@@ -6242,6 +6242,8 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419331, [1.8][compiler] Weird error on forward reference to type annotations from type parameter declarations
 	public void testForwardReference() {
 		this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.JavacHasWarningsEclipseNotConfigured,
 			new String[] {
 				"T.java",
 				"import java.lang.annotation.Annotation;\n" +

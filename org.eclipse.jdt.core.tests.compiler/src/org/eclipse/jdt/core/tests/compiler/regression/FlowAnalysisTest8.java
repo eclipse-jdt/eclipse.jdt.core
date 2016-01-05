@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 GK Software AG and others.
+ * Copyright (c) 2013, 2016 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -67,7 +67,8 @@ public void testLambda_01() {
 		"	ISAM printer = (p,o) -> p.concat(o.toString());\n" + 
 		"	                                 ^\n" + 
 		"Potential null pointer access: this expression has a '@Nullable' type\n" + 
-		"----------\n");
+		"----------\n",
+		true /* skipJavac */);
 }
 
 // Lambda with declared args violates null contract of super
@@ -100,7 +101,8 @@ public void testLambda_02() {
 		"	ISAM printer = (@NonNull  Object o1, @NonNull 	Object o2, @NonNull	 Object o3) -> System.out.println(2);\n" + 
 		"	                                              	           ^^^^^^^^^^^^^^^^\n" + 
 		"Illegal redefinition of parameter o3, inherited method from ISAM does not constrain this parameter\n" + 
-		"----------\n");
+		"----------\n",
+		true /* skipJavac */);
 }
 
 // Lambda with declared args inherits / modifies contract of super
@@ -147,7 +149,8 @@ public void testLambda_03() {
 		"	-> System.out.println(o1.toString()+o2.toString()+o3.toString());\n" + 
 		"	                                                  ^^\n" + 
 		"Potential null pointer access: this expression has a '@Nullable' type\n" + 
-		"----------\n");
+		"----------\n",
+		true /* skipJavac */);
 }
 
 // Lambda with declared args has illegal @NonNull an primitive argument
@@ -174,7 +177,8 @@ public void testLambda_04() {
 		"	ISAM printer1 = (@NonNull int i) \n" + 
 		"	                 ^^^^^^^^\n" + 
 		"The nullness annotation @NonNull is not applicable for the primitive type int\n" + 
-		"----------\n");
+		"----------\n", 
+		true /* skipJavac */);
 }
 
 // Lambda inherits null contract and has block with return statement 
@@ -203,7 +207,8 @@ public void testLambda_05() {
 		"	return null; // error\n" + 
 		"	       ^^^^\n" + 
 		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
-		"----------\n");
+		"----------\n",
+		true /* skipJavac */);
 }
 // Lambda has no descriptor (overriding method from Object), don't bail out with NPE during analysis
 public void testLambda_05a() {
@@ -231,7 +236,8 @@ public void testLambda_05a() {
 		"	ISAM printer = () -> {\n" +
 		"	               ^^^^^\n" +
 		"The target type of this expression must be a functional interface\n" +
-		"----------\n");
+		"----------\n",
+		true /* skipJavac */);
 }
 // Test flows with ReferenceExpression regarding: 
 // - definite assignment
@@ -288,6 +294,8 @@ public void testReferenceExpression_null_1() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_NULL_REFERENCE, JavaCore.ERROR);
 	runNegativeTest(
+		false /*skipJavac */,
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 		new String[] {
 			 "I.java",
 			 "public interface I {\n" +
@@ -343,6 +351,7 @@ public void testReferenceExpression_nullAnnotation_1() {
 }
 public void testReferenceExpression_nullAnnotation_2() {
 	runNegativeTestWithLibs(
+		true, /* skipJavac */
 		new String[] {
 			 "I.java",
 			 "import org.eclipse.jdt.annotation.*;\n" +

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1508,7 +1508,8 @@ public void test337751a() {
 		null,
 		false,
 		compilerOptions15,
-		null);
+		null,
+		JavacTestOptions.Excuse.JavacHasWarningsEclipseNotConfigured);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=337962 
 public void test337962() {
@@ -2647,6 +2648,8 @@ public void test385780() {
 			CompilerOptions.OPTION_ReportUnusedTypeParameter,
 			CompilerOptions.ERROR);
 	this.runNegativeTest(
+		false /* skipJavac */,
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 		new String[] {
 			"X.java",
 			"public class X<T> {\n"+
@@ -2798,6 +2801,8 @@ public void test397888a() {
 	          CompilerOptions.ENABLED);
 
 	this.runNegativeTest(
+		false /*skipJavac */,
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 		 new String[] {
  		"X.java",
          "/***\n" +
@@ -2829,6 +2834,8 @@ public void test397888b() {
         CompilerOptions.DISABLED);
 
 	this.runNegativeTest(
+		false /* skipJavac */,
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
         new String[] {
      		   "X.java",
                 "/***\n" +
@@ -3148,6 +3155,8 @@ public void testBug415734() {
 			"}\n";
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
 		runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.EclipseHasABug.EclipseBug428061,
 			new String[] {
 				"Compile.java",
 				compileSrc
@@ -3640,6 +3649,8 @@ public void test425719b() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427282,  Internal compiler error: java.lang.ArrayIndexOutOfBoundsException: -1 at org.eclipse.jdt.internal.compiler.ClassFile.traverse
 public void test427282() {
 	runNegativeTest(
+		false /* skipJavac */,
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 		new String[] {
 			"X.java",
 			"import java.util.Collection;\n" +
@@ -4445,7 +4456,8 @@ public void testBug432603() {
 		"	Optional.fromNullable(entry.getValue()).or(NO_VALUE);\n" + 
 		"	                                        ^^\n" + 
 		"The method or(Optional<? extends capture#2-of ?>) in the type Optional<capture#2-of ?> is not applicable for the arguments (Object)\n" + 
-		"----------\n");
+		"----------\n",
+		JavacTestOptions.Excuse.JavacCompilesIncorrectSource);
 }
 public void testBug432603a() {
 	runConformTest(
@@ -4478,6 +4490,8 @@ public void testBug432603a() {
 }
 public void testBug399527() {
 	runNegativeTest(
+		false /*skipJavac */,
+		JavacTestOptions.Excuse.JavacCompilesIncorrectSource,
 		new String[] {
 			"TypeInferenceProblem.java",
 			"\n" + 
@@ -5198,6 +5212,8 @@ public void test440019_c9() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=446223, [1.8][compiler] Java8 generics eclipse doesn't compile  
 public void test446223() {
 		this.runNegativeTest(
+		   false /* skipJavac */,
+		   JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 		   new String[] {
 			   "X.java",
 			   "public class X {\n" +
@@ -5604,6 +5620,8 @@ public void testBug454644() {
 // original test case, documenting existing compiler behavior
 public void testBug456459a() {
 	runNegativeTest(
+		false /*skipJavac */,
+		JavacTestOptions.Excuse.JavacHasErrorsEclipseHasWarnings,
 		new String[] {
 			"EnumTest.java",
 			"import java.util.EnumSet;\n" + 

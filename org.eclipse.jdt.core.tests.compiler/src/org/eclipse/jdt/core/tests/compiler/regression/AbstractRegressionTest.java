@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -196,6 +196,9 @@ static class JavacCompiler {
 			if ("1.8.0_40".equals(rawVersion)) {
 				return 1000; // corresponds to JLS maintenance release 2015-02-13
 			}
+			if ("1.8.0_45".equals(rawVersion)) {
+				return 1100; // corresponds to JLS maintenance release 2015-02-13
+			}
 			if ("1.8.0_60".equals(rawVersion)) {
 				return 1500;
 			}
@@ -357,7 +360,7 @@ protected static class JavacTestOptions {
 			EclipseWarningConfiguredAsError = RUN_JAVAC ?
 				new Excuse(MismatchType.EclipseErrorsJavacWarnings | MismatchType.EclipseErrorsJavacNone) : null,
 			JavacCompilesBogusReferencedFileAgain = RUN_JAVAC ?
-				new Excuse(MismatchType.JavacErrorsEclipseNone) : null,
+				new Excuse(MismatchType.EclipseErrorsJavacNone) : null,
 				// bugs not found on javac bug site, but points to a javac bug.
 			JavacDoesNotCompileCorrectSource = RUN_JAVAC ?
 				new JavacHasABug(MismatchType.JavacErrorsEclipseNone) : null,
@@ -369,7 +372,11 @@ protected static class JavacTestOptions {
 			JavacGeneratesIncorrectCode = RUN_JAVAC ?
 					new JavacHasABug(MismatchType.StandardOutputMismatch) : null,
 			JavacHasWarningsEclipseNotConfigured = RUN_JAVAC ?
-					new JavacHasABug(MismatchType.JavacWarningsEclipseNone) : null;
+					new JavacHasABug(MismatchType.JavacWarningsEclipseNone) : null,
+			JavacHasErrorsEclipseHasWarnings = RUN_JAVAC ?
+					new JavacHasABug(MismatchType.JavacErrorsEclipseWarnings) : null,
+			JavacHasErrorsEclipseHasNone = RUN_JAVAC ?
+					new JavacHasABug(MismatchType.JavacErrorsEclipseNone) : null;
 	}
 	Excuse excuseFor(JavacCompiler compiler) {
 		return null;
@@ -419,12 +426,6 @@ protected static class JavacTestOptions {
 						return compiler.compliance > ClassFileConstants.JDK1_6 ? this : null;
 					}
 				}: null,
-			EclipseBug236370 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236370
-				new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) {
-					Excuse excuseFor(JavacCompiler compiler) {
-						return compiler.compliance > ClassFileConstants.JDK1_6 ? this : null;
-					}
-				}: null,
 			EclipseBug236379 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236379
 				new EclipseHasABug(MismatchType.EclipseWarningsJavacNone) {
 					Excuse excuseFor(JavacCompiler compiler) {
@@ -435,8 +436,6 @@ protected static class JavacTestOptions {
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug427719 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427719
 				new EclipseHasABug(MismatchType.JavacErrorsEclipseWarnings) : null,
-			EclipseBug427745 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427745
-				new EclipseHasABug(MismatchType.StandardOutputMismatch) : null,
 			EclipseBug421922 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421922
 						new EclipseHasABug(MismatchType.EclipseErrorsJavacNone) : null,
 			EclipseBug428061 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428061
@@ -455,8 +454,6 @@ protected static class JavacTestOptions {
 			super(mismatchType);
 		}
 		public static final EclipseJustification
-			EclipseBug40839 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=40839
-				new EclipseJustification(MismatchType.JavacWarningsEclipseNone) : null,
 			EclipseBug72704 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=72704
 				new EclipseJustification(MismatchType.EclipseErrorsJavacNone) : null,
 			EclipseBug83902 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
@@ -507,16 +504,6 @@ protected static class JavacTestOptions {
 				} : null,
 			EclipseBug180789 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
 				new EclipseJustification(MismatchType.EclipseErrorsJavacWarnings) : null,
-			EclipseBug183211 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211
-				new EclipseJustification(MismatchType.JavacErrorsEclipseNone | MismatchType.EclipseErrorsJavacNone) : null,
-			EclipseBug183211b = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211
-				new EclipseJustification(MismatchType.EclipseErrorsJavacNone) {
-					Excuse excuseFor(JavacCompiler compiler) {
-						return compiler.compliance > ClassFileConstants.JDK1_5 ? this : null;
-					}
-				} : null,
-			EclipseBug185422 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=185422
-				new EclipseJustification(MismatchType.JavacErrorsEclipseNone) : null,
 			EclipseBug218677 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=218677
 				new EclipseJustification(MismatchType.EclipseErrorsJavacNone) {
 					Excuse excuseFor(JavacCompiler compiler) {
@@ -1447,23 +1434,45 @@ protected static class JavacTestOptions {
 		Map customOptions,
 		ICompilerRequestor clientRequestor,
 		boolean skipJavac) {
-		runTest(
-			shouldFlushOutputDirectory,
-			testFiles,
-			classLib,
-			customOptions,
-			false /* do not perform statements recovery */,
-			clientRequestor,
-			false,
-			null,
-			false,
-			vmArguments,
-			expectedSuccessOutputString,
-			null,
-			(skipJavac ?
-					JavacTestOptions.SKIP :
-					JavacTestOptions.DEFAULT));
+		runConformTest(
+				testFiles, 
+				expectedSuccessOutputString, 
+				classLib, 
+				shouldFlushOutputDirectory, 
+				vmArguments, 
+				customOptions, 
+				clientRequestor, 
+				skipJavac, 
+				(skipJavac ?
+						JavacTestOptions.SKIP :
+						JavacTestOptions.DEFAULT));
 	}
+
+	protected void runConformTest(
+			String[] testFiles,
+			String expectedSuccessOutputString,
+			String[] classLib,
+			boolean shouldFlushOutputDirectory,
+			String[] vmArguments,
+			Map customOptions,
+			ICompilerRequestor clientRequestor,
+			boolean skipJavac,
+			JavacTestOptions javacTestOptions) {
+			runTest(
+				shouldFlushOutputDirectory,
+				testFiles,
+				classLib,
+				customOptions,
+				false /* do not perform statements recovery */,
+				clientRequestor,
+				false,
+				null,
+				false,
+				vmArguments,
+				expectedSuccessOutputString,
+				null,
+				javacTestOptions);
+		}
 
 	/*
 	 * Run Sun compilation using javac.
@@ -2146,6 +2155,18 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			boolean shouldFlushOutputDirectory,
 			Map customOptions,
 			String expectedErrorString) {
+			runNegativeTest(testFiles, expectedCompilerLog, classLibraries, 
+					shouldFlushOutputDirectory, customOptions, expectedErrorString, 
+					JavacTestOptions.DEFAULT);
+		}
+	protected void runNegativeTest(
+			String[] testFiles,
+			String expectedCompilerLog,
+			String[] classLibraries,
+			boolean shouldFlushOutputDirectory,
+			Map customOptions,
+			String expectedErrorString,
+			JavacTestOptions javacTestOptions) {
 			runTest(
 		 		// test directory preparation
 				shouldFlushOutputDirectory /* should flush output directory */,
@@ -2170,7 +2191,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 				null /* do not check output string */,
 				expectedErrorString /* do not check error string */,
 				// javac options
-				JavacTestOptions.DEFAULT /* default javac test options */);
+				javacTestOptions /* default javac test options */);
 		}
 	protected void runNegativeTest(
 		String[] testFiles,

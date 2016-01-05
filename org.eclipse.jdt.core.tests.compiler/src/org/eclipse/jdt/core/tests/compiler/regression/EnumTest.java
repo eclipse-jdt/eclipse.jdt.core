@@ -5252,7 +5252,7 @@ public void test147() {
 		"null" /* expected output string */,
 		"" /* expected error string */,
 		// javac options
-		JavacTestOptions.Excuse.JavacCompilesBogusReferencedFileAgain /* javac test options */);
+		JavacTestOptions.Excuse.JavacHasErrorsEclipseHasNone /* javac test options */); // note that Eclipse has errors for X while javac alsore reports for X - no conflict
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=227502 - variation
 public void test148() {
@@ -5301,7 +5301,7 @@ public void test148() {
 		"null" /* expected output string */,
 		"" /* expected error string */,
 		// javac options
-		JavacTestOptions.Excuse.JavacCompilesBogusReferencedFileAgain /* javac test options */);
+		JavacTestOptions.Excuse.JavacHasErrorsEclipseHasNone /* javac test options */);// see prev note
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=227502 - variation
 public void test149() throws Exception {
@@ -6635,7 +6635,7 @@ public void test180() {
 		"",
 		"class test180.Test",
 		"",
-		null);
+		JavacTestOptions.Excuse.JavacHasErrorsEclipseHasNone);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=289892
 // in interaction with null annotations
@@ -6695,7 +6695,7 @@ public void test180a() {
 		"",
 		"class test180.Test",
 		"",
-		null);
+		JavacTestOptions.Excuse.JavacHasErrorsEclipseHasNone);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=300133
 public void test181() {

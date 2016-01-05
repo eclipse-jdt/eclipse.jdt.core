@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM Corporation and others.
+ * Copyright (c) 2014, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -43,6 +43,8 @@ public void test426214_2() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	this.runNegativeTest(
+		false /* skipJavac */,
+		JavacTestOptions.Excuse.JavacCompilesIncorrectSource,
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
@@ -70,6 +72,8 @@ public void test426214_3() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
 	this.runNegativeTest(
+		false /* skipJavac */,
+		JavacTestOptions.Excuse.JavacCompilesIncorrectSource,
 		new String[] {
 			"X.java",
 			"public class X {\n" + 

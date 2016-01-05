@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 Jesper S Moller and others.
+ * Copyright (c) 2013, 2016 Jesper S Moller and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1456,6 +1456,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
 	public void testRepeatableWithContaining1() {
 		this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 				"A.java",
 				"@interface FooContainerContainer {\n" +
@@ -1481,6 +1483,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
 	public void testRepeatableWithContaining2() {
 		this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 				"A.java",
 				"@interface FooContainerContainer {\n" +
@@ -1506,6 +1510,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
 	public void testRepeatableWithContaining3() {
 		this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 				"A.java",
 				"@interface FooContainerContainer {\n" +

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2015 GK Software AG and others.
+ * Copyright (c) 2012, 2016 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -83,6 +83,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
 		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
 		runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 			new String[] {
 				CUSTOM_NULLABLE_NAME,
 				CUSTOM_NULLABLE_CONTENT_JSR308,

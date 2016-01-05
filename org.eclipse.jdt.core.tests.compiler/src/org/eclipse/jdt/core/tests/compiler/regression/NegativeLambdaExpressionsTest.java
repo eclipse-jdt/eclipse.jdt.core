@@ -25,6 +25,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.Excuse;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -2349,6 +2350,8 @@ public void test068() {
 public void test069() {
 	// Lambda argument hides a field.
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
 					"interface I {\n" +
@@ -2446,6 +2449,8 @@ public void test072() {
 public void test073() {
 	// Lambda local hides a field
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
 					"interface I {\n" +
@@ -2574,6 +2579,8 @@ public void test077() {
 public void test078() {
 	// Nested Lambda argument redeclares a field.
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
 					"interface I {\n" +
@@ -2900,6 +2907,8 @@ public void test087() {
 public void test088() {
 	// class inside lambda (!) redeclares a field.
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
 					"interface I {\n" +
@@ -2926,6 +2935,8 @@ public void test088() {
 public void test089() {
 	// class inside lambda redeclares outer method's argument.
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
 					"interface I {\n" +
@@ -2957,6 +2968,8 @@ public void test089() {
 public void test090() {
 	// class inside lambda redeclares outer method's local.
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
 					"interface I {\n" +
@@ -2988,6 +3001,8 @@ public void test090() {
 public void test091() {
 	// class inside lambda redeclares outer lambda's argument.
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
 					"interface I {\n" +
@@ -3019,6 +3034,8 @@ public void test091() {
 public void test092() {
 	// class inside lambda redeclares outer lambda's local.
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
 					"interface I {\n" +
@@ -3051,6 +3068,8 @@ public void test092() {
 public void test093() {
 	// local of class inside lambda redeclares a field.
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
 					"interface I {\n" +
@@ -3088,6 +3107,8 @@ public void test093() {
 public void test094() {
 	// local of class under lambda redeclares outer methods local.
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
 					"interface I {\n" +
@@ -3125,6 +3146,8 @@ public void test094() {
 public void test095() {
 	// local of class under lambda redeclares outer lambda's argument & local
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
 					"interface I {\n" +
@@ -3329,6 +3352,8 @@ public void test400745() {
 public void test400745a() {
 	// local type hiding scenario 
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
 					"interface I {\n" +
@@ -4177,6 +4202,8 @@ public void test384750i() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
 public void test384750j() {
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
 					"interface I {\n" +
@@ -4223,6 +4250,8 @@ public void test384750k() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
 public void test384750l() {
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
 					"interface I {\n" +
@@ -4720,6 +4749,8 @@ public void test384750z() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, CompilerOptions.WARNING);
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
 					"interface I {\n" +
@@ -4868,6 +4899,8 @@ public void test384750z5() {
 //  https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
 public void test384750z6() {
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.DEFAULT,
 			new String[] {
 					"X.java",
 					"import java.util.List;\n" +
@@ -4885,6 +4918,8 @@ public void test384750z6() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
 public void test384750z7() {
 this.runNegativeTest(
+		false /* skipJavac */,
+		new JavacTestOptions("-Xlint:rawtypes"),
 		new String[] {
 				"X.java",
 				"import java.util.List;\n" +
@@ -5163,6 +5198,8 @@ this.runNegativeTest(
 // demonstrate that the bound problem is the only real issue in test401610e()
 public void test401610ee() {
 this.runNegativeTest(
+		false /* skipJavac */,
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 		new String[] {
 				"X.java",
 				"interface I<T extends String> {\n" +
@@ -5632,6 +5669,8 @@ public void test401845e() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401847, [1.8][compiler] Polyconditionals not accepted in method invocation contexts.
 public void test401847() {
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 				"X.java",
 				"interface I {\n" +
@@ -5705,6 +5744,8 @@ public void test401847a() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
 public void test401939() {
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 				"X.java",
 				"interface I {\n" +
@@ -5954,6 +5995,8 @@ public void test402219a() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
 	this.runNegativeTest(
+			false /* skipJavac */,
+			new JavacTestOptions("Xlint:empty"),
 			new String[] {
 				"X.java",
 				"interface I {\n" +
@@ -6501,6 +6544,8 @@ public void test406614() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial 
 public void test406588() {
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.JavacCompilesIncorrectSource,
 			new String[] {
 				"X.java",
 				"interface I {\n" +
@@ -6558,6 +6603,8 @@ public void test401989() {
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 		this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 			new String[] {
 				"X.java", 
 				"interface I {\n" +
@@ -6744,6 +6791,8 @@ public void test406859d() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.WARNING);
 	this.runNegativeTest(
+		false /* skipJavac */,
+		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 		new String[] {
 				"Y.java",
 				"public class Y {\n" +
@@ -6795,6 +6844,8 @@ public void test410114() throws IOException {
 					"    }\n" +
 					"}\n";
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[]{"Y.java",
 						source},
 						"----------\n" + 
@@ -7261,6 +7312,8 @@ public void testGenericArrayCreation() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=420598, [1.8][compiler] Incorrect error about intersection cast type not being a functional interface. 
 public void testIntersectionCast() {
 		this.runNegativeTest(
+			true /* skipJavac */,
+			JavacTestOptions.EclipseHasABug.EclipseBug424410,
 			new String[] {
 					"X.java", 
 					"import java.io.Serializable;\n" +
@@ -7479,6 +7532,8 @@ public void test422489a() { // interfaces and methods order changed, triggers NP
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422489, [1.8][compiler] NPE in CompoundAssignment.analyseCode when creating AST for java.util.stream.Collectors
 public void test422489b() { // interfaces and methods order changed, triggers NPE.
 	this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.JavacHasWarningsEclipseNotConfigured,
 			new String[] {
 					"X.java", 
 					"interface I {\n" +
@@ -7672,6 +7727,8 @@ public void test421927() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421927, [1.8][compiler] Bad diagnostic: Unnecessary cast from I to I for lambdas.
 public void test421927a() {
 	this.runNegativeTest(
+			false,
+			Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java", 
 					"interface I { \n" +
@@ -8332,6 +8389,8 @@ public void test427207() {
 // NOTE: javac 8b127 incorrectly accepts this program due to https://bugs.openjdk.java.net/browse/JDK-8033810
 public void test425278() {
 	runNegativeTest(
+		false /*skipJavac */,
+		JavacTestOptions.JavacHasABug.JavacBug8033810,
 		new String[] {
 			"X.java",
 			"interface I<T, S extends X<T>> { \n" +
@@ -9126,6 +9185,8 @@ public void test442983() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=438945, [1.8] NullPointerException InferenceContext18.checkExpression in java 8 with generics, primitives, and overloading
 public void test438945() {
 	this.runNegativeTest(
+		false /* skipJavac */,
+		JavacTestOptions.Excuse.JavacHasWarningsEclipseNotConfigured,
 		new String[] {
 			"X.java",
 			"import java.util.function.ToIntFunction;\n" +
@@ -9150,6 +9211,8 @@ public void test440643() {
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 
 	this.runNegativeTest(
+		false /* skipJavac */,
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 		new String[] {
 			"X.java",
 			"@FunctionalInterface\n" +
@@ -9660,6 +9723,8 @@ public void test442446() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432759,  [1.8][compiler] Some differences between Javac and ECJ regarding wildcards and static methods
 public void test432759() {
 	this.runNegativeTest(
+		false /* skipJavac */,
+		JavacTestOptions.Excuse.JavacDoesNotCompileCorrectSource,
 		new String[] {
 			"X.java", 
 			"import java.util.function.BinaryOperator;\n" +

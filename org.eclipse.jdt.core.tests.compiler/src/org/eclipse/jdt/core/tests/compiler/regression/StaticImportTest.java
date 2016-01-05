@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2212,7 +2212,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"" /* expected output string */,
 			null /* do not check error string */,
 			// javac options
-			JavacTestOptions.EclipseJustification.EclipseBug183211 /* javac test options */);
+			JavacTestOptions.DEFAULT /* javac test options */);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211 - variation
 	public void test062() {
@@ -2283,7 +2283,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	                   ^\n" +
 			"The field b is ambiguous\n" +
 			"----------\n",
-			JavacTestOptions.EclipseJustification.EclipseBug183211b
+			JavacTestOptions.DEFAULT
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211 - variation
@@ -2308,7 +2308,7 @@ public class StaticImportTest extends AbstractComparableTest {
 			"	^\n" +
 			"The type M is ambiguous\n" +
 			"----------\n",
-			JavacTestOptions.EclipseJustification.EclipseBug183211
+			JavacTestOptions.DEFAULT
 		);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=230026

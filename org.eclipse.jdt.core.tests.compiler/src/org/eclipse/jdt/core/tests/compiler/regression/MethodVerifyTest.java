@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7224,6 +7224,8 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146383
 public void test094() {
 	this.runNegativeTest(
+		false /* skipJavac */,
+		JavacTestOptions.Excuse.JavacCompilesIncorrectSource,
 		new String[] {
 			"X.java",//===================
 			"import java.util.ArrayList;\n" +
