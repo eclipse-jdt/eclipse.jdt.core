@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 Mateusz Matela and others.
+ * Copyright (c) 2014, 2016 Mateusz Matela and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -656,7 +656,9 @@ public class WrapPreparator extends ASTVisitor {
 					this.secondaryWrapIndexes.add(this.tm.firstIndexIn(type, -1));
 				}
 			}
-			this.wrapParentIndex = this.tm.firstIndexBefore(node, TokenNameLPAREN);
+			this.wrapParentIndex = this.tm.firstIndexBefore(node, -1);
+			while (this.tm.get(this.wrapParentIndex).isComment())
+				this.wrapParentIndex--;
 			this.wrapGroupEnd = this.tm.lastIndexIn(types.get(types.size() - 1), -1);
 			handleWrap(this.options.alignment_for_union_type_in_multicatch);
 		} else {

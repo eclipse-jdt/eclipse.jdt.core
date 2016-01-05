@@ -12304,4 +12304,20 @@ public void testBug485163() {
 		"}"
 	);
 }
+/**
+ * https://bugs.eclipse.org/479898 - [formatter] removes whitespace between final and first exception in multi-line multi-catch
+ */
+public void testBug479898() {
+	this.formatterPrefs.alignment_for_union_type_in_multicatch = Alignment.M_COMPACT_SPLIT + Alignment.M_INDENT_ON_COLUMN;
+	String source =
+		"public class FormattingTest {\r\n" + 
+		"	public void formatterTest() {\r\n" + 
+		"		try {\r\n" + 
+		"		} catch (final	InstantiationException | IllegalAccessException | IllegalArgumentException\r\n" + 
+		"						| NoSuchMethodException e) {\r\n" + 
+		"		}\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
