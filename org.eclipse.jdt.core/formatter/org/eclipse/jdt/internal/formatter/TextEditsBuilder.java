@@ -157,7 +157,9 @@ public class TextEditsBuilder extends TokenTraverser {
 					if (index == 0) {
 						indentToken = token;
 					} else {
-						Token previous = this.tm.get(this.tm.findFirstTokenInLine(index - 1, true, false));
+						boolean isForced = token.getWrapPolicy() != null
+								&& token.getWrapPolicy().wrapMode == WrapMode.FORCED;
+						Token previous = this.tm.get(this.tm.findFirstTokenInLine(index - 1, true, !isForced));
 						indentToken = (token.getIndent() > previous.getIndent()) ? token : previous;
 					}
 				}
