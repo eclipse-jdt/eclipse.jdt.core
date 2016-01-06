@@ -5672,6 +5672,33 @@ public void test467825a() {
 			"}\n"
 	});
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=461004 Multiple spurious errors compiling FunctionalJava project
+public void test461004() {
+	this.runConformTest(
+		new String[] {
+			"Ice.java",
+			"import java.util.function.BiPredicate;\n" + 
+			"import java.util.function.Function;\n" + 
+			"class Ice {\n" + 
+			"  static <T> BiPredicate<T, T> create(BiPredicate<? super T, ? super T> fn) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  static <T, K> BiPredicate<T, T> create(Function<? super T, ? super K> map) {\n" + 
+			"    return null;\n" + 
+			"  }\n" + 
+			"  void someMethod(BiPredicate<String, String> b) {}\n" + 
+			"  void method() {\n" + 
+			"    BiPredicate<String, String> eq = String::equalsIgnoreCase;\n" + 
+			"    // these all compile:\n" + 
+			"    BiPredicate<String, String> ok1 = create( eq );\n" + 
+			"    BiPredicate<String, String> ok2 = create( (a, b) -> true );\n" + 
+			"    BiPredicate<String, String> ok3 = create( String::valueOf );\n" + 
+			"    // this causes an internal compiler error, ArrayIndexOutOfBoundsException: 1\n" + 
+			"    someMethod(create( String::equalsIgnoreCase ));\n" + 
+			"  }\n" + 
+			"}\n"
+	});
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

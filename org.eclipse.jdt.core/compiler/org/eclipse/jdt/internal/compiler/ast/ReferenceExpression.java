@@ -844,7 +844,11 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 				return null;
 			int n = functionType.parameters.length;
 			int k = this.exactMethodBinding.parameters.length;
-			return (n == k || n == k + 1) ? this : null;
+			
+			if (!this.haveReceiver && this.isMethodReference() && !this.exactMethodBinding.isStatic()) {
+				k++;
+			}
+			return (n == k) ? this : null;
 		}
 		// descriptors parameters should be free of inference variables.
 		ReferenceExpression copy = cachedResolvedCopy(targetType); 
