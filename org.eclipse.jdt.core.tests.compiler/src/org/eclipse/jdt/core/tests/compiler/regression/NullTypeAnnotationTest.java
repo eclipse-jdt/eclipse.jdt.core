@@ -7761,22 +7761,27 @@ public void testBug448709() {
 		},
 		compilerOptions,
 		"----------\n" + 
-		"1. WARNING in Test.java (at line 39)\n" + 
+		"1. WARNING in Test.java (at line 21)\n" + 
+		"	final U result = mapper.apply(source);\n" + 
+		"	                              ^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'T\' needs unchecked conversion to conform to \'@NonNull capture#of ? super T\'\n" + 
+		"----------\n" + 
+		"2. WARNING in Test.java (at line 39)\n" + 
 		"	map(optNullableString, testMethodRef);\n" + 
 		"	                       ^^^^^^^^^^^^^\n" + 
 		"Contradictory null annotations: method was inferred as \'@NonNull Optional<@NonNull Integer> map(@NonNull Optional<@Nullable String>, Function<@NonNull ? super @Nullable String,? extends @NonNull Integer>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 		"----------\n" + 
-		"2. WARNING in Test.java (at line 41)\n" + 
+		"3. WARNING in Test.java (at line 41)\n" + 
 		"	map(optNullableString, Test::testMethod); // Error: Null type mismatch at parameter 1: required \'@NonNull String\' but provided \'@Nullable String\' via method descriptor Function<String,Integer>.apply(String)\n" + 
 		"	                       ^^^^^^^^^^^^^^^^\n" + 
 		"Contradictory null annotations: method was inferred as \'@NonNull Optional<@NonNull Integer> map(@NonNull Optional<@Nullable String>, Function<@NonNull ? super @Nullable String,? extends @NonNull Integer>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 		"----------\n" + 
-		"3. WARNING in Test.java (at line 43)\n" + 
+		"4. WARNING in Test.java (at line 43)\n" + 
 		"	map(optNullableString, (s) -> Test.testMethod(s));\n" + 
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Contradictory null annotations: method was inferred as \'@NonNull Optional<@NonNull Integer> map(@NonNull Optional<@Nullable String>, Function<@NonNull ? super @Nullable String,? extends @NonNull Integer>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 		"----------\n" + 
-		"4. WARNING in Test.java (at line 43)\n" + 
+		"5. WARNING in Test.java (at line 43)\n" + 
 		"	map(optNullableString, (s) -> Test.testMethod(s));\n" + 
 		"	                                              ^\n" + 
 		"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
@@ -7784,6 +7789,28 @@ public void testBug448709() {
 		"1->2\n" +
 		"1->2\n" +
 		"1->2");
+}
+public void testBug448709b() {
+	runConformTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import java.util.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"\n" + 
+			"  public static final <T,U> void map(final @NonNull Optional<T> optional, final Function<@NonNull ? super T,? extends U> mapper) {\n" + 
+			"    final T source = optional.get();\n" +
+			"    if (source != null) {\n" + 
+			"      final U result = mapper.apply(source);\n" +
+			"      System.out.println(source+\"->\"+result);\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
 }
 public void testBug459967_Array_constructor() {
 	runConformTestWithLibs(
@@ -10369,5 +10396,58 @@ public void testBug485030() {
 			"	}\n" +
 			"}\n"
 	}, getCompilerOptions(), "");
+}
+public void testBug485302() {
+	runNegativeTestWithLibs(
+		new String[] {
+		"WildCardNullable.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class WildCardNullable {\n" +
+			"	static class A<T> {\n" +
+			"		@Nullable\n" +
+			"		T returnNull() {\n" +
+			"			return null;\n" +
+			"		}\n" +
+			"\n" +
+			"		void acceptNonNullT(@NonNull T t) {\n" +
+			"		}\n" +
+			"\n" +
+			"		void acceptNonNullObject(@NonNull Object x) {\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"	static @NonNull Number g(A<? extends @NonNull Number> a) {\n" +
+			"		return a.returnNull(); // error 1 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	public static final <T> void map(final A<@NonNull ? super T> a, T t) {\n" +
+			"		a.acceptNonNullT(t); // warning 2 expected\n" +
+			"		a.acceptNonNullObject(t); // warning 3 expected\n" +
+			"	}\n" +
+			"}\n" +
+			""
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in WildCardNullable.java (at line 21)\n" + 
+		"	return a.returnNull(); // error 1 expected\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Number\' but this expression has type \'@Nullable capture#of ? extends Number\'\n" + 
+		"----------\n" + 
+		"2. WARNING in WildCardNullable.java (at line 25)\n" + 
+		"	a.acceptNonNullT(t); // warning 2 expected\n" + 
+		"	                 ^\n" + 
+		"Null type safety (type annotations): The expression of type \'T\' needs unchecked conversion to conform to \'@NonNull capture#of ? super T\'\n" + 
+		"----------\n" + 
+		"3. WARNING in WildCardNullable.java (at line 26)\n" + 
+		"	a.acceptNonNullObject(t); // warning 3 expected\n" + 
+		"	                      ^\n" + 
+		"Null type safety (type annotations): The expression of type \'T\' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
+		"----------\n"
+	);
 }
 }

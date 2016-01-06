@@ -313,14 +313,14 @@ public class NullAnnotationMatching {
 				// when providing exactly the lower bound of the required type we're definitely fine:
 				TypeBinding lowerBound = ((CaptureBinding)requiredType).lowerBound;
 				if (lowerBound != null && areSameTypes(lowerBound, providedType, providedSubstitute))
-					return true;
+					return (requiredType.tagBits & TagBits.AnnotationNullMASK) == (providedType.tagBits & TagBits.AnnotationNullMASK);
 			} else if (requiredType.kind() == Binding.TYPE_PARAMETER && requiredType == providedSubstitute) { //$IDENTITY-COMPARISON$
 				return true;
 			} else if (providedType instanceof CaptureBinding) {
 				// when requiring exactly the upper bound of the provided type we're fine, too:
 				TypeBinding upperBound = ((CaptureBinding)providedType).upperBound();
 				if (upperBound != null && areSameTypes(requiredType, upperBound, providedSubstitute))
-					return true;
+					return (requiredType.tagBits & TagBits.AnnotationNullMASK) == (providedType.tagBits & TagBits.AnnotationNullMASK);
 			}
 			return false;
 		}
