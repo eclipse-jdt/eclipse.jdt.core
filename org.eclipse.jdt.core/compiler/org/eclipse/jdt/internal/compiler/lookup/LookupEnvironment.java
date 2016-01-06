@@ -98,7 +98,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	public MethodBinding arrayClone;
 
 	private ArrayList missingTypes;
-	Set typesBeingConnected;
+	Set<SourceTypeBinding> typesBeingConnected;
 	public boolean isProcessingAnnotations = false;
 	public boolean mayTolerateMissingType = false;
 
@@ -138,7 +138,7 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.missingTypes = null;
 	this.accessRestrictions = new HashMap(3);
 	this.classFilePool = ClassFilePool.newInstance();
-	this.typesBeingConnected = new HashSet();
+	this.typesBeingConnected = new HashSet<>();
 	this.typeSystem = this.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8 && this.globalOptions.storeAnnotations ? new AnnotatableTypeSystem(this) : new TypeSystem(this);
 }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,7 +55,7 @@ CodeSnippetEvaluator(char[] codeSnippet, EvaluationContext context, INameEnviron
 /**
  * @see org.eclipse.jdt.internal.eval.Evaluator
  */
-protected void addEvaluationResultForCompilationProblem(Map resultsByIDs, CategorizedProblem problem, char[] cuSource) {
+protected void addEvaluationResultForCompilationProblem(Map<char[], EvaluationResult> resultsByIDs, CategorizedProblem problem, char[] cuSource) {
 	CodeSnippetToCuMapper sourceMapper = getMapper();
 	int pbLineNumber = problem.getSourceLineNumber();
 	int evaluationType = sourceMapper.getEvaluationType(pbLineNumber);
@@ -94,7 +94,7 @@ protected void addEvaluationResultForCompilationProblem(Map resultsByIDs, Catego
 			break;
 	}
 
-	EvaluationResult result = (EvaluationResult)resultsByIDs.get(evaluationID);
+	EvaluationResult result = resultsByIDs.get(evaluationID);
 	if (result == null) {
 		resultsByIDs.put(evaluationID, new EvaluationResult(evaluationID, evaluationType, new CategorizedProblem[] {problem}));
 	} else {

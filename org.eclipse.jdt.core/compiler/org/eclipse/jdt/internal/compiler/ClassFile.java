@@ -154,7 +154,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	public boolean isNestedType;
 	public long targetJDK;
 
-	public List missingTypes = null;
+	public List<TypeBinding> missingTypes = null;
 
 	public Set visitedTypes;
 
@@ -3552,7 +3552,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		int previousIndex = 0;
 		next: for (int i = 0; i < initialSize; i++) {
-			int missingTypeIndex = this.constantPool.literalIndexForType((TypeBinding) this.missingTypes.get(i));
+			int missingTypeIndex = this.constantPool.literalIndexForType(this.missingTypes.get(i));
 			if (previousIndex == missingTypeIndex) {
 				continue next;
 			}

@@ -132,7 +132,7 @@ public class WildcardBinding extends ReferenceBinding {
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#collectMissingTypes(java.util.List)
 	 */
-	public List collectMissingTypes(List missingTypes) {
+	public List<TypeBinding> collectMissingTypes(List<TypeBinding> missingTypes) {
 		if ((this.tagBits & TagBits.HasMissingType) != 0) {
 			missingTypes = this.bound.collectMissingTypes(missingTypes);
 		}

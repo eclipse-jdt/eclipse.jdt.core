@@ -50,7 +50,6 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
  *
  * null is NOT a valid value for a non-public field... it just means the field is not initialized.
  */
-@SuppressWarnings("rawtypes")
 abstract public class TypeBinding extends Binding {
 
 	public int id = TypeIds.NoId;
@@ -207,7 +206,7 @@ public TypeBinding closestMatch() {
  * @param missingTypes
  * @return missing types
  */
-public List collectMissingTypes(List missingTypes) {
+public List<TypeBinding> collectMissingTypes(List<TypeBinding> missingTypes) {
 	return missingTypes;
 }
 

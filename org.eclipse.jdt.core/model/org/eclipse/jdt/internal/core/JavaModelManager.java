@@ -561,7 +561,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public final CompilationParticipants compilationParticipants = new CompilationParticipants();
 
 	/* whether an AbortCompilationUnit should be thrown when the source of a compilation unit cannot be retrieved */
-	public ThreadLocal abortOnMissingSource = new ThreadLocal();
+	public ThreadLocal<Boolean> abortOnMissingSource = new ThreadLocal();
 
 	private ExternalFoldersManager externalFoldersManager = ExternalFoldersManager.getExternalFoldersManager();
 
@@ -1173,7 +1173,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/**
 	 * Set of elements which are out of sync with their buffers.
 	 */
-	protected HashSet elementsOutOfSynchWithBuffers = new HashSet(11);
+	protected HashSet<Openable> elementsOutOfSynchWithBuffers = new HashSet(11);
 
 	/**
 	 * Holds the state used for delta processing.
@@ -2014,7 +2014,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/**
 	 * Returns the set of elements which are out of synch with their buffers.
 	 */
-	protected HashSet getElementsOutOfSynchWithBuffers() {
+	protected HashSet<Openable> getElementsOutOfSynchWithBuffers() {
 		return this.elementsOutOfSynchWithBuffers;
 	}
 
