@@ -571,10 +571,12 @@ public class WrapExecutor {
 		// This rule could not be implemented in getWrapPenalty() because a token's wrap indent may depend
 		// on wraps in previous lines, which are not determined yet when the token's penalty is calculated.
 		if (token.isWrappable() && this.options.wrap_outer_expressions_when_nested
-				&& getWrapIndent(token) < currentIndent
-				&& this.tm.get(this.tm.findFirstTokenInLine(index)).getWrapPolicy() != null) {
-			token.breakBefore();
-			throw new WrapRestartThrowable(-1);
+				&& getWrapIndent(token) < currentIndent) {
+			WrapPolicy lineStartPolicy = this.tm.get(this.tm.findFirstTokenInLine(index, false, true)).getWrapPolicy();
+			if (lineStartPolicy != null && lineStartPolicy.wrapMode != WrapMode.FORCED) {
+				token.breakBefore();
+				throw new WrapRestartThrowable(-1);
+			}
 		}
 	}
 
