@@ -12332,6 +12332,13 @@ public void testBug485276() {
 		"		return new Object[][] { { new String() // comment 1\r\n" + 
 		"				}, { new String() } };\r\n" + 
 		"	}\r\n" + 
+		"\r\n" + 
+		"	Object o = new Object() {\r\n" + 
+		"		public Object[][] dataProvider() {\r\n" + 
+		"			return new Object[][] { { new String() // comment 1\r\n" + 
+		"					}, { new String() } };\r\n" + 
+		"		}\r\n" + 
+		"	};\r\n" + 
 		"}";
 	formatSource(source);
 }

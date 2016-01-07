@@ -393,8 +393,8 @@ public class TokenManager implements Iterable<Token> {
 		for (int i = startIndex - 1; i >= 0; i--) {
 			Token token = get(i);
 			if (token.getLineBreaksAfter() > 0 || previous.getLineBreaksBefore() > 0) {
-				boolean include = includeWraps && previous.getWrapPolicy() != null
-						&& (includeForced || previous.getWrapPolicy().wrapMode != WrapMode.FORCED);
+				boolean include = previous.getWrapPolicy() != null
+						&& (previous.getWrapPolicy().wrapMode == WrapMode.FORCED ? includeForced : includeWraps);
 				if (!include)
 					return i + 1;
 			}
