@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 IBM Corporation and others.
+ * Copyright (c) 2011, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -6640,11 +6640,6 @@ public void test406773() {
 			"	I i = X::new;\n" + 
 			"	      ^^^^^^\n" + 
 			"Access to enclosing constructor X(int) is emulated by a synthetic accessor method\n" + 
-			"----------\n" + 
-			"3. ERROR in X.java (at line 12)\n" + 
-			"	i = Y::new;\n" + 
-			"	    ^^^^^^\n" + 
-			"No enclosing instance of the type X is accessible in scope\n" + 
 			"----------\n",
 			null /* no extra class libraries */,
 			true /* flush output directory */,
