@@ -10645,4 +10645,42 @@ public void testBug485581() {
 		""
 	);
 }
+public void testBug485374() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/I.java",
+			"package test;\n" +
+			"public interface I<W> {\n" +
+			"    public class Nested {\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+			"test/D.java",
+			"package test;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"public class D implements I<I.@NonNull Nested> {\n" +
+			"}\n" +
+			""
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runNegativeTestWithLibs(
+			new String[] {
+			"test2/Import.java",
+				"package test2;\n" +
+				"import test.D;\n" +
+				"class Import {}\n"
+			}, 
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. WARNING in test2\\Import.java (at line 2)\n" + 
+			"	import test.D;\n" + 
+			"	       ^^^^^^\n" + 
+			"The import test.D is never used\n" + 
+			"----------\n"
+		);
+}
+
 }

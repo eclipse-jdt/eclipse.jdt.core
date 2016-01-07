@@ -179,22 +179,25 @@ public class TypeSystem {
 				}
 			}
 		}
-		if (type.id == TypeIds.NoId) {
-			if (type.hasTypeAnnotations())
-				throw new IllegalStateException();
-			int typesLength = this.types.length;
-			if (this.typeid == typesLength)
-				System.arraycopy(this.types, 0, this.types = new TypeBinding[typesLength * 2][], 0, typesLength);
-			this.types[type.id = this.typeid++] = new TypeBinding[4];
-			if (urb != null)
+		try {
+			if (type.id == TypeIds.NoId) {
+				if (type.hasTypeAnnotations())
+					throw new IllegalStateException();
+				int typesLength = this.types.length;
+				if (this.typeid == typesLength)
+					System.arraycopy(this.types, 0, this.types = new TypeBinding[typesLength * 2][], 0, typesLength);
+				this.types[type.id = this.typeid++] = new TypeBinding[4];
+			} else {
+				TypeBinding nakedType = this.types[type.id] == null ? null : this.types[type.id][0];
+				if (type.hasTypeAnnotations() && nakedType == null)
+					throw new IllegalStateException();
+				if (nakedType != null)
+					return nakedType;
+				this.types[type.id] = new TypeBinding[4];  // well known type, assigned id elsewhere.
+			}
+		} finally {
+			if (urb != null && urb.id == TypeIds.NoId)
 				urb.id = type.id;
-		} else {
-			TypeBinding nakedType = this.types[type.id] == null ? null : this.types[type.id][0];
-			if (type.hasTypeAnnotations() && nakedType == null)
-				throw new IllegalStateException();
-			if (nakedType != null)
-				return nakedType;
-			this.types[type.id] = new TypeBinding[4];  // well known type, assigned id elsewhere.
 		}
 	
 		return this.types[type.id][0] = type;
