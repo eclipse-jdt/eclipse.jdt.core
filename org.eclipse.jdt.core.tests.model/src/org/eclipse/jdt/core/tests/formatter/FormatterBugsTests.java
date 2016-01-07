@@ -12320,4 +12320,19 @@ public void testBug479898() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/485276 - [formatter] another ArrayIndexOutOfBoundsException while formatting code
+ */
+public void testBug485276() {
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = Alignment.M_COMPACT_SPLIT + Alignment.M_INDENT_BY_ONE;
+	String source =
+		"public class PostSaveListenerCleanUpExceptionTest {\r\n" + 
+		"	public Object[][] dataProvider() {\r\n" + 
+		"		return new Object[][] { { new String() // comment 1\r\n" + 
+		"				}, { new String() } };\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
 }

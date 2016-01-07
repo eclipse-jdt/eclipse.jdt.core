@@ -352,7 +352,7 @@ public class WrapExecutor {
 					return index;
 				}
 			} else {
-				checkForceWrap(token, indent);
+				checkForceWrap(token, index, indent);
 			}
 
 			token.setIndent(indent);
@@ -565,17 +565,16 @@ public class WrapExecutor {
 		return Math.exp(policy.structureDepth) * policy.penaltyMultiplier;
 	}
 
-	private void checkForceWrap(Token token, int currentIndent) throws WrapRestartThrowable {
+	private void checkForceWrap(Token token, int index, int currentIndent) throws WrapRestartThrowable {
 		// A token that will have smaller indent when wrapped than the current line indent,
 		// should be wrapped because it's a low depth token following some complex wraps of higher depth.
 		// This rule could not be implemented in getWrapPenalty() because a token's wrap indent may depend
 		// on wraps in previous lines, which are not determined yet when the token's penalty is calculated.
-		if (token.isWrappable() && this.options.wrap_outer_expressions_when_nested) {
-			int indent = getWrapIndent(token);
-			if (indent < currentIndent) {
-				token.breakBefore();
-				throw new WrapRestartThrowable(-1);
-			}
+		if (token.isWrappable() && this.options.wrap_outer_expressions_when_nested
+				&& getWrapIndent(token) < currentIndent
+				&& this.tm.get(this.tm.findFirstTokenInLine(index)).getWrapPolicy() != null) {
+			token.breakBefore();
+			throw new WrapRestartThrowable(-1);
 		}
 	}
 
