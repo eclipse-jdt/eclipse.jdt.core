@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 Mateusz Matela and others.
+ * Copyright (c) 2014, 2016 Mateusz Matela and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,7 +60,7 @@ public class CommentsPreparator extends ASTVisitor {
 		String separateLineTags = "(dl|hr|nl|p|ul|ol|table|tr)"; //$NON-NLS-1$
 		String breakBeforeTags = "(dd|dt|li|td|th|h1|h2|h3|h4|h5|h6|q)"; //$NON-NLS-1$
 		String breakAfterTags = "(br)"; //$NON-NLS-1$
-		String noFormatTags = "(code|em|tt)"; //$NON-NLS-1$
+		String noFormatTags = "(code|tt)"; //$NON-NLS-1$
 		String otherTags = "([^<>&&\\S]++)"; //$NON-NLS-1$
 		String ws = "(?>[ \\t]++|[\\r\\n]++[ \\t]*+\\*?)"; // whitespace or line break with optional asterisk //$NON-NLS-1$
 		String attributeValue = "(?>\"[^\"]*\")|(?>\'[^\']*\')|[^/>\"\'&&\\S]++"; //$NON-NLS-1$

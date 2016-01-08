@@ -1,11 +1,10 @@
 package test.wksp.ganymede;
 
 /**
- * <!-- begin-user-doc --> A representation of the model object
- * '<em><b>Audited Metric Target</b></em>'. <!-- end-user-doc --> <!--
- * begin-model-doc --> Target metric which can be evaluated by audit rule. The
- * target context here is the metric rule resulting type classifier <!--
- * end-model-doc -->
+ * <!-- begin-user-doc --> A representation of the model object '<em><b>Audited
+ * Metric Target</b></em>'. <!-- end-user-doc --> <!-- begin-model-doc -->
+ * Target metric which can be evaluated by audit rule. The target context here
+ * is the metric rule resulting type classifier <!-- end-model-doc -->
  * <p>
  * The following features are supported:
  * <ul>
