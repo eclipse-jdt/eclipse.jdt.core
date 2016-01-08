@@ -607,7 +607,8 @@ public class CommentsPreparator extends ASTVisitor {
 		if (tagName == null || tagName.length() <= 1)
 			handleHtml(node);
 
-		handleStringLiterals(this.tm.toString(node), node.getStartPosition());
+		if (TagElement.TAG_SEE.equals(tagName))
+			handleStringLiterals(this.tm.toString(node), node.getStartPosition());
 	}
 
 	private void handleHtml(TagElement node) {
