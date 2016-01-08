@@ -65,7 +65,6 @@ import org.eclipse.jdt.internal.compiler.flow.ExceptionInferenceFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
@@ -879,10 +878,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 					copy = this.copiesPerTargetType.values().iterator().next();
 			}
 		}
-		final CompilerOptions compilerOptions = this.enclosingScope.compilerOptions();
-		boolean analyzeNPE = compilerOptions.isAnnotationBasedNullAnalysisEnabled;
 		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
-		compilerOptions.isAnnotationBasedNullAnalysisEnabled = false;
 		try {
 			if (copy == null) {
 				copy = copy();
@@ -907,7 +903,6 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 					copy.analyzeExceptions();
 			return copy;
 		} finally {
-			compilerOptions.isAnnotationBasedNullAnalysisEnabled = analyzeNPE;
 			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 		}
 	}

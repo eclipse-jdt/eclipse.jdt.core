@@ -10492,4 +10492,63 @@ public void testBug485027() {
 			"}"
 	}, getCompilerOptions(), "");
 }
+public void testBug485565() {
+	runConformTestWithLibs(
+			new String[] {
+			"test2/ClassWithRegistry.java",
+			"package test2;\n" +
+			"\n" +
+			"import java.rmi.registry.Registry;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class ClassWithRegistry {\n" +
+			"    @Nullable\n" +
+			"    public Registry registry;\n" +
+			"}\n"
+			}, 
+			getCompilerOptions(),
+			""
+		);
+		runConformTestWithLibs(
+			new String[] {
+			"test1/ClassWithLambda.java",
+			"package test1;\n" +
+			"\n" +
+			"import test2.ClassWithRegistry;\n" +
+			"\n" +
+			"// must be compiled before ZClassWithBug\n" +
+			"public class ClassWithLambda {\n" +
+			"	interface Lambda {\n" +
+			"		void f();\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void invoke(Lambda lambda) {\n" +
+			"		lambda.f();\n" +
+			"	}\n" +
+			"\n" +
+			"	public void f() {\n" +
+			"		new ClassWithRegistry(); // must be accessed as class file\n" +
+			"		invoke(() -> java.rmi.registry.Registry.class.hashCode());\n" +
+			"	}\n" +
+			"}\n",
+			"test1/ZClassWithBug.java",
+			"package test1;\n" +
+			"\n" +
+			"import java.rmi.registry.Registry;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public abstract class ZClassWithBug {\n" +
+			"\n" +
+			"	@Nullable\n" +
+			"	public Registry rmiregistry;\n" +
+			"}\n"
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
 }
