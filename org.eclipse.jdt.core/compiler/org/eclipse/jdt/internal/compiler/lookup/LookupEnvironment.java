@@ -1766,4 +1766,14 @@ public boolean containsNullTypeAnnotation(IBinaryAnnotation[] typeAnnotations) {
 	}
 	return false;
 }
+public boolean containsNullTypeAnnotation(AnnotationBinding[] typeAnnotations) {
+	if (typeAnnotations.length == 0)
+		return false;
+	for (int i = 0; i < typeAnnotations.length; i++) {
+		AnnotationBinding typeAnnotation = typeAnnotations[i];
+		if (typeAnnotation.type.hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation))
+			return true;
+	}
+	return false;	
+}
 }

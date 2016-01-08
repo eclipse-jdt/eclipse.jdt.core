@@ -217,7 +217,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 						return nullBoundCheck(scope, argumentType, null, substitution, location, nullStatus);
 					} else {
 						TypeBinding bound = wildcard.bound;
-						if (checkNullAnnotations && wildcard.hasNullTypeAnnotations())
+						if (checkNullAnnotations && this.environment.containsNullTypeAnnotation(wildcard.typeAnnotations))
 							bound = this.environment.createAnnotatedType(bound.withoutToplevelNullAnnotation(), wildcard.getTypeAnnotations());
 						BoundCheckStatus status = boundCheck(substitution, bound, scope, null); // do not report null-errors against the tweaked bound ...
 						if (status == BoundCheckStatus.NULL_PROBLEM && location != null)

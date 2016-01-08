@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2015 GK Software AG and others.
+ * Copyright (c) 2013, 2016 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -304,6 +304,12 @@ public class NullAnnotationMatching {
 				} else {
 					long providedBits = providedNullTagBits(providedType);
 					Severity s = computeNullProblemSeverity(requiredBits, providedBits, nullStatus, mode, requiredType.isTypeVariable());
+					if (s.isAnyMismatch() && requiredType.isWildcard() && requiredBits != 0) {
+						if (((WildcardBinding) requiredType).determineNullBitsFromDeclaration(null, null) == 0) {
+							// wildcard has its nullBits from the type variable: avoid redundant warning.
+							s = Severity.OK;
+						}
+					}
 					severity = severity.max(s);
 					if (!severity.isAnyMismatch() && (providedBits & TagBits.AnnotationNonNull) != 0)
 						okStatus = okNonNullStatus(providedExpression);
@@ -311,7 +317,7 @@ public class NullAnnotationMatching {
 				if (severity != Severity.MISMATCH && nullStatus != FlowInfo.NULL) {  // null value has no details
 					TypeBinding providedSuper = providedType.findSuperTypeOriginatingFrom(requiredType);
 					TypeBinding providedSubstituteSuper = providedSubstitute != null ? providedSubstitute.findSuperTypeOriginatingFrom(requiredType) : null;
-					if(severity == Severity.UNCHECKED && requiredType.isTypeVariable() && providedType.isTypeVariable() && (providedSuper == requiredType || providedSubstituteSuper == requiredType)) { //$IDENTITY-COMPARISON$
+					if (severity == Severity.UNCHECKED && requiredType.isTypeVariable() && providedType.isTypeVariable() && (providedSuper == requiredType || providedSubstituteSuper == requiredType)) { //$IDENTITY-COMPARISON$
 						severity = Severity.OK;
 					}
 					if (providedSuper != providedType) //$IDENTITY-COMPARISON$
@@ -408,23 +414,7 @@ public class NullAnnotationMatching {
 			return validNullTagBits(tagBits);
 
 		if (type.isWildcard()) {
-			WildcardBinding wildcard = (WildcardBinding)type;
-			if (wildcard.boundKind == Wildcard.UNBOUND)
-				return 0;
-			tagBits = wildcard.bound.tagBits & TagBits.AnnotationNullMASK;
-			if (tagBits == 0)
-				return 0;
-			switch (wildcard.boundKind) {
-				case Wildcard.EXTENDS :
-					if (tagBits == TagBits.AnnotationNonNull)
-						return TagBits.AnnotationNonNull;
-					return TagBits.AnnotationNullMASK; // wildcard accepts @Nullable or better
-				case Wildcard.SUPER :
-					if (tagBits == TagBits.AnnotationNullable)
-						return TagBits.AnnotationNullable;
-					return TagBits.AnnotationNullMASK; // wildcard accepts @NonNull or worse
-			}
-			return 0;
+			return TagBits.AnnotationNullMASK;
 		} 
 		
 		if (type.isTypeVariable()) {
@@ -461,23 +451,7 @@ public class NullAnnotationMatching {
 			return validNullTagBits(tagBits);
 		
 		if (type.isWildcard()) { // wildcard can be 'provided' during inheritance checks
-			WildcardBinding wildcard = (WildcardBinding)type;
-			if (wildcard.boundKind == Wildcard.UNBOUND)
-				return 0;
-			tagBits = wildcard.bound.tagBits & TagBits.AnnotationNullMASK;
-			if (tagBits == 0)
-				return 0;
-			switch (wildcard.boundKind) {
-				case Wildcard.EXTENDS :
-					if (tagBits == TagBits.AnnotationNonNull)
-						return TagBits.AnnotationNonNull;
-					return TagBits.AnnotationNullMASK; // @Nullable or better
-				case Wildcard.SUPER :
-					if (tagBits == TagBits.AnnotationNullable)
-						return TagBits.AnnotationNullable;
-					return TagBits.AnnotationNullMASK; // @NonNull or worse
-			}
-			return 0;
+			return TagBits.AnnotationNullMASK;
 		}
 	
 		if (type.isTypeVariable()) { // incl. captures

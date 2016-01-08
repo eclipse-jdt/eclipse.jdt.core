@@ -11462,6 +11462,636 @@ public void testBug461268nnbd() {
 		""
 	);
 }
+public void testBug485988WildcardOverride() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Result.java",
+			"package test;\n" +
+			"\n" +
+			"public class Result<V> implements Comparable<Result<?>> {\n" +
+			"	public final int score;\n" +
+			"	public final V value;\n" +
+			"\n" +
+			"	protected Result(int score, V value) {\n" +
+			"		this.score = score;\n" +
+			"		this.value = value;\n" +
+			"	}\n" +
+			"	@Override\n" +
+			"	public int compareTo(Result<?> o) {\n" +
+			"		return score - o.score;\n" +
+			"	}\n" +
+			"}\n",
+			"test/Base.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public abstract class Base {\n" +
+			"	public abstract Result<?> matches();\n" +
+			"}\n",
+			"test/Derived.java",
+			"package test;\n" +
+			"\n" +
+			"import java.math.BigDecimal;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Derived extends Base {\n" +
+			"	@Override\n" +
+			"	public Result<BigDecimal> matches() {\n" +
+			"		return new Result<BigDecimal>(0, new BigDecimal(\"1\"));\n" +
+			"	}\n" +
+			"}\n",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+public void testBug485988neutral() {
+	runConformTestWithLibs(
+		new String[] {
+			"neutral/WildcardTest.java",
+			"package neutral;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"class A<T> {\n" +
+			"}\n" +
+			"\n" +
+			"abstract class X {\n" +
+			"	abstract A<?> g1();\n" +
+			"\n" +
+			"	abstract A<?> g2();\n" +
+			"\n" +
+			"	abstract A<?> g2b();\n" +
+			"\n" +
+			"	abstract A<?> g3();\n" +
+			"\n" +
+			"	abstract A<?> h1();\n" +
+			"\n" +
+			"	abstract A<?> h2();\n" +
+			"\n" +
+			"	abstract A<?> h2b();\n" +
+			"\n" +
+			"	abstract A<?> h3();\n" +
+			"}\n" +
+			"\n" +
+			"class Y extends X {\n" +
+			"	@Override\n" +
+			"	A<?> g1() {\n" +
+			"		return new A<@NonNull String>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<@NonNull ?> g2() {\n" +
+			"		return new A<@NonNull String>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<? extends @NonNull Number> g2b() {\n" +
+			"		return new A<@NonNull Integer>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<@NonNull String> g3() {\n" +
+			"		return new A<@NonNull String>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<?> h1() {\n" +
+			"		return new A<@Nullable String>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<@Nullable ?> h2() {\n" +
+			"		return new A<@Nullable String>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<? super @Nullable Number> h2b() {\n" +
+			"		return new A<@Nullable Object>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<@Nullable String> h3() {\n" +
+			"		return new A<@Nullable String>();\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class WildcardTest {\n" +
+			"	void f(A<?> a) {\n" +
+			"	}\n" +
+			"\n" +
+			"	<T1> void g(A<T1> a) {\n" +
+			"	}\n" +
+			"\n" +
+			"	<T2> void invoke(T2 t) {\n" +
+			"		f(new A<T2>());\n" +
+			"		g(new A<T2>());\n" +
+			"\n" +
+			"		f(new A<@NonNull T2>());\n" +
+			"		g(new A<@NonNull T2>());\n" +
+			"\n" +
+			"		f(new A<@Nullable T2>());\n" +
+			"		g(new A<@Nullable T2>());\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+public void testBug485988nonnull() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"nonnull/WildcardNonNullTest.java",
+			"package nonnull;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"class A<@NonNull T> {\n" +
+			"}\n" +
+			"\n" +
+			"abstract class X {\n" +
+			"	abstract A<@NonNull ?> g1();\n" +
+			"\n" +
+			"	abstract A<@NonNull ?> g2();\n" +
+			"\n" +
+			"	abstract A<@NonNull ?> g2b();\n" +
+			"\n" +
+			"	abstract A<@NonNull ?> g3();\n" +
+			"\n" +
+			"	abstract A<@NonNull ?> h1();\n" +
+			"\n" +
+			"	abstract A<@NonNull ?> h2();\n" +
+			"\n" +
+			"	abstract A<@NonNull ?> h2b();\n" +
+			"\n" +
+			"	abstract A<@NonNull ?> h3();\n" +
+			"}\n" +
+			"\n" +
+			"class Y extends X {\n" +
+			"	@Override\n" +
+			"	A<?> g1() {\n" +
+			"		return new A<@NonNull String>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<@NonNull ?> g2() {\n" +
+			"		return new A<@NonNull String>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<? extends @NonNull Number> g2b() {\n" +
+			"		return new A<@NonNull Integer>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<@NonNull String> g3() {\n" +
+			"		return new A<@NonNull String>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<?> h1() {\n" +
+			"		return new A<@Nullable String>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<@Nullable ?> h2() {\n" +
+			"		return new A<@Nullable String>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<? super @Nullable String> h2b() {\n" +
+			"		return new A<@Nullable String>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<@Nullable String> h3() {\n" +
+			"		return new A<@Nullable String>();\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class WildcardNonNullTest {\n" +
+			"	void f(A<?> a) {\n" +
+			"	}\n" +
+			"\n" +
+			"	<@NonNull T1> void g(A<T1> a) {\n" +
+			"	}\n" +
+			"\n" +
+			"	<T2> void invoke(T2 t) {\n" +
+			"		f(new A<T2>());\n" +
+			"		g(new A<T2>());\n" +
+			"\n" +
+			"		f(new A<@NonNull T2>());\n" +
+			"		g(new A<@NonNull T2>());\n" +
+			"\n" +
+			"		f(new A<@Nullable T2>());\n" +
+			"		g(new A<@Nullable T2>());\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in nonnull\\WildcardNonNullTest.java (at line 52)\n" + 
+		"	return new A<@Nullable String>();\n" + 
+		"	             ^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+		"----------\n" + 
+		"2. ERROR in nonnull\\WildcardNonNullTest.java (at line 56)\n" + 
+		"	A<@Nullable ?> h2() {\n" + 
+		"	^\n" + 
+		"The return type is incompatible with \'A<@NonNull ?>\' returned from X.h2() (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"3. ERROR in nonnull\\WildcardNonNullTest.java (at line 56)\n" + 
+		"	A<@Nullable ?> h2() {\n" + 
+		"	  ^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable ?\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+		"----------\n" + 
+		"4. ERROR in nonnull\\WildcardNonNullTest.java (at line 57)\n" + 
+		"	return new A<@Nullable String>();\n" + 
+		"	             ^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+		"----------\n" + 
+		"5. ERROR in nonnull\\WildcardNonNullTest.java (at line 61)\n" + 
+		"	A<? super @Nullable String> h2b() {\n" + 
+		"	^\n" + 
+		"The return type is incompatible with \'A<@NonNull ?>\' returned from X.h2b() (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"6. ERROR in nonnull\\WildcardNonNullTest.java (at line 61)\n" + 
+		"	A<? super @Nullable String> h2b() {\n" + 
+		"	  ^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'? super @Nullable String\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+		"----------\n" + 
+		"7. ERROR in nonnull\\WildcardNonNullTest.java (at line 62)\n" + 
+		"	return new A<@Nullable String>();\n" + 
+		"	             ^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+		"----------\n" + 
+		"8. ERROR in nonnull\\WildcardNonNullTest.java (at line 66)\n" + 
+		"	A<@Nullable String> h3() {\n" + 
+		"	^\n" + 
+		"The return type is incompatible with \'A<@NonNull ?>\' returned from X.h3() (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"9. ERROR in nonnull\\WildcardNonNullTest.java (at line 66)\n" + 
+		"	A<@Nullable String> h3() {\n" + 
+		"	  ^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+		"----------\n" + 
+		"10. ERROR in nonnull\\WildcardNonNullTest.java (at line 67)\n" + 
+		"	return new A<@Nullable String>();\n" + 
+		"	             ^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+		"----------\n" + 
+		"11. ERROR in nonnull\\WildcardNonNullTest.java (at line 80)\n" + 
+		"	f(new A<T2>());\n" + 
+		"	        ^^\n" + 
+		"Null constraint mismatch: The type \'T2\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+		"----------\n" + 
+		"12. WARNING in nonnull\\WildcardNonNullTest.java (at line 81)\n" + 
+		"	g(new A<T2>());\n" + 
+		"	  ^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'A<T2>\' needs unchecked conversion to conform to \'@NonNull A<@NonNull T2>\'\n" + 
+		"----------\n" + 
+		"13. ERROR in nonnull\\WildcardNonNullTest.java (at line 81)\n" + 
+		"	g(new A<T2>());\n" + 
+		"	        ^^\n" + 
+		"Null constraint mismatch: The type \'T2\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+		"----------\n" + 
+		"14. ERROR in nonnull\\WildcardNonNullTest.java (at line 86)\n" + 
+		"	f(new A<@Nullable T2>());\n" + 
+		"	        ^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable T2\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+		"----------\n" + 
+		"15. ERROR in nonnull\\WildcardNonNullTest.java (at line 87)\n" + 
+		"	g(new A<@Nullable T2>());\n" + 
+		"	  ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull A<@NonNull T2>\' but this expression has type \'A<@Nullable T2>\'\n" + 
+		"----------\n" + 
+		"16. ERROR in nonnull\\WildcardNonNullTest.java (at line 87)\n" + 
+		"	g(new A<@Nullable T2>());\n" + 
+		"	        ^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable T2\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+		"----------\n"	
+	);
+}
+public void testBug485988nullable() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"nullable/WildcardNullableTest.java",
+			"package nullable;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"class A<@Nullable T> {\n" +
+			"}\n" +
+			"\n" +
+			"abstract class X {\n" +
+			"	abstract A<@Nullable ?> g1();\n" +
+			"\n" +
+			"	abstract A<@Nullable ?> g2();\n" +
+			"\n" +
+			"	abstract A<@Nullable ?> g2b();\n" +
+			"\n" +
+			"	abstract A<@Nullable ?> g3();\n" +
+			"\n" +
+			"	abstract A<@Nullable ?> h1();\n" +
+			"\n" +
+			"	abstract A<@Nullable ?> h2();\n" +
+			"\n" +
+			"	abstract A<@Nullable ?> h2b();\n" +
+			"\n" +
+			"	abstract A<@Nullable ?> h3();\n" +
+			"}\n" +
+			"\n" +
+			"class Y extends X {\n" +
+			"	@Override\n" +
+			"	A<?> g1() {\n" +
+			"		return new A<@NonNull String>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<@NonNull ?> g2() {\n" +
+			"		return new A<@NonNull String>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<? extends @NonNull Number> g2b() {\n" +
+			"		return new A<@NonNull Integer>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<@NonNull String> g3() {\n" +
+			"		return new A<@NonNull String>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<?> h1() {\n" +
+			"		return new A<@Nullable String>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<@Nullable ?> h2() {\n" +
+			"		return new A<@Nullable String>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<? super @Nullable String> h2b() {\n" +
+			"		return new A<@Nullable String>();\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	A<@Nullable String> h3() {\n" +
+			"		return new A<@Nullable String>();\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class WildcardNullableTest {\n" +
+			"	void f(A<?> a) {\n" +
+			"	}\n" +
+			"\n" +
+			"	<@Nullable T1> void g(A<T1> a) {\n" +
+			"	}\n" +
+			"\n" +
+			"	<T2> void invoke(T2 t) {\n" +
+			"		f(new A<T2>());\n" +
+			"		g(new A<T2>());\n" +
+			"\n" +
+			"		f(new A<@NonNull T2>());\n" +
+			"		g(new A<@NonNull T2>());\n" +
+			"\n" +
+			"		f(new A<@Nullable T2>());\n" +
+			"		g(new A<@Nullable T2>());\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in nullable\\WildcardNullableTest.java (at line 32)\n" + 
+		"	return new A<@NonNull String>();\n" + 
+		"	             ^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"2. ERROR in nullable\\WildcardNullableTest.java (at line 36)\n" + 
+		"	A<@NonNull ?> g2() {\n" + 
+		"	^\n" + 
+		"The return type is incompatible with \'A<@Nullable ?>\' returned from X.g2() (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"3. ERROR in nullable\\WildcardNullableTest.java (at line 36)\n" + 
+		"	A<@NonNull ?> g2() {\n" + 
+		"	  ^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull ?\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"4. ERROR in nullable\\WildcardNullableTest.java (at line 37)\n" + 
+		"	return new A<@NonNull String>();\n" + 
+		"	             ^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"5. ERROR in nullable\\WildcardNullableTest.java (at line 41)\n" + 
+		"	A<? extends @NonNull Number> g2b() {\n" + 
+		"	^\n" + 
+		"The return type is incompatible with \'A<@Nullable ?>\' returned from X.g2b() (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"6. ERROR in nullable\\WildcardNullableTest.java (at line 41)\n" + 
+		"	A<? extends @NonNull Number> g2b() {\n" + 
+		"	  ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'? extends @NonNull Number\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"7. ERROR in nullable\\WildcardNullableTest.java (at line 42)\n" + 
+		"	return new A<@NonNull Integer>();\n" + 
+		"	             ^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull Integer\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"8. ERROR in nullable\\WildcardNullableTest.java (at line 46)\n" + 
+		"	A<@NonNull String> g3() {\n" + 
+		"	^\n" + 
+		"The return type is incompatible with \'A<@Nullable ?>\' returned from X.g3() (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"9. ERROR in nullable\\WildcardNullableTest.java (at line 46)\n" + 
+		"	A<@NonNull String> g3() {\n" + 
+		"	  ^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"10. ERROR in nullable\\WildcardNullableTest.java (at line 47)\n" + 
+		"	return new A<@NonNull String>();\n" + 
+		"	             ^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"11. ERROR in nullable\\WildcardNullableTest.java (at line 80)\n" + 
+		"	f(new A<T2>());\n" + 
+		"	        ^^\n" + 
+		"Null constraint mismatch: The type \'T2\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"12. WARNING in nullable\\WildcardNullableTest.java (at line 81)\n" + 
+		"	g(new A<T2>());\n" + 
+		"	  ^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'A<T2>\' needs unchecked conversion to conform to \'@NonNull A<@Nullable T2>\'\n" + 
+		"----------\n" + 
+		"13. ERROR in nullable\\WildcardNullableTest.java (at line 81)\n" + 
+		"	g(new A<T2>());\n" + 
+		"	        ^^\n" + 
+		"Null constraint mismatch: The type \'T2\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"14. ERROR in nullable\\WildcardNullableTest.java (at line 83)\n" + 
+		"	f(new A<@NonNull T2>());\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull T2\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"15. ERROR in nullable\\WildcardNullableTest.java (at line 84)\n" + 
+		"	g(new A<@NonNull T2>());\n" + 
+		"	  ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull A<@Nullable T2>\' but this expression has type \'A<@NonNull T2>\'\n" + 
+		"----------\n" + 
+		"16. ERROR in nullable\\WildcardNullableTest.java (at line 84)\n" + 
+		"	g(new A<@NonNull T2>());\n" + 
+		"	        ^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull T2\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n"
+	);
+}
+public void testBug485988WildCardForTVWithNonNullBound() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/WildCard.java",
+			"package test;\n" +
+			"\n" +
+			"import java.io.Serializable;\n" +
+			"import java.util.ArrayList;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"class F<T extends Serializable> {\n" +
+			"}\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class WildCard {\n" +
+			"	void f(ArrayList<F<?>> list) {\n" +
+			"		for (F<? extends Serializable> f : list) {\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+public void testBug485988WildcardWithGenericBound() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Test1.java",
+			"package test;\n" +
+			"import java.util.Collection;\n" +
+			"import java.util.Iterator;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"interface LibA {\n" +
+			"	<T> Iterator<? extends T> constrainedWildcards(Collection<? extends T> in);\n" +
+			"}\n" +
+			"public class Test1 {\n" +
+			"	Iterator<? extends @NonNull String> test3(LibA lib, Collection<String> coll) {\n" +
+			"		return lib.constrainedWildcards(coll);\n" +
+			"	}\n" +
+			"}\n" +
+			"\n",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in test\\Test1.java (at line 11)\n" + 
+		"	return lib.constrainedWildcards(coll);\n" + 
+		"	                                ^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'Collection<String>\' needs unchecked conversion to conform to \'Collection<? extends @NonNull String>\'\n" + 
+		"----------\n"
+	);
+}
+public void testBug485988Contradictory() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/Test1.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"interface A<T> {\n" +
+			"}\n" +
+			"public class Test1{\n" +
+			"	void f1(A<@Nullable @NonNull ?> a) {\n" +
+			"	}\n" +
+			"	void f2(A<@NonNull @Nullable ?> a) {\n" +
+			"	}\n" +
+			"	void f3(A<@Nullable ? extends @NonNull Object> a) {\n" +
+			"	}\n" +
+			"	void f4(A<@NonNull ? super @Nullable Integer> a) {\n" +
+			"	}\n" +
+			"	void f5(A<@Nullable ? super @Nullable Integer> a) {\n" + // OK
+			"	}\n" +
+			"	@NonNullByDefault void f6(A<@Nullable ? extends Integer> a) {\n" + // OK
+			"	}\n" +
+			"}\n" +
+			"\n",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\Test1.java (at line 7)\n" + 
+		"	void f1(A<@Nullable @NonNull ?> a) {\n" + 
+		"	                    ^^^^^^^^\n" + 
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\Test1.java (at line 9)\n" + 
+		"	void f2(A<@NonNull @Nullable ?> a) {\n" + 
+		"	                   ^^^^^^^^^\n" + 
+		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" + 
+		"----------\n" +
+		"3. ERROR in test\\Test1.java (at line 11)\n" + 
+		"	void f3(A<@Nullable ? extends @NonNull Object> a) {\n" + 
+		"	                              ^^^^^^^^\n" + 
+		"This nullness annotation conflicts with a \'@Nullable\' annotation which is effective on the same type parameter \n" + 
+		"----------\n" + 
+		"4. ERROR in test\\Test1.java (at line 13)\n" + 
+		"	void f4(A<@NonNull ? super @Nullable Integer> a) {\n" + 
+		"	                           ^^^^^^^^^\n" + 
+		"This nullness annotation conflicts with a \'@NonNull\' annotation which is effective on the same type parameter \n" + 
+		"----------\n"
+	);
+}
+public void testBug485988bound() {
+	runConformTestWithLibs(
+		new String[] {
+			"C.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"\n" + 
+			"interface I<T> { }\n" + 
+			"\n" + 
+			"public class C {\n" + 
+			"	I<@NonNull ?> m1(I<? extends @NonNull C> i) {\n" + 
+			"		return i;\n" + 
+			"	}\n" + 
+			"	I<? extends @NonNull C> m2(I<@NonNull ? extends C> i) {\n" + 
+			"		return i;\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
 public void testBug466585_comment_0() {
 	runConformTestWithLibs(
 		new String[] {
