@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 IBM Corporation and others.
+ * Copyright (c) 2011, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -6136,7 +6136,8 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        [pc: 0, pc: 10] local: this index: 0 type: X.Y\n" + 
 					"    RuntimeInvisibleTypeAnnotations: \n" + 
 					"      #20 @T(\n" + 
-					"        target type = 0x14 METHOD_RETURN\n" + 
+					"        target type = 0x14 METHOD_RETURN\n" +
+					"        location = [INNER_TYPE]\n" + 
 					"      )\n" + 
 					"\n";
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
@@ -6576,6 +6577,41 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			}, 
 			"OK",
 			customOptions);		
+	}
+	public void testBug485386() {
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.lang.annotation.*;\n" + 
+				"import java.lang.reflect.*;\n" + 
+				"\n" + 
+				"@Retention(value = RetentionPolicy.RUNTIME)\n" + 
+				"@java.lang.annotation.Target(ElementType.TYPE_USE)\n" + 
+				"@interface TestAnn1 {\n" + 
+				"  String value() default \"1\";\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class Test {\n" + 
+				"\n" + 
+				"  class Inner {\n" + 
+				"    public @TestAnn1() Inner() {\n" + 
+				"      System.out.println(\"New\");\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"\n" + 
+				"  public void test() throws SecurityException, NoSuchMethodException {\n" + 
+				"    Executable f = Test.Inner.class.getDeclaredConstructor(Test.class);\n" + 
+				"    AnnotatedType ae = f.getAnnotatedReturnType();\n" + 
+				"    Object o = ae.getAnnotation(TestAnn1.class);\n" + 
+				"    System.out.println(o);\n" + 
+				"  }\n" + 
+				"  \n" + 
+				"  public static void main(String... args) throws Exception {\n" + 
+				"    new Test().test();\n" + 
+				"  }\n" + 
+				"}\n"
+			},
+			"@TestAnn1(value=1)");
 	}
 }
 

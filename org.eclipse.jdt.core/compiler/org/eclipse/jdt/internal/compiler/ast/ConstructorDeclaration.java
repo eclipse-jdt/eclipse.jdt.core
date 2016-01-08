@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -467,7 +467,9 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 }
 
 public void getAllAnnotationContexts(int targetType, List allAnnotationContexts) {
-	AnnotationCollector collector = new AnnotationCollector(null, targetType, allAnnotationContexts);
+	TypeReference fakeReturnType = new SingleTypeReference(this.selector, 0);
+	fakeReturnType.resolvedType = this.binding.declaringClass;
+	AnnotationCollector collector = new AnnotationCollector(fakeReturnType, targetType, allAnnotationContexts);
 	for (int i = 0, max = this.annotations.length; i < max; i++) {
 		Annotation annotation = this.annotations[i];
 		annotation.traverse(collector, (BlockScope) null);
