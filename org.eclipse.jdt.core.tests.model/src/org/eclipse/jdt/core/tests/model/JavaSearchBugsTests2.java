@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBM Corporation and others.
+ * Copyright (c) 2014, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1935,7 +1935,10 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					new String[] {
 							"p/Enclosing.java",
 							"package p;\n" +
-							"public class Enclosing { enum Nested { A, B } }\n"
+							"public class Enclosing { enum Nested { A, B; class Matryoshka { } } }\n",
+							"classified/CEnclosing.java",
+							"package classified;\n" +
+							"public class CEnclosing { interface CNested { class CMatryoshka { } } }\n"
 					},
 					p.getProject().getLocation().append("lib473921.jar").toOSString(),
 					"1.7");
@@ -1952,13 +1955,28 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			Collector collector = new Collector();
 			new SearchEngine().searchAllTypeNames(
 				null,
-				new char[][] { "Nested".toCharArray() },
+				new char[][] { "Nested".toCharArray(), "Enclosing".toCharArray(), "Matryoshka".toCharArray() },
 				scope,
 				collector,
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 				null);
-			assertEquals(1, collector.matches.size());
+			assertEquals(3, collector.matches.size());
 			assertEquals(IAccessRule.K_ACCESSIBLE, collector.matches.get(0).getAccessibility());
+			assertEquals(IAccessRule.K_ACCESSIBLE, collector.matches.get(1).getAccessibility()); // bug 482309
+			assertEquals(IAccessRule.K_ACCESSIBLE, collector.matches.get(2).getAccessibility()); // bug 482309 (double-nested type)
+			
+			collector = new Collector();
+			new SearchEngine().searchAllTypeNames(
+					null,
+					new char[][] { "CNested".toCharArray(), "CEnclosing".toCharArray(), "CMatryoshka".toCharArray() },
+					scope,
+					collector,
+					IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+					null);
+			assertEquals(3, collector.matches.size());
+			assertEquals(IAccessRule.K_NON_ACCESSIBLE, collector.matches.get(0).getAccessibility());
+			assertEquals(IAccessRule.K_NON_ACCESSIBLE, collector.matches.get(1).getAccessibility()); // bug 482309
+			assertEquals(IAccessRule.K_NON_ACCESSIBLE, collector.matches.get(2).getAccessibility()); // bug 482309 (double-nested type)
 		} finally {
 			deleteProject("P");
 		}

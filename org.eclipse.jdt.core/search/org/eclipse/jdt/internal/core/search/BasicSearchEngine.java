@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2016,8 +2016,9 @@ boolean match(char[] patternName, int matchRule, char[] name) {
 						System.arraycopy(record.qualification, 0, path, pos, qualificationLength - 1);
 						CharOperation.replace(path, '.', '/');
 
-						// Do not use '/'. Access rules work on package level and should not discriminate on enclosing types.
-						path[qualificationLength-1] = '$';
+						// Access rules work on package level and should not discriminate on enclosing types.
+						boolean isNestedType = record.enclosingTypeNames != null && record.enclosingTypeNames.length > 0;
+						path[qualificationLength-1] = isNestedType ? '$' : '/';
 						pos += qualificationLength;
 					}
 					if (nameLength > 0) {
