@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 IBM Corporation and others.
+ * Copyright (c) 2005, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -241,6 +241,38 @@ public void test004() {
 		"	                   ^\n" +
 		"The blank final field o may not have been initialized\n" +
 		"----------\n" +
+		(this.complianceLevel >= ClassFileConstants.JDK1_7 ?
+		"4. ERROR in X.java (at line 35)\n" +
+		"	System.out.println(this.o); // legal\n" +
+		"	                        ^\n" +
+		"The blank final field o may not have been initialized\n" +
+		"----------\n" +
+		"5. WARNING in X.java (at line 42)\n" +
+		"	private final Object o;\n" +
+		"	                     ^\n" +
+		"The value of the field X.Test5.o is not used\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 44)\n" +
+		"	Test5() {\n" +
+		"	^^^^^^^\n" +
+		"The blank final field o may not have been initialized\n" +
+		"----------\n" +
+		"7. ERROR in X.java (at line 46)\n" +
+		"	other.o = new Object(); // illegal!  other.o is not assignable\n" +
+		"	      ^\n" +
+		"The final field X.Test5.o cannot be assigned\n" +
+		"----------\n" +
+		"8. WARNING in X.java (at line 52)\n" +
+		"	private final Object o;\n" +
+		"	                     ^\n" +
+		"The value of the field X.Test6.o is not used\n" +
+		"----------\n" +
+		"9. ERROR in X.java (at line 59)\n" +
+		"	other.o = new Object(); // illegal!  other.o is not assignable\n" +
+		"	      ^\n" +
+		"The final field X.Test6.o cannot be assigned\n" +
+		"----------\n"
+		:
 		"4. WARNING in X.java (at line 42)\n" +
 		"	private final Object o;\n" +
 		"	                     ^\n" +
@@ -265,7 +297,7 @@ public void test004() {
 		"	other.o = new Object(); // illegal!  other.o is not assignable\n" +
 		"	      ^\n" +
 		"The final field X.Test6.o cannot be assigned\n" +
-		"----------\n");
+		"----------\n"));
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190391
 public void test005() {
@@ -2026,6 +2058,45 @@ public void test068() {
 			"	     ^^^\n" + 
 			"Type mismatch: cannot convert from char to Integer\n" + 
 			"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=480989
+public void testbug480989() {
+	String src = 
+			"public abstract class Unassigned {\n" + 
+			"    public Unassigned() {}\n" + 
+			"    static class SubClass extends Unassigned {\n" + 
+			"        private final String test;\n" + 
+			"        public SubClass(String atest) { // rename\n" + 
+			"            System.out.println(this.test);\n" + 
+			"            this.test = atest;\n" + 
+			"            System.out.println(this.test);\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        new SubClass(\"Hello World!\");\n" + 
+			"    }\n" + 
+			"}\n";
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		this.runNegativeTest(
+			new String[] {
+				"Unassigned.java",
+				src
+			},
+			"----------\n" + 
+			"1. ERROR in Unassigned.java (at line 6)\n" + 
+			"	System.out.println(this.test);\n" + 
+			"	                        ^^^^\n" + 
+			"The blank final field test may not have been initialized\n" + 
+			"----------\n");
+	} else {
+		this.runConformTest(
+			new String[] {
+				"Unassigned.java",
+				src 
+			},
+			"null\n" +
+			"Hello World!");
+	}
 }
 public static Class testClass() {
 	return AssignmentTest.class;
