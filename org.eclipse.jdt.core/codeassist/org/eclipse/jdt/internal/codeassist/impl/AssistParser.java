@@ -55,7 +55,6 @@ import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-@SuppressWarnings({"rawtypes"})
 public abstract class AssistParser extends Parser {
 	public ASTNode assistNode;
 	public boolean isOrphanCompletionNode;
@@ -498,7 +497,7 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 						this.currentElement instanceof RecoveredMethod ? ((RecoveredMethod) this.currentElement).methodBody : null);
 				if (recoveredBlock != null) {
 					RecoveredStatement recoveredStatement = recoveredBlock.statementCount > 0 ? recoveredBlock.statements[recoveredBlock.statementCount - 1] : null;
-					ASTNode parseTree = recoveredStatement != null ? recoveredStatement.updatedStatement(0, new HashSet()) : null;
+					ASTNode parseTree = recoveredStatement != null ? recoveredStatement.updatedStatement(0, new HashSet<TypeDeclaration>()) : null;
 					if (parseTree != null) {
 						if ((parseTree.sourceStart == 0 || parseTree.sourceEnd == 0) || (parseTree.sourceStart >= statementStart && parseTree.sourceEnd <= statementEnd)) {
 							recoveredBlock.statements[recoveredBlock.statementCount - 1] = new RecoveredStatement(statement, recoveredBlock, 0);

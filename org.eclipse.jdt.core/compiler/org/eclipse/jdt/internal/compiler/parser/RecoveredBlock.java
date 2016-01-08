@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,6 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-@SuppressWarnings("rawtypes")
 public class RecoveredBlock extends RecoveredStatement implements TerminalTokens {
 
 	public Block blockDeclaration;
@@ -283,7 +282,7 @@ public String toString(int tab) {
 /*
  * Rebuild a block from the nested structure which is in scope
  */
-public Block updatedBlock(int depth, Set knownTypes){
+public Block updatedBlock(int depth, Set<TypeDeclaration> knownTypes){
 
 	// if block was not marked to be preserved or empty, then ignore it
 	if (!this.preserveContent || this.statementCount == 0) return null;
@@ -383,7 +382,7 @@ public Block updatedBlock(int depth, Set knownTypes){
 /*
  * Rebuild a statement from the nested structure which is in scope
  */
-public Statement updatedStatement(int depth, Set knownTypes){
+public Statement updatedStatement(int depth, Set<TypeDeclaration> knownTypes){
 
 	return updatedBlock(depth, knownTypes);
 }
@@ -424,7 +423,7 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
  */
 public void updateParseTree(){
 
-	updatedBlock(0, new HashSet());
+	updatedBlock(0, new HashSet<TypeDeclaration>());
 }
 /*
  * Record a field declaration

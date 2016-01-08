@@ -258,7 +258,7 @@ public String toString(int tab) {
 	}
 	return result.toString();
 }
-public FieldDeclaration updatedFieldDeclaration(int depth, Set knownTypes){
+public FieldDeclaration updatedFieldDeclaration(int depth, Set<TypeDeclaration> knownTypes){
 
 	if (this.initializerBody != null){
 		Block block = this.initializerBody.updatedBlock(depth, knownTypes);
