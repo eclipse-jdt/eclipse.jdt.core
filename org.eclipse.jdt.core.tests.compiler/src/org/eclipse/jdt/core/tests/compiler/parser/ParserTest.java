@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -776,5 +776,39 @@ public void test028() {
 		null,
 		true,
 		options);
+}
+public void testBug485477() {
+	runNegativeTest(
+		new String[] {
+			"T.java",
+			"public class T {{\n" + 
+			"  Object o = T.super; // error: '.' expected\n" + // instance initializer
+			"  System.out.println(o.toString());\n" + 
+			"}}\n" + 
+			"class U {\n" + 
+			"  Object o1;\n" +
+			"  Object o2 = T.super;\n" + // field initializer
+			"  U() {\n" + 
+			"    o1 = U.super;\n" +  // constructor
+			"    System.out.println(o1.toString());\n" +
+			"  }\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in T.java (at line 2)\n" + 
+		"	Object o = T.super; // error: \'.\' expected\n" + 
+		"	             ^^^^^\n" + 
+		"Syntax error, insert \". Identifier\" to complete Expression\n" + 
+		"----------\n" + 
+		"2. ERROR in T.java (at line 7)\n" + 
+		"	Object o2 = T.super;\n" + 
+		"	              ^^^^^\n" + 
+		"Syntax error, insert \". Identifier\" to complete Expression\n" + 
+		"----------\n" + 
+		"3. ERROR in T.java (at line 9)\n" + 
+		"	o1 = U.super;\n" + 
+		"	       ^^^^^\n" + 
+		"Syntax error, insert \". Identifier\" to complete Expression\n" + 
+		"----------\n");
 }
 }

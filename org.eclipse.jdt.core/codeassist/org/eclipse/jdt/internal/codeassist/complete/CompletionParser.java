@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3480,12 +3480,12 @@ protected void consumePrimaryNoNewArrayName() {
 
 	super.consumePrimaryNoNewArrayName();
 }
-protected void consumePrimaryNoNewArrayNameSuper() {
+protected void consumeQualifiedSuperReceiver() {
 	// this is class literal access, so reset potential receiver
 	this.invocationType = NO_RECEIVER;
 	this.qualifier = -1;
 
-	super.consumePrimaryNoNewArrayNameSuper();
+	super.consumeQualifiedSuperReceiver();
 }
 protected void consumePrimaryNoNewArrayNameThis() {
 	// this is class literal access, so reset potential receiver

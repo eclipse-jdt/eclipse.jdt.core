@@ -1336,8 +1336,9 @@ PrimaryNoNewArray -> FieldAccess
 --1.1 feature
 PrimaryNoNewArray ::= Name '.' 'this'
 /.$putCase consumePrimaryNoNewArrayNameThis(); $break ./
-PrimaryNoNewArray ::= Name '.' 'super'
-/.$putCase consumePrimaryNoNewArrayNameSuper(); $break ./
+
+QualifiedSuperReceiver ::= Name '.' 'super'
+/.$putCase consumeQualifiedSuperReceiver(); $break ./
 
 --1.1 feature
 --PrimaryNoNewArray ::= Type '.' 'class'
@@ -1394,6 +1395,9 @@ ReferenceExpression ::= Name BeginTypeArguments ReferenceExpressionTypeArguments
 /:$compliance 1.8:/
 
 ReferenceExpression ::= Primary '::' NonWildTypeArgumentsopt Identifier
+/.$putCase consumeReferenceExpressionPrimaryForm(); $break ./
+/:$compliance 1.8:/
+ReferenceExpression ::= QualifiedSuperReceiver '::' NonWildTypeArgumentsopt Identifier
 /.$putCase consumeReferenceExpressionPrimaryForm(); $break ./
 /:$compliance 1.8:/
 ReferenceExpression ::= 'super' '::' NonWildTypeArgumentsopt Identifier
@@ -1588,6 +1592,10 @@ FieldAccess ::= 'super' '.' 'Identifier'
 /.$putCase consumeFieldAccess(true); $break ./
 /:$readableName FieldAccess:/
 
+FieldAccess ::= QualifiedSuperReceiver '.' 'Identifier'
+/.$putCase consumeFieldAccess(false); $break ./
+/:$readableName FieldAccess:/
+
 MethodInvocation ::= Name '(' ArgumentListopt ')'
 /.$putCase consumeMethodInvocationName(); $break ./
 
@@ -1599,6 +1607,12 @@ MethodInvocation ::= Primary '.' OnlyTypeArguments 'Identifier' '(' ArgumentList
 
 MethodInvocation ::= Primary '.' 'Identifier' '(' ArgumentListopt ')'
 /.$putCase consumeMethodInvocationPrimary(); $break ./
+
+MethodInvocation ::= QualifiedSuperReceiver '.' 'Identifier' '(' ArgumentListopt ')'
+/.$putCase consumeMethodInvocationPrimary(); $break ./
+
+MethodInvocation ::= QualifiedSuperReceiver '.' OnlyTypeArguments 'Identifier' '(' ArgumentListopt ')'
+/.$putCase consumeMethodInvocationPrimaryWithTypeArguments(); $break ./
 
 MethodInvocation ::= 'super' '.' OnlyTypeArguments 'Identifier' '(' ArgumentListopt ')'
 /.$putCase consumeMethodInvocationSuperWithTypeArguments(); $break ./
