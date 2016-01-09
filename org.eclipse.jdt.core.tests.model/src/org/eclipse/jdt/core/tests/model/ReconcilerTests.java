@@ -25,6 +25,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -42,6 +43,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+import org.osgi.framework.Bundle;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ReconcilerTests extends ModifyingResourceTests {
@@ -5795,4 +5797,82 @@ public void testBug440592() throws Exception {
 		deleteProjects(new String[] { "P" });
 	}
 }
+public void testBug485092() throws CoreException, IOException, InterruptedException {
+
+	IJavaProject project15 = null;
+	IJavaProject project18 = null;
+	try {
+		project15 = createJavaProject("Reconciler1518", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		createFolder("/Reconciler1518/src/p1");
+		String source = 
+				"package p1;\n" +
+				"\n" +
+				"public interface PreferenceableOption<T extends Object> {}\n";
+
+		createFile(
+			"/Reconciler1518/src/p1/PreferenceableOption.java",
+			source
+		);
+
+		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+
+		project18 = createJavaProject("Reconciler18", new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin");
+		createFolder("/Reconciler18/src/p2");
+		String otherSource = 
+				"package p2;\n" +
+				"import org.eclipse.jdt.annotation.NonNull;\n" +
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"\n" +
+				"import p1.PreferenceableOption;\n" +
+				"public class PivotEnvironmentFactory\n" +
+				"{\n" +
+				"	public @NonNull Object @Nullable [] scopeContexts = null;\n" +
+				"}\n";
+
+		createFile(
+			"/Reconciler18/src/p2/PivotEnvironmentFactory.java",
+			otherSource
+		);
+		project18.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
+		project18.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
+		project18.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
+
+
+		project18.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+		Bundle[] bundles = Platform.getBundles("org.eclipse.jdt.annotation","[2.0.0,3.0.0)");
+		File bundleFile = FileLocator.getBundleFile(bundles[0]);
+		String annotationsLib = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
+		IClasspathEntry nullAnnotationsClassPathEntry = JavaCore.newLibraryEntry(new Path(annotationsLib), null, null);
+				
+		IClasspathEntry[] oldClasspath = project18.getRawClasspath();
+		int oldLength = oldClasspath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+2];
+		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
+		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Reconciler1518"));
+		newClasspath[oldLength + 1] = nullAnnotationsClassPathEntry;
+		project18.setRawClasspath(newClasspath, null);
+				
+		this.workingCopies = new ICompilationUnit[1];
+		char[] sourceChars = otherSource.toCharArray();
+		this.problemRequestor.initialize(sourceChars);
+		this.workingCopies[0] = getCompilationUnit("/Reconciler18/src/p2/PivotEnvironmentFactory.java").getWorkingCopy(this.wcOwner, null);
+		assertProblems(
+			"Unexpected problems",
+			"----------\n" + 
+			"1. WARNING in /Reconciler18/src/p2/PivotEnvironmentFactory.java (at line 5)\n" + 
+			"	import p1.PreferenceableOption;\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"The import p1.PreferenceableOption is never used\n" + 
+			"----------\n"
+		);
+	} finally {
+		if (project15 != null)
+			deleteProject(project15);
+		if (project18 != null)
+			deleteProject(project18);
+	}
+}
+
 }
