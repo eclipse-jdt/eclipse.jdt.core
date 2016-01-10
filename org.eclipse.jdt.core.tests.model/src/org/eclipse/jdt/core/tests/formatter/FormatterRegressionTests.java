@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13144,5 +13144,57 @@ public void testBug477476b() {
 		e.printStackTrace();
 		assertTrue(false);
 	}
+}
+/**
+ * https://bugs.eclipse.org/485495 - [Formatter] does not insert space before semicolon at the end of the statement
+ */
+public void testBug485495() {
+	this.formatterPrefs.insert_space_before_semicolon = true;
+	String source =
+		"package test ;\n" + 
+		"\n" + 
+		"import java.util.ArrayList ;\n" + 
+		"\n" + 
+		"public class Test {\n" + 
+		"\n" + 
+		"	interface I {\n" + 
+		"		void method() ;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	ArrayList<String> e = null ;\n" + 
+		"	int i ;\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		int i = 0 ;\n" + 
+		"		String s ;\n" + 
+		"		if (i > 0)\n" + 
+		"			return ;\n" + 
+		"		for (int j = 0; j < 5; j++) {\n" + 
+		"			Object o ;\n" + 
+		"			while (i < 0)\n" + 
+		"				o = new Object() {\n" + 
+		"					int f ;\n" + 
+		"\n" + 
+		"					void bar() {\n" + 
+		"						if (f > 0)\n" + 
+		"							f = 5 ;\n" + 
+		"						else\n" + 
+		"							f = 16 ;\n" + 
+		"						try {\n" + 
+		"							f = 14 ;\n" + 
+		"						} catch (Exception e) {\n" + 
+		"							bar() ;\n" + 
+		"						}\n" + 
+		"					}\n" + 
+		"				} ;\n" + 
+		"			while (i < 0)\n" + 
+		"				switch (i) {\n" + 
+		"				case 4:\n" + 
+		"					foo() ;\n" + 
+		"				}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
 }
 }
