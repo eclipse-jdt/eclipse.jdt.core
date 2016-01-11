@@ -1530,6 +1530,7 @@ private void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBi
 		if (fieldType != null
 				&& !fieldType.isBaseType()
 				&& (fieldType.tagBits & TagBits.AnnotationNullMASK) == 0
+				&& fieldType.acceptsNonNullDefault()
 				&& hasNonNullDefaultFor(DefaultLocationField, true)) {
 			fieldBinding.type = this.environment.createAnnotatedType(fieldType, new AnnotationBinding[]{this.environment.getNonNullAnnotation()});
 		}

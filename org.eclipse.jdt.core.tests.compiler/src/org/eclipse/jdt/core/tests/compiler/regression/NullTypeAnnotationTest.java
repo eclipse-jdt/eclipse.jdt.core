@@ -10593,7 +10593,53 @@ public void testBug485814() {
 			"		return new Result<OtherV1>(score, otherValue1);\n" +
 			"	}\n" +
 			"}\n" +
-			"",
+			""
+		}, 
+		getCompilerOptions(),
+		""
+	);			
+}
+public void testBug485581() {
+	runConformTestWithLibs(
+		new String[] {
+		"test/MatchResult.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class MatchResult<V> implements Comparable<MatchResult<?>> {\n" +
+			"	public final int score;\n" +
+			"	public final V value;\n" +
+			"\n" +
+			"	public MatchResult(int score, V value) {\n" +
+			"		this.score = score;\n" +
+			"		this.value = value;\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	public int compareTo(MatchResult<?> o) {\n" +
+			"		return score - o.score;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		""
+	);
+	runConformTestWithLibs(
+		new String[] {
+			"test/FVEHandler.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class FVEHandler {\n" +
+			"	public static void process(MatchResult<?> matchResult) {\n" +
+			"		if (matchResult.value != null) {\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n",
 		}, 
 		getCompilerOptions(),
 		""
