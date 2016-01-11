@@ -25668,8 +25668,7 @@ public void testBug421469() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
-				"import java.util.function.IntFunction;\n" +
-				"public class Snippet {\n" +
+				"public class X {\n" +
 				"    void foo() {\n" +
 				"        int pqrqwerty = 10;\n" +
 				"        IntFunction<String> toString = i -> {\n" +
@@ -25682,6 +25681,9 @@ public void testBug421469() throws JavaModelException {
 				"            return Integer.toString(i);\n" +
 				"        };\n" +
 				"    }\n" +
+				"}\n" +
+				"interface IntFunction<R> {\n" +
+				"	R apply(int value);\n" +
 				"}\n");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -25699,7 +25701,7 @@ public void testBug421469() throws JavaModelException {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421469, [1.8][code assist] NPE in LocalDeclaration.resolve with anonymous class in lambda body
-public void _testBug421469a() throws JavaModelException {
+public void testBug421469a() throws JavaModelException {
 	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
 	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
@@ -25710,8 +25712,8 @@ public void _testBug421469a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
-				"import java.util.function.IntFunction;\n" +
-				"public class Snippet {\n" +
+				"package test;\n" +
+				"public class X {\n" +
 				"    void foo() {\n" +
 				"        int pqrqwerty = 10;\n" +
 				"        IntFunction<String> toString = i -> {\n" +
@@ -25724,6 +25726,9 @@ public void _testBug421469a() throws JavaModelException {
 				"            return Integer.toString(i);\n" +
 				"        };\n" +
 				"    }\n" +
+				"}\n" +
+				"interface IntFunction<R> {\n" +
+				"	R apply(int value);\n" +
 				"}\n");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
