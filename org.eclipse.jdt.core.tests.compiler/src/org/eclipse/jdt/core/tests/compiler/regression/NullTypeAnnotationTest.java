@@ -10551,4 +10551,52 @@ public void testBug485565() {
 		""
 	);
 }
+public void testBug485814() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/ExplainedResult.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class ExplainedResult<V2> extends Result<V2> {\n" +
+			"\n" +
+			"	public ExplainedResult(int score, V2 extractedValue2) {\n" +
+			"		super(score, extractedValue2);\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	public <OtherV2> ExplainedResult<OtherV2> withValue(OtherV2 otherValue2) {\n" +
+			"		return new ExplainedResult<OtherV2>(this.score, otherValue2);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+			"test/Result.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Result<V1> {\n" +
+			"\n" +
+			"	public final int score;\n" +
+			"\n" +
+			"	public final V1 extractedValue;\n" +
+			"\n" +
+			"	public Result(int score, V1 extractedValue1) {\n" +
+			"		this.score = score;\n" +
+			"		this.extractedValue = extractedValue1;\n" +
+			"	}\n" +
+			"\n" +
+			"	public <OtherV1> Result<OtherV1> withValue(OtherV1 otherValue1) {\n" +
+			"		return new Result<OtherV1>(score, otherValue1);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
 }

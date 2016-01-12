@@ -369,7 +369,8 @@ public class NullAnnotationMatching {
 			switch (mode) {
 				case BOUND_CHECK: // no pessimistic checks during boundcheck (we *have* the instantiation)
 				case BOUND_SUPER_CHECK:
-				case OVERRIDE_RETURN: // allow covariance
+				case OVERRIDE: 	  // no pessimistic checks during override check (comparing two *declarations*)
+				case OVERRIDE_RETURN:
 					break;
 				default:
 					return TagBits.AnnotationNonNull; // instantiation could require @NonNull
