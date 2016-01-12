@@ -92,7 +92,8 @@ public class ModulePackageFragmentRoot extends JarPackageFragmentRoot {
 			return true;
 		if (o instanceof ModulePackageFragmentRoot) {
 			ModulePackageFragmentRoot other= (ModulePackageFragmentRoot) o;
-			return this.moduleName.equals(other.moduleName);
+			return this.moduleName.equals(other.moduleName) &&
+					this.jarPath.equals(other.jarPath);
 		}
 		return false;
 	}
