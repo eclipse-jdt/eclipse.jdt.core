@@ -5805,4 +5805,18 @@ public void testBug484448() {
 			},
 			options);	
 }
+public void testBug485593() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"  void test() {\n" + 
+			"    double[][] d = new double[][]{{1,2},{3,4},{5,6}};\n" + 
+			"    double[][] e = Arrays.stream(d).map(double[]::clone).toArray(double[][]::new);\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
 }

@@ -342,6 +342,10 @@ public void completeTypeBindings(CompilationUnitDeclaration[] parsedUnits, boole
 
 	this.unitBeingCompleted = null;
 }
+/**
+ * NB: for source >= 1.5 the return type is not correct: shows j.l.Object but should show T[].
+ * See references to {@link #arrayClone} for code that compensates for this mismatch.
+ */
 public MethodBinding computeArrayClone(MethodBinding objectClone) {
 	if (this.arrayClone == null) {
 		this.arrayClone = new MethodBinding(

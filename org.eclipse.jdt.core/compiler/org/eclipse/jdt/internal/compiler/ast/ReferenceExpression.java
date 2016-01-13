@@ -1016,9 +1016,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         this.freeParameters = descriptorParameters;
         this.checkingPotentialCompatibility = true;
         try {
-			MethodBinding compileTimeDeclaration = this.exactMethodBinding != null ? this.exactMethodBinding : isConstructorRef
-							? scope.getConstructor((ReferenceBinding) this.receiverType, descriptorParameters, this)
-							: scope.getMethod(this.receiverType, this.selector, descriptorParameters, this);
+			MethodBinding compileTimeDeclaration = getCompileTimeDeclaration(scope, isConstructorRef, descriptorParameters);
 
         	if (compileTimeDeclaration != null && compileTimeDeclaration.isValidBinding()) // we have the mSMB.
         		this.potentialMethods = new MethodBinding [] { compileTimeDeclaration };
@@ -1050,7 +1048,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 
         	System.arraycopy(descriptorParameters, 1, descriptorParameters = new TypeBinding[parametersLength - 1], 0, parametersLength - 1);
         	this.freeParameters = descriptorParameters;
-        	compileTimeDeclaration = this.exactMethodBinding != null ? this.exactMethodBinding : scope.getMethod(this.receiverType, this.selector, descriptorParameters, this);
+        	compileTimeDeclaration = getCompileTimeDeclaration(scope, false, descriptorParameters);
         
         	if (compileTimeDeclaration != null && compileTimeDeclaration.isValidBinding()) // we have the mSMB.
         		this.potentialMethods = new MethodBinding [] { compileTimeDeclaration };
@@ -1072,6 +1070,17 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         return false;
 	}
 	
+	MethodBinding getCompileTimeDeclaration(Scope scope, boolean isConstructorRef, TypeBinding[] parameters) {
+		if (this.exactMethodBinding != null)
+			return this.exactMethodBinding;
+		else if (this.receiverType.isArrayType())
+			return scope.findMethodForArray((ArrayBinding) this.receiverType, this.selector, Binding.NO_PARAMETERS, this);
+		else if (isConstructorRef)
+			return scope.getConstructor((ReferenceBinding) this.receiverType, parameters, this);
+		else
+			return scope.getMethod(this.receiverType, this.selector, parameters, this);
+	}
+
 	public boolean isCompatibleWith(TypeBinding targetType, Scope scope) {
 		ReferenceExpression copy = cachedResolvedCopy(targetType);
 		return copy != null && copy.resolvedType != null && copy.resolvedType.isValidBinding() && copy.binding != null && copy.binding.isValidBinding();
