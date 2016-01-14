@@ -105,7 +105,7 @@ public class ModulePackageFragmentRoot extends JarPackageFragmentRoot {
 		return new JarPackageFragment(this, pkgName);
 	}
 	public int hashCode() {
-		return this.parent.hashCode() + this.moduleName.hashCode();
+		return this.jarPath.hashCode() + this.moduleName.hashCode();
 	}
 	protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
 		buffer.append(tabString(tab));
