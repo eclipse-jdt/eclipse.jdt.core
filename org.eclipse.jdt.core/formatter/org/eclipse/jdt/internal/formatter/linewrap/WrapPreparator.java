@@ -179,7 +179,7 @@ public class WrapPreparator extends ASTVisitor {
 		this.options = options;
 		this.kind = kind;
 
-		this.fieldAligner = new FieldAligner(this.tm);
+		this.fieldAligner = new FieldAligner(this.tm, this.options);
 	}
 
 	@Override
@@ -237,23 +237,20 @@ public class WrapPreparator extends ASTVisitor {
 			handleWrap(this.options.alignment_for_superinterfaces_in_type_declaration, PREFERRED);
 		}
 
-		if (this.options.align_type_members_on_columns)
-			this.fieldAligner.prepareAlign(node.bodyDeclarations());
+		this.fieldAligner.handleAlign(node.bodyDeclarations());
 
 		return true;
 	}
 
 	@Override
 	public boolean visit(AnnotationTypeDeclaration node) {
-		if (this.options.align_type_members_on_columns)
-			this.fieldAligner.prepareAlign(node.bodyDeclarations());
+		this.fieldAligner.handleAlign(node.bodyDeclarations());
 		return true;
 	}
 
 	@Override
 	public boolean visit(AnonymousClassDeclaration node) {
-		if (this.options.align_type_members_on_columns)
-			this.fieldAligner.prepareAlign(node.bodyDeclarations());
+		this.fieldAligner.handleAlign(node.bodyDeclarations());
 		return true;
 	}
 
@@ -342,8 +339,7 @@ public class WrapPreparator extends ASTVisitor {
 			handleWrap(this.options.alignment_for_superinterfaces_in_enum_declaration, PREFERRED);
 		}
 
-		if (this.options.align_type_members_on_columns)
-			this.fieldAligner.prepareAlign(node.bodyDeclarations());
+		this.fieldAligner.handleAlign(node.bodyDeclarations());
 
 		return true;
 	}

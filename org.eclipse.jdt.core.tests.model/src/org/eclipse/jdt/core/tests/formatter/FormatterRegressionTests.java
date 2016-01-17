@@ -13197,4 +13197,109 @@ public void testBug485495() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/479109 - [formatter] Add option to group aligned fields with blank lines
+ */
+public void testBug479109a() {
+	this.formatterPrefs.align_type_members_on_columns = true;
+	this.formatterPrefs.align_fields_grouping_blank_lines = 1;
+	String source =
+		"public class Test {\n" + 
+		"	String field1 = \"1\"; //\n" + 
+		"\n" + 
+		"	public String field2 = \"2222\"; //\n" + 
+		"\n" + 
+		"\n" + 
+		"	protected final String field3 = \"333333333\"; //\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	String field1 = \"1\"; //\n" + 
+		"\n" + 
+		"	public String field2 = \"2222\"; //\n" + 
+		"\n" + 
+		"	protected final String field3 = \"333333333\"; //\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/479109 - [formatter] Add option to group aligned fields with blank lines
+ */
+public void testBug479109b() {
+	this.formatterPrefs.align_type_members_on_columns = true;
+	this.formatterPrefs.align_fields_grouping_blank_lines = 2;
+	String source =
+		"public class Test {\n" + 
+		"	String field1 = \"1\";\n" + 
+		"\n" + 
+		"	public String field2222 = \"2222\";\n" + 
+		"\n" + 
+		"\n" + 
+		"	protected final String field3 = \"333333333\";\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	String					field1		= \"1\";\n" + 
+		"\n" + 
+		"	public String			field2222	= \"2222\";\n" + 
+		"\n" + 
+		"	protected final String	field3		= \"333333333\";\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/479109 - [formatter] Add option to group aligned fields with blank lines
+ */
+public void testBug479109c() {
+	this.formatterPrefs.align_type_members_on_columns = true;
+	this.formatterPrefs.align_fields_grouping_blank_lines = 2;
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 2;
+	String source =
+		"public class Test {\n" + 
+		"	String field1 = \"1\"; //\n" + 
+		"\n" + 
+		"	public String field2222 = \"2222\"; //\n" + 
+		"\n" + 
+		"\n" + 
+		"	protected final String field3 = \"333333333\"; //\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	String			field1		= \"1\";		//\n" + 
+		"\n" + 
+		"	public String	field2222	= \"2222\";	//\n" + 
+		"\n" + 
+		"\n" + 
+		"	protected final String field3 = \"333333333\"; //\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/479109 - [formatter] Add option to group aligned fields with blank lines
+ */
+public void testBug479109d() {
+	this.formatterPrefs.align_type_members_on_columns = true;
+	this.formatterPrefs.align_fields_grouping_blank_lines = 2;
+	String source =
+		"public class Test {\n" + 
+		"	String field1 = \"1\";\n" + 
+		"\n" + 
+		"	public String field2222 = \"2222\";\n" + 
+		"\n" + 
+		"// group separator\n" + 
+		"\n" + 
+		"	protected final String field3 = \"333333333\";\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	String			field1		= \"1\";\n" + 
+		"\n" + 
+		"	public String	field2222	= \"2222\";\n" + 
+		"\n" + 
+		"	// group separator\n" + 
+		"\n" + 
+		"	protected final String field3 = \"333333333\";\n" + 
+		"}"
+	);
+}
 }
