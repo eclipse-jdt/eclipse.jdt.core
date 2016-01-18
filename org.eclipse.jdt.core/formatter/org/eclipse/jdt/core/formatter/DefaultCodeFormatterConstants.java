@@ -75,7 +75,7 @@ public class DefaultCodeFormatterConstants {
 	 *     - possible values:   "&lt;n&gt;", where n is a positive integer
 	 *     - default:           "99"
 	 * </pre>
-	 * @since 4.6
+	 * @since 3.12
 	 */
 	public static final String FORMATTER_ALIGN_FIELDS_GROUPING_BLANK_LINES = JavaCore.PLUGIN_ID + ".formatter.align_fields_grouping_blank_lines";	 //$NON-NLS-1$
 
