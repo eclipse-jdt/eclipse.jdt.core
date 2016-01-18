@@ -206,6 +206,7 @@ public class DefaultCodeFormatterOptions {
 
 	public boolean insert_new_line_after_annotation_on_type;
 	public boolean insert_new_line_after_type_annotation;
+	public boolean insert_new_line_after_annotation_on_enum_constant;
 	public boolean insert_new_line_after_annotation_on_field;
 	public boolean insert_new_line_after_annotation_on_method;
 	public boolean insert_new_line_after_annotation_on_package;
@@ -509,6 +510,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE, Integer.toString(this.tab_char == MIXED ? this.indentation_size : this.tab_size)); // reverse values swapping performed by IndentationTabPage
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE, this.insert_new_line_after_annotation_on_type ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_TYPE_ANNOTATION, this.insert_new_line_after_type_annotation ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_ENUM_CONSTANT, this.insert_new_line_after_annotation_on_enum_constant ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD, this.insert_new_line_after_annotation_on_field ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD, this.insert_new_line_after_annotation_on_method ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE, this.insert_new_line_after_annotation_on_package ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -2222,6 +2224,7 @@ public class DefaultCodeFormatterOptions {
 		
 		final Object insertNewLineAfterAnnotationOnMemberOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER);
 		final Object insertNewLineAfterAnnotationOnTypeOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE);
+		final Object insertNewLineAfterAnnotationOnEnumConstantOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_ENUM_CONSTANT);
 		final Object insertNewLineAfterAnnotationOnFieldOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD);
 		final Object insertNewLineAfterAnnotationOnMethodOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD);
 		final Object insertNewLineAfterAnnotationOnPackageOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE);
@@ -2230,6 +2233,7 @@ public class DefaultCodeFormatterOptions {
 		final Object insertNewLineAfterAnnotationOnLocalVariableOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_LOCAL_VARIABLE);
 
 		if (insertNewLineAfterAnnotationOnTypeOption == null
+				&& insertNewLineAfterAnnotationOnEnumConstantOption == null
 				&& insertNewLineAfterAnnotationOnFieldOption == null
 				&& insertNewLineAfterAnnotationOnMethodOption == null
 				&& insertNewLineAfterAnnotationOnPackageOption == null) {
@@ -2237,6 +2241,7 @@ public class DefaultCodeFormatterOptions {
 			if (insertNewLineAfterAnnotationOnMemberOption != null) {
 				boolean insert = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnMemberOption);
 				this.insert_new_line_after_annotation_on_type = insert;
+				this.insert_new_line_after_annotation_on_enum_constant = insert;
 				this.insert_new_line_after_annotation_on_field = insert;
 				this.insert_new_line_after_annotation_on_method = insert;
 				this.insert_new_line_after_annotation_on_package = insert;
@@ -2248,13 +2253,13 @@ public class DefaultCodeFormatterOptions {
 				if (insertNewLineAfterAnnotationOnLocalVariableOption != null) {
 					this.insert_new_line_after_annotation_on_local_variable = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnLocalVariableOption);
 				}
-				
 			} else if (insertNewLineAfterAnnotationOnParameterOption == null
 					&& insertNewLineAfterAnnotationOnLocalVariableOption == null) {
 				// if none of the new 3.4 options is used, fall back to the deprecated 3.1 option
 				if (insertNewLineAfterAnnotationOption != null) {
 					boolean insert = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOption);
 					this.insert_new_line_after_annotation_on_type = insert;
+					this.insert_new_line_after_annotation_on_enum_constant = insert;
 					this.insert_new_line_after_annotation_on_field = insert;
 					this.insert_new_line_after_annotation_on_method = insert;
 					this.insert_new_line_after_annotation_on_package = insert;
@@ -2265,6 +2270,9 @@ public class DefaultCodeFormatterOptions {
 		} else { // otherwise use new 3.7 options if available
 			if (insertNewLineAfterAnnotationOnTypeOption != null) {
 				this.insert_new_line_after_annotation_on_type = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnTypeOption);
+			}
+			if (insertNewLineAfterAnnotationOnEnumConstantOption != null) {
+				this.insert_new_line_after_annotation_on_enum_constant = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnEnumConstantOption);
 			}
 			if (insertNewLineAfterAnnotationOnFieldOption != null) {
 				this.insert_new_line_after_annotation_on_field = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnFieldOption);
@@ -2368,6 +2376,7 @@ public class DefaultCodeFormatterOptions {
 		this.indentation_size = 4;
 		this.insert_new_line_after_annotation_on_type = true;
 		this.insert_new_line_after_type_annotation = false;
+		this.insert_new_line_after_annotation_on_enum_constant = true;
 		this.insert_new_line_after_annotation_on_field = true;
 		this.insert_new_line_after_annotation_on_method = true;
 		this.insert_new_line_after_annotation_on_package = true;
@@ -2660,6 +2669,7 @@ public class DefaultCodeFormatterOptions {
 		this.indentation_size = 4;
 		this.insert_new_line_after_annotation_on_type = true;
 		this.insert_new_line_after_type_annotation = false;
+		this.insert_new_line_after_annotation_on_enum_constant = true;
 		this.insert_new_line_after_annotation_on_field = true;
 		this.insert_new_line_after_annotation_on_method = true;
 		this.insert_new_line_after_annotation_on_package = true;

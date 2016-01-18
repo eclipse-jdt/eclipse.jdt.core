@@ -1364,6 +1364,19 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
+	 * FORMATTER / Option to insert a new line after an annotation on an enum constant declaration
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_enum_constant"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.12
+	 */
+	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_ENUM_CONSTANT = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_annotation_on_enum_constant";//$NON-NLS-1$
+
+	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a new line after an annotation on a field declaration
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_field"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }

@@ -8038,6 +8038,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test558() {
 		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
 
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_ENUM_CONSTANT, null);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD, null);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD, null);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE, null);
@@ -8078,6 +8079,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	 */
 	public void test559() {
 		Map options = DefaultCodeFormatterConstants.getJavaConventionsSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_ENUM_CONSTANT, null);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD, null);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD, null);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE, null);
@@ -8382,6 +8384,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 	public void test575() {
 		Map options = DefaultCodeFormatterConstants.getEclipseDefaultSettings();
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_ENUM_CONSTANT, null);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD, null);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD, null);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE, null);
@@ -10879,6 +10882,7 @@ public void test727() {
  */
 public void test728() {
 	this.formatterPrefs = null;
+	this.formatterOptions.remove(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_ENUM_CONSTANT);
 	this.formatterOptions.remove(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD);
 	this.formatterOptions.remove(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD);
 	this.formatterOptions.remove(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE);
@@ -13314,6 +13318,62 @@ public void testBug486719() {
 		"		boolean aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = a == b && a == c; //$IDENTITY-COMPARISON$\n" + 
 		"		return 3;\n" + 
 		"	}\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/432628 - [formatter] Add option "Insert new line after annotations on enum constants"
+ */
+public void testBug432628a() {
+	setComplianceLevel(CompilerOptions.VERSION_1_5);
+	this.formatterPrefs.insert_new_line_after_annotation_on_enum_constant = false;
+	String source =
+		"public enum SomeEnum {\n" + 
+		"	@XmlEnumValue(\"val1\") VAL_1(\"val1\"), @XmlEnumValue(\"val2\") VAL_2(\"val2\");\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/432628 - [formatter] Add option "Insert new line after annotations on enum constants"
+ */
+public void testBug432628b() {
+	setComplianceLevel(CompilerOptions.VERSION_1_5);
+	this.formatterPrefs.insert_new_line_after_annotation_on_enum_constant = true;
+	String source =
+		"public enum SomeEnum {\n" + 
+		"	@XmlEnumValue(\"val1\")\n" + 
+		"	VAL_1(\"val1\"), @XmlEnumValue(\"val2\")\n" + 
+		"	VAL_2(\"val2\");\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/432628 - [formatter] Add option "Insert new line after annotations on enum constants"
+ */
+public void testBug432628c() {
+	setComplianceLevel(CompilerOptions.VERSION_1_5);
+	this.formatterPrefs.insert_new_line_after_annotation_on_enum_constant = true;
+	this.formatterPrefs.alignment_for_enum_constants = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	String source =
+		"public enum SomeEnum {\n" + 
+		"	@XmlEnumValue(\"val1\")\n" + 
+		"	VAL_1(\"val1\"),\n" + 
+		"	@XmlEnumValue(\"val2\")\n" + 
+		"	VAL_2(\"val2\");\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/432628 - [formatter] Add option "Insert new line after annotations on enum constants"
+ */
+public void testBug432628d() {
+	setComplianceLevel(CompilerOptions.VERSION_1_5);
+	this.formatterPrefs.insert_new_line_after_annotation_on_enum_constant = false;
+	this.formatterPrefs.alignment_for_enum_constants = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	String source =
+		"public enum SomeEnum {\n" + 
+		"	@XmlEnumValue(\"val1\") VAL_1(\"val1\"),\n" + 
+		"	@XmlEnumValue(\"val2\") VAL_2(\"val2\");\n" + 
 		"}";
 	formatSource(source);
 }

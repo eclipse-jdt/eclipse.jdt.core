@@ -455,6 +455,12 @@ public class LineBreaksPreparator extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(EnumConstantDeclaration node) {
+		this.declarationModifierVisited = false;
+		return true;
+	}
+
+	@Override
 	public boolean visit(Modifier node) {
 		this.declarationModifierVisited = true;
 		return true;
@@ -470,6 +476,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 			breakAfter = this.options.insert_new_line_after_annotation_on_package;
 		} else if (parentNode instanceof AbstractTypeDeclaration) {
 			breakAfter = this.options.insert_new_line_after_annotation_on_type;
+		} else if (parentNode instanceof EnumConstantDeclaration) {
+			breakAfter = this.options.insert_new_line_after_annotation_on_enum_constant;
 		} else if (parentNode instanceof FieldDeclaration) {
 			breakAfter = this.options.insert_new_line_after_annotation_on_field;
 		} else if (parentNode instanceof MethodDeclaration) {
