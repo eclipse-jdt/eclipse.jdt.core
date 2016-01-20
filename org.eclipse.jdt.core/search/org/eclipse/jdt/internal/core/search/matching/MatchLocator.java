@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -255,10 +255,10 @@ public static ClassFileReader classFileReader(IType type) {
 			return Util.newClassFileReader(((JavaElement) type).resource());
 
 		String rootPath = root.getPath().toOSString();
-		if (root.isModule()) {
+		if (org.eclipse.jdt.internal.compiler.util.Util.isJimageName(rootPath)) {
 			String classFileName = classFile.getElementName();
 			String path = Util.concatWith(pkg.names, classFileName, '/');
-			return ClassFileReader.readFromJimage(new File(rootPath), path, root.getElementName());
+			return ClassFileReader.readFromJimage(new File(rootPath), path, null);
 		} else {
 			ZipFile zipFile = null;
 			try {
@@ -927,7 +927,7 @@ protected TypeBinding getType(Object typeKey, char[] typeName) {
 	char[][] compoundName = CharOperation.splitOn('.', typeName);
 	TypeBinding typeBinding = this.unitScope.getType(compoundName, compoundName.length);
 	if (typeBinding == null || !typeBinding.isValidBinding()) {
-		typeBinding = this.lookupEnvironment.getType(compoundName);
+		typeBinding = this.lookupEnvironment.getType(compoundName, this.unitScope.module());
 	}
 	this.bindings.put(typeKey, typeBinding);
 	return typeBinding != null && typeBinding.isValidBinding() ? typeBinding : null;

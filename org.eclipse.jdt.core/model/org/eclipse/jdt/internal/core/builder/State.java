@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -17,6 +21,7 @@ import org.eclipse.core.runtime.*;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.ClasspathAccessRule;
@@ -32,6 +37,7 @@ public class State {
 String javaProjectName;
 public ClasspathMultiDirectory[] sourceLocations;
 ClasspathLocation[] binaryLocations;
+INameEnvironment environment;
 // keyed by the project relative path of the type (i.e. "src1/p1/p2/A.java"), value is a ReferenceCollection or an AdditionalTypeCollection
 SimpleLookupTable references;
 // keyed by qualified type name "p1/p2/A", value is the project relative path which defines this type "src1/p1/p2/A.java"
@@ -63,6 +69,7 @@ protected State(JavaBuilder javaBuilder) {
 	this.previousStructuralBuildTime = -1;
 	this.structurallyChangedTypes = null;
 	this.javaProjectName = javaBuilder.currentProject.getName();
+	this.environment = javaBuilder.nameEnvironment;
 	this.sourceLocations = javaBuilder.nameEnvironment.sourceLocations;
 	this.binaryLocations = javaBuilder.nameEnvironment.binaryLocations;
 	this.references = new SimpleLookupTable(7);
@@ -249,7 +256,7 @@ static State read(IProject project, DataInputStream in) throws IOException {
 		if ((folderName = in.readUTF()).length() > 0) sourceFolder = project.getFolder(folderName);
 		if ((folderName = in.readUTF()).length() > 0) outputFolder = project.getFolder(folderName);
 		ClasspathMultiDirectory md =
-			(ClasspathMultiDirectory) ClasspathLocation.forSourceFolder(sourceFolder, outputFolder, readNames(in), readNames(in), in.readBoolean());
+			(ClasspathMultiDirectory) ClasspathLocation.forSourceFolder(sourceFolder, outputFolder, readNames(in), readNames(in), in.readBoolean(), newState.environment);
 		if (in.readBoolean())
 			md.hasIndependentOutputFolder = true;
 		newState.sourceLocations[i] = md;
@@ -268,13 +275,13 @@ static State read(IProject project, DataInputStream in) throws IOException {
 				IContainer outputFolder = path.segmentCount() == 1
 					? (IContainer) root.getProject(path.toString())
 					: (IContainer) root.getFolder(path);
-				newState.binaryLocations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean(), readRestriction(in));
+				newState.binaryLocations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean(), readRestriction(in), newState.environment);
 				break;
 			case EXTERNAL_JAR :
-				newState.binaryLocations[i] = ClasspathLocation.forLibrary(in.readUTF(), in.readLong(), readRestriction(in), new Path(in.readUTF()));
+				newState.binaryLocations[i] = ClasspathLocation.forLibrary(in.readUTF(), in.readLong(), readRestriction(in), new Path(in.readUTF()), newState.environment);
 				break;
 			case INTERNAL_JAR :
-				newState.binaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(new Path(in.readUTF())), readRestriction(in), new Path(in.readUTF()));
+				newState.binaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(new Path(in.readUTF())), readRestriction(in), new Path(in.readUTF()), newState.environment);
 		}
 	}
 
@@ -454,7 +461,7 @@ void write(DataOutputStream out) throws IOException {
 			out.writeUTF(cd.binaryFolder.getFullPath().toString());
 			out.writeBoolean(cd.isOutputFolder);
 			writeRestriction(cd.accessRuleSet, out);
-		} else {
+		} else if (c instanceof ClasspathJar) {
 			ClasspathJar jar = (ClasspathJar) c;
 			if (jar.resource == null) {
 				out.writeByte(EXTERNAL_JAR);
@@ -466,6 +473,13 @@ void write(DataOutputStream out) throws IOException {
 			}
 			writeRestriction(jar.accessRuleSet, out);
 			out.writeUTF(jar.externalAnnotationPath != null ? jar.externalAnnotationPath : ""); //$NON-NLS-1$
+		} else {
+			ClasspathJimage jimage = (ClasspathJimage) c;
+			out.writeByte(EXTERNAL_JAR);
+			out.writeUTF(jimage.zipFilename);
+			out.writeLong(-1);
+			writeRestriction(null, out);
+			out.writeUTF(""); //$NON-NLS-1$
 		}
 	}
 

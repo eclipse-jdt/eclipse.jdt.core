@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -55,6 +59,7 @@ import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
+import org.eclipse.jdt.internal.compiler.util.JimageUtil;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -142,13 +147,20 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.typeSystem = this.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8 && this.globalOptions.storeAnnotations ? new AnnotatableTypeSystem(this) : new TypeSystem(this);
 }
 
+public ReferenceBinding askForType(char[][] compoundName) {
+	return askForType(compoundName, null);
+}
+//TODO: BETA_JAVA9 - should ideally return ModuleBinding?
+public IModule getModule(String name) {
+	return this.nameEnvironment.getModule(name);
+}
 /**
  * Ask the name environment for a type which corresponds to the compoundName.
  * Answer null if the name cannot be found.
  */
 
-public ReferenceBinding askForType(char[][] compoundName) {
-	NameEnvironmentAnswer answer = this.nameEnvironment.findType(compoundName);
+public ReferenceBinding askForType(char[][] compoundName, char[] mod) {
+	NameEnvironmentAnswer answer = this.nameEnvironment.findType(compoundName, mod);
 	if (answer == null) return null;
 
 	if (answer.isBinaryType()) {
@@ -163,18 +175,26 @@ public ReferenceBinding askForType(char[][] compoundName) {
 	}
 	return getCachedType(compoundName);
 }
+ReferenceBinding askForType(PackageBinding packageBinding, char[] name) {
+	return askForType(packageBinding, name, null);
+}
 /* Ask the oracle for a type named name in the packageBinding.
 * Answer null if the name cannot be found.
 */
 
-ReferenceBinding askForType(PackageBinding packageBinding, char[] name) {
+ReferenceBinding askForType(PackageBinding packageBinding, char[] name, char[] mod) {
 	if (packageBinding == null) {
 		packageBinding = this.defaultPackage;
 	}
-	NameEnvironmentAnswer answer = this.nameEnvironment.findType(name, packageBinding.compoundName);
+	NameEnvironmentAnswer answer = this.nameEnvironment.findType(name, packageBinding.compoundName, mod);
 	if (answer == null)
 		return null;
 
+	char[] module = answer.moduleName();
+	if (module != null && !CharOperation.equals(module, JimageUtil.JAVA_BASE.toCharArray()) 
+			&& !this.nameEnvironment.isPackageVisible(packageBinding.readableName(), module, mod)) {
+		return null;
+	}
 	if (answer.isBinaryType()) {
 		// the type was found as a .class file
 		this.typeRequestor.accept(answer.getBinaryType(), packageBinding, answer.getAccessRestriction());
@@ -192,6 +212,9 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name) {
 		this.typeRequestor.accept(answer.getSourceTypes(), packageBinding, answer.getAccessRestriction());
 	}
 	return packageBinding.getType0(name);
+}
+public boolean canTypeBeSeen(SourceTypeBinding binding, Scope scope) {
+	return this.nameEnvironment.isPackageVisible(binding.fPackage.readableName(), binding.module, scope.module());
 }
 
 /* Create the initial type bindings for the compilation unit.
@@ -380,35 +403,35 @@ public TypeBinding computeBoxingType(TypeBinding type) {
 			return TypeBinding.LONG;
 
 		case TypeIds.T_int :
-			boxedType = getType(JAVA_LANG_INTEGER);
+			boxedType = getType(JAVA_LANG_INTEGER, null);
 			if (boxedType != null) return boxedType;
 			return new ProblemReferenceBinding(JAVA_LANG_INTEGER, null, NotFound);
 		case TypeIds.T_byte :
-			boxedType = getType(JAVA_LANG_BYTE);
+			boxedType = getType(JAVA_LANG_BYTE, null);
 			if (boxedType != null) return boxedType;
 			return new ProblemReferenceBinding(JAVA_LANG_BYTE, null, NotFound);
 		case TypeIds.T_short :
-			boxedType = getType(JAVA_LANG_SHORT);
+			boxedType = getType(JAVA_LANG_SHORT, null);
 			if (boxedType != null) return boxedType;
 			return new ProblemReferenceBinding(JAVA_LANG_SHORT, null, NotFound);
 		case TypeIds.T_char :
-			boxedType = getType(JAVA_LANG_CHARACTER);
+			boxedType = getType(JAVA_LANG_CHARACTER, null);
 			if (boxedType != null) return boxedType;
 			return new ProblemReferenceBinding(JAVA_LANG_CHARACTER, null, NotFound);
 		case TypeIds.T_long :
-			boxedType = getType(JAVA_LANG_LONG);
+			boxedType = getType(JAVA_LANG_LONG, null);
 			if (boxedType != null) return boxedType;
 			return new ProblemReferenceBinding(JAVA_LANG_LONG, null, NotFound);
 		case TypeIds.T_float :
-			boxedType = getType(JAVA_LANG_FLOAT);
+			boxedType = getType(JAVA_LANG_FLOAT, null);
 			if (boxedType != null) return boxedType;
 			return new ProblemReferenceBinding(JAVA_LANG_FLOAT, null, NotFound);
 		case TypeIds.T_double :
-			boxedType = getType(JAVA_LANG_DOUBLE);
+			boxedType = getType(JAVA_LANG_DOUBLE, null);
 			if (boxedType != null) return boxedType;
 			return new ProblemReferenceBinding(JAVA_LANG_DOUBLE, null, NotFound);
 		case TypeIds.T_boolean :
-			boxedType = getType(JAVA_LANG_BOOLEAN);
+			boxedType = getType(JAVA_LANG_BOOLEAN, null);
 			if (boxedType != null) return boxedType;
 			return new ProblemReferenceBinding(JAVA_LANG_BOOLEAN, null, NotFound);
 //		case TypeIds.T_int :
@@ -731,7 +754,7 @@ public MissingTypeBinding createMissingType(PackageBinding packageBinding, char[
 	MissingTypeBinding missingType = new MissingTypeBinding(packageBinding, compoundName, this);
 	if (missingType.id != TypeIds.T_JavaLangObject) {
 		// make Object be its superclass - it could in turn be missing as well
-		ReferenceBinding objectType = getType(TypeConstants.JAVA_LANG_OBJECT);
+		ReferenceBinding objectType = getType(TypeConstants.JAVA_LANG_OBJECT, null);
 		if (objectType == null) {
 			objectType = createMissingType(null, TypeConstants.JAVA_LANG_OBJECT);	// create a proxy for the missing Object type
 		}
@@ -744,12 +767,15 @@ public MissingTypeBinding createMissingType(PackageBinding packageBinding, char[
 	return missingType;
 }
 
+public PackageBinding createPackage(char[][] compoundName) {
+	return createPackage(compoundName, null);
+}
 /*
 * 1. Connect the type hierarchy for the type bindings created for parsedUnits.
 * 2. Create the field bindings
 * 3. Create the method bindings
 */
-public PackageBinding createPackage(char[][] compoundName) {
+public PackageBinding createPackage(char[][] compoundName, char[] mod) {
 	PackageBinding packageBinding = getPackage0(compoundName[0]);
 	if (packageBinding == null || packageBinding == TheNotFoundPackage) {
 		packageBinding = new PackageBinding(compoundName[0], this);
@@ -773,7 +799,7 @@ public PackageBinding createPackage(char[][] compoundName) {
 			// catches the case of a package statement of: package java.lang.Object;
 			// since the package can be added after a set of source files have already been compiled,
 			// we need to check whenever a package is created
-			if (this.nameEnvironment.findType(compoundName[i], parent.compoundName) != null)
+			if (this.nameEnvironment.findType(compoundName[i], parent.compoundName, mod) != null)
 				return null;
 
 			packageBinding = new PackageBinding(CharOperation.subarray(compoundName, 0, i + 1), parent, this);
@@ -875,7 +901,7 @@ public PolymorphicMethodBinding createPolymorphicMethod(MethodBinding originalPo
 	for (int i = 0; i < parametersLength; i++) {
 		TypeBinding parameterTypeBinding = parameters[i];
 		if (parameterTypeBinding.id == TypeIds.T_null) {
-			parametersTypeBinding[i] = getType(JAVA_LANG_VOID);
+			parametersTypeBinding[i] = getType(JAVA_LANG_VOID, null);
 		} else {
 			parametersTypeBinding[i] = parameterTypeBinding.erasure();
 		}
@@ -1161,8 +1187,8 @@ private void initializeUsesNullTypeAnnotation() {
 	this.globalOptions.useNullTypeAnnotations = Boolean.FALSE;
 	if (!this.globalOptions.isAnnotationBasedNullAnalysisEnabled || this.globalOptions.originalSourceLevel < ClassFileConstants.JDK1_8)
 		return;
-	ReferenceBinding nullable = this.nullableAnnotation != null ? this.nullableAnnotation.getAnnotationType() : getType(this.getNullableAnnotationName());
-	ReferenceBinding nonNull = this.nonNullAnnotation != null ? this.nonNullAnnotation.getAnnotationType() : getType(this.getNonNullAnnotationName());
+	ReferenceBinding nullable = this.nullableAnnotation != null ? this.nullableAnnotation.getAnnotationType() : getType(this.getNullableAnnotationName(), null);
+	ReferenceBinding nonNull = this.nonNullAnnotation != null ? this.nonNullAnnotation.getAnnotationType() : getType(this.getNonNullAnnotationName(), null);
 	if (nullable == null && nonNull == null)
 		return;
 	if (nullable == null || nonNull == null)
@@ -1192,7 +1218,7 @@ PackageBinding getPackage0(char[] name) {
 * Fail with a classpath error if the type cannot be found.
 */
 public ReferenceBinding getResolvedType(char[][] compoundName, Scope scope) {
-	ReferenceBinding type = getType(compoundName);
+	ReferenceBinding type = getType(compoundName, scope == null ? null : scope.module());
 	if (type != null) return type;
 
 	// create a proxy for the missing BinaryType
@@ -1208,7 +1234,7 @@ public ReferenceBinding getResolvedType(char[][] compoundName, Scope scope) {
 * Ask the oracle for the package if its not in the cache.
 * Answer null if the package cannot be found.
 */
-PackageBinding getTopLevelPackage(char[] name) {
+PackageBinding getTopLevelPackage(char[] name, char[] mod) {
 	PackageBinding packageBinding = getPackage0(name);
 	if (packageBinding != null) {
 		if (packageBinding == TheNotFoundPackage)
@@ -1216,7 +1242,7 @@ PackageBinding getTopLevelPackage(char[] name) {
 		return packageBinding;
 	}
 
-	if (this.nameEnvironment.isPackage(null, name)) {
+	if (this.nameEnvironment.isPackage(null, name, mod)) {
 		this.knownPackages.put(name, packageBinding = new PackageBinding(name, this));
 		return packageBinding;
 	}
@@ -1225,11 +1251,14 @@ PackageBinding getTopLevelPackage(char[] name) {
 	return null;
 }
 
+public ReferenceBinding getType(char[][] compoundName) {
+	return getType(compoundName, null);
+}
 /* Answer the type corresponding to the compoundName.
 * Ask the name environment for the type if its not in the cache.
 * Answer null if the type cannot be found.
 */
-public ReferenceBinding getType(char[][] compoundName) {
+public ReferenceBinding getType(char[][] compoundName, char[] mod) {
 	ReferenceBinding referenceBinding;
 
 	if (compoundName.length == 1) {
@@ -1237,7 +1266,7 @@ public ReferenceBinding getType(char[][] compoundName) {
 			PackageBinding packageBinding = getPackage0(compoundName[0]);
 			if (packageBinding != null && packageBinding != TheNotFoundPackage)
 				return null; // collides with a known package... should not call this method in such a case
-			referenceBinding = askForType(this.defaultPackage, compoundName[0]);
+			referenceBinding = askForType(this.defaultPackage, compoundName[0], mod);
 		}
 	} else {
 		PackageBinding packageBinding = getPackage0(compoundName[0]);
@@ -1254,9 +1283,9 @@ public ReferenceBinding getType(char[][] compoundName) {
 		}
 
 		if (packageBinding == null)
-			referenceBinding = askForType(compoundName);
+			referenceBinding = askForType(compoundName, mod);
 		else if ((referenceBinding = packageBinding.getType0(compoundName[compoundName.length - 1])) == null)
-			referenceBinding = askForType(packageBinding, compoundName[compoundName.length - 1]);
+			referenceBinding = askForType(packageBinding, compoundName[compoundName.length - 1], mod);
 	}
 
 	if (referenceBinding == null || referenceBinding == TheNotFoundType)
@@ -1624,10 +1653,10 @@ boolean isMissingType(char[] typeName) {
 
 /* Ask the oracle if a package exists named name in the package named compoundName.
 */
-boolean isPackage(char[][] compoundName, char[] name) {
+boolean isPackage(char[][] compoundName, char[] name, char[] mod) {
 	if (compoundName == null || compoundName.length == 0)
-		return this.nameEnvironment.isPackage(null, name);
-	return this.nameEnvironment.isPackage(compoundName, name);
+		return this.nameEnvironment.isPackage(null, name, mod);
+	return this.nameEnvironment.isPackage(compoundName, name, mod);
 }
 // The method verifier is lazily initialized to guarantee the receiver, the compiler & the oracle are ready.
 public MethodVerifier methodVerifier() {

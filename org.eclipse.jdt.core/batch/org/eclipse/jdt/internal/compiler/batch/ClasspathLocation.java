@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -15,6 +19,8 @@ import java.io.File;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 public abstract class ClasspathLocation implements FileSystem.Classpath,
@@ -26,6 +32,7 @@ public abstract class ClasspathLocation implements FileSystem.Classpath,
 	String path;
 	char[] normalizedPath;
 	public AccessRuleSet accessRuleSet;
+	IModule module = null;
 
 	public String destinationPath;
 		// destination path for compilation units that are reached through this
@@ -99,5 +106,12 @@ public abstract class ClasspathLocation implements FileSystem.Classpath,
 	}
 	public String getPath() {
 		return this.path;
+	}
+	public boolean servesModule(IModule mod) {
+		if (mod == null) 
+			return false;
+		if (this.module == null || mod == this || mod == ModuleEnvironment.UNNAMED_MODULE)
+			return true;
+		return (CharOperation.equals(this.module.name(), mod.name()));
 	}
 }

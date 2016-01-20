@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBM Corporation.
+ * Copyright (c) 2015, 2016 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,15 +31,19 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 
 public class JimageUtil {
 
 	public static final String JAVA_DOT = "java."; //$NON-NLS-1$
 	public static final String JAVA_BASE = "java.base"; //$NON-NLS-1$
+	public static final char[] JAVA_BASE_CHAR = JAVA_BASE.toCharArray();
 	static final String MODULES_SUBDIR = "/modules"; //$NON-NLS-1$
 	static final String[] DEFAULT_MODULE = new String[]{JAVA_BASE};
 	static final String[] NO_MODULE = new String[0];
@@ -53,7 +57,7 @@ public class JimageUtil {
 	public static int NOTIFY_MODULES = 0x0004;
 	public static int NOTIFY_ALL = NOTIFY_FILES | NOTIFY_PACKAGES | NOTIFY_MODULES;
 
-	// TODO: Think about clearing the cache too.
+	// TODO: BETA_JAVA9 Think about clearing the cache too.
 	private static Map<File, JimageFileSystem> images = null;
 
 	private static final Object lock = new Object();
@@ -145,9 +149,11 @@ public class JimageUtil {
 	public static InputStream getContentFromJimage(File jimage, String fileName, String module) throws IOException {
 		return getJimageSystem(jimage).getContentFromJimage(fileName, module);
 	}
-
-	public static byte[] getClassfileContent(File jimage, String fileName, String module) throws IOException {
+	public static byte[] getClassfileContent(File jimage, String fileName, String module) throws IOException, ClassFormatException {
 		return getJimageSystem(jimage).getClassfileContent(fileName, module);
+	}
+	public static ClassFileReader getClassfile(File jimage, String fileName, IModule module) throws IOException, ClassFormatException {
+		return getJimageSystem(jimage).getClassfile(fileName, module);
 	}
 }
 class JimageFileSystem {
@@ -157,8 +163,6 @@ class JimageFileSystem {
 
 	FileSystem jrt = null;
 	
-	private final Set<String> notFound = new HashSet<>();
-
 	/**
 	 * As of now, the passed reference to the jimage file is not being used. Perhaps eventually
 	 * when we know how to read a particular jimage, we will make use of this.
@@ -208,24 +212,67 @@ class JimageFileSystem {
 		}
 		return null;
 	}
-
-	public byte[] getClassfileContent(String fileName, String module) throws IOException {
-		if (this.notFound.contains(fileName)) 
-			return null;
-		if (module != null) {
-			return Files.readAllBytes(this.jrt.getPath(JimageUtil.MODULES_SUBDIR, module, fileName));
-		}
+	private ClassFileReader getClassfile(String fileName) throws IOException, ClassFormatException {
 		String[] modules = getModules(fileName);
-		for (String string : modules) {
+		byte[] content = null;
+		String module = null;
+		for (String mod : modules) {
 			try {
-				byte[] bytes = Files.readAllBytes(this.jrt.getPath(JimageUtil.MODULES_SUBDIR, string, fileName));
-				if (bytes != null) return bytes;
+				content = Files.readAllBytes(this.jrt.getPath(JimageUtil.MODULES_SUBDIR, mod, fileName));
+				if (content != null) {
+					module = mod;
+					break;
+				}
 			} catch(NoSuchFileException e) {
 				continue;
 			}
 		}
-		this.notFound.add(fileName);
+		if (content != null) {
+			return new ClassFileReader(content, fileName.toCharArray(), module.toCharArray());
+		}
 		return null;
+	}
+
+	byte[] getClassfileContent(String fileName, String module) throws IOException, ClassFormatException {
+		byte[] content = null;
+		if (module != null) {
+			content = getClassfile(fileName, new String(module.toCharArray()));
+		} else {
+			String[] modules = getModules(fileName);
+			for (String mod : modules) {
+				try {
+					content = Files.readAllBytes(this.jrt.getPath(JimageUtil.MODULES_SUBDIR, mod, fileName));
+					if (content != null) {
+						break;
+					}
+				} catch(NoSuchFileException e) {
+					continue;
+				}
+			}
+		}
+		return content;
+	}
+	private byte[] getClassfile(String fileName, String module) throws IOException, ClassFormatException {
+		byte[] content = null;
+		try {
+			content = Files.readAllBytes(this.jrt.getPath(JimageUtil.MODULES_SUBDIR, module, fileName));
+		} catch(NoSuchFileException e) {
+			return null;
+		}
+		return content;
+	}
+	
+	public ClassFileReader getClassfile(String fileName, IModule module) throws IOException, ClassFormatException {
+		ClassFileReader reader = null;
+		if (module == null || module == ModuleEnvironment.UNNAMED_MODULE) {
+			reader = getClassfile(fileName);
+		} else {
+			byte[] content = getClassfile(fileName, new String(module.name()));
+			if (content != null) {
+				reader = new ClassFileReader(content, fileName.toCharArray(), module.name());
+			}
+		}
+		return reader;
 	}
 
 	void walkModuleImage(final JimageUtil.JimageVisitor<java.nio.file.Path> visitor, boolean visitPackageMapping, final int notify) throws IOException {

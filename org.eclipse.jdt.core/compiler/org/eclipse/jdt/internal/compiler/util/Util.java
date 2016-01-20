@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -899,6 +899,23 @@ public class Util implements SuffixConstants {
 			char c = name.charAt(nameLength - i - 1);
 			int suffixIndex = suffixLength - i - 1;
 			if (c != SUFFIX_java[suffixIndex] && c != SUFFIX_JAVA[suffixIndex]) return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Returns true iff str.toLowerCase().endsWith(".jimage")
+	 * implementation is not creating extra strings.
+	 */
+	public final static boolean isJimageName(String name) {
+		int nameLength = name == null ? 0 : name.length();
+		int suffixLength = SUFFIX_JIMAGE.length;
+		if (nameLength < suffixLength) return false;
+
+		for (int i = 0; i < suffixLength; i++) {
+			char c = name.charAt(nameLength - i - 1);
+			int suffixIndex = suffixLength - i - 1;
+			if (c != SUFFIX_jimage[suffixIndex] && c != SUFFIX_JIMAGE[suffixIndex]) return false;
 		}
 		return true;
 	}

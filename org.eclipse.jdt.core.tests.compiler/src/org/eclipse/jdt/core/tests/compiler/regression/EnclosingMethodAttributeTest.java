@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -166,7 +170,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 			"enclosing method = public void X.test() throws java.lang.NoSuchMethodException,java.lang.IllegalAccessException,java.lang.reflect.InvocationTargetException");
 
 		INameEnvironment nameEnvironment = getNameEnvironment(new String[]{}, null);
-		nameEnvironment.findType(new char[][] {new char[0], "X$1LocalClass".toCharArray()});
+		nameEnvironment.findType(new char[][] {new char[0], "X$1LocalClass".toCharArray()}, null);
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  + "X$1LocalClass.class"));
 		String actualOutput =

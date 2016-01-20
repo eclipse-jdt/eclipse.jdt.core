@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -663,7 +667,9 @@ public abstract class Scope {
 		} while (scope != null);
 		return (CompilationUnitScope) lastScope;
 	}
-	
+	public final char[] module() {
+		return compilationUnitScope().referenceCompilationUnit().module;
+	}
 	public boolean isLambdaScope() {
 		return false;
 	}
@@ -1916,7 +1922,7 @@ public abstract class Scope {
 		PackageBinding invocationPackage) {
 
 		compilationUnitScope().recordReference(declarationPackage.compoundName, typeName);
-		ReferenceBinding typeBinding = declarationPackage.getType(typeName);
+		ReferenceBinding typeBinding = declarationPackage.getType(typeName, module());
 		if (typeBinding == null)
 			return null;
 
@@ -2188,7 +2194,7 @@ public abstract class Scope {
 				// answer the problem type binding if we are only looking for a type
 			} else if ((mask & Binding.PACKAGE) != 0) {
 				unitScope.recordSimpleReference(name);
-				if ((binding = env.getTopLevelPackage(name)) != null)
+				if ((binding = env.getTopLevelPackage(name, module())) != null)
 					return binding;
 			}
 			if (problemField != null) return problemField;
@@ -2876,7 +2882,7 @@ public abstract class Scope {
 		int currentIndex = 1, length = compoundName.length;
 		PackageBinding packageBinding = (PackageBinding) binding;
 		while (currentIndex < length) {
-			binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++]);
+			binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module());
 			if (binding == null) {
 				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), null /* no closest match since search for pkg*/, ProblemReasons.NotFound);
 			}
@@ -2911,7 +2917,7 @@ public abstract class Scope {
 		int currentIndex = 1, length = compoundName.length;
 		PackageBinding packageBinding = (PackageBinding) binding;
 		while (currentIndex < length) {
-			binding = packageBinding.getPackage(compoundName[currentIndex++]);
+			binding = packageBinding.getPackage(compoundName[currentIndex++], module());
 			if (binding == null) {
 				return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, currentIndex), null /* no closest match since search for pkg*/, ProblemReasons.NotFound);
 			}
@@ -2947,7 +2953,7 @@ public abstract class Scope {
 		if (packageBinding == null)
 			return getType(name);
 
-		Binding binding = packageBinding.getTypeOrPackage(name);
+		Binding binding = packageBinding.getTypeOrPackage(name, module());
 		if (binding == null) {
 			return new ProblemReferenceBinding(
 				CharOperation.arrayConcat(packageBinding.compoundName, name),
@@ -3003,7 +3009,7 @@ public abstract class Scope {
 		if (binding instanceof PackageBinding) {
 			PackageBinding packageBinding = (PackageBinding) binding;
 			while (currentIndex < typeNameLength) {
-				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++]); // does not check visibility
+				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module()); // does not check visibility
 				if (binding == null) {
 					char[][] qName = CharOperation.subarray(compoundName, 0, currentIndex);
 					return new ProblemReferenceBinding(
@@ -3224,7 +3230,7 @@ public abstract class Scope {
 			// check if the name is in the current package, skip it if its a sub-package
 			PackageBinding currentPackage = unitScope.fPackage;
 			unitScope.recordReference(currentPackage.compoundName, name);
-			Binding binding = currentPackage.getTypeOrPackage(name);
+			Binding binding = currentPackage.getTypeOrPackage(name, module());
 			if (binding instanceof ReferenceBinding) {
 				ReferenceBinding referenceType = (ReferenceBinding) binding;
 				if ((referenceType.tagBits & TagBits.HasMissingType) == 0) {
@@ -3283,7 +3289,7 @@ public abstract class Scope {
 
 		unitScope.recordSimpleReference(name);
 		if ((mask & Binding.PACKAGE) != 0) {
-			PackageBinding packageBinding = unitScope.environment.getTopLevelPackage(name);
+			PackageBinding packageBinding = unitScope.environment.getTopLevelPackage(name, module());
 			if (packageBinding != null && (packageBinding.tagBits & TagBits.HasMissingType) == 0) {
 				if (typeOrPackageCache != null)
 					typeOrPackageCache.put(name, packageBinding);
@@ -3300,7 +3306,7 @@ public abstract class Scope {
 					closestMatch = environment().createMissingType(unitScope.fPackage, qName);
 				}
 			} else {
-				PackageBinding packageBinding = unitScope.environment.getTopLevelPackage(name);
+				PackageBinding packageBinding = unitScope.environment.getTopLevelPackage(name, module());
 				if (packageBinding == null || !packageBinding.isValidBinding()) {
 					if (needResolve) {
 						closestMatch = environment().createMissingType(unitScope.fPackage, qName);
@@ -3339,7 +3345,7 @@ public abstract class Scope {
 			PackageBinding packageBinding = (PackageBinding) binding;
 
 			while (currentIndex < nameLength) {
-				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++]);
+				binding = packageBinding.getTypeOrPackage(compoundName[currentIndex++], module());
 				if (binding == null)
 					return new ProblemReferenceBinding(
 						CharOperation.subarray(compoundName, 0, currentIndex),

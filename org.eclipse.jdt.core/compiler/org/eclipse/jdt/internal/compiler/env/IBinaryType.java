@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -57,6 +61,12 @@ char[] getEnclosingTypeName();
  */
 
 IBinaryField[] getFields();
+/**
+ * Answer the name of the module to which this type belongs.
+ *
+ * @return the name of the module as char array
+ */
+char[] getModule();
 /**
  * Answer the receiver's signature which describes the parameter &
  * return types as specified in section 4.4.4 of the Java 2 VM spec 3rd edition.

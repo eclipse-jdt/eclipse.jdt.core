@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -50,7 +50,7 @@ public class JarEntryFile  extends JarEntryResource {
 
 	public InputStream getContents() throws CoreException {
 		IPackageFragmentRoot root = getPackageFragmentRoot();
-		if (root.isModule()) {
+		if (Util.isJimageName(root.getPath().toOSString())) {
 			try {
 				IPath rootPath = root.getPath();
 				Object target = JavaModel.getTarget(rootPath, false);

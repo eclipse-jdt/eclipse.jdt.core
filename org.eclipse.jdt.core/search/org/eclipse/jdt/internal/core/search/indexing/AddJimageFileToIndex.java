@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.JimageUtil;
@@ -147,11 +148,12 @@ public class AddJimageFileToIndex extends IndexRequest {
 					isValidPackageNameForClass(name)) {
 				try {
 					String fullPath = path.toString();
-					final byte[] classFileBytes = JimageUtil.getClassfileContent(this.jimage, fullPath, mod.toString());
+					byte[] classFileBytes;
+					classFileBytes = JimageUtil.getClassfileContent(this.jimage, fullPath, mod.toString());
 					String docFullPath =  this.container.toString() + JAR_SEPARATOR + mod.toString() + JAR_SEPARATOR + fullPath;
 					JavaSearchDocument entryDocument = new JavaSearchDocument(docFullPath, classFileBytes, this.participant);
 					this.indexManager.indexDocument(entryDocument, this.participant, this.index, this.indexPath);
-				} catch (IOException e) {
+				} catch (IOException | ClassFormatException e) {
 					e.printStackTrace();
 				}
 			}

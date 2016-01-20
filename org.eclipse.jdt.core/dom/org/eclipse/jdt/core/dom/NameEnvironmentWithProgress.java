@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2015 IBM Corporation and others.
+ * Copyright (c) 2010, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -17,6 +21,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathDirectory;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.INameEnvironmentWithProgress;
@@ -41,9 +46,9 @@ class NameEnvironmentWithProgress extends FileSystem implements INameEnvironment
 			throw new AbortCompilation(true/*silent*/, new OperationCanceledException());
 		}
 	}
-	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
+	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, IModule[] modules) {
 		checkCanceled();
-		NameEnvironmentAnswer answer = super.findType(typeName, packageName);
+		NameEnvironmentAnswer answer = super.findType(typeName, packageName, modules);
 		if (answer == null) {
 			NameEnvironmentAnswer suggestedAnswer = null;
 			String qualifiedPackageName = new String(CharOperation.concatWith(packageName, '/'));
@@ -52,27 +57,30 @@ class NameEnvironmentWithProgress extends FileSystem implements INameEnvironment
 			for (int i = 0, length = this.classpaths.length; i < length; i++) {
 				if (!(this.classpaths[i] instanceof ClasspathDirectory)) continue;
 				ClasspathDirectory classpathDirectory = (ClasspathDirectory) this.classpaths[i];
-				answer = classpathDirectory.findSecondaryInClass(typeName, qualifiedPackageName, qualifiedBinaryFileName);
-				if (answer != null) {
-					if (!answer.ignoreIfBetter()) {
-						if (answer.isBetter(suggestedAnswer))
-							return answer;
-					} else if (answer.isBetter(suggestedAnswer))
-						// remember suggestion and keep looking
-						suggestedAnswer = answer;
+				for (IModule iModule : modules) {
+					if (!classpathDirectory.servesModule(iModule)) continue;
+					answer = classpathDirectory.findSecondaryInClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, iModule);
+					if (answer != null) {
+						if (!answer.ignoreIfBetter()) {
+							if (answer.isBetter(suggestedAnswer))
+								return answer;
+						} else if (answer.isBetter(suggestedAnswer))
+							// remember suggestion and keep looking
+							suggestedAnswer = answer;
+					}
 				}
 			}
 		}
 		return answer;
 	}
 
-	public NameEnvironmentAnswer findType(char[][] compoundName) {
+	public NameEnvironmentAnswer findType(char[][] compoundName, IModule[] modules) {
 		checkCanceled();
-		return super.findType(compoundName);
+		return super.findType(compoundName, modules);
 	}
-	public boolean isPackage(char[][] compoundName, char[] packageName) {
+	public boolean isPackage(char[][] compoundName, char[] packageName, IModule[] modules) {
 		checkCanceled();
-		return super.isPackage(compoundName, packageName);
+		return super.isPackage(compoundName, packageName, modules);
 	}
 	
 	public void setMonitor(IProgressMonitor monitor) {

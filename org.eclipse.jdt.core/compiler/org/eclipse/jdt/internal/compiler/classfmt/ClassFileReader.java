@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -51,6 +51,8 @@ public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 	private AnnotationInfo[] annotations;
 	private TypeAnnotationInfo[] typeAnnotations;
 	private FieldInfo[] fields;
+	private IModule moduleDeclaration;
+	public char[] moduleName;
 	private int fieldsCount;
 
 	// initialized in case the .class file is a nested type
@@ -130,12 +132,10 @@ public static ClassFileReader readFromJimage(
 public static ClassFileReader readFromJimage(
 		File jimage,
 		String filename,
-		String module)
+		IModule module)
 
 		throws ClassFormatException, java.io.IOException {
-		byte classFileBytes[] = JimageUtil.getClassfileContent(jimage, filename, module);
-		if (classFileBytes == null) return null;
-		return new ClassFileReader(classFileBytes, filename.toCharArray());
+		return JimageUtil.getClassfile(jimage, filename, module);
 	}
 
 public static ClassFileReader read(
@@ -160,6 +160,11 @@ public static ClassFileReader read(String fileName) throws ClassFormatException,
 
 public static ClassFileReader read(String fileName, boolean fullyInitialize) throws ClassFormatException, java.io.IOException {
 	return read(new File(fileName), fullyInitialize);
+}
+
+public ClassFileReader(byte classFileBytes[], char[] fileName, char[] mod) throws ClassFormatException {
+	this(classFileBytes, fileName, false);
+	this.moduleName = mod;
 }
 
 /**
@@ -414,6 +419,9 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 								missingTypeOffset += 2;
 							}
 						}
+					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.ModuleName)) {
+						this.moduleDeclaration = ModuleInfo.createModule(this.className, this.reference, this.constantPoolOffsets, readOffset);
+						this.moduleName = this.moduleDeclaration.name();
 					}
 			}
 			readOffset += (6 + u4At(readOffset + 2));
@@ -640,6 +648,21 @@ public char[] getEnclosingTypeName() {
  */
 public IBinaryField[] getFields() {
 	return this.fields;
+}
+/**
+ * @see IBinaryType#getModule()
+ */
+public char[] getModule() {
+	return this.moduleName;
+}
+/**
+ * Returns the module declaration that this class file represents. This will be 
+ * null for non module-info class files.
+ * 
+ * @return the module declaration this represents
+ */
+public IModule getModuleDeclaration() {
+	return this.moduleDeclaration;
 }
 
 /**

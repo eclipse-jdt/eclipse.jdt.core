@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 BEA Systems, Inc. 
+ * Copyright (c) 2007, 2016 BEA Systems, Inc. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
@@ -29,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -68,7 +73,7 @@ public class PackageElementImpl extends ElementImpl implements PackageElement {
 		char[][][] typeNames = null;
 		INameEnvironment nameEnvironment = binding.environment.nameEnvironment;
 		if (nameEnvironment instanceof FileSystem) {
-			typeNames = ((FileSystem) nameEnvironment).findTypeNames(binding.compoundName);
+			typeNames = ((FileSystem) nameEnvironment).findTypeNames(binding.compoundName, ModuleEnvironment.UNNAMED_MODULE_ARRAY);
 		}
 		HashSet<Element> set = new HashSet<>(); 
 		if (typeNames != null) {

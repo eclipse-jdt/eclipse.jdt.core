@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,7 +36,9 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.util.JimageUtil;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -105,21 +107,24 @@ public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemRe
 		}
 	}
 }
-public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
-	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
+public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, IModule mod) {
+	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false, mod);
 }
-public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
+public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly, IModule mod) {
 	if (!isPackage(qualifiedPackageName))
 		return null; // most common case
 
 	try {
 		ClassFileReader reader = null;
 		if (this.isJimage) {
-			reader = ClassFileReader.readFromJimage(this.file, qualifiedBinaryFileName);
+			reader = ClassFileReader.readFromJimage(this.file, qualifiedBinaryFileName, mod);
 		} else {
 			reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		}
 		if (reader != null) {
+			if (reader.moduleName == null) {
+				reader.moduleName = this.module == null ? null : this.module.name();
+			}
 			if (this.annotationPaths != null) {
 				String qualifiedClassName = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length()-SuffixConstants.EXTENSION_CLASS.length()-1);
 				for (String annotationPath : this.annotationPaths) {
@@ -146,7 +151,7 @@ public boolean hasAnnotationFileFor(String qualifiedTypeName) {
 	if (this.isJimage) return false; // TODO: Revisit
 	return this.zipFile.getEntry(qualifiedTypeName+'.'+ExternalAnnotationProvider.ANNOTION_FILE_EXTENSION) != null; 
 }
-public char[][][] findTypeNames(final String qualifiedPackageName) {
+public char[][][] findTypeNames(final String qualifiedPackageName, final IModule mod) {
 	if (!isPackage(qualifiedPackageName))
 		return null; // most common case
 	final char[] packageArray = qualifiedPackageName.toCharArray();
@@ -156,7 +161,7 @@ public char[][][] findTypeNames(final String qualifiedPackageName) {
 			JimageUtil.walkModuleImage(this.file, new JimageUtil.JimageVisitor<java.nio.file.Path>() {
 
 				@Override
-				public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
+				public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path modPath, BasicFileAttributes attrs) throws IOException {
 					if (qualifiedPackageName.startsWith(dir.toString())) {
 						return FileVisitResult.CONTINUE;	
 					}
@@ -164,7 +169,7 @@ public char[][][] findTypeNames(final String qualifiedPackageName) {
 				}
 
 				@Override
-				public FileVisitResult visitFile(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
+				public FileVisitResult visitFile(java.nio.file.Path dir, java.nio.file.Path modPath, BasicFileAttributes attrs) throws IOException {
 					if (!dir.getParent().toString().equals(qualifiedPackageName)) {
 						return FileVisitResult.CONTINUE;
 					}
@@ -175,7 +180,12 @@ public char[][][] findTypeNames(final String qualifiedPackageName) {
 				}
 
 				@Override
-				public FileVisitResult visitModule(java.nio.file.Path mod) throws IOException {
+				public FileVisitResult visitModule(java.nio.file.Path modPath) throws IOException {
+					if (mod == ModuleEnvironment.UNNAMED_MODULE)
+						return FileVisitResult.CONTINUE;
+					if (!CharOperation.equals(mod.name(), modPath.toString().toCharArray())) {
+						return FileVisitResult.SKIP_SUBTREE;
+					}
 					return FileVisitResult.CONTINUE;
 				}
 

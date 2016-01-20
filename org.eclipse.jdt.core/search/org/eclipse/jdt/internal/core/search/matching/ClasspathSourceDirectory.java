@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -22,7 +26,10 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
@@ -37,6 +44,7 @@ public class ClasspathSourceDirectory extends ClasspathLocation {
 	SimpleLookupTable missingPackageHolder = new SimpleLookupTable();
 	char[][] fullExclusionPatternChars;
 	char[][] fulInclusionPatternChars;
+	IModule module = null;
 
 ClasspathSourceDirectory(IContainer sourceFolder, char[][] fullExclusionPatternChars, char[][] fulInclusionPatternChars) {
 	this.sourceFolder = sourceFolder;
@@ -106,12 +114,16 @@ public boolean equals(Object o) {
 	return this.sourceFolder.equals(((ClasspathSourceDirectory) o).sourceFolder);
 }
 
-public NameEnvironmentAnswer findClass(String sourceFileWithoutExtension, String qualifiedPackageName, String qualifiedSourceFileWithoutExtension) {
+public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly, IModule mod) {
+	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, mod);
+}
+public NameEnvironmentAnswer findClass(String sourceFileWithoutExtension, String qualifiedPackageName, String qualifiedSourceFileWithoutExtension, IModule mod) {
 	SimpleLookupTable dirTable = directoryTable(qualifiedPackageName);
 	if (dirTable != null && dirTable.elementSize > 0) {
 		IFile file = (IFile) dirTable.get(sourceFileWithoutExtension);
 		if (file != null) {
-			return new NameEnvironmentAnswer(new ResourceCompilationUnit(file, file.getLocationURI()), null /* no access restriction */);
+			return new NameEnvironmentAnswer(new ResourceCompilationUnit(file, file.getLocationURI(), 
+					(mod != null ? mod.name() : null)), null /* no access restriction */);
 		}
 	}
 	return null;
@@ -141,4 +153,12 @@ public String debugPathString() {
 	return this.sourceFolder.getFullPath().toString();
 }
 
+@Override
+public boolean servesModule(IModule mod) {
+	if (mod == null) 
+		return false;
+	if (this.module == null || mod == this || mod == ModuleEnvironment.UNNAMED_MODULE)
+		return true;
+	return CharOperation.equals(this.module.name(), mod.name());
+}
 }

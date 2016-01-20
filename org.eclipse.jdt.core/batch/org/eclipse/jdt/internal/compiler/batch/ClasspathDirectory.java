@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -29,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -106,17 +111,18 @@ boolean doesFileExist(String fileName, String qualifiedPackageName) {
 public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemReporter) {
 	return null;
 }
-public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
-	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
+public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, IModule mod) {
+	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false, mod);
 }
-public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
+public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly, IModule mod) {
 	if (!isPackage(qualifiedPackageName)) return null; // most common case
 
-	String fileName = new String(typeName);
-	boolean binaryExists = ((this.mode & BINARY) != 0) && doesFileExist(fileName + SUFFIX_STRING_class, qualifiedPackageName);
-	boolean sourceExists = ((this.mode & SOURCE) != 0) && doesFileExist(fileName + SUFFIX_STRING_java, qualifiedPackageName);
+	boolean binaryExists = ((this.mode & BINARY) != 0) && doesFileExist(typeName + SUFFIX_STRING_class, qualifiedPackageName);
+	boolean sourceExists = ((this.mode & SOURCE) != 0) && doesFileExist(typeName + SUFFIX_STRING_java, qualifiedPackageName);
 	if (sourceExists && !asBinaryOnly) {
 		String fullSourcePath = this.path + qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + SUFFIX_STRING_java;
+		CompilationUnit unit = new CompilationUnit(null, fullSourcePath, this.encoding, this.destinationPath);
+		unit.module = mod == null ? null : mod.name();
 		if (!binaryExists)
 			return new NameEnvironmentAnswer(new CompilationUnit(null,
 					fullSourcePath, this.encoding, this.destinationPath),
@@ -134,15 +140,17 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 			ClassFileReader reader = ClassFileReader.read(this.path + qualifiedBinaryFileName);
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115, package names are to be treated case sensitive.
 			String typeSearched = qualifiedPackageName.length() > 0 ? 
-					qualifiedPackageName.replace(File.separatorChar, '/') + "/" + fileName //$NON-NLS-1$
-					: fileName;
+					qualifiedPackageName.replace(File.separatorChar, '/') + "/" + typeName //$NON-NLS-1$
+					: typeName;
 			if (!CharOperation.equals(reader.getName(), typeSearched.toCharArray())) {
 				reader = null;
 			}
-			if (reader != null)
+			if (reader != null) {
+				reader.moduleName = this.module == null ? null : this.module.name();
 				return new NameEnvironmentAnswer(
 						reader,
 						fetchAccessRestriction(qualifiedBinaryFileName));
+			}
 		} catch (IOException e) {
 			// treat as if file is missing
 		} catch (ClassFormatException e) {
@@ -151,7 +159,7 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 	}
 	return null;
 }
-public NameEnvironmentAnswer findSecondaryInClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
+public NameEnvironmentAnswer findSecondaryInClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, IModule mod) {
 	boolean prereqs = this.options != null && isPackage(qualifiedPackageName) && ((this.mode & SOURCE) != 0) && doesFileExist( new String(typeName) + SUFFIX_STRING_java, qualifiedPackageName);
 	return prereqs ? null : findSourceSecondaryType(typeName, qualifiedPackageName, qualifiedBinaryFileName); /* only secondary types */
 }
@@ -223,7 +231,7 @@ private NameEnvironmentAnswer findSourceSecondaryType(char[] typeName, String qu
 }
 
 
-public char[][][] findTypeNames(String qualifiedPackageName) {
+public char[][][] findTypeNames(String qualifiedPackageName, IModule mod) {
 	if (!isPackage(qualifiedPackageName)) {
 		return null; // most common case
 	}

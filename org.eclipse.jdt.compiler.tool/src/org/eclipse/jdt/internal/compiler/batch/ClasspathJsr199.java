@@ -27,6 +27,7 @@ import javax.tools.JavaFileObject;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -53,13 +54,13 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	}
 
 	@Override
-	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
-		return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
+	public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, IModule mod) {
+		return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false, mod);
 	}
 
 	@Override
-	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String aQualifiedBinaryFileName,
-			boolean asBinaryOnly) {
+	public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String aQualifiedBinaryFileName,
+			boolean asBinaryOnly, IModule mod) {
 
 		String qualifiedBinaryFileName = File.separatorChar == '/'
 				? aQualifiedBinaryFileName
@@ -81,6 +82,7 @@ public class ClasspathJsr199 extends ClasspathLocation {
 			try (InputStream inputStream = jfo.openInputStream()) {
 				ClassFileReader reader = ClassFileReader.read(inputStream, qualifiedBinaryFileName);
 				if (reader != null) {
+					reader.moduleName = this.module == null ? null : this.module.name();
 					return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName));
 				}
 			}
@@ -93,7 +95,7 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	}
 
 	@Override
-	public char[][][] findTypeNames(String aQualifiedPackageName) {
+	public char[][][] findTypeNames(String aQualifiedPackageName, IModule mod) {
 		String qualifiedPackageName = File.separatorChar == '/' ? aQualifiedPackageName : aQualifiedPackageName.replace(
 				File.separatorChar, '/');
 

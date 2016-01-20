@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -229,7 +233,13 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 								if (exclusionPatterns != null || inclusionPatterns != null)
 									if (Util.isExcluded(resource.getFullPath(), inclusionPatterns, exclusionPatterns, false))
 										return false;
-								sourceFiles.add(new SourceFile((IFile) resource, sourceLocation));
+								SourceFile unit = new SourceFile((IFile) resource, sourceLocation);
+								String complianceLevel = AbstractImageBuilder.this.javaBuilder.javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
+								if (CompilerOptions.versionToJdkLevel(complianceLevel) >= ClassFileConstants.JDK1_9 &&
+										resource.getName().equalsIgnoreCase(ClasspathLocation.MODULE_INFO_JAVA)) {
+									sourceLocation.acceptModuleInfo(unit, AbstractImageBuilder.this.compiler.parser);
+								}
+								sourceFiles.add(unit);
 							}
 							return false;
 						case IResource.FOLDER :

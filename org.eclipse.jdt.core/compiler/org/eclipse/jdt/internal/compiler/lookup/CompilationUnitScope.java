@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -107,7 +111,7 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 		// environment default package is never null
 		this.fPackage = this.environment.defaultPackage;
 	} else {
-		if ((this.fPackage = this.environment.createPackage(this.currentPackageName)) == null) {
+		if ((this.fPackage = this.environment.createPackage(this.currentPackageName, module())) == null) {
 			if (this.referenceContext.currentPackage != null) {
 				problemReporter().packageCollidesWithType(this.referenceContext); // only report when the unit has a package statement
 			}
@@ -151,7 +155,7 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 				problemReporter().duplicateTypes(this.referenceContext, typeDecl);
 			continue nextType;
 		}
-		if (this.fPackage != this.environment.defaultPackage && this.fPackage.getPackage(typeDecl.name) != null) {
+		if (this.fPackage != this.environment.defaultPackage && this.fPackage.getPackage(typeDecl.name, module()) != null) {
 			// if a package exists, it must be a valid package - cannot be a NotFound problem package
 			// this is now a warning since a package does not really 'exist' until it contains a type, see JLS v2, 7.4.3
 			problemReporter().typeCollidesWithPackage(this.referenceContext, typeDecl);
@@ -459,12 +463,12 @@ public Binding findImport(char[][] compoundName, boolean findStaticImports, bool
 private Binding findImport(char[][] compoundName, int length) {
 	recordQualifiedReference(compoundName);
 
-	Binding binding = this.environment.getTopLevelPackage(compoundName[0]);
+	Binding binding = this.environment.getTopLevelPackage(compoundName[0], module());
 	int i = 1;
 	foundNothingOrType: if (binding != null) {
 		PackageBinding packageBinding = (PackageBinding) binding;
 		while (i < length) {
-			binding = packageBinding.getTypeOrPackage(compoundName[i++]);
+			binding = packageBinding.getTypeOrPackage(compoundName[i++], module());
 			if (binding == null || !binding.isValidBinding()) {
 				binding = null;
 				break foundNothingOrType;
@@ -526,7 +530,7 @@ private Binding findSingleStaticImport(char[][] compoundName, int mask) {
 
 	char[] name = compoundName[compoundName.length - 1];
 	if (binding instanceof PackageBinding) {
-		Binding temp = ((PackageBinding) binding).getTypeOrPackage(name);
+		Binding temp = ((PackageBinding) binding).getTypeOrPackage(name, module());
 		if (temp != null && temp instanceof ReferenceBinding) // must resolve to a member type or field, not a top level type
 			return new ProblemReferenceBinding(compoundName, (ReferenceBinding) temp, ProblemReasons.InvalidTypeForStaticImport);
 		return binding; // cannot be a package, error is caught in sender
@@ -580,9 +584,9 @@ ImportBinding[] getDefaultImports() {
 	// initialize the default imports if necessary... share the default java.lang.* import
 	if (this.environment.defaultImports != null) return this.environment.defaultImports;
 
-	Binding importBinding = this.environment.getTopLevelPackage(TypeConstants.JAVA);
+	Binding importBinding = this.environment.getTopLevelPackage(TypeConstants.JAVA, module());
 	if (importBinding != null)
-		importBinding = ((PackageBinding) importBinding).getTypeOrPackage(TypeConstants.JAVA_LANG[1]);
+		importBinding = ((PackageBinding) importBinding).getTypeOrPackage(TypeConstants.JAVA_LANG[1], module());
 
 	if (importBinding == null || !importBinding.isValidBinding()) {
 		// create a proxy for the missing BinaryType

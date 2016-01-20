@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2015 IBM Corporation and others.
+ * Copyright (c) 2006, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -145,7 +145,8 @@ public class EclipseFileManager implements StandardJavaFileManager {
 							for (String[] entry : types) {
 								final Kind kind = getKind(getExtension(entry[0]));
 								if (kinds.contains(kind)) {
-									collector.add(archive.getArchiveFileObject(packageName + entry[0], entry[1], this.charset));
+									// TODO BETA_JAVA9 - entry[1] contains the module, use it.
+									collector.add(archive.getArchiveFileObject(packageName + entry[0],  this.charset));
 								}
 							}
 						}
@@ -157,7 +158,8 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					for (String[] entry : types) {
 						final Kind kind = getKind(getExtension(entry[0]));
 						if (kinds.contains(kind)) {
-							collector.add(archive.getArchiveFileObject(key + entry[0], entry[1], this.charset));
+							// TODO BETA_JAVA9 - entry[1] contains the module, use it.
+							collector.add(archive.getArchiveFileObject(key + entry[0], this.charset));
 						}
 					}
 				}
@@ -348,7 +350,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				Archive archive = getArchive(file);
 				if (archive != Archive.UNKNOWN_ARCHIVE) {
 					if (archive.contains(normalizedFileName)) {
-						return archive.getArchiveFileObject(normalizedFileName, null, this.charset);
+						return archive.getArchiveFileObject(normalizedFileName, this.charset);
 					}
 				}
 			}
@@ -415,7 +417,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				Archive archive = getArchive(file);
 				if (archive != Archive.UNKNOWN_ARCHIVE) {
 					if (archive.contains(normalizedFileName)) {
-						return archive.getArchiveFileObject(normalizedFileName, null, this.charset);
+						return archive.getArchiveFileObject(normalizedFileName, this.charset);
 					}
 				}
 			}

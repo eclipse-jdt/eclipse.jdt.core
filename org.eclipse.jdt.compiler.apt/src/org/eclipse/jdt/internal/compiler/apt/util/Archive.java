@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2015 IBM Corporation and others.
+ * Copyright (c) 2006, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,8 +26,6 @@ import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
-
-import org.eclipse.jdt.internal.compiler.apt.util.ArchiveFileObject;
 
 /**
  * Used as a zip file cache.
@@ -77,7 +75,7 @@ public class Archive {
 		}
 	}
 	
-	public ArchiveFileObject getArchiveFileObject(String fileName, String module, Charset charset) {
+	public ArchiveFileObject getArchiveFileObject(String fileName, Charset charset) {
 		return new ArchiveFileObject(this.file, fileName, charset);
 	}
 	

@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -83,6 +87,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	public ClassScope scope;
 	protected SourceTypeBinding prototype;
 	LookupEnvironment environment;
+	char[] module; //TODO: Should it be something like ModuleBinding?
 
 	// Synthetics are separated into 4 categories: methods, super methods, fields, class literals and bridge methods
 	// if a new category is added, also increment MAX_SYNTHETICS
@@ -115,6 +120,7 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 	this.fields = Binding.UNINITIALIZED_FIELDS;
 	this.methods = Binding.UNINITIALIZED_METHODS;
 	this.prototype = this;
+	this.module = scope.module();
 	computeId();
 }
 
@@ -1423,7 +1429,13 @@ public boolean isRepeatableAnnotationType() {
 public boolean isTaggedRepeatable() {  // tagged but not necessarily repeatable. see isRepeatableAnnotationType.
 	return (this.tagBits & TagBits.AnnotationRepeatable) != 0;
 }
-
+public boolean canBeSeenBy(Scope sco) {
+	SourceTypeBinding invocationType = sco.enclosingSourceType();
+	if (TypeBinding.equalsEquals(invocationType, this)) 
+		return true;
+	return ((this.environment.canTypeBeSeen(this, sco)) &&
+			super.canBeSeenBy(sco));
+}
 public ReferenceBinding[] memberTypes() {
 	if (!isPrototype()) {
 		if ((this.tagBits & TagBits.HasUnresolvedMemberTypes) == 0)
@@ -2047,7 +2059,7 @@ public void evaluateNullAnnotations() {
 	if (!isPackageInfo) {
 		boolean isInNullnessAnnotationPackage = this.scope.environment().isNullnessAnnotationPackage(pkg);
 		if (pkg.defaultNullness == NO_NULL_DEFAULT && !isInDefaultPkg && !isInNullnessAnnotationPackage && !(this instanceof NestedTypeBinding)) {
-			ReferenceBinding packageInfo = pkg.getType(TypeConstants.PACKAGE_INFO_NAME);
+			ReferenceBinding packageInfo = pkg.getType(TypeConstants.PACKAGE_INFO_NAME, this.scope.module());
 			if (packageInfo == null) {
 				// no pkgInfo - complain
 				this.scope.problemReporter().missingNonNullByDefaultAnnotation(this.scope.referenceContext);

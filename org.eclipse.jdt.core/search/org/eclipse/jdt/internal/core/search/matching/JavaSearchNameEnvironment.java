@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,11 +23,15 @@ import java.util.LinkedHashSet;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageDeclaration;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModel;
@@ -35,6 +39,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jdt.internal.core.builder.ClasspathJar;
+import org.eclipse.jdt.internal.core.builder.ClasspathJimage;
 import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -42,7 +47,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * A name environment based on the classpath of a Java project.
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class JavaSearchNameEnvironment implements INameEnvironment, SuffixConstants {
+public class JavaSearchNameEnvironment extends ModuleEnvironment implements SuffixConstants {
 
 	LinkedHashSet<ClasspathLocation> locationSet;
 
@@ -106,14 +111,15 @@ private ClasspathLocation mapToClassPathLocation( JavaModelManager manager, Pack
 		if (root.isArchive()) {
 			ClasspathEntry rawClasspathEntry = (ClasspathEntry) root.getRawClasspathEntry();
 			cp = JavaModelManager.isJimage(path) ? 
-					new ClasspathJar(path.toOSString(), rawClasspathEntry.getAccessRuleSet(), ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry, ((IJavaProject)root.getParent()).getProject(), true)) :
-			new ClasspathJar(manager.getZipFile(path), rawClasspathEntry.getAccessRuleSet(), ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry, ((IJavaProject)root.getParent()).getProject(), true));
+					new ClasspathJimage(path.toOSString(), 
+							ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry, ((IJavaProject)root.getParent()).getProject(), true), this) :
+			new ClasspathJar(manager.getZipFile(path), rawClasspathEntry.getAccessRuleSet(), ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry, ((IJavaProject)root.getParent()).getProject(), true), this);
 		} else {
 			Object target = JavaModel.getTarget(path, true);
 			if (target != null) 
 				cp = root.getKind() == IPackageFragmentRoot.K_SOURCE ?
 						new ClasspathSourceDirectory((IContainer)target, root.fullExclusionPatternChars(), root.fullInclusionPatternChars()) :
-							ClasspathLocation.forBinaryFolder((IContainer) target, false, ((ClasspathEntry) root.getRawClasspathEntry()).getAccessRuleSet());
+							ClasspathLocation.forBinaryFolder((IContainer) target, false, ((ClasspathEntry) root.getRawClasspathEntry()).getAccessRuleSet(), this);
 		}
 	} catch (CoreException e1) {
 		// problem opening zip file or getting root kind
@@ -122,7 +128,7 @@ private ClasspathLocation mapToClassPathLocation( JavaModelManager manager, Pack
 	return cp;
 }
 
-private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName) {
+private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName, IModule[] modules) {
 	String
 		binaryFileName = null, qBinaryFileName = null,
 		sourceFileName = null, qSourceFileName = null,
@@ -131,7 +137,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 	Iterator <ClasspathLocation> iter = this.locationSet.iterator();
 	while (iter.hasNext()) {
 		ClasspathLocation location = iter.next();
-		NameEnvironmentAnswer answer;
+		NameEnvironmentAnswer answer = null;
 		if (location instanceof ClasspathSourceDirectory) {
 			if (sourceFileName == null) {
 				qSourceFileName = qualifiedTypeName; // doesn't include the file extension
@@ -147,10 +153,13 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 			if (workingCopy != null) {
 				answer = new NameEnvironmentAnswer(workingCopy, null /*no access restriction*/);
 			} else {
-				answer = location.findClass(
-					sourceFileName, // doesn't include the file extension
-					qPackageName,
-					qSourceFileName);  // doesn't include the file extension
+				mods: for (IModule iModule : modules) {
+					answer = location.findClass(
+							sourceFileName, // doesn't include the file extension
+							qPackageName,
+							qSourceFileName, iModule);  // doesn't include the file extension
+					if (answer != null) break mods;
+				}
 			}
 		} else {
 			if (binaryFileName == null) {
@@ -163,11 +172,14 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 					binaryFileName = qBinaryFileName.substring(typeNameStart);
 				}
 			}
-			answer =
-				location.findClass(
-					binaryFileName,
-					qPackageName,
-					qBinaryFileName);
+			mods: for (IModule iModule : modules) {
+				answer =
+						location.findClass(
+								binaryFileName,
+								qPackageName,
+								qBinaryFileName, iModule);
+				if (answer != null) break mods;
+			}
 		}
 		if (answer != null) {
 			if (!answer.ignoreIfBetter()) {
@@ -184,27 +196,27 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 	return null;
 }
 
-public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
+public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, IModule[] modules) {
 	if (typeName != null)
 		return findClass(
 			new String(CharOperation.concatWith(packageName, typeName, '/')),
-			typeName);
+			typeName, modules);
 	return null;
 }
 
-public NameEnvironmentAnswer findType(char[][] compoundName) {
+public NameEnvironmentAnswer findType(char[][] compoundName, IModule[] modules) {
 	if (compoundName != null)
 		return findClass(
 			new String(CharOperation.concatWith(compoundName, '/')),
-			compoundName[compoundName.length - 1]);
+			compoundName[compoundName.length - 1], modules);
 	return null;
 }
 
-public boolean isPackage(char[][] compoundName, char[] packageName) {
-	return isPackage(new String(CharOperation.concatWith(compoundName, packageName, '/')));
+public boolean isPackage(char[][] compoundName, char[] packageName, IModule[] modules) {
+	return isPackage(new String(CharOperation.concatWith(compoundName, packageName, '/')), modules);
 }
 
-public boolean isPackage(String qualifiedPackageName) {
+public boolean isPackage(String qualifiedPackageName, IModule[] modules) {
 	Iterator<ClasspathLocation> iter = this.locationSet.iterator();
 	while (iter.hasNext()) {
 		if (iter.next().isPackage(qualifiedPackageName)) return true;

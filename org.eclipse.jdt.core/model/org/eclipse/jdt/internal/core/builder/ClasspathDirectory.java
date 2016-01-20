@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -12,13 +16,18 @@ package org.eclipse.jdt.internal.core.builder;
 
 import java.io.IOException;
 
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
-
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -30,18 +39,47 @@ boolean isOutputFolder;
 SimpleLookupTable directoryCache;
 String[] missingPackageHolder = new String[1];
 AccessRuleSet accessRuleSet;
+INameEnvironment env;
+IModule module;
 
-ClasspathDirectory(IContainer binaryFolder, boolean isOutputFolder, AccessRuleSet accessRuleSet) {
+ClasspathDirectory(IContainer binaryFolder, boolean isOutputFolder, AccessRuleSet accessRuleSet, INameEnvironment env) {
 	this.binaryFolder = binaryFolder;
 	this.isOutputFolder = isOutputFolder || binaryFolder.getProjectRelativePath().isEmpty(); // if binaryFolder == project, then treat it as an outputFolder
 	this.directoryCache = new SimpleLookupTable(5);
 	this.accessRuleSet = accessRuleSet;
+	this.env = env;
 }
 
 public void cleanup() {
 	this.directoryCache = null;
 }
 
+ClasspathDirectory initializeModule() {
+	IResource[] members = null;
+	try {
+		members = this.binaryFolder.members();
+		if (members != null) {
+			for (int i = 0, l = members.length; i < l; i++) {
+				IResource m = members[i];
+				String name = m.getName();
+				// Note: Look only inside the default package.
+				if (m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
+					if (name.equalsIgnoreCase(MODULE_INFO_CLASS)) {
+						try {
+							this.acceptModule( Util.newClassFileReader(m));
+						} catch (ClassFormatException | IOException e) {
+							// TODO BETA_JAVA9 Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}
+	} catch (CoreException e1) {
+		e1.printStackTrace();
+	}
+	return this;
+}
 String[] directoryList(String qualifiedPackageName) {
 	String[] dirList = (String[]) this.directoryCache.get(qualifiedPackageName);
 	if (dirList == this.missingPackageHolder) return null; // package exists in another classpath directory or jar
@@ -55,9 +93,19 @@ String[] directoryList(String qualifiedPackageName) {
 			int index = 0;
 			for (int i = 0, l = members.length; i < l; i++) {
 				IResource m = members[i];
-				if (m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(m.getName()))
+				String name = m.getName();
+				if (m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
 					// add exclusion pattern check here if we want to hide .class files
-					dirList[index++] = m.getName();
+					dirList[index++] = name;
+					if (name.equalsIgnoreCase(MODULE_INFO_CLASS)) {
+						try {
+							this.acceptModule( Util.newClassFileReader(m));
+						} catch (ClassFormatException | IOException e) {
+							// TODO BETA_JAVA9 Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				}
 			}
 			if (index < dirList.length)
 				System.arraycopy(dirList, 0, dirList = new String[index], 0, index);
@@ -70,7 +118,13 @@ String[] directoryList(String qualifiedPackageName) {
 	this.directoryCache.put(qualifiedPackageName, this.missingPackageHolder);
 	return null;
 }
-
+void acceptModule(ClassFileReader classfile) {
+	if (classfile != null) {
+		if ((this.module = classfile.getModuleDeclaration()) != null) {
+			this.env.acceptModule(this.module, this);
+		}
+	}
+}
 boolean doesFileExist(String fileName, String qualifiedPackageName, String qualifiedFullName) {
 	String[] dirList = directoryList(qualifiedPackageName);
 	if (dirList == null) return false; // most common case
@@ -92,9 +146,15 @@ public boolean equals(Object o) {
 	return this.binaryFolder.equals(dir.binaryFolder);
 }
 
-public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName) {
-	if (!doesFileExist(binaryFileName, qualifiedPackageName, qualifiedBinaryFileName)) return null; // most common case
+public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly, IModule mod) {
+	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false, mod); 
+}
 
+public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName, IModule mod) {
+	if (!doesFileExist(binaryFileName, qualifiedPackageName, qualifiedBinaryFileName)) return null; // most common case
+	if (!this.env.isPackageVisible(qualifiedPackageName.toCharArray(), this.module != null ? this.module.name() : null, mod != null ? mod.name() : null)) {
+		return null;
+	}
 	ClassFileReader reader = null;
 	try {
 		reader = Util.newClassFileReader(this.binaryFolder.getFile(new Path(qualifiedBinaryFileName)));
@@ -106,6 +166,7 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 		return null;
 	}
 	if (reader != null) {
+		reader.moduleName = this.module == null ? null : this.module.name();
 		if (this.accessRuleSet == null)
 			return new NameEnvironmentAnswer(reader, null);
 		String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
@@ -149,5 +210,12 @@ public String debugPathString() {
 	return this.binaryFolder.getFullPath().toString();
 }
 
-
+@Override
+public boolean servesModule(IModule mod) {
+	if (mod == null) 
+		return false;
+	if (this.module == null || mod == this || mod == ModuleEnvironment.UNNAMED_MODULE)
+		return true;
+	return this.module.equals(mod);
+}
 }

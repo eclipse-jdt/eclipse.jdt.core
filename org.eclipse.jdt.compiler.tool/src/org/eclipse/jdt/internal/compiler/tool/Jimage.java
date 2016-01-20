@@ -39,6 +39,7 @@ import java.util.zip.ZipException;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.util.JimageUtil;
 
 public class Jimage extends Archive {
 
@@ -173,7 +174,9 @@ public class Jimage extends Archive {
 		protected ClassFileReader getClassReader() {
 			ClassFileReader reader = null;
 			try {
-				reader = ClassFileReader.readFromJimage(this.file, this.entryName, this.module);
+				byte[] content = JimageUtil.getClassfileContent(this.file, this.entryName, this.module);
+				if (content == null) return null;
+				return new ClassFileReader(content, this.entryName.toCharArray());
 			} catch (ClassFormatException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -188,9 +191,14 @@ public class Jimage extends Archive {
 		 */
 		@Override
 		public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
-			return Util.getCharContents(this, ignoreEncodingErrors,
-					org.eclipse.jdt.internal.compiler.util.JimageUtil.getClassfileContent(this.file, this.entryName, this.module),
-					this.charset.name());
+			try {
+				return Util.getCharContents(this, ignoreEncodingErrors,
+						org.eclipse.jdt.internal.compiler.util.JimageUtil.getClassfileContent(this.file, this.entryName, this.module),
+						this.charset.name());
+			} catch (ClassFormatException e) {
+				e.printStackTrace();
+				return null;
+			}
 		}
 
 		/* (non-Javadoc)

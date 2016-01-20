@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1709,7 +1713,7 @@ private void scanTypeForNullDefaultAnnotation(IBinaryType binaryType, PackageBin
 	// check the package-info for default annotation if not already done before
 	if (packageBinding.defaultNullness == Binding.NO_NULL_DEFAULT && !isPackageInfo) {
 		// this will scan the annotations in package-info
-		ReferenceBinding packageInfo = packageBinding.getType(TypeConstants.PACKAGE_INFO_NAME);
+		ReferenceBinding packageInfo = packageBinding.getType(TypeConstants.PACKAGE_INFO_NAME, null);
 		if (packageInfo == null) {
 			packageBinding.defaultNullness = Binding.NO_NULL_DEFAULT;
 		}
@@ -1745,7 +1749,7 @@ int getNonNullByDefaultValue(IBinaryAnnotation annotation) {
 	IBinaryElementValuePair[] elementValuePairs = annotation.getElementValuePairs();
 	if (elementValuePairs == null || elementValuePairs.length == 0 ) {
 		// no argument: apply default default
-		ReferenceBinding annotationType = this.environment.getType(typeName);
+		ReferenceBinding annotationType = this.environment.getType(typeName, null);
 		if (annotationType == null) return 0;
 		if (annotationType.isUnresolvedType())
 			annotationType = ((UnresolvedReferenceBinding) annotationType).resolve(this.environment, false);

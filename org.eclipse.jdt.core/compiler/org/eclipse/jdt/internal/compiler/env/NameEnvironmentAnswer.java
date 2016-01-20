@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -17,15 +21,18 @@ public class NameEnvironmentAnswer {
 	ICompilationUnit compilationUnit;
 	ISourceType[] sourceTypes;
 	AccessRestriction accessRestriction;
+	char[] module;
 
 	public NameEnvironmentAnswer(IBinaryType binaryType, AccessRestriction accessRestriction) {
 		this.binaryType = binaryType;
 		this.accessRestriction = accessRestriction;
+		this.module = binaryType.getModule();
 	}
 
 	public NameEnvironmentAnswer(ICompilationUnit compilationUnit, AccessRestriction accessRestriction) {
 		this.compilationUnit = compilationUnit;
 		this.accessRestriction = accessRestriction;
+		this.module = compilationUnit.module();
 	}
 
 	public NameEnvironmentAnswer(ISourceType[] sourceTypes, AccessRestriction accessRestriction) {
@@ -88,6 +95,9 @@ public class NameEnvironmentAnswer {
 
 	public boolean ignoreIfBetter() {
 		return this.accessRestriction != null && this.accessRestriction.ignoreIfBetter();
+	}
+	public char[] moduleName() {
+		return this.module;
 	}
 
 	/*

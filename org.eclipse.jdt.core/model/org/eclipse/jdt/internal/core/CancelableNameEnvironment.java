@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 IBM Corporation and others.
+ * Copyright (c) 2004, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -15,6 +19,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.codeassist.ISearchRequestor;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
@@ -40,14 +45,14 @@ public class CancelableNameEnvironment extends SearchableEnvironment implements 
 		super.findPackages(prefix, requestor);
 	}
 
-	public NameEnvironmentAnswer findType(char[] name, char[][] packageName) {
+	public NameEnvironmentAnswer findType(char[] name, char[][] packageName, IModule[] modules) {
 		checkCanceled();
-		return super.findType(name, packageName);
+		return super.findType(name, packageName, modules);
 	}
 
-	public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
+	public NameEnvironmentAnswer findType(char[][] compoundTypeName, IModule[] modules) {
 		checkCanceled();
-		return super.findType(compoundTypeName);
+		return super.findType(compoundTypeName, modules);
 	}
 
 	public void findTypes(char[] prefix, boolean findMembers, boolean camelCaseMatch, int searchFor, ISearchRequestor storage, IProgressMonitor progressMonitor) {

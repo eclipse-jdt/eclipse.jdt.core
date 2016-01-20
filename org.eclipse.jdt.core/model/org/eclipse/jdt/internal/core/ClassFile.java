@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -348,11 +348,16 @@ public byte[] getBytes() throws JavaModelException {
 }
 private byte[] getClassFileContent(JarPackageFragmentRoot root, String className) throws CoreException, IOException {
 	byte[] contents = null;
-	if (root.isModule()) {
-			contents = org.eclipse.jdt.internal.compiler.util.JimageUtil.getClassfileContent(
-					new File(root.getPath().toOSString()),
-					className,
-					root.getElementName());
+	String rootPath = root.getPath().toOSString();
+	if (org.eclipse.jdt.internal.compiler.util.Util.isJimageName(rootPath)) {
+			try {
+				contents = org.eclipse.jdt.internal.compiler.util.JimageUtil.getClassfileContent(
+						new File(rootPath),
+						className,
+						root.getElementName());
+			} catch (ClassFormatException e) {
+				e.printStackTrace();
+			}
 	} else {
 		ZipFile zip = root.getJar();
 		try {
@@ -374,7 +379,8 @@ private IBinaryType getJarBinaryTypeInfo(PackageFragment pkg, boolean fullyIniti
 		byte[] contents = getClassFileContent(root, entryName);
 		if (contents != null) {
 			String fileName;
-			if (root.isModule()) {
+			String rootPath = root.getPath().toOSString();
+			if (org.eclipse.jdt.internal.compiler.util.Util.isJimageName(rootPath)) {
 				fileName = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + 
 						root.getElementName() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
 			} else {

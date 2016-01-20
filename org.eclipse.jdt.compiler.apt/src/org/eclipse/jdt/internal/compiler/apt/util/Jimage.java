@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBM Corporation.
+ * Copyright (c) 2016 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,6 +39,7 @@ import java.util.zip.ZipException;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 
 public class Jimage extends Archive {
 
@@ -109,10 +110,6 @@ public class Jimage extends Archive {
 		}
 	}
 	
-	@Override
-	public ArchiveFileObject getArchiveFileObject(String fileName, String module, Charset charset) {
-		return new JimageFileObject(this.file, fileName, module, charset);
-	}
 	public ArchiveFileObject getArchiveFileObject(String fileName, Charset charset) {
 		return new JimageFileObject(this.file, fileName, null, charset);
 	}
@@ -157,8 +154,8 @@ public class Jimage extends Archive {
 	}
 	
 	class JimageFileObject extends ArchiveFileObject {
-		String module = null;
-		private JimageFileObject(File file, String fileName, String module, Charset charset) {
+		IModule module = null;
+		private JimageFileObject(File file, String fileName, IModule module, Charset charset) {
 			super(file, fileName, charset);
 			this.module = module;
 		}
@@ -187,9 +184,14 @@ public class Jimage extends Archive {
 		 */
 		@Override
 		public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
-			return Util.getCharContents(this, ignoreEncodingErrors,
-					org.eclipse.jdt.internal.compiler.util.JimageUtil.getClassfileContent(this.file, this.entryName, this.module),
-					this.charset.name());
+			try {
+				return Util.getCharContents(this, ignoreEncodingErrors,
+						org.eclipse.jdt.internal.compiler.util.JimageUtil.getClassfileContent(this.file, this.entryName, new String(this.module.name())),
+						this.charset.name());
+			} catch (ClassFormatException e) {
+				e.printStackTrace();
+			}
+			return null;
 		}
 
 		/* (non-Javadoc)

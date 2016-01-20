@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -31,9 +35,10 @@ public interface INameEnvironment {
  * file is inconsistent.
  */
 
-NameEnvironmentAnswer findType(char[][] compoundTypeName);
+NameEnvironmentAnswer findType(char[][] compoundTypeName, char[] client);
 /**
- * Find a type named <typeName> in the package <packageName>.
+ * Find a type named <typeName> in the package <packageName> if it is readable
+ * to the given module.
  * Answer the binary form of the type if it is known to be consistent.
  * Otherwise, answer the compilation unit which defines the type
  * or null if the type does not exist.
@@ -46,10 +51,11 @@ NameEnvironmentAnswer findType(char[][] compoundTypeName);
  * file is inconsistent.
  */
 
-NameEnvironmentAnswer findType(char[] typeName, char[][] packageName);
+NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] client);
 /**
  * Answer whether packageName is the name of a known subpackage inside
- * the package parentPackageName. A top level package is found relative to null.
+ * the package parentPackageName if it is readable
+ * to the given module. A top level package is found relative to null.
  * The default package is always assumed to exist.
  *
  * For example:
@@ -57,7 +63,20 @@ NameEnvironmentAnswer findType(char[] typeName, char[][] packageName);
  *      isPackage(null, {java});
  */
 
-boolean isPackage(char[][] parentPackageName, char[] packageName);
+boolean isPackage(char[][] parentPackageName, char[] packageName, char[] client);
+
+/**
+ * Accepts (and preserves if necessary) the given module and the corresponding
+ * module location. This helps the name environment to later whether or not
+ * a particular module location should be queried for types in a specific module.
+ *
+ * @param module
+ * @param location
+ */
+public void acceptModule(IModule module, IModuleLocation location);
+public boolean isPackageVisible(char[] pack, char[] source, char[] client);
+public IModule getModule(String name);
+public IModule getModule(IModuleLocation location);
 
 /**
  * This method cleans the environment. It is responsible for releasing the memory

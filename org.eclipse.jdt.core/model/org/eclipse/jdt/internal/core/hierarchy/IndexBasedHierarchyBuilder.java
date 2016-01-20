@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -26,6 +30,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IModule;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -219,8 +224,11 @@ private void buildForProject(JavaProject project, ArrayList potentialSubtypes, o
 				// top level or member type
 				if (!inProjectOfFocusType) {
 					char[] typeQualifiedName = focusType.getTypeQualifiedName('.').toCharArray();
-					String[] packageName = ((PackageFragment) focusType.getPackageFragment()).names;
-					if (searchableEnvironment.findType(typeQualifiedName, Util.toCharArrays(packageName)) == null) {
+					PackageFragment fragment = (PackageFragment) focusType.getPackageFragment();
+					String[] packageName = fragment.names;
+					IModule module = fragment.getPackageFragmentRoot().getModule();
+					if (searchableEnvironment.findType(typeQualifiedName, Util.toCharArrays(packageName), 
+							module == null ? null : module.name()) == null) {
 						// focus type is not visible in this project: no need to go further
 						return;
 					}
