@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8177,9 +8177,8 @@ public final class CompletionEngine
 		if(choices == null || choices.length == 0) return;
 		int length = keyword.length;
 		for (int i = 0; i < choices.length; i++)
-			if (length <= choices[i].length
-			&& CharOperation.prefixEquals(keyword, choices[i], false /* ignore case */
-					)){
+			if (length <= choices[i].length && (CharOperation.prefixEquals(keyword, choices[i], false /* ignore case */)
+					|| (this.options.substringMatch && CharOperation.substringMatch(keyword, choices[i])))) {
 				if (ignorePackageKeyword && CharOperation.equals(choices[i], Keywords.PACKAGE))
 					continue;
 				int relevance = computeBaseRelevance();
