@@ -107,7 +107,7 @@ public class ClassFileToIndexConverter {
 			zipFile = ((JarPackageFragmentRoot) pkg.getParent()).getJar();
 			info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(zipFile, classFilePath);
 		} catch (Exception e) {
-			throw new CoreException(Package.createStatus("Unable to parse JAR file", e));
+			throw new CoreException(Package.createStatus("Unable to parse JAR file", e)); //$NON-NLS-1$
 		} finally {
 			JavaModelManager.getJavaModelManager().closeZipFile(zipFile);
 		}
@@ -116,7 +116,7 @@ public class ClassFileToIndexConverter {
 
 	public PDOMType addType(IBinaryType binaryType, IProgressMonitor monitor) throws CoreException {
 		char[] binaryName = binaryType.getName();
-		logInfo("adding binary type " + new String(binaryName));
+		logInfo("adding binary type " + new String(binaryName)); //$NON-NLS-1$
 
 		PDOMTypeId name = createTypeIdFromBinaryName(binaryName);
 		PDOMType type = name.findTypeByResourceAddress(this.resource.address);
@@ -135,33 +135,11 @@ public class ClassFileToIndexConverter {
 			interfaces = EMPTY_CHAR_ARRAY_ARRAY;
 		}
 		// Create the default generic signature if the .class file didn't supply one
-		char[] genericSignature = binaryType.getGenericSignature();
-		if (genericSignature == null) {
-			int startIndex = binaryType.getSuperclassName() != null ? 3 : 0; 
-			char[][] toCatenate = new char[startIndex + (interfaces.length * 3)][];
-			char[] prefix = new char[]{'L'};
-			char[] suffix = new char[]{';'};
-
-			if (binaryType.getSuperclassName() != null) {
-				toCatenate[0] = prefix;
-				toCatenate[1] = binaryType.getSuperclassName();
-				toCatenate[2] = suffix;
-			}
-
-			for (int idx = 0; idx < interfaces.length; idx++) {
-				int catIndex = startIndex + idx * 3;
-				toCatenate[catIndex] = prefix;
-				toCatenate[catIndex + 1] = interfaces[idx];
-				toCatenate[catIndex + 2] = suffix;
-			}
-
-			genericSignature = CharUtil.concat(toCatenate);
-		}
+		SignatureWrapper signatureWrapper = getGenericSignature(binaryType);
 
 		type.setModifiers(binaryType.getModifiers());
 		type.setDeclaringType(createTypeIdFromBinaryName(binaryType.getEnclosingTypeName()));
 
-		SignatureWrapper signatureWrapper = new SignatureWrapper(genericSignature);
 		readTypeParameters(type, typeAnnotations, signatureWrapper);
 		type.setSuperclass(createTypeSignature(supertypeAnnotations, signatureWrapper));
 
@@ -205,12 +183,62 @@ public class ClassFileToIndexConverter {
 
 				variable.setConstant(PDOMConstant.create(getPDOM(), nextField.getConstant()));
 				variable.setModifiers(nextField.getModifiers());
+				SignatureWrapper nextTypeSignature = getGenericSignatureFor(nextField);
 
-				// TODO(sxenos): Finish pulling in the rest of the fields from IBinaryField
+				ITypeAnnotationWalker annotationWalker = getTypeAnnotationWalker(nextField.getTypeAnnotations());
+				variable.setType(createTypeSignature(annotationWalker, nextTypeSignature));
 			}
 		}
 
 		return type;
+	}
+
+	/**
+	 * Returns the generic signature for the given field. If the field has no generic signature, one is generated
+	 * from the type's field descriptor.
+	 */
+	private static SignatureWrapper getGenericSignature(IBinaryType binaryType) {
+		char[][] interfaces = binaryType.getInterfaceNames();
+		if (interfaces == null) {
+			interfaces = EMPTY_CHAR_ARRAY_ARRAY;
+		}
+		char[] genericSignature = binaryType.getGenericSignature();
+		if (genericSignature == null) {
+			int startIndex = binaryType.getSuperclassName() != null ? 3 : 0; 
+			char[][] toCatenate = new char[startIndex + (interfaces.length * 3)][];
+			char[] prefix = new char[]{'L'};
+			char[] suffix = new char[]{';'};
+
+			if (binaryType.getSuperclassName() != null) {
+				toCatenate[0] = prefix;
+				toCatenate[1] = binaryType.getSuperclassName();
+				toCatenate[2] = suffix;
+			}
+
+			for (int idx = 0; idx < interfaces.length; idx++) {
+				int catIndex = startIndex + idx * 3;
+				toCatenate[catIndex] = prefix;
+				toCatenate[catIndex + 1] = interfaces[idx];
+				toCatenate[catIndex + 2] = suffix;
+			}
+
+			genericSignature = CharUtil.concat(toCatenate);
+		}
+
+		SignatureWrapper signatureWrapper = new SignatureWrapper(genericSignature);
+		return signatureWrapper;
+	}
+
+	/**
+	 * Returns the generic signature for the given field. If the field has no generic signature, one is generated
+	 * from the type's field descriptor.
+	 */
+	private static SignatureWrapper getGenericSignatureFor(IBinaryField nextField) {
+		char[] signature = nextField.getGenericSignature();
+		if (signature == null) {
+			signature = nextField.getTypeName();
+		}
+		return new SignatureWrapper(signature);
 	}
 
 	/**
