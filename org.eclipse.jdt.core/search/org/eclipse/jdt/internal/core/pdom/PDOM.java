@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -127,7 +128,7 @@ public class PDOM {
 	private final HashMap<Object, Object> fResultCache= new HashMap<>();
 	protected ChangeEvent fEvent= new ChangeEvent();
 	private final PDOMNodeTypeRegistry<PDOMNode> fNodeTypeRegistry;
-	private LongArray pendingDeletions = new LongArray();
+	private HashSet<Long> pendingDeletions = new HashSet<>();
 
 	public PDOM(File dbPath, PDOMNodeTypeRegistry<PDOMNode> nodeTypes, int minVersion, int maxVersion,
 			int currentVersion) throws IndexException {
@@ -148,7 +149,14 @@ public class PDOM {
 	}
 
 	public void scheduleDeletion(long addressOfNodeToDelete) {
-		this.pendingDeletions.addLast(addressOfNodeToDelete);
+		if (this.pendingDeletions.contains(addressOfNodeToDelete)) {
+			// TODO(sxenos): Sometimes the same node gets scheduled for deletion more than once, which is why
+			// pendingDeletions is a HashSet rather than a queue. We need to understand the circumstances in which
+			// this can happen. If it can be prevented, we should prevent it and change this back to a queue. 
+			Package.log("PDOM object queued for deletion twice", new RuntimeException()); //$NON-NLS-1$
+			return;
+		}
+		this.pendingDeletions.add(addressOfNodeToDelete);
 	}
 
 	/**
@@ -156,9 +164,12 @@ public class PDOM {
 	 */
 	public void processDeletions() {
 		while (!this.pendingDeletions.isEmpty()) {
-			long next = this.pendingDeletions.removeLast();
+			Iterator<Long> iter = this.pendingDeletions.iterator();
+			long next = iter.next();
 
 			delete(next);
+
+			iter.remove();
 		}
 	}
 
