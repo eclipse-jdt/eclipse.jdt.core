@@ -202,10 +202,10 @@ public void createPackageInfoType() {
 	this.types[0] = declaration; // Assumes the first slot is meant for this type
 }
 
-public void createModuleInfoType() {
-	TypeDeclaration declaration = new TypeDeclaration(this.compilationResult);
+public void createModuleInfoType(ModuleDeclaration declaration) {
+	//TypeDeclaration declaration = new TypeDeclaration(this.compilationResult);
 	declaration.name = TypeConstants.MODULE_INFO_NAME;
-	declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
+	declaration.modifiers = ClassFileConstants.AccModule;
 	declaration.javadoc = this.javadoc;
 	this.types[0] = declaration; // Assumes the first slot is meant for this type
 }

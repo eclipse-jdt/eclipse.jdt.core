@@ -1,5 +1,21 @@
+/*******************************************************************************
+ * Copyright (c) 2015, 2016 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *     
+ *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class ModuleReference extends ASTNode {
@@ -10,12 +26,14 @@ public class ModuleReference extends ASTNode {
 	public int declarationSourceEnd;
 	public int modifiers = ClassFileConstants.AccDefault;
 	public int modifiersSourceStart;
+	public char[] moduleName;
 
 	public ModuleReference(char[][] tokens, long[] sourcePositions) {
 		this.tokens = tokens;
 		this.sourcePositions = sourcePositions;
 		this.sourceEnd = (int) (sourcePositions[sourcePositions.length - 1] & 0x00000000FFFFFFFF);
 		this.sourceStart = (int) (sourcePositions[0] >>> 32);
+		this.moduleName = CharOperation.concatWith(tokens, '.');
 	}
 	
 	public boolean isPublic() {

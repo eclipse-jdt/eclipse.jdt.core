@@ -52,6 +52,8 @@ public interface ClassFileConstants {
 	 */
 	int AccMandated     = 0x8000;
 
+	int ACC_PUBLIC 		= 0x0020;
+	int ACC_SYNTHETIC 	= 0x1000;
 	
 	/**
 	 * Other VM flags.

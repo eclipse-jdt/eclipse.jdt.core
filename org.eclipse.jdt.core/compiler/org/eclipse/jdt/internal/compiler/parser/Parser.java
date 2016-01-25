@@ -5609,6 +5609,10 @@ protected void consumePackageComment() {
 }
 protected void consumeInternalCompilationUnitWithModuleDeclaration() {
 	this.compilationUnit.moduleDeclaration = (ModuleDeclaration)this.astStack[this.astPtr--];
+	if (this.compilationUnit.isModuleInfo()) {
+		this.compilationUnit.types = new TypeDeclaration[1];
+		this.compilationUnit.createModuleInfoType(this.compilationUnit.moduleDeclaration);
+	}
 	this.astLengthStack[this.astLengthPtr--] = 0;
 }
 protected void consumeRequiresStatement() {
@@ -5692,14 +5696,14 @@ protected void consumeExportsStatement() {
 //	}
 }
 protected void consumeSingleExportsTargetName() {
-	ImportReference impt;
+	ModuleReference impt;
 	int length;
 	char[][] tokens = new char[length = this.identifierLengthStack[this.identifierLengthPtr--]][];
 	this.identifierPtr -= length;
 	long[] positions = new long[length];
 	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = new ImportReference(tokens, positions, false, ClassFileConstants.AccDefault));
+	pushOnAstStack(impt = new ModuleReference(tokens, positions));
 
 //	if (this.currentToken == TokenNameSEMICOLON){
 //		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
@@ -5719,7 +5723,7 @@ protected void consumeExportTarget() {
 	System.arraycopy(
 		this.astStack,
 		this.astPtr + 1,
-		expt.targets = new ImportReference[length],
+		expt.targets = new ModuleReference[length],
 		0,
 		length);
 
@@ -5730,6 +5734,8 @@ protected void consumeExportTarget() {
 //	}
 }
 protected void consumeExportsTargetNameList() {
+	consumeSingleExportsTargetName();
+	this.listLength++;
 	optimizedConcatNodeLists();
 }
 protected void consumeSingleExportsPkgName() {
@@ -5807,7 +5813,7 @@ protected void consumeWithClause() {
 		module.implementations = new TypeReference[1];
 	}
 	if (module.servicesCount + 1 > module.implementations.length) {
-		System.arraycopy(module.implementations, 0, module.uses = new TypeReference[module.servicesCount + 1], 0, module.servicesCount);
+		System.arraycopy(module.implementations, 0, module.implementations = new TypeReference[module.servicesCount + 1], 0, module.servicesCount);
 	}
 	module.implementations[module.servicesCount] = siName;
 	

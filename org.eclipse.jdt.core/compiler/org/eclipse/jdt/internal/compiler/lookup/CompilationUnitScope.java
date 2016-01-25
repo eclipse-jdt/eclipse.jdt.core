@@ -147,7 +147,8 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 			// if a type exists, check that its a valid type
 			// it can be a NotFound problem type if its a secondary type referenced before its primary type found in additional units
 			// and it can be an unresolved type which is now being defined
-			problemReporter().duplicateTypes(this.referenceContext, typeDecl);
+			if (!typeBinding.isModule()) // Kludge?
+				problemReporter().duplicateTypes(this.referenceContext, typeDecl);
 			continue nextType;
 		}
 		if (this.fPackage != this.environment.defaultPackage && this.fPackage.getPackage(typeDecl.name) != null) {

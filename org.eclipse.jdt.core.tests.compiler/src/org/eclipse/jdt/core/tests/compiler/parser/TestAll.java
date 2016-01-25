@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -147,7 +151,24 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		TestCase.RUN_ONLY_ID = null;
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_8, tests_1_8));
 	}
-
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_9) != 0) {
+		ArrayList tests_1_9 = (ArrayList)testClasses.clone();
+		tests_1_9.addAll(TEST_CLASSES_1_5);
+		tests_1_9.add(ParserTest1_7.class);
+		tests_1_9.add(LambdaExpressionSyntaxTest.class);
+		tests_1_9.add(ReferenceExpressionSyntaxTest.class);
+		tests_1_9.add(TypeAnnotationSyntaxTest.class);
+		tests_1_9.add(CompletionParserTest18.class);
+		tests_1_9.add(SelectionParserTest18.class);
+		tests_1_9.add(ModuleDeclarationSyntaxTest.class);
+		// Reset forgotten subsets tests
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
+		TestCase.RUN_ONLY_ID = null;
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_9, tests_1_9));
+	}
 	return all;
 }
 public static Test suite() {

@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
@@ -50,6 +54,7 @@ import org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
 import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
+import org.eclipse.jdt.internal.compiler.ast.ExportReference;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
@@ -57,6 +62,8 @@ import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.Receiver;
@@ -346,6 +353,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 			// check that there is enough space to write all the bytes for the field info corresponding
 			// to the @fieldBinding
 			attributesNumber += generateDeprecatedAttribute();
+		}
+		if (this.referenceBinding.isModule()) {
+			attributesNumber += generateModuleAttribute();
 		}
 		// add signature attribute
 		char[] genericSignature = this.referenceBinding.genericSignature();
@@ -2318,7 +2328,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 	 * @return char[]
 	 */
 	public char[] fileName() {
-		return this.constantPool.UTF8Cache.returnKeyFor(2);
+		// TODO Is there a better way of doing this?
+		char[] name = this.constantPool.UTF8Cache.returnKeyFor(2);
+		if (CharOperation.endsWith(name, TypeConstants.MODULE_INFO_NAME))
+			return TypeConstants.MODULE_INFO_NAME;
+		return name;
 	}
 
 	private void generateAnnotation(Annotation annotation, int currentOffset) {
@@ -2553,6 +2567,127 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = 0;
 		this.contents[localContentsOffset++] = 0;
 		this.contents[localContentsOffset++] = 0;
+		this.contentsOffset = localContentsOffset;
+		return 1;
+	}
+	private int generateModuleAttribute() {
+		ModuleDeclaration module = (ModuleDeclaration)this.referenceBinding.scope.referenceContext;
+		int localContentsOffset = this.contentsOffset;
+		if (localContentsOffset + 18 >= this.contents.length) {
+			resizeContents(18);
+		}
+		int moduleAttributeNameIndex =
+			this.constantPool.literalIndex(AttributeNamesConstants.ModuleName);
+		this.contents[localContentsOffset++] = (byte) (moduleAttributeNameIndex >> 8);
+		this.contents[localContentsOffset++] = (byte) moduleAttributeNameIndex;
+		int attrLengthOffset = localContentsOffset;
+		int attrLength = 0;
+		localContentsOffset += 4;
+		// ================= requires section =================
+		/** u2 requires_count;
+	    	{   u2 requires_index;
+	        	u2 requires_flags;
+	    	} requires[requires_count];
+	    **/
+		int requiresCountOffset = localContentsOffset;
+		localContentsOffset += 2;
+		boolean javabaseSeen = false;
+		for(int i = 0; i < module.requiresCount; i++) {
+			ModuleReference ref = module.requires[i];
+			if (CharOperation.equals(ref.moduleName, TypeConstants.JAVA_BASE)) {
+				javabaseSeen = true;
+			}
+			int nameIndex = this.constantPool.literalIndex(ref.moduleName);
+			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) (nameIndex);
+			int flags = ref.isPublic() ? ClassFileConstants.ACC_PUBLIC : ClassFileConstants.AccDefault;
+			this.contents[localContentsOffset++] = (byte) (flags >> 8);
+			this.contents[localContentsOffset++] = (byte) (flags);
+		}
+		if (!javabaseSeen) {
+			int javabase_index = this.constantPool.literalIndex(TypeConstants.JAVA_BASE);
+			this.contents[localContentsOffset++] = (byte) (javabase_index >> 8);
+			this.contents[localContentsOffset++] = (byte) (javabase_index);
+			int flags = ClassFileConstants.AccMandated;
+			this.contents[localContentsOffset++] = (byte) (flags >> 8);
+			this.contents[localContentsOffset++] = (byte) flags;
+		}
+		int requiresCount = javabaseSeen ? module.requiresCount : module.requiresCount + 1;
+		this.contents[requiresCountOffset++] = (byte) (requiresCount >> 8);
+		this.contents[requiresCountOffset++] = (byte) requiresCount;
+		attrLength += 2 + 4 * requiresCount;
+		// ================= end requires section =================
+
+		// ================= exports section =================
+		/**
+		 * u2 exports_count;
+		 * {   u2 exports_index;
+		 *     u2 exports_to_count;
+		 *     u2 exports_to_index[exports_to_count];
+		 * } exports[exports_count];
+		 */
+		this.contents[localContentsOffset++] = (byte) (module.exportsCount >> 8);
+		this.contents[localContentsOffset++] = (byte) module.exportsCount;
+		for (int i = 0; i < module.exportsCount; i++) {
+			ExportReference ref = module.exports[i];
+			int nameIndex = this.constantPool.literalIndex(ref.pkgName);
+			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) (nameIndex);
+			
+			int exportsToCount = ref.isTargeted() ? ref.targets.length : 0; 
+			this.contents[localContentsOffset++] = (byte) (exportsToCount >> 8);
+			this.contents[localContentsOffset++] = (byte) (exportsToCount);
+			if (exportsToCount > 0) {
+				for(int j = 0; j < exportsToCount; j++) {
+					nameIndex = this.constantPool.literalIndex(ref.targets[j].moduleName);
+					this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+					this.contents[localContentsOffset++] = (byte) (nameIndex);
+				}
+				attrLength += 2 * exportsToCount;
+			}
+		}
+		attrLength += 2 + 4 * module.exportsCount;
+		// ================= end exports section =================
+
+		// ================= uses section =================
+		/**
+		 * u2 uses_count;
+		 * u2 uses_index[uses_count];
+		 */
+		this.contents[localContentsOffset++] = (byte) (module.usesCount >> 8);
+		this.contents[localContentsOffset++] = (byte) module.usesCount;
+		for(int i = 0; i < module.usesCount; i++) {
+			int nameIndex = this.constantPool.literalIndex(module.uses[i].resolvedType);
+			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) (nameIndex);
+		}
+		attrLength += 2 + 2 * module.usesCount;
+		// ================= end uses section =================
+
+		// ================= provides section =================
+		/**
+		 * u2 provides_count;
+		 * {   u2 provides_index;
+		 *     u2 with_index;
+		 * } provides[provides_count];
+		 */
+		this.contents[localContentsOffset++] = (byte) (module.servicesCount >> 8);
+		this.contents[localContentsOffset++] = (byte) module.servicesCount;
+		for(int i = 0; i < module.servicesCount; i++) {
+			int nameIndex = this.constantPool.literalIndex(module.interfaces[i].resolvedType);
+			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) (nameIndex);
+			nameIndex = this.constantPool.literalIndex(module.implementations[i].resolvedType);
+			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
+			this.contents[localContentsOffset++] = (byte) (nameIndex);
+		}
+		attrLength += 2 + 4 * module.servicesCount;
+		// ================= end provides section =================
+
+		this.contents[attrLengthOffset++] = (byte)(attrLength >> 24);
+		this.contents[attrLengthOffset++] = (byte)(attrLength >> 16);
+		this.contents[attrLengthOffset++] = (byte)(attrLength >> 8);
+		this.contents[attrLengthOffset++] = (byte)attrLength;
 		this.contentsOffset = localContentsOffset;
 		return 1;
 	}
@@ -4935,7 +5070,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					| ClassFileConstants.AccNative);
 
 		// set the AccSuper flag (has to be done after clearing AccSynchronized - since same value)
-		if (!aType.isInterface()) { // class or enum
+		if (!aType.isInterface() && !aType.isModule()) { // class or enum
 			accessFlags |= ClassFileConstants.AccSuper;
 		}
 		if (aType.isAnonymousType()) {
