@@ -264,6 +264,9 @@ public abstract class JobManager implements Runnable {
 			}
 			status = searchJob.execute(subMonitor);
 		} finally {
+			if (progress != null) {
+				progress.done();
+			}
 			if (VERBOSE)
 				Util.verbose("FINISHED  concurrent job - " + searchJob); //$NON-NLS-1$
 		}
