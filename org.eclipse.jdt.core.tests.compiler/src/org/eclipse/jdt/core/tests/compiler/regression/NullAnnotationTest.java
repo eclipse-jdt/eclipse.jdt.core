@@ -8715,6 +8715,7 @@ public void testMultipleAnnotations() {
 	options2.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo2.NonNull2");
 	options2.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo2.Nullable2");
 	options2.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "org.foo2.NoNulls2");
+	options2.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.WARNING);
 	runConformTest(
 		false, // flush
 		new String[] {
@@ -8746,7 +8747,7 @@ public void testMultipleAnnotations() {
 			"	}\n" +
 			"	@NoNulls2\n" + 
 			"	public String strong(String theValue) {\n" + 
-			"		return theValue;\n" + 
+			"		return weaken(theValue);\n" + 
 			"	}\n" + 
 			"\n" + 
 			"}",
@@ -8763,8 +8764,13 @@ public void testMultipleAnnotations() {
 			"}"
 		},
 		null, //libs
-		options1,
-		"",
+		options2,
+		"----------\n" + 
+		"1. WARNING in p2\\TestNulls2.java (at line 10)\n" + 
+		"	return weaken(theValue);\n" + 
+		"	       ^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch: required \'@NonNull2 String\' but the provided value is specified as @Nullable2\n" + 
+		"----------\n",
 		"",
 		"",
 		JavacTestOptions.DEFAULT);
