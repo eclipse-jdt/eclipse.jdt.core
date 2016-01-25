@@ -29,7 +29,7 @@ import org.osgi.framework.Bundle;
 
 public class IncrementalTests18 extends BuilderTests {
 	static {
-		TESTS_NAMES = new String[] { "testBug481276b" };
+//		TESTS_NAMES = new String[] { "testBug481276b" };
 	}
 	public IncrementalTests18(String name) {
 		super(name);
