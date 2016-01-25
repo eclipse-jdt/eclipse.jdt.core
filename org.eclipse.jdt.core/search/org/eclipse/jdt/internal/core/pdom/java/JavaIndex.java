@@ -30,9 +30,9 @@ import org.eclipse.jdt.internal.core.pdom.field.StructDef;
  */
 public class JavaIndex {
 	// Version constants
-	static final int CURRENT_VERSION = PDOM.version(1, 9);
-	static final int MAX_SUPPORTED_VERSION= PDOM.version(1, Short.MAX_VALUE);
-	static final int MIN_SUPPORTED_VERSION= PDOM.version(1, 9);
+	static final int CURRENT_VERSION = PDOM.version(1, 11);
+	static final int MAX_SUPPORTED_VERSION= PDOM.version(1, 11);
+	static final int MIN_SUPPORTED_VERSION= PDOM.version(1, 11);
 
 	// Fields for the search header
 	public static final FieldSearchIndex<PDOMResourceFile> FILES;

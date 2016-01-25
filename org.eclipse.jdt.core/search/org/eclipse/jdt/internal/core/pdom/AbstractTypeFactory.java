@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom;
 
+import org.eclipse.jdt.internal.core.pdom.field.StructDef.DeletionSemantics;
+
 /**
  * @since 3.12
  */
@@ -26,12 +28,12 @@ public abstract class AbstractTypeFactory<T> implements ITypeFactory<T> {
 	}
 
 	@Override
-	public boolean isRefCounted() {
+	public boolean isReadyForDeletion(PDOM dom, long address) {
 		return false;
 	}
 
 	@Override
-	public boolean hasReferences(PDOM dom, long record) {
-		return false;
+	public DeletionSemantics getDeletionSemantics() {
+		return DeletionSemantics.EXPLICIT;
 	}
 }

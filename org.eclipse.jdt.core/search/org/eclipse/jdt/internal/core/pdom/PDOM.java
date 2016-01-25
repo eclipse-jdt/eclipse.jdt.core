@@ -10,20 +10,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.internal.core.pdom.db.ChunkCache;
 import org.eclipse.jdt.internal.core.pdom.db.Database;
 import org.eclipse.jdt.internal.core.pdom.db.IndexException;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Database for storing semantic information for all java projects.
@@ -128,7 +127,7 @@ public class PDOM {
 	private final HashMap<Object, Object> fResultCache= new HashMap<>();
 	protected ChangeEvent fEvent= new ChangeEvent();
 	private final PDOMNodeTypeRegistry<PDOMNode> fNodeTypeRegistry;
-	private HashSet<Long> pendingDeletions = new HashSet<>();
+	private HashMap<Long, Throwable> pendingDeletions = new HashMap<>();
 
 	public PDOM(File dbPath, PDOMNodeTypeRegistry<PDOMNode> nodeTypes, int minVersion, int maxVersion,
 			int currentVersion) throws IndexException {
@@ -149,14 +148,15 @@ public class PDOM {
 	}
 
 	public void scheduleDeletion(long addressOfNodeToDelete) {
-		if (this.pendingDeletions.contains(addressOfNodeToDelete)) {
-			// TODO(sxenos): Sometimes the same node gets scheduled for deletion more than once, which is why
-			// pendingDeletions is a HashSet rather than a queue. We need to understand the circumstances in which
-			// this can happen. If it can be prevented, we should prevent it and change this back to a queue. 
+		// Sometimes an object can be scheduled for deletion twice, if it is created and then discarded shortly
+		// afterward during indexing. This may indicate an inefficiency in the indexer but is not necessarily
+		// a bug.
+		if (this.pendingDeletions.containsKey(addressOfNodeToDelete)) { 
 			Package.log("PDOM object queued for deletion twice", new RuntimeException()); //$NON-NLS-1$
+			Package.log("Earlier deletion stack was this:", pendingDeletions.get(addressOfNodeToDelete));
 			return;
 		}
-		this.pendingDeletions.add(addressOfNodeToDelete);
+		this.pendingDeletions.put(addressOfNodeToDelete, new RuntimeException());
 	}
 
 	/**
@@ -164,12 +164,11 @@ public class PDOM {
 	 */
 	public void processDeletions() {
 		while (!this.pendingDeletions.isEmpty()) {
-			Iterator<Long> iter = this.pendingDeletions.iterator();
-			long next = iter.next();
+			long next = this.pendingDeletions.keySet().iterator().next();
 
-			delete(next);
+			deleteIfUnreferenced(next);
 
-			iter.remove();
+			this.pendingDeletions.remove(next);
 		}
 	}
 
@@ -585,7 +584,25 @@ public class PDOM {
 		return this.fNodeTypeRegistry.getTypeForClass(toQuery);
 	}
 
-	private void delete(long address) {
+	private void deleteIfUnreferenced(long address) {
+		if (address == 0) {
+			return;
+		}
+		short nodeType = PDOMNode.NODE_TYPE.get(this, address);
+
+		// Look up the type
+		ITypeFactory<? extends PDOMNode> factory1 = getTypeFactory(nodeType);
+
+		if (factory1.isReadyForDeletion(this, address)) {
+			// Call its destructor
+			factory1.destruct(this, address);
+
+			// Free up its memory
+			getDB().free(address);
+		}
+	}
+
+	public void delete(long address) {
 		if (address == 0) {
 			return;
 		}

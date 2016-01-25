@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jdt.internal.core.pdom.IDestructable;
@@ -11,6 +12,24 @@ import org.eclipse.jdt.internal.core.pdom.ITypeFactory;
 import org.eclipse.jdt.internal.core.pdom.PDOM;
 
 /**
+ * Defines a data structure that will appear in the database.
+ * <p>
+ * There are three mechanisms for deleting a struct from the database:
+ * <ul>
+ * <li>Explicit deletion. This happens synchronously via manual calls to PDOM.delete. Structs intended for manual
+ *     deletion have refCounted=false and an empty ownerFields.
+ * <li>Owner pointers. Such structs have one or more outbound pointers to an "owner" object. They are deleted
+ *     asynchronously when the last owner pointer is deleted. The structs have refCounted=false and a nonempty
+ *     ownerFields.
+ * <li>Refcounting. Such structs are deleted asynchronously when all elements are removed from all of their ManyToOne
+ *     relationships which are not marked as incoming owner pointers. Owner relationships need to be excluded from
+ *     refcounting since they would always create cycles. These structs have refCounted=true.
+ * </ul>
+ * <p>
+ * Structs deleted by refcounting and owner pointers are not intended to inherit from one another, but anything may
+ * inherit from a struct that uses manual deletion and anything may inherit from a struct that uses the same deletion
+ * mechanism.
+ * 
  * @since 3.12
  */
 public final class StructDef<T> {
@@ -24,9 +43,15 @@ public final class StructDef<T> {
 	List<IDestructableField> destructableFields = new ArrayList<>();
 	boolean refCounted;
 	private List<IRefCountedField> refCountedFields = new ArrayList<>();
+	private List<IRefCountedField> ownerFields = new ArrayList<>();
 	boolean isAbstract;
 	private ITypeFactory<T> factory;
 	protected boolean hasUserDestructor;
+	private DeletionSemantics deletionSemantics;
+
+	public static enum DeletionSemantics {
+		EXPLICIT, OWNED, REFCOUNTED
+	}
 
 	private StructDef(Class<T> clazz) {
 		this(clazz, null);
@@ -106,12 +131,14 @@ public final class StructDef<T> {
 				StructDef.this.destructFields(dom, address);
 			}
 
-			public boolean hasReferences(PDOM dom, long record) {
-				return StructDef.this.hasReferences(dom, record);
+			@Override
+			public boolean isReadyForDeletion(PDOM dom, long address) {
+				return StructDef.this.isReadyForDeletion(dom, address);
 			}
-
-			public boolean isRefCounted() {
-				return StructDef.this.refCounted;
+			
+			@Override
+			public DeletionSemantics getDeletionSemantics() {
+				return StructDef.this.getDeletionSemantics();
 			}
 		};
 	}
@@ -141,22 +168,34 @@ public final class StructDef<T> {
 		return new StructDef<T>(clazz, superClass);
 	}
 
-	protected boolean hasReferences(PDOM dom, long record) {
-		for (IRefCountedField next : this.refCountedFields) {
+	protected boolean isReadyForDeletion(PDOM dom, long record) {
+		List<IRefCountedField> toIterate = Collections.EMPTY_LIST;
+		switch (this.deletionSemantics) {
+			case EXPLICIT: return false;
+			case OWNED: toIterate = this.ownerFields; break;
+			case REFCOUNTED: toIterate = this.refCountedFields; break;
+		}
+
+		for (IRefCountedField next : toIterate) {
 			if (next.hasReferences(dom, record)) {
-				return true;
+				return false;
 			}
 		}
 
-		if (StructDef.this.superClass != null) {
-			return StructDef.this.superClass.hasReferences(dom, record);
+		final StructDef<? super T> localSuperClass = StructDef.this.superClass;
+		if (localSuperClass != null && localSuperClass.deletionSemantics != DeletionSemantics.EXPLICIT) {
+			return localSuperClass.isReadyForDeletion(dom, record);
 		}
-		return false;
+		return true;
 	}
 
 	protected boolean hasDestructableFields() {
 		return (!StructDef.this.destructableFields.isEmpty() || 
 				(StructDef.this.superClass != null && StructDef.this.superClass.hasDestructableFields()));
+	}
+
+	public DeletionSemantics getDeletionSemantics() {
+		return this.deletionSemantics;
 	}
 
 	/**
@@ -199,6 +238,12 @@ public final class StructDef<T> {
 		this.refCountedFields.add(result);
 	}
 
+	public void addOwnerField(IRefCountedField result) {
+		checkMutable();
+
+		this.ownerFields.add(result);
+	}
+
 	public boolean areOffsetsComputed() {
 		return this.offsetsComputed;
 	}
@@ -220,6 +265,10 @@ public final class StructDef<T> {
 		}
 	}
 
+	/**
+	 * Invoked on all StructDef after both {@link #done()} has been called on the struct and
+	 * {@link #computeOffsets()} has been called on their base class.
+	 */
 	private void computeOffsets() {
 		int offset = this.superClass == null ? 0 : this.superClass.size();
 
@@ -229,6 +278,27 @@ public final class StructDef<T> {
 		}
 
 		this.size = offset;
+		if (this.refCounted) {
+			this.deletionSemantics = DeletionSemantics.REFCOUNTED;
+		} else {
+			if (!this.ownerFields.isEmpty()) {
+				this.deletionSemantics = DeletionSemantics.OWNED;
+			} else if (this.superClass != null) {
+				this.deletionSemantics = this.superClass.deletionSemantics;
+			} else {
+				this.deletionSemantics = DeletionSemantics.EXPLICIT;
+			}
+		}
+		// Now verify that the deletion semantics of this struct are compatible with the deletion
+		// semantics of its superclass
+		if (this.superClass != null && this.deletionSemantics != this.superClass.deletionSemantics) {
+			if (this.superClass.deletionSemantics != DeletionSemantics.EXPLICIT) {
+				throw new IllegalStateException("A class (" + this.clazz.getName() + ") that uses "  //$NON-NLS-1$//$NON-NLS-2$
+					+ this.deletionSemantics.toString() + " deletion semantics may not inherit from a class " //$NON-NLS-1$
+					+ "that uses " + this.superClass.deletionSemantics.toString() + " semantics");  //$NON-NLS-1$//$NON-NLS-2$
+			}
+		}
+		
 		this.offsetsComputed = true;
 
 		for (StructDef<? extends T> next : this.subClasses) {
@@ -315,4 +385,6 @@ public final class StructDef<T> {
 			this.superClass.destructFields(dom, address);
 		}
 	}
+
+	
 }

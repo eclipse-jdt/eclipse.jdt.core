@@ -8,7 +8,7 @@ import org.eclipse.jdt.internal.core.pdom.db.Database;
  * Represents a 1-to-0..1 relationship in a PDOM database.
  * @since 3.12
  */
-public class FieldOneToOne<T extends PDOMNode> implements IField, IDestructableField {
+public class FieldOneToOne<T extends PDOMNode> implements IField, IDestructableField, IRefCountedField {
 	private int offset;
 	public final Class<T> nodeType; 
 	FieldOneToOne<?> backPointer;
@@ -48,6 +48,7 @@ public class FieldOneToOne<T extends PDOMNode> implements IField, IDestructableF
 		FieldOneToOne<T> result = new FieldOneToOne<T>(nodeType, forwardPointer, true);
 		builder.add(result);
 		builder.addDestructableField(result);
+		builder.addOwnerField(result);
 		return result;
 	}
 
@@ -59,6 +60,9 @@ public class FieldOneToOne<T extends PDOMNode> implements IField, IDestructableF
 	public void put(PDOM pdom, long address, T target) {
 		cleanup(pdom, address);
 		pdom.getDB().putRecPtr(address + this.offset, target == null ? 0 : target.address);
+		if (target == null && this.pointsToOwner) {
+			pdom.scheduleDeletion(address);
+		}
 	}
 
 	@Override
@@ -70,11 +74,10 @@ public class FieldOneToOne<T extends PDOMNode> implements IField, IDestructableF
 		Database db = pdom.getDB();
 		long ptr = db.getRecPtr(address + this.offset);
 		if (ptr != 0) {
+			db.putRecPtr(ptr + this.backPointer.offset, 0);
 			// If we own our target, delete it
 			if (this.backPointer.pointsToOwner) {
 				pdom.scheduleDeletion(ptr);
-			} else {
-				db.putRecPtr(ptr + this.backPointer.offset, 0);
 			}
 		}
 	}
@@ -87,5 +90,14 @@ public class FieldOneToOne<T extends PDOMNode> implements IField, IDestructableF
 	@Override
 	public int getRecordSize() {
 		return Database.PTR_SIZE;
+	}
+
+	@Override
+	public boolean hasReferences(PDOM pdom, long address) {
+		if (this.pointsToOwner) {
+			long ptr = pdom.getDB().getRecPtr(address + this.offset);
+			return ptr != 0;
+		}
+		return false;
 	}
 }

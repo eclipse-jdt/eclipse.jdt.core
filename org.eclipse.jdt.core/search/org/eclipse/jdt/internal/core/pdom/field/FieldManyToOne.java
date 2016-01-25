@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.core.pdom.PDOMNode;
  * 
  * @since 3.12
  */
-public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, IField {
+public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, IField, IRefCountedField {
 	public final static FieldPointer TARGET;
 	public final static FieldInt BACKPOINTER_INDEX;
 
@@ -86,26 +86,27 @@ public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, I
 		FieldManyToOne<T> result = new FieldManyToOne<T>(builder.getStructClass(), forwardPointer, true);
 		builder.add(result);
 		builder.addDestructableField(result);
+		builder.addOwnerField(result);
 		return result;
 	}
 
-	public T get(PDOM pdom, long record) {
-		return PDOMNode.load(pdom, getAddress(pdom, record), this.targetType);
+	public T get(PDOM pdom, long address) {
+		return PDOMNode.load(pdom, getAddress(pdom, address), this.targetType);
 	}
 
-	public long getAddress(PDOM pdom, long record) {
-		return pdom.getDB().getRecPtr(record + this.offset);
+	public long getAddress(PDOM pdom, long address) {
+		return pdom.getDB().getRecPtr(address + this.offset);
 	}
 
 	/**
 	 * Directs this pointer to the given target. Also removes this pointer from the old backpointer list (if any) and
 	 * inserts it into the new backpointer list (if any)
 	 */
-	public void put(PDOM pdom, long record, T value) {
+	public void put(PDOM pdom, long address, T value) {
 		if (value != null) {
-			put(pdom, record, value.address);
+			put(pdom, address, value.address);
 		} else {
-			put(pdom, record, 0);
+			put(pdom, address, 0);
 		}
 	}
 
@@ -126,11 +127,12 @@ public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, I
 			this.backPointer.remove(pdom, oldTargetAddress, oldIndex);
 
 			if (oldTargetAddress != 0) {
-				short targetType = PDOMNode.NODE_TYPE.get(pdom, oldTargetAddress);
+				short targetTypeId = PDOMNode.NODE_TYPE.get(pdom, oldTargetAddress);
 
-				ITypeFactory<T> typeFactory = pdom.getTypeFactory(targetType);
+				ITypeFactory<T> typeFactory = pdom.getTypeFactory(targetTypeId);
 
-				if (typeFactory.isRefCounted() && !typeFactory.hasReferences(pdom, oldTargetAddress)) {
+				if (typeFactory.getDeletionSemantics() == StructDef.DeletionSemantics.REFCOUNTED 
+						&& typeFactory.isReadyForDeletion(pdom, oldTargetAddress)) {
 					pdom.scheduleDeletion(oldTargetAddress);
 				}
 			}
@@ -140,6 +142,10 @@ public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, I
 			// Note that newValue is the address of the backpointer list and record (the address of the struct
 			// containing the forward pointer) is the value being inserted into the list.
 			BACKPOINTER_INDEX.put(pdom, fieldStart, this.backPointer.add(pdom, newTargetAddress, address));
+		} else {
+			if (this.pointsToOwner) {
+				pdom.scheduleDeletion(address);
+			}
 		}
 	}
 
@@ -149,17 +155,17 @@ public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, I
 	 * Not intended to be called by clients. This is invoked by {@link FieldOneToMany} whenever it reorders elements in
 	 * the array.
 	 */
-	void adjustIndex(PDOM pdom, long record, int index) {
-		BACKPOINTER_INDEX.put(pdom, record + this.offset, index);
+	void adjustIndex(PDOM pdom, long address, int index) {
+		BACKPOINTER_INDEX.put(pdom, address + this.offset, index);
 	}
 
 	@Override
-	public void destruct(PDOM pdom, long record) {
-		put(pdom, record, 0);
+	public void destruct(PDOM pdom, long address) {
+		put(pdom, address, 0);
 	}
 
-	void clearedByBackPointer(PDOM pdom, long target) {
-		long fieldStart = this.offset + target;
+	void clearedByBackPointer(PDOM pdom, long address) {
+		long fieldStart = this.offset + address;
 		FieldManyToOne.TARGET.put(pdom, fieldStart, 0);
 		FieldManyToOne.BACKPOINTER_INDEX.put(pdom, fieldStart, 0);
 	}
@@ -172,5 +178,12 @@ public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, I
 	@Override
 	public int getRecordSize() {
 		return type.size();
+	}
+
+	@Override
+	public boolean hasReferences(PDOM pdom, long address) {
+		long fieldStart = this.offset + address;
+		long target = TARGET.get(pdom, fieldStart);
+		return target != 0;
 	}
 }

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom;
 
+import org.eclipse.jdt.internal.core.pdom.field.StructDef.DeletionSemantics;
+
 // TODO(sxenos): rename this to something like "StructDescriptor" -- it's more than a factory and the word
 // type is overloaded in JDT.
 /**
@@ -41,7 +43,7 @@ public interface ITypeFactory<T> {
 	 * memory block and objects which are embedded as fields within a larger object. If the object was given its own
 	 * memory block, it is the caller's responsibility to invoke free after calling this method.
 	 */
-	void destruct(PDOM dom, long record);
+	void destruct(PDOM dom, long address);
 
 	/**
 	 * If this returns false, the delete and deleteFields methods both always do nothing.
@@ -53,12 +55,13 @@ public interface ITypeFactory<T> {
 	Class<?> getElementClass();
 
 	/**
-	 * Returns true if this object should be deallocated via refcounting
+	 * Returns true if this object is orphaned. If the object is refcounted, this means the refcount is 0. If
+	 * the object is deleted via an owner pointer, this means the owner pointer is null.
 	 */
-	boolean isRefCounted();
+	boolean isReadyForDeletion(PDOM dom, long address);
 
 	/**
-	 * Returns true if there are any incoming references to this object
+	 * Returns the deletion semantics used for this object.
 	 */
-	boolean hasReferences(PDOM dom, long record);
+	DeletionSemantics getDeletionSemantics();
 }

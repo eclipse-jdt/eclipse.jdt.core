@@ -61,7 +61,7 @@ public class InheritenceTests extends BaseTestCase {
 			INCOMING_REFERENCES = FieldOneToMany.create(type, Reference.BASE_CLASS_REFERENCE, 0);
 			OWNED_REFERENCES = FieldOneToMany.create(type, Reference.OWNER, 0);
 			DELETION_DETECTOR = FieldManyToOne.create(type, AllObjects.BASE_CLASS_INSTANCES);
-			type.done();
+			type.useStandardRefCounting().done();
 		}
 
 		public BaseClass(PDOM pdom, AllObjects deletionDetector) {

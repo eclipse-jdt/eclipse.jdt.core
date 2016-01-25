@@ -171,7 +171,7 @@ public class ClassFileToIndexConverter {
 			for (IBinaryField nextField : fields) {
 				PDOMVariable variable = new PDOMVariable(getPDOM(), type);
 
-				variable.setType(createTypeIdFromFieldDescriptor(nextField.getTypeName()));
+				//variable.setType(createTypeIdFromFieldDescriptor(nextField.getTypeName()));
 				variable.setName(new String(nextField.getName()));
 
 				IBinaryAnnotation[] binaryAnnotations = nextField.getAnnotations();

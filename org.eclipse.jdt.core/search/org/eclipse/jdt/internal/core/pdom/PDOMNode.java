@@ -79,7 +79,7 @@ public abstract class PDOMNode implements IInternalPDOMNode, IDestructable {
 	 * Invokes the destructor on this node and frees up its memory
 	 */
 	public final void delete() {
-		getPDOM().scheduleDeletion(this.address);
+		getPDOM().delete(this.address);
 	}
 
 	protected PDOMNode(PDOM pdom, long address) {
