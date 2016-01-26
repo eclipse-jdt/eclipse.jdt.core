@@ -1068,7 +1068,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 						parentAST.tagAsHavingErrors();
 						return;
 					}
-					break;
+					//$FALL-THROUGH$
 				default:
 					parent = parent.parent;
 					break;
