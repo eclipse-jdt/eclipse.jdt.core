@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom.java;
 
+import java.util.List;
+
 import org.eclipse.jdt.internal.core.pdom.PDOM;
 import org.eclipse.jdt.internal.core.pdom.PDOMNode;
+import org.eclipse.jdt.internal.core.pdom.db.IString;
 import org.eclipse.jdt.internal.core.pdom.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.pdom.field.FieldSearchKey;
 import org.eclipse.jdt.internal.core.pdom.field.StructDef;
@@ -57,5 +60,17 @@ public class PDOMMethodId extends PDOMNode {
 		super(pdom);
 
 		METHOD_NAME.put(pdom, this.address, methodIdentifier);
+	}
+
+	public List<PDOMType> getDeclaredTypes() {
+		return DECLARED_TYPES.asList(getPDOM(), this.address);
+	}
+
+	/**
+	 * Returns the field descriptor for the type followed by a # followed by the method selector
+	 * followed by the method descriptor. For example, "Lorg/eclipse/MyClass#foo()Ljava/lang/Object;V"
+	 */
+	public IString getMethodName() {
+		return METHOD_NAME.get(getPDOM(), this.address);
 	}
 }
