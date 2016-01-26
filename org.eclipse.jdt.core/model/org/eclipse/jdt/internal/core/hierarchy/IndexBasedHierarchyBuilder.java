@@ -472,7 +472,7 @@ public static void searchAllPossibleSubTypes(
 	final IPathRequestor pathRequestor,
 	int waitingPolicy,	// WaitUntilReadyToSearch | ForceImmediateSearch | CancelIfNotReadyToSearch
 	final IProgressMonitor progressMonitor) {
-	
+
 	if (JavaIndex.isEnabled()) {
 		newSearchAllPossibleSubTypes(type, scope, binariesFromIndexMatches, pathRequestor, waitingPolicy,
 				progressMonitor);
@@ -544,17 +544,17 @@ private static HierarchyBinaryType createBinaryTypeFrom(PDOMType type) {
 	}
 	//final char[][] typeParameterSignatures;
 	PDOMTypeId typeId = type.getTypeId();
-	HierarchyBinaryType result = new HierarchyBinaryType(type.getModifiers(), typeId.getBinaryName().toCharArray(), 
+	HierarchyBinaryType result = new HierarchyBinaryType(type.getModifiers(), typeId.getBinaryName(),
 			typeId.getSimpleName().getChars(), enclosingTypeName, null);
 	// TODO(sxenos): Fill in the correct generic signature rather than passing null here
 
 	PDOMTypeSignature superClass = type.getSuperclass();
 	if (superClass != null) {
-		result.recordSuperclass(superClass.getRawType().getBinaryName().toCharArray());
+		result.recordSuperclass(superClass.getRawType().getBinaryName());
 	}
 
 	for (PDOMTypeInterface interf : type.getInterfaces()) {
-		result.recordInterface(interf.getInterface().getRawType().getBinaryName().toCharArray());
+		result.recordInterface(interf.getInterface().getRawType().getBinaryName());
 	}
 	return result;
 }

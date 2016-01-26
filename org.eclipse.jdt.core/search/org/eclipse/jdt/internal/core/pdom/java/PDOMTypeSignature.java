@@ -10,13 +10,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom.java;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.jdt.internal.core.pdom.PDOM;
 import org.eclipse.jdt.internal.core.pdom.PDOMNode;
 import org.eclipse.jdt.internal.core.pdom.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.pdom.field.StructDef;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Corresponds roughly to a JavaTypeSignature, as described in section 4.7.9.1 of the Java VM spec version 4, with the
@@ -32,7 +32,7 @@ import java.util.List;
  * classes refer to their enclosing class directly since they live in the same file and there is no possibility for the
  * enclosing class to change based on the classpath. Classes refer to their base class via its TypeId since the parent
  * class might live in a different jar and need to be resolved on the classpath.
- * 
+ *
  * @since 3.12
  */
 public abstract class PDOMTypeSignature extends PDOMNode {
@@ -44,6 +44,9 @@ public abstract class PDOMTypeSignature extends PDOMNode {
 	public static final FieldOneToMany<PDOMConstantEnum> USED_AS_ENUM_CONSTANT;
 	public static final FieldOneToMany<PDOMTypeArgument> USED_AS_TYPE_ARGUMENT;
 	public static final FieldOneToMany<PDOMTypeBound> USED_AS_TYPE_BOUND;
+	public static final FieldOneToMany<PDOMMethodParameter> USED_AS_METHOD_ARGUMENT;
+	public static final FieldOneToMany<PDOMMethodException> USED_AS_EXCEPTION;
+	public static final FieldOneToMany<PDOMMethod> USED_AS_RETURN_TYPE;
 
 	@SuppressWarnings("hiding")
 	public static StructDef<PDOMTypeSignature> type;
@@ -58,6 +61,9 @@ public abstract class PDOMTypeSignature extends PDOMNode {
 		USED_AS_ENUM_CONSTANT = FieldOneToMany.create(type, PDOMConstantEnum.ENUM_TYPE);
 		USED_AS_TYPE_ARGUMENT = FieldOneToMany.create(type, PDOMTypeArgument.TYPE_SIGNATURE);
 		USED_AS_TYPE_BOUND = FieldOneToMany.create(type, PDOMTypeBound.TYPE);
+		USED_AS_METHOD_ARGUMENT = FieldOneToMany.create(type, PDOMMethodParameter.ARGUMENT_TYPE);
+		USED_AS_EXCEPTION = FieldOneToMany.create(type, PDOMMethodException.EXCEPTION_TYPE);
+		USED_AS_RETURN_TYPE = FieldOneToMany.create(type, PDOMMethod.RETURN_TYPE);
 		type.useStandardRefCounting().done();
 	}
 
@@ -92,7 +98,7 @@ public abstract class PDOMTypeSignature extends PDOMNode {
 	}
 
 	/**
-	 * Returns the raw version of this type, if one exists. That is, the version of this type 
+	 * Returns the raw version of this type, if one exists. That is, the version of this type
 	 * without any generic arguments or annotations, which the java runtime sees. Returns null
 	 * of this signature doesn't have a raw type, for example if it is a type variable.
 	 */

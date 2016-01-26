@@ -48,12 +48,14 @@ public class PDOMMethodId extends PDOMNode {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param pdom
 	 * @param methodIdentifier a field descriptor for the method type followed by a "#" followed by a method selector
-	 *  followed by method descriptor. For example, "Lorg/eclipse/MyClass#foo()Ljava/lang/Object;V" 
+	 *  followed by method descriptor. For example, "Lorg/eclipse/MyClass#foo()Ljava/lang/Object;V"
 	 */
-	public PDOMMethodId(PDOM pdom, String methodIdentifier) {
+	public PDOMMethodId(PDOM pdom, char[] methodIdentifier) {
 		super(pdom);
+
+		METHOD_NAME.put(pdom, this.address, methodIdentifier);
 	}
 }

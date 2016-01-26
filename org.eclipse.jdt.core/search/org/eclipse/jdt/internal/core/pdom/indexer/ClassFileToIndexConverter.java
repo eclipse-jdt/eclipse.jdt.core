@@ -11,6 +11,7 @@ import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
+import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
@@ -27,13 +28,17 @@ import org.eclipse.jdt.internal.core.pdom.java.JavaIndex;
 import org.eclipse.jdt.internal.core.pdom.java.JavaNames;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMAnnotation;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMAnnotationValuePair;
+import org.eclipse.jdt.internal.core.pdom.java.PDOMBinding;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMComplexTypeSignature;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMConstant;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMConstantAnnotation;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMConstantArray;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMConstantClass;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMConstantEnum;
+import org.eclipse.jdt.internal.core.pdom.java.PDOMMethod;
+import org.eclipse.jdt.internal.core.pdom.java.PDOMMethodException;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMMethodId;
+import org.eclipse.jdt.internal.core.pdom.java.PDOMMethodParameter;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMResourceFile;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMType;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeArgument;
@@ -46,8 +51,8 @@ import org.eclipse.jdt.internal.core.pdom.java.PDOMVariable;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClassFileToIndexConverter {
-	private static final boolean ENABLE_LOGGING = false;
 	private static final char[][] EMPTY_CHAR_ARRAY_ARRAY = new char[0][];
+	private static final boolean ENABLE_LOGGING = false;
 	private static final char[] EMPTY_CHAR_ARRAY = new char[0];
 	private PDOMResourceFile resource;
 	private JavaIndex index;
@@ -80,7 +85,7 @@ public class ClassFileToIndexConverter {
 
 	/**
 	 * Creates the type info from the given class file on disk and adds it to the given list of infos.
-	 * 
+	 *
 	 * @throws CoreException
 	 */
 	protected static IBinaryType createInfoFromClassFile(IResource file) throws CoreException {
@@ -95,7 +100,7 @@ public class ClassFileToIndexConverter {
 
 	/**
 	 * Create a type info from the given class file in a jar and adds it to the given list of infos.
-	 * 
+	 *
 	 * @throws CoreException
 	 */
 	protected static IBinaryType createInfoFromClassFileInJar(Openable classFile) throws CoreException {
@@ -135,7 +140,7 @@ public class ClassFileToIndexConverter {
 			interfaces = EMPTY_CHAR_ARRAY_ARRAY;
 		}
 		// Create the default generic signature if the .class file didn't supply one
-		SignatureWrapper signatureWrapper = getGenericSignature(binaryType);
+		SignatureWrapper signatureWrapper = GenericSignatures.getGenericSignature(binaryType);
 
 		type.setModifiers(binaryType.getModifiers());
 		type.setDeclaringType(createTypeIdFromBinaryName(binaryType.getEnclosingTypeName()));
@@ -157,11 +162,7 @@ public class ClassFileToIndexConverter {
 		}
 
 		IBinaryAnnotation[] annotations = binaryType.getAnnotations();
-		if (annotations != null) {
-			for (IBinaryAnnotation next : annotations) {
-				createAnnotation(next).setParent(type);
-			}
-		}
+		attachAnnotations(type, annotations);
 
 		type.setDeclaringMethod(createMethodId(binaryType.getEnclosingTypeName(), binaryType.getEnclosingMethod()));
 
@@ -169,87 +170,116 @@ public class ClassFileToIndexConverter {
 
 		if (fields != null) {
 			for (IBinaryField nextField : fields) {
-				PDOMVariable variable = new PDOMVariable(getPDOM(), type);
+				addField(type, nextField);
+			}
+		}
 
-				//variable.setType(createTypeIdFromFieldDescriptor(nextField.getTypeName()));
-				variable.setName(new String(nextField.getName()));
+		IBinaryMethod[] methods = binaryType.getMethods();
 
-				IBinaryAnnotation[] binaryAnnotations = nextField.getAnnotations();
-				if (binaryAnnotations != null) {
-					for (IBinaryAnnotation nextAnnotation : binaryAnnotations) {
-						createAnnotation(nextAnnotation).setParent(variable);
-					}
-				}
-
-				variable.setConstant(PDOMConstant.create(getPDOM(), nextField.getConstant()));
-				variable.setModifiers(nextField.getModifiers());
-				SignatureWrapper nextTypeSignature = getGenericSignatureFor(nextField);
-
-				ITypeAnnotationWalker annotationWalker = getTypeAnnotationWalker(nextField.getTypeAnnotations());
-				variable.setType(createTypeSignature(annotationWalker, nextTypeSignature));
+		if (methods != null) {
+			for (IBinaryMethod next : methods) {
+				addMethod(type, next, binaryName);
 			}
 		}
 
 		return type;
 	}
 
-	/**
-	 * Returns the generic signature for the given field. If the field has no generic signature, one is generated
-	 * from the type's field descriptor.
-	 */
-	private static SignatureWrapper getGenericSignature(IBinaryType binaryType) {
-		char[][] interfaces = binaryType.getInterfaceNames();
-		if (interfaces == null) {
-			interfaces = EMPTY_CHAR_ARRAY_ARRAY;
-		}
-		char[] genericSignature = binaryType.getGenericSignature();
-		if (genericSignature == null) {
-			int startIndex = binaryType.getSuperclassName() != null ? 3 : 0; 
-			char[][] toCatenate = new char[startIndex + (interfaces.length * 3)][];
-			char[] prefix = new char[]{'L'};
-			char[] suffix = new char[]{';'};
-
-			if (binaryType.getSuperclassName() != null) {
-				toCatenate[0] = prefix;
-				toCatenate[1] = binaryType.getSuperclassName();
-				toCatenate[2] = suffix;
+	private void attachAnnotations(PDOMBinding type, IBinaryAnnotation[] annotations) {
+		if (annotations != null) {
+			for (IBinaryAnnotation next : annotations) {
+				createAnnotation(next).setParent(type);
 			}
-
-			for (int idx = 0; idx < interfaces.length; idx++) {
-				int catIndex = startIndex + idx * 3;
-				toCatenate[catIndex] = prefix;
-				toCatenate[catIndex + 1] = interfaces[idx];
-				toCatenate[catIndex + 2] = suffix;
-			}
-
-			genericSignature = CharUtil.concat(toCatenate);
 		}
-
-		SignatureWrapper signatureWrapper = new SignatureWrapper(genericSignature);
-		return signatureWrapper;
 	}
 
 	/**
-	 * Returns the generic signature for the given field. If the field has no generic signature, one is generated
-	 * from the type's field descriptor.
+	 * Adds the given method to the given type
+	 * @throws CoreException
 	 */
-	private static SignatureWrapper getGenericSignatureFor(IBinaryField nextField) {
-		char[] signature = nextField.getGenericSignature();
-		if (signature == null) {
-			signature = nextField.getTypeName();
+	private void addMethod(PDOMType type, IBinaryMethod next, char[] binaryTypeName) throws CoreException {
+		PDOMMethod method = new PDOMMethod(type);
+
+		attachAnnotations(method, next.getAnnotations());
+
+		ITypeAnnotationWalker typeAnnotations = getTypeAnnotationWalker(next.getTypeAnnotations());
+		SignatureWrapper signature = GenericSignatures.getGenericSignature(next);
+		readTypeParameters(method, typeAnnotations, signature);
+
+		if (signature.charAtStart() == '(') {
+			signature.start++;
 		}
-		return new SignatureWrapper(signature);
+
+		char[][] parameterNames = next.getArgumentNames();
+		short parameterIdx = 0;
+		while (!signature.atEnd()) {
+			if (signature.charAtStart() == ')') {
+				signature.start++;
+				break;
+			}
+			PDOMMethodParameter parameter = new PDOMMethodParameter(method,
+					createTypeSignature(typeAnnotations.toMethodParameter(parameterIdx),
+					signature));
+
+			if (parameterNames != null && parameterNames.length > parameterIdx) {
+				parameter.setName(parameterNames[parameterIdx]);
+			}
+			parameterIdx++;
+		}
+
+		method.setReturnType(createTypeSignature(typeAnnotations.toMethodReturn(), signature));
+
+		int throwsIdx = 0;
+		while (!signature.atEnd() && signature.charAtStart() == '^') {
+			signature.start++;
+			new PDOMMethodException(method,
+					createTypeSignature(typeAnnotations.toThrows(throwsIdx), signature));
+			throwsIdx++;
+		}
+
+		Object defaultValue = next.getDefaultValue();
+		if (defaultValue != null) {
+			method.setDefaultValue(createFromMixedType(defaultValue));
+		}
+
+		method.setMethodId(
+				createMethodId(binaryTypeName, next.getSelector(), next.getMethodDescriptor()));
+
+		method.setModifiers(next.getModifiers());
+	}
+
+	/**
+	 * Adds the given field to the given type
+	 */
+	private void addField(PDOMType type, IBinaryField nextField) throws CoreException {
+		PDOMVariable variable = new PDOMVariable(type);
+
+		variable.setName(new String(nextField.getName()));
+
+		IBinaryAnnotation[] binaryAnnotations = nextField.getAnnotations();
+		if (binaryAnnotations != null) {
+			for (IBinaryAnnotation nextAnnotation : binaryAnnotations) {
+				createAnnotation(nextAnnotation).setParent(variable);
+			}
+		}
+
+		variable.setConstant(PDOMConstant.create(getPDOM(), nextField.getConstant()));
+		variable.setModifiers(nextField.getModifiers());
+		SignatureWrapper nextTypeSignature = GenericSignatures.getGenericSignatureFor(nextField);
+
+		ITypeAnnotationWalker annotationWalker = getTypeAnnotationWalker(nextField.getTypeAnnotations());
+		variable.setType(createTypeSignature(annotationWalker, nextTypeSignature));
 	}
 
 	/**
 	 * Reads and attaches any generic type parameters at the current start position in the given wrapper.
 	 * Sets wrapper.start to the character following the type parameters.
-	 * @throws CoreException 
+	 * @throws CoreException
 	 */
-	private void readTypeParameters(PDOMType type, ITypeAnnotationWalker annotationWalker, SignatureWrapper wrapper)
+	private void readTypeParameters(PDOMBinding type, ITypeAnnotationWalker annotationWalker, SignatureWrapper wrapper)
 			throws CoreException {
 		char[] genericSignature = wrapper.signature;
-		if (genericSignature.length == 0 || genericSignature[wrapper.start] != '<') {
+		if (genericSignature.length == 0 || wrapper.charAtStart() != '<') {
 			return;
 		}
 
@@ -278,7 +308,7 @@ public class ClassFileToIndexConverter {
 			PDOMTypeSignature boundSignature = createTypeSignature(
 					annotationWalker.toTypeParameter(true, parameterIndex).toTypeBound((short)boundIndex),
 					wrapper);
- 
+
 			new PDOMTypeBound(parameter, boundSignature);
 			boundIndex++;
 		}
@@ -291,12 +321,13 @@ public class ClassFileToIndexConverter {
 	/**
 	 * Reads a type signature from the given {@link SignatureWrapper}, starting at the character pointed to by
 	 * wrapper.start. On return, wrapper.start will point to the first character following the type signature.
-	 * 
+	 * Returns null if given an empty signature or the signature for the void type.
+	 *
 	 * @param supertypeAnnotations
 	 * @param superclassName
 	 * @param genericSignature
 	 * @return
-	 * @throws CoreException 
+	 * @throws CoreException
 	 */
 	private PDOMTypeSignature createTypeSignature(ITypeAnnotationWalker annotations, SignatureWrapper wrapper) throws CoreException {
 		char[] genericSignature = wrapper.signature;
@@ -330,6 +361,7 @@ public class ClassFileToIndexConverter {
 				attachAnnotations(typeSignature, annotations);
 				return typeSignature;
 			}
+			case 'V': return null;
 			case 'B':
 			case 'C':
 			case 'D':
@@ -357,7 +389,7 @@ public class ClassFileToIndexConverter {
 	 * Parses a ClassTypeSignature (as described in section 4.7.9.1 of the Java VM Specification Java SE 8 Edition).
 	 * The read pointer should be located just after the identifier. The caller is expected to have already read
 	 * the field descriptor for the type.
-	 * 
+	 *
 	 * @param annotations
 	 * @param wrapper
 	 * @param genericSignature
@@ -393,13 +425,13 @@ public class ClassFileToIndexConverter {
 			PDOMComplexTypeSignature typeSignature = new PDOMComplexTypeSignature(getPDOM());
 			typeSignature.setRawType(rawType);
 			attachAnnotations(typeSignature, annotations);
-	
+
 			if (hasGenericArguments) {
 				wrapper.start++;
 				short argumentIndex = 0;
 				while (wrapper.start < genericSignature.length && (genericSignature[wrapper.start] != '>')) {
 					PDOMTypeArgument typeArgument = new PDOMTypeArgument(getPDOM(), typeSignature);
-	
+
 					switch(genericSignature[wrapper.start]) {
 						case '+': {
 							typeArgument.setWildcard(PDOMTypeArgument.WILDCARD_SUPER);
@@ -418,12 +450,12 @@ public class ClassFileToIndexConverter {
 							continue;
 						}
 					}
-	
+
 					PDOMTypeSignature nextSignature = createTypeSignature(annotations.toTypeArgument(argumentIndex), wrapper);
 					typeArgument.setType(nextSignature);
 					argumentIndex++;
 				}
-	
+
 				// Skip over the trailing '>'
 				wrapper.start++;
 			}
@@ -494,19 +526,26 @@ public class ClassFileToIndexConverter {
 	}
 
 	/**
-	 * Creates a method ID given a method descriptor (which is a method selector followed by a method descriptor. For
-	 * example: "
-	 * 
-	 * @param methodName
-	 * @return
+	 * Creates a method ID given a method selector, method descriptor, and binary type name
+	 */
+	private PDOMMethodId createMethodId(char[] binaryTypeName, char[] methodSelector, char[] methodDescriptor) {
+		if (methodSelector == null || binaryTypeName == null || methodDescriptor == null) {
+			return null;
+		}
+
+		char[] methodId = JavaNames.getMethodId(binaryTypeName, methodSelector, methodDescriptor);
+		return this.index.createMethodId(methodId);
+	}
+
+	/**
+	 * Creates a method ID given a method name (which is a method selector followed by a method descriptor.
 	 */
 	private PDOMMethodId createMethodId(char[] binaryTypeName, char[] methodName) {
 		if (methodName == null || binaryTypeName == null) {
 			return null;
 		}
 
-		String methodId = JavaNames.methodNameToMethodId(
-				JavaNames.binaryNameToFieldDescriptor(new String(binaryTypeName)), new String(methodName));
+		char[] methodId = JavaNames.getMethodId(binaryTypeName, methodName);
 		return this.index.createMethodId(methodId);
 	}
 
@@ -540,7 +579,7 @@ public class ClassFileToIndexConverter {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param value
 	 *            accepts all values returned from {@link {@link IBinaryElementValuePair#getValue()}
 	 */

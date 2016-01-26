@@ -25,25 +25,10 @@ import java.util.List;
 public class PDOMType extends PDOMBinding {
 	public static final FieldManyToOne<PDOMTypeId> TYPENAME;
 	public static final FieldManyToOne<PDOMTypeSignature> SUPERCLASS;
-//	public static final FieldManyToOne<PDOMTypeSignature> BOUND;
-//	public static final FieldManyToOne<PDOMTypeSignature> GENERIC_TYPE_OF_WILDCARD_TYPE;
-//	public static final FieldInt RANK;
-//	public static final FieldManyToOne<PDOMTypeSignature> COMPONENT_TYPE;
-//	public static final FieldInt DIMENSIONS;
-//	public static final FieldManyToOne<PDOMTypeSignature> ELEMENT_TYPE;
-//	public static final FieldManyToOne<PDOMTypeSignature> ERASURE;
-//	public static final FieldManyToOne<PDOMMethodId> FUNCTIONAL_INTERFACE_METHOD;
 	public static final FieldOneToMany<PDOMTypeInterface> INTERFACES;
-//	public static final FieldBackPointer<PDOMAnnotation> TYPE_ANNOTATIONS;
-//	public static final FieldOneToMany<PDOMTypeArgument> TYPE_ARGUMENTS;
-//	public static final FieldOneToMany<PDOMTypeBounds> TYPE_BOUNDS;
-//	public static final FieldManyToOne<PDOMTypeSignature> TYPE_DECLARATION;
-//	public static final FieldOneToMany<PDOMTypeParameter> TYPE_PARAMETERS;
-//	public static final FieldManyToOne<PDOMTypeSignature> WILDCARD;
 	public static final FieldManyToOne<PDOMTypeId> DECLARING_TYPE;
 	public static final FieldManyToOne<PDOMMethodId> DECLARING_METHOD;
-	public static final FieldOneToMany<PDOMTypeParameter> TYPE_PARAMETERS;
-//	public static final FieldLong TYPE_FLAGS;
+	public static final FieldOneToMany<PDOMMethod> METHODS;
 
 	@SuppressWarnings("hiding")
 	public static final StructDef<PDOMType> type;
@@ -52,27 +37,10 @@ public class PDOMType extends PDOMBinding {
 		type = StructDef.create(PDOMType.class, PDOMBinding.type);
 		TYPENAME = FieldManyToOne.create(type, PDOMTypeId.TYPES);
 		DECLARING_TYPE = FieldManyToOne.create(type, PDOMTypeId.DECLARED_TYPES);
-//		BOUND = FieldManyToOne.create(type, PDOMTypeSignature.class, PDOMTypeSignature.USED_AS_BOUND);
-//		GENERIC_TYPE_OF_WILDCARD_TYPE = FieldManyToOne.create(type, PDOMTypeSignature.class, PDOMTypeSignature.USED_AS_GENERIC_TYPE_OF_WILDCARD_TYPE);
-//		RANK = type.addInt();
-//		COMPONENT_TYPE = FieldManyToOne.create(type, PDOMTypeSignature.class, PDOMTypeSignature.USED_AS_COMPONENT_TYPE);
-//		DIMENSIONS = type.addInt();
-//		ELEMENT_TYPE = FieldManyToOne.create(type, PDOMTypeSignature.class, PDOMTypeSignature.USED_AS_ELEMENT_TYPE);
-//		ERASURE = FieldManyToOne.create(type, PDOMTypeSignature.class, PDOMTypeSignature.USED_AS_ERASURE);
-//		FUNCTIONAL_INTERFACE_METHOD = FieldManyToOne.create(type, PDOMMethodId.class,
-//				PDOMMethodId.USED_AS_FUNCTIONAL_INTERFACE_METHOD);
 		INTERFACES = FieldOneToMany.create(type, PDOMTypeInterface.APPLIES_TO);
 		SUPERCLASS = FieldManyToOne.create(type, PDOMTypeSignature.SUBCLASSES);
-//		TYPE_ANNOTATIONS = FieldBackPointer.create(type, PDOMAnnotation.class,
-//				PDOMAnnotation.ANNOTATES_TYPE, 0);
-//		TYPE_ARGUMENTS = FieldOneToMany.create(type, PDOMTypeArgument.class, PDOMTypeArgument.APPLIES_TO, 0);
-//		TYPE_BOUNDS = FieldOneToMany.create(type, PDOMTypeBounds.class, PDOMTypeBounds.APPLIES_TO, 0);
-//		TYPE_DECLARATION = FieldManyToOne.create(type, PDOMTypeSignature.class, PDOMTypeSignature.USED_AS_TYPE_DECLARATION);
-//		TYPE_PARAMETERS = FieldOneToMany.create(type, PDOMTypeParameter.class, PDOMTypeParameter.APPLIES_TO, 0);
-//		WILDCARD = FieldManyToOne.create(type, PDOMTypeSignature.class, PDOMTypeSignature.USED_AS_WILDCARD);
-//		TYPE_FLAGS = type.addLong();
 		DECLARING_METHOD = FieldManyToOne.create(type, PDOMMethodId.DECLARED_TYPES);
-		TYPE_PARAMETERS = FieldOneToMany.create(type, PDOMTypeParameter.PARENT);
+		METHODS = FieldOneToMany.create(type, PDOMMethod.PARENT, 6);
 		type.done();
 	}
 

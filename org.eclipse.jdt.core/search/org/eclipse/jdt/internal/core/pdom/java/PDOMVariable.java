@@ -54,8 +54,8 @@ public class PDOMVariable extends PDOMBinding {
 		super(pdom, bindingRecord);
 	}
 
-	public PDOMVariable(PDOM pdom, PDOMBinding parent) {
-		super(pdom, parent.getFile());
+	public PDOMVariable(PDOMBinding parent) {
+		super(parent.getPDOM(), parent.getFile());
 
 		PARENT.put(getPDOM(), this.address, parent);
 	}

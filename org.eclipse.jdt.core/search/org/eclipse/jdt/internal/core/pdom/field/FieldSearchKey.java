@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.core.pdom.db.IString;
  * @since 3.12
  */
 public class FieldSearchKey<T> implements IField, IDestructableField {
-	private final FieldString key; 
+	private final FieldString key;
 	FieldSearchIndex<?> searchIndex;
 
 	private FieldSearchKey(FieldSearchIndex<?> searchIndex) {
@@ -40,7 +40,7 @@ public class FieldSearchKey<T> implements IField, IDestructableField {
 
 	/**
 	 * Creates a search key attribute in the given struct which stores an entry in the given global search index
-	 * 
+	 *
 	 * @param builder
 	 * @param searchIndex
 	 * @return
@@ -56,6 +56,10 @@ public class FieldSearchKey<T> implements IField, IDestructableField {
 	}
 
 	public void put(PDOM pdom, long address, String newString) {
+		put(pdom, address, newString.toCharArray());
+	}
+
+	public void put(PDOM pdom, long address, char[] newString) {
 		BTree btree = this.searchIndex.get(pdom, Database.DATA_AREA);
 		btree.delete(address);
 

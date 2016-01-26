@@ -18,6 +18,7 @@ public abstract class PDOMConstant extends PDOMNode {
 	public static final FieldManyToOne<PDOMConstantArray> PARENT_ARRAY;
 	public static final FieldOneToOne<PDOMAnnotationValuePair> PARENT_ANNOTATION_VALUE;
 	public static final FieldOneToOne<PDOMVariable> PARENT_VARIABLE;
+	public static final FieldOneToOne<PDOMMethod> PARENT_METHOD;
 
 	@SuppressWarnings("hiding")
 	public static StructDef<PDOMConstant> type;
@@ -28,6 +29,7 @@ public abstract class PDOMConstant extends PDOMNode {
 		PARENT_ANNOTATION_VALUE = FieldOneToOne.createOwner(type, PDOMAnnotationValuePair.class,
 				PDOMAnnotationValuePair.VALUE);
 		PARENT_VARIABLE = FieldOneToOne.createOwner(type, PDOMVariable.class, PDOMVariable.CONSTANT);
+		PARENT_METHOD = FieldOneToOne.createOwner(type, PDOMMethod.class, PDOMMethod.DEFAULT_VALUE);
 		type.done();
 	}
 

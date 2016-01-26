@@ -35,17 +35,21 @@ public class FieldString implements IDestructableField, IField {
 		return db.getString(namerec);
 	}
 
-	public void put(PDOM pdom, long record, String newString) {
+	public void put(PDOM pdom, long record, char[] newString) {
 		final Database db= pdom.getDB();
 		IString name= get(pdom, record);
-		if (!name.equals(newString)) {
+		if (name.compare(newString, true) != 0) {
 			name.delete();
-			if (newString != null && newString.length() > 0) {
+			if (newString != null && newString.length > 0) {
 				db.putRecPtr(record + this.offset, db.newString(newString).getRecord());
 			} else {
 				db.putRecPtr(record + this.offset, 0);
 			}
 		}
+	}
+
+	public void put(PDOM pdom, long record, String newString) {
+		put(pdom, record, newString.toCharArray());
 	}
 
 	public void destruct(PDOM pdom, long record) {

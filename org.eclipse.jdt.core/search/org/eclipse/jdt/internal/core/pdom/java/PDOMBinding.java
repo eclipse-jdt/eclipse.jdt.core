@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.core.pdom.field.StructDef;
 public abstract class PDOMBinding extends PDOMNode implements IAdaptable {
 	public static final FieldOneToMany<PDOMAnnotation> ANNOTATIONS;
 	public static final FieldInt MODIFIERS;
-	//public static final FieldOneToMany<PDOMMethod> DECLARED_LAMBDAS;
+	public static final FieldOneToMany<PDOMTypeParameter> TYPE_PARAMETERS;
 	public static final FieldManyToOne<PDOMResourceFile> FILE;
 	public static final FieldOneToMany<PDOMVariable> VARIABLES;
 
@@ -38,7 +38,7 @@ public abstract class PDOMBinding extends PDOMNode implements IAdaptable {
 		type = StructDef.create(PDOMBinding.class, PDOMNode.type);
 		ANNOTATIONS = FieldOneToMany.create(type, PDOMAnnotation.PARENT_BINDING);
 		MODIFIERS = type.addInt();
-		//DECLARED_LAMBDAS = FieldOneToMany.create(type, PDOMMethod.DECLARING_MEMBER);
+		TYPE_PARAMETERS = FieldOneToMany.create(type, PDOMTypeParameter.PARENT);
 		FILE = FieldManyToOne.createOwner(type, PDOMResourceFile.ALL_NODES);
 		VARIABLES = FieldOneToMany.create(type, PDOMVariable.PARENT);
 		type.done();

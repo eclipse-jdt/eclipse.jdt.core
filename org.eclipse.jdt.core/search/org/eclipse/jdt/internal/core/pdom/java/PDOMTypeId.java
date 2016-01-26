@@ -66,8 +66,8 @@ public class PDOMTypeId extends PDOMTypeSignature {
 		return FIELD_DESCRIPTOR.get(getPDOM(), this.address);
 	}
 
-	public String getBinaryName() {
-		return JavaNames.fieldDescriptorToBinaryName(getFieldDescriptor().getString());
+	public char[] getBinaryName() {
+		return JavaNames.fieldDescriptorToBinaryName(getFieldDescriptor().getChars());
 	}
 
 	public IString getSimpleName() {

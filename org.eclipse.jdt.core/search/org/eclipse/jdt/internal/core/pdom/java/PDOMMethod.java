@@ -11,8 +11,9 @@
 package org.eclipse.jdt.internal.core.pdom.java;
 
 import org.eclipse.jdt.internal.core.pdom.PDOM;
-import org.eclipse.jdt.internal.core.pdom.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.pdom.field.FieldManyToOne;
+import org.eclipse.jdt.internal.core.pdom.field.FieldOneToMany;
+import org.eclipse.jdt.internal.core.pdom.field.FieldOneToOne;
 import org.eclipse.jdt.internal.core.pdom.field.FieldShort;
 import org.eclipse.jdt.internal.core.pdom.field.StructDef;
 
@@ -22,11 +23,13 @@ import org.eclipse.jdt.internal.core.pdom.field.StructDef;
 public class PDOMMethod extends PDOMBinding {
 	public static final FieldManyToOne<PDOMMethodId> METHOD_ID;
 	public static final FieldShort METHOD_FLAGS;
-//	public static final FieldManyToOne<PDOMBinding> DECLARING_MEMBER;
+	public static final FieldManyToOne<PDOMType> PARENT;
 	public static final FieldOneToMany<PDOMVariable> DECLARED_VARIABLES;
-	// TODO(sxenos): specify the default type for annotation paramaters
-	// (see {@link IMethodBinding#getDefaultValue()}
-	
+	public static final FieldOneToMany<PDOMMethodParameter> PARAMETERS;
+	public static final FieldOneToOne<PDOMConstant> DEFAULT_VALUE;
+	public static final FieldOneToMany<PDOMMethodException> EXCEPTIONS;
+	public static final FieldManyToOne<PDOMTypeSignature> RETURN_TYPE;
+
 	@SuppressWarnings("hiding")
 	public static final StructDef<PDOMMethod> type;
 
@@ -34,8 +37,12 @@ public class PDOMMethod extends PDOMBinding {
 		type = StructDef.create(PDOMMethod.class, PDOMBinding.type);
 		METHOD_ID = FieldManyToOne.create(type, PDOMMethodId.METHODS);
 		METHOD_FLAGS = type.addShort();
-//		DECLARING_MEMBER = FieldManyToOne.create(type, PDOMBinding.DECLARED_LAMBDAS);
+		PARENT = FieldManyToOne.create(type, PDOMType.METHODS);
+		PARAMETERS = FieldOneToMany.create(type, PDOMMethodParameter.PARENT);
 		DECLARED_VARIABLES = FieldOneToMany.create(type, PDOMVariable.DECLARING_METHOD);
+		DEFAULT_VALUE = FieldOneToOne.create(type, PDOMConstant.class, PDOMConstant.PARENT_METHOD);
+		EXCEPTIONS = FieldOneToMany.create(type, PDOMMethodException.PARENT);
+		RETURN_TYPE = FieldManyToOne.create(type, PDOMTypeSignature.USED_AS_RETURN_TYPE);
 		type.done();
 	}
 
@@ -55,7 +62,27 @@ public class PDOMMethod extends PDOMBinding {
 		super(pdom, record);
 	}
 
+	public PDOMMethod(PDOMType parent) {
+		super(parent.getPDOM(), parent.getFile());
+	}
+
 	public PDOMMethodId getMethodId() {
 		return METHOD_ID.get(getPDOM(), this.address);
+	}
+
+	public void setDefaultValue(PDOMConstant value) {
+		DEFAULT_VALUE.put(getPDOM(), this.address, value);
+	}
+
+	public PDOMConstant getDefaultValue() {
+		return DEFAULT_VALUE.get(getPDOM(), this.address);
+	}
+
+	public void setReturnType(PDOMTypeSignature createTypeSignature) {
+		RETURN_TYPE.put(getPDOM(), this.address, createTypeSignature);
+	}
+
+	public void setMethodId(PDOMMethodId methodId) {
+		METHOD_ID.put(getPDOM(), this.address, methodId);
 	}
 }

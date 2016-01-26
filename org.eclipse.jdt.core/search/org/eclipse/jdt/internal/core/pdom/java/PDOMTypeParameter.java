@@ -13,7 +13,7 @@ import org.eclipse.jdt.internal.core.pdom.field.StructDef;
  * @since 3.12
  */
 public class PDOMTypeParameter extends PDOMNode {
-	public static final FieldManyToOne<PDOMType> PARENT;
+	public static final FieldManyToOne<PDOMBinding> PARENT;
 	public static final FieldString IDENTIFIER;
 	public static final FieldOneToMany<PDOMTypeBound> BOUNDS;
 
@@ -32,7 +32,7 @@ public class PDOMTypeParameter extends PDOMNode {
 		super(pdom, address);
 	}
 
-	public PDOMTypeParameter(PDOMType parent, String identifier) {
+	public PDOMTypeParameter(PDOMBinding parent, String identifier) {
 		super(parent.getPDOM());
 
 		PARENT.put(getPDOM(), this.address, parent);

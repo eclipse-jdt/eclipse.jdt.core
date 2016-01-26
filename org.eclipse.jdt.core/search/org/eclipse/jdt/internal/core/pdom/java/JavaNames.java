@@ -2,11 +2,15 @@ package org.eclipse.jdt.internal.core.pdom.java;
 
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.core.pdom.indexer.CharUtil;
 
 /**
  * @since 3.12
  */
 public class JavaNames {
+	private static final char[] FIELD_DESCRIPTOR_PREFIX = new char[]{'L'};
+	private static final char[] METHOD_ID_SEPARATOR = new char[]{'#'};
+
 	/**
 	 * Converts a java binary name to a simple name.
 	 */
@@ -45,7 +49,7 @@ public class JavaNames {
 		PDOMResourceFile resourceFile = type.getResourceFile();
 
 		String filename = resourceFile.getFilename().getString();
-		String binaryName = type.getTypeId().getBinaryName();
+		String binaryName = new String(type.getTypeId().getBinaryName());
 
 		return filename + IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR + binaryNameToResourceRelativePath(binaryName);
 	}
@@ -59,7 +63,7 @@ public class JavaNames {
 		StringBuffer result = new StringBuffer();
 		for(int scanPosition = 0; scanPosition < fieldDescriptor.length(); scanPosition++) {
 			char nextChar = fieldDescriptor.charAt(scanPosition);
-	
+
 			switch (nextChar) {
 				case 'B' : result.append("byte"); break; //$NON-NLS-1$
 				case 'C' : result.append("char"); break; //$NON-NLS-1$
@@ -95,26 +99,30 @@ public class JavaNames {
 	/**
 	 * Returns a method id (suitable for constructing a PDOMMethodId) given a field descriptor for its parent type
 	 * and a combined method selector and method descriptor for the method
-	 * 
-	 * @param parentTypeFieldDescriptor a field descriptor of the sort returned by the other *ToFieldDescriptor methods.
+	 *
+	 * @param parentTypeBinaryName a field descriptor of the sort returned by the other *ToFieldDescriptor methods.
 	 * @param methodSelectorAndDescriptor a method selector and descriptor of the form returned by {@link IBinaryType#getEnclosingMethod()}
 	 * @return a method id suitable for looking up a PDOMMethodId
 	 */
-	public static String methodNameToMethodId(String parentTypeFieldDescriptor, String methodSelectorAndDescriptor) {
-		return parentTypeFieldDescriptor + "#" + methodSelectorAndDescriptor;
+	public static char[] getMethodId(char[] parentTypeBinaryName, char[] methodSelectorAndDescriptor) {
+		return CharUtil.concat(FIELD_DESCRIPTOR_PREFIX, parentTypeBinaryName, METHOD_ID_SEPARATOR, methodSelectorAndDescriptor);
+	}
+
+	public static char[] getMethodId(char[] parentTypeBinaryName, char[] methodSelector, char[] methodDescriptor) {
+		return CharUtil.concat(FIELD_DESCRIPTOR_PREFIX, parentTypeBinaryName, METHOD_ID_SEPARATOR, methodSelector, methodDescriptor);
 	}
 
 	/**
 	 * Given a field descriptor, if the field descriptor points to a class this returns the binary name of the class.
-	 * If the field descriptor points to any other type, this returns the empty string. 
-	 * 
+	 * If the field descriptor points to any other type, this returns the empty string.
+	 *
 	 * @param fieldDescriptor
 	 * @return ""
 	 */
-	public static String fieldDescriptorToBinaryName(String fieldDescriptor) {
-		if (fieldDescriptor.startsWith("L")) { //$NON-NLS-1$
-			return fieldDescriptor.substring(1);
+	public static char[] fieldDescriptorToBinaryName(char[] fieldDescriptor) {
+		if (CharUtil.startsWith(fieldDescriptor, 'L')) {
+			return CharUtil.substring(fieldDescriptor, 1);
 		}
-		return "";
+		return CharUtil.EMPTY_CHAR_ARRAY;
 	}
 }

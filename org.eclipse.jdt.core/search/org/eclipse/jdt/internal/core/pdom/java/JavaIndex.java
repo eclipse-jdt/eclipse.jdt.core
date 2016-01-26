@@ -30,9 +30,9 @@ import org.eclipse.jdt.internal.core.pdom.field.StructDef;
  */
 public class JavaIndex {
 	// Version constants
-	static final int CURRENT_VERSION = PDOM.version(1, 11);
-	static final int MAX_SUPPORTED_VERSION= PDOM.version(1, 11);
-	static final int MIN_SUPPORTED_VERSION= PDOM.version(1, 11);
+	static final int CURRENT_VERSION = PDOM.version(1, 12);
+	static final int MAX_SUPPORTED_VERSION= PDOM.version(1, 12);
+	static final int MIN_SUPPORTED_VERSION= PDOM.version(1, 12);
 
 	// Fields for the search header
 	public static final FieldSearchIndex<PDOMResourceFile> FILES;
@@ -118,13 +118,13 @@ public class JavaIndex {
 		return this.pdom;
 	}
 
-	public PDOMMethodId findMethodId(String methodId) {
+	public PDOMMethodId findMethodId(char[] methodId) {
 		SearchCriteria searchCriteria = SearchCriteria.create(methodId);
 
 		return METHODS.findBest(this.pdom, this.address, searchCriteria, this.anyResult);
 	}
 
-	public PDOMMethodId createMethodId(String methodId) {
+	public PDOMMethodId createMethodId(char[] methodId) {
 		PDOMMethodId existingMethod = findMethodId(methodId);
 
 		if (existingMethod != null) {
@@ -143,14 +143,14 @@ public class JavaIndex {
 		synchronized (pdomMutex) {
 			localPdom = globalPdom;
 		}
-	
+
 		if (localPdom != null) {
 			return localPdom;
 		}
-	
+
 		localPdom = new PDOM(getDBFile(), ChunkCache.getSharedInstance(), createTypeRegistry(),
 				MIN_SUPPORTED_VERSION, MAX_SUPPORTED_VERSION, CURRENT_VERSION);
-	
+
 		synchronized (pdomMutex) {
 			if (globalPdom == null) {
 				globalPdom = localPdom;
@@ -197,7 +197,9 @@ public class JavaIndex {
 		registry.register(0x00F0, PDOMConstantShort.type.getFactory());
 		registry.register(0x0100, PDOMConstantString.type.getFactory());
 		registry.register(0x0110, PDOMMethod.type.getFactory());
-		registry.register(0x0120, PDOMMethodId.type.getFactory());
+		registry.register(0x0120, PDOMMethodException.type.getFactory());
+		registry.register(0x0130, PDOMMethodId.type.getFactory());
+		registry.register(0x0140, PDOMMethodParameter.type.getFactory());
 		registry.register(0x0150, PDOMResourceFile.type.getFactory());
 		registry.register(0x0160, PDOMTreeNode.type.getFactory());
 		registry.register(0x0170, PDOMType.type.getFactory());
