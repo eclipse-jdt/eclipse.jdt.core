@@ -186,6 +186,15 @@ public class ClassFileToIndexConverter {
 		}
 
 		char[][][] missingTypeNames = binaryType.getMissingTypeNames();
+		char[] missingTypeString = getMissingTypeString(missingTypeNames);
+
+		type.setMissingTypeNames(missingTypeString);
+
+		return type;
+	}
+
+	private static char[] getMissingTypeString(char[][][] missingTypeNames) {
+		char[] missingTypeString = null;
 		if (missingTypeNames != null) {
 			CharArrayBuffer builder = new CharArrayBuffer();
 			for (int typeIdx = 0; typeIdx < missingTypeNames.length; typeIdx++) {
@@ -207,9 +216,9 @@ public class ClassFileToIndexConverter {
 					builder.append(segment);
 				}
 			}
-			type.setMissingTypeNames(builder.getContents());
+			missingTypeString = builder.getContents();
 		}
-		return type;
+		return missingTypeString;
 	}
 
 	private void attachAnnotations(NdBinding type, IBinaryAnnotation[] annotations) {

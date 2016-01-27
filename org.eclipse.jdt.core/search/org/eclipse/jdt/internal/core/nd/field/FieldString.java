@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.core.nd.db.IString;
  */
 public class FieldString implements IDestructableField, IField {
 	public static final int RECORD_SIZE = Database.STRING_SIZE;
+	private static final char[] EMPTY_CHAR_ARRAY = new char[0];
 	private int offset;
 
 	public FieldString() {
@@ -38,6 +39,9 @@ public class FieldString implements IDestructableField, IField {
 	}
 
 	public void put(Nd pdom, long address, char[] newString) {
+		if (newString == null) {
+			newString = EMPTY_CHAR_ARRAY;
+		}
 		final Database db= pdom.getDB();
 		IString name= get(pdom, address);
 		if (name.compare(newString, true) != 0) {
