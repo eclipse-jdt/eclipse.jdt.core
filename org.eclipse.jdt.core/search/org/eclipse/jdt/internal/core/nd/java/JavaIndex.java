@@ -21,18 +21,18 @@ import org.eclipse.jdt.internal.core.nd.NdNodeTypeRegistry;
 import org.eclipse.jdt.internal.core.nd.db.ChunkCache;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex;
-import org.eclipse.jdt.internal.core.nd.field.StructDef;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex.IResultRank;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex.SearchCriteria;
+import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
 /**
  * @since 3.12
  */
 public class JavaIndex {
 	// Version constants
-	static final int CURRENT_VERSION = Nd.version(1, 12);
-	static final int MAX_SUPPORTED_VERSION= Nd.version(1, 12);
-	static final int MIN_SUPPORTED_VERSION= Nd.version(1, 12);
+	static final int CURRENT_VERSION = Nd.version(1, 13);
+	static final int MAX_SUPPORTED_VERSION= Nd.version(1, 13);
+	static final int MIN_SUPPORTED_VERSION= Nd.version(1, 13);
 
 	// Fields for the search header
 	public static final FieldSearchIndex<NdResourceFile> FILES;
