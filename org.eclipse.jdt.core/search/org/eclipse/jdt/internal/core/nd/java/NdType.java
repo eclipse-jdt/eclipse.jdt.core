@@ -10,14 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.java;
 
+import java.util.List;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.internal.core.nd.IPDOMVisitor;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
+import org.eclipse.jdt.internal.core.nd.field.FieldString;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
-
-import java.util.List;
 
 /**
  * @since 3.12
@@ -29,6 +30,7 @@ public class NdType extends NdBinding {
 	public static final FieldManyToOne<NdTypeId> DECLARING_TYPE;
 	public static final FieldManyToOne<NdMethodId> DECLARING_METHOD;
 	public static final FieldOneToMany<NdMethod> METHODS;
+	public static final FieldString MISSING_TYPE_NAMES;
 
 	@SuppressWarnings("hiding")
 	public static final StructDef<NdType> type;
@@ -41,6 +43,7 @@ public class NdType extends NdBinding {
 		SUPERCLASS = FieldManyToOne.create(type, NdTypeSignature.SUBCLASSES);
 		DECLARING_METHOD = FieldManyToOne.create(type, NdMethodId.DECLARED_TYPES);
 		METHODS = FieldOneToMany.create(type, NdMethod.PARENT, 6);
+		MISSING_TYPE_NAMES = type.addString();
 		type.done();
 	}
 
@@ -128,5 +131,12 @@ public class NdType extends NdBinding {
 
 	public NdTypeId getDeclaringType() {
 		return DECLARING_TYPE.get(getPDOM(), this.address);
+	}
+
+	/**
+	 * Sets the missing type names (if any) for this class. The names are encoded in a comma-separated list.
+	 */
+	public void setMissingTypeNames(char[] contents) {
+		MISSING_TYPE_NAMES.put(getPDOM(), this.address, contents);
 	}
 }

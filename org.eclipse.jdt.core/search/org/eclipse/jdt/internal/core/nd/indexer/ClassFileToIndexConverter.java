@@ -48,12 +48,15 @@ import org.eclipse.jdt.internal.core.nd.java.NdTypeParameter;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeSignature;
 import org.eclipse.jdt.internal.core.nd.java.NdVariable;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
+import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClassFileToIndexConverter {
+	private static final char[] COMMA = new char[]{','};
 	private static final char[][] EMPTY_CHAR_ARRAY_ARRAY = new char[0][];
 	private static final boolean ENABLE_LOGGING = false;
 	private static final char[] EMPTY_CHAR_ARRAY = new char[0];
+	private static final char[] PATH_SEPARATOR = new char[]{'/'};
 	private NdResourceFile resource;
 	private JavaIndex index;
 
@@ -182,6 +185,30 @@ public class ClassFileToIndexConverter {
 			}
 		}
 
+		char[][][] missingTypeNames = binaryType.getMissingTypeNames();
+		if (missingTypeNames != null) {
+			CharArrayBuffer builder = new CharArrayBuffer();
+			for (int typeIdx = 0; typeIdx < missingTypeNames.length; typeIdx++) {
+				char[][] next = missingTypeNames[typeIdx];
+				if (typeIdx != 0) {
+					builder.append(COMMA);
+				}
+				if (next == null) {
+					continue;
+				}
+				for (int segmentIdx = 0; segmentIdx < next.length; segmentIdx++) {
+					char[] segment = next[segmentIdx];
+					if (segment == null) {
+						continue;
+					}
+					if (segmentIdx != 0) {
+						builder.append(PATH_SEPARATOR);
+					}
+					builder.append(segment);
+				}
+			}
+			type.setMissingTypeNames(builder.getContents());
+		}
 		return type;
 	}
 
