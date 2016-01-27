@@ -13,10 +13,10 @@ package org.eclipse.jdt.core.tests.pdom;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.core.tests.Activator;
-import org.eclipse.jdt.internal.core.pdom.Nd;
-import org.eclipse.jdt.internal.core.pdom.NdNode;
-import org.eclipse.jdt.internal.core.pdom.NdNodeTypeRegistry;
-import org.eclipse.jdt.internal.core.pdom.db.ChunkCache;
+import org.eclipse.jdt.internal.core.nd.Nd;
+import org.eclipse.jdt.internal.core.nd.NdNode;
+import org.eclipse.jdt.internal.core.nd.NdNodeTypeRegistry;
+import org.eclipse.jdt.internal.core.nd.db.ChunkCache;
 
 import java.io.File;
 

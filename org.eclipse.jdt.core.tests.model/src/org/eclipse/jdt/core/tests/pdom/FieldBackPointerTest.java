@@ -6,14 +6,14 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.jdt.core.tests.pdom.util.BaseTestCase;
-import org.eclipse.jdt.internal.core.pdom.Nd;
-import org.eclipse.jdt.internal.core.pdom.NdNode;
-import org.eclipse.jdt.internal.core.pdom.NdNodeTypeRegistry;
-import org.eclipse.jdt.internal.core.pdom.RawGrowableArray;
-import org.eclipse.jdt.internal.core.pdom.field.FieldOneToMany;
-import org.eclipse.jdt.internal.core.pdom.field.FieldInt;
-import org.eclipse.jdt.internal.core.pdom.field.FieldManyToOne;
-import org.eclipse.jdt.internal.core.pdom.field.StructDef;
+import org.eclipse.jdt.internal.core.nd.Nd;
+import org.eclipse.jdt.internal.core.nd.NdNode;
+import org.eclipse.jdt.internal.core.nd.NdNodeTypeRegistry;
+import org.eclipse.jdt.internal.core.nd.RawGrowableArray;
+import org.eclipse.jdt.internal.core.nd.field.FieldInt;
+import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
+import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
+import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
 import junit.framework.Test;
 

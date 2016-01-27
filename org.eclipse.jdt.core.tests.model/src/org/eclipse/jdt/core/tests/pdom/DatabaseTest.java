@@ -17,17 +17,17 @@ import java.util.Random;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.tests.pdom.util.BaseTestCase;
-import org.eclipse.jdt.internal.core.pdom.Nd;
-import org.eclipse.jdt.internal.core.pdom.NdNode;
-import org.eclipse.jdt.internal.core.pdom.NdNodeTypeRegistry;
-import org.eclipse.jdt.internal.core.pdom.db.BTree;
-import org.eclipse.jdt.internal.core.pdom.db.ChunkCache;
-import org.eclipse.jdt.internal.core.pdom.db.Database;
-import org.eclipse.jdt.internal.core.pdom.db.IBTreeComparator;
-import org.eclipse.jdt.internal.core.pdom.db.IBTreeVisitor;
-import org.eclipse.jdt.internal.core.pdom.db.IString;
-import org.eclipse.jdt.internal.core.pdom.db.IndexException;
-import org.eclipse.jdt.internal.core.pdom.db.ShortString;
+import org.eclipse.jdt.internal.core.nd.Nd;
+import org.eclipse.jdt.internal.core.nd.NdNode;
+import org.eclipse.jdt.internal.core.nd.NdNodeTypeRegistry;
+import org.eclipse.jdt.internal.core.nd.db.BTree;
+import org.eclipse.jdt.internal.core.nd.db.ChunkCache;
+import org.eclipse.jdt.internal.core.nd.db.Database;
+import org.eclipse.jdt.internal.core.nd.db.IBTreeComparator;
+import org.eclipse.jdt.internal.core.nd.db.IBTreeVisitor;
+import org.eclipse.jdt.internal.core.nd.db.IString;
+import org.eclipse.jdt.internal.core.nd.db.IndexException;
+import org.eclipse.jdt.internal.core.nd.db.ShortString;
 
 import junit.framework.Test;
 

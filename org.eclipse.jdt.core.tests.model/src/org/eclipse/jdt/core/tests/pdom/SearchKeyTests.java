@@ -1,13 +1,13 @@
 package org.eclipse.jdt.core.tests.pdom;
 
 import org.eclipse.jdt.core.tests.pdom.util.BaseTestCase;
-import org.eclipse.jdt.internal.core.pdom.Nd;
-import org.eclipse.jdt.internal.core.pdom.NdNode;
-import org.eclipse.jdt.internal.core.pdom.NdNodeTypeRegistry;
-import org.eclipse.jdt.internal.core.pdom.db.Database;
-import org.eclipse.jdt.internal.core.pdom.field.FieldSearchIndex;
-import org.eclipse.jdt.internal.core.pdom.field.FieldSearchKey;
-import org.eclipse.jdt.internal.core.pdom.field.StructDef;
+import org.eclipse.jdt.internal.core.nd.Nd;
+import org.eclipse.jdt.internal.core.nd.NdNode;
+import org.eclipse.jdt.internal.core.nd.NdNodeTypeRegistry;
+import org.eclipse.jdt.internal.core.nd.db.Database;
+import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex;
+import org.eclipse.jdt.internal.core.nd.field.FieldSearchKey;
+import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
 import junit.framework.Test;
 
