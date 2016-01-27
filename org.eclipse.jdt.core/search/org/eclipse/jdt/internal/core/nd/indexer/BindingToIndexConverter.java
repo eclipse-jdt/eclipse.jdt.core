@@ -48,28 +48,28 @@ public class BindingToIndexConverter {
 				addMemberValuePair(parent, (IMemberValuePairBinding) binding, monitor);
 				break;
 			default:
-				Package.log("Encountered unknown binding type: " + binding.getKind(), null);
+				Package.log("Encountered unknown binding type: " + binding.getKind(), null); //$NON-NLS-1$
 		}
 	}
 
 	public void addMemberValuePair(NdTreeNode parent, IMemberValuePairBinding binding, IProgressMonitor monitor) {
-		logInfo("Adding member value pair: " + binding.getName());
+		logInfo("Adding member value pair: " + binding.getName()); //$NON-NLS-1$
 	}
 
 	public void addPackage(NdTreeNode parent, IPackageBinding binding, IProgressMonitor monitor) {
-		logInfo("Adding package: " + binding.getName());
+		logInfo("Adding package: " + binding.getName()); //$NON-NLS-1$
 	}
 
 	public void addVariable(NdTreeNode parent, IVariableBinding binding, IProgressMonitor monitor) {
-		logInfo("Adding variable: " + binding.getName());
+		logInfo("Adding variable: " + binding.getName()); //$NON-NLS-1$
 	}
 
 	public void addMethod(NdTreeNode parent, IMethodBinding binding, IProgressMonitor monitor) {
-		logInfo("Adding method: " + binding.getName());
+		logInfo("Adding method: " + binding.getName()); //$NON-NLS-1$
 	}
 
 	public void addAnnotation(NdTreeNode parent, IAnnotationBinding binding, IProgressMonitor monitor) {
-		logInfo("Adding annotation: " + binding.getName());
+		logInfo("Adding annotation: " + binding.getName()); //$NON-NLS-1$
 	}
 
 	public NdType addType(ITypeBinding binding, IProgressMonitor monitor) {
@@ -108,6 +108,6 @@ public class BindingToIndexConverter {
 	}
 
 	private Nd getPDOM() {
-		return resource.getPDOM();
+		return this.resource.getPDOM();
 	}
 }

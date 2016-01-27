@@ -12,14 +12,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.db;
 
+import java.text.MessageFormat;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.nd.AbstractTypeFactory;
 import org.eclipse.jdt.internal.core.nd.ITypeFactory;
 import org.eclipse.jdt.internal.core.nd.Nd;
-
-import java.text.MessageFormat;
 
 /**
  * Implements B-Tree search structure
@@ -38,12 +38,12 @@ public class BTree {
 	protected final Database db;
 	protected final long rootPointer;
 
-	protected final int DEGREE;
-	protected final int MAX_RECORDS;
-	protected final int MAX_CHILDREN;
-	protected final int MIN_RECORDS; 
-	protected final int OFFSET_CHILDREN;
-	protected final int MEDIAN_RECORD;
+	protected final int degree;
+	protected final int maxRecords;
+	protected final int maxChildren;
+	protected final int minRecords;
+	protected final int offsetChildren;
+	protected final int medianRecord;
 
 	protected final IBTreeComparator cmp;
 
@@ -53,8 +53,8 @@ public class BTree {
 
 	/**
 	 * Constructor.
-	 * 
-	 * @param db the database containing the btree
+	 *
+	 * @param pdom the database containing the btree
 	 * @param rootPointer offset into database of the pointer to the root node
 	 */
 	public BTree(Nd pdom, long rootPointer, int degree, IBTreeComparator cmp) {
@@ -65,13 +65,13 @@ public class BTree {
 		this.db = pdom.getDB();
 		this.rootPointer = rootPointer;
 		this.cmp = cmp;
-		
-		this.DEGREE = degree;
-		this.MIN_RECORDS = DEGREE - 1;
-		this.MAX_RECORDS = 2*DEGREE - 1;
-		this.MAX_CHILDREN = 2*DEGREE;
-		this.OFFSET_CHILDREN = MAX_RECORDS * Database.INT_SIZE;
-		this.MEDIAN_RECORD = DEGREE - 1;
+
+		this.degree = degree;
+		this.minRecords = this.degree - 1;
+		this.maxRecords = 2*this.degree - 1;
+		this.maxChildren = 2*this.degree;
+		this.offsetChildren = this.maxRecords * Database.INT_SIZE;
+		this.medianRecord = this.degree - 1;
 	}
 
 	public static ITypeFactory<BTree> getFactory(final IBTreeComparator cmp) {
@@ -108,7 +108,7 @@ public class BTree {
 	}
 
 	protected long getRoot() throws IndexException {
-		return db.getRecPtr(rootPointer);
+		return this.db.getRecPtr(this.rootPointer);
 	}
 
 	protected final void putRecord(Chunk chunk, long node, int index, long record) {
@@ -120,16 +120,16 @@ public class BTree {
 	}
 
 	protected final void putChild(Chunk chunk, long node, int index, long child) {
-		chunk.putRecPtr(node + OFFSET_CHILDREN + index * Database.INT_SIZE, child);
+		chunk.putRecPtr(node + this.offsetChildren + index * Database.INT_SIZE, child);
 	}
 
 	protected final long getChild(Chunk chunk, long node, int index) {
-		return chunk.getRecPtr(node + OFFSET_CHILDREN + index * Database.INT_SIZE);
+		return chunk.getRecPtr(node + this.offsetChildren + index * Database.INT_SIZE);
 	}
 
 	public void destruct() {
 		long root = getRoot();
-		
+
 		if (root == 0) {
 			return;
 		}
@@ -142,7 +142,7 @@ public class BTree {
 
 		// Copy all the children pointers to an array of longs so all the reads will happen on the same chunk
 		// consecutively
-		long[] children = new long[this.MAX_RECORDS + 1];
+		long[] children = new long[this.maxRecords + 1];
 
 		for (int idx = 0; idx < children.length; idx++) {
 			children[idx] = getChild(chunk, record, idx);
@@ -163,7 +163,7 @@ public class BTree {
 	 * Inserts the record into the b-tree. We don't insert if the key was already there,
 	 * in which case we return the record that matched. In other cases, we just return
 	 * the record back.
-	 * 
+	 *
 	 * @param record  offset of the record
 	 */
 	public long insert(long record) throws IndexException {
@@ -179,11 +179,11 @@ public class BTree {
 	}
 
 	private long insert(Chunk pChunk, long parent, int iParent, long node, long record) throws IndexException {
-		Chunk chunk = db.getChunk(node);
+		Chunk chunk = this.db.getChunk(node);
 
 		// If this node is full (last record isn't null), split it.
-		if (getRecord(chunk, node, MAX_RECORDS - 1) != 0) {
-			long median = getRecord(chunk, node, MEDIAN_RECORD); 
+		if (getRecord(chunk, node, this.maxRecords - 1) != 0) {
+			long median = getRecord(chunk, node, this.medianRecord);
 			if (median == record) {
 				// Found it, never mind.
 				return median;
@@ -191,25 +191,25 @@ public class BTree {
 				// Split it.
 				// Create the new node and move the larger records over.
 				long newnode = allocateNode();
-				Chunk newchunk = db.getChunk(newnode);
-				for (int i = 0; i < MEDIAN_RECORD; ++i) {
-					putRecord(newchunk, newnode, i, getRecord(chunk, node, MEDIAN_RECORD + 1 + i));
-					putRecord(chunk, node, MEDIAN_RECORD + 1 + i, 0);
-					putChild(newchunk, newnode, i, getChild(chunk, node, MEDIAN_RECORD + 1 + i));
-					putChild(chunk, node, MEDIAN_RECORD + 1 + i, 0);
+				Chunk newchunk = this.db.getChunk(newnode);
+				for (int i = 0; i < this.medianRecord; ++i) {
+					putRecord(newchunk, newnode, i, getRecord(chunk, node, this.medianRecord + 1 + i));
+					putRecord(chunk, node, this.medianRecord + 1 + i, 0);
+					putChild(newchunk, newnode, i, getChild(chunk, node, this.medianRecord + 1 + i));
+					putChild(chunk, node, this.medianRecord + 1 + i, 0);
 				}
-				putChild(newchunk, newnode, MEDIAN_RECORD, getChild(chunk, node, MAX_RECORDS));
-				putChild(chunk, node, MAX_RECORDS, 0);
+				putChild(newchunk, newnode, this.medianRecord, getChild(chunk, node, this.maxRecords));
+				putChild(chunk, node, this.maxRecords, 0);
 
 				if (parent == 0) {
 					// Create a new root
 					parent = allocateNode();
-					pChunk = db.getChunk(parent);
-					db.putRecPtr(rootPointer, parent);
+					pChunk = this.db.getChunk(parent);
+					this.db.putRecPtr(this.rootPointer, parent);
 					putChild(pChunk, parent, 0, node);
 				} else {
 					// Insert the median into the parent.
-					for (int i = MAX_RECORDS - 2; i >= iParent; --i) {
+					for (int i = this.maxRecords - 2; i >= iParent; --i) {
 						long r = getRecord(pChunk, parent, i);
 						if (r != 0) {
 							putRecord(pChunk, parent, i + 1, r);
@@ -220,10 +220,10 @@ public class BTree {
 				putRecord(pChunk, parent, iParent, median);
 				putChild(pChunk, parent, iParent + 1, newnode);
 
-				putRecord(chunk, node, MEDIAN_RECORD, 0);
+				putRecord(chunk, node, this.medianRecord, 0);
 
 				// Set the node to the correct one to follow.
-				if (cmp.compare(pdom, record, median) > 0) {
+				if (this.cmp.compare(this.pdom, record, median) > 0) {
 					node = newnode;
 					chunk = newchunk;
 				}
@@ -231,8 +231,8 @@ public class BTree {
 		}
 
 		// Binary search to find the insert point.
-		int lower= 0; 
-		int upper= MAX_RECORDS - 1;
+		int lower= 0;
+		int upper= this.maxRecords - 1;
 		while (lower < upper && getRecord(chunk, node, upper - 1) == 0) {
 			upper--;
 		}
@@ -243,7 +243,7 @@ public class BTree {
 			if (checkRec == 0) {
 				upper= middle;
 			} else {
-				int compare= cmp.compare(pdom, checkRec, record);
+				int compare= this.cmp.compare(this.pdom, checkRec, record);
 				if (compare > 0) {
 					upper= middle;
 				} else if (compare < 0) {
@@ -262,7 +262,7 @@ public class BTree {
 		} else {
 			// We are at the leaf, add us in.
 			// First copy everything after over one.
-			for (int j = MAX_RECORDS - 2; j >= i; --j) {
+			for (int j = this.maxRecords - 2; j >= i; --j) {
 				long r = getRecord(chunk, node, j);
 				if (r != 0)
 					putRecord(chunk, node, j + 1, r);
@@ -275,13 +275,13 @@ public class BTree {
 	private void firstInsert(long record) throws IndexException {
 		// Create the node and save it as root.
 		long root = allocateNode();
-		db.putRecPtr(rootPointer, root);
+		this.db.putRecPtr(this.rootPointer, root);
 		// Put the record in the first slot of the node.
-		putRecord(db.getChunk(root), root, 0, record); 
+		putRecord(this.db.getChunk(root), root, 0, record);
 	}
 
 	private long allocateNode() throws IndexException {
-		return db.malloc((2 * MAX_RECORDS + 1) * Database.INT_SIZE);
+		return this.db.malloc((2 * this.maxRecords + 1) * Database.INT_SIZE);
 	}
 
 	/**
@@ -290,11 +290,11 @@ public class BTree {
 	 * If the specified record is not present then this routine has no effect.
 	 * <p>
 	 * Specifying a record r for which there is another record q existing in the B-tree
-	 * where cmp.compare(r,q)==0 && r!=q will also have no effect   
+	 * where cmp.compare(r,q)==0 && r!=q will also have no effect
 	 * <p>
 	 * N.B. The record is not deleted itself - its storage is not deallocated.
 	 * The reference to the record in the btree is deleted.
-	 *  
+	 *
 	 * @param record the record to delete
 	 * @throws IndexException
 	 */
@@ -323,16 +323,16 @@ public class BTree {
 
 		BTNode(long node) throws IndexException {
 			this.node = node;
-			this.chunk = db.getChunk(node);
+			this.chunk = BTree.this.db.getChunk(node);
 			int i= 0;
-			while (i < MAX_RECORDS && getRecord(chunk, node, i) != 0)
+			while (i < BTree.this.maxRecords && getRecord(this.chunk, node, i) != 0)
 				i++;
-			keyCount = i;
+			this.keyCount = i;
 		}
 
-		private BTNode getChild(int index) throws IndexException {
-			if (0 <= index && index < MAX_CHILDREN) {
-				long child = BTree.this.getChild(chunk, node, index);
+		BTNode getChild(int index) throws IndexException {
+			if (0 <= index && index < BTree.this.maxChildren) {
+				long child = BTree.this.getChild(this.chunk, this.node, index);
 				if (child != 0)
 					return new BTNode(child);
 			}
@@ -353,7 +353,6 @@ public class BTree {
 	 * 	where DELMODE_NORMAL: locates the specified key/record using the comparator provided
 	 *        DELMODE_DELETE_MINIMUM: locates and deletes the minimum element in the subtree rooted at nodeRecord
 	 *        DELMODE_DELETE_MAXIMUM: locates and deletes the maximum element in the subtree rooted at nodeRecord
-	 * @param cmp the comparator used to locate the record in the tree
 	 * @return the address of the record removed from the B-tree
 	 * @throws IndexException
 	 */
@@ -385,22 +384,22 @@ public class BTree {
 					nodeContentDelete(node, node.keyCount - 1, 1);
 					return subst;
 				}
-				throw new BTreeKeyNotFoundException("Deletion on absent key " + key + ", mode = " + mode);
+				throw new BTreeKeyNotFoundException("Deletion on absent key " + key + ", mode = " + mode);  //$NON-NLS-1$//$NON-NLS-2$
 			}
 		} else {
 			if (keyIndexInNode != -1) {
 				/* Case 2: non-leaf node which contains the key itself */
 
 				BTNode succ = node.getChild(keyIndexInNode + 1);
-				if (succ != null && succ.keyCount > MIN_RECORDS) {
+				if (succ != null && succ.keyCount > this.minRecords) {
 					/* Case 2a: Delete key by overwriting it with its successor (which occurs in a leaf node) */
 					long subst = deleteImp(-1, succ.node, DELMODE_DELETE_MINIMUM);
 					putRecord(node.chunk, node.node, keyIndexInNode, subst);
 					return key;
 				}
 
-				BTNode pred = node.getChild(keyIndexInNode); 
-				if (pred != null && pred.keyCount > MIN_RECORDS) {
+				BTNode pred = node.getChild(keyIndexInNode);
+				if (pred != null && pred.keyCount > this.minRecords) {
 					/* Case 2b: Delete key by overwriting it with its predecessor (which occurs in a leaf node) */
 					long subst = deleteImp(-1, pred.node, DELMODE_DELETE_MAXIMUM);
 					putRecord(node.chunk, node.node, keyIndexInNode, subst);
@@ -421,9 +420,9 @@ public class BTree {
 				int subtreeIndex;
 				switch(mode) {
 				case DELMODE_NORMAL:
-					subtreeIndex = node.keyCount; 
+					subtreeIndex = node.keyCount;
 					for (int i= 0; i < node.keyCount; i++)
-						if (cmp.compare(pdom, getRecord(node.chunk, node.node, i), key)>0) {
+						if (this.cmp.compare(this.pdom, getRecord(node.chunk, node.node, i), key)>0) {
 							subtreeIndex = i;
 							break;
 						}
@@ -439,11 +438,11 @@ public class BTree {
 							"BTree integrity error (null child found)", null)); //$NON-NLS-1$
 				}
 
-				if (child.keyCount > MIN_RECORDS) {
+				if (child.keyCount > this.minRecords) {
 					return deleteImp(key, child.node, mode);
 				} else {
 					BTNode sibR = node.getChild(subtreeIndex + 1);
-					if (sibR != null && sibR.keyCount > MIN_RECORDS) {
+					if (sibR != null && sibR.keyCount > this.minRecords) {
 						/* Case 3a (i): child will underflow upon deletion, take a key from rightSibling */
 						long rightKey = getRecord(node.chunk, node.node, subtreeIndex);
 						long leftmostRightSiblingKey = getRecord(sibR.chunk, sibR.node, 0);
@@ -454,7 +453,7 @@ public class BTree {
 					}
 
 					BTNode sibL = node.getChild(subtreeIndex - 1);
-					if (sibL != null && sibL.keyCount > MIN_RECORDS) {
+					if (sibL != null && sibL.keyCount > this.minRecords) {
 						/* Case 3a (ii): child will underflow upon deletion, take a key from leftSibling */
 						long leftKey = getRecord(node.chunk, node.node, subtreeIndex - 1);
 						prepend(child, leftKey, getChild(sibL.chunk, sibL.node, sibL.keyCount));
@@ -494,13 +493,13 @@ public class BTree {
 	 * @param kIndex the index of the key in the node <i>mid</i> which is to become the new node's median key
 	 * @param dst the node which is the basis and result of the merge
 	 */
-	public void mergeNodes(BTNode src, BTNode keyProvider, int kIndex, BTNode dst) 
+	public void mergeNodes(BTNode src, BTNode keyProvider, int kIndex, BTNode dst)
 	throws IndexException {
 		nodeContentCopy(src, 0, dst, dst.keyCount + 1, src.keyCount + 1);
 		long midKey = getRecord(keyProvider.chunk, keyProvider.node, kIndex);
 		putRecord(dst.chunk, dst.node, dst.keyCount, midKey);
-		long keySucc = kIndex + 1 == MAX_RECORDS ? 0 : getRecord(keyProvider.chunk, keyProvider.node, kIndex + 1);
-		db.free(getChild(keyProvider.chunk, keyProvider.node,  kIndex + 1));
+		long keySucc = kIndex + 1 == this.maxRecords ? 0 : getRecord(keyProvider.chunk, keyProvider.node, kIndex + 1);
+		this.db.free(getChild(keyProvider.chunk, keyProvider.node,  kIndex + 1));
 		nodeContentDelete(keyProvider, kIndex + 1, 1);
 		putRecord(keyProvider.chunk, keyProvider.node, kIndex, keySucc);
 		if (kIndex == 0 && keySucc == 0) {
@@ -511,8 +510,8 @@ public class BTree {
 			 */
 			long rootNode = getRoot();
 			if (rootNode == keyProvider.node) {
-				db.putRecPtr(rootPointer, dst.node);
-				db.free(rootNode);
+				this.db.putRecPtr(this.rootPointer, dst.node);
+				this.db.free(rootNode);
 			}
 		}
 	}
@@ -581,13 +580,13 @@ public class BTree {
 	 * @param length the length of the sequence to delete
 	 */
 	private void nodeContentDelete(BTNode node, int i, int length) {
-		for (int index= i; index <= MAX_RECORDS; index++) {
+		for (int index= i; index <= this.maxRecords; index++) {
 			long newKey = (index + length) < node.keyCount ? getRecord(node.chunk, node.node, index + length) : 0;
 			long newChild = (index + length) < node.keyCount + 1 ? getChild(node.chunk, node.node, index + length) : 0;
-			if (index < MAX_RECORDS) {
+			if (index < this.maxRecords) {
 				putRecord(node.chunk, node.node, index, newKey);
 			}
-			if (index < MAX_CHILDREN) {
+			if (index < this.maxChildren) {
 				putChild(node.chunk, node.node, index, newChild);
 			}
 		}
@@ -596,11 +595,11 @@ public class BTree {
 	/**
 	 * Visit all nodes beginning when the visitor comparator
 	 * returns >= 0 until the visitor visit returns falls.
-	 * 
+	 *
 	 * @param visitor
 	 */
 	public void accept(IBTreeVisitor visitor) throws IndexException {
-		accept(db.getRecPtr(rootPointer), visitor);
+		accept(this.db.getRecPtr(this.rootPointer), visitor);
 	}
 
 	private boolean accept(long node, IBTreeVisitor visitor) throws IndexException {
@@ -616,11 +615,11 @@ public class BTree {
 		}
 
 		try {
-			Chunk chunk = db.getChunk(node);
-			
+			Chunk chunk = this.db.getChunk(node);
+
 			// Binary search to find first record greater or equal.
-			int lower= 0; 
-			int upper= MAX_RECORDS - 1;
+			int lower= 0;
+			int upper= this.maxRecords - 1;
 			while (lower < upper && getRecord(chunk, node, upper - 1) == 0) {
 				upper--;
 			}
@@ -638,20 +637,20 @@ public class BTree {
 					}
 				}
 			}
-			
+
 			// Start with first record greater or equal, reuse comparison results.
 			int i= lower;
-			for (; i < MAX_RECORDS; ++i) {
+			for (; i < this.maxRecords; ++i) {
 				long record = getRecord(chunk, node, i);
-				if (record == 0) 
+				if (record == 0)
 					break;
 
-				int compare= visitor.compare(record); 
+				int compare= visitor.compare(record);
 				if (compare > 0) {
 					// Start point is to the left.
 					return accept(getChild(chunk, node, i), visitor);
 				}  else if (compare == 0) {
-					if (!accept(getChild(chunk, node, i), visitor)) 
+					if (!accept(getChild(chunk, node, i), visitor))
 						return false;
 					if (!visitor.visit(record))
 						return false;
@@ -696,10 +695,11 @@ public class BTree {
 		Integer leafDepth;
 		int depth;
 
-		public String getMsg() { return msg; }
-		public boolean isValid() { return valid; }
+		public InvariantsChecker() {}
+		public String getMsg() { return this.msg; }
+		public boolean isValid() { return this.valid; }
 		@Override
-		public void postNode(long node) throws IndexException { depth--; }
+		public void postNode(long node) throws IndexException { this.depth--; }
 		@Override
 		public int compare(long record) throws IndexException { return 0; }
 		@Override
@@ -707,35 +707,35 @@ public class BTree {
 
 		@Override
 		public void preNode(long node) throws IndexException {
-			depth++;
+			this.depth++;
 
 			// Collect information for checking.
 			int keyCount = 0;
-			int indexFirstBlankKey = MAX_RECORDS;
-			int indexLastNonBlankKey = 0; 
-			for (int i= 0; i < MAX_RECORDS; i++) {
-				if (getRecord(db.getChunk(node), node, i) != 0) {
+			int indexFirstBlankKey = BTree.this.maxRecords;
+			int indexLastNonBlankKey = 0;
+			for (int i= 0; i < BTree.this.maxRecords; i++) {
+				if (getRecord(BTree.this.db.getChunk(node), node, i) != 0) {
 					keyCount++;
 					indexLastNonBlankKey = i;
-				} else if (indexFirstBlankKey == MAX_RECORDS) {
+				} else if (indexFirstBlankKey == BTree.this.maxRecords) {
 					indexFirstBlankKey = i;
 				}
 			}
 
 			int childCount = 0;
-			for (int i= 0; i < MAX_CHILDREN; i++) {
-				if (getChild(db.getChunk(node), node, i) != 0) {
+			for (int i= 0; i < BTree.this.maxChildren; i++) {
+				if (getChild(BTree.this.db.getChunk(node), node, i) != 0) {
 					childCount++;
 				}
 			}
 
 			// Check that non-blank keys are contiguous and blank key terminated.
 			if (indexFirstBlankKey != indexLastNonBlankKey + 1) {
-				boolean full = indexFirstBlankKey == MAX_RECORDS && indexLastNonBlankKey == MAX_RECORDS - 1;
+				boolean full = indexFirstBlankKey == BTree.this.maxRecords && indexLastNonBlankKey == BTree.this.maxRecords - 1;
 				boolean empty = indexFirstBlankKey == 0 && indexLastNonBlankKey == 0;
 				if (!full && !empty) {
-					valid = false;
-					msg += MessageFormat.format("[{0} blanks inconsistent b={1} nb={2}]", //$NON-NLS-1$
+					this.valid = false;
+					this.msg += MessageFormat.format("[{0} blanks inconsistent b={1} nb={2}]", //$NON-NLS-1$
 							new Object[] { new Long(node), new Integer(indexFirstBlankKey),
 									new Integer(indexLastNonBlankKey) });
 				}
@@ -743,30 +743,30 @@ public class BTree {
 
 			// Check: Key number constrains child numbers
 			if (childCount != 0 && childCount != keyCount + 1) {
-				valid = false;
-				msg += MessageFormat.format("[{0} wrong number of children with respect to key count]", //$NON-NLS-1$
+				this.valid = false;
+				this.msg += MessageFormat.format("[{0} wrong number of children with respect to key count]", //$NON-NLS-1$
 						new Object[] { new Long(node) });
 			}
 
 			// The root node is excused from the remaining node constraints.
-			if (node == db.getRecPtr(rootPointer)) {
-				return; 
+			if (node == BTree.this.db.getRecPtr(BTree.this.rootPointer)) {
+				return;
 			}
 
 			// Check: Non-root nodes must have a keyCount within a certain range
-			if (keyCount < MIN_RECORDS || keyCount > MAX_RECORDS) {
-				valid = false;
-				msg += MessageFormat.format("[{0} key count out of range]", new Object[] { new Long(node) }); //$NON-NLS-1$
+			if (keyCount < BTree.this.minRecords || keyCount > BTree.this.maxRecords) {
+				this.valid = false;
+				this.msg += MessageFormat.format("[{0} key count out of range]", new Object[] { new Long(node) }); //$NON-NLS-1$
 			}
 
 			// Check: All leaf nodes are at the same depth
 			if (childCount == 0) {
-				if (leafDepth == null) {
-					leafDepth = new Integer(depth);
+				if (this.leafDepth == null) {
+					this.leafDepth = new Integer(this.depth);
 				}
-				if (depth != leafDepth.intValue()) {
-					valid = false;
-					msg += "Leaf nodes at differing depths"; //$NON-NLS-1$
+				if (this.depth != this.leafDepth.intValue()) {
+					this.valid = false;
+					this.msg += "Leaf nodes at differing depths"; //$NON-NLS-1$
 				}
 			}
 		}

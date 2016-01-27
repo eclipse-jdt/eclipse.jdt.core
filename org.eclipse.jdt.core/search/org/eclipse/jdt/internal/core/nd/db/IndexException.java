@@ -27,7 +27,7 @@ public class IndexException extends RuntimeException {
 	}
 
 	public IndexException(String message) {
-		this(new Status(Status.ERROR, "org.eclipse.jdt.core", message)); //$NON-NLS-1$
+		this(new Status(IStatus.ERROR, "org.eclipse.jdt.core", message)); //$NON-NLS-1$
 	}
 
 	@Override

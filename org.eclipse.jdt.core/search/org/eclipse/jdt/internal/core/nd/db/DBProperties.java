@@ -23,37 +23,32 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 public class DBProperties {
 	static final int PROP_INDEX = 0;
 	static final int RECORD_SIZE = 4;
-	
+
 	protected BTree index;
 	protected Database db;
 	protected long record;
-	
+
 	/**
 	 * Allocate storage for a new DBProperties record in the specified database
-	 * @param db
-	 * @throws IndexException
 	 */
 	public DBProperties(Nd pdom) throws IndexException {
-		Database db = pdom.getDB();
-		this.record= db.malloc(RECORD_SIZE);
-		this.index= new BTree(pdom, record + PROP_INDEX, DBProperty.getComparator());
-		this.db= db;
+		Database database = pdom.getDB();
+		this.record= database.malloc(RECORD_SIZE);
+		this.index= new BTree(pdom, this.record + PROP_INDEX, DBProperty.getComparator());
+		this.db= database;
 	}
-	
+
 	/**
 	 * Creates an object for accessing an existing DBProperties record at the specified location
 	 * of the specified database.
-	 * @param db
-	 * @param record
-	 * @throws IndexException
 	 */
 	public DBProperties(Nd pdom, long record) throws IndexException {
-		Database db = pdom.getDB();
+		Database database = pdom.getDB();
 		this.record= record;
 		this.index= new BTree(pdom, record + PROP_INDEX, DBProperty.getComparator());
-		this.db= db;
+		this.db= database;
 	}
-	
+
 	/**
 	 * Reads the named property from this properties storage.
 	 * @param key a case-sensitive identifier for a property, or null
@@ -63,14 +58,14 @@ public class DBProperties {
 	 */
 	public String getProperty(String key) throws IndexException {
 		if (key != null) {
-			DBProperty existing= DBProperty.search(db, index, key);
+			DBProperty existing= DBProperty.search(this.db, this.index, key);
 			if (existing != null) {
 				return existing.getValue().getString();
 			}
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Reads the named property from this properties storage, returning the default value if there
 	 * is no such property.
@@ -91,7 +86,7 @@ public class DBProperties {
 	 * @throws IndexException
 	 */
 	public Set<String> getKeySet() throws IndexException {
-		return DBProperty.getKeySet(db, index);
+		return DBProperty.getKeySet(this.db, this.index);
 	}
 
 	/**
@@ -104,8 +99,8 @@ public class DBProperties {
 	 */
 	public void setProperty(String key, String value) throws IndexException {
 		removeProperty(key);
-		DBProperty newProperty= new DBProperty(db, key, value);
-		index.insert(newProperty.getRecord());
+		DBProperty newProperty= new DBProperty(this.db, key, value);
+		this.index.insert(newProperty.getRecord());
 	}
 
 	/**
@@ -117,35 +112,35 @@ public class DBProperties {
 	 */
 	public boolean removeProperty(String key) throws IndexException {
 		if (key != null) {
-			DBProperty existing= DBProperty.search(db, index, key);
+			DBProperty existing= DBProperty.search(this.db, this.index, key);
 			if (existing != null) {
-				index.delete(existing.getRecord());
+				this.index.delete(existing.getRecord());
 				existing.delete();
 				return true;
 			}
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Deletes all properties, does not delete the record associated with the object itself
 	 * - that is it can be re-populated.
 	 * @throws IndexException
 	 */
 	public void clear() throws IndexException {
-		index.accept(new IBTreeVisitor(){
+		this.index.accept(new IBTreeVisitor(){
 			@Override
-			public int compare(long record) throws IndexException {
+			public int compare(long address) throws IndexException {
 				return 0;
 			}
 			@Override
-			public boolean visit(long record) throws IndexException {
-				new DBProperty(db, record).delete();
+			public boolean visit(long address) throws IndexException {
+				new DBProperty(DBProperties.this.db, address).delete();
 				return false; // there should never be duplicates
 			}
 		});
 	}
-	
+
 	/**
 	 * Deletes all properties stored in this object and the record associated with this object
 	 * itself.
@@ -155,26 +150,26 @@ public class DBProperties {
 	 */
 	public void delete() throws IndexException {
 		clear();
-		db.free(record);
+		this.db.free(this.record);
 	}
 
 	public long getRecord() {
-		return record;
+		return this.record;
 	}
-	
+
 	private static class DBProperty {
 		static final int KEY = 0;
 		static final int VALUE = 4;
 		@SuppressWarnings("hiding")
 		static final int RECORD_SIZE = 8;
-		
+
 		Database db;
 		long record;
-		
+
 		public long getRecord() {
-			return record;
+			return this.record;
 		}
-		
+
 		/**
 		 * Allocates and initializes a record in the specified database for a DBProperty record
 		 * @param db
@@ -188,11 +183,11 @@ public class DBProperties {
 			IString dbkey= db.newString(key);
 			IString dbvalue= db.newString(value);
 			this.record= db.malloc(RECORD_SIZE);
-			db.putRecPtr(record + KEY, dbkey.getRecord());
-			db.putRecPtr(record + VALUE, dbvalue.getRecord());
+			db.putRecPtr(this.record + KEY, dbkey.getRecord());
+			db.putRecPtr(this.record + VALUE, dbvalue.getRecord());
 			this.db= db;
 		}
-		
+
 		/**
 		 * Returns an object for accessing an existing DBProperty record at the specified location
 		 * in the specified database.
@@ -203,15 +198,15 @@ public class DBProperties {
 			this.record= record;
 			this.db= db;
 		}
-		
+
 		public IString getKey() throws IndexException {
-			return db.getString(db.getRecPtr(record + KEY));
+			return this.db.getString(this.db.getRecPtr(this.record + KEY));
 		}
-		
+
 		public IString getValue() throws IndexException {
-			return db.getString(db.getRecPtr(record + VALUE));
+			return this.db.getString(this.db.getRecPtr(this.record + VALUE));
 		}
-		
+
 		public static IBTreeComparator getComparator() {
 			return new IBTreeComparator() {
 				@Override
@@ -223,7 +218,7 @@ public class DBProperties {
 				}
 			};
 		}
-		
+
 		public static DBProperty search(final Database db, final BTree index, final String key) throws IndexException {
 			final DBProperty[] result= new DBProperty[1];
 			index.accept(new IBTreeVisitor(){
@@ -240,7 +235,7 @@ public class DBProperties {
 			});
 			return result[0];
 		}
-		
+
 		public static Set<String> getKeySet(final Database db, final BTree index) throws IndexException {
 			final Set<String> result= new HashSet<String>();
 			index.accept(new IBTreeVisitor(){
@@ -257,11 +252,11 @@ public class DBProperties {
 			});
 			return result;
 		}
-		
+
 		public void delete() throws IndexException {
-			db.getString(db.getRecPtr(record + KEY)).delete();
-			db.getString(db.getRecPtr(record + VALUE)).delete();
-			db.free(record);
+			this.db.getString(this.db.getRecPtr(this.record + KEY)).delete();
+			this.db.getString(this.db.getRecPtr(this.record + VALUE)).delete();
+			this.db.free(this.record);
 		}
 	}
 }
