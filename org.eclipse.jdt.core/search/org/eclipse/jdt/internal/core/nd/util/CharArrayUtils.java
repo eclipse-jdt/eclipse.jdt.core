@@ -225,7 +225,7 @@ public class CharArrayUtils {
 		System.arraycopy(first, 0, result, 0, length1);
 		System.arraycopy(second, 0, result, length1, length2);
 		System.arraycopy(third, 0, result, length1 + length2, length3);
-		System.arraycopy(third, 0, result, length1 + length2 + length3, length4);
+		System.arraycopy(fourth, 0, result, length1 + length2 + length3, length4);
 		return result;
 	}
 
