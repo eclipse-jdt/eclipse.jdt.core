@@ -15,6 +15,7 @@ import java.util.List;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.internal.core.nd.IPDOMVisitor;
 import org.eclipse.jdt.internal.core.nd.Nd;
+import org.eclipse.jdt.internal.core.nd.db.IString;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldString;
@@ -138,5 +139,12 @@ public class NdType extends NdBinding {
 	 */
 	public void setMissingTypeNames(char[] contents) {
 		MISSING_TYPE_NAMES.put(getPDOM(), this.address, contents);
+	}
+
+	/**
+	 * Returns the missing type names as a comma-separated list
+	 */
+	public IString getMissingTypeNames() {
+		return MISSING_TYPE_NAMES.get(getPDOM(), this.address);
 	}
 }
