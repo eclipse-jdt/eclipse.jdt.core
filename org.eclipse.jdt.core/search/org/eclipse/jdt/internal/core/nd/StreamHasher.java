@@ -73,10 +73,10 @@ public final class StreamHasher {
 
 	public StreamHasher() {
 		// Set up the internal state.
-		hashedOffset = 0;
-		state = 0;
-		a = b = c = (int) SEED;
-		c += SEED >>> 32;
+		this.hashedOffset = 0;
+		this.state = 0;
+		this.a = this.b = this.c = (int) SEED;
+		this.c += SEED >>> 32;
 	}
 
 	/**
@@ -84,26 +84,26 @@ public final class StreamHasher {
 	 * @param chunk Contents of the chunk.
 	 */
 	public void addChunk(char[] chunk) {
-		for (int pos = 0; pos < chunk.length; pos++, hashedOffset++) {
+		for (int pos = 0; pos < chunk.length; pos++, this.hashedOffset++) {
 			char cc = chunk[pos];
-			switch (state++) {
+			switch (this.state++) {
 			case -1:
 				throw new IllegalStateException("addChunk is called after computeHash."); //$NON-NLS-1$
 			case 0:
 			case 2:
 			case 4:
-				previousCharacter = cc;
+				this.previousCharacter = cc;
 				break;
 			case 1:
-				a += previousCharacter | (cc << 16);
+				this.a += this.previousCharacter | (cc << 16);
 				break;
 			case 3:
-				b += previousCharacter | (cc << 16);
+				this.b += this.previousCharacter | (cc << 16);
 				break;
 			case 5:
-				c += previousCharacter | (cc << 16);
+				this.c += this.previousCharacter | (cc << 16);
 				mix();
-				state = 0;
+				this.state = 0;
 				break;
 			}
 		}
@@ -114,27 +114,27 @@ public final class StreamHasher {
 	 * @return The hash value of the character stream.
 	 */
 	public long computeHash() {
-		if (state < 0) {
+		if (this.state < 0) {
 			throw new IllegalStateException("computeHash method is called more than once."); //$NON-NLS-1$
 		}
 		return computeHashInternal() ^ EMPTY_STRING_HASH;
 	}
 
 	private long computeHashInternal() {
-		switch (state) {
+		switch (this.state) {
 		case 1:
-			a += previousCharacter;
+			this.a += this.previousCharacter;
 			break;
 		case 3:
-			b += previousCharacter;
+			this.b += this.previousCharacter;
 			break;
 		case 5:
-			c += previousCharacter;
+			this.c += this.previousCharacter;
 			break;
 		}
-		state = -1;  // Protect against subsequent calls.
+		this.state = -1;  // Protect against subsequent calls.
 		finalMix();
-		return (c & 0xFFFFFFFFL) | ((long) b << 32);
+		return (this.c & 0xFFFFFFFFL) | ((long) this.b << 32);
 	}
 
 	/**
@@ -193,12 +193,12 @@ public final class StreamHasher {
 	 * rotates.
 	 */
 	private void mix() {
-		a -= c;  a ^= Integer.rotateLeft(c, 4);  c += b;
-		b -= a;  b ^= Integer.rotateLeft(a, 6);  a += c;
-		c -= b;  c ^= Integer.rotateLeft(b, 8);  b += a;
-		a -= c;  a ^= Integer.rotateLeft(c, 16); c += b;
-		b -= a;  b ^= Integer.rotateLeft(a, 19); a += c;
-		c -= b;  c ^= Integer.rotateLeft(b, 4);  b += a;
+		this.a -= this.c;  this.a ^= Integer.rotateLeft(this.c, 4);  this.c += this.b;
+		this.b -= this.a;  this.b ^= Integer.rotateLeft(this.a, 6);  this.a += this.c;
+		this.c -= this.b;  this.c ^= Integer.rotateLeft(this.b, 8);  this.b += this.a;
+		this.a -= this.c;  this.a ^= Integer.rotateLeft(this.c, 16); this.c += this.b;
+		this.b -= this.a;  this.b ^= Integer.rotateLeft(this.a, 19); this.a += this.c;
+		this.c -= this.b;  this.c ^= Integer.rotateLeft(this.b, 4);  this.b += this.a;
 	}
 
 	/**
@@ -225,12 +225,12 @@ public final class StreamHasher {
 	 *  11  8 15 26 3 22 24
 	 */
 	private void finalMix() {
-		c ^= b; c -= Integer.rotateLeft(b, 14);
-		a ^= c; a -= Integer.rotateLeft(c, 11);
-		b ^= a; b -= Integer.rotateLeft(a, 25);
-		c ^= b; c -= Integer.rotateLeft(b, 16);
-		a ^= c; a -= Integer.rotateLeft(c, 4);
-		b ^= a; b -= Integer.rotateLeft(a, 14);
-		c ^= b; c -= Integer.rotateLeft(b, 24);
+		this.c ^= this.b; this.c -= Integer.rotateLeft(this.b, 14);
+		this.a ^= this.c; this.a -= Integer.rotateLeft(this.c, 11);
+		this.b ^= this.a; this.b -= Integer.rotateLeft(this.a, 25);
+		this.c ^= this.b; this.c -= Integer.rotateLeft(this.b, 16);
+		this.a ^= this.c; this.a -= Integer.rotateLeft(this.c, 4);
+		this.b ^= this.a; this.b -= Integer.rotateLeft(this.a, 14);
+		this.c ^= this.b; this.c -= Integer.rotateLeft(this.b, 24);
 	}
 }

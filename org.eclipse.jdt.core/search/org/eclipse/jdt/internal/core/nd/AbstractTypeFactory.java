@@ -17,10 +17,14 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef.DeletionSemantics;
  */
 public abstract class AbstractTypeFactory<T> implements ITypeFactory<T> {
 	@Override
-	public void destructFields(Nd dom, long address) {}
+	public void destructFields(Nd dom, long address) {
+		// No nested fields by default
+	}
 
 	@Override
-	public void destruct(Nd dom, long address) {}
+	public void destruct(Nd dom, long address) {
+		// Nothing to destruct by default
+	}
 
 	@Override
 	public boolean hasDestructor() {

@@ -14,22 +14,16 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.JavaCore;
 
-/**
- * @noreference This class is not intended to be referenced by clients
- */
 /* package */ class Package {
 	public static String PLUGIN_ID = JavaCore.PLUGIN_ID;
 
 	/**
 	 * Status code for core exception that is thrown if a pdom grew larger than the supported limit.
-	 * 
+	 *
 	 * @since 5.2
 	 */
 	public static final int STATUS_PDOM_TOO_LARGE = 4;
 
-	/**
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
 	public static void log(Throwable e) {
 		String msg = e.getMessage();
 		if (msg == null) {
@@ -39,44 +33,26 @@ import org.eclipse.jdt.core.JavaCore;
 		}
 	}
 
-	/**
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
 	public static void log(String message, Throwable e) {
 		log(createStatus(message, e));
 	}
 
-	/**
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
 	public static void logInfo(String message) {
 		log(createStatus(IStatus.INFO, message, null));
 	}
 
-	/**
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
 	public static IStatus createStatus(int statusCode, String msg, Throwable e) {
 		return new Status(statusCode, PLUGIN_ID, msg, e);
 	}
 
-	/**
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
 	public static IStatus createStatus(String msg, Throwable e) {
 		return new Status(IStatus.ERROR, PLUGIN_ID, msg, e);
 	}
 
-	/**
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
 	public static IStatus createStatus(String msg) {
 		return new Status(IStatus.ERROR, PLUGIN_ID, msg);
 	}
 
-	/**
-	 * @noreference This method is not intended to be referenced by clients.
-	 */
 	public static void log(IStatus status) {
 		JavaCore.getPlugin().getLog().log(status);
 	}

@@ -7,7 +7,7 @@
  *
  * Contributors:
  *   Stefan Xenos (Google) - Initial implementation
- *******************************************************************************/ 
+ *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd;
 
 import java.net.URI;
@@ -19,42 +19,42 @@ import java.net.URI;
 public class IndexFileLocation implements IIndexFileLocation {
 	private final URI uri;
 	private final String fullPath;
-	
+
 	public IndexFileLocation(URI uri, String fullPath) {
 		if (uri == null)
 			throw new IllegalArgumentException();
 		this.uri = uri;
 		this.fullPath = fullPath;
 	}
-	
+
 	@Override
 	public String getFullPath() {
-		return fullPath;
+		return this.fullPath;
 	}
-	
+
 	@Override
 	public URI getURI() {
-		return uri;
+		return this.uri;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof IIndexFileLocation) {
-			return uri.equals(((IIndexFileLocation) obj).getURI());
+			return this.uri.equals(((IIndexFileLocation) obj).getURI());
 		}
 		return false;
 	}
-	
+
 	@Override
 	public int hashCode() {
-		return uri.hashCode();
+		return this.uri.hashCode();
 	}
-	
+
 	@Override
 	public String toString() {
-		if (fullPath == null) {
-			return uri.toString();
+		if (this.fullPath == null) {
+			return this.uri.toString();
 		}
-		return fullPath.toString() + " (" + uri.toString() + ')'; //$NON-NLS-1$
+		return this.fullPath.toString() + " (" + this.uri.toString() + ')'; //$NON-NLS-1$
 	}
 }

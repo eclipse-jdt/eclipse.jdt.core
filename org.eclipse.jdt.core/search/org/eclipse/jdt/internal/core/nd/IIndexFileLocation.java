@@ -13,10 +13,9 @@ package org.eclipse.jdt.internal.core.nd;
 import java.net.URI;
 
 /**
- * Files in the index are (conceptually) partitioned into workspace and non-workspace (external) files. Clients can
- * obtain instances of IIndexFileLocation implementations from {@link IndexLocationFactory}. Two index file locations
- * are considered equal if their URIs are equal.
- * 
+ * Files in the index are (conceptually) partitioned into workspace and non-workspace (external) files. Two index file
+ * locations are considered equal if their URIs are equal.
+ *
  * @noextend This interface is not intended to be extended by clients.
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 3.12

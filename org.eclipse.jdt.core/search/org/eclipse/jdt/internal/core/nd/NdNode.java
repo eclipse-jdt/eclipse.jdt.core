@@ -182,6 +182,7 @@ public abstract class NdNode implements IDestructable {
 	 * method.
 	 */
 	public void destruct() {
+		// Nothing to do by default. Subclasses will provide an implementation if necessary.
 	}
 
 }

@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.core.nd.db.IndexException;
  */
 public final class NdLinkedList<T> {
 	private final NdRawLinkedList rawList;
-	private final ITypeFactory<T> elementFactory;
+	final ITypeFactory<T> elementFactory;
 
 	public static interface ILinkedListVisitor<T> {
 		public void visit(T record, short metadataBits, int index) throws IndexException;

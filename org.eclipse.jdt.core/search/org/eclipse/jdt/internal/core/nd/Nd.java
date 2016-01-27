@@ -69,7 +69,7 @@ public class Nd {
 		return "" + major + '.' + minor; //$NON-NLS-1$
 	}
 
-	public static final int LINKAGES = Database.DATA_AREA;
+	//public static final int LINKAGES = Database.DATA_AREA;
 	public static final int FILE_INDEX = Database.DATA_AREA + 4;
 	public static final int INDEX_OF_DEFECTIVE_FILES = Database.DATA_AREA + 8;
 	public static final int INDEX_OF_FILES_WITH_UNRESOLVED_INCLUDES = Database.DATA_AREA + 12;
@@ -87,38 +87,38 @@ public class Nd {
 		private boolean fReloaded;
 		private boolean fNewFiles;
 
-		private void setCleared() {
-			fCleared= true;
-			fReloaded= false;
-			fNewFiles= false;
-
-			fClearedFiles.clear();
-			fFilesWritten.clear();
-		}
+//		private void setCleared() {
+//			this.fCleared= true;
+//			this.fReloaded= false;
+//			this.fNewFiles= false;
+//
+//			this.fClearedFiles.clear();
+//			this.fFilesWritten.clear();
+//		}
 
 		public boolean isCleared() {
-			return fCleared;
+			return this.fCleared;
 		}
 
 		public void setReloaded() {
-			fReloaded= true;
+			this.fReloaded= true;
 		}
 
 		public boolean isReloaded() {
-			return fReloaded;
+			return this.fReloaded;
 		}
 
 		public void setHasNewFiles() {
-			fNewFiles = true;
+			this.fNewFiles = true;
 		}
 
 		public boolean hasNewFiles() {
-			return fNewFiles;
+			return this.fNewFiles;
 		}
 
 		public boolean isTrivial() {
-			return !fCleared && !fReloaded && !fNewFiles && fClearedFiles.isEmpty() &&
-					fFilesWritten.isEmpty();
+			return !this.fCleared && !this.fReloaded && !this.fNewFiles && this.fClearedFiles.isEmpty() &&
+					this.fFilesWritten.isEmpty();
 		}
 	}
 
@@ -154,7 +154,7 @@ public class Nd {
 		// a bug.
 		if (this.pendingDeletions.containsKey(addressOfNodeToDelete)) {
 			Package.log("PDOM object queued for deletion twice", new RuntimeException()); //$NON-NLS-1$
-			Package.log("Earlier deletion stack was this:", pendingDeletions.get(addressOfNodeToDelete));
+			Package.log("Earlier deletion stack was this:", this.pendingDeletions.get(addressOfNodeToDelete)); //$NON-NLS-1$
 			return;
 		}
 		this.pendingDeletions.put(addressOfNodeToDelete, new RuntimeException());
@@ -181,30 +181,26 @@ public class Nd {
 	}
 
 	private void loadDatabase(File dbPath, ChunkCache cache) throws IndexException {
-		fPath= dbPath;
-		final boolean lockDB= db == null || lockCount != 0;
+		this.fPath= dbPath;
+		final boolean lockDB= this.db == null || this.lockCount != 0;
 
 		clearCaches();
-		db = new Database(fPath, cache, getDefaultVersion(), isPermanentlyReadOnly());
+		this.db = new Database(this.fPath, cache, getDefaultVersion(), isPermanentlyReadOnly());
 
-		db.setLocked(lockDB);
+		this.db.setLocked(lockDB);
 		if (!isSupportedVersion()) {
-			Package.log("Index database is uses an unsupported version " + db.getVersion()
-				+ " Deleting and recreating.", null);
-			db.close();
-			fPath.delete();
-			db = new Database(fPath, cache, getDefaultVersion(), isPermanentlyReadOnly());
-			db.setLocked(lockDB);
+			Package.log("Index database is uses an unsupported version " + this.db.getVersion() //$NON-NLS-1$
+				+ " Deleting and recreating.", null); //$NON-NLS-1$
+			this.db.close();
+			this.fPath.delete();
+			this.db = new Database(this.fPath, cache, getDefaultVersion(), isPermanentlyReadOnly());
+			this.db.setLocked(lockDB);
 		}
-		db.setLocked(lockCount != 0);
+		this.db.setLocked(this.lockCount != 0);
 	}
 
 	public Database getDB() {
-		return db;
-	}
-
-	private long getFirstLinkageRecord() throws IndexException {
-		return db.getRecPtr(LINKAGES);
+		return this.db;
 	}
 
 	// Read-write lock rules. Readers don't conflict with other readers,
@@ -219,23 +215,23 @@ public class Nd {
 	public void acquireReadLock() {
 		try {
 			long t = sDEBUG_LOCKS ? System.nanoTime() : 0;
-			synchronized (mutex) {
-				++waitingReaders;
+			synchronized (this.mutex) {
+				++this.waitingReaders;
 				try {
-					while (lockCount < 0)
-						mutex.wait();
+					while (this.lockCount < 0)
+						this.mutex.wait();
 				} finally {
-					--waitingReaders;
+					--this.waitingReaders;
 				}
-				++lockCount;
-				db.setLocked(true);
+				++this.lockCount;
+				this.db.setLocked(true);
 
 				if (sDEBUG_LOCKS) {
 					t = (System.nanoTime() - t) / 1000000;
 					if (t >= LONG_READ_LOCK_WAIT_REPORT_THRESHOLD) {
 						System.out.println("Acquired index read lock after " + t + " ms wait."); //$NON-NLS-1$//$NON-NLS-2$
 					}
-					incReadLock(fLockDebugging);
+					incReadLock(this.fLockDebugging);
 				}
 			}
 		} catch (InterruptedException e) {
@@ -244,17 +240,17 @@ public class Nd {
 	}
 
 	public void releaseReadLock() {
-		synchronized (mutex) {
-			assert lockCount > 0: "No lock to release"; //$NON-NLS-1$
+		synchronized (this.mutex) {
+			assert this.lockCount > 0: "No lock to release"; //$NON-NLS-1$
 			if (sDEBUG_LOCKS) {
-				decReadLock(fLockDebugging);
+				decReadLock(this.fLockDebugging);
 			}
 
-			lastReadAccess= System.currentTimeMillis();
-			if (lockCount > 0)
-				--lockCount;
-			mutex.notifyAll();
-			db.setLocked(lockCount != 0);
+			this.lastReadAccess= System.currentTimeMillis();
+			if (this.lockCount > 0)
+				--this.lockCount;
+			this.mutex.notifyAll();
+			this.db.setLocked(this.lockCount != 0);
 		}
 		// A lock release probably means that some AST is going away. The result cache has to be
 		// cleared since it may contain objects belonging to the AST that is going away. A failure
@@ -267,7 +263,7 @@ public class Nd {
 
 	/**
 	 * Acquire a write lock on this PDOM. Blocks until any existing read/write locks are released.
-	 * @throws InterruptedException
+	 * @throws OperationCanceledException
 	 * @throws IllegalStateException if this PDOM is not writable
 	 */
 	public void acquireWriteLock(IProgressMonitor monitor) {
@@ -286,16 +282,16 @@ public class Nd {
 	 */
 	public void acquireWriteLock(int giveupReadLocks, IProgressMonitor monitor) throws InterruptedException {
 		assert !isPermanentlyReadOnly();
-		synchronized (mutex) {
+		synchronized (this.mutex) {
 			if (sDEBUG_LOCKS) {
 				incWriteLock(giveupReadLocks);
 			}
 
 			if (giveupReadLocks > 0) {
 				// give up on read locks
-				assert lockCount >= giveupReadLocks: "Not enough locks to release"; //$NON-NLS-1$
-				if (lockCount < giveupReadLocks) {
-					giveupReadLocks= lockCount;
+				assert this.lockCount >= giveupReadLocks: "Not enough locks to release"; //$NON-NLS-1$
+				if (this.lockCount < giveupReadLocks) {
+					giveupReadLocks= this.lockCount;
 				}
 			} else {
 				giveupReadLocks= 0;
@@ -303,8 +299,8 @@ public class Nd {
 
 			// Let the readers go first
 			long start= sDEBUG_LOCKS ? System.currentTimeMillis() : 0;
-			while (lockCount > giveupReadLocks || waitingReaders > 0) {
-				mutex.wait(CANCELLATION_CHECK_INTERVAL);
+			while (this.lockCount > giveupReadLocks || this.waitingReaders > 0) {
+				this.mutex.wait(CANCELLATION_CHECK_INTERVAL);
 				if (monitor != null && monitor.isCanceled()) {
 					throw new OperationCanceledException();
 				}
@@ -312,10 +308,10 @@ public class Nd {
 					start = reportBlockedWriteLock(start, giveupReadLocks);
 				}
 			}
-			lockCount= -1;
+			this.lockCount= -1;
 			if (sDEBUG_LOCKS)
-				timeWriteLockAcquired = System.currentTimeMillis();
-			db.setExclusiveLock();
+				this.timeWriteLockAcquired = System.currentTimeMillis();
+			this.db.setExclusiveLock();
 		}
 	}
 
@@ -335,24 +331,24 @@ public class Nd {
 		} catch (IndexException e) {
 			Package.log(e);
 		}
-		assert lockCount == -1;
-		if (!fEvent.isTrivial())
-			lastWriteAccess= System.currentTimeMillis();
-		final ChangeEvent event= fEvent;
-		fEvent= new ChangeEvent();
-		synchronized (mutex) {
+		assert this.lockCount == -1;
+		if (!this.fEvent.isTrivial())
+			this.lastWriteAccess= System.currentTimeMillis();
+		//final ChangeEvent event= this.fEvent;
+		this.fEvent= new ChangeEvent();
+		synchronized (this.mutex) {
 			if (sDEBUG_LOCKS) {
-				long timeHeld = lastWriteAccess - timeWriteLockAcquired;
+				long timeHeld = this.lastWriteAccess - this.timeWriteLockAcquired;
 				if (timeHeld >= LONG_WRITE_LOCK_REPORT_THRESHOLD) {
 					System.out.println("Index write lock held for " + timeHeld + " ms");
 				}
 				decWriteLock(establishReadLocks);
 			}
 
-			if (lockCount < 0)
-				lockCount= establishReadLocks;
-			mutex.notifyAll();
-			db.setLocked(lockCount != 0);
+			if (this.lockCount < 0)
+				this.lockCount= establishReadLocks;
+			this.mutex.notifyAll();
+			this.db.setLocked(this.lockCount != 0);
 		}
 		//fireChange(event);
 	}
@@ -430,14 +426,14 @@ public class Nd {
 		List<StackTraceElement[]> fTraces= new ArrayList<>();
 
 		public int addTrace() {
-			fTraces.add(Thread.currentThread().getStackTrace());
-			return fTraces.size();
+			this.fTraces.add(Thread.currentThread().getStackTrace());
+			return this.fTraces.size();
 		}
 
 		@SuppressWarnings("nls")
 		public void write(String threadName) {
-			System.out.println("Thread: '" + threadName + "': " + fReadLocks + " readlocks, " + fWriteLocks + " writelocks");
-			for (StackTraceElement[] trace : fTraces) {
+			System.out.println("Thread: '" + threadName + "': " + this.fReadLocks + " readlocks, " + this.fWriteLocks + " writelocks");
+			for (StackTraceElement[] trace : this.fTraces) {
 				System.out.println("  Stacktrace:");
 				for (StackTraceElement ste : trace) {
 					System.out.println("    " + ste);
@@ -446,9 +442,9 @@ public class Nd {
 		}
 
 		public void inc(DebugLockInfo val) {
-			fReadLocks+= val.fReadLocks;
-			fWriteLocks+= val.fWriteLocks;
-			fTraces.addAll(val.fTraces);
+			this.fReadLocks+= val.fReadLocks;
+			this.fWriteLocks+= val.fWriteLocks;
+			this.fTraces.addAll(val.fTraces);
 		}
 	}
 
@@ -499,9 +495,9 @@ public class Nd {
 	// For debugging lock issues
 	@SuppressWarnings("nls")
 	private void incWriteLock(int giveupReadLocks) throws AssertionError {
-		DebugLockInfo info = getLockInfo(fLockDebugging);
+		DebugLockInfo info = getLockInfo(this.fLockDebugging);
 		if (info.fReadLocks != giveupReadLocks) {
-			outputReadLocks(fLockDebugging);
+			outputReadLocks(this.fLockDebugging);
 			throw new AssertionError("write lock with " + giveupReadLocks + " readlocks, expected " + info.fReadLocks);
 		}
 		if (info.fWriteLocks != 0)
@@ -511,14 +507,14 @@ public class Nd {
 
 	// For debugging lock issues
 	private void decWriteLock(int establishReadLocks) throws AssertionError {
-		DebugLockInfo info = getLockInfo(fLockDebugging);
+		DebugLockInfo info = getLockInfo(this.fLockDebugging);
 		if (info.fReadLocks != establishReadLocks)
 			throw new AssertionError("release write lock with " + establishReadLocks + " readlocks, expected " + info.fReadLocks); //$NON-NLS-1$ //$NON-NLS-2$
 		if (info.fWriteLocks != 1)
 			throw new AssertionError("Wrong release write lock"); //$NON-NLS-1$
 		info.fWriteLocks= 0;
 		if (info.fReadLocks == 0) {
-			fLockDebugging.remove(Thread.currentThread());
+			this.fLockDebugging.remove(Thread.currentThread());
 		}
 	}
 
@@ -529,8 +525,8 @@ public class Nd {
 		if (now >= start + BLOCKED_WRITE_LOCK_OUTPUT_INTERVAL) {
 			System.out.println();
 			System.out.println("Blocked writeLock");
-			System.out.println("  lockcount= " + lockCount + ", giveupReadLocks=" + giveupReadLocks + ", waitingReaders=" + waitingReaders);
-			outputReadLocks(fLockDebugging);
+			System.out.println("  lockcount= " + this.lockCount + ", giveupReadLocks=" + giveupReadLocks + ", waitingReaders=" + this.waitingReaders);
+			outputReadLocks(this.fLockDebugging);
 			start= now;
 		}
 		return start;
@@ -552,24 +548,19 @@ public class Nd {
 		for (Thread th : lockDebugging.keySet()) {
 			DebugLockInfo val= lockDebugging.get(th);
 			if (val.fReadLocks > 0) {
-				DebugLockInfo myval= fLockDebugging.get(th);
+				DebugLockInfo myval= this.fLockDebugging.get(th);
 				if (myval == null) {
 					myval= new DebugLockInfo();
-					fLockDebugging.put(th, myval);
+					this.fLockDebugging.put(th, myval);
 				}
 				myval.inc(val);
 				for (int i = 0; i < val.fReadLocks; i++) {
-					decReadLock(fLockDebugging);
+					decReadLock(this.fLockDebugging);
 				}
 			}
 		}
 	}
 
-    /**
-     * @param address
-     * @param nodeType
-     * @return
-     */
     public NdNode getNode(long address, short nodeType) throws IndexException {
     	return this.fNodeTypeRegistry.createNode(this, address, nodeType);
     }

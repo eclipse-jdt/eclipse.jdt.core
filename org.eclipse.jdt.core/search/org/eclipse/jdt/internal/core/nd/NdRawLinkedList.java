@@ -190,8 +190,8 @@ public class NdRawLinkedList {
 		return blockRecordStart + ELEMENT_START_POSITION + elementNumber * this.elementRecordSize;
 	}
 
-	private long getAddressOfMetadata(long blockRecordStart, int recordCount) {
-		return getAddressOfElement(blockRecordStart, recordCount);
+	private long getAddressOfMetadata(long blockRecordStart, int blockRecordCount) {
+		return getAddressOfElement(blockRecordStart, blockRecordCount);
 	}
 
 	public void accept(ILinkedListVisitor visitor) throws IndexException {
@@ -250,11 +250,6 @@ public class NdRawLinkedList {
 		}
 	}
 
-	/**
-	 * @param blockAddress
-	 * @param pointerToNextBlock
-	 * @return
-	 */
 	private boolean isLastBlock(long blockAddress, long pointerToNextBlock) {
 		return pointerToNextBlock == 0 || pointerToNextBlock == blockAddress;
 	}
