@@ -76,11 +76,11 @@ public abstract class NdTypeSignature extends NdNode {
 	}
 
 	public List<NdType> getSubclasses() {
-		return SUBCLASSES.asList(getPDOM(), this.address);
+		return SUBCLASSES.asList(getNd(), this.address);
 	}
 
 	public List<NdTypeInterface> getImplementations() {
-		return IMPLEMENTATIONS.asList(getPDOM(), this.address);
+		return IMPLEMENTATIONS.asList(getNd(), this.address);
 	}
 
 	/**

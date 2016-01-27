@@ -62,11 +62,11 @@ public class ClassFileToIndexConverter {
 
 	public ClassFileToIndexConverter(NdResourceFile resourceFile) {
 		this.resource = resourceFile;
-		this.index = JavaIndex.getIndex(resourceFile.getPDOM());
+		this.index = JavaIndex.getIndex(resourceFile.getNd());
 	}
 
 	private Nd getPDOM() {
-		return this.resource.getPDOM();
+		return this.resource.getNd();
 	}
 
 	public static IBinaryType getTypeFromClassFile(IClassFile iClassFile, IProgressMonitor monitor)

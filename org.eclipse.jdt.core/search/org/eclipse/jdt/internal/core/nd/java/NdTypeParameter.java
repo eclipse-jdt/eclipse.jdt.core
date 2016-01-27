@@ -34,9 +34,9 @@ public class NdTypeParameter extends NdNode {
 	}
 
 	public NdTypeParameter(NdBinding parent, char[] identifier) {
-		super(parent.getPDOM());
+		super(parent.getNd());
 
-		PARENT.put(getPDOM(), this.address, parent);
-		IDENTIFIER.put(getPDOM(), this.address, identifier);
+		PARENT.put(getNd(), this.address, parent);
+		IDENTIFIER.put(getNd(), this.address, identifier);
 	}
 }

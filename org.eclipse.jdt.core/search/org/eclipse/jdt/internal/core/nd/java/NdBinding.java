@@ -60,22 +60,22 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 	 * Tests whether this binding has one of the flags defined in {@link Flags}
 	 */
 	public boolean hasModifier(int toTest) {
-		return (MODIFIERS.get(getPDOM(), this.address) & toTest) != 0;
+		return (MODIFIERS.get(getNd(), this.address) & toTest) != 0;
 	}
 
 	/**
 	 * Sets the modifiers for this binding (defined in {@link Flags})
 	 */
 	public void setModifiers(int toSet) {
-		MODIFIERS.put(getPDOM(), this.address, toSet);
+		MODIFIERS.put(getNd(), this.address, toSet);
 	}
 
 	public int getModifiers() {
-		return MODIFIERS.get(getPDOM(), this.address);
+		return MODIFIERS.get(getNd(), this.address);
 	}
 
 	public NdAnnotation[] getAnnotations() {
-		int numAnnotations = ANNOTATIONS.size(getPDOM(), this.address);
+		int numAnnotations = ANNOTATIONS.size(getNd(), this.address);
 
 		if (numAnnotations == 0) {
 			return NO_ANNOTATIONS;
@@ -84,7 +84,7 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 		final NdAnnotation[] result = new NdAnnotation[numAnnotations];
 
 		// If we got this far, the pointer to the linked list is non-null
-		ANNOTATIONS.accept(getPDOM(), this.address, new FieldOneToMany.Visitor<NdAnnotation>() {
+		ANNOTATIONS.accept(getNd(), this.address, new FieldOneToMany.Visitor<NdAnnotation>() {
 			@Override
 			public void visit(int index, NdAnnotation toVisit) {
 				result[index] = toVisit;
@@ -462,11 +462,11 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 	}
 
 	public void setFile(NdResourceFile file) {
-		FILE.put(getPDOM(), this.address, file);
+		FILE.put(getNd(), this.address, file);
 	}
 
 	public NdResourceFile getFile() {
-		return FILE.get(getPDOM(), this.address);
+		return FILE.get(getNd(), this.address);
 	}
 
 	// @Override

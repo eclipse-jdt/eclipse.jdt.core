@@ -50,26 +50,26 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 
 	@Override
 	public NdTypeId getRawType() {
-		return RAW_TYPE.get(getPDOM(), this.address);
+		return RAW_TYPE.get(getNd(), this.address);
 	}
 
 	public void setVariableIdentifier(char[] variableIdentifier) {
-		VARIABLE_IDENTIFIER.put(getPDOM(), this.address, variableIdentifier);
+		VARIABLE_IDENTIFIER.put(getNd(), this.address, variableIdentifier);
 	}
 
 	/**
 	 * If this type is a type variable, this returns the variable's identifier.
 	 */
 	public IString getVariableIdentifier() {
-		return VARIABLE_IDENTIFIER.get(getPDOM(), this.address);
+		return VARIABLE_IDENTIFIER.get(getNd(), this.address);
 	}
 
 	public void setRawType(NdTypeId rawType) {
-		RAW_TYPE.put(getPDOM(), this.address, rawType);
+		RAW_TYPE.put(getNd(), this.address, rawType);
 	}
 
 	public void setGenericDeclaringType(NdComplexTypeSignature enclosingType) {
-		DECLARING_TYPE.put(getPDOM(), this.address, enclosingType);
+		DECLARING_TYPE.put(getNd(), this.address, enclosingType);
 	}
 
 	/**
@@ -81,6 +81,6 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 	 * and neither will non-nested classes.
 	 */
 	public NdComplexTypeSignature getGenericDeclaringType() {
-		return DECLARING_TYPE.get(getPDOM(), this.address);
+		return DECLARING_TYPE.get(getNd(), this.address);
 	}
 }

@@ -27,13 +27,13 @@ public class NdMethodParameter extends NdNode {
 	}
 
 	public NdMethodParameter(NdMethod parent, NdTypeSignature argumentType) {
-		super(parent.getPDOM());
+		super(parent.getNd());
 
-		PARENT.put(getPDOM(), this.address, parent);
-		ARGUMENT_TYPE.put(getPDOM(), this.address, argumentType);
+		PARENT.put(getNd(), this.address, parent);
+		ARGUMENT_TYPE.put(getNd(), this.address, argumentType);
 	}
 
 	public void setName(char[] name) {
-		NAME.put(getPDOM(), this.address, name);
+		NAME.put(getNd(), this.address, name);
 	}
 }

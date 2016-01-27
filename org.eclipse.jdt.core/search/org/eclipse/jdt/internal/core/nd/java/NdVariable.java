@@ -54,9 +54,9 @@ public class NdVariable extends NdBinding {
 	}
 
 	public NdVariable(NdBinding parent) {
-		super(parent.getPDOM(), parent.getFile());
+		super(parent.getNd(), parent.getFile());
 
-		PARENT.put(getPDOM(), this.address, parent);
+		PARENT.put(getNd(), this.address, parent);
 	}
 //
 //	private boolean hasVariableFlag(int toTest) {
@@ -69,18 +69,18 @@ public class NdVariable extends NdBinding {
 //	}
 
 	public void setName(char[] name) {
-		NAME.put(getPDOM(), this.address, name);
+		NAME.put(getNd(), this.address, name);
 	}
 
 	public String getName() {
-		return NAME.get(getPDOM(), this.address).getString();
+		return NAME.get(getNd(), this.address).getString();
 	}
 
 	public void setType(NdTypeSignature typeId) {
-		TYPE.put(getPDOM(), this.address, typeId);
+		TYPE.put(getNd(), this.address, typeId);
 	}
 
 	public void setConstant(NdConstant constant) {
-		CONSTANT.put(getPDOM(), this.address, constant);
+		CONSTANT.put(getNd(), this.address, constant);
 	}
 }

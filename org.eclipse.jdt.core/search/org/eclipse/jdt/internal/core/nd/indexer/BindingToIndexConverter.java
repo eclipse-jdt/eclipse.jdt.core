@@ -24,7 +24,7 @@ public class BindingToIndexConverter {
 
 	public BindingToIndexConverter(NdResourceFile resource) {
 		this.resource = resource;
-		this.index = JavaIndex.getIndex(resource.getPDOM());
+		this.index = JavaIndex.getIndex(resource.getNd());
 	}
 
 	public void addBinding(NdTreeNode parent, IBinding binding, IProgressMonitor monitor) {
@@ -108,6 +108,6 @@ public class BindingToIndexConverter {
 	}
 
 	private Nd getPDOM() {
-		return this.resource.getPDOM();
+		return this.resource.getNd();
 	}
 }

@@ -34,10 +34,10 @@ public final class NdConstantChar extends NdConstant {
 	}
 
 	public void setValue(char value) {
-		VALUE.put(getPDOM(), this.address, value);
+		VALUE.put(getNd(), this.address, value);
 	}
 
 	public char getValue() {
-		return VALUE.get(getPDOM(), this.address);
+		return VALUE.get(getNd(), this.address);
 	}
 }

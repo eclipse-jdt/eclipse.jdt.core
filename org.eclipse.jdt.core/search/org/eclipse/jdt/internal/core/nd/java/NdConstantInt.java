@@ -34,10 +34,10 @@ public final class NdConstantInt extends NdConstant {
 	}
 
 	public void setValue(int value) {
-		VALUE.put(getPDOM(), this.address, value);
+		VALUE.put(getNd(), this.address, value);
 	}
 
 	public int getValue() {
-		return VALUE.get(getPDOM(), this.address);
+		return VALUE.get(getNd(), this.address);
 	}
 }

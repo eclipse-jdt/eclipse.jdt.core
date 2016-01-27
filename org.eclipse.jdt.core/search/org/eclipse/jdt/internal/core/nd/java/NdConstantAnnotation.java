@@ -34,10 +34,10 @@ public final class NdConstantAnnotation extends NdConstant {
 	}
 
 	public void setValue(NdAnnotation value) {
-		VALUE.put(getPDOM(), this.address, value);
+		VALUE.put(getNd(), this.address, value);
 	}
 
 	public NdAnnotation getValue() {
-		return VALUE.get(getPDOM(), this.address);
+		return VALUE.get(getNd(), this.address);
 	}
 }

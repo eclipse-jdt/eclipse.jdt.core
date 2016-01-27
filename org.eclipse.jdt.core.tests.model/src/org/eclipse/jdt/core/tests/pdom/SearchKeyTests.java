@@ -77,11 +77,11 @@ public class SearchKeyTests extends BaseTestCase {
 		}
 
 		public void setName(String searchStringA) {
-			NAME.put(getPDOM(), this.address, searchStringA);
+			NAME.put(getNd(), this.address, searchStringA);
 		}
 
 		public void setNickName(String searchStringA) {
-			NICKNAME.put(getPDOM(), this.address, searchStringA);
+			NICKNAME.put(getNd(), this.address, searchStringA);
 		}
 	}
 

@@ -63,7 +63,7 @@ public class NdMethodId extends NdNode {
 	}
 
 	public List<NdType> getDeclaredTypes() {
-		return DECLARED_TYPES.asList(getPDOM(), this.address);
+		return DECLARED_TYPES.asList(getNd(), this.address);
 	}
 
 	/**
@@ -71,6 +71,6 @@ public class NdMethodId extends NdNode {
 	 * followed by the method descriptor. For example, "Lorg/eclipse/MyClass#foo()Ljava/lang/Object;V"
 	 */
 	public IString getMethodName() {
-		return METHOD_NAME.get(getPDOM(), this.address);
+		return METHOD_NAME.get(getNd(), this.address);
 	}
 }

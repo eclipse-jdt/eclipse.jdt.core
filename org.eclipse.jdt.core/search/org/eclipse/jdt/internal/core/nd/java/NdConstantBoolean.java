@@ -34,10 +34,10 @@ public final class NdConstantBoolean extends NdConstant {
 	}
 
 	public void setValue(boolean value) {
-		VALUE.put(getPDOM(), this.address, value ? (byte)1 : (byte)0);
+		VALUE.put(getNd(), this.address, value ? (byte)1 : (byte)0);
 	}
 
 	public boolean getValue() {
-		return VALUE.get(getPDOM(), this.address) != 0;
+		return VALUE.get(getNd(), this.address) != 0;
 	}
 }

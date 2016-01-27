@@ -54,9 +54,9 @@ public abstract class NdTreeNode extends NdNode {
 	 */
 	@SuppressWarnings("unchecked")
 	public <T extends NdTreeNode> T getAncestorOfType(Class<T> ancestorType) {
-		long targetType = getPDOM().getNodeType(ancestorType);
+		long targetType = getNd().getNodeType(ancestorType);
 
-		Nd pdom = getPDOM();
+		Nd pdom = getNd();
 		long current = PARENT.getAddress(pdom, this.address);
 
 		while (current != 0) {
@@ -81,7 +81,7 @@ public abstract class NdTreeNode extends NdNode {
 	}
 
 	NdTreeNode getParentNode() {
-		return PARENT.get(getPDOM(), this.address);
+		return PARENT.get(getNd(), this.address);
 	}
 
 	public NdBinding getParentBinding() throws IndexException {

@@ -39,11 +39,11 @@ public class InheritenceTests extends BaseTestCase {
 		}
 
 		boolean contains(BaseClass toTest) {
-			return BASE_CLASS_INSTANCES.asList(getPDOM(), this.address).contains(toTest);
+			return BASE_CLASS_INSTANCES.asList(getNd(), this.address).contains(toTest);
 		}
 
 		boolean contains(Reference toTest) {
-			return REFERENCE_INSTANCES.asList(getPDOM(), this.address).contains(toTest);
+			return REFERENCE_INSTANCES.asList(getNd(), this.address).contains(toTest);
 		}
 	}
 
@@ -127,15 +127,15 @@ public class InheritenceTests extends BaseTestCase {
 		}
 
 		public void setBaseClassReference(BaseClass target) {
-			BASE_CLASS_REFERENCE.put(getPDOM(), this.address, target);
+			BASE_CLASS_REFERENCE.put(getNd(), this.address, target);
 		}
 
 		public void setOwner(BaseClass target) {
-			OWNER.put(getPDOM(), this.address, target);
+			OWNER.put(getNd(), this.address, target);
 		}
 
 		public void setSubClassReference(SubClass target) {
-			SUB_CLASS_REFERENCE.put(getPDOM(), this.address, target);
+			SUB_CLASS_REFERENCE.put(getNd(), this.address, target);
 		}
 	}
 

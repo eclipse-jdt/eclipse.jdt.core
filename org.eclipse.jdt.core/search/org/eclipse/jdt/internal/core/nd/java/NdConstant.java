@@ -71,6 +71,6 @@ public abstract class NdConstant extends NdNode {
 	}
 
 	public void setParent(NdConstantArray result) {
-		PARENT_ARRAY.put(getPDOM(), this.address, result);
+		PARENT_ARRAY.put(getNd(), this.address, result);
 	}
 }

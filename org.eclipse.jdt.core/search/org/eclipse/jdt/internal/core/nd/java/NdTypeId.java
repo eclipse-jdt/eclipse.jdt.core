@@ -47,9 +47,9 @@ public class NdTypeId extends NdTypeSignature {
 	}
 
 	public NdType findTypeByResourceAddress(long resourceAddress) {
-		int size = TYPES.size(getPDOM(), this.address);
+		int size = TYPES.size(getNd(), this.address);
 		for (int idx = 0; idx < size; idx++) {
-			NdType next = TYPES.get(getPDOM(), this.address, idx);
+			NdType next = TYPES.get(getNd(), this.address, idx);
 
 			if (next.getResourceAddress() == resourceAddress) {
 				return next;
@@ -59,11 +59,11 @@ public class NdTypeId extends NdTypeSignature {
 	}
 
 	public List<NdType> getTypes() {
-		return TYPES.asList(getPDOM(), this.address);
+		return TYPES.asList(getNd(), this.address);
 	}
 
 	public IString getFieldDescriptor() {
-		return FIELD_DESCRIPTOR.get(getPDOM(), this.address);
+		return FIELD_DESCRIPTOR.get(getNd(), this.address);
 	}
 
 	public char[] getBinaryName() {
@@ -71,7 +71,7 @@ public class NdTypeId extends NdTypeSignature {
 	}
 
 	public IString getSimpleName() {
-		return SIMPLE_NAME.get(getPDOM(), this.address);
+		return SIMPLE_NAME.get(getNd(), this.address);
 	}
 
 	public char[] getSimpleNameCharArray() {
@@ -93,7 +93,7 @@ public class NdTypeId extends NdTypeSignature {
 			return;
 		}
 		this.fName = name;
-		SIMPLE_NAME.put(getPDOM(), this.address, name);
+		SIMPLE_NAME.put(getNd(), this.address, name);
 	}
 
 	@Override

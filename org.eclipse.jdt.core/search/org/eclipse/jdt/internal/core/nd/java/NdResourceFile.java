@@ -60,14 +60,14 @@ public class NdResourceFile extends NdTreeNode {
 	 */
 	public boolean isInIndex() {
 		try {
-			Nd pdom = getPDOM();
+			Nd pdom = getNd();
 			// In the common case where the resource file was deleted and the memory hasn't yet been reused,
 			// this will fail.
 			if (NODE_TYPE.get(pdom, this.address) != pdom.getNodeType(getClass())) {
 				return false;
 			}
 
-			char[] filename = FILENAME.get(getPDOM(), this.address).getChars();
+			char[] filename = FILENAME.get(getNd(), this.address).getChars();
 
 			NdResourceFile result = JavaIndex.FILES.findBest(pdom, Database.DATA_AREA,
 					SearchCriteria.create(filename), new IResultRank() {
@@ -90,11 +90,11 @@ public class NdResourceFile extends NdTreeNode {
 	}
 
 	public IString getFilename() {
-		return FILENAME.get(getPDOM(), this.address);
+		return FILENAME.get(getNd(), this.address);
 	}
 
 	public void setFilename(String filename) {
-		FILENAME.put(getPDOM(), this.address, filename);
+		FILENAME.put(getNd(), this.address, filename);
 	}
 
 	public FileFingerprint getFingerprint() {
@@ -105,20 +105,20 @@ public class NdResourceFile extends NdTreeNode {
 	}
 
 	private long getHashcodeLastScanned() {
-		return HASHCODE_LAST_SCANNED.get(getPDOM(), this.address);
+		return HASHCODE_LAST_SCANNED.get(getNd(), this.address);
 	}
 
 	public long getTimeLastScanned() {
-		return TIME_LAST_SCANNED.get(getPDOM(), this.address);
+		return TIME_LAST_SCANNED.get(getNd(), this.address);
 	}
 
 	public long getSizeLastScanned() {
-		return SIZE_LAST_SCANNED.get(getPDOM(), this.address);
+		return SIZE_LAST_SCANNED.get(getNd(), this.address);
 	}
 
 	public void setFingerprint(FileFingerprint newFingerprint) {
-		TIME_LAST_SCANNED.put(getPDOM(), this.address, newFingerprint.getTime());
-		HASHCODE_LAST_SCANNED.put(getPDOM(), this.address, newFingerprint.getHash());
-		SIZE_LAST_SCANNED.put(getPDOM(), this.address, newFingerprint.getSize());
+		TIME_LAST_SCANNED.put(getNd(), this.address, newFingerprint.getTime());
+		HASHCODE_LAST_SCANNED.put(getNd(), this.address, newFingerprint.getHash());
+		SIZE_LAST_SCANNED.put(getNd(), this.address, newFingerprint.getSize());
 	}
 }

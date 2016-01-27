@@ -31,21 +31,21 @@ public final class NdConstantEnum extends NdConstant {
 	}
 
 	public static NdConstantEnum create(NdTypeSignature enumType, String enumValue) {
-		NdConstantEnum result = new NdConstantEnum(enumType.getPDOM());
+		NdConstantEnum result = new NdConstantEnum(enumType.getNd());
 		result.setEnumType(enumType);
 		result.setEnumValue(enumValue);
 		return result;
 	}
 
 	public void setEnumType(NdTypeSignature enumType) {
-		ENUM_TYPE.put(getPDOM(), this.address, enumType);
+		ENUM_TYPE.put(getNd(), this.address, enumType);
 	}
 
 	public void setEnumValue(String enumType) {
-		ENUM_VALUE.put(getPDOM(), this.address, enumType);
+		ENUM_VALUE.put(getNd(), this.address, enumType);
 	}
 
 	public NdTypeSignature getValue() {
-		return ENUM_TYPE.get(getPDOM(), this.address);
+		return ENUM_TYPE.get(getNd(), this.address);
 	}
 }

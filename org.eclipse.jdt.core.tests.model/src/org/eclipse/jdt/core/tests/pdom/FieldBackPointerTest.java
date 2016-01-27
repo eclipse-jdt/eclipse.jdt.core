@@ -42,19 +42,19 @@ public class FieldBackPointerTest extends BaseTestCase {
 		}
 
 		public void setBp(BackPointerStruct toSet) {
-			FORWARD.put(getPDOM(), this.address, toSet);
+			FORWARD.put(getNd(), this.address, toSet);
 		}
 
 		public BackPointerStruct getBp() {
-			return FORWARD.get(getPDOM(), this.address);
+			return FORWARD.get(getNd(), this.address);
 		}
 
 		public void setOwner(BackPointerStruct owner) {
-			OWNER.put(getPDOM(), this.address, owner);
+			OWNER.put(getNd(), this.address, owner);
 		}
 
 		public BackPointerStruct getOwner() {
-			return OWNER.get(getPDOM(), this.address);
+			return OWNER.get(getNd(), this.address);
 		}
 	}
 
@@ -87,35 +87,35 @@ public class FieldBackPointerTest extends BaseTestCase {
 		}
 
 		public void ensureBackPointerCapacity(int capacity) {
-			BACK.ensureCapacity(getPDOM(), this.address, capacity);
+			BACK.ensureCapacity(getNd(), this.address, capacity);
 		}
 
 		public int getBackPointerCapacity() {
-			return BACK.getCapacity(getPDOM(), this.address);
+			return BACK.getCapacity(getNd(), this.address);
 		}
 
 		public List<ForwardPointerStruct> getBackPointers() {
-			return BACK.asList(getPDOM(), this.address);
+			return BACK.asList(getNd(), this.address);
 		}
 
 		public List<ForwardPointerStruct> getOwned() {
-			return OWNED.asList(getPDOM(), this.address);
+			return OWNED.asList(getNd(), this.address);
 		}
 
 		public int backPointerSize() {
-			return BACK.size(getPDOM(), this.address);
+			return BACK.size(getNd(), this.address);
 		}
 
 		public boolean backPointersAreEmpty() {
-			return BACK.isEmpty(getPDOM(), this.address);
+			return BACK.isEmpty(getNd(), this.address);
 		}
 
 		public boolean ownedPointersAreEmpty() {
-			return OWNED.isEmpty(getPDOM(), this.address);
+			return OWNED.isEmpty(getNd(), this.address);
 		}
 
 		public ForwardPointerStruct getBackPointer(int i) {
-			return BACK.get(getPDOM(), this.address, i);
+			return BACK.get(getNd(), this.address, i);
 		}
 	}
 

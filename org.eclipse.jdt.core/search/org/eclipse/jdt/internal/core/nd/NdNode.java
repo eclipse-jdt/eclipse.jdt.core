@@ -79,7 +79,7 @@ public abstract class NdNode implements IDestructable {
 	 * Invokes the destructor on this node and frees up its memory
 	 */
 	public final void delete() {
-		getPDOM().delete(this.address);
+		getNd().delete(this.address);
 	}
 
 	protected NdNode(Nd pdom, long address) {
@@ -103,7 +103,7 @@ public abstract class NdNode implements IDestructable {
 		return this.pdom.getDB();
 	}
 
-	public Nd getPDOM() {
+	public Nd getNd() {
 		return this.pdom;
 	}
 
@@ -130,7 +130,7 @@ public abstract class NdNode implements IDestructable {
 			return true;
 		if (obj instanceof NdNode) {
 			NdNode other = (NdNode) obj;
-			return getPDOM() == other.getPDOM() && this.address == other.address;
+			return getNd() == other.getNd() && this.address == other.address;
 		}
 
 		return super.equals(obj);

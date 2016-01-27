@@ -63,26 +63,26 @@ public class NdMethod extends NdBinding {
 	}
 
 	public NdMethod(NdType parent) {
-		super(parent.getPDOM(), parent.getFile());
+		super(parent.getNd(), parent.getFile());
 	}
 
 	public NdMethodId getMethodId() {
-		return METHOD_ID.get(getPDOM(), this.address);
+		return METHOD_ID.get(getNd(), this.address);
 	}
 
 	public void setDefaultValue(NdConstant value) {
-		DEFAULT_VALUE.put(getPDOM(), this.address, value);
+		DEFAULT_VALUE.put(getNd(), this.address, value);
 	}
 
 	public NdConstant getDefaultValue() {
-		return DEFAULT_VALUE.get(getPDOM(), this.address);
+		return DEFAULT_VALUE.get(getNd(), this.address);
 	}
 
 	public void setReturnType(NdTypeSignature createTypeSignature) {
-		RETURN_TYPE.put(getPDOM(), this.address, createTypeSignature);
+		RETURN_TYPE.put(getNd(), this.address, createTypeSignature);
 	}
 
 	public void setMethodId(NdMethodId methodId) {
-		METHOD_ID.put(getPDOM(), this.address, methodId);
+		METHOD_ID.put(getNd(), this.address, methodId);
 	}
 }

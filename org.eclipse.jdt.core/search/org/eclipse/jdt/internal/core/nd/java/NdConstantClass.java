@@ -34,10 +34,10 @@ public final class NdConstantClass extends NdConstant {
 	}
 
 	public void setValue(NdTypeSignature value) {
-		VALUE.put(getPDOM(), this.address, value);
+		VALUE.put(getNd(), this.address, value);
 	}
 
 	public NdTypeSignature getValue() {
-		return VALUE.get(getPDOM(), this.address);
+		return VALUE.get(getNd(), this.address);
 	}
 }

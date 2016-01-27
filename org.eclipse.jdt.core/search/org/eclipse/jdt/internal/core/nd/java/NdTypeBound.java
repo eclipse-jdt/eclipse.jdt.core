@@ -31,17 +31,17 @@ public class NdTypeBound extends NdNode {
 	}
 
 	public NdTypeBound(NdTypeParameter parent, NdTypeSignature signature) {
-		super(parent.getPDOM());
+		super(parent.getNd());
 
-		PARENT.put(getPDOM(), this.address, parent);
-		TYPE.put(getPDOM(), this.address, signature);
+		PARENT.put(getNd(), this.address, parent);
+		TYPE.put(getNd(), this.address, signature);
 	}
 
 	public NdTypeParameter getParent() {
-		return PARENT.get(getPDOM(), this.address);
+		return PARENT.get(getNd(), this.address);
 	}
 
 	public NdTypeSignature getType() {
-		return TYPE.get(getPDOM(), this.address);
+		return TYPE.get(getNd(), this.address);
 	}
 }

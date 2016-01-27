@@ -47,26 +47,26 @@ public class NdAnnotation extends NdNode {
 	public NdAnnotation(Nd pdom, NdTypeSignature type) {
 		super(pdom);
 
-		ANNOTATION_TYPE.put(getPDOM(), this.address, type);
+		ANNOTATION_TYPE.put(getNd(), this.address, type);
 	}
 
 	public void setParent(NdBinding binding) {
-		PARENT_BINDING.put(getPDOM(), this.address, binding);
+		PARENT_BINDING.put(getNd(), this.address, binding);
 	}
 
 	public void setParent(NdConstantAnnotation constant) {
-		PARENT_CONSTANT.put(getPDOM(), this.address, constant);
+		PARENT_CONSTANT.put(getNd(), this.address, constant);
 	}
 
 	public void setParent(NdComplexTypeSignature signature) {
-		PARENT_TYPE_SIGNATURE.put(getPDOM(), this.address, signature);
+		PARENT_TYPE_SIGNATURE.put(getNd(), this.address, signature);
 	}
 
 	public NdTypeSignature getType() {
-		return ANNOTATION_TYPE.get(getPDOM(), this.address);
+		return ANNOTATION_TYPE.get(getNd(), this.address);
 	}
 
 	public NdBinding getAppliesTo() {
-		return PARENT_BINDING.get(getPDOM(), this.address);
+		return PARENT_BINDING.get(getNd(), this.address);
 	}
 }

@@ -80,68 +80,68 @@ public class NdType extends NdBinding {
 	}
 
 	public NdTypeId getTypeId() {
-		return TYPENAME.get(getPDOM(), this.address);
+		return TYPENAME.get(getNd(), this.address);
 	}
 
 	public void setTypeId(NdTypeId typeId) {
-		TYPENAME.put(getPDOM(), this.address, typeId);
+		TYPENAME.put(getNd(), this.address, typeId);
 	}
 
 	public long getResourceAddress() {
-		return FILE.getAddress(getPDOM(), this.address);
+		return FILE.getAddress(getNd(), this.address);
 	}
 
 	public void setSuperclass(NdTypeSignature superclassTypeName) {
-		SUPERCLASS.put(getPDOM(), this.address, superclassTypeName);
+		SUPERCLASS.put(getNd(), this.address, superclassTypeName);
 	}
 
 	public NdTypeSignature getSuperclass() {
-		return SUPERCLASS.get(getPDOM(), this.address);
+		return SUPERCLASS.get(getNd(), this.address);
 	}
 
 	public List<NdTypeInterface> getInterfaces() {
-		return INTERFACES.asList(getPDOM(), this.address);
+		return INTERFACES.asList(getNd(), this.address);
 	}
 
 	public NdResourceFile getResourceFile() {
-		return FILE.get(getPDOM(), this.address);
+		return FILE.get(getNd(), this.address);
 	}
 
 	public void setDeclaringMethod(NdMethodId createMethodId) {
-		DECLARING_METHOD.put(getPDOM(), this.address, createMethodId);
+		DECLARING_METHOD.put(getNd(), this.address, createMethodId);
 	}
 
 	/**
 	 * @param createTypeIdFromBinaryName
 	 */
 	public void setDeclaringType(NdTypeId createTypeIdFromBinaryName) {
-		DECLARING_TYPE.put(getPDOM(), this.address, createTypeIdFromBinaryName);
+		DECLARING_TYPE.put(getNd(), this.address, createTypeIdFromBinaryName);
 	}
 
 	public NdTypeId getDeclaringType() {
-		return DECLARING_TYPE.get(getPDOM(), this.address);
+		return DECLARING_TYPE.get(getNd(), this.address);
 	}
 
 	/**
 	 * Sets the missing type names (if any) for this class. The names are encoded in a comma-separated list.
 	 */
 	public void setMissingTypeNames(char[] contents) {
-		MISSING_TYPE_NAMES.put(getPDOM(), this.address, contents);
+		MISSING_TYPE_NAMES.put(getNd(), this.address, contents);
 	}
 
 	/**
 	 * Returns the missing type names as a comma-separated list
 	 */
 	public IString getMissingTypeNames() {
-		return MISSING_TYPE_NAMES.get(getPDOM(), this.address);
+		return MISSING_TYPE_NAMES.get(getNd(), this.address);
 	}
 
 	public void setSourceFileName(char[] sourceFileName) {
-		SOURCE_FILE_NAME.put(getPDOM(), this.address, sourceFileName);
+		SOURCE_FILE_NAME.put(getNd(), this.address, sourceFileName);
 	}
 
 	public IString getSourceFileName() {
-		return SOURCE_FILE_NAME.get(getPDOM(), this.address);
+		return SOURCE_FILE_NAME.get(getNd(), this.address);
 	}
 
 	public void setAnonymous(boolean anonymous) {
@@ -169,12 +169,12 @@ public class NdType extends NdBinding {
 	}
 
 	private void setFlag(byte flagConstant, boolean value) {
-		int oldFlags = FLAGS.get(getPDOM(), this.address);
+		int oldFlags = FLAGS.get(getNd(), this.address);
 		int newFlags =  ((oldFlags & ~flagConstant) | (value ? flagConstant : 0));
-		FLAGS.put(getPDOM(), this.address, (byte)newFlags);
+		FLAGS.put(getNd(), this.address, (byte)newFlags);
 	}
 
 	private boolean getFlag(byte flagConstant) {
-		return (FLAGS.get(getPDOM(), this.address) & flagConstant) != 0;
+		return (FLAGS.get(getNd(), this.address) & flagConstant) != 0;
 	}
 }

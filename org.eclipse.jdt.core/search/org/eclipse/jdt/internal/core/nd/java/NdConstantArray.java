@@ -30,6 +30,6 @@ public final class NdConstantArray extends NdConstant {
 	}
 
 	public List<NdConstant> getValue() {
-		return ELEMENTS.asList(getPDOM(), this.address);
+		return ELEMENTS.asList(getNd(), this.address);
 	}
 }

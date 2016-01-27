@@ -46,22 +46,22 @@ public class NdTypeArgument extends NdNode {
 	 * @param wildcard
 	 */
 	public void setWildcard(int wildcard) {
-		WILDCARD.put(getPDOM(), this.address, (byte) wildcard);
+		WILDCARD.put(getNd(), this.address, (byte) wildcard);
 	}
 
 	public void setType(NdTypeSignature typeSignature) {
-		TYPE_SIGNATURE.put(getPDOM(), this.address, typeSignature);
+		TYPE_SIGNATURE.put(getNd(), this.address, typeSignature);
 	}
 
 	public int getWildcard() {
-		return WILDCARD.get(getPDOM(), this.address);
+		return WILDCARD.get(getNd(), this.address);
 	}
 
 	public NdComplexTypeSignature getParent() {
-		return PARENT.get(getPDOM(), this.address);
+		return PARENT.get(getNd(), this.address);
 	}
 
 	public NdTypeSignature getType() {
-		return TYPE_SIGNATURE.get(getPDOM(), this.address);
+		return TYPE_SIGNATURE.get(getNd(), this.address);
 	}
 }

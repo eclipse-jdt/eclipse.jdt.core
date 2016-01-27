@@ -48,10 +48,10 @@ public class NdTypeInterface extends NdNode {
 	}
 
 	public NdType getImplementation() {
-		return APPLIES_TO.get(getPDOM(), this.address);
+		return APPLIES_TO.get(getNd(), this.address);
 	}
 
 	public NdTypeSignature getInterface() {
-		return IMPLEMENTS.get(getPDOM(), this.address);
+		return IMPLEMENTS.get(getNd(), this.address);
 	}
 }
