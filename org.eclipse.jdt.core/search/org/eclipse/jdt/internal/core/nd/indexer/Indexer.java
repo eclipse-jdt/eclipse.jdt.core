@@ -26,7 +26,6 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -38,19 +37,19 @@ import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint;
+import org.eclipse.jdt.internal.core.nd.java.FileFingerprint.FingerprintTestResult;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
-import org.eclipse.jdt.internal.core.nd.java.FileFingerprint.FingerprintTestResult;
 
 public final class Indexer {
 	private Nd pdom;
 	private IWorkspaceRoot root;
-	
+
 	private static Indexer indexer;
 	private static final Object mutex = new Object();
 	private static final long MS_TO_NS = 1000000;
 
-	private Job rescanJob = Job.create("Updating index", new ICoreRunnable() {
+	private Job rescanJob = Job.create(Messages.Indexer_updating_index_job_name, new ICoreRunnable() {
 		@Override
 		public void run(IProgressMonitor monitor) throws CoreException {
 			rescan(monitor);
@@ -70,7 +69,7 @@ public final class Indexer {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 
 		long startTimeNs = System.nanoTime();
-		Package.logInfo("Indexer running rescan");
+		Package.logInfo("Indexer running rescan"); //$NON-NLS-1$
 
 		// Gather all the IPackageFragmentRoots in the workspace
 		List<IJavaElement> allRoots = getAllIndexableObjectsInWorkspace(subMonitor.split(3));
@@ -80,17 +79,17 @@ public final class Indexer {
 		allRoots = removeDuplicatePaths(allRoots);
 
 		long startGarbageCollectionNs = System.nanoTime();
-		
+
 		// Remove all files in the index which aren't referenced in the workspace
 		cleanGarbage(allRoots, subMonitor.split(4));
 
 		long startFingerprintTestNs = System.nanoTime();
-		
+
 		Map<IJavaElement, FingerprintTestResult> fingerprints = testFingerprints(allRoots, subMonitor.split(7));
 		List<IJavaElement> rootsWithChanges = getRootsThatHaveChanged(allRoots, fingerprints);
 
 		long startIndexingNs = System.nanoTime();
-		
+
 		int classesIndexed = 0;
 		SubMonitor loopMonitor = subMonitor.split(85).setWorkRemaining(rootsWithChanges.size());
 		for (IJavaElement next : rootsWithChanges) {
@@ -98,19 +97,19 @@ public final class Indexer {
 		}
 
 		long endIndexingNs = System.nanoTime();
-		
+
 		long fingerprintTimeMs = (startIndexingNs - startFingerprintTestNs) / MS_TO_NS;
 		long locateRootsTimeMs = (startGarbageCollectionNs - startTimeNs) / MS_TO_NS;
 		long indexingTimeMs = (endIndexingNs - startIndexingNs) / MS_TO_NS;
 
 		double averageIndexTimeMs = classesIndexed == 0 ? 0 : (double)indexingTimeMs / (double)classesIndexed;
-		double averageFingerprintTimeMs = allRoots.size() == 0 ? 0 : (double)fingerprintTimeMs / (double)allRoots.size(); 
+		double averageFingerprintTimeMs = allRoots.size() == 0 ? 0 : (double)fingerprintTimeMs / (double)allRoots.size();
 
 		Package.logInfo(
-				"Indexing done.\n"
-				+ "  Located " + totalRoots + " roots in " + locateRootsTimeMs + "ms\n"
-				+ "  Tested " + allRoots.size() + " fingerprints in " + fingerprintTimeMs + "ms, average time = " + averageFingerprintTimeMs + "ms\n"
-				+ "  Indexed " + classesIndexed + " classes in " + indexingTimeMs + "ms, average time = " + averageIndexTimeMs + "ms\n");
+				"Indexing done.\n" //$NON-NLS-1$
+				+ "  Located " + totalRoots + " roots in " + locateRootsTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				+ "  Tested " + allRoots.size() + " fingerprints in " + fingerprintTimeMs + "ms, average time = " + averageFingerprintTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				+ "  Indexed " + classesIndexed + " classes in " + indexingTimeMs + "ms, average time = " + averageIndexTimeMs + "ms\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 	}
 
 	private void cleanGarbage(List<IJavaElement> allRoots, IProgressMonitor monitor) {
@@ -156,11 +155,6 @@ public final class Indexer {
 
 	/**
 	 * Rescans an archive (a jar, zip, or class file on the filesystem). Returns the number of classes indexed.
-	 * 
-	 * @param element
-	 * @param fingerprint
-	 * @param monitor
-	 * @return
 	 * @throws JavaModelException
 	 */
 	private int rescanArchive(IJavaElement element, FileFingerprint fingerprint, IProgressMonitor monitor)
@@ -173,7 +167,7 @@ public final class Indexer {
 
 		File theFile = thePath.toFile();
 		if (!(theFile.exists() && theFile.isFile())) {
-			Package.log("the file " + pathString + " does not exist", null);
+			Package.log("the file " + pathString + " does not exist", null); //$NON-NLS-1$ //$NON-NLS-2$
 			return 0;
 		}
 
@@ -187,7 +181,7 @@ public final class Indexer {
 			this.pdom.releaseWriteLock();
 		}
 
-		Package.logInfo("rescanning " + thePath.toString());
+		Package.logInfo("rescanning " + thePath.toString()); //$NON-NLS-1$
 		int result = addElement(resourceFile, element, subMonitor.newChild(90));
 
 		// Now update the timestamp and delete all older versions of this resource that exist in the index
@@ -196,7 +190,7 @@ public final class Indexer {
 			if (resourceFile.isInIndex()) {
 				resourceFile.setFingerprint(fingerprint);
 				List<NdResourceFile> resourceFiles = javaIndex.getAllResourceFiles(pathString);
-	
+
 				for (NdResourceFile next : resourceFiles) {
 					if (!next.equals(resourceFile)) {
 						next.delete();
@@ -212,7 +206,7 @@ public final class Indexer {
 
 	/**
 	 * Returns the set of IClassFile and ICompilationUnits contained within the given IJavaElement
-	 * 
+	 *
 	 * @throws JavaModelException
 	 */
 	private List<IJavaElement> getBindableElements(IJavaElement input, IProgressMonitor monitor)
@@ -244,7 +238,7 @@ public final class Indexer {
 
 	/**
 	 * Adds an archive to the index, under the given PDOMResourceFile.
-	 * 
+	 *
 	 * @param resourceFile
 	 * @param element
 	 * @param monitor
@@ -299,17 +293,6 @@ public final class Indexer {
 		return result;
 	}
 
-	private List<ICompilationUnit> getCompilationUnits(List<IJavaElement> bindableElements) {
-		List<ICompilationUnit> result = new ArrayList<>();
-
-		for (IJavaElement next : bindableElements) {
-			if (next.getElementType() == IJavaElement.COMPILATION_UNIT) {
-				result.add((ICompilationUnit)next);
-			}
-		}
-		return result;
-	}
-
 	private List<IJavaElement> getAllIndexableObjectsInWorkspace(IProgressMonitor monitor) throws CoreException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 		List<IJavaElement> allRoots = new ArrayList<>();
@@ -324,7 +307,7 @@ public final class Indexer {
 		}
 
 		Set<IPath> scannedPaths = new HashSet<>();
-		Set<IResource> resourcesToScan = new HashSet<>(); 
+		Set<IResource> resourcesToScan = new HashSet<>();
 		SubMonitor projectLoopMonitor = subMonitor.split(1).setWorkRemaining(projectsToScan.size());
 		for (IProject project : projectsToScan) {
 			SubMonitor iterationMonitor = projectLoopMonitor.split(1);
@@ -384,8 +367,6 @@ public final class Indexer {
 			IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor);
 
-		JavaCore javaCore = JavaCore.getJavaCore();
-
 		ArrayDeque<IResource> resources = new ArrayDeque<>();
 		resources.addAll(toScan);
 
@@ -408,14 +389,14 @@ public final class Indexer {
 				IFile file = (IFile) next;
 
 				String extension = file.getFileExtension();
-				if (Objects.equals(extension, "class")) {
-					IJavaElement element = javaCore.create(file);
+				if (Objects.equals(extension, "class")) { //$NON-NLS-1$
+					IJavaElement element = JavaCore.create(file);
 
 					if (element instanceof IClassFile) {
 						result.add((IClassFile)element);
 					}
 				}
-			} 
+			}
 		}
 	}
 
@@ -434,7 +415,7 @@ public final class Indexer {
 					result.add((IClassFile)child);
 				} else if (child instanceof IParent) {
 					IParent parent = (IParent) child;
-	
+
 					collectAllClassFiles(result, parent);
 				}
 			} catch (CoreException e) {
@@ -489,7 +470,7 @@ public final class Indexer {
 		IResource resource = next.getResource();
 
 		if (resource != null) {
-			return resource.getLocation() == null ? new Path("") : resource.getLocation();
+			return resource.getLocation() == null ? new Path("") : resource.getLocation(); //$NON-NLS-1$
 		}
 
 		return next.getPath();

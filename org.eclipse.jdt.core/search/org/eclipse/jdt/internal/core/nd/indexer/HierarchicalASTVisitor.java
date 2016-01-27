@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core.nd.indexer;
 import org.eclipse.jdt.core.dom.*;
 
 /**
- * 
+ *
  * <p>
  * This class provides a convenient behaviour-only extension mechanism for the ASTNode hierarchy. If
  * you feel like you would like to add a method to the ASTNode hierarchy (or a subtree of the
@@ -24,11 +24,11 @@ import org.eclipse.jdt.core.dom.*;
  * in visit(Foo). This class will provide appropriate dispatch, just as if the method
  * implementations had been added to the ASTNode hierarchy.
  * </p>
- * 
+ *
  * <p>
  * <b>Details:<b>
  * </p>
- * 
+ *
  * <p>
  * This class has a visit(XX node) method for every class (concrete or abstract) XX in the ASTNode
  * hierarchy. In this class' default implementations of these methods, the method corresponding to a
@@ -36,7 +36,7 @@ import org.eclipse.jdt.core.dom.*;
  * for it's superclass YY, with the exception of the visit(ASTNode) method which simply returns
  * true, since ASTNode doesn't have a superclass that is within the ASTNode hierarchy.
  * </p>
- * 
+ *
  * <p>
  * Because of this organization, when visit(XX) methods are overridden in a subclass, and the
  * visitor is applied to a node, only the most specialized overridden method implementation for the
@@ -45,15 +45,14 @@ import org.eclipse.jdt.core.dom.*;
  * must be XX) which will invoke this class' implementation of the method, which will, in turn,
  * invoke the visit(YY) method corresponding to the superclass, YY.
  * </p>
- * 
+ *
  * <p>
  * Thus, the dispatching behaviour achieved when HierarchicalASTVisitors' visit(XX) methods,
  * corresponding to a particular concrete or abstract ASTNode descendant class, are overridden is
  * exactly analogous to the dispatching behaviour obtained when method implementations are added to
  * the same ASTNode descendant classes.
  * </p>
- * 
- * @see JDTUIHelperClasses
+ *
  */
 /*
  * IMPORTANT NOTE:
@@ -73,7 +72,7 @@ public abstract class HierarchicalASTVisitor extends ASTVisitor {
 	 * <p>
 	 * The default implementation does nothing and return true. Subclasses may reimplement.
 	 * </p>
-	 * 
+	 *
 	 * @param node the node to visit
 	 * @return <code>true</code> if the children of this node should be visited, and
 	 *         <code>false</code> if the children of this node should be skipped
@@ -87,7 +86,7 @@ public abstract class HierarchicalASTVisitor extends ASTVisitor {
 	 * <p>
 	 * The default implementation does nothing. Subclasses may reimplement.
 	 * </p>
-	 * 
+	 *
 	 * @param node the node to visit
 	 */
 	public void endVisit(ASTNode node) {
@@ -271,12 +270,12 @@ public abstract class HierarchicalASTVisitor extends ASTVisitor {
 	public boolean visit(Dimension node) {
 		return visit((ASTNode)node);
 	}
-	
+
 	@Override
 	public void endVisit(Dimension node) {
 		endVisit((ASTNode)node);
 	}
-	
+
 //---- Begin Expression Hierarchy ----------------------------------
 	public boolean visit(Expression node) {
 		return visit((ASTNode)node);
@@ -451,12 +450,12 @@ public abstract class HierarchicalASTVisitor extends ASTVisitor {
 	public boolean visit(LambdaExpression node) {
 		return visit((Expression)node);
 	}
-	
+
 	@Override
 	public void endVisit(LambdaExpression node) {
 		endVisit((Expression)node);
 	}
-	
+
 	@Override
 	public boolean visit(MethodInvocation node) {
 		return visit((Expression)node);
@@ -471,7 +470,7 @@ public abstract class HierarchicalASTVisitor extends ASTVisitor {
 	public boolean visit(MethodReference node) {
 		return visit((Expression)node);
 	}
-	
+
 	public void endVisit(MethodReference node) {
 		endVisit((Expression)node);
 	}
@@ -490,32 +489,32 @@ public abstract class HierarchicalASTVisitor extends ASTVisitor {
 	public boolean visit(ExpressionMethodReference node) {
 		return visit((MethodReference)node);
 	}
-	
+
 	@Override
 	public void endVisit(ExpressionMethodReference node) {
 		endVisit((MethodReference)node);
 	}
-	
+
 	@Override
 	public boolean visit(SuperMethodReference node) {
 		return visit((MethodReference)node);
 	}
-	
+
 	@Override
 	public void endVisit(SuperMethodReference node) {
 		endVisit((MethodReference)node);
 	}
-	
+
 	@Override
 	public boolean visit(TypeMethodReference node) {
 		return visit((MethodReference)node);
 	}
-	
+
 	@Override
 	public void endVisit(TypeMethodReference node) {
 		endVisit((MethodReference)node);
 	}
-	
+
 	//---- End MethodReference Hierarchy ------------------------------------
 
 	//---- Begin Name Hierarchy ----------------------------------
@@ -997,7 +996,7 @@ public abstract class HierarchicalASTVisitor extends ASTVisitor {
 	public boolean visit(AnnotatableType node) {
 		return visit((Type)node);
 	}
-	
+
 	public void endVisit(AnnotatableType node) {
 		endVisit((Type)node);
 	}
@@ -1067,7 +1066,7 @@ public abstract class HierarchicalASTVisitor extends ASTVisitor {
 	public boolean visit(IntersectionType node) {
 		return visit((Type)node);
 	}
-	
+
 	@Override
 	public void endVisit(IntersectionType node) {
 		endVisit((Type)node);

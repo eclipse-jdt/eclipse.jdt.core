@@ -3,7 +3,7 @@ package org.eclipse.jdt.internal.core.nd.java;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.core.nd.indexer.CharUtil;
+import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
@@ -23,7 +23,7 @@ public class JavaNames {
 				Math.max(CharOperation.lastIndexOf('$', binaryName), CharOperation.lastIndexOf('.', binaryName)),
 				CharOperation.lastIndexOf('/', binaryName)) + 1;
 
-		return CharUtil.substring(binaryName, skipIndex);
+		return CharArrayUtils.substring(binaryName, skipIndex);
 	}
 
 	/**
@@ -44,7 +44,7 @@ public class JavaNames {
 	}
 
 	public static char[] fullyQualifiedNameToFieldDescriptor(char[] fullyQualifiedName) {
-		char[] result = CharUtil.concat(FIELD_DESCRIPTOR_PREFIX, fullyQualifiedName);
+		char[] result = CharArrayUtils.concat(FIELD_DESCRIPTOR_PREFIX, fullyQualifiedName);
 		CharOperation.replace(result, '.', '/');
 		return result;
 	}
@@ -58,11 +58,11 @@ public class JavaNames {
 		char[] filename = resourceFile.getFilename().getChars();
 		char[] binaryName = type.getTypeId().getBinaryName();
 
-		return CharUtil.concat(filename, JAR_FILE_ENTRY_SEPARATOR, binaryNameToResourceRelativePath(binaryName));
+		return CharArrayUtils.concat(filename, JAR_FILE_ENTRY_SEPARATOR, binaryNameToResourceRelativePath(binaryName));
 	}
 
 	public static char[] binaryNameToFieldDescriptor(char[] binaryName) {
-		return CharUtil.concat(FIELD_DESCRIPTOR_PREFIX, binaryName);
+		return CharArrayUtils.concat(FIELD_DESCRIPTOR_PREFIX, binaryName);
 	}
 
 	public static char[] fieldDescriptorToJavaName(char[] fieldDescriptor, boolean fullyQualified) {
@@ -79,7 +79,7 @@ public class JavaNames {
 				case 'I' : result.append("int"); break; //$NON-NLS-1$
 				case 'J' : result.append("long"); break; //$NON-NLS-1$
 				case 'L' : {
-					char[] binaryName = CharUtil.substring(fieldDescriptor, scanPosition + 1);
+					char[] binaryName = CharArrayUtils.substring(fieldDescriptor, scanPosition + 1);
 					if (fullyQualified) {
 						// Modify the binaryName string in-place to change it into a fully qualified name
 						CharOperation.replace(binaryName, '/', '.');
@@ -114,11 +114,13 @@ public class JavaNames {
 	 * @return a method id suitable for looking up a PDOMMethodId
 	 */
 	public static char[] getMethodId(char[] parentTypeBinaryName, char[] methodSelectorAndDescriptor) {
-		return CharUtil.concat(FIELD_DESCRIPTOR_PREFIX, parentTypeBinaryName, METHOD_ID_SEPARATOR, methodSelectorAndDescriptor);
+		return CharArrayUtils.concat(FIELD_DESCRIPTOR_PREFIX, parentTypeBinaryName, METHOD_ID_SEPARATOR,
+				methodSelectorAndDescriptor);
 	}
 
 	public static char[] getMethodId(char[] parentTypeBinaryName, char[] methodSelector, char[] methodDescriptor) {
-		return CharUtil.concat(FIELD_DESCRIPTOR_PREFIX, parentTypeBinaryName, METHOD_ID_SEPARATOR, methodSelector, methodDescriptor);
+		return CharArrayUtils.concat(FIELD_DESCRIPTOR_PREFIX, parentTypeBinaryName, METHOD_ID_SEPARATOR, methodSelector,
+				methodDescriptor);
 	}
 
 	/**
@@ -129,9 +131,9 @@ public class JavaNames {
 	 * @return ""
 	 */
 	public static char[] fieldDescriptorToBinaryName(char[] fieldDescriptor) {
-		if (CharUtil.startsWith(fieldDescriptor, 'L')) {
-			return CharUtil.substring(fieldDescriptor, 1);
+		if (CharArrayUtils.startsWith(fieldDescriptor, 'L')) {
+			return CharArrayUtils.substring(fieldDescriptor, 1);
 		}
-		return CharUtil.EMPTY_CHAR_ARRAY;
+		return CharArrayUtils.EMPTY_CHAR_ARRAY;
 	}
 }

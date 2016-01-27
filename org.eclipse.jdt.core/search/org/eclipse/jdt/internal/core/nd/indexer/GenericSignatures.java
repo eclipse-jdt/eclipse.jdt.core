@@ -4,6 +4,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.SignatureWrapper;
+import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
@@ -62,7 +63,7 @@ public class GenericSignatures {
 				toCatenate[catIndex + 2] = suffix;
 			}
 
-			genericSignature = CharUtil.concat(toCatenate);
+			genericSignature = CharArrayUtils.concat(toCatenate);
 		}
 
 		SignatureWrapper signatureWrapper = new SignatureWrapper(genericSignature);

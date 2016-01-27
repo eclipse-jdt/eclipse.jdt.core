@@ -189,6 +189,70 @@ public class CharArrayUtils {
 		return result;
 	}
 
+	public static final char[] concat(char[] first, char[] second, char[] third) {
+		if (first == null)
+			return concat(second, third);
+		if (second == null)
+			return concat(first, third);
+		if (third == null)
+			return concat(first, second);
+
+		int length1 = first.length;
+		int length2 = second.length;
+		int length3 = third.length;
+		char[] result = new char[length1 + length2 + length3];
+		System.arraycopy(first, 0, result, 0, length1);
+		System.arraycopy(second, 0, result, length1, length2);
+		System.arraycopy(third, 0, result, length1 + length2, length3);
+		return result;
+	}
+
+	public static final char[] concat(char[] first, char[] second, char[] third, char[] fourth) {
+		if (first == null)
+			return concat(second, third, fourth);
+		if (second == null)
+			return concat(first, third, fourth);
+		if (third == null)
+			return concat(first, second, fourth);
+		if (fourth == null)
+			return concat(first, second, third);
+
+		int length1 = first.length;
+		int length2 = second.length;
+		int length3 = third.length;
+		int length4 = fourth.length;
+		char[] result = new char[length1 + length2 + length3 + length4];
+		System.arraycopy(first, 0, result, 0, length1);
+		System.arraycopy(second, 0, result, length1, length2);
+		System.arraycopy(third, 0, result, length1 + length2, length3);
+		System.arraycopy(third, 0, result, length1 + length2 + length3, length4);
+		return result;
+	}
+
+	/**
+	 * Answers a new array which is the concatenation of all the given arrays.
+	 *
+	 * @param toCatenate
+	 * @since 3.12
+	 */
+	public static char[] concat(char[]... toCatenate) {
+		int totalSize = 0;
+		for (char[] next: toCatenate) {
+			totalSize += next.length;
+		}
+
+		char[] result = new char[totalSize];
+		int writeIndex = 0;
+		for (char[] next: toCatenate) {
+			if (next == null) {
+				continue;
+			}
+			System.arraycopy(next, 0, result, writeIndex, next.length);
+			writeIndex += next.length;
+		}
+		return result;
+	}
+
 	public static final char[] replace(char[] array, char[] toBeReplaced, char[] replacementChars) {
 		int max = array.length;
 		int replacedLength = toBeReplaced.length;
@@ -303,14 +367,14 @@ public class CharArrayUtils {
 	public static final int lastIndexOf(char[] toBeFound, char[] array) {
 		return lastIndexOf(toBeFound, array, 0);
 	}
-	
+
 	/**
 	 * @since 5.11
 	 */
 	public static int lastIndexOf(char toBeFound, char[] array) {
 		return lastIndexOf(toBeFound, array, 0);
 	}
-	
+
 	/**
 	 * @since 5.11
 	 */
@@ -322,7 +386,7 @@ public class CharArrayUtils {
 		}
 		return -1;
 	}
-	
+
 	/**
 	 * @since 5.11
 	 */
@@ -340,7 +404,7 @@ public class CharArrayUtils {
 			}
 		}
 	}
-	
+
 	static final public char[] trim(char[] chars) {
 		if (chars == null)
 			return null;
@@ -355,6 +419,7 @@ public class CharArrayUtils {
 
 		int end = length;
 		while (--end > start && chars[end] == ' ') {
+			// Nothing to do
 		}
 		end++;
 		if (start == 0 && end == length)
@@ -407,5 +472,19 @@ public class CharArrayUtils {
 		char[] result= new char[len];
 		buf.getChars(0, len, result, 0);
 		return result;
+	}
+
+	public static char[] substring(char[] inputString, int index) {
+		if (inputString.length <= index) {
+			return EMPTY_CHAR_ARRAY;
+		}
+
+		char[] result = new char[inputString.length - index];
+		System.arraycopy(inputString, index, result, 0, result.length);
+		return result;
+	}
+
+	public static boolean startsWith(char[] fieldDescriptor, char c) {
+		return fieldDescriptor.length > 0 && fieldDescriptor[0] == c;
 	}
 }

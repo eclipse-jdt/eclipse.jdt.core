@@ -47,6 +47,7 @@ import org.eclipse.jdt.internal.core.nd.java.NdTypeInterface;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeParameter;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeSignature;
 import org.eclipse.jdt.internal.core.nd.java.NdVariable;
+import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClassFileToIndexConverter {
@@ -130,7 +131,8 @@ public class ClassFileToIndexConverter {
 		}
 
 		ITypeAnnotationWalker typeAnnotations = getTypeAnnotationWalker(binaryType.getTypeAnnotations());
-		ITypeAnnotationWalker supertypeAnnotations = typeAnnotations.toSupertype((short)-1, binaryType.getSuperclassName());
+		ITypeAnnotationWalker supertypeAnnotations = typeAnnotations.toSupertype((short) -1,
+				binaryType.getSuperclassName());
 
 		type.setTypeId(name);
 
@@ -154,9 +156,8 @@ public class ClassFileToIndexConverter {
 			// this characteristic. In such cases, we take what's in the generic signature and discard what's in the
 			// interfaces list.
 			char[] interfaceSpec = interfaceIdx < interfaces.length ? interfaces[interfaceIdx] : EMPTY_CHAR_ARRAY;
-			new NdTypeInterface(getPDOM(), type, createTypeSignature(
-					typeAnnotations.toSupertype(interfaceIdx, interfaceSpec),
-					signatureWrapper));
+			new NdTypeInterface(getPDOM(), type,
+					createTypeSignature(typeAnnotations.toSupertype(interfaceIdx, interfaceSpec), signatureWrapper));
 			interfaceIdx++;
 		}
 
@@ -194,6 +195,7 @@ public class ClassFileToIndexConverter {
 
 	/**
 	 * Adds the given method to the given type
+	 *
 	 * @throws CoreException
 	 */
 	private void addMethod(NdType type, IBinaryMethod next, char[] binaryTypeName) throws CoreException {
@@ -217,8 +219,7 @@ public class ClassFileToIndexConverter {
 				break;
 			}
 			NdMethodParameter parameter = new NdMethodParameter(method,
-					createTypeSignature(typeAnnotations.toMethodParameter(parameterIdx),
-					signature));
+					createTypeSignature(typeAnnotations.toMethodParameter(parameterIdx), signature));
 
 			if (parameterNames != null && parameterNames.length > parameterIdx) {
 				parameter.setName(parameterNames[parameterIdx]);
@@ -231,8 +232,7 @@ public class ClassFileToIndexConverter {
 		int throwsIdx = 0;
 		while (!signature.atEnd() && signature.charAtStart() == '^') {
 			signature.start++;
-			new NdMethodException(method,
-					createTypeSignature(typeAnnotations.toThrows(throwsIdx), signature));
+			new NdMethodException(method, createTypeSignature(typeAnnotations.toThrows(throwsIdx), signature));
 			throwsIdx++;
 		}
 
@@ -241,8 +241,7 @@ public class ClassFileToIndexConverter {
 			method.setDefaultValue(createConstantFromMixedType(defaultValue));
 		}
 
-		method.setMethodId(
-				createMethodId(binaryTypeName, next.getSelector(), next.getMethodDescriptor()));
+		method.setMethodId(createMethodId(binaryTypeName, next.getSelector(), next.getMethodDescriptor()));
 
 		method.setModifiers(next.getModifiers());
 	}
@@ -271,8 +270,9 @@ public class ClassFileToIndexConverter {
 	}
 
 	/**
-	 * Reads and attaches any generic type parameters at the current start position in the given wrapper.
-	 * Sets wrapper.start to the character following the type parameters.
+	 * Reads and attaches any generic type parameters at the current start position in the given wrapper. Sets
+	 * wrapper.start to the character following the type parameters.
+	 *
 	 * @throws CoreException
 	 */
 	private void readTypeParameters(NdBinding type, ITypeAnnotationWalker annotationWalker, SignatureWrapper wrapper)
@@ -305,8 +305,7 @@ public class ClassFileToIndexConverter {
 			}
 
 			NdTypeSignature boundSignature = createTypeSignature(
-					annotationWalker.toTypeParameter(true, parameterIndex).toTypeBound((short)boundIndex),
-					wrapper);
+					annotationWalker.toTypeParameter(true, parameterIndex).toTypeBound((short) boundIndex), wrapper);
 
 			new NdTypeBound(parameter, boundSignature);
 			boundIndex++;
@@ -319,16 +318,17 @@ public class ClassFileToIndexConverter {
 
 	/**
 	 * Reads a type signature from the given {@link SignatureWrapper}, starting at the character pointed to by
-	 * wrapper.start. On return, wrapper.start will point to the first character following the type signature.
-	 * Returns null if given an empty signature or the signature for the void type.
+	 * wrapper.start. On return, wrapper.start will point to the first character following the type signature. Returns
+	 * null if given an empty signature or the signature for the void type.
 	 *
-	 * @param supertypeAnnotations
-	 * @param superclassName
-	 * @param genericSignature
-	 * @return
+	 * @param annotations
+	 *            the type annotations for this type
+	 * @param wrapper
+	 *            the generic signature to parse
 	 * @throws CoreException
 	 */
-	private NdTypeSignature createTypeSignature(ITypeAnnotationWalker annotations, SignatureWrapper wrapper) throws CoreException {
+	private NdTypeSignature createTypeSignature(ITypeAnnotationWalker annotations, SignatureWrapper wrapper)
+			throws CoreException {
 		char[] genericSignature = wrapper.signature;
 
 		if (genericSignature == null || genericSignature.length == 0) {
@@ -353,14 +353,15 @@ public class ClassFileToIndexConverter {
 				// We encode arrays as though they were a one-argument generic type called '[' whose element
 				// type is the generic argument.
 				NdComplexTypeSignature typeSignature = new NdComplexTypeSignature(getPDOM());
-				typeSignature.setRawType(createTypeIdFromFieldDescriptor(new char[] {'['}));
+				typeSignature.setRawType(createTypeIdFromFieldDescriptor(new char[] { '[' }));
 				NdTypeArgument typeArgument = new NdTypeArgument(getPDOM(), typeSignature);
 				NdTypeSignature elementType = createTypeSignature(annotations.toNextArrayDimension(), wrapper);
 				typeArgument.setType(elementType);
 				attachAnnotations(typeSignature, annotations);
 				return typeSignature;
 			}
-			case 'V': return null;
+			case 'V':
+				return null;
 			case 'B':
 			case 'C':
 			case 'D':
@@ -370,7 +371,7 @@ public class ClassFileToIndexConverter {
 			case 'S':
 			case 'Z':
 				wrapper.start++;
-				return createTypeIdFromFieldDescriptor(new char[]{firstChar});
+				return createTypeIdFromFieldDescriptor(new char[] { firstChar });
 			case 'L':
 				return parseClassTypeSignature(null, annotations, wrapper);
 			case '+':
@@ -385,16 +386,9 @@ public class ClassFileToIndexConverter {
 	}
 
 	/**
-	 * Parses a ClassTypeSignature (as described in section 4.7.9.1 of the Java VM Specification Java SE 8 Edition).
-	 * The read pointer should be located just after the identifier. The caller is expected to have already read
-	 * the field descriptor for the type.
-	 *
-	 * @param annotations
-	 * @param wrapper
-	 * @param genericSignature
-	 * @param fieldDescriptor
-	 * @return
-	 * @throws CoreException
+	 * Parses a ClassTypeSignature (as described in section 4.7.9.1 of the Java VM Specification Java SE 8 Edition). The
+	 * read pointer should be located just after the identifier. The caller is expected to have already read the field
+	 * descriptor for the type.
 	 */
 	private NdTypeSignature parseClassTypeSignature(NdComplexTypeSignature parentTypeOrNull,
 			ITypeAnnotationWalker annotations, SignatureWrapper wrapper) throws CoreException {
@@ -402,15 +396,15 @@ public class ClassFileToIndexConverter {
 		char[] fieldDescriptor;
 
 		if (parentTypeOrNull != null) {
-			fieldDescriptor = CharUtil.concat(parentTypeOrNull.getRawType().getFieldDescriptor().getChars(),
-					new char[] {'$'},
-					identifier);
+			fieldDescriptor = CharArrayUtils.concat(parentTypeOrNull.getRawType().getFieldDescriptor().getChars(),
+					new char[] { '$' }, identifier);
 		} else {
 			fieldDescriptor = identifier;
 		}
 
 		char[] genericSignature = wrapper.signature;
-		boolean hasGenericArguments = (genericSignature.length > wrapper.start) && genericSignature[wrapper.start] == '<';
+		boolean hasGenericArguments = (genericSignature.length > wrapper.start)
+				&& genericSignature[wrapper.start] == '<';
 		boolean isRawTypeWithNestedClass = genericSignature[wrapper.start] == '.';
 		NdTypeId rawType = createTypeIdFromFieldDescriptor(fieldDescriptor);
 		NdTypeSignature result = rawType;
@@ -431,7 +425,7 @@ public class ClassFileToIndexConverter {
 				while (wrapper.start < genericSignature.length && (genericSignature[wrapper.start] != '>')) {
 					NdTypeArgument typeArgument = new NdTypeArgument(getPDOM(), typeSignature);
 
-					switch(genericSignature[wrapper.start]) {
+					switch (genericSignature[wrapper.start]) {
 						case '+': {
 							typeArgument.setWildcard(NdTypeArgument.WILDCARD_SUPER);
 							wrapper.start++;
@@ -450,7 +444,8 @@ public class ClassFileToIndexConverter {
 						}
 					}
 
-					NdTypeSignature nextSignature = createTypeSignature(annotations.toTypeArgument(argumentIndex), wrapper);
+					NdTypeSignature nextSignature = createTypeSignature(annotations.toTypeArgument(argumentIndex),
+							wrapper);
 					typeArgument.setType(nextSignature);
 					argumentIndex++;
 				}
@@ -486,7 +481,7 @@ public class ClassFileToIndexConverter {
 	private void attachAnnotations(NdComplexTypeSignature typeSignature, ITypeAnnotationWalker annotations) {
 		IBinaryAnnotation[] annotationList = annotations.getAnnotationsAtCursor(0);
 
-		for (IBinaryAnnotation next: annotationList) {
+		for (IBinaryAnnotation next : annotationList) {
 			NdAnnotation annotation = createAnnotation(next);
 
 			annotation.setParent(typeSignature);
@@ -563,7 +558,7 @@ public class ClassFileToIndexConverter {
 	/**
 	 *
 	 * @param value
-	 *            accepts all values returned from {@link {@link IBinaryElementValuePair#getValue()}
+	 *            accepts all values returned from {@link IBinaryElementValuePair#getValue()}
 	 */
 	public NdConstant createConstantFromMixedType(Object value) {
 		if (value instanceof Constant) {
