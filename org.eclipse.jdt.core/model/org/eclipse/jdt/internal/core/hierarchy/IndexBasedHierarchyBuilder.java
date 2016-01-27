@@ -510,10 +510,7 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 				continue;
 			}
 
-			SubMonitor iterationMonitor = subMonitor
-					.setWorkRemaining(Math.max(typesToVisit.size(), 10))
-					.split(1)
-					.setWorkRemaining(3);
+			subMonitor.setWorkRemaining(Math.max(typesToVisit.size(), 10)).split(1);
 
 			boolean isLocalClass = nextType.getDeclaringType() != null;
 			pathRequestor.acceptPath(typePath, isLocalClass);

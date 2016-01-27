@@ -28,7 +28,8 @@ public abstract class NdTreeNode extends NdNode {
 	public static final FieldManyToOne<NdTreeNode> PARENT;
 	public static final FieldOneToMany<NdTreeNode> CHILDREN;
 
-	public static final StructDef<NdTreeNode> type; 
+	@SuppressWarnings("hiding")
+	public static final StructDef<NdTreeNode> type;
 
 	static {
 		type = StructDef.create(NdTreeNode.class, NdNode.type);
@@ -52,8 +53,8 @@ public abstract class NdTreeNode extends NdNode {
 	 * this looks for an exact match. It will not return subtypes of the given type.
 	 */
 	@SuppressWarnings("unchecked")
-	public <T extends NdTreeNode> T getAncestorOfType(Class<T> type) {
-		long targetType = getPDOM().getNodeType(type);
+	public <T extends NdTreeNode> T getAncestorOfType(Class<T> ancestorType) {
+		long targetType = getPDOM().getNodeType(ancestorType);
 
 		Nd pdom = getPDOM();
 		long current = PARENT.getAddress(pdom, this.address);
@@ -64,12 +65,12 @@ public abstract class NdTreeNode extends NdNode {
 			if (currentType == targetType) {
 				NdNode result = load(pdom, current);
 
-				if (type.isInstance(result)) {
+				if (ancestorType.isInstance(result)) {
 					return (T) result;
 				} else {
-					throw new IndexException("The node at address " + current + 
-							" should have been an instance of " + type.getName() + 
-							" but was an instance of " + result.getClass().getName());
+					throw new IndexException("The node at address " + current +  //$NON-NLS-1$
+							" should have been an instance of " + ancestorType.getName() +  //$NON-NLS-1$
+							" but was an instance of " + result.getClass().getName()); //$NON-NLS-1$
 				}
 			}
 

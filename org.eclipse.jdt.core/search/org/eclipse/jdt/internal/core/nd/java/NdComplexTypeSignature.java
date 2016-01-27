@@ -58,9 +58,7 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 	}
 
 	/**
-	 * If this type is a variable, this returns the identifier
-	 *
-	 * @return
+	 * If this type is a type variable, this returns the variable's identifier.
 	 */
 	public IString getVariableIdentifier() {
 		return VARIABLE_IDENTIFIER.get(getPDOM(), this.address);

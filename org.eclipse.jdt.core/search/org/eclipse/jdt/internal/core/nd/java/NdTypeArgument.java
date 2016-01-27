@@ -14,6 +14,7 @@ public class NdTypeArgument extends NdNode {
 	public static final FieldManyToOne<NdTypeSignature> TYPE_SIGNATURE;
 	public static final FieldByte WILDCARD;
 
+	@SuppressWarnings("hiding")
 	public static final StructDef<NdTypeArgument> type;
 
 	static {
@@ -41,7 +42,7 @@ public class NdTypeArgument extends NdNode {
 
 	/**
 	 * Sets the wildcard to use, one of the WILDCARD_* constants.
-	 * 
+	 *
 	 * @param wildcard
 	 */
 	public void setWildcard(int wildcard) {

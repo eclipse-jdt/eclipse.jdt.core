@@ -17,15 +17,19 @@ public abstract class TagTreeReader {
 		abstract public T read(Nd pdom, long address, TagTreeReader reader, int[] bytesRead);
 		abstract public void write(Nd pdom, long address, TagTreeReader reader, T toWrite, int[] bytesWritten);
 		abstract public int getSize(Nd pdom, T object, TagTreeReader reader);
-		public void destruct(Nd pdom, long address, TagTreeReader reader) {}
+		public void destruct(Nd pdom, long address, TagTreeReader reader) {
+			// Nothing to do by default
+		}
 	}
 
 	public static abstract class FixedSizeTagHandler<T> extends TagHandler<T> {
 		protected abstract T read(Nd pdom, long address);
 		protected abstract void write(Nd pdom, long address, T value);
 		protected abstract int getSize();
-		protected void destruct(Nd pdom, long address) {}
-		
+		protected void destruct(Nd pdom, long address) {
+			// Nothing to do by default
+		}
+
 		public final T read(Nd pdom, long address, TagTreeReader reader, int[] bytesRead) {
 			bytesRead[0] = getSize();
 			return read(pdom, address);
@@ -79,16 +83,18 @@ public abstract class TagTreeReader {
 		write(pdom, address, toWrite, UNUSED_RESULT);
 	}
 
+	@SuppressWarnings("unchecked")
 	public final void write(Nd pdom, long address, Object toWrite, int[] bytesWritten) {
 		byte key = getKeyFor(toWrite);
 
+		@SuppressWarnings("rawtypes")
 		TagHandler handler = this.readers[key];
 
 		if (handler == null) {
 			throw new IndexException("Invalid key " + key + " returned from getKeyFor(...)"); //$NON-NLS-1$//$NON-NLS-2$
 		}
 
-		handler.write(pdom, address, this, (Object) toWrite, bytesWritten);
+		handler.write(pdom, address, this, toWrite, bytesWritten);
 	}
 
 	public final void destruct(Nd pdom, long address) {
@@ -105,14 +111,15 @@ public abstract class TagTreeReader {
 		handler.destruct(pdom, readAddress, this);
 	}
 
+	@SuppressWarnings("unchecked")
 	public final int getSize(Nd pdom, Object toMeasure) {
-		Database db = pdom.getDB();
 		byte key = getKeyFor(toMeasure);
 
+		@SuppressWarnings("rawtypes")
 		TagHandler handler = this.readers[key];
 		if (handler == null) {
 			throw new IndexException("Attempted to get size of object " + toMeasure.toString() + " with unknown key " //$NON-NLS-1$//$NON-NLS-2$
-					+ key); 
+					+ key);
 		}
 
 		return handler.getSize(pdom, toMeasure, this);

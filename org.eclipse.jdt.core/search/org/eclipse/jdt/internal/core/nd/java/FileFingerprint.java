@@ -18,7 +18,7 @@ public class FileFingerprint {
 	private long time;
 	private long hash;
 	private long size;
-	
+
 	private static final FileFingerprint EMPTY = new FileFingerprint(0,0,0);
 
 	public static final FileFingerprint getEmpty() {
@@ -98,18 +98,13 @@ public class FileFingerprint {
 	}
 
 	/**
-	 * Compares the given File with the receiver. If the fingerprint matches (ie: the file 
-	 * 
-	 * @param toTest
-	 * @param monitor
-	 * @return
-	 * @throws IOException 
+	 * Compares the given File with the receiver. If the fingerprint matches (ie: the file
 	 */
 	public FingerprintTestResult test(File toTest, IProgressMonitor monitor) throws CoreException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 		long lastModified = toTest.lastModified();
 		subMonitor.split(5);
-		
+
 		long fileSize = toTest.length();
 		subMonitor.split(5);
 		if (lastModified == this.time && fileSize == this.size) {
@@ -120,7 +115,7 @@ public class FileFingerprint {
 		try {
 			hashCode = computeHashCode(toTest, fileSize, subMonitor.split(90));
 		} catch (IOException e) {
-			throw new CoreException(Package.createStatus("An error occurred computing a hash code", e));
+			throw new CoreException(Package.createStatus("An error occurred computing a hash code", e)); //$NON-NLS-1$
 		}
 		boolean matches = (hashCode == this.hash && fileSize == this.size);
 
@@ -140,14 +135,14 @@ public class FileFingerprint {
 				while (true) {
 					subMonitor.split(1);
 					int bytesRead = readUntilBufferFull(inputStream, byteBuffer);
-	
+
 					if (bytesRead < byteBuffer.length) {
 						charBuffer = new char[(bytesRead + 1) / 2];
 						copyByteArrayToCharArray(charBuffer, byteBuffer, bytesRead);
 						hasher.addChunk(charBuffer);
 						break;
 					}
-	
+
 					copyByteArrayToCharArray(charBuffer, byteBuffer, bytesRead);
 					hasher.addChunk(charBuffer);
 				}

@@ -17,11 +17,12 @@ public class NdTypeParameter extends NdNode {
 	public static final FieldString IDENTIFIER;
 	public static final FieldOneToMany<NdTypeBound> BOUNDS;
 
+	@SuppressWarnings("hiding")
 	public static final StructDef<NdTypeParameter> type;
 
 	static {
 		type = StructDef.create(NdTypeParameter.class, NdNode.type);
-		PARENT = FieldManyToOne.createOwner(type, NdType.TYPE_PARAMETERS);
+		PARENT = FieldManyToOne.createOwner(type, NdBinding.TYPE_PARAMETERS);
 		IDENTIFIER = type.addString();
 		BOUNDS = FieldOneToMany.create(type, NdTypeBound.PARENT);
 

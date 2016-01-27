@@ -46,13 +46,13 @@ public class NdMethod extends NdBinding {
 		type.done();
 	}
 
-	private static final int METHOD_IS_CONSTRUCTOR = 0x0001;
-	private static final int METHOD_IS_DEFAULT_CONSTRUCTOR = 0x0002;
-	private static final int METHOD_IS_ANNOTATION_MEMBER = 0x0004;
-	private static final int METHOD_IS_GENERIC = 0x0008;
-	private static final int METHOD_IS_PARAMETERIZED = 0x0010;
-	private static final int METHOD_IS_RAW = 0x0020;
-	private static final int METHOD_IS_VARARGS = 0x0040;
+//	private static final int METHOD_IS_CONSTRUCTOR = 0x0001;
+//	private static final int METHOD_IS_DEFAULT_CONSTRUCTOR = 0x0002;
+//	private static final int METHOD_IS_ANNOTATION_MEMBER = 0x0004;
+//	private static final int METHOD_IS_GENERIC = 0x0008;
+//	private static final int METHOD_IS_PARAMETERIZED = 0x0010;
+//	private static final int METHOD_IS_RAW = 0x0020;
+//	private static final int METHOD_IS_VARARGS = 0x0040;
 
 	/**
 	 * @param pdom
