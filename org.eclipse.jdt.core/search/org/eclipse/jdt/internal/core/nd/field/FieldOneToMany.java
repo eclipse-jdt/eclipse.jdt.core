@@ -18,8 +18,9 @@ import org.eclipse.jdt.internal.core.nd.NdNode;
 import org.eclipse.jdt.internal.core.nd.RawGrowableArray;
 
 /**
- * Holds a list of backpointers to a field of type FieldNodePointer. FieldNodePointer
- * and FieldBackPointer fields always go together in pairs.
+ * Holds the 1 side of a 1..n relationship between two objects. FieldNodePointer and FieldBackPointer fields always go
+ * together in pairs.
+ * 
  * @since 3.12
  */
 public class FieldOneToMany<T extends NdNode> implements IDestructableField, IRefCountedField, IField {
@@ -62,7 +63,6 @@ public class FieldOneToMany<T extends NdNode> implements IDestructableField, IRe
 	 * preallocated and reserved in the header. The first few elements inserted will be stored here. For relationships
 	 * which will usually have more than a certain number of participants, using a small number of inline elements will
 	 * offer a performance improvement. For relationships that will normally be empty, this should be 0.
-	 * @param nodeType model object that is being referred to 
 	 * @return the newly constructed backpointer field
 	 */
 	public static <T extends NdNode, B extends NdNode> FieldOneToMany<T> create(StructDef<B> builder, 

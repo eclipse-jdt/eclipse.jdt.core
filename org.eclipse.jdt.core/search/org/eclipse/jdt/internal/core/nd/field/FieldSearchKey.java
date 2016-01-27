@@ -40,10 +40,6 @@ public class FieldSearchKey<T> implements IField, IDestructableField {
 
 	/**
 	 * Creates a search key attribute in the given struct which stores an entry in the given global search index
-	 *
-	 * @param builder
-	 * @param searchIndex
-	 * @return
 	 */
 	public static <T, B extends NdNode> FieldSearchKey<T> create(StructDef<B> builder,
 			FieldSearchIndex<B> searchIndex) {

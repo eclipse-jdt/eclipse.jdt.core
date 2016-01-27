@@ -43,7 +43,6 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 		private boolean isPrefix = false;
 		private char[] searchString;
 		private short requiredNodeType = -1;
-		private long requiredParentNodeAddress;
 		private boolean matchingParentNodeAddress = false;
 
 		private SearchCriteria(char[] searchString) {
@@ -124,7 +123,7 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 		private final SearchCriteria searchCriteria;
 		private final Nd pdom;
 
-		private SearchCriteriaToBtreeVisitorAdapter(SearchCriteria searchCriteria, Nd pdom) {
+		public SearchCriteriaToBtreeVisitorAdapter(SearchCriteria searchCriteria, Nd pdom) {
 			this.searchCriteria = searchCriteria;
 			this.pdom = pdom;
 		}
@@ -237,16 +236,17 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 		return findBest(pdom, address, searchCriteria, anything);
 	}
 
+	@SuppressWarnings("unchecked")
 	public T findBest(final Nd pdom, long address, final SearchCriteria searchCriteria, final IResultRank rankFunction) {
 		final long[] resultRank = new long[1];
 		final long[] result = new long[1];
 		get(pdom, address).accept(new SearchCriteriaToBtreeVisitorAdapter(searchCriteria, pdom) {
 			@Override
-			protected void acceptResult(long address) {
-				long rank = rankFunction.getRank(pdom, address);
+			protected void acceptResult(long resultAddress) {
+				long rank = rankFunction.getRank(pdom, resultAddress);
 				if (rank >= resultRank[0]) {
 					resultRank[0] = rank;
-					result[0] = address;
+					result[0] = resultAddress;
 				}
 			}
 		});
@@ -260,9 +260,10 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 	public List<T> findAll(final Nd pdom, long address, final SearchCriteria searchCriteria) {
 		final List<T> result = new ArrayList<T>();
 		get(pdom, address).accept(new SearchCriteriaToBtreeVisitorAdapter(searchCriteria, pdom) {
+			@SuppressWarnings("unchecked")
 			@Override
-			protected void acceptResult(long address) {
-				result.add((T)NdNode.load(pdom, address));
+			protected void acceptResult(long resultAddress) {
+				result.add((T)NdNode.load(pdom, resultAddress));
 			}
 		});
 

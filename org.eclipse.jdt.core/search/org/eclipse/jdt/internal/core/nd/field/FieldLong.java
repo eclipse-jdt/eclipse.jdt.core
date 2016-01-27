@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 
 /**
- * Declares a PDOM field of type long. Can be used in place of {@link Field<Long>} in order to
+ * Declares a PDOM field of type long. Can be used in place of  {@link Field}&lt{@link Long}&gt in order to
  * avoid extra GC overhead.
  * 
  * @since 3.12

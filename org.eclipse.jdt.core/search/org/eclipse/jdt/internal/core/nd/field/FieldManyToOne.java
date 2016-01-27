@@ -15,9 +15,10 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.NdNode;
 
 /**
- * Declares a PDOM field which is a pointer of a PDOMNode of the specified type. {@link FieldManyToOne} forms a
- * one-to-many relationship with {@link FieldOneToMany}. Whenever a {@link FieldManyToOne} points to an object, the
- * inverse pointer is automatically inserted into the matching back pointer list.
+ * Holds the n side of a n..1 relationship. Declares a PDOM field which is a pointer of a PDOMNode of the specified
+ * type. {@link FieldManyToOne} forms a one-to-many relationship with {@link FieldOneToMany}. Whenever a
+ * {@link FieldManyToOne} points to an object, the inverse pointer is automatically inserted into the matching back
+ * pointer list.
  * 
  * @since 3.12
  */
@@ -29,6 +30,7 @@ public class FieldManyToOne<T extends NdNode> implements IDestructableField, IFi
 	Class<T> targetType;
 	final Class<? extends NdNode> localType;
 	FieldOneToMany<?> backPointer;
+	@SuppressWarnings("rawtypes")
 	private final static StructDef<FieldManyToOne> type;
 	/**
 	 * True iff the other end of this pointer should delete this object when its end of the pointer is cleared.
@@ -42,10 +44,6 @@ public class FieldManyToOne<T extends NdNode> implements IDestructableField, IFi
 		type.done();
 	}
 
-	/**
-	 * @param nodeType
-	 * @param backPointer
-	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private FieldManyToOne(Class<? extends NdNode> localType, FieldOneToMany<?> backPointer, boolean pointsToOwner) {
 		this.localType = localType;
@@ -76,9 +74,9 @@ public class FieldManyToOne<T extends NdNode> implements IDestructableField, IFi
 	 * Creates a many-to-one pointer which points to this object's owner. If the pointer is non-null when the owner is
 	 * deleted, this object will be deleted too.
 	 * 
-	 * @param builder
-	 * @param forwardPointer
-	 * @return
+	 * @param builder the struct to which the field will be added
+	 * @param forwardPointer the field which holds the pointer in the other direction
+	 * @return a newly constructed field
 	 */
 	public static <T extends NdNode, B extends NdNode> FieldManyToOne<T> createOwner(StructDef<B> builder,
 			FieldOneToMany<B> forwardPointer) {
