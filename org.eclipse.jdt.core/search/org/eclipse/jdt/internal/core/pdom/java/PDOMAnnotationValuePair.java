@@ -31,7 +31,7 @@ public class PDOMAnnotationValuePair extends PDOMNode {
 		super(pdom, address);
 	}
 
-	public PDOMAnnotationValuePair(PDOMAnnotation annotation, String name) {
+	public PDOMAnnotationValuePair(PDOMAnnotation annotation, char[] name) {
 		super(annotation.getPDOM());
 		PDOM pdom = annotation.getPDOM();
 		APPLIES_TO.put(pdom, this.address, annotation);

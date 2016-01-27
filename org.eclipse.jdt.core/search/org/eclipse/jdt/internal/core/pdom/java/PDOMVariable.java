@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.core.pdom.field.StructDef;
 /**
  * @since 3.12
  */
-public class PDOMVariable extends PDOMBinding {	
+public class PDOMVariable extends PDOMBinding {
 	public static final FieldShort VARIABLE_FLAGS;
 	public static final FieldManyToOne<PDOMTypeSignature> TYPE;
 	public static final FieldInt VARIABLE_ID;
@@ -69,7 +69,7 @@ public class PDOMVariable extends PDOMBinding {
 		VARIABLE_FLAGS.put(getPDOM(), this.address, (short)newFlags);
 	}
 
-	public void setName(String name) {
+	public void setName(char[] name) {
 		NAME.put(getPDOM(), this.address, name);
 	}
 

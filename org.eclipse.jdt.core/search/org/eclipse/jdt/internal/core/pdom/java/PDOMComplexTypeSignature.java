@@ -10,11 +10,11 @@ import org.eclipse.jdt.internal.core.pdom.field.StructDef;
 /**
  * Represents a type signature that is anything other than a trivial reference to a concrete
  * type. If a type reference includes annotations, generic arguments, wildcards, or is a
- * type variable, this object represents it. 
+ * type variable, this object represents it.
  * <p>
  * Arrays are encoded in a special way. The RAW_TYPE points to a sentinel type called '['
  * and the first type argument holds the array type.
- * 
+ *
  * @since 3.12
  */
 public class PDOMComplexTypeSignature extends PDOMTypeSignature {
@@ -53,13 +53,13 @@ public class PDOMComplexTypeSignature extends PDOMTypeSignature {
 		return RAW_TYPE.get(getPDOM(), this.address);
 	}
 
-	public void setVariableIdentifier(String variableIdentifier) {
+	public void setVariableIdentifier(char[] variableIdentifier) {
 		VARIABLE_IDENTIFIER.put(getPDOM(), this.address, variableIdentifier);
 	}
 
 	/**
 	 * If this type is a variable, this returns the identifier
-	 * 
+	 *
 	 * @return
 	 */
 	public IString getVariableIdentifier() {

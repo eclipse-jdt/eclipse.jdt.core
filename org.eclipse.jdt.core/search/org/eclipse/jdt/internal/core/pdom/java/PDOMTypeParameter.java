@@ -32,7 +32,7 @@ public class PDOMTypeParameter extends PDOMNode {
 		super(pdom, address);
 	}
 
-	public PDOMTypeParameter(PDOMBinding parent, String identifier) {
+	public PDOMTypeParameter(PDOMBinding parent, char[] identifier) {
 		super(parent.getPDOM());
 
 		PARENT.put(getPDOM(), this.address, parent);

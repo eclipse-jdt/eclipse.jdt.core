@@ -38,10 +38,10 @@ public class PDOMTypeId extends PDOMTypeSignature {
 		super(pdom, record);
 	}
 
-	public PDOMTypeId(PDOM pdom, String fieldDescriptor) {
+	public PDOMTypeId(PDOM pdom, char[] fieldDescriptor) {
 		super(pdom);
 
-		String simpleName = JavaNames.fieldDescriptorToJavaName(fieldDescriptor, true);
+		char[] simpleName = JavaNames.fieldDescriptorToJavaName(fieldDescriptor, true);
 		FIELD_DESCRIPTOR.put(pdom, this.address, fieldDescriptor);
 		SIMPLE_NAME.put(pdom, this.address, simpleName);
 	}

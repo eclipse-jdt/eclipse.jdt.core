@@ -23,7 +23,6 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.pdom.PDOM;
-import org.eclipse.jdt.internal.core.pdom.db.IndexException;
 import org.eclipse.jdt.internal.core.pdom.java.JavaIndex;
 import org.eclipse.jdt.internal.core.pdom.java.JavaNames;
 import org.eclipse.jdt.internal.core.pdom.java.PDOMAnnotation;
@@ -254,7 +253,7 @@ public class ClassFileToIndexConverter {
 	private void addField(PDOMType type, IBinaryField nextField) throws CoreException {
 		PDOMVariable variable = new PDOMVariable(type);
 
-		variable.setName(new String(nextField.getName()));
+		variable.setName(nextField.getName());
 
 		IBinaryAnnotation[] binaryAnnotations = nextField.getAnnotations();
 		if (binaryAnnotations != null) {
@@ -292,7 +291,7 @@ public class ClassFileToIndexConverter {
 			int colonPos = CharOperation.indexOf(':', genericSignature, wrapper.start, indexOfClosingBracket);
 
 			if (colonPos > wrapper.start) {
-				String identifier = new String(CharOperation.subarray(genericSignature, wrapper.start, colonPos));
+				char[] identifier = CharOperation.subarray(genericSignature, wrapper.start, colonPos);
 				parameter = new PDOMTypeParameter(type, identifier);
 				wrapper.start = colonPos + 1;
 				parameterIndex++;
@@ -342,7 +341,7 @@ public class ClassFileToIndexConverter {
 				// Skip the 'T' prefix
 				wrapper.start++;
 				PDOMComplexTypeSignature typeSignature = new PDOMComplexTypeSignature(getPDOM());
-				typeSignature.setVariableIdentifier(new String(wrapper.nextWord()));
+				typeSignature.setVariableIdentifier(wrapper.nextWord());
 				attachAnnotations(typeSignature, annotations);
 				// Skip the trailing semicolon
 				wrapper.start++;
@@ -481,16 +480,6 @@ public class ClassFileToIndexConverter {
 	}
 
 	/**
-	 * @param equals
-	 * @param string
-	 */
-	private void assertThat(boolean toTest, String errorMessage) {
-		if (!toTest) {
-			throw new IndexException(errorMessage);
-		}
-	}
-
-	/**
 	 * @param typeSignature
 	 * @param annotations
 	 */
@@ -509,13 +498,6 @@ public class ClassFileToIndexConverter {
 			return ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER;
 		}
 		return new TypeAnnotationWalker(typeAnnotations);
-	}
-
-	private PDOMTypeId createTypeIdFromFieldDescriptor(String typeName) {
-		if (typeName == null) {
-			return null;
-		}
-		return this.index.createTypeId(typeName);
 	}
 
 	private PDOMTypeId createTypeIdFromFieldDescriptor(char[] typeName) {
@@ -556,7 +538,7 @@ public class ClassFileToIndexConverter {
 
 		if (pairs != null) {
 			for (IBinaryElementValuePair element : pairs) {
-				PDOMAnnotationValuePair nextPair = new PDOMAnnotationValuePair(result, new String(element.getName()));
+				PDOMAnnotationValuePair nextPair = new PDOMAnnotationValuePair(result, element.getName());
 				nextPair.setValue(createConstantFromMixedType(element.getValue()));
 			}
 		}
@@ -575,7 +557,7 @@ public class ClassFileToIndexConverter {
 			return null;
 		}
 
-		return this.index.createTypeId(JavaNames.binaryNameToFieldDescriptor(new String(binaryName)));
+		return this.index.createTypeId(JavaNames.binaryNameToFieldDescriptor(binaryName));
 	}
 
 	/**
@@ -591,7 +573,7 @@ public class ClassFileToIndexConverter {
 		} else if (value instanceof ClassSignature) {
 			ClassSignature signature = (ClassSignature) value;
 
-			String binaryName = JavaNames.binaryNameToFieldDescriptor(new String(signature.getTypeName()));
+			char[] binaryName = JavaNames.binaryNameToFieldDescriptor(signature.getTypeName());
 			PDOMTypeSignature typeId = this.index.createTypeId(binaryName);
 			return PDOMConstantClass.create(getPDOM(), typeId);
 		} else if (value instanceof IBinaryAnnotation) {

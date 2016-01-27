@@ -83,7 +83,7 @@ public class BindingToIndexConverter {
 		}
 
 		type.setTypeId(name);
-	
+
 		ITypeBinding superclass = binding.getSuperclass();
 
 		if (superclass != null) {
@@ -104,7 +104,7 @@ public class BindingToIndexConverter {
 	}
 
 	private PDOMTypeId makeTypeId(ITypeBinding forBinding) {
-		return this.index.createTypeId(JavaNames.binaryNameToFieldDescriptor(forBinding.getBinaryName()));
+		return this.index.createTypeId(JavaNames.binaryNameToFieldDescriptor(forBinding.getBinaryName().toCharArray()));
 	}
 
 	private PDOM getPDOM() {

@@ -91,20 +91,16 @@ public class JavaIndex {
 		return FILES.findAll(this.pdom, this.address, FieldSearchIndex.SearchCriteria.create(thePath.toCharArray()));
 	}
 
-	public PDOMTypeId findType(String fieldDescriptor) {
+	public PDOMTypeId findType(char[] fieldDescriptor) {
 		SearchCriteria searchCriteria = SearchCriteria.create(fieldDescriptor);
 		return TYPES.findBest(this.pdom, this.address, searchCriteria, this.anyResult);
-	}
-
-	public PDOMTypeId createTypeId(char[] fieldDescriptor) {
-		return createTypeId(new String(fieldDescriptor));
 	}
 
 	/**
 	 * Returns a type ID or creates a new one if it does not exist. The caller must
 	 * attach a reference to it after calling this method or it may leak.
 	 */
-	public PDOMTypeId createTypeId(String fieldDescriptor) {
+	public PDOMTypeId createTypeId(char[] fieldDescriptor) {
 		PDOMTypeId existingType = findType(fieldDescriptor);
 
 		if (existingType != null) {

@@ -487,7 +487,7 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 	SubMonitor subMonitor = SubMonitor.convert(progressMonitor);
 	JavaIndex index = JavaIndex.getIndex();
 	PDOM pdom = index.getPDOM();
-	String fieldDefinition = JavaNames.fullyQualifiedNameToFieldDescriptor(type.getFullyQualifiedName());
+	char[] fieldDefinition = JavaNames.fullyQualifiedNameToFieldDescriptor(type.getFullyQualifiedName().toCharArray());
 	pdom.acquireReadLock();
 
 	try {
@@ -505,7 +505,7 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 		while (!typesToVisit.isEmpty()) {
 			PDOMType nextType = typesToVisit.removeFirst();
 
-			String typePath = JavaNames.getIndexPathFor(nextType);
+			String typePath = new String(JavaNames.getIndexPathFor(nextType));
 			if (!scope2.encloses(typePath)) {
 				continue;
 			}
