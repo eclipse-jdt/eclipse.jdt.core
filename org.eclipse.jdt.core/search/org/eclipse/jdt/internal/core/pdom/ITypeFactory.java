@@ -33,9 +33,9 @@ public interface ITypeFactory<T> {
 	 * fields, then calls ITypeFactory.deleteFields on the base type.
 	 * </ul>
 	 */
-	void destructFields(PDOM dom, long address);
+	void destructFields(Nd dom, long address);
 
-	T create(PDOM dom, long address);
+	T create(Nd dom, long address);
 
 	/**
 	 * Invokes any cleanup code for this object. In particular, it deallocates any memory allocated by the type's
@@ -43,7 +43,7 @@ public interface ITypeFactory<T> {
 	 * memory block and objects which are embedded as fields within a larger object. If the object was given its own
 	 * memory block, it is the caller's responsibility to invoke free after calling this method.
 	 */
-	void destruct(PDOM dom, long address);
+	void destruct(Nd dom, long address);
 
 	/**
 	 * If this returns false, the delete and deleteFields methods both always do nothing.
@@ -58,7 +58,7 @@ public interface ITypeFactory<T> {
 	 * Returns true if this object is orphaned. If the object is refcounted, this means the refcount is 0. If
 	 * the object is deleted via an owner pointer, this means the owner pointer is null.
 	 */
-	boolean isReadyForDeletion(PDOM dom, long address);
+	boolean isReadyForDeletion(Nd dom, long address);
 
 	/**
 	 * Returns the deletion semantics used for this object.

@@ -36,14 +36,14 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 import org.eclipse.jdt.internal.core.pdom.java.FileFingerprint;
 import org.eclipse.jdt.internal.core.pdom.java.FileFingerprint.FingerprintTestResult;
 import org.eclipse.jdt.internal.core.pdom.java.JavaIndex;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMResourceFile;
+import org.eclipse.jdt.internal.core.pdom.java.NdResourceFile;
 
 public final class Indexer {
-	private PDOM pdom;
+	private Nd pdom;
 	private IWorkspaceRoot root;
 	
 	private static Indexer indexer;
@@ -177,11 +177,11 @@ public final class Indexer {
 			return 0;
 		}
 
-		PDOMResourceFile resourceFile;
+		NdResourceFile resourceFile;
 
 		this.pdom.acquireWriteLock(subMonitor.newChild(5));
 		try {
-			resourceFile = new PDOMResourceFile(this.pdom);
+			resourceFile = new NdResourceFile(this.pdom);
 			resourceFile.setFilename(pathString);
 		} finally {
 			this.pdom.releaseWriteLock();
@@ -195,9 +195,9 @@ public final class Indexer {
 		try {
 			if (resourceFile.isInIndex()) {
 				resourceFile.setFingerprint(fingerprint);
-				List<PDOMResourceFile> resourceFiles = javaIndex.getAllResourceFiles(pathString);
+				List<NdResourceFile> resourceFiles = javaIndex.getAllResourceFiles(pathString);
 	
-				for (PDOMResourceFile next : resourceFiles) {
+				for (NdResourceFile next : resourceFiles) {
 					if (!next.equals(resourceFile)) {
 						next.delete();
 					}
@@ -251,7 +251,7 @@ public final class Indexer {
 	 * @return the number of classes indexed
 	 * @throws JavaModelException
 	 */
-	private int addElement(PDOMResourceFile resourceFile, IJavaElement element, IProgressMonitor monitor)
+	private int addElement(NdResourceFile resourceFile, IJavaElement element, IProgressMonitor monitor)
 			throws JavaModelException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 		List<IJavaElement> bindableElements = getBindableElements(element, subMonitor.newChild(10));
@@ -473,7 +473,7 @@ public final class Indexer {
 		FileFingerprint fingerprint = FileFingerprint.getEmpty();
 		this.pdom.acquireReadLock();
 		try {
-			PDOMResourceFile resourceFile = javaIndex.getResourceFile(pathString);
+			NdResourceFile resourceFile = javaIndex.getResourceFile(pathString);
 
 			if (resourceFile != null) {
 				fingerprint = resourceFile.getFingerprint();
@@ -495,7 +495,7 @@ public final class Indexer {
 		return next.getPath();
 	}
 
-	public Indexer(PDOM toPopulate, IWorkspaceRoot workspaceRoot) {
+	public Indexer(Nd toPopulate, IWorkspaceRoot workspaceRoot) {
 		this.pdom = toPopulate;
 		this.root = workspaceRoot;
 	}

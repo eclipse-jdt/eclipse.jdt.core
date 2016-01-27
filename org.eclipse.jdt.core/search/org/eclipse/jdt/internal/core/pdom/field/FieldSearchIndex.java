@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.internal.core.pdom.ITypeFactory;
-import org.eclipse.jdt.internal.core.pdom.PDOM;
-import org.eclipse.jdt.internal.core.pdom.PDOMNode;
+import org.eclipse.jdt.internal.core.pdom.Nd;
+import org.eclipse.jdt.internal.core.pdom.NdNode;
 import org.eclipse.jdt.internal.core.pdom.db.BTree;
 import org.eclipse.jdt.internal.core.pdom.db.IBTreeComparator;
 import org.eclipse.jdt.internal.core.pdom.db.IBTreeVisitor;
@@ -27,13 +27,13 @@ import org.eclipse.jdt.internal.core.pdom.db.IndexException;
  * This field may only ever  
  * @since 3.12
  */
-public class FieldSearchIndex<T extends PDOMNode> implements IField, IDestructableField {
+public class FieldSearchIndex<T extends NdNode> implements IField, IDestructableField {
 	private int offset;
 	private final ITypeFactory<BTree> btreeFactory;
 	FieldSearchKey<?> searchKey;
 	private static IResultRank anything = new IResultRank() {
 		@Override
-		public long getRank(PDOM pdom, long address) {
+		public long getRank(Nd pdom, long address) {
 			return 1;
 		}
 	};
@@ -117,14 +117,14 @@ public class FieldSearchIndex<T extends PDOMNode> implements IField, IDestructab
 	}
 
 	public static interface IResultRank {
-		public long getRank(PDOM pdom, long address);
+		public long getRank(Nd pdom, long address);
 	}
 
 	private abstract class SearchCriteriaToBtreeVisitorAdapter implements IBTreeVisitor {
 		private final SearchCriteria searchCriteria;
-		private final PDOM pdom;
+		private final Nd pdom;
 
-		private SearchCriteriaToBtreeVisitorAdapter(SearchCriteria searchCriteria, PDOM pdom) {
+		private SearchCriteriaToBtreeVisitorAdapter(SearchCriteria searchCriteria, Nd pdom) {
 			this.searchCriteria = searchCriteria;
 			this.pdom = pdom;
 		}
@@ -143,7 +143,7 @@ public class FieldSearchIndex<T extends PDOMNode> implements IField, IDestructab
 		@Override
 		public boolean visit(long record) throws IndexException {
 			if (this.searchCriteria.requiresSpecificNodeType()) {
-				short nodeType = PDOMNode.NODE_TYPE.get(this.pdom, record);
+				short nodeType = NdNode.NODE_TYPE.get(this.pdom, record);
 
 				if (!this.searchCriteria.acceptsNodeType(nodeType)) {
 					return true;
@@ -179,7 +179,7 @@ public class FieldSearchIndex<T extends PDOMNode> implements IField, IDestructab
 	private FieldSearchIndex(FieldSearchKey<?> searchKey) {
 		this.btreeFactory = BTree.getFactory(new IBTreeComparator() {
 			@Override
-			public int compare(PDOM pdom, long record1, long record2) {
+			public int compare(Nd pdom, long record1, long record2) {
 				IString key1 = FieldSearchIndex.this.searchKey.get(pdom, record1);
 				IString key2 = FieldSearchIndex.this.searchKey.get(pdom, record2);
 
@@ -203,7 +203,7 @@ public class FieldSearchIndex<T extends PDOMNode> implements IField, IDestructab
 		this.searchKey = searchKey;
 	}
 
-	public static <T extends PDOMNode, B> FieldSearchIndex<T> create(StructDef<B> builder,
+	public static <T extends NdNode, B> FieldSearchIndex<T> create(StructDef<B> builder,
 			final FieldSearchKey<B> searchKey) {
 
 		FieldSearchIndex<T> result = new FieldSearchIndex<T>(searchKey);
@@ -214,12 +214,12 @@ public class FieldSearchIndex<T extends PDOMNode> implements IField, IDestructab
 		return result;
 	}
 
-	public BTree get(PDOM pdom, long record) {
+	public BTree get(Nd pdom, long record) {
 		return this.btreeFactory.create(pdom, record + this.offset);
 	}
 
 	@Override
-	public void destruct(PDOM pdom, long record) {
+	public void destruct(Nd pdom, long record) {
 		this.btreeFactory.destruct(pdom, record);
 	}
 
@@ -233,11 +233,11 @@ public class FieldSearchIndex<T extends PDOMNode> implements IField, IDestructab
 		return this.btreeFactory.getRecordSize();
 	}
 
-	public T findFirst(final PDOM pdom, long address, final SearchCriteria searchCriteria) {
+	public T findFirst(final Nd pdom, long address, final SearchCriteria searchCriteria) {
 		return findBest(pdom, address, searchCriteria, anything);
 	}
 
-	public T findBest(final PDOM pdom, long address, final SearchCriteria searchCriteria, final IResultRank rankFunction) {
+	public T findBest(final Nd pdom, long address, final SearchCriteria searchCriteria, final IResultRank rankFunction) {
 		final long[] resultRank = new long[1];
 		final long[] result = new long[1];
 		get(pdom, address).accept(new SearchCriteriaToBtreeVisitorAdapter(searchCriteria, pdom) {
@@ -254,15 +254,15 @@ public class FieldSearchIndex<T extends PDOMNode> implements IField, IDestructab
 		if (result[0] == 0) {
 			return null;
 		}
-		return (T)PDOMNode.load(pdom, result[0]);
+		return (T)NdNode.load(pdom, result[0]);
 	}
 
-	public List<T> findAll(final PDOM pdom, long address, final SearchCriteria searchCriteria) {
+	public List<T> findAll(final Nd pdom, long address, final SearchCriteria searchCriteria) {
 		final List<T> result = new ArrayList<T>();
 		get(pdom, address).accept(new SearchCriteriaToBtreeVisitorAdapter(searchCriteria, pdom) {
 			@Override
 			protected void acceptResult(long record) {
-				result.add((T)PDOMNode.load(pdom, record));
+				result.add((T)NdNode.load(pdom, record));
 			}
 		});
 

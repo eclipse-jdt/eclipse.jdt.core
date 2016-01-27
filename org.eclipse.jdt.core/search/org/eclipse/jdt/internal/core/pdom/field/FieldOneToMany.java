@@ -13,8 +13,8 @@ package org.eclipse.jdt.internal.core.pdom.field;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jdt.internal.core.pdom.PDOM;
-import org.eclipse.jdt.internal.core.pdom.PDOMNode;
+import org.eclipse.jdt.internal.core.pdom.Nd;
+import org.eclipse.jdt.internal.core.pdom.NdNode;
 import org.eclipse.jdt.internal.core.pdom.RawGrowableArray;
 
 /**
@@ -22,10 +22,10 @@ import org.eclipse.jdt.internal.core.pdom.RawGrowableArray;
  * and FieldBackPointer fields always go together in pairs.
  * @since 3.12
  */
-public class FieldOneToMany<T extends PDOMNode> implements IDestructableField, IRefCountedField, IField {
+public class FieldOneToMany<T extends NdNode> implements IDestructableField, IRefCountedField, IField {
 	private int offset;
 	public Class<T> targetType;
-	public final Class<? extends PDOMNode> localType;
+	public final Class<? extends NdNode> localType;
 	private final RawGrowableArray backPointerArray;
 	FieldManyToOne<?> forwardPointer;
 
@@ -34,7 +34,7 @@ public class FieldOneToMany<T extends PDOMNode> implements IDestructableField, I
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private FieldOneToMany(Class<? extends PDOMNode> localType, FieldManyToOne<? extends PDOMNode> forwardPointer,
+	private FieldOneToMany(Class<? extends NdNode> localType, FieldManyToOne<? extends NdNode> forwardPointer,
 			int inlineElements) {
 		this.localType = localType;
 
@@ -65,7 +65,7 @@ public class FieldOneToMany<T extends PDOMNode> implements IDestructableField, I
 	 * @param nodeType model object that is being referred to 
 	 * @return the newly constructed backpointer field
 	 */
-	public static <T extends PDOMNode, B extends PDOMNode> FieldOneToMany<T> create(StructDef<B> builder, 
+	public static <T extends NdNode, B extends NdNode> FieldOneToMany<T> create(StructDef<B> builder, 
 			FieldManyToOne<B> forwardPointer, int inlineElementCount) {
 		FieldOneToMany<T> result = new FieldOneToMany<T>(builder.getStructClass(), forwardPointer,
 				inlineElementCount);
@@ -75,12 +75,12 @@ public class FieldOneToMany<T extends PDOMNode> implements IDestructableField, I
 		return result;
 	}
 
-	public static <T extends PDOMNode, B extends PDOMNode> FieldOneToMany<T> create(StructDef<B> builder, 
+	public static <T extends NdNode, B extends NdNode> FieldOneToMany<T> create(StructDef<B> builder, 
 			FieldManyToOne<B> forwardPointer) {
 		return create(builder, forwardPointer, 0);
 	}
 	
-	public void accept(PDOM pdom, long address, Visitor<T> visitor) {
+	public void accept(Nd pdom, long address, Visitor<T> visitor) {
 		int size = size(pdom, address);
 
 		for (int idx = 0; idx < size; idx++) {
@@ -88,7 +88,7 @@ public class FieldOneToMany<T extends PDOMNode> implements IDestructableField, I
 		}
 	}
 
-	public List<T> asList(PDOM pdom, long address) {
+	public List<T> asList(Nd pdom, long address) {
 		final List<T> result = new ArrayList<>(size(pdom, address));
 
 		accept(pdom, address, new Visitor<T>() {
@@ -101,18 +101,18 @@ public class FieldOneToMany<T extends PDOMNode> implements IDestructableField, I
 		return result;
 	}
 
-	public boolean isEmpty(PDOM pdom, long address) {
+	public boolean isEmpty(Nd pdom, long address) {
 		return this.backPointerArray.isEmpty(pdom, address + this.offset);
 	}
 	
-	public int size(PDOM pdom, long address) {
+	public int size(Nd pdom, long address) {
 		return this.backPointerArray.size(pdom, address + this.offset);
 	}
 
-	public T get(PDOM pdom, long address, int index) {
+	public T get(Nd pdom, long address, int index) {
 		long nextPointer = this.backPointerArray.get(pdom, address + this.offset, index);
 
-		return PDOMNode.load(pdom, nextPointer, this.targetType);
+		return NdNode.load(pdom, nextPointer, this.targetType);
 	}
 
 	/**
@@ -123,7 +123,7 @@ public class FieldOneToMany<T extends PDOMNode> implements IDestructableField, I
 	 * Not intended to be called by clients. The normal way to remove something from a backpointer list is
 	 * by calling {@link FieldManyToOne#put}, which performs the appropriate removals automatically.
 	 */
-	void remove(PDOM pdom, long address, int index) {
+	void remove(Nd pdom, long address, int index) {
 		long swappedElement = this.backPointerArray.remove(pdom, address + this.offset, index);
 
 		if (swappedElement != 0) {
@@ -135,7 +135,7 @@ public class FieldOneToMany<T extends PDOMNode> implements IDestructableField, I
 	 * Addss the given forward pointer to the list and returns the insertion index. This should not be invoked
 	 * directly by clients. The normal way to insert into a backpointer list is to assign a forward pointer.
 	 */
-	int add(PDOM pdom, long address, long value) {
+	int add(Nd pdom, long address, long value) {
 		return this.backPointerArray.add(pdom, address + this.offset, value);
 	}
 
@@ -146,13 +146,13 @@ public class FieldOneToMany<T extends PDOMNode> implements IDestructableField, I
 		return this.backPointerArray.getRecordSize();
 	}
 
-	public void ensureCapacity(PDOM pdom, long address, int capacity) {
+	public void ensureCapacity(Nd pdom, long address, int capacity) {
 		long arrayAddress = address + this.offset;
 		this.backPointerArray.ensureCapacity(pdom, arrayAddress, capacity);
 	}
 
 	@Override
-	public void destruct(PDOM pdom, long address) {
+	public void destruct(Nd pdom, long address) {
 		long arrayAddress = address + this.offset;
 		int size = size(pdom, address);
 
@@ -170,12 +170,12 @@ public class FieldOneToMany<T extends PDOMNode> implements IDestructableField, I
 		this.backPointerArray.destruct(pdom, arrayAddress);
 	}
 
-	public int getCapacity(PDOM pdom, long address) {
+	public int getCapacity(Nd pdom, long address) {
 		return this.backPointerArray.getCapacity(pdom, address + this.offset);
 	}
 
 	@Override
-	public boolean hasReferences(PDOM pdom, long record) {
+	public boolean hasReferences(Nd pdom, long record) {
 		// If this field owns the objects it points to, don't treat the incoming pointers as ref counts
 		if (this.forwardPointer.pointsToOwner) {
 			return false;

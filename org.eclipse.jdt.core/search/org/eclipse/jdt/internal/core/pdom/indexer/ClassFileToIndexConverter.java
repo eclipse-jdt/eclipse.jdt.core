@@ -22,46 +22,46 @@ import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.PackageFragment;
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 import org.eclipse.jdt.internal.core.pdom.java.JavaIndex;
 import org.eclipse.jdt.internal.core.pdom.java.JavaNames;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMAnnotation;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMAnnotationValuePair;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMBinding;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMComplexTypeSignature;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMConstant;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMConstantAnnotation;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMConstantArray;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMConstantClass;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMConstantEnum;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMMethod;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMMethodException;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMMethodId;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMMethodParameter;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMResourceFile;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMType;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeArgument;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeBound;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeId;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeInterface;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeParameter;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeSignature;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMVariable;
+import org.eclipse.jdt.internal.core.pdom.java.NdAnnotation;
+import org.eclipse.jdt.internal.core.pdom.java.NdAnnotationValuePair;
+import org.eclipse.jdt.internal.core.pdom.java.NdBinding;
+import org.eclipse.jdt.internal.core.pdom.java.NdComplexTypeSignature;
+import org.eclipse.jdt.internal.core.pdom.java.NdConstant;
+import org.eclipse.jdt.internal.core.pdom.java.NdConstantAnnotation;
+import org.eclipse.jdt.internal.core.pdom.java.NdConstantArray;
+import org.eclipse.jdt.internal.core.pdom.java.NdConstantClass;
+import org.eclipse.jdt.internal.core.pdom.java.NdConstantEnum;
+import org.eclipse.jdt.internal.core.pdom.java.NdMethod;
+import org.eclipse.jdt.internal.core.pdom.java.NdMethodException;
+import org.eclipse.jdt.internal.core.pdom.java.NdMethodId;
+import org.eclipse.jdt.internal.core.pdom.java.NdMethodParameter;
+import org.eclipse.jdt.internal.core.pdom.java.NdResourceFile;
+import org.eclipse.jdt.internal.core.pdom.java.NdType;
+import org.eclipse.jdt.internal.core.pdom.java.NdTypeArgument;
+import org.eclipse.jdt.internal.core.pdom.java.NdTypeBound;
+import org.eclipse.jdt.internal.core.pdom.java.NdTypeId;
+import org.eclipse.jdt.internal.core.pdom.java.NdTypeInterface;
+import org.eclipse.jdt.internal.core.pdom.java.NdTypeParameter;
+import org.eclipse.jdt.internal.core.pdom.java.NdTypeSignature;
+import org.eclipse.jdt.internal.core.pdom.java.NdVariable;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClassFileToIndexConverter {
 	private static final char[][] EMPTY_CHAR_ARRAY_ARRAY = new char[0][];
 	private static final boolean ENABLE_LOGGING = false;
 	private static final char[] EMPTY_CHAR_ARRAY = new char[0];
-	private PDOMResourceFile resource;
+	private NdResourceFile resource;
 	private JavaIndex index;
 
-	public ClassFileToIndexConverter(PDOMResourceFile resourceFile) {
+	public ClassFileToIndexConverter(NdResourceFile resourceFile) {
 		this.resource = resourceFile;
 		this.index = JavaIndex.getIndex(resourceFile.getPDOM());
 	}
 
-	private PDOM getPDOM() {
+	private Nd getPDOM() {
 		return this.resource.getPDOM();
 	}
 
@@ -118,15 +118,15 @@ public class ClassFileToIndexConverter {
 		return info;
 	}
 
-	public PDOMType addType(IBinaryType binaryType, IProgressMonitor monitor) throws CoreException {
+	public NdType addType(IBinaryType binaryType, IProgressMonitor monitor) throws CoreException {
 		char[] binaryName = binaryType.getName();
 		logInfo("adding binary type " + new String(binaryName)); //$NON-NLS-1$
 
-		PDOMTypeId name = createTypeIdFromBinaryName(binaryName);
-		PDOMType type = name.findTypeByResourceAddress(this.resource.address);
+		NdTypeId name = createTypeIdFromBinaryName(binaryName);
+		NdType type = name.findTypeByResourceAddress(this.resource.address);
 
 		if (type == null) {
-			type = new PDOMType(getPDOM(), this.resource);
+			type = new NdType(getPDOM(), this.resource);
 		}
 
 		ITypeAnnotationWalker typeAnnotations = getTypeAnnotationWalker(binaryType.getTypeAnnotations());
@@ -154,7 +154,7 @@ public class ClassFileToIndexConverter {
 			// this characteristic. In such cases, we take what's in the generic signature and discard what's in the
 			// interfaces list.
 			char[] interfaceSpec = interfaceIdx < interfaces.length ? interfaces[interfaceIdx] : EMPTY_CHAR_ARRAY;
-			new PDOMTypeInterface(getPDOM(), type, createTypeSignature(
+			new NdTypeInterface(getPDOM(), type, createTypeSignature(
 					typeAnnotations.toSupertype(interfaceIdx, interfaceSpec),
 					signatureWrapper));
 			interfaceIdx++;
@@ -184,7 +184,7 @@ public class ClassFileToIndexConverter {
 		return type;
 	}
 
-	private void attachAnnotations(PDOMBinding type, IBinaryAnnotation[] annotations) {
+	private void attachAnnotations(NdBinding type, IBinaryAnnotation[] annotations) {
 		if (annotations != null) {
 			for (IBinaryAnnotation next : annotations) {
 				createAnnotation(next).setParent(type);
@@ -196,8 +196,8 @@ public class ClassFileToIndexConverter {
 	 * Adds the given method to the given type
 	 * @throws CoreException
 	 */
-	private void addMethod(PDOMType type, IBinaryMethod next, char[] binaryTypeName) throws CoreException {
-		PDOMMethod method = new PDOMMethod(type);
+	private void addMethod(NdType type, IBinaryMethod next, char[] binaryTypeName) throws CoreException {
+		NdMethod method = new NdMethod(type);
 
 		attachAnnotations(method, next.getAnnotations());
 
@@ -216,7 +216,7 @@ public class ClassFileToIndexConverter {
 				signature.start++;
 				break;
 			}
-			PDOMMethodParameter parameter = new PDOMMethodParameter(method,
+			NdMethodParameter parameter = new NdMethodParameter(method,
 					createTypeSignature(typeAnnotations.toMethodParameter(parameterIdx),
 					signature));
 
@@ -231,7 +231,7 @@ public class ClassFileToIndexConverter {
 		int throwsIdx = 0;
 		while (!signature.atEnd() && signature.charAtStart() == '^') {
 			signature.start++;
-			new PDOMMethodException(method,
+			new NdMethodException(method,
 					createTypeSignature(typeAnnotations.toThrows(throwsIdx), signature));
 			throwsIdx++;
 		}
@@ -250,8 +250,8 @@ public class ClassFileToIndexConverter {
 	/**
 	 * Adds the given field to the given type
 	 */
-	private void addField(PDOMType type, IBinaryField nextField) throws CoreException {
-		PDOMVariable variable = new PDOMVariable(type);
+	private void addField(NdType type, IBinaryField nextField) throws CoreException {
+		NdVariable variable = new NdVariable(type);
 
 		variable.setName(nextField.getName());
 
@@ -262,7 +262,7 @@ public class ClassFileToIndexConverter {
 			}
 		}
 
-		variable.setConstant(PDOMConstant.create(getPDOM(), nextField.getConstant()));
+		variable.setConstant(NdConstant.create(getPDOM(), nextField.getConstant()));
 		variable.setModifiers(nextField.getModifiers());
 		SignatureWrapper nextTypeSignature = GenericSignatures.getGenericSignatureFor(nextField);
 
@@ -275,7 +275,7 @@ public class ClassFileToIndexConverter {
 	 * Sets wrapper.start to the character following the type parameters.
 	 * @throws CoreException
 	 */
-	private void readTypeParameters(PDOMBinding type, ITypeAnnotationWalker annotationWalker, SignatureWrapper wrapper)
+	private void readTypeParameters(NdBinding type, ITypeAnnotationWalker annotationWalker, SignatureWrapper wrapper)
 			throws CoreException {
 		char[] genericSignature = wrapper.signature;
 		if (genericSignature.length == 0 || wrapper.charAtStart() != '<') {
@@ -286,13 +286,13 @@ public class ClassFileToIndexConverter {
 		int boundIndex = 0;
 		int indexOfClosingBracket = wrapper.skipAngleContents(wrapper.start) - 1;
 		wrapper.start++;
-		PDOMTypeParameter parameter = null;
+		NdTypeParameter parameter = null;
 		while (wrapper.start < indexOfClosingBracket) {
 			int colonPos = CharOperation.indexOf(':', genericSignature, wrapper.start, indexOfClosingBracket);
 
 			if (colonPos > wrapper.start) {
 				char[] identifier = CharOperation.subarray(genericSignature, wrapper.start, colonPos);
-				parameter = new PDOMTypeParameter(type, identifier);
+				parameter = new NdTypeParameter(type, identifier);
 				wrapper.start = colonPos + 1;
 				parameterIndex++;
 				boundIndex = 0;
@@ -304,11 +304,11 @@ public class ClassFileToIndexConverter {
 				wrapper.start++;
 			}
 
-			PDOMTypeSignature boundSignature = createTypeSignature(
+			NdTypeSignature boundSignature = createTypeSignature(
 					annotationWalker.toTypeParameter(true, parameterIndex).toTypeBound((short)boundIndex),
 					wrapper);
 
-			new PDOMTypeBound(parameter, boundSignature);
+			new NdTypeBound(parameter, boundSignature);
 			boundIndex++;
 		}
 
@@ -328,7 +328,7 @@ public class ClassFileToIndexConverter {
 	 * @return
 	 * @throws CoreException
 	 */
-	private PDOMTypeSignature createTypeSignature(ITypeAnnotationWalker annotations, SignatureWrapper wrapper) throws CoreException {
+	private NdTypeSignature createTypeSignature(ITypeAnnotationWalker annotations, SignatureWrapper wrapper) throws CoreException {
 		char[] genericSignature = wrapper.signature;
 
 		if (genericSignature == null || genericSignature.length == 0) {
@@ -340,7 +340,7 @@ public class ClassFileToIndexConverter {
 			case 'T': {
 				// Skip the 'T' prefix
 				wrapper.start++;
-				PDOMComplexTypeSignature typeSignature = new PDOMComplexTypeSignature(getPDOM());
+				NdComplexTypeSignature typeSignature = new NdComplexTypeSignature(getPDOM());
 				typeSignature.setVariableIdentifier(wrapper.nextWord());
 				attachAnnotations(typeSignature, annotations);
 				// Skip the trailing semicolon
@@ -352,10 +352,10 @@ public class ClassFileToIndexConverter {
 				wrapper.start++;
 				// We encode arrays as though they were a one-argument generic type called '[' whose element
 				// type is the generic argument.
-				PDOMComplexTypeSignature typeSignature = new PDOMComplexTypeSignature(getPDOM());
+				NdComplexTypeSignature typeSignature = new NdComplexTypeSignature(getPDOM());
 				typeSignature.setRawType(createTypeIdFromFieldDescriptor(new char[] {'['}));
-				PDOMTypeArgument typeArgument = new PDOMTypeArgument(getPDOM(), typeSignature);
-				PDOMTypeSignature elementType = createTypeSignature(annotations.toNextArrayDimension(), wrapper);
+				NdTypeArgument typeArgument = new NdTypeArgument(getPDOM(), typeSignature);
+				NdTypeSignature elementType = createTypeSignature(annotations.toNextArrayDimension(), wrapper);
 				typeArgument.setType(elementType);
 				attachAnnotations(typeSignature, annotations);
 				return typeSignature;
@@ -396,7 +396,7 @@ public class ClassFileToIndexConverter {
 	 * @return
 	 * @throws CoreException
 	 */
-	private PDOMTypeSignature parseClassTypeSignature(PDOMComplexTypeSignature parentTypeOrNull,
+	private NdTypeSignature parseClassTypeSignature(NdComplexTypeSignature parentTypeOrNull,
 			ITypeAnnotationWalker annotations, SignatureWrapper wrapper) throws CoreException {
 		char[] identifier = wrapper.nextName();
 		char[] fieldDescriptor;
@@ -412,8 +412,8 @@ public class ClassFileToIndexConverter {
 		char[] genericSignature = wrapper.signature;
 		boolean hasGenericArguments = (genericSignature.length > wrapper.start) && genericSignature[wrapper.start] == '<';
 		boolean isRawTypeWithNestedClass = genericSignature[wrapper.start] == '.';
-		PDOMTypeId rawType = createTypeIdFromFieldDescriptor(fieldDescriptor);
-		PDOMTypeSignature result = rawType;
+		NdTypeId rawType = createTypeIdFromFieldDescriptor(fieldDescriptor);
+		NdTypeSignature result = rawType;
 
 		boolean checkForSemicolon = true;
 		// Special optimization for signatures with no type annotations, no arrays, and no generic arguments that
@@ -421,7 +421,7 @@ public class ClassFileToIndexConverter {
 		// set on a PDOMComplexTypeSignature besides what it picks up from its raw type, we just use the raw type.
 		IBinaryAnnotation[] annotationList = annotations.getAnnotationsAtCursor(0);
 		if (annotationList.length != 0 || hasGenericArguments || parentTypeOrNull != null || isRawTypeWithNestedClass) {
-			PDOMComplexTypeSignature typeSignature = new PDOMComplexTypeSignature(getPDOM());
+			NdComplexTypeSignature typeSignature = new NdComplexTypeSignature(getPDOM());
 			typeSignature.setRawType(rawType);
 			attachAnnotations(typeSignature, annotations);
 
@@ -429,28 +429,28 @@ public class ClassFileToIndexConverter {
 				wrapper.start++;
 				short argumentIndex = 0;
 				while (wrapper.start < genericSignature.length && (genericSignature[wrapper.start] != '>')) {
-					PDOMTypeArgument typeArgument = new PDOMTypeArgument(getPDOM(), typeSignature);
+					NdTypeArgument typeArgument = new NdTypeArgument(getPDOM(), typeSignature);
 
 					switch(genericSignature[wrapper.start]) {
 						case '+': {
-							typeArgument.setWildcard(PDOMTypeArgument.WILDCARD_SUPER);
+							typeArgument.setWildcard(NdTypeArgument.WILDCARD_SUPER);
 							wrapper.start++;
 							break;
 						}
 						case '-': {
-							typeArgument.setWildcard(PDOMTypeArgument.WILDCARD_EXTENDS);
+							typeArgument.setWildcard(NdTypeArgument.WILDCARD_EXTENDS);
 							wrapper.start++;
 							break;
 						}
 						case '*': {
-							typeArgument.setWildcard(PDOMTypeArgument.WILDCARD_QUESTION);
+							typeArgument.setWildcard(NdTypeArgument.WILDCARD_QUESTION);
 							wrapper.start++;
 							argumentIndex++;
 							continue;
 						}
 					}
 
-					PDOMTypeSignature nextSignature = createTypeSignature(annotations.toTypeArgument(argumentIndex), wrapper);
+					NdTypeSignature nextSignature = createTypeSignature(annotations.toTypeArgument(argumentIndex), wrapper);
 					typeArgument.setType(nextSignature);
 					argumentIndex++;
 				}
@@ -483,11 +483,11 @@ public class ClassFileToIndexConverter {
 	 * @param typeSignature
 	 * @param annotations
 	 */
-	private void attachAnnotations(PDOMComplexTypeSignature typeSignature, ITypeAnnotationWalker annotations) {
+	private void attachAnnotations(NdComplexTypeSignature typeSignature, ITypeAnnotationWalker annotations) {
 		IBinaryAnnotation[] annotationList = annotations.getAnnotationsAtCursor(0);
 
 		for (IBinaryAnnotation next: annotationList) {
-			PDOMAnnotation annotation = createAnnotation(next);
+			NdAnnotation annotation = createAnnotation(next);
 
 			annotation.setParent(typeSignature);
 		}
@@ -500,7 +500,7 @@ public class ClassFileToIndexConverter {
 		return new TypeAnnotationWalker(typeAnnotations);
 	}
 
-	private PDOMTypeId createTypeIdFromFieldDescriptor(char[] typeName) {
+	private NdTypeId createTypeIdFromFieldDescriptor(char[] typeName) {
 		if (typeName == null) {
 			return null;
 		}
@@ -510,7 +510,7 @@ public class ClassFileToIndexConverter {
 	/**
 	 * Creates a method ID given a method selector, method descriptor, and binary type name
 	 */
-	private PDOMMethodId createMethodId(char[] binaryTypeName, char[] methodSelector, char[] methodDescriptor) {
+	private NdMethodId createMethodId(char[] binaryTypeName, char[] methodSelector, char[] methodDescriptor) {
 		if (methodSelector == null || binaryTypeName == null || methodDescriptor == null) {
 			return null;
 		}
@@ -522,7 +522,7 @@ public class ClassFileToIndexConverter {
 	/**
 	 * Creates a method ID given a method name (which is a method selector followed by a method descriptor.
 	 */
-	private PDOMMethodId createMethodId(char[] binaryTypeName, char[] methodName) {
+	private NdMethodId createMethodId(char[] binaryTypeName, char[] methodName) {
 		if (methodName == null || binaryTypeName == null) {
 			return null;
 		}
@@ -531,14 +531,14 @@ public class ClassFileToIndexConverter {
 		return this.index.createMethodId(methodId);
 	}
 
-	private PDOMAnnotation createAnnotation(IBinaryAnnotation next) {
-		PDOMAnnotation result = new PDOMAnnotation(getPDOM(), createTypeIdFromBinaryName(next.getTypeName()));
+	private NdAnnotation createAnnotation(IBinaryAnnotation next) {
+		NdAnnotation result = new NdAnnotation(getPDOM(), createTypeIdFromBinaryName(next.getTypeName()));
 
 		IBinaryElementValuePair[] pairs = next.getElementValuePairs();
 
 		if (pairs != null) {
 			for (IBinaryElementValuePair element : pairs) {
-				PDOMAnnotationValuePair nextPair = new PDOMAnnotationValuePair(result, element.getName());
+				NdAnnotationValuePair nextPair = new NdAnnotationValuePair(result, element.getName());
 				nextPair.setValue(createConstantFromMixedType(element.getValue()));
 			}
 		}
@@ -552,7 +552,7 @@ public class ClassFileToIndexConverter {
 		}
 	}
 
-	private PDOMTypeId createTypeIdFromBinaryName(char[] binaryName) {
+	private NdTypeId createTypeIdFromBinaryName(char[] binaryName) {
 		if (binaryName == null) {
 			return null;
 		}
@@ -565,34 +565,34 @@ public class ClassFileToIndexConverter {
 	 * @param value
 	 *            accepts all values returned from {@link {@link IBinaryElementValuePair#getValue()}
 	 */
-	public PDOMConstant createConstantFromMixedType(Object value) {
+	public NdConstant createConstantFromMixedType(Object value) {
 		if (value instanceof Constant) {
 			Constant constant = (Constant) value;
 
-			return PDOMConstant.create(getPDOM(), constant);
+			return NdConstant.create(getPDOM(), constant);
 		} else if (value instanceof ClassSignature) {
 			ClassSignature signature = (ClassSignature) value;
 
 			char[] binaryName = JavaNames.binaryNameToFieldDescriptor(signature.getTypeName());
-			PDOMTypeSignature typeId = this.index.createTypeId(binaryName);
-			return PDOMConstantClass.create(getPDOM(), typeId);
+			NdTypeSignature typeId = this.index.createTypeId(binaryName);
+			return NdConstantClass.create(getPDOM(), typeId);
 		} else if (value instanceof IBinaryAnnotation) {
 			IBinaryAnnotation binaryAnnotation = (IBinaryAnnotation) value;
 
-			return PDOMConstantAnnotation.create(getPDOM(), createAnnotation(binaryAnnotation));
+			return NdConstantAnnotation.create(getPDOM(), createAnnotation(binaryAnnotation));
 		} else if (value instanceof Object[]) {
-			PDOMConstantArray result = new PDOMConstantArray(getPDOM());
+			NdConstantArray result = new NdConstantArray(getPDOM());
 			Object[] array = (Object[]) value;
 
 			for (Object next : array) {
-				PDOMConstant nextConstant = createConstantFromMixedType(next);
+				NdConstant nextConstant = createConstantFromMixedType(next);
 				nextConstant.setParent(result);
 			}
 			return result;
 		} else if (value instanceof EnumConstantSignature) {
 			EnumConstantSignature signature = (EnumConstantSignature) value;
 
-			PDOMConstantEnum result = PDOMConstantEnum.create(createTypeIdFromBinaryName(signature.getTypeName()),
+			NdConstantEnum result = NdConstantEnum.create(createTypeIdFromBinaryName(signature.getTypeName()),
 					new String(signature.getEnumConstantName()));
 
 			return result;

@@ -1,9 +1,9 @@
 package org.eclipse.jdt.core.tests.pdom;
 
 import org.eclipse.jdt.core.tests.pdom.util.BaseTestCase;
-import org.eclipse.jdt.internal.core.pdom.PDOM;
-import org.eclipse.jdt.internal.core.pdom.PDOMNode;
-import org.eclipse.jdt.internal.core.pdom.PDOMNodeTypeRegistry;
+import org.eclipse.jdt.internal.core.pdom.Nd;
+import org.eclipse.jdt.internal.core.pdom.NdNode;
+import org.eclipse.jdt.internal.core.pdom.NdNodeTypeRegistry;
 import org.eclipse.jdt.internal.core.pdom.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.pdom.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.pdom.field.StructDef;
@@ -15,7 +15,7 @@ public class InheritenceTests extends BaseTestCase {
 	 * Every other object in this test has a pointer to the deletion detector, so we can detect
 	 * which objects have been deleted by looking for the object in the backpointer list.
 	 */
-	public static class AllObjects extends PDOMNode {
+	public static class AllObjects extends NdNode {
 		public static final FieldOneToMany<BaseClass> BASE_CLASS_INSTANCES;
 		public static final FieldOneToMany<Reference> REFERENCE_INSTANCES;
 
@@ -23,18 +23,18 @@ public class InheritenceTests extends BaseTestCase {
 		public static final StructDef<AllObjects> type;
 
 		static {
-			type = StructDef.create(AllObjects.class, PDOMNode.type);
+			type = StructDef.create(AllObjects.class, NdNode.type);
 
 			BASE_CLASS_INSTANCES = FieldOneToMany.create(type, BaseClass.DELETION_DETECTOR, 0);
 			REFERENCE_INSTANCES = FieldOneToMany.create(type, Reference.DELETION_DETECTOR, 0);
 			type.done();
 		}
 
-		public AllObjects(PDOM pdom, long record) {
+		public AllObjects(Nd pdom, long record) {
 			super(pdom, record);
 		}
 
-		public AllObjects(PDOM pdom) {
+		public AllObjects(Nd pdom) {
 			super(pdom);
 		}
 
@@ -47,7 +47,7 @@ public class InheritenceTests extends BaseTestCase {
 		}
 	}
 
-	public static class BaseClass extends PDOMNode {
+	public static class BaseClass extends NdNode {
 		public static final FieldOneToMany<Reference> INCOMING_REFERENCES;
 		public static final FieldOneToMany<Reference> OWNED_REFERENCES;
 		public static final FieldManyToOne<AllObjects> DELETION_DETECTOR;
@@ -56,7 +56,7 @@ public class InheritenceTests extends BaseTestCase {
 		public static final StructDef<BaseClass> type;
 
 		static {
-			type = StructDef.create(BaseClass.class, PDOMNode.type);
+			type = StructDef.create(BaseClass.class, NdNode.type);
 
 			INCOMING_REFERENCES = FieldOneToMany.create(type, Reference.BASE_CLASS_REFERENCE, 0);
 			OWNED_REFERENCES = FieldOneToMany.create(type, Reference.OWNER, 0);
@@ -64,13 +64,13 @@ public class InheritenceTests extends BaseTestCase {
 			type.useStandardRefCounting().done();
 		}
 
-		public BaseClass(PDOM pdom, AllObjects deletionDetector) {
+		public BaseClass(Nd pdom, AllObjects deletionDetector) {
 			super(pdom);
 
 			DELETION_DETECTOR.put(pdom, this.address, deletionDetector);
 		}
 
-		public BaseClass(PDOM pdom, long record) {
+		public BaseClass(Nd pdom, long record) {
 			super(pdom, record);
 		}
 	}
@@ -88,16 +88,16 @@ public class InheritenceTests extends BaseTestCase {
 			type.useStandardRefCounting().done();
 		}
 
-		public SubClass(PDOM pdom, long record) {
+		public SubClass(Nd pdom, long record) {
 			super(pdom, record);
 		}
 
-		public SubClass(PDOM pdom, AllObjects deletionDetector) {
+		public SubClass(Nd pdom, AllObjects deletionDetector) {
 			super(pdom, deletionDetector);
 		}
 	}
 	
-	public static class Reference extends PDOMNode {
+	public static class Reference extends NdNode {
 		public static final FieldManyToOne<BaseClass> BASE_CLASS_REFERENCE;
 		public static final FieldManyToOne<BaseClass> OWNER;
 		public static final FieldManyToOne<SubClass> SUB_CLASS_REFERENCE;
@@ -107,7 +107,7 @@ public class InheritenceTests extends BaseTestCase {
 		public static StructDef<Reference> type;
 
 		static {
-			type = StructDef.create(Reference.class, PDOMNode.type);
+			type = StructDef.create(Reference.class, NdNode.type);
 
 			BASE_CLASS_REFERENCE = FieldManyToOne.create(type, BaseClass.INCOMING_REFERENCES);
 			OWNER = FieldManyToOne.createOwner(type, BaseClass.OWNED_REFERENCES);
@@ -116,11 +116,11 @@ public class InheritenceTests extends BaseTestCase {
 			type.done();
 		}
 
-		public Reference(PDOM pdom, long record) {
+		public Reference(Nd pdom, long record) {
 			super(pdom, record);
 		}
 
-		public Reference(PDOM pdom, AllObjects deletionDetector) {
+		public Reference(Nd pdom, AllObjects deletionDetector) {
 			super(pdom);
 
 			DELETION_DETECTOR.put(pdom, this.address, deletionDetector);
@@ -145,13 +145,13 @@ public class InheritenceTests extends BaseTestCase {
 	Reference refA;
 	Reference refB;
 	Reference refC;
-	private PDOM pdom;
+	private Nd pdom;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		PDOMNodeTypeRegistry<PDOMNode> registry = new PDOMNodeTypeRegistry<>();
+		NdNodeTypeRegistry<NdNode> registry = new NdNodeTypeRegistry<>();
 		registry.register(0, BaseClass.type.getFactory());
 		registry.register(1, SubClass.type.getFactory());
 		registry.register(2, Reference.type.getFactory());

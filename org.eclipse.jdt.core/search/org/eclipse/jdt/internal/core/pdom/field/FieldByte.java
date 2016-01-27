@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom.field;
 
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 import org.eclipse.jdt.internal.core.pdom.db.Database;
 
 /**
@@ -24,12 +24,12 @@ public class FieldByte implements IField {
 	public FieldByte() {
 	}
 
-	public byte get(PDOM pdom, long record) {
+	public byte get(Nd pdom, long record) {
 		Database db = pdom.getDB();
 		return db.getByte(record + this.offset);
 	}
 
-	public void put(PDOM pdom, long record, byte newValue) {
+	public void put(Nd pdom, long record, byte newValue) {
 		pdom.getDB().putByte(record + this.offset, newValue);
 	}
 

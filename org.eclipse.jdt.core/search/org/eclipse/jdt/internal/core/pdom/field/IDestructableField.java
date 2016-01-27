@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom.field;
 
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 
 /**
  * @since 3.12
  */
 public interface IDestructableField {
-	public void destruct(PDOM pdom, long address);
+	public void destruct(Nd pdom, long address);
 }

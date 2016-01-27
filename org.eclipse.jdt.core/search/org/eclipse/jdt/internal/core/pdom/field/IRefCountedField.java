@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom.field;
 
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 
 /**
  * @since 3.12
@@ -24,5 +24,5 @@ public interface IRefCountedField {
 	 * Implementations should return false if the refcount is 0 or true if the refcount
 	 * is nonzero.
 	 */	
-	public boolean hasReferences(PDOM pdom, long record);
+	public boolean hasReferences(Nd pdom, long record);
 }

@@ -3,7 +3,7 @@ package org.eclipse.jdt.internal.core.pdom.java;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 import org.eclipse.jdt.internal.core.pdom.db.Database;
 import org.eclipse.jdt.internal.core.pdom.db.IndexException;
 
@@ -14,36 +14,36 @@ public abstract class TagTreeReader {
 	public static final int[] UNUSED_RESULT = new int[1];
 
 	public static abstract class TagHandler<T> {
-		abstract public T read(PDOM pdom, long address, TagTreeReader reader, int[] bytesRead);
-		abstract public void write(PDOM pdom, long address, TagTreeReader reader, T toWrite, int[] bytesWritten);
-		abstract public int getSize(PDOM pdom, T object, TagTreeReader reader);
-		public void destruct(PDOM pdom, long address, TagTreeReader reader) {}
+		abstract public T read(Nd pdom, long address, TagTreeReader reader, int[] bytesRead);
+		abstract public void write(Nd pdom, long address, TagTreeReader reader, T toWrite, int[] bytesWritten);
+		abstract public int getSize(Nd pdom, T object, TagTreeReader reader);
+		public void destruct(Nd pdom, long address, TagTreeReader reader) {}
 	}
 
 	public static abstract class FixedSizeTagHandler<T> extends TagHandler<T> {
-		protected abstract T read(PDOM pdom, long address);
-		protected abstract void write(PDOM pdom, long address, T value);
+		protected abstract T read(Nd pdom, long address);
+		protected abstract void write(Nd pdom, long address, T value);
 		protected abstract int getSize();
-		protected void destruct(PDOM pdom, long address) {}
+		protected void destruct(Nd pdom, long address) {}
 		
-		public final T read(PDOM pdom, long address, TagTreeReader reader, int[] bytesRead) {
+		public final T read(Nd pdom, long address, TagTreeReader reader, int[] bytesRead) {
 			bytesRead[0] = getSize();
 			return read(pdom, address);
 		}
 
 		@Override
-		public final void write(PDOM pdom, long address, TagTreeReader reader, T value, int[] bytesWritten) {
+		public final void write(Nd pdom, long address, TagTreeReader reader, T value, int[] bytesWritten) {
 			bytesWritten[0] = getSize();
 			write(pdom, address, value);
 		}
 
 		@Override
-		public final int getSize(PDOM pdom, T object, TagTreeReader reader) {
+		public final int getSize(Nd pdom, T object, TagTreeReader reader) {
 			return getSize();
 		}
 
 		@Override
-		public final void destruct(PDOM pdom, long address, TagTreeReader reader) {
+		public final void destruct(Nd pdom, long address, TagTreeReader reader) {
 			destruct(pdom, address);
 		}
 	}
@@ -56,11 +56,11 @@ public abstract class TagTreeReader {
 		this.values.put(reader, (int) key);
 	}
 
-	public final Object read(PDOM pdom, long address) {
+	public final Object read(Nd pdom, long address) {
 		return read(pdom, address, UNUSED_RESULT);
 	}
 
-	public final Object read(PDOM pdom, long address, int[] bytesRead) {
+	public final Object read(Nd pdom, long address, int[] bytesRead) {
 		long readAddress = address;
 		Database db = pdom.getDB();
 		byte nextByte = db.getByte(address);
@@ -75,11 +75,11 @@ public abstract class TagTreeReader {
 
 	protected abstract byte getKeyFor(Object toWrite);
 
-	public final void write(PDOM pdom, long address, Object toWrite) {
+	public final void write(Nd pdom, long address, Object toWrite) {
 		write(pdom, address, toWrite, UNUSED_RESULT);
 	}
 
-	public final void write(PDOM pdom, long address, Object toWrite, int[] bytesWritten) {
+	public final void write(Nd pdom, long address, Object toWrite, int[] bytesWritten) {
 		byte key = getKeyFor(toWrite);
 
 		TagHandler handler = this.readers[key];
@@ -91,7 +91,7 @@ public abstract class TagTreeReader {
 		handler.write(pdom, address, this, (Object) toWrite, bytesWritten);
 	}
 
-	public final void destruct(PDOM pdom, long address) {
+	public final void destruct(Nd pdom, long address) {
 		Database db = pdom.getDB();
 		long readAddress = address;
 		byte nextByte = db.getByte(readAddress);
@@ -105,7 +105,7 @@ public abstract class TagTreeReader {
 		handler.destruct(pdom, readAddress, this);
 	}
 
-	public final int getSize(PDOM pdom, Object toMeasure) {
+	public final int getSize(Nd pdom, Object toMeasure) {
 		Database db = pdom.getDB();
 		byte key = getKeyFor(toMeasure);
 

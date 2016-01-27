@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom.field;
 
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 import org.eclipse.jdt.internal.core.pdom.db.Database;
 
 /**
@@ -22,12 +22,12 @@ public class FieldShort implements IField {
 	public FieldShort() {
 	}
 
-	public short get(PDOM pdom, long record) {
+	public short get(Nd pdom, long record) {
 		Database db = pdom.getDB();
 		return db.getShort(record + this.offset);
 	}
 
-	public void put(PDOM pdom, long record, short newValue) {
+	public void put(Nd pdom, long record, short newValue) {
 		pdom.getDB().putShort(record + this.offset, newValue);
 	}
 

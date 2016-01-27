@@ -1,14 +1,14 @@
 package org.eclipse.jdt.internal.core.pdom.field;
 
-import org.eclipse.jdt.internal.core.pdom.PDOM;
-import org.eclipse.jdt.internal.core.pdom.PDOMNode;
+import org.eclipse.jdt.internal.core.pdom.Nd;
+import org.eclipse.jdt.internal.core.pdom.NdNode;
 import org.eclipse.jdt.internal.core.pdom.db.Database;
 
 /**
  * Represents a 1-to-0..1 relationship in a PDOM database.
  * @since 3.12
  */
-public class FieldOneToOne<T extends PDOMNode> implements IField, IDestructableField, IRefCountedField {
+public class FieldOneToOne<T extends NdNode> implements IField, IDestructableField, IRefCountedField {
 	private int offset;
 	public final Class<T> nodeType; 
 	FieldOneToOne<?> backPointer;
@@ -33,7 +33,7 @@ public class FieldOneToOne<T extends PDOMNode> implements IField, IDestructableF
 		this.pointsToOwner = pointsToOwner;
 	}
 
-	public static <T extends PDOMNode, B extends PDOMNode> FieldOneToOne<T> create(StructDef<B> builder,
+	public static <T extends NdNode, B extends NdNode> FieldOneToOne<T> create(StructDef<B> builder,
 			Class<T> nodeType, FieldOneToOne<B> forwardPointer) {
 
 		FieldOneToOne<T> result = new FieldOneToOne<T>(nodeType, forwardPointer, false);
@@ -42,7 +42,7 @@ public class FieldOneToOne<T extends PDOMNode> implements IField, IDestructableF
 		return result;
 	}
 
-	public static <T extends PDOMNode, B extends PDOMNode> FieldOneToOne<T> createOwner(StructDef<B> builder,
+	public static <T extends NdNode, B extends NdNode> FieldOneToOne<T> createOwner(StructDef<B> builder,
 			Class<T> nodeType, FieldOneToOne<B> forwardPointer) {
 
 		FieldOneToOne<T> result = new FieldOneToOne<T>(nodeType, forwardPointer, true);
@@ -52,12 +52,12 @@ public class FieldOneToOne<T extends PDOMNode> implements IField, IDestructableF
 		return result;
 	}
 
-	public T get(PDOM pdom, long address) {
+	public T get(Nd pdom, long address) {
 		long ptr = pdom.getDB().getRecPtr(address + this.offset);
-		return PDOMNode.load(pdom, ptr, this.nodeType);
+		return NdNode.load(pdom, ptr, this.nodeType);
 	}
 
-	public void put(PDOM pdom, long address, T target) {
+	public void put(Nd pdom, long address, T target) {
 		cleanup(pdom, address);
 		pdom.getDB().putRecPtr(address + this.offset, target == null ? 0 : target.address);
 		if (target == null && this.pointsToOwner) {
@@ -66,11 +66,11 @@ public class FieldOneToOne<T extends PDOMNode> implements IField, IDestructableF
 	}
 
 	@Override
-	public void destruct(PDOM pdom, long address) {
+	public void destruct(Nd pdom, long address) {
 		cleanup(pdom, address);
 	}
 
-	private void cleanup(PDOM pdom, long address) {
+	private void cleanup(Nd pdom, long address) {
 		Database db = pdom.getDB();
 		long ptr = db.getRecPtr(address + this.offset);
 		if (ptr != 0) {
@@ -93,7 +93,7 @@ public class FieldOneToOne<T extends PDOMNode> implements IField, IDestructableF
 	}
 
 	@Override
-	public boolean hasReferences(PDOM pdom, long address) {
+	public boolean hasReferences(Nd pdom, long address) {
 		if (this.pointsToOwner) {
 			long ptr = pdom.getDB().getRecPtr(address + this.offset);
 			return ptr != 0;

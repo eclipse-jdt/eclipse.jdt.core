@@ -1,9 +1,9 @@
 package org.eclipse.jdt.core.tests.pdom;
 
 import org.eclipse.jdt.core.tests.pdom.util.BaseTestCase;
-import org.eclipse.jdt.internal.core.pdom.PDOM;
-import org.eclipse.jdt.internal.core.pdom.PDOMNode;
-import org.eclipse.jdt.internal.core.pdom.PDOMNodeTypeRegistry;
+import org.eclipse.jdt.internal.core.pdom.Nd;
+import org.eclipse.jdt.internal.core.pdom.NdNode;
+import org.eclipse.jdt.internal.core.pdom.NdNodeTypeRegistry;
 import org.eclipse.jdt.internal.core.pdom.db.Database;
 import org.eclipse.jdt.internal.core.pdom.field.FieldSearchIndex;
 import org.eclipse.jdt.internal.core.pdom.field.FieldSearchKey;
@@ -31,14 +31,14 @@ public class SearchKeyTests extends BaseTestCase {
 		}
 
 		private final long address;
-		private PDOM pdom;
+		private Nd pdom;
 		
-		public TestSearchIndex(PDOM dom, long address) {
+		public TestSearchIndex(Nd dom, long address) {
 			this.address = address;
 			this.pdom = dom;
 		}
 
-		public static TestSearchIndex getIndex(PDOM pdom) {
+		public static TestSearchIndex getIndex(Nd pdom) {
 			return new TestSearchIndex(pdom, Database.DATA_AREA);
 		}
 
@@ -53,7 +53,7 @@ public class SearchKeyTests extends BaseTestCase {
 		}
 	}
 	
-	public static class Element extends PDOMNode {
+	public static class Element extends NdNode {
 		public static final FieldSearchKey<TestSearchIndex> NAME;
 		public static final FieldSearchKey<TestSearchIndex> NICKNAME;
 
@@ -61,18 +61,18 @@ public class SearchKeyTests extends BaseTestCase {
 		public static StructDef<Element> type;
 
 		static {
-			type = StructDef.create(Element.class, PDOMNode.type);
+			type = StructDef.create(Element.class, NdNode.type);
 
 			NAME = FieldSearchKey.create(type, TestSearchIndex.NAME_INDEX);
 			NICKNAME = FieldSearchKey.create(type, TestSearchIndex.NICKNAME_INDEX);
 			type.done();
 		}
 
-		public Element(PDOM pdom, long record) {
+		public Element(Nd pdom, long record) {
 			super(pdom, record);
 		}
 
-		public Element(PDOM pdom) {
+		public Element(Nd pdom) {
 			super(pdom);
 		}
 
@@ -85,7 +85,7 @@ public class SearchKeyTests extends BaseTestCase {
 		}
 	}
 
-	private PDOM pdom;
+	private Nd pdom;
 	private Element elementA;
 	private Element elementB;
 	private TestSearchIndex index;
@@ -94,7 +94,7 @@ public class SearchKeyTests extends BaseTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		PDOMNodeTypeRegistry<PDOMNode> registry = new PDOMNodeTypeRegistry<>();
+		NdNodeTypeRegistry<NdNode> registry = new NdNodeTypeRegistry<>();
 		registry.register(0, Element.type.getFactory());
 		this.pdom = DatabaseTestUtil.createEmptyPdom(getName(), registry);
 		this.pdom.getDB().setExclusiveLock();

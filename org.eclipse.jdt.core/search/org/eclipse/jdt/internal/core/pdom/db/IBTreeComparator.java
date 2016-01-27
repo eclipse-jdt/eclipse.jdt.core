@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom.db;
 
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 
 /**
  * @since 3.12
@@ -19,5 +19,5 @@ public interface IBTreeComparator {
 	/**
 	 * Compare two records. Used for insert.
 	 */
-	public abstract int compare(PDOM pdom, long record1, long record2);
+	public abstract int compare(Nd pdom, long record1, long record2);
 }

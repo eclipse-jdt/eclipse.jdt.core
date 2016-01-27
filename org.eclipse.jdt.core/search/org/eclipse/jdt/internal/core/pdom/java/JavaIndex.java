@@ -15,9 +15,9 @@ import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.internal.core.pdom.PDOM;
-import org.eclipse.jdt.internal.core.pdom.PDOMNode;
-import org.eclipse.jdt.internal.core.pdom.PDOMNodeTypeRegistry;
+import org.eclipse.jdt.internal.core.pdom.Nd;
+import org.eclipse.jdt.internal.core.pdom.NdNode;
+import org.eclipse.jdt.internal.core.pdom.NdNodeTypeRegistry;
 import org.eclipse.jdt.internal.core.pdom.db.ChunkCache;
 import org.eclipse.jdt.internal.core.pdom.db.Database;
 import org.eclipse.jdt.internal.core.pdom.field.FieldSearchIndex;
@@ -30,24 +30,24 @@ import org.eclipse.jdt.internal.core.pdom.field.StructDef;
  */
 public class JavaIndex {
 	// Version constants
-	static final int CURRENT_VERSION = PDOM.version(1, 12);
-	static final int MAX_SUPPORTED_VERSION= PDOM.version(1, 12);
-	static final int MIN_SUPPORTED_VERSION= PDOM.version(1, 12);
+	static final int CURRENT_VERSION = Nd.version(1, 12);
+	static final int MAX_SUPPORTED_VERSION= Nd.version(1, 12);
+	static final int MIN_SUPPORTED_VERSION= Nd.version(1, 12);
 
 	// Fields for the search header
-	public static final FieldSearchIndex<PDOMResourceFile> FILES;
-	public static final FieldSearchIndex<PDOMTypeId> SIMPLE_INDEX;
-	public static final FieldSearchIndex<PDOMTypeId> TYPES;
-	public static final FieldSearchIndex<PDOMMethodId> METHODS;
+	public static final FieldSearchIndex<NdResourceFile> FILES;
+	public static final FieldSearchIndex<NdTypeId> SIMPLE_INDEX;
+	public static final FieldSearchIndex<NdTypeId> TYPES;
+	public static final FieldSearchIndex<NdMethodId> METHODS;
 
 	public static final StructDef<JavaIndex> type;
 
 	static {
 		type = StructDef.create(JavaIndex.class);
-		FILES = FieldSearchIndex.create(type, PDOMResourceFile.FILENAME);
-		SIMPLE_INDEX = FieldSearchIndex.create(type, PDOMTypeId.SIMPLE_NAME);
-		TYPES = FieldSearchIndex.create(type, PDOMTypeId.FIELD_DESCRIPTOR);
-		METHODS = FieldSearchIndex.create(type, PDOMMethodId.METHOD_NAME);
+		FILES = FieldSearchIndex.create(type, NdResourceFile.FILENAME);
+		SIMPLE_INDEX = FieldSearchIndex.create(type, NdTypeId.SIMPLE_NAME);
+		TYPES = FieldSearchIndex.create(type, NdTypeId.FIELD_DESCRIPTOR);
+		METHODS = FieldSearchIndex.create(type, NdMethodId.METHOD_NAME);
 		type.done();
 	}
 
@@ -56,25 +56,25 @@ public class JavaIndex {
 		}
 
 		@Override
-		public long getRank(PDOM resourceFilePdom, long resourceFileAddress) {
-			return PDOMResourceFile.TIME_LAST_SCANNED.get(resourceFilePdom, resourceFileAddress);
+		public long getRank(Nd resourceFilePdom, long resourceFileAddress) {
+			return NdResourceFile.TIME_LAST_SCANNED.get(resourceFilePdom, resourceFileAddress);
 		}
 	}
 
 	private static final BestResourceFile bestResourceFile = new BestResourceFile();
 	private final long address;
-	private PDOM pdom;
+	private Nd pdom;
 	private IResultRank anyResult = new IResultRank() {
 		@Override
-		public long getRank(PDOM pdom1, long address1) {
+		public long getRank(Nd pdom1, long address1) {
 			return 1;
 		}
 	};
-	private static PDOM globalPdom;
+	private static Nd globalPdom;
 	private static final String INDEX_FILENAME = "index.db"; //$NON-NLS-1$
 	private final static Object pdomMutex = new Object();
 
-	public JavaIndex(PDOM dom, long address) {
+	public JavaIndex(Nd dom, long address) {
 		this.address = address;
 		this.pdom = dom;
 	}
@@ -82,16 +82,16 @@ public class JavaIndex {
 	/**
 	 * Returns the most-recently-scanned resource file with the given name or null if none
 	 */
-	public PDOMResourceFile getResourceFile(String thePath) {
+	public NdResourceFile getResourceFile(String thePath) {
 		return FILES.findBest(this.pdom, this.address, FieldSearchIndex.SearchCriteria.create(thePath.toCharArray()),
 				bestResourceFile);
 	}
 
-	public List<PDOMResourceFile> getAllResourceFiles(String thePath) {
+	public List<NdResourceFile> getAllResourceFiles(String thePath) {
 		return FILES.findAll(this.pdom, this.address, FieldSearchIndex.SearchCriteria.create(thePath.toCharArray()));
 	}
 
-	public PDOMTypeId findType(char[] fieldDescriptor) {
+	public NdTypeId findType(char[] fieldDescriptor) {
 		SearchCriteria searchCriteria = SearchCriteria.create(fieldDescriptor);
 		return TYPES.findBest(this.pdom, this.address, searchCriteria, this.anyResult);
 	}
@@ -100,42 +100,42 @@ public class JavaIndex {
 	 * Returns a type ID or creates a new one if it does not exist. The caller must
 	 * attach a reference to it after calling this method or it may leak.
 	 */
-	public PDOMTypeId createTypeId(char[] fieldDescriptor) {
-		PDOMTypeId existingType = findType(fieldDescriptor);
+	public NdTypeId createTypeId(char[] fieldDescriptor) {
+		NdTypeId existingType = findType(fieldDescriptor);
 
 		if (existingType != null) {
 			return existingType;
 		}
 
-		return new PDOMTypeId(this.pdom, fieldDescriptor);
+		return new NdTypeId(this.pdom, fieldDescriptor);
 	}
 
-	public PDOM getPDOM() {
+	public Nd getPDOM() {
 		return this.pdom;
 	}
 
-	public PDOMMethodId findMethodId(char[] methodId) {
+	public NdMethodId findMethodId(char[] methodId) {
 		SearchCriteria searchCriteria = SearchCriteria.create(methodId);
 
 		return METHODS.findBest(this.pdom, this.address, searchCriteria, this.anyResult);
 	}
 
-	public PDOMMethodId createMethodId(char[] methodId) {
-		PDOMMethodId existingMethod = findMethodId(methodId);
+	public NdMethodId createMethodId(char[] methodId) {
+		NdMethodId existingMethod = findMethodId(methodId);
 
 		if (existingMethod != null) {
 			return existingMethod;
 		}
 
-		return new PDOMMethodId(this.pdom, methodId);
+		return new NdMethodId(this.pdom, methodId);
 	}
 
 	public static boolean isEnabled() {
 		return true;
 	}
 
-	public static PDOM getGlobalPDOM() {
-		PDOM localPdom;
+	public static Nd getGlobalPDOM() {
+		Nd localPdom;
 		synchronized (pdomMutex) {
 			localPdom = globalPdom;
 		}
@@ -144,7 +144,7 @@ public class JavaIndex {
 			return localPdom;
 		}
 
-		localPdom = new PDOM(getDBFile(), ChunkCache.getSharedInstance(), createTypeRegistry(),
+		localPdom = new Nd(getDBFile(), ChunkCache.getSharedInstance(), createTypeRegistry(),
 				MIN_SUPPORTED_VERSION, MAX_SUPPORTED_VERSION, CURRENT_VERSION);
 
 		synchronized (pdomMutex) {
@@ -155,7 +155,7 @@ public class JavaIndex {
 		}
 	}
 
-	public static JavaIndex getIndex(PDOM pdom) {
+	public static JavaIndex getIndex(Nd pdom) {
 		return new JavaIndex(pdom, Database.DATA_AREA);
 	}
 
@@ -172,41 +172,41 @@ public class JavaIndex {
 		return stateLocation.append(INDEX_FILENAME).toFile();
 	}
 
-	static PDOMNodeTypeRegistry<PDOMNode> createTypeRegistry() {
-		PDOMNodeTypeRegistry<PDOMNode> registry = new PDOMNodeTypeRegistry<>();
-		registry.register(0x0000, PDOMAnnotation.type.getFactory());
-		registry.register(0x0010, PDOMAnnotationValuePair.type.getFactory());
-		registry.register(0x0020, PDOMBinding.type.getFactory());
-		registry.register(0x0028, PDOMComplexTypeSignature.type.getFactory());
-		registry.register(0x0030, PDOMConstant.type.getFactory());
-		registry.register(0x0040, PDOMConstantAnnotation.type.getFactory());
-		registry.register(0x0050, PDOMConstantArray.type.getFactory());
-		registry.register(0x0060, PDOMConstantBoolean.type.getFactory());
-		registry.register(0x0070, PDOMConstantByte.type.getFactory());
-		registry.register(0x0080, PDOMConstantChar.type.getFactory());
-		registry.register(0x0090, PDOMConstantClass.type.getFactory());
-		registry.register(0x00A0, PDOMConstantDouble.type.getFactory());
-		registry.register(0x00B0, PDOMConstantEnum.type.getFactory());
-		registry.register(0x00C0, PDOMConstantFloat.type.getFactory());
-		registry.register(0x00D0, PDOMConstantInt.type.getFactory());
-		registry.register(0x00E0, PDOMConstantLong.type.getFactory());
-		registry.register(0x00F0, PDOMConstantShort.type.getFactory());
-		registry.register(0x0100, PDOMConstantString.type.getFactory());
-		registry.register(0x0110, PDOMMethod.type.getFactory());
-		registry.register(0x0120, PDOMMethodException.type.getFactory());
-		registry.register(0x0130, PDOMMethodId.type.getFactory());
-		registry.register(0x0140, PDOMMethodParameter.type.getFactory());
-		registry.register(0x0150, PDOMResourceFile.type.getFactory());
-		registry.register(0x0160, PDOMTreeNode.type.getFactory());
-		registry.register(0x0170, PDOMType.type.getFactory());
-		registry.register(0x0180, PDOMTypeArgument.type.getFactory());
-		registry.register(0x0190, PDOMTypeBound.type.getFactory());
-		registry.register(0x01A0, PDOMTypeInterface.type.getFactory());
-		registry.register(0x01B0, PDOMTypeParameter.type.getFactory());
-		registry.register(0x01C0, PDOMTypeSignature.type.getFactory());
-		registry.register(0x01D0, PDOMTypeId.type.getFactory());
-		registry.register(0x01E0, PDOMTypeInterface.type.getFactory());
-		registry.register(0x01F0, PDOMVariable.type.getFactory());
+	static NdNodeTypeRegistry<NdNode> createTypeRegistry() {
+		NdNodeTypeRegistry<NdNode> registry = new NdNodeTypeRegistry<>();
+		registry.register(0x0000, NdAnnotation.type.getFactory());
+		registry.register(0x0010, NdAnnotationValuePair.type.getFactory());
+		registry.register(0x0020, NdBinding.type.getFactory());
+		registry.register(0x0028, NdComplexTypeSignature.type.getFactory());
+		registry.register(0x0030, NdConstant.type.getFactory());
+		registry.register(0x0040, NdConstantAnnotation.type.getFactory());
+		registry.register(0x0050, NdConstantArray.type.getFactory());
+		registry.register(0x0060, NdConstantBoolean.type.getFactory());
+		registry.register(0x0070, NdConstantByte.type.getFactory());
+		registry.register(0x0080, NdConstantChar.type.getFactory());
+		registry.register(0x0090, NdConstantClass.type.getFactory());
+		registry.register(0x00A0, NdConstantDouble.type.getFactory());
+		registry.register(0x00B0, NdConstantEnum.type.getFactory());
+		registry.register(0x00C0, NdConstantFloat.type.getFactory());
+		registry.register(0x00D0, NdConstantInt.type.getFactory());
+		registry.register(0x00E0, NdConstantLong.type.getFactory());
+		registry.register(0x00F0, NdConstantShort.type.getFactory());
+		registry.register(0x0100, NdConstantString.type.getFactory());
+		registry.register(0x0110, NdMethod.type.getFactory());
+		registry.register(0x0120, NdMethodException.type.getFactory());
+		registry.register(0x0130, NdMethodId.type.getFactory());
+		registry.register(0x0140, NdMethodParameter.type.getFactory());
+		registry.register(0x0150, NdResourceFile.type.getFactory());
+		registry.register(0x0160, NdTreeNode.type.getFactory());
+		registry.register(0x0170, NdType.type.getFactory());
+		registry.register(0x0180, NdTypeArgument.type.getFactory());
+		registry.register(0x0190, NdTypeBound.type.getFactory());
+		registry.register(0x01A0, NdTypeInterface.type.getFactory());
+		registry.register(0x01B0, NdTypeParameter.type.getFactory());
+		registry.register(0x01C0, NdTypeSignature.type.getFactory());
+		registry.register(0x01D0, NdTypeId.type.getFactory());
+		registry.register(0x01E0, NdTypeInterface.type.getFactory());
+		registry.register(0x01F0, NdVariable.type.getFactory());
 		return registry;
 	}
 

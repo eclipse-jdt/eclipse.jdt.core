@@ -11,8 +11,8 @@
 package org.eclipse.jdt.internal.core.pdom.field;
 
 import org.eclipse.jdt.internal.core.pdom.ITypeFactory;
-import org.eclipse.jdt.internal.core.pdom.PDOM;
-import org.eclipse.jdt.internal.core.pdom.PDOMNode;
+import org.eclipse.jdt.internal.core.pdom.Nd;
+import org.eclipse.jdt.internal.core.pdom.NdNode;
 
 /**
  * Declares a PDOM field which is a pointer of a PDOMNode of the specified type. {@link FieldManyToOne} forms a
@@ -21,13 +21,13 @@ import org.eclipse.jdt.internal.core.pdom.PDOMNode;
  * 
  * @since 3.12
  */
-public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, IField, IRefCountedField {
+public class FieldManyToOne<T extends NdNode> implements IDestructableField, IField, IRefCountedField {
 	public final static FieldPointer TARGET;
 	public final static FieldInt BACKPOINTER_INDEX;
 
 	private int offset;
 	Class<T> targetType;
-	final Class<? extends PDOMNode> localType;
+	final Class<? extends NdNode> localType;
 	FieldOneToMany<?> backPointer;
 	private final static StructDef<FieldManyToOne> type;
 	/**
@@ -47,7 +47,7 @@ public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, I
 	 * @param backPointer
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private FieldManyToOne(Class<? extends PDOMNode> localType, FieldOneToMany<?> backPointer, boolean pointsToOwner) {
+	private FieldManyToOne(Class<? extends NdNode> localType, FieldOneToMany<?> backPointer, boolean pointsToOwner) {
 		this.localType = localType;
 		this.pointsToOwner = pointsToOwner;
 
@@ -64,7 +64,7 @@ public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, I
 		this.backPointer = backPointer;
 	}
 
-	public static <T extends PDOMNode, B extends PDOMNode> FieldManyToOne<T> create(StructDef<B> builder,
+	public static <T extends NdNode, B extends NdNode> FieldManyToOne<T> create(StructDef<B> builder,
 			FieldOneToMany<B> forwardPointer) {
 		FieldManyToOne<T> result = new FieldManyToOne<T>(builder.getStructClass(), forwardPointer, false);
 		builder.add(result);
@@ -80,7 +80,7 @@ public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, I
 	 * @param forwardPointer
 	 * @return
 	 */
-	public static <T extends PDOMNode, B extends PDOMNode> FieldManyToOne<T> createOwner(StructDef<B> builder,
+	public static <T extends NdNode, B extends NdNode> FieldManyToOne<T> createOwner(StructDef<B> builder,
 			FieldOneToMany<B> forwardPointer) {
 
 		FieldManyToOne<T> result = new FieldManyToOne<T>(builder.getStructClass(), forwardPointer, true);
@@ -90,11 +90,11 @@ public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, I
 		return result;
 	}
 
-	public T get(PDOM pdom, long address) {
-		return PDOMNode.load(pdom, getAddress(pdom, address), this.targetType);
+	public T get(Nd pdom, long address) {
+		return NdNode.load(pdom, getAddress(pdom, address), this.targetType);
 	}
 
-	public long getAddress(PDOM pdom, long address) {
+	public long getAddress(Nd pdom, long address) {
 		return pdom.getDB().getRecPtr(address + this.offset);
 	}
 
@@ -102,7 +102,7 @@ public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, I
 	 * Directs this pointer to the given target. Also removes this pointer from the old backpointer list (if any) and
 	 * inserts it into the new backpointer list (if any)
 	 */
-	public void put(PDOM pdom, long address, T value) {
+	public void put(Nd pdom, long address, T value) {
 		if (value != null) {
 			put(pdom, address, value.address);
 		} else {
@@ -110,7 +110,7 @@ public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, I
 		}
 	}
 
-	public void put(PDOM pdom, long address, long newTargetAddress) {
+	public void put(Nd pdom, long address, long newTargetAddress) {
 		long fieldStart = address + this.offset;
 		if (this.backPointer == null) {
 			throw new IllegalStateException("FieldNodePointer must be associated with a FieldBackPointer"); //$NON-NLS-1$
@@ -127,7 +127,7 @@ public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, I
 			this.backPointer.remove(pdom, oldTargetAddress, oldIndex);
 
 			if (oldTargetAddress != 0) {
-				short targetTypeId = PDOMNode.NODE_TYPE.get(pdom, oldTargetAddress);
+				short targetTypeId = NdNode.NODE_TYPE.get(pdom, oldTargetAddress);
 
 				ITypeFactory<T> typeFactory = pdom.getTypeFactory(targetTypeId);
 
@@ -155,16 +155,16 @@ public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, I
 	 * Not intended to be called by clients. This is invoked by {@link FieldOneToMany} whenever it reorders elements in
 	 * the array.
 	 */
-	void adjustIndex(PDOM pdom, long address, int index) {
+	void adjustIndex(Nd pdom, long address, int index) {
 		BACKPOINTER_INDEX.put(pdom, address + this.offset, index);
 	}
 
 	@Override
-	public void destruct(PDOM pdom, long address) {
+	public void destruct(Nd pdom, long address) {
 		put(pdom, address, 0);
 	}
 
-	void clearedByBackPointer(PDOM pdom, long address) {
+	void clearedByBackPointer(Nd pdom, long address) {
 		long fieldStart = this.offset + address;
 		FieldManyToOne.TARGET.put(pdom, fieldStart, 0);
 		FieldManyToOne.BACKPOINTER_INDEX.put(pdom, fieldStart, 0);
@@ -181,7 +181,7 @@ public class FieldManyToOne<T extends PDOMNode> implements IDestructableField, I
 	}
 
 	@Override
-	public boolean hasReferences(PDOM pdom, long address) {
+	public boolean hasReferences(Nd pdom, long address) {
 		long fieldStart = this.offset + address;
 		long target = TARGET.get(pdom, fieldStart);
 		return target != 0;

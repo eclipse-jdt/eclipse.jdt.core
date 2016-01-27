@@ -17,9 +17,9 @@ import java.util.Random;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.tests.pdom.util.BaseTestCase;
-import org.eclipse.jdt.internal.core.pdom.PDOM;
-import org.eclipse.jdt.internal.core.pdom.PDOMNode;
-import org.eclipse.jdt.internal.core.pdom.PDOMNodeTypeRegistry;
+import org.eclipse.jdt.internal.core.pdom.Nd;
+import org.eclipse.jdt.internal.core.pdom.NdNode;
+import org.eclipse.jdt.internal.core.pdom.NdNodeTypeRegistry;
 import org.eclipse.jdt.internal.core.pdom.db.BTree;
 import org.eclipse.jdt.internal.core.pdom.db.ChunkCache;
 import org.eclipse.jdt.internal.core.pdom.db.Database;
@@ -38,7 +38,7 @@ public class DatabaseTest extends BaseTestCase {
 	// This constant can be used to run the test with very large databases.
 	// Try, for example, setting it to Integer.MAX_VALUE * 7L;
 	private static final long TEST_OFFSET = 0;
-	private PDOM pdom;
+	private Nd pdom;
 	protected Database db;
 	private static final int CURRENT_VERSION = 10;
 
@@ -46,8 +46,8 @@ public class DatabaseTest extends BaseTestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		String testName = getName();
-		PDOMNodeTypeRegistry<PDOMNode> registry = new PDOMNodeTypeRegistry<>();
-		pdom = new PDOM(DatabaseTestUtil.getTempDbName(testName), new ChunkCache(), registry,
+		NdNodeTypeRegistry<NdNode> registry = new NdNodeTypeRegistry<>();
+		pdom = new Nd(DatabaseTestUtil.getTempDbName(testName), new ChunkCache(), registry,
 				0, 100, CURRENT_VERSION);
 		db = pdom.getDB();
 		db.setExclusiveLock();
@@ -196,7 +196,7 @@ public class DatabaseTest extends BaseTestCase {
 
 		IBTreeComparator comparator = new IBTreeComparator() {
 			@Override
-			public int compare(PDOM pdom, long record1, long record2) {
+			public int compare(Nd pdom, long record1, long record2) {
 				IString string1 = db.getString(db.getRecPtr(record1 + 4));
 				IString string2 = db.getString(db.getRecPtr(record2 + 4));
 				return string1.compare(string2, true);

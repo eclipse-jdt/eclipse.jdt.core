@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.pdom.AbstractTypeFactory;
 import org.eclipse.jdt.internal.core.pdom.ITypeFactory;
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 
 import java.text.MessageFormat;
 
@@ -34,7 +34,7 @@ public class BTree {
 
 	public static final int RECORD_SIZE = Database.PTR_SIZE;
 
-	private final PDOM pdom;
+	private final Nd pdom;
 	protected final Database db;
 	protected final long rootPointer;
 
@@ -47,7 +47,7 @@ public class BTree {
 
 	protected final IBTreeComparator cmp;
 
-	public BTree(PDOM pdom, long rootPointer, IBTreeComparator cmp) {
+	public BTree(Nd pdom, long rootPointer, IBTreeComparator cmp) {
 		this(pdom, rootPointer, DEFAULT_DEGREE, cmp);
 	}
 
@@ -57,7 +57,7 @@ public class BTree {
 	 * @param db the database containing the btree
 	 * @param rootPointer offset into database of the pointer to the root node
 	 */
-	public BTree(PDOM pdom, long rootPointer, int degree, IBTreeComparator cmp) {
+	public BTree(Nd pdom, long rootPointer, int degree, IBTreeComparator cmp) {
 		this.pdom = pdom;
 		if (degree < 2)
 			throw new IllegalArgumentException("Illegal degree " + degree + " in tree"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -81,7 +81,7 @@ public class BTree {
 	public static ITypeFactory<BTree> getFactory(final int degree, final IBTreeComparator cmp) {
 		return new AbstractTypeFactory<BTree>() {
 			@Override
-			public BTree create(PDOM dom, long address) {
+			public BTree create(Nd dom, long address) {
 				return new BTree(dom, address, degree, cmp);
 			}
 
@@ -96,12 +96,12 @@ public class BTree {
 			}
 
 			@Override
-			public void destruct(PDOM dom, long address) {
+			public void destruct(Nd dom, long address) {
 				destructFields(dom, address);
 			}
 
 			@Override
-			public void destructFields(PDOM dom, long address) {
+			public void destructFields(Nd dom, long address) {
 				create(dom, address).destruct();
 			}
 		};

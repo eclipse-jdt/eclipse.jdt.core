@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom.field;
 
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 import org.eclipse.jdt.internal.core.pdom.db.Database;
 
 /**
@@ -22,12 +22,12 @@ public class FieldPointer implements IField {
 	public FieldPointer() {
 	}
 
-	public long get(PDOM pdom, long record) {
+	public long get(Nd pdom, long record) {
 		Database db = pdom.getDB();
 		return db.getRecPtr(record + this.offset);
 	}
 
-	public void put(PDOM pdom, long record, long newValue) {
+	public void put(Nd pdom, long record, long newValue) {
 		pdom.getDB().putRecPtr(record + this.offset, newValue);
 	}
 

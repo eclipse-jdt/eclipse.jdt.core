@@ -148,7 +148,7 @@ public final class RawGrowableArray {
 	 * @param address address of the array
 	 * @return the array size, in number elements
 	 */
-	public int size(PDOM pdom, long address) {
+	public int size(Nd pdom, long address) {
 		Database db = pdom.getDB();
 		long growableBlockAddress = GROWABLE_BLOCK_ADDRESS.get(pdom, address);
 
@@ -173,7 +173,7 @@ public final class RawGrowableArray {
 	 * Adds the given value to the array. Returns an index which can be later passed into remove in order to
 	 * remove the element at a later time.
 	 */
-	public int add(PDOM pdom, long address, long value) {
+	public int add(Nd pdom, long address, long value) {
 		if (value == 0) {
 			throw new IllegalArgumentException("Null pointers cannot be inserted into " + getClass().getName()); //$NON-NLS-1$
 		}
@@ -192,7 +192,7 @@ public final class RawGrowableArray {
 	/**
 	 * Returns the element at the given index (nonzero). The given index must be < size().
 	 */
-	public long get(PDOM pdom, long address, int index) {
+	public long get(Nd pdom, long address, int index) {
 		long recordAddress = getAddressOfRecord(pdom, address, index);
 		return pdom.getDB().getRecPtr(recordAddress);
 	}
@@ -200,7 +200,7 @@ public final class RawGrowableArray {
 	/**
 	 * Ensures that the array contains at least enough space allocated to fit the given number of new elements.
 	 */
-	public void ensureCapacity(PDOM pdom, long address, int desiredSize) {
+	public void ensureCapacity(Nd pdom, long address, int desiredSize) {
 		int growableBlockNeededSize = desiredSize - this.inlineSize;
 		long growableBlockAddress = GROWABLE_BLOCK_ADDRESS.get(pdom, address);
 		int growableBlockCurrentSize = growableBlockAddress == 0 ? 0
@@ -262,7 +262,7 @@ public final class RawGrowableArray {
 	 * Allocates a new normal block, copies the contents of the old block to it, and deletes the old block. Should not
 	 * be used if the array is using metablocks. Returns the address of the newly-allocated block.
 	 */
-	private long resizeBlock(PDOM pdom, long address, int newBlockSize) {
+	private long resizeBlock(Nd pdom, long address, int newBlockSize) {
 		Database db = pdom.getDB();
 		long oldGrowableBlockAddress = GROWABLE_BLOCK_ADDRESS.get(pdom, address);
 
@@ -300,7 +300,7 @@ public final class RawGrowableArray {
 	/**
 	 * @param size
 	 */
-	private void setSize(PDOM pdom, long address, int size) {
+	private void setSize(Nd pdom, long address, int size) {
 		long growableBlockAddress = GROWABLE_BLOCK_ADDRESS.get(pdom, address);
 
 		// If we're not using a growable block, we don't explicitly store the size
@@ -314,7 +314,7 @@ public final class RawGrowableArray {
 	/**
 	 * Returns a record address given a record number
 	 */
-	private long getAddressOfRecord(PDOM pdom, long address, int index) {
+	private long getAddressOfRecord(Nd pdom, long address, int index) {
 		int growableBlockRelativeIndex = index - this.inlineSize;
 
 		if (growableBlockRelativeIndex >= 0) {
@@ -356,7 +356,7 @@ public final class RawGrowableArray {
 	 * was swapped into the position of the removed element, this returns the value of that element. Otherwise,
 	 * it returns 0.
 	 */
-	public long remove(PDOM pdom, long address, int index) {
+	public long remove(Nd pdom, long address, int index) {
 		int currentSize = size(pdom, address);
 		int lastElementIndex = currentSize - 1;
 
@@ -401,7 +401,7 @@ public final class RawGrowableArray {
 	 * @param desiredSize
 	 *            the new current size of the array or 0 to free up all memory
 	 */
-	private void repackIfNecessary(PDOM pdom, long address, int desiredSize) {
+	private void repackIfNecessary(Nd pdom, long address, int desiredSize) {
 		long growableBlockAddress = GROWABLE_BLOCK_ADDRESS.get(pdom, address);
 
 		// If there is no growable block then the array is already as small as we can make it. Nothing to do.
@@ -552,7 +552,7 @@ public final class RawGrowableArray {
 		return ARRAY_HEADER_BYTES + Database.PTR_SIZE * this.inlineSize;
 	}
 
-	public void destruct(PDOM pdom, long address) {
+	public void destruct(Nd pdom, long address) {
 		repackIfNecessary(pdom, address, 0);
 	}
 
@@ -563,7 +563,7 @@ public final class RawGrowableArray {
 	 * @param address address of the array
 	 * @return the array size, in number elements
 	 */
-	public boolean isEmpty(PDOM pdom, long address) {
+	public boolean isEmpty(Nd pdom, long address) {
 		Database db = pdom.getDB();
 		long growableBlockAddress = GROWABLE_BLOCK_ADDRESS.get(pdom, address);
 
@@ -580,7 +580,7 @@ public final class RawGrowableArray {
 		return GrowableBlockHeader.ARRAY_SIZE.get(pdom, growableBlockAddress) == 0;
 	}
 
-	public int getCapacity(PDOM pdom, long address) {
+	public int getCapacity(Nd pdom, long address) {
 		long growableBlockAddress = GROWABLE_BLOCK_ADDRESS.get(pdom, address);
 
 		if (growableBlockAddress == 0) {

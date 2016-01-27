@@ -13,9 +13,9 @@ package org.eclipse.jdt.core.tests.pdom;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.core.tests.Activator;
-import org.eclipse.jdt.internal.core.pdom.PDOM;
-import org.eclipse.jdt.internal.core.pdom.PDOMNode;
-import org.eclipse.jdt.internal.core.pdom.PDOMNodeTypeRegistry;
+import org.eclipse.jdt.internal.core.pdom.Nd;
+import org.eclipse.jdt.internal.core.pdom.NdNode;
+import org.eclipse.jdt.internal.core.pdom.NdNodeTypeRegistry;
 import org.eclipse.jdt.internal.core.pdom.db.ChunkCache;
 
 import java.io.File;
@@ -54,12 +54,12 @@ public class DatabaseTestUtil {
 	 * @param testName
 	 * @return the new PDOM
 	 */
-	public static PDOM createEmptyPdom(String testName) {
-		PDOMNodeTypeRegistry<PDOMNode> registry = new PDOMNodeTypeRegistry<>();
-		return new PDOM(DatabaseTestUtil.getTempDbName(testName), new ChunkCache(), registry, 0, 0, 0);
+	public static Nd createEmptyPdom(String testName) {
+		NdNodeTypeRegistry<NdNode> registry = new NdNodeTypeRegistry<>();
+		return new Nd(DatabaseTestUtil.getTempDbName(testName), new ChunkCache(), registry, 0, 0, 0);
 	}
 
-	public static PDOM createEmptyPdom(String testName, PDOMNodeTypeRegistry<PDOMNode> registry) {
-		return new PDOM(DatabaseTestUtil.getTempDbName(testName), new ChunkCache(), registry, 0, 0, 0);
+	public static Nd createEmptyPdom(String testName, NdNodeTypeRegistry<NdNode> registry) {
+		return new Nd(DatabaseTestUtil.getTempDbName(testName), new ChunkCache(), registry, 0, 0, 0);
 	}
 }

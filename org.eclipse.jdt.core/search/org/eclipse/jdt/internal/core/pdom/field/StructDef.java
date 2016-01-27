@@ -9,7 +9,7 @@ import java.util.List;
 
 import org.eclipse.jdt.internal.core.pdom.IDestructable;
 import org.eclipse.jdt.internal.core.pdom.ITypeFactory;
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 
 /**
  * Defines a data structure that will appear in the database.
@@ -73,7 +73,7 @@ public final class StructDef<T> {
 		final Constructor<T> constructor;
 		if (!this.isAbstract) {
 			try {
-				constructor = clazz.getConstructor(new Class<?>[] { PDOM.class, long.class });
+				constructor = clazz.getConstructor(new Class<?>[] { Nd.class, long.class });
 			} catch (NoSuchMethodException | SecurityException e) {
 				throw new IllegalArgumentException("The node class " + fullyQualifiedClassName //$NON-NLS-1$
 						+ " does not have an appropriate constructor for it to be used with PDOM"); //$NON-NLS-1$
@@ -85,7 +85,7 @@ public final class StructDef<T> {
 		this.hasUserDestructor = IDestructable.class.isAssignableFrom(clazz);
 
 		this.factory = new ITypeFactory<T>() {
-			public T create(PDOM dom, long address) {
+			public T create(Nd dom, long address) {
 				if (StructDef.this.isAbstract) {
 					throw new UnsupportedOperationException(
 							"Attempting to instantiate abstract class" + fullyQualifiedClassName); //$NON-NLS-1$
@@ -118,7 +118,7 @@ public final class StructDef<T> {
 				return StructDef.this.clazz;
 			}
 
-			public void destruct(PDOM pdom, long record) {
+			public void destruct(Nd pdom, long record) {
 				checkNotMutable();
 				if (StructDef.this.hasUserDestructor) {
 					IDestructable destructable = (IDestructable)create(pdom, record);
@@ -127,12 +127,12 @@ public final class StructDef<T> {
 				destructFields(pdom, record);
 			}
 
-			public void destructFields(PDOM dom, long address) {
+			public void destructFields(Nd dom, long address) {
 				StructDef.this.destructFields(dom, address);
 			}
 
 			@Override
-			public boolean isReadyForDeletion(PDOM dom, long address) {
+			public boolean isReadyForDeletion(Nd dom, long address) {
 				return StructDef.this.isReadyForDeletion(dom, address);
 			}
 			
@@ -168,7 +168,7 @@ public final class StructDef<T> {
 		return new StructDef<T>(clazz, superClass);
 	}
 
-	protected boolean isReadyForDeletion(PDOM dom, long record) {
+	protected boolean isReadyForDeletion(Nd dom, long record) {
 		List<IRefCountedField> toIterate = Collections.EMPTY_LIST;
 		switch (this.deletionSemantics) {
 			case EXPLICIT: return false;
@@ -376,7 +376,7 @@ public final class StructDef<T> {
 		return this.factory;
 	}
 
-	void destructFields(PDOM dom, long address) {
+	void destructFields(Nd dom, long address) {
 		for (IDestructableField next : StructDef.this.destructableFields) {
 			next.destruct(dom, address);
 		}

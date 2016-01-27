@@ -13,21 +13,21 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 import org.eclipse.jdt.internal.core.pdom.java.JavaIndex;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMResourceFile;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMTreeNode;
+import org.eclipse.jdt.internal.core.pdom.java.NdResourceFile;
+import org.eclipse.jdt.internal.core.pdom.java.NdTreeNode;
 
 final class IndexVisitor extends HierarchicalASTVisitor {
 	private IJavaElement currentElement;
-	private PDOMResourceFile file;
+	private NdResourceFile file;
 	private JavaIndex javaIndex;
-	private Stack<PDOMTreeNode> nodeStack;
-	private PDOM pdom;
+	private Stack<NdTreeNode> nodeStack;
+	private Nd pdom;
 	private String packageName = "";
 	private BindingToIndexConverter converter;
 
-	public IndexVisitor(IJavaElement currentElement, PDOMResourceFile file) {
+	public IndexVisitor(IJavaElement currentElement, NdResourceFile file) {
 		super();
 		this.currentElement = currentElement;
 		this.file = file;

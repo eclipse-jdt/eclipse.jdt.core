@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.core.pdom.field;
 
 import org.eclipse.jdt.internal.core.pdom.ITypeFactory;
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 
 /**
  * Used to represent a single field of an object stored in the database. Objects 
@@ -37,7 +37,7 @@ public final class Field<T> implements IField, IDestructableField {
 		this.factory = objectFactory;
 	}
 
-	public T get(PDOM pdom, long record) {
+	public T get(Nd pdom, long record) {
 		return this.factory.create(pdom, record + this.offset);
 	}
 
@@ -46,7 +46,7 @@ public final class Field<T> implements IField, IDestructableField {
 	}
 
 	@Override
-	public void destruct(PDOM pdom, long record) {
+	public void destruct(Nd pdom, long record) {
 		this.factory.destruct(pdom, record + this.offset);
 	}
 

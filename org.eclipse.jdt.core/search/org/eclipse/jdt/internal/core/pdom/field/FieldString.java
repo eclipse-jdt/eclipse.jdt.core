@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom.field;
 
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 import org.eclipse.jdt.internal.core.pdom.db.Database;
 import org.eclipse.jdt.internal.core.pdom.db.EmptyString;
 import org.eclipse.jdt.internal.core.pdom.db.IString;
@@ -25,7 +25,7 @@ public class FieldString implements IDestructableField, IField {
 	public FieldString() {
 	}
 
-	public IString get(PDOM pdom, long record) {
+	public IString get(Nd pdom, long record) {
 		Database db = pdom.getDB();
 		long namerec = db.getRecPtr(record + this.offset);
 
@@ -35,7 +35,7 @@ public class FieldString implements IDestructableField, IField {
 		return db.getString(namerec);
 	}
 
-	public void put(PDOM pdom, long record, char[] newString) {
+	public void put(Nd pdom, long record, char[] newString) {
 		final Database db= pdom.getDB();
 		IString name= get(pdom, record);
 		if (name.compare(newString, true) != 0) {
@@ -48,11 +48,11 @@ public class FieldString implements IDestructableField, IField {
 		}
 	}
 
-	public void put(PDOM pdom, long record, String newString) {
+	public void put(Nd pdom, long record, String newString) {
 		put(pdom, record, newString.toCharArray());
 	}
 
-	public void destruct(PDOM pdom, long record) {
+	public void destruct(Nd pdom, long record) {
 		get(pdom, record).delete();
 		pdom.getDB().putRecPtr(record + this.offset, 0);
 	}

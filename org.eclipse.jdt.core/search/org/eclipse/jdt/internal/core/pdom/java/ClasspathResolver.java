@@ -22,5 +22,5 @@ public interface ClasspathResolver {
 	 * is not onthe classpath. In the event that the same fully-qualified class name is found in multiple resource
 	 * files, the one with the higher priority number is preferred.
 	 */
-	int resolve(PDOMResourceFile sourceOfReference, PDOMResourceFile toTest);
+	int resolve(NdResourceFile sourceOfReference, NdResourceFile toTest);
 }

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom.db;
 
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -33,7 +33,7 @@ public class DBProperties {
 	 * @param db
 	 * @throws IndexException
 	 */
-	public DBProperties(PDOM pdom) throws IndexException {
+	public DBProperties(Nd pdom) throws IndexException {
 		Database db = pdom.getDB();
 		this.record= db.malloc(RECORD_SIZE);
 		this.index= new BTree(pdom, record + PROP_INDEX, DBProperty.getComparator());
@@ -47,7 +47,7 @@ public class DBProperties {
 	 * @param record
 	 * @throws IndexException
 	 */
-	public DBProperties(PDOM pdom, long record) throws IndexException {
+	public DBProperties(Nd pdom, long record) throws IndexException {
 		Database db = pdom.getDB();
 		this.record= record;
 		this.index= new BTree(pdom, record + PROP_INDEX, DBProperty.getComparator());
@@ -215,7 +215,7 @@ public class DBProperties {
 		public static IBTreeComparator getComparator() {
 			return new IBTreeComparator() {
 				@Override
-				public int compare(PDOM pdom, long record1, long record2) throws IndexException {
+				public int compare(Nd pdom, long record1, long record2) throws IndexException {
 					Database db = pdom.getDB();
 					IString left= db.getString(db.getRecPtr(record1 + KEY));
 					IString right= db.getString(db.getRecPtr(record2 + KEY));

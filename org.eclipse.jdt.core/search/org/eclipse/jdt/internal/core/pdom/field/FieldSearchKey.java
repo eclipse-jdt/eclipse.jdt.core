@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom.field;
 
-import org.eclipse.jdt.internal.core.pdom.PDOM;
-import org.eclipse.jdt.internal.core.pdom.PDOMNode;
+import org.eclipse.jdt.internal.core.pdom.Nd;
+import org.eclipse.jdt.internal.core.pdom.NdNode;
 import org.eclipse.jdt.internal.core.pdom.db.BTree;
 import org.eclipse.jdt.internal.core.pdom.db.Database;
 import org.eclipse.jdt.internal.core.pdom.db.IString;
@@ -45,7 +45,7 @@ public class FieldSearchKey<T> implements IField, IDestructableField {
 	 * @param searchIndex
 	 * @return
 	 */
-	public static <T, B extends PDOMNode> FieldSearchKey<T> create(StructDef<B> builder,
+	public static <T, B extends NdNode> FieldSearchKey<T> create(StructDef<B> builder,
 			FieldSearchIndex<B> searchIndex) {
 		FieldSearchKey<T> result = new FieldSearchKey<T>(searchIndex);
 
@@ -55,11 +55,11 @@ public class FieldSearchKey<T> implements IField, IDestructableField {
 		return result;
 	}
 
-	public void put(PDOM pdom, long address, String newString) {
+	public void put(Nd pdom, long address, String newString) {
 		put(pdom, address, newString.toCharArray());
 	}
 
-	public void put(PDOM pdom, long address, char[] newString) {
+	public void put(Nd pdom, long address, char[] newString) {
 		BTree btree = this.searchIndex.get(pdom, Database.DATA_AREA);
 		btree.delete(address);
 
@@ -68,12 +68,12 @@ public class FieldSearchKey<T> implements IField, IDestructableField {
 		btree.insert(address);
 	}
 
-	public IString get(PDOM pdom, long address) {
+	public IString get(Nd pdom, long address) {
 		return this.key.get(pdom, address);
 	}
 
 	@Override
-	public void destruct(PDOM pdom, long address) {
+	public void destruct(Nd pdom, long address) {
 		// Remove this entry from the search index
 		this.searchIndex.get(pdom, Database.DATA_AREA).delete(address);
 

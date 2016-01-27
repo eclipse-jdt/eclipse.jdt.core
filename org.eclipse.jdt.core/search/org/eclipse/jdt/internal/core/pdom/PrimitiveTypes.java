@@ -19,7 +19,7 @@ import org.eclipse.jdt.internal.core.pdom.db.Database;
 public class PrimitiveTypes {
 	public static final ITypeFactory<Long> Pointer = new AbstractTypeFactory<Long>() {
 		@Override
-		public Long create(PDOM dom, long record) {
+		public Long create(Nd dom, long record) {
 			return dom.getDB().getRecPtr(record);
 		}
 
@@ -36,7 +36,7 @@ public class PrimitiveTypes {
 
 	public static final ITypeFactory<Short> Short = new AbstractTypeFactory<Short>() {
 		@Override
-		public Short create(PDOM dom, long record) {
+		public Short create(Nd dom, long record) {
 			return dom.getDB().getShort(record);
 		}
 
@@ -53,7 +53,7 @@ public class PrimitiveTypes {
 
 	public static final ITypeFactory<Integer> Integer = new AbstractTypeFactory<Integer>() {
 		@Override
-		public Integer create(PDOM dom, long record) {
+		public Integer create(Nd dom, long record) {
 			return dom.getDB().getInt(record);
 		}
 

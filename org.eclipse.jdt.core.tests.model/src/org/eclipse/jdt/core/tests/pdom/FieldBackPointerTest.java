@@ -6,9 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.jdt.core.tests.pdom.util.BaseTestCase;
-import org.eclipse.jdt.internal.core.pdom.PDOM;
-import org.eclipse.jdt.internal.core.pdom.PDOMNode;
-import org.eclipse.jdt.internal.core.pdom.PDOMNodeTypeRegistry;
+import org.eclipse.jdt.internal.core.pdom.Nd;
+import org.eclipse.jdt.internal.core.pdom.NdNode;
+import org.eclipse.jdt.internal.core.pdom.NdNodeTypeRegistry;
 import org.eclipse.jdt.internal.core.pdom.RawGrowableArray;
 import org.eclipse.jdt.internal.core.pdom.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.pdom.field.FieldInt;
@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.core.pdom.field.StructDef;
 import junit.framework.Test;
 
 public class FieldBackPointerTest extends BaseTestCase {
-	public static class ForwardPointerStruct extends PDOMNode {
+	public static class ForwardPointerStruct extends NdNode {
 		public static final FieldManyToOne<BackPointerStruct> FORWARD;
 		public static final FieldManyToOne<BackPointerStruct> OWNER;
 
@@ -26,18 +26,18 @@ public class FieldBackPointerTest extends BaseTestCase {
 		public static final StructDef<ForwardPointerStruct> type;
 
 		static {
-			type = StructDef.create(ForwardPointerStruct.class, PDOMNode.type);
+			type = StructDef.create(ForwardPointerStruct.class, NdNode.type);
 
 			FORWARD = FieldManyToOne.create(type, BackPointerStruct.BACK);
 			OWNER = FieldManyToOne.createOwner(type, BackPointerStruct.OWNED);
 			type.done();
 		}
 
-		public ForwardPointerStruct(PDOM pdom) {
+		public ForwardPointerStruct(Nd pdom) {
 			super(pdom);
 		}
 
-		public ForwardPointerStruct(PDOM pdom, long record) {
+		public ForwardPointerStruct(Nd pdom, long record) {
 			super(pdom, record);
 		}
 
@@ -58,7 +58,7 @@ public class FieldBackPointerTest extends BaseTestCase {
 		}
 	}
 
-	public static class BackPointerStruct extends PDOMNode {
+	public static class BackPointerStruct extends NdNode {
 		public static final FieldOneToMany<ForwardPointerStruct> BACK;
 		public static final FieldOneToMany<ForwardPointerStruct> OWNED;
 		public static final FieldInt SOMEINT;
@@ -67,7 +67,7 @@ public class FieldBackPointerTest extends BaseTestCase {
 		public static final StructDef<BackPointerStruct> type;
 
 		static {
-			type = StructDef.create(BackPointerStruct.class, PDOMNode.type);
+			type = StructDef.create(BackPointerStruct.class, NdNode.type);
 
 			BACK = FieldOneToMany.create(type, ForwardPointerStruct.FORWARD, 2);
 			OWNED = FieldOneToMany.create(type, ForwardPointerStruct.OWNER, 0);
@@ -75,14 +75,14 @@ public class FieldBackPointerTest extends BaseTestCase {
 			type.done();
 		}
 
-		public BackPointerStruct(PDOM pdom) {
+		public BackPointerStruct(Nd pdom) {
 			super(pdom);
 
 			// Fill with nonzero values to ensure that "OWNED" doesn't read beyond its boundary
 			SOMEINT.put(pdom, this.address, 0xf0f0f0f0);
 		}
 
-		public BackPointerStruct(PDOM pdom, long record) {
+		public BackPointerStruct(Nd pdom, long record) {
 			super(pdom, record);
 		}
 
@@ -125,13 +125,13 @@ public class FieldBackPointerTest extends BaseTestCase {
 	ForwardPointerStruct fd;
 	BackPointerStruct ba;
 	BackPointerStruct bb;
-	private PDOM pdom;
+	private Nd pdom;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 
-		PDOMNodeTypeRegistry<PDOMNode> registry = new PDOMNodeTypeRegistry<>();
+		NdNodeTypeRegistry<NdNode> registry = new NdNodeTypeRegistry<>();
 		registry.register(0, BackPointerStruct.type.getFactory());
 		registry.register(1, ForwardPointerStruct.type.getFactory());
 		this.pdom = DatabaseTestUtil.createEmptyPdom(getName(), registry);

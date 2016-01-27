@@ -15,7 +15,7 @@ import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.tests.pdom.util.BaseTestCase;
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 import org.eclipse.jdt.internal.core.pdom.db.BTree;
 import org.eclipse.jdt.internal.core.pdom.db.Database;
 import org.eclipse.jdt.internal.core.pdom.db.IBTreeComparator;
@@ -37,7 +37,7 @@ import java.util.TreeSet;
 public class BTreeTests extends BaseTestCase {
 	private static int DEBUG= 0;
 	protected File dbFile;
-	protected PDOM pdom;
+	protected Nd pdom;
 	protected Database db;
 	protected BTree btree;
 	protected int rootRecord;
@@ -253,7 +253,7 @@ public class BTreeTests extends BaseTestCase {
 
 	private class BTMockRecordComparator implements IBTreeComparator {
 		@Override
-		public int compare(PDOM pdom, long record1, long record2) {
+		public int compare(Nd pdom, long record1, long record2) {
 			Database db = pdom.getDB();
 			return db.getInt(record1) - db.getInt(record2);
 		}

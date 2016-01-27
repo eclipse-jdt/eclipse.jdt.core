@@ -52,8 +52,8 @@ public class JavaNames {
 	/**
 	 * Given a PDOMType, returns its identifier in the form accepted by {@link IJavaSearchScope#encloses(String)}
 	 */
-	public static char[] getIndexPathFor(PDOMType type) {
-		PDOMResourceFile resourceFile = type.getResourceFile();
+	public static char[] getIndexPathFor(NdType type) {
+		NdResourceFile resourceFile = type.getResourceFile();
 
 		char[] filename = resourceFile.getFilename().getChars();
 		char[] binaryName = type.getTypeId().getBinaryName();

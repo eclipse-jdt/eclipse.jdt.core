@@ -8,26 +8,26 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 import org.eclipse.jdt.internal.core.pdom.java.JavaIndex;
 import org.eclipse.jdt.internal.core.pdom.java.JavaNames;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMResourceFile;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMTreeNode;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMType;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeId;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeInterface;
+import org.eclipse.jdt.internal.core.pdom.java.NdResourceFile;
+import org.eclipse.jdt.internal.core.pdom.java.NdTreeNode;
+import org.eclipse.jdt.internal.core.pdom.java.NdType;
+import org.eclipse.jdt.internal.core.pdom.java.NdTypeId;
+import org.eclipse.jdt.internal.core.pdom.java.NdTypeInterface;
 
 public class BindingToIndexConverter {
 	private static final boolean ENABLE_LOGGING = false;
 	private JavaIndex index;
-	private PDOMResourceFile resource;
+	private NdResourceFile resource;
 
-	public BindingToIndexConverter(PDOMResourceFile resource) {
+	public BindingToIndexConverter(NdResourceFile resource) {
 		this.resource = resource;
 		this.index = JavaIndex.getIndex(resource.getPDOM());
 	}
 
-	public void addBinding(PDOMTreeNode parent, IBinding binding, IProgressMonitor monitor) {
+	public void addBinding(NdTreeNode parent, IBinding binding, IProgressMonitor monitor) {
 		switch (binding.getKind()) {
 			case IBinding.TYPE:
 				addType((ITypeBinding) binding, monitor);
@@ -52,34 +52,34 @@ public class BindingToIndexConverter {
 		}
 	}
 
-	public void addMemberValuePair(PDOMTreeNode parent, IMemberValuePairBinding binding, IProgressMonitor monitor) {
+	public void addMemberValuePair(NdTreeNode parent, IMemberValuePairBinding binding, IProgressMonitor monitor) {
 		logInfo("Adding member value pair: " + binding.getName());
 	}
 
-	public void addPackage(PDOMTreeNode parent, IPackageBinding binding, IProgressMonitor monitor) {
+	public void addPackage(NdTreeNode parent, IPackageBinding binding, IProgressMonitor monitor) {
 		logInfo("Adding package: " + binding.getName());
 	}
 
-	public void addVariable(PDOMTreeNode parent, IVariableBinding binding, IProgressMonitor monitor) {
+	public void addVariable(NdTreeNode parent, IVariableBinding binding, IProgressMonitor monitor) {
 		logInfo("Adding variable: " + binding.getName());
 	}
 
-	public void addMethod(PDOMTreeNode parent, IMethodBinding binding, IProgressMonitor monitor) {
+	public void addMethod(NdTreeNode parent, IMethodBinding binding, IProgressMonitor monitor) {
 		logInfo("Adding method: " + binding.getName());
 	}
 
-	public void addAnnotation(PDOMTreeNode parent, IAnnotationBinding binding, IProgressMonitor monitor) {
+	public void addAnnotation(NdTreeNode parent, IAnnotationBinding binding, IProgressMonitor monitor) {
 		logInfo("Adding annotation: " + binding.getName());
 	}
 
-	public PDOMType addType(ITypeBinding binding, IProgressMonitor monitor) {
+	public NdType addType(ITypeBinding binding, IProgressMonitor monitor) {
 		logInfo("Adding type: " + binding.getBinaryName()); //$NON-NLS-1$
 
-		PDOMTypeId name = makeTypeId(binding);
-		PDOMType type = name.findTypeByResourceAddress(this.resource.address);
+		NdTypeId name = makeTypeId(binding);
+		NdType type = name.findTypeByResourceAddress(this.resource.address);
 
 		if (type == null) {
-			type = new PDOMType(getPDOM(), this.resource);
+			type = new NdType(getPDOM(), this.resource);
 		}
 
 		type.setTypeId(name);
@@ -91,7 +91,7 @@ public class BindingToIndexConverter {
 		}
 
 		for (ITypeBinding next : binding.getInterfaces()) {
-			new PDOMTypeInterface(getPDOM(), type, makeTypeId(next));
+			new NdTypeInterface(getPDOM(), type, makeTypeId(next));
 		}
 
 		return type;
@@ -103,11 +103,11 @@ public class BindingToIndexConverter {
 		}
 	}
 
-	private PDOMTypeId makeTypeId(ITypeBinding forBinding) {
+	private NdTypeId makeTypeId(ITypeBinding forBinding) {
 		return this.index.createTypeId(JavaNames.binaryNameToFieldDescriptor(forBinding.getBinaryName().toCharArray()));
 	}
 
-	private PDOM getPDOM() {
+	private Nd getPDOM() {
 		return resource.getPDOM();
 	}
 }

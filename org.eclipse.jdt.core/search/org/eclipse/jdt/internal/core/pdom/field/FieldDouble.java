@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom.field;
 
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 import org.eclipse.jdt.internal.core.pdom.db.Database;
 
 /**
@@ -24,12 +24,12 @@ public class FieldDouble implements IField {
 	public FieldDouble() {
 	}
 
-	public double get(PDOM pdom, long record) {
+	public double get(Nd pdom, long record) {
 		Database db = pdom.getDB();
 		return db.getDouble(record + this.offset);
 	}
 
-	public void put(PDOM pdom, long record, double newValue) {
+	public void put(Nd pdom, long record, double newValue) {
 		pdom.getDB().putDouble(record + this.offset, newValue);
 	}
 

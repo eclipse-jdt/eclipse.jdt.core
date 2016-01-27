@@ -51,13 +51,13 @@ import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
-import org.eclipse.jdt.internal.core.pdom.PDOM;
+import org.eclipse.jdt.internal.core.pdom.Nd;
 import org.eclipse.jdt.internal.core.pdom.java.JavaIndex;
 import org.eclipse.jdt.internal.core.pdom.java.JavaNames;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMType;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeId;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeInterface;
-import org.eclipse.jdt.internal.core.pdom.java.PDOMTypeSignature;
+import org.eclipse.jdt.internal.core.pdom.java.NdType;
+import org.eclipse.jdt.internal.core.pdom.java.NdTypeId;
+import org.eclipse.jdt.internal.core.pdom.java.NdTypeInterface;
+import org.eclipse.jdt.internal.core.pdom.java.NdTypeSignature;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
 import org.eclipse.jdt.internal.core.search.SubTypeSearchJob;
@@ -486,24 +486,24 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 		IPathRequestor pathRequestor, int waitingPolicy, IProgressMonitor progressMonitor) {
 	SubMonitor subMonitor = SubMonitor.convert(progressMonitor);
 	JavaIndex index = JavaIndex.getIndex();
-	PDOM pdom = index.getPDOM();
+	Nd pdom = index.getPDOM();
 	char[] fieldDefinition = JavaNames.fullyQualifiedNameToFieldDescriptor(type.getFullyQualifiedName().toCharArray());
 	pdom.acquireReadLock();
 
 	try {
-		PDOMTypeId foundType = index.findType(fieldDefinition);
+		NdTypeId foundType = index.findType(fieldDefinition);
 
 		if (foundType == null) {
 			return;
 		}
 
-		ArrayDeque<PDOMType> typesToVisit = new ArrayDeque<>();
-		Set<PDOMType> discoveredTypes = new HashSet<>();
+		ArrayDeque<NdType> typesToVisit = new ArrayDeque<>();
+		Set<NdType> discoveredTypes = new HashSet<>();
 		typesToVisit.addAll(foundType.getTypes());
 		discoveredTypes.addAll(typesToVisit);
 
 		while (!typesToVisit.isEmpty()) {
-			PDOMType nextType = typesToVisit.removeFirst();
+			NdType nextType = typesToVisit.removeFirst();
 
 			String typePath = new String(JavaNames.getIndexPathFor(nextType));
 			if (!scope2.encloses(typePath)) {
@@ -524,7 +524,7 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 				binariesFromIndexMatches2.put(typePath, binaryType);
 			}
 
-			for (PDOMType subType : nextType.getTypeId().getSubTypes()) {
+			for (NdType subType : nextType.getTypeId().getSubTypes()) {
 				if (!discoveredTypes.contains(subType)) {
 					discoveredTypes.add(subType);
 					typesToVisit.add(subType);
@@ -536,24 +536,24 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 	}
 }
 
-private static HierarchyBinaryType createBinaryTypeFrom(PDOMType type) {
+private static HierarchyBinaryType createBinaryTypeFrom(NdType type) {
 	char[] enclosingTypeName = null;
-	PDOMTypeSignature enclosingType = type.getDeclaringType();
+	NdTypeSignature enclosingType = type.getDeclaringType();
 	if (enclosingType != null) {
 		enclosingTypeName = enclosingType.getRawType().getSimpleName().getChars();
 	}
 	//final char[][] typeParameterSignatures;
-	PDOMTypeId typeId = type.getTypeId();
+	NdTypeId typeId = type.getTypeId();
 	HierarchyBinaryType result = new HierarchyBinaryType(type.getModifiers(), typeId.getBinaryName(),
 			typeId.getSimpleName().getChars(), enclosingTypeName, null);
 	// TODO(sxenos): Fill in the correct generic signature rather than passing null here
 
-	PDOMTypeSignature superClass = type.getSuperclass();
+	NdTypeSignature superClass = type.getSuperclass();
 	if (superClass != null) {
 		result.recordSuperclass(superClass.getRawType().getBinaryName());
 	}
 
-	for (PDOMTypeInterface interf : type.getInterfaces()) {
+	for (NdTypeInterface interf : type.getInterfaces()) {
 		result.recordInterface(interf.getInterface().getRawType().getBinaryName());
 	}
 	return result;
