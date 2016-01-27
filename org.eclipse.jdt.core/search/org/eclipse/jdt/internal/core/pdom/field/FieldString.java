@@ -25,9 +25,9 @@ public class FieldString implements IDestructableField, IField {
 	public FieldString() {
 	}
 
-	public IString get(Nd pdom, long record) {
+	public IString get(Nd pdom, long address) {
 		Database db = pdom.getDB();
-		long namerec = db.getRecPtr(record + this.offset);
+		long namerec = db.getRecPtr(address + this.offset);
 
 		if (namerec == 0) {
 			return EmptyString.create();
@@ -35,26 +35,26 @@ public class FieldString implements IDestructableField, IField {
 		return db.getString(namerec);
 	}
 
-	public void put(Nd pdom, long record, char[] newString) {
+	public void put(Nd pdom, long address, char[] newString) {
 		final Database db= pdom.getDB();
-		IString name= get(pdom, record);
+		IString name= get(pdom, address);
 		if (name.compare(newString, true) != 0) {
 			name.delete();
 			if (newString != null && newString.length > 0) {
-				db.putRecPtr(record + this.offset, db.newString(newString).getRecord());
+				db.putRecPtr(address + this.offset, db.newString(newString).getRecord());
 			} else {
-				db.putRecPtr(record + this.offset, 0);
+				db.putRecPtr(address + this.offset, 0);
 			}
 		}
 	}
 
-	public void put(Nd pdom, long record, String newString) {
-		put(pdom, record, newString.toCharArray());
+	public void put(Nd pdom, long address, String newString) {
+		put(pdom, address, newString.toCharArray());
 	}
 
-	public void destruct(Nd pdom, long record) {
-		get(pdom, record).delete();
-		pdom.getDB().putRecPtr(record + this.offset, 0);
+	public void destruct(Nd pdom, long address) {
+		get(pdom, address).delete();
+		pdom.getDB().putRecPtr(address + this.offset, 0);
 	}
 
 	@Override

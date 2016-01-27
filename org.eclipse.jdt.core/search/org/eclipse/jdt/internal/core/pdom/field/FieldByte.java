@@ -24,13 +24,13 @@ public class FieldByte implements IField {
 	public FieldByte() {
 	}
 
-	public byte get(Nd pdom, long record) {
+	public byte get(Nd pdom, long address) {
 		Database db = pdom.getDB();
-		return db.getByte(record + this.offset);
+		return db.getByte(address + this.offset);
 	}
 
-	public void put(Nd pdom, long record, byte newValue) {
-		pdom.getDB().putByte(record + this.offset, newValue);
+	public void put(Nd pdom, long address, byte newValue) {
+		pdom.getDB().putByte(address + this.offset, newValue);
 	}
 
 	@Override

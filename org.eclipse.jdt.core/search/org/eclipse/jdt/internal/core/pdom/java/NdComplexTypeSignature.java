@@ -40,8 +40,8 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 		type.useStandardRefCounting().done();
 	}
 
-	public NdComplexTypeSignature(Nd pdom, long record) {
-		super(pdom, record);
+	public NdComplexTypeSignature(Nd pdom, long address) {
+		super(pdom, address);
 	}
 
 	public NdComplexTypeSignature(Nd pdom) {

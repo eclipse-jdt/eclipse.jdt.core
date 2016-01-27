@@ -24,13 +24,13 @@ public class FieldDouble implements IField {
 	public FieldDouble() {
 	}
 
-	public double get(Nd pdom, long record) {
+	public double get(Nd pdom, long address) {
 		Database db = pdom.getDB();
-		return db.getDouble(record + this.offset);
+		return db.getDouble(address + this.offset);
 	}
 
-	public void put(Nd pdom, long record, double newValue) {
-		pdom.getDB().putDouble(record + this.offset, newValue);
+	public void put(Nd pdom, long address, double newValue) {
+		pdom.getDB().putDouble(address + this.offset, newValue);
 	}
 
 	@Override

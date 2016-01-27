@@ -40,8 +40,8 @@ public class NdAnnotation extends NdNode {
 		type.done();
 	}
 
-	public NdAnnotation(Nd pdom, long record) {
-		super(pdom, record);
+	public NdAnnotation(Nd pdom, long address) {
+		super(pdom, address);
 	}
 
 	public NdAnnotation(Nd pdom, NdTypeSignature type) {

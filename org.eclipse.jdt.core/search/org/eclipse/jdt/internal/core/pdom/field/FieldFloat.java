@@ -24,13 +24,13 @@ public class FieldFloat implements IField {
 	public FieldFloat() {
 	}
 
-	public float get(Nd pdom, long record) {
+	public float get(Nd pdom, long address) {
 		Database db = pdom.getDB();
-		return db.getFloat(record + this.offset);
+		return db.getFloat(address + this.offset);
 	}
 
-	public void put(Nd pdom, long record, float newValue) {
-		pdom.getDB().putFloat(record + this.offset, newValue);
+	public void put(Nd pdom, long address, float newValue) {
+		pdom.getDB().putFloat(address + this.offset, newValue);
 	}
 
 	@Override

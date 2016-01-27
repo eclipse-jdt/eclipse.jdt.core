@@ -566,12 +566,12 @@ public class Nd {
 	}
 
     /**
-     * @param record
+     * @param address
      * @param nodeType
      * @return
      */
-    public NdNode getNode(long record, short nodeType) throws IndexException {
-    	return this.fNodeTypeRegistry.createNode(this, record, nodeType);
+    public NdNode getNode(long address, short nodeType) throws IndexException {
+    	return this.fNodeTypeRegistry.createNode(this, address, nodeType);
     }
 
     public <T extends NdNode> ITypeFactory<T> getTypeFactory(short nodeType) {

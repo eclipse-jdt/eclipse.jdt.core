@@ -17,10 +17,10 @@ import org.eclipse.jdt.internal.core.pdom.field.StructDef.DeletionSemantics;
  */
 public abstract class AbstractTypeFactory<T> implements ITypeFactory<T> {
 	@Override
-	public void destructFields(Nd dom, long record) {}
+	public void destructFields(Nd dom, long address) {}
 
 	@Override
-	public void destruct(Nd dom, long record) {}
+	public void destruct(Nd dom, long address) {}
 
 	@Override
 	public boolean hasDestructor() {

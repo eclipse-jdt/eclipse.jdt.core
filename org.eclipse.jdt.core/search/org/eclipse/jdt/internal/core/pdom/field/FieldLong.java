@@ -25,13 +25,13 @@ public class FieldLong implements IField {
 	public FieldLong() {
 	}
 
-	public long get(Nd pdom, long record) {
+	public long get(Nd pdom, long address) {
 		Database db = pdom.getDB();
-		return db.getLong(record + this.offset);
+		return db.getLong(address + this.offset);
 	}
 
-	public void put(Nd pdom, long record, long newValue) {
-		pdom.getDB().putLong(record + this.offset, newValue);
+	public void put(Nd pdom, long address, long newValue) {
+		pdom.getDB().putLong(address + this.offset, newValue);
 	}
 
 	@Override

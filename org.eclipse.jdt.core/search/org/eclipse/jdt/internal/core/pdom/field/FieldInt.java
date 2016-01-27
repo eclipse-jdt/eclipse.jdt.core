@@ -24,13 +24,13 @@ public class FieldInt implements IField {
 	public FieldInt() {
 	}
 
-	public int get(Nd pdom, long record) {
+	public int get(Nd pdom, long address) {
 		Database db = pdom.getDB();
-		return db.getInt(record + this.offset);
+		return db.getInt(address + this.offset);
 	}
 
-	public void put(Nd pdom, long record, int newValue) {
-		pdom.getDB().putInt(record + this.offset, newValue);
+	public void put(Nd pdom, long address, int newValue) {
+		pdom.getDB().putInt(address + this.offset, newValue);
 	}
 
 	@Override

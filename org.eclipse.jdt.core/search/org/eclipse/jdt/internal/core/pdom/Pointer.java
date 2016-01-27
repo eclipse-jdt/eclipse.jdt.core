@@ -20,17 +20,17 @@ import org.eclipse.jdt.internal.core.pdom.db.Database;
  */
 public class Pointer<T> {
 	private final Nd pdom;
-	private final long record;
+	private final long address;
 	private ITypeFactory<T> targetFactory;
-	
-	public Pointer(Nd pdom, long record, ITypeFactory<T> targetFactory) {
+
+	public Pointer(Nd pdom, long address, ITypeFactory<T> targetFactory) {
 		this.pdom = pdom;
-		this.record = record;
+		this.address = address;
 		this.targetFactory = targetFactory;
 	}
 
 	public T get() {
-		long ptr = this.pdom.getDB().getRecPtr(this.record);
+		long ptr = this.pdom.getDB().getRecPtr(this.address);
 
 		if (ptr == 0) {
 			return null;
@@ -45,8 +45,8 @@ public class Pointer<T> {
 		}
 		return new AbstractTypeFactory<Pointer<T>>() {
 			@Override
-			public Pointer<T> create(Nd dom, long record) {
-				return new Pointer<T>(dom, record, targetFactory);
+			public Pointer<T> create(Nd dom, long address) {
+				return new Pointer<T>(dom, address, targetFactory);
 			}
 
 			@Override

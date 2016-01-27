@@ -46,8 +46,8 @@ public class NdMethodId extends NdNode {
 		type.useStandardRefCounting().done();
 	}
 
-	public NdMethodId(Nd pdom, long record) {
-		super(pdom, record);
+	public NdMethodId(Nd pdom, long address) {
+		super(pdom, address);
 	}
 
 	/**

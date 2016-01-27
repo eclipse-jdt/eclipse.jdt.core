@@ -45,8 +45,8 @@ public class NdResourceFile extends NdTreeNode {
 		type.done();
 	}
 
-	public NdResourceFile(Nd dom, long record) {
-		super(dom, record);
+	public NdResourceFile(Nd dom, long address) {
+		super(dom, address);
 	}
 
 	public NdResourceFile(Nd pdom) {

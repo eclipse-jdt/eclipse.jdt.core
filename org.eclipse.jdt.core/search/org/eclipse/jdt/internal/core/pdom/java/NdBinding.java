@@ -46,8 +46,8 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 
 	private static final NdAnnotation[] NO_ANNOTATIONS = new NdAnnotation[0];
 
-	public NdBinding(Nd pdom, long record) {
-		super(pdom, record);
+	public NdBinding(Nd pdom, long address) {
+		super(pdom, address);
 	}
 
 	public NdBinding(Nd pdom, NdResourceFile resource) {
@@ -104,7 +104,7 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 		// the PDOMBinding is deleted. However, PDOMBinding's don't get deleted, so there is no way
 		// to trigger deleting of the tags. If the implementation is changed so that PDOMBindings
 		// do get deleted, then it should call:
-		// PDOMTagIndex.setTags(getPDOM(), pdomBinding.record, Collections.<ITag>emptyList());
+		// PDOMTagIndex.setTags(getPDOM(), pdomBinding.address, Collections.<ITag>emptyList());
 		// to clear out all tags for the binding.
 		// if (adapter.isAssignableFrom(ITagReader.class))
 		// return new PDOMTaggable(getPDOM(), getRecord());
@@ -118,23 +118,23 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 	// * Watch out, a binding may also be used in a type (e.g. pointer to class)
 	// *
 	// * @param pdom
-	// * @param record
+	// * @param address
 	// * @return <code>true</code> if the binding is orphaned.
 	// * @throws IndexException
 	// */
-	// public static boolean isOrphaned(PDOM pdom, long record) throws IndexException {
+	// public static boolean isOrphaned(PDOM pdom, long address) throws IndexException {
 	// Database db = pdom.getDB();
-	// return db.getRecPtr(record + FIRST_DECL_OFFSET) == 0
-	// && db.getRecPtr(record + FIRST_DEF_OFFSET) == 0
-	// && db.getRecPtr(record + FIRST_REF_OFFSET) == 0
-	// && db.getRecPtr(record + FIRST_EXTREF_OFFSET) == 0;
+	// return db.getRecPtr(address + FIRST_DECL_OFFSET) == 0
+	// && db.getRecPtr(address + FIRST_DEF_OFFSET) == 0
+	// && db.getRecPtr(address + FIRST_REF_OFFSET) == 0
+	// && db.getRecPtr(address + FIRST_EXTREF_OFFSET) == 0;
 	// }
 	//
 	// public final boolean hasDeclaration() throws IndexException {
 	// if (hasDeclaration == -1) {
 	// final Database db = getDB();
-	// if (db.getRecPtr(record + FIRST_DECL_OFFSET) != 0
-	// || db.getRecPtr(record + FIRST_DEF_OFFSET) != 0) {
+	// if (db.getRecPtr(address + FIRST_DECL_OFFSET) != 0
+	// || db.getRecPtr(address + FIRST_DEF_OFFSET) != 0) {
 	// hasDeclaration= 1;
 	// return true;
 	// }
@@ -167,7 +167,7 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 	// // contexts that don't know which type of list they are iterating over. E.g., this is
 	// // used when deleting names from a PDOMFile.
 	// if (!getLinkage().equals(name.getLinkage())) {
-	// new PDOMExternalReferencesList(getPDOM(), record + FIRST_EXTREF_OFFSET).add(name);
+	// new PDOMExternalReferencesList(getPDOM(), address + FIRST_EXTREF_OFFSET).add(name);
 	// return;
 	// }
 	//
@@ -180,27 +180,27 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 	// }
 	//
 	// public PDOMName getFirstDeclaration() throws IndexException {
-	// long namerec = getDB().getRecPtr(record + FIRST_DECL_OFFSET);
+	// long namerec = getDB().getRecPtr(address + FIRST_DECL_OFFSET);
 	// return namerec != 0 ? new PDOMName(getLinkage(), namerec) : null;
 	// }
 	//
 	// public void setFirstDeclaration(PDOMName name) throws IndexException {
 	// long namerec = name != null ? name.getRecord() : 0;
-	// getDB().putRecPtr(record + FIRST_DECL_OFFSET, namerec);
+	// getDB().putRecPtr(address + FIRST_DECL_OFFSET, namerec);
 	// }
 	//
 	// public PDOMName getFirstDefinition() throws IndexException {
-	// long namerec = getDB().getRecPtr(record + FIRST_DEF_OFFSET);
+	// long namerec = getDB().getRecPtr(address + FIRST_DEF_OFFSET);
 	// return namerec != 0 ? new PDOMName(getLinkage(), namerec) : null;
 	// }
 	//
 	// public void setFirstDefinition(PDOMName name) throws IndexException {
 	// long namerec = name != null ? name.getRecord() : 0;
-	// getDB().putRecPtr(record + FIRST_DEF_OFFSET, namerec);
+	// getDB().putRecPtr(address + FIRST_DEF_OFFSET, namerec);
 	// }
 	//
 	// public PDOMName getFirstReference() throws IndexException {
-	// long namerec = getDB().getRecPtr(record + FIRST_REF_OFFSET);
+	// long namerec = getDB().getRecPtr(address + FIRST_REF_OFFSET);
 	// return namerec != 0 ? new PDOMName(getLinkage(), namerec) : null;
 	// }
 	//
@@ -209,7 +209,7 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 	// * not return null.
 	// */
 	// public IPDOMIterator<PDOMName> getExternalReferences() throws IndexException {
-	// return new PDOMExternalReferencesList(getPDOM(), record + FIRST_EXTREF_OFFSET).getIterator();
+	// return new PDOMExternalReferencesList(getPDOM(), address + FIRST_EXTREF_OFFSET).getIterator();
 	// }
 	//
 	// /**
@@ -220,7 +220,7 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 	// if (linkage.equals(getLinkage())) {
 	// setFirstReference(name);
 	// } else {
-	// new PDOMExternalReferencesList(getPDOM(), record + FIRST_EXTREF_OFFSET).setFirstReference(linkage, name);
+	// new PDOMExternalReferencesList(getPDOM(), address + FIRST_EXTREF_OFFSET).setFirstReference(linkage, name);
 	// }
 	// }
 	//
@@ -230,31 +230,31 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 	// // used when deleting names from a PDOMFile.
 	// if (name != null
 	// && !getLinkage().equals(name.getLinkage())) {
-	// new PDOMExternalReferencesList(getPDOM(), record + FIRST_EXTREF_OFFSET).add(name);
+	// new PDOMExternalReferencesList(getPDOM(), address + FIRST_EXTREF_OFFSET).add(name);
 	// return;
 	// }
 	//
 	// // Otherwise put the reference into list of locals.
 	// long namerec = name != null ? name.getRecord() : 0;
-	// getDB().putRecPtr(record + FIRST_REF_OFFSET, namerec);
+	// getDB().putRecPtr(address + FIRST_REF_OFFSET, namerec);
 	// }
 	//
 	// @Override
 	// public final PDOMFile getLocalToFile() throws IndexException {
-	// final long filerec = getLocalToFileRec(getDB(), record);
+	// final long filerec = getLocalToFileRec(getDB(), address);
 	// return filerec == 0 ? null : new PDOMFile(getLinkage(), filerec);
 	// }
 	//
 	// public final long getLocalToFileRec() throws IndexException {
-	// return getLocalToFileRec(getDB(), record);
+	// return getLocalToFileRec(getDB(), address);
 	// }
 
-	// public static long getLocalToFileRec(Database db, long record) throws IndexException {
-	// return db.getRecPtr(record + LOCAL_TO_FILE);
+	// public static long getLocalToFileRec(Database db, long address) throws IndexException {
+	// return db.getRecPtr(address + LOCAL_TO_FILE);
 	// }
 	//
 	// public final void setLocalToFileRec(long rec) throws IndexException {
-	// getDB().putRecPtr(record + LOCAL_TO_FILE, rec);
+	// getDB().putRecPtr(address + LOCAL_TO_FILE, rec);
 	// }
 
 	// public String getName() {
@@ -382,12 +382,12 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 	//
 	// @Override
 	// final public boolean isFileLocal() throws IndexException {
-	// return getDB().getRecPtr(record + LOCAL_TO_FILE) != 0;
+	// return getDB().getRecPtr(address + LOCAL_TO_FILE) != 0;
 	// }
 	//
 	// @Override
 	// public boolean hasDefinition() throws IndexException {
-	// return getDB().getRecPtr(record + FIRST_DEF_OFFSET) != 0;
+	// return getDB().getRecPtr(address + FIRST_DEF_OFFSET) != 0;
 	// }
 	//
 	// /**

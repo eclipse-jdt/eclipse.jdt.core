@@ -34,8 +34,8 @@ public class NdTypeId extends NdTypeSignature {
 		type.useStandardRefCounting().done();
 	}
 
-	public NdTypeId(Nd pdom, long record) {
-		super(pdom, record);
+	public NdTypeId(Nd pdom, long address) {
+		super(pdom, address);
 	}
 
 	public NdTypeId(Nd pdom, char[] fieldDescriptor) {

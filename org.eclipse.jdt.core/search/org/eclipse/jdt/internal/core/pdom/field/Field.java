@@ -37,8 +37,8 @@ public final class Field<T> implements IField, IDestructableField {
 		this.factory = objectFactory;
 	}
 
-	public T get(Nd pdom, long record) {
-		return this.factory.create(pdom, record + this.offset);
+	public T get(Nd pdom, long address) {
+		return this.factory.create(pdom, address + this.offset);
 	}
 
 	public boolean hasDestructor() {
@@ -46,8 +46,8 @@ public final class Field<T> implements IField, IDestructableField {
 	}
 
 	@Override
-	public void destruct(Nd pdom, long record) {
-		this.factory.destruct(pdom, record + this.offset);
+	public void destruct(Nd pdom, long address) {
+		this.factory.destruct(pdom, address + this.offset);
 	}
 
 	@Override

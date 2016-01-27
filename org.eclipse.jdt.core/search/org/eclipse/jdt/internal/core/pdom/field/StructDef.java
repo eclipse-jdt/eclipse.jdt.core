@@ -118,13 +118,13 @@ public final class StructDef<T> {
 				return StructDef.this.clazz;
 			}
 
-			public void destruct(Nd pdom, long record) {
+			public void destruct(Nd pdom, long address) {
 				checkNotMutable();
 				if (StructDef.this.hasUserDestructor) {
-					IDestructable destructable = (IDestructable)create(pdom, record);
+					IDestructable destructable = (IDestructable)create(pdom, address);
 					destructable.destruct();
 				}
-				destructFields(pdom, record);
+				destructFields(pdom, address);
 			}
 
 			public void destructFields(Nd dom, long address) {
@@ -168,7 +168,7 @@ public final class StructDef<T> {
 		return new StructDef<T>(clazz, superClass);
 	}
 
-	protected boolean isReadyForDeletion(Nd dom, long record) {
+	protected boolean isReadyForDeletion(Nd dom, long address) {
 		List<IRefCountedField> toIterate = Collections.EMPTY_LIST;
 		switch (this.deletionSemantics) {
 			case EXPLICIT: return false;
@@ -177,14 +177,14 @@ public final class StructDef<T> {
 		}
 
 		for (IRefCountedField next : toIterate) {
-			if (next.hasReferences(dom, record)) {
+			if (next.hasReferences(dom, address)) {
 				return false;
 			}
 		}
 
 		final StructDef<? super T> localSuperClass = StructDef.this.superClass;
 		if (localSuperClass != null && localSuperClass.deletionSemantics != DeletionSemantics.EXPLICIT) {
-			return localSuperClass.isReadyForDeletion(dom, record);
+			return localSuperClass.isReadyForDeletion(dom, address);
 		}
 		return true;
 	}

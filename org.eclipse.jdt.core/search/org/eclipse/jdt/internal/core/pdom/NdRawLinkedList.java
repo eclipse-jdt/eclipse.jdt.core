@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.core.pdom.db.IndexException;
  * PDOMLinkedList stores a list of fixed-sized records. Along with the records themselves, there is also
  * a bit field associated with each record which can hold a small number of bits of metadata per record.
  * The underlying format is as follows:
- * 
+ *
  * <pre>
  * Bytes       Content
  * ----------------
@@ -29,9 +29,9 @@ import org.eclipse.jdt.internal.core.pdom.db.IndexException;
  * recordSize  The content of the first element in the block
  * recordSize  The content of the second element in the block
  * ...         repeated recordsPerBlock times
- * recordSize  If the block is full, this holds the last 
+ * recordSize  If the block is full, this holds the last
  * </pre>
- * 
+ *
  * stored in linked blocks where each block is an array of record pointers. Each block contains a pointer to the
  * subsequent block, so they can be chained.
  * <p>
@@ -44,35 +44,35 @@ public class NdRawLinkedList {
 	private static final int NEXT_MEMBER_BLOCK = 0;
 	private static final int ELEMENT_START_POSITION = NEXT_MEMBER_BLOCK + Database.PTR_SIZE;
 
-	private final long record;
+	private final long address;
 	private final Nd dom;
 	private final int firstBlockRecordCount;
 	private final int recordCount;
-	private final int elementRecordSize; 
+	private final int elementRecordSize;
 	private final int metadataBitsPerRecord;
 
-	// Derived data. Holds the record for the last block we know about
+	// Derived data. Holds the address for the last block we know about
 	private long lastKnownBlock;
 
 	public static interface ILinkedListVisitor {
-		public void visit(long record, short metadataBits, int index) throws IndexException;
+		public void visit(long address, short metadataBits, int index) throws IndexException;
 	}
 
 	/**
 	 * @param pdom PDOM object
-	 * @param record pointer to the start of the linked list
+	 * @param address pointer to the start of the linked list
 	 * @param recordsPerBlock number of records per block. This is normally a hardcoded value.
 	 */
-	public NdRawLinkedList(Nd pdom, long record, int elementRecordSize, int firstBlockRecordCount, int recordsPerBlock,
+	public NdRawLinkedList(Nd pdom, long address, int elementRecordSize, int firstBlockRecordCount, int recordsPerBlock,
 			int metadataBitsPerRecord) {
 		assert(recordsPerBlock > 0);
 		assert(firstBlockRecordCount >= 0);
 		this.dom = pdom;
-		this.record = record;
+		this.address = address;
 		this.firstBlockRecordCount = firstBlockRecordCount;
 		this.recordCount = recordsPerBlock;
 		this.elementRecordSize = elementRecordSize;
-		this.lastKnownBlock = record;
+		this.lastKnownBlock = address;
 		this.metadataBitsPerRecord = metadataBitsPerRecord;
 	}
 
@@ -80,12 +80,12 @@ public class NdRawLinkedList {
 //		this.dom = dom;
 //		this.recordCount = recordsPerBlock;
 //		this.elementRecordSize = elementRecordSize;
-//		this.record = dom.getDB().malloc(Database.PTR_SIZE + this.elementRecordSize * recordsPerBlock);
-//		this.lastKnownBlock = this.record;
+//		this.address = dom.getDB().malloc(Database.PTR_SIZE + this.elementRecordSize * recordsPerBlock);
+//		this.lastKnownBlock = this.address;
 //	}
 
 	/**
-	 * Returns the record size for a linked list with the given element record size and number of 
+	 * Returns the record size for a linked list with the given element record size and number of
 	 * records per block
 	 */
 	public static int recordSize(int elementRecordSize, int recordsPerBlock, int metadataBitsPerRecord) {
@@ -116,13 +116,13 @@ public class NdRawLinkedList {
 		return this.dom.getDB();
 	}
 
-	public long getRecord() {
-		return this.record;
+	public long getAddress() {
+		return this.address;
 	}
 
 	/**
 	 * Adds a new element to the list and returns the record pointer to the start of the newly-allocated object
-	 * 
+	 *
 	 * @param metadataBits the metadata bits to attach to the new member. Use 0 if this list does not use metadata.
 	 */
 	public long addMember(short metadataBits) throws IndexException {
@@ -201,7 +201,7 @@ public class NdRawLinkedList {
 		int blockRecordCount = this.firstBlockRecordCount;
 		int metadataMask = (1 << this.metadataBitsPerRecord) - 1;
 		int metadataRecordsPerShort = this.metadataBitsPerRecord == 0 ? 0 : (16 / this.metadataBitsPerRecord);
-		long current = this.record;
+		long current = this.address;
 		while (true) {
 			long ptr = db.getRecPtr(current + NEXT_MEMBER_BLOCK);
 			int elementsInBlock = getElementsInBlock(current, ptr, blockRecordCount);
@@ -237,7 +237,7 @@ public class NdRawLinkedList {
 
 	public void destruct() throws IndexException {
 		Database db = getDB();
-		long current = this.record;
+		long current = this.address;
 		while (true) {
 			long ptr = db.getRecPtr(current + NEXT_MEMBER_BLOCK);
 			db.free(current);
@@ -261,13 +261,13 @@ public class NdRawLinkedList {
 
 	/**
 	 * Returns the number of elements in this list. This is an O(n) operation.
-	 * @throws IndexException 
+	 * @throws IndexException
 	 */
 	public int size() throws IndexException {
 		int count = 0;
 		Database db = getDB();
 		int currentRecordCount = this.firstBlockRecordCount;
-		long current = this.record;
+		long current = this.address;
 		while (true) {
 			long ptr = db.getRecPtr(current + NEXT_MEMBER_BLOCK);
 			count += getElementsInBlock(current, ptr, currentRecordCount);

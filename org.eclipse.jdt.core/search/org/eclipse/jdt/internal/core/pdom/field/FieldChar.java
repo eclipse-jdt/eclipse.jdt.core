@@ -24,13 +24,13 @@ public class FieldChar implements IField {
 	public FieldChar() {
 	}
 
-	public char get(Nd pdom, long record) {
+	public char get(Nd pdom, long address) {
 		Database db = pdom.getDB();
-		return db.getChar(record + this.offset);
+		return db.getChar(address + this.offset);
 	}
 
-	public void put(Nd pdom, long record, char newValue) {
-		pdom.getDB().putChar(record + this.offset, newValue);
+	public void put(Nd pdom, long address, char newValue) {
+		pdom.getDB().putChar(address + this.offset, newValue);
 	}
 
 	@Override

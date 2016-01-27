@@ -22,13 +22,13 @@ public class FieldShort implements IField {
 	public FieldShort() {
 	}
 
-	public short get(Nd pdom, long record) {
+	public short get(Nd pdom, long address) {
 		Database db = pdom.getDB();
-		return db.getShort(record + this.offset);
+		return db.getShort(address + this.offset);
 	}
 
-	public void put(Nd pdom, long record, short newValue) {
-		pdom.getDB().putShort(record + this.offset, newValue);
+	public void put(Nd pdom, long address, short newValue) {
+		pdom.getDB().putShort(address + this.offset, newValue);
 	}
 
 	@Override

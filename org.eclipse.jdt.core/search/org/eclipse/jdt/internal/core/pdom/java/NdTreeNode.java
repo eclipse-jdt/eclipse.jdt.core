@@ -37,8 +37,8 @@ public abstract class NdTreeNode extends NdNode {
 		type.done();
 	}
 
-	public NdTreeNode(Nd dom, long record) {
-		super(dom, record);
+	public NdTreeNode(Nd dom, long address) {
+		super(dom, address);
 	}
 
 	protected NdTreeNode(Nd pdom, NdTreeNode parent) {

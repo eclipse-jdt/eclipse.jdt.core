@@ -51,32 +51,32 @@ public class FindBinding {
 //		private final long fLocalToFile;
 //		protected PDOMBinding fResult;
 //		private PDOM pdom;
-//	
+//
 //		protected DefaultFindBindingVisitor(PDOM pdom, char[] name, int[] constants, long localToFile) {
 //			this.pdom = pdom;
 //			this.fName = name;
 //			this.fConstants = constants;
 //			this.fLocalToFile= localToFile;
 //		}
-//		
+//
 //		// IBTreeVisitor
 //		@Override
-//		public int compare(long record) throws IndexException {
+//		public int compare(long address) throws IndexException {
 //			final Database db = this.pdom.getDB();
-//			IString nm1 = PDOMNamedNode.getDBName(db, record);
-//			int cmp= nm1.compareCompatibleWithIgnoreCase(this.fName); 
+//			IString nm1 = PDOMNamedNode.getDBName(db, address);
+//			int cmp= nm1.compareCompatibleWithIgnoreCase(this.fName);
 //			if (cmp == 0) {
-//				long t1= PDOMBinding.getLocalToFileRec(db, record);
+//				long t1= PDOMBinding.getLocalToFileRec(db, address);
 //				long t2= this.fLocalToFile;
 //				cmp= t1 < t2 ? -1 : (t1 > t2 ? 1 : 0);
 //			}
 //			return cmp;
 //		}
-//	
+//
 //		// IBTreeVisitor
 //		@Override
-//		public boolean visit(long record) throws IndexException {
-//			final PDOMNamedNode nnode = (PDOMNamedNode) PDOMNode.load(pdom, record);
+//		public boolean visit(long address) throws IndexException {
+//			final PDOMNamedNode nnode = (PDOMNamedNode) PDOMNode.load(pdom, address);
 //			if (nnode instanceof PDOMBinding) {
 //				final PDOMBinding binding = (PDOMBinding) nnode;
 //				if (matches(binding)) {
@@ -86,7 +86,7 @@ public class FindBinding {
 //			}
 //			return true;
 //		}
-//		
+//
 //		protected boolean matches(PDOMBinding nnode) throws IndexException {
 //			if (nnode.hasName(fName)) {
 //				int constant = nnode.getNodeType();
@@ -131,7 +131,7 @@ public class FindBinding {
 //			if (cmp == 0) {								// any order will do.
 //				if (record1 < record2) {
 //					return -1;
-//				} else if (record1 > record2) {			
+//				} else if (record1 > record2) {
 //					return 1;
 //				}
 //			}
@@ -141,7 +141,7 @@ public class FindBinding {
 //
 //	public static class MacroBTreeComparator implements IBTreeComparator {
 //		final private Database db;
-//		
+//
 //		public MacroBTreeComparator(Database database) {
 //			db= database;
 //		}
@@ -154,7 +154,7 @@ public class FindBinding {
 //		}
 //	}
 //
-//	public static PDOMBinding findBinding(BTree btree, final PDOM pdom, final char[] name, 
+//	public static PDOMBinding findBinding(BTree btree, final PDOM pdom, final char[] name,
 //			final int[] constants, final long localToFileRec) throws IndexException {
 //		final DefaultFindBindingVisitor visitor = new DefaultFindBindingVisitor(pdom, name, constants, localToFileRec);
 //		btree.accept(visitor);

@@ -130,8 +130,8 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 		}
 
 		@Override
-		public int compare(long record) throws IndexException {
-			IString key = FieldSearchIndex.this.searchKey.get(this.pdom, record);
+		public int compare(long address) throws IndexException {
+			IString key = FieldSearchIndex.this.searchKey.get(this.pdom, address);
 
 			if (this.searchCriteria.isPrefixSearch()) {
 				return key.comparePrefix(this.searchCriteria.getSearchString(), false);
@@ -141,21 +141,21 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 		}
 
 		@Override
-		public boolean visit(long record) throws IndexException {
+		public boolean visit(long address) throws IndexException {
 			if (this.searchCriteria.requiresSpecificNodeType()) {
-				short nodeType = NdNode.NODE_TYPE.get(this.pdom, record);
+				short nodeType = NdNode.NODE_TYPE.get(this.pdom, address);
 
 				if (!this.searchCriteria.acceptsNodeType(nodeType)) {
 					return true;
 				}
 			}
 
-//			long parent = PDOMNamedNode.PARENT.getAddress(this.pdom, record);
+//			long parent = PDOMNamedNode.PARENT.getAddress(this.pdom, address);
 //			if (parent != this.searchCriteria.getRequiredParentAddress()) {
 //				return true;
 //			}
 
-			IString key = FieldSearchIndex.this.searchKey.get(this.pdom, record);
+			IString key = FieldSearchIndex.this.searchKey.get(this.pdom, address);
 
 			if (this.searchCriteria.isMatchingCase()) {
 				if (this.searchCriteria.isPrefixSearch()) {
@@ -169,11 +169,11 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 				}
 			}
 
-			acceptResult(record);
+			acceptResult(address);
 			return true;
 		}
 
-		protected abstract void acceptResult(long record);
+		protected abstract void acceptResult(long address);
 	}
 
 	private FieldSearchIndex(FieldSearchKey<?> searchKey) {
@@ -214,13 +214,13 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 		return result;
 	}
 
-	public BTree get(Nd pdom, long record) {
-		return this.btreeFactory.create(pdom, record + this.offset);
+	public BTree get(Nd pdom, long address) {
+		return this.btreeFactory.create(pdom, address + this.offset);
 	}
 
 	@Override
-	public void destruct(Nd pdom, long record) {
-		this.btreeFactory.destruct(pdom, record);
+	public void destruct(Nd pdom, long address) {
+		this.btreeFactory.destruct(pdom, address);
 	}
 
 	@Override
@@ -242,11 +242,11 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 		final long[] result = new long[1];
 		get(pdom, address).accept(new SearchCriteriaToBtreeVisitorAdapter(searchCriteria, pdom) {
 			@Override
-			protected void acceptResult(long record) {
-				long rank = rankFunction.getRank(pdom, record);
+			protected void acceptResult(long address) {
+				long rank = rankFunction.getRank(pdom, address);
 				if (rank >= resultRank[0]) {
 					resultRank[0] = rank;
-					result[0] = record;
+					result[0] = address;
 				}
 			}
 		});
@@ -261,8 +261,8 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 		final List<T> result = new ArrayList<T>();
 		get(pdom, address).accept(new SearchCriteriaToBtreeVisitorAdapter(searchCriteria, pdom) {
 			@Override
-			protected void acceptResult(long record) {
-				result.add((T)NdNode.load(pdom, record));
+			protected void acceptResult(long address) {
+				result.add((T)NdNode.load(pdom, address));
 			}
 		});
 

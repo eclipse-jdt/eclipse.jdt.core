@@ -21,10 +21,10 @@ import org.eclipse.jdt.internal.core.pdom.field.StructDef;
  * This class managed the parent pointer.
  * @since 3.12
  */
-public abstract class NdNode implements IInternalPDOMNode, IDestructable {
+public abstract class NdNode implements IDestructable {
 	public static final FieldShort NODE_TYPE;
 
-	public static final StructDef<NdNode> type; 
+	public static final StructDef<NdNode> type;
 
 	static {
 		type = StructDef.create(NdNode.class);
@@ -43,11 +43,11 @@ public abstract class NdNode implements IInternalPDOMNode, IDestructable {
 	}
 
 	/**
-	 * Load a node from the specified record in the given database.  Return null if a node cannot
+	 * Load a node from the specified address in the given database.  Return null if a node cannot
 	 * be loaded.
 	 *
 	 * @param pdom The PDOM from which to load the node.
-	 * @param address The record of the node in the given PDOM.
+	 * @param address The address of the node in the given PDOM.
 	 * @return The PDOMNode at the specified location or null if a node cannot be loaded.
 	 * @When there is a problem reading the given pdom's Database
 	 */
@@ -68,10 +68,10 @@ public abstract class NdNode implements IInternalPDOMNode, IDestructable {
 		NdNode result = pdom.getNode(address, NODE_TYPE.get(pdom, address));
 
 		if (!clazz.isAssignableFrom(result.getClass())) {
-			throw new IndexException("Found wrong data type at record " + address + ". Expected a subclass of " +  //$NON-NLS-1$//$NON-NLS-2$
+			throw new IndexException("Found wrong data type at address " + address + ". Expected a subclass of " +  //$NON-NLS-1$//$NON-NLS-2$
 				clazz.getClass() + " but found " + result.getClass()); //$NON-NLS-1$
 		}
-	
+
 		return (T)result;
 	}
 
@@ -116,11 +116,10 @@ public abstract class NdNode implements IInternalPDOMNode, IDestructable {
 		return this.pdom.getNodeType(getClass());
 	}
 
-	@Override
-	public final long getRecord() {
+	public final long getAddress() {
 		return this.address;
 	}
-	
+
 	public final long getBindingID() {
 		return this.address;
 	}
@@ -133,7 +132,7 @@ public abstract class NdNode implements IInternalPDOMNode, IDestructable {
 			NdNode other = (NdNode) obj;
 			return getPDOM() == other.getPDOM() && this.address == other.address;
 		}
-		
+
 		return super.equals(obj);
 	}
 
@@ -142,7 +141,6 @@ public abstract class NdNode implements IInternalPDOMNode, IDestructable {
 		return (int) (this.address >> Database.BLOCK_SIZE_DELTA_BITS);
 	}
 
-	@Override
 	public void accept(IPDOMVisitor visitor) {
 		// No children here.
 	}
@@ -176,7 +174,7 @@ public abstract class NdNode implements IInternalPDOMNode, IDestructable {
 	}
 
 	/**
-	 * Dispose this PDOMNode. Subclasses should extend this method to perform any high-level node-specific cleanup. 
+	 * Dispose this PDOMNode. Subclasses should extend this method to perform any high-level node-specific cleanup.
 	 * This will be invoked prior to disposing the fields. Implementations must invoke their parent's destruct method
 	 * and should not destruct the fields.
 	 * <p>

@@ -39,7 +39,7 @@ public interface ITypeFactory<T> {
 
 	/**
 	 * Invokes any cleanup code for this object. In particular, it deallocates any memory allocated by the type's
-	 * fields. Does not free the memory at record, though. This is used for both objects which were allocated their own
+	 * fields. Does not free the memory at address, though. This is used for both objects which were allocated their own
 	 * memory block and objects which are embedded as fields within a larger object. If the object was given its own
 	 * memory block, it is the caller's responsibility to invoke free after calling this method.
 	 */

@@ -22,13 +22,13 @@ public class FieldPointer implements IField {
 	public FieldPointer() {
 	}
 
-	public long get(Nd pdom, long record) {
+	public long get(Nd pdom, long address) {
 		Database db = pdom.getDB();
-		return db.getRecPtr(record + this.offset);
+		return db.getRecPtr(address + this.offset);
 	}
 
-	public void put(Nd pdom, long record, long newValue) {
-		pdom.getDB().putRecPtr(record + this.offset, newValue);
+	public void put(Nd pdom, long address, long newValue) {
+		pdom.getDB().putRecPtr(address + this.offset, newValue);
 	}
 
 	@Override

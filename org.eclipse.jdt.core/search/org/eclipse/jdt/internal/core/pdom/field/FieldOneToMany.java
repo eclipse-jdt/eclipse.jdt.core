@@ -175,12 +175,12 @@ public class FieldOneToMany<T extends NdNode> implements IDestructableField, IRe
 	}
 
 	@Override
-	public boolean hasReferences(Nd pdom, long record) {
+	public boolean hasReferences(Nd pdom, long address) {
 		// If this field owns the objects it points to, don't treat the incoming pointers as ref counts
 		if (this.forwardPointer.pointsToOwner) {
 			return false;
 		}
-		return !isEmpty(pdom, record);
+		return !isEmpty(pdom, address);
 	}
 
 	@Override

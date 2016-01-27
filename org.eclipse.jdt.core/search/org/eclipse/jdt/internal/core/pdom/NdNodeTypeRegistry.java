@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.pdom;
 
-import org.eclipse.jdt.internal.core.pdom.db.IndexException;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.eclipse.jdt.internal.core.pdom.db.IndexException;
 
 /**
  * Maps integer constants onto factories for PDOMNode objects
@@ -67,10 +67,10 @@ public class NdNodeTypeRegistry<R> {
 	}
 
 
-	public R createNode(Nd pdom, long record, short nodeType) throws IndexException {
+	public R createNode(Nd pdom, long address, short nodeType) throws IndexException {
 		ITypeFactory<? extends R> typeFactory = this.types.get(nodeType);
 
-		return typeFactory.create(pdom, record);
+		return typeFactory.create(pdom, address);
 	}
 
 	public short getTypeForClass(Class<? extends R> toQuery) {

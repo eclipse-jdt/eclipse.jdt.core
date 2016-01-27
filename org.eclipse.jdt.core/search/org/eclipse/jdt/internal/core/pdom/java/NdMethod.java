@@ -56,10 +56,10 @@ public class NdMethod extends NdBinding {
 
 	/**
 	 * @param pdom
-	 * @param record
+	 * @param address
 	 */
-	public NdMethod(Nd pdom, long record) {
-		super(pdom, record);
+	public NdMethod(Nd pdom, long address) {
+		super(pdom, address);
 	}
 
 	public NdMethod(NdType parent) {

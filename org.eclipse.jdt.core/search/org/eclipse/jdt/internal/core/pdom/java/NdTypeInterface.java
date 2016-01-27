@@ -36,8 +36,8 @@ public class NdTypeInterface extends NdNode {
 		type.done();
 	}
 	
-	public NdTypeInterface(Nd pdom, long record) {
-		super(pdom, record);
+	public NdTypeInterface(Nd pdom, long address) {
+		super(pdom, address);
 	}
 
 	public NdTypeInterface(Nd pdom, NdType targetType, NdTypeSignature makeTypeId) {
