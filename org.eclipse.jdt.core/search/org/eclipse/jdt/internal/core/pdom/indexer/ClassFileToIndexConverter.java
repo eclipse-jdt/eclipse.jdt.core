@@ -239,7 +239,7 @@ public class ClassFileToIndexConverter {
 
 		Object defaultValue = next.getDefaultValue();
 		if (defaultValue != null) {
-			method.setDefaultValue(createFromMixedType(defaultValue));
+			method.setDefaultValue(createConstantFromMixedType(defaultValue));
 		}
 
 		method.setMethodId(
@@ -557,7 +557,7 @@ public class ClassFileToIndexConverter {
 		if (pairs != null) {
 			for (IBinaryElementValuePair element : pairs) {
 				PDOMAnnotationValuePair nextPair = new PDOMAnnotationValuePair(result, new String(element.getName()));
-				nextPair.setValue(createFromMixedType(element.getValue()));
+				nextPair.setValue(createConstantFromMixedType(element.getValue()));
 			}
 		}
 
@@ -583,7 +583,7 @@ public class ClassFileToIndexConverter {
 	 * @param value
 	 *            accepts all values returned from {@link {@link IBinaryElementValuePair#getValue()}
 	 */
-	public PDOMConstant createFromMixedType(Object value) {
+	public PDOMConstant createConstantFromMixedType(Object value) {
 		if (value instanceof Constant) {
 			Constant constant = (Constant) value;
 
@@ -603,7 +603,7 @@ public class ClassFileToIndexConverter {
 			Object[] array = (Object[]) value;
 
 			for (Object next : array) {
-				PDOMConstant nextConstant = createFromMixedType(next);
+				PDOMConstant nextConstant = createConstantFromMixedType(next);
 				nextConstant.setParent(result);
 			}
 			return result;
