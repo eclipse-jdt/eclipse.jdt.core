@@ -189,6 +189,10 @@ public class ClassFileToIndexConverter {
 		char[] missingTypeString = getMissingTypeString(missingTypeNames);
 
 		type.setMissingTypeNames(missingTypeString);
+		type.setSourceFileName(binaryType.sourceFileName());
+		type.setAnonymous(binaryType.isAnonymous());
+		type.setIsLocal(binaryType.isLocal());
+		type.setIsMember(binaryType.isMember());
 
 		return type;
 	}

@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.internal.core.nd.IPDOMVisitor;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.IString;
+import org.eclipse.jdt.internal.core.nd.field.FieldByte;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldString;
@@ -32,6 +33,8 @@ public class NdType extends NdBinding {
 	public static final FieldManyToOne<NdMethodId> DECLARING_METHOD;
 	public static final FieldOneToMany<NdMethod> METHODS;
 	public static final FieldString MISSING_TYPE_NAMES;
+	public static final FieldString SOURCE_FILE_NAME;
+	public static final FieldByte FLAGS;
 
 	@SuppressWarnings("hiding")
 	public static final StructDef<NdType> type;
@@ -45,29 +48,14 @@ public class NdType extends NdBinding {
 		DECLARING_METHOD = FieldManyToOne.create(type, NdMethodId.DECLARED_TYPES);
 		METHODS = FieldOneToMany.create(type, NdMethod.PARENT, 6);
 		MISSING_TYPE_NAMES = type.addString();
+		SOURCE_FILE_NAME = type.addString();
+		FLAGS = type.addByte();
 		type.done();
 	}
 
-	public static final long FLG_TYPE_ANNOTATION 	= 0x00000001;
-	public static final long FLG_TYPE_ANONYMOUS 	= 0x00000002;
-	public static final long FLG_TYPE_ARRAY 		= 0x00000004;
-	public static final long FLG_TYPE_CAPTURE 		= 0x00000008;
-	public static final long FLG_TYPE_CLASS 		= 0x00000010;
-	public static final long FLG_TYPE_ENUM 			= 0x00000020;
-	public static final long FLG_TYPE_FROM_SOURCE 	= 0x00000040;
-	public static final long FLG_TYPE_GENERIC 		= 0x00000080;
-	public static final long FLG_TYPE_INTERFACE 	= 0x00000100;
-	public static final long FLG_TYPE_LOCAL 		= 0x00000200;
-	public static final long FLG_TYPE_MEMBER 		= 0x00000400;
-	public static final long FLG_TYPE_NESTED 		= 0x00000800;
-	public static final long FLG_TYPE_NULLTYPE 		= 0x00001000;
-	public static final long FLG_TYPE_PARAMETERIZED = 0x00002000;
-	public static final long FLG_TYPE_PRIMITIVE 	= 0x00004000;
-	public static final long FLG_TYPE_RAW			= 0x00008000;
-	public static final long FLG_TYPE_TOP_LEVEL 	= 0x00010000;
-	public static final long FLG_TYPE_VARIABLE 		= 0x00020000;
-	public static final long FLG_TYPE_UPPER_BOUND 	= 0x00040000;
-	public static final long FLG_TYPE_WILDCARD 		= 0x00080000;
+	public static final byte FLG_TYPE_ANONYMOUS 	= 0x0001;
+	public static final byte FLG_TYPE_LOCAL 		= 0x0002;
+	public static final byte FLG_TYPE_MEMBER 		= 0x0004;
 
 	public NdType(Nd pdom, long address) {
 		super(pdom, address);
@@ -146,5 +134,47 @@ public class NdType extends NdBinding {
 	 */
 	public IString getMissingTypeNames() {
 		return MISSING_TYPE_NAMES.get(getPDOM(), this.address);
+	}
+
+	public void setSourceFileName(char[] sourceFileName) {
+		SOURCE_FILE_NAME.put(getPDOM(), this.address, sourceFileName);
+	}
+
+	public IString getSourceFileName() {
+		return SOURCE_FILE_NAME.get(getPDOM(), this.address);
+	}
+
+	public void setAnonymous(boolean anonymous) {
+		setFlag(FLG_TYPE_ANONYMOUS, anonymous);
+	}
+
+	public void setIsLocal(boolean local) {
+		setFlag(FLG_TYPE_LOCAL, local);
+	}
+
+	public void setIsMember(boolean member) {
+		setFlag(FLG_TYPE_MEMBER, member);
+	}
+
+	public boolean isAnonymous() {
+		return getFlag(FLG_TYPE_ANONYMOUS);
+	}
+
+	public boolean isLocal() {
+		return getFlag(FLG_TYPE_LOCAL);
+	}
+
+	public boolean isMember() {
+		return getFlag(FLG_TYPE_MEMBER);
+	}
+
+	private void setFlag(byte flagConstant, boolean value) {
+		int oldFlags = FLAGS.get(getPDOM(), this.address);
+		int newFlags =  ((oldFlags & ~flagConstant) | (value ? flagConstant : 0));
+		FLAGS.put(getPDOM(), this.address, (byte)newFlags);
+	}
+
+	private boolean getFlag(byte flagConstant) {
+		return (FLAGS.get(getPDOM(), this.address) & flagConstant) != 0;
 	}
 }
