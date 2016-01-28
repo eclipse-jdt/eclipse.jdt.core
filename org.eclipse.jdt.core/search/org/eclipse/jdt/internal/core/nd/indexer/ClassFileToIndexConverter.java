@@ -65,7 +65,7 @@ public class ClassFileToIndexConverter {
 		this.index = JavaIndex.getIndex(resourceFile.getNd());
 	}
 
-	private Nd getPDOM() {
+	private Nd getNd() {
 		return this.resource.getNd();
 	}
 
@@ -130,7 +130,7 @@ public class ClassFileToIndexConverter {
 		NdType type = name.findTypeByResourceAddress(this.resource.address);
 
 		if (type == null) {
-			type = new NdType(getPDOM(), this.resource);
+			type = new NdType(getNd(), this.resource);
 		}
 
 		ITypeAnnotationWalker typeAnnotations = getTypeAnnotationWalker(binaryType.getTypeAnnotations());
@@ -159,7 +159,7 @@ public class ClassFileToIndexConverter {
 			// this characteristic. In such cases, we take what's in the generic signature and discard what's in the
 			// interfaces list.
 			char[] interfaceSpec = interfaceIdx < interfaces.length ? interfaces[interfaceIdx] : EMPTY_CHAR_ARRAY;
-			new NdTypeInterface(getPDOM(), type,
+			new NdTypeInterface(getNd(), type,
 					createTypeSignature(typeAnnotations.toSupertype(interfaceIdx, interfaceSpec), signatureWrapper));
 			interfaceIdx++;
 		}
@@ -301,7 +301,7 @@ public class ClassFileToIndexConverter {
 			}
 		}
 
-		variable.setConstant(NdConstant.create(getPDOM(), nextField.getConstant()));
+		variable.setConstant(NdConstant.create(getNd(), nextField.getConstant()));
 		variable.setModifiers(nextField.getModifiers());
 		SignatureWrapper nextTypeSignature = GenericSignatures.getGenericSignatureFor(nextField);
 
@@ -380,7 +380,7 @@ public class ClassFileToIndexConverter {
 			case 'T': {
 				// Skip the 'T' prefix
 				wrapper.start++;
-				NdComplexTypeSignature typeSignature = new NdComplexTypeSignature(getPDOM());
+				NdComplexTypeSignature typeSignature = new NdComplexTypeSignature(getNd());
 				typeSignature.setVariableIdentifier(wrapper.nextWord());
 				attachAnnotations(typeSignature, annotations);
 				// Skip the trailing semicolon
@@ -392,9 +392,9 @@ public class ClassFileToIndexConverter {
 				wrapper.start++;
 				// We encode arrays as though they were a one-argument generic type called '[' whose element
 				// type is the generic argument.
-				NdComplexTypeSignature typeSignature = new NdComplexTypeSignature(getPDOM());
+				NdComplexTypeSignature typeSignature = new NdComplexTypeSignature(getNd());
 				typeSignature.setRawType(createTypeIdFromFieldDescriptor(new char[] { '[' }));
-				NdTypeArgument typeArgument = new NdTypeArgument(getPDOM(), typeSignature);
+				NdTypeArgument typeArgument = new NdTypeArgument(getNd(), typeSignature);
 				NdTypeSignature elementType = createTypeSignature(annotations.toNextArrayDimension(), wrapper);
 				typeArgument.setType(elementType);
 				attachAnnotations(typeSignature, annotations);
@@ -455,7 +455,7 @@ public class ClassFileToIndexConverter {
 		// set on a PDOMComplexTypeSignature besides what it picks up from its raw type, we just use the raw type.
 		IBinaryAnnotation[] annotationList = annotations.getAnnotationsAtCursor(0);
 		if (annotationList.length != 0 || hasGenericArguments || parentTypeOrNull != null || isRawTypeWithNestedClass) {
-			NdComplexTypeSignature typeSignature = new NdComplexTypeSignature(getPDOM());
+			NdComplexTypeSignature typeSignature = new NdComplexTypeSignature(getNd());
 			typeSignature.setRawType(rawType);
 			attachAnnotations(typeSignature, annotations);
 
@@ -463,7 +463,7 @@ public class ClassFileToIndexConverter {
 				wrapper.start++;
 				short argumentIndex = 0;
 				while (wrapper.start < genericSignature.length && (genericSignature[wrapper.start] != '>')) {
-					NdTypeArgument typeArgument = new NdTypeArgument(getPDOM(), typeSignature);
+					NdTypeArgument typeArgument = new NdTypeArgument(getNd(), typeSignature);
 
 					switch (genericSignature[wrapper.start]) {
 						case '+': {
@@ -567,7 +567,7 @@ public class ClassFileToIndexConverter {
 	}
 
 	private NdAnnotation createAnnotation(IBinaryAnnotation next) {
-		NdAnnotation result = new NdAnnotation(getPDOM(), createTypeIdFromBinaryName(next.getTypeName()));
+		NdAnnotation result = new NdAnnotation(getNd(), createTypeIdFromBinaryName(next.getTypeName()));
 
 		IBinaryElementValuePair[] pairs = next.getElementValuePairs();
 
@@ -604,19 +604,19 @@ public class ClassFileToIndexConverter {
 		if (value instanceof Constant) {
 			Constant constant = (Constant) value;
 
-			return NdConstant.create(getPDOM(), constant);
+			return NdConstant.create(getNd(), constant);
 		} else if (value instanceof ClassSignature) {
 			ClassSignature signature = (ClassSignature) value;
 
 			char[] binaryName = JavaNames.binaryNameToFieldDescriptor(signature.getTypeName());
 			NdTypeSignature typeId = this.index.createTypeId(binaryName);
-			return NdConstantClass.create(getPDOM(), typeId);
+			return NdConstantClass.create(getNd(), typeId);
 		} else if (value instanceof IBinaryAnnotation) {
 			IBinaryAnnotation binaryAnnotation = (IBinaryAnnotation) value;
 
-			return NdConstantAnnotation.create(getPDOM(), createAnnotation(binaryAnnotation));
+			return NdConstantAnnotation.create(getNd(), createAnnotation(binaryAnnotation));
 		} else if (value instanceof Object[]) {
-			NdConstantArray result = new NdConstantArray(getPDOM());
+			NdConstantArray result = new NdConstantArray(getNd());
 			Object[] array = (Object[]) value;
 
 			for (Object next : array) {

@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
 /**
  * Base class for bindings in the PDOM.
- * 
+ *
  * @since 3.12
  */
 public abstract class NdBinding extends NdNode implements IAdaptable {
@@ -104,10 +104,10 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 		// the PDOMBinding is deleted. However, PDOMBinding's don't get deleted, so there is no way
 		// to trigger deleting of the tags. If the implementation is changed so that PDOMBindings
 		// do get deleted, then it should call:
-		// PDOMTagIndex.setTags(getPDOM(), pdomBinding.address, Collections.<ITag>emptyList());
+		// PDOMTagIndex.setTags(getNd(), pdomBinding.address, Collections.<ITag>emptyList());
 		// to clear out all tags for the binding.
 		// if (adapter.isAssignableFrom(ITagReader.class))
-		// return new PDOMTaggable(getPDOM(), getRecord());
+		// return new PDOMTaggable(getNd(), getRecord());
 
 		return null;
 	}
@@ -167,7 +167,7 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 	// // contexts that don't know which type of list they are iterating over. E.g., this is
 	// // used when deleting names from a PDOMFile.
 	// if (!getLinkage().equals(name.getLinkage())) {
-	// new PDOMExternalReferencesList(getPDOM(), address + FIRST_EXTREF_OFFSET).add(name);
+	// new PDOMExternalReferencesList(getNd(), address + FIRST_EXTREF_OFFSET).add(name);
 	// return;
 	// }
 	//
@@ -209,7 +209,7 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 	// * not return null.
 	// */
 	// public IPDOMIterator<PDOMName> getExternalReferences() throws IndexException {
-	// return new PDOMExternalReferencesList(getPDOM(), address + FIRST_EXTREF_OFFSET).getIterator();
+	// return new PDOMExternalReferencesList(getNd(), address + FIRST_EXTREF_OFFSET).getIterator();
 	// }
 	//
 	// /**
@@ -220,7 +220,7 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 	// if (linkage.equals(getLinkage())) {
 	// setFirstReference(name);
 	// } else {
-	// new PDOMExternalReferencesList(getPDOM(), address + FIRST_EXTREF_OFFSET).setFirstReference(linkage, name);
+	// new PDOMExternalReferencesList(getNd(), address + FIRST_EXTREF_OFFSET).setFirstReference(linkage, name);
 	// }
 	// }
 	//
@@ -230,7 +230,7 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 	// // used when deleting names from a PDOMFile.
 	// if (name != null
 	// && !getLinkage().equals(name.getLinkage())) {
-	// new PDOMExternalReferencesList(getPDOM(), address + FIRST_EXTREF_OFFSET).add(name);
+	// new PDOMExternalReferencesList(getNd(), address + FIRST_EXTREF_OFFSET).add(name);
 	// return;
 	// }
 	//
@@ -305,7 +305,7 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 	//
 	// @Override
 	// public IIndexFragment getFragment() {
-	// return getPDOM();
+	// return getNd();
 	// }
 	// /** For debug purposes only. */
 	// @Override

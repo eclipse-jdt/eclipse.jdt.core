@@ -75,7 +75,7 @@ public class NdType extends NdBinding {
 	 */
 	public void acceptUncached(IPDOMVisitor visitor) throws CoreException {
 		super.accept(visitor);
-//		PDOMRawLinkedList list = new PDOMRawLinkedList(getPDOM(), this.address + MEMBERLIST);
+//		PDOMRawLinkedList list = new PDOMRawLinkedList(getNd(), this.address + MEMBERLIST);
 //		list.accept(visitor);
 	}
 

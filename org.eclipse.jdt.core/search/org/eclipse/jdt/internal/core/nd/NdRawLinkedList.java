@@ -101,7 +101,7 @@ public class NdRawLinkedList {
 		return Database.PTR_SIZE + elementRecordSize * recordsPerBlock + metadataSize;
 	}
 
-	public Nd getPDOM() {
+	public Nd getNd() {
 		return this.dom;
 	}
 

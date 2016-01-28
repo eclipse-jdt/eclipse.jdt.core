@@ -48,7 +48,7 @@ public final class NdLinkedList<T> {
 	public T addMember(short metadataBits) throws IndexException {
 		long address = this.rawList.addMember(metadataBits);
 
-		return this.elementFactory.create(this.rawList.getPDOM(), address);
+		return this.elementFactory.create(this.rawList.getNd(), address);
 	}
 
 	public void accept(final ILinkedListVisitor<T> visitor) throws IndexException {
@@ -57,7 +57,7 @@ public final class NdLinkedList<T> {
 		localRawList.accept(new NdRawLinkedList.ILinkedListVisitor() {
 			@Override
 			public void visit(long address, short metadataBits, int index) throws IndexException {
-				visitor.visit(localElementFactory.create(localRawList.getPDOM(),
+				visitor.visit(localElementFactory.create(localRawList.getNd(),
 						address), metadataBits, index);
 			}
 		});
@@ -110,7 +110,7 @@ public final class NdLinkedList<T> {
 	 */
 	protected void destruct() {
 		if (this.elementFactory.hasDestructor()) {
-			final Nd pdom = this.rawList.getPDOM();
+			final Nd pdom = this.rawList.getNd();
 			this.rawList.accept(new NdRawLinkedList.ILinkedListVisitor() {
 				@Override
 				public void visit(long address, short metadataBits, int index) throws IndexException {

@@ -60,12 +60,12 @@ public class NdVariable extends NdBinding {
 	}
 //
 //	private boolean hasVariableFlag(int toTest) {
-//		return (VARIABLE_FLAGS.get(getPDOM(), this.address) & toTest) != 0;
+//		return (VARIABLE_FLAGS.get(getNd(), this.address) & toTest) != 0;
 //	}
 //
 //	private void setVariableFlag(int toSet) {
-//		int newFlags = VARIABLE_FLAGS.get(getPDOM(), this.address) | toSet;
-//		VARIABLE_FLAGS.put(getPDOM(), this.address, (short)newFlags);
+//		int newFlags = VARIABLE_FLAGS.get(getNd(), this.address) | toSet;
+//		VARIABLE_FLAGS.put(getNd(), this.address, (short)newFlags);
 //	}
 
 	public void setName(char[] name) {

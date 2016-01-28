@@ -110,7 +110,7 @@ public class JavaIndex {
 		return new NdTypeId(this.pdom, fieldDescriptor);
 	}
 
-	public Nd getPDOM() {
+	public Nd getNd() {
 		return this.pdom;
 	}
 
@@ -220,7 +220,7 @@ public class JavaIndex {
 //		if (existingType != null) {
 //			return existingType;
 //		}
-//		return new PDOMMethodId(getPDOM(), new String(binaryName));
+//		return new PDOMMethodId(getNd(), new String(binaryName));
 //	}
 //
 //	public PDOMMethodId createMethodId(char[] binaryName) {

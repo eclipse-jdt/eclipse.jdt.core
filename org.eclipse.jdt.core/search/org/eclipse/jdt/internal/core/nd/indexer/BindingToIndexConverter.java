@@ -79,7 +79,7 @@ public class BindingToIndexConverter {
 		NdType type = name.findTypeByResourceAddress(this.resource.address);
 
 		if (type == null) {
-			type = new NdType(getPDOM(), this.resource);
+			type = new NdType(getNd(), this.resource);
 		}
 
 		type.setTypeId(name);
@@ -91,7 +91,7 @@ public class BindingToIndexConverter {
 		}
 
 		for (ITypeBinding next : binding.getInterfaces()) {
-			new NdTypeInterface(getPDOM(), type, makeTypeId(next));
+			new NdTypeInterface(getNd(), type, makeTypeId(next));
 		}
 
 		return type;
@@ -107,7 +107,7 @@ public class BindingToIndexConverter {
 		return this.index.createTypeId(JavaNames.binaryNameToFieldDescriptor(forBinding.getBinaryName().toCharArray()));
 	}
 
-	private Nd getPDOM() {
+	private Nd getNd() {
 		return this.resource.getNd();
 	}
 }

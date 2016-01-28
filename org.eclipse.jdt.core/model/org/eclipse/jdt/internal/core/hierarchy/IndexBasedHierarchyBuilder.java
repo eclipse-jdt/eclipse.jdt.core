@@ -486,7 +486,7 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 		IPathRequestor pathRequestor, int waitingPolicy, IProgressMonitor progressMonitor) {
 	SubMonitor subMonitor = SubMonitor.convert(progressMonitor);
 	JavaIndex index = JavaIndex.getIndex();
-	Nd pdom = index.getPDOM();
+	Nd pdom = index.getNd();
 	char[] fieldDefinition = JavaNames.fullyQualifiedNameToFieldDescriptor(type.getFullyQualifiedName().toCharArray());
 	pdom.acquireReadLock();
 
