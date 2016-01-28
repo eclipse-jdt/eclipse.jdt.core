@@ -32,8 +32,6 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.dom.AST;
-import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint;
@@ -251,10 +249,6 @@ public final class Indexer {
 		List<IJavaElement> bindableElements = getBindableElements(element, subMonitor.newChild(10));
 		List<IClassFile> classFiles = getClassFiles(bindableElements);
 		IJavaProject javaProject = element.getJavaProject();
-
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
-		parser.setProject(javaProject);
-		parser.setResolveBindings(true);
 
 		subMonitor.setWorkRemaining(classFiles.size());
 
