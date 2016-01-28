@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1773,6 +1773,22 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_NULL_UNCHECKED_CONVERSION = PLUGIN_ID + ".compiler.problem.nullUncheckedConversion"; //$NON-NLS-1$
+	/**
+	 * Compiler option ID: Report problems detected by pessimistic null analysis for free type variables.
+	 * <p>When not set to "ignore", type variables without explicit null annotation are assumed to be nullable,
+	 * where values are read, and nonnull, where values are assigned or provided as return value.</p>
+	 * <p>Problems reported for values whose type is such free type variable are reported with the level given in this option.</p>
+	 * <p>If such a value is assigned to a variable with a compatible ordinary type, its nullness information is set 
+	 * accordingly and any follow-up problem is reported according to the corresponding compiler option</p>
+	 * @since 3.12
+	 * @category CompilerOptionID
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.pessimisticNullAnalysisForFreeTypeVariables"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
+	 * </dl>
+	 */
+	public static final String COMPILER_PB_PESSIMISTIC_NULL_ANALYSIS_FOR_FREE_TYPE_VARIABLES = PLUGIN_ID + ".compiler.problem.pessimisticNullAnalysisForFreeTypeVariables"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting Redundant Null Annotations.
 	 * <p>When enabled, the compiler will issue an error or a warning when a non-null annotation

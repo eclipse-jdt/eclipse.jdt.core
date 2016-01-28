@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2015 IBM Corporation and others.
+ * Copyright (c) 2006, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -937,6 +937,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ReferenceExpressionReturnNullRedef", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ReferenceExpressionReturnNullRedefUnchecked", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ReferenceToForwardField", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("RequiredNonNullButProvidedFreeTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("RequiredNonNullButProvidedNull", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("RequiredNonNullButProvidedPotentialNull", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("RequiredNonNullButProvidedSpecdNullable", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -1005,6 +1006,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("TypeMissingDeprecatedAnnotation", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("TypeParameterHidingType", new ProblemAttributes(CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT));
 		expectedProblemAttributes.put("UnboxingConversion", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
+		expectedProblemAttributes.put("UncheckedAccessOfValueOfFreeTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("UnclosedCloseable", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("UnclosedCloseableAtExit", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("UndefinedAnnotationMember", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -1028,6 +1030,8 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("UnhandledWarningToken", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("UninitializedBlankFinalField", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("UninitializedBlankFinalFieldHintMissingDefault", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("UninitializedFreeTypeVariableField", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("UninitializedFreeTypeVariableFieldHintMissingDefault", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("UninitializedLocalVariable", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("UninitializedLocalVariableHintMissingDefault", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("UninitializedNonNullField", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -1680,7 +1684,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("NullableFieldReference", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_REFERENCE));
 		expectedProblemAttributes.put("NullAnnotationUnsupportedLocation", SKIP);
 		expectedProblemAttributes.put("NullAnnotationUnsupportedLocationAtType", SKIP);
-		expectedProblemAttributes.put("NullityMismatchAgainstFreeTypeVariable", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
+		expectedProblemAttributes.put("NullityMismatchAgainstFreeTypeVariable", new ProblemAttributes(JavaCore.COMPILER_PB_PESSIMISTIC_NULL_ANALYSIS_FOR_FREE_TYPE_VARIABLES));
 		expectedProblemAttributes.put("NullityMismatchingTypeAnnotation", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
 		expectedProblemAttributes.put("NullityMismatchingTypeAnnotationSuperHint", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
 		expectedProblemAttributes.put("NullityMismatchTypeArgument", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
@@ -1690,7 +1694,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("NullLocalVariableComparisonYieldsFalse", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK));
 		expectedProblemAttributes.put("NullLocalVariableInstanceofYieldsFalse", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK));
 		expectedProblemAttributes.put("NullLocalVariableReference", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_REFERENCE));
-		expectedProblemAttributes.put("NullNotCompatibleToFreeTypeVariable", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
+		expectedProblemAttributes.put("NullNotCompatibleToFreeTypeVariable", new ProblemAttributes(JavaCore.COMPILER_PB_PESSIMISTIC_NULL_ANALYSIS_FOR_FREE_TYPE_VARIABLES));
 		expectedProblemAttributes.put("NullSourceString", SKIP);
 		expectedProblemAttributes.put("NullUnboxing", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_REFERENCE));
 		expectedProblemAttributes.put("NumericValueOutOfRange", SKIP);
@@ -1770,6 +1774,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("RepeatableAnnotationTypeTargetMismatch", SKIP);
 		expectedProblemAttributes.put("RepeatableAnnotationWithRepeatingContainerAnnotation", SKIP);
 		expectedProblemAttributes.put("RepeatedAnnotationWithContainerAnnotation", SKIP);
+		expectedProblemAttributes.put("RequiredNonNullButProvidedFreeTypeVariable", new ProblemAttributes(JavaCore.COMPILER_PB_PESSIMISTIC_NULL_ANALYSIS_FOR_FREE_TYPE_VARIABLES));
 		expectedProblemAttributes.put("RequiredNonNullButProvidedNull", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
 		expectedProblemAttributes.put("RequiredNonNullButProvidedPotentialNull", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_ANNOTATION_INFERENCE_CONFLICT));
 		expectedProblemAttributes.put("RequiredNonNullButProvidedUnknown", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION));
@@ -1832,6 +1837,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("TypeMissingDeprecatedAnnotation", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_DEPRECATED_ANNOTATION));
 		expectedProblemAttributes.put("TypeParameterHidingType", new ProblemAttributes(JavaCore.COMPILER_PB_TYPE_PARAMETER_HIDING));
 		expectedProblemAttributes.put("UnboxingConversion", new ProblemAttributes(JavaCore.COMPILER_PB_AUTOBOXING));
+		expectedProblemAttributes.put("UncheckedAccessOfValueOfFreeTypeVariable", new ProblemAttributes(JavaCore.COMPILER_PB_PESSIMISTIC_NULL_ANALYSIS_FOR_FREE_TYPE_VARIABLES));
 		expectedProblemAttributes.put("UnclosedCloseable", new ProblemAttributes(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE));
 		expectedProblemAttributes.put("UnclosedCloseableAtExit", new ProblemAttributes(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE));
 		expectedProblemAttributes.put("UndefinedAnnotationMember", SKIP);
@@ -1855,6 +1861,8 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("UnhandledWarningToken", new ProblemAttributes(JavaCore.COMPILER_PB_UNHANDLED_WARNING_TOKEN));
 		expectedProblemAttributes.put("UninitializedBlankFinalField", SKIP);
 		expectedProblemAttributes.put("UninitializedBlankFinalFieldHintMissingDefault", SKIP);
+		expectedProblemAttributes.put("UninitializedFreeTypeVariableField", SKIP);
+		expectedProblemAttributes.put("UninitializedFreeTypeVariableFieldHintMissingDefault", SKIP);
 		expectedProblemAttributes.put("UninitializedLocalVariable", SKIP);
 		expectedProblemAttributes.put("UninitializedLocalVariableHintMissingDefault", SKIP);
 		expectedProblemAttributes.put("UninitializedNonNullField", SKIP);

@@ -406,8 +406,6 @@ public static int getIrritant(int problemID) {
 		case IProblem.CannotImplementIncompatibleNullness:
 		case IProblem.ConflictingNullAnnotations:
 		case IProblem.ConflictingInheritedNullAnnotations:
-		case IProblem.NullNotCompatibleToFreeTypeVariable:
-		case IProblem.NullityMismatchAgainstFreeTypeVariable:
 		case IProblem.NullityMismatchingTypeAnnotation:
 		case IProblem.NullityMismatchingTypeAnnotationSuperHint:
 		case IProblem.NullityMismatchTypeArgument:
@@ -420,6 +418,14 @@ public static int getIrritant(int problemID) {
 		case IProblem.ContradictoryNullAnnotationsInferred:
 		case IProblem.ContradictoryNullAnnotationsInferredFunctionType:
 			return CompilerOptions.NullSpecViolation;
+
+		case IProblem.NullNotCompatibleToFreeTypeVariable:
+		case IProblem.NullityMismatchAgainstFreeTypeVariable:
+		case IProblem.UncheckedAccessOfValueOfFreeTypeVariable:
+		case IProblem.RequiredNonNullButProvidedFreeTypeVariable:
+		case IProblem.UninitializedFreeTypeVariableField:
+		case IProblem.UninitializedFreeTypeVariableFieldHintMissingDefault:
+			return CompilerOptions.PessimisticNullAnalysisForFreeTypeVariables;
 
 		case IProblem.ParameterLackingNonNullAnnotation:
 			return CompilerOptions.NonnullParameterAnnotationDropped;
@@ -652,6 +658,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.UnusedObjectAllocation :
 			case CompilerOptions.UnclosedCloseable :
 			case CompilerOptions.PotentiallyUnclosedCloseable :
+			case CompilerOptions.PessimisticNullAnalysisForFreeTypeVariables :
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 			
 			case CompilerOptions.OverriddenPackageDefaultMethod :
@@ -5864,7 +5871,54 @@ public void localVariableNullReference(LocalVariableBinding local, ASTNode locat
 		nodeSourceEnd(local, location));
 }
 
+public void fieldFreeTypeVariableReference(FieldBinding variable, long position) {
+	char[][] nullableName = this.options.nullableAnnotationName;
+	String[] arguments = new String[] {new String(variable.type.readableName()), 
+			new String(nullableName[nullableName.length-1])};
+	this.handle(
+		IProblem.UncheckedAccessOfValueOfFreeTypeVariable,
+		arguments,
+		arguments,
+		(int)(position >>> 32),
+		(int)position);
+}
+
+
+public void localVariableFreeTypeVariableReference(LocalVariableBinding local, ASTNode location) {
+	int severity = computeSeverity(IProblem.UncheckedAccessOfValueOfFreeTypeVariable);
+	if (severity == ProblemSeverities.Ignore) return;
+	char[][] nullableName = this.options.nullableAnnotationName;
+	String[] arguments = new String[] {new String(local.type.readableName()), 
+			new String(nullableName[nullableName.length-1])};
+	this.handle(
+		IProblem.UncheckedAccessOfValueOfFreeTypeVariable,
+		arguments,
+		arguments,
+		severity,
+		nodeSourceStart(local, location),
+		nodeSourceEnd(local, location));
+}
+
+public void methodReturnTypeFreeTypeVariableReference(MethodBinding method, ASTNode location) {
+	int severity = computeSeverity(IProblem.UncheckedAccessOfValueOfFreeTypeVariable);
+	if (severity == ProblemSeverities.Ignore) return;
+	char[][] nullableName = this.options.nullableAnnotationName;
+	String[] arguments = new String[] {new String(method.returnType.readableName()), 
+			new String(nullableName[nullableName.length-1])};
+	this.handle(
+		IProblem.UncheckedAccessOfValueOfFreeTypeVariable,
+		arguments,
+		arguments,
+		location.sourceStart,
+		location.sourceEnd);
+}
+
+
 public void localVariablePotentialNullReference(LocalVariableBinding local, ASTNode location) {
+	if(local.type.isFreeTypeVariable()) {
+		localVariableFreeTypeVariableReference(local, location);
+		return;
+	}
 	if (location instanceof Expression && (((Expression)location).implicitConversion & TypeIds.UNBOXING) != 0) {
 		potentialNullUnboxing(location, local.type);
 		return;
@@ -8125,6 +8179,20 @@ public void uninitializedBlankFinalField(FieldBinding field, ASTNode location) {
 }
 public void uninitializedNonNullField(FieldBinding field, ASTNode location) {
 	char[][] nonNullAnnotationName = this.options.nonNullAnnotationName;
+	if(!field.isNonNull()) {
+		String[] arguments = new String[] {
+				new String(field.readableName()), 
+				new String(field.type.readableName()), 
+				new String(nonNullAnnotationName[nonNullAnnotationName.length-1])
+		};
+		this.handle(
+				methodHasMissingSwitchDefault() ? IProblem.UninitializedFreeTypeVariableFieldHintMissingDefault : IProblem.UninitializedFreeTypeVariableField,
+				arguments,
+				arguments,
+				nodeSourceStart(field, location),
+				nodeSourceEnd(field, location));	
+		return;
+	}
 	String[] arguments = new String[] {
 			new String(nonNullAnnotationName[nonNullAnnotationName.length-1]),
 			new String(field.readableName())
@@ -9216,6 +9284,10 @@ public void nullityMismatch(Expression expression, TypeBinding providedType, Typ
 		if (var == null && expression instanceof Reference) {
 			var = ((Reference)expression).lastFieldBinding();
 		}
+		if(var != null && var.type.isFreeTypeVariable()) {			
+			nullityMismatchVariableIsFreeTypeVariable(var, expression);
+			return;
+		}
 		if (var != null && var.isNullable()) {
 			nullityMismatchSpecdNullable(expression, requiredType, annotationName);
 			return;
@@ -9296,6 +9368,21 @@ public void nullityMismatchIsUnknown(Expression expression, TypeBinding provided
 			shortAnnotatedTypeName(requiredType, annotationName)
 	};
 	this.handle(problemId, arguments, argumentsShort, expression.sourceStart, expression.sourceEnd);
+}
+private void nullityMismatchIsFreeTypeVariable(TypeBinding providedType, int sourceStart, int sourceEnd) {
+	char[][] nullableName = this.options.nullableAnnotationName;
+	char[][] nonNullName = this.options.nonNullAnnotationName;
+	String[] arguments = new String[] { 
+			new String(nonNullName[nonNullName.length-1]), 
+			new String(providedType.readableName()), 
+			new String(nullableName[nullableName.length-1])};
+	this.handle(IProblem.RequiredNonNullButProvidedFreeTypeVariable, arguments, arguments, sourceStart, sourceEnd);
+}
+public void nullityMismatchVariableIsFreeTypeVariable(VariableBinding variable, ASTNode location) {
+	int severity = computeSeverity(IProblem.RequiredNonNullButProvidedFreeTypeVariable);
+	if (severity == ProblemSeverities.Ignore) return;
+	nullityMismatchIsFreeTypeVariable(variable.type, nodeSourceStart(variable, location),
+			nodeSourceEnd(variable, location));
 }
 public void illegalRedefinitionToNonNullParameter(Argument argument, ReferenceBinding declaringClass, char[][] inheritedAnnotationName) {
 	int sourceStart = argument.type.sourceStart;
@@ -9823,6 +9910,11 @@ public void nullityMismatchingTypeAnnotation(Expression expression, TypeBinding 
 			&& (requiredType.tagBits & TagBits.AnnotationNonNull) != 0 
 			&& (providedType.tagBits & TagBits.AnnotationNullable) == 0)
 	{
+		if(this.options.pessimisticNullAnalysisForFreeTypeVariablesEnabled && providedType.isTypeVariable() && !providedType.hasNullTypeAnnotations()) {
+			nullityMismatchIsFreeTypeVariable(providedType, expression.sourceStart, expression.sourceEnd);
+			return;
+		}
+
 		nullityMismatchPotentiallyNull(expression, requiredType, this.options.nonNullAnnotationName);
 		return;
 	}

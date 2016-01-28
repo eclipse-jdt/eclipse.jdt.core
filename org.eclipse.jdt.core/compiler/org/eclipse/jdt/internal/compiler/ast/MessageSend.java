@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -375,8 +375,14 @@ private FlowInfo analyseNullAssertion(BlockScope currentScope, Expression argume
 
 public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, int ttlForFieldCheck) {
 	// message send as a receiver
-	if ((nullStatus(flowInfo, flowContext) & FlowInfo.POTENTIALLY_NULL) != 0) // note that flowInfo is not used inside nullStatus(..)
-		scope.problemReporter().messageSendPotentialNullReference(this.binding, this);
+	int nullStatus = nullStatus(flowInfo, flowContext); // note that flowInfo is not used inside nullStatus(..)
+	if ((nullStatus & FlowInfo.POTENTIALLY_NULL) != 0) {
+		if(this.binding.returnType.isTypeVariable() && nullStatus == FlowInfo.FREE_TYPEVARIABLE && scope.environment().globalOptions.pessimisticNullAnalysisForFreeTypeVariablesEnabled) {
+			scope.problemReporter().methodReturnTypeFreeTypeVariableReference(this.binding, this);			
+		} else {
+			scope.problemReporter().messageSendPotentialNullReference(this.binding, this);
+		}
+	}
 	return true; // done all possible checking
 }
 /**
@@ -540,7 +546,10 @@ public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
 		// try to retrieve null status of this message send from an annotation of the called method:
 		long tagBits = this.binding.tagBits;
 		if ((tagBits & TagBits.AnnotationNullMASK) == 0L) // alternatively look for type annotation (will only be present in 1.8+):
-			tagBits = this.binding.returnType.tagBits;
+			tagBits = this.binding.returnType.tagBits & TagBits.AnnotationNullMASK;
+		if(tagBits == 0L && this.binding.returnType.isFreeTypeVariable()) {
+			return FlowInfo.FREE_TYPEVARIABLE;
+		}
 		return FlowInfo.tagBitsToNullStatus(tagBits);
 	}
 	return FlowInfo.UNKNOWN;
