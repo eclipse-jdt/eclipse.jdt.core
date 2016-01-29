@@ -10,16 +10,24 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.java;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 import org.eclipse.jdt.internal.core.nd.db.IString;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
 import org.eclipse.jdt.internal.core.nd.field.FieldLong;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
-import org.eclipse.jdt.internal.core.nd.field.FieldSearchKey;
-import org.eclipse.jdt.internal.core.nd.field.StructDef;
+import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany.Visitor;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex.IResultRank;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex.SearchCriteria;
+import org.eclipse.jdt.internal.core.nd.field.FieldSearchKey;
+import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
 /**
  * Represents a source of java classes (such as a .jar or .class file).
@@ -31,6 +39,7 @@ public class NdResourceFile extends NdTreeNode {
 	public static final FieldLong TIME_LAST_SCANNED;
 	public static final FieldLong SIZE_LAST_SCANNED;
 	public static final FieldLong HASHCODE_LAST_SCANNED;
+	public static final FieldOneToMany<NdWorkspaceLocation> WORKSPACE_MAPPINGS;
 
 	@SuppressWarnings("hiding")
 	public static final StructDef<NdResourceFile> type;
@@ -42,6 +51,7 @@ public class NdResourceFile extends NdTreeNode {
 		TIME_LAST_SCANNED = type.addLong();
 		SIZE_LAST_SCANNED = type.addLong();
 		HASHCODE_LAST_SCANNED = type.addLong();
+		WORKSPACE_MAPPINGS = FieldOneToMany.create(type, NdWorkspaceLocation.RESOURCE);
 		type.done();
 	}
 
@@ -87,6 +97,51 @@ public class NdResourceFile extends NdTreeNode {
 			// This is likely to cause an exception.
 			return false;
 		}
+	}
+
+	public List<IPath> getAllWorkspaceLocations() {
+		final List<IPath> result = new ArrayList<>();
+
+		WORKSPACE_MAPPINGS.accept(getNd(), this.address, new Visitor<NdWorkspaceLocation>() {
+			@Override
+			public void visit(int index, NdWorkspaceLocation toVisit) {
+				result.add(new Path(toVisit.getPath().getString()));
+			}
+		});
+
+		return result;
+	}
+
+	public IPath getFirstWorkspaceLocation() {
+		if (WORKSPACE_MAPPINGS.isEmpty(getNd(), this.address)) {
+			return Path.EMPTY;
+		}
+
+		return new Path(WORKSPACE_MAPPINGS.get(getNd(), this.address, 0).getPath().toString());
+	}
+
+	public IPath getAnyOpenWorkspaceLocation(IWorkspaceRoot root) {
+		int numMappings = WORKSPACE_MAPPINGS.size(getNd(), this.address);
+
+		for (int mapping = 0; mapping < numMappings; mapping++) {
+			NdWorkspaceLocation nextMapping = WORKSPACE_MAPPINGS.get(getNd(), this.address, mapping);
+
+			IPath nextPath = new Path(nextMapping.getPath().getString());
+			if (nextPath.isEmpty()) {
+				continue;
+			}
+
+			IProject project = root.getProject(nextPath.segment(0));
+			if (project.isOpen()) {
+				return nextPath;
+			}
+		}
+
+		return Path.EMPTY;
+	}
+
+	public List<NdWorkspaceLocation> getWorkspaceMappings() {
+		return WORKSPACE_MAPPINGS.asList(getNd(), this.address);
 	}
 
 	public IString getFilename() {

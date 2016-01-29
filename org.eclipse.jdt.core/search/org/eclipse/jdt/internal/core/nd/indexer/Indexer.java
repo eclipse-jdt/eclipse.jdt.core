@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
@@ -38,6 +39,7 @@ import org.eclipse.jdt.internal.core.nd.java.FileFingerprint;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint.FingerprintTestResult;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
+import org.eclipse.jdt.internal.core.nd.java.NdWorkspaceLocation;
 
 public final class Indexer {
 	private Nd pdom;
@@ -70,47 +72,87 @@ public final class Indexer {
 		Package.logInfo("Indexer running rescan"); //$NON-NLS-1$
 
 		// Gather all the IPackageFragmentRoots in the workspace
-		List<IJavaElement> allRoots = getAllIndexableObjectsInWorkspace(subMonitor.split(3));
+		List<IJavaElement> unfilteredRoots = getAllIndexableObjectsInWorkspace(subMonitor.split(3));
 
-		int totalRoots = allRoots.size();
+		int totalRoots = unfilteredRoots.size();
 		// Remove all duplicate roots (jars which are referenced by more than one project)
-		allRoots = removeDuplicatePaths(allRoots);
+		Map<IPath, List<IJavaElement>> allRoots = removeDuplicatePaths(unfilteredRoots);
 
 		long startGarbageCollectionNs = System.nanoTime();
 
 		// Remove all files in the index which aren't referenced in the workspace
-		cleanGarbage(allRoots, subMonitor.split(4));
+		cleanGarbage(allRoots.keySet(), subMonitor.split(4));
 
 		long startFingerprintTestNs = System.nanoTime();
 
-		Map<IJavaElement, FingerprintTestResult> fingerprints = testFingerprints(allRoots, subMonitor.split(7));
-		List<IJavaElement> rootsWithChanges = getRootsThatHaveChanged(allRoots, fingerprints);
+		Map<IPath, FingerprintTestResult> fingerprints = testFingerprints(allRoots.keySet(), subMonitor.split(7));
+		Set<IPath> rootsWithChanges = new HashSet<>(getRootsThatHaveChanged(allRoots.keySet(), fingerprints));
 
 		long startIndexingNs = System.nanoTime();
 
 		int classesIndexed = 0;
-		SubMonitor loopMonitor = subMonitor.split(85).setWorkRemaining(rootsWithChanges.size());
-		for (IJavaElement next : rootsWithChanges) {
-			classesIndexed += rescanArchive(next, fingerprints.get(next).getNewFingerprint(), loopMonitor.split(1));
+		SubMonitor loopMonitor = subMonitor.split(80).setWorkRemaining(rootsWithChanges.size());
+		for (IPath next : rootsWithChanges) {
+			classesIndexed += rescanArchive(next, allRoots.get(next), fingerprints.get(next).getNewFingerprint(),
+					loopMonitor.split(1));
 		}
 
 		long endIndexingNs = System.nanoTime();
 
+		Map<IPath, List<IJavaElement>> pathsToUpdate = new HashMap<>();
+
+		for (IPath next : allRoots.keySet()) {
+			if (!rootsWithChanges.contains(next)) {
+				pathsToUpdate.put(next, allRoots.get(next));
+				continue;
+			}
+		}
+
+		updateResourceMappings(pathsToUpdate, subMonitor.split(5));
+
+		long endResourceMappingNs = System.nanoTime();
+
 		long fingerprintTimeMs = (startIndexingNs - startFingerprintTestNs) / MS_TO_NS;
 		long locateRootsTimeMs = (startGarbageCollectionNs - startTimeNs) / MS_TO_NS;
 		long indexingTimeMs = (endIndexingNs - startIndexingNs) / MS_TO_NS;
+		long resourceMappingTimeMs = (endResourceMappingNs - endIndexingNs) / MS_TO_NS;
 
 		double averageIndexTimeMs = classesIndexed == 0 ? 0 : (double)indexingTimeMs / (double)classesIndexed;
 		double averageFingerprintTimeMs = allRoots.size() == 0 ? 0 : (double)fingerprintTimeMs / (double)allRoots.size();
+		double averageResourceMappingMs = pathsToUpdate.size() == 0 ? 0 : (double)resourceMappingTimeMs / (double)pathsToUpdate.size();
 
 		Package.logInfo(
 				"Indexing done.\n" //$NON-NLS-1$
 				+ "  Located " + totalRoots + " roots in " + locateRootsTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				+ "  Tested " + allRoots.size() + " fingerprints in " + fingerprintTimeMs + "ms, average time = " + averageFingerprintTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				+ "  Indexed " + classesIndexed + " classes in " + indexingTimeMs + "ms, average time = " + averageIndexTimeMs + "ms\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				+ "  Indexed " + classesIndexed + " classes in " + indexingTimeMs + "ms, average time = " + averageIndexTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+				+ "  Updated " + pathsToUpdate.size() + " paths in " + resourceMappingTimeMs + "ms, average time = " + averageResourceMappingMs + "ms\n"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 	}
 
-	private void cleanGarbage(List<IJavaElement> allRoots, IProgressMonitor monitor) {
+	private void updateResourceMappings(Map<IPath, List<IJavaElement>> pathsToUpdate, IProgressMonitor monitor) {
+		SubMonitor subMonitor = SubMonitor.convert(monitor, pathsToUpdate.keySet().size());
+
+		JavaIndex index = JavaIndex.getIndex(this.pdom);
+
+		for (Entry<IPath, List<IJavaElement>> entry : pathsToUpdate.entrySet()) {
+			SubMonitor iterationMonitor = subMonitor.split(1).setWorkRemaining(10);
+
+			this.pdom.acquireWriteLock(iterationMonitor.split(1));
+			try {
+				NdResourceFile resourceFile = index.getResourceFile(entry.getKey().toString());
+				if (resourceFile == null) {
+					continue;
+				}
+
+				attachWorkspaceFilesToResource(entry.getValue(), resourceFile);
+			} finally {
+				this.pdom.releaseWriteLock();
+			}
+
+		}
+	}
+
+	private void cleanGarbage(Collection<IPath> allRoots, IProgressMonitor monitor) {
 		// TODO: lazily clean up unneeded files here... but only do so if we're under heavy space pressure
 		// or it's been a long time since the file was last scanned. Being too eager about removing old files
 		// means that operations which temporarily cause a file to become unreferenced will run really slowly
@@ -121,30 +163,51 @@ public final class Indexer {
 		// will never be useful.
 	}
 
-	private List<IJavaElement> removeDuplicatePaths(List<IJavaElement> allRoots) {
-		Set<IPath> paths = new HashSet<>();
-		List<IJavaElement> result = new ArrayList<>();
+	private Map<IPath, List<IJavaElement>> removeDuplicatePaths(List<IJavaElement> allRoots) {
+		Map<IPath, List<IJavaElement>> paths = new HashMap<>();
 
+		HashSet<IPath> workspacePaths = new HashSet<IPath>();
 		for (IJavaElement next : allRoots) {
 			IPath nextPath = getFilesystemPathForRoot(next);
+			IPath workspacePath = getWorkspacePathForRoot(next);
 
-			if (paths.contains(nextPath)) {
-				continue;
+			List<IJavaElement> value = paths.get(nextPath);
+
+			if (value == null) {
+				value = new ArrayList<IJavaElement>();
+				paths.put(nextPath, value);
+			} else {
+				if (workspacePath != null) {
+					if (workspacePaths.contains(workspacePath)) {
+						continue;
+					}
+					if (!workspacePath.isEmpty()) {
+						Package.logInfo("Found duplicate workspace path for " + workspacePath.toString()); //$NON-NLS-1$
+					}
+					workspacePaths.add(workspacePath);
+				}
 			}
 
-			paths.add(nextPath);
-			result.add(next);
+			value.add(next);
 		}
 
-		return result;
+		return paths;
 	}
 
-	private Map<IJavaElement, FingerprintTestResult> testFingerprints(List<IJavaElement> allRoots,
+	private IPath getWorkspacePathForRoot(IJavaElement next) {
+		IResource resource = next.getResource();
+		if (resource != null) {
+			return resource.getFullPath();
+		}
+		return Path.EMPTY;
+	}
+
+	private Map<IPath, FingerprintTestResult> testFingerprints(Collection<IPath> allRoots,
 			IProgressMonitor monitor) throws CoreException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, allRoots.size());
-		Map<IJavaElement, FingerprintTestResult> result = new HashMap<>();
+		Map<IPath, FingerprintTestResult> result = new HashMap<>();
 
-		for (IJavaElement next : allRoots) {
+		for (IPath next : allRoots) {
 			result.put(next, testForChanges(next, subMonitor.newChild(1)));
 		}
 
@@ -155,11 +218,15 @@ public final class Indexer {
 	 * Rescans an archive (a jar, zip, or class file on the filesystem). Returns the number of classes indexed.
 	 * @throws JavaModelException
 	 */
-	private int rescanArchive(IJavaElement element, FileFingerprint fingerprint, IProgressMonitor monitor)
-			throws JavaModelException {
+	private int rescanArchive(IPath thePath, List<IJavaElement> elementsMappingOntoLocation,
+			FileFingerprint fingerprint, IProgressMonitor monitor) throws JavaModelException {
+		if (elementsMappingOntoLocation.isEmpty()) {
+			return 0;
+		}
+
+		IJavaElement element = elementsMappingOntoLocation.get(0);
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 
-		IPath thePath = getFilesystemPathForRoot(element);
 		String pathString = thePath.toString();
 		JavaIndex javaIndex = JavaIndex.getIndex(this.pdom);
 
@@ -175,6 +242,7 @@ public final class Indexer {
 		try {
 			resourceFile = new NdResourceFile(this.pdom);
 			resourceFile.setFilename(pathString);
+			attachWorkspaceFilesToResource(elementsMappingOntoLocation, resourceFile);
 		} finally {
 			this.pdom.releaseWriteLock();
 		}
@@ -200,6 +268,17 @@ public final class Indexer {
 		}
 
 		return result;
+	}
+
+	private void attachWorkspaceFilesToResource(List<IJavaElement> elementsMappingOntoLocation,
+			NdResourceFile resourceFile) {
+		for (IJavaElement next : elementsMappingOntoLocation) {
+			IResource nextResource = next.getResource();
+			if (nextResource != null) {
+				new NdWorkspaceLocation(this.pdom, resourceFile,
+						nextResource.getFullPath().toString().toCharArray());
+			}
+		}
 	}
 
 	/**
@@ -423,10 +502,10 @@ public final class Indexer {
 	 * Given a list of fragment roots, returns the subset of roots that have changed since the last time they were
 	 * indexed.
 	 */
-	private List<IJavaElement> getRootsThatHaveChanged(List<IJavaElement> roots,
-			Map<IJavaElement, FingerprintTestResult> fingerprints) {
-		List<IJavaElement> rootsWithChanges = new ArrayList<>();
-		for (IJavaElement next : roots) {
+	private List<IPath> getRootsThatHaveChanged(Collection<IPath> roots,
+			Map<IPath, FingerprintTestResult> fingerprints) {
+		List<IPath> rootsWithChanges = new ArrayList<>();
+		for (IPath next : roots) {
 			FingerprintTestResult testResult = fingerprints.get(next);
 
 			if (!testResult.matches()) {
@@ -436,10 +515,9 @@ public final class Indexer {
 		return rootsWithChanges;
 	}
 
-	private FingerprintTestResult testForChanges(IJavaElement next, IProgressMonitor monitor) throws CoreException {
+	private FingerprintTestResult testForChanges(IPath thePath, IProgressMonitor monitor) throws CoreException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 		JavaIndex javaIndex = JavaIndex.getIndex(this.pdom);
-		IPath thePath = getFilesystemPathForRoot(next);
 		String pathString = thePath.toString();
 
 		// Package.log("Indexer testing: " + pathString, null);

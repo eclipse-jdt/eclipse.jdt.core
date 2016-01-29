@@ -194,6 +194,10 @@ public class ClassFileToIndexConverter {
 		type.setIsLocal(binaryType.isLocal());
 		type.setIsMember(binaryType.isMember());
 
+		if (binaryType.isLocal()) {
+			type.setInnerTypeSourceName(binaryType.getSourceName());
+		}
+
 		return type;
 	}
 

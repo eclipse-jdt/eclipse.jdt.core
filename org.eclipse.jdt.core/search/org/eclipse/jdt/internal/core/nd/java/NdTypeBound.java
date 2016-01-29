@@ -4,6 +4,7 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.NdNode;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
+import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
  * Represents the bound on a generic parameter (a ClassBound or InterfaceBound in
@@ -43,5 +44,10 @@ public class NdTypeBound extends NdNode {
 
 	public NdTypeSignature getType() {
 		return TYPE.get(getNd(), this.address);
+	}
+
+	public void getSignature(CharArrayBuffer result) {
+		result.append(':');
+		getType().getSignature(result);
 	}
 }

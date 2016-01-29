@@ -16,6 +16,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.internal.core.nd.IPDOMVisitor;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.IString;
+import org.eclipse.jdt.internal.core.nd.db.IndexException;
 import org.eclipse.jdt.internal.core.nd.field.FieldByte;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
@@ -34,6 +35,7 @@ public class NdType extends NdBinding {
 	public static final FieldOneToMany<NdMethod> METHODS;
 	public static final FieldString MISSING_TYPE_NAMES;
 	public static final FieldString SOURCE_FILE_NAME;
+	public static final FieldString INNER_CLASS_SOURCE_NAME;
 	public static final FieldByte FLAGS;
 
 	@SuppressWarnings("hiding")
@@ -49,6 +51,7 @@ public class NdType extends NdBinding {
 		METHODS = FieldOneToMany.create(type, NdMethod.PARENT, 6);
 		MISSING_TYPE_NAMES = type.addString();
 		SOURCE_FILE_NAME = type.addString();
+		INNER_CLASS_SOURCE_NAME = type.addString();
 		FLAGS = type.addByte();
 		type.done();
 	}
@@ -85,6 +88,14 @@ public class NdType extends NdBinding {
 
 	public void setTypeId(NdTypeId typeId) {
 		TYPENAME.put(getNd(), this.address, typeId);
+	}
+
+	public void setInnerTypeSourceName(char[] sourceName) {
+		INNER_CLASS_SOURCE_NAME.put(getNd(), this.address, sourceName);
+	}
+
+	public char[] getInnerTypeSourceName() {
+		return INNER_CLASS_SOURCE_NAME.get(getNd(), this.address).getChars();
 	}
 
 	public long getResourceAddress() {
@@ -176,5 +187,21 @@ public class NdType extends NdBinding {
 
 	private boolean getFlag(byte flagConstant) {
 		return (FLAGS.get(getNd(), this.address) & flagConstant) != 0;
+	}
+
+	public char[] getSourceName() {
+		if (isLocal()) {
+			return getInnerTypeSourceName();
+		}
+		return getTypeId().getSimpleNameCharArray();
+	}
+
+	@Override
+	public String toString() {
+		try {
+			return "class " + new String(getSourceName()); //$NON-NLS-1$
+		} catch (IndexException e) {
+			return super.toString();
+		}
 	}
 }

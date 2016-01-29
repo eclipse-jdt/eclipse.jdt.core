@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.NdNode;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
+import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
  * Corresponds roughly to a JavaTypeSignature, as described in section 4.7.9.1 of the Java VM spec version 4, with the
@@ -103,4 +104,12 @@ public abstract class NdTypeSignature extends NdNode {
 	 * of this signature doesn't have a raw type, for example if it is a type variable.
 	 */
 	public abstract NdTypeId getRawType();
+
+	public abstract void getSignature(CharArrayBuffer result);
+
+	public final boolean isArrayType() {
+		return getRawType().hasSimpleName("["); //$NON-NLS-1$
+	}
+
+	public abstract boolean isTypeVariable();
 }

@@ -8,6 +8,7 @@ import org.eclipse.jdt.internal.core.nd.db.IString;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchKey;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
+import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
  * @since 3.12
@@ -99,5 +100,15 @@ public class NdTypeId extends NdTypeSignature {
 	@Override
 	public NdTypeId getRawType() {
 		return this;
+	}
+
+	@Override
+	public void getSignature(CharArrayBuffer result) {
+		result.append(getFieldDescriptor().getChars());
+	}
+
+	@Override
+	public boolean isTypeVariable() {
+		return false;
 	}
 }

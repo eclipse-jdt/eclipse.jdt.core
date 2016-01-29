@@ -1,5 +1,6 @@
 package org.eclipse.jdt.internal.core.nd.java;
 
+import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
@@ -31,12 +32,7 @@ public class JavaNames {
 	 * jar, including the .class extension.
 	 */
 	public static char[] binaryNameToResourceRelativePath(char[] binaryName) {
-		char[] relativePath = binaryName;
-		int indexOfSeparator = CharOperation.indexOf('$', relativePath);
-		if (indexOfSeparator >= 0) {
-			relativePath = CharOperation.subarray(relativePath, 0, indexOfSeparator);
-		}
-		return CharOperation.concat(relativePath, CLASS_FILE_SUFFIX);
+		return CharOperation.concat(binaryName, CLASS_FILE_SUFFIX);
 	}
 
 	public static char[] fullyQualifiedNameToBinaryName(char[] fullyQualifiedName) {
@@ -52,13 +48,22 @@ public class JavaNames {
 	/**
 	 * Given a PDOMType, returns its identifier in the form accepted by {@link IJavaSearchScope#encloses(String)}
 	 */
-	public static char[] getIndexPathFor(NdType type) {
+	public static char[] getIndexPathFor(NdType type, IWorkspaceRoot root) {
 		NdResourceFile resourceFile = type.getResourceFile();
 
-		char[] filename = resourceFile.getFilename().getChars();
 		char[] binaryName = type.getTypeId().getBinaryName();
 
-		return CharArrayUtils.concat(filename, JAR_FILE_ENTRY_SEPARATOR, binaryNameToResourceRelativePath(binaryName));
+		char[] workspaceLocation = null;
+		if (root != null) {
+			workspaceLocation = resourceFile.getAnyOpenWorkspaceLocation(root).toString().toCharArray();
+		}
+
+		if (workspaceLocation == null) {
+			workspaceLocation = resourceFile.getFilename().getChars();
+		}
+
+		return CharArrayUtils.concat(workspaceLocation, JAR_FILE_ENTRY_SEPARATOR,
+				binaryNameToResourceRelativePath(binaryName));
 	}
 
 	public static char[] binaryNameToFieldDescriptor(char[] binaryName) {
@@ -135,5 +140,19 @@ public class JavaNames {
 			return CharArrayUtils.substring(fieldDescriptor, 1);
 		}
 		return CharArrayUtils.EMPTY_CHAR_ARRAY;
+	}
+
+	/**
+	 * Given a simple name, this returns the source name for the type. Note that this won't work for classes that
+	 * contain a $ in their source name.
+	 */
+	public static char[] simpleNameToSourceName(char[] chars) {
+		int lastSlash = CharOperation.lastIndexOf('/', chars);
+		int lastDollar = CharOperation.lastIndexOf('$', chars);
+		int startPosition = Math.max(lastSlash, lastDollar) + 1;
+		while (startPosition < chars.length && Character.isDigit(chars[startPosition])) {
+			startPosition++;
+		}
+		return CharArrayUtils.substring(chars, startPosition);
 	}
 }

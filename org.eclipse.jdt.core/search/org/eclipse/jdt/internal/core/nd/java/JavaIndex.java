@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.List;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.NdNode;
@@ -30,9 +31,9 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
  */
 public class JavaIndex {
 	// Version constants
-	static final int CURRENT_VERSION = Nd.version(1, 15);
-	static final int MAX_SUPPORTED_VERSION= Nd.version(1, 15);
-	static final int MIN_SUPPORTED_VERSION= Nd.version(1, 15);
+	static final int CURRENT_VERSION = Nd.version(1, 19);
+	static final int MAX_SUPPORTED_VERSION= Nd.version(1, 19);
+	static final int MIN_SUPPORTED_VERSION= Nd.version(1, 19);
 
 	// Fields for the search header
 	public static final FieldSearchIndex<NdResourceFile> FILES;
@@ -131,7 +132,8 @@ public class JavaIndex {
 	}
 
 	public static boolean isEnabled() {
-		return true;
+		return Platform.getPreferencesService().getBoolean("org.eclipse.jdt.ui", "enableNewJavaIndex", false, //$NON-NLS-1$ //$NON-NLS-2$
+				null);
 	}
 
 	public static Nd getGlobalPDOM() {
@@ -207,6 +209,7 @@ public class JavaIndex {
 		registry.register(0x01D0, NdTypeId.type.getFactory());
 		registry.register(0x01E0, NdTypeInterface.type.getFactory());
 		registry.register(0x01F0, NdVariable.type.getFactory());
+		registry.register(0x0200, NdWorkspaceLocation.type.getFactory());
 		return registry;
 	}
 

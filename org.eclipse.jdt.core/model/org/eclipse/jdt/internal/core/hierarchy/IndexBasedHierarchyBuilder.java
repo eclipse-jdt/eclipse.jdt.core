@@ -22,6 +22,8 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
@@ -490,6 +492,8 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 	char[] fieldDefinition = JavaNames.fullyQualifiedNameToFieldDescriptor(type.getFullyQualifiedName().toCharArray());
 	pdom.acquireReadLock();
 
+	IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+
 	try {
 		NdTypeId foundType = index.findType(fieldDefinition);
 
@@ -504,15 +508,16 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 
 		while (!typesToVisit.isEmpty()) {
 			NdType nextType = typesToVisit.removeFirst();
+			NdTypeId typeId = nextType.getTypeId();
 
-			String typePath = new String(JavaNames.getIndexPathFor(nextType));
+			String typePath = new String(JavaNames.getIndexPathFor(nextType, root));
 			if (!scope2.encloses(typePath)) {
 				continue;
 			}
 
 			subMonitor.setWorkRemaining(Math.max(typesToVisit.size(), 10)).split(1);
 
-			boolean isLocalClass = nextType.getDeclaringType() != null;
+			boolean isLocalClass = nextType.isLocal() || nextType.isAnonymous();
 			pathRequestor.acceptPath(typePath, isLocalClass);
 
 			HierarchyBinaryType binaryType = (HierarchyBinaryType)binariesFromIndexMatches2.get(typePath);
@@ -521,7 +526,7 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 				binariesFromIndexMatches2.put(typePath, binaryType);
 			}
 
-			for (NdType subType : nextType.getTypeId().getSubTypes()) {
+			for (NdType subType : typeId.getSubTypes()) {
 				if (!discoveredTypes.contains(subType)) {
 					discoveredTypes.add(subType);
 					typesToVisit.add(subType);
@@ -537,13 +542,12 @@ private static HierarchyBinaryType createBinaryTypeFrom(NdType type) {
 	char[] enclosingTypeName = null;
 	NdTypeSignature enclosingType = type.getDeclaringType();
 	if (enclosingType != null) {
-		enclosingTypeName = enclosingType.getRawType().getSimpleName().getChars();
+		enclosingTypeName = enclosingType.getRawType().getBinaryName();
 	}
-	//final char[][] typeParameterSignatures;
+	char[][] typeParameters = type.getTypeParameterSignatures();
 	NdTypeId typeId = type.getTypeId();
 	HierarchyBinaryType result = new HierarchyBinaryType(type.getModifiers(), typeId.getBinaryName(),
-			typeId.getSimpleName().getChars(), enclosingTypeName, null);
-	// TODO(sxenos): Fill in the correct generic signature rather than passing null here
+		type.getSourceName(), enclosingTypeName, typeParameters.length == 0 ? null : typeParameters);
 
 	NdTypeSignature superClass = type.getSuperclass();
 	if (superClass != null) {

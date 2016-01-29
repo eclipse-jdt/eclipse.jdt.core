@@ -5,6 +5,7 @@ import org.eclipse.jdt.internal.core.nd.NdNode;
 import org.eclipse.jdt.internal.core.nd.field.FieldByte;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
+import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
  * @since 3.12
@@ -28,7 +29,7 @@ public class NdTypeArgument extends NdNode {
 	public static final int WILDCARD_NONE = 0;
 	public static final int WILDCARD_EXTENDS = 1;
 	public static final int WILDCARD_SUPER = 2;
-	public static final int WILDCARD_QUESTION = 2;
+	public static final int WILDCARD_QUESTION = 3;
 
 	public NdTypeArgument(Nd pdom, long address) {
 		super(pdom, address);
@@ -63,5 +64,14 @@ public class NdTypeArgument extends NdNode {
 
 	public NdTypeSignature getType() {
 		return TYPE_SIGNATURE.get(getNd(), this.address);
+	}
+
+	public void getSignature(CharArrayBuffer result) {
+		switch (getWildcard()) {
+			case NdTypeArgument.WILDCARD_EXTENDS: result.append('-'); break;
+			case NdTypeArgument.WILDCARD_QUESTION: result.append('*'); break;
+			case NdTypeArgument.WILDCARD_SUPER: result.append('+'); break;
+		}
+		getType().getSignature(result);
 	}
 }

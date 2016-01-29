@@ -16,9 +16,8 @@ import org.eclipse.jdt.internal.core.nd.field.FieldShort;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
 /**
- * This is a basic node in the PDOM database.
- * PDOM nodes form a multi-root tree.
- * This class managed the parent pointer.
+ * This is a basic node in the network database.
+ *
  * @since 3.12
  */
 public abstract class NdNode implements IDestructable {

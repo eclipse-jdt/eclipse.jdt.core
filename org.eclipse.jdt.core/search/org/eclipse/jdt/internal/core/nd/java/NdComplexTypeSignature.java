@@ -1,11 +1,15 @@
 package org.eclipse.jdt.internal.core.nd.java;
 
+import java.util.List;
+
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.IString;
+import org.eclipse.jdt.internal.core.nd.db.IndexException;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldString;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
+import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
  * Represents a type signature that is anything other than a trivial reference to a concrete
@@ -82,5 +86,56 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 	 */
 	public NdComplexTypeSignature getGenericDeclaringType() {
 		return DECLARING_TYPE.get(getNd(), this.address);
+	}
+
+	public List<NdTypeArgument> getTypeArguments() {
+		return TYPE_ARGUMENTS.asList(getNd(), this.address);
+	}
+
+	@Override
+	public void getSignature(CharArrayBuffer result) {
+		NdComplexTypeSignature parentSignature = getGenericDeclaringType();
+
+		if (parentSignature != null) {
+			parentSignature.getSignature(result);
+			result.append('.');
+			return;
+		}
+
+		if (isArrayType()) {
+			long size = TYPE_ARGUMENTS.size(getNd(), this.address);
+
+			if (size != 1) {
+				throw new IndexException("Array types should have exactly one argument"); //$NON-NLS-1$
+			}
+
+			NdTypeArgument argument = TYPE_ARGUMENTS.get(getNd(), this.address, 0);
+
+			result.append('[');
+			argument.getType().getSignature(result);
+			return;
+		}
+
+		if (isTypeVariable()) {
+			result.append('T');
+			result.append(getVariableIdentifier().getChars());
+			return;
+		}
+
+		result.append(getRawType().getFieldDescriptor().getChars());
+
+		List<NdTypeArgument> arguments = getTypeArguments();
+		if (!arguments.isEmpty()) {
+			result.append('<');
+			for (NdTypeArgument next : arguments) {
+				next.getSignature(result);
+			}
+			result.append('>');
+		}
+	}
+
+	@Override
+	public boolean isTypeVariable() {
+		return getVariableIdentifier().length() != 0;
 	}
 }
