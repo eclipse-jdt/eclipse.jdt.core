@@ -71,7 +71,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 					argument.binding = new AptSourceLocalVariableBinding(argument.binding, binding);
 				}
 			}
-			if (annotations != null) {
+			if (annotations != null && argument.binding != null) {
 				this.resolveAnnotations(
 						scope,
 						annotations,

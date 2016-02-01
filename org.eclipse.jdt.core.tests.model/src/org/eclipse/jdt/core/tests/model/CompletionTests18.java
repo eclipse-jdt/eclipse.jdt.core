@@ -2481,4 +2481,173 @@ public void testBug481564() throws JavaModelException {
 	assertResults(
 			"someMethod[METHOD_REF]{someMethod(), LX;, ()V, someMethod, null, 27}", requestor.getResults());
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=481215
+public void testBug481215a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.function.Consumer;\n" +
+			"public class X {\n" +
+			"	public static void main() {\n" +
+			"		MyGeneric<String> mystring = new MyGeneric<>(\"\");\n" +
+			"		complete((String result) -> {\n" +
+			"			mystring.get(res/* HERE */);\n" +
+			"		}, new Consumer<Throwable>() {\n" +
+			"			@Override\n" +
+			"			public void accept(Throwable t) { t.printStackTrace(); }\n" +
+			"		});\n" +
+			"	}\n" +
+			"	public static class MyGeneric<T> {\n" +
+			"		public MyGeneric(T t) {}\n" +
+			"		public T get(String value) { return null; }\n" +
+			"	}\n" +
+			"	static void complete(Consumer<String> success, Consumer<Throwable> failure) {}\n" +
+			"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/* HERE */";
+	int cursorLocation = str.indexOf(completeBehind) ;
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"ResourceBundle[TYPE_REF]{java.util.ResourceBundle, java.util, Ljava.util.ResourceBundle;, null, null, 14}\n" +
+			"ResponseCache[TYPE_REF]{java.net.ResponseCache, java.net, Ljava.net.ResponseCache;, null, null, 14}\n" +
+			"ResultSet[TYPE_REF]{java.sql.ResultSet, java.sql, Ljava.sql.ResultSet;, null, null, 14}\n" +
+			"ResultSetMetaData[TYPE_REF]{java.sql.ResultSetMetaData, java.sql, Ljava.sql.ResultSetMetaData;, null, null, 14}\n" +
+			"result[LOCAL_VARIABLE_REF]{result, null, Ljava.lang.String;, result, null, 27}", requestor.getResults());
+}
+public void testBug481215b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.function.Consumer;\n" +
+			"public class X {\n" +
+			"	public static void main() {\n" +
+			"		MyGeneric<String> mystring = new MyGeneric<>(\"\");\n" +
+			"		complete((String result) -> {\n" +
+			"			mystring.get(res/* HERE */);\n" +
+			"		}, t -> t.printStackTrace());\n" +
+			"	}\n" +
+			"	public static class MyGeneric<T> {\n" +
+			"		public MyGeneric(T t) {}\n" +
+			"		public T get(String value) { return null; }\n" +
+			"	}\n" +
+			"	static void complete(Consumer<String> success, Consumer<Throwable> failure) {}\n" +
+			"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/* HERE */";
+	int cursorLocation = str.indexOf(completeBehind) ;
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"ResourceBundle[TYPE_REF]{java.util.ResourceBundle, java.util, Ljava.util.ResourceBundle;, null, null, 14}\n" +
+			"ResponseCache[TYPE_REF]{java.net.ResponseCache, java.net, Ljava.net.ResponseCache;, null, null, 14}\n" +
+			"ResultSet[TYPE_REF]{java.sql.ResultSet, java.sql, Ljava.sql.ResultSet;, null, null, 14}\n" +
+			"ResultSetMetaData[TYPE_REF]{java.sql.ResultSetMetaData, java.sql, Ljava.sql.ResultSetMetaData;, null, null, 14}\n" +
+			"result[LOCAL_VARIABLE_REF]{result, null, Ljava.lang.String;, result, null, 27}", requestor.getResults());
+}
+public void testBug481215c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.function.Consumer;\n" +
+			"public class X {\n" +
+			"	public static void main() {\n" +
+			"		MyGeneric<String> mystring = new MyGeneric<>(\"\");\n" +
+			"		complete((String result) -> {\n" +
+			"			mystring.get(res/* HERE */);\n" +
+			"		}, t -> {t.printStackTrace();});\n" +
+			"	}\n" +
+			"	public static class MyGeneric<T> {\n" +
+			"		public MyGeneric(T t) {}\n" +
+			"		public T get(String value) { return null; }\n" +
+			"	}\n" +
+			"	static void complete(Consumer<String> success, Consumer<Throwable> failure) {}\n" +
+			"}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/* HERE */";
+	int cursorLocation = str.indexOf(completeBehind) ;
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"ResourceBundle[TYPE_REF]{java.util.ResourceBundle, java.util, Ljava.util.ResourceBundle;, null, null, 14}\n" +
+			"ResponseCache[TYPE_REF]{java.net.ResponseCache, java.net, Ljava.net.ResponseCache;, null, null, 14}\n" +
+			"ResultSet[TYPE_REF]{java.sql.ResultSet, java.sql, Ljava.sql.ResultSet;, null, null, 14}\n" +
+			"ResultSetMetaData[TYPE_REF]{java.sql.ResultSetMetaData, java.sql, Ljava.sql.ResultSetMetaData;, null, null, 14}\n" +
+			"result[LOCAL_VARIABLE_REF]{result, null, Ljava.lang.String;, result, null, 27}", requestor.getResults());
+}
+public void testBug481215d() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"import java.util.function.Consumer;\n" +
+			"public class X {\n" +
+			"	public static void main() {\n" +
+			"		MyGeneric<String> mystring = new MyGeneric<>(\"\");\n" +
+			"		complete((String result) -> {\n" +
+			"			mystring.get(result);\n" +
+			"			Consumer<String> success = (String result2) -> {\n" +
+			"				mystring.get(res/* HERE */);\n" +
+			"				};\n" +
+			"		}, new Consumer<Throwable>() {\n" +
+			"			@Override\n" +
+			"			public void accept(Throwable t) {\n" +
+			"				t.printStackTrace();\n" +
+			"			}\n" +
+			"		});\n" +
+			"	}\n" +
+			"	public static class MyGeneric<T> {\n" +
+			"		public MyGeneric(T t) {}\n" +
+			"		public T get(String value) { return null; }\n" +
+			"	}\n" +
+			"	static void complete(Consumer<String> success, Consumer<Throwable> failure) {}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "/* HERE */";
+	int cursorLocation = str.indexOf(completeBehind) ;
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"ResourceBundle[TYPE_REF]{java.util.ResourceBundle, java.util, Ljava.util.ResourceBundle;, null, null, 14}\n" +
+			"ResponseCache[TYPE_REF]{java.net.ResponseCache, java.net, Ljava.net.ResponseCache;, null, null, 14}\n" +
+			"ResultSet[TYPE_REF]{java.sql.ResultSet, java.sql, Ljava.sql.ResultSet;, null, null, 14}\n" +
+			"ResultSetMetaData[TYPE_REF]{java.sql.ResultSetMetaData, java.sql, Ljava.sql.ResultSetMetaData;, null, null, 14}\n" +
+			"result[LOCAL_VARIABLE_REF]{result, null, Ljava.lang.String;, result, null, 27}\n" +
+			"result2[LOCAL_VARIABLE_REF]{result2, null, Ljava.lang.String;, result2, null, 27}", requestor.getResults());
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=484479
+public void test484479() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Bar.java",
+			"interface Supplier<T> {\n" +
+			"   T get();\n" +
+			"}\n" +
+			"public interface Bar {\n" +
+			"    static public Bar print() {\n" +
+			"        return null;\n" +
+			"    }\n" +
+			"}\n" +
+			"class A {\n" +
+			"    	Supplier<Bar> c = Bar::pr\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "::pr";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("print[METHOD_NAME_REFERENCE]{print, LBar;, ()LBar;, null, null, print, null, [160, 162], " + 
+											(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_RESOLVED + 
+													RelevanceConstants.R_INTERESTING + RelevanceConstants.R_NON_RESTRICTED +
+													RelevanceConstants.R_CASE) + "}", requestor.getResults());
+}
 }

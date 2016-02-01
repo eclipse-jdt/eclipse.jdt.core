@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 Mateusz Matela and others.
+ * Copyright (c) 2014, 2016 Mateusz Matela and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.jdt.internal.formatter.Token;
 import org.eclipse.jdt.internal.formatter.TokenManager;
 import org.eclipse.jdt.internal.formatter.TokenTraverser;
@@ -64,23 +65,47 @@ public class FieldAligner {
 
 	private final List<List<FieldDeclaration>> fieldAlignGroups = new ArrayList<>();
 
+	private final DefaultCodeFormatterOptions options;
+
 	final TokenManager tm;
 
-	public FieldAligner(TokenManager tokenManager) {
+	public FieldAligner(TokenManager tokenManager, DefaultCodeFormatterOptions options) {
 		this.tm = tokenManager;
+		this.options = options;
 	}
 
-	public void prepareAlign(List<FieldDeclaration> bodyDeclarations) {
+	public void handleAlign(List<FieldDeclaration> bodyDeclarations) {
+		if (!this.options.align_type_members_on_columns)
+			return;
 		ArrayList<FieldDeclaration> alignGroup = new ArrayList<>();
+		BodyDeclaration previous = null;
 		for (BodyDeclaration declaration : bodyDeclarations) {
-			if ((declaration instanceof FieldDeclaration)) {
+			if (declaration instanceof FieldDeclaration) {
+				if (isNewGroup(declaration, previous)) {
+					alignFields(alignGroup);
+					alignGroup = new ArrayList<>();
+				}
 				alignGroup.add((FieldDeclaration) declaration);
-			} else {
-				alignFields(alignGroup);
-				alignGroup = new ArrayList<>();
 			}
+			previous = declaration;
 		}
 		alignFields(alignGroup);
+	}
+
+	private boolean isNewGroup(BodyDeclaration declaration, BodyDeclaration previousDeclaration) {
+		if (!(previousDeclaration instanceof FieldDeclaration))
+			return true;
+		int lineBreaks = 0;
+		int from = this.tm.lastIndexIn(previousDeclaration, -1);
+		int to = this.tm.firstIndexIn(declaration, -1);
+		Token previous = this.tm.get(from);
+		for (int i = from + 1; i <= to; i++) {
+			Token token = this.tm.get(i);
+			lineBreaks += Math.min(this.tm.countLineBreaksBetween(previous, token),
+					this.options.number_of_empty_lines_to_preserve + 1);
+			previous = token;
+		}
+		return lineBreaks > this.options.align_fields_grouping_blank_lines;
 	}
 
 	private void alignFields(ArrayList<FieldDeclaration> alignGroup) {
@@ -122,13 +147,6 @@ public class FieldAligner {
 				int assingIndex = this.tm.firstIndexAfter(fragment.getName(), TokenNameEQUAL);
 				Token assignToken = this.tm.get(assingIndex);
 				assignToken.setAlign(maxAssignAlign);
-
-				int baseIndent = this.tm.getPositionInLine(assingIndex + 1) - assignToken.getIndent();
-				int lastIndex = this.tm.lastIndexIn(declaration, -1);
-				for (int i = assingIndex + 1; i <= lastIndex; i++) {
-					Token token = this.tm.get(i);
-					token.setIndent(baseIndent + token.getIndent());
-				}
 			}
 		}
 	}

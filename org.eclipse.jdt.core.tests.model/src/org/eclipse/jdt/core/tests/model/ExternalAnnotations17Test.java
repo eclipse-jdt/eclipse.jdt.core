@@ -15,6 +15,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IPackageFragment;
@@ -420,4 +421,101 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		assertNoProblems(reconciled.getProblems());
 	}
 
+	// ==== error scenarii: ====
+	
+	// annotation file is empty
+	public void testBogusAnnotationFile1() throws Exception {
+		LogListener listener = new LogListener();
+		try {
+			Platform.addLogListener(listener);
+
+			myCreateJavaProject("TestLibs");
+			String lib1Content = 
+					"package libs;\n" + 
+					"\n" +
+					"public interface Lib1<T> {\n" +
+					"	public Lib1<T> getLib();\n" +
+					"}\n";
+			addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+					"/UnannotatedLib/libs/Lib1.java",
+					lib1Content
+				}, null);
+			createFileInProject("annots/libs", "Lib1.eea", 
+					"");
+	
+			// type check sources:
+			IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+			ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
+					"package tests;\n" + 
+					"import org.eclipse.jdt.annotation.*;\n" + 
+					"\n" + 
+					"import libs.Lib1;\n" + 
+					"\n" + 
+					"public class Test1 {\n" + 
+					"	@NonNull Lib1<String> test0(Lib1<String> stringLib) {\n" + 
+					"		return stringLib.getLib();\n" + 
+					"	}\n" +
+					"}\n",
+					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+			CompilationUnit reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+			IProblem[] problems = reconciled.getProblems();
+			assertProblems(problems, new String[] {
+					"Pb(912) Null type safety: The expression of type 'Lib1<String>' needs unchecked conversion to conform to '@NonNull Lib1<String>'",
+			}, new int[] { 8 });
+			
+			assertEquals("number of log entries", 1, listener.loggedStatus.size());
+			final Throwable exception = listener.loggedStatus.get(0).getException();
+			assertEquals("logged message", "missing class header in annotation file", exception.getMessage());
+		} finally {
+			Platform.removeLogListener(listener);
+		}
+	}
+
+	// wrong class header
+	public void testBogusAnnotationFile2() throws Exception {
+		LogListener listener = new LogListener();
+		try {
+			Platform.addLogListener(listener);
+
+			myCreateJavaProject("TestLibs");
+			String lib1Content = 
+					"package libs;\n" + 
+					"\n" +
+					"public interface Lib1<T> {\n" +
+					"	public Lib1<T> getLib();\n" +
+					"}\n";
+			addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+					"/UnannotatedLib/libs/Lib1.java",
+					lib1Content
+				}, null);
+			createFileInProject("annots/libs", "Lib1.eea", 
+					"type Lib1\n");
+	
+			// type check sources:
+			IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+			ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
+					"package tests;\n" + 
+					"import org.eclipse.jdt.annotation.*;\n" + 
+					"\n" + 
+					"import libs.Lib1;\n" + 
+					"\n" + 
+					"public class Test1 {\n" + 
+					"	@NonNull Lib1<String> test0(Lib1<String> stringLib) {\n" + 
+					"		return stringLib.getLib();\n" + 
+					"	}\n" +
+					"}\n",
+					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+			CompilationUnit reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+			IProblem[] problems = reconciled.getProblems();
+			assertProblems(problems, new String[] {
+					"Pb(912) Null type safety: The expression of type 'Lib1<String>' needs unchecked conversion to conform to '@NonNull Lib1<String>'",
+			}, new int[] { 8 });
+
+			assertEquals("number of log entries", 1, listener.loggedStatus.size());
+			final Throwable exception = listener.loggedStatus.get(0).getException();
+			assertEquals("logged message", "missing class header in annotation file", exception.getMessage());
+		} finally {
+			Platform.removeLogListener(listener);
+		}
+	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,9 +7,6 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *
- * TODO missing 2.1 and subsequent contributions
- * COMPILER_FAILURE
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -352,4 +349,11 @@ public interface IJavaModelStatusConstants {
 	 * @since 3.6.4
 	 */
 	public static final int OUTPUT_LOCATION_OVERLAPPING_ANOTHER_SOURCE = 1013;
+
+	/**
+	 * <p>Status constant indicating that an external annotation path is invalid.</p>
+	 * @since 3.12
+	 * @see org.eclipse.jdt.core.IClasspathAttribute#EXTERNAL_ANNOTATION_PATH
+	 */
+	public static final int CP_INVALID_EXTERNAL_ANNOTATION_PATH = 1014;
 }

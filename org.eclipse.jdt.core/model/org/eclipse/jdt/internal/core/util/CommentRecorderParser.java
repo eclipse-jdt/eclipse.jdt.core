@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -80,13 +80,21 @@ public class CommentRecorderParser extends Parser {
 		}
 		// modify the modifier source start to point at the first comment
 		if (lastCommentIndex >= 0 && checkDeprecated) {
-			this.modifiersSourceStart = this.scanner.commentStarts[lastCommentIndex];
-			if (this.modifiersSourceStart < 0) {
-				this.modifiersSourceStart = -this.modifiersSourceStart;
+			int lastCommentStart = this.scanner.commentStarts[lastCommentIndex];
+			if (lastCommentStart < 0) lastCommentStart = -lastCommentStart;
+			if (this.forStartPosition == 0 || this.forStartPosition < lastCommentStart) {// only if there is no "for" in between
+				this.modifiersSourceStart = lastCommentStart;
 			}
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#consumeAnnotationTypeDeclarationHeader()
+	 */
+	protected void consumeAnnotationTypeDeclarationHeader() {
+		pushOnCommentsStack(0, this.scanner.commentPtr);
+		super.consumeAnnotationTypeDeclarationHeader();
+	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#consumeClassHeader()
 	 */
@@ -101,6 +109,22 @@ public class CommentRecorderParser extends Parser {
 		pushOnCommentsStack(0, this.scanner.commentPtr);
 		super.consumeEmptyTypeDeclaration();
 	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#consumeEnterAnonymousClassBody(boolean)
+	 */
+	@Override
+	protected void consumeEnterAnonymousClassBody(boolean qualified) {
+		pushOnCommentsStack(0, this.scanner.commentPtr);
+		super.consumeEnterAnonymousClassBody(qualified);
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#consumeEnumHeader()
+	 */
+	protected void consumeEnumHeader() {
+		pushOnCommentsStack(0, this.scanner.commentPtr);
+		super.consumeEnumHeader();
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.parser.Parser#consumeInterfaceHeader()
 	 */

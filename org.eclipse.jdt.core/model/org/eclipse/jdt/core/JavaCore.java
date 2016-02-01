@@ -1462,7 +1462,7 @@ public final class JavaCore extends Plugin {
 	 *    or a value of type <code>java.io.Closeable</code> (compliance<=1.6) and if
 	 *    flow analysis shows that the method <code>close()</code> is not invoked locally on that value.</p>
 	 * <dl>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.reportUnclosedCloseable"</code></dd>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unclosedCloseable"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
 	 * </dl>
@@ -1478,7 +1478,7 @@ public final class JavaCore extends Plugin {
 	 *    flow analysis shows that the method <code>close()</code> is 
 	 *    not invoked locally on that value for all execution paths.</p>
 	 * <dl>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.reportPotentiallyUnclosedCloseable"</code></dd>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.potentiallyUnclosedCloseable"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
@@ -1493,7 +1493,7 @@ public final class JavaCore extends Plugin {
 	 *    <code>close()</code> is explicitly invoked on that resource, but the resource is
 	 *    not managed by a try-with-resources block.</p>
 	 * <dl>
-	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.reportPotentiallyUnclosedCloseable"</code></dd>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.explicitlyClosedAutoCloseable"</code></dd>
 	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
 	 * <dt>Default:</dt><dd><code>"ignore"</code></dd>
 	 * </dl>
@@ -1549,6 +1549,29 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_NULLABLE_ANNOTATION_NAME = PLUGIN_ID + ".compiler.annotation.nullable"; //$NON-NLS-1$
 	/**
+	 * Compiler option ID: Names of Secondary Annotation Types for Nullable Types.
+	 * <p>This option defines a comma-separated list of fully qualified Java type names
+	 *    that the compiler may use to perform special null analysis.</p>
+	 * <p>The annotation types identified by the names in this list are interpreted in the same way
+	 *    as the annotation identified by {@link #COMPILER_NULLABLE_ANNOTATION_NAME}.
+	 *    The intention is to support libraries using different sets of null annotations,
+	 *    in addition to those used by the current project. Secondary null annotations should not be
+	 *    used in the project's own source code.</p>
+	 * <p>JDT will never actively use any secondary annotation names from this list,
+	 *    i.e., inferred null annotations and content assist proposals mentioning null annotations
+	 *    are always rendered using the primary name from {@link #COMPILER_NULLABLE_ANNOTATION_NAME}.</p>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nullable.secondary"</code></dd>
+	 * <dt>Possible values:</dt><dd>a comma-separated list of legal, fully qualified Java type names;
+	 *     each name in the list must resolve to an annotation type.</dd>
+	 * <dt>Default:</dt><dd><code>""</code></dd>
+	 * </dl>
+	 * @since 3.12
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_NULLABLE_ANNOTATION_SECONDARY_NAMES = PLUGIN_ID + ".compiler.annotation.nullable.secondary"; //$NON-NLS-1$
+	/**
 	 * Compiler option ID: Name of Annotation Type for Non-Null Types.
 	 * <p>This option defines a fully qualified Java type name that the compiler may use
 	 *    to perform special null analysis.</p>
@@ -1575,6 +1598,29 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_NONNULL_ANNOTATION_NAME = PLUGIN_ID + ".compiler.annotation.nonnull"; //$NON-NLS-1$
 	/**
+	 * Compiler option ID: Names of Secondary Annotation Types for Non-Null Types.
+	 * <p>This option defines a comma-separated list of fully qualified Java type names
+	 *    that the compiler may use to perform special null analysis.</p>
+	 * <p>The annotation types identified by the names in this list are interpreted in the same way
+	 *    as the annotation identified by {@link #COMPILER_NONNULL_ANNOTATION_NAME}.
+	 *    The intention is to support libraries using different sets of null annotations,
+	 *    in addition to those used by the current project. Secondary null annotations should not be
+	 *    used in the project's own source code.</p>
+	 * <p>JDT will never actively use any secondary annotation names from this list,
+	 *    i.e., inferred null annotations and content assist proposals mentioning null annotations
+	 *    are always rendered using the primary name from {@link #COMPILER_NONNULL_ANNOTATION_NAME}.</p>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nonnull.secondary"</code></dd>
+	 * <dt>Possible values:</dt><dd>a comma-separated list of legal, fully qualified Java type names;
+	 *     each name in the list must resolve to an annotation type.</dd>
+	 * <dt>Default:</dt><dd><code>""</code></dd>
+	 * </dl>
+	 * @since 3.12
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_NONNULL_ANNOTATION_SECONDARY_NAMES = PLUGIN_ID + ".compiler.annotation.nonnull.secondary"; //$NON-NLS-1$
+	/**
 	 * Compiler option ID: Name of Annotation Type to specify a nullness default for unannotated types.
 	 * <p>This option defines a fully qualified Java type name that the compiler may use
 	 *    to perform special null analysis.</p>
@@ -1594,6 +1640,26 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME = PLUGIN_ID + ".compiler.annotation.nonnullbydefault"; //$NON-NLS-1$
+	/**
+	 * Compiler option ID: Names of Secondary Annotation Types to specify a nullness default for unannotated types.
+	 * <p>This option defines a comma-separated list of fully qualified Java type names
+	 *    that the compiler may use to perform special null analysis.</p>
+	 * <p>The annotation types identified by the names in this list are interpreted in the same way
+	 *    as the annotation identified by {@link #COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME}.
+	 *    The intention is to support libraries using different sets of null annotations,
+	 *    in addition to those used by the current project. Secondary null annotations should not be
+	 *    used in the project's own source code.</p>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.nonnullbydefault.secondary"</code></dd>
+	 * <dt>Possible values:</dt><dd>a comma-separated list of legal, fully qualified Java type names;
+	 *     each name in the list must resolve to an annotation type.</dd>
+	 * <dt>Default:</dt><dd><code>""</code></dd>
+	 * </dl>
+	 * @since 3.12
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_SECONDARY_NAMES = PLUGIN_ID + ".compiler.annotation.nonnullbydefault.secondary"; //$NON-NLS-1$
 	/**
 	 * Compiler option ID: Reporting missing default nullness annotation.
 	 * <p>When enabled, the compiler will issue an error or a warning in the following cases:</p>
@@ -4077,170 +4143,176 @@ public final class JavaCore extends Plugin {
 	 * @since 3.1
 	 */
 	public static void initializeAfterLoad(IProgressMonitor monitor) throws CoreException {
-		SubMonitor mainMonitor = SubMonitor.convert(monitor, Messages.javamodel_initialization, 100);
-		mainMonitor.subTask(Messages.javamodel_configuring_classpath_containers);
-
-		// initialize all containers and variables
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
-			SubMonitor subMonitor = mainMonitor.split(50).setWorkRemaining(100); // 50% of the time is spent in initializing containers and variables
-			subMonitor.worked(5); // give feedback to the user that something is happening
-			manager.batchContainerInitializationsProgress.initializeAfterLoadMonitor.set(subMonitor);
-			if (manager.forceBatchInitializations(true/*initAfterLoad*/)) { // if no other thread has started the batch container initializations
-				manager.getClasspathContainer(Path.EMPTY, null); // force the batch initialization
-			} else { // else wait for the batch initialization to finish
-				while (manager.batchContainerInitializations == JavaModelManager.BATCH_INITIALIZATION_IN_PROGRESS) {
-					subMonitor.subTask(manager.batchContainerInitializationsProgress.subTaskName);
-					subMonitor.worked(manager.batchContainerInitializationsProgress.getWorked());
-					synchronized(manager) {
-						try {
-							manager.wait(100);
-						} catch (InterruptedException e) {
-							// continue
+			SubMonitor mainMonitor = SubMonitor.convert(monitor, Messages.javamodel_initialization, 100);
+			mainMonitor.subTask(Messages.javamodel_configuring_classpath_containers);
+	
+			// initialize all containers and variables
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			try {
+				SubMonitor subMonitor = mainMonitor.split(50).setWorkRemaining(100); // 50% of the time is spent in initializing containers and variables
+				subMonitor.worked(5); // give feedback to the user that something is happening
+				manager.batchContainerInitializationsProgress.initializeAfterLoadMonitor.set(subMonitor);
+				if (manager.forceBatchInitializations(true/*initAfterLoad*/)) { // if no other thread has started the batch container initializations
+					manager.getClasspathContainer(Path.EMPTY, null); // force the batch initialization
+				} else { // else wait for the batch initialization to finish
+					while (manager.batchContainerInitializations == JavaModelManager.BATCH_INITIALIZATION_IN_PROGRESS) {
+						subMonitor.subTask(manager.batchContainerInitializationsProgress.subTaskName);
+						subMonitor.worked(manager.batchContainerInitializationsProgress.getWorked());
+						synchronized(manager) {
+							try {
+								manager.wait(100);
+							} catch (InterruptedException e) {
+								// continue
+							}
 						}
 					}
+				}
+			} finally {
+				manager.batchContainerInitializationsProgress.initializeAfterLoadMonitor.set(null);
+			}
+	
+			// avoid leaking source attachment properties (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=183413 )
+			// and recreate links for external folders if needed
+			mainMonitor.subTask(Messages.javamodel_resetting_source_attachment_properties);
+			final IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
+			HashSet visitedPaths = new HashSet();
+			ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
+			for (int i = 0, length = projects.length; i < length; i++) {
+				JavaProject javaProject = (JavaProject) projects[i];
+				IClasspathEntry[] classpath;
+				try {
+					classpath = javaProject.getResolvedClasspath();
+				} catch (JavaModelException e) {
+					// project no longer exist: ignore
+					continue;
+				}
+				if (classpath != null) {
+					for (int j = 0, length2 = classpath.length; j < length2; j++) {
+						IClasspathEntry entry = classpath[j];
+						if (entry.getSourceAttachmentPath() != null) {
+							IPath entryPath = entry.getPath();
+							if (visitedPaths.add(entryPath)) {
+								Util.setSourceAttachmentProperty(entryPath, null);
+							}
+						}
+						// else source might have been attached by IPackageFragmentRoot#attachSource(...), we keep it
+						if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+							IPath entryPath = entry.getPath();
+							if (ExternalFoldersManager.isExternalFolderPath(entryPath) && externalFoldersManager.getFolder(entryPath) == null) {
+								externalFoldersManager.addFolder(entryPath, true);
+							}
+						}
+					}
+				}
+			}
+			try {
+				externalFoldersManager.createPendingFolders(mainMonitor.split(1));
+			}
+			catch(JavaModelException jme) {
+				// Creation of external folder project failed. Log it and continue;
+				Util.log(jme, "Error while processing external folders"); //$NON-NLS-1$
+			}
+	
+			// ensure external jars are refreshed (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
+			// before search is initialized (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=405051)
+			final JavaModel model = manager.getJavaModel();
+			try {
+				mainMonitor.subTask(Messages.javamodel_refreshing_external_jars);
+				model.refreshExternalArchives(
+					null/*refresh all projects*/,
+					mainMonitor.split(1) // 1% of the time is spent in jar refresh
+				);
+			} catch (JavaModelException e) {
+				// refreshing failed: ignore
+			}
+	
+			// initialize delta state
+			mainMonitor.subTask(Messages.javamodel_initializing_delta_state);
+			manager.deltaState.rootsAreStale = true; // in case it was already initialized before we cleaned up the source attachment properties
+			manager.deltaState.initializeRoots(true/*initAfteLoad*/);
+	
+			// dummy query for waiting until the indexes are ready
+			mainMonitor.subTask(Messages.javamodel_configuring_searchengine);
+			SearchEngine engine = new SearchEngine();
+			IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+			try {
+				engine.searchAllTypeNames(
+					null,
+					SearchPattern.R_EXACT_MATCH,
+					"!@$#!@".toCharArray(), //$NON-NLS-1$
+					SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+					IJavaSearchConstants.CLASS,
+					scope,
+					new TypeNameRequestor() {
+						public void acceptType(
+							int modifiers,
+							char[] packageName,
+							char[] simpleTypeName,
+							char[][] enclosingTypeNames,
+							String path) {
+							// no type to accept
+						}
+					},
+					// will not activate index query caches if indexes are not ready, since it would take to long
+					// to wait until indexes are fully rebuild
+					IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
+					mainMonitor.split(47) // 47% of the time is spent in the dummy search
+				);
+			} catch (JavaModelException e) {
+				// /search failed: ignore
+			} catch (OperationCanceledException e) {
+				if (mainMonitor.isCanceled())
+					throw e;
+				// else indexes were not ready: catch the exception so that jars are still refreshed
+			}
+	
+			// check if the build state version number has changed since last session
+			// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=98969)
+			mainMonitor.subTask(Messages.javamodel_getting_build_state_number);
+			QualifiedName qName = new QualifiedName(JavaCore.PLUGIN_ID, "stateVersionNumber"); //$NON-NLS-1$
+			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+			String versionNumber = null;
+			try {
+				versionNumber = root.getPersistentProperty(qName);
+			} catch (CoreException e) {
+				// could not read version number: consider it is new
+			}
+			String newVersionNumber = Byte.toString(State.VERSION);
+			if (!newVersionNumber.equals(versionNumber)) {
+				// build state version number has changed: touch every projects to force a rebuild
+				if (JavaBuilder.DEBUG)
+					System.out.println("Build state version number has changed"); //$NON-NLS-1$
+				IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+					public void run(IProgressMonitor progressMonitor2) throws CoreException {
+						for (int i = 0, length = projects.length; i < length; i++) {
+							IJavaProject project = projects[i];
+							try {
+								if (JavaBuilder.DEBUG)
+									System.out.println("Touching " + project.getElementName()); //$NON-NLS-1$
+								new ClasspathValidation((JavaProject) project).validate(); // https://bugs.eclipse.org/bugs/show_bug.cgi?id=287164
+								project.getProject().touch(progressMonitor2);
+							} catch (CoreException e) {
+								// could not touch this project: ignore
+							}
+						}
+					}
+				};
+				mainMonitor.subTask(Messages.javamodel_building_after_upgrade);
+				try {
+					ResourcesPlugin.getWorkspace().run(runnable, mainMonitor.split(1));
+				} catch (CoreException e) {
+					// could not touch all projects
+				}
+				try {
+					root.setPersistentProperty(qName, newVersionNumber);
+				} catch (CoreException e) {
+					Util.log(e, "Could not persist build state version number"); //$NON-NLS-1$
 				}
 			}
 		} finally {
-			manager.batchContainerInitializationsProgress.initializeAfterLoadMonitor.set(null);
-		}
-
-		// avoid leaking source attachment properties (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=183413 )
-		// and recreate links for external folders if needed
-		mainMonitor.subTask(Messages.javamodel_resetting_source_attachment_properties);
-		final IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
-		HashSet visitedPaths = new HashSet();
-		ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
-		for (int i = 0, length = projects.length; i < length; i++) {
-			JavaProject javaProject = (JavaProject) projects[i];
-			IClasspathEntry[] classpath;
-			try {
-				classpath = javaProject.getResolvedClasspath();
-			} catch (JavaModelException e) {
-				// project no longer exist: ignore
-				continue;
-			}
-			if (classpath != null) {
-				for (int j = 0, length2 = classpath.length; j < length2; j++) {
-					IClasspathEntry entry = classpath[j];
-					if (entry.getSourceAttachmentPath() != null) {
-						IPath entryPath = entry.getPath();
-						if (visitedPaths.add(entryPath)) {
-							Util.setSourceAttachmentProperty(entryPath, null);
-						}
-					}
-					// else source might have been attached by IPackageFragmentRoot#attachSource(...), we keep it
-					if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-						IPath entryPath = entry.getPath();
-						if (ExternalFoldersManager.isExternalFolderPath(entryPath) && externalFoldersManager.getFolder(entryPath) == null) {
-							externalFoldersManager.addFolder(entryPath, true);
-						}
-					}
-				}
-			}
-		}
-		try {
-			externalFoldersManager.createPendingFolders(mainMonitor.split(1));
-		}
-		catch(JavaModelException jme) {
-			// Creation of external folder project failed. Log it and continue;
-			Util.log(jme, "Error while processing external folders"); //$NON-NLS-1$
-		}
-
-		// ensure external jars are refreshed (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
-		// before search is initialized (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=405051)
-		final JavaModel model = manager.getJavaModel();
-		try {
-			mainMonitor.subTask(Messages.javamodel_refreshing_external_jars);
-			model.refreshExternalArchives(
-				null/*refresh all projects*/,
-				mainMonitor.split(1) // 1% of the time is spent in jar refresh
-			);
-		} catch (JavaModelException e) {
-			// refreshing failed: ignore
-		}
-
-		// initialize delta state
-		mainMonitor.subTask(Messages.javamodel_initializing_delta_state);
-		manager.deltaState.rootsAreStale = true; // in case it was already initialized before we cleaned up the source attachment properties
-		manager.deltaState.initializeRoots(true/*initAfteLoad*/);
-
-		// dummy query for waiting until the indexes are ready
-		mainMonitor.subTask(Messages.javamodel_configuring_searchengine);
-		SearchEngine engine = new SearchEngine();
-		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
-		try {
-			engine.searchAllTypeNames(
-				null,
-				SearchPattern.R_EXACT_MATCH,
-				"!@$#!@".toCharArray(), //$NON-NLS-1$
-				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
-				IJavaSearchConstants.CLASS,
-				scope,
-				new TypeNameRequestor() {
-					public void acceptType(
-						int modifiers,
-						char[] packageName,
-						char[] simpleTypeName,
-						char[][] enclosingTypeNames,
-						String path) {
-						// no type to accept
-					}
-				},
-				// will not activate index query caches if indexes are not ready, since it would take to long
-				// to wait until indexes are fully rebuild
-				IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
-				mainMonitor.split(47) // 47% of the time is spent in the dummy search
-			);
-		} catch (JavaModelException e) {
-			// /search failed: ignore
-		} catch (OperationCanceledException e) {
-			if (mainMonitor.isCanceled())
-				throw e;
-			// else indexes were not ready: catch the exception so that jars are still refreshed
-		}
-
-		// check if the build state version number has changed since last session
-		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=98969)
-		mainMonitor.subTask(Messages.javamodel_getting_build_state_number);
-		QualifiedName qName = new QualifiedName(JavaCore.PLUGIN_ID, "stateVersionNumber"); //$NON-NLS-1$
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		String versionNumber = null;
-		try {
-			versionNumber = root.getPersistentProperty(qName);
-		} catch (CoreException e) {
-			// could not read version number: consider it is new
-		}
-		String newVersionNumber = Byte.toString(State.VERSION);
-		if (!newVersionNumber.equals(versionNumber)) {
-			// build state version number has changed: touch every projects to force a rebuild
-			if (JavaBuilder.DEBUG)
-				System.out.println("Build state version number has changed"); //$NON-NLS-1$
-			IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
-				public void run(IProgressMonitor progressMonitor2) throws CoreException {
-					for (int i = 0, length = projects.length; i < length; i++) {
-						IJavaProject project = projects[i];
-						try {
-							if (JavaBuilder.DEBUG)
-								System.out.println("Touching " + project.getElementName()); //$NON-NLS-1$
-							new ClasspathValidation((JavaProject) project).validate(); // https://bugs.eclipse.org/bugs/show_bug.cgi?id=287164
-							project.getProject().touch(progressMonitor2);
-						} catch (CoreException e) {
-							// could not touch this project: ignore
-						}
-					}
-				}
-			};
-			mainMonitor.subTask(Messages.javamodel_building_after_upgrade);
-			try {
-				ResourcesPlugin.getWorkspace().run(runnable, mainMonitor.split(1));
-			} catch (CoreException e) {
-				// could not touch all projects
-			}
-			try {
-				root.setPersistentProperty(qName, newVersionNumber);
-			} catch (CoreException e) {
-				Util.log(e, "Could not persist build state version number"); //$NON-NLS-1$
+			if (monitor != null) {
+				monitor.done();
 			}
 		}
 	}

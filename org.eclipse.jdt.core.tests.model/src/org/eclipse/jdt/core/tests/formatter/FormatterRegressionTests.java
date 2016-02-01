@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,6 +15,7 @@ package org.eclipse.jdt.core.tests.formatter;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
@@ -74,6 +75,16 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 
 	public FormatterRegressionTests(String name) {
 		super(name);
+	}
+
+	/**
+	 * Helper method for tests that require a certain compiler compliance level.
+	 * @param level use one of the {@code CompilerOptions.VERSION_***} constants
+	 */
+	protected void setComplianceLevel(String level) {
+		this.formatterOptions.put(CompilerOptions.OPTION_Compliance, level);
+		this.formatterOptions.put(CompilerOptions.OPTION_TargetPlatform, level);
+		this.formatterOptions.put(CompilerOptions.OPTION_Source, level);
 	}
 
 	/* 
@@ -277,8 +288,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	void formatSource(String source, String formattedOutput, int kind, int indentationLevel, boolean repeat) {
 		int regionStart = source.indexOf("[#");
 		if (regionStart != -1) {
-			IRegion[] regions =  new Region[10];
-			int idx = 0;
+			ArrayList<IRegion> regions =  new ArrayList<>();
 			int start = 0;
 			int delta = 0;
 			StringBuffer buffer = new StringBuffer();
@@ -286,7 +296,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 				buffer.append(source.substring(start, regionStart));
 				int regionEnd = source.indexOf("#]", regionStart+2);
 				buffer.append(source.substring(regionStart+2, regionEnd));
-				regions[idx++] = new Region(regionStart-delta, regionEnd-(regionStart+2));
+				regions.add(new Region(regionStart-delta, regionEnd-(regionStart+2)));
 				delta += 4;
 				start = regionEnd + 2;
 				regionStart = source.indexOf("[#", start);
@@ -294,12 +304,12 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 			buffer.append(source.substring(start, source.length()));
 			String newSource = buffer.toString();
 			String result;
-			if (idx == 1) {
+			if (regions.size() == 1) {
 				// Use offset and length until bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=233967 is fixed
-				result = runFormatter(codeFormatter(), newSource, kind, indentationLevel, regions[0].getOffset(), regions[0].getLength(), LINE_SEPARATOR, repeat);
+				result = runFormatter(codeFormatter(), newSource, kind, indentationLevel, regions.get(0).getOffset(), regions.get(0).getLength(), LINE_SEPARATOR, repeat);
 			} else {
-				System.arraycopy(regions, 0, regions = new Region[idx], 0, idx);
-				result = runFormatter(codeFormatter(), newSource, kind, indentationLevel, regions, LINE_SEPARATOR);
+				IRegion[] regionsArray = regions.toArray(new IRegion[regions.size()]);
+				result = runFormatter(codeFormatter(), newSource, kind, indentationLevel, regionsArray, LINE_SEPARATOR);
 			}
 			assertLineEquals(result, newSource, formattedOutput);
 		} else {
@@ -13113,5 +13123,183 @@ public void testBug467229() throws IOException {
 	String key = keysToCheck[0]; // the other is lost in this conversion
 	assertEquals(key, optionsMap.get(key), optionsMap2.get(key));
 }
-
+/**
+ * https://bugs.eclipse.org/477476 - Auto-formatter gets indentation wrong when used as post-save action
+ */
+public void testBug477476a() {
+	setComplianceLevel(CompilerOptions.VERSION_1_5);
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	runTest(codeFormatter(), "test477476a", "A.java", CodeFormatter.K_COMPILATION_UNIT, false);
+}
+/**
+ * https://bugs.eclipse.org/477476 - Auto-formatter gets indentation wrong when used as post-save action
+ */
+public void testBug477476b() {
+	setComplianceLevel(CompilerOptions.VERSION_1_5);
+	try {
+		String input = getCompilationUnit("Formatter" , "", "test477476b", "A_in.java").getSource();
+		String output = getCompilationUnit("Formatter" , "", "test477476b", "A_out.java").getSource();
+		formatSource(input, output);
+	} catch (JavaModelException e) {
+		e.printStackTrace();
+		assertTrue(false);
+	}
+}
+/**
+ * https://bugs.eclipse.org/485495 - [Formatter] does not insert space before semicolon at the end of the statement
+ */
+public void testBug485495() {
+	this.formatterPrefs.insert_space_before_semicolon = true;
+	String source =
+		"package test ;\n" + 
+		"\n" + 
+		"import java.util.ArrayList ;\n" + 
+		"\n" + 
+		"public class Test {\n" + 
+		"\n" + 
+		"	interface I {\n" + 
+		"		void method() ;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	ArrayList<String> e = null ;\n" + 
+		"	int i ;\n" + 
+		"\n" + 
+		"	void foo() {\n" + 
+		"		int i = 0 ;\n" + 
+		"		String s ;\n" + 
+		"		if (i > 0)\n" + 
+		"			return ;\n" + 
+		"		for (int j = 0; j < 5; j++) {\n" + 
+		"			Object o ;\n" + 
+		"			while (i < 0)\n" + 
+		"				o = new Object() {\n" + 
+		"					int f ;\n" + 
+		"\n" + 
+		"					void bar() {\n" + 
+		"						if (f > 0)\n" + 
+		"							f = 5 ;\n" + 
+		"						else\n" + 
+		"							f = 16 ;\n" + 
+		"						try {\n" + 
+		"							f = 14 ;\n" + 
+		"						} catch (Exception e) {\n" + 
+		"							bar() ;\n" + 
+		"						}\n" + 
+		"					}\n" + 
+		"				} ;\n" + 
+		"			while (i < 0)\n" + 
+		"				switch (i) {\n" + 
+		"				case 4:\n" + 
+		"					foo() ;\n" + 
+		"				}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/479109 - [formatter] Add option to group aligned fields with blank lines
+ */
+public void testBug479109a() {
+	this.formatterPrefs.align_type_members_on_columns = true;
+	this.formatterPrefs.align_fields_grouping_blank_lines = 1;
+	String source =
+		"public class Test {\n" + 
+		"	String field1 = \"1\"; //\n" + 
+		"\n" + 
+		"	public String field2 = \"2222\"; //\n" + 
+		"\n" + 
+		"\n" + 
+		"	protected final String field3 = \"333333333\"; //\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	String field1 = \"1\"; //\n" + 
+		"\n" + 
+		"	public String field2 = \"2222\"; //\n" + 
+		"\n" + 
+		"	protected final String field3 = \"333333333\"; //\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/479109 - [formatter] Add option to group aligned fields with blank lines
+ */
+public void testBug479109b() {
+	this.formatterPrefs.align_type_members_on_columns = true;
+	this.formatterPrefs.align_fields_grouping_blank_lines = 2;
+	String source =
+		"public class Test {\n" + 
+		"	String field1 = \"1\";\n" + 
+		"\n" + 
+		"	public String field2222 = \"2222\";\n" + 
+		"\n" + 
+		"\n" + 
+		"	protected final String field3 = \"333333333\";\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	String					field1		= \"1\";\n" + 
+		"\n" + 
+		"	public String			field2222	= \"2222\";\n" + 
+		"\n" + 
+		"	protected final String	field3		= \"333333333\";\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/479109 - [formatter] Add option to group aligned fields with blank lines
+ */
+public void testBug479109c() {
+	this.formatterPrefs.align_type_members_on_columns = true;
+	this.formatterPrefs.align_fields_grouping_blank_lines = 2;
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 2;
+	String source =
+		"public class Test {\n" + 
+		"	String field1 = \"1\"; //\n" + 
+		"\n" + 
+		"	public String field2222 = \"2222\"; //\n" + 
+		"\n" + 
+		"\n" + 
+		"	protected final String field3 = \"333333333\"; //\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	String			field1		= \"1\";		//\n" + 
+		"\n" + 
+		"	public String	field2222	= \"2222\";	//\n" + 
+		"\n" + 
+		"\n" + 
+		"	protected final String field3 = \"333333333\"; //\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/479109 - [formatter] Add option to group aligned fields with blank lines
+ */
+public void testBug479109d() {
+	this.formatterPrefs.align_type_members_on_columns = true;
+	this.formatterPrefs.align_fields_grouping_blank_lines = 2;
+	String source =
+		"public class Test {\n" + 
+		"	String field1 = \"1\";\n" + 
+		"\n" + 
+		"	public String field2222 = \"2222\";\n" + 
+		"\n" + 
+		"// group separator\n" + 
+		"\n" + 
+		"	protected final String field3 = \"333333333\";\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	String			field1		= \"1\";\n" + 
+		"\n" + 
+		"	public String	field2222	= \"2222\";\n" + 
+		"\n" + 
+		"	// group separator\n" + 
+		"\n" + 
+		"	protected final String field3 = \"333333333\";\n" + 
+		"}"
+	);
+}
 }

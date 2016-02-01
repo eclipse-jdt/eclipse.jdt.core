@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,7 +36,6 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.codeassist.impl.*;
 
-@SuppressWarnings("rawtypes")
 public class CompletionParser extends AssistParser {
 	// OWNER
 	protected static final int COMPLETION_PARSER = 1024;
@@ -1095,17 +1094,23 @@ private void buildMoreCompletionContext(Expression expression) {
 }
 private Statement buildMoreCompletionEnclosingContext(Statement statement) {
 	IfStatement ifStatement = null;
+	int index = -1;
+	/*
+	 * What happens here? When we have an "instanceof" after the last 
+	 * K_CONTROL_STATEMENT_DELIMITER (which represents if or else-if), the former 
+	 * is taken to be the current point. Otherwise, the standard rule applies: i.e.
+	 * pick the block if it comes after the K_CONTROL_STATEMENT_DELIMITER, otherwise pick the 
+	 * K_BLOCK_DELIMITER.
+	 */
 	int blockIndex = lastIndexOfElement(K_BLOCK_DELIMITER);
 	int controlIndex = lastIndexOfElement(K_CONTROL_STATEMENT_DELIMITER);
-	int index;
-	if (controlIndex != -1) {
-		index = blockIndex != -1 && controlIndex < blockIndex ? blockIndex : controlIndex;
+	int instanceOfIndex = lastIndexOfElement(K_BETWEEN_INSTANCEOF_AND_RPAREN);
+	if (instanceOfIndex != -1 && instanceOfIndex > controlIndex) {
+		index = instanceOfIndex;
+	} else if (controlIndex == -1) {
+		index = blockIndex;
 	} else {
-		// To handle the case when the completion is requested before enclosing R_PAREN
-		// and an instanceof expression is also present
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=261534
-		int instanceOfIndex = lastIndexOfElement(K_BETWEEN_INSTANCEOF_AND_RPAREN);
-		index = blockIndex != -1 && instanceOfIndex < blockIndex ? blockIndex : instanceOfIndex;
+		index = blockIndex != -1 && controlIndex < blockIndex ? blockIndex : controlIndex;
 	}
 	while (index >= 0) {
 		// Try to find an enclosing if statement even if one is not found immediately preceding the completion node.
@@ -1121,7 +1126,7 @@ private Statement buildMoreCompletionEnclosingContext(Statement statement) {
 						condition.sourceStart < recoveredLocalVariable.localDeclaration.sourceStart) {
 					this.currentElement.add(statement, 0);
 	
-					statement = recoveredLocalVariable.updatedStatement(0, new HashSet());
+					statement = recoveredLocalVariable.updatedStatement(0, new HashSet<TypeDeclaration>());
 	
 					// RecoveredLocalVariable must be removed from its parent because the IfStatement will be added instead
 					RecoveredBlock recoveredBlock =  (RecoveredBlock) recoveredLocalVariable.parent;
@@ -3475,12 +3480,12 @@ protected void consumePrimaryNoNewArrayName() {
 
 	super.consumePrimaryNoNewArrayName();
 }
-protected void consumePrimaryNoNewArrayNameSuper() {
+protected void consumeQualifiedSuperReceiver() {
 	// this is class literal access, so reset potential receiver
 	this.invocationType = NO_RECEIVER;
 	this.qualifier = -1;
 
-	super.consumePrimaryNoNewArrayNameSuper();
+	super.consumeQualifiedSuperReceiver();
 }
 protected void consumePrimaryNoNewArrayNameThis() {
 	// this is class literal access, so reset potential receiver

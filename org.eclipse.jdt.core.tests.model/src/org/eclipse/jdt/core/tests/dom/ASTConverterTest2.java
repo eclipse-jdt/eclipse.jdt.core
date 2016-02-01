@@ -2552,12 +2552,12 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 		ASTNode result = runConversion(sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
-		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
+		assertEquals("Wrong number of problems", 3, unit.getProblems().length); //$NON-NLS-1$<
 		ASTNode node = getASTNode(unit, 0, 0);
 		assertNotNull("No node", node);
 		assertTrue("not a type declaration", node.getNodeType() == ASTNode.TYPE_DECLARATION); //$NON-NLS-1$
 		TypeDeclaration typeDeclaration = (TypeDeclaration) node;
-		assertNull("Got a type binding", typeDeclaration.resolveBinding());
+		assertNotNull("No type binding", typeDeclaration.resolveBinding());
 	}
 
 	/**

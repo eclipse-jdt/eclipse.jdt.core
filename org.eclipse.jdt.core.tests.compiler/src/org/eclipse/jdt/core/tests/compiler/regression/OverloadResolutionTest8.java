@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 IBM Corporation and others.
+ * Copyright (c) 2013, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -768,6 +768,8 @@ public void test026() {
 }
 public void test027() { // javac bug: 8b115 complains of ambiguity here.
 	this.runConformTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.JavacDoesNotCompileCorrectSource,
 			new String[] {
 				"X.java",
 				"interface I {\n" +
@@ -1325,6 +1327,8 @@ public void test4008712h() {
 }
 public void test4008712i() { // javac bug: 8b115 complains of ambiguity here.
 	this.runConformTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.JavacDoesNotCompileCorrectSource,
 			new String[] {
 				"X.java",
 				"interface I {\n" +
@@ -2582,5 +2586,80 @@ public void test450415a() {
 				"}\n"
 			},
 			"I");
+}
+public void test482440a() {
+	runNegativeTest(
+		new String[] {
+			"Test.java",
+			"class Test {\n" + 
+			"\n" + 
+			"    // generic method\n" + 
+			"    interface ConsumerA {\n" + 
+			"        <T> void accept(int i);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    // non-generic\n" + 
+			"    interface ConsumerB {\n" + 
+			"        void accept(int i);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    // A before B\n" + 
+			"    void execute1(ConsumerA c) {}\n" + 
+			"    void execute1(ConsumerB c) {}\n" + 
+			"\n" + 
+			"    // B before A\n" + 
+			"    void execute2(ConsumerB c) {}\n" + 
+			"    void execute2(ConsumerA c) {}\n" + 
+			"\n" + 
+			"    void test() {\n" + 
+			"        execute1(x -> {});  // compiles in Eclipse\n" + 
+			"        execute2(x -> {});  // doesn't compile\n" + 
+			"    }\n" + 
+			"\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 22)\n" + 
+		"	execute1(x -> {});  // compiles in Eclipse\n" + 
+		"	^^^^^^^^\n" + 
+		"The method execute1(Test.ConsumerA) is ambiguous for the type Test\n" + 
+		"----------\n" + 
+		"2. ERROR in Test.java (at line 23)\n" + 
+		"	execute2(x -> {});  // doesn\'t compile\n" + 
+		"	^^^^^^^^\n" + 
+		"The method execute2(Test.ConsumerB) is ambiguous for the type Test\n" + 
+		"----------\n");
+}
+public void test482440b() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"class Test {\n" + 
+			"\n" + 
+			"    // generic method\n" + 
+			"    interface ConsumerA {\n" + 
+			"        <T> void accept(int i);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    // non-generic\n" + 
+			"    interface ConsumerB {\n" + 
+			"        void accept(int i);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    // A before B\n" + 
+			"    void execute1(ConsumerA c) {}\n" + 
+			"    void execute1(ConsumerB c) {}\n" + 
+			"\n" + 
+			"    // B before A\n" + 
+			"    void execute2(ConsumerB c) {}\n" + 
+			"    void execute2(ConsumerA c) {}\n" + 
+			"\n" + 
+			"    void test() {\n" + 
+			"        execute1((int x) -> {});  // compiles in Eclipse\n" + 
+			"        execute2((int x) -> {});  // doesn't compile\n" + 
+			"    }\n" + 
+			"\n" + 
+			"}\n"
+		});
 }
 }

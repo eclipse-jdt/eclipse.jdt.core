@@ -386,7 +386,7 @@ private IBinaryType getJarBinaryTypeInfo(PackageFragment pkg, boolean fullyIniti
 				IClasspathEntry entry = javaProject.getClasspathEntryFor(getPath());
 				if (entry != null) {
 					IProject project = javaProject.getProject();
-					IPath externalAnnotationPath = ClasspathEntry.getExternalAnnotationPath(entry, project, false);
+					IPath externalAnnotationPath = ClasspathEntry.getExternalAnnotationPath(entry, project, false); // unresolved for use in ExternalAnnotationTracker
 					if (externalAnnotationPath != null)
 						setupExternalAnnotationProvider(project, externalAnnotationPath, annotationZip, reader, 
 								entryName.substring(0, entryName.length() - SuffixConstants.SUFFIX_CLASS.length));
@@ -405,11 +405,14 @@ private void setupExternalAnnotationProvider(IProject project, final IPath exter
 {
 	// try resolve path within the workspace:
 	IWorkspaceRoot root = project.getWorkspace().getRoot();
-	IResource resource = externalAnnotationPath.segmentCount() == 1
-			? root.getProject(externalAnnotationPath.lastSegment())
-			: root.getFolder(externalAnnotationPath);
-	if (!resource.exists())
-		resource = root.getFile(externalAnnotationPath);
+	IResource resource;
+	if (externalAnnotationPath.segmentCount() == 1) {
+		resource = root.getProject(externalAnnotationPath.lastSegment());
+	} else {
+		resource = root.getFolder(externalAnnotationPath);
+		if (!resource.exists())
+			resource = root.getFile(externalAnnotationPath);
+	}
 	String resolvedPath;
 	if (resource.exists()) {
 		if (resource.isVirtual()) {

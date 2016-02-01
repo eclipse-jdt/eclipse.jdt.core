@@ -98,7 +98,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	public MethodBinding arrayClone;
 
 	private ArrayList missingTypes;
-	Set typesBeingConnected;
+	Set<SourceTypeBinding> typesBeingConnected;
 	public boolean isProcessingAnnotations = false;
 	public boolean mayTolerateMissingType = false;
 
@@ -108,6 +108,8 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 	AnnotationBinding nonNullAnnotation;
 	AnnotationBinding nullableAnnotation;
+
+	Map<String,Integer> allNullAnnotations = null;
 
 	final List<MethodBinding> deferredEnumMethods = new ArrayList<>(); // during early initialization we cannot mark Enum-methods as nonnull.
 
@@ -136,7 +138,7 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.missingTypes = null;
 	this.accessRestrictions = new HashMap(3);
 	this.classFilePool = ClassFilePool.newInstance();
-	this.typesBeingConnected = new HashSet();
+	this.typesBeingConnected = new HashSet<>();
 	this.typeSystem = this.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8 && this.globalOptions.storeAnnotations ? new AnnotatableTypeSystem(this) : new TypeSystem(this);
 }
 
@@ -340,6 +342,10 @@ public void completeTypeBindings(CompilationUnitDeclaration[] parsedUnits, boole
 
 	this.unitBeingCompleted = null;
 }
+/**
+ * NB: for source >= 1.5 the return type is not correct: shows j.l.Object but should show T[].
+ * See references to {@link #arrayClone} for code that compensates for this mismatch.
+ */
 public MethodBinding computeArrayClone(MethodBinding objectClone) {
 	if (this.arrayClone == null) {
 		this.arrayClone = new MethodBinding(
@@ -827,6 +833,7 @@ public ParameterizedGenericMethodBinding createParameterizedGenericMethod(Method
 				ParameterizedGenericMethodBinding cachedMethod = cachedInfo[index];
 				if (cachedMethod == null) break nextCachedMethod;
 				if (cachedMethod.isRaw) continue nextCachedMethod;
+				if (cachedMethod.inferredWithUncheckedConversion != inferredWithUncheckedConversion) continue nextCachedMethod;
 				TypeBinding[] cachedArguments = cachedMethod.typeArguments;
 				int cachedArgLength = cachedArguments == null ? 0 : cachedArguments.length;
 				if (argLength != cachedArgLength) continue nextCachedMethod;
@@ -1003,9 +1010,10 @@ public TypeBinding createAnnotatedType(TypeBinding type, AnnotationBinding[] new
 				continue;
 			}
 			long tagBits = 0;
-			switch (newbies[i].type.id) {
-				case TypeIds.T_ConfiguredAnnotationNonNull  : tagBits = TagBits.AnnotationNonNull; break;
-				case TypeIds.T_ConfiguredAnnotationNullable : tagBits = TagBits.AnnotationNullable; break;
+			if (newbies[i].type.hasNullBit(TypeIds.BitNonNullAnnotation)) {
+				tagBits = TagBits.AnnotationNonNull;
+			} else if (newbies[i].type.hasNullBit(TypeIds.BitNullableAnnotation)) {
+				tagBits = TagBits.AnnotationNullable;
 			}
 			if ((tagBitsSeen & tagBits) == 0) {
 				tagBitsSeen |= tagBits;
@@ -1109,6 +1117,27 @@ public char[][] getNonNullByDefaultAnnotationName() {
 	return this.globalOptions.nonNullByDefaultAnnotationName;
 }
 
+int getNullAnnotationBit(char[][] qualifiedTypeName) {
+	if (this.allNullAnnotations == null) {
+		this.allNullAnnotations = new HashMap<>();
+		this.allNullAnnotations.put(CharOperation.toString(this.globalOptions.nonNullAnnotationName), TypeIds.BitNonNullAnnotation);
+		this.allNullAnnotations.put(CharOperation.toString(this.globalOptions.nullableAnnotationName), TypeIds.BitNullableAnnotation);
+		this.allNullAnnotations.put(CharOperation.toString(this.globalOptions.nonNullByDefaultAnnotationName), TypeIds.BitNonNullByDefaultAnnotation);
+		for (String name : this.globalOptions.nullableAnnotationSecondaryNames)
+			this.allNullAnnotations.put(name, TypeIds.BitNullableAnnotation);
+		for (String name : this.globalOptions.nonNullAnnotationSecondaryNames)
+			this.allNullAnnotations.put(name, TypeIds.BitNonNullAnnotation);
+		for (String name : this.globalOptions.nonNullByDefaultAnnotationSecondaryNames)
+			this.allNullAnnotations.put(name, TypeIds.BitNonNullByDefaultAnnotation);
+	}
+	String qualifiedTypeString = CharOperation.toString(qualifiedTypeName);
+	Integer typeBit = this.allNullAnnotations.get(qualifiedTypeString);
+	return typeBit == null ? 0 : typeBit;
+}
+public boolean isNullnessAnnotationPackage(PackageBinding pkg) {
+	return this.nonnullAnnotationPackage == pkg || this.nullableAnnotationPackage == pkg || this.nonnullByDefaultAnnotationPackage == pkg;
+}
+
 public boolean usesNullTypeAnnotations() {
 	if (this.globalOptions.useNullTypeAnnotations != null)
 		return this.globalOptions.useNullTypeAnnotations;
@@ -1130,7 +1159,7 @@ public boolean usesNullTypeAnnotations() {
 
 private void initializeUsesNullTypeAnnotation() {
 	this.globalOptions.useNullTypeAnnotations = Boolean.FALSE;
-	if (!this.globalOptions.isAnnotationBasedNullAnalysisEnabled || this.globalOptions.sourceLevel < ClassFileConstants.JDK1_8)
+	if (!this.globalOptions.isAnnotationBasedNullAnalysisEnabled || this.globalOptions.originalSourceLevel < ClassFileConstants.JDK1_8)
 		return;
 	ReferenceBinding nullable = this.nullableAnnotation != null ? this.nullableAnnotation.getAnnotationType() : getType(this.getNullableAnnotationName());
 	ReferenceBinding nonNull = this.nonNullAnnotation != null ? this.nonNullAnnotation.getAnnotationType() : getType(this.getNonNullAnnotationName());
@@ -1695,8 +1724,7 @@ public AnnotationBinding[] filterNullTypeAnnotations(AnnotationBinding[] typeAnn
 		if (typeAnnotation == null) {
 			count++; // sentinel in annotation sequence for array dimensions
 		} else {
-			int id = typeAnnotation.type.id;
-			if (id != TypeIds.T_ConfiguredAnnotationNonNull && id != TypeIds.T_ConfiguredAnnotationNullable)
+			if (!typeAnnotation.type.hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation))
 				filtered[count++] = typeAnnotation;
 		}
 	}
@@ -1711,15 +1739,13 @@ public AnnotationBinding[] filterNullTypeAnnotations(AnnotationBinding[] typeAnn
 public boolean containsNullTypeAnnotation(IBinaryAnnotation[] typeAnnotations) {
 	if (typeAnnotations.length == 0)
 		return false;
-	char[][] nonNullAnnotationName = this.getNonNullAnnotationName();
-	char[][] nullableAnnotationName = this.getNullableAnnotationName();
 	for (int i = 0; i < typeAnnotations.length; i++) {
 		IBinaryAnnotation typeAnnotation = typeAnnotations[i];
 		char[] typeName = typeAnnotation.getTypeName();
 		// typeName must be "Lfoo/X;"
 		if (typeName == null || typeName.length < 3 || typeName[0] != 'L') continue;
 		char[][] name = CharOperation.splitOn('/', typeName, 1, typeName.length-1);
-		if (CharOperation.equals(name, nonNullAnnotationName) || CharOperation.equals(name, nullableAnnotationName))
+		if (getNullAnnotationBit(name) != 0)
 			return true;
 	}
 	return false;

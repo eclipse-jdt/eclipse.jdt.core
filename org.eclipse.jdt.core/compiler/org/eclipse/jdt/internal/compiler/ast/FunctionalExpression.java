@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 IBM Corporation and others.
+ * Copyright (c) 2013, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -60,6 +60,7 @@ public abstract class FunctionalExpression extends Expression {
 	public CompilationResult compilationResult;
 	public BlockScope enclosingScope;
 	public int bootstrapMethodNumber = -1;
+	public boolean shouldCaptureInstance = false; // Whether the expression needs access to instance data of enclosing type
 	protected static IErrorHandlingPolicy silentErrorHandlingPolicy = DefaultErrorHandlingPolicies.ignoreAllProblems();
 	private boolean hasReportedSamProblem = false;
 
@@ -167,6 +168,10 @@ public abstract class FunctionalExpression extends Expression {
 	}
 
 	public TypeBinding resolveType(BlockScope blockScope) {
+		return resolveType(blockScope, false);
+	}
+
+	public TypeBinding resolveType(BlockScope blockScope, boolean skipKosherCheck) {
 		this.constant = Constant.NotAConstant;
 		this.enclosingScope = blockScope;
 		MethodBinding sam = this.expectedType == null ? null : this.expectedType.getSingleAbstractMethod(blockScope, argumentsTypeElided());
@@ -179,7 +184,7 @@ public abstract class FunctionalExpression extends Expression {
 		}
 		
 		this.descriptor = sam;
-		if (kosherDescriptor(blockScope, sam, true)) {
+		if (skipKosherCheck || kosherDescriptor(blockScope, sam, true)) {
 			if (blockScope.environment().globalOptions.isAnnotationBasedNullAnalysisEnabled)
 				NullAnnotationMatching.checkForContradictions(sam, this, blockScope);
 			return this.resolvedType = this.expectedType;		
@@ -268,7 +273,7 @@ public abstract class FunctionalExpression extends Expression {
 			status = false;
 		if (!inspector.visible(sam.thrownExceptions))
 			status = false;
-		if (!inspector.visible(sam.declaringClass))
+		if (!inspector.visible(this.expectedType))
 			status = false;
 		return status;
 	}

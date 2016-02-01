@@ -1125,4 +1125,79 @@ public void testBug458613b() throws CoreException, IOException {
 			deleteProject(prj);
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=479963
+public void test479963() throws CoreException, IOException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
+		String source = "package p;\n" +
+						"public class X {\n" +
+						"	public void foo() {\n" +
+						"		bar(item -> System.out.println(item));\n" +
+						"	}\n" +
+						"	public void bar(FI fi) { /* Do nothing */ }\n" +
+						"}\n" +
+						"interface FI {\n" +
+						"	public void foobar(String param);\n" +
+						"}";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String lambdaString = "item";
+		IJavaElement[] elements = unit.codeSelect(source.indexOf(lambdaString), lambdaString.length());
+		assertEquals("Array size should be 1", 1, elements.length);
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		elements = unit.findElements(variable);
+		assertNull("Should be null", elements);
+		LambdaMethod method = (LambdaMethod) variable.getParent();
+		LambdaExpression lambda = (LambdaExpression) method.getParent();
+		assertTrue("Should be a lambda", lambda.isLambda());
+		String[][] types = lambda.resolveType("String");
+		assertTypesEqual("java.lang.String", types);
+	} finally {
+		deleteProject("P");
+	}
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=479963
+public void test479963a() throws CoreException, IOException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin", "1.8");
+		String source = "package p;\n" +
+						"public class X {\n" +
+						"	public void foo() {\n" +
+						"		new FI1() {\n" +
+						"			public void foobar(String param) {\n" +
+						"				bar(() -> item -> System.out.println(item));\n" +
+						"			}\n" +
+						"		};\n" +
+						"	}\n" +
+						"	public void bar(FI2 fi) { /* Do nothing */ }\n" +
+						"}\n" +
+						"interface FI1 {\n" +
+						"	public void foobar(Object param);\n" +
+						"}\n" +
+						"interface FI2 {\n" +
+						"	public FI1 get();\n" +
+						"}";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String lambdaString = "item";
+		IJavaElement[] elements = unit.codeSelect(source.indexOf(lambdaString), lambdaString.length());
+		assertEquals("Array size should be 1", 1, elements.length);
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		elements = unit.findElements(variable);
+		assertNull("Should be null", elements);
+		LambdaMethod method = (LambdaMethod) variable.getParent();
+		LambdaExpression lambda = (LambdaExpression) method.getParent();
+		assertTrue("Should be a lambda", lambda.isLambda());
+		String[][] types = lambda.resolveType("Object");
+		assertTypesEqual("java.lang.Object", types);
+	} finally {
+		deleteProject("P");
+	}
+}
 }

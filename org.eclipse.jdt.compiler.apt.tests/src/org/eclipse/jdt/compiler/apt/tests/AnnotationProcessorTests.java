@@ -132,4 +132,12 @@ public class AnnotationProcessorTests extends TestCase {
 		assertEquals("incorrect number of messages", 1, diagnosticListener.count);
 		assertEquals("Erased type: classes.MyInterface - type arguments: \n", diagnosticListener.buffer.toString());
 	}
+	public void testBug471995() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug471995");
+		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug471995", targetFolder);
+		List<String> options = new ArrayList<String>();
+		options.add("-proc:only");
+		BatchTestUtils.compileTree(compiler, options, targetFolder, null);
+	}
 }

@@ -13,8 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.formatter;
 
+import java.util.Hashtable;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
@@ -2056,7 +2059,7 @@ public void testBug234583_Bug237592() throws JavaModelException {
 		"	\n" + 
 		"	\n" + 
 		"	\n" + 
-		"	 \n" + 
+		"\n" + 
 		"	\n" + 
 		"	\n" + 
 		"	\n" + 
@@ -2339,8 +2342,8 @@ public void testBug236406_EX1() {
 	formatSource(source,
 		"//        Line		comment    	    \n" + 
 		"i =\n" + 
-		"/**        Javadoc		comment    	    */\n" + 
-		"1 + (/*      Block		comment*/++a)\n",
+		"		/**        Javadoc		comment    	    */\n" + 
+		"		1 + (/*      Block		comment*/++a)\n",
 		CodeFormatter.K_EXPRESSION
 	);
 }
@@ -2353,8 +2356,8 @@ public void testBug236406_EX2() {
 	formatSource(source,
 		"// Line comment\n" + 
 		"i =\n" + 
-		"/** Javadoc comment */\n" + 
-		"1 + (/* Block comment */++a)\n",
+		"		/** Javadoc comment */\n" + 
+		"		1 + (/* Block comment */++a)\n",
 		CodeFormatter.K_EXPRESSION | CodeFormatter.F_INCLUDE_COMMENTS
 	);
 }
@@ -7354,5 +7357,167 @@ public void testBug479292b() {
 		"/** This is a package javadoc */\n" + 
 		"package test;"
 	);
+}
+/**
+ * https://bugs.eclipse.org/121728 - [formatter] Code formatter thinks <P> generic class parameter is a HTML <p> tag
+ */
+public void testBug121728() {
+	this.formatterPrefs.comment_insert_new_line_for_parameter = false;
+	String source = 
+			"/**\n" + 
+			" * Test Class\n" + 
+			" *\n" + 
+			" * @param <P> Some generic class parameter\n" + 
+			" */\n" + 
+			"public class Test<P> {\n" + 
+			"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/479469 - [formatter] Line wrap for long @see references
+ */
+public void testBug479469() {
+	String source = 
+		"/**\n" + 
+		" * Test Class\n" + 
+		" * @see a.very.loong.reference.with.a.fully.qualified.paackage.that.should.not.be.wrapped.Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n" + 
+		" *\n" + 
+		" * @see a.very.loong.reference.with.a.fully.qualified.paackage.that.should.not.be.wrapped.Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa Label can be wrapped\n" + 
+		" *\n" + 
+		" * @see <a href=\"a.very.loong.reference.with.a.fully.qualified.paackage.that.should.not.be.wrapped.Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\">Label can be wrapped</a>\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"}";
+	formatSource(source,
+		"/**\n" + 
+		" * Test Class\n" + 
+		" * \n" + 
+		" * @see a.very.loong.reference.with.a.fully.qualified.paackage.that.should.not.be.wrapped.Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n" + 
+		" *\n" + 
+		" * @see a.very.loong.reference.with.a.fully.qualified.paackage.that.should.not.be.wrapped.Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n" + 
+		" *      Label can be wrapped\n" + 
+		" *\n" + 
+		" * @see <a href=\n" + 
+		" *      \"a.very.loong.reference.with.a.fully.qualified.paackage.that.should.not.be.wrapped.Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\">\n" + 
+		" *      Label can be wrapped</a>\n" + 
+		" */\n" + 
+		"public class Test {\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/480029 - [formatter] Comments indentation error in javadoc @return statements
+ */
+public void testBug480029() {
+	String source = 
+		"public class JavadocCommentIssue\n" + 
+		"{\n" + 
+		"	/** @return <ul><li>Case 1</b></li></ul> */\n" + 
+		"	public int foo() {return 0;}\n" + 
+		"}\n";
+	formatSource(source,
+		"public class JavadocCommentIssue {\n" + 
+		"	/**\n" + 
+		"	 * @return\n" + 
+		"	 *         <ul>\n" + 
+		"	 *         <li>Case 1</b></li>\n" + 
+		"	 *         </ul>\n" + 
+		"	 */\n" + 
+		"	public int foo() {\n" + 
+		"		return 0;\n" + 
+		"	}\n" + 
+		"}\n"
+	);
+}
+/**
+ * https://bugs.eclipse.org/480030 - [formatter] Comments indentation error in switch statements
+ */
+public void testBug480030() {
+	String source = 
+		"public class SwitchCommentIssue {\n" + 
+		"	public void switchIssue(int a) {\n" + 
+		"		while (a > 0) {\n" + 
+		"			switch (a) {\n" + 
+		"			// Test\n" + 
+		"			case 1:\n" + 
+		"				break;\n" + 
+		"			// Test\n" + 
+		"			case 2:\n" + 
+		"				continue;\n" + 
+		"			// Test\n" + 
+		"			case 3:\n" + 
+		"				return;\n" + 
+		"			// Test\n" + 
+		"			case 4: {\n" + 
+		"				return;\n" + 
+		"			}\n" + 
+		"			// test\n" + 
+		"			}\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}\n";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/479474 - [formatter] Problems when doc.comment.support=disabled
+ */
+public void testBug479474() {
+	Hashtable<String, String> parserOptions = JavaCore.getOptions();
+	try {
+		Hashtable<String, String> newParserOptions = JavaCore.getOptions();
+		newParserOptions.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.DISABLED);
+		JavaCore.setOptions(newParserOptions);
+		String source = 
+			"/**\n" + 
+			" * Test\n" + 
+			" * @author mr.awesome\n" + 
+			" */\n" + 
+			"public class Test {\n" + 
+			"}";
+		formatSource(source,
+			"/**\n" + 
+			" * Test\n" + 
+			" * \n" + 
+			" * @author mr.awesome\n" + 
+			" */\n" + 
+			"public class Test {\n" + 
+			"}"
+		);
+	} finally {
+		JavaCore.setOptions(parserOptions);
+	}
+}
+/**
+ * https://bugs.eclipse.org/484957 - [formatter] Extra blank lines between consecutive javadoc comments
+ */
+public void testBug484957() {
+	String source = 
+		"import java.io.Serializable;\n" + 
+		"\n" + 
+		"/**********/\n" + 
+		"/*** A ****/\n" + 
+		"/**********/\n" + 
+		"\n" + 
+		"public class MyClass implements Serializable {\n" + 
+		"\tprivate int field1;\n" + 
+		"\n" + 
+		"\t/**********/\n" + 
+		"\t/*** B ****/\n" + 
+		"\t/**********/\n" + 
+		"\tpublic void foo() {\n" + 
+		"\t}\n" + 
+		"\n" + 
+		"\t/**********/\n" + 
+		"\t/*** C ****/\n" + 
+		"\t/**********/\n" + 
+		"\tprivate int field2;\n" + 
+		"\n" + 
+		"\t/**********/\n" + 
+		"\t/*** D ****/\n" + 
+		"\t/**********/\n" + 
+		"\tprivate class NestedType {\n" + 
+		"\t}\n" + 
+		"}";
+	formatSource(source);
 }
 }

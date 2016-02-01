@@ -9,6 +9,7 @@
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
  *								Bug 461250 - ArrayIndexOutOfBoundsException in SourceTypeBinding.fields
+ *     Carmi Grushko - Bug 465048 - Binding is null for class literals in synchronized blocks
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
@@ -38,6 +39,8 @@ import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.NodeFinder;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
@@ -608,5 +611,48 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		parser.setUnitName("dontCare");
 		ASTNode ast = parser.createAST(null);
 		assertTrue("should have parsed a CUD", ast instanceof CompilationUnit);
+	}
+
+	public void testBug465048() {
+		String source =
+				"class A {\n" +
+				"  void f(OtherClass otherClass) {\n" +
+				"    synchronized (otherClass) {\n" +
+				"      Class c = InnerClass.class;\n" +  // Line = 4
+				"    }\n" +
+				"  }\n" +
+				"  class InnerClass { }\n" +
+				"}\n";
+		Map<String, String> options = JavaCore.getOptions();
+		JavaCore.setComplianceOptions(JavaCore.VERSION_1_7, options);
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setCompilerOptions(options);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setSource(source.toCharArray());
+		parser.setResolveBindings(true);
+		String[] emptyStringArray = new String[0];
+		parser.setEnvironment(emptyStringArray, emptyStringArray, emptyStringArray,
+				true /* includeRunningVMBootclasspath */);
+		parser.setUnitName("dontCare");
+
+		CompilationUnit cu = (CompilationUnit) parser.createAST(null);
+		SimpleName innerClassLiteral = (SimpleName) NodeFinder.perform(cu, cu.getPosition(4, 16), 1 /* length */);
+		ITypeBinding innerClassBinding = (ITypeBinding) innerClassLiteral.resolveBinding();
+
+		assertEquals("InnerClass", innerClassBinding.getName());
+	}
+
+	/**
+	 * Verifies that ASTParser doesn't throw an IllegalArgumentException when given
+	 * this valid input.
+	 */
+	public void testBug480545() {
+	    String input = "class Test2 { void f(Test2... xs) {} }";
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    parser.setSource(input.toCharArray());
+	    Map<String, String> options = JavaCore.getOptions();
+	    JavaCore.setComplianceOptions(JavaCore.VERSION_1_8, options);
+	    parser.setCompilerOptions(options);
+	    assertNotNull(parser.createAST(null));
 	}
 }

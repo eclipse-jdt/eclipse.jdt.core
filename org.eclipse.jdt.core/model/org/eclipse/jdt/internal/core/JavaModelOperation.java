@@ -706,66 +706,74 @@ public abstract class JavaModelOperation implements IWorkspaceRunnable, IProgres
 	 * @exception CoreException if the operation fails
 	 */
 	public void run(IProgressMonitor monitor) throws CoreException {
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		DeltaProcessor deltaProcessor = manager.getDeltaProcessor();
-		int previousDeltaCount = deltaProcessor.javaModelDeltas.size();
+		SubMonitor oldMonitor = this.progressMonitor;
 		try {
-			this.progressMonitor = SubMonitor.convert(monitor);
-			pushOperation(this);
+			JavaModelManager manager = JavaModelManager.getJavaModelManager();
+			DeltaProcessor deltaProcessor = manager.getDeltaProcessor();
+			int previousDeltaCount = deltaProcessor.javaModelDeltas.size();
 			try {
-				if (canModifyRoots()) {
-					// computes the root infos before executing the operation
-					// noop if aready initialized
-					JavaModelManager.getDeltaState().initializeRoots(false/*not initiAfterLoad*/);
+				this.progressMonitor = SubMonitor.convert(monitor);
+				pushOperation(this);
+				try {
+					if (canModifyRoots()) {
+						// computes the root infos before executing the operation
+						// noop if aready initialized
+						JavaModelManager.getDeltaState().initializeRoots(false/*not initiAfterLoad*/);
+					}
+	
+					executeOperation();
+				} finally {
+					if (isTopLevelOperation()) {
+						runPostActions();
+					}
 				}
-
-				executeOperation();
 			} finally {
-				if (isTopLevelOperation()) {
-					runPostActions();
+				try {
+					// reacquire delta processor as it can have been reset during executeOperation()
+					deltaProcessor = manager.getDeltaProcessor();
+	
+					// update JavaModel using deltas that were recorded during this operation
+					for (int i = previousDeltaCount, size = deltaProcessor.javaModelDeltas.size(); i < size; i++) {
+						deltaProcessor.updateJavaModel((IJavaElementDelta)deltaProcessor.javaModelDeltas.get(i));
+					}
+	
+					// close the parents of the created elements and reset their project's cache (in case we are in an
+					// IWorkspaceRunnable and the clients wants to use the created element's parent)
+					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=83646
+					for (int i = 0, length = this.resultElements.length; i < length; i++) {
+						IJavaElement element = this.resultElements[i];
+						Openable openable = (Openable) element.getOpenable();
+						if (!(openable instanceof CompilationUnit) || !((CompilationUnit) openable).isWorkingCopy()) { // a working copy must remain a child of its parent even after a move
+							((JavaElement) openable.getParent()).close();
+						}
+						switch (element.getElementType()) {
+							case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+							case IJavaElement.PACKAGE_FRAGMENT:
+								deltaProcessor.projectCachesToReset.add(element.getJavaProject());
+								break;
+						}
+					}
+					deltaProcessor.resetProjectCaches();
+	
+					// fire only iff:
+					// - the operation is a top level operation
+					// - the operation did produce some delta(s)
+					// - but the operation has not modified any resource
+					if (isTopLevelOperation()) {
+						if ((deltaProcessor.javaModelDeltas.size() > previousDeltaCount || !deltaProcessor.reconcileDeltas.isEmpty())
+								&& !hasModifiedResource()) {
+							deltaProcessor.fire(null, DeltaProcessor.DEFAULT_CHANGE_EVENT);
+						} // else deltas are fired while processing the resource delta
+					}
+				} finally {
+					popOperation();
 				}
 			}
 		} finally {
-			try {
-				// reacquire delta processor as it can have been reset during executeOperation()
-				deltaProcessor = manager.getDeltaProcessor();
-
-				// update JavaModel using deltas that were recorded during this operation
-				for (int i = previousDeltaCount, size = deltaProcessor.javaModelDeltas.size(); i < size; i++) {
-					deltaProcessor.updateJavaModel((IJavaElementDelta)deltaProcessor.javaModelDeltas.get(i));
-				}
-
-				// close the parents of the created elements and reset their project's cache (in case we are in an
-				// IWorkspaceRunnable and the clients wants to use the created element's parent)
-				// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=83646
-				for (int i = 0, length = this.resultElements.length; i < length; i++) {
-					IJavaElement element = this.resultElements[i];
-					Openable openable = (Openable) element.getOpenable();
-					if (!(openable instanceof CompilationUnit) || !((CompilationUnit) openable).isWorkingCopy()) { // a working copy must remain a child of its parent even after a move
-						((JavaElement) openable.getParent()).close();
-					}
-					switch (element.getElementType()) {
-						case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-						case IJavaElement.PACKAGE_FRAGMENT:
-							deltaProcessor.projectCachesToReset.add(element.getJavaProject());
-							break;
-					}
-				}
-				deltaProcessor.resetProjectCaches();
-
-				// fire only iff:
-				// - the operation is a top level operation
-				// - the operation did produce some delta(s)
-				// - but the operation has not modified any resource
-				if (isTopLevelOperation()) {
-					if ((deltaProcessor.javaModelDeltas.size() > previousDeltaCount || !deltaProcessor.reconcileDeltas.isEmpty())
-							&& !hasModifiedResource()) {
-						deltaProcessor.fire(null, DeltaProcessor.DEFAULT_CHANGE_EVENT);
-					} // else deltas are fired while processing the resource delta
-				}
-			} finally {
-				popOperation();
+			if (monitor != null) {
+				monitor.done();
 			}
+			this.progressMonitor = oldMonitor;
 		}
 	}
 	/**

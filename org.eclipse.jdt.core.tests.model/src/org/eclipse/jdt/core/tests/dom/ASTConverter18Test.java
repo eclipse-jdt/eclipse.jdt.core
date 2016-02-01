@@ -5091,14 +5091,9 @@ public void testBug459344_001() throws JavaModelException {
  */
 public void testBug460186() throws JavaModelException {
 	String contents =
-			"package test460186;\n" +
-			"public class NPE {\n" + 
-			"	void foo(String[] args) throws Exception {\n" + 
-			"		if (args == null) error(); \n" + 
-			"		error();[]\n" + 
-			"	}\n" + 
-			"	void error() throws Exception {\n" + 
-			"		throw new Exception();\n" + 
+			"class Foo {\n" + 
+			"	void foo()\n {" + 
+			"		foo();[]\n" + 
 			"	}\n" + 
 			"}";
 	this.workingCopy = getWorkingCopy("/Converter18/src/test460186/NPE.java", contents, false/*computeProblems*/);
@@ -5109,11 +5104,8 @@ public void testBug460186() throws JavaModelException {
 	parser.setProject(javaProject);
 	parser.setIgnoreMethodBodies(false);
 	ASTRequestor requestor = new ASTRequestor() {};
-	try {
-		parser.createASTs(new ICompilationUnit[] {this.workingCopy}, new String[0], requestor, null);
-	} catch (IllegalArgumentException e) {
-		assertTrue("Test Failed", false);
-	}
+	parser.createASTs(new ICompilationUnit[] {this.workingCopy}, new String[0], requestor, null);
+	// Implicitly check that no exception is thrown by createASTs.
 }
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=443232

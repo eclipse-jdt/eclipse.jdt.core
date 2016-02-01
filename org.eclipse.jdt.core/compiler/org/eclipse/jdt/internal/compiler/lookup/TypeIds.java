@@ -108,10 +108,7 @@ public interface TypeIds {
 	// java 7 java.lang.AutoCloseable
 	final int T_JavaLangAutoCloseable = 62;
 	
-	// new in 3.8 for null annotations:
-	final int T_ConfiguredAnnotationNullable = 65;
-	final int T_ConfiguredAnnotationNonNull = 66;
-	final int T_ConfiguredAnnotationNonNullByDefault = 67;
+	// new in 3.8 for null annotations, removed in 4.6 (ids 65-67)
 	
 	// new in 3.8 to identify org.eclipse.core.runtime.Assert
 	final int T_OrgEclipseCoreRuntimeAssert = 68;
@@ -247,6 +244,14 @@ public interface TypeIds {
 	final int BitResourceFreeCloseable = 8;
 	
 	final int BitUninternedType = 16;
+
+	/** Bit for a type configured as a @NonNull annotation. */
+	final int BitNonNullAnnotation = 32;
+	/** Bit for a type configured as a @Nullable annotation. */
+	final int BitNullableAnnotation = 64;
+	/** Bit for a type configured as a @NonNullByDefault annotation. */
+	final int BitNonNullByDefaultAnnotation = 128;
+
 	/**
 	 * Set of type bits that should be inherited by any sub types.
 	 */

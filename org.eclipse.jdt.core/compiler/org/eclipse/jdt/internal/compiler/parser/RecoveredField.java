@@ -28,7 +28,6 @@ import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 
-@SuppressWarnings("rawtypes")
 public class RecoveredField extends RecoveredElement {
 
 	public FieldDeclaration fieldDeclaration;
@@ -181,7 +180,7 @@ public String toString(int tab){
 	}
 	return buffer.toString();
 }
-public FieldDeclaration updatedFieldDeclaration(int depth, Set knownTypes){
+public FieldDeclaration updatedFieldDeclaration(int depth, Set<TypeDeclaration> knownTypes){
 	/* update annotations */
 	if (this.modifiers != 0) {
 		this.fieldDeclaration.modifiers |= this.modifiers;
@@ -316,7 +315,7 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 	return this.parent.updateOnOpeningBrace(braceStart, braceEnd);
 }
 public void updateParseTree(){
-	updatedFieldDeclaration(0, new HashSet());
+	updatedFieldDeclaration(0, new HashSet<TypeDeclaration>());
 }
 /*
  * Update the declarationSourceEnd of the corresponding parse node

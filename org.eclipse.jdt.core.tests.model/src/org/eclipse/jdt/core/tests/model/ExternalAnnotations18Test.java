@@ -12,8 +12,10 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -24,9 +26,12 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -91,6 +96,14 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			return false;
 		}
 	}
+	
+	static class LogListener implements ILogListener {
+    	List<IStatus> loggedStatus = new ArrayList<>();
+        public void logging(IStatus status, String plugin) {
+            this.loggedStatus.add(status);
+        }
+	}
+
 
 	protected IJavaProject project;
 	protected IPackageFragmentRoot root;
@@ -1331,5 +1344,79 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"[1Llibs/Thread;, " +  // <- @NonNull array
 				")I]",
 				Arrays.toString(annotatedSign));
+	}
+
+	public void testBrokenConfig1() throws Exception {
+		LogListener listener = new LogListener();
+		try {
+			Platform.addLogListener(listener);
+	
+			myCreateJavaProject("TestBrokenConfig1");
+			addLibraryWithExternalAnnotations(this.project, "lib1.jar", "/NoProject", new String[] {
+					"/UnannotatedLib/libs/Lib1.java",
+					"package libs;\n" + 
+					"\n" + 
+					"import java.util.Collection;\n" + 
+					"import java.util.Iterator;\n" + 
+					"\n" + 
+					"public interface Lib1 {\n" + 
+					"	<T> Iterator<T> unconstrainedTypeArguments1(Collection<T> in);\n" + 
+					"	Iterator<String> unconstrainedTypeArguments2(Collection<String> in);\n" + 
+					"	<T> Iterator<? extends T> constrainedWildcards(Collection<? extends T> in);\n" + 
+					"	<T extends Collection<?>> T constrainedTypeParameter(T in);\n" + 
+					"}\n",
+					"/UnannotatedLib/libs/Lib2.java",
+					"package libs;\n" +
+					"public interface Lib2 {\n" +
+					"	String test(String s);\n" +
+					"}\n"
+				}, null);
+			IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+			ICompilationUnit unit = fragment.createCompilationUnit("Test1.java", 
+					"package tests;\n" + 
+					"import org.eclipse.jdt.annotation.*;\n" + 
+					"\n" + 
+					"import java.util.Collection;\n" + 
+					"import java.util.Iterator;\n" + 
+					"\n" + 
+					"import libs.Lib1;\n" + 
+					"\n" + 
+					"public class Test1 {\n" + 
+					"	Iterator<@NonNull String> test1(Lib1 lib, Collection<@Nullable String> coll) {\n" + 
+					"		return lib.unconstrainedTypeArguments1(coll);\n" + 
+					"	}\n" + 
+					"	Iterator<@NonNull String> test2(Lib1 lib, Collection<@Nullable String> coll) {\n" + 
+					"		return lib.unconstrainedTypeArguments2(coll);\n" + 
+					"	}\n" +
+					"	Iterator<? extends @NonNull String> test3(Lib1 lib, Collection<String> coll) {\n" +
+					"		return lib.constrainedWildcards(coll);\n" +
+					"	}\n" +
+					"	@NonNull Collection<String> test4(Lib1 lib, @Nullable Collection<String> in) {\n" +
+					"		return lib.constrainedTypeParameter(in);\n" +
+					"	}\n" + 
+					"}\n",
+					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+			CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+			IProblem[] problems = reconciled.getProblems();
+			assertEquals("number of problems", 4, problems.length);
+
+			// second class to test if problem is logged more than once
+			ICompilationUnit unit2 = fragment.createCompilationUnit("Test2.java", 
+					"package tests;\n" + 
+					"import libs.Lib2;\n" + 
+					"\n" + 
+					"public class Test2 {\n" + 
+					"	void test1(Lib2 lib) {\n" +
+					"		lib.test(null);\n" + 
+					"	}\n" + 
+					"}\n",
+					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+			CompilationUnit reconciled2 = unit2.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+			assertNoProblems(reconciled2.getProblems());
+			
+			assertEquals("number of log entries", 0, listener.loggedStatus.size());
+		} finally {
+			Platform.removeLogListener(listener);
+		}
 	}
 }

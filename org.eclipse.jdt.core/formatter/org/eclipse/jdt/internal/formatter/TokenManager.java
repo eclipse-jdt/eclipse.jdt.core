@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 Mateusz Matela and others.
+ * Copyright (c) 2014, 2016 Mateusz Matela and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,7 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter;
 
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.*;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_BLOCK;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameLBRACE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameWHITESPACE;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +29,7 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.ThrowStatement;
+import org.eclipse.jdt.internal.formatter.Token.WrapMode;
 import org.eclipse.jdt.internal.formatter.linewrap.CommentWrapExecutor;
 
 /**
@@ -379,16 +385,19 @@ public class TokenManager implements Iterable<Token> {
 	}
 
 	public int findFirstTokenInLine(int startIndex) {
-		return findFirstTokenInLine(startIndex, false);
+		return findFirstTokenInLine(startIndex, false, false);
 	}
 
-	public int findFirstTokenInLine(int startIndex, boolean includeWraps) {
+	public int findFirstTokenInLine(int startIndex, boolean includeWraps, boolean includeForced) {
 		Token previous = get(startIndex); // going backwards, previous has higher index than current
 		for (int i = startIndex - 1; i >= 0; i--) {
 			Token token = get(i);
-			int lineBreaks = Math.max(token.getLineBreaksAfter(), previous.getLineBreaksBefore());
-			if (lineBreaks > 0 && (!includeWraps || previous.getWrapPolicy() == null))
-				return i + 1;
+			if (token.getLineBreaksAfter() > 0 || previous.getLineBreaksBefore() > 0) {
+				boolean include = previous.getWrapPolicy() != null
+						&& (previous.getWrapPolicy().wrapMode == WrapMode.FORCED ? includeForced : includeWraps);
+				if (!include)
+					return i + 1;
+			}
 			previous = token;
 		}
 		return 0;

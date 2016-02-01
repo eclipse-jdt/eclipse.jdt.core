@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -141,20 +141,29 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	boolean nonStatic = !this.binding.isStatic();
 	this.receiver.analyseCode(currentScope, flowContext, flowInfo, nonStatic);
 	if (nonStatic) {
-		this.receiver.checkNPE(currentScope, flowContext, flowInfo);
+		this.receiver.checkNPE(currentScope, flowContext, flowInfo, 1);
 	}
 
 	if (valueRequired || currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4) {
 		manageSyntheticAccessIfNecessary(currentScope, flowInfo, true /*read-access*/);
 	}
+	if (currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_7) {
+		FieldBinding fieldBinding = this.binding;
+		if (fieldBinding.isBlankFinal() && currentScope.needBlankFinalFieldInitializationCheck(fieldBinding)) {
+			FlowInfo fieldInits = flowContext.getInitsForFinalBlankInitializationCheck(fieldBinding.declaringClass.original(), flowInfo);
+			if (!fieldInits.isDefinitelyAssigned(fieldBinding)) {
+				currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);
+			}
+		}
+	}
 	return flowInfo;
 }
 
-public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, int ttlForFieldCheck) {
 	if (flowContext.isNullcheckedFieldAccess(this)) {
 		return true; // enough seen
 	}
-	return checkNullableFieldDereference(scope, this.binding, this.nameSourcePosition);
+	return checkNullableFieldDereference(scope, this.binding, this.nameSourcePosition, flowContext, ttlForFieldCheck);
 }
 
 /**

@@ -146,7 +146,7 @@ public class ExternalAnnotationProvider {
 	 * Assert that the given line is a class header for 'typeName' (slash-separated qualified name).
 	 */
 	public static void assertClassHeader(String line, String typeName) throws IOException {
-		if (line.startsWith(CLASS_PREFIX)) {
+		if (line != null && line.startsWith(CLASS_PREFIX)) {
 			line = line.substring(CLASS_PREFIX.length());
 		} else {
 			throw new IOException("missing class header in annotation file"); //$NON-NLS-1$

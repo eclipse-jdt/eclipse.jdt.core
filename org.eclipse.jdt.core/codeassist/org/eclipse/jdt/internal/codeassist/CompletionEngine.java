@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2810,9 +2810,9 @@ public final class CompletionEngine
 			
 			TypeBinding receiverType = (TypeBinding) qualifiedBinding;
 			if (receiverType != null && receiverType instanceof ReferenceBinding) {
+				setSourceAndTokenRange(referenceExpression.nameSourceStart, referenceExpression.sourceEnd);
 				if (!(receiverType.isInterface() || this.requestor.isIgnored(CompletionProposal.KEYWORD))) {
 					this.assistNodeIsConstructor = true;
-					setSourceAndTokenRange(referenceExpression.nameSourceStart, referenceExpression.sourceEnd);
 					findKeywords(this.completionToken, new char[][] { Keywords.NEW }, false, false);
 				}
 				findMethods(
@@ -4101,24 +4101,17 @@ public final class CompletionEngine
 		return 0;
 	}
 	int computeRelevanceForCaseMatching(char[] token, char[] proposalName){
-		if (this.options.camelCaseMatch) {
-			if(CharOperation.equals(token, proposalName, true /* do not ignore case */)) {
-				return R_CASE + R_EXACT_NAME;
-			} else if (CharOperation.prefixEquals(token, proposalName, true /* do not ignore case */)) {
-				return R_CASE;
-			} else if (CharOperation.camelCaseMatch(token, proposalName)){
-				return R_CAMEL_CASE;
-			} else if(CharOperation.equals(token, proposalName, false /* ignore case */)) {
-				return R_EXACT_NAME;
-			}
-		} else if (CharOperation.prefixEquals(token, proposalName, true /* do not ignore case */)) {
-			if(CharOperation.equals(token, proposalName, true /* do not ignore case */)) {
-				return R_CASE + R_EXACT_NAME;
-			} else {
-				return R_CASE;
-			}
-		} else if(CharOperation.equals(token, proposalName, false /* ignore case */)) {
+		if(CharOperation.equals(token, proposalName, true)) {
+			return R_EXACT_NAME + R_CASE;
+		} else if(CharOperation.equals(token, proposalName, false)) {
 			return R_EXACT_NAME;
+		} else if (CharOperation.prefixEquals(token, proposalName, false)) {
+			if (CharOperation.prefixEquals(token, proposalName, true))
+				return R_CASE;
+		} else if (this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, proposalName)){
+				return R_CAMEL_CASE;
+		} else if (this.options.substringMatch && CharOperation.substringMatch(token, proposalName)) {
+			return R_SUBSTRING;
 		}
 		return 0;
 	}
@@ -6281,13 +6274,15 @@ public final class CompletionEngine
 			if (fieldBeingCompletedId >= 0 && field.id >= fieldBeingCompletedId) {
 				// Don't propose field which is being declared currently
 				// Don't propose fields declared after the current field declaration statement
-				// Though, if field is static, then it can be still be proposed
-				if (!field.isStatic()) { 
-					continue next;
-				} else if (isFieldBeingCompletedStatic) {
-					// static fields can't be proposed before they are actually declared if the 
-					// field currently being declared is also static
-					continue next;
+				// Though, if field is static or completion happens in Javadoc, then it can be still be proposed
+				if (this.assistNodeInJavadoc == 0) {
+					if (!field.isStatic()) {
+						continue next;
+					} else if (isFieldBeingCompletedStatic) {
+						// static fields can't be proposed before they are actually declared if the
+						// field currently being declared is also static
+						continue next;
+					}
 				}
 			}
 			
@@ -8182,9 +8177,8 @@ public final class CompletionEngine
 		if(choices == null || choices.length == 0) return;
 		int length = keyword.length;
 		for (int i = 0; i < choices.length; i++)
-			if (length <= choices[i].length
-			&& CharOperation.prefixEquals(keyword, choices[i], false /* ignore case */
-					)){
+			if (length <= choices[i].length && (CharOperation.prefixEquals(keyword, choices[i], false /* ignore case */)
+					|| (this.options.substringMatch && CharOperation.substringMatch(keyword, choices[i])))) {
 				if (ignorePackageKeyword && CharOperation.equals(choices[i], Keywords.PACKAGE))
 					continue;
 				int relevance = computeBaseRelevance();

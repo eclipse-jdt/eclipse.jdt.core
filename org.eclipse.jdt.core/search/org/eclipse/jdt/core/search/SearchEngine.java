@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -435,6 +435,18 @@ public class SearchEngine {
 	}
 
 	/**
+	 * Create a method name match on a given method with specific modifiers.
+	 *
+	 * @param method The Java model handle of the method
+	 * @param modifiers Modifiers of the method
+	 * @return A non-null match on the given method.
+	 * @since 3.12
+	 */
+	public static MethodNameMatch createMethodNameMatch(IMethod method, int modifiers) {
+		return BasicSearchEngine.createMethodNameMatch(method, modifiers);
+	}
+
+	/**
 	 * Returns a Java search scope with the workspace as the only limit.
 	 *
 	 * @return a new workspace scope
@@ -586,7 +598,11 @@ public class SearchEngine {
 
 	/**
 	 * Searches for all method declarations in the given scope. Accepted matches will be returned by
-	 * {@link MethodNameRequestor#acceptMethod}
+	 * {@link MethodNameRequestor#acceptMethod}.
+	 * <p>
+	 * Warning: This API is in experimental phase and may be modified/removed. Do not use this until this
+	 * comment is removed.
+	 * </p>
 	 * 
 	 * @param packageName the full name of the package of the searched types, or a prefix for this
 	 *						package, or a wild-carded string for this package.
@@ -642,6 +658,11 @@ public class SearchEngine {
 	 * <p>
 	 * Provided {@link MethodNameMatchRequestor} requestor will collect the {@link MethodNameMatch}
 	 * matches found during the search.
+
+	 * </p>
+	 * <p>
+	 * Warning: This API is in experimental phase and may be modified/removed. Do not use this until this
+	 * comment is removed.
 	 * </p>
 	 * 
 	 * @param packageName the full name of the package of the searched types, or a prefix for this
@@ -693,6 +714,152 @@ public class SearchEngine {
 				waitingPolicy, progressMonitor);
 	}
 
+	/**
+	 * Searches for all method declarations in the given scope. Accepted matches will be returned by
+	 * {@link MethodNameRequestor#acceptMethod}.
+	 * <p>
+	 * Warning: This API is in experimental phase and may be modified/removed. Do not use this until this
+	 * comment is removed.
+	 * </p>
+	 * 
+	 * @param qualifier qualifier including package name and qualified type name
+	 *	May be <code>null</code>, then any qualifier name is accepted.
+	 * @param qualifierMatchRule match rule for the qualifier and can be one of
+	 * 	 * <ul>
+	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type
+	 *			name are the full names of the types of the searched methods.</li>
+	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type
+	 *			name are prefixes of the names of the types of searched methods.</li>
+	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and
+	 *			type name contain wild-cards.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if the package name and types are
+	 *			camel case of the package and type of searched methods.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_SAME_PART_COUNT_MATCH}
+	 *			if the package name and type names are camel case with same part count of the 
+	 *			package and types of searched methods.</li>
+	 * </ul>
+	 * @param methodName the method name searched for.
+	 * @param methodMatchRule match rule for the method name and can be one of
+	 * <ul>
+	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the method name searched
+	 *			is exact.</li>
+	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if method
+	 *			name is prefix of the names of the searched methods.</li>
+	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the method name 
+	 *			contains wild-cards.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if the method name is a
+	 *			camel case of the searched method name.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_SAME_PART_COUNT_MATCH}
+	 *			if the method name is a camel case with same part count of the searched
+	 *			methods name.</li>
+	 * </ul>
+	 * @param scope the scope to search in
+	 * @param nameRequestor the requestor that collects the results of the search.
+	 * @param waitingPolicy one of
+	 * <ul>
+	 *		<li>{@link IJavaSearchConstants#FORCE_IMMEDIATE_SEARCH} if the search should start immediately</li>
+	 *		<li>{@link IJavaSearchConstants#CANCEL_IF_NOT_READY_TO_SEARCH} if the search should be cancelled if the
+	 *			underlying indexer has not finished indexing the workspace</li>
+	 *		<li>{@link IJavaSearchConstants#WAIT_UNTIL_READY_TO_SEARCH} if the search should wait for the
+	 *			underlying indexer to finish indexing the workspace</li>
+	 * </ul>
+	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
+	 *							monitor is provided
+	 * @exception JavaModelException if the search failed.
+	 * 
+	 * @since 3.12
+	 */
+	public void searchAllMethodNames(
+			final char[] qualifier,
+			final int qualifierMatchRule,
+			final char[] methodName,
+			final int methodMatchRule,
+			IJavaSearchScope scope,
+			final MethodNameRequestor nameRequestor,
+			int waitingPolicy,
+			IProgressMonitor progressMonitor)  throws JavaModelException {
+		MethodNameRequestorWrapper requestorWrapper = new MethodNameRequestorWrapper(nameRequestor);
+		this.basicEngine.searchAllMethodNames(
+				qualifier, qualifierMatchRule, 
+				methodName, methodMatchRule, 
+				scope, requestorWrapper, 
+				waitingPolicy, progressMonitor);
+	}
+
+	/**
+	 * Searches for all method declarations in the given scope. 
+	 * <p>
+	 * Provided {@link MethodNameMatchRequestor} requestor will collect the {@link MethodNameMatch}
+	 * matches found during the search.
+	 * </p>
+	 * <p>
+	 * Warning: This API is in experimental phase and may be modified/removed. Do not use this until this
+	 * comment is removed.
+	 * </p>
+	 * 
+	 * @param qualifier qualifier including package name and qualified type name
+	 *	May be <code>null</code>, then any qualifier name is accepted.
+	 * @param qualifierMatchRule match rule for the qualifier and can be one of
+	 * 	 * <ul>
+	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the package name and type
+	 *			name are the full names of the types of the searched methods.</li>
+	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if the package name and type
+	 *			name are prefixes of the names of the types of searched methods.</li>
+	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the package name and
+	 *			type name contain wild-cards.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if the package name and types are
+	 *			camel case of the package and type of searched methods.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_SAME_PART_COUNT_MATCH}
+	 *			if the package name and type names are camel case with same part count of the 
+	 *			package and types of searched methods.</li>
+	 * </ul>
+	 * @param methodName the method name searched for.
+	 * @param methodMatchRule match rule for the method name and can be one of
+	 * <ul>
+	 *		<li>{@link SearchPattern#R_EXACT_MATCH} if the method name searched
+	 *			is exact.</li>
+	 *		<li>{@link SearchPattern#R_PREFIX_MATCH} if method
+	 *			name is prefix of the names of the searched methods.</li>
+	 *		<li>{@link SearchPattern#R_PATTERN_MATCH} if the method name 
+	 *			contains wild-cards.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_MATCH} if the method name is a
+	 *			camel case of the searched method name.</li>
+	 *		<li>{@link SearchPattern#R_CAMELCASE_SAME_PART_COUNT_MATCH}
+	 *			if the method name is a camel case with same part count of the searched
+	 *			methods name.</li>
+	 * </ul>
+	 * @param scope the scope to search in
+	 * @param nameRequestor the {@link MethodNameMatchRequestor}
+	 * @param waitingPolicy one of
+	 * <ul>
+	 *		<li>{@link IJavaSearchConstants#FORCE_IMMEDIATE_SEARCH} if the search should start immediately</li>
+	 *		<li>{@link IJavaSearchConstants#CANCEL_IF_NOT_READY_TO_SEARCH} if the search should be cancelled if the
+	 *			underlying indexer has not finished indexing the workspace</li>
+	 *		<li>{@link IJavaSearchConstants#WAIT_UNTIL_READY_TO_SEARCH} if the search should wait for the
+	 *			underlying indexer to finish indexing the workspace</li>
+	 * </ul>
+	 * @param progressMonitor the progress monitor to report progress to, or <code>null</code> if no progress
+	 *							monitor is provided
+	 * @exception JavaModelException if the search failed.
+	 * 
+	 * @since 3.12
+	 */
+	public void searchAllMethodNames(
+			final char[] qualifier,
+			final int qualifierMatchRule,
+			final char[] methodName,
+			final int methodMatchRule,
+			IJavaSearchScope scope,
+			final MethodNameMatchRequestor nameRequestor,
+			int waitingPolicy,
+			IProgressMonitor progressMonitor)  throws JavaModelException {
+		MethodNameMatchRequestorWrapper requestorWrapper = new MethodNameMatchRequestorWrapper(nameRequestor, scope);
+		this.basicEngine.searchAllMethodNames(
+				qualifier, qualifierMatchRule,
+				methodName, methodMatchRule,
+				scope, requestorWrapper, 
+				waitingPolicy, progressMonitor);
+	}
 	/**
 	 * Searches for all top-level types and member types in the given scope.
 	 * The search can be selecting specific types (given a package exact full name or

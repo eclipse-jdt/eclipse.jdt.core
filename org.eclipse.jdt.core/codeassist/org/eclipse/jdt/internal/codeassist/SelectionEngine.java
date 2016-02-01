@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IBuffer;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.ISourceRange;
@@ -1426,6 +1427,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						System.out.println(parsedUnit.toString());
 					}
 					// find the type declaration that corresponds to the original source type
+					while (context.isLambda() && context.getParent() != null) {
+						// It is easier to find the first enclosing proper type than the corresponding 
+						// lambda expression ast to add the selection node to.
+						context = (IType) context.getParent().getAncestor(IJavaElement.TYPE);
+					}
 					typeDeclaration = new ASTNodeFinder(parsedUnit).findType(context);
 				}
 			} else { // binary type

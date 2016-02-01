@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2014 IBM Corporation and others.
+ * Copyright (c) 2006, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -6986,6 +6986,43 @@ public void test176() {
 			"}"	
 		},
 		"SUCCESS");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=484546 "IncompatibleClassChangeError: Expected static method[...]" with inner classes
+public void testbug484546() {
+	this.runConformTest(
+		new String[] {
+			"inner/test/InnerTest.java",
+			"package inner.test;\n" + 
+			"class Inner029SuperSuper {\n" + 
+			"  public int getValue() {\n" + 
+			"    return 10;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class Inner029Super extends Inner029SuperSuper {\n" + 
+			"}\n" + 
+			"class InnerSuper extends Inner029Super {\n" + 
+			"  public int getValue() {\n" + 
+			"    return 20;\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"public class InnerTest extends Inner029Super {\n" + 
+			"  public int result = new Inner().getInner2().test();\n" + 
+			"  class Inner extends InnerSuper {\n" + 
+			"    Inner2 getInner2() {\n" + 
+			"      return new Inner2();\n" + 
+			"    }\n" + 
+			"    class Inner2 {\n" + 
+			"      public int test() {\n" + 
+			"        return InnerTest.super.getValue();\n" + 
+			"      }\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"	System.out.println(new InnerTest().result);\n" + 
+			"}\n" + 
+			"}\n"
+		},
+		"10");
 }
 public static Class testClass() {
 	return InnerEmulationTest.class;

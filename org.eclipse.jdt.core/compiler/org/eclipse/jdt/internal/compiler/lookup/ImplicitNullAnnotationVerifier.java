@@ -294,7 +294,7 @@ public class ImplicitNullAnnotationVerifier {
 						ParameterizedGenericMethodBinding substitute = this.environment.createParameterizedGenericMethod(currentMethod, typeVariables);
 						substituteReturnType = substitute.returnType;
 					}
-					if (NullAnnotationMatching.analyse(inheritedMethod.returnType, currentMethod.returnType, substituteReturnType, 0, CheckMode.OVERRIDE).isAnyMismatch()) {
+					if (NullAnnotationMatching.analyse(inheritedMethod.returnType, currentMethod.returnType, substituteReturnType, null, 0, CheckMode.OVERRIDE_RETURN).isAnyMismatch()) {
 						if (srcMethod != null)
 							scope.problemReporter().illegalReturnRedefinition(srcMethod, inheritedMethod,
 																	this.environment.getNonNullAnnotationName());
@@ -425,12 +425,24 @@ public class ImplicitNullAnnotationVerifier {
 				if (useTypeAnnotations) {
 					TypeBinding inheritedParameter = inheritedMethod.parameters[i];
 					TypeBinding substituteParameter = substituteParameters != null ? substituteParameters[i] : null;
-					if (NullAnnotationMatching.analyse(currentMethod.parameters[i], inheritedParameter, substituteParameter, 0, CheckMode.OVERRIDE).isAnyMismatch()) {
+					if (NullAnnotationMatching.analyse(currentMethod.parameters[i], inheritedParameter, substituteParameter, null, 0, CheckMode.OVERRIDE).isAnyMismatch()) {
 						if (currentArgument != null)
 							scope.problemReporter().illegalParameterRedefinition(currentArgument, inheritedMethod.declaringClass, inheritedParameter);
 						else
 							scope.problemReporter().cannotImplementIncompatibleNullness(currentMethod, inheritedMethod, false);
 					}
+				}
+			}
+		}
+
+		if (shouldComplain && useTypeAnnotations && srcMethod != null) {
+			TypeVariableBinding[] currentTypeVariables = currentMethod.typeVariables();
+			TypeVariableBinding[] inheritedTypeVariables = inheritedMethod.typeVariables();
+			if (currentTypeVariables != Binding.NO_TYPE_VARIABLES && currentTypeVariables.length == inheritedTypeVariables.length) {
+				for (int i = 0; i < currentTypeVariables.length; i++) {
+					TypeVariableBinding inheritedVariable = inheritedTypeVariables[i];
+					if (NullAnnotationMatching.analyse(inheritedVariable, currentTypeVariables[i], null, null, -1, CheckMode.BOUND_CHECK).isAnyMismatch())
+						scope.problemReporter().cannotRedefineTypeArgumentNullity(inheritedVariable, inheritedMethod, srcMethod.typeParameters()[i]);
 				}
 			}
 		}

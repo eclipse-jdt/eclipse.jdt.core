@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -187,7 +187,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		return mergedInfo;
 	}
 
-	public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+	public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, int ttlForFieldCheck) {
 		if ((this.nullStatus & FlowInfo.NULL) != 0)
 			scope.problemReporter().expressionNullReference(this);
 		else if ((this.nullStatus & FlowInfo.POTENTIALLY_NULL) != 0)
@@ -337,7 +337,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		int pc = codeStream.position;
 
 		if ((this.constant != Constant.NotAConstant) && (this.constant.typeID() == T_boolean) // constant
-			|| ((this.valueIfTrue.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_boolean) { // non boolean values
+			|| ((this.valueIfTrue.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_boolean
+			|| ((this.valueIfFalse.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) != T_boolean) { // non boolean values
 			super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 			return;
 		}
@@ -762,7 +763,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		if (this.originalValueIfTrueType == null || this.originalValueIfFalseType == null) // resolution error.
 			return false;
 		
-		if (this.originalValueIfTrueType.kind() == Binding.POLY_TYPE || this.originalValueIfFalseType.kind() == Binding.POLY_TYPE)
+		if (this.valueIfTrue.isPolyExpression() || this.valueIfFalse.isPolyExpression())
 			return true;
 		
 		// "... unless both operands produce primitives (or boxed primitives)":

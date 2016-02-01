@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM Corporation and others.
+ * Copyright (c) 2014, 2015 IBM Corporation and others.
  * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -8,7 +8,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- */
+ *******************************************************************************/
 
 package org.eclipse.jdt.internal.codeassist.select;
 
@@ -30,8 +30,8 @@ public class SelectionOnLambdaExpression extends LambdaExpression {
 		this.setArrowPosition(expression.arrowPosition());
 	}
 	@Override
-	public TypeBinding resolveType(BlockScope blockScope) {
-		TypeBinding resolveType = super.resolveType(blockScope);
+	public TypeBinding resolveType(BlockScope blockScope, boolean skipKosherCheck) {
+		TypeBinding resolveType = super.resolveType(blockScope, skipKosherCheck);
 		if (this.expectedType != null && this.original == this) {  // final resolution.
 			throw new SelectionNodeFound(this.descriptor);
 		}

@@ -47,22 +47,26 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return flowInfo;
 }
 
-public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, int ttlForFieldCheck) {
 	if (flowContext.isNullcheckedFieldAccess(this)) {
 		return true; // enough seen
 	}
-	return super.checkNPE(scope, flowContext, flowInfo);
+	return super.checkNPE(scope, flowContext, flowInfo, ttlForFieldCheck);
 }
 
-protected boolean checkNullableFieldDereference(Scope scope, FieldBinding field, long sourcePosition) {
-	// preference to type annotations if we have any
-	if ((field.type.tagBits & TagBits.AnnotationNullable) != 0) {
-		scope.problemReporter().dereferencingNullableExpression(sourcePosition, scope.environment());
-		return true;
-	}
-	if ((field.tagBits & TagBits.AnnotationNullable) != 0) {
-		scope.problemReporter().nullableFieldDereference(field, sourcePosition);
-		return true;
+protected boolean checkNullableFieldDereference(Scope scope, FieldBinding field, long sourcePosition, FlowContext flowContext, int ttlForFieldCheck) {
+	if (field != null) {
+		if (ttlForFieldCheck > 0 && scope.compilerOptions().enableSyntacticNullAnalysisForFields)
+			flowContext.recordNullCheckedFieldReference(this, ttlForFieldCheck);
+		// preference to type annotations if we have any
+		if ((field.type.tagBits & TagBits.AnnotationNullable) != 0) {
+			scope.problemReporter().dereferencingNullableExpression(sourcePosition, scope.environment());
+			return true;
+		}
+		if ((field.tagBits & TagBits.AnnotationNullable) != 0) {
+			scope.problemReporter().nullableFieldDereference(field, sourcePosition);
+			return true;
+		}
 	}
 	return false;
 }

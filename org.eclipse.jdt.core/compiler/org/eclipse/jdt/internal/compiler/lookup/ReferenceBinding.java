@@ -1154,6 +1154,11 @@ public final boolean hasRestrictedAccess() {
 	return (this.modifiers & ExtraCompilerModifiers.AccRestrictedAccess) != 0;
 }
 
+/** Query typeBits without triggering supertype lookup. */
+public boolean hasNullBit(int mask) {
+	return (this.typeBits & mask) != 0;
+}
+
 /** Answer true if the receiver implements anInterface or is identical to anInterface.
 * If searchHierarchy is true, then also search the receiver's superclasses.
 *
@@ -1649,8 +1654,8 @@ protected void appendNullAnnotation(StringBuffer nameBuffer, CompilerOptions opt
 	if (options.isAnnotationBasedNullAnalysisEnabled) {
 		if (options.usesNullTypeAnnotations()) {
 			for (AnnotationBinding annotation : this.typeAnnotations) {
-				TypeBinding annotationType = annotation.getAnnotationType();
-				if (annotationType.id == TypeIds.T_ConfiguredAnnotationNonNull || annotation.type.id == TypeIds.T_ConfiguredAnnotationNullable) {
+				ReferenceBinding annotationType = annotation.getAnnotationType();
+				if (annotationType.hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation)) {
 					nameBuffer.append('@').append(annotationType.shortReadableName()).append(' ');
 				}
 			}

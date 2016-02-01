@@ -266,9 +266,9 @@ public static void checkNeedForArgumentCasts(BlockScope scope, int operator, int
 	}
 }
 
-public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, int ttlForFieldCheck) {
 	checkNPEbyUnboxing(scope, flowContext, flowInfo);
-	return this.expression.checkNPE(scope, flowContext, flowInfo);
+	return this.expression.checkNPE(scope, flowContext, flowInfo, ttlForFieldCheck);
 }
 
 private static void checkAlternateBinding(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding binding, Expression[] arguments, TypeBinding[] originalArgumentTypes, TypeBinding[] alternateArgumentTypes, final InvocationSite invocationSite) {

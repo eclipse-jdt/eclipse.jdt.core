@@ -1290,6 +1290,8 @@ public class VarargsTest extends AbstractComparableTest {
  	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102631
 	public void test033() {
 		this.runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.EclipseHasABug.EclipseBug421922,
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -1362,7 +1364,9 @@ public class VarargsTest extends AbstractComparableTest {
 			System.setProperty("tolerateIllegalAmbiguousVarargsInvocation", "true");
 			if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
 				this.runNegativeTest(
-					new String[] {
+				false /* skipJavac */,
+				JavacTestOptions.EclipseHasABug.EclipseBug421922,
+				new String[] {
 						"X.java",
 						"public class X {\n" +
 						"	void a(boolean b, Object... o) {System.out.print(1);}\n" +
@@ -2996,6 +3000,8 @@ public class VarargsTest extends AbstractComparableTest {
 			System.setProperty("tolerateIllegalAmbiguousVarargsInvocation", "true");
 			if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
 				this.runNegativeTest(
+					false /* skipJavac */,
+					JavacTestOptions.EclipseHasABug.EclipseBug421922,
 					new String[] {
 						"X.java",
 						"import java.util.Arrays;\n" +
@@ -3381,6 +3387,8 @@ public class VarargsTest extends AbstractComparableTest {
 					"2");
 			} else {
 				this.runNegativeTest(
+						false /* skipJavac */,
+						JavacTestOptions.EclipseHasABug.EclipseBug421922,
 						src,
 						"----------\n" + 
 						"1. WARNING in X.java (at line 5)\n" + 
@@ -3425,6 +3433,8 @@ public class VarargsTest extends AbstractComparableTest {
 					"1");
 			} else {
 				this.runNegativeTest(
+						false /* skipJavac */,
+						JavacTestOptions.EclipseHasABug.EclipseBug421922,
 						src,
 						"----------\n" + 
 						"1. ERROR in X.java (at line 9)\n" + 

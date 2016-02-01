@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25913,6 +25913,8 @@ public void test0802() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=101831
 public void test0803() {
 	this.runNegativeTest(
+		false /* skipJavac */,
+		this.complianceLevel < ClassFileConstants.JDK1_8 ? null : JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 		new String[] {
 			"X.java",
 			"import java.util.*;\n" +
@@ -30485,7 +30487,9 @@ public void test0921() {
 			"}\n",
 		},
 	// javac options
-	JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
+	this.complianceLevel < ClassFileConstants.JDK1_8 ? 
+			(JavacTestOptions) JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 :
+			JavacTestOptions.DEFAULT/* javac test options */);
 }
 // Test case which comes from JDT/UI tests TypeEnvironmentTest.testWildcardAssignements
 public void test0922() {
@@ -34958,7 +34962,7 @@ public void test1034() {
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type mismatch: cannot convert from Closure<capture#10-of ? super J & capture#11-of ? super J> to Closure<String>\n" + 
 			"----------\n",
-		JavacTestOptions.EclipseHasABug.EclipseBug236370);
+		JavacTestOptions.DEFAULT);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158531
 public void test1035() {
@@ -43339,6 +43343,8 @@ public void test1233() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=215843 - variation
 public void test1234() {
 	this.runNegativeTest(
+		false /* skipJavac */,
+		JavacTestOptions.EclipseHasABug.EclipseBug427719,
 		new String[] {
 			"X.java",
 			"public class X { \n" +
@@ -49821,6 +49827,9 @@ public void test1420() {
 // FIXME javac8 doesn't find the error
 public void test1421() {
 	this.runNegativeTest(
+			false /* skipJavac */,
+			this.complianceLevel < ClassFileConstants.JDK1_8 ? 
+			null : JavacTestOptions.Excuse.JavacCompilesIncorrectSource,
 			new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X {\n" + 
@@ -51300,6 +51309,9 @@ public void test1459() {
 // FIXME: javac rejects (correctly? how?), see http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000443.html
 public void test277643() {
 	this.runNegativeTest(
+		false /* skipJavac */,
+		this.complianceLevel < ClassFileConstants.JDK1_8 ? null :
+		JavacTestOptions.EclipseHasABug.EclipseBug428061,
 		new String[] {
 	    "Test.java",
 	    "public class Test {\n" +
@@ -51396,6 +51408,9 @@ public void test280054() {
 // FIXME: javac rejects (correctly? how?), see http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000443.html
 public void test283306() {
 	this.runNegativeTest(
+		false /* skipJavac */,
+		this.complianceLevel < ClassFileConstants.JDK1_8 ? null :
+		JavacTestOptions.EclipseHasABug.EclipseBug428061,
 		new String[] {
 	    "Test.java",
 	    "public class Test {\n" +
@@ -52084,4 +52099,68 @@ public void testBug433989a() {
 		"The member type A.Nested.In must be parameterized, since it is qualified with a parameterized type\n" + 
 		"----------\n");
 }
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=469201
+public void testBug469201_A(){
+	this.runConformTest(
+		new String[]{
+			"T2.java",
+			"import java.util.*;\n" + 
+					"\n" + 
+					"class Bar {  }\n" + 
+					"\n" + 
+					"class FooPrime extends Bar {\n" + 
+					"      void bar(Bar bar) { }\n" + 
+					"}\n" + 
+					"\n" + 
+					"class Foo extends FooPrime { }\n" + 
+					"\n" + 
+					"public class T2 {\n" + 
+					"\n" + 
+					"	public static void someMethod(List<? extends Foo> foos ) {\n" + 
+					"		Bar bar = new Bar(); \n" + 
+					"		foos.get(0).bar(bar);\n" + 
+					"	}\n" + 
+					"  public static void main(String... args) {\n" + 
+					"      List<Foo> foos = new ArrayList<Foo>();\n" + 
+					"      foos.add(new Foo());\n" + 
+					"      someMethod(foos);\n" + 
+					"  }\n" + 
+					"}"
+		});
+}
+
+public void testBug469201_B(){
+	this.runNegativeTest(
+		new String[]{
+				"A.java",
+				"package bug469201.p1;\n" + 
+				"public class A {\n" + 
+				"	void bar(Bar bar) { }\n" + 
+				"}\n" + 
+				"class Bar {}\n", 
+				"D.java",
+				"package bug469201.p1;\n" +
+				"import java.util.ArrayList;\n" +
+				"import java.util.List;\n" +
+				"import bug469201.p2.B;\n" + 
+				"public class D{\n" + 
+				"	public static void main(String... args) {\n" + 
+				"	      List<? extends B> foos = new ArrayList<B>();\n" + 
+				"	      Bar bar = new Bar();\n" + 
+				"	      foos.get(0).bar(bar);\n" + 
+				"	}\n" + 
+				"}",
+				"B.java",
+				"package bug469201.p2;\n" + 
+				"import bug469201.p1.A;\n" + 
+				"public class B extends A {}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in D.java (at line 9)\n" + 
+		"	foos.get(0).bar(bar);\n" + 
+		"	            ^^^\n" + 
+		"The method bar(Bar) from the type A is not visible\n" + 
+		"----------\n");
+		}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -199,6 +199,27 @@ public abstract class SearchPattern {
 	 * @since 3.4
 	 */
 	public static final int R_CAMELCASE_SAME_PART_COUNT_MATCH = 0x0100;
+
+	/**
+	 * Match rule: The search pattern contains a substring expression in a case-insensitive way.
+	 * <p>
+	 * Examples:
+	 * <ul>
+	 * 	<li>'bar' string pattern will match
+	 * 		'bar1', 'Bar' and 'removeBar' types,</li>
+	 * </ul>
+	 *
+	 * This rule is not intended to be combined with any other match rule. In case
+	 * of other match rule flags are combined with this one, then match rule validation
+	 * will return a modified rule in order to perform a better appropriate search request
+	 * (see {@link #validateMatchRule(String, int)} for more details).
+	 * 
+	 * <p>
+	 * This is implemented only for code assist and not available for normal search.
+	 *
+	 * @since 3.12
+	 */
+	public static final int R_SUBSTRING_MATCH = 0x0200;
 
 	private static final int MODE_MASK = R_EXACT_MATCH
 		| R_PREFIX_MATCH
@@ -842,6 +863,12 @@ public static final int[] getMatchingRegions(String pattern, String name, int ma
 			return StringOperation.getPatternMatchingRegions(pattern, 0, patternLength, name, 0, nameLength, false);
 		case SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE:
 			return StringOperation.getPatternMatchingRegions(pattern, 0, patternLength, name, 0, nameLength, true);
+		case SearchPattern.R_SUBSTRING_MATCH:
+			if (patternLength <= nameLength) {
+				int next = CharOperation.indexOf(pattern.toCharArray(), name.toCharArray(), false);
+				return next >= 0 ? new int[] {next, patternLength} : null;
+			}
+			break;
 	}
 	return null;
 }

@@ -176,6 +176,9 @@ public class CompilerOptions {
 	public static final String OPTION_NullableAnnotationName = "org.eclipse.jdt.core.compiler.annotation.nullable"; //$NON-NLS-1$
 	public static final String OPTION_NonNullAnnotationName = "org.eclipse.jdt.core.compiler.annotation.nonnull"; //$NON-NLS-1$
 	public static final String OPTION_NonNullByDefaultAnnotationName = "org.eclipse.jdt.core.compiler.annotation.nonnullbydefault"; //$NON-NLS-1$
+	public static final String OPTION_NullableAnnotationSecondaryNames = "org.eclipse.jdt.core.compiler.annotation.nullable.secondary"; //$NON-NLS-1$
+	public static final String OPTION_NonNullAnnotationSecondaryNames = "org.eclipse.jdt.core.compiler.annotation.nonnull.secondary"; //$NON-NLS-1$
+	public static final String OPTION_NonNullByDefaultAnnotationSecondaryNames = "org.eclipse.jdt.core.compiler.annotation.nonnullbydefault.secondary"; //$NON-NLS-1$
 	public static final String OPTION_ReportUninternedIdentityComparison = "org.eclipse.jdt.core.compiler.problem.uninternedIdentityComparison"; //$NON-NLS-1$
 	// defaults for the above:
 	static final char[][] DEFAULT_NULLABLE_ANNOTATION_NAME = CharOperation.splitOn('.', "org.eclipse.jdt.annotation.Nullable".toCharArray()); //$NON-NLS-1$
@@ -216,6 +219,8 @@ public class CompilerOptions {
 	public static final String RETURN_TAG = "return_tag";	//$NON-NLS-1$
 	public static final String NO_TAG = "no_tag";	//$NON-NLS-1$
 	public static final String ALL_STANDARD_TAGS = "all_standard_tags";	//$NON-NLS-1$
+
+	private static final String[] NO_STRINGS = new String[0];
 
 	/**
 	 * Bit mask for configurable problems (error/warning threshold)
@@ -449,6 +454,12 @@ public class CompilerOptions {
 	public char[][] nonNullAnnotationName;
 	/** Fully qualified name of annotation to use as marker for default nonnull. */
 	public char[][] nonNullByDefaultAnnotationName;
+	/** Fully qualified names of secondary annotations to use as marker for nullable types. */
+	public String[] nullableAnnotationSecondaryNames = NO_STRINGS;
+	/** Fully qualified names of secondary annotations to use as marker for nonnull types. */
+	public String[] nonNullAnnotationSecondaryNames = NO_STRINGS;
+	/** Fully qualified names of secondary annotations to use as marker for default nonnull. */
+	public String[] nonNullByDefaultAnnotationSecondaryNames = NO_STRINGS;
 	/** TagBits-encoded default for non-annotated types. */
 	public long intendedDefaultNonNullness; // 0 or TagBits#AnnotationNonNull
 	/** Should resources (objects of type Closeable) be analysed for matching calls to close()? */
@@ -1186,6 +1197,9 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_NullableAnnotationName, String.valueOf(CharOperation.concatWith(this.nullableAnnotationName, '.')));
 		optionsMap.put(OPTION_NonNullAnnotationName, String.valueOf(CharOperation.concatWith(this.nonNullAnnotationName, '.')));
 		optionsMap.put(OPTION_NonNullByDefaultAnnotationName, String.valueOf(CharOperation.concatWith(this.nonNullByDefaultAnnotationName, '.')));
+		optionsMap.put(OPTION_NullableAnnotationSecondaryNames, nameListToString(this.nullableAnnotationSecondaryNames));
+		optionsMap.put(OPTION_NonNullAnnotationSecondaryNames, nameListToString(this.nonNullAnnotationSecondaryNames));
+		optionsMap.put(OPTION_NonNullByDefaultAnnotationSecondaryNames, nameListToString(this.nonNullByDefaultAnnotationSecondaryNames));
 		optionsMap.put(OPTION_ReportMissingNonNullByDefaultAnnotation, getSeverityString(MissingNonNullByDefaultAnnotation));
 		optionsMap.put(OPTION_ReportUnusedTypeParameter, getSeverityString(UnusedTypeParameter));
 		optionsMap.put(OPTION_SyntacticNullAnalysisForFields, this.enableSyntacticNullAnalysisForFields ? ENABLED : DISABLED);
@@ -1709,6 +1723,15 @@ public class CompilerOptions {
 			if ((optionValue = optionsMap.get(OPTION_NonNullByDefaultAnnotationName)) != null) {
 				this.nonNullByDefaultAnnotationName = CharOperation.splitAndTrimOn('.', optionValue.toCharArray());
 			}
+			if ((optionValue = optionsMap.get(OPTION_NullableAnnotationSecondaryNames)) != null) {
+				this.nullableAnnotationSecondaryNames = stringToNameList(optionValue);
+			}
+			if ((optionValue = optionsMap.get(OPTION_NonNullAnnotationSecondaryNames)) != null) {
+				this.nonNullAnnotationSecondaryNames = stringToNameList(optionValue);
+			}
+			if ((optionValue = optionsMap.get(OPTION_NonNullByDefaultAnnotationSecondaryNames)) != null) {
+				this.nonNullByDefaultAnnotationSecondaryNames = stringToNameList(optionValue);
+			}
 			if ((optionValue = optionsMap.get(OPTION_ReportMissingNonNullByDefaultAnnotation)) != null) updateSeverity(MissingNonNullByDefaultAnnotation, optionValue);
 			if ((optionValue = optionsMap.get(OPTION_SyntacticNullAnalysisForFields)) != null) {
 				this.enableSyntacticNullAnalysisForFields = ENABLED.equals(optionValue);
@@ -1854,6 +1877,26 @@ public class CompilerOptions {
 			}
 		}
 	}
+
+	private String[] stringToNameList(String optionValue) {
+		String[] result = optionValue.split(","); //$NON-NLS-1$
+		if (result == null)
+			return NO_STRINGS;
+		for (int i = 0; i < result.length; i++)
+			result[i] = result[i].trim();
+		return result;
+	}
+
+	String nameListToString(String[] names) {
+		if (names == null) return ""; //$NON-NLS-1$
+		StringBuilder buf = new StringBuilder();
+		for (int i = 0; i < names.length; i++) {
+			if (i > 0) buf.append(',');
+			buf.append(names[i]);
+		}
+		return buf.toString();
+	}
+
 	public String toString() {
 		StringBuffer buf = new StringBuffer("CompilerOptions:"); //$NON-NLS-1$
 		buf.append("\n\t- local variables debug attributes: ").append((this.produceDebugAttributes & ClassFileConstants.ATTR_VARS) != 0 ? "ON" : " OFF"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

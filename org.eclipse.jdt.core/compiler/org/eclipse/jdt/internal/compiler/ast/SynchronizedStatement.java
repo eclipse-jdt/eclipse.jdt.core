@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2011, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Carmi Grushko - Bug 465048 - Binding is null for class literals in synchronized blocks
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -170,31 +171,31 @@ public void resolve(BlockScope upperScope) {
 	// special scope for secret locals optimization.
 	this.scope = new BlockScope(upperScope);
 	TypeBinding type = this.expression.resolveType(this.scope);
-	if (type == null)
-		return;
-	switch (type.id) {
-		case T_boolean :
-		case T_char :
-		case T_float :
-		case T_double :
-		case T_byte :
-		case T_short :
-		case T_int :
-		case T_long :
-			this.scope.problemReporter().invalidTypeToSynchronize(this.expression, type);
-			break;
-		case T_void :
-			this.scope.problemReporter().illegalVoidExpression(this.expression);
-			break;
-		case T_null :
-			this.scope.problemReporter().invalidNullToSynchronize(this.expression);
-			break;
+	if (type != null) {
+		switch (type.id) {
+			case T_boolean :
+			case T_char :
+			case T_float :
+			case T_double :
+			case T_byte :
+			case T_short :
+			case T_int :
+			case T_long :
+				this.scope.problemReporter().invalidTypeToSynchronize(this.expression, type);
+				break;
+			case T_void :
+				this.scope.problemReporter().illegalVoidExpression(this.expression);
+				break;
+			case T_null :
+				this.scope.problemReporter().invalidNullToSynchronize(this.expression);
+				break;
+			}
+			//continue even on errors in order to have the TC done into the statements
+			this.synchroVariable = new LocalVariableBinding(SecretLocalDeclarationName, type, ClassFileConstants.AccDefault, false);
+			this.scope.addLocalVariable(this.synchroVariable);
+			this.synchroVariable.setConstant(Constant.NotAConstant); // not inlinable
+			this.expression.computeConversion(this.scope, type, type);
 	}
-	//continue even on errors in order to have the TC done into the statements
-	this.synchroVariable = new LocalVariableBinding(SecretLocalDeclarationName, type, ClassFileConstants.AccDefault, false);
-	this.scope.addLocalVariable(this.synchroVariable);
-	this.synchroVariable.setConstant(Constant.NotAConstant); // not inlinable
-	this.expression.computeConversion(this.scope, type, type);
 	this.block.resolveUsing(this.scope);
 }
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,8 +18,8 @@ import java.util.Set;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 
-@SuppressWarnings("rawtypes")
 public class RecoveredStatement extends RecoveredElement {
 
 	public Statement statement;
@@ -44,11 +44,11 @@ public int sourceEnd(){
 public String toString(int tab){
 	return tabString(tab) + "Recovered statement:\n" + this.statement.print(tab + 1, new StringBuffer(10)); //$NON-NLS-1$
 }
-public Statement updatedStatement(int depth, Set knownTypes){
+public Statement updatedStatement(int depth, Set<TypeDeclaration> knownTypes){
 	return this.statement;
 }
 public void updateParseTree(){
-	updatedStatement(0, new HashSet());
+	updatedStatement(0, new HashSet<TypeDeclaration>());
 }
 /*
  * Update the declarationSourceEnd of the corresponding parse node

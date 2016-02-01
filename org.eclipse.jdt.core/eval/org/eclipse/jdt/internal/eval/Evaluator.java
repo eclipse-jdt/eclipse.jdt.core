@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,7 +55,7 @@ Evaluator(EvaluationContext context, INameEnvironment environment, Map<String, S
  * are computed so that they correspond to the given problem. If it is found to be an internal problem,
  * then the evaluation id of the result is the given compilation unit source.
  */
-protected abstract void addEvaluationResultForCompilationProblem(Map resultsByIDs,CategorizedProblem problem, char[] cuSource);
+protected abstract void addEvaluationResultForCompilationProblem(Map<char[], EvaluationResult> resultsByIDs,CategorizedProblem problem, char[] cuSource);
 /**
  * Returns the evaluation results that converts the given compilation result that has problems.
  * If the compilation result has more than one problem, then the problems are broken down so that
@@ -64,7 +64,7 @@ protected abstract void addEvaluationResultForCompilationProblem(Map resultsByID
 protected EvaluationResult[] evaluationResultsForCompilationProblems(CompilationResult result, char[] cuSource) {
 	// Break down the problems and group them by ids in evaluation results
 	CategorizedProblem[] problems = result.getAllProblems();
-	HashMap resultsByIDs = new HashMap(5);
+	HashMap<char[], EvaluationResult> resultsByIDs = new HashMap<>(5);
 	for (int i = 0; i < problems.length; i++) {
 		addEvaluationResultForCompilationProblem(resultsByIDs, problems[i], cuSource);
 	}
@@ -72,9 +72,9 @@ protected EvaluationResult[] evaluationResultsForCompilationProblems(Compilation
 	// Copy results
 	int size = resultsByIDs.size();
 	EvaluationResult[] evalResults = new EvaluationResult[size];
-	Iterator results = resultsByIDs.values().iterator();
+	Iterator<EvaluationResult> results = resultsByIDs.values().iterator();
 	for (int i = 0; i < size; i++) {
-		evalResults[i] = (EvaluationResult)results.next();
+		evalResults[i] = results.next();
 	}
 
 	return evalResults;

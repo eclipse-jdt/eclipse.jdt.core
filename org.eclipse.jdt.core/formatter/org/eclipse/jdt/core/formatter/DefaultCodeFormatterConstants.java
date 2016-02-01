@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -67,6 +67,17 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS = JavaCore.PLUGIN_ID + ".formatter.align_type_members_on_columns";	 //$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to align groups of members independently if they are separated by a certain number of blank lines
+	 *     - option id:         "org.eclipse.jdt.core.formatter.align_fields_grouping_blank_lines"
+	 *     - possible values:   "&lt;n&gt;", where n is a positive integer
+	 *     - default:           "99"
+	 * </pre>
+	 * @since 3.12
+	 */
+	public static final String FORMATTER_ALIGN_FIELDS_GROUPING_BLANK_LINES = JavaCore.PLUGIN_ID + ".formatter.align_fields_grouping_blank_lines";	 //$NON-NLS-1$
 
 	/**
 	 * <pre>

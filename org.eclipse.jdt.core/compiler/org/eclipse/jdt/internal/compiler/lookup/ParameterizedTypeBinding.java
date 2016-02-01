@@ -54,6 +54,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants.BoundCheckStatus;
 
 /**
  * A parameterized type encapsulates a type with type arguments,
@@ -112,13 +113,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			TypeVariableBinding[] typeVariables = this.type.typeVariables();
 			if (this.arguments != null && typeVariables != null) { // arguments may be null in error cases
 				for (int i = 0, length = typeVariables.length; i < length; i++) {
-				    if (typeVariables[i].boundCheck(this, this.arguments[i], scope)  != TypeConstants.OK) {
-				    	hasErrors = true;
-				    	if ((this.arguments[i].tagBits & TagBits.HasMissingType) == 0) {
-				    		// do not report secondary error, if type reference already got complained against
-							scope.problemReporter().typeMismatchError(this.arguments[i], typeVariables[i], this.type, argumentReferences[i]);
-				    	}
-				    }
+				    BoundCheckStatus checkStatus = typeVariables[i].boundCheck(this, this.arguments[i], scope, argumentReferences[i]);
+				    hasErrors |= checkStatus != BoundCheckStatus.OK;
+			    	if (!checkStatus.isOKbyJLS() && (this.arguments[i].tagBits & TagBits.HasMissingType) == 0) {
+			    		// do not report secondary error, if type reference already got complained against
+						scope.problemReporter().typeMismatchError(this.arguments[i], typeVariables[i], this.type, argumentReferences[i]);
+			    	}
 				}
 			}
 			if (!hasErrors) this.tagBits |= TagBits.PassedBoundCheck; // no need to recheck it in the future
@@ -196,7 +196,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.TypeBinding#collectMissingTypes(java.util.List)
 	 */
-	public List collectMissingTypes(List missingTypes) {
+	public List<TypeBinding> collectMissingTypes(List<TypeBinding> missingTypes) {
 		if ((this.tagBits & TagBits.HasMissingType) != 0) {
 			if (this.enclosingType != null) {
 				missingTypes = this.enclosingType.collectMissingTypes(missingTypes);
@@ -1433,7 +1433,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		declaringType = scope.environment().createParameterizedType(genericType, types, genericType.enclosingType());
 		TypeVariableBinding [] typeParameters = genericType.typeVariables();
 		for (int i = 0, length = typeParameters.length; i < length; i++) {
-			if (typeParameters[i].boundCheck(declaringType, types[i], scope) != TypeConstants.OK)
+			if (!typeParameters[i].boundCheck(declaringType, types[i], scope, null).isOKbyJLS())
 				return this.singleAbstractMethod[index] = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NotAWellFormedParameterizedType);			
 		}
 		ReferenceBinding substitutedDeclaringType = (ReferenceBinding) declaringType.findSuperTypeOriginatingFrom(theAbstractMethod.declaringClass);
@@ -1515,5 +1515,12 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			}
 		}
 		return types;
+	}
+	@Override
+	public long updateTagBits() {
+		if (this.arguments != null)
+			for (TypeBinding argument : this.arguments)
+				this.tagBits |= argument.updateTagBits();
+		return super.updateTagBits();
 	}
 }

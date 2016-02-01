@@ -15,7 +15,6 @@ import java.util.Hashtable;
 import java.util.Map;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -37,1033 +36,13 @@ import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.eval.EvaluationContextWrapper;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class CompletionTests extends AbstractJavaModelCompletionTests {
 
 static {
 //	TESTS_NAMES = new String[] { "testCompletionMethodDeclaration17"};
 }
 public static Test suite() {
-	if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS != null || TESTS_RANGE != null) {
-		return buildModelTestSuite(CompletionTests.class);
-	}
-	TestSuite suite = new Suite(CompletionTests.class.getName());
-	suite.addTest(new CompletionTests("testAbortCompletion1"));
-	suite.addTest(new CompletionTests("testAbortCompletion2"));
-	suite.addTest(new CompletionTests("testArrayInitializer1"));
-	suite.addTest(new CompletionTests("testBug132679"));
-	suite.addTest(new CompletionTests("testBug164311"));
-	suite.addTest(new CompletionTests("testBug164311_2"));
-	suite.addTest(new CompletionTests("testBug96213"));
-	suite.addTest(new CompletionTests("testBug99811"));
-	suite.addTest(new CompletionTests("testBug169682a"));
-	suite.addTest(new CompletionTests("testBug169682b"));
-	suite.addTest(new CompletionTests("testBug275518a"));
-	suite.addTest(new CompletionTests("testBug275518b"));
-	suite.addTest(new CompletionTests("testBug275518c"));
-	suite.addTest(new CompletionTests("testCamelCaseField1"));
-	suite.addTest(new CompletionTests("testCamelCaseLocalVariable1"));
-	suite.addTest(new CompletionTests("testCamelCaseMethod1"));
-	suite.addTest(new CompletionTests("testCamelCaseMethodDeclaration1"));
-	suite.addTest(new CompletionTests("testCamelCaseType1"));
-	suite.addTest(new CompletionTests("testCamelCaseType2"));
-	suite.addTest(new CompletionTests("testCamelCaseType3"));
-	suite.addTest(new CompletionTests("testCamelCaseType4"));
-	suite.addTest(new CompletionTests("testCamelCaseType5"));
-	suite.addTest(new CompletionTests("testCatchClauseExceptionRef01"));
-	suite.addTest(new CompletionTests("testCatchClauseExceptionRef02"));
-	suite.addTest(new CompletionTests("testCatchClauseExceptionRef03"));
-	suite.addTest(new CompletionTests("testCatchClauseExceptionRef04"));
-	suite.addTest(new CompletionTests("testCatchClauseExceptionRef05"));
-	suite.addTest(new CompletionTests("testCatchClauseExceptionRef06"));
-	suite.addTest(new CompletionTests("testCatchClauseExceptionRef07"));
-	suite.addTest(new CompletionTests("testCatchClauseExceptionRef08"));
-	suite.addTest(new CompletionTests("testCatchClauseExceptionRef09"));
-	suite.addTest(new CompletionTests("testCatchClauseExceptionRef10"));
-	suite.addTest(new CompletionTests("testCatchClauseExceptionRef11"));
-	suite.addTest(new CompletionTests("testCatchClauseExceptionRef12"));
-	suite.addTest(new CompletionTests("testCatchClauseExceptionRef13"));
-	suite.addTest(new CompletionTests("testCatchClauseExceptionRef13b"));
-	suite.addTest(new CompletionTests("testCatchClauseExceptionRef14"));
-	suite.addTest(new CompletionTests("testCatchClauseExceptionRef15"));
-	suite.addTest(new CompletionTests("testCompletion2InterfacesWithSameMethod"));
-	suite.addTest(new CompletionTests("testCompletionAbstractMethod1"));
-	suite.addTest(new CompletionTests("testCompletionAbstractMethod2"));
-	suite.addTest(new CompletionTests("testCompletionAbstractMethod3"));
-	suite.addTest(new CompletionTests("testCompletionAbstractMethod4"));
-	suite.addTest(new CompletionTests("testCompletionAbstractMethodRelevance1"));
-	suite.addTest(new CompletionTests("testCompletionAbstractMethodRelevance2"));
-	suite.addTest(new CompletionTests("testCompletionAfterIf1"));
-	suite.addTest(new CompletionTests("testCompletionAfterIf2"));
-	suite.addTest(new CompletionTests("testCompletionAfterCase1"));
-	suite.addTest(new CompletionTests("testCompletionAfterCase2"));
-	suite.addTest(new CompletionTests("testCompletionAfterCase3"));
-	suite.addTest(new CompletionTests("testCompletionAfterCase4"));
-	suite.addTest(new CompletionTests("testCompletionAfterEqualEqual1"));
-	suite.addTest(new CompletionTests("testCompletionAfterEqualEqual2"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof01"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof02_01"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof02_02"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof02_03"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof02_04"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof03_01"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof03_02"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof03_03"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof03_04"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof03_05"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof03_06"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof04"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof05"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof06_01"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof06_02"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof07"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof08"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof09"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof10"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof11"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof12"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof13"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof14"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof15"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof16"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof17"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof18_01"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof18_02"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof18_03"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof19"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof20"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof21"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof22_01"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof22_02"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof22_03"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof22_04"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof23"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof24_1"));
-	suite.addTest(new CompletionTests("testCompletionAfterInstanceof24_2"));
-	suite.addTest(new CompletionTests("testCompletionAfterSupercall1"));
-	suite.addTest(new CompletionTests("testCompletionAfterSwitch"));
-	suite.addTest(new CompletionTests("testCompletionAllMemberTypes"));
-	suite.addTest(new CompletionTests("testCompletionAllMemberTypes2"));
-	suite.addTest(new CompletionTests("testCompletionAllMemberTypes3"));
-	suite.addTest(new CompletionTests("testCompletionAllMemberTypes4"));
-	suite.addTest(new CompletionTests("testCompletionAllMemberTypes5"));
-	suite.addTest(new CompletionTests("testCompletionAllMemberTypes6"));
-	suite.addTest(new CompletionTests("testCompletionAllMemberTypes7"));
-	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent1"));
-	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent2"));
-	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent3"));
-	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent4"));
-	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent5"));
-	suite.addTest(new CompletionTests("testCompletionAllocationExpressionIsParent6"));
-	suite.addTest(new CompletionTests("testCompletionAmbiguousFieldName"));
-	suite.addTest(new CompletionTests("testCompletionAmbiguousFieldName2"));
-	suite.addTest(new CompletionTests("testCompletionAmbiguousFieldName3"));
-	suite.addTest(new CompletionTests("testCompletionAmbiguousFieldName4"));
-	suite.addTest(new CompletionTests("testCompletionAmbiguousType"));
-	suite.addTest(new CompletionTests("testCompletionAmbiguousType2"));
-	suite.addTest(new CompletionTests("testCompletionArgumentName"));
-	suite.addTest(new CompletionTests("testCompletionArrayAccess1"));
-	suite.addTest(new CompletionTests("testCompletionArrayClone"));
-	suite.addTest(new CompletionTests("testCompletionArrayLength"));
-	suite.addTest(new CompletionTests("testCompletionArraysCloneMethod"));
-	suite.addTest(new CompletionTests("testCompletionAssignmentInMethod1"));
-	suite.addTest(new CompletionTests("testCompletionAssignmentInMethod2"));
-	suite.addTest(new CompletionTests("testCompletionAssignmentInMethod3"));
-	suite.addTest(new CompletionTests("testCompletionAssignmentInMethod4"));
-	suite.addTest(new CompletionTests("testCompletionBasicAnonymousDeclaration1"));
-	suite.addTest(new CompletionTests("testCompletionBasicCompletionContext"));
-	suite.addTest(new CompletionTests("testCompletionBasicField1"));
-	suite.addTest(new CompletionTests("testCompletionBasicKeyword1"));
-	suite.addTest(new CompletionTests("testCompletionBasicLocalVariable1"));
-	suite.addTest(new CompletionTests("testCompletionBasicMethod1"));
-	suite.addTest(new CompletionTests("testCompletionBasicMethodDeclaration1"));
-	suite.addTest(new CompletionTests("testCompletionBasicPackage1"));
-	suite.addTest(new CompletionTests("testCompletionBasicPotentialMethodDeclaration1"));
-	suite.addTest(new CompletionTests("testCompletionBasicType1"));
-	suite.addTest(new CompletionTests("testCompletionBasicType2"));
-	suite.addTest(new CompletionTests("testCompletionBasicType3"));
-	suite.addTest(new CompletionTests("testCompletionBasicVariableDeclaration1"));
-	suite.addTest(new CompletionTests("testCompletionBinaryOperator1"));
-	suite.addTest(new CompletionTests("testCompletionBinaryOperator2"));
-	suite.addTest(new CompletionTests("testCompletionBinaryOperator3"));
-	suite.addTest(new CompletionTests("testCompletionCaseInsensitive"));
-	suite.addTest(new CompletionTests("testCompletionCaseInsensitivePackage"));
-	suite.addTest(new CompletionTests("testCompletionCastIsParent1"));
-	suite.addTest(new CompletionTests("testCompletionCastIsParent2"));
-	suite.addTest(new CompletionTests("testCompletionCatchArgumentName"));
-	suite.addTest(new CompletionTests("testCompletionCatchArgumentName2"));
-	suite.addTest(new CompletionTests("testCompletionClassLiteralAfterAnonymousType1"));
-	suite.addTest(new CompletionTests("testCompletionConditionalExpression1"));
-	suite.addTest(new CompletionTests("testCompletionConditionalExpression2"));
-	suite.addTest(new CompletionTests("testCompletionConditionalExpression3"));
-	suite.addTest(new CompletionTests("testCompletionConstructorForAnonymousType"));
-	suite.addTest(new CompletionTests("testCompletionEmptyToken1"));
-	suite.addTest(new CompletionTests("testCompletionEmptyToken2"));
-	suite.addTest(new CompletionTests("testCompletionEmptyTypeName1"));
-	suite.addTest(new CompletionTests("testCompletionEmptyTypeName2"));
-	suite.addTest(new CompletionTests("testCompletionEmptyTypeName3"));
-	suite.addTest(new CompletionTests("testCompletionEmptyTypeName4"));
-	suite.addTest(new CompletionTests("testCompletionEndOfCompilationUnit"));
-	suite.addTest(new CompletionTests("testCompletionExactNameCaseInsensitive"));
-	suite.addTest(new CompletionTests("testCompletionExpectedTypeIsNotValid"));
-	suite.addTest(new CompletionTests("testCompletionExpectedTypeOnEmptyToken1"));
-	suite.addTest(new CompletionTests("testCompletionExpectedTypeOnEmptyToken3"));
-	suite.addTest(new CompletionTests("testCompletionExpectedTypeOnEmptyToken4"));
-	suite.addTest(new CompletionTests("testCompletionFieldInitializer1"));
-	suite.addTest(new CompletionTests("testCompletionFieldInitializer2"));
-	suite.addTest(new CompletionTests("testCompletionFieldInitializer3"));
-	suite.addTest(new CompletionTests("testCompletionFieldInitializer4"));
-	suite.addTest(new CompletionTests("testCompletionFieldName"));
-	suite.addTest(new CompletionTests("testCompletionFieldName2"));
-	suite.addTest(new CompletionTests("testCompletionFieldName3"));
-	suite.addTest(new CompletionTests("testCompletionFieldName4"));
-	suite.addTest(new CompletionTests("testCompletionFieldName5"));
-	suite.addTest(new CompletionTests("testCompletionFieldName6"));
-	suite.addTest(new CompletionTests("testCompletionFieldName7"));
-	suite.addTest(new CompletionTests("testCompletionFindClass"));
-	suite.addTest(new CompletionTests("testCompletionFindClass2"));
-	suite.addTest(new CompletionTests("testCompletionFindClassDefaultPackage"));
-	suite.addTest(new CompletionTests("testCompletionFindConstructor"));
-	suite.addTest(new CompletionTests("testCompletionFindConstructor2"));
-	suite.addTest(new CompletionTests("testCompletionFindConstructor3"));
-	suite.addTest(new CompletionTests("testCompletionFindConstructor4"));
-	suite.addTest(new CompletionTests("testCompletionFindConstructor5"));
-	suite.addTest(new CompletionTests("testCompletionFindExceptions1"));
-	suite.addTest(new CompletionTests("testCompletionFindExceptions2"));
-	suite.addTest(new CompletionTests("testCompletionFindField1"));
-	suite.addTest(new CompletionTests("testCompletionFindField2"));
-	suite.addTest(new CompletionTests("testCompletionFindField3"));
-	suite.addTest(new CompletionTests("testCompletionFindImport1"));
-	suite.addTest(new CompletionTests("testCompletionFindImport2"));
-	suite.addTest(new CompletionTests("testCompletionFindLocalVariable"));
-	suite.addTest(new CompletionTests("testCompletionFindMemberType1"));
-	suite.addTest(new CompletionTests("testCompletionFindMemberType2"));
-	suite.addTest(new CompletionTests("testCompletionFindMethod1"));
-	suite.addTest(new CompletionTests("testCompletionFindMethod2"));
-	suite.addTest(new CompletionTests("testCompletionFindMethodInThis"));
-	suite.addTest(new CompletionTests("testCompletionFindMethodWhenInProcess"));
-	suite.addTest(new CompletionTests("testCompletionFindSecondaryType1"));
-	suite.addTest(new CompletionTests("testCompletionFindSuperInterface"));
-	suite.addTest(new CompletionTests("testCompletionFindThisDotField"));
-	suite.addTest(new CompletionTests("testCompletionImportedType1"));
-	suite.addTest(new CompletionTests("testCompletionImportedType2"));
-	suite.addTest(new CompletionTests("testCompletionImportedType3"));
-	suite.addTest(new CompletionTests("testCompletionImportedType4"));
-	suite.addTest(new CompletionTests("testCompletionImportedType5"));
-	suite.addTest(new CompletionTests("testCompletionImportedType6"));
-	suite.addTest(new CompletionTests("testCompletionImportedType7"));
-	suite.addTest(new CompletionTests("testCompletionImportedType8"));
-	suite.addTest(new CompletionTests("testCompletionInsideExtends1"));
-	suite.addTest(new CompletionTests("testCompletionInsideExtends10"));
-	suite.addTest(new CompletionTests("testCompletionInsideExtends11"));
-	suite.addTest(new CompletionTests("testCompletionInsideExtends12"));
-	suite.addTest(new CompletionTests("testCompletionInsideExtends13"));
-	suite.addTest(new CompletionTests("testCompletionInsideExtends14"));
-	suite.addTest(new CompletionTests("testCompletionInsideExtends2"));
-	suite.addTest(new CompletionTests("testCompletionInsideExtends3"));
-	suite.addTest(new CompletionTests("testCompletionInsideExtends4"));
-	suite.addTest(new CompletionTests("testCompletionInsideExtends5"));
-	suite.addTest(new CompletionTests("testCompletionInsideExtends6"));
-	suite.addTest(new CompletionTests("testCompletionInsideExtends7"));
-	suite.addTest(new CompletionTests("testCompletionInsideExtends8"));
-	suite.addTest(new CompletionTests("testCompletionInsideExtends9"));
-	suite.addTest(new CompletionTests("testCompletionInsideGenericClass"));
-	suite.addTest(new CompletionTests("testCompletionInsideStaticMethod"));
-	suite.addTest(new CompletionTests("testCompletionInstanceofOperator1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAbstract1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAbstract10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAbstract11"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAbstract12"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAbstract13"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAbstract14"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAbstract15"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAbstract16"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAbstract2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAbstract3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAbstract4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAbstract5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAbstract6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAbstract7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAbstract8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAbstract9"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAssert1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAssert2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAssert3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAssert4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAssert5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordAssert6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordBreak1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordBreak2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordBreak3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordBreak4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordBreak5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordBreak6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCase1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCase10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCase2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCase3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCase4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCase5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCase6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCase7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCase8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCase9"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCatch1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCatch10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCatch2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCatch3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCatch4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCatch5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCatch6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCatch7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCatch8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordCatch9"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass11"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass12"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass13"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass14"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass15"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass16"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass17"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass18"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass19"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass20"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass21"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass22"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass23"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass24"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordClass9"));
-	suite.addTest(new CompletionTests("testCompletionKeywordContinue1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordContinue2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordContinue3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordContinue4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordContinue5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordDefault1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordDefault10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordDefault2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordDefault3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordDefault4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordDefault5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordDefault6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordDefault7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordDefault8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordDefault9"));
-	suite.addTest(new CompletionTests("testCompletionKeywordDo1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordDo2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordDo3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordDo4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordDo5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordDo6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordElse1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordElse2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordElse3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordElse4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordElse5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordElse6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordElse7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordElse8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordExtends1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordExtends10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordExtends2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordExtends3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordExtends4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordExtends5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordExtends6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordExtends7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordExtends8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordExtends9"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFalse1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFalse2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFalse3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFalse4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFalse5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal11"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal12"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal13"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal14"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal15"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal16"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal17"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal18"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinal9"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinally1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinally10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinally11"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinally12"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinally13"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinally14"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinally2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinally3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinally4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinally5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinally6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinally7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinally8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFinally9"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFor1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFor2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFor3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFor4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFor5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordFor6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordIf1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordIf2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordIf3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordIf4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordIf5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordIf6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordImplements1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordImplements2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordImplements3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordImplements4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordImplements5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordImplements6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordImport1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordImport2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordImport3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordImport4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordImport5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordImport6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordImport7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordImport8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInstanceof1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInstanceof2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInstanceof3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInstanceof4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInstanceof5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInstanceof6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface11"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface12"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface13"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface14"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface15"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface16"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface17"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface18"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordInterface9"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNative1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNative2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNative3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNative4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNative5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNative6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNative7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNative8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNew1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNew10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNew11"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNew12"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNew13"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNew14"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNew15"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNew16"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNew2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNew3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNew4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNew5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNew6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNew7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNew8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNew9"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNull1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNull2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNull3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordNull4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPackage1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPackage2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPackage3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPackage4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPackage5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPackage6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPackage7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPackage8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPrivate1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPrivate10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPrivate2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPrivate3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPrivate4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPrivate5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPrivate6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPrivate7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPrivate8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPrivate9"));
-	suite.addTest(new CompletionTests("testCompletionKeywordProtected1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordProtected10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordProtected2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordProtected3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordProtected4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordProtected5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordProtected6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordProtected7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordProtected8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordProtected9"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic11"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic12"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic13"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic14"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic15"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic16"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic17"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic18"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic19"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic20"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordPublic9"));
-	suite.addTest(new CompletionTests("testCompletionKeywordReturn1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordReturn2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordReturn3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordReturn4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordReturn5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordReturn6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordReturn7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStatic1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStatic10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStatic2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStatic3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStatic4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStatic5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStatic6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStatic7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStatic8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStatic9"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStrictfp1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStrictfp2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStrictfp3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStrictfp4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStrictfp5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStrictfp6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStrictfp7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordStrictfp8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSuper1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSuper10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSuper11"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSuper12"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSuper2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSuper3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSuper4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSuper5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSuper6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSuper7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSuper8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSuper9"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSwitch1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSwitch2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSwitch3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSwitch4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSwitch5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSwitch6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized11"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized12"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordSynchronized9"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThis1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThis10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThis11"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThis12"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThis13"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThis14"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThis15"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThis2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThis3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThis4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThis5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThis6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThis7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThis8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThis9"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThrow1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThrow2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThrow3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThrow4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThrow5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThrow6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThrows1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThrows2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThrows3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThrows4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThrows5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThrows6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThrows7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordThrows8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTransient1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTransient2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTransient3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTransient4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTransient5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTransient6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTransient7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTransient8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTrue1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTrue2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTrue3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTrue4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTrue5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTrue6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTry1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTry2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTry3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTry4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTry5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordTry6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordVolatile1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordVolatile2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordVolatile3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordVolatile4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordVolatile5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordVolatile6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordVolatile7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordVolatile8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordWhile1"));
-	suite.addTest(new CompletionTests("testCompletionKeywordWhile10"));
-	suite.addTest(new CompletionTests("testCompletionKeywordWhile2"));
-	suite.addTest(new CompletionTests("testCompletionKeywordWhile3"));
-	suite.addTest(new CompletionTests("testCompletionKeywordWhile4"));
-	suite.addTest(new CompletionTests("testCompletionKeywordWhile5"));
-	suite.addTest(new CompletionTests("testCompletionKeywordWhile6"));
-	suite.addTest(new CompletionTests("testCompletionKeywordWhile7"));
-	suite.addTest(new CompletionTests("testCompletionKeywordWhile8"));
-	suite.addTest(new CompletionTests("testCompletionKeywordWhile9"));
-	suite.addTest(new CompletionTests("testCompletionLocalName"));
-	suite.addTest(new CompletionTests("testCompletionLocalType1"));
-	suite.addTest(new CompletionTests("testCompletionMemberType"));
-	suite.addTest(new CompletionTests("testCompletionMemberType2"));
-	suite.addTest(new CompletionTests("testCompletionMemberType3"));
-	suite.addTest(new CompletionTests("testCompletionMessageSendIsParent1"));
-	suite.addTest(new CompletionTests("testCompletionMessageSendIsParent2"));
-	suite.addTest(new CompletionTests("testCompletionMessageSendIsParent3"));
-	suite.addTest(new CompletionTests("testCompletionMessageSendIsParent4"));
-	suite.addTest(new CompletionTests("testCompletionMessageSendIsParent5"));
-	suite.addTest(new CompletionTests("testCompletionMessageSendIsParent6"));
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration"));
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration10"));
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration11"));
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration12"));
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration13"));
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration14"));
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration15"));
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration16"));
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration17"));
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration2"));
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration3"));
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration4"));
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration5"));
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration6"));
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration7"));
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration8"));
-	suite.addTest(new CompletionTests("testCompletionMethodDeclaration9"));
-	suite.addTest(new CompletionTests("testCompletionMethodThrowsClause"));
-	suite.addTest(new CompletionTests("testCompletionMethodThrowsClause2"));
-	suite.addTest(new CompletionTests("testCompletionNonEmptyToken1"));
-	suite.addTest(new CompletionTests("testCompletionNonStaticFieldRelevance"));
-	suite.addTest(new CompletionTests("testCompletionNullRequestor"));
-	suite.addTest(new CompletionTests("testCompletionObjectsMethodWithInterfaceReceiver"));
-	suite.addTest(new CompletionTests("testCompletionOnClassFile"));
-	suite.addTest(new CompletionTests("testCompletionOnStaticMember1"));
-	suite.addTest(new CompletionTests("testCompletionOnStaticMember2"));
-	suite.addTest(new CompletionTests("testCompletionOutOfBounds"));
-	suite.addTest(new CompletionTests("testCompletionPackageAndClass1"));
-	suite.addTest(new CompletionTests("testCompletionPackageAndClass2"));
-	suite.addTest(new CompletionTests("testCompletionPrefixFieldName1"));
-	suite.addTest(new CompletionTests("testCompletionPrefixFieldName2"));
-	suite.addTest(new CompletionTests("testCompletionPrefixMethodName1"));
-	suite.addTest(new CompletionTests("testCompletionPrefixMethodName2"));
-	suite.addTest(new CompletionTests("testCompletionPrefixMethodName3"));
-	suite.addTest(new CompletionTests("testCompletionQualifiedAllocationType1"));
-	suite.addTest(new CompletionTests("testCompletionQualifiedExpectedType"));
-	suite.addTest(new CompletionTests("testCompletionRepeatedType"));
-	suite.addTest(new CompletionTests("testCompletionReturnInInitializer"));
-	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent1"));
-	suite.addTest(new CompletionTests("testCompletionReturnStatementIsParent2"));
-	suite.addTest(new CompletionTests("testCompletionSameClass"));
-	suite.addTest(new CompletionTests("testCompletionSameSuperClass"));
-	suite.addTest(new CompletionTests("testCompletionStaticMethod1"));
-	suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration1"));
-	suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration2"));
-	suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration3"));
-	suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration4"));
-	suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration5"));
-	suite.addTest(new CompletionTests("testCompletionStaticMethodDeclaration6"));
-	suite.addTest(new CompletionTests("testCompletionSuperType"));
-	suite.addTest(new CompletionTests("testCompletionSuperType2"));
-	suite.addTest(new CompletionTests("testCompletionSuperType3"));
-	suite.addTest(new CompletionTests("testCompletionSuperType4"));
-	suite.addTest(new CompletionTests("testCompletionSuperType5"));
-	suite.addTest(new CompletionTests("testCompletionSuperType6"));
-	suite.addTest(new CompletionTests("testCompletionSuperType7"));
-	suite.addTest(new CompletionTests("testCompletionSuperType8"));
-	suite.addTest(new CompletionTests("testCompletionThrowStatement"));
-	suite.addTest(new CompletionTests("testCompletionToplevelType1"));
-	suite.addTest(new CompletionTests("testCompletionType1"));
-	suite.addTest(new CompletionTests("testCompletionUnaryOperator1"));
-	suite.addTest(new CompletionTests("testCompletionUnaryOperator2"));
-	suite.addTest(new CompletionTests("testCompletionUnresolvedEnclosingType"));
-	suite.addTest(new CompletionTests("testCompletionUnresolvedFieldType"));
-	suite.addTest(new CompletionTests("testCompletionUnresolvedParameterType"));
-	suite.addTest(new CompletionTests("testCompletionUnresolvedReturnType"));
-	suite.addTest(new CompletionTests("testCompletionUnresolvedSuperclass"));
-	suite.addTest(new CompletionTests("testCompletionUnresolvedSuperinteface"));
-	suite.addTest(new CompletionTests("testCompletionVariableInitializerInInitializer1"));
-	suite.addTest(new CompletionTests("testCompletionVariableInitializerInInitializer2"));
-	suite.addTest(new CompletionTests("testCompletionVariableInitializerInInitializer3"));
-	suite.addTest(new CompletionTests("testCompletionVariableInitializerInInitializer4"));
-	suite.addTest(new CompletionTests("testCompletionVariableInitializerInMethod1"));
-	suite.addTest(new CompletionTests("testCompletionVariableInitializerInMethod2"));
-	suite.addTest(new CompletionTests("testCompletionVariableInitializerInMethod3"));
-	suite.addTest(new CompletionTests("testCompletionVariableInitializerInMethod4"));
-	suite.addTest(new CompletionTests("testCompletionVariableName1"));
-	suite.addTest(new CompletionTests("testCompletionVariableName10"));
-	suite.addTest(new CompletionTests("testCompletionVariableName11"));
-	suite.addTest(new CompletionTests("testCompletionVariableName12"));
-	suite.addTest(new CompletionTests("testCompletionVariableName13"));
-	suite.addTest(new CompletionTests("testCompletionVariableName14"));
-	suite.addTest(new CompletionTests("testCompletionVariableName14_2"));
-	suite.addTest(new CompletionTests("testCompletionVariableName15"));
-	suite.addTest(new CompletionTests("testCompletionVariableName16"));
-	suite.addTest(new CompletionTests("testCompletionVariableName17"));
-	suite.addTest(new CompletionTests("testCompletionVariableName18"));
-	suite.addTest(new CompletionTests("testCompletionVariableName19"));
-	suite.addTest(new CompletionTests("testCompletionVariableName2"));
-	suite.addTest(new CompletionTests("testCompletionVariableName20"));
-	suite.addTest(new CompletionTests("testCompletionVariableName21"));
-	suite.addTest(new CompletionTests("testCompletionVariableName22"));
-	suite.addTest(new CompletionTests("testCompletionVariableName23"));
-	suite.addTest(new CompletionTests("testCompletionVariableName24"));
-	suite.addTest(new CompletionTests("testCompletionVariableName25"));
-	suite.addTest(new CompletionTests("testCompletionVariableName26"));
-	suite.addTest(new CompletionTests("testCompletionVariableName27"));
-	suite.addTest(new CompletionTests("testCompletionVariableName28"));
-	suite.addTest(new CompletionTests("testCompletionVariableName29"));
-	suite.addTest(new CompletionTests("testCompletionVariableName3"));
-	suite.addTest(new CompletionTests("testCompletionVariableName30"));
-	suite.addTest(new CompletionTests("testCompletionVariableName31"));
-	suite.addTest(new CompletionTests("testCompletionVariableName32"));
-	suite.addTest(new CompletionTests("testCompletionVariableName33"));
-	suite.addTest(new CompletionTests("testCompletionVariableName34"));
-	suite.addTest(new CompletionTests("testCompletionVariableName35"));
-	suite.addTest(new CompletionTests("testCompletionVariableName36"));
-	suite.addTest(new CompletionTests("testCompletionVariableName37"));
-	suite.addTest(new CompletionTests("testCompletionVariableName38"));
-	suite.addTest(new CompletionTests("testCompletionVariableName39"));
-	suite.addTest(new CompletionTests("testCompletionVariableName4"));
-	suite.addTest(new CompletionTests("testCompletionVariableName5"));
-	suite.addTest(new CompletionTests("testCompletionVariableName5_2"));
-	suite.addTest(new CompletionTests("testCompletionVariableName6"));
-	suite.addTest(new CompletionTests("testCompletionVariableName6_2"));
-	suite.addTest(new CompletionTests("testCompletionVariableName7"));
-	suite.addTest(new CompletionTests("testCompletionVariableName8"));
-	suite.addTest(new CompletionTests("testCompletionVariableName9"));
-	suite.addTest(new CompletionTests("testCompletionVariableName9_2"));
-	suite.addTest(new CompletionTests("testCompletionVariableNameOfArray1"));
-	suite.addTest(new CompletionTests("testCompletionVariableNameOfArray2"));
-	suite.addTest(new CompletionTests("testCompletionVariableNameOfArray3"));
-	suite.addTest(new CompletionTests("testCompletionVariableNameOfArray4"));
-	suite.addTest(new CompletionTests("testCompletionVariableNameUnresolvedType"));
-	suite.addTest(new CompletionTests("testCompletionVisibilityCheckDisabled"));
-	suite.addTest(new CompletionTests("testCompletionVisibilityCheckEnabled"));
-	suite.addTest(new CompletionTests("testCompletionVoidMethod"));
-	suite.addTest(new CompletionTests("testCompletionWithBinaryFolder"));
-	suite.addTest(new CompletionTests("testCompletionWithProblem1"));
-	suite.addTest(new CompletionTests("testConstructor1"));
-	suite.addTest(new CompletionTests("testConstructor2"));
-	suite.addTest(new CompletionTests("testConstructor3"));
-	suite.addTest(new CompletionTests("testConstructor4"));
-	suite.addTest(new CompletionTests("testConstructor5"));
-	suite.addTest(new CompletionTests("testConstructor6"));
-	suite.addTest(new CompletionTests("testConstructor7"));
-	suite.addTest(new CompletionTests("testDeprecationCheck1"));
-	suite.addTest(new CompletionTests("testDeprecationCheck10"));
-	suite.addTest(new CompletionTests("testDeprecationCheck11"));
-	suite.addTest(new CompletionTests("testDeprecationCheck12"));
-	suite.addTest(new CompletionTests("testDeprecationCheck13"));
-	suite.addTest(new CompletionTests("testDeprecationCheck14"));
-	suite.addTest(new CompletionTests("testDeprecationCheck15"));
-	suite.addTest(new CompletionTests("testDeprecationCheck16"));
-	suite.addTest(new CompletionTests("testDeprecationCheck17"));
-	suite.addTest(new CompletionTests("testDeprecationCheck2"));
-	suite.addTest(new CompletionTests("testDeprecationCheck3"));
-	suite.addTest(new CompletionTests("testDeprecationCheck4"));
-	suite.addTest(new CompletionTests("testDeprecationCheck5"));
-	suite.addTest(new CompletionTests("testDeprecationCheck6"));
-	suite.addTest(new CompletionTests("testDeprecationCheck7"));
-	suite.addTest(new CompletionTests("testDeprecationCheck8"));
-	suite.addTest(new CompletionTests("testDeprecationCheck9"));
-	suite.addTest(new CompletionTests("testDuplicateLocals1"));
-	suite.addTest(new CompletionTests("testDuplicateLocals2"));
-	suite.addTest(new CompletionTests("testDuplicateLocals3"));
-	suite.addTest(new CompletionTests("testDuplicateLocals4"));
-	suite.addTest(new CompletionTests("testDuplicateLocals5"));
-	suite.addTest(new CompletionTests("testDuplicateLocalsType1"));
-	suite.addTest(new CompletionTests("testDuplicateLocalsType2"));
-	suite.addTest(new CompletionTests("testEvaluationContextCompletion"));
-	suite.addTest(new CompletionTests("testEvaluationContextCompletion2"));
-	suite.addTest(new CompletionTests("testEvaluationContextCompletion3"));
-	suite.addTest(new CompletionTests("testEvaluationContextCompletion4"));
-	suite.addTest(new CompletionTests("testEvaluationContextCompletion5"));
-	suite.addTest(new CompletionTests("testEvaluationContextCompletion6"));
-	suite.addTest(new CompletionTests("testFavoriteImports001"));
-	suite.addTest(new CompletionTests("testFavoriteImports002"));
-	suite.addTest(new CompletionTests("testFavoriteImports003"));
-	suite.addTest(new CompletionTests("testFavoriteImports004"));
-	suite.addTest(new CompletionTests("testFavoriteImports005"));
-	suite.addTest(new CompletionTests("testFavoriteImports006"));
-	suite.addTest(new CompletionTests("testFavoriteImports007"));
-	suite.addTest(new CompletionTests("testFavoriteImports009"));
-	suite.addTest(new CompletionTests("testFavoriteImports011"));
-	suite.addTest(new CompletionTests("testFavoriteImports013"));
-	suite.addTest(new CompletionTests("testFavoriteImports016"));
-	suite.addTest(new CompletionTests("testFavoriteImports017"));
-	suite.addTest(new CompletionTests("testFavoriteImports018"));
-	suite.addTest(new CompletionTests("testFavoriteImports019"));
-	suite.addTest(new CompletionTests("testFavoriteImports020"));
-	suite.addTest(new CompletionTests("testFavoriteImports022"));
-	suite.addTest(new CompletionTests("testFavoriteImports023"));
-	suite.addTest(new CompletionTests("testFavoriteImports024"));
-	suite.addTest(new CompletionTests("testFavoriteImports025"));
-	suite.addTest(new CompletionTests("testFavoriteImports026"));
-	suite.addTest(new CompletionTests("testFavoriteImports027"));
-	suite.addTest(new CompletionTests("testFavoriteImports028"));
-	suite.addTest(new CompletionTests("testFavoriteImports030"));
-	suite.addTest(new CompletionTests("testFavoriteImports031"));
-	suite.addTest(new CompletionTests("testFavoriteImports032"));
-	suite.addTest(new CompletionTests("testFavoriteImports033"));
-	suite.addTest(new CompletionTests("testInconsistentHierarchy1"));
-	suite.addTest(new CompletionTests("testLabel1"));
-	suite.addTest(new CompletionTests("testLabel2"));
-	suite.addTest(new CompletionTests("testLabel3"));
-	suite.addTest(new CompletionTests("testLabel4"));
-	suite.addTest(new CompletionTests("testLabel5"));
-	suite.addTest(new CompletionTests("testLabel6"));
-	suite.addTest(new CompletionTests("testMethod1"));
-	suite.addTest(new CompletionTests("testMethod2"));
-	suite.addTest(new CompletionTests("testMethod3"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences001"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences002"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences003"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences004"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences005"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences006"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences007"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences008"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences009"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences010"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences011"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences012"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences013"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences014"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences015"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences016"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences017"));
-	suite.addTest(new CompletionTests("testNameWithUnresolvedReferences018"));
-	suite.addTest(new CompletionTests("testParameterNames1"));
-	suite.addTest(new CompletionTests("testStaticMembers1"));
-	suite.addTest(new CompletionTests("testType1"));
-	suite.addTest(new CompletionTests("testType2"));
-	suite.addTest(new CompletionTests("testType3"));
-	suite.addTest(new CompletionTests("testType4"));
-	suite.addTest(new CompletionTests("testType5"));
-	suite.addTest(new CompletionTests("testType6"));
-	suite.addTest(new CompletionTests("testType7"));
-	suite.addTest(new CompletionTests("testType8"));
-	suite.addTest(new CompletionTests("testType9"));
-	suite.addTest(new CompletionTests("testType10"));
-	suite.addTest(new CompletionTests("testType11"));
-	suite.addTest(new CompletionTests("testType12"));
-	suite.addTest(new CompletionTests("testType13"));
-	suite.addTest(new CompletionTests("testType14"));
-	suite.addTest(new CompletionTests("testInvalidField1"));
-	suite.addTest(new CompletionTests("testInvalidField2"));
-	suite.addTest(new CompletionTests("testInvalidMethod1"));
-	suite.addTest(new CompletionTests("testInvalidMethod2"));
-	suite.addTest(new CompletionTests("testCompletionOnExtendFinalClass"));
-	suite.addTest(new CompletionTests("testCompletionOnExtendFinalClass2"));
-	suite.addTest(new CompletionTests("testCompletionOnExtendFinalClass3"));
-	suite.addTest(new CompletionTests("test203060a"));
-	suite.addTest(new CompletionTests("test203060b"));
-	suite.addTest(new CompletionTests("test203060c"));
-	suite.addTest(new CompletionTests("test203060d"));
-	suite.addTest(new CompletionTests("test269493"));
-	suite.addTest(new CompletionTests("test269493b"));
-	suite.addTest(new CompletionTests("test269493c"));
-	suite.addTest(new CompletionTests("test269493d"));
-	suite.addTest(new CompletionTests("test269493e"));
-	suite.addTest(new CompletionTests("test269493f"));
-	suite.addTest(new CompletionTests("test269493g"));
-	suite.addTest(new CompletionTests("test269493h"));
-	suite.addTest(new CompletionTests("test269493i"));
-	suite.addTest(new CompletionTests("test253008"));
-	suite.addTest(new CompletionTests("test253008b"));
-	suite.addTest(new CompletionTests("test253008c"));
-	suite.addTest(new CompletionTests("test253008d"));
-	suite.addTest(new CompletionTests("test253008e"));
-	suite.addTest(new CompletionTests("test253008f"));
-	suite.addTest(new CompletionTests("test201762"));
-	suite.addTest(new CompletionTests("test270437a"));
-	suite.addTest(new CompletionTests("test270437b"));
-	suite.addTest(new CompletionTests("test270437c"));
-	suite.addTest(new CompletionTests("test270436a"));
-	suite.addTest(new CompletionTests("test270436b"));
-	suite.addTest(new CompletionTests("test270436c"));
-	suite.addTest(new CompletionTests("test276526a"));
-	suite.addTest(new CompletionTests("test276526b"));
-	suite.addTest(new CompletionTests("test276526c"));
-	suite.addTest(new CompletionTests("test276526d"));
-	suite.addTest(new CompletionTests("testBug287939a"));
-	suite.addTest(new CompletionTests("testBug287939b"));
-	suite.addTest(new CompletionTests("testBug287939c"));
-	suite.addTest(new CompletionTests("testBug287939d"));
-	suite.addTest(new CompletionTests("testBug202634a"));
-	suite.addTest(new CompletionTests("testBug202634b"));
-	suite.addTest(new CompletionTests("testBug202634c"));
-	suite.addTest(new CompletionTests("testBug202634d"));
-	suite.addTest(new CompletionTests("testBug202634e"));
-	suite.addTest(new CompletionTests("testBug202634f"));
-	suite.addTest(new CompletionTests("testBug307337"));
-	suite.addTest(new CompletionTests("testBug292087"));
-	suite.addTest(new CompletionTests("testBug249704"));
-	suite.addTest(new CompletionTests("testBug244820"));
-	suite.addTest(new CompletionTests("testBug308980a"));
-	suite.addTest(new CompletionTests("testBug308980b"));
-	suite.addTest(new CompletionTests("testBug267091a"));
-	suite.addTest(new CompletionTests("testBug267091b"));
-	suite.addTest(new CompletionTests("testBug310747"));
-	suite.addTest(new CompletionTests("testBug261534a"));
-	suite.addTest(new CompletionTests("testBug261534b"));
-	suite.addTest(new CompletionTests("testBug310427a"));
-	suite.addTest(new CompletionTests("testBug310427b"));
-	suite.addTest(new CompletionTests("testBug195346a"));
-	suite.addTest(new CompletionTests("testBug195346b"));
-	suite.addTest(new CompletionTests("testBug304006a"));
-	suite.addTest(new CompletionTests("testBug304006b"));
-	suite.addTest(new CompletionTests("testBug304006c"));
-	suite.addTest(new CompletionTests("testBug304006d"));
-	suite.addTest(new CompletionTests("testBug304006e"));
-	suite.addTest(new CompletionTests("test325481"));
-	suite.addTest(new CompletionTests("test312603"));
-	suite.addTest(new CompletionTests("test328674a"));
-	suite.addTest(new CompletionTests("test328674b"));
-	suite.addTest(new CompletionTests("test325481b"));
-	suite.addTest(new CompletionTests("testBug332268a"));
-	suite.addTest(new CompletionTests("testBug332268b"));
-	suite.addTest(new CompletionTests("testBug338789"));
-	suite.addTest(new CompletionTests("testBug338789b"));
-	suite.addTest(new CompletionTests("testBug338789c"));
-	suite.addTest(new CompletionTests("testBug338789d"));
-	suite.addTest(new CompletionTests("testBug338789e"));
-	suite.addTest(new CompletionTests("testBug343342"));
-	suite.addTest(new CompletionTests("testBug343342a"));
-	suite.addTest(new CompletionTests("testBug343342b"));
-	suite.addTest(new CompletionTests("testBug343476"));
-	suite.addTest(new CompletionTests("testBug343476a"));
-	suite.addTest(new CompletionTests("testBug343637"));
-	suite.addTest(new CompletionTests("testBug343637b"));
-	suite.addTest(new CompletionTests("testBug343637c"));
-	suite.addTest(new CompletionTests("testBug343637d"));
-	suite.addTest(new CompletionTests("testBug343637e"));
-	suite.addTest(new CompletionTests("testBug343637f"));
-	suite.addTest(new CompletionTests("testBug343637g"));
-	suite.addTest(new CompletionTests("testBug343637h"));
-	suite.addTest(new CompletionTests("testBug346454"));
-	suite.addTest(new CompletionTests("testBug346454b"));
-	suite.addTest(new CompletionTests("testBug346454c"));
-	suite.addTest(new CompletionTests("testBug346454c_2"));
-	suite.addTest(new CompletionTests("testBug346454d"));
-	suite.addTest(new CompletionTests("testBug346454e"));
-	suite.addTest(new CompletionTests("testBug346454f"));
-	suite.addTest(new CompletionTests("testBug346454g"));
-	suite.addTest(new CompletionTests("testBug346454h"));
-	suite.addTest(new CompletionTests("testBug346454i"));
-	suite.addTest(new CompletionTests("testBug346415"));
-	suite.addTest(new CompletionTests("testBug346415a"));
-	suite.addTest(new CompletionTests("testBug350767"));
-	suite.addTest(new CompletionTests("testBug350767b"));
-	suite.addTest(new CompletionTests("testBug350652"));
-	suite.addTest(new CompletionTests("testBug350652b"));
-	suite.addTest(new CompletionTests("testBug350652c"));
-	suite.addTest(new CompletionTests("testBug350652d"));
-	suite.addTest(new CompletionTests("testBug350652e"));
-	suite.addTest(new CompletionTests("testBug350652f"));
-	suite.addTest(new CompletionTests("testBug350652g"));
-	suite.addTest(new CompletionTests("testBug350652h"));
-	suite.addTest(new CompletionTests("testBug350652i"));
-	suite.addTest(new CompletionTests("testBug350652j"));
-	suite.addTest(new CompletionTests("testBug350652k"));
-	suite.addTest(new CompletionTests("testBug350652l"));
-	suite.addTest(new CompletionTests("testBug350652m"));
-	suite.addTest(new CompletionTests("testBug350652n"));
-	suite.addTest(new CompletionTests("testBug401487a"));
-	suite.addTest(new CompletionTests("testBug401487b"));
-	suite.addTest(new CompletionTests("testBug401487c"));
-	suite.addTest(new CompletionTests("testBug401487d"));
-	suite.addTest(new CompletionTests("testBug401487e"));
-	suite.addTest(new CompletionTests("testBug351444"));
-	suite.addTest(new CompletionTests("testBug351444a"));
-	suite.addTest(new CompletionTests("testBug351444b"));
-	suite.addTest(new CompletionTests("testBug351444c"));
-	suite.addTest(new CompletionTests("testBug351444d"));
-	suite.addTest(new CompletionTests("testBug351444e"));
-	suite.addTest(new CompletionTests("testBug292087b"));
-	suite.addTest(new CompletionTests("testBug292087c"));
-	suite.addTest(new CompletionTests("testBug292087d"));
-	suite.addTest(new CompletionTests("testBug385858a"));
-	suite.addTest(new CompletionTests("testBug385858b"));
-	suite.addTest(new CompletionTests("testBug385858c"));
-	suite.addTest(new CompletionTests("testBug385858d"));
-	suite.addTest(new CompletionTests("testBug402574"));
-	suite.addTest(new CompletionTests("testBug402812a"));
-	suite.addTest(new CompletionTests("testBug402812b"));
-	suite.addTest(new CompletionTests("testBug402812c"));
-	suite.addTest(new CompletionTests("testBug402812d"));
-	suite.addTest(new CompletionTests("testBug370971"));
-	suite.addTest(new CompletionTests("testBug406468a"));
-	suite.addTest(new CompletionTests("testBug406468b"));
-	suite.addTest(new CompletionTests("testBug405250a"));
-	suite.addTest(new CompletionTests("testBug405250b"));
-	suite.addTest(new CompletionTests("testBug405250c"));
-	suite.addTest(new CompletionTests("testBug405250d"));
-	return suite;
+	return buildModelTestSuite(CompletionTests.class, BYTECODE_DECLARATION_ORDER);
 }
 public CompletionTests(String name) {
 	super(name);
@@ -1595,7 +574,7 @@ public void testBug275518c() throws JavaModelException {
 public void testCamelCaseField1() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 
@@ -1629,7 +608,7 @@ public void testCamelCaseField1() throws JavaModelException {
 public void testCamelCaseLocalVariable1() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 
@@ -1663,7 +642,7 @@ public void testCamelCaseLocalVariable1() throws JavaModelException {
 public void testCamelCaseMethod1() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 
@@ -1697,7 +676,7 @@ public void testCamelCaseMethod1() throws JavaModelException {
 public void testCamelCaseMethodDeclaration1() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 
@@ -1736,7 +715,7 @@ public void testCamelCaseMethodDeclaration1() throws JavaModelException {
 public void testCamelCaseType1() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 
@@ -1779,7 +758,7 @@ public void testCamelCaseType1() throws JavaModelException {
 public void testCamelCaseType2() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 
@@ -1821,7 +800,7 @@ public void testCamelCaseType2() throws JavaModelException {
 public void testCamelCaseType3() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 
@@ -1857,7 +836,7 @@ public void testCamelCaseType3() throws JavaModelException {
 public void testCamelCaseType4() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 
@@ -1904,7 +883,7 @@ public void testCamelCaseType4() throws JavaModelException {
 public void testCamelCaseType5() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 
@@ -3100,6 +2079,108 @@ public void testCompletionAfterInstanceof01() throws JavaModelException {
 		"	public void equalsFoo(){}\n" +
 		"	void bar(Object a){\n" +
 		"		if (a instanceof CompletionAfterInstanceOf) {\n" +
+		"			a.equal\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
+			requestor.getResults());
+}
+public void testCompletionAfterInstanceof01_02() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a){\n" +
+		"		if (a instanceof CompletionAfterInstanceOf && a.equal) {\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+				"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["
+						+ start2 + ", " + end2 + "], token[" + start1 + ", " + end1 + "], receiver[" + start3 + ", "
+						+ end3 + "], " + (relevance1 + R_VOID) + "}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1 + R_EXACT_EXPECTED_TYPE) + "}",
+			requestor.getResults());
+}
+public void testCompletionAfterInstanceof01_03() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a){\n" +
+		"		if (true) \n" +
+		"			;\n" +
+		"		else if (a instanceof CompletionAfterInstanceOf && a.equal) {\n" +
+		"	}\n" +
+		"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "equal";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	int start1 = str.lastIndexOf("equal") + "".length();
+	int end1 = start1 + "equal".length();
+	int start2 = str.lastIndexOf("a.equal");
+	int end2 = start2 + "a.equal".length();
+	int start3 = str.lastIndexOf("a.");
+	int end3 = start3 + "a".length();
+	assertResults(
+			"equalsFoo[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).equalsFoo(), Ltest.CompletionAfterInstanceOf;, ()V, Ltest.CompletionAfterInstanceOf;, equalsFoo, null, replace["
+					+ start2 + ", " + end2 + "], token[" + start1 + ", " + end1 + "], receiver[" + start3 + ", "
+					+ end3 + "], " + (relevance1 + R_VOID) + "}\n" +
+		"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1 + R_EXACT_EXPECTED_TYPE) + "}",
+		requestor.getResults());
+}
+public void testCompletionAfterInstanceof01_04() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+		"/Completion/src/test/CompletionAfterInstanceOf.java",
+		"package test;\n" +
+		"public class CompletionAfterInstanceOf {\n" +
+		"	public void equalsFoo(){}\n" +
+		"	void bar(Object a){\n" +
+		"		if (true) \n" +
+		"			;\n" +
+		"		else if (a instanceof CompletionAfterInstanceOf) {\n" +
 		"			a.equal\n" +
 		"	}\n" +
 		"}\n");
@@ -4614,9 +3695,9 @@ public void testCompletionAllMemberTypes4() throws JavaModelException {
 
 public void testCompletionAllMemberTypes5() throws JavaModelException {
 	ICompilationUnit aType = null;
-	Hashtable oldCurrentOptions = JavaCore.getOptions();
+	Hashtable<String, String> oldCurrentOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldCurrentOptions);
+		Hashtable<String, String> options = new Hashtable<>(oldCurrentOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 
@@ -4666,9 +3747,9 @@ public void testCompletionAllMemberTypes5() throws JavaModelException {
 }
 
 public void testCompletionAllMemberTypes6() throws JavaModelException {
-	Hashtable oldCurrentOptions = JavaCore.getOptions();
+	Hashtable<String, String> oldCurrentOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldCurrentOptions);
+		Hashtable<String, String> options = new Hashtable<>(oldCurrentOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 
@@ -4705,9 +3786,9 @@ public void testCompletionAllMemberTypes6() throws JavaModelException {
 }
 
 public void testCompletionAllMemberTypes7() throws JavaModelException {
-	Hashtable oldCurrentOptions = JavaCore.getOptions();
+	Hashtable<String, String> oldCurrentOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldCurrentOptions);
+		Hashtable<String, String> options = new Hashtable<>(oldCurrentOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 
@@ -5717,11 +4798,11 @@ public void testCompletionCatchArgumentName() throws JavaModelException {
 }
 
 public void testCompletionCatchArgumentName2() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
+	Hashtable<String, String> options = JavaCore.getOptions();
 
-	Object argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_ARGUMENT_PREFIXES);
+	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_ARGUMENT_PREFIXES);
 	options.put(JavaCore.CODEASSIST_ARGUMENT_PREFIXES,"arg"); //$NON-NLS-1$
-	Object localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"loc"); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -15339,10 +14420,10 @@ public void testCompletionVariableName1() throws JavaModelException {
 		requestor.getResults());
 }
 public void testCompletionVariableName10() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	Object localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
+	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -15378,10 +14459,10 @@ public void testCompletionVariableName10() throws JavaModelException {
 	}
 }
 public void testCompletionVariableName11() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	Object localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
+	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -15417,10 +14498,10 @@ public void testCompletionVariableName11() throws JavaModelException {
 	}
 }
 public void testCompletionVariableName12() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	Object localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
+	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -15456,10 +14537,10 @@ public void testCompletionVariableName12() throws JavaModelException {
 	}
 }
 public void testCompletionVariableName13() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	Object localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
+	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -15495,10 +14576,10 @@ public void testCompletionVariableName13() throws JavaModelException {
 	}
 }
 public void testCompletionVariableName14() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	Object localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
+	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -15535,10 +14616,10 @@ public void testCompletionVariableName14() throws JavaModelException {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=215975
 public void testCompletionVariableName14_2() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	Object localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
+	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -15575,10 +14656,10 @@ public void testCompletionVariableName14_2() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128045
 public void testCompletionVariableName15() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	Object localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
+	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -16034,10 +15115,10 @@ public void testCompletionVariableName29() throws JavaModelException {
 			requestor.getResults());
 }
 public void testCompletionVariableName3() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"p1,p2"); //$NON-NLS-1$
-	Object localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
+	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"s1,s2"); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -16472,10 +15553,10 @@ public void testCompletionVariableName7() throws JavaModelException {
 }
 
 public void testCompletionVariableName8() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	Object localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
+	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -16511,10 +15592,10 @@ public void testCompletionVariableName8() throws JavaModelException {
 	}
 }
 public void testCompletionVariableName9() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	Object localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
+	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -16551,10 +15632,10 @@ public void testCompletionVariableName9() throws JavaModelException {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=215975
 public void testCompletionVariableName9_2() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	Object localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
+	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
 	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -16677,8 +15758,8 @@ public void testCompletionVariableNameUnresolvedType() throws JavaModelException
 }
 public void testCompletionVisibilityCheckDisabled() throws JavaModelException {
 	String visibilityCheckID = "org.eclipse.jdt.core.codeComplete.visibilityCheck";
-	Hashtable options = JavaCore.getOptions();
-	Object visibilityCheckPreviousValue = options.get(visibilityCheckID);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String visibilityCheckPreviousValue = options.get(visibilityCheckID);
 	options.put(visibilityCheckID,"disabled");
 	JavaCore.setOptions(options);
 
@@ -16701,8 +15782,8 @@ public void testCompletionVisibilityCheckDisabled() throws JavaModelException {
 }
 public void testCompletionVisibilityCheckEnabled() throws JavaModelException {
 	String visibilityCheckID = "org.eclipse.jdt.core.codeComplete.visibilityCheck";
-	Hashtable options = JavaCore.getOptions();
-	Object visibilityCheckPreviousValue = options.get(visibilityCheckID);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String visibilityCheckPreviousValue = options.get(visibilityCheckID);
 	options.put(visibilityCheckID,"enabled");
 	JavaCore.setOptions(options);
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
@@ -17024,8 +16105,8 @@ public void testConstructor7() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck1() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -17070,8 +16151,8 @@ public void testDeprecationCheck1() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck10() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -17108,8 +16189,8 @@ public void testDeprecationCheck10() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck11() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -17146,8 +16227,8 @@ public void testDeprecationCheck11() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck12() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -17184,8 +16265,8 @@ public void testDeprecationCheck12() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck13() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -17222,8 +16303,8 @@ public void testDeprecationCheck13() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck14() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -17260,8 +16341,8 @@ public void testDeprecationCheck14() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck15() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -17303,8 +16384,8 @@ public void testDeprecationCheck15() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck16() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -17340,8 +16421,8 @@ public void testDeprecationCheck16() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127628
 public void testDeprecationCheck17() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -17375,8 +16456,8 @@ public void testDeprecationCheck17() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck2() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -17420,8 +16501,8 @@ public void testDeprecationCheck2() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck3() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -17464,8 +16545,8 @@ public void testDeprecationCheck3() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck4() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -17507,8 +16588,8 @@ public void testDeprecationCheck4() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck5() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -17549,8 +16630,8 @@ public void testDeprecationCheck5() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck6() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -17590,8 +16671,8 @@ public void testDeprecationCheck6() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck7() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -17634,8 +16715,8 @@ public void testDeprecationCheck7() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck8() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -17677,8 +16758,8 @@ public void testDeprecationCheck8() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck9() throws JavaModelException {
-	Hashtable options = JavaCore.getOptions();
-	Object optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
 	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -18955,7 +18036,7 @@ public void testFavoriteImports030() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
 
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, JavaCore.DISABLED);
 		JavaCore.setOptions(options);
 
@@ -19003,7 +18084,7 @@ public void testFavoriteImports031() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();
 
 	try {
-		Hashtable options = new Hashtable(this.oldOptions);
+		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
 		options.put(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 
@@ -20116,8 +19197,8 @@ public void testNameWithUnresolvedReferences018() throws JavaModelException {
 			requestor.getResults());
 }
 public void testParameterNames1() throws CoreException, IOException {
-	Hashtable options = JavaCore.getOptions();
-	Object timeout = options.get(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC);
+	Hashtable<String, String> options = JavaCore.getOptions();
+	String timeout = options.get(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC);
 	options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC,"2000"); //$NON-NLS-1$
 
 	JavaCore.setOptions(options);
@@ -20785,8 +19866,8 @@ public void test203060a() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	
 	// Save current compliance settings
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	
 	try {
 		// Verify that at 1.3 assert is not proposed.
@@ -20819,8 +19900,8 @@ public void test203060b() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	
 	// Save current compliance settings
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
@@ -20858,8 +19939,8 @@ public void test203060c() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	
 	// Save current compliance settings
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	
 	try {
 		// Verify that at 1.3 assert is not proposed.
@@ -20896,8 +19977,8 @@ public void test203060d() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	
 	// Save current compliance settings
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
@@ -20935,8 +20016,8 @@ public void test269493() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 
 	// Save current compliance settings
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
@@ -22962,8 +22043,8 @@ public void test328674b() throws JavaModelException {
 // compilation unit.
 public void test325481b() throws JavaModelException {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
 		COMPLETION_PROJECT.setOptions(options);
@@ -23055,8 +22136,8 @@ public void testBug332268b() throws JavaModelException {
 // To verify that we get proposals for exceptions inside a multi-catch
 // Also verify that actually thrown exceptions get higher priority
 public void testBug338789() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -23114,8 +22195,8 @@ public void testBug338789() throws JavaModelException {
 // To verify that we get proposals for exceptions inside a multi-catch
 // Also verify that actually thrown exceptions get higher priority
 public void testBug338789b() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -23173,8 +22254,8 @@ public void testBug338789b() throws JavaModelException {
 // To verify that we get proposals for the parameter of a multi-catch clause
 // with its type as the LUB of all the types caught.
 public void testBug338789c() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -23241,8 +22322,8 @@ public void testBug338789c() throws JavaModelException {
 // To verify that we get proposals for exceptions inside a multi-catch (qualified ref)
 // Also verify that actually thrown exceptions get higher priority
 public void testBug338789d() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -23300,8 +22381,8 @@ public void testBug338789d() throws JavaModelException {
 // To verify that we get proposals for exceptions inside a multi-catch
 // Also verify that actually thrown exceptions get higher priority
 public void testBug338789e() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -23491,8 +22572,8 @@ public void testBug343476() throws JavaModelException {
 		"	}\n" +
 		"}\n");
 
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -23542,8 +22623,8 @@ public void testBug343476a() throws JavaModelException {
 		"	}\n" +
 		"}\n");
 
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -23566,8 +22647,8 @@ public void testBug343476a() throws JavaModelException {
 // To verify that we don't get already declared exceptions inside a multi-catch
 // Also verify that expected type bindings don't contain exceptions already declared in the multi-catch.
 public void testBug343637() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -23629,8 +22710,8 @@ public void testBug343637() throws JavaModelException {
 // To verify that we don't get already declared exceptions inside a multi-catch
 // Also verify that expected type bindings don't contain exceptions already declared in the multi-catch.
 public void testBug343637b() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -23692,8 +22773,8 @@ public void testBug343637b() throws JavaModelException {
 // To make sure that if an inner catch block contains union type ref, all 'checked' exceptions from it
 // are proposed with lower relevance in an outer catch, but unchecked ones can be proposed again.
 public void testBug343637c() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -23759,8 +22840,8 @@ public void testBug343637c() throws JavaModelException {
 // This test makes sure that even an already caught exception which is not actually thrown by a method
 // is not proposed again.
 public void testBug343637d() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -23834,8 +22915,8 @@ public void testBug343637d() throws JavaModelException {
 // This test makes sure that if superclass of a thrown exception has been already caught,
 // the thrown exception is proposed but with lower relevance.
 public void testBug343637e() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -23909,8 +22990,8 @@ public void testBug343637e() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=343637
 // To make sure that an unchecked exception is not proposed again within the same try context.
 public void testBug343637f() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -23974,8 +23055,8 @@ public void testBug343637f() throws JavaModelException {
 // To make sure that an unchecked exception does get proposed again in an outer catch block
 // when using multiple catch blocks. Unchecked exceptions also get proposed but with lower priority.
 public void testBug343637g() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -24043,8 +23124,8 @@ public void testBug343637g() throws JavaModelException {
 // To make sure that an unchecked exception does not get proposed again in another catch block
 // of the same try statement.
 public void testBug343637h() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -24108,8 +23189,8 @@ public void testBug343637h() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
 // Should not get NegativeArraySizeException or show proposals for types
 public void testBug346454() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -24140,8 +23221,8 @@ public void testBug346454() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
 // Should not get NegativeArraySizeException
 public void testBug346454b() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -24172,9 +23253,9 @@ public void testBug346454b() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
 // Should get proposals for constructor parameters
 public void testBug346454c() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
@@ -24210,9 +23291,9 @@ public void testBug346454c() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
 // Inference fails but be resilient. At least propose unsubstituted methods.
 public void testBug346454c_2() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
@@ -24251,9 +23332,9 @@ public void testBug346454c_2() throws JavaModelException {
 // Qualified exp case. Should get proposals for constructor parameters.
 // This tests changes in CompleteOnQualifiedAllocationExpression
 public void testBug346454d() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
@@ -24297,9 +23378,9 @@ public void testBug346454d() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346454
 // Qualified exp case. Should get proposals for constructor completion
 public void testBug346454e() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
@@ -24341,9 +23422,9 @@ public void testBug346454e() throws JavaModelException {
 // Qualified allocation case. Should get proposals for constructor completion
 // This tests changes in CompleteOnQualifiedAllocationExpression
 public void testBug346454f() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
@@ -24388,9 +23469,9 @@ public void testBug346454f() throws JavaModelException {
 // Qualified allocation case. Should get proposals for constructor completion
 // This tests changes in CompleteOnQualifiedAllocationExpression
 public void testBug346454g() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
@@ -24435,9 +23516,9 @@ public void testBug346454g() throws JavaModelException {
 // Allocation case with explicit type args and diamond together. Should not throw exception.
 // This tests changes in CompleteOnQualifiedAllocationExpression
 public void testBug346454h() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
@@ -24481,9 +23562,9 @@ public void testBug346454h() throws JavaModelException {
 // Qualified Allocation case with explicit type args and diamond together. Should not throw exception.
 // This tests changes in CompleteOnQualifiedAllocationExpression
 public void testBug346454i() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
@@ -24530,8 +23611,8 @@ public void testBug346454i() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346415
 // To make sure we get proposals after the second catch block.
 public void testBug346415() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -24595,8 +23676,8 @@ public void testBug346415() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346415
 // To make sure we get proposals after the second catch block.
 public void testBug346415a() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -24660,8 +23741,8 @@ public void testBug346415a() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350767
 // To make sure we don't get a CCE
 public void testBug350767() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -24823,8 +23904,8 @@ public void testBug350652b() throws JavaModelException {
 // superclass exception type is allowed in multi-catch
 // types in different CU's
 public void testBug350652c() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -24873,9 +23954,9 @@ public void testBug350652c() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401487
 // Bug 401487 - [1.8][assist] default modifier not proposed while completing modifiers in interfaces
 public void testBug401487a() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
@@ -24905,9 +23986,9 @@ public void testBug401487a() throws JavaModelException {
 	}
 }
 public void testBug401487b() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
@@ -24937,9 +24018,9 @@ public void testBug401487b() throws JavaModelException {
 	}
 }
 public void testBug401487c() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
@@ -24969,9 +24050,9 @@ public void testBug401487c() throws JavaModelException {
 	}
 }
 public void testBug401487d() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
@@ -25001,9 +24082,9 @@ public void testBug401487d() throws JavaModelException {
 	}
 }
 public void testBug401487e() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
@@ -25038,8 +24119,8 @@ public void testBug401487e() throws JavaModelException {
 // superclass exception type is allowed in multi-catch
 // types in same CU. Relevance of super type will be less.
 public void testBug350652d() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -25117,8 +24198,8 @@ public void testBug350652e() throws JavaModelException {
 // subclass exception type is allowed in multi-catch
 // types in different CU's
 public void testBug350652f() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -25167,8 +24248,8 @@ public void testBug350652f() throws JavaModelException {
 // subclass exception type is allowed in multi-catch
 // types in same CU. Relevance for subclass exception is lower.
 public void testBug350652g() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -25311,8 +24392,8 @@ public void testBug350652j() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
 // according to comment 5, supertypes of exceptions should also be proposed
 public void testBug350652k() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -25353,8 +24434,8 @@ public void testBug350652k() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=350652
 // according to comment 5, subtypes of exceptions should also be proposed
 public void testBug350652l() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -25461,8 +24542,8 @@ public void testBug350652n() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=351444
 public void testBug351444() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -25504,8 +24585,8 @@ public void testBug351444() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=351444
 public void testBug351444a() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -25548,8 +24629,8 @@ public void testBug351444a() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=351444
 // qualified
 public void testBug351444b() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -25594,8 +24675,8 @@ public void testBug351444b() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=351444
 // qualified
 public void testBug351444c() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -25640,8 +24721,8 @@ public void testBug351444c() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=351444
 // different CU
 public void testBug351444d() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -25689,8 +24770,8 @@ public void testBug351444d() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=351444
 // different CU
 public void testBug351444e() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -25991,8 +25072,8 @@ public void testBug385858d() throws JavaModelException {
 // Bug 402574 - Autocomplete does not recognize all enum constants when constants override methods
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=402574
 public void testBug402574() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -26118,12 +25199,12 @@ public void testBug402574() throws JavaModelException {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=402812
 //Bug 402812 - [1.8][completion] Code Completion problems with static/default interface methods.
 public void testBug402812a() throws Exception {
-	Hashtable javaCoreOldOptions = JavaCore.getOptions();
-	Map completionProjectOptions = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = completionProjectOptions.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = completionProjectOptions.get(CompilerOptions.OPTION_Source);	
+	Hashtable<String, String> javaCoreOldOptions = JavaCore.getOptions();
+	Map<String, String> completionProjectOptions = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = completionProjectOptions.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = completionProjectOptions.get(CompilerOptions.OPTION_Source);	
 	try {
-		Hashtable options = new Hashtable(javaCoreOldOptions);
+		Hashtable<String, String> options = new Hashtable<>(javaCoreOldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 		
@@ -26170,12 +25251,12 @@ public void testBug402812a() throws Exception {
 	}
 }
 public void testBug402812b() throws Exception {
-	Hashtable javaCoreOldOptions = JavaCore.getOptions();
-	Map completionProjectOptions = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = completionProjectOptions.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = completionProjectOptions.get(CompilerOptions.OPTION_Source);	
+	Hashtable<String, String> javaCoreOldOptions = JavaCore.getOptions();
+	Map<String, String> completionProjectOptions = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = completionProjectOptions.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = completionProjectOptions.get(CompilerOptions.OPTION_Source);	
 	try {
-		Hashtable options = new Hashtable(javaCoreOldOptions);
+		Hashtable<String, String> options = new Hashtable<>(javaCoreOldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 		
@@ -26225,12 +25306,12 @@ public void testBug402812b() throws Exception {
 	}
 }
 public void testBug402812c() throws Exception {
-	Hashtable javaCoreOldOptions = JavaCore.getOptions();
-	Map completionProjectOptions = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = completionProjectOptions.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = completionProjectOptions.get(CompilerOptions.OPTION_Source);	
+	Hashtable<String, String> javaCoreOldOptions = JavaCore.getOptions();
+	Map<String, String> completionProjectOptions = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = completionProjectOptions.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = completionProjectOptions.get(CompilerOptions.OPTION_Source);	
 	try {
-		Hashtable options = new Hashtable(javaCoreOldOptions);
+		Hashtable<String, String> options = new Hashtable<>(javaCoreOldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 		
@@ -26281,12 +25362,12 @@ public void testBug402812c() throws Exception {
 	}
 }
 public void testBug402812d() throws Exception {
-	Hashtable javaCoreOldOptions = JavaCore.getOptions();
-	Map completionProjectOptions = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = completionProjectOptions.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = completionProjectOptions.get(CompilerOptions.OPTION_Source);	
+	Hashtable<String, String> javaCoreOldOptions = JavaCore.getOptions();
+	Map<String, String> completionProjectOptions = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = completionProjectOptions.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = completionProjectOptions.get(CompilerOptions.OPTION_Source);	
 	try {
-		Hashtable options = new Hashtable(javaCoreOldOptions);
+		Hashtable<String, String> options = new Hashtable<>(javaCoreOldOptions);
 		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 		JavaCore.setOptions(options);
 		
@@ -26338,8 +25419,8 @@ public void testBug402812d() throws Exception {
 //Bug 370971 - Content Assist autocomplete broken within an array of anonymous classes instances
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=370971
 public void testBug370971() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 		COMPLETION_PROJECT.setOptions(options);
@@ -26381,9 +25462,9 @@ public void testBug370971() throws JavaModelException {
 // Bug 406468 - [1.8][code assist] No completion proposals after the use of a constructor reference
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406468
 public void testBug406468a() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
@@ -26423,9 +25504,9 @@ public void testBug406468a() throws JavaModelException {
 	}
 }
 public void testBug406468b() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
@@ -26468,9 +25549,9 @@ public void testBug406468b() throws JavaModelException {
 // Bug 405250 - [1.8][code assist] Annotations getting suggested at import statements
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=405250
 public void testBug405250a() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
@@ -26495,9 +25576,9 @@ public void testBug405250a() throws JavaModelException {
 	}
 }
 public void testBug405250b() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
@@ -26522,9 +25603,9 @@ public void testBug405250b() throws JavaModelException {
 	}
 }
 public void testBug405250c() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
@@ -26549,9 +25630,9 @@ public void testBug405250c() throws JavaModelException {
 	}
 }
 public void testBug405250d() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
@@ -26577,9 +25658,9 @@ public void testBug405250d() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421469, [1.8][code assist] NPE in LocalDeclaration.resolve with anonymous class in lambda body
 public void testBug421469() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
@@ -26587,8 +25668,7 @@ public void testBug421469() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
-				"import java.util.function.IntFunction;\n" +
-				"public class Snippet {\n" +
+				"public class X {\n" +
 				"    void foo() {\n" +
 				"        int pqrqwerty = 10;\n" +
 				"        IntFunction<String> toString = i -> {\n" +
@@ -26601,6 +25681,9 @@ public void testBug421469() throws JavaModelException {
 				"            return Integer.toString(i);\n" +
 				"        };\n" +
 				"    }\n" +
+				"}\n" +
+				"interface IntFunction<R> {\n" +
+				"	R apply(int value);\n" +
 				"}\n");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -26619,9 +25702,9 @@ public void testBug421469() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421469, [1.8][code assist] NPE in LocalDeclaration.resolve with anonymous class in lambda body
 public void testBug421469a() throws JavaModelException {
-	Map options = COMPLETION_PROJECT.getOptions(true);
-	Object savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
-	Object savedOptionSource = options.get(CompilerOptions.OPTION_Source);
+	Map<String, String> options = COMPLETION_PROJECT.getOptions(true);
+	String savedOptionCompliance = options.get(CompilerOptions.OPTION_Compliance);
+	String savedOptionSource = options.get(CompilerOptions.OPTION_Source);
 	try {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
@@ -26629,8 +25712,8 @@ public void testBug421469a() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/test/X.java",
-				"import java.util.function.IntFunction;\n" +
-				"public class Snippet {\n" +
+				"package test;\n" +
+				"public class X {\n" +
 				"    void foo() {\n" +
 				"        int pqrqwerty = 10;\n" +
 				"        IntFunction<String> toString = i -> {\n" +
@@ -26643,6 +25726,9 @@ public void testBug421469a() throws JavaModelException {
 				"            return Integer.toString(i);\n" +
 				"        };\n" +
 				"    }\n" +
+				"}\n" +
+				"interface IntFunction<R> {\n" +
+				"	R apply(int value);\n" +
 				"}\n");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();

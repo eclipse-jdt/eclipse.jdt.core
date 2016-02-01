@@ -65,6 +65,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
@@ -679,12 +680,17 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				continue; // not much we can do without a target type, assume it only happens after some resolve error
 			if (argumentTypes[i] != null && argumentTypes[i].isPolyType()) {
 				argument.setExpectedType(parameterType);
-				TypeBinding updatedArgumentType = argument.resolveType(scope); 
+				TypeBinding updatedArgumentType; 
 				if (argument instanceof LambdaExpression) {
-					// LE.resolveType may return a valid binding because resolve does not detect structural errors at this point.
 					LambdaExpression lambda = (LambdaExpression) argument;
+					// avoid complaining about non-kosher descriptor as secondary problem
+					boolean skipKosherCheck = method.problemId() == ProblemReasons.Ambiguous;
+					updatedArgumentType = lambda.resolveType(scope, skipKosherCheck);
+					// additional checks, because LE.resolveType may return a valid binding even in the presence of structural errors
 					if (!lambda.isCompatibleWith(parameterType, scope) || lambda.hasErrors())
 						continue;
+				} else {
+					updatedArgumentType = argument.resolveType(scope);
 				}
 				if (updatedArgumentType != null && updatedArgumentType.kind() != Binding.POLY_TYPE)
 					argumentTypes[i] = updatedArgumentType;
@@ -972,10 +978,10 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					System.arraycopy(se8Annotations, 0, se8Annotations = new AnnotationBinding[se8count + 1], 0, se8count);
 					se8Annotations[se8count++] = annotation;
 				}
-				if (annotationType.id == TypeIds.T_ConfiguredAnnotationNonNull) {
+				if (annotationType.hasNullBit(TypeIds.BitNonNullAnnotation)) {
 					se8nullBits |= TagBits.AnnotationNonNull;
 					se8NullAnnotation = annotations[i];
-				} else if (annotationType.id == TypeIds.T_ConfiguredAnnotationNullable) {
+				} else if (annotationType.hasNullBit(TypeIds.BitNullableAnnotation)) {
 					se8nullBits |= TagBits.AnnotationNullable;
 					se8NullAnnotation = annotations[i];
 				}

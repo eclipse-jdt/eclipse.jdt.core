@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core.search;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.MethodNameMatchRequestor;
@@ -68,7 +69,23 @@ public class MethodNameMatchRequestorWrapper extends NameMatchRequestorWrapper i
 		if (type == null) return;
 		if (!(!(this.scope instanceof HierarchyScope) || ((HierarchyScope) this.scope).enclosesFineGrained(type))) return;
 		parameterTypes = parameterTypes == null ? CharOperation.NO_CHAR_CHAR : parameterTypes;
-		IMethod method = type.getMethod(new String(methodName), CharOperation.toStrings(parameterTypes));
+		String[] paramTypeSigs = CharOperation.NO_STRINGS;
+		if (signature != null) {
+			char[][] parTypes = Signature.getParameterTypes(signature);
+			if (parTypes.length > 0) {
+				for (int i = 0, l = parTypes.length; i < l; ++i) {
+					CharOperation.replace(parTypes[i], '/', '.');
+				}
+			}
+			paramTypeSigs = CharOperation.toStrings(parTypes);
+		} else if (parameterTypes.length > 0) {
+			int l = parameterTypes.length;
+			paramTypeSigs = new String[l];
+			for (int i = 0; i < l; ++i) {
+				paramTypeSigs[i] = Signature.createTypeSignature(parameterTypes[i], false);
+			}
+		}
+		IMethod method = type.getMethod(new String(methodName), paramTypeSigs);
 		this.requestor.acceptMethodNameMatch(new JavaSearchMethodNameMatch(method, modifiers));
 	}
 }

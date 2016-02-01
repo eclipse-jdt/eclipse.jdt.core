@@ -944,8 +944,14 @@ public abstract class Scope {
 		}
 		// after bounds have been resolved we're ready for resolving the type parameter itself,
 		// which includes resolving/evaluating type annotations and checking for inconsistencies
-		for (int i = 0; i < paramLength; i++)
+		boolean declaresNullTypeAnnotation = false;
+		for (int i = 0; i < paramLength; i++) {
 			resolveTypeParameter(typeParameters[i]);
+			declaresNullTypeAnnotation |= typeParameters[i].binding.hasNullTypeAnnotations();
+		}
+		if (declaresNullTypeAnnotation)
+			for (int i = 0; i < paramLength; i++)
+				typeParameters[i].binding.updateTagBits(); // <T extends List<U>, @NonNull U> --> tag T as having null type annotations 
 		return noProblems;
 	}
 
@@ -3278,7 +3284,7 @@ public abstract class Scope {
 		unitScope.recordSimpleReference(name);
 		if ((mask & Binding.PACKAGE) != 0) {
 			PackageBinding packageBinding = unitScope.environment.getTopLevelPackage(name);
-			if (packageBinding != null) {
+			if (packageBinding != null && (packageBinding.tagBits & TagBits.HasMissingType) == 0) {
 				if (typeOrPackageCache != null)
 					typeOrPackageCache.put(name, packageBinding);
 				return packageBinding;

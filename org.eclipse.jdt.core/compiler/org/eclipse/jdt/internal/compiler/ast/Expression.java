@@ -573,9 +573,10 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
  * @param scope the scope of the analysis
  * @param flowContext the current flow context
  * @param flowInfo the upstream flow info; caveat: may get modified
+ * @param ttlForFieldCheck if this is a reference to a field we will mark that field as nonnull for the specified timeToLive
  * @return could this expression be checked by the current implementation?
  */
-public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, int ttlForFieldCheck) {
 	boolean isNullable = false;
 	if (this.resolvedType != null) {
 		// 1. priority: @NonNull
@@ -607,6 +608,9 @@ public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flow
 		return true;
 	}
 	return false; // not checked
+}
+public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo) {
+	return checkNPE(scope, flowContext, flowInfo, 0); // default: don't mark field references as checked for null
 }
 
 /** If this expression requires unboxing check if that operation can throw NPE. */

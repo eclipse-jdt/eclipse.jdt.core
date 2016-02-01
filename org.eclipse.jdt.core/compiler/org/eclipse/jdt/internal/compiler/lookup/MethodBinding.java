@@ -48,7 +48,6 @@ import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-@SuppressWarnings("rawtypes")
 public class MethodBinding extends Binding {
 
 	public int modifiers;
@@ -376,12 +375,12 @@ public final boolean canBeSeenBy(TypeBinding receiverType, InvocationSite invoca
 		}
 		PackageBinding currentPackage = currentType.fPackage;
 		// package could be null for wildcards/intersection types, ignore and recurse in superclass
-		if (currentPackage != null && currentPackage != declaringPackage) return false;
+		if (!currentType.isCapture() && currentPackage != null && currentPackage != declaringPackage) return false;
 	} while ((currentType = currentType.superclass()) != null);
 	return false;
 }
 
-public List collectMissingTypes(List missingTypes) {
+public List<TypeBinding> collectMissingTypes(List<TypeBinding> missingTypes) {
 	if ((this.tagBits & TagBits.HasMissingType) != 0) {
 		missingTypes = this.returnType.collectMissingTypes(missingTypes);
 		for (int i = 0, max = this.parameters.length; i < max; i++) {

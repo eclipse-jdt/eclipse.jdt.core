@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2015 GK Software AG and others.
+ * Copyright (c) 2012, 2016 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,16 +14,20 @@
  *     IBM Corporation
  *     Till Brychcy - Contribution for
  *								Bug 467032 - TYPE_USE Null Annotations: IllegalStateException with annotated arrays of Enum when accessed via BinaryTypeBinding
+ *								Bug 467482 - TYPE_USE null annotations: Incorrect "Redundant null check"-warning
+ *								Bug 473713 - [1.8][null] Type mismatch: cannot convert from @NonNull A1 to @NonNull A1
+ *								Bug 467430 - TYPE_USE Null Annotations: Confusing error message with known null value
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
@@ -84,6 +88,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
 		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
 		runNegativeTest(
+			false /* skipJavac */,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 			new String[] {
 				CUSTOM_NULLABLE_NAME,
 				CUSTOM_NULLABLE_CONTENT_JSR308,
@@ -1209,7 +1215,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"	X1<@Nullable String> maybeStrings;\n" + // incompatible: T has a bound constrained to @NonNull
 					"   X2<@NonNull String> strings;\n" +       // incompatible: W is constrained to @Nullable
 					"	void test(X1<@NonNull String> x) {\n" + // OK
-					"		x.<Y1, @NonNull Object>foo(this, new Object());\n" + // incompatible: V is constrained to @Nullable via superclass
+					"		x.<Y1, @NonNull Object>foo(this, new Object());\n" + // OK: 'extends @Nullable' is no restriction
 					"	}\n" +
 					"}\n"
 				}, 
@@ -1224,11 +1230,6 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	X2<@NonNull String> strings;\n" + 
 				"	   ^^^^^^^^^^^^^^^\n" + 
 				"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'@Nullable W extends Object\'\n" + 
-				"----------\n" + 
-				"3. ERROR in Y1.java (at line 8)\n" + 
-				"	x.<Y1, @NonNull Object>foo(this, new Object());\n" + 
-				"	       ^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type \'@NonNull Object\' is not a valid substitute for the type parameter \'V extends @Nullable Object'\n" + 
 				"----------\n"
 				);
 	}
@@ -1285,7 +1286,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"	p.X1<java.lang.@Nullable String> maybeStrings;\n" + // incompatible: T has a bound constrained to @NonNull
 					"   p.X2<java.lang.@NonNull String> strings;\n" +       // incompatible: W is constrained to @Nullable
 					"	void test(p.X1<java.lang.@NonNull String> x) {\n" + // OK
-					"		x.<Y1, java.lang.@NonNull Object>foo(this, new Object());\n" + // incompatible: V is constrained to @Nullable via superclass
+					"		x.<Y1, java.lang.@NonNull Object>foo(this, new Object());\n" + // // OK: 'extends @Nullable' is no restriction
 					"	}\n" +
 					"}\n"
 				}, 
@@ -1300,11 +1301,6 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	p.X2<java.lang.@NonNull String> strings;\n" + 
 				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 				"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'@Nullable W extends Object\'\n" + 
-				"----------\n" + 
-				"3. ERROR in Y1.java (at line 6)\n" + 
-				"	x.<Y1, java.lang.@NonNull Object>foo(this, new Object());\n" + 
-				"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type \'@NonNull Object\' is not a valid substitute for the type parameter \'V extends @Nullable Object\'\n" + 
 				"----------\n"
 				);
 	}
@@ -1338,19 +1334,14 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 					"import org.eclipse.jdt.annotation.*;\n" +
 					"public class Y1 {\n" +
 					"	void test(X1 x) {\n" +
-					"		x.<@NonNull Y1, @NonNull Object>foo(this, new Object())\n" + // @NonNull Object conflicts with "V extends @Nullable Object"
+					"		x.<@NonNull Y1, @NonNull Object>foo(this, new Object())\n" + // // OK: 'extends @Nullable' is no restriction
 					"			.get(0).put(null, null);\n" + // second null is illegal
 					"	}\n" +
 					"}\n"
 				}, 
 				customOptions,
 				"----------\n" + 
-				"1. ERROR in Y1.java (at line 5)\n" + 
-				"	x.<@NonNull Y1, @NonNull Object>foo(this, new Object())\n" + 
-				"	                ^^^^^^^^^^^^^^^\n" + 
-				"Null constraint mismatch: The type \'@NonNull Object\' is not a valid substitute for the type parameter \'V extends @Nullable Object\'\n" + 
-				"----------\n" + 
-				"2. ERROR in Y1.java (at line 6)\n" + 
+				"1. ERROR in Y1.java (at line 6)\n" + 
 				"	.get(0).put(null, null);\n" + 
 				"	                  ^^^^\n" + 
 				"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
@@ -3036,6 +3027,31 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	         ^^^^\n" + 
 			"The return type is incompatible with \'@NonNull List<@NonNull X>\' returned from X.foo3() (mismatching null constraints)\n" + 
 			"----------\n");
+	}
+
+	// overriding an unconstrained return with nullable
+	public void testNullableReturn() {
+		runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"public abstract class X {\n" + 
+				"	X foo1() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class Z extends X {\n" + 
+				"	@Override\n" +
+				"	@Nullable X foo1() {\n" +
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n"
+			},
+			getCompilerOptions(),
+			"");
 	}
 
 	public void testBug416175() {
@@ -6084,6 +6100,22 @@ public void testTypeVariable19a() {
 		"Potential null pointer access: The method get2() may return null\n" + 
 		"----------\n");
 }
+public void testTypeVariable20() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"interface I<@Nullable T> { }\n" +
+			"public class X implements I<String> {}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 3)\n" + 
+		"	public class X implements I<String> {}\n" + 
+		"	                            ^^^^^^\n" + 
+		"Null constraint mismatch: The type \'String\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n");
+}
 public void testBug434600() {
 	runConformTestWithLibs(
 		new String[] {
@@ -6158,28 +6190,33 @@ public void testBug434600b() {
 			"I.java",
 			"import java.util.*;\n" +
 			"import org.eclipse.jdt.annotation.*;\n" +
-			"interface I<S, T extends @Nullable List<@NonNull List<S>>> {\n" +
+			"interface I<S, T extends @NonNull List<@NonNull List<S>>> {\n" +
 			"}\n",
 			"C.java",
 			"import java.util.*;\n" +
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"public class C implements I<@Nullable String, ArrayList<@NonNull List<@Nullable String>>> {}\n" +
 			"class C1 {\n" +
-			"	I<String, @Nullable ArrayList<@Nullable List<String>>> field;\n" +
+			"	I<String, @NonNull ArrayList<@Nullable List<String>>> field;\n" +
 			"}\n" +
-			"class C2 implements I<@NonNull String, @Nullable ArrayList<@NonNull List<@Nullable String>>> {}\n" // FIXME: cross checking for contradictory substitution for 'S' NYI
+			"class C2 implements I<@NonNull String, @NonNull ArrayList<@NonNull List<@Nullable String>>> {}\n"
 		},
 		getCompilerOptions(),
 		"----------\n" + 
 		"1. ERROR in C.java (at line 3)\n" + 
 		"	public class C implements I<@Nullable String, ArrayList<@NonNull List<@Nullable String>>> {}\n" + 
 		"	                                              ^^^^^^^^^\n" + 
-		"Null constraint mismatch: The type \'ArrayList<@NonNull List<@Nullable String>>\' is not a valid substitute for the type parameter \'T extends @Nullable List<@NonNull List<S>>\'\n" + 
+		"Null constraint mismatch: The type \'ArrayList<@NonNull List<@Nullable String>>\' is not a valid substitute for the type parameter \'T extends @NonNull List<@NonNull List<S>>\'\n" + 
 		"----------\n" + 
 		"2. ERROR in C.java (at line 5)\n" + 
-		"	I<String, @Nullable ArrayList<@Nullable List<String>>> field;\n" + 
-		"	          ^^^^^^^^^^^^^^^^^^^\n" + 
-		"Null constraint mismatch: The type \'@Nullable ArrayList<@Nullable List<String>>\' is not a valid substitute for the type parameter \'T extends @Nullable List<@NonNull List<S>>\'\n" + 
+		"	I<String, @NonNull ArrayList<@Nullable List<String>>> field;\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull ArrayList<@Nullable List<String>>\' is not a valid substitute for the type parameter \'T extends @NonNull List<@NonNull List<S>>\'\n" + 
+		"----------\n" + 
+		"3. ERROR in C.java (at line 7)\n" + 
+		"	class C2 implements I<@NonNull String, @NonNull ArrayList<@NonNull List<@Nullable String>>> {}\n" + 
+		"	                                       ^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull ArrayList<@NonNull List<@Nullable String>>\' is not a valid substitute for the type parameter \'T extends @NonNull List<@NonNull List<S>>\'\n" + 
 		"----------\n");
 }
 public void testBug434600b_qualified() {
@@ -6198,19 +6235,19 @@ public void testBug434600b_qualified() {
 			"class C1 {\n" +
 			"	p.I<String, @Nullable ArrayList<@Nullable List<String>>> field;\n" +
 			"}\n" +
-			"class C2 implements p.I<@NonNull String, @Nullable ArrayList<@NonNull List<@Nullable String>>> {}\n" // FIXME: cross checking for contradictory substitution for 'S' NYI
+			"class C2 implements p.I<@NonNull String, @Nullable ArrayList<@NonNull List<@Nullable String>>> {}\n"
 		},
 		getCompilerOptions(),
 		"----------\n" + 
-		"1. ERROR in C.java (at line 3)\n" + 
-		"	public class C implements p.I<@Nullable String, ArrayList<@NonNull List<@Nullable String>>> {}\n" + 
-		"	                                                ^^^^^^^^^\n" + 
-		"Null constraint mismatch: The type \'ArrayList<@NonNull List<@Nullable String>>\' is not a valid substitute for the type parameter \'T extends @Nullable List<@NonNull List<S>>\'\n" + 
-		"----------\n" + 
-		"2. ERROR in C.java (at line 5)\n" + 
+		"1. ERROR in C.java (at line 5)\n" + 
 		"	p.I<String, @Nullable ArrayList<@Nullable List<String>>> field;\n" + 
 		"	            ^^^^^^^^^^^^^^^^^^^\n" + 
 		"Null constraint mismatch: The type \'@Nullable ArrayList<@Nullable List<String>>\' is not a valid substitute for the type parameter \'T extends @Nullable List<@NonNull List<S>>\'\n" + 
+		"----------\n" + 
+		"2. ERROR in C.java (at line 7)\n" + 
+		"	class C2 implements p.I<@NonNull String, @Nullable ArrayList<@NonNull List<@Nullable String>>> {}\n" + 
+		"	                                         ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable ArrayList<@NonNull List<@Nullable String>>\' is not a valid substitute for the type parameter \'T extends @Nullable List<@NonNull List<S>>\'\n" + 
 		"----------\n");
 }
 public void testBug435399() {
@@ -6784,30 +6821,27 @@ public void testBug434582a() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=443467, [1.8][null]InternalError: Unexpected binding type
 public void test443467() throws Exception {
 	if (isJRE9) return;
-	String jreDirectory = Util.getJREDirectory();
-	String jfxJar = Util.toNativePath(jreDirectory + "/lib/ext/jfxrt.jar");
-	this.runNegativeTestWithExtraLibs(
+	runNegativeTestWithLibs(
 		new String[] {
 			"BuildIdeMain.java",
 			"import java.nio.file.Path;\n" +
 			"import java.time.Instant;\n" +
+			"import java.util.AbstractMap.SimpleEntry;\n" +
 			"import java.util.HashMap;\n" +
 			"import java.util.stream.Stream;\n" +
-			"import javafx.util.Pair;\n" +
 			"\n" +
 			"public class BuildIdeMain {\n" +
-			"static void writeUpdates(Stream<Path> filter2, HashMap<Path, Pair<byte[], Instant>> ideFiles, HashMap<Path, Path> updateToFile) {\n" +
-			"   filter2.map(p -> new Pair<>(updateToFile.get(p), p->ideFiles.get(p)));\n" +
+			"static void writeUpdates(Stream<Path> filter2, HashMap<Path, SimpleEntry<byte[], Instant>> ideFiles, HashMap<Path, Path> updateToFile) {\n" +
+			"   filter2.map(p -> new SimpleEntry<>(updateToFile.get(p), p->ideFiles.get(p)));\n" +
 			"}\n" +
 			"}\n",
 		},
 		"----------\n" + 
 		"1. ERROR in BuildIdeMain.java (at line 9)\n" + 
-		"	filter2.map(p -> new Pair<>(updateToFile.get(p), p->ideFiles.get(p)));\n" + 
-		"	                                                 ^^^^^^^^^^^^^^^^^^\n" + 
+		"	filter2.map(p -> new SimpleEntry<>(updateToFile.get(p), p->ideFiles.get(p)));\n" + 
+		"	                                                        ^^^^^^^^^^^^^^^^^^\n" + 
 		"The target type of this expression must be a functional interface\n" + 
-		"----------\n",
-		new String[]{jfxJar});
+		"----------\n");
 }
 public void testBug445227() {
 	runConformTestWithLibs(
@@ -8095,6 +8129,26 @@ public void testBug466713d() {
 		"Nullness annotations are not applicable at this location \n" + 
 		"----------\n");
 }
+public void testBug466969() {
+	runConformTestWithLibs(
+		new String[] {
+			"GenericType.java",
+			"public abstract class GenericType<T extends @org.eclipse.jdt.annotation.NonNull Runnable> {\n" +
+			"	abstract T get();\n"+
+			"}",	
+			"WildcardUsage.java",
+			"import static org.eclipse.jdt.annotation.DefaultLocation.*;\n" +
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" + 
+			"@NonNullByDefault({ ARRAY_CONTENTS, FIELD, PARAMETER, RETURN_TYPE, TYPE_ARGUMENT, TYPE_BOUND, TYPE_PARAMETER })\n" +
+			"public class WildcardUsage {\n" +
+			"	void f(GenericType<?> p) {\n" +
+			"		p.get().run();\n" +
+			"	}\n" +
+			"}"
+			}, getCompilerOptions(), "");
+}
 public void testBug467032() {
 	runConformTestWithLibs(
 			new String[] {
@@ -8112,6 +8166,77 @@ public void testBug467032() {
 				"}\n"
 			}, getCompilerOptions(), "");
 }
+public void testBug467430() {
+	runConformTestWithLibs(
+		new String[] {
+				"A.java",
+				"public class A {\n" +
+				"	@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+				"	void m(java.util.@org.eclipse.jdt.annotation.Nullable Map<String, Integer> map) {\n" +
+				"	}\n" +
+				"	void m2(A a) {\n" +
+				"		final java.util.Map<String, Integer> v = null;\n" +
+				"		a.m(v);\n" +
+				"	}\n" +
+				"}"
+			}, 
+			getCompilerOptions(),
+			"");
+}
+public void testBug467430mismatch() {
+	runConformTestWithLibs(
+		new String[] {
+				"A.java",
+				"public class A {\n" +
+				"	@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+				"	void m(java.util.@org.eclipse.jdt.annotation.Nullable Map<String, Integer> map) {\n" +
+				"	}\n" +
+				"	void m2(A a) {\n" +
+				"		final java.util.Map<String, @org.eclipse.jdt.annotation.Nullable Integer> v = null;\n" +
+				"		a.m(v);\n" +
+				"	}\n" +
+				"}"
+			}, 
+			getCompilerOptions(),
+			"");
+}
+public void testBug467430array() {
+	runConformTestWithLibs(
+		new String[] {
+				"A.java",
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"public class A {\n" +
+				"	@NonNullByDefault\n" +
+				"	void m(@NonNull String @Nullable [] array) {\n" +
+				"	}\n" +
+				"	void m2(A a) {\n" +
+				"		final String[] v = null;\n" +
+				"		a.m(v);\n" +
+				"	}\n" +
+				"}"
+			}, 
+			getCompilerOptions(),
+			"");
+}
+public void testBug467430arrayMismatch() {
+	runConformTestWithLibs(
+		new String[] {
+				"A.java",
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"public class A {\n" +
+				"	@NonNullByDefault\n" +
+				"	void m(@NonNull String @Nullable [] array) {\n" +
+				"	}\n" +
+				"	void m2(A a) {\n" +
+				"		final @Nullable String @Nullable [] v = null;\n" +
+				"		a.m(v);\n" +
+				"	}\n" +
+				"}"
+			}, 
+			getCompilerOptions(),
+			"");
+}
+
 public void testBug446217() {
 	runConformTestWithLibs(
 		new String[] {
@@ -8314,6 +8439,181 @@ public void testBug474239() {
 		options,
 		"");
 }
+
+public void testBug467482() {
+	runConformTestWithLibs(
+		new String[]{
+			"Util.java",
+			"public abstract class Util {\n" +
+			"	public static <T> @org.eclipse.jdt.annotation.Nullable T f(T[] valuesArray, java.util.Comparator<T> comparator) {\n" +
+			"		@org.eclipse.jdt.annotation.Nullable\n" +
+			"		T winner = null;\n" +
+			"		for (T value : valuesArray) {\n" +
+			"			if (winner == null) {\n" +
+			"				winner = value;\n" +
+			"			} else {\n" +
+			"				if (comparator.compare(winner, value) < 0) {\n" +
+			"					winner = value;\n" +
+			"				}\n" +
+			"			}\n" +
+			"		}\n" +
+			"		return winner;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug467482simple() {
+	// reduced example without generics that still exhibits the bug
+	runConformTestWithLibs(
+		new String[]{
+			"Util.java",
+			"public abstract class Util {\n" +
+				"public static void f(Object unknown) {\n" +
+				"	@org.eclipse.jdt.annotation.Nullable\n" +
+				"	Object winner = null;\n" +
+				"	for (int i = 0; i < 1; i++) {\n" +
+				"			winner = unknown;\n" +
+				"	}\n" +
+				"	if (winner == null) {\n" +
+				"		assert false;\n" +
+				"	}\n" +
+				"}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug467482while() {
+	// even simpler with while loop
+	runConformTestWithLibs(
+		new String[]{
+			"Util.java",
+			"public abstract class Util {\n" +
+				"public static void f(Object unknown, boolean flag) {\n" +
+				"	@org.eclipse.jdt.annotation.Nullable\n" +
+				"	Object winner = null;\n" +
+				"	while (flag) {\n" +
+				"			winner = unknown;\n" +
+				"			flag = false;\n" +
+				"	}\n" +
+				"	if (winner == null) {\n" +
+				"		assert false;\n" +
+				"	}\n" +
+				"}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug467482switch() {
+	// bug behaviour visible via switch
+	runConformTestWithLibs(
+		new String[]{
+			"Util.java",
+			"public abstract class Util {\n" +
+				"public static void f(Object unknown, boolean flag) {\n" +
+				"	@org.eclipse.jdt.annotation.Nullable\n" +
+				"	Object winner = null;\n" +
+				"	switch (1) {\n" +
+				"	case 1:	winner = unknown;\n" +
+				"	}\n" +
+				"	if (winner == null) {\n" +
+				"		assert false;\n" +
+				"	}\n" +
+				"}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+
+public void testBug467482regression() {
+	// simple regression test that verifies that possibly be the patch affected messages stay unchanged
+	runNegativeTestWithLibs(
+		new String[]{
+			"Check.java",
+			"public abstract class Check {\n" +
+			"	public static void check(@org.eclipse.jdt.annotation.NonNull Object x) {\n" +
+			"	}\n" +
+	
+			"	public static void f(Object unknown, boolean flag) {\n" +
+			"		check(unknown); // expected: null type safety warning\n" +
+			"		@org.eclipse.jdt.annotation.Nullable\n" +
+			"		Object nullable = unknown;\n" +
+			"		check(nullable); // expected: null type mismatch error\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in Check.java (at line 5)\n" + 
+		"	check(unknown); // expected: null type safety warning\n" + 
+		"	      ^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'Object\' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
+		"----------\n" + 
+		"2. ERROR in Check.java (at line 8)\n" + 
+		"	check(nullable); // expected: null type mismatch error\n" + 
+		"	      ^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'@Nullable Object\'\n" + 
+		"----------\n");
+}
+public void testBug484735() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/NullabilityLoopBug.java",
+			"package test;\n" + 
+			"\n" + 
+			"import java.util.HashMap;\n" + 
+			"import java.util.Map;\n" + 
+			"import java.util.Map.Entry;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+			"public class NullabilityLoopBug {\n" + 
+			"\n" + 
+			"	public static void main(String[] args)\n" + 
+			"	{\n" + 
+			"		Map<String, String> map = new HashMap<>();\n" + 
+			"		\n" + 
+			"		map.put(\"key\", \"value\");\n" + 
+			"		\n" + 
+			"		System.out.println(getKeyByValue(map, \"value\"));\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	private static <K, V> K getKeyByValue(Map<K, V> map, @Nullable V value)\n" + 
+			"	{\n" + 
+			"		@Nullable K result = null; // some nullability bug? assigning null results in compiler complaining 'result can only be null' below\n" + 
+			"		for (Entry<K, V> entry : map.entrySet())\n" + 
+			"		{\n" + 
+			"			boolean equals;\n" + 
+			"			if (value == null)\n" + 
+			"				equals = (entry.getValue() == null);\n" + 
+			"			else\n" + 
+			"				equals = value.equals(entry.getValue());\n" + 
+			"			\n" + 
+			"			if (equals)\n" + 
+			"			{\n" + 
+			"				if (result == null) // Incorrect warning: Redundant null check: The variable result can only be null at this location\n" + 
+			"					result = entry.getKey();\n" + 
+			"				else\n" + 
+			"					throw new IllegalStateException(\"Multiple matches for looking up key via value [\" + value + \"]: [\" + result + \"] and [\" + entry.getKey() + \"]\");\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		\n" + 
+			"		if (result == null) // Incorrect warning: Redundant null check: The variable result can only be null at this location\n" + 
+			"			throw new IllegalStateException(\"No matches for looking up key via value [\" + value + \"]\");\n" + 
+			"		\n" + 
+			"		return result; // Incorrect warning: Dead code\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"",
+		"key");
+}
 public void testBug474239b() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.ERROR);
@@ -8507,5 +8807,1548 @@ public void testBug440398_comment2a() {
 		},
 		getCompilerOptions(),
 		"");
+}
+public void testBug481332() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	public void foo() {\n" + 
+			"		@Nullable\n" + 
+			"		List<@NonNull String> list = new ArrayList<>();\n" + 
+			"		checkNotNull(list); // OK\n" + 
+			"\n" + 
+			"		@Nullable\n" + 
+			"		Map<@NonNull String, @NonNull String> map = new HashMap<>();\n" + 
+			"		checkNotNull(map); // OK\n" + 
+			"\n" + 
+			"		@NonNull\n" + 
+			"		Object @Nullable [] objects = new @NonNull Object[0];\n" + 
+			"		// Error: Null type mismatch (type annotations): required '@NonNull Object @NonNull[]' but this expression ...\n" + 
+			"		checkNotNull(objects);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static <@Nullable T> T[] checkNotNull(T @Nullable [] array) {\n" + 
+			"		if (array == null) {\n" + 
+			"			throw new NullPointerException();\n" + 
+			"		}\n" + 
+			"		return array;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static <@Nullable T, C extends Iterable<T>> C checkNotNull(@Nullable C container) {\n" + 
+			"		if (container == null) {\n" + 
+			"			throw new NullPointerException();\n" + 
+			"		}\n" + 
+			"		return container;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static <@Nullable K, @Nullable V, M extends Map<K, V>> M checkNotNull(@Nullable M map) {\n" + 
+			"		if (map == null) {\n" + 
+			"			throw new NullPointerException();\n" + 
+			"		}\n" + 
+			"		return map;\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	checkNotNull(list); // OK\n" + 
+		"	^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'List<@NonNull String>\' is not a valid substitute for the type parameter \'C extends Iterable<@Nullable T>\'\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 11)\n" + 
+		"	checkNotNull(map); // OK\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'Map<@NonNull String,@NonNull String>\' is not a valid substitute for the type parameter \'M extends Map<@Nullable K,@Nullable V>\'\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 16)\n" + 
+		"	checkNotNull(objects);\n" + 
+		"	             ^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@Nullable Object @Nullable[]\' but this expression has type \'@NonNull Object @Nullable[]\'\n" + 
+		"----------\n");
+}
+public void testBug481322a() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"class Super<S, T extends List<S>> {\n" + 
+			"	S pick(T list) {\n" + 
+			"		return list.get(0);\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"public class X extends Super<@NonNull String, List<@Nullable String>> {\n" + 
+			"	@Override\n" + 
+			"	public @NonNull String pick(List<@Nullable String> list) {\n" + 
+			"		return super.pick(list);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		List<@Nullable String> withNulls = new ArrayList<@Nullable String>();\n" + 
+			"		withNulls.add(null);\n" + 
+			"		System.out.println(new X().pick(withNulls).toUpperCase());\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 12)\n" + 
+		"	public class X extends Super<@NonNull String, List<@Nullable String>> {\n" + 
+		"	                                              ^^^^\n" + 
+		"Null constraint mismatch: The type \'List<@Nullable String>\' is not a valid substitute for the type parameter \'T extends List<S>\'\n" + 
+		"----------\n");
+}
+public void testBug477719() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	@NonNull Number instantiate(@NonNull Class<? extends @NonNull Number> c) throws Exception {\n" +
+			"		return c.newInstance();\n" +
+			"	}\n" +
+			"	void test(Double d) throws Exception {\n" +
+			"		instantiate(Integer.class);\n" +
+			"		instantiate(d.getClass());\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug482247() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	@NonNull String @NonNull[] s1 = new String[0];\n" + // expected type drives typing
+			"	@Nullable String @NonNull[] s2 = new String[0];\n" + // expected type drives typing
+			"	<T> @NonNull T first(@NonNull T @NonNull[] arr) {\n" +
+			"		return arr[0];\n" +
+			"	}\n" +
+			"	void other(@Nullable String[] s) {\n" +
+			"		s[0] = null;\n" +
+			"	}\n" +
+			"	@NonNull String test()  {\n" +
+			"		other(new String[0]);\n" + // unchanged semantics
+			"		return first(new String[0]);\n" + // unchanged semantics
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in X.java (at line 12)\n" + 
+		"	other(new String[0]);\n" + 
+		"	      ^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'@Nullable String []\'\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 13)\n" + 
+		"	return first(new String[0]);\n" + 
+		"	             ^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'@NonNull String @NonNull[]\'\n" + 
+		"----------\n");
+}
+public void testBug483146() {
+	runConformTestWithLibs(
+		new String[] {
+			"Foo.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"class Foo {\n" + 
+			"\n" + 
+			"	void example1() {\n" + 
+			"        @Nullable List<String> container = new ArrayList<>();\n" + 
+			"        @NonNull List<String> list = checkNotNull(container);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	void example2() {\n" + 
+			"        @Nullable List<String> container= new ArrayList<>();\n" + 
+			"        @NonNull List<String> list = checkNotNull(container);\n" + 
+			"	}\n" + 
+			"    \n" + 
+			"    @NonNull <T, C extends  Iterable<T>> C checkNotNull(C container) {\n" + 
+			"        if (container == null) {\n" + 
+			"            throw new NullPointerException();\n" + 
+			"        }\n" + 
+			"		return container;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug483146b() {
+	runConformTestWithLibs(
+		new String[] {
+			"Foo.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"class Foo {\n" + 
+			"\n" + 
+			"	void example1() {\n" + 
+			"        @Nullable List<String> container = new ArrayList<>();\n" + 
+			"        @NonNull List<String> list = checkNotNull(container);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	void example2() {\n" + 
+			"        @Nullable List<String> container= new ArrayList<>();\n" + 
+			"        @NonNull List<String> list = checkNotNull(container);\n" + 
+			"	}\n" + 
+			"    \n" + 
+			"    <T, C extends  Iterable<T>> @NonNull C checkNotNull(@Nullable C container) {\n" + // <- variation: param is @Nullable
+			"        if (container == null) {\n" + 
+			"            throw new NullPointerException();\n" + 
+			"        }\n" + 
+			"		return container;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug473713() {
+	runConformTestWithLibs(
+		new String[] {
+			"a/A1.java",
+			"package a;\n" +		
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class A1 {\n" +
+			"	public class NestedInA1 {\n" +
+			"	}\n" +
+			"}\n",
+			"a/A2.java",
+			"package a;\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class A2 {\n" +
+			"	public static abstract class NestedInA2 {\n" +
+			"		public final A1 a1 = new A1();\n" +
+			"		protected abstract void handleApplicationSpecific(A1.NestedInA1 detail);\n" +
+			"	}\n" +
+			"}\n",
+		}, getCompilerOptions(), "");
+	runConformTestWithLibs(
+		new String[] {
+			"b/B.java",
+			"package b;\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class B {\n" +
+			"	public static a.A1 m(a.A2.NestedInA2 nestedInA2) {\n" +
+			"		return nestedInA2.a1;\n" +
+			"	}\n" +
+			"}\n",
+		}, getCompilerOptions(), "");
+}
+public void testBug482228() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+			"\n" + 
+			"class Super<S> {\n" + 
+			"	<T extends List<S>> S pick(T list) {\n" + 
+			"		return list.get(0);\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"public class X extends Super<@NonNull String> {\n" + 
+			"	@Override\n" + 
+			"	<T extends List<@Nullable String>> @NonNull String pick(T list) {\n" + 
+			"		return super.pick(list);\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		List<@Nullable String> withNulls = new ArrayList<>();\n" + 
+			"		withNulls.add(null);\n" + 
+			"		System.out.println(new X().pick(withNulls).toUpperCase());\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	<T extends List<@Nullable String>> @NonNull String pick(T list) {\n" + 
+		"	 ^\n" + 
+		"Cannot redefine null constraints of type variable \'T extends List<@NonNull String>\' declared in \'Super<String>.pick(T)\'\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 15)\n" + 
+		"	return super.pick(list);\n" + 
+		"	       ^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'T extends List<@Nullable String>\' is not a valid substitute for the type parameter \'T extends List<@NonNull String>\'\n" + 
+		"----------\n");
+}
+public void testBug483527() {
+	final Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runConformTestWithLibs(
+		new String[] {
+			"Test.java",
+			"public class Test  {\n" + 
+			"    static final short foo;\n" + 
+			"	static {\n" + 
+			"		foo = 1;\n" + 
+			"		for (int i=0; i<10; i++) {\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		compilerOptions,
+		"");
+}
+public void testMultipleAnnotations1() {
+	Map options1 = new HashMap<>(getCompilerOptions());
+	options1.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+	options1.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+	runConformTest(
+		new String[] {
+			"org/foo/Nullable.java",
+			"package org.foo;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ElementType.TYPE_USE})\n" + 
+			"public @interface Nullable {}\n",
+			"org/foo/NonNull.java",
+			"package org.foo;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ElementType.TYPE_USE})\n" + 
+			"public @interface NonNull {}\n",
+			"p1/TestNulls.java",
+			"package p1;\n" +
+			"import org.foo.*;\n" + 
+			"\n" + 
+			"public class TestNulls {\n" + 
+			"	public @Nullable String weaken(@NonNull String theValue) {\n" + 
+			"		return theValue;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}"
+		},
+		options1);
+	Map options2 = getCompilerOptions();
+	options2.put(CompilerOptions.OPTION_NonNullAnnotationSecondaryNames, "org.foo.NonNull");
+	options2.put(CompilerOptions.OPTION_NullableAnnotationSecondaryNames, "org.foo.Nullable");
+	runNegativeTestWithLibs(
+		new String[] {
+			"p2/Test.java",
+			"package p2;\n" +
+			"import p1.TestNulls;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Test {\n" +
+			"	@NonNull String test(TestNulls test, @Nullable String input) {\n" +
+			"		return test.weaken(input);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		options2,
+		"----------\n" + 
+		"1. ERROR in p2\\Test.java (at line 6)\n" + 
+		"	return test.weaken(input);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
+		"----------\n" + 
+		"2. ERROR in p2\\Test.java (at line 6)\n" + 
+		"	return test.weaken(input);\n" + 
+		"	                   ^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
+ 		"----------\n");
+}
+public void test483952 () {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"import java.util.function.Function;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"public class Test {\n" +
+			"	void test1() {\n" +
+			"		Function function = x -> x;\n" +
+			"		String @Nullable [] z = test2(function, \"\");\n" +
+			"	}\n" +
+			"	<T> T @Nullable [] test2(Function<T, T> function, T t) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}"
+
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in test\\Test.java (at line 6)\n" + 
+		"	Function function = x -> x;\n" + 
+		"	^^^^^^^^\n" + 
+		"Function is a raw type. References to generic type Function<T,R> should be parameterized\n" + 
+		"----------\n");
+}
+public void test484055() {
+	runConformTestWithLibs(
+		new String[] {
+			"B.java",
+			"interface A {\n" + 
+			"	public void f(String[] x);\n" + 
+			"\n" + 
+			"	public void f2(String x);\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class B implements A {\n" + 
+			"	public void f(String @org.eclipse.jdt.annotation.Nullable [] x) {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public void f2(@org.eclipse.jdt.annotation.Nullable String x) {\n" + 
+			"	}\n" + 
+			"}"
+		},
+		null,
+		"");
+}
+public void testBug484108() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"\n" + 
+			"public interface Test <T0 extends Other> {\n" + 
+			"    public void a ( @NonNull T0 test );\n" + 
+			"}\n",
+			"test/Other.java",
+			"package test;\n" + 
+			"\n" + 
+			"public interface Other { }\n"
+		},
+		getCompilerOptions(),
+		"");
+	runConformTestWithLibs(
+		new String[] {
+			"test/TestImpl.java",
+			"package test;\n" + 
+			"\n" + 
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import java.lang.reflect.*;\n" + 
+			"\n" + 
+			"public class TestImpl <T extends Other> implements Test<T> {\n" + 
+			"\n" + 
+			"    /**\n" + 
+			"     * {@inheritDoc}\n" + 
+			"     *\n" + 
+			"     * @see test.Test#a(java.lang.Object)\n" + 
+			"     */\n" + 
+			"    @Override\n" + 
+			"    public void a ( @NonNull T test ) {\n" + 
+			"    }\n" +
+			"	public static void main(String... args) {\n" +
+			"		Class<?> c = TestImpl.class;\n" +
+			"		Method[] ms = c.getDeclaredMethods();\n" +
+			"		System.out.println(ms.length);\n" +
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"",
+		"2");
+}
+public void testBug484954() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
+	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
+	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
+	runConformTest(
+		new String[] {
+			CUSTOM_NULLABLE_NAME,
+			CUSTOM_NULLABLE_CONTENT, // sic: declaration annotation
+			CUSTOM_NONNULL_NAME,
+			CUSTOM_NONNULL_CONTENT, // sic: declaration annotation
+			"Snippet.java",
+			"import java.util.function.*;\n" + 
+			"import org.foo.*;\n" + 
+			"\n" + 
+			"public class Snippet {\n" + 
+			"\n" + 
+			"	public void test() {\n" + 
+			"		doStuff((@NonNull Object[] data) -> updateSelectionData(data)); \n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private void doStuff(Consumer<Object[]> postAction) { }\n" + 
+			"	private void updateSelectionData(final @NonNull Object data) { }\n" + 
+			"}\n"
+		},
+		customOptions,
+		"");
+}
+public void testBug484981() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test1/GenericWithNullableBound.java",
+			"package test1;\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+
+			"@NonNullByDefault\n" + 
+			"public class GenericWithNullableBound<T extends @Nullable Number> {\n" + 
+			"}\n", 
+			
+			"test1/GenericWithNullableBound2.java",
+			"package test1;\n" + 
+			"import static java.lang.annotation.ElementType.TYPE_USE;\n" + 
+			"import java.lang.annotation.Retention;\n" + 
+			"import java.lang.annotation.RetentionPolicy;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ TYPE_USE })\n" + 
+			"@interface SomeAnnotation {\n" + 
+			"}\n" + 
+
+			"@NonNullByDefault\n" + 
+			"public class GenericWithNullableBound2<@SomeAnnotation T extends @Nullable Number> {\n" + 
+			"}\n", 
+
+			"test1/GenericWithNullable.java",			
+			"package test1;\n" + 
+
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+
+			"@NonNullByDefault\n" + 
+			"public class GenericWithNullable<@Nullable T> {\n" + 
+			"}\n",
+			
+			"test1/GenericWithNonNullBound.java",			
+			"package test1;\n" + 
+
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+
+			"public class GenericWithNonNullBound<T extends @NonNull Number> {\n" + 
+			"}\n",
+			"test1/ClassInSameProject.java",
+			"package test1;\n" + 
+
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+
+			"public class ClassInSameProject {\n" + 
+			"	static void f1() {\n" + 
+			"		new GenericWithNullableBound<@NonNull Number>();\n" + 
+			"	}\n" + 
+
+			"	static void f2() {\n" + 
+			"		new GenericWithNullableBound2<@NonNull Number>();\n" + 
+			"	}\n" + 
+
+			"	static void f3() {\n" + 
+			"		new GenericWithNonNullBound<@Nullable Number>(); // error 1 expected\n" + 
+			"	}\n" + 
+
+			"	static void f4() {\n" + 
+			"		new GenericWithNullable<@NonNull Number>(); // error 2 expected\n" + 
+			"	}\n" + 
+			"}"			
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test1\\ClassInSameProject.java (at line 12)\n" + 
+		"	new GenericWithNonNullBound<@Nullable Number>(); // error 1 expected\n" + 
+		"	                            ^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable Number\' is not a valid substitute for the type parameter \'T extends @NonNull Number\'\n" + 
+		"----------\n" + 
+		"2. ERROR in test1\\ClassInSameProject.java (at line 15)\n" + 
+		"	new GenericWithNullable<@NonNull Number>(); // error 2 expected\n" + 
+		"	                        ^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull Number\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n"
+	);
+	runNegativeTestWithLibs(
+			new String[] {
+				"test2/ClassInOtherProject.java",
+				"package test2;\n" + 
+
+				"import org.eclipse.jdt.annotation.NonNull;\n" + 
+				"import org.eclipse.jdt.annotation.Nullable;\n" + 
+
+				"import test1.GenericWithNonNullBound;\n" + 
+				"import test1.GenericWithNullable;\n" + 
+				"import test1.GenericWithNullableBound;\n" + 
+				"import test1.GenericWithNullableBound2;\n" + 
+
+				"public class ClassInOtherProject {\n" + 
+				"	static void g1() {\n" + 
+				"		new GenericWithNullableBound<@NonNull Number>();\n" + 
+				"	}\n" + 
+
+				"	static void g2() {\n" + 
+				"		new GenericWithNullableBound2<@NonNull Number>();\n" + 
+				"	}\n" + 
+
+				"	static void g3() {\n" + 
+				"		new GenericWithNonNullBound<@Nullable Number>(); // error 3 expected\n" + 
+				"	}\n" + 
+
+				"	static void g4() {\n" + 
+				"		new GenericWithNullable<@NonNull Number>(); // error 4 expected\n" + 
+				"	}\n" + 
+				"}"
+			},
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in test2\\ClassInOtherProject.java (at line 16)\n" + 
+			"	new GenericWithNonNullBound<@Nullable Number>(); // error 3 expected\n" + 
+			"	                            ^^^^^^^^^^^^^^^^\n" + 
+			"Null constraint mismatch: The type \'@Nullable Number\' is not a valid substitute for the type parameter \'T extends @NonNull Number\'\n" + 
+			"----------\n" + 
+			"2. ERROR in test2\\ClassInOtherProject.java (at line 19)\n" + 
+			"	new GenericWithNullable<@NonNull Number>(); // error 4 expected\n" + 
+			"	                        ^^^^^^^^^^^^^^^\n" + 
+			"Null constraint mismatch: The type \'@NonNull Number\' is not a valid substitute for the type parameter \'@Nullable T extends Object\'\n" + 
+			"----------\n"
+	);
+}
+// same testBinary06 but via SourceTypeBindings
+public void testBug484981b() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
+	runNegativeTestWithLibs(
+			new String[] {
+				"p/X1.java",
+				"package p;\n" +
+				"import java.util.ArrayList;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public abstract class X1<T extends @NonNull Object> extends ArrayList<T> {\n" +
+				"    public <U, V extends @Nullable Object> void foo(U u, V v) {}\n" +
+				"}\n",
+				"p/X2.java", 
+				"package p;\n"+
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class X2<@Nullable W extends Object> {}\n",
+				"Y1.java",
+				"import p.X1;\n" +
+				"import p.X2;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class Y1 {\n" +
+				"	X1<@Nullable String> maybeStrings;\n" + // incompatible: T has a bound constrained to @NonNull
+				"   X2<@NonNull String> strings;\n" +       // incompatible: W is constrained to @Nullable
+				"	void test(X1<@NonNull String> x) {\n" + // OK
+				"		x.<Y1, @NonNull Object>foo(this, new Object());\n" + // OK: 'extends @Nullable' is no restriction
+				"	}\n" +
+				"}\n"
+			}, 
+			customOptions,
+			"----------\n" + 
+			"1. ERROR in Y1.java (at line 5)\n" + 
+			"	X1<@Nullable String> maybeStrings;\n" + 
+			"	   ^^^^^^^^^^^^^^^^\n" + 
+			"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'T extends @NonNull Object\'\n" + 
+			"----------\n" + 
+			"2. ERROR in Y1.java (at line 6)\n" + 
+			"	X2<@NonNull String> strings;\n" + 
+			"	   ^^^^^^^^^^^^^^^\n" + 
+			"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'@Nullable W extends Object\'\n" + 
+			"----------\n"
+			);
+}
+
+// same testBinary06b but via SourceTypeBindings
+public void testBug484981c() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
+	// fix the bug:		
+	runNegativeTestWithLibs(
+			new String[] {
+				"p/X1.java",
+				"package p;\n" +
+				"import java.util.ArrayList;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public abstract class X1<T extends java.lang.@NonNull Object> extends ArrayList<T> {\n" +
+				"    public <U, V extends java.lang.@Nullable Object> void foo(U u, V v) {}\n" +
+				"}\n",
+				"p/X2.java", 
+				"package p;\n"+
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class X2<@Nullable W extends Object> {}\n",
+				"Y1.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class Y1 {\n" +
+				"	p.X1<java.lang.@Nullable String> maybeStrings;\n" + // incompatible: T has a bound constrained to @NonNull
+				"   p.X2<java.lang.@NonNull String> strings;\n" +       // incompatible: W is constrained to @Nullable
+				"	void test(p.X1<java.lang.@NonNull String> x) {\n" + // OK
+				"		x.<Y1, java.lang.@NonNull Object>foo(this, new Object());\n" + // OK: 'extends @Nullable' is no restriction
+				"	}\n" +
+				"}\n"
+			}, 
+			customOptions,
+			"----------\n" + 
+			"1. ERROR in Y1.java (at line 3)\n" + 
+			"	p.X1<java.lang.@Nullable String> maybeStrings;\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null constraint mismatch: The type \'@Nullable String\' is not a valid substitute for the type parameter \'T extends @NonNull Object\'\n" + 
+			"----------\n" + 
+			"2. ERROR in Y1.java (at line 4)\n" + 
+			"	p.X2<java.lang.@NonNull String> strings;\n" + 
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Null constraint mismatch: The type \'@NonNull String\' is not a valid substitute for the type parameter \'@Nullable W extends Object\'\n" + 
+			"----------\n"
+			);
+}
+
+// same testBinary07 but via SourceTypeBindings
+public void testBug484981d() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
+	customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
+	runNegativeTestWithLibs(
+			new String[] {
+				"p/X1.java",
+				"package p;\n" +
+				"import java.util.*;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"import static java.lang.annotation.ElementType.*;\n" +
+				"import java.lang.annotation.*;\n" +
+				"@Retention(RetentionPolicy.CLASS)\n" +
+				"@Target(TYPE_USE)\n" +
+				"@interface Immutable {}\n" +
+				"public abstract class X1 {\n" +
+				"    public <@NonNull U, V extends @Nullable Object> List<@NonNull Map<Object, @NonNull String>> foo(@Immutable X1 this, U u, V v) { return null; }\n" +
+				"}\n",
+				"Y1.java",
+				"import p.X1;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class Y1 {\n" +
+				"	void test(X1 x) {\n" +
+				"		x.<@NonNull Y1, @NonNull Object>foo(this, new Object())\n" + // OK: 'extends @Nullable' is no restriction
+				"			.get(0).put(null, null);\n" + // second null is illegal
+				"	}\n" +
+				"}\n"
+			}, 
+			customOptions,
+			"----------\n" + 
+			"1. ERROR in Y1.java (at line 6)\n" + 
+			"	.get(0).put(null, null);\n" + 
+			"	                  ^^^^\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+			"----------\n");
+}
+public void testBug466562() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"x/C.java",
+			"package x;\n" + 
+
+			"import org.eclipse.jdt.annotation.NonNull;\n" + 
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" + 
+			"import org.eclipse.jdt.annotation.Nullable;\n" + 
+
+			"@NonNullByDefault({})\n" + 
+			"public class C <T1 extends @Nullable Number> {\n" + 
+			"    String consume(T1 t) {\n" + 
+			"        @NonNull Object x = t; // error, should warn?\n" + 
+			"        x.toString();\n" + 
+			"        return t.toString(); // legal???\n" + 
+			"    }\n" + 
+
+			"    void y() {\n" + 
+			"        consume(null);  // illegal - OK\n" + 
+			"        @NonNull Object t = provide();  // error, should warn?\n" + 
+			"        t.toString();\n" + 
+			"    }\n" + 
+
+			"    T1 provide() {\n" + 
+			"        return null; // error, should warn?\n" + 
+			"    }\n" + 
+
+			"    C<Integer> cString;  // OK - Null constraint mismatch: The type 'Integer' is not a valid substitute for the type parameter 'T1 extends @Nullable Number'\n" + 
+			"    C<@NonNull Integer> c1String;  // Wrong: Null constraint mismatch: The type '@NonNull Integer' is not a valid substitute for the type parameter 'T1 extends @Nullable Number'\n" + 
+			"    C<@Nullable Integer> c2String; // legal - OK\n" + 
+			"}" 						
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in x\\C.java (at line 5)\n" + 
+		"	@NonNullByDefault({})\n" + 
+		"	^^^^^^^^^^^^^^^^^\n" + 
+		"Nullness default is redundant with a default specified for the enclosing package x\n" + 
+		"----------\n" + 
+		"2. ERROR in x\\C.java (at line 8)\n" + 
+		"	@NonNull Object x = t; // error, should warn?\n" + 
+		"	                    ^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'T1 extends @Nullable Number\'\n" + 
+		"----------\n" + 
+		"3. ERROR in x\\C.java (at line 13)\n" + 
+		"	consume(null);  // illegal - OK\n" + 
+		"	        ^^^^\n" + 
+		"Null type mismatch: required \'T1 extends @Nullable Number\' but the provided value is null\n" + 
+		"----------\n" + 
+		"4. ERROR in x\\C.java (at line 14)\n" + 
+		"	@NonNull Object t = provide();  // error, should warn?\n" + 
+		"	                    ^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'T1 extends @Nullable Number\'\n" + 
+		"----------\n" + 
+		"5. ERROR in x\\C.java (at line 18)\n" + 
+		"	return null; // error, should warn?\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'T1 extends @Nullable Number\' but the provided value is null\n" + 
+		"----------\n"
+	);	
+}
+public void testBug485056() {
+	runConformTestWithLibs(
+		new String[] {
+			"TestExplainedValue.java",
+			"import java.io.Serializable;\n" +
+		
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+		
+			"class ExplainedValue<T extends Serializable> {\n" +
+			"	public @Nullable T featureValue;\n" +
+			"}\n" +
+		
+			"public class TestExplainedValue {\n" +
+			"	static @Nullable Serializable g(ExplainedValue<? extends @NonNull Serializable> explainedValue) {\n" +
+			"		return explainedValue.featureValue;\n" +
+			"	}\n" +
+			"}"
+		}, 
+		getCompilerOptions(), 
+		""
+	);				
+}
+public void testBug484741() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" + 			
+			"public class Test {\n" +
+			"	static <T, E extends T> void f(java.util.ArrayList<T> list, E element) {\n" +
+			"		list.add(element);" +
+			"	}\n" +
+			"\n" + 			
+			"	static <A> void g(A a) {\n" +
+			"		f(new java.util.ArrayList<A>(), a);\n" +
+			"	}\n" +
+			"\n" + 			
+			"	static <T1, E1 extends T1> void h(E1 element1, java.util.ArrayList<T1> list1) {\n" +
+			"		f(list1, element1);\n" +
+			"	}\n" +
+			"}"
+	}, getCompilerOptions(), "");	
+}	
+public void testBug484741b() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/TestDep.java",
+			"package test;\n" +
+			"public class TestDep {\n" +
+			"	static <T, E extends T> T f(E e) {\n" +
+			"		return e;\n" +
+			"	}\n" +
+			"}"
+	}, getCompilerOptions(), "");	
+}
+public void testBug484741c() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Test3.java",
+			"package test;\n" +
+			"import org.eclipse.jdt.annotation.DefaultLocation;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+
+			"@NonNullByDefault({ DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_ARGUMENT })\n" +
+			"class Feature3<ValueType extends java.io.Serializable, PartitionKeyType> {\n" +
+			"}\n" +
+
+			"@NonNullByDefault({ DefaultLocation.PARAMETER, DefaultLocation.RETURN_TYPE, DefaultLocation.FIELD, DefaultLocation.TYPE_ARGUMENT })\n" +
+			"public class Test3 {\n" +
+			"	public static <T extends java.io.Serializable, F extends Feature3<T, ?>> T[] getValues(F feature) {\n" +
+			"		throw new RuntimeException();\n" +
+			"	}\n" +
+
+			"	public static void f(Feature3<?, ?> feature) {\n" +
+			"		getValues(feature);\n" +
+			"	}\n" +
+			"}"
+	}, getCompilerOptions(), "");	
+}
+public void testBug484741d() {
+	runConformTestWithLibs(
+		new String[] {
+			"BaseNNBD.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class BaseNNBD<S extends Runnable, I extends S> {\n" +
+			"}\n",
+			"DerivedNNBD.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"public class DerivedNNBD<S1 extends Runnable, I1 extends S1> extends BaseNNBD<S1, I1> {	\n" +
+			"}\n"				
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug484741e() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/AbstractFeature.java",
+			"package test;\n" +
+			"import java.io.Serializable;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n"+
+			"abstract class AbstractFeature<T extends @NonNull Serializable> {\n" +
+			"}\n", 
+			"test/SubFeature.java",
+			"package test;\n" +
+			"import java.io.Serializable;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n"+
+			"public class SubFeature<T1 extends @NonNull Serializable> extends AbstractFeature<T1> {\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug484741Invoke() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/TestInterdepInvoke.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class TestInterdepInvoke {\n" +
+			"	static <T, E extends T> T f1(E e) {\n" +
+			"		return e;\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T, @Nullable E extends T> T f2(E e) {\n" +
+			"		return e; // error 1 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T, E extends T> T f3(E e) {\n" +
+			"		return e;\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T, @Nullable E extends T> T f4(E e) {\n" +
+			"		return e;\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations of f1 --------\n" +
+			"\n" +
+			"	static <T11, E11 extends T11> T11 g11(E11 e) {\n" +
+			"		return f1(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T12, @Nullable E12 extends T12> T12 g12(E12 e) {\n" +
+			"		return f1(e); // error 2 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T13, E13 extends T13> T13 g13(E13 e) {\n" +
+			"		return f1(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T14, @Nullable E14 extends T14> T14 g14(E14 e) {\n" +
+			"		return f1(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations of f2 --------\n" +
+			"\n" +
+			"	static <T21, E21 extends T21> T21 g21(E21 e) {\n" +
+			"		return f2(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T22, @Nullable E22 extends T22> T22 g22(E22 e) {\n" +
+			"		return f2(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T23, E23 extends T23> T23 g23(E23 e) {\n" +
+			"		return f2(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T24, @Nullable E24 extends T24> T24 g24(E24 e) {\n" +
+			"		return f2(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations of f3 --------\n" +
+			"\n" +
+			"	static <T31, E31 extends T31> T31 g31(E31 e) {\n" +
+			"		return f3(e); // error 3 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T32, @Nullable E32 extends T32> T32 g32(E32 e) {\n" +
+			"		return f3(e); // error 4 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T33, E33 extends T33> T33 g33(E33 e) {\n" +
+			"		return f3(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T34, @Nullable E34 extends T34> T34 g34(E34 e) {\n" +
+			"		return f3(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations of f4 --------\n" +
+			"\n" +
+			"	static <T41, E41 extends T41> T41 g41(E41 e) {\n" +
+			"		return f4(e); /// error 5 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T42, @Nullable E42 extends T42> T42 g42(E42 e) {\n" +
+			"		return f4(e); // error 6 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T43, E43 extends T43> T43 g43(E43 e) {\n" +
+			"		return f4(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T44, @Nullable E44 extends T44> T44 g44(E44 e) {\n" +
+			"		return f4(e);\n" +
+			"	}\n" +
+			"}\n"
+		}, 
+		getCompilerOptions(), 
+		"----------\n" + 
+		"1. ERROR in test\\TestInterdepInvoke.java (at line 11)\n" + 
+		"	return e; // error 1 expected\n" + 
+		"	       ^\n" + 
+		"Null type mismatch (type annotations): required \'T\' but this expression has type \'@Nullable E extends T\', where \'T\' is a free type variable\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\TestInterdepInvoke.java (at line 29)\n" + 
+		"	return f1(e); // error 2 expected\n" + 
+		"	       ^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'T12\' but this expression has type \'@Nullable E12 extends T12\', where \'T12\' is a free type variable\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\TestInterdepInvoke.java (at line 61)\n" + 
+		"	return f3(e); // error 3 expected\n" + 
+		"	       ^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'T31\' but this expression has type \'@Nullable E31 extends T31\', where \'T31\' is a free type variable\n" + 
+		"----------\n" + 
+		"4. ERROR in test\\TestInterdepInvoke.java (at line 65)\n" + 
+		"	return f3(e); // error 4 expected\n" + 
+		"	       ^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'T32\' but this expression has type \'@Nullable E32 extends T32\', where \'T32\' is a free type variable\n" + 
+		"----------\n" + 
+		"5. ERROR in test\\TestInterdepInvoke.java (at line 79)\n" + 
+		"	return f4(e); /// error 5 expected\n" + 
+		"	       ^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'T41\' but this expression has type \'@Nullable E41 extends T41\', where \'T41\' is a free type variable\n" + 
+		"----------\n" + 
+		"6. ERROR in test\\TestInterdepInvoke.java (at line 83)\n" + 
+		"	return f4(e); // error 6 expected\n" + 
+		"	       ^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'T42\' but this expression has type \'@Nullable E42 extends T42\', where \'T42\' is a free type variable\n" + 
+		"----------\n"
+	);
+}
+public void testBug484741Invoke2() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/TestInterdepInvokeNN.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"@java.lang.annotation.Target({ java.lang.annotation.ElementType.TYPE_USE })\n" +
+			"@interface SomeAnnotation {\n" +
+			"	// just needed as workaround if bug 484981 is not fixed\n" +
+			"}\n" +
+			"\n" +
+			"public class TestInterdepInvokeNN {\n" +
+			"	static <T, @SomeAnnotation E extends T> T f1(E e) {\n" +
+			"		return e;\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T, @NonNull E extends T> T f2(E e) {\n" +
+			"		return e;\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T, @SomeAnnotation E extends T> T f3(E e) {\n" +
+			"		return e;\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T, @NonNull E extends T> T f4(E e) {\n" +
+			"		return e;\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations of f1 --------\n" +
+			"\n" +
+			"	static <T11, @SomeAnnotation E11 extends T11> T11 g11(E11 e) {\n" +
+			"		return f1(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T12, @NonNull E12 extends T12> T12 g12(E12 e) {\n" +
+			"		return f1(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T13, @SomeAnnotation E13 extends T13> T13 g13(E13 e) {\n" +
+			"		return f1(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T14, @NonNull E14 extends T14> T14 g14(E14 e) {\n" +
+			"		return f1(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations of f2 --------\n" +
+			"\n" +
+			"	static <T21, @SomeAnnotation E21 extends T21> T21 g21(E21 e) {\n" +
+			"		return f2(e); // error 1 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T22, @NonNull E22 extends T22> T22 g22(E22 e) {\n" +
+			"		return f2(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T23, @SomeAnnotation E23 extends T23> T23 g23(E23 e) {\n" +
+			"		return f2(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T24, @NonNull E24 extends T24> T24 g24(E24 e) {\n" +
+			"		return f2(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations of f3 --------\n" +
+			"\n" +
+			"	static <T31, @SomeAnnotation E31 extends T31> T31 g31(E31 e) {\n" +
+			"		return f3(e); // error 2 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T32, @NonNull E32 extends T32> T32 g32(E32 e) {\n" +
+			"		return f3(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T33, @SomeAnnotation E33 extends T33> T33 g33(E33 e) {\n" +
+			"		return f3(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T34, @NonNull E34 extends T34> T34 g34(E34 e) {\n" +
+			"		return f3(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations of f4 --------\n" +
+			"\n" +
+			"	static <T41, @SomeAnnotation E41 extends T41> T41 g41(E41 e) {\n" +
+			"		return f4(e); // error 3 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T42, @NonNull E42 extends T42> T42 g42(E42 e) {\n" +
+			"		return f4(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T43, @SomeAnnotation E43 extends T43> T43 g43(E43 e) {\n" +
+			"		return f4(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T44, @NonNull E44 extends T44> T44 g44(E44 e) {\n" +
+			"		return f4(e);\n" +
+			"	}\n" +
+			"}\n"
+		}, 
+		getCompilerOptions(), 
+		"----------\n" + 
+		"1. WARNING in test\\TestInterdepInvokeNN.java (at line 48)\n" + 
+		"	return f2(e); // error 1 expected\n" + 
+		"	          ^\n" + 
+		"Null type safety (type annotations): The expression of type \'E21 extends T21\' needs unchecked conversion to conform to \'@NonNull E21 extends T21\'\n" + 
+		"----------\n" + 
+		"2. WARNING in test\\TestInterdepInvokeNN.java (at line 66)\n" + 
+		"	return f3(e); // error 2 expected\n" + 
+		"	          ^\n" + 
+		"Null type safety (type annotations): The expression of type \'E31 extends T31\' needs unchecked conversion to conform to \'@NonNull E31 extends T31\'\n" + 
+		"----------\n" + 
+		"3. WARNING in test\\TestInterdepInvokeNN.java (at line 84)\n" + 
+		"	return f4(e); // error 3 expected\n" + 
+		"	          ^\n" + 
+		"Null type safety (type annotations): The expression of type \'E41 extends T41\' needs unchecked conversion to conform to \'@NonNull E41 extends T41\'\n" + 
+		"----------\n"
+	);
+}
+public void testBug484741Invoke3() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/TestInterdepInvoke.java",
+			"package test;\n" +
+			"\n" +
+			"import java.util.ArrayList;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class TestInterdepInvoke {\n" +
+			"	static <T1, E1 extends T1> void f1(ArrayList<T1> list, E1 e) {\n" +
+			"		list.add(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T2, @Nullable E2 extends T2> void f2(ArrayList<T2> list, E2 e) {\n" +
+			"		list.add(e); // error expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T3, @NonNull E3 extends T3> void f3(ArrayList<T3> list, E3 e) {\n" +
+			"		list.add(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T4, E4 extends T4> void f4(ArrayList<T4> list, E4 e) {\n" +
+			"		list.add(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T5, @Nullable E5 extends T5> void f5(ArrayList<T5> list, E5 e) {\n" +
+			"		list.add(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@Nullable T6, @NonNull E6 extends T6> void f6(ArrayList<T6> list, E6 e) {\n" +
+			"		list.add(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T7, E7 extends T7> void f7(ArrayList<T7> list, E7 e) {\n" +
+			"		list.add(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T8, @Nullable E8 extends T8> void f8(ArrayList<T8> list, E8 e) {\n" +
+			"		list.add(e); // error expected\n" +
+			"	}\n" +
+			"\n" +
+			"	static <@NonNull T9, @NonNull E9 extends T9> void f9(ArrayList<T9> list, E9 e) {\n" +
+			"		list.add(e);\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- invocations, but all of the 81 combinations removed, that were already handled correctly  -----\n" +
+			"\n" +
+			"	static <S1, F1 extends S1> void g1(ArrayList<S1> list, F1 e) {\n" +
+			"		f1(list, e);\n" +
+			"		f2(list, e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <S2, @Nullable F2 extends S2> void g2(ArrayList<S2> list, F2 e) {\n" +
+			"		f1(list, e);\n" +
+			"		f2(list, e);\n" +
+			"	}\n" +
+			"\n" +
+			"	static <S3, @NonNull F3 extends S3> void g3(ArrayList<S3> list, F3 e) {\n" +
+			"		f2(list, e);\n" +
+			"	}\n" +
+			"}\n",
+		}, 
+		getCompilerOptions(), 
+		"----------\n" + 
+		"1. ERROR in test\\TestInterdepInvoke.java (at line 14)\n" + 
+		"	list.add(e); // error expected\n" + 
+		"	         ^\n" + 
+		"Null type mismatch (type annotations): required \'T2\' but this expression has type \'@Nullable E2 extends T2\', where \'T2\' is a free type variable\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\TestInterdepInvoke.java (at line 38)\n" + 
+		"	list.add(e); // error expected\n" + 
+		"	         ^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull T8\' but this expression has type \'@Nullable E8 extends @NonNull T8\'\n" + 
+		"----------\n"
+	);				
+}	
+
+
+public void testBug484471SubclassNullable() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/TestInterdepSubClass.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class TestInterdepSubClass {\n" +
+			"	static class A1<T, E extends T> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class A2<T, @Nullable E extends T> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class A3<@Nullable T, E extends T> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class A4<@Nullable T, @Nullable E extends T> {\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- subclasses of A1<T, E extends T> --------\n" +
+			"\n" +
+			"	static class B11<T11, E11 extends T11> extends A1<T11, E11> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B12<T12, @Nullable E12 extends T12> extends A1<T12, E12> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B13<@Nullable T13, E13 extends T13> extends A1<T13, E13> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B14<@Nullable T14, @Nullable E14 extends T14> extends A1<T14, E14> {\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- subclasses of A2<T, @Nullable E extends T> --------\n" +
+			"\n" +
+			"	static class B21<T21, E21 extends T21> extends A2<T21, E21> { // expect error 1\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B22<T22, @Nullable E22 extends T22> extends A2<T22, E22> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B23<@Nullable T23, E23 extends T23> extends A2<T23, E23> { // expect error 2\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B24<@Nullable T24, @Nullable E24 extends T24> extends A2<T24, E24> {\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- subclasses of A3<@Nullable T, E extends T> --------\n" +
+			"\n" +
+			"	static class B31<T31, E31 extends T31> extends A3<T31, E31> { // expect error 3\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B32<T32, @Nullable E32 extends T32> extends A3<T32, E32> { // expect error 4\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B33<@Nullable T33, E33 extends T33> extends A3<T33, E33> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B34<@Nullable T34, @Nullable E34 extends T34> extends A3<T34, E34> {\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- subclasses of A4<@Nullable T, @Nullable E extends T> --------\n" +
+			"\n" +
+			"	static class B41<T41, E41 extends T41> extends A4<T41, E41> { // expect errors 5 & 6\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B42<T42, @Nullable E42 extends T42> extends A4<T42, E42> { // expect error 7\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B43<@Nullable T43, E43 extends T43> extends A4<T43, E43> { // expect error 8\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B44<@Nullable T44, @Nullable E44 extends T44> extends A4<T44, E44> {\n" +
+			"	}\n" +
+			"}\n" 
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\TestInterdepSubClass.java (at line 34)\n" + 
+		"	static class B21<T21, E21 extends T21> extends A2<T21, E21> { // expect error 1\n" + 
+		"	                                                       ^^^\n" + 
+		"Null constraint mismatch: The type \'E21 extends T21\' is not a valid substitute for the type parameter \'@Nullable E extends T\'\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\TestInterdepSubClass.java (at line 40)\n" + 
+		"	static class B23<@Nullable T23, E23 extends T23> extends A2<T23, E23> { // expect error 2\n" + 
+		"	                                                                 ^^^\n" + 
+		"Null constraint mismatch: The type \'E23 extends @Nullable T23\' is not a valid substitute for the type parameter \'@Nullable E extends T\'\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\TestInterdepSubClass.java (at line 48)\n" + 
+		"	static class B31<T31, E31 extends T31> extends A3<T31, E31> { // expect error 3\n" + 
+		"	                                                  ^^^\n" + 
+		"Null constraint mismatch: The type \'T31\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"4. ERROR in test\\TestInterdepSubClass.java (at line 51)\n" + 
+		"	static class B32<T32, @Nullable E32 extends T32> extends A3<T32, E32> { // expect error 4\n" + 
+		"	                                                            ^^^\n" + 
+		"Null constraint mismatch: The type \'T32\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"5. ERROR in test\\TestInterdepSubClass.java (at line 62)\n" + 
+		"	static class B41<T41, E41 extends T41> extends A4<T41, E41> { // expect errors 5 & 6\n" + 
+		"	                                                  ^^^\n" + 
+		"Null constraint mismatch: The type \'T41\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"6. ERROR in test\\TestInterdepSubClass.java (at line 62)\n" + 
+		"	static class B41<T41, E41 extends T41> extends A4<T41, E41> { // expect errors 5 & 6\n" + 
+		"	                                                       ^^^\n" + 
+		"Null constraint mismatch: The type \'E41 extends T41\' is not a valid substitute for the type parameter \'@Nullable E extends @Nullable T\'\n" + 
+		"----------\n" + 
+		"7. ERROR in test\\TestInterdepSubClass.java (at line 65)\n" + 
+		"	static class B42<T42, @Nullable E42 extends T42> extends A4<T42, E42> { // expect error 7\n" + 
+		"	                                                            ^^^\n" + 
+		"Null constraint mismatch: The type \'T42\' is not a valid substitute for the type parameter \'@Nullable T\'\n" + 
+		"----------\n" + 
+		"8. ERROR in test\\TestInterdepSubClass.java (at line 68)\n" + 
+		"	static class B43<@Nullable T43, E43 extends T43> extends A4<T43, E43> { // expect error 8\n" + 
+		"	                                                                 ^^^\n" + 
+		"Null constraint mismatch: The type \'E43 extends @Nullable T43\' is not a valid substitute for the type parameter \'@Nullable E extends @Nullable T\'\n" + 
+		"----------\n"
+	);
+}
+public void testBug484471SubclassNonNull() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/TestInterdepSubClassNN.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"@java.lang.annotation.Target({ java.lang.annotation.ElementType.TYPE_USE })\n" +
+			"@interface SomeAnnotation {\n" +
+			"	// just needed as workaround if bug 484981 is not fixed\n" +
+			"}\n" +
+			"\n" +
+			"public class TestInterdepSubClassNN {\n" +
+			"	static class A1<T, @SomeAnnotation E extends T> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class A2<T, @NonNull E extends T> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class A3<@NonNull T, @SomeAnnotation E extends T> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class A4<@NonNull T, @NonNull E extends T> {\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- subclasses of A1<T, E extends T> --------\n" +
+			"\n" +
+			"	static class B11<T11, @SomeAnnotation E11 extends T11> extends A1<T11, E11> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B12<T12, @NonNull E12 extends T12> extends A1<T12, E12> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B13<@NonNull T13, @SomeAnnotation E13 extends T13> extends A1<T13, E13> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B14<@NonNull T14, @NonNull E14 extends T14> extends A1<T14, E14> {\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- subclasses of A2<T, @NonNull E extends T> --------\n" +
+			"\n" +
+			"	static class B21<T21, @SomeAnnotation E21 extends T21> extends A2<T21, E21> { // expect error 1\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B22<T22, @NonNull E22 extends T22> extends A2<T22, E22> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B23<@NonNull T23, @SomeAnnotation E23 extends T23> extends A2<T23, E23> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B24<@NonNull T24, @NonNull E24 extends T24> extends A2<T24, E24> {\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- subclasses of A3<@NonNull T, E extends T> --------\n" +
+			"\n" +
+			"	static class B31<T31, @SomeAnnotation E31 extends T31> extends A3<T31, E31> { // expect errors 2 & 3\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B32<T32, @NonNull E32 extends T32> extends A3<T32, E32> { // expect error 4\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B33<@NonNull T33, @SomeAnnotation E33 extends T33> extends A3<T33, E33> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B34<@NonNull T34, @NonNull E34 extends T34> extends A3<T34, E34> {\n" +
+			"	}\n" +
+			"\n" +
+			"	// -------- subclasses of A4<@NonNull T, @NonNull E extends T> --------\n" +
+			"\n" +
+			"	static class B41<T41, @SomeAnnotation E41 extends T41> extends A4<T41, E41> { // expect error 5 & 6\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B42<T42, @NonNull E42 extends T42> extends A4<T42, E42> { // expect error 7\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B43<@NonNull T43, @SomeAnnotation E43 extends T43> extends A4<T43, E43> {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class B44<@NonNull T44, @NonNull E44 extends T44> extends A4<T44, E44> {\n" +
+			"	}\n" +
+			"}\n"
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+				"1. ERROR in test\\TestInterdepSubClassNN.java (at line 39)\n" + 
+				"	static class B21<T21, @SomeAnnotation E21 extends T21> extends A2<T21, E21> { // expect error 1\n" + 
+				"	                                                                       ^^^\n" + 
+				"Null constraint mismatch: The type \'E21 extends T21\' is not a valid substitute for the type parameter \'@NonNull E extends T\'\n" + 
+				"----------\n" + 
+				"2. ERROR in test\\TestInterdepSubClassNN.java (at line 53)\n" + 
+				"	static class B31<T31, @SomeAnnotation E31 extends T31> extends A3<T31, E31> { // expect errors 2 & 3\n" + 
+				"	                                                                  ^^^\n" + 
+				"Null constraint mismatch: The type \'T31\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+				"----------\n" + 
+				"3. ERROR in test\\TestInterdepSubClassNN.java (at line 53)\n" + 
+				"	static class B31<T31, @SomeAnnotation E31 extends T31> extends A3<T31, E31> { // expect errors 2 & 3\n" + 
+				"	                                                                       ^^^\n" + 
+				"Null constraint mismatch: The type \'E31 extends T31\' is not a valid substitute for the type parameter \'E extends @NonNull T\'\n" + 
+				"----------\n" + 
+				"4. ERROR in test\\TestInterdepSubClassNN.java (at line 56)\n" + 
+				"	static class B32<T32, @NonNull E32 extends T32> extends A3<T32, E32> { // expect error 4\n" + 
+				"	                                                           ^^^\n" + 
+				"Null constraint mismatch: The type \'T32\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+				"----------\n" + 
+				"5. ERROR in test\\TestInterdepSubClassNN.java (at line 67)\n" + 
+				"	static class B41<T41, @SomeAnnotation E41 extends T41> extends A4<T41, E41> { // expect error 5 & 6\n" + 
+				"	                                                                  ^^^\n" + 
+				"Null constraint mismatch: The type \'T41\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+				"----------\n" + 
+				"6. ERROR in test\\TestInterdepSubClassNN.java (at line 67)\n" + 
+				"	static class B41<T41, @SomeAnnotation E41 extends T41> extends A4<T41, E41> { // expect error 5 & 6\n" + 
+				"	                                                                       ^^^\n" + 
+				"Null constraint mismatch: The type \'E41 extends T41\' is not a valid substitute for the type parameter \'@NonNull E extends @NonNull T\'\n" + 
+				"----------\n" + 
+				"7. ERROR in test\\TestInterdepSubClassNN.java (at line 70)\n" + 
+				"	static class B42<T42, @NonNull E42 extends T42> extends A4<T42, E42> { // expect error 7\n" + 
+				"	                                                           ^^^\n" + 
+				"Null constraint mismatch: The type \'T42\' is not a valid substitute for the type parameter \'@NonNull T\'\n" + 
+				"----------\n"
+	);
+}
+public void testBug485058() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/Test4.java",
+			"package test;\n" +
+			"\n" +
+			"import java.io.Serializable;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"class Feature4<Q extends Serializable> {\n" +
+			"		Q q() {\n" +
+			"			throw new RuntimeException();\n" +
+			"		}\n" +
+			"}\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Test4 {\n" +
+			"	public static <Q1 extends java.io.Serializable, F extends Feature4<Q1>> Q1[] getValues(F feature) {\n" +
+			"		throw new RuntimeException();\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void f(Feature4<?> feature) {\n" +
+			"		getValues(feature);\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void g(Feature4<@Nullable ? extends @NonNull Serializable> feature) {\n" +
+			"		getValues(feature);\n" +
+			"	}\n" +
+			"}"
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\Test4.java (at line 25)\n" + 
+		"	public static void g(Feature4<@Nullable ? extends @NonNull Serializable> feature) {\n" + 
+		"	                                                  ^^^^^^^^\n" + 
+		"This nullness annotation conflicts with a \'@Nullable\' annotation which is effective on the same type parameter \n" + 
+		"----------\n" + 
+		"2. ERROR in test\\Test4.java (at line 26)\n" + 
+		"	getValues(feature);\n" + 
+		"	^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@NonNull Feature4<@Nullable capture#of ? extends @NonNull Serializable>\' is not a valid substitute for the type parameter \'F extends @NonNull Feature4<Q1 extends @NonNull Serializable>\'\n" + 
+		"----------\n"
+	);	
 }
 }

@@ -7,7 +7,7 @@ public abstract /*  */ class A implements Serializable, Toto, Titi, Tata {
 	Object s = null; // test 
 	protected synchronized void foo(final java.lang.String s1, long l,
 			final java.lang.String s2, int a, long b)
-					throws IOException, Exception {
+			throws IOException, Exception {
 	}
 	public A(int i) throws IOException, Exception {
 		int i = 0;

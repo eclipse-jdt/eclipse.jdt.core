@@ -633,11 +633,20 @@ private int initializeBuilder(int kind, boolean forBuild) throws CoreException {
 	return kind;
 }
 
-private boolean isClasspathBroken(IClasspathEntry[] classpath, IProject p) throws CoreException {
-	IMarker[] markers = p.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
-	for (int i = 0, l = markers.length; i < l; i++)
-		if (markers[i].getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_ERROR)
+private boolean isClasspathBroken(JavaProject jProj, boolean tryRepair) throws CoreException {
+	IMarker[] markers = jProj.getProject().findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+	for (int i = 0, l = markers.length; i < l; i++) {
+		if (markers[i].getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_ERROR) {
+			if (tryRepair) {
+				Object code = markers[i].getAttribute(IJavaModelMarker.ID);
+				if (code instanceof Integer && ((Integer)code) == IJavaModelStatusConstants.CP_INVALID_EXTERNAL_ANNOTATION_PATH) {
+					new ClasspathValidation(jProj).validate();
+					return isClasspathBroken(jProj, false);
+				}
+			}
 			return true;
+		}
+	}
 	return false;
 }
 
@@ -651,7 +660,7 @@ private boolean isWorthBuilding() throws CoreException {
 	}
 
 	// Abort build only if there are classpath errors
-	if (isClasspathBroken(this.javaProject.getRawClasspath(), this.currentProject)) {
+	if (isClasspathBroken(this.javaProject, true)) {
 		if (DEBUG)
 			System.out.println("JavaBuilder: Aborted build because project has classpath errors (incomplete or involved in cycle)"); //$NON-NLS-1$
 
@@ -702,7 +711,7 @@ private boolean isWorthBuilding() throws CoreException {
 			marker.setAttributes(
 				new String[] {IMarker.MESSAGE, IMarker.SEVERITY, IJavaModelMarker.CATEGORY_ID, IMarker.SOURCE_ID},
 				new Object[] {
-					isClasspathBroken(prereq.getRawClasspath(), p)
+					isClasspathBroken(prereq, true)
 						? Messages.bind(Messages.build_prereqProjectHasClasspathProblems, p.getName())
 						: Messages.bind(Messages.build_prereqProjectMustBeRebuilt, p.getName()),
 					new Integer(IMarker.SEVERITY_ERROR),

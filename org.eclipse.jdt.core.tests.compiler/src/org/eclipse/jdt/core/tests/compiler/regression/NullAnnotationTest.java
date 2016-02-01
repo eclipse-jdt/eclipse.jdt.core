@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2015 GK Software AG and others.
+ * Copyright (c) 2010, 2016 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -170,7 +171,11 @@ public void test_nullable_paramter_002() {
 	    "",
 	    this.LIBS,
 	    false/*shouldFlush*/,
-	    null/*vmArgs*/);
+	    null/*vmArgs*/,
+	    null /*customOptions*/,
+	    null /*clientRequester*/,
+	    false/*skipJavac*/,
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // a non-null argument is checked for null
@@ -211,7 +216,11 @@ public void test_nonnull_parameter_002() {
 	    "OK",
 	    this.LIBS,
 	    false/*shouldFlush*/,
-	    null/*vmArgs*/);
+	    null/*vmArgs*/,
+	    null /*customOptions*/,
+	    null /*clientRequester*/,
+	    false/*skipJavac*/,
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // passing null to nonnull parameter - many fields in enclosing class
 public void test_nonnull_parameter_003() {
@@ -846,7 +855,11 @@ public void test_parameter_specification_inheritance_002() {
 		"",
 	    this.LIBS,
 	    false/*shouldFlush*/,
-	    null/*vmArgs*/);
+	    null/*vmArgs*/,
+	    null /*customOtions*/,
+	    null /*clientRequester*/,
+	    false/*skipJavac*/,
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	runNegativeTestWithLibs(
 		false, // don't flush
 		new String[] {
@@ -886,7 +899,11 @@ public void test_parameter_specification_inheritance_003() {
 		"",
 	    this.LIBS,
 	    false/*shouldFlush*/,
-	    null/*vmArgs*/);
+	    null/*vmArgs*/,
+	    null /*customOptions*/,
+	    null /*clientRequester*/,
+	    false/*skipJavac*/,
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 // a method adds a @NonNull annotation, super interface has no null annotation
 // changing other from unconstrained to @Nullable is OK
@@ -1361,7 +1378,11 @@ public void test_parameter_specification_inheritance_015() {
 		"",
 	    this.LIBS,
 	    false/*shouldFlush*/,
-	    null/*vmArgs*/);
+	    null/*vmArgs*/,
+	    null /*customOptions*/,
+	    null /*clientRequester*/,
+	    false/*skipJavac*/,
+	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // a method relaxes the parameter null specification from @NonNull to un-annotated
@@ -8608,5 +8629,210 @@ public void testBug467610() {
 		},
 		getCompilerOptions(),
 		"");
+}
+public void testBug477719() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	void consume(@NonNull Class<? extends Number> c) {}\n" +
+			"	void test(Double d) {\n" +
+			"		consume(Integer.class);\n" +
+			"		consume(d.getClass());\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug482075() {
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	options.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
+	runConformTestWithLibs(
+		new String[] {
+			"TestIncidentImports2.java",
+			"public class TestIncidentImports2 {\n" + 
+			"\n" + 
+			"    private String arg0;\n" + 
+			"    private TestIncidentImports2 arg2;\n" + 
+			"\n" + 
+			"    public TestIncidentImports2(String arg0) {\n" + 
+			"        this.arg0 = arg0;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    protected void apply(Object o) throws Exception {\n" + 
+			"        arg0.length();\n" + 
+			"        other(arg0);\n" + // arg0 is protected by dereference as MessageSend.receiver
+// still triggers an error: QualifiedNameReference doesn't have an ASTNode representing the receiver
+//			"        if (arg2.arg0 != null && other(arg2))\n" + // arg2 is protected by dereference from QualifiedNameReference
+//			"			System.out.println(7);\n" + 
+			"        if (this.arg2.arg0 != null && other(arg2))\n" + // arg2 is protected by dereference as FieldReference.receiver
+			"			System.out.println(9);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    boolean other(@org.eclipse.jdt.annotation.NonNull Object o) {\n" + 
+			"		return true;\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		options,
+		""
+	);
+}
+public void testMultipleAnnotations() {
+	Map options1 = new HashMap<>(getCompilerOptions());
+	options1.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo1.NonNull");
+	options1.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo1.Nullable");
+	runConformTest(
+		new String[] {
+			"org/foo1/Nullable.java",
+			"package org.foo1;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" + 
+			"public @interface Nullable {}\n",
+			"org/foo1/NonNull.java",
+			"package org.foo1;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" + 
+			"public @interface NonNull {}\n",
+			"p1/TestNulls.java",
+			"package p1;\n" +
+			"import org.foo1.*;\n" + 
+			"\n" + 
+			"public class TestNulls {\n" + 
+			"	public @Nullable String weaken(@NonNull String theValue) {\n" + 
+			"		return theValue;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}"
+		},
+		options1);
+	Map options2 = new HashMap<>(getCompilerOptions());
+	options2.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo2.NonNull2");
+	options2.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo2.Nullable2");
+	options2.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "org.foo2.NoNulls2");
+	options2.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.WARNING);
+	runConformTest(
+		false, // flush
+		new String[] {
+			"org/foo2/Nullable2.java",
+			"package org.foo2;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" + 
+			"public @interface Nullable2 {}\n",
+			"org/foo2/NonNull2.java",
+			"package org.foo2;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE})\n" + 
+			"public @interface NonNull2 {}\n",
+			"org/foo2/NoNulls2.java",
+			"package org.foo2;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ElementType.FIELD, ElementType.METHOD, ElementType.TYPE})\n" + 
+			"public @interface NoNulls2 {}\n",
+			"p2/TestNulls2.java",
+			"package p2;\n" +
+			"import org.foo2.*;\n" + 
+			"\n" + 
+			"public class TestNulls2 {\n" + 
+			"	public @Nullable2 String weaken(@NonNull2 String theValue) {\n" + 
+			"		return theValue;\n" + 
+			"	}\n" +
+			"	@NoNulls2\n" + 
+			"	public String strong(String theValue) {\n" + 
+			"		return weaken(theValue);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}",
+			"p2/TestNulls2a.java",
+			"package p2;\n" +
+			"import org.foo2.*;\n" + 
+			"\n" + 
+			"@NoNulls2\n" + 
+			"public class TestNulls2a {\n" + 
+			"	public String strong(String theValue) {\n" + 
+			"		return theValue;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}"
+		},
+		null, //libs
+		options2,
+		"----------\n" + 
+		"1. WARNING in p2\\TestNulls2.java (at line 10)\n" + 
+		"	return weaken(theValue);\n" + 
+		"	       ^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch: required \'@NonNull2 String\' but the provided value is specified as @Nullable2\n" + 
+		"----------\n",
+		"",
+		"",
+		JavacTestOptions.DEFAULT);
+	Map options3 = getCompilerOptions();
+	options3.put(JavaCore.COMPILER_NONNULL_ANNOTATION_SECONDARY_NAMES, "org.foo1.NonNull,org.foo2.NonNull2");
+	options3.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_SECONDARY_NAMES, " org.foo1.Nullable , org.foo2.Nullable2 "); // some spaces to test trimming
+	options3.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_SECONDARY_NAMES, "org.foo2.NoNulls2");
+	String specifiedOrInferred = (this.complianceLevel < ClassFileConstants.JDK1_8 ? "specified" : "inferred");
+	runNegativeTestWithLibs(
+			new String[] {
+				"p3/Test.java",
+				"package p3;\n" +
+				"import p1.TestNulls;\n" +
+				"import p2.TestNulls2;\n" +
+				"import p2.TestNulls2a;\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class Test {\n" +
+				"	@NonNull String test1(TestNulls test, @Nullable String input) {\n" +
+				"		return test.weaken(input);\n" +
+				"	}\n" +
+				"	@NonNull String test2(TestNulls2 test, @Nullable String input) {\n" +
+				"		return test.weaken(input);\n" +
+				"	}\n" +
+				"	@NonNull String test3(TestNulls2 test, @Nullable String input) {\n" +
+				"		return test.strong(input); // requires nonnull due to method-level default\n" +
+				"	}\n" +
+				"	@NonNull String test4(TestNulls2a test, @Nullable String input) {\n" +
+				"		return test.strong(input); // requires nonnull due to type-level default\n" +
+				"	}\n" +
+				"}\n"
+			},
+			options3,
+				"----------\n" + 
+				"1. ERROR in p3\\Test.java (at line 8)\n" + 
+				"	return test.weaken(input);\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^\n" + 
+				"Null type mismatch: required \'@NonNull String\' but the provided value is "+specifiedOrInferred+" as @Nullable\n" +
+				"----------\n" + 
+				"2. ERROR in p3\\Test.java (at line 8)\n" + 
+				"	return test.weaken(input);\n" + 
+				"	                   ^^^^^\n" + 
+				mismatch_NonNull_Nullable("String") +
+				"----------\n" + 
+				"3. ERROR in p3\\Test.java (at line 11)\n" + 
+				"	return test.weaken(input);\n" + 
+				"	       ^^^^^^^^^^^^^^^^^^\n" + 
+				"Null type mismatch: required \'@NonNull String\' but the provided value is "+specifiedOrInferred+" as @Nullable\n" +
+				"----------\n" + 
+				"4. ERROR in p3\\Test.java (at line 11)\n" + 
+				"	return test.weaken(input);\n" + 
+				"	                   ^^^^^\n" + 
+				mismatch_NonNull_Nullable("String") +
+				"----------\n" + 
+				"5. ERROR in p3\\Test.java (at line 14)\n" + 
+				"	return test.strong(input); // requires nonnull due to method-level default\n" + 
+				"	                   ^^^^^\n" + 
+				mismatch_NonNull_Nullable("String") +
+				"----------\n" + 
+				"6. ERROR in p3\\Test.java (at line 17)\n" + 
+				"	return test.strong(input); // requires nonnull due to type-level default\n" + 
+				"	                   ^^^^^\n" + 
+				mismatch_NonNull_Nullable("String") +
+				"----------\n");
 }
 }

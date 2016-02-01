@@ -33,7 +33,9 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.osgi.framework.Bundle;
 
 public class IncrementalTests18 extends BuilderTests {
-	
+	static {
+//		TESTS_NAMES = new String[] { "testBug481276b" };
+	}
 	public IncrementalTests18(String name) {
 		super(name);
 	}
@@ -529,5 +531,284 @@ public class IncrementalTests18 extends BuilderTests {
 			projectPath,
 			"Problem : No enclosing instance of the type I is accessible in scope [" +
 			" resource : </Project/src/X.java> range : <31,38> category : <40> severity : <2>]");
+	}
+
+	public void testBug481276a() throws Exception {
+		IPath projectPath = env.addProject("Project", "1.8");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		setupProjectForNullAnnotations();
+		
+		// clean status from https://bugs.eclipse.org/bugs/attachment.cgi?id=257687
+		env.addClass(root, "testNullAnnotations", "package-info",
+				"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+				"package testNullAnnotations;\n");
+		env.addClass(root, "testNullAnnotations", "NonNullUtils",
+				"package testNullAnnotations;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.Nullable;\n" + 
+				"\n" + 
+				"public final class NonNullUtils {\n" + 
+				"\n" + 
+				"    public static <T> T[] checkNotNull(T @Nullable [] array) {\n" + 
+				"        if (array == null) {\n" + 
+				"            throw new NullPointerException();\n" + 
+				"        }\n" + 
+				"        return array;\n" + 
+				"    }\n" + 
+				"}\n");
+		env.addClass(root, "testNullAnnotations", "Snippet",
+				"package testNullAnnotations;\n" + 
+				"\n" + 
+				"import static testNullAnnotations.NonNullUtils.checkNotNull;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"public class Snippet {\n" + 
+				"	@SuppressWarnings(\"unused\")\n" + 
+				"	public void foo() {\n" + 
+				"        @NonNull Object @Nullable [] objects = null;\n" + 
+				"        @NonNull Object @NonNull [] checked3 = checkNotNull(objects); \n" + 
+				"	}\n" + 
+				"}\n");
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		// add an error by removing the necessary @Nullable annotation:
+		env.addClass(root, "testNullAnnotations", "NonNullUtils",
+				"package testNullAnnotations;\n" + 
+				"\n" + 
+				"public final class NonNullUtils {\n" + 
+				"\n" + 
+				"    public static <T> T[] checkNotNull(T [] array) {\n" + 
+				"        if (array == null) {\n" + 
+				"            throw new NullPointerException();\n" + 
+				"        }\n" + 
+				"        return array;\n" + 
+				"    }\n" + 
+				"}\n");
+
+		incrementalBuild(projectPath);
+		expectingProblemsFor(
+			projectPath,
+			"Problem : Dead code [" +
+			" resource : </Project/src/testNullAnnotations/NonNullUtils.java> range : <145,202> category : <90> severity : <1>]\n" +
+			"Problem : Null type mismatch (type annotations): required '@NonNull Object @NonNull[]' but this expression has type '@NonNull Object @Nullable[]' [" +
+			" resource : </Project/src/testNullAnnotations/Snippet.java> range : <316,323> category : <90> severity : <2>]");		
+	}
+
+	public void testBug481276b() throws Exception {
+		IPath projectPath = env.addProject("Project", "1.8");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		setupProjectForNullAnnotations();
+		// clean status:
+		env.addClass(root, "testNullAnnotations", "package-info",
+				"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+				"package testNullAnnotations;\n");
+		env.addClass(root, "testNullAnnotations", "NonNullUtils",
+				"package testNullAnnotations;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.Nullable;\n" + 
+				"\n" + 
+				"public final class NonNullUtils {\n" + 
+				"\n" + 
+				"    public static <@Nullable T> T[] checkNotNull(T @Nullable[] array) {\n" + 
+				"        if (array == null) {\n" + 
+				"            throw new NullPointerException();\n" + 
+				"        }\n" + 
+				"        return array;\n" + 
+				"    }\n" + 
+				"}\n");
+		env.addClass(root, "testNullAnnotations", "Snippet",
+				"package testNullAnnotations;\n" + 
+				"\n" + 
+				"import static testNullAnnotations.NonNullUtils.checkNotNull;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"public class Snippet {\n" + 
+				"	@SuppressWarnings(\"unused\")\n" + 
+				"	public void foo() {\n" + 
+				"        @NonNull Object @Nullable [] objects = new @NonNull Object[0];\n" + 
+				"        @NonNull Object @NonNull [] checked3 = checkNotNull(objects); \n" + 
+				"	}\n" + 
+				"}\n");
+
+		fullBuild(projectPath);
+		expectingProblemsFor(
+				projectPath,
+				"Problem : Null type mismatch (type annotations): required \'@NonNull Object @NonNull[]\' but this expression has type \'@Nullable Object @NonNull[]\' [" +
+				" resource : </Project/src/testNullAnnotations/Snippet.java> range : <321,342> category : <90> severity : <2>]\n" + 
+				"Problem : Null type mismatch (type annotations): required \'@Nullable Object @Nullable[]\' but this expression has type \'@NonNull Object @Nullable[]\' [" +
+				" resource : </Project/src/testNullAnnotations/Snippet.java> range : <334,341> category : <90> severity : <2>]");		
+
+		// fix error according to https://bugs.eclipse.org/bugs/show_bug.cgi?id=481276#c4
+		env.addClass(root, "testNullAnnotations", "NonNullUtils",
+				"package testNullAnnotations;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.Nullable;\n" + 
+				"\n" + 
+				"public final class NonNullUtils {\n" + 
+				"\n" + 
+				"    public static <T> T[] checkNotNull(T @Nullable[] array) {\n" + 
+				"        if (array == null) {\n" + 
+				"            throw new NullPointerException();\n" + 
+				"        }\n" + 
+				"        return array;\n" + 
+				"    }\n" + 
+				"}\n");
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+	}
+
+	public void testBug481276c() throws Exception {
+		IPath projectPath = env.addProject("Project", "1.8");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		setupProjectForNullAnnotations();
+		
+		// clean status from https://bugs.eclipse.org/bugs/attachment.cgi?id=257687
+		env.addClass(root, "testNullAnnotations", "package-info",
+				"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+				"package testNullAnnotations;\n");
+		env.addClass(root, "testNullAnnotations", "NonNullUtils",
+				"package testNullAnnotations;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.Nullable;\n" + 
+				"\n" + 
+				"public final class NonNullUtils {\n" + 
+				"\n" + 
+				"    public static <T> T[] checkNotNull(T @Nullable [] array) {\n" + 
+				"        if (array == null) {\n" + 
+				"            throw new NullPointerException();\n" + 
+				"        }\n" + 
+				"        return array;\n" + 
+				"    }\n" + 
+				"}\n");
+		env.addClass(root, "testNullAnnotations", "Snippet",
+				"package testNullAnnotations;\n" + 
+				"\n" + 
+				"import static testNullAnnotations.NonNullUtils.checkNotNull;\n" + 
+				"\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"public class Snippet {\n" + 
+				"	@SuppressWarnings(\"unused\")\n" + 
+				"	public void foo() {\n" + 
+				"        @NonNull Object @Nullable [] objects = null;\n" + 
+				"        @NonNull Object @NonNull [] checked3 = checkNotNull(objects); \n" + 
+				"	}\n" + 
+				"}\n");
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		// add a warning by making @NNBD ineffective:
+		env.addClass(root, "testNullAnnotations", "package-info",
+				"@org.eclipse.jdt.annotation.NonNullByDefault({})\n" + 
+				"package testNullAnnotations;\n");
+
+		incrementalBuild(projectPath);
+		expectingProblemsFor(
+			projectPath,
+			"Problem : Null type safety (type annotations): The expression of type \'@NonNull Object []\' needs unchecked conversion to conform to \'@NonNull Object @NonNull[]\' [" +
+			" resource : </Project/src/testNullAnnotations/Snippet.java> range : <303,324> category : <90> severity : <1>]");		
+	}
+
+	public void testBug483744_remove() throws JavaModelException, IOException {
+		IPath projectPath = env.addProject("Project", "1.8");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		setupProjectForNullAnnotations();
+		
+		env.addClass(root, "testNullAnnotations", "package-info",
+				"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+				"package testNullAnnotations;\n");
+		env.addClass(root, "testNullAnnotations", "NonNullUtils",
+				"package testNullAnnotations;\n" + 
+				"\n" + 
+				"import java.util.*;\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"\n" + 
+				"public final class NonNullUtils {\n" + 
+				"\n" + 
+				"    public static <T> List<@NonNull T> checkNotNullContents(List<@Nullable T> list, List<@NonNull T> nList) {\n" + 
+				"        return nList;\n" + 
+				"    }\n" + 
+				"}\n");
+		env.addClass(root, "testNullAnnotations", "Snippet",
+				"package testNullAnnotations;\n" + 
+				"\n" + 
+				"import java.util.*;\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" + 
+				"\n" + 
+				"import static testNullAnnotations.NonNullUtils.checkNotNullContents;\n" + 
+				"\n" + 
+				"public class Snippet {\n" + 
+				"	public List<@NonNull String> foo(List<@Nullable String> inList, List<@NonNull String> nList) {\n" + 
+				"        return checkNotNullContents(inList, nList); \n" + 
+				"	}\n" + 
+				"}\n");
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		// remove @Nullable (second type annotation):
+		env.addClass(root, "testNullAnnotations", "NonNullUtils",
+				"package testNullAnnotations;\n" + 
+				"\n" + 
+				"import java.util.*;\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"\n" + 
+				"public final class NonNullUtils {\n" + 
+				"\n" + 
+				"    public static <T> List<@NonNull T> checkNotNullContents(List<T> list, List<@NonNull T> nList) {\n" + 
+				"        return nList;\n" + 
+				"    }\n" + 
+				"}\n");
+		incrementalBuild(projectPath); // was throwing NPE
+		expectingNoProblems();
+
+		// and add it again:
+		env.addClass(root, "testNullAnnotations", "NonNullUtils",
+				"package testNullAnnotations;\n" + 
+				"\n" + 
+				"import java.util.*;\n" + 
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"\n" + 
+				"public final class NonNullUtils {\n" + 
+				"\n" + 
+				"    public static <T> List<@NonNull T> checkNotNullContents(List<@Nullable T> list, List<@NonNull T> nList) {\n" + 
+				"        return nList;\n" + 
+				"    }\n" + 
+				"}\n");
+		incrementalBuild(projectPath); // was throwing NPE
+		expectingNoProblems();
 	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5746,7 +5746,7 @@ public void testBug302123() {
 		"public class Test {\n" + 
 		"	public static void main(String[] args) {\n" + 
 		"		String s = \"X\" + /** ***/\n" + 
-		"		\"Y\";\n" + 
+		"				\"Y\";\n" + 
 		"	}\n" + 
 		"\n" + 
 		"}\n"
@@ -5767,7 +5767,7 @@ public void testBug302123b() {
 		"public class Test {\n" + 
 		"	public static void main(String[] args) {\n" + 
 		"		String s = \"X\" + /** XXX ***/\n" + 
-		"		\"Y\";\n" + 
+		"				\"Y\";\n" + 
 		"	}\n" + 
 		"\n" + 
 		"}\n"
@@ -5788,7 +5788,7 @@ public void testBug302123c() {
 		"public class Test {\n" + 
 		"	public static void main(String[] args) {\n" + 
 		"		String s = \"X\" + /** ** XXX ** ***/\n" + 
-		"		\"Y\";\n" + 
+		"				\"Y\";\n" + 
 		"	}\n" + 
 		"\n" + 
 		"}\n"
@@ -5809,7 +5809,7 @@ public void testBug302123d() {
 		"public class Test {\n" + 
 		"	public static void main(String[] args) {\n" + 
 		"		String s = \"X\" + /** AAA *** BBB *** CCC ***/\n" + 
-		"		\"Y\";\n" + 
+		"				\"Y\";\n" + 
 		"	}\n" + 
 		"\n" + 
 		"}\n"
@@ -11279,8 +11279,8 @@ public void testBug474918() {
 		"	int					bb					= 4;\r\n" + 
 		"\r\n" + 
 		"	Object				c					= new Object() {\r\n" + 
-		"												int			a				= 55;\r\n" + 
-		"												Object		cdddddddddddd	= null;\r\n" + 
+		"												int		a				= 55;\r\n" + 
+		"												Object	cdddddddddddd	= null;\r\n" + 
 		"											};\r\n" + 
 		"\r\n" + 
 		"	private enum E {\r\n" + 
@@ -11344,8 +11344,8 @@ public void testBug474918b() {
 		"    int              bb               = 4;\r\n" + 
 		"\r\n" + 
 		"    Object           c                = new Object() {\r\n" + 
-		"                                          int      a             = 55;\r\n" + 
-		"                                          Object   cdddddddddddd = null;\r\n" + 
+		"                                          int    a             = 55;\r\n" + 
+		"                                          Object cdddddddddddd = null;\r\n" + 
 		"                                      };\r\n" + 
 		"\r\n" + 
 		"    private enum E {\r\n" + 
@@ -11409,8 +11409,8 @@ public void testBug474918c() {
 		"	int					bb					= 4;\r\n" + 
 		"\r\n" + 
 		"	Object				c					= new Object() {\r\n" + 
-		"		                                        int			a				= 55;\r\n" + 
-		"		                                        Object		cdddddddddddd	= null;\r\n" + 
+		"		                                        int		a				= 55;\r\n" + 
+		"		                                        Object	cdddddddddddd	= null;\r\n" + 
 		"	                                        };\r\n" + 
 		"\r\n" + 
 		"	private enum E {\r\n" + 
@@ -11772,6 +11772,9 @@ public void testBug475746() {
 		"		Foo.bar( ( @Annotation( \"annotationVal\" ) int a) -> { } , IllegalArgumentException.class );\r\n" + 
 		"	}\r\n" + 
 		"\r\n" + 
+		"	public interface I {\r\n" + 
+		"		void m(int a);\r\n" + 
+		"	}\r\n" + 
 		"}";
 	formatSource(source,
 		"import java.awt.*;\r\n" + 
@@ -11790,6 +11793,9 @@ public void testBug475746() {
 		"		Foo.bar( ( @Annotation( \"annotationVal\" ) int a ) -> {}, IllegalArgumentException.class );\r\n" + 
 		"	}\r\n" + 
 		"\r\n" + 
+		"	public interface I {\r\n" + 
+		"		void m( int a );\r\n" + 
+		"	}\r\n" + 
 		"}"
 	);
 }
@@ -11957,5 +11963,383 @@ public void testBug475791b() {
 		"	}\r\n" + 
 		"}"
 	);
+}
+/**
+ * https://bugs.eclipse.org/477430 - [formatter] wrong indentation when nesting anonymous classes
+ */
+public void testBug477430() {
+	this.formatterPrefs.alignment_for_arguments_in_method_invocation = 
+		DefaultCodeFormatterOptions.Alignment.M_ONE_PER_LINE_SPLIT
+		+ DefaultCodeFormatterOptions.Alignment.M_FORCE;
+	String source =
+		"public class Example {\r\n" + 
+		"	void foo() {\r\n" + 
+		"		Object o = new AbstractRegistryConfiguration() {\r\n" + 
+		"			public void configureRegistry() {\r\n" + 
+		"				registerConfigAttribute(\r\n" + 
+		"						new IExportFormatter() {\r\n" + 
+		"							public Object formatForExport() {\r\n" + 
+		"								return null;\r\n" + 
+		"							}\r\n" + 
+		"						},\r\n" + 
+		"						null);\r\n" + 
+		"			}\r\n" + 
+		"		};\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/480074 - [formatter] Wrong indentation on column for enum constants with javadoc
+ */
+public void testBug480074() {
+	this.formatterPrefs.alignment_for_enum_constants = Alignment.M_NEXT_PER_LINE_SPLIT + Alignment.M_INDENT_ON_COLUMN;
+	String source =
+		"public class Example {\n" + 
+		"	private enum Something {\n" + 
+		"							/** hello */\n" + 
+		"							AAA,\n" + 
+		"							/** hello */\n" + 
+		"							BBB\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/479959 - [formatter] indented empty lines after ifs and loops without braces
+ */
+public void testBug479959() {
+	this.formatterPrefs.indent_empty_lines = true;
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 2;
+	String source =
+		"public class Example {\r\n" + 
+		"	\r\n" + 
+		"	\r\n" + 
+		"	public boolean foo() {\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		if (foo())\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			return foo();\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		while (foo())\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			foo();\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		do\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			foo();\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		while (foo());\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		if (foo()) {\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			foo();\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"		}\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		if (foo())\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			foo();\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		else\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			foo();\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		for (int i = 0; i < 5; i++)\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			foo();\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		switch (4) {\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		case 4:\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			foo();\r\n" + 
+		"			break;\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		case 5: {\r\n" + 
+		"			\r\n" + 
+		"			\r\n" + 
+		"			break;\r\n" + 
+		"		}\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		case 6:\r\n" + 
+		"		}\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		return false;\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"	}\r\n" + 
+		"	\r\n" + 
+		"	\r\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/480086 - [formatter] unwanted spaces in generic diamond
+ */
+public void testBug480086() {
+	this.formatterPrefs.insert_space_after_opening_angle_bracket_in_parameterized_type_reference = true;
+	this.formatterPrefs.insert_space_before_closing_angle_bracket_in_parameterized_type_reference = true;
+	String source =
+		"public class Test {\r\n" + 
+		"	private ArrayList< String > ss = new ArrayList<>();\r\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/480735 - [formatter] whitespace after comma in enum declaration is removed
+ */
+public void testBug480735() {
+	String source =
+		"public enum Example implements Serializable, Cloneable {\r\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/481221 - [formatter] New formatter incorrectly formats ", ;" in enum declaration
+ */
+public void testBug481221a() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	String source =
+		"public class Test {\r\n" + 
+		"	public enum Enum0 {\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	public enum Enum1 {\r\n" + 
+		"		;\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	public enum Enum2 {\r\n" + 
+		"		,;\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	public enum Enum3 {\r\n" + 
+		"		,\r\n" + 
+		"		;\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	public enum Enum4 {\r\n" + 
+		"		AAA,;\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	public enum Enum5 {\r\n" + 
+		"		AAA,\r\n" + 
+		"		;\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/481221 - [formatter] New formatter incorrectly formats ", ;" in enum declaration
+ */
+public void testBug481221b() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.alignment_for_enum_constants = Alignment.M_COMPACT_SPLIT + Alignment.M_INDENT_ON_COLUMN;
+	String source =
+		"public class Test {\r\n" + 
+		"	public enum Enum1 {\r\n" + 
+		"		,\r\n" + 
+		"		;\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	public enum Enum2 {\r\n" + 
+		"						AAA,\r\n" + 
+		"						;\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/483922 - [formatter] Wrong indentation base for wrapped "throws" elements in method declaration
+ */
+public void testBug483922a() {
+	this.formatterPrefs.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_FIRST_BREAK_SPLIT + Alignment.M_FORCE + Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_FIRST_BREAK_SPLIT + Alignment.M_FORCE;
+	String source =
+		"public class Test {\r\n" + 
+		"	public void foo(\r\n" + 
+		"					int a, int b)\r\n" + 
+		"			throws Exception {\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/483922 - [formatter] [formatter] Wrong indentation base for wrapped "throws" elements in method declaration
+ */
+public void testBug483922b() {
+	this.formatterPrefs.alignment_for_parameters_in_constructor_declaration = Alignment.M_COMPACT_FIRST_BREAK_SPLIT + Alignment.M_FORCE + Alignment.M_INDENT_ON_COLUMN;
+	this.formatterPrefs.alignment_for_throws_clause_in_constructor_declaration = Alignment.M_COMPACT_FIRST_BREAK_SPLIT + Alignment.M_FORCE;
+	String source =
+			"public class Test {\r\n" + 
+			"	public Test(\r\n" + 
+			"				int a, int b)\r\n" + 
+			"			throws Exception {\r\n" + 
+			"	}\r\n" + 
+			"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/485163 - [formatter] Incorrect indentation after line wrap
+ */
+public void testBug485163() {
+	this.formatterPrefs.indent_empty_lines = true;
+	this.formatterPrefs.blank_lines_before_field = 1;
+	String source =
+		"public class Test {\r\n" + 
+		"\r\n" + 
+		"	public String sssss1 = \".................................................\" + \"...........................................\";\r\n" + 
+		"	public String sssss2 = \".................................................\" + \"...........................................\";\r\n" + 
+		"\r\n" + 
+		"	public String sssss3 = \".................................................\" + \"...........................................\";\r\n" + 
+		"\r\n" + 
+		"	public void foo() {\r\n" + 
+		"\r\n" + 
+		"		String sssss = \".................................................\" + \"...........................................\";\r\n" + 
+		"\r\n" + 
+		"		Object o =\r\n" + 
+		"\r\n" + 
+		"		new Object() {\r\n" + 
+		"\r\n" + 
+		"			int a;\r\n" + 
+		"\r\n" + 
+		"			void foo() {\r\n" + 
+		"\r\n" + 
+		"				String sssss1 = \".................................................\" + \"...........................................\";\r\n" + 
+		"\r\n" + 
+		"				String sssss2 = \".................................................\" + \"...........................................\";\r\n" + 
+		"\r\n" + 
+		"			}\r\n" + 
+		"\r\n" + 
+		"		};\r\n" + 
+		"\r\n" + 
+		"		new Object() {\r\n" + 
+		"\r\n" + 
+		"			int a;\r\n" + 
+		"\r\n" + 
+		"			void foo() {\r\n" + 
+		"\r\n" + 
+		"				String sssss1 = \".................................................\" + \"...........................................\";\r\n" + 
+		"\r\n" + 
+		"				String sssss2 = \".................................................\" + \"...........................................\";\r\n" + 
+		"\r\n" + 
+		"			}\r\n" + 
+		"\r\n" + 
+		"		};\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\r\n" + 
+		"	\r\n" + 
+		"	public String sssss1 = \".................................................\"\r\n" + 
+		"			+ \"...........................................\";\r\n" + 
+		"	\r\n" + 
+		"	public String sssss2 = \".................................................\"\r\n" + 
+		"			+ \"...........................................\";\r\n" + 
+		"	\r\n" + 
+		"	public String sssss3 = \".................................................\"\r\n" + 
+		"			+ \"...........................................\";\r\n" + 
+		"	\r\n" + 
+		"	public void foo() {\r\n" + 
+		"		\r\n" + 
+		"		String sssss = \".................................................\"\r\n" + 
+		"				+ \"...........................................\";\r\n" + 
+		"		\r\n" + 
+		"		Object o =\r\n" + 
+		"				\r\n" + 
+		"				new Object() {\r\n" + 
+		"					\r\n" + 
+		"					int a;\r\n" + 
+		"					\r\n" + 
+		"					void foo() {\r\n" + 
+		"						\r\n" + 
+		"						String sssss1 = \".................................................\"\r\n" + 
+		"								+ \"...........................................\";\r\n" + 
+		"						\r\n" + 
+		"						String sssss2 = \".................................................\"\r\n" + 
+		"								+ \"...........................................\";\r\n" + 
+		"						\r\n" + 
+		"					}\r\n" + 
+		"					\r\n" + 
+		"				};\r\n" + 
+		"		\r\n" + 
+		"		new Object() {\r\n" + 
+		"			\r\n" + 
+		"			int a;\r\n" + 
+		"			\r\n" + 
+		"			void foo() {\r\n" + 
+		"				\r\n" + 
+		"				String sssss1 = \".................................................\"\r\n" + 
+		"						+ \"...........................................\";\r\n" + 
+		"				\r\n" + 
+		"				String sssss2 = \".................................................\"\r\n" + 
+		"						+ \"...........................................\";\r\n" + 
+		"				\r\n" + 
+		"			}\r\n" + 
+		"			\r\n" + 
+		"		};\r\n" + 
+		"	}\r\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/479898 - [formatter] removes whitespace between final and first exception in multi-line multi-catch
+ */
+public void testBug479898() {
+	this.formatterPrefs.alignment_for_union_type_in_multicatch = Alignment.M_COMPACT_SPLIT + Alignment.M_INDENT_ON_COLUMN;
+	String source =
+		"public class FormattingTest {\r\n" + 
+		"	public void formatterTest() {\r\n" + 
+		"		try {\r\n" + 
+		"		} catch (final	InstantiationException | IllegalAccessException | IllegalArgumentException\r\n" + 
+		"						| NoSuchMethodException e) {\r\n" + 
+		"		}\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/485276 - [formatter] another ArrayIndexOutOfBoundsException while formatting code
+ */
+public void testBug485276() {
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	this.formatterPrefs.alignment_for_expressions_in_array_initializer = Alignment.M_COMPACT_SPLIT + Alignment.M_INDENT_BY_ONE;
+	String source =
+		"public class PostSaveListenerCleanUpExceptionTest {\r\n" + 
+		"	public Object[][] dataProvider() {\r\n" + 
+		"		return new Object[][] { { new String() // comment 1\r\n" + 
+		"				}, { new String() } };\r\n" + 
+		"	}\r\n" + 
+		"\r\n" + 
+		"	Object o = new Object() {\r\n" + 
+		"		public Object[][] dataProvider() {\r\n" + 
+		"			return new Object[][] { { new String() // comment 1\r\n" + 
+		"					}, { new String() } };\r\n" + 
+		"		}\r\n" + 
+		"	};\r\n" + 
+		"}";
+	formatSource(source);
 }
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,7 +86,8 @@ public class ClassLiteralAccess extends Expression {
 		   Corollary wise, we should resolve the type of the class literal expression to be a raw type as
 		   class literals exist only for the raw underlying type. 
 		 */
-		this.targetType = scope.environment().convertToRawType(this.targetType, true /* force conversion of enclosing types*/);
+		LookupEnvironment environment = scope.environment();
+		this.targetType = environment.convertToRawType(this.targetType, true /* force conversion of enclosing types*/);
 
 		if (this.targetType.isArrayType()) {
 			ArrayBinding arrayBinding = (ArrayBinding) this.targetType;
@@ -106,11 +107,13 @@ public class ClassLiteralAccess extends Expression {
 			// Integer.class --> Class<Integer>, perform boxing of base types (int.class --> Class<Integer>)
 			TypeBinding boxedType = null;
 			if (this.targetType.id == T_void) {
-				boxedType = scope.environment().getResolvedType(JAVA_LANG_VOID, scope);
+				boxedType = environment.getResolvedType(JAVA_LANG_VOID, scope);
 			} else {
 				boxedType = scope.boxing(this.targetType);
 			}
-			this.resolvedType = scope.environment().createParameterizedType(classType, new TypeBinding[]{ boxedType }, null/*not a member*/);
+			if (environment.usesNullTypeAnnotations())
+				boxedType = environment.createAnnotatedType(boxedType, new AnnotationBinding[] { environment.getNonNullAnnotation() });
+			this.resolvedType = environment.createParameterizedType(classType, new TypeBinding[]{ boxedType }, null/*not a member*/);
 		} else {
 			this.resolvedType = classType;
 		}

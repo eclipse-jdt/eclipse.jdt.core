@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -70,6 +70,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ImplicitNullAnnotationVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.IntersectionTypeBinding18;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
+import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
@@ -262,7 +263,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	private boolean shouldGenerateImplicitLambda(BlockScope currentScope) {
 		// these cases are either too complicated, impossible to handle or result in significant code duplication 
 		return (this.binding.isVarargs() || 
-				(isConstructorReference() && this.receiverType.syntheticOuterLocalVariables() != null && currentScope.methodScope().isStatic) ||
+				(isConstructorReference() && this.receiverType.syntheticOuterLocalVariables() != null && this.shouldCaptureInstance) ||
 				this.expectedType instanceof IntersectionTypeBinding18 || // marker interfaces require alternate meta factory.
 				this.expectedType.findSuperTypeOriginatingFrom(currentScope.getJavaIoSerializable()) != null || // serialization support.
 				this.requiresBridges()); // bridges.
@@ -337,11 +338,6 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 						}
 					} else {
 						enclosingInstances = Binding.NO_REFERENCE_TYPES;
-					}
-					// Reject types that capture outer local arguments, these cannot be manufactured by the metafactory.
-					if (nestedType.syntheticOuterLocalVariables() != null) {
-						currentScope.problemReporter().noSuchEnclosingInstance(nestedType.enclosingType(), this, false);
-						return;
 					}
 				}
 				if (this.syntheticAccessor != null) {
@@ -423,9 +419,15 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			this.lhs.analyseCode(currentScope, flowContext, flowInfo, true);
 		} else if (isConstructorReference()) {
 			TypeBinding type = this.receiverType.leafComponentType();
-			if (type.isMemberType() &&
+			if (type.isNestedType() &&
 				type instanceof ReferenceBinding && !((ReferenceBinding)type).isStatic()) {
 				currentScope.tagAsAccessingEnclosingInstanceStateOf((ReferenceBinding)type, false);
+				this.shouldCaptureInstance = true;
+				ReferenceBinding allocatedTypeErasure = (ReferenceBinding) type.erasure();
+				if (allocatedTypeErasure.isLocalType()) {
+					((LocalTypeBinding) allocatedTypeErasure).addInnerEmulationDependent(currentScope, false);
+					// request cascade of accesses
+				}
 			}
 		}
 		manageSyntheticAccessIfNecessary(currentScope, flowInfo);
@@ -1014,9 +1016,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         this.freeParameters = descriptorParameters;
         this.checkingPotentialCompatibility = true;
         try {
-			MethodBinding compileTimeDeclaration = this.exactMethodBinding != null ? this.exactMethodBinding : isConstructorRef
-							? scope.getConstructor((ReferenceBinding) this.receiverType, descriptorParameters, this)
-							: scope.getMethod(this.receiverType, this.selector, descriptorParameters, this);
+			MethodBinding compileTimeDeclaration = getCompileTimeDeclaration(scope, isConstructorRef, descriptorParameters);
 
         	if (compileTimeDeclaration != null && compileTimeDeclaration.isValidBinding()) // we have the mSMB.
         		this.potentialMethods = new MethodBinding [] { compileTimeDeclaration };
@@ -1048,7 +1048,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 
         	System.arraycopy(descriptorParameters, 1, descriptorParameters = new TypeBinding[parametersLength - 1], 0, parametersLength - 1);
         	this.freeParameters = descriptorParameters;
-        	compileTimeDeclaration = this.exactMethodBinding != null ? this.exactMethodBinding : scope.getMethod(this.receiverType, this.selector, descriptorParameters, this);
+        	compileTimeDeclaration = getCompileTimeDeclaration(scope, false, descriptorParameters);
         
         	if (compileTimeDeclaration != null && compileTimeDeclaration.isValidBinding()) // we have the mSMB.
         		this.potentialMethods = new MethodBinding [] { compileTimeDeclaration };
@@ -1070,6 +1070,17 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         return false;
 	}
 	
+	MethodBinding getCompileTimeDeclaration(Scope scope, boolean isConstructorRef, TypeBinding[] parameters) {
+		if (this.exactMethodBinding != null)
+			return this.exactMethodBinding;
+		else if (this.receiverType.isArrayType())
+			return scope.findMethodForArray((ArrayBinding) this.receiverType, this.selector, Binding.NO_PARAMETERS, this);
+		else if (isConstructorRef)
+			return scope.getConstructor((ReferenceBinding) this.receiverType, parameters, this);
+		else
+			return scope.getMethod(this.receiverType, this.selector, parameters, this);
+	}
+
 	public boolean isCompatibleWith(TypeBinding targetType, Scope scope) {
 		ReferenceExpression copy = cachedResolvedCopy(targetType);
 		return copy != null && copy.resolvedType != null && copy.resolvedType.isValidBinding() && copy.binding != null && copy.binding.isValidBinding();

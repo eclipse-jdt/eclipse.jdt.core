@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2015 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,6 @@ import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 
-@SuppressWarnings("rawtypes")
 public class RecoveredUnit extends RecoveredElement {
 
 	public CompilationUnitDeclaration unitDeclaration;
@@ -257,7 +256,7 @@ public CompilationUnitDeclaration updatedCompilationUnitDeclaration(){
 			this.types[this.typeCount - 1].typeDeclaration.bodyEnd = this.unitDeclaration.sourceEnd;
 		}
 		
-		Set knownTypes = new HashSet();
+		Set<TypeDeclaration> knownTypes = new HashSet<>();
 		int actualCount = existingCount;
 		for (int i = 0; i < this.typeCount; i++){
 			TypeDeclaration typeDecl = this.types[i].updatedTypeDeclaration(0, knownTypes);

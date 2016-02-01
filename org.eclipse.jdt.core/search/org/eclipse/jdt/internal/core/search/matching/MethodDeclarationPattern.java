@@ -26,6 +26,7 @@ public class MethodDeclarationPattern extends MethodPattern {
 	public char[] signature;
 	public char[][] parameterTypes;
 	public char[][] parameterNames;
+	public char[] fusedDeclaringQualifier = null; // TODO: do we need this; cleanup?
 	/**
 	 * Method Declaration entries are encoded as described
 	 * 
@@ -61,11 +62,7 @@ public class MethodDeclarationPattern extends MethodPattern {
 		if (argCount > 0) {
 			if (signature == null) {
 				if (parameterTypes != null && parameterTypes.length == argCount) {
-					char[][] parameterTypeErasures = new char[argCount][];
-					for (int i = 0; i < parameterTypes.length; i++) {
-						parameterTypeErasures[i] = getTypeErasure(parameterTypes[i]);
-					}
-					parameterTypesChars = CharOperation.concatWith(parameterTypeErasures, PARAMETER_SEPARATOR);
+					parameterTypesChars = CharOperation.concatWith(parameterTypes, PARAMETER_SEPARATOR);
 				}
 			} else {
 				extraFlags |= ExtraFlags.ParameterTypesStoredAsSignature;
@@ -162,6 +159,16 @@ public MethodDeclarationPattern(
 	this.declaringPackageName = declaringPackageName;
 }
 
+public MethodDeclarationPattern(
+		char[] declaringQualifier, 
+		char[] methodName,
+		int matchRule) {
+	super(methodName, CharOperation.NO_CHAR, CharOperation.NO_CHAR, 
+			null, null, null, null, null, 
+			IJavaSearchConstants.DECLARATIONS, matchRule);
+	this.fusedDeclaringQualifier = declaringQualifier;
+}
+
 public MethodDeclarationPattern(int matchRule) {
 	super(matchRule);
 }
@@ -230,7 +237,7 @@ public void decodeIndexKey(char[] key) {
 			this.signature  = CharOperation.subarray(key, start, slash);
 			CharOperation.replace(this.signature , '\\', SEPARATOR);
 		} else {
-			this.parameterTypes = CharOperation.splitOn(PARAMETER_SEPARATOR, key, start, slash);
+			this.parameterTypes = CharOperation.splitOnWithEnclosures(PARAMETER_SEPARATOR, '<', '>', key, start, slash);
 		}
 		start = slash + 1;
 		slash = CharOperation.indexOf(SEPARATOR, key, start);
