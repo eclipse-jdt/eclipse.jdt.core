@@ -13377,4 +13377,133 @@ public void testBug432628d() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/118264 - [formatter] Enable wrapping of for loop setup
+ */
+public void testBug118264a() {
+	this.formatterPrefs.page_width = 50;
+	String source =
+		"class Example {\n" + 
+		"	int foo(int argument) {\n" + 
+		"		for (int counter = 0; counter < argument; counter++) {\n" + 
+		"			doSomething(counter);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/118264 - [formatter] Enable wrapping of for loop setup
+ */
+public void testBug118264b() {
+	this.formatterPrefs.alignment_for_expressions_in_for_loop_header = Alignment.M_COMPACT_SPLIT;
+	this.formatterPrefs.page_width = 50;
+	String source =
+		"class Example {\n" + 
+		"	int foo(int argument) {\n" + 
+		"		for (int counter = 0; counter < argument; counter++) {\n" + 
+		"			doSomething(counter);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"class Example {\n" + 
+		"	int foo(int argument) {\n" + 
+		"		for (int counter = 0; counter < argument;\n" + 
+		"				counter++) {\n" + 
+		"			doSomething(counter);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/118264 - [formatter] Enable wrapping of for loop setup
+ */
+public void testBug118264c() {
+	this.formatterPrefs.alignment_for_expressions_in_for_loop_header = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	String source =
+		"class Example {\n" + 
+		"	int foo(int argument) {\n" + 
+		"		for (int counter = 0; counter < argument; counter++) {\n" + 
+		"			doSomething(counter);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"class Example {\n" + 
+		"	int foo(int argument) {\n" + 
+		"		for (\n" + 
+		"				int counter = 0;\n" + 
+		"				counter < argument;\n" + 
+		"				counter++) {\n" + 
+		"			doSomething(counter);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/118264 - [formatter] Enable wrapping of for loop setup
+ */
+public void testBug118264d() {
+	this.formatterPrefs.alignment_for_expressions_in_for_loop_header = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	String source =
+		"class Example {\n" + 
+		"	int foo(int argument) {\n" + 
+		"		for (int counter = 0; ; ) {\n" + 
+		"			doSomething(counter);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"class Example {\n" + 
+		"	int foo(int argument) {\n" + 
+		"		for (\n" + 
+		"				int counter = 0;;) {\n" + 
+		"			doSomething(counter);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/118264 - [formatter] Enable wrapping of for loop setup
+ */
+public void testBug118264e() {
+	this.formatterPrefs.alignment_for_expressions_in_for_loop_header = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	String source =
+		"class Example {\n" + 
+		"	int foo(int argument) {\n" + 
+		"		for (;;argument--, argument--) {\n" + 
+		"			doSomething(counter);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"class Example {\n" + 
+		"	int foo(int argument) {\n" + 
+		"		for (;;\n" + 
+		"				argument--, argument--) {\n" + 
+		"			doSomething(counter);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/118264 - [formatter] Enable wrapping of for loop setup
+ */
+public void testBug118264f() {
+	this.formatterPrefs.alignment_for_expressions_in_for_loop_header = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	String source =
+		"class Example {\n" + 
+		"	int foo(int argument) {\n" + 
+		"		for (;;) {\n" + 
+		"			doSomething(counter);\n" + 
+		"		}\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
+}
 }

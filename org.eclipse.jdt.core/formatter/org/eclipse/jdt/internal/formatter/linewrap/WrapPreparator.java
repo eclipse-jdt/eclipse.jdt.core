@@ -56,6 +56,7 @@ import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
@@ -631,6 +632,24 @@ public class WrapPreparator extends ASTVisitor {
 			}
 		}
 		return true;
+	}
+
+	@Override
+	public boolean visit(ForStatement node) {
+		List<Expression> initializers = node.initializers();
+		if (!initializers.isEmpty())
+			this.wrapIndexes.add(this.tm.firstIndexIn(initializers.get(0), -1));
+		if (node.getExpression() != null)
+			this.wrapIndexes.add(this.tm.firstIndexIn(node.getExpression(), -1));
+		List<Expression> updaters = node.updaters();
+		if (!updaters.isEmpty())
+			this.wrapIndexes.add(this.tm.firstIndexIn(updaters.get(0), -1));
+		if (!this.wrapIndexes.isEmpty()) {
+			this.wrapParentIndex = this.tm.firstIndexIn(node, TokenNameLPAREN);
+			this.wrapGroupEnd = this.tm.firstIndexBefore(node.getBody(), TokenNameRPAREN);
+			handleWrap(this.options.alignment_for_expressions_in_for_loop_header, node);
+		}
+		return super.visit(node);
 	}
 
 	@Override
