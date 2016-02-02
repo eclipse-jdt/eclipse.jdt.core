@@ -57,6 +57,8 @@ public class FieldSearchKey<T> implements IField, IDestructableField {
 
 	public void put(Nd pdom, long address, char[] newString) {
 		BTree btree = this.searchIndex.get(pdom, Database.DATA_AREA);
+		// TODO: there's no need to invoke this "delete" method on the first initialization of a search key. We could
+		// detect this case and optimize out this call when possible.
 		btree.delete(address);
 
 		this.key.put(pdom, address, newString);
