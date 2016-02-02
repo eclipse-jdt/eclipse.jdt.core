@@ -69,9 +69,13 @@ public class NdTypeArgument extends NdNode {
 	public void getSignature(CharArrayBuffer result) {
 		switch (getWildcard()) {
 			case NdTypeArgument.WILDCARD_EXTENDS: result.append('-'); break;
-			case NdTypeArgument.WILDCARD_QUESTION: result.append('*'); break;
+			case NdTypeArgument.WILDCARD_QUESTION: result.append('*'); return;
 			case NdTypeArgument.WILDCARD_SUPER: result.append('+'); break;
 		}
-		getType().getSignature(result);
+
+		NdTypeSignature theType = getType();
+		if (theType != null) {
+			theType.getSignature(result);
+		}
 	}
 }

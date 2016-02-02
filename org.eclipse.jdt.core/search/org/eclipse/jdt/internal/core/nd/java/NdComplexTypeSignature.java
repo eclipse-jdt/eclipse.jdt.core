@@ -102,6 +102,12 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 			return;
 		}
 
+		if (isTypeVariable()) {
+			result.append('T');
+			result.append(getVariableIdentifier().getChars());
+			return;
+		}
+
 		if (isArrayType()) {
 			long size = TYPE_ARGUMENTS.size(getNd(), this.address);
 
@@ -113,12 +119,6 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 
 			result.append('[');
 			argument.getType().getSignature(result);
-			return;
-		}
-
-		if (isTypeVariable()) {
-			result.append('T');
-			result.append(getVariableIdentifier().getChars());
 			return;
 		}
 
