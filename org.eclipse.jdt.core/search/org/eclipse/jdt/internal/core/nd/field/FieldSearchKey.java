@@ -14,6 +14,7 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.NdNode;
 import org.eclipse.jdt.internal.core.nd.db.BTree;
 import org.eclipse.jdt.internal.core.nd.db.Database;
+import org.eclipse.jdt.internal.core.nd.db.EmptyString;
 import org.eclipse.jdt.internal.core.nd.db.IString;
 
 /**
@@ -21,12 +22,10 @@ import org.eclipse.jdt.internal.core.nd.db.IString;
  * @since 3.12
  */
 public class FieldSearchKey<T> implements IField, IDestructableField {
-	private final FieldString key;
+	private int offset;
 	FieldSearchIndex<?> searchIndex;
 
 	private FieldSearchKey(FieldSearchIndex<?> searchIndex) {
-		this.key = new FieldString();
-
 		if (searchIndex != null) {
 			if (searchIndex.searchKey != null && searchIndex.searchKey != this) {
 				throw new IllegalArgumentException(
@@ -55,32 +54,67 @@ public class FieldSearchKey<T> implements IField, IDestructableField {
 		put(pdom, address, newString.toCharArray());
 	}
 
+	/**
+	 * Sets the value of the key and inserts it into the index if it is not already present
+	 */
 	public void put(Nd pdom, long address, char[] newString) {
+		cleanup(pdom, address);
+
+		Database db = pdom.getDB();
 		BTree btree = this.searchIndex.get(pdom, Database.DATA_AREA);
-		// TODO: there's no need to invoke this "delete" method on the first initialization of a search key. We could
-		// detect this case and optimize out this call when possible.
-		btree.delete(address);
-
-		this.key.put(pdom, address, newString);
-
+		db.putRecPtr(address + this.offset, db.newString(newString).getRecord());
 		btree.insert(address);
 	}
 
 	public IString get(Nd pdom, long address) {
-		return this.key.get(pdom, address);
+		Database db = pdom.getDB();
+		long namerec = db.getRecPtr(address + this.offset);
+
+		if (namerec == 0) {
+			return EmptyString.create();
+		}
+		return db.getString(namerec);
 	}
 
 	@Override
 	public void destruct(Nd pdom, long address) {
-		// Remove this entry from the search index
-		this.searchIndex.get(pdom, Database.DATA_AREA).delete(address);
+		cleanup(pdom, address);
+	}
 
-		this.key.destruct(pdom, address);
+	private void cleanup(Nd pdom, long address) {
+		boolean isInIndex = isInIndex(pdom, address);
+
+		if (isInIndex) {
+			// Remove this entry from the search index
+			this.searchIndex.get(pdom, Database.DATA_AREA).delete(address);
+
+			get(pdom, address).delete();
+			pdom.getDB().putRecPtr(address + this.offset, 0);
+		}
+	}
+
+	/**
+	 * Clears this key and removes it from the search index
+	 */
+	public void removeFromIndex(Nd nd, long address) {
+		cleanup(nd, address);
+	}
+
+	/**
+	 * Returns true iff this key is currently in the index
+	 */
+	public boolean isInIndex(Nd pdom, long address) {
+		long fieldAddress = address + this.offset;
+		Database db = pdom.getDB();
+		long namerec = db.getRecPtr(fieldAddress);
+
+		boolean isInIndex = namerec != 0;
+		return isInIndex;
 	}
 
 	@Override
 	public void setOffset(int offset) {
-		this.key.setOffset(offset);
+		this.offset = offset;
 	}
 
 	@Override
