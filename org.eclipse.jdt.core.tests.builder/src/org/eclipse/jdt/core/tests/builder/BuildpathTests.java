@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,14 +24,13 @@ import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class BuildpathTests extends BuilderTests {
 
 public BuildpathTests(String name) {
@@ -44,7 +43,6 @@ public static Test suite() {
 @Override
 protected void setUp() throws Exception {
 	super.setUp();
-	JavaBuilder.DEBUG = true; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=464369
 }
 
 private String getJdkLevelProblem(String expectedRuntime, String path, int severity) {
@@ -174,7 +172,7 @@ public void testClosedProject() throws JavaModelException, IOException {
 	//----------------------------
 	//           Step 3
 	//----------------------------
-	Hashtable options = JavaCore.getOptions();
+	Hashtable<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.IGNORE);
 	JavaCore.setOptions(options);
 	env.closeProject(project1Path);
@@ -225,7 +223,7 @@ public void testCorruptBuilder() throws JavaModelException {
 	fullBuild();
 	expectingNoProblems();
 
-	Hashtable options = JavaCore.getOptions();
+	Hashtable<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER, JavaCore.ENABLED);
 	JavaCore.setOptions(options);
 
@@ -274,7 +272,7 @@ public void testCorruptBuilder2() throws JavaModelException {
 	env.waitForAutoBuild();
 	expectingNoProblems();
 
-	Hashtable options = JavaCore.getOptions();
+	Hashtable<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CORE_JAVA_BUILD_RECREATE_MODIFIED_CLASS_FILES_IN_OUTPUT_FOLDER, JavaCore.ENABLED);
 	JavaCore.setOptions(options);
 
@@ -302,7 +300,7 @@ public void testChangeExternalFolder() throws CoreException {
 				"  }\n" +
 				"}"
 			},
-			new HashMap(),
+			new HashMap<String, String>(),
 			externalLib
 		);
 
@@ -338,7 +336,7 @@ public void testChangeExternalFolder() throws CoreException {
 				"public class X {\n" +
 				"}"
 			},
-			new HashMap(),
+			new HashMap<String, String>(),
 			externalLib
 		);
 		new java.io.File(externalClassFile).setLastModified(lastModified + 1000); // to be sure its different
@@ -500,7 +498,7 @@ public void testExternalJarChange() throws JavaModelException, IOException {
 			"public class Y {\n" + //$NON-NLS-1$
 			"}" //$NON-NLS-1$
 		},
-		new HashMap(),
+		new HashMap<String, String>(),
 		externalJar
 	);
 	env.addExternalJar(projectPath, externalJar);
@@ -522,7 +520,7 @@ public void testExternalJarChange() throws JavaModelException, IOException {
 			"  }\n" + //$NON-NLS-1$
 			"}" //$NON-NLS-1$
 		},
-		new HashMap(),
+		new HashMap<String, String>(),
 		externalJar
 	);
 
@@ -929,7 +927,7 @@ public void testMissingProject() throws JavaModelException {
 	//----------------------------
 	//           Step 3
 	//----------------------------
-	Hashtable options = JavaCore.getOptions();
+	Hashtable<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.IGNORE);
 	JavaCore.setOptions(options);
 	env.waitForManualRefresh();
@@ -980,7 +978,7 @@ public void testMissingOptionalProject() throws JavaModelException {
 	//----------------------------
 	//           Step 3
 	//----------------------------
-	Hashtable options = JavaCore.getOptions();
+	Hashtable<String, String> options = JavaCore.getOptions();
 	options.put(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, JavaCore.IGNORE);
 	JavaCore.setOptions(options);
 	env.waitForManualRefresh();
@@ -1052,6 +1050,5 @@ public void testMissingOutputFolder() throws JavaModelException {
 @Override
 protected void tearDown() throws Exception {
 	super.tearDown();
-	JavaBuilder.DEBUG = false;
 }
 }
