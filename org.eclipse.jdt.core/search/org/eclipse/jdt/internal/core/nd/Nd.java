@@ -69,17 +69,6 @@ public class Nd {
 		return "" + major + '.' + minor; //$NON-NLS-1$
 	}
 
-	//public static final int LINKAGES = Database.DATA_AREA;
-	public static final int FILE_INDEX = Database.DATA_AREA + 4;
-	public static final int INDEX_OF_DEFECTIVE_FILES = Database.DATA_AREA + 8;
-	public static final int INDEX_OF_FILES_WITH_UNRESOLVED_INCLUDES = Database.DATA_AREA + 12;
-	public static final int PROPERTIES = Database.DATA_AREA + 16;
-	public static final int TAG_INDEX = Database.DATA_AREA + 20;
-	public static final int END= Database.DATA_AREA + 24;
-	static {
-		assert END <= Database.CHUNK_SIZE;
-	}
-
 	public static class ChangeEvent {
 		public Set<IIndexFileLocation> fClearedFiles= new HashSet<>();
 		public Set<IIndexFileLocation> fFilesWritten= new HashSet<>();
@@ -130,6 +119,12 @@ public class Nd {
 	private final NdNodeTypeRegistry<NdNode> fNodeTypeRegistry;
 	private HashMap<Long, Throwable> pendingDeletions = new HashMap<>();
 
+	/**
+	 * This long is incremented every time a change is written to the database. Can be used to determine if the database
+	 * has changed.
+	 */
+	private long fWriteNumber;
+
 	public Nd(File dbPath, NdNodeTypeRegistry<NdNode> nodeTypes, int minVersion, int maxVersion,
 			int currentVersion) throws IndexException {
 		this(dbPath, ChunkCache.getSharedInstance(), nodeTypes, minVersion, maxVersion, currentVersion);
@@ -146,6 +141,10 @@ public class Nd {
 			this.fLockDebugging = new HashMap<>();
 			System.out.println("Debugging PDOM Locks"); //$NON-NLS-1$
 		}
+	}
+
+	public long getWriteNumber() {
+		return this.fWriteNumber;
 	}
 
 	public void scheduleDeletion(long addressOfNodeToDelete) {
@@ -196,6 +195,7 @@ public class Nd {
 			this.db = new Database(this.fPath, cache, getDefaultVersion(), isPermanentlyReadOnly());
 			this.db.setLocked(lockDB);
 		}
+		this.fWriteNumber = this.db.getLong(Database.WRITE_NUMBER_OFFSET);
 		this.db.setLocked(this.lockCount != 0);
 	}
 
@@ -324,6 +324,7 @@ public class Nd {
 		// When all locks are released we can clear the result cache.
 		if (establishReadLocks == 0) {
 			processDeletions();
+			this.db.putLong(Database.WRITE_NUMBER_OFFSET, ++this.fWriteNumber);
 			clearResultCache();
 		}
 		try {

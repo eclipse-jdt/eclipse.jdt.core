@@ -31,9 +31,9 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
  */
 public class JavaIndex {
 	// Version constants
-	static final int CURRENT_VERSION = Nd.version(1, 19);
-	static final int MAX_SUPPORTED_VERSION= Nd.version(1, 19);
-	static final int MIN_SUPPORTED_VERSION= Nd.version(1, 19);
+	static final int CURRENT_VERSION = Nd.version(1, 20);
+	static final int MAX_SUPPORTED_VERSION= Nd.version(1, 20);
+	static final int MIN_SUPPORTED_VERSION= Nd.version(1, 20);
 
 	// Fields for the search header
 	public static final FieldSearchIndex<NdResourceFile> FILES;
@@ -50,6 +50,9 @@ public class JavaIndex {
 		TYPES = FieldSearchIndex.create(type, NdTypeId.FIELD_DESCRIPTOR);
 		METHODS = FieldSearchIndex.create(type, NdMethodId.METHOD_NAME);
 		type.done();
+
+		// This struct needs to fit within the first database chunk.
+		assert type.getFactory().getRecordSize() <= Database.CHUNK_SIZE;
 	}
 
 	private final static class BestResourceFile implements FieldSearchIndex.IResultRank {

@@ -43,13 +43,14 @@ import com.ibm.icu.text.MessageFormat;
  *
  * ===== The first chunk is used by Database itself for house-keeping purposes and has structure
  *
- * offset            content
- * 	                 _____________________________
- * 0                | version number
- * INT_SIZE         | pointer to head of linked list of blocks of size MIN_BLOCK_DELTAS*BLOCK_SIZE_DELTA
- * ..               | ...
- * INT_SIZE * m (1) | pointer to head of linked list of blocks of size (m + MIN_BLOCK_DELTAS) * BLOCK_SIZE_DELTA
- * DATA_AREA        | undefined (PDOM stores its own house-keeping data in this area)
+ * offset                content
+ * 	                     _____________________________
+ * 0                    | version number
+ * INT_SIZE             | pointer to head of linked list of blocks of size MIN_BLOCK_DELTAS*BLOCK_SIZE_DELTA
+ * ..                   | ...
+ * INT_SIZE * m (1)     | pointer to head of linked list of blocks of size (m + MIN_BLOCK_DELTAS) * BLOCK_SIZE_DELTA
+ * WRITE_NUMBER_OFFSET  | long integer which is incremented on every write
+ * DATA_AREA            | undefined (PDOM stores its own house-keeping data in this area)
  *
  * (1) where 2 <= m <= CHUNK_SIZE / BLOCK_SIZE_DELTA - MIN_BLOCK_DELTAS + 1
  *
@@ -90,7 +91,8 @@ public class Database {
 	public static final long MAX_DB_SIZE= ((long) 1 << (Integer.SIZE + BLOCK_SIZE_DELTA_BITS));
 
 	public static final int VERSION_OFFSET = 0;
-	public static final int DATA_AREA = (CHUNK_SIZE / BLOCK_SIZE_DELTA - MIN_BLOCK_DELTAS + 2) * INT_SIZE;
+	public static final int WRITE_NUMBER_OFFSET = (CHUNK_SIZE / BLOCK_SIZE_DELTA - MIN_BLOCK_DELTAS + 2) * INT_SIZE;
+	public static final int DATA_AREA = WRITE_NUMBER_OFFSET + LONG_SIZE;
 
 	private static final int BLOCK_PREV_OFFSET = BLOCK_HEADER_SIZE;
 	private static final int BLOCK_NEXT_OFFSET = BLOCK_HEADER_SIZE + INT_SIZE;
