@@ -1,5 +1,7 @@
 package org.eclipse.jdt.internal.core.nd.java;
 
+import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.FloatConstant;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.field.FieldFloat;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
@@ -39,5 +41,10 @@ public final class NdConstantFloat extends NdConstant {
 
 	public float getValue() {
 		return VALUE.get(getNd(), this.address);
+	}
+
+	@Override
+	public Constant getConstant() {
+		return FloatConstant.fromValue(getValue());
 	}
 }

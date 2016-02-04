@@ -1,5 +1,7 @@
 package org.eclipse.jdt.internal.core.nd.java;
 
+import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.IntConstant;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.field.FieldInt;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
@@ -39,5 +41,10 @@ public final class NdConstantInt extends NdConstant {
 
 	public int getValue() {
 		return VALUE.get(getNd(), this.address);
+	}
+
+	@Override
+	public Constant getConstant() {
+		return IntConstant.fromValue(getValue());
 	}
 }

@@ -119,6 +119,13 @@ public class Nd {
 	private final NdNodeTypeRegistry<NdNode> fNodeTypeRegistry;
 	private HashMap<Long, Throwable> pendingDeletions = new HashMap<>();
 
+	private IReader fReader = new IReader() {
+		@Override
+		public void close() {
+			releaseReadLock();
+		}
+	};
+
 	/**
 	 * This long is incremented every time a change is written to the database. Can be used to determine if the database
 	 * has changed.
@@ -212,7 +219,7 @@ public class Nd {
 	private long lastReadAccess= 0;
 	private long timeWriteLockAcquired;
 
-	public void acquireReadLock() {
+	public IReader acquireReadLock() {
 		try {
 			long t = sDEBUG_LOCKS ? System.nanoTime() : 0;
 			synchronized (this.mutex) {
@@ -233,6 +240,7 @@ public class Nd {
 					}
 					incReadLock(this.fLockDebugging);
 				}
+				return this.fReader;
 			}
 		} catch (InterruptedException e) {
 			throw new OperationCanceledException();

@@ -1,5 +1,6 @@
 package org.eclipse.jdt.internal.core.nd.java;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -103,6 +104,11 @@ public class NdTypeId extends NdTypeSignature {
 	}
 
 	@Override
+	public List<NdAnnotation> getAnnotations() {
+		return Collections.emptyList();
+	}
+
+	@Override
 	public void getSignature(CharArrayBuffer result) {
 		result.append(getFieldDescriptor().getChars());
 	}
@@ -110,5 +116,15 @@ public class NdTypeId extends NdTypeSignature {
 	@Override
 	public boolean isTypeVariable() {
 		return false;
+	}
+
+	@Override
+	public List<NdTypeSignature> getDeclaringTypeChain() {
+		return Collections.singletonList((NdTypeSignature)this);
+	}
+
+	@Override
+	public NdTypeSignature getArrayDimensionType() {
+		return null;
 	}
 }

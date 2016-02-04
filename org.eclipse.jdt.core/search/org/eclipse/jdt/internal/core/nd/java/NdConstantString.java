@@ -1,5 +1,7 @@
 package org.eclipse.jdt.internal.core.nd.java;
 
+import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.IString;
 import org.eclipse.jdt.internal.core.nd.field.FieldString;
@@ -40,5 +42,10 @@ public final class NdConstantString extends NdConstant {
 
 	public IString getValue() {
 		return VALUE.get(getNd(), this.address);
+	}
+
+	@Override
+	public Constant getConstant() {
+		return StringConstant.fromValue(getValue().getString());
 	}
 }

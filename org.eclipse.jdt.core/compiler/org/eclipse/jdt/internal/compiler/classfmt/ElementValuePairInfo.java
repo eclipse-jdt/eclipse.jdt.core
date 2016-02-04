@@ -22,7 +22,7 @@ public class ElementValuePairInfo implements org.eclipse.jdt.internal.compiler.e
 	private char[] name;
 	private Object value;
 
-ElementValuePairInfo(char[] name, Object value) {
+public ElementValuePairInfo(char[] name, Object value) {
 	this.name = name;
 	this.value = value;
 }

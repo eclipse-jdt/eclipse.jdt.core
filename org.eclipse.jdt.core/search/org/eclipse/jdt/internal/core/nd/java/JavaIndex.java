@@ -32,8 +32,8 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
 public class JavaIndex {
 	// Version constants
 	static final int CURRENT_VERSION = Nd.version(1, 20);
-	static final int MAX_SUPPORTED_VERSION= Nd.version(1, 20);
-	static final int MIN_SUPPORTED_VERSION= Nd.version(1, 20);
+	static final int MAX_SUPPORTED_VERSION= Nd.version(1, 21);
+	static final int MIN_SUPPORTED_VERSION= Nd.version(1, 21);
 
 	// Fields for the search header
 	public static final FieldSearchIndex<NdResourceFile> FILES;

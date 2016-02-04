@@ -1,5 +1,7 @@
 package org.eclipse.jdt.internal.core.nd.java;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jdt.internal.core.nd.Nd;
@@ -93,6 +95,25 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 	}
 
 	@Override
+	public List<NdAnnotation> getAnnotations() {
+		return ANNOTATIONS.asList(getNd(), this.address);
+	}
+
+	@Override
+	public NdTypeSignature getArrayDimensionType() {
+		if (isArrayType()) {
+			long size = TYPE_ARGUMENTS.size(getNd(), this.address);
+
+			if (size != 1) {
+				throw new IndexException("Array types should have exactly one argument"); //$NON-NLS-1$
+			}
+
+			return TYPE_ARGUMENTS.get(getNd(), this.address, 0).getType();
+		}
+		return null;
+	}
+
+	@Override
 	public void getSignature(CharArrayBuffer result) {
 		NdComplexTypeSignature parentSignature = getGenericDeclaringType();
 
@@ -108,17 +129,10 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 			return;
 		}
 
-		if (isArrayType()) {
-			long size = TYPE_ARGUMENTS.size(getNd(), this.address);
-
-			if (size != 1) {
-				throw new IndexException("Array types should have exactly one argument"); //$NON-NLS-1$
-			}
-
-			NdTypeArgument argument = TYPE_ARGUMENTS.get(getNd(), this.address, 0);
-
+		NdTypeSignature arrayDimension = getArrayDimensionType();
+		if (arrayDimension != null) {
 			result.append('[');
-			argument.getType().getSignature(result);
+			arrayDimension.getSignature(result);
 			return;
 		}
 
@@ -137,5 +151,28 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 	@Override
 	public boolean isTypeVariable() {
 		return getVariableIdentifier().length() != 0;
+	}
+
+	@Override
+	public List<NdTypeSignature> getDeclaringTypeChain() {
+		NdComplexTypeSignature declaringType = getGenericDeclaringType();
+
+		if (declaringType == null) {
+			return Collections.singletonList((NdTypeSignature)this);
+		}
+
+		List<NdTypeSignature> result = new ArrayList<>();
+		computeDeclaringTypes(result);
+		return result;
+	}
+
+	private void computeDeclaringTypes(List<NdTypeSignature> result) {
+		NdComplexTypeSignature declaringType = getGenericDeclaringType();
+
+		if (declaringType != null) {
+			computeDeclaringTypes(result);
+		}
+
+		result.add(declaringType);
 	}
 }

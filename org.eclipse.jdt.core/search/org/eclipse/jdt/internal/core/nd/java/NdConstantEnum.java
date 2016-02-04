@@ -1,5 +1,6 @@
 package org.eclipse.jdt.internal.core.nd.java;
 
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldString;
@@ -45,7 +46,16 @@ public final class NdConstantEnum extends NdConstant {
 		ENUM_VALUE.put(getNd(), this.address, enumType);
 	}
 
-	public NdTypeSignature getValue() {
+	public NdTypeSignature getType() {
 		return ENUM_TYPE.get(getNd(), this.address);
+	}
+
+	public char[] getValue() {
+		return ENUM_VALUE.get(getNd(), this.address).getChars();
+	}
+
+	@Override
+	public Constant getConstant() {
+		return null;
 	}
 }

@@ -73,4 +73,10 @@ public abstract class NdConstant extends NdNode {
 	public void setParent(NdConstantArray result) {
 		PARENT_ARRAY.put(getNd(), this.address, result);
 	}
+
+	/**
+	 * Returns the {@link Constant} corresponding to the value of this {@link NdConstant} or null if the receiver
+	 * corresponds to a {@link Constant}.
+	 */
+	public abstract Constant getConstant();
 }

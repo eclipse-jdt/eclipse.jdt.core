@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.java;
 
+import java.util.List;
+
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.NdNode;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
@@ -68,5 +70,9 @@ public class NdAnnotation extends NdNode {
 
 	public NdBinding getAppliesTo() {
 		return PARENT_BINDING.get(getNd(), this.address);
+	}
+
+	public List<NdAnnotationValuePair> getElementValuePairs() {
+		return ELEMENT_VALUE_PAIRS.asList(getNd(), this.address);
 	}
 }

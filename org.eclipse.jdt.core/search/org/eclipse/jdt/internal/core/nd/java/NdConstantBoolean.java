@@ -1,5 +1,7 @@
 package org.eclipse.jdt.internal.core.nd.java;
 
+import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.field.FieldByte;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
@@ -39,5 +41,10 @@ public final class NdConstantBoolean extends NdConstant {
 
 	public boolean getValue() {
 		return VALUE.get(getNd(), this.address) != 0;
+	}
+
+	@Override
+	public Constant getConstant() {
+		return BooleanConstant.fromValue(getValue());
 	}
 }

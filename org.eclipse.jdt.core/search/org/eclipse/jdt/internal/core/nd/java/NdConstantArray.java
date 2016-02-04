@@ -2,6 +2,7 @@ package org.eclipse.jdt.internal.core.nd.java;
 
 import java.util.List;
 
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
@@ -31,5 +32,10 @@ public final class NdConstantArray extends NdConstant {
 
 	public List<NdConstant> getValue() {
 		return ELEMENTS.asList(getNd(), this.address);
+	}
+
+	@Override
+	public Constant getConstant() {
+		return null;
 	}
 }

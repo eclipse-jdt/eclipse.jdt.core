@@ -196,6 +196,10 @@ public class NdType extends NdBinding {
 		return getTypeId().getSimpleNameCharArray();
 	}
 
+	public NdMethodId getDeclaringMethod() {
+		return DECLARING_METHOD.get(getNd(), this.address);
+	}
+
 	@Override
 	public String toString() {
 		try {

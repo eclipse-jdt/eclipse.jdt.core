@@ -105,6 +105,11 @@ public abstract class NdTypeSignature extends NdNode {
 	 */
 	public abstract NdTypeId getRawType();
 
+	/**
+	 * Returns the set of type annotations attached to this type signature
+	 */
+	public abstract List<NdAnnotation> getAnnotations();
+
 	public abstract void getSignature(CharArrayBuffer result);
 
 	public final boolean isArrayType() {
@@ -112,4 +117,16 @@ public abstract class NdTypeSignature extends NdNode {
 	}
 
 	public abstract boolean isTypeVariable();
+
+	/**
+	 * Returns the chain of declaring generic types. The first element in the chain is a top-level type and the
+	 * receiver is the last element in the chain.
+	 */
+	public abstract List<NdTypeSignature> getDeclaringTypeChain();
+
+	/**
+	 * If the receiver is an array type, it returns the signature of the array's next dimension. Returns null if
+	 * this is not an array type.
+	 */
+	public abstract NdTypeSignature getArrayDimensionType();
 }

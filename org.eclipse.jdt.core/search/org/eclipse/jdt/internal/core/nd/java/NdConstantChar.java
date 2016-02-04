@@ -1,5 +1,7 @@
 package org.eclipse.jdt.internal.core.nd.java;
 
+import org.eclipse.jdt.internal.compiler.impl.CharConstant;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.field.FieldChar;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
@@ -39,5 +41,10 @@ public final class NdConstantChar extends NdConstant {
 
 	public char getValue() {
 		return VALUE.get(getNd(), this.address);
+	}
+
+	@Override
+	public Constant getConstant() {
+		return CharConstant.fromValue(getValue());
 	}
 }
