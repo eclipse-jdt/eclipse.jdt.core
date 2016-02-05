@@ -81,7 +81,7 @@ public void acceptModuleInfo(ICompilationUnit cu, Parser parser) {
 	CompilationResult compilationResult = new CompilationResult(cu, 0, 1, 10);
 	CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
 	// Request could also come in when module-info has changed or removed.
-	if (unit.isModuleInfo()) {
+	if (unit.isModuleInfo() && unit.moduleDeclaration != null) {
 		IModule mod = ModuleEnvironment.createModule(unit.moduleDeclaration);
 		if (mod != null) {
 			this.module = mod;
