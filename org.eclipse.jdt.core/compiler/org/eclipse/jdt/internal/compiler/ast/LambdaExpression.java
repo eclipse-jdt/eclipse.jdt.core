@@ -959,33 +959,34 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		LambdaExpression copy = cachedResolvedCopy(s, true /* any resolved copy is good */, false, null); // we expect a cached copy - otherwise control won't reach here.
 		Expression [] returnExpressions = copy.resultExpressions;
 		int returnExpressionsLength = returnExpressions == null ? 0 : returnExpressions.length;
-		
-		int i;
-		// r1 is a primitive type, r2 is a reference type, and each result expression is a standalone expression (15.2) of a primitive type
-		if (r1.isBaseType() && !r2.isBaseType()) {
-			for (i = 0; i < returnExpressionsLength; i++) {
-				if (returnExpressions[i].isPolyExpression() || !returnExpressions[i].resolvedType.isBaseType())
-					break;
+		if (returnExpressionsLength > 0) {
+			int i;
+			// r1 is a primitive type, r2 is a reference type, and each result expression is a standalone expression (15.2) of a primitive type
+			if (r1.isBaseType() && !r2.isBaseType()) {
+				for (i = 0; i < returnExpressionsLength; i++) {
+					if (returnExpressions[i].isPolyExpression() || !returnExpressions[i].resolvedType.isBaseType())
+						break;
+				}
+				if (i == returnExpressionsLength)
+					return true;
 			}
-			if (i == returnExpressionsLength)
-				return true;
-		}
-		if (!r1.isBaseType() && r2.isBaseType()) {
-			for (i = 0; i < returnExpressionsLength; i++) {
-				if (returnExpressions[i].resolvedType.isBaseType())
-					break;
+			if (!r1.isBaseType() && r2.isBaseType()) {
+				for (i = 0; i < returnExpressionsLength; i++) {
+					if (returnExpressions[i].resolvedType.isBaseType())
+						break;
+				}
+				if (i == returnExpressionsLength)
+					return true;
 			}
-			if (i == returnExpressionsLength)
-				return true;
-		}
-		if (r1.isFunctionalInterface(this.enclosingScope) && r2.isFunctionalInterface(this.enclosingScope)) {
-			for (i = 0; i < returnExpressionsLength; i++) {
-				Expression resultExpression = returnExpressions[i];
-				if (!resultExpression.sIsMoreSpecific(r1, r2, skope))
-					break;
-			}
-			if (i == returnExpressionsLength)
-				return true;
+			if (r1.isFunctionalInterface(this.enclosingScope) && r2.isFunctionalInterface(this.enclosingScope)) {
+				for (i = 0; i < returnExpressionsLength; i++) {
+					Expression resultExpression = returnExpressions[i];
+					if (!resultExpression.sIsMoreSpecific(r1, r2, skope))
+						break;
+				}
+				if (i == returnExpressionsLength)
+					return true;
+			}	
 		}
 		return false;
 	}

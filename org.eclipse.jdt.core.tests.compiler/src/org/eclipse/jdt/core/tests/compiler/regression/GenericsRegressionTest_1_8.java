@@ -5829,4 +5829,28 @@ public void testBug485593() {
 			"}\n"
 		});
 }
+public void testBug483228a() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface UnaryOp<T> { T apply(T arg); }\n" + 
+			"interface IntegerToNumber { Number apply(Integer arg); }\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"  <T> void m(UnaryOp<T> f) {}\n" + 
+			"  void m(IntegerToNumber f) {}\n" + 
+			"\n" + 
+			"  void test() {\n" + 
+			"    m((Integer i) -> i);\n" + 
+			"  } \n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	m((Integer i) -> i);\n" + 
+		"	^\n" + 
+		"The method m(UnaryOp<Integer>) is ambiguous for the type X\n" + 
+		"----------\n");
+}
 }
