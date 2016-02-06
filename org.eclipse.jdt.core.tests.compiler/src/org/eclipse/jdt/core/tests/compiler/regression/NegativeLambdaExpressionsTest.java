@@ -9868,6 +9868,65 @@ public void test474522() {
 		"The blank final field s may not have been initialized\n" + 
 		"----------\n");
 }
+public void testBug487390() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface ConsumeN {\n" + 
+			"	void consume(String.. strings); // syntax error here\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	void consu(ConsumeN c) { }\n" + 
+			"	void test() {\n" + 
+			"		consu((String... s) -> System.out.print(s.length));\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	void consume(String.. strings); // syntax error here\n" + 
+		"	                    ^\n" + 
+		"Syntax error on token \".\", Identifier expected\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	consu((String... s) -> System.out.print(s.length));\n" + 
+		"	^^^^^\n" + 
+		"The method consu(ConsumeN) in the type X is not applicable for the arguments ((String... s) -> {})\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	consu((String... s) -> System.out.print(s.length));\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Lambda expression\'s signature does not match the signature of the functional interface method consume()\n" + 
+		"----------\n");
+}
+public void testBug487390b() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface ConsumeN {\n" + 
+			"	void consume();\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	void consu(ConsumeN c) { }\n" + 
+			"	void test() {\n" + 
+			"		consu((String... s) -> System.out.print(s.length));\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	consu((String... s) -> System.out.print(s.length));\n" + 
+		"	^^^^^\n" + 
+		"The method consu(ConsumeN) in the type X is not applicable for the arguments ((String... s) -> {})\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	consu((String... s) -> System.out.print(s.length));\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Lambda expression\'s signature does not match the signature of the functional interface method consume()\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

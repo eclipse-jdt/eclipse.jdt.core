@@ -381,7 +381,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				this.binding.setParameterAnnotations(parameterAnnotations);
 		}
 	
-		if (!argumentsTypeElided && this.binding.isVarargs()) {
+		if (!argumentsTypeElided && !argumentsHaveErrors && this.binding.isVarargs()) {
 			if (!this.binding.parameters[this.binding.parameters.length - 1].isReifiable()) {
 				this.scope.problemReporter().possibleHeapPollutionFromVararg(this.arguments[this.arguments.length - 1]);
 			}
