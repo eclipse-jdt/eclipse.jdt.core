@@ -9051,11 +9051,16 @@ public void test424154a() throws Exception {
 	    "	     ^^^^^^^^\n" +
 	    "The method removeIf(Predicate<? super Process>) in the type Collection<Process> is not applicable for the arguments ((int x) -> {})\n" +
 	    "----------\n" +
-	    "2. ERROR in X.java (at line 3)\n" +
-	    "	list.removeIf((int x) -> \"\");\n" +
-	    "	              ^^^^^^^^^^^^^\n" +
-	    "The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" +
-	    "----------\n");
+	    "2. ERROR in X.java (at line 3)\n" + 
+		"	list.removeIf((int x) -> \"\");\n" + 
+		"	               ^^^\n" + 
+		"Lambda expression\'s parameter x is expected to be of type Process\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	list.removeIf((int x) -> \"\");\n" + 
+		"	                         ^^\n" + 
+		"Type mismatch: cannot convert from String to boolean\n" + 
+		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424154,  [1.8][compiler] PolyTypeBinding must not render the full lambda body in error messages
 //Variations where return types or arguments mismatch or both.

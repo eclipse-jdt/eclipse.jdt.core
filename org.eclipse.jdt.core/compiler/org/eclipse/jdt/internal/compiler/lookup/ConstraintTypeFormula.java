@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2015 GK Software AG.
+ * Copyright (c) 2013, 2016 GK Software AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -184,10 +184,13 @@ class ConstraintTypeFormula extends ConstraintFormula {
 						return TRUE;
 					return FALSE;
 				}
-				if (this.left instanceof InferenceVariable) {
+				if (this.left.id == TypeIds.T_null || this.right.id== TypeIds.T_null) {
+					return FALSE;
+				}
+				if (this.left instanceof InferenceVariable && !this.right.isPrimitiveType()) {
 					return new TypeBound((InferenceVariable) this.left, this.right, SAME, this.isSoft);
 				}
-				if (this.right instanceof InferenceVariable) {
+				if (this.right instanceof InferenceVariable && !this.left.isPrimitiveType()) {
 					return new TypeBound((InferenceVariable) this.right, this.left, SAME, this.isSoft);
 				}
 				if ((this.left.isClass() || this.left.isInterface()) 
