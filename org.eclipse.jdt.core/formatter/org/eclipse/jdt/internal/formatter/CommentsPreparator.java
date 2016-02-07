@@ -196,14 +196,15 @@ public class CommentsPreparator extends ASTVisitor {
 			this.tm.remove(commentIndex);
 			List<Token> lastStructure = this.lastLineComment.getInternalStructure();
 			lastStructure.addAll(structure);
-			structure = lastStructure;
-			commentToken = merged;
+			merged.setInternalStructure(lastStructure);
+			this.lastLineComment = merged;
 		} else {
+			commentToken.setInternalStructure(structure);
+			handleCompilerTags(commentToken, commentIndex);
+			preserveWhitespace(commentToken, commentIndex);
+			this.lastLineComment = commentToken;
 			this.lastLineCommentPosition = positionInLine;
 		}
-		commentToken.setInternalStructure(structure);
-		preserveWhitespace(commentToken, commentIndex);
-		this.lastLineComment = commentToken;
 	}
 
 	private void preserveWhitespace(Token commentToken, int commentIndex) {
@@ -286,6 +287,28 @@ public class CommentsPreparator extends ASTVisitor {
 		}
 	}
 
+	private void handleCompilerTags(Token commentToken, int commentIndex) {
+		final String commentText = this.tm.toString(commentToken);
+		final List<Token> structure = commentToken.getInternalStructure();
+		if (commentText.startsWith("//$FALL-THROUGH$") //$NON-NLS-1$
+				|| commentText.startsWith("//$IDENTITY-COMPARISON$")) { //$NON-NLS-1$
+			structure.get(1).clearSpaceBefore();
+		}
+		if (commentText.contains("//$IDENTITY-COMPARISON$")) { //$NON-NLS-1$
+			// make sure the whole line is not broken
+			Token token = commentToken;
+			for (int i = commentIndex; i > 0; i--) {
+				Token left = this.tm.get(i - 1);
+				if (this.tm.countLineBreaksBetween(left, token) > 0)
+					break;
+				token.clearLineBreaksBefore();
+				left.clearLineBreaksAfter();
+				token.setWrapPolicy(WrapPolicy.DISABLE_WRAP);
+				token = left;
+			}
+		}
+	}
+
 	private List<Token> findStringLiteralsInLine(int lastTokenIndex) {
 		List<Token> stringLiterals = new ArrayList<>();
 		Token previous = this.tm.get(lastTokenIndex);
@@ -336,11 +359,6 @@ public class CommentsPreparator extends ASTVisitor {
 				sourcePosition++;
 			}
 		}
-
-		if (this.tm.getSource().startsWith("$FALL-THROUGH$", result.get(0).originalEnd + 1)) { //$NON-NLS-1$
-			result.get(1).clearSpaceBefore();
-		}
-
 		return result;
 	}
 

@@ -13302,4 +13302,19 @@ public void testBug479109d() {
 		"}"
 	);
 }
+/**
+ * https://bugs.eclipse.org/487375 - [formatter] block comment in front of method signature effects too much indentation
+ */
+public void testBug486719() {
+	this.formatterPrefs.page_width = 80;
+	String source =
+		"public class Example {\n" + 
+		"	int foo(Object a, Object b, Object c) {\n" + 
+		"		if (a == b) return 1;if (a == c) return 2; //$IDENTITY-COMPARISON$\n" + 
+		"		boolean aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa = a == b && a == c; //$IDENTITY-COMPARISON$\n" + 
+		"		return 3;\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
+}
 }

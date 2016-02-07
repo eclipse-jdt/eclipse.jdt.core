@@ -835,7 +835,8 @@ public class WrapPreparator extends ASTVisitor {
 		}
 
 		Token token = this.tm.get(index);
-		token.setWrapPolicy(policy);
+		if (token.getWrapPolicy() != WrapPolicy.DISABLE_WRAP)
+			token.setWrapPolicy(policy);
 
 		if (this.options.join_wrapped_lines && token.tokenType == TokenNameCOMMENT_BLOCK) {
 			// allow wrap preparator to decide if this comment should be wrapped
