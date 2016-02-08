@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 IBM Corporation and others.
+ * Copyright (c) 2013, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2265,6 +2265,48 @@ public void test422468() { // computing visible elements in lambda scope.
 			"});\n" + 
 			"      }\n" + 
 			"    }\n" + 
+			"  }\n" + 
+			"}\n";
+
+	checkMethodParse(
+		string.toCharArray(),
+		cursorLocation,
+		expectedCompletionNodeToString,
+		expectedParentNodeToString,
+		expectedUnitDisplayString,
+		completionIdentifier,
+		expectedReplacedSource,
+		"diet ast");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=473008
+public void test473008() {
+	String string = 
+			"interface FooFunctional {\n" +
+			"   void function();\n" +
+			"}\n" +
+			"public class Foo {\n" +
+			"    public void bar() {\n" +
+			"      private FooFunctional lambda = this::bar;\n" +
+			"      new StringBuffer(" +
+			"    }\n" +
+			"}\n";
+	String completeBehind = "StringBuffer(";
+	int cursorLocation = string.indexOf(completeBehind) + completeBehind.length() - 1;
+
+	String expectedCompletionNodeToString = "<CompleteOnAllocationExpression:new StringBuffer()>";
+	String expectedParentNodeToString = "<NONE>";
+	String completionIdentifier = "";
+	String expectedReplacedSource = "";
+	String expectedUnitDisplayString =
+			"interface FooFunctional {\n" + 
+			"  void function();\n" + 
+			"}\n" + 
+			"public class Foo {\n" + 
+			"  public Foo() {\n" + 
+			"  }\n" + 
+			"  public void bar() {\n" + 
+			"    private FooFunctional lambda;\n" + 
+			"    <CompleteOnAllocationExpression:new StringBuffer()>;\n" + 
 			"  }\n" + 
 			"}\n";
 

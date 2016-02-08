@@ -4057,9 +4057,9 @@ protected void consumeInvocationExpression() { // on error, a message send's err
 	super.consumeInvocationExpression();
 	triggerRecoveryUponLambdaClosure(this.expressionStack[this.expressionPtr], false);
 }
-protected void consumeIdentifierOrNew(boolean newForm) {
+protected void consumeReferenceExpression(ReferenceExpression referenceExpression) {
 	this.inReferenceExpression = false;
-	super.consumeIdentifierOrNew(newForm);
+	super.consumeReferenceExpression(referenceExpression);
 }
 protected void consumeOnlySynchronized() {
 	super.consumeOnlySynchronized();
