@@ -47,6 +47,8 @@ import org.eclipse.jdt.internal.core.nd.java.NdTypeInterface;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeParameter;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeSignature;
 import org.eclipse.jdt.internal.core.nd.java.NdVariable;
+import org.eclipse.jdt.internal.core.nd.java.ReferenceUtil;
+import org.eclipse.jdt.internal.core.nd.java.model.IndexBinaryType;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -57,6 +59,7 @@ public class ClassFileToIndexConverter {
 	private static final boolean ENABLE_LOGGING = false;
 	private static final char[] EMPTY_CHAR_ARRAY = new char[0];
 	private static final char[] PATH_SEPARATOR = new char[]{'/'};
+	private static final boolean ENABLE_SELF_TEST = true;
 	private NdResourceFile resource;
 	private JavaIndex index;
 
@@ -197,6 +200,10 @@ public class ClassFileToIndexConverter {
 
 		if (binaryType.isLocal()) {
 			type.setInnerTypeSourceName(binaryType.getSourceName());
+		}
+
+		if (ENABLE_SELF_TEST) {
+			IndexTester.testType(binaryType, new IndexBinaryType(ReferenceUtil.createTypeRef(type)));
 		}
 
 		return type;
