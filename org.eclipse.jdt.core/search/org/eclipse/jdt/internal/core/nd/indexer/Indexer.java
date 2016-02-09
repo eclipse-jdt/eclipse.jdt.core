@@ -242,6 +242,12 @@ public final class Indexer {
 		try {
 			resourceFile = new NdResourceFile(this.pdom);
 			resourceFile.setFilename(pathString);
+			IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) element
+					.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+			IPath rootPathString = getFilesystemPathForRoot(packageFragmentRoot);
+			if (!rootPathString.equals(thePath)) {
+				resourceFile.setPackageFragmentRoot(rootPathString.toString().toCharArray());
+			}
 			attachWorkspaceFilesToResource(elementsMappingOntoLocation, resourceFile);
 		} finally {
 			this.pdom.releaseWriteLock();
@@ -327,7 +333,6 @@ public final class Indexer {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 		List<IJavaElement> bindableElements = getBindableElements(element, subMonitor.newChild(10));
 		List<IClassFile> classFiles = getClassFiles(bindableElements);
-		IJavaProject javaProject = element.getJavaProject();
 
 		subMonitor.setWorkRemaining(classFiles.size());
 

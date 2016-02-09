@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.IString;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
 import org.eclipse.jdt.internal.core.nd.field.FieldByte;
+import org.eclipse.jdt.internal.core.nd.field.FieldLong;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldString;
@@ -37,6 +38,7 @@ public class NdType extends NdBinding {
 	public static final FieldString SOURCE_FILE_NAME;
 	public static final FieldString INNER_CLASS_SOURCE_NAME;
 	public static final FieldByte FLAGS;
+	public static final FieldLong TAG_BITS;
 
 	@SuppressWarnings("hiding")
 	public static final StructDef<NdType> type;
@@ -53,6 +55,7 @@ public class NdType extends NdBinding {
 		SOURCE_FILE_NAME = type.addString();
 		INNER_CLASS_SOURCE_NAME = type.addString();
 		FLAGS = type.addByte();
+		TAG_BITS = type.addLong();
 		type.done();
 	}
 
@@ -201,11 +204,28 @@ public class NdType extends NdBinding {
 	}
 
 	@Override
+	public List<NdTypeParameter> getTypeParameters() {
+		return TYPE_PARAMETERS.asList(getNd(), this.address);
+	}
+
+	public List<NdMethod> getMethods() {
+		return METHODS.asList(getNd(), this.address);
+	}
+
+	@Override
 	public String toString() {
 		try {
 			return "class " + new String(getSourceName()); //$NON-NLS-1$
 		} catch (IndexException e) {
 			return super.toString();
 		}
+	}
+
+	public void setTagBits(long tagBits) {
+		TAG_BITS.put(getNd(), this.address, tagBits);
+	}
+
+	public long getTagBits() {
+		return TAG_BITS.get(getNd(), this.address);
 	}
 }

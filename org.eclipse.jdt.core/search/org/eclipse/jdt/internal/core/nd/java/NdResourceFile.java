@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany.Visitor;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex.IResultRank;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex.SearchCriteria;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchKey;
+import org.eclipse.jdt.internal.core.nd.field.FieldString;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
 /**
@@ -40,6 +41,7 @@ public class NdResourceFile extends NdTreeNode {
 	public static final FieldLong SIZE_LAST_SCANNED;
 	public static final FieldLong HASHCODE_LAST_SCANNED;
 	public static final FieldOneToMany<NdWorkspaceLocation> WORKSPACE_MAPPINGS;
+	public static final FieldString JAVA_ROOT;
 
 	@SuppressWarnings("hiding")
 	public static final StructDef<NdResourceFile> type;
@@ -52,6 +54,7 @@ public class NdResourceFile extends NdTreeNode {
 		SIZE_LAST_SCANNED = type.addLong();
 		HASHCODE_LAST_SCANNED = type.addLong();
 		WORKSPACE_MAPPINGS = FieldOneToMany.create(type, NdWorkspaceLocation.RESOURCE);
+		JAVA_ROOT = type.addString();
 		type.done();
 	}
 
@@ -175,5 +178,21 @@ public class NdResourceFile extends NdTreeNode {
 		TIME_LAST_SCANNED.put(getNd(), this.address, newFingerprint.getTime());
 		HASHCODE_LAST_SCANNED.put(getNd(), this.address, newFingerprint.getHash());
 		SIZE_LAST_SCANNED.put(getNd(), this.address, newFingerprint.getSize());
+	}
+
+	public void setPackageFragmentRoot(char[] javaRoot) {
+		JAVA_ROOT.put(getNd(), this.address, javaRoot);
+	}
+
+	/**
+	 * Returns the absolute path to the java root for this .jar or .class file. If this is a .jar file, it returns its
+	 * own filename.
+	 */
+	public IString getPackageFragmentRoot() {
+		IString javaRoot = JAVA_ROOT.get(getNd(), this.address);
+		if (javaRoot.length() == 0) {
+			return getFilename();
+		}
+		return javaRoot;
 	}
 }

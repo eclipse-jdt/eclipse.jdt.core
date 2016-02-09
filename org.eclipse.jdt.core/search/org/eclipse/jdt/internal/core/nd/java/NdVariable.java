@@ -11,7 +11,9 @@
 package org.eclipse.jdt.internal.core.nd.java;
 
 import org.eclipse.jdt.internal.core.nd.Nd;
+import org.eclipse.jdt.internal.core.nd.db.IString;
 import org.eclipse.jdt.internal.core.nd.field.FieldInt;
+import org.eclipse.jdt.internal.core.nd.field.FieldLong;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldString;
@@ -28,6 +30,7 @@ public class NdVariable extends NdBinding {
 	public static final FieldManyToOne<NdBinding> PARENT;
 	public static final FieldString NAME;
 	public static final FieldOneToOne<NdConstant> CONSTANT;
+	public static final FieldLong TAG_BITS;
 
 	@SuppressWarnings("hiding")
 	public static StructDef<NdVariable> type;
@@ -46,6 +49,7 @@ public class NdVariable extends NdBinding {
 		PARENT = FieldManyToOne.create(type, NdBinding.VARIABLES);
 		NAME = type.addString();
 		CONSTANT = FieldOneToOne.create(type, NdConstant.class, NdConstant.PARENT_VARIABLE);
+		TAG_BITS = type.addLong();
 		type.done();
 	}
 
@@ -72,8 +76,8 @@ public class NdVariable extends NdBinding {
 		NAME.put(getNd(), this.address, name);
 	}
 
-	public String getName() {
-		return NAME.get(getNd(), this.address).getString();
+	public IString getName() {
+		return NAME.get(getNd(), this.address);
 	}
 
 	public void setType(NdTypeSignature typeId) {
@@ -82,5 +86,21 @@ public class NdVariable extends NdBinding {
 
 	public void setConstant(NdConstant constant) {
 		CONSTANT.put(getNd(), this.address, constant);
+	}
+
+	public NdConstant getConstant() {
+		return CONSTANT.get(getNd(), this.address);
+	}
+
+	public NdTypeSignature getType() {
+		return TYPE.get(getNd(), this.address);
+	}
+
+	public long getTagBits() {
+		return TAG_BITS.get(getNd(), this.address);
+	}
+
+	public void setTagBits(long tagBits) {
+		TAG_BITS.put(getNd(), this.address, tagBits);
 	}
 }

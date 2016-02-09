@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.java;
 
+import java.util.List;
+
 import org.eclipse.jdt.internal.core.nd.Nd;
+import org.eclipse.jdt.internal.core.nd.field.FieldLong;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToOne;
@@ -29,6 +32,7 @@ public class NdMethod extends NdBinding {
 	public static final FieldOneToOne<NdConstant> DEFAULT_VALUE;
 	public static final FieldOneToMany<NdMethodException> EXCEPTIONS;
 	public static final FieldManyToOne<NdTypeSignature> RETURN_TYPE;
+	public static final FieldLong TAG_BITS;
 
 	@SuppressWarnings("hiding")
 	public static final StructDef<NdMethod> type;
@@ -43,6 +47,7 @@ public class NdMethod extends NdBinding {
 		DEFAULT_VALUE = FieldOneToOne.create(type, NdConstant.class, NdConstant.PARENT_METHOD);
 		EXCEPTIONS = FieldOneToMany.create(type, NdMethodException.PARENT);
 		RETURN_TYPE = FieldManyToOne.create(type, NdTypeSignature.USED_AS_RETURN_TYPE);
+		TAG_BITS = type.addLong();
 		type.done();
 	}
 
@@ -70,6 +75,20 @@ public class NdMethod extends NdBinding {
 		return METHOD_ID.get(getNd(), this.address);
 	}
 
+	public char[][] getArgumentNames() {
+		List<NdMethodParameter> params = getMethodParameters();
+
+		char[][] result = new char[params.size()][];
+		for (int idx = 0; idx < result.length; idx++) {
+			result[idx] = params.get(idx).getName().getChars();
+		}
+		return result;
+	}
+
+	public List<NdMethodParameter> getMethodParameters() {
+		return PARAMETERS.asList(getNd(), this.address);
+	}
+
 	public void setDefaultValue(NdConstant value) {
 		DEFAULT_VALUE.put(getNd(), this.address, value);
 	}
@@ -84,5 +103,24 @@ public class NdMethod extends NdBinding {
 
 	public void setMethodId(NdMethodId methodId) {
 		METHOD_ID.put(getNd(), this.address, methodId);
+	}
+
+	public List<NdMethodException> getExceptions() {
+		return EXCEPTIONS.asList(getNd(), this.address);
+	}
+
+	/**
+	 * Returns the return type for this method or null if the method returns void
+	 */
+	public NdTypeSignature getReturnType() {
+		return RETURN_TYPE.get(getNd(), this.address);
+	}
+
+	public void setTagBits(long bits) {
+		TAG_BITS.put(getNd(), this.address, bits);
+	}
+
+	public long getTagBits() {
+		return TAG_BITS.get(getNd(), this.address);
 	}
 }

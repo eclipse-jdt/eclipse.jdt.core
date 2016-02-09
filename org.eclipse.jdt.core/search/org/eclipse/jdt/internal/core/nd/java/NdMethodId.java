@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.core.nd.db.IString;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchKey;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
+import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 
 /**
  * Represents the fully-qualified signature a method. Holds back-pointers to all the entities that refer to the name,
@@ -72,5 +73,29 @@ public class NdMethodId extends NdNode {
 	 */
 	public IString getMethodName() {
 		return METHOD_NAME.get(getNd(), this.address);
+	}
+
+	public char[] getSelector() {
+		char[] name = getMethodName().getChars();
+		int selectorStart = CharArrayUtils.indexOf('#', name) + 1;
+		int selectorEnd = CharArrayUtils.indexOf('(', name, selectorStart, name.length);
+		if (selectorEnd == -1) {
+			selectorEnd = name.length;
+		}
+		return CharArrayUtils.subarray(name, selectorStart, selectorEnd);
+	}
+
+	public boolean isConstructor() {
+		return JavaNames.isConstructor(getSelector());
+	}
+
+	public char[] getMethodDescriptor() {
+		char[] name = getMethodName().getChars();
+		int descriptorStart = CharArrayUtils.indexOf('(', name, 0, name.length);
+		return CharArrayUtils.subarray(name, descriptorStart, name.length);
+	}
+
+	public boolean isClInit() {
+		return JavaNames.isClinit(getSelector());
 	}
 }

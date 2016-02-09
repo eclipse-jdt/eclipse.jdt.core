@@ -31,4 +31,11 @@ public class NdMethodException extends NdNode {
 		EXCEPTION_TYPE.put(getNd(), this.address, createTypeSignature);
 	}
 
+	public NdTypeSignature getExceptionType() {
+		return EXCEPTION_TYPE.get(getNd(), this.address);
+	}
+
+	public NdMethod getParent() {
+		return PARENT.get(getNd(), this.address);
+	}
 }

@@ -98,6 +98,10 @@ public class NdTypeId extends NdTypeSignature {
 		SIMPLE_NAME.put(getNd(), this.address, name);
 	}
 
+	public List<NdType> getDeclaredTypes() {
+		return DECLARED_TYPES.asList(getNd(), this.address);
+	}
+
 	@Override
 	public NdTypeId getRawType() {
 		return this;
@@ -126,5 +130,10 @@ public class NdTypeId extends NdTypeSignature {
 	@Override
 	public NdTypeSignature getArrayDimensionType() {
 		return null;
+	}
+
+	@Override
+	public List<NdTypeArgument> getTypeArguments() {
+		return Collections.emptyList();
 	}
 }

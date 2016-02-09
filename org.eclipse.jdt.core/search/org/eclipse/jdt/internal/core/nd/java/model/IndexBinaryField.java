@@ -12,11 +12,11 @@ public class IndexBinaryField implements IBinaryField {
 	private Constant constant;
 	private char[] genericSignature;
 	private char[] name;
-	private int tagBits;
+	private long tagBits;
 	private char[] typeName;
 
-	public IndexBinaryField(IBinaryAnnotation[] annotations, Constant constant, char[] genericSignature,
-			int modifiers, char[] name, int tagBits, IBinaryTypeAnnotation[] typeAnnotations, char[] typeName) {
+	public IndexBinaryField(IBinaryAnnotation[] annotations, Constant constant, char[] genericSignature, int modifiers,
+			char[] name, long tagBits, IBinaryTypeAnnotation[] typeAnnotations, char[] typeName) {
 		super();
 		this.modifiers = modifiers;
 		this.annotations = annotations;

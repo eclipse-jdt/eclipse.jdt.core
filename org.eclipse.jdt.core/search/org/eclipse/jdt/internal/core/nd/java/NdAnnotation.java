@@ -28,6 +28,7 @@ public class NdAnnotation extends NdNode {
 	public static final FieldOneToMany<NdAnnotationValuePair> ELEMENT_VALUE_PAIRS;
 	public static final FieldOneToOne<NdConstantAnnotation> PARENT_CONSTANT;
 	public static final FieldManyToOne<NdComplexTypeSignature> PARENT_TYPE_SIGNATURE;
+	public static final FieldManyToOne<NdMethodParameter> PARENT_METHOD_PARAMETER;
 
 	@SuppressWarnings("hiding")
 	public static final StructDef<NdAnnotation> type;
@@ -39,6 +40,7 @@ public class NdAnnotation extends NdNode {
 		ELEMENT_VALUE_PAIRS = FieldOneToMany.create(type, NdAnnotationValuePair.APPLIES_TO);
 		PARENT_CONSTANT = FieldOneToOne.createOwner(type, NdConstantAnnotation.class, NdConstantAnnotation.VALUE);
 		PARENT_TYPE_SIGNATURE = FieldManyToOne.createOwner(type, NdComplexTypeSignature.ANNOTATIONS);
+		PARENT_METHOD_PARAMETER = FieldManyToOne.createOwner(type, NdMethodParameter.ANNOTATIONS);
 		type.done();
 	}
 
@@ -74,5 +76,13 @@ public class NdAnnotation extends NdNode {
 
 	public List<NdAnnotationValuePair> getElementValuePairs() {
 		return ELEMENT_VALUE_PAIRS.asList(getNd(), this.address);
+	}
+
+	public void setParent(NdMethodParameter parameter) {
+		PARENT_METHOD_PARAMETER.put(getNd(), this.address, parameter);
+	}
+
+	public NdMethodParameter getMethodParameter() {
+		return PARENT_METHOD_PARAMETER.get(getNd(), this.address);
 	}
 }

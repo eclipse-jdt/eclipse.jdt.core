@@ -193,6 +193,7 @@ public class ClassFileToIndexConverter {
 		type.setAnonymous(binaryType.isAnonymous());
 		type.setIsLocal(binaryType.isLocal());
 		type.setIsMember(binaryType.isMember());
+		type.setTagBits(binaryType.getTagBits());
 
 		if (binaryType.isLocal()) {
 			type.setInnerTypeSourceName(binaryType.getSourceName());
@@ -255,6 +256,7 @@ public class ClassFileToIndexConverter {
 			signature.start++;
 		}
 
+		int annotatedParametersCount = next.getAnnotatedParametersCount();
 		char[][] parameterNames = next.getArgumentNames();
 		short parameterIdx = 0;
 		while (!signature.atEnd()) {
@@ -265,6 +267,15 @@ public class ClassFileToIndexConverter {
 			NdMethodParameter parameter = new NdMethodParameter(method,
 					createTypeSignature(typeAnnotations.toMethodParameter(parameterIdx), signature));
 
+			if (parameterIdx < annotatedParametersCount) {
+				IBinaryAnnotation[] parameterAnnotations = next.getParameterAnnotations(parameterIdx, binaryTypeName);
+
+				if (parameterAnnotations != null) {
+					for (IBinaryAnnotation nextAnnotation : parameterAnnotations) {
+						createAnnotation(nextAnnotation).setParent(parameter);
+					}
+				}
+			}
 			if (parameterNames != null && parameterNames.length > parameterIdx) {
 				parameter.setName(parameterNames[parameterIdx]);
 			}
@@ -286,8 +297,8 @@ public class ClassFileToIndexConverter {
 		}
 
 		method.setMethodId(createMethodId(binaryTypeName, next.getSelector(), next.getMethodDescriptor()));
-
 		method.setModifiers(next.getModifiers());
+		method.setTagBits(next.getTagBits());
 	}
 
 	/**
@@ -311,6 +322,7 @@ public class ClassFileToIndexConverter {
 
 		ITypeAnnotationWalker annotationWalker = getTypeAnnotationWalker(nextField.getTypeAnnotations());
 		variable.setType(createTypeSignature(annotationWalker, nextTypeSignature));
+		variable.setTagBits(nextField.getTagBits());
 	}
 
 	/**

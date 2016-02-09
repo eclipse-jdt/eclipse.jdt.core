@@ -59,6 +59,10 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 		FILE.put(pdom, this.address, resource);
 	}
 
+	public List<NdVariable> getVariables() {
+		return VARIABLES.asList(getNd(), this.address);
+	}
+
 	/**
 	 * Tests whether this binding has one of the flags defined in {@link Flags}
 	 */
@@ -77,24 +81,8 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 		return MODIFIERS.get(getNd(), this.address);
 	}
 
-	public NdAnnotation[] getAnnotations() {
-		int numAnnotations = ANNOTATIONS.size(getNd(), this.address);
-
-		if (numAnnotations == 0) {
-			return NO_ANNOTATIONS;
-		}
-
-		final NdAnnotation[] result = new NdAnnotation[numAnnotations];
-
-		// If we got this far, the pointer to the linked list is non-null
-		ANNOTATIONS.accept(getNd(), this.address, new FieldOneToMany.Visitor<NdAnnotation>() {
-			@Override
-			public void visit(int index, NdAnnotation toVisit) {
-				result[index] = toVisit;
-			}
-		});
-
-		return result;
+	public List<NdAnnotation> getAnnotations() {
+		return ANNOTATIONS.asList(getNd(), this.address);
 	}
 
 	@Override
@@ -140,7 +128,7 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 		return result;
 	}
 
-	private List<NdTypeParameter> getTypeParameters() {
+	public List<NdTypeParameter> getTypeParameters() {
 		return TYPE_PARAMETERS.asList(getNd(), this.address);
 	}
 }

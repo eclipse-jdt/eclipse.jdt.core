@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.util.Util;
+import org.eclipse.jdt.internal.core.nd.java.JavaNames;
 
 @SuppressWarnings("rawtypes")
 public class MethodInfo extends ClassFileStruct implements IBinaryMethod, Comparable {
@@ -226,6 +227,7 @@ public int compareTo(Object o) {
 	if (result != 0) return result;
 	return new String(getMethodDescriptor()).compareTo(new String(otherMethod.getMethodDescriptor()));
 }
+@Override
 public boolean equals(Object o) {
 	if (!(o instanceof MethodInfo)) {
 		return false;
@@ -234,6 +236,7 @@ public boolean equals(Object o) {
 	return CharOperation.equals(getSelector(), otherMethod.getSelector())
 			&& CharOperation.equals(getMethodDescriptor(), otherMethod.getMethodDescriptor());
 }
+@Override
 public int hashCode() {
 	return CharOperation.hashCode(getSelector()) + CharOperation.hashCode(getMethodDescriptor());
 }
@@ -354,16 +357,14 @@ protected void initialize() {
  * @return boolean
  */
 public boolean isClinit() {
-	char[] selector = getSelector();
-	return selector[0] == '<' && selector.length == 8; // Can only match <clinit>
+	return JavaNames.isClinit(getSelector());
 }
 /**
  * Answer true if the method is a constructor, false otherwise.
  * @return boolean
  */
 public boolean isConstructor() {
-	char[] selector = getSelector();
-	return selector[0] == '<' && selector.length == 6; // Can only match <init>
+	return JavaNames.isConstructor(getSelector());
 }
 /**
  * Return true if the field is a synthetic method, false otherwise.
@@ -442,6 +443,7 @@ public int sizeInBytes() {
 	return this.attributeBytes;
 }
 
+@Override
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	toString(buffer);

@@ -129,4 +129,9 @@ public abstract class NdTypeSignature extends NdNode {
 	 * this is not an array type.
 	 */
 	public abstract NdTypeSignature getArrayDimensionType();
+
+	/**
+	 * Returns the type arguments for this type signature, if any. Returns the empty list if none.
+	 */
+	public abstract List<NdTypeArgument> getTypeArguments();
 }
