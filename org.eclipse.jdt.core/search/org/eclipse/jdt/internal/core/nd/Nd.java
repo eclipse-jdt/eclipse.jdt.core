@@ -11,12 +11,10 @@
 package org.eclipse.jdt.internal.core.nd;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -39,6 +37,13 @@ public class Nd {
 	private final int currentVersion;
 	private final int maxVersion;
 	private final int minVersion;
+
+	// Read-write lock rules. Readers don't conflict with other readers,
+	// Writers conflict with readers, and everyone conflicts with writers.
+	private final Object lockMutex = new Object();
+	private long lastWriteAccess = 0;
+	private long lastReadAccess = 0;
+	private ReentrantReadWriteLock lock;
 
 	public static int version(int major, int minor) {
 		return (major << 16) + minor;
@@ -139,15 +144,16 @@ public class Nd {
 
 	public Nd(File dbPath, ChunkCache chunkCache, NdNodeTypeRegistry<NdNode> nodeTypes, int minVersion,
 			int maxVersion, int currentVersion) throws IndexException {
+		this.lock = new ReentrantReadWriteLock();
 		this.currentVersion = currentVersion;
 		this.maxVersion = maxVersion;
 		this.minVersion = minVersion;
 		this.fNodeTypeRegistry = nodeTypes;
 		loadDatabase(dbPath, chunkCache);
-		if (sDEBUG_LOCKS) {
-			this.fLockDebugging = new HashMap<>();
-			System.out.println("Debugging PDOM Locks"); //$NON-NLS-1$
-		}
+		// if (sDEBUG_LOCKS) {
+		// this.fLockDebugging = new HashMap<>();
+		// System.out.println("Debugging PDOM Locks"); //$NON-NLS-1$
+		// }
 	}
 
 	public long getWriteNumber() {
@@ -188,82 +194,52 @@ public class Nd {
 
 	private void loadDatabase(File dbPath, ChunkCache cache) throws IndexException {
 		this.fPath= dbPath;
-		final boolean lockDB= this.db == null || this.lockCount != 0;
+		final boolean lockDB = this.db == null;
 
 		clearCaches();
 		this.db = new Database(this.fPath, cache, getDefaultVersion(), isPermanentlyReadOnly());
 
-		this.db.setLocked(lockDB);
+		this.db.setLocked(true);
 		if (!isSupportedVersion()) {
 			Package.log("Index database is uses an unsupported version " + this.db.getVersion() //$NON-NLS-1$
 				+ " Deleting and recreating.", null); //$NON-NLS-1$
 			this.db.close();
 			this.fPath.delete();
 			this.db = new Database(this.fPath, cache, getDefaultVersion(), isPermanentlyReadOnly());
-			this.db.setLocked(lockDB);
+			this.db.setLocked(true);
 		}
 		this.fWriteNumber = this.db.getLong(Database.WRITE_NUMBER_OFFSET);
-		this.db.setLocked(this.lockCount != 0);
+		synchronized (this.lockMutex) {
+			syncLockedState();
+		}
+	}
+
+	void syncLockedState() {
+		int writeLocks = this.lock.getWriteHoldCount();
+		int readLocks = this.lock.getReadLockCount();
+
+		this.db.setLocked(writeLocks != 0 || readLocks != 0);
 	}
 
 	public Database getDB() {
 		return this.db;
 	}
 
-	// Read-write lock rules. Readers don't conflict with other readers,
-	// Writers conflict with readers, and everyone conflicts with writers.
-	private final Object mutex = new Object();
-	private int lockCount;
-	private int waitingReaders;
-	private long lastWriteAccess= 0;
-	private long lastReadAccess= 0;
-	private long timeWriteLockAcquired;
-
 	public IReader acquireReadLock() {
-		try {
-			long t = sDEBUG_LOCKS ? System.nanoTime() : 0;
-			synchronized (this.mutex) {
-				++this.waitingReaders;
-				try {
-					while (this.lockCount < 0)
-						this.mutex.wait();
-				} finally {
-					--this.waitingReaders;
-				}
-				++this.lockCount;
-				this.db.setLocked(true);
-
-				if (sDEBUG_LOCKS) {
-					t = (System.nanoTime() - t) / 1000000;
-					if (t >= LONG_READ_LOCK_WAIT_REPORT_THRESHOLD) {
-						System.out.println("Acquired index read lock after " + t + " ms wait."); //$NON-NLS-1$//$NON-NLS-2$
-					}
-					incReadLock(this.fLockDebugging);
-				}
-				return this.fReader;
-			}
-		} catch (InterruptedException e) {
-			throw new OperationCanceledException();
+		this.lock.readLock().lock();
+		synchronized (this.lockMutex) {
+			syncLockedState();
 		}
+		return this.fReader;
 	}
 
 	public void releaseReadLock() {
-		synchronized (this.mutex) {
-			assert this.lockCount > 0: "No lock to release"; //$NON-NLS-1$
-			if (sDEBUG_LOCKS) {
-				decReadLock(this.fLockDebugging);
-			}
-
-			this.lastReadAccess= System.currentTimeMillis();
-			if (this.lockCount > 0)
-				--this.lockCount;
-			this.mutex.notifyAll();
-			this.db.setLocked(this.lockCount != 0);
+		synchronized (this.lockMutex) {
+			this.lock.readLock().unlock();
+			syncLockedState();
+			this.lastReadAccess = System.currentTimeMillis();
 		}
-		// A lock release probably means that some AST is going away. The result cache has to be
-		// cleared since it may contain objects belonging to the AST that is going away. A failure
-		// to release an AST object would cause a memory leak since the whole AST would remain
-		// pinned to memory.
+
 		// TODO(sprigogin): It would be more efficient to replace the global result cache with
 		// separate caches for each AST.
 		clearResultCache();
@@ -275,97 +251,29 @@ public class Nd {
 	 * @throws IllegalStateException if this PDOM is not writable
 	 */
 	public void acquireWriteLock(IProgressMonitor monitor) {
-		try {
-			acquireWriteLock(0, monitor);
-		} catch (InterruptedException e) {
-			throw new OperationCanceledException();
-		}
-	}
-
-	/**
-	 * Acquire a write lock on this PDOM, giving up the specified number of read locks first. Blocks
-	 * until any existing read/write locks are released.
-	 * @throws InterruptedException
-	 * @throws IllegalStateException if this PDOM is not writable
-	 */
-	public void acquireWriteLock(int giveupReadLocks, IProgressMonitor monitor) throws InterruptedException {
 		assert !isPermanentlyReadOnly();
-		synchronized (this.mutex) {
-			if (sDEBUG_LOCKS) {
-				incWriteLock(giveupReadLocks);
-			}
-
-			if (giveupReadLocks > 0) {
-				// give up on read locks
-				assert this.lockCount >= giveupReadLocks: "Not enough locks to release"; //$NON-NLS-1$
-				if (this.lockCount < giveupReadLocks) {
-					giveupReadLocks= this.lockCount;
-				}
-			} else {
-				giveupReadLocks= 0;
-			}
-
-			// Let the readers go first
-			long start= sDEBUG_LOCKS ? System.currentTimeMillis() : 0;
-			while (this.lockCount > giveupReadLocks || this.waitingReaders > 0) {
-				this.mutex.wait(CANCELLATION_CHECK_INTERVAL);
-				if (monitor != null && monitor.isCanceled()) {
-					throw new OperationCanceledException();
-				}
-				if (sDEBUG_LOCKS) {
-					start = reportBlockedWriteLock(start, giveupReadLocks);
-				}
-			}
-			this.lockCount= -1;
-			if (sDEBUG_LOCKS)
-				this.timeWriteLockAcquired = System.currentTimeMillis();
-			this.db.setExclusiveLock();
-		}
+		this.lock.writeLock().lock();
+		this.db.setExclusiveLock();
 	}
 
 	final public void releaseWriteLock() {
-		releaseWriteLock(0, true);
-	}
-
-	@SuppressWarnings("nls")
-	public void releaseWriteLock(int establishReadLocks, boolean flush) {
-		// When all locks are released we can clear the result cache.
-		if (establishReadLocks == 0) {
-			processDeletions();
-			this.db.putLong(Database.WRITE_NUMBER_OFFSET, ++this.fWriteNumber);
-			clearResultCache();
-		}
-		try {
-			this.db.giveUpExclusiveLock(flush);
-		} catch (IndexException e) {
-			Package.log(e);
-		}
-		assert this.lockCount == -1;
-		if (!this.fEvent.isTrivial())
-			this.lastWriteAccess= System.currentTimeMillis();
-		//final ChangeEvent event= this.fEvent;
-		this.fEvent= new ChangeEvent();
-		synchronized (this.mutex) {
-			if (sDEBUG_LOCKS) {
-				long timeHeld = this.lastWriteAccess - this.timeWriteLockAcquired;
-				if (timeHeld >= LONG_WRITE_LOCK_REPORT_THRESHOLD) {
-					System.out.println("Index write lock held for " + timeHeld + " ms");
-				}
-				decWriteLock(establishReadLocks);
+		synchronized (this.lockMutex) {
+			int writeHoldCount = this.lock.getWriteHoldCount();
+			assert writeHoldCount >= 1;
+			if (writeHoldCount == 1) {
+				processDeletions();
+				this.db.putLong(Database.WRITE_NUMBER_OFFSET, ++this.fWriteNumber);
+				clearResultCache();
+				this.db.giveUpExclusiveLock(true);
+				this.lastWriteAccess = System.currentTimeMillis();
 			}
-
-			if (this.lockCount < 0)
-				this.lockCount= establishReadLocks;
-			this.mutex.notifyAll();
-			this.db.setLocked(this.lockCount != 0);
+			this.lock.writeLock().unlock();
+			syncLockedState();
 		}
-		//fireChange(event);
 	}
 
 	public boolean hasWaitingReaders() {
-		synchronized (this.mutex) {
-			return this.waitingReaders > 0;
-		}
+		return this.lock.hasQueuedThreads();
 	}
 
 	public long getLastWriteAccess() {
@@ -425,148 +333,6 @@ public class Nd {
 	public void removeCachedResult(Object key) {
 		synchronized (this.fResultCache) {
 			this.fResultCache.remove(key);
-		}
-	}
-
-	// For debugging lock issues
-	static class DebugLockInfo {
-		int fReadLocks;
-		int fWriteLocks;
-		List<StackTraceElement[]> fTraces= new ArrayList<>();
-
-		public int addTrace() {
-			this.fTraces.add(Thread.currentThread().getStackTrace());
-			return this.fTraces.size();
-		}
-
-		@SuppressWarnings("nls")
-		public void write(String threadName) {
-			System.out.println("Thread: '" + threadName + "': " + this.fReadLocks + " readlocks, " + this.fWriteLocks + " writelocks");
-			for (StackTraceElement[] trace : this.fTraces) {
-				System.out.println("  Stacktrace:");
-				for (StackTraceElement ste : trace) {
-					System.out.println("    " + ste);
-				}
-			}
-		}
-
-		public void inc(DebugLockInfo val) {
-			this.fReadLocks+= val.fReadLocks;
-			this.fWriteLocks+= val.fWriteLocks;
-			this.fTraces.addAll(val.fTraces);
-		}
-	}
-
-	// For debugging lock issues
-	private Map<Thread, DebugLockInfo> fLockDebugging;
-
-	// For debugging lock issues
-	private static DebugLockInfo getLockInfo(Map<Thread, DebugLockInfo> lockDebugging) {
-		assert sDEBUG_LOCKS;
-
-		Thread key = Thread.currentThread();
-		DebugLockInfo result= lockDebugging.get(key);
-		if (result == null) {
-			result= new DebugLockInfo();
-			lockDebugging.put(key, result);
-		}
-		return result;
-	}
-
-	// For debugging lock issues
-	static void incReadLock(Map<Thread, DebugLockInfo> lockDebugging) {
-		DebugLockInfo info = getLockInfo(lockDebugging);
-		info.fReadLocks++;
-		if (info.addTrace() > 10) {
-			outputReadLocks(lockDebugging);
-		}
-	}
-
-	// For debugging lock issues
-	@SuppressWarnings("nls")
-	static void decReadLock(Map<Thread, DebugLockInfo> lockDebugging) throws AssertionError {
-		DebugLockInfo info = getLockInfo(lockDebugging);
-		if (info.fReadLocks <= 0) {
-			outputReadLocks(lockDebugging);
-			throw new AssertionError("Superfluous releaseReadLock");
-		}
-		if (info.fWriteLocks != 0) {
-			outputReadLocks(lockDebugging);
-			throw new AssertionError("Releasing readlock while holding write lock");
-		}
-		if (--info.fReadLocks == 0) {
-			lockDebugging.remove(Thread.currentThread());
-		} else {
-			info.addTrace();
-		}
-	}
-
-	// For debugging lock issues
-	@SuppressWarnings("nls")
-	private void incWriteLock(int giveupReadLocks) throws AssertionError {
-		DebugLockInfo info = getLockInfo(this.fLockDebugging);
-		if (info.fReadLocks != giveupReadLocks) {
-			outputReadLocks(this.fLockDebugging);
-			throw new AssertionError("write lock with " + giveupReadLocks + " readlocks, expected " + info.fReadLocks);
-		}
-		if (info.fWriteLocks != 0)
-			throw new AssertionError("Duplicate write lock");
-		info.fWriteLocks++;
-	}
-
-	// For debugging lock issues
-	private void decWriteLock(int establishReadLocks) throws AssertionError {
-		DebugLockInfo info = getLockInfo(this.fLockDebugging);
-		if (info.fReadLocks != establishReadLocks)
-			throw new AssertionError("release write lock with " + establishReadLocks + " readlocks, expected " + info.fReadLocks); //$NON-NLS-1$ //$NON-NLS-2$
-		if (info.fWriteLocks != 1)
-			throw new AssertionError("Wrong release write lock"); //$NON-NLS-1$
-		info.fWriteLocks= 0;
-		if (info.fReadLocks == 0) {
-			this.fLockDebugging.remove(Thread.currentThread());
-		}
-	}
-
-	// For debugging lock issues
-	@SuppressWarnings("nls")
-	private long reportBlockedWriteLock(long start, int giveupReadLocks) {
-		long now= System.currentTimeMillis();
-		if (now >= start + BLOCKED_WRITE_LOCK_OUTPUT_INTERVAL) {
-			System.out.println();
-			System.out.println("Blocked writeLock");
-			System.out.println("  lockcount= " + this.lockCount + ", giveupReadLocks=" + giveupReadLocks + ", waitingReaders=" + this.waitingReaders);
-			outputReadLocks(this.fLockDebugging);
-			start= now;
-		}
-		return start;
-	}
-
-	// For debugging lock issues
-	@SuppressWarnings("nls")
-	private static void outputReadLocks(Map<Thread, DebugLockInfo> lockDebugging) {
-		System.out.println("---------------------  Lock Debugging -------------------------");
-		for (Thread th: lockDebugging.keySet()) {
-			DebugLockInfo info = lockDebugging.get(th);
-			info.write(th.getName());
-		}
-		System.out.println("---------------------------------------------------------------");
-	}
-
-	// For debugging lock issues
-	public void adjustThreadForReadLock(Map<Thread, DebugLockInfo> lockDebugging) {
-		for (Thread th : lockDebugging.keySet()) {
-			DebugLockInfo val= lockDebugging.get(th);
-			if (val.fReadLocks > 0) {
-				DebugLockInfo myval= this.fLockDebugging.get(th);
-				if (myval == null) {
-					myval= new DebugLockInfo();
-					this.fLockDebugging.put(th, myval);
-				}
-				myval.inc(val);
-				for (int i = 0; i < val.fReadLocks; i++) {
-					decReadLock(this.fLockDebugging);
-				}
-			}
 		}
 	}
 
