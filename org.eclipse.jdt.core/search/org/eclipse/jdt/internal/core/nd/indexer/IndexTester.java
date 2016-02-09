@@ -75,29 +75,7 @@ public class IndexTester {
 			IBinaryAnnotation binaryAnnotation = this.annotation.getAnnotation();
 			IBinaryAnnotation otherBinaryAnnotation = otherAnnotation.getAnnotation();
 
-			IBinaryElementValuePair[] elementValuePairs = binaryAnnotation.getElementValuePairs();
-			IBinaryElementValuePair[] otherElementValuePairs = otherBinaryAnnotation.getElementValuePairs();
-
-			if (elementValuePairs.length != otherElementValuePairs.length) {
-				return false;
-			}
-
-			for (int idx = 0; idx < elementValuePairs.length; idx++) {
-				IBinaryElementValuePair next = elementValuePairs[idx];
-				IBinaryElementValuePair otherNext = otherElementValuePairs[idx];
-
-				char[] nextName = next.getName();
-				char[] otherNextName = otherNext.getName();
-
-				if (!Arrays.equals(nextName, otherNextName)) {
-					return false;
-				}
-
-				if (!constantsEqual(next.getValue(), otherNext.getValue())) {
-					return false;
-				}
-			}
-			return true;
+			return IndexTester.annotationsEqual(binaryAnnotation, otherBinaryAnnotation);
 		}
 	}
 
@@ -170,6 +148,33 @@ public class IndexTester {
 		}
 
 		return false;
+	}
+
+	static boolean annotationsEqual(IBinaryAnnotation binaryAnnotation,
+			IBinaryAnnotation otherBinaryAnnotation) {
+		IBinaryElementValuePair[] elementValuePairs = binaryAnnotation.getElementValuePairs();
+		IBinaryElementValuePair[] otherElementValuePairs = otherBinaryAnnotation.getElementValuePairs();
+	
+		if (elementValuePairs.length != otherElementValuePairs.length) {
+			return false;
+		}
+	
+		for (int idx = 0; idx < elementValuePairs.length; idx++) {
+			IBinaryElementValuePair next = elementValuePairs[idx];
+			IBinaryElementValuePair otherNext = otherElementValuePairs[idx];
+	
+			char[] nextName = next.getName();
+			char[] otherNextName = otherNext.getName();
+	
+			if (!Arrays.equals(nextName, otherNextName)) {
+				return false;
+			}
+	
+			if (!constantsEqual(next.getValue(), otherNext.getValue())) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }
