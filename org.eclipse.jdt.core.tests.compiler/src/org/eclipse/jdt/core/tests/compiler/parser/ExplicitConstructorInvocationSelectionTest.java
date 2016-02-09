@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,7 +49,7 @@ public void testNameSuper() {
 		"  }\n" +
 		"  public class SubInnerBar extends InnerBar {\n" +
 		"    SubInnerBar() {\n" +
-		"      super(<SelectOnMessageSend:fred()>);\n" +
+		"      Bar.super(<SelectOnMessageSend:fred()>);\n" +
 		"    }\n" +
 		"  }\n" +
 		"  static Bar x;\n" +
@@ -98,7 +98,7 @@ public void testNameThis() {
 		"  }\n" +
 		"  public class SubInnerBar extends InnerBar {\n" +
 		"    SubInnerBar() {\n" +
-		"      this(<SelectOnMessageSend:fred()>);\n" +
+		"      Bar.this(<SelectOnMessageSend:fred()>);\n" +
 		"    }\n" +
 		"  }\n" +
 		"  static Bar x;\n" +
@@ -147,7 +147,7 @@ public void testPrimarySuper() {
 		"  }\n" +
 		"  public class SubInnerBar extends InnerBar {\n" +
 		"    SubInnerBar(Bar x) {\n" +
-		"      super(<SelectOnMessageSend:fred()>);\n" +
+		"      primary().super(<SelectOnMessageSend:fred()>);\n" +
 		"    }\n" +
 		"  }\n" +
 		"  static Bar x;\n" +

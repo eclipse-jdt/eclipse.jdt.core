@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation and others.
+ * Copyright (c) 2013, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -167,6 +167,79 @@ public void test430572() throws JavaModelException {
 	int selectionEnd = selectionStart + selection.length() - 1;
 
 	this.checkDietParse(
+			string.toCharArray(),
+			selectionStart,
+			selectionEnd,
+			expectedCompletionNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			testName);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=476693
+public void test476693() throws JavaModelException {
+	String string = 
+			"import static java.util.stream.Collectors.toList;\n" +
+			"import java.util.List;\n" +
+			"import java.util.Spliterator;\n" +
+			"import java.util.stream.Stream;\n" +
+			"interface Seq<T> extends Stream<T>, Iterable<T> {\n" +
+			"    @Override\n" +
+			"    default Spliterator<T> spliterator() {\n" +
+			"        return Iterable.super.spliterator();\n" +
+			"    }\n" +
+			"}\n" +
+			"interface Tuple2<T1, T2> {}\n" +
+			"interface Tuple3<T1, T2, T3> {}\n" +
+			"\n" +
+			"public class Test<T1, T2, T3> {\n" +
+			"    <T1, T2> Seq<Tuple2<T1, T2>> m(Stream<T1> arg1, Stream<T2> arg2) {\n" +
+			"        System.out.println(\"m1\"); return null;\n" +
+			"    }\n" +
+			"    <T1, T2> Seq<Tuple2<T1, T2>> m(Seq<T1> arg1, Seq<T2> arg2){\n" +
+			"        System.out.println(\"m3\"); return null;\n" +
+			"    }\n" +
+			"    <T1, T2, T3> void m(Seq<T1> c1, Seq<T2> c2, Seq<T3> c3) {\n" +
+			"            // Click F3 on the m() call. This will jump to m1, erroneously\n" +
+			"            List<Tuple2<T1, T2>> l = m(c1, c2).collect(toList());\n" +
+			"            System.out.println(\"Hello\"); // This shouldn't appear in the selection parse tree\n" +
+			"    }\n" +
+			"}";
+
+	String expectedCompletionNodeToString = "<SelectOnMessageSend:m(c1, c2)>";
+
+	String completionIdentifier = "m";
+	String expectedUnitDisplayString =
+					"import static java.util.stream.Collectors.toList;\n" +
+					"import java.util.List;\n" +
+					"import java.util.Spliterator;\n" +
+					"import java.util.stream.Stream;\n" +
+					"interface Seq<T> extends Stream<T>, Iterable<T> {\n" +
+					"  default @Override Spliterator<T> spliterator() {\n" +
+					"  }\n" +
+					"}\n" +
+					"interface Tuple2<T1, T2> {\n" +
+					"}\n" +
+					"interface Tuple3<T1, T2, T3> {\n" +
+					"}\n" +
+					"public class Test<T1, T2, T3> {\n" +
+					"  public Test() {\n" +
+					"  }\n" +
+					"  <T1, T2>Seq<Tuple2<T1, T2>> m(Stream<T1> arg1, Stream<T2> arg2) {\n" +
+					"  }\n" +
+					"  <T1, T2>Seq<Tuple2<T1, T2>> m(Seq<T1> arg1, Seq<T2> arg2) {\n" +
+					"  }\n" +
+					"  <T1, T2, T3>void m(Seq<T1> c1, Seq<T2> c2, Seq<T3> c3) {\n" +
+					"    List<Tuple2<T1, T2>> l = <SelectOnMessageSend:m(c1, c2)>.collect(toList());\n" +
+					"  }\n" +
+					"}\n";
+	String expectedReplacedSource = "m(c1, c2)";
+	String testName = "<select>";
+
+	int selectionStart = string.indexOf("m(c1, c2)");
+	int selectionEnd = selectionStart;
+
+	this.checkMethodParse(
 			string.toCharArray(),
 			selectionStart,
 			selectionEnd,

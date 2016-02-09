@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -73,8 +73,9 @@ public class SelectionParser extends AssistParser {
 	protected static final int K_BETWEEN_CASE_AND_COLON = SELECTION_PARSER + 1; // whether we are inside a block
 	protected static final int K_INSIDE_RETURN_STATEMENT = SELECTION_PARSER + 2; // whether we are between the keyword 'return' and the end of a return statement
 	protected static final int K_CAST_STATEMENT = SELECTION_PARSER + 3; // whether we are between ')' and the end of a cast statement
-	
 
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=476693
+	private boolean selectionNodeFound;
 	public ASTNode assistNodeParent; // the parent node of assist node
 
 	/* public fields */
@@ -806,6 +807,21 @@ protected void consumeLocalVariableDeclarationStatement() {
 			this.lastIgnoredToken = -1;
 		}
 	}
+	if (this.selectionNodeFound) {
+		this.restartRecovery = true;
+	}
+}
+protected void consumeAssignment() {
+	super.consumeAssignment();
+	if (this.selectionNodeFound) {
+		this.restartRecovery = true;
+	}
+}
+protected void consumeBlockStatement() {
+	super.consumeBlockStatement();
+	if (this.selectionNodeFound) {
+		this.restartRecovery = true;
+	}
 }
 protected void consumeMarkerAnnotation(boolean isTypeAnnotation) {
 	int index;
@@ -1426,7 +1442,9 @@ protected MessageSend newMessageSend() {
 	}
 	this.assistNode = messageSend;
 	if (!this.diet){
-		this.restartRecovery	= true;	// force to restart in recovery mode
+		// Don't restart recovery, not yet, until variable decl statement has been consumed.
+		// This is to ensure chained method invocations are taken into account for resolution.
+		this.selectionNodeFound = true;
 		this.lastIgnoredToken = -1;
 	}
 
@@ -1451,7 +1469,9 @@ protected MessageSend newMessageSendWithTypeArguments() {
 	}
 	this.assistNode = messageSend;
 	if (!this.diet){
-		this.restartRecovery	= true;	// force to restart in recovery mode
+		// Don't restart recovery, not yet, until variable decl statement has been consumed.
+		// This is to ensure chained method invocations are taken into account for resolution.
+		this.selectionNodeFound = true;
 		this.lastIgnoredToken = -1;
 	}
 
