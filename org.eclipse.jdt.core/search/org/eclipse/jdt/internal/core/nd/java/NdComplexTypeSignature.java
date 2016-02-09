@@ -90,6 +90,7 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 		return DECLARING_TYPE.get(getNd(), this.address);
 	}
 
+	@Override
 	public List<NdTypeArgument> getTypeArguments() {
 		return TYPE_ARGUMENTS.asList(getNd(), this.address);
 	}
@@ -170,9 +171,9 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 		NdComplexTypeSignature declaringType = getGenericDeclaringType();
 
 		if (declaringType != null) {
-			computeDeclaringTypes(result);
+			declaringType.computeDeclaringTypes(result);
 		}
 
-		result.add(declaringType);
+		result.add(this);
 	}
 }

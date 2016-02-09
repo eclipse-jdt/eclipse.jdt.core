@@ -113,7 +113,9 @@ public abstract class NdTypeSignature extends NdNode {
 	public abstract void getSignature(CharArrayBuffer result);
 
 	public final boolean isArrayType() {
-		return getRawType().hasSimpleName("["); //$NON-NLS-1$
+		NdTypeId rawType = getRawType();
+
+		return rawType != null && rawType.hasSimpleName("["); //$NON-NLS-1$
 	}
 
 	public abstract boolean isTypeVariable();
