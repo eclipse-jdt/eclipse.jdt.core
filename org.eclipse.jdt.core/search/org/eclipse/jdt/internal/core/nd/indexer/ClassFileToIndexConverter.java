@@ -54,6 +54,8 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClassFileToIndexConverter {
+	private static final char[] INNER_TYPE_SEPARATOR = new char[] { '$' };
+	private static final char[] FIELD_DESCRIPTOR_SUFFIX = new char[] { ';' };
 	private static final char[] COMMA = new char[]{','};
 	private static final char[][] EMPTY_CHAR_ARRAY_ARRAY = new char[0][];
 	private static final boolean ENABLE_LOGGING = false;
@@ -460,9 +462,9 @@ public class ClassFileToIndexConverter {
 
 		if (parentTypeOrNull != null) {
 			fieldDescriptor = CharArrayUtils.concat(parentTypeOrNull.getRawType().getFieldDescriptor().getChars(),
-					new char[] { '$' }, identifier);
+					INNER_TYPE_SEPARATOR, identifier, FIELD_DESCRIPTOR_SUFFIX);
 		} else {
-			fieldDescriptor = identifier;
+			fieldDescriptor = CharArrayUtils.concat(identifier, FIELD_DESCRIPTOR_SUFFIX);
 		}
 
 		char[] genericSignature = wrapper.signature;

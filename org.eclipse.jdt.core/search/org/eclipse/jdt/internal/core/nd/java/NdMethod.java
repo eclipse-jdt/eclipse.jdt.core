@@ -69,6 +69,8 @@ public class NdMethod extends NdBinding {
 
 	public NdMethod(NdType parent) {
 		super(parent.getNd(), parent.getFile());
+
+		PARENT.put(getNd(), this.address, parent);
 	}
 
 	public NdMethodId getMethodId() {

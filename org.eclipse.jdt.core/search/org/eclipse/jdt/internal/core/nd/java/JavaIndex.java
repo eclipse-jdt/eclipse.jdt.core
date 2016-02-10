@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.core.nd.db.Database;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex.IResultRank;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex.SearchCriteria;
+import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
 /**
@@ -31,9 +32,9 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
  */
 public class JavaIndex {
 	// Version constants
-	static final int CURRENT_VERSION = Nd.version(1, 22);
-	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 22);
-	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 22);
+	static final int CURRENT_VERSION = Nd.version(1, 24);
+	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 25);
+	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 25);
 
 	// Fields for the search header
 	public static final FieldSearchIndex<NdResourceFile> FILES;
@@ -111,7 +112,19 @@ public class JavaIndex {
 			return existingType;
 		}
 
-		return new NdTypeId(this.pdom, fieldDescriptor);
+		if (fieldDescriptor.length > 1) {
+			if (fieldDescriptor[0] == 'L') {
+				if (fieldDescriptor[fieldDescriptor.length - 1] != ';') {
+					throw new IllegalStateException(new String(fieldDescriptor) + " is not a valid field descriptor"); //$NON-NLS-1$
+				}
+			}
+		}
+
+		NdTypeId result = new NdTypeId(this.pdom, fieldDescriptor);
+		if (!CharArrayUtils.equals(result.getFieldDescriptor().getChars(), fieldDescriptor)) {
+			throw new IllegalStateException("Field descriptor didn't match"); //$NON-NLS-1$
+		}
+		return result;
 	}
 
 	public Nd getNd() {

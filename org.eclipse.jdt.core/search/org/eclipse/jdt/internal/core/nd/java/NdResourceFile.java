@@ -143,15 +143,28 @@ public class NdResourceFile extends NdTreeNode {
 		return Path.EMPTY;
 	}
 
+	/**
+	 * Returns a workspace path to this resource if possible and the absolute filesystem location if not.
+	 */
+	public IPath getPath() {
+		IPath workspacePath = getFirstWorkspaceLocation();
+
+		if (workspacePath.isEmpty()) {
+			return new Path(getLocation().getString());
+		}
+
+		return workspacePath;
+	}
+
 	public List<NdWorkspaceLocation> getWorkspaceMappings() {
 		return WORKSPACE_MAPPINGS.asList(getNd(), this.address);
 	}
 
-	public IString getFilename() {
+	public IString getLocation() {
 		return FILENAME.get(getNd(), this.address);
 	}
 
-	public void setFilename(String filename) {
+	public void setLocation(String filename) {
 		FILENAME.put(getNd(), this.address, filename);
 	}
 
@@ -191,7 +204,7 @@ public class NdResourceFile extends NdTreeNode {
 	public IString getPackageFragmentRoot() {
 		IString javaRoot = JAVA_ROOT.get(getNd(), this.address);
 		if (javaRoot.length() == 0) {
-			return getFilename();
+			return getLocation();
 		}
 		return javaRoot;
 	}

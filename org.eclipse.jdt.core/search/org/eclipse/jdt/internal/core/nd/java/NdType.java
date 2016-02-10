@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldString;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
+import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 
 /**
  * @since 3.12
@@ -196,7 +197,9 @@ public class NdType extends NdBinding {
 		if (isLocal()) {
 			return getInnerTypeSourceName();
 		}
-		return getTypeId().getSimpleNameCharArray();
+		char[] simpleName = getTypeId().getSimpleNameCharArray();
+		int lastIndex = CharArrayUtils.lastIndexOf('.', simpleName) + 1;
+		return CharArrayUtils.substring(simpleName, lastIndex);
 	}
 
 	public NdMethodId getDeclaringMethod() {

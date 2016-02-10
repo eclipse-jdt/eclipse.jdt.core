@@ -18,7 +18,7 @@ public final class ReferenceUtil {
 	public static DatabaseRef<NdType> createTypeRef(NdType type) {
 		final Nd nd = type.getNd();
 		final char[] fieldDescriptor = type.getTypeId().getRawType().getFieldDescriptor().getChars();
-		final char[] fileName = type.getResourceFile().getFilename().getChars();
+		final char[] fileName = type.getResourceFile().getLocation().getChars();
 		return new DatabaseRef<NdType>(type.getNd(), getTypeSupplier(nd, fileName, fieldDescriptor), type);
 	}
 
@@ -61,7 +61,7 @@ public final class ReferenceUtil {
 
 				List<NdType> implementations = typeId.getTypes();
 				for (NdType next : implementations) {
-					if (next.getResourceFile().getFilename().compare(fileName, false) == 0) {
+					if (next.getResourceFile().getLocation().compare(fileName, false) == 0) {
 						return next;
 					}
 				}

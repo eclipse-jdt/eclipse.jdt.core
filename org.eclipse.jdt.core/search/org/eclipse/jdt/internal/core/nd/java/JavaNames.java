@@ -12,8 +12,9 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
  */
 public class JavaNames {
 	private static final char[] CLASS_FILE_SUFFIX = ".class".toCharArray(); //$NON-NLS-1$
-	private static final char[] FIELD_DESCRIPTOR_PREFIX = new char[]{'L'};
-	private static final char[] METHOD_ID_SEPARATOR = new char[]{'#'};
+	private static final char[] FIELD_DESCRIPTOR_PREFIX = new char[] { 'L' };
+	private static final char[] FIELD_DESCRIPTOR_SUFFIX = new char[] { ';' };
+	private static final char[] METHOD_ID_SEPARATOR = new char[] { '#' };
 	private static final char[] JAR_FILE_ENTRY_SEPARATOR = IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR.toCharArray();
 
 	/**
@@ -58,8 +59,8 @@ public class JavaNames {
 			workspaceLocation = resourceFile.getAnyOpenWorkspaceLocation(root).toString().toCharArray();
 		}
 
-		if (workspaceLocation == null) {
-			workspaceLocation = resourceFile.getFilename().getChars();
+		if (workspaceLocation == null || workspaceLocation.length == 0) {
+			workspaceLocation = resourceFile.getLocation().getChars();
 		}
 
 		return CharArrayUtils.concat(workspaceLocation, JAR_FILE_ENTRY_SEPARATOR,
@@ -67,7 +68,7 @@ public class JavaNames {
 	}
 
 	public static char[] binaryNameToFieldDescriptor(char[] binaryName) {
-		return CharArrayUtils.concat(FIELD_DESCRIPTOR_PREFIX, binaryName);
+		return CharArrayUtils.concat(FIELD_DESCRIPTOR_PREFIX, binaryName, FIELD_DESCRIPTOR_SUFFIX);
 	}
 
 	public static char[] fieldDescriptorToJavaName(char[] fieldDescriptor, boolean fullyQualified) {
@@ -84,7 +85,8 @@ public class JavaNames {
 				case 'I' : result.append("int"); break; //$NON-NLS-1$
 				case 'J' : result.append("long"); break; //$NON-NLS-1$
 				case 'L' : {
-					char[] binaryName = CharArrayUtils.substring(fieldDescriptor, scanPosition + 1);
+					char[] binaryName = CharArrayUtils.subarray(fieldDescriptor, scanPosition + 1,
+							fieldDescriptor.length - 1);
 					if (fullyQualified) {
 						// Modify the binaryName string in-place to change it into a fully qualified name
 						CharOperation.replace(binaryName, '/', '.');
@@ -137,7 +139,7 @@ public class JavaNames {
 	 */
 	public static char[] fieldDescriptorToBinaryName(char[] fieldDescriptor) {
 		if (CharArrayUtils.startsWith(fieldDescriptor, 'L')) {
-			return CharArrayUtils.substring(fieldDescriptor, 1);
+			return CharArrayUtils.subarray(fieldDescriptor, 1, fieldDescriptor.length - 1);
 		}
 		return CharArrayUtils.EMPTY_CHAR_ARRAY;
 	}

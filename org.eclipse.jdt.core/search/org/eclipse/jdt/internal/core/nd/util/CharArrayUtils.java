@@ -49,6 +49,12 @@ public class CharArrayUtils {
 	}
 
 	public static final boolean equals(char[][] strarr1, char[][] strarr2) {
+		if (strarr1 == strarr2) {
+			return true;
+		}
+		if (strarr1 == null || strarr2 == null) {
+			return false;
+		}
 		if (strarr1.length != strarr2.length) {
 			return false;
 		}

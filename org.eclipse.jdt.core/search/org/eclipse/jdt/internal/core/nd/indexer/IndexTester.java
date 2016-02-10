@@ -2,15 +2,19 @@ package org.eclipse.jdt.internal.core.nd.indexer;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import org.eclipse.jdt.internal.compiler.env.ClassSignature;
 import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
+import org.eclipse.jdt.internal.compiler.env.IBinaryField;
+import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 
 public class IndexTester {
 
@@ -80,10 +84,185 @@ public class IndexTester {
 	}
 
 	public static void testType(IBinaryType expected, IBinaryType actual) {
-		Set<TypeAnnotationWrapper> expectedAnnotations = new HashSet<>();
 
 		IBinaryTypeAnnotation[] expectedTypeAnnotations = expected.getTypeAnnotations();
+		IBinaryTypeAnnotation[] actualTypeAnnotations = actual.getTypeAnnotations();
 
+		compareTypeAnnotations(expectedTypeAnnotations, actualTypeAnnotations);
+
+		IBinaryAnnotation[] expectedBinaryAnnotations = expected.getAnnotations();
+		IBinaryAnnotation[] actualBinaryAnnotations = actual.getAnnotations();
+
+		compareAnnotations(expectedBinaryAnnotations, actualBinaryAnnotations);
+
+		if (expected.getGenericSignature() != null) {
+			assertEquals("The generic signature did not match", expected.getGenericSignature(), //$NON-NLS-1$
+					actual.getGenericSignature());
+		}
+
+		assertEquals("The enclosing method name did not match", expected.getEnclosingMethod(), //$NON-NLS-1$
+				actual.getEnclosingMethod());
+		assertEquals("The enclosing method name did not match", expected.getEnclosingTypeName(), //$NON-NLS-1$
+				actual.getEnclosingTypeName());
+
+		IBinaryField[] expectedFields = expected.getFields();
+		IBinaryField[] actualFields = actual.getFields();
+
+		if (expectedFields != actualFields) {
+			if (expectedFields == null && actualFields != null) {
+				throw new IllegalStateException("Expected fields was null -- actual fields were not"); //$NON-NLS-1$
+			}
+			if (expectedFields.length != actualFields.length) {
+				throw new IllegalStateException("The expected and actual number of fields did not match"); //$NON-NLS-1$
+			}
+
+			for (int fieldIdx = 0; fieldIdx < actualFields.length; fieldIdx++) {
+				compareFields(expectedFields[fieldIdx], actualFields[fieldIdx]);
+			}
+		}
+
+		assertEquals("The file name did not match", expected.getFileName(), actual.getFileName()); //$NON-NLS-1$
+		assertEquals("The interface names did not match", expected.getInterfaceNames(), actual.getInterfaceNames()); //$NON-NLS-1$
+
+		// Member types are not expected to match during indexing since the index uses discovered cross-references,
+		// not the member types encoded in the .class file.
+		// expected.getMemberTypes() != actual.getMemberTypes()
+
+		IBinaryMethod[] expectedMethods = expected.getMethods();
+		IBinaryMethod[] actualMethods = actual.getMethods();
+
+		if (expectedMethods != actualMethods) {
+			if (expectedMethods == null || actualMethods == null) {
+				throw new IllegalStateException("One of the method arrays was null"); //$NON-NLS-1$
+			}
+
+			if (expectedMethods.length != actualMethods.length) {
+				throw new IllegalStateException("The number of methods didn't match"); //$NON-NLS-1$
+			}
+
+			for (int i = 0; i < actualMethods.length; i++) {
+				IBinaryMethod actualMethod = actualMethods[i];
+				IBinaryMethod expectedMethod = expectedMethods[i];
+
+				compareMethods(expectedMethod, actualMethod);
+			}
+		}
+
+		assertEquals("The missing type names did not match", expected.getMissingTypeNames(), //$NON-NLS-1$
+				actual.getMissingTypeNames());
+		assertEquals("The modifiers don't match", expected.getModifiers(), actual.getModifiers()); //$NON-NLS-1$
+		assertEquals("The names don't match.", expected.getName(), actual.getName()); //$NON-NLS-1$
+		assertEquals("The source name doesn't match", expected.getSourceName(), actual.getSourceName()); //$NON-NLS-1$
+		assertEquals("The superclass name doesn't match", expected.getSuperclassName(), actual.getSuperclassName()); //$NON-NLS-1$
+		assertEquals("The tag bits don't match.", expected.getTagBits(), actual.getTagBits()); //$NON-NLS-1$
+
+		compareTypeAnnotations(expected.getTypeAnnotations(), actual.getTypeAnnotations());
+	}
+
+	private static <T> void assertEquals(String message, T o1, T o2) {
+		if (!isEqual(o1, o2)) {
+			throw new IllegalStateException(message);
+		}
+	}
+
+	private static <T> boolean isEqual(T o1, T o2) {
+		if (o1 == o2) {
+			return true;
+		}
+
+		if (o1 == null || o2 == null) {
+			return false;
+		}
+
+		if (o1 instanceof char[]) {
+			char[] c1 = (char[]) o1;
+			char[] c2 = (char[]) o2;
+
+			return CharArrayUtils.equals(c1, c2);
+		}
+
+		if (o1 instanceof char[][]) {
+			char[][] c1 = (char[][]) o1;
+			char[][] c2 = (char[][]) o2;
+
+			return CharArrayUtils.equals(c1, c2);
+		}
+
+		if (o1 instanceof char[][][]) {
+			char[][][] c1 = (char[][][]) o1;
+			char[][][] c2 = (char[][][]) o2;
+
+			if (c1.length != c2.length) {
+				return false;
+			}
+
+			for (int i = 0; i < c1.length; i++) {
+				if (!isEqual(c1[i], c2[i])) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		if (o1 instanceof IBinaryMethod[]) {
+			IBinaryMethod[] a1 = (IBinaryMethod[]) o1;
+			IBinaryMethod[] a2 = (IBinaryMethod[]) o2;
+
+			if (a1.length != a2.length) {
+				return false;
+			}
+
+			for (int i = 0; i < a1.length; i++) {
+				IBinaryMethod m1 = a1[i];
+				IBinaryMethod m2 = a2[i];
+
+				compareMethods(m1, m2);
+			}
+		}
+
+		return Objects.equals(o1, o2);
+	}
+
+	private static void compareMethods(IBinaryMethod expectedMethod, IBinaryMethod actualMethod) {
+		assertEquals("The annotated parameter count didn't match", actualMethod.getAnnotatedParametersCount(), //$NON-NLS-1$
+				expectedMethod.getAnnotatedParametersCount());
+
+		compareAnnotations(expectedMethod.getAnnotations(), actualMethod.getAnnotations());
+
+		assertEquals("The argument names didn't match.", expectedMethod.getArgumentNames(), //$NON-NLS-1$
+				actualMethod.getArgumentNames());
+
+		if (!constantsEqual(expectedMethod.getDefaultValue(), actualMethod.getDefaultValue())) {
+			throw new IllegalStateException("The default values didn't match."); //$NON-NLS-1$
+		}
+
+		assertEquals("The exception type names did not match.", expectedMethod.getExceptionTypeNames(), //$NON-NLS-1$
+				actualMethod.getExceptionTypeNames());
+
+		if (expectedMethod.getGenericSignature() != null) {
+			assertEquals("The method's generic signature did not match", expectedMethod.getGenericSignature(), //$NON-NLS-1$
+					actualMethod.getGenericSignature());
+		}
+
+		assertEquals("The method descriptors did not match.", expectedMethod.getMethodDescriptor(), //$NON-NLS-1$
+				actualMethod.getMethodDescriptor());
+		assertEquals("The modifiers didn't match.", expectedMethod.getModifiers(), actualMethod.getModifiers()); //$NON-NLS-1$
+
+		for (int idx = 0; idx < actualMethod.getAnnotatedParametersCount(); idx++) {
+			char[] classFileName = "".toCharArray(); //$NON-NLS-1$
+			compareAnnotations(expectedMethod.getParameterAnnotations(idx, classFileName),
+					actualMethod.getParameterAnnotations(idx, classFileName));
+		}
+
+		assertEquals("The selectors did not match", expectedMethod.getSelector(), actualMethod.getSelector()); //$NON-NLS-1$
+		assertEquals("The tag bits did not match", expectedMethod.getTagBits(), actualMethod.getTagBits()); //$NON-NLS-1$
+
+		compareTypeAnnotations(expectedMethod.getTypeAnnotations(), actualMethod.getTypeAnnotations());
+	}
+
+	private static void compareTypeAnnotations(IBinaryTypeAnnotation[] expectedTypeAnnotations,
+			IBinaryTypeAnnotation[] actualTypeAnnotations) {
+		Set<TypeAnnotationWrapper> expectedAnnotations = new HashSet<>();
 		if (expectedTypeAnnotations != null) {
 			for (IBinaryTypeAnnotation next : expectedTypeAnnotations) {
 				expectedAnnotations.add(new TypeAnnotationWrapper(next));
@@ -92,7 +271,6 @@ public class IndexTester {
 
 		Set<TypeAnnotationWrapper> actualAnnotations = new HashSet<>();
 
-		IBinaryTypeAnnotation[] actualTypeAnnotations = actual.getTypeAnnotations();
 		if (actualTypeAnnotations != null) {
 			for (IBinaryTypeAnnotation next : actualTypeAnnotations) {
 				actualAnnotations.add(new TypeAnnotationWrapper(next));
@@ -114,7 +292,51 @@ public class IndexTester {
 		}
 	}
 
+	private static void compareAnnotations(IBinaryAnnotation[] expectedBinaryAnnotations,
+			IBinaryAnnotation[] actualBinaryAnnotations) {
+		if (expectedBinaryAnnotations == null) {
+			if (actualBinaryAnnotations != null) {
+				throw new IllegalStateException("Expected null for the binary annotations"); //$NON-NLS-1$
+			} else {
+				return;
+			}
+		}
+		if (actualBinaryAnnotations == null) {
+			throw new IllegalStateException("Actual null for the binary annotations"); //$NON-NLS-1$
+		}
+		if (expectedBinaryAnnotations.length != actualBinaryAnnotations.length) {
+			throw new IllegalStateException("The expected and actual number of annotations differed"); //$NON-NLS-1$
+		}
+
+		for (int idx = 0; idx < expectedBinaryAnnotations.length; idx++) {
+			if (!annotationsEqual(expectedBinaryAnnotations[idx], actualBinaryAnnotations[idx])) {
+				throw new IllegalStateException("An annotation had an unexpected value"); //$NON-NLS-1$
+			}
+		}
+	}
+
+	private static void compareFields(IBinaryField field1, IBinaryField field2) {
+		compareAnnotations(field1.getAnnotations(), field2.getAnnotations());
+		if (!constantsEqual(field1.getConstant(), field2.getConstant())) {
+			throw new IllegalStateException("Constants not equal"); //$NON-NLS-1$
+		}
+		assertEquals("The generic signature did not match", field1.getGenericSignature(), field2.getGenericSignature()); //$NON-NLS-1$
+		assertEquals("The modifiers did not match", field1.getModifiers(), field2.getModifiers()); //$NON-NLS-1$
+		assertEquals("The tag bits did not match", field1.getTagBits(), field2.getTagBits()); //$NON-NLS-1$
+		assertEquals("The names did not match", field1.getName(), field2.getName()); //$NON-NLS-1$
+
+		compareTypeAnnotations(field1.getTypeAnnotations(), field2.getTypeAnnotations());
+		assertEquals("The type names did not match", field1.getTypeName(), field2.getTypeName()); //$NON-NLS-1$
+	}
+
 	public static boolean constantsEqual(Object value, Object value2) {
+		if (value == value2) {
+			return true;
+		}
+		if (value == null) {
+			return value2 == null;
+		}
+
 		if (value instanceof ClassSignature) {
 			if (!(value2 instanceof ClassSignature)) {
 				return false;
@@ -154,22 +376,22 @@ public class IndexTester {
 			IBinaryAnnotation otherBinaryAnnotation) {
 		IBinaryElementValuePair[] elementValuePairs = binaryAnnotation.getElementValuePairs();
 		IBinaryElementValuePair[] otherElementValuePairs = otherBinaryAnnotation.getElementValuePairs();
-	
+
 		if (elementValuePairs.length != otherElementValuePairs.length) {
 			return false;
 		}
-	
+
 		for (int idx = 0; idx < elementValuePairs.length; idx++) {
 			IBinaryElementValuePair next = elementValuePairs[idx];
 			IBinaryElementValuePair otherNext = otherElementValuePairs[idx];
-	
+
 			char[] nextName = next.getName();
 			char[] otherNextName = otherNext.getName();
-	
+
 			if (!Arrays.equals(nextName, otherNextName)) {
 				return false;
 			}
-	
+
 			if (!constantsEqual(next.getValue(), otherNext.getValue())) {
 				return false;
 			}

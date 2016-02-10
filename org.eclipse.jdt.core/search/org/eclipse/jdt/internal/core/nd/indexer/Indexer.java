@@ -110,6 +110,14 @@ public final class Indexer {
 
 		updateResourceMappings(pathsToUpdate, subMonitor.split(5));
 
+		// Flush the database to disk
+		this.pdom.acquireWriteLock(subMonitor.newChild(5));
+		try {
+			this.pdom.getDB().flush();
+		} finally {
+			this.pdom.releaseWriteLock();
+		}
+
 		long endResourceMappingNs = System.nanoTime();
 
 		long fingerprintTimeMs = (startIndexingNs - startFingerprintTestNs) / MS_TO_NS;
@@ -168,7 +176,7 @@ public final class Indexer {
 
 		HashSet<IPath> workspacePaths = new HashSet<IPath>();
 		for (IJavaElement next : allRoots) {
-			IPath nextPath = getFilesystemPathForRoot(next);
+			IPath nextPath = getLocationForElement(next);
 			IPath workspacePath = getWorkspacePathForRoot(next);
 
 			List<IJavaElement> value = paths.get(nextPath);
@@ -241,10 +249,10 @@ public final class Indexer {
 		this.pdom.acquireWriteLock(subMonitor.newChild(5));
 		try {
 			resourceFile = new NdResourceFile(this.pdom);
-			resourceFile.setFilename(pathString);
+			resourceFile.setLocation(pathString);
 			IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) element
 					.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-			IPath rootPathString = getFilesystemPathForRoot(packageFragmentRoot);
+			IPath rootPathString = getLocationForElement(packageFragmentRoot);
 			if (!rootPathString.equals(thePath)) {
 				resourceFile.setPackageFragmentRoot(rootPathString.toString().toCharArray());
 			}
@@ -416,7 +424,7 @@ public final class Indexer {
 						if (!nextRoot.exists()) {
 							continue;
 						}
-						IPath filesystemPath = getFilesystemPathForRoot(nextRoot);
+						IPath filesystemPath = getLocationForElement(nextRoot);
 						if (scannedPaths.contains(filesystemPath)) {
 							continue;
 						}
@@ -543,7 +551,7 @@ public final class Indexer {
 		return fingerprint.test(thePath.toFile(), subMonitor.split(50));
 	}
 
-	private IPath getFilesystemPathForRoot(IJavaElement next) {
+	public static IPath getLocationForElement(IJavaElement next) {
 		IResource resource = next.getResource();
 
 		if (resource != null) {

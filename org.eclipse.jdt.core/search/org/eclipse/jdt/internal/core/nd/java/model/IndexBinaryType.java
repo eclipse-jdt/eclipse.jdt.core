@@ -79,7 +79,7 @@ public class IndexBinaryType implements IBinaryType {
 		try (IReader rl = this.typeRef.lock()) {
 			NdType type = this.typeRef.get();
 			if (type != null) {
-				return type.getFile().getFilename().getChars();
+				return type.getFile().getPath().toString().toCharArray();
 			} else {
 				return new char[0];
 			}
@@ -155,6 +155,10 @@ public class IndexBinaryType implements IBinaryType {
 			if (type != null) {
 				List<NdVariable> variables = type.getVariables();
 
+				if (variables.isEmpty()) {
+					return null;
+				}
+
 				IBinaryField[] result = new IBinaryField[variables.size()];
 				for (int fieldIdx = 0; fieldIdx < variables.size(); fieldIdx++) {
 					result[fieldIdx] = createBinaryField(variables.get(fieldIdx));
@@ -193,6 +197,10 @@ public class IndexBinaryType implements IBinaryType {
 			NdType type = this.typeRef.get();
 			if (type != null) {
 				List<NdTypeInterface> interfaces = type.getInterfaces();
+
+				if (interfaces.isEmpty()) {
+					return null;
+				}
 
 				char[][] result = new char[interfaces.size()][];
 				for (int idx = 0; idx < interfaces.size(); idx++) {
@@ -467,6 +475,21 @@ public class IndexBinaryType implements IBinaryType {
 
 			result[idx] = toAnnotationArray(next.getAnnotations());
 		}
+
+		int newLength = result.length;
+		while (newLength > 0 && result[newLength - 1] == null) {
+			--newLength;
+		}
+
+		if (newLength < result.length) {
+			if (newLength == 0) {
+				return null;
+			}
+			IBinaryAnnotation[][] newResult = new IBinaryAnnotation[newLength][];
+			System.arraycopy(result, 0, newResult, 0, newLength);
+			result = newResult;
+		}
+
 		return result;
 	}
 
@@ -496,9 +519,14 @@ public class IndexBinaryType implements IBinaryType {
 	private char[][] getExceptionTypeNames(NdMethod ndMethod) {
 		List<NdMethodException> exceptions = ndMethod.getExceptions();
 
-		if (exceptions.isEmpty()) {
-			return null;
-		}
+		// Although the JavaDoc for IBinaryMethod says that the exception list will be null if empty,
+		// the implementation in MethodInfo returns an empty array rather than null. We copy the
+		// same behavior here in case something is relying on it. Uncomment the following if the "null"
+		// version is deemed correct.
+
+		// if (exceptions.isEmpty()) {
+		// return null;
+		// }
 
 		char[][] result = new char[exceptions.size()][];
 		for (int idx = 0; idx < exceptions.size(); idx++) {
@@ -562,6 +590,9 @@ public class IndexBinaryType implements IBinaryType {
 
 	private static void buildAnnotations(List<IBinaryTypeAnnotation> result, ITypeAnnotationBuilder builder,
 			NdTypeSignature signature) {
+		if (signature == null) {
+			return;
+		}
 		ITypeAnnotationBuilder nextAnnotations = builder;
 		List<NdTypeSignature> declaringTypes = signature.getDeclaringTypeChain();
 
@@ -615,6 +646,9 @@ public class IndexBinaryType implements IBinaryType {
 	}
 
 	private static Object unpackValue(NdConstant value) {
+		if (value == null) {
+			return null;
+		}
 		if (value instanceof NdConstantAnnotation) {
 			NdConstantAnnotation annotation = (NdConstantAnnotation) value;
 

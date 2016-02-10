@@ -60,6 +60,14 @@ public HierarchyBinaryType(int modifiers, char[] binaryName, char[] sourceName, 
 	this.name = binaryName;
 	this.enclosingTypeName = enclosingTypeBinaryName;
 	this.typeParameterSignatures = typeParameterSignatures;
+
+	if (typeParameterSignatures != null) {
+		for (char[] next : typeParameterSignatures) {
+			if (next == null) {
+				throw new IllegalArgumentException("Parameter's type signature must not be null"); //$NON-NLS-1$
+			}
+		}
+	}
 }
 
 /**
@@ -253,6 +261,7 @@ public void recordInterface(char[] binaryName) {
 public char[] sourceFileName() {
 	return null;
 }
+@Override
 public String toString() {
 	StringBuffer buffer = new StringBuffer();
 	if (this.modifiers == ClassFileConstants.AccPublic) {

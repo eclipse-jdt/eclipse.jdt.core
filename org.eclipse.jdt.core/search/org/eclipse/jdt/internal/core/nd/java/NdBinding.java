@@ -121,11 +121,18 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 
 		int idx = 0;
 		for (NdTypeParameter next : parameters) {
-			CharArrayBuffer nextArray = new CharArrayBuffer();
-			next.getSignature(nextArray);
-			result[idx] = nextArray.getContents();
+			char[] nextContents = getSignatureFor(next);
+			result[idx] = nextContents;
+			idx++;
 		}
 		return result;
+	}
+
+	private char[] getSignatureFor(NdTypeParameter next) {
+		CharArrayBuffer nextArray = new CharArrayBuffer();
+		next.getSignature(nextArray);
+		char[] nextContents = nextArray.getContents();
+		return nextContents;
 	}
 
 	public List<NdTypeParameter> getTypeParameters() {
