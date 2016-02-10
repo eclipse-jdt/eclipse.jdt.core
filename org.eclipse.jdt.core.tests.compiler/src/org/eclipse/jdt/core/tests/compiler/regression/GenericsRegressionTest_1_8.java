@@ -5853,4 +5853,65 @@ public void testBug483228a() {
 		"The method m(UnaryOp<Integer>) is ambiguous for the type X\n" + 
 		"----------\n");
 }
+public void testBug449824a() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	interface FI1<T> {\n" + 
+			"		public T get(X x, T n);\n" + 
+			"	}\n" + 
+			"	interface FI2 {\n" + 
+			"		public Integer get(X x, Integer t);\n" + 
+			"	}\n" + 
+			"	void m(FI1<Number> fi) { }\n" + 
+			"	void m(FI2 fi) { }\n" + 
+			"	Integer id(Number n) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	void test() {\n" + 
+			"		m(X::id);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	m(X::id);\n" + 
+		"	^\n" + 
+		"The method m(X.FI1<Number>) is ambiguous for the type X\n" + 
+		"----------\n");
+}
+public void testBug449824b() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	interface FI1<T> {\n" + 
+			"		public T get(T... n);\n" + 
+			"	}\n" + 
+			"	interface FI2 {\n" + 
+			"		public Integer get(Integer... t);\n" + 
+			"	}\n" + 
+			"	void m(FI1<Number> fi) { }\n" + 
+			"	void m(FI2 fi) { }\n" + 
+			"	Integer id(Number[] n) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	void test() {\n" + 
+			"		m(this::id);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	public T get(T... n);\n" + 
+		"	                  ^\n" + 
+		"Type safety: Potential heap pollution via varargs parameter n\n" +
+		"----------\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	m(this::id);\n" + 
+		"	^\n" + 
+		"The method m(X.FI1<Number>) is ambiguous for the type X\n" +
+		"----------\n");
+}
 }

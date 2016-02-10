@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2015, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -407,6 +407,11 @@ public void test449824() {
 	"----------\n" + 
 	"1. ERROR in X.java (at line 4)\n" + 
 	"	fl.call(each -> each.doSomething()); // fails\n" + 
+	"	   ^^^^\n" + 
+	"The method call(X.RightHand<? super X.Target>) is ambiguous for the type X.Concrete<X.Target>\n" + 
+	"----------\n" + 
+	"2. ERROR in X.java (at line 6)\n" + 
+	"	fl.call(Target::doSomething); // succeeds in Eclipse 4.5M3 and 4.4.1\n" + 
 	"	   ^^^^\n" + 
 	"The method call(X.RightHand<? super X.Target>) is ambiguous for the type X.Concrete<X.Target>\n" + 
 	"----------\n");
