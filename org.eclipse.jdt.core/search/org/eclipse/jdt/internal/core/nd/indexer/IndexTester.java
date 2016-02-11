@@ -37,6 +37,11 @@ public class IndexTester {
 		}
 
 		@Override
+		public String toString() {
+			return this.annotation.toString();
+		}
+
+		@Override
 		public boolean equals(Object obj) {
 			if (obj.getClass() != TypeAnnotationWrapper.class) {
 				return false;
@@ -285,8 +290,8 @@ public class IndexTester {
 	}
 
 	private static void compareMethods(IBinaryMethod expectedMethod, IBinaryMethod actualMethod) {
-		assertEquals("The annotated parameter count didn't match", actualMethod.getAnnotatedParametersCount(), //$NON-NLS-1$
-				expectedMethod.getAnnotatedParametersCount());
+		assertEquals("The annotated parameter count didn't match", expectedMethod.getAnnotatedParametersCount(), //$NON-NLS-1$
+				actualMethod.getAnnotatedParametersCount());
 
 		compareAnnotations(expectedMethod.getAnnotations(), actualMethod.getAnnotations());
 

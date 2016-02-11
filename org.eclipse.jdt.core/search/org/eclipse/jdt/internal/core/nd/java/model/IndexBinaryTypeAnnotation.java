@@ -1,5 +1,6 @@
 package org.eclipse.jdt.internal.core.nd.java.model;
 
+import org.eclipse.jdt.internal.compiler.classfmt.BinaryTypePrinter;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 
@@ -72,4 +73,8 @@ public class IndexBinaryTypeAnnotation implements IBinaryTypeAnnotation {
 		return this.info;
 	}
 
+	@Override
+	public String toString() {
+		return BinaryTypePrinter.printTypeAnnotation(this);
+	}
 }
