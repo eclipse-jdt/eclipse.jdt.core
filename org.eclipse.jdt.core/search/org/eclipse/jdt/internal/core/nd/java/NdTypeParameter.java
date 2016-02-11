@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.NdNode;
+import org.eclipse.jdt.internal.core.nd.field.FieldByte;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldString;
@@ -19,6 +20,9 @@ public class NdTypeParameter extends NdNode {
 	public static final FieldManyToOne<NdBinding> PARENT;
 	public static final FieldString IDENTIFIER;
 	public static final FieldOneToMany<NdTypeBound> BOUNDS;
+	public static final FieldByte TYPE_PARAMETER_FLAGS;
+
+	public static final byte FLG_FIRST_BOUND_IS_A_CLASS = 0x01;
 
 	@SuppressWarnings("hiding")
 	public static final StructDef<NdTypeParameter> type;
@@ -28,6 +32,7 @@ public class NdTypeParameter extends NdNode {
 		PARENT = FieldManyToOne.createOwner(type, NdBinding.TYPE_PARAMETERS);
 		IDENTIFIER = type.addString();
 		BOUNDS = FieldOneToMany.create(type, NdTypeBound.PARENT);
+		TYPE_PARAMETER_FLAGS = type.addByte();
 
 		type.done();
 	}
@@ -47,6 +52,25 @@ public class NdTypeParameter extends NdNode {
 		return IDENTIFIER.get(getNd(), this.address).getChars();
 	}
 
+	public void setFirstBoundIsClass(boolean isClass) {
+		setFlag(FLG_FIRST_BOUND_IS_A_CLASS, isClass);
+	}
+
+	public boolean isFirstBoundAClass() {
+		return (TYPE_PARAMETER_FLAGS.get(getNd(), this.address) & FLG_FIRST_BOUND_IS_A_CLASS) != 0;
+	}
+
+	private void setFlag(byte flag, boolean value) {
+		byte oldValue = TYPE_PARAMETER_FLAGS.get(getNd(), this.address);
+		byte newValue;
+		if (value) {
+			newValue = (byte) (oldValue | flag);
+		} else {
+			newValue = (byte) (oldValue & ~flag);
+		}
+		TYPE_PARAMETER_FLAGS.put(getNd(), this.address, newValue);
+	}
+
 	public List<NdTypeBound> getBounds() {
 		return BOUNDS.asList(getNd(), this.address);
 	}
@@ -54,7 +78,15 @@ public class NdTypeParameter extends NdNode {
 	public void getSignature(CharArrayBuffer result) {
 		result.append(getIdentifier());
 
-		for (NdTypeBound next : getBounds()) {
+		List<NdTypeBound> bounds = getBounds();
+
+		// If none of the bounds are classes and there is at least one bound, then insert a double-colon
+		// in the type signature.
+		if (!bounds.isEmpty() && !isFirstBoundAClass()) {
+			result.append(':');
+		}
+
+		for (NdTypeBound next : bounds) {
 			next.getSignature(result);
 		}
 	}

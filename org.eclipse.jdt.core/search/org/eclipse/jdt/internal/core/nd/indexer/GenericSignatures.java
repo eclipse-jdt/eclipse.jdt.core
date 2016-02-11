@@ -15,14 +15,20 @@ public class GenericSignatures {
 
 	public static SignatureWrapper getGenericSignature(IBinaryMethod next) {
 		char[] signature = next.getGenericSignature();
+		char[][] exceptionTypeNames = next.getExceptionTypeNames();
 		if (signature == null) {
-			char[][] exceptionTypeNames = next.getExceptionTypeNames();
-			if (exceptionTypeNames == null) {
-				// If there are no exception types then the method descriptor will work as a generic signature
-				signature = next.getMethodDescriptor();
-			} else {
+			signature = next.getMethodDescriptor();
+		}
+
+		// The compiler is allowed to omit thrown exceptions from the generic signature
+		// if the thrown exceptions don't make use of generics or type variables. However, we rely
+		// on them so we reinsert the missing exception declarations if they're not present.
+		if (exceptionTypeNames != null && exceptionTypeNames.length > 0) {
+			// If there are no exceptions mentioned the signature but there are exceptions
+			// in the IBinaryMethod, the compiler has omitted them... so put them back.
+			if (CharArrayUtils.indexOf('^', signature) == -1) {
 				CharArrayBuffer builder = new CharArrayBuffer();
-				builder.append(next.getMethodDescriptor());
+				builder.append(signature);
 				for(char[] nextException : exceptionTypeNames) {
 					builder.append("^L"); //$NON-NLS-1$
 					builder.append(nextException);
@@ -31,6 +37,7 @@ public class GenericSignatures {
 				signature = builder.getContents();
 			}
 		}
+
 		return new SignatureWrapper(signature);
 	}
 

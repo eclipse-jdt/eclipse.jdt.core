@@ -54,6 +54,7 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClassFileToIndexConverter {
+	private static final char[] JAVA_LANG_OBJECT_FIELD_DESCRIPTOR = "Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 	private static final char[] INNER_TYPE_SEPARATOR = new char[] { '$' };
 	private static final char[] FIELD_DESCRIPTOR_SUFFIX = new char[] { ';' };
 	private static final char[] COMMA = new char[]{','};
@@ -299,6 +300,15 @@ public class ClassFileToIndexConverter {
 			throwsIdx++;
 		}
 
+		// char[][] exceptionTypeNames = next.getExceptionTypeNames();
+		// int numExceptions = exceptionTypeNames == null ? 0 : exceptionTypeNames.length;
+		//
+		// if (throwsIdx != numExceptions) {
+		// throw new IllegalStateException(
+		// "The number of exceptions in getExceptionTypeNames() didn't match the number of exceptions in the generic
+		// signature"); //$NON-NLS-1$
+		// }
+
 		Object defaultValue = next.getDefaultValue();
 		if (defaultValue != null) {
 			method.setDefaultValue(createConstantFromMixedType(defaultValue));
@@ -331,6 +341,10 @@ public class ClassFileToIndexConverter {
 		ITypeAnnotationWalker annotationWalker = getTypeAnnotationWalker(nextField.getTypeAnnotations());
 		variable.setType(createTypeSignature(annotationWalker, nextTypeSignature));
 		variable.setTagBits(nextField.getTagBits());
+
+		// char[] fieldDescriptor = nextField.getTypeName();
+		// // DO NOT SUBMIT:
+		// IBinaryField bf = IndexBinaryType.createBinaryField(variable);
 	}
 
 	/**
@@ -357,6 +371,7 @@ public class ClassFileToIndexConverter {
 			if (colonPos > wrapper.start) {
 				char[] identifier = CharOperation.subarray(genericSignature, wrapper.start, colonPos);
 				parameter = new NdTypeParameter(type, identifier);
+				parameter.setFirstBoundIsClass(true);
 				wrapper.start = colonPos + 1;
 				parameterIndex++;
 				boundIndex = 0;
@@ -365,6 +380,7 @@ public class ClassFileToIndexConverter {
 			// Class files insert an empty bound if there is an interface bound but no class bound. We just omit
 			// the bound entirely.
 			while (genericSignature[wrapper.start] == ':') {
+				parameter.setFirstBoundIsClass(false);
 				wrapper.start++;
 			}
 
@@ -405,6 +421,7 @@ public class ClassFileToIndexConverter {
 				// Skip the 'T' prefix
 				wrapper.start++;
 				NdComplexTypeSignature typeSignature = new NdComplexTypeSignature(getNd());
+				typeSignature.setRawType(createTypeIdFromFieldDescriptor(JAVA_LANG_OBJECT_FIELD_DESCRIPTOR));
 				typeSignature.setVariableIdentifier(wrapper.nextWord());
 				attachAnnotations(typeSignature, annotations);
 				// Skip the trailing semicolon

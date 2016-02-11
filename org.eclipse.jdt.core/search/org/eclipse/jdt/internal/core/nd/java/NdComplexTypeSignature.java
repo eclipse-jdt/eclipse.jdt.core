@@ -127,6 +127,7 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 		if (isTypeVariable()) {
 			result.append('T');
 			result.append(getVariableIdentifier().getChars());
+			result.append(';');
 			return;
 		}
 

@@ -97,10 +97,8 @@ public class IndexTester {
 
 		compareAnnotations(expectedBinaryAnnotations, actualBinaryAnnotations);
 
-		if (expected.getGenericSignature() != null) {
-			assertEquals("The generic signature did not match", expected.getGenericSignature(), //$NON-NLS-1$
+		compareGenericSignatures("The generic signature did not match", expected.getGenericSignature(), //$NON-NLS-1$
 					actual.getGenericSignature());
-		}
 
 		assertEquals("The enclosing method name did not match", expected.getEnclosingMethod(), //$NON-NLS-1$
 				actual.getEnclosingMethod());
@@ -286,6 +284,22 @@ public class IndexTester {
 			}
 		}
 
+		if (o1 instanceof Object[]) {
+			Object[] a1 = (Object[]) o1;
+			Object[] a2 = (Object[]) o2;
+
+			if (a1.length != a2.length) {
+				return false;
+			}
+
+			for (int idx = 0; idx < a1.length; idx++) {
+				if (!isEqual(a1[idx], a2[idx])) {
+					return false;
+				}
+			}
+			return true;
+		}
+
 		return Objects.equals(o1, o2);
 	}
 
@@ -304,10 +318,8 @@ public class IndexTester {
 		assertEquals("The exception type names did not match.", expectedMethod.getExceptionTypeNames(), //$NON-NLS-1$
 				actualMethod.getExceptionTypeNames());
 
-		if (expectedMethod.getGenericSignature() != null) {
-			assertEquals("The method's generic signature did not match", expectedMethod.getGenericSignature(), //$NON-NLS-1$
-					actualMethod.getGenericSignature());
-		}
+		compareGenericSignatures("The method's generic signature did not match", expectedMethod.getGenericSignature(), //$NON-NLS-1$
+				actualMethod.getGenericSignature());
 
 		assertEquals("The method descriptors did not match.", expectedMethod.getMethodDescriptor(), //$NON-NLS-1$
 				actualMethod.getMethodDescriptor());
@@ -323,6 +335,27 @@ public class IndexTester {
 		assertEquals("The tag bits did not match", expectedMethod.getTagBits(), actualMethod.getTagBits()); //$NON-NLS-1$
 
 		compareTypeAnnotations(expectedMethod.getTypeAnnotations(), actualMethod.getTypeAnnotations());
+	}
+
+	/**
+	 * The index always provides complete generic signatures whereas some or all of the generic signature is optional
+	 * for class files, so the generic signatures are expected to differ in certain situations.
+	 */
+	private static void compareGenericSignatures(String message, char[] expected, char[] actual) {
+		// If the whole generic signature was omitted by the compiler, there's nothing to compare
+		if (expected == null) {
+			return;
+		}
+
+		// If the expected value was missing the optional section for exceptions then it only needs to match
+		// a prefix of the actual signature
+		if (CharArrayUtils.indexOf('^', expected) == -1 && actual.length > expected.length) {
+			if (CharArrayUtils.equals(expected, CharArrayUtils.subarray(actual, 0, expected.length))) {
+				return;
+			}
+		}
+
+		assertEquals(message, expected, actual);
 	}
 
 	private static void compareTypeAnnotations(IBinaryTypeAnnotation[] expectedTypeAnnotations,

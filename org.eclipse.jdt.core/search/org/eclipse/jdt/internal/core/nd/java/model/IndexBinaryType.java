@@ -436,7 +436,7 @@ public class IndexBinaryType implements IBinaryType {
 		List<NdMethodParameter> args = ndMethod.getMethodParameters();
 		for (int argIdx = 0; argIdx < args.size(); argIdx++) {
 			buildAnnotations(typeAnnotations, annotationBuilder.toMethodParameter((short) argIdx),
-					args.get(argIdx).getAnnotations());
+					args.get(argIdx).getType().getAnnotations());
 		}
 
 		buildAnnotations(typeAnnotations, annotationBuilder.toMethodReturn(), ndMethod.getReturnType());
