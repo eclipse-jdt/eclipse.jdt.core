@@ -68,8 +68,8 @@ public class NdMethodId extends NdNode {
 	}
 
 	/**
-	 * Returns the field descriptor for the type followed by a # followed by the method selector
-	 * followed by the method descriptor. For example, "Lorg/eclipse/MyClass#foo()Ljava/lang/Object;V"
+	 * Returns the field descriptor for the type (without a trailing ';') followed by a # followed by the method
+	 * selector followed by the method descriptor. For example, "Lorg/eclipse/MyClass#foo()Ljava/lang/Object;V"
 	 */
 	public IString getMethodName() {
 		return METHOD_NAME.get(getNd(), this.address);

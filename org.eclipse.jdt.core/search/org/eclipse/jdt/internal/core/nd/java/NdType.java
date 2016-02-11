@@ -94,12 +94,18 @@ public class NdType extends NdBinding {
 		TYPENAME.put(getNd(), this.address, typeId);
 	}
 
-	public void setInnerTypeSourceName(char[] sourceName) {
-		INNER_CLASS_SOURCE_NAME.put(getNd(), this.address, sourceName);
+	/**
+	 * Sets the source name for this type.
+	 */
+	public void setSourceNameOverride(char[] sourceName) {
+		char[] oldSourceName = getSourceName();
+		if (!CharArrayUtils.equals(oldSourceName, sourceName)) {
+			INNER_CLASS_SOURCE_NAME.put(getNd(), this.address, sourceName);
+		}
 	}
 
-	public char[] getInnerTypeSourceName() {
-		return INNER_CLASS_SOURCE_NAME.get(getNd(), this.address).getChars();
+	public IString getSourceNameOverride() {
+		return INNER_CLASS_SOURCE_NAME.get(getNd(), this.address);
 	}
 
 	public long getResourceAddress() {
@@ -194,12 +200,12 @@ public class NdType extends NdBinding {
 	}
 
 	public char[] getSourceName() {
-		if (isLocal()) {
-			return getInnerTypeSourceName();
+		IString sourceName = getSourceNameOverride();
+		if (sourceName.length() != 0) {
+			return sourceName.getChars();
 		}
 		char[] simpleName = getTypeId().getSimpleNameCharArray();
-		int lastIndex = CharArrayUtils.lastIndexOf('.', simpleName) + 1;
-		return CharArrayUtils.substring(simpleName, lastIndex);
+		return JavaNames.simpleNameToSourceName(simpleName);
 	}
 
 	public NdMethodId getDeclaringMethod() {

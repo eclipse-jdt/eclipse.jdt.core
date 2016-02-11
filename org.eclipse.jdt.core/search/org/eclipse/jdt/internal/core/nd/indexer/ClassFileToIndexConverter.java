@@ -131,7 +131,8 @@ public class ClassFileToIndexConverter {
 		char[] binaryName = binaryType.getName();
 		logInfo("adding binary type " + new String(binaryName)); //$NON-NLS-1$
 
-		NdTypeId name = createTypeIdFromBinaryName(binaryName);
+		char[] fieldDescriptor = JavaNames.binaryNameToFieldDescriptor(binaryName);
+		NdTypeId name = createTypeIdFromFieldDescriptor(fieldDescriptor);
 		NdType type = name.findTypeByResourceAddress(this.resource.address);
 
 		if (type == null) {
@@ -199,10 +200,7 @@ public class ClassFileToIndexConverter {
 		type.setIsLocal(binaryType.isLocal());
 		type.setIsMember(binaryType.isMember());
 		type.setTagBits(binaryType.getTagBits());
-
-		if (binaryType.isLocal()) {
-			type.setInnerTypeSourceName(binaryType.getSourceName());
-		}
+		type.setSourceNameOverride(binaryType.getSourceName());
 
 		if (ENABLE_SELF_TEST) {
 			IndexTester.testType(binaryType, new IndexBinaryType(ReferenceUtil.createTypeRef(type)));
@@ -426,6 +424,7 @@ public class ClassFileToIndexConverter {
 				return typeSignature;
 			}
 			case 'V':
+				wrapper.start++;
 				return null;
 			case 'B':
 			case 'C':

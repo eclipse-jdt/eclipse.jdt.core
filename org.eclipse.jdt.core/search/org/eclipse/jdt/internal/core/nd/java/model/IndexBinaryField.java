@@ -16,7 +16,7 @@ public class IndexBinaryField implements IBinaryField {
 	private char[] typeName;
 
 	public IndexBinaryField(IBinaryAnnotation[] annotations, Constant constant, char[] genericSignature, int modifiers,
-			char[] name, long tagBits, IBinaryTypeAnnotation[] typeAnnotations, char[] typeName) {
+			char[] name, long tagBits, IBinaryTypeAnnotation[] typeAnnotations, char[] fieldDescriptor) {
 		super();
 		this.modifiers = modifiers;
 		this.annotations = annotations;
@@ -25,7 +25,7 @@ public class IndexBinaryField implements IBinaryField {
 		this.genericSignature = genericSignature;
 		this.name = name;
 		this.tagBits = tagBits;
-		this.typeName = typeName;
+		this.typeName = fieldDescriptor;
 	}
 
 	@Override

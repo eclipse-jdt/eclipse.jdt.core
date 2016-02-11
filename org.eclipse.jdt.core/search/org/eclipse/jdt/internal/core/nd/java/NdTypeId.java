@@ -9,6 +9,7 @@ import org.eclipse.jdt.internal.core.nd.db.IString;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchKey;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
+import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
@@ -64,8 +65,22 @@ public class NdTypeId extends NdTypeSignature {
 		return TYPES.asList(getNd(), this.address);
 	}
 
+	/**
+	 * Returns the field descriptor.
+	 */
 	public IString getFieldDescriptor() {
 		return FIELD_DESCRIPTOR.get(getNd(), this.address);
+	}
+
+	public char[] getFieldDescriptorWithoutTrailingSemicolon() {
+		char[] fieldDescriptor = getFieldDescriptor().getChars();
+
+		int end = fieldDescriptor.length;
+		if (fieldDescriptor.length > 0 && fieldDescriptor[end - 1] == ';') {
+			end--;
+		}
+
+		return CharArrayUtils.subarray(fieldDescriptor, 0, end);
 	}
 
 	public char[] getBinaryName() {

@@ -137,7 +137,7 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 			return;
 		}
 
-		result.append(getRawType().getFieldDescriptor().getChars());
+		result.append(getRawType().getFieldDescriptorWithoutTrailingSemicolon());
 
 		List<NdTypeArgument> arguments = getTypeArguments();
 		if (!arguments.isEmpty()) {
@@ -147,6 +147,7 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 			}
 			result.append('>');
 		}
+		result.append(';');
 	}
 
 	@Override

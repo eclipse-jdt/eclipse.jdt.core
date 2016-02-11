@@ -67,10 +67,17 @@ public class JavaNames {
 				binaryNameToResourceRelativePath(binaryName));
 	}
 
+	/**
+	 * Converts a binary name to a field descriptor (without the trailing ';')
+	 */
 	public static char[] binaryNameToFieldDescriptor(char[] binaryName) {
 		return CharArrayUtils.concat(FIELD_DESCRIPTOR_PREFIX, binaryName, FIELD_DESCRIPTOR_SUFFIX);
 	}
 
+	/**
+	 * Converts a field descriptor to a java name. If fullyQualified is true, it returns a fully qualified class name.
+	 * If it is false, it returns a source name.
+	 */
 	public static char[] fieldDescriptorToJavaName(char[] fieldDescriptor, boolean fullyQualified) {
 		int arrayCount = 0;
 		CharArrayBuffer result = new CharArrayBuffer();
@@ -85,15 +92,17 @@ public class JavaNames {
 				case 'I' : result.append("int"); break; //$NON-NLS-1$
 				case 'J' : result.append("long"); break; //$NON-NLS-1$
 				case 'L' : {
-					char[] binaryName = CharArrayUtils.subarray(fieldDescriptor, scanPosition + 1,
-							fieldDescriptor.length - 1);
+					int end = fieldDescriptor.length - 1;
+					char[] binaryName = CharArrayUtils.subarray(fieldDescriptor, scanPosition + 1, end);
 					if (fullyQualified) {
 						// Modify the binaryName string in-place to change it into a fully qualified name
 						CharOperation.replace(binaryName, '/', '.');
-						result.append(binaryName); break;
+						result.append(binaryName);
 					} else {
-						result.append(binaryNameToSimpleName(binaryName)); break;
+						result.append(binaryNameToSimpleName(binaryName));
 					}
+					scanPosition += binaryName.length;
+					break;
 				}
 				case 'S' : result.append("short"); break; //$NON-NLS-1$
 				case 'Z' : result.append("boolean"); break; //$NON-NLS-1$
@@ -131,15 +140,17 @@ public class JavaNames {
 	}
 
 	/**
-	 * Given a field descriptor, if the field descriptor points to a class this returns the binary name of the class.
-	 * If the field descriptor points to any other type, this returns the empty string.
+	 * Given a field descriptor, if the field descriptor points to a class this returns the binary name of the class. If
+	 * the field descriptor points to any other type, this returns the empty string. The field descriptor may optionally
+	 * contain a trailing ';'.
 	 *
 	 * @param fieldDescriptor
 	 * @return ""
 	 */
 	public static char[] fieldDescriptorToBinaryName(char[] fieldDescriptor) {
 		if (CharArrayUtils.startsWith(fieldDescriptor, 'L')) {
-			return CharArrayUtils.subarray(fieldDescriptor, 1, fieldDescriptor.length - 1);
+			int end = fieldDescriptor.length - 1;
+			return CharArrayUtils.subarray(fieldDescriptor, 1, end);
 		}
 		return CharArrayUtils.EMPTY_CHAR_ARRAY;
 	}
@@ -151,7 +162,8 @@ public class JavaNames {
 	public static char[] simpleNameToSourceName(char[] chars) {
 		int lastSlash = CharOperation.lastIndexOf('/', chars);
 		int lastDollar = CharOperation.lastIndexOf('$', chars);
-		int startPosition = Math.max(lastSlash, lastDollar) + 1;
+		int lastDot = CharOperation.lastIndexOf('.', chars);
+		int startPosition = Math.max(Math.max(lastSlash, lastDollar), lastDot) + 1;
 		while (startPosition < chars.length && Character.isDigit(chars[startPosition])) {
 			startPosition++;
 		}

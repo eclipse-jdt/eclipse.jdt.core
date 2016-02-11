@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.nd.java.NdType;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeArgument;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeBound;
+import org.eclipse.jdt.internal.core.nd.java.NdTypeId;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeInterface;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeParameter;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeSignature;
@@ -449,13 +450,32 @@ public class IndexBinaryType implements IBinaryType {
 
 		return IndexBinaryMethod.create().setAnnotations(toAnnotationArray(ndMethod.getAnnotations()))
 				.setModifiers(ndMethod.getModifiers()).setIsConstructor(methodId.isConstructor())
-				.setArgumentNames(ndMethod.getArgumentNames()).setDefaultValue(unpackValue(ndMethod.getDefaultValue()))
+				.setArgumentNames(getArgumentNames(ndMethod)).setDefaultValue(unpackValue(ndMethod.getDefaultValue()))
 				.setExceptionTypeNames(getExceptionTypeNames(ndMethod))
 				.setGenericSignature(getGenericSignatureFor(ndMethod))
 				.setMethodDescriptor(methodId.getMethodDescriptor())
 				.setParameterAnnotations(getParameterAnnotations(ndMethod))
 				.setSelector(ndMethod.getMethodId().getSelector()).setTagBits(ndMethod.getTagBits())
 				.setIsClInit(methodId.isClInit()).setTypeAnnotations(toTypeAnnotationArray(typeAnnotations));
+	}
+
+	private char[][] getArgumentNames(NdMethod ndMethod) {
+		// Unlike what its JavaDoc says, IBinaryType returns an empty array if no argument names are available, so
+		// we replicate this weird undocumented corner case here.
+		char[][] result = ndMethod.getArgumentNames();
+		int lastNonEmpty = -1;
+		for (int idx = 0; idx < result.length; idx++) {
+			if (result[idx] != null && result[idx].length != 0) {
+				lastNonEmpty = idx;
+			}
+		}
+
+		if (lastNonEmpty != result.length - 1) {
+			char[][] newResult = new char[lastNonEmpty + 1][];
+			System.arraycopy(result, 0, newResult, 0, lastNonEmpty + 1);
+			return newResult;
+		}
+		return result;
 	}
 
 	private IBinaryTypeAnnotation[] toTypeAnnotationArray(List<IBinaryTypeAnnotation> result) {
@@ -544,6 +564,9 @@ public class IndexBinaryType implements IBinaryType {
 		if (ndConstant != null) {
 			constant = ndConstant.getConstant();
 		}
+		if (constant == null) {
+			constant = Constant.NotAConstant;
+		}
 
 		List<IBinaryTypeAnnotation> typeAnnotations = new ArrayList<>();
 		NdTypeSignature type = ndVariable.getType();
@@ -558,7 +581,7 @@ public class IndexBinaryType implements IBinaryType {
 
 		long tagBits = ndVariable.getTagBits();
 		return new IndexBinaryField(annotations, constant, signature.getContents(), ndVariable.getModifiers(), name,
-				tagBits, typeAnnotationArray, type.getRawType().getBinaryName());
+				tagBits, typeAnnotationArray, type.getRawType().getFieldDescriptor().getChars());
 	}
 
 	public static IBinaryAnnotation createBinaryAnnotation(NdAnnotation ndAnnotation) {
@@ -572,8 +595,8 @@ public class IndexBinaryType implements IBinaryType {
 			resultingPair[idx] = new ElementValuePairInfo(next.getName().getChars(), unpackValue(next.getValue()));
 		}
 
-		final char[] binaryName = JavaNames
-				.fieldDescriptorToBinaryName(ndAnnotation.getType().getRawType().getFieldDescriptor().getChars());
+		final char[] binaryName = JavaNames.fieldDescriptorToBinaryName(
+				ndAnnotation.getType().getRawType().getFieldDescriptor().getChars());
 
 		return new IBinaryAnnotation() {
 			@Override
@@ -638,7 +661,13 @@ public class IndexBinaryType implements IBinaryType {
 						char[] methodName = methodId.getMethodName().getChars();
 						int startIdx = CharArrayUtils.lastIndexOf('#', methodName);
 						this.enclosingMethod = CharArrayUtils.substring(methodName, startIdx + 1);
-						this.enclosingType = CharArrayUtils.subarray(methodName, 0, startIdx);
+						this.enclosingType = CharArrayUtils.subarray(methodName, 1, startIdx);
+					} else {
+						NdTypeId typeId = type.getDeclaringType();
+
+						if (typeId != null) {
+							this.enclosingType = typeId.getBinaryName();
+						}
 					}
 				}
 			}
