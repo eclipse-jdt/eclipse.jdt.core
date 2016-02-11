@@ -62,6 +62,7 @@ public class ClassFileToIndexConverter {
 	private static final char[] EMPTY_CHAR_ARRAY = new char[0];
 	private static final char[] PATH_SEPARATOR = new char[]{'/'};
 	private static final boolean ENABLE_SELF_TEST = true;
+	private static final char[] ARRAY_FIELD_DESCRIPTOR_PREFIX = new char[] { '[' };
 	private NdResourceFile resource;
 	private JavaIndex index;
 
@@ -413,12 +414,16 @@ public class ClassFileToIndexConverter {
 			case '[': {
 				// Skip the '[' prefix
 				wrapper.start++;
-				// We encode arrays as though they were a one-argument generic type called '[' whose element
+				// Determine the array argument type
+				NdTypeSignature elementType = createTypeSignature(annotations.toNextArrayDimension(), wrapper);
+				char[] fieldDescriptor = CharArrayUtils.concat(ARRAY_FIELD_DESCRIPTOR_PREFIX,
+						elementType.getRawType().getFieldDescriptor().getChars());
+				NdTypeId rawType = createTypeIdFromFieldDescriptor(fieldDescriptor);
+				// We encode signatures as though they were a one-argument generic type whose element
 				// type is the generic argument.
 				NdComplexTypeSignature typeSignature = new NdComplexTypeSignature(getNd());
-				typeSignature.setRawType(createTypeIdFromFieldDescriptor(new char[] { '[' }));
+				typeSignature.setRawType(rawType);
 				NdTypeArgument typeArgument = new NdTypeArgument(getNd(), typeSignature);
-				NdTypeSignature elementType = createTypeSignature(annotations.toNextArrayDimension(), wrapper);
 				typeArgument.setType(elementType);
 				attachAnnotations(typeSignature, annotations);
 				return typeSignature;

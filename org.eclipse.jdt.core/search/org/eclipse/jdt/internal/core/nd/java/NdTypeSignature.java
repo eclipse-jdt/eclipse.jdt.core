@@ -112,11 +112,20 @@ public abstract class NdTypeSignature extends NdNode {
 
 	public abstract void getSignature(CharArrayBuffer result);
 
-	public final boolean isArrayType() {
-		NdTypeId rawType = getRawType();
-
-		return rawType != null && rawType.hasSimpleName("["); //$NON-NLS-1$
-	}
+	/**
+	 * Returns true iff this is an array type signature (ie: that getArrayDimensionType() will return a non-null
+	 * answer). Note that this only returns true for the type signature that holds the reference to the array dimension
+	 * type. The raw type for that signature will return false, even though it has a field descriptor starting with '['.
+	 * <p>
+	 * In other words:
+	 *
+	 * <pre>
+	 * NdVariable someVariable = getSomeVariableWithAnArrayType()
+	 * System.out.println(someVariable.getType().isArrayType()); // true
+	 * System.out.println(someVariable.getType().getRawType().isArrayType()); // false
+	 * </pre>
+	 */
+	public abstract boolean isArrayType();
 
 	public abstract boolean isTypeVariable();
 

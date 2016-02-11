@@ -16,6 +16,7 @@ public class JavaNames {
 	private static final char[] FIELD_DESCRIPTOR_SUFFIX = new char[] { ';' };
 	private static final char[] METHOD_ID_SEPARATOR = new char[] { '#' };
 	private static final char[] JAR_FILE_ENTRY_SEPARATOR = IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR.toCharArray();
+	public static final char[] ARRAY_FIELD_DESCRIPTOR_PREFIX = new char[] { '[' };
 
 	/**
 	 * Converts a java binary name to a simple name.

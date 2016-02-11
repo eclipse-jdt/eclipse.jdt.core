@@ -98,6 +98,10 @@ public class NdTypeId extends NdTypeSignature {
 		return this.fName.toCharArray();
 	}
 
+	public boolean hasFieldDescriptor(String name) {
+		return this.getFieldDescriptor().compare(name, true) == 0;
+	}
+
 	public boolean hasSimpleName(String name) {
 		if (this.fName != null)
 			return this.fName.equals(name);
@@ -150,5 +154,10 @@ public class NdTypeId extends NdTypeSignature {
 	@Override
 	public List<NdTypeArgument> getTypeArguments() {
 		return Collections.emptyList();
+	}
+
+	@Override
+	public boolean isArrayType() {
+		return false;
 	}
 }

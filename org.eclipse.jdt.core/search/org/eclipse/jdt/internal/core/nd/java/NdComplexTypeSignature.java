@@ -177,4 +177,19 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 
 		result.add(this);
 	}
+
+	@Override
+	public boolean isArrayType() {
+		NdTypeId rawType = getRawType();
+
+		if (rawType == null) {
+			return false;
+		}
+
+		if (rawType.getFieldDescriptor().comparePrefix(JavaNames.ARRAY_FIELD_DESCRIPTOR_PREFIX, true) == 0) { // $NON-NLS-1$
+			return true;
+		}
+
+		return false;
+	}
 }
