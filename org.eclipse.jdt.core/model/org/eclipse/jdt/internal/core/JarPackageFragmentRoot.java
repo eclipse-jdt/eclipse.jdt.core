@@ -161,6 +161,9 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		}
 		return false;
 	}
+	public String getElementName() {
+		return this.jarPath.lastSegment();
+	}
 	/**
 	 * Returns the underlying ZipFile for this Jar package fragment root.
 	 *
