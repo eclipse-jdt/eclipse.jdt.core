@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1922,7 +1922,7 @@ protected int applyCloseableInterfaceWhitelists() {
 	return 0;
 }
 
-private MethodBinding [] getInterfaceAbstractContracts(Scope scope) throws InvalidInputException {
+protected MethodBinding [] getInterfaceAbstractContracts(Scope scope) throws InvalidInputException {
 	
 	if (!isInterface() || !isValidBinding()) {
 		throw new InvalidInputException("Not a functional interface"); //$NON-NLS-1$

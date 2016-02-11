@@ -849,7 +849,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	public ReferenceExpression resolveExpressionExpecting(TypeBinding targetType, Scope scope, InferenceContext18 inferenceContext) {
 		if (this.exactMethodBinding != null) { // We may see inference variables in target type.
 			MethodBinding functionType = targetType.getSingleAbstractMethod(scope, true);
-			if (functionType == null)
+			if (functionType == null || functionType.problemId() == ProblemReasons.NoSuchSingleAbstractMethod)
 				return null;
 			int n = functionType.parameters.length;
 			int k = this.exactMethodBinding.parameters.length;

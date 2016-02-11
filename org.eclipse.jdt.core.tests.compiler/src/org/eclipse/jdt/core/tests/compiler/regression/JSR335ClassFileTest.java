@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 Jesper Steen Moller, IBM and others.
+ * Copyright (c) 2013, 2016 Jesper Steen Moller, IBM and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3212,7 +3212,7 @@ public void test435869() throws IOException, ClassFormatException {
 				"}\n" +
 				"interface J {\n" +
 				"  public void foo();\n" +
-				"  public void bar();\n" +
+				"  public default void bar() {}\n" +
 				"}\n" +
 				"interface K {\n" +
 				"  public void foo();\n" +

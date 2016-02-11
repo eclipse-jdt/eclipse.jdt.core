@@ -5882,6 +5882,54 @@ public void test477263b() {
 	},
 	"10");
 }
+public void testBug487586() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"\n" + 
+			"interface Calculator {\n" + 
+			"    public int calculate(int a, int b);\n" + 
+			"}\n" + 
+			"\n" + 
+			"interface Sumator {\n" + 
+			"    public int test();\n" + 
+			"\n" + 
+			"    public int test3(int a, int b);\n" + 
+			"}\n" + 
+			"\n" + 
+			"// intersection of both types\n" + 
+			"interface Both extends Sumator, Calculator {\n" + 
+			"\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    Calculator test = (Calculator & Sumator) (a, b) -> a + b;\n" + 
+			"    System.out.println(test.calculate(2, 3));\n" + 
+			"\n" + 
+			"    Sumator sumator = (Calculator & Sumator) (a, b) -> a + b; // does compile, but throws an Exception\n" + 
+			"    sumator.test();\n" + 
+			"\n" + 
+			"    Both both = (Both) (a, b) -> a + b; // does not compile\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 18)\n" + 
+		"	Calculator test = (Calculator & Sumator) (a, b) -> a + b;\n" + 
+		"	                                         ^^^^^^^^^^^^^^^\n" + 
+		"The target type of this expression must be a functional interface\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 21)\n" + 
+		"	Sumator sumator = (Calculator & Sumator) (a, b) -> a + b; // does compile, but throws an Exception\n" + 
+		"	                                         ^^^^^^^^^^^^^^^\n" + 
+		"The target type of this expression must be a functional interface\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 24)\n" + 
+		"	Both both = (Both) (a, b) -> a + b; // does not compile\n" + 
+		"	                   ^^^^^^^^^^^^^^^\n" + 
+		"The target type of this expression must be a functional interface\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

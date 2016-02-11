@@ -825,6 +825,9 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		// copy here is potentially compatible with the target type and has its shape fully computed: i.e value/void compatibility is determined and result expressions have been gathered.
 		targetType = findGroundTargetType(this.enclosingScope, targetType, argumentsTypeElided());
 		MethodBinding sam = targetType.getSingleAbstractMethod(this.enclosingScope, true);
+		if (sam == null || sam.problemId() == ProblemReasons.NoSuchSingleAbstractMethod) {
+			return false;
+		}
 		if (sam.returnType.id == TypeIds.T_void) {
 			if (!copy.voidCompatible)
 				return false;
@@ -1271,17 +1274,15 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	public TypeBinding[] getMarkerInterfaces() {
 		if (this.expectedType instanceof IntersectionTypeBinding18) {
 			Set markerBindings = new LinkedHashSet();
-			TypeBinding[] intersectionTypes = ((IntersectionTypeBinding18)this.expectedType).intersectingTypes;
+			IntersectionTypeBinding18 intersectionType = (IntersectionTypeBinding18)this.expectedType;
+			TypeBinding[] intersectionTypes = intersectionType.intersectingTypes;
+			TypeBinding samType = intersectionType.getSAMType(this.enclosingScope);
 			for (int i = 0,max = intersectionTypes.length; i < max; i++) {
 				TypeBinding typeBinding = intersectionTypes[i];
-				MethodBinding methodBinding = typeBinding.getSingleAbstractMethod(this.scope, true);
-				// Why doesn't getSingleAbstractMethod do as the javadoc says, and return null
-				// when it is not a SAM type
-				if (!(methodBinding instanceof ProblemMethodBinding && ((ProblemMethodBinding)methodBinding).problemId()==ProblemReasons.NoSuchSingleAbstractMethod)) {
-					continue;
-				}
-				if (typeBinding.id == TypeIds.T_JavaIoSerializable) {
-					// Serializable is captured as a bitflag
+				if (!typeBinding.isInterface()							// only interfaces
+					|| TypeBinding.equalsEquals(samType, typeBinding)	// except for the samType itself
+					|| typeBinding.id == TypeIds.T_JavaIoSerializable)	// but Serializable is captured as a bitflag
+				{
 					continue;
 				}
 				markerBindings.add(typeBinding);
