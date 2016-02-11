@@ -377,20 +377,7 @@ private int scanElementValue(int offset) {
 	return currentOffset;
 }
 public String toString() {
-	StringBuffer buffer = new StringBuffer();
-	buffer.append('@');
-	buffer.append(this.typename);
-	if (this.pairs != null) {
-		buffer.append('(');
-		buffer.append("\n\t"); //$NON-NLS-1$
-		for (int i = 0, len = this.pairs.length; i < len; i++) {
-			if (i > 0)
-				buffer.append(",\n\t"); //$NON-NLS-1$
-			buffer.append(this.pairs[i]);
-		}
-		buffer.append(')');
-	}
-	return buffer.toString();
+	return BinaryTypePrinter.printAnnotation(this);
 }
 public int hashCode() {
 	final int prime = 31;

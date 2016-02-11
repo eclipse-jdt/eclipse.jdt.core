@@ -20,7 +20,6 @@ import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
-import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.nd.java.JavaNames;
 
 @SuppressWarnings("rawtypes")
@@ -454,24 +453,7 @@ void toString(StringBuffer buffer) {
 	toStringContent(buffer);
 }
 protected void toStringContent(StringBuffer buffer) {
-	int modifiers = getModifiers();
-	char[] desc = getGenericSignature();
-	if (desc == null)
-		desc = getMethodDescriptor();
-	buffer
-	.append('{')
-	.append(
-		((modifiers & ClassFileConstants.AccDeprecated) != 0 ? "deprecated " : Util.EMPTY_STRING) //$NON-NLS-1$
-			+ ((modifiers & 0x0001) == 1 ? "public " : Util.EMPTY_STRING) //$NON-NLS-1$
-			+ ((modifiers & 0x0002) == 0x0002 ? "private " : Util.EMPTY_STRING) //$NON-NLS-1$
-			+ ((modifiers & 0x0004) == 0x0004 ? "protected " : Util.EMPTY_STRING) //$NON-NLS-1$
-			+ ((modifiers & 0x0008) == 0x000008 ? "static " : Util.EMPTY_STRING) //$NON-NLS-1$
-			+ ((modifiers & 0x0010) == 0x0010 ? "final " : Util.EMPTY_STRING) //$NON-NLS-1$
-			+ ((modifiers & 0x0040) == 0x0040 ? "bridge " : Util.EMPTY_STRING) //$NON-NLS-1$
-			+ ((modifiers & 0x0080) == 0x0080 ? "varargs " : Util.EMPTY_STRING)) //$NON-NLS-1$
-	.append(getSelector())
-	.append(desc)
-	.append('}');
+	BinaryTypePrinter.toStringContent(buffer, this);
 }
 private void readCodeAttribute() {
 	int attributesCount = u2At(6);

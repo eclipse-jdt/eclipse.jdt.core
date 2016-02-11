@@ -93,23 +93,4 @@ AnnotationMethodInfo(MethodInfo methodInfo, Object defaultValue) {
 public Object getDefaultValue() {
 	return this.defaultValue;
 }
-protected void toStringContent(StringBuffer buffer) {
-	super.toStringContent(buffer);
-	if (this.defaultValue != null) {
-		buffer.append(" default "); //$NON-NLS-1$
-		if (this.defaultValue instanceof Object[]) {
-			buffer.append('{');
-			Object[] elements = (Object[]) this.defaultValue;
-			for (int i = 0, len = elements.length; i < len; i++) {
-				if (i > 0)
-					buffer.append(", "); //$NON-NLS-1$
-				buffer.append(elements[i]);
-			}
-			buffer.append('}');
-		} else {
-			buffer.append(this.defaultValue);
-		}
-		buffer.append('\n');
-	}
-}
 }

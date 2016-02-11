@@ -61,16 +61,4 @@ protected void reset() {
 	}
 	super.reset();
 }
-protected void toStringContent(StringBuffer buffer) {
-	super.toStringContent(buffer);
-	for (int i = 0, l = this.parameterAnnotations == null ? 0 : this.parameterAnnotations.length; i < l; i++) {
-		buffer.append("param" + (i - 1)); //$NON-NLS-1$
-		buffer.append('\n');
-		AnnotationInfo[] infos = this.parameterAnnotations[i];
-		for (int j = 0, k = infos == null ? 0 : infos.length; j < k; j++) {
-			buffer.append(infos[j]);
-			buffer.append('\n');
-		}
-	}
-}
 }

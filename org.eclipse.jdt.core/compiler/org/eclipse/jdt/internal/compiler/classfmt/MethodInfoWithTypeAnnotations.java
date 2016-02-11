@@ -36,12 +36,4 @@ protected void reset() {
 	}
 	super.reset();
 }
-protected void toStringContent(StringBuffer buffer) {
-	super.toStringContent(buffer);
-	buffer.append("type annotations = \n");//$NON-NLS-1$
-	for (int i = 0, l = this.typeAnnotations == null ? 0 : this.typeAnnotations.length; i < l; i++) {
-		buffer.append(this.typeAnnotations[i].toString());
-		buffer.append('\n');
-	}
-}
 }

@@ -123,39 +123,8 @@ protected void reset() {
 }
 
 public String toString() {
-	StringBuffer buffer = new StringBuffer();
-	buffer.append(this.annotation);
-	buffer.append(' ');
-	// Not fully decoding it here, just including all the information in the string
-	buffer.append("target_type=").append(this.targetType); //$NON-NLS-1$
-	buffer.append(", info=").append(this.info); //$NON-NLS-1$
-	buffer.append(", info2=").append(this.info2); //$NON-NLS-1$
-	if (this.typePath != NO_TYPE_PATH) {
-		buffer.append(", location=["); //$NON-NLS-1$
-		for (int i = 0, max = this.typePath.length; i < max; i += 2) {
-			if (i > 0) {
-				buffer.append(", "); //$NON-NLS-1$
-			}
-			switch (this.typePath[i]) {
-				case 0:
-					buffer.append("ARRAY"); //$NON-NLS-1$
-					break;
-				case 1:
-					buffer.append("INNER_TYPE"); //$NON-NLS-1$
-					break;
-				case 2:
-					buffer.append("WILDCARD"); //$NON-NLS-1$
-					break;
-				case 3:
-					buffer.append("TYPE_ARGUMENT(").append(this.typePath[i+1]).append(')'); //$NON-NLS-1$
-					break;
-			}
-		}
-		buffer.append(']');
-	}
-	return buffer.toString();
+	return BinaryTypePrinter.printTypeAnnotation(this);
 }
-
 
 public int getTargetType() {
 	return this.targetType;
