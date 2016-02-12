@@ -9960,14 +9960,6 @@ public void duplicateBoundInIntersectionCast(TypeReference typeReference) {
 			typeReference.sourceEnd);
 }
 
-public void multipleFunctionalInterfaces(FunctionalExpression functionalExpression) {
-	this.handle(
-			IProblem.MultipleFunctionalInterfaces,
-			NoArgument,
-			NoArgument,
-			functionalExpression.sourceStart,
-			functionalExpression.diagnosticsSourceEnd());
-}
 public void lambdaRedeclaresArgument(Argument argument) {
 	String[] arguments = new String[] {new String(argument.name)};
 	this.handle(

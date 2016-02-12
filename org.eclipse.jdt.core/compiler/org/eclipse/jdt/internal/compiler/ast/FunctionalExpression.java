@@ -205,10 +205,6 @@ public abstract class FunctionalExpression extends Expression {
 				blockScope.problemReporter().illFormedParameterizationOfFunctionalInterface(this);
 				this.hasReportedSamProblem = true;
 				break;
-			case ProblemReasons.IntersectionHasMultipleFunctionalInterfaces:
-				blockScope.problemReporter().multipleFunctionalInterfaces(this);
-				this.hasReportedSamProblem = true;
-				break;
 		}
 		return null;
 	}

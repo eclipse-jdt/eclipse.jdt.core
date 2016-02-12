@@ -1655,7 +1655,8 @@ void setSourceStart(int sourceStart);
 	int IllegalArrayTypeInIntersectionCast = TypeRelated + 893;
 	/** @since 3.10 */
 	int DuplicateBoundInIntersectionCast = TypeRelated + 894;
-	/** @since 3.10 */
+	/** @deprecated This problem is no longer reported; number Of functional interface is not an issue, number of abstract methods is.
+	 * @since 3.10 */
 	int MultipleFunctionalInterfaces = TypeRelated + 895;
 	/** @since 3.10 */
 	int StaticInterfaceMethodNotBelow18 = Internal + Syntax + 896;
