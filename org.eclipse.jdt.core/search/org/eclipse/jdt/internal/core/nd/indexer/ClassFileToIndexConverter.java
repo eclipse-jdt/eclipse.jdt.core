@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.nd.Nd;
+import org.eclipse.jdt.internal.core.nd.db.IndexException;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.nd.java.JavaNames;
 import org.eclipse.jdt.internal.core.nd.java.NdAnnotation;
@@ -158,7 +159,15 @@ public class ClassFileToIndexConverter {
 		type.setDeclaringType(createTypeIdFromBinaryName(binaryType.getEnclosingTypeName()));
 
 		readTypeParameters(type, typeAnnotations, signatureWrapper);
-		type.setSuperclass(createTypeSignature(supertypeAnnotations, signatureWrapper));
+
+		char[] superclassFieldDescriptor;
+		char[] superclassBinaryName = binaryType.getSuperclassName();
+		if (superclassBinaryName == null) {
+			superclassFieldDescriptor = JAVA_LANG_OBJECT_FIELD_DESCRIPTOR;
+		} else {
+			superclassFieldDescriptor = JavaNames.binaryNameToFieldDescriptor(superclassBinaryName);
+		}
+		type.setSuperclass(createTypeSignature(supertypeAnnotations, signatureWrapper, superclassFieldDescriptor));
 
 		short interfaceIdx = 0;
 		while (signatureWrapper.start < signatureWrapper.signature.length) {
@@ -168,7 +177,8 @@ public class ClassFileToIndexConverter {
 			// interfaces list.
 			char[] interfaceSpec = interfaceIdx < interfaces.length ? interfaces[interfaceIdx] : EMPTY_CHAR_ARRAY;
 			new NdTypeInterface(getNd(), type,
-					createTypeSignature(typeAnnotations.toSupertype(interfaceIdx, interfaceSpec), signatureWrapper));
+					createTypeSignature(typeAnnotations.toSupertype(interfaceIdx, interfaceSpec), signatureWrapper,
+							JavaNames.binaryNameToFieldDescriptor(interfaceSpec)));
 			interfaceIdx++;
 		}
 
@@ -259,11 +269,11 @@ public class ClassFileToIndexConverter {
 
 		ITypeAnnotationWalker typeAnnotations = getTypeAnnotationWalker(next.getTypeAnnotations());
 		SignatureWrapper signature = GenericSignatures.getGenericSignature(next);
+		SignatureWrapper descriptor = new SignatureWrapper(next.getMethodDescriptor());
 		readTypeParameters(method, typeAnnotations, signature);
 
-		if (signature.charAtStart() == '(') {
-			signature.start++;
-		}
+		skipChar(signature, '(');
+		skipChar(descriptor, '(');
 
 		int annotatedParametersCount = next.getAnnotatedParametersCount();
 		char[][] parameterNames = next.getArgumentNames();
@@ -273,8 +283,9 @@ public class ClassFileToIndexConverter {
 				signature.start++;
 				break;
 			}
-			NdMethodParameter parameter = new NdMethodParameter(method,
-					createTypeSignature(typeAnnotations.toMethodParameter(parameterIdx), signature));
+			char[] nextFieldDescriptor = readNextFieldDescriptor(descriptor);
+			NdMethodParameter parameter = new NdMethodParameter(method, createTypeSignature(
+					typeAnnotations.toMethodParameter(parameterIdx), signature, nextFieldDescriptor));
 
 			if (parameterIdx < annotatedParametersCount) {
 				IBinaryAnnotation[] parameterAnnotations = next.getParameterAnnotations(parameterIdx, binaryTypeName);
@@ -291,12 +302,16 @@ public class ClassFileToIndexConverter {
 			parameterIdx++;
 		}
 
-		method.setReturnType(createTypeSignature(typeAnnotations.toMethodReturn(), signature));
+		skipChar(descriptor, ')');
+		char[] nextFieldDescriptor = readNextFieldDescriptor(descriptor);
+		method.setReturnType(createTypeSignature(typeAnnotations.toMethodReturn(), signature, nextFieldDescriptor));
 
+		char[][] exceptionTypes = next.getExceptionTypeNames();
 		int throwsIdx = 0;
 		while (!signature.atEnd() && signature.charAtStart() == '^') {
 			signature.start++;
-			new NdMethodException(method, createTypeSignature(typeAnnotations.toThrows(throwsIdx), signature));
+			new NdMethodException(method, createTypeSignature(typeAnnotations.toThrows(throwsIdx), signature,
+					JavaNames.binaryNameToFieldDescriptor(exceptionTypes[throwsIdx])));
 			throwsIdx++;
 		}
 
@@ -319,6 +334,12 @@ public class ClassFileToIndexConverter {
 		method.setTagBits(next.getTagBits());
 	}
 
+	private void skipChar(SignatureWrapper signature, char toSkip) {
+		if (signature.charAtStart() == toSkip) {
+			signature.start++;
+		}
+	}
+
 	/**
 	 * Adds the given field to the given type
 	 */
@@ -339,7 +360,7 @@ public class ClassFileToIndexConverter {
 		SignatureWrapper nextTypeSignature = GenericSignatures.getGenericSignatureFor(nextField);
 
 		ITypeAnnotationWalker annotationWalker = getTypeAnnotationWalker(nextField.getTypeAnnotations());
-		variable.setType(createTypeSignature(annotationWalker, nextTypeSignature));
+		variable.setType(createTypeSignature(annotationWalker, nextTypeSignature, nextField.getTypeName()));
 		variable.setTagBits(nextField.getTagBits());
 
 		// char[] fieldDescriptor = nextField.getTypeName();
@@ -385,7 +406,8 @@ public class ClassFileToIndexConverter {
 			}
 
 			NdTypeSignature boundSignature = createTypeSignature(
-					annotationWalker.toTypeParameter(true, parameterIndex).toTypeBound((short) boundIndex), wrapper);
+					annotationWalker.toTypeParameter(true, parameterIndex).toTypeBound((short) boundIndex), wrapper,
+					JAVA_LANG_OBJECT_FIELD_DESCRIPTOR);
 
 			new NdTypeBound(parameter, boundSignature);
 			boundIndex++;
@@ -396,6 +418,50 @@ public class ClassFileToIndexConverter {
 		}
 	}
 
+	private char[] readNextFieldDescriptor(SignatureWrapper genericSignature) {
+		int endPosition = findEndOfFieldDescriptor(genericSignature);
+
+		char[] result = CharArrayUtils.subarray(genericSignature.signature, genericSignature.start, endPosition);
+		genericSignature.start = endPosition;
+		return result;
+	}
+
+	private int findEndOfFieldDescriptor(SignatureWrapper genericSignature) {
+		char[] signature = genericSignature.signature;
+
+		if (signature == null || signature.length == 0) {
+			return genericSignature.start;
+		}
+		int current = genericSignature.start;
+		while (current < signature.length) {
+			char firstChar = signature[current];
+			switch (firstChar) {
+				case 'L':
+				case 'T': {
+					return CharArrayUtils.indexOf(';', signature, current, signature.length) + 1;
+				}
+				case '[': {
+					current++;
+					break;
+				}
+				case 'V':
+				case 'B':
+				case 'C':
+				case 'D':
+				case 'F':
+				case 'I':
+				case 'J':
+				case 'S':
+				case 'Z':
+					return current + 1;
+				default:
+					throw new IndexException(Package.createStatus("Field descriptor starts with unknown character: " //$NON-NLS-1$
+							+ genericSignature.toString()));
+			}
+		}
+		return current;
+	}
+
 	/**
 	 * Reads a type signature from the given {@link SignatureWrapper}, starting at the character pointed to by
 	 * wrapper.start. On return, wrapper.start will point to the first character following the type signature. Returns
@@ -403,39 +469,41 @@ public class ClassFileToIndexConverter {
 	 *
 	 * @param annotations
 	 *            the type annotations for this type
-	 * @param wrapper
+	 * @param genericSignature
 	 *            the generic signature to parse
 	 * @throws CoreException
 	 */
-	private NdTypeSignature createTypeSignature(ITypeAnnotationWalker annotations, SignatureWrapper wrapper)
+	private NdTypeSignature createTypeSignature(ITypeAnnotationWalker annotations, SignatureWrapper genericSignature,
+			char[] fieldDescriptorIfVariable)
 			throws CoreException {
-		char[] genericSignature = wrapper.signature;
+		char[] signature = genericSignature.signature;
 
-		if (genericSignature == null || genericSignature.length == 0) {
+		if (signature == null || signature.length == 0) {
 			return null;
 		}
 
-		char firstChar = genericSignature[wrapper.start];
+		char firstChar = signature[genericSignature.start];
 		switch (firstChar) {
 			case 'T': {
 				// Skip the 'T' prefix
-				wrapper.start++;
+				genericSignature.start++;
 				NdComplexTypeSignature typeSignature = new NdComplexTypeSignature(getNd());
-				typeSignature.setRawType(createTypeIdFromFieldDescriptor(JAVA_LANG_OBJECT_FIELD_DESCRIPTOR));
-				typeSignature.setVariableIdentifier(wrapper.nextWord());
+				typeSignature.setRawType(createTypeIdFromFieldDescriptor(fieldDescriptorIfVariable));
+				typeSignature.setVariableIdentifier(genericSignature.nextWord());
 				attachAnnotations(typeSignature, annotations);
 				// Skip the trailing semicolon
-				wrapper.start++;
+				genericSignature.start++;
 				return typeSignature;
 			}
 			case '[': {
 				// Skip the '[' prefix
-				wrapper.start++;
+				genericSignature.start++;
 				// Determine the array argument type
-				NdTypeSignature elementType = createTypeSignature(annotations.toNextArrayDimension(), wrapper);
-				char[] fieldDescriptor = CharArrayUtils.concat(ARRAY_FIELD_DESCRIPTOR_PREFIX,
+				NdTypeSignature elementType = createTypeSignature(annotations.toNextArrayDimension(), genericSignature,
+						CharArrayUtils.substring(fieldDescriptorIfVariable, 1));
+				char[] computedFieldDescriptor = CharArrayUtils.concat(ARRAY_FIELD_DESCRIPTOR_PREFIX,
 						elementType.getRawType().getFieldDescriptor().getChars());
-				NdTypeId rawType = createTypeIdFromFieldDescriptor(fieldDescriptor);
+				NdTypeId rawType = createTypeIdFromFieldDescriptor(computedFieldDescriptor);
 				// We encode signatures as though they were a one-argument generic type whose element
 				// type is the generic argument.
 				NdComplexTypeSignature typeSignature = new NdComplexTypeSignature(getNd());
@@ -446,7 +514,7 @@ public class ClassFileToIndexConverter {
 				return typeSignature;
 			}
 			case 'V':
-				wrapper.start++;
+				genericSignature.start++;
 				return null;
 			case 'B':
 			case 'C':
@@ -456,18 +524,18 @@ public class ClassFileToIndexConverter {
 			case 'J':
 			case 'S':
 			case 'Z':
-				wrapper.start++;
+				genericSignature.start++;
 				return createTypeIdFromFieldDescriptor(new char[] { firstChar });
 			case 'L':
-				return parseClassTypeSignature(null, annotations, wrapper);
+				return parseClassTypeSignature(null, annotations, genericSignature);
 			case '+':
 			case '-':
 			case '*':
 				throw new CoreException(Package.createStatus("Unexpected wildcard in top-level of generic signature: " //$NON-NLS-1$
-						+ wrapper.toString()));
+						+ genericSignature.toString()));
 			default:
 				throw new CoreException(Package.createStatus("Generic signature starts with unknown character: " //$NON-NLS-1$
-						+ wrapper.toString()));
+						+ genericSignature.toString()));
 		}
 	}
 
@@ -531,7 +599,7 @@ public class ClassFileToIndexConverter {
 					}
 
 					NdTypeSignature nextSignature = createTypeSignature(annotations.toTypeArgument(argumentIndex),
-							wrapper);
+							wrapper, JAVA_LANG_OBJECT_FIELD_DESCRIPTOR);
 					typeArgument.setType(nextSignature);
 					argumentIndex++;
 				}

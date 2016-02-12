@@ -115,19 +115,15 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 	}
 
 	@Override
-	public void getSignature(CharArrayBuffer result) {
+	public void getSignature(CharArrayBuffer result, boolean includeTrailingSemicolon) {
 		NdComplexTypeSignature parentSignature = getGenericDeclaringType();
-
-		if (parentSignature != null) {
-			parentSignature.getSignature(result);
-			result.append('.');
-			return;
-		}
 
 		if (isTypeVariable()) {
 			result.append('T');
 			result.append(getVariableIdentifier().getChars());
-			result.append(';');
+			if (includeTrailingSemicolon) {
+				result.append(';');
+			}
 			return;
 		}
 
@@ -137,8 +133,14 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 			arrayDimension.getSignature(result);
 			return;
 		}
-
-		result.append(getRawType().getFieldDescriptorWithoutTrailingSemicolon());
+		if (parentSignature != null) {
+			parentSignature.getSignature(result, false);
+			result.append('.');
+			char[] simpleName = getRawType().getSimpleName().getChars();
+			result.append(simpleName);
+		} else {
+			result.append(getRawType().getFieldDescriptorWithoutTrailingSemicolon());
+		}
 
 		List<NdTypeArgument> arguments = getTypeArguments();
 		if (!arguments.isEmpty()) {
@@ -148,7 +150,9 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 			}
 			result.append('>');
 		}
-		result.append(';');
+		if (includeTrailingSemicolon) {
+			result.append(';');
+		}
 	}
 
 	@Override

@@ -44,7 +44,7 @@ public class NdTypeId extends NdTypeSignature {
 	public NdTypeId(Nd pdom, char[] fieldDescriptor) {
 		super(pdom);
 
-		char[] simpleName = JavaNames.fieldDescriptorToJavaName(fieldDescriptor, true);
+		char[] simpleName = JavaNames.fieldDescriptorToJavaName(fieldDescriptor, false);
 		FIELD_DESCRIPTOR.put(pdom, this.address, fieldDescriptor);
 		SIMPLE_NAME.put(pdom, this.address, simpleName);
 	}
@@ -132,8 +132,12 @@ public class NdTypeId extends NdTypeSignature {
 	}
 
 	@Override
-	public void getSignature(CharArrayBuffer result) {
-		result.append(getFieldDescriptor().getChars());
+	public void getSignature(CharArrayBuffer result, boolean includeTrailingSemicolon) {
+		if (includeTrailingSemicolon) {
+			result.append(getFieldDescriptor().getChars());
+		} else {
+			result.append(getFieldDescriptorWithoutTrailingSemicolon());
+		}
 	}
 
 	@Override

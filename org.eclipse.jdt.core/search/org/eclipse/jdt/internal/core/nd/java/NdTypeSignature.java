@@ -110,7 +110,11 @@ public abstract class NdTypeSignature extends NdNode {
 	 */
 	public abstract List<NdAnnotation> getAnnotations();
 
-	public abstract void getSignature(CharArrayBuffer result);
+	public final void getSignature(CharArrayBuffer result) {
+		getSignature(result, true);
+	}
+
+	public abstract void getSignature(CharArrayBuffer result, boolean includeTrailingSemicolon);
 
 	/**
 	 * Returns true iff this is an array type signature (ie: that getArrayDimensionType() will return a non-null

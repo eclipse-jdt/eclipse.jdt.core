@@ -304,9 +304,6 @@ public class IndexTester {
 	}
 
 	private static void compareMethods(IBinaryMethod expectedMethod, IBinaryMethod actualMethod) {
-		assertEquals("The annotated parameter count didn't match", expectedMethod.getAnnotatedParametersCount(), //$NON-NLS-1$
-				actualMethod.getAnnotatedParametersCount());
-
 		compareAnnotations(expectedMethod.getAnnotations(), actualMethod.getAnnotations());
 
 		assertEquals("The argument names didn't match.", expectedMethod.getArgumentNames(), //$NON-NLS-1$
@@ -325,10 +322,18 @@ public class IndexTester {
 				actualMethod.getMethodDescriptor());
 		assertEquals("The modifiers didn't match.", expectedMethod.getModifiers(), actualMethod.getModifiers()); //$NON-NLS-1$
 
-		for (int idx = 0; idx < actualMethod.getAnnotatedParametersCount(); idx++) {
-			char[] classFileName = "".toCharArray(); //$NON-NLS-1$
+		char[] classFileName = "".toCharArray(); //$NON-NLS-1$
+		int minAnnotatedParameters = Math.min(expectedMethod.getAnnotatedParametersCount(),
+				actualMethod.getAnnotatedParametersCount());
+		for (int idx = 0; idx < minAnnotatedParameters; idx++) {
 			compareAnnotations(expectedMethod.getParameterAnnotations(idx, classFileName),
 					actualMethod.getParameterAnnotations(idx, classFileName));
+		}
+		for (int idx = minAnnotatedParameters; idx < expectedMethod.getAnnotatedParametersCount(); idx++) {
+			compareAnnotations(expectedMethod.getParameterAnnotations(idx, classFileName), new IBinaryAnnotation[0]);
+		}
+		for (int idx = minAnnotatedParameters; idx < actualMethod.getAnnotatedParametersCount(); idx++) {
+			compareAnnotations(new IBinaryAnnotation[0], expectedMethod.getParameterAnnotations(idx, classFileName));
 		}
 
 		assertEquals("The selectors did not match", expectedMethod.getSelector(), actualMethod.getSelector()); //$NON-NLS-1$
@@ -392,8 +397,8 @@ public class IndexTester {
 
 	private static void compareAnnotations(IBinaryAnnotation[] expectedBinaryAnnotations,
 			IBinaryAnnotation[] actualBinaryAnnotations) {
-		if (expectedBinaryAnnotations == null) {
-			if (actualBinaryAnnotations != null) {
+		if (expectedBinaryAnnotations == null || expectedBinaryAnnotations.length == 0) {
+			if (actualBinaryAnnotations != null && actualBinaryAnnotations.length != 0) {
 				throw new IllegalStateException("Expected null for the binary annotations"); //$NON-NLS-1$
 			} else {
 				return;
@@ -416,10 +421,8 @@ public class IndexTester {
 	private static void compareFields(IBinaryField field1, IBinaryField field2) {
 		compareAnnotations(field1.getAnnotations(), field2.getAnnotations());
 		assertEquals("Constants not equal", field1.getConstant(), field2.getConstant()); //$NON-NLS-1$
-		if (field1.getGenericSignature() != null) {
-			assertEquals("The generic signature did not match", field1.getGenericSignature(), //$NON-NLS-1$
+		compareGenericSignatures("The generic signature did not match", field1.getGenericSignature(), //$NON-NLS-1$
 					field2.getGenericSignature());
-		}
 		assertEquals("The modifiers did not match", field1.getModifiers(), field2.getModifiers()); //$NON-NLS-1$
 		assertEquals("The tag bits did not match", field1.getTagBits(), field2.getTagBits()); //$NON-NLS-1$
 		assertEquals("The names did not match", field1.getName(), field2.getName()); //$NON-NLS-1$

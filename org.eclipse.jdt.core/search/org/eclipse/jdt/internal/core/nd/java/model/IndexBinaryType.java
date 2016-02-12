@@ -497,19 +497,19 @@ public class IndexBinaryType implements IBinaryType {
 			result[idx] = toAnnotationArray(next.getAnnotations());
 		}
 
-		int newLength = result.length;
-		while (newLength > 0 && result[newLength - 1] == null) {
-			--newLength;
-		}
-
-		if (newLength < result.length) {
-			if (newLength == 0) {
-				return null;
-			}
-			IBinaryAnnotation[][] newResult = new IBinaryAnnotation[newLength][];
-			System.arraycopy(result, 0, newResult, 0, newLength);
-			result = newResult;
-		}
+		// int newLength = result.length;
+		// while (newLength > 0 && result[newLength - 1] == null) {
+		// --newLength;
+		// }
+		//
+		// if (newLength < result.length) {
+		// if (newLength == 0) {
+		// return null;
+		// }
+		// IBinaryAnnotation[][] newResult = new IBinaryAnnotation[newLength][];
+		// System.arraycopy(result, 0, newResult, 0, newLength);
+		// result = newResult;
+		// }
 
 		return result;
 	}
