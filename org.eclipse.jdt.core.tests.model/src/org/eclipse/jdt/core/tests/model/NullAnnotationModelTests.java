@@ -713,4 +713,48 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 				deleteProject(project);
 		}
 	}
+
+	public void testBug487781() throws CoreException, IOException, InterruptedException {
+		IJavaProject project = null;
+		try {
+			project = createJavaProject("Bug487781", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB}, "bin", "1.8");
+			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+			project.setOption(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.ERROR);
+			createFolder("/Bug487781/src/test");
+
+			createFile("/Bug487781/src/test/Util.java",
+					"package test;\n" +
+					"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+					"import org.eclipse.jdt.annotation.Nullable;\n" +
+					"class A<T> {}\n" +
+					"interface I {}\n" +
+					"@NonNullByDefault\n" +
+					"class Util2<T extends @Nullable I> {}\n" +
+					"@NonNullByDefault\n" +
+					"public class Util {\n" +
+					"	public static <T extends @Nullable I> void uniqueMapOfUniqueable(A<T> set) {\n" +
+					"	}\n" +
+					"}\n");
+
+
+			setUpWorkingCopy("/Bug487781/src/test/Usage.java",
+					"package test;\n" +
+					"import org.eclipse.jdt.annotation.Nullable;\n" +
+					"public class Usage {\n" +
+					"	public void f() {\n" +
+					"		Util.uniqueMapOfUniqueable(new A<@Nullable I>());\n" +
+					"		new Util2<@Nullable I>();\n" +
+					"	}\n" +
+					"}\n;");
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" +
+					"----------\n"
+					);
+
+		} finally {
+			if (project != null)
+				deleteProject(project);
+		}
+	}
 }
