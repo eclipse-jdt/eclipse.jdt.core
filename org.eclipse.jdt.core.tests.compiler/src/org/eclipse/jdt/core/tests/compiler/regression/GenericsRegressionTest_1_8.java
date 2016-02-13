@@ -5914,4 +5914,73 @@ public void testBug449824b() {
 		"The method m(X.FI1<Number>) is ambiguous for the type X\n" +
 		"----------\n");
 }
+public void testBug487746_comment2() {
+	runConformTest(
+		new String[] {
+			"Example.java",
+			"\n" + 
+			"import java.time.Instant;\n" + 
+			"import java.util.Comparator;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"public class Example {\n" + 
+			"   public void test1() {\n" + 
+			"      // Returns Collector<Something,?,Something> - CORRECT\n" + 
+			"      Collectors.collectingAndThen(\n" + 
+			"            Collectors.<Something>toList(),\n" + 
+			"            list -> list.stream().sorted(Comparator.comparing(Something::getTime)).limit(1).findAny().orElse(null)\n" + 
+			"      );\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void test2() {\n" + 
+			"         Collectors.collectingAndThen(\n" + 
+			"            Collectors.<Something>toList(),\n" + 
+			"            list -> list.stream().collect(Collectors.groupingBy(Something::getSize,\n" + 
+			"                     // Returns Collector<Something,?,Object> - INCORRECT!\n" + 
+			"                     Collectors.collectingAndThen(\n" + 
+			"                        Collectors.<Something>toList(),\n" + 
+			"                        list2 -> list2.stream().sorted(Comparator.comparing(Something::getTime)).limit(1).findAny().orElse(null)\n" + 
+			"                     )\n" + 
+			"                  )));\n" + 
+			"   }\n" +
+			"   private interface Something {\n" + 
+			"      public int getSize();\n" + 
+			"      public Instant getTime();\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
+public void _testBug487746_comment9() { // FIXME: still reports an unexpected error
+	runConformTest(
+		new String[] {
+			"Example.java",
+			"\n" + 
+			"import java.time.Instant;\n" + 
+			"import java.util.Comparator;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"public class Example {\n" + 
+			"	public void doesntCompile(List<Something> things) {\n" + 
+			"   	things.stream()\n" + 
+			"       	.filter(thing -> thing.getSize() > 100)\n" + 
+			"       	.collect(Collectors.collectingAndThen(\n" + 
+			"        	 	Collectors.<Something>toList(),\n" + 
+			"         		list -> list.stream().collect(Collectors.groupingBy(Something::getSize,\n" + 
+			"           	       	Collectors.collectingAndThen(\n" + 
+			"               	      Collectors.<Something>toList(),\n" + 
+			"                   	  list2 -> list2.stream().sorted(Comparator.comparing(Something::getTime)).limit(1).findAny().orElse(null)\n" + 
+			"                  		)\n" + 
+			"               ))))\n" + 
+			"   		.forEach((size, thing) -> {\n" + 
+			"       		System.out.println(thing.getSize());   // Compile error because Eclipse thinks 'thing' is Object\n" + 
+			"   		});\n" + 
+			"	}\n" + 
+			"   private interface Something {\n" + 
+			"      public int getSize();\n" + 
+			"      public Instant getTime();\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
 }

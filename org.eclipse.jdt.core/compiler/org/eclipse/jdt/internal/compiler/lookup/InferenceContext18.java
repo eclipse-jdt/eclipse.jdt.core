@@ -496,10 +496,6 @@ public class InferenceContext18 {
 					if (withWildCards != null) {
 						t = ConstraintExpressionFormula.findGroundTargetType(this, skope, lambda, withWildCards);
 					}
-					if (!t.isProperType(true) && t.isParameterizedType()) {
-						// prevent already resolved inference variables from leaking into the lambda
-						t = (ReferenceBinding) Scope.substitute(getResultSubstitution(this.currentBounds, false), t);
-					}
 					MethodBinding functionType;
 					if (t != null && (functionType = t.getSingleAbstractMethod(skope, true)) != null && (lambda = lambda.resolveExpressionExpecting(t, this.scope, this)) != null) {
 						TypeBinding r = functionType.returnType;
@@ -539,9 +535,7 @@ public class InferenceContext18 {
 					this.inferenceKind = applicabilityKind;
 					if (innerContext != null)
 						innerContext.outerContext = this;
-					inferInvocationApplicability(shallowMethod, argumentTypes, shallowMethod.isConstructor());
-					if (!ConstraintExpressionFormula.inferPolyInvocationType(this, invocation, substF, shallowMethod))
-						return false;
+					createInitialBoundSet(shallowMethod.getAllTypeVariables(shallowMethod.isConstructor())); // minimal preparation to work with inner inference variables
 				} finally {
 					resumeSuspendedInference(prevInvocation);
 				}

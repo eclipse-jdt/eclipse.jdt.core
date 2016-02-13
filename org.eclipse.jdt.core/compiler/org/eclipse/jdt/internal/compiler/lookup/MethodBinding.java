@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -725,6 +725,22 @@ public TypeVariableBinding getTypeVariable(char[] variableName) {
 		if (CharOperation.equals(this.typeVariables[i].sourceName, variableName))
 			return this.typeVariables[i];
 	return null;
+}
+
+public TypeVariableBinding[] getAllTypeVariables(boolean isDiamond) {
+	TypeVariableBinding[] allTypeVariables = this.typeVariables;
+	if (isDiamond) {
+		TypeVariableBinding[] classTypeVariables = this.declaringClass.typeVariables();
+		int l1 = allTypeVariables.length;
+		int l2 = classTypeVariables.length;
+		if (l1 == 0) {
+			allTypeVariables = classTypeVariables;
+		} else if (l2 != 0) {
+			System.arraycopy(allTypeVariables, 0, allTypeVariables=new TypeVariableBinding[l1+l2], 0, l1);
+			System.arraycopy(classTypeVariables, 0, allTypeVariables, l1, l2);
+		}
+	}
+	return allTypeVariables;
 }
 
 /**
