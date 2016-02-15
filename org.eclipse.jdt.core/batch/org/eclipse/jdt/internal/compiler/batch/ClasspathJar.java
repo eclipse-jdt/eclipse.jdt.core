@@ -334,4 +334,10 @@ public String getPath() {
 public int getMode() {
 	return BINARY;
 }
+
+@Override
+public IModule getModule(char[] moduleName) {
+	// TODO Auto-generated method stub
+	return null;
+}
 }

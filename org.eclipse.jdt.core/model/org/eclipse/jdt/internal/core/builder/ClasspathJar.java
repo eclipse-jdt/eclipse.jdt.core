@@ -19,6 +19,7 @@ package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
@@ -103,9 +104,10 @@ static SimpleSet findPackageSet(final ClasspathJar jar) {
 }
 void acceptModule(ClassFileReader classfile) {
 	if (classfile != null) {
-		if ((this.module = classfile.getModuleDeclaration()) != null) {
-			this.env.acceptModule(this.module, this);
-		}
+//		if ((this.module = classfile.getModuleDeclaration()) != null) {
+//			this.env.acceptModule(this.module, this);
+//		}
+		this.module = classfile.getModuleDeclaration();
 	}
 }
 
@@ -280,5 +282,13 @@ public boolean servesModule(IModule mod) {
 	if (this.module == null || mod == this || mod == ModuleEnvironment.UNNAMED_MODULE) 
 		return true;
 	return this.module.equals(mod);
+}
+
+@Override
+public IModule getModule(char[] moduleName) {
+	// 
+	if (this.module != null && CharOperation.equals(moduleName, this.module.name()))
+		return this.module;
+	return null;
 }
 }

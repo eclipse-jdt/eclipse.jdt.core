@@ -32,7 +32,7 @@ public interface IModuleLocation {
 	public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, IModule mod);
 	public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly, IModule mod);
 	public boolean isPackage(String qualifiedPackageName);
-
+	public IModule getModule(char[] moduleName);
 	/**
 	 * Tells the client whether or not this module location serves the given module.
 	 * @param module

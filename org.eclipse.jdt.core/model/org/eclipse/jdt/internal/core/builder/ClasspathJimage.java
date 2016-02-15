@@ -20,10 +20,12 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IModule;
@@ -137,9 +139,9 @@ public static void loadModules(final ClasspathJimage jimage) {
 			// TODO: BETA_JAVA9 Should report better
 		}
 	} else {
-		for (IModule iModule : cache) {
-			jimage.env.acceptModule(iModule, jimage);
-		}
+//		for (IModule iModule : cache) {
+//			jimage.env.acceptModule(iModule, jimage);
+//		}
 	}
 }
 void acceptModule(byte[] content) {
@@ -153,8 +155,14 @@ void acceptModule(byte[] content) {
 	}
 	if (reader != null) {
 		IModule moduleDecl = reader.getModuleDeclaration();
-		if (moduleDecl != null)
-			this.env.acceptModule(moduleDecl, this);
+		if (moduleDecl != null) {
+			Set<IModule> cache = ModulesCache.get(this.zipFilename);
+			if (cache == null) {
+				ModulesCache.put(this.zipFilename, new HashSet<IModule>());
+			}
+			cache.add(moduleDecl);
+			//this.env.acceptModule(moduleDecl, this);
+		}
 	}
 }
 public void cleanup() {
@@ -250,5 +258,17 @@ public boolean servesModule(IModule mod) {
 		return true;
 	}
 	return false;
+}
+@Override
+public IModule getModule(char[] moduleName) {
+	// 
+	Set<IModule> modules = ModulesCache.get(this.zipFilename);
+	if (modules != null) {
+		for (IModule mod : modules) {
+			if (CharOperation.equals(mod.name(), moduleName))
+					return mod;
+		}
+	}
+	return null;
 }
 }

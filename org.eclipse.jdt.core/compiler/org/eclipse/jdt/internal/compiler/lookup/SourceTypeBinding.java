@@ -87,8 +87,8 @@ public class SourceTypeBinding extends ReferenceBinding {
 	public ClassScope scope;
 	protected SourceTypeBinding prototype;
 	LookupEnvironment environment;
-	char[] module; //TODO: Should it be something like ModuleBinding?
-
+	//char[] module; //TODO: Should be replaced by ModuleBinding
+	ModuleBinding module;
 	// Synthetics are separated into 4 categories: methods, super methods, fields, class literals and bridge methods
 	// if a new category is added, also increment MAX_SYNTHETICS
 	private final static int METHOD_EMUL = 0;
@@ -120,7 +120,7 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 	this.fields = Binding.UNINITIALIZED_FIELDS;
 	this.methods = Binding.UNINITIALIZED_METHODS;
 	this.prototype = this;
-	this.module = scope.module();
+	this.module = scope.environment().getModule(scope.module());
 	computeId();
 }
 

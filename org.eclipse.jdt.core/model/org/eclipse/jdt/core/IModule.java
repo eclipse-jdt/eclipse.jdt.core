@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+
 /**
  * @since 3.12 BETA_JAVA9
  */
@@ -21,13 +23,14 @@ public interface IModule {
 	
 	public char[] name();
 
-	public IModule[] requires();
+	public String[] requires() throws JavaModelException;
 
-	public IPackageFragment exports();
+	public IPackageExport[] exports() throws JavaModelException;
 
 	interface IPackageExport {
-		IPackageFragment exportedPackage();
-		IModule targetModule();
+		IPackageFragment getExportedPackage();
+		String getTargetModule();
 	}
-
+	IPackageExport createPackageExport(String contents, IJavaElement sibling, boolean force, IProgressMonitor monitor)
+			throws JavaModelException;
 }

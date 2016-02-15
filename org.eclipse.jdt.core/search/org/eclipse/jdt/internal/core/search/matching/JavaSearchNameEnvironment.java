@@ -224,4 +224,10 @@ public boolean isPackage(String qualifiedPackageName, IModule[] modules) {
 	return false;
 }
 
+@Override
+public IModule getModule(char[] name) {
+	// TODO Auto-generated method stub
+	return null;
+}
+
 }

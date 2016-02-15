@@ -22,6 +22,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -200,6 +201,12 @@ protected boolean computeChildren(OpenableElementInfo info, IResource underlying
 			char[][] inclusionPatterns = fullInclusionPatternChars();
 			char[][] exclusionPatterns = fullExclusionPatternChars();
 			computeFolderChildren(rootFolder, !Util.isExcluded(rootFolder, inclusionPatterns, exclusionPatterns), CharOperation.NO_STRINGS, vChildren, inclusionPatterns, exclusionPatterns);
+//			char[] suffix = getKind() == K_SOURCE ? SuffixConstants.SUFFIX_java : SuffixConstants.SUFFIX_class;
+//			char[] moduleInfoName = CharOperation.concat(TypeConstants.MODULE_INFO_NAME, suffix);
+//			IResource module = rootFolder.findMember(String.valueOf(moduleInfoName), true);
+//			if (module != null && module.exists()) {
+//				vChildren.add(new ClassFile(getPackageFragment(CharOperation.NO_STRINGS), String.valueOf(TypeConstants.MODULE_INFO_NAME)));
+//			}
 			IJavaElement[] children = new IJavaElement[vChildren.size()];
 			vChildren.toArray(children);
 			info.setChildren(children);
@@ -837,6 +844,13 @@ protected void verifyAttachSource(IPath sourcePath) throws JavaModelException {
 
 @Override
 public IModule getModule() {
-	return null;
+	IModule module = null;
+//	try {
+//		module = ((PackageFragmentRootInfo)getElementInfo()).getModule();
+//
+//	} catch (JavaModelException e) {
+//		// 
+//	}
+	return module;
 }
 }

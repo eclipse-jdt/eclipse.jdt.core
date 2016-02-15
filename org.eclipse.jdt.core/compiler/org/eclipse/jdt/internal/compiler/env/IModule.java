@@ -30,17 +30,17 @@ public interface IModule {
 
 	public IService[] provides();
 
-	interface IModuleReference {
+	public interface IModuleReference {
 		public char[] name();
 		public boolean isPublic();
 	}
 
-	interface IPackageExport {
+	public interface IPackageExport {
 		public char[] name();
 		public char[][] exportedTo();
 	}
 
-	interface IService {
+	public interface IService {
 		public char[] name();
 		char[] with();
 	}

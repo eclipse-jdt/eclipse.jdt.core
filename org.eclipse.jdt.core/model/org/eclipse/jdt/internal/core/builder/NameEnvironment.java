@@ -359,13 +359,21 @@ public boolean isPackage(char[][] compoundName, char[] packageName, IModule[] mo
 }
 
 public boolean isPackage(String qualifiedPackageName, IModule[] modules) {
-	// NOTE: the output folders are added at the beginning of the binaryLocations
-	for (int i = 0, l = this.binaryLocations.length; i < l; i++) {
-		for (IModule iModule : modules) {
-			if (this.binaryLocations[i].servesModule(iModule)) {
-				// TODO: BETA_JAVA9 Should really check with the module context.
-				if (this.binaryLocations[i].isPackage(qualifiedPackageName))
+	if (modules == null) {
+		for (int i = 0, l = this.binaryLocations.length; i < l; i++) {
+			// TODO: BETA_JAVA9 Should really check with the module context.
+			if (this.binaryLocations[i].isPackage(qualifiedPackageName))
 					return true;
+			}
+	} else {
+		// NOTE: the output folders are added at the beginning of the binaryLocations
+		for (int i = 0, l = this.binaryLocations.length; i < l; i++) {
+			for (IModule iModule : modules) {
+				if (this.binaryLocations[i].servesModule(iModule)) {
+					// TODO: BETA_JAVA9 Should really check with the module context.
+					if (this.binaryLocations[i].isPackage(qualifiedPackageName))
+						return true;
+				}
 			}
 		}
 	}
@@ -397,6 +405,25 @@ void setNames(String[] typeNames, SourceFile[] additionalFiles) {
 		this.sourceLocations[i].reset();
 	for (int i = 0, l = this.binaryLocations.length; i < l; i++)
 		this.binaryLocations[i].reset();
+}
+
+@Override
+public IModule getModule(char[] name) {
+	// 
+	if (name == null)
+		return null;
+	IModule module = null;
+	for (int i = 0, l = this.sourceLocations.length; i < l; i++) {
+		if ((module = this.sourceLocations[i].getModule(name)) != null)
+			break;
+	}
+	if (module == null) {
+		for (int i = 0, l = this.binaryLocations.length; i < l; i++) {
+			if ((module = this.binaryLocations[i].getModule(name)) != null)
+				break;
+		}
+	}
+	return module;
 }
 
 //@Override

@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
@@ -120,9 +121,10 @@ String[] directoryList(String qualifiedPackageName) {
 }
 void acceptModule(ClassFileReader classfile) {
 	if (classfile != null) {
-		if ((this.module = classfile.getModuleDeclaration()) != null) {
-			this.env.acceptModule(this.module, this);
-		}
+//		if ((this.module = classfile.getModuleDeclaration()) != null) {
+//			this.env.acceptModule(this.module, this);
+//		}
+		this.module = classfile.getModuleDeclaration();
 	}
 }
 boolean doesFileExist(String fileName, String qualifiedPackageName, String qualifiedFullName) {
@@ -152,9 +154,9 @@ public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageN
 
 public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName, IModule mod) {
 	if (!doesFileExist(binaryFileName, qualifiedPackageName, qualifiedBinaryFileName)) return null; // most common case
-	if (!this.env.isPackageVisible(qualifiedPackageName.toCharArray(), this.module != null ? this.module.name() : null, mod != null ? mod.name() : null)) {
-		return null;
-	}
+//	if (!this.env.isPackageVisible(qualifiedPackageName.toCharArray(), this.module != null ? this.module.name() : null, mod != null ? mod.name() : null)) {
+//		return null;
+//	}
 	ClassFileReader reader = null;
 	try {
 		reader = Util.newClassFileReader(this.binaryFolder.getFile(new Path(qualifiedBinaryFileName)));
@@ -217,5 +219,13 @@ public boolean servesModule(IModule mod) {
 	if (this.module == null || mod == this || mod == ModuleEnvironment.UNNAMED_MODULE)
 		return true;
 	return this.module.equals(mod);
+}
+
+@Override
+public IModule getModule(char[] moduleName) {
+	// 
+	if (this.module == null)
+		return null;
+	return CharOperation.equals(this.module.name(), moduleName) ? this.module : null;
 }
 }

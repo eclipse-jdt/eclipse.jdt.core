@@ -100,7 +100,7 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 				module.requires[i].refName = requiresNames;
 				moduleOffset += 2;
 				int pub = module.u2At(moduleOffset);
-				module.requires[i].isPublic = (ClassFileConstants.AccPublic == pub); // Access modifier
+				module.requires[i].isPublic = (ClassFileConstants.ACC_PUBLIC == pub); // Access modifier
 				moduleOffset += 2;
 			}
 		}

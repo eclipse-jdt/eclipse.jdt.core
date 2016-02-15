@@ -449,4 +449,9 @@ public boolean isPackage(char[][] compoundName, char[] packageName, IModule[] mo
 	}
 	return false;
 }
+@Override
+public IModule getModule(char[] name) {
+	// TODO Auto-generated method stub
+	return null;
+}
 }

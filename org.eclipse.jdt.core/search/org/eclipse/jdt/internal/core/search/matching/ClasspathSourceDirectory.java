@@ -161,4 +161,13 @@ public boolean servesModule(IModule mod) {
 		return true;
 	return CharOperation.equals(this.module.name(), mod.name());
 }
+
+@Override
+public IModule getModule(char[] moduleName) {
+	// 
+	if (this.module != null && CharOperation.equals(this.module.name(), moduleName)) {
+		return this.module;
+	}
+	return null;
+}
 }

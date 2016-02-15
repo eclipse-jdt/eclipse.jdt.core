@@ -730,4 +730,14 @@ public class SearchableEnvironment extends ModuleEnvironment
 	public void cleanup() {
 		// nothing to do
 	}
+
+	@Override
+	public IModule getModule(char[] name) {
+		IModule module = null;
+		NameLookup.Answer answer = this.nameLookup.findModule(CharOperation.charToString(name));
+		if (answer != null) {
+			module = answer.module;
+		}
+		return module;
+	}
 }

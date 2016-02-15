@@ -15,11 +15,20 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ModuleDeclaration extends TypeDeclaration {
@@ -33,17 +42,12 @@ public class ModuleDeclaration extends TypeDeclaration {
 	public int requiresCount;
 	public int usesCount;
 	public int servicesCount;
+	public ModuleBinding moduleBinding;
 
 	public char[][] tokens;
 	public char[] moduleName;
 	public long[] sourcePositions;
 
-//	public int declarationSourceStart;
-//	public int declarationSourceEnd;
-//	public int bodyStart;
-//	public int bodyEnd; // doesn't include the trailing comment if any.
-//	public CompilationResult compilationResult;
-	
 	public ModuleDeclaration(CompilationResult compilationResult, char[][] tokens, long[] positions) {
 		super(compilationResult);
 		this.compilationResult = compilationResult;
@@ -55,15 +59,15 @@ public class ModuleDeclaration extends TypeDeclaration {
 		this.sourceEnd = (int) (positions[positions.length-1] & 0x00000000FFFFFFFF);
 		this.sourceStart = (int) (positions[0] >>> 32);
 	}
-
+	@Override
+	public void generateCode(ClassFile enclosingClassFile) {
+		if (this.ignoreFurtherInvestigation) {
+			return;
+		}
+		super.generateCode(enclosingClassFile);
+	}
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
-	@Override
-	public StringBuffer printStatement(int indent, StringBuffer output) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -75,19 +79,43 @@ public class ModuleDeclaration extends TypeDeclaration {
 			this.ignoreFurtherInvestigation = true;
 			return;
 		}
+		this.moduleBinding = this.scope.environment().getModule(this.moduleName);
 		this.binding.compoundName = CharOperation.arrayConcat(this.tokens, this.name);
-		for(int i = 0; i < this.usesCount; i++) {
-			TypeReference ref = this.uses[i];
-			TypeBinding type = ref.resolveType(this.binding.scope);
-			if (type == null || !type.isValidBinding()) {
-				this.ignoreFurtherInvestigation = true;
+		Set<ModuleBinding> requiredModules = new HashSet<ModuleBinding>();
+		for(int i = 0; i < this.requiresCount; i++) {
+			ModuleReference ref = this.requires[i];
+			if (ref.resolve(this.scope) != null) {
+				if (!requiredModules.add(ref.binding)) {
+					this.scope.problemReporter().duplicateModuleReference(IProblem.DuplicateRequires, ref);
+				}
+				Collection<ModuleBinding> deps = ref.binding.getImplicitDependencies();
+				if (deps.contains(this.moduleBinding))
+					this.scope.problemReporter().cyclicModuleDependency(this.moduleBinding, ref);
 			}
 		}
+		for (int i = 0; i < this.exportsCount; i++) {
+			this.exports[i].resolve(this.scope);
+		}
+		for(int i = 0; i < this.usesCount; i++) {
+			Set<TypeBinding> allTypes = new HashSet<TypeBinding>();
+			if (this.uses[i].resolveType(this.scope) != null) {
+				if (!allTypes.add(this.uses[i].resolvedType)) {
+					this.scope.problemReporter().duplicateTypeReference(IProblem.DuplicateUses, this.uses[i]);
+				}
+			}
+		}
+		Map<TypeBinding, TypeBinding> services = new HashMap<TypeBinding, TypeBinding>(this.servicesCount); 
 		for(int i = 0; i < this.servicesCount; i++) {
-			TypeBinding inf = this.interfaces[i].resolveType(this.binding.scope);
-			TypeBinding imp = this.implementations[i].resolveType(this.binding.scope);
-			if (inf == null || !inf.isValidBinding() || imp == null || !imp.isValidBinding()) {
-				this.ignoreFurtherInvestigation = true;
+			if (this.interfaces[i].resolveType(this.scope) != null) {
+				TypeBinding inf = this.interfaces[i].resolvedType;
+				if (this.implementations[i].resolveType(this.scope) != null) {
+					TypeBinding imp = this.implementations[i].resolvedType;
+					if (services.get(inf) == imp)  { //$IDENTITY-COMPARISON$
+						this.scope.problemReporter().duplicateTypeReference(IProblem.DuplicateServices, this.interfaces[i], this.implementations[i]);
+					} else {
+						services.put(this.interfaces[i].resolvedType, this.implementations[i].resolvedType);
+					}
+				}
 			}
 		}
 	}

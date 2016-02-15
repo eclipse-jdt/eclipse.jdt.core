@@ -75,7 +75,7 @@ boolean isPackage(char[][] parentPackageName, char[] packageName, char[] client)
  */
 public void acceptModule(IModule module, IModuleLocation location);
 public boolean isPackageVisible(char[] pack, char[] source, char[] client);
-public IModule getModule(String name);
+public IModule getModule(char[] name);
 public IModule getModule(IModuleLocation location);
 
 /**

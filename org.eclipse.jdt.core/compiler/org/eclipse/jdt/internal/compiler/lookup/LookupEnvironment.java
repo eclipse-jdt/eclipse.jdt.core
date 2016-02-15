@@ -58,6 +58,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
 import org.eclipse.jdt.internal.compiler.util.JimageUtil;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -95,6 +96,9 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private SimpleLookupTable uniquePolymorphicMethodBindings;
 	private SimpleLookupTable uniqueGetClassMethodBinding; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=300734
 
+	// key is a string with the module name value is a module binding
+	private HashtableOfObject knownModules;
+
 	public CompilationUnitDeclaration unitBeingCompleted = null; // only set while completing units
 	public Object missingClassFileLocation = null; // only set when resolving certain references, to help locating problems
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4];
@@ -128,7 +132,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 	static final ProblemPackageBinding TheNotFoundPackage = new ProblemPackageBinding(CharOperation.NO_CHAR, NotFound);
 	static final ProblemReferenceBinding TheNotFoundType = new ProblemReferenceBinding(CharOperation.NO_CHAR_CHAR, null, NotFound);
-
+	final ModuleBinding UnNamedModule = new ModuleBinding(ModuleEnvironment.UNNAMED_MODULE, this);
 
 public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOptions, ProblemReporter problemReporter, INameEnvironment nameEnvironment) {
 	this.typeRequestor = typeRequestor;
@@ -145,14 +149,27 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.classFilePool = ClassFilePool.newInstance();
 	this.typesBeingConnected = new HashSet<>();
 	this.typeSystem = this.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8 && this.globalOptions.storeAnnotations ? new AnnotatableTypeSystem(this) : new TypeSystem(this);
+	this.knownModules = new HashtableOfObject(5);
 }
 
 public ReferenceBinding askForType(char[][] compoundName) {
 	return askForType(compoundName, null);
 }
 //TODO: BETA_JAVA9 - should ideally return ModuleBinding?
-public IModule getModule(String name) {
-	return this.nameEnvironment.getModule(name);
+public ModuleBinding getModule(char[] name) {
+	if (name == null || name.length == 0)
+		return ModuleBinding.UnNamedModule;
+	ModuleBinding module = (ModuleBinding) this.knownModules.get(name);
+	if (module == null) {
+		IModule mod = this.nameEnvironment.getModule(name);
+		if (mod != null) {
+			this.knownModules.put(name, module = new ModuleBinding(mod, this));
+		}
+	}
+	return module;
+}
+public ModuleBinding createModuleInfo(CompilationUnitScope scope) {
+	return new ModuleBinding(scope);
 }
 /**
  * Ask the name environment for a type which corresponds to the compoundName.
@@ -214,7 +231,7 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name, char[] m
 	return packageBinding.getType0(name);
 }
 public boolean canTypeBeSeen(SourceTypeBinding binding, Scope scope) {
-	return this.nameEnvironment.isPackageVisible(binding.fPackage.readableName(), binding.module, scope.module());
+	return this.nameEnvironment.isPackageVisible(binding.fPackage.readableName(), binding.module == null ? ModuleEnvironment.UNNAMED : binding.module.name(), scope.module());
 }
 
 /* Create the initial type bindings for the compilation unit.

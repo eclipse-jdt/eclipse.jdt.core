@@ -105,9 +105,15 @@ public abstract class ModuleEnvironment implements INameEnvironment {
 
 	public abstract boolean isPackage(char[][] parentPackageName, char[] packageName, IModule[] module);
 
-	public IModule getModule(String name) {
-		return this.modulesCache.get(name);
-	}
+//	public abstract IModule getModule(String name);
+//	{
+////		IModule mod = this.modulesCache.get(name);
+////		if (mod == null) {
+////			
+////		}
+////		return mod;
+//		for ()
+//	}
 
 	public boolean isPackageVisible(char[] packageName, char[] sourceName, char[] clientName) {
 		if (CharOperation.equals(sourceName, clientName)) 
@@ -184,8 +190,8 @@ public abstract class ModuleEnvironment implements INameEnvironment {
 				for (IModule.IModuleReference ref : requires) {
 					IModule refModule = getModule(ref.name());
 					if (refModule != null) {
-						targets.add(refModule);
-						collectAllVisibleModules(refModule, targets);
+						if (targets.add(refModule))
+							collectAllVisibleModules(refModule, targets);
 					}
 				}
 			}
@@ -197,12 +203,13 @@ public abstract class ModuleEnvironment implements INameEnvironment {
 	 * @param name the name of the module to lookup
 	 * @return the module with the given name
 	 */
-	public IModule getModule(final char[] name) {
-		if (name == null) return null;
-		String mod = new String(name);
-		IModule module = this.modulesCache.get(mod);
-		return module;
-	}
+//	public IModule getModule(final char[] name) {
+////		if (name == null) return null;
+////		String mod = new String(name);
+////		IModule module = this.modulesCache.get(mod);
+////		return module;
+//		return name == null ? null : getModule(CharOperation.charToString(name));
+//	}
 	/**
 	 * Accepts the given module to be served later on requests. If 
 	 * any older copies of module already present, they will be 
@@ -285,7 +292,7 @@ public abstract class ModuleEnvironment implements INameEnvironment {
 		if (imp != null) {
 			exp.exportedTo = new char[imp.length][];
 			for(int j = 0; j < imp.length; j++) {
-				exp.exportedTo = imp[i].tokens;
+				exp.exportedTo = imp[j].tokens;
 			}
 		}
 		return exp;

@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMemberValuePair;
 import org.eclipse.jdt.core.ITypeParameter;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -36,6 +37,7 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.Literal;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
+import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
 import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
@@ -509,6 +511,16 @@ public void enterType(TypeInfo typeInfo) {
 		((TypeInfo) parentInfo).childrenCategories.put(handle, typeInfo.categories);
 	addToChildren(parentInfo, handle);
 }
+private org.eclipse.jdt.internal.core.ModuleInfo createModuleInfo(TypeInfo typeInfo, SourceType handle) {
+	org.eclipse.jdt.internal.core.ModuleInfo info = org.eclipse.jdt.internal.core.ModuleInfo.createModule((ModuleDeclaration) typeInfo.node);
+	info.setHandle(handle);
+	info.setSourceRangeStart(typeInfo.declarationStart);
+	info.setFlags(typeInfo.modifiers);
+	info.setNameSourceStart(typeInfo.nameSourceStart);
+	info.setNameSourceEnd(typeInfo.nameSourceEnd);
+	this.newElements.put(handle, info);
+	return info;
+}
 private SourceTypeElementInfo createTypeInfo(TypeInfo typeInfo, SourceType handle) {
 	SourceTypeElementInfo info =
 		typeInfo.anonymousMember ?
@@ -705,10 +717,21 @@ public void exitMethod(int declarationEnd, Expression defaultValue) {
 public void exitType(int declarationEnd) {
 	SourceType handle = (SourceType) this.handleStack.peek();
 	TypeInfo typeInfo = (TypeInfo) this.infoStack.peek();
-	SourceTypeElementInfo info = createTypeInfo(typeInfo, handle);
-	info.setSourceRangeEnd(declarationEnd);
-	info.children = getChildren(typeInfo);
-	
+	if (typeInfo instanceof ModuleInfo) {
+		PackageFragmentRoot root= (PackageFragmentRoot) handle.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+		if (root != null) {
+			try {
+				((PackageFragmentRootInfo)(root.getElementInfo())).setModule(createModuleInfo(typeInfo, handle));
+			} catch (JavaModelException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	} else {
+		SourceTypeElementInfo info = createTypeInfo(typeInfo, handle);
+		info.setSourceRangeEnd(declarationEnd);
+		info.children = getChildren(typeInfo);
+	}
 	this.handleStack.pop();
 	this.infoStack.pop();
 }

@@ -1850,6 +1850,19 @@ void setSourceStart(int sourceStart);
 	/** @since 3.10 */
 	int IllegalDefaultModifierSpecification = MethodRelated + 1058;
 
+	/** @since 3.12 */
+	int UndefinedModule = TypeRelated + 1200;
+	/** @since 3.12 */
+	int DuplicateRequires = TypeRelated + 1201;
+	/** @since 3.12 */
+	int DuplicateExports = TypeRelated + 1202;
+	/** @since 3.12 */
+	int DuplicateUses = TypeRelated + 1203;
+	/** @since 3.12 */
+	int DuplicateServices = TypeRelated + 1204;
+	/** @since 3.12 */
+	int CyclicModuleDependency = TypeRelated + 1205;
+
 	/** @since 3.10 */
 	int GenericInferenceError = 1100; 	// FIXME: This is just a stop-gap measure, be more specific via https://bugs.eclipse.org/404675
 	

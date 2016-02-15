@@ -46,6 +46,19 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 @SuppressWarnings("rawtypes")
 public interface ISourceElementRequestor {
 
+	public static class ModuleInfo extends TypeInfo {
+		public char[] moduleName;
+		public RequiresInfo[] requires;
+		public PackageExportInfo[] exports;
+	}
+	public static class RequiresInfo {
+		public char[][] moduleName;
+		public int modifiers;
+	}
+	public static class PackageExportInfo {
+		public char[] pkgName;
+		public char[] targetModule;
+	}
 	public static class TypeInfo {
 		public boolean typeAnnotated;
 		public int declarationStart;

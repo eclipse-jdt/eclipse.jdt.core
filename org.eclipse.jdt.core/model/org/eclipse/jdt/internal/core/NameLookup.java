@@ -29,9 +29,11 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
@@ -60,10 +62,15 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class NameLookup implements SuffixConstants {
 	public static class Answer {
 		public IType type;
+		public IModule module;
 		AccessRestriction restriction;
 		Answer(IType type, AccessRestriction restriction) {
 			this.type = type;
 			this.restriction = restriction;
+		}
+		Answer(IModule module) {
+			this.module = module;
+			this.restriction = null;
 		}
 		public boolean ignoreIfBetter() {
 			return this.restriction != null && this.restriction.ignoreIfBetter();
@@ -844,6 +851,15 @@ public class NameLookup implements SuffixConstants {
 		}
 		return findType(className, packageName, partialMatch, acceptFlags, considerSecondaryTypes, waitForIndexes, checkRestrictions, monitor);
 	}
+	public Answer findModule(String moduleName) {
+		JavaElementRequestor requestor = new JavaElementRequestor();
+		seekModules(moduleName, requestor);
+		org.eclipse.jdt.internal.compiler.env.IModule[] modules = requestor.getModules();
+		if (modules.length == 1) {
+			return new Answer(modules[0]);
+		}
+		return null;
+	}
 
 	private IType getMemberType(IType type, String name, int dot) {
 		while (dot != -1) {
@@ -962,6 +978,54 @@ public class NameLookup implements SuffixConstants {
 		seekTypes(name, pkg, partialMatch, acceptFlags, requestor, true);
 	}
 
+	public void seekModules(String name, JavaElementRequestor requestor) {
+		int count= this.packageFragmentRoots.length;
+		for (int i= 0; i < count; i++) {
+			if (requestor.isCanceled())
+				return;
+			//Answer answer = findType(String.valueOf(TypeConstants.MODULE_INFO_NAME), false, 0, false);
+			IPackageFragmentRoot root= this.packageFragmentRoots[i];
+			IModule module = null;
+			if (root instanceof JarPackageFragmentRoot) {
+				if (!root.getElementName().equals(name)) {
+					continue;
+				}
+			} else {
+				try {
+					module = ((PackageFragmentRootInfo) ((PackageFragmentRoot) root).getElementInfo()).getModule();
+				} catch (JavaModelException e1) {
+					//
+					continue;
+				}
+			}
+			if (module != null && CharOperation.equals(module.name(), name.toCharArray()))
+				requestor.acceptModuleDeclaration(module);
+			else if (module == null) {
+				try {
+					IJavaElement[] compilationUnits = root.getChildren();
+					for (int j = 0, length = compilationUnits.length; j < length; j++) {
+						if (requestor.isCanceled())
+							return;
+						// only look in the default package
+						if (compilationUnits[j].getElementName().length() > 0)
+							continue;
+						IType type = findType(String.valueOf(TypeConstants.MODULE_INFO_NAME), (PackageFragment)compilationUnits[j], false, 0, false, false);
+						if (type == null)
+							continue;
+						if (type.isBinary()) {
+								module = ((ClassFileReader)(((BinaryType)type).getElementInfo())).getModuleDeclaration();
+						} else {
+							module = (IModule)(((SourceType)type).getElementInfo());
+						}
+						if (module != null && CharOperation.equals(module.name(), name.toCharArray()))
+							requestor.acceptModuleDeclaration(module);
+					}
+				} catch (JavaModelException e) {
+					//
+				}
+			}
+		}
+	}
 	/**
 	 * Notifies the given requestor of all types (classes and interfaces) in the
 	 * given package fragment with the given (unqualified) name.

@@ -85,7 +85,7 @@ public void acceptModuleInfo(ICompilationUnit cu, Parser parser) {
 		IModule mod = ModuleEnvironment.createModule(unit.moduleDeclaration);
 		if (mod != null) {
 			this.module = mod;
-			this.env.acceptModule(mod, this);
+			//this.env.acceptModule(mod, this);
 		}
 	}
 }

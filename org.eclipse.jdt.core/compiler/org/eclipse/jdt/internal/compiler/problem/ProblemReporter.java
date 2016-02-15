@@ -126,6 +126,7 @@ import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
@@ -163,6 +164,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
@@ -10248,5 +10250,30 @@ public void invalidTypeArguments(TypeReference[] typeReference) {
 			NoArgument, NoArgument,
 			typeReference[0].sourceStart,
 			typeReference[typeReference.length - 1].sourceEnd);
+}
+public void invalidModule(ModuleReference ref) {
+	this.handle(IProblem.UndefinedModule, 
+		NoArgument, new String[] { CharOperation.charToString(ref.moduleName) },
+		ref.sourceStart, ref.sourceEnd);
+}
+public void duplicateModuleReference(int problem, ModuleReference ref) {
+	this.handle(problem, 
+		NoArgument, new String[] { CharOperation.charToString(ref.moduleName) },
+		ref.sourceStart, ref.sourceEnd);
+}
+public void duplicateTypeReference(int problem, TypeReference ref) {
+	this.handle(problem, 
+		NoArgument, new String[] { ref.toString() },
+		ref.sourceStart, ref.sourceEnd);
+}
+public void duplicateTypeReference(int problem, TypeReference ref1, TypeReference ref2) {
+	this.handle(problem, 
+		NoArgument, new String[] { ref1.toString(), ref2.toString() },
+		ref1.sourceStart, ref2.sourceEnd);
+}
+public void cyclicModuleDependency(ModuleBinding binding, ModuleReference ref) {
+	this.handle(IProblem.CyclicModuleDependency, 
+		NoArgument, new String[] { CharOperation.charToString(binding.moduleName), CharOperation.charToString(ref.moduleName) },
+		ref.sourceStart, ref.sourceEnd);
 }
 }

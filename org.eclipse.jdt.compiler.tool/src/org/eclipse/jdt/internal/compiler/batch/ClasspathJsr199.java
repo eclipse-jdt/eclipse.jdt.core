@@ -204,4 +204,10 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	public boolean hasAnnotationFileFor(String qualifiedTypeName) {
 		return false;
 	}
+
+	@Override
+	public IModule getModule(char[] moduleName) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

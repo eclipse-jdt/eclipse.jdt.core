@@ -103,4 +103,9 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, IMo
 public boolean isPackage(char[][] parentPackageName, char[] packageName, IModule[] module) {
 	return false;
 }
+@Override
+public IModule getModule(char[] name) {
+	// TODO Auto-generated method stub
+	return null;
+}
 }

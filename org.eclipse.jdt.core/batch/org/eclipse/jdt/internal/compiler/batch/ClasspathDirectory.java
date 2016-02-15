@@ -285,4 +285,9 @@ public String getPath() {
 public int getMode() {
 	return this.mode;
 }
+@Override
+public IModule getModule(char[] moduleName) {
+	// TODO Auto-generated method stub
+	return null;
+}
 }

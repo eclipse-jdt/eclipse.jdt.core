@@ -648,7 +648,7 @@ protected boolean findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDire
 						this.sourceFiles.add(new SourceFile((IFile) resource, md, true));
 						complianceLevel = IncrementalImageBuilder.this.javaBuilder.javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 						if (CompilerOptions.versionToJdkLevel(complianceLevel) >= ClassFileConstants.JDK1_9) {
-							md.resetModule(this.nameEnvironment.getModule(md));
+							//md.resetModule(this.nameEnvironment.getModule(md)); TODO: revisit why this is needed
 						}
 				}
 				return true;

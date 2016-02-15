@@ -39,6 +39,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
@@ -102,12 +103,15 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 		info.setChildren(new IJavaElement[] {});
 		return false;
 	}
-
+	
 	// Make the type
 	IType type = getType();
 	info.setChildren(new IJavaElement[] {type});
+	org.eclipse.jdt.internal.compiler.env.IModule moduleInfo = ((ClassFileReader)typeInfo).getModuleDeclaration();
 	newElements.put(type, typeInfo);
-
+	if (TypeDeclaration.kind(typeInfo.getModifiers()) == TypeDeclaration.MODULE_DECL) {
+		((PackageFragmentRootInfo)getPackageFragmentRoot().getElementInfo()).setModule(moduleInfo);
+	}
 	// Read children
 	((ClassFileInfo) info).readBinaryChildren(this, (HashMap) newElements, typeInfo);
 

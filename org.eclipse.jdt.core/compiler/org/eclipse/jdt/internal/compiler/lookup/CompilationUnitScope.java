@@ -129,6 +129,9 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 			if (this.referenceContext.currentPackage != null && this.referenceContext.currentPackage.annotations != null) {
 				this.referenceContext.types[0].annotations = this.referenceContext.currentPackage.annotations;
 			}
+		} else if (this.referenceContext.isModuleInfo()) {
+			ModuleDeclaration module = this.referenceContext.moduleDeclaration;
+			module.moduleBinding = this.environment().createModuleInfo(this);
 		}
 		recordQualifiedReference(this.currentPackageName); // always dependent on your own package
 	}

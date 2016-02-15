@@ -15,7 +15,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 
 public class ExportReference extends ASTNode {
 	public char[][] tokens;
@@ -42,6 +48,22 @@ public class ExportReference extends ASTNode {
 		return this.targets;
 	}
 
+	public boolean resolve(Scope scope) {
+		boolean errorsExist = false;
+		if (this.isTargeted()) {
+			Set<ModuleBinding> modules = new HashSet<ModuleBinding>();
+			for (int i = 0; i < this.targets.length; i++) {
+				ModuleReference ref = this.targets[i];
+				if (ref.resolve(scope) != null) {
+					if (!modules.add(ref.binding)) {
+						scope.problemReporter().duplicateModuleReference(IProblem.DuplicateExports, ref);
+						errorsExist = true;
+					}
+				}
+			}
+		}
+		return !errorsExist;
+	}
 	@Override
 	public StringBuffer print(int indent, StringBuffer output) {
 		printIndent(indent, output);
