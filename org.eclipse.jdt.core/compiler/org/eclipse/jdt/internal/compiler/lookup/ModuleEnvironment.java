@@ -132,7 +132,7 @@ public abstract class ModuleEnvironment implements INameEnvironment {
 						return true;
 					}
 					Set<IModule> set = new LinkedHashSet<>();
-					collectAllVisibleModules(refModule, set);
+					collectAllVisibleModules(refModule, set, true);
 					IModule[] targets = set.toArray(new IModule[set.size()]);
 					for (IModule iModule : targets) {
 						if (iModule == source && isPackageExportedTo(iModule, packageName, client)) {
@@ -171,10 +171,11 @@ public abstract class ModuleEnvironment implements INameEnvironment {
 		IModule[] targets = null;
 		if (mod != null && !CharOperation.equals(mod, UNNAMED)) {
 			Set<IModule> set = new LinkedHashSet<>();
-			set.add(getModule(JimageUtil.JAVA_BASE.toCharArray()));
-			IModule client = getModule(mod);
+			IModule client = getModule(JimageUtil.JAVA_BASE.toCharArray());
+			if (client != null) set.add(client);
+			client = getModule(mod);
 			if (client != null) {
-				collectAllVisibleModules(client, set);
+				collectAllVisibleModules(client, set, false);
 				targets = set.toArray(new IModule[set.size()]);
 			}
 		} else {
@@ -183,15 +184,17 @@ public abstract class ModuleEnvironment implements INameEnvironment {
 		return targets;
 	}
 
-	private void collectAllVisibleModules(IModule module, Set<IModule> targets) {
+	private void collectAllVisibleModules(IModule module, Set<IModule> targets, boolean onlyPublic) {
 		if (module != null) {
 			IModule.IModuleReference[] requires = module.requires();
 			if (requires != null && requires.length > 0) {
 				for (IModule.IModuleReference ref : requires) {
 					IModule refModule = getModule(ref.name());
 					if (refModule != null) {
-						if (targets.add(refModule))
-							collectAllVisibleModules(refModule, targets);
+						if (!onlyPublic || ref.isPublic()) {
+						targets.add(refModule);
+						collectAllVisibleModules(refModule, targets, true);
+						}
 					}
 				}
 			}

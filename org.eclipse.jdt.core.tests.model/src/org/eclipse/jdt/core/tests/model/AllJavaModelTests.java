@@ -44,6 +44,8 @@ private static Class[] getAllTestClasses() {
 
 		// Project & Root API unit tests
 		JavaProjectTests.class,
+		// Modularity tests (Java 1.9)
+		ModuleBuilderTests.class,
 
 		// Compilation unit tests
 		CompilationUnitTests.class,
