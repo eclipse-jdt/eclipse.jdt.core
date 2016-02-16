@@ -335,7 +335,7 @@ public class ClassFileToIndexConverter {
 	}
 
 	private void skipChar(SignatureWrapper signature, char toSkip) {
-		if (signature.charAtStart() == toSkip) {
+		if (signature.start < signature.signature.length && signature.charAtStart() == toSkip) {
 			signature.start++;
 		}
 	}
@@ -550,7 +550,8 @@ public class ClassFileToIndexConverter {
 		char[] fieldDescriptor;
 
 		if (parentTypeOrNull != null) {
-			fieldDescriptor = CharArrayUtils.concat(parentTypeOrNull.getRawType().getFieldDescriptor().getChars(),
+			fieldDescriptor = CharArrayUtils.concat(
+					parentTypeOrNull.getRawType().getFieldDescriptorWithoutTrailingSemicolon(),
 					INNER_TYPE_SEPARATOR, identifier, FIELD_DESCRIPTOR_SUFFIX);
 		} else {
 			fieldDescriptor = CharArrayUtils.concat(identifier, FIELD_DESCRIPTOR_SUFFIX);
@@ -604,8 +605,7 @@ public class ClassFileToIndexConverter {
 					argumentIndex++;
 				}
 
-				// Skip over the trailing '>'
-				wrapper.start++;
+				skipChar(wrapper, '>');
 			}
 			result = typeSignature;
 
@@ -617,12 +617,14 @@ public class ClassFileToIndexConverter {
 				// Don't check for a semicolon if we hit this branch since the recursive call to parseClassTypeSignature
 				// will do this
 				checkForSemicolon = false;
+				// Identifiers shouldn't start with '.'
+				skipChar(wrapper, '.');
 				result = parseClassTypeSignature(typeSignature, annotations.toNextNestedType(), wrapper);
 			}
 		}
 
-		if (checkForSemicolon && wrapper.start < genericSignature.length && genericSignature[wrapper.start] == ';') {
-			wrapper.start++;
+		if (checkForSemicolon) {
+			skipChar(wrapper, ';');
 		}
 
 		return result;
