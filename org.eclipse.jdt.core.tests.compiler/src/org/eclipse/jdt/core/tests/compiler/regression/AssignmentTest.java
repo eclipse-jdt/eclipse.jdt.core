@@ -2098,6 +2098,52 @@ public void testbug480989() {
 			"Hello World!");
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=486908
+public void testBug486908_A(){
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+	this.runConformTest(new String[] {
+			"Random.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"public class Random {\n" + 
+			"	private final List<Object> values;\n" + 
+			"	public Random() {\n" + 
+			"		values = new ArrayList<>();\n" + 
+			"	}\n" + 
+			"	public Random(Object arg) {\n" + 
+			"		if(arg instanceof Random) {\n" + 
+			"			values = ((Random)(arg)).values; //Compile error here.\n" + 
+			"		} else {\n" + 
+			"			throw new IllegalArgumentException(\"arg is not instance of Random\");\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public static void foo() {\n" + 
+			"		return;\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args){\n" + 
+			"		foo();\n" + 
+			"	}\n" + 
+			"}\n"
+	});
+}
+}
+public void testBug486908_B() {
+	this.runConformTest(new String[] {
+			"Sample.java",
+			"public class Sample {\n" + 
+			"	public final String value;\n" + 
+			"	public Sample() {\n" + 
+			"		this.value = new Sample().value;\n" + 
+			"	}\n" + 
+			"	public static void foo() {\n" + 
+			"		return;\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		foo();\n" + 
+			"	}\n" + 
+			"}\n"
+	});
+}
 public static Class testClass() {
 	return AssignmentTest.class;
 }
