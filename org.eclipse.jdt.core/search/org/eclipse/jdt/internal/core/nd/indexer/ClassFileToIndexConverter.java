@@ -546,7 +546,7 @@ public class ClassFileToIndexConverter {
 	 */
 	private NdTypeSignature parseClassTypeSignature(NdComplexTypeSignature parentTypeOrNull,
 			ITypeAnnotationWalker annotations, SignatureWrapper wrapper) throws CoreException {
-		char[] identifier = wrapper.nextName();
+		char[] identifier = wrapper.nextWord();
 		char[] fieldDescriptor;
 
 		if (parentTypeOrNull != null) {
