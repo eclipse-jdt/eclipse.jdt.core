@@ -493,4 +493,14 @@ public class CharArrayUtils {
 	public static boolean startsWith(char[] fieldDescriptor, char c) {
 		return fieldDescriptor.length > 0 && fieldDescriptor[0] == c;
 	}
+
+	/**
+	 * If the given array is null, returns the empty array. Otherwise, returns the argument.
+	 */
+	public static char[] notNull(char[] contents) {
+		if (contents == null) {
+			return EMPTY_CHAR_ARRAY;
+		}
+		return contents;
+	}
 }

@@ -14,6 +14,8 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.DoubleConstant;
+import org.eclipse.jdt.internal.compiler.impl.FloatConstant;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 
 public class IndexTester {
@@ -220,6 +222,24 @@ public class IndexTester {
 				return false;
 			}
 
+			if (o1 instanceof DoubleConstant && o2 instanceof DoubleConstant) {
+				DoubleConstant d1 = (DoubleConstant) o1;
+				DoubleConstant d2 = (DoubleConstant) o2;
+
+				if (Double.isNaN(d1.doubleValue()) && Double.isNaN(d2.doubleValue())) {
+					return true;
+				}
+			}
+
+			if (o1 instanceof FloatConstant && o2 instanceof FloatConstant) {
+				FloatConstant d1 = (FloatConstant) o1;
+				FloatConstant d2 = (FloatConstant) o2;
+
+				if (Float.isNaN(d1.floatValue()) && Float.isNaN(d2.floatValue())) {
+					return true;
+				}
+			}
+
 			Constant const1 = (Constant) o1;
 			Constant const2 = (Constant) o2;
 
@@ -330,10 +350,10 @@ public class IndexTester {
 					actualMethod.getParameterAnnotations(idx, classFileName));
 		}
 		for (int idx = minAnnotatedParameters; idx < expectedMethod.getAnnotatedParametersCount(); idx++) {
-			compareAnnotations(expectedMethod.getParameterAnnotations(idx, classFileName), new IBinaryAnnotation[0]);
+			compareAnnotations(new IBinaryAnnotation[0], expectedMethod.getParameterAnnotations(idx, classFileName));
 		}
 		for (int idx = minAnnotatedParameters; idx < actualMethod.getAnnotatedParametersCount(); idx++) {
-			compareAnnotations(new IBinaryAnnotation[0], expectedMethod.getParameterAnnotations(idx, classFileName));
+			compareAnnotations(new IBinaryAnnotation[0], actualMethod.getParameterAnnotations(idx, classFileName));
 		}
 
 		assertEquals("The selectors did not match", expectedMethod.getSelector(), actualMethod.getSelector()); //$NON-NLS-1$

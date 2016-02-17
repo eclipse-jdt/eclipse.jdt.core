@@ -32,7 +32,7 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
  */
 public class JavaIndex {
 	// Version constants
-	static final int CURRENT_VERSION = Nd.version(1, 24);
+	static final int CURRENT_VERSION = Nd.version(1, 25);
 	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 25);
 	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 25);
 

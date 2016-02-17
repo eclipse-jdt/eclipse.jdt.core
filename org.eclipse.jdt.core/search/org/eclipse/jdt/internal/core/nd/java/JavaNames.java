@@ -115,7 +115,7 @@ public class JavaNames {
 			result.append("[]"); //$NON-NLS-1$
 		}
 
-		return result.getContents();
+		return CharArrayUtils.notNull(result.getContents());
 	}
 
 	public static char[] binaryNameToFullyQualifiedName(char[] binaryName) {

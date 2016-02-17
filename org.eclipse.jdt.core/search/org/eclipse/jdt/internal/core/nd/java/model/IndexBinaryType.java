@@ -182,7 +182,9 @@ public class IndexBinaryType implements IBinaryType {
 				getSignature(buffer, type.getTypeParameters());
 
 				NdTypeSignature superclass = type.getSuperclass();
-				superclass.getSignature(buffer);
+				if (superclass != null) {
+					superclass.getSignature(buffer);
+				}
 				for (NdTypeInterface nextInterface : type.getInterfaces()) {
 					nextInterface.getInterface().getSignature(buffer);
 				}
@@ -326,7 +328,11 @@ public class IndexBinaryType implements IBinaryType {
 		try (IReader rl = this.typeRef.lock()) {
 			NdType type = this.typeRef.get();
 			if (type != null) {
-				return type.getSuperclass().getRawType().getBinaryName();
+				NdTypeSignature superclass = type.getSuperclass();
+				if (superclass != null) {
+					return superclass.getRawType().getBinaryName();
+				}
+				return null;
 			} else {
 				return new char[0];
 			}
