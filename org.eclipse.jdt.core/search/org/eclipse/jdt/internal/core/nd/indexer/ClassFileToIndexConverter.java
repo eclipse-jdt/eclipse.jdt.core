@@ -5,6 +5,8 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.TypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.env.ClassSignature;
 import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
@@ -199,7 +201,7 @@ public class ClassFileToIndexConverter {
 
 		if (methods != null) {
 			for (IBinaryMethod next : methods) {
-				addMethod(type, next, binaryName);
+				addMethod(type, next, binaryType, binaryName);
 			}
 		}
 
@@ -262,7 +264,8 @@ public class ClassFileToIndexConverter {
 	 *
 	 * @throws CoreException
 	 */
-	private void addMethod(NdType type, IBinaryMethod next, char[] binaryTypeName) throws CoreException {
+	private void addMethod(NdType type, IBinaryMethod next, IBinaryType binaryType, char[] binaryTypeName)
+			throws CoreException {
 		NdMethod method = new NdMethod(type);
 
 		attachAnnotations(method, next.getAnnotations());
@@ -275,20 +278,46 @@ public class ClassFileToIndexConverter {
 		skipChar(signature, '(');
 		skipChar(descriptor, '(');
 
+		int numCompilerDefinedParameters = 0;
+		if (next.isConstructor()) {
+			if ((binaryType.isLocal() || binaryType.isMember()) && (binaryType.getModifiers() & Modifier.STATIC) == 0) {
+				numCompilerDefinedParameters = 1;
+			}
+			if ((binaryType.getModifiers() & ClassFileConstants.AccEnum) != 0) {
+				numCompilerDefinedParameters = 2;
+			}
+		}
+
+		boolean compilerDefinedParametersAreIncludedInSignature = (next.getGenericSignature() == null);
+
 		int annotatedParametersCount = next.getAnnotatedParametersCount();
 		char[][] parameterNames = next.getArgumentNames();
-		short parameterIdx = 0;
-		while (!signature.atEnd()) {
-			if (signature.charAtStart() == ')') {
-				signature.start++;
+		short descriptorParameterIdx = 0;
+		while (!descriptor.atEnd()) {
+			if (descriptor.charAtStart() == ')') {
+				skipChar(descriptor, ')');
+				skipChar(signature, ')');
 				break;
 			}
 			char[] nextFieldDescriptor = readNextFieldDescriptor(descriptor);
-			NdMethodParameter parameter = new NdMethodParameter(method, createTypeSignature(
-					typeAnnotations.toMethodParameter(parameterIdx), signature, nextFieldDescriptor));
+			/**
+			 * True iff this a parameter which is part of the field descriptor but not the generic signature -- that is,
+			 * it is a compiler-defined parameter.
+			 */
+			boolean isCompilerDefined = descriptorParameterIdx < numCompilerDefinedParameters;
+			SignatureWrapper nextFieldSignature = signature;
+			if (isCompilerDefined && !compilerDefinedParametersAreIncludedInSignature) {
+				nextFieldSignature = new SignatureWrapper(nextFieldDescriptor);
+			}
+			NdMethodParameter parameter = new NdMethodParameter(method,
+					createTypeSignature(typeAnnotations.toMethodParameter(descriptorParameterIdx), nextFieldSignature,
+							nextFieldDescriptor));
 
-			if (parameterIdx < annotatedParametersCount) {
-				IBinaryAnnotation[] parameterAnnotations = next.getParameterAnnotations(parameterIdx, binaryTypeName);
+			parameter.setCompilerDefined(isCompilerDefined);
+
+			if (descriptorParameterIdx < annotatedParametersCount) {
+				IBinaryAnnotation[] parameterAnnotations = next.getParameterAnnotations(descriptorParameterIdx,
+						binaryTypeName);
 
 				if (parameterAnnotations != null) {
 					for (IBinaryAnnotation nextAnnotation : parameterAnnotations) {
@@ -296,10 +325,10 @@ public class ClassFileToIndexConverter {
 					}
 				}
 			}
-			if (parameterNames != null && parameterNames.length > parameterIdx) {
-				parameter.setName(parameterNames[parameterIdx]);
+			if (parameterNames != null && parameterNames.length > descriptorParameterIdx) {
+				parameter.setName(parameterNames[descriptorParameterIdx]);
 			}
-			parameterIdx++;
+			descriptorParameterIdx++;
 		}
 
 		skipChar(descriptor, ')');

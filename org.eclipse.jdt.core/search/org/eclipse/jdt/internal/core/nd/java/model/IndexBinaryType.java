@@ -520,7 +520,10 @@ public class IndexBinaryType implements IBinaryType {
 
 		result.append('(');
 		for (NdMethodParameter next : method.getMethodParameters()) {
-			next.getType().getSignature(result);
+			// Compiler-defined arguments don't show up in the generic signature
+			if (!next.isCompilerDefined()) {
+				next.getType().getSignature(result);
+			}
 		}
 		result.append(')');
 		NdTypeSignature returnType = method.getReturnType();

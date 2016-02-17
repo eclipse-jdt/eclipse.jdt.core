@@ -5,6 +5,7 @@ import java.util.List;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.NdNode;
 import org.eclipse.jdt.internal.core.nd.db.IString;
+import org.eclipse.jdt.internal.core.nd.field.FieldByte;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldString;
@@ -15,6 +16,9 @@ public class NdMethodParameter extends NdNode {
 	public static final FieldManyToOne<NdTypeSignature> ARGUMENT_TYPE;
 	public static final FieldString NAME;
 	public static final FieldOneToMany<NdAnnotation> ANNOTATIONS;
+	public static final FieldByte FLAGS;
+
+	private static final byte FLG_COMPILER_DEFINED = 0x01;
 
 	@SuppressWarnings("hiding")
 	public static StructDef<NdMethodParameter> type;
@@ -25,6 +29,7 @@ public class NdMethodParameter extends NdNode {
 		ARGUMENT_TYPE = FieldManyToOne.create(type, NdTypeSignature.USED_AS_METHOD_ARGUMENT);
 		NAME = type.addString();
 		ANNOTATIONS = FieldOneToMany.create(type, NdAnnotation.PARENT_METHOD_PARAMETER);
+		FLAGS = type.addByte();
 		type.done();
 	}
 
@@ -53,5 +58,23 @@ public class NdMethodParameter extends NdNode {
 
 	public List<NdAnnotation> getAnnotations() {
 		return ANNOTATIONS.asList(getNd(), this.address);
+	}
+
+	private void setFlag(byte flagConstant, boolean value) {
+		int oldFlags = FLAGS.get(getNd(), this.address);
+		int newFlags = ((oldFlags & ~flagConstant) | (value ? flagConstant : 0));
+		FLAGS.put(getNd(), this.address, (byte) newFlags);
+	}
+
+	private boolean getFlag(byte flagConstant) {
+		return (FLAGS.get(getNd(), this.address) & flagConstant) != 0;
+	}
+
+	public void setCompilerDefined(boolean isCompilerDefined) {
+		setFlag(FLG_COMPILER_DEFINED, isCompilerDefined);
+	}
+
+	public boolean isCompilerDefined() {
+		return getFlag(FLG_COMPILER_DEFINED);
 	}
 }
