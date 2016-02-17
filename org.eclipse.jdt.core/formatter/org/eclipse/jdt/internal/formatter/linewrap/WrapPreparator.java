@@ -283,6 +283,8 @@ public class WrapPreparator extends ASTVisitor {
 
 		if (!node.isConstructor()) {
 			this.wrapParentIndex = this.tm.findFirstTokenInLine(this.tm.firstIndexIn(node.getName(), -1));
+			while (this.tm.get(this.wrapParentIndex).isComment())
+				this.wrapParentIndex++;
 			List<TypeParameter> typeParameters = node.typeParameters();
 			if (!typeParameters.isEmpty())
 				this.wrapIndexes.add(this.tm.firstIndexIn(typeParameters.get(0), -1));
