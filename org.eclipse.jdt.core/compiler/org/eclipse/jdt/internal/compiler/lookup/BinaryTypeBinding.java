@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1525,7 +1525,8 @@ private void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBi
 		return; // we know it's nonnull, no need to look for null *annotations* on enum constants.
 	}
 
-	if (this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
+	if (!CharOperation.equals(this.fPackage.compoundName, TypeConstants.JAVA_LANG_ANNOTATION) // avoid dangerous re-entry via usesNullTypeAnnotations()
+			&& this.environment.usesNullTypeAnnotations()) {
 		TypeBinding fieldType = fieldBinding.type;
 		if (fieldType != null
 				&& !fieldType.isBaseType()
