@@ -36,7 +36,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	static {
-		 TESTS_NAMES = new String[] { "test003" };
+		 //TESTS_NAMES = new String[] { "test003" };
 	}
 	private static boolean isJRE9 = false;
 	public static Test suite() {
@@ -144,8 +144,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			this.currentProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = this.currentProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", 
-					"Connection cannot be resolved to a type\n" + 
-					"The import java.sql.Connection cannot be resolved", markers);
+					"The import java.sql.Connection cannot be resolved\n" + 
+					"Connection cannot be resolved to a type", markers);
 		} finally {
 		}
 	}
@@ -281,8 +281,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			project.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", 
-					"Main cannot be resolved\n" + 
-					"The import com.greetings.Main cannot be resolved", 
+					"The import com.greetings.Main cannot be resolved\n" + 
+					"Main cannot be resolved", 
 					markers);
 		} finally {
 			deleteProject("P2");
@@ -387,8 +387,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",
-					"The import com.greetings cannot be resolved\n" +
-					"Main cannot be resolved",
+					"Main cannot be resolved\n" +
+					"The import com.greetings cannot be resolved",
 					markers);
 		} finally {
 			deleteProject("P2");

@@ -158,7 +158,7 @@ void acceptModule(byte[] content) {
 		if (moduleDecl != null) {
 			Set<IModule> cache = ModulesCache.get(this.zipFilename);
 			if (cache == null) {
-				ModulesCache.put(this.zipFilename, new HashSet<IModule>());
+				ModulesCache.put(this.zipFilename, cache = new HashSet<IModule>());
 			}
 			cache.add(moduleDecl);
 			//this.env.acceptModule(moduleDecl, this);
