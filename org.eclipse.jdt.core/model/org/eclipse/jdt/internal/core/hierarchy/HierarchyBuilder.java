@@ -27,7 +27,6 @@ import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.core.*;
-import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
 import org.eclipse.jdt.internal.core.util.ResourceCompilationUnit;
@@ -311,7 +310,7 @@ protected IBinaryType createInfoFromClassFileInJar(Openable classFile) {
 	IBinaryType info = null;
 
 	if (JavaIndex.isEnabled()) {
-		info = BinaryTypeFactory.create(Indexer.getLocationForElement(classFile.getParent()), classFilePath);
+		info = BinaryTypeFactory.create(JavaIndex.getLocationForElement(classFile.getParent()), classFilePath);
 	} else {
 		java.util.zip.ZipFile zipFile = null;
 		try {

@@ -18,7 +18,6 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
-import org.eclipse.jdt.internal.core.nd.DatabaseRef;
 import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.db.IString;
 import org.eclipse.jdt.internal.core.nd.java.JavaNames;
@@ -42,6 +41,7 @@ import org.eclipse.jdt.internal.core.nd.java.NdTypeInterface;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeParameter;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeSignature;
 import org.eclipse.jdt.internal.core.nd.java.NdVariable;
+import org.eclipse.jdt.internal.core.nd.java.TypeRef;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
@@ -49,13 +49,13 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
  * Implementation of {@link IBinaryType} that reads all its content from the index
  */
 public class IndexBinaryType implements IBinaryType {
-	private final DatabaseRef<NdType> typeRef;
+	private final TypeRef typeRef;
 
 	private boolean enclosingInitialized;
 	private char[] enclosingMethod;
 	private char[] enclosingType;
 
-	public IndexBinaryType(DatabaseRef<NdType> type) {
+	public IndexBinaryType(TypeRef type) {
 		this.typeRef = type;
 	}
 
@@ -83,7 +83,7 @@ public class IndexBinaryType implements IBinaryType {
 			if (type != null) {
 				return type.getFile().getPath().toString().toCharArray();
 			} else {
-				return new char[0];
+				return null;
 			}
 		}
 	}
@@ -167,7 +167,7 @@ public class IndexBinaryType implements IBinaryType {
 				}
 				return result;
 			} else {
-				return new IBinaryField[0];
+				return null;
 			}
 		}
 	}
@@ -301,14 +301,7 @@ public class IndexBinaryType implements IBinaryType {
 
 	@Override
 	public char[] getName() {
-		try (IReader rl = this.typeRef.lock()) {
-			NdType type = this.typeRef.get();
-			if (type != null) {
-				return type.getTypeId().getBinaryName();
-			} else {
-				return new char[0];
-			}
-		}
+		return JavaNames.fieldDescriptorToBinaryName(this.typeRef.getFieldDescriptor());
 	}
 
 	@Override
@@ -334,7 +327,7 @@ public class IndexBinaryType implements IBinaryType {
 				}
 				return null;
 			} else {
-				return new char[0];
+				return null;
 			}
 		}
 	}

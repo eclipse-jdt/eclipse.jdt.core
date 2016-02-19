@@ -176,7 +176,7 @@ public final class Indexer {
 
 		HashSet<IPath> workspacePaths = new HashSet<IPath>();
 		for (IJavaElement next : allRoots) {
-			IPath nextPath = getLocationForElement(next);
+			IPath nextPath = JavaIndex.getLocationForElement(next);
 			IPath workspacePath = getWorkspacePathForRoot(next);
 
 			List<IJavaElement> value = paths.get(nextPath);
@@ -252,7 +252,7 @@ public final class Indexer {
 			resourceFile.setLocation(pathString);
 			IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) element
 					.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-			IPath rootPathString = getLocationForElement(packageFragmentRoot);
+			IPath rootPathString = JavaIndex.getLocationForElement(packageFragmentRoot);
 			if (!rootPathString.equals(thePath)) {
 				resourceFile.setPackageFragmentRoot(rootPathString.toString().toCharArray());
 			}
@@ -427,7 +427,7 @@ public final class Indexer {
 						if (!nextRoot.exists()) {
 							continue;
 						}
-						IPath filesystemPath = getLocationForElement(nextRoot);
+						IPath filesystemPath = JavaIndex.getLocationForElement(nextRoot);
 						if (scannedPaths.contains(filesystemPath)) {
 							continue;
 						}
@@ -552,16 +552,6 @@ public final class Indexer {
 		}
 
 		return fingerprint.test(thePath.toFile(), subMonitor.split(50));
-	}
-
-	public static IPath getLocationForElement(IJavaElement next) {
-		IResource resource = next.getResource();
-
-		if (resource != null) {
-			return resource.getLocation() == null ? new Path("") : resource.getLocation(); //$NON-NLS-1$
-		}
-
-		return next.getPath();
 	}
 
 	public Indexer(Nd toPopulate, IWorkspaceRoot workspaceRoot) {

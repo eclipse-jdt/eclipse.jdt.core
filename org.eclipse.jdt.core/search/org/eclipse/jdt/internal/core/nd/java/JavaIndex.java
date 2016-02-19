@@ -13,8 +13,11 @@ package org.eclipse.jdt.internal.core.nd.java;
 import java.io.File;
 import java.util.List;
 
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.NdNode;
@@ -32,9 +35,9 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
  */
 public class JavaIndex {
 	// Version constants
-	static final int CURRENT_VERSION = Nd.version(1, 25);
-	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 25);
-	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 25);
+	static final int CURRENT_VERSION = Nd.version(1, 26);
+	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 26);
+	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 26);
 
 	// Fields for the search header
 	public static final FieldSearchIndex<NdResourceFile> FILES;
@@ -147,6 +150,19 @@ public class JavaIndex {
 		return new NdMethodId(this.pdom, methodId);
 	}
 
+	/**
+	 * Returns the absolute filesystem location of the given element or null if none
+	 */
+	public static IPath getLocationForElement(IJavaElement next) {
+		IResource resource = next.getResource();
+
+		if (resource != null) {
+			return resource.getLocation() == null ? new Path("") : resource.getLocation(); //$NON-NLS-1$
+		}
+
+		return next.getPath();
+	}
+
 	public static boolean isEnabled() {
 		return Platform.getPreferencesService().getBoolean("org.eclipse.jdt.ui", "enableNewJavaIndex", false, //$NON-NLS-1$ //$NON-NLS-2$
 				null);
@@ -192,7 +208,7 @@ public class JavaIndex {
 
 	static NdNodeTypeRegistry<NdNode> createTypeRegistry() {
 		NdNodeTypeRegistry<NdNode> registry = new NdNodeTypeRegistry<>();
-		registry.register(0x0000, NdAnnotation.type.getFactory());
+		registry.register(0x0001, NdAnnotation.type.getFactory());
 		registry.register(0x0010, NdAnnotationValuePair.type.getFactory());
 		registry.register(0x0020, NdBinding.type.getFactory());
 		registry.register(0x0028, NdComplexTypeSignature.type.getFactory());
@@ -227,6 +243,11 @@ public class JavaIndex {
 		registry.register(0x01F0, NdVariable.type.getFactory());
 		registry.register(0x0200, NdWorkspaceLocation.type.getFactory());
 		return registry;
+	}
+
+	// TODO: delete and recreate the index
+	public void rebuildIndex() {
+
 	}
 
 //	/**
