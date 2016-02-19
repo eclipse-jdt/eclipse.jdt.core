@@ -363,6 +363,9 @@ public final class Indexer {
 			} finally {
 				this.pdom.releaseWriteLock();
 			}
+//			if (ENABLE_SELF_TEST) {
+//				IndexTester.testType(binaryType, new IndexBinaryType(ReferenceUtil.createTypeRef(type)));
+//			}
 		}
 
 		return classesIndexed;
