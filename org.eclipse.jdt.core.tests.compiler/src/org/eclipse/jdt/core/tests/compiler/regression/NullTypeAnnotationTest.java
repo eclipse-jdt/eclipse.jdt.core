@@ -10760,6 +10760,88 @@ public void testBug485581() {
 		""
 	);
 }
+public void testBug482752_lambda() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/StringProcessor.java",
+			"package test;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public interface StringProcessor {\n" +
+			"	void process(String value);\n" +
+			"\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runConformTestWithLibs(
+			new String[] {
+				"test/Foo.java",
+				"package test;\n" +
+				"\n" +
+				"import org.eclipse.jdt.annotation.NonNull;\n" +
+				"\n" +
+				"public final class Foo {\n" +
+				"\n" +
+				"	public static StringProcessor createProcessorLambdaExpression() {\n" +
+				"		return (@NonNull String value) -> Foo.test(value);\n" +
+				"	}\n" +
+				"\n" +
+				"	public static void test(@NonNull String value) {\n" +
+				"		System.out.println(value);\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+			}, 
+			getCompilerOptions(),
+			""
+		);
+}
+
+public void testBug482752_methodref() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/StringProcessor.java",
+			"package test;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public interface StringProcessor {\n" +
+			"	void process(String value);\n" +
+			"\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runConformTestWithLibs(
+			new String[] {
+				"test/Foo.java",
+				"package test;\n" +
+				"\n" +
+				"import org.eclipse.jdt.annotation.NonNull;\n" +
+				"\n" +
+				"public final class Foo {\n" +
+				"\n" +
+				"	public static StringProcessor createProcessorMethodReference() {\n" +
+				"		return Foo::test;\n" +
+				"	}\n" +
+				"\n" +
+				"	public static void test(@NonNull String value) {\n" +
+				"		System.out.println(value);\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+			}, 
+			getCompilerOptions(),
+			""
+		);
+}
+
 public void testBug485374() {
 	runConformTestWithLibs(
 		new String[] {
