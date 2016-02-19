@@ -42,7 +42,7 @@ public class JavaNames {
 	}
 
 	public static char[] fullyQualifiedNameToFieldDescriptor(char[] fullyQualifiedName) {
-		char[] result = CharArrayUtils.concat(FIELD_DESCRIPTOR_PREFIX, fullyQualifiedName);
+		char[] result = CharArrayUtils.concat(FIELD_DESCRIPTOR_PREFIX, fullyQualifiedName, FIELD_DESCRIPTOR_SUFFIX);
 		CharOperation.replace(result, '.', '/');
 		return result;
 	}
