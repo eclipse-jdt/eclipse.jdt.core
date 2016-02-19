@@ -160,4 +160,165 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK1_9;
 		checkParse(CHECK_PARSER, source.toCharArray(), expectedErrorString, "module-info", null, null, options);
 	}
+	public void test0008() throws IOException {
+		String source = 
+				"module @Marker com.greetings {\n" +
+				"	requires org.astro;" +
+				"}\n";
+		String errorMsg = 
+				"----------\n" +
+				"1. ERROR in module-info (at line 1)\n" +
+				"	module @Marker com.greetings {\n" +
+				"	^^^^^^\n" +
+				"Syntax error on token(s), misplaced construct(s)\n" +
+				"----------\n" +
+				"2. ERROR in module-info (at line 1)\n" +
+				"	module @Marker com.greetings {\n"+
+				"	       ^^^^^^^^^^^^^^^^^^^^^\n"+
+				"Syntax error on tokens, ModuleHeader expected instead\n" +
+				"----------\n"+
+				"3. ERROR in module-info (at line 1)\n"+
+				"	module @Marker com.greetings {\n" +
+				"	               ^^^\n" +
+				"Syntax error on token \"com\", delete this token\n" +
+				 "----------\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK1_9;
+		options.sourceLevel = ClassFileConstants.JDK1_9;
+		options.targetJDK = ClassFileConstants.JDK1_9;
+		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
+	}
+	public void test0009() throws IOException {
+		String source = 
+				"module com.greetings {\n" +
+				"	requires @Marker org.astro;\n" +
+				"}\n";
+		String errorMsg = 
+				"----------\n" +
+				"1. ERROR in module-info (at line 1)\n" +
+				"	module com.greetings {\n	requires @Marker org.astro;\n" +
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Syntax error on token(s), misplaced construct(s)\n" +
+				"----------\n" +
+				"2. ERROR in module-info (at line 2)\n" +
+				"	requires @Marker org.astro;\n"+
+				"	          ^^^^^^\n"+
+				"Syntax error on token \"Marker\", package expected after this token\n" +
+				"----------\n"+
+				"3. ERROR in module-info (at line 3)\n"+
+				"	}\n" +
+				"	^\n" +
+				"Syntax error on token \"}\", delete this token\n" +
+				 "----------\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK1_9;
+		options.sourceLevel = ClassFileConstants.JDK1_9;
+		options.targetJDK = ClassFileConstants.JDK1_9;
+		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
+	}
+	public void test0010() throws IOException {
+		String source = 
+				"module com.greetings {\n" +
+				"	requires private org.astro;\n" +
+				"}\n";
+		String errorMsg = 
+				"----------\n" +
+				"1. ERROR in module-info (at line 2)\n" +
+				"	requires private org.astro;\n"+
+				"	         ^^^^^^^\n"+
+				"Syntax error on token \"private\", delete this token\n" +
+				 "----------\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK1_9;
+		options.sourceLevel = ClassFileConstants.JDK1_9;
+		options.targetJDK = ClassFileConstants.JDK1_9;
+		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
+	}
+	public void test0011() throws IOException {
+		String source = 
+				"module com.greetings {\n" +
+				"	exports @Marker com.greetings;\n" +
+				"}\n";
+		String errorMsg = 
+				"----------\n" +
+				"1. ERROR in module-info (at line 1)\n" +
+				"	module com.greetings {\n	exports @Marker com.greetings;\n" +
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Syntax error on token(s), misplaced construct(s)\n" +
+				"----------\n" +
+				"2. ERROR in module-info (at line 2)\n" +
+				"	exports @Marker com.greetings;\n"+
+				"	         ^^^^^^\n"+
+				"Syntax error on token \"Marker\", package expected after this token\n" +
+				"----------\n"+
+				"3. ERROR in module-info (at line 3)\n"+
+				"	}\n" +
+				"	^\n" +
+				"Syntax error on token \"}\", delete this token\n" +
+				 "----------\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK1_9;
+		options.sourceLevel = ClassFileConstants.JDK1_9;
+		options.targetJDK = ClassFileConstants.JDK1_9;
+		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
+	}
+	public void test0012() throws IOException {
+		String source = 
+				"module com.greetings {\n" +
+				"	exports com.greetings to @Marker org.astro;\n" +
+				"}\n";
+		String errorMsg = 
+				"----------\n" +
+				"1. ERROR in module-info (at line 2)\n" +
+				"	exports com.greetings to @Marker org.astro;\n"+
+				"	                         ^^^^^^^\n"+
+				"Syntax error on tokens, delete these tokens\n" +
+				 "----------\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK1_9;
+		options.sourceLevel = ClassFileConstants.JDK1_9;
+		options.targetJDK = ClassFileConstants.JDK1_9;
+		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
+	}
+	public void test0013() throws IOException {
+		String source = 
+				"module com.greetings {\n" +
+				"	uses @Marker org.astro.World;\n" +
+				"}\n";
+		String errorMsg = 
+				"----------\n" +
+				"1. ERROR in module-info (at line 2)\n" +
+				"	uses @Marker org.astro.World;\n" +
+				"	     ^^^^^^^\n"+
+				"Syntax error, type annotations are illegal here\n" +
+				 "----------\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK1_9;
+		options.sourceLevel = ClassFileConstants.JDK1_9;
+		options.targetJDK = ClassFileConstants.JDK1_9;
+		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
+	}
+	public void test0014() throws IOException {
+		String source = 
+				"module com.greetings {\n" +
+				"	provides @Marker org.astro.World with @Marker com.greetings.Main;\n" +
+				"}\n";
+		String errorMsg = 
+				"----------\n" +
+				"1. ERROR in module-info (at line 2)\n" +
+				"	provides @Marker org.astro.World with @Marker com.greetings.Main;\n" +
+				"	         ^^^^^^^\n"+
+				"Syntax error, type annotations are illegal here\n" +
+				"----------\n" +
+				"2. ERROR in module-info (at line 2)\n" +
+				"	provides @Marker org.astro.World with @Marker com.greetings.Main;\n" +
+				"	                                      ^^^^^^^\n"+
+				"Syntax error, type annotations are illegal here\n" +
+				 "----------\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK1_9;
+		options.sourceLevel = ClassFileConstants.JDK1_9;
+		options.targetJDK = ClassFileConstants.JDK1_9;
+		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
+	}
 }

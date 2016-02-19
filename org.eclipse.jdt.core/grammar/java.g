@@ -427,7 +427,7 @@ ModuleDeclaration ::= ModuleHeader ModuleBody
 /:$compliance 1.9:/
 /.$putCase consumeModuleDeclaration(); $break ./
 
-ModuleHeader ::= 'module' Name
+ModuleHeader ::= 'module' UnannotatableName
 /:$compliance 1.9:/
 /.$putCase consumeModuleHeader(); $break ./
 
@@ -451,10 +451,15 @@ ModuleStatement ::= ProvidesStatement
 RequiresStatement ::=  SingleRequiresModuleName ';'
 /:$compliance 1.9:/
 /.$putCase consumeRequiresStatement(); $break ./
-SingleRequiresModuleName ::= 'requires' Modifiersopt Name
+SingleRequiresModuleName ::= 'requires' RequiresModifieropt UnannotatableName
 /:$compliance 1.9:/
 /.$putCase consumeSingleRequiresModuleName(); $break ./
-
+RequiresModifieropt ::= PublicModifier
+/:$compliance 1.9:/
+/.$putCase consumeModifiers(); $break ./
+RequiresModifieropt ::= $empty
+/.$putCase consumeDefaultModifiers(); $break ./
+PublicModifier -> 'public'
 ExportsStatement ::=  SingleExportsPkgName ExportTargetopt ';'
 /:$compliance 1.9:/
 /.$putCase consumeExportsStatement(); $break ./
@@ -462,13 +467,13 @@ ExportTargetopt ::= $empty
 ExportTargetopt ::= 'to' ExportTargetNameList
 /:$compliance 1.9:/
 /.$putCase consumeExportTarget(); $break ./
-ExportTargetNameList ::= Name
+ExportTargetNameList ::= UnannotatableName
 /:$compliance 1.9:/
 /.$putCase consumeSingleExportsTargetName(); $break ./
-ExportTargetNameList ::= ExportTargetNameList ',' Name
+ExportTargetNameList ::= ExportTargetNameList ',' UnannotatableName
 /:$compliance 1.9:/
 /.$putCase consumeExportsTargetNameList(); $break ./
-SingleExportsPkgName ::= 'exports' Name
+SingleExportsPkgName ::= 'exports' UnannotatableName
 /:$compliance 1.9:/
 /.$putCase consumeSingleExportsPkgName(); $break ./
 
