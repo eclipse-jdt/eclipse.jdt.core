@@ -51,24 +51,28 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 public class IndexBinaryType implements IBinaryType {
 	private final TypeRef typeRef;
 
-	private boolean enclosingInitialized;
+	private boolean simpleAttributesInitialized;
 	private char[] enclosingMethod;
 	private char[] enclosingType;
+	private char[] fileName;
+	private char[] superclassName;
+	private int modifiers;
+	private boolean isAnonymous;
+	private boolean isLocal;
+	private boolean isMember;
 
-	public IndexBinaryType(TypeRef type) {
+	private long tagBits;
+
+	public IndexBinaryType(TypeRef type, char[] indexPath) {
 		this.typeRef = type;
+		this.fileName = indexPath;
 	}
 
 	@Override
 	public int getModifiers() {
-		try (IReader rl = this.typeRef.lock()) {
-			NdType type = this.typeRef.get();
-			if (type != null) {
-				return type.getModifiers();
-			} else {
-				return 0;
-			}
-		}
+		initSimpleAttributes();
+
+		return this.modifiers;
 	}
 
 	@Override
@@ -78,14 +82,7 @@ public class IndexBinaryType implements IBinaryType {
 
 	@Override
 	public char[] getFileName() {
-		try (IReader rl = this.typeRef.lock()) {
-			NdType type = this.typeRef.get();
-			if (type != null) {
-				return type.getFile().getPath().toString().toCharArray();
-			} else {
-				return null;
-			}
-		}
+		return this.fileName;
 	}
 
 	@Override
@@ -138,14 +135,14 @@ public class IndexBinaryType implements IBinaryType {
 
 	@Override
 	public char[] getEnclosingMethod() {
-		initEnclosing();
+		initSimpleAttributes();
 
 		return this.enclosingMethod;
 	}
 
 	@Override
 	public char[] getEnclosingTypeName() {
-		initEnclosing();
+		initSimpleAttributes();
 
 		return this.enclosingType;
 	}
@@ -318,66 +315,37 @@ public class IndexBinaryType implements IBinaryType {
 
 	@Override
 	public char[] getSuperclassName() {
-		try (IReader rl = this.typeRef.lock()) {
-			NdType type = this.typeRef.get();
-			if (type != null) {
-				NdTypeSignature superclass = type.getSuperclass();
-				if (superclass != null) {
-					return superclass.getRawType().getBinaryName();
-				}
-				return null;
-			} else {
-				return null;
-			}
-		}
+		initSimpleAttributes();
+
+		return this.superclassName;
 	}
 
 	@Override
 	public long getTagBits() {
-		try (IReader rl = this.typeRef.lock()) {
-			NdType type = this.typeRef.get();
-			if (type != null) {
-				return type.getTagBits();
-			} else {
-				return 0;
-			}
-		}
+		initSimpleAttributes();
+
+		return this.tagBits;
 	}
 
 	@Override
 	public boolean isAnonymous() {
-		try (IReader rl = this.typeRef.lock()) {
-			NdType type = this.typeRef.get();
-			if (type != null) {
-				return type.isAnonymous();
-			} else {
-				return false;
-			}
-		}
+		initSimpleAttributes();
+
+		return this.isAnonymous;
 	}
 
 	@Override
 	public boolean isLocal() {
-		try (IReader rl = this.typeRef.lock()) {
-			NdType type = this.typeRef.get();
-			if (type != null) {
-				return type.isLocal();
-			} else {
-				return false;
-			}
-		}
+		initSimpleAttributes();
+
+		return this.isLocal;
 	}
 
 	@Override
 	public boolean isMember() {
-		try (IReader rl = this.typeRef.lock()) {
-			NdType type = this.typeRef.get();
-			if (type != null) {
-				return type.isMember();
-			} else {
-				return false;
-			}
-		}
+		initSimpleAttributes();
+
+		return this.isMember;
 	}
 
 	@Override
@@ -656,9 +624,9 @@ public class IndexBinaryType implements IBinaryType {
 		}
 	}
 
-	private void initEnclosing() {
-		if (!this.enclosingInitialized) {
-			this.enclosingInitialized = true;
+	private void initSimpleAttributes() {
+		if (!this.simpleAttributesInitialized) {
+			this.simpleAttributesInitialized = true;
 
 			try (IReader rl = this.typeRef.lock()) {
 				NdType type = this.typeRef.get();
@@ -676,6 +644,19 @@ public class IndexBinaryType implements IBinaryType {
 						if (typeId != null) {
 							this.enclosingType = typeId.getBinaryName();
 						}
+					}
+
+					this.modifiers = type.getModifiers();
+					this.isAnonymous = type.isAnonymous();
+					this.isLocal = type.isLocal();
+					this.isMember = type.isMember();
+					this.tagBits = type.getTagBits();
+
+					NdTypeSignature superclass = type.getSuperclass();
+					if (superclass != null) {
+						this.superclassName = superclass.getRawType().getBinaryName();
+					} else {
+						this.superclassName = null;
 					}
 				}
 			}
