@@ -179,6 +179,16 @@ public class NdResourceFile extends NdTreeNode {
 		return HASHCODE_LAST_SCANNED.get(getNd(), this.address);
 	}
 
+	/**
+	 * Returns true iff the indexer has finished writing the contents of this file to the index. Returns false if
+	 * indexing may still be going on. If this returns false, readers should ignore all contents of this file.
+	 *
+	 * @return true iff the contents of this file are usable
+	 */
+	public boolean isDoneIndexing() {
+		return getTimeLastScanned() != 0;
+	}
+
 	public long getTimeLastScanned() {
 		return TIME_LAST_SCANNED.get(getNd(), this.address);
 	}
