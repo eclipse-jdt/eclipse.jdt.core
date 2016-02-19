@@ -505,6 +505,10 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 		}
 	}
+	if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8 &&
+			this.binding.getTypeAnnotations() != Binding.NO_ANNOTATIONS) {
+		this.resolvedType = scope.environment().createAnnotatedType(this.resolvedType, this.binding.getTypeAnnotations());
+	}
 	return this.resolvedType;
 }
 

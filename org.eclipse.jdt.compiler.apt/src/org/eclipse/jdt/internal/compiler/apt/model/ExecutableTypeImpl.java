@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2015 IBM Corporation and others.
+ * Copyright (c) 2006, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import javax.lang.model.type.TypeVariable;
 import javax.lang.model.type.TypeVisitor;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -77,6 +78,10 @@ public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType
 		return _env.getFactory().newTypeMirror(((MethodBinding) this._binding).returnType);
 	}
 
+	protected AnnotationBinding[] getAnnotationBindings() {
+		return ((MethodBinding) this._binding).returnType.getTypeAnnotations();
+	}
+
 	/* (non-Javadoc)
 	 * @see javax.lang.model.type.ExecutableType#getThrownTypes()
 	 */
@@ -125,5 +130,9 @@ public class ExecutableTypeImpl extends TypeMirrorImpl implements ExecutableType
 
 	public TypeMirror getReceiverType() {
 		return _env.getFactory().getReceiverType((MethodBinding) _binding);
+	}
+	@Override
+	public String toString() {
+		return new String(((MethodBinding) this._binding).returnType.readableName());
 	}
 }

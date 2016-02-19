@@ -1954,6 +1954,13 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 					rejectTypeAnnotatedVoidMethod(methodDecl);
 			}
 		}
+	} else {
+		if (sourceLevel >= ClassFileConstants.JDK1_8) {
+			Annotation [] annotations = methodDecl.annotations;
+			if (annotations != null && annotations.length != 0) {
+				ASTNode.copySE8AnnotationsToType(methodDecl.scope, method, methodDecl.annotations, false);
+			}
+		}
 	}
 	if (foundArgProblem) {
 		methodDecl.binding = null;

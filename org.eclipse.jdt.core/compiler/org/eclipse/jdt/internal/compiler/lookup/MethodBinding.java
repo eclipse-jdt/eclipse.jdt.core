@@ -60,6 +60,8 @@ public class MethodBinding extends Binding {
 	public TypeVariableBinding[] typeVariables = Binding.NO_TYPE_VARIABLES;
 	char[] signature;
 	public long tagBits;
+	// Used only for constructors
+	protected AnnotationBinding [] typeAnnotations = Binding.NO_ANNOTATIONS;
 
 	/** Store nullness information from annotation (incl. applicable default). */
 	public Boolean[] parameterNonNullness;  // TRUE means @NonNull declared, FALSE means @Nullable declared, null means nothing declared
@@ -951,6 +953,13 @@ public char[] readableName() /* foo(int, Thread) */ {
 	}
 	buffer.append(')');
 	return buffer.toString().toCharArray();
+}
+final public AnnotationBinding[] getTypeAnnotations() {
+	return this.typeAnnotations;
+}
+
+public void setTypeAnnotations(AnnotationBinding[] annotations) {
+	this.typeAnnotations = annotations;
 }
 public void setAnnotations(AnnotationBinding[] annotations) {
 	this.declaringClass.storeAnnotations(this, annotations);

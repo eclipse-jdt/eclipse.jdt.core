@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation.
+ * Copyright (c) 2013, 2016 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 package targets.model8;
 
 import org.eclipse.jdt.compiler.apt.tests.annotations.Type;
+import org.eclipse.jdt.compiler.apt.tests.annotations.Type1;
 import org.eclipse.jdt.compiler.apt.tests.annotations.Type$1;
 import org.eclipse.jdt.compiler.apt.tests.annotations.Type.One;
 
@@ -32,7 +33,8 @@ public class X extends @Type("s") Object implements @Type("i1") I, @Type("i2") J
 	public void bar2(@Type("receiver") X this) {}
 	// Static methods and top level constructors do not have receivers
 	public static void main(String[] args) {}
-	public X(){}
+	@Type("constr1") public X(){}
+	@Type1("constr2") public X(int i){}
 	class XY {
 		XY(@Type("receiver") X X.this) {}
 	}
