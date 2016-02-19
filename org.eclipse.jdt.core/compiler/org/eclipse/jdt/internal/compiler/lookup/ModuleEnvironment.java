@@ -116,6 +116,12 @@ public abstract class ModuleEnvironment implements INameEnvironment {
 //	}
 
 	public boolean isPackageVisible(char[] packageName, char[] sourceName, char[] clientName) {
+		boolean clientIsUnnamed = clientName == null || clientName == UNNAMED;
+		if (clientIsUnnamed)
+			return true; // Unnamed module can read every module
+		if (sourceName == null || sourceName == UNNAMED)
+			return clientIsUnnamed; // Unnamed module cannot be read by any named module
+
 		if (CharOperation.equals(sourceName, clientName)) 
 			return true;
 

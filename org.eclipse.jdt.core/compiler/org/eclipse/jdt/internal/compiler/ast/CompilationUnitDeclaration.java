@@ -34,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.ImportBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.NLSTag;
@@ -101,7 +102,9 @@ public CompilationUnitDeclaration(ProblemReporter problemReporter, CompilationRe
 	//by definition of a compilation unit....
 	this.sourceStart = 0;
 	this.sourceEnd = sourceLength - 1;
-	if (compilationResult != null && compilationResult.compilationUnit != null) {
+	if (this.isModuleInfo()) {
+		this.module = this.moduleDeclaration != null ? this.moduleDeclaration.moduleName : ModuleEnvironment.UNNAMED;
+	} else if (compilationResult != null && compilationResult.compilationUnit != null) {
 		this.module = compilationResult.compilationUnit.module();
 	}
 }
