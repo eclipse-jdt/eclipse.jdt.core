@@ -68,7 +68,7 @@ public abstract class NdNode implements IDestructable {
 
 		if (!clazz.isAssignableFrom(result.getClass())) {
 			throw new IndexException("Found wrong data type at address " + address + ". Expected a subclass of " +  //$NON-NLS-1$//$NON-NLS-2$
-				clazz.getClass() + " but found " + result.getClass()); //$NON-NLS-1$
+					clazz + " but found " + result.getClass()); //$NON-NLS-1$
 		}
 
 		return (T)result;
