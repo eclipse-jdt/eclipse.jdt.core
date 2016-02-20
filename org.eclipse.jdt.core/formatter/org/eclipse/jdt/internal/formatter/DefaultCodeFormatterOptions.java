@@ -975,9 +975,9 @@ public class DefaultCodeFormatterOptions {
 			try {
 				this.align_fields_grouping_blank_lines = Integer.parseInt((String) alignGroupSepartionBlankLinesOption);
 			} catch (NumberFormatException e) {
-				this.align_fields_grouping_blank_lines = 99;
+				this.align_fields_grouping_blank_lines = Integer.MAX_VALUE;
 			} catch(ClassCastException e) {
-				this.align_fields_grouping_blank_lines = 99;
+				this.align_fields_grouping_blank_lines = Integer.MAX_VALUE;
 			}
 		}
 		final Object bracePositionForAnnotationTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ANNOTATION_TYPE_DECLARATION);
@@ -2311,7 +2311,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_union_type_in_multicatch = Alignment.M_COMPACT_SPLIT;
 		this.align_type_members_on_columns = false;
-		this.align_fields_grouping_blank_lines = 99;
+		this.align_fields_grouping_blank_lines = Integer.MAX_VALUE;
 		this.brace_position_for_annotation_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_anonymous_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_array_initializer = DefaultCodeFormatterConstants.END_OF_LINE;
@@ -2603,7 +2603,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_union_type_in_multicatch = Alignment.M_COMPACT_SPLIT;
 		this.align_type_members_on_columns = false;
-		this.align_fields_grouping_blank_lines = 99;
+		this.align_fields_grouping_blank_lines = Integer.MAX_VALUE;
 		this.brace_position_for_annotation_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_anonymous_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_array_initializer = DefaultCodeFormatterConstants.END_OF_LINE;
