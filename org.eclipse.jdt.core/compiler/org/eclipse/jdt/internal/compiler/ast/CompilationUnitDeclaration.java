@@ -102,11 +102,13 @@ public CompilationUnitDeclaration(ProblemReporter problemReporter, CompilationRe
 	//by definition of a compilation unit....
 	this.sourceStart = 0;
 	this.sourceEnd = sourceLength - 1;
-	if (this.isModuleInfo()) {
-		this.module = this.moduleDeclaration != null ? this.moduleDeclaration.moduleName : ModuleEnvironment.UNNAMED;
-	} else if (compilationResult != null && compilationResult.compilationUnit != null) {
-		this.module = compilationResult.compilationUnit.module();
-	}
+	 if (compilationResult != null) {
+		 if (this.isModuleInfo()) {
+			 this.module = this.moduleDeclaration != null ? this.moduleDeclaration.moduleName : ModuleEnvironment.UNNAMED;
+		 } else if (compilationResult.compilationUnit != null) {
+			 this.module = compilationResult.compilationUnit.module();
+		 }
+	 }
 }
 
 /*
