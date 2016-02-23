@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2661,14 +2661,14 @@ public abstract class Scope {
 								if (compatibleMethod != null) {
 									if (compatibleMethod.isValidBinding()) {
 										if (compatibleMethod.canBeSeenBy(unitScope.fPackage)) {
+											if (!skipOnDemand && !importBinding.onDemand) {
+												visible = null; // forget previous matches from on demand imports
+												skipOnDemand = true;
+											}
 											if (visible == null || !visible.contains(compatibleMethod)) {
 												ImportReference importReference = importBinding.reference;
 												if (importReference != null) {
 													importReference.bits |= ASTNode.Used;
-												}
-												if (!skipOnDemand && !importBinding.onDemand) {
-													visible = null; // forget previous matches from on demand imports
-													skipOnDemand = true;
 												}
 												if (visible == null)
 													visible = new ObjectVector(3);

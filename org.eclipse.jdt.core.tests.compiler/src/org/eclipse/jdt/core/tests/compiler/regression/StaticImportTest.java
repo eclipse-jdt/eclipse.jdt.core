@@ -3226,5 +3226,36 @@ public class StaticImportTest extends AbstractComparableTest {
 				"}"
 			});
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=442580
+	// Explicit static import after two wildcard imports is ambiguous (works in javac)
+	public void testBug442580() {
+		this.runConformTest(new String [] {
+				"a/A.java",
+				"package a;\n" + 
+				"\n" + 
+				"public class A {\n" + 
+				"	public static void foo() {\n" + 
+				"		System.out.println(\"A.foo\");\n" + 
+				"	}\n" + 
+				"}",
+				"b/B.java",
+				"package b;\n" + 
+				"\n" + 
+				"public class B {\n" + 
+				"	public static void foo() {\n" + 
+				"		System.out.println(\"B.foo\");\n" + 
+				"	}\n" + 
+				"}",
+				"Test.java",
+				"import static a.A.*;\n" + 
+				"import static b.B.*;\n" + 
+				"import static b.B.foo;\n" + 
+				"\n" + 
+				"public class Test {\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		foo();\n" + 
+				"	}\n" + 
+				"}"
+		});
+	}
 }
-
