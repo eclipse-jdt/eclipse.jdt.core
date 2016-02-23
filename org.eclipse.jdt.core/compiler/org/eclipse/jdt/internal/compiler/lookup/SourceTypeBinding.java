@@ -88,7 +88,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	protected SourceTypeBinding prototype;
 	LookupEnvironment environment;
 	//char[] module; //TODO: Should be replaced by ModuleBinding
-	ModuleBinding module;
+	public ModuleBinding module;
 	// Synthetics are separated into 4 categories: methods, super methods, fields, class literals and bridge methods
 	// if a new category is added, also increment MAX_SYNTHETICS
 	private final static int METHOD_EMUL = 0;

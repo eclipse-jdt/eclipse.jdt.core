@@ -1722,6 +1722,10 @@ public final class CompletionEngine
 			completionOnSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnQualifiedNameReference) {
 			completionOnQualifiedNameReference(astNode, enclosingNode, qualifiedBinding, scope, insideTypeAnnotation);
+		} else if (astNode instanceof CompletionOnUsesQualifiedTypeReference) {
+			completionOnUsesQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
+		} else if (astNode instanceof CompletionOnUsesSingleTypeReference) {
+			completionOnUsesSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnQualifiedTypeReference) {
 			completionOnQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnMemberAccess) {
@@ -1825,6 +1829,77 @@ public final class CompletionEngine
 					System.out.println(parsedUnit.toString());
 				}
 
+				if (parsedUnit.isModuleInfo()) {
+					ModuleDeclaration moduleDeclaration = parsedUnit.moduleDeclaration;
+					if (moduleDeclaration == null) return;
+					if (moduleDeclaration instanceof CompletionOnModuleDeclaration) {
+						contextAccepted = true;
+						buildContext(parsedUnit.moduleDeclaration, null, parsedUnit, null, null);
+						this.requestor.setIgnored(CompletionProposal.MODULE_DECLARATION, false); //TODO: Hack until ui fixes this issue.
+						if(!this.requestor.isIgnored(CompletionProposal.MODULE_DECLARATION)) {
+							findModuleName(parsedUnit);
+						}
+						debugPrintf(); 
+						return;
+					}
+					if (moduleDeclaration instanceof CompletionOnKeywordModuleDeclaration) {
+						contextAccepted = true;
+						processModuleKeywordCompletion(parsedUnit, moduleDeclaration, (CompletionOnKeyword) moduleDeclaration);
+						return;								
+					}
+					ExportReference[] exports = moduleDeclaration.exports;
+					if (exports != null) {
+						for (int i = 0, l = exports.length; i < l; ++i) {
+							ExportReference exportReference = exports[i];
+							if (exportReference instanceof CompletionOnExportReference) {
+								contextAccepted = true;
+								buildContext(exportReference, null, parsedUnit, null, null);
+								if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
+									findPackages((CompletionOnExportReference) exportReference);
+								}
+								debugPrintf();
+								return;
+							}
+							if (exportReference instanceof CompletionOnKeywordModuleInfo) {
+								contextAccepted = true;
+								processModuleKeywordCompletion(parsedUnit, exportReference, (CompletionOnKeyword) exportReference);
+								return;								
+							} 
+							ModuleReference[] targets = exportReference.targets;
+							if (targets == null) continue;
+							for (int j = 0, lj = targets.length; j < lj; j++) {
+								ModuleReference target = targets[j];
+								if (target == null) break;
+								if (target instanceof CompletionOnModuleReference) {
+									if(!this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
+										contextAccepted = true;
+										findModules((CompletionOnModuleReference) target);//TODO: find Modules
+									}
+									debugPrintf();
+									return;
+								} else if (target instanceof CompletionOnKeyword) {
+									contextAccepted = true;
+									//TODO
+								}
+							}
+						}
+					}
+					ModuleReference[] moduleRefs = moduleDeclaration.requires;
+					if (moduleRefs != null) {
+						for (int i = 0, l = moduleRefs.length; i < l; ++i) {
+							ModuleReference reference = moduleRefs[i];
+							if (reference instanceof CompletionOnModuleReference) {
+								contextAccepted = true;
+								buildContext(reference, null, parsedUnit, null, null);
+								if(!this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
+									findModules((CompletionOnModuleReference) reference);
+								}
+								debugPrintf();
+								return;
+							}
+						}
+					}
+				}
 				// scan the package & import statements first
 				if (parsedUnit.currentPackage instanceof CompletionOnPackageReference) {
 					contextAccepted = true;
@@ -1832,12 +1907,7 @@ public final class CompletionEngine
 					if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
 						findPackages((CompletionOnPackageReference) parsedUnit.currentPackage);
 					}
-					if(this.noProposal && this.problem != null) {
-						this.requestor.completionFailure(this.problem);
-						if(DEBUG) {
-							this.printDebug(this.problem);
-						}
-					}
+					debugPrintf();
 					return;
 				}
 
@@ -1887,12 +1957,7 @@ public final class CompletionEngine
 									}
 								}
 
-								if(this.noProposal && this.problem != null) {
-									this.requestor.completionFailure(this.problem);
-									if(DEBUG) {
-										this.printDebug(this.problem);
-									}
-								}
+								debugPrintf();
 							}
 							return;
 						} else if(importReference instanceof CompletionOnKeyword) {
@@ -1903,12 +1968,7 @@ public final class CompletionEngine
 								CompletionOnKeyword keyword = (CompletionOnKeyword)importReference;
 								findKeywords(keyword.getToken(), keyword.getPossibleKeywords(), false, parsedUnit.currentPackage != null);
 							}
-							if(this.noProposal && this.problem != null) {
-								this.requestor.completionFailure(this.problem);
-								if(DEBUG) {
-									this.printDebug(this.problem);
-								}
-							}
+							debugPrintf();
 							return;
 						}
 					}
@@ -2014,6 +2074,24 @@ public final class CompletionEngine
 			if (this.monitor != null) this.monitor.done();
 			reset();
 		}
+	}
+
+	private void debugPrintf() {
+		if(this.noProposal && this.problem != null) {
+			this.requestor.completionFailure(this.problem);
+			if(DEBUG) {
+				this.printDebug(this.problem);
+			}
+		}
+	}
+
+	private void processModuleKeywordCompletion(CompilationUnitDeclaration parsedUnit, ASTNode node, CompletionOnKeyword keyword) {
+		buildContext(node, null, parsedUnit, null, null);
+		if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
+			setSourceAndTokenRange(node.sourceStart, node.sourceEnd);
+			findKeywords(keyword.getToken(), keyword.getPossibleKeywords(), false, parsedUnit.currentPackage != null);
+		}
+		debugPrintf();
 	}
 
 	public void complete(IType type, char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic){
@@ -3262,6 +3340,11 @@ public final class CompletionEngine
 		}
 	}
 	
+	private void completionOnUsesQualifiedTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
+		// TODO: Filter the results wrt accessibility and add relevance to the results.
+		completionOnQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
+	}
+
 	private void completionOnSingleNameReference(ASTNode astNode, ASTNode astNodeParent, Scope scope,
 			boolean insideTypeAnnotation) {
 		CompletionOnSingleNameReference singleNameReference = (CompletionOnSingleNameReference) astNode;
@@ -3384,6 +3467,10 @@ public final class CompletionEngine
 				null,
 				false);
 		}
+	}
+	private void completionOnUsesSingleTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
+		// TODO : filter the results.
+		completionOnSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 	}
 
 	private char[][] computeAlreadyDefinedName(
@@ -10240,6 +10327,55 @@ public final class CompletionEngine
 		}
 	}
 
+	private void findModuleName(CompilationUnitDeclaration parsedUnit) {
+
+		CompletionOnModuleDeclaration moduleDeclaration = (CompletionOnModuleDeclaration) parsedUnit.moduleDeclaration;
+		char[] fileName1 = parsedUnit.getFileName();
+		if (fileName1 == null || !CharOperation.endsWith(fileName1, MODULE_INFO_FILE_NAME)) return;
+		int lastFileSeparatorIndex = fileName1.length - (MODULE_INFO_FILE_NAME.length + 1);
+		if (lastFileSeparatorIndex  <= 0) return;
+		int prevFileSeparatorIndex = CharOperation.lastIndexOf(fileName1[lastFileSeparatorIndex], fileName1, 0, lastFileSeparatorIndex - 1);
+		prevFileSeparatorIndex = prevFileSeparatorIndex < 0 ? 0 : prevFileSeparatorIndex + 1;
+		char[] moduleName = CharOperation.subarray(fileName1, prevFileSeparatorIndex, lastFileSeparatorIndex);
+		if (moduleName == null || moduleName.length == 0) return;
+		this.completionToken = CharOperation.concatWith(moduleDeclaration.tokens, '.');
+		if (this.completionToken.length > 0 && !CharOperation.prefixEquals(this.completionToken, moduleName)) return;
+
+		InternalCompletionProposal proposal =  createProposal(CompletionProposal.MODULE_DECLARATION, this.actualCompletionPosition);
+		proposal.setName(moduleName);
+		proposal.setCompletion(moduleName);
+		proposal.setReplaceRange((this.startPosition < 0) ? 0 : this.startPosition - this.offset, this.endPosition - this.offset);
+		proposal.setTokenRange((this.tokenStart < 0) ? 0 : this.tokenStart - this.offset, this.tokenEnd - this.offset);
+		proposal.setRelevance(R_MODULE_DECLARATION);
+		this.requestor.accept(proposal);
+		if(DEBUG) {
+			this.printDebug(proposal);
+		}
+	}
+	private void findModules(CompletionOnModuleReference moduleReference) {
+
+		//TODO: Waiting for findModules lookup implementation.
+		return;
+//		this.completionToken = CharOperation.concatWith(moduleReference.tokens, '.');
+//		if (this.completionToken.length == 0)
+//			return;
+//
+//		setSourceRange(moduleReference.sourceStart, moduleReference.sourceEnd);
+//		long completionPosition = moduleReference.sourcePositions[moduleReference.sourcePositions.length - 1];
+//		setTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
+//		this.nameEnvironment.findModules(CharOperation.toLowerCase(this.completionToken), this);
+	}
+	private void findPackages(CompletionOnExportReference exportStatement) {
+
+		this.completionToken = CharOperation.concatWith(exportStatement.tokens, '.');
+		if (this.completionToken.length == 0)
+			return;
+
+		setSourceRange(exportStatement.sourceStart, exportStatement.sourceEnd);
+		long completionPosition = exportStatement.sourcePositions[exportStatement.sourcePositions.length - 1];
+		setTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
+		this.nameEnvironment.findPackages(CharOperation.toLowerCase(this.completionToken), this);
+	}
 	private void findPackages(CompletionOnPackageReference packageStatement) {
 
 		this.completionToken = CharOperation.concatWith(packageStatement.tokens, '.');

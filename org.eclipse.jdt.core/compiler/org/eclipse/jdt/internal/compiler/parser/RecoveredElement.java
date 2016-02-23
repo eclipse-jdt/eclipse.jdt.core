@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ package org.eclipse.jdt.internal.compiler.parser;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Block;
+import org.eclipse.jdt.internal.compiler.ast.ExportReference;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
@@ -71,6 +72,17 @@ public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValu
 	if (this.parent == null) return this; // ignore
 	this.updateSourceEndIfNecessary(previousAvailableLineEnd(nestedBlockDeclaration.sourceStart - 1));
 	return this.parent.add(nestedBlockDeclaration, bracketBalanceValue);
+}
+/*
+ *	Record an e reference
+ */
+public RecoveredElement add(ExportReference exportReference, int bracketBalanceValue){
+
+	/* default behavior is to delegate recording to parent if any */
+	resetPendingModifiers();
+	if (this.parent == null) return this; // ignore
+	this.updateSourceEndIfNecessary(previousAvailableLineEnd(exportReference.declarationSourceStart - 1));
+	return this.parent.add(exportReference, bracketBalanceValue);
 }
 /*
  * Record a field declaration

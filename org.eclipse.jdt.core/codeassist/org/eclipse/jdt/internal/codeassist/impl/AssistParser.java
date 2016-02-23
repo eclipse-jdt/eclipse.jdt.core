@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -18,6 +22,7 @@ package org.eclipse.jdt.internal.codeassist.impl;
 import java.util.HashSet;
 
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
@@ -26,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
+import org.eclipse.jdt.internal.compiler.ast.ExportReference;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
@@ -35,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.SuperReference;
@@ -50,6 +57,7 @@ import org.eclipse.jdt.internal.compiler.parser.RecoveredField;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredInitializer;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredLocalVariable;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredMethod;
+import org.eclipse.jdt.internal.compiler.parser.RecoveredModule;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredStatement;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredUnit;
@@ -95,7 +103,8 @@ public abstract class AssistParser extends Parser {
 	protected static final int K_ATTRIBUTE_VALUE_DELIMITER = ASSIST_PARSER + 5; // whether we are inside a annotation attribute valuer
 	protected static final int K_ENUM_CONSTANT_DELIMITER = ASSIST_PARSER + 6; // whether we are inside a field initializer
 	protected static final int K_LAMBDA_EXPRESSION_DELIMITER = ASSIST_PARSER + 7; // whether we are inside a lambda expression
-	
+	protected static final int K_MODULE_INFO_DELIMITER = ASSIST_PARSER + 7; // whether we are inside a module info declaration
+
 	// selector constants
 	protected static final int THIS_CONSTRUCTOR = -1;
 	protected static final int SUPER_CONSTRUCTOR = -2;
@@ -179,6 +188,7 @@ public RecoveredElement buildInitialRecoveryState(){
 		flushAssistState();
 		flushElementStack();
 		this.snapShot = null;
+		initModuleInfo(element);
 		return element;
 	}
 
@@ -364,6 +374,37 @@ public RecoveredElement buildInitialRecoveryState(){
 	}
 
 	return element;
+}
+
+private void initModuleInfo(RecoveredElement element) {
+	if (element  instanceof RecoveredUnit) {
+		RecoveredUnit unit = (RecoveredUnit) element;
+		if (unit.unitDeclaration.isModuleInfo()) {
+			ASTNode node = null;
+			RecoveredModule module = null;
+			int i = 0;
+			for (; i <= this.astPtr; i++) {
+				if ((node = this.astStack[i]) instanceof ModuleDeclaration) {
+					/*
+					 * Just add this module declaration - let the element
+					 * be the Recovered unit itself. 
+					 * TODO: To check the viabilitiy of making RecoveredModule as the current element
+					 */
+					module = (RecoveredModule) unit.add((ModuleDeclaration) node, this.bracketDepth); 
+					break;
+				}
+			}
+			if (module != null) {
+				for (; i <= this.astPtr; i++) {
+					node = this.astStack[i];
+					if (node instanceof ExportReference) {
+						module.add((ExportReference) node, 0);
+					}
+				}
+			}
+			
+		}
+	}
 }
 protected void consumeAnnotationTypeDeclarationHeader() {
 	super.consumeAnnotationTypeDeclarationHeader();
@@ -684,6 +725,57 @@ protected void consumeMethodInvocationSuperWithTypeArguments() {
 		this.lastCheckPoint = messageSend.sourceEnd + 1;
 	}
 }
+protected void consumeModuleHeader() {
+	pushOnElementStack(K_MODULE_INFO_DELIMITER);
+	// ModuleHeader ::= 'module' Name
+	/* build an ImportRef build from the last name
+	stored in the identifier stack. */
+
+	int index;
+
+	/* no need to take action if not inside assist identifiers */
+	if ((index = indexOfAssistIdentifier()) < 0) {
+		super.consumeModuleHeader();
+		return;
+	}
+	/* retrieve identifiers subset and whole positions, the assist node positions
+	should include the entire replaced source. */
+	int length = this.identifierLengthStack[this.identifierLengthPtr];
+	char[][] subset = identifierSubSet(index+1); // include the assistIdentifier
+	this.identifierLengthPtr--;
+	this.identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(
+			this.identifierPositionStack,
+			this.identifierPtr + 1,
+			positions,
+			0,
+			length);
+	ModuleDeclaration typeDecl = createAssistModuleDeclaration(this.compilationUnit.compilationResult, subset, positions);
+
+	this.compilationUnit.moduleDeclaration = typeDecl;
+	this.assistNode = typeDecl;
+	this.lastCheckPoint = typeDecl.sourceEnd + 1;
+
+	//compute the declaration source too
+	typeDecl.declarationSourceStart = this.intStack[this.intPtr--];
+
+	typeDecl.bodyStart = typeDecl.sourceEnd + 1;
+	pushOnAstStack(typeDecl);
+
+	this.listLength = 0; // will be updated when reading super-interfaces
+	// recovery
+	if (this.currentElement != null){
+		this.lastCheckPoint = typeDecl.bodyStart;
+		this.currentElement = this.currentElement.add(typeDecl, 0);
+		this.lastIgnoredToken = -1;
+	}
+}
+
+protected void consumeModuleDeclaration() {
+	super.consumeModuleDeclaration();
+	popElement(K_MODULE_INFO_DELIMITER);
+}
 protected void consumeNestedMethod() {
 	super.consumeNestedMethod();
 	if(!isInsideMethod()) pushOnElementStack(K_METHOD_DELIMITER);
@@ -897,6 +989,52 @@ protected void consumeSingleStaticImportDeclarationName() {
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
+protected void consumeSingleExportsPkgName() {
+	int index;
+	/* no need to take action if not inside assist identifiers */
+	if ((index = indexOfAssistIdentifier()) < 0) {
+		super.consumeSingleExportsPkgName();
+		return;
+	}
+	/* retrieve identifiers subset and whole positions, the assist node positions
+	should include the entire replaced source. */
+	int length = this.identifierLengthStack[this.identifierLengthPtr];
+	char[][] subset = identifierSubSet(index+1); // include the assistIdentifier
+	this.identifierLengthPtr--;
+	this.identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(
+			this.identifierPositionStack,
+			this.identifierPtr + 1,
+			positions,
+			0,
+			length);
+
+	/* build specific assist node on import statement */
+	ExportReference reference = createAssistExportReference(subset, positions);
+	this.assistNode = reference;
+	this.lastCheckPoint = reference.sourceEnd + 1;
+
+	pushOnAstStack(reference);
+
+	if (this.currentToken == TokenNameSEMICOLON) {
+		reference.declarationSourceEnd = this.scanner.currentPosition - 1;
+	} else {
+		reference.declarationSourceEnd = (int) positions[length-1];
+	}
+	//endPosition is just before the ;
+	reference.declarationSourceStart = this.intStack[this.intPtr--];
+	// flush comments defined prior to import statements
+	reference.declarationSourceEnd = flushCommentsDefinedPriorTo(reference.declarationSourceEnd);
+
+	// recovery
+	if (this.currentElement != null){
+		this.lastCheckPoint = reference.declarationSourceEnd+1;
+		this.currentElement = this.currentElement.add(reference, 0);
+		this.lastIgnoredToken = -1;
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton
+	}
+}
 protected void consumeSingleTypeImportDeclarationName() {
 	// SingleTypeImportDeclarationName ::= 'import' Name
 	/* push an ImportRef build from the last name
@@ -1010,6 +1148,20 @@ protected void consumeStaticOnly() {
 	super.consumeStaticOnly();
 	pushOnElementStack(K_METHOD_DELIMITER);
 }
+private void adjustBracket(int token) {
+	switch (token) {
+		case TokenNameLPAREN :
+		case TokenNameLBRACE:
+		case TokenNameLBRACKET:
+			this.bracketDepth++;
+			break;
+		case TokenNameRBRACE:
+		case TokenNameRBRACKET:
+		case TokenNameRPAREN:
+			this.bracketDepth--;
+			break;
+	}
+}
 protected void consumeToken(int token) {
 	super.consumeToken(token);
 
@@ -1020,9 +1172,9 @@ protected void consumeToken(int token) {
 	// register message send selector only if inside a method or if looking at a field initializer
 	// and if the current token is an open parenthesis
 	if (isInsideMethod() || isInsideFieldInitialization() || isInsideAttributeValue()) {
+		adjustBracket(token);
 		switch (token) {
 			case TokenNameLPAREN :
-				this.bracketDepth++;
 				switch (this.previousToken) {
 					case TokenNameIdentifier:
 						this.pushOnElementStack(K_SELECTOR, this.identifierPtr);
@@ -1047,21 +1199,10 @@ protected void consumeToken(int token) {
 					popElement(K_LAMBDA_EXPRESSION_DELIMITER);
 					pushOnElementStack(K_LAMBDA_EXPRESSION_DELIMITER, BLOCK_BODY, this.previousObjectInfo);
 				}
-				this.bracketDepth++;
-				break;
-			case TokenNameLBRACKET:
-				this.bracketDepth++;
-				break;
-			case TokenNameRBRACE:
-				this.bracketDepth--;
-				break;
-			case TokenNameRBRACKET:
-				this.bracketDepth--;
-				break;
-			case TokenNameRPAREN:
-				this.bracketDepth--;
 				break;
 		}
+	} else if (isInsideModuleInfo()) { 
+		adjustBracket(token);
 	} else {
 		switch (token) {
 			case TokenNameRBRACE :
@@ -1130,6 +1271,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
+public abstract ExportReference createAssistExportReference(char[][] tokens, long[] positions);
 public abstract ImportReference createAssistImportReference(char[][] tokens, long[] positions, int mod);
 public abstract ImportReference createAssistPackageReference(char[][] tokens, long[] positions);
 public abstract NameReference createQualifiedAssistNameReference(char[][] previousIdentifiers, char[] assistName, long[] positions);
@@ -1138,6 +1280,7 @@ public abstract TypeReference createParameterizedQualifiedAssistTypeReference(ch
 public abstract NameReference createSingleAssistNameReference(char[] assistName, long position);
 public abstract TypeReference createSingleAssistTypeReference(char[] assistName, long position);
 public abstract TypeReference createParameterizedSingleAssistTypeReference(TypeReference[] typeArguments, char[] assistName, long position);
+public abstract ModuleDeclaration createAssistModuleDeclaration(CompilationResult compilationResult, char[][] tokens, long[] positions);
 /*
  * Flush parser/scanner state regarding to code assist
  */
@@ -1505,6 +1648,21 @@ protected boolean isInsideFieldInitialization(){
 			case K_TYPE_DELIMITER : return false;
 			case K_METHOD_DELIMITER : return false;
 			case K_FIELD_INITIALIZER_DELIMITER : return true;
+		}
+		i--;
+	}
+	return false;
+}
+protected boolean isInsideModuleInfo(){
+	int i = this.elementPtr;
+	while(i > -1) {
+		switch (this.elementKindStack[i]) {
+			case K_TYPE_DELIMITER : 
+			case K_METHOD_DELIMITER :
+			case K_FIELD_INITIALIZER_DELIMITER : 
+				return false;
+			case K_MODULE_INFO_DELIMITER:
+				return true;
 		}
 		i--;
 	}

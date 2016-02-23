@@ -872,6 +872,30 @@ public class CompletionProposal {
 	public static final int ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION = 27;
 
 	/**
+	 * Completion is a declaration of a module.
+	 * This kind of completion might occur in a module-info.java file
+	 * after the keyword <code> "module" </code> as shown below:
+	 * <code>"module co^"</code> and complete it to
+	 * <code>"module com.greetings"</code>.
+	 *
+	 * @see #getKind()
+	 * @since 3.12
+	 */
+	public static final int MODULE_DECLARATION = 28;
+
+	/**
+	/**
+	 * Completion is a reference to a module.
+	 * This kind of completion might occur in a context like
+	 * <code>"requires com.g^"</code> and complete it to
+	 * <code>"requires com.greetings"</code> or in
+	 * <code> "to com.g^"</code> to <code>"to com.greetings</code>
+	 *
+	 * @see #getKind()
+	 * @since 3.12
+	 */
+	public static final int MODULE_REF = 29;
+	/**
 	 * First valid completion kind.
 	 *
 	 * @since 3.1
@@ -883,7 +907,7 @@ public class CompletionProposal {
 	 *
 	 * @since 3.1
 	 */
-	protected static final int LAST_KIND = ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION;
+	protected static final int LAST_KIND = MODULE_REF;
 
 	/**
 	 * Creates a basic completion proposal. All instance

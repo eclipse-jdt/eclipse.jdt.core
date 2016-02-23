@@ -5759,12 +5759,12 @@ protected void consumeSingleExportsPkgName() {
 	expt.declarationSourceStart = this.intStack[this.intPtr--];
 
 	// recovery - TBD
-//	if (this.currentElement != null){
-//		this.lastCheckPoint = expt.declarationSourceEnd+1;
-//		this.currentElement = this.currentElement.add(expt, 0);
-//		this.lastIgnoredToken = -1;
-//		this.restartRecovery = true; // used to avoid branching back into the regular automaton
-//	}
+	if (this.currentElement != null){
+		this.lastCheckPoint = expt.declarationSourceEnd+1;
+		this.currentElement = this.currentElement.add(expt, 0);
+		this.lastIgnoredToken = -1;
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton
+	}
 }
 protected void consumeUsesStatement() {
 	pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
