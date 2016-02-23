@@ -10,6 +10,7 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
 /**
  * Holds a location in the Eclipse workspace where a given resource was found. Note that a given
  * resource might be mapped to multiple locations in the workspace.
+ * @since 3.12
  */
 public class NdWorkspaceLocation extends NdNode {
 	public static final FieldManyToOne<NdResourceFile> RESOURCE;

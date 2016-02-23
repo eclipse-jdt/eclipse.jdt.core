@@ -11,6 +11,9 @@ import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldString;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
+/**
+ * @since 3.12
+ */
 public class NdMethodParameter extends NdNode {
 	public static final FieldManyToOne<NdMethod> PARENT;
 	public static final FieldManyToOne<NdTypeSignature> ARGUMENT_TYPE;

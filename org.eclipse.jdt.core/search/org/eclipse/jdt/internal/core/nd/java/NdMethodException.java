@@ -5,6 +5,9 @@ import org.eclipse.jdt.internal.core.nd.NdNode;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
+/**
+ * @since 3.12
+ */
 public class NdMethodException extends NdNode {
 
 	public static final FieldManyToOne<NdMethod> PARENT;

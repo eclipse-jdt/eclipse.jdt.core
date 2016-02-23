@@ -6,6 +6,8 @@ package org.eclipse.jdt.internal.core.nd;
  * address may have been deleted in the meantime. This class addresses this problem by remembering both the
  * address itself and enough information to determine whether that address is invalid and search for an
  * equivalent object if the original is lost.
+ * 
+ * @since 3.12
  */
 public class DatabaseRef<T extends NdNode> implements Supplier<T> {
 	private final Nd nd;
