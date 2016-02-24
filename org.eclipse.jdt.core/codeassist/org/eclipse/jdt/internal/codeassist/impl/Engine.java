@@ -12,6 +12,8 @@ package org.eclipse.jdt.internal.codeassist.impl;
 
 import java.util.Map;
 
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -22,8 +24,11 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
+import org.eclipse.jdt.internal.core.SourceType;
+import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 
 public abstract class Engine implements ITypeRequestor {
 
@@ -83,8 +88,36 @@ public abstract class Engine implements ITypeRequestor {
 	 * secondary types defined in the same compilation unit).
 	 */
 	public void accept(ISourceType[] sourceTypes, PackageBinding packageBinding, AccessRestriction accessRestriction) {
-		CompilationResult result =
-			new CompilationResult(sourceTypes[0].getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=479656
+		// In case of the requested type not being a member type (i.e. not being a top level type)
+		// we need to find the top level ones and use them for resolution
+		CompilationResult result = null;
+		SourceTypeElementInfo sourceType;
+		if (sourceTypes[0].getEnclosingType() != null) {
+			try {
+				if (sourceTypes[0] instanceof SourceType) {
+					sourceType = (SourceTypeElementInfo) ((SourceType) sourceTypes[0]).getElementInfo();
+				} else {
+					sourceType = (SourceTypeElementInfo) sourceTypes[0];
+				}
+				IType[] types = sourceType.getHandle().getCompilationUnit().getTypes();
+				sourceTypes = new ISourceType[types.length];
+				sourceTypes[0] = sourceType;
+				int length = types.length;
+				for (int i = 0; i < length; i++) {
+					ISourceType otherType =
+						(ISourceType) ((JavaElement) types[i]).getElementInfo();
+					sourceTypes[i] = otherType;
+				}
+				ISourceType otherType =
+						(ISourceType) ((JavaElement) types[0]).getElementInfo();
+				result = new CompilationResult(otherType.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
+			} catch (JavaModelException e) {
+				// Unlikely to reach here as the elements have already been opened in NameLookup.
+			}
+		} else {
+			result = new CompilationResult(sourceTypes[0].getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
+		}
 		CompilationUnitDeclaration unit =
 			SourceTypeConverter.buildCompilationUnit(
 				sourceTypes,//sourceTypes[0] is always toplevel here
