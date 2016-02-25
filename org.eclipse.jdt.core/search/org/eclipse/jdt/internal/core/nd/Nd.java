@@ -216,7 +216,7 @@ public class Nd {
 	private int lockCount;
 	private int waitingReaders;
 	private long lastWriteAccess= 0;
-	private long lastReadAccess= 0;
+	//private long lastReadAccess= 0;
 	private long timeWriteLockAcquired;
 
 	public IReader acquireReadLock() {
@@ -254,7 +254,7 @@ public class Nd {
 				decReadLock(this.fLockDebugging);
 			}
 
-			this.lastReadAccess= System.currentTimeMillis();
+			//this.lastReadAccess= System.currentTimeMillis();
 			if (this.lockCount > 0)
 				--this.lockCount;
 			this.mutex.notifyAll();
@@ -266,7 +266,7 @@ public class Nd {
 		// pinned to memory.
 		// TODO(sprigogin): It would be more efficient to replace the global result cache with
 		// separate caches for each AST.
-		clearResultCache();
+		//clearResultCache();
 	}
 
 	/**
@@ -372,9 +372,9 @@ public class Nd {
 		return this.lastWriteAccess;
 	}
 
-	public long getLastReadAccess() {
-		return this.lastReadAccess;
-	}
+//	public long getLastReadAccess() {
+//		return this.lastReadAccess;
+//	}
 
 	public boolean isSupportedVersion() throws IndexException {
 		final int version = this.db.getVersion();
