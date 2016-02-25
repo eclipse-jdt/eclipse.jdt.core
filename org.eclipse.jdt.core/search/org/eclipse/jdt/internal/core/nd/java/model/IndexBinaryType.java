@@ -624,7 +624,7 @@ public class IndexBinaryType implements IBinaryType {
 		}
 	}
 
-	private void initSimpleAttributes() {
+	public void initSimpleAttributes() {
 		if (!this.simpleAttributesInitialized) {
 			this.simpleAttributesInitialized = true;
 

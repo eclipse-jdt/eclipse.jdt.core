@@ -14,12 +14,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -44,11 +38,18 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
+import org.eclipse.jdt.internal.core.nd.java.NdType;
 import org.eclipse.jdt.internal.core.nd.java.TypeRef;
 import org.eclipse.jdt.internal.core.nd.java.model.IndexBinaryType;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  * @see IClassFile
@@ -388,9 +389,21 @@ private IBinaryType getJarBinaryTypeInfo(PackageFragment pkg, boolean fullyIniti
 						String entryName = Util.concatWith(pkg.names, getElementName(), '/');
 						String indexPath = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
 
-						return new IndexBinaryType(
-								TypeRef.create(nd, locationString.toCharArray(), fieldDescriptor),
-								indexPath.toCharArray());
+						TypeRef typeRef = TypeRef.create(nd, locationString.toCharArray(), fieldDescriptor);
+
+						NdType type = typeRef.get();
+
+						if (type == null) {
+							return null;
+						}
+
+						IndexBinaryType result = new IndexBinaryType(typeRef, indexPath.toCharArray());
+
+						// We already have the database lock open and have located the element, so we may as well
+						// prefetch the inexpensive attributes.
+						result.initSimpleAttributes();
+
+						return result;
 					}
 				}
 			} catch (IndexException e) {
