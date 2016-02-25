@@ -104,10 +104,15 @@ public class JavaIndex {
 		// Acquire a read lock on the index
 		NdResourceFile file = getResourceFile(location);
 		if (file != null && file.isDoneIndexing()) {
-			File locationFile = new File(new String(location));
-			if (file.getFingerprint().test(locationFile, null).matches()) {
-				return true;
-			}
+			return true;
+			// TODO(sxenos): uncomment this after EclipseCon, then replace it with a more efficient
+			// mechanism for determining if the index matches the file system. Perhaps some sort of
+			// explicit callback that JDT can invoke whenever it writes a .class or .jar file?
+
+//			File locationFile = new File(new String(location));
+//			if (file.getFingerprint().test(locationFile, null).matches()) {
+//				return true;
+//			}
 		}
 		return false;
 	}
