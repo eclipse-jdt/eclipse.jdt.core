@@ -224,7 +224,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 				}
 	    	}
 			if (location != null && checkNullAnnotations) {
-				if (NullAnnotationMatching.analyse(this, argumentType, substitutedSuperType, substitution, -1, CheckMode.BOUND_CHECK).isAnyMismatch()) {
+				if (NullAnnotationMatching.analyse(this, argumentType, substitutedSuperType, substitution, -1, null, CheckMode.BOUND_CHECK).isAnyMismatch()) {
 					scope.problemReporter().nullityMismatchTypeArgument(this, argumentType, location);
 					haveReportedNullProblem = true;
 				}
@@ -244,7 +244,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 				}
 	    	}
 			if (location != null && checkNullAnnotations) {
-				if (NullAnnotationMatching.analyse(this, argumentType, substitutedSuperType, substitution, -1, CheckMode.BOUND_CHECK).isAnyMismatch()) {
+				if (NullAnnotationMatching.analyse(this, argumentType, substitutedSuperType, substitution, -1, null, CheckMode.BOUND_CHECK).isAnyMismatch()) {
 					scope.problemReporter().nullityMismatchTypeArgument(this, argumentType, location);
 					haveReportedNullProblem = true;
 				}

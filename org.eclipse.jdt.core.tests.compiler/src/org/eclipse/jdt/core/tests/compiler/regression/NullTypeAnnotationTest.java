@@ -8978,6 +8978,23 @@ public void testBug482247() {
 		"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'@NonNull String @NonNull[]\'\n" + 
 		"----------\n");
 }
+public void testBug482247_comment5() {
+	runConformTestWithLibs(
+		new String[] {
+			"Snippet.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Snippet {\n" + 
+			"	@NonNull String[] s1 = new String[0]; // No warning\n" + 
+			"	public void handleIncidentBeforeCreate() {\n" + 
+			"		@NonNull String[] s = new String[0]; // Warning\n" +
+			"		String [] @NonNull[] s2 = new String[0][];\n" +
+			"		String [] @NonNull[] @Nullable[] s3 = new String[0][][];\n" +
+			"	}\n" + 
+			"}"
+		},
+		getCompilerOptions(),
+		"");
+}
 public void testBug483146() {
 	runConformTestWithLibs(
 		new String[] {

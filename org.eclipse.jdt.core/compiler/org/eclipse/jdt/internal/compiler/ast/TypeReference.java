@@ -684,7 +684,7 @@ protected void checkNullConstraints(Scope scope, Substitution substitution, Type
 	if (variables != null && variables.length > rank) {
 		TypeBinding variable = variables[rank];
 		if (variable.hasNullTypeAnnotations()) {
-			if (NullAnnotationMatching.analyse(variable, this.resolvedType, null, substitution, -1, CheckMode.BOUND_CHECK).isAnyMismatch())
+			if (NullAnnotationMatching.analyse(variable, this.resolvedType, null, substitution, -1, null, CheckMode.BOUND_CHECK).isAnyMismatch())
 				scope.problemReporter().nullityMismatchTypeArgument(variable, this.resolvedType, this);
     	}
 	}

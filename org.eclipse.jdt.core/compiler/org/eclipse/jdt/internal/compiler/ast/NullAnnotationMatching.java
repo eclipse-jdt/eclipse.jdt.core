@@ -133,7 +133,7 @@ public class NullAnnotationMatching {
 				return nullStatus; // if both branches disagree use the precomputed & merged nullStatus
 			}
 			lhsTagBits = var.type.tagBits & TagBits.AnnotationNullMASK;
-			NullAnnotationMatching annotationStatus = analyse(var.type, providedType, nullStatus);
+			NullAnnotationMatching annotationStatus = analyse(var.type, providedType, null, null, nullStatus, expression, CheckMode.COMPATIBLE);
 			if (annotationStatus.isAnyMismatch()) {
 				flowContext.recordNullityMismatch(currentScope, expression, providedType, var.type, flowInfo, nullStatus, annotationStatus);
 				hasReported = true;
@@ -161,7 +161,7 @@ public class NullAnnotationMatching {
 	 * @return a status object representing the severity of mismatching plus optionally a supertype hint
 	 */
 	public static NullAnnotationMatching analyse(TypeBinding requiredType, TypeBinding providedType, int nullStatus) {
-		return analyse(requiredType, providedType, null, null, nullStatus, CheckMode.COMPATIBLE);
+		return analyse(requiredType, providedType, null, null, nullStatus, null, CheckMode.COMPATIBLE);
 	}
 	/**
 	 * Find any mismatches between the two given types, which are caused by null type annotations.
@@ -171,10 +171,13 @@ public class NullAnnotationMatching {
 	 * 		Pass null if not interested in these added checks.
 	 * @param substitution TODO
 	 * @param nullStatus we are only interested in NULL or NON_NULL, -1 indicates that we are in a recursion, where flow info is ignored
+	 * @param providedExpression optionally holds the provided expression of type 'providedType'
 	 * @param mode controls the kind of check performed (see {@link CheckMode}).
 	 * @return a status object representing the severity of mismatching plus optionally a supertype hint
 	 */
-	public static NullAnnotationMatching analyse(TypeBinding requiredType, TypeBinding providedType, TypeBinding providedSubstitute, Substitution substitution, int nullStatus, CheckMode mode) {
+	public static NullAnnotationMatching analyse(TypeBinding requiredType, TypeBinding providedType, TypeBinding providedSubstitute, Substitution substitution,
+			int nullStatus, Expression providedExpression, CheckMode mode)
+	{
 		if (!requiredType.enterRecursiveFunction())
 			return NullAnnotationMatching.NULL_ANNOTATIONS_OK;
 		try {
@@ -203,7 +206,7 @@ public class NullAnnotationMatching {
 					// during bound check against a type variable check the provided type against all upper bounds:
 					TypeBinding superClass = requiredType.superclass();
 					if (superClass != null && (superClass.hasNullTypeAnnotations() || substitution != null)) { // annotations may enter when substituting a nested type variable
-						NullAnnotationMatching status = analyse(superClass, providedType, null, substitution, nullStatus, CheckMode.BOUND_SUPER_CHECK);
+						NullAnnotationMatching status = analyse(superClass, providedType, null, substitution, nullStatus, providedExpression, CheckMode.BOUND_SUPER_CHECK);
 						severity = Math.max(severity, status.severity);
 						if (severity == 2)
 							return new NullAnnotationMatching(severity, nullStatus, superTypeHint);
@@ -212,7 +215,7 @@ public class NullAnnotationMatching {
 					if (superInterfaces != null) {
 						for (int i = 0; i < superInterfaces.length; i++) {
 							if (superInterfaces[i].hasNullTypeAnnotations() || substitution != null) { // annotations may enter when substituting a nested type variable
-								NullAnnotationMatching status = analyse(superInterfaces[i], providedType, null, substitution, nullStatus, CheckMode.BOUND_SUPER_CHECK);
+								NullAnnotationMatching status = analyse(superInterfaces[i], providedType, null, substitution, nullStatus, providedExpression, CheckMode.BOUND_SUPER_CHECK);
 								severity = Math.max(severity, status.severity);
 								if (severity == 2)
 									return new NullAnnotationMatching(severity, nullStatus, superTypeHint);
@@ -240,7 +243,20 @@ public class NullAnnotationMatching {
 							} else {
 								if (i > 0)
 									currentNullStatus = -1; // don't use beyond the outermost dimension
-								severity = Math.max(severity, computeNullProblemSeverity(requiredBits, providedBits, currentNullStatus, i == 0 ? mode : mode.toDetail(), false));
+								int dimSeverity = computeNullProblemSeverity(requiredBits, providedBits, currentNullStatus, i == 0 ? mode : mode.toDetail(), false);
+								if (i > 0 && dimSeverity == 1
+										&& providedExpression instanceof ArrayAllocationExpression
+										&& providedBits == 0 && requiredBits != 0)
+								{
+									Expression[] dimensions = ((ArrayAllocationExpression) providedExpression).dimensions;
+									Expression previousDim = dimensions[i-1];
+									if (previousDim instanceof IntLiteral && previousDim.constant.intValue() == 0) {
+										dimSeverity = 0; // element of empty dimension matches anything
+										nullStatus = -1;
+										break;
+									}
+								}
+								severity = Math.max(severity, dimSeverity);
 								if (severity == 2)
 									return NullAnnotationMatching.NULL_ANNOTATIONS_MISMATCH;
 							}
@@ -278,7 +294,7 @@ public class NullAnnotationMatching {
 						if (requiredArguments != null && providedArguments != null && requiredArguments.length == providedArguments.length) {
 							for (int i = 0; i < requiredArguments.length; i++) {
 								TypeBinding providedArgSubstitute = providedSubstitutes != null ? providedSubstitutes[i] : null;
-								NullAnnotationMatching status = analyse(requiredArguments[i], providedArguments[i], providedArgSubstitute, substitution, -1, mode.toDetail());
+								NullAnnotationMatching status = analyse(requiredArguments[i], providedArguments[i], providedArgSubstitute, substitution, -1, providedExpression, mode.toDetail());
 								severity = Math.max(severity, status.severity);
 								if (severity == 2)
 									return new NullAnnotationMatching(severity, nullStatus, superTypeHint);
@@ -289,7 +305,7 @@ public class NullAnnotationMatching {
 					TypeBinding providedEnclosing = providedType.enclosingType();
 					if (requiredEnclosing != null && providedEnclosing != null) {
 						TypeBinding providedEnclSubstitute = providedSubstitute != null ? providedSubstitute.enclosingType() : null;
-						NullAnnotationMatching status = analyse(requiredEnclosing, providedEnclosing, providedEnclSubstitute, substitution, -1, mode);
+						NullAnnotationMatching status = analyse(requiredEnclosing, providedEnclosing, providedEnclSubstitute, substitution, -1, providedExpression, mode);
 						severity = Math.max(severity, status.severity);
 					}
 				}
