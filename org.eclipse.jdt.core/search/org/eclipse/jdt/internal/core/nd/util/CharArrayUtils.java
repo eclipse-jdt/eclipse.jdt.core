@@ -84,8 +84,19 @@ public class CharArrayUtils {
 	}
 
 	/**
-	 * Returns {@code true} if the contents of a section of a character array are the same as
-	 * contents of a string.
+	 * Returns true iff the given array contains the given char at the given position
+	 */
+	public static final boolean hasCharAt(char toLookFor, int position, char[] toSearch) {
+		if (toSearch.length <= position) {
+			return false;
+		}
+
+		return toSearch[position] == toLookFor;
+	}
+
+	/**
+	 * Returns {@code true} if the contents of a section of a character array are the same as contents of a string.
+	 * 
 	 * @since 5.5
 	 */
 	public static final boolean equals(char[] str1, int start1, int length1, String str2) {
@@ -480,7 +491,7 @@ public class CharArrayUtils {
 		return result;
 	}
 
-	public static char[] substring(char[] inputString, int index) {
+	public static char[] subarray(char[] inputString, int index) {
 		if (inputString.length <= index) {
 			return EMPTY_CHAR_ARRAY;
 		}
@@ -502,5 +513,12 @@ public class CharArrayUtils {
 			return EMPTY_CHAR_ARRAY;
 		}
 		return contents;
+	}
+
+	public static boolean endsWith(char[] fieldDescriptor, char c) {
+		if (fieldDescriptor.length == 0) {
+			return false;
+		}
+		return fieldDescriptor[fieldDescriptor.length - 1] == c;
 	}
 }

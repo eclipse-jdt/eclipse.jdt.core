@@ -636,7 +636,7 @@ public class IndexBinaryType implements IBinaryType {
 					if (methodId != null) {
 						char[] methodName = methodId.getMethodName().getChars();
 						int startIdx = CharArrayUtils.lastIndexOf('#', methodName);
-						this.enclosingMethod = CharArrayUtils.substring(methodName, startIdx + 1);
+						this.enclosingMethod = CharArrayUtils.subarray(methodName, startIdx + 1);
 						this.enclosingType = CharArrayUtils.subarray(methodName, 1, startIdx);
 					} else {
 						NdTypeId typeId = type.getDeclaringType();

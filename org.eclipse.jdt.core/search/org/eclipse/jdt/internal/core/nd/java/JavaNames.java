@@ -26,7 +26,7 @@ public class JavaNames {
 				Math.max(CharOperation.lastIndexOf('$', binaryName), CharOperation.lastIndexOf('.', binaryName)),
 				CharOperation.lastIndexOf('/', binaryName)) + 1;
 
-		return CharArrayUtils.substring(binaryName, skipIndex);
+		return CharArrayUtils.subarray(binaryName, skipIndex);
 	}
 
 	/**
@@ -75,6 +75,28 @@ public class JavaNames {
 		return CharArrayUtils.concat(FIELD_DESCRIPTOR_PREFIX, binaryName, FIELD_DESCRIPTOR_SUFFIX);
 	}
 
+	/**
+	 * Converts a field descriptor to a simple class name. Returns null if the given field descriptor
+	 * doesn't refer to a class or is badly-formed.
+	 */
+	public static char[] fieldDescriptorToSimpleName(char[] fieldDescriptor) {
+		if (!CharArrayUtils.startsWith(fieldDescriptor, 'L')) {
+			return null;
+		}
+
+		if (!CharArrayUtils.endsWith(fieldDescriptor, ';')) {
+			return null;
+		}
+
+		int separatorPosition = CharArrayUtils.lastIndexOf('/', fieldDescriptor);
+		if (separatorPosition == -1) {
+			separatorPosition = 0;
+		}
+
+		char[] className = CharArrayUtils.subarray(fieldDescriptor, separatorPosition + 1, fieldDescriptor.length - 1);
+		return className;
+	}
+	
 	/**
 	 * Converts a field descriptor to a java name. If fullyQualified is true, it returns a fully qualified class name.
 	 * If it is false, it returns a source name.
@@ -168,7 +190,7 @@ public class JavaNames {
 		while (startPosition < chars.length && Character.isDigit(chars[startPosition])) {
 			startPosition++;
 		}
-		return CharArrayUtils.substring(chars, startPosition);
+		return CharArrayUtils.subarray(chars, startPosition);
 	}
 
 	/**

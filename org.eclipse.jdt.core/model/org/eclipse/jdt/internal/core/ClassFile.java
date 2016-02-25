@@ -31,16 +31,10 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-import org.eclipse.jdt.internal.core.nd.IReader;
-import org.eclipse.jdt.internal.core.nd.Nd;
-import org.eclipse.jdt.internal.core.nd.db.IndexException;
-import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
-import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
-import org.eclipse.jdt.internal.core.nd.java.NdType;
-import org.eclipse.jdt.internal.core.nd.java.TypeRef;
-import org.eclipse.jdt.internal.core.nd.java.model.IndexBinaryType;
+import org.eclipse.jdt.internal.core.nd.java.JavaNames;
+import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeDescriptor;
+import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -363,87 +357,43 @@ public byte[] getBytes() throws JavaModelException {
 	}
 }
 
+public String getName() {
+	return this.name;
+}
+
 private IBinaryType getJarBinaryTypeInfo(PackageFragment pkg, boolean fullyInitialize) throws CoreException, IOException, ClassFormatException {
-	JarPackageFragmentRoot root = (JarPackageFragmentRoot) pkg.getParent();
-	// If the new index is enabled, check if we have this class file cached in the index already
-	if (JavaIndex.isEnabled()) {
-		IPath location = JavaIndex.getLocationForElement(pkg.getParent());
-		JavaIndex index = JavaIndex.getIndex();
-		Nd nd = index.getNd();
+	BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(pkg, this);
 
-		// We don't currently cache package-info files in the index
-		if (location != null && !this.name.equals("package-info")) { //$NON-NLS-1$
-			String locationString = location.toString();
-			// Acquire a read lock on the index
-			try (IReader lock = nd.acquireReadLock()) {
-				NdResourceFile file = index.getResourceFile(locationString);
+	if (descriptor == null) {
+		return null;
+	}
 
-				if (file != null && file.isDoneIndexing()) {
-					// If this file is in the index and its fingerprint matches the content most recently indexed
-					// then read our result from the index
-					if (file.getFingerprint().test(location.toFile(), null).matches()) {
-						char[] fieldDescriptor = CharArrayUtils.concat(new char[] { 'L' },
-								Util.concatWith(pkg.names, this.name, '/').toCharArray(),
-								new char[] { ';' });
+	IBinaryType type = BinaryTypeFactory.readType(descriptor, fullyInitialize, null);
 
-						String entryName = Util.concatWith(pkg.names, getElementName(), '/');
-						String indexPath = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
+	// TODO(sxenos): setup the external annotation provider if the IBinaryType came from the index
+	// TODO(sxenos): the old code always passed null as the third argument to setupExternalAnnotationProvider,
+	// but this looks like a bug. I've preserved it for now but we need to figure out what was supposed to go
+	// there.
+	if (type instanceof ClassFileReader) {
+		ClassFileReader reader = (ClassFileReader) type;
 
-						TypeRef typeRef = TypeRef.create(nd, locationString.toCharArray(), fieldDescriptor);
-
-						NdType type = typeRef.get();
-
-						if (type == null) {
-							return null;
-						}
-
-						IndexBinaryType result = new IndexBinaryType(typeRef, indexPath.toCharArray());
-
-						// We already have the database lock open and have located the element, so we may as well
-						// prefetch the inexpensive attributes.
-						result.initSimpleAttributes();
-
-						return result;
-					}
-				}
-			} catch (IndexException e) {
-				// Index corrupted. Rebuild it.
-				index.rebuildIndex();
+		JarPackageFragmentRoot root = (JarPackageFragmentRoot) pkg.getParent();
+		if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
+			JavaProject javaProject = (JavaProject) getAncestor(IJavaElement.JAVA_PROJECT);
+			IClasspathEntry entry = javaProject.getClasspathEntryFor(getPath());
+			if (entry != null) {
+				String entryName = new String(CharArrayUtils.concat(
+						JavaNames.fieldDescriptorToBinaryName(descriptor.fieldDescriptor), SuffixConstants.SUFFIX_CLASS));
+				IProject project = javaProject.getProject();
+				IPath externalAnnotationPath = ClasspathEntry.getExternalAnnotationPath(entry, project, false); // unresolved for use in ExternalAnnotationTracker
+				if (externalAnnotationPath != null)
+					setupExternalAnnotationProvider(project, externalAnnotationPath, null, reader,
+							entryName.substring(0, entryName.length() - SuffixConstants.SUFFIX_CLASS.length));
 			}
 		}
 	}
 
-	ZipFile zip = null;
-	ZipFile annotationZip = null;
-	try {
-		zip = root.getJar();
-		String entryName = Util.concatWith(pkg.names, getElementName(), '/');
-		ZipEntry ze = zip.getEntry(entryName);
-		if (ze != null) {
-			byte contents[] = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
-			String fileName = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
-			ClassFileReader reader = new ClassFileReader(contents, fileName.toCharArray(), fullyInitialize);
-			if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
-				JavaProject javaProject = (JavaProject) getAncestor(IJavaElement.JAVA_PROJECT);
-				IClasspathEntry entry = javaProject.getClasspathEntryFor(getPath());
-				if (entry != null) {
-					IProject project = javaProject.getProject();
-					IPath externalAnnotationPath = ClasspathEntry.getExternalAnnotationPath(entry, project, false); // unresolved for use in ExternalAnnotationTracker
-					if (externalAnnotationPath != null) {
-						setupExternalAnnotationProvider(project, externalAnnotationPath, annotationZip, reader,
-								entryName.substring(0, entryName.length() - SuffixConstants.SUFFIX_CLASS.length));
-					} else if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-						reader.markAsFromSource();
-					}
-				}
-			}
-			return reader;
-		}
-	} finally {
-		JavaModelManager.getJavaModelManager().closeZipFile(zip);
-		JavaModelManager.getJavaModelManager().closeZipFile(annotationZip);
-	}
-	return null;
+	return type;
 }
 
 private void setupExternalAnnotationProvider(IProject project, final IPath externalAnnotationPath,

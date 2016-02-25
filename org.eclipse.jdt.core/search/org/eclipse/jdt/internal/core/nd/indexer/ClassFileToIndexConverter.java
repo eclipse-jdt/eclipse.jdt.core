@@ -587,7 +587,7 @@ public class ClassFileToIndexConverter {
 				char[] nestedFieldDescriptor = null;
 				if (fieldDescriptorIfVariable != null && fieldDescriptorIfVariable.length > 0
 						&& fieldDescriptorIfVariable[0] == '[') {
-					nestedFieldDescriptor = CharArrayUtils.substring(fieldDescriptorIfVariable, 1);
+					nestedFieldDescriptor = CharArrayUtils.subarray(fieldDescriptorIfVariable, 1);
 				}
 				// Determine the array argument type
 				NdTypeSignature elementType = createTypeSignature(annotations.toNextArrayDimension(), genericSignature,

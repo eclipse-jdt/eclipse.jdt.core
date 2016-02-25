@@ -147,7 +147,7 @@ public final class Indexer {
 
 			this.pdom.acquireWriteLock(iterationMonitor.split(1));
 			try {
-				NdResourceFile resourceFile = index.getResourceFile(entry.getKey().toString());
+				NdResourceFile resourceFile = index.getResourceFile(entry.getKey().toString().toCharArray());
 				if (resourceFile == null) {
 					continue;
 				}
@@ -542,7 +542,7 @@ public final class Indexer {
 		FileFingerprint fingerprint = FileFingerprint.getEmpty();
 		this.pdom.acquireReadLock();
 		try {
-			NdResourceFile resourceFile = javaIndex.getResourceFile(pathString);
+			NdResourceFile resourceFile = javaIndex.getResourceFile(pathString.toCharArray());
 
 			if (resourceFile != null) {
 				fingerprint = resourceFile.getFingerprint();

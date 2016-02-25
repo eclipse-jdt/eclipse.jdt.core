@@ -10,10 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.java;
 
-import java.io.File;
-import java.util.List;
-
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -27,8 +25,11 @@ import org.eclipse.jdt.internal.core.nd.db.Database;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex.IResultRank;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex.SearchCriteria;
-import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
+import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
+
+import java.io.File;
+import java.util.List;
 
 /**
  * @since 3.12
@@ -90,9 +91,25 @@ public class JavaIndex {
 	/**
 	 * Returns the most-recently-scanned resource file with the given name or null if none
 	 */
-	public NdResourceFile getResourceFile(String thePath) {
-		return FILES.findBest(this.pdom, this.address, FieldSearchIndex.SearchCriteria.create(thePath.toCharArray()),
+	public NdResourceFile getResourceFile(char[] location) {
+		return FILES.findBest(this.pdom, this.address, FieldSearchIndex.SearchCriteria.create(location),
 				bestResourceFile);
+	}
+
+	/**
+	 * Returns true iff the given resource file is up-to-date with the filesystem.
+	 * @throws CoreException 
+	 */
+	public boolean isUpToDate(char[] location) throws CoreException {
+		// Acquire a read lock on the index
+		NdResourceFile file = getResourceFile(location);
+		if (file != null && file.isDoneIndexing()) {
+			File locationFile = new File(new String(location));
+			if (file.getFingerprint().test(locationFile, null).matches()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public List<NdResourceFile> getAllResourceFiles(String thePath) {
