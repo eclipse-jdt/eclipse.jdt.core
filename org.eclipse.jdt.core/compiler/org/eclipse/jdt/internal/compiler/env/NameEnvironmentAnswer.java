@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ public class NameEnvironmentAnswer {
 	ICompilationUnit compilationUnit;
 	ISourceType[] sourceTypes;
 	AccessRestriction accessRestriction;
+	String externalAnnotationPath; // should be an absolute file system path
 
 	public NameEnvironmentAnswer(IBinaryType binaryType, AccessRestriction accessRestriction) {
 		this.binaryType = binaryType;
@@ -28,9 +29,10 @@ public class NameEnvironmentAnswer {
 		this.accessRestriction = accessRestriction;
 	}
 
-	public NameEnvironmentAnswer(ISourceType[] sourceTypes, AccessRestriction accessRestriction) {
+	public NameEnvironmentAnswer(ISourceType[] sourceTypes, AccessRestriction accessRestriction, String externalAnnotationPath) {
 		this.sourceTypes = sourceTypes;
 		this.accessRestriction = accessRestriction;
+		this.externalAnnotationPath = externalAnnotationPath;
 	}
 	/**
 	 * Returns the associated access restriction, or null if none.
@@ -52,6 +54,10 @@ public class NameEnvironmentAnswer {
 	 */
 	public ICompilationUnit getCompilationUnit() {
 		return this.compilationUnit;
+	}
+
+	public String getExternalAnnotationPath() {
+		return this.externalAnnotationPath;
 	}
 
 	/**

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -160,7 +160,7 @@ public NameEnvironmentAnswer findSecondaryInClass(char[] typeName, String qualif
 public boolean hasAnnotationFileFor(String qualifiedTypeName) {
 	int pos = qualifiedTypeName.lastIndexOf('/');
 	if (pos != -1 && (pos + 1 < qualifiedTypeName.length())) {
-		String fileName = qualifiedTypeName.substring(pos + 1) + '.' + ExternalAnnotationProvider.ANNOTION_FILE_EXTENSION;
+		String fileName = qualifiedTypeName.substring(pos + 1) + ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX;
 		return doesFileExist(fileName, qualifiedTypeName.substring(0, pos));
 	}
 	return false;

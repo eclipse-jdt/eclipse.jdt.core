@@ -65,6 +65,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -101,6 +102,8 @@ public class SourceTypeBinding extends ReferenceBinding {
 	private int nullnessDefaultInitialized = 0; // 0: nothing; 1: type; 2: package
 	private int lambdaOrdinal = 0;
 	private ReferenceBinding containerAnnotationType = null;
+
+	public ExternalAnnotationProvider externalAnnotationProvider;
 	
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
 	this.compoundName = compoundName;
@@ -1773,6 +1776,9 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 		} finally {
 		    initializationScope.initializedField = previousField;
 		}
+		if (this.externalAnnotationProvider != null) {
+			ExternalAnnotationSuperimposer.annotateFieldBinding(field, this.externalAnnotationProvider, this.environment);
+		}
 		return field;
 	}
 	return null; // should never reach this point
@@ -1995,6 +2001,9 @@ public MethodBinding resolveTypesFor(MethodBinding method) {
 		return method; // but its still unresolved with a null return type & is still connected to its method declaration
 
 	method.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
+	if (this.externalAnnotationProvider != null) {
+		ExternalAnnotationSuperimposer.annotateMethodBinding(method, this.externalAnnotationProvider, this.environment);
+	}
 	return method;
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=391108

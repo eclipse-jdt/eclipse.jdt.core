@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -190,6 +190,12 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name) {
 	} else if (answer.isSourceType()) {
 		// the type was found as a source model
 		this.typeRequestor.accept(answer.getSourceTypes(), packageBinding, answer.getAccessRestriction());
+		ReferenceBinding binding = packageBinding.getType0(name);
+		String externalAnnotationPath = answer.getExternalAnnotationPath();
+		if (externalAnnotationPath != null && this.globalOptions.isAnnotationBasedNullAnalysisEnabled && binding instanceof SourceTypeBinding) {
+			ExternalAnnotationSuperimposer.apply((SourceTypeBinding) binding, externalAnnotationPath);
+		}
+		return binding;
 	}
 	return packageBinding.getType0(name);
 }

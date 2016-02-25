@@ -249,6 +249,22 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		addClasspathEntry(this.project, entry);
 	}
 
+	protected void addProjectDependencyWithExternalAnnotations(
+			IJavaProject javaProject,
+			String referencedProjectName,
+			String externalAnnotationPath,
+			Map options) throws CoreException, IOException
+	{
+		IClasspathAttribute[] extraAttributes = new IClasspathAttribute[] { new ClasspathAttribute(IClasspathAttribute.EXTERNAL_ANNOTATION_PATH, externalAnnotationPath) };
+		IClasspathEntry entry = JavaCore.newProjectEntry(
+				new Path(referencedProjectName),
+				null/*access rules*/,
+				false/*combine access rules*/,
+				extraAttributes,
+				false/*exported*/);
+		addClasspathEntry(this.project, entry);
+	}
+
 	protected void createFileInProject(String projectRelativeFolder, String fileName, String content) throws CoreException {
 		String folderPath = this.project.getProject().getName()+'/'+projectRelativeFolder;
 		createFolder(folderPath);
@@ -1417,6 +1433,123 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			assertEquals("number of log entries", 0, listener.loggedStatus.size());
 		} finally {
 			Platform.removeLogListener(listener);
+		}
+	}
+
+	/** Lib exists as workspace project. Perform full build. */
+	public void testProjectDependencyFullBuild() throws Exception {
+		try {
+			setupJavaProject("Lib");
+			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+	
+			setupJavaProject("Test1");
+			addProjectDependencyWithExternalAnnotations(this.project, "/Lib", "annots", null);
+			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+			assertNoMarkers(markers);
+		} finally {
+			deleteProject("Lib");
+		}
+	}
+
+	/** Lib exists as workspace project. Reconcile an individual CU. */
+	public void testProjectDependencyReconcile1() throws Exception {
+		try {
+			setupJavaProject("Lib");
+			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			this.root = null; // prepare to get the root from project Test1
+	
+			setupJavaProject("Test1");
+			addProjectDependencyWithExternalAnnotations(this.project, "/Lib", "annots", null);
+			IPackageFragment fragment = this.root.getPackageFragment("test1");
+			ICompilationUnit unit = fragment.getCompilationUnit("Test1.java").getWorkingCopy(new NullProgressMonitor());
+			CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+			IProblem[] problems = reconciled.getProblems();
+			assertNoProblems(problems);
+		} finally {
+			deleteProject("Lib");
+		}
+	}
+
+	/** Lib exists as workspace project. Type-Annotations in zip file. Reconcile an individual CU. */
+	public void testProjectDependencyReconcile2() throws Exception {
+		try {
+			setupJavaProject("Lib");
+			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			this.root = null; // prepare to get the root from project Test1
+	
+			setupJavaProject("Test3b");
+			Util.createSourceZip(
+				new String[] {
+					"libs/MyFunction.eea", 
+					"class libs/MyFunction\n" + 
+					" <T:R:>\n" + 
+					"\n" + 
+					"compose\n" + 
+					" <V:Ljava/lang/Object;>(Llibs/MyFunction<-TV;+TT;>;)Llibs/MyFunction<TV;TR;>;\n" + 
+					" <V:Ljava/lang/Object;>(Llibs/MyFunction<-TV;+T0T;>;)Llibs/MyFunction<TV;TR;>;\n" + 
+					"\n",
+					"libs/Arrays.eea", 
+					"class libs/Arrays\n" + 
+					"\n" +
+					"array\n" +
+					" [Ljava/lang/String;\n" +
+					" [1L0java/lang/String;\n" +
+					"\n" + 
+					"getArray\n" +
+					" ()[[Ljava/lang/String;\n" +
+					" ()[0[1L0java/lang/String;\n"
+				},
+				this.project.getProject().getLocation().toString()+"/annots.zip");
+			this.project.getProject().refreshLocal(1, new NullProgressMonitor());
+
+			addProjectDependencyWithExternalAnnotations(this.project, "/Lib", "annots.zip", null);
+			IPackageFragment fragment = this.root.getPackageFragment("test1");
+			ICompilationUnit unit = fragment.getCompilationUnit("Reconcile2.java").getWorkingCopy(new NullProgressMonitor());
+			CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+			IProblem[] problems = reconciled.getProblems();
+			assertNoProblems(problems);
+		} finally {
+			deleteProject("Lib");
+		}
+	}
+
+	/** Lib exists as workspace project. Invocations conflict with type parameter constraints. Reconcile an individual CU. */
+	public void testProjectDependencyReconcile3() throws Exception {
+		try {
+			setupJavaProject("Lib");
+			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			this.root = null; // prepare to get the root from project Test1
+	
+			setupJavaProject("Test3b");
+			Util.createSourceZip(
+				new String[] {
+					"libs/MyFunction.eea", 
+					"class libs/MyFunction\n" + 
+					" <T:R:>\n" + 
+					" <T:1R:>\n" + 
+					"\n" + 
+					"compose\n" + 
+					" <V:Ljava/lang/Object;>(Llibs/MyFunction<-TV;+TT;>;)Llibs/MyFunction<TV;TR;>;\n" + 
+					" <1V:Ljava/lang/Object;>(Llibs/MyFunction<-TV;+TT;>;)Llibs/MyFunction<TV;TR;>;\n" + 
+					"\n",
+				},
+				this.project.getProject().getLocation().toString()+"/annots.zip");
+			this.project.getProject().refreshLocal(1, new NullProgressMonitor());
+
+			addProjectDependencyWithExternalAnnotations(this.project, "/Lib", "annots.zip", null);
+			IPackageFragment fragment = this.root.getPackageFragment("test1");
+			ICompilationUnit unit = fragment.getCompilationUnit("Reconcile3.java").getWorkingCopy(new NullProgressMonitor());
+			CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+			for (IProblem iProblem : reconciled.getProblems()) {
+				System.out.println(iProblem);
+			}
+			assertProblems(reconciled.getProblems(), new String[] {
+					"Pb(964) Null constraint mismatch: The type '@Nullable B' is not a valid substitute for the type parameter '@NonNull R'",
+					"Pb(964) Null constraint mismatch: The type '@Nullable String' is not a valid substitute for the type parameter '@NonNull V'",
+			}, new int[] { 12, 17 });
+		} finally {
+			deleteProject("Lib");
 		}
 	}
 }

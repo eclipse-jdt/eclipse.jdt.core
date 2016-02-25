@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -104,10 +104,15 @@ private ClasspathLocation mapToClassPathLocation( JavaModelManager manager, Pack
 			cp = new ClasspathJar(manager.getZipFile(path), rawClasspathEntry.getAccessRuleSet(), ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry, ((IJavaProject)root.getParent()).getProject(), true));
 		} else {
 			Object target = JavaModel.getTarget(path, true);
-			if (target != null) 
-				cp = root.getKind() == IPackageFragmentRoot.K_SOURCE ?
-						new ClasspathSourceDirectory((IContainer)target, root.fullExclusionPatternChars(), root.fullInclusionPatternChars()) :
-							ClasspathLocation.forBinaryFolder((IContainer) target, false, ((ClasspathEntry) root.getRawClasspathEntry()).getAccessRuleSet());
+			if (target != null) {
+				if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
+					cp = new ClasspathSourceDirectory((IContainer)target, root.fullExclusionPatternChars(), root.fullInclusionPatternChars());
+				} else {
+					ClasspathEntry rawClasspathEntry = (ClasspathEntry) root.getRawClasspathEntry();
+					cp = ClasspathLocation.forBinaryFolder((IContainer) target, false, rawClasspathEntry.getAccessRuleSet(),
+														ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry, ((IJavaProject)root.getParent()).getProject(), true));
+				}
+			}
 		}
 	} catch (CoreException e1) {
 		// problem opening zip file or getting root kind
