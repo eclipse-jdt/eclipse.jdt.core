@@ -109,8 +109,8 @@ public class JavaIndex {
 			// mechanism for determining if the index matches the file system. Perhaps some sort of
 			// explicit callback that JDT can invoke whenever it writes a .class or .jar file?
 
-//			File locationFile = new File(new String(location));
-//			if (file.getFingerprint().test(locationFile, null).matches()) {
+//			Path locationPath = new Path(new String(location));
+//			if (file.getFingerprint().test(locationPath, null).matches()) {
 //				return true;
 //			}
 		}

@@ -1,15 +1,19 @@
 package org.eclipse.jdt.internal.core.nd.java;
 
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileInfo;
+import org.eclipse.core.filesystem.IFileStore;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.jdt.internal.core.nd.StreamHasher;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.jdt.internal.core.nd.StreamHasher;
 
 /**
  * @since 3.12
@@ -100,12 +104,15 @@ public class FileFingerprint {
 	/**
 	 * Compares the given File with the receiver. If the fingerprint matches (ie: the file
 	 */
-	public FingerprintTestResult test(File toTest, IProgressMonitor monitor) throws CoreException {
+	public FingerprintTestResult test(IPath path, IProgressMonitor monitor) throws CoreException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
-		long lastModified = toTest.lastModified();
+		IFileStore store = EFS.getLocalFileSystem().getStore(path);
+		IFileInfo fileInfo = store.fetchInfo();
+
+		long lastModified = fileInfo.getLastModified();
 		subMonitor.split(5);
 
-		long fileSize = toTest.length();
+		long fileSize = fileInfo.getLength();
 		subMonitor.split(5);
 		if (lastModified == this.time && fileSize == this.size) {
 			return new FingerprintTestResult(true, false, this);
@@ -113,7 +120,7 @@ public class FileFingerprint {
 
 		long hashCode;
 		try {
-			hashCode = computeHashCode(toTest, fileSize, subMonitor.split(90));
+			hashCode = computeHashCode(path.toFile(), fileSize, subMonitor.split(90));
 		} catch (IOException e) {
 			throw new CoreException(Package.createStatus("An error occurred computing a hash code", e)); //$NON-NLS-1$
 		}

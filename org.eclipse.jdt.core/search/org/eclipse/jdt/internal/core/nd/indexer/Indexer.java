@@ -551,7 +551,7 @@ public final class Indexer {
 			this.pdom.releaseReadLock();
 		}
 
-		return fingerprint.test(thePath.toFile(), subMonitor.split(50));
+		return fingerprint.test(thePath, subMonitor.split(50));
 	}
 
 	public Indexer(Nd toPopulate, IWorkspaceRoot workspaceRoot) {
