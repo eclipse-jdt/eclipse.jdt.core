@@ -5983,4 +5983,19 @@ public void _testBug487746_comment9() { // FIXME: still reports an unexpected er
 			"}\n"
 		});
 }
+public void testBug480075() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.stream.*;\n" +
+			"public class X {\n" +
+			"	void test() {\n" +
+			"		IntStream.of(42).mapToObj(i -> i > 42 ? \"gt\" : i < 42 ? \"lt\" : \"42\").findFirst();\n" + 
+			"\n" + 
+			"		Stream.generate(Object::new).map(o -> o != null ? o : o == null ? o : o).findAny();\n" + 
+			"\n" + 
+			"	}\n" +
+			"}\n"
+		});
+}
 }
