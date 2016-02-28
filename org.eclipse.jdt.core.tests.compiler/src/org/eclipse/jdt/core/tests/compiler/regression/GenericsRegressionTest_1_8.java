@@ -5998,4 +5998,38 @@ public void testBug480075() {
 			"}\n"
 		});
 }
+public void testBug488649() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"class A<T> {}\n" +
+			"public class X {\n" +
+			"	static <U> U get(A<U> a) { return null; }\n" +
+			"	void test(A a) {\n" +
+			"		get(a).missing();\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	void test(A a) {\n" + 
+		"	          ^\n" + 
+		"A is a raw type. References to generic type A<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	get(a).missing();\n" + 
+		"	^^^^^^\n" + 
+		"Type safety: Unchecked invocation get(A) of the generic method get(A<U>) of type X\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 5)\n" + 
+		"	get(a).missing();\n" + 
+		"	    ^\n" + 
+		"Type safety: The expression of type A needs unchecked conversion to conform to A<Object>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 5)\n" + 
+		"	get(a).missing();\n" + 
+		"	       ^^^^^^^\n" + 
+		"The method missing() is undefined for the type Object\n" + 
+		"----------\n");
+}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 IBM Corporation.
+ * Copyright (c) 2011, 2016 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3033,6 +3033,38 @@ public void testBug469653() {
 			"Type mismatch: cannot convert from Iterator<capture#1-of ? extends String> to Iterator<String>\n" + 
 			"----------\n");
 	}
+}
+public void testBug488649_JDK6791481_ex1() {
+	int count = 1;
+	runNegativeTest(
+		new String[] {
+			"Test.java",
+			"class Test<X> {\n" + 
+			"	X m(Class<X> c) {return null;}\n" + 
+			"	X x = m((Class)String.class);\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		(this.complianceLevel >= ClassFileConstants.JDK1_8
+			?
+		(count++)+". ERROR in Test.java (at line 3)\n" + 
+		"	X x = m((Class)String.class);\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Object to X\n" + // <- want to see this error, but at 1.7- we keep javac compatibility
+		"----------\n"
+			:
+		""
+		)+
+		(count++)+". WARNING in Test.java (at line 3)\n" +
+		"	X x = m((Class)String.class);\n" +
+		"	        ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type Class needs unchecked conversion to conform to Class<X>\n" + 
+		"----------\n" + 
+		(count++)+". WARNING in Test.java (at line 3)\n" +
+		"	X x = m((Class)String.class);\n" + 
+		"	         ^^^^^\n" + 
+		"Class is a raw type. References to generic type Class<T> should be parameterized\n" + 
+		"----------\n");
 }
 public static Class testClass() {
 	return GenericsRegressionTest_1_7.class;

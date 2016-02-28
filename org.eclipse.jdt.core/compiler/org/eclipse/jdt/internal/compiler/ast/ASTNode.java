@@ -348,7 +348,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return INVOCATION_ARGUMENT_OK;
 	}
 	public static boolean checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {
-		boolean is1_7 = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_7;
+		long sourceLevel = scope.compilerOptions().sourceLevel;
+		boolean is1_7 = sourceLevel >= ClassFileConstants.JDK1_7;
 		TypeBinding[] params = method.parameters;
 		int paramLength = params.length;
 		boolean isRawMemberInvocation = !method.isStatic()
@@ -441,11 +442,13 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			}
 		} else if (rawOriginalGenericMethod != null 
 				|| uncheckedBoundCheck
-				|| ((invocationStatus & INVOCATION_ARGUMENT_UNCHECKED) != 0 
-						&& method instanceof ParameterizedGenericMethodBinding
-						/*&& method.returnType != scope.environment().convertToRawType(method.returnType.erasure(), true)*/)) {
-			scope.problemReporter().unsafeRawGenericMethodInvocation((ASTNode)invocationSite, method, argumentTypes);
-			return true;
+				|| ((invocationStatus & INVOCATION_ARGUMENT_UNCHECKED) != 0)) {
+			if (method instanceof ParameterizedGenericMethodBinding) {
+				scope.problemReporter().unsafeRawGenericMethodInvocation((ASTNode)invocationSite, method, argumentTypes);
+				return true;
+			}
+			if (sourceLevel >= ClassFileConstants.JDK1_8)
+				return true; // signal to erase return type and exceptions, while keeping javac compatibility at 1.7-
 		}
 		return false;
 	}
