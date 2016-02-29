@@ -73,7 +73,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to align groups of members independently if they are separated by a certain number of blank lines
 	 *     - option id:         "org.eclipse.jdt.core.formatter.align_fields_grouping_blank_lines"
 	 *     - possible values:   "&lt;n&gt;", where n is a positive integer
-	 *     - default:           "99"
+	 *     - default:           {@code Integer.MAX_VALUE}
 	 * </pre>
 	 * @since 3.12
 	 */
