@@ -40,6 +40,7 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 			FullSourceWorkspaceModelTests.class,
 			FullSourceWorkspaceCompletionTests.class,
 			FullSourceWorkspaceFormatterTests.class,
+			RegionPerformanceTests.class
 		};
 	}
 
