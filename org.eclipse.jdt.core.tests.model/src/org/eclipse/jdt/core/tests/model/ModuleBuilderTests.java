@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Hashtable;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
@@ -543,9 +544,51 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("P3");
 		}
 	}
+	public void testConvertToModule() throws CoreException, IOException {
+		if (!isJRE9) return;
+		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
+		try {
+			IJavaProject project = setUpJavaProject("ConvertToModule", "1.9");
+			if (!project.getOption("org.eclipse.jdt.core.compiler.compliance", true).equals("1.9")) {
+				return;
+			}
+			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
+			IPackageFragmentRoot theRoot = null;
+			for (IPackageFragmentRoot root : roots) {
+				if (!root.isModule() && root.getElementName().equals("jdt.test")) {
+					theRoot = root;
+					break;
+				}
+			}
+			String mod = JavaCore.createModuleFromPackageRoot(null, theRoot);
+			assertEquals("module-info is incorrect", 
+					"module jdt.test {\n" +
+					"	exports org.eclipse.jdt.test;\n" +
+					"	exports org.eclipse.test;\n\n" +
+					"	requires java.base;\n" +
+					"	requires java.desktop;\n" +
+					"	requires java.rmi;\n" +
+					"	requires java.sql;\n\n" +
+					"}" ,mod);
+			mod = JavaCore.createModuleFromPackageRoot("my.module", theRoot);
+			assertEquals("module-info is incorrect", 
+					"module my.module {\n" +
+					"	exports org.eclipse.jdt.test;\n" +
+					"	exports org.eclipse.test;\n\n" +
+					"	requires java.base;\n" +
+					"	requires java.desktop;\n" +
+					"	requires java.rmi;\n" +
+					"	requires java.sql;\n\n" +
+					"}" ,mod);
+
+		} finally {
+			this.deleteProject("ConvertToModule");
+			 JavaCore.setOptions(javaCoreOptions);
+		}
+	}
 	public void tearDownSuite() throws Exception {
 		super.tearDownSuite();
 		deleteProject("P1");
 	}
-
 }

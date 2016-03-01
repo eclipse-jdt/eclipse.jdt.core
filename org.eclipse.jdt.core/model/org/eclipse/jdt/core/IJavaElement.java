@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.jdt.core.IModule.IPackageExport;
 
 /**
  * Common protocol for all elements provided by the Java model.
@@ -132,19 +131,6 @@ public interface IJavaElement extends IAdaptable {
 	 */
 	int ANNOTATION = 16;
 
-	/**
-	 * Constant representing a module declaration.
-	 * A Java element with this type can be safely cast to {@link IModule}.
-	 * @since 3.12
-	 */
-	int MODULE_DECLARATION = 17;
-
-	/**
-	 * Constant representing a module declaration.
-	 * A Java element with this type can be safely cast to {@link IPackageExport}.
-	 * @since 3.12
-	 */
-	int PACKAGE_EXPORT = 17;
 	/**
 	 * Returns whether this Java element exists in the model.
 	 * <p>

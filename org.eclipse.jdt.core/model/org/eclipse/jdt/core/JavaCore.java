@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -159,6 +159,7 @@ import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.builder.State;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
+import org.eclipse.jdt.internal.core.util.ModuleUtil;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.osgi.framework.BundleContext;
 
@@ -5777,6 +5778,27 @@ public final class JavaCore extends Plugin {
 	 */
 	public static int compareJavaVersions(String first, String second) {
 		return Long.compare(CompilerOptions.versionToJdkLevel(first), CompilerOptions.versionToJdkLevel(second));
+	}
+	/**
+	 * Creates a corresponding module-info as a String for the given source package fragment root and with
+	 * the given name. The module name is optional and a null argument can be passed to indicate that the
+	 * package fragment root's element name to be used as the module name.
+	 *
+	 * This is a utility method and computes a module configuration by looking at the source files inside
+	 * the package fragment root and what modules within the project's build path are needed in order to 
+	 * successfully compile the source files. For non-source package fragment roots
+	 * (i.e., {@link IPackageFragmentRoot#isArchive()} returns true), this method returns null.
+	 *
+	 * Note this is a long-running operation and it is preferable that clients run this in a background thread.
+	 *
+	 * @param moduleName name to be used for the new module. A null indicates that the package fragment root element's name to be used
+	 * @param root the package fragment root for which the module is sought
+	 * @return the module-info content as a String
+	 * @throws CoreException
+	 * @since 3.12 BETA_JAVA9
+	 */
+	public static String createModuleFromPackageRoot(String moduleName, IPackageFragmentRoot root) throws CoreException {
+		return ModuleUtil.createModuleFromPackageRoot(moduleName, root);
 	}
 
 	/* (non-Javadoc)
