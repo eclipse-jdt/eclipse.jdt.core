@@ -561,25 +561,27 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					break;
 				}
 			}
+			assertNotNull("should not be null", theRoot);
 			String mod = JavaCore.createModuleFromPackageRoot(null, theRoot);
+			String lineDelimiter = System.getProperty("line.separator", "\n");
 			assertEquals("module-info is incorrect", 
-					"module jdt.test {\n" +
-					"	exports org.eclipse.jdt.test;\n" +
-					"	exports org.eclipse.test;\n\n" +
-					"	requires java.base;\n" +
-					"	requires java.desktop;\n" +
-					"	requires java.rmi;\n" +
-					"	requires java.sql;\n\n" +
+					"module jdt.test {" + lineDelimiter + "" +
+					"	exports org.eclipse.jdt.test;" + lineDelimiter +
+					"	exports org.eclipse.test;" + lineDelimiter + lineDelimiter +
+					"	requires java.base;" + lineDelimiter +
+					"	requires java.desktop;" + lineDelimiter +
+					"	requires java.rmi;" + lineDelimiter +
+					"	requires java.sql;" + lineDelimiter + lineDelimiter +
 					"}" ,mod);
 			mod = JavaCore.createModuleFromPackageRoot("my.module", theRoot);
 			assertEquals("module-info is incorrect", 
-					"module my.module {\n" +
-					"	exports org.eclipse.jdt.test;\n" +
-					"	exports org.eclipse.test;\n\n" +
-					"	requires java.base;\n" +
-					"	requires java.desktop;\n" +
-					"	requires java.rmi;\n" +
-					"	requires java.sql;\n\n" +
+					"module my.module {" + lineDelimiter +
+					"	exports org.eclipse.jdt.test;" + lineDelimiter +
+					"	exports org.eclipse.test;" + lineDelimiter + lineDelimiter +
+					"	requires java.base;" + lineDelimiter +
+					"	requires java.desktop;" + lineDelimiter +
+					"	requires java.rmi;" + lineDelimiter +
+					"	requires java.sql;" + lineDelimiter + lineDelimiter +
 					"}" ,mod);
 
 		} finally {

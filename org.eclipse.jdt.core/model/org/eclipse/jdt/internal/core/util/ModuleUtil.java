@@ -23,7 +23,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -114,6 +117,16 @@ public class ModuleUtil {
 		return newCompiler;
 	}
 	private static String createModuleFromPackageFragmentRoot(String moduleName, IPackageFragmentRoot root, IJavaProject project) throws CoreException {
+		String lineDelimiter = null;
+		if (project != null) {
+			IScopeContext[] scopeContext;
+			// project preference
+			scopeContext = new IScopeContext[] { new ProjectScope(project.getProject()) };
+			lineDelimiter = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
+		}
+		if (lineDelimiter == null) {
+			lineDelimiter = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		if (!root.isArchive()) {
 			ModuleAccumulatorEnvironment environment = new ModuleAccumulatorEnvironment(project);
 			Compiler compiler = newCompiler(environment, project);
@@ -137,6 +150,7 @@ public class ModuleUtil {
 			for (IJavaElement child : children) {
 				if (child instanceof IPackageFragment) {
 					IPackageFragment fragment = (IPackageFragment) child;
+					if (fragment.isDefaultPackage()) continue;
 					ICompilationUnit[] units = fragment.getCompilationUnits();
 					if (units.length != 0) {
 						String pack = fragment.getElementName();
@@ -175,7 +189,7 @@ public class ModuleUtil {
 			IModule.IModuleReference[] refs = new IModule.IModuleReference[required.size()];
 			refs = required.toArray(refs);
 			module.setRequiredModules(refs);
-			return module.toString();
+			return module.toString(lineDelimiter);
 		}
 		return null;
 	}
@@ -206,23 +220,23 @@ class LocalModuleImpl implements IModule {
 		this.exports = exports;
 	}
 
-	public String toString() {
+	public String toString(String lineDelimiter) {
 		StringBuffer buffer = new StringBuffer();
-		toStringContent(buffer);
+		toStringContent(buffer, lineDelimiter);
 		return buffer.toString();
 	}
-	protected void toStringContent(StringBuffer buffer) {
+	protected void toStringContent(StringBuffer buffer, String lineDelimiter) {
 		buffer.append("module "); //$NON-NLS-1$
 		buffer.append(this.name).append(' ');
-		buffer.append('{').append('\n');
+		buffer.append('{').append(lineDelimiter);
 		if (this.exports != null) {
 			for(int i = 0; i < this.exports.length; i++) {
 				buffer.append("\texports "); //$NON-NLS-1$
 				buffer.append(this.exports[i].toString());
-				buffer.append('\n');
+				buffer.append(lineDelimiter);
 			}
 		}
-		buffer.append('\n');
+		buffer.append(lineDelimiter);
 		if (this.requires != null) {
 			for(int i = 0; i < this.requires.length; i++) {
 				buffer.append("\trequires "); //$NON-NLS-1$
@@ -230,10 +244,10 @@ class LocalModuleImpl implements IModule {
 					buffer.append(" public "); //$NON-NLS-1$
 				}
 				buffer.append(this.requires[i].module().name());
-				buffer.append(';').append('\n');
+				buffer.append(';').append(lineDelimiter);
 			}
 		}
-		buffer.append('\n').append('}').toString();
+		buffer.append(lineDelimiter).append('}').toString();
 	}
 }
 class LocalModuleReferenceImpl implements IModule.IModuleReference {

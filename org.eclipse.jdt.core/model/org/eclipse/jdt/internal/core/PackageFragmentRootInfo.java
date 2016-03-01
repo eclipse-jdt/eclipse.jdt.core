@@ -11,12 +11,13 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -62,6 +63,18 @@ public PackageFragmentRootInfo() {
  * @exception JavaModelException  The resource associated with this package fragment does not exist
  */
 static Object[] computeFolderNonJavaResources(IPackageFragmentRoot root, IContainer folder, char[][] inclusionPatterns, char[][] exclusionPatterns) throws JavaModelException {
+	IJavaProject project = root.getJavaProject();
+	String lineDelimiter = null;
+	if (project != null) {
+		IScopeContext[] scopeContext;
+		// project preference
+		scopeContext = new IScopeContext[] { new ProjectScope(project.getProject()) };
+		lineDelimiter = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
+	}
+	if (lineDelimiter == null) {
+		lineDelimiter = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	IResource[] nonJavaResources = new IResource[5];
 	int nonJavaResourcesCounter = 0;
 	try {
@@ -164,14 +177,15 @@ public boolean isModule(IResource resource, IPackageFragmentRoot handle) throws 
 	if (handle.getKind() == IPackageFragmentRoot.K_SOURCE) {
 		ICompilationUnit[] units = fragment.getCompilationUnits();
 		for (ICompilationUnit unit : units) {
-			if (CharOperation.contains(unit.getElementName().toCharArray(), TypeConstants.MODULE_INFO_NAME)) {
+			if (unit.getElementName().toLowerCase().indexOf(new String(TypeConstants.MODULE_INFO_NAME)) != -1) {
+				System.out.println(this.isModule);
 				return (this.isModule = true);
 			}
 		}
 	} else {
 		IClassFile[] classfiles = fragment.getClassFiles();
 		for (IClassFile claaz : classfiles) {
-			if (CharOperation.contains(claaz.getElementName().toCharArray(), TypeConstants.MODULE_INFO_NAME)) {
+			if (claaz.getElementName().toLowerCase().indexOf(new String(TypeConstants.MODULE_INFO_NAME)) != -1) {
 				return (this.isModule = true);
 			}
 		}
