@@ -6032,4 +6032,23 @@ public void testBug488649() {
 		"The method missing() is undefined for the type Object\n" + 
 		"----------\n");
 }
+public void testBug488672() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void foo(Manager manager) {\n" + 
+			"		HashSet<String> activeBindings = new HashSet<>(manager.getActiveBindingsDisregardingContextFlat());\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Manager {\n" + 
+			"	Collection getActiveBindingsDisregardingContextFlat() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
 }

@@ -605,7 +605,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		// the erasure of the return type and thrown types of m's type."
 		if (substitute)
 			type = Scope.substitute(this, type);
-		return type.erasure();
+		return env.convertToRawType(type.erasure(), true);
 	}
 
 	/*
