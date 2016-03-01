@@ -450,8 +450,14 @@ public interface IPackageFragmentRoot
 	 * @since 2.1
 	 */
 	void move(IPath destination, int updateResourceFlags, int updateModelFlags, IClasspathEntry sibling, IProgressMonitor monitor) throws JavaModelException;
+
 	/**
+	 * Specifies whether this package fragment root represents a module or not.
+	 * 
+	 * A package fragment root is said to be a module if it contains a <code>module-info.java</code>
+	 * or <code>module-info.class</code> depending on whether this is a source or binary fragment root.
+	 *
 	 * @since 3.12 BETA_JAVA9
 	 */
-	public IModule getModule();
+	public boolean isModule();
 }

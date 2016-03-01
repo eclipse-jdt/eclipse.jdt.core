@@ -100,6 +100,10 @@ public class ModulePackageFragmentRoot extends JarPackageFragmentRoot {
 	public String getElementName() {
 		return this.moduleName;
 	}
+	@Override
+	public boolean isModule() {
+		return true;
+	}
 	public PackageFragment getPackageFragment(String[] pkgName) {
 		// NOTE: Do we need a different kind of package fragment?
 		return new JarPackageFragment(this, pkgName);

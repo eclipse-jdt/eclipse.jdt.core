@@ -15,11 +15,14 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
+import java.io.IOException;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
@@ -36,7 +39,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	static {
-		 //TESTS_NAMES = new String[] { "test003" };
+//		 TESTS_NAMES = new String[] { "test015" };
 	}
 	private static boolean isJRE9 = false;
 	public static Test suite() {
@@ -477,6 +480,64 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			assertMarkers("Unexpected markers", "",  markers);
 			markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", "",  markers);
+		} finally {
+			deleteProject("P2");
+			deleteProject("P3");
+		}
+	}
+	public void test015() throws CoreException, IOException {
+		if (!isJRE9) return;
+		try {
+			this.editFile("P1/src/module-info.java",
+					"module M1 {\n" +
+					"	exports com.greetings to M2;\n" +
+					"}");
+			IJavaProject p2 = setupP2();
+			this.editFile("P2/src/module-info.java",
+					"module M2 {\n" +
+					"	exports org.astro;\n" +
+					"	requires public M1;\n" +
+					"}");
+			waitForManualRefresh();
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IPackageFragmentRoot[] roots = this.currentProject.getAllPackageFragmentRoots();
+			boolean found = false;
+			for (IPackageFragmentRoot iRoot : roots) {
+				if (iRoot.isModule() && iRoot.getElementName().equals("java.base")) {
+					found = true;
+					break;
+				}
+			}
+			assertTrue("Should be a module", found);
+			IFolder folder = getFolder("P1/src");
+			IPackageFragmentRoot root = this.currentProject.getPackageFragmentRoot(folder);
+			assertTrue("Should be a module", root.isModule());
+			folder = getFolder("P2/src");
+			root = p2.getPackageFragmentRoot(folder);
+			assertTrue("Should be a module", root.isModule());
+			folder = getFolder("P1/bin");
+			IPath jarPath = p2.getResource().getLocation().append("m0.jar");
+			org.eclipse.jdt.core.tests.util.Util.zip(new File(folder.getLocation().toOSString()), jarPath.toOSString());
+			IClasspathEntry[] old = p2.getRawClasspath();
+			for (int i = 0; i < old.length; i++) {
+				if (old[i].isExported()) {
+					old[i] = JavaCore.newLibraryEntry(new Path("/P2/m0.jar"), null, null);
+					break;
+				}
+			}
+			p2.setRawClasspath(old, null);
+			p2.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			roots = p2.getAllPackageFragmentRoots();
+			root = null;
+			for (IPackageFragmentRoot iRoot : roots) {
+				if (iRoot.isModule() && iRoot.getElementName().equals("m0.jar")) {
+					root = iRoot;
+					break;
+				}
+			}
+			assertNotNull("Root should be non null", root);
+			assertTrue("Should be a module", root.isModule());
 		} finally {
 			deleteProject("P2");
 			deleteProject("P3");

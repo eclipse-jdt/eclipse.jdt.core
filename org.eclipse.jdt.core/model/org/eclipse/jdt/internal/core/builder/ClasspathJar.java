@@ -94,7 +94,7 @@ static SimpleSet findPackageSet(final ClasspathJar jar) {
 	PackageCache.put(zipFileName, new PackageCacheEntry(lastModified, fileSize, packageSet));
 	if (modInfo != null) {
 		try {
-			jar.acceptModule(ClassFileReader.read(modInfo));
+			jar.acceptModule(ClassFileReader.read(jar.zipFile, modInfo));
 		} catch (ClassFormatException | IOException e) {
 			// TODO BETA_JAVA9 Auto-generated catch block
 			e.printStackTrace();

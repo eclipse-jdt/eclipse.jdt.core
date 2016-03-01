@@ -843,14 +843,11 @@ protected void verifyAttachSource(IPath sourcePath) throws JavaModelException {
 }
 
 @Override
-public IModule getModule() {
-	IModule module = null;
-//	try {
-//		module = ((PackageFragmentRootInfo)getElementInfo()).getModule();
-//
-//	} catch (JavaModelException e) {
-//		// 
-//	}
-	return module;
+public boolean isModule() {
+	try {
+		return ((PackageFragmentRootInfo) getElementInfo()).isModule(resource(), this);
+	} catch (JavaModelException e) {
+		return false;
+	}
 }
 }

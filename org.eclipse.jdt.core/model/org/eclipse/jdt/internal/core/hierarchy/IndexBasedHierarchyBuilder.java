@@ -30,7 +30,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IModule;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -226,9 +225,10 @@ private void buildForProject(JavaProject project, ArrayList potentialSubtypes, o
 					char[] typeQualifiedName = focusType.getTypeQualifiedName('.').toCharArray();
 					PackageFragment fragment = (PackageFragment) focusType.getPackageFragment();
 					String[] packageName = fragment.names;
-					IModule module = fragment.getPackageFragmentRoot().getModule();
+					IPackageFragmentRoot root = fragment.getPackageFragmentRoot();
+					String modName = root.isModule() ? root.getElementName() : null;
 					if (searchableEnvironment.findType(typeQualifiedName, Util.toCharArrays(packageName), 
-							module == null ? null : module.name()) == null) {
+							modName != null ? modName.toCharArray() : null) == null) {
 						// focus type is not visible in this project: no need to go further
 						return;
 					}
