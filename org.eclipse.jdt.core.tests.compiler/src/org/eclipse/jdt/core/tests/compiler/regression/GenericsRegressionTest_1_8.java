@@ -6051,4 +6051,20 @@ public void testBug488672() {
 			"}\n"
 		});
 }
+public void testBug488795() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface Parameter {}\n" +
+			"interface Parameters<S extends Parameters<S, T>, T extends Parameter> extends Iterable<T> {\n" +
+			"	S get();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	void test(Parameters<?,?> parameters) {\n" +
+			"		for(Parameter p : parameters.get())\n" +
+			"			System.out.println(p);\n" +
+			"	}\n" +
+			"}\n"
+		});
+}
 }
