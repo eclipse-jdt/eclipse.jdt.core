@@ -97,12 +97,13 @@ public class JavaIndex {
 	}
 
 	/**
-	 * Returns true iff the given resource file is up-to-date with the filesystem.
+	 * Returns true iff the given resource file is up-to-date with the filesystem. Returns false
+	 * if the argument is out-of-date with the file system or null.
+	 * 
+	 * @param file the index file to look up or null
 	 * @throws CoreException 
 	 */
-	public boolean isUpToDate(char[] location) throws CoreException {
-		// Acquire a read lock on the index
-		NdResourceFile file = getResourceFile(location);
+	public boolean isUpToDate(NdResourceFile file) throws CoreException {
 		if (file != null && file.isDoneIndexing()) {
 			return true;
 			// TODO(sxenos): uncomment this after EclipseCon, then replace it with a more efficient

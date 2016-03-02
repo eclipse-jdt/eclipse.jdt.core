@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.nd.java.JavaNames;
+import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.nd.java.NdType;
 import org.eclipse.jdt.internal.core.nd.java.TypeRef;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
@@ -148,7 +149,7 @@ public class BinaryTypeFactory {
 
 		// If the new index is enabled, check if we have this class file cached in the index already		
 		char[] fieldDescriptor = descriptor.fieldDescriptor;
-		
+
 		if (!CharArrayUtils.equals(PACKAGE_INFO, className)) {
 			JavaIndex index = JavaIndex.getIndex();
 			Nd nd = index.getNd();
@@ -158,14 +159,22 @@ public class BinaryTypeFactory {
 				// Acquire a read lock on the index
 				try (IReader lock = nd.acquireReadLock()) {
 					try {
-						if (index.isUpToDate(descriptor.location)) {
-							TypeRef typeRef = TypeRef.create(nd, descriptor.location, fieldDescriptor);
-							NdType type = typeRef.get();
+						TypeRef typeRef = TypeRef.create(nd, descriptor.location, fieldDescriptor);
+						NdType type = typeRef.get();
 
-							if (type == null) {
+						if (type == null) {
+							// If we couldn't find the type in the index, determine whether the cause is
+							// that the type is known not to exist or whether the resource just hasn't
+							// been indexed yet
+
+							NdResourceFile resourceFile = index.getResourceFile(descriptor.location);
+							if (index.isUpToDate(resourceFile)) {
 								return null;
 							}
-
+							throw new NotInIndexException();
+						}
+						NdResourceFile resourceFile = type.getResourceFile();
+						if (index.isUpToDate(resourceFile)) {
 							IndexBinaryType result = new IndexBinaryType(typeRef, descriptor.indexPath);
 
 							// We already have the database lock open and have located the element, so we may as
@@ -174,6 +183,7 @@ public class BinaryTypeFactory {
 
 							return result;
 						}
+						throw new NotInIndexException();
 					} catch (CoreException e) {
 						throw new JavaModelException(e);
 					}
