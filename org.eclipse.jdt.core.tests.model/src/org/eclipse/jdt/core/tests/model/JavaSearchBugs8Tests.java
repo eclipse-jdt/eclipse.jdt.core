@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,8 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
 import junit.framework.Test;
 
@@ -35,6 +34,7 @@ import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.LambdaMethod;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.AndPattern;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
@@ -42,7 +42,6 @@ import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 /**
  * Non-regression tests for bugs fixed in Java Search engine.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaSearchBugs8Tests extends AbstractJavaSearchTests {
 
 	static {
@@ -58,10 +57,8 @@ public static Test suite() {
 	return buildModelTestSuite(JavaSearchBugs8Tests.class, BYTECODE_DECLARATION_ORDER);
 }
 class TestCollector extends JavaSearchResultCollector {
-	public List matches = new ArrayList();
 	public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
 		super.acceptSearchMatch(searchMatch);
-		this.matches.add(searchMatch);
 	}
 }
 class ReferenceCollector extends JavaSearchResultCollector {
@@ -4704,6 +4701,38 @@ public void testBug468127_0001() throws CoreException {
 				"lib/b468127.jar void <anonymous>.accept(java.lang.Object) EXACT_MATCH");
 	}
 	finally {
+		deleteProject("P");
+	}
+}
+// not solely a search issue but easily reproducible using search
+public void test473343_0001() throws CoreException, IOException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] {"a-b"}, new String[] {"JCL18_LIB"}, "bin", "1.8", true);
+		String source = "interface Consumer<T> {\n" +
+				"	void accept(T t);\n" +
+				"}\n" +
+				"\n" +
+				"public class X {\n" +
+				"	Consumer<? super Y> action = (i_) -> X.foo(i_);\n" +
+				"	private static void foo(Y tb) {\n" +
+				"	}\n" +
+				"}\n";
+		createFile("/P/a-b/X.java", source);
+		createFile("/P/a-b/Y.java", "public class Y{}");
+		waitForAutoBuild();
+
+		ICompilationUnit unit = getCompilationUnit("/P/a-b/X.java");
+		String foo = "foo";
+		IJavaElement[] elements = unit.codeSelect(source.indexOf(foo), foo.length());
+		SearchPattern pattern = SearchPattern.createPattern(elements[0], REFERENCES, ERASURE_RULE);
+		search(pattern, SearchEngine.createJavaSearchScope(new IJavaElement[] { project }, IJavaSearchScope.SOURCES), this.resultCollector);
+		LambdaMethod method = (LambdaMethod) this.resultCollector.match.getElement();
+  		try {
+			SearchPattern.createPattern(method, REFERENCES, ERASURE_RULE);
+		} catch (IllegalArgumentException e) {
+			assertFalse("Test Failed", true);
+		}
+	} finally {
 		deleteProject("P");
 	}
 }

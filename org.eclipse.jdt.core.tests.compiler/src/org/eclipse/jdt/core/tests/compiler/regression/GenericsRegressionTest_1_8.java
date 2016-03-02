@@ -5829,4 +5829,242 @@ public void testBug485593() {
 			"}\n"
 		});
 }
+public void testBug483228a() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface UnaryOp<T> { T apply(T arg); }\n" + 
+			"interface IntegerToNumber { Number apply(Integer arg); }\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"  <T> void m(UnaryOp<T> f) {}\n" + 
+			"  void m(IntegerToNumber f) {}\n" + 
+			"\n" + 
+			"  void test() {\n" + 
+			"    m((Integer i) -> i);\n" + 
+			"  } \n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	m((Integer i) -> i);\n" + 
+		"	^\n" + 
+		"The method m(UnaryOp<Integer>) is ambiguous for the type X\n" + 
+		"----------\n");
+}
+public void testBug449824a() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	interface FI1<T> {\n" + 
+			"		public T get(X x, T n);\n" + 
+			"	}\n" + 
+			"	interface FI2 {\n" + 
+			"		public Integer get(X x, Integer t);\n" + 
+			"	}\n" + 
+			"	void m(FI1<Number> fi) { }\n" + 
+			"	void m(FI2 fi) { }\n" + 
+			"	Integer id(Number n) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	void test() {\n" + 
+			"		m(X::id);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 14)\n" + 
+		"	m(X::id);\n" + 
+		"	^\n" + 
+		"The method m(X.FI1<Number>) is ambiguous for the type X\n" + 
+		"----------\n");
+}
+public void testBug449824b() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" + 
+			"	interface FI1<T> {\n" + 
+			"		public T get(T... n);\n" + 
+			"	}\n" + 
+			"	interface FI2 {\n" + 
+			"		public Integer get(Integer... t);\n" + 
+			"	}\n" + 
+			"	void m(FI1<Number> fi) { }\n" + 
+			"	void m(FI2 fi) { }\n" + 
+			"	Integer id(Number[] n) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	void test() {\n" + 
+			"		m(this::id);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	public T get(T... n);\n" + 
+		"	                  ^\n" + 
+		"Type safety: Potential heap pollution via varargs parameter n\n" +
+		"----------\n" + 
+		"2. ERROR in X.java (at line 14)\n" + 
+		"	m(this::id);\n" + 
+		"	^\n" + 
+		"The method m(X.FI1<Number>) is ambiguous for the type X\n" +
+		"----------\n");
+}
+public void testBug487746_comment2() {
+	runConformTest(
+		new String[] {
+			"Example.java",
+			"\n" + 
+			"import java.time.Instant;\n" + 
+			"import java.util.Comparator;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"public class Example {\n" + 
+			"   public void test1() {\n" + 
+			"      // Returns Collector<Something,?,Something> - CORRECT\n" + 
+			"      Collectors.collectingAndThen(\n" + 
+			"            Collectors.<Something>toList(),\n" + 
+			"            list -> list.stream().sorted(Comparator.comparing(Something::getTime)).limit(1).findAny().orElse(null)\n" + 
+			"      );\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   public void test2() {\n" + 
+			"         Collectors.collectingAndThen(\n" + 
+			"            Collectors.<Something>toList(),\n" + 
+			"            list -> list.stream().collect(Collectors.groupingBy(Something::getSize,\n" + 
+			"                     // Returns Collector<Something,?,Object> - INCORRECT!\n" + 
+			"                     Collectors.collectingAndThen(\n" + 
+			"                        Collectors.<Something>toList(),\n" + 
+			"                        list2 -> list2.stream().sorted(Comparator.comparing(Something::getTime)).limit(1).findAny().orElse(null)\n" + 
+			"                     )\n" + 
+			"                  )));\n" + 
+			"   }\n" +
+			"   private interface Something {\n" + 
+			"      public int getSize();\n" + 
+			"      public Instant getTime();\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
+public void _testBug487746_comment9() { // FIXME: still reports an unexpected error
+	runConformTest(
+		new String[] {
+			"Example.java",
+			"\n" + 
+			"import java.time.Instant;\n" + 
+			"import java.util.Comparator;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"public class Example {\n" + 
+			"	public void doesntCompile(List<Something> things) {\n" + 
+			"   	things.stream()\n" + 
+			"       	.filter(thing -> thing.getSize() > 100)\n" + 
+			"       	.collect(Collectors.collectingAndThen(\n" + 
+			"        	 	Collectors.<Something>toList(),\n" + 
+			"         		list -> list.stream().collect(Collectors.groupingBy(Something::getSize,\n" + 
+			"           	       	Collectors.collectingAndThen(\n" + 
+			"               	      Collectors.<Something>toList(),\n" + 
+			"                   	  list2 -> list2.stream().sorted(Comparator.comparing(Something::getTime)).limit(1).findAny().orElse(null)\n" + 
+			"                  		)\n" + 
+			"               ))))\n" + 
+			"   		.forEach((size, thing) -> {\n" + 
+			"       		System.out.println(thing.getSize());   // Compile error because Eclipse thinks 'thing' is Object\n" + 
+			"   		});\n" + 
+			"	}\n" + 
+			"   private interface Something {\n" + 
+			"      public int getSize();\n" + 
+			"      public Instant getTime();\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
+public void testBug480075() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.stream.*;\n" +
+			"public class X {\n" +
+			"	void test() {\n" +
+			"		IntStream.of(42).mapToObj(i -> i > 42 ? \"gt\" : i < 42 ? \"lt\" : \"42\").findFirst();\n" + 
+			"\n" + 
+			"		Stream.generate(Object::new).map(o -> o != null ? o : o == null ? o : o).findAny();\n" + 
+			"\n" + 
+			"	}\n" +
+			"}\n"
+		});
+}
+public void testBug488649() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"class A<T> {}\n" +
+			"public class X {\n" +
+			"	static <U> U get(A<U> a) { return null; }\n" +
+			"	void test(A a) {\n" +
+			"		get(a).missing();\n" +
+			"	}\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	void test(A a) {\n" + 
+		"	          ^\n" + 
+		"A is a raw type. References to generic type A<T> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	get(a).missing();\n" + 
+		"	^^^^^^\n" + 
+		"Type safety: Unchecked invocation get(A) of the generic method get(A<U>) of type X\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 5)\n" + 
+		"	get(a).missing();\n" + 
+		"	    ^\n" + 
+		"Type safety: The expression of type A needs unchecked conversion to conform to A<Object>\n" + 
+		"----------\n" + 
+		"4. ERROR in X.java (at line 5)\n" + 
+		"	get(a).missing();\n" + 
+		"	       ^^^^^^^\n" + 
+		"The method missing() is undefined for the type Object\n" + 
+		"----------\n");
+}
+public void testBug488672() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class X {\n" + 
+			"	void foo(Manager manager) {\n" + 
+			"		HashSet<String> activeBindings = new HashSet<>(manager.getActiveBindingsDisregardingContextFlat());\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Manager {\n" + 
+			"	Collection getActiveBindingsDisregardingContextFlat() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
+public void testBug488795() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"interface Parameter {}\n" +
+			"interface Parameters<S extends Parameters<S, T>, T extends Parameter> extends Iterable<T> {\n" +
+			"	S get();\n" +
+			"}\n" +
+			"public class X {\n" +
+			"	void test(Parameters<?,?> parameters) {\n" +
+			"		for(Parameter p : parameters.get())\n" +
+			"			System.out.println(p);\n" +
+			"	}\n" +
+			"}\n"
+		});
+}
 }

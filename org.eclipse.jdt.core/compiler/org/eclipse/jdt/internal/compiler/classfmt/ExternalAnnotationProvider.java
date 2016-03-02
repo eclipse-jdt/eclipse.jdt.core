@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 GK Software AG.
+ * Copyright (c) 2014, 2016 GK Software AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,7 +30,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ExternalAnnotationProvider {
 
-	public static final String ANNOTION_FILE_EXTENSION= "eea"; //$NON-NLS-1$
+	public static final String ANNOTATION_FILE_EXTENSION= "eea"; //$NON-NLS-1$
 	public static final String CLASS_PREFIX = "class "; //$NON-NLS-1$
 	public static final String SUPER_PREFIX = "super "; //$NON-NLS-1$
 
@@ -46,7 +46,7 @@ public class ExternalAnnotationProvider {
 	 */
 	public static final char NO_ANNOTATION = '@';
 
-	static final String ANNOTATION_FILE_SUFFIX = ".eea"; //$NON-NLS-1$
+	public static final String ANNOTATION_FILE_SUFFIX = ".eea"; //$NON-NLS-1$
 
 	private static final String TYPE_PARAMETER_PREFIX = " <"; //$NON-NLS-1$
 
@@ -69,8 +69,7 @@ public class ExternalAnnotationProvider {
 	}
 
 	private void initialize(InputStream input) throws IOException {
-		LineNumberReader reader = new LineNumberReader(new InputStreamReader(input));
-		try {
+		try (LineNumberReader reader = new LineNumberReader(new InputStreamReader(input))) {
 			assertClassHeader(reader.readLine(), this.typeName);
 
 			String line;
@@ -137,8 +136,6 @@ public class ExternalAnnotationProvider {
 					this.fieldAnnotationSources.put(selector+':'+rawSig, annotSig);
 				}
 			} while (((line = pendingLine) != null) || (line = reader.readLine()) != null);
-		} finally {
-			reader.close();
 		}
 	}
 
@@ -402,7 +399,7 @@ public class ExternalAnnotationProvider {
 						}
 				}				
 			}
-			return null;
+			return NO_ANNOTATIONS;
 		}
 	}
 
@@ -440,6 +437,19 @@ public class ExternalAnnotationProvider {
 							case Util.C_NAME_END :
 								if ((depth == 0) && (i +1 < length) && (this.source[i+1] != Util.C_COLON))
 									pendingVariable = true;
+								break;
+							case Util.C_COLON :
+								if (depth == 0)
+									pendingVariable = true; // end of variable name
+								// skip optional bound ReferenceTypeSignature
+								i++; // peek next
+								while (i < length && this.source[i] == Util.C_ARRAY)
+									i++;
+								if (i < length && this.source[i] == Util.C_RESOLVED) {
+									while (i < length && this.source[i] != Util.C_NAME_END)
+										i++;
+								}
+								i--; // unget
 								break;
 							default:
 								if (pendingVariable) {

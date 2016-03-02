@@ -36,7 +36,7 @@ public interface ProblemReasons {
 	final int VarargsElementTypeNotVisible = 16;
 	final int NoSuchSingleAbstractMethod = 17;
 	final int NotAWellFormedParameterizedType = 18;
-	final int IntersectionHasMultipleFunctionalInterfaces = 19;
+	// no longer in use: final int IntersectionHasMultipleFunctionalInterfaces = 19;
 	final int NonStaticOrAlienTypeReceiver = 20;
 	final int AttemptToBypassDirectSuper = 21; // super access within default method
 	final int DefectiveContainerAnnotationType = 22;

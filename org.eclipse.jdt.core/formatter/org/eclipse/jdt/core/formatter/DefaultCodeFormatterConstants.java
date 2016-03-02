@@ -73,7 +73,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to align groups of members independently if they are separated by a certain number of blank lines
 	 *     - option id:         "org.eclipse.jdt.core.formatter.align_fields_grouping_blank_lines"
 	 *     - possible values:   "&lt;n&gt;", where n is a positive integer
-	 *     - default:           "99"
+	 *     - default:           {@code Integer.MAX_VALUE}
 	 * </pre>
 	 * @since 3.12
 	 */
@@ -211,6 +211,18 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER = JavaCore.PLUGIN_ID + ".formatter.alignment_for_expressions_in_array_initializer";	 //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of initialization, termination, and increment expressions in 'for'
+	 *             loop header
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_for_loop_header"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_NO_SPLIT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.12
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_FOR_LOOP_HEADER = JavaCore.PLUGIN_ID + ".formatter.alignment_for_expressions_in_for_loop_header";	 //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option for alignment of method declaration
@@ -1361,6 +1373,19 @@ public class DefaultCodeFormatterConstants {
 	 * {@link #FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE}
 	 */
 	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_annotation_on_member";//$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a new line after an annotation on an enum constant declaration
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_new_line_after_annotation_on_enum_constant"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.12
+	 */
+	public static final String FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_ENUM_CONSTANT = JavaCore.PLUGIN_ID + ".formatter.insert_new_line_after_annotation_on_enum_constant";//$NON-NLS-1$
 
 	/**
 	 * <pre>

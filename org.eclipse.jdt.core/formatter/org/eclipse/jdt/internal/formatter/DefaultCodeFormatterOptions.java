@@ -122,6 +122,7 @@ public class DefaultCodeFormatterOptions {
 	public int alignment_for_conditional_expression;
 	public int alignment_for_enum_constants;
 	public int alignment_for_expressions_in_array_initializer;
+	public int alignment_for_expressions_in_for_loop_header;
 	public int alignment_for_method_declaration;
 	// TODO following option cannot be set in preferences dialog (but it's used by old.CodeFormatter)
 	public int alignment_for_multiple_fields;
@@ -206,6 +207,7 @@ public class DefaultCodeFormatterOptions {
 
 	public boolean insert_new_line_after_annotation_on_type;
 	public boolean insert_new_line_after_type_annotation;
+	public boolean insert_new_line_after_annotation_on_enum_constant;
 	public boolean insert_new_line_after_annotation_on_field;
 	public boolean insert_new_line_after_annotation_on_method;
 	public boolean insert_new_line_after_annotation_on_package;
@@ -439,6 +441,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION, getAlignment(this.alignment_for_conditional_expression));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_ENUM_CONSTANTS, getAlignment(this.alignment_for_enum_constants));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_ARRAY_INITIALIZER, getAlignment(this.alignment_for_expressions_in_array_initializer));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_FOR_LOOP_HEADER, getAlignment(this.alignment_for_expressions_in_for_loop_header));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_METHOD_DECLARATION, getAlignment(this.alignment_for_method_declaration));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_MULTIPLE_FIELDS, getAlignment(this.alignment_for_multiple_fields));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_CONSTRUCTOR_DECLARATION, getAlignment(this.alignment_for_parameters_in_constructor_declaration));
@@ -509,6 +512,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INDENTATION_SIZE, Integer.toString(this.tab_char == MIXED ? this.indentation_size : this.tab_size)); // reverse values swapping performed by IndentationTabPage
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE, this.insert_new_line_after_annotation_on_type ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_TYPE_ANNOTATION, this.insert_new_line_after_type_annotation ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_ENUM_CONSTANT, this.insert_new_line_after_annotation_on_enum_constant ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD, this.insert_new_line_after_annotation_on_field ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD, this.insert_new_line_after_annotation_on_method ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE, this.insert_new_line_after_annotation_on_package ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -846,6 +850,10 @@ public class DefaultCodeFormatterOptions {
 				this.alignment_for_expressions_in_array_initializer = Alignment.M_COMPACT_SPLIT;
 			}
 		}
+		final Object alignmentForExpressionsInForLoopOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_FOR_LOOP_HEADER);
+		if (alignmentForExpressionsInForLoopOption != null)
+			this.alignment_for_expressions_in_for_loop_header = toInt(alignmentForExpressionsInForLoopOption, Alignment.M_NO_ALIGNMENT);
+
 		final Object alignmentForMethodDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_METHOD_DECLARATION);
 		if (alignmentForMethodDeclarationOption != null) {
 			try {
@@ -975,9 +983,9 @@ public class DefaultCodeFormatterOptions {
 			try {
 				this.align_fields_grouping_blank_lines = Integer.parseInt((String) alignGroupSepartionBlankLinesOption);
 			} catch (NumberFormatException e) {
-				this.align_fields_grouping_blank_lines = 99;
+				this.align_fields_grouping_blank_lines = Integer.MAX_VALUE;
 			} catch(ClassCastException e) {
-				this.align_fields_grouping_blank_lines = 99;
+				this.align_fields_grouping_blank_lines = Integer.MAX_VALUE;
 			}
 		}
 		final Object bracePositionForAnnotationTypeDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ANNOTATION_TYPE_DECLARATION);
@@ -2193,6 +2201,17 @@ public class DefaultCodeFormatterOptions {
 		}
 	}
 
+	private int toInt(Object value, int defaultValue) {
+		if (value instanceof String) {
+			try {
+				return Integer.parseInt((String) value);
+			} catch (NumberFormatException e) {
+				return defaultValue;
+			}
+		}
+		return defaultValue;
+	}
+
 	/**
 	 * This method is used to handle deprecated preferences which might be replaced by
 	 * one or more preferences.
@@ -2222,6 +2241,7 @@ public class DefaultCodeFormatterOptions {
 		
 		final Object insertNewLineAfterAnnotationOnMemberOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_MEMBER);
 		final Object insertNewLineAfterAnnotationOnTypeOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_TYPE);
+		final Object insertNewLineAfterAnnotationOnEnumConstantOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_ENUM_CONSTANT);
 		final Object insertNewLineAfterAnnotationOnFieldOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_FIELD);
 		final Object insertNewLineAfterAnnotationOnMethodOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_METHOD);
 		final Object insertNewLineAfterAnnotationOnPackageOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_PACKAGE);
@@ -2230,6 +2250,7 @@ public class DefaultCodeFormatterOptions {
 		final Object insertNewLineAfterAnnotationOnLocalVariableOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_AFTER_ANNOTATION_ON_LOCAL_VARIABLE);
 
 		if (insertNewLineAfterAnnotationOnTypeOption == null
+				&& insertNewLineAfterAnnotationOnEnumConstantOption == null
 				&& insertNewLineAfterAnnotationOnFieldOption == null
 				&& insertNewLineAfterAnnotationOnMethodOption == null
 				&& insertNewLineAfterAnnotationOnPackageOption == null) {
@@ -2237,6 +2258,7 @@ public class DefaultCodeFormatterOptions {
 			if (insertNewLineAfterAnnotationOnMemberOption != null) {
 				boolean insert = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnMemberOption);
 				this.insert_new_line_after_annotation_on_type = insert;
+				this.insert_new_line_after_annotation_on_enum_constant = insert;
 				this.insert_new_line_after_annotation_on_field = insert;
 				this.insert_new_line_after_annotation_on_method = insert;
 				this.insert_new_line_after_annotation_on_package = insert;
@@ -2248,13 +2270,13 @@ public class DefaultCodeFormatterOptions {
 				if (insertNewLineAfterAnnotationOnLocalVariableOption != null) {
 					this.insert_new_line_after_annotation_on_local_variable = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnLocalVariableOption);
 				}
-				
 			} else if (insertNewLineAfterAnnotationOnParameterOption == null
 					&& insertNewLineAfterAnnotationOnLocalVariableOption == null) {
 				// if none of the new 3.4 options is used, fall back to the deprecated 3.1 option
 				if (insertNewLineAfterAnnotationOption != null) {
 					boolean insert = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOption);
 					this.insert_new_line_after_annotation_on_type = insert;
+					this.insert_new_line_after_annotation_on_enum_constant = insert;
 					this.insert_new_line_after_annotation_on_field = insert;
 					this.insert_new_line_after_annotation_on_method = insert;
 					this.insert_new_line_after_annotation_on_package = insert;
@@ -2265,6 +2287,9 @@ public class DefaultCodeFormatterOptions {
 		} else { // otherwise use new 3.7 options if available
 			if (insertNewLineAfterAnnotationOnTypeOption != null) {
 				this.insert_new_line_after_annotation_on_type = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnTypeOption);
+			}
+			if (insertNewLineAfterAnnotationOnEnumConstantOption != null) {
+				this.insert_new_line_after_annotation_on_enum_constant = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnEnumConstantOption);
 			}
 			if (insertNewLineAfterAnnotationOnFieldOption != null) {
 				this.insert_new_line_after_annotation_on_field = JavaCore.INSERT.equals(insertNewLineAfterAnnotationOnFieldOption);
@@ -2298,6 +2323,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_conditional_expression = Alignment.M_ONE_PER_LINE_SPLIT;
 		this.alignment_for_enum_constants = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_expressions_in_array_initializer = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_expressions_in_for_loop_header = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_method_declaration = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_multiple_fields = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_parameters_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
@@ -2311,7 +2337,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_union_type_in_multicatch = Alignment.M_COMPACT_SPLIT;
 		this.align_type_members_on_columns = false;
-		this.align_fields_grouping_blank_lines = 99;
+		this.align_fields_grouping_blank_lines = Integer.MAX_VALUE;
 		this.brace_position_for_annotation_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_anonymous_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_array_initializer = DefaultCodeFormatterConstants.END_OF_LINE;
@@ -2368,6 +2394,7 @@ public class DefaultCodeFormatterOptions {
 		this.indentation_size = 4;
 		this.insert_new_line_after_annotation_on_type = true;
 		this.insert_new_line_after_type_annotation = false;
+		this.insert_new_line_after_annotation_on_enum_constant = true;
 		this.insert_new_line_after_annotation_on_field = true;
 		this.insert_new_line_after_annotation_on_method = true;
 		this.insert_new_line_after_annotation_on_package = true;
@@ -2590,6 +2617,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_conditional_expression = Alignment.M_NEXT_PER_LINE_SPLIT;
 		this.alignment_for_enum_constants = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_expressions_in_array_initializer = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_expressions_in_for_loop_header = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_method_declaration = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_multiple_fields = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_parameters_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
@@ -2603,7 +2631,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_union_type_in_multicatch = Alignment.M_COMPACT_SPLIT;
 		this.align_type_members_on_columns = false;
-		this.align_fields_grouping_blank_lines = 99;
+		this.align_fields_grouping_blank_lines = Integer.MAX_VALUE;
 		this.brace_position_for_annotation_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_anonymous_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_array_initializer = DefaultCodeFormatterConstants.END_OF_LINE;
@@ -2660,6 +2688,7 @@ public class DefaultCodeFormatterOptions {
 		this.indentation_size = 4;
 		this.insert_new_line_after_annotation_on_type = true;
 		this.insert_new_line_after_type_annotation = false;
+		this.insert_new_line_after_annotation_on_enum_constant = true;
 		this.insert_new_line_after_annotation_on_field = true;
 		this.insert_new_line_after_annotation_on_method = true;
 		this.insert_new_line_after_annotation_on_package = true;

@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.*;
@@ -141,7 +142,7 @@ public class SearchableEnvironment extends ModuleEnvironment
 						if (!otherType.equals(topLevelType) && index < length) // check that the index is in bounds (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=62861)
 							sourceTypes[index++] = otherType;
 					}
-					return new NameEnvironmentAnswer(sourceTypes, answer.restriction);
+					return new NameEnvironmentAnswer(sourceTypes, answer.restriction, getExternalAnnotationPath(answer.entry));
 				} catch (JavaModelException jme) {
 					if (jme.isDoesNotExist() && String.valueOf(TypeConstants.PACKAGE_INFO_NAME).equals(typeName)) {
 						// in case of package-info.java the type doesn't exist in the model,
@@ -153,6 +154,15 @@ public class SearchableEnvironment extends ModuleEnvironment
 			}
 		}
 		return null;
+	}
+
+	private String getExternalAnnotationPath(IClasspathEntry entry) {
+		if (entry == null)
+			return null;
+		IPath path = ClasspathEntry.getExternalAnnotationPath(entry, this.project.getProject(), true);
+		if (path == null)
+			return null;
+		return path.toOSString();
 	}
 
 	/**

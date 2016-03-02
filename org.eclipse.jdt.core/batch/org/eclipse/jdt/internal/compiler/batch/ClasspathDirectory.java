@@ -168,7 +168,7 @@ public NameEnvironmentAnswer findSecondaryInClass(char[] typeName, String qualif
 public boolean hasAnnotationFileFor(String qualifiedTypeName) {
 	int pos = qualifiedTypeName.lastIndexOf('/');
 	if (pos != -1 && (pos + 1 < qualifiedTypeName.length())) {
-		String fileName = qualifiedTypeName.substring(pos + 1) + '.' + ExternalAnnotationProvider.ANNOTION_FILE_EXTENSION;
+		String fileName = qualifiedTypeName.substring(pos + 1) + ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX;
 		return doesFileExist(fileName, qualifiedTypeName.substring(0, pos));
 	}
 	return false;

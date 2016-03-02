@@ -12342,4 +12342,15 @@ public void testBug485276() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/487375 - [formatter] block comment in front of method signature effects too much indentation
+ */
+public void testBug487375() {
+	String source =
+		"public class Test {\r\n" + 
+		"	/* public */ void foo() {\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
 }

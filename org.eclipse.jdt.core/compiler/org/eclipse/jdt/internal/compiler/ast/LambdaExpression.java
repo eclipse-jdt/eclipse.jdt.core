@@ -65,7 +65,6 @@ import org.eclipse.jdt.internal.compiler.flow.ExceptionInferenceFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
@@ -381,7 +380,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				this.binding.setParameterAnnotations(parameterAnnotations);
 		}
 	
-		if (!argumentsTypeElided && this.binding.isVarargs()) {
+		if (!argumentsTypeElided && !argumentsHaveErrors && this.binding.isVarargs()) {
 			if (!this.binding.parameters[this.binding.parameters.length - 1].isReifiable()) {
 				this.scope.problemReporter().possibleHeapPollutionFromVararg(this.arguments[this.arguments.length - 1]);
 			}
@@ -825,6 +824,9 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		// copy here is potentially compatible with the target type and has its shape fully computed: i.e value/void compatibility is determined and result expressions have been gathered.
 		targetType = findGroundTargetType(this.enclosingScope, targetType, argumentsTypeElided());
 		MethodBinding sam = targetType.getSingleAbstractMethod(this.enclosingScope, true);
+		if (sam == null || sam.problemId() == ProblemReasons.NoSuchSingleAbstractMethod) {
+			return false;
+		}
 		if (sam.returnType.id == TypeIds.T_void) {
 			if (!copy.voidCompatible)
 				return false;
@@ -876,10 +878,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 					copy = this.copiesPerTargetType.values().iterator().next();
 			}
 		}
-		final CompilerOptions compilerOptions = this.enclosingScope.compilerOptions();
-		boolean analyzeNPE = compilerOptions.isAnnotationBasedNullAnalysisEnabled;
 		IErrorHandlingPolicy oldPolicy = this.enclosingScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
-		compilerOptions.isAnnotationBasedNullAnalysisEnabled = false;
 		try {
 			if (copy == null) {
 				copy = copy();
@@ -904,7 +903,6 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 					copy.analyzeExceptions();
 			return copy;
 		} finally {
-			compilerOptions.isAnnotationBasedNullAnalysisEnabled = analyzeNPE;
 			this.enclosingScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 		}
 	}
@@ -959,33 +957,34 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		LambdaExpression copy = cachedResolvedCopy(s, true /* any resolved copy is good */, false, null); // we expect a cached copy - otherwise control won't reach here.
 		Expression [] returnExpressions = copy.resultExpressions;
 		int returnExpressionsLength = returnExpressions == null ? 0 : returnExpressions.length;
-		
-		int i;
-		// r1 is a primitive type, r2 is a reference type, and each result expression is a standalone expression (15.2) of a primitive type
-		if (r1.isBaseType() && !r2.isBaseType()) {
-			for (i = 0; i < returnExpressionsLength; i++) {
-				if (returnExpressions[i].isPolyExpression() || !returnExpressions[i].resolvedType.isBaseType())
-					break;
+		if (returnExpressionsLength > 0) {
+			int i;
+			// r1 is a primitive type, r2 is a reference type, and each result expression is a standalone expression (15.2) of a primitive type
+			if (r1.isBaseType() && !r2.isBaseType()) {
+				for (i = 0; i < returnExpressionsLength; i++) {
+					if (returnExpressions[i].isPolyExpression() || !returnExpressions[i].resolvedType.isBaseType())
+						break;
+				}
+				if (i == returnExpressionsLength)
+					return true;
 			}
-			if (i == returnExpressionsLength)
-				return true;
-		}
-		if (!r1.isBaseType() && r2.isBaseType()) {
-			for (i = 0; i < returnExpressionsLength; i++) {
-				if (returnExpressions[i].resolvedType.isBaseType())
-					break;
+			if (!r1.isBaseType() && r2.isBaseType()) {
+				for (i = 0; i < returnExpressionsLength; i++) {
+					if (returnExpressions[i].resolvedType.isBaseType())
+						break;
+				}
+				if (i == returnExpressionsLength)
+					return true;
 			}
-			if (i == returnExpressionsLength)
-				return true;
-		}
-		if (r1.isFunctionalInterface(this.enclosingScope) && r2.isFunctionalInterface(this.enclosingScope)) {
-			for (i = 0; i < returnExpressionsLength; i++) {
-				Expression resultExpression = returnExpressions[i];
-				if (!resultExpression.sIsMoreSpecific(r1, r2, skope))
-					break;
-			}
-			if (i == returnExpressionsLength)
-				return true;
+			if (r1.isFunctionalInterface(this.enclosingScope) && r2.isFunctionalInterface(this.enclosingScope)) {
+				for (i = 0; i < returnExpressionsLength; i++) {
+					Expression resultExpression = returnExpressions[i];
+					if (!resultExpression.sIsMoreSpecific(r1, r2, skope))
+						break;
+				}
+				if (i == returnExpressionsLength)
+					return true;
+			}	
 		}
 		return false;
 	}
@@ -1068,7 +1067,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 						parentAST.tagAsHavingErrors();
 						return;
 					}
-					break;
+					//$FALL-THROUGH$
 				default:
 					parent = parent.parent;
 					break;
@@ -1097,7 +1096,6 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			case IProblem.LambdaDescriptorMentionsUnmentionable:
 			case IProblem.TargetTypeNotAFunctionalInterface:
 			case IProblem.illFormedParameterizationOfFunctionalInterface:
-			case IProblem.MultipleFunctionalInterfaces:
 			case IProblem.NoGenericLambda:
 				return;
 			default: 
@@ -1270,17 +1268,15 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	public TypeBinding[] getMarkerInterfaces() {
 		if (this.expectedType instanceof IntersectionTypeBinding18) {
 			Set markerBindings = new LinkedHashSet();
-			TypeBinding[] intersectionTypes = ((IntersectionTypeBinding18)this.expectedType).intersectingTypes;
+			IntersectionTypeBinding18 intersectionType = (IntersectionTypeBinding18)this.expectedType;
+			TypeBinding[] intersectionTypes = intersectionType.intersectingTypes;
+			TypeBinding samType = intersectionType.getSAMType(this.enclosingScope);
 			for (int i = 0,max = intersectionTypes.length; i < max; i++) {
 				TypeBinding typeBinding = intersectionTypes[i];
-				MethodBinding methodBinding = typeBinding.getSingleAbstractMethod(this.scope, true);
-				// Why doesn't getSingleAbstractMethod do as the javadoc says, and return null
-				// when it is not a SAM type
-				if (!(methodBinding instanceof ProblemMethodBinding && ((ProblemMethodBinding)methodBinding).problemId()==ProblemReasons.NoSuchSingleAbstractMethod)) {
-					continue;
-				}
-				if (typeBinding.id == TypeIds.T_JavaIoSerializable) {
-					// Serializable is captured as a bitflag
+				if (!typeBinding.isInterface()							// only interfaces
+					|| TypeBinding.equalsEquals(samType, typeBinding)	// except for the samType itself
+					|| typeBinding.id == TypeIds.T_JavaIoSerializable)	// but Serializable is captured as a bitflag
+				{
 					continue;
 				}
 				markerBindings.add(typeBinding);

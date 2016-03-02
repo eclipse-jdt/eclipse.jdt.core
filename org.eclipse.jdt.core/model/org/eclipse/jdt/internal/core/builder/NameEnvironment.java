@@ -157,7 +157,7 @@ private void computeClasspathLocations(
 							: (IContainer) root.getFolder(prereqOutputPath);
 						if (binaryFolder.exists() && !seen.contains(binaryFolder)) {
 							seen.add(binaryFolder);
-							ClasspathLocation bLocation = ClasspathLocation.forBinaryFolder(binaryFolder, true, entry.getAccessRuleSet(), this);
+							ClasspathLocation bLocation = ClasspathLocation.forBinaryFolder(binaryFolder, true, entry.getAccessRuleSet(), externalAnnotationPath, this);
 							bLocations.add(bLocation);
 							if (binaryLocationsPerProject != null) { // normal builder mode
 								ClasspathLocation[] existingLocations = (ClasspathLocation[]) binaryLocationsPerProject.get(prereqProject);
@@ -192,7 +192,7 @@ private void computeClasspathLocations(
 							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
 								? null
 								: entry.getAccessRuleSet();
-						bLocation = ClasspathLocation.forBinaryFolder((IContainer) target, false, accessRuleSet, this);	 // is library folder not output folder
+						bLocation = ClasspathLocation.forBinaryFolder((IContainer) target, false, accessRuleSet, externalAnnotationPath, this);	 // is library folder not output folder
 					}
 					bLocations.add(bLocation);
 					if (binaryLocationsPerProject != null) { // normal builder mode

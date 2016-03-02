@@ -44,7 +44,7 @@ public class Token {
 
 	public static class WrapPolicy {
 
-		/** Policy used for internal structure of multiline comments to mark tokens that should never be wrapped */
+		/** Policy used to mark tokens that should never be wrapped */
 		public final static WrapPolicy DISABLE_WRAP = new WrapPolicy(WrapMode.DISABLED, 0, 0);
 
 		/**

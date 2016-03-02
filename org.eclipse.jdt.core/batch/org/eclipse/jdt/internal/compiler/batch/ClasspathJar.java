@@ -149,7 +149,7 @@ public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageN
 @Override
 public boolean hasAnnotationFileFor(String qualifiedTypeName) {
 	if (this.isJimage) return false; // TODO: Revisit
-	return this.zipFile.getEntry(qualifiedTypeName+'.'+ExternalAnnotationProvider.ANNOTION_FILE_EXTENSION) != null; 
+	return this.zipFile.getEntry(qualifiedTypeName+ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX) != null; 
 }
 public char[][][] findTypeNames(final String qualifiedPackageName, final IModule mod) {
 	if (!isPackage(qualifiedPackageName))

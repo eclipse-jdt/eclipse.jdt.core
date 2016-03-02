@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,6 +12,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -296,5 +297,214 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 				customOptions /* custom options */,
 				// compiler results
 				null /* do not check error string */);
+	}
+	public void testImportUnresolved() {
+		Map<String,String> options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_UNUSED_IMPORT, JavaCore.ERROR);
+		runNegativeTest(
+			true, // flush dir
+			new String[] {
+				"X.java",
+				"import com.bogus.Missing;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X().test();\n" +
+				"	}\n" +
+				"	void test() {\n" +
+				"		System.out.println(\"OK\");\n" +
+				"	}\n" +
+				"}\n"
+			},
+			null, // libs
+			options,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	import com.bogus.Missing;\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"The import com.bogus cannot be resolved\n" + 
+			"----------\n",
+			"OK",
+			"",
+			JavacTestOptions.SKIP);
+	}
+	public void testImportUnresolved_fatal() {
+		Map<String,String> options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_UNUSED_IMPORT, JavaCore.ERROR);
+		options.put(JavaCore.COMPILER_PB_FATAL_OPTIONAL_ERROR, JavaCore.ENABLED);
+		runNegativeTest(
+			true, // flush dir
+			new String[] {
+				"p/Z.java",
+				"package p;\n" +
+				"public class Z {\n" +
+				"	public static void main(String[] args) throws Exception {\n" +
+				"		try {\n" +
+				"			Class.forName(\"X\").newInstance();\n" + // forward reference, workaround by using reflection
+				"		} catch (java.lang.Error e) {\n" +
+				"			System.err.println(e.getMessage());\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n",
+				"X.java",
+				"import com.bogus.Missing;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new X().test();\n" +
+				"	}\n" +
+				"	void test() {\n" +
+				"		System.out.println(\"OK\");\n" +
+				"	}\n" +
+				"}\n"
+			},
+			null, // libs
+			options,
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	import com.bogus.Missing;\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"The import com.bogus cannot be resolved\n" + 
+			"----------\n",
+			"",
+			"Unresolved compilation problem: \n" + 
+			"	The import com.bogus cannot be resolved",
+			JavacTestOptions.SKIP);
+	}
+	public void testPackageConflict() {
+		runNegativeTest(
+			true, // flush dir
+			new String[] {
+				"p/z.java",
+				"package p;\n" +
+				"public class z {\n" +
+				"	public static void main(String[] args) throws Exception {\n" +
+				"		try {\n" +
+				"			Class.forName(\"p.z.X\").newInstance();\n" +
+				"		} catch (ClassNotFoundException e) {\n" +
+				"			System.out.println(e.getClass().getName());\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n",
+				"p/z/X.java",
+				"package p.z;\n" +
+				"public class X {\n" +
+				"	public X() {\n" +
+				"		System.out.println(\"OK\");\n" +
+				"	}\n" +
+				"}\n",
+			},
+			null, // libs
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in p\\z\\X.java (at line 1)\n" + 
+			"	package p.z;\n" + 
+			"	        ^^^\n" + 
+			"The package p.z collides with a type\n" + 
+			"----------\n",
+			"java.lang.ClassNotFoundException", // cannot generate code in presence of the above error
+			"",
+			JavacTestOptions.SKIP);
+	}
+	public void testImportVariousProblems() {
+		runNegativeTest(
+			true, // flush dir
+			new String[] {
+				"p/Z.java",
+				"package p;\n" +
+				"public class Z {\n" +
+				"	public static void main(String[] args) throws Exception {\n" +
+				"		try {\n" +
+				"			Class.forName(\"X\").newInstance();\n" + // forward reference, workaround by using reflection
+				"		} catch (ClassNotFoundException e) {\n" +
+				"			System.out.println(e.getClass().getName());\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n",
+				"p1/Y.java",
+				"package p1;\n" +
+				"public class Y {}\n",
+				"p2/Y.java",
+				"package p2;\n" +
+				"public class Y {}\n",
+				"X.java",
+				"import java.util;\n" +
+				"import p.Z;\n" +
+				"import p1.Y;\n" +
+				"import p2.Y;\n" +
+				"public class X {\n" +
+				"	public X() {\n" +
+				"		System.out.println(\"OK\");\n" +
+				"	}\n" +
+				"}\n" +
+				"class Z {}\n"
+			},
+			null, // libs
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	import java.util;\n" + 
+			"	       ^^^^^^^^^\n" + 
+			"Only a type can be imported. java.util resolves to a package\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
+			"	import p.Z;\n" + 
+			"	       ^^^\n" + 
+			"The import p.Z conflicts with a type defined in the same file\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	import p2.Y;\n" + 
+			"	       ^^^^\n" + 
+			"The import p2.Y collides with another import statement\n" + 
+			"----------\n",
+			"OK",
+			"",
+			JavacTestOptions.SKIP);
+	}
+	public void testImportStaticProblems() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses static imports
+		runNegativeTest(
+			true, // flush dir
+			new String[] {
+				"p/Z.java",
+				"package p;\n" +
+				"public class Z {\n" +
+				"	public static void main(String[] args) throws Exception {\n" +
+				"		try {\n" +
+				"			Class.forName(\"X\").newInstance();\n" + // forward reference, workaround by using reflection
+				"		} catch (ClassNotFoundException e) {\n" +
+				"			System.out.println(e.getClass().getName());\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n",
+				"p1/Y.java",
+				"package p1;\n" +
+				"public class Y {\n" +
+				"	static int f;\n" +
+				"}\n",
+				"X.java",
+				"import static p1.Y;\n" +
+				"import static p1.Y.f;\n" +
+				"public class X {\n" +
+				"	public X() {\n" +
+				"		System.out.println(\"OK\");\n" +
+				"	}\n" +
+				"}\n" +
+				"class Z {}\n"
+			},
+			null, // libs
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in X.java (at line 1)\n" + 
+			"	import static p1.Y;\n" + 
+			"	              ^^^^\n" + 
+			"The static import p1.Y must be a field or member type\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 2)\n" + 
+			"	import static p1.Y.f;\n" + 
+			"	              ^^^^^^\n" + 
+			"The field Y.p1.Y.f is not visible\n" + 
+			"----------\n",
+			"OK",
+			"",
+			JavacTestOptions.SKIP);
 	}
 }

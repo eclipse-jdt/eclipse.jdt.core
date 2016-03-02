@@ -131,7 +131,7 @@ public abstract class FunctionalExpression extends Expression {
 		// we simulate an *invocation* of this functional expression,
 		// where the expected type of the expression is the return type of the sam:
 		MethodBinding sam = this.expectedType.getSingleAbstractMethod(this.enclosingScope, true);
-		if (sam != null) {
+		if (sam != null && sam.problemId() != ProblemReasons.NoSuchSingleAbstractMethod) {
 			if (sam.isConstructor())
 				return sam.declaringClass;
 			else
@@ -203,10 +203,6 @@ public abstract class FunctionalExpression extends Expression {
 				break;
 			case ProblemReasons.NotAWellFormedParameterizedType:
 				blockScope.problemReporter().illFormedParameterizationOfFunctionalInterface(this);
-				this.hasReportedSamProblem = true;
-				break;
-			case ProblemReasons.IntersectionHasMultipleFunctionalInterfaces:
-				blockScope.problemReporter().multipleFunctionalInterfaces(this);
 				this.hasReportedSamProblem = true;
 				break;
 		}

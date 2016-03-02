@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -348,7 +348,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return INVOCATION_ARGUMENT_OK;
 	}
 	public static boolean checkInvocationArguments(BlockScope scope, Expression receiver, TypeBinding receiverType, MethodBinding method, Expression[] arguments, TypeBinding[] argumentTypes, boolean argsContainCast, InvocationSite invocationSite) {
-		boolean is1_7 = scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_7;
+		long sourceLevel = scope.compilerOptions().sourceLevel;
+		boolean is1_7 = sourceLevel >= ClassFileConstants.JDK1_7;
 		TypeBinding[] params = method.parameters;
 		int paramLength = params.length;
 		boolean isRawMemberInvocation = !method.isStatic()
@@ -441,11 +442,13 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			}
 		} else if (rawOriginalGenericMethod != null 
 				|| uncheckedBoundCheck
-				|| ((invocationStatus & INVOCATION_ARGUMENT_UNCHECKED) != 0 
-						&& method instanceof ParameterizedGenericMethodBinding
-						/*&& method.returnType != scope.environment().convertToRawType(method.returnType.erasure(), true)*/)) {
-			scope.problemReporter().unsafeRawGenericMethodInvocation((ASTNode)invocationSite, method, argumentTypes);
-			return true;
+				|| ((invocationStatus & INVOCATION_ARGUMENT_UNCHECKED) != 0)) {
+			if (method instanceof ParameterizedGenericMethodBinding) {
+				scope.problemReporter().unsafeRawGenericMethodInvocation((ASTNode)invocationSite, method, argumentTypes);
+				return true;
+			}
+			if (sourceLevel >= ClassFileConstants.JDK1_8)
+				return true; // signal to erase return type and exceptions, while keeping javac compatibility at 1.7-
 		}
 		return false;
 	}
@@ -947,7 +950,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				recipientTargetMask = TagBits.AnnotationForField;
 				break;
 			case Binding.METHOD:
-				recipientTargetMask = TagBits.AnnotationForMethod;
+				MethodBinding method = (MethodBinding) recipient;
+				recipientTargetMask = method.isConstructor() ? TagBits.AnnotationForConstructor : TagBits.AnnotationForMethod;
 				break;
 			default:
 				return;
@@ -1027,6 +1031,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 								method.tagBits &= ~(se8nullBits);
 							}
 						}
+					} else {
+						method.setTypeAnnotations(se8Annotations);
 					}
 					break;
 			}
@@ -1055,22 +1061,24 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		TypeReference unionRef = typeRef.isUnionType() ? ((UnionTypeReference) typeRef).typeReferences[0] : null;
 		
 		// for arrays: @T X[] SE7 associates @T to the type, but in SE8 it affects the leaf component type
-		long prevNullBits = existingType.leafComponentType().tagBits & TagBits.AnnotationNullMASK;
+		TypeBinding oldLeafType = (unionRef == null) ? existingType.leafComponentType() : unionRef.resolvedType;
+		if (se8nullBits != 0 && oldLeafType.isBaseType()) {
+			scope.problemReporter().illegalAnnotationForBaseType(typeRef, new Annotation[] { se8NullAnnotation }, se8nullBits);
+			return existingType;
+		}
+
+		long prevNullBits = oldLeafType.tagBits & TagBits.AnnotationNullMASK;
 		if ((prevNullBits | se8nullBits) == TagBits.AnnotationNullMASK) { // contradiction after merge?
-			if (!(existingType instanceof TypeVariableBinding)) { // let type-use annotations override annotations on the type parameter declaration
+			if (!(oldLeafType instanceof TypeVariableBinding)) { // let type-use annotations override annotations on the type parameter declaration
 				if (prevNullBits != TagBits.AnnotationNullMASK && se8nullBits != TagBits.AnnotationNullMASK) { // conflict caused by the merge?
 					scope.problemReporter().contradictoryNullAnnotations(se8NullAnnotation);
 				}
 				se8Annotations = Binding.NO_ANNOTATIONS;
 				se8nullBits = 0;
 			}
-			existingType = existingType.withoutToplevelNullAnnotation();
+			oldLeafType = oldLeafType.withoutToplevelNullAnnotation();
 		}
-		TypeBinding oldLeafType = (unionRef == null) ? existingType.leafComponentType() : unionRef.resolvedType;
-		if (se8nullBits != 0 && oldLeafType.isBaseType()) {
-			scope.problemReporter().illegalAnnotationForBaseType(typeRef, new Annotation[] { se8NullAnnotation }, se8nullBits);
-			return existingType;
-		}
+
 		AnnotationBinding [][] goodies = new AnnotationBinding[typeRef.getAnnotatableLevels()][];
 		goodies[0] = se8Annotations;  // @T X.Y.Z local; ==> @T should annotate X
 		TypeBinding newLeafType = scope.environment().createAnnotatedType(oldLeafType, goodies);

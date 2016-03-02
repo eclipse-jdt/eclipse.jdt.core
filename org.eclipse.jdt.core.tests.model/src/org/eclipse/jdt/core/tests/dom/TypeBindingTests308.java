@@ -2569,4 +2569,87 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 			deleteFile("/Converter18/src/X.java");
 		}
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=487716
+	public void testBug487716() throws Exception {
+		try {
+			String contents =
+				"import java.lang.annotation.ElementType; \n" +
+				"import java.lang.annotation.Target; \n" +
+				"@Target({ElementType.TYPE_USE, ElementType.CONSTRUCTOR})\n" +
+				"@interface A {} \n" +
+				"class X {\n" +
+				"	@A X() {}\n" +
+				"	X _x_ = new X();\n" +
+				"}\n";
+
+			this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true/*resolve*/);
+			ASTNode node = buildAST(contents, this.workingCopy, false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+
+			List types = compilationUnit.types();
+			TypeDeclaration typeDecl = (TypeDeclaration) types.get(1);
+
+			// On the Allocation expression type - new X()
+			FieldDeclaration field = typeDecl.getFields()[0];
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) field.fragments().get(0);
+			ITypeBinding type = fragment.getInitializer().resolveTypeBinding();
+			IAnnotationBinding[] annots = type.getTypeAnnotations();
+			assertEquals("Incorrect no of annotations", 1, annots.length);
+
+			// On constructor declaration - X()
+			MethodDeclaration method = typeDecl.getMethods()[0];
+			assertTrue("Should be a constructor", method.isConstructor());
+			IMethodBinding methodBinding = method.resolveBinding();
+			annots = methodBinding.getAnnotations();
+			assertEquals("Incorrect no of annotations", 1, annots.length);
+		} finally {
+			deleteFile("/Converter18/src/X.java");
+		}
+	}	
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=487716
+	public void testBug487716a() throws Exception {
+		try {
+			String contents =
+				"package p;\n" +
+				"import java.lang.annotation.ElementType; \n" +
+				"import java.lang.annotation.Target; \n" +
+				"@Target({ElementType.TYPE_USE})\n" +
+				"@interface A {} \n" +
+				"class X {\n" +
+				"	@A X() {}\n" +
+				"   class Y {\n" +
+				"		@A Y() {}\n" +
+				"		Y _y_ = new X().new Y();\n" +
+				"	}\n" +
+				"}\n";
+
+			this.workingCopy = getWorkingCopy("/Converter18/src/p/X.java", true/*resolve*/);
+			ASTNode node = buildAST(contents, this.workingCopy, false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit compilationUnit = (CompilationUnit) node;
+
+			List types = compilationUnit.types();
+			TypeDeclaration typeDecl = (TypeDeclaration) types.get(1);
+			
+			assertEquals(1, typeDecl.getTypes().length);
+			typeDecl = typeDecl.getTypes()[0];
+			
+			// On the Qualified Allocation expression type - new X().new Y()
+			FieldDeclaration field = typeDecl.getFields()[0];
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) field.fragments().get(0);
+			ITypeBinding type = fragment.getInitializer().resolveTypeBinding();
+			IAnnotationBinding[] annots = type.getTypeAnnotations();
+			assertEquals("Incorrect no of annotations", 1, annots.length);
+
+			// On constructor declaration - Y()
+			MethodDeclaration method = typeDecl.getMethods()[0];
+			assertTrue("Should be a constructor", method.isConstructor());
+			IMethodBinding methodBinding = method.resolveBinding();
+			annots = methodBinding.getAnnotations();
+			assertEquals("Incorrect no of annotations", 0, annots.length);
+		} finally {
+			deleteFile("/Converter18/src/X.java");
+		}
+	}
 }

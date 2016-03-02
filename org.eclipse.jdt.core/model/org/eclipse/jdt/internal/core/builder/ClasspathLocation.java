@@ -35,12 +35,8 @@ public abstract class ClasspathLocation implements IModuleLocation {
 		return new ClasspathMultiDirectory(sourceFolder, outputFolder, inclusionPatterns, exclusionPatterns,
 				ignoreOptionalProblems, env).initializeModule();
 	}
-
-public static ClasspathLocation forBinaryFolder(IContainer binaryFolder, 
-												boolean isOutputFolder, 
-												AccessRuleSet accessRuleSet,
-												INameEnvironment env) {
-	return new ClasspathDirectory(binaryFolder, isOutputFolder, accessRuleSet, env).initializeModule();
+public static ClasspathLocation forBinaryFolder(IContainer binaryFolder, boolean isOutputFolder, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, INameEnvironment env) {
+	return new ClasspathDirectory(binaryFolder, isOutputFolder, accessRuleSet, externalAnnotationPath, env).initializeModule();
 }
 
 static ClasspathLocation forLibrary(String libraryPathname, 

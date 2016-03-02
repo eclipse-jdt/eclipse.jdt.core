@@ -53,7 +53,7 @@ private long previousStructuralBuildTime;
 private StringSet structurallyChangedTypes;
 public static int MaxStructurallyChangedTypes = 100; // keep track of ? structurally changed types, otherwise consider all to be changed
 
-public static final byte VERSION = 0x001C;
+public static final byte VERSION = 0x001D;
 
 static final byte SOURCE_FOLDER = 1;
 static final byte BINARY_FOLDER = 2;
@@ -275,7 +275,7 @@ static State read(IProject project, DataInputStream in) throws IOException {
 				IContainer outputFolder = path.segmentCount() == 1
 					? (IContainer) root.getProject(path.toString())
 					: (IContainer) root.getFolder(path);
-				newState.binaryLocations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean(), readRestriction(in), newState.environment);
+				newState.binaryLocations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean(), readRestriction(in), new Path(in.readUTF()), newState.environment);
 				break;
 			case EXTERNAL_JAR :
 				newState.binaryLocations[i] = ClasspathLocation.forLibrary(in.readUTF(), in.readLong(), readRestriction(in), new Path(in.readUTF()), newState.environment);
@@ -461,6 +461,7 @@ void write(DataOutputStream out) throws IOException {
 			out.writeUTF(cd.binaryFolder.getFullPath().toString());
 			out.writeBoolean(cd.isOutputFolder);
 			writeRestriction(cd.accessRuleSet, out);
+			out.writeUTF(cd.externalAnnotationPath != null ? cd.externalAnnotationPath : ""); //$NON-NLS-1$
 		} else if (c instanceof ClasspathJar) {
 			ClasspathJar jar = (ClasspathJar) c;
 			if (jar.resource == null) {

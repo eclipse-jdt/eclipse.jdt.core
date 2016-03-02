@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -6444,5 +6444,49 @@ public void test442868() throws JavaModelException {
 	assertResults("Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, null, null, [218, 224], " +
 			(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_RESOLVED + RelevanceConstants.R_INTERESTING + RelevanceConstants.R_NON_RESTRICTED
 			+ RelevanceConstants.R_CASE + RelevanceConstants.R_UNQUALIFIED) + "}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=479656
+public void test479656() throws Exception {
+	try {
+		IFile f = getFile("/Completion/bug479656.jar");
+		IJavaProject p = this.createJavaProject(
+			"P",
+			new String[]{"src"},
+			new String[]{"JCL_LIB"},
+			 "bin", "1.5");
+		this.createFile("/P/bug479656.jar", f.getContents());
+		this.addLibraryEntry(p, "/P/bug479656.jar", true);
+		this.createFolder("/P/src/com/google/gwt/event/shared");
+		this.createFile(
+			"/P/src/com/google/gwt/event/shared/GwtEvent.java",
+			"package com.google.gwt.event.shared;\n" +
+			"public abstract class GwtEvent<H>  {\n" +
+			"	public static class Type<H> {}\n" +
+			"}\n");
+		this.createFolder("/P/src/test");
+		this.createFile(
+			"/P/src/test/Test.java",
+			"package test;\n" +
+			"public class Test {\n" +
+			"	String value = \"\";\n" +
+			"	com.gtouch5.shared.data.store.event.StoreEvent<String> event = null;\n" +
+			"	public Test() {\n" +
+			"		value.toS\n" +
+			"	}\n" +
+			"}\n");
+		refresh(p);
+		waitUntilIndexesReady();
+		ICompilationUnit cu = getCompilationUnit("P", "src", "test", "Test.java");
+		String source = cu.getSource();
+		String completeBehind = "value.toS";
+		int cursorLocation = source.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+		cu.codeComplete(cursorLocation, requestor);
+		assertResults(
+				"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 35}",
+				requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
 }
 }

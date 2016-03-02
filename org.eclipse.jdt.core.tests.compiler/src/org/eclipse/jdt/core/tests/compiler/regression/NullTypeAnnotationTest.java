@@ -7766,22 +7766,27 @@ public void testBug448709() {
 		},
 		compilerOptions,
 		"----------\n" + 
-		"1. WARNING in Test.java (at line 39)\n" + 
+		"1. WARNING in Test.java (at line 21)\n" + 
+		"	final U result = mapper.apply(source);\n" + 
+		"	                              ^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'T\' needs unchecked conversion to conform to \'@NonNull capture#of ? super T\'\n" + 
+		"----------\n" + 
+		"2. WARNING in Test.java (at line 39)\n" + 
 		"	map(optNullableString, testMethodRef);\n" + 
 		"	                       ^^^^^^^^^^^^^\n" + 
 		"Contradictory null annotations: method was inferred as \'@NonNull Optional<@NonNull Integer> map(@NonNull Optional<@Nullable String>, Function<@NonNull ? super @Nullable String,? extends @NonNull Integer>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 		"----------\n" + 
-		"2. WARNING in Test.java (at line 41)\n" + 
+		"3. WARNING in Test.java (at line 41)\n" + 
 		"	map(optNullableString, Test::testMethod); // Error: Null type mismatch at parameter 1: required \'@NonNull String\' but provided \'@Nullable String\' via method descriptor Function<String,Integer>.apply(String)\n" + 
 		"	                       ^^^^^^^^^^^^^^^^\n" + 
 		"Contradictory null annotations: method was inferred as \'@NonNull Optional<@NonNull Integer> map(@NonNull Optional<@Nullable String>, Function<@NonNull ? super @Nullable String,? extends @NonNull Integer>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 		"----------\n" + 
-		"3. WARNING in Test.java (at line 43)\n" + 
+		"4. WARNING in Test.java (at line 43)\n" + 
 		"	map(optNullableString, (s) -> Test.testMethod(s));\n" + 
 		"	                       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Contradictory null annotations: method was inferred as \'@NonNull Optional<@NonNull Integer> map(@NonNull Optional<@Nullable String>, Function<@NonNull ? super @Nullable String,? extends @NonNull Integer>)\', but only one of \'@NonNull\' and \'@Nullable\' can be effective at any location\n" + 
 		"----------\n" + 
-		"4. WARNING in Test.java (at line 43)\n" + 
+		"5. WARNING in Test.java (at line 43)\n" + 
 		"	map(optNullableString, (s) -> Test.testMethod(s));\n" + 
 		"	                                              ^\n" + 
 		"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
@@ -7789,6 +7794,28 @@ public void testBug448709() {
 		"1->2\n" +
 		"1->2\n" +
 		"1->2");
+}
+public void testBug448709b() {
+	runConformTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import java.util.*;\n" + 
+			"import java.util.function.*;\n" + 
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"\n" + 
+			"  public static final <T,U> void map(final @NonNull Optional<T> optional, final Function<@NonNull ? super T,? extends U> mapper) {\n" + 
+			"    final T source = optional.get();\n" +
+			"    if (source != null) {\n" + 
+			"      final U result = mapper.apply(source);\n" +
+			"      System.out.println(source+\"->\"+result);\n" + 
+			"    }\n" + 
+			"  }\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
 }
 public void testBug459967_Array_constructor() {
 	runConformTestWithLibs(
@@ -8955,6 +8982,23 @@ public void testBug482247() {
 		"	             ^^^^^^^^^^^^^\n" + 
 		"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'@NonNull String @NonNull[]\'\n" + 
 		"----------\n");
+}
+public void testBug482247_comment5() {
+	runConformTestWithLibs(
+		new String[] {
+			"Snippet.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class Snippet {\n" + 
+			"	@NonNull String[] s1 = new String[0]; // No warning\n" + 
+			"	public void handleIncidentBeforeCreate() {\n" + 
+			"		@NonNull String[] s = new String[0]; // Warning\n" +
+			"		String [] @NonNull[] s2 = new String[0][];\n" +
+			"		String [] @NonNull[] @Nullable[] s3 = new String[0][][];\n" +
+			"	}\n" + 
+			"}"
+		},
+		getCompilerOptions(),
+		"");
 }
 public void testBug483146() {
 	runConformTestWithLibs(
@@ -10351,4 +10395,314 @@ public void testBug485058() {
 		"----------\n"
 	);	
 }
+public void testBug485030() {
+	runConformTestWithLibs(new String[] {
+			"SomeAnnotation.java",
+			"import static java.lang.annotation.ElementType.TYPE_USE;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+
+			"@Target({ TYPE_USE })\n" + 
+			"@interface SomeAnnotation {\n" + 
+			"}\n", 
+
+			"TestContradictoryOnGenericArray.java",
+			"import java.io.Serializable;\n" +
+
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+
+			"@NonNullByDefault\n" +
+			"public class TestContradictoryOnGenericArray {\n" +
+			"	public <@SomeAnnotation Q extends Serializable> void f() {\n" +
+			"		final @Nullable Q[] array = null;\n" +
+			"	}\n" +
+			"}\n"
+	}, getCompilerOptions(), "");
+}
+public void testBug485302() {
+	runNegativeTestWithLibs(
+		new String[] {
+		"WildCardNullable.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class WildCardNullable {\n" +
+			"	static class A<T> {\n" +
+			"		@Nullable\n" +
+			"		T returnNull() {\n" +
+			"			return null;\n" +
+			"		}\n" +
+			"\n" +
+			"		void acceptNonNullT(@NonNull T t) {\n" +
+			"		}\n" +
+			"\n" +
+			"		void acceptNonNullObject(@NonNull Object x) {\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"	static @NonNull Number g(A<? extends @NonNull Number> a) {\n" +
+			"		return a.returnNull(); // error 1 expected\n" +
+			"	}\n" +
+			"\n" +
+			"	public static final <T> void map(final A<@NonNull ? super T> a, T t) {\n" +
+			"		a.acceptNonNullT(t); // warning 2 expected\n" +
+			"		a.acceptNonNullObject(t); // warning 3 expected\n" +
+			"	}\n" +
+			"}\n" +
+			""
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in WildCardNullable.java (at line 21)\n" + 
+		"	return a.returnNull(); // error 1 expected\n" + 
+		"	       ^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Number\' but this expression has type \'@Nullable capture#of ? extends Number\'\n" + 
+		"----------\n" + 
+		"2. WARNING in WildCardNullable.java (at line 25)\n" + 
+		"	a.acceptNonNullT(t); // warning 2 expected\n" + 
+		"	                 ^\n" + 
+		"Null type safety (type annotations): The expression of type \'T\' needs unchecked conversion to conform to \'@NonNull capture#of ? super T\'\n" + 
+		"----------\n" + 
+		"3. WARNING in WildCardNullable.java (at line 26)\n" + 
+		"	a.acceptNonNullObject(t); // warning 3 expected\n" + 
+		"	                      ^\n" + 
+		"Null type safety (type annotations): The expression of type \'T\' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
+		"----------\n"
+	);
+}
+
+public void testBug485027() {
+	runConformTestWithLibs(new String[] {
+			"SomeAnnotation.java",
+			"import static java.lang.annotation.ElementType.TYPE_USE;\n" + 
+			"import java.lang.annotation.Retention;\n" + 
+			"import java.lang.annotation.RetentionPolicy;\n" + 
+			"import java.lang.annotation.Target;\n" + 
+
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ TYPE_USE })\n" + 
+			"@interface SomeAnnotation {\n" + 
+			"}\n", 
+
+			"Base.java",
+			"import java.io.Serializable;\n" +
+
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+
+			"@NonNullByDefault\n" +
+			"public class Base {\n" +
+			"	public <@SomeAnnotation Q extends Serializable> void setValuesArray(Q @Nullable [] value) {\n" +
+			"	}\n" +
+			"}\n"
+	}, getCompilerOptions(), "");
+			
+	runConformTestWithLibs(new String[] {
+			"Derived.java",
+			"import java.io.Serializable;\n" +
+
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+
+			"@NonNullByDefault\n" +
+			"public class Derived extends Base {\n" +
+			"	@Override\n" +
+			"	public final <@SomeAnnotation Q1 extends Serializable> void setValuesArray(Q1 @Nullable [] value) {\n" +
+			"	}\n" +
+			"}"
+	}, getCompilerOptions(), "");
+}
+public void testBug485565() {
+	runConformTestWithLibs(
+			new String[] {
+			"test2/ClassWithRegistry.java",
+			"package test2;\n" +
+			"\n" +
+			"import java.rmi.registry.Registry;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class ClassWithRegistry {\n" +
+			"    @Nullable\n" +
+			"    public Registry registry;\n" +
+			"}\n"
+			}, 
+			getCompilerOptions(),
+			""
+		);
+		runConformTestWithLibs(
+			new String[] {
+			"test1/ClassWithLambda.java",
+			"package test1;\n" +
+			"\n" +
+			"import test2.ClassWithRegistry;\n" +
+			"\n" +
+			"// must be compiled before ZClassWithBug\n" +
+			"public class ClassWithLambda {\n" +
+			"	interface Lambda {\n" +
+			"		void f();\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void invoke(Lambda lambda) {\n" +
+			"		lambda.f();\n" +
+			"	}\n" +
+			"\n" +
+			"	public void f() {\n" +
+			"		new ClassWithRegistry(); // must be accessed as class file\n" +
+			"		invoke(() -> java.rmi.registry.Registry.class.hashCode());\n" +
+			"	}\n" +
+			"}\n",
+			"test1/ZClassWithBug.java",
+			"package test1;\n" +
+			"\n" +
+			"import java.rmi.registry.Registry;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public abstract class ZClassWithBug {\n" +
+			"\n" +
+			"	@Nullable\n" +
+			"	public Registry rmiregistry;\n" +
+			"}\n"
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+public void testBug485814() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/ExplainedResult.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class ExplainedResult<V2> extends Result<V2> {\n" +
+			"\n" +
+			"	public ExplainedResult(int score, V2 extractedValue2) {\n" +
+			"		super(score, extractedValue2);\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	public <OtherV2> ExplainedResult<OtherV2> withValue(OtherV2 otherValue2) {\n" +
+			"		return new ExplainedResult<OtherV2>(this.score, otherValue2);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+			"test/Result.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Result<V1> {\n" +
+			"\n" +
+			"	public final int score;\n" +
+			"\n" +
+			"	public final V1 extractedValue;\n" +
+			"\n" +
+			"	public Result(int score, V1 extractedValue1) {\n" +
+			"		this.score = score;\n" +
+			"		this.extractedValue = extractedValue1;\n" +
+			"	}\n" +
+			"\n" +
+			"	public <OtherV1> Result<OtherV1> withValue(OtherV1 otherValue1) {\n" +
+			"		return new Result<OtherV1>(score, otherValue1);\n" +
+			"	}\n" +
+			"}\n" +
+			""
+		}, 
+		getCompilerOptions(),
+		""
+	);			
+}
+public void testBug485581() {
+	runConformTestWithLibs(
+		new String[] {
+		"test/MatchResult.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class MatchResult<V> implements Comparable<MatchResult<?>> {\n" +
+			"	public final int score;\n" +
+			"	public final V value;\n" +
+			"\n" +
+			"	public MatchResult(int score, V value) {\n" +
+			"		this.score = score;\n" +
+			"		this.value = value;\n" +
+			"	}\n" +
+			"\n" +
+			"	@Override\n" +
+			"	public int compareTo(MatchResult<?> o) {\n" +
+			"		return score - o.score;\n" +
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		""
+	);
+	runConformTestWithLibs(
+		new String[] {
+			"test/FVEHandler.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class FVEHandler {\n" +
+			"	public static void process(MatchResult<?> matchResult) {\n" +
+			"		if (matchResult.value != null) {\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+public void testBug485374() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/I.java",
+			"package test;\n" +
+			"public interface I<W> {\n" +
+			"    public class Nested {\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+			"test/D.java",
+			"package test;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"public class D implements I<I.@NonNull Nested> {\n" +
+			"}\n" +
+			""
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runNegativeTestWithLibs(
+			new String[] {
+			"test2/Import.java",
+				"package test2;\n" +
+				"import test.D;\n" +
+				"class Import {}\n"
+			}, 
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. WARNING in test2\\Import.java (at line 2)\n" + 
+			"	import test.D;\n" + 
+			"	       ^^^^^^\n" + 
+			"The import test.D is never used\n" + 
+			"----------\n"
+		);
+}
+
 }

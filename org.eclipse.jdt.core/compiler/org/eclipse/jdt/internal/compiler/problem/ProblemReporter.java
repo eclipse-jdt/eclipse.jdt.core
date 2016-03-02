@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1243,7 +1243,7 @@ public void cannotExtendEnum(SourceTypeBinding type, TypeReference superclass, T
 }
 public void cannotImportPackage(ImportReference importRef) {
 	String[] arguments = new String[] {CharOperation.toString(importRef.tokens)};
-	this.handle(
+	this.handleUntagged(
 		IProblem.CannotImportPackage,
 		arguments,
 		arguments,
@@ -1600,7 +1600,7 @@ public void conditionalArgumentsIncompatibleTypes(ConditionalExpression expressi
 }
 public void conflictingImport(ImportReference importRef) {
 	String[] arguments = new String[] {CharOperation.toString(importRef.tokens)};
-	this.handle(
+	this.handleUntagged(
 		IProblem.ConflictingImport,
 		arguments,
 		arguments,
@@ -1820,7 +1820,7 @@ public void duplicateFieldInType(SourceTypeBinding type, FieldDeclaration fieldD
 }
 public void duplicateImport(ImportReference importRef) {
 	String[] arguments = new String[] {CharOperation.toString(importRef.tokens)};
-	this.handle(
+	this.handleUntagged(
 		IProblem.DuplicateImport,
 		arguments,
 		arguments,
@@ -2433,6 +2433,20 @@ private void handle(
 			problemEndPosition);
 }
 
+protected void handleUntagged(
+			int problemId,
+			String[] problemArguments,
+			String[] messageArguments,
+			int problemStartPosition,
+			int problemEndPosition) {
+	boolean oldSuppressing = this.suppressTagging;
+	this.suppressTagging = true;
+	try {
+		this.handle(problemId, problemArguments, messageArguments, problemStartPosition, problemEndPosition);
+	} finally {
+		this.suppressTagging = oldSuppressing;
+	}
+}
 public void hiddenCatchBlock(ReferenceBinding exceptionType, ASTNode location) {
 	this.handle(
 		IProblem.MaskedCatch,
@@ -3080,7 +3094,7 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 				shortArguments = new String[] {new String(field.declaringClass.leafComponentType().shortReadableName())};
 				break;
 		}
-		this.handle(
+		this.handleUntagged(
 			id,
 			readableArguments,
 			shortArguments,
@@ -3094,7 +3108,7 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 			? ((ProblemReferenceBinding) expectedImport).compoundName
 			: importRef.tokens;
 		String[] arguments = new String[]{CharOperation.toString(tokens)};
-		this.handle(
+		this.handleUntagged(
 		        IProblem.ImportNotFound,
 		        arguments,
 		        arguments,
@@ -3105,7 +3119,7 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 	if (expectedImport.problemId() == ProblemReasons.InvalidTypeForStaticImport) {
 		char[][] tokens = importRef.tokens;
 		String[] arguments = new String[]{CharOperation.toString(tokens)};
-		this.handle(
+		this.handleUntagged(
 		        IProblem.InvalidTypeForStaticImport,
 		        arguments,
 		        arguments,
@@ -9962,14 +9976,6 @@ public void duplicateBoundInIntersectionCast(TypeReference typeReference) {
 			typeReference.sourceEnd);
 }
 
-public void multipleFunctionalInterfaces(FunctionalExpression functionalExpression) {
-	this.handle(
-			IProblem.MultipleFunctionalInterfaces,
-			NoArgument,
-			NoArgument,
-			functionalExpression.sourceStart,
-			functionalExpression.diagnosticsSourceEnd());
-}
 public void lambdaRedeclaresArgument(Argument argument) {
 	String[] arguments = new String[] {new String(argument.name)};
 	this.handle(

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2015 GK Software AG.
+ * Copyright (c) 2013, 2016 GK Software AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -318,19 +318,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 	static void inferInvocationApplicability(InferenceContext18 inferenceContext, MethodBinding method, TypeBinding[] arguments, boolean isDiamond, int checkType)
 	{
 		// 18.5.1
-		TypeVariableBinding[] typeVariables = method.typeVariables;
-		if (isDiamond) {
-			TypeVariableBinding[] classTypeVariables = method.declaringClass.typeVariables();
-			int l1 = typeVariables.length;
-			int l2 = classTypeVariables.length;
-			if (l1 == 0) {
-				typeVariables = classTypeVariables;
-			} else if (l2 != 0) {
-				System.arraycopy(typeVariables, 0, typeVariables=new TypeVariableBinding[l1+l2], 0, l1);
-				System.arraycopy(classTypeVariables, 0, typeVariables, l1, l2);
-			}				
-		}
-		TypeBinding[] parameters = method.parameters;
+		TypeVariableBinding[] typeVariables = method.getAllTypeVariables(isDiamond);
 		InferenceVariable[] inferenceVariables = inferenceContext.createInitialBoundSet(typeVariables); // creates initial bound set B
 
 		// check if varargs need special treatment:
@@ -340,7 +328,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			int varArgPos = paramLength-1;
 			varArgsType = method.parameters[varArgPos];
 		}
-		inferenceContext.createInitialConstraintsForParameters(parameters, checkType==InferenceContext18.CHECK_VARARG, varArgsType, method);
+		inferenceContext.createInitialConstraintsForParameters(method.parameters, checkType==InferenceContext18.CHECK_VARARG, varArgsType, method);
 		inferenceContext.addThrowsContraints(typeVariables, inferenceVariables, method.thrownExceptions);
 	}
 

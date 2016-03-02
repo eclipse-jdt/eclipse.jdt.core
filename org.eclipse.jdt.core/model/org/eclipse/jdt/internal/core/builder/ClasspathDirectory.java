@@ -15,6 +15,7 @@
 package org.eclipse.jdt.internal.core.builder;
 
 import java.io.IOException;
+import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IResource;
@@ -40,18 +41,29 @@ boolean isOutputFolder;
 SimpleLookupTable directoryCache;
 String[] missingPackageHolder = new String[1];
 AccessRuleSet accessRuleSet;
+ZipFile annotationZipFile;
+String externalAnnotationPath;
 INameEnvironment env;
 IModule module;
 
-ClasspathDirectory(IContainer binaryFolder, boolean isOutputFolder, AccessRuleSet accessRuleSet, INameEnvironment env) {
+ClasspathDirectory(IContainer binaryFolder, boolean isOutputFolder, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, INameEnvironment env) {
 	this.binaryFolder = binaryFolder;
 	this.isOutputFolder = isOutputFolder || binaryFolder.getProjectRelativePath().isEmpty(); // if binaryFolder == project, then treat it as an outputFolder
 	this.directoryCache = new SimpleLookupTable(5);
 	this.accessRuleSet = accessRuleSet;
 	this.env = env;
+	if (externalAnnotationPath != null)
+		this.externalAnnotationPath = externalAnnotationPath.toOSString();
 }
 
 public void cleanup() {
+	if (this.annotationZipFile != null) {
+		try {
+			this.annotationZipFile.close();
+		} catch(IOException e) { // ignore it
+		}
+		this.annotationZipFile = null;
+	}
 	this.directoryCache = null;
 }
 
@@ -169,9 +181,16 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	}
 	if (reader != null) {
 		reader.moduleName = this.module == null ? null : this.module.name();
+		String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
+		if (this.externalAnnotationPath != null) {
+			try {
+				this.annotationZipFile = reader.setExternalAnnotationProvider(this.externalAnnotationPath, fileNameWithoutExtension, this.annotationZipFile, null);
+			} catch (IOException e) {
+				// don't let error on annotations fail class reading
+			}
+		}
 		if (this.accessRuleSet == null)
 			return new NameEnvironmentAnswer(reader, null);
-		String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
 		return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()));
 	}
 	return null;

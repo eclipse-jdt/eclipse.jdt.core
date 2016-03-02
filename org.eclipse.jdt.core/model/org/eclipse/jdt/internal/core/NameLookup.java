@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -64,9 +64,11 @@ public class NameLookup implements SuffixConstants {
 		public IType type;
 		public IModule module;
 		AccessRestriction restriction;
-		Answer(IType type, AccessRestriction restriction) {
+		IClasspathEntry entry;
+		Answer(IType type, AccessRestriction restriction, IClasspathEntry entry) {
 			this.type = type;
 			this.restriction = restriction;
+			this.entry = entry;
 		}
 		Answer(IModule module) {
 			this.module = module;
@@ -670,10 +672,14 @@ public class NameLookup implements SuffixConstants {
 			type = findType(typeName, packages[i], partialMatch, acceptFlags, waitForIndexes, considerSecondaryTypes);
 			if (type != null) {
 				AccessRestriction accessRestriction = null;
-				if (checkRestrictions) {
-					accessRestriction = getViolatedRestriction(typeName, packageName, type, accessRestriction);
+				PackageFragmentRoot root = (PackageFragmentRoot) type.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+				ClasspathEntry entry = (ClasspathEntry) this.rootToResolvedEntries.get(root);
+				if (entry != null) { // reverse map always contains resolved CP entry
+					if (checkRestrictions) {
+						accessRestriction = getViolatedRestriction(typeName, packageName, entry, accessRestriction);
+					}
 				}
-				Answer answer = new Answer(type, accessRestriction);
+				Answer answer = new Answer(type, accessRestriction, entry);
 				if (!answer.ignoreIfBetter()) {
 					if (answer.isBetter(suggestedAnswer))
 						return answer;
@@ -729,20 +735,16 @@ public class NameLookup implements SuffixConstants {
 				if (!typeFound) type = null;
 			}
 		}
-		return type == null ? null : new Answer(type, null);
+		return type == null ? null : new Answer(type, null, null);
 	}
 
-	private AccessRestriction getViolatedRestriction(String typeName, String packageName, IType type, AccessRestriction accessRestriction) {
-		PackageFragmentRoot root = (PackageFragmentRoot) type.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-		ClasspathEntry entry = (ClasspathEntry) this.rootToResolvedEntries.get(root);
-		if (entry != null) { // reverse map always contains resolved CP entry
-			AccessRuleSet accessRuleSet = entry.getAccessRuleSet();
-			if (accessRuleSet != null) {
-				// TODO (philippe) improve char[] <-> String conversions to avoid performing them on the fly
-				char[][] packageChars = CharOperation.splitOn('.', packageName.toCharArray());
-				char[] typeChars = typeName.toCharArray();
-				accessRestriction = accessRuleSet.getViolatedRestriction(CharOperation.concatWith(packageChars, typeChars, '/'));
-			}
+	private AccessRestriction getViolatedRestriction(String typeName, String packageName, ClasspathEntry entry, AccessRestriction accessRestriction) {
+		AccessRuleSet accessRuleSet = entry.getAccessRuleSet();
+		if (accessRuleSet != null) {
+			// TODO (philippe) improve char[] <-> String conversions to avoid performing them on the fly
+			char[][] packageChars = CharOperation.splitOn('.', packageName.toCharArray());
+			char[] typeChars = typeName.toCharArray();
+			accessRestriction = accessRuleSet.getViolatedRestriction(CharOperation.concatWith(packageChars, typeChars, '/'));
 		}
 		return accessRestriction;
 	}

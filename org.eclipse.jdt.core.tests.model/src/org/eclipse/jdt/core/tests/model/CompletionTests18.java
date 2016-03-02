@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBM Corporation and others.
+ * Copyright (c) 2014, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,7 +22,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
+//@SuppressWarnings({"rawtypes", "unchecked"})
 public class CompletionTests18 extends AbstractJavaModelCompletionTests {
 
 static {
@@ -1531,7 +1531,7 @@ public void test430441() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length() + 1;
 	IJavaProject javaProject = getJavaProject("Completion");
 
-	Map options = javaProject.getOptions(true);
+	Map<String, String> options = javaProject.getOptions(true);
 	options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
 	javaProject.setOptions(options);
@@ -2649,5 +2649,84 @@ public void test484479() throws JavaModelException {
 											(RelevanceConstants.R_DEFAULT + RelevanceConstants.R_RESOLVED + 
 													RelevanceConstants.R_INTERESTING + RelevanceConstants.R_NON_RESTRICTED +
 													RelevanceConstants.R_CASE) + "}", requestor.getResults());
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=473008
+public void test473008a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Foo.java",
+			"interface FooFunctional {\n" +
+			"   void function();\n" +
+			"}\n" +
+			"public class Foo {\n" +
+			"    private FooFunctional lambda = this::bar;\n" +
+			"    public void bar() {\n" +
+			"      new StringBuffer" +
+			"    }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new StringBuffer";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE;
+	assertResults(
+			"StringBufferInputStream[TYPE_REF]{java.io.StringBufferInputStream, java.io, Ljava.io.StringBufferInputStream;, null, null, null, null, [147, 159], " + relevance + "}\n" + 
+			"StringBuffer[TYPE_REF]{StringBuffer, java.lang, Ljava.lang.StringBuffer;, null, null, null, null, [147, 159], " + (relevance + R_UNQUALIFIED + R_EXACT_NAME) + "}"
+			, requestor.getResults());
+}
+public void test473008b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Foo.java",
+			"interface FooFunctional {\n" +
+			"   void function();\n" +
+			"}\n" +
+			"public class Foo {\n" +
+			"    public void bar() {\n" +
+			"      private FooFunctional lambda = this::bar;\n" +
+			"      new StringBuffer" +
+			"    }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new StringBuffer";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE;
+	assertResults(
+			"StringBufferInputStream[TYPE_REF]{java.io.StringBufferInputStream, java.io, Ljava.io.StringBufferInputStream;, null, null, null, null, [149, 161], " + relevance + "}\n" + 
+			"StringBuffer[TYPE_REF]{StringBuffer, java.lang, Ljava.lang.StringBuffer;, null, null, null, null, [149, 161], " + (relevance + R_UNQUALIFIED + R_EXACT_NAME) + "}"
+			, requestor.getResults());
+}
+public void test473008c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Foo.java",
+			"interface FooFunctional {\n" +
+			"   void function();\n" +
+			"}\n" +
+			"public class Foo {\n" +
+			"    public void bar() {\n" +
+			"      private FooFunctional lambda = () -> bar();\n" +
+			"      new StringBuffer" +
+			"    }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new StringBuffer";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_CASE;
+	assertResults(
+			"StringBufferInputStream[TYPE_REF]{java.io.StringBufferInputStream, java.io, Ljava.io.StringBufferInputStream;, null, null, null, null, [151, 163], " + relevance + "}\n" + 
+			"StringBuffer[TYPE_REF]{StringBuffer, java.lang, Ljava.lang.StringBuffer;, null, null, null, null, [151, 163], " + (relevance + R_UNQUALIFIED + R_EXACT_NAME) + "}"
+			, requestor.getResults());
 }
 }

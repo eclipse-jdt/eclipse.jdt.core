@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 IBM Corporation and others.
+ * Copyright (c) 2014, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ package org.eclipse.jdt.core.tests.model;
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICodeAssist;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -21,6 +22,7 @@ import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.core.LambdaExpression;
 import org.eclipse.jdt.internal.core.LambdaMethod;
@@ -2187,7 +2189,7 @@ public void test428968() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"comparing(java.util.function.Function<? super T,? extends U>) {key=Ljava/util/Comparator<>;.comparing<T:Ljava/lang/Object;U::Ljava/lang/Comparable<-TU;>;>(Ljava/util/function/Function<-TT;+TU;>;)Ljava/util/Comparator<TT;>;%<Ljava/lang/Object;^{259#0};>} [in Comparator [in Comparator.class [in java.util [in "+ getExternalPath() + "jclFull1.8.jar]]]]",
+		"comparing(java.util.function.Function<? super T,? extends U>) {key=Ljava/util/Comparator<>;.comparing<T:Ljava/lang/Object;U::Ljava/lang/Comparable<-TU;>;>(Ljava/util/function/Function<-TT;+TU;>;)Ljava/util/Comparator<TT;>;%<LX~Person;Ljava/lang/String;>} [in Comparator [in Comparator.class [in java.util [in "+ getExternalPath() + "jclFull1.8.jar]]]]",
 		elements, true
 	);
 }
@@ -2812,5 +2814,89 @@ public void test430572() throws JavaModelException {
 		"Unexpected elements",
 		"fooY() [in Y [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]",
 		elements);
+}
+// nested poly invocation:
+public void testBug487791() throws JavaModelException {	
+	this.wc = getWorkingCopy(
+			"Resolve/src/Example.java",
+			"import java.util.Comparator;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"interface Something {\n" + 
+			"      public int getSize();\n" + 
+			"      public Instant getTime();\n" + 
+			"}\n" +
+			"interface Instant extends Comparable<Instant> {\n" +
+			"}\n" + 
+			"public class Example {\n" + 
+			"   public void test2() {\n" + 
+			"      java.util.stream.Collector<Something,?,java.util.Map<Integer,Something>> c = \n" + 
+			"      Collectors.collectingAndThen(\n" + 
+			"            Collectors.<Something>toList(),\n" + 
+			"            list -> list.stream().collect(Collectors.groupingBy(Something::getSize,\n" + 
+			"                     // Returns Collector<Something,?,Object> - INCORRECT!\n" + 
+			"                     Collectors.collectingAndThen(\n" + // <-- select here
+			"                        Collectors.<Something>toList(),\n" + 
+			"                        list2 -> list2.stream().sorted(Comparator.comparing(Something::getTime)).limit(1).findAny().orElse(null)\n" + 
+			"                     )\n" + 
+			"                  )));\n" + 
+			"   }\n" + 
+			"}\n");
+	this.wc.becomeWorkingCopy(null);
+
+	String str = this.wc.getSource();
+	String selection = "collectingAndThen";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"collectingAndThen(java.util.stream.Collector<T,A,R>, java.util.function.Function<R,RR>) [in Collectors [in Collectors.class [in java.util.stream [in "+ getExternalPath() + "jclFull1.8.jar]]]]",
+		elements
+	);
+	String signature = new BindingKey(((IMethod) elements[0]).getKey()).toSignature();
+	String[] typeArguments = Signature.getTypeArguments(signature);
+	assertEquals("number of type arguments", 3, typeArguments.length);
+	assertEquals("4th type argument", "LSomething;", typeArguments[2]);
+	String returnType = Signature.getReturnType(signature);
+	assertEquals("return type", "Ljava.util.stream.Collector<LSomething;!*LSomething;>;", returnType);
+}
+// ReferenceExpression:
+public void testBug487791b() throws JavaModelException {	
+	this.wc = getWorkingCopy(
+			"Resolve/src/Example.java",
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"public class Example {\n" + 
+			"   static <T> T id(T t) { return t; }\n" + 
+			"   static <T,X> T f1 (X x) { return null; }\n" + 
+			"   \n" + 
+			"   String test() {\n" + 
+			"	   return f3(y -> y.f2(Example::f1, id(y)));\n" +  // <- select f1 here
+			"   }\n" + 
+			"   <U,V> V f2(Function<U, V> f, U u) {return f.apply(null);}\n" + 
+			"   <R> R f3(Function<Example,R> f) { return null; }\n" + 
+			"}\n");
+	this.wc.becomeWorkingCopy(null);
+
+	String str = this.wc.getSource();
+	String selection = "f1";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"f1(X) [in Example [in [Working copy] Example.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+	BindingKey bindingKey = new BindingKey(((IMethod) elements[0]).getKey());
+	String signature = bindingKey.toSignature();
+	assertEquals("signature", "<T:Ljava.lang.Object;X:Ljava.lang.Object;>(LExample;)Ljava.lang.String;", signature);
+	String[] typeArguments = bindingKey.getTypeArguments();
+	assertEquals("number of type arguments", 2, typeArguments.length);
+	assertEquals("1st type argument", "Ljava.lang.String;", typeArguments[0]);
+	assertEquals("2nd type argument", "LExample;", typeArguments[1]);
 }
 }

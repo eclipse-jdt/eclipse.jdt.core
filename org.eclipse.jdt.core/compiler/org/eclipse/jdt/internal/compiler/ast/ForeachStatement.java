@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -426,7 +426,7 @@ public class ForeachStatement extends Statement {
 			boolean isTargetJsr14 = this.scope.compilerOptions().targetJDK == ClassFileConstants.JDK1_4;
 			if (collectionType.isCapture()) {
 				TypeBinding upperBound = ((CaptureBinding)collectionType).firstBound;
-				if (upperBound.isArrayType())
+				if (upperBound != null && upperBound.isArrayType())
 					collectionType = upperBound; // partially anticipating the fix for https://bugs.openjdk.java.net/browse/JDK-8013843
 			}
 			if (collectionType.isArrayType()) { // for(E e : E[])

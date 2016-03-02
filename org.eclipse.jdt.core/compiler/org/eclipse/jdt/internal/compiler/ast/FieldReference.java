@@ -149,7 +149,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	if (currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_7) {
 		FieldBinding fieldBinding = this.binding;
-		if (fieldBinding.isBlankFinal() && currentScope.needBlankFinalFieldInitializationCheck(fieldBinding)) {
+		if (this.receiver.isThis() && fieldBinding.isBlankFinal() && currentScope.needBlankFinalFieldInitializationCheck(fieldBinding)) {
 			FlowInfo fieldInits = flowContext.getInitsForFinalBlankInitializationCheck(fieldBinding.declaringClass.original(), flowInfo);
 			if (!fieldInits.isDefinitelyAssigned(fieldBinding)) {
 				currentScope.problemReporter().uninitializedBlankFinalField(fieldBinding, this);

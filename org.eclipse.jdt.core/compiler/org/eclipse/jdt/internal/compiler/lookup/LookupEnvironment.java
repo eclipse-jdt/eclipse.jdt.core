@@ -227,6 +227,12 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name, char[] m
 	} else if (answer.isSourceType()) {
 		// the type was found as a source model
 		this.typeRequestor.accept(answer.getSourceTypes(), packageBinding, answer.getAccessRestriction());
+		ReferenceBinding binding = packageBinding.getType0(name);
+		String externalAnnotationPath = answer.getExternalAnnotationPath();
+		if (externalAnnotationPath != null && this.globalOptions.isAnnotationBasedNullAnalysisEnabled && binding instanceof SourceTypeBinding) {
+			ExternalAnnotationSuperimposer.apply((SourceTypeBinding) binding, externalAnnotationPath);
+		}
+		return binding;
 	}
 	return packageBinding.getType0(name);
 }

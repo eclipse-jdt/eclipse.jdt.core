@@ -65,7 +65,7 @@ public void test001() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
 public void test002() {
-	this.runNegativeTest(
+	this.runConformTest(
 			new String[] {
 				"X.java",
 				"interface I {\n" +
@@ -79,13 +79,7 @@ public void test002() {
 				"public class X {\n" +
 				"	Object p = (I & J) () -> {};\n" +
 				"}\n" ,
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 10)\n" + 
-			"	Object p = (I & J) () -> {};\n" + 
-			"	                   ^^^^^\n" +
-			"The target type of this expression is not a functional interface: more than one of the intersecting interfaces are functional\n" + 
-			"----------\n");
+			});
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
 public void test003() {
@@ -257,7 +251,7 @@ public void test008() {
 			"3. ERROR in X.java (at line 10)\n" + 
 			"	Object p = (@Marker java.lang. @Readonly String & I & J) () -> {};\n" + 
 			"	                                                         ^^^^^\n" +
-			"The target type of this expression is not a functional interface: more than one of the intersecting interfaces are functional\n" + 
+			"The target type of this expression must be a functional interface\n" + 
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types

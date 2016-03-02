@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2015 GK Software AG, and others.
+ * Copyright (c) 2013, 2016 GK Software AG, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -496,10 +496,6 @@ public class InferenceContext18 {
 					if (withWildCards != null) {
 						t = ConstraintExpressionFormula.findGroundTargetType(this, skope, lambda, withWildCards);
 					}
-					if (!t.isProperType(true) && t.isParameterizedType()) {
-						// prevent already resolved inference variables from leaking into the lambda
-						t = (ReferenceBinding) Scope.substitute(getResultSubstitution(this.currentBounds, false), t);
-					}
 					MethodBinding functionType;
 					if (t != null && (functionType = t.getSingleAbstractMethod(skope, true)) != null && (lambda = lambda.resolveExpressionExpecting(t, this.scope, this)) != null) {
 						TypeBinding r = functionType.returnType;
@@ -539,9 +535,7 @@ public class InferenceContext18 {
 					this.inferenceKind = applicabilityKind;
 					if (innerContext != null)
 						innerContext.outerContext = this;
-					inferInvocationApplicability(shallowMethod, argumentTypes, shallowMethod.isConstructor());
-					if (!ConstraintExpressionFormula.inferPolyInvocationType(this, invocation, substF, shallowMethod))
-						return false;
+					createInitialBoundSet(shallowMethod.getAllTypeVariables(shallowMethod.isConstructor())); // minimal preparation to work with inner inference variables
 				} finally {
 					resumeSuspendedInference(prevInvocation);
 				}
@@ -728,37 +722,43 @@ public class InferenceContext18 {
 	private boolean checkExpression(Expression expri, TypeBinding[] u, TypeBinding r1, TypeBinding[] v, TypeBinding r2) 
 			throws InferenceFailureException {
 		if (expri instanceof LambdaExpression && !((LambdaExpression)expri).argumentsTypeElided()) {
+			for (int i = 0; i < u.length; i++) {
+				if (!reduceAndIncorporate(ConstraintTypeFormula.create(u[i], v[i], ReductionResult.SAME)))
+					return false;
+			}
 			if (r2.id == TypeIds.T_void)
 				return true;
 			LambdaExpression lambda = (LambdaExpression) expri;
 			Expression[] results = lambda.resultExpressions();
-			if (r1.isFunctionalInterface(this.scope) && r2.isFunctionalInterface(this.scope)
-					&& !(r1.isCompatibleWith(r2) || r2.isCompatibleWith(r1))) {
-				// "these rules are applied recursively to R1 and R2, for each result expression in expi."
-				// (what does "applied .. to R1 and R2" mean? Why mention R1/R2 and not U/V?)
-				for (int i = 0; i < results.length; i++) {
-					if (!checkExpression(results[i], u, r1, v, r2))
-						return false;
+			if (results != Expression.NO_EXPRESSIONS) {
+				if (r1.isFunctionalInterface(this.scope) && r2.isFunctionalInterface(this.scope)
+						&& !(r1.isCompatibleWith(r2) || r2.isCompatibleWith(r1))) {
+					// "these rules are applied recursively to R1 and R2, for each result expression in expi."
+					// (what does "applied .. to R1 and R2" mean? Why mention R1/R2 and not U/V?)
+					for (int i = 0; i < results.length; i++) {
+						if (!checkExpression(results[i], u, r1, v, r2))
+							return false;
+					}
+					return true;
 				}
-				return true;
-			}
-			checkPrimitive1: if (r1.isPrimitiveType() && !r2.isPrimitiveType()) {
-				// check: each result expression is a standalone expression of a primitive type
-				for (int i = 0; i < results.length; i++) {
-					if (results[i].isPolyExpression() || (results[i].resolvedType != null && !results[i].resolvedType.isPrimitiveType()))
-						break checkPrimitive1;
+				checkPrimitive1: if (r1.isPrimitiveType() && !r2.isPrimitiveType()) {
+					// check: each result expression is a standalone expression of a primitive type
+					for (int i = 0; i < results.length; i++) {
+						if (results[i].isPolyExpression() || (results[i].resolvedType != null && !results[i].resolvedType.isPrimitiveType()))
+							break checkPrimitive1;
+					}
+					return true;
 				}
-				return true;
-			}
-			checkPrimitive2: if (r2.isPrimitiveType() && !r1.isPrimitiveType()) {
-				for (int i = 0; i < results.length; i++) {
-					// for all expressions (not for any expression not)
-					if (!(
-							(!results[i].isPolyExpression() && (results[i].resolvedType != null && !results[i].resolvedType.isPrimitiveType())) // standalone of a referencetype
-							|| results[i].isPolyExpression()))	// or a poly
-						break checkPrimitive2;
-				}
-				return true;
+				checkPrimitive2: if (r2.isPrimitiveType() && !r1.isPrimitiveType()) {
+					for (int i = 0; i < results.length; i++) {
+						// for all expressions (not for any expression not)
+						if (!(
+								(!results[i].isPolyExpression() && (results[i].resolvedType != null && !results[i].resolvedType.isPrimitiveType())) // standalone of a referencetype
+								|| results[i].isPolyExpression()))	// or a poly
+							break checkPrimitive2;
+					}
+					return true;
+				}	
 			}
 			return reduceAndIncorporate(ConstraintTypeFormula.create(r1, r2, ReductionResult.SUBTYPE));
 		} else if (expri instanceof ReferenceExpression && ((ReferenceExpression)expri).isExactMethodReference()) {

@@ -22,6 +22,7 @@ public class NameEnvironmentAnswer {
 	ISourceType[] sourceTypes;
 	AccessRestriction accessRestriction;
 	char[] module;
+	String externalAnnotationPath; // should be an absolute file system path
 
 	public NameEnvironmentAnswer(IBinaryType binaryType, AccessRestriction accessRestriction) {
 		this.binaryType = binaryType;
@@ -35,9 +36,10 @@ public class NameEnvironmentAnswer {
 		this.module = compilationUnit.module();
 	}
 
-	public NameEnvironmentAnswer(ISourceType[] sourceTypes, AccessRestriction accessRestriction) {
+	public NameEnvironmentAnswer(ISourceType[] sourceTypes, AccessRestriction accessRestriction, String externalAnnotationPath) {
 		this.sourceTypes = sourceTypes;
 		this.accessRestriction = accessRestriction;
+		this.externalAnnotationPath = externalAnnotationPath;
 	}
 	/**
 	 * Returns the associated access restriction, or null if none.
@@ -59,6 +61,10 @@ public class NameEnvironmentAnswer {
 	 */
 	public ICompilationUnit getCompilationUnit() {
 		return this.compilationUnit;
+	}
+
+	public String getExternalAnnotationPath() {
+		return this.externalAnnotationPath;
 	}
 
 	/**

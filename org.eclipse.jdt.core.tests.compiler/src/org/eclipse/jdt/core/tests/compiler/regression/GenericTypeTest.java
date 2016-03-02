@@ -50210,7 +50210,9 @@ public void test1432() {
 			"1. ERROR in X.java (at line 9)\n" + 
 			"	Integer j = ffi.bar(ffi, new Foo());\n" + 
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"Type mismatch: cannot convert from Foo<Integer> to Integer\n" + 
+			(this.complianceLevel < ClassFileConstants.JDK1_8
+			? "Type mismatch: cannot convert from Foo<Integer> to Integer\n"
+			: "Type mismatch: cannot convert from Foo to Integer\n") +
 			"----------\n" + 
 			"2. WARNING in X.java (at line 9)\n" + 
 			"	Integer j = ffi.bar(ffi, new Foo());\n" + 

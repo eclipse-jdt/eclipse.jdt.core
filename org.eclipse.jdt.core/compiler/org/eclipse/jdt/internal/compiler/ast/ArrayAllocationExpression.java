@@ -39,8 +39,6 @@ public class ArrayAllocationExpression extends Expression {
 	public Annotation [][] annotationsOnDimensions; // jsr308 style annotations.
 	public ArrayInitializer initializer;
 
-	private TypeBinding expectedType;
-
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		for (int i = 0, max = this.dimensions.length; i < max; i++) {
 			Expression dim;
@@ -177,21 +175,6 @@ public class ArrayAllocationExpression extends Expression {
 			{
 				scope.problemReporter().contradictoryNullAnnotations(this.type.annotations[this.type.annotations.length-1]);
 			}
-			LookupEnvironment environment = scope.environment();
-			if (environment.usesNullTypeAnnotations() 
-					&& this.annotationsOnDimensions == null // don't annotate if explicit annotations are given on dimensions ...
-					&& ((referenceType.tagBits & TagBits.AnnotationNullMASK) == 0)  // ... or leaf type
-					&& this.expectedType != null) // need this to determine our action
-			{
-				Expression lastDim = this.dimensions[this.dimensions.length-1];
-				if (lastDim instanceof IntLiteral && ((IntLiteral) lastDim).value == 0) {
-					long tagBit = this.expectedType.leafComponentType().tagBits & TagBits.AnnotationNullMASK;
-					// let new X[0] be seen as "@NonNull X[]", or "@Nullable X[]" just as expected
-					AnnotationBinding[] nullAnnotations = environment.nullAnnotationsFromTagBits(tagBit);
-					if (nullAnnotations != null)
-						referenceType = environment.createAnnotatedType(referenceType, nullAnnotations);
-				}
-			}
 			this.resolvedType = scope.createArrayType(referenceType, this.dimensions.length);
 
 			if (this.annotationsOnDimensions != null) {
@@ -219,10 +202,6 @@ public class ArrayAllocationExpression extends Expression {
 		return this.resolvedType;
 	}
 
-	@Override
-	public void setExpectedType(TypeBinding expectedType) {
-		this.expectedType = expectedType;
-	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {

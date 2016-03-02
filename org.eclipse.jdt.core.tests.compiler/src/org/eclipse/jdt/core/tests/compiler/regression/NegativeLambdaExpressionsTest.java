@@ -7311,9 +7311,7 @@ public void testGenericArrayCreation() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=420598, [1.8][compiler] Incorrect error about intersection cast type not being a functional interface. 
 public void testIntersectionCast() {
-		this.runNegativeTest(
-			true /* skipJavac */,
-			JavacTestOptions.EclipseHasABug.EclipseBug424410,
+		this.runConformTest(
 			new String[] {
 					"X.java", 
 					"import java.io.Serializable;\n" +
@@ -7328,23 +7326,18 @@ public void testIntersectionCast() {
 					"interface L {\n" +
 					"	void foo();\n" +
 					"}\n" +
+					"interface All extends J, I, K, L {}\n" +
 					"public class X {\n" +
 					"	public static void main(String[] args) {\n" +
 					"		I i = (I & Serializable) () -> {};\n" +
 					"		i = (I & J & K) () -> {};\n" +
 					"		i = (J & I & K) () -> {};  \n" +
 					"		i = (J & I & K & L) () -> {};  \n" +
+					"		i = (All) () -> {};\n" +
 					"	}\n" +
-					"}\n" + 
-					""
+					"}\n"
 			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 18)\n" + 
-			"	i = (J & I & K & L) () -> {};  \n" + 
-			"	                    ^^^^^\n" + 
-			"The target type of this expression is not a functional interface: more than one of the intersecting interfaces are functional\n" + 
-			"----------\n"
-		);
+			"");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421711, [1.8][compiler] '_' as identifier for a lambda parameter should be rejected.
 public void testUnderScoreParameter() {
@@ -9051,11 +9044,16 @@ public void test424154a() throws Exception {
 	    "	     ^^^^^^^^\n" +
 	    "The method removeIf(Predicate<? super Process>) in the type Collection<Process> is not applicable for the arguments ((int x) -> {})\n" +
 	    "----------\n" +
-	    "2. ERROR in X.java (at line 3)\n" +
-	    "	list.removeIf((int x) -> \"\");\n" +
-	    "	              ^^^^^^^^^^^^^\n" +
-	    "The target type of this expression is not a well formed parameterized type due to bound(s) mismatch\n" +
-	    "----------\n");
+	    "2. ERROR in X.java (at line 3)\n" + 
+		"	list.removeIf((int x) -> \"\");\n" + 
+		"	               ^^^\n" + 
+		"Lambda expression\'s parameter x is expected to be of type Process\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 3)\n" + 
+		"	list.removeIf((int x) -> \"\");\n" + 
+		"	                         ^^\n" + 
+		"Type mismatch: cannot convert from String to boolean\n" + 
+		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424154,  [1.8][compiler] PolyTypeBinding must not render the full lambda body in error messages
 //Variations where return types or arguments mismatch or both.
@@ -9861,6 +9859,65 @@ public void test474522() {
 		"	private final ActionListener listener2 = e -> System.out.println(s);\n" + 
 		"	                                                                 ^\n" + 
 		"The blank final field s may not have been initialized\n" + 
+		"----------\n");
+}
+public void testBug487390() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface ConsumeN {\n" + 
+			"	void consume(String.. strings); // syntax error here\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	void consu(ConsumeN c) { }\n" + 
+			"	void test() {\n" + 
+			"		consu((String... s) -> System.out.print(s.length));\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 2)\n" + 
+		"	void consume(String.. strings); // syntax error here\n" + 
+		"	                    ^\n" + 
+		"Syntax error on token \".\", Identifier expected\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	consu((String... s) -> System.out.print(s.length));\n" + 
+		"	^^^^^\n" + 
+		"The method consu(ConsumeN) in the type X is not applicable for the arguments ((String... s) -> {})\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 8)\n" + 
+		"	consu((String... s) -> System.out.print(s.length));\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Lambda expression\'s signature does not match the signature of the functional interface method consume()\n" + 
+		"----------\n");
+}
+public void testBug487390b() {
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"interface ConsumeN {\n" + 
+			"	void consume();\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"\n" + 
+			"	void consu(ConsumeN c) { }\n" + 
+			"	void test() {\n" + 
+			"		consu((String... s) -> System.out.print(s.length));\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 8)\n" + 
+		"	consu((String... s) -> System.out.print(s.length));\n" + 
+		"	^^^^^\n" + 
+		"The method consu(ConsumeN) in the type X is not applicable for the arguments ((String... s) -> {})\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 8)\n" + 
+		"	consu((String... s) -> System.out.print(s.length));\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Lambda expression\'s signature does not match the signature of the functional interface method consume()\n" + 
 		"----------\n");
 }
 public static Class testClass() {

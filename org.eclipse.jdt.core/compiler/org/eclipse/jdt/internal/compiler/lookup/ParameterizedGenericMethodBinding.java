@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -605,7 +605,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		// the erasure of the return type and thrown types of m's type."
 		if (substitute)
 			type = Scope.substitute(this, type);
-		return env.convertToRawType(type, true);
+		return env.convertToRawType(type.erasure(), true);
 	}
 
 	/*

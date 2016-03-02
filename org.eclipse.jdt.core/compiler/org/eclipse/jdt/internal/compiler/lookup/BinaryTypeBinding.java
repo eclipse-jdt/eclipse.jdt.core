@@ -177,7 +177,14 @@ public static TypeBinding resolveType(TypeBinding type, LookupEnvironment enviro
 			return ((WildcardBinding) type).resolve();
 
 		case Binding.ARRAY_TYPE :
-			resolveType(((ArrayBinding) type).leafComponentType, environment, convertGenericToRawType);
+			ArrayBinding arrayBinding = (ArrayBinding) type;
+			TypeBinding leafComponentType = arrayBinding.leafComponentType;
+			resolveType(leafComponentType, environment, convertGenericToRawType);
+			if (leafComponentType.hasNullTypeAnnotations() && environment.usesNullTypeAnnotations()) {
+				if (arrayBinding.nullTagBitsPerDimension == null)
+					arrayBinding.nullTagBitsPerDimension = new long[arrayBinding.dimensions+1];
+				arrayBinding.nullTagBitsPerDimension[arrayBinding.dimensions] = leafComponentType.tagBits & TagBits.AnnotationNullMASK;
+			}
 			break;
 
 		case Binding.TYPE_PARAMETER :
@@ -1523,11 +1530,13 @@ private void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBi
 		return; // we know it's nonnull, no need to look for null *annotations* on enum constants.
 	}
 
-	if (this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
+	if (!CharOperation.equals(this.fPackage.compoundName, TypeConstants.JAVA_LANG_ANNOTATION) // avoid dangerous re-entry via usesNullTypeAnnotations()
+			&& this.environment.usesNullTypeAnnotations()) {
 		TypeBinding fieldType = fieldBinding.type;
 		if (fieldType != null
 				&& !fieldType.isBaseType()
 				&& (fieldType.tagBits & TagBits.AnnotationNullMASK) == 0
+				&& fieldType.acceptsNonNullDefault()
 				&& hasNonNullDefaultFor(DefaultLocationField, true)) {
 			fieldBinding.type = this.environment.createAnnotatedType(fieldType, new AnnotationBinding[]{this.environment.getNonNullAnnotation()});
 		}

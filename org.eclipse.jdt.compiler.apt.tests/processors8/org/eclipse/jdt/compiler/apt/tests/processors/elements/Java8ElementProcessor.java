@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 IBM Corporation.
+ * Copyright (c) 2013, 2016 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -65,7 +65,8 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
  * @since 3.10
  */
 @SupportedAnnotationTypes({"targets.model8.TypeAnnot",
-							"org.eclipse.jdt.compiler.apt.tests.annotations.Type", "org.eclipse.jdt.compiler.apt.tests.annotations.Type$1", 
+							"org.eclipse.jdt.compiler.apt.tests.annotations.Type", "org.eclipse.jdt.compiler.apt.tests.annotations.Type1",
+							"org.eclipse.jdt.compiler.apt.tests.annotations.Type$1", 
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.Foo", "org.eclipse.jdt.compiler.apt.tests.annotations.FooContainer",
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.IFoo", "org.eclipse.jdt.compiler.apt.tests.annotations.IFooContainer",
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.Goo", "org.eclipse.jdt.compiler.apt.tests.annotations.GooNonContainer",
@@ -602,15 +603,31 @@ public class Java8ElementProcessor extends BaseProcessor {
 		TypeElement annotatedType = _elementUtils.getTypeElement("targets.model8.X");
 		List<? extends Element> members = _elementUtils.getAllMembers(annotatedType);
 		ExecutableElement bar2 = null;
+		ExecutableElement constr = null;
+		ExecutableElement constr2 = null;
 		for (Element member : members) {
 			if ("bar2".equals(member.getSimpleName().toString())) {
 				bar2 = (ExecutableElement) member;
+			} else if ("<init>".equals(member.getSimpleName().toString())) {
+				if (((ExecutableElement) member).getParameters().isEmpty()) {
+					constr = (ExecutableElement) member;
+				} else {
+					constr2 = (ExecutableElement) member;
+				}
 			}
 		}
 		TypeMirror typeMirror = bar2.getReceiverType();
 		verifyAnnotations(typeMirror, new String[]{"@Type(value=receiver)"});
 		ExecutableType type = (ExecutableType) bar2.asType();
 		verifyAnnotations(type.getReceiverType(), new String[]{"@Type(value=receiver)"});
+
+		verifyAnnotations(constr, new String[]{});
+		type = (ExecutableType) constr.asType();
+		verifyAnnotations(type, new String[]{});
+
+		verifyAnnotations(constr2, new String[]{"@Type1(value=constr2)"});
+		type = (ExecutableType) constr2.asType();
+		verifyAnnotations(type, new String[]{});
 	}
 	
 	public void testTypeAnnotations13() {
