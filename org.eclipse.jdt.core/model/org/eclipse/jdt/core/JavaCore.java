@@ -1774,12 +1774,12 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_NULL_UNCHECKED_CONVERSION = PLUGIN_ID + ".compiler.problem.nullUncheckedConversion"; //$NON-NLS-1$
 	/**
-	 * Compiler option ID: Report problems detected by pessimistic null analysis for free type variables.
-	 * <p>When not set to "ignore", type variables without explicit null annotation are assumed to be nullable,
-	 * where values are read, and nonnull, where values are assigned or provided as return value.</p>
-	 * <p>Problems reported for values whose type is such free type variable are reported with the level given in this option.</p>
-	 * <p>If such a value is assigned to a variable with a compatible ordinary type, its nullness information is set 
-	 * accordingly and any follow-up problem is reported according to the corresponding compiler option</p>
+	 * Compiler option ID: Reporting problems detected by pessimistic null analysis for free type variables.
+	 * <p>Unless set to <code>"ignore"</code>, type variables not affected by any explicit null annotation are pessimistically analyzed
+	 * in two directions: When reading a value of this type, it is assumed to be nullable. When this type appears as the required type
+	 * (i.e., at the left hand side of an assignment or variable initialization, or as the method return type against which a return statement
+	 * is being checked) the type is considered to require the nonnull property.</p>
+	 * <p>Problems reported due to this pessimistic analysis are reported with the level given in this option.</p>
 	 * @since 3.12
 	 * @category CompilerOptionID
 	 * <dl>
