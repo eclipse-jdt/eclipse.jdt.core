@@ -164,7 +164,6 @@ public boolean isModule(IResource resource, IPackageFragmentRoot handle) throws 
 		ICompilationUnit[] units = fragment.getCompilationUnits();
 		for (ICompilationUnit unit : units) {
 			if (unit.getElementName().toLowerCase().indexOf(new String(TypeConstants.MODULE_INFO_NAME)) != -1) {
-				System.out.println(this.isModule);
 				return (this.isModule = true);
 			}
 		}

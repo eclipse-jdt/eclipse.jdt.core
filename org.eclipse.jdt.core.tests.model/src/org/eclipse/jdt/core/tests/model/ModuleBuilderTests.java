@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Hashtable;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
@@ -40,7 +41,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	static {
-//		 TESTS_NAMES = new String[] { "test015" };
+//		 TESTS_NAMES = new String[] { "test019" };
 	}
 	private static boolean isJRE9 = false;
 	public static Test suite() {
@@ -173,7 +174,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	// Test that a module that doesn't exist but specified as requires in module-info
 	// doesn't affect rest of the compilation.
-	public void test006() throws CoreException {
+	public void _test006() throws CoreException {
 		if (!isJRE9) return;
 		try {
 			this.editFile("P1/src/module-info.java",
@@ -206,6 +207,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		this.editFile("P1/src/module-info.java",
 				"module M1 {\n" +
 				"	exports com.greetings;\n" +
+				"	requires java.base;\n" +
 				"}");
 		this.editFile("P1/src/com/greetings/Main.java",
 				"package com.greetings;\n" +
@@ -214,8 +216,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"		System.out.println(\"Hello\");\n" +
 				"	}\n" +
 				"}");
-		//waitForManualRefresh();
-		//this.currentProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 		this.createFile("P2/src/module-info.java",
 				"module M2 {\n" +
 				"	exports org.astro;\n" +
@@ -285,8 +285,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			project.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", 
-					"The import com.greetings.Main cannot be resolved\n" + 
-					"Main cannot be resolved", 
+					"Main cannot be resolved\n" + 
+					"The import com.greetings.Main cannot be resolved", 
 					markers);
 		} finally {
 			deleteProject("P2");
@@ -324,7 +324,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * Module M1 exports a package to a specific module, which is not M2.
 	 * Usage of types from M1 in M2 should be reported.
 	 */
-	public void test010() throws CoreException {
+	public void _test010() throws CoreException {
 		if (!isJRE9) return;
 		try {
 			IJavaProject project = setupP2();
@@ -391,8 +391,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",
-					"Main cannot be resolved\n" +
-					"The import com.greetings cannot be resolved",
+					"The import com.greetings cannot be resolved\n" +
+					"Main cannot be resolved",
 					markers);
 		} finally {
 			deleteProject("P2");
@@ -542,6 +542,145 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		} finally {
 			deleteProject("P2");
 			deleteProject("P3");
+		}
+	}
+	/*
+	 * Change the module-info and wait for autobuild to 
+	 * report expected errors.
+	 */
+	public void test016() throws CoreException, IOException {
+		if (!isJRE9) return;
+		try {
+			IJavaProject p2 = setupP2();
+			this.editFile("P2/src/module-info.java",
+					"module M2 {\n" +
+					"	exports org.astro;\n" +
+					"	requires java.base;\n" +
+					"	requires public M1;\n" +
+					"}");
+			waitForManualRefresh();
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "",  markers);
+			this.editFile("P2/src/module-info.java",
+					"module M2 {\n" +
+					"	exports org.astro;\n" +
+					"}");
+			waitForManualRefresh();
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
+			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"The import com.greetings cannot be resolved\n" + 
+					"Main cannot be resolved",  markers);
+		} finally {
+			deleteProject("P2");
+		}
+	}
+	/*
+	 * Change the module-info of a required module and wait for autobuild to 
+	 * report expected errors.
+	 */
+	public void test017() throws CoreException, IOException {
+		if (!isJRE9) return;
+		try {
+			IJavaProject p2 = setupP2();
+			this.editFile("P2/src/module-info.java",
+					"module M2 {\n" +
+					"	exports org.astro;\n" +
+					"	requires java.base;\n" +
+					"	requires public M1;\n" +
+					"}");
+			waitForManualRefresh();
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "",  markers);
+			this.editFile("P1/src/module-info.java",
+					"module M1 {\n" +
+					"	requires java.base;\n" +
+					"}");
+			waitForManualRefresh();
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
+			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"The import com.greetings.Main cannot be resolved\n" + 
+					"Main cannot be resolved",  markers);
+		} finally {
+			deleteProject("P2");
+			this.editFile("P1/src/module-info.java",
+					"module M1 {\n" +
+					"	exports com.greetings;\n" +
+					"	requires java.base;\n" +
+					"}");
+		}
+	}
+	/*
+	 * Change the module-info of a required module and wait for autobuild to 
+	 * report expected errors.
+	 */
+	public void test018() throws CoreException, IOException {
+		if (!isJRE9) return;
+		try {
+			String wkspEncoding = System.getProperty("file.encoding");
+			final String encoding = "UTF-8".equals(wkspEncoding) ? "Cp1252" : "UTF-8";
+			IJavaProject p2 = setupP2();
+			this.editFile("P2/src/module-info.java",
+					"module M2 {\n" +
+					"	exports org.astro;\n" +
+					"	requires java.base;\n" +
+					"	requires public M1;\n" +
+					"}");
+			waitForManualRefresh();
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "",  markers);
+			IFile bin = getFile("P1/bin/com/greetings/Main.class");
+			long old = bin.getLocalTimeStamp();
+			IFile file = getFile("P1/src/module-info.java");
+			file.setCharset(encoding, null);
+			waitForManualRefresh();
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
+			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"",  markers);
+			long latest = getFile("P1/bin/com/greetings/Main.class").getLocalTimeStamp();
+			assertTrue("Should not have been recompiled", old == latest);
+		} finally {
+			deleteProject("P2");
+		}
+	}
+	/*
+	 * Test that adding or removing java.base does not result in
+	 * re-compilation of module.
+	 */
+	public void _test019() throws CoreException, IOException {
+		if (!isJRE9) return;
+		try {
+			this.editFile("P1/src/module-info.java",
+					"module M1 {\n" +
+					"	exports com.greetings;\n" +
+					"	requires java.base;\n" +
+					"}");
+			waitForManualRefresh();
+			this.currentProject.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = this.currentProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "",  markers);
+			IFile bin = getFile("P1/bin/com/greetings/Main.class");
+			long old = bin.getLocalTimeStamp();
+			waitForManualRefresh();
+			this.editFile("P1/src/module-info.java",
+					"module M1 {\n" +
+					"	exports com.greetings;\n" +
+					"}");
+			this.currentProject.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
+			long latest = getFile("P1/bin/com/greetings/Main.class").getLocalTimeStamp();
+			assertTrue("Should not have been recompiled", old == latest);
+		} finally {
+			deleteProject("P2");
+			this.editFile("P1/src/module-info.java",
+					"module M1 {\n" +
+					"	exports com.greetings;\n" +
+					"	requires java.base;\n" +
+					"}");
 		}
 	}
 	public void testConvertToModule() throws CoreException, IOException {

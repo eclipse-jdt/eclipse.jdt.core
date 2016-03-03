@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -338,6 +339,25 @@ public abstract class ModuleEnvironment implements INameEnvironment {
 		public IService[] provides() {
 			return this.provides();
 		}
+		public boolean equals(Object o) {
+			if (this == o)
+				return true;
+			if (!(o instanceof IModule))
+				return false;
+			IModule mod = (IModule) o;
+			if (!CharOperation.equals(this.name, mod.name()))
+				return false;
+			return Arrays.equals(this.requires, mod.requires());
+		}
+		@Override
+		public int hashCode() {
+			int result = 17;
+			int c = this.name.hashCode();
+			result = 31 * result + c;
+			c =  Arrays.hashCode(this.requires);
+			result = 31 * result + c;
+			return result;
+		}
 		public String toString() {
 			StringBuffer buffer = new StringBuffer(getClass().getName());
 			toStringContent(buffer);
@@ -391,7 +411,20 @@ public abstract class ModuleEnvironment implements INameEnvironment {
 		public boolean isPublic() {
 			return this.isPublic;
 		}
-		
+		public boolean equals(Object o) {
+			if (this == o) 
+				return true;
+			if (!(o instanceof IModule.IModuleReference))
+				return false;
+			IModule.IModuleReference mod = (IModule.IModuleReference) o;
+			if (this.isPublic != mod.isPublic())
+				return false;
+			return CharOperation.equals(this.name, mod.name(), false);
+		}
+		@Override
+		public int hashCode() {
+			return this.name.hashCode();
+		}
 	}
 	static class PackageExport implements IModule.IPackageExport {
 		char[] pack;

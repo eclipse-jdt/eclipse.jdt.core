@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
+import java.util.Arrays;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 
@@ -144,6 +146,20 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 		public boolean isPublic() {
 			return this.isPublic;
 		}
+		public boolean equals(Object o) {
+			if (this == o) 
+				return true;
+			if (!(o instanceof IModule.IModuleReference))
+				return false;
+			IModule.IModuleReference mod = (IModule.IModuleReference) o;
+			if (this.isPublic != mod.isPublic())
+				return false;
+			return CharOperation.equals(this.refName, mod.name(), false);
+		}
+		@Override
+		public int hashCode() {
+			return this.refName.hashCode();
+		}
 	}
 	class PackageExportInfo implements IModule.IPackageExport {
 		char[] packageName;
@@ -187,6 +203,25 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 		public char[] with() {
 			return this.with;
 		}
+	}
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (!(o instanceof IModule))
+			return false;
+		IModule mod = (IModule) o;
+		if (!CharOperation.equals(this.name, mod.name()))
+			return false;
+		return Arrays.equals(this.requires, mod.requires());
+	}
+	@Override
+	public int hashCode() {
+		int result = 17;
+		int c = this.name.hashCode();
+		result = 31 * result + c;
+		c =  Arrays.hashCode(this.requires);
+		result = 31 * result + c;
+		return result;
 	}
 	public String toString() {
 		StringBuffer buffer = new StringBuffer(getClass().getName());

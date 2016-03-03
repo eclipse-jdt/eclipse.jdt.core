@@ -34,6 +34,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
@@ -537,6 +538,19 @@ public class DeltaProcessor {
 					javaProject = (JavaProject)JavaCore.create(file.getProject());
 					javaProject.resetResolvedClasspath();
 					this.state.rootsAreStale = true;
+				} else if (file.getName().toLowerCase().contains(new String(TypeConstants.MODULE_INFO_FILE_NAME))) {
+					switch(kind) {
+						case IResourceDelta.CHANGED :
+							int flags = delta.getFlags();
+							if ((flags & IResourceDelta.CONTENT) == 0)
+								break;
+							//$FALL-THROUGH$
+						case IResourceDelta.ADDED :
+						case IResourceDelta.REMOVED :
+							javaProject = (JavaProject)JavaCore.create(file.getProject());
+							this.manager.removePerProjectInfo(javaProject, false);
+							this.state.rootsAreStale = true;
+					}
 				}
 				break;
 

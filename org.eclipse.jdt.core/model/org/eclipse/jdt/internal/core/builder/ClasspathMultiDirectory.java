@@ -54,6 +54,9 @@ public boolean equals(Object o) {
 	if (!(o instanceof ClasspathMultiDirectory)) return false;
 
 	ClasspathMultiDirectory md = (ClasspathMultiDirectory) o;
+	if (this.module != md.module)
+		if (this.module == null || !this.module.equals(md.module))
+			return false;
 	return this.ignoreOptionalProblems == md.ignoreOptionalProblems 
 		&& this.sourceFolder.equals(md.sourceFolder) && this.binaryFolder.equals(md.binaryFolder)
 		&& CharOperation.equals(this.inclusionPatterns, md.inclusionPatterns)

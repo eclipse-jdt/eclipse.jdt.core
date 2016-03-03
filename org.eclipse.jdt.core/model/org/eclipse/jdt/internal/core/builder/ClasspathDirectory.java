@@ -157,6 +157,9 @@ public boolean equals(Object o) {
 	if (this.accessRuleSet != dir.accessRuleSet)
 		if (this.accessRuleSet == null || !this.accessRuleSet.equals(dir.accessRuleSet))
 			return false;
+	if (this.module != dir.module)
+		if (this.module == null || !this.module.equals(dir.module))
+			return false;
 	return this.binaryFolder.equals(dir.binaryFolder);
 }
 
