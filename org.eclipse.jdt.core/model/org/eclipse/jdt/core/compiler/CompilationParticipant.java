@@ -112,11 +112,16 @@ public boolean isActive(IJavaProject project) {
 }
 
 /**
- * Returns whether this participant is interested in only Annotations.
+ * Returns whether this participant is interested in Annotations.
+ * <p>
+ * Returning <code>true</code> enables the callback {@link #processAnnotations(BuildContext[])}, where this
+ * participant can influence build results.
+ * </p>
  * <p>
  * Default is to return <code>false</code>.
  * </p>
- * @return whether this participant is interested in only Annotations.
+ * 
+ * @return whether this participant is interested in Annotations
  */
 public boolean isAnnotationProcessor() {
 	return false;
@@ -124,7 +129,7 @@ public boolean isAnnotationProcessor() {
 
 /**
  * Notifies this participant that a compile operation has found source files using Annotations.
- * Only sent to participants interested in the current build project that answer true to isAnnotationProcessor().
+ * Only sent to participants interested in the current build project that answer true to {@link #isAnnotationProcessor()}.
  * Each BuildContext was informed whether its source file currently hasAnnotations().
  *
  * @param files is an array of BuildContext
