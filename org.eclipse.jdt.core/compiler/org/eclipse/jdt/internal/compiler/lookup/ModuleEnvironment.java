@@ -182,6 +182,7 @@ public abstract class ModuleEnvironment implements INameEnvironment {
 			if (client != null) set.add(client);
 			client = getModule(mod);
 			if (client != null) {
+				set.add(client);
 				collectAllVisibleModules(client, set, false);
 				targets = set.toArray(new IModule[set.size()]);
 			}
