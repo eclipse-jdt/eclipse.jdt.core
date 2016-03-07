@@ -99,6 +99,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
+import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
 import org.eclipse.jdt.internal.compiler.util.Messages;
@@ -961,7 +963,27 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 		}
 		if (deserializeLambdaMethod != null) {
-			addSyntheticDeserializeLambda(deserializeLambdaMethod,this.referenceBinding.syntheticMethods()); 
+			int problemResetPC = 0;
+			this.codeStream.wideMode = false;
+			boolean restart = false;
+			do {
+				try {
+					problemResetPC = this.contentsOffset;
+					addSyntheticDeserializeLambda(deserializeLambdaMethod,this.referenceBinding.syntheticMethods()); 
+					restart = false;
+				} catch (AbortMethod e) {
+					// Restart code generation if possible ...
+					if (e.compilationResult == CodeStream.RESTART_IN_WIDE_MODE) {
+						// a branch target required a goto_w, restart code generation in wide mode.
+						this.contentsOffset = problemResetPC;
+						this.methodCount--;
+						this.codeStream.resetInWideMode(); // request wide mode
+						restart = true;
+					} else {
+						throw new AbortType(this.referenceBinding.scope.referenceContext.compilationResult, e.problem);
+					}
+				}
+			} while (restart);
 		}
 	}
 
@@ -3460,6 +3482,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 		generateCodeAttributeHeader();
 		this.codeStream.init(this);
 		this.codeStream.generateSyntheticBodyForDeserializeLambda(methodBinding, syntheticMethodBindings);
+		int code_length = this.codeStream.position;
+		if (code_length > 65535) {
+			this.referenceBinding.scope.problemReporter().bytecodeExceeds64KLimit(
+				methodBinding, this.referenceBinding.sourceStart(), this.referenceBinding.sourceEnd());
+		}
 		completeCodeAttributeForSyntheticMethod(
 			methodBinding,
 			codeAttributeOffset,

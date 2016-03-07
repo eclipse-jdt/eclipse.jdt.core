@@ -9920,6 +9920,109 @@ public void testBug487390b() {
 		"Lambda expression\'s signature does not match the signature of the functional interface method consume()\n" + 
 		"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=458332, [1.8][compiler] only 409 method references/lambda expressions per class possible
+public void testBug458332() {
+	runNegativeTest(
+		new String[] {
+			"Test.java",
+			"import java.io.Serializable;\n" + 
+			"import java.util.function.Consumer;\n" + 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(Data.part1().length);\n" + 
+			"		System.out.println(Data.part2().length);\n" + 
+			"	}\n" + 
+			"	@FunctionalInterface\n" + 
+			"	private static interface MethodRef extends Consumer<String[]>, Serializable {}\n" + 
+			"	private static class Data {\n" + 
+			"		static MethodRef[] part1() {\n" + 
+			"			return new MethodRef[] {\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"				};\n" + 
+			"		}\n" + 
+			"		static MethodRef[] part2() {\n" + 
+			"			return new MethodRef[] {\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"					Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main, Test::main,\n" + 
+			"				};\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 10)\n" + 
+		"	private static class Data {\n" + 
+		"	                     ^^^^\n" + 
+		"The code of method $deserializeLambda$(SerializedLambda) is exceeding the 65535 bytes limit\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }

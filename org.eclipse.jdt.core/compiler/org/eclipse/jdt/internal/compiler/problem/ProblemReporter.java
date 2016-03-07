@@ -1133,6 +1133,15 @@ public void boundMustBeAnInterface(ASTNode location, TypeBinding type) {
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void bytecodeExceeds64KLimit(MethodBinding method, int start, int end) {
+	this.handle(
+		IProblem.BytecodeExceeds64KLimit,
+		new String[] {new String(method.selector), typesAsString(method, false)},
+		new String[] {new String(method.selector), typesAsString(method, true)},
+		ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
+		start,
+		end);
+}
 public void bytecodeExceeds64KLimit(AbstractMethodDeclaration location) {
 	MethodBinding method = location.binding;
 	if (location.isConstructor()) {
@@ -1144,24 +1153,11 @@ public void bytecodeExceeds64KLimit(AbstractMethodDeclaration location) {
 			location.sourceStart,
 			location.sourceEnd);
 	} else {
-		this.handle(
-			IProblem.BytecodeExceeds64KLimit,
-			new String[] {new String(location.selector), typesAsString(method, false)},
-			new String[] {new String(location.selector), typesAsString(method, true)},
-			ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
-			location.sourceStart,
-			location.sourceEnd);
+		bytecodeExceeds64KLimit(method,	location.sourceStart, location.sourceEnd);
 	}
 }
 public void bytecodeExceeds64KLimit(LambdaExpression location) {
-	MethodBinding method = location.binding;
-		this.handle(
-			IProblem.BytecodeExceeds64KLimit,
-			new String[] {new String(method.selector), typesAsString(method, false)},
-			new String[] {new String(method.selector), typesAsString(method, true)},
-			ProblemSeverities.Error | ProblemSeverities.Abort | ProblemSeverities.Fatal,
-			location.sourceStart,
-			location.diagnosticsSourceEnd());
+	bytecodeExceeds64KLimit(location.binding, location.sourceStart, location.diagnosticsSourceEnd());
 }
 public void bytecodeExceeds64KLimit(TypeDeclaration location) {
 	this.handle(
