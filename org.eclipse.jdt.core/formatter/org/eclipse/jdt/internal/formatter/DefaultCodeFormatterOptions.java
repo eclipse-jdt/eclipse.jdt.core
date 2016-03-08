@@ -153,6 +153,17 @@ public class DefaultCodeFormatterOptions {
 	public String brace_position_for_type_declaration;
 	public String brace_position_for_switch;
 
+	public String parenthesis_positions_in_method_declaration;
+	public String parenthesis_positions_in_method_invocation;
+	public String parenthesis_positions_in_enum_constant_declaration;
+	public String parenthesis_positions_in_if_while_statement;
+	public String parenthesis_positions_in_for_statement;
+	public String parenthesis_positions_in_switch_statement;
+	public String parenthesis_positions_in_try_clause;
+	public String parenthesis_positions_in_catch_clause;
+	public String parenthesis_positions_in_annotation;
+	public String parenthesis_positions_in_lambda_declaration;
+
 	public int continuation_indentation;
 	public int continuation_indentation_for_array_initializer;
 
@@ -470,6 +481,16 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_TYPE_DECLARATION, this.brace_position_for_type_declaration);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_LAMBDA_BODY, this.brace_position_for_lambda_body);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_SWITCH, this.brace_position_for_switch);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_DECLARATION, this.parenthesis_positions_in_method_declaration);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_INVOCATION, this.parenthesis_positions_in_method_invocation);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_ENUM_CONSTANT_DECLARATION, this.parenthesis_positions_in_enum_constant_declaration);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_IF_WHILE_STATEMENT, this.parenthesis_positions_in_if_while_statement);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_FOR_STATEMENT, this.parenthesis_positions_in_for_statement);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_SWITCH_STATEMENT, this.parenthesis_positions_in_switch_statement);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_TRY_CLAUSE, this.parenthesis_positions_in_try_clause);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_CATCH_CLAUSE, this.parenthesis_positions_in_catch_clause);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_ANNOTATION, this.parenthesis_positions_in_annotation);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_LAMBDA_DECLARATION, this.parenthesis_positions_in_lambda_declaration);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_BLOCK_COMMENT, this.comment_clear_blank_lines_in_block_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_CLEAR_BLANK_LINES_IN_JAVADOC_COMMENT, this.comment_clear_blank_lines_in_javadoc_comment ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_COMMENT_NEW_LINES_AT_BLOCK_BOUNDARIES, this.comment_new_lines_at_block_boundaries ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
@@ -1088,6 +1109,48 @@ public class DefaultCodeFormatterOptions {
 				this.brace_position_for_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 			}
 		}
+
+		final Object closingParenPositionInMethodDeclaration = settings.get(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_DECLARATION);
+		if (closingParenPositionInMethodDeclaration != null) {
+			this.parenthesis_positions_in_method_declaration = toString(closingParenPositionInMethodDeclaration, DefaultCodeFormatterConstants.COMMON_LINES);
+		}
+		final Object closingParenPositionInMethodInvocation = settings.get(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_INVOCATION);
+		if (closingParenPositionInMethodInvocation != null) {
+			this.parenthesis_positions_in_method_invocation = toString(closingParenPositionInMethodInvocation, DefaultCodeFormatterConstants.COMMON_LINES);
+		}
+		final Object closingParenPositionInEnumConstantDeclaration = settings.get(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_ENUM_CONSTANT_DECLARATION);
+		if (closingParenPositionInEnumConstantDeclaration != null) {
+			this.parenthesis_positions_in_enum_constant_declaration = toString(closingParenPositionInEnumConstantDeclaration, DefaultCodeFormatterConstants.COMMON_LINES);
+		}
+		final Object closingParenPositionInIfWhileStatement = settings.get(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_IF_WHILE_STATEMENT);
+		if (closingParenPositionInIfWhileStatement != null) {
+			this.parenthesis_positions_in_if_while_statement = toString(closingParenPositionInIfWhileStatement, DefaultCodeFormatterConstants.COMMON_LINES);
+		}
+		final Object closingParenPositionInForStatement = settings.get(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_FOR_STATEMENT);
+		if (closingParenPositionInForStatement != null) {
+			this.parenthesis_positions_in_for_statement = toString(closingParenPositionInForStatement, DefaultCodeFormatterConstants.COMMON_LINES);
+		}
+		final Object closingParenPositionInSwitchStatement = settings.get(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_SWITCH_STATEMENT);
+		if (closingParenPositionInSwitchStatement != null) {
+			this.parenthesis_positions_in_switch_statement = toString(closingParenPositionInSwitchStatement, DefaultCodeFormatterConstants.COMMON_LINES);
+		}
+		final Object closingParenPositionInTryClause = settings.get(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_TRY_CLAUSE);
+		if (closingParenPositionInTryClause != null) {
+			this.parenthesis_positions_in_try_clause = toString(closingParenPositionInTryClause, DefaultCodeFormatterConstants.COMMON_LINES);
+		}
+		final Object closingParenPositionInCatchClause = settings.get(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_CATCH_CLAUSE);
+		if (closingParenPositionInCatchClause != null) {
+			this.parenthesis_positions_in_catch_clause = toString(closingParenPositionInCatchClause, DefaultCodeFormatterConstants.COMMON_LINES);
+		}
+		final Object closingParenPositionInAnnotation = settings.get(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_ANNOTATION);
+		if (closingParenPositionInAnnotation != null) {
+			this.parenthesis_positions_in_annotation = toString(closingParenPositionInAnnotation, DefaultCodeFormatterConstants.COMMON_LINES);
+		}
+		final Object closingParenPositionInLambdaDeclaration = settings.get(DefaultCodeFormatterConstants.FORMATTER_PARENTHESES_POSITIONS_IN_LAMBDA_DECLARATION);
+		if (closingParenPositionInLambdaDeclaration != null) {
+			this.parenthesis_positions_in_lambda_declaration = toString(closingParenPositionInLambdaDeclaration, DefaultCodeFormatterConstants.COMMON_LINES);
+		}
+
 		final Object continuationIndentationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_CONTINUATION_INDENTATION);
 		if (continuationIndentationOption != null) {
 			try {
@@ -2224,6 +2287,12 @@ public class DefaultCodeFormatterOptions {
 		return defaultValue;
 	}
 
+	private String toString(Object value, String defaultValue) {
+		if (value instanceof String)
+			return (String) value;
+		return defaultValue;
+	}
+
 	/**
 	 * This method is used to handle deprecated preferences which might be replaced by
 	 * one or more preferences.
@@ -2362,6 +2431,16 @@ public class DefaultCodeFormatterOptions {
 		this.brace_position_for_method_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_switch = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.parenthesis_positions_in_method_declaration = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_method_invocation = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_enum_constant_declaration = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_if_while_statement = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_for_statement = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_switch_statement = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_try_clause = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_catch_clause = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_annotation = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_lambda_declaration = DefaultCodeFormatterConstants.COMMON_LINES;
 		this.comment_clear_blank_lines_in_block_comment = false;
 		this.comment_clear_blank_lines_in_javadoc_comment = false;
 		this.comment_format_block_comment = true;
@@ -2658,6 +2737,16 @@ public class DefaultCodeFormatterOptions {
 		this.brace_position_for_method_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_type_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_switch = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.parenthesis_positions_in_method_declaration = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_method_invocation = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_enum_constant_declaration = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_if_while_statement = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_for_statement = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_switch_statement = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_try_clause = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_catch_clause = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_annotation = DefaultCodeFormatterConstants.COMMON_LINES;
+		this.parenthesis_positions_in_lambda_declaration = DefaultCodeFormatterConstants.COMMON_LINES;
 		this.comment_clear_blank_lines_in_block_comment = false;
 		this.comment_clear_blank_lines_in_javadoc_comment = false;
 		this.comment_format_block_comment = true;
