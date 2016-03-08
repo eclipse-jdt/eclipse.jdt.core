@@ -141,7 +141,7 @@ public class Util {
    }
 
 public static void appendProblem(StringBuffer problems, IProblem problem, char[] source, int problemCount) {
-    problems.append(problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
+    problems.append(problemCount + (problem.isError() ? ". ERROR" : problem.isWarning() ? ". WARNING" : ". INFO"));
     problems.append(" in " + new String(problem.getOriginatingFileName()));
     if (source != null) {
         problems.append(((DefaultProblem)problem).errorReportSource(source));
@@ -1397,7 +1397,7 @@ public static String getProblemLog(CompilationResult compilationResult, boolean 
 				if (problemCount == 0)
 					buffer.append("----------\n");
 				problemCount++;
-				buffer.append(problemCount + (problem.isError() ? ". ERROR" : ". WARNING"));
+				buffer.append(problemCount + (problem.isError() ? ". ERROR" : problem.isWarning() ? ". WARNING" : ". INFO"));
 				buffer.append(" in " + new String(problem.getOriginatingFileName()).replace('/', '\\'));
 				try {
 					buffer.append(problem.errorReportSource(unitSource));

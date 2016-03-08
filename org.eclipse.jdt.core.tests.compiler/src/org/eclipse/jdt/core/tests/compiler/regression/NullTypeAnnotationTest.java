@@ -3100,7 +3100,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	       ^^^^\n" + 
 			"Null type mismatch: required \'@NonNull ? extends @NonNull String\' but the provided value is null\n" + 
 			"----------\n" + 
-			"3. WARNING in X.java (at line 10)\n" + 
+			"3. INFO in X.java (at line 10)\n" + 
 			"	@NonNull String s = ls.get(0);\n" + 
 			"	                    ^^^^^^^^^\n" + 
 			"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<@NonNull capture#of ? extends @NonNull String>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
@@ -3426,7 +3426,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			},
 			getCompilerOptions(),
 			"----------\n" + 
-			"1. WARNING in X.java (at line 6)\n" + 
+			"1. INFO in X.java (at line 6)\n" + 
 			"	return l.get(0);\n" + 
 			"	       ^^^^^^^^\n" + 
 			"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull List<@NonNull T>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
@@ -4435,7 +4435,7 @@ public void testTypeBounds1() {
 		"	        ^^^^\n" + 
 		"Null type mismatch: required \'? extends @NonNull A\' but the provided value is null\n" + 
 		"----------\n" + 
-		"2. WARNING in C.java (at line 14)\n" + 
+		"2. INFO in C.java (at line 14)\n" + 
 		"	return la1.get(0); // OK\n" + 
 		"	       ^^^^^^^^^^\n" + 
 		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<capture#of ? extends @NonNull A>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
@@ -4983,7 +4983,7 @@ public void testDefault07() {
 		},
 		getCompilerOptions(),
 		"----------\n" + 
-		"1. WARNING in X.java (at line 8)\n" + 
+		"1. INFO in X.java (at line 8)\n" + 
 		"	@NonNull Number n = l.get(0); // OK\n" + 
 		"	                    ^^^^^^^^\n" + 
 		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<capture#of ? extends @NonNull Number>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
@@ -6710,12 +6710,12 @@ public void testBug441693other() {
 		},
 		getCompilerOptions(),
 		"----------\n" + 
-		"1. WARNING in Foo.java (at line 17)\n" + 
+		"1. INFO in Foo.java (at line 17)\n" + 
 		"	return requireNonNull(foos).get(0);\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull List<capture#of ? extends @NonNull Foo>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
 		"----------\n" + 
-		"2. WARNING in Foo.java (at line 20)\n" + 
+		"2. INFO in Foo.java (at line 20)\n" + 
 		"	return requireNonNull(foos.get(0)).get(0);\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<@NonNull Foo>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
@@ -8086,7 +8086,7 @@ public void testBug455180() {
     		"	         ^^^^^^^^^^^\n" + 
     		"GenericType is a raw type. References to generic type GenericType<T> should be parameterized\n" + 
     		"----------\n" + 
-    		"2. WARNING in projB\\ClassThatImports.java (at line 7)\n" + 
+    		"2. INFO in projB\\ClassThatImports.java (at line 7)\n" + 
     		"	@NonNull GenericType gt = cwru.method().get(0);\n" + 
     		"	                          ^^^^^^^^^^^^^^^^^^^^\n" + 
     		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull List<@NonNull GenericType>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
@@ -8386,7 +8386,7 @@ public void testBug456584() {
 		},
 		compilerOptions,
 		"----------\n" + 
-		"1. WARNING in Test.java (at line 9)\n" + 
+		"1. INFO in Test.java (at line 9)\n" + 
 		"	return Objects.requireNonNull(function.apply(input));\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unsafe interpretation of method return type as \'@NonNull\' based on substitution \'T=@NonNull capture#of ? extends R\'. Declaring type \'Objects\' doesn\'t seem to be designed with null type annotations in mind\n" + 
@@ -12183,6 +12183,47 @@ public void testBug489978() {
 		}, 
 		getCompilerOptions(),
 		""
+	);
+}
+public void testBug489245() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_PessimisticNullAnalysisForFreeTypeVariables, JavaCore.INFO);
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/TestBogusProblemReportOnlyAsInfo.java",
+			"package test;\n" +
+			"\n" +
+			"import java.util.function.Supplier;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class TestBogusProblemReportOnlyAsInfo {\n" +
+			"	static <U> void get(Supplier<U> supplier, @NonNull U defaultValue) {\n" +
+			"	}\n" +
+			"\n" +
+			"	static void f() {\n" +
+			"		get(() -> {\n" +
+			"			return null; // bogus problem report only as info\n" +
+			"		}, \"\");\n" +
+			"	}\n" +
+			"\n" +
+			"	static <T> void h(@NonNull T t) {\n" +
+			"		get(() -> {\n" +
+			"			return null; // correctly reported (but twice with the bug)\n" +
+			"		}, t);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		compilerOptions,
+		"----------\n" + 
+		"1. INFO in test\\TestBogusProblemReportOnlyAsInfo.java (at line 21)\n" + 
+		"	return null; // correctly reported (but twice with the bug)\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch (type annotations): \'null\' is not compatible to the free type variable \'T\'\n" + 
+		"----------\n"
 	);
 }
 }
