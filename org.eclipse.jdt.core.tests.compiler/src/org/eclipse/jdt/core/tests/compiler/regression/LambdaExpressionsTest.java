@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.core.util.BootstrapMethodsAttribute;
 
 import junit.framework.Test;
 
@@ -5929,6 +5930,35 @@ public void testBug487586() {
 		"	                   ^^^^^^^^^^^^^^^\n" + 
 		"The target type of this expression must be a functional interface\n" + 
 		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=452587 Java 8: Method references to the same method do not share BootstrapMethod
+public void testBug452587() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			" public class Test {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"      Runnable m = Test::m;\n" + 
+			"      Runnable n = Test::m;\n" + 
+			"      Runnable o = Test::m;\n" + 
+			"      Runnable p = Test::m;\n" + 
+			"      Runnable q = Test::m;\n" + 
+			"    }\n" + 
+			"    public static void m() {}\n" + 
+			"  }\n"
+	});
+	IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "Test.class", IClassFileReader.ALL);
+	BootstrapMethodsAttribute bootstrapMethodsAttribute = null;
+	IClassFileAttribute[] attrs = classFileReader.getAttributes();
+	for (int i=0,max=attrs.length;i<max;i++) {
+		if (new String(attrs[i].getAttributeName()).equals("BootstrapMethods")) {
+			bootstrapMethodsAttribute = (BootstrapMethodsAttribute)attrs[i];
+			break;
+		}
+	}
+	assertNotNull("BootstrapMethods attribute not found", bootstrapMethodsAttribute);
+	int bmaLength = bootstrapMethodsAttribute.getBootstrapMethodsLength();
+	assertEquals("Incorrect number of bootstrap methods found", 1, bmaLength);
 }
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
