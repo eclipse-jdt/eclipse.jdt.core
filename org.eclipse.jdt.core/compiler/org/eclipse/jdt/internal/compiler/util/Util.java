@@ -908,7 +908,9 @@ public class Util implements SuffixConstants {
 	 * implementation is not creating extra strings.
 	 */
 	public final static boolean isJimageName(String name) {
-		int nameLength = name == null ? 0 : name.length();
+		if (name.endsWith(JimageUtil.JRT_FS_JAR))
+			return true;
+		int nameLength = name.length();
 		int suffixLength = SUFFIX_JIMAGE.length;
 		if (nameLength < suffixLength) return false;
 

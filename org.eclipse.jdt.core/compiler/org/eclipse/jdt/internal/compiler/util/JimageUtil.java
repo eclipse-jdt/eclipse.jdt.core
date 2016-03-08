@@ -50,7 +50,7 @@ public class JimageUtil {
 	static final String MULTIPLE = "MU"; //$NON-NLS-1$
 	static final String DEFAULT_PACKAGE = ""; //$NON-NLS-1$
 	static final String MODULES_ON_DEMAND = System.getProperty("modules"); //$NON-NLS-1$
-	static final String JRT_FS_JAR = "jrt-fs.jar"; //$NON-NLS-1$
+	public static final String JRT_FS_JAR = "jrt-fs.jar"; //$NON-NLS-1$
 	static URI JRT_URI = URI.create("jrt:/"); //$NON-NLS-1$
 	public static int NOTIFY_FILES = 0x0001;
 	public static int NOTIFY_PACKAGES = 0x0002;
@@ -126,8 +126,6 @@ public class JimageUtil {
 	/**
 	 * Given the path of a modular image file, this method walks the archive content and
 	 * notifies the supplied visitor about packages and files visited.
-	 * Note: At the moment, there's no way to open any arbitrary image. Currently,
-	 * this method uses the JRT file system provider to look inside the JRE.
 	 *
 	 * The file system contains the following top level directories:
 	 *  /modules/$MODULE/$PATH
@@ -136,7 +134,7 @@ public class JimageUtil {
 	 *  this method only notifies its clients of the entries within the modules sub-directory. The
 	 *  clients can decide which notifications they want to receive. See {@link JimageUtil#NOTIFY_ALL},
 	 *  {@link JimageUtil#NOTIFY_FILES}, {@link JimageUtil#NOTIFY_PACKAGES} and {@link JimageUtil#NOTIFY_MODULES}.
-	 *  
+	 *
 	 * @param image a java.io.File handle to the JRT image.
 	 * @param visitor an instance of JimageVisitor to be notified of the entries in the JRT image.
 	 * @param notify flag indicating the notifications the client is interested in.
@@ -174,8 +172,15 @@ class JimageFileSystem {
 		initialize(image);
 	}
 	void initialize(File image) throws IOException {
-		String jdkHome = image.getParentFile().getParentFile().getParent();
-		URL url = Paths.get(jdkHome, JimageUtil.JRT_FS_JAR).toUri().toURL();
+		URL url = null;
+		if (image.toString().endsWith(JimageUtil.JRT_FS_JAR)) {
+			url = image.toPath().toUri().toURL();
+		} else if (image.isDirectory()) {
+			url = image.toPath().toUri().toURL();
+		} else {
+			String jdkHome = image.getParentFile().getParentFile().getParent();
+			url = Paths.get(jdkHome, JimageUtil.JRT_FS_JAR).toUri().toURL();
+		}
 		URLClassLoader loader = new URLClassLoader(new URL[] { url });
 		HashMap<String, ?> env = new HashMap<>();
 		this.jrt = FileSystems.newFileSystem(JimageUtil.JRT_URI, env, loader);

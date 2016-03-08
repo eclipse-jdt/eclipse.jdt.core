@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -128,6 +128,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
+import org.eclipse.jdt.internal.compiler.util.JimageUtil;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.JavaProjectElementInfo.ProjectCache;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
@@ -2708,6 +2709,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public static boolean isJimage(IPath path) {
 		if (path.getFileExtension() != null && path.getFileExtension().equalsIgnoreCase(JIMAGE_EXT)) {
+			return true;
+		}
+		if (path.toString().endsWith(JimageUtil.JRT_FS_JAR)) {
 			return true;
 		}
 		return false;
