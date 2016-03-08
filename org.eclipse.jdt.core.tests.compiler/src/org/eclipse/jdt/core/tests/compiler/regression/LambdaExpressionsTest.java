@@ -5960,6 +5960,40 @@ public void testBug452587() {
 	int bmaLength = bootstrapMethodsAttribute.getBootstrapMethodsLength();
 	assertEquals("Incorrect number of bootstrap methods found", 1, bmaLength);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=485529 [1.8][compiler] Verify error with constructor reference to nested class constructor
+public void testBug485529() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"	X makeX(int x);\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"		class Y extends X {\n" + 
+			"			class Z extends X  {\n" + 
+			"				private Z(int z) {\n" + 
+			"				}\n" + 
+			"				private Z() {}\n" + 
+			"			}\n" + 
+			"			private Y(int y) {\n" + 
+			"			}\n" + 
+			"			 Y() {\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		I i = Y :: new;\n" + 
+			"	private X(int x) {\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	X() {\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new X();\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"}"
+	},
+	"");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

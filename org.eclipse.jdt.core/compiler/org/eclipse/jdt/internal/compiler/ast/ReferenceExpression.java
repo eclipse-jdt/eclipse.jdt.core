@@ -343,6 +343,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 				}
 				if (this.syntheticAccessor != null) {
 					this.binding = sourceType.addSyntheticFactoryMethod(this.binding, this.syntheticAccessor, enclosingInstances);
+					this.syntheticAccessor = null; // add only once
 				}
 			}
 		}
