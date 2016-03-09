@@ -992,7 +992,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		final MethodBinding sam = targetType.getSingleAbstractMethod(this.enclosingScope, true);
 		if (sam == null || !sam.isValidBinding())
 			return false;
-		if (this.typeArgumentsHaveErrors || this.lhs.resolvedType == null || !this.lhs.resolvedType.isValidBinding())
+		if (this.typeArgumentsHaveErrors || this.receiverType == null || !this.receiverType.isValidBinding())
 			return false;
 		
 		int parametersLength = sam.parameters.length;

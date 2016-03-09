@@ -5994,6 +5994,57 @@ public void testBug485529() {
 	},
 	"");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=479284 [1.8][inference] fail to resolve matching types for lambda and method reference + NPE at build
+public void testBug479284() {
+	runNegativeTest(
+		new String[] {
+			"BadInferenceMars451.java",
+			"package bug.report;\n" + 
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Arrays;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Map;\n" + 
+			"import java.util.function.BinaryOperator;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"/**\n" + 
+			" * Problem is valid on Version: Mars.1 Release (4.5.1) Build id: 20150924-1200\n" + 
+			" */\n" + 
+			"public class BadInferenceMars451 {\n" + 
+			"	public static Map<Object, List<X>> BadInferenceMars451Casus1() {\n" + 
+			"		List<X> stuff = new ArrayList<>();\n" + 
+			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451::sum));\n" + 
+			"	}\n" + 
+			"	public static Map<Object, List<X>> BadInferenceMars451Casus1Fixed1() {\n" + 
+			"		List<X> stuff = new ArrayList<>();\n" + 
+			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), (BinaryOperator<List<X>>) BadInferenceMars451::sum));\n" + 
+			"	}\n" + 
+			"	public static Map<Object, List<X>> BadInferenceMars451Casus1Fixed2() {\n" + 
+			"		List<X> stuff = new ArrayList<>();\n" + 
+			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.<X> asList(t), BadInferenceMars451::sum));\n" + 
+			"	}\n" + 
+			"	/* \n" + 
+			"	 * Uncomment this to see eclipse crash at build\n" + 
+			"	 * this doesnt work but it should not crash the ide\n" + 
+			"	 */ \n" + 
+			"	public static Map<Object, List<X>> BadInferenceMars451Casus1Crash() {\n" + 
+			"		List<X> stuff = new ArrayList<>();\n" + 
+			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451<X>::sum));\n" + 
+			"	}\n" + 
+			"	public static <T> List<T> sum(List<T> l1, List<T> l2) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public static class X {\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in BadInferenceMars451.java (at line 31)\n" + 
+		"	return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451<X>::sum));\n" + 
+		"	                                                                                           ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The type BadInferenceMars451 is not generic; it cannot be parameterized with arguments <BadInferenceMars451.X>\n" + 
+		"----------\n");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
