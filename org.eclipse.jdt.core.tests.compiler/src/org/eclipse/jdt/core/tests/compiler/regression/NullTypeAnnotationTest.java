@@ -177,9 +177,16 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				  "@Target({METHOD,PARAMETER,LOCAL_VARIABLE,TYPE_USE})\n" +
 				  "public @interface Dummy {\n" +
 				  "}\n",
+				"p/List.java",
+				  "package p;\n" +
+				  "public interface List<T> {\n" +
+				  "	T get(int i);\n" + // avoid IProblem.NonNullTypeVariableFromLegacyMethod against unannotated j.u.List
+				  " void add(T e);\n" +
+				  " void add(int i, T e);\n" +
+				  "}\n",
 				"X.java",
 				  "import org.eclipse.jdt.annotation.*;\n" +
-				  "import java.util.List;\n" +
+				  "import p.List;\n" +
 				  "public class X {\n" +
 				  "    void foo(@Nullable List<@NonNull Object> l) {\n" +
 				  "        System.out.print(l.get(0).toString()); // problem: l may be null\n" +
@@ -189,7 +196,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				  "        System.out.print(l.get(0).toString()); // problem: l may be null\n" +
 				  "        l.add(0, null); // problem: cannot insert 'null' into this list\n" +
 				  "    }\n" +
-				  "    void bar2(@Dummy java.util.@Nullable List<java.lang.@NonNull Object> l2) {\n" +
+				  "    void bar2(@Dummy p.@Nullable List<java.lang.@NonNull Object> l2) {\n" +
 				  "        System.out.print(l2.get(0).toString()); // problem: l2 may be null\n" +
 				  "        l2.add(0, null); // problem: cannot insert 'null' into this list\n" +
 				  "    }\n" +
@@ -1313,9 +1320,16 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 		customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
 		runConformTestWithLibs(
 				new String[] {
+					"p/List.java",
+					"package p;\n" +
+					"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+					"public interface List<T> {\n" +
+					"	T get(int i);\n" + // avoid IProblem.NonNullTypeVariableFromLegacyMethod against unannotated j.u.List
+					"}\n",
 					"p/X1.java",
 					"package p;\n" +
-					"import java.util.*;\n" +
+					"import java.util.Map;\n" +
+					"import p.List;\n" +
 					"import org.eclipse.jdt.annotation.*;\n" +
 					"import static java.lang.annotation.ElementType.*;\n" +
 					"import java.lang.annotation.*;\n" +
@@ -2443,6 +2457,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	
 	// poly-null method
 	public void testNullTypeInference1() {
+		Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, CompilerOptions.IGNORE);
 		runNegativeTestWithLibs(
 			new String[] {
 				"X.java",
@@ -2464,7 +2480,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	}\n" +
 				"}\n"
 			},
-			getCompilerOptions(),
+			compilerOptions,
 			"----------\n" + 
 			"1. ERROR in X.java (at line 9)\n" + 
 			"	return polyNullMethod(strings).get(0);\n" + 
@@ -3083,6 +3099,11 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"	ls.add(null);\n" + 
 			"	       ^^^^\n" + 
 			"Null type mismatch: required \'@NonNull ? extends @NonNull String\' but the provided value is null\n" + 
+			"----------\n" + 
+			"3. WARNING in X.java (at line 10)\n" + 
+			"	@NonNull String s = ls.get(0);\n" + 
+			"	                    ^^^^^^^^^\n" + 
+			"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<@NonNull capture#of ? extends @NonNull String>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
 			"----------\n");
 	}
 
@@ -3405,12 +3426,17 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			},
 			getCompilerOptions(),
 			"----------\n" + 
-			"1. WARNING in X.java (at line 10)\n" + 
+			"1. WARNING in X.java (at line 6)\n" + 
+			"	return l.get(0);\n" + 
+			"	       ^^^^^^^^\n" + 
+			"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull List<@NonNull T>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
+			"----------\n" + 
+			"2. WARNING in X.java (at line 10)\n" + 
 			"	s.foo(new ArrayList<String>()); // (1)\n" + 
 			"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Null type safety (type annotations): The expression of type \'ArrayList<String>\' needs unchecked conversion to conform to \'@NonNull List<@NonNull String>\', corresponding supertype is 'List<String>'\n" + 
 			"----------\n" + 
-			"2. ERROR in X.java (at line 11)\n" + 
+			"3. ERROR in X.java (at line 11)\n" + 
 			"	s.foo(null); // (2)\n" + 
 			"	      ^^^^\n" + 
 			"Null type mismatch: required \'@NonNull List<@NonNull String>\' but the provided value is null\n" + 
@@ -4409,27 +4435,32 @@ public void testTypeBounds1() {
 		"	        ^^^^\n" + 
 		"Null type mismatch: required \'? extends @NonNull A\' but the provided value is null\n" + 
 		"----------\n" + 
-		"2. ERROR in C.java (at line 15)\n" + 
+		"2. WARNING in C.java (at line 14)\n" + 
+		"	return la1.get(0); // OK\n" + 
+		"	       ^^^^^^^^^^\n" + 
+		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<capture#of ? extends @NonNull A>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
+		"----------\n" + 
+		"3. ERROR in C.java (at line 15)\n" + 
 		"	la1 = lb2; // ERR2\n" + 
 		"	      ^^^\n" + 
 		"Null type mismatch (type annotations): required \'List<? extends @NonNull A>\' but this expression has type \'List<@Nullable B>\'\n" + 
 		"----------\n" + 
-		"3. ERROR in C.java (at line 17)\n" + 
+		"4. ERROR in C.java (at line 17)\n" + 
 		"	la2.add(null); // ERR3\n" + 
 		"	        ^^^^\n" + 
 		"Null type mismatch: required \'? extends @Nullable A\' but the provided value is null\n" + 
 		"----------\n" + 
-		"4. ERROR in C.java (at line 19)\n" + 
+		"5. ERROR in C.java (at line 19)\n" + 
 		"	return la2.get(0); // ERR4\n" + 
 		"	       ^^^^^^^^^^\n" + 
 		"Null type mismatch (type annotations): required \'@NonNull A\' but this expression has type \'capture#of ? extends @Nullable A\'\n" + 
 		"----------\n" + 
-		"5. ERROR in C.java (at line 25)\n" + 
+		"6. ERROR in C.java (at line 25)\n" + 
 		"	<T extends @Nullable A> T mExtends1(List<T> t) { return null; /*ERR5*/ }\n" + 
 		"	                                                        ^^^^\n" + 
 		"Null type mismatch: required \'T extends @Nullable A\' but the provided value is null\n" + 
 		"----------\n" + 
-		"6. ERROR in C.java (at line 26)\n" + 
+		"7. ERROR in C.java (at line 26)\n" + 
 		"	<T extends @NonNull A> T mExtends2(List<T> t) { return null; /*ERR6*/ }\n" + 
 		"	                                                       ^^^^\n" + 
 		"Null type mismatch: required \'T extends @NonNull A\' but the provided value is null\n" + 
@@ -4952,17 +4983,22 @@ public void testDefault07() {
 		},
 		getCompilerOptions(),
 		"----------\n" + 
-		"1. ERROR in X.java (at line 9)\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	@NonNull Number n = l.get(0); // OK\n" + 
+		"	                    ^^^^^^^^\n" + 
+		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<capture#of ? extends @NonNull Number>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 9)\n" + 
 		"	return null; // ERR\n" + 
 		"	       ^^^^\n" + 
 		"Null type mismatch: required \'T extends @NonNull Number\' but the provided value is null\n" + 
 		"----------\n" + 
-		"2. WARNING in X.java (at line 13)\n" + 
+		"3. WARNING in X.java (at line 13)\n" + 
 		"	@NonNull Number nnn = inner.process(Integer.valueOf(3), new ArrayList<@Nullable Integer>()); // WARN on 1. arg; ERR on 2. arg\n" + 
 		"	                                    ^^^^^^^^^^^^^^^^^^\n" + 
 		"Null type safety (type annotations): The expression of type \'Integer\' needs unchecked conversion to conform to \'@NonNull Integer\'\n" + 
 		"----------\n" + 
-		"3. ERROR in X.java (at line 13)\n" + 
+		"4. ERROR in X.java (at line 13)\n" + 
 		"	@NonNull Number nnn = inner.process(Integer.valueOf(3), new ArrayList<@Nullable Integer>()); // WARN on 1. arg; ERR on 2. arg\n" + 
 		"	                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Null type mismatch (type annotations): required \'List<? extends @NonNull Number>\' but this expression has type \'ArrayList<@Nullable Integer>\', corresponding supertype is \'List<@Nullable Integer>\'\n" + 
@@ -5976,6 +6012,8 @@ public void testTypeVariable18raw() {
 }
 // top-level annotation is overridden at use-site, details remain - parameterized type
 public void testTypeVariable19() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, CompilerOptions.IGNORE);
 	runNegativeTestWithLibs(
 		new String[] {
 			"X.java",
@@ -6004,7 +6042,7 @@ public void testTypeVariable19() {
 			"	}\n" + 
 			"}\n"
 		},
-		getCompilerOptions(),
+		compilerOptions,
 		"----------\n" + 
 		"1. ERROR in X.java (at line 15)\n" + 
 		"	case 0 : return i1.get0().get(0).toUpperCase(); // problem at detail\n" + 
@@ -6672,7 +6710,17 @@ public void testBug441693other() {
 		},
 		getCompilerOptions(),
 		"----------\n" + 
-		"1. ERROR in Foo.java (at line 20)\n" + 
+		"1. WARNING in Foo.java (at line 17)\n" + 
+		"	return requireNonNull(foos).get(0);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull List<capture#of ? extends @NonNull Foo>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
+		"----------\n" + 
+		"2. WARNING in Foo.java (at line 20)\n" + 
+		"	return requireNonNull(foos.get(0)).get(0);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<@NonNull Foo>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
+		"----------\n" + 
+		"3. ERROR in Foo.java (at line 20)\n" + 
 		"	return requireNonNull(foos.get(0)).get(0);\n" + 
 		"	                      ^^^^\n" + 
 		"Potential null pointer access: this expression has a \'@Nullable\' type\n" + 
@@ -8037,6 +8085,11 @@ public void testBug455180() {
     		"	@NonNull GenericType gt = cwru.method().get(0);\n" + 
     		"	         ^^^^^^^^^^^\n" + 
     		"GenericType is a raw type. References to generic type GenericType<T> should be parameterized\n" + 
+    		"----------\n" + 
+    		"2. WARNING in projB\\ClassThatImports.java (at line 7)\n" + 
+    		"	@NonNull GenericType gt = cwru.method().get(0);\n" + 
+    		"	                          ^^^^^^^^^^^^^^^^^^^^\n" + 
+    		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull List<@NonNull GenericType>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
     		"----------\n");
 }
 
@@ -8334,6 +8387,11 @@ public void testBug456584() {
 		compilerOptions,
 		"----------\n" + 
 		"1. WARNING in Test.java (at line 9)\n" + 
+		"	return Objects.requireNonNull(function.apply(input));\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unsafe interpretation of method return type as \'@NonNull\' based on substitution \'T=@NonNull capture#of ? extends R\'. Declaring type \'Objects\' doesn\'t seem to be designed with null type annotations in mind\n" + 
+		"----------\n" + 
+		"2. WARNING in Test.java (at line 9)\n" + 
 		"	return Objects.requireNonNull(function.apply(input));\n" + 
 		"	                              ^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Null type safety: required \'@NonNull\' but this expression has type \'capture#2-of ? extends R\', a free type variable that may represent a \'@Nullable\' type\n" + 
@@ -8951,6 +9009,8 @@ public void testBug481322a() {
 		"----------\n");
 }
 public void testBug477719() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, CompilerOptions.IGNORE);
 	runConformTestWithLibs(
 		new String[] {
 			"X.java",
@@ -8965,7 +9025,7 @@ public void testBug477719() {
 			"	}\n" +
 			"}\n"
 		},
-		getCompilerOptions(),
+		compilerOptions,
 		"");
 }
 public void testBug482247() {
@@ -9584,9 +9644,14 @@ public void testBug484981d() {
 	customOptions.put(JavaCore.COMPILER_PB_MISSING_SERIAL_VERSION, JavaCore.IGNORE);
 	runNegativeTestWithLibs(
 			new String[] {
+				"p/List.java",
+				"package p;\n" +
+				"public interface List<T> {\n" +
+				"	T get(int i);\n" + // avoid IProblem.NonNullTypeVariableFromLegacyMethod against unannotated j.u.List
+				"}\n",
 				"p/X1.java",
 				"package p;\n" +
-				"import java.util.*;\n" +
+				"import java.util.Map;\n" +
 				"import org.eclipse.jdt.annotation.*;\n" +
 				"import static java.lang.annotation.ElementType.*;\n" +
 				"import java.lang.annotation.*;\n" +
@@ -11212,6 +11277,102 @@ public void testBug466556Loops() {
 		"	^^\n" + 
 		"Potential null pointer access: this expression has type \'T\', a free type variable that may represent a \'@Nullable\' type\n" + 
 		"----------\n"
+	);
+}
+public void testBug461268() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, JavaCore.ERROR);
+	compilerOptions.put(CompilerOptions.OPTION_PessimisticNullAnalysisForFreeTypeVariables, JavaCore.IGNORE);
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import java.util.List;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	void test(List<@NonNull String> list) {\n" +
+			"		@NonNull String s = list.get(0);\n" +
+			"	}\n" +
+			"}\n"
+		},
+		compilerOptions,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	@NonNull String s = list.get(0);\n" + 
+		"	                    ^^^^^^^^^^^\n" + 
+		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'List<@NonNull String>\'. Type \'List<E>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
+		"----------\n");
+}
+public void testBug461268invoke() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, JavaCore.ERROR);
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import java.util.Map;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"	void test(Map<Object, @NonNull String> map) {\n" +
+			"		map.get(this).length();\n" +
+			"	}\n" +
+			"}\n"
+		},
+		compilerOptions,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 5)\n" + 
+		"	map.get(this).length();\n" + 
+		"	^^^^^^^^^^^^^\n" + 
+		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'Map<Object,@NonNull String>\'. Type \'Map<K,V>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
+		"----------\n");
+}
+public void testBug461268nnbd() {
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, JavaCore.ERROR);
+	runConformTestWithLibs(
+		new String[] {
+			"test2/Container.java",
+			"package test2;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Container<T> {\n" +
+			"	public static <T> T getFrom(Container<T> container) {\n" +
+			"		return container.get();\n" +
+			"	}\n" +
+			"\n" +
+			"	private final T t;\n" +
+			"\n" +
+			"	public Container(T t) {\n" +
+			"		this.t = t;\n" +
+			"	}\n" +
+			"\n" +
+			"	private T get() {\n" + // we really mean 'T' unannotated, believe it due to @NonNullByDefault
+			"		return this.t;\n" +
+			"	}\n" +
+			"}\n",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runConformTestWithLibs(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"import test2.Container;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Test {\n" +
+			"	String f(Container<String> c) {\n" +
+			"		return Container.getFrom(c);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
 	);
 }
 }

@@ -100,6 +100,7 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 			defaultOptions.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 
 			defaultOptions.put(CompilerOptions.OPTION_PessimisticNullAnalysisForFreeTypeVariables, JavaCore.ERROR);
+			defaultOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, JavaCore.WARNING);
 			
 			// leave other new options at these defaults:
 //			defaultOptions.put(CompilerOptions.OPTION_ReportNullContractViolation, JavaCore.ERROR);

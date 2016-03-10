@@ -382,6 +382,10 @@ public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flow
 		} else {
 			scope.problemReporter().messageSendPotentialNullReference(this.binding, this);
 		}
+	} else if ((this.resolvedType.tagBits & TagBits.AnnotationNonNull) != 0) {
+		NullAnnotationMatching nonNullStatus = NullAnnotationMatching.okNonNullStatus(this);
+		if (nonNullStatus.wantToReport())
+			nonNullStatus.report(scope);
 	}
 	return true; // done all possible checking
 }

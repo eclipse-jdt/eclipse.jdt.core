@@ -8114,7 +8114,11 @@ public void testBug462790() {
 		"Null type safety: The expression of type \'T\' needs unchecked conversion to conform to \'@NonNull T\'\n" + 
 		"----------\n"
 		:
-		""));
+		"3. WARNING in EclipseBug.java (at line 10)\n" + 
+		"	return commandType.newInstance();\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull Class<T extends @NonNull String>\'. Type \'Class<T>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
+		"----------\n"));
 }
 public void testBug459967_Enum_valueOf() {
 	runConformTestWithLibs(

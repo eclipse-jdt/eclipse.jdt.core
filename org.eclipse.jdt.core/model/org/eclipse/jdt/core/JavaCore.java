@@ -1866,6 +1866,30 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_NONNULL_PARAMETER_ANNOTATION_DROPPED = JavaCore.PLUGIN_ID+".compiler.problem.nonnullParameterAnnotationDropped"; //$NON-NLS-1$
+	/**
+	 * Compiler option ID: Reporting Unsafe NonNull Interpretation Of Type Variables.
+	 * <p>When enabled, the compiler will issue an error or a warning against a method call
+	 *    if all of the following hold:</p>
+	 * <ul>
+	 *    <li>The method's declared return type is a type variable without any null annotation.</li>
+	 *    <li>For the given invocation this type variable is substituted with a nonnull type.</li>
+	 *    <li>The type declaring the method is provided by a third-party library.</li>
+	 *    <li>No null annotations exist for this library type, neither in its class file nor using external annotations.</li>
+	 * </ul>
+	 * <p>This particular situation leverages the option to consistently substitute all occurrences of a type variable
+	 *  with a nonnull type, but it bears the risk that the library type may not be aware of null annotations thus lacking
+	 *  a necessary <code>@Nullable</code> annotation for a particular occurrence of a type variable.</p>   
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_NULL_ANALYSIS} is enabled and when
+	 *  the configured set of null annotations declares the target <code>TYPE_USE</code></p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.nonnullTypeVariableFromLegacyInvocation"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
+	 * </dl>
+	 * @since 3.12
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_NONNULL_TYPEVAR_FROM_LEGACY_INVOCATION = JavaCore.PLUGIN_ID+".compiler.problem.nonnullTypeVariableFromLegacyInvocation"; //$NON-NLS-1$
 
 	/**
 	 * Compiler option ID: Setting Source Compatibility Mode.

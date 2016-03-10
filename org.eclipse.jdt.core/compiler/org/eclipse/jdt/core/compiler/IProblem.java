@@ -1824,6 +1824,10 @@ void setSourceStart(int sourceStart);
 	int UninitializedFreeTypeVariableFieldHintMissingDefault = 978;
 	/** @since 3.12 */
 	int RequiredNonNullButProvidedFreeTypeVariable = TypeRelated + 979;
+	/** @since 3.12 */
+	int NonNullTypeVariableFromLegacyMethod = TypeRelated + 980;
+	/** @since 3.12 */
+	int NonNullMethodTypeVariableFromLegacyMethod = TypeRelated + 981;
 
 
 	// Java 8 work

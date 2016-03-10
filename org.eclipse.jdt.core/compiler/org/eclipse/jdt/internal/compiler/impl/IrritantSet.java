@@ -116,7 +116,8 @@ public class IrritantSet {
 				|CompilerOptions.NullUncheckedConversion
 				|CompilerOptions.RedundantNullAnnotation
 				|CompilerOptions.NonnullParameterAnnotationDropped
-				|CompilerOptions.PessimisticNullAnalysisForFreeTypeVariables);
+				|CompilerOptions.PessimisticNullAnalysisForFreeTypeVariables
+				|CompilerOptions.NonNullTypeVariableFromLegacyInvocation);
 		// default errors IF AnnotationBasedNullAnalysis is enabled:
 		COMPILER_DEFAULT_ERRORS.set(
 				CompilerOptions.NullSpecViolation
@@ -136,7 +137,8 @@ public class IrritantSet {
 			.set(CompilerOptions.RedundantNullAnnotation)
 			.set(CompilerOptions.NonnullParameterAnnotationDropped)
 			.set(CompilerOptions.MissingNonNullByDefaultAnnotation)
-			.set(CompilerOptions.PessimisticNullAnalysisForFreeTypeVariables);
+			.set(CompilerOptions.PessimisticNullAnalysisForFreeTypeVariables)
+			.set(CompilerOptions.NonNullTypeVariableFromLegacyInvocation);
 
 		RESTRICTION.set(CompilerOptions.DiscouragedReference);
 		STATIC_ACCESS.set(CompilerOptions.NonStaticAccessToStatic);

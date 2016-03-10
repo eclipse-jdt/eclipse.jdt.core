@@ -91,7 +91,23 @@ public class BinaryTypeBinding extends ReferenceBinding {
 
 	private ReferenceBinding containerAnnotationType;
 	int defaultNullness = 0;
-
+	public enum ExternalAnnotationStatus {
+		FROM_SOURCE,
+		NOT_EEA_CONFIGURED,
+		NO_EEA_FILE,
+		TYPE_IS_ANNOTATED;
+		public boolean isPotentiallyUnannotatedLib() {
+			switch (this) {
+				case FROM_SOURCE:
+				case TYPE_IS_ANNOTATED:
+					return false;
+				default:
+					return true;
+			}
+		}
+	}
+	public ExternalAnnotationStatus externalAnnotationStatus = ExternalAnnotationStatus.NOT_EEA_CONFIGURED; // unless proven differently
+	
 static Object convertMemberValue(Object binaryValue, LookupEnvironment env, char[][][] missingTypeNames, boolean resolveEnumConstants) {
 	if (binaryValue == null) return null;
 	if (binaryValue instanceof Constant)
@@ -419,6 +435,10 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 		}
 		ITypeAnnotationWalker walker = getTypeAnnotationWalker(binaryType.getTypeAnnotations(), Binding.NO_NULL_DEFAULT);
 		ITypeAnnotationWalker toplevelWalker = binaryType.enrichWithExternalAnnotationsFor(walker, null, this.environment);
+		this.externalAnnotationStatus = binaryType.getExternalAnnotationStatus();
+		if (this.externalAnnotationStatus.isPotentiallyUnannotatedLib() && this.defaultNullness != 0) {
+			this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
+		}
 		char[] typeSignature = binaryType.getGenericSignature(); // use generic signature even in 1.4
 		this.tagBits |= binaryType.getTagBits();
 		
@@ -484,6 +504,19 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 				this.tagBits |= TagBits.HasUnresolvedSuperinterfaces;
 			}
 		}
+		boolean canUseNullTypeAnnotations = this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled && this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8;
+		if (canUseNullTypeAnnotations && this.externalAnnotationStatus.isPotentiallyUnannotatedLib()) {
+			if (this.superclass != null && this.superclass.hasNullTypeAnnotations()) {
+				this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
+			} else {
+				for (TypeBinding ifc : this.superInterfaces) {
+					if (ifc.hasNullTypeAnnotations()) {
+						this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
+						break;
+					}
+				}
+			}
+		}
 
 		if (needFieldsAndMethods) {
 			IBinaryField[] iFields = binaryType.getFields();
@@ -520,7 +553,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 						ITypeAnnotationWalker methodWalker = ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER;
 						if (sourceLevel < ClassFileConstants.JDK1_8)
 							methodWalker = binaryType.enrichWithExternalAnnotationsFor(methodWalker, iMethods[i], this.environment);
-						scanMethodForNullAnnotation(iMethods[i], this.methods[i], methodWalker);
+						scanMethodForNullAnnotation(iMethods[i], this.methods[i], methodWalker, canUseNullTypeAnnotations);
 					}
 				}
 			}
@@ -934,6 +967,8 @@ private TypeVariableBinding[] createTypeVariables(SignatureWrapper wrapper, bool
 		this.typeVariables = result;
 	for (int i = 0; i < rank; i++) {
 		initializeTypeVariable(result[i], result, wrapper, missingTypeNames, walker.toTypeParameterBounds(isClassTypeParameter, i));
+		if (this.externalAnnotationStatus.isPotentiallyUnannotatedLib() && result[i].hasNullTypeAnnotations())
+			this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
 	}
 	return result;
 }
@@ -1565,12 +1600,14 @@ private void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBi
 			}
 		}
 	}
+	if (explicitNullness && this.externalAnnotationStatus.isPotentiallyUnannotatedLib())
+		this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
 	if (!explicitNullness && (this.tagBits & TagBits.AnnotationNonNullByDefault) != 0) {
 		fieldBinding.tagBits |= TagBits.AnnotationNonNull;
 	}
 }
 
-private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding methodBinding, ITypeAnnotationWalker externalAnnotationWalker) {
+private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding methodBinding, ITypeAnnotationWalker externalAnnotationWalker, boolean useNullTypeAnnotations) {
 	if (!isPrototype()) throw new IllegalStateException();
 	if (isEnum()) {
 		int purpose = 0;
@@ -1655,6 +1692,18 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 							break;
 						}
 					}
+				}
+			}
+		}
+	}
+	if (useNullTypeAnnotations && this.externalAnnotationStatus.isPotentiallyUnannotatedLib()) {
+		if (methodBinding.returnType.hasNullTypeAnnotations()) {
+			this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
+		} else {
+			for (TypeBinding parameter : parameters) {
+				if (parameter.hasNullTypeAnnotations()) {
+					this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
+					break;
 				}
 			}
 		}
