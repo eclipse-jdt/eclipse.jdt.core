@@ -609,7 +609,7 @@ private void createFields(IBinaryField[] iFields, IBinaryType binaryType, long s
 	if (iFields != null) {
 		int size = iFields.length;
 		if (size > 0) {
-			this.fields = new FieldBinding[size];
+			FieldBinding[] fields1 = new FieldBinding[size];
 			boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
 			boolean hasRestrictedAccess = hasRestrictedAccess();
 			int firstAnnotatedFieldIndex = -1;
@@ -643,8 +643,9 @@ private void createFields(IBinaryField[] iFields, IBinaryType binaryType, long s
 					field.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 				if (fieldSignature != null)
 					field.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
-				this.fields[i] = field;
+				fields1[i] = field;
 			}
+			this.fields = fields1;
 			// second pass for reifying annotations, since may refer to fields being constructed (147875)
 			if (firstAnnotatedFieldIndex >= 0) {
 				for (int i = firstAnnotatedFieldIndex; i <size; i++) {
@@ -893,15 +894,16 @@ private IBinaryMethod[] createMethods(IBinaryMethod[] iMethods, IBinaryType bina
 		return NO_BINARY_METHODS;
 	}
 
-	boolean hasRestrictedAccess = hasRestrictedAccess();
-	this.methods = new MethodBinding[total];
+boolean hasRestrictedAccess = hasRestrictedAccess();
+	MethodBinding[] methods1 = new MethodBinding[total];
 	if (total == initialTotal) {
 		for (int i = 0; i < initialTotal; i++) {
 			MethodBinding method = createMethod(iMethods[i], binaryType, sourceLevel, missingTypeNames);
 			if (hasRestrictedAccess)
 				method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
-			this.methods[i] = method;
+			methods1[i] = method;
 		}
+		this.methods = methods1;
 		return iMethods;
 	} else {
 		IBinaryMethod[] mappedBinaryMethods = new IBinaryMethod[total];
@@ -911,9 +913,10 @@ private IBinaryMethod[] createMethods(IBinaryMethod[] iMethods, IBinaryType bina
 				if (hasRestrictedAccess)
 					method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 				mappedBinaryMethods[index] = iMethods[i];
-				this.methods[index++] = method;
+				methods1[index++] = method;
 			}
 		}
+		this.methods = methods1;
 		return mappedBinaryMethods;
 	}
 }
