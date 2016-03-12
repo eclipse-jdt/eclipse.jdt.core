@@ -13787,4 +13787,80 @@ public void testBug370540s() throws JavaModelException {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/384959 - [formatter] Add line wrapping options for generics
+ */
+public void testBug384959a() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	String input = getCompilationUnit("Formatter", "", "test384959", "A_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test384959", "A_out1.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/384959 - [formatter] Add line wrapping options for generics
+ */
+public void testBug384959b() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.alignment_for_parameterized_type_references = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	String input = getCompilationUnit("Formatter", "", "test384959", "A_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test384959", "A_out2.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/384959 - [formatter] Add line wrapping options for generics
+ */
+public void testBug384959c() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.alignment_for_type_arguments = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	String input = getCompilationUnit("Formatter", "", "test384959", "A_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test384959", "A_out3.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/384959 - [formatter] Add line wrapping options for generics
+ */
+public void testBug384959d() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.alignment_for_type_parameters = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	String input = getCompilationUnit("Formatter", "", "test384959", "A_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test384959", "A_out4.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/384959 - [formatter] Add line wrapping options for generics
+ */
+public void testBug384959e() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	int policy = Alignment.M_NEXT_SHIFTED_SPLIT + Alignment.M_FORCE;
+	this.formatterPrefs.alignment_for_parameterized_type_references = policy;
+	this.formatterPrefs.alignment_for_type_arguments = policy;
+	this.formatterPrefs.alignment_for_type_parameters = policy;
+	String input = getCompilationUnit("Formatter", "", "test384959", "A_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test384959", "A_out5.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/384959 - [formatter] Add line wrapping options for generics
+ */
+public void testBug384959f() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
+	int policy = Alignment.M_NEXT_PER_LINE_SPLIT + Alignment.M_INDENT_ON_COLUMN + Alignment.M_FORCE;
+	this.formatterPrefs.alignment_for_parameterized_type_references = policy;
+	this.formatterPrefs.alignment_for_type_arguments = policy;
+	this.formatterPrefs.alignment_for_type_parameters = policy;
+	String input = getCompilationUnit("Formatter", "", "test384959", "A_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test384959", "A_out6.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/384959 - [formatter] Add line wrapping options for generics
+ */
+public void testBug384959g() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_1_8);
+	this.formatterPrefs.alignment_for_type_parameters = Alignment.M_COMPACT_SPLIT;
+	String source = 
+		"public interface IteratedDescribeLinkList<\n" + 
+		"		T extends IteratedDescribeLinkList<T, E, A, B, C, D, F, G, H, I, X, Y, Z, J, K>, E extends IteratedDescribeLink,\n" + 
+		"		A extends Iterated, B extends Iterated, C extends IteratedList<C, A, F, H, Y, J>,\n" + 
+		"		D extends IteratedList<D, B, G, I, Z, K>, F extends MasteredList<F, H, C, A, J, Y>,\n" + 
+		"		G extends MasteredList<G, I, D, B, K, Z>, H extends Mastered, I extends Mastered, X extends T, Y extends C,\n" + 
+		"		Z extends D, J extends F, K extends G> extends ObjectToObjectLinkList<T, E, A, B, C, D, X, Y, Z> {\n" + 
+		"}";
+	formatSource(source);
+}
 }

@@ -247,6 +247,18 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_ALIGNMENT_FOR_MULTIPLE_FIELDS = JavaCore.PLUGIN_ID + ".formatter.alignment_for_multiple_fields";//$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option for alignment of type arguments in parameterized type references
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_parameterized_type_references"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_NO_SPLIT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.12
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_PARAMETERIZED_TYPE_REFERENCES = JavaCore.PLUGIN_ID + ".formatter.alignment_for_parameterized_type_references";	 //$NON-NLS-1$
+
+	/**
+	 * <pre>
 	 * FORMATTER / Option for alignment of parameters in constructor declaration
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_parameters_in_constructor_declaration"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
@@ -344,6 +356,28 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_METHOD_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.alignment_for_throws_clause_in_method_declaration";	 //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of type arguments in method invocations and references
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_type_arguments"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_NO_SPLIT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.12
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_TYPE_ARGUMENTS = JavaCore.PLUGIN_ID + ".formatter.alignment_for_type_arguments";	 //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of type parameters in method and type declarations
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_type_parameters"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_NO_SPLIT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.12
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_TYPE_PARAMETERS = JavaCore.PLUGIN_ID + ".formatter.alignment_for_type_parameters";	 //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option for alignment of exceptions declared in a Union Type in the argument of a multicatch statement

@@ -126,6 +126,7 @@ public class DefaultCodeFormatterOptions {
 	public int alignment_for_method_declaration;
 	// TODO following option cannot be set in preferences dialog (but it's used by old.CodeFormatter)
 	public int alignment_for_multiple_fields;
+	public int alignment_for_parameterized_type_references;
 	public int alignment_for_parameters_in_constructor_declaration;
 	public int alignment_for_parameters_in_method_declaration;
 	public int alignment_for_selector_in_method_invocation;
@@ -134,6 +135,8 @@ public class DefaultCodeFormatterOptions {
 	public int alignment_for_superinterfaces_in_type_declaration;
 	public int alignment_for_throws_clause_in_constructor_declaration;
 	public int alignment_for_throws_clause_in_method_declaration;
+	public int alignment_for_type_arguments;
+	public int alignment_for_type_parameters;
 	public int alignment_for_resources_in_try;
 	public int alignment_for_union_type_in_multicatch;
 
@@ -457,6 +460,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_FOR_LOOP_HEADER, getAlignment(this.alignment_for_expressions_in_for_loop_header));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_METHOD_DECLARATION, getAlignment(this.alignment_for_method_declaration));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_MULTIPLE_FIELDS, getAlignment(this.alignment_for_multiple_fields));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERIZED_TYPE_REFERENCES, getAlignment(this.alignment_for_parameterized_type_references));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_CONSTRUCTOR_DECLARATION, getAlignment(this.alignment_for_parameters_in_constructor_declaration));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_METHOD_DECLARATION, getAlignment(this.alignment_for_parameters_in_method_declaration));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY, getAlignment(this.alignment_for_resources_in_try));
@@ -466,6 +470,8 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SUPERINTERFACES_IN_TYPE_DECLARATION, getAlignment(this.alignment_for_superinterfaces_in_type_declaration));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_CONSTRUCTOR_DECLARATION, getAlignment(this.alignment_for_throws_clause_in_constructor_declaration));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_THROWS_CLAUSE_IN_METHOD_DECLARATION, getAlignment(this.alignment_for_throws_clause_in_method_declaration));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_TYPE_ARGUMENTS, getAlignment(this.alignment_for_type_arguments));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_TYPE_PARAMETERS, getAlignment(this.alignment_for_type_parameters));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_UNION_TYPE_IN_MULTICATCH, getAlignment(this.alignment_for_union_type_in_multicatch));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS, this.align_type_members_on_columns ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGN_FIELDS_GROUPING_BLANK_LINES, Integer.toString(this.align_fields_grouping_blank_lines));
@@ -899,6 +905,10 @@ public class DefaultCodeFormatterOptions {
 				this.alignment_for_multiple_fields = Alignment.M_COMPACT_SPLIT;
 			}
 		}
+		final Object alignmentForParameterizeddTypeReferencesOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERIZED_TYPE_REFERENCES);
+		if (alignmentForParameterizeddTypeReferencesOption != null) {
+			this.alignment_for_parameterized_type_references = toInt(alignmentForParameterizeddTypeReferencesOption, Alignment.M_NO_ALIGNMENT);
+		}
 		final Object alignmentForParametersInConstructorDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_CONSTRUCTOR_DECLARATION);
 		if (alignmentForParametersInConstructorDeclarationOption != null) {
 			try {
@@ -988,6 +998,14 @@ public class DefaultCodeFormatterOptions {
 			} catch(ClassCastException e) {
 				this.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_SPLIT;
 			}
+		}
+		final Object alignmentForTypeArguments = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_TYPE_ARGUMENTS);
+		if (alignmentForTypeArguments != null) {
+			this.alignment_for_type_arguments = toInt(alignmentForTypeArguments, Alignment.M_NO_ALIGNMENT);
+		}
+		final Object alignmentForTypeParameters = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_TYPE_PARAMETERS);
+		if (alignmentForTypeParameters != null) {
+			this.alignment_for_type_parameters = toInt(alignmentForTypeParameters, Alignment.M_NO_ALIGNMENT);
 		}
 		final Object alignmentForUnionTypeInMulticatch = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_UNION_TYPE_IN_MULTICATCH);
 		if (alignmentForUnionTypeInMulticatch != null) {
@@ -2407,6 +2425,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_expressions_in_for_loop_header = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_method_declaration = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_multiple_fields = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_parameterized_type_references = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_parameters_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_resources_in_try = Alignment.M_NEXT_PER_LINE_SPLIT;
@@ -2416,6 +2435,8 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_superinterfaces_in_type_declaration = Alignment.M_NEXT_SHIFTED_SPLIT;
 		this.alignment_for_throws_clause_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_type_arguments = Alignment.M_NO_ALIGNMENT;
+		this.alignment_for_type_parameters = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_union_type_in_multicatch = Alignment.M_COMPACT_SPLIT;
 		this.align_type_members_on_columns = false;
 		this.align_fields_grouping_blank_lines = Integer.MAX_VALUE;
@@ -2713,6 +2734,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_expressions_in_for_loop_header = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_method_declaration = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_multiple_fields = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_parameterized_type_references = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_parameters_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_resources_in_try = Alignment.M_NEXT_PER_LINE_SPLIT;
@@ -2722,6 +2744,8 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_superinterfaces_in_type_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_throws_clause_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_throws_clause_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_type_arguments = Alignment.M_NO_ALIGNMENT;
+		this.alignment_for_type_parameters = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_union_type_in_multicatch = Alignment.M_COMPACT_SPLIT;
 		this.align_type_members_on_columns = false;
 		this.align_fields_grouping_blank_lines = Integer.MAX_VALUE;
