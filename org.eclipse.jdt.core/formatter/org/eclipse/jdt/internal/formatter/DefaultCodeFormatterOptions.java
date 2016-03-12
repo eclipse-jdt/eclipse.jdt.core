@@ -408,6 +408,8 @@ public class DefaultCodeFormatterOptions {
 	public boolean use_tabs_only_for_leading_indentations;
 	public boolean wrap_before_binary_operator;
 	public boolean wrap_before_or_operator_multicatch;
+	public boolean wrap_before_conditional_operator;
+	public boolean wrap_before_assignment_operator;
 	public boolean wrap_outer_expressions_when_nested;
 
 	public int initial_indentation_level;
@@ -722,6 +724,8 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_USE_TABS_ONLY_FOR_LEADING_INDENTATIONS, this.use_tabs_only_for_leading_indentations ?  DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_BEFORE_BINARY_OPERATOR, this.wrap_before_binary_operator ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_BEFORE_OR_OPERATOR_MULTICATCH, this.wrap_before_or_operator_multicatch ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_BEFORE_CONDITIONAL_OPERATOR, this.wrap_before_conditional_operator ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_WRAP_BEFORE_ASSIGNMENT_OPERATOR, this.wrap_before_assignment_operator ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_DISABLING_TAG, this.disabling_tag == null ? Util.EMPTY_STRING : new String(this.disabling_tag));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ENABLING_TAG, this.enabling_tag == null ? Util.EMPTY_STRING : new String(this.enabling_tag));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_USE_ON_OFF_TAGS, this.use_tags ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
@@ -2157,6 +2161,14 @@ public class DefaultCodeFormatterOptions {
 		if (wrapBeforeOrOperatorMulticatchOption != null) {
 			this.wrap_before_or_operator_multicatch = DefaultCodeFormatterConstants.TRUE.equals(wrapBeforeOrOperatorMulticatchOption);
 		}
+		final Object wrapBeforeConditionalOperatorOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_WRAP_BEFORE_CONDITIONAL_OPERATOR);
+		if (wrapBeforeConditionalOperatorOption != null) {
+			this.wrap_before_conditional_operator = DefaultCodeFormatterConstants.TRUE.equals(wrapBeforeConditionalOperatorOption);
+		}
+		final Object wrapBeforeAssignmentOperatorOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_WRAP_BEFORE_ASSIGNMENT_OPERATOR);
+		if (wrapBeforeAssignmentOperatorOption != null) {
+			this.wrap_before_assignment_operator= DefaultCodeFormatterConstants.TRUE.equals(wrapBeforeAssignmentOperatorOption);
+		}
 		final Object useTags = settings.get(DefaultCodeFormatterConstants.FORMATTER_USE_ON_OFF_TAGS);
 		if (useTags != null) {
 			this.use_tags = DefaultCodeFormatterConstants.TRUE.equals(useTags);
@@ -2592,6 +2604,8 @@ public class DefaultCodeFormatterOptions {
 		this.use_tabs_only_for_leading_indentations = false;
 		this.wrap_before_binary_operator = true;
 		this.wrap_before_or_operator_multicatch = true;
+		this.wrap_before_conditional_operator = true;
+		this.wrap_before_assignment_operator = false;
 		this.use_tags = false;
 		this.disabling_tag = DEFAULT_DISABLING_TAG;
 		this.enabling_tag = DEFAULT_ENABLING_TAG;
@@ -2886,6 +2900,8 @@ public class DefaultCodeFormatterOptions {
 		this.use_tabs_only_for_leading_indentations = false;
 		this.wrap_before_binary_operator = true;
 		this.wrap_before_or_operator_multicatch = true;
+		this.wrap_before_conditional_operator = true;
+		this.wrap_before_assignment_operator = false;
 		this.use_tags = false;
 		this.disabling_tag = DEFAULT_DISABLING_TAG;
 		this.enabling_tag = DEFAULT_ENABLING_TAG;

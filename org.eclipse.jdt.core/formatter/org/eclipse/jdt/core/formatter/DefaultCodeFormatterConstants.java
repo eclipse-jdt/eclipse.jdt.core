@@ -3841,6 +3841,32 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_WRAP_BEFORE_OR_OPERATOR_MULTICATCH = JavaCore.PLUGIN_ID + ".formatter.wrap_before_or_operator_multicatch"; //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to wrap before the '?' and ':' operators in conditional expressions
+	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_conditional_operator"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * This option is used only if the option {@link #FORMATTER_ALIGNMENT_FOR_CONDITIONAL_EXPRESSION} is set.
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.12
+	 */
+	public static final String FORMATTER_WRAP_BEFORE_CONDITIONAL_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_conditional_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to wrap before the assignment operator
+	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_assignment_operator"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * This option is used only if the option {@link #FORMATTER_ALIGNMENT_FOR_ASSIGNMENT} is set.
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.12
+	 */
+	public static final String FORMATTER_WRAP_BEFORE_ASSIGNMENT_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_assignment_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to wrap outer expressions in nested expressions
 	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_outer_expressions_when_nested"
 	 *     - possible values:   { TRUE, FALSE }

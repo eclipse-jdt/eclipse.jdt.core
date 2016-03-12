@@ -543,10 +543,13 @@ public class WrapPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(ConditionalExpression node) {
-		this.wrapIndexes.add(this.tm.firstIndexAfter(node.getExpression(), TokenNameQUESTION));
-		this.wrapIndexes.add(this.tm.firstIndexAfter(node.getThenExpression(), TokenNameCOLON));
-		this.secondaryWrapIndexes.add(this.tm.firstIndexIn(node.getThenExpression(), -1));
-		this.secondaryWrapIndexes.add(this.tm.firstIndexIn(node.getElseExpression(), -1));
+		boolean wrapBefore = this.options.wrap_before_conditional_operator;
+		List<Integer> before = wrapBefore ? this.wrapIndexes : this.secondaryWrapIndexes;
+		List<Integer> after = wrapBefore ? this.secondaryWrapIndexes : this.wrapIndexes;
+		before.add(this.tm.firstIndexAfter(node.getExpression(), TokenNameQUESTION));
+		before.add(this.tm.firstIndexAfter(node.getThenExpression(), TokenNameCOLON));
+		after.add(this.tm.firstIndexIn(node.getThenExpression(), -1));
+		after.add(this.tm.firstIndexIn(node.getElseExpression(), -1));
 		this.wrapParentIndex = this.tm.lastIndexIn(node.getExpression(), -1);
 		this.wrapGroupEnd = this.tm.lastIndexIn(node, -1);
 		handleWrap(this.options.alignment_for_conditional_expression);
@@ -576,17 +579,17 @@ public class WrapPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(Assignment node) {
-		int wrapIndex = this.tm.firstIndexIn(node.getRightHandSide(), -1);
-		if (this.tm.get(wrapIndex).getLineBreaksBefore() > 0)
-			return true;
+		int rightSideIndex = this.tm.firstIndexIn(node.getRightHandSide(), -1);
+		if (this.tm.get(rightSideIndex).getLineBreaksBefore() > 0)
+			return true; // must be an array initializer in new line because of brace_position_for_array_initializer
 
 		int operatorIndex = this.tm.firstIndexBefore(node.getRightHandSide(), -1);
 		while (this.tm.get(operatorIndex).isComment())
 			operatorIndex--;
 		assert node.getOperator().toString().equals(this.tm.toString(operatorIndex));
 
-		this.wrapIndexes.add(wrapIndex);
-		this.secondaryWrapIndexes.add(operatorIndex);
+		this.wrapIndexes.add(this.options.wrap_before_assignment_operator ? operatorIndex : rightSideIndex);
+		this.secondaryWrapIndexes.add(this.options.wrap_before_assignment_operator ? rightSideIndex : operatorIndex);
 		this.wrapParentIndex = operatorIndex - 1;
 		this.wrapGroupEnd = this.tm.lastIndexIn(node.getRightHandSide(), -1);
 		handleWrap(this.options.alignment_for_assignment);
@@ -597,13 +600,13 @@ public class WrapPreparator extends ASTVisitor {
 	public boolean visit(VariableDeclarationFragment node) {
 		if (node.getInitializer() == null)
 			return true;
-		int wrapIndex = this.tm.firstIndexIn(node.getInitializer(), -1);
-		if (this.tm.get(wrapIndex).getLineBreaksBefore() > 0)
-			return true;
+		int rightSideIndex = this.tm.firstIndexIn(node.getInitializer(), -1);
+		if (this.tm.get(rightSideIndex).getLineBreaksBefore() > 0)
+			return true; // must be an array initializer in new line because of brace_position_for_array_initializer
 		int equalIndex = this.tm.firstIndexBefore(node.getInitializer(), TokenNameEQUAL);
 
-		this.wrapIndexes.add(wrapIndex);
-		this.secondaryWrapIndexes.add(equalIndex);
+		this.wrapIndexes.add(this.options.wrap_before_assignment_operator ? equalIndex : rightSideIndex);
+		this.secondaryWrapIndexes.add(this.options.wrap_before_assignment_operator ? rightSideIndex : equalIndex);
 		this.wrapParentIndex = equalIndex - 1;
 		this.wrapGroupEnd = this.tm.lastIndexIn(node.getInitializer(), -1);
 		handleWrap(this.options.alignment_for_assignment);

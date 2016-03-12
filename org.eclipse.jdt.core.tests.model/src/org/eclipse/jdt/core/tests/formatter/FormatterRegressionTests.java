@@ -13506,4 +13506,73 @@ public void testBug118264f() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/465910 - [formatter] add a 'wrap before operator' option for conditional expressions
+ */
+public void testBug465910() {
+	this.formatterPrefs.alignment_for_conditional_expression = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	String source =
+		"class Example {\n" + 
+		"	Result foo(boolean argument) {\n" + 
+		"		return argument ? doOneThing() : doOtherThing();\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"class Example {\n" + 
+		"	Result foo(boolean argument) {\n" + 
+		"		return argument\n" + 
+		"				? doOneThing()\n" + 
+		"				: doOtherThing();\n" + 
+		"	}\n" + 
+		"}"
+	);
+	this.formatterPrefs.wrap_before_conditional_operator = false;
+	formatSource(source,
+		"class Example {\n" + 
+		"	Result foo(boolean argument) {\n" + 
+		"		return argument ?\n" + 
+		"				doOneThing() :\n" + 
+		"				doOtherThing();\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/325631 - [formatter] Code formatter Expressions > Assignments lacks "Wrap before operator" option
+ */
+public void testBug325631() {
+	this.formatterPrefs.alignment_for_assignment = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	String source =
+		"class Example {\n" + 
+		"	String value = \"\";\n" + 
+		"	void foo(boolean argument) {\n" + 
+		"		if (\"test\".equals(value = artument))\n" + 
+		"			doSomething();\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source,
+		"class Example {\n" + 
+		"	String value =\n" + 
+		"			\"\";\n" + 
+		"\n" + 
+		"	void foo(boolean argument) {\n" + 
+		"		if (\"test\".equals(value =\n" + 
+		"				artument))\n" + 
+		"			doSomething();\n" + 
+		"	}\n" + 
+		"}");
+	this.formatterPrefs.wrap_before_assignment_operator = true;
+	formatSource(source,
+		"class Example {\n" + 
+		"	String value\n" + 
+		"			= \"\";\n" + 
+		"\n" + 
+		"	void foo(boolean argument) {\n" + 
+		"		if (\"test\".equals(value\n" + 
+		"				= artument))\n" + 
+		"			doSomething();\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
 }
