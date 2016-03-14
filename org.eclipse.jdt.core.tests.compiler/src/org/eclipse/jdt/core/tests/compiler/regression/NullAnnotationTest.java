@@ -8839,4 +8839,61 @@ public void testMultipleAnnotations() {
 				mismatch_NonNull_Nullable("String") +
 				"----------\n");
 }
+
+public void testBug489486conform() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/DurationAdapter.java",
+			"package test;\n" +
+			"\n" +
+			"final class DurationAdapter extends java.lang.ref.SoftReference<String> {\n" +
+			"	public DurationAdapter(String referent) {\n" +
+			"		super(referent);\n" +
+			"	}\n" +
+			"}\n",
+			"test/TheAnnotation.java",
+			"package test;\n" +
+			"\n" +
+			"public @interface TheAnnotation {\n" +
+			"	Class<? extends java.lang.ref.SoftReference<?>> value();\n" +
+			"}\n",
+			"test/package-info.java",
+			"@TheAnnotation(value = DurationAdapter.class)\n" +
+			"package test;\n",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+
+public void testBug489486negative() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/DurationAdapter.java",
+			"package test;\n" +
+			"\n" +
+			"final class DurationAdapter extends java.lang.ref.WeakReference<String> {\n" +
+			"	public DurationAdapter(String referent) {\n" +
+			"		super(referent);\n" +
+			"	}\n" +
+			"}\n",
+			"test/TheAnnotation.java",
+			"package test;\n" +
+			"\n" +
+			"public @interface TheAnnotation {\n" +
+			"	Class<? extends java.lang.ref.SoftReference<?>> value();\n" +
+			"}\n",
+			"test/package-info.java",
+			"@TheAnnotation(value = DurationAdapter.class)\n" +
+			"package test;\n",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\package-info.java (at line 1)\n" + 
+		"	@TheAnnotation(value = DurationAdapter.class)\n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Class<DurationAdapter> to Class<? extends SoftReference<?>>\n" + 
+		"----------\n"
+	);
+}
 }

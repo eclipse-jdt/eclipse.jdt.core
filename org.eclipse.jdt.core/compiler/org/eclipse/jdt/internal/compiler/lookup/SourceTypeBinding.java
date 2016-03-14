@@ -2101,8 +2101,20 @@ public void evaluateNullAnnotations() {
 				pkg.defaultNullness = NULL_UNSPECIFIED_BY_DEFAULT;
 			} else {
 				// if pkgInfo has no default annot. - complain
-				packageInfo.getAnnotationTagBits();
-			}
+					if (packageInfo instanceof SourceTypeBinding
+							&& (packageInfo.tagBits & TagBits.EndHierarchyCheck) == 0) {
+						CompilationUnitScope pkgCUS = ((SourceTypeBinding) packageInfo).scope.compilationUnitScope();
+						boolean current = pkgCUS.connectingHierarchy;
+						pkgCUS.connectingHierarchy = true;
+						try {
+							packageInfo.getAnnotationTagBits();
+						} finally {
+							pkgCUS.connectingHierarchy = current;
+						}
+					} else {
+						packageInfo.getAnnotationTagBits();
+					}
+				}
 		}
 	}
 	this.nullnessDefaultInitialized = 1;
