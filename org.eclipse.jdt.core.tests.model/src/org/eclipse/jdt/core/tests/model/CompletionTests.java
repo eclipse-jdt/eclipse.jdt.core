@@ -4970,9 +4970,6 @@ public void testCompletionEmptyToken2() throws JavaModelException {
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
     this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
-    int start = str.lastIndexOf(completeBehind);
-    int end = start + completeBehind.length();
-
     assertResults(
             "expectedTypesSignatures=null\n"+
             "expectedTypesKeys=null",
