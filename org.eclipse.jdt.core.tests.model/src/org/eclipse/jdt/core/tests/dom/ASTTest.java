@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -6362,7 +6362,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				int start = buffer.length();
 				buffer.append("(");
 				// push start position - popped by postVisit for same node
-				stack.add(new Integer(start));
+				stack.add(Integer.valueOf(start));
 			}
 			public void postVisit(ASTNode node) {
 				// pop start position placed there by preVisit
@@ -8876,11 +8876,11 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			String name = field.getName();
 			if ("MALFORMED".equals(name) || "ORIGINAL".equals(name) || "PROTECT".equals(name) || "RECOVERED".equals(name))
 				continue;
-			declaredNodeTypes.add(new Integer(field.getInt(null)));
+			declaredNodeTypes.add(Integer.valueOf(field.getInt(null)));
 		}
 		for (int i= 0; i < nodeTypes.length; i++) {
 			int nodeType= nodeTypes[i];
-			assertTrue("node type " + nodeType + " from test is missing in ASTNode", declaredNodeTypes.remove(new Integer(nodeType)));
+			assertTrue("node type " + nodeType + " from test is missing in ASTNode", declaredNodeTypes.remove(Integer.valueOf(nodeType)));
 			nodeTypes[i] = -1;
 		}
 		for (int i= 0; i < nodeTypes.length; i++) {

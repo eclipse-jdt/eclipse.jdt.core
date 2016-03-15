@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 BEA Systems, Inc. and others
+ * Copyright (c) 2005, 2016 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -468,17 +468,17 @@ public class Factory
 				else 
 					return avoidReflectException ? Boolean.FALSE : value;
 			case 'c':
-				return new Character((char)b); // narrowing.
+				return Character.valueOf((char)b); // narrowing.
 			case 'd':
 				return new Double(b); // widening.
 			case 'f':
 				return new Float(b); // widening.
 			case 'i':
-				return new Integer(b); // widening.
+				return Integer.valueOf(b); // widening.
 			case 'l':
-				return new Long(b); // widening.
+				return Long.valueOf(b); // widening.
 			case 's':
-				return new Short(b); // widening.
+				return Short.valueOf(b); // widening.
 			default:  				
 				throw new IllegalStateException("unknown type " + expectedTypeChar); //$NON-NLS-1$
 			}
@@ -492,19 +492,19 @@ public class Factory
 			{
 			case 'b':
 				if(nameLen == 4) // byte
-					return new Byte((byte)s); // narrowing.
+					return Byte.valueOf((byte)s); // narrowing.
 				else
 					return avoidReflectException ? Boolean.FALSE : value; // completely wrong.
 			case 'c':
-				return new Character((char)s); // narrowing.
+				return Character.valueOf((char)s); // narrowing.
 			case 'd':
 				return new Double(s); // widening.
 			case 'f':
 				return new Float(s); // widening.
 			case 'i':
-				return new Integer(s); // widening.
+				return Integer.valueOf(s); // widening.
 			case 'l':
-				return new Long(s); // widening.
+				return Long.valueOf(s); // widening.
 			case 's':
 				return value; // exact match
 			default:  				
@@ -520,7 +520,7 @@ public class Factory
 			{
 			case 'b':
 				if(nameLen == 4) // byte
-					return new Byte((byte)c); // narrowing.
+					return Byte.valueOf((byte)c); // narrowing.
 				else
 					return avoidReflectException ? Boolean.FALSE : value; // completely wrong.
 			case 'c':
@@ -530,11 +530,11 @@ public class Factory
 			case 'f':
 				return new Float(c); // widening.
 			case 'i':
-				return new Integer(c); // widening.
+				return Integer.valueOf(c); // widening.
 			case 'l':
-				return new Long(c); // widening.
+				return Long.valueOf(c); // widening.
 			case 's':
-				return new Short((short)c); // narrowing.
+				return Short.valueOf((short)c); // narrowing.
 			default:  				
 				throw new IllegalStateException("unknown type " + expectedTypeChar); //$NON-NLS-1$
 			}
@@ -549,11 +549,11 @@ public class Factory
 			{    
 			case 'b':
 				if(nameLen == 4) // byte
-					return new Byte((byte)i); // narrowing.
+					return Byte.valueOf((byte)i); // narrowing.
 				else
 					return avoidReflectException ? Boolean.FALSE : value; // completely wrong.
 			case 'c':
-				return new Character((char)i); // narrowing
+				return Character.valueOf((char)i); // narrowing
 			case 'd':
 				return new Double(i); // widening.
 			case 'f':
@@ -561,9 +561,9 @@ public class Factory
 			case 'i':
 				return value; // exact match
 			case 'l':
-				return new Long(i); // widening.
+				return Long.valueOf(i); // widening.
 			case 's':
-				return new Short((short)i); // narrowing.
+				return Short.valueOf((short)i); // narrowing.
 			default:  				
 				throw new IllegalStateException("unknown type " + expectedTypeChar); //$NON-NLS-1$
 			}

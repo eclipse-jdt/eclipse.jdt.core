@@ -5354,7 +5354,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	private List filterFakeFrames(Set realJumpTargets, Map frames, int codeLength) {
 		// no more frame to generate
 		// filter out "fake" frames
-		realJumpTargets.remove(new Integer(codeLength));
+		realJumpTargets.remove(Integer.valueOf(codeLength));
 		List result = new ArrayList();
 		for (Iterator iterator = realJumpTargets.iterator(); iterator.hasNext(); ) {
 			Integer jumpTarget = (Integer) iterator.next();
@@ -6672,8 +6672,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 								Messages.bind(
 										Messages.abort_invalidOpcode,
 										new Object[] {
-												new Byte(opcode),
-												new Integer(pc),
+												Byte.valueOf(opcode),
+												Integer.valueOf(pc),
 												new String(methodBinding.shortReadableName()),
 										}),
 										this.codeStream.methodDeclaration);
@@ -6682,8 +6682,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 								Messages.bind(
 										Messages.abort_invalidOpcode,
 										new Object[] {
-												new Byte(opcode),
-												new Integer(pc),
+												Byte.valueOf(opcode),
+												Integer.valueOf(pc),
 												new String(methodBinding.shortReadableName()),
 										}),
 										this.codeStream.lambdaExpression);
@@ -6698,10 +6698,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 	}
 
 	private void addRealJumpTarget(Set realJumpTarget, int pc) {
-		realJumpTarget.add(new Integer(pc));
+		realJumpTarget.add(Integer.valueOf(pc));
 	}
 	private void add(Map frames, StackMapFrame frame) {
-		frames.put(new Integer(frame.pc), frame);
+		frames.put(Integer.valueOf(frame.pc), frame);
 	}
 	private final int u1At(byte[] reference, int relativeOffset,
 			int structOffset) {

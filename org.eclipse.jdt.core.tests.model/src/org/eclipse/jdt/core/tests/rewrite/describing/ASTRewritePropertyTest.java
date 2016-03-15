@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 IBM Corporation and others.
+ * Copyright (c) 2013, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -50,7 +50,7 @@ public class ASTRewritePropertyTest extends ASTRewritingTest {
 			// ignore
 		}
 		rewrite.setProperty(propertyName1, "value");
-		rewrite.setProperty(propertyName2, new Integer(1));
+		rewrite.setProperty(propertyName2, 1);
 		try {
 			rewrite.setProperty(null, "");
 			assertTrue("Should not be reached", false);
@@ -63,7 +63,7 @@ public class ASTRewritePropertyTest extends ASTRewritingTest {
 		
 		Object value2 = rewrite.getProperty(propertyName2);
 		assertTrue("Not an Integer", value2 instanceof Integer);
-		assertTrue("Wrong value", new Integer(1).equals(value2));
+		assertTrue("Wrong value", Integer.valueOf(1).equals(value2));
 
 		rewrite.setProperty(propertyName1, null);
 		value1 = rewrite.getProperty(propertyName1);

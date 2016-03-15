@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 IBM Corporation and others.
+ * Copyright (c) 2005, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1710,7 +1710,7 @@ private static void reinitializeFromComputedValues(String source, String target)
 	transitiveClosure = addSymbolicStates(transitiveClosure); // don't rely on reachibility alone, since we don't cover all operations in these tests.
 	Arrays.sort(transitiveClosure, new Comparator() {
 		public int compare(Object o1, Object o2) {
-			return new Integer(((State)o1).value).compareTo(new Integer(((State)o2).value));
+			return Integer.valueOf(((State)o1).value).compareTo(Integer.valueOf(((State)o2).value));
 		}
 	});
 	try {

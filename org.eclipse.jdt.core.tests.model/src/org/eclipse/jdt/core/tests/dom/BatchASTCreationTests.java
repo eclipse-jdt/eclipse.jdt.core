@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2012 IBM Corporation and others.
+ * Copyright (c) 2004, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1692,7 +1692,7 @@ public class BatchASTCreationTests extends AbstractASTTests {
 		Requestor requestor = new Requestor();
 		resolveASTs(new ICompilationUnit[] {this.workingCopies[0]}, requestor);
 
-		assertEquals("Unexpected constant value", new Integer(5), requestor.constantValue);
+		assertEquals("Unexpected constant value", 5, requestor.constantValue);
 	}
 
 	/*

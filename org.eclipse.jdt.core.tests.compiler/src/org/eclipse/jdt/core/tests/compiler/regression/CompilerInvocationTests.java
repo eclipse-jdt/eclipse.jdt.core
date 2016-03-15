@@ -1158,7 +1158,7 @@ private String categoryName(int category) {
 				String name = field.getName();
 				if (name.startsWith("CAT_")) {
 					try {
-						categoryNames.put(new Integer(field.getInt(CategorizedProblem.class)), name);
+						categoryNames.put(Integer.valueOf(field.getInt(CategorizedProblem.class)), name);
 					} catch (IllegalArgumentException e) {
 					} catch (IllegalAccessException e) {
 					}
@@ -1166,7 +1166,7 @@ private String categoryName(int category) {
 			}
 		}
 	}
-	return (String) categoryNames.get(new Integer(category));
+	return (String) categoryNames.get(Integer.valueOf(category));
 }
 // compiler problems tuning
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=218603

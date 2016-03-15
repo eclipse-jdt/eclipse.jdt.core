@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -428,12 +428,12 @@ public class AbstractCompilerTest extends TestCase {
 		Class testClass;
 		if (testClasses.size() == 1) {
 			suite = new TestSuite(testClass = (Class)testClasses.get(0), CompilerOptions.versionFromJdkLevel(complianceLevel));
-			TESTS_COUNTERS.put(testClass.getName(), new Integer(suite.countTestCases()));
+			TESTS_COUNTERS.put(testClass.getName(), Integer.valueOf(suite.countTestCases()));
 		} else {
 			suite = new TestSuite(CompilerOptions.versionFromJdkLevel(complianceLevel));
 			for (int i = 0, length = testClasses.size(); i < length; i++) {
 				TestSuite innerSuite = new TestSuite(testClass = (Class)testClasses.get(i));
-				TESTS_COUNTERS.put(testClass.getName(), new Integer(innerSuite.countTestCases()));
+				TESTS_COUNTERS.put(testClass.getName(), Integer.valueOf(innerSuite.countTestCases()));
 				suite.addTest(innerSuite);
 			}
 		}
@@ -464,7 +464,7 @@ public class AbstractCompilerTest extends TestCase {
 		int newTestsNb = suite.countTestCases();
 		if ((testsNb = (Integer) TESTS_COUNTERS.get(className)) != null)
 			newTestsNb += testsNb.intValue();
-		TESTS_COUNTERS.put(className, new Integer(newTestsNb));
+		TESTS_COUNTERS.put(className, Integer.valueOf(newTestsNb));
 		return suite;
 	}
 

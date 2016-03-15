@@ -1178,7 +1178,7 @@ protected static class JavacTestOptions {
 			Integer count = (Integer)TESTS_COUNTERS.get(CURRENT_CLASS_NAME);
 			if (count != null) {
 				int newCount = count.intValue()-1;
-				TESTS_COUNTERS.put(CURRENT_CLASS_NAME, new Integer(newCount));
+				TESTS_COUNTERS.put(CURRENT_CLASS_NAME, Integer.valueOf(newCount));
 				if (newCount == 0) {
 					if (DIFF_COUNTERS[0]!=0 || DIFF_COUNTERS[1]!=0 || DIFF_COUNTERS[2]!=0) {
 						dualPrintln("===========================================================================");

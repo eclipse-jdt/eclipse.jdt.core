@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -144,16 +144,16 @@ public Object getWrappedConstantValue() {
 			Constant fieldConstant = getConstant();
 			switch (fieldConstant.typeID()) {
 				case T_int :
-					this.wrappedConstantValue = new Integer(fieldConstant.intValue());
+					this.wrappedConstantValue = Integer.valueOf(fieldConstant.intValue());
 					break;
 				case T_byte :
-					this.wrappedConstantValue = new Byte(fieldConstant.byteValue());
+					this.wrappedConstantValue = Byte.valueOf(fieldConstant.byteValue());
 					break;
 				case T_short :
-					this.wrappedConstantValue = new Short(fieldConstant.shortValue());
+					this.wrappedConstantValue = Short.valueOf(fieldConstant.shortValue());
 					break;
 				case T_char :
-					this.wrappedConstantValue = new Character(fieldConstant.charValue());
+					this.wrappedConstantValue = Character.valueOf(fieldConstant.charValue());
 					break;
 				case T_float :
 					this.wrappedConstantValue = new Float(fieldConstant.floatValue());
@@ -165,7 +165,7 @@ public Object getWrappedConstantValue() {
 					this.wrappedConstantValue = Util.toBoolean(fieldConstant.booleanValue());
 					break;
 				case T_long :
-					this.wrappedConstantValue = new Long(fieldConstant.longValue());
+					this.wrappedConstantValue = Long.valueOf(fieldConstant.longValue());
 					break;
 				case T_String :
 					this.wrappedConstantValue = fieldConstant.stringValue();

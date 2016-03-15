@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials 
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,7 +39,7 @@ public short shortValue() {
 public String stringValue() {
 	//spec 15.17.11
 	
-	String s = new Integer(value).toString() ;
+	String s = Integer.valueOf(value).toString() ;
 	if (s == null) return "null"; //$NON-NLS-1$
 	return s;
 }

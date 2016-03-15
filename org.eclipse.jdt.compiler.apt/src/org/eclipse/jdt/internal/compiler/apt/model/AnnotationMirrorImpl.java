@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 IBM Corporation and others.
+ * Copyright (c) 2005, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -193,7 +193,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
         final String methodName = method.getName();
         if ( args == null || args.length == 0 ) {
             if( methodName.equals("hashCode") ) { //$NON-NLS-1$
-                return new Integer( hashCode() );
+                return Integer.valueOf(hashCode());
             }
             else if( methodName.equals("toString") ) { //$NON-NLS-1$
                 return toString();
@@ -203,7 +203,7 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
             }
         }
         else if ( args.length == 1 && methodName.equals("equals") ) { //$NON-NLS-1$
-            return new Boolean( equals( args[0] ) );
+            return Boolean.valueOf(equals(args[0]));
         }
 
         // If it's not one of the above methods, it must be an annotation member, so it cannot take any arguments
