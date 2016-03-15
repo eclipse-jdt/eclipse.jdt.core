@@ -452,9 +452,11 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			if (withWildCards != null) {
 				if (!argumentTypesElided) {
 					InferenceContext18 freshInferenceContext = new InferenceContext18(blockScope);
-					ReferenceBinding inferredType = freshInferenceContext.inferFunctionalInterfaceParameterization(this, blockScope, withWildCards);
-					freshInferenceContext.cleanUp();
-					return inferredType;
+					try {
+						return freshInferenceContext.inferFunctionalInterfaceParameterization(this, blockScope, withWildCards);
+					} finally {
+						freshInferenceContext.cleanUp();
+					}
 				} else {
 					return findGroundTargetTypeForElidedLambda(blockScope, withWildCards);
 				}

@@ -1095,6 +1095,8 @@ public void cleanUpInferenceContexts() {
 		if (value != null)
 			((InferenceContext18) value).cleanUp();
 	this.inferenceContexts = null;
+	this.outerInferenceContext = null;
+	this.solutionsPerTargetType = null;
 }
 public Expression[] arguments() {
 	return this.arguments;
