@@ -1700,7 +1700,9 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 		}
 	}
 	if (useNullTypeAnnotations && this.externalAnnotationStatus.isPotentiallyUnannotatedLib()) {
-		if (methodBinding.returnType.hasNullTypeAnnotations()) {
+		if (methodBinding.returnType.hasNullTypeAnnotations() 
+				|| (methodBinding.tagBits & TagBits.AnnotationNullMASK) != 0 
+				|| methodBinding.parameterNonNullness != null) {
 			this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
 		} else {
 			for (TypeBinding parameter : parameters) {
