@@ -673,9 +673,13 @@ class BoundSet {
 							// not per JLS: if the new constraint relates types where at least one has a null annotations,
 							// record all null tagBits as hints for the final inference solution.
 							long nullHints = (newConstraint.left.tagBits | newConstraint.right.tagBits) & TagBits.AnnotationNullMASK;
-							if (nullHints != 0 && TypeBinding.equalsEquals(boundI.left, boundJ.left)) {
-								boundI.nullHints |= nullHints;
-								boundJ.nullHints |= nullHints;
+							if (nullHints != 0) {
+								if (TypeBinding.equalsEquals(boundI.left, boundJ.left)
+										|| (boundI.relation == ReductionResult.SAME	&& TypeBinding.equalsEquals(boundI.right, boundJ.left))
+										|| (boundJ.relation == ReductionResult.SAME	&& TypeBinding.equalsEquals(boundI.left, boundJ.right))) {
+									boundI.nullHints |= nullHints;
+									boundJ.nullHints |= nullHints;
+								}
 							}
 						}
 					}

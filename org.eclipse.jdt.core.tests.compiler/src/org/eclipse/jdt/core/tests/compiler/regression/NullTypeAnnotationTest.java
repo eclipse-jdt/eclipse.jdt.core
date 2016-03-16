@@ -12254,4 +12254,39 @@ public void testBug492327() {
 		""
 	);
 }
+public void testBug488495collector() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"interface Collector<A, R> {\n" +
+			"}\n" +
+			"\n" +
+			"interface Stream {\n" +
+			"    <A1, R1> R1 collect(Collector<A1, R1> collector);\n" +
+			"}\n" +
+			"\n" +
+			"interface List<E> {\n" +
+			"}\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Test {\n" +
+			"    public static <T> Collector<?, List<T>> toList() {\n" +
+			"        return new Collector<Object, List<T>>(){};\n" +
+			"    }\n" +
+			"\n" +
+			"    public static List<String> myMethod(Stream stream) {\n" +
+			"        List<String> list = stream.collect(toList());\n" +
+			"        return list;\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
 }
