@@ -105,15 +105,17 @@ public class JavaIndex {
 	 */
 	public boolean isUpToDate(NdResourceFile file) throws CoreException {
 		if (file != null && file.isDoneIndexing()) {
-			return true;
-			// TODO(sxenos): uncomment this after EclipseCon, then replace it with a more efficient
-			// mechanism for determining if the index matches the file system. Perhaps some sort of
-			// explicit callback that JDT can invoke whenever it writes a .class or .jar file?
-
-//			Path locationPath = new Path(new String(location));
-//			if (file.getFingerprint().test(locationPath, null).matches()) {
-//				return true;
-//			}
+			// TODO(sxenos): It would be much more efficient to mark files as being in one
+			// of three states: unknown, dirty, or clean. Files would start in the unknown
+			// state and move into the dirty state when we see them in a java model change
+			// event. They would move into the clean state after passing this sort of
+			// fingerprint test... but by caching the state of all tested files (in memory),
+			// it would eliminate the vast majority of these (slow) fingerprint tests.
+			
+			Path locationPath = new Path(file.getLocation().getString());
+			if (file.getFingerprint().test(locationPath, null).matches()) {
+				return true;
+			}
 		}
 		return false;
 	}
