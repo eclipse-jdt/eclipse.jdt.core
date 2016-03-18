@@ -12141,4 +12141,48 @@ public void testBug466585_comment_4() {
 		"Null constraint mismatch: The type \'@Nullable ? super Integer\' is not a valid substitute for the type parameter \'T extends @NonNull Number\'\n" + 
 		"----------\n");
 }
+public void testBug489978() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/BinaryClass.java",
+			"package test;\n" +
+			"\n" +
+			"import java.util.ArrayList;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class BinaryClass {\n" +
+			"	public ArrayList<Object> list;\n" +
+			"\n" +
+			"	public BinaryClass(ArrayList<Object> list) {\n" +
+			"		this.list = list;\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runConformTestWithLibs(
+		new String[] {
+			"test/Usage.java",
+			"package test;\n" +
+			"\n" +
+			"import java.util.ArrayList;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Usage {\n" +
+			"	ArrayList<Object> f(BinaryClass b) {\n" +
+			"		return b.list;\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
 }
