@@ -98,6 +98,7 @@ public class Token {
 
 	private boolean nextLineOnWrap;
 	private WrapPolicy wrapPolicy;
+	private Token separateLinesOnWrapUntil;
 
 	private Token nlsTagToken;
 
@@ -245,6 +246,14 @@ public class Token {
 
 	public boolean isNextLineOnWrap() {
 		return this.nextLineOnWrap;
+	}
+
+	public void setSeparateLinesOnWrapUntil(Token token) {
+		this.separateLinesOnWrapUntil = token;
+	}
+
+	public Token getSeparateLinesOnWrapUntil() {
+		return this.separateLinesOnWrapUntil;
 	}
 
 	public void setWrapPolicy(WrapPolicy wrapPolicy) {

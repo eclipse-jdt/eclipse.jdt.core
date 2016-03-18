@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.core.util.BootstrapMethodsAttribute;
 
 import junit.framework.Test;
 
@@ -4974,14 +4975,14 @@ public void test447119c() {
 				"        SerializableFunction<List<String>, List<String>> f = X::foo;\n" +
 				"        Method[] methods = X.class.getDeclaredMethods();\n" +
 				"        for (Method m : methods) {\n" +
-				"        	if (m.getName().contains(\"lambda\")) {\n" +
+				"        	if (m.getName().contains(\"foo\")) {\n" +
 				"        		System.out.println(\"- \" + m.getGenericReturnType() + \" \" + m.getName() + \"(\" + Arrays.asList(m.getGenericParameterTypes()) + \")\");\n" +
 				"        	}\n" +
 				"        }\n" +
 				"    }\n" +
 				"}\n"
 			},
-			"- java.util.List<java.lang.String> lambda$0([java.util.List<java.lang.String>])");
+			"- java.util.List<java.lang.String> foo([java.util.List<java.lang.String>])");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression) 
 public void test447119d() {
@@ -5022,9 +5023,9 @@ public void test447119d() {
 				"	}\n" +
 				"}\n"
 			},
-			"Lambda binds to: X.lambda$0\n" + 
+			"Lambda binds to: X.noop\n" + 
 			"Methods (with generics):\n" + 
-			"[- java.util.List<java.lang.String> lambda$0(java.util.List<java.lang.String>), - java.util.List<java.lang.String> noop(java.util.List<java.lang.String>)]",
+			"[- java.util.List<java.lang.String> noop(java.util.List<java.lang.String>)]",
 			null,
 			true,
 			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
@@ -5933,6 +5934,120 @@ public void testBug487586() {
 		"	Both both = (Both) (a, b) -> a + b; // does not compile\n" + 
 		"	                   ^^^^^^^^^^^^^^^\n" + 
 		"The target type of this expression must be a functional interface\n" + 
+		"----------\n");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=452587 Java 8: Method references to the same method do not share BootstrapMethod
+public void testBug452587() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			" public class Test {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"      Runnable m = Test::m;\n" + 
+			"      Runnable n = Test::m;\n" + 
+			"      Runnable o = Test::m;\n" + 
+			"      Runnable p = Test::m;\n" + 
+			"      Runnable q = Test::m;\n" + 
+			"    }\n" + 
+			"    public static void m() {}\n" + 
+			"  }\n"
+	});
+	IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "Test.class", IClassFileReader.ALL);
+	BootstrapMethodsAttribute bootstrapMethodsAttribute = null;
+	IClassFileAttribute[] attrs = classFileReader.getAttributes();
+	for (int i=0,max=attrs.length;i<max;i++) {
+		if (new String(attrs[i].getAttributeName()).equals("BootstrapMethods")) {
+			bootstrapMethodsAttribute = (BootstrapMethodsAttribute)attrs[i];
+			break;
+		}
+	}
+	assertNotNull("BootstrapMethods attribute not found", bootstrapMethodsAttribute);
+	int bmaLength = bootstrapMethodsAttribute.getBootstrapMethodsLength();
+	assertEquals("Incorrect number of bootstrap methods found", 1, bmaLength);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=485529 [1.8][compiler] Verify error with constructor reference to nested class constructor
+public void testBug485529() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"interface I {\n" + 
+			"	X makeX(int x);\n" + 
+			"}\n" + 
+			"public class X {\n" + 
+			"		class Y extends X {\n" + 
+			"			class Z extends X  {\n" + 
+			"				private Z(int z) {\n" + 
+			"				}\n" + 
+			"				private Z() {}\n" + 
+			"			}\n" + 
+			"			private Y(int y) {\n" + 
+			"			}\n" + 
+			"			 Y() {\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		I i = Y :: new;\n" + 
+			"	private X(int x) {\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	X() {\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new X();\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"}"
+	},
+	"");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=479284 [1.8][inference] fail to resolve matching types for lambda and method reference + NPE at build
+public void testBug479284() {
+	runNegativeTest(
+		new String[] {
+			"BadInferenceMars451.java",
+			"package bug.report;\n" + 
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Arrays;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Map;\n" + 
+			"import java.util.function.BinaryOperator;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"/**\n" + 
+			" * Problem is valid on Version: Mars.1 Release (4.5.1) Build id: 20150924-1200\n" + 
+			" */\n" + 
+			"public class BadInferenceMars451 {\n" + 
+			"	public static Map<Object, List<X>> BadInferenceMars451Casus1() {\n" + 
+			"		List<X> stuff = new ArrayList<>();\n" + 
+			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451::sum));\n" + 
+			"	}\n" + 
+			"	public static Map<Object, List<X>> BadInferenceMars451Casus1Fixed1() {\n" + 
+			"		List<X> stuff = new ArrayList<>();\n" + 
+			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), (BinaryOperator<List<X>>) BadInferenceMars451::sum));\n" + 
+			"	}\n" + 
+			"	public static Map<Object, List<X>> BadInferenceMars451Casus1Fixed2() {\n" + 
+			"		List<X> stuff = new ArrayList<>();\n" + 
+			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.<X> asList(t), BadInferenceMars451::sum));\n" + 
+			"	}\n" + 
+			"	/* \n" + 
+			"	 * Uncomment this to see eclipse crash at build\n" + 
+			"	 * this doesnt work but it should not crash the ide\n" + 
+			"	 */ \n" + 
+			"	public static Map<Object, List<X>> BadInferenceMars451Casus1Crash() {\n" + 
+			"		List<X> stuff = new ArrayList<>();\n" + 
+			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451<X>::sum));\n" + 
+			"	}\n" + 
+			"	public static <T> List<T> sum(List<T> l1, List<T> l2) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public static class X {\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in BadInferenceMars451.java (at line 31)\n" + 
+		"	return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451<X>::sum));\n" + 
+		"	                                                                                           ^^^^^^^^^^^^^^^^^^^\n" + 
+		"The type BadInferenceMars451 is not generic; it cannot be parameterized with arguments <BadInferenceMars451.X>\n" + 
 		"----------\n");
 }
 public static Class testClass() {

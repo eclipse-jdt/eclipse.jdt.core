@@ -746,6 +746,8 @@ public void cleanUpInferenceContexts() {
 		if (value != null)
 			((InferenceContext18) value).cleanUp();
 	this.inferenceContexts = null;
+	this.outerInferenceContext = null;
+	this.solutionsPerTargetType = null;
 }
 
 //-- interface InvocationSite: --

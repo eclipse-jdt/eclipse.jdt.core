@@ -22,6 +22,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
@@ -2637,6 +2638,66 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			assertEquals(1, collector.matches.size());
 			IMethod method = collector.matches.get(0).getMethod();
 			assertTrue(method.exists());
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug489404() throws CoreException, IOException {
+		try {
+			IJavaProject p = createJavaProject("P", new String[] { "src" }, new String[] { "/P/p1p2.jar", "JCL15_LIB" }, "bin", "1.5");
+			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+					"p1/MissingClass.java",
+					"package p1;\n" + 
+					"public class MissingClass{}\n" }, 
+					p.getProject().getLocation().append("p1.jar").toOSString(), "1.5");
+			
+			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+					"p1/p2/BinaryWithField.java",
+					"package p1.p2;\n" +
+					"import p1.MissingClass;\n" +
+					"public class BinaryWithField {\n" +
+					"  public class Binary {\n" +
+					"  }\n" +
+					"  MissingClass f;\n" +
+					"}\n",
+					"p1/p2/BinaryWithMethod.java",
+					"package p1.p2;\n" +
+					"import p1.MissingClass;\n" +
+					"public class BinaryWithMethod {\n" +
+					"  public class Binary {\n" +
+					"  }\n" +
+					"  MissingClass m() {\n" +
+					"    return null;\n" +
+					"  }\n" +
+					"}\n"},
+					null,
+					p.getProject().getLocation().append("p1p2.jar").toOSString(),
+					new String[] { p.getProject().getLocation().append("p1.jar").toOSString() },
+					"1.5");
+			createFolder("/P/src/test");
+			createFile("/P/src/test/A.java", 
+					"package test;\n" +
+					"import p1.MissingClass;\n" +
+					"public class A {\n" +
+					"  MissingClass m() {\n" +
+					"    return null;\n" +
+					"  }\n" +
+					"}\n");
+			createFile("/P/src/test/TestSearchBug.java", 
+					"package test;\n" +
+					"\n" +
+					"public class TestSearchBug {\n" +
+					"  public String lang;\n" +
+					"}\n");
+			refresh(p);
+			waitUntilIndexesReady();
+			IType type = getCompilationUnit("/P/src/test/TestSearchBug.java").getType("TestSearchBug");
+			IField field = type.getField("lang");
+			search(field, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults(
+					"Unexpected search results!",
+					"",
+					this.resultCollector);
 		} finally {
 			deleteProject("P");
 		}

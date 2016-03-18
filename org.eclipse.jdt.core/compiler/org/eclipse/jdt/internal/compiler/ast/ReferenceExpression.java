@@ -103,7 +103,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	public int nameSourceStart;
 
 	public TypeBinding receiverType;
-	private boolean haveReceiver;
+	public boolean haveReceiver;
 	public TypeBinding[] resolvedTypeArguments;
 	private boolean typeArgumentsHaveErrors;
 	
@@ -264,8 +264,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		// these cases are either too complicated, impossible to handle or result in significant code duplication 
 		return (this.binding.isVarargs() || 
 				(isConstructorReference() && this.receiverType.syntheticOuterLocalVariables() != null && this.shouldCaptureInstance) ||
-				this.expectedType instanceof IntersectionTypeBinding18 || // marker interfaces require alternate meta factory.
-				this.expectedType.findSuperTypeOriginatingFrom(currentScope.getJavaIoSerializable()) != null || // serialization support.
+				this.expectedType instanceof IntersectionTypeBinding18 || // marker interfaces require alternate meta factory. 
 				this.requiresBridges()); // bridges.
 		// To fix: We should opt for direct code generation wherever possible.
 	}
@@ -296,7 +295,9 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 				}
 			}
 		}
-		
+		if (this.isSerializable) {
+			sourceType.addSyntheticMethod(this);
+		}
 		int pc = codeStream.position;
 		StringBuffer buffer = new StringBuffer();
 		int argumentsSize = 0;
@@ -342,6 +343,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 				}
 				if (this.syntheticAccessor != null) {
 					this.binding = sourceType.addSyntheticFactoryMethod(this.binding, this.syntheticAccessor, enclosingInstances);
+					this.syntheticAccessor = null; // add only once
 				}
 			}
 		}
@@ -990,7 +992,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		final MethodBinding sam = targetType.getSingleAbstractMethod(this.enclosingScope, true);
 		if (sam == null || !sam.isValidBinding())
 			return false;
-		if (this.typeArgumentsHaveErrors || this.lhs.resolvedType == null || !this.lhs.resolvedType.isValidBinding())
+		if (this.typeArgumentsHaveErrors || this.receiverType == null || !this.receiverType.isValidBinding())
 			return false;
 		
 		int parametersLength = sam.parameters.length;

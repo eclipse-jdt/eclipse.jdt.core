@@ -19,6 +19,7 @@
 package org.eclipse.jdt.internal.compiler.env;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 
 public interface IBinaryType extends IGenericType {
@@ -169,5 +170,10 @@ char[] sourceFileName();
  * @return either a matching walker with data from external annotations or the walker provided via argument 'walker'.
  */
 ITypeAnnotationWalker enrichWithExternalAnnotationsFor(ITypeAnnotationWalker walker, Object member, LookupEnvironment environment);
+
+/**
+ * Answer whether a provider for external annotations is associated with this binary type.
+ */
+ExternalAnnotationStatus getExternalAnnotationStatus();
 
 }

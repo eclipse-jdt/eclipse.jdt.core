@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -4970,16 +4970,13 @@ public void testCompletionEmptyToken2() throws JavaModelException {
     int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
     this.wc.codeComplete(cursorLocation, requestor, this.wcOwner);
 
-    int start = str.lastIndexOf(completeBehind);
-    int end = start + completeBehind.length();
-
     assertResults(
             "expectedTypesSignatures=null\n"+
             "expectedTypesKeys=null",
             requestor.getContext());
 
 	assertResults(
-            "testCompletionEmptyToken2[PACKAGE_REF]{testCompletionEmptyToken2, testCompletionEmptyToken2, null, null, null, ["+start+", "+end+"], " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_RESTRICTED) + "}",
+            "",
             requestor.getResults());
 }
 

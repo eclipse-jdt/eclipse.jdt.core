@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
 public class HierarchyBinaryType implements IBinaryType {
@@ -280,5 +281,9 @@ public ITypeAnnotationWalker enrichWithExternalAnnotationsFor(ITypeAnnotationWal
 public char[] getModule() {
 	// TODO BETA_JAVA9 Auto-generated method stub
 	return null;
+}
+@Override
+public ExternalAnnotationStatus getExternalAnnotationStatus() {
+	return ExternalAnnotationStatus.NOT_EEA_CONFIGURED;
 }
 }

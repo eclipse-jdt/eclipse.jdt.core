@@ -67,6 +67,7 @@ import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.Receiver;
+import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -82,10 +83,10 @@ import org.eclipse.jdt.internal.compiler.codegen.ExceptionLabel;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrame;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream;
-import org.eclipse.jdt.internal.compiler.codegen.TypeAnnotationCodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream.ExceptionMarker;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream.StackDepthMarker;
 import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream.StackMarker;
+import org.eclipse.jdt.internal.compiler.codegen.TypeAnnotationCodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.VerificationTypeInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -105,6 +106,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
+import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
 import org.eclipse.jdt.internal.compiler.util.Messages;
@@ -961,13 +964,36 @@ public class ClassFile implements TypeConstants, TypeIds {
 						case SyntheticMethodBinding.DeserializeLambda:
 							deserializeLambdaMethod = syntheticMethod; // delay processing
 							break;
+						case SyntheticMethodBinding.SerializableMethodReference:
+							// Nothing to be done
+							break;
 					}
 				}
 				emittedSyntheticsCount = currentSyntheticsCount;
 			}
 		}
 		if (deserializeLambdaMethod != null) {
-			addSyntheticDeserializeLambda(deserializeLambdaMethod,this.referenceBinding.syntheticMethods()); 
+			int problemResetPC = 0;
+			this.codeStream.wideMode = false;
+			boolean restart = false;
+			do {
+				try {
+					problemResetPC = this.contentsOffset;
+					addSyntheticDeserializeLambda(deserializeLambdaMethod,this.referenceBinding.syntheticMethods()); 
+					restart = false;
+				} catch (AbortMethod e) {
+					// Restart code generation if possible ...
+					if (e.compilationResult == CodeStream.RESTART_IN_WIDE_MODE) {
+						// a branch target required a goto_w, restart code generation in wide mode.
+						this.contentsOffset = problemResetPC;
+						this.methodCount--;
+						this.codeStream.resetInWideMode(); // request wide mode
+						restart = true;
+					} else {
+						throw new AbortType(this.referenceBinding.scope.referenceContext.compilationResult, e.problem);
+					}
+				}
+			} while (restart);
 		}
 	}
 
@@ -3062,12 +3088,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 			FunctionalExpression functional = (FunctionalExpression) functionalExpressionList.get(i);
 			MethodBinding [] bridges = functional.getRequiredBridges();
 			TypeBinding[] markerInterfaces = null;
-			if (functional instanceof LambdaExpression && 
-				   (((markerInterfaces=((LambdaExpression)functional).getMarkerInterfaces()) != null) ||
-				   	((LambdaExpression)functional).isSerializable) ||
-				   	bridges != null) {
-				
-				LambdaExpression lambdaEx = (LambdaExpression)functional;
+			if ((functional instanceof LambdaExpression
+					&& (((markerInterfaces = ((LambdaExpression) functional).getMarkerInterfaces()) != null))
+					|| bridges != null) || functional.isSerializable) {
 				// may need even more space
 				int extraSpace = 2; // at least 2 more than when the normal metafactory is used, for the bitflags entry
 				if (markerInterfaces != null) {
@@ -3109,7 +3132,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				this.contents[localContentsOffset++] = (byte) methodTypeIndex;
 
 				int bitflags = 0;
-				if (lambdaEx.isSerializable) {
+				if (functional.isSerializable) {
 					bitflags |= ClassFileConstants.FLAG_SERIALIZABLE;
 				}
 				if (markerInterfaces!=null) {
@@ -3594,6 +3617,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 		generateCodeAttributeHeader();
 		this.codeStream.init(this);
 		this.codeStream.generateSyntheticBodyForDeserializeLambda(methodBinding, syntheticMethodBindings);
+		int code_length = this.codeStream.position;
+		if (code_length > 65535) {
+			this.referenceBinding.scope.problemReporter().bytecodeExceeds64KLimit(
+				methodBinding, this.referenceBinding.sourceStart(), this.referenceBinding.sourceEnd());
+		}
 		completeCodeAttributeForSyntheticMethod(
 			methodBinding,
 			codeAttributeOffset,
@@ -5344,10 +5372,17 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (this.bootstrapMethods == null) {
 			this.bootstrapMethods = new ArrayList();
 		}
+		if (expression instanceof ReferenceExpression) {
+			for (int i = 0; i < this.bootstrapMethods.size(); i++) {
+				FunctionalExpression fexp = (FunctionalExpression) this.bootstrapMethods.get(i);
+				if (fexp.binding == expression.binding
+						&& TypeBinding.equalsEquals(fexp.expectedType(), expression.expectedType()))
+					return expression.bootstrapMethodNumber = i;
+			}
+		}
 		this.bootstrapMethods.add(expression);
 		// Record which bootstrap method was assigned to the expression
-		expression.bootstrapMethodNumber = this.bootstrapMethods.size() - 1;
-		return this.bootstrapMethods.size() - 1;
+		return expression.bootstrapMethodNumber = this.bootstrapMethods.size() - 1;
 	}
 
 	public void reset(SourceTypeBinding typeBinding) {

@@ -10251,11 +10251,16 @@ public void test1030() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	if (a == null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable a can only be null at this location\n" +
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	a = null;\n" + 
+		"	^\n" + 
+		"Redundant assignment: The variable a can only be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	if (a == null) {\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable a can only be null at this location\n" + 
 		"----------\n",
 	    JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -10281,18 +10286,23 @@ public void test1031() {
 			"    }\n" +
 			"  }\n" +
 			"}\n"},
-		"----------\n" +
-		"1. ERROR in X.java (at line 7)\n" +
-		"	if (a == null) {\n" +
-		"	    ^\n" +
-		"Redundant null check: The variable a can only be null at this location\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 13)\n" +
-		"	if (a == null) {\n" +
-		"	    ^\n" +
-		"Null comparison always yields false: The variable a cannot be null at this location\n" +
-		"----------\n" +
-		"3. WARNING in X.java (at line 13)\n" + 
+		"----------\n" + 
+		"1. ERROR in X.java (at line 6)\n" + 
+		"	a = null;\n" + 
+		"	^\n" + 
+		"Redundant assignment: The variable a can only be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 7)\n" + 
+		"	if (a == null) {\n" + 
+		"	    ^\n" + 
+		"Redundant null check: The variable a can only be null at this location\n" + 
+		"----------\n" + 
+		"3. ERROR in X.java (at line 13)\n" + 
+		"	if (a == null) {\n" + 
+		"	    ^\n" + 
+		"Null comparison always yields false: The variable a cannot be null at this location\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 13)\n" + 
 		"	if (a == null) {\n" + 
 		"      System.out.println();\n" + 
 		"    }\n" + 
@@ -13335,7 +13345,10 @@ public void testBug321926k() {
 }
 // variation with nested loops.
 public void testBug321926l() {
-	this.runConformTest(
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.WARNING);
+
+	this.runTest(
 		new String[] {
 			"X.java",
 			"import java.io.IOException;\n" +
@@ -13374,7 +13387,22 @@ public void testBug321926l() {
 			"	 }\n" +
 			"  }\n" +
 			"}"},
-		"Compiler good Compiler good");
+		 false,
+		 "----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	someVariable = null;\n" + 
+		"	^^^^^^^^^^^^\n" + 
+		"Redundant assignment: The variable someVariable can only be null at this location\n" + 
+		"----------\n",
+		"Compiler good Compiler good", 
+		"",
+		true, // force execution
+		null, // classlibs
+		true, // flush output,
+		null, // vm args
+		options,	
+		null,
+		null);
 }
 public void testBug321926m() {
 	this.runConformTest(
@@ -17680,5 +17708,270 @@ public void testBug451660() {
 		"	                   ^\n" + 
 		"Potential null pointer access: The variable s may be null at this location\n" + 
 		"----------\n");
+}
+public void testBug486912KnownNullInLoop() {
+	runNegativeTest(
+		new String[] {
+			"test/KnownNullInLoop.java",
+			"package test;\n" +
+			"\n" +
+			"public class KnownNullInLoop {\n" +
+			"	public void testDoWhile() {\n" +
+			"		Object o1 = null;\n" +
+			"		do {\n" +
+			"			o1.hashCode(); // ERROR1: known null, but no problem reported.\n" +
+			"		} while (false);\n" +
+			"	}\n" +
+			"\n" +
+			"	public void testWhileWithBreak() {\n" +
+			"		Object o1 = null;\n" +
+			"		while (true) {\n" +
+			"			o1.hashCode(); // ERROR2: known null, but no problem reported.\n" +
+			"			break;\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		"----------\n" + 
+		"1. ERROR in test\\KnownNullInLoop.java (at line 7)\n" + 
+		"	o1.hashCode(); // ERROR1: known null, but no problem reported.\n" + 
+		"	^^\n" + 
+		"Null pointer access: The variable o1 can only be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\KnownNullInLoop.java (at line 14)\n" + 
+		"	o1.hashCode(); // ERROR2: known null, but no problem reported.\n" + 
+		"	^^\n" + 
+		"Null pointer access: The variable o1 can only be null at this location\n" + 
+		"----------\n"
+	);
+}
+public void testBug486912PotNullInLoop_orig() {
+	runNegativeTest(
+		new String[] {
+			"test/PotNullInLoop.java",
+			"package test;\n" +
+			"\n" +
+			"public class PotNullInLoop {\n" +
+			"	boolean b;\n" +
+			"\n" +
+			"	public void testDoWhile1() {\n" +
+			"		Object o1 = null;\n" +
+			"		Object o2 = new Object();\n" +
+			"		Object potNonNull = b ? o2 : o2;\n" + // actually: def nn
+			"		Object potNull = b ? o1 : o1;\n" +	  // actually: def n
+			"		Object ponNullOrNonNull = b ? potNull : potNonNull;\n" +
+			"		do {\n" +
+			"			potNonNull.hashCode(); // OK\n" +
+			"			potNull.hashCode(); // ERROR 1: pot null, but nothing reported\n" +
+			"			ponNullOrNonNull.hashCode(); // ERROR 2: pot null, but nothing reported\n" +
+			"		} while (false);\n" +
+			"	}\n" +
+			"\n" +
+			"	public void testWhileWithBreak() {\n" +
+			"		Object o1 = null;\n" +
+			"		Object o2 = new Object();\n" +
+			"		Object potNonNull = b ? o2 : o2;\n" +
+			"		Object potNull = b ? o1 : o1;\n" +
+			"		Object ponNullOrNonNull = b ? potNull : potNonNull;\n" +
+			"		while (b) {\n" +
+			"			potNonNull.hashCode(); // OK\n" +
+			"			potNull.hashCode(); // ERROR 3 : pot null, but nothing reported\n" +
+			"			ponNullOrNonNull.hashCode(); // ERROR 4: pot null, but nothing reported\n" +
+			"			break;\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"	public void testWhile() {\n" +
+			"		Object o1 = null;\n" +
+			"		Object o2 = new Object();\n" +
+			"		Object potNonNull = b ? o2 : o2;\n" +
+			"		Object potNull = b ? o1 : o1;\n" +
+			"		Object ponNullOrNonNull = b ? potNull : potNonNull;\n" +
+			"		while (b) {\n" +
+			"			potNonNull.hashCode(); // OK\n" +
+			"			potNull.hashCode(); // OK: pot null, is reported\n" +
+			"			ponNullOrNonNull.hashCode(); // OK: pot null, is reported\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"	public void testFor() {\n" +
+			"		Object o1 = null;\n" +
+			"		Object o2 = new Object();\n" +
+			"		Object potNonNull = b ? o2 : o2;\n" +
+			"		Object potNull = b ? o1 : o1;\n" +
+			"		Object ponNullOrNonNull = b ? potNull : potNonNull;\n" +
+			"		for (int i = 0; i < 1; i++) {\n" +
+			"			potNonNull.hashCode(); // OK\n" +
+			"			potNull.hashCode(); // OK: pot null, is reported\n" +
+			"			ponNullOrNonNull.hashCode(); // OK: pot null, is reported\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"	public void testForEach() {\n" +
+			"		Object o1 = null;\n" +
+			"		Object o2 = new Object();\n" +
+			"		Object potNonNull = b ? o2 : o2;\n" +
+			"		Object potNull = b ? o1 : o1;\n" +
+			"		Object ponNullOrNonNull = b ? potNull : potNonNull;\n" +
+			"		for (int i = 0; i < 1; i++) {\n" +
+			"			potNonNull.hashCode(); // OK\n" +
+			"			potNull.hashCode(); // OK: pot null, is reported\n" +
+			"			ponNullOrNonNull.hashCode(); // OK: pot null, is reported\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"}\n" +
+			"",
+		}, 
+		"----------\n" + 
+		"1. ERROR in test\\PotNullInLoop.java (at line 14)\n" + 
+		"	potNull.hashCode(); // ERROR 1: pot null, but nothing reported\n" + 
+		"	^^^^^^^\n" + 
+		"Null pointer access: The variable potNull can only be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\PotNullInLoop.java (at line 15)\n" + 
+		"	ponNullOrNonNull.hashCode(); // ERROR 2: pot null, but nothing reported\n" + 
+		"	^^^^^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: The variable ponNullOrNonNull may be null at this location\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\PotNullInLoop.java (at line 27)\n" + 
+		"	potNull.hashCode(); // ERROR 3 : pot null, but nothing reported\n" + 
+		"	^^^^^^^\n" + 
+		"Null pointer access: The variable potNull can only be null at this location\n" + 
+		"----------\n" + 
+		"4. ERROR in test\\PotNullInLoop.java (at line 28)\n" + 
+		"	ponNullOrNonNull.hashCode(); // ERROR 4: pot null, but nothing reported\n" + 
+		"	^^^^^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: The variable ponNullOrNonNull may be null at this location\n" + 
+		"----------\n" + 
+		"5. ERROR in test\\PotNullInLoop.java (at line 41)\n" + 
+		"	potNull.hashCode(); // OK: pot null, is reported\n" + 
+		"	^^^^^^^\n" + 
+		"Null pointer access: The variable potNull can only be null at this location\n" + 
+		"----------\n" + 
+		"6. ERROR in test\\PotNullInLoop.java (at line 42)\n" + 
+		"	ponNullOrNonNull.hashCode(); // OK: pot null, is reported\n" + 
+		"	^^^^^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: The variable ponNullOrNonNull may be null at this location\n" + 
+		"----------\n" + 
+		"7. ERROR in test\\PotNullInLoop.java (at line 54)\n" + 
+		"	potNull.hashCode(); // OK: pot null, is reported\n" + 
+		"	^^^^^^^\n" + 
+		"Null pointer access: The variable potNull can only be null at this location\n" + 
+		"----------\n" + 
+		"8. ERROR in test\\PotNullInLoop.java (at line 55)\n" + 
+		"	ponNullOrNonNull.hashCode(); // OK: pot null, is reported\n" + 
+		"	^^^^^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: The variable ponNullOrNonNull may be null at this location\n" + 
+		"----------\n" + 
+		"9. ERROR in test\\PotNullInLoop.java (at line 67)\n" + 
+		"	potNull.hashCode(); // OK: pot null, is reported\n" + 
+		"	^^^^^^^\n" + 
+		"Null pointer access: The variable potNull can only be null at this location\n" + 
+		"----------\n" + 
+		"10. ERROR in test\\PotNullInLoop.java (at line 68)\n" + 
+		"	ponNullOrNonNull.hashCode(); // OK: pot null, is reported\n" + 
+		"	^^^^^^^^^^^^^^^^\n" + 
+		"Potential null pointer access: The variable ponNullOrNonNull may be null at this location\n" + 
+		"----------\n"
+	);
+}
+// variant of testBug486912PotNullInLoop_orig spiced up with potentiality from an 'unknown' o0:
+public void testBug486912PotNullInLoop() {
+	runNegativeTest(
+		new String[] {
+			"test/PotNullInLoop.java",
+			"package test;\n" +
+			"\n" +
+			"public class PotNullInLoop {\n" +
+			"	boolean b;\n" +
+			"\n" +
+			"	public void testDoWhile1(Object o0) {\n" +
+			"		Object o1 = null;\n" +
+			"		Object o2 = new Object();\n" +
+			"		Object potNonNull = b ? o2 : o0;\n" +
+			"		Object potNull = b ? o1 : o0;\n" +
+			"		do {\n" +
+			"			potNonNull.hashCode(); // OK\n" +
+			"			potNull.hashCode(); // ERROR 1: pot null, but nothing reported\n" +
+			"		} while (false);\n" +
+			"	}\n" +
+			"\n" +
+			"	public void testWhileWithBreak(Object o0) {\n" +
+			"		Object o1 = null;\n" +
+			"		Object o2 = new Object();\n" +
+			"		Object potNonNull = b ? o2 : o0;\n" +
+			"		Object potNull = b ? o1 : o0;\n" +
+			"		while (b) {\n" +
+			"			potNonNull.hashCode(); // OK\n" +
+			"			potNull.hashCode(); // ERROR 3 : pot null, but nothing reported\n" +
+			"			break;\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"	public void testWhile(Object o0) {\n" +
+			"		Object o1 = null;\n" +
+			"		Object o2 = new Object();\n" +
+			"		Object potNonNull = b ? o2 : o0;\n" +
+			"		Object potNull = b ? o1 : o0;\n" +
+			"		while (b) {\n" +
+			"			potNonNull.hashCode(); // OK\n" +
+			"			potNull.hashCode(); // OK: pot null, is reported\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"	public void testFor(Object o0) {\n" +
+			"		Object o1 = null;\n" +
+			"		Object o2 = new Object();\n" +
+			"		Object potNonNull = b ? o2 : o0;\n" +
+			"		Object potNull = b ? o1 : o0;\n" +
+			"		for (int i = 0; i < 1; i++) {\n" +
+			"			potNonNull.hashCode(); // OK\n" +
+			"			potNull.hashCode(); // OK: pot null, is reported\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"	public void testForEach(Object o0) {\n" +
+			"		Object o1 = null;\n" +
+			"		Object o2 = new Object();\n" +
+			"		Object potNonNull = b ? o2 : o0;\n" +
+			"		Object potNull = b ? o1 : o0;\n" +
+			"		for (int i = 0; i < 1; i++) {\n" +
+			"			potNonNull.hashCode(); // OK\n" +
+			"			potNull.hashCode(); // OK: pot null, is reported\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"}\n" +
+			"",
+		}, 
+		"----------\n" + 
+		"1. ERROR in test\\PotNullInLoop.java (at line 13)\n" + 
+		"	potNull.hashCode(); // ERROR 1: pot null, but nothing reported\n" + 
+		"	^^^^^^^\n" + 
+		"Potential null pointer access: The variable potNull may be null at this location\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\PotNullInLoop.java (at line 24)\n" + 
+		"	potNull.hashCode(); // ERROR 3 : pot null, but nothing reported\n" + 
+		"	^^^^^^^\n" + 
+		"Potential null pointer access: The variable potNull may be null at this location\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\PotNullInLoop.java (at line 36)\n" + 
+		"	potNull.hashCode(); // OK: pot null, is reported\n" + 
+		"	^^^^^^^\n" + 
+		"Potential null pointer access: The variable potNull may be null at this location\n" + 
+		"----------\n" + 
+		"4. ERROR in test\\PotNullInLoop.java (at line 47)\n" + 
+		"	potNull.hashCode(); // OK: pot null, is reported\n" + 
+		"	^^^^^^^\n" + 
+		"Potential null pointer access: The variable potNull may be null at this location\n" + 
+		"----------\n" + 
+		"5. ERROR in test\\PotNullInLoop.java (at line 58)\n" + 
+		"	potNull.hashCode(); // OK: pot null, is reported\n" + 
+		"	^^^^^^^\n" + 
+		"Potential null pointer access: The variable potNull may be null at this location\n" + 
+		"----------\n"
+	);
 }
 }

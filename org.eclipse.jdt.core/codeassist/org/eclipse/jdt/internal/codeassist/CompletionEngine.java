@@ -10378,7 +10378,7 @@ public final class CompletionEngine
 	}
 	private void findPackages(CompletionOnPackageReference packageStatement) {
 
-		this.completionToken = CharOperation.concatWith(packageStatement.tokens, '.');
+		this.completionToken = CharOperation.concatWithAll(packageStatement.tokens, '.');
 		if (this.completionToken.length == 0)
 			return;
 

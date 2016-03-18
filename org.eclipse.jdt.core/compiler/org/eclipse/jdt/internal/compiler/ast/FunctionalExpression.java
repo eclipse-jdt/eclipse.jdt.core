@@ -47,6 +47,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public abstract class FunctionalExpression extends Expression {
@@ -63,6 +64,7 @@ public abstract class FunctionalExpression extends Expression {
 	public boolean shouldCaptureInstance = false; // Whether the expression needs access to instance data of enclosing type
 	protected static IErrorHandlingPolicy silentErrorHandlingPolicy = DefaultErrorHandlingPolicies.ignoreAllProblems();
 	private boolean hasReportedSamProblem = false;
+	public boolean isSerializable;
 
 	public FunctionalExpression(CompilationResult compilationResult) {
 		this.compilationResult = compilationResult;
@@ -185,6 +187,17 @@ public abstract class FunctionalExpression extends Expression {
 		
 		this.descriptor = sam;
 		if (skipKosherCheck || kosherDescriptor(blockScope, sam, true)) {
+			if (this.expectedType instanceof IntersectionTypeBinding18) {
+				ReferenceBinding[] intersectingTypes =  ((IntersectionTypeBinding18)this.expectedType).intersectingTypes;
+				for (int t = 0, max = intersectingTypes.length; t < max; t++) {
+					if (intersectingTypes[t].findSuperTypeOriginatingFrom(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null) {
+						this.isSerializable = true;
+						break;
+					}
+				}
+			} else if (this.expectedType.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null) {
+				this.isSerializable = true;
+			}
 			if (blockScope.environment().globalOptions.isAnnotationBasedNullAnalysisEnabled)
 				NullAnnotationMatching.checkForContradictions(sam, this, blockScope);
 			return this.resolvedType = this.expectedType;		

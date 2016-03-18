@@ -5183,52 +5183,6 @@ public void test429813a() throws JavaModelException {
 	IMethodBinding binding = lambdaExpression.resolveMethodBinding();
 	assertTrue("Should be a varargs", binding.isVarargs());
 }
-// 	https://bugs.eclipse.org/bugs/show_bug.cgi?id=463942
-public void testBug463942_001() throws JavaModelException {
-	String contents = 
-			"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-			"@interface Marker {\n" +
-			" 	String value() default \"\";\n" +
-			"}\n" +
-			"@java.lang.annotation.Target (java.lang.annotation.ElementType.TYPE_USE)\n" +
-			"@interface Marker2 {\n" +
-			" 	String value() default \"22\";\n" +
-			"}\n" +
-			"public class X {\n" +
-			"   public String @Marker(\"i0\") @Marker2 [] [] @Marker(\"i1\") [] str = null;\n" +
-			"}";
-
-	this.workingCopy = getWorkingCopy("/Converter18/src/X.java", true);
-	ASTNode node = buildAST(contents, this.workingCopy);
-	assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
-	CompilationUnit compilationUnit = (CompilationUnit) node;
-	assertProblemsSize(compilationUnit, 0);
-
-	/* public String @Marker("i0") @Marker2 [] [] @Marker("i1") [] str = null; */
-	node = getASTNode(compilationUnit, 2, 0);
-	assertTrue("Not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
-	FieldDeclaration field = (FieldDeclaration) node;
-	List fragments = field.fragments();
-	assertEquals("Incorrect no of fragments", 1, fragments.size());
-	VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
-	IVariableBinding variable = fragment.resolveBinding();
-	assertNotNull("Should not be null", variable);
-	ITypeBinding typeBinding = variable.getType();
-	assertNotNull("Should not be null", typeBinding);
-	IAnnotationBinding[][] dimAnnotations = typeBinding.getTypeAnnotationsOnDimensions();
-
-	assertEquals("Incorrect type annotations", 3, dimAnnotations.length);
-	IAnnotationBinding[] annotations = dimAnnotations[0];
-	assertTrue("Incorrect number of annotations", annotations.length == 2);
-	assertEquals("Incorrect type annotations", "@Marker(value = i0)", annotations[0].toString());
-	assertEquals("Incorrect type annotations", "@Marker2()", annotations[1].toString());
-	annotations = dimAnnotations[1];
-	assertTrue("Incorrect number of annotations", annotations.length == 0);
-	annotations = dimAnnotations[2];
-	assertTrue("Incorrect number of annotations", annotations.length == 1);
-	assertEquals("Incorrect type annotations", "@Marker(value = i1)", annotations[0].toString());
-
-}
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399792
 public void testBug470794_001() throws JavaModelException {

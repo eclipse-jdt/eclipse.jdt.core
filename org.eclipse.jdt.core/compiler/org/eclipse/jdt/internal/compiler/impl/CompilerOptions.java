@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -188,6 +188,9 @@ public class CompilerOptions {
 	public static final String OPTION_SyntacticNullAnalysisForFields = "org.eclipse.jdt.core.compiler.problem.syntacticNullAnalysisForFields"; //$NON-NLS-1$
 	public static final String OPTION_InheritNullAnnotations = "org.eclipse.jdt.core.compiler.annotation.inheritNullAnnotations";  //$NON-NLS-1$
 	public static final String OPTION_ReportNonnullParameterAnnotationDropped = "org.eclipse.jdt.core.compiler.problem.nonnullParameterAnnotationDropped";  //$NON-NLS-1$
+	public static final String OPTION_PessimisticNullAnalysisForFreeTypeVariables = "org.eclipse.jdt.core.compiler.problem.pessimisticNullAnalysisForFreeTypeVariables";  //$NON-NLS-1$
+	public static final String OPTION_ReportNonNullTypeVariableFromLegacyInvocation = "org.eclipse.jdt.core.compiler.problem.nonnullTypeVariableFromLegacyInvocation"; //$NON-NLS-1$
+	
 	/**
 	 * Possible values for configurable options
 	 */
@@ -308,6 +311,8 @@ public class CompilerOptions {
 	public static final int UnusedTypeParameter = IrritantSet.GROUP2 | ASTNode.Bit17;
 	public static final int NonnullParameterAnnotationDropped = IrritantSet.GROUP2 | ASTNode.Bit18;
 	public static final int UnusedExceptionParameter = IrritantSet.GROUP2 | ASTNode.Bit19;
+	public static final int PessimisticNullAnalysisForFreeTypeVariables = IrritantSet.GROUP2 | ASTNode.Bit20;
+	public static final int NonNullTypeVariableFromLegacyInvocation = IrritantSet.GROUP2 | ASTNode.Bit21;
 
 	// Severity level for handlers
 	/** 
@@ -481,11 +486,15 @@ public class CompilerOptions {
 	/** Should immediate null-check for fields be considered during null analysis (syntactical match)? */
 	public boolean enableSyntacticNullAnalysisForFields;
 
+	/** Is the error level for pessimistic null analysis for free type variables different from "ignore"? */
+	public boolean pessimisticNullAnalysisForFreeTypeVariablesEnabled;
+
 	public boolean complainOnUninternedIdentityComparison;
 	public boolean emulateJavacBug8031744 = true;
 
 	/** Not directly configurable, derived from other options by LookupEnvironment.usesNullTypeAnnotations() */
 	public Boolean useNullTypeAnnotations = null;
+	
 
 	// keep in sync with warningTokenToIrritant and warningTokenFromIrritant
 	public final static String[] warningTokens = {
@@ -702,6 +711,10 @@ public class CompilerOptions {
 				return OPTION_ReportRedundantNullAnnotation;
 			case NonnullParameterAnnotationDropped:
 				return OPTION_ReportNonnullParameterAnnotationDropped;
+			case PessimisticNullAnalysisForFreeTypeVariables:
+				return OPTION_PessimisticNullAnalysisForFreeTypeVariables;
+			case NonNullTypeVariableFromLegacyInvocation:
+				return OPTION_ReportNonNullTypeVariableFromLegacyInvocation;
 		}
 		return null;
 	}
@@ -965,6 +978,8 @@ public class CompilerOptions {
 			case RedundantNullAnnotation :
 			case MissingNonNullByDefaultAnnotation:
 			case NonnullParameterAnnotationDropped:
+			case PessimisticNullAnalysisForFreeTypeVariables:
+			case NonNullTypeVariableFromLegacyInvocation:
 				return "null"; //$NON-NLS-1$
 			case FallthroughCase :
 				return "fallthrough"; //$NON-NLS-1$
@@ -1206,6 +1221,8 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_InheritNullAnnotations, this.inheritNullAnnotations ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportNonnullParameterAnnotationDropped, getSeverityString(NonnullParameterAnnotationDropped));
 		optionsMap.put(OPTION_ReportUninternedIdentityComparison, this.complainOnUninternedIdentityComparison ? ENABLED : DISABLED);
+		optionsMap.put(OPTION_PessimisticNullAnalysisForFreeTypeVariables, getSeverityString(PessimisticNullAnalysisForFreeTypeVariables));
+		optionsMap.put(OPTION_ReportNonNullTypeVariableFromLegacyInvocation, getSeverityString(NonNullTypeVariableFromLegacyInvocation));
 		return optionsMap;
 	}
 
@@ -1740,6 +1757,13 @@ public class CompilerOptions {
 				this.inheritNullAnnotations = ENABLED.equals(optionValue);
 			}
 			if ((optionValue = optionsMap.get(OPTION_ReportNonnullParameterAnnotationDropped)) != null) updateSeverity(NonnullParameterAnnotationDropped, optionValue);
+			if ((optionValue = optionsMap.get(OPTION_PessimisticNullAnalysisForFreeTypeVariables)) != null) updateSeverity(PessimisticNullAnalysisForFreeTypeVariables, optionValue);
+			if (getSeverity(PessimisticNullAnalysisForFreeTypeVariables) == ProblemSeverities.Ignore) {
+				this.pessimisticNullAnalysisForFreeTypeVariablesEnabled = false;
+			} else {
+				this.pessimisticNullAnalysisForFreeTypeVariablesEnabled = true;
+			}
+			if ((optionValue = optionsMap.get(OPTION_ReportNonNullTypeVariableFromLegacyInvocation)) != null) updateSeverity(NonNullTypeVariableFromLegacyInvocation, optionValue);
 		}
 
 		// Javadoc options
@@ -2007,6 +2031,8 @@ public class CompilerOptions {
 		buf.append("\n\t- resource may not be closed: ").append(getSeverityString(PotentiallyUnclosedCloseable)); //$NON-NLS-1$
 		buf.append("\n\t- resource should be handled by try-with-resources: ").append(getSeverityString(ExplicitlyClosedAutoCloseable)); //$NON-NLS-1$
 		buf.append("\n\t- Unused Type Parameter: ").append(getSeverityString(UnusedTypeParameter)); //$NON-NLS-1$
+		buf.append("\n\t- pessimistic null analysis for free type variables: ").append(getSeverityString(PessimisticNullAnalysisForFreeTypeVariables)); //$NON-NLS-1$
+		buf.append("\n\t- report unsafe nonnull return from legacy method: ").append(getSeverityString(NonNullTypeVariableFromLegacyInvocation)); //$NON-NLS-1$
 		return buf.toString();
 	}
 	

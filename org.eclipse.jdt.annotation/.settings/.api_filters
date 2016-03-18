@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<component id="org.eclipse.jdt.annotation" version="2">
+    <resource path="src/org/eclipse/jdt/annotation/DefaultLocation.java" type="org.eclipse.jdt.annotation.DefaultLocation">
+        <filter comment="Bug 489684: API Analysis Builder broken for multi-version bundles" id="1108344834">
+            <message_arguments>
+                <message_argument value="2.0"/>
+                <message_argument value="2.1"/>
+                <message_argument value="org.eclipse.jdt.annotation.DefaultLocation"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/jdt/annotation/NonNullByDefault.java" type="org.eclipse.jdt.annotation.NonNullByDefault">
+        <filter comment="Bug 489684: API Analysis Builder broken for multi-version bundles" id="1091567618">
+            <message_arguments>
+                <message_argument value="2.0"/>
+                <message_argument value="2.1"/>
+                <message_argument value="value()"/>
+            </message_arguments>
+        </filter>
+    </resource>
+</component>
