@@ -397,9 +397,10 @@ public class InferenceContext18 {
 			if (!addConstraintsToC(this.invocationArguments, c, method, this.inferenceKind, false, invocationSite))
 				return null;
 			// 5. bullet: determine B4 from C
+			List<Set<InferenceVariable>> components = this.currentBounds.computeConnectedComponents(this.inferenceVariables);
 			while (!c.isEmpty()) {
 				// *
-				Set<ConstraintFormula> bottomSet = findBottomSet(c, allOutputVariables(c));
+				Set<ConstraintFormula> bottomSet = findBottomSet(c, allOutputVariables(c), components);
 				if (bottomSet.isEmpty()) {
 					bottomSet.add(pickFromCycle(c));
 				}
@@ -1340,25 +1341,37 @@ public class InferenceContext18 {
 		return sum;
 	}
 
-	private Set<ConstraintFormula> findBottomSet(Set<ConstraintFormula> constraints, Set<InferenceVariable> allOutputVariables) {
+	private Set<ConstraintFormula> findBottomSet(Set<ConstraintFormula> constraints, 
+			Set<InferenceVariable> allOutputVariables, List<Set<InferenceVariable>> components)
+	{
 		// 18.5.2 bullet 5.(1)
 		//  A subset of constraints is selected, satisfying the property that,
 		//  for each constraint, no input variable can influence an output variable of another constraint in C. ...
 		//  An inference variable α can influence an inference variable β if α depends on the resolution of β (§18.4), or vice versa;
 		//  or if there exists a third inference variable γ such that α can influence γ and γ can influence β.  ...
-		// TODO: is indirect influence respected?
 		Set<ConstraintFormula> result = new HashSet<ConstraintFormula>();
 	  constraintLoop:
 		for (ConstraintFormula constraint : constraints) {
 			for (InferenceVariable in : constraint.inputVariables(this)) {
-				for (InferenceVariable out : allOutputVariables) {
-					if (this.currentBounds.dependsOnResolutionOf(in, out) || this.currentBounds.dependsOnResolutionOf(out, in))
-						continue constraintLoop;
-				}
+				if (canInfluenceAnyOf(in, allOutputVariables, components))
+					continue constraintLoop;
 			}
 			result.add(constraint);
-		}		
+		}
 		return result;
+	}
+
+	private boolean canInfluenceAnyOf(InferenceVariable in, Set<InferenceVariable> allOuts, List<Set<InferenceVariable>> components) {
+		// can influence == lives in the same component
+		for (Set<InferenceVariable> component : components) {
+			if (component.contains(in)) {
+				for (InferenceVariable out : allOuts)
+					if (component.contains(out))
+						return true;
+				return false;
+			}
+		}
+		return false;
 	}
 
 	Set<InferenceVariable> allOutputVariables(Set<ConstraintFormula> constraints) {

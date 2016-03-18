@@ -924,6 +924,44 @@ class BoundSet {
 		return false;
 	}
 
+	List<Set<InferenceVariable>> computeConnectedComponents(InferenceVariable[] inferenceVariables) {
+		// create all dependency edges (as bi-directional):
+		Map<InferenceVariable, Set<InferenceVariable>> allEdges = new HashMap<>();
+		for (int i = 0; i < inferenceVariables.length; i++) {
+			InferenceVariable iv1 = inferenceVariables[i];
+			HashSet<InferenceVariable> targetSet = new HashSet<InferenceVariable>();
+			allEdges.put(iv1, targetSet); // eventually ensures: forall iv in inferenceVariables : allEdges.get(iv) != null
+			for (int j = 0; j < i; j++) {
+				InferenceVariable iv2 = inferenceVariables[j];
+				if (dependsOnResolutionOf(iv1, iv2) || dependsOnResolutionOf(iv2, iv1)) {
+					targetSet.add(iv2);
+					allEdges.get(iv2).add(iv1);
+				}
+			}
+		}
+		// collect all connected IVs into one component:
+		Set<InferenceVariable> visited = new HashSet<>();
+		List<Set<InferenceVariable>> allComponents = new ArrayList<>();
+		for (InferenceVariable inferenceVariable : inferenceVariables) {
+			Set<InferenceVariable> component = new HashSet<>();
+			addConnected(component, inferenceVariable, allEdges, visited);
+			if (!component.isEmpty())
+				allComponents.add(component);
+		}
+		return allComponents;
+	}
+
+	private void addConnected(Set<InferenceVariable> component, InferenceVariable seed,
+			Map<InferenceVariable, Set<InferenceVariable>> allEdges, Set<InferenceVariable> visited)
+	{
+		if (visited.add(seed)) {
+			// add all IVs starting from seed and reachable via any in allEdges:
+			component.add(seed);
+			for (InferenceVariable next : allEdges.get(seed))
+				addConnected(component, next, allEdges, visited);
+		}
+	}
+
 	// helper for 18.4
 	public boolean hasCaptureBound(Set<InferenceVariable> variableSet) {
 		Iterator<ParameterizedTypeBinding> captureIter = this.captures.keySet().iterator();

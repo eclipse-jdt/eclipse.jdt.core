@@ -6067,4 +6067,25 @@ public void testBug488795() {
 			"}\n"
 		});
 }
+public void testBug489976() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.*;\n" + 
+			"import static java.util.stream.Collectors.*;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"class Key {}\n" + 
+			"class Value {}\n" + 
+			"public class Test {\n" + 
+			"  void test (List<Map<Key, Value>> maps) {\n" + 
+			"    maps.stream().flatMap(s->s.entrySet().stream()).collect(\n" + 
+			"        groupingBy(e -> e.getKey(), \n" + 
+			"            mapping(e -> e.getValue(),  collectingAndThen(toList(),x->x))\n" + 
+			"        )\n" + 
+			"    );\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
 }
