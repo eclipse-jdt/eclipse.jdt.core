@@ -28,6 +28,12 @@
 		  <artifactId>tycho-compiler-plugin</artifactId>
 		  <configuration>
 		    <useProjectSettings>true</useProjectSettings>
+            <compilerArgs>
+              <args>-annotationpath</args>
+              <args>${project.basedir}/JREannotations</args>
+              <args>-encoding</args>
+              <args>${project.build.sourceEncoding}</args>
+            </compilerArgs>
 		  </configuration>
 		</plugin>
   	</plugins>
