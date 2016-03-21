@@ -849,19 +849,27 @@ class BoundSet {
 		//  α = S and T <: α imply ⟨T <: S⟩
 		InferenceVariable alpha = boundS.left;
 		TypeBinding s = boundS.right;
-		if (TypeBinding.equalsEquals(alpha,boundT.left))
-			return ConstraintTypeFormula.create(s, boundT.right, boundT.relation, boundT.isSoft||boundS.isSoft);
-		if (TypeBinding.equalsEquals(alpha, boundT.right))
-			return ConstraintTypeFormula.create(boundT.right, s, boundT.relation, boundT.isSoft||boundS.isSoft);
+		if (TypeBinding.equalsEquals(alpha, boundT.left)) {
+			TypeBinding t = boundT.right;
+			return ConstraintTypeFormula.create(s, t, boundT.relation, boundT.isSoft||boundS.isSoft);
+		}
+		if (TypeBinding.equalsEquals(alpha, boundT.right)) {
+			TypeBinding t = boundT.left;
+			return ConstraintTypeFormula.create(t, s, boundT.relation, boundT.isSoft||boundS.isSoft);
+		}
 
 		if (boundS.right instanceof InferenceVariable) {
 			// reverse:
 			alpha = (InferenceVariable) boundS.right;
 			s = boundS.left;
-			if (TypeBinding.equalsEquals(alpha, boundT.left))
-				return ConstraintTypeFormula.create(s, boundT.right, boundT.relation, boundT.isSoft||boundS.isSoft);
-			if (TypeBinding.equalsEquals(alpha, boundT.right))
-				return ConstraintTypeFormula.create(boundT.right, s, boundT.relation, boundT.isSoft||boundS.isSoft);			
+			if (TypeBinding.equalsEquals(alpha, boundT.left)) {
+				TypeBinding t = boundT.right;
+				return ConstraintTypeFormula.create(s, t, boundT.relation, boundT.isSoft||boundS.isSoft);
+			}
+			if (TypeBinding.equalsEquals(alpha, boundT.right)) {
+				TypeBinding t = boundT.left;
+				return ConstraintTypeFormula.create(t, s, boundT.relation, boundT.isSoft||boundS.isSoft);
+			}			
 		}
 		
 		//  α = U and S <: T imply ⟨S[α:=U] <: T[α:=U]⟩ 
