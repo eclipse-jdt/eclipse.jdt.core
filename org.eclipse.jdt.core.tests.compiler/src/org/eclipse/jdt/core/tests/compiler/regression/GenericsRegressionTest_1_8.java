@@ -7031,4 +7031,45 @@ public void testBug499725() {
 			"}\n"
 		});
 }
+public void testBug502350() {
+	runNegativeTest(
+		new String[] {
+			"makeCompilerFreeze/EclipseJava8Bug.java",
+			"package makeCompilerFreeze;\n" +
+			"\n" +
+			"interface Comparable<E> {} \n" +
+			"\n" +
+			"interface Comparator<A> {\n" +
+			"  public static <B extends Comparable<B>> Comparator<B> naturalOrder() {\n" +
+			"    return null;\n" +
+			"  }\n" +
+			"}\n" +
+			"\n" +
+			"\n" +
+			"class Stuff {\n" +
+			"  public static <T, S extends T> Object func(Comparator<T> comparator) {\n" +
+			"    return null;\n" +
+			"  }\n" +
+			"}\n" +
+			"\n" +
+			"public class EclipseJava8Bug {\n" +
+			"  static final Object BORKED =\n" +
+			"      Stuff.func(Comparator.naturalOrder());\n" +
+			"}\n" +
+			"\n" +
+			"",
+		},
+		"----------\n" + 
+		"1. ERROR in makeCompilerFreeze\\EclipseJava8Bug.java (at line 20)\n" + 
+		"	Stuff.func(Comparator.naturalOrder());\n" + 
+		"	      ^^^^\n" + 
+		"The method func(Comparator<T>) in the type Stuff is not applicable for the arguments (Comparator<Comparable<Comparable<B>>>)\n" + 
+		"----------\n" + 
+		"2. ERROR in makeCompilerFreeze\\EclipseJava8Bug.java (at line 20)\n" + 
+		"	Stuff.func(Comparator.naturalOrder());\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Comparator<Comparable<Comparable<B>>> to Comparator<T>\n" + 
+		"----------\n"
+	);
+}
 }
