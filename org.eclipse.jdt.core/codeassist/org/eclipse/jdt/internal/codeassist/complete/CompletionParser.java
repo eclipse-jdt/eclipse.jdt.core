@@ -170,6 +170,8 @@ public class CompletionParser extends AssistParser {
 	private boolean inReferenceExpression;
 	private IProgressMonitor monitor;
 	private int resumeOnSyntaxError = 0;
+	
+	private TypeReference pendingProvidesInterface = null;
 
 	enum MIStatementIdentity {
 		SINGLE_EXPORTS,
@@ -1572,10 +1574,10 @@ private boolean checkModuleInfoConstructs() {
 					formCompletionOnUsesTypeRef(index, length, module);
 					return true;
 				case PROVIDES_STATEMENT:
-					//TODO : Implement
+					formCompletionOnProvidesInterfacesTypeRef(index, length, module);
 					return true;
 				case PROVIDES_STATEMENT_WITH:
-					// TODO: Implement
+					formCompletionOnProvidesImplementationsTypeRef(index, length, module);
 					return true;
 				case DEFAULT_MI_STATEMENT:
 					keywords[count++] = Keywords.EXPORTS;
@@ -1605,6 +1607,33 @@ private void formCompletionOnUsesTypeRef(int index, int length, RecoveredModule 
 	module.addUses(reference, 0);
 	this.assistNodeParent = module.typeDeclaration;
 }
+private void formCompletionOnProvidesInterfacesTypeRef(int index, int length, RecoveredModule module) {
+	long[] positions = new long[length];
+	System.arraycopy(
+		this.identifierPositionStack,
+		this.identifierPtr - length + 1,
+		positions,
+		0,
+		length);
+	TypeReference reference = index == 0 ? new CompletionOnProvidesInterfacesSingleTypeReference(assistIdentifier(), positions[0]) :
+		new CompletionOnProvidesInterfacesQualifiedTypeReference(identifierSubSet(index),	assistIdentifier(),	positions);
+	module.addProvidesInterfaces(reference, 0);
+	this.assistNodeParent = module.typeDeclaration;
+}
+private void formCompletionOnProvidesImplementationsTypeRef(int index, int length, RecoveredModule module) {
+	long[] positions = new long[length];
+	System.arraycopy(
+		this.identifierPositionStack,
+		this.identifierPtr - length + 1,
+		positions,
+		0,
+		length);
+	TypeReference reference = index == 0 ? new CompletionOnProvidesImplementationsSingleTypeReference(assistIdentifier(), positions[0]) :
+		new CompletionOnProvidesImplementationsQualifiedTypeReference(identifierSubSet(index),	assistIdentifier(),	positions);
+	module.addProvidesImplementations(this.pendingProvidesInterface, reference, 0);
+	this.assistNodeParent = module.typeDeclaration;
+}
+
 private boolean checkInstanceofKeyword() {
 	if(isInsideMethod()) {
 		int kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
@@ -3699,7 +3728,7 @@ protected void consumeToken(int token) {
 		this.moduleStatementId = MIStatementIdentity.USES_STATEMENT;
 	}	else if (token == TokenNamewith && this.moduleStatementId == MIStatementIdentity.PROVIDES_STATEMENT) {
 		this.moduleStatementId = MIStatementIdentity.PROVIDES_STATEMENT_WITH;
-	}
+	} 
 
 	// if in a method or if in a field initializer
 	if (isInsideMethod() || isInsideFieldInitialization() || isInsideAttributeValue()) {
@@ -4412,6 +4441,43 @@ protected void consumeWildcardBounds3Extends() {
 			this.assistNodeParent = wildcard;
 	}
 	popElement(K_EXTENDS_KEYWORD);
+}
+protected TypeReference getProvidesInterfaceTypeReference() {
+	/* build a Reference on a variable that may be qualified or not */
+
+    TypeReference ref = null;
+	int length = this.identifierLengthStack[this.identifierLengthPtr];
+	if (length > 0) {
+		if (length == 1) {
+			ref = new SingleTypeReference(this.identifierStack[this.identifierPtr],
+							this.identifierPositionStack[this.identifierPtr]);
+		} else {
+			//Qualified type reference
+			char[][] tokens = new char[length][];
+			long[] positions = new long[length];
+			int start = this.identifierPtr - length + 1;
+			System.arraycopy(this.identifierStack, start, tokens, 0, length);
+			System.arraycopy(
+				this.identifierPositionStack,
+				start,
+				positions,
+				0,
+				length);
+			ref = new QualifiedTypeReference(tokens, positions);
+		}
+	}
+	return ref;
+}
+
+protected void consumeWithClause() {
+	super.consumeWithClause();
+	ModuleDeclaration module = (ModuleDeclaration) this.astStack[this.astPtr];
+	if (module.implementations != null && module.implementations.length > 0) {
+		TypeReference impl = module.implementations[module.implementations.length - 1];
+		if (impl instanceof CompletionOnSingleTypeReference || impl instanceof CompletionOnQualifiedTypeReference) {
+			this.pendingProvidesInterface = getProvidesInterfaceTypeReference();
+		}		
+	}
 }
 protected void consumeUnaryExpression(int op) {
 	super.consumeUnaryExpression(op);

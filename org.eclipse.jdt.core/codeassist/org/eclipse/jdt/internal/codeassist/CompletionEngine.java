@@ -1728,6 +1728,14 @@ public final class CompletionEngine
 			completionOnUsesQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnUsesSingleTypeReference) {
 			completionOnUsesSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
+		} else if (astNode instanceof CompletionOnProvidesInterfacesQualifiedTypeReference) {
+			completionOnProvidesInterfacesQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
+		} else if (astNode instanceof CompletionOnProvidesInterfacesSingleTypeReference) {
+			completionOnProvidesInterfacesSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
+		} else if (astNode instanceof CompletionOnProvidesImplementationsQualifiedTypeReference) {
+			completionOnProvidesImplementationsQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
+		} else if (astNode instanceof CompletionOnProvidesImplementationsSingleTypeReference) {
+			completionOnProvidesImplementationsSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnQualifiedTypeReference) {
 			completionOnQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnMemberAccess) {
@@ -3347,6 +3355,16 @@ public final class CompletionEngine
 		completionOnQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 	}
 
+	private void completionOnProvidesInterfacesQualifiedTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
+		// TODO: Filter the results wrt accessibility and add relevance to the results.
+		completionOnQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
+	}
+
+	private void completionOnProvidesImplementationsQualifiedTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
+		// TODO: Filter the results wrt accessibility and add relevance to the results.
+		completionOnQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
+	}
+
 	private void completionOnSingleNameReference(ASTNode astNode, ASTNode astNodeParent, Scope scope,
 			boolean insideTypeAnnotation) {
 		CompletionOnSingleNameReference singleNameReference = (CompletionOnSingleNameReference) astNode;
@@ -3471,6 +3489,15 @@ public final class CompletionEngine
 		}
 	}
 	private void completionOnUsesSingleTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
+		// TODO : filter the results.
+		completionOnSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
+	}
+
+	private void completionOnProvidesInterfacesSingleTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
+		// TODO : filter the results.
+		completionOnSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
+	}
+	private void completionOnProvidesImplementationsSingleTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
 		// TODO : filter the results.
 		completionOnSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 	}
