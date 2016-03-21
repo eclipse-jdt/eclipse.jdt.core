@@ -2077,7 +2077,7 @@ public void configure(String[] argv) {
 							this.bind("configure.duplicateCompliance", currentArg)); //$NON-NLS-1$
 					}
 					didSpecifyCompliance = true;
-					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_9);
+					this.options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_9);
 					mode = DEFAULT;
 					continue;
 				}
@@ -4741,7 +4741,7 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 				this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
 				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
 			}
-		} else if (CompilerOptions.VERSION_1_9.equals(version)) {
+		} else if (CompilerOptions.VERSION_9.equals(version)) {
 			if (this.didSpecifySource) {
 				Object source = this.options.get(CompilerOptions.OPTION_Source);
 				if (CompilerOptions.VERSION_1_3.equals(source)
@@ -4754,12 +4754,12 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
 				} else if (CompilerOptions.VERSION_1_8.equals(source)) {
 					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
-				} else if (CompilerOptions.VERSION_1_9.equals(source)) {
-					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_9);
+				} else if (CompilerOptions.VERSION_9.equals(source)) {
+					if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
 				}
 			} else {
-				this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_9);
-				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_9);
+				this.options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_9);
+				if (!this.didSpecifyTarget) this.options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
 			}
 		}
 	} else if (this.didSpecifySource) {

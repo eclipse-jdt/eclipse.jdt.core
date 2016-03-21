@@ -151,7 +151,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		TestCase.RUN_ONLY_ID = null;
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_8, tests_1_8));
 	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_9) != 0) {
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_9) != 0) {
 		ArrayList tests_1_9 = (ArrayList)testClasses.clone();
 		tests_1_9.addAll(TEST_CLASSES_1_5);
 		tests_1_9.add(ParserTest1_7.class);
@@ -167,7 +167,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		TestCase.TESTS_NUMBERS= null;
 		TestCase.TESTS_RANGE = null;
 		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_9, tests_1_9));
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK9, tests_1_9));
 	}
 	return all;
 }

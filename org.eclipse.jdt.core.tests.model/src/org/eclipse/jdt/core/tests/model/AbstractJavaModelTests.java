@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1775,11 +1779,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_8);
 					javaProject.setOptions(options);
-				} else if ("1.9".equals(compliance)) {
+				} else if ("9".equals(compliance)) {
 					Map options = new HashMap();
-					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_9);
-					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_9);
-					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_9);
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_9);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_9);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
 					javaProject.setOptions(options);
 				}
 				result[0] = javaProject;

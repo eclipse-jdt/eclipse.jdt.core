@@ -390,7 +390,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public static class CompilationParticipants {
 
-		private final static int MAX_SOURCE_LEVEL = 8; // 1.1 to 1.8
+		private final static int MAX_SOURCE_LEVEL = 9; // 1.1 to 1.8 and 9
 
 		/*
 		 * The registered compilation participants (a table from int (source level) to Object[])
@@ -516,6 +516,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		 * ...
 		 * 1.6 -> 5
 		 * 1.7 -> 6
+		 * 1.8 -> 7
+		 * 9 -> 8
 		 * null -> 0
 		 */
 		private int indexForSourceLevel(String sourceLevel) {
@@ -536,6 +538,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					return 6;
 				case ClassFileConstants.MAJOR_VERSION_1_8:
 					return 7;
+				case ClassFileConstants.MAJOR_VERSION_9:
+					return 8;
 				default:
 					// all other cases including ClassFileConstants.MAJOR_VERSION_1_1
 					return 0;

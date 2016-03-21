@@ -918,8 +918,8 @@ protected static class JavacTestOptions {
 			buffer.append("\" -1.7 " + processAnnot);
 		} else if (this.complianceLevel == ClassFileConstants.JDK1_8) {
 			buffer.append("\" -1.8 " + processAnnot);
-		} else if (this.complianceLevel == ClassFileConstants.JDK1_9) {
-			buffer.append("\" -1.9 " + processAnnot);
+		} else if (this.complianceLevel == ClassFileConstants.JDK9) {
+			buffer.append("\" -9 " + processAnnot);
 		}
 		buffer
 			.append(" -preserveAllLocals -nowarn -g -classpath \"")

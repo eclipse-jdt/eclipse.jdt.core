@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBM Corporation and others.
+ * Copyright (c) 2015, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,11 +25,11 @@ public Unicode19Test(String name) {
 	super(name);
 }
 public static Test suite() {
-	return buildMinimalComplianceTestSuite(testClass(), F_1_9);
+	return buildMinimalComplianceTestSuite(testClass(), F_9);
 }
 public void test481000() {
 	Map<String, String> options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_9);
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_9);
 	this.runConformTest(
 		new String[] {
 			"X.java",

@@ -30,6 +30,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ModulePackageFragmentRoot;
 
@@ -45,8 +46,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	private static boolean isJRE9 = false;
 	public static Test suite() {
-		String specVersion = System.getProperty("java.specification.version");
-		if (CompilerOptions.VERSION_1_9.equals(specVersion)) {
+		String javaVersion = System.getProperty("java.version");
+		if (javaVersion.length() > 3) {
+			javaVersion = javaVersion.substring(0, 3);
+		}
+		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK9) {
 			isJRE9 = true;
 		}
 		return buildModelTestSuite(ModuleBuilderTests.class, BYTECODE_DECLARATION_ORDER);
@@ -65,7 +70,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		String bootModPath = System.getProperty("java.home") +File.separator +"lib/modules/bootmodules.jimage";
 		IClasspathEntry jimageEntry = JavaCore.newLibraryEntry(new Path(bootModPath), null, null, null, null, false);
 		IJavaProject project = this.createJavaProject(name, new String[] { "src" }, new String[0],
-				new String[0], "bin", "1.9");
+				new String[0], "bin", "9");
 		IClasspathEntry[] old = project.getRawClasspath();
 		IClasspathEntry[] newPath = new IClasspathEntry[old.length +1];
 		System.arraycopy(old, 0, newPath, 0, old.length);
@@ -687,8 +692,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		if (!isJRE9) return;
 		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
 		try {
-			IJavaProject project = setUpJavaProject("ConvertToModule", "1.9");
-			if (!project.getOption("org.eclipse.jdt.core.compiler.compliance", true).equals("1.9")) {
+			IJavaProject project = setUpJavaProject("ConvertToModule", "9");
+			if (!project.getOption("org.eclipse.jdt.core.compiler.compliance", true).equals("9")) {
 				return;
 			}
 			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);

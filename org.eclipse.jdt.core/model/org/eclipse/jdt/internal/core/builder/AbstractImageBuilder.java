@@ -235,7 +235,7 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 										return false;
 								SourceFile unit = new SourceFile((IFile) resource, sourceLocation);
 								String complianceLevel = AbstractImageBuilder.this.javaBuilder.javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
-								if (CompilerOptions.versionToJdkLevel(complianceLevel) >= ClassFileConstants.JDK1_9 &&
+								if (CompilerOptions.versionToJdkLevel(complianceLevel) >= ClassFileConstants.JDK9 &&
 										resource.getName().equalsIgnoreCase(ClasspathLocation.MODULE_INFO_JAVA)) {
 									sourceLocation.acceptModuleInfo(unit, AbstractImageBuilder.this.compiler.parser);
 								}

@@ -37,7 +37,7 @@ public abstract class ModuleEnvironment implements INameEnvironment {
 	 * Understands modules
 	 * Understand module dependencies and restrictions
 	 * Given a ModuleDeclaration, creates an IModule
-	 * TODO: This should kick-in only when source level is >= 1.9
+	 * TODO: This should kick-in only when source level is >= 9
 	 */
 	public static final char[] UNNAMED = "UNNAMED".toCharArray(); //$NON-NLS-1$
 	public static final IModule UNNAMED_MODULE = new IModule() {

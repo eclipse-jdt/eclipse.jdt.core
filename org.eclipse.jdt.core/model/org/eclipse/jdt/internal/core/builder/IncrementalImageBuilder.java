@@ -605,7 +605,7 @@ protected boolean findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDire
 						this.sourceFiles.add(new SourceFile((IFile) resource, md, true));
 						this.sourceFiles.add(new SourceFile((IFile) resource, md, true));
 						String complianceLevel = IncrementalImageBuilder.this.javaBuilder.javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
-						if (CompilerOptions.versionToJdkLevel(complianceLevel) >= ClassFileConstants.JDK1_9) {
+						if (CompilerOptions.versionToJdkLevel(complianceLevel) >= ClassFileConstants.JDK9) {
 							md.resetModule(this.nameEnvironment.getModule(md));
 						}
 						String typeName = typePath.toString();
@@ -647,7 +647,7 @@ protected boolean findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDire
 							System.out.println("Compile this changed source file " + typeLocator); //$NON-NLS-1$
 						this.sourceFiles.add(new SourceFile((IFile) resource, md, true));
 						complianceLevel = IncrementalImageBuilder.this.javaBuilder.javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
-						if (CompilerOptions.versionToJdkLevel(complianceLevel) >= ClassFileConstants.JDK1_9) {
+						if (CompilerOptions.versionToJdkLevel(complianceLevel) >= ClassFileConstants.JDK9) {
 							//md.resetModule(this.nameEnvironment.getModule(md)); TODO: revisit why this is needed
 						}
 				}

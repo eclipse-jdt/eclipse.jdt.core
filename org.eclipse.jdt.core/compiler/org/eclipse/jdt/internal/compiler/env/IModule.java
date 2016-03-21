@@ -15,7 +15,7 @@
 package org.eclipse.jdt.internal.compiler.env;
 
 /**
- * Represents Java Module, introduced in JLS 1.9. A Java module can
+ * Represents Java Module, introduced in JLS 9. A Java module can
  * either be created from the source (module-info.java) or binary.
  */
 public interface IModule {

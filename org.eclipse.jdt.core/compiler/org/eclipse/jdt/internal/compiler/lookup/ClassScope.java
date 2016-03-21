@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -645,7 +645,7 @@ public class ClassScope extends Scope {
 			}
 		} else {
 			if (sourceType.sourceName == TypeConstants.MODULE_INFO_NAME) {
-				// TBD - allowed only at source level 1.9 or above
+				// TBD - allowed only at source level 9 or above
 				modifiers = ClassFileConstants.AccModule;
 			} else
 			// detect abnormal cases for classes

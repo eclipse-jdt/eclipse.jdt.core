@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -239,7 +239,7 @@ public static Test suite() {
 		TestCase.RUN_ONLY_ID = null;
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_8, tests_1_8));
 	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_9) != 0) {
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_9) != 0) {
 		ArrayList tests_1_9 = (ArrayList)standardTests.clone();
 		tests_1_9.addAll(since_1_4);
 		tests_1_9.addAll(since_1_5);
@@ -253,7 +253,7 @@ public static Test suite() {
 		TestCase.TESTS_NUMBERS= null;
 		TestCase.TESTS_RANGE = null;
 		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_9, tests_1_9));
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK9, tests_1_9));
 	}
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;

@@ -208,7 +208,7 @@ public class CompilerOptions {
 	public static final String VERSION_1_6 = "1.6"; //$NON-NLS-1$
 	public static final String VERSION_1_7 = "1.7"; //$NON-NLS-1$
 	public static final String VERSION_1_8 = "1.8"; //$NON-NLS-1$
-	public static final String VERSION_1_9 = "1.9"; //$NON-NLS-1$
+	public static final String VERSION_9 = "9"; //$NON-NLS-1$
 	public static final String ERROR = "error"; //$NON-NLS-1$
 	public static final String WARNING = "warning"; //$NON-NLS-1$
 	public static final String INFO = "info"; //$NON-NLS-1$
@@ -753,9 +753,9 @@ public class CompilerOptions {
 				if (jdkLevel == ClassFileConstants.JDK1_8)
 					return VERSION_1_8;
 				break;
-			case ClassFileConstants.MAJOR_VERSION_1_9 :
-				if (jdkLevel == ClassFileConstants.JDK1_9)
-					return VERSION_1_9;
+			case ClassFileConstants.MAJOR_VERSION_9 :
+				if (jdkLevel == ClassFileConstants.JDK9)
+					return VERSION_9;
 				break;
 		}
 		return Util.EMPTY_STRING; // unknown version
@@ -764,28 +764,34 @@ public class CompilerOptions {
 	public static long versionToJdkLevel(String versionID) {
 		String version = versionID;
 		// verification is optimized for all versions with same length and same "1." prefix
-		if (version != null && version.length() == 3 && version.charAt(0) == '1' && version.charAt(1) == '.') {
-			switch (version.charAt(2)) {
-				case '1':
-					return ClassFileConstants.JDK1_1;
-				case '2':
-					return ClassFileConstants.JDK1_2;
-				case '3':
-					return ClassFileConstants.JDK1_3;
-				case '4':
-					return ClassFileConstants.JDK1_4;
-				case '5':
-					return ClassFileConstants.JDK1_5;
-				case '6':
-					return ClassFileConstants.JDK1_6;
-				case '7':
-					return ClassFileConstants.JDK1_7;
-				case '8':
-					return ClassFileConstants.JDK1_8;
-				case '9':
-					return ClassFileConstants.JDK1_9;
-				default:
-					return 0; // unknown
+		if (version != null && version.length() > 0) {
+			if (version.length() == 3 && version.charAt(0) == '1' && version.charAt(1) == '.') {
+				switch (version.charAt(2)) {
+					case '1':
+						return ClassFileConstants.JDK1_1;
+					case '2':
+						return ClassFileConstants.JDK1_2;
+					case '3':
+						return ClassFileConstants.JDK1_3;
+					case '4':
+						return ClassFileConstants.JDK1_4;
+					case '5':
+						return ClassFileConstants.JDK1_5;
+					case '6':
+						return ClassFileConstants.JDK1_6;
+					case '7':
+						return ClassFileConstants.JDK1_7;
+					case '8':
+						return ClassFileConstants.JDK1_8;
+					default:
+						return 0; // unknown
+				}
+			} else {
+				switch (version.charAt(0)) {
+					case '9':
+						return ClassFileConstants.JDK9;
+					// No default - let it go through the remaining checks.
+				}
 			}
 		}
 		if (VERSION_JSR14.equals(versionID)) {

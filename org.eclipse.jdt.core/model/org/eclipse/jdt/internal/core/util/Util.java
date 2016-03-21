@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -851,8 +851,7 @@ public class Util {
 					}
 					if (path != null) {
 						if (JavaModelManager.isJimage(path)) {
-							// TODO(BETA_JAVA9): At the moment, there's no new class file version for Java 9.
-							return ClassFileConstants.JDK1_8;
+							return ClassFileConstants.JDK9;
 						} else {
 							jar = JavaModelManager.getJavaModelManager().getZipFile(path);
 							for (Enumeration e= jar.entries(); e.hasMoreElements();) {
