@@ -13,21 +13,26 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.runtime.*;
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassWithExternalAnnotations;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
-
-import java.io.*;
-import java.util.*;
-import java.util.zip.*;
 
 @SuppressWarnings("rawtypes")
 public class ClasspathJar extends ClasspathLocation {
@@ -165,13 +170,19 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	if (!isPackage(qualifiedPackageName)) return null; // most common case
 
 	try {
-		ClassFileReader reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
+		IBinaryType reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		if (reader != null) {
 			String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
 			if (this.externalAnnotationPath != null) {
 				try {
-					this.annotationZipFile = reader.setExternalAnnotationProvider(this.externalAnnotationPath, fileNameWithoutExtension, this.annotationZipFile, null);
-				} catch (IOException e) {
+					if (this.annotationZipFile == null) {
+						this.annotationZipFile = ClassWithExternalAnnotations
+								.getAnnotationZipFile(this.externalAnnotationPath, null);
+					}
+
+					reader = ClassWithExternalAnnotations.create(reader, this.externalAnnotationPath,
+							fileNameWithoutExtension, this.annotationZipFile);
+					} catch (IOException e) {
 					// don't let error on annotations fail class reading
 				}
 			}

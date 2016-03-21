@@ -17,24 +17,27 @@
 package org.eclipse.jdt.internal.compiler.classfmt;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.codegen.AttributeNamesConstants;
-import org.eclipse.jdt.internal.compiler.env.*;
+import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
+import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
+import org.eclipse.jdt.internal.compiler.env.IBinaryField;
+import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
+import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
+import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
-import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ClassFileReader extends ClassFileStruct implements IBinaryType {
@@ -67,8 +70,6 @@ public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 	private char[][][] missingTypeNames;
 	private int enclosingNameAndTypeIndex;
 	private char[] enclosingMethod;
-	private ExternalAnnotationProvider annotationProvider;
-	private ExternalAnnotationStatus externalAnnotationStatus = ExternalAnnotationStatus.NOT_EEA_CONFIGURED;
 
 private static String printTypeModifiers(int modifiers) {
 	java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
@@ -412,57 +413,9 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 /** Auxiliary interface for {@link #setExternalAnnotationProvider(String,String,ZipFile,ZipFileProducer)}. */
 public interface ZipFileProducer { ZipFile produce() throws IOException; }
 
-/**
- * Create and remember a provider for external annotations using the given basePath,
- * which is either a directory holding .eea text files, or a zip file of entries of the same format.
- * @param basePath resolved filesystem path of either directory or zip file
- * @param qualifiedBinaryTypeName slash-separated type name
- * @param zipFile an existing zip file for the same basePath, or null. 
- * 		Output: wl be filled with 
- * @param producer an optional helper to produce the zipFile when needed.
- * @return the client provided zip file; 
- * 		or else a fresh new zip file, to let clients cache it, if desired; 
- * 		or null to signal that basePath is not a zip file, but a directory.
- * @throws IOException any unexpected errors during file access. File not found while
- *		accessing an individual file if basePath is a directory <em>is</em> expected,
- *		and simply answered with null. If basePath is neither a directory nor a zip file,
- *		this is unexpected.
- */
-public ZipFile setExternalAnnotationProvider(String basePath, String qualifiedBinaryTypeName, ZipFile zipFile, ZipFileProducer producer) throws IOException {
-	this.externalAnnotationStatus = ExternalAnnotationStatus.NO_EEA_FILE;
-	String qualifiedBinaryFileName = qualifiedBinaryTypeName + ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX;
-	if (zipFile == null) {
-		File annotationBase = new File(basePath);
-		if (annotationBase.isDirectory()) {
-			try {
-				String filePath = annotationBase.getAbsolutePath()+'/'+qualifiedBinaryFileName;
-				this.annotationProvider = new ExternalAnnotationProvider(new FileInputStream(filePath), String.valueOf(getName()));
-				this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
-			} catch (FileNotFoundException e) {
-				// expected, no need to report an error here
-			}
-			return null; // no zipFile
-		}
-		if (!annotationBase.exists())
-			return null; // no zipFile, treat as not-yet-created directory
-		zipFile = (producer != null ? producer.produce() : new ZipFile(annotationBase));
-	}
-	ZipEntry entry = zipFile.getEntry(qualifiedBinaryFileName);
-	if (entry != null) {
-		this.annotationProvider = new ExternalAnnotationProvider(zipFile.getInputStream(entry), String.valueOf(getName()));
-		this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
-	}
-	return zipFile;
-}
-public boolean hasAnnotationProvider() {
-	return this.annotationProvider != null;
-}
-public void markAsFromSource() {
-	this.externalAnnotationStatus = ExternalAnnotationStatus.FROM_SOURCE;
-}
 @Override
 public ExternalAnnotationStatus getExternalAnnotationStatus() {
-	return this.externalAnnotationStatus;
+	return ExternalAnnotationStatus.NOT_EEA_CONFIGURED;
 }
 /**
  * Conditionally add external annotations to the mix.
@@ -471,23 +424,6 @@ public ExternalAnnotationStatus getExternalAnnotationStatus() {
  */
 @Override
 public ITypeAnnotationWalker enrichWithExternalAnnotationsFor(ITypeAnnotationWalker walker, Object member, LookupEnvironment environment) {
-	if (walker == ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER && this.annotationProvider != null) {
-		if (member == null) {
-			return this.annotationProvider.forTypeHeader(environment);
-		} else if (member instanceof IBinaryField) {
-			IBinaryField field = (IBinaryField) member;
-			char[] fieldSignature = field.getGenericSignature();
-			if (fieldSignature == null)
-				fieldSignature = field.getTypeName();
-			return this.annotationProvider.forField(field.getName(), fieldSignature, environment);
-		} else if (member instanceof IBinaryMethod) {
-			IBinaryMethod method = (IBinaryMethod) member;
-			char[] methodSignature = method.getGenericSignature();
-			if (methodSignature == null)
-				methodSignature = method.getMethodDescriptor();
-			return this.annotationProvider.forMethod(method.isConstructor() ? TypeConstants.INIT : method.getSelector(), methodSignature, environment);
-		}
-	}
 	return walker;
 }
 

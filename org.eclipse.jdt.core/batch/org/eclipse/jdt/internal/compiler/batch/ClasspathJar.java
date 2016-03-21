@@ -27,9 +27,12 @@ import java.util.zip.ZipFile;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassWithExternalAnnotations;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -102,15 +105,21 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 		return null; // most common case
 
 	try {
-		ClassFileReader reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
+		IBinaryType reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		if (reader != null) {
 			if (this.annotationPaths != null) {
 				String qualifiedClassName = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length()-SuffixConstants.EXTENSION_CLASS.length()-1);
 				for (String annotationPath : this.annotationPaths) {
 					try {
-						this.annotationZipFile = reader.setExternalAnnotationProvider(annotationPath, qualifiedClassName, this.annotationZipFile, null);
-						if (reader.hasAnnotationProvider())
+						if (this.annotationZipFile == null) {
+							this.annotationZipFile = ClassWithExternalAnnotations.getAnnotationZipFile(annotationPath, null);
+						}
+						IBinaryType nextReader = ClassWithExternalAnnotations.create(reader, annotationPath, qualifiedClassName, this.annotationZipFile);
+
+						if (nextReader.getExternalAnnotationStatus() == ExternalAnnotationStatus.TYPE_IS_ANNOTATED) {
+							reader = nextReader;
 							break;
+						}
 					} catch (IOException e) {
 						// don't let error on annotations fail class reading
 					}

@@ -40,9 +40,14 @@ public class NameEnvironmentAnswer {
 	public AccessRestriction getAccessRestriction() {
 		return this.accessRestriction;
 	}
+
+	public void setBinaryType(IBinaryType newType) {
+		this.binaryType = newType;
+	}
+
 	/**
-	 * Answer the resolved binary form for the type or null if the
-	 * receiver represents a compilation unit or source type.
+	 * Answer the resolved binary form for the type or null if the receiver represents a compilation unit or source
+	 * type.
 	 */
 	public IBinaryType getBinaryType() {
 		return this.binaryType;

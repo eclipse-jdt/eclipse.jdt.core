@@ -30,6 +30,8 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassWithExternalAnnotations;
+import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.nd.java.JavaNames;
@@ -368,37 +370,37 @@ private IBinaryType getJarBinaryTypeInfo(PackageFragment pkg, boolean fullyIniti
 		return null;
 	}
 
-	IBinaryType type = BinaryTypeFactory.readType(descriptor, fullyInitialize, null);
+	IBinaryType result = BinaryTypeFactory.readType(descriptor, fullyInitialize, null);
 
 	// TODO(sxenos): setup the external annotation provider if the IBinaryType came from the index
 	// TODO(sxenos): the old code always passed null as the third argument to setupExternalAnnotationProvider,
 	// but this looks like a bug. I've preserved it for now but we need to figure out what was supposed to go
 	// there.
-	if (type instanceof ClassFileReader) {
-		ClassFileReader reader = (ClassFileReader) type;
-
-		JarPackageFragmentRoot root = (JarPackageFragmentRoot) pkg.getParent();
-		if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
-			JavaProject javaProject = (JavaProject) getAncestor(IJavaElement.JAVA_PROJECT);
-			IClasspathEntry entry = javaProject.getClasspathEntryFor(getPath());
-			if (entry != null) {
-				String entryName = new String(CharArrayUtils.concat(
-						JavaNames.fieldDescriptorToBinaryName(descriptor.fieldDescriptor), SuffixConstants.SUFFIX_CLASS));
-				IProject project = javaProject.getProject();
-				IPath externalAnnotationPath = ClasspathEntry.getExternalAnnotationPath(entry, project, false); // unresolved for use in ExternalAnnotationTracker
-				if (externalAnnotationPath != null)
-					setupExternalAnnotationProvider(project, externalAnnotationPath, null, reader,
-							entryName.substring(0, entryName.length() - SuffixConstants.SUFFIX_CLASS.length));
+	JarPackageFragmentRoot root = (JarPackageFragmentRoot) pkg.getParent();
+	if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
+		JavaProject javaProject = (JavaProject) getAncestor(IJavaElement.JAVA_PROJECT);
+		IClasspathEntry entry = javaProject.getClasspathEntryFor(getPath());
+		if (entry != null) {
+			String entryName = new String(CharArrayUtils.concat(
+					JavaNames.fieldDescriptorToBinaryName(descriptor.fieldDescriptor), SuffixConstants.SUFFIX_CLASS));
+			IProject project = javaProject.getProject();
+			IPath externalAnnotationPath = ClasspathEntry.getExternalAnnotationPath(entry, project, false); // unresolved for use in ExternalAnnotationTracker
+			if (externalAnnotationPath != null) {
+				result = setupExternalAnnotationProvider(project, externalAnnotationPath, null, result, 
+					entryName.substring(0, entryName.length() - SuffixConstants.SUFFIX_CLASS.length));
+			} else if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+				result = new ClassWithExternalAnnotations(result, true);
 			}
 		}
 	}
 
-	return type;
+	return result;
 }
 
-private void setupExternalAnnotationProvider(IProject project, final IPath externalAnnotationPath,
-		ZipFile annotationZip, ClassFileReader reader, final String typeName)
+private IBinaryType setupExternalAnnotationProvider(IProject project, final IPath externalAnnotationPath,
+		ZipFile annotationZip, IBinaryType reader, final String typeName)
 {
+	IBinaryType result = reader;
 	// try resolve path within the workspace:
 	IWorkspaceRoot root = project.getWorkspace().getRoot();
 	IResource resource;
@@ -414,24 +416,30 @@ private void setupExternalAnnotationProvider(IProject project, final IPath exter
 		if (resource.isVirtual()) {
 			Util.log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID,
 					"Virtual resource "+externalAnnotationPath+" cannot be used as annotationpath for project "+project.getName())); //$NON-NLS-1$ //$NON-NLS-2$
-			return;
+			return reader;
 		}
 		resolvedPath = resource.getLocation().toString(); // workspace lookup succeeded -> resolve it
 	} else {
 		resolvedPath = externalAnnotationPath.toString(); // not in workspace, use as is
 	}
 	try {
-		annotationZip = reader.setExternalAnnotationProvider(resolvedPath, typeName, annotationZip, new ClassFileReader.ZipFileProducer() {
-			@Override public ZipFile produce() throws IOException {
-				try {
-					return JavaModelManager.getJavaModelManager().getZipFile(externalAnnotationPath); // use (absolute, but) unresolved path here
-				} catch (CoreException e) {
-					throw new IOException("Failed to read annotation file for "+typeName+" from "+externalAnnotationPath.toString(), e); //$NON-NLS-1$ //$NON-NLS-2$
-				}
-			}});
+		if (annotationZip == null) {
+			annotationZip = ClassWithExternalAnnotations.getAnnotationZipFile(resolvedPath, new ClassFileReader.ZipFileProducer() {
+				@Override public ZipFile produce() throws IOException {
+					try {
+						return JavaModelManager.getJavaModelManager().getZipFile(externalAnnotationPath); // use (absolute, but) unresolved path here
+					} catch (CoreException e) {
+						throw new IOException("Failed to read annotation file for "+typeName+" from "+externalAnnotationPath.toString(), e); //$NON-NLS-1$ //$NON-NLS-2$
+					}
+				}});
+		}
+
+		ExternalAnnotationProvider annotationProvider = ClassWithExternalAnnotations
+				.externalAnnotationProvider(resolvedPath, typeName, annotationZip);
+		result = new ClassWithExternalAnnotations(reader, annotationProvider);
 	} catch (IOException e) {
 		Util.log(e);
-		return;
+		return result;
 	}
 	if (annotationZip == null) {
 		// Additional change listening for individual types only when annotations are in individual files.
@@ -439,6 +447,7 @@ private void setupExternalAnnotationProvider(IProject project, final IPath exter
 		this.externalAnnotationBase = externalAnnotationPath; // remember so we can unregister later
 		ExternalAnnotationTracker.registerClassFile(externalAnnotationPath, new Path(typeName), this);
 	}
+	return result;
 }
 void closeAndRemoveFromJarTypeCache() throws JavaModelException {
 	super.close();

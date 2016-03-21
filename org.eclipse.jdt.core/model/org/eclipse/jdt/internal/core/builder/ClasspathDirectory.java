@@ -13,12 +13,15 @@ package org.eclipse.jdt.internal.core.builder;
 import java.io.IOException;
 import java.util.zip.ZipFile;
 
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
-
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassWithExternalAnnotations;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -107,7 +110,7 @@ public boolean equals(Object o) {
 public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName) {
 	if (!doesFileExist(binaryFileName, qualifiedPackageName, qualifiedBinaryFileName)) return null; // most common case
 
-	ClassFileReader reader = null;
+	IBinaryType reader = null;
 	try {
 		reader = Util.newClassFileReader(this.binaryFolder.getFile(new Path(qualifiedBinaryFileName)));
 	} catch (CoreException e) {
@@ -121,7 +124,12 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 		String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
 		if (this.externalAnnotationPath != null) {
 			try {
-				this.annotationZipFile = reader.setExternalAnnotationProvider(this.externalAnnotationPath, fileNameWithoutExtension, this.annotationZipFile, null);
+				if (this.annotationZipFile == null) {
+					this.annotationZipFile = ClassWithExternalAnnotations
+							.getAnnotationZipFile(this.externalAnnotationPath, null);
+				}
+				reader = ClassWithExternalAnnotations.create(reader, this.externalAnnotationPath,
+						fileNameWithoutExtension, this.annotationZipFile);
 			} catch (IOException e) {
 				// don't let error on annotations fail class reading
 			}
