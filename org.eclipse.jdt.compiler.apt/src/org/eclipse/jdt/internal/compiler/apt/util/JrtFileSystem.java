@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBM Corporation.
+ * Copyright (c) 2016 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.internal.compiler.tool;
+package org.eclipse.jdt.internal.compiler.apt.util;
 
 import java.io.File;
 import java.io.IOException;
@@ -39,13 +39,13 @@ import java.util.zip.ZipException;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
-import org.eclipse.jdt.internal.compiler.util.JimageUtil;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 
-public class Jimage extends Archive {
+public class JrtFileSystem extends Archive {
 
 	private static URI JRT_URI = URI.create("jrt:/"); //$NON-NLS-1$
 	
-	private static final String BOOT_MODULE = "bootmodules.jimage"; //$NON-NLS-1$
+	private static final String BOOT_MODULE = "jrt-fs.jar"; //$NON-NLS-1$
 	
 	private static final String MODULES_SUBDIR = "/modules"; //$NON-NLS-1$
 	
@@ -53,12 +53,11 @@ public class Jimage extends Archive {
 
 	private Set<String> typesCache = null;
 	
-	public Jimage(File file) throws ZipException, IOException {
+	public JrtFileSystem(File file) throws ZipException, IOException {
 		this.file = file;
 		initialize();
 	}
 	
-	@SuppressWarnings("resource")
 	private void initialize() throws IOException {
 		// initialize packages
 		this.packagesCache = new Hashtable<>();
@@ -111,12 +110,8 @@ public class Jimage extends Archive {
 		}
 	}
 	
-	@Override
-	public ArchiveFileObject getArchiveFileObject(String fileName, String module, Charset charset) {
-		return new JimageFileObject(this.file, fileName, module, charset);
-	}
 	public ArchiveFileObject getArchiveFileObject(String fileName, Charset charset) {
-		return new JimageFileObject(this.file, fileName, null, charset);
+		return new JrtFileObject(this.file, fileName, null, charset);
 	}
 	
 	@Override
@@ -155,12 +150,12 @@ public class Jimage extends Archive {
 	
 	@Override
 	public String toString() {
-		return "Jimage: " + (this.file == null ? "UNKNOWN_ARCHIVE" : this.file.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
+		return "JRT: " + (this.file == null ? "UNKNOWN_ARCHIVE" : this.file.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
-	class JimageFileObject extends ArchiveFileObject {
-		String module = null;
-		private JimageFileObject(File file, String fileName, String module, Charset charset) {
+	class JrtFileObject extends ArchiveFileObject {
+		IModule module = null;
+		private JrtFileObject(File file, String fileName, IModule module, Charset charset) {
 			super(file, fileName, charset);
 			this.module = module;
 		}
@@ -174,9 +169,7 @@ public class Jimage extends Archive {
 		protected ClassFileReader getClassReader() {
 			ClassFileReader reader = null;
 			try {
-				byte[] content = JimageUtil.getClassfileContent(this.file, this.entryName, this.module);
-				if (content == null) return null;
-				return new ClassFileReader(content, this.entryName.toCharArray());
+				reader = ClassFileReader.readFromJrt(this.file, this.entryName, this.module);
 			} catch (ClassFormatException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -193,12 +186,12 @@ public class Jimage extends Archive {
 		public CharSequence getCharContent(boolean ignoreEncodingErrors) throws IOException {
 			try {
 				return Util.getCharContents(this, ignoreEncodingErrors,
-						org.eclipse.jdt.internal.compiler.util.JimageUtil.getClassfileContent(this.file, this.entryName, this.module),
+						org.eclipse.jdt.internal.compiler.util.JRTUtil.getClassfileContent(this.file, this.entryName, new String(this.module.name())),
 						this.charset.name());
 			} catch (ClassFormatException e) {
 				e.printStackTrace();
-				return null;
 			}
+			return null;
 		}
 
 		/* (non-Javadoc)
@@ -222,7 +215,7 @@ public class Jimage extends Archive {
 		 */
 		@Override
 		public InputStream openInputStream() throws IOException {
-			return org.eclipse.jdt.internal.compiler.util.JimageUtil.getContentFromJimage(this.file, this.entryName, null);
+			return org.eclipse.jdt.internal.compiler.util.JRTUtil.getContentFromJrt(this.file, this.entryName, null);
 		}
 
 		/* (non-Javadoc)
@@ -255,7 +248,7 @@ public class Jimage extends Archive {
 		@Override
 		public URI toUri() {
 			try {
-				return new URI("jimage:" + this.file.toURI().getPath() + "!" + this.entryName); //$NON-NLS-1$//$NON-NLS-2$
+				return new URI("JRT:" + this.file.toURI().getPath() + "!" + this.entryName); //$NON-NLS-1$//$NON-NLS-2$
 			} catch (URISyntaxException e) {
 				return null;
 			}

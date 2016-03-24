@@ -353,9 +353,9 @@ public byte[] getBytes() throws JavaModelException {
 private byte[] getClassFileContent(JarPackageFragmentRoot root, String className) throws CoreException, IOException {
 	byte[] contents = null;
 	String rootPath = root.getPath().toOSString();
-	if (org.eclipse.jdt.internal.compiler.util.Util.isJimageName(rootPath)) {
+	if (org.eclipse.jdt.internal.compiler.util.Util.isJrt(rootPath)) {
 			try {
-				contents = org.eclipse.jdt.internal.compiler.util.JimageUtil.getClassfileContent(
+				contents = org.eclipse.jdt.internal.compiler.util.JRTUtil.getClassfileContent(
 						new File(rootPath),
 						className,
 						root.getElementName());
@@ -384,7 +384,7 @@ private IBinaryType getJarBinaryTypeInfo(PackageFragment pkg, boolean fullyIniti
 		if (contents != null) {
 			String fileName;
 			String rootPath = root.getPath().toOSString();
-			if (org.eclipse.jdt.internal.compiler.util.Util.isJimageName(rootPath)) {
+			if (org.eclipse.jdt.internal.compiler.util.Util.isJrt(rootPath)) {
 				fileName = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + 
 						root.getElementName() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
 			} else {

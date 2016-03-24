@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.util.JimageUtil;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 
 public abstract class ModuleEnvironment implements INameEnvironment {
 	/*
@@ -83,7 +83,7 @@ public abstract class ModuleEnvironment implements INameEnvironment {
 		NameEnvironmentAnswer answer = findType(typeName, packageName, getVisibleModules(client));
 		char[] module = null;
 		if(answer == null || (module = answer.moduleName()) == null || 
-				CharOperation.equals(module, JimageUtil.JAVA_BASE_CHAR)) {
+				CharOperation.equals(module, JRTUtil.JAVA_BASE_CHAR)) {
 			return answer;
 		}
 		return returnAnswerAfterValidation(packageName, answer, client);
@@ -178,7 +178,7 @@ public abstract class ModuleEnvironment implements INameEnvironment {
 		IModule[] targets = null;
 		if (mod != null && !CharOperation.equals(mod, UNNAMED)) {
 			Set<IModule> set = new LinkedHashSet<>();
-			IModule client = getModule(JimageUtil.JAVA_BASE.toCharArray());
+			IModule client = getModule(JRTUtil.JAVA_BASE.toCharArray());
 			if (client != null) set.add(client);
 			client = getModule(mod);
 			if (client != null) {

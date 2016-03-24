@@ -28,7 +28,7 @@ import org.eclipse.jdt.core.IJarEntryResource;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.compiler.util.JimageUtil;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
@@ -50,12 +50,12 @@ public class JarEntryFile  extends JarEntryResource {
 
 	public InputStream getContents() throws CoreException {
 		IPackageFragmentRoot root = getPackageFragmentRoot();
-		if (Util.isJimageName(root.getPath().toOSString())) {
+		if (Util.isJrt(root.getPath().toOSString())) {
 			try {
 				IPath rootPath = root.getPath();
 				Object target = JavaModel.getTarget(rootPath, false);
 				if (target != null && target instanceof File) {
-					return JimageUtil.getContentFromJimage((File) target, getEntryName(), root.getElementName());
+					return JRTUtil.getContentFromJrt((File) target, getEntryName(), root.getElementName());
 				}
 			} catch (IOException e) {
 				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);

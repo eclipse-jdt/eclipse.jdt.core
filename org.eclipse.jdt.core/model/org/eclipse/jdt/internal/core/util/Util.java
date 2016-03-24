@@ -850,7 +850,7 @@ public class Util {
 						}
 					}
 					if (path != null) {
-						if (JavaModelManager.isJimage(path)) {
+						if (JavaModelManager.isJrt(path)) {
 							return ClassFileConstants.JDK9;
 						} else {
 							jar = JavaModelManager.getJavaModelManager().getZipFile(path);

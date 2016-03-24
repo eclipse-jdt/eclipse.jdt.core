@@ -65,7 +65,13 @@ public static LocalVMLauncher getLauncher() {
 	if (osName.startsWith("Mac")) {
 		return new MacVMLauncher();
 	}
-	File file = new File(Util.getJREDirectory() + "/lib/rt.jar");
+	File file = null;
+	String javaVersion = System.getProperty("java.version");
+	if (javaVersion != null && javaVersion.length() > 0 && javaVersion.charAt(0) == '9') {
+		file = new File(Util.getJREDirectory() + "/jrt-fs.jar");
+	} else {
+		new File(Util.getJREDirectory() + "/lib/rt.jar");
+	}
 	if (file.exists()) {
 		return new StandardVMLauncher();
 	}
@@ -135,7 +141,10 @@ protected Process execCommandLine() throws TargetException {
 		}
 		System.out.println();
 		*/
-
+		System.out.println("Command line: ");
+		for (String string : commandLine) {
+			System.out.println(string);
+		}
 		vmProcess= Runtime.getRuntime().exec(commandLine);
 	} catch (IOException e) {
 		throw new TargetException("Error launching VM at " + this.vmPath);

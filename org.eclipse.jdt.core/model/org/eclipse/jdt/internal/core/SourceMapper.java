@@ -66,7 +66,7 @@ import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
-import org.eclipse.jdt.internal.compiler.util.JimageUtil;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
@@ -460,7 +460,7 @@ public class SourceMapper
 		return -1;
 	}
 
-	class JimagePackageNamesAdderVisitor implements JimageUtil.JimageVisitor<java.nio.file.Path> {
+	class JrtPackageNamesAdderVisitor implements JRTUtil.JrtFileVisitor<java.nio.file.Path> {
 
 		public final HashSet firstLevelPackageNames;
 		final IPackageFragmentRoot root;
@@ -469,7 +469,7 @@ public class SourceMapper
 		public boolean containsADefaultPackage;
 		public boolean containsJavaSource;
 
-		JimagePackageNamesAdderVisitor(HashSet firstLevelPackageNames, String sourceLevel, String complianceLevel,
+		JrtPackageNamesAdderVisitor(HashSet firstLevelPackageNames, String sourceLevel, String complianceLevel,
 				boolean containsADefaultPackage, boolean containsJavaSource, IPackageFragmentRoot root) {
 			this.firstLevelPackageNames = firstLevelPackageNames;
 			this.root = root;
@@ -534,17 +534,20 @@ public class SourceMapper
 
 		String sourceLevel = null;
 		String complianceLevel = null;
-		if (Util.isJimageName(pkgFragmentRootPath.toOSString())) {
+		if (Util.isJrt(pkgFragmentRootPath.toOSString())) {
 			try {
-				JimagePackageNamesAdderVisitor jimagePackageNamesAdderVisitor = new JimagePackageNamesAdderVisitor(firstLevelPackageNames, 
+				JrtPackageNamesAdderVisitor jrtPackageNamesAdderVisitor = new JrtPackageNamesAdderVisitor(firstLevelPackageNames, 
 						sourceLevel, complianceLevel, containsADefaultPackage, containsJavaSource, root);
-				org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(root.getPath().toFile(), jimagePackageNamesAdderVisitor, JimageUtil.NOTIFY_FILES);
-				sourceLevel = jimagePackageNamesAdderVisitor.sourceLevel;
-				complianceLevel = jimagePackageNamesAdderVisitor.complianceLevel;
-				containsADefaultPackage = jimagePackageNamesAdderVisitor.containsADefaultPackage;
-				containsJavaSource = jimagePackageNamesAdderVisitor.containsJavaSource;
+				org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(root.getPath().toFile(), jrtPackageNamesAdderVisitor, JRTUtil.NOTIFY_FILES);
+				sourceLevel = jrtPackageNamesAdderVisitor.sourceLevel;
+				complianceLevel = jrtPackageNamesAdderVisitor.complianceLevel;
+				containsADefaultPackage = jrtPackageNamesAdderVisitor.containsADefaultPackage;
+				containsJavaSource = jrtPackageNamesAdderVisitor.containsJavaSource;
 			} catch (IOException e) {
-				// We are not reading any specific Jimage file, so, move on for now
+				// We are not reading any specific file, so, move on for now
+				if (VERBOSE) {
+					e.printStackTrace();
+				}
 			}
 		} else if (root.isArchive()) {
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();

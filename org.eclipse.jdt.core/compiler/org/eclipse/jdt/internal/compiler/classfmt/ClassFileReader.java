@@ -39,7 +39,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
-import org.eclipse.jdt.internal.compiler.util.JimageUtil;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ClassFileReader extends ClassFileStruct implements IBinaryType {
@@ -125,19 +125,19 @@ public static ClassFileReader read(
 }
 
 public static ClassFileReader readFromJimage(
-		File jimage,
+		File jrt,
 		String filename)
 		throws ClassFormatException, java.io.IOException {
 
-		return readFromJimage(jimage, filename, null);
+		return readFromJrt(jrt, filename, null);
 	}
-public static ClassFileReader readFromJimage(
-		File jimage,
+public static ClassFileReader readFromJrt(
+		File jrt,
 		String filename,
 		IModule module)
 
 		throws ClassFormatException, java.io.IOException {
-		return JimageUtil.getClassfile(jimage, filename, module);
+		return JRTUtil.getClassfile(jrt, filename, module);
 	}
 
 public static ClassFileReader read(

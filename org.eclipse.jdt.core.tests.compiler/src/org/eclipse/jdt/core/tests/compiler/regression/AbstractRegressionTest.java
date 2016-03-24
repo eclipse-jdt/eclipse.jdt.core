@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -148,6 +152,8 @@ static class JavacCompiler {
 			this.version = JavaCore.VERSION_1_7;
 		} else if (rawVersion.indexOf("1.8") != -1) {
 			this.version = JavaCore.VERSION_1_8;
+		} else if(rawVersion.startsWith("9")) {
+			this.version = JavaCore.VERSION_9;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -202,6 +208,9 @@ static class JavacCompiler {
 			if ("1.8.0_60".equals(rawVersion)) {
 				return 1500;
 			}
+		}
+		if (version == JavaCore.VERSION_9) {
+			return 0000; // We are still in EA
 		}
 		throw new RuntimeException("unknown raw javac version: " + rawVersion);
 	}
@@ -1071,7 +1080,7 @@ protected static class JavacTestOptions {
 	}
 
 	protected INameEnvironment[] getClassLibs(boolean useDefaultClasspaths) {
-		String encoding = (String)getCompilerOptions().get(CompilerOptions.OPTION_Encoding);
+		String encoding = getCompilerOptions().get(CompilerOptions.OPTION_Encoding);
 		if ("".equals(encoding))
 			encoding = null;
 		if (useDefaultClasspaths && encoding == null)
@@ -1083,8 +1092,8 @@ protected static class JavacTestOptions {
 		);
 		return classLibs;
 	}
-	protected Map getCompilerOptions() {
-		Map defaultOptions = super.getCompilerOptions();
+	protected Map<String, String> getCompilerOptions() {
+		Map<String, String> defaultOptions = super.getCompilerOptions();
 		defaultOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.GENERATE);
 		defaultOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
 		defaultOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.WARNING);

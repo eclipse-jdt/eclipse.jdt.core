@@ -34,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -118,7 +119,7 @@ public class FileSystem extends ModuleEnvironment implements SuffixConstants {
 	protected Classpath[] classpaths;
 	Set knownFileNames;
 	protected boolean annotationsFromClasspath; // should annotation files be read from the classpath (vs. explicit separate path)?
-	private static HashMap<File, Classpath> JIMAGES = null;
+	private static HashMap<File, Classpath> JRT_CLASSPATH_CACHE = null;
 
 /*
 	classPathNames is a collection is Strings representing the full path of each class path
@@ -153,7 +154,8 @@ protected FileSystem(Classpath[] paths, String[] initialFileNames, boolean annot
 		try {
 			classpath.initialize();
 			this.classpaths[counter++] = classpath;
-		} catch(IOException exception) {
+		} catch(IOException | IllegalArgumentException exception) {
+			// JRE 9 could through an IAE if the linked JAR paths have invalid chars, such as ":"
 			// ignore
 		}
 	}
@@ -197,15 +199,15 @@ public static Classpath getClasspath(String classpathName, String encoding,
 						convertPathSeparators(destinationPath));
 			} else if (destinationPath == null) {
 				// class file only mode
-				if (format == Util.JIMAGE_FILE) {
-					if (JIMAGES == null) {
-						JIMAGES = new HashMap<>();
+				if (classpathName.endsWith(JRTUtil.JRT_FS_JAR)) {
+					if (JRT_CLASSPATH_CACHE == null) {
+						JRT_CLASSPATH_CACHE = new HashMap<>();
 					} else {
-						result = JIMAGES.get(file);
+						result = JRT_CLASSPATH_CACHE.get(file);
 					}
 					if (result == null) {
 						result = new ClasspathJar(file, true, accessRuleSet, null, true);
-						JIMAGES.put(file, result);
+						JRT_CLASSPATH_CACHE.put(file, result);
 					}
 				} else {
 					result = new ClasspathJar(file, true, accessRuleSet, null, false);

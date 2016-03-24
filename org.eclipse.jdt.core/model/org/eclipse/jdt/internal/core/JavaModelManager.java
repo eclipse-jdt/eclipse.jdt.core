@@ -128,7 +128,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
-import org.eclipse.jdt.internal.compiler.util.JimageUtil;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.JavaProjectElementInfo.ProjectCache;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
@@ -315,8 +315,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * The default value is represented by <code>AbstractImageBuilder#MAX_AT_ONCE</code>.
 	 */
 	public static final String MAX_COMPILED_UNITS_AT_ONCE = "maxCompiledUnitsAtOnce"; //$NON-NLS-1$
-
-	public static final String JIMAGE_EXT = "jimage"; //$NON-NLS-1$
 
 	/**
 	 * Special value used for recognizing ongoing initialization and breaking initialization cycles
@@ -1229,7 +1227,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		public Map rootPathToRawEntries; // reverse map from a package fragment root's path to the raw entry
 		public Map rootPathToResolvedEntries; // map from a package fragment root's path to the resolved entry
 		public IPath outputLocation;
-		public Map<IPath, ObjectVector> jimageRoots; // A map between a Jimage classpath entry (as a string) and the package fragment roots found in it.
+		public Map<IPath, ObjectVector> jrtRoots; // A map between a JRT file system (as a string) and the package fragment roots found in it.
 
 		public IEclipsePreferences preferences;
 		public Hashtable options;
@@ -1339,9 +1337,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			return setClasspath(this.rawClasspath, referencedEntries, this.outputLocation, this.rawClasspathStatus, newResolvedClasspath, newRootPathToRawEntries, newRootPathToResolvedEntries, newUnresolvedEntryStatus, addClasspathChange);
 		}
 
-		public synchronized void setJimagePackageRoots(IPath jimagePath, ObjectVector roots) {
-			if (this.jimageRoots == null) this.jimageRoots = new HashMap<>();
-			this.jimageRoots.put(jimagePath, roots);
+		public synchronized void setJrtPackageRoots(IPath jrtPath, ObjectVector roots) {
+			if (this.jrtRoots == null) this.jrtRoots = new HashMap<>();
+			this.jrtRoots.put(jrtPath, roots);
 		}
 
 		/**
@@ -1526,7 +1524,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public static boolean CP_RESOLVE_VERBOSE_ADVANCED = false;
 	public static boolean CP_RESOLVE_VERBOSE_FAILURE = false;
 	public static boolean ZIP_ACCESS_VERBOSE = false;
-	public static boolean JIMAGE_ACCESS_VERBOSE = false;
+	public static boolean JRT_ACCESS_VERBOSE = false;
 	
 	/**
 	 * A cache of opened zip files per thread.
@@ -2711,23 +2709,17 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return this.workspaceScope;
 	}
 
-	public static boolean isJimage(IPath path) {
-		if (path.getFileExtension() != null && path.getFileExtension().equalsIgnoreCase(JIMAGE_EXT)) {
-			return true;
-		}
-		if (path.toString().endsWith(JimageUtil.JRT_FS_JAR)) {
-			return true;
-		}
-		return false;
+	public static boolean isJrt(IPath path) {
+		return path.toString().endsWith(JRTUtil.JRT_FS_JAR);
 	}
 
-	public static boolean isJimage(String path) {
-		return isJimage(new Path(path));
+	public static boolean isJrt(String path) {
+		return isJrt(new Path(path));
 	}
 
 	public void verifyArchiveContent(IPath path) throws CoreException {
-		// TODO: We don't yet know how to open a jimage file given its path. So, simply don't attempt.
-		if (isJimage(path)) {
+		// TODO: we haven't finalized what path the JRT is represented by. Don't attempt to validate it.
+		if (isJrt(path)) {
 			return;
 		}
 		if (isInvalidArchive(path)) {

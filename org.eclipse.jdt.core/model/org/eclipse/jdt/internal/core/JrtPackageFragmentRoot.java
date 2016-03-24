@@ -26,26 +26,26 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.util.JimageUtil;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
- * A package fragment root that corresponds to a .jimage
+ * A package fragment root that corresponds to a module in a JRT file system.
  *
  * @see org.eclipse.jdt.core.IPackageFragmentRoot
  * @see org.eclipse.jdt.internal.core.JarPackageFragmentRootInfo
  */
-public class ModulePackageFragmentRoot extends JarPackageFragmentRoot {
+public class JrtPackageFragmentRoot extends JarPackageFragmentRoot {
 
 	String moduleName;
 	
 	/**
 	 * Constructs a package fragment root which represents a module
-	 * contained in a Jimage.
+	 * contained in a JRT.
 	 */
-	protected ModulePackageFragmentRoot(IPath jimagePath, String moduleName, JavaProject project) {
-		super(jimagePath, project);
+	protected JrtPackageFragmentRoot(IPath jrtPath, String moduleName, JavaProject project) {
+		super(jrtPath, project);
 		this.moduleName = moduleName;
 	}
 
@@ -57,8 +57,8 @@ public class ModulePackageFragmentRoot extends JarPackageFragmentRoot {
 		rawPackageInfo.put(CharOperation.NO_STRINGS, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
 
 		try {
-			org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(this.jarPath.toFile(),
-					new org.eclipse.jdt.internal.compiler.util.JimageUtil.JimageVisitor<Path>() {
+			org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(this.jarPath.toFile(),
+					new org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor<Path>() {
 				@Override
 				public FileVisitResult visitPackage(Path dir, Path mod, BasicFileAttributes attrs) throws IOException {
 					initRawPackageInfo(rawPackageInfo, dir.toString(), true, compliance);
@@ -73,12 +73,12 @@ public class ModulePackageFragmentRoot extends JarPackageFragmentRoot {
 
 				@Override
 				public FileVisitResult visitModule(Path mod) throws IOException {
-					if (!ModulePackageFragmentRoot.this.moduleName.equals(mod.toString())) {
+					if (!JrtPackageFragmentRoot.this.moduleName.equals(mod.toString())) {
 						return FileVisitResult.SKIP_SUBTREE;
 					}
 					return FileVisitResult.CONTINUE;
 				}
-			}, JimageUtil.NOTIFY_ALL);
+			}, JRTUtil.NOTIFY_ALL);
 		} catch (IOException e) {
 			Util.log(IStatus.ERROR, "Error reading modules" + toStringWithAncestors()); //$NON-NLS-1$
 		}
@@ -90,8 +90,8 @@ public class ModulePackageFragmentRoot extends JarPackageFragmentRoot {
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (o instanceof ModulePackageFragmentRoot) {
-			ModulePackageFragmentRoot other= (ModulePackageFragmentRoot) o;
+		if (o instanceof JrtPackageFragmentRoot) {
+			JrtPackageFragmentRoot other= (JrtPackageFragmentRoot) o;
 			return this.moduleName.equals(other.moduleName) &&
 					this.jarPath.equals(other.jarPath);
 		}

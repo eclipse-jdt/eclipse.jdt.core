@@ -39,7 +39,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
-import org.eclipse.jdt.internal.compiler.util.JimageUtil;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -53,20 +53,20 @@ protected ZipFile annotationZipFile;
 protected boolean closeZipFileAtEnd;
 private Set<String> packageCache;
 protected List<String> annotationPaths;
-protected boolean isJimage;
+protected boolean isJrt;
 
 public ClasspathJar(File file, boolean closeZipFileAtEnd,
-		AccessRuleSet accessRuleSet, String destinationPath, boolean jimage) {
+		AccessRuleSet accessRuleSet, String destinationPath, boolean isJrt) {
 	super(accessRuleSet, destinationPath);
 	this.file = file;
-	this.isJimage = jimage;
+	this.isJrt = isJrt;
 	this.closeZipFileAtEnd = closeZipFileAtEnd;
 }
 
 public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemReporter) {
 	// expected to be called once only - if multiple calls desired, consider
 	// using a cache
-	if (this.isJimage) return null;
+	if (this.isJrt) return null;
 	InputStream inputStream = null;
 	try {
 		initialize();
@@ -95,7 +95,9 @@ public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemRe
 			}
 		}
 		return result;
-	} catch (IOException e) {
+	} catch (IOException | IllegalArgumentException e) {
+		// JRE 9 could throw an IAE if the path is incorrect. We are to ignore such
+		// linked jars
 		return null;
 	} finally {
 		if (inputStream != null) {
@@ -116,8 +118,8 @@ public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageN
 
 	try {
 		ClassFileReader reader = null;
-		if (this.isJimage) {
-			reader = ClassFileReader.readFromJimage(this.file, qualifiedBinaryFileName, mod);
+		if (this.isJrt) {
+			reader = ClassFileReader.readFromJrt(this.file, qualifiedBinaryFileName, mod);
 		} else {
 			reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		}
@@ -148,7 +150,7 @@ public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageN
 }
 @Override
 public boolean hasAnnotationFileFor(String qualifiedTypeName) {
-	if (this.isJimage) return false; // TODO: Revisit
+	if (this.isJrt) return false; // TODO: Revisit
 	return this.zipFile.getEntry(qualifiedTypeName+ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX) != null; 
 }
 public char[][][] findTypeNames(final String qualifiedPackageName, final IModule mod) {
@@ -156,9 +158,9 @@ public char[][][] findTypeNames(final String qualifiedPackageName, final IModule
 		return null; // most common case
 	final char[] packageArray = qualifiedPackageName.toCharArray();
 	final ArrayList answers = new ArrayList();
-	if (this.isJimage) {
+	if (this.isJrt) {
 		try {
-			JimageUtil.walkModuleImage(this.file, new JimageUtil.JimageVisitor<java.nio.file.Path>() {
+			JRTUtil.walkModuleImage(this.file, new JRTUtil.JrtFileVisitor<java.nio.file.Path>() {
 
 				@Override
 				public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path modPath, BasicFileAttributes attrs) throws IOException {
@@ -189,7 +191,7 @@ public char[][][] findTypeNames(final String qualifiedPackageName, final IModule
 					return FileVisitResult.CONTINUE;
 				}
 
-			}, JimageUtil.NOTIFY_ALL);
+			}, JRTUtil.NOTIFY_ALL);
 		} catch (IOException e) {
 			// Ignore and move on
 		}
@@ -228,7 +230,7 @@ protected void addTypeName(final ArrayList answers, String fileName, int last, c
 	}
 }
 public void initialize() throws IOException {
-	if (this.zipFile == null && !this.isJimage) {
+	if (this.zipFile == null && !this.isJrt) {
 		this.zipFile = new ZipFile(this.file);
 	}
 }
@@ -250,9 +252,9 @@ public synchronized boolean isPackage(String qualifiedPackageName) {
 
 	this.packageCache = new HashSet<>(41);
 	this.packageCache.add(Util.EMPTY_STRING);
-	if (this.isJimage) {
+	if (this.isJrt) {
 		try {
-			JimageUtil.walkModuleImage(this.file, new JimageUtil.JimageVisitor<java.nio.file.Path>() {
+			JRTUtil.walkModuleImage(this.file, new JRTUtil.JrtFileVisitor<java.nio.file.Path>() {
 
 				@Override
 				public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
@@ -270,7 +272,7 @@ public synchronized boolean isPackage(String qualifiedPackageName) {
 					return FileVisitResult.CONTINUE;
 				}
 
-			}, JimageUtil.NOTIFY_PACKAGES);
+			}, JRTUtil.NOTIFY_PACKAGES);
 		} catch (IOException e) {
 			// Ignore and move on
 		}
@@ -301,7 +303,7 @@ public void reset() {
 			this.annotationZipFile = null;
 		}
 	}
-	if (!this.isJimage || this.annotationPaths != null) {
+	if (!this.isJrt || this.annotationPaths != null) {
 		this.packageCache = null;
 		this.annotationPaths = null;
 	}

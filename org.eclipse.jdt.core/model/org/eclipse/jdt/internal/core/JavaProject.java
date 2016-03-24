@@ -75,7 +75,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
-import org.eclipse.jdt.internal.compiler.util.JimageUtil;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
@@ -625,14 +625,14 @@ public class JavaProject
 					if (JavaModel.isFile(target)) {
 						if (JavaModel.isJimage((File) target)) {
 							PerProjectInfo info = getPerProjectInfo();
-							if (info.jimageRoots == null || !info.jimageRoots.containsKey(entryPath)) {
+							if (info.jrtRoots == null || !info.jrtRoots.containsKey(entryPath)) {
 								ObjectVector imageRoots = new ObjectVector();
 								loadModulesInJimage(entryPath, imageRoots, rootToResolvedEntries, resolvedEntry, referringEntry);
-								info.setJimagePackageRoots(entryPath, imageRoots);
+								info.setJrtPackageRoots(entryPath, imageRoots);
 								accumulatedRoots.addAll(imageRoots);
 								rootIDs.add(rootID);
 							} else {
-								accumulatedRoots.addAll(info.jimageRoots.get(entryPath));
+								accumulatedRoots.addAll(info.jrtRoots.get(entryPath));
 							}
 						} else {
 							root = new JarPackageFragmentRoot(entryPath, this);
@@ -687,8 +687,8 @@ public class JavaProject
 			return getPackageFragment(pkgName, null);
 		}
 		public PackageFragment getPackageFragment(String[] pkgName, String mod) {
-			PackageFragmentRoot realRoot = new ModulePackageFragmentRoot(this.jarPath,
-												mod == null ?  JimageUtil.JAVA_BASE : mod,
+			PackageFragmentRoot realRoot = new JrtPackageFragmentRoot(this.jarPath,
+												mod == null ?  JRTUtil.JAVA_BASE : mod,
 														JavaProject.this);
 			return new JarPackageFragment(realRoot, pkgName);
 		}
@@ -704,8 +704,8 @@ public class JavaProject
 	private void loadModulesInJimage(final IPath imagePath, final ObjectVector roots, final Map rootToResolvedEntries, 
 				final IClasspathEntry resolvedEntry, final IClasspathEntry referringEntry) {
 		try {
-			org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(imagePath.toFile(),
-					new org.eclipse.jdt.internal.compiler.util.JimageUtil.JimageVisitor<java.nio.file.Path>() {
+			org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(imagePath.toFile(),
+					new org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor<java.nio.file.Path>() {
 				@Override
 				public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
 					return FileVisitResult.SKIP_SIBLINGS;
@@ -718,13 +718,13 @@ public class JavaProject
 
 				@Override
 				public FileVisitResult visitModule(java.nio.file.Path mod) throws IOException {
-					ModulePackageFragmentRoot root = new ModulePackageFragmentRoot(imagePath, mod.toString(), JavaProject.this);
+					JrtPackageFragmentRoot root = new JrtPackageFragmentRoot(imagePath, mod.toString(), JavaProject.this);
 					roots.add(root);
 					if (rootToResolvedEntries != null) 
 						rootToResolvedEntries.put(root, ((ClasspathEntry)resolvedEntry).combineWith((ClasspathEntry) referringEntry));
 					return FileVisitResult.SKIP_SUBTREE;
 				}
-			}, JimageUtil.NOTIFY_MODULES);
+			}, JRTUtil.NOTIFY_MODULES);
 		} catch (IOException e) {
 			Util.log(IStatus.ERROR, "Error reading modules from " + imagePath.toOSString()); //$NON-NLS-1$
 		}
@@ -1689,7 +1689,7 @@ public class JavaProject
 				}
 				JavaElement root = (mod == null) ?
 						(JavaElement)getPackageFragmentRoot(new Path(rootPath)) :
-							new ModulePackageFragmentRoot(new Path(rootPath), mod, this);
+							new JrtPackageFragmentRoot(new Path(rootPath), mod, this);
 				if (token != null && (token.charAt(0) == JEM_PACKAGEFRAGMENT)) {
 					return root.getHandleFromMemento(token, memento, owner);
 				} else {
@@ -1922,7 +1922,7 @@ public class JavaProject
 		IFolder linkedFolder = JavaModelManager.getExternalManager().getFolder(externalLibraryPath);
 		if (linkedFolder != null)
 			return new ExternalPackageFragmentRoot(linkedFolder, externalLibraryPath, this);
-		if (JavaModelManager.isJimage(externalLibraryPath)) {
+		if (JavaModelManager.isJrt(externalLibraryPath)) {
 			return this.new JImageModuleFragmentBridge(externalLibraryPath);
 		}
 		return new JarPackageFragmentRoot(externalLibraryPath, this);

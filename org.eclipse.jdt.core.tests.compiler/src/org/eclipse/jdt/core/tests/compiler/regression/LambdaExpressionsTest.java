@@ -1024,6 +1024,9 @@ public void test038() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406641, [1.8][compiler][codegen] Code generation for intersection cast.
 public void test039() {
+	String errMsg = isJRE9 ?
+			"X (in module: Unnamed Module) cannot be cast to I (in module: Unnamed Module)" :
+				"X cannot be cast to I";
 	this.runConformTest(
 			new String[] {
 					"X.java",
@@ -1044,7 +1047,7 @@ public void test039() {
 					"	}\n" +
 					"}\n",
 				},
-				"X cannot be cast to I");
+				errMsg);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
 public void test041() {

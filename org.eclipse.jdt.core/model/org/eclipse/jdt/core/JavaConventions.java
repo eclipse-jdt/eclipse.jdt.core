@@ -413,6 +413,7 @@ public final class JavaConventions {
 	 * @see JavaCore#VERSION_1_6
 	 * @see JavaCore#VERSION_1_7
 	 * @see JavaCore#VERSION_1_8
+	 * @see JavaCore#VERSION_9
 	 */
 	public static IStatus validateJavaTypeName(String name, String sourceLevel, String complianceLevel) {
 		if (name == null) {

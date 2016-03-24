@@ -489,7 +489,7 @@ protected void getHandleMemento(StringBuffer buff) {
 	((JavaElement)getParent()).getHandleMemento(buff);
 	buff.append(getHandleMementoDelimiter());
 	escapeMementoName(buff, path.toString());
-	if (org.eclipse.jdt.internal.compiler.util.Util.isJimageName(path.toOSString())) {
+	if (org.eclipse.jdt.internal.compiler.util.Util.isJrt(path.toOSString())) {
 		buff.append(getHandleMementoDelimiter());
 		escapeMementoName(buff, getElementName());
 	}

@@ -195,8 +195,8 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			// create a new archive
 			if (f.exists()) {
 				try {
-					if (isJimage(f)) {
-						archive = new Jimage(f);
+					if (isJrt(f)) {
+						archive = new JrtFileSystem(f);
 					} else {
 						archive = new Archive(f);
 					}
@@ -715,14 +715,14 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	}
 
 	private boolean isArchive(File f) {
+		if (isJrt(f)) 
+			return false;
 		String extension = getExtension(f);
-		return extension.equalsIgnoreCase(".jar") || extension.equalsIgnoreCase(".zip") ||  //$NON-NLS-1$ //$NON-NLS-2$
-				extension.equalsIgnoreCase(".jimage");//$NON-NLS-1$
+		return extension.equalsIgnoreCase(".jar") || extension.equalsIgnoreCase(".zip"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
-	private boolean isJimage(File f) {
-		String extension = getExtension(f);
-		return extension.equalsIgnoreCase(".jimage");//$NON-NLS-1$
+	private boolean isJrt(File f) {
+		return f.getName().toLowerCase().equals(JrtFileSystem.BOOT_MODULE);
 	}
 
 	/* (non-Javadoc)

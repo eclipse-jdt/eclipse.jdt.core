@@ -41,6 +41,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -749,8 +750,6 @@ public class Util implements SuffixConstants {
 	
 	public static final int ZIP_FILE = 0;
 	
-	public static final int JIMAGE_FILE = 1;
-	
 	/**
 	 * Returns whether the given name is potentially a zip archive file name
 	 * (it has a file extension and it is not ".java" nor ".class")
@@ -764,16 +763,6 @@ public class Util implements SuffixConstants {
 		int length = name.length();
 		int extensionLength = length - lastDot - 1;
 		
-		if (extensionLength == EXTENSION_jimage.length()) {
-			for (int i = extensionLength-1; i >=0; i--) {
-				if (Character.toLowerCase(name.charAt(length - extensionLength + i)) != EXTENSION_jimage.charAt(i)) {
-					break;
-				}
-				if (i == 0) {
-					return JIMAGE_FILE;
-				}
-			}
-		}
 		if (extensionLength == EXTENSION_java.length()) {
 			for (int i = extensionLength-1; i >=0; i--) {
 				if (Character.toLowerCase(name.charAt(length - extensionLength + i)) != EXTENSION_java.charAt(i)) {
@@ -904,22 +893,11 @@ public class Util implements SuffixConstants {
 	}
 
 	/**
-	 * Returns true iff str.toLowerCase().endsWith(".jimage")
+	 * Returns true iff str.toLowerCase().endsWith("jrt-fs.jar")
 	 * implementation is not creating extra strings.
 	 */
-	public final static boolean isJimageName(String name) {
-		if (name.endsWith(JimageUtil.JRT_FS_JAR))
-			return true;
-		int nameLength = name.length();
-		int suffixLength = SUFFIX_JIMAGE.length;
-		if (nameLength < suffixLength) return false;
-
-		for (int i = 0; i < suffixLength; i++) {
-			char c = name.charAt(nameLength - i - 1);
-			int suffixIndex = suffixLength - i - 1;
-			if (c != SUFFIX_jimage[suffixIndex] && c != SUFFIX_JIMAGE[suffixIndex]) return false;
-		}
-		return true;
+	public final static boolean isJrt(String name) {
+		return name.endsWith(JRTUtil.JRT_FS_JAR);
 	}
 
 	public static void reverseQuickSort(char[][] list, int left, int right) {
@@ -1181,6 +1159,17 @@ public class Util implements SuffixConstants {
 		String javaversion = System.getProperty("java.version");//$NON-NLS-1$
 		if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
 			throw new IllegalStateException();
+		}
+		if (javaversion.length() > 3) {
+			long jdkLevel = CompilerOptions.versionToJdkLevel(javaversion.substring(0, 3));
+			if (jdkLevel >= ClassFileConstants.JDK9) {
+				List<String> filePaths = new ArrayList<>();
+				final File javaHome = getJavaHome();
+				if (javaHome != null) {
+					filePaths.add((new File(javaHome, "/" + JRTUtil.JRT_FS_JAR)).getAbsolutePath()); //$NON-NLS-1$
+					return filePaths;
+				}
+			}
 		}
 
 		/*

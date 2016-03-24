@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBM Corporation and others.
+ * Copyright (c) 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
-import org.eclipse.jdt.internal.compiler.util.JimageUtil;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -43,7 +43,7 @@ import org.eclipse.jdt.internal.core.index.IndexLocation;
 import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
-public class AddJimageFileToIndex extends IndexRequest {
+public class AddJrtToIndex extends IndexRequest {
 
 	IFile resource;
 	Scanner scanner;
@@ -56,31 +56,24 @@ public class AddJimageFileToIndex extends IndexRequest {
 		DELETED
 	}
 
-
-	public AddJimageFileToIndex(IFile resource, IndexLocation indexFile, IndexManager manager) {
-		this(resource, indexFile, manager, false);
-	}
-	public AddJimageFileToIndex(IFile resource, IndexLocation indexFile, IndexManager manager, final boolean updateIndex) {
+	public AddJrtToIndex(IFile resource, IndexLocation indexFile, IndexManager manager, final boolean updateIndex) {
 		super(resource.getFullPath(), manager);
 		this.resource = resource;
 		this.indexFileURL = indexFile;
 		this.forceIndexUpdate = updateIndex;
 	}
-	public AddJimageFileToIndex(IPath jimagePath, IndexLocation indexFile, IndexManager manager) {
-		this(jimagePath, indexFile, manager, false);
-	}
-	public AddJimageFileToIndex(IPath jimagePath, IndexLocation indexFile, IndexManager manager, final boolean updateIndex) {
+	public AddJrtToIndex(IPath jrtPath, IndexLocation indexFile, IndexManager manager, final boolean updateIndex) {
 		// external JAR scenario - no resource
-		super(jimagePath, manager);
+		super(jrtPath, manager);
 		this.indexFileURL = indexFile;
 		this.forceIndexUpdate = updateIndex;
 	}
 	public boolean equals(Object o) {
-		if (o instanceof AddJimageFileToIndex) {
+		if (o instanceof AddJrtToIndex) {
 			if (this.resource != null)
-				return this.resource.equals(((AddJimageFileToIndex) o).resource);
+				return this.resource.equals(((AddJrtToIndex) o).resource);
 			if (this.containerPath != null)
-				return this.containerPath.equals(((AddJimageFileToIndex) o).containerPath);
+				return this.containerPath.equals(((AddJrtToIndex) o).containerPath);
 		}
 		return false;
 	}
@@ -92,12 +85,12 @@ public class AddJimageFileToIndex extends IndexRequest {
 		return -1;
 	}
 	
-	private class JimageTraverser implements org.eclipse.jdt.internal.compiler.util.JimageUtil.JimageVisitor<java.nio.file.Path> {
+	private class JrtTraverser implements org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor<java.nio.file.Path> {
 		
 		SimpleLookupTable indexedFileNames;
-		public JimageTraverser() {
+		public JrtTraverser() {
 		}
-		public JimageTraverser(SimpleLookupTable indexedFileNames) {
+		public JrtTraverser(SimpleLookupTable indexedFileNames) {
 			this.indexedFileNames = indexedFileNames;
 		}
 
@@ -123,16 +116,16 @@ public class AddJimageFileToIndex extends IndexRequest {
 		}
 	}
 	
-	private class JimageIndexer extends JimageTraverser {
+	private class JrtIndexer extends JrtTraverser {
 		final SearchParticipant participant;
 		final IPath indexPath;
 		final IndexManager indexManager;
 		final IPath container;
 		final Index index;
-		final File jimage;
+		final File jrt;
 
-		public JimageIndexer(File jimage, SearchParticipant participant, Index index, IPath container, IndexManager indexManager) {
-			this.jimage = jimage;
+		public JrtIndexer(File jrt, SearchParticipant participant, Index index, IPath container, IndexManager indexManager) {
+			this.jrt = jrt;
 			this.participant = (participant != null) ? participant : SearchEngine.getDefaultSearchParticipant();
 			this.index = index;
 			IndexLocation indexLocation = index.getIndexLocation();
@@ -149,7 +142,7 @@ public class AddJimageFileToIndex extends IndexRequest {
 				try {
 					String fullPath = path.toString();
 					byte[] classFileBytes;
-					classFileBytes = JimageUtil.getClassfileContent(this.jimage, fullPath, mod.toString());
+					classFileBytes = JRTUtil.getClassfileContent(this.jrt, fullPath, mod.toString());
 					String docFullPath =  this.container.toString() + JAR_SEPARATOR + mod.toString() + JAR_SEPARATOR + fullPath;
 					JavaSearchDocument entryDocument = new JavaSearchDocument(docFullPath, classFileBytes, this.participant);
 					this.indexManager.indexDocument(entryDocument, this.participant, this.index, this.indexPath);
@@ -201,8 +194,8 @@ public class AddJimageFileToIndex extends IndexRequest {
 				if (this.resource != null) {
 					URI location = this.resource.getLocationURI();
 					if (location == null) return false;
-					if (JavaModelManager.JIMAGE_ACCESS_VERBOSE)
-						System.out.println("(" + Thread.currentThread() + ") [AddJimageFileToIndex.execute()] Creating ZipFile on " + location.getPath()); //$NON-NLS-1$	//$NON-NLS-2$
+					if (JavaModelManager.JRT_ACCESS_VERBOSE)
+						System.out.println("(" + Thread.currentThread() + ") [AddJrtFileToIndex.execute()] Creating ZipFile on " + location.getPath()); //$NON-NLS-1$	//$NON-NLS-2$
 					File file = null;
 					try {
 						file = org.eclipse.jdt.internal.core.util.Util.toLocalFile(location, progressMonitor);
@@ -234,7 +227,7 @@ public class AddJimageFileToIndex extends IndexRequest {
 				if (paths != null) {
 					int max = paths.length;
 					/* check integrity of the existing index file
-					 * if the length is equal to 0, we want to index the whole jimage again
+					 * if the length is equal to 0, we want to index the whole jrt again
 					 * If not, then we want to check that there is no missing entry, if
 					 * one entry is missing then we recreate the index
 					 */
@@ -243,8 +236,8 @@ public class AddJimageFileToIndex extends IndexRequest {
 					for (int i = 0; i < max; i++)
 						indexedFileNames.put(paths[i], FILE_INDEX_STATE.DELETED);
 					
-					org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(new File(fileName), 
-							new JimageTraverser(indexedFileNames), JimageUtil.NOTIFY_FILES);
+					org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(new File(fileName), 
+							new JrtTraverser(indexedFileNames), JRTUtil.NOTIFY_FILES);
 
 					boolean needToReindex = indexedFileNames.elementSize != max; // a new file was added
 					if (!needToReindex) {
@@ -266,7 +259,7 @@ public class AddJimageFileToIndex extends IndexRequest {
 					}
 				}
 
-				// Index the jimage for the first time or reindex the jimage in case the previous index file has been corrupted
+				// Index the jrt for the first time or reindex the jrt in case the previous index file has been corrupted
 				// index already existed: recreate it so that we forget about previous entries
 				if (!this.manager.resetIndex(this.containerPath)) {
 					// failed to recreate index, see 73330
@@ -274,9 +267,9 @@ public class AddJimageFileToIndex extends IndexRequest {
 					return false;
 				}
 				
-				File jimage = new File(fileName);
-				org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(jimage, 
-						new JimageIndexer(jimage, SearchEngine.getDefaultSearchParticipant(), index, container, this.manager), JimageUtil.NOTIFY_FILES);
+				File jrt = new File(fileName);
+				org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(jrt, 
+						new JrtIndexer(jrt, SearchEngine.getDefaultSearchParticipant(), index, container, this.manager), JRTUtil.NOTIFY_FILES);
 
 				if(this.forceIndexUpdate) {
 					this.manager.savePreBuiltIndex(index);

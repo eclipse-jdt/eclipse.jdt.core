@@ -19,20 +19,14 @@ public interface SuffixConstants {
 	public final static String EXTENSION_CLASS = "CLASS"; //$NON-NLS-1$
 	public final static String EXTENSION_java = "java"; //$NON-NLS-1$
 	public final static String EXTENSION_JAVA = "JAVA"; //$NON-NLS-1$
-	public final static String EXTENSION_jimage = "jimage"; //$NON-NLS-1$
-	public final static String EXTENSION_JIMAGE = "JIMAGE"; //$NON-NLS-1$
 
 	public final static String SUFFIX_STRING_class = "." + EXTENSION_class; //$NON-NLS-1$
 	public final static String SUFFIX_STRING_CLASS = "." + EXTENSION_CLASS; //$NON-NLS-1$
 	public final static String SUFFIX_STRING_java = "." + EXTENSION_java; //$NON-NLS-1$
 	public final static String SUFFIX_STRING_JAVA = "." + EXTENSION_JAVA; //$NON-NLS-1$
-	public final static String SUFFIX_STRING_JIMAGE = "." + EXTENSION_JIMAGE; //$NON-NLS-1$
-	public final static String SUFFIX_STRING_jimage = "." + EXTENSION_jimage; //$NON-NLS-1$
 
 	public final static char[] SUFFIX_class = SUFFIX_STRING_class.toCharArray();
 	public final static char[] SUFFIX_CLASS = SUFFIX_STRING_CLASS.toCharArray();
 	public final static char[] SUFFIX_java = SUFFIX_STRING_java.toCharArray();
 	public final static char[] SUFFIX_JAVA = SUFFIX_STRING_JAVA.toCharArray();
-	public final static char[] SUFFIX_jimage = SUFFIX_STRING_jimage.toCharArray();
-	public final static char[] SUFFIX_JIMAGE = SUFFIX_STRING_JIMAGE.toCharArray();
 }

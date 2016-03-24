@@ -100,7 +100,7 @@ public class HandleFactory {
 			// create handle
 			String module = null;
 			String rootPath = this.lastPkgFragmentRoot.getPath().toOSString();
-			if (org.eclipse.jdt.internal.compiler.util.Util.isJimageName(rootPath)) {
+			if (org.eclipse.jdt.internal.compiler.util.Util.isJrt(rootPath)) {
 				module = resourcePath.substring(separatorIndex + 1, 
 						(separatorIndex = resourcePath.lastIndexOf(IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR)));
 			}

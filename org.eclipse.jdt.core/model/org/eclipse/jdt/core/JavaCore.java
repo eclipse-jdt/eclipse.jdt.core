@@ -5771,8 +5771,8 @@ public final class JavaCore extends Plugin {
 				break;
 			case ClassFileConstants.MAJOR_VERSION_9:
 				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_9);
-				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8); //TODO(BETA_JAVA9) at the moment, there's no new Java language feature
-				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8); //TODO(BETA_JAVA9) at the moment, runtime doesn't support a new class file version
+				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_9);
+				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_9);
 				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
 				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
 				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);

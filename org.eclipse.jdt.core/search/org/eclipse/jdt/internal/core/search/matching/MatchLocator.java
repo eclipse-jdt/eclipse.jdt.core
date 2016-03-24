@@ -255,10 +255,10 @@ public static ClassFileReader classFileReader(IType type) {
 			return Util.newClassFileReader(((JavaElement) type).resource());
 
 		String rootPath = root.getPath().toOSString();
-		if (org.eclipse.jdt.internal.compiler.util.Util.isJimageName(rootPath)) {
+		if (org.eclipse.jdt.internal.compiler.util.Util.isJrt(rootPath)) {
 			String classFileName = classFile.getElementName();
 			String path = Util.concatWith(pkg.names, classFileName, '/');
-			return ClassFileReader.readFromJimage(new File(rootPath), path, null);
+			return ClassFileReader.readFromJrt(new File(rootPath), path, null);
 		} else {
 			ZipFile zipFile = null;
 			try {

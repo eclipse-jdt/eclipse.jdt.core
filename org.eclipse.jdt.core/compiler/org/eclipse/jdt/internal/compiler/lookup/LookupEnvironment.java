@@ -60,7 +60,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
-import org.eclipse.jdt.internal.compiler.util.JimageUtil;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -208,7 +208,7 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name, char[] m
 		return null;
 
 	char[] module = answer.moduleName();
-	if (module != null && !CharOperation.equals(module, JimageUtil.JAVA_BASE.toCharArray()) 
+	if (module != null && !CharOperation.equals(module, JRTUtil.JAVA_BASE.toCharArray()) 
 			&& !this.nameEnvironment.isPackageVisible(packageBinding.readableName(), module, mod)) {
 		return null;
 	}

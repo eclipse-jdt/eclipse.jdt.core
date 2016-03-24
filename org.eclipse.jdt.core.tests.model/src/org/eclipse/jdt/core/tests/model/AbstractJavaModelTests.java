@@ -2836,7 +2836,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			newJclLibString = "JCL18_FULL";
 			newJclSrcString = "JCL18_SRC"; // Use the same source
 		} else {
-			if (compliance.charAt(2) > '7') {
+			if (compliance.length() < 3) {
+				// stop-gap measure. As of now, the Java 9 tests rely
+				// on adding the JREContainer directly to the classpath.
+					newJclLibString = "JCL18_LIB";
+					newJclSrcString = "JCL18_SRC";
+				//}
+			} else if (compliance.charAt(2) > '7') {
 				newJclLibString = "JCL18_LIB";
 				newJclSrcString = "JCL18_SRC";
 			} else if (compliance.charAt(2) > '4') {

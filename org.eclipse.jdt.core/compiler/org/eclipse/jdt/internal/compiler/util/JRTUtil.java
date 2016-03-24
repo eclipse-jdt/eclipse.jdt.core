@@ -39,7 +39,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 
-public class JimageUtil {
+public class JRTUtil {
 
 	public static final String JAVA_DOT = "java."; //$NON-NLS-1$
 	public static final String JAVA_BASE = "java.base"; //$NON-NLS-1$
@@ -49,7 +49,7 @@ public class JimageUtil {
 	static final String[] NO_MODULE = new String[0];
 	static final String MULTIPLE = "MU"; //$NON-NLS-1$
 	static final String DEFAULT_PACKAGE = ""; //$NON-NLS-1$
-	static final String MODULES_ON_DEMAND = System.getProperty("modules"); //$NON-NLS-1$
+	static String MODULE_TO_LOAD = null;
 	public static final String JRT_FS_JAR = "jrt-fs.jar"; //$NON-NLS-1$
 	static URI JRT_URI = URI.create("jrt:/"); //$NON-NLS-1$
 	public static int NOTIFY_FILES = 0x0001;
@@ -58,11 +58,11 @@ public class JimageUtil {
 	public static int NOTIFY_ALL = NOTIFY_FILES | NOTIFY_PACKAGES | NOTIFY_MODULES;
 
 	// TODO: BETA_JAVA9 Think about clearing the cache too.
-	private static Map<File, JimageFileSystem> images = null;
+	private static Map<File, JrtFileSystem> images = null;
 
 	private static final Object lock = new Object();
 
-	public interface JimageVisitor<T> {
+	public interface JrtFileVisitor<T> {
 
 		public FileVisitResult visitPackage(T dir, T mod, BasicFileAttributes attrs) throws IOException;
 
@@ -70,7 +70,7 @@ public class JimageUtil {
 		/**
 		 * Invoked when a root directory of a module being visited. The element returned 
 		 * contains only the module name segment - e.g. "java.base". Clients can use this to control
-		 * how the Jimage needs to be processed, for e.g., clients can skip a particular module
+		 * how the JRT needs to be processed, for e.g., clients can skip a particular module
 		 * by returning FileVisitResult.SKIP_SUBTREE
 		 */
 		public FileVisitResult visitModule(T mod) throws IOException;
@@ -98,8 +98,8 @@ public class JimageUtil {
 		}
 	}
 
-	public static JimageFileSystem getJimageSystem(File image) {
-		Map<File, JimageFileSystem> i = images;
+	public static JrtFileSystem getJrtSystem(File image) {
+		Map<File, JrtFileSystem> i = images;
 		if (images == null) {
 			synchronized (lock) {
 	            i = images;
@@ -108,15 +108,15 @@ public class JimageUtil {
 	            }
 	        }
 		}
-		JimageFileSystem system = null;
+		JrtFileSystem system = null;
 		synchronized(i) {
 			if ((system = images.get(image)) == null) {
 				try {
-					images.put(image, system = new JimageFileSystem(image));
+					images.put(image, system = new JrtFileSystem(image));
 				} catch (IOException e) {
 					e.printStackTrace();
 					// Needs better error handling downstream? But for now, make sure 
-					// a dummy JimageFileSystem is not created.
+					// a dummy JrtFileSystem is not created.
 				}
 			}
 		}
@@ -132,58 +132,59 @@ public class JimageUtil {
 	 *  /packages/$PACKAGE/$MODULE 
 	 *  The latter provides quick look up of the module that contains a particular package. However,
 	 *  this method only notifies its clients of the entries within the modules sub-directory. The
-	 *  clients can decide which notifications they want to receive. See {@link JimageUtil#NOTIFY_ALL},
-	 *  {@link JimageUtil#NOTIFY_FILES}, {@link JimageUtil#NOTIFY_PACKAGES} and {@link JimageUtil#NOTIFY_MODULES}.
+	 *  clients can decide which notifications they want to receive. See {@link JRTUtil#NOTIFY_ALL},
+	 *  {@link JRTUtil#NOTIFY_FILES}, {@link JRTUtil#NOTIFY_PACKAGES} and {@link JRTUtil#NOTIFY_MODULES}.
 	 *
 	 * @param image a java.io.File handle to the JRT image.
-	 * @param visitor an instance of JimageVisitor to be notified of the entries in the JRT image.
+	 * @param visitor an instance of JrtFileVisitor to be notified of the entries in the JRT image.
 	 * @param notify flag indicating the notifications the client is interested in.
 	 * @throws IOException
 	 */
-	public static void walkModuleImage(File image, final JimageUtil.JimageVisitor<java.nio.file.Path> visitor, int notify) throws IOException {
-		getJimageSystem(image).walkModuleImage(visitor, false, notify);
+	public static void walkModuleImage(File image, final JRTUtil.JrtFileVisitor<java.nio.file.Path> visitor, int notify) throws IOException {
+		getJrtSystem(image).walkModuleImage(visitor, false, notify);
 	}
 
-	public static InputStream getContentFromJimage(File jimage, String fileName, String module) throws IOException {
-		return getJimageSystem(jimage).getContentFromJimage(fileName, module);
+	public static InputStream getContentFromJrt(File jrt, String fileName, String module) throws IOException {
+		return getJrtSystem(jrt).getContentFromJrt(fileName, module);
 	}
-	public static byte[] getClassfileContent(File jimage, String fileName, String module) throws IOException, ClassFormatException {
-		return getJimageSystem(jimage).getClassfileContent(fileName, module);
+	public static byte[] getClassfileContent(File jrt, String fileName, String module) throws IOException, ClassFormatException {
+		return getJrtSystem(jrt).getClassfileContent(fileName, module);
 	}
-	public static ClassFileReader getClassfile(File jimage, String fileName, IModule module) throws IOException, ClassFormatException {
-		return getJimageSystem(jimage).getClassfile(fileName, module);
+	public static ClassFileReader getClassfile(File jrt, String fileName, IModule module) throws IOException, ClassFormatException {
+		return getJrtSystem(jrt).getClassfile(fileName, module);
 	}
 }
-class JimageFileSystem {
+class JrtFileSystem {
 	private final Map<String, String> packageToModule = new HashMap<String, String>();
 
 	private final Map<String, List<String>> packageToModules = new HashMap<String, List<String>>();
 
-	FileSystem jrt = null;
+	FileSystem jrtSystem = null;
 	
 	/**
-	 * As of now, the passed reference to the jimage file is not being used. Perhaps eventually
-	 * when we know how to read a particular jimage, we will make use of this.
+	 * The jrt file system is based on the location of the JRE home whose libraries
+	 * need to be loaded.
 	 *
-	 * @param image
+	 * @param jrt the path to the root of the JRE whose libraries we are interested in.
 	 * @throws IOException 
 	 */
-	public JimageFileSystem(File image) throws IOException {
-		initialize(image);
+	public JrtFileSystem(File jrt) throws IOException {
+		initialize(jrt);
 	}
-	void initialize(File image) throws IOException {
+	void initialize(File jrt) throws IOException {
 		URL url = null;
-		if (image.toString().endsWith(JimageUtil.JRT_FS_JAR)) {
-			url = image.toPath().toUri().toURL();
-		} else if (image.isDirectory()) {
-			url = image.toPath().toUri().toURL();
+		if (jrt.toString().endsWith(JRTUtil.JRT_FS_JAR)) {
+			url = jrt.toPath().toUri().toURL();
+		} else if (jrt.isDirectory()) {
+			url = jrt.toPath().toUri().toURL();
 		} else {
-			String jdkHome = image.getParentFile().getParentFile().getParent();
-			url = Paths.get(jdkHome, JimageUtil.JRT_FS_JAR).toUri().toURL();
+			String jdkHome = jrt.getParentFile().getParentFile().getParent();
+			url = Paths.get(jdkHome, JRTUtil.JRT_FS_JAR).toUri().toURL();
 		}
+		JRTUtil.MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
 		URLClassLoader loader = new URLClassLoader(new URL[] { url });
 		HashMap<String, ?> env = new HashMap<>();
-		this.jrt = FileSystems.newFileSystem(JimageUtil.JRT_URI, env, loader);
+		this.jrtSystem = FileSystems.newFileSystem(JRTUtil.JRT_URI, env, loader);
 		walkModuleImage(null, true, 0 /* doesn't matter */);
 	}
 
@@ -193,27 +194,27 @@ class JimageFileSystem {
 		if (idx != -1) {
 			pack = fileName.substring(0, idx);
 		} else {
-			pack = JimageUtil.DEFAULT_PACKAGE;
+			pack = JRTUtil.DEFAULT_PACKAGE;
 		}
 		String module = this.packageToModule.get(pack);
 		if (module != null) {
-			if (module == JimageUtil.MULTIPLE) {
+			if (module == JRTUtil.MULTIPLE) {
 				List<String> list = this.packageToModules.get(pack);
 				return list.toArray(new String[list.size()]);
 			} else {
 				return new String[]{module};
 			}
 		}
-		return JimageUtil.DEFAULT_MODULE;
+		return JRTUtil.DEFAULT_MODULE;
 	}
 
-	public InputStream getContentFromJimage(String fileName, String module) throws IOException {
+	public InputStream getContentFromJrt(String fileName, String module) throws IOException {
 		if (module != null) {
-			return Files.newInputStream(this.jrt.getPath(JimageUtil.MODULES_SUBDIR, module, fileName));
+			return Files.newInputStream(this.jrtSystem.getPath(JRTUtil.MODULES_SUBDIR, module, fileName));
 		}
 		String[] modules = getModules(fileName);
 		for (String mod : modules) {
-			return Files.newInputStream(this.jrt.getPath(JimageUtil.MODULES_SUBDIR, mod, fileName));
+			return Files.newInputStream(this.jrtSystem.getPath(JRTUtil.MODULES_SUBDIR, mod, fileName));
 		}
 		return null;
 	}
@@ -223,7 +224,7 @@ class JimageFileSystem {
 		String module = null;
 		for (String mod : modules) {
 			try {
-				content = Files.readAllBytes(this.jrt.getPath(JimageUtil.MODULES_SUBDIR, mod, fileName));
+				content = Files.readAllBytes(this.jrtSystem.getPath(JRTUtil.MODULES_SUBDIR, mod, fileName));
 				if (content != null) {
 					module = mod;
 					break;
@@ -246,7 +247,7 @@ class JimageFileSystem {
 			String[] modules = getModules(fileName);
 			for (String mod : modules) {
 				try {
-					content = Files.readAllBytes(this.jrt.getPath(JimageUtil.MODULES_SUBDIR, mod, fileName));
+					content = Files.readAllBytes(this.jrtSystem.getPath(JRTUtil.MODULES_SUBDIR, mod, fileName));
 					if (content != null) {
 						break;
 					}
@@ -260,7 +261,7 @@ class JimageFileSystem {
 	private byte[] getClassfile(String fileName, String module) throws IOException, ClassFormatException {
 		byte[] content = null;
 		try {
-			content = Files.readAllBytes(this.jrt.getPath(JimageUtil.MODULES_SUBDIR, module, fileName));
+			content = Files.readAllBytes(this.jrtSystem.getPath(JRTUtil.MODULES_SUBDIR, module, fileName));
 		} catch(NoSuchFileException e) {
 			return null;
 		}
@@ -280,29 +281,29 @@ class JimageFileSystem {
 		return reader;
 	}
 
-	void walkModuleImage(final JimageUtil.JimageVisitor<java.nio.file.Path> visitor, boolean visitPackageMapping, final int notify) throws IOException {
-		Iterable<java.nio.file.Path> roots = this.jrt.getRootDirectories();
+	void walkModuleImage(final JRTUtil.JrtFileVisitor<java.nio.file.Path> visitor, boolean visitPackageMapping, final int notify) throws IOException {
+		Iterable<java.nio.file.Path> roots = this.jrtSystem.getRootDirectories();
 		for (java.nio.file.Path path : roots) {
 			try (DirectoryStream<java.nio.file.Path> stream = Files.newDirectoryStream(path)) {
 				for (final java.nio.file.Path subdir: stream) {
-					if (subdir.toString().equals(JimageUtil.MODULES_SUBDIR)) {
+					if (subdir.toString().equals(JRTUtil.MODULES_SUBDIR)) {
 						if (visitPackageMapping) continue;
-						Files.walkFileTree(subdir, new JimageUtil.AbstractFileVisitor<java.nio.file.Path>() {
+						Files.walkFileTree(subdir, new JRTUtil.AbstractFileVisitor<java.nio.file.Path>() {
 							@Override
 							public FileVisitResult preVisitDirectory(java.nio.file.Path dir, BasicFileAttributes attrs) throws IOException {
 								int count = dir.getNameCount();
 								if (count == 2) {
 									// e.g. /modules/java.base
 									java.nio.file.Path mod = dir.getName(1);
-									if (!mod.toString().startsWith(JimageUtil.JAVA_DOT) ||
-											(JimageUtil.MODULES_ON_DEMAND != null &&
-											JimageUtil.MODULES_ON_DEMAND.indexOf(mod.toString()) == -1)) {
+									if (!mod.toString().startsWith(JRTUtil.JAVA_DOT) ||
+											(JRTUtil.MODULE_TO_LOAD != null && JRTUtil.MODULE_TO_LOAD.length() > 0 &&
+											JRTUtil.MODULE_TO_LOAD.indexOf(mod.toString()) == -1)) {
 										return FileVisitResult.SKIP_SUBTREE;
 									}
-									return ((notify & JimageUtil.NOTIFY_MODULES) == 0) ? 
+									return ((notify & JRTUtil.NOTIFY_MODULES) == 0) ? 
 											FileVisitResult.CONTINUE : visitor.visitModule(mod);
 								}
-								if (dir == subdir || count < 3 || (notify & JimageUtil.NOTIFY_PACKAGES) == 0) {
+								if (dir == subdir || count < 3 || (notify & JRTUtil.NOTIFY_PACKAGES) == 0) {
 									// We are dealing with a module or not client is not interested in packages
 									return FileVisitResult.CONTINUE;
 								}
@@ -311,23 +312,23 @@ class JimageFileSystem {
 
 							@Override
 							public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
-								if ((notify & JimageUtil.NOTIFY_FILES) == 0)
+								if ((notify & JRTUtil.NOTIFY_FILES) == 0)
 									return FileVisitResult.CONTINUE;
 								int count = file.getNameCount();
 								// This happens when a file in a default package is present. E.g. /modules/some.module/file.name
 								if (count == 3) {
-									cachePackage(JimageUtil.DEFAULT_PACKAGE, file.getName(1).toString());
+									cachePackage(JRTUtil.DEFAULT_PACKAGE, file.getName(1).toString());
 								}
 								return visitor.visitFile(file.subpath(2, file.getNameCount()), file.getName(1), attrs);
 							}
 						});
 					} else if (visitPackageMapping) {
-						Files.walkFileTree(subdir, new JimageUtil.AbstractFileVisitor<java.nio.file.Path>() {
+						Files.walkFileTree(subdir, new JRTUtil.AbstractFileVisitor<java.nio.file.Path>() {
 							@Override
 							public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
 								// e.g. /modules/java.base
 								java.nio.file.Path mod = file.getName(file.getNameCount() - 1);
-								if (!mod.toString().startsWith(JimageUtil.JAVA_DOT)) {
+								if (!mod.toString().startsWith(JRTUtil.JAVA_DOT)) {
 									return FileVisitResult.CONTINUE;
 								}
 								java.nio.file.Path relative = subdir.relativize(file);
@@ -352,21 +353,21 @@ class JimageFileSystem {
 			this.packageToModule.put(packageName, module);
 		} else if(current == module || current.equals(module)) {
 			return;
-		} else if (current == JimageUtil.MULTIPLE) {
+		} else if (current == JRTUtil.MULTIPLE) {
 			List<String> list = this.packageToModules.get(packageName);
 			if (!list.contains(module)) {
-				if (JimageUtil.JAVA_BASE == module || JimageUtil.JAVA_BASE.equals(module)) {
-					list.add(0, JimageUtil.JAVA_BASE);
+				if (JRTUtil.JAVA_BASE == module || JRTUtil.JAVA_BASE.equals(module)) {
+					list.add(0, JRTUtil.JAVA_BASE);
 				} else {
 					list.add(module);
 				}
 			}
 		} else {
 			String first = (String) current;
-			this.packageToModule.put(packageName, JimageUtil.MULTIPLE);
+			this.packageToModule.put(packageName, JRTUtil.MULTIPLE);
 			List<String> list = new ArrayList<String>();
 			// Just do this as comparator might be overkill
-			if (JimageUtil.JAVA_BASE == current || JimageUtil.JAVA_BASE.equals(current)) {
+			if (JRTUtil.JAVA_BASE == current || JRTUtil.JAVA_BASE.equals(current)) {
 				list.add(first);
 				list.add(module);
 			} else {

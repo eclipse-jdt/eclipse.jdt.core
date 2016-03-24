@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,9 +31,9 @@ import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
-import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
@@ -559,13 +559,12 @@ public void indexLibrary(IPath path, IProject requestingProject, URL indexURL) {
 }
 
 private IndexRequest getRequest(Object target, IPath jPath, IndexLocation indexFile, IndexManager manager, boolean updateIndex) {
-	return isJimage(((File) target).getName()) ? new AddJimageFileToIndex(jPath, indexFile, this, updateIndex) :
+	return isJrt(((File) target).getName()) ? new AddJrtToIndex(jPath, indexFile, this, updateIndex) :
 		new AddJarFileToIndex(jPath, indexFile, this, updateIndex);
 }
 
-private boolean isJimage(String fileName) {
-	return fileName != null && 
-			fileName.substring(fileName.lastIndexOf('.') + 1, fileName.length()).equals(SuffixConstants.EXTENSION_jimage);
+private boolean isJrt(String fileName) {
+	return fileName != null && fileName.endsWith(JRTUtil.JRT_FS_JAR);
 }
 /**
  * Trigger addition of a library to an index
@@ -593,8 +592,8 @@ public void indexLibrary(IPath path, IProject requestingProject, URL indexURL, f
 	IndexRequest request = null;
 	Object target = JavaModel.getTarget(path, true);
 	if (target instanceof IFile) {
-		request = isJimage(((IFile) target).getFullPath().toOSString()) ? 
-				new AddJimageFileToIndex((IFile) target, indexFile, this, forceIndexUpdate) :
+		request = isJrt(((IFile) target).getFullPath().toOSString()) ? 
+				new AddJrtToIndex((IFile) target, indexFile, this, forceIndexUpdate) :
 					new AddJarFileToIndex((IFile) target, indexFile, this, forceIndexUpdate);
 	} else if (target instanceof File) {
 		request = getRequest(target, path, indexFile, this, forceIndexUpdate);
@@ -701,8 +700,8 @@ private void rebuildIndex(IndexLocation indexLocation, IPath containerPath, fina
 	} else if (target instanceof IFolder) {
 		request = new IndexBinaryFolder((IFolder) target, this);
 	} else if (target instanceof IFile) {
-		request = isJimage(((IFile) target).getFullPath().toOSString()) ? 
-				new AddJimageFileToIndex((IFile) target, null, this, updateIndex) :
+		request = isJrt(((IFile) target).getFullPath().toOSString()) ? 
+				new AddJrtToIndex((IFile) target, null, this, updateIndex) :
 					new AddJarFileToIndex((IFile) target, null, this, updateIndex);
 	} else if (target instanceof File) {
 		request = getRequest(target, containerPath, null, this, updateIndex);

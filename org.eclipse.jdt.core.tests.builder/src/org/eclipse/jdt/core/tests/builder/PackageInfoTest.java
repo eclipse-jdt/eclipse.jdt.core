@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -134,9 +138,14 @@ public void test002() throws JavaModelException {
 	env.addFile(root, "testcase/package-info.java", //$NON-NLS-1$ //$NON-NLS-2$
 		"@TestAnnotation package testcase;" //$NON-NLS-1$
 	);
-
 	incrementalBuild(projectPath);
-	expectingNoProblems();
+	String javaVersion = System.getProperty("java.version");
+	if (javaVersion != null && javaVersion.startsWith("9")) {
+		expectingProblemsFor(new Path("/Project/src/testcase/Main.java"), 
+				"Problem : The method getPackage(String) from the type Package is deprecated [ resource : </Project/src/testcase/Main.java> range : <125,147> category : <110> severity : <1>]");
+	} else {
+		expectingNoProblems();
+	}
 	executeClass(projectPath, "testcase.Main", "@testcase.TestAnnotation()@testcase.TestAnnotation()", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 }
 public void test003() throws JavaModelException {

@@ -115,7 +115,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private static final String CLASSPATH_FOLDER = "FOLDER"; //$NON-NLS-1$
 		private static final String CLASSPATH_ID = "id"; //$NON-NLS-1$
 		private static final String CLASSPATH_JAR = "JAR"; //$NON-NLS-1$
-		private static final String CLASSPATH_JIMAGE = "JIMAGE"; //$NON-NLS-1$
 		private static final String CLASSPATHS = "classpaths"; //$NON-NLS-1$
 		private static final String COMMAND_LINE_ARGUMENT = "argument"; //$NON-NLS-1$
 		private static final String COMMAND_LINE_ARGUMENTS = "command_line"; //$NON-NLS-1$
@@ -513,9 +512,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 						if (f.isFile()) {
 							int kind = Util.archiveFormat(classpath);
 							switch (kind) {
-								case Util.JIMAGE_FILE:
-									id = Logger.CLASSPATH_JIMAGE;
-									break;
 								case Util.ZIP_FILE:
 									id = Logger.CLASSPATH_JAR;
 									break;
@@ -1692,6 +1688,8 @@ private boolean checkVMVersion(long minimalSupportedVersion) {
 			return ClassFileConstants.JDK1_7 >= minimalSupportedVersion;
 		case ClassFileConstants.MAJOR_VERSION_1_8: // 1.8
 			return ClassFileConstants.JDK1_8 >= minimalSupportedVersion;
+		case ClassFileConstants.MAJOR_VERSION_9: // 9
+			return ClassFileConstants.JDK9 >= minimalSupportedVersion;
 	}
 	// unknown version
 	return false;

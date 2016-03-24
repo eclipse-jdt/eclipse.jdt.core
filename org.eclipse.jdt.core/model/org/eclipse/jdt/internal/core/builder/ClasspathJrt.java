@@ -32,11 +32,11 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
-import org.eclipse.jdt.internal.compiler.util.JimageUtil;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
-public class ClasspathJimage extends ClasspathLocation {
+public class ClasspathJrt extends ClasspathLocation {
 
 private HashMap<String, SimpleSet> packagesInModule = null;
 private static HashMap<String, HashMap<String, SimpleSet>> PackageCache = new HashMap<>();
@@ -45,7 +45,7 @@ INameEnvironment env = null;
 private String externalAnnotationPath;
 private ZipFile annotationZipFile;
 String zipFilename; // keep for equals
-public ClasspathJimage(String zipFilename, IPath externalAnnotationPath, INameEnvironment env) {
+public ClasspathJrt(String zipFilename, IPath externalAnnotationPath, INameEnvironment env) {
 	this.zipFilename = zipFilename;
 	this.env = env;
 	if (externalAnnotationPath != null)
@@ -54,11 +54,11 @@ public ClasspathJimage(String zipFilename, IPath externalAnnotationPath, INameEn
 }
 /**
  * Calculate and cache the package list available in the zipFile.
- * @param jimage The ClasspathJar to use
+ * @param jrt The ClasspathJar to use
  * @return A SimpleSet with the all the package names in the zipFile.
  */
-static HashMap<String, SimpleSet> findPackagesInModules(final ClasspathJimage jimage) {
-	String zipFileName = jimage.zipFilename;
+static HashMap<String, SimpleSet> findPackagesInModules(final ClasspathJrt jrt) {
+	String zipFileName = jrt.zipFilename;
 	HashMap<String, SimpleSet> cache = PackageCache.get(zipFileName);
 	if (cache != null) {
 		return cache;
@@ -67,8 +67,8 @@ static HashMap<String, SimpleSet> findPackagesInModules(final ClasspathJimage ji
 	PackageCache.put(zipFileName, packagesInModule);
 	try {
 		final File imageFile = new File(zipFileName);
-		org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(imageFile, 
-				new org.eclipse.jdt.internal.compiler.util.JimageUtil.JimageVisitor<Path>() {
+		org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(imageFile, 
+				new org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor<Path>() {
 			SimpleSet packageSet = null;
 			@Override
 			public FileVisitResult visitPackage(Path dir, Path mod, BasicFileAttributes attrs) throws IOException {
@@ -85,7 +85,7 @@ static HashMap<String, SimpleSet> findPackagesInModules(final ClasspathJimage ji
 			public FileVisitResult visitModule(Path mod) throws IOException {
 				String name = mod.toString();
 				try {
-					jimage.acceptModule(JimageUtil.getClassfileContent(imageFile, MODULE_INFO_CLASS, name));
+					jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, MODULE_INFO_CLASS, name));
 				} catch (ClassFormatException e) {
 					e.printStackTrace();
 				}
@@ -94,22 +94,22 @@ static HashMap<String, SimpleSet> findPackagesInModules(final ClasspathJimage ji
 				packagesInModule.put(name, this.packageSet);
 				return FileVisitResult.CONTINUE;
 			}
-		}, JimageUtil.NOTIFY_PACKAGES | JimageUtil.NOTIFY_MODULES);
+		}, JRTUtil.NOTIFY_PACKAGES | JRTUtil.NOTIFY_MODULES);
 	} catch (IOException e) {
 		// TODO: BETA_JAVA9 Should report better
 	}
 	return packagesInModule;
 }
 
-public static void loadModules(final ClasspathJimage jimage) {
-	String zipFileName = jimage.zipFilename;
+public static void loadModules(final ClasspathJrt jrt) {
+	String zipFileName = jrt.zipFilename;
 	Set<IModule> cache = ModulesCache.get(zipFileName);
 
 	if (cache == null) {
 		try {
 			final File imageFile = new File(zipFileName);
-			org.eclipse.jdt.internal.compiler.util.JimageUtil.walkModuleImage(imageFile,
-					new org.eclipse.jdt.internal.compiler.util.JimageUtil.JimageVisitor<Path>() {
+			org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(imageFile,
+					new org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor<Path>() {
 				SimpleSet packageSet = null;
 
 				@Override
@@ -128,13 +128,13 @@ public static void loadModules(final ClasspathJimage jimage) {
 				@Override
 				public FileVisitResult visitModule(Path mod) throws IOException {
 					try {
-						jimage.acceptModule(JimageUtil.getClassfileContent(imageFile, MODULE_INFO_CLASS, mod.toString()));
+						jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, MODULE_INFO_CLASS, mod.toString()));
 					} catch (ClassFormatException e) {
 						e.printStackTrace();
 					}
 					return FileVisitResult.SKIP_SUBTREE;
 				}
-			}, JimageUtil.NOTIFY_MODULES);
+			}, JRTUtil.NOTIFY_MODULES);
 		} catch (IOException e) {
 			// TODO: BETA_JAVA9 Should report better
 		}
@@ -177,8 +177,8 @@ public void cleanup() {
 
 public boolean equals(Object o) {
 	if (this == o) return true;
-	if (!(o instanceof ClasspathJimage)) return false;
-	ClasspathJimage jar = (ClasspathJimage) o;
+	if (!(o instanceof ClasspathJrt)) return false;
+	ClasspathJrt jar = (ClasspathJrt) o;
 	return this.zipFilename.endsWith(jar.zipFilename);
 }
 
@@ -189,7 +189,7 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	if (!isPackage(qualifiedPackageName)) return null; // most common case
 
 	try {
-		ClassFileReader reader = ClassFileReader.readFromJimage(new File(this.zipFilename), qualifiedBinaryFileName, mod);
+		ClassFileReader reader = ClassFileReader.readFromJrt(new File(this.zipFilename), qualifiedBinaryFileName, mod);
 		if (reader != null) {
 			if (this.externalAnnotationPath != null) {
 				String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
@@ -235,7 +235,7 @@ public boolean isPackage(String qualifiedPackageName) {
 }
 
 public String toString() {
-	String start = "Classpath Jimage file " + this.zipFilename; //$NON-NLS-1$
+	String start = "Classpath jrt file " + this.zipFilename; //$NON-NLS-1$
 	return start;
 }
 

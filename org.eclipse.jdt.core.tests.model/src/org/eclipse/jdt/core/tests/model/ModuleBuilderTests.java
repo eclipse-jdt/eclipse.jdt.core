@@ -32,7 +32,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.core.ModulePackageFragmentRoot;
+import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
 
 import junit.framework.Test;
 
@@ -59,6 +59,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
+		System.setProperty("modules.to.load", "java.baserequires java.desktop;java.rmi;java.sql;");
 		this.currentProject = createJava9Project("P1");
 		this.createFile("P1/src/module-info.java", "");
 		this.createFolder("P1/src/com/greetings");
@@ -67,14 +68,14 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		waitForAutoBuild();
 	}
 	private IJavaProject createJava9Project(String name) throws CoreException {
-		String bootModPath = System.getProperty("java.home") +File.separator +"lib/modules/bootmodules.jimage";
-		IClasspathEntry jimageEntry = JavaCore.newLibraryEntry(new Path(bootModPath), null, null, null, null, false);
+		String bootModPath = System.getProperty("java.home") + File.separator +"jrt-fs.jar";
+		IClasspathEntry jrtEntry = JavaCore.newLibraryEntry(new Path(bootModPath), null, null, null, null, false);
 		IJavaProject project = this.createJavaProject(name, new String[] { "src" }, new String[0],
 				new String[0], "bin", "9");
 		IClasspathEntry[] old = project.getRawClasspath();
 		IClasspathEntry[] newPath = new IClasspathEntry[old.length +1];
 		System.arraycopy(old, 0, newPath, 0, old.length);
-		newPath[old.length] = jimageEntry;
+		newPath[old.length] = jrtEntry;
 		project.setRawClasspath(newPath, null);
 		return project;
 	}
@@ -91,7 +92,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				}
 			}
 			assertNotNull("Java.base module should not null", base);
-			assertTrue("Java.base should be a module package fragment root", (base instanceof ModulePackageFragmentRoot));
+			assertTrue("Java.base should be a module package fragment root", (base instanceof JrtPackageFragmentRoot));
 			assertMarkers("Unexpected markers", "", this.currentProject);
 		} finally {
 		}
@@ -736,5 +737,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void tearDownSuite() throws Exception {
 		super.tearDownSuite();
 		deleteProject("P1");
+		System.setProperty("modules.on.demand", "");
 	}
 }

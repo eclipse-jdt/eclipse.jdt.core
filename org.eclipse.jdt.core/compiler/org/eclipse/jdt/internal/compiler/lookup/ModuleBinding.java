@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
 import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
-import org.eclipse.jdt.internal.compiler.util.JimageUtil;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 
 public class ModuleBinding extends Binding {
 
@@ -147,7 +147,7 @@ public class ModuleBinding extends Binding {
 		}
 		if (!CharOperation.equals(this.moduleName, TypeConstants.JAVA_BASE)) {
 			// TODO: Do we need to add java.base here?
-			allRequires.add(this.environment.getModule(JimageUtil.JAVA_BASE_CHAR));
+			allRequires.add(this.environment.getModule(JRTUtil.JAVA_BASE_CHAR));
 		}
 		return this.requiredModules = allRequires.size() > 0 ? allRequires.toArray(new ModuleBinding[allRequires.size()]) : NO_REQUIRES;
 	}

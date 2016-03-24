@@ -475,9 +475,9 @@ void write(DataOutputStream out) throws IOException {
 			writeRestriction(jar.accessRuleSet, out);
 			out.writeUTF(jar.externalAnnotationPath != null ? jar.externalAnnotationPath : ""); //$NON-NLS-1$
 		} else {
-			ClasspathJimage jimage = (ClasspathJimage) c;
+			ClasspathJrt jrt = (ClasspathJrt) c;
 			out.writeByte(EXTERNAL_JAR);
-			out.writeUTF(jimage.zipFilename);
+			out.writeUTF(jrt.zipFilename);
 			out.writeLong(-1);
 			writeRestriction(null, out);
 			out.writeUTF(""); //$NON-NLS-1$

@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
@@ -724,6 +725,18 @@ public static int getFreePort() {
  * Returns null if none could be found.
 */
 public static String[] getJavaClassLibs() {
+	String javaVersion = System.getProperty("java.version");
+	if (javaVersion.length() > 3) {
+		javaVersion = javaVersion.substring(0, 3);
+	}
+	long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion);
+	if (jdkLevel >= ClassFileConstants.JDK9) {
+		String jreDir = getJREDirectory();
+		return new String[] {
+				toNativePath(jreDir + "/jrt-fs.jar")
+		};
+	}
+
 	// check bootclasspath properties for Sun, JRockit and Harmony VMs
 	String bootclasspathProperty = System.getProperty("sun.boot.class.path"); //$NON-NLS-1$
 	if ((bootclasspathProperty == null) || (bootclasspathProperty.length() == 0)) {

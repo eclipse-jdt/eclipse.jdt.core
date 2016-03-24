@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2015 Jesper Steen Moeller and others.
+ * Copyright (c) 2013, 2016 Jesper Steen Moeller and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Jesper Steen Moeller - initial API and implementation
  *******************************************************************************/
@@ -19,17 +23,23 @@ import junit.framework.Test;
 import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
-@SuppressWarnings({ "unchecked", "rawtypes" })
 public class MethodParametersAttributeTest extends AbstractRegressionTest {
+	String versionString = null;
 	public MethodParametersAttributeTest(String name) {
 		super(name);
 	}
-
+	// No need for a tearDown()
+	protected void setUp() throws Exception {
+		super.setUp();
+		this.versionString = (this.complianceLevel < ClassFileConstants.JDK9) ? "version 1.8 : 52.0" : "version 9 : 53.0";
+	}
+	@SuppressWarnings("rawtypes")
 	public static Class testClass() {
 		return MethodParametersAttributeTest.class;
 	}
@@ -377,7 +387,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				ClassFileBytesDisassembler.DETAILED);
 	
 		String expectedOutput =
-				"// Compiled from ParameterNames.java (version 1.8 : 52.0, super bit)\n" + 
+				"// Compiled from ParameterNames.java (" + this.versionString + ", super bit)\n" + 
 				"public class ParameterNames {\n" + 
 				"  \n" + 
 				"  // Method descriptor #6 ()V\n" + 
@@ -463,7 +473,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				ClassFileBytesDisassembler.DETAILED);
 
 		String expectedOutput =
-			"// Compiled from ParameterNames.java (version 1.8 : 52.0, super bit)\n" + 
+			"// Compiled from ParameterNames.java (" + this.versionString + ", super bit)\n" + 
 			"// Signature: Ljava/lang/Object;Ljava/util/concurrent/Callable<Ljava/lang/String;>;\n" + 
 			"class ParameterNames$1 implements java.util.concurrent.Callable {\n" + 
 			"  \n" + 
@@ -543,7 +553,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 				ClassFileBytesDisassembler.DETAILED);
 
 		String expectedOutput =
-			"// Compiled from FancyEnum.java (version 1.8 : 52.0, super bit)\n" + 
+			"// Compiled from FancyEnum.java (" + this.versionString + ", super bit)\n" + 
 			"// Signature: Ljava/lang/Enum<LFancyEnum;>;\n" + 
 			"public final enum FancyEnum {\n" + 
 			"  \n" + 
@@ -935,7 +945,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 	}
 
 	private void runParameterNameTest(String fileName, String body) {
-		Map compilerOptions = getCompilerOptions();
+		Map<String, String> compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
 		compilerOptions.put(CompilerOptions.OPTION_MethodParametersAttribute, CompilerOptions.GENERATE);
 		this.runConformTest(

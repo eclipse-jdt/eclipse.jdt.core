@@ -44,8 +44,8 @@ static ClasspathLocation forLibrary(String libraryPathname,
 										AccessRuleSet accessRuleSet, 
 										IPath annotationsPath,
 										INameEnvironment env) {
-	return Util.isJimageName(libraryPathname) ?
-			new ClasspathJimage(libraryPathname, annotationsPath, env) :
+	return Util.isJrt(libraryPathname) ?
+			new ClasspathJrt(libraryPathname, annotationsPath, env) :
 			new ClasspathJar(libraryPathname, lastModified, accessRuleSet, annotationsPath, env);
 }
 
