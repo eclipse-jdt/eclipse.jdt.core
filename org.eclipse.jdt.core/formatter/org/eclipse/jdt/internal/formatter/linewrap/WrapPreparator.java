@@ -1104,7 +1104,7 @@ public class WrapPreparator extends ASTVisitor {
 
 				@Override
 				public boolean visit(EnumConstantDeclaration node) {
-					WrapPreparator.this.tm.firstTokenIn(node, TokenNameIdentifier).setWrapPolicy(null);
+					WrapPreparator.this.tm.firstTokenIn(node, -1).setWrapPolicy(null);
 					return true;
 				}
 			});

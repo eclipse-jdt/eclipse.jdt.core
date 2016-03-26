@@ -11399,8 +11399,8 @@ public void testBug474918c() {
 		"\r\n" + 
 		"public class A {\r\n" + 
 		"	private Function	mapper				= (Object a) -> {\r\n" + 
-		"		                                        return a.toString().equals(\"test\");\r\n" + 
-		"	                                        };\r\n" + 
+		"												return a.toString().equals(\"test\");\r\n" + 
+		"											};\r\n" + 
 		"	String				ssssssssssssssss	= \"dsadaaaaaaaaaaaaaaaaaaaaaaaaa\";		//$NON-NLS-1$ //\r\n" + 
 		"	                                                                                // B\r\n" + 
 		"	                                                                                // //\r\n" + 
@@ -11409,9 +11409,9 @@ public void testBug474918c() {
 		"	int					bb					= 4;\r\n" + 
 		"\r\n" + 
 		"	Object				c					= new Object() {\r\n" + 
-		"		                                        int		a				= 55;\r\n" + 
-		"		                                        Object	cdddddddddddd	= null;\r\n" + 
-		"	                                        };\r\n" + 
+		"												int		a				= 55;\r\n" + 
+		"												Object	cdddddddddddd	= null;\r\n" + 
+		"											};\r\n" + 
 		"\r\n" + 
 		"	private enum E {\r\n" + 
 		"		AAA, BBB;\r\n" + 

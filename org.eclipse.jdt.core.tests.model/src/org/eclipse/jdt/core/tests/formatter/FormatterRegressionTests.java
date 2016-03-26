@@ -13863,4 +13863,51 @@ public void testBug384959g() throws JavaModelException {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/488642 - [formatter] IOOBE with block comment inside anonymous class
+ */
+public void testBug488642a() {
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	String source =
+		"public class Test {\n" + 
+		"	Object o = new Object() {\n" + 
+		"		int a = 0;\n" + 
+		"		/*\n" + 
+		"		 * comment\n" + 
+		"		 */\n" + 
+		"		int b = 9; /*\n" + 
+		"		            * comment\n" + 
+		"		            */\n" + 
+		"		String ssssssss = \"aaaaaaaaaaaaaaaaaaaaaaaa\" //\n" + 
+		"		        + \"ddddddddddddddddddddddd\" /*\n" + 
+		"		                                     * comment\n" + 
+		"		                                     */;\n" + 
+		"	};\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/488642 - [formatter] IOOBE with block comment inside anonymous class
+ */
+public void testBug488642b() {
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	this.formatterPrefs.align_type_members_on_columns = true;
+	String source =
+		"public class Test {\n" + 
+		"	Object o = new Object() {\n" + 
+		"		int		a			= 0;\n" + 
+		"		/*\n" + 
+		"		 * comment\n" + 
+		"		 */\n" + 
+		"		int		b			= 9;							/*\n" + 
+		"		                                                     * comment\n" + 
+		"		                                                     */\n" + 
+		"		String	ssssssss	= \"aaaaaaaaaaaaaaaaaaaaaaaa\"	//\n" + 
+		"		        + \"ddddddddddddddddddddddd\" /*\n" + 
+		"		                                     * comment\n" + 
+		"		                                     */;\n" + 
+		"	};\n" + 
+		"}";
+	formatSource(source);
+}
 }
