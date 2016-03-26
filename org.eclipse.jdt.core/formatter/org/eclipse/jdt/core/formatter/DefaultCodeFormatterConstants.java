@@ -4326,10 +4326,6 @@ public class DefaultCodeFormatterConstants {
 	 */
 	public static final int WRAP_ONE_PER_LINE= 3;
 
-	/*
-	 * Private constants. Not in javadoc
-	 */
-	private static final IllegalArgumentException WRONG_ARGUMENT = new IllegalArgumentException();
 	/**
 	 * Create a new alignment value according to the given values. This must be used to set up
 	 * the alignment options.
@@ -4408,14 +4404,11 @@ public class DefaultCodeFormatterConstants {
 	 * doesn't have a valid format.
 	 */
 	public static boolean getForceWrapping(String value) {
-		if (value == null) {
-			throw WRONG_ARGUMENT;
-		}
 		try {
 			int existingValue = Integer.parseInt(value);
 			return (existingValue & Alignment.M_FORCE) != 0;
 		} catch (NumberFormatException e) {
-			throw WRONG_ARGUMENT;
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
 		}
 	}
 
@@ -4432,9 +4425,6 @@ public class DefaultCodeFormatterConstants {
 	 * doesn't have a valid format.
 	 */
 	public static int getIndentStyle(String value) {
-		if (value == null) {
-			throw WRONG_ARGUMENT;
-		}
 		try {
 			int existingValue = Integer.parseInt(value);
 			if ((existingValue & Alignment.M_INDENT_BY_ONE) != 0) {
@@ -4445,7 +4435,7 @@ public class DefaultCodeFormatterConstants {
 				return INDENT_DEFAULT;
 			}
 		} catch (NumberFormatException e) {
-			throw WRONG_ARGUMENT;
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
 		}
 	}
 
@@ -4471,9 +4461,6 @@ public class DefaultCodeFormatterConstants {
 	 * doesn't have a valid format.
 	 */
 	public static int getWrappingStyle(String value) {
-		if (value == null) {
-			throw WRONG_ARGUMENT;
-		}
 		try {
 			int existingValue = Integer.parseInt(value) & Alignment.SPLIT_MASK;
 			switch(existingValue) {
@@ -4491,7 +4478,7 @@ public class DefaultCodeFormatterConstants {
 					return WRAP_NO_SPLIT;
 			}
 		} catch (NumberFormatException e) {
-			throw WRONG_ARGUMENT;
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
 		}
 	}
 	/**
@@ -4508,9 +4495,6 @@ public class DefaultCodeFormatterConstants {
 	 * doesn't have a valid format.
 	 */
 	public static String setForceWrapping(String value, boolean force) {
-		if (value == null) {
-			throw WRONG_ARGUMENT;
-		}
 		try {
 			int existingValue = Integer.parseInt(value);
 			// clear existing force bit
@@ -4520,7 +4504,7 @@ public class DefaultCodeFormatterConstants {
 			}
 			return String.valueOf(existingValue);
 		} catch (NumberFormatException e) {
-			throw WRONG_ARGUMENT;
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
 		}
 	}
 
@@ -4542,16 +4526,13 @@ public class DefaultCodeFormatterConstants {
 	 * alignment value doesn't have a valid format.
 	 */
 	public static String setIndentStyle(String value, int indentStyle) {
-		if (value == null) {
-			throw WRONG_ARGUMENT;
-		}
 		switch(indentStyle) {
 			case INDENT_BY_ONE :
 			case INDENT_DEFAULT :
 			case INDENT_ON_COLUMN :
 				break;
 			default :
-				throw WRONG_ARGUMENT;
+				throw new IllegalArgumentException("Unrecognized indent style: " + indentStyle); //$NON-NLS-1$;
 		}
 		try {
 			int existingValue = Integer.parseInt(value);
@@ -4566,7 +4547,7 @@ public class DefaultCodeFormatterConstants {
 			}
 			return String.valueOf(existingValue);
 		} catch (NumberFormatException e) {
-			throw WRONG_ARGUMENT;
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
 		}
 	}
 	/**
@@ -4590,9 +4571,6 @@ public class DefaultCodeFormatterConstants {
 	 * alignment value doesn't have a valid format.
 	 */
 	public static String setWrappingStyle(String value, int wrappingStyle) {
-		if (value == null) {
-			throw WRONG_ARGUMENT;
-		}
 		switch(wrappingStyle) {
 			case WRAP_COMPACT :
 			case WRAP_COMPACT_FIRST_BREAK :
@@ -4602,7 +4580,7 @@ public class DefaultCodeFormatterConstants {
 			case WRAP_ONE_PER_LINE :
 				break;
 			default:
-				throw WRONG_ARGUMENT;
+				throw new IllegalArgumentException("Unrecognized wrapping style: " + value); //$NON-NLS-1$
 		}
 		try {
 			int existingValue = Integer.parseInt(value);
@@ -4627,7 +4605,7 @@ public class DefaultCodeFormatterConstants {
 			}
 			return String.valueOf(existingValue);
 		} catch (NumberFormatException e) {
-			throw WRONG_ARGUMENT;
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
 		}
 	}
 }
