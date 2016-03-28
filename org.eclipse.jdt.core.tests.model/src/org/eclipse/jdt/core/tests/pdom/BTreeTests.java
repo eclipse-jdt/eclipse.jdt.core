@@ -54,7 +54,7 @@ public class BTreeTests extends BaseTestCase {
 		pdom = DatabaseTestUtil.createEmptyPdom(getName());
 		db = pdom.getDB();
 		db.setExclusiveLock();
-		rootRecord = Database.DATA_AREA;
+		rootRecord = Database.DATA_AREA_OFFSET;
 		comparator = new BTMockRecordComparator();
 		btree = new BTree(pdom, rootRecord, degree, comparator);
 	}

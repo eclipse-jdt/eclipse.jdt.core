@@ -61,7 +61,7 @@ public class FieldSearchKey<T> implements IField, IDestructableField {
 		cleanup(pdom, address);
 
 		Database db = pdom.getDB();
-		BTree btree = this.searchIndex.get(pdom, Database.DATA_AREA);
+		BTree btree = this.searchIndex.get(pdom, Database.DATA_AREA_OFFSET);
 		db.putRecPtr(address + this.offset, db.newString(newString).getRecord());
 		btree.insert(address);
 	}
@@ -86,7 +86,7 @@ public class FieldSearchKey<T> implements IField, IDestructableField {
 
 		if (isInIndex) {
 			// Remove this entry from the search index
-			this.searchIndex.get(pdom, Database.DATA_AREA).delete(address);
+			this.searchIndex.get(pdom, Database.DATA_AREA_OFFSET).delete(address);
 
 			get(pdom, address).delete();
 			pdom.getDB().putRecPtr(address + this.offset, 0);

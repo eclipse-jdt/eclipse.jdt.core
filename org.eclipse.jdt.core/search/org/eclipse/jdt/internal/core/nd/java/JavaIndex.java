@@ -215,7 +215,7 @@ public class JavaIndex {
 	}
 
 	public static JavaIndex getIndex(Nd pdom) {
-		return new JavaIndex(pdom, Database.DATA_AREA);
+		return new JavaIndex(pdom, Database.DATA_AREA_OFFSET);
 	}
 
 	public static JavaIndex getIndex() {

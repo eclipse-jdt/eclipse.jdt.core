@@ -203,7 +203,7 @@ public class DatabaseTest extends BaseTestCase {
 			}
 		};
 
-		BTree btree = new BTree(pdom, Database.DATA_AREA, comparator);
+		BTree btree = new BTree(pdom, Database.DATA_AREA_OFFSET, comparator);
 		for (int i = 0; i < names.length; ++i) {
 			String name = names[i];
 			long record = db.malloc(8);

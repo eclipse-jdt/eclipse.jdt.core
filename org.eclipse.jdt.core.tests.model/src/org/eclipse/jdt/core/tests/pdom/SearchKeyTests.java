@@ -39,7 +39,7 @@ public class SearchKeyTests extends BaseTestCase {
 		}
 
 		public static TestSearchIndex getIndex(Nd pdom) {
-			return new TestSearchIndex(pdom, Database.DATA_AREA);
+			return new TestSearchIndex(pdom, Database.DATA_AREA_OFFSET);
 		}
 
 		public Element findName(String searchString) {

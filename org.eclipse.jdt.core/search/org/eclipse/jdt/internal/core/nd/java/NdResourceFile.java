@@ -82,7 +82,7 @@ public class NdResourceFile extends NdTreeNode {
 
 			char[] filename = FILENAME.get(getNd(), this.address).getChars();
 
-			NdResourceFile result = JavaIndex.FILES.findBest(pdom, Database.DATA_AREA,
+			NdResourceFile result = JavaIndex.FILES.findBest(pdom, Database.DATA_AREA_OFFSET,
 					SearchCriteria.create(filename), new IResultRank() {
 						@Override
 						public long getRank(Nd testPdom, long testAddress) {

@@ -100,8 +100,10 @@ public class Database {
 	public static final long MAX_DB_SIZE= ((long) 1 << (Integer.SIZE + BLOCK_SIZE_DELTA_BITS));
 
 	public static final int VERSION_OFFSET = 0;
-	public static final int WRITE_NUMBER_OFFSET = (CHUNK_SIZE / BLOCK_SIZE_DELTA - MIN_BLOCK_DELTAS + 2) * INT_SIZE;
-	public static final int DATA_AREA = WRITE_NUMBER_OFFSET + LONG_SIZE;
+	private static final int MALLOC_TABLE_OFFSET = VERSION_OFFSET + INT_SIZE;
+	public static final int WRITE_NUMBER_OFFSET = MALLOC_TABLE_OFFSET
+			+ (CHUNK_SIZE / BLOCK_SIZE_DELTA - MIN_BLOCK_DELTAS + 1) * INT_SIZE;
+	public static final int DATA_AREA_OFFSET = WRITE_NUMBER_OFFSET + LONG_SIZE;
 
 	private final File fLocation;
 	private final boolean fReadOnly;
@@ -437,14 +439,17 @@ public class Database {
 		}
 	}
 
+	/**
+	 * @param blocksize (must be a multiple of BLOCK_SIZE_DELTA)
+	 */
 	private long getFirstBlock(int blocksize) throws IndexException {
 		assert this.fLocked;
-		return this.fHeaderChunk.getFreeRecPtr((blocksize / BLOCK_SIZE_DELTA - MIN_BLOCK_DELTAS + 1) * INT_SIZE);
+		return this.fHeaderChunk.getFreeRecPtr(MALLOC_TABLE_OFFSET + (blocksize / BLOCK_SIZE_DELTA - MIN_BLOCK_DELTAS) * INT_SIZE);
 	}
 
 	private void setFirstBlock(int blocksize, long block) throws IndexException {
 		assert this.fExclusiveLock;
-		this.fHeaderChunk.putFreeRecPtr((blocksize / BLOCK_SIZE_DELTA - MIN_BLOCK_DELTAS + 1) * INT_SIZE, block);
+		this.fHeaderChunk.putFreeRecPtr(MALLOC_TABLE_OFFSET + (blocksize / BLOCK_SIZE_DELTA - MIN_BLOCK_DELTAS) * INT_SIZE, block);
 	}
 
 	private void removeBlock(Chunk chunk, int blocksize, long block) throws IndexException {
