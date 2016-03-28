@@ -6132,6 +6132,56 @@ public void test489631a() {
 	},
 	"0");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=476859 enclosing method not found error when EJC compiled, works fine with oracle jdk compiler
+public void test476859() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.lang.reflect.Method;\n" + 
+			"import java.util.function.Function;\n" + 
+			"public class Test {\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"    final Function<Void,Method> f = __ -> {\n" + 
+			"    	class Dummy{}\n" + 
+			"      return new Dummy(){}.getClass().getEnclosingMethod();\n" + 
+			"    };\n" + 
+			"    System.out.println(f.apply(null));\n" + 
+			"  }\n" + 
+			"}"
+	},
+	"private static java.lang.reflect.Method Test.lambda$0(java.lang.Void)");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=476859 enclosing method not found error when EJC compiled, works fine with oracle jdk compiler
+public void test476859a() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.lang.reflect.Method;\n" + 
+			"import java.util.function.Function;\n" + 
+			"public class Test {\n" + 
+			"  public static void main(String[] args) {\n" + 
+			"	  \n" + 
+			"    final Function<Void,Method> f = __ -> {\n" + 
+			"    	class Dummy{}\n" + 
+			"      return new Dummy(){}.getClass().getEnclosingMethod();\n" + 
+			"    };\n" + 
+			"    System.out.println(f.apply(null));\n" + 
+			"    new AnotherClass().foo();\n" + 
+			"  }\n" + 
+			"}\n" + 
+			"class AnotherClass {\n" + 
+			"	void foo() {\n" + 
+			"		final Function<Void,Method> f = __ -> {\n" + 
+			"	    	class Dummy{}\n" + 
+			"	      return new Dummy(){}.getClass().getEnclosingMethod();\n" + 
+			"	    };\n" + 
+			"	    System.out.println(f.apply(null));\n" + 
+			"	}\n" + 
+			"}\n"
+	},
+	"private static java.lang.reflect.Method Test.lambda$0(java.lang.Void)\n" +
+	"private java.lang.reflect.Method AnotherClass.lambda$0(java.lang.Void)");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
