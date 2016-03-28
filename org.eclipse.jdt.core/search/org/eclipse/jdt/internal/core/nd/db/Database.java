@@ -54,17 +54,24 @@ import com.ibm.icu.text.MessageFormat;
  *
  * (1) where 2 <= m <= CHUNK_SIZE / BLOCK_SIZE_DELTA - MIN_BLOCK_DELTAS + 1
  *
- * ===== block structure
+ * ===== block structure (for free/unused blocks)
  *
  * offset            content
  * 	                 _____________________________
- * 0                | size of block (negative indicates in use, positive unused) (2 bytes)
+ * 0                | size of block (positive indicates an unused block) (2 bytes)
  * PREV_OFFSET      | pointer to previous block (of same size) (only in free blocks)
  * NEXT_OFFSET      | pointer to next block (of same size) (only in free blocks)
+ * ...              | unused space
+ *
+ *====== block structure (for allocated blocks)
+ *
+ * offset            content
+ * 	                 _____________________________
+ * 0                | size of block (negative indicates the block is in use) (2 bytes)
+ * 2                | content of the struct 
  *
  */
 public class Database {
-	// Public for tests only, you shouldn't need these.
 	public static final int CHAR_SIZE = 2;
 	public static final int BYTE_SIZE = 1;
 	public static final int SHORT_SIZE = 2;
@@ -72,30 +79,29 @@ public class Database {
 	public static final int LONG_SIZE = 8;
 	public static final int CHUNK_SIZE = 1024 * 4;
 	public static final int OFFSET_IN_CHUNK_MASK= CHUNK_SIZE - 1;
-	public static final int BLOCK_HEADER_SIZE= 2;
+	public static final int BLOCK_HEADER_SIZE = SHORT_SIZE;
+
 	public static final int BLOCK_SIZE_DELTA_BITS = 3;
 	public static final int BLOCK_SIZE_DELTA= 1 << BLOCK_SIZE_DELTA_BITS;
-	public static final int MIN_BLOCK_DELTAS = 2;	// a block must at least be 2 + 2*4 bytes to link the free blocks.
+	
+	// Fields that are only used by free blocks
+	private static final int BLOCK_PREV_OFFSET = BLOCK_HEADER_SIZE;
+	private static final int BLOCK_NEXT_OFFSET = BLOCK_HEADER_SIZE + INT_SIZE;
+	private static final int FREE_BLOCK_HEADER_SIZE = BLOCK_NEXT_OFFSET + INT_SIZE;
+	
+	public static final int MIN_BLOCK_DELTAS = (FREE_BLOCK_HEADER_SIZE + BLOCK_SIZE_DELTA - 1) /
+			BLOCK_SIZE_DELTA; // Must be enough multiples of BLOCK_SIZE_DELTA in order to fit the free block header
 	public static final int MAX_BLOCK_DELTAS = CHUNK_SIZE / BLOCK_SIZE_DELTA;
 	public static final int MAX_MALLOC_SIZE = MAX_BLOCK_DELTAS * BLOCK_SIZE_DELTA - BLOCK_HEADER_SIZE;
 	public static final int PTR_SIZE = 4;  // size of a pointer in the database in bytes
 	public static final int STRING_SIZE = PTR_SIZE;
 	public static final int FLOAT_SIZE = INT_SIZE;
 	public static final int DOUBLE_SIZE = LONG_SIZE;
-	// The lower bound for TYPE_SIZE is 1 + PTR_SIZE, but a slightly larger space for types stored
-	// inline produces in a slightly smaller overall database size.
-	public static final int TYPE_SIZE = 2 + PTR_SIZE;  // size of a type in the database in bytes
-	public static final int VALUE_SIZE = 1 + PTR_SIZE;  // size of a value in the database in bytes
-	public static final int EVALUATION_SIZE = TYPE_SIZE;  // size of an evaluation in the database in bytes
-	public static final int ARGUMENT_SIZE = TYPE_SIZE;  // size of a template argument in the database in bytes
 	public static final long MAX_DB_SIZE= ((long) 1 << (Integer.SIZE + BLOCK_SIZE_DELTA_BITS));
 
 	public static final int VERSION_OFFSET = 0;
 	public static final int WRITE_NUMBER_OFFSET = (CHUNK_SIZE / BLOCK_SIZE_DELTA - MIN_BLOCK_DELTAS + 2) * INT_SIZE;
 	public static final int DATA_AREA = WRITE_NUMBER_OFFSET + LONG_SIZE;
-
-	private static final int BLOCK_PREV_OFFSET = BLOCK_HEADER_SIZE;
-	private static final int BLOCK_NEXT_OFFSET = BLOCK_HEADER_SIZE + INT_SIZE;
 
 	private final File fLocation;
 	private final boolean fReadOnly;
@@ -147,6 +153,10 @@ public class Database {
 		} catch (IOException e) {
 			throw new IndexException(new DBStatus(e));
 		}
+	}
+
+	private static int divideRoundingUp(int num, int den) {
+		return (num + den - 1) / den;
 	}
 
 	private void openFile() throws FileNotFoundException {
@@ -322,7 +332,7 @@ public class Database {
 		assert datasize >= 0;
 		assert datasize <= MAX_MALLOC_SIZE;
 
-		int needDeltas= (datasize + BLOCK_HEADER_SIZE + BLOCK_SIZE_DELTA - 1) / BLOCK_SIZE_DELTA;
+		int needDeltas= divideRoundingUp(datasize + BLOCK_HEADER_SIZE, BLOCK_SIZE_DELTA);
 		if (needDeltas < MIN_BLOCK_DELTAS) {
 			needDeltas= MIN_BLOCK_DELTAS;
 		}
