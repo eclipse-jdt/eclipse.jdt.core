@@ -894,7 +894,7 @@ private IBinaryMethod[] createMethods(IBinaryMethod[] iMethods, IBinaryType bina
 		return NO_BINARY_METHODS;
 	}
 
-boolean hasRestrictedAccess = hasRestrictedAccess();
+	boolean hasRestrictedAccess = hasRestrictedAccess();
 	MethodBinding[] methods1 = new MethodBinding[total];
 	if (total == initialTotal) {
 		for (int i = 0; i < initialTotal; i++) {
