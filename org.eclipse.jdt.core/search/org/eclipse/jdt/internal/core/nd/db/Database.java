@@ -48,11 +48,11 @@ import com.ibm.icu.text.MessageFormat;
  * 0                    | version number
  * INT_SIZE             | pointer to head of linked list of blocks of size MIN_BLOCK_DELTAS*BLOCK_SIZE_DELTA
  * ..                   | ...
- * INT_SIZE * m (1)     | pointer to head of linked list of blocks of size (m + MIN_BLOCK_DELTAS) * BLOCK_SIZE_DELTA
+ * INT_SIZE * (M + 1)   | pointer to head of linked list of blocks of size (M + MIN_BLOCK_DELTAS) * BLOCK_SIZE_DELTA
  * WRITE_NUMBER_OFFSET  | long integer which is incremented on every write
- * DATA_AREA            | undefined (PDOM stores its own house-keeping data in this area)
+ * DATA_AREA            | The database singletons are stored here and use the remainder of chunk 0
  *
- * (1) where 2 <= m <= CHUNK_SIZE / BLOCK_SIZE_DELTA - MIN_BLOCK_DELTAS + 1
+ * M = CHUNK_SIZE / BLOCK_SIZE_DELTA - MIN_BLOCK_DELTAS
  *
  * ===== block structure (for free/unused blocks)
  *
