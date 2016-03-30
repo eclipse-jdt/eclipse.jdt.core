@@ -2729,4 +2729,32 @@ public void test473008c() throws JavaModelException {
 			"StringBuffer[TYPE_REF]{StringBuffer, java.lang, Ljava.lang.StringBuffer;, null, null, null, null, [151, 163], " + (relevance + R_UNQUALIFIED + R_EXACT_NAME) + "}"
 			, requestor.getResults());
 }
+public void test489962() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/CC.java",
+			"public class CC extends S1 {\n" +
+			"	private int i = disp\n" +
+			"}\n" +
+			"abstract class S1 implements I1 {}\n" +
+			"interface I1 extends I2 {}\n" +
+			"interface I2 {\n" +
+			"	default int dispose() {\n" +
+			"		return 0;\n" +
+			"	}\n" +
+			"	default void disperse() {}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "disp";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
+	assertResults(
+			"disperse[METHOD_REF]{disperse(), LI2;, ()V, null, null, disperse, null, [46, 50], " + (relevance + R_VOID) + "}\n" +
+			"dispose[METHOD_REF]{dispose(), LI2;, ()I, null, null, dispose, null, [46, 50], " + (relevance + R_EXACT_EXPECTED_TYPE) + "}"
+			, requestor.getResults());
+}
 }

@@ -9862,6 +9862,7 @@ public final class CompletionEngine
 		}
 		
 		boolean hasPotentialDefaultAbstractMethods = true;
+		boolean java8Plus = this.compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8;
 		while (currentType != null) {
 
 			MethodBinding[] methods = currentType.availableMethods();
@@ -9875,11 +9876,11 @@ public final class CompletionEngine
 					receiverType);
 			}
 
-			if (hasPotentialDefaultAbstractMethods &&
+			if (hasPotentialDefaultAbstractMethods && (java8Plus ||
 					(currentType.isAbstract() ||
 							currentType.isTypeVariable() ||
 							currentType.isIntersectionType() ||
-							currentType.isEnum())){
+							currentType.isEnum()))){
 
 				ReferenceBinding[] superInterfaces = currentType.superInterfaces();
 
