@@ -10,7 +10,7 @@
  *     Andrew Ferguson (Symbian)
  *     Sergey Prigogin (Google)
  *******************************************************************************/
-package org.eclipse.jdt.core.tests.pdom.util;
+package org.eclipse.jdt.core.tests.nd.util;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;

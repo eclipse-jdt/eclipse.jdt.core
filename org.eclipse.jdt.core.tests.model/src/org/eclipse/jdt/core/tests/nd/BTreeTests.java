@@ -9,12 +9,12 @@
  *     Symbian - Initial implementation
  *     Markus Schorn (Wind River Systems)
  *******************************************************************************/
-package org.eclipse.jdt.core.tests.pdom;
+package org.eclipse.jdt.core.tests.nd;
 
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.tests.pdom.util.BaseTestCase;
+import org.eclipse.jdt.core.tests.nd.util.BaseTestCase;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.BTree;
 import org.eclipse.jdt.internal.core.nd.db.Database;

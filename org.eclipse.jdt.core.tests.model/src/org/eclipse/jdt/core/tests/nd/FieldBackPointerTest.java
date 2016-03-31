@@ -1,11 +1,11 @@
-package org.eclipse.jdt.core.tests.pdom;
+package org.eclipse.jdt.core.tests.nd;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
-import org.eclipse.jdt.core.tests.pdom.util.BaseTestCase;
+import org.eclipse.jdt.core.tests.nd.util.BaseTestCase;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.NdNode;
 import org.eclipse.jdt.internal.core.nd.NdNodeTypeRegistry;

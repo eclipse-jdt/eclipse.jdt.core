@@ -8,7 +8,7 @@
  * Contributors:
  *   Stefan Xenos (Google) - Initial implementation
  *******************************************************************************/
-package org.eclipse.jdt.core.tests.pdom;
+package org.eclipse.jdt.core.tests.nd;
 
 import java.lang.reflect.*;
 

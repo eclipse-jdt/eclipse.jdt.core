@@ -1,6 +1,6 @@
-package org.eclipse.jdt.core.tests.pdom;
+package org.eclipse.jdt.core.tests.nd;
 
-import org.eclipse.jdt.core.tests.pdom.util.BaseTestCase;
+import org.eclipse.jdt.core.tests.nd.util.BaseTestCase;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.NdNode;
 import org.eclipse.jdt.internal.core.nd.NdNodeTypeRegistry;

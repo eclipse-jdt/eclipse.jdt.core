@@ -8,7 +8,7 @@
  * Contributors:
  * Symbian - Initial implementation
  *******************************************************************************/
-package org.eclipse.jdt.core.tests.pdom;
+package org.eclipse.jdt.core.tests.nd;
 
 import junit.framework.Test;
 

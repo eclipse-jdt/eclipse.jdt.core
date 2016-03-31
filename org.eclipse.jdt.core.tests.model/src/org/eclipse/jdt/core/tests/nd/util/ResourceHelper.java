@@ -10,7 +10,7 @@
  *     James Blackburn (Broadcom Corp.)
  *     Liviu Ionescu - bug 392416
  *******************************************************************************/
-package org.eclipse.jdt.core.tests.pdom.util;
+package org.eclipse.jdt.core.tests.nd.util;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;

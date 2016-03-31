@@ -1,4 +1,4 @@
-package org.eclipse.jdt.core.tests.pdom.util;
+package org.eclipse.jdt.core.tests.nd.util;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IStatus;
