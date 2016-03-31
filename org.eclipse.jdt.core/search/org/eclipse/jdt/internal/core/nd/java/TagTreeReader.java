@@ -14,41 +14,41 @@ public abstract class TagTreeReader {
 	public static final int[] UNUSED_RESULT = new int[1];
 
 	public static abstract class TagHandler<T> {
-		abstract public T read(Nd pdom, long address, TagTreeReader reader, int[] bytesRead);
-		abstract public void write(Nd pdom, long address, TagTreeReader reader, T toWrite, int[] bytesWritten);
-		abstract public int getSize(Nd pdom, T object, TagTreeReader reader);
-		public void destruct(Nd pdom, long address, TagTreeReader reader) {
+		abstract public T read(Nd nd, long address, TagTreeReader reader, int[] bytesRead);
+		abstract public void write(Nd nd, long address, TagTreeReader reader, T toWrite, int[] bytesWritten);
+		abstract public int getSize(Nd nd, T object, TagTreeReader reader);
+		public void destruct(Nd nd, long address, TagTreeReader reader) {
 			// Nothing to do by default
 		}
 	}
 
 	public static abstract class FixedSizeTagHandler<T> extends TagHandler<T> {
-		protected abstract T read(Nd pdom, long address);
-		protected abstract void write(Nd pdom, long address, T value);
+		protected abstract T read(Nd nd, long address);
+		protected abstract void write(Nd nd, long address, T value);
 		protected abstract int getSize();
-		protected void destruct(Nd pdom, long address) {
+		protected void destruct(Nd nd, long address) {
 			// Nothing to do by default
 		}
 
-		public final T read(Nd pdom, long address, TagTreeReader reader, int[] bytesRead) {
+		public final T read(Nd nd, long address, TagTreeReader reader, int[] bytesRead) {
 			bytesRead[0] = getSize();
-			return read(pdom, address);
+			return read(nd, address);
 		}
 
 		@Override
-		public final void write(Nd pdom, long address, TagTreeReader reader, T value, int[] bytesWritten) {
+		public final void write(Nd nd, long address, TagTreeReader reader, T value, int[] bytesWritten) {
 			bytesWritten[0] = getSize();
-			write(pdom, address, value);
+			write(nd, address, value);
 		}
 
 		@Override
-		public final int getSize(Nd pdom, T object, TagTreeReader reader) {
+		public final int getSize(Nd nd, T object, TagTreeReader reader) {
 			return getSize();
 		}
 
 		@Override
-		public final void destruct(Nd pdom, long address, TagTreeReader reader) {
-			destruct(pdom, address);
+		public final void destruct(Nd nd, long address, TagTreeReader reader) {
+			destruct(nd, address);
 		}
 	}
 
@@ -60,13 +60,13 @@ public abstract class TagTreeReader {
 		this.values.put(reader, (int) key);
 	}
 
-	public final Object read(Nd pdom, long address) {
-		return read(pdom, address, UNUSED_RESULT);
+	public final Object read(Nd nd, long address) {
+		return read(nd, address, UNUSED_RESULT);
 	}
 
-	public final Object read(Nd pdom, long address, int[] bytesRead) {
+	public final Object read(Nd nd, long address, int[] bytesRead) {
 		long readAddress = address;
-		Database db = pdom.getDB();
+		Database db = nd.getDB();
 		byte nextByte = db.getByte(address);
 		readAddress += Database.BYTE_SIZE;
 		TagHandler<?> reader = this.readers[nextByte];
@@ -74,17 +74,17 @@ public abstract class TagTreeReader {
 			throw new IndexException("Found unknown tag with value " + nextByte + " at address " + address); //$NON-NLS-1$//$NON-NLS-2$
 		}
 
-		return reader.read(pdom, readAddress, this, bytesRead);
+		return reader.read(nd, readAddress, this, bytesRead);
 	}
 
 	protected abstract byte getKeyFor(Object toWrite);
 
-	public final void write(Nd pdom, long address, Object toWrite) {
-		write(pdom, address, toWrite, UNUSED_RESULT);
+	public final void write(Nd nd, long address, Object toWrite) {
+		write(nd, address, toWrite, UNUSED_RESULT);
 	}
 
 	@SuppressWarnings("unchecked")
-	public final void write(Nd pdom, long address, Object toWrite, int[] bytesWritten) {
+	public final void write(Nd nd, long address, Object toWrite, int[] bytesWritten) {
 		byte key = getKeyFor(toWrite);
 
 		@SuppressWarnings("rawtypes")
@@ -94,11 +94,11 @@ public abstract class TagTreeReader {
 			throw new IndexException("Invalid key " + key + " returned from getKeyFor(...)"); //$NON-NLS-1$//$NON-NLS-2$
 		}
 
-		handler.write(pdom, address, this, toWrite, bytesWritten);
+		handler.write(nd, address, this, toWrite, bytesWritten);
 	}
 
-	public final void destruct(Nd pdom, long address) {
-		Database db = pdom.getDB();
+	public final void destruct(Nd nd, long address) {
+		Database db = nd.getDB();
 		long readAddress = address;
 		byte nextByte = db.getByte(readAddress);
 		readAddress += Database.BYTE_SIZE;
@@ -108,11 +108,11 @@ public abstract class TagTreeReader {
 			throw new IndexException("Found unknown tag with value " + nextByte + " at address " + address); //$NON-NLS-1$//$NON-NLS-2$
 		}
 
-		handler.destruct(pdom, readAddress, this);
+		handler.destruct(nd, readAddress, this);
 	}
 
 	@SuppressWarnings("unchecked")
-	public final int getSize(Nd pdom, Object toMeasure) {
+	public final int getSize(Nd nd, Object toMeasure) {
 		byte key = getKeyFor(toMeasure);
 
 		@SuppressWarnings("rawtypes")
@@ -122,6 +122,6 @@ public abstract class TagTreeReader {
 					+ key);
 		}
 
-		return handler.getSize(pdom, toMeasure, this);
+		return handler.getSize(nd, toMeasure, this);
 	}
 }

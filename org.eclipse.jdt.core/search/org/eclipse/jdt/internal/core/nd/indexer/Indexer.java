@@ -42,7 +42,7 @@ import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.nd.java.NdWorkspaceLocation;
 
 public final class Indexer {
-	private Nd pdom;
+	private Nd nd;
 	private IWorkspaceRoot root;
 
 	private static Indexer indexer;
@@ -59,7 +59,7 @@ public final class Indexer {
 	public static Indexer getInstance() {
 		synchronized (mutex) {
 			if (indexer == null) {
-				indexer = new Indexer(JavaIndex.getGlobalPDOM(), ResourcesPlugin.getWorkspace().getRoot());
+				indexer = new Indexer(JavaIndex.getGlobalNd(), ResourcesPlugin.getWorkspace().getRoot());
 			}
 			return indexer;
 		}
@@ -111,11 +111,11 @@ public final class Indexer {
 		updateResourceMappings(pathsToUpdate, subMonitor.split(5));
 
 		// Flush the database to disk
-		this.pdom.acquireWriteLock(subMonitor.newChild(5));
+		this.nd.acquireWriteLock(subMonitor.newChild(5));
 		try {
-			this.pdom.getDB().flush();
+			this.nd.getDB().flush();
 		} finally {
-			this.pdom.releaseWriteLock();
+			this.nd.releaseWriteLock();
 		}
 
 		long endResourceMappingNs = System.nanoTime();
@@ -140,12 +140,12 @@ public final class Indexer {
 	private void updateResourceMappings(Map<IPath, List<IJavaElement>> pathsToUpdate, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, pathsToUpdate.keySet().size());
 
-		JavaIndex index = JavaIndex.getIndex(this.pdom);
+		JavaIndex index = JavaIndex.getIndex(this.nd);
 
 		for (Entry<IPath, List<IJavaElement>> entry : pathsToUpdate.entrySet()) {
 			SubMonitor iterationMonitor = subMonitor.split(1).setWorkRemaining(10);
 
-			this.pdom.acquireWriteLock(iterationMonitor.split(1));
+			this.nd.acquireWriteLock(iterationMonitor.split(1));
 			try {
 				NdResourceFile resourceFile = index.getResourceFile(entry.getKey().toString().toCharArray());
 				if (resourceFile == null) {
@@ -154,7 +154,7 @@ public final class Indexer {
 
 				attachWorkspaceFilesToResource(entry.getValue(), resourceFile);
 			} finally {
-				this.pdom.releaseWriteLock();
+				this.nd.releaseWriteLock();
 			}
 
 		}
@@ -236,7 +236,7 @@ public final class Indexer {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 
 		String pathString = thePath.toString();
-		JavaIndex javaIndex = JavaIndex.getIndex(this.pdom);
+		JavaIndex javaIndex = JavaIndex.getIndex(this.nd);
 
 		File theFile = thePath.toFile();
 		if (!(theFile.exists() && theFile.isFile())) {
@@ -246,9 +246,9 @@ public final class Indexer {
 
 		NdResourceFile resourceFile;
 
-		this.pdom.acquireWriteLock(subMonitor.newChild(5));
+		this.nd.acquireWriteLock(subMonitor.newChild(5));
 		try {
-			resourceFile = new NdResourceFile(this.pdom);
+			resourceFile = new NdResourceFile(this.nd);
 			resourceFile.setLocation(pathString);
 			IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) element
 					.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
@@ -258,14 +258,14 @@ public final class Indexer {
 			}
 			attachWorkspaceFilesToResource(elementsMappingOntoLocation, resourceFile);
 		} finally {
-			this.pdom.releaseWriteLock();
+			this.nd.releaseWriteLock();
 		}
 
 		Package.logInfo("rescanning " + thePath.toString()); //$NON-NLS-1$
 		int result = addElement(resourceFile, element, subMonitor.newChild(90));
 
 		// Now update the timestamp and delete all older versions of this resource that exist in the index
-		this.pdom.acquireWriteLock(subMonitor.newChild(5));
+		this.nd.acquireWriteLock(subMonitor.newChild(5));
 		try {
 			if (resourceFile.isInIndex()) {
 				resourceFile.setFingerprint(fingerprint);
@@ -278,7 +278,7 @@ public final class Indexer {
 				}
 			}
 		} finally {
-			this.pdom.releaseWriteLock();
+			this.nd.releaseWriteLock();
 		}
 
 		return result;
@@ -289,7 +289,7 @@ public final class Indexer {
 		for (IJavaElement next : elementsMappingOntoLocation) {
 			IResource nextResource = next.getResource();
 			if (nextResource != null) {
-				new NdWorkspaceLocation(this.pdom, resourceFile,
+				new NdWorkspaceLocation(this.nd, resourceFile,
 						nextResource.getFullPath().toString().toCharArray());
 			}
 		}
@@ -328,7 +328,7 @@ public final class Indexer {
 	}
 
 	/**
-	 * Adds an archive to the index, under the given PDOMResourceFile.
+	 * Adds an archive to the index, under the given NdResourceFile.
 	 *
 	 * @param resourceFile
 	 * @param element
@@ -349,7 +349,7 @@ public final class Indexer {
 		for (IClassFile next : classFiles) {
 			SubMonitor iterationMonitor = subMonitor.split(1).setWorkRemaining(100);
 
-			this.pdom.acquireWriteLock(iterationMonitor.split(5));
+			this.nd.acquireWriteLock(iterationMonitor.split(5));
 			try {
 				if (!resourceFile.isInIndex()) {
 					return classesIndexed;
@@ -361,7 +361,7 @@ public final class Indexer {
 			} catch (CoreException e) {
 				Package.log("Unable to index " + next.toString(), e); //$NON-NLS-1$
 			} finally {
-				this.pdom.releaseWriteLock();
+				this.nd.releaseWriteLock();
 			}
 //			if (ENABLE_SELF_TEST) {
 //				IndexTester.testType(binaryType, new IndexBinaryType(ReferenceUtil.createTypeRef(type)));
@@ -533,14 +533,14 @@ public final class Indexer {
 
 	private FingerprintTestResult testForChanges(IPath thePath, IProgressMonitor monitor) throws CoreException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
-		JavaIndex javaIndex = JavaIndex.getIndex(this.pdom);
+		JavaIndex javaIndex = JavaIndex.getIndex(this.nd);
 		String pathString = thePath.toString();
 
 		// Package.log("Indexer testing: " + pathString, null);
 
 		subMonitor.split(50);
 		FileFingerprint fingerprint = FileFingerprint.getEmpty();
-		this.pdom.acquireReadLock();
+		this.nd.acquireReadLock();
 		try {
 			NdResourceFile resourceFile = javaIndex.getResourceFile(pathString.toCharArray());
 
@@ -548,14 +548,14 @@ public final class Indexer {
 				fingerprint = resourceFile.getFingerprint();
 			}
 		} finally {
-			this.pdom.releaseReadLock();
+			this.nd.releaseReadLock();
 		}
 
 		return fingerprint.test(thePath, subMonitor.split(50));
 	}
 
 	public Indexer(Nd toPopulate, IWorkspaceRoot workspaceRoot) {
-		this.pdom = toPopulate;
+		this.nd = toPopulate;
 		this.root = workspaceRoot;
 	}
 

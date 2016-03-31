@@ -21,16 +21,16 @@ public final class NdConstantInt extends NdConstant {
 		type.done();
 	}
 
-	public NdConstantInt(Nd pdom, long address) {
-		super(pdom, address);
+	public NdConstantInt(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	protected NdConstantInt(Nd pdom) {
-		super(pdom);
+	protected NdConstantInt(Nd nd) {
+		super(nd);
 	}
 
-	public static NdConstantInt create(Nd pdom, int value) {
-		NdConstantInt result = new NdConstantInt(pdom);
+	public static NdConstantInt create(Nd nd, int value) {
+		NdConstantInt result = new NdConstantInt(nd);
 		result.setValue(value);
 		return result;
 	}

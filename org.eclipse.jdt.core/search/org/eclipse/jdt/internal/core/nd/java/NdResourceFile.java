@@ -62,30 +62,30 @@ public class NdResourceFile extends NdTreeNode {
 		super(dom, address);
 	}
 
-	public NdResourceFile(Nd pdom) {
-		super(pdom, null);
+	public NdResourceFile(Nd nd) {
+		super(nd, null);
 	}
 
 	/**
-	 * Determines whether this file is still in the index. If a PDOMResourceFile instance is retained while the database
-	 * lock is released and reobtained, this method should be invoked to ensure that the PDOMResourceFile has not been
-	 * deleted in the meantime.
+	 * Determines whether this file is still in the index. If a {@link NdResourceFile} instance is retained while the
+	 * database lock is released and reobtained, this method should be invoked to ensure that the {@link NdResourceFile}
+	 * has not been deleted in the meantime.
 	 */
 	public boolean isInIndex() {
 		try {
-			Nd pdom = getNd();
+			Nd nd = getNd();
 			// In the common case where the resource file was deleted and the memory hasn't yet been reused,
 			// this will fail.
-			if (NODE_TYPE.get(pdom, this.address) != pdom.getNodeType(getClass())) {
+			if (NODE_TYPE.get(nd, this.address) != nd.getNodeType(getClass())) {
 				return false;
 			}
 
 			char[] filename = FILENAME.get(getNd(), this.address).getChars();
 
-			NdResourceFile result = JavaIndex.FILES.findBest(pdom, Database.DATA_AREA_OFFSET,
+			NdResourceFile result = JavaIndex.FILES.findBest(nd, Database.DATA_AREA_OFFSET,
 					SearchCriteria.create(filename), new IResultRank() {
 						@Override
-						public long getRank(Nd testPdom, long testAddress) {
+						public long getRank(Nd testNd, long testAddress) {
 							if (testAddress == NdResourceFile.this.address) {
 								return 1;
 							}

@@ -19,5 +19,5 @@ public interface IBTreeComparator {
 	/**
 	 * Compare two records. Used for insert.
 	 */
-	public abstract int compare(Nd pdom, long record1, long record2);
+	public abstract int compare(Nd nd, long record1, long record2);
 }

@@ -13,15 +13,15 @@ package org.eclipse.jdt.internal.core.nd;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
 
 /**
- * Interface for all nodes that can be visited by a {@link IPDOMVisitor}.
+ * Interface for all nodes that can be visited by a {@link INdVisitor}.
  * @noextend This interface is not intended to be extended by clients.
  * @noimplement This interface is not intended to be implemented by clients.
  * @since 3.12
  */
-public interface IPDOMNode {
+public interface INdNode {
 
 	/**
 	 * Visits the children of this node.
 	 */
-	public void accept(IPDOMVisitor visitor) throws IndexException;
+	public void accept(INdVisitor visitor) throws IndexException;
 }

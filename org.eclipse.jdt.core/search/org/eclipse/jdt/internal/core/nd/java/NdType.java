@@ -13,7 +13,7 @@ package org.eclipse.jdt.internal.core.nd.java;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.internal.core.nd.IPDOMVisitor;
+import org.eclipse.jdt.internal.core.nd.INdVisitor;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.IString;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
@@ -64,26 +64,23 @@ public class NdType extends NdBinding {
 	public static final byte FLG_TYPE_LOCAL 		= 0x0002;
 	public static final byte FLG_TYPE_MEMBER 		= 0x0004;
 
-	public NdType(Nd pdom, long address) {
-		super(pdom, address);
+	public NdType(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	public NdType(Nd pdom, NdResourceFile resource) {
-		super(pdom, resource);
+	public NdType(Nd nd, NdResourceFile resource) {
+		super(nd, resource);
 	}
 
 	@Override
-	public void accept(IPDOMVisitor visitor) {
-		//PDOMJavaClassScope.acceptViaCache(this, visitor, false);
+	public void accept(INdVisitor visitor) {
 	}
 
 	/**
 	 * Called to populate the cache for the bindings in the class scope.
 	 */
-	public void acceptUncached(IPDOMVisitor visitor) throws CoreException {
+	public void acceptUncached(INdVisitor visitor) throws CoreException {
 		super.accept(visitor);
-//		PDOMRawLinkedList list = new PDOMRawLinkedList(getNd(), this.address + MEMBERLIST);
-//		list.accept(visitor);
 	}
 
 	public NdTypeId getTypeId() {

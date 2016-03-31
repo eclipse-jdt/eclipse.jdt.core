@@ -34,7 +34,7 @@ public class BTree {
 
 	public static final int RECORD_SIZE = Database.PTR_SIZE;
 
-	private final Nd pdom;
+	private final Nd nd;
 	protected final Database db;
 	protected final long rootPointer;
 
@@ -47,22 +47,22 @@ public class BTree {
 
 	protected final IBTreeComparator cmp;
 
-	public BTree(Nd pdom, long rootPointer, IBTreeComparator cmp) {
-		this(pdom, rootPointer, DEFAULT_DEGREE, cmp);
+	public BTree(Nd nd, long rootPointer, IBTreeComparator cmp) {
+		this(nd, rootPointer, DEFAULT_DEGREE, cmp);
 	}
 
 	/**
 	 * Constructor.
 	 *
-	 * @param pdom the database containing the btree
+	 * @param nd the database containing the btree
 	 * @param rootPointer offset into database of the pointer to the root node
 	 */
-	public BTree(Nd pdom, long rootPointer, int degree, IBTreeComparator cmp) {
-		this.pdom = pdom;
+	public BTree(Nd nd, long rootPointer, int degree, IBTreeComparator cmp) {
+		this.nd = nd;
 		if (degree < 2)
 			throw new IllegalArgumentException("Illegal degree " + degree + " in tree"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		this.db = pdom.getDB();
+		this.db = nd.getDB();
 		this.rootPointer = rootPointer;
 		this.cmp = cmp;
 
@@ -223,7 +223,7 @@ public class BTree {
 				putRecord(chunk, node, this.medianRecord, 0);
 
 				// Set the node to the correct one to follow.
-				if (this.cmp.compare(this.pdom, record, median) > 0) {
+				if (this.cmp.compare(this.nd, record, median) > 0) {
 					node = newnode;
 					chunk = newchunk;
 				}
@@ -243,7 +243,7 @@ public class BTree {
 			if (checkRec == 0) {
 				upper= middle;
 			} else {
-				int compare= this.cmp.compare(this.pdom, checkRec, record);
+				int compare= this.cmp.compare(this.nd, checkRec, record);
 				if (compare > 0) {
 					upper= middle;
 				} else if (compare < 0) {
@@ -422,7 +422,7 @@ public class BTree {
 				case DELMODE_NORMAL:
 					subtreeIndex = node.keyCount;
 					for (int i= 0; i < node.keyCount; i++)
-						if (this.cmp.compare(this.pdom, getRecord(node.chunk, node.node, i), key)>0) {
+						if (this.cmp.compare(this.nd, getRecord(node.chunk, node.node, i), key)>0) {
 							subtreeIndex = i;
 							break;
 						}

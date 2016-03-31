@@ -18,7 +18,7 @@ import java.util.Set;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
 
 /**
- * Maps integer constants onto factories for PDOMNode objects
+ * Maps integer constants onto factories for {@link NdNode} objects
  * @since 3.12
  */
 public class NdNodeTypeRegistry<R> {
@@ -67,10 +67,10 @@ public class NdNodeTypeRegistry<R> {
 	}
 
 
-	public R createNode(Nd pdom, long address, short nodeType) throws IndexException {
+	public R createNode(Nd nd, long address, short nodeType) throws IndexException {
 		ITypeFactory<? extends R> typeFactory = this.types.get(nodeType);
 
-		return typeFactory.create(pdom, address);
+		return typeFactory.create(nd, address);
 	}
 
 	public short getTypeForClass(Class<? extends R> toQuery) {
@@ -88,7 +88,7 @@ public class NdNodeTypeRegistry<R> {
 
 		if (result == null) {
 			throw new IllegalArgumentException("The node type " + nodeType  //$NON-NLS-1$
-				+ " is not registered with this PDOM"); //$NON-NLS-1$
+				+ " is not registered with this database"); //$NON-NLS-1$
 		}
 
 		return result;

@@ -21,7 +21,7 @@ package org.eclipse.jdt.internal.core.nd.db;
  */
 public interface IString {
 	/**
-	 * Get the offset of this IString record in the PDOM
+	 * Get the offset of this IString record in the Nd
 	 */
 	public long getRecord();
 	
@@ -117,7 +117,7 @@ public interface IString {
 	public String getString() throws IndexException;
 	
 	/**
-	 * Free the associated record in the PDOM
+	 * Free the associated record in the Nd
 	 * @throws IndexException
 	 */
 	public void delete() throws IndexException;

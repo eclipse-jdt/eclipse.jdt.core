@@ -23,12 +23,12 @@ public final class NdConstantEnum extends NdConstant {
 		type.done();
 	}
 
-	public NdConstantEnum(Nd pdom, long address) {
-		super(pdom, address);
+	public NdConstantEnum(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	protected NdConstantEnum(Nd pdom) {
-		super(pdom);
+	protected NdConstantEnum(Nd nd) {
+		super(nd);
 	}
 
 	public static NdConstantEnum create(NdTypeSignature enumType, String enumValue) {

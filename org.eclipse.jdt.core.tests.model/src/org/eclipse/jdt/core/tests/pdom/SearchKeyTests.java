@@ -31,24 +31,24 @@ public class SearchKeyTests extends BaseTestCase {
 		}
 
 		private final long address;
-		private Nd pdom;
+		private Nd nd;
 		
 		public TestSearchIndex(Nd dom, long address) {
 			this.address = address;
-			this.pdom = dom;
+			this.nd = dom;
 		}
 
-		public static TestSearchIndex getIndex(Nd pdom) {
-			return new TestSearchIndex(pdom, Database.DATA_AREA_OFFSET);
+		public static TestSearchIndex getIndex(Nd nd) {
+			return new TestSearchIndex(nd, Database.DATA_AREA_OFFSET);
 		}
 
 		public Element findName(String searchString) {
-			return NAME_INDEX.findFirst(this.pdom, this.address,
+			return NAME_INDEX.findFirst(this.nd, this.address,
 					FieldSearchIndex.SearchCriteria.create(searchString.toCharArray()));
 		}
 
 		public Element findNickName(String searchString) {
-			return NICKNAME_INDEX.findFirst(this.pdom, this.address,
+			return NICKNAME_INDEX.findFirst(this.nd, this.address,
 					FieldSearchIndex.SearchCriteria.create(searchString.toCharArray()));
 		}
 	}
@@ -68,12 +68,12 @@ public class SearchKeyTests extends BaseTestCase {
 			type.done();
 		}
 
-		public Element(Nd pdom, long record) {
-			super(pdom, record);
+		public Element(Nd nd, long record) {
+			super(nd, record);
 		}
 
-		public Element(Nd pdom) {
-			super(pdom);
+		public Element(Nd nd) {
+			super(nd);
 		}
 
 		public void setName(String searchStringA) {
@@ -85,7 +85,7 @@ public class SearchKeyTests extends BaseTestCase {
 		}
 	}
 
-	private Nd pdom;
+	private Nd nd;
 	private Element elementA;
 	private Element elementB;
 	private TestSearchIndex index;
@@ -96,13 +96,13 @@ public class SearchKeyTests extends BaseTestCase {
 
 		NdNodeTypeRegistry<NdNode> registry = new NdNodeTypeRegistry<>();
 		registry.register(0, Element.type.getFactory());
-		this.pdom = DatabaseTestUtil.createEmptyPdom(getName(), registry);
-		this.pdom.getDB().setExclusiveLock();
+		this.nd = DatabaseTestUtil.createEmptyNd(getName(), registry);
+		this.nd.getDB().setExclusiveLock();
 
-		this.elementA = new Element(this.pdom);
-		this.elementB = new Element(this.pdom);
+		this.elementA = new Element(this.nd);
+		this.elementB = new Element(this.nd);
 		
-		this.index = TestSearchIndex.getIndex(this.pdom);
+		this.index = TestSearchIndex.getIndex(this.nd);
 	}
 
 	public static Test suite() {
@@ -148,7 +148,7 @@ public class SearchKeyTests extends BaseTestCase {
 		assertEquals(this.elementA, this.index.findNickName(SEARCH_STRING_B));
 
 		this.elementA.delete();
-		this.pdom.processDeletions();
+		this.nd.processDeletions();
 		assertEquals(null, this.index.findName(SEARCH_STRING_A));
 		assertEquals(null, this.index.findNickName(SEARCH_STRING_B));
 	}

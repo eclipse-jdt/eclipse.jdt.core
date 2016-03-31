@@ -21,16 +21,16 @@ public final class NdConstantDouble extends NdConstant {
 		type.done();
 	}
 
-	public NdConstantDouble(Nd pdom, long address) {
-		super(pdom, address);
+	public NdConstantDouble(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	protected NdConstantDouble(Nd pdom) {
-		super(pdom);
+	protected NdConstantDouble(Nd nd) {
+		super(nd);
 	}
 
-	public static NdConstantDouble create(Nd pdom, double value) {
-		NdConstantDouble result = new NdConstantDouble(pdom);
+	public static NdConstantDouble create(Nd nd, double value) {
+		NdConstantDouble result = new NdConstantDouble(nd);
 		result.setValue(value);
 		return result;
 	}

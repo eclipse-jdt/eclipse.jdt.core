@@ -27,15 +27,15 @@ public class NdAnnotationValuePair extends NdNode {
 		type.done();
 	}
 
-	public NdAnnotationValuePair(Nd pdom, long address) {
-		super(pdom, address);
+	public NdAnnotationValuePair(Nd nd, long address) {
+		super(nd, address);
 	}
 
 	public NdAnnotationValuePair(NdAnnotation annotation, char[] name) {
 		super(annotation.getNd());
-		Nd pdom = annotation.getNd();
-		APPLIES_TO.put(pdom, this.address, annotation);
-		NAME.put(pdom, this.address, name);
+		Nd nd = annotation.getNd();
+		APPLIES_TO.put(nd, this.address, annotation);
+		NAME.put(nd, this.address, name);
 	}
 
 	public NdAnnotation getAnnotation() {

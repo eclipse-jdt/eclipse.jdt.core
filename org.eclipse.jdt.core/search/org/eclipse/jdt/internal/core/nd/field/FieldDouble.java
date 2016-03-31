@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 
 /**
- * Declares a PDOM field of type double. Can be used in place of  {@link Field}&lt{@link Double}&gt in order to
+ * Declares a Nd field of type double. Can be used in place of  {@link Field}&lt{@link Double}&gt in order to
  * avoid extra GC overhead.
  * 
  * @since 3.12
@@ -25,13 +25,13 @@ public class FieldDouble implements IField {
 	public FieldDouble() {
 	}
 
-	public double get(Nd pdom, long address) {
-		Database db = pdom.getDB();
+	public double get(Nd nd, long address) {
+		Database db = nd.getDB();
 		return db.getDouble(address + this.offset);
 	}
 
-	public void put(Nd pdom, long address, double newValue) {
-		pdom.getDB().putDouble(address + this.offset, newValue);
+	public void put(Nd nd, long address, double newValue) {
+		nd.getDB().putDouble(address + this.offset, newValue);
 	}
 
 	@Override

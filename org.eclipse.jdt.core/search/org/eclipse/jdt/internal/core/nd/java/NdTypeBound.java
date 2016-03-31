@@ -27,8 +27,8 @@ public class NdTypeBound extends NdNode {
 		type.done();
 	}
 
-	public NdTypeBound(Nd pdom, long address) {
-		super(pdom, address);
+	public NdTypeBound(Nd nd, long address) {
+		super(nd, address);
 	}
 
 	public NdTypeBound(NdTypeParameter parent, NdTypeSignature signature) {

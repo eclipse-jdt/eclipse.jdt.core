@@ -13,12 +13,6 @@ import org.eclipse.jdt.core.JavaCore;
 	public static String PLUGIN_ID = JavaCore.PLUGIN_ID;
 
 	/**
-	 * Status code for core exception that is thrown if a pdom grew larger than the supported limit.
-	 * @since 5.2
-	 */
-	public static final int STATUS_PDOM_TOO_LARGE = 4;
-	
-	/**
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public static void log(Throwable e) {

@@ -30,7 +30,6 @@ import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 public class NdMethodId extends NdNode {
 	public static final FieldSearchKey<JavaIndex> METHOD_NAME;
 	public static final FieldOneToMany<NdMethod> METHODS;
-//	public static final FieldOneToMany<PDOMType> USED_AS_FUNCTIONAL_INTERFACE_METHOD;
 	public static final FieldOneToMany<NdType> DECLARED_TYPES;
 
 	@SuppressWarnings("hiding")
@@ -40,27 +39,25 @@ public class NdMethodId extends NdNode {
 		type = StructDef.create(NdMethodId.class, NdNode.type);
 		METHOD_NAME = FieldSearchKey.create(type, JavaIndex.METHODS);
 		METHODS = FieldOneToMany.create(type, NdMethod.METHOD_ID, 2);
-//		USED_AS_FUNCTIONAL_INTERFACE_METHOD = FieldOneToMany.create(type, PDOMType.class,
-//				PDOMType.FUNCTIONAL_INTERFACE_METHOD, 0);
 		DECLARED_TYPES = FieldOneToMany.create(type, NdType.DECLARING_METHOD);
 
 		type.useStandardRefCounting().done();
 	}
 
-	public NdMethodId(Nd pdom, long address) {
-		super(pdom, address);
+	public NdMethodId(Nd nd, long address) {
+		super(nd, address);
 	}
 
 	/**
 	 *
-	 * @param pdom
+	 * @param nd
 	 * @param methodIdentifier a field descriptor for the method type followed by a "#" followed by a method selector
 	 *  followed by method descriptor. For example, "Lorg/eclipse/MyClass#foo()Ljava/lang/Object;V"
 	 */
-	public NdMethodId(Nd pdom, char[] methodIdentifier) {
-		super(pdom);
+	public NdMethodId(Nd nd, char[] methodIdentifier) {
+		super(nd);
 
-		METHOD_NAME.put(pdom, this.address, methodIdentifier);
+		METHOD_NAME.put(nd, this.address, methodIdentifier);
 	}
 
 	public List<NdType> getDeclaredTypes() {

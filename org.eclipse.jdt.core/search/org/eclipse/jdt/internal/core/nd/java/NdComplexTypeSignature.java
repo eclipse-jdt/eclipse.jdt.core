@@ -46,12 +46,12 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 		type.useStandardRefCounting().done();
 	}
 
-	public NdComplexTypeSignature(Nd pdom, long address) {
-		super(pdom, address);
+	public NdComplexTypeSignature(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	public NdComplexTypeSignature(Nd pdom) {
-		super(pdom);
+	public NdComplexTypeSignature(Nd nd) {
+		super(nd);
 	}
 
 	@Override

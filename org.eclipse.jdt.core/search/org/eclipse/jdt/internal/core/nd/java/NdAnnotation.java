@@ -44,12 +44,12 @@ public class NdAnnotation extends NdNode {
 		type.done();
 	}
 
-	public NdAnnotation(Nd pdom, long address) {
-		super(pdom, address);
+	public NdAnnotation(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	public NdAnnotation(Nd pdom, NdTypeSignature type) {
-		super(pdom);
+	public NdAnnotation(Nd nd, NdTypeSignature type) {
+		super(nd);
 
 		ANNOTATION_TYPE.put(getNd(), this.address, type);
 	}

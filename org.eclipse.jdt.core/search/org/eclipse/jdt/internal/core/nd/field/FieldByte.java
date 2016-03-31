@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 
 /**
- * Declares a PDOM field of type byte. Can be used in place of {@link Field}&lt{@link Byte}&gt in order to
+ * Declares a Nd field of type byte. Can be used in place of {@link Field}&lt{@link Byte}&gt in order to
  * avoid extra GC overhead.
  * @since 3.12
  */
@@ -24,13 +24,13 @@ public class FieldByte implements IField {
 	public FieldByte() {
 	}
 
-	public byte get(Nd pdom, long address) {
-		Database db = pdom.getDB();
+	public byte get(Nd nd, long address) {
+		Database db = nd.getDB();
 		return db.getByte(address + this.offset);
 	}
 
-	public void put(Nd pdom, long address, byte newValue) {
-		pdom.getDB().putByte(address + this.offset, newValue);
+	public void put(Nd nd, long address, byte newValue) {
+		nd.getDB().putByte(address + this.offset, newValue);
 	}
 
 	@Override

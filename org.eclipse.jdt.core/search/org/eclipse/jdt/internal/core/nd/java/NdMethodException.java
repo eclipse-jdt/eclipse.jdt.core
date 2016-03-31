@@ -23,8 +23,8 @@ public class NdMethodException extends NdNode {
 		type.done();
 	}
 
-	public NdMethodException(Nd pdom, long address) {
-		super(pdom, address);
+	public NdMethodException(Nd nd, long address) {
+		super(nd, address);
 	}
 
 	public NdMethodException(NdMethod method, NdTypeSignature createTypeSignature) {

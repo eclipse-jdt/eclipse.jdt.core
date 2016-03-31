@@ -16,7 +16,7 @@ import org.eclipse.jdt.internal.core.nd.db.EmptyString;
 import org.eclipse.jdt.internal.core.nd.db.IString;
 
 /**
- * Declares a PDOM field of type string. Can be used in place of  {@link Field}&lt{@link String}&gt in order to
+ * Declares a Nd field of type string. Can be used in place of  {@link Field}&lt{@link String}&gt in order to
  * avoid extra GC overhead.
  * @since 3.12
  */
@@ -28,8 +28,8 @@ public class FieldString implements IDestructableField, IField {
 	public FieldString() {
 	}
 
-	public IString get(Nd pdom, long address) {
-		Database db = pdom.getDB();
+	public IString get(Nd nd, long address) {
+		Database db = nd.getDB();
 		long namerec = db.getRecPtr(address + this.offset);
 
 		if (namerec == 0) {
@@ -38,12 +38,12 @@ public class FieldString implements IDestructableField, IField {
 		return db.getString(namerec);
 	}
 
-	public void put(Nd pdom, long address, char[] newString) {
+	public void put(Nd nd, long address, char[] newString) {
 		if (newString == null) {
 			newString = EMPTY_CHAR_ARRAY;
 		}
-		final Database db= pdom.getDB();
-		IString name= get(pdom, address);
+		final Database db= nd.getDB();
+		IString name= get(nd, address);
 		if (name.compare(newString, true) != 0) {
 			name.delete();
 			if (newString != null && newString.length > 0) {
@@ -54,13 +54,13 @@ public class FieldString implements IDestructableField, IField {
 		}
 	}
 
-	public void put(Nd pdom, long address, String newString) {
-		put(pdom, address, newString.toCharArray());
+	public void put(Nd nd, long address, String newString) {
+		put(nd, address, newString.toCharArray());
 	}
 
-	public void destruct(Nd pdom, long address) {
-		get(pdom, address).delete();
-		pdom.getDB().putRecPtr(address + this.offset, 0);
+	public void destruct(Nd nd, long address) {
+		get(nd, address).delete();
+		nd.getDB().putRecPtr(address + this.offset, 0);
 	}
 
 	@Override

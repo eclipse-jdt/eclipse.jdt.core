@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 
 /**
- * Declares a PDOM field of type int. Can be used in place of  {@link Field}&lt{@link Integer}&gt in order to
+ * Declares a Nd field of type int. Can be used in place of  {@link Field}&lt{@link Integer}&gt in order to
  * avoid extra GC overhead.
  * @since 3.12
  */
@@ -24,13 +24,13 @@ public class FieldInt implements IField {
 	public FieldInt() {
 	}
 
-	public int get(Nd pdom, long address) {
-		Database db = pdom.getDB();
+	public int get(Nd nd, long address) {
+		Database db = nd.getDB();
 		return db.getInt(address + this.offset);
 	}
 
-	public void put(Nd pdom, long address, int newValue) {
-		pdom.getDB().putInt(address + this.offset, newValue);
+	public void put(Nd nd, long address, int newValue) {
+		nd.getDB().putInt(address + this.offset, newValue);
 	}
 
 	@Override

@@ -21,16 +21,16 @@ public final class NdConstantFloat extends NdConstant {
 		type.done();
 	}
 
-	public NdConstantFloat(Nd pdom, long address) {
-		super(pdom, address);
+	public NdConstantFloat(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	protected NdConstantFloat(Nd pdom) {
-		super(pdom);
+	protected NdConstantFloat(Nd nd) {
+		super(nd);
 	}
 
-	public static NdConstantFloat create(Nd pdom, float value) {
-		NdConstantFloat result = new NdConstantFloat(pdom);
+	public static NdConstantFloat create(Nd nd, float value) {
+		NdConstantFloat result = new NdConstantFloat(nd);
 		result.setValue(value);
 		return result;
 	}

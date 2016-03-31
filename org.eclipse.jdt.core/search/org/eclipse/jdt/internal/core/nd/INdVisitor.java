@@ -16,17 +16,17 @@ import org.eclipse.core.runtime.CoreException;
  * @since 3.12
  *
  */
-public interface IPDOMVisitor {
+public interface INdVisitor {
 
 	/**
-	 * Walk the nodes in a PDOM. Return true to visit the children of
+	 * Walk the nodes in a {@link Nd}. Return true to visit the children of
 	 * this node, or false to skip to the next sibling of this node.
 	 * Throw CoreException to stop the visit.
 	 *  
 	 * @param node being visited
 	 * @return whether to visit children
 	 */
-	public boolean visit(IPDOMNode node) throws CoreException;
+	public boolean visit(INdNode node) throws CoreException;
 	
 	/**
 	 * All children have been visited, about to go back to the parent.
@@ -34,6 +34,6 @@ public interface IPDOMVisitor {
 	 * @param node that has just completed visitation
 	 * @throws CoreException
 	 */
-	public void leave(IPDOMNode node) throws CoreException;
+	public void leave(INdNode node) throws CoreException;
 	
 }

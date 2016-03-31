@@ -22,16 +22,16 @@ public final class NdConstantString extends NdConstant {
 		type.done();
 	}
 
-	public NdConstantString(Nd pdom, long address) {
-		super(pdom, address);
+	public NdConstantString(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	protected NdConstantString(Nd pdom) {
-		super(pdom);
+	protected NdConstantString(Nd nd) {
+		super(nd);
 	}
 
-	public static NdConstantString create(Nd pdom, String value) {
-		NdConstantString result = new NdConstantString(pdom);
+	public static NdConstantString create(Nd nd, String value) {
+		NdConstantString result = new NdConstantString(nd);
 		result.setValue(value);
 		return result;
 	}

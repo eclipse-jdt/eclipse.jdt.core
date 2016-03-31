@@ -37,16 +37,16 @@ public class NdTypeId extends NdTypeSignature {
 		type.useStandardRefCounting().done();
 	}
 
-	public NdTypeId(Nd pdom, long address) {
-		super(pdom, address);
+	public NdTypeId(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	public NdTypeId(Nd pdom, char[] fieldDescriptor) {
-		super(pdom);
+	public NdTypeId(Nd nd, char[] fieldDescriptor) {
+		super(nd);
 
 		char[] simpleName = JavaNames.fieldDescriptorToJavaName(fieldDescriptor, false);
-		FIELD_DESCRIPTOR.put(pdom, this.address, fieldDescriptor);
-		SIMPLE_NAME.put(pdom, this.address, simpleName);
+		FIELD_DESCRIPTOR.put(nd, this.address, fieldDescriptor);
+		SIMPLE_NAME.put(nd, this.address, simpleName);
 	}
 
 	public NdType findTypeByResourceAddress(long resourceAddress) {

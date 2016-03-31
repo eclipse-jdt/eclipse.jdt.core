@@ -15,7 +15,7 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.NdNode;
 
 /**
- * Holds the n side of a n..1 relationship. Declares a PDOM field which is a pointer of a PDOMNode of the specified
+ * Holds the n side of a n..1 relationship. Declares a Nd field which is a pointer of a NdNode of the specified
  * type. {@link FieldManyToOne} forms a one-to-many relationship with {@link FieldOneToMany}. Whenever a
  * {@link FieldManyToOne} points to an object, the inverse pointer is automatically inserted into the matching back
  * pointer list.
@@ -88,61 +88,61 @@ public class FieldManyToOne<T extends NdNode> implements IDestructableField, IFi
 		return result;
 	}
 
-	public T get(Nd pdom, long address) {
-		return NdNode.load(pdom, getAddress(pdom, address), this.targetType);
+	public T get(Nd nd, long address) {
+		return NdNode.load(nd, getAddress(nd, address), this.targetType);
 	}
 
-	public long getAddress(Nd pdom, long address) {
-		return pdom.getDB().getRecPtr(address + this.offset);
+	public long getAddress(Nd nd, long address) {
+		return nd.getDB().getRecPtr(address + this.offset);
 	}
 
 	/**
 	 * Directs this pointer to the given target. Also removes this pointer from the old backpointer list (if any) and
 	 * inserts it into the new backpointer list (if any)
 	 */
-	public void put(Nd pdom, long address, T value) {
+	public void put(Nd nd, long address, T value) {
 		if (value != null) {
-			put(pdom, address, value.address);
+			put(nd, address, value.address);
 		} else {
-			put(pdom, address, 0);
+			put(nd, address, 0);
 		}
 	}
 
-	public void put(Nd pdom, long address, long newTargetAddress) {
+	public void put(Nd nd, long address, long newTargetAddress) {
 		long fieldStart = address + this.offset;
 		if (this.backPointer == null) {
 			throw new IllegalStateException("FieldNodePointer must be associated with a FieldBackPointer"); //$NON-NLS-1$
 		}
 
-		long oldTargetAddress = TARGET.get(pdom, fieldStart);
+		long oldTargetAddress = TARGET.get(nd, fieldStart);
 		if (oldTargetAddress == newTargetAddress) {
 			return;
 		}
 
 		if (oldTargetAddress != 0) {
-			int oldIndex = BACKPOINTER_INDEX.get(pdom, fieldStart);
+			int oldIndex = BACKPOINTER_INDEX.get(nd, fieldStart);
 
-			this.backPointer.remove(pdom, oldTargetAddress, oldIndex);
+			this.backPointer.remove(nd, oldTargetAddress, oldIndex);
 
 			if (oldTargetAddress != 0) {
-				short targetTypeId = NdNode.NODE_TYPE.get(pdom, oldTargetAddress);
+				short targetTypeId = NdNode.NODE_TYPE.get(nd, oldTargetAddress);
 
-				ITypeFactory<T> typeFactory = pdom.getTypeFactory(targetTypeId);
+				ITypeFactory<T> typeFactory = nd.getTypeFactory(targetTypeId);
 
 				if (typeFactory.getDeletionSemantics() == StructDef.DeletionSemantics.REFCOUNTED 
-						&& typeFactory.isReadyForDeletion(pdom, oldTargetAddress)) {
-					pdom.scheduleDeletion(oldTargetAddress);
+						&& typeFactory.isReadyForDeletion(nd, oldTargetAddress)) {
+					nd.scheduleDeletion(oldTargetAddress);
 				}
 			}
 		}
-		TARGET.put(pdom, fieldStart, newTargetAddress);
+		TARGET.put(nd, fieldStart, newTargetAddress);
 		if (newTargetAddress != 0) {
 			// Note that newValue is the address of the backpointer list and record (the address of the struct
 			// containing the forward pointer) is the value being inserted into the list.
-			BACKPOINTER_INDEX.put(pdom, fieldStart, this.backPointer.add(pdom, newTargetAddress, address));
+			BACKPOINTER_INDEX.put(nd, fieldStart, this.backPointer.add(nd, newTargetAddress, address));
 		} else {
 			if (this.pointsToOwner) {
-				pdom.scheduleDeletion(address);
+				nd.scheduleDeletion(address);
 			}
 		}
 	}
@@ -153,19 +153,19 @@ public class FieldManyToOne<T extends NdNode> implements IDestructableField, IFi
 	 * Not intended to be called by clients. This is invoked by {@link FieldOneToMany} whenever it reorders elements in
 	 * the array.
 	 */
-	void adjustIndex(Nd pdom, long address, int index) {
-		BACKPOINTER_INDEX.put(pdom, address + this.offset, index);
+	void adjustIndex(Nd nd, long address, int index) {
+		BACKPOINTER_INDEX.put(nd, address + this.offset, index);
 	}
 
 	@Override
-	public void destruct(Nd pdom, long address) {
-		put(pdom, address, 0);
+	public void destruct(Nd nd, long address) {
+		put(nd, address, 0);
 	}
 
-	void clearedByBackPointer(Nd pdom, long address) {
+	void clearedByBackPointer(Nd nd, long address) {
 		long fieldStart = this.offset + address;
-		FieldManyToOne.TARGET.put(pdom, fieldStart, 0);
-		FieldManyToOne.BACKPOINTER_INDEX.put(pdom, fieldStart, 0);
+		FieldManyToOne.TARGET.put(nd, fieldStart, 0);
+		FieldManyToOne.BACKPOINTER_INDEX.put(nd, fieldStart, 0);
 	}
 
 	@Override
@@ -179,9 +179,9 @@ public class FieldManyToOne<T extends NdNode> implements IDestructableField, IFi
 	}
 
 	@Override
-	public boolean hasReferences(Nd pdom, long address) {
+	public boolean hasReferences(Nd nd, long address) {
 		long fieldStart = this.offset + address;
-		long target = TARGET.get(pdom, fieldStart);
+		long target = TARGET.get(nd, fieldStart);
 		return target != 0;
 	}
 }

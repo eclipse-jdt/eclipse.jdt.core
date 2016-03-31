@@ -19,29 +19,29 @@ import org.eclipse.jdt.internal.core.nd.db.Database;
  * @since 3.12
  */
 public class Pointer<T> {
-	private final Nd pdom;
+	private final Nd nd;
 	private final long address;
 	private ITypeFactory<T> targetFactory;
 
-	public Pointer(Nd pdom, long address, ITypeFactory<T> targetFactory) {
-		this.pdom = pdom;
+	public Pointer(Nd nd, long address, ITypeFactory<T> targetFactory) {
+		this.nd = nd;
 		this.address = address;
 		this.targetFactory = targetFactory;
 	}
 
 	public T get() {
-		long ptr = this.pdom.getDB().getRecPtr(this.address);
+		long ptr = this.nd.getDB().getRecPtr(this.address);
 
 		if (ptr == 0) {
 			return null;
 		}
 
-		return this.targetFactory.create(this.pdom, ptr);
+		return this.targetFactory.create(this.nd, ptr);
 	}
 
 	public static <T> ITypeFactory<Pointer<T>> getFactory(final ITypeFactory<T> targetFactory) {
 		if (NdNode.class.isAssignableFrom(targetFactory.getElementClass())) {
-			throw new IllegalArgumentException("Use NodePointer rather than Pointer<T> for references to PDOMNode"); //$NON-NLS-1$
+			throw new IllegalArgumentException("Don't use Pointer<T> for references to NdNode"); //$NON-NLS-1$
 		}
 		return new AbstractTypeFactory<Pointer<T>>() {
 			@Override

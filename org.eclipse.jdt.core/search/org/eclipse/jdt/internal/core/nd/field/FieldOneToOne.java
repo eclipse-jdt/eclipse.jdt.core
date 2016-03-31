@@ -5,7 +5,7 @@ import org.eclipse.jdt.internal.core.nd.NdNode;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 
 /**
- * Represents a 1-to-0..1 relationship in a PDOM database.
+ * Represents a 1-to-0..1 relationship in a Nd database.
  * @since 3.12
  */
 public class FieldOneToOne<T extends NdNode> implements IField, IDestructableField, IRefCountedField {
@@ -52,32 +52,32 @@ public class FieldOneToOne<T extends NdNode> implements IField, IDestructableFie
 		return result;
 	}
 
-	public T get(Nd pdom, long address) {
-		long ptr = pdom.getDB().getRecPtr(address + this.offset);
-		return NdNode.load(pdom, ptr, this.nodeType);
+	public T get(Nd nd, long address) {
+		long ptr = nd.getDB().getRecPtr(address + this.offset);
+		return NdNode.load(nd, ptr, this.nodeType);
 	}
 
-	public void put(Nd pdom, long address, T target) {
-		cleanup(pdom, address);
-		pdom.getDB().putRecPtr(address + this.offset, target == null ? 0 : target.address);
+	public void put(Nd nd, long address, T target) {
+		cleanup(nd, address);
+		nd.getDB().putRecPtr(address + this.offset, target == null ? 0 : target.address);
 		if (target == null && this.pointsToOwner) {
-			pdom.scheduleDeletion(address);
+			nd.scheduleDeletion(address);
 		}
 	}
 
 	@Override
-	public void destruct(Nd pdom, long address) {
-		cleanup(pdom, address);
+	public void destruct(Nd nd, long address) {
+		cleanup(nd, address);
 	}
 
-	private void cleanup(Nd pdom, long address) {
-		Database db = pdom.getDB();
+	private void cleanup(Nd nd, long address) {
+		Database db = nd.getDB();
 		long ptr = db.getRecPtr(address + this.offset);
 		if (ptr != 0) {
 			db.putRecPtr(ptr + this.backPointer.offset, 0);
 			// If we own our target, delete it
 			if (this.backPointer.pointsToOwner) {
-				pdom.scheduleDeletion(ptr);
+				nd.scheduleDeletion(ptr);
 			}
 		}
 	}
@@ -93,9 +93,9 @@ public class FieldOneToOne<T extends NdNode> implements IField, IDestructableFie
 	}
 
 	@Override
-	public boolean hasReferences(Nd pdom, long address) {
+	public boolean hasReferences(Nd nd, long address) {
 		if (this.pointsToOwner) {
-			long ptr = pdom.getDB().getRecPtr(address + this.offset);
+			long ptr = nd.getDB().getRecPtr(address + this.offset);
 			return ptr != 0;
 		}
 		return false;

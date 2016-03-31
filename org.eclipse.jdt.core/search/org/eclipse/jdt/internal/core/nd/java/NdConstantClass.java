@@ -20,16 +20,16 @@ public final class NdConstantClass extends NdConstant {
 		type.done();
 	}
 
-	public NdConstantClass(Nd pdom, long address) {
-		super(pdom, address);
+	public NdConstantClass(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	protected NdConstantClass(Nd pdom) {
-		super(pdom);
+	protected NdConstantClass(Nd nd) {
+		super(nd);
 	}
 
-	public static NdConstantClass create(Nd pdom, NdTypeSignature value) {
-		NdConstantClass result = new NdConstantClass(pdom);
+	public static NdConstantClass create(Nd nd, NdTypeSignature value) {
+		NdConstantClass result = new NdConstantClass(nd);
 		result.setValue(value);
 		return result;
 	}

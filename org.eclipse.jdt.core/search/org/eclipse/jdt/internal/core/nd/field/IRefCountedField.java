@@ -24,5 +24,5 @@ public interface IRefCountedField {
 	 * Implementations should return false if the refcount is 0 or true if the refcount
 	 * is nonzero.
 	 */	
-	public boolean hasReferences(Nd pdom, long address);
+	public boolean hasReferences(Nd nd, long address);
 }

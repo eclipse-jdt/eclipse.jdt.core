@@ -19,7 +19,7 @@ public interface IDestructable {
 	 * Intended to be implemented by objects which require a custom destruction step.
 	 * This should normally not be invoked by clients, since custom destruction is just
 	 * one step in tearing down an object. The normal way to tear down an object is
-	 * PDOMNode.delete.
+	 * {@link NdNode#delete}
 	 * <p>
 	 * If you are writing code that must run as part of delete (or are implementing part
 	 * of the destruct method on a custom ITypeFactory)the correct steps to destructing

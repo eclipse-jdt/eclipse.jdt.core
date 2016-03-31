@@ -247,7 +247,7 @@ public class Database {
 		}
 		this.malloced = this.freed = 0;
 		/*
-		 * This is for debugging purposes in order to simulate having a very large PDOM database.
+		 * This is for debugging purposes in order to simulate having a very large Nd database.
 		 * This will set aside the specified number of chunks.
 		 * Nothing uses these chunks so subsequent allocations come after these fillers.
 		 * The special function createNewChunks allocates all of these chunks at once.
@@ -255,7 +255,7 @@ public class Database {
 		 * 8388608 for a file starting at 32G
 		 *
 		 */
-		long setasideChunks = Long.getLong("org.eclipse.cdt.core.parser.pdom.dense.recptr.setaside.chunks", 0); //$NON-NLS-1$
+		long setasideChunks = Long.getLong("org.eclipse.jdt.core.parser.nd.chunks", 0); //$NON-NLS-1$
 		if (setasideChunks != 0) {
 			setVersion(getVersion());
 			createNewChunks((int) setasideChunks);
@@ -408,7 +408,7 @@ public class Database {
 			 */
 			if (address >= MAX_DB_SIZE) {
 				Object bindings[] = { this.getLocation().getAbsolutePath(), MAX_DB_SIZE };
-				throw new IndexException(new Status(IStatus.ERROR, Package.PLUGIN_ID, Package.STATUS_PDOM_TOO_LARGE,
+				throw new IndexException(new Status(IStatus.ERROR, Package.PLUGIN_ID, Package.STATUS_DATABASE_TOO_LARGE,
 						NLS.bind("Database too large! Address = " + address + ", max size = " + MAX_DB_SIZE, bindings), //$NON-NLS-1$ //$NON-NLS-2$
 						null));
 			}

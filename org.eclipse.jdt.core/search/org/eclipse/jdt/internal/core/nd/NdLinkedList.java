@@ -23,14 +23,14 @@ public final class NdLinkedList<T> {
 		public void visit(T record, short metadataBits, int index) throws IndexException;
 	}
 
-	public NdLinkedList(Nd pdom, long address, ITypeFactory<T> elementFactory, int recordsInFirstBlock,
+	public NdLinkedList(Nd nd, long address, ITypeFactory<T> elementFactory, int recordsInFirstBlock,
 			int recordsInSubsequentBlocks) {
-		this(pdom, address, elementFactory, recordsInFirstBlock, recordsInSubsequentBlocks, 0);
+		this(nd, address, elementFactory, recordsInFirstBlock, recordsInSubsequentBlocks, 0);
 	}
 
-	public NdLinkedList(Nd pdom, long address, ITypeFactory<T> elementFactory, int recordsInFirstBlock,
+	public NdLinkedList(Nd nd, long address, ITypeFactory<T> elementFactory, int recordsInFirstBlock,
 			int recordsInSubsequentBlocks, int metadataBitsPerElement) {
-		this.rawList = new NdRawLinkedList(pdom, address, elementFactory.getRecordSize(), recordsInFirstBlock,
+		this.rawList = new NdRawLinkedList(nd, address, elementFactory.getRecordSize(), recordsInFirstBlock,
 				recordsInSubsequentBlocks, metadataBitsPerElement);
 		this.elementFactory = elementFactory;
 	}
@@ -110,11 +110,11 @@ public final class NdLinkedList<T> {
 	 */
 	protected void destruct() {
 		if (this.elementFactory.hasDestructor()) {
-			final Nd pdom = this.rawList.getNd();
+			final Nd nd = this.rawList.getNd();
 			this.rawList.accept(new NdRawLinkedList.ILinkedListVisitor() {
 				@Override
 				public void visit(long address, short metadataBits, int index) throws IndexException {
-					NdLinkedList.this.elementFactory.destruct(pdom, address);
+					NdLinkedList.this.elementFactory.destruct(nd, address);
 				}
 			});
 		}

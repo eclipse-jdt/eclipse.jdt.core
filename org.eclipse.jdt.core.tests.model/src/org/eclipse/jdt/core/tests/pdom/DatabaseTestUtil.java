@@ -48,18 +48,18 @@ public class DatabaseTestUtil {
 	}
 
 	/**
-	 * Creates an empty PDOM with an empty type registry and randomly-named
+	 * Creates an empty {@link Nd} with an empty type registry and randomly-named
 	 * database for the given test name
 	 * 
 	 * @param testName
-	 * @return the new PDOM
+	 * @return the new {@link Nd}
 	 */
-	public static Nd createEmptyPdom(String testName) {
+	public static Nd createEmptyNd(String testName) {
 		NdNodeTypeRegistry<NdNode> registry = new NdNodeTypeRegistry<>();
 		return new Nd(DatabaseTestUtil.getTempDbName(testName), new ChunkCache(), registry, 0, 0, 0);
 	}
 
-	public static Nd createEmptyPdom(String testName, NdNodeTypeRegistry<NdNode> registry) {
+	public static Nd createEmptyNd(String testName, NdNodeTypeRegistry<NdNode> registry) {
 		return new Nd(DatabaseTestUtil.getTempDbName(testName), new ChunkCache(), registry, 0, 0, 0);
 	}
 }

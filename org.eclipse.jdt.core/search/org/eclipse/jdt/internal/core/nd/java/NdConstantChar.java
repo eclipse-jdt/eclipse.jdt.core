@@ -21,16 +21,16 @@ public final class NdConstantChar extends NdConstant {
 		type.done();
 	}
 
-	public NdConstantChar(Nd pdom, long address) {
-		super(pdom, address);
+	public NdConstantChar(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	protected NdConstantChar(Nd pdom) {
-		super(pdom);
+	protected NdConstantChar(Nd nd) {
+		super(nd);
 	}
 
-	public static NdConstantChar create(Nd pdom, char value) {
-		NdConstantChar result = new NdConstantChar(pdom);
+	public static NdConstantChar create(Nd nd, char value) {
+		NdConstantChar result = new NdConstantChar(nd);
 		result.setValue(value);
 		return result;
 	}

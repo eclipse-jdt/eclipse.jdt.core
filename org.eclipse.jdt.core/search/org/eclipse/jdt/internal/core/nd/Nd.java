@@ -146,7 +146,7 @@ public class Nd {
 		loadDatabase(dbPath, chunkCache);
 		if (sDEBUG_LOCKS) {
 			this.fLockDebugging = new HashMap<>();
-			System.out.println("Debugging PDOM Locks"); //$NON-NLS-1$
+			System.out.println("Debugging database Locks"); //$NON-NLS-1$
 		}
 	}
 
@@ -159,7 +159,7 @@ public class Nd {
 		// afterward during indexing. This may indicate an inefficiency in the indexer but is not necessarily
 		// a bug.
 		if (this.pendingDeletions.containsKey(addressOfNodeToDelete)) {
-			Package.log("PDOM object queued for deletion twice", new RuntimeException()); //$NON-NLS-1$
+			Package.log("Database object queued for deletion twice", new RuntimeException()); //$NON-NLS-1$
 			Package.log("Earlier deletion stack was this:", this.pendingDeletions.get(addressOfNodeToDelete)); //$NON-NLS-1$
 			return;
 		}
@@ -180,7 +180,7 @@ public class Nd {
 	}
 
 	/**
-	 * Returns whether this PDOM can never be written to. Writable subclasses should return false.
+	 * Returns whether this {@link Nd} can never be written to. Writable subclasses should return false.
 	 */
 	protected boolean isPermanentlyReadOnly() {
 		return false;
@@ -270,9 +270,9 @@ public class Nd {
 	}
 
 	/**
-	 * Acquire a write lock on this PDOM. Blocks until any existing read/write locks are released.
+	 * Acquire a write lock on this {@link Nd}. Blocks until any existing read/write locks are released.
 	 * @throws OperationCanceledException
-	 * @throws IllegalStateException if this PDOM is not writable
+	 * @throws IllegalStateException if this {@link Nd} is not writable
 	 */
 	public void acquireWriteLock(IProgressMonitor monitor) {
 		try {
@@ -283,10 +283,10 @@ public class Nd {
 	}
 
 	/**
-	 * Acquire a write lock on this PDOM, giving up the specified number of read locks first. Blocks
+	 * Acquire a write lock on this {@link Nd}, giving up the specified number of read locks first. Blocks
 	 * until any existing read/write locks are released.
 	 * @throws InterruptedException
-	 * @throws IllegalStateException if this PDOM is not writable
+	 * @throws IllegalStateException if this {@link Nd} is not writable
 	 */
 	public void acquireWriteLock(int giveupReadLocks, IProgressMonitor monitor) throws InterruptedException {
 		assert !isPermanentlyReadOnly();

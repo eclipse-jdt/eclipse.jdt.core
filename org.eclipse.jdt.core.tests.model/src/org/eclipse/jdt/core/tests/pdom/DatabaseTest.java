@@ -38,7 +38,7 @@ public class DatabaseTest extends BaseTestCase {
 	// This constant can be used to run the test with very large databases.
 	// Try, for example, setting it to Integer.MAX_VALUE * 7L;
 	private static final long TEST_OFFSET = 0;
-	private Nd pdom;
+	private Nd nd;
 	protected Database db;
 	private static final int CURRENT_VERSION = 10;
 
@@ -47,9 +47,9 @@ public class DatabaseTest extends BaseTestCase {
 		super.setUp();
 		String testName = getName();
 		NdNodeTypeRegistry<NdNode> registry = new NdNodeTypeRegistry<>();
-		pdom = new Nd(DatabaseTestUtil.getTempDbName(testName), new ChunkCache(), registry,
+		nd = new Nd(DatabaseTestUtil.getTempDbName(testName), new ChunkCache(), registry,
 				0, 100, CURRENT_VERSION);
-		db = pdom.getDB();
+		db = nd.getDB();
 		db.setExclusiveLock();
 
 		// Allocate all database chunks up to TEST_OFFSET.
@@ -196,14 +196,14 @@ public class DatabaseTest extends BaseTestCase {
 
 		IBTreeComparator comparator = new IBTreeComparator() {
 			@Override
-			public int compare(Nd pdom, long record1, long record2) {
+			public int compare(Nd nd, long record1, long record2) {
 				IString string1 = db.getString(db.getRecPtr(record1 + 4));
 				IString string2 = db.getString(db.getRecPtr(record2 + 4));
 				return string1.compare(string2, true);
 			}
 		};
 
-		BTree btree = new BTree(pdom, Database.DATA_AREA_OFFSET, comparator);
+		BTree btree = new BTree(nd, Database.DATA_AREA_OFFSET, comparator);
 		for (int i = 0; i < names.length; ++i) {
 			String name = names[i];
 			long record = db.malloc(8);

@@ -32,7 +32,7 @@ public abstract class NdNode implements IDestructable {
 	}
 
 	public final long address;
-	private Nd pdom;
+	private Nd nd;
 
 	public static long addressOf(NdNode nullable) {
 		if (nullable == null) {
@@ -45,26 +45,26 @@ public abstract class NdNode implements IDestructable {
 	 * Load a node from the specified address in the given database.  Return null if a node cannot
 	 * be loaded.
 	 *
-	 * @param pdom The PDOM from which to load the node.
-	 * @param address The address of the node in the given PDOM.
-	 * @return The PDOMNode at the specified location or null if a node cannot be loaded.
-	 * @When there is a problem reading the given pdom's Database
+	 * @param nd The {@link Nd} from which to load the node.
+	 * @param address The address of the node in the given {@link Nd}.
+	 * @return The {@link NdNode} at the specified location or null if a node cannot be loaded.
+	 * @When there is a problem reading the given {@link Nd}'s Database
 	 */
-	public static NdNode load(Nd pdom, long address) {
+	public static NdNode load(Nd nd, long address) {
 		if (address == 0) {
 			return null;
 		}
 
-		return pdom.getNode(address, NODE_TYPE.get(pdom, address));
+		return nd.getNode(address, NODE_TYPE.get(nd, address));
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends NdNode> T load(Nd pdom, long address, Class<T> clazz) {
+	public static <T extends NdNode> T load(Nd nd, long address, Class<T> clazz) {
 		if (address == 0) {
 			return null;
 		}
 
-		NdNode result = pdom.getNode(address, NODE_TYPE.get(pdom, address));
+		NdNode result = nd.getNode(address, NODE_TYPE.get(nd, address));
 
 		if (!clazz.isAssignableFrom(result.getClass())) {
 			throw new IndexException("Found wrong data type at address " + address + ". Expected a subclass of " +  //$NON-NLS-1$//$NON-NLS-2$
@@ -81,38 +81,38 @@ public abstract class NdNode implements IDestructable {
 		getNd().delete(this.address);
 	}
 
-	protected NdNode(Nd pdom, long address) {
-		this.pdom = pdom;
+	protected NdNode(Nd nd, long address) {
+		this.nd = nd;
 		this.address = address;
 	}
 
-	protected NdNode(Nd pdom) {
-		Database db = pdom.getDB();
-		this.pdom = pdom;
+	protected NdNode(Nd nd) {
+		Database db = nd.getDB();
+		this.nd = nd;
 
-		short nodeType = pdom.getNodeType(getClass());
-		ITypeFactory<? extends NdNode> factory1 = pdom.getTypeFactory(nodeType);
+		short nodeType = nd.getNodeType(getClass());
+		ITypeFactory<? extends NdNode> factory1 = nd.getTypeFactory(nodeType);
 
 		this.address = db.malloc(factory1.getRecordSize());
 
-		NODE_TYPE.put(pdom, this.address, nodeType);
+		NODE_TYPE.put(nd, this.address, nodeType);
 	}
 
 	protected Database getDB() {
-		return this.pdom.getDB();
+		return this.nd.getDB();
 	}
 
 	public Nd getNd() {
-		return this.pdom;
+		return this.nd;
 	}
 
 	/**
 	 * Return a value to uniquely identify the node within the factory that is responsible for loading
-	 * instances of this node from the PDOM.
+	 * instances of this node from the {@link Nd}.
 	 * <b>
 	 */
 	public short getNodeType() {
-		return this.pdom.getNodeType(getClass());
+		return this.nd.getNodeType(getClass());
 	}
 
 	public final long getAddress() {
@@ -140,13 +140,13 @@ public abstract class NdNode implements IDestructable {
 		return (int) (this.address >> Database.BLOCK_SIZE_DELTA_BITS);
 	}
 
-	public void accept(IPDOMVisitor visitor) {
+	public void accept(INdVisitor visitor) {
 		// No children here.
 	}
 
 	/**
 	 * Return an value to globally identify the given node within the given linkage.  This value
-	 * can be used for comparison with other PDOMNodes.
+	 * can be used for comparison with other {@link NdNode}s.
 	 */
 	public static int getNodeId(int linkageID, int nodeType) {
 		return (linkageID << 16) | (nodeType & 0xffff);
@@ -173,7 +173,7 @@ public abstract class NdNode implements IDestructable {
 	}
 
 	/**
-	 * Dispose this PDOMNode. Subclasses should extend this method to perform any high-level node-specific cleanup.
+	 * Dispose this {@link NdNode}. Subclasses should extend this method to perform any high-level node-specific cleanup.
 	 * This will be invoked prior to disposing the fields. Implementations must invoke their parent's destruct method
 	 * and should not destruct the fields.
 	 * <p>

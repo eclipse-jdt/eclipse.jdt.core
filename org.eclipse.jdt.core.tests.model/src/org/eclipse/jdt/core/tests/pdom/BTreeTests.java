@@ -37,7 +37,7 @@ import java.util.TreeSet;
 public class BTreeTests extends BaseTestCase {
 	private static int DEBUG= 0;
 	protected File dbFile;
-	protected Nd pdom;
+	protected Nd nd;
 	protected Database db;
 	protected BTree btree;
 	protected int rootRecord;
@@ -50,13 +50,13 @@ public class BTreeTests extends BaseTestCase {
 	// setUp is not used since we need to parameterize this method,
 	// and invoke it multiple times per Junit test
 	protected void init(int degree) throws Exception {
-		dbFile = File.createTempFile("pdomtest", "db");
-		pdom = DatabaseTestUtil.createEmptyPdom(getName());
-		db = pdom.getDB();
+		dbFile = File.createTempFile("ndtest", "db");
+		nd = DatabaseTestUtil.createEmptyNd(getName());
+		db = nd.getDB();
 		db.setExclusiveLock();
 		rootRecord = Database.DATA_AREA_OFFSET;
 		comparator = new BTMockRecordComparator();
-		btree = new BTree(pdom, rootRecord, degree, comparator);
+		btree = new BTree(nd, rootRecord, degree, comparator);
 	}
 
 	// tearDown is not used for the same reason as above
@@ -253,8 +253,8 @@ public class BTreeTests extends BaseTestCase {
 
 	private class BTMockRecordComparator implements IBTreeComparator {
 		@Override
-		public int compare(Nd pdom, long record1, long record2) {
-			Database db = pdom.getDB();
+		public int compare(Nd nd, long record1, long record2) {
+			Database db = nd.getDB();
 			return db.getInt(record1) - db.getInt(record2);
 		}
 	}

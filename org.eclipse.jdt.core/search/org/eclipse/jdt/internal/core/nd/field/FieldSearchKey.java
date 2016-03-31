@@ -50,24 +50,24 @@ public class FieldSearchKey<T> implements IField, IDestructableField {
 		return result;
 	}
 
-	public void put(Nd pdom, long address, String newString) {
-		put(pdom, address, newString.toCharArray());
+	public void put(Nd nd, long address, String newString) {
+		put(nd, address, newString.toCharArray());
 	}
 
 	/**
 	 * Sets the value of the key and inserts it into the index if it is not already present
 	 */
-	public void put(Nd pdom, long address, char[] newString) {
-		cleanup(pdom, address);
+	public void put(Nd nd, long address, char[] newString) {
+		cleanup(nd, address);
 
-		Database db = pdom.getDB();
-		BTree btree = this.searchIndex.get(pdom, Database.DATA_AREA_OFFSET);
+		Database db = nd.getDB();
+		BTree btree = this.searchIndex.get(nd, Database.DATA_AREA_OFFSET);
 		db.putRecPtr(address + this.offset, db.newString(newString).getRecord());
 		btree.insert(address);
 	}
 
-	public IString get(Nd pdom, long address) {
-		Database db = pdom.getDB();
+	public IString get(Nd nd, long address) {
+		Database db = nd.getDB();
 		long namerec = db.getRecPtr(address + this.offset);
 
 		if (namerec == 0) {
@@ -77,19 +77,19 @@ public class FieldSearchKey<T> implements IField, IDestructableField {
 	}
 
 	@Override
-	public void destruct(Nd pdom, long address) {
-		cleanup(pdom, address);
+	public void destruct(Nd nd, long address) {
+		cleanup(nd, address);
 	}
 
-	private void cleanup(Nd pdom, long address) {
-		boolean isInIndex = isInIndex(pdom, address);
+	private void cleanup(Nd nd, long address) {
+		boolean isInIndex = isInIndex(nd, address);
 
 		if (isInIndex) {
 			// Remove this entry from the search index
-			this.searchIndex.get(pdom, Database.DATA_AREA_OFFSET).delete(address);
+			this.searchIndex.get(nd, Database.DATA_AREA_OFFSET).delete(address);
 
-			get(pdom, address).delete();
-			pdom.getDB().putRecPtr(address + this.offset, 0);
+			get(nd, address).delete();
+			nd.getDB().putRecPtr(address + this.offset, 0);
 		}
 	}
 
@@ -103,9 +103,9 @@ public class FieldSearchKey<T> implements IField, IDestructableField {
 	/**
 	 * Returns true iff this key is currently in the index
 	 */
-	public boolean isInIndex(Nd pdom, long address) {
+	public boolean isInIndex(Nd nd, long address) {
 		long fieldAddress = address + this.offset;
-		Database db = pdom.getDB();
+		Database db = nd.getDB();
 		long namerec = db.getRecPtr(fieldAddress);
 
 		boolean isInIndex = namerec != 0;

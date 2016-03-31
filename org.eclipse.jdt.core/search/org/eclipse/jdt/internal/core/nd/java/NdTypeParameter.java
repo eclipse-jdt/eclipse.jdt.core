@@ -37,8 +37,8 @@ public class NdTypeParameter extends NdNode {
 		type.done();
 	}
 
-	public NdTypeParameter(Nd pdom, long address) {
-		super(pdom, address);
+	public NdTypeParameter(Nd nd, long address) {
+		super(nd, address);
 	}
 
 	public NdTypeParameter(NdBinding parent, char[] identifier) {

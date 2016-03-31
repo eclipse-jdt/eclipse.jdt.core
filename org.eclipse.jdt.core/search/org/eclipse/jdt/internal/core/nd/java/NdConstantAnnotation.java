@@ -20,16 +20,16 @@ public final class NdConstantAnnotation extends NdConstant {
 		type.done();
 	}
 
-	public NdConstantAnnotation(Nd pdom, long address) {
-		super(pdom, address);
+	public NdConstantAnnotation(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	protected NdConstantAnnotation(Nd pdom) {
-		super(pdom);
+	protected NdConstantAnnotation(Nd nd) {
+		super(nd);
 	}
 
-	public static NdConstantAnnotation create(Nd pdom, NdAnnotation value) {
-		NdConstantAnnotation result = new NdConstantAnnotation(pdom);
+	public static NdConstantAnnotation create(Nd nd, NdAnnotation value) {
+		NdConstantAnnotation result = new NdConstantAnnotation(nd);
 		result.setValue(value);
 		return result;
 	}

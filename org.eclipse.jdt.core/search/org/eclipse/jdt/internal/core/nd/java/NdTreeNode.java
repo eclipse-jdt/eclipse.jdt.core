@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
 /**
- * PDOMTreeNode elements form a tree of nodes rooted at a
+ * {@link NdTreeNode} elements form a tree of nodes rooted at a
  * {@link NdResourceFile}. Each node contains a list of children
  * which it declares and has a pointer to the most specific node which
  * declares it.
@@ -38,14 +38,14 @@ public abstract class NdTreeNode extends NdNode {
 		type.done();
 	}
 
-	public NdTreeNode(Nd dom, long address) {
-		super(dom, address);
+	public NdTreeNode(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	protected NdTreeNode(Nd pdom, NdTreeNode parent) {
-		super(pdom);
+	protected NdTreeNode(Nd nd, NdTreeNode parent) {
+		super(nd);
 
-		PARENT.put(pdom, this.address, parent == null ? 0 : parent.address);
+		PARENT.put(nd, this.address, parent == null ? 0 : parent.address);
 	}
 
 	/**
@@ -56,14 +56,14 @@ public abstract class NdTreeNode extends NdNode {
 	public <T extends NdTreeNode> T getAncestorOfType(Class<T> ancestorType) {
 		long targetType = getNd().getNodeType(ancestorType);
 
-		Nd pdom = getNd();
-		long current = PARENT.getAddress(pdom, this.address);
+		Nd nd = getNd();
+		long current = PARENT.getAddress(nd, this.address);
 
 		while (current != 0) {
-			short currentType = NODE_TYPE.get(pdom, current);
+			short currentType = NODE_TYPE.get(nd, current);
 
 			if (currentType == targetType) {
-				NdNode result = load(pdom, current);
+				NdNode result = load(nd, current);
 
 				if (ancestorType.isInstance(result)) {
 					return (T) result;
@@ -74,7 +74,7 @@ public abstract class NdTreeNode extends NdNode {
 				}
 			}
 
-			current = PARENT.getAddress(pdom, current);
+			current = PARENT.getAddress(nd, current);
 		}
 
 		return null;

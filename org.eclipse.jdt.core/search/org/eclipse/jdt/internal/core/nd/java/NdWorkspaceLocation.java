@@ -26,12 +26,12 @@ public class NdWorkspaceLocation extends NdNode {
 		type.done();
 	}
 
-	public NdWorkspaceLocation(Nd pdom, long address) {
-		super(pdom, address);
+	public NdWorkspaceLocation(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	public NdWorkspaceLocation(Nd pdom, NdResourceFile resource, char[] path) {
-		super(pdom);
+	public NdWorkspaceLocation(Nd nd, NdResourceFile resource, char[] path) {
+		super(nd);
 
 		RESOURCE.put(getNd(), this.address, resource);
 		PATH.put(getNd(), this.address, path);

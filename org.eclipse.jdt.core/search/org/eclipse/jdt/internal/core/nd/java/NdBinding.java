@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
- * Base class for bindings in the PDOM.
+ * Base class for bindings in the {@link Nd}.
  *
  * @since 3.12
  */
@@ -49,14 +49,14 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 
 	private static final NdAnnotation[] NO_ANNOTATIONS = new NdAnnotation[0];
 
-	public NdBinding(Nd pdom, long address) {
-		super(pdom, address);
+	public NdBinding(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	public NdBinding(Nd pdom, NdResourceFile resource) {
-		super(pdom);
+	public NdBinding(Nd nd, NdResourceFile resource) {
+		super(nd);
 
-		FILE.put(pdom, this.address, resource);
+		FILE.put(nd, this.address, resource);
 	}
 
 	public List<NdVariable> getVariables() {
@@ -90,15 +90,6 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 	public Object getAdapter(Class adapter) {
 		if (adapter.isAssignableFrom(NdBinding.class))
 			return this;
-
-		// Any PDOMBinding can have a persistent tag. These tags should be deleted when
-		// the PDOMBinding is deleted. However, PDOMBinding's don't get deleted, so there is no way
-		// to trigger deleting of the tags. If the implementation is changed so that PDOMBindings
-		// do get deleted, then it should call:
-		// PDOMTagIndex.setTags(getNd(), pdomBinding.address, Collections.<ITag>emptyList());
-		// to clear out all tags for the binding.
-		// if (adapter.isAssignableFrom(ITagReader.class))
-		// return new PDOMTaggable(getNd(), getRecord());
 
 		return null;
 	}

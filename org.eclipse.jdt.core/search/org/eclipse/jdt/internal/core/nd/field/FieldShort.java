@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 
 /**
- * Declares a PDOM field of type short. Can be used in place of  {@link Field}&lt{@link Short}&gt in order to
+ * Declares a Nd field of type short. Can be used in place of  {@link Field}&lt{@link Short}&gt in order to
  * avoid extra GC overhead.
  * @since 3.12
  */
@@ -24,13 +24,13 @@ public class FieldShort implements IField {
 	public FieldShort() {
 	}
 
-	public short get(Nd pdom, long address) {
-		Database db = pdom.getDB();
+	public short get(Nd nd, long address) {
+		Database db = nd.getDB();
 		return db.getShort(address + this.offset);
 	}
 
-	public void put(Nd pdom, long address, short newValue) {
-		pdom.getDB().putShort(address + this.offset, newValue);
+	public void put(Nd nd, long address, short newValue) {
+		nd.getDB().putShort(address + this.offset, newValue);
 	}
 
 	@Override

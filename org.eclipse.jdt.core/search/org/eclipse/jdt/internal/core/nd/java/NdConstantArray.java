@@ -22,12 +22,12 @@ public final class NdConstantArray extends NdConstant {
 		type.done();
 	}
 
-	public NdConstantArray(Nd pdom, long address) {
-		super(pdom, address);
+	public NdConstantArray(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	public NdConstantArray(Nd pdom) {
-		super(pdom);
+	public NdConstantArray(Nd nd) {
+		super(nd);
 	}
 
 	public List<NdConstant> getValue() {

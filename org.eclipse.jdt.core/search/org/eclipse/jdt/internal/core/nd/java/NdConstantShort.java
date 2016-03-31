@@ -21,16 +21,16 @@ public final class NdConstantShort extends NdConstant {
 		type.done();
 	}
 
-	public NdConstantShort(Nd pdom, long address) {
-		super(pdom, address);
+	public NdConstantShort(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	protected NdConstantShort(Nd pdom) {
-		super(pdom);
+	protected NdConstantShort(Nd nd) {
+		super(nd);
 	}
 
-	public static NdConstantShort create(Nd pdom, short value) {
-		NdConstantShort result = new NdConstantShort(pdom);
+	public static NdConstantShort create(Nd nd, short value) {
+		NdConstantShort result = new NdConstantShort(nd);
 		result.setValue(value);
 		return result;
 	}

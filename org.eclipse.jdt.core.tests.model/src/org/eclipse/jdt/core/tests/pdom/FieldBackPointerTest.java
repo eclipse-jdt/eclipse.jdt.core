@@ -33,12 +33,12 @@ public class FieldBackPointerTest extends BaseTestCase {
 			type.done();
 		}
 
-		public ForwardPointerStruct(Nd pdom) {
-			super(pdom);
+		public ForwardPointerStruct(Nd nd) {
+			super(nd);
 		}
 
-		public ForwardPointerStruct(Nd pdom, long record) {
-			super(pdom, record);
+		public ForwardPointerStruct(Nd nd, long record) {
+			super(nd, record);
 		}
 
 		public void setBp(BackPointerStruct toSet) {
@@ -75,15 +75,15 @@ public class FieldBackPointerTest extends BaseTestCase {
 			type.done();
 		}
 
-		public BackPointerStruct(Nd pdom) {
-			super(pdom);
+		public BackPointerStruct(Nd nd) {
+			super(nd);
 
 			// Fill with nonzero values to ensure that "OWNED" doesn't read beyond its boundary
-			SOMEINT.put(pdom, this.address, 0xf0f0f0f0);
+			SOMEINT.put(nd, this.address, 0xf0f0f0f0);
 		}
 
-		public BackPointerStruct(Nd pdom, long record) {
-			super(pdom, record);
+		public BackPointerStruct(Nd nd, long record) {
+			super(nd, record);
 		}
 
 		public void ensureBackPointerCapacity(int capacity) {
@@ -125,7 +125,7 @@ public class FieldBackPointerTest extends BaseTestCase {
 	ForwardPointerStruct fd;
 	BackPointerStruct ba;
 	BackPointerStruct bb;
-	private Nd pdom;
+	private Nd nd;
 
 	@Override
 	protected void setUp() throws Exception {
@@ -134,14 +134,14 @@ public class FieldBackPointerTest extends BaseTestCase {
 		NdNodeTypeRegistry<NdNode> registry = new NdNodeTypeRegistry<>();
 		registry.register(0, BackPointerStruct.type.getFactory());
 		registry.register(1, ForwardPointerStruct.type.getFactory());
-		this.pdom = DatabaseTestUtil.createEmptyPdom(getName(), registry);
-		this.pdom.getDB().setExclusiveLock();
-		this.ba = new BackPointerStruct(this.pdom);
-		this.bb = new BackPointerStruct(this.pdom);
-		this.fa = new ForwardPointerStruct(this.pdom);
-		this.fb = new ForwardPointerStruct(this.pdom);
-		this.fc = new ForwardPointerStruct(this.pdom);
-		this.fd = new ForwardPointerStruct(this.pdom);
+		this.nd = DatabaseTestUtil.createEmptyNd(getName(), registry);
+		this.nd.getDB().setExclusiveLock();
+		this.ba = new BackPointerStruct(this.nd);
+		this.bb = new BackPointerStruct(this.nd);
+		this.fa = new ForwardPointerStruct(this.nd);
+		this.fb = new ForwardPointerStruct(this.nd);
+		this.fc = new ForwardPointerStruct(this.nd);
+		this.fd = new ForwardPointerStruct(this.nd);
 	}
 
 	public static Test suite() {
@@ -221,7 +221,7 @@ public class FieldBackPointerTest extends BaseTestCase {
 		this.fc.setBp(this.ba);
 
 		this.fb.delete();
-		this.pdom.processDeletions();
+		this.nd.processDeletions();
 
 		assertBackPointers(this.ba, this.fa, this.fc);
 	}
@@ -232,7 +232,7 @@ public class FieldBackPointerTest extends BaseTestCase {
 		this.fc.setBp(this.ba);
 
 		this.ba.delete();
-		this.pdom.processDeletions();
+		this.nd.processDeletions();
 
 		assertEquals(null, this.fa.getBp());
 		assertEquals(null, this.fb.getBp());
@@ -258,7 +258,7 @@ public class FieldBackPointerTest extends BaseTestCase {
 		this.fc.setBp(this.ba);
 
 		this.bb.delete();
-		this.pdom.processDeletions();
+		this.nd.processDeletions();
 
 		assertBackPointers(this.ba, this.fc);
 	}
@@ -334,7 +334,7 @@ public class FieldBackPointerTest extends BaseTestCase {
 		List<ForwardPointerStruct> allocated = new ArrayList<>();
 
 		for (int count = 0; count < numToAllocate; count++) {
-			ForwardPointerStruct next = new ForwardPointerStruct(this.pdom);
+			ForwardPointerStruct next = new ForwardPointerStruct(this.nd);
 
 			next.setBp(this.ba);
 			assertEquals(next, this.ba.getBackPointer(count));

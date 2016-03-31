@@ -16,10 +16,10 @@ import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
 /**
- * Represents one interface implemented by a specific type. This is an intermediate object between a PDOMType
- * and the PDOMTypeIds corresponding to its interfaces, which is necessary in order to implement the many-to-many
+ * Represents one interface implemented by a specific type. This is an intermediate object between a {@link NdType} and
+ * the {@link NdTypeId}s corresponding to its interfaces, which is necessary in order to implement the many-to-many
  * relationship between them.
- *  
+ * 
  * @since 3.12
  */
 public class NdTypeInterface extends NdNode {
@@ -36,15 +36,15 @@ public class NdTypeInterface extends NdNode {
 		type.done();
 	}
 	
-	public NdTypeInterface(Nd pdom, long address) {
-		super(pdom, address);
+	public NdTypeInterface(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	public NdTypeInterface(Nd pdom, NdType targetType, NdTypeSignature makeTypeId) {
-		super(pdom);
+	public NdTypeInterface(Nd nd, NdType targetType, NdTypeSignature makeTypeId) {
+		super(nd);
 
-		APPLIES_TO.put(pdom, this.address, targetType);
-		IMPLEMENTS.put(pdom, this.address, makeTypeId);
+		APPLIES_TO.put(nd, this.address, targetType);
+		IMPLEMENTS.put(nd, this.address, makeTypeId);
 	}
 
 	public NdType getImplementation() {

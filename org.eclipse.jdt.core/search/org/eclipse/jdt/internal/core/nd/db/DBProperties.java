@@ -31,10 +31,10 @@ public class DBProperties {
 	/**
 	 * Allocate storage for a new DBProperties record in the specified database
 	 */
-	public DBProperties(Nd pdom) throws IndexException {
-		Database database = pdom.getDB();
+	public DBProperties(Nd nd) throws IndexException {
+		Database database = nd.getDB();
 		this.record= database.malloc(RECORD_SIZE);
-		this.index= new BTree(pdom, this.record + PROP_INDEX, DBProperty.getComparator());
+		this.index= new BTree(nd, this.record + PROP_INDEX, DBProperty.getComparator());
 		this.db= database;
 	}
 
@@ -42,10 +42,10 @@ public class DBProperties {
 	 * Creates an object for accessing an existing DBProperties record at the specified location
 	 * of the specified database.
 	 */
-	public DBProperties(Nd pdom, long record) throws IndexException {
-		Database database = pdom.getDB();
+	public DBProperties(Nd nd, long record) throws IndexException {
+		Database database = nd.getDB();
 		this.record= record;
-		this.index= new BTree(pdom, record + PROP_INDEX, DBProperty.getComparator());
+		this.index= new BTree(nd, record + PROP_INDEX, DBProperty.getComparator());
 		this.db= database;
 	}
 
@@ -210,8 +210,8 @@ public class DBProperties {
 		public static IBTreeComparator getComparator() {
 			return new IBTreeComparator() {
 				@Override
-				public int compare(Nd pdom, long record1, long record2) throws IndexException {
-					Database db = pdom.getDB();
+				public int compare(Nd nd, long record1, long record2) throws IndexException {
+					Database db = nd.getDB();
 					IString left= db.getString(db.getRecPtr(record1 + KEY));
 					IString right= db.getString(db.getRecPtr(record2 + KEY));
 					return left.compare(right, true);

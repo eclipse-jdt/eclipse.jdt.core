@@ -65,34 +65,34 @@ public class JavaIndex {
 		}
 
 		@Override
-		public long getRank(Nd resourceFilePdom, long resourceFileAddress) {
-			return NdResourceFile.TIME_LAST_SCANNED.get(resourceFilePdom, resourceFileAddress);
+		public long getRank(Nd resourceFileNd, long resourceFileAddress) {
+			return NdResourceFile.TIME_LAST_SCANNED.get(resourceFileNd, resourceFileAddress);
 		}
 	}
 
 	private static final BestResourceFile bestResourceFile = new BestResourceFile();
 	private final long address;
-	private Nd pdom;
+	private Nd nd;
 	private IResultRank anyResult = new IResultRank() {
 		@Override
-		public long getRank(Nd pdom1, long address1) {
+		public long getRank(Nd nd, long address1) {
 			return 1;
 		}
 	};
-	private static Nd globalPdom;
+	private static Nd globalNd;
 	private static final String INDEX_FILENAME = "index.db"; //$NON-NLS-1$
-	private final static Object pdomMutex = new Object();
+	private final static Object ndMutex = new Object();
 
 	public JavaIndex(Nd dom, long address) {
 		this.address = address;
-		this.pdom = dom;
+		this.nd = dom;
 	}
 
 	/**
 	 * Returns the most-recently-scanned resource file with the given name or null if none
 	 */
 	public NdResourceFile getResourceFile(char[] location) {
-		return FILES.findBest(this.pdom, this.address, FieldSearchIndex.SearchCriteria.create(location),
+		return FILES.findBest(this.nd, this.address, FieldSearchIndex.SearchCriteria.create(location),
 				bestResourceFile);
 	}
 
@@ -121,12 +121,12 @@ public class JavaIndex {
 	}
 
 	public List<NdResourceFile> getAllResourceFiles(String thePath) {
-		return FILES.findAll(this.pdom, this.address, FieldSearchIndex.SearchCriteria.create(thePath.toCharArray()));
+		return FILES.findAll(this.nd, this.address, FieldSearchIndex.SearchCriteria.create(thePath.toCharArray()));
 	}
 
 	public NdTypeId findType(char[] fieldDescriptor) {
 		SearchCriteria searchCriteria = SearchCriteria.create(fieldDescriptor);
-		return TYPES.findBest(this.pdom, this.address, searchCriteria, this.anyResult);
+		return TYPES.findBest(this.nd, this.address, searchCriteria, this.anyResult);
 	}
 
 	/**
@@ -148,7 +148,7 @@ public class JavaIndex {
 			}
 		}
 
-		NdTypeId result = new NdTypeId(this.pdom, fieldDescriptor);
+		NdTypeId result = new NdTypeId(this.nd, fieldDescriptor);
 		if (!CharArrayUtils.equals(result.getFieldDescriptor().getChars(), fieldDescriptor)) {
 			throw new IllegalStateException("Field descriptor didn't match"); //$NON-NLS-1$
 		}
@@ -156,13 +156,13 @@ public class JavaIndex {
 	}
 
 	public Nd getNd() {
-		return this.pdom;
+		return this.nd;
 	}
 
 	public NdMethodId findMethodId(char[] methodId) {
 		SearchCriteria searchCriteria = SearchCriteria.create(methodId);
 
-		return METHODS.findBest(this.pdom, this.address, searchCriteria, this.anyResult);
+		return METHODS.findBest(this.nd, this.address, searchCriteria, this.anyResult);
 	}
 
 	public NdMethodId createMethodId(char[] methodId) {
@@ -172,7 +172,7 @@ public class JavaIndex {
 			return existingMethod;
 		}
 
-		return new NdMethodId(this.pdom, methodId);
+		return new NdMethodId(this.nd, methodId);
 	}
 
 	/**
@@ -193,33 +193,33 @@ public class JavaIndex {
 				null);
 	}
 
-	public static Nd getGlobalPDOM() {
-		Nd localPdom;
-		synchronized (pdomMutex) {
-			localPdom = globalPdom;
+	public static Nd getGlobalNd() {
+		Nd localNd;
+		synchronized (ndMutex) {
+			localNd = globalNd;
 		}
 
-		if (localPdom != null) {
-			return localPdom;
+		if (localNd != null) {
+			return localNd;
 		}
 
-		localPdom = new Nd(getDBFile(), ChunkCache.getSharedInstance(), createTypeRegistry(),
+		localNd = new Nd(getDBFile(), ChunkCache.getSharedInstance(), createTypeRegistry(),
 				MIN_SUPPORTED_VERSION, MAX_SUPPORTED_VERSION, CURRENT_VERSION);
 
-		synchronized (pdomMutex) {
-			if (globalPdom == null) {
-				globalPdom = localPdom;
+		synchronized (ndMutex) {
+			if (globalNd == null) {
+				globalNd = localNd;
 			}
-			return globalPdom;
+			return globalNd;
 		}
 	}
 
-	public static JavaIndex getIndex(Nd pdom) {
-		return new JavaIndex(pdom, Database.DATA_AREA_OFFSET);
+	public static JavaIndex getIndex(Nd nd) {
+		return new JavaIndex(nd, Database.DATA_AREA_OFFSET);
 	}
 
 	public static JavaIndex getIndex() {
-		return getIndex(getGlobalPDOM());
+		return getIndex(getGlobalNd());
 	}
 
 	public static int getCurrentVersion() {
@@ -274,32 +274,4 @@ public class JavaIndex {
 	public void rebuildIndex() {
 
 	}
-
-//	/**
-//	 * Returns a method ID or creates a new one if it does not exist. The caller must
-//	 * attach a reference to it after calling this method or it may leak.
-//	 */
-//	public PDOMMethodId createMethodId(String binaryName) {
-//		PDOMMethodId existingType = findByName(binaryName, PDOMMethodId.class);
-//
-//		if (existingType != null) {
-//			return existingType;
-//		}
-//		return new PDOMMethodId(getNd(), new String(binaryName));
-//	}
-//
-//	public PDOMMethodId createMethodId(char[] binaryName) {
-//		return createMethodId(new String(binaryName));
-//	}
-
-//
-//	public PDOMPackageId createPackageId(char[] packageName) {
-//		PDOMPackageId pkg = findNamedNode(null, packageName, PDOMPackageId.class);
-//
-//		if (pkg == null) {
-//			pkg = new PDOMPackageId(this.pdom, packageName);
-//		}
-//
-//		return pkg;
-//	}
 }

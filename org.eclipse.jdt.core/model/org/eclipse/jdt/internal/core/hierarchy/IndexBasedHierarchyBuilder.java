@@ -488,9 +488,9 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 		IPathRequestor pathRequestor, int waitingPolicy, IProgressMonitor progressMonitor) {
 	SubMonitor subMonitor = SubMonitor.convert(progressMonitor);
 	JavaIndex index = JavaIndex.getIndex();
-	Nd pdom = index.getNd();
+	Nd nd = index.getNd();
 	char[] fieldDefinition = JavaNames.fullyQualifiedNameToFieldDescriptor(type.getFullyQualifiedName().toCharArray());
-	pdom.acquireReadLock();
+	nd.acquireReadLock();
 
 	IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 
@@ -534,7 +534,7 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 			}
 		}
 	} finally {
-		pdom.releaseReadLock();
+		nd.releaseReadLock();
 	}
 }
 

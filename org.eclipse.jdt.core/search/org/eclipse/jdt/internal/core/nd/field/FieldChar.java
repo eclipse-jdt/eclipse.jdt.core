@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 
 /**
- * Declares a PDOM field of type char. Can be used in place of  {@link Field}&lt{@link Character}&gt in order to
+ * Declares a Nd field of type char. Can be used in place of  {@link Field}&lt{@link Character}&gt in order to
  * avoid extra GC overhead.
  * @since 3.12
  */
@@ -24,13 +24,13 @@ public class FieldChar implements IField {
 	public FieldChar() {
 	}
 
-	public char get(Nd pdom, long address) {
-		Database db = pdom.getDB();
+	public char get(Nd nd, long address) {
+		Database db = nd.getDB();
 		return db.getChar(address + this.offset);
 	}
 
-	public void put(Nd pdom, long address, char newValue) {
-		pdom.getDB().putChar(address + this.offset, newValue);
+	public void put(Nd nd, long address, char newValue) {
+		nd.getDB().putChar(address + this.offset, newValue);
 	}
 
 	@Override

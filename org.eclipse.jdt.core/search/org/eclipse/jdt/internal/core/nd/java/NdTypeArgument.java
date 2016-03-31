@@ -31,14 +31,14 @@ public class NdTypeArgument extends NdNode {
 	public static final int WILDCARD_SUPER = 2;
 	public static final int WILDCARD_QUESTION = 3;
 
-	public NdTypeArgument(Nd pdom, long address) {
-		super(pdom, address);
+	public NdTypeArgument(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	public NdTypeArgument(Nd pdom, NdComplexTypeSignature typeSignature) {
-		super(pdom);
+	public NdTypeArgument(Nd nd, NdComplexTypeSignature typeSignature) {
+		super(nd);
 
-		PARENT.put(pdom, this.address, typeSignature);
+		PARENT.put(nd, this.address, typeSignature);
 	}
 
 	/**

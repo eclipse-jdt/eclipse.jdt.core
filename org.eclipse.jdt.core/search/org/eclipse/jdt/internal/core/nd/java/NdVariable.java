@@ -53,8 +53,8 @@ public class NdVariable extends NdBinding {
 		type.done();
 	}
 
-	public NdVariable(Nd pdom, long bindingRecord) {
-		super(pdom, bindingRecord);
+	public NdVariable(Nd nd, long bindingRecord) {
+		super(nd, bindingRecord);
 	}
 
 	public NdVariable(NdBinding parent) {

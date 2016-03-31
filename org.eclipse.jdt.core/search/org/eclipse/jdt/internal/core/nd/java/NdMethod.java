@@ -59,12 +59,8 @@ public class NdMethod extends NdBinding {
 //	private static final int METHOD_IS_RAW = 0x0020;
 //	private static final int METHOD_IS_VARARGS = 0x0040;
 
-	/**
-	 * @param pdom
-	 * @param address
-	 */
-	public NdMethod(Nd pdom, long address) {
-		super(pdom, address);
+	public NdMethod(Nd nd, long address) {
+		super(nd, address);
 	}
 
 	public NdMethod(NdType parent) {

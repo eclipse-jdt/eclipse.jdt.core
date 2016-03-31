@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.core.nd.db.IString;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
 
 /**
- * Declares a field representing a case-insensitive search tree over elements which are a subtype of PDOMNode.
+ * Declares a field representing a case-insensitive search tree over elements which are a subtype of NdNode.
  * This field may only ever  
  * @since 3.12
  */
@@ -33,7 +33,7 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 	FieldSearchKey<?> searchKey;
 	private static IResultRank anything = new IResultRank() {
 		@Override
-		public long getRank(Nd pdom, long address) {
+		public long getRank(Nd nd, long address) {
 			return 1;
 		}
 	};
@@ -109,28 +109,24 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 		public boolean requiresSpecificNodeType() {
 			return this.requiredNodeType != -1;
 		}
-
-//		public SearchCriteria requireParentNode(PDOMNamedNode parentName) {
-//			return requireParentNode(PDOMNode.addressOf(parentName));
-//		}
 	}
 
 	public static interface IResultRank {
-		public long getRank(Nd pdom, long address);
+		public long getRank(Nd nd, long address);
 	}
 
 	private abstract class SearchCriteriaToBtreeVisitorAdapter implements IBTreeVisitor {
 		private final SearchCriteria searchCriteria;
-		private final Nd pdom;
+		private final Nd nd;
 
-		public SearchCriteriaToBtreeVisitorAdapter(SearchCriteria searchCriteria, Nd pdom) {
+		public SearchCriteriaToBtreeVisitorAdapter(SearchCriteria searchCriteria, Nd nd) {
 			this.searchCriteria = searchCriteria;
-			this.pdom = pdom;
+			this.nd = nd;
 		}
 
 		@Override
 		public int compare(long address) throws IndexException {
-			IString key = FieldSearchIndex.this.searchKey.get(this.pdom, address);
+			IString key = FieldSearchIndex.this.searchKey.get(this.nd, address);
 
 			if (this.searchCriteria.isPrefixSearch()) {
 				return key.comparePrefix(this.searchCriteria.getSearchString(), false);
@@ -142,19 +138,14 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 		@Override
 		public boolean visit(long address) throws IndexException {
 			if (this.searchCriteria.requiresSpecificNodeType()) {
-				short nodeType = NdNode.NODE_TYPE.get(this.pdom, address);
+				short nodeType = NdNode.NODE_TYPE.get(this.nd, address);
 
 				if (!this.searchCriteria.acceptsNodeType(nodeType)) {
 					return true;
 				}
 			}
 
-//			long parent = PDOMNamedNode.PARENT.getAddress(this.pdom, address);
-//			if (parent != this.searchCriteria.getRequiredParentAddress()) {
-//				return true;
-//			}
-
-			IString key = FieldSearchIndex.this.searchKey.get(this.pdom, address);
+			IString key = FieldSearchIndex.this.searchKey.get(this.nd, address);
 
 			if (this.searchCriteria.isMatchingCase()) {
 				if (this.searchCriteria.isPrefixSearch()) {
@@ -178,9 +169,9 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 	private FieldSearchIndex(FieldSearchKey<?> searchKey) {
 		this.btreeFactory = BTree.getFactory(new IBTreeComparator() {
 			@Override
-			public int compare(Nd pdom, long record1, long record2) {
-				IString key1 = FieldSearchIndex.this.searchKey.get(pdom, record1);
-				IString key2 = FieldSearchIndex.this.searchKey.get(pdom, record2);
+			public int compare(Nd nd, long record1, long record2) {
+				IString key1 = FieldSearchIndex.this.searchKey.get(nd, record1);
+				IString key2 = FieldSearchIndex.this.searchKey.get(nd, record2);
 
 				int cmp = key1.compareCompatibleWithIgnoreCase(key2);
 				if (cmp == 0) {
@@ -213,13 +204,13 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 		return result;
 	}
 
-	public BTree get(Nd pdom, long address) {
-		return this.btreeFactory.create(pdom, address + this.offset);
+	public BTree get(Nd nd, long address) {
+		return this.btreeFactory.create(nd, address + this.offset);
 	}
 
 	@Override
-	public void destruct(Nd pdom, long address) {
-		this.btreeFactory.destruct(pdom, address);
+	public void destruct(Nd nd, long address) {
+		this.btreeFactory.destruct(nd, address);
 	}
 
 	@Override
@@ -232,18 +223,18 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 		return this.btreeFactory.getRecordSize();
 	}
 
-	public T findFirst(final Nd pdom, long address, final SearchCriteria searchCriteria) {
-		return findBest(pdom, address, searchCriteria, anything);
+	public T findFirst(final Nd nd, long address, final SearchCriteria searchCriteria) {
+		return findBest(nd, address, searchCriteria, anything);
 	}
 
 	@SuppressWarnings("unchecked")
-	public T findBest(final Nd pdom, long address, final SearchCriteria searchCriteria, final IResultRank rankFunction) {
+	public T findBest(final Nd nd, long address, final SearchCriteria searchCriteria, final IResultRank rankFunction) {
 		final long[] resultRank = new long[1];
 		final long[] result = new long[1];
-		get(pdom, address).accept(new SearchCriteriaToBtreeVisitorAdapter(searchCriteria, pdom) {
+		get(nd, address).accept(new SearchCriteriaToBtreeVisitorAdapter(searchCriteria, nd) {
 			@Override
 			protected void acceptResult(long resultAddress) {
-				long rank = rankFunction.getRank(pdom, resultAddress);
+				long rank = rankFunction.getRank(nd, resultAddress);
 				if (rank >= resultRank[0]) {
 					resultRank[0] = rank;
 					result[0] = resultAddress;
@@ -254,16 +245,16 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 		if (result[0] == 0) {
 			return null;
 		}
-		return (T)NdNode.load(pdom, result[0]);
+		return (T)NdNode.load(nd, result[0]);
 	}
 
-	public List<T> findAll(final Nd pdom, long address, final SearchCriteria searchCriteria) {
+	public List<T> findAll(final Nd nd, long address, final SearchCriteria searchCriteria) {
 		final List<T> result = new ArrayList<T>();
-		get(pdom, address).accept(new SearchCriteriaToBtreeVisitorAdapter(searchCriteria, pdom) {
+		get(nd, address).accept(new SearchCriteriaToBtreeVisitorAdapter(searchCriteria, nd) {
 			@SuppressWarnings("unchecked")
 			@Override
 			protected void acceptResult(long resultAddress) {
-				result.add((T)NdNode.load(pdom, resultAddress));
+				result.add((T)NdNode.load(nd, resultAddress));
 			}
 		});
 

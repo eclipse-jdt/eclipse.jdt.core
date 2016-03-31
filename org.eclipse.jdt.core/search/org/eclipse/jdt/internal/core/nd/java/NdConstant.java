@@ -33,38 +33,38 @@ public abstract class NdConstant extends NdNode {
 		type.done();
 	}
 
-	public NdConstant(Nd pdom, long address) {
-		super(pdom, address);
+	public NdConstant(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	protected NdConstant(Nd pdom) {
-		super(pdom);
+	protected NdConstant(Nd nd) {
+		super(nd);
 	}
 
-	public static NdConstant create(Nd pdom, Constant constant) {
+	public static NdConstant create(Nd nd, Constant constant) {
 		if (constant == Constant.NotAConstant) {
 			return null;
 		}
 
 		switch (constant.typeID()) {
 			case TypeIds.T_boolean:
-				return NdConstantBoolean.create(pdom, constant.booleanValue());
+				return NdConstantBoolean.create(nd, constant.booleanValue());
 			case TypeIds.T_byte:
-				return NdConstantByte.create(pdom, constant.byteValue());
+				return NdConstantByte.create(nd, constant.byteValue());
 			case TypeIds.T_char:
-				return NdConstantChar.create(pdom, constant.charValue());
+				return NdConstantChar.create(nd, constant.charValue());
 			case TypeIds.T_double:
-				return NdConstantDouble.create(pdom, constant.doubleValue());
+				return NdConstantDouble.create(nd, constant.doubleValue());
 			case TypeIds.T_float:
-				return NdConstantFloat.create(pdom, constant.floatValue());
+				return NdConstantFloat.create(nd, constant.floatValue());
 			case TypeIds.T_int:
-				return NdConstantInt.create(pdom, constant.intValue());
+				return NdConstantInt.create(nd, constant.intValue());
 			case TypeIds.T_long:
-				return NdConstantLong.create(pdom, constant.longValue());
+				return NdConstantLong.create(nd, constant.longValue());
 			case TypeIds.T_short:
-				return NdConstantShort.create(pdom, constant.shortValue());
+				return NdConstantShort.create(nd, constant.shortValue());
 			case TypeIds.T_JavaLangString:
-				return NdConstantString.create(pdom, constant.stringValue());
+				return NdConstantString.create(nd, constant.stringValue());
 			default:
 				throw new IllegalArgumentException("Unknown typeID() " + constant.typeID()); //$NON-NLS-1$
 		}

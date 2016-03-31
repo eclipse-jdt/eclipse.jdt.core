@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 
 /**
- * Declares a PDOM field of type float. Can be used in place of  {@link Field}&lt{@link Float}&gt in order to
+ * Declares a Nd field of type float. Can be used in place of  {@link Field}&lt{@link Float}&gt in order to
  * avoid extra GC overhead.
  * 
  * @since 3.12
@@ -25,13 +25,13 @@ public class FieldFloat implements IField {
 	public FieldFloat() {
 	}
 
-	public float get(Nd pdom, long address) {
-		Database db = pdom.getDB();
+	public float get(Nd nd, long address) {
+		Database db = nd.getDB();
 		return db.getFloat(address + this.offset);
 	}
 
-	public void put(Nd pdom, long address, float newValue) {
-		pdom.getDB().putFloat(address + this.offset, newValue);
+	public void put(Nd nd, long address, float newValue) {
+		nd.getDB().putFloat(address + this.offset, newValue);
 	}
 
 	@Override

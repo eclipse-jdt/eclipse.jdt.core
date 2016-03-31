@@ -30,12 +30,12 @@ public class InheritenceTests extends BaseTestCase {
 			type.done();
 		}
 
-		public AllObjects(Nd pdom, long record) {
-			super(pdom, record);
+		public AllObjects(Nd nd, long record) {
+			super(nd, record);
 		}
 
-		public AllObjects(Nd pdom) {
-			super(pdom);
+		public AllObjects(Nd nd) {
+			super(nd);
 		}
 
 		boolean contains(BaseClass toTest) {
@@ -64,14 +64,14 @@ public class InheritenceTests extends BaseTestCase {
 			type.useStandardRefCounting().done();
 		}
 
-		public BaseClass(Nd pdom, AllObjects deletionDetector) {
-			super(pdom);
+		public BaseClass(Nd nd, AllObjects deletionDetector) {
+			super(nd);
 
-			DELETION_DETECTOR.put(pdom, this.address, deletionDetector);
+			DELETION_DETECTOR.put(nd, this.address, deletionDetector);
 		}
 
-		public BaseClass(Nd pdom, long record) {
-			super(pdom, record);
+		public BaseClass(Nd nd, long record) {
+			super(nd, record);
 		}
 	}
 
@@ -88,12 +88,12 @@ public class InheritenceTests extends BaseTestCase {
 			type.useStandardRefCounting().done();
 		}
 
-		public SubClass(Nd pdom, long record) {
-			super(pdom, record);
+		public SubClass(Nd nd, long record) {
+			super(nd, record);
 		}
 
-		public SubClass(Nd pdom, AllObjects deletionDetector) {
-			super(pdom, deletionDetector);
+		public SubClass(Nd nd, AllObjects deletionDetector) {
+			super(nd, deletionDetector);
 		}
 	}
 	
@@ -116,14 +116,14 @@ public class InheritenceTests extends BaseTestCase {
 			type.done();
 		}
 
-		public Reference(Nd pdom, long record) {
-			super(pdom, record);
+		public Reference(Nd nd, long record) {
+			super(nd, record);
 		}
 
-		public Reference(Nd pdom, AllObjects deletionDetector) {
-			super(pdom);
+		public Reference(Nd nd, AllObjects deletionDetector) {
+			super(nd);
 
-			DELETION_DETECTOR.put(pdom, this.address, deletionDetector);
+			DELETION_DETECTOR.put(nd, this.address, deletionDetector);
 		}
 
 		public void setBaseClassReference(BaseClass target) {
@@ -145,7 +145,7 @@ public class InheritenceTests extends BaseTestCase {
 	Reference refA;
 	Reference refB;
 	Reference refC;
-	private Nd pdom;
+	private Nd nd;
 
 	@Override
 	protected void setUp() throws Exception {
@@ -156,16 +156,16 @@ public class InheritenceTests extends BaseTestCase {
 		registry.register(1, SubClass.type.getFactory());
 		registry.register(2, Reference.type.getFactory());
 		registry.register(3, AllObjects.type.getFactory());
-		this.pdom = DatabaseTestUtil.createEmptyPdom(getName(), registry);
-		this.pdom.getDB().setExclusiveLock();
+		this.nd = DatabaseTestUtil.createEmptyNd(getName(), registry);
+		this.nd.getDB().setExclusiveLock();
 
-		this.allObjects = new AllObjects(this.pdom);
-		this.baseClass = new BaseClass(this.pdom, this.allObjects);
-		this.subClass = new SubClass(this.pdom, this.allObjects);
+		this.allObjects = new AllObjects(this.nd);
+		this.baseClass = new BaseClass(this.nd, this.allObjects);
+		this.subClass = new SubClass(this.nd, this.allObjects);
 
-		this.refA = new Reference(this.pdom, this.allObjects);
-		this.refB = new Reference(this.pdom, this.allObjects);
-		this.refC = new Reference(this.pdom, this.allObjects);
+		this.refA = new Reference(this.nd, this.allObjects);
+		this.refB = new Reference(this.nd, this.allObjects);
+		this.refC = new Reference(this.nd, this.allObjects);
 	}
 
 	public static Test suite() {
@@ -176,7 +176,7 @@ public class InheritenceTests extends BaseTestCase {
 		assertTrue(this.allObjects.contains(this.subClass));
 		this.refA.setSubClassReference(this.subClass);
 		this.refA.setSubClassReference(null);
-		this.pdom.processDeletions();
+		this.nd.processDeletions();
 		assertFalse(this.allObjects.contains(this.subClass));
 	}
 
@@ -186,10 +186,10 @@ public class InheritenceTests extends BaseTestCase {
 		this.refB.setBaseClassReference(this.subClass);
 		assertTrue(this.allObjects.contains(this.subClass));
 		this.refA.setSubClassReference(null);
-		this.pdom.processDeletions();
+		this.nd.processDeletions();
 		assertTrue(this.allObjects.contains(this.subClass));
 		this.refB.setBaseClassReference(null);
-		this.pdom.processDeletions();
+		this.nd.processDeletions();
 		assertFalse(this.allObjects.contains(this.subClass));
 	}
 
@@ -197,26 +197,26 @@ public class InheritenceTests extends BaseTestCase {
 		// Test what happens when the base class reference is removed first.
 		this.refA.setSubClassReference(this.subClass);
 		this.refB.setBaseClassReference(this.subClass);
-		this.pdom.processDeletions();
+		this.nd.processDeletions();
 		assertTrue(this.allObjects.contains(this.subClass));
 		this.refB.setBaseClassReference(null);
-		this.pdom.processDeletions();
+		this.nd.processDeletions();
 		assertTrue(this.allObjects.contains(this.subClass));
 		this.refA.setSubClassReference(null);
-		this.pdom.processDeletions();
+		this.nd.processDeletions();
 		assertFalse(this.allObjects.contains(this.subClass));
 	}
 
 	public void testOwnedPointersDontCountTowardsRefCount() {
 		this.refA.setOwner(this.subClass);
-		this.pdom.processDeletions();
+		this.nd.processDeletions();
 		assertTrue(this.allObjects.contains(this.subClass));
 		this.refB.setBaseClassReference(this.subClass);
-		this.pdom.processDeletions();
+		this.nd.processDeletions();
 		assertTrue(this.allObjects.contains(this.subClass));
 		assertTrue(this.allObjects.contains(this.refA));
 		this.refB.setBaseClassReference(null);
-		this.pdom.processDeletions();
+		this.nd.processDeletions();
 		assertFalse(this.allObjects.contains(this.subClass));
 		assertFalse(this.allObjects.contains(this.refA));
 	}
@@ -225,10 +225,10 @@ public class InheritenceTests extends BaseTestCase {
 		this.refA.setBaseClassReference(this.subClass);
 		this.refB.setBaseClassReference(this.subClass);
 		this.refA.setBaseClassReference(null);
-		this.pdom.processDeletions();
+		this.nd.processDeletions();
 		assertTrue(this.allObjects.contains(this.subClass));
 		this.refB.setBaseClassReference(null);
-		this.pdom.processDeletions();
+		this.nd.processDeletions();
 		assertFalse(this.allObjects.contains(this.subClass));
 	}
 }

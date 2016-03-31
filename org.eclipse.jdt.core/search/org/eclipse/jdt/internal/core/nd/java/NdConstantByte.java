@@ -21,16 +21,16 @@ public final class NdConstantByte extends NdConstant {
 		type.done();
 	}
 
-	public NdConstantByte(Nd pdom, long address) {
-		super(pdom, address);
+	public NdConstantByte(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	protected NdConstantByte(Nd pdom) {
-		super(pdom);
+	protected NdConstantByte(Nd nd) {
+		super(nd);
 	}
 
-	public static NdConstantByte create(Nd pdom, byte value) {
-		NdConstantByte result = new NdConstantByte(pdom);
+	public static NdConstantByte create(Nd nd, byte value) {
+		NdConstantByte result = new NdConstantByte(nd);
 		result.setValue(value);
 		return result;
 	}

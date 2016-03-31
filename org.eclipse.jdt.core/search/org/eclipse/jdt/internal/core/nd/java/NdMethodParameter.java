@@ -36,8 +36,8 @@ public class NdMethodParameter extends NdNode {
 		type.done();
 	}
 
-	public NdMethodParameter(Nd pdom, long address) {
-		super(pdom, address);
+	public NdMethodParameter(Nd nd, long address) {
+		super(nd, address);
 	}
 
 	public NdMethodParameter(NdMethod parent, NdTypeSignature argumentType) {

@@ -21,16 +21,16 @@ public final class NdConstantBoolean extends NdConstant {
 		type.done();
 	}
 
-	public NdConstantBoolean(Nd pdom, long address) {
-		super(pdom, address);
+	public NdConstantBoolean(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	protected NdConstantBoolean(Nd pdom) {
-		super(pdom);
+	protected NdConstantBoolean(Nd nd) {
+		super(nd);
 	}
 
-	public static NdConstantBoolean create(Nd pdom, boolean value) {
-		NdConstantBoolean result = new NdConstantBoolean(pdom);
+	public static NdConstantBoolean create(Nd nd, boolean value) {
+		NdConstantBoolean result = new NdConstantBoolean(nd);
 		result.setValue(value);
 		return result;
 	}

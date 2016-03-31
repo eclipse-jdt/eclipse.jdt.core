@@ -658,7 +658,7 @@ public class ClassFileToIndexConverter {
 		boolean checkForSemicolon = true;
 		// Special optimization for signatures with no type annotations, no arrays, and no generic arguments that
 		// are not an inner type of a class that can't use this optimization. Basically, if there would be no attributes
-		// set on a PDOMComplexTypeSignature besides what it picks up from its raw type, we just use the raw type.
+		// set on a NdComplexTypeSignature besides what it picks up from its raw type, we just use the raw type.
 		IBinaryAnnotation[] annotationList = annotations.getAnnotationsAtCursor(0);
 		if (annotationList.length != 0 || hasGenericArguments || parentTypeOrNull != null || isRawTypeWithNestedClass) {
 			NdComplexTypeSignature typeSignature = new NdComplexTypeSignature(getNd());

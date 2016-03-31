@@ -68,12 +68,12 @@ public abstract class NdTypeSignature extends NdNode {
 		type.useStandardRefCounting().done();
 	}
 
-	public NdTypeSignature(Nd pdom, long address) {
-		super(pdom, address);
+	public NdTypeSignature(Nd nd, long address) {
+		super(nd, address);
 	}
 
-	public NdTypeSignature(Nd pdom) {
-		super(pdom);
+	public NdTypeSignature(Nd nd) {
+		super(nd);
 	}
 
 	public List<NdType> getSubclasses() {

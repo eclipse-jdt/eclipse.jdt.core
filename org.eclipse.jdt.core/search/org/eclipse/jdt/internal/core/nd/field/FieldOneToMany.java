@@ -80,18 +80,18 @@ public class FieldOneToMany<T extends NdNode> implements IDestructableField, IRe
 		return create(builder, forwardPointer, 0);
 	}
 	
-	public void accept(Nd pdom, long address, Visitor<T> visitor) {
-		int size = size(pdom, address);
+	public void accept(Nd nd, long address, Visitor<T> visitor) {
+		int size = size(nd, address);
 
 		for (int idx = 0; idx < size; idx++) {
-			visitor.visit(idx, get(pdom, address, idx));
+			visitor.visit(idx, get(nd, address, idx));
 		}
 	}
 
-	public List<T> asList(Nd pdom, long address) {
-		final List<T> result = new ArrayList<>(size(pdom, address));
+	public List<T> asList(Nd nd, long address) {
+		final List<T> result = new ArrayList<>(size(nd, address));
 
-		accept(pdom, address, new Visitor<T>() {
+		accept(nd, address, new Visitor<T>() {
 			@Override
 			public void visit(int index, T toVisit) {
 				result.add(toVisit);
@@ -101,18 +101,18 @@ public class FieldOneToMany<T extends NdNode> implements IDestructableField, IRe
 		return result;
 	}
 
-	public boolean isEmpty(Nd pdom, long address) {
-		return this.backPointerArray.isEmpty(pdom, address + this.offset);
+	public boolean isEmpty(Nd nd, long address) {
+		return this.backPointerArray.isEmpty(nd, address + this.offset);
 	}
 	
-	public int size(Nd pdom, long address) {
-		return this.backPointerArray.size(pdom, address + this.offset);
+	public int size(Nd nd, long address) {
+		return this.backPointerArray.size(nd, address + this.offset);
 	}
 
-	public T get(Nd pdom, long address, int index) {
-		long nextPointer = this.backPointerArray.get(pdom, address + this.offset, index);
+	public T get(Nd nd, long address, int index) {
+		long nextPointer = this.backPointerArray.get(nd, address + this.offset, index);
 
-		return NdNode.load(pdom, nextPointer, this.targetType);
+		return NdNode.load(nd, nextPointer, this.targetType);
 	}
 
 	/**
@@ -123,11 +123,11 @@ public class FieldOneToMany<T extends NdNode> implements IDestructableField, IRe
 	 * Not intended to be called by clients. The normal way to remove something from a backpointer list is
 	 * by calling {@link FieldManyToOne#put}, which performs the appropriate removals automatically.
 	 */
-	void remove(Nd pdom, long address, int index) {
-		long swappedElement = this.backPointerArray.remove(pdom, address + this.offset, index);
+	void remove(Nd nd, long address, int index) {
+		long swappedElement = this.backPointerArray.remove(nd, address + this.offset, index);
 
 		if (swappedElement != 0) {
-			this.forwardPointer.adjustIndex(pdom, swappedElement, index);
+			this.forwardPointer.adjustIndex(nd, swappedElement, index);
 		}
 	}
 
@@ -135,8 +135,8 @@ public class FieldOneToMany<T extends NdNode> implements IDestructableField, IRe
 	 * Addss the given forward pointer to the list and returns the insertion index. This should not be invoked
 	 * directly by clients. The normal way to insert into a backpointer list is to assign a forward pointer.
 	 */
-	int add(Nd pdom, long address, long value) {
-		return this.backPointerArray.add(pdom, address + this.offset, value);
+	int add(Nd nd, long address, long value) {
+		return this.backPointerArray.add(nd, address + this.offset, value);
 	}
 
 	/**
@@ -146,41 +146,41 @@ public class FieldOneToMany<T extends NdNode> implements IDestructableField, IRe
 		return this.backPointerArray.getRecordSize();
 	}
 
-	public void ensureCapacity(Nd pdom, long address, int capacity) {
+	public void ensureCapacity(Nd nd, long address, int capacity) {
 		long arrayAddress = address + this.offset;
-		this.backPointerArray.ensureCapacity(pdom, arrayAddress, capacity);
+		this.backPointerArray.ensureCapacity(nd, arrayAddress, capacity);
 	}
 
 	@Override
-	public void destruct(Nd pdom, long address) {
+	public void destruct(Nd nd, long address) {
 		long arrayAddress = address + this.offset;
-		int size = size(pdom, address);
+		int size = size(nd, address);
 
 		boolean isOwner = this.forwardPointer.pointsToOwner;
 		for (int idx = 0; idx < size; idx++) {
-			long target = this.backPointerArray.get(pdom, arrayAddress, idx);
+			long target = this.backPointerArray.get(nd, arrayAddress, idx);
 
-			this.forwardPointer.clearedByBackPointer(pdom, target);
+			this.forwardPointer.clearedByBackPointer(nd, target);
 
 			if (isOwner) {
-				pdom.scheduleDeletion(target);
+				nd.scheduleDeletion(target);
 			}
 		}
 
-		this.backPointerArray.destruct(pdom, arrayAddress);
+		this.backPointerArray.destruct(nd, arrayAddress);
 	}
 
-	public int getCapacity(Nd pdom, long address) {
-		return this.backPointerArray.getCapacity(pdom, address + this.offset);
+	public int getCapacity(Nd nd, long address) {
+		return this.backPointerArray.getCapacity(nd, address + this.offset);
 	}
 
 	@Override
-	public boolean hasReferences(Nd pdom, long address) {
+	public boolean hasReferences(Nd nd, long address) {
 		// If this field owns the objects it points to, don't treat the incoming pointers as ref counts
 		if (this.forwardPointer.pointsToOwner) {
 			return false;
 		}
-		return !isEmpty(pdom, address);
+		return !isEmpty(nd, address);
 	}
 
 	@Override

@@ -16,7 +16,7 @@ import org.eclipse.jdt.internal.core.nd.Nd;
  * <p>
  * There are three mechanisms for deleting a struct from the database:
  * <ul>
- * <li>Explicit deletion. This happens synchronously via manual calls to PDOM.delete. Structs intended for manual
+ * <li>Explicit deletion. This happens synchronously via manual calls to Nd.delete. Structs intended for manual
  *     deletion have refCounted=false and an empty ownerFields.
  * <li>Owner pointers. Such structs have one or more outbound pointers to an "owner" object. They are deleted
  *     asynchronously when the last owner pointer is deleted. The structs have refCounted=false and a nonempty
@@ -76,7 +76,7 @@ public final class StructDef<T> {
 				constructor = clazz.getConstructor(new Class<?>[] { Nd.class, long.class });
 			} catch (NoSuchMethodException | SecurityException e) {
 				throw new IllegalArgumentException("The node class " + fullyQualifiedClassName //$NON-NLS-1$
-						+ " does not have an appropriate constructor for it to be used with PDOM"); //$NON-NLS-1$
+						+ " does not have an appropriate constructor for it to be used with Nd"); //$NON-NLS-1$
 			}
 		} else {
 			constructor = null;
@@ -118,13 +118,13 @@ public final class StructDef<T> {
 				return StructDef.this.clazz;
 			}
 
-			public void destruct(Nd pdom, long address) {
+			public void destruct(Nd nd, long address) {
 				checkNotMutable();
 				if (StructDef.this.hasUserDestructor) {
-					IDestructable destructable = (IDestructable)create(pdom, address);
+					IDestructable destructable = (IDestructable)create(nd, address);
 					destructable.destruct();
 				}
-				destructFields(pdom, address);
+				destructFields(nd, address);
 			}
 
 			public void destructFields(Nd dom, long address) {

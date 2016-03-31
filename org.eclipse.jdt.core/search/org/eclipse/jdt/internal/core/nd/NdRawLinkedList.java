@@ -14,7 +14,7 @@ import org.eclipse.jdt.internal.core.nd.db.Database;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
 
 /**
- * PDOMLinkedList stores a list of fixed-sized records. Along with the records themselves, there is also
+ * {@link NdRawLinkedList} stores a list of fixed-sized records. Along with the records themselves, there is also
  * a bit field associated with each record which can hold a small number of bits of metadata per record.
  * The underlying format is as follows:
  *
@@ -45,7 +45,7 @@ public class NdRawLinkedList {
 	private static final int ELEMENT_START_POSITION = NEXT_MEMBER_BLOCK + Database.PTR_SIZE;
 
 	private final long address;
-	private final Nd dom;
+	private final Nd nd;
 	private final int firstBlockRecordCount;
 	private final int recordCount;
 	private final int elementRecordSize;
@@ -59,15 +59,15 @@ public class NdRawLinkedList {
 	}
 
 	/**
-	 * @param pdom PDOM object
+	 * @param nd the Nd object
 	 * @param address pointer to the start of the linked list
 	 * @param recordsPerBlock number of records per block. This is normally a hardcoded value.
 	 */
-	public NdRawLinkedList(Nd pdom, long address, int elementRecordSize, int firstBlockRecordCount, int recordsPerBlock,
+	public NdRawLinkedList(Nd nd, long address, int elementRecordSize, int firstBlockRecordCount, int recordsPerBlock,
 			int metadataBitsPerRecord) {
 		assert(recordsPerBlock > 0);
 		assert(firstBlockRecordCount >= 0);
-		this.dom = pdom;
+		this.nd = nd;
 		this.address = address;
 		this.firstBlockRecordCount = firstBlockRecordCount;
 		this.recordCount = recordsPerBlock;
@@ -75,14 +75,6 @@ public class NdRawLinkedList {
 		this.lastKnownBlock = address;
 		this.metadataBitsPerRecord = metadataBitsPerRecord;
 	}
-
-//	public PDOMLinkedList(PDOM dom, int elementRecordSize, int recordsPerBlock) throws IndexException {
-//		this.dom = dom;
-//		this.recordCount = recordsPerBlock;
-//		this.elementRecordSize = elementRecordSize;
-//		this.address = dom.getDB().malloc(Database.PTR_SIZE + this.elementRecordSize * recordsPerBlock);
-//		this.lastKnownBlock = this.address;
-//	}
 
 	/**
 	 * Returns the record size for a linked list with the given element record size and number of
@@ -102,7 +94,7 @@ public class NdRawLinkedList {
 	}
 
 	public Nd getNd() {
-		return this.dom;
+		return this.nd;
 	}
 
 	private int getElementsInBlock(long currentRecord, long ptr, int currentRecordCount) throws IndexException {
@@ -113,7 +105,7 @@ public class NdRawLinkedList {
 	}
 
 	private Database getDB() {
-		return this.dom.getDB();
+		return this.nd.getDB();
 	}
 
 	public long getAddress() {
