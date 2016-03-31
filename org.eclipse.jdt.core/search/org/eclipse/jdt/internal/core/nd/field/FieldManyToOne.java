@@ -124,15 +124,13 @@ public class FieldManyToOne<T extends NdNode> implements IDestructableField, IFi
 
 			this.backPointer.remove(nd, oldTargetAddress, oldIndex);
 
-			if (oldTargetAddress != 0) {
-				short targetTypeId = NdNode.NODE_TYPE.get(nd, oldTargetAddress);
+			short targetTypeId = NdNode.NODE_TYPE.get(nd, oldTargetAddress);
 
-				ITypeFactory<T> typeFactory = nd.getTypeFactory(targetTypeId);
+			ITypeFactory<T> typeFactory = nd.getTypeFactory(targetTypeId);
 
-				if (typeFactory.getDeletionSemantics() == StructDef.DeletionSemantics.REFCOUNTED 
-						&& typeFactory.isReadyForDeletion(nd, oldTargetAddress)) {
-					nd.scheduleDeletion(oldTargetAddress);
-				}
+			if (typeFactory.getDeletionSemantics() == StructDef.DeletionSemantics.REFCOUNTED 
+					&& typeFactory.isReadyForDeletion(nd, oldTargetAddress)) {
+				nd.scheduleDeletion(oldTargetAddress);
 			}
 		}
 		TARGET.put(nd, fieldStart, newTargetAddress);
