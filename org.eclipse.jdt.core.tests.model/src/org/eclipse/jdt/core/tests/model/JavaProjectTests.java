@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2634,6 +2634,66 @@ public void testBug462756() throws CoreException {
 	} finally {
 		 this.deleteProject("P");
 		 JavaCore.setOptions(javaCoreOptions);
+	}
+}
+/*
+ * Test that a generic type referenced in a 1.3/1.4 project doesn't result in ill-formed signature error
+ * due to generic information. (https://bugs.eclipse.org/bugs/show_bug.cgi?id=490724)
+ */
+public void testBug490724() throws CoreException {
+	IJavaProject project14 = null;
+	IJavaProject project15 = null;
+	try {
+		project15 = createJavaProject("Bug490724_15", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		createFolder("/Bug490724_15/src/p2");
+		createFile(
+				"/Bug490724_15/src/p2/Klass.java",
+				"package p2;\n" +
+				"public class Klass<T> {\n" +
+				"	class MethodInfo<K> {\n" +
+				"		public class InnerMethodInfo<V> {}\n" +
+				"	}\n" +
+				"	void addMethod(MethodInfo<String>.InnerMethodInfo<String> mi) { }"
+			);
+		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+
+		project14 = createJavaProject("BugBug490724_14", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_3);
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_3);
+
+		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
+		int oldLength = oldClasspath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
+		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
+		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Bug490724_15"));
+		project14.setRawClasspath(newClasspath, null);
+
+		createFolder("/BugBug490724_14/src/p1");
+		String source = 
+			"package p1;\n" +
+			"public final class J13 {\n" +
+			"	private p2.Klass c; \n" +
+			"}";
+
+		createFile(
+			"/BugBug490724_14/src/p1/J13.java",
+			source
+		);
+		waitForManualRefresh();
+		waitForAutoBuild();
+		project14.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
+		IMarker[] markers = project14.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		markers = project14.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers",
+				"The value of the field J13.c is not used",  markers);
+	} finally {
+		if (project14 != null)
+			deleteProject(project14);
+		if (project15 != null)
+			deleteProject(project15);
 	}
 }
 }
