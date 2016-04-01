@@ -59,8 +59,9 @@ char[] getEnclosingTypeName();
 
 IBinaryField[] getFields();
 /**
- * Answer the receiver's signature which describes the parameter &
- * return types as specified in section 4.4.4 of the Java 2 VM spec 3rd edition.
+ * Answer the receiver's ClassSignature, which describes the type parameters,
+ * super class, and super interfaces as specified in section "4.7.9.1 Signatures"
+ * of the Java SE 8 VM spec.
  * Returns null if none.
  *
  * @return the receiver's signature, null if none
