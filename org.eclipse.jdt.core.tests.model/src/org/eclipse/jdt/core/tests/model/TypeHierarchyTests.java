@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2855,6 +2855,68 @@ public void testBug469668() throws CoreException, IOException {
 	} finally {
 		if (project != null)
 			deleteProject(project);
+	}
+}
+public void testBug462158() throws CoreException, IOException {
+	IJavaProject prj = null;
+	try {
+		prj = createJavaProject("Bug462158", new String[] {"src"}, new String[] {"JCL18_FULL"}, "bin", "1.8", true);
+		createFolder("/Bug462158/src/p1");
+		String iSource = "package p1;\n" +
+				"import java.util.ArrayList;\n" +
+				"public class TestEclipseForEachBug {\n" +
+				"    static abstract class MyList extends ArrayList<Object> {\n" +
+				"        private static final long serialVersionUID = 784633858339367208L;\n" +
+				"    }\n" +
+				"    @Deprecated\n" +
+				"    public void foo1(){}\n" +
+				"    @Deprecated\n" +
+				"    public void foo2(){}\n" +
+				"    @Deprecated\n" +
+				"    public void foo3(){}\n" +
+				"    @Deprecated\n" +
+				"    public void foo4(){}\n" +
+				"    @Deprecated\n" +
+				"    public void foo5(){}\n" +
+				"    @Deprecated\n" +
+				"    public void foo6(){}\n" +
+				"    @Deprecated\n" +
+				"    public void foo7(){}\n" +
+				"    @Deprecated\n" +
+				"    public void foo8(){}\n" +
+				"    @Deprecated\n" +
+				"    public void foo9(){}\n" +
+				"    @Deprecated\n" +
+				"    public void foo10(){}\n" +
+				"    @Deprecated\n" +
+				"    public void foo11(){}\n" +
+				"    @Deprecated\n" +
+				"    public void foo12(){}\n" +
+				"    void foo(MyList list) {\n" +
+				"        forea\n" +
+				"    }\n" +
+				"}";
+		createFile("/Bug462158/src/p1/TestEclipseForEachBug.java", iSource);
+
+		int start = iSource.indexOf("MyList list");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Bug462158/src/p1/TestEclipseForEachBug.java", iSource);
+
+		IJavaElement[] elements = this.workingCopies[0].codeSelect(start, "MyList".length());
+		assertEquals("Incorrect elements", 1, elements.length);
+		IType focus = (IType) elements[0];
+		ITypeHierarchy hierarchy = focus.newTypeHierarchy(this.workingCopies, null);
+		IType[] allSupertypes = hierarchy.getAllSuperclasses(focus);
+		assertTypesEqual("Incorrect hierarchy",
+				"java.util.ArrayList\n" +
+				"java.util.AbstractList\n" +
+				"java.util.AbstractCollection\n" +
+				"java.lang.Object\n",
+				allSupertypes,
+				false);
+	} finally {
+		if (prj != null)
+			deleteProject(prj);
 	}
 }
 }
