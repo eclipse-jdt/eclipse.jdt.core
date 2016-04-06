@@ -72,7 +72,8 @@ public class ToolFactory {
 	 * @see #createCodeFormatter(Map, int)
 	 * @since 3.3
 	 */
-	public static final int M_FORMAT_NEW = 0;
+	// Supposed to be a non-compile time constant
+	public static final int M_FORMAT_NEW = Integer.valueOf(0).intValue();
 
 	/**
 	 * This mode is used for formatting existing code when all formatter options should be used.
@@ -85,7 +86,8 @@ public class ToolFactory {
 	 * @see #createCodeFormatter(Map, int)
 	 * @since 3.3
 	 */
-	public static final int M_FORMAT_EXISTING = 1;
+	// Supposed to be a non-compile time constant
+	public static final int M_FORMAT_EXISTING = Integer.valueOf(1).intValue();
 
 	/**
 	 * Create an instance of a code formatter. A code formatter implementation can be contributed via the
