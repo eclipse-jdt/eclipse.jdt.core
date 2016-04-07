@@ -318,7 +318,7 @@ public abstract class FunctionalExpression extends Expression {
 				this.selector = method.selector;
 				this.environment = FunctionalExpression.this.enclosingScope.environment();
 				this.scope = FunctionalExpression.this.enclosingScope;
-				collectBridges(functionalType.superInterfaces());
+				collectBridges(new ReferenceBinding[]{functionalType});
 			}
 			
 			void collectBridges(ReferenceBinding[] interfaces) {
@@ -332,7 +332,7 @@ public abstract class FunctionalExpression extends Expression {
 						MethodBinding inheritedMethod = methods[j];
 						if (inheritedMethod == null || this.method == inheritedMethod)  // descriptor declaring class may not be same functional interface target type.
 							continue;
-						if (inheritedMethod.isStatic() || inheritedMethod.isDefaultMethod() || inheritedMethod.redeclaresPublicObjectMethod(this.scope)) 
+						if (inheritedMethod.isStatic() || inheritedMethod.redeclaresPublicObjectMethod(this.scope)) 
 							continue;
 						inheritedMethod = MethodVerifier.computeSubstituteMethod(inheritedMethod, this.method, this.environment);
 						if (inheritedMethod == null || !MethodVerifier.isSubstituteParameterSubsignature(this.method, inheritedMethod, this.environment) ||
