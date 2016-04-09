@@ -223,6 +223,8 @@ public class TextEditsBuilder extends TokenTraverser {
 
 	private void bufferIndent(Token token, int index) {
 		int indent = token.getIndent();
+		if (getCurrent() != null && getCurrent() != token)
+			indent += getCurrent().getEmptyLineIndentAdjustment();
 		int spaces = 0;
 		if (this.options.use_tabs_only_for_leading_indentations
 				&& this.options.tab_char != DefaultCodeFormatterOptions.SPACE) {

@@ -327,8 +327,8 @@ public class LineBreaksPreparator extends ASTVisitor {
 			for (Statement statement : statements) {
 				boolean isBreaking = statement instanceof BreakStatement || statement instanceof ReturnStatement
 						|| statement instanceof ContinueStatement || statement instanceof Block;
-				if (isBreaking)
-					addEmptyLineTokenAfter(this.tm.lastIndexIn(statement, -1));
+				if (isBreaking && !(statement instanceof Block))
+					adjustEmptyLineAfter(this.tm.lastIndexIn(statement, -1), -1);
 				if (statement instanceof SwitchCase) {
 					if (nonBreakStatementEnd >= 0) {
 						// indent only comments between previous and current statement
@@ -397,7 +397,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 
 		boolean isEmpty = openBraceIndex + 1 == closeBraceIndex;
 		if (isEmpty) {
-			addEmptyLineTokenAfter(openBraceIndex);
+			adjustEmptyLineAfter(openBraceIndex, this.options.continuation_indentation_for_array_initializer);
 			closeBraceIndex = this.tm.lastIndexIn(node, TokenNameRBRACE);
 		}
 
@@ -569,7 +569,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 				&& !(body.getParent() instanceof IfStatement))
 			return;
 		breakLineBefore(body);
-		addEmptyLineTokenAfter(this.tm.lastIndexIn(body, -1));
+		adjustEmptyLineAfter(this.tm.lastIndexIn(body, -1), -1);
 		indent(body);
 	}
 
@@ -698,13 +698,12 @@ public class LineBreaksPreparator extends ASTVisitor {
 			}
 		}
 
-		addEmptyLineTokenAfter(openBraceIndex);
-
 		if (!isEmpty || newLineInEmpty) {
 			openBraceToken.breakAfter();
 			closeBraceToken.breakBefore();
 		}
 		if (indentBody) {
+			adjustEmptyLineAfter(openBraceIndex, 1);
 			this.tm.get(openBraceIndex + 1).indent();
 			closeBraceToken.unindent();
 		}
@@ -723,7 +722,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 		}
 	}
 
-	private void addEmptyLineTokenAfter(int tokenIndex) {
+	private void adjustEmptyLineAfter(int tokenIndex, int indentationAdjustment) {
 		if (tokenIndex + 1 >= this.tm.size())
 			return;
 		Token token = this.tm.get(tokenIndex);
@@ -731,22 +730,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 		if (this.tm.countLineBreaksBetween(token, next) < 2 || !this.options.indent_empty_lines)
 			return;
 
-		// find a line break and make a token out of it
-		for (int i = token.originalEnd + 1; i < next.originalStart; i++) {
-			char c = this.tm.charAt(i);
-			char c2 = this.tm.charAt(i + 1);
-			int lineBreakStart = (c == '\r' || c == '\n') ? i : -1;
-			int lineBreakEnd = ((c2 == '\r' || c2 == '\n') && c2 != c) ? i + 1 : lineBreakStart;
-			if (lineBreakStart >= 0) {
-				Token emptyLineToken = new Token(lineBreakStart, lineBreakEnd, Token.TokenNameEMPTY_LINE);
-				emptyLineToken.breakBefore();
-				emptyLineToken.breakAfter();
-				emptyLineToken.setToEscape(true); // force text builder to use toString()
-				this.tm.insert(tokenIndex + 1, emptyLineToken);
-				return;
-			}
-		}
-		assert false;
+		next.setEmptyLineIndentAdjustment(indentationAdjustment * this.options.indentation_size);
 	}
 
 	private void indent(ASTNode node) {

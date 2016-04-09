@@ -1044,8 +1044,6 @@ public class WrapPreparator extends ASTVisitor {
 		int toPreserve = this.options.number_of_empty_lines_to_preserve;
 		if (token1 != null && token2 != null)
 			toPreserve++; // n empty lines = n+1 line breaks, except for file start and end
-		if (token1 != null && token1.tokenType == Token.TokenNameEMPTY_LINE)
-			toPreserve--;
 		return Math.min(lineBreaks, toPreserve);
 	}
 

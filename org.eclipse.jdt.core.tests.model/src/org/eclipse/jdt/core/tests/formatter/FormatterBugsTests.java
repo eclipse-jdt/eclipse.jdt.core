@@ -12353,4 +12353,82 @@ public void testBug487375() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/489797 - [formatter] 'Indent empty lines' sometimes doesn't work with 'format edited lines' save action
+ */
+public void testBug489797a() {
+	this.formatterPrefs.indent_empty_lines = true;
+	String source =
+		"public class Example {\r\n" + 
+		"	public void foo() {\r\n" + 
+		"		if (true)\r\n" + 
+		"			return;\r\n" + 
+		"[##]\r\n" + 
+		"		return;\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source,
+		"public class Example {\r\n" + 
+		"	public void foo() {\r\n" + 
+		"		if (true)\r\n" + 
+		"			return;\r\n" + 
+		"		\r\n" + 
+		"		return;\r\n" + 
+		"	}\r\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/489797 - [formatter] 'Indent empty lines' sometimes doesn't work with 'format edited lines' save action
+ */
+public void testBug489797b() {
+	this.formatterPrefs.indent_empty_lines = true;
+	String source =
+		"public class Example {\r\n" + 
+		"	public void foo() {\r\n" + 
+		"		if (true)\r\n" + 
+		"			return;\r\n" + 
+		"[#		#]\r\n" + 
+		"		return;\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source,
+		"public class Example {\r\n" + 
+		"	public void foo() {\r\n" + 
+		"		if (true)\r\n" + 
+		"			return;\r\n" + 
+		"		\r\n" + 
+		"		return;\r\n" + 
+		"	}\r\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/489797 - [formatter] 'Indent empty lines' sometimes doesn't work with 'format edited lines' save action
+ */
+public void testBug489797c() {
+	this.formatterPrefs.indent_empty_lines = true;
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 5;
+	String source =
+		"public class Example {\r\n" + 
+		"	public void foo() {\r\n" + 
+		"		if (true)\r\n" + 
+		"			return;\r\n" + 
+		"[#\r\n" + 
+		"#]\r\n" + 
+		"		return;\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source,
+		"public class Example {\r\n" + 
+		"	public void foo() {\r\n" + 
+		"		if (true)\r\n" + 
+		"			return;\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		return;\r\n" + 
+		"	}\r\n" + 
+		"}"
+	);
+}
 }
