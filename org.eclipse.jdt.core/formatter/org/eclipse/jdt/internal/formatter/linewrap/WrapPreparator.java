@@ -874,7 +874,7 @@ public class WrapPreparator extends ASTVisitor {
 		}
 
 		boolean forceWrap = (wrappingOption & Alignment.M_FORCE) != 0;
-		if (forceWrap) {
+		if (forceWrap && policy.wrapMode != WrapMode.DISABLED) {
 			boolean satisfied = false;
 			for (int index : this.wrapIndexes) {
 				Token token = this.tm.get(index);

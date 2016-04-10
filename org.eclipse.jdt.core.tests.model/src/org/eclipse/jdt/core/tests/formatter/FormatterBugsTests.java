@@ -12431,4 +12431,16 @@ public void testBug489797c() {
 		"}"
 	);
 }
+/**
+ * https://bugs.eclipse.org/488898 - [formatter] Disabled options still have effect
+ */
+public void testBug488898() {
+	this.formatterPrefs.alignment_for_parameters_in_method_declaration = Alignment.M_NO_ALIGNMENT + Alignment.M_FORCE;
+	String source =
+		"class Example {\r\n" + 
+		"	void foo(int bar) {\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
