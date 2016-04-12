@@ -4736,6 +4736,31 @@ public void test473343_0001() throws CoreException, IOException {
 		deleteProject("P");
 	}
 }
+public void testBug485805_001() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	String buffer =	"@FunctionalInterface\n" +
+			"interface I {}\n" +
+			"interface J {\n" +
+			"	int foo(int a, int b);\n" +
+			"}\n" +
+			"public class X implements I{\n" +
+			"	public J bar() {\n" +
+			"	    return (I &  J) (e1, e2) -> {return 0;};\n" +
+			"	}\n" +
+			"}\n";
+
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java", buffer);
+	IType type = this.workingCopies[0].getType("I");
+	try {
+		search(type, IMPLEMENTORS);
+		assertSearchResults(
+			"src/X.java X [I] EXACT_MATCH\n" + 
+			"src/X.java int J X.bar():<lambda #1>.foo(int, int) [(e1, e2) ->] EXACT_MATCH"
+				);
+	} catch (UnsupportedOperationException e) {
+		assertFalse("Failed", true);
+	}
+}
 
 // Add new tests in JavaSearchBugs8Tests
 }
