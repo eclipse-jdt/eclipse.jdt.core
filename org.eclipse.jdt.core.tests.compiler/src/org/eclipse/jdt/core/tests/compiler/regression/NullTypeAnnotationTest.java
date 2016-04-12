@@ -10478,10 +10478,15 @@ public void testBug485058() {
 		"----------\n" + 
 		"1. ERROR in test\\Test4.java (at line 25)\n" + 
 		"	public static void g(Feature4<@Nullable ? extends @NonNull Serializable> feature) {\n" + 
+		"	                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable ? extends @NonNull Serializable\' is not a valid substitute for the type parameter \'Q extends @NonNull Serializable\'\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\Test4.java (at line 25)\n" + 
+		"	public static void g(Feature4<@Nullable ? extends @NonNull Serializable> feature) {\n" + 
 		"	                                                  ^^^^^^^^\n" + 
 		"This nullness annotation conflicts with a \'@Nullable\' annotation which is effective on the same type parameter \n" + 
 		"----------\n" + 
-		"2. ERROR in test\\Test4.java (at line 26)\n" + 
+		"3. ERROR in test\\Test4.java (at line 26)\n" + 
 		"	getValues(feature);\n" + 
 		"	^^^^^^^^^^^^^^^^^^\n" + 
 		"Null constraint mismatch: The type \'@NonNull Feature4<@Nullable capture#of ? extends @NonNull Serializable>\' is not a valid substitute for the type parameter \'F extends @NonNull Feature4<Q1 extends @NonNull Serializable>\'\n" + 
@@ -11456,5 +11461,54 @@ public void testBug461268nnbd() {
 		getCompilerOptions(),
 		""
 	);
+}
+public void testBug466585_comment_0() {
+	runConformTestWithLibs(
+		new String[] {
+			"C3.java",
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"class C3<T extends @NonNull Number> {\n" + 
+			"    C3<?> x; // Null constraint mismatch: The type '?' is not a valid substitute for the type parameter 'T extends @NonNull Number'\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug466585_comment_4() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"C3.java",
+			"import org.eclipse.jdt.annotation.*;\n" + 
+			"\n" + 
+			"class C4<T extends @NonNull Number> {\n" + 
+			"  C4<@Nullable ?> err1;\n" + 
+			"  C4<@Nullable ? extends Integer> err2;\n" + 
+			"  C4<? super @Nullable Integer> err3;\n" + 
+			"  C4<@Nullable ? super Integer> err4;\n" +
+			"  C4<@NonNull ? super Integer> ok1;\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in C3.java (at line 4)\n" + 
+		"	C4<@Nullable ?> err1;\n" + 
+		"	   ^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable ?\' is not a valid substitute for the type parameter \'T extends @NonNull Number\'\n" + 
+		"----------\n" + 
+		"2. ERROR in C3.java (at line 5)\n" + 
+		"	C4<@Nullable ? extends Integer> err2;\n" + 
+		"	   ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable ? extends Integer\' is not a valid substitute for the type parameter \'T extends @NonNull Number\'\n" + 
+		"----------\n" + 
+		"3. ERROR in C3.java (at line 6)\n" + 
+		"	C4<? super @Nullable Integer> err3;\n" + 
+		"	   ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'? super @Nullable Integer\' is not a valid substitute for the type parameter \'T extends @NonNull Number\'\n" + 
+		"----------\n" + 
+		"4. ERROR in C3.java (at line 7)\n" + 
+		"	C4<@Nullable ? super Integer> err4;\n" + 
+		"	   ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null constraint mismatch: The type \'@Nullable ? super Integer\' is not a valid substitute for the type parameter \'T extends @NonNull Number\'\n" + 
+		"----------\n");
 }
 }
