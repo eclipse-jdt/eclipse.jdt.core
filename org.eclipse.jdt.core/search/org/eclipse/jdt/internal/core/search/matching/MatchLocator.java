@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2392,23 +2392,25 @@ protected void reportMatching(AbstractMethodDeclaration method, TypeDeclaration 
 		if (enclosingElement == null) {
 			enclosingElement = createHandle(method, parent);
 		}
-		// Traverse method declaration to report matches both in local types declaration
-		// and in local variables declaration
-		ASTNode[] nodes = typeInHierarchy ? nodeSet.matchingNodes(method.declarationSourceStart, method.declarationSourceEnd) : null;
-		boolean report = (this.matchContainer & PatternLocator.METHOD_CONTAINER) != 0 && encloses(enclosingElement);
-		MemberDeclarationVisitor declarationVisitor = new MemberDeclarationVisitor(enclosingElement, report ? nodes : null, nodeSet, this, typeInHierarchy);
-		try {
-			method.traverse(declarationVisitor, (ClassScope) null);
-		} catch (WrappedCoreException e) {
-			throw e.coreException;
-		}
-		// Report all nodes and remove them
-		if (nodes != null) {
-			int length = nodes.length;
-			for (int i = 0; i < length; i++) {
-				Integer level = (Integer) nodeSet.matchingNodes.removeKey(nodes[i]);
-				if (report && level != null) {
-	    	        this.patternLocator.matchReportReference(nodes[i], enclosingElement, declarationVisitor.getLocalElement(i), declarationVisitor.getOtherElements(i), method.binding, level.intValue(), this);
+		if (enclosingElement != null) {
+			// Traverse method declaration to report matches both in local types declaration
+			// and in local variables declaration
+			ASTNode[] nodes = typeInHierarchy ? nodeSet.matchingNodes(method.declarationSourceStart, method.declarationSourceEnd) : null;
+			boolean report = (this.matchContainer & PatternLocator.METHOD_CONTAINER) != 0 && encloses(enclosingElement);
+			MemberDeclarationVisitor declarationVisitor = new MemberDeclarationVisitor(enclosingElement, report ? nodes : null, nodeSet, this, typeInHierarchy);
+			try {
+				method.traverse(declarationVisitor, (ClassScope) null);
+			} catch (WrappedCoreException e) {
+				throw e.coreException;
+			}
+			// Report all nodes and remove them
+			if (nodes != null) {
+				int length = nodes.length;
+				for (int i = 0; i < length; i++) {
+					Integer level = (Integer) nodeSet.matchingNodes.removeKey(nodes[i]);
+					if (report && level != null) {
+						this.patternLocator.matchReportReference(nodes[i], enclosingElement, declarationVisitor.getLocalElement(i), declarationVisitor.getOtherElements(i), method.binding, level.intValue(), this);
+					}
 				}
 			}
 		}
