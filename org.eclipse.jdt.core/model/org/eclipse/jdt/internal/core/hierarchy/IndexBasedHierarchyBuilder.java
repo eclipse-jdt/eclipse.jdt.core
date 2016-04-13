@@ -63,6 +63,7 @@ import org.eclipse.jdt.internal.core.nd.java.NdTypeSignature;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
 import org.eclipse.jdt.internal.core.search.SubTypeSearchJob;
+import org.eclipse.jdt.internal.core.search.UnindexedSearchScope;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
@@ -476,8 +477,11 @@ public static void searchAllPossibleSubTypes(
 	final IProgressMonitor progressMonitor) {
 
 	if (JavaIndex.isEnabled()) {
+		SubMonitor subMonitor = SubMonitor.convert(progressMonitor, 2);
 		newSearchAllPossibleSubTypes(type, scope, binariesFromIndexMatches, pathRequestor, waitingPolicy,
-				progressMonitor);
+				subMonitor.split(1));
+		legacySearchAllPossibleSubTypes(type, UnindexedSearchScope.filterEntriesCoveredByTheNewIndex(scope),
+				binariesFromIndexMatches, pathRequestor, waitingPolicy, subMonitor.split(1));
 	} else {
 		legacySearchAllPossibleSubTypes(type, scope, binariesFromIndexMatches, pathRequestor, waitingPolicy,
 				progressMonitor);
@@ -509,7 +513,15 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 		while (!typesToVisit.isEmpty()) {
 			NdType nextType = typesToVisit.removeFirst();
 			NdTypeId typeId = nextType.getTypeId();
-
+			
+			// TODO(sxenos): Temporarily filter out any types that are contained in the workspace since the old index
+			// will return those types. Remove this once the new index is servicing source types as well as external
+			// ones.
+			if (!nextType.getResourceFile().getAnyOpenWorkspaceLocation(root).isEmpty()) {
+				continue;
+			}
+			// End of temporary code
+			
 			String typePath = new String(JavaNames.getIndexPathFor(nextType, root));
 			if (!scope2.encloses(typePath)) {
 				continue;
