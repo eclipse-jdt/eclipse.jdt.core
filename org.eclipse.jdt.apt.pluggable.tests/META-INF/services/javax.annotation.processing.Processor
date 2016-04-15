@@ -6,3 +6,4 @@ org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.TestFinalRoundProc
 org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.BugsProc
 org.eclipse.jdt.apt.pluggable.tests.processors.modeltester.ModelTesterProc
 org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug387956Processor
+org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug468893Processor
