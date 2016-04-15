@@ -64,8 +64,9 @@ public class IdeJavaSourceOutputStream extends ByteArrayOutputStream {
 				//TODO - implement reconcile
 			}
 			else if ( phase == Phase.BUILD)	{
+				String charset = _env.getJavaProject().getProject().getDefaultCharset();
 				result = gfm.generateFileDuringBuild( 
-						_parentFiles,  _name.toString(), this.toString(), 
+						_parentFiles,  _name.toString(), charset == null ? this.toString() : this.toString(charset), 
 						_env.currentProcessorSupportsRTTG(), null /* progress monitor */ );
 			}
 			if (result != null) {
