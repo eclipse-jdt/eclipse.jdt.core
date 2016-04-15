@@ -4761,6 +4761,114 @@ public void testBug485805_001() throws CoreException {
 		assertFalse("Failed", true);
 	}
 }
+public void testBug484367_0001() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"interface  Bar {\n" +
+		"	public void print();\n" +
+		"}\n" +
+		"\n" +
+		"@FunctionalInterface\n" +
+		"interface Foo {\n" +
+		"	void process(Bar bar);\n" +
+		"}\n" +
+		"class BarImpl implements Bar{\n" +
+		"	@Override\n" +
+		"//call hierarchy on print does not finds invocation in the below TestMethod class  \n" +
+		"	public void print() {}\n" +
+		"}\n" +
+		"\n" +
+		"public class X {\n" +
+		"	public void test(){\n" +
+		"		Foo foo1 = (bar)->bar.print();\n" +
+		"		Foo foo2 = Bar::print;\n" +
+		"	}\n" +
+		"}\n"	
+		);
+	IType type = this.workingCopies[0].getType("BarImpl");
+	IMethod method = type.getMethod("print", null);
+	search(method, REFERENCES, EXACT_RULE);
+	assertSearchResults(
+		"src/X.java void void X.test():<lambda #1>.process(Bar) [print()] EXACT_MATCH\n" + 
+		"src/X.java void X.test() [print] EXACT_MATCH"
+	);	
+}
+public void testBug484367_0002() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"interface  Bar2 {\n" +
+		"	public void print();\n" +
+		"}\n" +
+		"interface Bar1 extends Bar2 {\n" +
+		"	public void print();\n" +
+		"}\n" +
+		"class Bar implements Bar1 {\n" +
+		"\n" +
+		"	@Override\n" +
+		"	public void print() {}\n" +
+		"}\n" +
+		"\n" +
+		"@FunctionalInterface\n" +
+		"interface Foo {\n" +
+		"	void process(Bar bar);\n" +
+		"}\n" +
+		"class BarImpl extends Bar{\n" +
+		"	public void print() {}\n" +
+		"}\n" +
+		"\n" +
+		"public class X {\n" +
+		"	@SuppressWarnings(\"unused\")\n" +
+		"	public void test(){\n" +
+		"		Foo foo1 = (bar)->bar.print();\n" +
+		"		Foo foo2 = Bar::print;\n" +
+		"	}\n" +
+		"}\n"
+		);
+	IType type = this.workingCopies[0].getType("Bar1");
+	IMethod method = type.getMethod("print", null);
+	search(method, REFERENCES, EXACT_RULE);
+	assertSearchResults(
+		"src/X.java void void X.test():<lambda #1>.process(Bar) [print()] EXACT_MATCH\n" + 
+		"src/X.java void X.test() [print] EXACT_MATCH"
+	);	
+}
+
+public void testBug484367_0003() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+		"interface  Bar1 {\n" +
+		"	public void print();\n" +
+		"}\n" +
+		"class Bar implements Bar1 {\n" +
+		"\n" +
+		"	@Override\n" +
+		"	public void print() {}\n" +
+		"}\n" +
+		"\n" +
+		"@FunctionalInterface\n" +
+		"interface Foo {\n" +
+		"	void process(Bar bar);\n" +
+		"}\n" +
+		"class BarImpl extends Bar{\n" +
+		"	public void print() {}\n" +
+		"}\n" +
+		"\n" +
+		"public class X {\n" +
+		"	@SuppressWarnings(\"unused\")\n" +
+		"	public void test(){\n" +
+		"		Foo foo1 = (bar)->bar.print();\n" +
+		"		Foo foo2 = Bar::print;\n" +
+		"	}\n" +
+		"}\n"
+		);
+	IType type = this.workingCopies[0].getType("Bar");
+	IMethod method = type.getMethod("print", null);
+	search(method, REFERENCES, EXACT_RULE);
+	assertSearchResults(
+		"src/X.java void void X.test():<lambda #1>.process(Bar) [print()] EXACT_MATCH\n" + 
+		"src/X.java void X.test() [print] EXACT_MATCH"
+	);	
+}
 
 // Add new tests in JavaSearchBugs8Tests
 }
