@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -561,9 +561,9 @@ public class JavaDocTestCase extends MultiLineTestCase {
      */
     public void testMultilineInlineTag2() {
     	setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_LINE_LENGTH, "20"); //$NON-NLS-1$
-    	final String prefix= PREFIX + DELIMITER + INFIX + "{@link Objecterr}";
-    	final String postfix= "s are cool." + DELIMITER + POSTFIX;
-    	String input= prefix + postfix;  //$NON-NLS-1$
+    	final String prefix= PREFIX + DELIMITER + INFIX + "{@link Objecterr}s";
+    	final String postfix= "are cool." + DELIMITER + POSTFIX;
+    	String input= prefix + " " + postfix;  //$NON-NLS-1$
     	String expected= prefix + DELIMITER + INFIX + postfix;
     	String result= testFormat(input);
     	assertEquals(expected, result);

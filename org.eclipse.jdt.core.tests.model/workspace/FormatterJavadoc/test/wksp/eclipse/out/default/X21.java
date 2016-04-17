@@ -14,11 +14,9 @@ public class X21 {
 	 * <code>createSearchPattern("Object", TYPE, REFERENCES, false);</code></li>
 	 * <li>search for case sensitive references to exact <code>Object()</code>
 	 * constructor:
-	 * <code>createSearchPattern("java.lang.Object()", CONSTRUCTOR, REFERENCES, true);</code>
-	 * </li>
+	 * <code>createSearchPattern("java.lang.Object()", CONSTRUCTOR, REFERENCES, true);</code></li>
 	 * <li>search for implementers of <code>java.lang.Runnable</code>:
-	 * <code>createSearchPattern("java.lang.Runnable", TYPE, IMPLEMENTORS, true);</code>
-	 * </li>
+	 * <code>createSearchPattern("java.lang.Runnable", TYPE, IMPLEMENTORS, true);</code></li>
 	 * </ul>
 	 * 
 	 * @param stringPattern
@@ -32,10 +30,10 @@ public class X21 {
 	 *            interfaces</li>
 	 *            <li><code>IJavaSearchConstants.TYPE</code>: look for both
 	 *            classes and interfaces</li>
-	 *            <li><code>IJavaSearchConstants.FIELD</code>: look for fields
-	 *            </li>
-	 *            <li><code>IJavaSearchConstants.METHOD</code>: look for methods
-	 *            </li>
+	 *            <li><code>IJavaSearchConstants.FIELD</code>: look for
+	 *            fields</li>
+	 *            <li><code>IJavaSearchConstants.METHOD</code>: look for
+	 *            methods</li>
 	 *            <li><code>IJavaSearchConstants.CONSTRUCTOR</code>: look for
 	 *            constructors</li>
 	 *            <li><code>IJavaSearchConstants.PACKAGE</code>: look for

@@ -90,8 +90,8 @@ public class X23 {
 	 * @exception JavaModelException
 	 * if the compilation unit could not be sorted. Reasons include:
 	 * <ul>
-	 * <li>The given compilation unit does not exist (ELEMENT_DOES_NOT_EXIST)
-	 * </li>
+	 * <li>The given compilation unit does not exist
+	 * (ELEMENT_DOES_NOT_EXIST)</li>
 	 * <li>The given compilation unit is not a working copy
 	 * (INVALID_ELEMENT_TYPES)</li>
 	 * <li>A <code>CoreException</code> occurred while accessing the underlying

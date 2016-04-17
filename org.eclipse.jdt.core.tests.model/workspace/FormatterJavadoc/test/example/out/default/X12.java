@@ -8,10 +8,10 @@ package test.prefs.example;
  * <p>
  * A breakpoint is defined in two parts:
  * <ol>
- * <li>By an extension of kind <code>"org.eclipse.debug.core.breakpoints"</code>
- * </li>
- * <li>By a marker definition that corresponds to the above breakpoint extension
- * </li>
+ * <li>By an extension of kind
+ * <code>"org.eclipse.debug.core.breakpoints"</code></li>
+ * <li>By a marker definition that corresponds to the above breakpoint
+ * extension</li>
  * </ol>
  * <p>
  * For example, following is a definition of corresponding breakpoint and
