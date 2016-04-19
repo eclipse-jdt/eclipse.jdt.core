@@ -6114,4 +6114,38 @@ public void testBug491934() {
 			"}\n"
 		});
 }
+public void testBug491485() {
+	runNegativeTest(
+		new String[] {
+			"Tester.java",
+			"interface SAM<X, Y, Z extends X3> {\n" + 
+			"	Z bar(X a, Y b);\n" + 
+			"}\n" + 
+			"interface I<T> {\n" + 
+			"	\n" + 
+			"}\n" + 
+			"class X3 {\n" + 
+			"	\n" + 
+			"}\n" + 
+			"public class Tester {\n" + 
+			"\n" + 
+			"	X3 method(SAM<?, ?, ?> s) {\n" + 
+			"		return s.bar(null, null);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	Object foo(Object a, Object b) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	X3 junk() {\n" + 
+			"		return method((SAM<?,?,?> & I <?>) this::foo);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Tester.java (at line 20)\n" + 
+		"	return method((SAM<?,?,?> & I <?>) this::foo);\n" + 
+		"	                                   ^^^^^^^^^\n" + 
+		"The type of foo(Object, Object) from the type Tester is Object, this is incompatible with the descriptor\'s return type: X3\n" + 
+		"----------\n");
+}
 }
