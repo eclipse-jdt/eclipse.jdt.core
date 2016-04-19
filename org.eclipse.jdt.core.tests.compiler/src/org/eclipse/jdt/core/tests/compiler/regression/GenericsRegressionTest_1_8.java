@@ -6088,4 +6088,30 @@ public void testBug489976() {
 			"}\n"
 		});
 }
+public void testBug491934() {
+	runConformTest(
+		new String[] {
+			"Main.java",
+			"import java.util.Arrays;\n" + 
+			"import java.util.HashSet;\n" + 
+			"import java.util.Set;\n" + 
+			"\n" + 
+			"public class Main {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		// gives compile error in Neon\n" + 
+			"		// was warning \"unchecked\" in Mars\n" + 
+			"		Set<String> genericSet = new HashSet<>(oldApiReturningUntypedSet());\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	@SuppressWarnings({ \"rawtypes\", \"unchecked\" })\n" + 
+			"	private static Set oldApiReturningUntypedSet() {\n" + 
+			"		HashSet set = new HashSet();\n" + 
+			"		set.add(\"one\");\n" + 
+			"		return set;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n"
+		});
+}
 }

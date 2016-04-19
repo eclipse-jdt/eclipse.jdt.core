@@ -542,6 +542,9 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		this.modifiers = originalMethod.modifiers;
 		this.selector = originalMethod.selector;
 		this.declaringClass = originalMethod.declaringClass;
+		if (inferredWithUncheckConversion && originalMethod.isConstructor() && this.declaringClass.isParameterizedType()) {
+			this.declaringClass = (ReferenceBinding) environment.convertToRawType(this.declaringClass.erasure(), false); // for diamond invocations
+		}
 	    this.typeVariables = Binding.NO_TYPE_VARIABLES;
 	    this.typeArguments = typeArguments;
 	    this.isRaw = false;
