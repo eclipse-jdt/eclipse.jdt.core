@@ -16,5 +16,19 @@
                 <message_argument value="CannotInferInvocationType"/>
             </message_arguments>
         </filter>
+        <filter comment="backported to 3.12.1 from 3.13 - not publically announced in 3.12" id="1209008130">
+            <message_arguments>
+                <message_argument value="3.13"/>
+                <message_argument value="3.12"/>
+                <message_argument value="InterfaceStaticMethodInvocationNotBelow18"/>
+            </message_arguments>
+        </filter>
+        <filter comment="backported to 3.12.1 from 3.13 - not publically announced in 3.12" id="1209008130">
+            <message_arguments>
+                <message_argument value="3.13"/>
+                <message_argument value="3.12"/>
+                <message_argument value="InterfaceSuperInvocationNotBelow18"/>
+            </message_arguments>
+        </filter>
     </resource>
 </component>

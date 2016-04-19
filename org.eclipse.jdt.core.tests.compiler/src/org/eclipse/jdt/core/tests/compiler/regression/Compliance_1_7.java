@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2014 IBM Corporation and others.
+ * Copyright (c) 2011, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -176,6 +176,53 @@ public void testBug390889_c() {
 			null,
 			options,
 			null/* do not perform statements recovery */);
+}
+// Project with 1.7 compliance compiled against JRE 8
+// assert that 1.8 constructs are not allowed at compliance 1.7
+public void testBug490988() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
+	this.runNegativeTest(
+			new String[] {
+				"Thing.java",
+				"import java.util.Comparator;\n" + 
+				"import java.util.Iterator;\n" + 
+				"public class Thing implements Iterator<Object> {\n" + 
+				"    void breaking() {\n" + 
+				"        Iterator.super.remove(); // not 1.7-compliant (must be an error)\n" + 
+				"        Comparator.naturalOrder(); // not 1.7-compliant (bad error message)\n" + 
+				"    }\n" + 
+				"    @Override\n" + 
+				"    public boolean hasNext() {\n" + 
+				"        return false;\n" + 
+				"    }\n" + 
+				"    @Override\n" + 
+				"    public Object next() {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        new Thing().breaking();\n" + 
+				"    }\n" + 
+				"}"
+			},
+			"----------\n" +
+			"1. ERROR in Thing.java (at line 5)\n" +
+			"	Iterator.super.remove(); // not 1.7-compliant (must be an error)\n" +
+			"	^^^^^^^^^^^^^^\n" + 
+			"Super method references to interface default methods are allowed only at source level 1.8 or above\n" +
+			"----------\n" +
+			"2. ERROR in Thing.java (at line 6)\n" +
+			"	Comparator.naturalOrder(); // not 1.7-compliant (bad error message)\n" +
+			"	           ^^^^^^^^^^^^\n" + 
+			"References to interface static methods are allowed only at source level 1.8 or above\n" +
+			"----------\n",
+			null,
+			false,
+			options);
 }
 public static Class testClass() {
 	return Compliance_1_7.class;

@@ -134,6 +134,7 @@ import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Receiver;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
@@ -3010,6 +3011,14 @@ public void defaultMethodsNotBelow18(MethodDeclaration md) {
 			md.sourceStart,
 			md.sourceEnd);
 }
+public void interfaceSuperInvocationNotBelow18(QualifiedSuperReference qualifiedSuperReference) {
+	this.handle(
+			IProblem.InterfaceSuperInvocationNotBelow18,
+			NoArgument,
+			NoArgument,
+			qualifiedSuperReference.sourceStart,
+			qualifiedSuperReference.sourceEnd);
+}
 public void staticInterfaceMethodsNotBelow18(MethodDeclaration md) {
 	this.handle(
 			IProblem.StaticInterfaceMethodNotBelow18,
@@ -4143,6 +4152,20 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method, Scope s
 		case ProblemReasons.NonStaticOrAlienTypeReceiver:
 			this.handle(
 					IProblem.NonStaticOrAlienTypeReceiver,
+					new String[] {
+							new String(method.declaringClass.readableName()),
+					        new String(method.selector),
+					},
+					new String[] {
+							new String(method.declaringClass.shortReadableName()),
+					        new String(method.selector),
+					},
+					(int) (messageSend.nameSourcePosition >>> 32),
+					(int) messageSend.nameSourcePosition);
+			return;
+		case ProblemReasons.InterfaceMethodInvocationNotBelow18:
+			this.handle(
+					IProblem.InterfaceStaticMethodInvocationNotBelow18,
 					new String[] {
 							new String(method.declaringClass.readableName()),
 					        new String(method.selector),
@@ -10322,6 +10345,10 @@ public void incompatibleReturnType(ReferenceExpression expression, MethodBinding
 }
 
 public void illegalSuperAccess(TypeBinding superType, TypeBinding directSuperType, ASTNode location) {
+	if (directSuperType.problemId() == ProblemReasons.InterfaceMethodInvocationNotBelow18) {
+		interfaceSuperInvocationNotBelow18((QualifiedSuperReference) location);
+		return;
+	}
 	if (directSuperType.problemId() != ProblemReasons.AttemptToBypassDirectSuper)
 		needImplementation(location);
 	handle(IProblem.SuperAccessCannotBypassDirectSuper, 

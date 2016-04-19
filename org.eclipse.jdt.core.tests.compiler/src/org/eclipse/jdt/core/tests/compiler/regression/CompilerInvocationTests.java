@@ -645,6 +645,8 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("InterfaceNotFound", DEPRECATED);
 		expectedProblemAttributes.put("InterfaceNotFunctionalInterface", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InterfaceNotVisible", DEPRECATED);
+		expectedProblemAttributes.put("InterfaceStaticMethodInvocationNotBelow18", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("InterfaceSuperInvocationNotBelow18", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InternalTypeNameProvided", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IntersectionCastNotBelow18", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidAnnotationMemberType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1478,6 +1480,8 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("InterfaceNotFound", SKIP);
 		expectedProblemAttributes.put("InterfaceNotFunctionalInterface", SKIP);
 		expectedProblemAttributes.put("InterfaceNotVisible", SKIP);
+		expectedProblemAttributes.put("InterfaceStaticMethodInvocationNotBelow18", SKIP);
+		expectedProblemAttributes.put("InterfaceSuperInvocationNotBelow18", SKIP);
 		expectedProblemAttributes.put("InternalTypeNameProvided", SKIP);
 		expectedProblemAttributes.put("IntersectionCastNotBelow18", SKIP);
 		expectedProblemAttributes.put("InvalidAnnotationMemberType", SKIP);
