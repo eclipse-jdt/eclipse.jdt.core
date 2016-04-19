@@ -1470,6 +1470,10 @@ void setSourceStart(int sourceStart);
 	int ConstructionTypeMismatch = Internal + TypeRelated + 665;
     /** @since 3.10 */
     int ToleratedMisplacedTypeAnnotations = Syntax + Internal + 666;
+    /** @since 3.13*/
+    int InterfaceSuperInvocationNotBelow18 = Internal + Syntax + 667;
+    /** @since 3.13*/
+    int InterfaceStaticMethodInvocationNotBelow18 = Internal + Syntax + 668;
 
 
 	/**
