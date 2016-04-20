@@ -16,8 +16,10 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -37,6 +39,13 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 
 	public static Test suite() {
 		return buildMinimalComplianceTestSuite(testClass(), F_1_8);
+	}
+
+	public static Test setUpTest(Test test) throws Exception {
+		TestCase.setUpTest(test);
+		RegressionTestSetup suite = new RegressionTestSetup(ClassFileConstants.JDK1_8);
+		suite.addTest(test);
+		return suite;
 	}
 
 	public static Class testClass() {
@@ -1109,7 +1118,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 	
 	// basic situation similar to AmbiguousMethodTest.test009()
-	public void testSuperCall1() {
+	public void testSuperCall1() throws Exception {
 		this.runConformTest(
 			new String[] {
 				"OrderedSet.java",
@@ -1124,6 +1133,15 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			},
 			""
 		);
+		String expectedOutput =
+				"  // Method descriptor #14 ()Ljava/util/Spliterator;\n" + 
+				"  // Signature: ()Ljava/util/Spliterator<TE;>;\n" + 
+				"  // Stack: 1, Locals: 1\n" + 
+				"  public java.util.Spliterator spliterator();\n" + 
+				"    0  aload_0 [this]\n" + 
+				"    1  invokespecial java.util.List.spliterator() : java.util.Spliterator [17]\n" + 
+				"    4  areturn\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "OrderedSet.class", "OrderedSet", expectedOutput);
 	}
 
 	// some illegal cases
@@ -1441,7 +1459,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
 	// Test invocation of static methods with different contexts - positive tests
-	public void testStaticMethod03() {
+	public void testStaticMethod03() throws Exception {
 		runConformTest(
 			new String[] {
 				"C.java",
@@ -1470,6 +1488,29 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"J#foo() invoked\n" +
 			"J#foo() invoked\n" + 
 			"I#foo() invoked");
+		String expectedOutput =
+				"  // Method descriptor #17 ([Ljava/lang/String;)V\n" + 
+				"  // Stack: 2, Locals: 2\n" + 
+				"  public static void main(java.lang.String[] args);\n" + 
+				"     0  new C [1]\n" + 
+				"     3  dup\n" + 
+				"     4  invokespecial C() [18]\n" + 
+				"     7  astore_1 [c]\n" + 
+				"     8  aload_1 [c]\n" + 
+				"     9  invokevirtual C.bar() : void [19]\n" + 
+				"    12  invokestatic J.foo() : void [22]\n" + 
+				"    15  invokestatic I.foo() : void [25]\n" + 
+				"    18  return\n" + 
+				"      Line numbers:\n" + 
+				"        [pc: 0, line: 16]\n" + 
+				"        [pc: 8, line: 17]\n" + 
+				"        [pc: 12, line: 18]\n" + 
+				"        [pc: 15, line: 19]\n" + 
+				"        [pc: 18, line: 20]\n" + 
+				"      Local variable table:\n" + 
+				"        [pc: 0, pc: 19] local: args index: 0 type: java.lang.String[]\n" + 
+				"        [pc: 8, pc: 19] local: c index: 1 type: C\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "C.class", "C", expectedOutput);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
 	// Test invocation of static methods with different contexts - negative tests

@@ -85,6 +85,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
 import org.eclipse.jdt.internal.core.search.indexing.BinaryIndexer;
+import org.eclipse.jdt.internal.core.util.Messages;
 import org.osgi.framework.Bundle;
 
 import java.util.regex.Pattern;
@@ -860,6 +861,13 @@ protected static class JavacTestOptions {
 		if (index == -1) {
 			assertEquals("Wrong contents", expectedOutput, result);
 		}
+		index = result.indexOf(Messages.classformat_classformatexception);
+		if (index != -1) {
+			int start = Math.max(0, index - 300);
+			int end = index + Messages.classformat_classformatexception.length();
+			fail("ClassFormatException swallowed in Disassembler:\n..." + result.substring(start, end));
+		}
+		
 		FileInputStream stream = null;
 		try {
 			stream = new FileInputStream(classFile);
