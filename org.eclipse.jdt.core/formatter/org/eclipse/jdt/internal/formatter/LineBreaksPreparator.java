@@ -751,7 +751,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 			case DefaultCodeFormatterConstants.SEPARATE_LINES_IF_WRAPPED:
 				this.tm.get(openingParenIndex).setSeparateLinesOnWrapUntil(this.tm.get(closingParenIndex));
 				break;
-			case DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPY:
+			case DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPTY:
 				boolean isEmpty = openingParenIndex + 1 == closingParenIndex;
 				if (isEmpty)
 					break;

@@ -13588,7 +13588,7 @@ public void testBug370540a() throws JavaModelException {
  */
 public void testBug370540b() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_1_8);
-	this.formatterPrefs.parenthesis_positions_in_method_declaration = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPY;
+	this.formatterPrefs.parenthesis_positions_in_method_declaration = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPTY;
 	String input = getCompilationUnit("Formatter", "", "test370540", "Example_in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test370540", "Example_out02.java").getSource());
 }
@@ -13615,7 +13615,7 @@ public void testBug370540d() throws JavaModelException {
  */
 public void testBug370540e() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_1_8);
-	this.formatterPrefs.parenthesis_positions_in_method_invocation = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPY;
+	this.formatterPrefs.parenthesis_positions_in_method_invocation = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPTY;
 	String input = getCompilationUnit("Formatter", "", "test370540", "Example_in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test370540", "Example_out05.java").getSource());
 }
@@ -13634,7 +13634,7 @@ public void testBug370540f() throws JavaModelException {
  */
 public void testBug370540g() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_1_8);
-	this.formatterPrefs.parenthesis_positions_in_enum_constant_declaration = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPY;
+	this.formatterPrefs.parenthesis_positions_in_enum_constant_declaration = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPTY;
 	this.formatterPrefs.parenthesis_positions_in_if_while_statement = DefaultCodeFormatterConstants.SEPARATE_LINES;
 	String input = getCompilationUnit("Formatter", "", "test370540", "Example_in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test370540", "Example_out07.java").getSource());
@@ -13645,7 +13645,7 @@ public void testBug370540g() throws JavaModelException {
 public void testBug370540h() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_1_8);
 	this.formatterPrefs.parenthesis_positions_in_if_while_statement = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_WRAPPED;
-	this.formatterPrefs.parenthesis_positions_in_lambda_declaration = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPY;
+	this.formatterPrefs.parenthesis_positions_in_lambda_declaration = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPTY;
 	String input = getCompilationUnit("Formatter", "", "test370540", "Example_in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test370540", "Example_out08.java").getSource());
 }
@@ -13655,7 +13655,7 @@ public void testBug370540h() throws JavaModelException {
 public void testBug370540i() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_1_8);
 	this.formatterPrefs.parenthesis_positions_in_if_while_statement = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_WRAPPED;
-	this.formatterPrefs.parenthesis_positions_in_method_invocation = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPY;
+	this.formatterPrefs.parenthesis_positions_in_method_invocation = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPTY;
 	String input = getCompilationUnit("Formatter", "", "test370540", "Example_in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test370540", "Example_out09.java").getSource());
 }
@@ -13685,7 +13685,7 @@ public void testBug370540k() throws JavaModelException {
 public void testBug370540l() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_1_8);
 	this.formatterPrefs.parenthesis_positions_in_for_statement = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_WRAPPED;
-	this.formatterPrefs.parenthesis_positions_in_annotation = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPY;
+	this.formatterPrefs.parenthesis_positions_in_annotation = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPTY;
 	String input = getCompilationUnit("Formatter", "", "test370540", "Example_in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test370540", "Example_out12.java").getSource());
 }

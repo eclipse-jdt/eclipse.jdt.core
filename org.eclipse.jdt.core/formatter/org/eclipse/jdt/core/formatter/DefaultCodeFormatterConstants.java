@@ -687,11 +687,11 @@ public class DefaultCodeFormatterConstants {
 	 * <pre>
 	 * FORMATTER / Option to position parentheses in method declarations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_method_declaration"
-	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
+	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPTY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
 	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
-	 * @see #SEPARATE_LINES_IF_NOT_EMPY
+	 * @see #SEPARATE_LINES_IF_NOT_EMPTY
 	 * @see #SEPARATE_LINES_IF_WRAPPED
 	 * @see #SEPARATE_LINES
 	 * @see #PRESERVE_POSITIONS
@@ -703,11 +703,11 @@ public class DefaultCodeFormatterConstants {
 	 * <pre>
 	 * FORMATTER / Option to position parentheses in method invocations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_method_invocation"
-	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
+	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPTY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
 	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
-	 * @see #SEPARATE_LINES_IF_NOT_EMPY
+	 * @see #SEPARATE_LINES_IF_NOT_EMPTY
 	 * @see #SEPARATE_LINES_IF_WRAPPED
 	 * @see #SEPARATE_LINES
 	 * @see #PRESERVE_POSITIONS
@@ -719,11 +719,11 @@ public class DefaultCodeFormatterConstants {
 	 * <pre>
 	 * FORMATTER / Option to position parentheses in enum constant declarations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_enum_constant_declaration"
-	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
+	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPTY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
 	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
-	 * @see #SEPARATE_LINES_IF_NOT_EMPY
+	 * @see #SEPARATE_LINES_IF_NOT_EMPTY
 	 * @see #SEPARATE_LINES_IF_WRAPPED
 	 * @see #SEPARATE_LINES
 	 * @see #PRESERVE_POSITIONS
@@ -810,11 +810,11 @@ public class DefaultCodeFormatterConstants {
 	 * <pre>
 	 * FORMATTER / Option to position parentheses in annotations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_annotation"
-	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
+	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPTY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
 	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
-	 * @see #SEPARATE_LINES_IF_NOT_EMPY
+	 * @see #SEPARATE_LINES_IF_NOT_EMPTY
 	 * @see #SEPARATE_LINES_IF_WRAPPED
 	 * @see #SEPARATE_LINES
 	 * @see #PRESERVE_POSITIONS
@@ -826,11 +826,11 @@ public class DefaultCodeFormatterConstants {
 	 * <pre>
 	 * FORMATTER / Option to position parentheses in lambda declarations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_lambda_declaration"
-	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
+	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPTY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
 	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
-	 * @see #SEPARATE_LINES_IF_NOT_EMPY
+	 * @see #SEPARATE_LINES_IF_NOT_EMPTY
 	 * @see #SEPARATE_LINES_IF_WRAPPED
 	 * @see #SEPARATE_LINES
 	 * @see #PRESERVE_POSITIONS
@@ -4212,7 +4212,7 @@ public class DefaultCodeFormatterConstants {
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_LAMBDA_DECLARATION
 	 * @since 3.12
 	 */
-	public static final String SEPARATE_LINES_IF_NOT_EMPY = "separate_lines_if_not_empty";	//$NON-NLS-1$
+	public static final String SEPARATE_LINES_IF_NOT_EMPTY = "separate_lines_if_not_empty";	//$NON-NLS-1$
 
 	/**
 	 * <pre>
