@@ -7492,7 +7492,7 @@ public final class CompletionEngine
 							if(proposeMethod && !insideAnnotationAttribute) {
 								MethodBinding methodBinding = (MethodBinding)binding;
 								if ((exactMatch && CharOperation.equals(token, methodBinding.selector)) ||
-										!exactMatch && CharOperation.prefixEquals(token, methodBinding.selector) ||
+										!exactMatch && CharOperation.prefixEquals(token, methodBinding.selector, false) ||
 										(this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, methodBinding.selector))) {
 									findLocalMethodsFromStaticImports(
 											token,
