@@ -6071,6 +6071,67 @@ public void testBug491139() {
 	},
 	"lambda : String");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=489631 [1.8] "java.lang.VerifyError: Bad type on operand stack" with lamba and type defined in method
+public void test489631() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" +
+			"interface I { int getLength(); }\n" + 
+			"public class Test {\n" + 
+			"	public void test() {\n" + 
+			"		class A<T> {\n" + 
+			"			List<T> l;\n" + 
+			"			public A(List<T> l) {\n" + 
+			"				this.l = l;\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		List<Integer> list = new ArrayList<>();\n" + 
+			"		I i = () -> new A<>(list).l.size();\n" + 
+			"		System.out.println(i.getLength());\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new Test().test();\n" + 
+			"	}\n" + 
+			"}"
+	},
+	"0");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=489631 [1.8] "java.lang.VerifyError: Bad type on operand stack" with lamba and type defined in method
+public void test489631a() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"interface I { int getLength(); }\n" + 
+			"public class Test {\n" + 
+			"	public void test() {\n" + 
+			"		class A<T> {\n" + 
+			"			List<T> l;\n" + 
+			"			public A(List<T> l) {\n" + 
+			"				this.l = l;\n" + 
+			"			}\n" + 
+			"			class B {\n" + 
+			"				List<Integer> iL;\n" + 
+			"				public B(List<Integer> l) {\n" + 
+			"					// super(l);\n" + 
+			"					this.iL = l;\n" + 
+			"				}\n" + 
+			"			}\n" + 
+			"		}\n" + 
+			"		List<Integer> list = new ArrayList<>();\n" + 
+			"		I i = () -> new A<>(list).new B(list).iL.size();\n" + 
+			"		System.out.println(i.getLength());\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new Test().test();\n" + 
+			"	}\n" + 
+			"}"
+	},
+	"0");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

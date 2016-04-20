@@ -132,7 +132,10 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (currentScope.compilerOptions().analyseResourceLeaks && FakedTrackingVariable.isAnyCloseable(this.resolvedType))
 		FakedTrackingVariable.analyseCloseableAllocation(currentScope, flowInfo, this);
 
-	if (this.binding.declaringClass.isMemberType() && !this.binding.declaringClass.isStatic()) {
+	ReferenceBinding declaringClass = this.binding.declaringClass;
+	MethodScope methodScope = currentScope.methodScope();
+	if ((declaringClass.isMemberType() && !declaringClass.isStatic()) || 
+			(declaringClass.isLocalType() && !methodScope.isStatic && methodScope.isLambdaScope())) {
 		// allocating a non-static member type without an enclosing instance of parent type
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=335845
 		currentScope.tagAsAccessingEnclosingInstanceStateOf(this.binding.declaringClass.enclosingType(), false /* type variable access */);
