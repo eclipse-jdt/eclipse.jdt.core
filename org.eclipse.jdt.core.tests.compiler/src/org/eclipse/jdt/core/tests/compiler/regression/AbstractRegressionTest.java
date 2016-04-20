@@ -429,7 +429,7 @@ protected static class JavacTestOptions {
 			EclipseBug236379 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=236379
 				new EclipseHasABug(MismatchType.EclipseWarningsJavacNone) {
 					Excuse excuseFor(JavacCompiler compiler) {
-						return compiler.compliance > ClassFileConstants.JDK1_5 ? this : null;
+						return compiler.compliance > ClassFileConstants.JDK1_5 ? null : this;
 					}
 				}: null,
 			EclipseBug424410 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=424410
