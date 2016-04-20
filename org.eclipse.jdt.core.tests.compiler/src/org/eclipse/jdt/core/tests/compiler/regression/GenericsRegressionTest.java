@@ -5766,5 +5766,23 @@ public void test425203() {
 		runConformTest(new String[]{ "Test.java", source }, "Done");
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=489636, [1.8] "Bound mismatch" for a generic method parameter 
+public void test489636() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"interface I<T> {\n" + 
+			"	I<T> get();\n" + 
+			"}\n" + 
+			"public class Test {\n" + 
+			"\n" + 
+			"	@SuppressWarnings(\"unused\")\n" + 
+			"	private static <T, S extends I<T>> void test(S p) {\n" + 
+			"		I<T> i = p.get();\n" + 
+			"		test(i);      // Bound mismatch\n" + 
+			"	}\n" + 
+			"}"
+	});
+}
 }
 

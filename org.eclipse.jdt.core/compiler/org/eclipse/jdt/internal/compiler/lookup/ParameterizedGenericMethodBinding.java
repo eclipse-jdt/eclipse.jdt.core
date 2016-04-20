@@ -311,19 +311,9 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 		for (int i = 0, length = originalTypeVariables.length; i < length; i++) {
 		    TypeVariableBinding typeVariable = originalTypeVariables[i];
 		    TypeBinding substitute = methodSubstitute.typeArguments[i]; // retain for diagnostics
-		    /* https://bugs.eclipse.org/bugs/show_bug.cgi?id=375394, To avoid spurious bounds check failures due to circularity in formal bounds, 
-		       we should eliminate only the lingering embedded type variable references after substitution, not alien type variable references
-		       that constitute the inference per se.
-		     */ 
-		    TypeBinding substituteForChecks;
-		    if (substitute instanceof TypeVariableBinding) {
-		    	substituteForChecks = substitute;
-		    } else {
-		    	substituteForChecks = Scope.substitute(new LingeringTypeVariableEliminator(originalTypeVariables, null, scope), substitute); // while using this for bounds check
-		    }
 		    
 			ASTNode location = site instanceof ASTNode ? (ASTNode) site : null;
-			switch (typeVariable.boundCheck(substitution, substituteForChecks, scope, location)) {
+			switch (typeVariable.boundCheck(substitution, substitute, scope, location)) {
 				case MISMATCH :
 			        // incompatible due to bound check
 					int argLength = arguments.length;
