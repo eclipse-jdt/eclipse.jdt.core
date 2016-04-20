@@ -688,7 +688,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to position parentheses in method declarations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_method_declaration"
 	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
 	 * @see #SEPARATE_LINES_IF_NOT_EMPY
@@ -704,7 +704,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to position parentheses in method invocations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_method_invocation"
 	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
 	 * @see #SEPARATE_LINES_IF_NOT_EMPY
@@ -720,7 +720,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to position parentheses in enum constant declarations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_enum_constant_declaration"
 	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
 	 * @see #SEPARATE_LINES_IF_NOT_EMPY
@@ -736,7 +736,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to position parentheses in 'if' and 'while' statements
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_if_while_statement"
 	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
 	 * @see #SEPARATE_LINES_IF_WRAPPED
@@ -751,7 +751,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to position parentheses in 'for' statements
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_for_statement"
 	 *     - possible values:   { COMMON_LINES,  SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
 	 * @see #SEPARATE_LINES_IF_WRAPPED
@@ -766,7 +766,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to position parentheses in 'switch' statements
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_switch_statement"
 	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
 	 * @see #SEPARATE_LINES_IF_WRAPPED
@@ -781,7 +781,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to position parentheses in try clauses
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_try_clause"
 	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
 	 * @see #SEPARATE_LINES_IF_WRAPPED
@@ -796,7 +796,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to position parentheses in catch clauses
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_catch_clause"
 	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
 	 * @see #SEPARATE_LINES_IF_WRAPPED
@@ -811,7 +811,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to position parentheses in annotations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_annotation"
 	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
 	 * @see #SEPARATE_LINES_IF_NOT_EMPY
@@ -827,7 +827,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to position parentheses in lambda declarations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_lambda_declaration"
 	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
 	 * @see #SEPARATE_LINES_IF_NOT_EMPY
@@ -4183,7 +4183,8 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Value to keep always parentheses on common lines with their contents..
+	 * FORMATTER / Value to set opening and closing parentheses location in common lines with
+	 *             their contents (or simply a single line if the parentheses are empty).
 	 * </pre>
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_DECLARATION
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_INVOCATION
@@ -4201,16 +4202,12 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Value to keep always parentheses on common lines with their contents..
+	 * FORMATTER / Value to set opening and closing parentheses location on a common line
+	 *             if the parentheses are empty and otherwise in separate lines from their contents.
 	 * </pre>
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_DECLARATION
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_INVOCATION
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_ENUM_CONSTANT_DECLARATION
-	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_IF_WHILE_STATEMENT
-	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_FOR_STATEMENT
-	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_SWITCH_STATEMENT
-	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_TRY_CLAUSE
-	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_CATCH_CLAUSE
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_ANNOTATION
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_LAMBDA_DECLARATION
 	 * @since 3.12
@@ -4219,7 +4216,8 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Value to keep always parentheses on common lines with their contents..
+	 * FORMATTER / Value to set opening and closing parentheses location on separate lines from their
+	 *             contents if the contents are wrapped, and in common line if they fit in line width.
 	 * </pre>
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_DECLARATION
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_INVOCATION
@@ -4237,7 +4235,9 @@ public class DefaultCodeFormatterConstants {
 	
 	/**
 	 * <pre>
-	 * FORMATTER / Value to keep always parentheses on common lines with their contents..
+	 * FORMATTER / Value to set parentheses location on separate lines from their contents,
+	 *             that is put a line break after the opening parenthesis and before
+	 *             the closing parenthesis.
 	 * </pre>
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_DECLARATION
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_INVOCATION
@@ -4255,8 +4255,8 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Value to set a closing parenthesis position to same line or next
-	 *             line depending on what was in the original source.
+	 * FORMATTER / Value to set opening and closing parentheses location to be preserved
+	 *             from the original source.
 	 * </pre>
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_DECLARATION
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_INVOCATION
