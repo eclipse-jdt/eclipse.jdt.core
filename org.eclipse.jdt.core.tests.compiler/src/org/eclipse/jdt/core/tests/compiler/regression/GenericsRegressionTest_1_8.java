@@ -6195,4 +6195,46 @@ public void testBug485373() {
 		"The method doStuff(String, Consumer<String>) is ambiguous for the type TestGenericsFunctional\n" + 
 		"----------\n");
 }
+
+public void testBug487563() {
+	runNegativeTest(
+		new String[] {
+			"Java8TypeInferenceProblem.java",
+			"\n" + 
+			"import java.util.Iterator;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class Java8TypeInferenceProblem {\n" + 
+			"\n" + 
+			"	public ValueObjectImpl myTestMethod() {\n" + 
+			"		return copyToValueObject(loadBusinessObject(), ValueObjectImpl.class);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public <T extends ValueObject> T copyToValueObject(BusinessObject param, Class<T> voClass) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public <T extends ValueObject> List<T> copyToValueObject(Iterator<BusinessObject> params, Class<T> voClass) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public <T extends BusinessObject> T loadBusinessObject() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private interface BusinessObject { }\n" + 
+			"\n" + 
+			"	private interface ValueObject { }\n" + 
+			"\n" + 
+			"	private class ValueObjectImpl implements ValueObject { }\n" + 
+			"\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Java8TypeInferenceProblem.java (at line 8)\n" + 
+		"	return copyToValueObject(loadBusinessObject(), ValueObjectImpl.class);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The method copyToValueObject(Java8TypeInferenceProblem.BusinessObject, Class<Java8TypeInferenceProblem.ValueObjectImpl>) is ambiguous for the type Java8TypeInferenceProblem\n" + 
+		"----------\n");
+}
 }
