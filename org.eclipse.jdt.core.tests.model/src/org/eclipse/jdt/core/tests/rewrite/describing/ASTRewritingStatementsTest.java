@@ -5326,6 +5326,71 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		}
 	}
 
+	/** Add an annotation to a resource */
+	public void testTryStatementWithResources6_since_4() throws Exception {
+
+		createProject("P_17", JavaCore.VERSION_1_7);
+		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
+
+		try {
+			IPackageFragment pack1 = currentSourceFolder.createPackageFragment("test0017", false, null);
+			StringBuffer buf = new StringBuffer();
+			buf.append("package test0017;\n");
+			buf.append("\n");
+			buf.append("@interface NonNull {}\n");
+			buf.append("\n");
+			buf.append("public class X {\n");
+			buf.append("	void foo() {\n");
+			buf.append("		try (FileReader reader1 = new FileReader(\"file1\");) {\n");
+			buf.append("			int ch;\n");
+			buf.append("			while ((ch = reader1.read()) != -1) {\n");
+			buf.append("				System.out.println(ch);\n");
+			buf.append("			}\n");
+			buf.append("		}\n");
+			buf.append("	}\n");
+			buf.append("}");
+
+			ICompilationUnit cu = pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+			CompilationUnit astRoot= createAST(cu, true, true);
+			AST ast= astRoot.getAST();
+			ASTRewrite rewrite= ASTRewrite.create(ast);
+
+			Block block = ((MethodDeclaration) ((TypeDeclaration) astRoot.types().get(1)).bodyDeclarations().get(0)).getBody();
+			List statements = block.statements();
+			Statement statement = (Statement) statements.get(0);
+			assertTrue(statement instanceof TryStatement);
+
+			TryStatement tryStatement = (TryStatement) statement;
+			VariableDeclarationExpression resource = (VariableDeclarationExpression) tryStatement.resources().get(0);
+			MarkerAnnotation newMarkerAnnotation = ast.newMarkerAnnotation();
+			newMarkerAnnotation.setTypeName(ast.newName("NonNull"));
+
+			ListRewrite listRewrite = rewrite.getListRewrite(resource, VariableDeclarationExpression.MODIFIERS2_PROPERTY);
+			listRewrite.insertFirst(newMarkerAnnotation, null);
+
+			String preview = evaluateRewrite(cu, rewrite);
+
+			buf= new StringBuffer();
+			buf.append("package test0017;\n");
+			buf.append("\n");
+			buf.append("@interface NonNull {}\n");
+			buf.append("\n");
+			buf.append("public class X {\n");
+			buf.append("	void foo() {\n");
+			buf.append("		try (@NonNull FileReader reader1 = new FileReader(\"file1\");) {\n");
+			buf.append("			int ch;\n");
+			buf.append("			while ((ch = reader1.read()) != -1) {\n");
+			buf.append("				System.out.println(ch);\n");
+			buf.append("			}\n");
+			buf.append("		}\n");
+			buf.append("	}\n");
+			buf.append("}");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			deleteProject("P_17");
+		}
+	}
+
 	/** @deprecated using deprecated code */
 	public void testTypeDeclarationStatement_only_2() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
