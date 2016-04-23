@@ -7518,4 +7518,26 @@ public void testBug484957() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/93459 - [formatter] Javadoc formatter does not break URLs
+ */
+public void testBug93459() {
+	this.formatterPrefs.comment_line_length = 120;
+	String source = 
+		"class Example {\n" + 
+		"	/**\n" + 
+		"	 * This is similar to <a href=\"http://java.sun.com/j2se/1.4.2/docs/api/java/nio/charset/Charset.html#isSupported(java.lang.String)\">java.nio.charset.Charset.isSupported(String)</a>\n" + 
+		"	 */\n" + 
+		"	int a;\n" + 
+		"}";
+	formatSource(source,
+		"class Example {\n" + 
+		"	/**\n" + 
+		"	 * This is similar to <a href=\n" + 
+		"	 * \"http://java.sun.com/j2se/1.4.2/docs/api/java/nio/charset/Charset.html#isSupported(java.lang.String)\">java.nio.charset.Charset.isSupported(String)</a>\n" + 
+		"	 */\n" + 
+		"	int a;\n" + 
+		"}"
+	);
+}
 }
