@@ -14065,7 +14065,7 @@ public void testBug351426e() throws JavaModelException {
 	
 	assertResults(
 			"expectedTypesSignatures={Ltest.X$X1<Ljava.lang.String;>;}\n" +
-			"expectedTypesKeys={Ltest/X<>.X1<Ljava/lang/String;>;}",
+			"expectedTypesKeys={Ltest/X$X1<Ljava/lang/String;>;}",
 			requestor.getContext());
 	assertResults(
 			"X.X1<E>[TYPE_REF]{, test, Ltest.X$X1<TE;>;, null, null, replace[123, 123], token[123, 123], " + relevance + "}",
@@ -14157,7 +14157,7 @@ public void testBug351426h() throws JavaModelException {
 	
 	assertResults(
 			"expectedTypesSignatures={Ltest.X$X1<Ljava.lang.String;>;}\n" +
-			"expectedTypesKeys={Ltest/X<>.X1<Ljava/lang/String;>;}",
+			"expectedTypesKeys={Ltest/X$X1<Ljava/lang/String;>;}",
 			requestor.getContext());
 	assertResults(
 			"X.X1<E>[TYPE_REF]{, test, Ltest.X$X1<TE;>;, null, null, replace[113, 113], token[113, 113], " + relevance + "}",
@@ -14217,7 +14217,7 @@ public void testBug351426j() throws JavaModelException {
 	
 	assertResults(
 			"expectedTypesSignatures={Ltest.X$X1<Ljava.lang.String;>;}\n" +
-			"expectedTypesKeys={Ltest/X<>.X1<Ljava/lang/String;>;}",
+			"expectedTypesKeys={Ltest/X$X1<Ljava/lang/String;>;}",
 			requestor.getContext());
 	assertResults(
 			"X.X1<E>[TYPE_REF]{, test, Ltest.X$X1<TE;>;, null, null, replace[123, 123], token[123, 123], " + relevance + "}",

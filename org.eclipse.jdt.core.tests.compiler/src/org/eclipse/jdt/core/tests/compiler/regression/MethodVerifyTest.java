@@ -10124,7 +10124,7 @@ public void test169() {
 		"2. WARNING in X.java (at line 6)\n" + 
 		"	public R foo(A a, I i) { return null; }\n" + 
 		"	                  ^\n" + 
-		"X.I is a raw type. References to generic type X<T>.I<S> should be parameterized\n" + 
+		"X.I is a raw type. References to generic type X.I<S> should be parameterized\n" + 
 		"----------\n",
 		Excuse.EclipseHasSomeMoreWarnings
 	);

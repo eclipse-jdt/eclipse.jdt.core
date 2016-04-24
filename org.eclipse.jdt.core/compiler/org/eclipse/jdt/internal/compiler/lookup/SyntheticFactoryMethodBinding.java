@@ -37,8 +37,9 @@ public class SyntheticFactoryMethodBinding extends MethodBinding {
 	    if method type arguments is not empty materialize the parameterized generic constructor 
 	*/
 	public ParameterizedMethodBinding applyTypeArgumentsOnConstructor(TypeBinding[] typeArguments, TypeBinding[] constructorTypeArguments, boolean inferredWithUncheckedConversion) {
-		ReferenceBinding parameterizedType = this.environment.createParameterizedType(this.declaringClass, typeArguments,
-																						this.enclosingType);
+		ReferenceBinding parameterizedType = typeArguments == null
+				? this.environment.createRawType(this.declaringClass, this.enclosingType)
+				: this.environment.createParameterizedType(this.declaringClass, typeArguments, this.enclosingType);
 		for (MethodBinding parameterizedMethod : parameterizedType.methods()) {
 			if (parameterizedMethod.original() == this.staticFactoryFor)
 				return (constructorTypeArguments.length > 0 || inferredWithUncheckedConversion)

@@ -12466,7 +12466,7 @@ public void testBug497698nestedinraw() {
 		"1. ERROR in test\\X.java (at line 8)\n" + 
 		"	public <V1> Or<V1> create() {\n" + 
 		"	            ^^\n" + 
-		"Incorrect number of arguments for type X<Z>.Or; it cannot be parameterized with arguments <V1>\n" + 
+		"Incorrect number of arguments for type X<Z>.Or<D,V>; it cannot be parameterized with arguments <V1>\n" + 
 		"----------\n"
 	);
 }

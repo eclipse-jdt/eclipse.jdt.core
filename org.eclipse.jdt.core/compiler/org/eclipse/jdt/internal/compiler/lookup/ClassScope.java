@@ -464,7 +464,9 @@ public class ClassScope extends Scope {
 		ReferenceBinding enclosingType = sourceType.enclosingType();
 		boolean isMemberType = sourceType.isMemberType();
 		if (isMemberType) {
-			modifiers |= (enclosingType.modifiers & (ExtraCompilerModifiers.AccGenericSignature|ClassFileConstants.AccStrictfp));
+			if (!sourceType.isStatic())
+				modifiers |= (enclosingType.modifiers & ExtraCompilerModifiers.AccGenericSignature);
+			modifiers |= (enclosingType.modifiers & ClassFileConstants.AccStrictfp);
 			// checks for member types before local types to catch local members
 			if (enclosingType.isInterface())
 				modifiers |= ClassFileConstants.AccPublic;

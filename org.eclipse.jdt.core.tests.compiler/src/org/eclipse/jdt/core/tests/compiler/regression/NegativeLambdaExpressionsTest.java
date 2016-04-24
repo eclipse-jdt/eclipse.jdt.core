@@ -209,7 +209,7 @@ public void test006() {
 			"1. ERROR in X.java (at line 12)\n" + 
 			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The member type Outer<One,Two>.Inner cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Outer<One,Two>\n" + 
+			"The member type Outer.Inner<T3,T4> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Outer<One,Two>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 12)\n" + 
 			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 
@@ -6853,6 +6853,11 @@ public void test410114() throws IOException {
 						"	I i = Y<String>.Z<Integer>::<String> new;\n" + 
 						"	                             ^^^^^^\n" + 
 						"Unused type arguments for the non generic constructor Y<String>.Z<Integer>(Y<String>) of type Y<String>.Z<Integer>; it should not be parameterized with arguments <String>\n" + 
+						"----------\n" + 
+						"2. WARNING in Y.java (at line 14)\n" + 
+						"	i = Y.Z:: new;\n" + 
+						"	    ^^^^^^^^^\n" + 
+						"Type safety: The constructor Y.Z(Y) belongs to the raw type Y.Z. References to generic type Y<T>.Z<K> should be parameterized\n" + 
 						"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412453,

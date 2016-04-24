@@ -7654,7 +7654,7 @@ public void staticInheritedMethodConflicts(SourceTypeBinding type, MethodBinding
 		type.sourceStart(),
 		type.sourceEnd());
 }
-public void staticMemberOfParameterizedType(ASTNode location, ReferenceBinding type, int index) {
+public void staticMemberOfParameterizedType(ASTNode location, ReferenceBinding type, ReferenceBinding qualifyingType, int index) {
 	if (location == null) { // binary case
 	    this.handle(
 			IProblem.StaticMemberOfParameterizedType,
@@ -7672,8 +7672,8 @@ public void staticMemberOfParameterizedType(ASTNode location, ReferenceBinding t
 	}*/
     this.handle(
 		IProblem.StaticMemberOfParameterizedType,
-		new String[] {new String(type.readableName()), new String(type.enclosingType().readableName()), },
-		new String[] {new String(type.shortReadableName()), new String(type.enclosingType().shortReadableName()), },
+		new String[] {new String(type.readableName()), new String(qualifyingType.readableName()), },
+		new String[] {new String(type.shortReadableName()), new String(qualifyingType.shortReadableName()), },
 		location.sourceStart,
 		nodeSourceEnd(null, location, index));
 }

@@ -396,7 +396,7 @@ public boolean canBeSeenBy(Scope scope) {
 
 public char[] computeGenericTypeSignature(TypeVariableBinding[] typeVariables) {
 
-	boolean isMemberOfGeneric = isMemberType() && (enclosingType().modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0;
+	boolean isMemberOfGeneric = isMemberType() && !isStatic() && (enclosingType().modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0;
 	if (typeVariables == Binding.NO_TYPE_VARIABLES && !isMemberOfGeneric) {
 		return signature();
 	}
@@ -1628,24 +1628,29 @@ public char[] qualifiedSourceName() {
  * NOTE: This method should only be used during/after code gen.
  */
 public char[] readableName() /*java.lang.Object,  p.X<T> */ {
+	return readableName(true);
+}
+public char[] readableName(boolean showGenerics) /*java.lang.Object,  p.X<T> */ {
     char[] readableName;
 	if (isMemberType()) {
-		readableName = CharOperation.concat(enclosingType().readableName(), this.sourceName, '.');
+		readableName = CharOperation.concat(enclosingType().readableName(showGenerics && !isStatic()), this.sourceName, '.');
 	} else {
 		readableName = CharOperation.concatWith(this.compoundName, '.');
 	}
-	TypeVariableBinding[] typeVars;
-	if ((typeVars = typeVariables()) != Binding.NO_TYPE_VARIABLES) {
-	    StringBuffer nameBuffer = new StringBuffer(10);
-	    nameBuffer.append(readableName).append('<');
-	    for (int i = 0, length = typeVars.length; i < length; i++) {
-	        if (i > 0) nameBuffer.append(',');
-	        nameBuffer.append(typeVars[i].readableName());
-	    }
-	    nameBuffer.append('>');
-		int nameLength = nameBuffer.length();
-		readableName = new char[nameLength];
-		nameBuffer.getChars(0, nameLength, readableName, 0);
+	if (showGenerics) {
+		TypeVariableBinding[] typeVars;
+		if ((typeVars = typeVariables()) != Binding.NO_TYPE_VARIABLES) {
+		    StringBuffer nameBuffer = new StringBuffer(10);
+		    nameBuffer.append(readableName).append('<');
+		    for (int i = 0, length = typeVars.length; i < length; i++) {
+		        if (i > 0) nameBuffer.append(',');
+		        nameBuffer.append(typeVars[i].readableName());
+		    }
+		    nameBuffer.append('>');
+			int nameLength = nameBuffer.length();
+			readableName = new char[nameLength];
+			nameBuffer.getChars(0, nameLength, readableName, 0);
+		}
 	}
 	return readableName;
 }
@@ -1771,24 +1776,29 @@ char[] nullAnnotatedShortReadableName(CompilerOptions options) {
 }
 
 public char[] shortReadableName() /*Object*/ {
+	return shortReadableName(true);
+}
+public char[] shortReadableName(boolean showGenerics) /*Object*/ {
 	char[] shortReadableName;
 	if (isMemberType()) {
-		shortReadableName = CharOperation.concat(enclosingType().shortReadableName(), this.sourceName, '.');
+		shortReadableName = CharOperation.concat(enclosingType().shortReadableName(showGenerics && !isStatic()), this.sourceName, '.');
 	} else {
 		shortReadableName = this.sourceName;
 	}
-	TypeVariableBinding[] typeVars;
-	if ((typeVars = typeVariables()) != Binding.NO_TYPE_VARIABLES) {
-	    StringBuffer nameBuffer = new StringBuffer(10);
-	    nameBuffer.append(shortReadableName).append('<');
-	    for (int i = 0, length = typeVars.length; i < length; i++) {
-	        if (i > 0) nameBuffer.append(',');
-	        nameBuffer.append(typeVars[i].shortReadableName());
-	    }
-	    nameBuffer.append('>');
-		int nameLength = nameBuffer.length();
-		shortReadableName = new char[nameLength];
-		nameBuffer.getChars(0, nameLength, shortReadableName, 0);
+	if (showGenerics) {
+		TypeVariableBinding[] typeVars;
+		if ((typeVars = typeVariables()) != Binding.NO_TYPE_VARIABLES) {
+		    StringBuffer nameBuffer = new StringBuffer(10);
+		    nameBuffer.append(shortReadableName).append('<');
+		    for (int i = 0, length = typeVars.length; i < length; i++) {
+		        if (i > 0) nameBuffer.append(',');
+		        nameBuffer.append(typeVars[i].shortReadableName());
+		    }
+		    nameBuffer.append('>');
+			int nameLength = nameBuffer.length();
+			shortReadableName = new char[nameLength];
+			nameBuffer.getChars(0, nameLength, shortReadableName, 0);
+		}
 	}
 	return shortReadableName;
 }

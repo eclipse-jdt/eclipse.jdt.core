@@ -8600,7 +8600,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 11)\n" +
 			"	X<String>.A.B<String> bs;\n" +
 			"	^^^^^^^^^^^\n" +
-			"The member type X<String>.A cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<String>\n" +
+			"The member type X.A<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<String>\n" +
 			"----------\n");
 	}
 	// ensure bound check deals with supertype (and their enclosing type)
@@ -9076,8 +9076,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"----------\n" +
 			"1. WARNING in X.java (at line 6)\n" +
 			"	public int foo(T t) { return t.i + t.i() + T.M.j; }\n" +
-			"	                                           ^^^^^\n" +
-			"Read access to enclosing field X<T>.M.j is emulated by a synthetic accessor method\n" +
+			"	                                               ^\n" +
+			"Read access to enclosing field X.M.j is emulated by a synthetic accessor method\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 9)\n" +
 			"	class Y extends Zork {\n" +
@@ -13841,12 +13841,12 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"1. ERROR in X.java (at line 6)\n" +
 			"	X<String>.Inner<Integer> d4 = new X<String>.Inner<Integer>();\n" +
 			"	^^^^^^^^^^^^^^^\n" +
-			"The member type X<String>.Inner cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<String>\n" +
+			"The member type X.Inner<B> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<String>\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 6)\n" +
 			"	X<String>.Inner<Integer> d4 = new X<String>.Inner<Integer>();\n" +
 			"	                                  ^^^^^^^^^^^^^^^\n" +
-			"The member type X<String>.Inner cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<String>\n" +
+			"The member type X.Inner<B> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<String>\n" +
 			"----------\n");
 	}
 
@@ -20475,7 +20475,7 @@ public void test0617() {
 			"1. WARNING in X.java (at line 3)\n" +
 			"	Outer.Inner inner = new Outer().new Inner();\n" +
 			"	^^^^^^^^^^^\n" +
-			"Outer.Inner is a raw type. References to generic type Outer<T>.Inner<U> should be parameterized\n" +
+			"Outer.Inner is a raw type. References to generic type Outer.Inner<U> should be parameterized\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 3)\n" +
 			"	Outer.Inner inner = new Outer().new Inner();\n" +
@@ -20485,12 +20485,12 @@ public void test0617() {
 			"3. WARNING in X.java (at line 3)\n" +
 			"	Outer.Inner inner = new Outer().new Inner();\n" +
 			"	                                    ^^^^^\n" +
-			"Outer.Inner is a raw type. References to generic type Outer<T>.Inner<U> should be parameterized\n" +
+			"Outer.Inner is a raw type. References to generic type Outer.Inner<U> should be parameterized\n" +
 			"----------\n" +
 			"4. WARNING in X.java (at line 4)\n" +
 			"	X x = inner.set(new X());\n" +
 			"	      ^^^^^^^^^^^^^^^^^^\n" +
-			"Type safety: The method set(Object) belongs to the raw type Outer.Inner. References to generic type Outer<T>.Inner<U> should be parameterized\n" +
+			"Type safety: The method set(Object) belongs to the raw type Outer.Inner. References to generic type Outer.Inner<U> should be parameterized\n" +
 			"----------\n" +
 			"5. ERROR in X.java (at line 4)\n" +
 			"	X x = inner.set(new X());\n" +
@@ -20500,7 +20500,7 @@ public void test0617() {
 			"6. ERROR in X.java (at line 6)\n" +
 			"	Outer<String>.Inner innerS = inner;\n" +
 			"	^^^^^^^^^^^^^^^^^^^\n" +
-			"The member type Outer<String>.Inner cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Outer<String>\n" +
+			"The member type Outer.Inner<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Outer<String>\n" +
 			"----------\n");
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=94644 - variation
@@ -20750,7 +20750,7 @@ public void test0617() {
 			"4. WARNING in X.java (at line 8)\n" +
 			"	for (Map.Entry e : myMap.entrySet())\n" +
 			"	     ^^^^^^^^^\n" +
-			"Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" +
+			"Map.Entry is a raw type. References to generic type Map.Entry<K,V> should be parameterized\n" +
 			"----------\n" +
 			"5. ERROR in X.java (at line 8)\n" +
 			"	for (Map.Entry e : myMap.entrySet())\n" +
@@ -20760,7 +20760,7 @@ public void test0617() {
 			"6. WARNING in X.java (at line 10)\n" +
 			"	Set<Map.Entry> set = myMap.entrySet();\n" +
 			"	    ^^^^^^^^^\n" +
-			"Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" +
+			"Map.Entry is a raw type. References to generic type Map.Entry<K,V> should be parameterized\n" +
 			"----------\n" +
 			"7. WARNING in X.java (at line 10)\n" +
 			"	Set<Map.Entry> set = myMap.entrySet();\n" +
@@ -20770,7 +20770,7 @@ public void test0617() {
 			"8. WARNING in X.java (at line 11)\n" +
 			"	for (Map.Entry e : set)\n" +
 			"	     ^^^^^^^^^\n" +
-			"Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" +
+			"Map.Entry is a raw type. References to generic type Map.Entry<K,V> should be parameterized\n" +
 			"----------\n");
 	}
 // **
@@ -22613,27 +22613,27 @@ public void test0705() {
 		"1. WARNING in X.java (at line 5)\n" +
 		"	((Map.Entry)o).setValue(\"bug\");\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: The method setValue(Object) belongs to the raw type Map.Entry. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" +
+		"Type safety: The method setValue(Object) belongs to the raw type Map.Entry. References to generic type Map.Entry<K,V> should be parameterized\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 5)\n" +
 		"	((Map.Entry)o).setValue(\"bug\");\n" +
 		"	  ^^^^^^^^^\n" +
-		"Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" +
+		"Map.Entry is a raw type. References to generic type Map.Entry<K,V> should be parameterized\n" +
 		"----------\n" +
 		"3. WARNING in X.java (at line 7)\n" +
 		"	Map.Entry me= (Map.Entry)o; \n" +
 		"	^^^^^^^^^\n" +
-		"Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" +
+		"Map.Entry is a raw type. References to generic type Map.Entry<K,V> should be parameterized\n" +
 		"----------\n" +
 		"4. WARNING in X.java (at line 7)\n" +
 		"	Map.Entry me= (Map.Entry)o; \n" +
 		"	               ^^^^^^^^^\n" +
-		"Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" +
+		"Map.Entry is a raw type. References to generic type Map.Entry<K,V> should be parameterized\n" +
 		"----------\n" +
 		"5. WARNING in X.java (at line 8)\n" +
 		"	me.setValue(\"ok\");\n" +
 		"	^^^^^^^^^^^^^^^^^\n" +
-		"Type safety: The method setValue(Object) belongs to the raw type Map.Entry. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" +
+		"Type safety: The method setValue(Object) belongs to the raw type Map.Entry. References to generic type Map.Entry<K,V> should be parameterized\n" +
 		"----------\n" +
 		"6. WARNING in X.java (at line 10)\n" +
 		"	((Vector)o).add(\"ok\");\n" +
@@ -24267,12 +24267,12 @@ public void test0755() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	X<?>.B[] b = new X<?>.B[1];\n" +
 		"	^^^^^^\n" +
-		"The member type X<?>.B cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<?>\n" +
+		"The member type X.B cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<?>\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	X<?>.B[] b = new X<?>.B[1];\n" +
 		"	                 ^^^^^^\n" +
-		"The member type X<?>.B cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<?>\n" +
+		"The member type X.B cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X<?>\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99999 - variation
@@ -24316,7 +24316,7 @@ public void test0757() {
 		"1. WARNING in X.java (at line 7)\n" +
 		"	EntryMap.Entry internalGet(Object key) {\n" +
 		"	^^^^^^^^^^^^^^\n" +
-		"X.EntryMap.Entry is a raw type. References to generic type X<K,V>.EntryMap<K,V>.Entry should be parameterized\n" +
+		"X.EntryMap.Entry is a raw type. References to generic type X.EntryMap<K,V>.Entry should be parameterized\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 12)\n" +
 		"	EntryMap<K,V>.Entry entry = internalGet(key);\n" +
@@ -24354,7 +24354,7 @@ public void test0758() {
 		"1. WARNING in X.java (at line 7)\n" +
 		"	EntryMap.Entry internalGet(Object key) {\n" +
 		"	^^^^^^^^^^^^^^\n" +
-		"X.EntryMap.Entry is a raw type. References to generic type X<K,V>.EntryMap<K,V>.Entry should be parameterized\n" +
+		"X.EntryMap.Entry is a raw type. References to generic type X.EntryMap<K,V>.Entry should be parameterized\n" +
 		"----------\n" +
 		"2. WARNING in X.java (at line 12)\n" +
 		"	EntryMap<K,V>.Entry entry = (EntryMap.Entry) internalGet(key);\n" +
@@ -24369,7 +24369,7 @@ public void test0758() {
 		"4. WARNING in X.java (at line 12)\n" +
 		"	EntryMap<K,V>.Entry entry = (EntryMap.Entry) internalGet(key);\n" +
 		"	                             ^^^^^^^^^^^^^^\n" +
-		"X.EntryMap.Entry is a raw type. References to generic type X<K,V>.EntryMap<K,V>.Entry should be parameterized\n" +
+		"X.EntryMap.Entry is a raw type. References to generic type X.EntryMap<K,V>.Entry should be parameterized\n" +
 		"----------\n" +
 		"5. ERROR in X.java (at line 14)\n" +
 		"	Zork z;\n" +
@@ -28225,7 +28225,7 @@ public void test0864() {
 		"1. ERROR in A.java (at line 13)\n" +
 		"	B<Object>.J<Object> bar();\n" +
 		"	^^^^^^^^^^^\n" +
-		"The member type B<Object>.J cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type B<Object>\n" +
+		"The member type B.J<E> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type B<Object>\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114304 - variation
@@ -28523,7 +28523,7 @@ public void test0872() {
 		"1. ERROR in X.java (at line 22)\n" +
 		"	M3<X>.N3<X> n = m.new N3<X>();\n" +
 		"	^^^^^^^^\n" +
-		"The member type X.M3<X>.N3 cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M3<X>\n" +
+		"The member type X.M3.N3<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M3<X>\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 25)\n" +
 		"	static class N3<U> {\n" +
@@ -28533,7 +28533,7 @@ public void test0872() {
 		"3. ERROR in X.java (at line 30)\n" +
 		"	M4<X>.N4<X> n = m.new N4<X>();\n" +
 		"	^^^^^^^^\n" +
-		"The member type X.M4<X>.N4 cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M4<X>\n" +
+		"The member type X.M4.N4<U> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.M4<X>\n" +
 		"----------\n");
 }
 public void test0873() {
@@ -32301,7 +32301,7 @@ public void test0970() {
 			"1. ERROR in X.java (at line 16)\n" +
 			"	I1<E>.I2<E> i1i2 = null;\n" +
 			"	^^^^^^^^\n" +
-			"The member type X.I1<E>.I2 cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.I1<E>\n" +
+			"The member type X.I1.I2<T> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.I1<E>\n" +
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=136946 - variation
@@ -32336,37 +32336,37 @@ public void test0971() {
 			"2. WARNING in X.java (at line 3)\n" +
 			"	interface I2<T> extends I1 {\n" +
 			"	                        ^^\n" +
-			"X.I1 is a raw type. References to generic type X<T>.I1<T> should be parameterized\n" +
+			"X.I1 is a raw type. References to generic type X.I1<T> should be parameterized\n" +
 			"----------\n" +
 			"3. WARNING in X.java (at line 6)\n" +
 			"	interface I3<T> extends I1 {\n" +
 			"	                        ^^\n" +
-			"X.I1 is a raw type. References to generic type X<T>.I1<T> should be parameterized\n" +
+			"X.I1 is a raw type. References to generic type X.I1<T> should be parameterized\n" +
 			"----------\n" +
 			"4. WARNING in X.java (at line 9)\n" +
 			"	interface I4<T> extends I1.I2, I1.I3 {    \n" +
 			"	                        ^^^^^\n" +
-			"X.I1.I2 is a raw type. References to generic type X<T>.I1<T>.I2<T> should be parameterized\n" +
+			"X.I1.I2 is a raw type. References to generic type X.I1.I2<T> should be parameterized\n" +
 			"----------\n" +
 			"5. WARNING in X.java (at line 9)\n" +
 			"	interface I4<T> extends I1.I2, I1.I3 {    \n" +
 			"	                               ^^^^^\n" +
-			"X.I1.I3 is a raw type. References to generic type X<T>.I1<T>.I3<T> should be parameterized\n" +
+			"X.I1.I3 is a raw type. References to generic type X.I1.I3<T> should be parameterized\n" +
 			"----------\n" +
 			"6. WARNING in X.java (at line 14)\n" +
 			"	I1 i1 = null;\n" +
 			"	^^\n" +
-			"X.I1 is a raw type. References to generic type X<T>.I1<T> should be parameterized\n" +
+			"X.I1 is a raw type. References to generic type X.I1<T> should be parameterized\n" +
 			"----------\n" +
 			"7. WARNING in X.java (at line 15)\n" +
 			"	I1.I2 i2 = null;\n" +
 			"	^^^^^\n" +
-			"X.I1.I2 is a raw type. References to generic type X<T>.I1<T>.I2<T> should be parameterized\n" +
+			"X.I1.I2 is a raw type. References to generic type X.I1.I2<T> should be parameterized\n" +
 			"----------\n" +
 			"8. ERROR in X.java (at line 16)\n" +
 			"	I1<E>.I2 i1i2 = null;\n" +
 			"	^^^^^^^^\n" +
-			"The member type X.I1<E>.I2 cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.I1<E>\n" +
+			"The member type X.I1.I2<T> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type X.I1<E>\n" +
 			"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=137203
@@ -37668,7 +37668,7 @@ public void test1088() {
 			"2. WARNING in X.java (at line 5)\n" +
 			"	class M {} // hides member\n" +
 			"	      ^\n" +
-			"The type M is hiding the type X<M>.M\n" +
+			"The type M is hiding the type X.M\n" +
 			"----------\n" +
 			"3. WARNING in X.java (at line 11)\n" +
 			"	class T {}; // hiding warning\n" +
@@ -52098,8 +52098,31 @@ public void testBug433989a() {
 		"----------\n" + 
 		"1. ERROR in A.java (at line 7)\n" + 
 		"	new In.Inner<X>();\n" + 
+		"	    ^^^^^^^^\n" + 
+		"The member type A.Nested.In.Inner<X> must be qualified with a parameterized type, since it is not static\n" + 
+		"----------\n");
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=433989
+public void testBug433989b() {
+	this.runNegativeTest(
+		new String[] {
+			"A.java",
+			"class A<V> {\n" + 
+			"	public class Nested {\n" + 
+			"		public class In<U> {\n" + 
+			"			public class Inner<W> {}\n" + 
+			"		}\n" + 
+			"		public <X> void create() {\n" + 
+			"			new In.Inner<X>();\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"}"
+		},
+		"----------\n" + 
+		"1. ERROR in A.java (at line 7)\n" + 
+		"	new In.Inner<X>();\n" + 
 		"	    ^^\n" + 
-		"The member type A.Nested.In must be parameterized, since it is qualified with a parameterized type\n" + 
+		"The member type A<V>.Nested.In must be parameterized, since it is qualified with a parameterized type\n" + 
 		"----------\n");
 }
 

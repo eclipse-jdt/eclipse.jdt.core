@@ -490,7 +490,7 @@ public abstract class Scope {
 					ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
 					ReferenceBinding originalEnclosing = originalType.enclosingType();
 					ReferenceBinding substitutedEnclosing = originalEnclosing;
-					if (originalEnclosing != null) {
+					if (originalEnclosing != null && !originalType.isStatic()) {
 						substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
 						if (isMemberTypeOfRaw(originalType, substitutedEnclosing))
 							return originalParameterizedType.environment.createRawType(
@@ -571,7 +571,7 @@ public abstract class Scope {
 					}
 	
 				    // treat as if parameterized with its type variables (non generic type gets 'null' arguments)
-					if (substitutedEnclosing != originalEnclosing) { //$IDENTITY-COMPARISON$
+					if (substitutedEnclosing != originalEnclosing && !originalType.isStatic()) { //$IDENTITY-COMPARISON$
 						return substitution.isRawSubstitution()
 							? substitution.environment().createRawType(originalReferenceType, substitutedEnclosing, originalType.getTypeAnnotations())
 							:  substitution.environment().createParameterizedType(originalReferenceType, null, substitutedEnclosing, originalType.getTypeAnnotations());

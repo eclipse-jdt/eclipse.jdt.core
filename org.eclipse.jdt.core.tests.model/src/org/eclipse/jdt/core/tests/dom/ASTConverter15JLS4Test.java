@@ -6352,7 +6352,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 	}
 
 	/*
-	 * Ensures that the key of parameterized type binding with a raw enclosing type is correct
+	 * Ensures that the key of static member of generic enclosing type is correct
 	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=83064)
 	 */
 	public void test0204() throws JavaModelException {
@@ -6365,8 +6365,51 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
     		"}";
 	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
 	   	assertBindingsEqual(
-	   		"LX<>.Y;",
+	   		"LX$Y;", // static member is not raw
 	   		bindings);
+	}
+
+	/*
+	 * Ensures that the key of non-static member with a generic enclosing type is correct
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=83064)
+	 */
+	public void test0204b() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public class X<T> {\n" +
+    		"	class Y {\n" +
+    		"		/*start*/Y/*end*/ y;\n" +
+    		"	}\n" +
+    		"}";
+	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
+	   	assertBindingsEqual(
+	   		"LX<LX;:TT;>.Y;", // non-static member is generic
+	   		bindings);
+	}
+
+	/*
+	 * Ensures that the key of non-static member with a raw enclosing type is correct
+	 * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=83064)
+	 */
+	public void test0204c() throws JavaModelException {
+		this.workingCopy = getWorkingCopy("/Converter15/src/X.java", true/*resolve*/);
+    	String contents =
+    		"public class X<T> {\n" +
+    		"	class Y {\n" +
+    		"	}\n" +
+    		"	static X./*start*/Y/*end*/ y;\n" +
+    		"}";
+    	IJavaProject javaProject = this.workingCopy.getJavaProject();
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, true);
+    	try {
+    		javaProject.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
+		   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
+		   	assertBindingsEqual(
+		   		"LX<>.Y;", // non-static member with raw enclosing
+		   		bindings);
+    	} finally {
+    		javaProject.setOption(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, old);
+    	}
 	}
 
 	/*
@@ -6384,7 +6427,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
     		"    }\n" +
     		"}";
 	   	IBinding[] bindings = resolveBindings(contents, this.workingCopy);
-	   	assertFalse("Declaration and reference keys should not be the same", bindings[0].getKey().equals(bindings[1].getKey()));
+	   	assertTrue("Bindings should be the same", bindings[0] == bindings[1]); // generic outer is irrelevant because @interface is implicitly static
 	}
 
 	/*

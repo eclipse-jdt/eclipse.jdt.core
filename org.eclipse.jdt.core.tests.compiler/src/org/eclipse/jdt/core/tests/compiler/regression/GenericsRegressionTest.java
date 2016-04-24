@@ -1953,7 +1953,7 @@ public void test339478h() {
 		"1. ERROR in X.java (at line 2)\n" + 
 		"	public void foo(Object x) throws X.Y<>.LException {\n" + 
 		"	                                 ^^^\n" + 
-		"Incorrect number of arguments for type X.Y; it cannot be parameterized with arguments <>\n" + 
+		"Incorrect number of arguments for type X.Y<T>; it cannot be parameterized with arguments <>\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 5)\n" + 
 		"	static class LException extends Throwable {}\n" + 
@@ -5845,6 +5845,23 @@ public void testBug498057() {
 		"",
 		null
 	);
+}
+public void testBug460491_comment23() {
+	runConformTest(
+		new String[] {
+			"PM.java",
+			"public class PM<E extends Enum<E>> {\n" + 
+			"	public PM(Class<E> clazz) {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	enum MyEnum {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		new PM<MyEnum>(MyEnum.class);\n" + 
+			"	}\n" + 
+			"}\n"
+		});
 }
 }
 

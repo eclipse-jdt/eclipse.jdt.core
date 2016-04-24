@@ -8968,7 +8968,7 @@ public void test270() {
 		"1. ERROR in Test.java (at line 3)\n" +
 		"	Anno value();\n" +
 		"	^^^^\n" +
-		"Cycle detected: the annotation type Test<T>.Anno cannot contain attributes of the annotation type itself\n" +
+		"Cycle detected: the annotation type Test.Anno cannot contain attributes of the annotation type itself\n" +
 		"----------\n");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=289576

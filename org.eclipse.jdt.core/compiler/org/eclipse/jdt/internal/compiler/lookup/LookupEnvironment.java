@@ -478,13 +478,13 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 public ReferenceBinding convertToParameterizedType(ReferenceBinding originalType) {
 	if (originalType != null) {
 		boolean isGeneric = originalType.isGenericType();
+		if (!isGeneric && originalType.isStatic())
+			return originalType;
 		ReferenceBinding originalEnclosingType = originalType.enclosingType();
 		ReferenceBinding convertedEnclosingType = originalEnclosingType;
 		boolean needToConvert = isGeneric;
-		if (originalEnclosingType != null) {
-			convertedEnclosingType = originalType.isStatic()
-				? (ReferenceBinding) convertToRawType(originalEnclosingType, false /*do not force conversion of enclosing types*/)
-				: convertToParameterizedType(originalEnclosingType);
+		if (originalEnclosingType != null && !originalType.isStatic()) {
+			convertedEnclosingType = convertToParameterizedType(originalEnclosingType);
 			needToConvert |= TypeBinding.notEquals(originalEnclosingType, convertedEnclosingType);
 		}
 		if (needToConvert) {
@@ -535,6 +535,7 @@ public TypeBinding convertToRawType(TypeBinding type, boolean forceRawEnclosingT
 			needToConvert = false;
 			break;
 	}
+	forceRawEnclosingType &= !type.isStatic();
 	ReferenceBinding originalEnclosing = originalType.enclosingType();
 	TypeBinding convertedType;
 	if (originalEnclosing == null) {
@@ -554,7 +555,7 @@ public TypeBinding convertToRawType(TypeBinding type, boolean forceRawEnclosingT
 		}
 		if (needToConvert) {
 			convertedType = createRawType((ReferenceBinding) originalType.erasure(), convertedEnclosing);
-		} else if (TypeBinding.notEquals(originalEnclosing, convertedEnclosing)) {
+		} else if (TypeBinding.notEquals(originalEnclosing, convertedEnclosing) && !originalType.isStatic()) {
 			convertedType = createParameterizedType((ReferenceBinding) originalType.erasure(), null, convertedEnclosing);
 		} else {
 			convertedType = originalType;
@@ -629,14 +630,15 @@ public TypeBinding convertUnresolvedBinaryToRawType(TypeBinding type) {
 	if (originalEnclosing == null) {
 		convertedType = needToConvert ? createRawType((ReferenceBinding)originalType.erasure(), null) : originalType;
 	} else {
+		if (!needToConvert && originalType.isStatic())
+			return originalType;
+
 		ReferenceBinding convertedEnclosing = (ReferenceBinding) convertUnresolvedBinaryToRawType(originalEnclosing);
 		if (TypeBinding.notEquals(convertedEnclosing, originalEnclosing)) {
-			needToConvert |= !((ReferenceBinding)originalType).isStatic();
+			needToConvert = true;
 		}
 		if (needToConvert) {
 			convertedType = createRawType((ReferenceBinding) originalType.erasure(), convertedEnclosing);
-		} else if (TypeBinding.notEquals(originalEnclosing, convertedEnclosing)) {
-			convertedType = createParameterizedType((ReferenceBinding) originalType.erasure(), null, convertedEnclosing);
 		} else {
 			convertedType = originalType;
 		}
@@ -1533,9 +1535,6 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 		if (CharOperation.indexOf('$', actualType.compoundName[actualType.compoundName.length - 1]) > 0)
 			actualType = (ReferenceBinding) BinaryTypeBinding.resolveType(actualType, this, false /* no raw conversion */); // must resolve member types before asking for enclosingType
 	ReferenceBinding actualEnclosing = actualType.enclosingType();
-	if (actualEnclosing != null) { // convert needed if read some static member type
-		actualEnclosing = (ReferenceBinding) convertToRawType(actualEnclosing, false /*do not force conversion of enclosing types*/);
-	}
 	AnnotationBinding [] annotations = BinaryTypeBinding.createAnnotations(walker.getAnnotationsAtCursor(actualType.id), this, missingTypeNames);
 	TypeBinding[] typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, actualType, missingTypeNames, walker);
 	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments, actualEnclosing, annotations);

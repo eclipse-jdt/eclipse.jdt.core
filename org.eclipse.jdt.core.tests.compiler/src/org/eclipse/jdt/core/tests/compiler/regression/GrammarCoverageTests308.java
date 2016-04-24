@@ -1160,12 +1160,12 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 					"1. WARNING in X.java (at line 3)\n" + 
 					"	java.util.Map.Entry [] e = (java.util.Map<String, String>.@Marker Entry []) null;\n" + 
 					"	^^^^^^^^^^^^^^^^^^^\n" + 
-					"Map.Entry is a raw type. References to generic type Map<K,V>.Entry<K,V> should be parameterized\n" + 
+					"Map.Entry is a raw type. References to generic type Map.Entry<K,V> should be parameterized\n" + 
 					"----------\n" + 
 					"2. ERROR in X.java (at line 3)\n" + 
 					"	java.util.Map.Entry [] e = (java.util.Map<String, String>.@Marker Entry []) null;\n" + 
 					"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-					"The member type Map<String,String>.Entry cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Map<String,String>\n" + 
+					"The member type Map.Entry<K,V> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Map<String,String>\n" + 
 					"----------\n" + 
 					"3. ERROR in X.java (at line 3)\n" + 
 					"	java.util.Map.Entry [] e = (java.util.Map<String, String>.@Marker Entry []) null;\n" + 
@@ -1590,7 +1590,7 @@ public class GrammarCoverageTests308 extends AbstractRegressionTest {
 				"9. ERROR in X.java (at line 5)\n" + 
 				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
 				"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"The member type Map<String,String>.Entry cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Map<String,String>\n" + 
+				"The member type Map.Entry<K,V> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Map<String,String>\n" + 
 				"----------\n" + 
 				"10. ERROR in X.java (at line 5)\n" + 
 				"	Object r = (@Marker java. @Marker util.@Marker Map<@Marker String, @Marker String>.@Marker Entry @Marker []) null;\n" + 
