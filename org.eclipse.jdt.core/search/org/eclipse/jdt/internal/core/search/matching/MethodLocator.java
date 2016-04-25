@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
+import org.eclipse.jdt.internal.core.BinaryMethod;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -330,6 +331,7 @@ protected int matchMethod(MethodBinding method, boolean skipImpossibleArg) {
 		boolean foundTypeVariable = false;
 		MethodBinding focusMethodBinding = null;
 		boolean checkedFocus = false;
+		boolean isBinary = this.pattern!= null && this.pattern.focus instanceof BinaryMethod;
 		// verify each parameter
 		for (int i = 0; i < parameterCount; i++) {
 			TypeBinding argType = method.parameters[i];
@@ -343,7 +345,8 @@ protected int matchMethod(MethodBinding method, boolean skipImpossibleArg) {
 				if (focusMethodBinding != null) {// textual comparison insufficient
 					TypeBinding[] parameters = focusMethodBinding.parameters;
 					if (parameters.length >= parameterCount) {
-						newLevel = argType.isEquivalentTo((parameters[i])) ? ACCURATE_MATCH : IMPOSSIBLE_MATCH;
+						newLevel = (isBinary ? argType.erasure().isEquivalentTo((parameters[i].erasure())) :argType.isEquivalentTo((parameters[i]))) ? 
+								ACCURATE_MATCH : IMPOSSIBLE_MATCH;
 						foundLevel = true;
 					}
 				}

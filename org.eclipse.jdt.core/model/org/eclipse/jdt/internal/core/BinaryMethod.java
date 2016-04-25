@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,7 +37,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * @see IMethod
  */
 
-/* package */ class BinaryMethod extends BinaryMember implements IMethod {
+public class BinaryMethod extends BinaryMember implements IMethod {
 	/**
 	 * The parameter type signatures of the method - stored locally
 	 * to perform equality test. <code>CharOperation.NO_STRINGS</code> indicates no

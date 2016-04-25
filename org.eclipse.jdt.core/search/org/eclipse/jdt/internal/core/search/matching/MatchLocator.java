@@ -62,6 +62,7 @@ import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.hierarchy.HierarchyResolver;
 import org.eclipse.jdt.internal.core.BinaryMember;
+import org.eclipse.jdt.internal.core.BinaryMethod;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.CompilationUnit;
@@ -155,6 +156,7 @@ SimpleLookupTable bindings;
 HashtableOfIntValues inTypeOccurrencesCounts = new HashtableOfIntValues();
 // Cache for method handles
 HashSet methodHandles;
+private TypeBinding unitScopeTypeBinding = null; // cached
 
 private final boolean searchPackageDeclaration;
 private int sourceStartOfMethodToRetain;
@@ -918,6 +920,7 @@ protected TypeBinding getType(Object typeKey, char[] typeName) {
 	// Get binding from unit scope
 	char[][] compoundName = CharOperation.splitOn('.', typeName);
 	TypeBinding typeBinding = this.unitScope.getType(compoundName, compoundName.length);
+	this.unitScopeTypeBinding = typeBinding; //cache.
 	if (typeBinding == null || !typeBinding.isValidBinding()) {
 		typeBinding = this.lookupEnvironment.getType(compoundName);
 	}
@@ -925,6 +928,7 @@ protected TypeBinding getType(Object typeKey, char[] typeName) {
 	return typeBinding != null && typeBinding.isValidBinding() ? typeBinding : null;
 }
 public MethodBinding getMethodBinding(MethodPattern methodPattern) {
+	this.unitScopeTypeBinding = null;
     MethodBinding methodBinding = getMethodBinding0(methodPattern);
     if (methodBinding != null)
     	return methodBinding; // known to be valid.
@@ -953,6 +957,26 @@ public MethodBinding getMethodBinding(MethodPattern methodPattern) {
     					}
     				}
     			}
+    		}
+    	}
+    } else if (methodPattern.focus instanceof BinaryMethod &&
+    		methodPattern.declaringType instanceof BinaryType &&
+    		this.unitScopeTypeBinding instanceof ProblemReferenceBinding) {//Get binding from unit scope for non-visible member of binary type
+    	char[] typeName = PatternLocator.qualifiedPattern(methodPattern.declaringSimpleName, methodPattern.declaringQualification);
+    	if (typeName != null) {
+    		IType type = methodPattern.declaringType;
+    		IType enclosingType = type.getDeclaringType();
+    		while (enclosingType != null) {
+    			type = enclosingType;
+    			enclosingType = type.getDeclaringType();
+    		}
+    		typeName = type.getFullyQualifiedName().toCharArray();
+    		TypeBinding typeBinding = this.unitScopeTypeBinding;
+    		if (typeBinding instanceof ProblemReferenceBinding) {
+    			ProblemReferenceBinding problemReferenceBinding = (ProblemReferenceBinding) this.unitScopeTypeBinding;
+    			ReferenceBinding closestMatch = (problemReferenceBinding.problemId() == ProblemReasons.NotVisible) ?
+    					problemReferenceBinding.closestReferenceMatch() : null;
+    					return closestMatch != null ?  getMethodBinding(methodPattern, closestMatch) : null;
     		}
     	}
     }
@@ -1060,7 +1084,6 @@ private MethodBinding getMethodBinding0(MethodPattern methodPattern) {
 	if (binding != null) {
 		if (binding instanceof MethodBinding && binding.isValidBinding())
 			return (MethodBinding) binding;
-		return null;
 	}
 	//	Get binding from unit scope
 	char[] typeName = PatternLocator.qualifiedPattern(methodPattern.declaringSimpleName, methodPattern.declaringQualification);
@@ -1075,59 +1098,65 @@ private MethodBinding getMethodBinding0(MethodPattern methodPattern) {
 			declaringTypeBinding = declaringTypeBinding.leafComponentType();
 		}
 		if (!declaringTypeBinding.isBaseType()) {
-			char[][] parameterTypes = methodPattern.parameterSimpleNames;
-			if (parameterTypes == null) return null;
-			int paramTypeslength = parameterTypes.length;
-			ReferenceBinding referenceBinding = (ReferenceBinding) declaringTypeBinding;
-			MethodBinding[] methods = referenceBinding.getMethods(methodPattern.selector);
-			int methodsLength = methods.length;
-			TypeVariableBinding[] refTypeVariables = referenceBinding.typeVariables();
-			int typeVarLength = refTypeVariables==null ? 0 : refTypeVariables.length;
-			List <MethodBinding> possibleMethods = new ArrayList<MethodBinding>(methodsLength);
-			for (int i=0; i<methodsLength; i++) {
-				TypeBinding[] methodParameters = methods[i].parameters;
-				int paramLength = methodParameters==null ? 0 : methodParameters.length;
-				TypeVariableBinding[] methodTypeVariables = methods[i].typeVariables;
-				int methTypeVarLength = methodTypeVariables==null ? 0 : methodTypeVariables.length;
-				boolean found = false;
-				if (methodParameters != null && paramLength == paramTypeslength) {
-					for (int p=0; p<paramLength; p++) {
-						if (CharOperation.equals(methodParameters[p].sourceName(), parameterTypes[p])) {
-							// param erasure match
-							found = true;
-						} else {
-							// type variable
-							found = false;
-							if (refTypeVariables != null) {
-								for (int v=0; v<typeVarLength; v++) {
-									if (!CharOperation.equals(refTypeVariables[v].sourceName, parameterTypes[p])) {
-										found = false;
-										break;
-									}
-									found = true;
-								}
-							}
-							if (!found && methodTypeVariables != null) {
-								for (int v=0; v<methTypeVarLength; v++) {
-									if (!CharOperation.equals(methodTypeVariables[v].sourceName, parameterTypes[p])) {
-										found = false;
-										break;
-									}
-									found = true;
-								}
-							}
-							if (!found) break;
-						}
-					}
-				}
-				if (found) {
-					possibleMethods.add(methods[i]);
-				}
-			}
-			result =  getMostApplicableMethod(possibleMethods, methodPattern);
+			result = getMethodBinding(methodPattern, declaringTypeBinding);
 		}
 	}
 	this.bindings.put(methodPattern, result != null ? result : new ProblemMethodBinding(methodPattern.selector, null, ProblemReasons.NotFound));
+	return result;
+}
+
+private MethodBinding getMethodBinding(MethodPattern methodPattern, TypeBinding declaringTypeBinding) {
+	MethodBinding result;
+	char[][] parameterTypes = methodPattern.parameterSimpleNames;
+	if (parameterTypes == null) return null;
+	int paramTypeslength = parameterTypes.length;
+	ReferenceBinding referenceBinding = (ReferenceBinding) declaringTypeBinding;
+	MethodBinding[] methods = referenceBinding.getMethods(methodPattern.selector);
+	int methodsLength = methods.length;
+	TypeVariableBinding[] refTypeVariables = referenceBinding.typeVariables();
+	int typeVarLength = refTypeVariables==null ? 0 : refTypeVariables.length;
+	List <MethodBinding> possibleMethods = new ArrayList<MethodBinding>(methodsLength);
+	for (int i=0; i<methodsLength; i++) {
+		TypeBinding[] methodParameters = methods[i].parameters;
+		int paramLength = methodParameters==null ? 0 : methodParameters.length;
+		TypeVariableBinding[] methodTypeVariables = methods[i].typeVariables;
+		int methTypeVarLength = methodTypeVariables==null ? 0 : methodTypeVariables.length;
+		boolean found = false;
+		if (methodParameters != null && paramLength == paramTypeslength) {
+			for (int p=0; p<paramLength; p++) {
+				if (CharOperation.equals(methodParameters[p].sourceName(), parameterTypes[p])) {
+					// param erasure match
+					found = true;
+				} else {
+					// type variable
+					found = false;
+					if (refTypeVariables != null) {
+						for (int v=0; v<typeVarLength; v++) {
+							if (!CharOperation.equals(refTypeVariables[v].sourceName, parameterTypes[p])) {
+								found = false;
+								break;
+							}
+							found = true;
+						}
+					}
+					if (!found && methodTypeVariables != null) {
+						for (int v=0; v<methTypeVarLength; v++) {
+							if (!CharOperation.equals(methodTypeVariables[v].sourceName, parameterTypes[p])) {
+								found = false;
+								break;
+							}
+							found = true;
+						}
+					}
+					if (!found) break;
+				}
+			}
+		}
+		if (found) {
+			possibleMethods.add(methods[i]);
+		}
+	}
+	result =  getMostApplicableMethod(possibleMethods, methodPattern);
 	return result;
 }
 protected boolean hasAlreadyDefinedType(CompilationUnitDeclaration parsedUnit) {
