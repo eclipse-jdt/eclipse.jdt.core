@@ -269,6 +269,7 @@ public final class Indexer {
 		try {
 			if (resourceFile.isInIndex()) {
 				resourceFile.setFingerprint(fingerprint);
+				this.nd.markPathAsModified(resourceFile.getLocalFile());
 				List<NdResourceFile> resourceFiles = javaIndex.getAllResourceFiles(pathString);
 
 				for (NdResourceFile next : resourceFiles) {

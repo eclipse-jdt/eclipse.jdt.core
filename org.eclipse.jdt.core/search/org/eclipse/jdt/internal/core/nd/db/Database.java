@@ -280,9 +280,7 @@ public class Database {
 	 * @throws IndexException
 	 */
 	public Chunk getChunk(long offset) throws IndexException {
-		if (!this.fLocked) {
-			throw new IllegalStateException("Database not locked!"); //$NON-NLS-1$
-		}
+		assertLocked();
 		if (offset < CHUNK_SIZE) {
 			return this.fHeaderChunk;
 		}
@@ -305,6 +303,12 @@ public class Database {
 			}
 			this.fCache.add(chunk, this.fExclusiveLock);
 			return chunk;
+		}
+	}
+
+	public void assertLocked() {
+		if (!this.fLocked) {
+			throw new IllegalStateException("Database not locked!"); //$NON-NLS-1$
 		}
 	}
 
