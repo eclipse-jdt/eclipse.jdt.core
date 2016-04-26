@@ -33089,7 +33089,7 @@ public void test0988() {
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
 			"	               ^^^^^^^^^^^^^^^^\n" + 
-			"The return types are incompatible for the inherited methods ILinkViewElement.getViewer(), EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
+			"The return types are incompatible for the inherited methods EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 11)\n" + 
 			"	public SheetViewer getViewer() { return null; }	\n" + 
@@ -52183,6 +52183,38 @@ public void testBug460491() {
 				"}"
 			},
 			customOptions);
+	}
+}
+public void testBug492450_comment0() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_6) {
+		runConformTest(
+			new String[] {
+				"DocumentObject.java",
+				"\n" + 
+				"import java.util.ArrayList;\n" + 
+				"\n" + 
+				"interface IDocumentElementNode {\n" + 
+				"	public ArrayList<?> getChildNodesList();\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class DocumentElementNode implements IDocumentElementNode {\n" + 
+				"	@Override\n" + 
+				"	public ArrayList<IDocumentElementNode> getChildNodesList() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface IDocumentObject extends IDocumentElementNode {\n" + 
+				"	public ArrayList<?> getChildNodesList(Class<?>[] classes, boolean match);\n" + 
+				"}\n" + 
+				"\n" + 
+				"public abstract class DocumentObject extends DocumentElementNode implements IDocumentObject {\n" + 
+				"	@Override\n" + 
+				"	public ArrayList<IDocumentElementNode> getChildNodesList(Class<?>[] classes, boolean match) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n"
+			});
 	}
 }
 }
