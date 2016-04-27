@@ -167,7 +167,7 @@ public abstract class JobManager implements Runnable {
 	 * 		IJobConstants.WaitUntilReadyToSearch
 	 *
 	 */
-	public boolean performConcurrentJob(IJob searchJob, int waitingPolicy, IProgressMonitor progress) {
+	public boolean performConcurrentJob(IJob searchJob, int waitingPolicy, IProgressMonitor monitor) {
 		if (VERBOSE)
 			Util.verbose("STARTING  concurrent job - " + searchJob); //$NON-NLS-1$
 
@@ -175,7 +175,7 @@ public abstract class JobManager implements Runnable {
 
 		boolean status = IJob.FAILED;
 		try {
-			SubMonitor subMonitor = SubMonitor.convert(progress);
+			SubMonitor subMonitor = SubMonitor.convert(monitor);
 			if (awaitingJobsCount() > 0) {
 				switch (waitingPolicy) {
 
@@ -218,8 +218,7 @@ public abstract class JobManager implements Runnable {
 							float lastWorked = 0;
 							float totalWorked = 0;
 							while ((awaitingJobsCount = awaitingJobsCount()) > 0) {
-								if ((subProgress != null && subProgress.isCanceled())
-										|| this.processingThread == null)
+								if (subProgress.isCanceled() || this.processingThread == null)
 									throw new OperationCanceledException();
 								IJob currentJob = currentJob();
 								// currentJob can be null when jobs have been added to the queue but job manager is not enabled
@@ -264,9 +263,7 @@ public abstract class JobManager implements Runnable {
 			}
 			status = searchJob.execute(subMonitor);
 		} finally {
-			if (progress != null) {
-				progress.done();
-			}
+			SubMonitor.done(monitor);
 			if (VERBOSE)
 				Util.verbose("FINISHED  concurrent job - " + searchJob); //$NON-NLS-1$
 		}

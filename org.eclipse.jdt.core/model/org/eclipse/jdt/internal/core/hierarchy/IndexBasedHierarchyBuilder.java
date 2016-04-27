@@ -22,7 +22,6 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -155,6 +154,7 @@ public void build(boolean computeSubtypes) {
 	}
 }
 private void buildForProject(JavaProject project, ArrayList potentialSubtypes, org.eclipse.jdt.core.ICompilationUnit[] workingCopies, HashSet localTypes, IProgressMonitor monitor) throws JavaModelException {
+	SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
 	// resolve
 	int openablesLength = potentialSubtypes.size();
 	if (openablesLength > 0) {
@@ -177,6 +177,7 @@ private void buildForProject(JavaProject project, ArrayList potentialSubtypes, o
 			}
 			indexes.put(openables[i], index);
 		}
+		subMonitor.split(1);
 		Arrays.sort(openables, new Comparator() {
 			public int compare(Object a, Object b) {
 				int aIndex = indexes.get(a);
@@ -235,17 +236,18 @@ private void buildForProject(JavaProject project, ArrayList potentialSubtypes, o
 				}
 				localTypes = new HashSet();
 				localTypes.add(openable.getPath().toString());
-				this.hierarchyResolver.resolve(new Openable[] {openable}, localTypes, monitor);
+				this.hierarchyResolver.resolve(new Openable[] {openable}, localTypes, subMonitor.split(9));
 				return;
 			}
 		}
-		this.hierarchyResolver.resolve(openables, localTypes, monitor);
+		this.hierarchyResolver.resolve(openables, localTypes, subMonitor.split(9));
 	}
 }
 /**
  * Configure this type hierarchy based on the given potential subtypes.
  */
 private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet localTypes, IProgressMonitor monitor) {
+	SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 	IType focusType = getType();
 
 	// substitute compilation units with working copies
@@ -283,6 +285,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 		length++;
 	}
 
+	subMonitor.split(5);
 	/*
 	 * Sort in alphabetical order so that potential subtypes are grouped per project
 	 */
@@ -290,11 +293,12 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 
 	ArrayList potentialSubtypes = new ArrayList();
 	try {
+		SubMonitor loopMonitor = subMonitor.split(95);
 		// create element infos for subtypes
 		HandleFactory factory = new HandleFactory();
 		IJavaProject currentProject = null;
-		if (monitor != null) monitor.beginTask("", length*2 /* 1 for build binding, 1 for connect hierarchy*/); //$NON-NLS-1$
 		for (int i = 0; i < length; i++) {
+			loopMonitor.setWorkRemaining(length - i + 1);
 			try {
 				String resourcePath = allPotentialSubTypes[i];
 
@@ -319,7 +323,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 					potentialSubtypes = new ArrayList(5);
 				} else if (!currentProject.equals(project)) {
 					// build current project
-					buildForProject((JavaProject)currentProject, potentialSubtypes, workingCopies, localTypes, monitor);
+					buildForProject((JavaProject)currentProject, potentialSubtypes, workingCopies, localTypes, loopMonitor.split(1));
 					currentProject = project;
 					potentialSubtypes = new ArrayList(5);
 				}
@@ -330,6 +334,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 			}
 		}
 
+		loopMonitor.setWorkRemaining(2);
 		// build last project
 		try {
 			if (currentProject == null) {
@@ -341,10 +346,12 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 					potentialSubtypes.add(focusType.getCompilationUnit());
 				}
 			}
-			buildForProject((JavaProject)currentProject, potentialSubtypes, workingCopies, localTypes, monitor);
+			buildForProject((JavaProject)currentProject, potentialSubtypes, workingCopies, localTypes, loopMonitor.split(1));
 		} catch (JavaModelException e) {
 			// ignore
 		}
+
+		loopMonitor.setWorkRemaining(1);
 
 		// Compute hierarchy of focus type if not already done (case of a type with potential subtypes that are not real subtypes)
 		if (!this.hierarchy.contains(focusType)) {
@@ -356,7 +363,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 				} else {
 					potentialSubtypes.add(focusType.getCompilationUnit());
 				}
-				buildForProject((JavaProject)currentProject, potentialSubtypes, workingCopies, localTypes, monitor);
+				buildForProject((JavaProject)currentProject, potentialSubtypes, workingCopies, localTypes, loopMonitor.split(1));
 			} catch (JavaModelException e) {
 				// ignore
 			}
@@ -367,7 +374,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 			this.hierarchy.addRootClass(focusType);
 		}
 	} finally {
-		if (monitor != null) monitor.done();
+		SubMonitor.done(monitor);
 	}
 }
 protected ICompilationUnit createCompilationUnitFromPath(Openable handle, IFile file) {
@@ -405,7 +412,6 @@ protected IBinaryType createInfoFromClassFileInJar(Openable classFile) {
  * Returns null if they could not be determine.
  */
 private String[] determinePossibleSubTypes(final HashSet localTypes, IProgressMonitor monitor) {
-
 	class PathCollector implements IPathRequestor {
 		HashSet paths = new HashSet(10);
 		public void acceptPath(String path, boolean containsLocalTypes) {
@@ -417,18 +423,13 @@ private String[] determinePossibleSubTypes(final HashSet localTypes, IProgressMo
 	}
 	PathCollector collector = new PathCollector();
 
-	try {
-		if (monitor != null) monitor.beginTask("", MAXTICKS); //$NON-NLS-1$
-		searchAllPossibleSubTypes(
-			getType(),
-			this.scope,
-			this.binariesFromIndexMatches,
-			collector,
-			IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
-			monitor);
-	} finally {
-		if (monitor != null) monitor.done();
-	}
+	searchAllPossibleSubTypes(
+		getType(),
+		this.scope,
+		this.binariesFromIndexMatches,
+		collector,
+		IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
+		monitor);
 
 	HashSet paths = collector.paths;
 	int length = paths.size();
@@ -453,7 +454,7 @@ private String[] determinePossibleSubTypes(final HashSet localTypes, IProgressMo
  * @param binariesFromIndexMatches
  * @param pathRequestor
  * @param waitingPolicy
- * @param progressMonitor
+ * @param monitor
  */
 public static void searchAllPossibleSubTypes(
 	IType type,
@@ -461,8 +462,9 @@ public static void searchAllPossibleSubTypes(
 	final Map binariesFromIndexMatches,
 	final IPathRequestor pathRequestor,
 	int waitingPolicy,	// WaitUntilReadyToSearch | ForceImmediateSearch | CancelIfNotReadyToSearch
-	final IProgressMonitor progressMonitor) {
+	final IProgressMonitor monitor) {
 
+	SubMonitor subMonitor = SubMonitor.convert(monitor);
 	/* embed constructs inside arrays so as to pass them to (inner) collector */
 	final Queue queue = new Queue();
 	final HashtableOfObject foundSuperNames = new HashtableOfObject(5);
@@ -523,11 +525,10 @@ public static void searchAllPossibleSubTypes(
 		scope,
 		searchRequestor);
 
-	int ticks = 0;
 	queue.add(type.getElementName().toCharArray());
 	try {
 		while (queue.start <= queue.end) {
-			if (progressMonitor != null && progressMonitor.isCanceled()) return;
+			subMonitor.setWorkRemaining(Math.max(queue.end - queue.start + 1, 100));
 
 			// all subclasses of OBJECT are actually all types
 			char[] currentTypeName = queue.retrieve();
@@ -536,22 +537,7 @@ public static void searchAllPossibleSubTypes(
 
 			// search all index references to a given supertype
 			pattern.superSimpleName = currentTypeName;
-			indexManager.performConcurrentJob(job, waitingPolicy, progressMonitor == null ? null : new NullProgressMonitor() {
-				// don't report progress since this is too costly for deep hierarchies (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=34078 )
-				// just handle isCanceled() (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=179511 )
-				public void setCanceled(boolean value) {
-					progressMonitor.setCanceled(value);
-				}
-				public boolean isCanceled() {
-					return progressMonitor.isCanceled();
-				}
-				// and handle subTask(...) (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=34078 )
-				public void subTask(String name) {
-					progressMonitor.subTask(name);
-				}
-			});
-			if (progressMonitor != null && ++ticks <= MAXTICKS)
-				progressMonitor.worked(1);
+			indexManager.performConcurrentJob(job, waitingPolicy, subMonitor.split(1));
 
 			// in case, we search all subtypes, no need to search further
 			if (currentTypeName == null) break;
