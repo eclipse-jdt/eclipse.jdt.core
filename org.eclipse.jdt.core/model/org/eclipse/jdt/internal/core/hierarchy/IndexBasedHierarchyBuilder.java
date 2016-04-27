@@ -527,7 +527,7 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 				continue;
 			}
 
-			subMonitor.setWorkRemaining(Math.max(typesToVisit.size(), 1000)).split(1);
+			subMonitor.setWorkRemaining(Math.max(typesToVisit.size(), 3000)).split(1);
 
 			boolean isLocalClass = nextType.isLocal() || nextType.isAnonymous();
 			pathRequestor.acceptPath(typePath, isLocalClass);
