@@ -1,5 +1,9 @@
 package org.eclipse.jdt.internal.core.nd.java.model;
 
+import java.io.IOException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -31,10 +35,6 @@ import org.eclipse.jdt.internal.core.nd.java.TypeRef;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.Util;
 
-import java.io.IOException;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
-
 public class BinaryTypeFactory {
 
 	public static final class NotInIndexException extends Exception {
@@ -52,12 +52,19 @@ public class BinaryTypeFactory {
 	 */
 	public static BinaryTypeDescriptor createDescriptor(PackageFragment pkg, ClassFile classFile) {
 		String name = classFile.getName();
-		JarPackageFragmentRoot root = (JarPackageFragmentRoot) pkg.getParent();
+		IJavaElement root = pkg.getParent();
 		IPath location = JavaIndex.getLocationForElement(root);
 		String entryName = Util.concatWith(pkg.names, classFile.getElementName(), '/');
 		char[] fieldDescriptor = CharArrayUtils.concat(new char[] { 'L' },
 				Util.concatWith(pkg.names, name, '/').toCharArray(), new char[] { ';' });
-		String indexPath = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
+		
+		String indexPath;
+
+		if (root instanceof JarPackageFragmentRoot) {
+			indexPath = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
+		} else {
+			indexPath = location.append(entryName).toString();
+		}
 
 		if (location == null) {
 			return null;
