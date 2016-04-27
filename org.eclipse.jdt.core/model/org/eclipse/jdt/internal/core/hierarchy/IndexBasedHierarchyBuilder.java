@@ -53,6 +53,7 @@ import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
+import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.nd.java.JavaNames;
@@ -494,11 +495,10 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 	JavaIndex index = JavaIndex.getIndex();
 	Nd nd = index.getNd();
 	char[] fieldDefinition = JavaNames.fullyQualifiedNameToFieldDescriptor(type.getFullyQualifiedName().toCharArray());
-	nd.acquireReadLock();
 
 	IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 
-	try {
+	try (IReader reader = nd.acquireReadLock()) {
 		NdTypeId foundType = index.findType(fieldDefinition);
 
 		if (foundType == null) {
@@ -527,7 +527,7 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 				continue;
 			}
 
-			subMonitor.setWorkRemaining(Math.max(typesToVisit.size(), 100)).split(1);
+			subMonitor.setWorkRemaining(Math.max(typesToVisit.size(), 1000)).split(1);
 
 			boolean isLocalClass = nextType.isLocal() || nextType.isAnonymous();
 			pathRequestor.acceptPath(typePath, isLocalClass);
@@ -545,8 +545,6 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 				}
 			}
 		}
-	} finally {
-		nd.releaseReadLock();
 	}
 }
 

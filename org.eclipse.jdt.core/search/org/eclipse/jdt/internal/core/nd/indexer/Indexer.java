@@ -461,7 +461,7 @@ public final class Indexer {
 		resources.addAll(toScan);
 
 		while (!resources.isEmpty()) {
-			subMonitor.setWorkRemaining(Math.max(resources.size(), 10)).split(1);
+			subMonitor.setWorkRemaining(Math.max(resources.size(), 1000)).split(1);
 			IResource next = resources.removeFirst();
 
 			if (next instanceof IContainer) {
