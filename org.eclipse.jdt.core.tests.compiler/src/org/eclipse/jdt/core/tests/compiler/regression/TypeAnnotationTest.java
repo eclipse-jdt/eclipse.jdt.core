@@ -25,7 +25,10 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.File;
 import java.util.Map;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 import junit.framework.Test;
 
@@ -6614,6 +6617,145 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}\n"
 			},
 			"@TestAnn1(value=1)");
+	}
+	public void testBug492322readFromClass() {
+		runConformTest(
+			new String[] {
+				"test1/Base.java",
+				"package test1;\n" +
+				"\n" +
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"\n" +
+				"@Target(ElementType.TYPE_USE) @interface A2 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface A3 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface A4 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface A5 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface A6 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface A7 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface A8 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface B1 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface B2 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface B3 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface C1 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface C2 {}\n" +
+				"\n" +
+				"public abstract class Base {\n" +
+				"  static public class Static {\n" +
+				"   public class Middle1 {\n" +
+				"     public class Middle2<M> {\n" +
+				"       public class Middle3 {\n" +
+				"        public class GenericInner<T> {\n" +
+				"        }\n" +
+				"       }\n" +
+				"     }\n" +
+				"   }\n" +
+				"  }\n" +
+				"\n" +
+				"  public Object method1(Base.@A2 Static.@A3 Middle1.@A4 Middle2<Object>.@A5 Middle3.@A6 GenericInner<String> nullable) {\n" +
+				"    return new Object();\n" +
+				"  }\n" +
+				"  public Object method2(Base.@A2 Static.@A3 Middle1.@A4 Middle2<@B1 Object>.@A5 Middle3.@A6 GenericInner<@B2 String> @A7 [] @A8 [] nullable) {\n" +
+				"    return new Object();\n" +
+				"  }\n" +
+				"  public Object method3(Base.@A2 Static.@A3 Middle1.@A4 Middle2<@B1 Class<@C1 Object @C2 []> @B2 []>.@A5 Middle3.@A6 GenericInner<@B3 String> @A7 [] @A8 [] nullable) {\n" +
+				"    return new Object();\n" +
+				"  }\n" +
+				"}\n" +
+				"",
+			}
+		);
+
+		// get compiled type via binarytypebinding
+		Requestor requestor = new Requestor(false, null /*no custom requestor*/, false, /* show category */ false /* show warning token*/);
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+		Compiler compiler = new Compiler(getNameEnvironment(new String[0], null), getErrorHandlingPolicy(),
+				new CompilerOptions(customOptions), requestor, getProblemFactory());
+		char [][] compoundName = new char [][] { "test1".toCharArray(), "Base".toCharArray()};
+		ReferenceBinding type = compiler.lookupEnvironment.askForType(compoundName);		
+		assertNotNull(type);
+		MethodBinding[] methods1 = type.getMethods("method1".toCharArray());
+		assertEquals("Base.@A2 Static.@A3 Middle1.@A4 Middle2<Object>.@A5 Middle3.@A6 GenericInner<String>",
+				new String(methods1[0].parameters[0].annotatedDebugName()));
+		
+		MethodBinding[] methods2 = type.getMethods("method2".toCharArray());
+		assertEquals("Base.@A2 Static.@A3 Middle1.@A4 Middle2<@B1 Object>.@A5 Middle3.@A6 GenericInner<@B2 String> @A7 [] @A8 []",
+				new String(methods2[0].parameters[0].annotatedDebugName()));
+		
+		MethodBinding[] methods3 = type.getMethods("method3".toCharArray());
+		assertEquals("Base.@A2 Static.@A3 Middle1.@A4 Middle2<@B1 Class<@C1 Object @C2 []> @B2 []>.@A5 Middle3.@A6 GenericInner<@B3 String> @A7 [] @A8 []",
+				new String(methods3[0].parameters[0].annotatedDebugName()));
+	}
+	
+	public void testBug492322readFromClassWithGenericBase() {
+		runConformTest(
+			new String[] {
+				"test1/Base.java",
+				"package test1;\n" +
+				"\n" +
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"\n" +
+				"@Target(ElementType.TYPE_USE) @interface A2 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface A3 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface A4 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface A5 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface A6 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface A7 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface A8 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface B1 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface B2 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface B3 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface C1 {}\n" +
+				"@Target(ElementType.TYPE_USE) @interface C2 {}\n" +
+				"\n" +
+				"public abstract class Base<B> {\n" +
+				"  static public class Static {\n" +
+				"   public class Middle1 {\n" +
+				"     public class Middle2<M> {\n" +
+				"       public class Middle3 {\n" +
+				"        public class GenericInner<T> {\n" +
+				"        }\n" +
+				"       }\n" +
+				"     }\n" +
+				"   }\n" +
+				"  }\n" +
+				"\n" +
+				"  public Object method1(Base.@A2 Static.@A3 Middle1.@A4 Middle2<Object>.@A5 Middle3.@A6 GenericInner<String> nullable) {\n" +
+				"    return new Object();\n" +
+				"  }\n" +
+				"  public Object method2(Base.@A2 Static.@A3 Middle1.@A4 Middle2<@B1 Object>.@A5 Middle3.@A6 GenericInner<@B2 String> @A7 [] @A8 [] nullable) {\n" +
+				"    return new Object();\n" +
+				"  }\n" +
+				"  public Object method3(Base.@A2 Static.@A3 Middle1.@A4 Middle2<@B1 Class<@C1 Object @C2 []> @B2 []>.@A5 Middle3.@A6 GenericInner<@B3 String> @A7 [] @A8 [] nullable) {\n" +
+				"    return new Object();\n" +
+				"  }\n" +
+				"}\n" +
+				"",
+			}
+		);
+
+		// get compiled type via binarytypebinding
+		Requestor requestor = new Requestor(false, null /*no custom requestor*/, false, /* show category */ false /* show warning token*/);
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+		Compiler compiler = new Compiler(getNameEnvironment(new String[0], null), getErrorHandlingPolicy(),
+				new CompilerOptions(customOptions), requestor, getProblemFactory());
+		char [][] compoundName = new char [][] { "test1".toCharArray(), "Base".toCharArray()};
+		ReferenceBinding type = compiler.lookupEnvironment.askForType(compoundName);		
+		assertNotNull(type);
+		MethodBinding[] methods1 = type.getMethods("method1".toCharArray());
+		assertEquals("Base.@A2 Static.@A3 Middle1.@A4 Middle2<Object>.@A5 Middle3.@A6 GenericInner<String>",
+				new String(methods1[0].parameters[0].annotatedDebugName()));
+		
+		MethodBinding[] methods2 = type.getMethods("method2".toCharArray());
+		assertEquals("Base.@A2 Static.@A3 Middle1.@A4 Middle2<@B1 Object>.@A5 Middle3.@A6 GenericInner<@B2 String> @A7 [] @A8 []",
+				new String(methods2[0].parameters[0].annotatedDebugName()));
+		
+		MethodBinding[] methods3 = type.getMethods("method3".toCharArray());
+		assertEquals("Base.@A2 Static.@A3 Middle1.@A4 Middle2<@B1 Class<@C1 Object @C2 []> @B2 []>.@A5 Middle3.@A6 GenericInner<@B3 String> @A7 [] @A8 []",
+				new String(methods3[0].parameters[0].annotatedDebugName()));
 	}
 }
 

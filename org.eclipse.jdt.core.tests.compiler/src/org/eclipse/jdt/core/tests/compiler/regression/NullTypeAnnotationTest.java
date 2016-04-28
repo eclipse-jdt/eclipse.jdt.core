@@ -12470,4 +12470,185 @@ public void testBug497698nestedinraw() {
 		"----------\n"
 	);
 }
+public void testBug492322() {
+	runConformTestWithLibs(
+		new String[] {
+			"test1/Base.java",
+			"package test1;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.DefaultLocation;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public abstract class Base {\n" +
+			"  public class GenericInner<T> {\n" +
+			"  }\n" +
+			"\n" +
+			"  @NonNullByDefault(DefaultLocation.PARAMETER)\n" +
+			"  public Object method(@Nullable GenericInner<Object> nullable) {\n" +
+			"    return new Object();\n" +
+			"  }\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runConformTestWithLibs(
+		new String[] {
+			"test2/Derived.java",
+			"package test2;\n" +
+			"\n" +
+			"import test1.Base;\n" +
+			"\n" +
+			"class Derived extends Base {\n" +
+			"  void test() {\n" +
+			"    method(null);\n" +
+			"  }\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+public void testBug492322field() {
+	runConformTestWithLibs(
+		new String[] {
+			"test1/Base.java",
+			"package test1;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public abstract class Base {\n" +
+			"  public class GenericInner<T> {\n" +
+			"  }\n" +
+			"\n" +
+			"  protected @Nullable GenericInner<Object> field;\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runConformTestWithLibs(
+			new String[] {
+				"test2/Derived.java",
+				"package test2;\n" +
+				"\n" +
+				"import test1.Base;\n" +
+				"\n" +
+				"class Derived extends Base {\n" +
+				"  void test() {\n" +
+				"    field = null;\n" +
+				"  }\n" +
+				"}\n" +
+				"",
+			}, 
+			getCompilerOptions(),
+			""
+		);
+}
+public void testBug492322deep() {
+	runConformTestWithLibs(
+		new String[] {
+			"test1/Base.java",
+			"package test1;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.DefaultLocation;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public abstract class Base {\n" +
+			"  public static class Static {\n" +
+			"   public class Middle1 {\n" +
+			"     public class Middle2<M> {\n" +
+			"       public class Middle3 {\n" +
+			"        public class GenericInner<T> {\n" +
+			"        }\n" +
+			"       }\n" +
+			"     }\n" +
+			"   }\n" +
+			"  }\n" +
+			"\n" +
+			"  @NonNullByDefault(DefaultLocation.PARAMETER)\n" +
+			"  public Object method( Static.Middle1.Middle2<Object>.Middle3.@Nullable GenericInner<String> nullable) {\n" +
+			"    return new Object();\n" +
+			"  }\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runConformTestWithLibs(
+		new String[] {
+			"test2/Derived.java",
+			"package test2;\n" +
+			"\n" +
+			"import test1.Base;\n" +
+			"\n" +
+			"class Derived extends Base {\n" +
+			"  void test() {\n" +
+			"    method(null);\n" +
+			"  }\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+public void testBug492322withGenericBase() {
+	runConformTestWithLibs(
+		new String[] {
+			"test1/Base.java",
+			"package test1;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.DefaultLocation;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public abstract class Base<B> {\n" +
+			"   static public class Static {\n" +
+			"    public class Middle1 {\n" +
+			"     public class Middle2<M> {\n" +
+			"       public class Middle3 {\n" +
+			"        public class GenericInner<T> {\n" +
+			"        }\n" +
+			"       }\n" +
+			"     }\n" +
+			"   }\n" +
+			"  }\n" +
+			"\n" +
+			"  @NonNullByDefault(DefaultLocation.PARAMETER)\n" +
+			"  public Object method( Static.Middle1.Middle2<Object>.Middle3.@Nullable GenericInner<String> nullable) {\n" +
+			"    return new Object();\n" +
+			"  }\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runConformTestWithLibs(
+		new String[] {
+			"test2/Derived.java",
+			"package test2;\n" +
+			"\n" +
+			"import test1.Base;\n" +
+			"\n" +
+			"class Derived extends Base<Number> {\n" +
+			"  void test() {\n" +
+			"    method(null);\n" +
+			"  }\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
 }

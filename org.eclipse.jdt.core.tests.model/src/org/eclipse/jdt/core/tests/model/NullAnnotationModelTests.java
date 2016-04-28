@@ -858,14 +858,11 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			this.problemRequestor.initialize(c2SourceChars);
 
 			getCompilationUnit("/Bug460491/src/test2/Derived.java").getWorkingCopy(this.wcOwner, null);
-			// enable this after bug 492322 is fixed:
-			/*-
-				assertProblems(
-						"Unexpected problems",
-						"----------\n" +
-						"----------\n"
-						);
-			*/
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" +
+					"----------\n"
+					);
 		} finally {
 			if (project != null)
 				deleteProject(project);
