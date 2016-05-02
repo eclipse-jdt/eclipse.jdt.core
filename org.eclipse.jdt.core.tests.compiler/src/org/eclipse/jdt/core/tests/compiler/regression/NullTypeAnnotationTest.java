@@ -12226,4 +12226,32 @@ public void testBug489245() {
 		"----------\n"
 	);
 }
+public void testBug492327() {
+	runConformTestWithLibs(
+		new String[] {
+			"WatchEvent.java",
+			"public interface WatchEvent<T> {\n" +
+			"	public static interface Modifier {\n" +
+			"	}\n" +
+			"}\n",
+			"Watchable.java",
+			"public interface Watchable {\n" +
+			"	void register(WatchEvent.Modifier[] modifiers);\n" +
+			"}\n",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runConformTestWithLibs(
+		new String[] {
+			"Path.java",
+			"public interface Path extends Watchable {\n" +
+			"  @Override\n" +
+			"  void register(WatchEvent.Modifier[] modifiers);\n" +
+			"}\n",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
 }
