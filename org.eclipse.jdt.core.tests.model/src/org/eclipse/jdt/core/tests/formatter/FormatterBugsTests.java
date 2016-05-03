@@ -12443,4 +12443,19 @@ public void testBug488898() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/492735 - [formatter] Excessive wrapping in a complex expression
+ */
+public void testBug492735() {
+	this.formatterPrefs.alignment_for_assignment = Alignment.M_COMPACT_SPLIT;
+	this.formatterPrefs.page_width = 60;
+	String source =
+		"class FormatterIssue {\r\n" + 
+		"	String[] S = new String[] {\r\n" + 
+		"			foo(\"first line  xxxxxxxxxxx\", \"y\", \"z\"),\r\n" + 
+		"			foo(\"second line xxxxxxxxxxxxxxxxxxx\", \"b\",\r\n" + 
+		"					\"c\"), };\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
