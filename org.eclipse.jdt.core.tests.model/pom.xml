@@ -30,14 +30,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>tycho-packaging-plugin</artifactId>
-        <version>${tycho.version}</version>
-        <configuration>
-          <format>'v${buildTimestamp}'</format>
-        </configuration>
-      </plugin>
-      <plugin>
       	<groupId>org.eclipse.tycho</groupId>
       	<artifactId>tycho-surefire-plugin</artifactId>
       	<version>${tycho.version}</version>
