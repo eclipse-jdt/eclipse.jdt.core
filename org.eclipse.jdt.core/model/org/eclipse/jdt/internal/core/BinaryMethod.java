@@ -41,7 +41,7 @@ public class BinaryMethod extends BinaryMember implements IMethod {
 	/**
 	 * The parameter type signatures of the method - stored locally
 	 * to perform equality test. <code>CharOperation.NO_STRINGS</code> indicates no
-	 * parameters.
+	 * parameters. Note that the parameter type signatures are expected to be dot-based.
 	 */
 	protected String[] parameterTypes;
 	protected String [] erasedParamaterTypes; // lazily initialized via call to getErasedParameterTypes
