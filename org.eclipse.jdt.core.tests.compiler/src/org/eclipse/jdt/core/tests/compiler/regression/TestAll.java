@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,6 +86,7 @@ public static Test suite() {
 	standardTests.add(ManifestAnalyzerTest.class);
 	standardTests.add(InitializationTests.class);
 	standardTests.add(ResourceLeakTests.class);
+	standardTests.add(PackageBindingTest.class);
 
 	// add all javadoc tests
 	for (int i=0, l=JavadocTest.ALL_CLASSES.size(); i<l; i++) {

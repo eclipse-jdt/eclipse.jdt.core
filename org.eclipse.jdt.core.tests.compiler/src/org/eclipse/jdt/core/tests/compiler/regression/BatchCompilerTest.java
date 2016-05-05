@@ -54,9 +54,14 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.CompilationProgress;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.batch.ClasspathDirectory;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathJar;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathLocation;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
+import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -14555,5 +14560,43 @@ public void test439750() {
 			"----------\n" +
 			"1 problem (1 warning)\n",
 			true);
+}
+
+/**
+ * A fast exit/result is expected when secondary types are searched with the reserved class name "package-info",
+ * because there can not exist a secondary type with the name "package-info", because it is a reserved class name.
+ * This fast exit improves the performance, because the search for secondary types is very expensive regarding performance
+ * (all classes of a package have to get loaded, parsed and analyzed).
+ */
+public void testFileSystem_findSecondaryInClass() {
+	final String testScratchArea = "fileSystemTestScratchArea";
+
+	File testScratchAreaFile = new File(Util.getOutputDirectory(), testScratchArea);
+	try {
+		if(!testScratchAreaFile.exists()) {
+			testScratchAreaFile.mkdirs();
+		}
+
+		assertTrue(testScratchAreaFile.exists());
+
+		Classpath classpath = FileSystem.getClasspath(testScratchAreaFile.getPath(), null, null);
+		assertNotNull(classpath);
+		assertTrue(classpath instanceof ClasspathDirectory);
+
+		ClasspathDirectory classpathDirectory = (ClasspathDirectory)classpath;
+		NameEnvironmentAnswer answer = classpathDirectory.findSecondaryInClass(TypeConstants.PACKAGE_INFO_NAME, null, null);
+		assertNull(answer); //No answer is expected, because "package-info" isn't a secondary type.
+
+		try {
+			//When there is a call with another name like "package-info", an exception is expected, because the search can not get executed successfully
+			// when no value for qualifiedPackageName is provided.
+			classpathDirectory.findSecondaryInClass("X".toCharArray(), null, null);
+			fail("An exception is expected, because the parameter qualifiedPackageName can not be NULL!");
+		} catch(Exception e) {}
+	} finally {
+		if(testScratchAreaFile.exists()) {
+			Util.delete(testScratchAreaFile);
+		}
+	}
 }
 }
