@@ -338,6 +338,9 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 			typeName);
 	return null;
 }
+public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes) {
+	return findType(typeName, packageName);
+}
 
 public boolean isPackage(char[][] compoundName, char[] packageName) {
 	return isPackage(new String(CharOperation.concatWith(compoundName, packageName, '/')));

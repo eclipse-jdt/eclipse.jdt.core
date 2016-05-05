@@ -12,7 +12,6 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
-import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 
 /**
  * The name environment provides a callback API that the compiler
@@ -26,7 +25,6 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
  * @since 3.6
  */
 public interface INameEnvironmentWithProgress extends INameEnvironment {
-
 	/**
 	 * Set the monitor for the given name environment. In order to be able to cancel this name environment calls,
 	 * a non-null monitor should be given. 
@@ -34,28 +32,4 @@ public interface INameEnvironmentWithProgress extends INameEnvironment {
 	 * @param monitor the given monitor
 	 */
 	void setMonitor(IProgressMonitor monitor);
-
-	/**
-	 * Find a type named <typeName> in the package <packageName>.
-	 * Answer the binary form of the type if it is known to be consistent.
-	 * Otherwise, answer the compilation unit which defines the type
-	 * or null if the type does not exist.
-	 * The default package is indicated by char[0][].
-	 *
-	 * It is known that the package containing the type exists.
-	 *
-	 * NOTE: This method can be used to find a member type using its
-	 * internal name A$B, but the source file for A is answered if the binary
-	 * file is inconsistent.
-	 *
-	 * The flag <searchWithSecondaryTypes> can be used to switch on/off the search for secondary types.
-	 * This is useful because the search for secondary types may by very expensive regarding the performance
-	 * and in many cases it isn't necessary to search for secondary types.
-	 *
-	 * @param typeName type to find
-	 * @param packageName package of the searched type
-	 * @param searchWithSecondaryTypes flag to switch on/off the search for secondary types
-	 * @return {@link NameEnvironmentAnswer}
-	 */
-	NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes);
 }

@@ -306,6 +306,9 @@ public class SearchableEnvironment
 			new String(name),
 			packageName == null || packageName.length == 0 ? null : CharOperation.toString(packageName));
 	}
+	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes) {
+		return findType(typeName, packageName);
+	}
 
 	/**
 	 * Find the top-level types that are defined

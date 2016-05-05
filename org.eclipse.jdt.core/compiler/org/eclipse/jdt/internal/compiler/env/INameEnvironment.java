@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,7 +47,30 @@ NameEnvironmentAnswer findType(char[][] compoundTypeName);
  */
 
 NameEnvironmentAnswer findType(char[] typeName, char[][] packageName);
+
 /**
+ * Find a type named <typeName> in the package <packageName>.
+ * Answer the binary form of the type if it is known to be consistent.
+ * Otherwise, answer the compilation unit which defines the type
+ * or null if the type does not exist.
+ * The default package is indicated by char[0][].
+ *
+ * It is known that the package containing the type exists.
+ *
+ * NOTE: This method can be used to find a member type using its
+ * internal name A$B, but the source file for A is answered if the binary
+ * file is inconsistent.
+ *
+ * The flag <searchWithSecondaryTypes> can be used to switch on/off the search for secondary types.
+ * This is useful because the search for secondary types may by very expensive regarding the performance
+ * and in many cases it isn't necessary to search for secondary types.
+ *
+ * @param typeName type to find
+ * @param packageName package of the searched type
+ * @param searchWithSecondaryTypes flag to switch on/off the search for secondary types
+ * @return {@link NameEnvironmentAnswer}
+ */
+NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes);/**
  * Answer whether packageName is the name of a known subpackage inside
  * the package parentPackageName. A top level package is found relative to null.
  * The default package is always assumed to exist.
@@ -55,6 +78,9 @@ NameEnvironmentAnswer findType(char[] typeName, char[][] packageName);
  * For example:
  *      isPackage({{java}, {awt}}, {event});
  *      isPackage(null, {java});
+ *      
+ * TODO: When the minimum compliance moves to 1.8, add a default implementation which calls
+ * findType(char[] typeName, char[][] packageName);
  */
 
 boolean isPackage(char[][] parentPackageName, char[] packageName);
