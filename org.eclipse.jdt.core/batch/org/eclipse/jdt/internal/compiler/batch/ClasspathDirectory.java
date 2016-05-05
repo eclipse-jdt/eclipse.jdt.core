@@ -195,6 +195,7 @@ private Hashtable<String, String> getPackageTypes(String qualifiedPackageName) {
 		if (f.isDirectory()) continue;
 		String s = f.getAbsolutePath();
 		if (s == null) continue;
+		if (!(s.endsWith(SUFFIX_STRING_java) || s.endsWith(SUFFIX_STRING_JAVA))) continue;
 		CompilationUnit cu = new CompilationUnit(null, s, this.encoding, this.destinationPath);
 		CompilationResult compilationResult = new CompilationResult(cu.getContents(), 1, 1, 10);
 		ProblemReporter problemReporter = 
@@ -203,6 +204,7 @@ private Hashtable<String, String> getPackageTypes(String qualifiedPackageName) {
 					new CompilerOptions(this.options),
 					new DefaultProblemFactory());
 		Parser parser = new Parser(problemReporter, false);
+		parser.reportSyntaxErrorIsRequired = false;
 
 		CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = unit != null ? unit.types : null;
