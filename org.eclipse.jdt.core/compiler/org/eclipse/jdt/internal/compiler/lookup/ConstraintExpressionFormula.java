@@ -235,7 +235,9 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			throw new IllegalStateException("Should not reach here with T being a proper type"); //$NON-NLS-1$
 		if (!t.isFunctionalInterface(inferenceContext.scope))
 			return FALSE;
-		MethodBinding functionType = t.getSingleAbstractMethod(inferenceContext.scope, true);
+		MethodBinding functionType = (t instanceof ParameterizedTypeBinding) 
+									? ((ParameterizedTypeBinding)t).getSingleAbstractMethod(inferenceContext.scope, true, reference.sourceStart, reference.sourceEnd)
+									: t.getSingleAbstractMethod(inferenceContext.scope, true);
 		if (functionType == null)
 			return FALSE;
 		// potentially-applicable method for the method reference when targeting T (15.13.1),

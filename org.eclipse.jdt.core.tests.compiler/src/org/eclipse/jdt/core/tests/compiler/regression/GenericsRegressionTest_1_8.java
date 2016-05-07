@@ -6237,4 +6237,164 @@ public void testBug487563() {
 		"The method copyToValueObject(Java8TypeInferenceProblem.BusinessObject, Class<Java8TypeInferenceProblem.ValueObjectImpl>) is ambiguous for the type Java8TypeInferenceProblem\n" + 
 		"----------\n");
 }
+public void testBug492939a() {
+	runConformTest(
+		new String[] {
+			"EclipseInference.java",
+			"import java.lang.reflect.Type;\n" + 
+			"import java.sql.ResultSet;\n" + 
+			"import java.sql.SQLException;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Optional;\n" + 
+			"import java.util.concurrent.ConcurrentHashMap;\n" + 
+			"import java.util.concurrent.CopyOnWriteArrayList;\n" + 
+			"import java.util.function.Supplier;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"\n" + 
+			"public class EclipseInference {\n" + 
+			"\n" + 
+			"    private final List<RowMapperFactory> rowFactories = new CopyOnWriteArrayList<>();\n" + 
+			"    private final ConcurrentHashMap<Type, RowMapper<?>> rowCache = new ConcurrentHashMap<>();\n" + 
+			"\n" + 
+			"    @SuppressWarnings(\"unchecked\")\n" + 
+			"    public Optional<RowMapper<?>> findRowMapperFor(Type type) {\n" + 
+			"        return Optional.ofNullable(rowCache.computeIfAbsent(type, t ->\n" + 
+			"                findFirstPresent(\n" + 
+			"                        () -> rowFactories.stream()\n" + 
+			"                                .flatMap(factory -> toStream(factory.build(t)))\n" + 
+			"                                .findFirst(),\n" + 
+			"                        () -> findColumnMapperFor(t)\n" + 
+			"                                .map(SingleColumnMapper::new))\n" + // HERE: ReferenceExpression had a bug
+			"                        .orElse(null)));\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private Optional<ColumnMapper<?>> findColumnMapperFor(Type t) {\n" + 
+			"        return Optional.empty();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    @SafeVarargs\n" + 
+			"    static <T> Optional<T> findFirstPresent(Supplier<Optional<T>>... suppliers) {\n" + 
+			"        return Stream.of(suppliers)\n" + 
+			"                .flatMap(supplier -> toStream(supplier.get()))\n" + 
+			"                .findFirst();\n" + 
+			"    }\n" + 
+			"    static <T> Stream<T> toStream(Optional<T> optional) {\n" + 
+			"        return optional.isPresent() ? Stream.of(optional.get()) : Stream.empty();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class SingleColumnMapper<T> implements RowMapper<T> {\n" + 
+			"    SingleColumnMapper(ColumnMapper<T> mapper) {\n" + 
+			"    }\n" + 
+			"    @Override\n" + 
+			"    public T map(ResultSet r) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface RowMapper<T>\n" + 
+			"{\n" + 
+			"    T map(ResultSet r);\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface ColumnMapper<T>\n" + 
+			"{\n" + 
+			"    T map(ResultSet r, int columnNumber) throws SQLException;\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface RowMapperFactory\n" + 
+			"{\n" + 
+			"    Optional<RowMapper<?>> build(Type type);\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface ColumnMapperFactory\n" + 
+			"{\n" + 
+			"    Optional<ColumnMapper<?>> build(Type type);\n" + 
+			"}\n"
+		});
+}
+public void testBug492939b() {
+	runConformTest(
+		new String[] {
+			"EclipseInference.java",
+			"import java.lang.reflect.Type;\n" + 
+			"import java.sql.ResultSet;\n" + 
+			"import java.sql.SQLException;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Optional;\n" + 
+			"import java.util.concurrent.ConcurrentHashMap;\n" + 
+			"import java.util.concurrent.CopyOnWriteArrayList;\n" + 
+			"import java.util.function.Supplier;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"\n" + 
+			"public class EclipseInference {\n" + 
+			"\n" + 
+			"    private final List<RowMapperFactory> rowFactories = new CopyOnWriteArrayList<>();\n" + 
+			"    private final ConcurrentHashMap<Type, RowMapper<?>> rowCache = new ConcurrentHashMap<>();\n" + 
+			"\n" + 
+			"    @SuppressWarnings(\"unchecked\")\n" + 
+			"    public Optional<RowMapper<?>> findRowMapperFor(Type type) {\n" + 
+			"        return Optional.ofNullable(rowCache.computeIfAbsent(type, t ->\n" + 
+			"                findFirstPresent(\n" + 
+			"                        () -> rowFactories.stream()\n" + 
+			"                                .flatMap(factory -> toStream(factory.build(t)))\n" + 
+			"                                .findFirst(),\n" + 
+			"                        () -> findColumnMapperFor(t)\n" + 
+			"                                .map(c -> new SingleColumnMapper<>(c)))\n" + // HERE: LambdaExpression already worked 
+			"                        .orElse(null)));\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private Optional<ColumnMapper<?>> findColumnMapperFor(Type t) {\n" + 
+			"        return Optional.empty();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    @SafeVarargs\n" + 
+			"    static <T> Optional<T> findFirstPresent(Supplier<Optional<T>>... suppliers) {\n" + 
+			"        return Stream.of(suppliers)\n" + 
+			"                .flatMap(supplier -> toStream(supplier.get()))\n" + 
+			"                .findFirst();\n" + 
+			"    }\n" + 
+			"    static <T> Stream<T> toStream(Optional<T> optional) {\n" + 
+			"        return optional.isPresent() ? Stream.of(optional.get()) : Stream.empty();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class SingleColumnMapper<T> implements RowMapper<T> {\n" + 
+			"    SingleColumnMapper(ColumnMapper<T> mapper) {\n" + 
+			"    }\n" + 
+			"    @Override\n" + 
+			"    public T map(ResultSet r) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface RowMapper<T>\n" + 
+			"{\n" + 
+			"    T map(ResultSet r);\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface ColumnMapper<T>\n" + 
+			"{\n" + 
+			"    T map(ResultSet r, int columnNumber) throws SQLException;\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface RowMapperFactory\n" + 
+			"{\n" + 
+			"    Optional<RowMapper<?>> build(Type type);\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface ColumnMapperFactory\n" + 
+			"{\n" + 
+			"    Optional<ColumnMapper<?>> build(Type type);\n" + 
+			"}\n"
+		});
+}
 }
