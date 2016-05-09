@@ -111,11 +111,6 @@ public class PackageBindingTest extends AbstractCompilerTest
 		}
 
 		@Override
-		public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes) {
-			return findType(typeName, packageName);
-		}
-
-		@Override
 		public boolean isPackage(char[][] parentPackageName, char[] packageName) {
 			this.isPackageSearchExecuted = true;
 			return this.isPackage;

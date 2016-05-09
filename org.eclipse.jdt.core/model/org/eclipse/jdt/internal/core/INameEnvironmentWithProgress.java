@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironmentExtension;
 
 /**
  * The name environment provides a callback API that the compiler
@@ -24,7 +24,8 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
  * 
  * @since 3.6
  */
-public interface INameEnvironmentWithProgress extends INameEnvironment {
+public interface INameEnvironmentWithProgress extends INameEnvironmentExtension {
+
 	/**
 	 * Set the monitor for the given name environment. In order to be able to cancel this name environment calls,
 	 * a non-null monitor should be given. 
@@ -32,4 +33,5 @@ public interface INameEnvironmentWithProgress extends INameEnvironment {
 	 * @param monitor the given monitor
 	 */
 	void setMonitor(IProgressMonitor monitor);
+
 }

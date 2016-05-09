@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2009 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,11 +55,6 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 	}
 	return new NameEnvironmentAnswer(unit, null /*no access restriction*/);
 }
-@Override
-public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes) {
-	return findType(typeName, packageName);
-}
-
 private NameEnvironmentAnswer findTypeFromClassLibs(char[] typeName, char[][] packageName) {
 	for (int i = 0; i < this.classLibs.length; i++) {
 		NameEnvironmentAnswer answer = this.classLibs[i].findType(typeName, packageName);

@@ -190,9 +190,6 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 			typeName);
 	return null;
 }
-public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes) {
-	return findType(typeName, packageName);
-}
 
 public NameEnvironmentAnswer findType(char[][] compoundName) {
 	if (compoundName != null)
