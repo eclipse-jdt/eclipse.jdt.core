@@ -221,7 +221,7 @@ public class NdResourceFile extends NdTreeNode {
 	}
 
 	public LocalPath getLocalFile() {
-		if (WORKSPACE_MAPPINGS.isEmpty(getNd(), this.address)) {
+		if (!WORKSPACE_MAPPINGS.isEmpty(getNd(), this.address)) {
 			NdWorkspaceLocation workspaceLocation = WORKSPACE_MAPPINGS.get(getNd(), this.address, 0);
 
 			return LocalPath.createWorkspace(new Path(workspaceLocation.getPath().getString()));
