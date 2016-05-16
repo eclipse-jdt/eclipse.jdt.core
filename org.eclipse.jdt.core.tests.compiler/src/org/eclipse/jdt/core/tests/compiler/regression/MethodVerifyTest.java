@@ -14271,4 +14271,33 @@ public void testBug461529() throws Exception {
 			"public abstract class ChildFoo extends Foo {}\n"
 		});
 }
+public void testBug467776_regression() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_6) return;
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
+	runConformTest(
+		new String[] {
+			"ITeam.java",
+			"public interface ITeam {\n" + 
+			"        <T> T getRole(Object o, Class<T> clazz);\n" + 
+			"}\n",
+			"Team.java",
+			"public class Team implements ITeam {\n" + 
+			"\n" + 
+			"        @Override\n" + 
+			"        public <T> T getRole(Object o, Class<T> clazz) {\n" + 
+			"                return null;\n" + 
+			"        }\n" + 
+			"}\n",
+			"MyTeam.java",
+			"public class MyTeam extends Team {\n" + 
+			"        @Override\n" + 
+			"        public <T> T getRole(Object o, Class<T> clazz) {\n" + 
+			"                return super.getRole(o, clazz);\n" + 
+			"        }\n" + 
+			"}\n"
+			
+		},
+		compilerOptions);
+}
 }

@@ -556,7 +556,7 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 									continue existing; // may need to record incompatible return type
 							}
 						}
-						if (TypeBinding.notEquals(inheritedMethod.returnType, existingMethod.returnType) &&
+						if (TypeBinding.notEquals(inheritedMethod.returnType.erasure(), existingMethod.returnType.erasure()) &&
 								areReturnTypesCompatible(existingMethod, inheritedMethod)) {
 							addBridgeMethodCandidate(inheritedMethod);
 						}
@@ -645,7 +645,7 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 					// in a subclass is guaranteed to have the same erasure as an existing method.
 					for (int e = 0; e < length; e++) {
 						if (isInterfaceMethodImplemented(inheritedMethod, existingMethods[e], superType)) {
-							if (TypeBinding.notEquals(inheritedMethod.returnType, existingMethods[e].returnType)) {
+							if (TypeBinding.notEquals(inheritedMethod.returnType.erasure(), existingMethods[e].returnType.erasure())) {
 								// overridden, but with different return type, need to check
 								// for bridge method
 								addBridgeMethodCandidate(inheritedMethod);
