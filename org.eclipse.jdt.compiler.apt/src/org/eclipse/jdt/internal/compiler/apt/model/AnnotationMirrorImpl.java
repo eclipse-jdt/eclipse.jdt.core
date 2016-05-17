@@ -320,16 +320,27 @@ public class AnnotationMirrorImpl implements AnnotationMirror, InvocationHandler
 		if (expectedType.isArray()) {
 			if (Class.class.equals(expectedType.getComponentType())) {
 				// package Class[]-valued return as a MirroredTypesException
-				if (actualType.isArrayType() && actualValue instanceof Object[] &&
-						((ArrayBinding)actualType).leafComponentType.erasure().id == TypeIds.T_JavaLangClass) {
-					Object[] bindings = (Object[])actualValue;
-					List<TypeMirror> mirrors = new ArrayList<>(bindings.length);
-					for (int i = 0; i < bindings.length; ++i) {
-						if (bindings[i] instanceof TypeBinding) {
-							mirrors.add(_env.getFactory().newTypeMirror((TypeBinding)bindings[i]));
-						}
+				if (actualType.isArrayType() && ((ArrayBinding)actualType).leafComponentType.erasure().id == TypeIds.T_JavaLangClass) {
+					
+					Object[] bindings;
+					if(actualValue instanceof Object[]) {
+						bindings = (Object[]) actualValue;
+					} else if(actualValue instanceof TypeBinding) {
+						// when a single class element is passed to array: @AnnotationType(Something.class)
+						bindings = new Object[] {actualValue};
+					} else {
+						bindings = null;
 					}
-					throw new MirroredTypesException(mirrors);
+					
+					if(bindings != null) {
+						List<TypeMirror> mirrors = new ArrayList<>(bindings.length);
+						for (int i = 0; i < bindings.length; ++i) {
+							if (bindings[i] instanceof TypeBinding) {
+								mirrors.add(_env.getFactory().newTypeMirror((TypeBinding)bindings[i]));
+							}
+						}
+						throw new MirroredTypesException(mirrors);
+					}
 				}
 				// TODO: actual value is not a TypeBinding[].  Should we return a TypeMirror[] around an ErrorType?
 				return null;

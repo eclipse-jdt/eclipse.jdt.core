@@ -121,6 +121,20 @@ public class AnnotationProcessorTests extends TestCase {
 		BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, null, true);
 		assertNull(System.getProperty(PROC));
 	}
+	public void testBug493837() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug493837");
+		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug493837", targetFolder);
+		List<String> options = new ArrayList<String>();
+		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug493837Proc";
+		options.add("-processorpath");
+		options.add(" ");
+		options.add("-processor");
+		options.add(PROC);
+		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<JavaFileObject>();
+		BatchTestUtils.compileTree(compiler, options, targetFolder, false, diagnosticListener);
+		assertNull(System.getProperty(PROC));
+	}
 	public void testBug340635() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug340635");
