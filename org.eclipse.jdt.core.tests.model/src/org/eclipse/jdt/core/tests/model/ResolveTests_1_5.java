@@ -3002,4 +3002,53 @@ public void test0125() throws CoreException {
 		deleteProject("P0125");
 	}
 }
+
+public void testBrokenSwitch0() throws JavaModelException {
+	ICompilationUnit cu = getWorkingCopy("/Resolve/src/Test.java",
+			"interface ILog {\n" +
+			"	void log(String status);\n" +
+			"}\n" +
+			"public class Test {\n" +
+			"    private static ILog test() {\n" +
+			"        return new ILog() {\n" +
+			"            @Override\n" +
+			"            public void log(String status) {\n" +
+			"                switch (status.length()) { // here\n" +
+			"                case\n" +
+			"                }\n" +
+			"            }\n" +
+			"        };\n" +
+			"    }\n" +
+			"}\n");
+	IJavaElement[] elements = codeSelect(cu, "length()", "length");
+	assertElementsEqual(
+				"Unexpected elements",
+				"length() [in String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]]",
+				elements);
+}
+
+public void testBrokenSwitch1() throws JavaModelException {
+	ICompilationUnit cu = getWorkingCopy("/Resolve/src/Test.java",
+			"interface ILog {\n" +
+			"	void log(String status);\n" +
+			"}\n" +
+			"public class Test {\n" +
+			"    private static ILog test() {\n" +
+			"        return new ILog() {\n" +
+			"            @Override\n" +
+			"            public void log(String status) {\n" +
+			"                Boolean severity = Boolean.FALSE;" +
+			"                switch (status.length()) { // here\n" +
+			"                case\n" +
+			"                }\n" +
+			"            }\n" +
+			"        };\n" +
+			"    }\n" +
+			"}\n");
+	IJavaElement[] elements = codeSelect(cu, "length()", "length");
+	assertElementsEqual(
+				"Unexpected elements",
+				"length() [in String [in String.class [in java.lang [in "+ getExternalJCLPathString("1.5") + "]]]]",
+				elements);
+}
 }

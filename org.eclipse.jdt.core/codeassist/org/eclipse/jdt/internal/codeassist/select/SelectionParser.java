@@ -184,14 +184,14 @@ private void buildMoreCompletionContext(Expression expression) {
 		int info = topKnownElementInfo(SELECTION_OR_ASSIST_PARSER);
 		nextElement : switch (kind) {
 			case K_BETWEEN_CASE_AND_COLONORARROW :
-				if(this.expressionPtr > 0) {
+				if(this.expressionPtr >= info && info > -1) {
 					SwitchStatement switchStatement = new SwitchStatement();
-					switchStatement.expression = this.expressionStack[this.expressionPtr - 1];
+					switchStatement.expression = this.expressionStack[info]; // info is pointer to top expr when encountering 'case'
 					if(this.astLengthPtr > -1 && this.astPtr > -1) {
 						int length = this.astLengthStack[this.astLengthPtr];
 						int newAstPtr = this.astPtr - length;
 						ASTNode firstNode = this.astStack[newAstPtr + 1];
-						if(length != 0 && firstNode.sourceStart > switchStatement.expression.sourceEnd) {
+						if(length != 0 && firstNode instanceof Statement && firstNode.sourceStart > switchStatement.expression.sourceEnd) {
 							switchStatement.statements = new Statement[length + 1];
 							System.arraycopy(
 								this.astStack,
@@ -1327,7 +1327,7 @@ protected void consumeToken(int token) {
 	if (isInsideMethod() || isInsideFieldInitialization()) {
 		switch (token) {
 			case TokenNamecase :
-				pushOnElementStack(K_BETWEEN_CASE_AND_COLONORARROW);
+				pushOnElementStack(K_BETWEEN_CASE_AND_COLONORARROW, this.expressionPtr);
 				break;
 			case TokenNameCOMMA :
 				switch (topKnownElementKind(SELECTION_OR_ASSIST_PARSER)) {
