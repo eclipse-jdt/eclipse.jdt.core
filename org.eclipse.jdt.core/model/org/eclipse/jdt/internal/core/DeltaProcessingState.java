@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 import org.eclipse.jdt.internal.core.nd.indexer.IndexerEvent;
+import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -647,9 +648,11 @@ public class DeltaProcessingState implements IResourceChangeListener, Indexer.Li
 
 	@Override
 	public void consume(IndexerEvent event) {
-		DeltaProcessor processor = getDeltaProcessor();
-		processor.notifyAndFire(event.getDelta());
-		this.deltaProcessors.set(null);
+		if (JavaIndex.isEnabled()) {
+			DeltaProcessor processor = getDeltaProcessor();
+			processor.notifyAndFire(event.getDelta());
+			this.deltaProcessors.set(null);
+		}
 	}
 
 }
