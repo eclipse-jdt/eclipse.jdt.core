@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -28,12 +30,16 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.core.JavaElementDelta;
+import org.eclipse.jdt.internal.core.JavaModel;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint.FingerprintTestResult;
@@ -49,12 +55,22 @@ public final class Indexer {
 	private static final Object mutex = new Object();
 	private static final long MS_TO_NS = 1000000;
 
+	private Object listenersMutex = new Object();
+	/**
+	 * Listener list. Copy-on-write. Synchronize on "listenersMutex" before accessing.
+	 */
+	private Set<Listener> listeners = Collections.newSetFromMap(new WeakHashMap<Listener, Boolean>());
+
 	private Job rescanJob = Job.create(Messages.Indexer_updating_index_job_name, new ICoreRunnable() {
 		@Override
 		public void run(IProgressMonitor monitor) throws CoreException {
 			rescan(monitor);
 		}
 	});
+
+	public static interface Listener {
+		void consume(IndexerEvent event);
+	}
 
 	public static Indexer getInstance() {
 		synchronized (mutex) {
@@ -111,12 +127,14 @@ public final class Indexer {
 		updateResourceMappings(pathsToUpdate, subMonitor.split(5));
 
 		// Flush the database to disk
-		this.nd.acquireWriteLock(subMonitor.newChild(5));
+		this.nd.acquireWriteLock(subMonitor.split(4));
 		try {
 			this.nd.getDB().flush();
 		} finally {
 			this.nd.releaseWriteLock();
 		}
+
+		fireDelta(rootsWithChanges, subMonitor.split(1));
 
 		long endResourceMappingNs = System.nanoTime();
 
@@ -135,6 +153,47 @@ public final class Indexer {
 				+ "  Tested " + allRoots.size() + " fingerprints in " + fingerprintTimeMs + "ms, average time = " + averageFingerprintTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				+ "  Indexed " + classesIndexed + " classes in " + indexingTimeMs + "ms, average time = " + averageIndexTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				+ "  Updated " + pathsToUpdate.size() + " paths in " + resourceMappingTimeMs + "ms, average time = " + averageResourceMappingMs + "ms\n"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+	}
+
+	private void fireDelta(Set<IPath> rootsWithChanges, IProgressMonitor monitor) {
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
+		IProject[] projects = this.root.getProjects();
+
+		List<IProject> projectsToScan = new ArrayList<>();
+
+		for (IProject next : projects) {
+			if (next.isOpen()) {
+				projectsToScan.add(next);
+			}
+		}
+		JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+		JavaElementDelta delta = new JavaElementDelta(model);
+		SubMonitor projectLoopMonitor = subMonitor.split(1).setWorkRemaining(projectsToScan.size());
+		for (IProject project : projectsToScan) {
+			projectLoopMonitor.split(1);
+			try {
+				if (project.isOpen() && project.isNatureEnabled(JavaCore.NATURE_ID)) {
+					IJavaProject javaProject = JavaCore.create(project);
+
+					IPackageFragmentRoot[] roots = javaProject.getAllPackageFragmentRoots();
+
+					for (IPackageFragmentRoot next : roots) {
+						if (next.isArchive()) {
+							IPath location = JavaIndex.getLocationForElement(next);
+
+							if (rootsWithChanges.contains(location)) {
+								delta.changed(next,
+										IJavaElementDelta.F_CONTENT | IJavaElementDelta.F_ARCHIVE_CONTENT_CHANGED);
+							}
+						}
+					}
+				}
+			} catch (CoreException e) {
+				Package.log(e);
+			}
+		}
+
+		fireChange(IndexerEvent.createChange(delta));
 	}
 
 	private void updateResourceMappings(Map<IPath, List<IJavaElement>> pathsToUpdate, IProgressMonitor monitor) {
@@ -216,7 +275,7 @@ public final class Indexer {
 		Map<IPath, FingerprintTestResult> result = new HashMap<>();
 
 		for (IPath next : allRoots) {
-			result.put(next, testForChanges(next, subMonitor.newChild(1)));
+			result.put(next, testForChanges(next, subMonitor.split(1)));
 		}
 
 		return result;
@@ -246,7 +305,7 @@ public final class Indexer {
 
 		NdResourceFile resourceFile;
 
-		this.nd.acquireWriteLock(subMonitor.newChild(5));
+		this.nd.acquireWriteLock(subMonitor.split(5));
 		try {
 			resourceFile = new NdResourceFile(this.nd);
 			resourceFile.setLocation(pathString);
@@ -262,10 +321,10 @@ public final class Indexer {
 		}
 
 		Package.logInfo("rescanning " + thePath.toString()); //$NON-NLS-1$
-		int result = addElement(resourceFile, element, subMonitor.newChild(90));
+		int result = addElement(resourceFile, element, subMonitor.split(90));
 
 		// Now update the timestamp and delete all older versions of this resource that exist in the index
-		this.nd.acquireWriteLock(subMonitor.newChild(5));
+		this.nd.acquireWriteLock(subMonitor.split(5));
 		try {
 			if (resourceFile.isInIndex()) {
 				resourceFile.setFingerprint(fingerprint);
@@ -340,7 +399,7 @@ public final class Indexer {
 	private int addElement(NdResourceFile resourceFile, IJavaElement element, IProgressMonitor monitor)
 			throws JavaModelException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
-		List<IJavaElement> bindableElements = getBindableElements(element, subMonitor.newChild(10));
+		List<IJavaElement> bindableElements = getBindableElements(element, subMonitor.split(10));
 		List<IClassFile> classFiles = getClassFiles(bindableElements);
 
 		subMonitor.setWorkRemaining(classFiles.size());
@@ -562,5 +621,41 @@ public final class Indexer {
 
 	public void rescanAll() {
 		this.rescanJob.schedule();
+	}
+
+	/**
+	 * Adds the given listener. It will be notified when Nd changes. No strong references
+	 * will be retained to the listener.
+	 */
+	public void addListener(Listener newListener) {
+		synchronized (this.listenersMutex) {
+			Set<Listener> oldListeners = this.listeners;
+			this.listeners = Collections.newSetFromMap(new WeakHashMap<Listener, Boolean>());
+			this.listeners.addAll(oldListeners);
+			this.listeners.add(newListener);
+		}
+	}
+
+	public void removeListener(Listener oldListener) {
+		synchronized (this.listenersMutex) {
+			if (!this.listeners.contains(oldListener)) {
+				return;
+			}
+			Set<Listener> oldListeners = this.listeners;
+			this.listeners = Collections.newSetFromMap(new WeakHashMap<Listener, Boolean>());
+			this.listeners.addAll(oldListeners);
+			this.listeners.remove(oldListener);
+		}
+	}
+
+	private void fireChange(IndexerEvent event) {
+		Set<Listener> localListeners;
+		synchronized (this.listenersMutex) {
+			localListeners = this.listeners;
+		}
+
+		for (Listener next : localListeners) {
+			next.consume(event);
+		}
 	}
 }

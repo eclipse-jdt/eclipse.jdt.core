@@ -37,6 +37,7 @@ import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
+import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
@@ -1057,9 +1058,16 @@ public class DeltaProcessor {
 							if (VERBOSE){
 								System.out.println("- External JAR CHANGED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 							}
-							contentChanged(root);
-							deltaContainsModifiedJar = true;
-							hasDelta = true;
+							if (JavaIndex.isEnabled()) {
+								// Deltas for changes in external jars are fired after indexing, to reduce the chance of listeners trying to
+								// read the new state of the .JAR before it can be cached in the index.
+								close(root);
+								this.projectCachesToReset.add(javaProject);
+							} else {
+								contentChanged(root);
+								deltaContainsModifiedJar = true;
+								hasDelta = true;
+							}
 						} else if (status == EXTERNAL_JAR_REMOVED) {
 							PackageFragmentRoot root = (PackageFragmentRoot) javaProject.getPackageFragmentRoot(entryPath.toString());
 							if (VERBOSE){
@@ -2101,14 +2109,7 @@ public class DeltaProcessor {
 							this.sourceElementParserCache = null; // don't hold onto parser longer than necessary
 							startDeltas();
 						}
-						IElementChangedListener[] listeners;
-						int listenerCount;
-						synchronized (this.state) {
-							listeners = this.state.elementChangedListeners;
-							listenerCount = this.state.elementChangedListenerCount;
-						}
-						notifyTypeHierarchies(listeners, listenerCount);
-						fire(null, ElementChangedEvent.POST_CHANGE);
+						notifyAndFire(null);
 					} finally {
 						// workaround for bug 15168 circular errors not reported
 						this.state.resetOldJavaProjectNames();
@@ -2215,6 +2216,17 @@ public class DeltaProcessor {
 				JavaBuilder.buildFinished();
 				return;
 		}
+	}
+
+	public void notifyAndFire(IJavaElementDelta delta) {
+		IElementChangedListener[] listeners;
+		int listenerCount;
+		synchronized (this.state) {
+			listeners = this.state.elementChangedListeners;
+			listenerCount = this.state.elementChangedListenerCount;
+		}
+		notifyTypeHierarchies(listeners, listenerCount);
+		fire(delta, ElementChangedEvent.POST_CHANGE);
 	}
 
 	/*

@@ -67,6 +67,10 @@ public class NdResourceFile extends NdTreeNode {
 		super(nd, null);
 	}
 
+	public List<NdTreeNode> getChildren() {
+		return CHILDREN.asList(this.getNd(), this.address);
+	}
+
 	/**
 	 * Determines whether this file is still in the index. If a {@link NdResourceFile} instance is retained while the
 	 * database lock is released and reobtained, this method should be invoked to ensure that the {@link NdResourceFile}

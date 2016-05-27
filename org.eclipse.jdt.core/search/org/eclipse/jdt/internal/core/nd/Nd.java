@@ -12,13 +12,11 @@ package org.eclipse.jdt.internal.core.nd;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -99,11 +97,7 @@ public class Nd {
 	 * Holds the set of files which have been changed since the last index event was fired
 	 */
 	private Set<LocalPath> changes = new HashSet<>();
-	private Object listenersMutex = new Object();
-	/**
-	 * Listener list. Copy-on-write. Synchronize on "listenersMutex" before accessing.
-	 */
-	private Set<Listener> listeners = Collections.newSetFromMap(new WeakHashMap<Listener, Boolean>());
+
 	private final NdNodeTypeRegistry<NdNode> fNodeTypeRegistry;
 	private HashMap<Long, Throwable> pendingDeletions = new HashMap<>();
 
@@ -338,11 +332,7 @@ public class Nd {
 			Package.log(e);
 		}
 		assert this.lockCount == -1;
-		final ChangeEvent event;
-		if (this.changes.isEmpty()) {
-			event = null;
-		} else {
-			event = new ChangeEvent(this.changes);
+		if (!this.changes.isEmpty()) {
 			this.lastWriteAccess= System.currentTimeMillis();
 			this.changes = new HashSet<>();
 		}
@@ -360,45 +350,6 @@ public class Nd {
 			this.mutex.notifyAll();
 			this.db.setLocked(this.lockCount != 0);
 		}
-		if (event != null) {
-			fireChange(event);
-		}
-	}
-
-	/**
-	 * Adds the given listener. It will be notified when Nd changes. No strong references
-	 * will be retained to the listener.
-	 */
-	public void addListener(Listener newListener) {
-		synchronized (this.listenersMutex) {
-			Set<Listener> oldListeners = this.listeners;
-			this.listeners = Collections.newSetFromMap(new WeakHashMap<Listener, Boolean>());
-			this.listeners.addAll(oldListeners);
-			this.listeners.add(newListener);
-		}
-	}
-
-	public void removeListener(Listener oldListener) {
-		synchronized (this.listenersMutex) {
-			if (!this.listeners.contains(oldListener)) {
-				return;
-			}
-			Set<Listener> oldListeners = this.listeners;
-			this.listeners = Collections.newSetFromMap(new WeakHashMap<Listener, Boolean>());
-			this.listeners.addAll(oldListeners);
-			this.listeners.remove(oldListener);
-		}
-	}
-
-	private void fireChange(ChangeEvent event) {
-		Set<Listener> localListeners;
-		synchronized (this.listenersMutex) {
-			localListeners = this.listeners;
-		}
-
-		for (Listener next : localListeners) {
-			next.consume(event);
-		}
 	}
 
 	public boolean hasWaitingReaders() {
@@ -410,10 +361,6 @@ public class Nd {
 	public long getLastWriteAccess() {
 		return this.lastWriteAccess;
 	}
-
-//	public long getLastReadAccess() {
-//		return this.lastReadAccess;
-//	}
 
 	public boolean isSupportedVersion() throws IndexException {
 		final int version = this.db.getVersion();
