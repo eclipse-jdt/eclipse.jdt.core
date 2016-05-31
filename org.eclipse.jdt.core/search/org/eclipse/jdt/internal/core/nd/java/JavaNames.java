@@ -12,7 +12,7 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
  */
 public class JavaNames {
 	private static final char[] CLASS_FILE_SUFFIX = ".class".toCharArray(); //$NON-NLS-1$
-	private static final char[] FIELD_DESCRIPTOR_PREFIX = new char[] { 'L' };
+	public static final char[] FIELD_DESCRIPTOR_PREFIX = new char[] { 'L' };
 	private static final char[] FIELD_DESCRIPTOR_SUFFIX = new char[] { ';' };
 	private static final char[] METHOD_ID_SEPARATOR = new char[] { '#' };
 	private static final char[] JAR_FILE_ENTRY_SEPARATOR = IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR.toCharArray();

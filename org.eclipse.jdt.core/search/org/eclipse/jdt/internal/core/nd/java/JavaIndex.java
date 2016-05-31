@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.java;
 
+import java.io.File;
+import java.util.List;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -27,9 +30,6 @@ import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex.IResultRank;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex.SearchCriteria;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
-
-import java.io.File;
-import java.util.List;
 
 /**
  * @since 3.12
@@ -127,6 +127,11 @@ public class JavaIndex {
 	public NdTypeId findType(char[] fieldDescriptor) {
 		SearchCriteria searchCriteria = SearchCriteria.create(fieldDescriptor);
 		return TYPES.findBest(this.nd, this.address, searchCriteria, this.anyResult);
+	}
+
+	public boolean visitFieldDescriptorsStartingWith(char[] fieldDescriptorPrefix, FieldSearchIndex.Visitor<NdTypeId> visitor) {
+		SearchCriteria searchCriteria = SearchCriteria.create(fieldDescriptorPrefix).prefix(true);
+		return TYPES.visitAll(this.nd, this.address, searchCriteria, visitor);
 	}
 
 	/**

@@ -1180,9 +1180,12 @@ public void initialize(JavaProject project, int possibleMatchSize) throws JavaMo
 
 	SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(this.workingCopies);
 
-	this.nameEnvironment = new JavaSearchNameEnvironment(project, this.workingCopies);
-	if (this.pattern.focus != null)  
-		((JavaSearchNameEnvironment) this.nameEnvironment).addProjectClassPath((JavaProject) this.pattern.focus.getJavaProject());
+	List<IJavaProject> projects = new ArrayList<>();
+	projects.add(project);
+	if (this.pattern.focus != null) {
+		projects.add(this.pattern.focus.getJavaProject());
+	}
+	this.nameEnvironment = IndexBasedJavaSearchEnvironment.create(projects, this.workingCopies);
 
 	// create lookup environment
 	Map map = project.getOptions(true);

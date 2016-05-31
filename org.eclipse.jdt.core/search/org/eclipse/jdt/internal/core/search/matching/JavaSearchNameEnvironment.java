@@ -15,11 +15,15 @@ package org.eclipse.jdt.internal.core.search.matching;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.Map;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageDeclaration;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
@@ -45,13 +49,18 @@ public class JavaSearchNameEnvironment implements INameEnvironment, SuffixConsta
 	/*
 	 * A map from the fully qualified slash-separated name of the main type (String) to the working copy
 	 */
-	HashMap workingCopies;
+	Map<String, org.eclipse.jdt.core.ICompilationUnit> workingCopies;
 
 public JavaSearchNameEnvironment(IJavaProject javaProject, org.eclipse.jdt.core.ICompilationUnit[] copies) {
 	this.locationSet = computeClasspathLocations((JavaProject) javaProject);
+	this.workingCopies = getWorkingCopyMap(copies);
+}
+
+public static Map<String, org.eclipse.jdt.core.ICompilationUnit> getWorkingCopyMap(
+		org.eclipse.jdt.core.ICompilationUnit[] copies) {
+	int length = copies == null ? 0 : copies.length;
+	HashMap<String, org.eclipse.jdt.core.ICompilationUnit> result = new HashMap<>(length);
 	try {
-		int length = copies == null ? 0 : copies.length;
-		this.workingCopies = new HashMap(length);
 		if (copies != null) {
 			for (int i = 0; i < length; i++) {
 				org.eclipse.jdt.core.ICompilationUnit workingCopy = copies[i];
@@ -60,12 +69,13 @@ public JavaSearchNameEnvironment(IJavaProject javaProject, org.eclipse.jdt.core.
 				String cuName = workingCopy.getElementName();
 				String mainTypeName = Util.getNameWithoutJavaLikeExtension(cuName);
 				String qualifiedMainTypeName = pkg.length() == 0 ? mainTypeName : pkg.replace('.', '/') + '/' + mainTypeName;
-				this.workingCopies.put(qualifiedMainTypeName, workingCopy);
+				result.put(qualifiedMainTypeName, workingCopy);
 			}
 		}
 	} catch (JavaModelException e) {
 		// working copy doesn't exist: cannot happen
 	}
+	return result;
 }
 
 public void cleanup() {

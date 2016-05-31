@@ -598,8 +598,8 @@ public class BTree {
 	 *
 	 * @param visitor
 	 */
-	public void accept(IBTreeVisitor visitor) throws IndexException {
-		accept(this.db.getRecPtr(this.rootPointer), visitor);
+	public boolean accept(IBTreeVisitor visitor) throws IndexException {
+		return accept(this.db.getRecPtr(this.rootPointer), visitor);
 	}
 
 	private boolean accept(long node, IBTreeVisitor visitor) throws IndexException {

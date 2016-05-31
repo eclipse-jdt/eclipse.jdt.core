@@ -159,11 +159,10 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 				}
 			}
 
-			acceptResult(address);
-			return true;
+			return acceptResult(address);
 		}
 
-		protected abstract void acceptResult(long address);
+		protected abstract boolean acceptResult(long address);
 	}
 
 	private FieldSearchIndex(FieldSearchKey<?> searchKey) {
@@ -233,12 +232,13 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 		final long[] result = new long[1];
 		get(nd, address).accept(new SearchCriteriaToBtreeVisitorAdapter(searchCriteria, nd) {
 			@Override
-			protected void acceptResult(long resultAddress) {
+			protected boolean acceptResult(long resultAddress) {
 				long rank = rankFunction.getRank(nd, resultAddress);
 				if (rank >= resultRank[0]) {
 					resultRank[0] = rank;
 					result[0] = resultAddress;
 				}
+				return true;
 			}
 		});
 
@@ -248,13 +248,28 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 		return (T)NdNode.load(nd, result[0]);
 	}
 
+	public interface Visitor<T> {
+		boolean visit(T toVisit);
+	}
+
+	public boolean visitAll(final Nd nd, long address, final SearchCriteria searchCriteria, final Visitor<T> visitor) {
+		return get(nd, address).accept(new SearchCriteriaToBtreeVisitorAdapter(searchCriteria, nd) {
+			@SuppressWarnings("unchecked")
+			@Override
+			protected boolean acceptResult(long resultAddress) {
+				return visitor.visit((T)NdNode.load(nd, resultAddress));
+			}
+		});
+	}
+
 	public List<T> findAll(final Nd nd, long address, final SearchCriteria searchCriteria) {
 		final List<T> result = new ArrayList<T>();
 		get(nd, address).accept(new SearchCriteriaToBtreeVisitorAdapter(searchCriteria, nd) {
 			@SuppressWarnings("unchecked")
 			@Override
-			protected void acceptResult(long resultAddress) {
+			protected boolean acceptResult(long resultAddress) {
 				result.add((T)NdNode.load(nd, resultAddress));
+				return true;
 			}
 		});
 
