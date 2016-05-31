@@ -2063,20 +2063,8 @@ public void testBug427626() {
 			"}"
 		},
 		// 8u20 emits just one message inferred type not conforming to upper bound. ECJ's message is actually better.
-		// We used to emit only 1 error here. Here the lambda is broken, so inference fails leading to two messages.			
 		"----------\n" + 
-		"1. ERROR in X.java (at line 8)\n" + 
-		"	ss.stream().map(s -> {\n" + 
-		"          class L1 {};\n" + 
-		"          class L2 {\n" + 
-		"            void mm(L1 l) {}\n" + 
-		"          }\n" + 
-		"          return new L2().mm(new L1());\n" + 
-		"        }).forEach(e -> System.out.println(e));\n" + 
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from Stream<Object> to <unknown>\n" + 
-		"----------\n" + 
-		"2. ERROR in X.java (at line 13)\n" + 
+		"1. ERROR in X.java (at line 13)\n" + 
 		"	return new L2().mm(new L1());\n" + 
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Cannot return a void result\n" + 
@@ -6064,6 +6052,348 @@ public void testBug488795() {
 			"		for(Parameter p : parameters.get())\n" +
 			"			System.out.println(p);\n" +
 			"	}\n" +
+			"}\n"
+		});
+}
+public void testBug489976() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.*;\n" + 
+			"import static java.util.stream.Collectors.*;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"class Key {}\n" + 
+			"class Value {}\n" + 
+			"public class Test {\n" + 
+			"  void test (List<Map<Key, Value>> maps) {\n" + 
+			"    maps.stream().flatMap(s->s.entrySet().stream()).collect(\n" + 
+			"        groupingBy(e -> e.getKey(), \n" + 
+			"            mapping(e -> e.getValue(),  collectingAndThen(toList(),x->x))\n" + 
+			"        )\n" + 
+			"    );\n" + 
+			"  }\n" + 
+			"}\n"
+		});
+}
+public void testBug491934() {
+	runConformTest(
+		new String[] {
+			"Main.java",
+			"import java.util.Arrays;\n" + 
+			"import java.util.HashSet;\n" + 
+			"import java.util.Set;\n" + 
+			"\n" + 
+			"public class Main {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" +
+			"		// gives compile error in Neon\n" + 
+			"		// was warning \"unchecked\" in Mars\n" + 
+			"		Set<String> genericSet = new HashSet<>(oldApiReturningUntypedSet());\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	@SuppressWarnings({ \"rawtypes\", \"unchecked\" })\n" + 
+			"	private static Set oldApiReturningUntypedSet() {\n" + 
+			"		HashSet set = new HashSet();\n" + 
+			"		set.add(\"one\");\n" + 
+			"		return set;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"}\n"
+		});
+}
+public void testBug491485() {
+	runNegativeTest(
+		new String[] {
+			"Tester.java",
+			"interface SAM<X, Y, Z extends X3> {\n" + 
+			"	Z bar(X a, Y b);\n" + 
+			"}\n" + 
+			"interface I<T> {\n" + 
+			"	\n" + 
+			"}\n" + 
+			"class X3 {\n" + 
+			"	\n" + 
+			"}\n" + 
+			"public class Tester {\n" + 
+			"\n" + 
+			"	X3 method(SAM<?, ?, ?> s) {\n" + 
+			"		return s.bar(null, null);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	Object foo(Object a, Object b) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	X3 junk() {\n" + 
+			"		return method((SAM<?,?,?> & I <?>) this::foo);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Tester.java (at line 20)\n" + 
+		"	return method((SAM<?,?,?> & I <?>) this::foo);\n" + 
+		"	                                   ^^^^^^^^^\n" + 
+		"The type of foo(Object, Object) from the type Tester is Object, this is incompatible with the descriptor\'s return type: X3\n" + 
+		"----------\n");
+}
+
+public void testBug485057() {
+	runNegativeTest(
+		new String[] {
+			"Task.java",
+			"public class Task {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		foo(rt -> true); // PROBLEM HERE\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static <T extends java.io.Serializable> Task foo(T serialiable) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static Task foo(java.util.function.Predicate<?> predicate) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Task.java (at line 4)\n" + 
+		"	foo(rt -> true); // PROBLEM HERE\n" + 
+		"	^^^\n" + 
+		"The method foo(Serializable) is ambiguous for the type Task\n" + 
+		"----------\n" + 
+		"2. ERROR in Task.java (at line 4)\n" + 
+		"	foo(rt -> true); // PROBLEM HERE\n" + 
+		"	    ^^^^^^^^^^\n" + 
+		"The target type of this expression must be a functional interface\n" + 
+		"----------\n");
+}
+
+public void testBug485373() {
+	runNegativeTest(
+		new String[] {
+			"TestGenericsFunctional.java",
+			"import java.util.Collection;\n" + 
+			"import java.util.function.Consumer;\n" + 
+			"\n" + 
+			"public class TestGenericsFunctional {\n" + 
+			"\n" + 
+			"	public static void doStuff(String str, Consumer<String> consumer) {\n" + 
+			"		consumer.accept(str);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public static <C extends Collection<String>> C doStuff(String str, C collection) {\n" + 
+			"		doStuff(str, st -> collection.add(st));\n" + 
+			"		return collection;\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in TestGenericsFunctional.java (at line 11)\n" + 
+		"	doStuff(str, st -> collection.add(st));\n" + 
+		"	^^^^^^^\n" + 
+		"The method doStuff(String, Consumer<String>) is ambiguous for the type TestGenericsFunctional\n" + 
+		"----------\n");
+}
+
+public void testBug487563() {
+	runNegativeTest(
+		new String[] {
+			"Java8TypeInferenceProblem.java",
+			"\n" + 
+			"import java.util.Iterator;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class Java8TypeInferenceProblem {\n" + 
+			"\n" + 
+			"	public ValueObjectImpl myTestMethod() {\n" + 
+			"		return copyToValueObject(loadBusinessObject(), ValueObjectImpl.class);\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public <T extends ValueObject> T copyToValueObject(BusinessObject param, Class<T> voClass) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public <T extends ValueObject> List<T> copyToValueObject(Iterator<BusinessObject> params, Class<T> voClass) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public <T extends BusinessObject> T loadBusinessObject() {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private interface BusinessObject { }\n" + 
+			"\n" + 
+			"	private interface ValueObject { }\n" + 
+			"\n" + 
+			"	private class ValueObjectImpl implements ValueObject { }\n" + 
+			"\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Java8TypeInferenceProblem.java (at line 8)\n" + 
+		"	return copyToValueObject(loadBusinessObject(), ValueObjectImpl.class);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^\n" + 
+		"The method copyToValueObject(Java8TypeInferenceProblem.BusinessObject, Class<Java8TypeInferenceProblem.ValueObjectImpl>) is ambiguous for the type Java8TypeInferenceProblem\n" + 
+		"----------\n");
+}
+public void testBug492939a() {
+	runConformTest(
+		new String[] {
+			"EclipseInference.java",
+			"import java.lang.reflect.Type;\n" + 
+			"import java.sql.ResultSet;\n" + 
+			"import java.sql.SQLException;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Optional;\n" + 
+			"import java.util.concurrent.ConcurrentHashMap;\n" + 
+			"import java.util.concurrent.CopyOnWriteArrayList;\n" + 
+			"import java.util.function.Supplier;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"\n" + 
+			"public class EclipseInference {\n" + 
+			"\n" + 
+			"    private final List<RowMapperFactory> rowFactories = new CopyOnWriteArrayList<>();\n" + 
+			"    private final ConcurrentHashMap<Type, RowMapper<?>> rowCache = new ConcurrentHashMap<>();\n" + 
+			"\n" + 
+			"    @SuppressWarnings(\"unchecked\")\n" + 
+			"    public Optional<RowMapper<?>> findRowMapperFor(Type type) {\n" + 
+			"        return Optional.ofNullable(rowCache.computeIfAbsent(type, t ->\n" + 
+			"                findFirstPresent(\n" + 
+			"                        () -> rowFactories.stream()\n" + 
+			"                                .flatMap(factory -> toStream(factory.build(t)))\n" + 
+			"                                .findFirst(),\n" + 
+			"                        () -> findColumnMapperFor(t)\n" + 
+			"                                .map(SingleColumnMapper::new))\n" + // HERE: ReferenceExpression had a bug
+			"                        .orElse(null)));\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private Optional<ColumnMapper<?>> findColumnMapperFor(Type t) {\n" + 
+			"        return Optional.empty();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    @SafeVarargs\n" + 
+			"    static <T> Optional<T> findFirstPresent(Supplier<Optional<T>>... suppliers) {\n" + 
+			"        return Stream.of(suppliers)\n" + 
+			"                .flatMap(supplier -> toStream(supplier.get()))\n" + 
+			"                .findFirst();\n" + 
+			"    }\n" + 
+			"    static <T> Stream<T> toStream(Optional<T> optional) {\n" + 
+			"        return optional.isPresent() ? Stream.of(optional.get()) : Stream.empty();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class SingleColumnMapper<T> implements RowMapper<T> {\n" + 
+			"    SingleColumnMapper(ColumnMapper<T> mapper) {\n" + 
+			"    }\n" + 
+			"    @Override\n" + 
+			"    public T map(ResultSet r) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface RowMapper<T>\n" + 
+			"{\n" + 
+			"    T map(ResultSet r);\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface ColumnMapper<T>\n" + 
+			"{\n" + 
+			"    T map(ResultSet r, int columnNumber) throws SQLException;\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface RowMapperFactory\n" + 
+			"{\n" + 
+			"    Optional<RowMapper<?>> build(Type type);\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface ColumnMapperFactory\n" + 
+			"{\n" + 
+			"    Optional<ColumnMapper<?>> build(Type type);\n" + 
+			"}\n"
+		});
+}
+public void testBug492939b() {
+	runConformTest(
+		new String[] {
+			"EclipseInference.java",
+			"import java.lang.reflect.Type;\n" + 
+			"import java.sql.ResultSet;\n" + 
+			"import java.sql.SQLException;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Optional;\n" + 
+			"import java.util.concurrent.ConcurrentHashMap;\n" + 
+			"import java.util.concurrent.CopyOnWriteArrayList;\n" + 
+			"import java.util.function.Supplier;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"\n" + 
+			"public class EclipseInference {\n" + 
+			"\n" + 
+			"    private final List<RowMapperFactory> rowFactories = new CopyOnWriteArrayList<>();\n" + 
+			"    private final ConcurrentHashMap<Type, RowMapper<?>> rowCache = new ConcurrentHashMap<>();\n" + 
+			"\n" + 
+			"    @SuppressWarnings(\"unchecked\")\n" + 
+			"    public Optional<RowMapper<?>> findRowMapperFor(Type type) {\n" + 
+			"        return Optional.ofNullable(rowCache.computeIfAbsent(type, t ->\n" + 
+			"                findFirstPresent(\n" + 
+			"                        () -> rowFactories.stream()\n" + 
+			"                                .flatMap(factory -> toStream(factory.build(t)))\n" + 
+			"                                .findFirst(),\n" + 
+			"                        () -> findColumnMapperFor(t)\n" + 
+			"                                .map(c -> new SingleColumnMapper<>(c)))\n" + // HERE: LambdaExpression already worked 
+			"                        .orElse(null)));\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private Optional<ColumnMapper<?>> findColumnMapperFor(Type t) {\n" + 
+			"        return Optional.empty();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    @SafeVarargs\n" + 
+			"    static <T> Optional<T> findFirstPresent(Supplier<Optional<T>>... suppliers) {\n" + 
+			"        return Stream.of(suppliers)\n" + 
+			"                .flatMap(supplier -> toStream(supplier.get()))\n" + 
+			"                .findFirst();\n" + 
+			"    }\n" + 
+			"    static <T> Stream<T> toStream(Optional<T> optional) {\n" + 
+			"        return optional.isPresent() ? Stream.of(optional.get()) : Stream.empty();\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class SingleColumnMapper<T> implements RowMapper<T> {\n" + 
+			"    SingleColumnMapper(ColumnMapper<T> mapper) {\n" + 
+			"    }\n" + 
+			"    @Override\n" + 
+			"    public T map(ResultSet r) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface RowMapper<T>\n" + 
+			"{\n" + 
+			"    T map(ResultSet r);\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface ColumnMapper<T>\n" + 
+			"{\n" + 
+			"    T map(ResultSet r, int columnNumber) throws SQLException;\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface RowMapperFactory\n" + 
+			"{\n" + 
+			"    Optional<RowMapper<?>> build(Type type);\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface ColumnMapperFactory\n" + 
+			"{\n" + 
+			"    Optional<ColumnMapper<?>> build(Type type);\n" + 
 			"}\n"
 		});
 }

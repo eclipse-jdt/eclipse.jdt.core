@@ -559,7 +559,7 @@ public class WrapExecutor {
 			WrapPolicy nextPolicy = this.tm.get(nextWrap.wrapTokenIndex).getWrapPolicy();
 			if (nextPolicy.wrapParentIndex == wrapPolicy.wrapParentIndex
 					|| (penaltyDiff != 0 && !wrapPolicy.isFirstInGroup)) {
-				penalty -= penaltyDiff * 1.25;
+				penalty -= penaltyDiff * (1 + 1.0 / 64);
 				break;
 			}
 			if (nextPolicy.structureDepth <= wrapPolicy.structureDepth)

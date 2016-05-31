@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -149,7 +149,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			// change flags
 			int newModifiers= 0;
-			rewrite.set(type, INTERNAL_TYPE_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(type, INTERNAL_TYPE_MODIFIERS_PROPERTY, Integer.valueOf(newModifiers), null);
 
 			// change to interface
 			rewrite.set(type, TypeDeclaration.INTERFACE_PROPERTY, Boolean.TRUE, null);
@@ -167,7 +167,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			// change flags
 			int newModifiers= 0;
-			rewrite.set(type, INTERNAL_TYPE_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(type, INTERNAL_TYPE_MODIFIERS_PROPERTY, Integer.valueOf(newModifiers), null);
 
 			// change to class
 			rewrite.set(type, TypeDeclaration.INTERFACE_PROPERTY, Boolean.FALSE, null);
@@ -395,7 +395,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			// change flags
 			int newModifiers= 0;
-			rewrite.set(type, INTERNAL_TYPE_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(type, INTERNAL_TYPE_MODIFIERS_PROPERTY, Integer.valueOf(newModifiers), null);
 
 			// change to interface
 			rewrite.set(type, TypeDeclaration.INTERFACE_PROPERTY, Boolean.TRUE, null);
@@ -423,7 +423,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			// change flags
 			int newModifiers= Modifier.FINAL;
-			rewrite.set(type, INTERNAL_TYPE_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(type, INTERNAL_TYPE_MODIFIERS_PROPERTY, Integer.valueOf(newModifiers), null);
 
 			// change to interface
 			rewrite.set(type, TypeDeclaration.INTERFACE_PROPERTY, Boolean.TRUE, null);
@@ -498,7 +498,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 
 			// change flags
 			int newModifiers= Modifier.PUBLIC | Modifier.FINAL;
-			rewrite.set(type, INTERNAL_TYPE_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(type, INTERNAL_TYPE_MODIFIERS_PROPERTY, Integer.valueOf(newModifiers), null);
 
 			SimpleName newSuperinterface= ast.newSimpleName("Cloneable");
 
@@ -1046,9 +1046,9 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			SingleVariableDeclaration decl= (SingleVariableDeclaration) arguments.get(0);
 
 			int newModifiers= Modifier.FINAL;
-			rewrite.set(decl, INTERNAL_VARIABLE_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(decl, INTERNAL_VARIABLE_MODIFIERS_PROPERTY, Integer.valueOf(newModifiers), null);
 
-			rewrite.set(decl, INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
+			rewrite.set(decl, INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY, 1, null);
 
 			ArrayType newVarType= ast.newArrayType(ast.newPrimitiveType(PrimitiveType.FLOAT), 2);
 			rewrite.replace(decl.getType(), newVarType, null);
@@ -1060,7 +1060,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			SingleVariableDeclaration decl= (SingleVariableDeclaration) arguments.get(1);
 
 			int newModifiers= 0;
-			rewrite.set(decl, INTERNAL_VARIABLE_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(decl, INTERNAL_VARIABLE_MODIFIERS_PROPERTY, Integer.valueOf(newModifiers), null);
 
 			Type newVarType= ast.newPrimitiveType(PrimitiveType.FLOAT);
 			rewrite.replace(decl.getType(), newVarType, null);
@@ -1068,7 +1068,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		{ // remove extra dim
 			SingleVariableDeclaration decl= (SingleVariableDeclaration) arguments.get(2);
 
-			rewrite.set(decl, INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY, new Integer(0), null);
+			rewrite.set(decl, INTERNAL_VARIABLE_EXTRA_DIMENSIONS_PROPERTY, 0, null);
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);
@@ -1117,7 +1117,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			ASTNode name= ast.newSimpleName("a");
 			rewrite.replace(fragment.getName(), name, null);
 
-			rewrite.set(fragment, INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY, new Integer(2), null);
+			rewrite.set(fragment, INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY, 2, null);
 		}
 
 		{ // add initializer
@@ -1138,7 +1138,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		{ // add dimension, add initializer
 			VariableDeclarationFragment fragment= (VariableDeclarationFragment) fragments.get(3);
 
-			rewrite.set(fragment, INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY, new Integer(4), null);
+			rewrite.set(fragment, INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY, 4, null);
 
 			assertTrue("Has initializer", fragment.getInitializer() == null);
 
@@ -1148,7 +1148,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 		{ // remove dimension
 			VariableDeclarationFragment fragment= (VariableDeclarationFragment) fragments.get(4);
 
-			rewrite.set(fragment, INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY, new Integer(0), null);
+			rewrite.set(fragment, INTERNAL_FRAGMENT_EXTRA_DIMENSIONS_PROPERTY, 0, null);
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);

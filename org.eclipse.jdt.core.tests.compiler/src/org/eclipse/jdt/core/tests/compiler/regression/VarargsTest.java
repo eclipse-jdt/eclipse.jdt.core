@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 IBM Corporation and others.
+ * Copyright (c) 2005, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1291,7 +1291,8 @@ public class VarargsTest extends AbstractComparableTest {
 	public void test033() {
 		this.runNegativeTest(
 			false /* skipJavac */,
-			JavacTestOptions.EclipseHasABug.EclipseBug421922,
+			this.complianceLevel < ClassFileConstants.JDK1_7 ?
+					JavacTestOptions.Excuse.JavacCompilesIncorrectSource : null,
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -1365,7 +1366,8 @@ public class VarargsTest extends AbstractComparableTest {
 			if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
 				this.runNegativeTest(
 				false /* skipJavac */,
-				JavacTestOptions.EclipseHasABug.EclipseBug421922,
+				this.complianceLevel < ClassFileConstants.JDK1_7 ?
+						JavacTestOptions.Excuse.JavacCompilesIncorrectSource : null,
 				new String[] {
 						"X.java",
 						"public class X {\n" +
@@ -3001,7 +3003,8 @@ public class VarargsTest extends AbstractComparableTest {
 			if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
 				this.runNegativeTest(
 					false /* skipJavac */,
-					JavacTestOptions.EclipseHasABug.EclipseBug421922,
+					this.complianceLevel == ClassFileConstants.JDK1_7 ? 
+							JavacTestOptions.Excuse.JavacCompilesIncorrectSource : null,
 					new String[] {
 						"X.java",
 						"import java.util.Arrays;\n" +
@@ -3387,8 +3390,6 @@ public class VarargsTest extends AbstractComparableTest {
 					"2");
 			} else {
 				this.runNegativeTest(
-						false /* skipJavac */,
-						JavacTestOptions.EclipseHasABug.EclipseBug421922,
 						src,
 						"----------\n" + 
 						"1. WARNING in X.java (at line 5)\n" + 
@@ -3433,8 +3434,6 @@ public class VarargsTest extends AbstractComparableTest {
 					"1");
 			} else {
 				this.runNegativeTest(
-						false /* skipJavac */,
-						JavacTestOptions.EclipseHasABug.EclipseBug421922,
 						src,
 						"----------\n" + 
 						"1. ERROR in X.java (at line 9)\n" + 

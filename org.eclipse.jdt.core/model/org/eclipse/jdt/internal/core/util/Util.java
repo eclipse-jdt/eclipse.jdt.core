@@ -2874,16 +2874,16 @@ public class Util {
 		switch (constant.typeID()) {
 			case TypeIds.T_int :
 				memberValuePair.valueKind = IMemberValuePair.K_INT;
-				return new Integer(constant.intValue());
+				return Integer.valueOf(constant.intValue());
 			case TypeIds.T_byte :
 				memberValuePair.valueKind = IMemberValuePair.K_BYTE;
-				return new Byte(constant.byteValue());
+				return Byte.valueOf(constant.byteValue());
 			case TypeIds.T_short :
 				memberValuePair.valueKind = IMemberValuePair.K_SHORT;
-				return new Short(constant.shortValue());
+				return Short.valueOf(constant.shortValue());
 			case TypeIds.T_char :
 				memberValuePair.valueKind = IMemberValuePair.K_CHAR;
-				return new Character(constant.charValue());
+				return Character.valueOf(constant.charValue());
 			case TypeIds.T_float :
 				memberValuePair.valueKind = IMemberValuePair.K_FLOAT;
 				return new Float(constant.floatValue());
@@ -2895,7 +2895,7 @@ public class Util {
 				return Boolean.valueOf(constant.booleanValue());
 			case TypeIds.T_long :
 				memberValuePair.valueKind = IMemberValuePair.K_LONG;
-				return new Long(constant.longValue());
+				return Long.valueOf(constant.longValue());
 			case TypeIds.T_JavaLangString :
 				memberValuePair.valueKind = IMemberValuePair.K_STRING;
 				return constant.stringValue();
@@ -2917,7 +2917,7 @@ public class Util {
 		switch (constant.typeID()) {
 			case TypeIds.T_int :
 				memberValuePair.valueKind = IMemberValuePair.K_INT;
-				return new Integer(constant.intValue() * -1);
+				return Integer.valueOf(constant.intValue() * -1);
 			case TypeIds.T_float :
 				memberValuePair.valueKind = IMemberValuePair.K_FLOAT;
 				return new Float(constant.floatValue() * -1.0f);
@@ -2926,7 +2926,7 @@ public class Util {
 				return new Double(constant.doubleValue() * -1.0);
 			case TypeIds.T_long :
 				memberValuePair.valueKind = IMemberValuePair.K_LONG;
-				return new Long(constant.longValue() * -1L);
+				return Long.valueOf(constant.longValue() * -1L);
 			default:
 				memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
 				return null;

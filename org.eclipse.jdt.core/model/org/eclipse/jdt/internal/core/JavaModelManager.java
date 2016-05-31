@@ -1279,7 +1279,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 						Object target = JavaModel.getExternalTarget(path, true);
 						if (target instanceof File) {
 							long timestamp = DeltaProcessor.getTimeStamp((java.io.File)target);
-							externalTimeStamps.put(path, new Long(timestamp));
+							externalTimeStamps.put(path, Long.valueOf(timestamp));
 						}
 					}
 				}
@@ -4431,8 +4431,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	private void traceVariableAndContainers(String action, long start) {
 
-		Long delta = new Long(System.currentTimeMillis() - start);
-		Long length = new Long(getVariableAndContainersFile().length());
+		Long delta = Long.valueOf(System.currentTimeMillis() - start);
+		Long length = Long.valueOf(getVariableAndContainersFile().length());
 		String pattern = "{0} {1} bytes in variablesAndContainers.dat in {2}ms"; //$NON-NLS-1$
 		String message = MessageFormat.format(pattern, new Object[]{action, length, delta});
 

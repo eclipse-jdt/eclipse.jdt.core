@@ -146,7 +146,7 @@ public class Assert {
 	 * an AssertionFailedError is thrown with the given message.
 	 */
 	static public void assertEquals(String message, boolean expected, boolean actual) {
-    		assertEquals(message, new Boolean(expected), new Boolean(actual));
+    		assertEquals(message, Boolean.valueOf(expected), Boolean.valueOf(actual));
   	}
 	/**
 	 * Asserts that two booleans are equal.
@@ -198,7 +198,7 @@ public class Assert {
 	 * an AssertionFailedError is thrown with the given message.
 	 */
   	static public void assertEquals(String message, int expected, int actual) {
-		assertEquals(message, new Integer(expected), new Integer(actual));
+		assertEquals(message, Integer.valueOf(expected), Integer.valueOf(actual));
   	}
   	/**
    	 * Asserts that two ints are equal.

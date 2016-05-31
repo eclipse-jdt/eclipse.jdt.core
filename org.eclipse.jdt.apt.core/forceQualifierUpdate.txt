@@ -1,2 +1,3 @@
 # To force a version qualifier update, add the bug here
 Bug 441790 - AnnotationValue.toString is creating incorrect and truncated text that cannot be used in source code
+BUg 492759 - update jdtcompiler and eclipserun to RC2 level to produce RC3

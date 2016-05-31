@@ -821,7 +821,9 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 			// remember type bindings
 			for (int i = 0; i < unitsIndex; i++) {
 				CompilationUnitDeclaration parsedUnit = parsedUnits[i];
-				if (parsedUnit != null && !parsedUnit.hasErrors()) {
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=462158
+				// Certain assist features require type hierarchy even with code with compiler errors.
+				if (parsedUnit != null) {
 					boolean containsLocalType = hasLocalType[i];
 					if (containsLocalType) {
 						if (monitor != null && monitor.isCanceled())

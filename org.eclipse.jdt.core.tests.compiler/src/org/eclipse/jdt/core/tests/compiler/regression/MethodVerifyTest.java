@@ -14207,4 +14207,97 @@ public void testBug469454a() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, result);
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=438812, Missing bridge methods in indirect child classes with ECJ 3.10.0
+public void testBug438812a() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"A.java",
+			"import java.util.Collection;\n" + 
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public abstract class A {\n" + 
+			"    abstract Iterable getIterable();\n" + 
+			"}\n" + 
+			"\n" + 
+			"class B extends A {\n" + 
+			"    public Collection getIterable() { return null; }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class C extends B {\n" + 
+			"    public List getIterable() { return null; }\n" + 
+			"}",
+		},
+		"");
+	String expectedOutput = "  public bridge synthetic java.lang.Iterable getIterable();";
+
+	File f = new File(OUTPUT_DIR + File.separator + "C.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=461529, Abstract class extending interface with default impl won't compile, but does compile from cmd line
+public void testBug461529() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) return;
+	this.runConformTest(
+		new String[] {
+			"foo/IBarable.java",
+			"package foo;\n" + 
+			"public interface IBarable<T extends IBarable<T>> {\n" + 
+			"    default IBar<T> createBar() {\n" + 
+			"        throw new UnsupportedOperationException();\n" + 
+			"    }\n" + 
+			"}\n",
+			"foo/IBar.java",
+			"package foo;\n" + 
+			"public interface IBar<T extends IBarable<T>> {\n" + 
+			"    T bar();\n" + 
+			"}\n",
+			"foo/Foo.java",
+			"package foo;\n" + 
+			"public abstract class Foo implements IBarable<Foo> {\n" + 
+			"    public abstract static class Builder implements IBar<Foo> {}\n" + 
+			"    @Override\n" + 
+			"    public abstract Builder createBar();\n" + 
+			"}\n",
+			"foo/ChildFoo.java",
+			"package foo;\n" + 
+			"public abstract class ChildFoo extends Foo {}\n"
+		});
+}
+public void testBug467776_regression() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_6) return;
+	Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
+	runConformTest(
+		new String[] {
+			"ITeam.java",
+			"public interface ITeam {\n" + 
+			"        <T> T getRole(Object o, Class<T> clazz);\n" + 
+			"}\n",
+			"Team.java",
+			"public class Team implements ITeam {\n" + 
+			"\n" + 
+			"        @Override\n" + 
+			"        public <T> T getRole(Object o, Class<T> clazz) {\n" + 
+			"                return null;\n" + 
+			"        }\n" + 
+			"}\n",
+			"MyTeam.java",
+			"public class MyTeam extends Team {\n" + 
+			"        @Override\n" + 
+			"        public <T> T getRole(Object o, Class<T> clazz) {\n" + 
+			"                return super.getRole(o, clazz);\n" + 
+			"        }\n" + 
+			"}\n"
+			
+		},
+		compilerOptions);
+}
 }

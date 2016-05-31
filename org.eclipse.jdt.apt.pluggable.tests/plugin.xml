@@ -44,6 +44,9 @@
                class="org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug387956Processor">
          </java6processor>
          <java6processor
+               class="org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug468893Processor">
+         </java6processor>
+         <java6processor
                class="org.eclipse.jdt.apt.pluggable.tests.processors.genclass6.Bug419769Proc">
          </java6processor>
       </java6processors>

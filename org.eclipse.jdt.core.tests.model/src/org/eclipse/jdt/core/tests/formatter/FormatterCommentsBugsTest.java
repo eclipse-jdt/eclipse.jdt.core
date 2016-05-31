@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1642,8 +1642,8 @@ public void testBug233259b() throws JavaModelException {
 	formatSource(source,
 		"public class X {\n" +
 		"	/**\n" +
-		"	 * @see <a href=\"http://0123\">Test\n" +
-		"	 *      </a>\n" +
+		"	 * @see <a href=\n" +
+		"	 *      \"http://0123\">Test</a>\n" +
 		"	 */\n" +
 		"	void foo() {\n" +
 		"	}\n" +
@@ -1663,8 +1663,8 @@ public void testBug233259c() throws JavaModelException {
 	formatSource(source,
 		"public class X {\n" +
 		"	/**\n" +
-		"	 * @see <a href=\"http://012346789\">\n" +
-		"	 *      Test</a>\n" +
+		"	 * @see <a href=\n" +
+		"	 *      \"http://012346789\">Test</a>\n" +
 		"	 */\n" +
 		"	void foo() {\n" +
 		"	}\n" +
@@ -1685,8 +1685,7 @@ public void testBug233259d() throws JavaModelException {
 		"public class X {\n" +
 		"	/**\n" +
 		"	 * @see <a href=\n" +
-		"	 *      \"http://012346789012346789012346789\">\n" +
-		"	 *      Test</a>\n" +
+		"	 *      \"http://012346789012346789012346789\">Test</a>\n" +
 		"	 */\n" +
 		"	void foo() {\n" +
 		"	}\n" +
@@ -4158,8 +4157,8 @@ public void testBug260011_01() throws JavaModelException {
 		"	/**\n" + 
 		"	 * some comment text here\n" + 
 		"	 * <ul style=\"font-variant:small-caps;\">\n" + 
-		"	 * <li style=\"font-variant:small-caps;\">some text to be styled a certain way\n" + 
-		"	 * </li>\n" + 
+		"	 * <li style=\"font-variant:small-caps;\">some text to be styled a certain\n" + 
+		"	 * way</li>\n" + 
 		"	 * </ul>\n" + 
 		"	 * end of comment\n" + 
 		"	 */\n" + 
@@ -6772,8 +6771,7 @@ public void testBug309835_wksp1_02() {
 		"	 * correspond to a boggus method.\n" + 
 		"	 *\n" + 
 		"	 * @param method\n" + 
-		"	 *            org.eclipse.jdt.internal.compiler.ast.\n" + 
-		"	 *            AbstractMethodDeclaration\n" + 
+		"	 *            org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration\n" + 
 		"	 * @param methodBinding\n" + 
 		"	 *            org.eclipse.jdt.internal.compiler.nameloopkup.MethodBinding\n" + 
 		"	 */\n" + 
@@ -7141,8 +7139,8 @@ public void testBug348338() {
 		"	 * Check wrapping of string literals surrounded with punctuation marks\n" + 
 		"	 * (\"e.g. in parenthesis\" wraps).\n" + 
 		"	 * <p>\n" + 
-		"	 * {@code Sometimes wrapping on punctuation is necessary because line is too}\n" + 
-		"	 * . long otherwise.\n" + 
+		"	 * {@code Sometimes wrapping on punctuation is necessary because line is too}.\n" + 
+		"	 * long otherwise.\n" + 
 		"	 */\n" + 
 		"	public void test() {\n" + 
 		"\n" + 
@@ -7398,8 +7396,8 @@ public void testBug479469() {
 		" *      Label can be wrapped\n" + 
 		" *\n" + 
 		" * @see <a href=\n" + 
-		" *      \"a.very.loong.reference.with.a.fully.qualified.paackage.that.should.not.be.wrapped.Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\">\n" + 
-		" *      Label can be wrapped</a>\n" + 
+		" *      \"a.very.loong.reference.with.a.fully.qualified.paackage.that.should.not.be.wrapped.Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\">Label\n" + 
+		" *      can be wrapped</a>\n" + 
 		" */\n" + 
 		"public class Test {\n" + 
 		"}"
@@ -7519,5 +7517,27 @@ public void testBug484957() {
 		"\t}\n" + 
 		"}";
 	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/93459 - [formatter] Javadoc formatter does not break URLs
+ */
+public void testBug93459() {
+	this.formatterPrefs.comment_line_length = 120;
+	String source = 
+		"class Example {\n" + 
+		"	/**\n" + 
+		"	 * This is similar to <a href=\"http://java.sun.com/j2se/1.4.2/docs/api/java/nio/charset/Charset.html#isSupported(java.lang.String)\">java.nio.charset.Charset.isSupported(String)</a>\n" + 
+		"	 */\n" + 
+		"	int a;\n" + 
+		"}";
+	formatSource(source,
+		"class Example {\n" + 
+		"	/**\n" + 
+		"	 * This is similar to <a href=\n" + 
+		"	 * \"http://java.sun.com/j2se/1.4.2/docs/api/java/nio/charset/Charset.html#isSupported(java.lang.String)\">java.nio.charset.Charset.isSupported(String)</a>\n" + 
+		"	 */\n" + 
+		"	int a;\n" + 
+		"}"
+	);
 }
 }

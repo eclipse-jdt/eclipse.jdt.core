@@ -20,6 +20,7 @@
  *								Bug 426676 - [1.8][compiler] Wrong generic method type inferred from lambda expression
  *								Bug 423505 - [1.8] Implement "18.5.4 More Specific Method Inference"
  *								Bug 434483 - [1.8][compiler][inference] Type inference not picked up with method reference
+ *     Harry Terkelsen - Bug 460491 - NPE in ParameterizedTypeBinding.collectSubstitutes
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -33088,7 +33089,7 @@ public void test0988() {
 			"1. ERROR in X.java (at line 7)\n" + 
 			"	abstract class GLinkElementView<M,CM> extends AbstractLinkView<M> {}\n" + 
 			"	               ^^^^^^^^^^^^^^^^\n" + 
-			"The return types are incompatible for the inherited methods ILinkViewElement.getViewer(), EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
+			"The return types are incompatible for the inherited methods EditPart.getViewer(), AbstractLinkView<M>.getViewer()\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 11)\n" + 
 			"	public SheetViewer getViewer() { return null; }	\n" + 
@@ -52165,4 +52166,55 @@ public void testBug469201_B(){
 		"The method bar(Bar) from the type A is not visible\n" + 
 		"----------\n");
 		}
+public void testBug460491() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.WARNING);
+		this.runConformTest(
+			new String[] {
+				"A.java",
+				"class A {\n" +
+				"	private static final B.C c = new B.D<Void>();\n" +
+				"}",
+				"B.java",
+				"class B<T> {\n" +
+				"	public interface C {}\n" +
+				"	public static class D<R> implements C {}\n" +
+				"}"
+			},
+			customOptions);
+	}
+}
+public void testBug492450_comment0() {
+	if (this.complianceLevel >= ClassFileConstants.JDK1_6) {
+		runConformTest(
+			new String[] {
+				"DocumentObject.java",
+				"\n" + 
+				"import java.util.ArrayList;\n" + 
+				"\n" + 
+				"interface IDocumentElementNode {\n" + 
+				"	public ArrayList<?> getChildNodesList();\n" + 
+				"}\n" + 
+				"\n" + 
+				"abstract class DocumentElementNode implements IDocumentElementNode {\n" + 
+				"	@Override\n" + 
+				"	public ArrayList<IDocumentElementNode> getChildNodesList() {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface IDocumentObject extends IDocumentElementNode {\n" + 
+				"	public ArrayList<?> getChildNodesList(Class<?>[] classes, boolean match);\n" + 
+				"}\n" + 
+				"\n" + 
+				"public abstract class DocumentObject extends DocumentElementNode implements IDocumentObject {\n" + 
+				"	@Override\n" + 
+				"	public ArrayList<IDocumentElementNode> getChildNodesList(Class<?>[] classes, boolean match) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"}\n"
+			});
+	}
+}
 }

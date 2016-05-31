@@ -1685,4 +1685,51 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"Pb(980) Unsafe interpretation of method return type as '@NonNull' based on the receiver type 'Lib2<@NonNull String>'. Type 'Lib2<T>' doesn't seem to be designed with null type annotations in mind",
 		}, new int[] { 10, 13 }, new int[] { ProblemSeverities.Warning, ProblemSeverities.Info } );
 	}
-}
+
+	public void testBug490343() throws Exception {
+		myCreateJavaProject("TestLibs");
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+				"/UnannotatedLibs/libs/Map.java",
+				"package libs;\n" +
+				"\n" +
+				"interface Comparator<T> {}\n" +
+				"interface Comparable<T> {}\n" +
+				"\n" +
+				"public interface Map<K, V> {\n" +
+				"    interface Entry<K, V> {\n" +
+				"        K getKey();\n" +
+				"\n" +
+				"        public static <K extends Comparable<? super K>, V> Comparator<Map.Entry<K, V>> comparingByKey() {\n" +
+				"            throw new RuntimeException();\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+		}, null);
+		createFileInProject("annots/libs", "Map$Entry.eea",
+				"class libs/Map$Entry\n" + 
+				"comparingByKey\n" +
+				 " <K::Llibs/Comparable<-TK;>;V:Ljava/lang/Object;>()Llibs/Comparator<Llibs/Map$Entry<TK;TV;>;>;\n" +
+				 " <K::Llibs/Comparable<-TK;>;V:Ljava/lang/Object;>()L1libs/Comparator<Llibs/Map$Entry<TK;TV;>;>;\n"
+		);
+		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+		ICompilationUnit unit = fragment.createCompilationUnit("Test.java", 
+				"package tests;\n" +
+				"\n" +
+				"import libs.Map;\n" +
+				"\n" +
+				"public class Test {\n" +
+				"    static boolean f() {\n" +
+				"        if(Map.Entry.comparingByKey() == null) {\n" +
+				"            return false;\n" +
+				"        }\n" +
+				"        return true;\n" +
+				"    }\n" +
+				"}\n" +
+				"",
+				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		IProblem[] problems = reconciled.getProblems();
+		assertProblems(problems, new String[] {
+				"Pb(149) Dead code"
+			}, new int[] { 7 });
+	}}

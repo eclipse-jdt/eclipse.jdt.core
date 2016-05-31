@@ -335,7 +335,7 @@ public class SourceMapper
 		}
 		imports[importsCounter++] = name;
 		this.importsTable.put(this.binaryType, imports);
-		this.importsCounterTable.put(this.binaryType, new Integer(importsCounter));
+		this.importsCounterTable.put(this.binaryType, Integer.valueOf(importsCounter));
 	}
 
 	/**

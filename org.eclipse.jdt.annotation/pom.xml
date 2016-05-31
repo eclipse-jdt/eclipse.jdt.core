@@ -20,4 +20,22 @@
   <artifactId>org.eclipse.jdt.annotation</artifactId>
   <version>2.1.0-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
+
+  <build>
+  	<plugins>
+		<plugin>
+		  <groupId>org.eclipse.tycho</groupId>
+		  <artifactId>tycho-compiler-plugin</artifactId>
+		  <configuration>
+		    <useProjectSettings>true</useProjectSettings>
+            <compilerArgs>
+              <args>-annotationpath</args>
+              <args>${project.basedir}/JREannotations</args>
+              <args>-encoding</args>
+              <args>${project.build.sourceEncoding}</args>
+            </compilerArgs>
+		  </configuration>
+		</plugin>
+  	</plugins>
+  </build>
 </project>

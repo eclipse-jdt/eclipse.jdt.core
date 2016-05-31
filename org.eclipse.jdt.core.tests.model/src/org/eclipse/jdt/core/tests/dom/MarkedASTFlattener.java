@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 IBM Corporation and others.
+ * Copyright (c) 2008, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -553,7 +553,7 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 				if (this.nodeFromMarker.get(markerName) == null) {
 					this.markerFromNode.put(node, markerName);
 					this.nodeFromMarker.put(markerName, node);
-					this.markerPositonInBuffer.put(markerName, new Integer(this.buffer.length()));
+					this.markerPositonInBuffer.put(markerName, Integer.valueOf(this.buffer.length()));
 					this.foundNodeFromMarker[index] = true;
 				}
 

@@ -2531,7 +2531,7 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 		if (syntheticMethodBinding.lambda!=null && syntheticMethodBinding.lambda.isSerializable ||
 				syntheticMethodBinding.serializableMethodRef != null) {
 			// TODO can I use > Java 1.4 features here?
-			Integer hashcode = new Integer(new String(syntheticMethodBinding.selector).hashCode());
+			Integer hashcode = Integer.valueOf(new String(syntheticMethodBinding.selector).hashCode());
 			List syntheticssForThisHashcode = (List)hashcodesTosynthetics.get(hashcode);
 			if (syntheticssForThisHashcode==null) {
 				syntheticssForThisHashcode = new ArrayList();

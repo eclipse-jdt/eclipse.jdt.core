@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -612,7 +612,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 			Integer count = (Integer)TESTS_COUNTERS.get(CURRENT_CLASS_NAME);
 			if (count != null) {
 				int newCount = count.intValue()-1;
-				TESTS_COUNTERS.put(CURRENT_CLASS_NAME, new Integer(newCount));
+				TESTS_COUNTERS.put(CURRENT_CLASS_NAME, Integer.valueOf(newCount));
 				if (newCount == 0) {
 					if (DIFF_COUNTERS[0]!=0 || DIFF_COUNTERS[1]!=0 || DIFF_COUNTERS[2]!=0) {
 						dualPrintln("===========================================================================");

@@ -46,10 +46,16 @@ class NameEnvironmentWithProgress extends FileSystem implements INameEnvironment
 			throw new AbortCompilation(true/*silent*/, new OperationCanceledException());
 		}
 	}
+	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] client) {
+		return super.findType(typeName, packageName, client, true);
+	}
 	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, IModule[] modules) {
+		return findType(typeName, packageName, modules, true);
+	}
+	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, IModule[] modules, boolean searchSecondaryTypes) {
 		checkCanceled();
 		NameEnvironmentAnswer answer = super.findType(typeName, packageName, modules);
-		if (answer == null) {
+		if (answer == null && searchSecondaryTypes) {
 			NameEnvironmentAnswer suggestedAnswer = null;
 			String qualifiedPackageName = new String(CharOperation.concatWith(packageName, '/'));
 			String qualifiedTypeName = new String(CharOperation.concatWith(packageName, typeName, '/'));
@@ -59,7 +65,7 @@ class NameEnvironmentWithProgress extends FileSystem implements INameEnvironment
 				ClasspathDirectory classpathDirectory = (ClasspathDirectory) this.classpaths[i];
 				for (IModule iModule : modules) {
 					if (!classpathDirectory.servesModule(iModule)) continue;
-					answer = classpathDirectory.findSecondaryInClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, iModule);
+					answer = classpathDirectory.findSecondaryInClass(typeName, qualifiedPackageName, qualifiedBinaryFileName);
 					if (answer != null) {
 						if (!answer.ignoreIfBetter()) {
 							if (answer.isBetter(suggestedAnswer))

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -141,21 +141,21 @@ public class BasicBuildTests extends BuilderTests {
 			String message = (String) marker.getAttribute(IMarker.MESSAGE);
 			assertTrue("Wrong message", message.startsWith("TODO "));
 			assertNotNull("No task priority", priority);
-			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_NORMAL), priority);
+			assertEquals("Wrong priority", Integer.valueOf(IMarker.PRIORITY_NORMAL), priority);
 
 			marker = markers[1];
 			priority = marker.getAttribute(IMarker.PRIORITY);
 			message = (String) marker.getAttribute(IMarker.MESSAGE);
 			assertTrue("Wrong message", message.startsWith("FIXME "));
 			assertNotNull("No task priority", priority);
-			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_HIGH), priority);
+			assertEquals("Wrong priority", Integer.valueOf(IMarker.PRIORITY_HIGH), priority);
 
 			marker = markers[2];
 			priority = marker.getAttribute(IMarker.PRIORITY);
 			message = (String) marker.getAttribute(IMarker.MESSAGE);
 			assertTrue("Wrong message", message.startsWith("XXX "));
 			assertNotNull("No task priority", priority);
-			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_LOW), priority);
+			assertEquals("Wrong priority", Integer.valueOf(IMarker.PRIORITY_LOW), priority);
 		} catch (CoreException e) {
 			assertTrue(false);
 		}
@@ -197,21 +197,21 @@ public class BasicBuildTests extends BuilderTests {
 			String message = (String) marker.getAttribute(IMarker.MESSAGE);
 			assertEquals("Wrong message", "TODO should be done", message);
 			assertNotNull("No task priority", priority);
-			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_NORMAL), priority);
+			assertEquals("Wrong priority", Integer.valueOf(IMarker.PRIORITY_NORMAL), priority);
 
 			marker = markers[1];
 			priority = marker.getAttribute(IMarker.PRIORITY);
 			message = (String) marker.getAttribute(IMarker.MESSAGE);
 			assertEquals("Wrong message", "FIXME need to review the loop", message);
 			assertNotNull("No task priority", priority);
-			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_HIGH), priority);
+			assertEquals("Wrong priority", Integer.valueOf(IMarker.PRIORITY_HIGH), priority);
 
 			marker = markers[0];
 			priority = marker.getAttribute(IMarker.PRIORITY);
 			message = (String) marker.getAttribute(IMarker.MESSAGE);
 			assertEquals("Wrong message", "TODO need to review the loop", message);
 			assertNotNull("No task priority", priority);
-			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_NORMAL), priority);
+			assertEquals("Wrong priority", Integer.valueOf(IMarker.PRIORITY_NORMAL), priority);
 		} catch (CoreException e) {
 			assertTrue(false);
 		}
@@ -253,14 +253,14 @@ public class BasicBuildTests extends BuilderTests {
 			String message = (String) marker.getAttribute(IMarker.MESSAGE);
 			assertEquals("Wrong message", "TODO need to review the loop", message);
 			assertNotNull("No task priority", priority);
-			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_NORMAL), priority);
+			assertEquals("Wrong priority", Integer.valueOf(IMarker.PRIORITY_NORMAL), priority);
 
 			marker = markers[0];
 			priority = marker.getAttribute(IMarker.PRIORITY);
 			message = (String) marker.getAttribute(IMarker.MESSAGE);
 			assertEquals("Wrong message", "TODO need to review the loop", message);
 			assertNotNull("No task priority", priority);
-			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_NORMAL), priority);
+			assertEquals("Wrong priority", Integer.valueOf(IMarker.PRIORITY_NORMAL), priority);
 		} catch (CoreException e) {
 			assertTrue(false);
 		}
@@ -508,14 +508,14 @@ public class BasicBuildTests extends BuilderTests {
 			String message = (String) marker.getAttribute(IMarker.MESSAGE);
 			assertEquals("Wrong message", "TODO? need to review the loop", message);
 			assertNotNull("No task priority", priority);
-			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_LOW), priority);
+			assertEquals("Wrong priority", Integer.valueOf(IMarker.PRIORITY_LOW), priority);
 
 			marker = markers[0];
 			priority = marker.getAttribute(IMarker.PRIORITY);
 			message = (String) marker.getAttribute(IMarker.MESSAGE);
 			assertEquals("Wrong message", "TODO! need to review the loop", message);
 			assertNotNull("No task priority", priority);
-			assertEquals("Wrong priority", new Integer(IMarker.PRIORITY_HIGH), priority);
+			assertEquals("Wrong priority", Integer.valueOf(IMarker.PRIORITY_HIGH), priority);
 		} catch (CoreException e) {
 			assertTrue(false);
 		}

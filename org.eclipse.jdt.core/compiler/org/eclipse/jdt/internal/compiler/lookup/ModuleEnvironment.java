@@ -26,11 +26,11 @@ import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
-import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironmentExtension;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 
-public abstract class ModuleEnvironment implements INameEnvironment {
+public abstract class ModuleEnvironment implements INameEnvironmentExtension {
 	/*
 	 * Keeps track of packages mapped to modules
 	 * Knows how to get modules
@@ -80,7 +80,11 @@ public abstract class ModuleEnvironment implements INameEnvironment {
 	}
 
 	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] client) {
-		NameEnvironmentAnswer answer = findType(typeName, packageName, getVisibleModules(client));
+		return findTypeWorker(typeName, packageName, client, false);
+	}
+	
+	private NameEnvironmentAnswer findTypeWorker(char[] typeName, char[][] packageName, char[] client, boolean searchSecondaryTypes) {
+		NameEnvironmentAnswer answer = findType(typeName, packageName, getVisibleModules(client), searchSecondaryTypes);
 		char[] module = null;
 		if(answer == null || (module = answer.moduleName()) == null || 
 				CharOperation.equals(module, JRTUtil.JAVA_BASE_CHAR)) {
@@ -88,12 +92,21 @@ public abstract class ModuleEnvironment implements INameEnvironment {
 		}
 		return returnAnswerAfterValidation(packageName, answer, client);
 	}
-	
+
+	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] client, boolean searchWithSecondaryTypes) {
+		return findTypeWorker(typeName, packageName, client, searchWithSecondaryTypes);
+	}
+
 	protected NameEnvironmentAnswer returnAnswerAfterValidation(char[][] packageName, NameEnvironmentAnswer answer, char[] client) {
 		if (isPackageVisible(CharOperation.concatWith(packageName, '.'), answer.moduleName(), client)) {
 			return answer;
 		}
 		return null;
+	}
+
+	// default implementation
+	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, IModule[] modules, boolean searchSecondaryTypes) {
+		return findType(typeName, packageName, modules);
 	}
 
 	public boolean isPackage(char[][] parentPackageName, char[] packageName, char[] client) {

@@ -11399,8 +11399,8 @@ public void testBug474918c() {
 		"\r\n" + 
 		"public class A {\r\n" + 
 		"	private Function	mapper				= (Object a) -> {\r\n" + 
-		"		                                        return a.toString().equals(\"test\");\r\n" + 
-		"	                                        };\r\n" + 
+		"												return a.toString().equals(\"test\");\r\n" + 
+		"											};\r\n" + 
 		"	String				ssssssssssssssss	= \"dsadaaaaaaaaaaaaaaaaaaaaaaaaa\";		//$NON-NLS-1$ //\r\n" + 
 		"	                                                                                // B\r\n" + 
 		"	                                                                                // //\r\n" + 
@@ -11409,9 +11409,9 @@ public void testBug474918c() {
 		"	int					bb					= 4;\r\n" + 
 		"\r\n" + 
 		"	Object				c					= new Object() {\r\n" + 
-		"		                                        int		a				= 55;\r\n" + 
-		"		                                        Object	cdddddddddddd	= null;\r\n" + 
-		"	                                        };\r\n" + 
+		"												int		a				= 55;\r\n" + 
+		"												Object	cdddddddddddd	= null;\r\n" + 
+		"											};\r\n" + 
 		"\r\n" + 
 		"	private enum E {\r\n" + 
 		"		AAA, BBB;\r\n" + 
@@ -12350,6 +12350,111 @@ public void testBug487375() {
 		"public class Test {\r\n" + 
 		"	/* public */ void foo() {\r\n" + 
 		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/489797 - [formatter] 'Indent empty lines' sometimes doesn't work with 'format edited lines' save action
+ */
+public void testBug489797a() {
+	this.formatterPrefs.indent_empty_lines = true;
+	String source =
+		"public class Example {\r\n" + 
+		"	public void foo() {\r\n" + 
+		"		if (true)\r\n" + 
+		"			return;\r\n" + 
+		"[##]\r\n" + 
+		"		return;\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source,
+		"public class Example {\r\n" + 
+		"	public void foo() {\r\n" + 
+		"		if (true)\r\n" + 
+		"			return;\r\n" + 
+		"		\r\n" + 
+		"		return;\r\n" + 
+		"	}\r\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/489797 - [formatter] 'Indent empty lines' sometimes doesn't work with 'format edited lines' save action
+ */
+public void testBug489797b() {
+	this.formatterPrefs.indent_empty_lines = true;
+	String source =
+		"public class Example {\r\n" + 
+		"	public void foo() {\r\n" + 
+		"		if (true)\r\n" + 
+		"			return;\r\n" + 
+		"[#		#]\r\n" + 
+		"		return;\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source,
+		"public class Example {\r\n" + 
+		"	public void foo() {\r\n" + 
+		"		if (true)\r\n" + 
+		"			return;\r\n" + 
+		"		\r\n" + 
+		"		return;\r\n" + 
+		"	}\r\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/489797 - [formatter] 'Indent empty lines' sometimes doesn't work with 'format edited lines' save action
+ */
+public void testBug489797c() {
+	this.formatterPrefs.indent_empty_lines = true;
+	this.formatterPrefs.number_of_empty_lines_to_preserve = 5;
+	String source =
+		"public class Example {\r\n" + 
+		"	public void foo() {\r\n" + 
+		"		if (true)\r\n" + 
+		"			return;\r\n" + 
+		"[#\r\n" + 
+		"#]\r\n" + 
+		"		return;\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source,
+		"public class Example {\r\n" + 
+		"	public void foo() {\r\n" + 
+		"		if (true)\r\n" + 
+		"			return;\r\n" + 
+		"		\r\n" + 
+		"		\r\n" + 
+		"		return;\r\n" + 
+		"	}\r\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/488898 - [formatter] Disabled options still have effect
+ */
+public void testBug488898() {
+	this.formatterPrefs.alignment_for_parameters_in_method_declaration = Alignment.M_NO_ALIGNMENT + Alignment.M_FORCE;
+	String source =
+		"class Example {\r\n" + 
+		"	void foo(int bar) {\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/492735 - [formatter] Excessive wrapping in a complex expression
+ */
+public void testBug492735() {
+	this.formatterPrefs.alignment_for_assignment = Alignment.M_COMPACT_SPLIT;
+	this.formatterPrefs.page_width = 60;
+	String source =
+		"class FormatterIssue {\r\n" + 
+		"	String[] S = new String[] {\r\n" + 
+		"			foo(\"first line  xxxxxxxxxxx\", \"y\", \"z\"),\r\n" + 
+		"			foo(\"second line xxxxxxxxxxxxxxxxxxx\", \"b\",\r\n" + 
+		"					\"c\"), };\r\n" + 
 		"}";
 	formatSource(source);
 }

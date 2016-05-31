@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.ImplicitNullAnnotationVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.IntersectionTypeBinding18;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -45,6 +46,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
@@ -198,8 +200,14 @@ public abstract class FunctionalExpression extends Expression {
 			} else if (this.expectedType.findSuperTypeOriginatingFrom(TypeIds.T_JavaIoSerializable, false /*Serializable is not a class*/) != null) {
 				this.isSerializable = true;
 			}
-			if (blockScope.environment().globalOptions.isAnnotationBasedNullAnalysisEnabled)
+			LookupEnvironment environment = blockScope.environment();
+			if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+				if ((sam.tagBits & TagBits.IsNullnessKnown) == 0) {
+					new ImplicitNullAnnotationVerifier(environment, environment.globalOptions.inheritNullAnnotations)
+							.checkImplicitNullAnnotations(sam, null, false, blockScope);
+				}
 				NullAnnotationMatching.checkForContradictions(sam, this, blockScope);
+			}
 			return this.resolvedType = this.expectedType;		
 		}
 		
@@ -310,7 +318,7 @@ public abstract class FunctionalExpression extends Expression {
 				this.selector = method.selector;
 				this.environment = FunctionalExpression.this.enclosingScope.environment();
 				this.scope = FunctionalExpression.this.enclosingScope;
-				collectBridges(functionalType.superInterfaces());
+				collectBridges(new ReferenceBinding[]{functionalType});
 			}
 			
 			void collectBridges(ReferenceBinding[] interfaces) {
@@ -324,7 +332,7 @@ public abstract class FunctionalExpression extends Expression {
 						MethodBinding inheritedMethod = methods[j];
 						if (inheritedMethod == null || this.method == inheritedMethod)  // descriptor declaring class may not be same functional interface target type.
 							continue;
-						if (inheritedMethod.isStatic() || inheritedMethod.isDefaultMethod() || inheritedMethod.redeclaresPublicObjectMethod(this.scope)) 
+						if (inheritedMethod.isStatic() || inheritedMethod.redeclaresPublicObjectMethod(this.scope)) 
 							continue;
 						inheritedMethod = MethodVerifier.computeSubstituteMethod(inheritedMethod, this.method, this.environment);
 						if (inheritedMethod == null || !MethodVerifier.isSubstituteParameterSubsignature(this.method, inheritedMethod, this.environment) ||

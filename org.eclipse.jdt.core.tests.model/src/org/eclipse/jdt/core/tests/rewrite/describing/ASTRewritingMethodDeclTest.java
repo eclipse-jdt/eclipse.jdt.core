@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -82,7 +82,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	/** @deprecated using deprecated code */
 	private void setModifiers(ASTRewrite rewrite, MethodDeclaration methodDecl, int newModifiers) {
 		if (this.apiLevel < AST.JLS3) {
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, Integer.valueOf(newModifiers), null);
 		} else {
 			ListRewrite listRewrite = rewrite.getListRewrite(methodDecl, MethodDeclaration.MODIFIERS2_PROPERTY);
 			for (Iterator iter= listRewrite.getOriginalList().iterator(); iter.hasNext(); ) {
@@ -100,7 +100,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 	/** @deprecated using deprecated code */
 	private void setExtraDimensions(ASTRewrite rewrite, MethodDeclaration methodDecl, int extraDimensions) {
 		if (this.apiLevel < AST.JLS8) {
-			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(extraDimensions), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, Integer.valueOf(extraDimensions), null);
 		} else {
 			ListRewrite listRewrite = rewrite.getListRewrite(methodDecl, MethodDeclaration.EXTRA_DIMENSIONS2_PROPERTY);
 			for (Iterator iter= listRewrite.getOriginalList().iterator(); iter.hasNext(); ) {
@@ -364,7 +364,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 		{ // insert return type, add second modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(0);
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC | Modifier.FINAL), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, Integer.valueOf(Modifier.PUBLIC | Modifier.FINAL), null);
 
 			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
 
@@ -375,7 +375,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		}
 		{ // insert return type, add (first) modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(1);
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, Integer.valueOf(Modifier.FINAL), null);
 
 			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
 
@@ -387,7 +387,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		{ // insert return type, add second modifier with comments
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(2);
 
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, Integer.valueOf(Modifier.FINAL), null);
 
 			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
 
@@ -399,7 +399,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 		{ // add second modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(3);
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC | Modifier.FINAL), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, Integer.valueOf(Modifier.PUBLIC | Modifier.FINAL), null);
 
 			// from method to constructor
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
@@ -407,7 +407,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		}
 		{ // add (first) modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(4);
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, Integer.valueOf(Modifier.FINAL), null);
 
 			// from method to constructor
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
@@ -416,7 +416,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		{ // add second modifier with comments
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(5);
 
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.FINAL), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, Integer.valueOf(Modifier.FINAL), null);
 
 			// from method to constructor
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
@@ -464,7 +464,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 		{ // insert return type, remove second modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(0);
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, Integer.valueOf(Modifier.PUBLIC), null);
 
 			Type newReturnType= astRoot.getAST().newPrimitiveType(PrimitiveType.FLOAT);
 
@@ -499,7 +499,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 		{ // remove second modifier
 			MethodDeclaration methodDecl= (MethodDeclaration) list.get(3);
-			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, new Integer(Modifier.PUBLIC), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_MODIFIERS_PROPERTY, Integer.valueOf(Modifier.PUBLIC), null);
 
 			// from method to constructor
 			rewrite.set(methodDecl, MethodDeclaration.CONSTRUCTOR_PROPERTY, Boolean.TRUE, null);
@@ -1505,7 +1505,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		{ // add extra dim, add throws
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo1");
 
-			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, 1, null);
 
 			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
 			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
@@ -1514,14 +1514,14 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		{ // add extra dim, remove throws
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo2");
 
-			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, 1, null);
 
 			rewrite.remove((ASTNode) getThrownExceptions(methodDecl).get(0), null);
 		}
 		{ // remove extra dim, add throws
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo3");
 
-			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, 1, null);
 
 			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
 			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
@@ -1530,7 +1530,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 		{ // add extra dim, remove throws
 			MethodDeclaration methodDecl= findMethodDeclaration(type, "foo4");
 
-			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(1), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, 1, null);
 
 			rewrite.remove((ASTNode) getThrownExceptions(methodDecl).get(0), null);
 		}
@@ -1541,7 +1541,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			rewrite.getListRewrite(methodDecl, MethodDeclaration.PARAMETERS_PROPERTY).insertLast(newParam1, null);
 
 
-			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(4), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, 4, null);
 
 			Name newThrownException2= ast.newSimpleName("ArrayStoreException");
 			rewrite.getListRewrite(methodDecl, INTERNAL_METHOD_THROWN_EXCEPTIONS_PROPERTY).insertLast(newThrownException2, null);
@@ -1552,7 +1552,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			rewrite.remove((ASTNode) methodDecl.parameters().get(0), null);
 
-			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, new Integer(4), null);
+			rewrite.set(methodDecl, INTERNAL_METHOD_EXTRA_DIMENSIONS_PROPERTY, 4, null);
 
 			rewrite.remove((ASTNode) getThrownExceptions(methodDecl).get(0), null);
 		}
@@ -1850,7 +1850,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			// add modifier
 			int newModifiers= Modifier.FINAL;
-			rewrite.set(decl, INTERNAL_FIELD_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(decl, INTERNAL_FIELD_MODIFIERS_PROPERTY, Integer.valueOf(newModifiers), null);
 
 			PrimitiveType newType= ast.newPrimitiveType(PrimitiveType.BOOLEAN);
 			rewrite.replace(decl.getType(), newType, null);
@@ -1867,7 +1867,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			// add modifier
 			int newModifiers= Modifier.FINAL | Modifier.STATIC | Modifier.TRANSIENT;
-			rewrite.set(decl, INTERNAL_FIELD_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(decl, INTERNAL_FIELD_MODIFIERS_PROPERTY, Integer.valueOf(newModifiers), null);
 
 			List fragments= decl.fragments();
 			assertTrue("Number of fragments not 3", fragments.size() == 3);
@@ -1886,7 +1886,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			// change modifier
 			int newModifiers= 0;
-			rewrite.set(decl, INTERNAL_FIELD_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(decl, INTERNAL_FIELD_MODIFIERS_PROPERTY, Integer.valueOf(newModifiers), null);
 		}
 
 		String preview= evaluateRewrite(cu, rewrite);
@@ -1931,7 +1931,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 
 			// add modifier
 			int newModifiers= Modifier.STATIC;
-			rewrite.set(initializer, INTERNAL_INITIALIZER_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(initializer, INTERNAL_INITIALIZER_MODIFIERS_PROPERTY, Integer.valueOf(newModifiers), null);
 
 
 			Block block= ast.newBlock();
@@ -1943,7 +1943,7 @@ public class ASTRewritingMethodDeclTest extends ASTRewritingTest {
 			Initializer initializer= (Initializer) declarations.get(1);
 
 			int newModifiers= 0;
-			rewrite.set(initializer, INTERNAL_INITIALIZER_MODIFIERS_PROPERTY, new Integer(newModifiers), null);
+			rewrite.set(initializer, INTERNAL_INITIALIZER_MODIFIERS_PROPERTY, Integer.valueOf(newModifiers), null);
 
 		}
 

@@ -8,8 +8,7 @@ public class X16 {
 	 * constructor.
 	 *
 	 * @param methodBinding
-	 *        org.eclipse.jdt.internal.compiler.nameloopkup.
-	 *        SyntheticAccessMethodBinding
+	 *        org.eclipse.jdt.internal.compiler.nameloopkup.SyntheticAccessMethodBinding
 	 */
 	void foo(Object methodBinding) {
 	}

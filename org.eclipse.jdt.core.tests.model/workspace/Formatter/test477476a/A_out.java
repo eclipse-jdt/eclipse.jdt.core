@@ -15,7 +15,7 @@ public class Example //
 	        Runnable//
 	        , //
 	        Serializable {
-	    /** doc */
+		/** doc */
 		AAA//
 		,
 		/** doc */
@@ -63,7 +63,7 @@ public class Example //
 		param2.function1()//
 		        .function2(//
 				).function3().//
-				function4();
+		        function4();
 
 		String sss1 = this.array.length > 3 //
 		        ? "yes" //

@@ -35,9 +35,11 @@ import org.eclipse.jdt.core.search.MethodNameMatch;
 import org.eclipse.jdt.core.search.MethodNameMatchRequestor;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
+import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeNameMatch;
 import org.eclipse.jdt.core.search.TypeNameMatchRequestor;
+import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 
 import junit.framework.Test;
@@ -2698,6 +2700,71 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 					"Unexpected search results!",
 					"",
 					this.resultCollector);
+		} finally {
+			deleteProject("P");
+		}
+	}
+	public void testBug491656_001() throws CoreException, IOException {
+		try {
+			IJavaProject p = createJavaProject("P", new String[] { "src" }, new String[] { "JCL15_LIB", "/P/lib491656_001.jar" }, "bin", "1.5");
+			String libsource = "package p2;\n" +
+							"import java.util.HashMap;\n"+
+							"import java.util.Map;\n"+
+							"\n"+
+							"public class MyLinkedHashMap<K,V>\n"+
+							"    extends HashMap<K,V>\n"+
+							"    implements Map<K,V>\n"+
+							"{\n"+
+							"    private transient Entry<K,V> header;\n"+
+							"    public MyLinkedHashMap(int initialCapacity, float loadFactor) {\n"+
+							"        super(initialCapacity, loadFactor);\n"+
+							"    }\n"+
+							"    private static class Entry<K,V>  {\n"+
+							"        public Object hash;\n"+
+							"        Entry<K,V> before, after;\n"+
+							"\n"+
+							"        Entry(int hash, K key, V value, HashMap.Entry<K,V> next) {}\n"+
+							"        private void remove491656() {}\n"+
+							"        private void remove491656Test() {}\n"+
+							"\n"+
+							"        private void addBefore491656(Entry<K,V> existingEntry) {}\n"+
+							"        public void iamAPublicMethod491656(Entry<K,V> existingEntry) {}\n"+
+							"\n"+
+							"        void recordAccess(HashMap<K,V> m) {\n"+
+							"            MyLinkedHashMap<K,V> lm = (MyLinkedHashMap<K,V>)m;\n"+
+							"            remove491656();\n"+
+							"            remove491656Test();\n"+
+							"            addBefore491656(lm.header);\n"+
+							"            iamAPublicMethod491656(lm.header);\n"+
+							"        }\n"+
+							"    }\n"+
+							"}\n";
+			String jarFileName = "lib491656_001.jar";
+			String srcZipName = "lib491656_001.src.zip";
+			createLibrary(p, jarFileName, srcZipName, new String[] {"p2/MyLinkedHashMap.java",libsource}, new String[0], JavaCore.VERSION_1_5);
+			IFile srcZip=(IFile) p.getProject().findMember(srcZipName);
+			IFile jar = (IFile) p.getProject().findMember(jarFileName);
+			p.getPackageFragmentRoot(jar).attachSource(srcZip.getFullPath(), null, null);
+			refresh(p);
+			waitUntilIndexesReady();
+			IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+			IType enclosingType = p.findType("p2.MyLinkedHashMap");
+			IType[] types = enclosingType.getTypes();
+			IMethod[] methods = types[0].getMethods();
+			IMethod method = methods[3];
+			assertTrue("Wrong Method", method.toString().contains("addBefore491656"));
+			SearchPattern pattern = SearchPattern.createPattern(method, REFERENCES);
+			MatchLocator.setFocus(pattern, method);
+			new SearchEngine(this.workingCopies).search(
+				pattern,
+				new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+				getJavaSearchScope(),
+				this.resultCollector,
+				null
+			);
+			search(pattern, scope, this.resultCollector);
+			assertSearchResults(
+			"lib491656_001.jar void p2.MyLinkedHashMap$Entry.recordAccess(java.util.HashMap<K,V>) EXACT_MATCH");
 		} finally {
 			deleteProject("P");
 		}

@@ -1781,6 +1781,58 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		null,true,
 		new String[]{"-Ddummy"});
 	}
+	public void testbug485333() {
+		this.runConformTest(
+			new String[]{
+				"Test.java",
+				"import java.io.ByteArrayInputStream;\n" + 
+				"import java.io.ByteArrayOutputStream;\n" + 
+				"import java.io.ObjectInputStream;\n" + 
+				"import java.io.ObjectOutputStream;\n" + 
+				"import java.io.Serializable;\n" + 
+				"interface Func<T> extends Serializable {\n" + 
+				"  T get();\n" + 
+				"}\n" + 
+				"class Impl implements Serializable {\n" + 
+				"  int val = 0;\n" + 
+				"  public int next() {\n" + 
+				"    val += 1;\n" + 
+				"    return val;\n" + 
+				"  }\n" + 
+				"}\n" + 
+				"public class Test {\n" + 
+				"  final Impl impl = new Impl();\n" + 
+				"  final Func<Integer> func = (Func<Integer> & Cloneable)impl::next;\n" + 
+				"  public void test() throws Throwable {\n" + 
+				"    byte[] bytes = write(func);//25\n" + 
+				"    Func<Integer> func = read(bytes);\n" + 
+				"    System.out.println(func.get());\n" + 
+				"  }\n" + 
+				"  public static void main(String[] args) throws Throwable {\n" + 
+				"	new Test().test();\n" + 
+				"}\n" + 
+				"  @SuppressWarnings(\"unchecked\")\n" + 
+				"  private static Func<Integer> read(byte[] bytes) throws Exception {\n" + 
+				"    ByteArrayInputStream bis = new ByteArrayInputStream(bytes);\n" + 
+				"    try (ObjectInputStream ois = new ObjectInputStream(bis)) {\n" + 
+				"      return (Func<Integer>) ois.readObject();\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"  private static byte[] write(Func<Integer> func) throws Exception {\n" + 
+				"    ByteArrayOutputStream bos = new ByteArrayOutputStream();\n" + 
+				"    System.out.println(func.get());\n" + 
+				"    try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {\n" + 
+				"      oos.writeObject(func);//42\n" + 
+				"    }\n" + 
+				"    return bos.toByteArray();\n" + 
+				"  }\n" + 
+				"}"
+		},
+		"1\n" +
+		"2",
+		null,true,
+		new String[]{"-Ddummy"});
+	}
 	// ---
 	
 	private void checkExpected(String expected, String actual) {

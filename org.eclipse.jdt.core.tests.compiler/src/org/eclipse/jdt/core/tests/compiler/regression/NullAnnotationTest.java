@@ -8114,7 +8114,7 @@ public void testBug462790() {
 		"Null type safety: The expression of type \'T\' needs unchecked conversion to conform to \'@NonNull T\'\n" + 
 		"----------\n"
 		:
-		"3. WARNING in EclipseBug.java (at line 10)\n" + 
+		"3. INFO in EclipseBug.java (at line 10)\n" + 
 		"	return commandType.newInstance();\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull Class<T extends @NonNull String>\'. Type \'Class<T>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
@@ -8838,5 +8838,62 @@ public void testMultipleAnnotations() {
 				"	                   ^^^^^\n" + 
 				mismatch_NonNull_Nullable("String") +
 				"----------\n");
+}
+
+public void testBug489486conform() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/DurationAdapter.java",
+			"package test;\n" +
+			"\n" +
+			"final class DurationAdapter extends java.lang.ref.SoftReference<String> {\n" +
+			"	public DurationAdapter(String referent) {\n" +
+			"		super(referent);\n" +
+			"	}\n" +
+			"}\n",
+			"test/TheAnnotation.java",
+			"package test;\n" +
+			"\n" +
+			"public @interface TheAnnotation {\n" +
+			"	Class<? extends java.lang.ref.SoftReference<?>> value();\n" +
+			"}\n",
+			"test/package-info.java",
+			"@TheAnnotation(value = DurationAdapter.class)\n" +
+			"package test;\n",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+
+public void testBug489486negative() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/DurationAdapter.java",
+			"package test;\n" +
+			"\n" +
+			"final class DurationAdapter extends java.lang.ref.WeakReference<String> {\n" +
+			"	public DurationAdapter(String referent) {\n" +
+			"		super(referent);\n" +
+			"	}\n" +
+			"}\n",
+			"test/TheAnnotation.java",
+			"package test;\n" +
+			"\n" +
+			"public @interface TheAnnotation {\n" +
+			"	Class<? extends java.lang.ref.SoftReference<?>> value();\n" +
+			"}\n",
+			"test/package-info.java",
+			"@TheAnnotation(value = DurationAdapter.class)\n" +
+			"package test;\n",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\package-info.java (at line 1)\n" + 
+		"	@TheAnnotation(value = DurationAdapter.class)\n" + 
+		"	                       ^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Class<DurationAdapter> to Class<? extends SoftReference<?>>\n" + 
+		"----------\n"
+	);
 }
 }

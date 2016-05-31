@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 BEA Systems, Inc.
+ * Copyright (c) 2005, 2016 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -49,7 +49,7 @@ public class AnnotationInvocationHandler implements InvocationHandler
         if( args == null || args.length == 0 )
         {
             if( methodName.equals("hashCode") ) //$NON-NLS-1$
-                return new Integer( _instance.hashCode() );
+                return Integer.valueOf( _instance.hashCode() );
             if( methodName.equals("toString") ) //$NON-NLS-1$
                 return _instance.toString();
             if( methodName.equals("annotationType")) //$NON-NLS-1$
@@ -57,7 +57,7 @@ public class AnnotationInvocationHandler implements InvocationHandler
         }
         else if( args.length == 1 && methodName.equals("equals") ) //$NON-NLS-1$
         {
-            return new Boolean( _instance.equals( args[0] ) );
+            return Boolean.valueOf(_instance.equals(args[0]));
         }
         if( args != null && args.length != 0 )
             throw new NoSuchMethodException("method " + method.getName() + formatArgs(args) + " does not exists"); //$NON-NLS-1$ //$NON-NLS-2$

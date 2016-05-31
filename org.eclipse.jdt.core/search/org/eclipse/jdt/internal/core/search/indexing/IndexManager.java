@@ -63,11 +63,11 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	private File savedIndexNamesFile = new File(getSavedIndexesDirectory(), "savedIndexNames.txt"); //$NON-NLS-1$
 	private File participantIndexNamesFile = new File(getSavedIndexesDirectory(), "participantsIndexNames.txt"); //$NON-NLS-1$
 	private boolean javaLikeNamesChanged = true;
-	public static final Integer SAVED_STATE = new Integer(0);
-	public static final Integer UPDATING_STATE = new Integer(1);
-	public static final Integer UNKNOWN_STATE = new Integer(2);
-	public static final Integer REBUILDING_STATE = new Integer(3);
-	public static final Integer REUSE_STATE = new Integer(4);
+	public static final Integer SAVED_STATE = 0;
+	public static final Integer UPDATING_STATE = 1;
+	public static final Integer UNKNOWN_STATE = 2;
+	public static final Integer REBUILDING_STATE = 3;
+	public static final Integer REUSE_STATE = 4;
 	
 	// search participants who register indexes with the index manager
 	private SimpleLookupTable participantsContainers = null;

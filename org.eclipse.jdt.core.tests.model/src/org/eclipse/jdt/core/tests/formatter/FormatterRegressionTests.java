@@ -13588,7 +13588,7 @@ public void testBug370540a() throws JavaModelException {
  */
 public void testBug370540b() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_1_8);
-	this.formatterPrefs.parenthesis_positions_in_method_declaration = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPY;
+	this.formatterPrefs.parenthesis_positions_in_method_declaration = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPTY;
 	String input = getCompilationUnit("Formatter", "", "test370540", "Example_in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test370540", "Example_out02.java").getSource());
 }
@@ -13615,7 +13615,7 @@ public void testBug370540d() throws JavaModelException {
  */
 public void testBug370540e() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_1_8);
-	this.formatterPrefs.parenthesis_positions_in_method_invocation = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPY;
+	this.formatterPrefs.parenthesis_positions_in_method_invocation = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPTY;
 	String input = getCompilationUnit("Formatter", "", "test370540", "Example_in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test370540", "Example_out05.java").getSource());
 }
@@ -13634,7 +13634,7 @@ public void testBug370540f() throws JavaModelException {
  */
 public void testBug370540g() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_1_8);
-	this.formatterPrefs.parenthesis_positions_in_enum_constant_declaration = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPY;
+	this.formatterPrefs.parenthesis_positions_in_enum_constant_declaration = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPTY;
 	this.formatterPrefs.parenthesis_positions_in_if_while_statement = DefaultCodeFormatterConstants.SEPARATE_LINES;
 	String input = getCompilationUnit("Formatter", "", "test370540", "Example_in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test370540", "Example_out07.java").getSource());
@@ -13645,7 +13645,7 @@ public void testBug370540g() throws JavaModelException {
 public void testBug370540h() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_1_8);
 	this.formatterPrefs.parenthesis_positions_in_if_while_statement = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_WRAPPED;
-	this.formatterPrefs.parenthesis_positions_in_lambda_declaration = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPY;
+	this.formatterPrefs.parenthesis_positions_in_lambda_declaration = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPTY;
 	String input = getCompilationUnit("Formatter", "", "test370540", "Example_in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test370540", "Example_out08.java").getSource());
 }
@@ -13655,7 +13655,7 @@ public void testBug370540h() throws JavaModelException {
 public void testBug370540i() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_1_8);
 	this.formatterPrefs.parenthesis_positions_in_if_while_statement = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_WRAPPED;
-	this.formatterPrefs.parenthesis_positions_in_method_invocation = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPY;
+	this.formatterPrefs.parenthesis_positions_in_method_invocation = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPTY;
 	String input = getCompilationUnit("Formatter", "", "test370540", "Example_in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test370540", "Example_out09.java").getSource());
 }
@@ -13685,7 +13685,7 @@ public void testBug370540k() throws JavaModelException {
 public void testBug370540l() throws JavaModelException {
 	setComplianceLevel(CompilerOptions.VERSION_1_8);
 	this.formatterPrefs.parenthesis_positions_in_for_statement = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_WRAPPED;
-	this.formatterPrefs.parenthesis_positions_in_annotation = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPY;
+	this.formatterPrefs.parenthesis_positions_in_annotation = DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPTY;
 	String input = getCompilationUnit("Formatter", "", "test370540", "Example_in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test370540", "Example_out12.java").getSource());
 }
@@ -13860,6 +13860,53 @@ public void testBug384959g() throws JavaModelException {
 		"		D extends IteratedList<D, B, G, I, Z, K>, F extends MasteredList<F, H, C, A, J, Y>,\n" + 
 		"		G extends MasteredList<G, I, D, B, K, Z>, H extends Mastered, I extends Mastered, X extends T, Y extends C,\n" + 
 		"		Z extends D, J extends F, K extends G> extends ObjectToObjectLinkList<T, E, A, B, C, D, X, Y, Z> {\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/488642 - [formatter] IOOBE with block comment inside anonymous class
+ */
+public void testBug488642a() {
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	String source =
+		"public class Test {\n" + 
+		"	Object o = new Object() {\n" + 
+		"		int a = 0;\n" + 
+		"		/*\n" + 
+		"		 * comment\n" + 
+		"		 */\n" + 
+		"		int b = 9; /*\n" + 
+		"		            * comment\n" + 
+		"		            */\n" + 
+		"		String ssssssss = \"aaaaaaaaaaaaaaaaaaaaaaaa\" //\n" + 
+		"		        + \"ddddddddddddddddddddddd\" /*\n" + 
+		"		                                     * comment\n" + 
+		"		                                     */;\n" + 
+		"	};\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/488642 - [formatter] IOOBE with block comment inside anonymous class
+ */
+public void testBug488642b() {
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	this.formatterPrefs.align_type_members_on_columns = true;
+	String source =
+		"public class Test {\n" + 
+		"	Object o = new Object() {\n" + 
+		"		int		a			= 0;\n" + 
+		"		/*\n" + 
+		"		 * comment\n" + 
+		"		 */\n" + 
+		"		int		b			= 9;							/*\n" + 
+		"		                                                     * comment\n" + 
+		"		                                                     */\n" + 
+		"		String	ssssssss	= \"aaaaaaaaaaaaaaaaaaaaaaaa\"	//\n" + 
+		"		        + \"ddddddddddddddddddddddd\" /*\n" + 
+		"		                                     * comment\n" + 
+		"		                                     */;\n" + 
+		"	};\n" + 
 		"}";
 	formatSource(source);
 }

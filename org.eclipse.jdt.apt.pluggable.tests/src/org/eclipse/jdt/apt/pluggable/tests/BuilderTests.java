@@ -18,6 +18,7 @@ import java.util.List;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
+import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug468893Processor;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.BugsProc;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.InheritedAnnoProc;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.TestFinalRoundProc;
@@ -214,7 +215,18 @@ public class BuilderTests extends TestBase
 			org.eclipse.jdt.internal.core.builder.AbstractImageBuilder.MAX_AT_ONCE = old;
 		}
 	}
-	
+	public void testBug468893() throws Throwable {
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJavaProject(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IdeTestUtils.copyResources(proj, "targets/bug468893", "src/targets/bug468893");
+
+		AptConfig.setEnabled(jproj, true);
+		fullBuild();
+		expectingNoProblems();
+		assertEquals("Should have been processed over just once", 1, Bug468893Processor.count());
+	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419769
 	public void testBug419769() throws Throwable {
 		try {

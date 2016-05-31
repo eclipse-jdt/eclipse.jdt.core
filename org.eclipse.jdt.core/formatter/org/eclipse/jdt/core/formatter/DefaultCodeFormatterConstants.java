@@ -687,11 +687,11 @@ public class DefaultCodeFormatterConstants {
 	 * <pre>
 	 * FORMATTER / Option to position parentheses in method declarations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_method_declaration"
-	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPTY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
-	 * @see #SEPARATE_LINES_IF_NOT_EMPY
+	 * @see #SEPARATE_LINES_IF_NOT_EMPTY
 	 * @see #SEPARATE_LINES_IF_WRAPPED
 	 * @see #SEPARATE_LINES
 	 * @see #PRESERVE_POSITIONS
@@ -703,11 +703,11 @@ public class DefaultCodeFormatterConstants {
 	 * <pre>
 	 * FORMATTER / Option to position parentheses in method invocations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_method_invocation"
-	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPTY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
-	 * @see #SEPARATE_LINES_IF_NOT_EMPY
+	 * @see #SEPARATE_LINES_IF_NOT_EMPTY
 	 * @see #SEPARATE_LINES_IF_WRAPPED
 	 * @see #SEPARATE_LINES
 	 * @see #PRESERVE_POSITIONS
@@ -719,11 +719,11 @@ public class DefaultCodeFormatterConstants {
 	 * <pre>
 	 * FORMATTER / Option to position parentheses in enum constant declarations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_enum_constant_declaration"
-	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPTY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
-	 * @see #SEPARATE_LINES_IF_NOT_EMPY
+	 * @see #SEPARATE_LINES_IF_NOT_EMPTY
 	 * @see #SEPARATE_LINES_IF_WRAPPED
 	 * @see #SEPARATE_LINES
 	 * @see #PRESERVE_POSITIONS
@@ -736,7 +736,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to position parentheses in 'if' and 'while' statements
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_if_while_statement"
 	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
 	 * @see #SEPARATE_LINES_IF_WRAPPED
@@ -751,7 +751,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to position parentheses in 'for' statements
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_for_statement"
 	 *     - possible values:   { COMMON_LINES,  SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
 	 * @see #SEPARATE_LINES_IF_WRAPPED
@@ -766,7 +766,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to position parentheses in 'switch' statements
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_switch_statement"
 	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
 	 * @see #SEPARATE_LINES_IF_WRAPPED
@@ -781,7 +781,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to position parentheses in try clauses
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_try_clause"
 	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
 	 * @see #SEPARATE_LINES_IF_WRAPPED
@@ -796,7 +796,7 @@ public class DefaultCodeFormatterConstants {
 	 * FORMATTER / Option to position parentheses in catch clauses
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_catch_clause"
 	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
 	 * @see #SEPARATE_LINES_IF_WRAPPED
@@ -810,11 +810,11 @@ public class DefaultCodeFormatterConstants {
 	 * <pre>
 	 * FORMATTER / Option to position parentheses in annotations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_annotation"
-	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPTY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
-	 * @see #SEPARATE_LINES_IF_NOT_EMPY
+	 * @see #SEPARATE_LINES_IF_NOT_EMPTY
 	 * @see #SEPARATE_LINES_IF_WRAPPED
 	 * @see #SEPARATE_LINES
 	 * @see #PRESERVE_POSITIONS
@@ -826,11 +826,11 @@ public class DefaultCodeFormatterConstants {
 	 * <pre>
 	 * FORMATTER / Option to position parentheses in lambda declarations
 	 *     - option id:         "org.eclipse.jdt.core.formatter.parentheses_positions_in_lambda_declaration"
-	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
-	 *     - default:           END_OF_LINE
+	 *     - possible values:   { COMMON_LINES, SEPARATE_LINES_IF_NOT_EMPTY, SEPARATE_LINES_IF_WRAPPED, SEPARATE_LINES, PRESERVE_POSITIONS }
+	 *     - default:           COMMON_LINES
 	 * </pre>
 	 * @see #COMMON_LINES
-	 * @see #SEPARATE_LINES_IF_NOT_EMPY
+	 * @see #SEPARATE_LINES_IF_NOT_EMPTY
 	 * @see #SEPARATE_LINES_IF_WRAPPED
 	 * @see #SEPARATE_LINES
 	 * @see #PRESERVE_POSITIONS
@@ -4183,7 +4183,8 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Value to keep always parentheses on common lines with their contents..
+	 * FORMATTER / Value to set opening and closing parentheses location in common lines with
+	 *             their contents (or simply a single line if the parentheses are empty).
 	 * </pre>
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_DECLARATION
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_INVOCATION
@@ -4201,25 +4202,22 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Value to keep always parentheses on common lines with their contents..
+	 * FORMATTER / Value to set opening and closing parentheses location on a common line
+	 *             if the parentheses are empty and otherwise in separate lines from their contents.
 	 * </pre>
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_DECLARATION
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_INVOCATION
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_ENUM_CONSTANT_DECLARATION
-	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_IF_WHILE_STATEMENT
-	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_FOR_STATEMENT
-	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_SWITCH_STATEMENT
-	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_TRY_CLAUSE
-	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_CATCH_CLAUSE
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_ANNOTATION
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_LAMBDA_DECLARATION
 	 * @since 3.12
 	 */
-	public static final String SEPARATE_LINES_IF_NOT_EMPY = "separate_lines_if_not_empty";	//$NON-NLS-1$
+	public static final String SEPARATE_LINES_IF_NOT_EMPTY = "separate_lines_if_not_empty";	//$NON-NLS-1$
 
 	/**
 	 * <pre>
-	 * FORMATTER / Value to keep always parentheses on common lines with their contents..
+	 * FORMATTER / Value to set opening and closing parentheses location on separate lines from their
+	 *             contents if the contents are wrapped, and in common line if they fit in line width.
 	 * </pre>
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_DECLARATION
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_INVOCATION
@@ -4237,7 +4235,9 @@ public class DefaultCodeFormatterConstants {
 	
 	/**
 	 * <pre>
-	 * FORMATTER / Value to keep always parentheses on common lines with their contents..
+	 * FORMATTER / Value to set parentheses location on separate lines from their contents,
+	 *             that is put a line break after the opening parenthesis and before
+	 *             the closing parenthesis.
 	 * </pre>
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_DECLARATION
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_INVOCATION
@@ -4255,8 +4255,8 @@ public class DefaultCodeFormatterConstants {
 
 	/**
 	 * <pre>
-	 * FORMATTER / Value to set a closing parenthesis position to same line or next
-	 *             line depending on what was in the original source.
+	 * FORMATTER / Value to set opening and closing parentheses location to be preserved
+	 *             from the original source.
 	 * </pre>
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_DECLARATION
 	 * @see #FORMATTER_PARENTHESES_POSITIONS_IN_METHOD_INVOCATION
@@ -4326,10 +4326,6 @@ public class DefaultCodeFormatterConstants {
 	 */
 	public static final int WRAP_ONE_PER_LINE= 3;
 
-	/*
-	 * Private constants. Not in javadoc
-	 */
-	private static final IllegalArgumentException WRONG_ARGUMENT = new IllegalArgumentException();
 	/**
 	 * Create a new alignment value according to the given values. This must be used to set up
 	 * the alignment options.
@@ -4408,14 +4404,11 @@ public class DefaultCodeFormatterConstants {
 	 * doesn't have a valid format.
 	 */
 	public static boolean getForceWrapping(String value) {
-		if (value == null) {
-			throw WRONG_ARGUMENT;
-		}
 		try {
 			int existingValue = Integer.parseInt(value);
 			return (existingValue & Alignment.M_FORCE) != 0;
 		} catch (NumberFormatException e) {
-			throw WRONG_ARGUMENT;
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
 		}
 	}
 
@@ -4432,9 +4425,6 @@ public class DefaultCodeFormatterConstants {
 	 * doesn't have a valid format.
 	 */
 	public static int getIndentStyle(String value) {
-		if (value == null) {
-			throw WRONG_ARGUMENT;
-		}
 		try {
 			int existingValue = Integer.parseInt(value);
 			if ((existingValue & Alignment.M_INDENT_BY_ONE) != 0) {
@@ -4445,7 +4435,7 @@ public class DefaultCodeFormatterConstants {
 				return INDENT_DEFAULT;
 			}
 		} catch (NumberFormatException e) {
-			throw WRONG_ARGUMENT;
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
 		}
 	}
 
@@ -4471,9 +4461,6 @@ public class DefaultCodeFormatterConstants {
 	 * doesn't have a valid format.
 	 */
 	public static int getWrappingStyle(String value) {
-		if (value == null) {
-			throw WRONG_ARGUMENT;
-		}
 		try {
 			int existingValue = Integer.parseInt(value) & Alignment.SPLIT_MASK;
 			switch(existingValue) {
@@ -4491,7 +4478,7 @@ public class DefaultCodeFormatterConstants {
 					return WRAP_NO_SPLIT;
 			}
 		} catch (NumberFormatException e) {
-			throw WRONG_ARGUMENT;
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
 		}
 	}
 	/**
@@ -4508,9 +4495,6 @@ public class DefaultCodeFormatterConstants {
 	 * doesn't have a valid format.
 	 */
 	public static String setForceWrapping(String value, boolean force) {
-		if (value == null) {
-			throw WRONG_ARGUMENT;
-		}
 		try {
 			int existingValue = Integer.parseInt(value);
 			// clear existing force bit
@@ -4520,7 +4504,7 @@ public class DefaultCodeFormatterConstants {
 			}
 			return String.valueOf(existingValue);
 		} catch (NumberFormatException e) {
-			throw WRONG_ARGUMENT;
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
 		}
 	}
 
@@ -4542,16 +4526,13 @@ public class DefaultCodeFormatterConstants {
 	 * alignment value doesn't have a valid format.
 	 */
 	public static String setIndentStyle(String value, int indentStyle) {
-		if (value == null) {
-			throw WRONG_ARGUMENT;
-		}
 		switch(indentStyle) {
 			case INDENT_BY_ONE :
 			case INDENT_DEFAULT :
 			case INDENT_ON_COLUMN :
 				break;
 			default :
-				throw WRONG_ARGUMENT;
+				throw new IllegalArgumentException("Unrecognized indent style: " + indentStyle); //$NON-NLS-1$;
 		}
 		try {
 			int existingValue = Integer.parseInt(value);
@@ -4566,7 +4547,7 @@ public class DefaultCodeFormatterConstants {
 			}
 			return String.valueOf(existingValue);
 		} catch (NumberFormatException e) {
-			throw WRONG_ARGUMENT;
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
 		}
 	}
 	/**
@@ -4590,9 +4571,6 @@ public class DefaultCodeFormatterConstants {
 	 * alignment value doesn't have a valid format.
 	 */
 	public static String setWrappingStyle(String value, int wrappingStyle) {
-		if (value == null) {
-			throw WRONG_ARGUMENT;
-		}
 		switch(wrappingStyle) {
 			case WRAP_COMPACT :
 			case WRAP_COMPACT_FIRST_BREAK :
@@ -4602,7 +4580,7 @@ public class DefaultCodeFormatterConstants {
 			case WRAP_ONE_PER_LINE :
 				break;
 			default:
-				throw WRONG_ARGUMENT;
+				throw new IllegalArgumentException("Unrecognized wrapping style: " + value); //$NON-NLS-1$
 		}
 		try {
 			int existingValue = Integer.parseInt(value);
@@ -4627,7 +4605,7 @@ public class DefaultCodeFormatterConstants {
 			}
 			return String.valueOf(existingValue);
 		} catch (NumberFormatException e) {
-			throw WRONG_ARGUMENT;
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
 		}
 	}
 }

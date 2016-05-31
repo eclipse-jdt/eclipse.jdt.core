@@ -874,7 +874,7 @@ public class WrapPreparator extends ASTVisitor {
 		}
 
 		boolean forceWrap = (wrappingOption & Alignment.M_FORCE) != 0;
-		if (forceWrap) {
+		if (forceWrap && policy.wrapMode != WrapMode.DISABLED) {
 			boolean satisfied = false;
 			for (int index : this.wrapIndexes) {
 				Token token = this.tm.get(index);
@@ -1044,8 +1044,6 @@ public class WrapPreparator extends ASTVisitor {
 		int toPreserve = this.options.number_of_empty_lines_to_preserve;
 		if (token1 != null && token2 != null)
 			toPreserve++; // n empty lines = n+1 line breaks, except for file start and end
-		if (token1 != null && token1.tokenType == Token.TokenNameEMPTY_LINE)
-			toPreserve--;
 		return Math.min(lineBreaks, toPreserve);
 	}
 
@@ -1104,7 +1102,7 @@ public class WrapPreparator extends ASTVisitor {
 
 				@Override
 				public boolean visit(EnumConstantDeclaration node) {
-					WrapPreparator.this.tm.firstTokenIn(node, TokenNameIdentifier).setWrapPolicy(null);
+					WrapPreparator.this.tm.firstTokenIn(node, -1).setWrapPolicy(null);
 					return true;
 				}
 			});

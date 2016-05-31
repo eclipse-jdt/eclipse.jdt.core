@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,11 +20,20 @@ import java.util.Hashtable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.internal.runtime.RuntimeLog;
-import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceDescription;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ILogListener;
 import org.eclipse.core.runtime.IPath;
@@ -32,7 +41,23 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IAccessRule;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.IClasspathAttribute;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJarEntryResource;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModelMarker;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -40,6 +65,9 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jdt.internal.core.util.Util;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class JavaProjectTests extends ModifyingResourceTests {
 public JavaProjectTests(String name) {
@@ -2659,6 +2687,126 @@ public void testBug462756() throws CoreException {
 	} finally {
 		 this.deleteProject("P");
 		 JavaCore.setOptions(javaCoreOptions);
+	}
+}
+/*
+ * Test that a generic type referenced in a 1.3/1.4 project doesn't result in ill-formed signature error
+ * due to generic information. (https://bugs.eclipse.org/bugs/show_bug.cgi?id=490724)
+ */
+public void testBug490724() throws CoreException {
+	IJavaProject project14 = null;
+	IJavaProject project15 = null;
+	try {
+		project15 = createJavaProject("Bug490724_15", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		createFolder("/Bug490724_15/src/p2");
+		createFile(
+				"/Bug490724_15/src/p2/Klass.java",
+				"package p2;\n" +
+				"public class Klass<T> {\n" +
+				"	class MethodInfo<K> {\n" +
+				"		public class InnerMethodInfo<V> {}\n" +
+				"	}\n" +
+				"	void addMethod(MethodInfo<String>.InnerMethodInfo<String> mi) { }" +
+				"}"
+			);
+		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+
+		project14 = createJavaProject("BugBug490724_14", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_3);
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_3);
+
+		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
+		int oldLength = oldClasspath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
+		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
+		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Bug490724_15"));
+		project14.setRawClasspath(newClasspath, null);
+
+		createFolder("/BugBug490724_14/src/p1");
+		String source = 
+			"package p1;\n" +
+			"public final class J13 {\n" +
+			"	private p2.Klass c; \n" +
+			"}";
+
+		createFile(
+			"/BugBug490724_14/src/p1/J13.java",
+			source
+		);
+		waitForManualRefresh();
+		waitForAutoBuild();
+		project14.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
+		IMarker[] markers = project14.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		markers = project14.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers",
+				"The value of the field J13.c is not used",  markers);
+	} finally {
+		if (project14 != null)
+			deleteProject(project14);
+		if (project15 != null)
+			deleteProject(project15);
+	}
+}
+/*
+ * Test that a generic type referenced in a 1.3/1.4 project doesn't result in "indirectly referenced" error
+ * for member type of raw binary type. (https://bugs.eclipse.org/bugs/show_bug.cgi?id=491354)
+ */
+public void testBug491354() throws CoreException {
+	IJavaProject project14 = null;
+	IJavaProject project15 = null;
+	try {
+		project15 = createJavaProject("Bug491354_15", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		createFolder("/Bug491354_15/src/p");
+		createFile(
+				"/Bug491354_15/src/p/ServiceTracker.java",
+				"package p;\n" +
+				"public class ServiceTracker<S, T> {\n" + 
+				"	private Tracked tracked() { return null; }\n" + 
+				"	private class Tracked {  }\n" + 
+				"}\n" + 
+				""
+				);
+		project15.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+		project15.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+		
+		project14 = createJavaProject("Bug491354_14", new String[] {"src"}, new String[] {"JCL_LIB"}, "bin");
+		project14.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+		project14.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_3);
+		project14.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_3);
+		
+		IClasspathEntry[] oldClasspath = project14.getRawClasspath();
+		int oldLength = oldClasspath.length;
+		IClasspathEntry[] newClasspath = new IClasspathEntry[oldLength+1];
+		System.arraycopy(oldClasspath, 0, newClasspath, 0, oldLength);
+		newClasspath[oldLength] = JavaCore.newProjectEntry(new Path("/Bug491354_15"));
+		project14.setRawClasspath(newClasspath, null);
+		
+		createFolder("/Bug491354_14/src/p1");
+		String source = 
+				"package p1;\n" +
+				"import p.ServiceTracker;\n" +
+				"public final class HttpServiceTracker extends ServiceTracker {\n" +
+				"}";
+		
+		createFile(
+				"/Bug491354_14/src/p1/HttpServiceTracker.java",
+				source
+				);
+		waitForManualRefresh();
+		waitForAutoBuild();
+		project14.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
+		IMarker[] markers = project14.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		markers = project14.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers", "",  markers);
+	} finally {
+		if (project14 != null)
+			deleteProject(project14);
+		if (project15 != null)
+			deleteProject(project15);
 	}
 }
 }

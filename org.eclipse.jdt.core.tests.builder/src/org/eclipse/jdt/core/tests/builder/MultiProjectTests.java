@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1835,6 +1835,155 @@ public void test438923() throws JavaModelException {
 	fullBuild();
 	env.waitForAutoBuild();
 	expectingNoProblems();
+	env.setBuildOrder(null);
+	env.removeProject(p1);
+	env.removeProject(p2);
+	env.removeProject(p3);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=461074, "indirectly referenced from required .class files" error for unreachable reference of type in overriding method declaration in a library on classpath
+public void test461074() throws JavaModelException {
+	//----------------------------
+	//         Project1
+	//----------------------------
+	IPath p1 = env.addProject("SampleMissing"); //$NON-NLS-1$
+	env.addExternalJars(p1, Util.getJavaClassLibs());
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
+	IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
+	env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
+
+	env.addClass(root1, "pack.missing", "MissingType", //$NON-NLS-1$ //$NON-NLS-2$
+			"package pack.missing;\n" +
+			"public class MissingType {\n" +
+			"}\n"
+		);
+
+	//----------------------------
+	//         Project2
+	//----------------------------
+	IPath p2 = env.addProject("SampleLib", "1.5"); //$NON-NLS-1$
+	env.addExternalJars(p2, Util.getJavaClassLibs());
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
+	IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
+	env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
+
+	env.addClass(root2, "pack.lib", "TopClass", //$NON-NLS-1$ //$NON-NLS-2$
+			"package pack.lib;\n" +
+			"public class TopClass {\n" +
+			"  Object get() { return null; }\n" +
+			"}\n"
+		);
+	env.addClass(root2, "pack.lib", "SuperClass", //$NON-NLS-1$ //$NON-NLS-2$
+			"package pack.lib;\n" +
+			"import pack.missing.MissingType;\n" +
+			"public class SuperClass extends TopClass {\n" +
+			"  @Override\n" +
+			"  MissingType get() { return null; }\n" +
+			"}\n"
+		);
+
+	//----------------------------
+	//         Project3
+	//----------------------------
+	IPath p3 = env.addProject("SampleTest", "1.5"); //$NON-NLS-1$
+	env.addExternalJars(p3, Util.getJavaClassLibs());
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$
+	IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
+	env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
+
+	env.addClass(root3, "pack.test", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"package pack.test;\n" +
+			"import pack.lib.SuperClass;\n" +
+			"public class Test extends SuperClass {/*empty*/}\n"
+		);
+
+	// for Project1
+	env.addRequiredProject(p2, p1);
+	env.addRequiredProject(p3, p2);
+	env.waitForManualRefresh();
+	fullBuild();
+	env.waitForAutoBuild();
+	expectingNoProblems();
+	env.setBuildOrder(null);
+	env.removeProject(p1);
+	env.removeProject(p2);
+	env.removeProject(p3);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=461074, "indirectly referenced from required .class files" error for unreachable reference of type in overriding method declaration in a library on classpath
+public void test461074_error() throws JavaModelException {
+	//----------------------------
+	//         Project1
+	//----------------------------
+	IPath p1 = env.addProject("SampleMissing"); //$NON-NLS-1$
+	env.addExternalJars(p1, Util.getJavaClassLibs());
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(p1, ""); //$NON-NLS-1$
+	IPath root1 = env.addPackageFragmentRoot(p1, "src"); //$NON-NLS-1$
+	env.setOutputFolder(p1, "bin"); //$NON-NLS-1$
+
+	env.addClass(root1, "pack.missing", "MissingType", //$NON-NLS-1$ //$NON-NLS-2$
+			"package pack.missing;\n" +
+			"public class MissingType {\n" +
+			"}\n"
+		);
+
+	//----------------------------
+	//         Project2
+	//----------------------------
+	IPath p2 = env.addProject("SampleLib", "1.5"); //$NON-NLS-1$
+	env.addExternalJars(p2, Util.getJavaClassLibs());
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(p2, ""); //$NON-NLS-1$
+	IPath root2 = env.addPackageFragmentRoot(p2, "src"); //$NON-NLS-1$
+	env.setOutputFolder(p2, "bin"); //$NON-NLS-1$
+
+	env.addClass(root2, "pack.lib", "TopClass", //$NON-NLS-1$ //$NON-NLS-2$
+			"package pack.lib;\n" +
+			"public abstract class TopClass {\n" +
+			"  abstract Object get();\n" +
+			"}\n"
+		);
+	env.addClass(root2, "pack.lib", "SuperClass", //$NON-NLS-1$ //$NON-NLS-2$
+			"package pack.lib;\n" +
+			"import pack.missing.MissingType;\n" +
+			"public class SuperClass extends TopClass {\n" +
+			"  @Override\n" +
+			"  MissingType get() { return null; }\n" +
+			"}\n"
+		);
+
+	//----------------------------
+	//         Project3
+	//----------------------------
+	IPath p3 = env.addProject("SampleTest", "1.5"); //$NON-NLS-1$
+	env.addExternalJars(p3, Util.getJavaClassLibs());
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(p3, ""); //$NON-NLS-1$
+	IPath root3 = env.addPackageFragmentRoot(p3, "src"); //$NON-NLS-1$
+	env.setOutputFolder(p3, "bin"); //$NON-NLS-1$
+
+	IPath test = env.addClass(root3, "pack.test", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"package pack.test;\n" +
+			"import pack.lib.SuperClass;\n" +
+			"public class Test extends SuperClass {/*empty*/}\n"
+		);
+
+	// for Project1
+	env.addRequiredProject(p2, p1);
+	env.addRequiredProject(p3, p2);
+	env.waitForManualRefresh();
+	fullBuild();
+	env.waitForAutoBuild();
+	expectingOnlySpecificProblemsFor(p3, new Problem[]{
+			new Problem("p3",
+				"The project was not built since its build path is incomplete. Cannot find the class file for pack.missing.MissingType. Fix the build path then try building this project",
+				p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),
+			new Problem("p3",
+				"The type pack.missing.MissingType cannot be resolved. It is indirectly referenced from required .class files",
+				test, 0, 1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),
+	});
 	env.setBuildOrder(null);
 	env.removeProject(p1);
 	env.removeProject(p2);
