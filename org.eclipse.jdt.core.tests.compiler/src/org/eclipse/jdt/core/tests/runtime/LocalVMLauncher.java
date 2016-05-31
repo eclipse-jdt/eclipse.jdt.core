@@ -65,13 +65,9 @@ public static LocalVMLauncher getLauncher() {
 	if (osName.startsWith("Mac")) {
 		return new MacVMLauncher();
 	}
-	File file = null;
 	String javaVersion = System.getProperty("java.version");
-	if (javaVersion != null && javaVersion.length() > 0 && javaVersion.charAt(0) == '9') {
-		file = new File(Util.getJREDirectory() + "/jrt-fs.jar");
-	} else {
-		new File(Util.getJREDirectory() + "/lib/rt.jar");
-	}
+	boolean isJrt = javaVersion != null && javaVersion.length() > 0 && javaVersion.charAt(0) == '9';
+	File file = new File(Util.getJREDirectory() + (isJrt ?	"/jrt-fs.jar" :  "/lib/rt.jar"));
 	if (file.exists()) {
 		return new StandardVMLauncher();
 	}
@@ -134,17 +130,6 @@ protected Process execCommandLine() throws TargetException {
 		// Use Runtime.exec(String[]) with tokens because Runtime.exec(String) with commandLineString
 		// does not properly handle spaces in arguments on Unix/Linux platforms.
 		String[] commandLine = getCommandLine();
-
-		// DEBUG
-		/*for (int i = 0; i < commandLine.length; i++) {
-			System.out.print(commandLine[i] + " ");
-		}
-		System.out.println();
-		*/
-		System.out.println("Command line: ");
-		for (String string : commandLine) {
-			System.out.println(string);
-		}
 		vmProcess= Runtime.getRuntime().exec(commandLine);
 	} catch (IOException e) {
 		throw new TargetException("Error launching VM at " + this.vmPath);
