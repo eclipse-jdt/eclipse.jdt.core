@@ -131,7 +131,8 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 			}
 		} else if (this.referenceContext.isModuleInfo()) {
 			ModuleDeclaration module = this.referenceContext.moduleDeclaration;
-			module.moduleBinding = this.environment().createModuleInfo(this);
+			if (module != null)
+				module.moduleBinding = this.environment().createModuleInfo(this);
 		}
 		recordQualifiedReference(this.currentPackageName); // always dependent on your own package
 	}
