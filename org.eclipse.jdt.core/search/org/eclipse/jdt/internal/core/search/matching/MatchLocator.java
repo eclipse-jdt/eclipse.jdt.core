@@ -239,11 +239,11 @@ private static HashMap workingCopiesThatCanSeeFocus(org.eclipse.jdt.core.ICompil
 	return result;
 }
 
-public static ClassFileReader classFileReader(IType type) {
+public static IBinaryType classFileReader(IType type) {
 	IClassFile classFile = type.getClassFile();
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	if (classFile.isOpen())
-		return (ClassFileReader) manager.getInfo(type);
+		return (IBinaryType)manager.getInfo(type);
 
 	PackageFragment pkg = (PackageFragment) type.getPackageFragment();
 	IPackageFragmentRoot root = (IPackageFragmentRoot) pkg.getParent();
@@ -475,7 +475,7 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 	if (type.isBinary()) {
 		// don't cache the methods of the binary type
 		// fall thru if its a constructor with a synthetic argument... find it the slower way
-		ClassFileReader reader = classFileReader(type);
+		IBinaryType reader = classFileReader(type);
 		if (reader != null) {
 			// build arguments names
 			boolean firstIsSynthetic = false;
@@ -538,7 +538,7 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
  * Create binary method handle
  */
 IMethod createBinaryMethodHandle(IType type, char[] methodSelector, char[][] argumentTypeNames) {
-	ClassFileReader reader = MatchLocator.classFileReader(type);
+	IBinaryType reader = MatchLocator.classFileReader(type);
 	if (reader != null) {
 		IBinaryMethod[] methods = reader.getMethods();
 		if (methods != null) {

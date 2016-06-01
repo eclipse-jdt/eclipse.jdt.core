@@ -11,13 +11,19 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.core.resources.IResource;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.BinaryType;
+import org.eclipse.jdt.internal.core.ClassFile;
+import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.core.Openable;
+import org.eclipse.jdt.internal.core.PackageFragment;
+import org.eclipse.jdt.internal.core.SourceMapper;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class PossibleMatch implements ICompilationUnit {
@@ -135,7 +141,7 @@ private String getSourceFileName() {
 	this.sourceFileName = NO_SOURCE_FILE_NAME;
 	if (this.openable.getSourceMapper() != null) {
 		BinaryType type = (BinaryType) ((ClassFile) this.openable).getType();
-		ClassFileReader reader = MatchLocator.classFileReader(type);
+		IBinaryType reader = MatchLocator.classFileReader(type);
 		if (reader != null) {
 			String fileName = type.sourceFileName(reader);
 			this.sourceFileName = fileName == null ? NO_SOURCE_FILE_NAME : fileName;

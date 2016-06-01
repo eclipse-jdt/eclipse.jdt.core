@@ -192,16 +192,29 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 	}
 
 	public static INameEnvironment create(List<IJavaProject> javaProjects, org.eclipse.jdt.core.ICompilationUnit[] copies) {
-		if (JavaIndex.isEnabled()) {
-			return new IndexBasedJavaSearchEnvironment(javaProjects, copies);
-		} else {
-			Iterator<IJavaProject> next = javaProjects.iterator();
-			JavaSearchNameEnvironment result = new JavaSearchNameEnvironment(next.next(), copies);
-
-			while (next.hasNext()) {
-				result.addProjectClassPath((JavaProject)next.next());
+		long startTime = System.nanoTime();
+		try {
+			if (JavaIndex.isEnabled()) {
+				return new IndexBasedJavaSearchEnvironment(javaProjects, copies);
+			} else {
+				Iterator<IJavaProject> next = javaProjects.iterator();
+				JavaSearchNameEnvironment result = new JavaSearchNameEnvironment(next.next(), copies);
+	
+				while (next.hasNext()) {
+					result.addProjectClassPath((JavaProject)next.next());
+				}
+				return result;
 			}
-			return result;
-		}
+		} finally {
+	      long endTime = System.nanoTime();
+	
+	      long totalTimeMillis = (endTime - startTime) / 1000000;
+	
+	      System.out.println(
+	          "Time to open name environment: "
+	              + totalTimeMillis
+	              + "ms - indexEnabled="
+	              + JavaIndex.isEnabled());
+	    }
 	}
 }
