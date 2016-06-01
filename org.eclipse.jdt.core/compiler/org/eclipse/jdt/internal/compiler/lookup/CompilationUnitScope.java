@@ -95,7 +95,7 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 	boolean firstIsSynthetic = false;
 	if (this.referenceContext.compilationResult.compilationUnit != null) {
 		char[][] expectedPackageName = this.referenceContext.compilationResult.compilationUnit.getPackageName();
-		if (expectedPackageName != null
+		if (expectedPackageName != null && !this.referenceContext.isModuleInfo()
 				&& !CharOperation.equals(this.currentPackageName, expectedPackageName)) {
 
 			// only report if the unit isn't structurally empty
