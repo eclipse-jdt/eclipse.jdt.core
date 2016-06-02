@@ -1,9 +1,13 @@
 package org.eclipse.jdt.internal.core.nd.util;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * Maps IPath keys onto values
@@ -65,8 +69,42 @@ public class PathMap<T> {
 			}
 		}
 
-		private Node<T> getChild(String nextSegment) {
+		Node<T> getChild(String nextSegment) {
 			return this.children.get(nextSegment);
+		}
+
+	    public void addAllKeys(Set<IPath> result, IPath parent) {
+	    	if (this.exists) {
+	    		result.add(parent);
+	    	}
+
+	    	for (Entry<String, Node<T>> next : this.children.entrySet()) {
+	    		String key = next.getKey();
+	    		IPath nextPath = buildChildPath(parent, key);
+	    		next.getValue().addAllKeys(result, nextPath);
+	    	}
+	    }
+
+	    IPath buildChildPath(IPath parent, String key) {
+	      IPath nextPath = parent.append(key);
+	      return nextPath;
+	    }
+		
+	    public void toString(StringBuilder builder, IPath parentPath) {
+		    if (this.exists) {
+		    	builder.append("[");
+		    	builder.append(parentPath);
+		    	builder.append("] = ");
+		    	builder.append(this.value);
+		    	builder.append("\n");
+		    }
+		    if (this.children != null) { 
+		    	for (Entry<String, Node<T>> next : this.children.entrySet()) {
+		    		String key = next.getKey();
+		    		IPath nextPath = buildChildPath(parentPath, key);
+		    		next.getValue().toString(builder, nextPath);
+		    	}
+		    }
 		}
 	}
 
@@ -88,6 +126,26 @@ public class PathMap<T> {
 				return this.noDevice;
 			}
 			return super.createChild(nextSegment);
+		}
+
+		Node<T> getChild(String nextSegment) {
+			if (nextSegment == null) {
+				return this.noDevice;
+			}
+			return super.getChild(nextSegment);
+		}
+
+		@Override
+		IPath buildChildPath(IPath parent, String key) {
+    		IPath nextPath = Path.EMPTY.append(parent);
+    		nextPath.setDevice(key);
+    		return nextPath;
+		}
+		
+		@Override
+		public void toString(StringBuilder builder, IPath parentPath) {
+			this.noDevice.toString(builder, parentPath);
+			super.toString(builder,parentPath);
 		}
 	}
 
@@ -132,5 +190,20 @@ public class PathMap<T> {
 	public boolean containsPrefixOf(IPath path) {
 		Node<T> node = this.root.getMostSpecificNode(path);
 		return node.exists;
+	}
+
+	public Set<IPath> keySet() {
+		Set<IPath> result = new HashSet<>();
+
+		this.root.addAllKeys(result, Path.EMPTY);
+		return result;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder builder = new StringBuilder();
+		
+		this.root.toString(builder, Path.EMPTY);
+		return builder.toString();
 	}
 }

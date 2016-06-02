@@ -1,10 +1,6 @@
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -12,12 +8,16 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
+import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.PackageFragmentRoot;
+import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
 import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex;
@@ -31,12 +31,18 @@ import org.eclipse.jdt.internal.core.nd.java.model.IndexBinaryType;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.nd.util.PathMap;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 public class IndexBasedJavaSearchEnvironment implements INameEnvironment, SuffixConstants {
 
 	private Map<String, ICompilationUnit> workingCopies;
 	private PathMap<Integer> mapPathsToRoots = new PathMap<>();
 	private IPackageFragmentRoot[] roots;
 	private int sourceEntryPosition;
+	private List<ClasspathLocation> unindexedEntries = new ArrayList<>();
 
 	public IndexBasedJavaSearchEnvironment(List<IJavaProject> javaProject, org.eclipse.jdt.core.ICompilationUnit[] copies) {
 		this.workingCopies = JavaSearchNameEnvironment.getWorkingCopyMap(copies);
@@ -44,8 +50,27 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 		try {
 			List<IPackageFragmentRoot> localRoots = new ArrayList<>();
 			
+			int idx = 0;
 			for (IJavaProject next : javaProject) {
 				for (IPackageFragmentRoot nextRoot : next.getAllPackageFragmentRoots()) {
+					IPath path = nextRoot.getPath();
+					if (!nextRoot.isArchive()) {
+						Object target = JavaModel.getTarget(path, true);
+						if (target != null) {
+							ClasspathLocation cp;
+							if (nextRoot.getKind() == IPackageFragmentRoot.K_SOURCE) {
+								PackageFragmentRoot root = (PackageFragmentRoot)nextRoot;
+								cp = new ClasspathSourceDirectory((IContainer)target, root.fullExclusionPatternChars(), root.fullInclusionPatternChars());
+								this.unindexedEntries.add(cp);
+//							} else {
+//								ClasspathEntry rawClasspathEntry = (ClasspathEntry) nextRoot.getRawClasspathEntry();
+//								cp = ClasspathLocation.forBinaryFolder((IContainer) target, false, rawClasspathEntry.getAccessRuleSet(),
+//																	ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry, ((IJavaProject)nextRoot.getParent()).getProject(), true));
+							}
+						}
+					}
+
+					idx++;
 					localRoots.add(nextRoot);
 				}
 			}
@@ -82,10 +107,8 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 		char[] binaryName = CharOperation.concatWith(compoundTypeName, '/');
 
 		int bestEntryPosition = Integer.MAX_VALUE;
-		NameEnvironmentAnswer result = null;
-		ICompilationUnit cu = this.workingCopies.get(new String(binaryName));
-		if (cu != null) {
-			result = new NameEnvironmentAnswer((org.eclipse.jdt.internal.compiler.env.ICompilationUnit)cu, null);
+		NameEnvironmentAnswer result = findClassInUnindexedLocations(new String(binaryName), compoundTypeName[compoundTypeName.length - 1]);
+		if (result != null) {
 			bestEntryPosition = this.sourceEntryPosition;
 		}
 
@@ -106,7 +129,8 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 						IPackageFragmentRoot root = this.roots[nextRoot];
 
 						ClasspathEntry classpathEntry = (ClasspathEntry)root.getRawClasspathEntry();
-						AccessRestriction accessRestriction = classpathEntry.getAccessRuleSet().getViolatedRestriction(binaryName);
+						AccessRuleSet ruleSet = classpathEntry.getAccessRuleSet();
+						AccessRestriction accessRestriction = ruleSet == null? null : ruleSet.getViolatedRestriction(binaryName);
 						TypeRef typeRef = TypeRef.create(next);
 						IBinaryType binaryType = new IndexBinaryType(typeRef, resource.getLocation().getChars()); 
 						NameEnvironmentAnswer nextAnswer = new NameEnvironmentAnswer(binaryType, accessRestriction);
@@ -125,6 +149,71 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 		}
 
 		return result;
+	}
+
+	/**
+	 * Search unindexed locations on the classpath for the given class
+	 */
+	private NameEnvironmentAnswer findClassInUnindexedLocations(String qualifiedTypeName, char[] typeName) {
+		String
+			binaryFileName = null, qBinaryFileName = null,
+			sourceFileName = null, qSourceFileName = null,
+			qPackageName = null;
+		NameEnvironmentAnswer suggestedAnswer = null;
+		Iterator <ClasspathLocation> iter = this.unindexedEntries.iterator();
+		while (iter.hasNext()) {
+			ClasspathLocation location = iter.next();
+			NameEnvironmentAnswer answer;
+			if (location instanceof ClasspathSourceDirectory) {
+				if (sourceFileName == null) {
+					qSourceFileName = qualifiedTypeName; // doesn't include the file extension
+					sourceFileName = qSourceFileName;
+					qPackageName =  ""; //$NON-NLS-1$
+					if (qualifiedTypeName.length() > typeName.length) {
+						int typeNameStart = qSourceFileName.length() - typeName.length;
+						qPackageName =  qSourceFileName.substring(0, typeNameStart - 1);
+						sourceFileName = qSourceFileName.substring(typeNameStart);
+					}
+				}
+				org.eclipse.jdt.internal.compiler.env.ICompilationUnit workingCopy = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) this.workingCopies.get(qualifiedTypeName);
+				if (workingCopy != null) {
+					answer = new NameEnvironmentAnswer(workingCopy, null /*no access restriction*/);
+				} else {
+					answer = location.findClass(
+						sourceFileName, // doesn't include the file extension
+						qPackageName,
+						qSourceFileName);  // doesn't include the file extension
+				}
+			} else {
+				if (binaryFileName == null) {
+					qBinaryFileName = qualifiedTypeName + SUFFIX_STRING_class;
+					binaryFileName = qBinaryFileName;
+					qPackageName =  ""; //$NON-NLS-1$
+					if (qualifiedTypeName.length() > typeName.length) {
+						int typeNameStart = qBinaryFileName.length() - typeName.length - 6; // size of ".class"
+						qPackageName =  qBinaryFileName.substring(0, typeNameStart - 1);
+						binaryFileName = qBinaryFileName.substring(typeNameStart);
+					}
+				}
+				answer =
+					location.findClass(
+						binaryFileName,
+						qPackageName,
+						qBinaryFileName);
+			}
+			if (answer != null) {
+				if (!answer.ignoreIfBetter()) {
+					if (answer.isBetter(suggestedAnswer))
+						return answer;
+				} else if (answer.isBetter(suggestedAnswer))
+					// remember suggestion and keep looking
+					suggestedAnswer = answer;
+			}
+		}
+		if (suggestedAnswer != null)
+			// no better answer was found
+			return suggestedAnswer;
+		return null;
 	}
 
 	public boolean isBetter(NameEnvironmentAnswer currentBest, int currentBestClasspathPosition,
@@ -159,8 +248,16 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 	@Override
 	public boolean isPackage(char[][] parentPackageName, char[] packageName) {
 		char[] binaryPackageName = CharOperation.concatWith(parentPackageName, '/');
-		char[] fieldDescriptorPrefix = CharArrayUtils.concat(JavaNames.FIELD_DESCRIPTOR_PREFIX, binaryPackageName,
-				packageName, new char[] { '/' });
+		final char[] fieldDescriptorPrefix;
+		
+		if (parentPackageName == null || parentPackageName.length == 0) {
+			fieldDescriptorPrefix = CharArrayUtils.concat(JavaNames.FIELD_DESCRIPTOR_PREFIX, binaryPackageName);
+		} else {
+			fieldDescriptorPrefix = CharArrayUtils.concat(JavaNames.FIELD_DESCRIPTOR_PREFIX, binaryPackageName,
+					new char[] { '/' }, packageName);
+		}
+		
+		String prefix = new String(fieldDescriptorPrefix);
 
 		// Search all the types that are a subpackage of the given package name. Return if we find any one of them on
 		// the classpath of this project.
@@ -171,13 +268,24 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 					new FieldSearchIndex.Visitor<NdTypeId>() {
 						@Override
 						public boolean visit(NdTypeId typeId) {
+							// If this is an exact match for the field descriptor prefix we're looking for then
+							// this class can't be part of the package we're searching for (and, most likely, the
+							// "package" we're searching for is actually a class name - not a package).
+							if (typeId.getFieldDescriptor().length() <= fieldDescriptorPrefix.length + 1) {
+								return true;
+							}
 							List<NdType> types = typeId.getTypes();
 							for (NdType next : types) {
+								if (next.isMember() || next.isLocal() || next.isAnonymous()) {
+									continue;
+								}
 								NdResourceFile resource = next.getFile();
 
 								IPath path = resource.getPath();
 
 								if (IndexBasedJavaSearchEnvironment.this.mapPathsToRoots.containsPrefixOf(path)) {
+									// Terminate the search -- we've found a class belonging to the package
+									// we're searching for.
 									return false;
 								}
 							}
@@ -191,11 +299,66 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 	public void cleanup() {
 	}
 
+	private static class TracingEnvironment implements INameEnvironment {
+		private INameEnvironment toWrap;
+		private String id;
+	    /**
+	     * @param toWrap
+	     */
+	    public TracingEnvironment(INameEnvironment toWrap) {
+	      super();
+	      this.toWrap = toWrap;
+	      id = "" + System.currentTimeMillis();
+	    }
+	
+	    String toPrintable(char[] toPrint) {
+	    	return new String(toPrint);
+	    }
+	    
+	    String toPrintable(char[][] compound) {
+	    	return toPrintable(CharOperation.concatWith(compound, '/')); //$NON-NLS-1$
+	    }
+	    
+	    @Override
+	    public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
+	    	NameEnvironmentAnswer result = this.toWrap.findType(compoundTypeName);
+	    	
+	    	System.out.println("INameEnvironment.findType(" + toPrintable(compoundTypeName) + ") = " + result);
+	    	
+	    	return result;
+	    }
+	
+	    @Override
+	    public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
+	    	NameEnvironmentAnswer result = this.toWrap.findType(typeName, packageName);
+	    	
+	    	System.out.println("INameEnvironment.findType(" + toPrintable(typeName) + ", " + toPrintable(packageName) 
+	    		+ ") = " + result);
+
+	    	return result;
+	    }
+	
+	    @Override
+	    public boolean isPackage(char[][] parentPackageName, char[] packageName) {
+	    	boolean result = this.toWrap.isPackage(parentPackageName, packageName);
+	    	
+	    	System.out.println("INameEnvironment.isPackage(" + toPrintable(parentPackageName) + ", " 
+	    		+ toPrintable(packageName) + ") = " + result);
+
+		    return result;
+	    }
+	
+	    @Override
+	    public void cleanup() {
+	    	System.out.println("INameEnvironment.cleanup()");
+	    }	
+	}
+	
 	public static INameEnvironment create(List<IJavaProject> javaProjects, org.eclipse.jdt.core.ICompilationUnit[] copies) {
 		long startTime = System.nanoTime();
 		try {
 			if (JavaIndex.isEnabled()) {
-				return new IndexBasedJavaSearchEnvironment(javaProjects, copies);
+				return new TracingEnvironment(new IndexBasedJavaSearchEnvironment(javaProjects, copies));
 			} else {
 				Iterator<IJavaProject> next = javaProjects.iterator();
 				JavaSearchNameEnvironment result = new JavaSearchNameEnvironment(next.next(), copies);
@@ -203,7 +366,7 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 				while (next.hasNext()) {
 					result.addProjectClassPath((JavaProject)next.next());
 				}
-				return result;
+				return new TracingEnvironment(result);
 			}
 		} finally {
 	      long endTime = System.nanoTime();

@@ -34,6 +34,28 @@ public class NameEnvironmentAnswer {
 		this.accessRestriction = accessRestriction;
 		this.externalAnnotationPath = externalAnnotationPath;
 	}
+	
+	@Override
+	public String toString() {
+		String baseString = ""; //$NON-NLS-1$
+		if (this.binaryType != null) {
+			baseString = "IBinaryType " + this.binaryType.toString(); //$NON-NLS-1$
+		}
+		if (this.compilationUnit != null) {
+			baseString = "ICompilationUnit " + this.compilationUnit.toString(); //$NON-NLS-1$
+		}
+		if (this.sourceTypes != null) {
+			baseString = this.sourceTypes.toString();
+		}
+		if (this.accessRestriction != null) {
+			baseString += " " + this.accessRestriction.toString(); //$NON-NLS-1$
+		}
+		if (this.externalAnnotationPath != null) {
+			baseString += " extPath=" + this.externalAnnotationPath.toString(); //$NON-NLS-1$
+		}
+		return baseString;
+	}
+	
 	/**
 	 * Returns the associated access restriction, or null if none.
 	 */
