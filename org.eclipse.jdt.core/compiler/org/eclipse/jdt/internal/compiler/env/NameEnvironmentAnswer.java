@@ -39,7 +39,9 @@ public class NameEnvironmentAnswer {
 	public String toString() {
 		String baseString = ""; //$NON-NLS-1$
 		if (this.binaryType != null) {
-			baseString = "IBinaryType " + this.binaryType.toString(); //$NON-NLS-1$
+			char[] fileNameChars = this.binaryType.getFileName();
+			String fileName = fileNameChars == null ? "" : new String(fileNameChars); //$NON-NLS-1$
+			baseString = "IBinaryType " + fileName; //$NON-NLS-1$
 		}
 		if (this.compilationUnit != null) {
 			baseString = "ICompilationUnit " + this.compilationUnit.toString(); //$NON-NLS-1$

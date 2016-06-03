@@ -132,7 +132,8 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 						AccessRuleSet ruleSet = classpathEntry.getAccessRuleSet();
 						AccessRestriction accessRestriction = ruleSet == null? null : ruleSet.getViolatedRestriction(binaryName);
 						TypeRef typeRef = TypeRef.create(next);
-						IBinaryType binaryType = new IndexBinaryType(typeRef, resource.getLocation().getChars()); 
+						String fileName = new String(binaryName) + ".class"; //$NON-NLS-1$
+						IBinaryType binaryType = new IndexBinaryType(typeRef, fileName.toCharArray()); 
 						NameEnvironmentAnswer nextAnswer = new NameEnvironmentAnswer(binaryType, accessRestriction);
 
 						boolean useNewAnswer = isBetter(result, bestEntryPosition, nextAnswer, nextRoot);
@@ -251,13 +252,12 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 		final char[] fieldDescriptorPrefix;
 		
 		if (parentPackageName == null || parentPackageName.length == 0) {
-			fieldDescriptorPrefix = CharArrayUtils.concat(JavaNames.FIELD_DESCRIPTOR_PREFIX, binaryPackageName);
+			fieldDescriptorPrefix = CharArrayUtils.concat(JavaNames.FIELD_DESCRIPTOR_PREFIX, packageName, 
+					new char[] { '/' });
 		} else {
 			fieldDescriptorPrefix = CharArrayUtils.concat(JavaNames.FIELD_DESCRIPTOR_PREFIX, binaryPackageName,
-					new char[] { '/' }, packageName);
+					new char[] { '/' }, packageName, new char[] { '/' });
 		}
-		
-		String prefix = new String(fieldDescriptorPrefix);
 
 		// Search all the types that are a subpackage of the given package name. Return if we find any one of them on
 		// the classpath of this project.
@@ -268,6 +268,7 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 					new FieldSearchIndex.Visitor<NdTypeId>() {
 						@Override
 						public boolean visit(NdTypeId typeId) {
+							//String fd = typeId.getFieldDescriptor().getString();
 							// If this is an exact match for the field descriptor prefix we're looking for then
 							// this class can't be part of the package we're searching for (and, most likely, the
 							// "package" we're searching for is actually a class name - not a package).
@@ -298,86 +299,18 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 	@Override
 	public void cleanup() {
 	}
-
-	private static class TracingEnvironment implements INameEnvironment {
-		private INameEnvironment toWrap;
-		private String id;
-	    /**
-	     * @param toWrap
-	     */
-	    public TracingEnvironment(INameEnvironment toWrap) {
-	      super();
-	      this.toWrap = toWrap;
-	      id = "" + System.currentTimeMillis();
-	    }
-	
-	    String toPrintable(char[] toPrint) {
-	    	return new String(toPrint);
-	    }
-	    
-	    String toPrintable(char[][] compound) {
-	    	return toPrintable(CharOperation.concatWith(compound, '/')); //$NON-NLS-1$
-	    }
-	    
-	    @Override
-	    public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
-	    	NameEnvironmentAnswer result = this.toWrap.findType(compoundTypeName);
-	    	
-	    	System.out.println("INameEnvironment.findType(" + toPrintable(compoundTypeName) + ") = " + result);
-	    	
-	    	return result;
-	    }
-	
-	    @Override
-	    public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
-	    	NameEnvironmentAnswer result = this.toWrap.findType(typeName, packageName);
-	    	
-	    	System.out.println("INameEnvironment.findType(" + toPrintable(typeName) + ", " + toPrintable(packageName) 
-	    		+ ") = " + result);
-
-	    	return result;
-	    }
-	
-	    @Override
-	    public boolean isPackage(char[][] parentPackageName, char[] packageName) {
-	    	boolean result = this.toWrap.isPackage(parentPackageName, packageName);
-	    	
-	    	System.out.println("INameEnvironment.isPackage(" + toPrintable(parentPackageName) + ", " 
-	    		+ toPrintable(packageName) + ") = " + result);
-
-		    return result;
-	    }
-	
-	    @Override
-	    public void cleanup() {
-	    	System.out.println("INameEnvironment.cleanup()");
-	    }	
-	}
 	
 	public static INameEnvironment create(List<IJavaProject> javaProjects, org.eclipse.jdt.core.ICompilationUnit[] copies) {
-		long startTime = System.nanoTime();
-		try {
-			if (JavaIndex.isEnabled()) {
-				return new TracingEnvironment(new IndexBasedJavaSearchEnvironment(javaProjects, copies));
-			} else {
-				Iterator<IJavaProject> next = javaProjects.iterator();
-				JavaSearchNameEnvironment result = new JavaSearchNameEnvironment(next.next(), copies);
-	
-				while (next.hasNext()) {
-					result.addProjectClassPath((JavaProject)next.next());
-				}
-				return new TracingEnvironment(result);
+		if (JavaIndex.isEnabled()) {
+			return new IndexBasedJavaSearchEnvironment(javaProjects, copies);
+		} else {
+			Iterator<IJavaProject> next = javaProjects.iterator();
+			JavaSearchNameEnvironment result = new JavaSearchNameEnvironment(next.next(), copies);
+
+			while (next.hasNext()) {
+				result.addProjectClassPath((JavaProject)next.next());
 			}
-		} finally {
-	      long endTime = System.nanoTime();
-	
-	      long totalTimeMillis = (endTime - startTime) / 1000000;
-	
-	      System.out.println(
-	          "Time to open name environment: "
-	              + totalTimeMillis
-	              + "ms - indexEnabled="
-	              + JavaIndex.isEnabled());
-	    }
+			return result;
+		}
 	}
 }
