@@ -41,7 +41,7 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int F_1_6 = 0x08;
 	public static final int F_1_7 = 0x10;
 	public static final int F_1_8 = 0x20;
-	public static final int F_9 = 0x40;
+	public static final int F_9   = 0x40;
 
 	public static final boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
 	private static final int UNINITIALIZED = -1;
@@ -386,8 +386,8 @@ public class AbstractCompilerTest extends TestCase {
 					if (canRun1_8) {
 						possibleComplianceLevels |= F_1_8;
 					}
-					boolean canRun1_9 = canRun1_8 && !CompilerOptions.VERSION_1_8.equals(specVersion);
-					if (canRun1_9) {
+					boolean canRun9 = canRun1_8 && !CompilerOptions.VERSION_1_8.equals(specVersion);
+					if (canRun9) {
 						possibleComplianceLevels |= F_9;
 					}
 				} else if ("1.0".equals(specVersion)

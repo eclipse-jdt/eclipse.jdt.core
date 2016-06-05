@@ -20,8 +20,8 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
-public class Unicode19Test extends AbstractRegressionTest {
-public Unicode19Test(String name) {
+public class Unicode9Test extends AbstractRegressionTest {
+public Unicode9Test(String name) {
 	super(name);
 }
 public static Test suite() {
@@ -80,7 +80,7 @@ public void test481000_3() {
 			true,
 			options);
 }
-public static Class<Unicode19Test> testClass() {
-	return Unicode19Test.class;
+public static Class<Unicode9Test> testClass() {
+	return Unicode9Test.class;
 }
 }
