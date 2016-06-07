@@ -167,7 +167,7 @@ public class NdRawLinkedList {
 				// further blocks. If this is the case, create a new block
 				if (isLastBlock(current, ptr)) {
 					current = db.malloc(
-							recordSize(this.elementRecordSize, this.recordCount, this.metadataBitsPerRecord));
+							recordSize(this.elementRecordSize, this.recordCount, this.metadataBitsPerRecord), Database.POOL_LINKED_LIST);
 					db.putRecPtr(current + NEXT_MEMBER_BLOCK, current);
 				} else {
 					thisBlockRecordCount = this.recordCount;
@@ -232,7 +232,7 @@ public class NdRawLinkedList {
 		long current = this.address;
 		while (true) {
 			long ptr = db.getRecPtr(current + NEXT_MEMBER_BLOCK);
-			db.free(current);
+			db.free(current, Database.POOL_LINKED_LIST);
 
 			if (isLastBlock(current, ptr)) {
 				return;

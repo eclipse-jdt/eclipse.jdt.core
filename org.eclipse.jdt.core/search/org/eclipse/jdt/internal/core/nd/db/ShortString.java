@@ -38,7 +38,7 @@ public class ShortString implements IString {
 		final int n = chars.length;
 		this.db = db;
 
-		this.record = db.malloc(CHARS + (useBytes ? n : 2 * n));
+		this.record = db.malloc(CHARS + (useBytes ? n : 2 * n), Database.POOL_STRING_SHORT);
 		Chunk chunk = db.getChunk(this.record);
 		chunk.putInt(this.record + LENGTH, useBytes ? -n : n);
 		long p = this.record + CHARS;
@@ -56,7 +56,7 @@ public class ShortString implements IString {
 
 	@Override
 	public void delete() throws IndexException {
-		this.db.free(this.record);
+		this.db.free(this.record, Database.POOL_STRING_SHORT);
 	}
 
 	@Override

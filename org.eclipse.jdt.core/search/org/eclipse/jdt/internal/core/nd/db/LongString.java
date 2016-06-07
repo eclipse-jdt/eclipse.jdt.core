@@ -48,7 +48,7 @@ public class LongString implements IString {
 		final int numCharsn = useBytes ? NUM_CHARSN * 2 : NUM_CHARSN;
 
 		this.db = db;
-		this.record = db.malloc(Database.MAX_MALLOC_SIZE);
+		this.record = db.malloc(Database.MAX_MALLOC_SIZE, Database.POOL_STRING_LONG);
 
 		// Write the first record.
 		final int length = chars.length;
@@ -65,7 +65,7 @@ public class LongString implements IString {
 		long lastNext = this.record + NEXT1;
 		int start = numChars1;
 		while (length - start > numCharsn) {
-			long nextRecord = db.malloc(Database.MAX_MALLOC_SIZE);
+			long nextRecord = db.malloc(Database.MAX_MALLOC_SIZE, Database.POOL_STRING_LONG);
 			db.putRecPtr(lastNext, nextRecord);
 			chunk= db.getChunk(nextRecord);
 			if (useBytes) {
@@ -79,7 +79,7 @@ public class LongString implements IString {
 
 		// Write the last record.
 		int remaining= length - start;
-		long nextRecord = db.malloc(CHARSN + (useBytes ? remaining : remaining * 2));
+		long nextRecord = db.malloc(CHARSN + (useBytes ? remaining : remaining * 2), Database.POOL_STRING_LONG);
 		db.putRecPtr(lastNext, nextRecord);
 		chunk= db.getChunk(nextRecord);
 		if (useBytes) {
@@ -148,19 +148,19 @@ public class LongString implements IString {
 			numCharsn *= 2;
 		}
 		long nextRecord = this.db.getRecPtr(this.record + NEXT1);
-		this.db.free(this.record);
+		this.db.free(this.record, Database.POOL_STRING_LONG);
 		length -= numChars1;
 
 		// Middle records.
 		while (length > numCharsn) {
 			length -= numCharsn;
 			long nextnext = this.db.getRecPtr(nextRecord + NEXTN);
-			this.db.free(nextRecord);
+			this.db.free(nextRecord, Database.POOL_STRING_LONG);
 			nextRecord = nextnext;
 		}
 
 		// Last record.
-		this.db.free(nextRecord);
+		this.db.free(nextRecord, Database.POOL_STRING_LONG);
 	}
 
 	@Override

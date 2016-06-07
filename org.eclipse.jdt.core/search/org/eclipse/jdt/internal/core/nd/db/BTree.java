@@ -148,7 +148,7 @@ public class BTree {
 			children[idx] = getChild(chunk, record, idx);
 		}
 
-		this.db.free(record);
+		this.db.free(record, Database.POOL_BTREE);
 
 		chunk = null;
 
@@ -281,7 +281,7 @@ public class BTree {
 	}
 
 	private long allocateNode() throws IndexException {
-		return this.db.malloc((2 * this.maxRecords + 1) * Database.INT_SIZE);
+		return this.db.malloc((2 * this.maxRecords + 1) * Database.INT_SIZE, Database.POOL_BTREE);
 	}
 
 	/**
@@ -499,7 +499,7 @@ public class BTree {
 		long midKey = getRecord(keyProvider.chunk, keyProvider.node, kIndex);
 		putRecord(dst.chunk, dst.node, dst.keyCount, midKey);
 		long keySucc = kIndex + 1 == this.maxRecords ? 0 : getRecord(keyProvider.chunk, keyProvider.node, kIndex + 1);
-		this.db.free(getChild(keyProvider.chunk, keyProvider.node,  kIndex + 1));
+		this.db.free(getChild(keyProvider.chunk, keyProvider.node,  kIndex + 1), Database.POOL_BTREE);
 		nodeContentDelete(keyProvider, kIndex + 1, 1);
 		putRecord(keyProvider.chunk, keyProvider.node, kIndex, keySucc);
 		if (kIndex == 0 && keySucc == 0) {
@@ -511,7 +511,7 @@ public class BTree {
 			long rootNode = getRoot();
 			if (rootNode == keyProvider.node) {
 				this.db.putRecPtr(this.rootPointer, dst.node);
-				this.db.free(rootNode);
+				this.db.free(rootNode, Database.POOL_BTREE);
 			}
 		}
 	}

@@ -93,7 +93,7 @@ public abstract class NdNode implements IDestructable {
 		short nodeType = nd.getNodeType(getClass());
 		ITypeFactory<? extends NdNode> factory1 = nd.getTypeFactory(nodeType);
 
-		this.address = db.malloc(factory1.getRecordSize());
+		this.address = db.malloc(factory1.getRecordSize(), (short)(Database.POOL_FIRST_NODE_TYPE + nodeType));
 
 		NODE_TYPE.put(nd, this.address, nodeType);
 	}

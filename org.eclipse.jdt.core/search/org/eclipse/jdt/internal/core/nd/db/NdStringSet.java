@@ -92,7 +92,7 @@ public class NdStringSet {
 		IString string = this.db.newString(str);
 		record = string.getRecord();
 
-		long new_node = this.db.malloc(NodeType.sizeof);
+		long new_node = this.db.malloc(NodeType.sizeof, Database.POOL_STRING_SET);
 		NodeType.Next.put(this.db, new_node, getHead());
 		NodeType.Item.put(this.db, new_node, record);
 
@@ -178,7 +178,7 @@ public class NdStringSet {
 					this.head = next;
 				}
 
-				this.db.free(curr);
+				this.db.free(curr, Database.POOL_STRING_SET);
 				return item;
 			}
 

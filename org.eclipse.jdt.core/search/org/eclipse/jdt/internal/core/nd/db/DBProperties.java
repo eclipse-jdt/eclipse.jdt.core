@@ -33,7 +33,7 @@ public class DBProperties {
 	 */
 	public DBProperties(Nd nd) throws IndexException {
 		Database database = nd.getDB();
-		this.record= database.malloc(RECORD_SIZE);
+		this.record= database.malloc(RECORD_SIZE, Database.POOL_DB_PROPERTIES);
 		this.index= new BTree(nd, this.record + PROP_INDEX, DBProperty.getComparator());
 		this.db= database;
 	}
@@ -150,7 +150,7 @@ public class DBProperties {
 	 */
 	public void delete() throws IndexException {
 		clear();
-		this.db.free(this.record);
+		this.db.free(this.record, Database.POOL_DB_PROPERTIES);
 	}
 
 	public long getRecord() {
@@ -182,7 +182,7 @@ public class DBProperties {
 			assert value != null;
 			IString dbkey= db.newString(key);
 			IString dbvalue= db.newString(value);
-			this.record= db.malloc(RECORD_SIZE);
+			this.record= db.malloc(RECORD_SIZE, Database.POOL_DB_PROPERTIES);
 			db.putRecPtr(this.record + KEY, dbkey.getRecord());
 			db.putRecPtr(this.record + VALUE, dbvalue.getRecord());
 			this.db= db;
@@ -256,7 +256,7 @@ public class DBProperties {
 		public void delete() throws IndexException {
 			this.db.getString(this.db.getRecPtr(this.record + KEY)).delete();
 			this.db.getString(this.db.getRecPtr(this.record + VALUE)).delete();
-			this.db.free(this.record);
+			this.db.free(this.record, Database.POOL_DB_PROPERTIES);
 		}
 	}
 }

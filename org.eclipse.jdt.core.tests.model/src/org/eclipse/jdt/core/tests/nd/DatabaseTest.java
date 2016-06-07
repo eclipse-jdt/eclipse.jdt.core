@@ -55,7 +55,7 @@ public class DatabaseTest extends BaseTestCase {
 		// Allocate all database chunks up to TEST_OFFSET.
 		int count = 0;
 		for (long offset = 0; offset < TEST_OFFSET;) {
-			offset = db.malloc(Database.MAX_MALLOC_SIZE);
+			offset = db.malloc(Database.MAX_MALLOC_SIZE, Database.POOL_MISC);
 			if (++count >= 1000) {
 				db.flush();
 				count = 0;
@@ -85,9 +85,9 @@ public class DatabaseTest extends BaseTestCase {
 		final int blocksize = deltas * Database.BLOCK_SIZE_DELTA;
 		final int freeDeltas= Database.CHUNK_SIZE / Database.BLOCK_SIZE_DELTA - deltas;
 
-		long mem = db.malloc(realsize);
+		long mem = db.malloc(realsize, Database.POOL_MISC);
 		assertEquals(-blocksize, db.getShort(mem - Database.BLOCK_HEADER_SIZE));
-		db.free(mem);
+		db.free(mem, Database.POOL_MISC);
 		assertEquals(blocksize, db.getShort(mem - Database.BLOCK_HEADER_SIZE));
 		assertEquals(mem, db.getRecPtr((deltas - Database.MIN_BLOCK_DELTAS +1 ) * Database.INT_SIZE));
 		assertEquals(mem + blocksize, db.getRecPtr((freeDeltas - Database.MIN_BLOCK_DELTAS + 1) * Database.INT_SIZE));
@@ -123,10 +123,10 @@ public class DatabaseTest extends BaseTestCase {
 		final int blocksize = deltas * Database.BLOCK_SIZE_DELTA;
 		final int freeDeltas= Database.MIN_BLOCK_DELTAS - deltas;
 
-		long mem1 = db.malloc(realsize);
-		long mem2 = db.malloc(realsize);
-		db.free(mem1);
-		db.free(mem2);
+		long mem1 = db.malloc(realsize, Database.POOL_MISC);
+		long mem2 = db.malloc(realsize, Database.POOL_MISC);
+		db.free(mem1, Database.POOL_MISC);
+		db.free(mem2, Database.POOL_MISC);
 		assertEquals(mem2, db.getRecPtr((deltas - Database.MIN_BLOCK_DELTAS + 1) * Database.INT_SIZE));
 		assertEquals(0, db.getRecPtr(mem2));
 		assertEquals(mem1, db.getRecPtr(mem2 + Database.INT_SIZE));
@@ -135,9 +135,9 @@ public class DatabaseTest extends BaseTestCase {
 	}
 
 	public void testSimpleAllocationLifecycle() throws Exception {
-		long mem1 = db.malloc(42);
-		db.free(mem1);
-		long mem2 = db.malloc(42);
+		long mem1 = db.malloc(42, Database.POOL_MISC);
+		db.free(mem1, Database.POOL_MISC);
+		long mem2 = db.malloc(42, Database.POOL_MISC);
 		assertEquals(mem2, mem1);
 	}
 
@@ -206,7 +206,7 @@ public class DatabaseTest extends BaseTestCase {
 		BTree btree = new BTree(nd, Database.DATA_AREA_OFFSET, comparator);
 		for (int i = 0; i < names.length; ++i) {
 			String name = names[i];
-			long record = db.malloc(8);
+			long record = db.malloc(8, Database.POOL_MISC);
 			db.putInt(record + 0, i);
 			IString string = db.newString(name);
 			db.putRecPtr(record + 4, string.getRecord());

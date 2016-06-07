@@ -230,7 +230,7 @@ public class BTreeTests extends BaseTestCase {
 		 */
 		public BTMockRecord(Database db, int value) throws CoreException {
 			this.db = db;
-			record = db.malloc(BTMockRecord.RECORD_SIZE);
+			record = db.malloc(BTMockRecord.RECORD_SIZE, Database.POOL_MISC);
 			db.putInt(record + VALUE_PTR, value);
 		}
 

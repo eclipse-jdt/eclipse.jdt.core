@@ -34,7 +34,7 @@ public class Nd {
 	private static final int BLOCKED_WRITE_LOCK_OUTPUT_INTERVAL = 30000;
 	private static final int LONG_WRITE_LOCK_REPORT_THRESHOLD = 1000;
 	private static final int LONG_READ_LOCK_WAIT_REPORT_THRESHOLD = 1000;
-	static boolean sDEBUG_LOCKS= false;
+	public static boolean sDEBUG_LOCKS= false;
 
 	private final int currentVersion;
 	private final int maxVersion;
@@ -585,7 +585,7 @@ public class Nd {
 			factory1.destruct(this, address);
 
 			// Free up its memory
-			getDB().free(address);
+			getDB().free(address, (short)(Database.POOL_FIRST_NODE_TYPE + nodeType));
 		}
 	}
 
@@ -602,6 +602,10 @@ public class Nd {
 		factory1.destruct(this, address);
 
 		// Free up its memory
-		getDB().free(address);
+		getDB().free(address, (short)(Database.POOL_FIRST_NODE_TYPE + nodeType));
+	}
+
+	public NdNodeTypeRegistry<NdNode> getTypeRegistry() {
+		return this.fNodeTypeRegistry;
 	}
 }

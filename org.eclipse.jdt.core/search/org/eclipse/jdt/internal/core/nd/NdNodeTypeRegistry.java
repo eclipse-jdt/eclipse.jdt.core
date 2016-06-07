@@ -66,7 +66,6 @@ public class NdNodeTypeRegistry<R> {
 		return this.types.get(type);
 	}
 
-
 	public R createNode(Nd nd, long address, short nodeType) throws IndexException {
 		ITypeFactory<? extends R> typeFactory = this.types.get(nodeType);
 

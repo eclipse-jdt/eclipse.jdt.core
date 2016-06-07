@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.core.JavaElementDelta;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint.FingerprintTestResult;
@@ -52,6 +53,9 @@ public final class Indexer {
 	private IWorkspaceRoot root;
 
 	private static Indexer indexer;
+	public static boolean DEBUG;
+	public static boolean DEBUG_ALLOCATIONS;
+	public static boolean DEBUG_TIMING;
 	private static final Object mutex = new Object();
 	private static final long MS_TO_NS = 1000000;
 
@@ -85,7 +89,9 @@ public final class Indexer {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 
 		long startTimeNs = System.nanoTime();
-		Package.logInfo("Indexer running rescan"); //$NON-NLS-1$
+		if (DEBUG) {
+			Package.logInfo("Indexer running rescan"); //$NON-NLS-1$
+		}
 
 		// Gather all the IPackageFragmentRoots in the workspace
 		List<IJavaElement> unfilteredRoots = getAllIndexableObjectsInWorkspace(subMonitor.split(3));
@@ -147,12 +153,20 @@ public final class Indexer {
 		double averageFingerprintTimeMs = allRoots.size() == 0 ? 0 : (double)fingerprintTimeMs / (double)allRoots.size();
 		double averageResourceMappingMs = pathsToUpdate.size() == 0 ? 0 : (double)resourceMappingTimeMs / (double)pathsToUpdate.size();
 
-		Package.logInfo(
-				"Indexing done.\n" //$NON-NLS-1$
-				+ "  Located " + totalRoots + " roots in " + locateRootsTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				+ "  Tested " + allRoots.size() + " fingerprints in " + fingerprintTimeMs + "ms, average time = " + averageFingerprintTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				+ "  Indexed " + classesIndexed + " classes in " + indexingTimeMs + "ms, average time = " + averageIndexTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-				+ "  Updated " + pathsToUpdate.size() + " paths in " + resourceMappingTimeMs + "ms, average time = " + averageResourceMappingMs + "ms\n"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+		if (DEBUG_TIMING) {
+			Package.logInfo(
+					"Indexing done.\n" //$NON-NLS-1$
+					+ "  Located " + totalRoots + " roots in " + locateRootsTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					+ "  Tested " + allRoots.size() + " fingerprints in " + fingerprintTimeMs + "ms, average time = " + averageFingerprintTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					+ "  Indexed " + classesIndexed + " classes in " + indexingTimeMs + "ms, average time = " + averageIndexTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					+ "  Updated " + pathsToUpdate.size() + " paths in " + resourceMappingTimeMs + "ms, average time = " + averageResourceMappingMs + "ms\n"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+		}
+
+		if (DEBUG_ALLOCATIONS) {
+			try (IReader readLock = this.nd.acquireReadLock()) {
+				this.nd.getDB().getMemoryStats().printMemoryStats(this.nd.getTypeRegistry());
+			}
+		}
 	}
 
 	private void fireDelta(Set<IPath> rootsWithChanges, IProgressMonitor monitor) {
@@ -299,7 +313,9 @@ public final class Indexer {
 
 		File theFile = thePath.toFile();
 		if (!(theFile.exists() && theFile.isFile())) {
-			Package.log("the file " + pathString + " does not exist", null); //$NON-NLS-1$ //$NON-NLS-2$
+			if (DEBUG) {
+				Package.log("the file " + pathString + " does not exist", null); //$NON-NLS-1$ //$NON-NLS-2$
+			}
 			return 0;
 		}
 
@@ -320,7 +336,9 @@ public final class Indexer {
 			this.nd.releaseWriteLock();
 		}
 
-		Package.logInfo("rescanning " + thePath.toString()); //$NON-NLS-1$
+		if (DEBUG) {
+			Package.logInfo("rescanning " + thePath.toString()); //$NON-NLS-1$
+		}
 		int result = addElement(resourceFile, element, subMonitor.split(90));
 
 		// Now update the timestamp and delete all older versions of this resource that exist in the index

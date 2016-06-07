@@ -224,7 +224,7 @@ public final class RawGrowableArray {
 				// Need to convert to using metablocks.
 				long firstGrowableBlockAddress = resizeBlock(nd, address, GrowableBlockHeader.MAX_GROWABLE_SIZE);
 
-				metablockAddress = db.malloc(computeBlockBytes(GrowableBlockHeader.MAX_GROWABLE_SIZE));
+				metablockAddress = db.malloc(computeBlockBytes(GrowableBlockHeader.MAX_GROWABLE_SIZE), Database.POOL_GROWABLE_ARRAY);
 				GrowableBlockHeader.ARRAY_SIZE.put(nd, metablockAddress, currentSize);
 				GrowableBlockHeader.ALLOCATED_SIZE.put(nd, metablockAddress,
 						GrowableBlockHeader.MAX_GROWABLE_SIZE);
@@ -244,7 +244,7 @@ public final class RawGrowableArray {
 			int currentBlockCount = currentAllocatedSize / GrowableBlockHeader.MAX_GROWABLE_SIZE;
 
 			for (int nextBlock = currentBlockCount; nextBlock < requiredBlockCount; nextBlock++) {
-				long nextBlockAddress = db.malloc(computeBlockBytes(GrowableBlockHeader.MAX_GROWABLE_SIZE));
+				long nextBlockAddress = db.malloc(computeBlockBytes(GrowableBlockHeader.MAX_GROWABLE_SIZE), Database.POOL_GROWABLE_ARRAY);
 
 				db.putRecPtr(metablockAddress + GrowableBlockHeader.GROWABLE_BLOCK_HEADER_BYTES
 						+ nextBlock * Database.PTR_SIZE, nextBlockAddress);
@@ -269,7 +269,7 @@ public final class RawGrowableArray {
 		// Check if the existing block is already exactly the right size
 		if (oldGrowableBlockAddress != 0) {
 			if (newBlockSize == 0) {
-				db.free(oldGrowableBlockAddress);
+				db.free(oldGrowableBlockAddress, Database.POOL_GROWABLE_ARRAY);
 				return 0;
 			}
 
@@ -281,11 +281,11 @@ public final class RawGrowableArray {
 
 		int arraySize = size(nd, address);
 		int numToCopySize = Math.min(Math.max(0, arraySize - this.inlineSize), newBlockSize);
-		long newGrowableBlockAddress = db.malloc(computeBlockBytes(newBlockSize));
+		long newGrowableBlockAddress = db.malloc(computeBlockBytes(newBlockSize), Database.POOL_GROWABLE_ARRAY);
 
 		if (oldGrowableBlockAddress != 0) {
 			db.memcpy(newGrowableBlockAddress, oldGrowableBlockAddress, computeBlockBytes(numToCopySize));
-			db.free(oldGrowableBlockAddress);
+			db.free(oldGrowableBlockAddress, Database.POOL_GROWABLE_ARRAY);
 		}
 
 		GrowableBlockHeader.ARRAY_SIZE.put(nd, newGrowableBlockAddress, arraySize);
@@ -440,7 +440,7 @@ public final class RawGrowableArray {
 			while (--currentBlock >= desiredBlockCount) {
 				long nextAddress = metablockRecordsAddress + currentBlock * Database.PTR_SIZE;
 				long oldBlockAddress = db.getRecPtr(nextAddress);
-				db.free(oldBlockAddress);
+				db.free(oldBlockAddress, Database.POOL_GROWABLE_ARRAY);
 				db.putRecPtr(nextAddress, 0);
 			}
 
@@ -455,7 +455,7 @@ public final class RawGrowableArray {
 			// Dispose the metablock and replace it with the first growable block
 			long firstBlockAddress = db.getRecPtr(metablockRecordsAddress);
 			int oldSize = GrowableBlockHeader.ARRAY_SIZE.get(nd, growableBlockAddress);
-			db.free(growableBlockAddress);
+			db.free(growableBlockAddress, Database.POOL_GROWABLE_ARRAY);
 
 			GROWABLE_BLOCK_ADDRESS.put(nd, address, firstBlockAddress);
 

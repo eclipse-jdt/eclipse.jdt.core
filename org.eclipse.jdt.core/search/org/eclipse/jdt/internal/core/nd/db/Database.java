@@ -50,6 +50,7 @@ import com.ibm.icu.text.MessageFormat;
  * ..                   | ...
  * INT_SIZE * (M + 1)   | pointer to head of linked list of blocks of size (M + MIN_BLOCK_DELTAS) * BLOCK_SIZE_DELTA
  * WRITE_NUMBER_OFFSET  | long integer which is incremented on every write
+ * MALLOC_STATS_OFFSET  | memory usage statistics 
  * DATA_AREA            | The database singletons are stored here and use the remainder of chunk 0
  *
  * M = CHUNK_SIZE / BLOCK_SIZE_DELTA - MIN_BLOCK_DELTAS
@@ -103,7 +104,21 @@ public class Database {
 	private static final int MALLOC_TABLE_OFFSET = VERSION_OFFSET + INT_SIZE;
 	public static final int WRITE_NUMBER_OFFSET = MALLOC_TABLE_OFFSET
 			+ (CHUNK_SIZE / BLOCK_SIZE_DELTA - MIN_BLOCK_DELTAS + 1) * INT_SIZE;
-	public static final int DATA_AREA_OFFSET = WRITE_NUMBER_OFFSET + LONG_SIZE;
+	public static final int MALLOC_STATS_OFFSET = WRITE_NUMBER_OFFSET + LONG_SIZE;
+	public static final int DATA_AREA_OFFSET = MALLOC_STATS_OFFSET + MemoryStats.SIZE;
+
+	// Malloc pool IDs (used for classifying memory allocations and recording statistics about them)
+	/** Misc pool -- may be used for any purpose that doesn't fit the IDs below. */
+	public static final short POOL_MISC 			= 0x0000;
+	public static final short POOL_BTREE 			= 0x0001;
+	public static final short POOL_DB_PROPERTIES 	= 0x0002;
+	public static final short POOL_STRING_LONG 		= 0x0003;
+	public static final short POOL_STRING_SHORT		= 0x0004;
+	public static final short POOL_LINKED_LIST		= 0x0005;
+	public static final short POOL_STRING_SET 		= 0x0006;
+	public static final short POOL_GROWABLE_ARRAY	= 0x0007;
+	/** Id for the first node type. All node types will record their stats in a pool whose ID is POOL_FIRST_NODE_TYPE + node_id*/
+	public static final short POOL_FIRST_NODE_TYPE	= 0x0100;
 
 	private final File fLocation;
 	private final boolean fReadOnly;
@@ -123,6 +138,8 @@ public class Database {
 	private long freed;
 	private long cacheHits;
 	private long cacheMisses;
+
+	private MemoryStats memoryUsage;
 
 	/**
 	 * Construct a new Database object, creating a backing file if necessary.
@@ -155,6 +172,7 @@ public class Database {
 		} catch (IOException e) {
 			throw new IndexException(new DBStatus(e));
 		}
+		this.memoryUsage = new MemoryStats(this.fHeaderChunk, MALLOC_STATS_OFFSET);
 	}
 
 	private static int divideRoundingUp(int num, int den) {
@@ -261,6 +279,7 @@ public class Database {
 			createNewChunks((int) setasideChunks);
 			flush();
 		}
+		this.memoryUsage.refresh();
 	}
 
 	private void removeChunksFromCache() {
@@ -333,7 +352,7 @@ public class Database {
 	/**
 	 * Allocate a block out of the database.
 	 */
-	public long malloc(final int datasize) throws IndexException {
+	public long malloc(final int datasize, final short poolId) throws IndexException {
 		assert this.fExclusiveLock;
 		assert datasize >= 0;
 		assert datasize <= MAX_MALLOC_SIZE;
@@ -379,7 +398,9 @@ public class Database {
 		chunk.clear(freeblock + BLOCK_HEADER_SIZE, usedSize - BLOCK_HEADER_SIZE);
 
 		this.malloced += usedSize;
-		return freeblock + BLOCK_HEADER_SIZE;
+		long result = freeblock + BLOCK_HEADER_SIZE;
+		this.memoryUsage.recordMalloc(poolId, datasize);
+		return result;
 	}
 
 	private long createNewChunk() throws IndexException {
@@ -487,21 +508,23 @@ public class Database {
 	/**
 	 * Free an allocated block.
 	 *
-	 * @param offset
+	 * @param address memory address to be freed
+	 * @param poolId the same ID that was previously passed into malloc when allocating this memory address
 	 */
-	public void free(long offset) throws IndexException {
+	public void free(long address, short poolId) throws IndexException {
 		assert this.fExclusiveLock;
 		// TODO Look for opportunities to merge blocks
-		long block = offset - BLOCK_HEADER_SIZE;
+		long block = address - BLOCK_HEADER_SIZE;
 		Chunk chunk = getChunk(block);
 		int blocksize = - chunk.getShort(block);
 		if (blocksize < 0) {
 			// Already freed.
 			throw new IndexException(new Status(IStatus.ERROR, Package.PLUGIN_ID, 0,
-					"Already freed record " + offset, new Exception())); //$NON-NLS-1$
+					"Already freed record " + address, new Exception())); //$NON-NLS-1$
 		}
 		addBlock(chunk, blocksize, block);
 		this.freed += blocksize;
+		this.memoryUsage.recordFree(poolId, blocksize);
 	}
 
 	public void putByte(long offset, byte value) throws IndexException {
@@ -676,6 +699,7 @@ public class Database {
 
 		// Chunks have been removed from the cache, so we are fine.
 		this.fHeaderChunk.clear(0, CHUNK_SIZE);
+		this.memoryUsage.refresh();
 		this.fHeaderChunk.fDirty= false;
 		this.fChunks= new Chunk[] { null };
 		this.fChunksUsed = this.fChunksAllocated = this.fChunks.length;
@@ -868,5 +892,9 @@ public class Database {
 		int value = Chunk.getInt(buffer, idx);
 		long address = Chunk.expandToFreeRecPtr(value);
 		return address != 0 ? (address + BLOCK_HEADER_SIZE) : address;
+	}
+
+	public MemoryStats getMemoryStats() {
+		return this.memoryUsage;
 	}
 }
