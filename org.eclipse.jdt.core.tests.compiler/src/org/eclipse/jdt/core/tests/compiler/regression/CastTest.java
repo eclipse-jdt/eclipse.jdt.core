@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for 
@@ -1626,7 +1630,7 @@ public void test041() {
 			"        public void callSite() {\n" +
 			"            // expect warning not there:\n" +
 			"            ((A) this.getAA()).callMe();\n" +
-			"            Integer max = new Integer(1);\n" +
+			"            Integer max = Integer.valueOf(1);\n" +
 			"            // execpted warning there:\n" +
 			"            Integer other = (Integer) max;\n" +
 			"        }\n" +
@@ -1923,7 +1927,7 @@ public void test052() {
 			"		System.out.println(y);\n" + 
 			"	}\n" + 
 			"	public static Object foo() {\n" + 
-			"		return new Byte((byte)1);\n" + 
+			"		return Byte.valueOf((byte)1);\n" + 
 			"	}\n" + 
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
@@ -1960,7 +1964,7 @@ public void test053() {
 			"		System.out.println(y);\n" + 
 			"	}\n" + 
 			"	public static Object foo() {\n" + 
-			"		return new Character('d');\n" + 
+			"		return Character.valueOf('d');\n" + 
 			"	}\n" + 
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
@@ -1998,7 +2002,7 @@ public void test054() throws Exception {
 			"		System.out.println(y);\n" + 
 			"	}\n" + 
 			"	public static Object foo() {\n" + 
-			"		return new Integer(1);\n" + 
+			"		return Integer.valueOf(1);\n" + 
 			"	}\n" + 
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
@@ -2070,7 +2074,7 @@ public void test055() {
 			"		System.out.println(y);\n" + 
 			"	}\n" + 
 			"	public static Object foo() {\n" + 
-			"		return new Long(Long.MAX_VALUE);\n" + 
+			"		return Long.valueOf(Long.MAX_VALUE);\n" + 
 			"	}\n" + 
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
@@ -2107,7 +2111,7 @@ public void test056() {
 			"		System.out.println(y);\n" + 
 			"	}\n" + 
 			"	public static Object foo() {\n" + 
-			"		return new Short((short) 1);\n" + 
+			"		return Short.valueOf((short) 1);\n" + 
 			"	}\n" + 
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
@@ -2144,7 +2148,7 @@ public void test057() {
 			"		System.out.println(y);\n" + 
 			"	}\n" + 
 			"	public static Object foo() {\n" + 
-			"		return new Double(1.0);\n" + 
+			"		return Double.valueOf(1.0);\n" + 
 			"	}\n" + 
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
@@ -2181,7 +2185,7 @@ public void test058() {
 			"		System.out.println(y);\n" + 
 			"	}\n" + 
 			"	public static Object foo() {\n" + 
-			"		return new Float(1.0f);\n" + 
+			"		return Float.valueOf(1.0f);\n" + 
 			"	}\n" + 
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {
@@ -2223,7 +2227,7 @@ public void test059() {
 			"		System.out.println(\"FAIL\");\n" + 
 			"	}\n" + 
 			"	public static Object foo() {\n" + 
-			"		return new Float(1.0f);\n" + 
+			"		return Float.valueOf(1.0f);\n" + 
 			"	}\n" + 
 			"}";
 	if (options.sourceLevel < ClassFileConstants.JDK1_7) {

@@ -5102,6 +5102,7 @@ public void testDefault03_bin() {
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"public class X {\n" +
 			"	@NonNullByDefault(DefaultLocation.RETURN_TYPE)\n" +
+			"	@SuppressWarnings(\"deprecation\")\n" +
 			"	Number test(Number in) {\n" +
 			"		return new Integer(13);\n" +
 			"	}\n" +
@@ -5133,7 +5134,8 @@ public void testDefault04_bin() {
 			"@Target(ElementType.TYPE_USE) @Retention(RetentionPolicy.CLASS) @interface Important {}\n" +
 			"@NonNullByDefault(DefaultLocation.FIELD)\n" +
 			"public class X {\n" +
-			"	@Important Number field = new Double(1.1d);\n" +
+			"	@SuppressWarnings(\"deprecation\")\n" +
+			"	@Important Number field = new Double(1.1);\n" +
 			"}\n"
 		},
 		getCompilerOptions(),
@@ -5163,6 +5165,7 @@ public void testDefault05_bin() {
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"@NonNullByDefault\n" +
 			"public class X {\n" +
+			"@SuppressWarnings(\"deprecation\")\n" +
 			"	Number field = new Long(13);\n" +
 			"	void test1(Number[] ns) {\n" +
 			"		ns[0] = null; // OK since not affected by default\n" +
@@ -7318,7 +7321,7 @@ public void testBug446442_5() {
 			"interface Baz extends Foo<Integer, Integer> {}\n" + 
 			"\n" +
 			"class Impl implements Baz {\n" + 
-			"  public Integer m(Integer i) { return new Integer(0); }\n" + 
+			"  public Integer m(Integer i) { return Integer.valueOf(0); }\n" + 
 			"}\n" +
 			"\n" + 
 			"public class Test {\n" + 
@@ -7327,7 +7330,7 @@ public void testBug446442_5() {
 		},
 		"----------\n" + 
 		"1. ERROR in Test.java (at line 11)\n" + 
-		"	public Integer m(Integer i) { return new Integer(0); }\n" + 
+		"	public Integer m(Integer i) { return Integer.valueOf(0); }\n" + 
 		"	       ^^^^^^^\n" + 
 		"The return type is incompatible with \'@NonNull Integer\' returned from Foo<Integer,Integer>.m(Integer) (mismatching null constraints)\n" + 
 		"----------\n" + 
@@ -9020,6 +9023,7 @@ public void testBug477719() {
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
+			"@SuppressWarnings({\"deprecation\"})\n" +
 			"public class X {\n" +
 			"	@NonNull Number instantiate(@NonNull Class<? extends @NonNull Number> c) throws Exception {\n" +
 			"		return c.newInstance();\n" +

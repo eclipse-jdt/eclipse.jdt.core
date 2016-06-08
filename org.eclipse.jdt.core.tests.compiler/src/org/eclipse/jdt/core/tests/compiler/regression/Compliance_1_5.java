@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -3002,10 +3006,10 @@ public void test088() {
 			"import java.lang.reflect.*;\n" +
 			"public class X extends Date implements Runnable{\n" +
 			" \n" +
-			" Integer w = new Integer(90);\n" +
+			" Integer w = Integer.valueOf(90);\n" +
 			" protected double x = 91.1;\n" +
 			" public long y = 92;\n" +
-			" static public Boolean z = new Boolean(true); \n" +
+			" static public Boolean z = Boolean.valueOf(true); \n" +
 			" public class X_inner {\n" +
 			"  public X_inner() {\n" +
 			"   this.super();\n" +

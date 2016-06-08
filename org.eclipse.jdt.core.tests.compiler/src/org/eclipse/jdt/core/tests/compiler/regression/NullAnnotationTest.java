@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *     Till Brychcy <register.eclipse@brychcy.de> - Contribution for
@@ -8085,6 +8089,7 @@ public void testBug462790() {
 			"		String command = (String)getCommand(commandType);\n" + 
 			"	}\n" + 
 			"	\n" + 
+			"	@SuppressWarnings({\"deprecation\"})\n" +
 			"	public static <T extends String> T getCommand(Class<T> commandType) {\n" + 
 			"		try {\n" + 
 			"			return commandType.newInstance();\n" + 
@@ -8101,20 +8106,20 @@ public void testBug462790() {
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from capture#1-of ? extends String to String\n" + 
 		"----------\n" + 
-		"2. WARNING in EclipseBug.java (at line 8)\n" + 
+		"2. WARNING in EclipseBug.java (at line 9)\n" + 
 		"	public static <T extends String> T getCommand(Class<T> commandType) {\n" + 
 		"	                         ^^^^^^\n" + 
 		"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
 		"----------\n" +
 		(this.complianceLevel < ClassFileConstants.JDK1_8
 		?
-		"3. WARNING in EclipseBug.java (at line 10)\n" + 
+		"3. WARNING in EclipseBug.java (at line 11)\n" + 
 		"	return commandType.newInstance();\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Null type safety: The expression of type \'T\' needs unchecked conversion to conform to \'@NonNull T\'\n" + 
 		"----------\n"
 		:
-		"3. INFO in EclipseBug.java (at line 10)\n" + 
+		"3. INFO in EclipseBug.java (at line 11)\n" + 
 		"	return commandType.newInstance();\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull Class<T extends @NonNull String>\'. Type \'Class<T>\' doesn\'t seem to be designed with null type annotations in mind\n" + 

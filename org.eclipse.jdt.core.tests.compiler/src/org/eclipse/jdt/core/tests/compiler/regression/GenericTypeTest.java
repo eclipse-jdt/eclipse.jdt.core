@@ -5,7 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -6583,7 +6586,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"public class X {\n" +
 				"	void foo() {\n" +
 				"		ArrayList<? super Integer> al = new ArrayList<Object>();\n" +
-				"		al.add(new Integer(1)); // (1)\n" +
+				"		al.add(Integer.valueOf(1)); // (1)\n" +
 				"		Integer i = al.get(0);  // (2)\n" +
 				"	}\n" +
 				"}\n",
@@ -6605,13 +6608,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"public class X {\n" +
 				"	void foo() {\n" +
 				"		ArrayList<? extends Integer> al = new ArrayList<Integer>();\n" +
-				"		al.add(new Integer(1)); // (1)\n" +
+				"		al.add(Integer.valueOf(1)); // (1)\n" +
 				"	}\n" +
 				"}\n",
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 6)\n" +
-			"	al.add(new Integer(1)); // (1)\n" +
+			"	al.add(Integer.valueOf(1)); // (1)\n" +
 			"	   ^^^\n" +
 			"The method add(capture#1-of ? extends Integer) in the type ArrayList<capture#1-of ? extends Integer> is not applicable for the arguments (Integer)\n" +
 			"----------\n");
@@ -6624,7 +6627,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"public class X {\n" +
 				"	public static void main(String[] args) {\n" +
 				"		XList<? super Integer> lx = new XList<Integer>();\n" +
-				"		lx.slot = new Integer(1);\n" +
+				"		lx.slot = Integer.valueOf(1);\n" +
 				"		Integer i = lx.slot;\n" +
 				"    }    	\n" +
 				"}\n" +
@@ -7284,8 +7287,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"X.java",
 				"import java.util.HashMap;\n" +
 				"import java.util.Map;\n" +
+				"@SuppressWarnings({\"rawtypes\", \"deprecation\"})\n" +
 				"public class X {\n" +
-				"    @SuppressWarnings(\"rawtypes\")\n" +
 				"    private static final Map<String, Class> classes = new HashMap<String, Class>();\n" +
 				"    public static void main(String[] args) throws Exception {\n" +
 				"    	classes.put(\"test\", X.class);\n" +
@@ -7692,6 +7695,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
+				"@SuppressWarnings(\"deprecation\")\n" +
 				"public class X { \n" +
 				"    static class A {\n" +
 				"    }\n" +
@@ -7702,7 +7706,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
+			"1. ERROR in X.java (at line 7)\n" +
 			"	return clazz.newInstance(); // ? extends Object\n" +
 			"	       ^^^^^^^^^^^^^^^^^^^\n" +
 			"Type mismatch: cannot convert from capture#1-of ? extends Object to X.A\n" +
@@ -7750,7 +7754,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"        List<Integer> li= new ArrayList<Integer>();\n" +
 				"        List<? extends Number> ls= li;       \n" +
 				"        List<Number> x2= (List<Number>)ls;//unsafe\n" +
-				"        x2.add(new Float(1.0));\n" +
+				"        x2.add(Float.valueOf(1.0f));\n" +
 				"        \n" +
 				"        Integer i= li.get(0);//ClassCastException!\n" +
 				"        \n" +
@@ -12935,7 +12939,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"		A<Long> a = new A<Long>() {\n" +
 				"			@Override\n" +
 				"			Long get() {\n" +
-				"				return new Long(5);\n" +
+				"				return Long.valueOf(5);\n" +
 				"			}\n" +
 				"		};\n" +
 				"	}\n" +
@@ -13271,21 +13275,21 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    }\n" +
 				"\n" +
 				"    public void test01() { // works\n" +
-				"        new IntegerOrder().next(new Integer(0)); // works\n" +
+				"        new IntegerOrder().next(Integer.valueOf(0)); // works\n" +
 				"    }\n" +
 				"\n" +
 				"    public void test02() { // doesn\'t work\n" +
 				"        final DiscreteOrder<Integer> order = new IntegerOrder();\n" +
-				"        order.next(new Integer(0));\n" +
+				"        order.next(Integer.valueOf(0));\n" +
 				"    }\n" +
 				"\n" +
 				"    public void test03() { // works\n" +
-				"        new IntegerOrder2().next(new Integer(0)); // works\n" +
+				"        new IntegerOrder2().next(Integer.valueOf(0)); // works\n" +
 				"    }\n" +
 				"\n" +
 				"    public void test04() { // doesn\'t work\n" +
 				"        final DiscreteOrder<Integer> order = new IntegerOrder2();\n" +
-				"        order.next(new Integer(0));\n" +
+				"        order.next(Integer.valueOf(0));\n" +
 				"    }\n" +
 				"}\n",
 				"orders/DiscreteOrder.java",//===============================
@@ -13313,11 +13317,11 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"    }\n" +
 				"\n" +
 				"    public Integer previous(Integer arg0) {\n" +
-				"        return new Integer(arg0.intValue() - 1);\n" +
+				"        return Integer.valueOf(arg0.intValue() - 1);\n" +
 				"    }\n" +
 				"\n" +
 				"    public Integer next(Integer arg0) {\n" +
-				"        return new Integer(arg0.intValue() + 1);\n" +
+				"        return Integer.valueOf(arg0.intValue() + 1);\n" +
 				"    }\n" +
 				"}\n",
 				"orders/impl/IntegerOrder2.java",//===============================
@@ -14098,7 +14102,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"  \n" +
 				"  public ITest<C> get()\n" +
 				"  {\n" +
-				"    return m_manager.getById(getClass(), new Integer(1));\n" +
+				"    return m_manager.getById(getClass(), Integer.valueOf(1));\n" +
 				"  }\n" +
 				"    \n" +
 				"  public static class Manager<C extends X>\n" +
@@ -14117,13 +14121,13 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"Zork cannot be resolved to a type\n" + 
 			"----------\n" + 
 			"2. WARNING in X.java (at line 16)\n" + 
-			"	return m_manager.getById(getClass(), new Integer(1));\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	return m_manager.getById(getClass(), Integer.valueOf(1));\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: Unchecked invocation getById(Class<capture#1-of ? extends Test>, Integer) of the generic method getById(Class<T>, Integer) of type Test.Manager<C>\n" + 
 			"----------\n" + 
 			"3. WARNING in X.java (at line 16)\n" + 
-			"	return m_manager.getById(getClass(), new Integer(1));\n" + 
-			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	return m_manager.getById(getClass(), Integer.valueOf(1));\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 			"Type safety: The expression of type Test needs unchecked conversion to conform to ITest<C>\n" + 
 			"----------\n");
 	}
@@ -14420,33 +14424,33 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"	}\n" +
 				"\n" +
 				"	public static void foo() {\n" +
-				"		Comparable s1 = choose(true, \"string\", new Integer(1));\n" +
-				"		Number s2 = choose(true, new Integer(1), new Float(2));\n" +
-				"		Comparable s3 = choose(true, new Integer(1), new Float(2));\n" +
-				"		Cloneable s4 = choose(true, new Integer(1), new Float(2));\n" +
-				"		Cloneable s5 = choose(true, \"string\", new Integer(1));\n" +
+				"		Comparable s1 = choose(true, \"string\", Integer.valueOf(1));\n" +
+				"		Number s2 = choose(true, Integer.valueOf(1), Float.valueOf(2));\n" +
+				"		Comparable s3 = choose(true, Integer.valueOf(1), Float.valueOf(2));\n" +
+				"		Cloneable s4 = choose(true, Integer.valueOf(1), Float.valueOf(2));\n" +
+				"		Cloneable s5 = choose(true, \"string\", Integer.valueOf(1));\n" +
 				"	}\n" +
 				"}\n"
 			},
 			"----------\n" +
 			"1. WARNING in X.java (at line 9)\n" +
-			"	Comparable s1 = choose(true, \"string\", new Integer(1));\n" +
+			"	Comparable s1 = choose(true, \"string\", Integer.valueOf(1));\n" +
 			"	^^^^^^^^^^\n" +
 			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" +
 			"----------\n" +
 			"2. WARNING in X.java (at line 11)\n" +
-			"	Comparable s3 = choose(true, new Integer(1), new Float(2));\n" +
+			"	Comparable s3 = choose(true, Integer.valueOf(1), Float.valueOf(2));\n" +
 			"	^^^^^^^^^^\n" +
 			"Comparable is a raw type. References to generic type Comparable<T> should be parameterized\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 12)\n" +
-			"	Cloneable s4 = choose(true, new Integer(1), new Float(2));\n" +
-			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"	Cloneable s4 = choose(true, Integer.valueOf(1), Float.valueOf(2));\n" +
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Type mismatch: cannot convert from Number&Comparable<?> to Cloneable\n" +
 			"----------\n" +
 			"4. ERROR in X.java (at line 13)\n" +
-			"	Cloneable s5 = choose(true, \"string\", new Integer(1));\n" +
-			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"	Cloneable s5 = choose(true, \"string\", Integer.valueOf(1));\n" +
+			"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Type mismatch: cannot convert from Object&Serializable&Comparable<?> to Cloneable\n" +
 			"----------\n");
 	}
@@ -14620,7 +14624,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 				"public class X {\n" +
 				"    void method(List<? super Number> list) {\n" +
 				"        list.add(new Object());   // should fail\n" +
-				"        list.add(new Integer(3)); // correct\n" +
+				"        list.add(Integer.valueOf(3)); // correct\n" +
 				"    }\n" +
 				"}\n"
 			},
@@ -17941,7 +17945,7 @@ X.java:4: method foo in class X cannot be applied to given types
 				"\n" +
 				"class Bar implements IFoo<Integer> {\n" +
 				"    public Integer get(Class<Integer> arg0) {\n" +
-				"        return new Integer(3);\n" +
+				"        return Integer.valueOf(3);\n" +
 				"    }\n" +
 				"}\n" +
 				"}\n",
@@ -20927,7 +20931,7 @@ public void test0659() {
 			"	}\n" +
 			"\n" +
 			"	public static void main(String[] arg) throws Exception {\n" +
-			"		X<String, Integer> ref = new X<String, Integer>(\"Dummy Key\", new Integer(5), queue);\n" +
+			"		X<String, Integer> ref = new X<String, Integer>(\"Dummy Key\", Integer.valueOf(5), queue);\n" +
 			"		new Thread() {\n" +
 			"			@Override\n" +
 			"			public void run() {\n" +
@@ -39405,7 +39409,7 @@ public void test1132() {
 			"\n" +
 			"	public List<Integer> getList() {\n" +
 			"		ArrayList<Integer> l = new ArrayList<Integer>();\n" +
-			"		l.add(new Integer(0));\n" +
+			"		l.add(Integer.valueOf(0));\n" +
 			"		return l;\n" +
 			"	}\n" +
 			"\n" +
@@ -51235,6 +51239,7 @@ public void test1458() {
 	this.runNegativeTest(
 			new String[] {
 					"CompilerBug.java",
+					"@SuppressWarnings(\"deprecation\")\n" +
 					"public class CompilerBug {\n" +
 					"	public <T> T newInstance( Class<T> c ) throws InstantiationException, IllegalAccessException {\n" +
 					"	      return c.newInstance();\n" +
@@ -51262,7 +51267,7 @@ public void test1458() {
 			},
 			this.complianceLevel <= ClassFileConstants.JDK1_6 ?
 			"----------\n" + 
-			"1. ERROR in CompilerBug.java (at line 22)\n" + 
+			"1. ERROR in CompilerBug.java (at line 23)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
@@ -51270,17 +51275,17 @@ public void test1458() {
 				
 			// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=334622
 			"----------\n" + 
-			"1. ERROR in CompilerBug.java (at line 17)\n" + 
+			"1. ERROR in CompilerBug.java (at line 18)\n" + 
 			"	getClass().newInstance().privateMethod();\n" + 
 			"	                         ^^^^^^^^^^^^^\n" + 
 			"The method privateMethod() from the type CompilerBug is not visible\n" + 
 			"----------\n" + 
-			"2. ERROR in CompilerBug.java (at line 19)\n" + 
+			"2. ERROR in CompilerBug.java (at line 20)\n" + 
 			"	getClass().newInstance().privateInt = 10;\n" + 
 			"	                         ^^^^^^^^^^\n" + 
 			"The field CompilerBug.privateInt is not visible\n" + 
 			"----------\n" + 
-			"3. ERROR in CompilerBug.java (at line 22)\n" + 
+			"3. ERROR in CompilerBug.java (at line 23)\n" + 
 			"	Zork z;\n" + 
 			"	^^^^\n" + 
 			"Zork cannot be resolved to a type\n" + 
