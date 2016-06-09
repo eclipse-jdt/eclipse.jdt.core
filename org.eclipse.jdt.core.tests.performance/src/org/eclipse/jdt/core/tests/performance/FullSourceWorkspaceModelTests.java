@@ -60,6 +60,7 @@ import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests.ProblemRequestor;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.IJavaElementRequestor;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -1122,6 +1123,8 @@ public void testSeekPackageFragments() throws CoreException {
 		public boolean isCanceled() {
 			return false;
 		}
+		@Override
+		public void acceptModule(IModule module) {}
 	}
 
 	// first pass: ensure all class are loaded, and ensure that the test works as expected

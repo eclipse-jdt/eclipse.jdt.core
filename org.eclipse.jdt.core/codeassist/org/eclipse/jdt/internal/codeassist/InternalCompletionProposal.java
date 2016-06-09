@@ -50,6 +50,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 
 	protected char[] declarationPackageName;
 	protected char[] declarationTypeName;
+	protected char[] moduleName;
 	protected char[] packageName;
 	protected char[] typeName;
 	protected char[][] parameterPackageNames;
@@ -377,6 +378,10 @@ public class InternalCompletionProposal extends CompletionProposal {
 		return JavaModelManager.getJavaModelManager().getOpenableCacheSize() / 10;
 	}
 
+	protected char[] getModuleName() {
+		return this.moduleName;
+	}
+
 	protected char[] getPackageName() {
 		return this.packageName;
 	}
@@ -400,6 +405,10 @@ public class InternalCompletionProposal extends CompletionProposal {
 
 	protected void setDeclarationTypeName(char[] declarationTypeName) {
 		this.declarationTypeName = declarationTypeName;
+	}
+
+	protected void setModuleName(char[] moduleName) {
+		this.moduleName = moduleName;
 	}
 
 	protected void setPackageName(char[] packageName) {

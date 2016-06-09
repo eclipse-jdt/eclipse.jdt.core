@@ -166,6 +166,19 @@ public class SearchableEnvironment extends ModuleEnvironment
 	}
 
 	/**
+	 * Find the modules that start with the given prefix.
+	 * A valid prefix is a qualified name separated by periods
+	 * (ex. java.util).
+	 * The packages found are passed to:
+	 *    ISearchRequestor.acceptModule(char[][] moduleName)
+	 */
+	public void findModules(char[] prefix, ISearchRequestor requestor) {
+		this.nameLookup.seekModuleReferences(
+			new String(prefix),
+			new SearchableEnvironmentRequestor(requestor));
+	}
+
+	/**
 	 * Find the packages that start with the given prefix.
 	 * A valid prefix is a qualified name separated by periods
 	 * (ex. java.util).

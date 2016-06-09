@@ -1851,4 +1851,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			return InheritDocVisitor.CONTINUE;
 		}
 	}
+
+	@Override
+	public void acceptModule(char[] moduleName) {
+		// TODO Auto-generated method stub
+		
+	}
 }

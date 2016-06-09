@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.SuperReference;
@@ -1035,6 +1036,65 @@ protected void consumeSingleExportsPkgName() {
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
+protected void consumeSingleRequiresModuleName() {
+
+	int index = indexOfAssistIdentifier();
+	/* no need to take action if not inside assist identifiers */
+	if (index < 0) {
+		super.consumeSingleRequiresModuleName();
+		return;
+	}
+
+	/* retrieve identifiers subset and whole positions, the assist node positions
+	should include the entire replaced source. */
+	int length = this.identifierLengthStack[this.identifierLengthPtr];
+	char[][] subset = identifierSubSet(index+1); // include the assistIdentifier
+	this.identifierLengthPtr--;
+	this.identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(
+			this.identifierPositionStack,
+			this.identifierPtr + 1,
+			positions,
+			0,
+			length);
+		
+	int modifiers1 = this.intStack[this.intPtr--];
+	/* build specific assist node on requires statement */
+	ModuleReference reference = createAssistModuleReference(subset, positions, modifiers1);
+	this.assistNode = reference;
+	this.lastCheckPoint = reference.sourceEnd + 1;
+	pushOnAstStack(reference);
+
+	if (this.currentToken == TokenNameSEMICOLON){
+		reference.declarationSourceEnd = this.scanner.currentPosition - 1;
+	} else {
+		reference.declarationSourceEnd = (int) positions[length-1];
+	}
+	//endPosition is just before the ;
+	reference.declarationSourceStart = this.intStack[this.intPtr--];
+	// flush comments defined prior to import statements
+	reference.declarationSourceEnd = flushCommentsDefinedPriorTo(reference.declarationSourceEnd);
+
+	reference.declarationEnd = reference.declarationSourceEnd;
+	//this.endPosition is just before the ;
+	reference.modifiersSourceStart = this.intStack[this.intPtr--];
+//	reference.modifiers = modifiers; // already set in the constructor
+	reference.declarationSourceStart = reference.sourceStart;
+
+	if (reference.modifiersSourceStart >= 0) {
+		reference.declarationSourceStart = reference.modifiersSourceStart;
+	}
+	// recovery TBD
+	if (this.currentElement != null){
+		this.lastCheckPoint = reference.declarationSourceEnd+1;
+		this.currentElement = this.currentElement.add(reference, 0);
+		this.lastIgnoredToken = -1;
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton
+	}
+
+}
+
 protected void consumeSingleTypeImportDeclarationName() {
 	// SingleTypeImportDeclarationName ::= 'import' Name
 	/* push an ImportRef build from the last name
@@ -1273,6 +1333,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 }
 public abstract ExportReference createAssistExportReference(char[][] tokens, long[] positions);
 public abstract ImportReference createAssistImportReference(char[][] tokens, long[] positions, int mod);
+public abstract ModuleReference createAssistModuleReference(char[][] tokens, long[] positions, int mod);
 public abstract ImportReference createAssistPackageReference(char[][] tokens, long[] positions);
 public abstract NameReference createQualifiedAssistNameReference(char[][] previousIdentifiers, char[] assistName, long[] positions);
 public abstract TypeReference createQualifiedAssistTypeReference(char[][] previousIdentifiers, char[] assistName, long[] positions);
@@ -2219,6 +2280,12 @@ protected int resumeAfterRecovery() {
 			prepareForBlockStatements();
 			goForBlockStatementsopt();
 		} else {
+			if (this.referenceContext instanceof CompilationUnitDeclaration) {
+				CompilationUnitDeclaration unit = (CompilationUnitDeclaration) this.referenceContext;
+				if (unit.isModuleInfo()) {
+					return RESTART;
+				}		
+			}
 			prepareForHeaders();
 			goForHeaders();
 			this.diet = true; // passed this point, will not consider method bodies

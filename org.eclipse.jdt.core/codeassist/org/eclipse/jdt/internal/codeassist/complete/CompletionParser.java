@@ -85,6 +85,7 @@ public class CompletionParser extends AssistParser {
 	// added for https://bugs.eclipse.org/bugs/show_bug.cgi?id=261534
 	protected static final int K_BETWEEN_INSTANCEOF_AND_RPAREN = COMPLETION_PARSER + 41;
 	protected static final int K_INSIDE_IMPORT_STATEMENT = COMPLETION_PARSER + 43;
+	protected static final int K_INSIDE_EXPORTS_STATEMENT = COMPLETION_PARSER + 44;
 
 
 	public final static char[] FAKE_TYPE_NAME = new char[]{' '};
@@ -1568,8 +1569,9 @@ private boolean checkModuleInfoConstructs() {
 					}
 					break;
 				case REQUIRES_STATEMENT:
-					module.add(new CompletionOnModuleReference(ident, pos), 0);
-					return true;
+//					module.add(new CompletionOnModuleReference(ident, pos), 0);
+//					return true;
+					break;
 				case USES_STATEMENT:
 					formCompletionOnUsesTypeRef(index, length, module);
 					return true;
@@ -3509,6 +3511,7 @@ protected void consumeRestoreDiet() {
 protected void consumeExportsStatement() {
 	super.consumeExportsStatement();
 	this.moduleStatementId = MIStatementIdentity.DEFAULT_MI_STATEMENT;
+	popElement(K_INSIDE_EXPORTS_STATEMENT);
 }
 protected void consumeSingleExportsPkgName() {
 	super.consumeSingleExportsPkgName();
@@ -3718,6 +3721,7 @@ protected void consumeToken(int token) {
 		pushOnElementStack(K_INSIDE_IMPORT_STATEMENT);
 	}	else if (token == TokenNameexports) {
 		this.moduleStatementId = MIStatementIdentity.SINGLE_EXPORTS;
+		pushOnElementStack(K_INSIDE_EXPORTS_STATEMENT);
 	}	else if (token == TokenNameto && this.moduleStatementId == MIStatementIdentity.SINGLE_EXPORTS) {
 		this.moduleStatementId = MIStatementIdentity.SINGLE_EXPORTS_TARGET;
 	}	else if (token == TokenNamerequires) {
@@ -4515,6 +4519,9 @@ public ExportReference createAssistExportReference(char[][] tokens, long[] posit
 }
 public ImportReference createAssistImportReference(char[][] tokens, long[] positions, int mod){
 	return new CompletionOnImportReference(tokens, positions, mod);
+}
+public ModuleReference createAssistModuleReference(char[][] tokens, long[] positions, int mod){
+	return new CompletionOnModuleReference(tokens, positions, mod);
 }
 @Override
 public ModuleDeclaration createAssistModuleDeclaration(CompilationResult compilationResult, char[][] tokens,
@@ -5488,14 +5495,21 @@ protected boolean isInsideArrayInitializer(){
 	}
 	return false;	
 }
-protected boolean isInImportStatement() {
+private boolean foundToken(int token) {
 	int i = this.elementPtr;
 	while (i > -1) {
-		if (this.elementKindStack[i] == K_INSIDE_IMPORT_STATEMENT) {
+		if (this.elementKindStack[i] == token) {
 			return true;
 		}
 		i--;
 	}
 	return false;
+}
+
+protected boolean isInImportStatement() {
+	return foundToken(K_INSIDE_IMPORT_STATEMENT);
+}
+protected boolean isInExportsStatement() {
+	return foundToken(K_INSIDE_EXPORTS_STATEMENT);
 }
 }

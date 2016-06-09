@@ -140,12 +140,13 @@ public void acceptType(IType type) {
 /**
  * @see IJavaElementRequestor
  */
-public void acceptModuleDeclaration(IModule module) {
+public void acceptModule(IModule module) {
 	if (this.modules == null) {
 		this.modules= new ArrayList();
 	}
-	this.modules.add(module);
+	this.modules.add(module);	
 }
+
 /**
  * @see IJavaElementRequestor
  */

@@ -5661,16 +5661,16 @@ protected void consumeSingleRequiresModuleName() {
 	impt.modifiersSourceStart = this.intStack[this.intPtr--];
 	impt.modifiers = this.intStack[this.intPtr--];
 	impt.declarationSourceStart = impt.sourceStart;
-//	if (impt.modifiersSourceStart >= 0) {
-//		impt.declarationSourceStart = impt.modifiersSourceStart;
-//	}
+	if (impt.modifiersSourceStart >= 0) {
+		impt.declarationSourceStart = impt.modifiersSourceStart;
+	}
 	// recovery TBD
-//	if (this.currentElement != null){
-//		this.lastCheckPoint = impt.declarationSourceEnd+1;
-//		this.currentElement = this.currentElement.add(impt, 0);
-//		this.lastIgnoredToken = -1;
-//		this.restartRecovery = true; // used to avoid branching back into the regular automaton
-//	}
+	if (this.currentElement != null){
+		this.lastCheckPoint = impt.declarationSourceEnd+1;
+		this.currentElement = this.currentElement.add(impt, 0);
+		this.lastIgnoredToken = -1;
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton
+	}
 }
 protected void consumeExportsStatement() {
 	ExportReference expt = (ExportReference) this.astStack[this.astPtr--];

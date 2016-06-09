@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.ast.ExportReference;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -117,6 +118,18 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 	this.updateSourceEndIfNecessary(previousAvailableLineEnd(localDeclaration.declarationSourceStart - 1));
 	return this.parent.add(localDeclaration, bracketBalanceValue);
 }
+/*
+ *	Record a module reference
+ */
+public RecoveredElement add(ModuleReference moduleReference, int bracketBalanceValue){
+
+	/* default behavior is to delegate recording to parent if any */
+	resetPendingModifiers();
+	if (this.parent == null) return this; // ignore
+	this.updateSourceEndIfNecessary(previousAvailableLineEnd(moduleReference.declarationSourceStart - 1));
+	return this.parent.add(moduleReference, bracketBalanceValue);
+}
+
 /*
  * Record a statement
  */

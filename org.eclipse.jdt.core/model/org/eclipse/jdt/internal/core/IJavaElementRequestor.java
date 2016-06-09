@@ -15,6 +15,7 @@ import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 
 /**
  * This interface is used by IRequestorNameLookup. As results
@@ -30,6 +31,7 @@ public void acceptMemberType(IType type);
 public void acceptMethod(IMethod method);
 public void acceptPackageFragment(IPackageFragment packageFragment);
 public void acceptType(IType type);
+public void acceptModule(IModule module);
 /**
  * Returns <code>true</code> if this IJavaElementRequestor does
  * not want to receive any more results.

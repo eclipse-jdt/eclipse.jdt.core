@@ -980,8 +980,17 @@ public class NameLookup implements SuffixConstants {
 		seekTypes(name, pkg, partialMatch, acceptFlags, requestor, true);
 	}
 
-	public void seekModules(String name, JavaElementRequestor requestor) {
+	private boolean isMatching(char[] needle, char[] haystack, boolean partialMatch) {
+		return partialMatch ? CharOperation.prefixEquals(needle, haystack, false)
+				:  CharOperation.equals(needle, haystack);
+	}
+	
+	public void seekModuleReferences(String name, IJavaElementRequestor requestor) {
+		seekModule(name, true /* prefix */, requestor);
+	}
+	public void seekModule(String name, boolean prefix, IJavaElementRequestor requestor) {
 		int count= this.packageFragmentRoots.length;
+		char[] nameArray = name.toCharArray();
 		for (int i= 0; i < count; i++) {
 			if (requestor.isCanceled())
 				return;
@@ -989,7 +998,7 @@ public class NameLookup implements SuffixConstants {
 			IPackageFragmentRoot root= this.packageFragmentRoots[i];
 			IModule module = null;
 			if (root instanceof JarPackageFragmentRoot) {
-				if (!root.getElementName().equals(name)) {
+				if (!isMatching(nameArray, root.getElementName().toCharArray(), prefix)) {
 					continue;
 				}
 			} else {
@@ -1000,8 +1009,8 @@ public class NameLookup implements SuffixConstants {
 					continue;
 				}
 			}
-			if (module != null && CharOperation.equals(module.name(), name.toCharArray()))
-				requestor.acceptModuleDeclaration(module);
+			if (module != null && isMatching(nameArray, module.name(), prefix))
+				requestor.acceptModule(module);
 			else if (module == null) {
 				try {
 					IJavaElement[] compilationUnits = root.getChildren();
@@ -1019,14 +1028,17 @@ public class NameLookup implements SuffixConstants {
 						} else {
 							module = (IModule)(((SourceType)type).getElementInfo());
 						}
-						if (module != null && CharOperation.equals(module.name(), name.toCharArray()))
-							requestor.acceptModuleDeclaration(module);
+						if (module != null && isMatching(nameArray, module.name(), prefix))
+							requestor.acceptModule(module);
 					}
 				} catch (JavaModelException e) {
 					//
 				}
 			}
 		}
+	}
+	public void seekModules(String name, JavaElementRequestor requestor) {
+		seekModule(name, false, requestor);
 	}
 	/**
 	 * Notifies the given requestor of all types (classes and interfaces) in the

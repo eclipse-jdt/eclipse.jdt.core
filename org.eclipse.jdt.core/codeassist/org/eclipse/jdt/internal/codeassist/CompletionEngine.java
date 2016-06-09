@@ -565,6 +565,7 @@ public final class CompletionEngine
 	String complianceLevel;
 	SimpleSetOfCharArray validPackageNames = new SimpleSetOfCharArray(10);
 	SimpleSetOfCharArray invalidPackageNames = new SimpleSetOfCharArray(1);
+	HashtableOfObject knownModules = new HashtableOfObject(10);
 	HashtableOfObject knownPkgs = new HashtableOfObject(10);
 	HashtableOfObject knownTypes = new HashtableOfObject(10);
 	
@@ -1116,6 +1117,40 @@ public final class CompletionEngine
 		} finally {
 			this.acceptedTypes = null; // reset
 		}
+	}
+	
+	/**
+	 * One result of the search consists of a new module.
+	 *
+	 * NOTE - All module names are presented in their readable form:
+	 *    Module names are in the form "a.b.c".
+	 *    The default module is represented by an empty array.
+	 */
+	public void acceptModule(char[] moduleName) {
+		if (this.knownModules.containsKey(moduleName)) return;
+		this.knownModules.put(moduleName, this);
+		char[] completion = moduleName;
+		int relevance = computeBaseRelevance();
+		relevance += computeRelevanceForResolution();
+		relevance += computeRelevanceForInterestingProposal();
+		relevance += computeRelevanceForCaseMatching(this.qualifiedCompletionToken == null ? this.completionToken : this.qualifiedCompletionToken, moduleName);
+		relevance += computeRelevanceForQualification(true);
+		relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+		this.noProposal = false;
+		if(!this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
+			InternalCompletionProposal proposal = createProposal(CompletionProposal.MODULE_REF, this.actualCompletionPosition);
+			proposal.setModuleName(moduleName);
+			proposal.setDeclarationSignature(moduleName);
+			proposal.setCompletion(completion);
+			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+			proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
+			proposal.setRelevance(relevance);
+			this.requestor.accept(proposal);
+			if(DEBUG) {
+				this.printDebug(proposal);
+			}
+		}
+		
 	}
 
 	/**
@@ -1881,9 +1916,10 @@ public final class CompletionEngine
 								ModuleReference target = targets[j];
 								if (target == null) break;
 								if (target instanceof CompletionOnModuleReference) {
+									this.requestor.setIgnored(CompletionProposal.MODULE_REF, false); //TODO: Hack until ui fixes this issue.
 									if(!this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
 										contextAccepted = true;
-										findModules((CompletionOnModuleReference) target);//TODO: find Modules
+										findModules((CompletionOnModuleReference) target);
 									}
 									debugPrintf();
 									return;
@@ -1901,6 +1937,7 @@ public final class CompletionEngine
 							if (reference instanceof CompletionOnModuleReference) {
 								contextAccepted = true;
 								buildContext(reference, null, parsedUnit, null, null);
+								this.requestor.setIgnored(CompletionProposal.MODULE_REF, false); //TODO: Hack until ui fixes this issue.
 								if(!this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
 									findModules((CompletionOnModuleReference) reference);
 								}
@@ -10384,16 +10421,14 @@ public final class CompletionEngine
 	}
 	private void findModules(CompletionOnModuleReference moduleReference) {
 
-		//TODO: Waiting for findModules lookup implementation.
-		return;
-//		this.completionToken = CharOperation.concatWith(moduleReference.tokens, '.');
-//		if (this.completionToken.length == 0)
-//			return;
-//
-//		setSourceRange(moduleReference.sourceStart, moduleReference.sourceEnd);
-//		long completionPosition = moduleReference.sourcePositions[moduleReference.sourcePositions.length - 1];
-//		setTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
-//		this.nameEnvironment.findModules(CharOperation.toLowerCase(this.completionToken), this);
+		this.completionToken = CharOperation.concatWith(moduleReference.tokens, '.');
+		if (this.completionToken.length == 0)
+			return;
+
+		setSourceRange(moduleReference.sourceStart, moduleReference.sourceEnd);
+		long completionPosition = moduleReference.sourcePositions[moduleReference.sourcePositions.length - 1];
+		setTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
+		this.nameEnvironment.findModules(CharOperation.toLowerCase(this.completionToken), this);
 	}
 	private void findPackages(CompletionOnExportReference exportStatement) {
 
@@ -13059,6 +13094,7 @@ public final class CompletionEngine
 		super.reset(false);
 		this.validPackageNames = new SimpleSetOfCharArray(10);
 		this.invalidPackageNames = new SimpleSetOfCharArray(1);
+		this.knownModules = new HashtableOfObject(10);
 		this.knownPkgs = new HashtableOfObject(10);
 		this.knownTypes = new HashtableOfObject(10);
 		if (this.noCacheNameEnvironment != null) {

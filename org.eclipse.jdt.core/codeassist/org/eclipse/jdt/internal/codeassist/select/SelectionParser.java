@@ -43,6 +43,7 @@ import org.eclipse.jdt.internal.compiler.ast.MarkerAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
@@ -1600,5 +1601,9 @@ public  String toString() {
 	}
 	s = s + "}\n"; //$NON-NLS-1$
 	return s + super.toString();
+}
+@Override
+public ModuleReference createAssistModuleReference(char[][] tokens, long[] positions, int mod) {
+	return new SelectionOnModuleReference(tokens, positions);
 }
 }

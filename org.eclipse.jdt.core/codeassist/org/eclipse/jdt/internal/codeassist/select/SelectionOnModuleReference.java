@@ -13,35 +13,17 @@
  *     IBM Corporation - initial API and implementation
  *     
  *******************************************************************************/
-package org.eclipse.jdt.internal.codeassist.complete;
+package org.eclipse.jdt.internal.codeassist.select;
 
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 
-public class CompletionOnModuleReference extends ModuleReference implements CompletionOnKeyword {
+public class SelectionOnModuleReference extends ModuleReference {
 
-	public CompletionOnModuleReference(char[] ident, long pos) {
-		this(new char[][]{ident}, new long[]{pos});
-	}
-	public CompletionOnModuleReference(char[][] tokens, long[] sourcePositions) {
+	public SelectionOnModuleReference(char[][] tokens, long[] sourcePositions) {
 		super(tokens, sourcePositions);
 	}
-	public CompletionOnModuleReference(char[][] tokens, long[] sourcePositions, int modifiers) {
-		this(tokens, sourcePositions);
-		this.modifiers = modifiers;
-	}
-	@Override
-	public char[] getToken() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public char[][] getPossibleKeywords() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	public StringBuffer print(int indent, StringBuffer output) {
-
-		printIndent(indent, output).append("<CompleteOnModuleReference:"); //$NON-NLS-1$
+	public StringBuffer print(int tab, StringBuffer output, boolean withOnDemand) {
+		printIndent(tab, output).append("<SelectOnModuleReference:"); //$NON-NLS-1$
 		for (int i = 0; i < this.tokens.length; i++) {
 			if (i > 0) output.append('.');
 			output.append(this.tokens[i]);
