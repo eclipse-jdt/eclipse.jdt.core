@@ -484,13 +484,14 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 	}
 	public void testImportStaticProblems() {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses static imports
+		Map<String,String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
 		runNegativeTest(
 			true, // flush dir
 			new String[] {
 				"p/Z.java",
 				"package p;\n" +
 				"public class Z {\n" +
-				"	@SuppressWarnings(\"deprecation\")\n" +
 				"	public static void main(String[] args) throws Exception {\n" +
 				"		try {\n" +
 				"			Class.forName(\"X\").newInstance();\n" + // forward reference, workaround by using reflection
@@ -515,7 +516,7 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 				"class Z {}\n"
 			},
 			null, // libs
-			getCompilerOptions(),
+			options,
 			"----------\n" + 
 			"1. ERROR in X.java (at line 1)\n" + 
 			"	import static p1.Y;\n" + 

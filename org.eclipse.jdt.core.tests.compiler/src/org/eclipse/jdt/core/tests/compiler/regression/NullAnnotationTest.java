@@ -8079,6 +8079,8 @@ public void testBug457210() {
 }
 public void testBug462790() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) return; // multi catch used
+	Map<String,String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
 	runConformTestWithLibs(
 		new String[] {
 			"EclipseBug.java",
@@ -8089,7 +8091,6 @@ public void testBug462790() {
 			"		String command = (String)getCommand(commandType);\n" + 
 			"	}\n" + 
 			"	\n" + 
-			"	@SuppressWarnings({\"deprecation\"})\n" +
 			"	public static <T extends String> T getCommand(Class<T> commandType) {\n" + 
 			"		try {\n" + 
 			"			return commandType.newInstance();\n" + 
@@ -8099,27 +8100,27 @@ public void testBug462790() {
 			"	}\n" + 
 			"}"
 		},
-		getCompilerOptions(),
+		options,
 		"----------\n" + 
 		"1. WARNING in EclipseBug.java (at line 5)\n" + 
 		"	String command = (String)getCommand(commandType);\n" + 
 		"	                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unnecessary cast from capture#1-of ? extends String to String\n" + 
 		"----------\n" + 
-		"2. WARNING in EclipseBug.java (at line 9)\n" + 
+		"2. WARNING in EclipseBug.java (at line 8)\n" + 
 		"	public static <T extends String> T getCommand(Class<T> commandType) {\n" + 
 		"	                         ^^^^^^\n" + 
 		"The type parameter T should not be bounded by the final type String. Final types cannot be further extended\n" + 
 		"----------\n" +
 		(this.complianceLevel < ClassFileConstants.JDK1_8
 		?
-		"3. WARNING in EclipseBug.java (at line 11)\n" + 
+		"3. WARNING in EclipseBug.java (at line 10)\n" + 
 		"	return commandType.newInstance();\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Null type safety: The expression of type \'T\' needs unchecked conversion to conform to \'@NonNull T\'\n" + 
 		"----------\n"
 		:
-		"3. INFO in EclipseBug.java (at line 11)\n" + 
+		"3. INFO in EclipseBug.java (at line 10)\n" + 
 		"	return commandType.newInstance();\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull Class<T extends @NonNull String>\'. Type \'Class<T>\' doesn\'t seem to be designed with null type annotations in mind\n" + 

@@ -5850,6 +5850,8 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=101049
 	public void test070() {
+		Map<String,String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
 		this.runConformTest(
 			true,
 			new String[] {
@@ -5858,14 +5860,13 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 				"	<U extends T> U create(Class<U> c);\n" +
 				"}\n" +
 				"public class BooleanFactory implements Factory<Boolean> {\n" +
-				"	@SuppressWarnings({\"deprecation\"})\n" +
 				"	public <U extends Boolean> U create(Class<U> c) {\n" +
 				"		try { return c.newInstance(); } catch(Exception e) { return null; }\n" +
 				"	}\n" +
 				"}\n"
-			},
+			}, null, options,
 			"----------\n" +
-			"1. WARNING in BooleanFactory.java (at line 6)\n" +
+			"1. WARNING in BooleanFactory.java (at line 5)\n" +
 			"	public <U extends Boolean> U create(Class<U> c) {\n" +
 			"	                  ^^^^^^^\n" +
 			"The type parameter U should not be bounded by the final type Boolean. Final types cannot be further extended\n" +

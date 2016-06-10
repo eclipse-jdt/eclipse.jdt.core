@@ -5096,19 +5096,20 @@ public void testDefault02_bin() {
 
 //apply null default to return type - annotation at method:
 public void testDefault03_bin() {
+	Map<String,String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
 	runConformTestWithLibs(
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"public class X {\n" +
 			"	@NonNullByDefault(DefaultLocation.RETURN_TYPE)\n" +
-			"	@SuppressWarnings(\"deprecation\")\n" +
 			"	Number test(Number in) {\n" +
 			"		return new Integer(13);\n" +
 			"	}\n" +
 			"}\n"
 		},
-		getCompilerOptions(),
+		options,
 		"");
 	runConformTestWithLibs(
 		new String[] {
@@ -5120,12 +5121,14 @@ public void testDefault03_bin() {
 			"	}\n" +
 			"}\n"
 		},
-		getCompilerOptions(),
+		options,
 		"");
 }
 
 // apply null default to field - also test mixing of explicit annotation with default @NonNull (other annot is not rendered in error)
 public void testDefault04_bin() {
+	Map<String,String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
 	runConformTestWithLibs(
 		new String[] {
 			"X.java",
@@ -5134,11 +5137,10 @@ public void testDefault04_bin() {
 			"@Target(ElementType.TYPE_USE) @Retention(RetentionPolicy.CLASS) @interface Important {}\n" +
 			"@NonNullByDefault(DefaultLocation.FIELD)\n" +
 			"public class X {\n" +
-			"	@SuppressWarnings(\"deprecation\")\n" +
 			"	@Important Number field = new Double(1.1);\n" +
 			"}\n"
 		},
-		getCompilerOptions(),
+		options,
 		"");
 	runNegativeTestWithLibs(
 		new String[] {
@@ -5159,20 +5161,21 @@ public void testDefault04_bin() {
 
 // default default
 public void testDefault05_bin() {
+	Map<String,String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
 	runConformTestWithLibs(
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"@NonNullByDefault\n" +
 			"public class X {\n" +
-			"@SuppressWarnings(\"deprecation\")\n" +
 			"	Number field = new Long(13);\n" +
 			"	void test1(Number[] ns) {\n" +
 			"		ns[0] = null; // OK since not affected by default\n" +
 			"	}\n" +
 			"}\n"
 		},
-		getCompilerOptions(),
+		options,
 		"");
 	runNegativeTestWithLibs(
 		new String[] {
@@ -9019,11 +9022,11 @@ public void testBug481322a() {
 public void testBug477719() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportNonNullTypeVariableFromLegacyInvocation, CompilerOptions.IGNORE);
+	compilerOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
 	runConformTestWithLibs(
 		new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
-			"@SuppressWarnings({\"deprecation\"})\n" +
 			"public class X {\n" +
 			"	@NonNull Number instantiate(@NonNull Class<? extends @NonNull Number> c) throws Exception {\n" +
 			"		return c.newInstance();\n" +

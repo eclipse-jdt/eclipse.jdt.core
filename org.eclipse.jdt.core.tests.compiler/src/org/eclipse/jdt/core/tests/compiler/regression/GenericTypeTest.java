@@ -7282,12 +7282,14 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// 69776 - variation
 	public void test0242() {
+		Map<String,String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
 				"import java.util.HashMap;\n" +
 				"import java.util.Map;\n" +
-				"@SuppressWarnings({\"rawtypes\", \"deprecation\"})\n" +
+				"@SuppressWarnings({\"rawtypes\"})\n" +
 				"public class X {\n" +
 				"    private static final Map<String, Class> classes = new HashMap<String, Class>();\n" +
 				"    public static void main(String[] args) throws Exception {\n" +
@@ -7329,7 +7331,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			"	final Class<String> clazz3 = (Class<String>) classes.get(\"test\");\n" +
 			"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Unnecessary cast from Class to Class<String>\n" +
-			"----------\n");
+			"----------\n", 
+			null, true, options );
 	}
 	public void test0243() {
 		this.runConformTest(
