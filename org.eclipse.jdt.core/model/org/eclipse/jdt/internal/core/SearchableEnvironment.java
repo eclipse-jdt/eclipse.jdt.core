@@ -172,10 +172,10 @@ public class SearchableEnvironment extends ModuleEnvironment
 	 * The packages found are passed to:
 	 *    ISearchRequestor.acceptModule(char[][] moduleName)
 	 */
-	public void findModules(char[] prefix, ISearchRequestor requestor) {
+	public void findModules(char[] prefix, ISearchRequestor requestor, IJavaProject javaProject) {
 		this.nameLookup.seekModuleReferences(
-			new String(prefix),
-			new SearchableEnvironmentRequestor(requestor));
+				new String(prefix),
+				new SearchableEnvironmentRequestor(requestor), javaProject);
 	}
 
 	/**

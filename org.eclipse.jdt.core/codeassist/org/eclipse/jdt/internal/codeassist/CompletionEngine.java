@@ -1916,10 +1916,11 @@ public final class CompletionEngine
 								ModuleReference target = targets[j];
 								if (target == null) break;
 								if (target instanceof CompletionOnModuleReference) {
+									buildContext(target, null, parsedUnit, null, null);
 									this.requestor.setIgnored(CompletionProposal.MODULE_REF, false); //TODO: Hack until ui fixes this issue.
 									if(!this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
 										contextAccepted = true;
-										findModules((CompletionOnModuleReference) target);
+										findModules((CompletionOnModuleReference) target, true /* targetted */);
 									}
 									debugPrintf();
 									return;
@@ -1939,7 +1940,7 @@ public final class CompletionEngine
 								buildContext(reference, null, parsedUnit, null, null);
 								this.requestor.setIgnored(CompletionProposal.MODULE_REF, false); //TODO: Hack until ui fixes this issue.
 								if(!this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
-									findModules((CompletionOnModuleReference) reference);
+									findModules((CompletionOnModuleReference) reference, false /* targetted */);
 								}
 								debugPrintf();
 								return;
@@ -10419,7 +10420,7 @@ public final class CompletionEngine
 			this.printDebug(proposal);
 		}
 	}
-	private void findModules(CompletionOnModuleReference moduleReference) {
+	private void findModules(CompletionOnModuleReference moduleReference, boolean targetted) {
 
 		this.completionToken = CharOperation.concatWith(moduleReference.tokens, '.');
 		if (this.completionToken.length == 0)
@@ -10428,7 +10429,7 @@ public final class CompletionEngine
 		setSourceRange(moduleReference.sourceStart, moduleReference.sourceEnd);
 		long completionPosition = moduleReference.sourcePositions[moduleReference.sourcePositions.length - 1];
 		setTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
-		this.nameEnvironment.findModules(CharOperation.toLowerCase(this.completionToken), this);
+		this.nameEnvironment.findModules(CharOperation.toLowerCase(this.completionToken), this, targetted ? this.javaProject : null);
 	}
 	private void findPackages(CompletionOnExportReference exportStatement) {
 

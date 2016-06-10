@@ -5714,6 +5714,14 @@ protected void consumeSingleExportsTargetName() {
 	impt.declarationEnd = impt.declarationSourceEnd;
 //	//this.endPosition is just before the ;
 //	impt.declarationSourceStart = this.intStack[this.intPtr--];
+	// recovery - TBD
+	if (this.currentElement != null){
+		this.lastCheckPoint = impt.declarationSourceEnd+1;
+		this.currentElement = this.currentElement.add(impt, 0);
+		this.lastIgnoredToken = -1;
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton
+	}
+
 }
 protected void consumeExportTarget() {
 	int length = this.astLengthStack[this.astLengthPtr--];

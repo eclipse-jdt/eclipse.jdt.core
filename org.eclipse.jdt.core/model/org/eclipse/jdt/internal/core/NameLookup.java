@@ -34,6 +34,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
@@ -985,8 +986,67 @@ public class NameLookup implements SuffixConstants {
 				:  CharOperation.equals(needle, haystack);
 	}
 	
-	public void seekModuleReferences(String name, IJavaElementRequestor requestor) {
-		seekModule(name, true /* prefix */, requestor);
+	/**
+	 * Assumption is that project dependencies are setup already so that the required projects of a 
+	 * given project will include this project - module search will be done only in those projects.
+	 * Note that this does not check for cycles in module dependency graph.
+	 * @param name
+	 * @param requestor
+	 * @param javaProject
+	 */
+	public void seekTargettedModuleReferences(String name, IJavaElementRequestor requestor, IJavaProject javaProject) {
+		//seekModule(name, true /* prefix */, requestor);
+		List<IJavaProject> dependentJavaProjects = new ArrayList<>();
+		String myName = javaProject.getElementName();
+		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
+		for (IProject project : projects) {
+			if (!JavaProject.hasJavaNature(project)) continue;
+			IJavaProject jProject = JavaCore.create (project);
+			if (jProject.equals(javaProject)) continue;
+			try {
+				String[] requiredPojects = jProject.getRequiredProjectNames();
+				for (String s : requiredPojects) {
+					if (s == null) continue;
+					if (s.equals(myName)) {
+						dependentJavaProjects.add(jProject);
+						break;
+					}
+				}
+			} catch (JavaModelException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if (dependentJavaProjects.isEmpty()) return;
+		// At this point we have all the projects dependent on this project.
+		
+		for (IJavaProject jP : dependentJavaProjects) {
+			try {
+				if (!jP.isOpen()) continue;
+				IPackageFragmentRoot[] roots = jP.getPackageFragmentRoots();
+				for (IPackageFragmentRoot root : roots) {
+					if (root instanceof JarPackageFragmentRoot)  continue; // TODO: Add support for JPFRs?
+					root.open(null);
+					PackageFragmentRootInfo pFRI = ((PackageFragmentRootInfo) ((PackageFragmentRoot) root).getElementInfo());
+					IModule module = pFRI.getModule();
+					if (module == null) continue;
+					char[] moduleName = module.name();
+					if (moduleName == null || moduleName.equals(CharOperation.NO_CHAR) || moduleName.equals(ModuleEnvironment.UNNAMED)) continue;
+					requestor.acceptModule(module);
+				}
+			} catch (JavaModelException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+	public void seekModuleReferences(String name, IJavaElementRequestor requestor, IJavaProject javaProject) {
+		if (javaProject != null) {
+			seekTargettedModuleReferences(name, requestor, javaProject);			
+		} else {
+			seekModule(name, true /* prefix */, requestor);
+		}
 	}
 	public void seekModule(String name, boolean prefix, IJavaElementRequestor requestor) {
 		int count= this.packageFragmentRoots.length;

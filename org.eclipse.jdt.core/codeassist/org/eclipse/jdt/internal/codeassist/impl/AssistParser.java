@@ -1036,6 +1036,51 @@ protected void consumeSingleExportsPkgName() {
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
+protected void consumeSingleExportsTargetName() {
+	int index;
+	/* no need to take action if not inside assist identifiers */
+	if ((index = indexOfAssistIdentifier()) < 0) {
+		super.consumeSingleExportsTargetName();
+		return;
+	}
+	/* retrieve identifiers subset and whole positions, the assist node positions
+	should include the entire replaced source. */
+	int length = this.identifierLengthStack[this.identifierLengthPtr];
+	char[][] subset = identifierSubSet(index+1); // include the assistIdentifier
+	this.identifierLengthPtr--;
+	this.identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(
+			this.identifierPositionStack,
+			this.identifierPtr + 1,
+			positions,
+			0,
+			length);
+		
+	/* build specific assist node on targetted exports statement */
+	ModuleReference reference = createAssistModuleReference(subset, positions, 0 /* no modifiers */);
+	this.assistNode = reference;
+	this.lastCheckPoint = reference.sourceEnd + 1;
+	pushOnAstStack(reference);
+
+	reference.declarationSourceEnd = reference.sourceEnd;
+	reference.declarationEnd = reference.declarationSourceEnd;
+	reference.declarationSourceStart = reference.sourceStart;
+//	if (this.currentToken == TokenNameSEMICOLON){
+//		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
+//	} else {
+//	}
+//	//this.endPosition is just before the ;
+//	impt.declarationSourceStart = this.intStack[this.intPtr--];
+	// recovery - TBD
+	if (this.currentElement != null){
+		this.lastCheckPoint = reference.declarationSourceEnd+1;
+		this.currentElement = this.currentElement.add(reference, 0);
+		this.lastIgnoredToken = -1;
+		this.restartRecovery = true; // used to avoid branching back into the regular automaton
+	}
+
+}
 protected void consumeSingleRequiresModuleName() {
 
 	int index = indexOfAssistIdentifier();
