@@ -1183,7 +1183,7 @@ public class CompletionProposal {
 	}
 
 	/**
-	 * Returns the type signature or package name of the relevant
+	 * Returns the type signature or package name or module name (1.9) of the relevant
 	 * declaration in the context, or <code>null</code> if none.
 	 * <p>
 	 * This field is available for the following kinds of
@@ -1208,6 +1208,8 @@ public class CompletionProposal {
 	 * 	<li><code>METHOD_DECLARATION</code> - type signature
 	 * of the type that declares the method that is being
 	 * implemented or overridden</li>
+	 * 	<li><code>MODULE_REF</code> - 
+	 * name of the module that is referenced</li>
 	 * 	<li><code>PACKAGE_REF</code> - dot-based package
 	 * name of the package that is referenced</li>
 	 * 	<li><code>TYPE_IMPORT</code> - dot-based package
@@ -1222,7 +1224,7 @@ public class CompletionProposal {
 	 * returned.
 	 * </p>
 	 *
-	 * @return a type signature or a package name (depending
+	 * @return a type signature or a package name or module name (1.9) (depending
 	 * on the kind of completion), or <code>null</code> if none
 	 * @see Signature
 	 */
