@@ -762,6 +762,12 @@ class DefaultBindingResolver extends BindingResolver {
 				case ASTNode.SINGLE_MEMBER_ANNOTATION :
 					org.eclipse.jdt.internal.compiler.ast.Expression compilerExpression = (org.eclipse.jdt.internal.compiler.ast.Expression) this.newAstToOldAst.get(expression);
 					if (compilerExpression != null) {
+						if (compilerExpression.resolvedType == null && compilerExpression instanceof MessageSend) {
+							// in case of compile error fetch the type from the method binding:
+							org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding = ((MessageSend) compilerExpression).binding;
+							if (methodBinding != null && methodBinding.problemId() != ProblemReasons.Ambiguous)
+								return this.getTypeBinding(methodBinding.returnType);
+						}
 						return this.getTypeBinding(compilerExpression.resolvedType);
 					}
 					break;

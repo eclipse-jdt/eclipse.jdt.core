@@ -10804,4 +10804,46 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			sourceUnit.discardWorkingCopy();
 		}
 	}
+
+	public void testBug494856() throws JavaModelException {
+		ICompilationUnit workingCopy = null;
+		try {
+			String contents =
+				"package one.two;\n" +
+				"import java.util.Collections;\n" +
+				"import java.util.List;\n" +
+				"\n" +
+				"public class Test {\n" +
+				"\n" +
+				"    public void method() {\n" +
+				"        List<String> strings1 = strings().toArray(new String[0]);\n" +
+				"    }\n" +
+				"\n" +
+				"    public List<String> strings() {\n" +
+				"        return Collections.emptyList();\n" +
+				"    }\n" +
+				"}";
+			workingCopy = getWorkingCopy("/Converter18/src/one/two/Test.java", true/*resolve*/);
+			CompilationUnit unit = (CompilationUnit) buildAST(
+				AST.JLS8,
+				contents,
+				workingCopy,
+				false, // tolerate compile error
+				true,
+				true);
+			assertEquals("Expected 1 error", 1, unit.getProblems().length);
+			TypeDeclaration type = (TypeDeclaration) unit.types().get(0);
+			MethodDeclaration methodDeclaration = type.getMethods()[0];
+			VariableDeclarationStatement statement = (VariableDeclarationStatement) methodDeclaration.getBody().statements().get(0);
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) statement.fragments().get(0);
+			Expression expr = fragment.getInitializer();
+			ITypeBinding resolveTypeBinding = expr.resolveTypeBinding();
+			assertNotNull("No Binding", resolveTypeBinding);
+			assertEquals("Wrong type", "String[]", resolveTypeBinding.getName());
+		} finally {
+			if (workingCopy != null) {
+				workingCopy.discardWorkingCopy();
+			}
+		}
+	}
 }
