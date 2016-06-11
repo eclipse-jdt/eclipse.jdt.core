@@ -37,8 +37,8 @@ import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 public class JavaIndex {
 	// Version constants
 	static final int CURRENT_VERSION = Nd.version(1, 29);
-	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 30);
-	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 30);
+	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 29);
+	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 29);
 
 	// Fields for the search header
 	public static final FieldSearchIndex<NdResourceFile> FILES;
@@ -47,6 +47,8 @@ public class JavaIndex {
 	public static final FieldSearchIndex<NdMethodId> METHODS;
 
 	public static final StructDef<JavaIndex> type;
+
+	private static final boolean ENABLED;
 
 	static {
 		type = StructDef.create(JavaIndex.class);
@@ -58,6 +60,8 @@ public class JavaIndex {
 
 		// This struct needs to fit within the first database chunk.
 		assert type.getFactory().getRecordSize() <= Database.CHUNK_SIZE;
+
+		ENABLED = !System.getProperty("jdt.newindex").equals("0"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	private final static class BestResourceFile implements FieldSearchIndex.IResultRank {
@@ -194,7 +198,8 @@ public class JavaIndex {
 	}
 
 	public static boolean isEnabled() {
-		return !Platform.getPreferencesService().getBoolean(JavaCore.PLUGIN_ID, "disableNewJavaIndex", false, //$NON-NLS-1$
+		// We allow the new index to be enabled either via a preference or via a system property
+		return ENABLED || Platform.getPreferencesService().getBoolean("org.eclipse.jdt.ui", "enableNewJavaIndex", false, //$NON-NLS-1$ //$NON-NLS-2$
 				null);
 	}
 
