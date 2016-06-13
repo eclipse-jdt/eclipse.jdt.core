@@ -60,7 +60,7 @@ public class PackageBindingTest extends AbstractCompilerTest
 	}
 
 	/**
-	 * This test checks if {@link INameEnvironment#findType(char[], char[][])} is executed.
+	 * This test checks if {@link INameEnvironment#findType(char[], char[][], char[])} is executed.
 	 * INameEnvironment has no option to avoid the search for secondary types, therefore the search for secondary types is executed (when available).
 	 */
 	public void test03() {
