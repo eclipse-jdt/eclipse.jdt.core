@@ -2599,8 +2599,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 	private int generateModuleAttribute() {
 		ModuleDeclaration module = (ModuleDeclaration)this.referenceBinding.scope.referenceContext;
 		int localContentsOffset = this.contentsOffset;
-		if (localContentsOffset + 18 >= this.contents.length) {
-			resizeContents(18);
+		if (localContentsOffset + 6 >= this.contents.length) {
+			resizeContents(6);
 		}
 		int moduleAttributeNameIndex =
 			this.constantPool.literalIndex(AttributeNamesConstants.ModuleName);
@@ -2616,6 +2616,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 	    	} requires[requires_count];
 	    **/
 		int requiresCountOffset = localContentsOffset;
+		int requiresSize = 2 + module.requiresCount * 4;
+		if (localContentsOffset + requiresSize >= this.contents.length) {
+			resizeContents(requiresSize);
+		}
 		localContentsOffset += 2;
 		boolean javabaseSeen = false;
 		for(int i = 0; i < module.requiresCount; i++) {
@@ -2631,6 +2635,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.contents[localContentsOffset++] = (byte) (flags);
 		}
 		if (!javabaseSeen) {
+			if (localContentsOffset + 4 >= this.contents.length) {
+				resizeContents(4);
+			}
 			int javabase_index = this.constantPool.literalIndex(TypeConstants.JAVA_BASE);
 			this.contents[localContentsOffset++] = (byte) (javabase_index >> 8);
 			this.contents[localContentsOffset++] = (byte) (javabase_index);
@@ -2652,6 +2659,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 		 *     u2 exports_to_index[exports_to_count];
 		 * } exports[exports_count];
 		 */
+		int exportsSize = 2 + module.exportsCount * 4;
+		if (localContentsOffset + exportsSize >= this.contents.length) {
+			resizeContents(exportsSize);
+		}
 		this.contents[localContentsOffset++] = (byte) (module.exportsCount >> 8);
 		this.contents[localContentsOffset++] = (byte) module.exportsCount;
 		for (int i = 0; i < module.exportsCount; i++) {
@@ -2664,15 +2675,19 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.contents[localContentsOffset++] = (byte) (exportsToCount >> 8);
 			this.contents[localContentsOffset++] = (byte) (exportsToCount);
 			if (exportsToCount > 0) {
+				int targetSize = 2 * exportsToCount;
+				if (localContentsOffset + targetSize >= this.contents.length) {
+					resizeContents(targetSize);
+				}
 				for(int j = 0; j < exportsToCount; j++) {
 					nameIndex = this.constantPool.literalIndex(ref.targets[j].moduleName);
 					this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 					this.contents[localContentsOffset++] = (byte) (nameIndex);
 				}
-				attrLength += 2 * exportsToCount;
+				attrLength += targetSize;
 			}
 		}
-		attrLength += 2 + 4 * module.exportsCount;
+		attrLength += exportsSize;
 		// ================= end exports section =================
 
 		// ================= uses section =================
@@ -2680,6 +2695,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 		 * u2 uses_count;
 		 * u2 uses_index[uses_count];
 		 */
+		int usesSize = 2 + 2 * module.usesCount;
+		if (localContentsOffset + usesSize >= this.contents.length) {
+			resizeContents(usesSize);
+		}
 		this.contents[localContentsOffset++] = (byte) (module.usesCount >> 8);
 		this.contents[localContentsOffset++] = (byte) module.usesCount;
 		for(int i = 0; i < module.usesCount; i++) {
@@ -2687,7 +2706,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) (nameIndex);
 		}
-		attrLength += 2 + 2 * module.usesCount;
+		attrLength += usesSize;
 		// ================= end uses section =================
 
 		// ================= provides section =================
@@ -2697,6 +2716,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 		 *     u2 with_index;
 		 * } provides[provides_count];
 		 */
+		int servicesSize = 2 + 4 * module.servicesCount;
+		if (localContentsOffset + servicesSize >= this.contents.length) {
+			resizeContents(servicesSize);
+		}
 		this.contents[localContentsOffset++] = (byte) (module.servicesCount >> 8);
 		this.contents[localContentsOffset++] = (byte) module.servicesCount;
 		for(int i = 0; i < module.servicesCount; i++) {
@@ -2707,7 +2730,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) (nameIndex);
 		}
-		attrLength += 2 + 4 * module.servicesCount;
+		attrLength += servicesSize;
 		// ================= end provides section =================
 
 		this.contents[attrLengthOffset++] = (byte)(attrLength >> 24);
