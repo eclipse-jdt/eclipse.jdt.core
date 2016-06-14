@@ -1,5 +1,6 @@
 package org.eclipse.jdt.internal.core.nd.java;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -47,6 +48,20 @@ public class NdTypeId extends NdTypeSignature {
 		char[] simpleName = JavaNames.fieldDescriptorToJavaName(fieldDescriptor, false);
 		FIELD_DESCRIPTOR.put(nd, this.address, fieldDescriptor);
 		SIMPLE_NAME.put(nd, this.address, simpleName);
+	}
+
+	@Override
+	public List<NdType> getSubTypes() {
+		List<NdType> result = new ArrayList<>();
+		result.addAll(super.getSubTypes());
+		for (NdComplexTypeSignature next : getComplexTypes()) {
+			result.addAll(next.getSubTypes());
+		}
+		return result;
+	}
+
+	public List<NdComplexTypeSignature> getComplexTypes() {
+		return USED_AS_COMPLEX_TYPE.asList(getNd(), this.address);
 	}
 
 	public NdType findTypeByResourceAddress(long resourceAddress) {
