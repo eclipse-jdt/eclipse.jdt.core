@@ -109,28 +109,28 @@ public final class Indexer {
 		}
 
 		// Gather all the IPackageFragmentRoots in the workspace
-		List<IJavaElement> unfilteredRoots = getAllIndexableObjectsInWorkspace(subMonitor.split(3));
+		List<IJavaElement> unfilteredIndexables = getAllIndexableObjectsInWorkspace(subMonitor.split(3));
 
-		int totalRoots = unfilteredRoots.size();
-		// Remove all duplicate roots (jars which are referenced by more than one project)
-		Map<IPath, List<IJavaElement>> allRoots = removeDuplicatePaths(unfilteredRoots);
+		int totalRoots = unfilteredIndexables.size();
+		// Remove all duplicate indexables (jars which are referenced by more than one project)
+		Map<IPath, List<IJavaElement>> allIndexables = removeDuplicatePaths(unfilteredIndexables);
 
 		long startGarbageCollectionNs = System.nanoTime();
 
 		// Remove all files in the index which aren't referenced in the workspace
-		int gcFiles = cleanGarbage(currentTimeMs, allRoots.keySet(), subMonitor.split(4));
+		int gcFiles = cleanGarbage(currentTimeMs, allIndexables.keySet(), subMonitor.split(4));
 
 		long startFingerprintTestNs = System.nanoTime();
 
-		Map<IPath, FingerprintTestResult> fingerprints = testFingerprints(allRoots.keySet(), subMonitor.split(7));
-		Set<IPath> rootsWithChanges = new HashSet<>(getRootsThatHaveChanged(allRoots.keySet(), fingerprints));
+		Map<IPath, FingerprintTestResult> fingerprints = testFingerprints(allIndexables.keySet(), subMonitor.split(7));
+		Set<IPath> rootsWithChanges = new HashSet<>(getRootsThatHaveChanged(allIndexables.keySet(), fingerprints));
 
 		long startIndexingNs = System.nanoTime();
 
 		int classesIndexed = 0;
 		SubMonitor loopMonitor = subMonitor.split(80).setWorkRemaining(rootsWithChanges.size());
 		for (IPath next : rootsWithChanges) {
-			classesIndexed += rescanArchive(currentTimeMs, next, allRoots.get(next), fingerprints.get(next).getNewFingerprint(),
+			classesIndexed += rescanArchive(currentTimeMs, next, allIndexables.get(next), fingerprints.get(next).getNewFingerprint(),
 					loopMonitor.split(1));
 		}
 
@@ -138,9 +138,9 @@ public final class Indexer {
 
 		Map<IPath, List<IJavaElement>> pathsToUpdate = new HashMap<>();
 
-		for (IPath next : allRoots.keySet()) {
+		for (IPath next : allIndexables.keySet()) {
 			if (!rootsWithChanges.contains(next)) {
-				pathsToUpdate.put(next, allRoots.get(next));
+				pathsToUpdate.put(next, allIndexables.get(next));
 				continue;
 			}
 		}
@@ -167,7 +167,7 @@ public final class Indexer {
 
 		double averageGcTimeMs = gcFiles == 0 ? 0 : (double)garbageCollectionMs / (double)gcFiles;
 		double averageIndexTimeMs = classesIndexed == 0 ? 0 : (double)indexingTimeMs / (double)classesIndexed;
-		double averageFingerprintTimeMs = allRoots.size() == 0 ? 0 : (double)fingerprintTimeMs / (double)allRoots.size();
+		double averageFingerprintTimeMs = allIndexables.size() == 0 ? 0 : (double)fingerprintTimeMs / (double)allIndexables.size();
 		double averageResourceMappingMs = pathsToUpdate.size() == 0 ? 0 : (double)resourceMappingTimeMs / (double)pathsToUpdate.size();
 
 		if (DEBUG_TIMING) {
@@ -175,7 +175,7 @@ public final class Indexer {
 					"Indexing done.\n" //$NON-NLS-1$
 					+ "  Located " + totalRoots + " roots in " + locateRootsTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					+ "  Collected garbage from " + gcFiles + " files in " +  garbageCollectionMs + "ms, average time = " + averageGcTimeMs + "ms\n" //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
-					+ "  Tested " + allRoots.size() + " fingerprints in " + fingerprintTimeMs + "ms, average time = " + averageFingerprintTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					+ "  Tested " + allIndexables.size() + " fingerprints in " + fingerprintTimeMs + "ms, average time = " + averageFingerprintTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					+ "  Indexed " + classesIndexed + " classes in " + indexingTimeMs + "ms, average time = " + averageIndexTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					+ "  Updated " + pathsToUpdate.size() + " paths in " + resourceMappingTimeMs + "ms, average time = " + averageResourceMappingMs + "ms\n"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 		}
@@ -251,21 +251,24 @@ public final class Indexer {
 		}
 	}
 
-	private int cleanGarbage(long currentTimeMillis, Collection<IPath> allRootLocations, IProgressMonitor monitor) {
-		// TODO: lazily clean up unneeded files here... but only do so if we're under heavy space pressure
-		// or it's been a long time since the file was last scanned. Being too eager about removing old files
-		// means that operations which temporarily cause a file to become unreferenced will run really slowly
-
-		// We should also eagerly clean up any partially-indexed files we discover during the scan. That is,
-		// if we discover a file with a timestamp of 0, it indicates that the indexer or all of Eclipse crashed
-		// midway through indexing the file. Such garbage should be cleaned up as soon as possible, since it
-		// will never be useful.
-
+	/**
+	 * Clean up unneeded files here, but only do so if it's been a long time since the file was last referenced. Being
+	 * too eager about removing old files means that operations which temporarily cause a file to become unreferenced
+	 * will run really slowly. also eagerly clean up any partially-indexed files we discover during the scan. That is,
+	 * if we discover a file with a timestamp of 0, it indicates that the indexer or all of Eclipse crashed midway
+	 * through indexing the file. Such garbage should be cleaned up as soon as possible, since it will never be useful.
+	 *
+	 * @param currentTimeMillis timestamp of the time at which the indexing operation started
+	 * @param allIndexables list of all referenced java roots
+	 * @param monitor progress monitor
+	 * @return the number of indexables in the index, prior to garbage collection
+	 */
+	private int cleanGarbage(long currentTimeMillis, Collection<IPath> allIndexables, IProgressMonitor monitor) {
 		JavaIndex index = JavaIndex.getIndex(this.nd);
 
 		int result = 0; 
 		HashSet<IPath> paths = new HashSet<>();
-		paths.addAll(allRootLocations);
+		paths.addAll(allIndexables);
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 3);
 
 		List<NdResourceFile> garbage = new ArrayList<>();
