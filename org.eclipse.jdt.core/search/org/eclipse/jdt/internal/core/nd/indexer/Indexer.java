@@ -111,7 +111,7 @@ public final class Indexer {
 		// Gather all the IPackageFragmentRoots in the workspace
 		List<IJavaElement> unfilteredIndexables = getAllIndexableObjectsInWorkspace(subMonitor.split(3));
 
-		int totalRoots = unfilteredIndexables.size();
+		int totalIndexables = unfilteredIndexables.size();
 		// Remove all duplicate indexables (jars which are referenced by more than one project)
 		Map<IPath, List<IJavaElement>> allIndexables = removeDuplicatePaths(unfilteredIndexables);
 
@@ -123,13 +123,13 @@ public final class Indexer {
 		long startFingerprintTestNs = System.nanoTime();
 
 		Map<IPath, FingerprintTestResult> fingerprints = testFingerprints(allIndexables.keySet(), subMonitor.split(7));
-		Set<IPath> rootsWithChanges = new HashSet<>(getRootsThatHaveChanged(allIndexables.keySet(), fingerprints));
+		Set<IPath> indexablesWithChanges = new HashSet<>(getIndexablesThatHaveChanged(allIndexables.keySet(), fingerprints));
 
 		long startIndexingNs = System.nanoTime();
 
 		int classesIndexed = 0;
-		SubMonitor loopMonitor = subMonitor.split(80).setWorkRemaining(rootsWithChanges.size());
-		for (IPath next : rootsWithChanges) {
+		SubMonitor loopMonitor = subMonitor.split(80).setWorkRemaining(indexablesWithChanges.size());
+		for (IPath next : indexablesWithChanges) {
 			classesIndexed += rescanArchive(currentTimeMs, next, allIndexables.get(next), fingerprints.get(next).getNewFingerprint(),
 					loopMonitor.split(1));
 		}
@@ -139,7 +139,7 @@ public final class Indexer {
 		Map<IPath, List<IJavaElement>> pathsToUpdate = new HashMap<>();
 
 		for (IPath next : allIndexables.keySet()) {
-			if (!rootsWithChanges.contains(next)) {
+			if (!indexablesWithChanges.contains(next)) {
 				pathsToUpdate.put(next, allIndexables.get(next));
 				continue;
 			}
@@ -155,12 +155,12 @@ public final class Indexer {
 			this.nd.releaseWriteLock();
 		}
 
-		fireDelta(rootsWithChanges, subMonitor.split(1));
+		fireDelta(indexablesWithChanges, subMonitor.split(1));
 
 		long endResourceMappingNs = System.nanoTime();
 
 		long fingerprintTimeMs = (startIndexingNs - startFingerprintTestNs) / MS_TO_NS;
-		long locateRootsTimeMs = (startGarbageCollectionNs - startTimeNs) / MS_TO_NS;
+		long locateIndexablesTimeMs = (startGarbageCollectionNs - startTimeNs) / MS_TO_NS;
 		long garbageCollectionMs = (startFingerprintTestNs - startGarbageCollectionNs) / MS_TO_NS;
 		long indexingTimeMs = (endIndexingNs - startIndexingNs) / MS_TO_NS;
 		long resourceMappingTimeMs = (endResourceMappingNs - endIndexingNs) / MS_TO_NS;
@@ -173,7 +173,7 @@ public final class Indexer {
 		if (DEBUG_TIMING) {
 			Package.logInfo(
 					"Indexing done.\n" //$NON-NLS-1$
-					+ "  Located " + totalRoots + " roots in " + locateRootsTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					+ "  Located " + totalIndexables + " indexables in " + locateIndexablesTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					+ "  Collected garbage from " + gcFiles + " files in " +  garbageCollectionMs + "ms, average time = " + averageGcTimeMs + "ms\n" //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 					+ "  Tested " + allIndexables.size() + " fingerprints in " + fingerprintTimeMs + "ms, average time = " + averageFingerprintTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					+ "  Indexed " + classesIndexed + " classes in " + indexingTimeMs + "ms, average time = " + averageIndexTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -187,7 +187,7 @@ public final class Indexer {
 		}
 	}
 
-	private void fireDelta(Set<IPath> rootsWithChanges, IProgressMonitor monitor) {
+	private void fireDelta(Set<IPath> indexablesWithChanges, IProgressMonitor monitor) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
 		IProject[] projects = this.root.getProjects();
 
@@ -213,7 +213,7 @@ public final class Indexer {
 						if (next.isArchive()) {
 							IPath location = JavaIndex.getLocationForElement(next);
 
-							if (rootsWithChanges.contains(location)) {
+							if (indexablesWithChanges.contains(location)) {
 								delta.changed(next,
 										IJavaElementDelta.F_CONTENT | IJavaElementDelta.F_ARCHIVE_CONTENT_CHANGED);
 							}
@@ -330,11 +330,11 @@ public final class Indexer {
 		return result;
 	}
 
-	private Map<IPath, List<IJavaElement>> removeDuplicatePaths(List<IJavaElement> allRoots) {
+	private Map<IPath, List<IJavaElement>> removeDuplicatePaths(List<IJavaElement> allIndexables) {
 		Map<IPath, List<IJavaElement>> paths = new HashMap<>();
 
 		HashSet<IPath> workspacePaths = new HashSet<IPath>();
-		for (IJavaElement next : allRoots) {
+		for (IJavaElement next : allIndexables) {
 			IPath nextPath = JavaIndex.getLocationForElement(next);
 			IPath workspacePath = getWorkspacePathForRoot(next);
 
@@ -369,12 +369,12 @@ public final class Indexer {
 		return Path.EMPTY;
 	}
 
-	private Map<IPath, FingerprintTestResult> testFingerprints(Collection<IPath> allRoots,
+	private Map<IPath, FingerprintTestResult> testFingerprints(Collection<IPath> allIndexables,
 			IProgressMonitor monitor) throws CoreException {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, allRoots.size());
+		SubMonitor subMonitor = SubMonitor.convert(monitor, allIndexables.size());
 		Map<IPath, FingerprintTestResult> result = new HashMap<>();
 
-		for (IPath next : allRoots) {
+		for (IPath next : allIndexables) {
 			result.put(next, testForChanges(next, subMonitor.split(1)));
 		}
 
@@ -549,7 +549,7 @@ public final class Indexer {
 
 	private List<IJavaElement> getAllIndexableObjectsInWorkspace(IProgressMonitor monitor) throws CoreException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
-		List<IJavaElement> allRoots = new ArrayList<>();
+		List<IJavaElement> allIndexables = new ArrayList<>();
 		IProject[] projects = this.root.getProjects();
 
 		List<IProject> projectsToScan = new ArrayList<>();
@@ -599,12 +599,12 @@ public final class Indexer {
 						scannedPaths.add(filesystemPath);
 						if (nextRoot.getKind() == IPackageFragmentRoot.K_BINARY) {
 							if (nextRoot.isArchive()) {
-								allRoots.add(nextRoot);
+								allIndexables.add(nextRoot);
 							} else {
-								collectAllClassFiles(allRoots, nextRoot);
+								collectAllClassFiles(allIndexables, nextRoot);
 							}
 						} else {
-							collectAllClassFiles(allRoots, nextRoot);
+							collectAllClassFiles(allIndexables, nextRoot);
 						}
 					}
 				}
@@ -613,8 +613,8 @@ public final class Indexer {
 			}
 		}
 
-		collectAllClassFiles(allRoots, resourcesToScan, subMonitor.split(1));
-		return allRoots;
+		collectAllClassFiles(allIndexables, resourcesToScan, subMonitor.split(1));
+		return allIndexables;
 	}
 
 	private void collectAllClassFiles(List<? super IClassFile> result, Collection<? extends IResource> toScan,
@@ -683,17 +683,17 @@ public final class Indexer {
 	 * Given a list of fragment roots, returns the subset of roots that have changed since the last time they were
 	 * indexed.
 	 */
-	private List<IPath> getRootsThatHaveChanged(Collection<IPath> roots,
+	private List<IPath> getIndexablesThatHaveChanged(Collection<IPath> indexables,
 			Map<IPath, FingerprintTestResult> fingerprints) {
-		List<IPath> rootsWithChanges = new ArrayList<>();
-		for (IPath next : roots) {
+		List<IPath> indexablesWithChanges = new ArrayList<>();
+		for (IPath next : indexables) {
 			FingerprintTestResult testResult = fingerprints.get(next);
 
 			if (!testResult.matches()) {
-				rootsWithChanges.add(next);
+				indexablesWithChanges.add(next);
 			}
 		}
-		return rootsWithChanges;
+		return indexablesWithChanges;
 	}
 
 	private FingerprintTestResult testForChanges(IPath thePath, IProgressMonitor monitor) throws CoreException {
