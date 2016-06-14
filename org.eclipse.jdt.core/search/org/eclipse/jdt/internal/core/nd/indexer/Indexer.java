@@ -66,6 +66,13 @@ public final class Indexer {
 	 */
 	private static final long GARBAGE_CLEANUP_TIMEOUT = 1000 * 60 * 60 * 24;
 
+	/**
+	 * Amount of time (milliseconds) before we update the "used" timestamp on a file in the index. We don't update
+	 * the timestamps every update since doing so would be unnecessarily inefficient... but if any of the timestamps
+	 * is older than this update period, we refresh it.
+	 */
+	private static final long USAGE_TIMESTAMP_UPDATE_PERIOD = GARBAGE_CLEANUP_TIMEOUT / 4;
+
 	private Object listenersMutex = new Object();
 	/**
 	 * Listener list. Copy-on-write. Synchronize on "listenersMutex" before accessing.
@@ -260,10 +267,14 @@ public final class Indexer {
 		HashSet<IPath> paths = new HashSet<>();
 		paths.addAll(allRootLocations);
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 3);
-		this.nd.acquireWriteLock(subMonitor.split(1));
-		try {
+
+		List<NdResourceFile> garbage = new ArrayList<>();
+		List<NdResourceFile> needsUpdate = new ArrayList<>();
+
+		// Build up the list of NdResourceFiles that either need to be garbage collected or
+		// have their read timestamps updated.
+		try (IReader reader = this.nd.acquireReadLock()) {
 			List<NdResourceFile> resourceFiles = index.getAllResourceFiles();
-			List<NdResourceFile> garbage = new ArrayList<>();
 
 			result = resourceFiles.size();
 			SubMonitor testMonitor = subMonitor.split(1).setWorkRemaining(resourceFiles.size());
@@ -273,26 +284,44 @@ public final class Indexer {
 					garbage.add(next);
 				} else {
 					IPath nextPath = new Path(next.getLocation().toString());
-					if (paths.contains(nextPath)) {
-						next.setTimeLastUsed(currentTimeMillis);
-					} else {
-						long timeLastUsed = next.getTimeLastUsed();
+					long timeLastUsed = next.getTimeLastUsed();
+					long timeSinceLastUsed = currentTimeMillis - timeLastUsed;
 
-						long timeSinceLastUsed = currentTimeMillis - timeLastUsed;
+					if (paths.contains(nextPath)) {
+						if (timeSinceLastUsed > USAGE_TIMESTAMP_UPDATE_PERIOD) {
+							needsUpdate.add(next);
+						}
+					} else {
 						if (timeSinceLastUsed > GARBAGE_CLEANUP_TIMEOUT) {
 							garbage.add(next);
 						}
 					}
 				}
 			}
+		}
 
-			SubMonitor deleteMonitor = subMonitor.split(1).setWorkRemaining(garbage.size());
-			for (NdResourceFile next : garbage) {
-				deleteMonitor.split(1);
-				next.delete();
+		SubMonitor deleteMonitor = subMonitor.split(1).setWorkRemaining(garbage.size());
+		for (NdResourceFile next : garbage) {
+			this.nd.acquireWriteLock(deleteMonitor.split(1));
+			try {
+				if (next.isInIndex()) {
+					next.delete();
+				}
+			} finally {
+				this.nd.releaseWriteLock();
 			}
-		} finally {
-			this.nd.releaseWriteLock();
+		}
+
+		SubMonitor updateMonitor = subMonitor.split(1).setWorkRemaining(needsUpdate.size());
+		for (NdResourceFile next : needsUpdate) {
+			this.nd.acquireWriteLock(updateMonitor.split(1));
+			try {
+				if (next.isInIndex()) {
+					next.setTimeLastUsed(currentTimeMillis);
+				}
+			} finally {
+				this.nd.releaseWriteLock();
+			}
 		}
 
 		return result;
