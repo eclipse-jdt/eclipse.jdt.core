@@ -36,9 +36,9 @@ import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
  */
 public class JavaIndex {
 	// Version constants
-	static final int CURRENT_VERSION = Nd.version(1, 31);
-	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 31);
-	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 31);
+	static final int CURRENT_VERSION = Nd.version(1, 32);
+	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 32);
+	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 32);
 
 	// Fields for the search header
 	public static final FieldSearchIndex<NdResourceFile> FILES;
@@ -120,8 +120,12 @@ public class JavaIndex {
 		return false;
 	}
 
-	public List<NdResourceFile> getAllResourceFiles(String thePath) {
+	public List<NdResourceFile> findResourcesWithPath(String thePath) {
 		return FILES.findAll(this.nd, this.address, FieldSearchIndex.SearchCriteria.create(thePath.toCharArray()));
+	}
+
+	public List<NdResourceFile> getAllResourceFiles() {
+		return FILES.asList(this.nd, this.address);
 	}
 
 	public NdTypeId findType(char[] fieldDescriptor) {

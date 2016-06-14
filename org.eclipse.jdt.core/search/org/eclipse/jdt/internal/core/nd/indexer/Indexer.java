@@ -59,6 +59,13 @@ public final class Indexer {
 	private static final Object mutex = new Object();
 	private static final long MS_TO_NS = 1000000;
 
+	/**
+	 * Amount of time (milliseconds) unreferenced files are allowed to sit in the index before they are discarded.
+	 * Making this too short will cause some operations (classpath modifications, closing/reopening projects, etc.)
+	 * to become more expensive. Making this too long will waste space in the database.
+	 */
+	private static final long GARBAGE_CLEANUP_TIMEOUT = 1000 * 60 * 60 * 24;
+
 	private Object listenersMutex = new Object();
 	/**
 	 * Listener list. Copy-on-write. Synchronize on "listenersMutex" before accessing.
@@ -89,6 +96,7 @@ public final class Indexer {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 
 		long startTimeNs = System.nanoTime();
+		long currentTimeMs = System.currentTimeMillis();
 		if (DEBUG) {
 			Package.logInfo("Indexer running rescan"); //$NON-NLS-1$
 		}
@@ -103,7 +111,7 @@ public final class Indexer {
 		long startGarbageCollectionNs = System.nanoTime();
 
 		// Remove all files in the index which aren't referenced in the workspace
-		cleanGarbage(allRoots.keySet(), subMonitor.split(4));
+		int gcFiles = cleanGarbage(currentTimeMs, allRoots.keySet(), subMonitor.split(4));
 
 		long startFingerprintTestNs = System.nanoTime();
 
@@ -115,7 +123,7 @@ public final class Indexer {
 		int classesIndexed = 0;
 		SubMonitor loopMonitor = subMonitor.split(80).setWorkRemaining(rootsWithChanges.size());
 		for (IPath next : rootsWithChanges) {
-			classesIndexed += rescanArchive(next, allRoots.get(next), fingerprints.get(next).getNewFingerprint(),
+			classesIndexed += rescanArchive(currentTimeMs, next, allRoots.get(next), fingerprints.get(next).getNewFingerprint(),
 					loopMonitor.split(1));
 		}
 
@@ -146,9 +154,11 @@ public final class Indexer {
 
 		long fingerprintTimeMs = (startIndexingNs - startFingerprintTestNs) / MS_TO_NS;
 		long locateRootsTimeMs = (startGarbageCollectionNs - startTimeNs) / MS_TO_NS;
+		long garbageCollectionMs = (startFingerprintTestNs - startGarbageCollectionNs) / MS_TO_NS;
 		long indexingTimeMs = (endIndexingNs - startIndexingNs) / MS_TO_NS;
 		long resourceMappingTimeMs = (endResourceMappingNs - endIndexingNs) / MS_TO_NS;
 
+		double averageGcTimeMs = gcFiles == 0 ? 0 : (double)garbageCollectionMs / (double)gcFiles;
 		double averageIndexTimeMs = classesIndexed == 0 ? 0 : (double)indexingTimeMs / (double)classesIndexed;
 		double averageFingerprintTimeMs = allRoots.size() == 0 ? 0 : (double)fingerprintTimeMs / (double)allRoots.size();
 		double averageResourceMappingMs = pathsToUpdate.size() == 0 ? 0 : (double)resourceMappingTimeMs / (double)pathsToUpdate.size();
@@ -157,6 +167,7 @@ public final class Indexer {
 			Package.logInfo(
 					"Indexing done.\n" //$NON-NLS-1$
 					+ "  Located " + totalRoots + " roots in " + locateRootsTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					+ "  Collected garbage from " + gcFiles + " files in " +  garbageCollectionMs + "ms, average time = " + averageGcTimeMs + "ms\n" //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 					+ "  Tested " + allRoots.size() + " fingerprints in " + fingerprintTimeMs + "ms, average time = " + averageFingerprintTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					+ "  Indexed " + classesIndexed + " classes in " + indexingTimeMs + "ms, average time = " + averageIndexTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					+ "  Updated " + pathsToUpdate.size() + " paths in " + resourceMappingTimeMs + "ms, average time = " + averageResourceMappingMs + "ms\n"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
@@ -233,7 +244,7 @@ public final class Indexer {
 		}
 	}
 
-	private void cleanGarbage(Collection<IPath> allRoots, IProgressMonitor monitor) {
+	private int cleanGarbage(long currentTimeMillis, Collection<IPath> allRootLocations, IProgressMonitor monitor) {
 		// TODO: lazily clean up unneeded files here... but only do so if we're under heavy space pressure
 		// or it's been a long time since the file was last scanned. Being too eager about removing old files
 		// means that operations which temporarily cause a file to become unreferenced will run really slowly
@@ -242,6 +253,49 @@ public final class Indexer {
 		// if we discover a file with a timestamp of 0, it indicates that the indexer or all of Eclipse crashed
 		// midway through indexing the file. Such garbage should be cleaned up as soon as possible, since it
 		// will never be useful.
+
+		JavaIndex index = JavaIndex.getIndex(this.nd);
+
+		int result = 0; 
+		HashSet<IPath> paths = new HashSet<>();
+		paths.addAll(allRootLocations);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 3);
+		this.nd.acquireWriteLock(subMonitor.split(1));
+		try {
+			List<NdResourceFile> resourceFiles = index.getAllResourceFiles();
+			List<NdResourceFile> garbage = new ArrayList<>();
+
+			result = resourceFiles.size();
+			SubMonitor testMonitor = subMonitor.split(1).setWorkRemaining(resourceFiles.size());
+			for (NdResourceFile next : resourceFiles) {
+				testMonitor.split(1);
+				if (!next.isDoneIndexing()) {
+					garbage.add(next);
+				} else {
+					IPath nextPath = new Path(next.getLocation().toString());
+					if (paths.contains(nextPath)) {
+						next.setTimeLastUsed(currentTimeMillis);
+					} else {
+						long timeLastUsed = next.getTimeLastUsed();
+
+						long timeSinceLastUsed = currentTimeMillis - timeLastUsed;
+						if (timeSinceLastUsed > GARBAGE_CLEANUP_TIMEOUT) {
+							garbage.add(next);
+						}
+					}
+				}
+			}
+
+			SubMonitor deleteMonitor = subMonitor.split(1).setWorkRemaining(garbage.size());
+			for (NdResourceFile next : garbage) {
+				deleteMonitor.split(1);
+				next.delete();
+			}
+		} finally {
+			this.nd.releaseWriteLock();
+		}
+
+		return result;
 	}
 
 	private Map<IPath, List<IJavaElement>> removeDuplicatePaths(List<IJavaElement> allRoots) {
@@ -299,7 +353,7 @@ public final class Indexer {
 	 * Rescans an archive (a jar, zip, or class file on the filesystem). Returns the number of classes indexed.
 	 * @throws JavaModelException
 	 */
-	private int rescanArchive(IPath thePath, List<IJavaElement> elementsMappingOntoLocation,
+	private int rescanArchive(long currentTimeMillis, IPath thePath, List<IJavaElement> elementsMappingOntoLocation,
 			FileFingerprint fingerprint, IProgressMonitor monitor) throws JavaModelException {
 		if (elementsMappingOntoLocation.isEmpty()) {
 			return 0;
@@ -324,6 +378,7 @@ public final class Indexer {
 		this.nd.acquireWriteLock(subMonitor.split(5));
 		try {
 			resourceFile = new NdResourceFile(this.nd);
+			resourceFile.setTimeLastUsed(currentTimeMillis);
 			resourceFile.setLocation(pathString);
 			IPackageFragmentRoot packageFragmentRoot = (IPackageFragmentRoot) element
 					.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
@@ -347,7 +402,7 @@ public final class Indexer {
 			if (resourceFile.isInIndex()) {
 				resourceFile.setFingerprint(fingerprint);
 				this.nd.markPathAsModified(resourceFile.getLocalFile());
-				List<NdResourceFile> resourceFiles = javaIndex.getAllResourceFiles(pathString);
+				List<NdResourceFile> resourceFiles = javaIndex.findResourcesWithPath(pathString);
 
 				for (NdResourceFile next : resourceFiles) {
 					if (!next.equals(resourceFile)) {

@@ -275,4 +275,26 @@ public class FieldSearchIndex<T extends NdNode> implements IField, IDestructable
 
 		return result;
 	}
+
+	/**
+	 * Returns the entire contents of the index as a single list.
+	 */
+	public List<T> asList(final Nd nd, long address) {
+		final List<T> result = new ArrayList<T>();
+		get(nd, address).accept(new IBTreeVisitor() {
+			@Override
+			public int compare(long record) {
+				return 0;
+			}
+
+			@SuppressWarnings("unchecked")
+			@Override
+			public boolean visit(long resultAddress) {
+				result.add((T)NdNode.load(nd, resultAddress));
+				return true;
+			}
+		});
+
+		return result;
+	}
 }
