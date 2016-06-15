@@ -12458,4 +12458,15 @@ public void testBug492735() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/494831 - Formatter ignores whitespace rules for diamond operator 
+ */
+public void testBug494831() {
+	this.formatterPrefs.insert_space_before_opening_angle_bracket_in_parameterized_type_reference = true;
+	String source =
+		"class Example {\r\n" + 
+		"	List <String> list = new ArrayList <>();\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
