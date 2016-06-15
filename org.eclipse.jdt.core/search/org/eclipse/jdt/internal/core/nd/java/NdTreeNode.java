@@ -48,6 +48,14 @@ public abstract class NdTreeNode extends NdNode {
 		PARENT.put(nd, this.address, parent == null ? 0 : parent.address);
 	}
 
+	public int getChildrenCount() {
+		return CHILDREN.size(getNd(), this.address);
+	}
+
+	public NdTreeNode getChild(int index) {
+		return CHILDREN.get(getNd(), this.address, index);
+	}
+
 	/**
 	 * Returns the closest ancestor of the given type, or null if none. Note that
 	 * this looks for an exact match. It will not return subtypes of the given type.

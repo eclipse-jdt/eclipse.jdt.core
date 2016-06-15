@@ -242,4 +242,16 @@ public class NdResourceFile extends NdTreeNode {
 		}
 		return LocalPath.createFileSystem(new Path(getLocation().getString()));
 	}
+
+	public void markAsInvalid() {
+		TIME_LAST_SCANNED.put(getNd(), this.address, 0);
+	}
+
+	public int getBindingCount() {
+		return ALL_NODES.size(getNd(), this.address);
+	}
+
+	public NdBinding getBinding(int index) {
+		return ALL_NODES.get(getNd(), this.address, index);
+	}
 }

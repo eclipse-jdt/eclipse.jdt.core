@@ -35,6 +35,7 @@ public class Nd {
 	private static final int LONG_WRITE_LOCK_REPORT_THRESHOLD = 1000;
 	private static final int LONG_READ_LOCK_WAIT_REPORT_THRESHOLD = 1000;
 	public static boolean sDEBUG_LOCKS= false;
+	public static boolean DEBUG_DUPLICATE_DELETIONS = false;
 
 	private final int currentVersion;
 	private final int maxVersion;
@@ -99,7 +100,7 @@ public class Nd {
 	private Set<LocalPath> changes = new HashSet<>();
 
 	private final NdNodeTypeRegistry<NdNode> fNodeTypeRegistry;
-	private HashMap<Long, Throwable> pendingDeletions = new HashMap<>();
+	private HashMap<Long, Object> pendingDeletions = new HashMap<>();
 
 	private IReader fReader = new IReader() {
 		@Override
@@ -137,15 +138,30 @@ public class Nd {
 	}
 
 	public void scheduleDeletion(long addressOfNodeToDelete) {
+		if (this.pendingDeletions.containsKey(addressOfNodeToDelete)) {
+			logDoubleDeletion(addressOfNodeToDelete);
+			return;
+		}
+
+		Object data = Boolean.TRUE;
+		if (DEBUG_DUPLICATE_DELETIONS) {
+			data = new RuntimeException();
+		}
+		this.pendingDeletions.put(addressOfNodeToDelete, data);
+	}
+
+	protected void logDoubleDeletion(long addressOfNodeToDelete) {
 		// Sometimes an object can be scheduled for deletion twice, if it is created and then discarded shortly
 		// afterward during indexing. This may indicate an inefficiency in the indexer but is not necessarily
 		// a bug.
-		if (this.pendingDeletions.containsKey(addressOfNodeToDelete)) {
-			Package.log("Database object queued for deletion twice", new RuntimeException()); //$NON-NLS-1$
-			Package.log("Earlier deletion stack was this:", this.pendingDeletions.get(addressOfNodeToDelete)); //$NON-NLS-1$
-			return;
+		// If you're debugging issues related to duplicate deletions, set DEBUG_DUPLICATE_DELETIONS to true
+		Package.log("Database object queued for deletion twice", new RuntimeException()); //$NON-NLS-1$
+		Object earlierData = this.pendingDeletions.get(addressOfNodeToDelete);
+		if (earlierData instanceof RuntimeException) {
+			RuntimeException exception = (RuntimeException) earlierData;
+
+			Package.log("Data associated with earlier deletion stack was:", exception); //$NON-NLS-1$
 		}
-		this.pendingDeletions.put(addressOfNodeToDelete, new RuntimeException());
 	}
 
 	/**
@@ -603,6 +619,12 @@ public class Nd {
 
 		// Free up its memory
 		getDB().free(address, (short)(Database.POOL_FIRST_NODE_TYPE + nodeType));
+
+		// If this node was in the list of pending deletions, remove it since it's now been deleted
+		if (this.pendingDeletions.containsKey(address)) {
+			logDoubleDeletion(address);
+			this.pendingDeletions.remove(address);
+		}
 	}
 
 	public NdNodeTypeRegistry<NdNode> getTypeRegistry() {

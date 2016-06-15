@@ -113,12 +113,28 @@ public class FieldManyToOne<T extends NdNode> implements IDestructableField, IFi
 		if (this.backPointer == null) {
 			throw new IllegalStateException("FieldNodePointer must be associated with a FieldBackPointer"); //$NON-NLS-1$
 		}
-
+		
 		long oldTargetAddress = TARGET.get(nd, fieldStart);
 		if (oldTargetAddress == newTargetAddress) {
 			return;
 		}
 
+		detachFromOldTarget(nd, address, oldTargetAddress);
+
+		TARGET.put(nd, fieldStart, newTargetAddress);
+		if (newTargetAddress != 0) {
+			// Note that newValue is the address of the backpointer list and record (the address of the struct
+			// containing the forward pointer) is the value being inserted into the list.
+			BACKPOINTER_INDEX.put(nd, fieldStart, this.backPointer.add(nd, newTargetAddress, address));
+		} else {
+			if (this.pointsToOwner) {
+				nd.scheduleDeletion(address);
+			}
+		}
+	}
+
+	protected void detachFromOldTarget(Nd nd, long address, long oldTargetAddress) {
+		long fieldStart = address + this.offset;
 		if (oldTargetAddress != 0) {
 			int oldIndex = BACKPOINTER_INDEX.get(nd, fieldStart);
 
@@ -131,16 +147,6 @@ public class FieldManyToOne<T extends NdNode> implements IDestructableField, IFi
 			if (typeFactory.getDeletionSemantics() == StructDef.DeletionSemantics.REFCOUNTED 
 					&& typeFactory.isReadyForDeletion(nd, oldTargetAddress)) {
 				nd.scheduleDeletion(oldTargetAddress);
-			}
-		}
-		TARGET.put(nd, fieldStart, newTargetAddress);
-		if (newTargetAddress != 0) {
-			// Note that newValue is the address of the backpointer list and record (the address of the struct
-			// containing the forward pointer) is the value being inserted into the list.
-			BACKPOINTER_INDEX.put(nd, fieldStart, this.backPointer.add(nd, newTargetAddress, address));
-		} else {
-			if (this.pointsToOwner) {
-				nd.scheduleDeletion(address);
 			}
 		}
 	}
@@ -157,7 +163,10 @@ public class FieldManyToOne<T extends NdNode> implements IDestructableField, IFi
 
 	@Override
 	public void destruct(Nd nd, long address) {
-		put(nd, address, 0);
+		long fieldStart = address + this.offset;
+		long oldTargetAddress = TARGET.get(nd, fieldStart);
+		detachFromOldTarget(nd, address, oldTargetAddress);
+		TARGET.put(nd, fieldStart, 0);
 	}
 
 	void clearedByBackPointer(Nd nd, long address) {

@@ -305,14 +305,7 @@ public final class Indexer {
 
 		SubMonitor deleteMonitor = subMonitor.split(1).setWorkRemaining(garbage.size());
 		for (NdResourceFile next : garbage) {
-			this.nd.acquireWriteLock(deleteMonitor.split(1));
-			try {
-				if (next.isInIndex()) {
-					next.delete();
-				}
-			} finally {
-				this.nd.releaseWriteLock();
-			}
+			deleteResource(next, deleteMonitor.split(1));
 		}
 
 		SubMonitor updateMonitor = subMonitor.split(1).setWorkRemaining(needsUpdate.size());
@@ -328,6 +321,54 @@ public final class Indexer {
 		}
 
 		return result;
+	}
+
+	/**
+	 * Performs a non-atomic delete of the given resource file. First, it marks the file as being invalid
+	 * (by clearing out its timestamp). Then it deletes the children of the resource file, one child at a time.
+	 * Once all the children are deleted, the resource itself is deleted. The result on the database is exactly
+	 * the same as if the caller had called toDelete.delete(), but doing it this way ensures that a write lock
+	 * will never be held for a nontrivial amount of time.
+	 */
+	protected void deleteResource(NdResourceFile toDelete, IProgressMonitor monitor) {
+		SubMonitor deletionMonitor = SubMonitor.convert(monitor, 10);
+
+		this.nd.acquireWriteLock(deletionMonitor.split(1));
+		try {
+			if (toDelete.isInIndex()) {
+				toDelete.markAsInvalid();
+			}
+		} finally {
+			this.nd.releaseWriteLock();
+		}
+
+		for (;;) {
+			this.nd.acquireWriteLock(deletionMonitor.split(1));
+			try {
+				if (!toDelete.isInIndex()) {
+					break;
+				}
+		
+				int numChildren = toDelete.getBindingCount();
+				deletionMonitor.setWorkRemaining(numChildren + 1);
+				if (numChildren == 0) {
+					break;
+				}
+
+				toDelete.getBinding(numChildren - 1).delete();
+			} finally {
+				this.nd.releaseWriteLock();
+			}
+		}
+
+		this.nd.acquireWriteLock(deletionMonitor.split(1));
+		try {
+			if (toDelete.isInIndex()) {
+				toDelete.delete();
+			}
+		} finally {
+			this.nd.releaseWriteLock();
+		}
 	}
 
 	private Map<IPath, List<IJavaElement>> removeDuplicatePaths(List<IJavaElement> allIndexables) {
@@ -426,24 +467,26 @@ public final class Indexer {
 		if (DEBUG) {
 			Package.logInfo("rescanning " + thePath.toString()); //$NON-NLS-1$
 		}
-		int result = addElement(resourceFile, element, subMonitor.split(90));
+		int result = addElement(resourceFile, element, subMonitor.split(50));
 
+		List<NdResourceFile> allResourcesWithThisPath = Collections.emptyList();
 		// Now update the timestamp and delete all older versions of this resource that exist in the index
-		this.nd.acquireWriteLock(subMonitor.split(5));
+		this.nd.acquireWriteLock(subMonitor.split(1));
 		try {
 			if (resourceFile.isInIndex()) {
 				resourceFile.setFingerprint(fingerprint);
 				this.nd.markPathAsModified(resourceFile.getLocalFile());
-				List<NdResourceFile> resourceFiles = javaIndex.findResourcesWithPath(pathString);
-
-				for (NdResourceFile next : resourceFiles) {
-					if (!next.equals(resourceFile)) {
-						next.delete();
-					}
-				}
+				allResourcesWithThisPath = javaIndex.findResourcesWithPath(pathString);
 			}
 		} finally {
 			this.nd.releaseWriteLock();
+		}
+
+		SubMonitor deletionMonitor = subMonitor.split(40).setWorkRemaining(allResourcesWithThisPath.size() - 1);
+		for (NdResourceFile next : allResourcesWithThisPath) {
+			if (!next.equals(resourceFile)) {
+				deleteResource(next, deletionMonitor.split(1));
+			}
 		}
 
 		return result;
