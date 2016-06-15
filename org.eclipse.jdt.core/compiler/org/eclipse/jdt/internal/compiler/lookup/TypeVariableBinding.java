@@ -929,7 +929,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 		}	
 		ReferenceBinding[] interfaces = this.superInterfaces;
 		int length;
-		if ((length = interfaces.length) != 0) {
+		if (interfaces != null && (length = interfaces.length) != 0) {
 			for (int i = length; --i >= 0;) {
 				ReferenceBinding resolveType = interfaces[i];
 				long superNullTagBits = NullAnnotationMatching.validNullTagBits(resolveType.tagBits);
