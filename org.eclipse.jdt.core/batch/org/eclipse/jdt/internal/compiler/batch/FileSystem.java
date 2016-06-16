@@ -269,6 +269,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 		for (int i = 0, length = this.classpaths.length; i < length; i++) {
 			Classpath classpathEntry = this.classpaths[i];
 			if (classpathEntry.hasAnnotationFileFor(qualifiedTypeName)) {
+				// in case of 'this.annotationsFromClasspath' we indeed search for .eea entries inside the main zipFile of the entry:
 				ZipFile zip = classpathEntry instanceof ClasspathJar ? ((ClasspathJar) classpathEntry).zipFile : null;
 				try {
 					if (zip == null) {

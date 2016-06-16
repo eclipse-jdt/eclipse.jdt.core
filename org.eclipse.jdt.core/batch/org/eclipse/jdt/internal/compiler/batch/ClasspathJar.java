@@ -114,10 +114,9 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 						if (this.annotationZipFile == null) {
 							this.annotationZipFile = ClassWithExternalAnnotations.getAnnotationZipFile(annotationPath, null);
 						}
-						IBinaryType nextReader = ClassWithExternalAnnotations.create(reader, annotationPath, qualifiedClassName, this.annotationZipFile);
+						reader = ClassWithExternalAnnotations.create(reader, annotationPath, qualifiedClassName, this.annotationZipFile);
 
-						if (nextReader.getExternalAnnotationStatus() == ExternalAnnotationStatus.TYPE_IS_ANNOTATED) {
-							reader = nextReader;
+						if (reader.getExternalAnnotationStatus() == ExternalAnnotationStatus.TYPE_IS_ANNOTATED) {
 							break;
 						}
 					} catch (IOException e) {

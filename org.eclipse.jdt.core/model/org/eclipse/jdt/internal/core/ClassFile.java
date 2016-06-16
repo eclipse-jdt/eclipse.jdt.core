@@ -14,6 +14,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -40,12 +46,6 @@ import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 /**
  * @see IClassFile
@@ -424,7 +424,7 @@ private IBinaryType setupExternalAnnotationProvider(IProject project, final IPat
 	}
 	try {
 		if (annotationZip == null) {
-			annotationZip = ClassWithExternalAnnotations.getAnnotationZipFile(resolvedPath, new ClassFileReader.ZipFileProducer() {
+			annotationZip = ClassWithExternalAnnotations.getAnnotationZipFile(resolvedPath, new ClassWithExternalAnnotations.ZipFileProducer() {
 				@Override public ZipFile produce() throws IOException {
 					try {
 						return JavaModelManager.getJavaModelManager().getZipFile(externalAnnotationPath); // use (absolute, but) unresolved path here

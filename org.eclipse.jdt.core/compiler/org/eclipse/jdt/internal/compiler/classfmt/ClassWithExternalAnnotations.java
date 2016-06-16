@@ -1,12 +1,22 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Google, Inc. and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Stefan Xenos <sxenos@gmail.com> (Google) - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.ZipFileProducer;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
@@ -18,10 +28,17 @@ import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnota
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
+/**
+ * A decorator for {@link IBinaryType} that allows external annotations to be attached. This can be used to change the
+ * result of {@link #enrichWithExternalAnnotationsFor} or {@link #getExternalAnnotationStatus}.
+ */
 public class ClassWithExternalAnnotations implements IBinaryType {
 	private IBinaryType inputType;
 	private ExternalAnnotationProvider annotationProvider;
 	private boolean isFromSource;
+
+	/** Auxiliary interface for {@link #getAnnotationZipFile(String, ZipFileProducer)}. */
+	public interface ZipFileProducer { ZipFile produce() throws IOException; }
 
 	public ClassWithExternalAnnotations(IBinaryType toDecorate, ExternalAnnotationProvider externalAnnotationProvider) {
 		this.inputType = toDecorate;
@@ -141,7 +158,7 @@ public class ClassWithExternalAnnotations implements IBinaryType {
 	/**
 	 * Returns the zip file containing external annotations, if any. Returns null if there are no external annotations
 	 * or if the basePath refers to a directory.
-	 * 
+	 *
 	 * @param basePath
 	 *            resolved filesystem path of either directory or zip file
 	 * @param producer
@@ -166,7 +183,7 @@ public class ClassWithExternalAnnotations implements IBinaryType {
 	/**
 	 * Creates an external annotation provider for external annotations using the given basePath, which is either a
 	 * directory holding .eea text files, or a zip file of entries of the same format.
-	 * 
+	 *
 	 * @param basePath
 	 *            resolved filesystem path of either directory or zip file
 	 * @param qualifiedBinaryTypeName
@@ -186,7 +203,12 @@ public class ClassWithExternalAnnotations implements IBinaryType {
 			File annotationBase = new File(basePath);
 			if (annotationBase.isDirectory()) {
 				String filePath = annotationBase.getAbsolutePath() + '/' + qualifiedBinaryFileName;
-				return new ExternalAnnotationProvider(new FileInputStream(filePath), qualifiedBinaryTypeName);
+				try {
+					return new ExternalAnnotationProvider(new FileInputStream(filePath), qualifiedBinaryTypeName);
+				} catch (FileNotFoundException e) {
+					// Expected, no need to report an error here
+					return null;
+				}
 			}
 		} else {
 			ZipEntry entry = zipFile.getEntry(qualifiedBinaryFileName);
@@ -198,26 +220,32 @@ public class ClassWithExternalAnnotations implements IBinaryType {
 	}
 
 	/**
-	 * Create and remember a provider for external annotations using the given basePath, which is either a directory
-	 * holding .eea text files, or a zip file of entries of the same format.
+	 * Possibly wrap the provided binary type in a ClassWithExternalAnnotations to which a fresh provider for external
+	 * annotations is associated. This provider is constructed using the given basePath, which is either a directory
+	 * holding .eea text files, or a zip file of entries of the same format. If no such provider could be constructed,
+	 * then the original binary type is returned unchanged.
 	 * 
+	 * @param toDecorate
+	 *            the binary type to wrap, if needed
 	 * @param basePath
 	 *            resolved filesystem path of either directory or zip file
 	 * @param qualifiedBinaryTypeName
 	 *            slash-separated type name
 	 * @param zipFile
-	 *            an existing zip file for the same basePath, or null. Output: wl be filled with
-	 * @return the client provided zip file; or else a fresh new zip file, to let clients cache it, if desired; or null
-	 *         to signal that basePath is not a zip file, but a directory.
+	 *            an existing zip file for the same basePath, or null.
+	 * @return either a fresh ClassWithExternalAnnotations or the original binary type unchanged.
 	 * @throws IOException
 	 *             any unexpected errors during file access. File not found while accessing an individual file if
-	 *             basePath is a directory <em>is</em> expected, and simply answered with null. If basePath is neither a
-	 *             directory nor a zip file, this is unexpected.
+	 *             basePath is a directory <em>is</em> expected, and simply handled by not setting up an external
+	 *             annotation provider. If basePath is neither a directory nor a zip file, this is unexpected, resulting
+	 *             in an exception.
 	 */
-	public static ClassWithExternalAnnotations create(IBinaryType toDecorate, String basePath,
+	public static IBinaryType create(IBinaryType toDecorate, String basePath,
 			String qualifiedBinaryTypeName, ZipFile zipFile) throws IOException {
-		return new ClassWithExternalAnnotations(toDecorate,
-				externalAnnotationProvider(basePath, qualifiedBinaryTypeName, zipFile));
+		ExternalAnnotationProvider externalAnnotationProvider = externalAnnotationProvider(basePath, qualifiedBinaryTypeName, zipFile);
+		if (externalAnnotationProvider == null)
+			return toDecorate;
+		return new ClassWithExternalAnnotations(toDecorate, externalAnnotationProvider);
 	}
 
 	@Override

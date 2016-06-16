@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
@@ -409,9 +408,6 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 			readOffset);
 	}
 }
-
-/** Auxiliary interface for {@link #setExternalAnnotationProvider(String,String,ZipFile,ZipFileProducer)}. */
-public interface ZipFileProducer { ZipFile produce() throws IOException; }
 
 @Override
 public ExternalAnnotationStatus getExternalAnnotationStatus() {

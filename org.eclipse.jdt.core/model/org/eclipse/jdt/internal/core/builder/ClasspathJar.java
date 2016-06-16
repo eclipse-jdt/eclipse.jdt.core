@@ -182,7 +182,7 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 
 					reader = ClassWithExternalAnnotations.create(reader, this.externalAnnotationPath,
 							fileNameWithoutExtension, this.annotationZipFile);
-					} catch (IOException e) {
+				} catch (IOException e) {
 					// don't let error on annotations fail class reading
 				}
 			}
