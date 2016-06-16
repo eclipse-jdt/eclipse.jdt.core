@@ -182,6 +182,7 @@ public final class Indexer {
 
 		if (DEBUG_ALLOCATIONS) {
 			try (IReader readLock = this.nd.acquireReadLock()) {
+				this.nd.getDB().reportFreeBlocks();
 				this.nd.getDB().getMemoryStats().printMemoryStats(this.nd.getTypeRegistry());
 			}
 		}

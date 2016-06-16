@@ -665,14 +665,18 @@ public class Database {
 		return new ShortString(this, offset);
 	}
 
+	public long getDatabaseSize() {
+		return this.fChunksUsed * CHUNK_SIZE;
+	}
+
 	/**
 	 * For debugging purposes, only.
 	 */
 	public void reportFreeBlocks() throws IndexException {
-		System.out.println("Allocated size: " + this.fChunksUsed * CHUNK_SIZE); //$NON-NLS-1$
+		System.out.println("Allocated size: " + getDatabaseSize() + " bytes"); //$NON-NLS-1$
 		System.out.println("malloc'ed: " + this.malloced); //$NON-NLS-1$
 		System.out.println("free'd: " + this.freed); //$NON-NLS-1$
-		System.out.println("wasted: " + (this.fChunksUsed * CHUNK_SIZE - (this.malloced - this.freed))); //$NON-NLS-1$
+		System.out.println("wasted: " + (getDatabaseSize() - (this.malloced - this.freed))); //$NON-NLS-1$
 		System.out.println("Free blocks"); //$NON-NLS-1$
 		for (int bs = MIN_BLOCK_DELTAS*BLOCK_SIZE_DELTA; bs <= CHUNK_SIZE; bs += BLOCK_SIZE_DELTA) {
 			int count = 0;
