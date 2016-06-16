@@ -1027,6 +1027,7 @@ public org.eclipse.jdt.internal.compiler.ReadManager readManager;
 protected int valueLambdaNestDepth = -1;
 private int stateStackLengthStack[] = new int[0];
 protected boolean parsingJava8Plus;
+protected boolean parsingJava9Plus;
 protected int unstackedAct = ERROR_ACTION;
 private boolean haltOnSyntaxError = false;
 private boolean tolerateDefaultClassMethods = false;
@@ -1044,6 +1045,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.optimizeStringLiterals = optimizeStringLiterals;
 	initializeScanner();
 	this.parsingJava8Plus = this.options.sourceLevel >= ClassFileConstants.JDK1_8;
+	this.parsingJava9Plus = this.options.sourceLevel >= ClassFileConstants.JDK9;
 	this.astLengthStack = new int[50];
 	this.expressionLengthStack = new int[30];
 	this.typeAnnotationLengthStack = new int[30];
@@ -12175,7 +12177,7 @@ protected void pushIdentifier(char [] identifier, long position) {
 	}
 	this.identifierLengthStack[this.identifierLengthPtr] = 1;
 	if (this.parsingJava8Plus && identifier.length == 1 && identifier[0] == '_' && !this.processingLambdaParameterList) {
-		problemReporter().illegalUseOfUnderscoreAsAnIdentifier((int) (position >>> 32), (int) position, false /* not a lambda parameter */);
+		problemReporter().illegalUseOfUnderscoreAsAnIdentifier((int) (position >>> 32), (int) position, this.parsingJava9Plus);
 	}
 }
 protected void pushIdentifier() {

@@ -194,7 +194,7 @@ public class ProblemReporter extends ProblemHandler {
 
 	public ReferenceContext referenceContext;
 	private Scanner positionScanner;
-	private boolean underScoreIsLambdaParameter;
+	private boolean underScoreIsError;
 	private final static byte
 	  // TYPE_ACCESS = 0x0,
 	  FIELD_ACCESS = 0x4,
@@ -1588,7 +1588,7 @@ public int computeSeverity(int problemID){
 		case IProblem.ToleratedMisplacedTypeAnnotations:	
 			return ProblemSeverities.Warning;
 		case IProblem.IllegalUseOfUnderscoreAsAnIdentifier:
-			return this.underScoreIsLambdaParameter ? ProblemSeverities.Error : ProblemSeverities.Warning;
+			return this.underScoreIsError ? ProblemSeverities.Error : ProblemSeverities.Warning;
 	}
 	int irritant = getIrritant(problemID);
 	if (irritant != 0) {
@@ -8931,8 +8931,8 @@ public void useEnumAsAnIdentifier(int sourceStart, int sourceEnd) {
 		sourceStart,
 		sourceEnd);
 }
-public void illegalUseOfUnderscoreAsAnIdentifier(int sourceStart, int sourceEnd, boolean lambdaParameter) {
-	this.underScoreIsLambdaParameter = lambdaParameter;
+public void illegalUseOfUnderscoreAsAnIdentifier(int sourceStart, int sourceEnd, boolean reportError) {
+	this.underScoreIsError = reportError;
 	try {
 		this.handle(
 			IProblem.IllegalUseOfUnderscoreAsAnIdentifier,
@@ -8941,7 +8941,7 @@ public void illegalUseOfUnderscoreAsAnIdentifier(int sourceStart, int sourceEnd,
 			sourceStart,
 			sourceEnd);
 	} finally {
-		this.underScoreIsLambdaParameter = false;	
+		this.underScoreIsError = false;	
 	}
 }
 public void varargsArgumentNeedCast(MethodBinding method, TypeBinding argumentType, InvocationSite location) {
