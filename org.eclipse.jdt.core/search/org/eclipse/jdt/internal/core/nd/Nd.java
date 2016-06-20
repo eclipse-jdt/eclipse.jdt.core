@@ -13,10 +13,8 @@ package org.eclipse.jdt.internal.core.nd;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -70,34 +68,10 @@ public class Nd {
 		return "" + major + '.' + minor; //$NON-NLS-1$
 	}
 
-	public interface Listener {
-		void consume(ChangeEvent event);
-	}
-
-	public static class ChangeEvent {
-		private final Set<LocalPath> filesModified;
-
-		public ChangeEvent(Set<LocalPath> changes) {
-			this.filesModified = changes;
-		}
-
-		public Set<LocalPath> getFilesModified() {
-			return this.filesModified;
-		}
-
-		public boolean isTrivial() {
-			return this.filesModified.isEmpty();
-		}
-	}
-
 	// Local caches
 	protected Database db;
 	private File fPath;
 	private final HashMap<Object, Object> fResultCache = new HashMap<>();
-	/**
-	 * Holds the set of files which have been changed since the last index event was fired
-	 */
-	private Set<LocalPath> changes = new HashSet<>();
 
 	private final NdNodeTypeRegistry<NdNode> fNodeTypeRegistry;
 	private HashMap<Long, Object> pendingDeletions = new HashMap<>();
@@ -321,15 +295,6 @@ public class Nd {
 		}
 	}
 
-	/**
-	 * Should be called by the indexer to indicate a source file that has been
-	 * fully indexed.
-	 */
-	public final void markPathAsModified(LocalPath path) {
-		this.db.assertLocked();
-		this.changes.add(path);
-	}
-
 	public final void releaseWriteLock() {
 		releaseWriteLock(0, true);
 	}
@@ -348,10 +313,7 @@ public class Nd {
 			Package.log(e);
 		}
 		assert this.lockCount == -1;
-		if (!this.changes.isEmpty()) {
-			this.lastWriteAccess= System.currentTimeMillis();
-			this.changes = new HashSet<>();
-		}
+		this.lastWriteAccess= System.currentTimeMillis();
 		synchronized (this.mutex) {
 			if (sDEBUG_LOCKS) {
 				long timeHeld = this.lastWriteAccess - this.timeWriteLockAcquired;
