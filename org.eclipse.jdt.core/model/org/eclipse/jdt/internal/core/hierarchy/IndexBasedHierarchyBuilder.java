@@ -478,14 +478,14 @@ public static void searchAllPossibleSubTypes(
 	final IProgressMonitor progressMonitor) {
 
 	if (JavaIndex.isEnabled()) {
-		SubMonitor subMonitor = SubMonitor.convert(progressMonitor, 2);
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
 		newSearchAllPossibleSubTypes(type, scope, binariesFromIndexMatches, pathRequestor, waitingPolicy,
 				subMonitor.split(1));
 		legacySearchAllPossibleSubTypes(type, UnindexedSearchScope.filterEntriesCoveredByTheNewIndex(scope),
 				binariesFromIndexMatches, pathRequestor, waitingPolicy, subMonitor.split(1));
 	} else {
 		legacySearchAllPossibleSubTypes(type, scope, binariesFromIndexMatches, pathRequestor, waitingPolicy,
-				progressMonitor);
+				monitor);
 	}
 }
 
