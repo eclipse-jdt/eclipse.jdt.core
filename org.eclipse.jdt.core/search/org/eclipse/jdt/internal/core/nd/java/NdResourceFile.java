@@ -17,7 +17,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.internal.core.nd.LocalPath;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 import org.eclipse.jdt.internal.core.nd.db.IString;
@@ -232,15 +231,6 @@ public class NdResourceFile extends NdTreeNode {
 			return getLocation();
 		}
 		return javaRoot;
-	}
-
-	public LocalPath getLocalFile() {
-		if (!WORKSPACE_MAPPINGS.isEmpty(getNd(), this.address)) {
-			NdWorkspaceLocation workspaceLocation = WORKSPACE_MAPPINGS.get(getNd(), this.address, 0);
-
-			return LocalPath.createWorkspace(new Path(workspaceLocation.getPath().getString()));
-		}
-		return LocalPath.createFileSystem(new Path(getLocation().getString()));
 	}
 
 	public void markAsInvalid() {
