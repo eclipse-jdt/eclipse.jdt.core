@@ -9775,4 +9775,27 @@ public class ASTConverterAST8Test extends ConverterTestSetup {
 		assertTrue("Not an superconstructorinvocation", statement.getNodeType() == ASTNode.SUPER_CONSTRUCTOR_INVOCATION); //$NON-NLS-1$
 		checkSourceRange(statement, "super();", source); //$NON-NLS-1$
 	}
+	
+	public void test0401() throws JavaModelException {
+		ICompilationUnit sourceUnit = getCompilationUnit("Converter18" , "src", "testBug496596", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode node = getASTNode((CompilationUnit) result, 2, 0);
+		assertNotNull(node);
+		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		Block block = methodDeclaration.getBody();
+		List statements = block.statements();
+		assertEquals("wrong size", 1, statements.size()); //$NON-NLS-1$
+		Statement statement = (Statement) statements.get(0);
+		assertTrue("Not a return", statement.getNodeType() == ASTNode.RETURN_STATEMENT); //$NON-NLS-1$
+		Expression cast = ((ReturnStatement) statement).getExpression();
+		assertTrue("Not a cast", cast.getNodeType() == ASTNode.CAST_EXPRESSION);
+		Expression lambda = ((CastExpression) cast).getExpression();
+		ITypeBinding typeBinding = lambda.resolveTypeBinding();
+		assertTrue("Not an intersection type", typeBinding.isIntersectionType());
+		ITypeBinding[] typeBounds = typeBinding.getTypeBounds();
+		assertEquals("Wrong number of types", 2, typeBounds.length);
+		assertEquals("Wrong first type", "LtestBug496596/Test~Cmp;", typeBounds[0].getKey());
+		assertEquals("Wrong second type", "LtestBug496596/Test~Serial;", typeBounds[1].getKey());
+	}
 }
