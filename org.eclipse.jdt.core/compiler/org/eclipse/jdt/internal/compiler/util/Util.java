@@ -1461,17 +1461,16 @@ public class Util implements SuffixConstants {
 				return start;
 			case C_SUPER :
 			case C_EXTENDS :
-				// need a minimum 3 chars "+[I"
-				if (start >= string.length - 2) {
-					throw new IllegalArgumentException();
-				}
 				break;
 			default :
 				// must start in "+/-"
-					throw new IllegalArgumentException();
+				throw new IllegalArgumentException();
 	
 		}
 		c = string[++start];
+		if (c != C_STAR && start >= string.length -1) { // unless "-*" we need at least one more char, e.g. after "+[", other variants are even longer
+			throw new IllegalArgumentException();
+		}
 		switch (c) {
 			case C_CAPTURE :
 				return scanCaptureTypeSignature(string, start);
