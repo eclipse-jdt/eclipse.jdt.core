@@ -285,6 +285,8 @@ public final class Indexer {
 		List<NdResourceFile> garbage = new ArrayList<>();
 		List<NdResourceFile> needsUpdate = new ArrayList<>();
 
+		long usageTimestampUpdatePeriod = getUsageTimestampUpdatePeriod();
+		long garbageCleanupTimeout = getGarbageCleanupTimeout();
 		// Build up the list of NdResourceFiles that either need to be garbage collected or
 		// have their read timestamps updated.
 		try (IReader reader = this.nd.acquireReadLock()) {
@@ -302,11 +304,11 @@ public final class Indexer {
 					long timeSinceLastUsed = currentTimeMillis - timeLastUsed;
 
 					if (paths.contains(nextPath)) {
-						if (timeSinceLastUsed > getUsageTimestampUpdatePeriod()) {
+						if (timeSinceLastUsed > usageTimestampUpdatePeriod) {
 							needsUpdate.add(next);
 						}
 					} else {
-						if (timeSinceLastUsed > getGarbageCleanupTimeout()) {
+						if (timeSinceLastUsed > garbageCleanupTimeout) {
 							garbage.add(next);
 						}
 					}
