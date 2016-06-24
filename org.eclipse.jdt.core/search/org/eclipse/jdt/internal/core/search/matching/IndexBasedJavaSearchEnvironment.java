@@ -2,9 +2,11 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
@@ -95,6 +97,11 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 				// project doesn't exist
 			}
 		}
+	}
+
+	public static boolean isEnabled() {
+		return Platform.getPreferencesService().getBoolean(JavaCore.PLUGIN_ID, "useIndexBasedSearchEnvironment", false, //$NON-NLS-1$
+				null);
 	}
 
 	@Override
@@ -301,7 +308,7 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 	}
 	
 	public static INameEnvironment create(List<IJavaProject> javaProjects, org.eclipse.jdt.core.ICompilationUnit[] copies) {
-		if (JavaIndex.isEnabled()) {
+		if (JavaIndex.isEnabled() && isEnabled()) {
 			return new IndexBasedJavaSearchEnvironment(javaProjects, copies);
 		} else {
 			Iterator<IJavaProject> next = javaProjects.iterator();
