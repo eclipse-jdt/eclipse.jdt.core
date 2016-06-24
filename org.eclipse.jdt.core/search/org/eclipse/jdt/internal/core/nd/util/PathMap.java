@@ -33,16 +33,15 @@ public class PathMap<T> {
 				return this;
 			}
 
-			if (this.children == null) {
-				this.children = new HashMap<>();
-			}
-
 			String nextSegment = getSegment(key);
 			Node<T> next = createChild(nextSegment);
 			return next.createNode(key);
 		}
 
 		public Node<T> createChild(String nextSegment) {
+			if (this.children == null) {
+				this.children = new HashMap<>();
+			}
 			Node<T> next = this.children.get(nextSegment);
 			if (next == null) {
 				next = new Node<>(this.depth + 1);
@@ -70,6 +69,9 @@ public class PathMap<T> {
 		}
 
 		Node<T> getChild(String nextSegment) {
+			if (this.children == null) {
+				return null;
+			}
 			return this.children.get(nextSegment);
 		}
 
@@ -78,6 +80,10 @@ public class PathMap<T> {
 	    		result.add(parent);
 	    	}
 
+	    	if (this.children == null) {
+	    		return;
+	    	}
+	
 	    	for (Entry<String, Node<T>> next : this.children.entrySet()) {
 	    		String key = next.getKey();
 	    		IPath nextPath = buildChildPath(parent, key);
