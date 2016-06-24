@@ -25,6 +25,7 @@ import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.core.IClassFile;
@@ -59,20 +60,6 @@ public final class Indexer {
 	private static final Object mutex = new Object();
 	private static final long MS_TO_NS = 1000000;
 
-	/**
-	 * Amount of time (milliseconds) unreferenced files are allowed to sit in the index before they are discarded.
-	 * Making this too short will cause some operations (classpath modifications, closing/reopening projects, etc.)
-	 * to become more expensive. Making this too long will waste space in the database.
-	 */
-	private static final long GARBAGE_CLEANUP_TIMEOUT = 1000 * 60 * 60 * 24;
-
-	/**
-	 * Amount of time (milliseconds) before we update the "used" timestamp on a file in the index. We don't update
-	 * the timestamps every update since doing so would be unnecessarily inefficient... but if any of the timestamps
-	 * is older than this update period, we refresh it.
-	 */
-	private static final long USAGE_TIMESTAMP_UPDATE_PERIOD = GARBAGE_CLEANUP_TIMEOUT / 4;
-
 	private Object listenersMutex = new Object();
 	/**
 	 * Listener list. Copy-on-write. Synchronize on "listenersMutex" before accessing.
@@ -97,6 +84,29 @@ public final class Indexer {
 			}
 			return indexer;
 		}
+	}
+
+	/**
+	 * Amount of time (milliseconds) unreferenced files are allowed to sit in the index before they are discarded.
+	 * Making this too short will cause some operations (classpath modifications, closing/reopening projects, etc.)
+	 * to become more expensive. Making this too long will waste space in the database.
+	 * <p>
+	 * The value of this is stored in the JDT core preference called "garbageCleanupTimeoutMs". The default value
+	 * is 3 days.
+	 */
+	private static long getGarbageCleanupTimeout() {
+		return Platform.getPreferencesService().getLong(JavaCore.PLUGIN_ID, "garbageCleanupTimeoutMs", //$NON-NLS-1$
+				1000 * 60 * 60 * 24 * 3,
+				null);
+	}
+
+	/**
+	 * Amount of time (milliseconds) before we update the "used" timestamp on a file in the index. We don't update
+	 * the timestamps every update since doing so would be unnecessarily inefficient... but if any of the timestamps
+	 * is older than this update period, we refresh it.
+	 */
+	private static long getUsageTimestampUpdatePeriod() {
+		return getGarbageCleanupTimeout() / 4;
 	}
 
 	protected void rescan(IProgressMonitor monitor) throws CoreException {
@@ -292,11 +302,11 @@ public final class Indexer {
 					long timeSinceLastUsed = currentTimeMillis - timeLastUsed;
 
 					if (paths.contains(nextPath)) {
-						if (timeSinceLastUsed > USAGE_TIMESTAMP_UPDATE_PERIOD) {
+						if (timeSinceLastUsed > getUsageTimestampUpdatePeriod()) {
 							needsUpdate.add(next);
 						}
 					} else {
-						if (timeSinceLastUsed > GARBAGE_CLEANUP_TIMEOUT) {
+						if (timeSinceLastUsed > getGarbageCleanupTimeout()) {
 							garbage.add(next);
 						}
 					}
