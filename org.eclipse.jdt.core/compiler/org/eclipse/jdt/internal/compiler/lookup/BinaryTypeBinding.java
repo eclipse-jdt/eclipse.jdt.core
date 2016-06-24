@@ -270,7 +270,6 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	this.environment = environment;
 	this.fPackage = packageBinding;
 	this.fileName = binaryType.getFileName();
-	this.module = environment.getModule(binaryType.getModule());
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=324850, even in a 1.4 project, we
 	   must internalize type variables and observe any parameterization of super class
 	   and/or super interfaces in order to be able to detect overriding in the presence

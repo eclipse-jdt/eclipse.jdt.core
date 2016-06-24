@@ -425,6 +425,7 @@ public class ClassScope extends Scope {
 		}
 
 		SourceTypeBinding sourceType = this.referenceContext.binding;
+		sourceType.module = environment().getModule(module());
 		environment().setAccessRestriction(sourceType, accessRestriction);
 		
 		TypeParameter[] typeParameters = this.referenceContext.typeParameters;

@@ -94,7 +94,7 @@ public class CompilationUnitDeclaration extends ASTNode implements ProblemSeveri
 	 * moduleDeclaration, which represents the module this compilation unit may
 	 * define, i.e. if this unit represents module-info.java.
 	 */
-	public char[] module;
+//	public char[] module;
 
 public CompilationUnitDeclaration(ProblemReporter problemReporter, CompilationResult compilationResult, int sourceLength) {
 	this.problemReporter = problemReporter;
@@ -102,13 +102,6 @@ public CompilationUnitDeclaration(ProblemReporter problemReporter, CompilationRe
 	//by definition of a compilation unit....
 	this.sourceStart = 0;
 	this.sourceEnd = sourceLength - 1;
-	 if (compilationResult != null) {
-		 if (this.isModuleInfo()) {
-			 this.module = this.moduleDeclaration != null ? this.moduleDeclaration.moduleName : ModuleEnvironment.UNNAMED;
-		 } else if (compilationResult.compilationUnit != null) {
-			 this.module = compilationResult.compilationUnit.module();
-		 }
-	 }
 }
 
 /*
@@ -787,5 +780,13 @@ public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope, boolean
 	} catch (AbortCompilationUnit e) {
 		// ignore
 	}
+}
+public char[] module() {
+	if (this.isModuleInfo()) {
+		return this.moduleDeclaration != null ? this.moduleDeclaration.moduleName : ModuleEnvironment.UNNAMED;
+	} else if (this.compilationResult != null && this.compilationResult.compilationUnit != null) {
+		return this.compilationResult.compilationUnit.module();
+	}
+	return ModuleEnvironment.UNNAMED;
 }
 }

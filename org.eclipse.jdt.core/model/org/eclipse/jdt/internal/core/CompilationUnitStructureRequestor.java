@@ -724,7 +724,9 @@ public void exitType(int declarationEnd) {
 		PackageFragmentRoot root= (PackageFragmentRoot) handle.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 		if (root != null) {
 			try {
-				((PackageFragmentRootInfo)(root.getElementInfo())).setModule(createModuleInfo(typeInfo, handle));
+				org.eclipse.jdt.internal.core.ModuleInfo module = createModuleInfo(typeInfo, handle);
+				this.unitInfo.setModule(module);
+				((PackageFragmentRootInfo)(root.getElementInfo())).setModule(module);
 			} catch (JavaModelException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

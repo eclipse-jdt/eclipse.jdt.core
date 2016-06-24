@@ -112,12 +112,13 @@ public class SearchableEnvironment extends ModuleEnvironment
 				packageName,
 				false/*exact match*/,
 				NameLookup.ACCEPT_ALL,
-				this.checkAccessRestrictions);
+				this.checkAccessRestrictions,
+				module);
 		if (answer != null) {
 			// construct name env answer
 			if (answer.type instanceof BinaryType) { // BinaryType
 				try {
-					return new NameEnvironmentAnswer((IBinaryType) ((BinaryType) answer.type).getElementInfo(), answer.restriction);
+					return new NameEnvironmentAnswer((IBinaryType) ((BinaryType) answer.type).getElementInfo(), answer.restriction, answer.module.name());
 				} catch (JavaModelException npe) {
 					// fall back to using owner
 				}
@@ -142,7 +143,7 @@ public class SearchableEnvironment extends ModuleEnvironment
 						if (!otherType.equals(topLevelType) && index < length) // check that the index is in bounds (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=62861)
 							sourceTypes[index++] = otherType;
 					}
-					return new NameEnvironmentAnswer(sourceTypes, answer.restriction, getExternalAnnotationPath(answer.entry));
+					return new NameEnvironmentAnswer(sourceTypes, answer.restriction, getExternalAnnotationPath(answer.entry), answer.module.name());
 				} catch (JavaModelException jme) {
 					if (jme.isDoesNotExist() && String.valueOf(TypeConstants.PACKAGE_INFO_NAME).equals(typeName)) {
 						// in case of package-info.java the type doesn't exist in the model,

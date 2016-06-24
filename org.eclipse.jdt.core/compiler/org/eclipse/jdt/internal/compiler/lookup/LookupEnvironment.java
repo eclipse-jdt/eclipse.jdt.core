@@ -157,7 +157,7 @@ public ReferenceBinding askForType(char[][] compoundName) {
 }
 //TODO: BETA_JAVA9 - should ideally return ModuleBinding?
 public ModuleBinding getModule(char[] name) {
-	if (name == null || name.length == 0)
+	if (name == null || name.length == 0 || CharOperation.equals(name, ModuleEnvironment.UNNAMED))
 		return ModuleBinding.UnNamedModule;
 	ModuleBinding module = (ModuleBinding) this.knownModules.get(name);
 	if (module == null) {
@@ -179,16 +179,25 @@ public ModuleBinding createModuleInfo(CompilationUnitScope scope) {
 public ReferenceBinding askForType(char[][] compoundName, char[] mod) {
 	NameEnvironmentAnswer answer = this.nameEnvironment.findType(compoundName, mod);
 	if (answer == null) return null;
-
 	if (answer.isBinaryType()) {
 		// the type was found as a .class file
-		this.typeRequestor.accept(answer.getBinaryType(), computePackageFrom(compoundName, false /* valid pkg */), answer.getAccessRestriction());
+		PackageBinding pkg = computePackageFrom(compoundName, false /* valid pkg */);
+		this.typeRequestor.accept(answer.getBinaryType(), pkg, answer.getAccessRestriction());
+		ReferenceBinding binding = pkg.getType0(compoundName[compoundName.length - 1]);
+		if (binding instanceof BinaryTypeBinding) {
+			((BinaryTypeBinding) binding).module = getModule(answer.moduleName());
+		}
 	} else if (answer.isCompilationUnit()) {
 		// the type was found as a .java file, try to build it then search the cache
 		this.typeRequestor.accept(answer.getCompilationUnit(), answer.getAccessRestriction());
 	} else if (answer.isSourceType()) {
 		// the type was found as a source model
-		this.typeRequestor.accept(answer.getSourceTypes(), computePackageFrom(compoundName, false /* valid pkg */), answer.getAccessRestriction());
+		PackageBinding pkg = computePackageFrom(compoundName, false /* valid pkg */);
+		this.typeRequestor.accept(answer.getSourceTypes(), pkg, answer.getAccessRestriction());
+		ReferenceBinding binding = pkg.getType0(compoundName[compoundName.length - 1]);
+		if (binding instanceof SourceTypeBinding) {
+			((SourceTypeBinding) binding).module = getModule(answer.moduleName());
+		}
 	}
 	return getCachedType(compoundName);
 }
@@ -215,6 +224,10 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name, char[] m
 	if (answer.isBinaryType()) {
 		// the type was found as a .class file
 		this.typeRequestor.accept(answer.getBinaryType(), packageBinding, answer.getAccessRestriction());
+		ReferenceBinding binding = packageBinding.getType0(name);
+		if (binding instanceof BinaryTypeBinding) {
+			((BinaryTypeBinding) binding).module = getModule(module);
+		}
 	} else if (answer.isCompilationUnit()) {
 		// the type was found as a .java file, try to build it then search the cache
 		try {
@@ -228,6 +241,9 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name, char[] m
 		// the type was found as a source model
 		this.typeRequestor.accept(answer.getSourceTypes(), packageBinding, answer.getAccessRestriction());
 		ReferenceBinding binding = packageBinding.getType0(name);
+		if (binding instanceof SourceTypeBinding) {
+			((SourceTypeBinding) binding).module = getModule(module);
+		}
 		String externalAnnotationPath = answer.getExternalAnnotationPath();
 		if (externalAnnotationPath != null && this.globalOptions.isAnnotationBasedNullAnalysisEnabled && binding instanceof SourceTypeBinding) {
 			ExternalAnnotationSuperimposer.apply((SourceTypeBinding) binding, externalAnnotationPath);

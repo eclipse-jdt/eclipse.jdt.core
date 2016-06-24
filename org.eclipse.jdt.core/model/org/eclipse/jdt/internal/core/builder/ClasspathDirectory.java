@@ -193,8 +193,8 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 			}
 		}
 		if (this.accessRuleSet == null)
-			return new NameEnvironmentAnswer(reader, null);
-		return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()));
+			return this.module == null ? new NameEnvironmentAnswer(reader, null) : new NameEnvironmentAnswer(reader, null, reader.moduleName);
+		return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()), reader.moduleName);
 	}
 	return null;
 }
@@ -236,11 +236,9 @@ public String debugPathString() {
 
 @Override
 public boolean servesModule(IModule mod) {
-	if (mod == null) 
-		return false;
-	if (this.module == null || mod == this || mod == ModuleEnvironment.UNNAMED_MODULE)
-		return true;
-	return this.module.equals(mod);
+	if (mod == null)
+		return this.module == null || this.module == ModuleEnvironment.UNNAMED_MODULE;
+	return this.module == null ? mod == ModuleEnvironment.UNNAMED_MODULE : this.module.equals(mod);
 }
 
 @Override

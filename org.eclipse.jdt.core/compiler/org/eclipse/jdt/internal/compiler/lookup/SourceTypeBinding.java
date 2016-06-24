@@ -124,7 +124,6 @@ public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassSc
 	this.fields = Binding.UNINITIALIZED_FIELDS;
 	this.methods = Binding.UNINITIALIZED_METHODS;
 	this.prototype = this;
-	this.module = scope.environment().getModule(scope.module());
 	computeId();
 }
 

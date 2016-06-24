@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
 
+import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
+
 public class NameEnvironmentAnswer {
 
 	// only one of the three can be set
@@ -25,21 +27,32 @@ public class NameEnvironmentAnswer {
 	String externalAnnotationPath; // should be an absolute file system path
 
 	public NameEnvironmentAnswer(IBinaryType binaryType, AccessRestriction accessRestriction) {
-		this.binaryType = binaryType;
-		this.accessRestriction = accessRestriction;
-		this.module = binaryType.getModule();
+		this(binaryType, accessRestriction, binaryType.getModule());
 	}
 
+	public NameEnvironmentAnswer(IBinaryType binaryType, AccessRestriction accessRestriction, char[] module) {
+		this.binaryType = binaryType;
+		this.accessRestriction = accessRestriction;
+		this.module = module;
+	}
 	public NameEnvironmentAnswer(ICompilationUnit compilationUnit, AccessRestriction accessRestriction) {
+		this(compilationUnit, accessRestriction, compilationUnit.module());
+	}
+	public NameEnvironmentAnswer(ICompilationUnit compilationUnit, AccessRestriction accessRestriction, char[] module) {
 		this.compilationUnit = compilationUnit;
 		this.accessRestriction = accessRestriction;
-		this.module = compilationUnit.module();
+		this.module = module;
 	}
 
 	public NameEnvironmentAnswer(ISourceType[] sourceTypes, AccessRestriction accessRestriction, String externalAnnotationPath) {
+		this(sourceTypes, accessRestriction, externalAnnotationPath, ModuleEnvironment.UNNAMED);
+	}
+
+	public NameEnvironmentAnswer(ISourceType[] sourceTypes, AccessRestriction accessRestriction, String externalAnnotationPath, char[] module) {
 		this.sourceTypes = sourceTypes;
 		this.accessRestriction = accessRestriction;
 		this.externalAnnotationPath = externalAnnotationPath;
+		this.module = module;
 	}
 	/**
 	 * Returns the associated access restriction, or null if none.

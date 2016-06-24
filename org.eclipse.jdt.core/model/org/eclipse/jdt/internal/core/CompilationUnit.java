@@ -1357,13 +1357,7 @@ public ISourceRange getNameRange() {
 
 @Override
 public char[] module() {
-	org.eclipse.jdt.internal.compiler.env.IModule module = null;
-	try {
-		if (this.getPackageFragmentRoot().isOpen())
-			module = ((PackageFragmentRootInfo)this.getPackageFragmentRoot().getElementInfo()).getModule();
-	} catch (JavaModelException e) {
-		//
-	}
+	org.eclipse.jdt.internal.compiler.env.IModule module = (this.getPackageFragmentRoot()).getModule();
 	return (module == null) ? null : module.name();
 }
 }

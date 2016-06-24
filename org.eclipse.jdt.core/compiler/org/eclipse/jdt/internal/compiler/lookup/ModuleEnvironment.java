@@ -188,7 +188,7 @@ public abstract class ModuleEnvironment implements INameEnvironmentExtension {
 	}
 
 	public IModule[] getVisibleModules(char[] mod) {
-		IModule[] targets = null;
+		IModule[] targets = new IModule[0];
 		if (mod != null && !CharOperation.equals(mod, UNNAMED)) {
 			Set<IModule> set = new LinkedHashSet<>();
 			IModule client = getModule(JRTUtil.JAVA_BASE.toCharArray());

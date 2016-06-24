@@ -22,7 +22,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -844,10 +844,60 @@ protected void verifyAttachSource(IPath sourcePath) throws JavaModelException {
 
 @Override
 public boolean isModule() {
+	// Only kind source handled here. Roots of Other kinds should answer appropriately, without actually opening the
+	// root whenever possible
 	try {
-		return ((PackageFragmentRootInfo) getElementInfo()).isModule(resource(), this);
-	} catch (JavaModelException e) {
-		return false;
+		if (getKind() == IPackageFragmentRoot.K_SOURCE) {
+			IPackageFragment fragment = getPackageFragment(""); //$NON-NLS-1$
+			ICompilationUnit[] units = fragment.getCompilationUnits();
+			for (ICompilationUnit unit : units) {
+				if (unit.getElementName().toLowerCase().indexOf(new String(TypeConstants.MODULE_INFO_NAME)) != -1) {
+					return true;
+				}
+			}
+		}
+	} catch(JavaModelException jme) {
+		//
 	}
+	return false;
+}
+
+
+public org.eclipse.jdt.internal.compiler.env.IModule getModule() {
+	if (!this.isModule()) {
+		return null;
+	}
+	try {
+		PackageFragmentRootInfo rootInfo = (PackageFragmentRootInfo) getElementInfo();
+		org.eclipse.jdt.internal.compiler.env.IModule module = rootInfo.getModule();
+		if (module != null)
+			return module;
+		IJavaElement[] pkgs = getChildren();
+		for (int j = 0, length = pkgs.length; j < length; j++) {
+			// only look in the default package
+			if (pkgs[j].getElementName().length() == 0) {
+				OpenableElementInfo info = null;
+				if (getKind() == IPackageFragmentRoot.K_SOURCE) {
+					ICompilationUnit unit = ((PackageFragment) pkgs[j])
+							.getCompilationUnit(TypeConstants.MODULE_INFO_FILE_NAME_STRING);
+					if (unit instanceof CompilationUnit && unit.exists()) {
+						info = (CompilationUnitElementInfo) ((CompilationUnit) unit)
+								.getElementInfo();
+					}
+				} else {
+					IClassFile classFile = ((IPackageFragment)pkgs[j]).getClassFile(TypeConstants.MODULE_INFO_CLASS_NAME_STRING);
+					if (classFile instanceof ClassFile && classFile.exists()) {
+						info = (ClassFileInfo) ((ClassFile) classFile).getElementInfo();
+					}
+				}
+				if (info != null)
+					return info.getModule();
+				break;
+			}
+		}
+	} catch (JavaModelException e) {
+		//
+	}
+	return null;
 }
 }

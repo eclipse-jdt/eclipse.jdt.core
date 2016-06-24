@@ -397,7 +397,8 @@ public interface TypeConstants {
 	public static final char[] PACKAGE_INFO_NAME = "package-info".toCharArray(); //$NON-NLS-1$
 	public static final char[] MODULE_INFO_NAME = "module-info".toCharArray(); //$NON-NLS-1$
 	public static final char[] MODULE_INFO_FILE_NAME = "module-info.java".toCharArray(); //$NON-NLS-1$
-
+	public static final String MODULE_INFO_FILE_NAME_STRING = "module-info.java"; //$NON-NLS-1$
+	public static final String MODULE_INFO_CLASS_NAME_STRING = "module-info.class"; //$NON-NLS-1$
 	// java.base module name
 	char[] JAVA_BASE = "java.base".toCharArray(); //$NON-NLS-1$
 }

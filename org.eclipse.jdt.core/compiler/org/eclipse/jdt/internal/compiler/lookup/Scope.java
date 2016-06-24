@@ -668,7 +668,7 @@ public abstract class Scope {
 		return (CompilationUnitScope) lastScope;
 	}
 	public final char[] module() {
-		return compilationUnitScope().referenceCompilationUnit().module;
+		return compilationUnitScope().referenceCompilationUnit().module();
 	}
 	public boolean isLambdaScope() {
 		return false;
