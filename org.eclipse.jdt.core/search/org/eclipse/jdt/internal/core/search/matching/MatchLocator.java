@@ -1183,7 +1183,10 @@ public void initialize(JavaProject project, int possibleMatchSize) throws JavaMo
 	List<IJavaProject> projects = new ArrayList<>();
 	projects.add(project);
 	if (this.pattern.focus != null) {
-		projects.add(this.pattern.focus.getJavaProject());
+		IJavaProject focusProject = this.pattern.focus.getJavaProject();
+		if (focusProject != project) {
+			projects.add(focusProject);
+		}
 	}
 	this.nameEnvironment = IndexBasedJavaSearchEnvironment.create(projects, this.workingCopies);
 

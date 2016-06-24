@@ -49,8 +49,7 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 
 		try {
 			List<IPackageFragmentRoot> localRoots = new ArrayList<>();
-			
-			int idx = 0;
+
 			for (IJavaProject next : javaProject) {
 				for (IPackageFragmentRoot nextRoot : next.getAllPackageFragmentRoots()) {
 					IPath path = nextRoot.getPath();
@@ -62,15 +61,10 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 								PackageFragmentRoot root = (PackageFragmentRoot)nextRoot;
 								cp = new ClasspathSourceDirectory((IContainer)target, root.fullExclusionPatternChars(), root.fullInclusionPatternChars());
 								this.unindexedEntries.add(cp);
-//							} else {
-//								ClasspathEntry rawClasspathEntry = (ClasspathEntry) nextRoot.getRawClasspathEntry();
-//								cp = ClasspathLocation.forBinaryFolder((IContainer) target, false, rawClasspathEntry.getAccessRuleSet(),
-//																	ClasspathEntry.getExternalAnnotationPath(rawClasspathEntry, ((IJavaProject)nextRoot.getParent()).getProject(), true));
 							}
 						}
 					}
 
-					idx++;
 					localRoots.add(nextRoot);
 				}
 			}
@@ -95,6 +89,7 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 			try {
 				if (nextRoot.getKind() == IPackageFragmentRoot.K_SOURCE) {
 					this.sourceEntryPosition = i;
+					break;
 				}
 			} catch (JavaModelException e) {
 				// project doesn't exist
@@ -284,7 +279,7 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 
 								IPath path = resource.getPath();
 
-								if (IndexBasedJavaSearchEnvironment.this.mapPathsToRoots.containsPrefixOf(path)) {
+								if (containsPrefixOf(path)) {
 									// Terminate the search -- we've found a class belonging to the package
 									// we're searching for.
 									return false;
@@ -296,8 +291,13 @@ public class IndexBasedJavaSearchEnvironment implements INameEnvironment, Suffix
 		}
 	}
 
+	boolean containsPrefixOf(IPath path) {
+		return this.mapPathsToRoots.containsPrefixOf(path);
+	}
+
 	@Override
 	public void cleanup() {
+		// No explicit cleanup required for this class
 	}
 	
 	public static INameEnvironment create(List<IJavaProject> javaProjects, org.eclipse.jdt.core.ICompilationUnit[] copies) {
