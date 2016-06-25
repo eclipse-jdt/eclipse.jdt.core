@@ -1862,6 +1862,8 @@ void setSourceStart(int sourceStart);
 	int IllegalStrictfpForAbstractInterfaceMethod = MethodRelated + 1057;
 	/** @since 3.10 */
 	int IllegalDefaultModifierSpecification = MethodRelated + 1058;
+	/** @since 3.13 */
+	int CannotInferInvocationType = TypeRelated + 1059;
 
 	/** @since 3.10 */
 	int GenericInferenceError = 1100; 	// FIXME: This is just a stop-gap measure, be more specific via https://bugs.eclipse.org/404675

@@ -418,6 +418,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("CannotImplementIncompatibleNullness", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("CannotImportPackage", new ProblemAttributes(CategorizedProblem.CAT_IMPORT));
 		expectedProblemAttributes.put("CannotInferElidedTypes", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("CannotInferInvocationType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("CannotInvokeSuperConstructorInEnum", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("CannotOverrideAStaticMethodWithAnInstanceMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("CannotReadSource", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -1252,6 +1253,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("CannotImportPackage", SKIP);
 		expectedProblemAttributes.put("CannotImplementIncompatibleNullness", new ProblemAttributes(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION));
 		expectedProblemAttributes.put("CannotInferElidedTypes", SKIP);
+		expectedProblemAttributes.put("CannotInferInvocationType", SKIP);
 		expectedProblemAttributes.put("CannotInvokeSuperConstructorInEnum", SKIP);
 		expectedProblemAttributes.put("CannotOverrideAStaticMethodWithAnInstanceMethod", SKIP);
 		expectedProblemAttributes.put("CannotReadSource", SKIP);

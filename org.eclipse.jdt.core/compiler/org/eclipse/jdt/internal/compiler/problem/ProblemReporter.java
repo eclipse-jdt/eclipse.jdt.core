@@ -112,6 +112,7 @@ import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.EqualExpression;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.ExpressionContext;
 import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
@@ -4271,8 +4272,18 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method, Scope s
 			// FIXME(stephan): construct suitable message (https://bugs.eclipse.org/404675)
 			problemMethod = (ProblemMethodBinding) method;
 			shownMethod = problemMethod.closestMatch;
-			if (problemMethod.returnType == shownMethod.returnType) //$IDENTITY-COMPARISON$
+			if (problemMethod.returnType == shownMethod.returnType) { //$IDENTITY-COMPARISON$
+				if (messageSend.expressionContext == ExpressionContext.VANILLA_CONTEXT) {
+					TypeVariableBinding[] typeVariables = method.shallowOriginal().typeVariables;
+					String typeArguments = typesAsString(typeVariables, false);
+					this.handle(IProblem.CannotInferInvocationType, 
+							new String[] { typeArguments, String.valueOf(shownMethod.original().readableName()) },
+							new String[] { typeArguments, String.valueOf(shownMethod.original().shortReadableName()) },
+							messageSend.sourceStart,
+							messageSend.sourceEnd);
+				}
 				return; // funnily this can happen in a deeply nested call, because the inner lies by stealing its closest match and the outer does not know so. See GRT1_8.testBug430296
+			}
 			TypeBinding shownMethodReturnType = shownMethod.returnType.capture(scope, messageSend.sourceStart, messageSend.sourceEnd);
 			this.handle(
 				IProblem.TypeMismatch,

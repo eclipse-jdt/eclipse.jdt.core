@@ -2062,9 +2062,20 @@ public void testBug427626() {
 			"	}\n" + 
 			"}"
 		},
-		// 8u20 emits just one message inferred type not conforming to upper bound. ECJ's message is actually better.
+		// 8u20 emits just one message inferred type not conforming to upper bound.
 		"----------\n" + 
-		"1. ERROR in X.java (at line 13)\n" + 
+		"1. ERROR in X.java (at line 8)\n" +
+		"	ss.stream().map(s -> {\n" +
+		"          class L1 {};\n" +
+		"          class L2 {\n" +
+		"            void mm(L1 l) {}\n" +
+		"          }\n" +
+		"          return new L2().mm(new L1());\n" +
+		"        }).forEach(e -> System.out.println(e));\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Cannot infer type argument(s) for <R> map(Function<? super T,? extends R>)\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 13)\n" + 
 		"	return new L2().mm(new L1());\n" + 
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
 		"Cannot return a void result\n" + 
@@ -6431,5 +6442,61 @@ public void testBug496942() {
 			"	}\n" + 
 			"}\n"
 		});
+}
+public void testBug496574() {
+	runNegativeTest(
+		new String[] {
+			"EclipseNeonBug.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.Collections;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Map;\n" + 
+			"import java.util.Optional;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"public class EclipseNeonBug {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		List<KeyValueObj> keyValObjs = new ArrayList<>();\n" + 
+			"		Map<String, String> mses = Optional.ofNullable(keyValObjs)\n" + 
+			"                .filter(ms -> !ms.isEmpty())\n" + 
+			"                .map(ms -> ms.stream().collect(Collectors.toMap(\n" + 
+			"                    metafield -> metafield.getKey(),\n" + 
+			"                    metafield -> metafield.getValue())))\n" + 
+			"                .orElseGet(() -> Collections.emptyMap());\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public static class KeyValueObj {\n" + 
+			"		private String key;\n" + 
+			"		private String value;\n" + 
+			"\n" + 
+			"	    public String getKey() {\n" + 
+			"	        return key;\n" + 
+			"	    }\n" + 
+			"\n" + 
+			"	    public void setKey(String key) {\n" + 
+			"	        this.key = key;\n" + 
+			"	    }\n" + 
+			"\n" + 
+			"	    public String getValue() {\n" + 
+			"	        return value;\n" + 
+			"	    }\n" + 
+			"\n" + 
+			"	    public void setValue(String value) {\n" + 
+			"	        this.value = value;\n" + 
+			"	    }\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in EclipseNeonBug.java (at line 12)\n" + 
+		"	Map<String, String> mses = Optional.ofNullable(keyValObjs)\n" + 
+		"                .filter(ms -> !ms.isEmpty())\n" + 
+		"                .map(ms -> ms.stream().collect(Collectors.toMap(\n" + 
+		"                    metafield -> metafield.getKey(),\n" + 
+		"                    metafield -> metafield.getValue())))\n" + 
+		"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Cannot infer type argument(s) for <U> map(Function<? super T,? extends U>)\n" + 
+		"----------\n");
 }
 }
