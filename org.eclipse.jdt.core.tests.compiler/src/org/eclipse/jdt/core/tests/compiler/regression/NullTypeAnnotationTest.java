@@ -12289,4 +12289,60 @@ public void testBug488495collector() {
 		""
 	);
 }
+public void testBug496591() {
+	runConformTestWithLibs(
+		new String[] {
+			"test2/Descriptors.java",
+			"package test2;\n" +
+			"\n" +
+			"public final class Descriptors {\n" +
+			"	public static final class FieldDescriptor implements FieldSet.FieldDescriptorLite<FieldDescriptor> { }\n" +
+			"}\n" +
+			"",
+			"test2/FieldSet.java",
+			"package test2;\n" +
+			"\n" +
+			"public final class FieldSet<F1 extends FieldSet.FieldDescriptorLite<F1>> {\n" +
+			"	public interface FieldDescriptorLite<F2 extends FieldDescriptorLite<F2>> { }\n" +
+			"\n" +
+			"	void f(final Map.Entry<F1> entry) { }\n" +
+			"}\n" +
+			"",
+			"test2/Map.java",
+			"package test2;\n" +
+			"\n" +
+			"public class Map<K> {\n" +
+			"	interface Entry<K1> { }\n" +
+			"}\n" +
+			"",
+			"test2/MessageOrBuilder.java",
+			"package test2;\n" +
+			"\n" +
+			"public interface MessageOrBuilder {\n" +
+			"	Map<Descriptors.FieldDescriptor> getAllFields();\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runConformTestWithLibs(
+		new String[] {
+			"test1/GeneratedMessage.java",
+			"package test1;\n" +
+			"\n" +
+			"import test2.Descriptors.FieldDescriptor;\n" +
+			"import test2.Map;\n" +
+			"import test2.MessageOrBuilder;\n" +
+			"\n" +
+			"public abstract class GeneratedMessage implements MessageOrBuilder {\n" +
+			"	@Override\n" +
+			"	public abstract Map<FieldDescriptor> getAllFields();\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}	
 }

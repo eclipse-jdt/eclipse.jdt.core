@@ -168,7 +168,11 @@ public class TypeSystem {
 			urb = (UnresolvedReferenceBinding) type;
 			ReferenceBinding resolvedType = urb.resolvedType;
 			if (resolvedType != null) {
-				type = this.environment.convertToRawType(resolvedType, false);				
+				if(CharOperation.indexOf('$', type.sourceName()) > 0) {
+					type = this.environment.convertToRawType(resolvedType, false);
+				} else {
+					type = resolvedType;
+				}
 			} else if (CharOperation.indexOf('$', type.sourceName()) > 0) {
 				boolean mayTolerateMissingType = this.environment.mayTolerateMissingType;
 				this.environment.mayTolerateMissingType = true;
