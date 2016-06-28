@@ -6642,4 +6642,78 @@ public void testBug496578() {
 			"}\n"
 		});
 }
+public void testBug496675() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" + 
+			"    public class B<X, Y> {\n" + 
+			"        public class C {}\n" + 
+			"    }\n" + 
+			"    public class D<X> extends B<String, X> {}\n" + 
+			"	\n" + 
+			"    /* This fails with an internal ArrayIndexOutOfBoundsException in \n" + 
+			"     * ParameterizedTypeBinding.boundCheck. */\n" + 
+			"    public class E<X extends D<?>.C> {}\n" + 
+			"}\n"
+		});
+}
+public void testBug496675_comment4() {
+	runNegativeTest(
+			new String[] {
+				"Test.java",
+				"public class Test {\n" + 
+				"    public class B<X, Y> {\n" + 
+				"        public class C {}\n" + 
+				"    }\n" + 
+				"    public class D<X extends Number> extends B<String, X> {}\n" + 
+				"	\n" + 
+				"    /* This fails with an internal ArrayIndexOutOfBoundsException in \n" + 
+				"     * ParameterizedTypeBinding.boundCheck. */\n" + 
+				"    public class E<X extends D<String>.C> {}\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 9)\n" + 
+			"	public class E<X extends D<String>.C> {}\n" + 
+			"	                           ^^^^^^\n" + 
+			"Bound mismatch: The type String is not a valid substitute for the bounded parameter <X extends Number> of the type Test.D<X>\n" + 
+			"----------\n");
+}
+public void testBug496675_problem() {
+	runNegativeTest(
+		new String[] {
+			"Test.java",
+			"public class Test {\n" + 
+			"    <X extends wrong.D<?>.C> void m() {}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 2)\n" + 
+		"	<X extends wrong.D<?>.C> void m() {}\n" + 
+		"	           ^^^^^\n" + 
+		"wrong cannot be resolved to a type\n" + 
+		"----------\n");
+}
+public void testBug496886() {
+	runConformTest(
+		new String[] {
+			"Outer.java",
+			"public interface Outer<E> {\n" + 
+			"  public interface Inner<E> {\n" + 
+			"  }\n" + 
+			"}\n",
+			"SubInterface.java",
+			"public interface SubInterface extends Outer<String> {}\n"
+		});
+	runConformTest(
+			new String[] {
+				"ProblemClass.java",
+				"class ProblemClass implements SubInterface.Inner<String> {}\n"
+			},
+			"",
+			null,
+			false, // don't flush
+			null);
+}
 }
