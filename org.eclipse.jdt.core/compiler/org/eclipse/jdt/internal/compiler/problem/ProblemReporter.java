@@ -10436,4 +10436,22 @@ public void cyclicModuleDependency(ModuleBinding binding, ModuleReference ref) {
 		NoArgument, new String[] { CharOperation.charToString(binding.moduleName), CharOperation.charToString(ref.moduleName) },
 		ref.sourceStart, ref.sourceEnd);
 }
+public void invalidServiceImpl(int problem, TypeReference impl) {
+	String[] args = new String[]{CharOperation.charToString(impl.resolvedType.readableName())};
+	int problemId = ProblemReasons.NoError;
+	switch(problem) {
+		case ProblemReasons.ServiceImplCannotbeAbstract:
+			problemId = IProblem.AbstractServiceImplementation;
+			break;
+		case ProblemReasons.DefaultConstructorRequiredForServiceImpl:
+			problemId = IProblem.DefaultConstructorRequiredForServiceImpl;
+			break;
+		case ProblemReasons.ServiceImplDefaultConstructorNotPublic:
+			problemId = IProblem.ServiceImplDefaultConstructorNotPublic;
+			break;
+	}
+	if (problemId != ProblemReasons.NoError) {
+		this.handle(problemId, NoArgument, args, impl.sourceStart, impl.sourceEnd);
+	}
+}
 }

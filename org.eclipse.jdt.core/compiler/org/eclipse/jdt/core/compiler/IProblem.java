@@ -1882,6 +1882,12 @@ void setSourceStart(int sourceStart);
 	int DuplicateServices = TypeRelated + 1204;
 	/** @since 3.12 */
 	int CyclicModuleDependency = TypeRelated + 1205;
+	/** @since 3.12 */
+	int AbstractServiceImplementation = TypeRelated + 1206;
+	/** @since 3.12 */
+	int DefaultConstructorRequiredForServiceImpl = TypeRelated + 1207;
+	/** @since 3.12 */
+	int ServiceImplDefaultConstructorNotPublic = TypeRelated + 1208;
 
 	/** @since 3.10 */
 	int GenericInferenceError = 1100; 	// FIXME: This is just a stop-gap measure, be more specific via https://bugs.eclipse.org/404675

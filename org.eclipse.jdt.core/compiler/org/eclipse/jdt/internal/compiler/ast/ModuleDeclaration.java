@@ -28,7 +28,10 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ModuleDeclaration extends TypeDeclaration {
@@ -109,17 +112,40 @@ public class ModuleDeclaration extends TypeDeclaration {
 			if (this.interfaces[i].resolveType(this.scope) != null) {
 				TypeBinding inf = this.interfaces[i].resolvedType;
 				if (this.implementations[i].resolveType(this.scope) != null) {
-					TypeBinding imp = this.implementations[i].resolvedType;
-					if (services.get(inf) == imp)  { //$IDENTITY-COMPARISON$
-						this.scope.problemReporter().duplicateTypeReference(IProblem.DuplicateServices, this.interfaces[i], this.implementations[i]);
-					} else {
-						services.put(this.interfaces[i].resolvedType, this.implementations[i].resolvedType);
+					ReferenceBinding imp = (ReferenceBinding) this.implementations[i].resolvedType;
+					if (inf.isValidBinding() && imp.isValidBinding()) {
+						validate(this.interfaces[i], this.implementations[i]);
+						if (services.get(inf) == imp) { //$IDENTITY-COMPARISON$
+							this.scope.problemReporter().duplicateTypeReference(IProblem.DuplicateServices,
+									this.interfaces[i], this.implementations[i]);
+						} else {
+							services.put(inf, imp);
+						}
 					}
 				}
 			}
 		}
 	}
 
+	private void validate(TypeReference serviceInf, TypeReference serviceImpl) {
+		ReferenceBinding intf = (ReferenceBinding) serviceInf.resolvedType;
+		ReferenceBinding impl = (ReferenceBinding) serviceImpl.resolvedType;
+		int problemId = ProblemReasons.NoError;
+		if (impl.isAbstract()) {
+			problemId = ProblemReasons.ServiceImplCannotbeAbstract;
+		} else if(impl.findSuperTypeOriginatingFrom(intf) == null) {
+			this.scope.problemReporter().typeMismatchError(impl, intf, serviceImpl, null);
+		}
+		MethodBinding defaultConstructor = impl.getExactConstructor(new TypeBinding[0]);
+		if (defaultConstructor == null || !defaultConstructor.isValidBinding()) {
+			problemId = ProblemReasons.DefaultConstructorRequiredForServiceImpl;
+		} else if (!defaultConstructor.isPublic()) {
+			problemId = ProblemReasons.ServiceImplDefaultConstructorNotPublic;
+		}
+		if (problemId != ProblemReasons.NoError) {
+			this.scope.problemReporter().invalidServiceImpl(problemId, serviceImpl);
+		}
+	}
 	public StringBuffer printHeader(int indent, StringBuffer output) {
 		output.append("module "); //$NON-NLS-1$
 		output.append(CharOperation.charToString(this.moduleName));

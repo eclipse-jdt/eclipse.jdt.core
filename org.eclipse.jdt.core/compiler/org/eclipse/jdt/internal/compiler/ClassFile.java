@@ -2702,7 +2702,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) (module.usesCount >> 8);
 		this.contents[localContentsOffset++] = (byte) module.usesCount;
 		for(int i = 0; i < module.usesCount; i++) {
-			int nameIndex = this.constantPool.literalIndex(module.uses[i].resolvedType);
+			int nameIndex = this.constantPool.literalIndexForType(module.uses[i].resolvedType.constantPoolName());
 			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) (nameIndex);
 		}
@@ -2723,10 +2723,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) (module.servicesCount >> 8);
 		this.contents[localContentsOffset++] = (byte) module.servicesCount;
 		for(int i = 0; i < module.servicesCount; i++) {
-			int nameIndex = this.constantPool.literalIndex(module.interfaces[i].resolvedType);
+			int nameIndex = this.constantPool.literalIndexForType(module.interfaces[i].resolvedType.constantPoolName());
 			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) (nameIndex);
-			nameIndex = this.constantPool.literalIndex(module.implementations[i].resolvedType);
+			nameIndex = this.constantPool.literalIndexForType(module.implementations[i].resolvedType.constantPoolName());
 			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) (nameIndex);
 		}
