@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -165,6 +169,7 @@ private void checkAndSetModifiersForConstructor(MethodBinding methodBinding) {
 
 /**
  * Spec : 8.4.3 & 9.4
+ * TODO: Add the spec section number for private interface methods from jls 9
  */
 private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 	int modifiers = methodBinding.modifiers;
@@ -179,22 +184,27 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 	if (declaringClass.isInterface()) {
 		int expectedModifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract;
 		boolean isDefaultMethod = (modifiers & ExtraCompilerModifiers.AccDefaultMethod) != 0; // no need to check validity, is done by the parser
-		boolean reportIllegalModifierCombination = false;
-		boolean isJDK18orGreater = false;
-		if (compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8 && !declaringClass.isAnnotationType()) {
+		long sourceLevel = compilerOptions().sourceLevel;
+		if (sourceLevel >= ClassFileConstants.JDK1_8 && !declaringClass.isAnnotationType()) {
 			expectedModifiers |= ClassFileConstants.AccStrictfp
 					| ExtraCompilerModifiers.AccDefaultMethod | ClassFileConstants.AccStatic;
-			isJDK18orGreater = true;
-			if (!methodBinding.isAbstract()) {
-				reportIllegalModifierCombination = isDefaultMethod && methodBinding.isStatic();
-			} else {
-				reportIllegalModifierCombination = isDefaultMethod || methodBinding.isStatic();
-				if (methodBinding.isStrictfp()) {
+			expectedModifiers |= sourceLevel >= ClassFileConstants.JDK9 ? ClassFileConstants.AccPrivate : 0;
+			if (methodBinding.isAbstract()) {
+				if (methodBinding.isStrictfp())
 					problemReporter().illegalAbstractModifierCombinationForMethod((AbstractMethodDeclaration) this.referenceContext);
+				if (isDefaultMethod || methodBinding.isStatic()) {
+					problemReporter().illegalModifierCombinationForInterfaceMethod((AbstractMethodDeclaration) this.referenceContext);
 				}
-			}
-			if (reportIllegalModifierCombination) {
+			} else if (isDefaultMethod && methodBinding.isStatic()) {
 				problemReporter().illegalModifierCombinationForInterfaceMethod((AbstractMethodDeclaration) this.referenceContext);
+			} 
+			if (sourceLevel >= ClassFileConstants.JDK9 && (methodBinding.modifiers & ClassFileConstants.AccPrivate) != 0) {
+				int remaining = realModifiers & ~expectedModifiers;
+				if (remaining == 0) { // check for the combination of allowed modifiers with private
+					remaining = realModifiers & ~(ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic | ClassFileConstants.AccStrictfp);
+					if (isDefaultMethod || remaining != 0)
+						problemReporter().illegalModifierCombinationForPrivateInterfaceMethod((AbstractMethodDeclaration) this.referenceContext);
+				}
 			}
 			// Kludge - The AccDefaultMethod bit is outside the lower 16 bits and got removed earlier. Putting it back.
 			if (isDefaultMethod) {
@@ -205,7 +215,7 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 			if ((declaringClass.modifiers & ClassFileConstants.AccAnnotation) != 0)
 				problemReporter().illegalModifierForAnnotationMember((AbstractMethodDeclaration) this.referenceContext);
 			else
-				problemReporter().illegalModifierForInterfaceMethod((AbstractMethodDeclaration) this.referenceContext, isJDK18orGreater);
+				problemReporter().illegalModifierForInterfaceMethod((AbstractMethodDeclaration) this.referenceContext, sourceLevel);
 		}
 		return;
 	}
@@ -342,6 +352,7 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 	// is necessary to ensure error reporting
 	this.referenceContext = method;
 	method.scope = this;
+	long sourceLevel = compilerOptions().sourceLevel;
 	SourceTypeBinding declaringClass = referenceType().binding;
 	int modifiers = method.modifiers | ExtraCompilerModifiers.AccUnresolved;
 	if (method.isConstructor()) {
@@ -351,7 +362,9 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 		checkAndSetModifiersForConstructor(method.binding);
 	} else {
 		if (declaringClass.isInterface()) {// interface or annotation type
-			if (method.isDefaultMethod() || method.isStatic()) {
+			if (sourceLevel >= ClassFileConstants.JDK9 && ((method.modifiers & ClassFileConstants.AccPrivate) != 0)) { // private method
+				// do nothing
+			} else if (method.isDefaultMethod() || method.isStatic()) {
 				modifiers |= ClassFileConstants.AccPublic; // default method is not abstract
 			} else {
 				modifiers |= ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract;
@@ -365,7 +378,6 @@ MethodBinding createMethod(AbstractMethodDeclaration method) {
 
 	Argument[] argTypes = method.arguments;
 	int argLength = argTypes == null ? 0 : argTypes.length;
-	long sourceLevel = compilerOptions().sourceLevel;
 	if (argLength > 0) {
 		Argument argument = argTypes[--argLength];
 		if (argument.isVarArgs() && sourceLevel >= ClassFileConstants.JDK1_5)

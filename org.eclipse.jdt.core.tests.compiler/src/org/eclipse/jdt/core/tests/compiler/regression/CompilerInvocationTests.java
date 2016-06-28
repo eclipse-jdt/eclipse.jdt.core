@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -558,6 +562,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalModifierCombinationFinalAbstractForClass", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalModifierCombinationFinalVolatileForField", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalModifierCombinationForInterfaceMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("IllegalModifierCombinationForPrivateInterfaceMethod9", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalModifierForAnnotationField", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("IllegalModifierForAnnotationMemberType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalModifierForAnnotationMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -579,6 +584,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalModifierForMemberEnum", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalModifierForMemberInterface", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalModifierForMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("IllegalModifierForInterfaceMethod9", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalModifierForVariable", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalModifiersForElidedType", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("IllegalModifiers", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -1397,6 +1403,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IllegalModifierCombinationFinalAbstractForClass", SKIP);
 		expectedProblemAttributes.put("IllegalModifierCombinationFinalVolatileForField", SKIP);
 		expectedProblemAttributes.put("IllegalModifierCombinationForInterfaceMethod", SKIP);
+		expectedProblemAttributes.put("IllegalModifierCombinationForPrivateInterfaceMethod9", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForAnnotationField", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForAnnotationMemberType", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForAnnotationMethod", SKIP);
@@ -1418,6 +1425,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IllegalModifierForMemberEnum", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForMemberInterface", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForMethod", SKIP);
+		expectedProblemAttributes.put("IllegalModifierForInterfaceMethod9", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForVariable", SKIP);
 		expectedProblemAttributes.put("IllegalModifiersForElidedType", SKIP);
 		expectedProblemAttributes.put("IllegalModifiers", SKIP);

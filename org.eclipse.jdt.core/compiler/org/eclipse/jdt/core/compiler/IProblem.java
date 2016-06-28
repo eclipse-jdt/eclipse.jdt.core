@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added the following constants
@@ -1862,7 +1866,10 @@ void setSourceStart(int sourceStart);
 	int IllegalStrictfpForAbstractInterfaceMethod = MethodRelated + 1057;
 	/** @since 3.10 */
 	int IllegalDefaultModifierSpecification = MethodRelated + 1058;
-
+	/** @since 3.12*/
+	int IllegalModifierForInterfaceMethod9 = MethodRelated + 1059;
+	/** @since 3.12*/
+	int IllegalModifierCombinationForPrivateInterfaceMethod9 = MethodRelated + 1060;
 	/** @since 3.12 */
 	int UndefinedModule = TypeRelated + 1200;
 	/** @since 3.12 */

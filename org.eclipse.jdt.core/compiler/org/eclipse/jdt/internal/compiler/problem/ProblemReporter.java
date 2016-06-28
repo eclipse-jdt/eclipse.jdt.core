@@ -2685,6 +2685,15 @@ public void illegalModifierCombinationForInterfaceMethod(AbstractMethodDeclarati
 		methodDecl.sourceStart,
 		methodDecl.sourceEnd);
 }
+public void illegalModifierCombinationForPrivateInterfaceMethod(AbstractMethodDeclaration methodDecl) {
+	String[] arguments = new String[] {new String(methodDecl.selector)};
+	this.handle(
+		IProblem.IllegalModifierCombinationForPrivateInterfaceMethod9,
+		arguments,
+		arguments,
+		methodDecl.sourceStart,
+		methodDecl.sourceEnd);
+}
 
 public void illegalModifierForAnnotationField(FieldDeclaration fieldDecl) {
 	String name = new String(fieldDecl.name);
@@ -2803,13 +2812,14 @@ public void illegalModifierForInterfaceField(FieldDeclaration fieldDecl) {
 		fieldDecl.sourceStart,
 		fieldDecl.sourceEnd);
 }
-public void illegalModifierForInterfaceMethod(AbstractMethodDeclaration methodDecl, boolean isJDK18orGreater) {
+public void illegalModifierForInterfaceMethod(AbstractMethodDeclaration methodDecl, long  level) {
+	
+	int problem = level < ClassFileConstants.JDK1_8 ? IProblem.IllegalModifierForInterfaceMethod :
+		level < ClassFileConstants.JDK9 ? IProblem.IllegalModifierForInterfaceMethod18 : IProblem.IllegalModifierForInterfaceMethod9;
 	// cannot include parameter types since they are not resolved yet
 	// and the error message would be too long
 	this.handle(
-		isJDK18orGreater 
-			? IProblem.IllegalModifierForInterfaceMethod18 
-			: IProblem.IllegalModifierForInterfaceMethod,
+		problem,
 		new String[] {
 			new String(methodDecl.selector)
 		},

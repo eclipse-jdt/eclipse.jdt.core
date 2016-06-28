@@ -4795,7 +4795,8 @@ protected void consumeInterfaceMethodDeclaration(boolean hasSemicolonBody) {
 	
 	boolean isDefault = (md.modifiers & ExtraCompilerModifiers.AccDefaultMethod) != 0;
 	boolean isStatic = (md.modifiers & ClassFileConstants.AccStatic) != 0;
-	boolean bodyAllowed = isDefault || isStatic;
+	boolean isPrivate = (md.modifiers & ClassFileConstants.AccPrivate) != 0;
+	boolean bodyAllowed = (this.parsingJava9Plus && isPrivate) || isDefault || isStatic;
 	if (this.parsingJava8Plus) {
 		if (bodyAllowed && hasSemicolonBody) {
 			md.modifiers |= ExtraCompilerModifiers.AccSemicolonBody; // avoid complaints regarding undocumented empty body
