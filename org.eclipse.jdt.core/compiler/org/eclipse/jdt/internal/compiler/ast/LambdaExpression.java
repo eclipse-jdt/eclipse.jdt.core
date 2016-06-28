@@ -834,7 +834,8 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 		Expression [] returnExpressions = copy.resultExpressions;
 		for (int i = 0, length = returnExpressions.length; i < length; i++) {
-			if (this.enclosingScope.parameterCompatibilityLevel(returnExpressions[i].resolvedType, sam.returnType) == Scope.NOT_COMPATIBLE) {
+			if (sam.returnType.isProperType(true) // inference variables can reach here during nested inference
+					&& this.enclosingScope.parameterCompatibilityLevel(returnExpressions[i].resolvedType, sam.returnType) == Scope.NOT_COMPATIBLE) {
 				if (!returnExpressions[i].isConstantValueOfTypeAssignableToType(returnExpressions[i].resolvedType, sam.returnType))
 					if (sam.returnType.id != TypeIds.T_void || this.body instanceof Block)
 						return false;

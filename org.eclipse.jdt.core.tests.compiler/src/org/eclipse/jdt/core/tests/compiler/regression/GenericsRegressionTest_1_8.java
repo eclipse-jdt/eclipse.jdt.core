@@ -6397,4 +6397,39 @@ public void testBug492939b() {
 			"}\n"
 		});
 }
+public void testBug496942() {
+	runConformTest(
+		new String[] {
+			"ProductManager.java",
+			"import java.util.Set;\n" + 
+			"import java.util.concurrent.Callable;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"\n" + 
+			"class Product { }\n" + 
+			"class ItineraryDTO { }\n" + 
+			"class Result<K, V> {\n" + 
+			"    public static <T, U> Function<T, ListenableFuture<Result<T, U>>> \n" + 
+			"    		asyncCall(Function<T, ListenableFuture<U>> asyncMethod)\n" + 
+			"    {\n" + 
+			"    	return null;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"interface ListeningExecutorService {\n" + 
+			"	<T> ListenableFuture<T> submit(Callable<T> c);\n" + 
+			"	ListenableFuture<?> submit(Runnable r);\n" + 
+			"}\n" + 
+			"interface ListenableFuture<T> {}\n" + 
+			"\n" + 
+			"public class ProductManager {\n" + 
+			"	public Stream<ListenableFuture<Result<Product, ItineraryDTO>>> \n" + 
+			"			test(ListeningExecutorService executor, Set<Product> productsSet)\n" + 
+			"	{\n" + 
+			"         return productsSet.stream().map(Result.asyncCall(product ->\n" + 
+			"                    executor.submit(() -> new ItineraryDTO()\n" + 
+			"                )));\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
 }
