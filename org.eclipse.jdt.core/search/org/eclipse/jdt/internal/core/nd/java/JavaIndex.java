@@ -202,6 +202,11 @@ public class JavaIndex {
 				null);
 	}
 
+	public static Nd createNd(File databaseFile, ChunkCache chunkCache) {
+		return new Nd(databaseFile, chunkCache, createTypeRegistry(),
+				MIN_SUPPORTED_VERSION, MAX_SUPPORTED_VERSION, CURRENT_VERSION);
+	}
+
 	public static Nd getGlobalNd() {
 		Nd localNd;
 		synchronized (ndMutex) {
@@ -212,8 +217,7 @@ public class JavaIndex {
 			return localNd;
 		}
 
-		localNd = new Nd(getDBFile(), ChunkCache.getSharedInstance(), createTypeRegistry(),
-				MIN_SUPPORTED_VERSION, MAX_SUPPORTED_VERSION, CURRENT_VERSION);
+		localNd = createNd(getDBFile(), ChunkCache.getSharedInstance());
 
 		synchronized (ndMutex) {
 			if (globalNd == null) {

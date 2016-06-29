@@ -109,7 +109,7 @@ public final class Indexer {
 		return getGarbageCleanupTimeout() / 4;
 	}
 
-	protected void rescan(IProgressMonitor monitor) throws CoreException {
+	public void rescan(IProgressMonitor monitor) throws CoreException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 
 		long startTimeNs = System.nanoTime();

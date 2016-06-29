@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.nd;
 
-import java.lang.reflect.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.core.tests.nd.indexer.IndexerTest;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -27,6 +29,7 @@ public static Class[] getAllTestClasses() {
 		BTreeTests.class,
 		DatabaseTest.class,
 		FieldBackPointerTest.class,
+		IndexerTest.class,
 		InheritenceTests.class,
 		SearchKeyTests.class
 	};
