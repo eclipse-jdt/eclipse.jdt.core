@@ -16,6 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
+import org.eclipse.jdt.core.tests.nd.RunIndexTests;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -56,6 +57,9 @@ private static Class[] getAllTestClasses() {
 
 		// Java search tests
 		RunJavaSearchTests.class,
+
+		// Testss for the new index
+		RunIndexTests.class,
 
 		// Working copy tests
 		WorkingCopyTests.class,

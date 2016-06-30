@@ -20,8 +20,8 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class RunAllTests extends junit.framework.TestCase {
-public RunAllTests(String name) {
+public class RunIndexTests extends junit.framework.TestCase {
+public RunIndexTests(String name) {
 	super(name);
 }
 public static Class[] getAllTestClasses() {
@@ -35,7 +35,7 @@ public static Class[] getAllTestClasses() {
 	};
 }
 public static Test suite() {
-	TestSuite ts = new TestSuite(RunAllTests.class.getName());
+	TestSuite ts = new TestSuite(RunIndexTests.class.getName());
 
 	Class[] testClasses = getAllTestClasses();
 	// Reset forgotten subsets of tests
