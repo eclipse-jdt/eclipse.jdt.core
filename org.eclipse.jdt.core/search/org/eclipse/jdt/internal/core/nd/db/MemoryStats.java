@@ -179,6 +179,8 @@ public class MemoryStats {
 			result.setPoolId(this.db, poolId);
 
 			refresh();
+
+			result = this.stats.get((int)poolId);
 		}
 		return result;
 	}

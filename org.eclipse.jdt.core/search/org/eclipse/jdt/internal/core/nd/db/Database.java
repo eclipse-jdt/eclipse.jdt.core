@@ -399,7 +399,7 @@ public class Database {
 
 		this.malloced += usedSize;
 		long result = freeblock + BLOCK_HEADER_SIZE;
-		this.memoryUsage.recordMalloc(poolId, datasize);
+		this.memoryUsage.recordMalloc(poolId, usedSize);
 		return result;
 	}
 
