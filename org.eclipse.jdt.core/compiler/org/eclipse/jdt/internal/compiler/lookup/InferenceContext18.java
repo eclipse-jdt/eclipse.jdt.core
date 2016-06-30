@@ -396,8 +396,12 @@ public class InferenceContext18 {
 			Set<ConstraintFormula> c = new HashSet<ConstraintFormula>();
 			if (!addConstraintsToC(this.invocationArguments, c, method, this.inferenceKind, false, invocationSite))
 				return null;
+			// not spec'd:
+			BoundSet connectivityBoundSet = this.currentBounds.copy();
+			for(ConstraintFormula cf : c)
+				connectivityBoundSet.reduceOneConstraint(this, cf);
 			// 5. bullet: determine B4 from C
-			List<Set<InferenceVariable>> components = this.currentBounds.computeConnectedComponents(this.inferenceVariables);
+			List<Set<InferenceVariable>> components = connectivityBoundSet.computeConnectedComponents(this.inferenceVariables);
 			while (!c.isEmpty()) {
 				// *
 				Set<ConstraintFormula> bottomSet = findBottomSet(c, allOutputVariables(c), components);
@@ -523,25 +527,21 @@ public class InferenceContext18 {
 			TypeBinding[] argumentTypes = arguments == null ? Binding.NO_PARAMETERS : new TypeBinding[arguments.length];
 			for (int i = 0; i < argumentTypes.length; i++)
 				argumentTypes[i] = arguments[i].resolvedType;
-			int applicabilityKind;
 			InferenceContext18 innerContext = null;
 			if (innerMethod instanceof ParameterizedGenericMethodBinding)
 				 innerContext = invocation.getInferenceContext((ParameterizedGenericMethodBinding) innerMethod);
-			applicabilityKind = innerContext != null ? innerContext.inferenceKind : getInferenceKind(innerMethod, argumentTypes);
 			
-			if (interleaved) {
+			if (interleaved && innerContext != null) {
 				MethodBinding shallowMethod = innerMethod.shallowOriginal();
-				SuspendedInferenceRecord prevInvocation = enterPolyInvocation(invocation, arguments);
-				try {
-					this.inferenceKind = applicabilityKind;
-					if (innerContext != null)
-						innerContext.outerContext = this;
-					createInitialBoundSet(shallowMethod.getAllTypeVariables(shallowMethod.isConstructor())); // minimal preparation to work with inner inference variables
-				} finally {
-					resumeSuspendedInference(prevInvocation);
-				}
+				innerContext.outerContext = this;
+				innerContext.inferInvocationApplicability(shallowMethod, argumentTypes, shallowMethod.isConstructor());
+				if (!ConstraintExpressionFormula.inferPolyInvocationType(innerContext, invocation, substF, shallowMethod))
+					return false;
+				return innerContext.addConstraintsToC(arguments, c, innerMethod.genericMethod(), innerContext.inferenceKind, interleaved, invocation);
+			} else {
+				int applicabilityKind = getInferenceKind(innerMethod, argumentTypes);
+				return this.addConstraintsToC(arguments, c, innerMethod.genericMethod(), applicabilityKind, interleaved, invocation);
 			}
-			return addConstraintsToC(arguments, c, innerMethod.genericMethod(), applicabilityKind, interleaved, invocation);
 		} else if (expri instanceof ConditionalExpression) {
 			ConditionalExpression ce = (ConditionalExpression) expri;
 			return addConstraintsToC_OneExpr(ce.valueIfTrue, c, fsi, substF, method, interleaved)

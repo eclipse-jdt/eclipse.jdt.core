@@ -6444,7 +6444,7 @@ public void testBug496942() {
 		});
 }
 public void testBug496574() {
-	runNegativeTest(
+	runConformTest(
 		new String[] {
 			"EclipseNeonBug.java",
 			"import java.util.ArrayList;\n" + 
@@ -6487,16 +6487,111 @@ public void testBug496574() {
 			"	    }\n" + 
 			"	}\n" + 
 			"}\n"
-		},
-		"----------\n" + 
-		"1. ERROR in EclipseNeonBug.java (at line 12)\n" + 
-		"	Map<String, String> mses = Optional.ofNullable(keyValObjs)\n" + 
-		"                .filter(ms -> !ms.isEmpty())\n" + 
-		"                .map(ms -> ms.stream().collect(Collectors.toMap(\n" + 
-		"                    metafield -> metafield.getKey(),\n" + 
-		"                    metafield -> metafield.getValue())))\n" + 
-		"	                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Cannot infer type argument(s) for <U> map(Function<? super T,? extends U>)\n" + 
-		"----------\n");
+		});
+}
+public void testBug496579() {
+	runConformTest(
+		new String[] {
+			"EclipseNeonBug2.java",
+			"import java.util.HashMap;\n" + 
+			"import java.util.Map;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"public class EclipseNeonBug2 {\n" + 
+			"\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		Map<String, Map<String, Object>> stuff = new HashMap<>();\n" + 
+			"		Map<String, Map<String, Integer>> result = stuff.entrySet().stream()\n" + 
+			"			.collect(Collectors.toMap(\n" + 
+			"					k -> k.getKey(), \n" + 
+			"					o -> {\n" + 
+			"						Map<String, Object> child = o.getValue();\n" + 
+			"						return child.entrySet().stream().collect(Collectors.toMap(\n" + 
+			"								k -> k.getKey(), \n" + 
+			"								v -> Integer.parseInt(v.getValue().toString())));\n" + 
+			"					}));\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"}\n"
+		});
+}
+public void testBug496761() {
+	runConformTest(
+		new String[] {
+			"RepoCase.java",
+			"import java.util.HashMap;\n" + 
+			"import java.util.Map;\n" + 
+			"import java.util.Map.Entry;\n" + 
+			"import java.util.Optional;\n" + 
+			"import java.util.function.Supplier;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"public class RepoCase {\n" + 
+			"	private Map<String, Supplier<?>> dependencyMap = new HashMap<>();\n" + 
+			"	\n" + 
+			"	void compilerNPE() {\n" + 
+			"// Leads to NPE in compiler\n" + 
+			"		Map<String, Object> map = Optional.ofNullable(this.dependencyMap)\n" + 
+			"				.map(m -> m.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> (Object) e.getValue().get())))\n" + 
+			"				.orElse(new HashMap<>());\n" + 
+			"		\n" + 
+			"// Compiler error (might be the real cause for the above NPE)		\n" + 
+			"		Optional<Map<String, Object>> o = Optional.ofNullable(this.dependencyMap)\n" + 
+			"			.map(m -> m.entrySet().stream().collect(Collectors.toMap(Entry::getKey, e -> (Object) e.getValue().get())));\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
+public void testBug496624() {
+	runConformTest(
+		new String[] {
+			"JDTNPETest.java",
+			"import java.util.*;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"interface HttpSession{\n" + 
+			"  Enumeration<String> getAttributeNames();\n" + 
+			"  Object getAttribute(String name);\n" + 
+			"}\n" + 
+			"public class JDTNPETest {\n" + 
+			"    \n" + 
+			"    public static void main(String[] args){\n" + 
+			"        Map<String, Object> sessionAttributes = Optional.<HttpSession>ofNullable(null)\n" + 
+			"            .map(s -> Collections.list(s.getAttributeNames()).stream()\n" + 
+			"                .collect(Collectors.toMap(name -> name, name -> s.getAttribute(name))))\n" + 
+			"            .orElse(null);\n" + 
+			"    }\n" + 
+			"\n" + 
+			"}\n"
+		});
+}
+public void testBug497193() {
+	runConformTest(
+		new String[] {
+			"EclipseBug.java",
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"public class EclipseBug {\n" + 
+			"    public static class Class1<K, V > {\n" + 
+			"        public Class1( Function<K, V > arg ) {}\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static <T, R> R method1( T object, Function<T, R > function ) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static class Class2 {\n" + 
+			"        public static Class2 method1( String arg ) {\n" + 
+			"            return null;\n" + 
+			"        }\n" + 
+			"\n" + 
+			"        String method2() {\n" + 
+			"            return null;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private final Class1<String, String > member = new Class1<>( arg -> method1( Class2.method1( arg ), class2 -> class2.method2() ) );\n" + 
+			"}\n"
+		});
 }
 }
