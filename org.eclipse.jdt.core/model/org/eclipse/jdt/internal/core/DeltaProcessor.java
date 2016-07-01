@@ -37,7 +37,6 @@ import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
-import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
@@ -1058,16 +1057,9 @@ public class DeltaProcessor {
 							if (VERBOSE){
 								System.out.println("- External JAR CHANGED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 							}
-							if (JavaIndex.isEnabled()) {
-								// Deltas for changes in external jars are fired after indexing, to reduce the chance of listeners trying to
-								// read the new state of the .JAR before it can be cached in the index.
-								close(root);
-								this.projectCachesToReset.add(javaProject);
-							} else {
-								contentChanged(root);
-								deltaContainsModifiedJar = true;
-								hasDelta = true;
-							}
+							contentChanged(root);
+							hasDelta = true;
+							deltaContainsModifiedJar = true;
 						} else if (status == EXTERNAL_JAR_REMOVED) {
 							PackageFragmentRoot root = (PackageFragmentRoot) javaProject.getPackageFragmentRoot(entryPath.toString());
 							if (VERBOSE){
