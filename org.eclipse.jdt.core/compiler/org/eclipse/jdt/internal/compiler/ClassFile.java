@@ -3033,6 +3033,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 					}					
 				}
 			} else {
+				if (contentsEntries + localContentsOffset >= this.contents.length) {
+					resizeContents(contentsEntries);
+				}
 				if (indexForMetaFactory == 0) {
 					indexForMetaFactory = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, javaLangInvokeLambdaMetafactory, 
 							ConstantPool.METAFACTORY, ConstantPool.JAVA_LANG_INVOKE_LAMBDAMETAFACTORY_METAFACTORY_SIGNATURE, false);
