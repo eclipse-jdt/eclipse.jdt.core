@@ -6594,4 +6594,52 @@ public void testBug497193() {
 			"}\n"
 		});
 }
+public void testBug496578() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.function.BinaryOperator;\n" + 
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"	private Long[] v, v_small;\n" + 
+			"	public Long method(String[] args) {\n" + 
+			"		ExecPushFactory alg = new ExecPushFactory();\n" + 
+			"        Long value = Id.prj(\n" + 
+			"                alg.reduce(0L, Long::sum,\n" + 
+			"                        alg.flatMap(x ->\n" + 
+			"                                        alg.map(y -> x * y,\n" + 
+			"                                                alg.source(v_small)),\n" + 
+			"                                alg.source(v)))).value;\n" + 
+			"        return value;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class ExecPushFactory {\n" + 
+			"	public <T, R> App<Id.t, R> flatMap(Function<T, App<Id.t, R>> mapper, App<Id.t, T> app) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"	public <T> App<Id.t, T> source(T[] array) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"	public <T, R> App<Id.t, R> map(Function<T, R> mapper, App<Id.t, T> app) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"    public <T> App<Id.t, T> reduce(T identity, BinaryOperator<T> accumulator, App<Id.t, T> app) {\n" + 
+			"    	return null;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"class Id<T> implements App<Id.t, T>{\n" +
+			"   public T value;\n" + 
+			"	public static class t {\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"	public static <A> Id<A> prj(App<Id.t, A> app) {\n" + 
+			"        return (Id<A>) app;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"interface App<C, T> {\n" + 
+			"	\n" + 
+			"}\n"
+		});
+}
 }
