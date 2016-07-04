@@ -441,4 +441,24 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				"",
 				false);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=487421
+	public void test011() {
+		this.runConformTest(
+			new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"   java.lang.SecurityManager man = null;\n" +
+				"}",
+				"module-info.java",
+				"module mod.one { \n" +
+				"	requires java.base;\n" +
+				"}"
+	        },
+			"\"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
+	        "",
+	        "",
+	        true);
+	}
 }
