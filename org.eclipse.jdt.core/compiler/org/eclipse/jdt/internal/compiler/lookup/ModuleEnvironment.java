@@ -86,7 +86,7 @@ public abstract class ModuleEnvironment implements INameEnvironmentExtension {
 	private NameEnvironmentAnswer findTypeWorker(char[] typeName, char[][] packageName, char[] client, boolean searchSecondaryTypes) {
 		NameEnvironmentAnswer answer = findType(typeName, packageName, getVisibleModules(client), searchSecondaryTypes);
 		char[] module = null;
-		if(answer == null || (module = answer.moduleName()) == null || 
+		if(answer == null || (module = answer.moduleName()) == null || client == null ||
 				CharOperation.equals(module, JRTUtil.JAVA_BASE_CHAR)) {
 			return answer;
 		}
@@ -118,16 +118,6 @@ public abstract class ModuleEnvironment implements INameEnvironmentExtension {
 	public abstract NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, IModule[] modules);
 
 	public abstract boolean isPackage(char[][] parentPackageName, char[] packageName, IModule[] module);
-
-//	public abstract IModule getModule(String name);
-//	{
-////		IModule mod = this.modulesCache.get(name);
-////		if (mod == null) {
-////			
-////		}
-////		return mod;
-//		for ()
-//	}
 
 	public boolean isPackageVisible(char[] packageName, char[] sourceName, char[] clientName) {
 		boolean clientIsUnnamed = clientName == null || clientName == UNNAMED;

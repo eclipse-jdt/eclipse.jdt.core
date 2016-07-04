@@ -409,6 +409,8 @@ public class EclipseCompilerImpl extends Main {
 			String sourcepathClasspathArg,
 			ArrayList sourcepathClasspaths,
 			ArrayList classpaths,
+			String modulePaths,
+			String moduleSourcepaths,
 			ArrayList extdirsClasspaths,
 			ArrayList endorsedDirClasspaths,
 			String customEncoding) {

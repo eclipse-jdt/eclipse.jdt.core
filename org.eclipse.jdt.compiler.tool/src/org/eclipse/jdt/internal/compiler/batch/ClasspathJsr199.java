@@ -138,6 +138,11 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	}
 
 	@Override
+	public void acceptModule(IModule mod) {
+		this.module = mod;
+	}
+
+	@Override
 	public boolean isPackage(String aQualifiedPackageName) {
 		String qualifiedPackageName = File.separatorChar == '/' ? aQualifiedPackageName : aQualifiedPackageName.replace(
 				File.separatorChar, '/');

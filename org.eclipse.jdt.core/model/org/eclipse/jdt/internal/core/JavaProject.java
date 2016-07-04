@@ -614,8 +614,19 @@ public class JavaProject
 				if (referringEntry != null  && !resolvedEntry.isExported())
 					return;
 				Object target = JavaModel.getTarget(entryPath, true/*check existency*/);
-				if (target == null)
-					return;
+				if (target == null || JavaModelManager.isJrt(entryPath)) {
+					PerProjectInfo info = getPerProjectInfo();
+					if (info.jrtRoots == null || !info.jrtRoots.containsKey(entryPath)) {
+						ObjectVector imageRoots = new ObjectVector();
+						loadModulesInJimage(entryPath, imageRoots, rootToResolvedEntries, resolvedEntry, referringEntry);
+						info.setJrtPackageRoots(entryPath, imageRoots);
+						accumulatedRoots.addAll(imageRoots);
+						rootIDs.add(rootID);
+					} else {
+						accumulatedRoots.addAll(info.jrtRoots.get(entryPath));
+					}
+					break;
+				}
 
 				if (target instanceof IResource){
 					// internal target
@@ -623,20 +634,7 @@ public class JavaProject
 				} else if (target instanceof File) {
 					// external target
 					if (JavaModel.isFile(target)) {
-						if (JavaModel.isJimage((File) target)) {
-							PerProjectInfo info = getPerProjectInfo();
-							if (info.jrtRoots == null || !info.jrtRoots.containsKey(entryPath)) {
-								ObjectVector imageRoots = new ObjectVector();
-								loadModulesInJimage(entryPath, imageRoots, rootToResolvedEntries, resolvedEntry, referringEntry);
-								info.setJrtPackageRoots(entryPath, imageRoots);
-								accumulatedRoots.addAll(imageRoots);
-								rootIDs.add(rootID);
-							} else {
-								accumulatedRoots.addAll(info.jrtRoots.get(entryPath));
-							}
-						} else {
 							root = new JarPackageFragmentRoot(entryPath, this);
-						}
 					} else if (((File) target).isDirectory()) {
 						root = new ExternalPackageFragmentRoot(entryPath, this);
 					}

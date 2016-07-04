@@ -78,16 +78,23 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.CompilerStats;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
@@ -1319,6 +1326,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	/* Bundle containing messages */
 	public ResourceBundle bundle;
 	protected FileSystem.Classpath[] checkedClasspaths;
+	// For single module mode
+	protected IModule module;
 	// paths to external annotations:
 	protected List<String> annotationPaths;
 	protected boolean annotationsFromClasspath;
@@ -1341,6 +1350,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	public String[] encodings;
 	public int exportedClassFilesCounter;
 	public String[] filenames;
+	public String[] modNames;
 	public String[] classNames;
 	// overrides of destinationPath on a directory argument basis
 	public int globalErrorsCount;
@@ -1788,10 +1798,14 @@ public void configure(String[] argv) {
 	final int INSIDE_CLASS_NAMES = 20;
 	final int INSIDE_WARNINGS_PROPERTIES = 21;
 	final int INSIDE_ANNOTATIONPATH_start = 22;
+	final int INSIDE_MODULEPATH_start = 23;
+	final int INSIDE_MODULESOURCEPATH_start = 24;
 
 	final int DEFAULT = 0;
 	ArrayList bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 	String sourcepathClasspathArg = null;
+	String modulepathArg = null;
+	String moduleSourcepathArg = null;
 	ArrayList sourcepathClasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 	ArrayList classpaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 	ArrayList extdirsClasspaths = null;
@@ -1817,6 +1831,7 @@ public void configure(String[] argv) {
 	String customDestinationPath = null;
 	String currentSourceDirectory = null;
 	String currentArg = Util.EMPTY_STRING;
+	String moduleName = null;
 	
 	Set specifiedEncodings = null;
 
@@ -1948,9 +1963,21 @@ public void configure(String[] argv) {
 				}
 
 				if (currentArg.endsWith(SuffixConstants.SUFFIX_STRING_java)) {
+					if (moduleName == null) {
+						// If the module-info.java was supplied via command line, that will be the
+						// de facto module for the other source files supplied via command line.
+						// TODO: This needs revisit in case a source file specified in command line is
+						// part of a -modulesourcepath
+						IModule mod = extractModuleDesc(currentArg, getNewParser());
+						if (mod != null) {
+							moduleName = new String(mod.name());
+							this.module = mod;
+						}
+					}
 					if (this.filenames == null) {
 						this.filenames = new String[argCount - index];
 						this.encodings = new String[argCount - index];
+						this.modNames = new String[argCount - index];
 						this.destinationPaths = new String[argCount - index];
 					} else if (filesCount == this.filenames.length) {
 						int length = this.filenames.length;
@@ -1972,8 +1999,15 @@ public void configure(String[] argv) {
 							(this.destinationPaths = new String[length + argCount - index]),
 							0,
 							length);
+						System.arraycopy(
+								this.modNames,
+								0,
+								(this.modNames = new String[length + argCount - index]),
+								0,
+								length);
 					}
 					this.filenames[filesCount] = currentArg;
+					this.modNames[filesCount] = moduleName;
 					this.encodings[filesCount++] = customEncoding;
 					// destination path cannot be specified upon an individual file
 					customEncoding = null;
@@ -2110,6 +2144,14 @@ public void configure(String[] argv) {
 							this.bind("configure.duplicateBootClasspath", errorMessage.toString())); //$NON-NLS-1$
 					}
 					mode = INSIDE_BOOTCLASSPATH_start;
+					continue;
+				}
+				if (currentArg.equals("-modulepath") || currentArg.equals("-cp")) { //$NON-NLS-1$ //$NON-NLS-2$
+					mode = INSIDE_MODULEPATH_start;
+					continue;
+				}
+				if (currentArg.equals("-modulesourcepath")) { //$NON-NLS-1$
+					mode = INSIDE_MODULESOURCEPATH_start;
 					continue;
 				}
 				if (currentArg.equals("-sourcepath")) {//$NON-NLS-1$
@@ -2614,6 +2656,18 @@ public void configure(String[] argv) {
 				setDestinationPath(currentArg.equals(NONE) ? NONE : currentArg);
 				mode = DEFAULT;
 				continue;
+			case INSIDE_MODULEPATH_start:
+				mode = DEFAULT;
+				String[] modulepaths = new String[1];
+				index += processPaths(newCommandLineArgs, index, currentArg, modulepaths);
+				modulepathArg = modulepaths[0];
+				continue;
+			case INSIDE_MODULESOURCEPATH_start:
+				mode = DEFAULT;
+				String[] moduleSourcepaths = new String[1];
+				index += processPaths(newCommandLineArgs, index, currentArg, moduleSourcepaths);
+				moduleSourcepathArg = moduleSourcepaths[0];
+				continue;
 			case INSIDE_CLASSPATH_start:
 				mode = DEFAULT;
 				index += processPaths(newCommandLineArgs, index, currentArg, classpaths);
@@ -2730,7 +2784,7 @@ public void configure(String[] argv) {
 			throw new IllegalArgumentException(
 				this.bind("configure.unrecognizedOption", currentSourceDirectory)); //$NON-NLS-1$
 		}
-		String[] result = FileFinder.find(dir, SuffixConstants.SUFFIX_STRING_JAVA);
+		String[] result = FileFinder.find(dir, SuffixConstants.SUFFIX_STRING_java);
 		if (NONE.equals(customDestinationPath)) {
 			customDestinationPath = NONE; // ensure == comparison
 		}
@@ -2755,10 +2809,17 @@ public void configure(String[] argv) {
 				(this.destinationPaths = new String[length + filesCount]),
 				0,
 				filesCount);
+			System.arraycopy(
+					this.modNames,
+					0,
+					(this.modNames = new String[length + filesCount]),
+					0,
+					filesCount);
 			System.arraycopy(result, 0, this.filenames, filesCount, length);
 			for (int i = 0; i < length; i++) {
 				this.encodings[filesCount + i] = customEncoding;
 				this.destinationPaths[filesCount + i] = customDestinationPath;
+				this.modNames[filesCount + i] = moduleName;
 			}
 			filesCount += length;
 			customEncoding = null;
@@ -2769,6 +2830,7 @@ public void configure(String[] argv) {
 			filesCount = this.filenames.length;
 			this.encodings = new String[filesCount];
 			this.destinationPaths = new String[filesCount];
+			this.modNames = new String[filesCount];
 			for (int i = 0; i < filesCount; i++) {
 				this.encodings[i] = customEncoding;
 				this.destinationPaths[i] = customDestinationPath;
@@ -2815,8 +2877,9 @@ public void configure(String[] argv) {
 			CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
 			CompilerOptions.PRIVATE);
 	}
-
-	if (printUsageRequired || (filesCount == 0 && classCount == 0)) {
+	// We don't add the source files from -modulesourcepath yet to the final list. So,
+	// don't report it if that's the case.
+	if (printUsageRequired || (filesCount == 0 && classCount == 0 && moduleSourcepathArg == null)) {
 		if (usageSection ==  null) {
 			printUsage(); // default
 		} else {
@@ -2874,6 +2937,8 @@ public void configure(String[] argv) {
 			sourcepathClasspathArg,
 			sourcepathClasspaths,
 			classpaths,
+			modulepathArg,
+			moduleSourcepathArg,
 			extdirsClasspaths,
 			endorsedDirClasspaths,
 			customEncoding);
@@ -2890,6 +2955,32 @@ public void configure(String[] argv) {
 		}
 		this.pendingErrors = null;
 	}
+}
+private Parser getNewParser() {
+	return new Parser(new ProblemReporter(getHandlingPolicy(), 
+			new CompilerOptions(this.options), getProblemFactory()), false);
+}
+private IModule extractModuleDesc(String fileName, Parser parser) {
+	IModule mod = null;
+	if (fileName.toLowerCase().endsWith(IModuleLocation.MODULE_INFO_JAVA)) {
+		
+		ICompilationUnit cu = new CompilationUnit(null, fileName, null);
+		CompilationResult compilationResult = new CompilationResult(cu, 0, 1, 10);
+		CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
+		if (unit.isModuleInfo() && unit.moduleDeclaration != null) {
+			mod = ModuleEnvironment.createModule(unit.moduleDeclaration);
+		}
+	} else if (fileName.toLowerCase().endsWith(IModuleLocation.MODULE_INFO_CLASS)) {
+		try {
+			ClassFileReader reader = ClassFileReader.read(fileName); // Check the absolute path?
+			mod = reader.getModuleDeclaration();
+		} catch (ClassFormatException | IOException e) {
+			e.printStackTrace();
+			throw new IllegalArgumentException(
+					this.bind("configure.invalidModuleDescriptor", fileName)); //$NON-NLS-1$
+		}
+	}
+	return mod;
 }
 
 private static char[][] decodeIgnoreOptionalProblemsFromFolders(String folders) {
@@ -3068,7 +3159,8 @@ public CompilationUnit[] getCompilationUnits() {
 			fileName = this.filenames[i];
 		}
 		units[i] = new CompilationUnit(null, fileName, encoding, this.destinationPaths[i],
-				shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, fileName.toCharArray()));
+				shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, fileName.toCharArray()), 
+				this.modNames[i]);
 	}
 	return units;
 }
@@ -3104,8 +3196,10 @@ public File getJavaHome() {
 }
 
 public FileSystem getLibraryAccess() {
-	return new FileSystem(this.checkedClasspaths, this.filenames, 
+	FileSystem nameEnvironment = new FileSystem(this.checkedClasspaths, this.filenames, 
 					this.annotationsFromClasspath && CompilerOptions.ENABLED.equals(this.options.get(CompilerOptions.OPTION_AnnotationBasedNullAnalysis)));
+	nameEnvironment.module = this.module;
+	return nameEnvironment;
 }
 
 /*
@@ -3142,7 +3236,113 @@ protected ArrayList handleBootclasspath(ArrayList bootclasspaths, String customE
 	}
 	return bootclasspaths;
 }
+protected ArrayList handleModulepath(String arg) {
+	ArrayList<String> modulePaths = processModulePathEntries(arg);
+	final int classpathsSize;
+	if ((modulePaths != null && modulePaths.size() > 0)
+		&& ((classpathsSize = modulePaths.size()) != 0)) {
+		String[] paths = new String[classpathsSize];
+		modulePaths.toArray(paths);
+		modulePaths.clear();
+		for (int i = 0; i < paths.length; i++) {
+			File dir = new File(paths[i]);
+			if (dir.isDirectory()) {
+			modulePaths =
+					(ArrayList) ModuleFinder.findModules(dir, null, getNewParser(), this.options, false);
+			}
+		}
+	}
+	// TODO: What about chained jars from MANIFEST.MF? Check with spec
+	return modulePaths;
+}
+protected ArrayList handleModuleSourcepath(String arg) {
+	ArrayList<String> modulePaths = processModulePathEntries(arg);
+	final int classpathsSize;
+	if ((modulePaths != null)
+		&& ((classpathsSize = modulePaths.size()) != 0)) {
 
+		if (this.destinationPath == null) {
+			addPendingErrors(this.bind("configure.missingDestinationPath"));//$NON-NLS-1$
+		}
+		String[] paths = new String[modulePaths.size()];
+		modulePaths.toArray(paths);
+		// We reuse the same List to store <Classpath>, which earlier contained <String>
+		modulePaths.clear();
+		for (int i = 0; i < classpathsSize; i++) {
+			processPathEntries(DEFAULT_SIZE_CLASSPATH, modulePaths, paths[i],
+					null, false, true);
+		}
+//		Parser parser = getNewParser();
+		for (int i = 0; i < paths.length; i++) {
+			File dir = new File(paths[i]);
+			if (dir.isDirectory()) {
+//				List<String> mods = ModuleFinder.findFolders(dir);
+				// 1. Create FileSystem.Classpath for each module
+				// 2. Iterator each module in case of directory for source files and add to this.fileNames
+
+				modulePaths =
+						(ArrayList) ModuleFinder.findModules(dir, this.destinationPath, getNewParser(), this.options, true);
+				
+				for (Object obj : modulePaths) {
+					Classpath classpath = (Classpath) obj;
+					File modLocation = new File(classpath.getPath());
+					String[] result = FileFinder.find(modLocation, SuffixConstants.SUFFIX_STRING_java);
+					String destPath = classpath.getDestinationPath();
+					String moduleName = new String(classpath.getModule().name());
+
+					// Add them to this.filenames
+					if (this.filenames != null) {
+						int filesCount = this.filenames.length;
+						// some source files were specified explicitly
+						int length = result.length;
+						System.arraycopy(
+							this.filenames,
+							0,
+							(this.filenames = new String[length + filesCount]),
+							0,
+							filesCount);
+						System.arraycopy(
+							this.encodings,
+							0,
+							(this.encodings = new String[length + filesCount]),
+							0,
+							filesCount);
+						System.arraycopy(
+							this.destinationPaths,
+							0,
+							(this.destinationPaths = new String[length + filesCount]),
+							0,
+							filesCount);
+						System.arraycopy(
+								this.modNames,
+								0,
+								(this.modNames = new String[length + filesCount]),
+								0,
+								filesCount);
+						System.arraycopy(result, 0, this.filenames, filesCount, length);
+						for (int j = 0; j < length; j++) {
+							this.modNames[filesCount + j] = moduleName;
+							this.destinationPaths[filesCount + j] = destPath;
+						}
+						filesCount += length;
+					} else {
+						this.filenames = result;
+						int filesCount = this.filenames.length;
+						this.encodings = new String[filesCount];
+						this.destinationPaths = new String[filesCount];
+						this.modNames = new String[filesCount];
+						for (int j = 0; j < filesCount; j++) {
+							this.destinationPaths[j] = destPath;
+							this.modNames[j] = moduleName;
+						}
+					}
+				}
+			}
+		}
+		
+	}
+	return modulePaths;
+}
 /*
  * External API
  */
@@ -4199,6 +4399,10 @@ public void performCompilation() {
 	try {
 		this.logger.startLoggingSources();
 		this.batchCompiler.compile(getCompilationUnits());
+	} catch (Exception e) {
+		// In the unlikely case of an exception, trouble shooting becomes extremely
+		// difficult. So, handle it here.
+		e.printStackTrace();
 	} finally {
 		this.logger.endLoggingSources();
 	}
@@ -4258,6 +4462,16 @@ private ReferenceBinding[] processClassNames(LookupEnvironment environment) {
 		}
 	}
 	return referenceBindings;
+}
+private ArrayList<String> processModulePathEntries(String arg) {
+	ArrayList<String> paths = new ArrayList<>();
+	if (arg == null)
+		return paths;
+	StringTokenizer tokenizer = new StringTokenizer(arg, File.pathSeparator, false);
+	while (tokenizer.hasMoreTokens()) {
+		paths.add(tokenizer.nextToken());
+	}
+	return paths;
 }
 /*
  * External API
@@ -4599,6 +4813,8 @@ protected void setPaths(ArrayList bootclasspaths,
 		String sourcepathClasspathArg,
 		ArrayList sourcepathClasspaths,
 		ArrayList classpaths,
+		String modulePath,
+		String moduleSourcepath,
 		ArrayList extdirsClasspaths,
 		ArrayList endorsedDirClasspaths,
 		String customEncoding) {
@@ -4608,9 +4824,13 @@ protected void setPaths(ArrayList bootclasspaths,
 
 	classpaths = handleClasspath(classpaths, customEncoding);
 
+	List modulePaths = handleModulepath(modulePath);
+
+	List moduleSourcepaths = handleModuleSourcepath(moduleSourcepath);
+
 	if (sourcepathClasspathArg != null) {
 		processPathEntries(DEFAULT_SIZE_CLASSPATH, sourcepathClasspaths,
-			sourcepathClasspathArg, customEncoding, true, false);
+			sourcepathClasspathArg, null, true, false);
 	}
 
 	/*
@@ -4635,6 +4855,8 @@ protected void setPaths(ArrayList bootclasspaths,
 	bootclasspaths.addAll(extdirsClasspaths);
 	bootclasspaths.addAll(sourcepathClasspaths);
 	bootclasspaths.addAll(classpaths);
+	bootclasspaths.addAll(modulePaths);
+	bootclasspaths.addAll(moduleSourcepaths);
 	classpaths = bootclasspaths;
 	classpaths = FileSystem.ClasspathNormalizer.normalize(classpaths);
 	this.checkedClasspaths = new FileSystem.Classpath[classpaths.size()];

@@ -83,6 +83,9 @@ public class FileSystem extends ModuleEnvironment implements SuffixConstants {
 		 * @param qualifiedTypeName type name in qualified /-separated notation.
 		 */
 		boolean hasAnnotationFileFor(String qualifiedTypeName);
+		public void acceptModule(IModule module);
+		public String getDestinationPath();
+		public IModule getModule();
 	}
 	public interface ClasspathSectionProblemReporter {
 		void invalidClasspathSection(String jarFilePath);
@@ -117,6 +120,9 @@ public class FileSystem extends ModuleEnvironment implements SuffixConstants {
 	}
 
 	protected Classpath[] classpaths;
+	// Used only in single-module mode when the module descriptor is
+	// provided via command lin.
+	protected IModule module;
 	Set knownFileNames;
 	protected boolean annotationsFromClasspath; // should annotation files be read from the classpath (vs. explicit separate path)?
 	private static HashMap<File, Classpath> JRT_CLASSPATH_CACHE = null;
@@ -155,7 +161,7 @@ protected FileSystem(Classpath[] paths, String[] initialFileNames, boolean annot
 			classpath.initialize();
 			this.classpaths[counter++] = classpath;
 		} catch(IOException | IllegalArgumentException exception) {
-			// JRE 9 could through an IAE if the linked JAR paths have invalid chars, such as ":"
+			// JRE 9 could throw an IAE if the linked JAR paths have invalid chars, such as ":"
 			// ignore
 		}
 	}
@@ -189,7 +195,7 @@ public static Classpath getClasspath(String classpathName, String encoding,
 		}
 	} else {
 		int format = Util.archiveFormat(classpathName);
-		if (format > -1) {
+		if (format >= Util.ZIP_FILE) {
 			if (isSourceOnly) {
 				// source only mode
 				result = new ClasspathSourceJar(file, true, accessRuleSet,
@@ -207,6 +213,11 @@ public static Classpath getClasspath(String classpathName, String encoding,
 					}
 					if (result == null) {
 						result = new ClasspathJar(file, true, accessRuleSet, null, true);
+						try {
+							result.initialize();
+						} catch (IOException e) {
+							// Broken entry, but let clients have it anyway.
+						}
 						JRT_CLASSPATH_CACHE.put(file, result);
 					}
 				} else {
@@ -453,7 +464,16 @@ public boolean isPackage(char[][] compoundName, char[] packageName, IModule[] mo
 }
 @Override
 public IModule getModule(char[] name) {
-	// TODO Auto-generated method stub
-	return null;
+	if (name == null)
+		return null;
+	if (this.module != null && CharOperation.equals(name, this.module.name())) {
+		return this.module;
+	}
+	IModule mod = null;
+	for (int i = 0, l = this.classpaths.length; i < l; i++) {
+		if ((mod = this.classpaths[i].getModule(name)) != null)
+			break;
+	}
+	return mod;
 }
 }

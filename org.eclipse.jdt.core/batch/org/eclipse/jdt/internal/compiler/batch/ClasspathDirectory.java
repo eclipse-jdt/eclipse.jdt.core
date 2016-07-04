@@ -70,6 +70,9 @@ ClasspathDirectory(File directory, String encoding, int mode,
 	this.directoryCache = new Hashtable(11);
 	this.encoding = encoding;
 }
+public void acceptModule(IModule mod) {
+	this.module = mod;
+}
 String[] directoryList(String qualifiedPackageName) {
 	String[] dirList = (String[]) this.directoryCache.get(qualifiedPackageName);
 	if (dirList == this.missingPackageHolder) return null; // package exists in another classpath directory or jar
@@ -297,7 +300,9 @@ public int getMode() {
 }
 @Override
 public IModule getModule(char[] moduleName) {
-	// TODO Auto-generated method stub
+	if (this.module != null && CharOperation.equals(moduleName,  this.module.name())) {
+		return this.module;
+	}
 	return null;
 }
 }

@@ -71,7 +71,8 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	 */
 	private Map accessRestrictions;
 	ImportBinding[] defaultImports;
-	public PackageBinding defaultPackage;
+	private PackageBinding defaultPackage;
+	private HashtableOfPackage defaultPackages;
 	HashtableOfPackage knownPackages;
 	private int lastCompletedUnitIndex = -1;
 	private int lastUnitIndex = -1;
@@ -141,6 +142,7 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.defaultPackage = new PackageBinding(this); // assume the default package always exists
 	this.defaultImports = null;
 	this.nameEnvironment = nameEnvironment;
+	this.defaultPackages = new HashtableOfPackage();
 	this.knownPackages = new HashtableOfPackage();
 	this.uniqueParameterizedGenericMethodBindings = new SimpleLookupTable(3);
 	this.uniquePolymorphicMethodBindings = new SimpleLookupTable(3);
@@ -806,6 +808,18 @@ public MissingTypeBinding createMissingType(PackageBinding packageBinding, char[
 	return missingType;
 }
 
+public PackageBinding getDefaultPackage(char[] module) {
+	if (module == null || module.length == 0 || module == ModuleEnvironment.UNNAMED) {
+		return this.defaultPackage;
+	} else {
+		PackageBinding pack = this.defaultPackages.get(module);
+		if (pack == null) {
+			pack = new PackageBinding(this);
+			this.defaultPackages.put(module, pack);
+		}
+		return pack;
+	}
+}
 public PackageBinding createPackage(char[][] compoundName) {
 	return createPackage(compoundName, null);
 }

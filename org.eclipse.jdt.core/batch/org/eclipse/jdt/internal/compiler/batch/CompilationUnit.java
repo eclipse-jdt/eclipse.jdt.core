@@ -43,11 +43,13 @@ public CompilationUnit(char[] contents, String fileName, String encoding) {
 }
 public CompilationUnit(char[] contents, String fileName, String encoding,
 		String destinationPath) {
-	this(contents, fileName, encoding, destinationPath, false);
+	this(contents, fileName, encoding, destinationPath, false, null);
 }
 public CompilationUnit(char[] contents, String fileName, String encoding,
-		String destinationPath, boolean ignoreOptionalProblems) {
+		String destinationPath, boolean ignoreOptionalProblems, String modName) {
 	this.contents = contents;
+	if (modName != null)
+		this.module = modName.toCharArray();
 	char[] fileNameCharArray = fileName.toCharArray();
 	switch(File.separatorChar) {
 		case '/' :

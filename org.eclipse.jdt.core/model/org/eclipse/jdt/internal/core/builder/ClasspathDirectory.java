@@ -133,9 +133,6 @@ String[] directoryList(String qualifiedPackageName) {
 }
 void acceptModule(ClassFileReader classfile) {
 	if (classfile != null) {
-//		if ((this.module = classfile.getModuleDeclaration()) != null) {
-//			this.env.acceptModule(this.module, this);
-//		}
 		this.module = classfile.getModuleDeclaration();
 	}
 }

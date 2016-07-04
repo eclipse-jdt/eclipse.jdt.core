@@ -555,7 +555,7 @@ public class ElementsImpl implements Elements {
 	public PackageElement getPackageElement(CharSequence name) {
 		LookupEnvironment le = _env.getLookupEnvironment();
 		if (name.length() == 0) {
-			return new PackageElementImpl(_env, le.defaultPackage);
+			return new PackageElementImpl(_env, le.getDefaultPackage(null));
 		}
 		char[] packageName = name.toString().toCharArray();
 		PackageBinding packageBinding = le.createPackage(CharOperation.splitOn('.', packageName));

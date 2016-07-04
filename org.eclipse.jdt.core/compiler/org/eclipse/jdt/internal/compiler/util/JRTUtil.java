@@ -174,12 +174,10 @@ class JrtFileSystem {
 	void initialize(File jrt) throws IOException {
 		URL url = null;
 		if (jrt.toString().endsWith(JRTUtil.JRT_FS_JAR)) {
-			url = jrt.toPath().toUri().toURL();
+			String jdkHome = jrt.getParent();
+			url = Paths.get(jdkHome).toUri().toURL();
 		} else if (jrt.isDirectory()) {
 			url = jrt.toPath().toUri().toURL();
-		} else {
-			String jdkHome = jrt.getParentFile().getParentFile().getParent();
-			url = Paths.get(jdkHome, JRTUtil.JRT_FS_JAR).toUri().toURL();
 		}
 		JRTUtil.MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
 		URLClassLoader loader = new URLClassLoader(new URL[] { url });

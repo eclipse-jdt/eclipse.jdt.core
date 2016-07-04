@@ -261,7 +261,6 @@ public boolean servesModule(IModule mod) {
 }
 @Override
 public IModule getModule(char[] moduleName) {
-	// 
 	Set<IModule> modules = ModulesCache.get(this.zipFilename);
 	if (modules != null) {
 		for (IModule mod : modules) {

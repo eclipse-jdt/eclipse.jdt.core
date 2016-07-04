@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.*;
@@ -236,7 +237,7 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 								SourceFile unit = new SourceFile((IFile) resource, sourceLocation);
 								String complianceLevel = AbstractImageBuilder.this.javaBuilder.javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 								if (CompilerOptions.versionToJdkLevel(complianceLevel) >= ClassFileConstants.JDK9 &&
-										resource.getName().equalsIgnoreCase(ClasspathLocation.MODULE_INFO_JAVA)) {
+										resource.getName().equalsIgnoreCase(IModuleLocation.MODULE_INFO_JAVA)) {
 									sourceLocation.acceptModuleInfo(unit, AbstractImageBuilder.this.compiler.parser);
 								}
 								sourceFiles.add(unit);

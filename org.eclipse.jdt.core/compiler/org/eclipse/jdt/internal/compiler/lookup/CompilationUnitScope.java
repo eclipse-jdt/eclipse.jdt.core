@@ -91,6 +91,7 @@ void buildFieldsAndMethods() {
 		this.topLevelTypes[i].scope.buildFieldsAndMethods();
 }
 void buildTypeBindings(AccessRestriction accessRestriction) {
+	char[] modName = module();
 	this.topLevelTypes = new SourceTypeBinding[0]; // want it initialized if the package cannot be resolved
 	boolean firstIsSynthetic = false;
 	if (this.referenceContext.compilationResult.compilationUnit != null) {
@@ -109,14 +110,14 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 	}
 	if (this.currentPackageName == CharOperation.NO_CHAR_CHAR) {
 		// environment default package is never null
-		this.fPackage = this.environment.defaultPackage;
+		this.fPackage = this.environment.getDefaultPackage(modName);
 	} else {
-		if ((this.fPackage = this.environment.createPackage(this.currentPackageName, module())) == null) {
+		if ((this.fPackage = this.environment.createPackage(this.currentPackageName, modName)) == null) {
 			if (this.referenceContext.currentPackage != null) {
 				problemReporter().packageCollidesWithType(this.referenceContext); // only report when the unit has a package statement
 			}
 			// ensure fPackage is not null
-			this.fPackage = this.environment.defaultPackage;
+			this.fPackage = this.environment.getDefaultPackage(modName);
 			return;
 		} else if (this.referenceContext.isPackageInfo()) {
 			// resolve package annotations now if this is "package-info.java".
@@ -159,7 +160,7 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 				problemReporter().duplicateTypes(this.referenceContext, typeDecl);
 			continue nextType;
 		}
-		if (this.fPackage != this.environment.defaultPackage && this.fPackage.getPackage(typeDecl.name, module()) != null) {
+		if (this.fPackage != this.environment.getDefaultPackage(modName) && this.fPackage.getPackage(typeDecl.name, module()) != null) {
 			// if a package exists, it must be a valid package - cannot be a NotFound problem package
 			// this is now a warning since a package does not really 'exist' until it contains a type, see JLS v2, 7.4.3
 			problemReporter().typeCollidesWithPackage(this.referenceContext, typeDecl);
@@ -466,13 +467,13 @@ public Binding findImport(char[][] compoundName, boolean findStaticImports, bool
 }
 private Binding findImport(char[][] compoundName, int length) {
 	recordQualifiedReference(compoundName);
-
-	Binding binding = this.environment.getTopLevelPackage(compoundName[0], module());
+	char[] modName = module();
+	Binding binding = this.environment.getTopLevelPackage(compoundName[0], modName);
 	int i = 1;
 	foundNothingOrType: if (binding != null) {
 		PackageBinding packageBinding = (PackageBinding) binding;
 		while (i < length) {
-			binding = packageBinding.getTypeOrPackage(compoundName[i++], module());
+			binding = packageBinding.getTypeOrPackage(compoundName[i++], modName);
 			if (binding == null || !binding.isValidBinding()) {
 				binding = null;
 				break foundNothingOrType;
@@ -489,7 +490,8 @@ private Binding findImport(char[][] compoundName, int length) {
 	if (binding == null) {
 		if (compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
 			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), null, ProblemReasons.NotFound);
-		type = findType(compoundName[0], this.environment.defaultPackage, this.environment.defaultPackage);
+		PackageBinding defaultPackage = this.environment.getDefaultPackage(modName);
+		type = findType(compoundName[0], defaultPackage, defaultPackage);
 		if (type == null || !type.isValidBinding())
 			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), null, ProblemReasons.NotFound);
 		i = 1; // reset to look for member types inside the default package type
@@ -518,7 +520,7 @@ private Binding findSingleImport(char[][] compoundName, int mask, boolean findSt
 		// the name cannot be a package
 		if (compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
 			return new ProblemReferenceBinding(compoundName, null, ProblemReasons.NotFound);
-		ReferenceBinding typeBinding = findType(compoundName[0], this.environment.defaultPackage, this.fPackage);
+		ReferenceBinding typeBinding = findType(compoundName[0], this.environment.getDefaultPackage(module()), this.fPackage);
 		if (typeBinding == null)
 			return new ProblemReferenceBinding(compoundName, null, ProblemReasons.NotFound);
 		return typeBinding;

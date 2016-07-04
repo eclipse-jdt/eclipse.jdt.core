@@ -26,9 +26,6 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public abstract class ClasspathLocation implements IModuleLocation {
 
-	protected static final String MODULE_INFO_JAVA = "MODULE-INFO.JAVA"; //$NON-NLS-1$
-	protected static final String MODULE_INFO_CLASS = "module-info.class"; //$NON-NLS-1$
-
 	static ClasspathLocation forSourceFolder(IContainer sourceFolder, IContainer outputFolder,
 			char[][] inclusionPatterns, char[][] exclusionPatterns, boolean ignoreOptionalProblems,
 			INameEnvironment env) {

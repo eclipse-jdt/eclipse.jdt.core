@@ -19,6 +19,10 @@ package org.eclipse.jdt.internal.compiler.env;
  * location could contain a module either in the form of module-info.java or module-info.class.
  */
 public interface IModuleLocation {
+
+	public static final String MODULE_INFO_JAVA = "module-info.java"; //$NON-NLS-1$
+	public static final String MODULE_INFO_CLASS = "module-info.class"; //$NON-NLS-1$
+
 	/**
 	 * Find class with the given type name and qualified package name from the given module. Clients can also use
 	 * servesModule() before invoking this for performance implications.

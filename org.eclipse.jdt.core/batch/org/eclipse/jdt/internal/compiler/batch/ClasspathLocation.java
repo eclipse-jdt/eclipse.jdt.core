@@ -107,6 +107,12 @@ public abstract class ClasspathLocation implements FileSystem.Classpath,
 	public String getPath() {
 		return this.path;
 	}
+	public String getDestinationPath() {
+		return this.destinationPath;
+	}
+	public IModule getModule() {
+		return this.module;
+	}
 	public boolean servesModule(IModule mod) {
 		if (mod == null) 
 			return false;

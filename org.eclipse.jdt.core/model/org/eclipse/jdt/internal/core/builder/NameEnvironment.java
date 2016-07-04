@@ -409,7 +409,6 @@ void setNames(String[] typeNames, SourceFile[] additionalFiles) {
 
 @Override
 public IModule getModule(char[] name) {
-	// 
 	if (name == null)
 		return null;
 	IModule module = null;

@@ -21,9 +21,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileVisitResult;
+import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -51,6 +53,7 @@ protected File file;
 protected ZipFile zipFile;
 protected ZipFile annotationZipFile;
 protected boolean closeZipFileAtEnd;
+private static HashMap<String, Set<IModule>> ModulesCache = new HashMap<>();
 private Set<String> packageCache;
 protected List<String> annotationPaths;
 protected boolean isJrt;
@@ -230,11 +233,83 @@ protected void addTypeName(final ArrayList answers, String fileName, int last, c
 	}
 }
 public void initialize() throws IOException {
-	if (this.zipFile == null && !this.isJrt) {
+	if (this.zipFile == null) {
 		this.zipFile = new ZipFile(this.file);
+		if (this.isJrt) {
+			 loadModules();
+		}
 	}
 }
+public void acceptModule(IModule mod) {
+	if (this.isJrt) 
+		return;
+	this.module = mod;
+}
+public void loadModules() {
+	Set<IModule> cache = ModulesCache.get(this.file);
 
+	if (cache == null) {
+		try {
+			org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(this.file,
+					new org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor<Path>() {
+
+				@Override
+				public FileVisitResult visitPackage(Path dir, Path mod, BasicFileAttributes attrs)
+						throws IOException {
+					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult visitFile(Path f, Path mod, BasicFileAttributes attrs)
+						throws IOException {
+					return FileVisitResult.CONTINUE;
+				}
+
+				@Override
+				public FileVisitResult visitModule(Path mod) throws IOException {
+					try {
+						ClasspathJar.this.acceptModule(JRTUtil.getClassfileContent(ClasspathJar.this.file, MODULE_INFO_CLASS, mod.toString()));
+					} catch (ClassFormatException e) {
+						e.printStackTrace();
+					}
+					return FileVisitResult.SKIP_SUBTREE;
+				}
+			}, JRTUtil.NOTIFY_MODULES);
+		} catch (IOException e) {
+			// TODO: BETA_JAVA9 Should report better
+		}
+	}
+}
+void acceptModule(ClassFileReader reader) {
+	if (reader != null) {
+		if (this.isJrt) {
+			IModule moduleDecl = reader.getModuleDeclaration();
+			if (moduleDecl != null) {
+				Set<IModule> cache = ModulesCache.get(this.file);
+				if (cache == null) {
+					ModulesCache.put(new String(moduleDecl.name()), cache = new HashSet<IModule>());
+				}
+				cache.add(moduleDecl);
+			}
+		} else {
+			this.module = reader.getModuleDeclaration();
+		}
+	}
+	
+}
+void acceptModule(byte[] content) {
+	if (content == null) 
+		return;
+	ClassFileReader reader = null;
+	try {
+		reader = new ClassFileReader(content, MODULE_INFO_CLASS.toCharArray(), null);
+	} catch (ClassFormatException e) {
+		e.printStackTrace();
+	}
+	if (reader != null) {
+		acceptModule(reader);
+	}
+}
 protected void addToPackageCache(String fileName, boolean endsWithSep) {
 	int last = endsWithSep ? fileName.length() : fileName.lastIndexOf('/');
 	while (last > 0) {
@@ -339,7 +414,28 @@ public int getMode() {
 
 @Override
 public IModule getModule(char[] moduleName) {
-	// TODO Auto-generated method stub
+	if (this.isJrt) {
+		Set<IModule> modules = ModulesCache.get(new String(moduleName));
+		if (modules != null) {
+			for (IModule mod : modules) {
+				if (CharOperation.equals(mod.name(), moduleName))
+						return mod;
+			}
+		}
+	} else if (this.module != null && CharOperation.equals(moduleName,  this.module.name())) {
+		return this.module;
+	}
 	return null;
+}
+@Override
+public boolean servesModule(IModule mod) {
+	if (!this.isJrt) {
+		return super.servesModule(mod);
+	}
+	if (mod == null) 
+		return false;
+	if (mod == ModuleEnvironment.UNNAMED_MODULE)
+		return true;
+	return ModulesCache.containsKey(new String(mod.name()));
 }
 }
