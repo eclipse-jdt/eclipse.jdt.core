@@ -47,8 +47,6 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 		type.done();
 	}
 
-	private static final NdAnnotation[] NO_ANNOTATIONS = new NdAnnotation[0];
-
 	public NdBinding(Nd nd, long address) {
 		super(nd, address);
 	}

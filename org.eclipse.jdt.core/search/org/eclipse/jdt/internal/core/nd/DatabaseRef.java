@@ -55,8 +55,6 @@ public class DatabaseRef<T extends NdNode> implements Supplier<T> {
 
 	/**
 	 * Acquires a read lock. Callers must invoke close() on the result when done.
-	 *
-	 * @return
 	 */
 	public IReader lock() {
 		return this.nd.acquireReadLock();

@@ -41,7 +41,6 @@ import org.eclipse.jdt.internal.core.util.Util;
 /*
  * A name environment based on the classpath of a Java project.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaSearchNameEnvironment implements INameEnvironment, SuffixConstants {
 
 	LinkedHashSet<ClasspathLocation> locationSet;

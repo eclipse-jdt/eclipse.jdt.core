@@ -673,7 +673,7 @@ public class Database {
 	 * For debugging purposes, only.
 	 */
 	public void reportFreeBlocks() throws IndexException {
-		System.out.println("Allocated size: " + getDatabaseSize() + " bytes"); //$NON-NLS-1$
+		System.out.println("Allocated size: " + getDatabaseSize() + " bytes"); //$NON-NLS-1$ //$NON-NLS-2$
 		System.out.println("malloc'ed: " + this.malloced); //$NON-NLS-1$
 		System.out.println("free'd: " + this.freed); //$NON-NLS-1$
 		System.out.println("wasted: " + (getDatabaseSize() - (this.malloced - this.freed))); //$NON-NLS-1$

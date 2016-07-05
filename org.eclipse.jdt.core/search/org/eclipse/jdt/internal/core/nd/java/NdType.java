@@ -72,10 +72,6 @@ public class NdType extends NdBinding {
 		super(nd, resource);
 	}
 
-	@Override
-	public void accept(INdVisitor visitor) {
-	}
-
 	/**
 	 * Called to populate the cache for the bindings in the class scope.
 	 */

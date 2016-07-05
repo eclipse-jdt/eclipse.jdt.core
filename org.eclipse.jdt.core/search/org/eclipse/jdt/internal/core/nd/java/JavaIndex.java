@@ -75,7 +75,7 @@ public class JavaIndex {
 	private Nd nd;
 	private IResultRank anyResult = new IResultRank() {
 		@Override
-		public long getRank(Nd nd, long address1) {
+		public long getRank(Nd dom, long address1) {
 			return 1;
 		}
 	};
@@ -283,8 +283,7 @@ public class JavaIndex {
 		return registry;
 	}
 
-	// TODO: delete and recreate the index
 	public void rebuildIndex() {
-
+		// TODO: delete and recreate the index
 	}
 }

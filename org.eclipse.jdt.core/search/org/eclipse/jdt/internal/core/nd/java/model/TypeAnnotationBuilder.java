@@ -33,12 +33,12 @@ public class TypeAnnotationBuilder implements ITypeAnnotationBuilder {
 		return new TypeAnnotationBuilder(this, nextKind, nextIndex, this.length+1, this.target, this.targetParameter, this.targetParameter2);
 	}
 
-	private TypeAnnotationBuilder toTarget(int target) {
-		return new TypeAnnotationBuilder(this.parent, this.kind, this.index, this.length, target, this.targetParameter, this.targetParameter2);
+	private TypeAnnotationBuilder toTarget(int newTarget) {
+		return new TypeAnnotationBuilder(this.parent, this.kind, this.index, this.length, newTarget, this.targetParameter, this.targetParameter2);
 	}
 
-	private TypeAnnotationBuilder toTarget(int target, int parameter) {
-		return new TypeAnnotationBuilder(this.parent, this.kind, this.index, this.length, target, parameter, this.targetParameter2);
+	private TypeAnnotationBuilder toTarget(int newTarget, int parameter) {
+		return new TypeAnnotationBuilder(this.parent, this.kind, this.index, this.length, newTarget, parameter, this.targetParameter2);
 	}
 
 	private TypeAnnotationBuilder toTarget2(int parameter) {
@@ -81,13 +81,13 @@ public class TypeAnnotationBuilder implements ITypeAnnotationBuilder {
 	}
 
 	@Override
-	public ITypeAnnotationBuilder toSupertype(short index) {
-		return toTarget(AnnotationTargetTypeConstants.CLASS_EXTENDS, index);
+	public ITypeAnnotationBuilder toSupertype(short superTypeIndex) {
+		return toTarget(AnnotationTargetTypeConstants.CLASS_EXTENDS, superTypeIndex);
 	}
 
 	@Override
-	public ITypeAnnotationBuilder toMethodParameter(short index) {
-		return toTarget(AnnotationTargetTypeConstants.METHOD_FORMAL_PARAMETER, index);
+	public ITypeAnnotationBuilder toMethodParameter(short parameterIndex) {
+		return toTarget(AnnotationTargetTypeConstants.METHOD_FORMAL_PARAMETER, parameterIndex);
 	}
 
 	@Override
@@ -132,6 +132,7 @@ public class TypeAnnotationBuilder implements ITypeAnnotationBuilder {
 			int writeIdx = (next.length - 1) * 2;
 			result[writeIdx] = next.kind;
 			result[writeIdx + 1] = next.index;
+			next = next.parent;
 		}
 
 		return result;

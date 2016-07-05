@@ -73,7 +73,7 @@ public class MemoryStats {
 		this.address = address;
 	}
 
-	public void printMemoryStats(NdNodeTypeRegistry nodeRegistry) {
+	public void printMemoryStats(NdNodeTypeRegistry<?> nodeRegistry) {
 		StringBuilder builder = new StringBuilder();
 		for (PoolStats next : getSortedPools()) {
 			builder.append(getPoolName(nodeRegistry, next.poolId));
@@ -86,7 +86,7 @@ public class MemoryStats {
 		System.out.println(builder.toString());
 	}
 
-	private String getPoolName(NdNodeTypeRegistry registry, int poolId) {
+	private String getPoolName(NdNodeTypeRegistry<?> registry, int poolId) {
 		switch (poolId) {
 			case Database.POOL_MISC: return "Miscellaneous"; //$NON-NLS-1$
 			case Database.POOL_BTREE: return "B-Trees"; //$NON-NLS-1$

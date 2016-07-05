@@ -98,11 +98,11 @@ public class PathMap<T> {
 		
 	    public void toString(StringBuilder builder, IPath parentPath) {
 		    if (this.exists) {
-		    	builder.append("[");
+		    	builder.append("["); //$NON-NLS-1$
 		    	builder.append(parentPath);
-		    	builder.append("] = ");
+		    	builder.append("] = "); //$NON-NLS-1$
 		    	builder.append(this.value);
-		    	builder.append("\n");
+		    	builder.append("\n"); //$NON-NLS-1$
 		    }
 		    if (this.children != null) { 
 		    	for (Entry<String, Node<T>> next : this.children.entrySet()) {
