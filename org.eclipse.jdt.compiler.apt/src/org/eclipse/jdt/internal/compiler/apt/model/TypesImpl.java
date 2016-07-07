@@ -226,7 +226,7 @@ public class TypesImpl implements Types {
     /*
      * (non-Javadoc)
      * Create a type instance by parameterizing a type element. If the element is a member type,
-     * its container must not be generic (if it were, you would need to use the form of
+     * its container won't be parameterized (if it needs to be, you would need to use the form of
      * getDeclaredType that takes a container TypeMirror). If typeArgs is empty, and typeElem
      * is not generic, then you should use TypeElem.asType().  If typeArgs is empty and typeElem
      * is generic, this method will create the raw type.
@@ -256,8 +256,14 @@ public class TypesImpl implements Types {
             }
             typeArguments[i] = (TypeBinding) binding;
         }
+
+        ReferenceBinding enclosing = elementBinding.enclosingType();
+        if (enclosing != null) {
+            enclosing = this._env.getLookupEnvironment().createRawType(enclosing, null);
+        }
+
         return (DeclaredType) _env.getFactory().newTypeMirror(
-                this._env.getLookupEnvironment().createParameterizedType(elementBinding, typeArguments, null));
+                this._env.getLookupEnvironment().createParameterizedType(elementBinding, typeArguments, enclosing));
     }
 
     /* (non-Javadoc)
