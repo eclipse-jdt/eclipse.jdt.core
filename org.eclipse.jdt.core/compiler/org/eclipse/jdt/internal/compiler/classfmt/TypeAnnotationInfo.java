@@ -123,7 +123,7 @@ protected void reset() {
 }
 
 public String toString() {
-	return BinaryTypePrinter.printTypeAnnotation(this);
+	return BinaryTypeFormatter.annotationToString(this);
 }
 
 public int getTargetType() {

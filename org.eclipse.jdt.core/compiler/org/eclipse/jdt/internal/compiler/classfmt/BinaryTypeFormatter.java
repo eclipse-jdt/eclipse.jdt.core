@@ -6,9 +6,9 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-public class BinaryTypePrinter {
+public class BinaryTypeFormatter {
 
-	public static String printAnnotation(IBinaryAnnotation annotation) {
+	public static String annotationToString(IBinaryAnnotation annotation) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append('@');
 		buffer.append(annotation.getTypeName());
@@ -26,7 +26,7 @@ public class BinaryTypePrinter {
 		return buffer.toString();
 	}
 
-	public static String printTypeAnnotation(IBinaryTypeAnnotation typeAnnotation) {
+	public static String annotationToString(IBinaryTypeAnnotation typeAnnotation) {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(typeAnnotation.getAnnotation());
 		buffer.append(' ');
@@ -61,13 +61,13 @@ public class BinaryTypePrinter {
 		return buffer.toString();
 	}
 
-	public static String printMethod(IBinaryMethod method) {
+	public static String methodToString(IBinaryMethod method) {
 		StringBuffer result = new StringBuffer();
-		toStringContent(result, method);
+		methodToStringContent(result, method);
 		return result.toString();
 	}
 
-	public static void toStringContent(StringBuffer buffer, IBinaryMethod method) {
+	public static void methodToStringContent(StringBuffer buffer, IBinaryMethod method) {
 		int modifiers = method.getModifiers();
 		char[] desc = method.getGenericSignature();
 		if (desc == null)

@@ -1,6 +1,6 @@
 package org.eclipse.jdt.internal.core.nd.java.model;
 
-import org.eclipse.jdt.internal.compiler.classfmt.BinaryTypePrinter;
+import org.eclipse.jdt.internal.compiler.classfmt.BinaryTypeFormatter;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
@@ -167,6 +167,6 @@ public final class IndexBinaryMethod implements IBinaryMethod {
 
 	@Override
 	public String toString() {
-		return BinaryTypePrinter.printMethod(this);
+		return BinaryTypeFormatter.methodToString(this);
 	}
 }

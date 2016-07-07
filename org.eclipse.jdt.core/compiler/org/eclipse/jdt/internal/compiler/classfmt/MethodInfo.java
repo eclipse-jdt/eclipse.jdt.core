@@ -453,7 +453,7 @@ void toString(StringBuffer buffer) {
 	toStringContent(buffer);
 }
 protected void toStringContent(StringBuffer buffer) {
-	BinaryTypePrinter.toStringContent(buffer, this);
+	BinaryTypeFormatter.methodToStringContent(buffer, this);
 }
 private void readCodeAttribute() {
 	int attributesCount = u2At(6);

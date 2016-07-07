@@ -377,7 +377,7 @@ private int scanElementValue(int offset) {
 	return currentOffset;
 }
 public String toString() {
-	return BinaryTypePrinter.printAnnotation(this);
+	return BinaryTypeFormatter.annotationToString(this);
 }
 public int hashCode() {
 	final int prime = 31;
