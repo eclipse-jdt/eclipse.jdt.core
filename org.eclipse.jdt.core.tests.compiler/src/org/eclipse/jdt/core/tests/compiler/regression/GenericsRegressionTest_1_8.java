@@ -6583,4 +6583,24 @@ public void testBug497239() {
 		}
 	);
 }
+public void testBug497603() {
+	runConformTest(
+		new String[] {
+			"InferBug.java",
+			"import java.util.Iterator;\n" + 
+			"import java.util.Map.Entry;\n" + 
+			"import java.util.function.BiPredicate;\n" + 
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"public class InferBug {\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        Iterator<Iterator<Entry<String, String>>> x = null;\n" + 
+			"        Iterator<Iterator<String>> p = foo(x, i -> foo(i, Entry::getValue));\n" + 
+			"    }\n" + 
+			"    static <F, T> Iterator<T> foo(Iterator<F> a, Function<F, T> b) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }
