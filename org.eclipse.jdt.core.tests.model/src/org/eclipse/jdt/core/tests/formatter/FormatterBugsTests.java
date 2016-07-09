@@ -12469,4 +12469,34 @@ public void testBug494831() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/497245 - [formatter] Comment between "if" and statement breaks formatting
+ */
+public void testBug497245a() {
+	String source =
+		"public class Test {\r\n" + 
+		"	void method() {\r\n" + 
+		"		if (true)\r\n" + 
+		"			// comment\r\n" + 
+		"			if (false)\r\n" + 
+		"				method();\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/497245 - [formatter] Comment between "if" and statement breaks formatting
+ */
+public void testBug497245b() {
+	this.formatterPrefs.keep_then_statement_on_same_line = true;
+	String source =
+		"public class Test {\r\n" + 
+		"	void method() {\r\n" + 
+		"		if (true)\r\n" + 
+		"			// comment\r\n" + 
+		"			if (false) method();\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
 }
