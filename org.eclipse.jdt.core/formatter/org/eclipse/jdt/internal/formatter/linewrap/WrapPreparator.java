@@ -634,19 +634,21 @@ public class WrapPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(IfStatement node) {
-		if (!(node.getThenStatement() instanceof Block)) {
-			int thenIndex = this.tm.firstIndexIn(node.getThenStatement(), -1);
-			if (this.tm.get(thenIndex).getLineBreaksBefore() == 0) {
-				this.wrapIndexes.add(thenIndex);
+		Statement thenStatement = node.getThenStatement();
+		Statement elseStatement = node.getElseStatement();
+		if (!(thenStatement instanceof Block)) {
+			boolean keepThenOnSameLine = this.options.keep_then_statement_on_same_line
+					|| (this.options.keep_simple_if_on_one_line && elseStatement == null);
+			if (keepThenOnSameLine) {
+				this.wrapIndexes.add(this.tm.firstIndexIn(thenStatement, -1));
 				this.wrapParentIndex = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
-				this.wrapGroupEnd = this.tm.lastIndexIn(node.getThenStatement(), -1);
+				this.wrapGroupEnd = this.tm.lastIndexIn(thenStatement, -1);
 				handleWrap(this.options.alignment_for_compact_if, node);
 			}
 		}
-		Statement elseStatement = node.getElseStatement();
 		if (elseStatement != null && !(elseStatement instanceof Block) && !(elseStatement instanceof IfStatement)) {
-			int elseIndex = this.tm.firstIndexIn(elseStatement, -1);
-			if (this.tm.get(elseIndex).getLineBreaksBefore() == 0) {
+			if (this.options.keep_else_statement_on_same_line) {
+				int elseIndex = this.tm.firstIndexIn(elseStatement, -1);
 				this.wrapIndexes.add(elseIndex);
 				this.wrapParentIndex = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
 				this.wrapGroupEnd = this.tm.lastIndexIn(elseStatement, -1);
