@@ -12345,4 +12345,129 @@ public void testBug496591() {
 		""
 	);
 }	
+public void testBug497698() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/And.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class And {\n" +
+			"	public static void createAnd() {\n" +
+			"		Or.create();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+			"test/Or.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Or<D, V> {\n" +
+			"	public static <V> Or<V> create() {\n" +
+			"		return new Or<V, V>();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\Or.java (at line 7)\n" + 
+		"	public static <V> Or<V> create() {\n" + 
+		"	                  ^^\n" + 
+		"Incorrect number of arguments for type Or<D,V>; it cannot be parameterized with arguments <V>\n" + 
+		"----------\n"
+	);
+}
+public void testBug497698raw() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/And.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class And {\n" +
+			"	public static void createAnd() {\n" +
+			"		new Or().create();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+			"test/Or.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Or<D, V> {\n" +
+			"	public <V1> Or<V1> create() {\n" +
+			"		return new Or<V1, V1>();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in test\\And.java (at line 8)\n" + 
+		"	new Or().create();\n" + 
+		"	    ^^\n" + 
+		"Or is a raw type. References to generic type Or<D,V> should be parameterized\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in test\\Or.java (at line 7)\n" + 
+		"	public <V1> Or<V1> create() {\n" + 
+		"	            ^^\n" + 
+		"Incorrect number of arguments for type Or<D,V>; it cannot be parameterized with arguments <V1>\n" + 
+		"----------\n"
+	);
+}
+public void testBug497698nestedinraw() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/And.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class And {\n" +
+			"	public static void createAnd(X.Or x) {\n" +
+			"		x.create();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+			"test/X.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class X<Z> {\n" +
+			"	public class Or<D, V> {\n" +
+			"		public <V1> Or<V1> create() {\n" +
+			"			return new Or<V1,V1>();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in test\\And.java (at line 7)\n" + 
+		"	public static void createAnd(X.Or x) {\n" + 
+		"	                             ^^^^\n" + 
+		"X.Or is a raw type. References to generic type X<Z>.Or<D,V> should be parameterized\n" + 
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in test\\X.java (at line 8)\n" + 
+		"	public <V1> Or<V1> create() {\n" + 
+		"	            ^^\n" + 
+		"Incorrect number of arguments for type X<Z>.Or; it cannot be parameterized with arguments <V1>\n" + 
+		"----------\n"
+	);
+}
 }

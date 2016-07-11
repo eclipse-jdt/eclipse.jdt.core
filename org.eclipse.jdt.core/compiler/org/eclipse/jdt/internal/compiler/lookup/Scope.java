@@ -578,7 +578,7 @@ public abstract class Scope {
 					}
 					break;
 				case Binding.GENERIC_TYPE:
-					originalReferenceType = (ReferenceBinding) originalType;
+					originalReferenceType = (ReferenceBinding) originalType.unannotated();
 					originalEnclosing = originalType.enclosingType();
 					substitutedEnclosing = originalEnclosing;
 					if (originalEnclosing != null) {
