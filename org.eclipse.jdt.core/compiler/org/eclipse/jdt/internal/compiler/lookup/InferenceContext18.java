@@ -1104,7 +1104,7 @@ public class InferenceContext18 {
 	private boolean setUpperBounds(CaptureBinding18 typeVariable, TypeBinding[] substitutedUpperBounds) {
 		// 18.4: ... define the upper bound of Zi as glb(L1θ, ..., Lkθ)
 		if (substitutedUpperBounds.length == 1) {
-			typeVariable.setUpperBounds(substitutedUpperBounds, this.object); // shortcut
+			return typeVariable.setUpperBounds(substitutedUpperBounds, this.object); // shortcut
 		} else {
 			TypeBinding[] glbs = Scope.greaterLowerBound(substitutedUpperBounds, this.scope, this.environment);
 			if (glbs == null)

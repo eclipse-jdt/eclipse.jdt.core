@@ -6862,4 +6862,28 @@ public void testBug470667() {
 		"The method createData() in the type Test is not applicable for the arguments (BigInteger, String, String, BigInteger)\n" + 
 		"----------\n");
 }
+public void testBug497239() {
+	runConformTest(
+		new String[] {
+			"FunctionUtils.java",
+			"import java.util.stream.Collector;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"\n" +
+			"public class FunctionUtils<InputElement, ResultElement> {\n" +
+			"	public static <T> T[] concat(T[] array1, T[] array2) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"\n" +
+			"	public static <T> T[] concat(T[][] arrays) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"\n" +
+			"	public Collector<ResultElement[], ?, ResultElement[]> on(InputElement[] inputElements) {\n" +
+			"		return Collectors.collectingAndThen(Collectors.reducing(FunctionUtils::concat), r -> r.get());\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}
+	);
+}
 }
