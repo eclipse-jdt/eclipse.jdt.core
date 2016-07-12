@@ -3276,19 +3276,18 @@ protected ArrayList handleModuleSourcepath(String arg) {
 		for (int i = 0; i < paths.length; i++) {
 			File dir = new File(paths[i]);
 			if (dir.isDirectory()) {
-//				List<String> mods = ModuleFinder.findFolders(dir);
 				// 1. Create FileSystem.Classpath for each module
 				// 2. Iterator each module in case of directory for source files and add to this.fileNames
 
 				modulePaths =
 						(ArrayList) ModuleFinder.findModules(dir, this.destinationPath, getNewParser(), this.options, true);
-				
 				for (Object obj : modulePaths) {
 					Classpath classpath = (Classpath) obj;
 					File modLocation = new File(classpath.getPath());
 					String[] result = FileFinder.find(modLocation, SuffixConstants.SUFFIX_STRING_java);
 					String destPath = classpath.getDestinationPath();
-					String moduleName = new String(classpath.getModule().name());
+					IModule mod = classpath.getModule();
+					String moduleName = mod == null ? null : new String(mod.name());
 
 					// Add them to this.filenames
 					if (this.filenames != null) {

@@ -346,10 +346,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				"",
 				false);
 	}
-	public void test010() {
-		Util.flushDirectoryContent(new File(OUTPUT_DIR));
-		String outDir = OUTPUT_DIR + File.separator + "bin";
-		String srcDir = OUTPUT_DIR + File.separator + "src";
+	private void createReusableModules(String srcDir, String outDir, File modDir) {
 		String moduleLoc = srcDir + File.separator + "mod.one";
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
@@ -392,7 +389,6 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				"",
 				false);
 
-		File modDir = new File(OUTPUT_DIR + File.separator + "mod");
 		String fileName = modDir + File.separator + "mod.one.jar";
 		try {
 			Util.zip(new File(outDir + File.separator + "mod.one"), 
@@ -413,7 +409,14 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 
 		Util.flushDirectoryContent(new File(outDir));
 		Util.flushDirectoryContent(new File(srcDir));
-		moduleLoc = srcDir + File.separator + "mod.three";
+	}
+	public void test010() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String outDir = OUTPUT_DIR + File.separator + "bin";
+		String srcDir = OUTPUT_DIR + File.separator + "src";
+		File modDir = new File(OUTPUT_DIR + File.separator + "mod");
+		createReusableModules(srcDir, outDir, modDir);
+		String moduleLoc = srcDir + File.separator + "mod.three";
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.three { \n" +
 						"	requires mod.one;\n" +
@@ -426,7 +429,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 						"	q.Y y = null;\n" +
 						"}");
 
-		buffer = new StringBuffer();
+		StringBuffer buffer = new StringBuffer();
 			buffer.append("-d " + outDir )
 			.append(" -9 ")
 			.append(" -modulepath \"")
@@ -460,5 +463,85 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 	        "",
 	        "",
 	        true);
+	}
+	// Modules used as regular -classpath (as opposed to -modulepath) and module-info referencing
+	// those modules are reported as missing.
+	public void test012() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String outDir = OUTPUT_DIR + File.separator + "bin";
+		String srcDir = OUTPUT_DIR + File.separator + "src";
+		File modDir = new File(OUTPUT_DIR + File.separator + "mod");
+		createReusableModules(srcDir, outDir, modDir);
+		String moduleLoc = srcDir + File.separator + "mod.three";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.three { \n" +
+						"	requires mod.one;\n" +
+						"	requires mod.two;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p", "Z.java", 
+						"package r;\n" +
+						"public class Z extends Object {\n" +
+						"	p.X x = null;\n" +
+						"	q.Y y = null;\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+			buffer.append("-d " + outDir )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append(modDir + File.separator + "mod.one.jar").append(File.pathSeparator)
+			.append(modDir + File.separator + "mod.two").append(File.pathSeparator)
+			.append("\" ")
+			.append(" -modulesourcepath " + "\"" + srcDir + "\"");
+
+		runNegativeTest(new String[]{},
+				buffer.toString(), 
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/module-info.java (at line 2)\n" + 
+				"	requires mod.one;\n" + 
+				"	         ^^^^^^^\n" + 
+				"mod.one cannot be resolved to a module\n" + 
+				"----------\n" + 
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/module-info.java (at line 3)\n" + 
+				"	requires mod.two;\n" + 
+				"	         ^^^^^^^\n" + 
+				"mod.two cannot be resolved to a module\n" + 
+				"----------\n" + 
+				"2 problems (2 errors)\n",
+				false);
+	}
+	// Modules used as regular -classpath as opposed to -modulepath. The files being compiled
+	// aren't part of any modules (i.e. module-info is missing). The files should be able to
+	// reference the types from referenced classpath.
+	public void test013() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String outDir = OUTPUT_DIR + File.separator + "bin";
+		String srcDir = OUTPUT_DIR + File.separator + "src";
+		File modDir = new File(OUTPUT_DIR + File.separator + "mod");
+		createReusableModules(srcDir, outDir, modDir);
+		String moduleLoc = srcDir + File.separator + "mod.three";
+		writeFile(moduleLoc + File.separator + "p", "Z.java", 
+						"package r;\n" +
+						"public class Z extends Object {\n" +
+						"	p.X x = null;\n" +
+						"	q.Y y = null;\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+			buffer.append("-d " + outDir )
+			.append(" -9")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append(modDir + File.separator + "mod.one.jar").append(File.pathSeparator)
+			.append(modDir + File.separator + "mod.two").append(File.pathSeparator)
+			.append("\" ")
+			.append(" -modulesourcepath " + "\"" + srcDir + "\"");
+		runConformTest(new String[]{},
+				buffer.toString(), 
+				"",
+				"",
+				false);
 	}
 }

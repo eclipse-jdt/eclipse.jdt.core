@@ -327,5 +327,12 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		}
 		return null;
 	}
-
+//	@Override
+//	public boolean isModule() {
+//	 	try {
+//	 		return ((PackageFragmentRootInfo) getElementInfo()).isModule(resource(), this);
+//	 	} catch (JavaModelException e) {
+//	 		return false;
+//	 	}
+//	}
 }

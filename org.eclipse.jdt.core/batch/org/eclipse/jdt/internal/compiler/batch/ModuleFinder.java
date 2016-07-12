@@ -70,17 +70,17 @@ public class ModuleFinder {
 				} else if (isJar(file)){
 					module = extractModuleFromJar(file);
 				}
-				if (module != null) {
-					FileSystem.Classpath modulePath = FileSystem.getClasspath(
-							file.getAbsolutePath(),
-							null,
-							sourceOnly,
-							null,
-							destinationPath == null ? null : (destinationPath + File.separator + file.getName()), 
-							options);
-					modulePath.acceptModule(module);
+				FileSystem.Classpath modulePath = FileSystem.getClasspath(
+						file.getAbsolutePath(),
+						null,
+						sourceOnly,
+						null,
+						destinationPath == null ? null : (destinationPath + File.separator + file.getName()), 
+						options);
+				if (modulePath != null)
 					collector.add(modulePath);
-				}
+				if (module != null)
+					modulePath.acceptModule(module);
 			}
 		}
 		return collector;

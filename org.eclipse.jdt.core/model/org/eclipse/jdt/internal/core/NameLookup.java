@@ -93,6 +93,12 @@ public class NameLookup implements SuffixConstants {
 			return otherAnswer.restriction != null
 				&& this.restriction.getProblemId() < otherAnswer.restriction.getProblemId();
 		}
+		public String toString() {
+			StringBuilder builder = new StringBuilder(this.type.toString());
+			builder.append("from ") //$NON-NLS-1$
+			.append(this.module);
+			return builder.toString();
+		}
 	}
 
 	// TODO (jerome) suppress the accept flags (qualified name is sufficient to find a type)

@@ -199,7 +199,7 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 					// don't let error on annotations fail class reading
 				}
 			}
-			return new NameEnvironmentAnswer(reader, null, mod.name());
+			return new NameEnvironmentAnswer(reader, null, reader.moduleName);
 		}
 	} catch (IOException e) { // treat as if class file is missing
 	} catch (ClassFormatException e) { // treat as if class file is missing

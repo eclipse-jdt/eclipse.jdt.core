@@ -233,11 +233,10 @@ protected void addTypeName(final ArrayList answers, String fileName, int last, c
 	}
 }
 public void initialize() throws IOException {
-	if (this.zipFile == null) {
+	if (this.isJrt) {
+		loadModules();
+	} else if (this.zipFile == null) {
 		this.zipFile = new ZipFile(this.file);
-		if (this.isJrt) {
-			 loadModules();
-		}
 	}
 }
 public void acceptModule(IModule mod) {
