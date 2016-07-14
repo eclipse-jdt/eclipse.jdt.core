@@ -41,6 +41,11 @@ public class AnnotationProcessorTests extends TestCase {
 				count++;
 				buffer.append(diagnostic.getMessage(Locale.getDefault()));
 				buffer.append("\n");
+			} else if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
+				count++;
+				buffer.append(diagnostic.getMessage(Locale.getDefault()));
+				buffer.append("\n");
+				System.out.println(buffer.toString());
 			}
 		}
 		public Diagnostic<? extends S> getErrorAt(int index) {
@@ -139,5 +144,21 @@ public class AnnotationProcessorTests extends TestCase {
 		List<String> options = new ArrayList<String>();
 		options.add("-proc:only");
 		BatchTestUtils.compileTree(compiler, options, targetFolder, null);
+	}
+	public void testBug317216() throws IOException {
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug317216");
+		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug317216", targetFolder);
+		List<String> options = new ArrayList<String>();
+		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug317216Proc";
+		options.add("-processorpath");
+		options.add(" ");
+		options.add("-processor");
+		options.add(PROC);
+		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<JavaFileObject>();
+		BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, diagnosticListener, true);
+		assertNull(System.getProperty(PROC));
+		assertEquals("incorrect number of messages", 0, diagnosticListener.count);
+		assertNull(System.getProperty(PROC));
 	}
 }
