@@ -63,6 +63,8 @@ public class IndexBinaryType implements IBinaryType {
 
 	private long tagBits;
 
+	private static final IBinaryAnnotation[] NO_ANNOTATIONS = new IBinaryAnnotation[0];
+
 	public IndexBinaryType(TypeRef type, char[] indexPath) {
 		this.typeRef = type;
 		this.fileName = indexPath;
@@ -92,14 +94,14 @@ public class IndexBinaryType implements IBinaryType {
 			if (type != null) {
 				return toAnnotationArray(this.typeRef.get().getAnnotations());
 			} else {
-				return null;
+				return NO_ANNOTATIONS;
 			}
 		}
 	}
 
 	private static IBinaryAnnotation[] toAnnotationArray(List<NdAnnotation> annotations) {
 		if (annotations.isEmpty()) {
-			return null;
+			return NO_ANNOTATIONS;
 		}
 		IBinaryAnnotation[] result = new IBinaryAnnotation[annotations.size()];
 
