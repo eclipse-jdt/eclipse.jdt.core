@@ -41,7 +41,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 
 public class JRTUtil {
 
-	public static final String JAVA_DOT = "java."; //$NON-NLS-1$
 	public static final String JAVA_BASE = "java.base"; //$NON-NLS-1$
 	public static final char[] JAVA_BASE_CHAR = JAVA_BASE.toCharArray();
 	static final String MODULES_SUBDIR = "/modules"; //$NON-NLS-1$
@@ -295,8 +294,7 @@ class JrtFileSystem {
 								if (count == 2) {
 									// e.g. /modules/java.base
 									java.nio.file.Path mod = dir.getName(1);
-									if (!mod.toString().startsWith(JRTUtil.JAVA_DOT) ||
-											(JRTUtil.MODULE_TO_LOAD != null && JRTUtil.MODULE_TO_LOAD.length() > 0 &&
+									if ((JRTUtil.MODULE_TO_LOAD != null && JRTUtil.MODULE_TO_LOAD.length() > 0 &&
 											JRTUtil.MODULE_TO_LOAD.indexOf(mod.toString()) == -1)) {
 										return FileVisitResult.SKIP_SUBTREE;
 									}
@@ -327,10 +325,6 @@ class JrtFileSystem {
 							@Override
 							public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
 								// e.g. /modules/java.base
-								java.nio.file.Path mod = file.getName(file.getNameCount() - 1);
-								if (!mod.toString().startsWith(JRTUtil.JAVA_DOT)) {
-									return FileVisitResult.CONTINUE;
-								}
 								java.nio.file.Path relative = subdir.relativize(file);
 								cachePackage(relative.getParent().toString(), relative.getFileName().toString());
 								return FileVisitResult.CONTINUE;
