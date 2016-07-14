@@ -544,4 +544,56 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				"",
 				false);
 	}
+	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=495500
+	//-source 9
+	public void testBug495500a() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"/** */\n" +
+				"public class X {\n" +
+				"}",
+			},
+	  "\"" + OUTPUT_DIR +  File.separator + "X.java\""
+	  + " -9 -d \"" + OUTPUT_DIR + "\"",
+	  "",
+	  "",
+	  true);
+		String expectedOutput = "// Compiled from X.java (version 9 : 53.0, super bit)";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	}
+	//-source 8 -target 9
+	public void testBug495500b() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"/** */\n" +
+				"public class X {\n" +
+				"}",
+			},
+	"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+	+ " -9 -source 8 -target 9 -d \"" + OUTPUT_DIR + "\"",
+	"",
+	"",
+	true);
+		String expectedOutput = "// Compiled from X.java (version 9 : 53.0, super bit)";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	}
+	// compliance 9 -source 9 -target 9
+	public void testBug495500c() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"/** */\n" +
+				"public class X {\n" +
+				"}",
+			},
+	"\"" + OUTPUT_DIR +  File.separator + "X.java\""
+	+ " -9 -source 9 -target 9 -d \"" + OUTPUT_DIR + "\"",
+	"",
+	"",
+	true);
+		String expectedOutput = "// Compiled from X.java (version 9 : 53.0, super bit)";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	}
 }
