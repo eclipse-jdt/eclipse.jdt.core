@@ -2012,7 +2012,152 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		},
 		options);
 	}
-
+	public void testbug497879() {
+		this.runConformTest(
+			new String[]{
+				"LambdaSerializationTest.java",
+				"import java.io.ByteArrayInputStream;\n" + 
+				"import java.io.ByteArrayOutputStream;\n" + 
+				"import java.io.IOException;\n" + 
+				"import java.io.ObjectInputStream;\n" + 
+				"import java.io.ObjectOutputStream;\n" + 
+				"import java.io.Serializable;\n" + 
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"import java.util.function.Supplier;\n" + 
+				"public class LambdaSerializationTest {\n" + 
+				"    interface SerializableSupplier<T> extends Supplier<T>, Serializable {}\n" + 
+				"    public static void constructorReferenceSerialization() throws IOException, ClassNotFoundException {\n" + 
+				"        SerializableSupplier<List<?>> function = ArrayList::new; //Collections::emptyList;\n" + 
+				"        Object result = serializeDeserialize(function);\n" + 
+				"        Class<?>[] infs = result.getClass().getInterfaces();\n" +
+				"        for(int i = 0; i < infs.length; i++) {\n" +
+				"            System.out.println(infs[i]);\n" +
+				"        }\n" +
+				"    }\n" + 
+				"    private static Object serializeDeserialize(Object obj) throws IOException, ClassNotFoundException {\n" + 
+				"        try (\n" + 
+				"            ByteArrayOutputStream buffer = new ByteArrayOutputStream(); //\n" + 
+				"            ObjectOutputStream output = new ObjectOutputStream(buffer)) {\n" + 
+				"            output.writeObject(obj);\n" + 
+				"            try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {\n" + 
+				"                return input.readObject();\n" + 
+				"            }\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			LambdaSerializationTest.constructorReferenceSerialization();\n" + 
+				"		} catch (ClassNotFoundException | IOException e) {\n" + 
+				"			// TODO Auto-generated catch block\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+		},
+		"interface LambdaSerializationTest$SerializableSupplier",
+		null,true,
+		new String[]{"-Ddummy"});
+	}
+	public void testbug497879a() {
+		this.runConformTest(
+			new String[]{
+				"LambdaSerializationTest.java",
+				"import java.io.ByteArrayInputStream;\n" + 
+				"import java.io.ByteArrayOutputStream;\n" + 
+				"import java.io.IOException;\n" + 
+				"import java.io.ObjectInputStream;\n" + 
+				"import java.io.ObjectOutputStream;\n" + 
+				"import java.io.Serializable;\n" + 
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"import java.util.function.Supplier;\n" + 
+				"public class LambdaSerializationTest {\n" + 
+				"    interface SerializableSupplier<T> extends Supplier<T>, Serializable {}\n" + 
+				"    static class Junk {\n" + 
+				"    	private Junk() {}\n" + 
+				"    }\n" + 
+				"    public static void constructorReferenceSerialization() throws IOException, ClassNotFoundException {\n" + 
+				"        SerializableSupplier<Junk> function = Junk::new;\n" + 
+				"        Object result = serializeDeserialize(function);\n" + 
+				"        Class<?>[] infs = result.getClass().getInterfaces();\n" +
+				"        for(int i = 0; i < infs.length; i++) {\n" +
+				"            System.out.println(infs[i]);\n" +
+				"        }\n" + 
+				"    }\n" + 
+				"    private static Object serializeDeserialize(Object obj) throws IOException, ClassNotFoundException {\n" + 
+				"        try (\n" + 
+				"            ByteArrayOutputStream buffer = new ByteArrayOutputStream(); //\n" + 
+				"            ObjectOutputStream output = new ObjectOutputStream(buffer)) {\n" + 
+				"            output.writeObject(obj);\n" + 
+				"            try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {\n" + 
+				"                return input.readObject();\n" + 
+				"            }\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			LambdaSerializationTest.constructorReferenceSerialization();\n" + 
+				"		} catch (ClassNotFoundException | IOException e) {\n" + 
+				"			// TODO Auto-generated catch block\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+		},
+		"interface LambdaSerializationTest$SerializableSupplier",
+		null,true,
+		new String[]{"-Ddummy"});
+	}
+	public void testbug497879b() {
+		this.runConformTest(
+			new String[]{
+				"LambdaSerializationTest.java",
+				"import java.io.ByteArrayInputStream;\n" + 
+				"import java.io.ByteArrayOutputStream;\n" + 
+				"import java.io.IOException;\n" + 
+				"import java.io.ObjectInputStream;\n" + 
+				"import java.io.ObjectOutputStream;\n" + 
+				"import java.io.Serializable;\n" + 
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"import java.util.function.Supplier;\n" + 
+				"public class LambdaSerializationTest {\n" + 
+				"    interface SerializableSupplier<T> extends Serializable {\n" +
+				"        T get(int count);\n" +
+				"    }\n" + 
+				"    public static void constructorReferenceSerialization() throws IOException, ClassNotFoundException {\n" + 
+				"        SerializableSupplier<List[]> function = ArrayList[]::new;\n" + 
+				"        Object result = serializeDeserialize(function);\n" + 
+				"        Class<?>[] infs = result.getClass().getInterfaces();\n" +
+				"        for(int i = 0; i < infs.length; i++) {\n" +
+				"            System.out.println(infs[i]);\n" +
+				"        }\n" + 
+				"    }\n" + 
+				"    private static Object serializeDeserialize(Object obj) throws IOException, ClassNotFoundException {\n" + 
+				"        try (\n" + 
+				"            ByteArrayOutputStream buffer = new ByteArrayOutputStream(); //\n" + 
+				"            ObjectOutputStream output = new ObjectOutputStream(buffer)) {\n" + 
+				"            output.writeObject(obj);\n" + 
+				"            try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {\n" + 
+				"                return input.readObject();\n" + 
+				"            }\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			LambdaSerializationTest.constructorReferenceSerialization();\n" + 
+				"		} catch (ClassNotFoundException | IOException e) {\n" + 
+				"			// TODO Auto-generated catch block\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+		},
+		"interface LambdaSerializationTest$SerializableSupplier",
+		null,true,
+		new String[]{"-Ddummy"});
+	}
 	// ---
 	
 	private void checkExpected(String expected, String actual) {
