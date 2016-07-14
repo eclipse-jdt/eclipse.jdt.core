@@ -53,6 +53,7 @@ public class IndexerTest extends AbstractJavaModelTests {
 		super(name);
 	}
 
+	private static final String PROJECT_NAME = "IndexerTest";
 	private static JavaIndex index;
 
 	@Override
@@ -73,7 +74,7 @@ public class IndexerTest extends AbstractJavaModelTests {
 		String testName = getName();
 		JavaIndex localIndex = JavaIndexTestUtil.createTempIndex(testName);
 
-		createJavaProject("P", new String[] {"src"}, new String[] {"JCL18_FULL"}, "bin", "1.8", true);
+		createJavaProject(PROJECT_NAME, new String[] {"src"}, new String[] {"JCL18_FULL"}, "bin", "1.8", true);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		Indexer indexer = new Indexer(localIndex.getNd(), root);
 
@@ -118,7 +119,7 @@ public class IndexerTest extends AbstractJavaModelTests {
 		SubMonitor subMonitor = SubMonitor.convert(null);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		try (IReader reader = IndexerTest.index.getNd().acquireReadLock()) {
-			IProject project = root.getProject("P");
+			IProject project = root.getProject(PROJECT_NAME);
 
 			IJavaProject javaProject = JavaCore.create(project);
 			IPackageFragmentRoot[] roots = javaProject.getAllPackageFragmentRoots();
