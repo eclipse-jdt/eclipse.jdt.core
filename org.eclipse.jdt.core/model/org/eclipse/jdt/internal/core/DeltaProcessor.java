@@ -1057,9 +1057,12 @@ public class DeltaProcessor {
 							if (VERBOSE){
 								System.out.println("- External JAR CHANGED, affecting root: "+root.getElementName()); //$NON-NLS-1$
 							}
+							// TODO(sxenos): this is causing each change event for an external jar file to be fired twice.
+							// We need to preserve the clearing of cached information in the jar but defer the actual firing of
+							// the event until after the indexer has processed the jar.
 							contentChanged(root);
-							hasDelta = true;
 							deltaContainsModifiedJar = true;
+							hasDelta = true;
 						} else if (status == EXTERNAL_JAR_REMOVED) {
 							PackageFragmentRoot root = (PackageFragmentRoot) javaProject.getPackageFragmentRoot(entryPath.toString());
 							if (VERBOSE){
