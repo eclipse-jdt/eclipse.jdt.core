@@ -450,9 +450,6 @@ public class Database {
 			final int oldLen= this.fChunks.length;
 			Chunk[] newchunks = new Chunk[oldLen + numChunks];
 			System.arraycopy(this.fChunks, 0, newchunks, 0, oldLen);
-			for (int i = oldLen; i < oldLen + numChunks; i++) {
-				newchunks[i]= null;
-			}
 			final Chunk chunk= new Chunk(this, oldLen + numChunks - 1);
 			chunk.fDirty= true;
 			newchunks[ oldLen + numChunks - 1 ] = chunk;

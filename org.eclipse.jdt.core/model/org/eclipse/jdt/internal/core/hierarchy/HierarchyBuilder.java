@@ -317,18 +317,9 @@ protected IBinaryType createInfoFromClassFileInJar(Openable classFile) {
 		try {
 			zipFile = ((JarPackageFragmentRoot) pkg.getParent()).getJar();
 			info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(zipFile, classFilePath);
-		} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
-			if (TypeHierarchy.DEBUG) {
-				e.printStackTrace();
-			}
-			return null;
-		} catch (java.io.IOException e) {
-			if (TypeHierarchy.DEBUG) {
-				e.printStackTrace();
-			}
-			return null;
-		} catch (CoreException e) {
-			if (TypeHierarchy.DEBUG) {
+			} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException | java.io.IOException
+					| CoreException e) {
+				if (TypeHierarchy.DEBUG) {
 				e.printStackTrace();
 			}
 			return null;

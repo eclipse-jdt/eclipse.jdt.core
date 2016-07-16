@@ -513,7 +513,7 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 		while (!typesToVisit.isEmpty()) {
 			NdType nextType = typesToVisit.removeFirst();
 			NdTypeId typeId = nextType.getTypeId();
-			
+
 			// TODO(sxenos): Temporarily filter out any types that are contained in the workspace since the old index
 			// will return those types. Remove this once the new index is servicing source types as well as external
 			// ones.
@@ -539,8 +539,7 @@ private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope sc
 			}
 
 			for (NdType subType : typeId.getSubTypes()) {
-				if (!discoveredTypes.contains(subType)) {
-					discoveredTypes.add(subType);
+				if (discoveredTypes.add(subType)) {
 					typesToVisit.add(subType);
 				}
 			}

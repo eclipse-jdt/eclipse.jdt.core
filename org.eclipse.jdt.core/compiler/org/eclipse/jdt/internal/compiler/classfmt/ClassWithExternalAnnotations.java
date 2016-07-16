@@ -172,11 +172,9 @@ public class ClassWithExternalAnnotations implements IBinaryType {
 	 */
 	public static ZipFile getAnnotationZipFile(String basePath, ZipFileProducer producer) throws IOException {
 		File annotationBase = new File(basePath);
-		if (annotationBase.isDirectory()) {
-			return null; // no zipFile
+		if (!annotationBase.isFile()) {
+			return null;
 		}
-		if (!annotationBase.exists())
-			return null; // no zipFile, treat as not-yet-created directory
 		return (producer != null ? producer.produce() : new ZipFile(annotationBase));
 	}
 
