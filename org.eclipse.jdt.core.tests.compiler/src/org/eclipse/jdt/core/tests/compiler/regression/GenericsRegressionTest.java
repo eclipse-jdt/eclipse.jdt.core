@@ -5784,5 +5784,67 @@ public void test489636() {
 			"}"
 	});
 }
+
+public void testBug498057() {
+	runConformTest(
+		new String[] {
+			"scanner/AbstractScanner.java",
+			"package scanner;\n" +
+			"import scanner.AbstractScanner.ScannerModel;\n" +
+			"public abstract class AbstractScanner<E, M extends ScannerModel<E>> implements Scanner<E> {\n" +
+			"	public void scan(ScanListener<E> listener) {\n" +
+			"	}\n" +
+			"\n" +
+			"	public static interface ScannerModel<E> extends ScanListener<E> {\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+			"scanner/AbstractSubScanner.java",
+			"package scanner;\n" +
+			"import scanner.AbstractScanner.ScannerModel;\n" +
+			"public abstract class AbstractSubScanner<E> extends AbstractScanner<E, ScannerModel<E>> {\n" +
+			"	@Override\n" +
+			"	public void scan(ScanListener<E> listener) {\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"",
+			"scanner/ScanListener.java",
+			"package scanner;\n" +
+			"public interface ScanListener<E> {\n" +
+			"}\n" +
+			"\n" +
+			"",
+			"scanner/Scanner.java",
+			"package scanner;\n" +
+			"\n" +
+			"public interface Scanner<E> {\n" +
+			"	void scan(ScanListener<E> listener);\n" +
+			"}\n" +
+			"",
+			"scanner/StringScanner.java",
+			"package scanner;\n" +
+			"\n" +
+			"public interface StringScanner extends Scanner<String> {\n" +
+			"}\n" +
+			"",
+		}
+	);
+	runConformTest(
+		false,
+		new String[] {
+			"scanner/ModifyMe.java",
+			"package scanner;\n" +
+			"\n" +
+			"public class ModifyMe extends AbstractSubScanner<String> implements StringScanner {\n" +
+			"}\n" +
+			"",
+		},
+		"",
+		"",
+		"",
+		null
+	);
+}
 }
 
