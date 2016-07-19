@@ -121,7 +121,7 @@ public class MessageSend extends Expression implements IPolyExpression, Invocati
 	public TypeBinding valueCast; // extra reference type cast to perform on method returned value
 	public TypeReference[] typeArguments;
 	public TypeBinding[] genericTypeArguments;
-	private ExpressionContext expressionContext = VANILLA_CONTEXT;
+	public ExpressionContext expressionContext = VANILLA_CONTEXT;
 
 	 // hold on to this context from invocation applicability inference until invocation type inference (per method candidate):
 	private SimpleLookupTable/*<PGMB,InferenceContext18>*/ inferenceContexts;

@@ -293,9 +293,6 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 				}
 			}
 		}
-		if (this.isSerializable) {
-			sourceType.addSyntheticMethod(this);
-		}
 		int pc = codeStream.position;
 		StringBuffer buffer = new StringBuffer();
 		int argumentsSize = 0;
@@ -349,6 +346,9 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		buffer.append('L');
 		buffer.append(this.resolvedType.constantPoolName());
 		buffer.append(';');
+		if (this.isSerializable) {
+			sourceType.addSyntheticMethod(this);
+		}
 		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
 		codeStream.invokeDynamic(invokeDynamicNumber, argumentsSize, 1, this.descriptor.selector, buffer.toString().toCharArray(), 
 				this.isConstructorReference(), (this.lhs instanceof TypeReference? (TypeReference) this.lhs : null), this.typeArguments);

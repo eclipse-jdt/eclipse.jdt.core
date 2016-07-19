@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2015 GK Software AG and others.
+ * Copyright (c) 2011, 2016 GK Software AG and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -751,6 +752,53 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"----------\n" +
 					"----------\n"
 					);
+
+		} finally {
+			if (project != null)
+				deleteProject(project);
+		}
+	}
+	
+	public void testBug495635() throws CoreException, IOException, InterruptedException {
+		IJavaProject project = null;
+		try {
+			project = createJavaProject("Bug495635", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB}, "bin", "1.8");
+			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+			project.setOption(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.ERROR);
+
+			createFile("/Bug495635/src/AURegObject.java",
+					"public interface AURegObject {}\n"
+					);
+			createFile("/Bug495635/src/AURegKey.java",
+					"public interface AURegKey<O extends AURegObject> {}\n"
+					);
+			createFile("/Bug495635/src/Person.java",
+					"public interface Person<O extends Person<O>> extends AURegObject, PersonKey<O> {}\n"
+				);
+			createFile("/Bug495635/src/PersonKey.java",
+					"public interface PersonKey<O extends Person<?>> extends AURegKey<O> {}\n"
+					);
+
+			setUpWorkingCopy("/Bug495635/src/Person.java",
+					"public interface Person<O extends Person<O>> extends AURegObject, PersonKey<O> {}\n"
+				);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" +
+					"----------\n"
+					);
+
+			String str = this.workingCopy.getSource();
+			
+			int start = str.indexOf("PersonKey");
+			int length = "PersonKey".length();
+
+			IJavaElement[] elements = this.workingCopy.codeSelect(start, length);
+			assertElementsEqual(
+				"Unexpected elements",
+				"PersonKey [in PersonKey.java [in <default> [in src [in Bug495635]]]]",
+				elements
+			);
 
 		} finally {
 			if (project != null)

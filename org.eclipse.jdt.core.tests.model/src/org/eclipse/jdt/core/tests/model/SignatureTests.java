@@ -502,6 +502,21 @@ public void testGetReturnType2() {
 	assertEquals("Signature#getReturnType is not correct", "+[I",
 			Signature.getReturnType(methodSig));
 }
+public void testGetReturnType3() {
+	String methodSig = "(LObject;)+*";
+	assertEquals("Signature#getReturnType is not correct", "+*",
+			Signature.getReturnType(methodSig));
+}
+public void testGetReturnType4() {
+	String methodSig = "(LObject;)+["; // too short
+	try {
+		Signature.getReturnType(methodSig);
+	} catch (IllegalArgumentException iae) {
+		// OK
+		return;
+	}
+	fail("Expected exception not raised");
+}
 /**
  * @see Signature
  */

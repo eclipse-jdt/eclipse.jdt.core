@@ -12458,4 +12458,45 @@ public void testBug492735() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/494831 - Formatter ignores whitespace rules for diamond operator 
+ */
+public void testBug494831() {
+	this.formatterPrefs.insert_space_before_opening_angle_bracket_in_parameterized_type_reference = true;
+	String source =
+		"class Example {\r\n" + 
+		"	List <String> list = new ArrayList <>();\r\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/497245 - [formatter] Comment between "if" and statement breaks formatting
+ */
+public void testBug497245a() {
+	String source =
+		"public class Test {\r\n" + 
+		"	void method() {\r\n" + 
+		"		if (true)\r\n" + 
+		"			// comment\r\n" + 
+		"			if (false)\r\n" + 
+		"				method();\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/497245 - [formatter] Comment between "if" and statement breaks formatting
+ */
+public void testBug497245b() {
+	this.formatterPrefs.keep_then_statement_on_same_line = true;
+	String source =
+		"public class Test {\r\n" + 
+		"	void method() {\r\n" + 
+		"		if (true)\r\n" + 
+		"			// comment\r\n" + 
+		"			if (false) method();\r\n" + 
+		"	}\r\n" + 
+		"}";
+	formatSource(source);
+}
 }

@@ -1833,6 +1833,331 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		null,true,
 		new String[]{"-Ddummy"});
 	}
+	public void testbug494487() {
+		Map options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
+		this.runConformTest(
+			new String[]{
+				"Test.java",
+				"import java.io.IOException;\n" + 
+				"import java.io.Serializable;\n" + 
+				"public class Test {\n" + 
+				"  class AnException extends Exception {\n" + 
+				"  }\n" + 
+				"  class Asd {\n" + 
+				"    public Asd(String asd) { data = asd; }\n" + 
+				"    private final String data;\n" + 
+				"    @Override\n" + 
+				"    public String toString() {\n" + 
+				"      return data;\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"  public interface Test1 extends Serializable {\n" + 
+				"    void test() throws IOException;\n" + 
+				"  }\n" + 
+				"  public interface Test2 {\n" + 
+				"    void test() throws AnException;\n" + 
+				"  }\n" + 
+				"  public void test1( Test1 test ) {\n" + 
+				"    try {\n" + 
+				"      test.test();\n" + 
+				"    } catch( IOException e ) {\n" + 
+				"      e.printStackTrace();\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"  public void test2( Test2 test ) {\n" + 
+				"    try {\n" + 
+				"      test.test();\n" + 
+				"    } catch( AnException e ) {\n" + 
+				"      System.out.println( e );\n" + 
+				"    }\n" + 
+				"  }\n" + 
+				"  public void lambdas() {\n" + 
+				"    test1( () -> System.out.println( \"test a\" ) );\n" + 
+				"    test1( () -> System.out.println( \"test b\" ) );\n" + 
+				"    test2( () -> System.out.println( \"test c\" ) );\n" + 
+				"    test2( () -> System.out.println( \"test d\" ) );\n" + 
+				"  }\n" + 
+				"  public void print( CharSequence a, String b, long c ) {\n" + 
+				"    System.out.println( a );\n" + 
+				"    System.out.println( b );\n" + 
+				"    System.out.println( c );\n" + 
+				"  }\n" + 
+				"  public void filler() {\n" + 
+				"    System.out.println( \"Now we need to get this class file closer to 3000 bytes boundary\" );\n" + 
+				"    filler1();\n" + 
+				"    filler2();\n" + 
+				"    filler3();\n" + 
+				"    filler4();\n" + 
+				"    filler5();\n" + 
+				"    filler6();\n" + 
+				"    filler7();\n" + 
+				"    filler8();\n" + 
+				"    filler9();\n" + 
+				"    filler10();\n" + 
+				"    filler11();\n" + 
+				"    filler12();\n" + 
+				"    filler13();\n" + 
+				"    filler14();\n" + 
+				"    filler15();\n" + 
+				"    filler16();\n" + 
+				"    filler17();\n" + 
+				"    filler18();\n" + 
+				"    filler19();\n" + 
+				"    filler20();\n" + 
+				"    filler21();\n" + 
+				"    filler22();\n" + 
+				"    filler23();\n" + 
+				"    filler24();\n" + 
+				"    filler25();\n" + 
+				"    filler26();\n" + 
+				"    filler27();\n" + 
+				"    filler28();\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler28() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler27() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler26() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler25() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler24() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler23() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler22() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler21() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler20() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler19() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler18() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler17() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler16() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler15() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler14() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler13() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler12() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler11() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler10() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler9() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler8() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler7() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler6() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler5() {\n" + 
+				"    print( c.toString(), d.toString(), System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler4() {\n" + 
+				"    print( a.toString(), b.toString(), System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler3() {\n" + 
+				"    print( \"a\", System.getenv( \"asd\" ), System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler2() {\n" + 
+				"    print( \"a\", System.lineSeparator(), System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private void filler1() {\n" + 
+				"    print( \"a\", \"b\", System.currentTimeMillis() );\n" + 
+				"  }\n" + 
+				"  private final Asd a = new Asd(\"a\");\n" + 
+				"  private final Asd b = new Asd(\"b\");\n" + 
+				"  private final Asd c = new Asd(\"c\");\n" + 
+				"  private final Asd d = new Asd(\"d\");\n" + 
+				"}\n"
+		},
+		options);
+	}
+	public void testbug497879() {
+		this.runConformTest(
+			new String[]{
+				"LambdaSerializationTest.java",
+				"import java.io.ByteArrayInputStream;\n" + 
+				"import java.io.ByteArrayOutputStream;\n" + 
+				"import java.io.IOException;\n" + 
+				"import java.io.ObjectInputStream;\n" + 
+				"import java.io.ObjectOutputStream;\n" + 
+				"import java.io.Serializable;\n" + 
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"import java.util.function.Supplier;\n" + 
+				"public class LambdaSerializationTest {\n" + 
+				"    interface SerializableSupplier<T> extends Supplier<T>, Serializable {}\n" + 
+				"    public static void constructorReferenceSerialization() throws IOException, ClassNotFoundException {\n" + 
+				"        SerializableSupplier<List<?>> function = ArrayList::new; //Collections::emptyList;\n" + 
+				"        Object result = serializeDeserialize(function);\n" + 
+				"        Class<?>[] infs = result.getClass().getInterfaces();\n" +
+				"        for(int i = 0; i < infs.length; i++) {\n" +
+				"            System.out.println(infs[i]);\n" +
+				"        }\n" +
+				"    }\n" + 
+				"    private static Object serializeDeserialize(Object obj) throws IOException, ClassNotFoundException {\n" + 
+				"        try (\n" + 
+				"            ByteArrayOutputStream buffer = new ByteArrayOutputStream(); //\n" + 
+				"            ObjectOutputStream output = new ObjectOutputStream(buffer)) {\n" + 
+				"            output.writeObject(obj);\n" + 
+				"            try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {\n" + 
+				"                return input.readObject();\n" + 
+				"            }\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			LambdaSerializationTest.constructorReferenceSerialization();\n" + 
+				"		} catch (ClassNotFoundException | IOException e) {\n" + 
+				"			// TODO Auto-generated catch block\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+		},
+		"interface LambdaSerializationTest$SerializableSupplier",
+		null,true,
+		new String[]{"-Ddummy"});
+	}
+	public void testbug497879a() {
+		this.runConformTest(
+			new String[]{
+				"LambdaSerializationTest.java",
+				"import java.io.ByteArrayInputStream;\n" + 
+				"import java.io.ByteArrayOutputStream;\n" + 
+				"import java.io.IOException;\n" + 
+				"import java.io.ObjectInputStream;\n" + 
+				"import java.io.ObjectOutputStream;\n" + 
+				"import java.io.Serializable;\n" + 
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"import java.util.function.Supplier;\n" + 
+				"public class LambdaSerializationTest {\n" + 
+				"    interface SerializableSupplier<T> extends Supplier<T>, Serializable {}\n" + 
+				"    static class Junk {\n" + 
+				"    	private Junk() {}\n" + 
+				"    }\n" + 
+				"    public static void constructorReferenceSerialization() throws IOException, ClassNotFoundException {\n" + 
+				"        SerializableSupplier<Junk> function = Junk::new;\n" + 
+				"        Object result = serializeDeserialize(function);\n" + 
+				"        Class<?>[] infs = result.getClass().getInterfaces();\n" +
+				"        for(int i = 0; i < infs.length; i++) {\n" +
+				"            System.out.println(infs[i]);\n" +
+				"        }\n" + 
+				"    }\n" + 
+				"    private static Object serializeDeserialize(Object obj) throws IOException, ClassNotFoundException {\n" + 
+				"        try (\n" + 
+				"            ByteArrayOutputStream buffer = new ByteArrayOutputStream(); //\n" + 
+				"            ObjectOutputStream output = new ObjectOutputStream(buffer)) {\n" + 
+				"            output.writeObject(obj);\n" + 
+				"            try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {\n" + 
+				"                return input.readObject();\n" + 
+				"            }\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			LambdaSerializationTest.constructorReferenceSerialization();\n" + 
+				"		} catch (ClassNotFoundException | IOException e) {\n" + 
+				"			// TODO Auto-generated catch block\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+		},
+		"interface LambdaSerializationTest$SerializableSupplier",
+		null,true,
+		new String[]{"-Ddummy"});
+	}
+	public void testbug497879b() {
+		this.runConformTest(
+			new String[]{
+				"LambdaSerializationTest.java",
+				"import java.io.ByteArrayInputStream;\n" + 
+				"import java.io.ByteArrayOutputStream;\n" + 
+				"import java.io.IOException;\n" + 
+				"import java.io.ObjectInputStream;\n" + 
+				"import java.io.ObjectOutputStream;\n" + 
+				"import java.io.Serializable;\n" + 
+				"import java.util.ArrayList;\n" + 
+				"import java.util.List;\n" + 
+				"import java.util.function.Supplier;\n" + 
+				"public class LambdaSerializationTest {\n" + 
+				"    interface SerializableSupplier<T> extends Serializable {\n" +
+				"        T get(int count);\n" +
+				"    }\n" + 
+				"    public static void constructorReferenceSerialization() throws IOException, ClassNotFoundException {\n" + 
+				"        SerializableSupplier<List[]> function = ArrayList[]::new;\n" + 
+				"        Object result = serializeDeserialize(function);\n" + 
+				"        Class<?>[] infs = result.getClass().getInterfaces();\n" +
+				"        for(int i = 0; i < infs.length; i++) {\n" +
+				"            System.out.println(infs[i]);\n" +
+				"        }\n" + 
+				"    }\n" + 
+				"    private static Object serializeDeserialize(Object obj) throws IOException, ClassNotFoundException {\n" + 
+				"        try (\n" + 
+				"            ByteArrayOutputStream buffer = new ByteArrayOutputStream(); //\n" + 
+				"            ObjectOutputStream output = new ObjectOutputStream(buffer)) {\n" + 
+				"            output.writeObject(obj);\n" + 
+				"            try (ObjectInputStream input = new ObjectInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {\n" + 
+				"                return input.readObject();\n" + 
+				"            }\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"		try {\n" + 
+				"			LambdaSerializationTest.constructorReferenceSerialization();\n" + 
+				"		} catch (ClassNotFoundException | IOException e) {\n" + 
+				"			// TODO Auto-generated catch block\n" + 
+				"			e.printStackTrace();\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"}"
+		},
+		"interface LambdaSerializationTest$SerializableSupplier",
+		null,true,
+		new String[]{"-Ddummy"});
+	}
 	// ---
 	
 	private void checkExpected(String expected, String actual) {

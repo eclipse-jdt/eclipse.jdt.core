@@ -1866,27 +1866,27 @@ void setSourceStart(int sourceStart);
 	int IllegalStrictfpForAbstractInterfaceMethod = MethodRelated + 1057;
 	/** @since 3.10 */
 	int IllegalDefaultModifierSpecification = MethodRelated + 1058;
-	/** @since 3.12*/
-	int IllegalModifierForInterfaceMethod9 = MethodRelated + 1059;
-	/** @since 3.12*/
+	/** @since 3.13 BETA_JAVA9*/
+	int IllegalModifierForInterfaceMethod9 = MethodRelated + 1061;
+	/** @since 3.13 BETA_JAVA9*/
 	int IllegalModifierCombinationForPrivateInterfaceMethod9 = MethodRelated + 1060;
-	/** @since 3.12 */
+	/** @since 3.13 BETA_JAVA9 */
 	int UndefinedModule = TypeRelated + 1200;
-	/** @since 3.12 */
+	/** @since 3.13 BETA_JAVA9 */
 	int DuplicateRequires = TypeRelated + 1201;
-	/** @since 3.12 */
+	/** @since 3.13 BETA_JAVA9 */
 	int DuplicateExports = TypeRelated + 1202;
-	/** @since 3.12 */
+	/** @since 3.13 BETA_JAVA9 */
 	int DuplicateUses = TypeRelated + 1203;
-	/** @since 3.12 */
+	/** @since 3.13 BETA_JAVA9 */
 	int DuplicateServices = TypeRelated + 1204;
-	/** @since 3.12 */
+	/** @since 3.13 BETA_JAVA9 */
 	int CyclicModuleDependency = TypeRelated + 1205;
-	/** @since 3.12 */
+	/** @since 3.13 BETA_JAVA9 */
 	int AbstractServiceImplementation = TypeRelated + 1206;
-	/** @since 3.12 */
+	/** @since 3.13 BETA_JAVA9 */
 	int DefaultConstructorRequiredForServiceImpl = TypeRelated + 1207;
-	/** @since 3.12 */
+	/** @since 3.13 BETA_JAVA9 */
 	int ServiceImplDefaultConstructorNotPublic = TypeRelated + 1208;
 
 	/** @since 3.10 */

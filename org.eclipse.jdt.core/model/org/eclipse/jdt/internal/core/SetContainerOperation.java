@@ -95,6 +95,7 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 			// trigger model refresh
 			try {
 				for(int i = 0; i < projectLength; i++){
+					this.progressMonitor.setWorkRemaining(projectLength - i);
 					if (isCanceled())
 						return;
 
@@ -112,7 +113,7 @@ public class SetContainerOperation extends ChangeClasspathOperation {
 					if (this.canChangeResources) {
 						// touch project to force a build if needed
 						try {
-							affectedProject.getProject().touch(this.progressMonitor);
+							affectedProject.getProject().touch(this.progressMonitor.split(1));
 						} catch (CoreException e) {
 							// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=148970
 							if (!ExternalJavaProject.EXTERNAL_PROJECT_NAME.equals(affectedProject.getElementName()))
