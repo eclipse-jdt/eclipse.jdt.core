@@ -592,8 +592,17 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         final boolean isMethodReference = isMethodReference();
         this.depth = 0;
         this.freeParameters = descriptorParameters;
-        MethodBinding someMethod = isMethodReference ? scope.getMethod(this.receiverType, this.selector, descriptorParameters, this) :
-        											       scope.getConstructor((ReferenceBinding) this.receiverType, descriptorParameters, this);
+        MethodBinding someMethod = null;
+        if (isMethodReference) {
+        	someMethod = scope.getMethod(this.receiverType, this.selector, descriptorParameters, this);
+        } else {
+        	if (argumentsTypeElided() && this.receiverType.isRawType()) {
+        		boolean[] inferredReturnType = new boolean[1];
+	        	someMethod = AllocationExpression.inferDiamondConstructor(scope, this, this.receiverType, this.descriptor.parameters, inferredReturnType);
+        	}
+        	if (someMethod == null)
+        		someMethod = scope.getConstructor((ReferenceBinding) this.receiverType, descriptorParameters, this);
+        }
         int someMethodDepth = this.depth, anotherMethodDepth = 0;
     	if (someMethod != null && someMethod.isValidBinding()) {
     		if (someMethod.isStatic() && (this.haveReceiver || this.receiverType.isParameterizedTypeWithActualArguments())) {

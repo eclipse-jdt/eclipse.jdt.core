@@ -6736,4 +6736,52 @@ public void testBug497603() {
 			"}\n"
 		});
 }
+public void testBug498113a() {
+	runConformTest(
+		new String[] {
+			"NPETest.java",
+			"import java.util.*;\n" +
+			"public class NPETest {\n" + 
+			"\n" + 
+			"    public void test(\n" + 
+			"            final Set<String> set,\n" + 
+			"            final List<Dummy<String>> dummies) {\n" + 
+			"        set.stream()\n" + 
+			"            .map(Dummy::new)\n" + // true varargs invocation
+			"            .forEach(dummies::add);\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    class Dummy<T> {\n" + 
+			"        \n" + 
+			"        public Dummy(T... args) {\n" + 
+			"            \n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+public void testBug498113b() {
+	runConformTest(
+		new String[] {
+			"NPETest.java",
+			"import java.util.*;\n" +
+			"public class NPETest {\n" + 
+			"\n" + 
+			"    public void test(\n" + 
+			"            final Set<String[]> set,\n" + 
+			"            final List<Dummy<String>> dummies) {\n" + 
+			"        set.stream()\n" + 
+			"            .map(Dummy::new)\n" + // pass String[] for a strict invocation
+			"            .forEach(dummies::add);\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    class Dummy<T> {\n" + 
+			"        \n" + 
+			"        public Dummy(T... args) {\n" + 
+			"            \n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }
