@@ -457,7 +457,7 @@ public interface IPackageFragmentRoot
 	 * A package fragment root is said to be a module if it contains a <code>module-info.java</code>
 	 * or <code>module-info.class</code> depending on whether this is a source or binary fragment root.
 	 *
-	 * @since 3.12 BETA_JAVA9
+	 * @since 3.13 BETA_JAVA9
 	 */
 	public boolean isModule();
 }

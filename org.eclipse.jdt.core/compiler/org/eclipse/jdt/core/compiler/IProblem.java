@@ -1866,6 +1866,8 @@ void setSourceStart(int sourceStart);
 	int IllegalStrictfpForAbstractInterfaceMethod = MethodRelated + 1057;
 	/** @since 3.10 */
 	int IllegalDefaultModifierSpecification = MethodRelated + 1058;
+	/** @since 3.13 */
+	int CannotInferInvocationType = TypeRelated + 1059;
 	/** @since 3.13 BETA_JAVA9*/
 	int IllegalModifierForInterfaceMethod9 = MethodRelated + 1061;
 	/** @since 3.13 BETA_JAVA9*/

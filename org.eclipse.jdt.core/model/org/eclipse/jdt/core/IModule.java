@@ -15,7 +15,7 @@
 package org.eclipse.jdt.core;
 
 /**
- * @since 3.12 BETA_JAVA9
+ * @since 3.13 BETA_JAVA9
  */
 public interface IModule {
 

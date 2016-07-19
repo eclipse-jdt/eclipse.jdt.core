@@ -2826,7 +2826,7 @@ public final class JavaCore extends Plugin {
 	public static final String VERSION_1_8 = "1.8"; //$NON-NLS-1$
 	/**
 	 * Configurable option value: {@value}.
-	 * @since 3.12 BETA_JAVA9
+	 * @since 3.13 BETA_JAVA9
 	 * @category OptionValue
 	 */
 	public static final String VERSION_9 = "9"; //$NON-NLS-1$
@@ -5835,7 +5835,7 @@ public final class JavaCore extends Plugin {
 	 * @param root the package fragment root for which the module is sought
 	 * @return the module-info content as a String
 	 * @throws CoreException
-	 * @since 3.12 BETA_JAVA9
+	 * @since 3.13 BETA_JAVA9
 	 */
 	public static String createModuleFromPackageRoot(String moduleName, IPackageFragmentRoot root) throws CoreException {
 		return ModuleUtil.createModuleFromPackageRoot(moduleName, root);

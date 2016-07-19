@@ -75,7 +75,7 @@ public JavaModelException(IJavaModelStatus status) {
 /**
  * Creates a Java model exception for the given status object.
  *
- * @since 3.12 BETA_JAVA9
+ * @since 3.13 BETA_JAVA9
  */
 public JavaModelException(IStatus status) {
 	super(status);
