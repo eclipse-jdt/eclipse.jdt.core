@@ -3340,6 +3340,8 @@ public class JavaProject
 			return module;
 		List<IPackageFragmentRoot> children = getChildrenOfType(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 		for (IPackageFragmentRoot root : children) {
+			if (root.getKind() != IPackageFragmentRoot.K_SOURCE)
+				continue;
 			module = ((PackageFragmentRoot)root).getModule();
 			if (module != null) {
 				info.setModule(module);
