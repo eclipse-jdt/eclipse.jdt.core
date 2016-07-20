@@ -422,6 +422,9 @@ public IModule getModule(char[] name) {
 				break;
 		}
 	}
+	if (module == null) {
+		module = JavaModelManager.getModulePathManager().getModule(name);
+	}
 	return module;
 }
 
