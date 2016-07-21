@@ -10,10 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd;
 
+import java.util.BitSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
 
@@ -23,7 +22,7 @@ import org.eclipse.jdt.internal.core.nd.db.IndexException;
  */
 public class NdNodeTypeRegistry<R> {
 	private final Map<Short, ITypeFactory<? extends R>> types = new HashMap<>();
-	private final Set<Short> reserved = new HashSet<>();
+	private final BitSet reserved = new BitSet();
 	private final Map<Class<?>, Short> registeredClasses = new HashMap<>();
 
 	/**
@@ -38,7 +37,7 @@ public class NdNodeTypeRegistry<R> {
 		short shortTypeId = (short)typeId;
 		String fullyQualifiedClassName = toRegister.getElementClass().getName();
 
-		if (this.types.containsKey(typeId) || this.reserved.contains(typeId)) {
+		if (this.types.containsKey(typeId) || this.reserved.get(typeId)) {
 			throw new IllegalArgumentException(
 					"The type id " + typeId + " for class " + fullyQualifiedClassName + " is already in use."); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}
@@ -53,10 +52,10 @@ public class NdNodeTypeRegistry<R> {
 	 * using this method. Doing so will prevent its type ID from being reused by another future class.
 	 */
 	public void reserve(short typeId) {
-		if (this.types.containsKey(typeId) || this.reserved.contains(typeId)) {
+		if (this.types.containsKey(typeId) || this.reserved.get(typeId)) {
 			throw new IllegalArgumentException("The type ID " + typeId + " is already in use"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		this.reserved.add(typeId);
+		this.reserved.set(typeId);
 	}
 
 	/**
