@@ -6784,4 +6784,20 @@ public void testBug498113b() {
 			"}\n"
 		});
 }
+public void testBug498362() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"public class X {\n" +
+			"	static final byte[] EMPTY_BYTE_ARRAY = new byte[0];\n" +
+			"	private byte[] stream;\n" +
+			"	void test() {\n" +
+			"		this.stream = Optional.ofNullable(stream)\n" + 
+			"            .map(byte[]::clone)\n" + 
+			"            .orElse(EMPTY_BYTE_ARRAY);" +
+			"	}\n" +
+			"}\n"
+		});
+}
 }

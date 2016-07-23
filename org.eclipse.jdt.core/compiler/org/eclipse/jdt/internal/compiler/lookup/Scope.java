@@ -1843,7 +1843,7 @@ public abstract class Scope {
 			    switch (selector[0]) {
 			        case 'c':
 			            if (CharOperation.equals(selector, TypeConstants.CLONE)) {
-			            	return environment().computeArrayClone(methodBinding);
+			            	return receiverType.getCloneMethod(methodBinding);
 			            }
 			            break;
 			        case 'g':
@@ -2271,7 +2271,7 @@ public abstract class Scope {
 		
 		if (receiverType.isArrayType()) {
 			if (CharOperation.equals(selector, TypeConstants.CLONE))
-				return environment().computeArrayClone(exactMethod);
+				return ((ArrayBinding) receiverType).getCloneMethod(exactMethod);
 			if (CharOperation.equals(selector, TypeConstants.GETCLASS))
 				return environment().createGetClassMethod(receiverType, exactMethod, this);
 		}

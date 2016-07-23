@@ -95,8 +95,6 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4];
 	private MethodVerifier verifier;
 
-	public MethodBinding arrayClone;
-
 	private ArrayList missingTypes;
 	Set<SourceTypeBinding> typesBeingConnected;
 	public boolean isProcessingAnnotations = false;
@@ -347,23 +345,6 @@ public void completeTypeBindings(CompilationUnitDeclaration[] parsedUnits, boole
 	}
 
 	this.unitBeingCompleted = null;
-}
-/**
- * NB: for source >= 1.5 the return type is not correct: shows j.l.Object but should show T[].
- * See references to {@link #arrayClone} for code that compensates for this mismatch.
- */
-public MethodBinding computeArrayClone(MethodBinding objectClone) {
-	if (this.arrayClone == null) {
-		this.arrayClone = new MethodBinding(
-				(objectClone.modifiers & ~ClassFileConstants.AccProtected) | ClassFileConstants.AccPublic,
-				TypeConstants.CLONE,
-				objectClone.returnType,
-				Binding.NO_PARAMETERS,
-				Binding.NO_EXCEPTIONS, // no exception for array specific method
-				(ReferenceBinding)objectClone.returnType);
-	}
-	return this.arrayClone;
-	
 }
 public TypeBinding computeBoxingType(TypeBinding type) {
 	TypeBinding boxedType;

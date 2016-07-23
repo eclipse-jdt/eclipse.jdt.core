@@ -722,9 +722,8 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
     		this.bits |= ASTNode.Unchecked;
 
     	if (this.descriptor.returnType.id != TypeIds.T_void) {
-    		// from 1.5 source level on, array#clone() returns the array type (but binding still shows Object)
     		TypeBinding returnType = null;
-    		if (this.binding == scope.environment().arrayClone || this.binding.isConstructor()) {
+    		if (this.binding.isConstructor()) {
     			returnType = this.receiverType;
     		} else {
     			if ((this.bits & ASTNode.Unchecked) != 0 && this.resolvedTypeArguments == null) {
@@ -786,7 +785,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	    			}
 	    		}
 	    		TypeBinding returnType = this.binding.returnType;
-	    		if (this.binding.isConstructor() || this.binding == scope.environment().arrayClone) {
+	    		if (this.binding.isConstructor()) {
 	    			returnType = scope.environment().createAnnotatedType(this.receiverType, new AnnotationBinding[]{ scope.environment().getNonNullAnnotation() });
 	    		}
 	    		NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(this.descriptor.returnType, returnType, FlowInfo.UNKNOWN);
