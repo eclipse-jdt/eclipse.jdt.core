@@ -401,16 +401,16 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 		MethodBinding originalBinding = this.binding.original();
 		TypeBinding originalType = originalBinding.returnType;
 	    // extra cast needed if method return type is type variable
-		if (originalType.leafComponentType().isTypeVariable()) {
+		if (ArrayBinding.isArrayClone(this.actualReceiverType, this.binding)
+				&& runtimeTimeType.id != TypeIds.T_JavaLangObject
+				&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+			// from 1.5 source level on, array#clone() resolves to array type, but codegen to #clone()Object - thus require extra inserted cast
+			this.valueCast = runtimeTimeType;
+		} else if (originalType.leafComponentType().isTypeVariable()) {
 	    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType())
 	    		? compileTimeType  // unboxing: checkcast before conversion
 	    		: runtimeTimeType;
 	        this.valueCast = originalType.genericCast(targetType);
-		} 	else if (ArrayBinding.isArrayClone(this.actualReceiverType, this.binding)
-				&& runtimeTimeType.id != TypeIds.T_JavaLangObject
-				&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
-					// from 1.5 source level on, array#clone() resolves to array type, but codegen to #clone()Object - thus require extra inserted cast
-			this.valueCast = runtimeTimeType;
 		}
         if (this.valueCast instanceof ReferenceBinding) {
 			ReferenceBinding referenceCast = (ReferenceBinding) this.valueCast;

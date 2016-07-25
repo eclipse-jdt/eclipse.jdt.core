@@ -6784,7 +6784,7 @@ public void testBug498113b() {
 			"}\n"
 		});
 }
-public void testBug498362() {
+public void testBug498362_comment0() {
 	runConformTest(
 		new String[] {
 			"X.java",
@@ -6797,6 +6797,34 @@ public void testBug498362() {
 			"            .map(byte[]::clone)\n" + 
 			"            .orElse(EMPTY_BYTE_ARRAY);" +
 			"	}\n" +
+			"}\n"
+		});
+}
+public void testBug498362_comment5() {
+	runConformTest(
+		new String[] {
+			"CloneVerifyError.java",
+			"public class CloneVerifyError {\n" + 
+			"    public interface PublicCloneable<T> extends Cloneable {\n" + 
+			"        public T clone();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static <T> T[] clone0(T[] input) {\n" + 
+			"        return input == null ? null : input.clone();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static <T extends PublicCloneable<T>> T clone0(T input) {\n" + 
+			"        if (input == null) {\n" + 
+			"            return null;\n" + 
+			"        } else {\n" + 
+			"            return input.clone();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        Object[] array = null;\n" + 
+			"        clone0(array);\n" + 
+			"    }\n" + 
 			"}\n"
 		});
 }
