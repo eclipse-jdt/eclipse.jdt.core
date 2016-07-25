@@ -2972,7 +2972,7 @@ public void test088() {
 		"Type null of the last argument to method getMethod(String, Class...) doesn't exactly match the vararg parameter type. Cast to Class[] to confirm the non-varargs invocation, or pass individual arguments of type Class for a varargs invocation.\n" +
 		"----------\n";
 	String javaVersion = System.getProperty("java.version");
-	if (isJRELevel(AbstractCompilerTest.F_1_6|AbstractCompilerTest.F_1_7|AbstractCompilerTest.F_1_8)
+	if (isJRELevel(AbstractCompilerTest.F_1_6|AbstractCompilerTest.F_1_7|AbstractCompilerTest.F_1_8|AbstractCompilerTest.F_9)
 			|| (AbstractCompilerTest.getPossibleComplianceLevels() == AbstractCompilerTest.F_1_5
 				&& javaVersion.indexOf("1.5") == -1)) {
 		errorMessage =

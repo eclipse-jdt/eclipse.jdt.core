@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
@@ -40,6 +41,13 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class FileSystem extends ModuleEnvironment implements SuffixConstants {
+	/**
+	 * A <code>Classpath<code>, even though an IModuleLocation, can represent a plain
+	 * classpath location too. The FileSystem tells the Classpath whether to behave as a module or regular class
+	 * path via {@link Classpath#acceptModule(IModule)}.
+	 *
+	 * Sub types of classpath are responsible for appropriate behavior based on this.
+	 */
 	public interface Classpath extends IModuleLocation {
 		char[][][] findTypeNames(String qualifiedPackageName, IModule module);
 		/**
@@ -83,6 +91,11 @@ public class FileSystem extends ModuleEnvironment implements SuffixConstants {
 		 * @param qualifiedTypeName type name in qualified /-separated notation.
 		 */
 		boolean hasAnnotationFileFor(String qualifiedTypeName);
+		/**
+		 * Accepts to represent a module location with the given module description.
+		 *
+		 * @param module
+		 */
 		public void acceptModule(IModule module);
 		public String getDestinationPath();
 		public IModule getModule();
@@ -123,6 +136,8 @@ public class FileSystem extends ModuleEnvironment implements SuffixConstants {
 	// Used only in single-module mode when the module descriptor is
 	// provided via command lin.
 	protected IModule module;
+	protected Map<String, IPackageExport[]> addonExports;
+	protected Map<String, String[]> addonReads;
 	Set knownFileNames;
 	protected boolean annotationsFromClasspath; // should annotation files be read from the classpath (vs. explicit separate path)?
 	private static HashMap<File, Classpath> JRT_CLASSPATH_CACHE = null;
@@ -461,6 +476,63 @@ public boolean isPackage(char[][] compoundName, char[] packageName, IModule[] mo
 		}
 	}
 	return false;
+}
+void addReads(String source, String target) {
+	if (this.addonReads == null) {
+		this.addonReads = new HashMap<>();
+	}
+	String[] existing = this.addonReads.get(source);
+	if (existing == null || existing.length == 0) {
+		existing = new String[1];
+		existing[0] = target;
+		this.addonReads.put(new String(source), existing);
+	} else {
+		String[] updated = new String[existing.length + 1];
+		System.arraycopy(existing, 0, updated, 0, 1);
+		updated[existing.length] = target;
+		this.addonReads.put(source, updated);
+	}
+}
+void setAddonExports(Map<String, IPackageExport[]> exports) {
+	this.addonExports = exports;
+}
+@Override
+protected void collectAllVisibleModules(IModule mod, Set<IModule> targets, boolean onlyPublic) {
+	if (mod != null && this.addonReads != null) {
+		String[] reads = this.addonReads.get(new String(mod.name()));
+		if (reads != null) {
+			for (String read : reads) {
+				IModule refModule = getModule(read.toCharArray());
+				if (refModule != null) {
+					targets.add(refModule);
+				}
+			}
+		}
+	}
+	super.collectAllVisibleModules(mod,  targets, onlyPublic);
+}
+@Override
+protected boolean isPackageExportedTo(IModule mod, char[] pack, IModule client) {
+	if (this.addonExports != null) {
+		IPackageExport[] export = this.addonExports.get(new String(mod.name()));
+		if (export != null) {
+			for (IPackageExport iPackageExport : export) {
+				if (CharOperation.equals(iPackageExport.name(), pack)) {
+					char[][] exportedTo = iPackageExport.exportedTo();
+					if (exportedTo == null || exportedTo.length == 0) {
+						// Continue. Spec doesn't say whether exported can't be universal (i.e. without to any specific module)
+					}
+					for (char[] cs : exportedTo) {
+						if (CharOperation.equals(cs, client.name())) {
+							return true;
+						}
+					}
+
+				}
+			}
+		}
+	}
+	return super.isPackageExportedTo(mod, pack, client);
 }
 @Override
 public IModule getModule(char[] name) {

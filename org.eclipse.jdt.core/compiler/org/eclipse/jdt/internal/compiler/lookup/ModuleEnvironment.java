@@ -132,31 +132,28 @@ public abstract class ModuleEnvironment implements INameEnvironmentExtension {
 		IModule source = getModule(sourceName);
 		IModule client = getModule(clientName);
 		if (client != null) {
-			IModule.IModuleReference[] requires = client.requires();
-			if (requires != null && requires.length > 0) {
-				for (IModule.IModuleReference ref : requires) {
-					IModule refModule = getModule(ref.name());
-					if (refModule == null) 
-						continue;
-					if (refModule == source && isPackageExportedTo(refModule, packageName, client)) {
-						return true;
-					}
 					Set<IModule> set = new LinkedHashSet<>();
-					collectAllVisibleModules(refModule, set, true);
+					collectAllVisibleModules(client, set, false);
 					IModule[] targets = set.toArray(new IModule[set.size()]);
 					for (IModule iModule : targets) {
 						if (iModule == source && isPackageExportedTo(iModule, packageName, client)) {
 							return true;
 						}
 					}
-				}
-			}
 			return false;
 		}
 		return true;
 	}
-
-	private boolean isPackageExportedTo(IModule module, char[] pack, IModule client) {
+	/**
+	 * Tells whether the given module exports the given package to the specified client
+	 * module.
+	 *
+	 * @param module module whose exports being checked
+	 * @param pack package being exported
+	 * @param client requesting module
+	 * @return whether or not the specified package is exported from the module to the client
+	 */
+	protected boolean isPackageExportedTo(IModule module, char[] pack, IModule client) {
 		IModule.IPackageExport[] exports = module.exports();
 		if (exports != null && exports.length > 0) {
 			for (IModule.IPackageExport iPackageExport : exports) {
@@ -195,7 +192,7 @@ public abstract class ModuleEnvironment implements INameEnvironmentExtension {
 		return targets;
 	}
 
-	private void collectAllVisibleModules(IModule module, Set<IModule> targets, boolean onlyPublic) {
+	protected void collectAllVisibleModules(IModule module, Set<IModule> targets, boolean onlyPublic) {
 		if (module != null) {
 			IModule.IModuleReference[] requires = module.requires();
 			if (requires != null && requires.length > 0) {
@@ -203,8 +200,8 @@ public abstract class ModuleEnvironment implements INameEnvironmentExtension {
 					IModule refModule = getModule(ref.name());
 					if (refModule != null) {
 						if (!onlyPublic || ref.isPublic()) {
-						targets.add(refModule);
-						collectAllVisibleModules(refModule, targets, true);
+							targets.add(refModule);
+							collectAllVisibleModules(refModule, targets, true);
 						}
 					}
 				}
@@ -317,7 +314,7 @@ public abstract class ModuleEnvironment implements INameEnvironmentExtension {
 		ser.with = CharOperation.concatWith(with.getTypeName(), '.');
 		return ser;
 	}
-	static class Module implements IModule {
+	protected static class Module implements IModule {
 		char[] name;
 		ModuleReferenceImpl[] requires;
 		PackageExport[] exports;

@@ -26,7 +26,7 @@ import junit.framework.Test;
 public class ModuleCompilationTests extends BatchCompilerTest {
 
 	static {
-//		 TESTS_NAMES = new String[] { "test001" };
+//		 TESTS_NAMES = new String[] { "test022" };
 		// TESTS_NUMBERS = new int[] { 1 };
 		// TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -432,7 +432,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		StringBuffer buffer = new StringBuffer();
 			buffer.append("-d " + outDir )
 			.append(" -9 ")
-			.append(" -modulepath \"")
+			.append(" -mp \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append(modDir.getAbsolutePath())
 			.append("\" ")
@@ -595,5 +595,385 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 	true);
 		String expectedOutput = "// Compiled from X.java (version 9 : 53.0, super bit)";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	}
+	public void test014() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"	requires public java.sql;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p", "X.java", 
+						"package p;\n" +
+						"public class X {\n" +
+						"	public static java.sql.Connection getConnection() {\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}");
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+						"	requires java.base;\n" +
+						"	requires mod.one;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+						"package q;\n" +
+						"public class Y {\n" +
+						"   java.sql.Connection con = p.X.getConnection();\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --add-exports mod.one/p=mod.two");
+
+		runConformTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"",
+				false);
+	}
+	public void test015() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"	requires public java.sql;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p", "X.java", 
+						"package p;\n" +
+						"public class X {\n" +
+						"	public static java.sql.Connection getConnection() {\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}");
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+						"	requires java.base;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+						"package q;\n" +
+						"public class Y {\n" +
+						"   java.sql.Connection con = p.X.getConnection();\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --add-exports mod.one/p=mod.two");
+
+		runNegativeTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 3)\n" + 
+				"	java.sql.Connection con = p.X.getConnection();\n" + 
+				"	                          ^^^\n" + 
+				"The type p.X is not visible\n" + 
+				"----------\n" + 
+				"1 problem (1 error)\n",
+				false);
+	}
+	public void test016() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"	requires public java.sql;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p", "X.java", 
+						"package p;\n" +
+						"public class X {\n" +
+						"	public static java.sql.Connection getConnection() {\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}");
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+						"	requires java.base;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+						"package q;\n" +
+						"public class Y {\n" +
+						"   java.sql.Connection con = p.X.getConnection();\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --add-exports mod.one/p=mod.two")
+			.append(" --add-reads mod.two=mod.one");
+
+		runConformTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"",
+				false);
+	}
+	public void test017() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"	requires public java.sql;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p", "X.java", 
+						"package p;\n" +
+						"public class X {\n" +
+						"	public static java.sql.Connection getConnection() {\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}");
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+						"	requires java.base;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+						"package q;\n" +
+						"public class Y {\n" +
+						"   java.sql.Connection con = p.X.getConnection();\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --add-exports mod.one/p=mod.three")
+			.append(" --add-reads mod.two=mod.one");
+
+		runNegativeTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 3)\n" + 
+				"	java.sql.Connection con = p.X.getConnection();\n" + 
+				"	                          ^^^\n" + 
+				"The type p.X is not visible\n" + 
+				"----------\n" + 
+				"1 problem (1 error)\n",
+				false);
+	}
+	public void test018() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"	requires public java.sql;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p", "X.java", 
+						"package p;\n" +
+						"public class X {\n" +
+						"	public static java.sql.Connection getConnection() {\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}");
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+						"	requires java.base;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+						"package q;\n" +
+						"public class Y {\n" +
+						"   java.sql.Connection con = p.X.getConnection();\n" +
+						"}");
+		moduleLoc = directory + File.separator + "mod.three";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.three { \n" +
+						"	requires java.base;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "r", "Z.java", 
+						"package r;\n" +
+						"public class Z {\n" +
+						"   java.sql.Connection con = p.X.getConnection();\n" +
+						"}");
+
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --add-exports mod.one/p=mod.two,mod.three")
+			.append(" --add-reads mod.two=mod.one")
+			.append(" --add-reads mod.three=mod.one");
+
+		runConformTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"",
+				false);
+	}
+	/*
+	 * Unnamed module tries to access a type from an unexported package successfully. 
+	 */
+	public void test019() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc + File.separator + "p", "X.java", 
+						"package p;\n" +
+						"public abstract class X extends sun.management.FileSystem {\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -sourcepath " + "\"" + moduleLoc + "\" ")
+			.append(moduleLoc + File.separator + "p" + File.separator + "X.java");
+
+		runConformTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"",
+				false);
+	}
+	public void test020() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"	requires public java.sql;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p", "X.java", 
+						"package p;\n" +
+						"public class X {\n" +
+						"	public static java.sql.Connection getConnection() {\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --add-exports mod.one=mod.two,mod.three");
+
+		runNegativeTest(new String[]{}, 
+				buffer.toString(),
+				"",
+				"incorrectly formatted option: --add-exports mod.one=mod.two,mod.three\r\n",
+				false);
+	}
+	public void test021() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"	requires public java.sql;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p", "X.java", 
+						"package p;\n" +
+						"public class X {\n" +
+						"	public static java.sql.Connection getConnection() {\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --add-reads mod.one/mod.two");
+
+		runNegativeTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"incorrectly formatted option: --add-reads mod.one/mod.two\r\n",
+				false);
+	}
+	public void test022() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"	requires public java.sql;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p", "X.java", 
+						"package p;\n" +
+						"public class X {\n" +
+						"	public static java.sql.Connection getConnection() {\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --add-exports mod.one/p=mod.three")
+			.append(" --add-exports mod.one/p=mod.three");
+
+		runNegativeTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"can specify a package in a module only once with --add-export\n",
+				false);
 	}
 }

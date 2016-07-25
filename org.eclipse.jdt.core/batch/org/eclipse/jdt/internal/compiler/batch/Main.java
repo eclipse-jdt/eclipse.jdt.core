@@ -52,6 +52,7 @@ import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -89,6 +90,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
+import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.CompilerStats;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -1332,6 +1334,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 	protected List<String> annotationPaths;
 	protected boolean annotationsFromClasspath;
 
+	private List<String> addonExports = Collections.EMPTY_LIST;
+	private List<String> addonReads = Collections.EMPTY_LIST;
+
 	public Locale compilerLocale;
 	public CompilerOptions compilerOptions; // read-only
 	public CompilationProgress progress;
@@ -1800,6 +1805,8 @@ public void configure(String[] argv) {
 	final int INSIDE_ANNOTATIONPATH_start = 22;
 	final int INSIDE_MODULEPATH_start = 23;
 	final int INSIDE_MODULESOURCEPATH_start = 24;
+	final int INSIDE_ADD_EXPORTS = 25;
+	final int INSIDE_ADD_READS = 26;
 
 	final int DEFAULT = 0;
 	ArrayList bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
@@ -2146,12 +2153,20 @@ public void configure(String[] argv) {
 					mode = INSIDE_BOOTCLASSPATH_start;
 					continue;
 				}
-				if (currentArg.equals("-modulepath") || currentArg.equals("-cp")) { //$NON-NLS-1$ //$NON-NLS-2$
+				if (currentArg.equals("-modulepath") || currentArg.equals("-mp")) { //$NON-NLS-1$ //$NON-NLS-2$
 					mode = INSIDE_MODULEPATH_start;
 					continue;
 				}
 				if (currentArg.equals("-modulesourcepath")) { //$NON-NLS-1$
 					mode = INSIDE_MODULESOURCEPATH_start;
+					continue;
+				}
+				if (currentArg.equals("--add-exports")) { //$NON-NLS-1$
+					mode = INSIDE_ADD_EXPORTS;
+					continue;
+				}
+				if (currentArg.equals("--add-reads")) { //$NON-NLS-1$
+					mode = INSIDE_ADD_READS;
 					continue;
 				}
 				if (currentArg.equals("-sourcepath")) {//$NON-NLS-1$
@@ -2671,6 +2686,21 @@ public void configure(String[] argv) {
 				String[] moduleSourcepaths = new String[1];
 				index += processPaths(newCommandLineArgs, index, currentArg, moduleSourcepaths);
 				moduleSourcepathArg = moduleSourcepaths[0];
+				continue;
+			case INSIDE_ADD_EXPORTS:
+				mode = DEFAULT;
+				// TODO: better to validate the option before processing it further?
+				if (this.addonExports == Collections.EMPTY_LIST) {
+					this.addonExports = new ArrayList<>();
+				}
+				this.addonExports.add(currentArg);
+				continue;
+			case INSIDE_ADD_READS:
+				mode = DEFAULT;
+				if (this.addonReads == Collections.EMPTY_LIST) {
+					this.addonReads = new ArrayList<>();
+				}
+				this.addonReads.add(currentArg);
 				continue;
 			case INSIDE_CLASSPATH_start:
 				mode = DEFAULT;
@@ -3203,6 +3233,7 @@ public FileSystem getLibraryAccess() {
 	FileSystem nameEnvironment = new FileSystem(this.checkedClasspaths, this.filenames, 
 					this.annotationsFromClasspath && CompilerOptions.ENABLED.equals(this.options.get(CompilerOptions.OPTION_AnnotationBasedNullAnalysis)));
 	nameEnvironment.module = this.module;
+	processAddonModuleOptions(nameEnvironment);
 	return nameEnvironment;
 }
 
@@ -3239,6 +3270,43 @@ protected ArrayList handleBootclasspath(ArrayList bootclasspaths, String customE
 		}
 	}
 	return bootclasspaths;
+}
+private void processAddonModuleOptions(FileSystem env) {
+	Map<String, IPackageExport[]> exports = new HashMap<>();
+	for (String option : this.addonExports) {
+		IModule mod = ModuleFinder.extractAddonExport(option);
+		if (mod != null) {
+			String modName = new String(mod.name());
+			IPackageExport export = mod.exports()[0];
+			IPackageExport[] existing = exports.get(modName);
+			if (existing == null) {
+				existing = new IPackageExport[1];
+				existing[0] = export;
+				exports.put(modName, existing);
+			} else {
+				for (IPackageExport iPackageExport : existing) {
+					if (CharOperation.equals(iPackageExport.name(), export.name())) {
+						throw new IllegalArgumentException(this.bind("configure.duplicateExport")); //$NON-NLS-1$
+					}
+				}
+				IPackageExport[] updated = new IPackageExport[existing.length + 1];
+				System.arraycopy(existing, 0, updated, 0, existing.length);
+				updated[existing.length] = export;
+				exports.put(new String(modName), updated);
+			}
+			env.setAddonExports(exports);
+		} else {
+			throw new IllegalArgumentException(this.bind("configure.invalidModuleOption", "--add-exports " + option)); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+	}
+	for (String option : this.addonReads) {
+		String[] result = ModuleFinder.extractAddonRead(option);
+		if (result != null && result.length == 2) {
+			env.addReads(result[0], result[1]);
+		} else {
+			throw new IllegalArgumentException(this.bind("configure.invalidModuleOption", "--add-reads " + option)); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+	}
 }
 protected ArrayList handleModulepath(String arg) {
 	ArrayList<String> modulePaths = processModulePathEntries(arg);

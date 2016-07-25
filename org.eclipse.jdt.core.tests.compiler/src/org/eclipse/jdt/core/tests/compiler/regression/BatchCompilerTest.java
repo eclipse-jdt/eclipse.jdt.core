@@ -1623,6 +1623,10 @@ public void test012(){
         "                       jar file are put in the user.dir folder in case no\n" +
         "                       general ''-d'' option is specified. ZIP archives cannot\n" +
         "                       override the general ''-d'' option\n" +
+        "    -modulesourcepath <directories separated by " + File.pathSeparator + ">\n" +
+        "                       specify where to find source files for multiple modules\n" +
+        "    -mp -modulepath <directories separated by " + File.pathSeparator + ">\n" +
+        "                       specify where to find application modules\n" +
         "    -extdirs <directories separated by " + File.pathSeparator + ">\n" +
         "                       specify location for extension ZIP archives\n" +
         "    -endorseddirs <directories separated by " + File.pathSeparator + ">\n" +

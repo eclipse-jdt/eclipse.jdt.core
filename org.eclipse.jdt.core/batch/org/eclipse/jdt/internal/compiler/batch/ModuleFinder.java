@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -29,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -85,6 +87,116 @@ public class ModuleFinder {
 		}
 		return collector;
 	}
+	/**
+	 * Extracts the single reads clause from the given
+	 * command line option (--add-reads). The result is a String[] with two
+	 * element, first being the source module and second being the target module.
+	 * The expected format is: 
+	 *  --add-reads <source-module>=<target-module>
+	 * @param option
+	 * @return a String[] with source and target module of the "reads" clause. 
+	 */
+	protected static String[] extractAddonRead(String option) {
+		StringTokenizer tokenizer = new StringTokenizer(option, "="); //$NON-NLS-1$
+		String source = null;
+		String target = null;
+		if (tokenizer.hasMoreTokens()) {
+			source = tokenizer.nextToken();
+		} else {
+			// Handle error
+			return null;
+		}
+		if (tokenizer.hasMoreTokens()) {
+			target = tokenizer.nextToken();
+		} else {
+			// Handle error
+			return null;
+		}
+ 		return new String[]{source, target};
+	}
+	/**
+	 * Parses the --add-exports command line option and returns the package export definitions
+	 * in the form of an IModule. Note the IModule returned only holds this specific exports-to
+	 * clause and can't by itself be used as a module description.
+	 *
+	 * The expected format is:
+	 *   --add-exports <source-module>/<package>=<target-module>(,<target-module>)*
+	 * @param option
+	 * @return a dummy module object with package exports
+	 */
+	protected static IModule extractAddonExport(String option) {
+		StringTokenizer tokenizer = new StringTokenizer(option, "/"); //$NON-NLS-1$
+		String source = null;
+		String pack = null;
+		List<String> targets = new ArrayList<>();
+		if (tokenizer.hasMoreTokens()) {
+			source = tokenizer.nextToken("/"); //$NON-NLS-1$
+		} else {
+			// Handle error
+			return null;
+		}
+		if (tokenizer.hasMoreTokens()) {
+			pack = tokenizer.nextToken("/="); //$NON-NLS-1$
+		} else {
+			// Handle error
+			return null;
+		}
+		while (tokenizer.hasMoreTokens()) {
+			targets.add(tokenizer.nextToken("=,")); //$NON-NLS-1$
+		}
+		PackageExport export = new PackageExport(pack.toCharArray());
+		export.exportedTo = new char[targets.size()][];
+		for(int i = 0; i < export.exportedTo.length; i++) {
+			export.exportedTo[i] = targets.get(i).toCharArray();
+		}
+		return new Module(source.toCharArray(), export);
+	}
+
+	static class PackageExport implements IPackageExport {
+		char[] name;
+		char[][] exportedTo;
+		PackageExport(char[] name) {
+			this.name = name;
+		}
+		@Override
+		public char[] name() {
+			return this.name;
+		}
+		@Override
+		public char[][] exportedTo() {
+			return this.exportedTo;
+		}
+	}
+	
+	static class Module implements IModule {
+		char[] name;
+		IPackageExport[] export;
+		Module(char[] name, IPackageExport export) {
+			this.name = name;
+			this.export = new IPackageExport[]{export};
+		}
+		@Override
+		public char[] name() {
+			return this.name;
+		}
+		@Override
+		public IModuleReference[] requires() {
+			return null;
+		}
+		@Override
+		public IPackageExport[] exports() {
+			return this.export;
+		}
+		@Override
+		public char[][] uses() {
+			return null;
+		}
+		@Override
+		public IService[] provides() {
+			return null;
+		}
+	}
+	
 	private static boolean isJar(File file) {
 		int format = Util.archiveFormat(file.getAbsolutePath());
 		return format >= Util.ZIP_FILE;
