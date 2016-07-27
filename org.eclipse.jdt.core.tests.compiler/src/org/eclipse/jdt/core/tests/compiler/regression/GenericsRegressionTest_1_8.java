@@ -6828,4 +6828,38 @@ public void testBug498362_comment5() {
 			"}\n"
 		});
 }
+public void testBug470667() {
+	runNegativeTest(
+		new String[] {
+			"Test.java",
+			"import java.math.BigInteger;\n" + 
+			"import java.util.function.Function;\n" + 
+			"public class Test {\n" + 
+			"		protected <T> T m(Class<T> c, String s, Function<String, T> f) {\n" + 
+			"			return f.apply(s);\n" + 
+			"		}\n" + 
+			"		protected <T> T m(Class<T> c, BigInteger i, Function<BigInteger, T> f) {\n" + 
+			"			return f.apply(i);\n" + 
+			"		}\n" + 
+			"		protected <T> Data<T> createData() {\n" + 
+			"			return new Data<T>() {\n" + 
+			"			};\n" + 
+			"		}\n" + 
+			"		private <T> Data<T> doA(BigInteger i) {\n" + 
+			"			String str = \"titi \";\n" +
+			"			@SuppressWarnings(\"unchecked\")\n" +
+			"			Data<T> r = m(Data.class, \"toto \",\n" + 
+			"				(x) -> m(Data.class, str, (y) -> m(Data.class, BigInteger.ZERO, (z) -> createData(i, x, y, z))));\n" + 
+			"			return r;\n" + 
+			"		}\n" + 
+			"}\n" + 
+			"interface Data<T> { }\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 18)\n" + 
+		"	(x) -> m(Data.class, str, (y) -> m(Data.class, BigInteger.ZERO, (z) -> createData(i, x, y, z))));\n" +
+		"	                                                                       ^^^^^^^^^^\n" + 
+		"The method createData() in the type Test is not applicable for the arguments (BigInteger, String, String, BigInteger)\n" + 
+		"----------\n");
+}
 }

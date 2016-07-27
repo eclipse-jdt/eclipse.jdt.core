@@ -468,8 +468,11 @@ public class InferenceContext18 {
 		if (exprs != null) {
 			int k = exprs.length;
 			int p = method.parameters.length;
-			if (k < (method.isVarargs() ? p-1 : p))
-				return false; // insufficient arguments for parameters!
+			if (method.isVarargs()) {
+				if (k < p - 1) return false;
+			} else if (k != p) {
+				return false;
+			}
 			switch (inferenceKindForMethod) {
 				case CHECK_STRICT:
 				case CHECK_LOOSE:
