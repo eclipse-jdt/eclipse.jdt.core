@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
@@ -48,6 +49,7 @@ import org.eclipse.jdt.internal.core.nd.java.FileFingerprint.FingerprintTestResu
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.nd.java.NdWorkspaceLocation;
+import org.eclipse.jdt.internal.core.search.processing.IJob;
 
 public final class Indexer {
 	private Nd nd;
@@ -816,6 +818,28 @@ public final class Indexer {
 
 		for (Listener next : localListeners) {
 			next.consume(event);
+		}
+	}
+
+	public void waitForIndex(int waitingPolicy, IProgressMonitor monitor) {
+		switch (waitingPolicy) {
+			case IJob.ForceImmediate: {
+				break;
+			}
+			case IJob.CancelIfNotReady: {
+				if (this.rescanJob.getState() != Job.NONE) {
+					throw new OperationCanceledException();
+				}
+				break;
+			}
+			case IJob.WaitUntilReady: {
+				try {
+					this.rescanJob.join(0, monitor);
+				} catch (InterruptedException e) {
+					throw new OperationCanceledException();
+				}
+				break;
+			}
 		}
 	}
 }

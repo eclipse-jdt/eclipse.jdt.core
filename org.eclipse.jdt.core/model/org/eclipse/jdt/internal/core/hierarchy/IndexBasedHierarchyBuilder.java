@@ -55,6 +55,7 @@ import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.Nd;
+import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.nd.java.JavaNames;
 import org.eclipse.jdt.internal.core.nd.java.NdType;
@@ -491,8 +492,11 @@ public static void searchAllPossibleSubTypes(
 
 private static void newSearchAllPossibleSubTypes(IType type, IJavaSearchScope scope2, Map binariesFromIndexMatches2,
 		IPathRequestor pathRequestor, int waitingPolicy, IProgressMonitor progressMonitor) {
-	SubMonitor subMonitor = SubMonitor.convert(progressMonitor);
+	SubMonitor subMonitor = SubMonitor.convert(progressMonitor, 2);
 	JavaIndex index = JavaIndex.getIndex();
+
+	Indexer.getInstance().waitForIndex(waitingPolicy, subMonitor.split(1));
+
 	Nd nd = index.getNd();
 	char[] fieldDefinition = JavaNames.fullyQualifiedNameToFieldDescriptor(type.getFullyQualifiedName().toCharArray());
 
