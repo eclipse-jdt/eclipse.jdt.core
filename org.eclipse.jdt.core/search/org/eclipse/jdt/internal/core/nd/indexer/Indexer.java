@@ -59,6 +59,11 @@ public final class Indexer {
 	public static boolean DEBUG;
 	public static boolean DEBUG_ALLOCATIONS;
 	public static boolean DEBUG_TIMING;
+	/**
+	 * Enable this to index the content of output folders, in cases where that content exists and
+	 * is up-to-date. This is much faster than indexing source files directly.
+	 */
+	public static boolean EXPERIMENTAL_INDEX_OUTPUT_FOLDERS;
 	private static final Object mutex = new Object();
 	private static final long MS_TO_NS = 1000000;
 
@@ -628,17 +633,19 @@ public final class Indexer {
 
 					IClasspathEntry[] entries = javaProject.getRawClasspath();
 
-					IPath defaultOutputLocation = javaProject.getOutputLocation();
-					for (IClasspathEntry next : entries) {
-						IPath nextOutputLocation = next.getOutputLocation();
-
-						if (nextOutputLocation == null) {
-							nextOutputLocation = defaultOutputLocation;
-						}
-
-						IResource resource = this.root.findMember(nextOutputLocation);
-						if (resource != null) {
-							resourcesToScan.add(resource);
+					if (EXPERIMENTAL_INDEX_OUTPUT_FOLDERS) {
+						IPath defaultOutputLocation = javaProject.getOutputLocation();
+						for (IClasspathEntry next : entries) {
+							IPath nextOutputLocation = next.getOutputLocation();
+	
+							if (nextOutputLocation == null) {
+								nextOutputLocation = defaultOutputLocation;
+							}
+	
+							IResource resource = this.root.findMember(nextOutputLocation);
+							if (resource != null) {
+								resourcesToScan.add(resource);
+							}
 						}
 					}
 
@@ -782,6 +789,9 @@ public final class Indexer {
 	}
 
 	public void rescanAll() {
+		if (DEBUG) {
+			Package.logInfo("Scheduling rescanAll now"); //$NON-NLS-1$
+		}
 		this.rescanJob.schedule();
 	}
 
