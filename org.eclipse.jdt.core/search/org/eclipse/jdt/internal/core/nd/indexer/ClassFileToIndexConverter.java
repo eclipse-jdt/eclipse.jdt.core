@@ -281,14 +281,21 @@ public class ClassFileToIndexConverter {
 			parameterFieldDescriptors.add(readNextFieldDescriptor(descriptor));
 		}
 
+		char[][] parameterNames = next.getArgumentNames();
 		int numArgumentsInGenericSignature = countMethodArguments(signature);
 		int numCompilerDefinedParameters = Math.max(0,
 				parameterFieldDescriptors.size() - numArgumentsInGenericSignature);
-
+		
 		boolean compilerDefinedParametersAreIncludedInSignature = (next.getGenericSignature() == null);
 
+		if (compilerDefinedParametersAreIncludedInSignature && parameterNames != null) {
+			numCompilerDefinedParameters = Math.max(0,
+					parameterFieldDescriptors.size() - parameterNames.length);
+		}
+		
+		int parameterNameIdx = 0;
 		int annotatedParametersCount = next.getAnnotatedParametersCount();
-		char[][] parameterNames = next.getArgumentNames();
+		
 		short descriptorParameterIdx = 0;
 		char[] binaryTypeName = binaryType.getName();
 		while (!signature.atEnd()) {
@@ -322,8 +329,8 @@ public class ClassFileToIndexConverter {
 					}
 				}
 			}
-			if (parameterNames != null && parameterNames.length > descriptorParameterIdx) {
-				parameter.setName(parameterNames[descriptorParameterIdx]);
+			if (!isCompilerDefined && parameterNames != null && parameterNames.length > parameterNameIdx) {
+				parameter.setName(parameterNames[parameterNameIdx++]);
 			}
 			descriptorParameterIdx++;
 		}
