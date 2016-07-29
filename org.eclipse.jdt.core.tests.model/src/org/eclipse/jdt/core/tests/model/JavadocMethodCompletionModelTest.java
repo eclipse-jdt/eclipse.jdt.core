@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,12 +12,12 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
 
-import junit.framework.Test;
-
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import junit.framework.Test;
 
 /**
  * Test class for completion in Javadoc comment of a method declaration.
@@ -2580,6 +2580,28 @@ public void test163() throws JavaModelException {
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "BasicTestMeth", 3);
 	assertResults(
 		"BasicTestMethods[METHOD_REF<CONSTRUCTOR>]{BasicTestMethods(Object...), Ljavadoc.methods.tags.BasicTestMethods;, ([Ljava.lang.Object;)V, BasicTestMethods, (o), "+this.positions+R_DRINR+"}"
+	);
+}
+// https://bugs.eclipse.org/429340 [content assist] No Javadoc proposals anywhere before @deprecated tag
+public void test164() throws JavaModelException {
+	String source =
+		"package javadoc.types;\n" +
+		"/**\n" +
+		" * \n" +
+		" * @see #fo\n" +
+		" * @deprecated\n" +
+		" */\n" +
+		"public class Depr {\n" +
+		"  	public void foo() { }\n" +
+		"}\n";
+	completeInJavadoc(
+			"/Completion/src/javadoc/types/Depr.java",
+			source,
+			true,
+			"fo",
+			1);
+	assertResults(
+			"foo[METHOD_REF]{foo(), Ljavadoc.types.Depr;, ()V, foo, null, "+this.positions+R_DRICNRNS+"}"
 	);
 }
 }
