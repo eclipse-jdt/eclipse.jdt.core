@@ -805,4 +805,70 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 				deleteProject(project);
 		}
 	}
+	
+	public void testBug460491WithOldBinary() throws CoreException, InterruptedException, IOException {
+		IJavaProject project = null;
+    	try {
+			project = createJavaProject("Bug460491", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB, testJarPath("bug460491-compiled-with-4.6.jar")}, "bin", "1.8");
+			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+
+			// bug460491-compiled-with-4.6.jar contains classes compiled with eclipse 4.6:
+			/*-
+				package test1;
+				
+				import org.eclipse.jdt.annotation.DefaultLocation;
+				import org.eclipse.jdt.annotation.NonNullByDefault;
+				import org.eclipse.jdt.annotation.Nullable;
+				
+				public abstract class Base<B> {
+				   static public class Static {
+				    public class Middle1 {
+				     public class Middle2<M> {
+				       public class Middle3 {
+				        public class GenericInner<T> {
+				        }
+				       }
+				     }
+				   }
+				  }
+				
+				  @NonNullByDefault(DefaultLocation.PARAMETER)
+				  public Object method( Static.Middle1.Middle2<Object>.Middle3.@Nullable GenericInner<String> nullable) {
+				    return new Object();
+				  }
+				}
+			 */
+
+			this.createFolder("/Bug460491/src/test2");
+			String c2SourceString =
+					"package test2;\n" +
+					"\n" +
+					"import test1.Base;\n" +
+					"\n" +
+					"class Derived extends Base<Object> {\n" +
+					"  void test() {\n" +
+					"    method(null);\n" +
+					"  }\n" +
+					"}\n";
+			this.createFile(
+				"/Bug460491/src/test2/Derived.java",
+	    			c2SourceString);
+
+			char[] c2SourceChars = c2SourceString.toCharArray();
+			this.problemRequestor.initialize(c2SourceChars);
+
+			getCompilationUnit("/Bug460491/src/test2/Derived.java").getWorkingCopy(this.wcOwner, null);
+			// enable this after bug 492322 is fixed:
+			/*-
+				assertProblems(
+						"Unexpected problems",
+						"----------\n" +
+						"----------\n"
+						);
+			*/
+		} finally {
+			if (project != null)
+				deleteProject(project);
+		}
+}	
 }

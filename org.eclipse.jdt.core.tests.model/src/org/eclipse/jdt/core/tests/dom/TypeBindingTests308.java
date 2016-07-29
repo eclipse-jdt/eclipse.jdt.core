@@ -19,6 +19,8 @@ import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -36,6 +38,7 @@ import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IAnnotationBinding;
+import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
@@ -47,6 +50,7 @@ import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
+import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -2651,5 +2655,46 @@ public class TypeBindingTests308 extends ConverterTestSetup {
 		} finally {
 			deleteFile("/Converter18/src/X.java");
 		}
+	}
+	public void testBug460491_comment30() throws CoreException {
+		// placed in this suite because we need type annotations enabled
+		IPackageFragmentRoot srcRoot = this.currentProject.getPackageFragmentRoots()[0];
+		assertFalse(srcRoot.isReadOnly());
+		createFolder(srcRoot.getPath().append("test"));
+		IPackageFragment testPackage = srcRoot.getPackageFragment("test");
+		
+		testPackage.createCompilationUnit("Generic.java", 
+				"package test;\n" + 
+				"\n" + 
+				"public class Generic<T> {\n" + 
+				"	public static class NestedStatic {\n" + 
+				"		public static final String X = \"x\";\n" + 
+				"	}\n" + 
+				"}\n",
+				true,
+				null);
+		String contents =
+				"package test;\n" + 
+				"\n" + 
+				"public class Usage {\n" + 
+				"	String f() {\n" + 
+				"		return Generic.NestedStatic.X;\n" + 
+				"	}\n" + 
+				"}\n";
+		ICompilationUnit cu = testPackage.createCompilationUnit("Usage.java", contents, true, null);
+		ASTNode node = buildAST(contents, cu, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+
+		List types = compilationUnit.types();
+		assertEquals(1, types.size());
+		List methods = ((TypeDeclaration) types.get(0)).bodyDeclarations();
+		assertEquals(1, methods.size());
+		List statements = ((MethodDeclaration) methods.get(0)).getBody().statements();
+		assertEquals(1, statements.size());
+		
+		Expression expression = ((ReturnStatement) statements.get(0)).getExpression();
+		IBinding binding = ((QualifiedName) expression).getQualifier().resolveBinding();
+		assertNotNull(binding);
 	}
 }

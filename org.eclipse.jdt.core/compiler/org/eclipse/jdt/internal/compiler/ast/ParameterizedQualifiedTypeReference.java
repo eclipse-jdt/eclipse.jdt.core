@@ -364,10 +364,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					}
 	   			    qualifyingType = scope.environment().createRawType(currentOriginal, qualifyingType); // raw type
 				} else {
-					boolean canSeeEnclosingTypeParameters = qualifyingType != null && qualifyingType.isParameterizedType() && !currentType.isStatic();
-					qualifyingType = canSeeEnclosingTypeParameters
-													? scope.environment().createParameterizedType(currentOriginal, null, qualifyingType)
-													: currentType;
+					qualifyingType = scope.environment().maybeCreateParameterizedType(currentOriginal, qualifyingType);
 				}
 			}
 			if (isTypeUseDeprecated(qualifyingType, scope))

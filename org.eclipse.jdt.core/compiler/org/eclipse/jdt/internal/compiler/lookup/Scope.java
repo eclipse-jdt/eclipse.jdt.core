@@ -3387,9 +3387,7 @@ public abstract class Scope {
 			if (typeBinding.isGenericType()) {
 				qualifiedType = environment().createRawType(typeBinding, qualifiedType);
 			} else {
-				qualifiedType = (qualifiedType != null && (qualifiedType.isRawType() || qualifiedType.isParameterizedType()))
-					? environment().createParameterizedType(typeBinding, null, qualifiedType)
-					: typeBinding;
+				qualifiedType = environment().maybeCreateParameterizedType(typeBinding, qualifiedType);
 			}
 		}
 		return qualifiedType;
