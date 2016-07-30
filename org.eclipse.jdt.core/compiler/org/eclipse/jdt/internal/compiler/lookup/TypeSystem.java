@@ -18,7 +18,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.HashMap;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -168,19 +167,7 @@ public class TypeSystem {
 			urb = (UnresolvedReferenceBinding) type;
 			ReferenceBinding resolvedType = urb.resolvedType;
 			if (resolvedType != null) {
-				if(CharOperation.indexOf('$', type.sourceName()) > 0) {
-					type = this.environment.convertToRawType(resolvedType, false);
-				} else {
-					type = resolvedType;
-				}
-			} else if (CharOperation.indexOf('$', type.sourceName()) > 0) {
-				boolean mayTolerateMissingType = this.environment.mayTolerateMissingType;
-				this.environment.mayTolerateMissingType = true;
-				try {
-					type = BinaryTypeBinding.resolveType(type, this.environment, true); // to ensure unique id assignment (when enclosing type is parameterized, inner type is also) 
-				} finally {
-					this.environment.mayTolerateMissingType = mayTolerateMissingType;
-				}
+				type = resolvedType;
 			}
 		}
 		try {
