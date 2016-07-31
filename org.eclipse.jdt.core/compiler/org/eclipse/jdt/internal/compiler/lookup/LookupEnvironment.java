@@ -1563,14 +1563,14 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 
 	TypeBinding[] typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, actualType, missingTypeNames, walker);
 	ReferenceBinding currentType = createParameterizedType(actualType, typeArguments, actualEnclosing);
+	ReferenceBinding plainCurrent = actualType;
 
 	while (wrapper.signature[wrapper.start] == '.') {
 		wrapper.start++; // skip '.'
 		int memberStart = wrapper.start;
 		char[] memberName = wrapper.nextWord();
-		BinaryTypeBinding.resolveType(currentType, this, false);
-		ReferenceBinding enclosing = (currentType instanceof ParameterizedTypeBinding) ? ((ParameterizedTypeBinding) currentType).genericType() : currentType;
-		ReferenceBinding memberType = enclosing.getMemberType(memberName);
+		plainCurrent = (ReferenceBinding) BinaryTypeBinding.resolveType(plainCurrent, this, false);
+		ReferenceBinding memberType = plainCurrent.getMemberType(memberName);
 		// need to protect against the member type being null when the signature is invalid
 		if (memberType == null)
 			this.problemReporter.corruptedSignature(currentType, wrapper.signature, memberStart); // aborts
@@ -1585,11 +1585,16 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 		} else {
 			typeArguments = null;
 		}
-		if(memberType.isStatic()) {
-			currentType = memberType;
-		} else {
+		if (typeArguments != null || 											// has type arguments, or ... 
+				(!memberType.isStatic() && currentType.isParameterizedType())) 	// ... can see type arguments of enclosing
+		{
+			if (memberType.isStatic())
+				currentType = plainCurrent; // ignore bogus parameterization of enclosing
 			currentType = createParameterizedType(memberType, typeArguments, currentType);
+		} else {
+			currentType = memberType;
 		}
+		plainCurrent = memberType;
 	}
 	wrapper.start++; // skip ';'
 	currentType=(ParameterizedTypeBinding) annotateType(currentType, savedWalker, missingTypeNames);
