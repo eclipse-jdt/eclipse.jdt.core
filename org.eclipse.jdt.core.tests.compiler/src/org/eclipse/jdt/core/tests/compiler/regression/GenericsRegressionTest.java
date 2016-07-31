@@ -5863,5 +5863,49 @@ public void testBug460491_comment23() {
 			"}\n"
 		});
 }
+public void testBug498486() {
+	runConformTest(
+			new String[] {
+				"t/Ab.java",
+				"package t;\n" +
+				"public interface Ab<T, O extends Ob<? extends Ob.Id, ?>> {}\n" +
+				"",
+				"t/At.java",
+				"package t;\n" +
+				"public interface At<I extends Ob.Id & Comparable<I>, O extends Ob<I, O>> {\n" +
+				"}\n" +
+				"",
+				"t/Ob.java",
+				"package t;\n" +
+				"public interface Ob<I extends Ob.Id & Comparable<I>, O extends Ob<I, O>> extends At<I, O> {\n" +
+				"  interface Id {}\n" +
+				"}\n" +
+				"",
+			}
+		);
+	runConformTest(
+			false,
+			new String[] {
+				"i/Test.java",
+				"package i;\n" +
+				"\n" +
+				"import t.Ab;\n" +
+				"import t.Ob;\n" +
+				"\n" +
+				"\n" +
+				"public class Test {\n" +
+				"	<T, I extends Ob.Id & Comparable<I>, O extends Ob<I, O>, A extends Ab<T, O>> A // Erroneous compiler error here on the last O\n" +
+				"			m() {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+			},
+			null,
+			null,
+			null,
+			null
+		);
+}
 }
 
