@@ -278,14 +278,11 @@ public class BatchTestUtils {
 		if (c == null) {
 			junit.framework.TestCase.assertTrue("Eclipse compiler is not available", false);
 		}
-		int compilerCounter = 0;
 		for (JavaCompiler javaCompiler : javaCompilerLoader) {
-			compilerCounter++;
 			if (c.isInstance(javaCompiler)) {
 				_eclipseCompiler = javaCompiler;
 			}
 		}
-		junit.framework.TestCase.assertEquals("Only one compiler available", 1, compilerCounter);
 		junit.framework.TestCase.assertNotNull("No Eclipse compiler found", _eclipseCompiler);
 	}
 

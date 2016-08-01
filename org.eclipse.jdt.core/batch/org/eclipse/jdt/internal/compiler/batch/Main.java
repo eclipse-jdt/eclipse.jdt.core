@@ -1807,6 +1807,7 @@ public void configure(String[] argv) {
 	final int INSIDE_MODULESOURCEPATH_start = 24;
 	final int INSIDE_ADD_EXPORTS = 25;
 	final int INSIDE_ADD_READS = 26;
+	final int INSIDE_SYSTEM = 27;
 
 	final int DEFAULT = 0;
 	ArrayList bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
@@ -2151,6 +2152,10 @@ public void configure(String[] argv) {
 							this.bind("configure.duplicateBootClasspath", errorMessage.toString())); //$NON-NLS-1$
 					}
 					mode = INSIDE_BOOTCLASSPATH_start;
+					continue;
+				}
+				if (currentArg.equals("-system")) { //$NON-NLS-1$
+					mode = INSIDE_SYSTEM;
 					continue;
 				}
 				if (currentArg.equals("-modulepath") || currentArg.equals("-mp")) { //$NON-NLS-1$ //$NON-NLS-2$
@@ -2674,6 +2679,11 @@ public void configure(String[] argv) {
 			case INSIDE_DESTINATION_PATH :
 				setDestinationPath(currentArg.equals(NONE) ? NONE : currentArg);
 				mode = DEFAULT;
+				continue;
+			case INSIDE_SYSTEM:
+				mode = DEFAULT;
+				this.javaHomeCache = new File(currentArg);
+				this.javaHomeChecked = true;
 				continue;
 			case INSIDE_MODULEPATH_start:
 				mode = DEFAULT;
@@ -3262,7 +3272,7 @@ protected ArrayList handleBootclasspath(ArrayList bootclasspaths, String customE
 	} else {
 		bootclasspaths = new ArrayList(DEFAULT_SIZE_CLASSPATH);
 		try {
-			Util.collectRunningVMBootclasspath(bootclasspaths);
+			Util.collectVMBootclasspath(bootclasspaths, this.javaHomeCache);
 		} catch(IllegalStateException e) {
 			this.logger.logWrongJDK();
 			this.proceed = false;
@@ -4470,10 +4480,6 @@ public void performCompilation() {
 	try {
 		this.logger.startLoggingSources();
 		this.batchCompiler.compile(getCompilationUnits());
-	} catch (Exception e) {
-		// In the unlikely case of an exception, trouble shooting becomes extremely
-		// difficult. So, handle it here.
-		e.printStackTrace();
 	} finally {
 		this.logger.endLoggingSources();
 	}
@@ -4890,6 +4896,18 @@ protected void setPaths(ArrayList bootclasspaths,
 		ArrayList endorsedDirClasspaths,
 		String customEncoding) {
 
+	Object version = this.options.get(CompilerOptions.OPTION_Compliance);
+	if (CompilerOptions.VERSION_9.equals(version)) {
+		if (bootclasspaths != null && bootclasspaths.size() > 0)
+			throw new IllegalArgumentException(
+				this.bind("configure.unsupportedOption", "-bootclasspath")); //$NON-NLS-1$ //$NON-NLS-2$
+		if (extdirsClasspaths != null && extdirsClasspaths.size() > 0)
+			throw new IllegalArgumentException(
+				this.bind("configure.unsupportedOption", "-extdirs")); //$NON-NLS-1$ //$NON-NLS-2$
+		if (endorsedDirClasspaths != null && endorsedDirClasspaths.size() > 0)
+			throw new IllegalArgumentException(
+				this.bind("configure.unsupportedOption", "-endorseddirs")); //$NON-NLS-1$ //$NON-NLS-2$
+	}
 	// process bootclasspath, classpath and sourcepaths
  	bootclasspaths = handleBootclasspath(bootclasspaths, customEncoding);
 

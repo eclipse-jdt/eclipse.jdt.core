@@ -976,4 +976,144 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				"can specify a package in a module only once with --add-export\n",
 				false);
 	}
+	public void test023() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"	requires public java.sql;\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append("\"" + OUTPUT_DIR +  File.separator + "module-info.java\" ")
+			.append(" -extdirs " + OUTPUT_DIR + File.separator + "src");
+
+		runNegativeTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"option -extdirs not supported at compliance level 9 and above\n",
+				false);
+	}
+	public void test024() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"	requires public java.sql;\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" \"" + OUTPUT_DIR +  File.separator + "module-info.java\" ")
+			.append(" -bootclasspath " + OUTPUT_DIR + File.separator + "src");
+
+		runNegativeTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"option -bootclasspath not supported at compliance level 9 and above\n",
+				false);
+	}
+	public void test025() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"	requires public java.sql;\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append("\"" + OUTPUT_DIR +  File.separator + "module-info.java\" ")
+			.append(" -endorseddirs " + OUTPUT_DIR + File.separator + "src");
+
+		runNegativeTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"option -endorseddirs not supported at compliance level 9 and above\n",
+				false);
+	}
+	public void test026() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"	requires public java.sql;\n" +
+						"}");
+		String javaHome = System.getProperty("java.home");
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -system \"").append(javaHome).append("\"")
+			.append(" \"" + moduleLoc +  File.separator + "module-info.java\" ");
+
+		runConformTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"",
+				false);
+	}
+	public void test027() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"}");
+		String javaHome = System.getProperty("java.home");
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -system \"").append(javaHome).append(File.separator)
+			.append("lib\"")
+			.append(" \"" + moduleLoc +  File.separator + "module-info.java\" ");
+
+		runNegativeTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"----------\n"+
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 1)\n"+
+				"	module mod.one { \n"+
+				"	^\n"+
+				"The type java.lang.Object cannot be resolved. It is indirectly referenced from required .class files\n"+
+				"----------\n"+
+				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)\n"+
+				"	requires java.base;\n"+
+				"	         ^^^^^^^^^\n"+
+				"java.base cannot be resolved to a module\n"+
+				"----------\n"+
+				"2 problems (2 errors)\n",
+				false);
+	}
 }

@@ -1623,10 +1623,6 @@ public void test012(){
         "                       jar file are put in the user.dir folder in case no\n" +
         "                       general ''-d'' option is specified. ZIP archives cannot\n" +
         "                       override the general ''-d'' option\n" +
-        "    -modulesourcepath <directories separated by " + File.pathSeparator + ">\n" +
-        "                       specify where to find source files for multiple modules\n" +
-        "    -mp -modulepath <directories separated by " + File.pathSeparator + ">\n" +
-        "                       specify where to find application modules\n" +
         "    -extdirs <directories separated by " + File.pathSeparator + ">\n" +
         "                       specify location for extension ZIP archives\n" +
         "    -endorseddirs <directories separated by " + File.pathSeparator + ">\n" +
@@ -1641,6 +1637,13 @@ public void test012(){
         "                       If multiple default encodings are specified, the last\n" + 
         "                       one will be used.\n" + 
         " \n" +
+        " Module compilation options:\n" +
+        "   These options are meaningful only in Java 9 environment or later.\n" +
+        "    -modulesourcepath <directories separated by ;>\n" +
+        "                       specify where to find source files for multiple modules\n" +
+        "    -mp -modulepath <directories separated by ;>\n" +
+        "                       specify where to find application modules\n" +
+        "    -system <jdk>      Override location of system modules \n" +
         " Compliance options:\n" +
         "    -1.3               use 1.3 compliance (-source 1.3 -target 1.1)\n" +
         "    -1.4             + use 1.4 compliance (-source 1.3 -target 1.2)\n" +

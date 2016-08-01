@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,6 +32,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -1142,33 +1144,57 @@ public class Util implements SuffixConstants {
 		return null;
 	}
 
-	public static void collectRunningVMBootclasspath(List bootclasspaths) {
-		for (String filePath : collectFilesNames()) {
+	public static void collectVMBootclasspath(List bootclasspaths, File javaHome) {
+		for (String filePath : collectFilesNames(javaHome)) {
 			FileSystem.Classpath currentClasspath = FileSystem.getClasspath(filePath, null, null, null);
 			if (currentClasspath != null) {
 				bootclasspaths.add(currentClasspath);
 			}
 		}
 	}
-
+	public static void collectRunningVMBootclasspath(List bootclasspaths) {
+		collectVMBootclasspath(bootclasspaths, null);
+	}
+	private static String getJavaVersion(File javaHome) {
+		File release = new File(javaHome, "release"); //$NON-NLS-1$
+		Properties prop = new Properties();
+		try {
+			prop.load(new FileReader(release));
+			String ver = prop.getProperty("JAVA_VERSION"); //$NON-NLS-1$
+			if (ver != null)
+				ver = ver.replace("\"", "");  //$NON-NLS-1$//$NON-NLS-2$
+			return ver;
+		} catch (IOException e) {
+			// Nothing can be done.
+		}
+		return null;
+	}
 	public static List<String> collectFilesNames() {
+		return collectFilesNames(null);
+	}
+	public static List<String> collectFilesNames(File javaHome) {
 		/* no bootclasspath specified
 		 * we can try to retrieve the default librairies of the VM used to run
 		 * the batch compiler
 		 */
-		String javaversion = System.getProperty("java.version");//$NON-NLS-1$
+		String javaversion = null;
+		if (javaHome != null) {
+			javaversion = getJavaVersion(javaHome);
+		} else {
+			javaversion = System.getProperty("java.version"); //$NON-NLS-1$
+		}
 		if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
 			throw new IllegalStateException();
 		}
-		if (javaversion.length() > 3) {
-			long jdkLevel = CompilerOptions.versionToJdkLevel(javaversion.substring(0, 3));
-			if (jdkLevel >= ClassFileConstants.JDK9) {
-				List<String> filePaths = new ArrayList<>();
-				final File javaHome = getJavaHome();
-				if (javaHome != null) {
-					filePaths.add((new File(javaHome, "/" + JRTUtil.JRT_FS_JAR)).getAbsolutePath()); //$NON-NLS-1$
-					return filePaths;
-				}
+		long jdkLevel = CompilerOptions.versionToJdkLevel(javaversion);
+		if (jdkLevel >= ClassFileConstants.JDK9) {
+			List<String> filePaths = new ArrayList<>();
+			if (javaHome == null) {
+				javaHome = getJavaHome();
+			}
+			if (javaHome != null) {
+				filePaths.add((new File(javaHome, "/" + JRTUtil.JRT_FS_JAR)).getAbsolutePath()); //$NON-NLS-1$
+				return filePaths;
 			}
 		}
 
@@ -1193,7 +1219,9 @@ public class Util implements SuffixConstants {
 			}
 		} else {
 			// try to get all jars inside the lib folder of the java home
-			final File javaHome = getJavaHome();
+			if (javaHome == null) {
+				javaHome = getJavaHome();
+			}
 			if (javaHome != null) {
 				File[] directoriesToCheck = null;
 				if (System.getProperty("os.name").startsWith("Mac")) {//$NON-NLS-1$//$NON-NLS-2$
