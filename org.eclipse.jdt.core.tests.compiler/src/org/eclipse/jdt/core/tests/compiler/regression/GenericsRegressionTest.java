@@ -5907,5 +5907,19 @@ public void testBug498486() {
 			null
 		);
 }
+public void testBug499048() {
+	runConformTest(
+		new String[] {
+			"p/Outer.java",
+			"package p;\n" +
+			"public class Outer<S> {\n" +
+			"	private static class Inner<T> {}\n" +
+			"	Inner<S> test() {\n" +
+			"		Outer.Inner<S> inner = new Outer.Inner<S>();\n" +
+			"		return inner;\n" +
+			"	}\n" +
+			"}\n"
+		});
+}
 }
 

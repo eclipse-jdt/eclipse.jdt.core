@@ -262,6 +262,9 @@ public boolean canBeSeenBy(PackageBinding invocationPackage) {
 public boolean canBeSeenBy(ReferenceBinding receiverType, ReferenceBinding invocationType) {
 	if (isPublic()) return true;
 
+	if (isStatic() && (receiverType.isRawType() || receiverType.isParameterizedType()))
+		receiverType = receiverType.actualType(); // outer generics are irrelevant
+
 	if (TypeBinding.equalsEquals(invocationType, this) && TypeBinding.equalsEquals(invocationType, receiverType)) return true;
 
 	if (isProtected()) {
