@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -2849,8 +2853,7 @@ class ASTConverter {
 	public TryStatement convert(org.eclipse.jdt.internal.compiler.ast.TryStatement statement) {
 		final TryStatement tryStatement = new TryStatement(this.ast);
 		tryStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
-		LocalDeclaration[] localDeclarations = statement.resources;
-		int resourcesLength = localDeclarations.length;
+		int resourcesLength = statement.resources.length;
 		if (resourcesLength > 0) {
 			switch(this.ast.apiLevel) {
 				case AST.JLS2_INTERNAL :
@@ -2858,15 +2861,23 @@ class ASTConverter {
 					// convert it to a simple try statement tagged as MALFORMED
 					tryStatement.setFlags(tryStatement.getFlags() | ASTNode.MALFORMED);
 					break;
-				default:
+				case AST.JLS4_INTERNAL:
+				case AST.JLS8:
 					for (int i = 0; i < resourcesLength; i++) {
-						LocalDeclaration localDeclaration = localDeclarations[i];
+						if (!(statement.resources[i] instanceof LocalDeclaration)) {
+							tryStatement.setFlags(tryStatement.getFlags() | ASTNode.MALFORMED);
+							break;
+						}
+						LocalDeclaration localDeclaration = (LocalDeclaration)statement.resources[i];
 						VariableDeclarationExpression variableDeclarationExpression = convertToVariableDeclarationExpression(localDeclaration);
 						int start = variableDeclarationExpression.getStartPosition();
 						int end = localDeclaration.declarationEnd;
 						variableDeclarationExpression.setSourceRange(start, end - start + 1);
 						tryStatement.resources().add(variableDeclarationExpression);
 					}
+					break;
+				default:
+					break;
 			}
 		}
 		tryStatement.setBody(convert(statement.tryBlock));

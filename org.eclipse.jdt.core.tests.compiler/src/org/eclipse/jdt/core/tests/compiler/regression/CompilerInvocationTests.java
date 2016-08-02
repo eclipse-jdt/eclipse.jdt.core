@@ -401,6 +401,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("AssignmentToMultiCatchParameter", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("AssignmentToResource", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("AutoManagedResourceNotBelow17", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("AutoManagedVariableResourceNotBelow9", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("BinaryLiteralNotBelow17", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("BodyForAbstractMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("BodyForNativeMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -492,6 +493,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("DuplicateNestedType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DuplicateParameterizedMethods", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("DuplicateRequires", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("DuplicateResource", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("DuplicateServices", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DuplicateSuperInterface", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DuplicateTargetInTargetAnnotation", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -1247,6 +1249,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("AssignmentToMultiCatchParameter", SKIP);
 		expectedProblemAttributes.put("AssignmentToResource", SKIP);
 		expectedProblemAttributes.put("AutoManagedResourceNotBelow17", SKIP);
+		expectedProblemAttributes.put("AutoManagedVariableResourceNotBelow9", SKIP);
 		expectedProblemAttributes.put("BinaryLiteralNotBelow17", SKIP);
 		expectedProblemAttributes.put("BodyForAbstractMethod", SKIP);
 		expectedProblemAttributes.put("BodyForNativeMethod", SKIP);
@@ -1337,6 +1340,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("DuplicateNestedType", SKIP);
 		expectedProblemAttributes.put("DuplicateParameterizedMethods", SKIP);
 		expectedProblemAttributes.put("DuplicateRequires", SKIP);
+		expectedProblemAttributes.put("DuplicateResource", SKIP);
 		expectedProblemAttributes.put("DuplicateServices", SKIP);
 		expectedProblemAttributes.put("DuplicateSuperInterface", SKIP);
 		expectedProblemAttributes.put("DuplicateTargetInTargetAnnotation", SKIP);

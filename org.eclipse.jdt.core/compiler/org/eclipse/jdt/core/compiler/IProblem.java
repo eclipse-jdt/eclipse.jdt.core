@@ -1671,6 +1671,8 @@ void setSourceStart(int sourceStart);
 	/** @since 3.10 */
 	int RepeatedAnnotationWithContainerAnnotation = TypeRelated + 899;
 	
+	/** @since 3.13 BETA_JAVA9 */
+	int AutoManagedVariableResourceNotBelow9 = Syntax + Internal + 876;
 	/**
 	 * External problems -- These are problems defined by other plugins
 	 */
@@ -1890,6 +1892,9 @@ void setSourceStart(int sourceStart);
 	int DefaultConstructorRequiredForServiceImpl = TypeRelated + 1207;
 	/** @since 3.13 BETA_JAVA9 */
 	int ServiceImplDefaultConstructorNotPublic = TypeRelated + 1208;
+
+	/** @since 3.13 BETA_JAVA9 */
+	int DuplicateResource = Internal + 1251;
 
 	/** @since 3.10 */
 	int GenericInferenceError = 1100; 	// FIXME: This is just a stop-gap measure, be more specific via https://bugs.eclipse.org/404675

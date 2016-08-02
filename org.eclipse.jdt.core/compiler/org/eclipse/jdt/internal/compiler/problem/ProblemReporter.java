@@ -1331,7 +1331,7 @@ public void cannotReferToNonFinalOuterLocal(LocalVariableBinding local, ASTNode 
 		nodeSourceStart(local, location),
 		nodeSourceEnd(local, location));
 }
-public void cannotReferToNonEffectivelyFinalOuterLocal(LocalVariableBinding local, ASTNode location) {
+public void cannotReferToNonEffectivelyFinalOuterLocal(VariableBinding local, ASTNode location) {
 	String[] arguments = new String[] { new String(local.readableName()) };
 	this.handle(
 		IProblem.OuterLocalMustBeEffectivelyFinal, 
@@ -7411,7 +7411,7 @@ public void repeatableAnnotationWithRepeatingContainer(Annotation annotation, Re
 public void reset() {
 	this.positionScanner = null;
 }
-public void resourceHasToImplementAutoCloseable(TypeBinding binding, TypeReference typeReference) {
+public void resourceHasToImplementAutoCloseable(TypeBinding binding, ASTNode reference) {
 	if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
 		return; // Not supported in 1.7 would have been reported. Hence another not required
 	}
@@ -7419,8 +7419,8 @@ public void resourceHasToImplementAutoCloseable(TypeBinding binding, TypeReferen
 			IProblem.ResourceHasToImplementAutoCloseable,
 			new String[] {new String(binding.readableName())},
 			new String[] {new String(binding.shortReadableName())},
-			typeReference.sourceStart,
-			typeReference.sourceEnd);
+			reference.sourceStart,
+			reference.sourceEnd);
 }
 private int retrieveClosingAngleBracketPosition(int start) {
 	if (this.referenceContext == null) return start;
@@ -8173,16 +8173,23 @@ public void unhandledException(TypeBinding exceptionType, ASTNode location) {
 		sourceEnd);
 }
 public void unhandledExceptionFromAutoClose (TypeBinding exceptionType, ASTNode location) {
-	LocalVariableBinding localBinding = ((LocalDeclaration)location).binding;
-	if (localBinding != null) {
+	Binding binding = null;
+	if (location instanceof LocalDeclaration) {
+		binding = ((LocalDeclaration)location).binding;
+	} else if (location instanceof  NameReference) {
+		binding = ((NameReference) location).binding;
+	} else if (location instanceof FieldReference) {
+		binding = ((FieldReference) location).binding;
+	}
+	if (binding != null) {
 		this.handle(
 			IProblem.UnhandledExceptionOnAutoClose,
 			new String[] {
 					new String(exceptionType.readableName()),
-					new String(localBinding.readableName())},
+					new String(binding.readableName())},
 			new String[] {
 					new String(exceptionType.shortReadableName()),
-					new String(localBinding.shortReadableName())},
+					new String(binding.shortReadableName())},
 			location.sourceStart,
 			location.sourceEnd);
 	}
@@ -9190,13 +9197,25 @@ public void wrongSequenceOfExceptionTypes(TypeReference typeRef, TypeBinding exc
 		typeRef.sourceEnd);
 }
 
-public void autoManagedResourcesNotBelow17(LocalDeclaration[] resources) {
+public void autoManagedResourcesNotBelow17(Statement[] resources) {
+	Statement stmt0 = resources[0];
+	Statement stmtn = resources[resources.length - 1];
+	int sourceStart = stmt0 instanceof LocalDeclaration ? ((LocalDeclaration) stmt0).declarationSourceStart : stmt0.sourceStart;
+	int sourceEnd = stmtn instanceof LocalDeclaration ? ((LocalDeclaration) stmtn).declarationSourceEnd : stmtn.sourceEnd;
 	this.handle(
 			IProblem.AutoManagedResourceNotBelow17,
 			NoArgument,
 			NoArgument,
-			resources[0].declarationSourceStart,
-			resources[resources.length - 1].declarationSourceEnd);
+			sourceStart,
+			sourceEnd);
+}
+public void autoManagedVariableResourcesNotBelow9(Expression resource) {
+	this.handle(
+			IProblem.AutoManagedVariableResourceNotBelow9,
+			NoArgument,
+			NoArgument,
+			resource.sourceStart,
+			resource.sourceEnd);
 }
 public void cannotInferElidedTypes(AllocationExpression allocationExpression) {
 	String arguments [] = new String [] { allocationExpression.type.toString() };
@@ -10441,6 +10460,12 @@ public void duplicateTypeReference(int problem, TypeReference ref1, TypeReferenc
 	this.handle(problem, 
 		NoArgument, new String[] { ref1.toString(), ref2.toString() },
 		ref1.sourceStart, ref2.sourceEnd);
+}
+public void duplicateResourceReference(Reference ref) {
+	this.handle(IProblem.DuplicateResource, 
+		NoArgument, new String[] {ref.toString() },
+		ProblemSeverities.Warning,
+		ref.sourceStart, ref.sourceEnd);
 }
 public void cyclicModuleDependency(ModuleBinding binding, ModuleReference ref) {
 	this.handle(IProblem.CyclicModuleDependency, 

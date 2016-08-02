@@ -1354,6 +1354,16 @@ Resource ::= Modifiers Type PushRealModifiers VariableDeclaratorId EnterVariable
 /:$readableName Resource:/
 /:$compliance 1.7:/
 
+Resource ::= Name
+/.$putCase consumeResourceAsLocalVariable(); $break ./
+/:$readableName Resource:/
+/:$compliance 1.9:/
+
+Resource ::= FieldAccess
+/.$putCase consumeResourceAsFieldAccess(); $break ./
+/:$readableName Resource:/
+/:$compliance 1.9:/
+
 TryBlock ::= Block ExitTryBlock
 /:$readableName Block:/
 
