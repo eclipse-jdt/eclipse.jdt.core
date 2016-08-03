@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -43,18 +48,9 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
-import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
-import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeDescriptor;
-import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
-import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory.NotInIndexException;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
-
-import java.io.InputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 /**
  * Parent is an IClassFile.
@@ -70,7 +66,6 @@ public class BinaryType extends BinaryMember implements IType, SuffixConstants {
 	private static final IType[] NO_TYPES = new IType[0];
 	private static final IInitializer[] NO_INITIALIZERS = new IInitializer[0];
 	public static final JavadocContents EMPTY_JAVADOC = new JavadocContents(null, org.eclipse.jdt.internal.compiler.util.Util.EMPTY_STRING);
-	private IBinaryType cachedBinaryType;
 
 protected BinaryType(JavaElement parent, String name) {
 	super(parent, name);
@@ -308,29 +303,6 @@ public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException
 	Object info = manager.getInfo(this);
 	if (info != null && info != JavaModelCache.NON_EXISTING_JAR_TYPE_INFO) return info;
 
-	if (this.cachedBinaryType != null) {
-		return this.cachedBinaryType;
-	}
-
-	// Check if we can return this type directly from the index
-	if (JavaIndex.isEnabled()) {
-		BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(this);
-
-		if (descriptor != null) {
-			IBinaryType result;
-			try {
-				result = BinaryTypeFactory.readFromIndex(descriptor, monitor);
-				this.cachedBinaryType = result;
-				if (result == null) {
-					ClassFile classFile = (ClassFile)getClassFile();
-					throw classFile.newNotPresentException();
-				}
-				return result;
-			} catch (NotInIndexException e) {
-				// Else fall back to openWhenClosed, below
-			}
-		}
-	}
 	return openWhenClosed(createElementInfo(), false, monitor);
 }
 
