@@ -70,8 +70,9 @@ public String debugName() {
 }
 public int depth() {
 	// we don't yet have our enclosing types wired, but we know the nesting depth from our compoundName:
+	// (NOTE: this an upper bound, because class names may contain '$')
 	int last = this.compoundName.length-1;
-	return CharOperation.occurencesOf('$', this.compoundName[last]);
+	return CharOperation.occurencesOf('$', this.compoundName[last], 1); // leading '$' must be part of the class name, so start at 1.
 }
 public boolean hasTypeBit(int bit) {
 	// shouldn't happen since we are not called before analyseCode(), but play safe:

@@ -5921,5 +5921,38 @@ public void testBug499048() {
 			"}\n"
 		});
 }
+public void testBug499126() {
+	runConformTest(
+		new String[] {
+			"bug_ise_immutablelist/$Immutable.java",
+			"package bug_ise_immutablelist;\n" +
+			"\n" +
+			"public class $Immutable<T> {\n" +
+			"}\n" +
+			"",
+			"bug_ise_immutablelist/Test.java",
+			"package bug_ise_immutablelist;\n" +
+			"\n" +
+			"public class Test {\n" +
+			"	public static $Immutable<Object> f;\n" +
+			"}\n" +
+			"",
+		}
+	);
+	runConformTest(
+			false,
+			new String[] {
+				"Usage.java",
+				"public class Usage {\n" +
+				"	Object f() {return bug_ise_immutablelist.Test.f;}\n" +
+				"}\n" +
+				"",
+			}, 
+			null,
+			null,
+			null,
+			null
+	);
+}
 }
 
