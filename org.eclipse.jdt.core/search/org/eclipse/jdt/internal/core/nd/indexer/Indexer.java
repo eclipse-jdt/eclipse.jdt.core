@@ -217,6 +217,7 @@ public final class Indexer {
 			}
 		}
 		JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
+		boolean hasChanges = false;
 		JavaElementDelta delta = new JavaElementDelta(model);
 		SubMonitor projectLoopMonitor = subMonitor.split(1).setWorkRemaining(projectsToScan.size());
 		for (IProject project : projectsToScan) {
@@ -232,6 +233,7 @@ public final class Indexer {
 							IPath location = JavaIndex.getLocationForElement(next);
 
 							if (indexablesWithChanges.contains(location)) {
+								hasChanges = true;
 								delta.changed(next,
 										IJavaElementDelta.F_CONTENT | IJavaElementDelta.F_ARCHIVE_CONTENT_CHANGED);
 							}
@@ -243,7 +245,9 @@ public final class Indexer {
 			}
 		}
 
-		fireChange(IndexerEvent.createChange(delta));
+		if (hasChanges) {
+			fireChange(IndexerEvent.createChange(delta));
+		}
 	}
 
 	private void updateResourceMappings(Map<IPath, List<IJavaElement>> pathsToUpdate, IProgressMonitor monitor) {
