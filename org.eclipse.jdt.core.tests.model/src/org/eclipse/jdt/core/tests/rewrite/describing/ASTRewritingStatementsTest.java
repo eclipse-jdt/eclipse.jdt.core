@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1439,6 +1443,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 
 	}
+	@SuppressWarnings("deprecation")
 	public void testDoStatement2_since_4() throws Exception {
 		createProject("P_17", JavaCore.VERSION_1_7);
 		IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_17", "src");
@@ -1486,7 +1491,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 				VariableDeclarationExpression resource = ast.newVariableDeclarationExpression(fragment);
 				resource.setType(ast.newSimpleType(ast.newSimpleName("Reader")));
 
-				rewrite.getListRewrite(newTry, TryStatement.RESOURCES_PROPERTY).insertLast(resource, null);
+				rewrite.getListRewrite(newTry, this.apiLevel < AST.JLS9 ? TryStatement.RESOURCES_PROPERTY : TryStatement.RESOURCES2_PROPERTY).insertLast(resource, null);
 	
 				rewrite.replace(doStatement.getBody(), newTry, null);
 			}
@@ -5005,7 +5010,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 				VariableDeclarationExpression resource = ast.newVariableDeclarationExpression(fragment);
 				resource.setType(ast.newSimpleType(ast.newSimpleName("Reader")));
 
-				rewrite.getListRewrite(tryStatement, TryStatement.RESOURCES_PROPERTY).insertLast(resource, null);
+				rewrite.getListRewrite(tryStatement, this.apiLevel < AST.JLS9 ? TryStatement.RESOURCES_PROPERTY : TryStatement.RESOURCES2_PROPERTY).insertLast(resource, null);
 			}
 			{ // replace catch, remove finally
 				TryStatement tryStatement= (TryStatement) blockStatements.get(1);
@@ -5147,7 +5152,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 					(VariableDeclarationFragment) rewrite.createCopyTarget(fragment));
 			newVariableDeclarationExpression.setType((Type) rewrite.createCopyTarget(variableDeclarationStatement.getType()));
 
-			ListRewrite listRewrite = rewrite.getListRewrite(tryStatement, TryStatement.RESOURCES_PROPERTY);
+			ListRewrite listRewrite = rewrite.getListRewrite(tryStatement, this.apiLevel < AST.JLS9 ? TryStatement.RESOURCES_PROPERTY : TryStatement.RESOURCES2_PROPERTY);
 			listRewrite.insertLast(newVariableDeclarationExpression, null);
 			rewrite.remove(variableDeclarationStatement, null);
 
@@ -5225,7 +5230,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			VariableDeclarationExpression newVariableDeclarationExpression = ast.newVariableDeclarationExpression(fragment);
 			newVariableDeclarationExpression.setType(ast.newSimpleType(ast.newSimpleName("FileReader")));
 
-			ListRewrite listRewrite = rewrite.getListRewrite(tryStatement, TryStatement.RESOURCES_PROPERTY);
+			ListRewrite listRewrite = rewrite.getListRewrite(tryStatement, this.apiLevel < AST.JLS9 ? TryStatement.RESOURCES_PROPERTY : TryStatement.RESOURCES2_PROPERTY);
 			listRewrite.insertLast(newVariableDeclarationExpression, null);
 
 			String preview = evaluateRewrite(cu, rewrite);
@@ -5300,7 +5305,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 			VariableDeclarationExpression newVariableDeclarationExpression = ast.newVariableDeclarationExpression(fragment);
 			newVariableDeclarationExpression.setType(ast.newSimpleType(ast.newSimpleName("FileReader")));
 
-			ListRewrite listRewrite = rewrite.getListRewrite(tryStatement, TryStatement.RESOURCES_PROPERTY);
+			ListRewrite listRewrite = rewrite.getListRewrite(tryStatement, this.apiLevel < AST.JLS9 ? TryStatement.RESOURCES_PROPERTY : TryStatement.RESOURCES2_PROPERTY);
 			listRewrite.insertLast(newVariableDeclarationExpression, null);
 
 			String preview = evaluateRewrite(cu, rewrite);

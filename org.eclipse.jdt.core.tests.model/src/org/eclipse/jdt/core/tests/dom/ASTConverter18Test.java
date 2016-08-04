@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -5257,6 +5261,46 @@ public void testBug470794_001() throws JavaModelException {
 			assertTrue("Unexpected Intersection Type", expectedTypes[i].equals(intersectionBindings[i].getName()));
 		}
 	}
+}
+
+public void testBug497719_0001() throws JavaModelException {
+	String contents =
+			"import java.io.IOException;\n" +
+			"\n" +
+			"class Z {\n" +
+			"	 final Y yz = new Y();\n" +
+			"}\n" +
+			"public class X extends Z {\n" +
+			"	final  Y y2 = new Y();\n" +
+			"	\n" +
+			"	 Y bar() {\n" +
+			"		 return new Y();\n" +
+			"	 }\n" +
+			"	public void foo() {\n" +
+			"		Y y3 = new Y();\n" +
+			"		int a[];\n" +
+			"		try (y3; y3;super.yz;super.yz;this.y2;Y y4 = new Y())  {  \n" +
+			"			System.out.println(\"In Try\");\n" +
+			"		} catch (IOException e) {			  \n" +
+			"		} \n" +
+			"	}\n" +
+			"	public static void main(String[] args) {\n" +
+			"		new X().foo();\n" +
+			"	}\n" +
+			"}\n" +
+			"class Y implements AutoCloseable {\n" +
+			"	@Override\n" +
+			"	public void close() throws IOException {\n" +
+			"		System.out.println(\"Closed\");\n" +
+			"	}  \n" +
+			"}";
+		this.workingCopy = getWorkingCopy("/Converter8/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(contents, this.workingCopy, false);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		node = getASTNode((CompilationUnit)node, 1, 2);
+		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
+		TryStatement tryStatement = (TryStatement)methodDeclaration.getBody().statements().get(2);
+		assertEquals("Try Statement should be malformed", ASTNode.MALFORMED, (tryStatement.getFlags() & ASTNode.MALFORMED));
 }
 
 }

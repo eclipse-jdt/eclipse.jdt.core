@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
+import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
 import org.eclipse.jdt.internal.compiler.ast.IntersectionCastTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocArgumentExpression;
@@ -2877,6 +2878,24 @@ class ASTConverter {
 					}
 					break;
 				default:
+					for (int i = 0; i < resourcesLength; i++) {
+						org.eclipse.jdt.internal.compiler.ast.Statement resource = statement.resources[i];
+						if (resource instanceof LocalDeclaration) {
+							LocalDeclaration localDeclaration = (LocalDeclaration)resource;
+							VariableDeclarationExpression variableDeclarationExpression = convertToVariableDeclarationExpression(localDeclaration);
+							int start = variableDeclarationExpression.getStartPosition();
+							int end = localDeclaration.declarationEnd;
+							variableDeclarationExpression.setSourceRange(start, end - start + 1);
+							tryStatement.resources().add(variableDeclarationExpression);
+						} else if (resource instanceof NameReference) {
+							tryStatement.resources().add(convert((NameReference) resource));
+						} else if (resource instanceof FieldReference) {
+							tryStatement.resources().add(convert((FieldReference) resource));
+						} else {
+							tryStatement.setFlags(tryStatement.getFlags() | ASTNode.MALFORMED);
+							break;
+						}
+					}
 					break;
 			}
 		}

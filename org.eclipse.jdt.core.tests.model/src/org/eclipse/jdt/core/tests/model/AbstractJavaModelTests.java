@@ -2911,7 +2911,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					new IPath[] {getExternalJCLPath("1.7"), getExternalJCLSourcePath("1.7"), getExternalJCLRootSourcePath()},
 					null);
 			}
-		} else if ("1.8".equals(compliance)) {
+		} else if ("1.8".equals(compliance) || "9".equals(compliance)) {
 			if (useFullJCL) {
 				if (JavaCore.getClasspathVariable("JCL18_FULL") == null) {
 					setupExternalJCL("jclMin1.8"); // Create the whole mininmal 1.8 set, though we will need only the source zip

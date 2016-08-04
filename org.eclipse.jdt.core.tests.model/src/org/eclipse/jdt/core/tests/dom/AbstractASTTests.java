@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2015 IBM Corporation and others.
+ * Copyright (c) 2004, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -483,7 +487,9 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		String option = cu.getJavaProject().getOption(JavaCore.COMPILER_COMPLIANCE, true);
 		long jdkLevel = CompilerOptions.versionToJdkLevel(option);
 		int JLSLevel = AST_INTERNAL_JLS3;
-		if (jdkLevel >= ClassFileConstants.JDK1_8) {
+		if (jdkLevel >= ClassFileConstants.JDK9) {
+			JLSLevel = AST.JLS9;			
+		} else if (jdkLevel >= ClassFileConstants.JDK1_8) {
 			JLSLevel = AST.JLS8;
 		} else if (jdkLevel >= ClassFileConstants.JDK1_7) {
 			JLSLevel = AST_INTERNAL_JLS4;

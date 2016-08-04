@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -34,12 +38,21 @@ import java.util.List;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class TryStatement extends Statement {
 
+	
 	/**
 	 * The "resources" structural property of this node type (element type: {@link VariableDeclarationExpression}) (added in JLS4 API).
+	 * @deprecated
 	 * @since 3.7.1
 	 */
 	public static final ChildListPropertyDescriptor RESOURCES_PROPERTY =
 		new ChildListPropertyDescriptor(TryStatement.class, "resources", VariableDeclarationExpression.class, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
+	 * The "resources" structural property of this node type (element type: {@link VariableDeclarationExpression}) (added in JLS4 API).
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final ChildListPropertyDescriptor RESOURCES2_PROPERTY =
+		new ChildListPropertyDescriptor(TryStatement.class, "resources", Expression.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "body" structural property of this node type (child type: {@link Block}).
@@ -77,6 +90,14 @@ public class TryStatement extends Statement {
 	 */
 	private static final List PROPERTY_DESCRIPTORS_4_0;
 
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.12_BETA_JAVA9
+	 */
+	private static final List PROPERTY_DESCRIPTORS_9_0;
+
 	static {
 		List propertyList = new ArrayList(4);
 		createPropertyList(TryStatement.class, propertyList);
@@ -92,6 +113,14 @@ public class TryStatement extends Statement {
 		addProperty(CATCH_CLAUSES_PROPERTY, propertyList);
 		addProperty(FINALLY_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_4_0 = reapPropertyList(propertyList);
+
+		propertyList = new ArrayList(5);
+		createPropertyList(TryStatement.class, propertyList);
+		addProperty(RESOURCES2_PROPERTY, propertyList);
+		addProperty(BODY_PROPERTY, propertyList);
+		addProperty(CATCH_CLAUSES_PROPERTY, propertyList);
+		addProperty(FINALLY_PROPERTY, propertyList);
+		PROPERTY_DESCRIPTORS_9_0 = reapPropertyList(propertyList);
 	}
 
 	/**
@@ -109,8 +138,11 @@ public class TryStatement extends Statement {
 			case AST.JLS2_INTERNAL :
 			case AST.JLS3_INTERNAL :
 				return PROPERTY_DESCRIPTORS;
-			default :
+			case AST.JLS4_INTERNAL :
+			case AST.JLS8 :
 				return PROPERTY_DESCRIPTORS_4_0;
+			default :
+				return PROPERTY_DESCRIPTORS_9_0;
 		}
 	}
 
@@ -153,7 +185,9 @@ public class TryStatement extends Statement {
 	 */
 	TryStatement(AST ast) {
 		super(ast);
-		if (ast.apiLevel >= AST.JLS4_INTERNAL) {
+		if (ast.apiLevel >= AST.JLS9) {
+			this.resources = new ASTNode.NodeList(RESOURCES2_PROPERTY);
+		} else if (ast.apiLevel >= AST.JLS4_INTERNAL) {
 			this.resources = new ASTNode.NodeList(RESOURCES_PROPERTY);
 		}
 	}
@@ -193,7 +227,7 @@ public class TryStatement extends Statement {
 	 * Method declared on ASTNode.
 	 */
 	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
-		if (property == RESOURCES_PROPERTY) {
+		if (property == RESOURCES_PROPERTY || property == RESOURCES2_PROPERTY) {
 			return resources();
 		}
 		if (property == CATCH_CLAUSES_PROPERTY) {

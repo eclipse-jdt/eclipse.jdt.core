@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -187,6 +191,22 @@ public final class AST {
 	 * @since 3.10
 	 */
 	public static final int JLS8 = 8;
+
+	/**
+	 * Constant for indicating the AST API that handles JLS9.
+	 * <p>
+	 * This API is capable of handling all constructs in the
+	 * Java language as described in the Java Language
+	 * Specification, Java SE 9 Edition (JLS9).
+	 * JLS9 is a superset of all earlier versions of the
+	 * Java language, and the JLS9 API can be used to manipulate
+	 * programs written in all versions of the Java language
+	 * up to and including Java SE 9 (aka JDK 9).
+	 * </p>
+	 *
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int JLS9 = 9;
 
 	/*
 	 * Must not collide with a value for ICompilationUnit constants
@@ -710,6 +730,19 @@ public final class AST {
 						false /*nls*/,
 						ClassFileConstants.JDK1_8 /*sourceLevel*/,
 						ClassFileConstants.JDK1_8 /*complianceLevel*/,
+						null/*taskTag*/,
+						null/*taskPriorities*/,
+						true/*taskCaseSensitive*/);
+				break;	
+			case JLS9 :
+				this.apiLevel = level;
+				// initialize a scanner
+				this.scanner = new Scanner(
+						true /*comment*/,
+						true /*whitespace*/,
+						false /*nls*/,
+						ClassFileConstants.JDK9   /*sourceLevel*/,
+						ClassFileConstants.JDK9 /*complianceLevel*/,
 						null/*taskTag*/,
 						null/*taskPriorities*/,
 						true/*taskCaseSensitive*/);

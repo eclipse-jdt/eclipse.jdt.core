@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -3613,14 +3617,16 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 		int pos= node.getStartPosition();
-		if (node.getAST().apiLevel() >= JLS4_INTERNAL) {
-			if (isChanged(node, TryStatement.RESOURCES_PROPERTY)) {
+		int level = node.getAST().apiLevel();
+		if (level >= JLS4_INTERNAL) {
+			StructuralPropertyDescriptor desc = level < AST.JLS9 ? TryStatement.RESOURCES_PROPERTY : TryStatement.RESOURCES2_PROPERTY;
+			if (isChanged(node, desc)) {
 				int indent= getIndent(node.getStartPosition());
 				String prefix= this.formatter.TRY_RESOURCES.getPrefix(indent);
 				String newParen = this.formatter.TRY_RESOURCES_PAREN.getPrefix(indent) + "("; //$NON-NLS-1$
-				pos= rewriteNodeList(node, TryStatement.RESOURCES_PROPERTY, getPosAfterTry(pos), newParen, ")", ";" + prefix); //$NON-NLS-1$ //$NON-NLS-2$
+				pos= rewriteNodeList(node, desc, getPosAfterTry(pos), newParen, ")", ";" + prefix); //$NON-NLS-1$ //$NON-NLS-2$
 			} else {
-				pos= doVisit(node, TryStatement.RESOURCES_PROPERTY, pos);
+				pos= doVisit(node, desc, pos);
 			}
 		}
 
