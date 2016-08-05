@@ -355,9 +355,13 @@ public class IndexBinaryType implements IBinaryType {
 		try (IReader rl = this.typeRef.lock()) {
 			NdType type = this.typeRef.get();
 			if (type != null) {
-				return type.getSourceFileName().getChars();
+				char[] result = type.getSourceFileName().getChars();
+				if (result.length == 0) {
+					return null;
+				}
+				return result;
 			} else {
-				return new char[0];
+				return null;
 			}
 		}
 	}

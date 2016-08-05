@@ -1,5 +1,6 @@
 package org.eclipse.jdt.internal.core.nd.indexer;
 
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -288,14 +289,24 @@ public class ClassFileToIndexConverter {
 		
 		boolean compilerDefinedParametersAreIncludedInSignature = (next.getGenericSignature() == null);
 
-		if (compilerDefinedParametersAreIncludedInSignature && parameterNames != null) {
-			numCompilerDefinedParameters = Math.max(0,
-					parameterFieldDescriptors.size() - parameterNames.length);
+		// If there is no generic signature, then fall back to heuristics based on what we know about
+		// where the java compiler likes to create compiler-defined arguments
+		if (compilerDefinedParametersAreIncludedInSignature) {
+			// Constructors for non-static member types get a compiler-defined first argument
+			if (binaryType.isMember() 
+					&& next.isConstructor() 
+					&& ((binaryType.getModifiers() & Modifier.STATIC) == 0)
+					&& parameterFieldDescriptors.size() > 0) {
+
+				numCompilerDefinedParameters = 1;
+			} else {
+				numCompilerDefinedParameters = 0;
+			}
 		}
-		
+
 		int parameterNameIdx = 0;
 		int annotatedParametersCount = next.getAnnotatedParametersCount();
-		
+
 		short descriptorParameterIdx = 0;
 		char[] binaryTypeName = binaryType.getName();
 		while (!signature.atEnd()) {
