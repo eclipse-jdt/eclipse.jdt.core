@@ -6305,8 +6305,6 @@ protected void consumeResourceOptionalTrailingSemiColon(boolean punctuated) {
 	if (punctuated) {
 		if (statement instanceof LocalDeclaration) {
 			((LocalDeclaration) statement).declarationSourceEnd = this.endStatementPosition;
-		} else if (statement instanceof Expression) {
-			((Expression) statement).sourceEnd = this.endStatementPosition; // TODO: Check if unnecessary
 		}
 	}
 }
@@ -9156,14 +9154,6 @@ protected void consumeStatementTry(boolean withFinally, boolean hasResources) {
 
 		tryStmt.resources = stmts;
 			
-//		LocalDeclaration[] resources = new LocalDeclaration[length];
-//		System.arraycopy(
-//				this.astStack,
-//				(this.astPtr -= length) + 1,
-//				resources,
-//				0,
-//				length);
-//		tryStmt.resources = resources;
 		if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
 			problemReporter().autoManagedResourcesNotBelow17(stmts);
 		}

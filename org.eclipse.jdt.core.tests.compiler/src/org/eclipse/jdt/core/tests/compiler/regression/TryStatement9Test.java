@@ -266,7 +266,7 @@ public void testBug488569_008() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 13)\n" + 
 		"	try (y1; Y y1 = new Y()) { \n" + 
-		"	     ^^^\n" + 
+		"	     ^^\n" + 
 		"y1 cannot be resolved\n" + 
 		"----------\n");
 }
@@ -595,12 +595,12 @@ public void testBug488569_018() {
 		"----------\n" + 
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	try (this.y2; super.yz;y2)  {  \n" + 
-		"	          ^^^\n" + 
+		"	          ^^\n" + 
 		"Local variable y2 defined in an enclosing scope must be final or effectively final\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 10)\n" + 
 		"	try (this.y2; super.yz;y2)  {  \n" + 
-		"	                    ^^^\n" + 
+		"	                    ^^\n" + 
 		"Local variable yz defined in an enclosing scope must be final or effectively final\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 10)\n" + 
@@ -646,12 +646,12 @@ public void testBug488569_019() {
 		"----------\n" + 
 		"1. WARNING in X.java (at line 14)\n" + 
 		"	try (y3; y3;super.yz;super.yz;this.y2;)  {  \n" + 
-		"	         ^^^\n" + 
+		"	         ^^\n" + 
 		"Duplicate resource reference y3\n" + 
 		"----------\n" + 
 		"2. WARNING in X.java (at line 14)\n" + 
 		"	try (y3; y3;super.yz;super.yz;this.y2;)  {  \n" + 
-		"	                     ^^^^^^^^^\n" + 
+		"	                     ^^^^^^^^\n" + 
 		"Duplicate resource reference super.yz\n" + 
 		"----------\n");
 }

@@ -69,7 +69,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) list.get(0);
 		checkSourceRange(variableDeclarationExpression, "final Y y = new Y()", source);
 		SimpleName simpleName = (SimpleName) list.get(1);
-		checkSourceRange(simpleName, "y1;", source); // TODO: semicolon should not be part of source range
+		checkSourceRange(simpleName, "y1", source);
 		variableDeclarationExpression = (VariableDeclarationExpression) list.get(2);
 		checkSourceRange(variableDeclarationExpression, "final Y y2 = new Y()", source);
 		
@@ -115,19 +115,19 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			List<Expression> resources = tryStatement.resources();
 			Expression expr = resources.get(0);
 			SimpleName simpleName = (SimpleName) expr;
-			checkSourceRange(simpleName, "y3;", contents);
+			checkSourceRange(simpleName, "y3", contents);
 			expr = resources.get(1);
 			simpleName = (SimpleName) expr;
-			checkSourceRange(expr, "y3;", contents);
+			checkSourceRange(expr, "y3", contents);
 			expr = resources.get(2);
 			SuperFieldAccess superFieldAccess = (SuperFieldAccess) expr;
-			checkSourceRange(superFieldAccess, "super.yz;", contents);
+			checkSourceRange(superFieldAccess, "super.yz", contents);
 			expr = resources.get(3);
 			superFieldAccess = (SuperFieldAccess) expr;
-			checkSourceRange(superFieldAccess, "super.yz;", contents);
+			checkSourceRange(superFieldAccess, "super.yz", contents);
 			expr = resources.get(4);
 			FieldAccess fieldAccess = (FieldAccess) expr;
-			checkSourceRange(fieldAccess, "this.y2;", contents);
+			checkSourceRange(fieldAccess, "this.y2", contents);
 			expr = resources.get(5);
 			VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) expr;
 			checkSourceRange(variableDeclarationExpression, "Y y4 = new Y()", contents);			
