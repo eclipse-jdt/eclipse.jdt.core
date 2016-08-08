@@ -1639,9 +1639,9 @@ public void test012(){
         " \n" +
         " Module compilation options:\n" +
         "   These options are meaningful only in Java 9 environment or later.\n" +
-        "    -modulesourcepath <directories separated by ;>\n" +
+        "    -modulesourcepath <directories separated by " + File.pathSeparator + ">\n" +
         "                       specify where to find source files for multiple modules\n" +
-        "    -mp -modulepath <directories separated by ;>\n" +
+        "    -mp -modulepath <directories separated by " + File.pathSeparator + ">\n" +
         "                       specify where to find application modules\n" +
         "    -system <jdk>      Override location of system modules \n" +
         " Compliance options:\n" +

@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -43,6 +44,13 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class JarPackageFragmentRoot extends PackageFragmentRoot {
+
+	@Override
+	public boolean isModule() {
+		//
+		ClassFile clsFile = new ClassFile((PackageFragment)getPackageFragment(""), String.valueOf(TypeConstants.MODULE_INFO_NAME)); //$NON-NLS-1$
+		return clsFile.existsUsingJarTypeCache();
+	}
 
 	protected final static ArrayList EMPTY_LIST = new ArrayList();
 

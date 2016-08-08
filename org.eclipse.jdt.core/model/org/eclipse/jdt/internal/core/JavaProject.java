@@ -75,6 +75,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -3329,5 +3330,23 @@ public class JavaProject
 			return newDoesNotExistStatus();
 		}
 		return JavaModelStatus.VERIFIED_OK;
+	}
+
+	public IModule getModule() throws JavaModelException {
+		IModule module = null;
+		JavaProjectElementInfo info = (JavaProjectElementInfo) getElementInfo();
+		module = info.getModule();
+		if (module != null)
+			return module;
+		List<IPackageFragmentRoot> children = getChildrenOfType(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+		for (IPackageFragmentRoot root : children) {
+			module = ((PackageFragmentRoot)root).getModule();
+			if (module != null) {
+				info.setModule(module);
+				break;
+			}
+		}
+		
+		return module;
 	}
 }

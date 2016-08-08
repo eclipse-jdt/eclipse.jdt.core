@@ -1533,7 +1533,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private ThreadLocal zipFiles = new ThreadLocal();
 
 	private UserLibraryManager userLibraryManager;
-	
+
+	private ModuleSourcePathManager modulePathManager;
 	/*
 	 * A set of IPaths for jars that are known to not contain a chaining (through MANIFEST.MF) to another library
 	 */
@@ -2668,6 +2669,17 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return MANAGER.userLibraryManager;
 	}
 
+	public static ModuleSourcePathManager getModulePathManager() {
+		if (MANAGER.modulePathManager == null) {
+			ModuleSourcePathManager modulePathManager = new ModuleSourcePathManager();
+			synchronized(MANAGER) {
+				if (MANAGER.modulePathManager == null) { // ensure another library manager was not set while creating the instance above
+					MANAGER.modulePathManager = modulePathManager;
+				}
+			}
+		}
+		return MANAGER.modulePathManager;
+	}
 	/*
 	 * Returns all the working copies which have the given owner.
 	 * Adds the working copies of the primary owner if specified.

@@ -22,6 +22,7 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -883,15 +884,16 @@ public org.eclipse.jdt.internal.compiler.env.IModule getModule() {
 					if (unit instanceof CompilationUnit && unit.exists()) {
 						info = (CompilationUnitElementInfo) ((CompilationUnit) unit)
 								.getElementInfo();
+						if (info != null)
+							return info.getModule();
 					}
 				} else {
 					IClassFile classFile = ((IPackageFragment)pkgs[j]).getClassFile(TypeConstants.MODULE_INFO_CLASS_NAME_STRING);
 					if (classFile instanceof ClassFile && classFile.exists()) {
-						info = (ClassFileInfo) ((ClassFile) classFile).getElementInfo();
+						IType type = classFile.getType();
+						return ((ClassFileReader)(((BinaryType)type).getElementInfo())).getModuleDeclaration();
 					}
 				}
-				if (info != null)
-					return info.getModule();
 				break;
 			}
 		}

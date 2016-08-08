@@ -29,7 +29,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
@@ -928,8 +927,17 @@ public class NameLookup implements SuffixConstants {
 	}
 	public Answer findModule(String moduleName) {
 		JavaElementRequestor requestor = new JavaElementRequestor();
-		seekModules(moduleName.toCharArray(), requestor);
+		char[] nameArray = moduleName.toCharArray();
+		seekModules(nameArray, requestor);
 		org.eclipse.jdt.internal.compiler.env.IModule[] modules = requestor.getModules();
+		if (modules.length == 0) {
+			try {
+				JavaModelManager.getModulePathManager().seekModule(nameArray, false, requestor);
+				modules = requestor.getModules();
+			} catch (JavaModelException e) {
+				// TODO Auto-generated catch block
+			}
+		}
 		if (modules.length == 1) { // TODO what to do??
 			return new Answer(modules[0]);
 		}
@@ -1149,7 +1157,6 @@ public class NameLookup implements SuffixConstants {
 		for (int i= 0; i < count; i++) {
 			if (requestor.isCanceled())
 				return;
-			//Answer answer = findType(String.valueOf(TypeConstants.MODULE_INFO_NAME), false, 0, false);
 			IPackageFragmentRoot root= this.packageFragmentRoots[i];
 			IModule module = null;
 			if (root instanceof JrtPackageFragmentRoot) {
@@ -1160,37 +1167,6 @@ public class NameLookup implements SuffixConstants {
 			module = getModule((PackageFragmentRoot) root);
 			if (module != null && isMatching(name, module.name(), prefix))
 				requestor.acceptModule(module);
-			else if (module == null) {
-				try {
-					IJavaElement[] compilationUnits = root.getChildren();
-					for (int j = 0, length = compilationUnits.length; j < length; j++) {
-						if (requestor.isCanceled())
-							return;
-						// only look in the default package
-						if (compilationUnits[j].getElementName().length() == 0) {
-							
-						IType type = findType(String.valueOf(TypeConstants.MODULE_INFO_NAME), (PackageFragment)compilationUnits[j], false, 0, false, false);
-						if (type == null)
-							continue;
-						if (type.isBinary()) {
-								module = ((ClassFileReader)(((BinaryType)type).getElementInfo())).getModuleDeclaration();
-						} else {
-							module = (IModule)(((SourceType)type).getElementInfo());
-						}
-						if (module != null) {
-							((PackageFragmentRootInfo) ((PackageFragmentRoot) root).getElementInfo()).setModule(module);
-							 if (isMatching(name, module.name(), prefix))
-								 requestor.acceptModule(module);
-						} else {
-							((PackageFragmentRootInfo) ((PackageFragmentRoot) root).getElementInfo()).setModule(ModuleEnvironment.UNNAMED_MODULE);
-						}
-						break;
-						}
-					}
-				} catch (JavaModelException e) {
-					//
-				}
-			}
 		}
 	}
 	public void seekModules(char[] name, JavaElementRequestor requestor) {
