@@ -51,13 +51,8 @@ public class NdMethod extends NdBinding {
 		type.done();
 	}
 
-//	private static final int METHOD_IS_CONSTRUCTOR = 0x0001;
-//	private static final int METHOD_IS_DEFAULT_CONSTRUCTOR = 0x0002;
-//	private static final int METHOD_IS_ANNOTATION_MEMBER = 0x0004;
-//	private static final int METHOD_IS_GENERIC = 0x0008;
-//	private static final int METHOD_IS_PARAMETERIZED = 0x0010;
-//	private static final int METHOD_IS_RAW = 0x0020;
-//	private static final int METHOD_IS_VARARGS = 0x0040;
+	public static final int FLG_GENERIC_SIGNATURE_PRESENT = 0x0001;
+	public static final int FLG_THROWS_SIGNATURE_PRESENT = 0x0002;
 
 	public NdMethod(Nd nd, long address) {
 		super(nd, address);
@@ -112,6 +107,18 @@ public class NdMethod extends NdBinding {
 	 */
 	public NdTypeSignature getReturnType() {
 		return RETURN_TYPE.get(getNd(), this.address);
+	}
+
+	private int getFlags() {
+		return METHOD_FLAGS.get(getNd(), this.address);
+	}
+
+	public boolean hasAllFlags(int flags) {
+		return (getFlags() & flags) == flags;
+	}
+
+	public void setFlags(int flags) {
+		METHOD_FLAGS.put(getNd(), this.address, (short)(getFlags() | flags));
 	}
 
 	public void setTagBits(long bits) {

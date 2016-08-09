@@ -261,11 +261,15 @@ public class ClassFileToIndexConverter {
 	 */
 	private void addMethod(NdType type, IBinaryMethod next, IBinaryType binaryType)
 			throws CoreException {
+		int flags = 0;
 		NdMethod method = new NdMethod(type);
 
 		attachAnnotations(method, next.getAnnotations());
 
 		ITypeAnnotationWalker typeAnnotations = getTypeAnnotationWalker(next.getTypeAnnotations());
+		if (next.getGenericSignature() != null) {
+			flags |= NdMethod.FLG_GENERIC_SIGNATURE_PRESENT;
+		}
 		SignatureWrapper signature = GenericSignatures.getGenericSignature(next);
 		SignatureWrapper descriptor = new SignatureWrapper(next.getMethodDescriptor());
 		readTypeParameters(method, typeAnnotations, signature);
@@ -350,23 +354,31 @@ public class ClassFileToIndexConverter {
 		char[] nextFieldDescriptor = readNextFieldDescriptor(descriptor);
 		method.setReturnType(createTypeSignature(typeAnnotations.toMethodReturn(), signature, nextFieldDescriptor));
 
+		boolean hasExceptionsInSignature = hasAnotherException(signature);
 		char[][] exceptionTypes = next.getExceptionTypeNames();
+		if (exceptionTypes == null) {
+			exceptionTypes = CharArrayUtils.EMPTY_ARRAY_OF_CHAR_ARRAYS;
+		}
 		int throwsIdx = 0;
-		while (!signature.atEnd() && signature.charAtStart() == '^') {
-			signature.start++;
-			new NdMethodException(method, createTypeSignature(typeAnnotations.toThrows(throwsIdx), signature,
-					JavaNames.binaryNameToFieldDescriptor(exceptionTypes[throwsIdx])));
-			throwsIdx++;
+		if (hasExceptionsInSignature) {
+			while (hasAnotherException(signature)) {
+				signature.start++;
+				new NdMethodException(method, createTypeSignature(typeAnnotations.toThrows(throwsIdx), signature,
+						JavaNames.binaryNameToFieldDescriptor(exceptionTypes[throwsIdx])));
+				throwsIdx++;
+			}
+		} else if (exceptionTypes.length != 0) {
+			for (;throwsIdx < exceptionTypes.length; throwsIdx++) {
+				char[] fieldDescriptor = JavaNames.binaryNameToFieldDescriptor(exceptionTypes[throwsIdx]);
+				SignatureWrapper convertedWrapper = new SignatureWrapper(fieldDescriptor);
+				new NdMethodException(method, createTypeSignature(typeAnnotations.toThrows(throwsIdx), convertedWrapper,
+						JavaNames.binaryNameToFieldDescriptor(exceptionTypes[throwsIdx])));
+			}
 		}
 
-		// char[][] exceptionTypeNames = next.getExceptionTypeNames();
-		// int numExceptions = exceptionTypeNames == null ? 0 : exceptionTypeNames.length;
-		//
-		// if (throwsIdx != numExceptions) {
-		// throw new IllegalStateException(
-		// "The number of exceptions in getExceptionTypeNames() didn't match the number of exceptions in the generic
-		// signature"); //$NON-NLS-1$
-		// }
+		if (hasExceptionsInSignature) {
+			flags |= NdMethod.FLG_THROWS_SIGNATURE_PRESENT;
+		}
 
 		Object defaultValue = next.getDefaultValue();
 		if (defaultValue != null) {
@@ -376,6 +388,11 @@ public class ClassFileToIndexConverter {
 		method.setMethodId(createMethodId(binaryType.getName(), next.getSelector(), next.getMethodDescriptor()));
 		method.setModifiers(next.getModifiers());
 		method.setTagBits(next.getTagBits());
+		method.setFlags(flags);
+	}
+
+	private boolean hasAnotherException(SignatureWrapper signature) {
+		return !signature.atEnd() && signature.charAtStart() == '^';
 	}
 
 	private void skipChar(SignatureWrapper signature, char toSkip) {

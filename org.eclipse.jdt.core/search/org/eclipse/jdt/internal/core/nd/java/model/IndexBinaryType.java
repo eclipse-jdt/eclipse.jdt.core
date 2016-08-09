@@ -488,6 +488,9 @@ public class IndexBinaryType implements IBinaryType {
 	}
 
 	private char[] getGenericSignatureFor(NdMethod method) {
+		if (!method.hasAllFlags(NdMethod.FLG_GENERIC_SIGNATURE_PRESENT)) {
+			return null;
+		}
 		CharArrayBuffer result = new CharArrayBuffer();
 		getSignature(result, method.getTypeParameters());
 
@@ -505,10 +508,12 @@ public class IndexBinaryType implements IBinaryType {
 		} else {
 			returnType.getSignature(result);
 		}
-		List<NdMethodException> exceptions = method.getExceptions();
-		for (NdMethodException next : exceptions) {
-			result.append('^');
-			next.getExceptionType().getSignature(result);
+		if (!method.hasAllFlags(NdMethod.FLG_THROWS_SIGNATURE_PRESENT)) {
+			List<NdMethodException> exceptions = method.getExceptions();
+			for (NdMethodException next : exceptions) {
+				result.append('^');
+				next.getExceptionType().getSignature(result);
+			}
 		}
 		return result.getContents();
 	}
