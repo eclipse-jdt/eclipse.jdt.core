@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 IBM Corporation and others.
+ * Copyright (c) 2005, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,7 +14,9 @@ public interface JavadocConstants {
 
 	String ANCHOR_PREFIX_END = "\""; //$NON-NLS-1$
 	char[] ANCHOR_PREFIX_START = "<A NAME=\"".toCharArray(); //$NON-NLS-1$
-	int ANCHOR_PREFIX_START_LENGHT = ANCHOR_PREFIX_START.length;
+	char[] ANCHOR_PREFIX_START_2 = "<A ID=\"".toCharArray(); //$NON-NLS-1$
+	int ANCHOR_PREFIX_START_LENGTH = ANCHOR_PREFIX_START.length;
+	int ANCHOR_PREFIX_START2_LENGTH = ANCHOR_PREFIX_START_2.length;
 	char[] ANCHOR_SUFFIX = "</A>".toCharArray(); //$NON-NLS-1$
 	int ANCHOR_SUFFIX_LENGTH = JavadocConstants.ANCHOR_SUFFIX.length;
 	char[] CONSTRUCTOR_DETAIL = "<!-- ========= CONSTRUCTOR DETAIL ======== -->".toCharArray(); //$NON-NLS-1$

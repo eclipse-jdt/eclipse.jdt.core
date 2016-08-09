@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -260,20 +260,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		try {
 			IClasspathEntry[] entries = this.project.getRawClasspath();
 			savedEntries = entries.clone();
-			IResource resource = this.project.getProject().findMember("/doc.zip"); //$NON-NLS-1$
-			assertNotNull("doc folder cannot be null", resource); //$NON-NLS-1$
-			URI locationURI = resource.getLocationURI();
-			assertNotNull("doc folder cannot be null", locationURI); //$NON-NLS-1$
-			URL docUrl = null;
-			try {
-				docUrl = locationURI.toURL();
-			} catch (MalformedURLException e) {
-				assertTrue("Should not happen", false); //$NON-NLS-1$
-			} catch(IllegalArgumentException e) {
-				assertTrue("Should not happen", false); //$NON-NLS-1$
-			}
-			final String path = "jar:" + docUrl.toExternalForm() + "!/doc"; //$NON-NLS-1$ //$NON-NLS-2$
-			//final String path = "jar:" + "platform:/resource/AttachedJavadocProject/doc.zip" + "!/doc";
+			final String path = "jar:" + "platform:/resource/AttachedJavadocProject/doc.zip" + "!/doc";
 			IClasspathAttribute attribute = JavaCore.newClasspathAttribute(IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME, path);
 			for (int i = 0, max = entries.length; i < max; i++) {
 				final IClasspathEntry entry = entries[i];
@@ -1311,6 +1298,28 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			assertEquals("Wrong size", 2, paramNames.length); //$NON-NLS-1$
 			assertEquals("Wrong name for first param", "p1", paramNames[0]); //$NON-NLS-1$ //$NON-NLS-2$
 			assertEquals("Wrong name for second param", "p2", paramNames[1]); //$NON-NLS-1$ //$NON-NLS-2$
+		} catch (IndexOutOfBoundsException e) {
+			assertTrue("Should not happen", false);
+		}
+	}
+	public void testBug499196() throws JavaModelException {
+		try {
+			IClasspathAttribute attribute =
+					JavaCore.newClasspathAttribute(
+							IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME,
+							"jar:platform:/resource/AttachedJavadocProject/bug499196_doc.zip!/");
+			IClasspathEntry newEntry = JavaCore.newLibraryEntry(new Path("/AttachedJavadocProject/bug499196.jar"), null, null, null, new IClasspathAttribute[] {attribute}, true);
+			this.project.setRawClasspath(new IClasspathEntry[]{newEntry}, null);
+			this.project.getResolvedClasspath(false);
+
+			IPackageFragmentRoot jarRoot = this.project.getPackageFragmentRoot(getFile("/AttachedJavadocProject/bug499196.jar"));
+			final IType type = jarRoot.getPackageFragment("p1.p2").getClassFile("Bug499196.class").getType();
+			assertNotNull(type);
+			IMethod method = type.getMethod("Bug499196", new String[] {}); //$NON-NLS-1$
+			assertNotNull("Constructor should not be null", method);
+			assertTrue(method.exists());
+			String javadoc = method.getAttachedJavadoc(new NullProgressMonitor()); //$NON-NLS-1$
+			assertNotNull("Should have a javadoc", javadoc); //$NON-NLS-1$
 		} catch (IndexOutOfBoundsException e) {
 			assertTrue("Should not happen", false);
 		}
