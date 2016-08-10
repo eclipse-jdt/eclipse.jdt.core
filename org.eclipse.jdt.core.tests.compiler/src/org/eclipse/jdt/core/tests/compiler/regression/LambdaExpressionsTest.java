@@ -6182,6 +6182,32 @@ public void test476859a() {
 	"private static java.lang.reflect.Method Test.lambda$0(java.lang.Void)\n" +
 	"private java.lang.reflect.Method AnotherClass.lambda$0(java.lang.Void)");
 }
+public void testBug499258() {
+	runConformTest(
+		new String[] {
+			"bug499258/ShellTab.java",
+			"package bug499258;\n" +
+			"class Controller {\n" +
+			"	public void newTerminal(Object... path) {\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"interface EventHandler {\n" +
+			"	void handle();\n" +
+			"}\n" +
+			"\n" +
+			"public class ShellTab {\n" +
+			"	private final Controller controller;\n" +
+			"\n" +
+			"	public ShellTab(Controller controller) {\n" +
+			"		this.controller = controller;\n" +
+			"		EventHandler h = this.controller::newTerminal;\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}
+	);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
