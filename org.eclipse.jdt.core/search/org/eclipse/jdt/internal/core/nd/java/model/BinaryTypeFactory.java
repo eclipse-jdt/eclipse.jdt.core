@@ -84,9 +84,12 @@ public class BinaryTypeFactory {
 	}
 
 	public static IBinaryType create(IJavaElement javaElement, String binaryName) {
+		return create(JavaIndex.getIndex(), javaElement, binaryName);
+	}
+
+	public static IBinaryType create(JavaIndex index, IJavaElement javaElement, String binaryName) {
 		IPath filesystemLocation = JavaIndex.getLocationForElement(javaElement);
 
-		JavaIndex index = JavaIndex.getIndex();
 		TypeRef typeRef = TypeRef.create(index.getNd(),
 				filesystemLocation.toString().toCharArray(),
 				JavaNames.binaryNameToFieldDescriptor(binaryName.toCharArray()));

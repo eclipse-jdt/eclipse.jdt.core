@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.core.nd.java.JavaNames;
 import org.eclipse.jdt.internal.core.nd.java.NdType;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeId;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
+import org.eclipse.jdt.internal.core.nd.java.model.IndexBinaryType;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import junit.framework.Test;
@@ -118,7 +119,8 @@ public class IndexerTest extends AbstractJavaModelTests {
 		boolean foundAtLeastOneClass = false;
 		SubMonitor subMonitor = SubMonitor.convert(null);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		try (IReader reader = IndexerTest.index.getNd().acquireReadLock()) {
+		JavaIndex localIndex = IndexerTest.index;
+		try (IReader reader = localIndex.getNd().acquireReadLock()) {
 			IProject project = root.getProject(PROJECT_NAME);
 
 			IJavaProject javaProject = JavaCore.create(project);
@@ -134,7 +136,12 @@ public class IndexerTest extends AbstractJavaModelTests {
 						PackageFragment pkg = (PackageFragment) nextClass.getParent();
 						String classFilePath = Util.concatWith(pkg.names, nextClass.getElementName(), '/');
 
-						IBinaryType indexedBinaryType = BinaryTypeFactory.create(nextClass, JavaNames.classFilePathToBinaryName(classFilePath));
+						IndexBinaryType indexedBinaryType = (IndexBinaryType)BinaryTypeFactory.create(localIndex, nextClass,
+								JavaNames.classFilePathToBinaryName(classFilePath));
+
+						if (!indexedBinaryType.exists()) {
+							throw new IllegalStateException("Unable to find class in index " + classFilePath);
+						}
 						IndexTester.testType(originalBinaryType, indexedBinaryType);
 						foundAtLeastOneClass = true;
 					}

@@ -70,6 +70,10 @@ public class IndexBinaryType implements IBinaryType {
 		this.fileName = indexPath;
 	}
 
+	public boolean exists() {
+		return this.typeRef.get() != null;
+	}
+
 	@Override
 	public int getModifiers() {
 		initSimpleAttributes();
@@ -508,7 +512,7 @@ public class IndexBinaryType implements IBinaryType {
 		} else {
 			returnType.getSignature(result);
 		}
-		if (!method.hasAllFlags(NdMethod.FLG_THROWS_SIGNATURE_PRESENT)) {
+		if (method.hasAllFlags(NdMethod.FLG_THROWS_SIGNATURE_PRESENT)) {
 			List<NdMethodException> exceptions = method.getExceptions();
 			for (NdMethodException next : exceptions) {
 				result.append('^');

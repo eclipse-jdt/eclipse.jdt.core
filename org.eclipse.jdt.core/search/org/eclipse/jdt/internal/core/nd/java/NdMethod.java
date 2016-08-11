@@ -109,12 +109,14 @@ public class NdMethod extends NdBinding {
 		return RETURN_TYPE.get(getNd(), this.address);
 	}
 
-	private int getFlags() {
+	public int getFlags() {
 		return METHOD_FLAGS.get(getNd(), this.address);
 	}
 
 	public boolean hasAllFlags(int flags) {
-		return (getFlags() & flags) == flags;
+		int ourFlags = getFlags();
+
+		return (ourFlags & flags) == flags;
 	}
 
 	public void setFlags(int flags) {
