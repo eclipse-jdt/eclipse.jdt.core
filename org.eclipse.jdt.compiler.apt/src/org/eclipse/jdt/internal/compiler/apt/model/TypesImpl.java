@@ -8,6 +8,7 @@
  * Contributors:
  *    Walter Harley - initial API and implementation
  *    IBM Corporation - fix for 342598, 382590
+ *    Jean-Marie Henaff <jmhenaff@google.com> (Google) - Bug 481555
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.compiler.apt.model;
@@ -74,62 +75,124 @@ public class TypesImpl implements Types {
     }
 
     @Override
-    public TypeMirror asMemberOf(DeclaredType containing, Element element) {
-//        throw new UnsupportedOperationException("NYI: TypesImpl.asMemberOf(" + containing + ", " + element + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-    	ElementImpl elementImpl = (ElementImpl) element;
-    	DeclaredTypeImpl declaredTypeImpl = (DeclaredTypeImpl) containing;
-    	ReferenceBinding referenceBinding = (ReferenceBinding) declaredTypeImpl._binding;
-    	switch(element.getKind()) {
-    		case CONSTRUCTOR :
-    		case METHOD :
-    			MethodBinding methodBinding = (MethodBinding) elementImpl._binding;
-    			while (referenceBinding != null) {
-                    for (MethodBinding method : referenceBinding.methods()) {
-                        if (CharOperation.equals(method.selector, methodBinding.selector) &&
-                                (method.original() == methodBinding || method.areParameterErasuresEqual(methodBinding))) {
-                            return this._env.getFactory().newTypeMirror(method);
-                        }
-                    }
-                    referenceBinding = referenceBinding.superclass();
-                }
-    			break;
-    		case FIELD :
-    		case ENUM_CONSTANT:
-    			FieldBinding fieldBinding = (FieldBinding) elementImpl._binding;
-                while (referenceBinding != null) {
-                    for (FieldBinding field : referenceBinding.fields()) {
-                        if (CharOperation.equals(field.name, fieldBinding.name)) {
-                            return this._env.getFactory().newTypeMirror(field);
-                        }
-                    }
-                    referenceBinding = referenceBinding.superclass();
-                }
-    			break;
-    		case ENUM :
-    		case ANNOTATION_TYPE :
-    		case INTERFACE :
-    		case CLASS :
-    			ReferenceBinding elementBinding = (ReferenceBinding) elementImpl._binding;
-                while (referenceBinding != null) {
-                    // If referenceBinding is a ParameterizedTypeBinding, this will return only ParameterizedTypeBindings
-                    // for member types, even if the member happens to be a static nested class. That's probably a bug;
-                    // static nested classes are not parameterized by their outer class.
-                    for (ReferenceBinding memberReferenceBinding : referenceBinding.memberTypes()) {
-                        if (CharOperation.equals(elementBinding.compoundName, memberReferenceBinding.compoundName)) {
-                            return this._env.getFactory().newTypeMirror(memberReferenceBinding);
-                        }
-                    }
-                    referenceBinding = referenceBinding.superclass();
-                }
-    			break;
-    		default:
-                throw new IllegalArgumentException("element " + element + //$NON-NLS-1$
-                        " has unrecognized element kind " + element.getKind()); //$NON-NLS-1$
-            }
-            throw new IllegalArgumentException("element " + element + //$NON-NLS-1$
-                    " is not a member of the containing type " + containing +  //$NON-NLS-1$
-                    " nor any of its superclasses"); //$NON-NLS-1$
-    }
+	public TypeMirror asMemberOf(DeclaredType containing, Element element) {
+		// throw new UnsupportedOperationException("NYI: TypesImpl.asMemberOf("
+		// + containing + ", " + element + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+		// //$NON-NLS-3$
+		ElementImpl elementImpl = (ElementImpl) element;
+		DeclaredTypeImpl declaredTypeImpl = (DeclaredTypeImpl) containing;
+		ReferenceBinding referenceBinding = (ReferenceBinding) declaredTypeImpl._binding;
+		TypeMirror typeMirror;
+
+		switch (element.getKind()) {
+		case CONSTRUCTOR:
+		case METHOD:
+			typeMirror = findMemberInHierarchy(referenceBinding, elementImpl._binding, new MemberInTypeFinder() {
+				@Override
+				public TypeMirror find(ReferenceBinding typeBinding, Binding memberBinding) {
+					MethodBinding methodBinding = ((MethodBinding) memberBinding);
+					for (MethodBinding method : typeBinding.methods()) {
+						if (CharOperation.equals(method.selector, methodBinding.selector)
+								&& (method.original() == methodBinding
+										|| method.areParameterErasuresEqual(methodBinding))) {
+							return TypesImpl.this._env.getFactory().newTypeMirror(method);
+						}
+					}
+					return null;
+				}
+			});
+
+			if (typeMirror != null) {
+				return typeMirror;
+			}
+			break;
+		case FIELD:
+		case ENUM_CONSTANT:
+			typeMirror = findMemberInHierarchy(referenceBinding, elementImpl._binding, new MemberInTypeFinder() {
+				@Override
+				public TypeMirror find(ReferenceBinding typeBinding, Binding memberBinding) {
+					FieldBinding fieldBinding = (FieldBinding) memberBinding;
+					for (FieldBinding field : typeBinding.fields()) {
+						if (CharOperation.equals(field.name, fieldBinding.name)) {
+							return TypesImpl.this._env.getFactory().newTypeMirror(field);
+						}
+					}
+					return null;
+				}
+			});
+
+			if (typeMirror != null) {
+				return typeMirror;
+			}
+			break;
+		case ENUM:
+		case ANNOTATION_TYPE:
+		case INTERFACE:
+		case CLASS:
+
+			typeMirror = findMemberInHierarchy(referenceBinding, elementImpl._binding, new MemberInTypeFinder() {
+				@Override
+				public TypeMirror find(ReferenceBinding typeBinding, Binding memberBinding) {
+					ReferenceBinding elementBinding = (ReferenceBinding) memberBinding;
+					// If referenceBinding is a ParameterizedTypeBinding, this
+					// will return only ParameterizedTypeBindings
+					// for member types, even if the member happens to be a
+					// static nested class. That's probably a bug;
+					// static nested classes are not parameterized by their
+					// outer class.
+					for (ReferenceBinding memberReferenceBinding : typeBinding.memberTypes()) {
+						if (CharOperation.equals(elementBinding.compoundName, memberReferenceBinding.compoundName)) {
+							return TypesImpl.this._env.getFactory().newTypeMirror(memberReferenceBinding);
+						}
+					}
+					return null;
+				}
+			});
+
+			if (typeMirror != null) {
+				return typeMirror;
+			}
+			break;
+		default:
+			throw new IllegalArgumentException("element " + element + //$NON-NLS-1$
+					" has unrecognized element kind " + element.getKind()); //$NON-NLS-1$
+		}
+		throw new IllegalArgumentException("element " + element + //$NON-NLS-1$
+				" is not a member of the containing type " + containing + //$NON-NLS-1$
+				" nor any of its superclasses"); //$NON-NLS-1$
+	}
+
+	private static interface MemberInTypeFinder {
+		TypeMirror find(ReferenceBinding typeBinding, Binding memberBinding);
+	}
+
+	private TypeMirror findMemberInHierarchy(ReferenceBinding typeBinding, Binding memberBinding,
+			MemberInTypeFinder finder) {
+		TypeMirror result = null;
+
+		if (typeBinding == null) {
+			return null;
+		}
+
+		result = finder.find(typeBinding, memberBinding);
+		if (result != null) {
+			return result;
+		}
+
+		result = findMemberInHierarchy(typeBinding.superclass(), memberBinding, finder);
+		if (result != null) {
+			return result;
+		}
+
+		for (ReferenceBinding superInterface : typeBinding.superInterfaces()) {
+			result = findMemberInHierarchy(superInterface, memberBinding, finder);
+			if (result != null) {
+				return result;
+			}
+		}
+
+		return null;
+	}
 
     @Override
     public TypeElement boxedClass(PrimitiveType p) {
