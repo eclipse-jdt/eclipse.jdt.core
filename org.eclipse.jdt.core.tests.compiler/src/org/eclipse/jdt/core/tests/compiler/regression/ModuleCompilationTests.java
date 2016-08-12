@@ -268,6 +268,52 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	exports p;\n" +
+						"	requires mod.two;\n" +
+						"	requires public java.sql;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p", "X.java", 
+						"package p;\n" +
+						"import q.Y;\n" +
+						"public class X {\n" +
+						"	public static java.sql.Connection getConnection() {\n" +
+						"		return Y.con;\n" +
+						"	}\n" +
+						"}");
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+						"	exports q;\n" +
+						"	requires java.base;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+						"package q;\n" +
+						"public class Y {\n" +
+						"   public static java.sql.Connection con = null;\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -modulesourcepath " + "\"" + directory + "\"");
+
+		runConformTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"",
+				false);
+	}
+	public void test008a() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports p;\n" +
 						"	requires java.base;\n" +
 						"	requires public java.sql;\n" +
 						"}");
@@ -361,6 +407,14 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 						"		return null;\n" +
 						"	}\n" +
 						"}");
+		// This one is not exported (i.e. internal to this module)
+		writeFile(moduleLoc + File.separator + "p1", "X1.java", 
+				"package p1;\n" +
+				"public class X1 {\n" +
+				"	public static java.sql.Connection getConnection() {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}");
 
 		moduleLoc = srcDir + File.separator + "mod.two";
 		writeFile(moduleLoc, "module-info.java", 
@@ -478,7 +532,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 						"	requires mod.one;\n" +
 						"	requires mod.two;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "Z.java", 
+		writeFile(moduleLoc + File.separator + "r", "Z.java", 
 						"package r;\n" +
 						"public class Z extends Object {\n" +
 						"	p.X x = null;\n" +
@@ -1114,6 +1168,49 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				"java.base cannot be resolved to a module\n"+
 				"----------\n"+
 				"2 problems (2 errors)\n",
+				false);
+	}
+	/**
+	 * Mixed case of exported and non exported packages being referred to in another module
+	 */
+	public void test028() {
+		Util.flushDirectoryContent(new File(OUTPUT_DIR));
+		String outDir = OUTPUT_DIR + File.separator + "bin";
+		String srcDir = OUTPUT_DIR + File.separator + "src";
+		File modDir = new File(OUTPUT_DIR + File.separator + "mod");
+		createReusableModules(srcDir, outDir, modDir);
+		String moduleLoc = srcDir + File.separator + "mod.three";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.three { \n" +
+						"	requires mod.one;\n" +
+						"	requires mod.two;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "r", "Z.java", 
+						"package r;\n" +
+						"public class Z extends Object {\n" +
+						"	p.X x = null;\n" +
+						"	p1.X1 x1 = null;\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + outDir )
+		.append(" -9 ")
+		.append(" -mp \"")
+		.append(Util.getJavaClassLibsAsString())
+		.append(modDir.getAbsolutePath())
+		.append("\" ")
+		.append(" -modulesourcepath " + "\"" + srcDir + "\"");
+
+		runNegativeTest(new String[]{},
+				buffer.toString(), 
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/r/Z.java (at line 4)\n"+
+				"	p1.X1 x1 = null;\n" + 
+				"	^^^^^\n" + 
+				"p1.X1 cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"1 problem (1 error)\n",
 				false);
 	}
 }
