@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -450,6 +450,8 @@ public static int getIrritant(int problemID) {
 		case IProblem.RedundantNullDefaultAnnotationPackage:
 		case IProblem.RedundantNullDefaultAnnotationType:
 		case IProblem.RedundantNullDefaultAnnotationMethod:
+		case IProblem.RedundantNullDefaultAnnotationLocal:
+		case IProblem.RedundantNullDefaultAnnotationField:
 			return CompilerOptions.RedundantNullAnnotation;
 
 		case IProblem.BoxingConversion :
@@ -9705,6 +9707,8 @@ public void nullAnnotationIsRedundant(FieldDeclaration sourceField) {
 }
 
 public void nullDefaultAnnotationIsRedundant(ASTNode location, Annotation[] annotations, Binding outer) {
+	if (outer == Scope.NOT_REDUNDANT)
+		return;
 	Annotation annotation = findAnnotation(annotations, TypeIds.BitNonNullByDefaultAnnotation);
 	int start = annotation != null ? annotation.sourceStart : location.sourceStart;
 	int end = annotation != null ? annotation.sourceEnd : location.sourceStart;
@@ -9721,6 +9725,10 @@ public void nullDefaultAnnotationIsRedundant(ASTNode location, Annotation[] anno
 		problemId = IProblem.RedundantNullDefaultAnnotationType;
 	} else if (outer instanceof MethodBinding) {
 		problemId = IProblem.RedundantNullDefaultAnnotationMethod;
+	} else if (outer instanceof LocalVariableBinding) {
+		problemId = IProblem.RedundantNullDefaultAnnotationLocal;
+	} else if (outer instanceof FieldBinding) {
+		problemId = IProblem.RedundantNullDefaultAnnotationField;
 	}
 	this.handle(problemId, args, shortArgs, start, end);
 }

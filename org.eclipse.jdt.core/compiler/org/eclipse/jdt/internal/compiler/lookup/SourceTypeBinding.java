@@ -1791,7 +1791,7 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 					// enum constants neither have a type declaration nor can they be null
 					field.tagBits |= TagBits.AnnotationNonNull;
 				} else {
-					if (hasNonNullDefaultFor(DefaultLocationField, this.environment.usesNullTypeAnnotations())) {
+					if (hasNonNullDefaultFor(DefaultLocationField, this.environment.usesNullTypeAnnotations(), fieldDecl.sourceStart)) {
 						field.fillInDefaultNonNullness(fieldDecl, initializationScope);
 					}
 					// validate null annotation:
@@ -2120,7 +2120,10 @@ public void evaluateNullAnnotations() {
 				pkg.defaultNullness = this.defaultNullness;
 			} else {
 				TypeDeclaration typeDecl = this.scope.referenceContext;
-				checkRedundantNullnessDefaultRecurse(typeDecl, typeDecl.annotations, this.defaultNullness, true);
+				Binding target = this.scope.parent.checkRedundantDefaultNullness(this.defaultNullness, typeDecl.declarationSourceStart);
+				if(target != null) {
+					this.scope.problemReporter().nullDefaultAnnotationIsRedundant(typeDecl, typeDecl.annotations, target);
+				}
 			}
 		} else if (isPackageInfo || (isInDefaultPkg && !(this instanceof NestedTypeBinding))) {
 			this.scope.problemReporter().missingNonNullByDefaultAnnotation(this.scope.referenceContext);
@@ -2164,10 +2167,10 @@ public void evaluateNullAnnotations() {
 }
 
 private void maybeMarkTypeParametersNonNull() {
-	// when creating type variables we didn't yet have the defaultNullness, fill it in now:
-	if (this.scope == null || !this.scope.hasDefaultNullnessFor(DefaultLocationTypeParameter))
-		return;
 	if (this.typeVariables != null && this.typeVariables.length > 0) {
+	// when creating type variables we didn't yet have the defaultNullness, fill it in now:
+		if (this.scope == null || !this.scope.hasDefaultNullnessFor(DefaultLocationTypeParameter, this.sourceStart()))
+		return;
 		AnnotationBinding[] annots = new AnnotationBinding[]{ this.environment.getNonNullAnnotation() };
 		for (int i = 0; i < this.typeVariables.length; i++) {
 			TypeVariableBinding tvb = this.typeVariables[i];
@@ -2220,7 +2223,8 @@ protected boolean checkRedundantNullnessDefaultOne(ASTNode location, Annotation[
 	return true;
 }
 
-boolean hasNonNullDefaultFor(int location, boolean useTypeAnnotations) {
+@Override
+boolean hasNonNullDefaultFor(int location, boolean useTypeAnnotations, int sourceStart) {
 	
 	if (!isPrototype()) throw new IllegalStateException();
 	
@@ -2229,7 +2233,10 @@ boolean hasNonNullDefaultFor(int location, boolean useTypeAnnotations) {
 		if (this.scope == null) {
 			return (this.defaultNullness & location) != 0;
 		}
-		return this.scope.hasDefaultNullnessFor(location);
+		Scope skope = this.scope.referenceContext.initializerScope; // for @NNBD on a field
+		if (skope == null)
+			skope = this.scope;
+		return skope.hasDefaultNullnessFor(location, sourceStart);
 	}
 
 	// find the applicable default inside->out:

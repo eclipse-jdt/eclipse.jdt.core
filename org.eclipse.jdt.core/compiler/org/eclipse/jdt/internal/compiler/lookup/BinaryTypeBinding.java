@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -616,7 +616,7 @@ private void createFields(IBinaryField[] iFields, IBinaryType binaryType, long s
 			for (int i = 0; i < size; i++) {
 				IBinaryField binaryField = iFields[i];
 				char[] fieldSignature = use15specifics ? binaryField.getGenericSignature() : null;
-				ITypeAnnotationWalker walker = getTypeAnnotationWalker(binaryField.getTypeAnnotations(), Binding.NO_NULL_DEFAULT);
+				ITypeAnnotationWalker walker = getTypeAnnotationWalker(binaryField.getTypeAnnotations(), getNullDefaultFrom(binaryField.getAnnotations()));
 				if (sourceLevel >= ClassFileConstants.JDK1_8) { // below 1.8, external annotations will be attached later
 					walker = binaryType.enrichWithExternalAnnotationsFor(walker, iFields[i], this.environment);
 				}
@@ -1568,9 +1568,14 @@ private void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBi
 		if (fieldType != null
 				&& !fieldType.isBaseType()
 				&& (fieldType.tagBits & TagBits.AnnotationNullMASK) == 0
-				&& fieldType.acceptsNonNullDefault()
-				&& hasNonNullDefaultFor(DefaultLocationField, true)) {
-			fieldBinding.type = this.environment.createAnnotatedType(fieldType, new AnnotationBinding[]{this.environment.getNonNullAnnotation()});
+				&& fieldType.acceptsNonNullDefault()) {
+				int nullDefaultFromField = getNullDefaultFrom(field.getAnnotations());
+				if (nullDefaultFromField == Binding.NO_NULL_DEFAULT
+						? hasNonNullDefaultFor(DefaultLocationField, true, -1)
+						: (nullDefaultFromField & DefaultLocationField) != 0) {
+					fieldBinding.type = this.environment.createAnnotatedType(fieldType,
+							new AnnotationBinding[] { this.environment.getNonNullAnnotation() });
+				}
 		}
 		return; // not using fieldBinding.tagBits when we have type annotations.
 	}

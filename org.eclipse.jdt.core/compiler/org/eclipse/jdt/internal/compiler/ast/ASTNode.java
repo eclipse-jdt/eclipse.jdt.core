@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -944,6 +944,24 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return scope.environment().createAnnotatedType(type, annotationBindings);
 	}
 
+	/**
+	 * "early" handling of NonNullByDefault because for local variables annotations are resolved after their type because of bug
+	 * 96991.
+	 * @param localDeclaration 
+	 */
+	public static void handleNonNullByDefault(BlockScope scope, Annotation[] sourceAnnotations, LocalDeclaration localDeclaration) {
+		if (sourceAnnotations == null || sourceAnnotations.length == 0) {
+			return;
+		}
+		int length = sourceAnnotations.length;
+		for (int i = 0; i < length; i++) {
+			Annotation annotation = sourceAnnotations[i];
+			annotation.handleNonNullByDefault(scope, localDeclaration);
+		}
+	}
+
+
+	
 	// When SE8 annotations feature in SE7 locations, they get attributed to the declared entity. Copy/move these to the type of the declared entity (field, local, argument etc.)
 	public static void copySE8AnnotationsToType(BlockScope scope, Binding recipient, Annotation[] annotations, boolean annotatingEnumerator) {
 		
