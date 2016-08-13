@@ -279,7 +279,7 @@ public class ExternalAnnotationProvider {
 		public ITypeAnnotationWalker toWildcardBound() { return this; }
 		public ITypeAnnotationWalker toNextArrayDimension() { return this; }
 		public ITypeAnnotationWalker toNextNestedType() { return this; }
-		public IBinaryAnnotation[] getAnnotationsAtCursor(int currentTypeId) { return NO_ANNOTATIONS; }
+		public IBinaryAnnotation[] getAnnotationsAtCursor(int currentTypeId, boolean mayApplyArrayContentsDefaultNullness) { return NO_ANNOTATIONS; }
 	}
 
 	abstract class BasicAnnotationWalker implements ITypeAnnotationWalker {
@@ -381,7 +381,7 @@ public class ExternalAnnotationProvider {
 		}
 
 		@Override
-		public IBinaryAnnotation[] getAnnotationsAtCursor(int currentTypeId) {
+		public IBinaryAnnotation[] getAnnotationsAtCursor(int currentTypeId, boolean mayApplyArrayContentsDefaultNullness) {
 			if (this.pos != -1 && this.pos < this.source.length-2) {
 				switch (this.source[this.pos]) {
 					case 'T':
@@ -534,7 +534,7 @@ public class ExternalAnnotationProvider {
 		}
 
 		@Override
-		public IBinaryAnnotation[] getAnnotationsAtCursor(int currentTypeId) {
+		public IBinaryAnnotation[] getAnnotationsAtCursor(int currentTypeId, boolean mayApplyArrayContentsDefaultNullness) {
 			if (this.pos != -1 && this.pos < this.source.length-1) {
 				switch (this.source[this.pos]) {
 					case NULLABLE:
@@ -543,7 +543,7 @@ public class ExternalAnnotationProvider {
 						return new IBinaryAnnotation[]{ ExternalAnnotationProvider.this.NONNULL_ANNOTATION };
 				}				
 			}
-			return super.getAnnotationsAtCursor(currentTypeId);
+			return super.getAnnotationsAtCursor(currentTypeId, mayApplyArrayContentsDefaultNullness);
 		}
 	}
 

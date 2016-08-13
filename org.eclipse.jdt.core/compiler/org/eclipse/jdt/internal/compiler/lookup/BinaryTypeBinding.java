@@ -829,7 +829,7 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 		? new MethodBinding(methodModifiers, parameters, exceptions, this)
 		: new MethodBinding(methodModifiers, method.getSelector(), returnType, parameters, exceptions, this);
 	
-	IBinaryAnnotation[] receiverAnnotations = walker.toReceiver().getAnnotationsAtCursor(this.id);
+	IBinaryAnnotation[] receiverAnnotations = walker.toReceiver().getAnnotationsAtCursor(this.id, false);
 	if (receiverAnnotations != null && receiverAnnotations.length > 0) {
 		result.receiver = this.environment.createAnnotatedType(this, createAnnotations(receiverAnnotations, this.environment, missingTypeNames));
 	}
@@ -838,7 +838,7 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 		IBinaryAnnotation[] annotations = method.getAnnotations();
 	    if (annotations == null || annotations.length == 0)
 	    	if (method.isConstructor())
-	    		annotations = walker.toMethodReturn().getAnnotationsAtCursor(this.id); // FIXME: When both exist, order could become an issue.
+	    		annotations = walker.toMethodReturn().getAnnotationsAtCursor(this.id, false); // FIXME: When both exist, order could become an issue.
 		result.setAnnotations(
 			createAnnotations(annotations, this.environment, missingTypeNames),
 			paramAnnotations,
@@ -952,7 +952,7 @@ private TypeVariableBinding[] createTypeVariables(SignatureWrapper wrapper, bool
 						int colon = CharOperation.indexOf(Util.C_COLON, typeSignature, i);
 						char[] variableName = CharOperation.subarray(typeSignature, i, colon);
 						TypeVariableBinding typeVariable = new TypeVariableBinding(variableName, this, rank, this.environment);
-						AnnotationBinding [] annotations = BinaryTypeBinding.createAnnotations(walker.toTypeParameter(isClassTypeParameter, rank++).getAnnotationsAtCursor(0), 
+						AnnotationBinding [] annotations = BinaryTypeBinding.createAnnotations(walker.toTypeParameter(isClassTypeParameter, rank++).getAnnotationsAtCursor(0, false), 
 																										this.environment, missingTypeNames);
 						if (annotations != null && annotations != Binding.NO_ANNOTATIONS)
 							typeVariable.setTypeAnnotations(annotations, this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
@@ -1587,7 +1587,7 @@ private void scanFieldForNullAnnotation(IBinaryField field, FieldBinding fieldBi
 
 	boolean explicitNullness = false;
 	IBinaryAnnotation[] annotations = externalAnnotationWalker != ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER
-											? externalAnnotationWalker.getAnnotationsAtCursor(fieldBinding.type.id) 
+											? externalAnnotationWalker.getAnnotationsAtCursor(fieldBinding.type.id, false) 
 											: field.getAnnotations();
 	if (annotations != null) {
 		for (int i = 0; i < annotations.length; i++) {
@@ -1640,7 +1640,7 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 	// return:
 	ITypeAnnotationWalker returnWalker = externalAnnotationWalker.toMethodReturn();
 	IBinaryAnnotation[] annotations = returnWalker != ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER
-								? returnWalker.getAnnotationsAtCursor(methodBinding.returnType.id)
+								? returnWalker.getAnnotationsAtCursor(methodBinding.returnType.id, false)
 								: method.getAnnotations();
 	if (annotations != null) {
 		for (int i = 0; i < annotations.length; i++) {
@@ -1691,7 +1691,7 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 				int startIndex = numParamAnnotations - numVisibleParams;
 				ITypeAnnotationWalker parameterWalker = externalAnnotationWalker.toMethodParameter((short) (j+startIndex));
 				IBinaryAnnotation[] paramAnnotations = parameterWalker != ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER
-															? parameterWalker.getAnnotationsAtCursor(parameters[j].id)
+															? parameterWalker.getAnnotationsAtCursor(parameters[j].id, false)
 															: method.getParameterAnnotations(j+startIndex, this.fileName);
 				if (paramAnnotations != null) {
 					for (int i = 0; i < paramAnnotations.length; i++) {

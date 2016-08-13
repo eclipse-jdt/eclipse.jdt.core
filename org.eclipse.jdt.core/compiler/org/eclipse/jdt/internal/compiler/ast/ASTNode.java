@@ -1089,6 +1089,14 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		
 		// for arrays: @T X[] SE7 associates @T to the type, but in SE8 it affects the leaf component type
 		TypeBinding oldLeafType = (unionRef == null) ? existingType.leafComponentType() : unionRef.resolvedType;
+		if (se8nullBits != 0) {
+			if (typeRef instanceof ArrayTypeReference) { // NOTE: no corresponding code for ArrayQualifiedTypeReference is necessary
+				ArrayTypeReference arrayTypeReference = (ArrayTypeReference) typeRef;
+				if(arrayTypeReference.leafComponentTypeWithoutDefaultNullness != null) {
+					oldLeafType=arrayTypeReference.leafComponentTypeWithoutDefaultNullness;
+				}
+			}
+		}
 		if (se8nullBits != 0 && oldLeafType.isBaseType()) {
 			scope.problemReporter().illegalAnnotationForBaseType(typeRef, new Annotation[] { se8NullAnnotation }, se8nullBits);
 			return existingType;
