@@ -580,20 +580,24 @@ public final class Indexer {
 		for (IClassFile next : classFiles) {
 			SubMonitor iterationMonitor = subMonitor.split(1).setWorkRemaining(100);
 
-			this.nd.acquireWriteLock(iterationMonitor.split(5));
 			try {
-				if (!resourceFile.isInIndex()) {
-					return classesIndexed;
-				}
-
 				IBinaryType binaryType = ClassFileToIndexConverter.getTypeFromClassFile(next, iterationMonitor.split(50));
-				converter.addType(binaryType, iterationMonitor.split(45));
-				classesIndexed++;
+
+				this.nd.acquireWriteLock(iterationMonitor.split(5));
+				try {
+					if (!resourceFile.isInIndex()) {
+						return classesIndexed;
+					}
+
+					converter.addType(binaryType, iterationMonitor.split(45));
+					classesIndexed++;
+				} finally {
+					this.nd.releaseWriteLock();
+				}
 			} catch (CoreException e) {
 				Package.log("Unable to index " + next.toString(), e); //$NON-NLS-1$
-			} finally {
-				this.nd.releaseWriteLock();
 			}
+
 //			if (ENABLE_SELF_TEST) {
 //				IndexTester.testType(binaryType, new IndexBinaryType(ReferenceUtil.createTypeRef(type)));
 //			}
