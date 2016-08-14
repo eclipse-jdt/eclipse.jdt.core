@@ -12806,4 +12806,76 @@ public void testBug499862c() {
 		"Potential null pointer access: this expression has type \'T\', a free type variable that may represent a \'@Nullable\' type\n" + 
 		"----------\n");
 }
+public void testBug499597simplified() {
+	runConformTestWithLibs(
+		new String[] {
+			"Foo2.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"class Foo2 {\n" +
+			"	static <T> T of(T t) {\n" +
+			"		return t;\n" +
+			"	}\n" +
+			"\n" +
+			"	static String foo() {\n" +
+			"		return Foo2.<String>of(\"\"); // <-- warning here\n" +
+			"	}\n" +
+			"\n" +
+			"	static String bar() {\n" +
+			"		return Foo2.<@NonNull String>of(\"\"); // <-- no warning\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+public void testBug499597original() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Foo.java",
+			"import static org.eclipse.jdt.annotation.DefaultLocation.*;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"\n" +
+			"import java.util.Collection;\n" +
+			"import java.util.Collections;\n" +
+			"\n" +
+			"class Foo {\n" +
+			"	static @NonNull String @NonNull [] X = { \"A\" };\n" +
+			"\n" +
+			"	@NonNullByDefault({ PARAMETER, RETURN_TYPE, FIELD, TYPE_PARAMETER, TYPE_BOUND, TYPE_ARGUMENT, ARRAY_CONTENTS })\n" +
+			"	@SafeVarargs\n" +
+			"	static <T> Collection<T> of(@NonNull T @NonNull... elements) {\n" +
+			"		return Collections.singleton(elements[0]);\n" +
+			"	}\n" +
+			"\n" +
+			"	@NonNullByDefault({ PARAMETER, RETURN_TYPE, FIELD, TYPE_PARAMETER, TYPE_BOUND, TYPE_ARGUMENT, ARRAY_CONTENTS })\n" +
+			"	static Collection<String[]> foo() {\n" +
+			"		return Foo.<String[]>of(X); // <-- warning here\n" +
+			"	}\n" +
+			"\n" +
+			"	@NonNullByDefault({ PARAMETER, RETURN_TYPE, FIELD, TYPE_PARAMETER, TYPE_BOUND, TYPE_ARGUMENT, ARRAY_CONTENTS })\n" +
+			"	static Collection<String[]> bar() {\n" +
+			"		return Foo.<String @NonNull []>of(X); // <-- no warning\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in Foo.java (at line 12)\n" + 
+		"	static <T> Collection<T> of(@NonNull T @NonNull... elements) {\n" + 
+		"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The nullness annotation is redundant with a default that applies to this location\n" + 
+		"----------\n" + 
+		"2. WARNING in Foo.java (at line 13)\n" + 
+		"	return Collections.singleton(elements[0]);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'Set<T>\' needs unchecked conversion to conform to \'@NonNull Collection<T>\', corresponding supertype is \'Collection<T>\'\n" + 
+		"----------\n"
+	);
+}
 }
