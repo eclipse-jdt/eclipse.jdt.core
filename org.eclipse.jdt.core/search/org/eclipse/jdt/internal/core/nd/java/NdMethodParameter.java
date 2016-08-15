@@ -10,6 +10,7 @@ import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldString;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
+import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
  * @since 3.12
@@ -79,5 +80,19 @@ public class NdMethodParameter extends NdNode {
 
 	public boolean isCompilerDefined() {
 		return getFlag(FLG_COMPILER_DEFINED);
+	}
+
+	public String toString() {
+		try {
+			CharArrayBuffer buf = new CharArrayBuffer();
+			buf.append(getType().toString());
+			buf.append(" "); //$NON-NLS-1$
+			buf.append(getName().toString());
+			return buf.toString();
+		} catch (RuntimeException e) {
+			// This is called most often from the debugger, so we want to return something meaningful even
+			// if the code is buggy, the database is corrupt, or we don't have a read lock.
+			return super.toString();
+		}
 	}
 }

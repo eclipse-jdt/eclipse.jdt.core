@@ -95,4 +95,14 @@ public class NdMethodId extends NdNode {
 	public boolean isClInit() {
 		return JavaNames.isClinit(getSelector());
 	}
+
+	public String toString() {
+		try {
+			return new String(getSelector());
+		} catch (RuntimeException e) {
+			// This is called most often from the debugger, so we want to return something meaningful even
+			// if the code is buggy, the database is corrupt, or we don't have a read lock.
+			return super.toString();
+		}
+	}
 }

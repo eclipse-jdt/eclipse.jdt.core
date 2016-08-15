@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.internal.core.nd.INdVisitor;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.IString;
-import org.eclipse.jdt.internal.core.nd.db.IndexException;
 import org.eclipse.jdt.internal.core.nd.field.FieldByte;
 import org.eclipse.jdt.internal.core.nd.field.FieldLong;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
@@ -218,7 +217,7 @@ public class NdType extends NdBinding {
 	public String toString() {
 		try {
 			return "class " + new String(getSourceName()); //$NON-NLS-1$
-		} catch (IndexException e) {
+		} catch (RuntimeException e) {
 			return super.toString();
 		}
 	}

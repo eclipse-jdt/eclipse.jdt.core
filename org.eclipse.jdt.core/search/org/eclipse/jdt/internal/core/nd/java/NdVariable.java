@@ -103,4 +103,29 @@ public class NdVariable extends NdBinding {
 	public void setTagBits(long tagBits) {
 		TAG_BITS.put(getNd(), this.address, tagBits);
 	}
+
+	public String toString() {
+		try {
+			StringBuilder result = new StringBuilder();
+			NdTypeSignature localType = getType();
+			if (localType != null) {
+				result.append(localType.toString());
+				result.append(" "); //$NON-NLS-1$
+			}
+			IString name = getName();
+			if (name != null) {
+				result.append(name.toString());
+			}
+			NdConstant constant = getConstant();
+			if (constant != null) {
+				result.append(" = "); //$NON-NLS-1$
+				result.append(constant.toString());
+			}
+			return result.toString();
+		} catch (RuntimeException e) {
+			// This is called most often from the debugger, so we want to return something meaningful even
+			// if the code is buggy, the database is corrupt, or we don't have a read lock.
+			return super.toString();
+		}
+	}
 }

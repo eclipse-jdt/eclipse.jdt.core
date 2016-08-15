@@ -244,4 +244,14 @@ public class NdResourceFile extends NdTreeNode {
 	public NdBinding getBinding(int index) {
 		return ALL_NODES.get(getNd(), this.address, index);
 	}
+
+	public String toString() {
+		try {
+			return FILENAME.get(getNd(), this.address).toString();
+		} catch (RuntimeException e) {
+			// This is called most often from the debugger, so we want to return something meaningful even
+			// if the code is buggy, the database is corrupt, or we don't have a read lock.
+			return super.toString();
+		}
+	}
 }

@@ -90,4 +90,14 @@ public class NdTypeParameter extends NdNode {
 			next.getSignature(result);
 		}
 	}
+
+	public static void getSignature(CharArrayBuffer buffer, List<NdTypeParameter> params) {
+		if (!params.isEmpty()) {
+			buffer.append('<');
+			for (NdTypeParameter next : params) {
+				next.getSignature(buffer);
+			}
+			buffer.append('>');
+		}
+	}
 }

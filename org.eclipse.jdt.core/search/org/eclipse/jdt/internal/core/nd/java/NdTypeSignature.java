@@ -149,4 +149,16 @@ public abstract class NdTypeSignature extends NdNode {
 	 * Returns the type arguments for this type signature, if any. Returns the empty list if none.
 	 */
 	public abstract List<NdTypeArgument> getTypeArguments();
+
+	public String toString() {
+		try {
+			CharArrayBuffer result = new CharArrayBuffer();
+			getSignature(result);
+			return result.toString();
+		} catch (RuntimeException e) {
+			// This is called most often from the debugger, so we want to return something meaningful even
+			// if the code is buggy, the database is corrupt, or we don't have a read lock.
+			return super.toString();
+		}
+	}
 }

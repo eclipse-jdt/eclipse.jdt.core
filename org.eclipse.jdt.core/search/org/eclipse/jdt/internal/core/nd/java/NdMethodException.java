@@ -41,4 +41,14 @@ public class NdMethodException extends NdNode {
 	public NdMethod getParent() {
 		return PARENT.get(getNd(), this.address);
 	}
+
+	public String toString() {
+		try {
+			return getExceptionType().toString();
+		} catch (RuntimeException e) {
+			// This is called most often from the debugger, so we want to return something meaningful even
+			// if the code is buggy, the database is corrupt, or we don't have a read lock.
+			return super.toString();
+		}
+	}
 }

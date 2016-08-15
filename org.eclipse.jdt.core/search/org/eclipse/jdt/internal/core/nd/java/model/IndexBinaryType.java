@@ -182,7 +182,7 @@ public class IndexBinaryType implements IBinaryType {
 			if (type != null) {
 				CharArrayBuffer buffer = new CharArrayBuffer();
 
-				getSignature(buffer, type.getTypeParameters());
+				NdTypeParameter.getSignature(buffer, type.getTypeParameters());
 
 				NdTypeSignature superclass = type.getSuperclass();
 				if (superclass != null) {
@@ -376,16 +376,6 @@ public class IndexBinaryType implements IBinaryType {
 		return walker;
 	}
 
-	private void getSignature(CharArrayBuffer buffer, List<NdTypeParameter> params) {
-		if (!params.isEmpty()) {
-			buffer.append('<');
-			for (NdTypeParameter next : params) {
-				next.getSignature(buffer);
-			}
-			buffer.append('>');
-		}
-	}
-
 	private IBinaryMethod createBinaryMethod(NdMethod ndMethod) {
 		NdMethodId methodId = ndMethod.getMethodId();
 
@@ -437,6 +427,15 @@ public class IndexBinaryType implements IBinaryType {
 				.setIsClInit(methodId.isClInit()).setTypeAnnotations(toTypeAnnotationArray(typeAnnotations));
 	}
 
+	private static char[] getGenericSignatureFor(NdMethod method) {
+		if (!method.hasAllFlags(NdMethod.FLG_GENERIC_SIGNATURE_PRESENT)) {
+			return null;
+		}
+		CharArrayBuffer result = new CharArrayBuffer();
+		method.getGenericSignature(result, method.hasAllFlags(NdMethod.FLG_THROWS_SIGNATURE_PRESENT));
+		return result.getContents();
+	}
+	
 	private char[][] getArgumentNames(NdMethod ndMethod) {
 		// Unlike what its JavaDoc says, IBinaryType returns an empty array if no argument names are available, so
 		// we replicate this weird undocumented corner case here.
@@ -489,37 +488,6 @@ public class IndexBinaryType implements IBinaryType {
 		// }
 
 		return result;
-	}
-
-	private char[] getGenericSignatureFor(NdMethod method) {
-		if (!method.hasAllFlags(NdMethod.FLG_GENERIC_SIGNATURE_PRESENT)) {
-			return null;
-		}
-		CharArrayBuffer result = new CharArrayBuffer();
-		getSignature(result, method.getTypeParameters());
-
-		result.append('(');
-		for (NdMethodParameter next : method.getMethodParameters()) {
-			// Compiler-defined arguments don't show up in the generic signature
-			if (!next.isCompilerDefined()) {
-				next.getType().getSignature(result);
-			}
-		}
-		result.append(')');
-		NdTypeSignature returnType = method.getReturnType();
-		if (returnType == null) {
-			result.append('V');
-		} else {
-			returnType.getSignature(result);
-		}
-		if (method.hasAllFlags(NdMethod.FLG_THROWS_SIGNATURE_PRESENT)) {
-			List<NdMethodException> exceptions = method.getExceptions();
-			for (NdMethodException next : exceptions) {
-				result.append('^');
-				next.getExceptionType().getSignature(result);
-			}
-		}
-		return result.getContents();
 	}
 
 	private char[][] getExceptionTypeNames(NdMethod ndMethod) {

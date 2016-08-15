@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldShort;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
+import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
  * @since 3.12
@@ -129,5 +130,44 @@ public class NdMethod extends NdBinding {
 
 	public long getTagBits() {
 		return TAG_BITS.get(getNd(), this.address);
+	}
+
+	public String toString() {
+		try {
+			CharArrayBuffer arrayBuffer = new CharArrayBuffer();
+			arrayBuffer.append(getMethodId().getSelector());
+			getGenericSignature(arrayBuffer, true);
+			return arrayBuffer.toString();
+		} catch (RuntimeException e) {
+			// This is called most often from the debugger, so we want to return something meaningful even
+			// if the code is buggy, the database is corrupt, or we don't have a read lock.
+			return super.toString();
+		}
+	}
+
+	public void getGenericSignature(CharArrayBuffer result, boolean includeExceptions) {
+		NdTypeParameter.getSignature(result, getTypeParameters());
+
+		result.append('(');
+		for (NdMethodParameter next : getMethodParameters()) {
+			// Compiler-defined arguments don't show up in the generic signature
+			if (!next.isCompilerDefined()) {
+				next.getType().getSignature(result);
+			}
+		}
+		result.append(')');
+		NdTypeSignature returnType = getReturnType();
+		if (returnType == null) {
+			result.append('V');
+		} else {
+			returnType.getSignature(result);
+		}
+		if (includeExceptions) {
+			List<NdMethodException> exceptions = getExceptions();
+			for (NdMethodException next : exceptions) {
+				result.append('^');
+				next.getExceptionType().getSignature(result);
+			}
+		}
 	}
 }
