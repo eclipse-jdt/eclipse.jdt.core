@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1257,7 +1257,7 @@ public class Util implements SuffixConstants {
 			int count = 0;
 			int i = CharOperation.indexOf(C_PARAM_START, methodSignature);
 			if (i < 0) {
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException(String.valueOf(methodSignature));
 			} else {
 				i++;
 			}
@@ -1267,14 +1267,14 @@ public class Util implements SuffixConstants {
 				}
 				int e= Util.scanTypeSignature(methodSignature, i);
 				if (e < 0) {
-					throw new IllegalArgumentException();
+					throw new IllegalArgumentException(String.valueOf(methodSignature));
 				} else {
 					i = e + 1;
 				}
 				count++;
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-			throw new IllegalArgumentException(e);
+			throw new IllegalArgumentException(String.valueOf(methodSignature), e);
 		}
 	}
 
@@ -1297,7 +1297,7 @@ public class Util implements SuffixConstants {
 	public static int scanTypeSignature(char[] string, int start) {
 		// need a minimum 1 char
 		if (start >= string.length) {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 		char c = string[start];
 		switch (c) {
@@ -1325,7 +1325,7 @@ public class Util implements SuffixConstants {
 			case C_STAR:
 				return scanTypeBoundSignature(string, start);
 			default :
-				throw new IllegalArgumentException();
+				throw newIllegalArgumentException(string, start);
 		}
 	}
 
@@ -1349,13 +1349,13 @@ public class Util implements SuffixConstants {
 	public static int scanBaseTypeSignature(char[] string, int start) {
 		// need a minimum 1 char
 		if (start >= string.length) {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 		char c = string[start];
 		if ("BCDFIJSVZ".indexOf(c) >= 0) { //$NON-NLS-1$
 			return start;
 		} else {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 	}
 
@@ -1376,18 +1376,18 @@ public class Util implements SuffixConstants {
 		int length = string.length;
 		// need a minimum 2 char
 		if (start >= length - 1) {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 		char c = string[start];
 		if (c != C_ARRAY) {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 	
 		c = string[++start];
 		while(c == C_ARRAY) {
 			// need a minimum 2 char
 			if (start >= length - 1) {
-				throw new IllegalArgumentException();
+				throw newIllegalArgumentException(string, start);
 			}
 			c = string[++start];
 		}
@@ -1410,11 +1410,11 @@ public class Util implements SuffixConstants {
 	public static int scanCaptureTypeSignature(char[] string, int start) {
 		// need a minimum 2 char
 		if (start >= string.length - 1) {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 		char c = string[start];
 		if (c != C_CAPTURE) {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 		return scanTypeBoundSignature(string, start + 1);
 	}
@@ -1435,19 +1435,19 @@ public class Util implements SuffixConstants {
 	public static int scanTypeVariableSignature(char[] string, int start) {
 		// need a minimum 3 chars "Tx;"
 		if (start >= string.length - 2) {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 		// must start in "T"
 		char c = string[start];
 		if (c != C_TYPE_VARIABLE) {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 		int id = scanIdentifier(string, start + 1);
 		c = string[id + 1];
 		if (c == C_SEMICOLON) {
 			return id + 1;
 		} else {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 	}
 
@@ -1464,7 +1464,7 @@ public class Util implements SuffixConstants {
 	public static int scanIdentifier(char[] string, int start) {
 		// need a minimum 1 char
 		if (start >= string.length) {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 		int p = start;
 		while (true) {
@@ -1500,7 +1500,7 @@ public class Util implements SuffixConstants {
 	public static int scanClassTypeSignature(char[] string, int start) {
 		// need a minimum 3 chars "Lx;"
 		if (start >= string.length - 2) {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 		// must start in "L" or "Q"
 		char c = string[start];
@@ -1510,7 +1510,7 @@ public class Util implements SuffixConstants {
 		int p = start + 1;
 		while (true) {
 			if (p >= string.length) {
-				throw new IllegalArgumentException();
+				throw newIllegalArgumentException(string, start);
 			}
 			c = string[p];
 			if (c == C_SEMICOLON) {
@@ -1544,7 +1544,7 @@ public class Util implements SuffixConstants {
 	public static int scanTypeBoundSignature(char[] string, int start) {
 		// need a minimum 1 char for wildcard
 		if (start >= string.length) {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 		char c = string[start];
 		switch (c) {
@@ -1555,8 +1555,7 @@ public class Util implements SuffixConstants {
 				break;
 			default :
 				// must start in "+/-"
-				throw new IllegalArgumentException();
-	
+				throw newIllegalArgumentException(string, start);
 		}
 		c = string[++start];
 		if (c != C_STAR && start >= string.length -1) { // unless "-*" we need at least one more char, e.g. after "+[", other variants are even longer
@@ -1578,7 +1577,7 @@ public class Util implements SuffixConstants {
 			case C_STAR:
 				return start;
 			default:
-				throw new IllegalArgumentException();
+				throw newIllegalArgumentException(string, start);
 		}
 	}
 
@@ -1602,16 +1601,16 @@ public class Util implements SuffixConstants {
 	public static int scanTypeArgumentSignatures(char[] string, int start) {
 		// need a minimum 2 char "<>"
 		if (start >= string.length - 1) {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 		char c = string[start];
 		if (c != C_GENERIC_START) {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 		int p = start + 1;
 		while (true) {
 			if (p >= string.length) {
-				throw new IllegalArgumentException();
+				throw newIllegalArgumentException(string, start);
 			}
 			c = string[p];
 			if (c == C_GENERIC_END) {
@@ -1643,7 +1642,7 @@ public class Util implements SuffixConstants {
 	public static int scanTypeArgumentSignature(char[] string, int start) {
 		// need a minimum 1 char
 		if (start >= string.length) {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 		char c = string[start];
 		switch (c) {
@@ -1718,5 +1717,9 @@ public class Util implements SuffixConstants {
 					buffer.append(c);
 				}
 		}
+	}
+
+	private static IllegalArgumentException newIllegalArgumentException(char[] string, int start) {
+		return new IllegalArgumentException("\"" + String.valueOf(string) + "\" at " + start); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }

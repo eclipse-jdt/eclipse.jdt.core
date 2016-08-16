@@ -533,11 +533,11 @@ private static int appendArrayTypeSignature(char[] string, int start, boolean fu
 	int length = string.length;
 	// need a minimum 2 char
 	if (start >= length - 1) {
-		throw new IllegalArgumentException();
+		throw newIllegalArgumentException(string, start);
 	}
 	char c = string[start];
 	if (c != C_ARRAY) {
-		throw new IllegalArgumentException();
+		throw newIllegalArgumentException(string, start);
 	}
 
 	int index = start;
@@ -545,7 +545,7 @@ private static int appendArrayTypeSignature(char[] string, int start, boolean fu
 	while(c == C_ARRAY) {
 		// need a minimum 2 char
 		if (index >= length - 1) {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 		c = string[++index];
 	}
@@ -579,11 +579,11 @@ private static int appendArrayTypeSignature(char[] string, int start, boolean fu
 private static int appendCaptureTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer) {
 	// need a minimum 2 char
 	if (start >= string.length - 1) {
-		throw new IllegalArgumentException();
+		throw newIllegalArgumentException(string, start);
 	}
 	char c = string[start];
 	if (c != C_CAPTURE) {
-		throw new IllegalArgumentException();
+		throw newIllegalArgumentException(string, start);
 	}
 	buffer.append(CAPTURE).append(' ');
 	return appendTypeArgumentSignature(string, start + 1, fullyQualifyTypeNames, buffer);
@@ -605,12 +605,12 @@ private static int appendCaptureTypeSignature(char[] string, int start, boolean 
 private static int appendClassTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer) {
 	// need a minimum 3 chars "Lx;"
 	if (start >= string.length - 2) {
-		throw new IllegalArgumentException();
+		throw newIllegalArgumentException(string, start);
 	}
 	// must start in "L" or "Q"
 	char c = string[start];
 	if (c != C_RESOLVED && c != C_UNRESOLVED) {
-		throw new IllegalArgumentException();
+		throw newIllegalArgumentException(string, start);
 	}
 	boolean resolved = (c == C_RESOLVED);
 	boolean removePackageQualifiers = !fullyQualifyTypeNames;
@@ -624,7 +624,7 @@ private static int appendClassTypeSignature(char[] string, int start, boolean fu
 	boolean inAnonymousType = false;
 	while (true) {
 		if (p >= string.length) {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 		c = string[p];
 		switch(c) {
@@ -698,11 +698,11 @@ private static int appendClassTypeSignature(char[] string, int start, boolean fu
 private static int appendIntersectionTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer) {
 	// need a minimum 2 char
 	if (start >= string.length - 1) {
-		throw new IllegalArgumentException();
+		throw newIllegalArgumentException(string, start);
 	}
 	char c = string[start];
 	if (c != C_INTERSECTION) {
-		throw new IllegalArgumentException();
+		throw newIllegalArgumentException(string, start);
 	}
 	start = appendClassTypeSignature(string, start + 1, fullyQualifyTypeNames, buffer);
 	if (start < string.length - 1) {
@@ -795,7 +795,7 @@ private static void appendSimpleName(char[] name, int start, int end, StringBuff
 private static int appendTypeArgumentSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer) {
 	// need a minimum 1 char
 	if (start >= string.length) {
-		throw new IllegalArgumentException();
+		throw newIllegalArgumentException(string, start);
 	}
 	char c = string[start];
 	switch(c) {
@@ -831,18 +831,18 @@ private static int appendTypeArgumentSignature(char[] string, int start, boolean
 private static int appendTypeArgumentSignatures(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer) {
 	// need a minimum 2 char "<>"
 	if (start >= string.length - 1) {
-		throw new IllegalArgumentException();
+		throw newIllegalArgumentException(string, start);
 	}
 	char c = string[start];
 	if (c != C_GENERIC_START) {
-		throw new IllegalArgumentException();
+		throw newIllegalArgumentException(string, start);
 	}
 	buffer.append('<');
 	int p = start + 1;
 	int count = 0;
 	while (true) {
 		if (p >= string.length) {
-			throw new IllegalArgumentException();
+			throw newIllegalArgumentException(string, start);
 		}
 		c = string[p];
 		if (c == C_GENERIC_END) {
@@ -895,7 +895,7 @@ private static int appendTypeSignature(char[] string, int start, boolean fullyQu
 private static int appendTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer, boolean isVarArgs) {
 	// need a minimum 1 char
 	if (start >= string.length) {
-		throw new IllegalArgumentException();
+		throw newIllegalArgumentException(string, start);
 	}
 	char c = string[start];
 	if (isVarArgs) {
@@ -920,7 +920,7 @@ private static int appendTypeSignature(char[] string, int start, boolean fullyQu
 			case C_CAPTURE:
 			case C_INTERSECTION :
 			default:
-				throw new IllegalArgumentException(); // a var args is an array type
+				throw newIllegalArgumentException(string, start); // a var args is an array type
 		}
 	} else {
 		switch (c) {
@@ -969,7 +969,7 @@ private static int appendTypeSignature(char[] string, int start, boolean fullyQu
 			case C_SUPER:
 				return appendTypeArgumentSignature(string, start, fullyQualifyTypeNames, buffer);
 			default :
-				throw new IllegalArgumentException();
+				throw newIllegalArgumentException(string, start);
 		}
 	}
 }
@@ -1022,7 +1022,7 @@ private static int checkNextChar(char[] typeName, char expectedChar, int pos, in
     pos = consumeWhitespace(typeName, pos, length);
     if (pos < length && typeName[pos] == expectedChar)
         return pos + 1;
-    if (!isOptional) throw new IllegalArgumentException(new String(typeName));
+    if (!isOptional) throw new IllegalArgumentException(String.valueOf(typeName));
     return -1;
 }
 
@@ -1089,11 +1089,11 @@ public static String createArraySignature(String typeSignature, int arrayCount) 
 public static char[] createCharArrayTypeSignature(char[] typeName, boolean isResolved) {
 	if (typeName == null) throw new IllegalArgumentException("null"); //$NON-NLS-1$
 	int length = typeName.length;
-	if (length == 0) throw new IllegalArgumentException(new String(typeName));
+	if (length == 0) throw new IllegalArgumentException(String.valueOf(typeName));
 	StringBuffer buffer = new StringBuffer(5);
 	int pos = encodeTypeSignature(typeName, 0, isResolved, length, buffer);
 	pos = consumeWhitespace(typeName, pos, length);
-	if (pos < length) throw new IllegalArgumentException(new String(typeName));
+	if (pos < length) throw new IllegalArgumentException(String.valueOf(typeName));
 	char[] result = new char[length = buffer.length()];
 	buffer.getChars(0, length, result, 0);
 	return result;
@@ -1368,14 +1368,14 @@ private static int encodeQualifiedName(char[] typeName, int pos, int length, Str
 		}
 	    pos++;
     }
-    if (count == 0) throw new IllegalArgumentException(new String(typeName));
+    if (count == 0) throw new IllegalArgumentException(String.valueOf(typeName));
 	return pos;
 }
 
 private static int encodeTypeSignature(char[] typeName, int start, boolean isResolved, int length, StringBuffer buffer) {
     int pos = start;
     pos = consumeWhitespace(typeName, pos, length);
-    if (pos >= length) throw new IllegalArgumentException(new String(typeName));
+    if (pos >= length) throw new IllegalArgumentException(String.valueOf(typeName));
     int checkPos;
     char currentChar = typeName[pos];
     switch (currentChar) {
@@ -1536,7 +1536,7 @@ public static int getArrayCount(char[] typeSignature) throws IllegalArgumentExce
 		}
 		return count;
 	} catch (ArrayIndexOutOfBoundsException e) { // signature is syntactically incorrect if last character is C_ARRAY
-		throw new IllegalArgumentException(e);
+		throw new IllegalArgumentException(String.valueOf(typeSignature));
 	}
 }
 
@@ -1698,7 +1698,7 @@ public static int getParameterCount(char[] methodSignature) throws IllegalArgume
 		int count = 0;
 		int i = CharOperation.indexOf(C_PARAM_START, methodSignature);
 		if (i < 0) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(String.valueOf(methodSignature));
 		} else {
 			i++;
 		}
@@ -1708,14 +1708,14 @@ public static int getParameterCount(char[] methodSignature) throws IllegalArgume
 			}
 			int e= Util.scanTypeSignature(methodSignature, i);
 			if (e < 0) {
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException(String.valueOf(methodSignature));
 			} else {
 				i = e + 1;
 			}
 			count++;
 		}
 	} catch (ArrayIndexOutOfBoundsException e) {
-		throw new IllegalArgumentException(e);
+		throw new IllegalArgumentException(String.valueOf(methodSignature), e);
 	}
 }
 
@@ -1751,7 +1751,7 @@ public static char[][] getParameterTypes(char[] methodSignature) throws IllegalA
 		}
 		int i = CharOperation.indexOf(C_PARAM_START, methodSignature);
 		if (i < 0) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(String.valueOf(methodSignature));
 		} else {
 			i++;
 		}
@@ -1762,14 +1762,14 @@ public static char[][] getParameterTypes(char[] methodSignature) throws IllegalA
 			}
 			int e = Util.scanTypeSignature(methodSignature, i);
 			if (e < 0) {
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException(String.valueOf(methodSignature));
 			}
 			result[t] = CharOperation.subarray(methodSignature, i, e + 1);
 			t++;
 			i = e + 1;
 		}
 	} catch (ArrayIndexOutOfBoundsException e) {
-		throw new IllegalArgumentException(e);
+		throw new IllegalArgumentException(String.valueOf(methodSignature), e);
 	}
 }
 /**
@@ -1853,7 +1853,7 @@ public static char[] getReturnType(char[] methodSignature) throws IllegalArgumen
 	// skip type parameters
 	int paren = CharOperation.lastIndexOf(C_PARAM_END, methodSignature);
 	if (paren == -1) {
-		throw new IllegalArgumentException();
+		throw new IllegalArgumentException(String.valueOf(methodSignature));
 	}
 	// there could be thrown exceptions behind, thus scan one type exactly
 	int last = Util.scanTypeSignature(methodSignature, paren+1);
@@ -2210,13 +2210,13 @@ public static char[][] getThrownExceptionTypes(char[] methodSignature) throws Il
 	if (exceptionStart == -1) {
 		int paren = CharOperation.lastIndexOf(C_PARAM_END, methodSignature);
 		if (paren == -1) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(String.valueOf(methodSignature));
 		}
 		// ignore return type
 		exceptionStart = Util.scanTypeSignature(methodSignature, paren+1) + 1;
 		int length = methodSignature.length;
 		if (exceptionStart == length) return CharOperation.NO_CHAR_CHAR;
-		throw new IllegalArgumentException();
+		throw new IllegalArgumentException(String.valueOf(methodSignature));
 	}
 	int length = methodSignature.length;
 	int i = exceptionStart;
@@ -2226,7 +2226,7 @@ public static char[][] getThrownExceptionTypes(char[] methodSignature) throws Il
 			exceptionStart++;
 			i++;
 		} else {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(String.valueOf(methodSignature));
 		}
 		i = Util.scanTypeSignature(methodSignature, i) + 1;
 		exceptionList.add(CharOperation.subarray(methodSignature, exceptionStart,i));
@@ -2279,12 +2279,12 @@ public static char[][] getTypeArguments(char[] parameterizedTypeSignature) throw
 		}
 	}
 	if (start < 0) // invalid number of generic start/end
-		throw new IllegalArgumentException();
+		throw new IllegalArgumentException(String.valueOf(parameterizedTypeSignature));
 	ArrayList args = new ArrayList();
 	int p = start + 1;
 	while (true) {
 		if (p >= parameterizedTypeSignature.length) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(String.valueOf(parameterizedTypeSignature));
 		}
 		char c = parameterizedTypeSignature[p];
 		if (c == C_GENERIC_END) {
@@ -2344,12 +2344,12 @@ public static char[] getTypeErasure(char[] parameterizedTypeSignature) throws Il
 				break;
 			case C_GENERIC_END:
 				deep--;
-				if (deep < 0) throw new IllegalArgumentException();
+				if (deep < 0) throw new IllegalArgumentException(String.valueOf(parameterizedTypeSignature));
 				if (deep == 0) start = idx+1;
 				break;
 		}
 	}
-	if (deep > 0) throw new IllegalArgumentException();
+	if (deep > 0) throw new IllegalArgumentException(String.valueOf(parameterizedTypeSignature));
 	int size = pos+length-start;
 	char[] resized = new char[size];
 	System.arraycopy(result, 0, resized, 0, pos);
@@ -2388,7 +2388,7 @@ public static char[][] getTypeParameterBounds(char[] formalTypeParameterSignatur
 	int p1 = CharOperation.indexOf(C_COLON, formalTypeParameterSignature);
 	if (p1 < 0) {
 		// no ":" means can't be a formal type parameter signature
-		throw new IllegalArgumentException();
+		throw new IllegalArgumentException(String.valueOf(formalTypeParameterSignature));
 	}
 	if (p1 == formalTypeParameterSignature.length - 1) {
 		// no class or interface bounds
@@ -2456,14 +2456,14 @@ public static char[][] getTypeParameters(char[] methodOrTypeSignature) throws Il
 		while (i < length) {
 			if (methodOrTypeSignature[i] == C_GENERIC_END) {
 				int size = paramList.size();
-				if (size == 0) throw new IllegalArgumentException();
+				if (size == 0) throw new IllegalArgumentException(String.valueOf(methodOrTypeSignature));
 				char[][] result;
 				paramList.toArray(result = new char[size][]);
 				return result;
 			}
 			i = CharOperation.indexOf(C_COLON, methodOrTypeSignature, i);
 			if (i < 0 || i >= length)
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException(String.valueOf(methodOrTypeSignature));
 			// iterate over bounds
 			while (methodOrTypeSignature[i] == ':') {
 				i++; // skip colon
@@ -2514,7 +2514,7 @@ public static char[][] getTypeParameters(char[] methodOrTypeSignature) throws Il
 	} catch (ArrayIndexOutOfBoundsException e) {
 		// invalid signature, fall through
 	}
-	throw new IllegalArgumentException();
+	throw new IllegalArgumentException(String.valueOf(methodOrTypeSignature));
 }
 /**
  * Extracts the type parameter signatures from the given method or type signature.
@@ -2596,7 +2596,7 @@ public static int getTypeSignatureKind(char[] typeSignature) {
 		case C_UNION :
 			return UNION_TYPE_SIGNATURE;
 		default :
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(String.valueOf(typeSignature));
 	}
 }
 
@@ -2629,7 +2629,7 @@ public static char[] getTypeVariable(char[] formalTypeParameterSignature) throws
 	int p = CharOperation.indexOf(C_COLON, formalTypeParameterSignature);
 	if (p < 0) {
 		// no ":" means can't be a formal type parameter signature
-		throw new IllegalArgumentException();
+		throw new IllegalArgumentException(String.valueOf(formalTypeParameterSignature));
 	}
 	return CharOperation.subarray(formalTypeParameterSignature, 0, p);
 }
@@ -2799,7 +2799,7 @@ public static char[] toCharArray(char[] methodSignature, char[] methodName, char
 public static char[] toCharArray(char[] methodSignature, char[] methodName, char[][] parameterNames, boolean fullyQualifyTypeNames, boolean includeReturnType, boolean isVargArgs) {
 	int firstParen = CharOperation.indexOf(C_PARAM_START, methodSignature);
 	if (firstParen == -1) {
-		throw new IllegalArgumentException();
+		throw new IllegalArgumentException(String.valueOf(methodSignature));
 	}
 
 	StringBuffer buffer = new StringBuffer(methodSignature.length + 10);
@@ -2996,6 +2996,11 @@ public static String toString(String methodSignature, String methodName, String[
 	}
 	return new String(toCharArray(methodSignature.toCharArray(), methodName == null ? null : methodName.toCharArray(), params, fullyQualifyTypeNames, includeReturnType, isVarArgs));
 }
+
+private static IllegalArgumentException newIllegalArgumentException(char[] string, int start) {
+	return new IllegalArgumentException("\"" + String.valueOf(string) + "\" at " + start); //$NON-NLS-1$ //$NON-NLS-2$
+}
+
 private Signature() {
 	// Not instantiable
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2019 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -5799,8 +5799,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 			case 'S':
 				return index;
 			default:
-				throw new IllegalArgumentException();
+				throw newIllegalArgumentException(methodSignature, index);
 		}
+	}
+
+	private static IllegalArgumentException newIllegalArgumentException(char[] string, int index) {
+		return new IllegalArgumentException("\"" + String.valueOf(string) + "\" at " + index); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**
