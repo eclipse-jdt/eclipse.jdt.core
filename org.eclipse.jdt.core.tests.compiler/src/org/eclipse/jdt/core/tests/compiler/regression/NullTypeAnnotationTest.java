@@ -12746,4 +12746,64 @@ public void testBug492322withGenericBase() {
 		""
 	);
 }
+public void testBug499862a() {
+	runConformTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import java.util.*;\n" +
+			"public class Test {\n" +
+			"	static void printChecked(Collection<? extends @Nullable String> collection) {\n" + 
+			"		for(String s : collection)\n" + 
+			"			if (s != null)\n" + 
+			"				System.out.println(s.toString());\n" + 
+			"			else\n" + 
+			"				System.out.println(\"NULL\");\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+}
+public void testBug499862b() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"import java.util.*;\n" +
+			"public class Test {\n" +
+			"	static void printChecked(Collection<? extends @Nullable String> collection) {\n" + 
+			"		for(String s : collection)\n" + 
+			"			System.out.println(s.toString());\n" + 
+			"	}\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 6)\n" + 
+		"	System.out.println(s.toString());\n" + 
+		"	                   ^\n" + 
+		"Potential null pointer access: The variable s may be null at this location\n" + 
+		"----------\n");
+}
+public void testBug499862c() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import java.util.*;\n" +
+			"public class Test {\n" +
+			"	static <T> void printUnchecked(Collection<T> collection) {\n" + 
+			"		for(T t : collection)\n" + 
+			"			System.out.println(t.toString());\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 5)\n" + 
+		"	System.out.println(t.toString());\n" + 
+		"	                   ^\n" + 
+		"Potential null pointer access: this expression has type \'T\', a free type variable that may represent a \'@Nullable\' type\n" + 
+		"----------\n");
+}
 }

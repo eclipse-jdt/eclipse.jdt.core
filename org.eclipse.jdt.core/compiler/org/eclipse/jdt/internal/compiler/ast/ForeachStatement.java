@@ -113,7 +113,7 @@ public class ForeachStatement extends Statement {
 			condInfo.nullInfoLessUnconditionalCopy();
 		actionInfo.markAsDefinitelyUnknown(elementVarBinding);
 		if (currentScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
-			int elementNullStatus = FlowInfo.tagBitsToNullStatus(this.collectionElementType.tagBits);
+			int elementNullStatus = NullAnnotationMatching.nullStatusFromExpressionType(this.collectionElementType);
 			int nullStatus = NullAnnotationMatching.checkAssignment(currentScope, flowContext, elementVarBinding, null, // have no useful flowinfo for element var
 																		elementNullStatus, this.collection, this.collectionElementType);
 			if ((elementVarBinding.type.tagBits & TagBits.IsBaseType) == 0) {
