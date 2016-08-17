@@ -294,7 +294,7 @@ public final class ExternalAnnotationUtil {
 						newContent.append('\n');
 						continue;
 					}
-					if (!Character.isJavaIdentifierStart(line.charAt(0))) {
+					if (!Character.isJavaIdentifierStart(line.charAt(0)) && line.charAt(0) != '<') {
 						newContent.append(line).append('\n');
 						continue;
 					}
