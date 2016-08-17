@@ -1862,7 +1862,7 @@ void setSourceStart(int sourceStart);
 	int IllegalStrictfpForAbstractInterfaceMethod = MethodRelated + 1057;
 	/** @since 3.10 */
 	int IllegalDefaultModifierSpecification = MethodRelated + 1058;
-	/** @since 3.12 */
+	/** @since 3.13 */
 	int CannotInferInvocationType = TypeRelated + 1059;
 
 	/** @since 3.10 */
