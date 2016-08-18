@@ -17,6 +17,7 @@ import junit.framework.Test;
 public class SelectionParserTest18 extends AbstractSelectionTest {
 static {
 //		TESTS_NUMBERS = new int[] { 53 };
+		TESTS_NAMES = new String[] { "test495912" };
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(SelectionParserTest18.class, F_1_8);
@@ -238,6 +239,65 @@ public void test476693() throws JavaModelException {
 
 	int selectionStart = string.indexOf("m(c1, c2)");
 	int selectionEnd = selectionStart;
+
+	this.checkMethodParse(
+			string.toCharArray(),
+			selectionStart,
+			selectionEnd,
+			expectedCompletionNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			testName);
+}
+public void test495912() {
+	String string = 
+			"package xy;\n" +
+			"public class Test {\n" +
+			"	{\n" +
+			"		Runnable r = () -> {\n" +
+			"		      Integer i= 1;\n" +
+			"		      byte b= i.byteValue();\n" +
+			"		      if (true) {\n" +
+			"		          if (false) {\n" +
+			"		          }\n" +
+			"		      }\n" +
+			"		      String s= new String();\n" +
+			"		};\n" +
+			"	}\n" +
+			"    public void foo(Runnable r) {\n" +
+			"    }\n" +
+			"}";
+
+	String expectedCompletionNodeToString = "<SelectOnMessageSend:i.byteValue()>";
+
+	String completionIdentifier = "byteValue";
+	String expectedUnitDisplayString =
+					"package xy;\n" + 
+					"public class Test {\n" + 
+					"  {\n" + 
+					"    Runnable r = () ->     {\n" + 
+					"      Integer i;\n" + 
+					"      byte b = <SelectOnMessageSend:i.byteValue()>;\n" + 
+					"      if (true)\n" + 
+					"          {\n" + 
+					"            if (false)\n" + 
+					"                {\n" + 
+					"                }\n" + 
+					"          }\n" + 
+					"      String s;\n" + 
+					"    };\n" + 
+					"  }\n" + 
+					"  public Test() {\n" + 
+					"  }\n" + 
+					"  public void foo(Runnable r) {\n" + 
+					"  }\n" + 
+					"}\n";
+	String expectedReplacedSource = "i.byteValue()";
+	String testName = "<select>";
+
+	int selectionStart = string.indexOf("byteValue");
+	int selectionEnd = selectionStart + completionIdentifier.length() - 1;
 
 	this.checkMethodParse(
 			string.toCharArray(),
