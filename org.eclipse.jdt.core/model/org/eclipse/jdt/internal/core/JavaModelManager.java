@@ -172,6 +172,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String EXTERNAL_FILES_CACHE = "externalFilesCache";  //$NON-NLS-1$
 	private static final String ASSUMED_EXTERNAL_FILES_CACHE = "assumedExternalFilesCache";  //$NON-NLS-1$
 
+	public static enum ArchiveValidity {
+		BAD_FORMAT, UNABLE_TO_READ, VALID;
+
+		public boolean isValid() {
+			return this == VALID;
+		}
+	}
+
 	/**
 	 * Define a zip cache object.
 	 */
@@ -1531,10 +1539,29 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	// The amount of time from when an invalid archive is first sensed until that state is considered stale.
 	private static long INVALID_ARCHIVE_TTL_MILLISECONDS = 2 * 60 * 1000;
 
+	private static class InvalidArchiveInfo {
+		/**
+		 * Time at which this entry will be removed from the invalid archive list.
+		 */
+		final long evictionTimestamp;
+
+		/**
+		 * Reason the entry was added to the invalid archive list.
+		 */
+		final ArchiveValidity reason;
+
+		InvalidArchiveInfo(long evictionTimestamp, ArchiveValidity reason) {
+			this.evictionTimestamp = evictionTimestamp;
+			this.reason = reason;
+		}
+	}
+
 	/*
 	 * A map of IPaths for jars that are known to be invalid (such as not being in a valid/known format), to an eviction timestamp.
+	 * Synchronize on invalidArchivesMutex before accessing.
 	 */
-	private Map<IPath, Long> invalidArchives;
+	private final Map<IPath, InvalidArchiveInfo> invalidArchives = new HashMap<IPath, InvalidArchiveInfo>();
+	private final Object invalidArchivesMutex = new Object();
 
 	/*
 	 * A set of IPaths for files that are known to be external to the workspace.
@@ -1698,12 +1725,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			this.nonChainingJars.add(path);
 	}
 	
-	public void addInvalidArchive(IPath path) {
-		// unlikely to be null
-		if (this.invalidArchives == null) {
-			this.invalidArchives = Collections.synchronizedMap(new HashMap());
+	public void addInvalidArchive(IPath path, ArchiveValidity reason) {
+		synchronized (this.invalidArchivesMutex) {
+			this.invalidArchives.put(path, new InvalidArchiveInfo(System.currentTimeMillis() + INVALID_ARCHIVE_TTL_MILLISECONDS, reason));
 		}
-		this.invalidArchives.put(path, System.currentTimeMillis() + INVALID_ARCHIVE_TTL_MILLISECONDS);
 	}
 
 	/**
@@ -2703,9 +2728,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	public void verifyArchiveContent(IPath path) throws CoreException {
-		if (isInvalidArchive(path)) {
-			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.status_IOException, new ZipException()));			
-		}
+		throwExceptionIfArchiveInvalid(path);
 		ZipFile file = getZipFile(path);
 		closeZipFile(file);
 	}
@@ -2725,10 +2748,19 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return getZipFile(path, true);
 	}
 
+	/**
+	 * For use in the JDT unit tests only. Used for testing error handling. Causes an
+	 * {@link IOException} to be thrown in {@link #getZipFile} whenever it attempts to
+	 * read a zip file.
+	 * 
+	 * @noreference This field is not intended to be referenced by clients.
+	 */
+	public static boolean throwIoExceptionsInGetZipFile = false;
+
 	private ZipFile getZipFile(IPath path, boolean checkInvalidArchiveCache) throws CoreException {
-		if (checkInvalidArchiveCache && isInvalidArchive(path))
-			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.status_IOException, new ZipException()));
-		
+		if (checkInvalidArchiveCache) {
+			throwExceptionIfArchiveInvalid(path);
+		}
 		ZipCache zipCache;
 		ZipFile zipFile;
 		if ((zipCache = (ZipCache)this.zipFiles.get()) != null
@@ -2756,14 +2788,31 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			if (ZIP_ACCESS_VERBOSE) {
 				System.out.println("(" + Thread.currentThread() + ") [JavaModelManager.getZipFile(IPath)] Creating ZipFile on " + localFile ); //$NON-NLS-1$ //$NON-NLS-2$
 			}
+			if (throwIoExceptionsInGetZipFile) {
+				throw new IOException();
+			}
 			zipFile = new ZipFile(localFile);
 			if (zipCache != null) {
 				zipCache.setCache(path, zipFile);
 			}
 			return zipFile;
 		} catch (IOException e) {
-			addInvalidArchive(path);
+			ArchiveValidity reason = (e instanceof ZipException) ? ArchiveValidity.BAD_FORMAT : ArchiveValidity.UNABLE_TO_READ;
+			addInvalidArchive(path, reason);
 			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.status_IOException, e));
+		}
+	}
+
+	private void throwExceptionIfArchiveInvalid(IPath path) throws CoreException {
+		ArchiveValidity validity = getArchiveValidity(path);
+		if (!validity.isValid()) {
+			IOException reason;
+			if (validity == ArchiveValidity.BAD_FORMAT) {
+				reason = new ZipException();
+			} else {
+				reason = new IOException();
+			}
+			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.status_IOException, reason));
 		}
 	}
 
@@ -3187,30 +3236,32 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return this.nonChainingJars != null && this.nonChainingJars.contains(path);
 	}
 	
-	public boolean isInvalidArchive(IPath path) {
-		if (this.invalidArchives == null)
-			return false;
-		Long evictionTime = this.invalidArchives.get(path);
-		if (evictionTime == null)
-			return false;
+	public ArchiveValidity getArchiveValidity(IPath path) {
+		InvalidArchiveInfo invalidArchiveInfo;
+		synchronized (this.invalidArchivesMutex) {
+			invalidArchiveInfo = this.invalidArchives.get(path);
+		}
+		if (invalidArchiveInfo == null)
+			return ArchiveValidity.VALID;
 		long now = System.currentTimeMillis();
 
 		// If the TTL for this cache entry has expired, directly check whether the archive is still invalid.
 		// If it transitioned to being valid, remove it from the cache and force an update to project caches.
-		if (now > evictionTime) {
+		if (now > invalidArchiveInfo.evictionTimestamp) {
 			try {
 				getZipFile(path, false);
 				removeFromInvalidArchiveCache(path);
-				return false;
 			} catch (CoreException e) {
 				// Archive is still invalid, fall through to reporting it is invalid.
 			}
+			// Retry the test from the start, now that we have an up-to-date result
+			return getArchiveValidity(path);
 		}
-		return true;
+		return invalidArchiveInfo.reason;
 	}
 
 	public void removeFromInvalidArchiveCache(IPath path) {
-		if (this.invalidArchives != null) {
+		synchronized(this.invalidArchivesMutex) {
 			if (this.invalidArchives.remove(path) != null) {
 				try {
 					// Bug 455042: Force an update of the JavaProjectElementInfo project caches.
@@ -4086,8 +4137,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public void resetClasspathListCache() {
 		if (this.nonChainingJars != null) 
 			this.nonChainingJars.clear();
-		if (this.invalidArchives != null) 
+		synchronized(this.invalidArchivesMutex) {
 			this.invalidArchives.clear();
+		}
 		if (this.externalFiles != null)
 			this.externalFiles.clear();
 		if (this.assumedExternalFiles != null)

@@ -241,6 +241,10 @@ public class NdResourceFile extends NdTreeNode {
 		return ALL_NODES.size(getNd(), this.address);
 	}
 
+	public List<NdBinding> getBindings() {
+		return ALL_NODES.asList(getNd(), this.address);
+	}
+
 	public NdBinding getBinding(int index) {
 		return ALL_NODES.get(getNd(), this.address, index);
 	}

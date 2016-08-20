@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IParent;
@@ -491,7 +492,29 @@ public final class Indexer {
 		if (DEBUG) {
 			Package.logInfo("rescanning " + thePath.toString()); //$NON-NLS-1$
 		}
-		int result = addElement(resourceFile, element, subMonitor.split(50));
+		int result;
+		try {
+			result = addElement(resourceFile, element, subMonitor.split(50));
+		} catch (JavaModelException e) {
+			if (DEBUG) {
+				Package.log("the file " + pathString + " cannot be indexed due to a recoverable error", null); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			// If this file can't be indexed due to a recoverable error, delete the NdResourceFile entry for it.
+			this.nd.acquireWriteLock(subMonitor.split(5));
+			try {
+				if (resourceFile.isInIndex()) {
+					resourceFile.delete();
+				}
+			} finally {
+				this.nd.releaseWriteLock();
+			}
+			return 0;
+		} catch (RuntimeException e) {
+			if (DEBUG) {
+				Package.log("A RuntimeException occurred while indexing " + pathString, e); //$NON-NLS-1$
+			}
+			throw e;
+		}
 
 		List<NdResourceFile> allResourcesWithThisPath = Collections.emptyList();
 		// Now update the timestamp and delete all older versions of this resource that exist in the index
@@ -537,41 +560,54 @@ public final class Indexer {
 		SubMonitor subMonitor = SubMonitor.convert(monitor);
 		ArrayDeque<IJavaElement> queue = new ArrayDeque<IJavaElement>();
 
-		queue.add(input);
+		enqueue(result, queue, input);
 
 		while (!queue.isEmpty()) {
 			subMonitor.setWorkRemaining(Math.max(queue.size(), 10)).split(1);
 
 			IJavaElement next = queue.removeFirst();
 
-			if (next.getElementType() == IJavaElement.COMPILATION_UNIT
-					|| next.getElementType() == IJavaElement.CLASS_FILE) {
-				result.add(next);
-			} else if (next instanceof IParent) {
-				IParent parent = (IParent) next;
-
-				for (IJavaElement child : parent.getChildren()) {
-					queue.add(child);
-				}
-			}
+			enqueue(result, queue, next);
 		}
 		return result;
 	}
 
 	/**
+	 * If toEnqueue has children, they are enqueued in the given queue. If it is directly indexable,
+	 * it is added to the result.
+	 */
+	private void enqueue(List<IJavaElement> result, ArrayDeque<IJavaElement> queue,
+			IJavaElement toEnqueue) throws JavaModelException {
+		if (toEnqueue.getElementType() == IJavaElement.COMPILATION_UNIT
+				|| toEnqueue.getElementType() == IJavaElement.CLASS_FILE) {
+			result.add(toEnqueue);
+		} else if (toEnqueue instanceof IParent) {
+			IParent parent = (IParent) toEnqueue;
+
+			for (IJavaElement child : parent.getChildren()) {
+				queue.add(child);
+			}
+
+			// We need to call isInvalidArchive after the call to getChildren, since the invalid state
+			// is only initialized in the call to getChildren.
+			if (!JavaModelManager.getJavaModelManager().getArchiveValidity(toEnqueue.getPath()).isValid()) {
+				throw new JavaModelException(new RuntimeException(), IJavaModelStatusConstants.IO_EXCEPTION);
+			}
+		}
+	}
+
+	/**
 	 * Adds an archive to the index, under the given NdResourceFile.
-	 *
-	 * @param resourceFile
-	 * @param element
-	 * @param monitor
-	 * @return the number of classes indexed
-	 * @throws JavaModelException
 	 */
 	private int addElement(NdResourceFile resourceFile, IJavaElement element, IProgressMonitor monitor)
 			throws JavaModelException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 		List<IJavaElement> bindableElements = getBindableElements(element, subMonitor.split(10));
 		List<IClassFile> classFiles = getClassFiles(bindableElements);
+
+		if (DEBUG && classFiles.isEmpty()) {
+			Package.logInfo("The path " + element.getPath() + " contained no class files"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 
 		subMonitor.setWorkRemaining(classFiles.size());
 
