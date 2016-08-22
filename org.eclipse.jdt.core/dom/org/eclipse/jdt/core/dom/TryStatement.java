@@ -41,14 +41,14 @@ public class TryStatement extends Statement {
 	
 	/**
 	 * The "resources" structural property of this node type (element type: {@link VariableDeclarationExpression}) (added in JLS4 API).
-	 * @deprecated
+	 * @deprecated In the JLS9 API, this property is replaced by {@link #RESOURCES2_PROPERTY}.
 	 * @since 3.7.1
 	 */
 	public static final ChildListPropertyDescriptor RESOURCES_PROPERTY =
 		new ChildListPropertyDescriptor(TryStatement.class, "resources", VariableDeclarationExpression.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "resources" structural property of this node type (element type: {@link VariableDeclarationExpression}) (added in JLS4 API).
+	 * The "resources" structural property of this node type (element type: {@link Expression}) (added in JLS9 API).
 	 * @since 3.13 BETA_JAVA9
 	 */
 	public static final ChildListPropertyDescriptor RESOURCES2_PROPERTY =
