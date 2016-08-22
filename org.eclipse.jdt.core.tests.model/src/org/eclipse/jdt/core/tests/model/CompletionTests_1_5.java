@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13503,8 +13503,8 @@ public void testCompletionOnExtends() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"ThisClassIsFinal[TYPE_REF]{ThisClassIsFinal, test, Ltest.ThisClassIsFinal;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CLASS) + "}\n" +
-			"ThisClassIsNotFinal[TYPE_REF]{ThisClassIsNotFinal, test, Ltest.ThisClassIsNotFinal;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CLASS) + "}",
+			"ThisClassIsFinal[TYPE_REF]{ThisClassIsFinal, test, Ltest.ThisClassIsFinal;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"ThisClassIsNotFinal[TYPE_REF]{ThisClassIsNotFinal, test, Ltest.ThisClassIsNotFinal;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 
@@ -13846,9 +13846,9 @@ public void testBug310423a() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Inn.Inn2[TYPE_REF]{label.Inn.Inn2, label, Llabel.Inn$Inn2;, null, null, 44}\n" +
-			"In[TYPE_REF]{In, label, Llabel.In;, null, null, 47}\n" +
-			"Inn[TYPE_REF]{Inn, label, Llabel.Inn;, null, null, 47}",
+			"Inn.Inn2[TYPE_REF]{label.Inn.Inn2, label, Llabel.Inn$Inn2;, null, null, " + (R_DEFAULT + 39) + "}\n" +
+			"In[TYPE_REF]{In, label, Llabel.In;, null, null, " + (R_DEFAULT + 42) + "}\n" +
+			"Inn[TYPE_REF]{Inn, label, Llabel.Inn;, null, null, " + (R_DEFAULT + 42) + "}",
 			requestor.getResults());
 }
 
@@ -13874,8 +13874,8 @@ public void testBug310423b() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"Inn.Inn2[TYPE_REF]{Inn2, label, Llabel.Inn$Inn2;, null, null, 44}\n" +
-			"Inn.Inn3[TYPE_REF]{Inn3, label, Llabel.Inn$Inn3;, null, null, 44}",
+			"Inn.Inn2[TYPE_REF]{Inn2, label, Llabel.Inn$Inn2;, null, null, " + (R_DEFAULT + 39) + "}\n" +
+			"Inn.Inn3[TYPE_REF]{Inn3, label, Llabel.Inn$Inn3;, null, null, " + (R_DEFAULT + 39) + "}",
 			requestor.getResults());
 }
 
@@ -13891,8 +13891,10 @@ public void testBug343865a() throws JavaModelException {
 	cu.codeComplete(cursorLocation, requestor);
 
 	assertResults(
-		"name[ANNOTATION_ATTRIBUTE_REF]{name, Ltestxxx.YAAnnot;, Ljava.lang.String;, name, null, " + (R_NAME_FIRST_PREFIX + R_EXPECTED_TYPE + R_RESOLVED) + "}\n" +
-		"val[ANNOTATION_ATTRIBUTE_REF]{val, Ltestxxx.YAAnnot;, I, val, null, " + (R_NAME_FIRST_PREFIX + R_EXPECTED_TYPE + R_RESOLVED) + "}",
+		"name[ANNOTATION_ATTRIBUTE_REF]{name, Ltestxxx.YAAnnot;, Ljava.lang.String;, name, null, " + 
+						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+		"val[ANNOTATION_ATTRIBUTE_REF]{val, Ltestxxx.YAAnnot;, I, val, null, " + 
+						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 		requestor.getResults());
 }
 
@@ -13913,8 +13915,10 @@ public void testBug343865b() throws JavaModelException {
 			requestor.getContext());
 	
 	assertResults(
-		"xxyy[FIELD_REF]{xxyy, Ltestxxx.TestType2;, I, xxyy, null, " + (R_NAME_FIRST_PREFIX + R_EXPECTED_TYPE + R_RESOLVED) + "}\n" +
-		"xxyy1[FIELD_REF]{xxyy1, Ltestxxx.TestType2;, Ljava.lang.String;, xxyy1, null, " + (R_NAME_FIRST_PREFIX + R_EXPECTED_TYPE + R_RESOLVED + R_EXACT_EXPECTED_TYPE) + "}",
+		"xxyy[FIELD_REF]{xxyy, Ltestxxx.TestType2;, I, xxyy, null, " + 
+				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+		"xxyy1[FIELD_REF]{xxyy1, Ltestxxx.TestType2;, Ljava.lang.String;, xxyy1, null, " + 
+				(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
 		requestor.getResults());
 }
 public void testBug351426() throws JavaModelException {
@@ -13936,7 +13940,7 @@ public void testBug351426() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 
-	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
 	
 	assertResults(
 			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>;}\n" +
@@ -13965,7 +13969,7 @@ public void testBug351426b() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
 	
 	assertResults(
 			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>;}\n" +
@@ -13996,7 +14000,7 @@ public void testBug351426c() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
 	
 	assertResults(
 			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>.X1<Ljava.lang.String;>;}\n" +
@@ -14029,7 +14033,7 @@ public void testBug351426d() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
 	
 	assertResults(
 			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>.X1<Ljava.lang.Object;>.X11<Ljava.lang.String;>;}\n" +
@@ -14061,7 +14065,7 @@ public void testBug351426e() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
 	
 	assertResults(
 			"expectedTypesSignatures={Ltest.X$X1<Ljava.lang.String;>;}\n" +
@@ -14091,7 +14095,7 @@ public void testBug351426f() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
 	
 	assertResults(
 			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>;}\n" +
@@ -14122,7 +14126,7 @@ public void testBug351426g() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
 	
 	assertResults(
 			"expectedTypesSignatures={Ltest.X<TT;>.X1<Ljava.lang.String;>;}\n" +
@@ -14153,7 +14157,7 @@ public void testBug351426h() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
 	
 	assertResults(
 			"expectedTypesSignatures={Ltest.X$X1<Ljava.lang.String;>;}\n" +
@@ -14181,7 +14185,7 @@ public void testBug351426i() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 
-	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
 	
 	assertResults(
 			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;>;}\n" +
@@ -14213,7 +14217,7 @@ public void testBug351426j() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
 	
 	assertResults(
 			"expectedTypesSignatures={Ltest.X$X1<Ljava.lang.String;>;}\n" +
@@ -14243,7 +14247,7 @@ public void testBug351426k() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
 	
 	assertResults(
 			"expectedTypesSignatures={Ltest.X<Ljava.lang.String;Ljava.lang.String;>;}\n" +
@@ -14278,7 +14282,7 @@ public void testBug351426l() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE;
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
 	
 	assertResults(
 			"expectedTypesSignatures={Ltest.X1<Ljava.lang.String;>;}\n" +
@@ -14305,7 +14309,8 @@ public void test361963() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"X<T>[TYPE_REF]{, , LX<TT;>;, null, null, replace[116, 116], token[116, 116], 51}",
+			"X<T>[TYPE_REF]{, , LX<TT;>;, null, null, replace[116, 116], token[116, 116], " +
+								(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED)+ "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=326610

@@ -5502,7 +5502,7 @@ public void testBug317264a() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
 		assertResults(
-				"Enum[TYPE_REF]{Enum, java.lang, Ljava.lang.Enum;, null, null, 17}",
+				"Enum[TYPE_REF]{Enum, java.lang, Ljava.lang.Enum;, null, null, " + (R_DEFAULT + 12) + "}",
 				requestor.getResults());
 				
 	} finally {
@@ -5535,7 +5535,7 @@ public void testBug317264b() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
 		assertResults(
-				"Enum[TYPE_REF]{org.apache.commons.lang.enum.Enum, org.apache.commons.lang.enum, Lorg.apache.commons.lang.enum.Enum;, null, null, 14}",
+				"Enum[TYPE_REF]{org.apache.commons.lang.enum.Enum, org.apache.commons.lang.enum, Lorg.apache.commons.lang.enum.Enum;, null, null, " + (R_DEFAULT + 9) + "}",
 				requestor.getResults());
 				
 	} finally {
@@ -5597,7 +5597,7 @@ public void testBug317264d() throws CoreException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
 		assertResults(
-				"org.apache.commons.lang.enum[PACKAGE_REF]{org.apache.commons.lang.enum.*;, org.apache.commons.lang.enum, null, null, null, 24}",
+				"org.apache.commons.lang.enum[PACKAGE_REF]{org.apache.commons.lang.enum.*;, org.apache.commons.lang.enum, null, null, null, " + (R_DEFAULT + 19) + "}",
 				requestor.getResults());
 				
 	} finally {
@@ -6148,7 +6148,7 @@ public void testBug410207a() throws Exception {
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 		cu.codeComplete(cursorLocation, requestor);
 		assertResults(
-				"Main[TYPE_REF]{Main, p, Lp.Main;, null, null, 27}",
+				"Main[TYPE_REF]{Main, p, Lp.Main;, null, null, " + (R_DEFAULT + 22) + "}",
 				requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -6206,7 +6206,7 @@ public void testBug410207b() throws Exception {
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 		cu.codeComplete(cursorLocation, requestor);
 		assertResults(
-				"Main[TYPE_REF]{Main, p, Lp.Main;, null, null, 27}",
+				"Main[TYPE_REF]{Main, p, Lp.Main;, null, null, " + (R_DEFAULT + 22) + "}",
 				requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -6262,7 +6262,7 @@ public void testBug410207c() throws Exception {
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 		cu.codeComplete(cursorLocation, requestor);
 		assertResults(
-				"Main[TYPE_REF]{Main, p, Lp.Main;, null, null, 27}",
+				"Main[TYPE_REF]{Main, p, Lp.Main;, null, null, " + (R_DEFAULT + 22) + "}",
 				requestor.getResults());
 	} finally {
 		deleteProjects(new String[] { "Lib", "P" });
@@ -6318,7 +6318,7 @@ public void testBug410207d() throws Exception {
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 		cu.codeComplete(cursorLocation, requestor);
 		assertResults(
-				"Main[TYPE_REF]{Main, p, Lp.Main;, null, null, 27}",
+				"Main[TYPE_REF]{Main, p, Lp.Main;, null, null, " + (R_DEFAULT + 22) + "}",
 				requestor.getResults());
 	} finally {
 		deleteProjects(new String[] { "Lib", "P" });
@@ -6409,7 +6409,7 @@ public void testBug376977() throws CoreException {
 	    this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"Nested[TYPE_REF]{Nested, myannotations, Lmyannotations.Nested;, null, null, 47}",
+			"Nested[TYPE_REF]{Nested, myannotations, Lmyannotations.Nested;, null, null, " + (R_DEFAULT + 42) + "}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -6483,7 +6483,7 @@ public void test479656() throws Exception {
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
 		cu.codeComplete(cursorLocation, requestor);
 		assertResults(
-				"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 35}",
+				"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, " + (R_DEFAULT + 30) + "}",
 				requestor.getResults());
 	} finally {
 		deleteProject("P");
