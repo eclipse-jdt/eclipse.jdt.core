@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -226,7 +226,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		CommentWrapExecutor commentWrapper = new CommentWrapExecutor(this.tokenManager, this.workingOptions);
 		switch (kind) {
 			case K_JAVA_DOC:
-				ASTParser parser = ASTParser.newParser(AST.JLS8);
+				ASTParser parser = ASTParser.newParser(AST.JLS9);
 				for (Token token : this.tokens) {
 					if (token.tokenType == TokenNameCOMMENT_JAVADOC) {
 						parser.setSourceRange(token.originalStart, token.countChars());
@@ -286,7 +286,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private ASTNode parseSourceCode(int kind) {
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(AST.JLS9);
 		Map<String, String> parserOptions = JavaCore.getOptions();
 		parserOptions.put(CompilerOptions.OPTION_Source, this.sourceLevel);
 		parserOptions.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);

@@ -1681,7 +1681,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 			if (!resources.isEmpty()) {
 				this.buffer.append('(');
 				for (Iterator it = resources.iterator(); it.hasNext(); ) {
-					VariableDeclarationExpression variable = (VariableDeclarationExpression) it.next();
+					Expression variable = (Expression) it.next();
 					variable.accept(this);
 					if (it.hasNext()) {
 						this.buffer.append(';');

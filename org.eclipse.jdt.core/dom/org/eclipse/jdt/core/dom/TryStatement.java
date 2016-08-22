@@ -32,6 +32,8 @@ import java.util.List;
  * Not all node arrangements will represent legal Java constructs. In particular,
  * at least one resource, catch clause, or finally block must be present.</p>
  * 
+ * <p>A resource is either a {@link VariableDeclarationExpression} or (since JLS9) a {@link Name}.</p>
+ * 
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
@@ -139,7 +141,7 @@ public class TryStatement extends Statement {
 			case AST.JLS3_INTERNAL :
 				return PROPERTY_DESCRIPTORS;
 			case AST.JLS4_INTERNAL :
-			case AST.JLS8 :
+			case AST.JLS8_INTERNAL :
 				return PROPERTY_DESCRIPTORS_4_0;
 			default :
 				return PROPERTY_DESCRIPTORS_9_0;
@@ -147,9 +149,11 @@ public class TryStatement extends Statement {
 	}
 
 	/**
-	 * The resource expressions (element type: {@link VariableDeclarationExpression}).
-	 * Null in JLS2 and JLS3. Added in JLS4; defaults to an empty list
-	 * (see constructor).
+	 * The resource expressions (element type: {@link Expression}).
+	 * Null in JLS2 and JLS3. Added in JLS4.
+	 * In the deprecated JLS4 and JLS8 APIs, this used to be
+	 * (element type: {@link VariableDeclarationExpression}).
+	 * Defaults to an empty list (see constructor).
 	 * @since 3.7
 	 */
 	private ASTNode.NodeList resources = null;
@@ -370,9 +374,12 @@ public class TryStatement extends Statement {
 
 	/**
 	 * Returns the live ordered list of resources for this try statement (added in JLS4 API).
+	 * 
+	 * <p>A resource is either a {@link VariableDeclarationExpression} or (since JLS9) a {@link Name}.</p>
 	 *
-	 * @return the live list of resources
-	 *    (element type: {@link VariableDeclarationExpression})
+	 * @return the live list of resources (element type: {@link Expression}).
+	 *    In the deprecated JLS4 and JLS8 APIs, this used to be
+	 *    (element type: {@link VariableDeclarationExpression}).
 	 * @exception UnsupportedOperationException if this operation is used
 	 *            in a JLS2 or JLS3 AST
 	 * @since 3.7.1

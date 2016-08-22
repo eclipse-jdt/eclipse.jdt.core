@@ -363,7 +363,7 @@ public class SpacePreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(TryStatement node) {
-		List<VariableDeclarationExpression> resources = node.resources();
+		List<Expression> resources = node.resources();
 		if (!resources.isEmpty()) {
 			handleToken(node, TokenNameLPAREN, this.options.insert_space_before_opening_paren_in_try,
 					this.options.insert_space_after_opening_paren_in_try);
