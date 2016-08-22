@@ -1964,7 +1964,7 @@ public abstract class ASTNode {
 	 * @since 3.10
 	 */
 	final void unsupportedIn2_3_4() {
-		if (this.ast.apiLevel < AST.JLS8) {
+		if (this.ast.apiLevel < AST.JLS8_INTERNAL) {
 			throw new UnsupportedOperationException("Operation only supported in JLS8 and later AST"); //$NON-NLS-1$
 		}
 	}
@@ -1998,7 +1998,7 @@ public abstract class ASTNode {
      */
 	// In API Javadocs, add: * @deprecated In the JLS8 API, this method is replaced by {@link #replacement()}.
 	final void supportedOnlyIn2_3_4() {
-	  if (this.ast.apiLevel >= AST.JLS8) {
+	  if (this.ast.apiLevel >= AST.JLS8_INTERNAL) {
 	  	throw new UnsupportedOperationException("Operation only supported in JLS2, JLS3 and JLS4 ASTs"); //$NON-NLS-1$
 	  }
 	}

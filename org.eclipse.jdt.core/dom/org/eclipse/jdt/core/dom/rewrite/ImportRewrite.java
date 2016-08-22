@@ -172,6 +172,9 @@ public final class ImportRewrite {
 	private static final char STATIC_PREFIX= 's';
 	private static final char NORMAL_PREFIX= 'n';
 
+	/** @deprecated using deprecated code */
+	private static final int JLS8_INTERNAL = AST.JLS8;
+
 	private final ImportRewriteContext defaultContext;
 
 	private final ICompilationUnit compilationUnit;
@@ -1367,7 +1370,7 @@ public final class ImportRewrite {
 	private Type getArrayType(Type elementType, AST ast, ImportRewriteContext context, ITypeBinding normalizedBinding) {
 		int noDimensions = normalizedBinding.getDimensions();
 		ArrayType arrayType = ast.newArrayType(elementType, noDimensions);
-		if (ast.apiLevel() >= AST.JLS8) {
+		if (ast.apiLevel() >= JLS8_INTERNAL) {
 			for (int i = 0; i < noDimensions; i++) {
 				IAnnotationBinding[] typeAnnotations = normalizedBinding.getTypeAnnotations();
 				if (typeAnnotations.length > 0) {

@@ -476,7 +476,7 @@ class ASTConverter {
 	protected void completeRecord(ArrayType arrayType, org.eclipse.jdt.internal.compiler.ast.ASTNode astNode) {
 		ArrayType array = arrayType;
 		this.recordNodes(arrayType, astNode);
-		if (this.ast.apiLevel() >= AST.JLS8) {
+		if (this.ast.apiLevel() >= AST.JLS8_INTERNAL) {
 			this.recordNodes(arrayType.getElementType(), astNode);
 			return;
 		}
@@ -520,7 +520,7 @@ class ASTConverter {
 		int methodHeaderEnd = methodDeclaration.sourceEnd;
 		int thrownExceptionsLength = thrownExceptions == null ? 0 : thrownExceptions.length;
 		if (thrownExceptionsLength > 0) {
-			if (this.ast.apiLevel() < AST.JLS8) {
+			if (this.ast.apiLevel() < AST.JLS8_INTERNAL) {
 				Name thrownException;
 				int i = 0;
 				do {
@@ -544,7 +544,7 @@ class ASTConverter {
 		}
 
 		if (methodDeclaration.receiver != null) {
-			if(this.ast.apiLevel >= AST.JLS8) {
+			if(this.ast.apiLevel >= AST.JLS8_INTERNAL) {
 				convertAndSetReceiver(methodDeclaration, methodDecl);
 			} else {
 				methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
@@ -590,7 +590,7 @@ class ASTConverter {
 				// get the positions of the right parenthesis
 				int rightParenthesisPosition = retrieveEndOfRightParenthesisPosition(end, method.bodyEnd);
 				int extraDimensions = typeReference.extraDimensions();
-				if (this.ast.apiLevel >= AST.JLS8) {
+				if (this.ast.apiLevel >= AST.JLS8_INTERNAL) {
 					setExtraAnnotatedDimensions(rightParenthesisPosition, method.bodyEnd, typeReference,
 												methodDecl.extraDimensions(), extraDimensions);
 				} else {
@@ -650,7 +650,7 @@ class ASTConverter {
 			}
 			if (block != null) {
 				if ((methodDeclaration.modifiers & (ClassFileConstants.AccAbstract | ClassFileConstants.AccNative)) != 0
-						|| (isInterface && (this.ast.apiLevel < AST.JLS8 ||
+						|| (isInterface && (this.ast.apiLevel < AST.JLS8_INTERNAL ||
 							(methodDeclaration.modifiers & (ClassFileConstants.AccStatic | ExtraCompilerModifiers.AccDefaultMethod)) == 0))) {
 					methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
 				}
@@ -913,7 +913,7 @@ class ASTConverter {
 		final int typeSourceEnd = argument.type.sourceEnd;
 		TypeReference typeReference = argument.type;
 		final int extraDimensions = typeReference.extraDimensions();
-		if (this.ast.apiLevel >= AST.JLS8) {
+		if (this.ast.apiLevel >= AST.JLS8_INTERNAL) {
 			setExtraAnnotatedDimensions(nameEnd + 1, typeSourceEnd, typeReference,
 										variableDecl.extraDimensions(), extraDimensions);
 		} else {
@@ -933,7 +933,7 @@ class ASTConverter {
 		 */
 		if (isVarArgs) {
 			Dimension lastDimension = null;
-			if (this.ast.apiLevel() >= AST.JLS8) {
+			if (this.ast.apiLevel() >= AST.JLS8_INTERNAL) {
 				if (type.isArrayType()) { // should always be true
 					List dimensions = ((ArrayType) type).dimensions();
 					if (!dimensions.isEmpty()) {
@@ -943,7 +943,7 @@ class ASTConverter {
 			}
 			setTypeForSingleVariableDeclaration(variableDecl, type, extraDimensions + 1);
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391898
-			if (this.ast.apiLevel() >= AST.JLS8) {
+			if (this.ast.apiLevel() >= AST.JLS8_INTERNAL) {
 				if (lastDimension != null) { // should always be true
 					List annotations = lastDimension.annotations();
 					Iterator iter = annotations.iterator();
@@ -1016,7 +1016,7 @@ class ASTConverter {
 		if (type.isArrayType()) {
 			arrayType = (ArrayType) type;
 			if (expression.annotationsOnDimensions != null) {
-				if (this.ast.apiLevel() < AST.JLS8) {
+				if (this.ast.apiLevel() < AST.JLS8_INTERNAL) {
 					arrayType.setFlags(arrayType.getFlags() | ASTNode.MALFORMED);
 				} else {
 					setTypeAnnotationsAndSourceRangeOnArray(arrayType, expression.annotationsOnDimensions);
@@ -2215,7 +2215,7 @@ class ASTConverter {
 	}
 
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambda) {
-		if (this.ast.apiLevel < AST.JLS8) {
+		if (this.ast.apiLevel < AST.JLS8_INTERNAL) {
 			return createFakeNullLiteral(lambda);		
 		}
 		final LambdaExpression	lambdaExpression = new LambdaExpression(this.ast);
@@ -2573,7 +2573,7 @@ class ASTConverter {
 	}
 
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.ReferenceExpression reference) {
-		if (this.ast.apiLevel < AST.JLS8) {
+		if (this.ast.apiLevel < AST.JLS8_INTERNAL) {
 			return createFakeNullLiteral(reference);
 		}
 		Expression result = null;
@@ -2863,7 +2863,7 @@ class ASTConverter {
 					tryStatement.setFlags(tryStatement.getFlags() | ASTNode.MALFORMED);
 					break;
 				case AST.JLS4_INTERNAL:
-				case AST.JLS8:
+				case AST.JLS8_INTERNAL:
 					for (int i = 0; i < resourcesLength; i++) {
 						if (!(statement.resources[i] instanceof LocalDeclaration)) {
 							tryStatement.setFlags(tryStatement.getFlags() | ASTNode.MALFORMED);
@@ -3183,7 +3183,7 @@ class ASTConverter {
 	private ArrayType convertToArray(Type elementType, int sourceStart, int length, int dimensions, org.eclipse.jdt.internal.compiler.ast.Annotation[][] annotationsOnDimensions) {
 		ArrayType arrayType = this.ast.newArrayType(elementType, dimensions);
 		if (length > 0) arrayType.setSourceRange(sourceStart, length);
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < AST.JLS8_INTERNAL) {
 			if (annotationsOnDimensions != null) {
 				arrayType.setFlags(arrayType.getFlags() | ASTNode.MALFORMED);
 			}
@@ -3296,7 +3296,7 @@ class ASTConverter {
 		variableDecl.setName(name);
 		TypeReference typeReference = localDeclaration.type;
 		final int extraDimensions = typeReference.extraDimensions();
-		if (this.ast.apiLevel >= AST.JLS8) {
+		if (this.ast.apiLevel >= AST.JLS8_INTERNAL) {
 			setExtraAnnotatedDimensions(nameEnd + 1, localDeclaration.declarationSourceEnd, typeReference,
 					variableDecl.extraDimensions(), extraDimensions);
 		} else {
@@ -3344,7 +3344,7 @@ class ASTConverter {
 		int end = start;
 		TypeReference typeReference = fieldDeclaration.type;
 		int extraDimensions = typeReference.extraDimensions();
-		if (this.ast.apiLevel >= AST.JLS8) {
+		if (this.ast.apiLevel >= AST.JLS8_INTERNAL) {
 			setExtraAnnotatedDimensions(fieldDeclaration.sourceEnd + 1, fieldDeclaration.declarationSourceEnd,
 					typeReference, variableDeclarationFragment.extraDimensions(), extraDimensions);
 		} else {
@@ -3388,7 +3388,7 @@ class ASTConverter {
 		org.eclipse.jdt.internal.compiler.ast.Expression initialization = localDeclaration.initialization;
 		TypeReference typeReference = localDeclaration.type;
 		int extraDimension = typeReference.extraDimensions();
-		if (this.ast.apiLevel >= AST.JLS8) {
+		if (this.ast.apiLevel >= AST.JLS8_INTERNAL) {
 			setExtraAnnotatedDimensions(localDeclaration.sourceEnd + 1, this.compilationUnitSourceLength,
 					typeReference, variableDeclarationFragment.extraDimensions(), extraDimension);
 		} else {
@@ -3934,7 +3934,7 @@ class ASTConverter {
 			}
 
 			boolean createNameQualifiedType = typeAnnotations != null && typeAnnotations[firstTypeIndex] != null;
-			if (createNameQualifiedType && this.ast.apiLevel >= AST.JLS8) {
+			if (createNameQualifiedType && this.ast.apiLevel >= AST.JLS8_INTERNAL) {
 				NameQualifiedType nameQualifiedType = new NameQualifiedType(this.ast);
 				nameQualifiedType.setQualifier(name);
 				nameQualifiedType.setName(createSimpleName(typeReference, positions, tokens, firstTypeIndex));
@@ -5659,7 +5659,7 @@ class ASTConverter {
 				fieldDeclaration.setType(type);
 			}
 		} else {
-			if (type.isArrayType() && (this.ast.apiLevel() < AST.JLS8)) {
+			if (type.isArrayType() && (this.ast.apiLevel() < AST.JLS8_INTERNAL)) {
 				// update positions of the component types of the array type
 				int dimensions = ((ArrayType) type).getDimensions();
 				updateInnerPositions(type, dimensions);
@@ -5677,7 +5677,7 @@ class ASTConverter {
 	private ArrayType extractSubArrayType(ArrayType arrayType, int remainingDimensions, int dimensionsToRemove) {
 		ArrayType subArrayType = arrayType;
 		int start = subArrayType.getStartPosition();
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < AST.JLS8_INTERNAL) {
 			while (dimensionsToRemove > 0 ) {
 				subArrayType = (ArrayType) componentType(subArrayType);
 				dimensionsToRemove--;

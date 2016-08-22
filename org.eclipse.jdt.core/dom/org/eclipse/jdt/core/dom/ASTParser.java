@@ -229,7 +229,7 @@ public class ASTParser {
 			case AST.JLS2_INTERNAL:
 			case AST.JLS3_INTERNAL:
 			case AST.JLS4_INTERNAL:
-			case AST.JLS8:
+			case AST.JLS8_INTERNAL:
 			case AST.JLS9:
 				break;
 			default:
