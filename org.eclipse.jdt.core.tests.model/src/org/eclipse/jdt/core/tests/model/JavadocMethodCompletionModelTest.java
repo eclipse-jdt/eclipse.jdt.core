@@ -1768,8 +1768,8 @@ public void test114() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@param ", 0); // empty token
 	assertSortedResults(
-		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, "+this.positions+"19}\n" +
-		"xtc[JAVADOC_PARAM_REF]{xtc, null, null, xtc, null, "+this.positions+"18}\n" +
+		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, "+this.positions+(R_DEFAULT + 14)+"}\n" +
+		"xtc[JAVADOC_PARAM_REF]{xtc, null, null, xtc, null, "+this.positions+(R_DEFAULT + 13)+"}\n" +
 		"TM[JAVADOC_PARAM_REF]{<TM>, null, null, TM, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -1834,8 +1834,8 @@ public void test118() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@param ", 0); // empty token
 	assertSortedResults(
-		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, [105, 108], 19}\n" +
-		"xtc[JAVADOC_PARAM_REF]{xtc, null, null, xtc, null, [105, 108], 18}\n" +
+		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, [105, 108], " + (R_DEFAULT + 14) +"}\n" +
+		"xtc[JAVADOC_PARAM_REF]{xtc, null, null, xtc, null, [105, 108], " + (R_DEFAULT + 13) +"}\n" +
 		"TM[JAVADOC_PARAM_REF]{<TM>, null, null, TM, null, [105, 108], "+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -1883,8 +1883,8 @@ public void test121() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@param ", 0); // empty token
 	assertSortedResults(
-		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, "+this.positions+"19}\n" +
-		"xtc[JAVADOC_PARAM_REF]{xtc, null, null, xtc, null, "+this.positions+"18}\n" +
+		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, "+this.positions+(R_DEFAULT + 14)+"}\n" +
+		"xtc[JAVADOC_PARAM_REF]{xtc, null, null, xtc, null, "+this.positions+(R_DEFAULT + 13)+"}\n" +
 		"TM[JAVADOC_PARAM_REF]{<TM>, null, null, TM, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -1902,8 +1902,8 @@ public void test122() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@param ", 0); // empty token
 	assertSortedResults(
-		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, "+this.positions+"19}\n" +
-		"xtc[JAVADOC_PARAM_REF]{xtc, null, null, xtc, null, "+this.positions+"18}\n" +
+		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, "+this.positions+(R_DEFAULT + 14)+"}\n" +
+		"xtc[JAVADOC_PARAM_REF]{xtc, null, null, xtc, null, "+this.positions+(R_DEFAULT + 13)+"}\n" +
 		"TM[JAVADOC_PARAM_REF]{<TM>, null, null, TM, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -1921,8 +1921,8 @@ public void test123() throws JavaModelException {
 		"}\n";
 	completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "@param ", 0); // empty token
 	assertSortedResults(
-		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, "+this.positions+"19}\n" +
-		"xtc[JAVADOC_PARAM_REF]{xtc, null, null, xtc, null, "+this.positions+"18}\n" +
+		"xtm[JAVADOC_PARAM_REF]{xtm, null, null, xtm, null, "+this.positions+(R_DEFAULT + 14)+"}\n" +
+		"xtc[JAVADOC_PARAM_REF]{xtc, null, null, xtc, null, "+this.positions+(R_DEFAULT + 13)+"}\n" +
 		"TM[JAVADOC_PARAM_REF]{<TM>, null, null, TM, null, "+this.positions+JAVADOC_RELEVANCE+"}"
 	);
 }
@@ -2536,7 +2536,7 @@ public void test161() throws JavaModelException {
 			"}\n";
 		completeInJavadoc("/Completion/src/javadoc/methods/tags/BasicTestMethods.java", source, true, "oTT");
 		assertResults(
-			"oneTwoThree[METHOD_REF]{oneTwoThree(int), Ljavadoc.methods.tags.BasicTestMethods;, (I)V, oneTwoThree, (i), "+this.positions+"30}"
+			"oneTwoThree[METHOD_REF]{oneTwoThree(int), Ljavadoc.methods.tags.BasicTestMethods;, (I)V, oneTwoThree, (i), "+this.positions+(R_DEFAULT + 25)+"}"
 		);
 	} finally {
 		JavaCore.setOptions(this.oldOptions);

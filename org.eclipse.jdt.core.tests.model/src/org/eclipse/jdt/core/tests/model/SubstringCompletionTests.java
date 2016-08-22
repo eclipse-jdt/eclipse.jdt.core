@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Gábor Kövesdán and others.
+ * Copyright (c) 2015, 2016 Gábor Kövesdán and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -202,24 +202,24 @@ public void testQualifiedNonStaticField() throws JavaModelException {
 		"/Completion/src/test/Test.java",
 		"package test;"+
 		"public class Test {\n" +
-		"  int element;\n" +
-		"  int otherElement;\n" +
-		"  long elementCount;\n" +
+		"  int items;\n" +
+		"  int otherItems;\n" +
+		"  long itemsCount;\n" +
 		"  void foo() {\n" +
-		"    this.elem\n" +
+		"    this.item\n" +
 		"  }\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
-	String completeBehind = "this.elem";
+	String completeBehind = "this.item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_STATIC + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
-			"element[FIELD_REF]{element, Ltest.Test;, I, element, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
-			"elementCount[FIELD_REF]{elementCount, Ltest.Test;, J, elementCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			"otherItems[FIELD_REF]{otherItems, Ltest.Test;, I, otherItems, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_STATIC + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"items[FIELD_REF]{items, Ltest.Test;, I, items, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
+			"itemsCount[FIELD_REF]{itemsCount, Ltest.Test;, J, itemsCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 
@@ -229,25 +229,24 @@ public void testUnqualifiedNonStaticField() throws JavaModelException {
 			"/Completion/src/test/Test.java",
 			"package test;"+
 			"public class Test {\n" +
-			"  int element;\n" +
-			"  int otherElement;\n" +
-			"  long elementCount;\n" +
+			"  int items;\n" +
+			"  int otherItems;\n" +
+			"  long itemsCount;\n" +
 			"  void foo() {\n" +
-			"    elem\n" +
+			"    item\n" +
 			"  }\n" +
 			"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
-	String completeBehind = "elem";
+	String completeBehind = "item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"ElementType[TYPE_REF]{java.lang.annotation.ElementType, java.lang.annotation, Ljava.lang.annotation.ElementType;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
-			"element[FIELD_REF]{element, Ltest.Test;, I, element, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"elementCount[FIELD_REF]{elementCount, Ltest.Test;, J, elementCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"otherItems[FIELD_REF]{otherItems, Ltest.Test;, I, otherItems, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"items[FIELD_REF]{items, Ltest.Test;, I, items, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"itemsCount[FIELD_REF]{itemsCount, Ltest.Test;, J, itemsCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testQualifiedStaticField() throws JavaModelException {
@@ -256,23 +255,23 @@ public void testQualifiedStaticField() throws JavaModelException {
 			"/Completion/src/test/Test.java",
 			"package test;"+
 			"public class Test {\n" +
-			"  static int element;\n" +
-			"  int otherElement;\n" +
-			"  static long elementCount;\n" +
+			"  static int items;\n" +
+			"  int otherItems;\n" +
+			"  static long itemsCount;\n" +
 			"  void foo() {\n" +
-			"    Test.elem\n" +
+			"    Test.item\n" +
 			"  }\n" +
 			"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
-	String completeBehind = "Test.elem";
+	String completeBehind = "Test.item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"element[FIELD_REF]{element, Ltest.Test;, I, element, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_NON_INHERITED) + "}\n" +
-			"elementCount[FIELD_REF]{elementCount, Ltest.Test;, J, elementCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_NON_INHERITED) + "}",
+			"items[FIELD_REF]{items, Ltest.Test;, I, items, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_NON_INHERITED) + "}\n" +
+			"itemsCount[FIELD_REF]{itemsCount, Ltest.Test;, J, itemsCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_NON_INHERITED) + "}",
 			requestor.getResults());
 }
 public void testUnqualifiedStaticField() throws JavaModelException {
@@ -281,25 +280,24 @@ public void testUnqualifiedStaticField() throws JavaModelException {
 			"/Completion/src/test/Test.java",
 			"package test;"+
 			"public class Test {\n" +
-			"  static int element;\n" +
-			"  int otherElement;\n" +
-			"  static long elementCount;\n" +
+			"  static int items;\n" +
+			"  int otherItems;\n" +
+			"  static long itemsCount;\n" +
 			"  void foo() {\n" +
-			"    elem\n" +
+			"    item\n" +
 			"  }\n" +
 			"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
-	String completeBehind = "elem";
+	String completeBehind = "item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"ElementType[TYPE_REF]{java.lang.annotation.ElementType, java.lang.annotation, Ljava.lang.annotation.ElementType;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
-			"element[FIELD_REF]{element, Ltest.Test;, I, element, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"elementCount[FIELD_REF]{elementCount, Ltest.Test;, J, elementCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"otherItems[FIELD_REF]{otherItems, Ltest.Test;, I, otherItems, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"items[FIELD_REF]{items, Ltest.Test;, I, items, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"itemsCount[FIELD_REF]{itemsCount, Ltest.Test;, J, itemsCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testLocalVariable() throws JavaModelException {
@@ -308,27 +306,26 @@ public void testLocalVariable() throws JavaModelException {
 			"/Completion/src/test/Test.java",
 			"package test;"+
 			"public class Test {\n" +
-			"  static int element;\n" +
-			"  int otherElement;\n" +
-			"  static long elementCount;\n" +
+			"  static int items;\n" +
+			"  int otherItems;\n" +
+			"  static long itemsCount;\n" +
 			"  void foo() {\n" +
-			"    int temporaryElement = 0;\n" +
-			"    elem\n" +
+			"    int temporaryItem = 0;\n" +
+			"    item\n" +
 			"  }\n" +
 			"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
-	String completeBehind = "elem";
+	String completeBehind = "item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"ElementType[TYPE_REF]{java.lang.annotation.ElementType, java.lang.annotation, Ljava.lang.annotation.ElementType;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
-			"temporaryElement[LOCAL_VARIABLE_REF]{temporaryElement, null, I, temporaryElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
-			"element[FIELD_REF]{element, Ltest.Test;, I, element, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"elementCount[FIELD_REF]{elementCount, Ltest.Test;, J, elementCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"otherItems[FIELD_REF]{otherItems, Ltest.Test;, I, otherItems, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"temporaryItem[LOCAL_VARIABLE_REF]{temporaryItem, null, I, temporaryItem, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"items[FIELD_REF]{items, Ltest.Test;, I, items, null, " + (R_DEFAULT + R_RESOLVED + R_CASE + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"itemsCount[FIELD_REF]{itemsCount, Ltest.Test;, J, itemsCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testMethodParamVariable() throws JavaModelException {
@@ -337,26 +334,25 @@ public void testMethodParamVariable() throws JavaModelException {
 			"/Completion/src/test/Test.java",
 			"package test;"+
 			"public class Test {\n" +
-			"  static int element;\n" +
-			"  int otherElement;\n" +
-			"  static long elementCount;\n" +
-			"  void foo(int initElement) {\n" +
-			"    elem\n" +
+			"  static int items;\n" +
+			"  int otherItems;\n" +
+			"  static long itemsCount;\n" +
+			"  void foo(int initItems) {\n" +
+			"    item\n" +
 			"  }\n" +
 			"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
-	String completeBehind = "elem";
+	String completeBehind = "item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"ElementType[TYPE_REF]{java.lang.annotation.ElementType, java.lang.annotation, Ljava.lang.annotation.ElementType;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"initElement[LOCAL_VARIABLE_REF]{initElement, null, I, initElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
-			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
-			"element[FIELD_REF]{element, Ltest.Test;, I, element, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"elementCount[FIELD_REF]{elementCount, Ltest.Test;, J, elementCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"initItems[LOCAL_VARIABLE_REF]{initItems, null, I, initItems, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"otherItems[FIELD_REF]{otherItems, Ltest.Test;, I, otherItems, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"items[FIELD_REF]{items, Ltest.Test;, I, items, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"itemsCount[FIELD_REF]{itemsCount, Ltest.Test;, J, itemsCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testClassTypeInstantiation() throws JavaModelException {
