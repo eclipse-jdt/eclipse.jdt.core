@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -11,7 +13,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
-import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -36,7 +37,6 @@ import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class BinaryTypeFactory {
-
 	public static final class NotInIndexException extends Exception {
 		private static final long serialVersionUID = 2859848007651528256L;
 
@@ -50,7 +50,7 @@ public class BinaryTypeFactory {
 	 * Returns a descriptor for the given class within the given package fragment, or null if the fragment doesn't have
 	 * a location on the filesystem.
 	 */
-	public static BinaryTypeDescriptor createDescriptor(PackageFragment pkg, ClassFile classFile) {
+	private static BinaryTypeDescriptor createDescriptor(PackageFragment pkg, ClassFile classFile) {
 		String name = classFile.getName();
 		IJavaElement root = pkg.getParent();
 		IPath location = JavaIndex.getLocationForElement(root);
@@ -74,13 +74,15 @@ public class BinaryTypeFactory {
 				root.getPath().toString().toCharArray(), indexPath.toCharArray());
 	}
 
+	public static BinaryTypeDescriptor createDescriptor(IClassFile classFile) {
+		ClassFile concreteClass = (ClassFile)classFile;
+		PackageFragment parent = (PackageFragment) classFile.getParent();
+
+		return createDescriptor(parent, concreteClass);
+	}
+
 	public static BinaryTypeDescriptor createDescriptor(IType type) {
-		IPackageFragment packageFragment = type.getPackageFragment();
-		IClassFile classFile = type.getClassFile();
-		if (classFile instanceof ClassFile && packageFragment instanceof PackageFragment) {
-			return createDescriptor((PackageFragment)packageFragment, (ClassFile)classFile);
-		}
-		return null;
+		return createDescriptor(type.getClassFile());
 	}
 
 	public static IBinaryType create(IJavaElement javaElement, String binaryName) {
@@ -103,7 +105,7 @@ public class BinaryTypeFactory {
 	 * the file on disk, the type is read from the index. Otherwise the type is read from disk. Returns null if
 	 * no such type exists.
 	 */
-	public static IBinaryType readType(BinaryTypeDescriptor descriptor, boolean fullyInitialize,
+	public static IBinaryType readType(BinaryTypeDescriptor descriptor, 
 			IProgressMonitor monitor) throws JavaModelException {
 		
 		if (JavaIndex.isEnabled()) {
@@ -114,35 +116,57 @@ public class BinaryTypeFactory {
 			}
 		}
 
-		ZipFile zip = null;
-		try {
-			zip = JavaModelManager.getJavaModelManager().getZipFile(new Path(new String(descriptor.workspacePath)));
-			char[] entryNameCharArray = CharArrayUtils.concat(
-					JavaNames.fieldDescriptorToBinaryName(descriptor.fieldDescriptor), SuffixConstants.SUFFIX_class);
-			String entryName = new String(entryNameCharArray);
-			ZipEntry ze = zip.getEntry(entryName);
-			if (ze != null) {
-				byte contents[];
-				try {
-					contents = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
-				} catch (IOException ioe) {
-					throw new JavaModelException(ioe, IJavaModelStatusConstants.IO_EXCEPTION);
-				}
-				ClassFileReader reader;
-				try {
-					reader = new ClassFileReader(contents, descriptor.indexPath, fullyInitialize);
-				} catch (ClassFormatException e) {
-					if (JavaCore.getPlugin().isDebugging()) {
-						e.printStackTrace(System.err);
+		return rawReadType(descriptor, true);
+	}
+
+	/**
+	 * Read the class file from disk, circumventing the index's cache. This should only be used by callers
+	 * that need to read information from the class file which aren't present in the index (such as method bodies).
+	 */
+	public static ClassFileReader rawReadType(BinaryTypeDescriptor descriptor, boolean fullyInitialize) throws JavaModelException {
+		if (descriptor == null) {
+			return null;
+		}
+		if (descriptor.isInJarFile()) {
+			ZipFile zip = null;
+			try {
+				zip = JavaModelManager.getJavaModelManager().getZipFile(new Path(new String(descriptor.workspacePath)));
+				char[] entryNameCharArray = CharArrayUtils.concat(
+						JavaNames.fieldDescriptorToBinaryName(descriptor.fieldDescriptor), SuffixConstants.SUFFIX_class);
+				String entryName = new String(entryNameCharArray);
+				ZipEntry ze = zip.getEntry(entryName);
+				if (ze != null) {
+					byte contents[];
+					try {
+						contents = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);
+					} catch (IOException ioe) {
+						throw new JavaModelException(ioe, IJavaModelStatusConstants.IO_EXCEPTION);
 					}
-					return null;
+					ClassFileReader reader;
+					try {
+						reader = new ClassFileReader(contents, descriptor.indexPath, fullyInitialize);
+					} catch (ClassFormatException e) {
+						if (JavaCore.getPlugin().isDebugging()) {
+							e.printStackTrace(System.err);
+						}
+						return null;
+					}
+					return reader;
 				}
-				return reader;
+			} catch (CoreException e) {
+				throw new JavaModelException(e);
+			} finally {
+				JavaModelManager.getJavaModelManager().closeZipFile(zip);
 			}
-		} catch (CoreException e) {
-			throw new JavaModelException(e);
-		} finally {
-			JavaModelManager.getJavaModelManager().closeZipFile(zip);
+		} else {
+			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(new String(descriptor.workspacePath)));
+			byte[] contents = Util.getResourceContentsAsByteArray(file);
+			try {
+				return new ClassFileReader(contents, file.getFullPath().toString().toCharArray(), fullyInitialize);
+			} catch (ClassFormatException cfe) {
+				//the structure remains unknown
+				return null;
+			}
 		}
 		return null;
 	}

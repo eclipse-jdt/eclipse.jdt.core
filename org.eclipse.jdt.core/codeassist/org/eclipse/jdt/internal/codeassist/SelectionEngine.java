@@ -15,7 +15,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IBuffer;
@@ -52,6 +51,8 @@ import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.SelectionRequestor;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
+import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeDescriptor;
+import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.TypeNameMatchRequestorWrapper;
 import org.eclipse.jdt.internal.core.util.ASTNodeFinder;
@@ -1435,8 +1436,12 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					typeDeclaration = new ASTNodeFinder(parsedUnit).findType(context);
 				}
 			} else { // binary type
-				ClassFile classFile = (ClassFile) context.getClassFile();
-				ClassFileReader reader = (ClassFileReader) classFile.getBinaryTypeInfo((IFile) classFile.resource(), false/*don't fully initialize so as to keep constant pool (used below)*/);
+				ClassFile classFile = (ClassFile)context.getClassFile();
+				BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(classFile);
+				ClassFileReader reader = BinaryTypeFactory.rawReadType(descriptor, false/*don't fully initialize so as to keep constant pool (used below)*/);
+				if (reader == null) {
+					throw classFile.newNotPresentException();
+				}
 				CompilationResult result = new CompilationResult(reader.getFileName(), 1, 1, this.compilerOptions.maxProblemsPerUnit);
 				parsedUnit = new CompilationUnitDeclaration(this.parser.problemReporter(), result, 0);
 				HashSetOfCharArrayArray typeNames = new HashSetOfCharArrayArray();

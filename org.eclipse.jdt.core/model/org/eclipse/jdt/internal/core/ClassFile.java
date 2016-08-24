@@ -34,7 +34,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassWithExternalAnnotations;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
@@ -96,7 +95,7 @@ public ICompilationUnit becomeWorkingCopy(IProblemRequestor problemRequestor, Wo
  */
 @Override
 protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
-	IBinaryType typeInfo = getBinaryTypeInfo((IFile) underlyingResource);
+	IBinaryType typeInfo = getBinaryTypeInfo();
 	if (typeInfo == null) {
 		// The structure of a class file is unknown if a class file format errors occurred
 		//during the creation of the diet class file representative of this ClassFile.
@@ -225,7 +224,7 @@ public boolean existsUsingJarTypeCache() {
 			return false;
 		}
 		try {
-			info = getJarBinaryTypeInfo((PackageFragment) getParent(), true/*fully initialize so as to not keep a reference to the byte array*/);
+			info = getJarBinaryTypeInfo();
 		} catch (CoreException e) {
 			// leave info null
 		} catch (IOException e) {
@@ -291,40 +290,26 @@ public String getAttachedJavadoc(IProgressMonitor monitor) throws JavaModelExcep
  * @exception JavaModelException when the IFile resource or JAR is not available
  * or when this class file is not present in the JAR
  */
-public IBinaryType getBinaryTypeInfo(IFile file) throws JavaModelException {
-	return getBinaryTypeInfo(file, true/*fully initialize so as to not keep a reference to the byte array*/);
-}
-public IBinaryType getBinaryTypeInfo(IFile file, boolean fullyInitialize) throws JavaModelException {
-	JavaElement pkg = (JavaElement) getParent();
-	if (pkg instanceof JarPackageFragment) {
-		try {
-			IBinaryType info = getJarBinaryTypeInfo((PackageFragment) pkg, fullyInitialize);
-			if (info == null) {
-				throw newNotPresentException();
-			}
-			return info;
-		} catch (ClassFormatException cfe) {
-			//the structure remains unknown
-			if (JavaCore.getPlugin().isDebugging()) {
-				cfe.printStackTrace(System.err);
-			}
-			return null;
-		} catch (IOException ioe) {
-			throw new JavaModelException(ioe, IJavaModelStatusConstants.IO_EXCEPTION);
-		} catch (CoreException e) {
-			if (e instanceof JavaModelException) {
-				throw (JavaModelException)e;
-			} else {
-				throw new JavaModelException(e);
-			}
+public IBinaryType getBinaryTypeInfo() throws JavaModelException {
+	try {
+		IBinaryType info = getJarBinaryTypeInfo();
+		if (info == null) {
+			throw newNotPresentException();
 		}
-	} else {
-		byte[] contents = Util.getResourceContentsAsByteArray(file);
-		try {
-			return new ClassFileReader(contents, file.getFullPath().toString().toCharArray(), fullyInitialize);
-		} catch (ClassFormatException cfe) {
-			//the structure remains unknown
-			return null;
+		return info;
+	} catch (ClassFormatException cfe) {
+		//the structure remains unknown
+		if (JavaCore.getPlugin().isDebugging()) {
+			cfe.printStackTrace(System.err);
+		}
+		return null;
+	} catch (IOException ioe) {
+		throw new JavaModelException(ioe, IJavaModelStatusConstants.IO_EXCEPTION);
+	} catch (CoreException e) {
+		if (e instanceof JavaModelException) {
+			throw (JavaModelException)e;
+		} else {
+			throw new JavaModelException(e);
 		}
 	}
 }
@@ -363,33 +348,38 @@ public String getName() {
 	return this.name;
 }
 
-private IBinaryType getJarBinaryTypeInfo(PackageFragment pkg, boolean fullyInitialize) throws CoreException, IOException, ClassFormatException {
-	BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(pkg, this);
+private IBinaryType getJarBinaryTypeInfo() throws CoreException, IOException, ClassFormatException {
+	BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(this);
 
 	if (descriptor == null) {
 		return null;
 	}
 
-	IBinaryType result = BinaryTypeFactory.readType(descriptor, fullyInitialize, null);
+	IBinaryType result = BinaryTypeFactory.readType(descriptor, null);
 
 	// TODO(sxenos): setup the external annotation provider if the IBinaryType came from the index
 	// TODO(sxenos): the old code always passed null as the third argument to setupExternalAnnotationProvider,
 	// but this looks like a bug. I've preserved it for now but we need to figure out what was supposed to go
 	// there.
-	JarPackageFragmentRoot root = (JarPackageFragmentRoot) pkg.getParent();
-	if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
-		JavaProject javaProject = (JavaProject) getAncestor(IJavaElement.JAVA_PROJECT);
-		IClasspathEntry entry = javaProject.getClasspathEntryFor(getPath());
-		if (entry != null) {
-			String entryName = new String(CharArrayUtils.concat(
-					JavaNames.fieldDescriptorToBinaryName(descriptor.fieldDescriptor), SuffixConstants.SUFFIX_CLASS));
-			IProject project = javaProject.getProject();
-			IPath externalAnnotationPath = ClasspathEntry.getExternalAnnotationPath(entry, project, false); // unresolved for use in ExternalAnnotationTracker
-			if (externalAnnotationPath != null) {
-				result = setupExternalAnnotationProvider(project, externalAnnotationPath, null, result, 
-					entryName.substring(0, entryName.length() - SuffixConstants.SUFFIX_CLASS.length));
-			} else if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-				result = new ClassWithExternalAnnotations(result, true);
+	PackageFragment pkg = (PackageFragment) getParent();
+	IJavaElement grandparent = pkg.getParent();
+	if (grandparent instanceof JarPackageFragmentRoot) {
+		JarPackageFragmentRoot root = (JarPackageFragmentRoot) grandparent;
+
+		if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
+			JavaProject javaProject = (JavaProject) getAncestor(IJavaElement.JAVA_PROJECT);
+			IClasspathEntry entry = javaProject.getClasspathEntryFor(getPath());
+			if (entry != null) {
+				String entryName = new String(CharArrayUtils.concat(
+						JavaNames.fieldDescriptorToBinaryName(descriptor.fieldDescriptor), SuffixConstants.SUFFIX_CLASS));
+				IProject project = javaProject.getProject();
+				IPath externalAnnotationPath = ClasspathEntry.getExternalAnnotationPath(entry, project, false); // unresolved for use in ExternalAnnotationTracker
+				if (externalAnnotationPath != null) {
+					result = setupExternalAnnotationProvider(project, externalAnnotationPath, null, result, 
+						entryName.substring(0, entryName.length() - SuffixConstants.SUFFIX_CLASS.length));
+				} else if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+					result = new ClassWithExternalAnnotations(result, true);
+				}
 			}
 		}
 	}
