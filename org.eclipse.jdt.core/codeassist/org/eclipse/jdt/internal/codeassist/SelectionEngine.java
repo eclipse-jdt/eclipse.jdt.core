@@ -1436,7 +1436,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					typeDeclaration = new ASTNodeFinder(parsedUnit).findType(context);
 				}
 			} else { // binary type
-				ClassFile classFile = (ClassFile)context.getClassFile();
+				ClassFile classFile = (ClassFile) context.getClassFile();
 				BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(classFile);
 				ClassFileReader reader = BinaryTypeFactory.rawReadType(descriptor, false/*don't fully initialize so as to keep constant pool (used below)*/);
 				if (reader == null) {
