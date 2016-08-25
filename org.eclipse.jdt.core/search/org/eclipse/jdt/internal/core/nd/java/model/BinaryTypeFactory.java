@@ -57,21 +57,23 @@ public class BinaryTypeFactory {
 		String entryName = Util.concatWith(pkg.names, classFile.getElementName(), '/');
 		char[] fieldDescriptor = CharArrayUtils.concat(new char[] { 'L' },
 				Util.concatWith(pkg.names, name, '/').toCharArray(), new char[] { ';' });
-		
+		IPath workspacePath = root.getPath();
 		String indexPath;
-
-		if (root instanceof JarPackageFragmentRoot) {
-			indexPath = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
-		} else {
-			indexPath = location.append(entryName).toString();
-		}
 
 		if (location == null) {
 			return null;
 		}
 
+		if (root instanceof JarPackageFragmentRoot) {
+			indexPath = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
+		} else {
+			location = location.append(entryName);
+			indexPath = location.toString();
+			workspacePath = workspacePath.append(entryName);
+		}
+
 		return new BinaryTypeDescriptor(location.toString().toCharArray(), fieldDescriptor,
-				root.getPath().toString().toCharArray(), indexPath.toCharArray());
+				workspacePath.toString().toCharArray(), indexPath.toCharArray());
 	}
 
 	public static BinaryTypeDescriptor createDescriptor(IClassFile classFile) {
