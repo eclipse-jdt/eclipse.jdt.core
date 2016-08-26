@@ -29,6 +29,12 @@ import junit.framework.TestSuite;
 @SuppressWarnings("rawtypes")
 public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
 
+	/**
+	 * Number of milliseconds that a test case can run for before we consider it to be potentially
+	 * deadlocked and dump out a stack trace. Currently set to 5 minutes.
+	 */
+	private static final long FROZEN_TEST_TIMEOUT_MS = 1000 * 60 * 5;
+
 	/*
 	 * A test suite that initialize the test case's fields once, then that copies the values
 	 * of these fields into each subsequent test case.
@@ -124,6 +130,18 @@ public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension
 	 * Tear down the test suite once after all test cases have run.
 	 */
 	public void tearDownSuite() throws Exception {
+	}
+
+	@Override
+	protected void setUp() throws Exception {
+		FreezeMonitor.expectCompletionIn(FROZEN_TEST_TIMEOUT_MS);
+		super.setUp();
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		FreezeMonitor.done();
+		super.tearDown();
 	}
 
 	/**
