@@ -5,7 +5,6 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.SignatureWrapper;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
-import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
  * Contains static factory methods for constructing {@link SignatureWrapper} from various types.
@@ -15,27 +14,8 @@ public class GenericSignatures {
 
 	public static SignatureWrapper getGenericSignature(IBinaryMethod next) {
 		char[] signature = next.getGenericSignature();
-		char[][] exceptionTypeNames = next.getExceptionTypeNames();
 		if (signature == null) {
 			signature = next.getMethodDescriptor();
-		}
-
-		// The compiler is allowed to omit thrown exceptions from the generic signature
-		// if the thrown exceptions don't make use of generics or type variables. However, we rely
-		// on them so we reinsert the missing exception declarations if they're not present.
-		if (exceptionTypeNames != null && exceptionTypeNames.length > 0) {
-			// If there are no exceptions mentioned the signature but there are exceptions
-			// in the IBinaryMethod, the compiler has omitted them... so put them back.
-			if (CharArrayUtils.indexOf('^', signature) == -1) {
-				CharArrayBuffer builder = new CharArrayBuffer();
-				builder.append(signature);
-				for(char[] nextException : exceptionTypeNames) {
-					builder.append("^L"); //$NON-NLS-1$
-					builder.append(nextException);
-					builder.append(";"); //$NON-NLS-1$
-				}
-				signature = builder.getContents();
-			}
 		}
 
 		return new SignatureWrapper(signature);

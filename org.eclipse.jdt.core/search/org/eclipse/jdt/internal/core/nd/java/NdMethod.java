@@ -53,8 +53,8 @@ public class NdMethod extends NdBinding {
 		type.done();
 	}
 
-	public static final int FLG_GENERIC_SIGNATURE_PRESENT = 0x0001;
-	public static final int FLG_THROWS_SIGNATURE_PRESENT = 0x0002;
+	public static final byte FLG_GENERIC_SIGNATURE_PRESENT = 0x0001;
+	public static final byte FLG_THROWS_SIGNATURE_PRESENT = 0x0002;
 
 	public NdMethod(Nd nd, long address) {
 		super(nd, address);

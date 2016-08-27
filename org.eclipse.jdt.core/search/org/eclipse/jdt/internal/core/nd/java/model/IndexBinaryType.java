@@ -180,10 +180,11 @@ public class IndexBinaryType implements IBinaryType {
 		try (IReader rl = this.typeRef.lock()) {
 			NdType type = this.typeRef.get();
 			if (type != null) {
+				if (!type.getFlag(NdType.FLG_GENERIC_SIGNATURE_PRESENT)) {
+					return null;
+				}
 				CharArrayBuffer buffer = new CharArrayBuffer();
-
 				NdTypeParameter.getSignature(buffer, type.getTypeParameters());
-
 				NdTypeSignature superclass = type.getSuperclass();
 				if (superclass != null) {
 					superclass.getSignature(buffer);
@@ -531,7 +532,9 @@ public class IndexBinaryType implements IBinaryType {
 		IBinaryAnnotation[] annotations = toAnnotationArray(ndVariable.getAnnotations());
 
 		CharArrayBuffer signature = new CharArrayBuffer();
-		type.getSignature(signature);
+		if (ndVariable.hasVariableFlag(NdVariable.FLG_GENERIC_SIGNATURE_PRESENT)) {
+			type.getSignature(signature);
+		}
 
 		long tagBits = ndVariable.getTagBits();
 		return new IndexBinaryField(annotations, constant, signature.getContents(), ndVariable.getModifiers(), name,

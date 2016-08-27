@@ -62,6 +62,7 @@ public class NdType extends NdBinding {
 	public static final byte FLG_TYPE_ANONYMOUS 	= 0x0001;
 	public static final byte FLG_TYPE_LOCAL 		= 0x0002;
 	public static final byte FLG_TYPE_MEMBER 		= 0x0004;
+	public static final byte FLG_GENERIC_SIGNATURE_PRESENT = 0x0008;
 
 	public NdType(Nd nd, long address) {
 		super(nd, address);
@@ -181,13 +182,13 @@ public class NdType extends NdBinding {
 		return getFlag(FLG_TYPE_MEMBER);
 	}
 
-	private void setFlag(byte flagConstant, boolean value) {
+	public void setFlag(byte flagConstant, boolean value) {
 		int oldFlags = FLAGS.get(getNd(), this.address);
 		int newFlags =  ((oldFlags & ~flagConstant) | (value ? flagConstant : 0));
 		FLAGS.put(getNd(), this.address, (byte)newFlags);
 	}
 
-	private boolean getFlag(byte flagConstant) {
+	public boolean getFlag(byte flagConstant) {
 		return (FLAGS.get(getNd(), this.address) & flagConstant) != 0;
 	}
 

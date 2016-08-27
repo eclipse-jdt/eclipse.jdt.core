@@ -150,6 +150,11 @@ public class ClassFileToIndexConverter {
 		if (interfaces == null) {
 			interfaces = EMPTY_CHAR_ARRAY_ARRAY;
 		}
+
+		if (binaryType.getGenericSignature() != null) {
+			type.setFlag(NdType.FLG_GENERIC_SIGNATURE_PRESENT, true);
+		}
+
 		// Create the default generic signature if the .class file didn't supply one
 		SignatureWrapper signatureWrapper = GenericSignatures.getGenericSignature(binaryType);
 
@@ -405,6 +410,10 @@ public class ClassFileToIndexConverter {
 		NdVariable variable = new NdVariable(type);
 
 		variable.setName(nextField.getName());
+
+		if (nextField.getGenericSignature() != null) {
+			variable.setVariableFlag(NdVariable.FLG_GENERIC_SIGNATURE_PRESENT);
+		}
 
 		IBinaryAnnotation[] binaryAnnotations = nextField.getAnnotations();
 		if (binaryAnnotations != null) {
