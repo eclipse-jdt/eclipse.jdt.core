@@ -81,15 +81,12 @@ public class ClassFileToIndexConverter {
 	public static IBinaryType getTypeFromClassFile(IClassFile iClassFile, IProgressMonitor monitor)
 			throws CoreException {
 		ClassFile classFile = (ClassFile) iClassFile;
-		// cache binary type binding
-		IBinaryType binaryType = (IBinaryType) JavaModelManager.getJavaModelManager().getInfo(classFile.getType());
-		if (binaryType == null) {
-			// create binary type from file
-			if (classFile.getPackageFragmentRoot().isArchive()) {
-				binaryType = createInfoFromClassFileInJar(classFile);
-			} else {
-				binaryType = createInfoFromClassFile(classFile.resource());
-			}
+		IBinaryType binaryType;
+		// create binary type from file
+		if (classFile.getPackageFragmentRoot().isArchive()) {
+			binaryType = createInfoFromClassFileInJar(classFile);
+		} else {
+			binaryType = createInfoFromClassFile(classFile.resource());
 		}
 
 		return binaryType;
