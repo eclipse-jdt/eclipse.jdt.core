@@ -14,7 +14,6 @@ import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
@@ -69,7 +68,7 @@ public class BinaryTypeFactory {
 		} else {
 			location = location.append(entryName);
 			indexPath = location.toString();
-			workspacePath = workspacePath.append(entryName);
+			workspacePath = classFile.resource().getFullPath();
 		}
 
 		return new BinaryTypeDescriptor(location.toString().toCharArray(), fieldDescriptor,
@@ -106,9 +105,10 @@ public class BinaryTypeFactory {
 	 * Reads the given binary type. If the type can be found in the index with a fingerprint that exactly matches
 	 * the file on disk, the type is read from the index. Otherwise the type is read from disk. Returns null if
 	 * no such type exists.
+	 * @throws ClassFormatException 
 	 */
 	public static IBinaryType readType(BinaryTypeDescriptor descriptor, 
-			IProgressMonitor monitor) throws JavaModelException {
+			IProgressMonitor monitor) throws JavaModelException, ClassFormatException {
 		
 		if (JavaIndex.isEnabled()) {
 			try {
@@ -124,8 +124,12 @@ public class BinaryTypeFactory {
 	/**
 	 * Read the class file from disk, circumventing the index's cache. This should only be used by callers
 	 * that need to read information from the class file which aren't present in the index (such as method bodies).
+	 * 
+	 * @return the newly-created ClassFileReader or null if the given class file does not exist.
+	 * @throws ClassFormatException if the class file existed but was corrupt
+	 * @throws JavaModelException if unable to read the class file due to a transient failure
 	 */
-	public static ClassFileReader rawReadType(BinaryTypeDescriptor descriptor, boolean fullyInitialize) throws JavaModelException {
+	public static ClassFileReader rawReadType(BinaryTypeDescriptor descriptor, boolean fullyInitialize) throws JavaModelException, ClassFormatException {
 		if (descriptor == null) {
 			return null;
 		}
@@ -144,16 +148,7 @@ public class BinaryTypeFactory {
 					} catch (IOException ioe) {
 						throw new JavaModelException(ioe, IJavaModelStatusConstants.IO_EXCEPTION);
 					}
-					ClassFileReader reader;
-					try {
-						reader = new ClassFileReader(contents, descriptor.indexPath, fullyInitialize);
-					} catch (ClassFormatException e) {
-						if (JavaCore.getPlugin().isDebugging()) {
-							e.printStackTrace(System.err);
-						}
-						return null;
-					}
-					return reader;
+					return new ClassFileReader(contents, descriptor.indexPath, fullyInitialize);
 				}
 			} catch (CoreException e) {
 				throw new JavaModelException(e);
@@ -163,12 +158,7 @@ public class BinaryTypeFactory {
 		} else {
 			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(new String(descriptor.workspacePath)));
 			byte[] contents = Util.getResourceContentsAsByteArray(file);
-			try {
-				return new ClassFileReader(contents, file.getFullPath().toString().toCharArray(), fullyInitialize);
-			} catch (ClassFormatException cfe) {
-				//the structure remains unknown
-				return null;
-			}
+			return new ClassFileReader(contents, file.getFullPath().toString().toCharArray(), fullyInitialize);
 		}
 		return null;
 	}
