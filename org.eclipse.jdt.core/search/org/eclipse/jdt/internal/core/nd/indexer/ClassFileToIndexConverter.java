@@ -4,11 +4,11 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.TypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.env.ClassSignature;
 import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
@@ -21,7 +21,6 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.SignatureWrapper;
-import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.Openable;
@@ -52,11 +51,13 @@ import org.eclipse.jdt.internal.core.nd.java.NdTypeInterface;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeParameter;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeSignature;
 import org.eclipse.jdt.internal.core.nd.java.NdVariable;
+import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeDescriptor;
+import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 import org.eclipse.jdt.internal.core.util.Util;
 
-public class ClassFileToIndexConverter {
+public final class ClassFileToIndexConverter {
 	private static final char[] JAVA_LANG_OBJECT_FIELD_DESCRIPTOR = "Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 	private static final char[] INNER_TYPE_SEPARATOR = new char[] { '$' };
 	private static final char[] FIELD_DESCRIPTOR_SUFFIX = new char[] { ';' };
@@ -79,32 +80,9 @@ public class ClassFileToIndexConverter {
 	}
 
 	public static IBinaryType getTypeFromClassFile(IClassFile iClassFile, IProgressMonitor monitor)
-			throws CoreException {
-		ClassFile classFile = (ClassFile) iClassFile;
-		IBinaryType binaryType;
-		// create binary type from file
-		if (classFile.getPackageFragmentRoot().isArchive()) {
-			binaryType = createInfoFromClassFileInJar(classFile);
-		} else {
-			binaryType = createInfoFromClassFile(classFile.resource());
-		}
-
-		return binaryType;
-	}
-
-	/**
-	 * Creates the type info from the given class file on disk and adds it to the given list of infos.
-	 *
-	 * @throws CoreException
-	 */
-	protected static IBinaryType createInfoFromClassFile(IResource file) throws CoreException {
-		IBinaryType info = null;
-		try {
-			info = Util.newClassFileReader(file);
-		} catch (Exception e) {
-			throw new CoreException(Package.createStatus("Unable to parse class file", e)); //$NON-NLS-1$
-		}
-		return info;
+			throws CoreException, ClassFormatException {
+		BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(iClassFile);
+		return BinaryTypeFactory.rawReadType(descriptor, true);
 	}
 
 	/**
@@ -128,11 +106,19 @@ public class ClassFileToIndexConverter {
 		return info;
 	}
 
-	public NdType addType(IBinaryType binaryType, IProgressMonitor monitor) throws CoreException {
-		char[] binaryName = binaryType.getName();
-		logInfo("adding binary type " + new String(binaryName)); //$NON-NLS-1$
+	/**
+	 * Adds a type to the index, given an input class file and a binary name. Note that the given binary name is 
+	 * 
+	 * @param binaryType an object used for parsing the .class file itself
+	 * @param fieldDescriptor the name that is used to locate the class, computed from the .class file's name and location.
+	 * In the event that the .class file has been moved, this may differ from the binary name stored in the .class file
+	 * itself, which is why this is received as an argument rather than extracted from the .class file.
+	 * @throws CoreException
+	 */
+	public NdType addType(IBinaryType binaryType, char[] fieldDescriptor, IProgressMonitor monitor) throws CoreException {
+		char[] fieldDescriptorFromClass = JavaNames.binaryNameToFieldDescriptor(binaryType.getName());
+		logInfo("adding binary type " + new String(fieldDescriptor)); //$NON-NLS-1$
 
-		char[] fieldDescriptor = JavaNames.binaryNameToFieldDescriptor(binaryName);
 		NdTypeId name = createTypeIdFromFieldDescriptor(fieldDescriptor);
 		NdType type = name.findTypeByResourceAddress(this.resource.address);
 
@@ -145,6 +131,10 @@ public class ClassFileToIndexConverter {
 				binaryType.getSuperclassName());
 
 		type.setTypeId(name);
+
+		if (!CharArrayUtils.equals(fieldDescriptorFromClass, fieldDescriptor)) {
+			type.setFieldDescriptorFromClass(fieldDescriptorFromClass);
+		}
 
 		char[][] interfaces = binaryType.getInterfaceNames();
 		if (interfaces == null) {

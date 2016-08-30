@@ -39,7 +39,8 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.core.JavaElementDelta;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -50,6 +51,8 @@ import org.eclipse.jdt.internal.core.nd.java.FileFingerprint.FingerprintTestResu
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.nd.java.NdWorkspaceLocation;
+import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeDescriptor;
+import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 
 public final class Indexer {
@@ -617,7 +620,8 @@ public final class Indexer {
 			SubMonitor iterationMonitor = subMonitor.split(1).setWorkRemaining(100);
 
 			try {
-				IBinaryType binaryType = ClassFileToIndexConverter.getTypeFromClassFile(next, iterationMonitor.split(50));
+				BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(next);
+				ClassFileReader binaryType = BinaryTypeFactory.rawReadType(descriptor, true);
 
 				this.nd.acquireWriteLock(iterationMonitor.split(5));
 				try {
@@ -625,12 +629,12 @@ public final class Indexer {
 						return classesIndexed;
 					}
 
-					converter.addType(binaryType, iterationMonitor.split(45));
+					converter.addType(binaryType, descriptor.fieldDescriptor, iterationMonitor.split(45));
 					classesIndexed++;
 				} finally {
 					this.nd.releaseWriteLock();
 				}
-			} catch (CoreException e) {
+			} catch (CoreException | ClassFormatException e) {
 				Package.log("Unable to index " + next.toString(), e); //$NON-NLS-1$
 			}
 

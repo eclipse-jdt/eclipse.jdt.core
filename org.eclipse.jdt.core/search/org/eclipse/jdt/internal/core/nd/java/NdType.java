@@ -39,6 +39,12 @@ public class NdType extends NdBinding {
 	public static final FieldString INNER_CLASS_SOURCE_NAME;
 	public static final FieldByte FLAGS;
 	public static final FieldLong TAG_BITS;
+	/**
+	 * Binary name that was recorded in the .class file if different from the binary
+	 * name that was determined by the .class's name and location. This is only set for
+	 * .class files that have been moved to the wrong folder.
+	 */
+	public static final FieldString FIELD_DESCRIPTOR_FROM_CLASS;
 
 	@SuppressWarnings("hiding")
 	public static final StructDef<NdType> type;
@@ -56,6 +62,7 @@ public class NdType extends NdBinding {
 		INNER_CLASS_SOURCE_NAME = type.addString();
 		FLAGS = type.addByte();
 		TAG_BITS = type.addLong();
+		FIELD_DESCRIPTOR_FROM_CLASS = type.addString();
 		type.done();
 	}
 
@@ -229,5 +236,22 @@ public class NdType extends NdBinding {
 
 	public long getTagBits() {
 		return TAG_BITS.get(getNd(), this.address);
+	}
+
+	public void setFieldDescriptorFromClass(char[] fieldDescriptorFromClass) {
+		FIELD_DESCRIPTOR_FROM_CLASS.put(getNd(), this.address, fieldDescriptorFromClass);
+	}
+
+	/**
+	 * Returns the field descriptor for this type, based on the binary type information stored in the
+	 * .class file itself. Note that this may differ from the field descriptor of this type's typeId in
+	 * the event that the .class file has been moved.
+	 */
+	public IString getFieldDescriptor() {
+		IString descriptorFromClass = FIELD_DESCRIPTOR_FROM_CLASS.get(getNd(), this.address);
+		if (descriptorFromClass.length() == 0) {
+			return getTypeId().getFieldDescriptor();
+		}
+		return descriptorFromClass;
 	}
 }

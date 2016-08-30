@@ -63,6 +63,8 @@ public class IndexBinaryType implements IBinaryType {
 
 	private long tagBits;
 
+	private char[] binaryTypeName;
+
 	private static final IBinaryAnnotation[] NO_ANNOTATIONS = new IBinaryAnnotation[0];
 
 	public IndexBinaryType(TypeRef type, char[] indexPath) {
@@ -305,7 +307,9 @@ public class IndexBinaryType implements IBinaryType {
 
 	@Override
 	public char[] getName() {
-		return JavaNames.fieldDescriptorToBinaryName(this.typeRef.getFieldDescriptor());
+		initSimpleAttributes();
+
+		return this.binaryTypeName;
 	}
 
 	@Override
@@ -644,6 +648,10 @@ public class IndexBinaryType implements IBinaryType {
 					} else {
 						this.superclassName = null;
 					}
+
+					this.binaryTypeName = JavaNames.fieldDescriptorToBinaryName(type.getFieldDescriptor().getChars());
+				} else {
+					this.binaryTypeName = JavaNames.fieldDescriptorToBinaryName(this.typeRef.getFieldDescriptor());
 				}
 			}
 		}
