@@ -1290,7 +1290,7 @@ public void testBug488569_001() {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	try (Y y1 = new Y(); z1;) {\n" + 
 			"	                     ^^\n" + 
-			"Variable Resource not allowed here for source level below 9\n" + 
+			"Variable resource not allowed here for source level below 9\n" + 
 			"----------\n");
 	} else {
 		this.runConformTest(
