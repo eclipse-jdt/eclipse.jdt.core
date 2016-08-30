@@ -357,6 +357,10 @@ private IBinaryType getJarBinaryTypeInfo() throws CoreException, IOException, Cl
 
 	IBinaryType result = BinaryTypeFactory.readType(descriptor, null);
 
+	if (result == null) {
+		return null;
+	}
+
 	// TODO(sxenos): setup the external annotation provider if the IBinaryType came from the index
 	// TODO(sxenos): the old code always passed null as the third argument to setupExternalAnnotationProvider,
 	// but this looks like a bug. I've preserved it for now but we need to figure out what was supposed to go

@@ -41,11 +41,17 @@ public class ExternalAnnotationDecorator implements IBinaryType {
 	public interface ZipFileProducer { ZipFile produce() throws IOException; }
 
 	public ExternalAnnotationDecorator(IBinaryType toDecorate, ExternalAnnotationProvider externalAnnotationProvider) {
+		if (toDecorate == null) {
+			throw new NullPointerException("toDecorate"); //$NON-NLS-1$
+		}
 		this.inputType = toDecorate;
 		this.annotationProvider = externalAnnotationProvider;
 	}
 
 	public ExternalAnnotationDecorator(IBinaryType toDecorate, boolean isFromSource) {
+		if (toDecorate == null) {
+			throw new NullPointerException("toDecorate"); //$NON-NLS-1$
+		}
 		this.isFromSource = isFromSource;
 		this.inputType = toDecorate;
 	}
