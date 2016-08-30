@@ -9157,6 +9157,14 @@ protected void consumeStatementTry(boolean withFinally, boolean hasResources) {
 		if (this.options.sourceLevel < ClassFileConstants.JDK1_7) {
 			problemReporter().autoManagedResourcesNotBelow17(stmts);
 		}
+		if (this.options.sourceLevel < ClassFileConstants.JDK9) {
+			for (int i = 0, l = stmts.length; i < l; ++i) {
+				Statement stmt = stmts[i];
+				if (stmt instanceof FieldReference || stmt instanceof NameReference) {
+					problemReporter().autoManagedVariableResourcesNotBelow9((Expression) stmt);
+				}
+			}
+		}
 	}
 	//positions
 	tryStmt.sourceEnd = this.endStatementPosition;
