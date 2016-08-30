@@ -2564,7 +2564,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"2. WARNING in A.java (at line 6)\n" + 
 					"	Object o = (@Marker @Annot A.@Marker B.@Marker C) null;\n" + 
 					"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-					"A.B.C is a raw type. References to generic type A<T>.B<T>.C<K,V> should be parameterized\n" + 
+					"A.B.C is a raw type. References to generic type A.B.C<K,V> should be parameterized\n" + 
 					"----------\n" + 
 					"3. ERROR in A.java (at line 6)\n" + 
 					"	Object o = (@Marker @Annot A.@Marker B.@Marker C) null;\n" + 
@@ -2579,7 +2579,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"5. WARNING in A.java (at line 7)\n" + 
 					"	Object o2 = (@Marker p.@Marker A.@Marker B.@Marker C) null;\n" + 
 					"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-					"A.B.C is a raw type. References to generic type A<T>.B<T>.C<K,V> should be parameterized\n" + 
+					"A.B.C is a raw type. References to generic type A.B.C<K,V> should be parameterized\n" + 
 					"----------\n" + 
 					"6. ERROR in A.java (at line 7)\n" + 
 					"	Object o2 = (@Marker p.@Marker A.@Marker B.@Marker C) null;\n" + 

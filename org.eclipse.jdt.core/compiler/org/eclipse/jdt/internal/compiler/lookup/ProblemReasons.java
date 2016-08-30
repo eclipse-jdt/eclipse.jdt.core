@@ -46,8 +46,8 @@ public interface ProblemReasons {
 	final int NoSuchMethodOnArray = 26;
 	final int InferredApplicableMethodInapplicable = 27; // 18.5.1 ignores arguments not pertinent to applicability. When these are taken into consideration method could fail applicability
 	final int NoProperEnclosingInstance = 28;
-	
 	final int ServiceImplCannotbeAbstract = 29;
 	final int DefaultConstructorRequiredForServiceImpl = 30;
 	final int ServiceImplDefaultConstructorNotPublic = 31;
+	final int InterfaceMethodInvocationNotBelow18 = 32;
 }

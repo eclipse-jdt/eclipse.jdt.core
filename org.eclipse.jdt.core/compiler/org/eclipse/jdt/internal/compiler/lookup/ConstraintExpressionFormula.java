@@ -281,13 +281,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				return TRUE;
 			// ignore parameterization of resolve result and do a fresh start:
 			MethodBinding original = compileTimeDecl.shallowOriginal();
-			TypeBinding compileTypeReturn = original.isConstructor() ? original.declaringClass : original.returnType;
-			if (reference.typeArguments == null
-					&& ((original.typeVariables() != Binding.NO_TYPE_VARIABLES && compileTypeReturn.mentionsAny(original.typeVariables(), -1))
-						|| (original.isConstructor() && compileTimeDecl.declaringClass.isRawType())))
-							// not checking r.mentionsAny for constructors, because A::new resolves to the raw type
-							// whereas in fact the type of all expressions of this shape depends on their type variable (if any)
-			{
+			if (needsInference(reference, original)) {
 				TypeBinding[] argumentTypes;
 				if (t.isParameterizedType()) {
 					MethodBinding capturedFunctionType = ((ParameterizedTypeBinding)t).getSingleAbstractMethod(inferenceContext.scope, true, reference.sourceStart, reference.sourceEnd);
@@ -299,16 +293,12 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 
 				// Invocation Applicability Inference: 18.5.1 & Invocation Type Inference: 18.5.2
 				try {
-					InferenceContext18 innerContex = reference.getInferenceContext((ParameterizedMethodBinding) compileTimeDecl);
-					int innerInferenceKind = innerContex != null ? innerContex.inferenceKind : InferenceContext18.CHECK_STRICT;
+					InferenceContext18 innerContext = reference.getInferenceContext((ParameterizedMethodBinding) compileTimeDecl);
+					int innerInferenceKind = determineInferenceKind(compileTimeDecl, argumentTypes, innerContext);
 					inferInvocationApplicability(inferenceContext, original, argumentTypes, original.isConstructor()/*mimic a diamond?*/, innerInferenceKind);
 					if (!inferPolyInvocationType(inferenceContext, reference, r, original))
 						return FALSE;
-					if (!original.isConstructor() 
-							|| reference.receiverType.isRawType()  // note: rawtypes may/may not have typeArguments() depending on initialization state
-							|| reference.receiverType.typeArguments() == null)
-						return null; // already incorporated
-					// for Foo<Bar>::new we need to (illegally) add one more constraint below to get to the Bar
+					return null; // already incorporated
 				} catch (InferenceFailureException e) {
 					return FALSE;
 				} finally {
@@ -320,6 +310,47 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				return FALSE;
 			return ConstraintTypeFormula.create(rPrime, r, COMPATIBLE, this.isSoft);
 		}
+	}
+
+	private boolean needsInference(ReferenceExpression reference, MethodBinding original) {
+		if (reference.typeArguments != null)
+			return false;
+		TypeBinding compileTimeReturn;
+		if (original.isConstructor()) {
+			// not checking r.mentionsAny for constructors, because A::new resolves to the raw type
+			// whereas in fact the type of all expressions of this shape depend on their type variable (if any)
+			if (original.declaringClass.typeVariables() != Binding.NO_TYPE_VARIABLES
+					&& reference.receiverType.isRawType())
+				return true; // diamond
+			compileTimeReturn = original.declaringClass;
+		} else {
+			compileTimeReturn =  original.returnType;
+		}
+		return (original.typeVariables() != Binding.NO_TYPE_VARIABLES 
+				&& compileTimeReturn.mentionsAny(original.typeVariables(), -1));
+	}
+
+	private int determineInferenceKind(MethodBinding original, TypeBinding[] argumentTypes, InferenceContext18 innerContext) {
+		if (innerContext != null)
+			return innerContext.inferenceKind;
+		if (original.isVarargs()) {
+			int expectedLen = original.parameters.length;
+			int providedLen = argumentTypes.length;
+			if (expectedLen < providedLen) {
+				return InferenceContext18.CHECK_VARARG;
+			} else if (expectedLen == providedLen) {
+				TypeBinding providedLast = argumentTypes[expectedLen-1];
+				TypeBinding expectedLast = original.parameters[expectedLen-1];
+				if (!providedLast.isCompatibleWith(expectedLast)) {
+					if (expectedLast.isArrayType()) {
+						expectedLast = expectedLast.leafComponentType();
+						if (providedLast.isCompatibleWith(expectedLast))
+							return InferenceContext18.CHECK_VARARG;
+					}
+				}
+			}
+		}
+		return InferenceContext18.CHECK_STRICT;
 	}
 
 	static void inferInvocationApplicability(InferenceContext18 inferenceContext, MethodBinding method, TypeBinding[] arguments, boolean isDiamond, int checkType)
@@ -339,6 +370,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 		inferenceContext.addThrowsContraints(typeVariables, inferenceVariables, method.thrownExceptions);
 	}
 
+	/** Perform steps from JLS 18.5.2. needed for computing the bound set B3. */
 	static boolean inferPolyInvocationType(InferenceContext18 inferenceContext, InvocationSite invocationSite, TypeBinding targetType, MethodBinding method) 
 				throws InferenceFailureException 
 	{

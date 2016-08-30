@@ -55,7 +55,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FieldInitsFakingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
@@ -243,7 +243,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		IErrorHandlingPolicy oldPolicy = currentScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
 		try {
 			implicitLambda.analyseCode(currentScope, 
-					new ExceptionHandlingFlowContext(null, this, Binding.NO_EXCEPTIONS, null, currentScope, FlowInfo.DEAD_END), 
+					new FieldInitsFakingFlowContext(null, this, Binding.NO_EXCEPTIONS, null, currentScope, FlowInfo.DEAD_END), 
 					UnconditionalFlowInfo.fakeInitializedFlowInfo(currentScope.outerMostMethodScope().analysisIndex, currentScope.referenceType().maxFieldCount));
 		} finally {
 			currentScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
@@ -592,8 +592,17 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
         final boolean isMethodReference = isMethodReference();
         this.depth = 0;
         this.freeParameters = descriptorParameters;
-        MethodBinding someMethod = isMethodReference ? scope.getMethod(this.receiverType, this.selector, descriptorParameters, this) :
-        											       scope.getConstructor((ReferenceBinding) this.receiverType, descriptorParameters, this);
+        MethodBinding someMethod = null;
+        if (isMethodReference) {
+        	someMethod = scope.getMethod(this.receiverType, this.selector, descriptorParameters, this);
+        } else {
+        	if (argumentsTypeElided() && this.receiverType.isRawType()) {
+        		boolean[] inferredReturnType = new boolean[1];
+	        	someMethod = AllocationExpression.inferDiamondConstructor(scope, this, this.receiverType, this.descriptor.parameters, inferredReturnType);
+        	}
+        	if (someMethod == null)
+        		someMethod = scope.getConstructor((ReferenceBinding) this.receiverType, descriptorParameters, this);
+        }
         int someMethodDepth = this.depth, anotherMethodDepth = 0;
     	if (someMethod != null && someMethod.isValidBinding()) {
     		if (someMethod.isStatic() && (this.haveReceiver || this.receiverType.isParameterizedTypeWithActualArguments())) {
@@ -713,9 +722,8 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
     		this.bits |= ASTNode.Unchecked;
 
     	if (this.descriptor.returnType.id != TypeIds.T_void) {
-    		// from 1.5 source level on, array#clone() returns the array type (but binding still shows Object)
     		TypeBinding returnType = null;
-    		if (this.binding == scope.environment().arrayClone || this.binding.isConstructor()) {
+    		if (this.binding.isConstructor()) {
     			returnType = this.receiverType;
     		} else {
     			if ((this.bits & ASTNode.Unchecked) != 0 && this.resolvedTypeArguments == null) {
@@ -777,7 +785,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	    			}
 	    		}
 	    		TypeBinding returnType = this.binding.returnType;
-	    		if (this.binding.isConstructor() || this.binding == scope.environment().arrayClone) {
+	    		if (this.binding.isConstructor()) {
 	    			returnType = scope.environment().createAnnotatedType(this.receiverType, new AnnotationBinding[]{ scope.environment().getNonNullAnnotation() });
 	    		}
 	    		NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(this.descriptor.returnType, returnType, FlowInfo.UNKNOWN);

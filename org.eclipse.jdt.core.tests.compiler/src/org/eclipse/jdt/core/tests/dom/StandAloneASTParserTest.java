@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, 2015 IBM Corporation and others.
+ * Copyright (c) 2010, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -653,6 +654,27 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	    Map<String, String> options = JavaCore.getOptions();
 	    JavaCore.setComplianceOptions(JavaCore.VERSION_1_8, options);
 	    parser.setCompilerOptions(options);
+	    assertNotNull(parser.createAST(null));
+	}
+	public void testBug493336_001() {
+	    String input = "public class X implements á¼³ {\n" +
+	    			   "  public static final class if {\n"+
+                       "    public static final if ËŠ = new if(null, null, null, null);\n"+
+                       "  }\n" +
+                        "}";	    		
+	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    parser.setSource(input.toCharArray());
+		parser.setResolveBindings(true);
+		parser.setStatementsRecovery(true);
+		parser.setBindingsRecovery(true);
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setEnvironment(null, new String[] {null}, null, true);
+		
+		Hashtable<String, String> options1 = JavaCore.getDefaultOptions();
+		options1.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
+	    options1.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
+	    options1.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
+	    parser.setCompilerOptions(options1);
 	    assertNotNull(parser.createAST(null));
 	}
 }

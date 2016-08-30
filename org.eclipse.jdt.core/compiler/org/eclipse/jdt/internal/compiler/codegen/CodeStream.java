@@ -3388,8 +3388,8 @@ public static TypeBinding getConstantPoolDeclaringClass(Scope currentScope, Fiel
 public static TypeBinding getConstantPoolDeclaringClass(Scope currentScope, MethodBinding codegenBinding, TypeBinding actualReceiverType, boolean isImplicitThisReceiver) {
 	TypeBinding constantPoolDeclaringClass = codegenBinding.declaringClass;
 	// Post 1.4.0 target, array clone() invocations are qualified with array type
-	// This is handled in array type #clone method binding resolution (see Scope and UpdatedMethodBinding)
-	if (codegenBinding == currentScope.environment().arrayClone) {
+	// This is handled in array type #clone method binding resolution (see ArrayBinding.getCloneMethod())
+	if (ArrayBinding.isArrayClone(actualReceiverType, codegenBinding)) {
 		CompilerOptions options = currentScope.compilerOptions();
 		if (options.sourceLevel > ClassFileConstants.JDK1_4 ) {
 			constantPoolDeclaringClass = actualReceiverType.erasure();

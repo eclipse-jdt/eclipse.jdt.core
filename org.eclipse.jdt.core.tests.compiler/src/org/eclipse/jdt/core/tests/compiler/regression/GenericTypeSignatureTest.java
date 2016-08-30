@@ -1277,4 +1277,48 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 
+	public void testBug460491() {
+		final String[] testsSource = new String[] {
+				"C.java",
+				"public class C<E> {\n" + 
+				"  static class F { }\n" + 
+				"  interface G { }\n" + 
+				"  class H { }\n" + 
+				"  void m1(F f) {}\n" + 
+				"  void m2(G g) {}\n" + 
+				"  void m3(H h) {}\n" + 
+				"}\n"
+		};
+		this.runConformTest(
+				testsSource,
+				"");
+
+		try {
+			ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "C.class");
+			IBinaryMethod[] methods = classFileReader.getMethods();
+			assertNotNull("No methods", methods);
+			assertEquals("Wrong size", 4, methods.length); // incl ctor
+
+			IBinaryMethod m1 = methods[1];
+			assertEquals("Wrong name", "m1", new String(m1.getSelector()));
+			char[] signature = m1.getGenericSignature();
+			assertNull("Unexpected signature", signature); // no generic signature should have been produced
+
+
+			IBinaryMethod m2 = methods[2];
+			assertEquals("Wrong name", "m2", new String(m2.getSelector()));
+			signature = m2.getGenericSignature();
+			assertNull("Unexpected signature", signature); // no generic signature should have been produced
+
+			IBinaryMethod m3 = methods[3];
+			assertEquals("Wrong name", "m3", new String(m3.getSelector()));
+			signature = m3.getGenericSignature();
+			assertEquals("Wrong signature", "(LC<TE;>.H;)V", String.valueOf(signature)); // generic signature *should* have been produced
+		} catch (ClassFormatException e) {
+			assertTrue(false);
+		} catch (IOException e) {
+			assertTrue(false);
+		}
+	}
+
 }

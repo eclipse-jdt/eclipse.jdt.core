@@ -20670,11 +20670,11 @@ public void test276526a() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 
 	// In the absence of the fix, it would have been:
-	// "IBar[TYPE_REF]{IBar, test, Ltest.IBar;, null, 44}\n" +
-	// "IFoo[TYPE_REF]{IFoo, test, Ltest.IFoo;, null, 44}"
+	// "IBar[TYPE_REF]{IBar, test, Ltest.IBar;, null, " + (R_DEFAULT + 39) + "}\n" +
+	// "IFoo[TYPE_REF]{IFoo, test, Ltest.IFoo;, null, " + (R_DEFAULT + 39) + "}"
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
-			"IBar[TYPE_REF]{IBar, test, Ltest.IBar;, null, 44}",
+			"IBar[TYPE_REF]{IBar, test, Ltest.IBar;, null, " + (R_DEFAULT + 39) + "}",
 			requestor.getResults());
 }
 
@@ -20706,8 +20706,8 @@ public void test276526b() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertResults(
 			// In the absence of the fix, it would also complete to Interface1:
-			//"Interface1[TYPE_REF]{Interface1, test, Ltest.Interface1;, null, 44}\n"+
-			"Interface2[TYPE_REF]{Interface2, test, Ltest.Interface2;, null, 44}",
+			//"Interface1[TYPE_REF]{Interface1, test, Ltest.Interface1;, null, " + (R_DEFAULT + 39) + "}\n"+
+			"Interface2[TYPE_REF]{Interface2, test, Ltest.Interface2;, null, " + (R_DEFAULT + 39) + "}",
 			requestor.getResults());
 }
 
@@ -20737,7 +20737,7 @@ public void test276526c() throws JavaModelException {
 	assertResults(
 			// In the absence of the fix, it would suggest both p.Enclosing.Interface2, and
 			// p.Enclosing.Interface1 while it should have suppressed the latter which is in use.
-			"Enclosing.Interface2[TYPE_REF]{p.Enclosing.Interface2, p, Lp.Enclosing$Interface2;, null, 44}",
+			"Enclosing.Interface2[TYPE_REF]{p.Enclosing.Interface2, p, Lp.Enclosing$Interface2;, null, " + (R_DEFAULT + 39) + "}",
 			requestor.getResults());
 }
 
@@ -20772,8 +20772,8 @@ public void test276526d() throws JavaModelException {
 	assertResults(
 			// In the absence of the fix, it would suggest only p.Enclosing.Interface2, as it
 			// was wrongly suppressing p.Enclosing.Interface1 confusing it with p.Interface1.
-			"Enclosing.Interface1[TYPE_REF]{p.Enclosing.Interface1, p, Lp.Enclosing$Interface1;, null, 44}\n" +
-			"Enclosing.Interface2[TYPE_REF]{p.Enclosing.Interface2, p, Lp.Enclosing$Interface2;, null, 44}",
+			"Enclosing.Interface1[TYPE_REF]{p.Enclosing.Interface1, p, Lp.Enclosing$Interface1;, null, " + (R_DEFAULT + 39) + "}\n" +
+			"Enclosing.Interface2[TYPE_REF]{p.Enclosing.Interface2, p, Lp.Enclosing$Interface2;, null, " + (R_DEFAULT + 39) + "}",
 			requestor.getResults());
 }
 
@@ -21176,9 +21176,9 @@ public void testBug292087() throws JavaModelException {
 
 	assertResults(
 			// without the fix no proposals obtained.
-			"Tr[POTENTIAL_METHOD_DECLARATION]{Tr, Ltest.Try;, ()V, Tr, null, 14}\n" +
-			"transient[KEYWORD]{transient, null, null, transient, null, 14}\n" +
-			"Try[TYPE_REF]{Try, test, Ltest.Try;, null, null, 27}",
+			"Tr[POTENTIAL_METHOD_DECLARATION]{Tr, Ltest.Try;, ()V, Tr, null, " + (R_DEFAULT + 9) + "}\n" +
+			"transient[KEYWORD]{transient, null, null, transient, null, " + (R_DEFAULT + 9) + "}\n" +
+			"Try[TYPE_REF]{Try, test, Ltest.Try;, null, null, " + (R_DEFAULT + 22) + "}",
 			requestor.getResults());
 }
 
@@ -21214,10 +21214,10 @@ public void testBug249704() throws JavaModelException {
 
 	assertResults(
 			// without the fix no proposals obtained.
-			"Error[TYPE_REF]{Error, java.lang, Ljava.lang.Error;, null, null, 17}\n" +
-			"Exception[TYPE_REF]{Exception, java.lang, Ljava.lang.Exception;, null, null, 17}\n" +
-			"equals[METHOD_REF]{Try.this.equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 24}\n" +
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 27}",
+			"Error[TYPE_REF]{Error, java.lang, Ljava.lang.Error;, null, null, " + (R_DEFAULT + 12) + "}\n" +
+			"Exception[TYPE_REF]{Exception, java.lang, Ljava.lang.Exception;, null, null, " + (R_DEFAULT + 12) + "}\n" +
+			"equals[METHOD_REF]{Try.this.equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), " + (R_DEFAULT + 19) + "}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), " + (R_DEFAULT + 22) + "}",
 			requestor.getResults());
 }
 
@@ -21316,7 +21316,7 @@ public void testBug308980a() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"AClass[TYPE_REF]{AClass, test, Ltest.AClass;, null, null, 27}",
+			"AClass[TYPE_REF]{AClass, test, Ltest.AClass;, null, null, " + (R_DEFAULT + 22) + "}",
 			requestor.getResults());
 }
 
@@ -21360,7 +21360,7 @@ public void testBug308980b() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"AClass[TYPE_REF]{AClass, test, Ltest.AClass;, null, null, 27}",
+			"AClass[TYPE_REF]{AClass, test, Ltest.AClass;, null, null, " + (R_DEFAULT + 22) + "}",
 			requestor.getResults());
 }
 
@@ -21390,10 +21390,10 @@ public void testBug267091a() throws JavaModelException {
 
 	assertResults(
 			// without the fix no proposals obtained.
-			"Inn.Inn2[TYPE_REF]{test.Inn.Inn2, test, Ltest.Inn$Inn2;, null, null, 44}\n" +
-			"ABC.ABCInterface[TYPE_REF]{ABCInterface, test, Ltest.ABC$ABCInterface;, null, null, 47}\n" +
-			"In[TYPE_REF]{In, test, Ltest.In;, null, null, 47}\n" +
-			"Inn[TYPE_REF]{Inn, test, Ltest.Inn;, null, null, 47}",
+			"Inn.Inn2[TYPE_REF]{test.Inn.Inn2, test, Ltest.Inn$Inn2;, null, null, " + (R_DEFAULT + 39) + "}\n" +
+			"ABC.ABCInterface[TYPE_REF]{ABCInterface, test, Ltest.ABC$ABCInterface;, null, null, " + (R_DEFAULT + 42) + "}\n" +
+			"In[TYPE_REF]{In, test, Ltest.In;, null, null, " + (R_DEFAULT + 42) + "}\n" +
+			"Inn[TYPE_REF]{Inn, test, Ltest.Inn;, null, null, " + (R_DEFAULT + 42) + "}",
 			requestor.getResults());
 }
 
@@ -21424,11 +21424,11 @@ public void testBug267091b() throws JavaModelException {
 
 	assertResults(
 			// without the fix no proposals obtained.
-			"Inn.Inn2[TYPE_REF]{test.Inn.Inn2, test, Ltest.Inn$Inn2;, null, null, 44}\n" +
-			"Inn.Inn2.Inn3[TYPE_REF]{test.Inn.Inn2.Inn3, test, Ltest.Inn$Inn2$Inn3;, null, null, 44}\n" +
-			"ABC[TYPE_REF]{ABC, test, Ltest.ABC;, null, null, 47}\n" +
-			"In[TYPE_REF]{In, test, Ltest.In;, null, null, 47}\n" +
-			"Inn[TYPE_REF]{Inn, test, Ltest.Inn;, null, null, 47}",
+			"Inn.Inn2[TYPE_REF]{test.Inn.Inn2, test, Ltest.Inn$Inn2;, null, null, " + (R_DEFAULT + 39) + "}\n" +
+			"Inn.Inn2.Inn3[TYPE_REF]{test.Inn.Inn2.Inn3, test, Ltest.Inn$Inn2$Inn3;, null, null, " + (R_DEFAULT + 39) + "}\n" +
+			"ABC[TYPE_REF]{ABC, test, Ltest.ABC;, null, null, " + (R_DEFAULT + 42) + "}\n" +
+			"In[TYPE_REF]{In, test, Ltest.In;, null, null, " + (R_DEFAULT + 42) + "}\n" +
+			"Inn[TYPE_REF]{Inn, test, Ltest.Inn;, null, null, " + (R_DEFAULT + 42) + "}",
 			requestor.getResults());
 }
 
@@ -21457,9 +21457,9 @@ public void testBug310747() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
-	int relevance1 = R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_EXACT_EXPECTED_TYPE;
-	int relevance2 = R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC;
-	int relevance3 = R_RESOLVED + R_CASE + R_NON_STATIC;
+	int relevance1 = R_DEFAULT + 52;
+	int relevance2 = R_DEFAULT + 22;
+	int relevance3 = R_DEFAULT + 17;
 	int start1 = str.lastIndexOf("/**/") + "".length();
 	int end1 = start1 + "/**/".length();
 	assertResults(
@@ -21614,7 +21614,7 @@ public void testBug310427b() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"myVar1[LOCAL_VARIABLE_REF]{myVar1, null, I, myVar1, null, 57}",
+			"myVar1[LOCAL_VARIABLE_REF]{myVar1, null, I, myVar1, null, " + (R_DEFAULT + 52) + "}",
 			requestor.getResults());
 }
 
@@ -21936,10 +21936,10 @@ public void test325481() throws JavaModelException {
     this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
     assertResults(
-            "MyClass[TYPE_REF]{mypackage.MyClass, mypackage, Lmypackage.MyClass;, null, null, " + (R_NON_STATIC + R_UNQUALIFIED) + "}\n" + 
-            "mypackage[PACKAGE_REF]{mypackage, mypackage, null, null, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE) + "}\n" + 
-            "myString[FIELD_REF]{myString, Ltest.X;, Ljava.lang.String;, myString, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE + R_NON_RESTRICTED) + "}\n" +
-            "myString2[FIELD_REF]{myString2, Ltest.X;, Ljava.lang.String;, myString2, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE + R_NON_RESTRICTED) + "}",
+            "MyClass[TYPE_REF]{mypackage.MyClass, mypackage, Lmypackage.MyClass;, null, null, " + (R_DEFAULT + 9) + "}\n" + 
+            "mypackage[PACKAGE_REF]{mypackage, mypackage, null, null, null, " + (R_DEFAULT + 19) + "}\n" + 
+            "myString[FIELD_REF]{myString, Ltest.X;, Ljava.lang.String;, myString, null, " + (R_DEFAULT + 22) + "}\n" +
+            "myString2[FIELD_REF]{myString2, Ltest.X;, Ljava.lang.String;, myString2, null, " + (R_DEFAULT + 22) + "}",
             requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=312603
@@ -21963,9 +21963,9 @@ public void test312603() throws JavaModelException {
 			this.wcOwner);
 
 	assertResults(
-			"MyClass[TYPE_REF]{mypackage.MyClass, mypackage, Lmypackage.MyClass;, null, null, 14}\n" + 
-			"mypackage[PACKAGE_REF]{mypackage, mypackage, null, null, null, 24}\n" + 
-			"myString[FIELD_REF]{myString, Ltest.X;, Ljava.lang.String;, myString, null, 57}",
+			"MyClass[TYPE_REF]{mypackage.MyClass, mypackage, Lmypackage.MyClass;, null, null, " + (R_DEFAULT + 9) + "}\n" + 
+			"mypackage[PACKAGE_REF]{mypackage, mypackage, null, null, null, " + (R_DEFAULT + 19) + "}\n" + 
+			"myString[FIELD_REF]{myString, Ltest.X;, Ljava.lang.String;, myString, null, " + (R_DEFAULT + 52) + "}",
 			requestor.getResults());
 }
 
@@ -21995,10 +21995,10 @@ public void test328674a() throws JavaModelException {
 			this.wcOwner);
 
 	assertResults(
-			"MyClass[TYPE_REF]{mypackage.MyClass, mypackage, Lmypackage.MyClass;, null, null, " + (R_NON_STATIC + R_UNQUALIFIED) + "}\n" + 
-			"mypackage[PACKAGE_REF]{mypackage, mypackage, null, null, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE) + "}\n" + 
-			"myString[LOCAL_VARIABLE_REF]{myString, null, Ljava.lang.String;, myString, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
-			"myString2[LOCAL_VARIABLE_REF]{myString2, null, Ljava.lang.String;, myString2, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
+			"MyClass[TYPE_REF]{mypackage.MyClass, mypackage, Lmypackage.MyClass;, null, null, " + (R_DEFAULT + 9) + "}\n" + 
+			"mypackage[PACKAGE_REF]{mypackage, mypackage, null, null, null, " + (R_DEFAULT + 19) + "}\n" + 
+			"myString[LOCAL_VARIABLE_REF]{myString, null, Ljava.lang.String;, myString, null, " + (R_DEFAULT + 52) + "}\n" +
+			"myString2[LOCAL_VARIABLE_REF]{myString2, null, Ljava.lang.String;, myString2, null, " + (R_DEFAULT + 52) + "}",
 			requestor.getResults());
 }
 
@@ -22028,10 +22028,10 @@ public void test328674b() throws JavaModelException {
 			this.wcOwner);
 
 	assertResults(
-			"MyClass[TYPE_REF]{mypackage.MyClass, mypackage, Lmypackage.MyClass;, null, null, " + (R_NON_STATIC + R_UNQUALIFIED) + "}\n" + 
-			"mypackage[PACKAGE_REF]{mypackage, mypackage, null, null, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE) + "}\n" + 
-			"myString[LOCAL_VARIABLE_REF]{myString, null, Ljava.lang.String;, myString, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
-			"myString1[LOCAL_VARIABLE_REF]{myString1, null, Ljava.lang.String;, myString1, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
+			"MyClass[TYPE_REF]{mypackage.MyClass, mypackage, Lmypackage.MyClass;, null, null, " + (R_DEFAULT + 9) + "}\n" + 
+			"mypackage[PACKAGE_REF]{mypackage, mypackage, null, null, null, " + (R_DEFAULT + 19) + "}\n" + 
+			"myString[LOCAL_VARIABLE_REF]{myString, null, Ljava.lang.String;, myString, null, " + (R_DEFAULT + 52) + "}\n" +
+			"myString1[LOCAL_VARIABLE_REF]{myString1, null, Ljava.lang.String;, myString1, null, " + (R_DEFAULT + 52) + "}",
 			requestor.getResults());
 }
 
@@ -22052,7 +22052,7 @@ public void test325481b() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		
 		cu.codeComplete(cursorLocation, requestor);
-		int relevance = R_INTERFACE + R_UNQUALIFIED + R_NON_RESTRICTED;
+		int relevance = R_DEFAULT + 21;
 		assumeEquals(
 				"should have two completions",
 				"element:ADD_CUSTOM_ATTRIBUTES    completion:ADD_CUSTOM_ATTRIBUTES    relevance:" + relevance +"\n" + 
@@ -23973,7 +23973,7 @@ public void testBug401487a() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		
 		assertResults(
-			"def[POTENTIAL_METHOD_DECLARATION]{def, Ltest.P;, ()V, def, null, 14}\n" + "default[KEYWORD]{default, null, null, default, null, 24}" ,
+			"def[POTENTIAL_METHOD_DECLARATION]{def, Ltest.P;, ()V, def, null, " + (R_DEFAULT + 9) + "}\n" + "default[KEYWORD]{default, null, null, default, null, " + (R_DEFAULT + 19) + "}" ,
 			requestor.getResults());
 	} finally {
 		// Restore compliance settings.
@@ -24037,7 +24037,7 @@ public void testBug401487c() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		
 		assertResults(
-			"def[POTENTIAL_METHOD_DECLARATION]{def, Ltest.P;, ()V, def, null, 14}" ,
+			"def[POTENTIAL_METHOD_DECLARATION]{def, Ltest.P;, ()V, def, null, " + (R_DEFAULT + 9) + "}" ,
 			requestor.getResults());
 	} finally {
 		// Restore compliance settings.
@@ -24103,7 +24103,7 @@ public void testBug401487e() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		
 		assertResults(
-			"def[POTENTIAL_METHOD_DECLARATION]{def, Ltest.ZZ$I;, ()V, def, null, 14}\n" + "default[KEYWORD]{default, null, null, default, null, 24}" ,
+			"def[POTENTIAL_METHOD_DECLARATION]{def, Ltest.ZZ$I;, ()V, def, null, " + (R_DEFAULT + 9) + "}\n" + "default[KEYWORD]{default, null, null, default, null, " + (R_DEFAULT + 19) + "}" ,
 			requestor.getResults());
 	} finally {
 		// Restore compliance settings.
@@ -24567,10 +24567,10 @@ public void testBug351444() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 30}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 30}\n" +
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (TT;)V, TXYU, (t), 30}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 30}",
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), " + (R_DEFAULT + 25) + "}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, " + (R_DEFAULT + 25) + "}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (TT;)V, TXYU, (t), " + (R_DEFAULT + 25) + "}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, " + (R_DEFAULT + 25) + "}",
 				requestor.getResults());
 		assertEquals(true,
 			requestor.canUseDiamond(0));
@@ -24610,10 +24610,10 @@ public void testBug351444a() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 30}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 30}\n" +
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (TT;)V, TXYU, (t), 30}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 30}",
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), " + (R_DEFAULT + 25) + "}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, " + (R_DEFAULT + 25) + "}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<TT;>;, (TT;)V, TXYU, (t), " + (R_DEFAULT + 25) + "}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, " + (R_DEFAULT + 25) + "}",
 				requestor.getResults());
 		assertEquals(false,
 			requestor.canUseDiamond(1));
@@ -24656,10 +24656,10 @@ public void testBug351444b() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 30}\n" +
-				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, 30}\n" +
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (TT;)V, TXYU, (t), 30}\n" +
-				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, 30}",
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), " + (R_DEFAULT + 25) + "}\n" +
+				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, " + (R_DEFAULT + 25) + "}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (TT;)V, TXYU, (t), " + (R_DEFAULT + 25) + "}\n" +
+				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, " + (R_DEFAULT + 25) + "}",
 				requestor.getResults());
 		assertEquals(true,
 			requestor.canUseDiamond(0));
@@ -24702,10 +24702,10 @@ public void testBug351444c() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 30}\n" +
-				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, 30}\n" +
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (TT;)V, TXYU, (t), 30}\n" +
-				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, 30}",
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), " + (R_DEFAULT + 25) + "}\n" +
+				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, " + (R_DEFAULT + 25) + "}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.Test<Ljava.lang.Object;>.TXYU;, (TT;)V, TXYU, (t), " + (R_DEFAULT + 25) + "}\n" +
+				"   Test.TXYU[TYPE_REF]{TXYU, test, Ltest.Test$TXYU;, null, null, " + (R_DEFAULT + 25) + "}",
 				requestor.getResults());
 		assertEquals(false,
 			requestor.canUseDiamond(1));
@@ -24751,10 +24751,10 @@ public void testBug351444d() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (LNumber;)V, TXYU, (t), 60}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 60}\n" +
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 60}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 60}",
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (LNumber;)V, TXYU, (t), " + (R_DEFAULT + 55) + "}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, " + (R_DEFAULT + 55) + "}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), " + (R_DEFAULT + 55) + "}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, " + (R_DEFAULT + 55) + "}",
 				requestor.getResults());
 		assertEquals(false,
 			requestor.canUseDiamond(0));
@@ -24800,10 +24800,10 @@ public void testBug351444e() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (LNumber;)V, TXYU, (t), 60}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 60}\n" +
-				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), 60}\n" +
-				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, 60}",
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (LNumber;)V, TXYU, (t), " + (R_DEFAULT + 55) + "}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, " + (R_DEFAULT + 55) + "}\n" +
+				"TXYU[CONSTRUCTOR_INVOCATION]{(), Ltest.TXYU<LNumber;>;, (Ljava.lang.String;Ljava.lang.String;)V, TXYU, (s, s2), " + (R_DEFAULT + 55) + "}\n" +
+				"   TXYU[TYPE_REF]{TXYU, test, Ltest.TXYU;, null, null, " + (R_DEFAULT + 55) + "}",
 				requestor.getResults());
 		assertEquals(true,
 			requestor.canUseDiamond(1));
@@ -24844,11 +24844,11 @@ public void testBug292087b() throws JavaModelException {
 			"expectedTypesKeys={Ltest/Try~MyClass;}",
 			requestor.getContext());
 	assertResults(
-			"mypackage[PACKAGE_REF]{mypackage, mypackage, null, null, null, " + (R_NON_STATIC + R_UNQUALIFIED) + "}\n" +
-			"MyClass[TYPE_REF]{mypackage.MyClass, mypackage, Lmypackage.MyClass;, null, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE) + "}\n" +
-			"MyClass[TYPE_REF]{MyClass, test, Ltest.MyClass;, null, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
-			"MyClassField[FIELD_REF]{MyClassField, Ltest.Try;, Ltest.MyClass;, MyClassField, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}\n" +
-			"MyClassMethod[METHOD_REF]{MyClassMethod(), Ltest.Try;, ()Ltest.MyClass;, MyClassMethod, null, " + (R_NON_STATIC + R_UNQUALIFIED + R_CASE + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE) + "}",
+			"mypackage[PACKAGE_REF]{mypackage, mypackage, null, null, null, " + (R_DEFAULT + 9) + "}\n" +
+			"MyClass[TYPE_REF]{mypackage.MyClass, mypackage, Lmypackage.MyClass;, null, null, " + (R_DEFAULT + 19) + "}\n" +
+			"MyClass[TYPE_REF]{MyClass, test, Ltest.MyClass;, null, null, " + (R_DEFAULT + 52) + "}\n" +
+			"MyClassField[FIELD_REF]{MyClassField, Ltest.Try;, Ltest.MyClass;, MyClassField, null, " + (R_DEFAULT + 52) + "}\n" +
+			"MyClassMethod[METHOD_REF]{MyClassMethod(), Ltest.Try;, ()Ltest.MyClass;, MyClassMethod, null, " + (R_DEFAULT + 52) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
@@ -24882,21 +24882,21 @@ public void testBug292087c() throws JavaModelException {
 			"expectedTypesKeys={Ltest/Try~MyClass;}",
 			requestor.getContext());
 	assertResults(
-			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_VOID) + "}\n" +
-			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_VOID) + "}\n" +
-			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_VOID) + "}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_VOID) + "}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_VOID) + "}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_VOID) + "}\n" +
-			"Try[TYPE_REF]{Try, test, Ltest.Try;, null, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS) + "}\n" +
-			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS) + "}\n" +
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS) + "}\n" +
-			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS) + "}\n" +
-			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS) + "}\n" +
-			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS) + "}\n" +
-			"MyClass[TYPE_REF]{MyClass, test, Ltest.MyClass;, null, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_EXACT_EXPECTED_TYPE) + "}\n" +
-			"MyClassField[FIELD_REF]{MyClassField, Ltest.Try;, Ltest.MyClass;, MyClassField, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_EXACT_EXPECTED_TYPE) + "}\n" +
-			"MyClassMethod[METHOD_REF]{MyClassMethod(), Ltest.Try;, ()Ltest.MyClass;, MyClassMethod, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_EXACT_EXPECTED_TYPE) + "}",
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, " + (R_DEFAULT + 17) + "}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, " + (R_DEFAULT + 17) + "}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, " + (R_DEFAULT + 17) + "}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, " + (R_DEFAULT + 17) + "}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), " + (R_DEFAULT + 17) + "}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), " + (R_DEFAULT + 17) + "}\n" +
+			"Try[TYPE_REF]{Try, test, Ltest.Try;, null, null, " + (R_DEFAULT + 22) + "}\n" +
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, " + (R_DEFAULT + 22) + "}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), " + (R_DEFAULT + 22) + "}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, " + (R_DEFAULT + 22) + "}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, " + (R_DEFAULT + 22) + "}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, " + (R_DEFAULT + 22) + "}\n" +
+			"MyClass[TYPE_REF]{MyClass, test, Ltest.MyClass;, null, null, " + (R_DEFAULT + 52) + "}\n" +
+			"MyClassField[FIELD_REF]{MyClassField, Ltest.Try;, Ltest.MyClass;, MyClassField, null, " + (R_DEFAULT + 52) + "}\n" +
+			"MyClassMethod[METHOD_REF]{MyClassMethod(), Ltest.Try;, ()Ltest.MyClass;, MyClassMethod, null, " + (R_DEFAULT + 52) + "}",
 			requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
@@ -24932,21 +24932,21 @@ public void testBug292087d() throws JavaModelException {
 			"expectedTypesKeys={Ltest/Try~MyClass;}",
 			requestor.getContext());
 	assertResults(
-			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_VOID) + "}\n" +
-			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_VOID) + "}\n" +
-			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_VOID) + "}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_VOID) + "}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_VOID) + "}\n" +
-			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_VOID) + "}\n" +
-			"Try[TYPE_REF]{Try, test, Ltest.Try;, null, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS) + "}\n" +
-			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS) + "}\n" +
-			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS) + "}\n" +
-			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS) + "}\n" +
-			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS) + "}\n" +
-			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS) + "}\n" +
-			"MyClass[TYPE_REF]{MyClass, test, Ltest.MyClass;, null, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_EXACT_EXPECTED_TYPE) + "}\n" +
-			"MyClassField[FIELD_REF]{MyClassField, Ltest.Try;, Ltest.MyClass;, MyClassField, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_EXACT_EXPECTED_TYPE) + "}\n" +
-			"MyClassMethod[METHOD_REF]{MyClassMethod(), Ltest.Try;, ()Ltest.MyClass;, MyClassMethod, null, " + (R_RESOLVED + R_NON_STATIC + R_NAME_LESS_NEW_CHARACTERS + R_EXACT_EXPECTED_TYPE) + "}",
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, " + (R_DEFAULT + 17) + "}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, " + (R_DEFAULT + 17) + "}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, " + (R_DEFAULT + 17) + "}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, " + (R_DEFAULT + 17) + "}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), " + (R_DEFAULT + 17) + "}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), " + (R_DEFAULT + 17) + "}\n" +
+			"Try[TYPE_REF]{Try, test, Ltest.Try;, null, null, " + (R_DEFAULT + 22) + "}\n" +
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, " + (R_DEFAULT + 22) + "}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), " + (R_DEFAULT + 22) + "}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class;, getClass, null, " + (R_DEFAULT + 22) + "}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, " + (R_DEFAULT + 22) + "}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, " + (R_DEFAULT + 22) + "}\n" +
+			"MyClass[TYPE_REF]{MyClass, test, Ltest.MyClass;, null, null, " + (R_DEFAULT + 52) + "}\n" +
+			"MyClassField[FIELD_REF]{MyClassField, Ltest.Try;, Ltest.MyClass;, MyClassField, null, " + (R_DEFAULT + 52) + "}\n" +
+			"MyClassMethod[METHOD_REF]{MyClassMethod(), Ltest.Try;, ()Ltest.MyClass;, MyClassMethod, null, " + (R_DEFAULT + 52) + "}",
 			requestor.getResults());
 }
 
@@ -25175,15 +25175,15 @@ public void testBug402574() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"IT_MAY_BE_DUE_TO_MIXING_PERHAPS[FIELD_REF]{IT_MAY_BE_DUE_TO_MIXING_PERHAPS, Ltest.ExampleEnumNoAutocomplete;, Ltest.ExampleEnumNoAutocomplete;, IT_MAY_BE_DUE_TO_MIXING_PERHAPS, null, 26}\n" +
-				"MORE_STUFF[FIELD_REF]{MORE_STUFF, Ltest.ExampleEnumNoAutocomplete;, Ltest.ExampleEnumNoAutocomplete;, MORE_STUFF, null, 26}\n" +
-				"OTHER[FIELD_REF]{OTHER, Ltest.ExampleEnumNoAutocomplete;, Ltest.ExampleEnumNoAutocomplete;, OTHER, null, 26}\n" +
-				"STILL_OTHER[FIELD_REF]{STILL_OTHER, Ltest.ExampleEnumNoAutocomplete;, Ltest.ExampleEnumNoAutocomplete;, STILL_OTHER, null, 26}\n" +
-				"STUFF[FIELD_REF]{STUFF, Ltest.ExampleEnumNoAutocomplete;, Ltest.ExampleEnumNoAutocomplete;, STUFF, null, 26}\n" +
-				"THINGS[FIELD_REF]{THINGS, Ltest.ExampleEnumNoAutocomplete;, Ltest.ExampleEnumNoAutocomplete;, THINGS, null, 26}\n" +
-				"class[FIELD_REF]{class, null, Ljava.lang.Class<Ltest.ExampleEnumNoAutocomplete;>;, class, null, 26}\n" +
-				"valueOf[METHOD_REF]{valueOf(), Ltest.ExampleEnumNoAutocomplete;, (Ljava.lang.String;)Ltest.ExampleEnumNoAutocomplete;, valueOf, (arg0), 26}\n" +
-				"values[METHOD_REF]{values(), Ltest.ExampleEnumNoAutocomplete;, ()[Ltest.ExampleEnumNoAutocomplete;, values, null, 26}",
+				"IT_MAY_BE_DUE_TO_MIXING_PERHAPS[FIELD_REF]{IT_MAY_BE_DUE_TO_MIXING_PERHAPS, Ltest.ExampleEnumNoAutocomplete;, Ltest.ExampleEnumNoAutocomplete;, IT_MAY_BE_DUE_TO_MIXING_PERHAPS, null, " + (R_DEFAULT + 21) + "}\n" +
+				"MORE_STUFF[FIELD_REF]{MORE_STUFF, Ltest.ExampleEnumNoAutocomplete;, Ltest.ExampleEnumNoAutocomplete;, MORE_STUFF, null, " + (R_DEFAULT + 21) + "}\n" +
+				"OTHER[FIELD_REF]{OTHER, Ltest.ExampleEnumNoAutocomplete;, Ltest.ExampleEnumNoAutocomplete;, OTHER, null, " + (R_DEFAULT + 21) + "}\n" +
+				"STILL_OTHER[FIELD_REF]{STILL_OTHER, Ltest.ExampleEnumNoAutocomplete;, Ltest.ExampleEnumNoAutocomplete;, STILL_OTHER, null, " + (R_DEFAULT + 21) + "}\n" +
+				"STUFF[FIELD_REF]{STUFF, Ltest.ExampleEnumNoAutocomplete;, Ltest.ExampleEnumNoAutocomplete;, STUFF, null, " + (R_DEFAULT + 21) + "}\n" +
+				"THINGS[FIELD_REF]{THINGS, Ltest.ExampleEnumNoAutocomplete;, Ltest.ExampleEnumNoAutocomplete;, THINGS, null, " + (R_DEFAULT + 21) + "}\n" +
+				"class[FIELD_REF]{class, null, Ljava.lang.Class<Ltest.ExampleEnumNoAutocomplete;>;, class, null, " + (R_DEFAULT + 21) + "}\n" +
+				"valueOf[METHOD_REF]{valueOf(), Ltest.ExampleEnumNoAutocomplete;, (Ljava.lang.String;)Ltest.ExampleEnumNoAutocomplete;, valueOf, (arg0), " + (R_DEFAULT + 21) + "}\n" +
+				"values[METHOD_REF]{values(), Ltest.ExampleEnumNoAutocomplete;, ()[Ltest.ExampleEnumNoAutocomplete;, values, null, " + (R_DEFAULT + 21) + "}",
 				requestor.getResults());
 		assertEquals(false,
 			requestor.canUseDiamond(0));
@@ -25236,7 +25236,7 @@ public void testBug402812a() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"staticMethod[METHOD_REF]{staticMethod(), Ltest.Test;, ()V, staticMethod, null, 27}",
+			"staticMethod[METHOD_REF]{staticMethod(), Ltest.Test;, ()V, staticMethod, null, " + (R_DEFAULT + 22) + "}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -25291,7 +25291,7 @@ public void testBug402812b() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"staticMethod[METHOD_REF]{staticMethod(), Ltest.I;, ()V, staticMethod, null, 26}",
+			"staticMethod[METHOD_REF]{staticMethod(), Ltest.I;, ()V, staticMethod, null, " + (R_DEFAULT + 21) + "}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -25347,7 +25347,7 @@ public void testBug402812c() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"defaultMethod[METHOD_REF]{defaultMethod(), Ltest.I;, ()V, defaultMethod, null, 35}",
+			"defaultMethod[METHOD_REF]{defaultMethod(), Ltest.I;, ()V, defaultMethod, null, " + (R_DEFAULT + 30) + "}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -25402,7 +25402,7 @@ public void testBug402812d() throws Exception {
 	    this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 	    
 	    assertResults(
-			"defaultMethod[METHOD_REF]{defaultMethod(), Ltest.I;, ()V, defaultMethod, null, 27}",
+			"defaultMethod[METHOD_REF]{defaultMethod(), Ltest.I;, ()V, defaultMethod, null, " + (R_DEFAULT + 22) + "}",
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
@@ -25446,7 +25446,7 @@ public void testBug370971() throws JavaModelException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 		
 		assertResults(
-				"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 65}",
+				"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, " + (R_DEFAULT + 60) + "}",
 				requestor.getResults());
 		assertEquals(false,
 			requestor.canUseDiamond(0));
@@ -25486,12 +25486,12 @@ public void testBug406468a() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"I[TYPE_REF]{I, test, Ltest.I;, null, null, 27}\n" +
-			"X[TYPE_REF]{X, test, Ltest.X;, null, null, 27}\n" +
-			"args[LOCAL_VARIABLE_REF]{args, null, [Ljava.lang.String;, args, null, 27}\n" +
-			"i[LOCAL_VARIABLE_REF]{i, null, Ltest.I;, i, null, 27}\n" +
-			"main[METHOD_REF]{main(), Ltest.X;, ([Ljava.lang.String;)V, main, (args), 27}\n" +
-			"x[LOCAL_VARIABLE_REF]{x, null, [[[Ltest.X;, x, null, 27}",
+			"I[TYPE_REF]{I, test, Ltest.I;, null, null, " + (R_DEFAULT + 22) + "}\n" +
+			"X[TYPE_REF]{X, test, Ltest.X;, null, null, " + (R_DEFAULT + 22) + "}\n" +
+			"args[LOCAL_VARIABLE_REF]{args, null, [Ljava.lang.String;, args, null, " + (R_DEFAULT + 22) + "}\n" +
+			"i[LOCAL_VARIABLE_REF]{i, null, Ltest.I;, i, null, " + (R_DEFAULT + 22) + "}\n" +
+			"main[METHOD_REF]{main(), Ltest.X;, ([Ljava.lang.String;)V, main, (args), " + (R_DEFAULT + 22) + "}\n" +
+			"x[LOCAL_VARIABLE_REF]{x, null, [[[Ltest.X;, x, null, " + (R_DEFAULT + 22) + "}",
 			requestor.getResults());
 	} finally {
 		// Restore compliance settings.
@@ -25528,13 +25528,13 @@ public void testBug406468b() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"I[TYPE_REF]{I, test, Ltest.I;, null, null, 27}\n" +
-			"S[TYPE_REF]{S, null, TS;, null, null, 27}\n" +
-			"X<S>[TYPE_REF]{X, test, Ltest.X<TS;>;, null, null, 27}\n" +
-			"args[LOCAL_VARIABLE_REF]{args, null, [Ljava.lang.String;, args, null, 27}\n" +
-			"i[LOCAL_VARIABLE_REF]{i, null, Ltest.I;, i, null, 27}\n" +
-			"main[METHOD_REF]{main(), Ltest.X<TS;>;, ([Ljava.lang.String;)V, main, (args), 27}\n" +
-			"x[LOCAL_VARIABLE_REF]{x, null, Ltest.X;, x, null, 27}",
+			"I[TYPE_REF]{I, test, Ltest.I;, null, null, " + (R_DEFAULT + 22) + "}\n" +
+			"S[TYPE_REF]{S, null, TS;, null, null, " + (R_DEFAULT + 22) + "}\n" +
+			"X<S>[TYPE_REF]{X, test, Ltest.X<TS;>;, null, null, " + (R_DEFAULT + 22) + "}\n" +
+			"args[LOCAL_VARIABLE_REF]{args, null, [Ljava.lang.String;, args, null, " + (R_DEFAULT + 22) + "}\n" +
+			"i[LOCAL_VARIABLE_REF]{i, null, Ltest.I;, i, null, " + (R_DEFAULT + 22) + "}\n" +
+			"main[METHOD_REF]{main(), Ltest.X<TS;>;, ([Ljava.lang.String;)V, main, (args), " + (R_DEFAULT + 22) + "}\n" +
+			"x[LOCAL_VARIABLE_REF]{x, null, Ltest.X;, x, null, " + (R_DEFAULT + 22) + "}",
 			requestor.getResults());
 	} finally {
 		// Restore compliance settings.
@@ -25688,7 +25688,7 @@ public void testBug421469() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"pqrqwerty[LOCAL_VARIABLE_REF]{pqrqwerty, null, I, pqrqwerty, null, 27}",
+			"pqrqwerty[LOCAL_VARIABLE_REF]{pqrqwerty, null, I, pqrqwerty, null, " + (R_DEFAULT + 22) + "}",
 			requestor.getResults());
 	} finally {
 		// Restore compliance settings.
@@ -25733,7 +25733,7 @@ public void testBug421469a() throws JavaModelException {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-			"pqrqwerty[LOCAL_VARIABLE_REF]{pqrqwerty, null, I, pqrqwerty, null, 27}",
+			"pqrqwerty[LOCAL_VARIABLE_REF]{pqrqwerty, null, I, pqrqwerty, null, " + (R_DEFAULT + 22) + "}",
 			requestor.getResults());
 	} finally {
 		// Restore compliance settings.

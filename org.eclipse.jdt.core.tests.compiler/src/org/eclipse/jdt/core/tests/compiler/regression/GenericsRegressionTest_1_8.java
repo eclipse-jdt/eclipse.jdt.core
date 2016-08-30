@@ -6736,4 +6736,154 @@ public void testBug497603() {
 			"}\n"
 		});
 }
+public void testBug498113a() {
+	runConformTest(
+		new String[] {
+			"NPETest.java",
+			"import java.util.*;\n" +
+			"public class NPETest {\n" + 
+			"\n" + 
+			"    public void test(\n" + 
+			"            final Set<String> set,\n" + 
+			"            final List<Dummy<String>> dummies) {\n" + 
+			"        set.stream()\n" + 
+			"            .map(Dummy::new)\n" + // true varargs invocation
+			"            .forEach(dummies::add);\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    class Dummy<T> {\n" + 
+			"        \n" + 
+			"        public Dummy(T... args) {\n" + 
+			"            \n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+public void testBug498113b() {
+	runConformTest(
+		new String[] {
+			"NPETest.java",
+			"import java.util.*;\n" +
+			"public class NPETest {\n" + 
+			"\n" + 
+			"    public void test(\n" + 
+			"            final Set<String[]> set,\n" + 
+			"            final List<Dummy<String>> dummies) {\n" + 
+			"        set.stream()\n" + 
+			"            .map(Dummy::new)\n" + // pass String[] for a strict invocation
+			"            .forEach(dummies::add);\n" + 
+			"    }\n" + 
+			"    \n" + 
+			"    class Dummy<T> {\n" + 
+			"        \n" + 
+			"        public Dummy(T... args) {\n" + 
+			"            \n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+public void testBug498362_comment0() {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"public class X {\n" +
+			"	static final byte[] EMPTY_BYTE_ARRAY = new byte[0];\n" +
+			"	private byte[] stream;\n" +
+			"	void test() {\n" +
+			"		this.stream = Optional.ofNullable(stream)\n" + 
+			"            .map(byte[]::clone)\n" + 
+			"            .orElse(EMPTY_BYTE_ARRAY);" +
+			"	}\n" +
+			"}\n"
+		});
+}
+public void testBug498362_comment5() {
+	runConformTest(
+		new String[] {
+			"CloneVerifyError.java",
+			"public class CloneVerifyError {\n" + 
+			"    public interface PublicCloneable<T> extends Cloneable {\n" + 
+			"        public T clone();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static <T> T[] clone0(T[] input) {\n" + 
+			"        return input == null ? null : input.clone();\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static <T extends PublicCloneable<T>> T clone0(T input) {\n" + 
+			"        if (input == null) {\n" + 
+			"            return null;\n" + 
+			"        } else {\n" + 
+			"            return input.clone();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        Object[] array = null;\n" + 
+			"        clone0(array);\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+public void testBug470667() {
+	runNegativeTest(
+		new String[] {
+			"Test.java",
+			"import java.math.BigInteger;\n" + 
+			"import java.util.function.Function;\n" + 
+			"public class Test {\n" + 
+			"		protected <T> T m(Class<T> c, String s, Function<String, T> f) {\n" + 
+			"			return f.apply(s);\n" + 
+			"		}\n" + 
+			"		protected <T> T m(Class<T> c, BigInteger i, Function<BigInteger, T> f) {\n" + 
+			"			return f.apply(i);\n" + 
+			"		}\n" + 
+			"		protected <T> Data<T> createData() {\n" + 
+			"			return new Data<T>() {\n" + 
+			"			};\n" + 
+			"		}\n" + 
+			"		private <T> Data<T> doA(BigInteger i) {\n" + 
+			"			String str = \"titi \";\n" +
+			"			@SuppressWarnings(\"unchecked\")\n" +
+			"			Data<T> r = m(Data.class, \"toto \",\n" + 
+			"				(x) -> m(Data.class, str, (y) -> m(Data.class, BigInteger.ZERO, (z) -> createData(i, x, y, z))));\n" + 
+			"			return r;\n" + 
+			"		}\n" + 
+			"}\n" + 
+			"interface Data<T> { }\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 18)\n" + 
+		"	(x) -> m(Data.class, str, (y) -> m(Data.class, BigInteger.ZERO, (z) -> createData(i, x, y, z))));\n" +
+		"	                                                                       ^^^^^^^^^^\n" + 
+		"The method createData() in the type Test is not applicable for the arguments (BigInteger, String, String, BigInteger)\n" + 
+		"----------\n");
+}
+public void testBug497239() {
+	runConformTest(
+		new String[] {
+			"FunctionUtils.java",
+			"import java.util.stream.Collector;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"\n" +
+			"public class FunctionUtils<InputElement, ResultElement> {\n" +
+			"	public static <T> T[] concat(T[] array1, T[] array2) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"\n" +
+			"	public static <T> T[] concat(T[][] arrays) {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"\n" +
+			"	public Collector<ResultElement[], ?, ResultElement[]> on(InputElement[] inputElements) {\n" +
+			"		return Collectors.collectingAndThen(Collectors.reducing(FunctionUtils::concat), r -> r.get());\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}
+	);
+}
 }

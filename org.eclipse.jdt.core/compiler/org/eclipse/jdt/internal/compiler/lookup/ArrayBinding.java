@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -49,6 +50,8 @@ public final class ArrayBinding extends TypeBinding {
 	// possible bits are TagBits.AnnotationNonNull and TagBits.AnnotationNullable
 	// (only ever set when CompilerOptions.isAnnotationBasedNullAnalysisEnabled == true):
 	public long[] nullTagBitsPerDimension;
+	
+	private MethodBinding clone;
 
 public ArrayBinding(TypeBinding type, int dimensions, LookupEnvironment environment) {
 	this.tagBits |= TagBits.IsArrayType;
@@ -484,5 +487,44 @@ public long updateTagBits() {
 	if (this.leafComponentType != null)
 		this.tagBits |= this.leafComponentType.updateTagBits(); 
 	return super.updateTagBits();
+}
+
+/**
+ * The type of x.clone() is substituted from 'Object' into the type of the receiver array (non-null)
+ */
+public MethodBinding getCloneMethod(final MethodBinding originalMethod) {
+	if (this.clone != null)
+		return this.clone;
+	MethodBinding method = new MethodBinding() {
+		@Override
+		public char[] signature(ClassFile classFile) {
+			return originalMethod.signature(); // for codeGen we need to answer the signature of j.l.Object.clone()
+		}
+	};
+	method.modifiers = originalMethod.modifiers;
+	method.selector = originalMethod.selector;
+	method.declaringClass = originalMethod.declaringClass; // cannot set array binding as declaring class, will be tweaked in CodeStream.getConstantPoolDeclaringClass()
+	method.typeVariables = Binding.NO_TYPE_VARIABLES;
+	method.parameters = originalMethod.parameters;
+	method.thrownExceptions = Binding.NO_EXCEPTIONS;
+	method.tagBits = originalMethod.tagBits;
+	method.returnType = this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_5 ? this : originalMethod.returnType;
+	if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+		if (this.environment.usesNullTypeAnnotations())
+			method.returnType = this.environment.createAnnotatedType(method.returnType, new AnnotationBinding[] { this.environment.getNonNullAnnotation() });
+		else
+			method.tagBits |= TagBits.AnnotationNonNull;
+	}
+	if ((method.returnType.tagBits & TagBits.HasMissingType) != 0) {
+		method.tagBits |=  TagBits.HasMissingType;
+	}
+	return this.clone = method;
+}
+public static boolean isArrayClone(TypeBinding receiverType, MethodBinding binding) {
+	if (receiverType instanceof ArrayBinding) {
+		MethodBinding clone = ((ArrayBinding) receiverType).clone;
+		return clone != null && binding == clone;
+	}
+	return false;
 }
 }

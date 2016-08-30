@@ -805,4 +805,137 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 				deleteProject(project);
 		}
 	}
+	
+	public void testBug460491WithOldBinary() throws CoreException, InterruptedException, IOException {
+		IJavaProject project = null;
+    	try {
+			project = createJavaProject("Bug460491", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB, testJarPath("bug460491-compiled-with-4.6.jar")}, "bin", "1.8");
+			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+
+			// bug460491-compiled-with-4.6.jar contains classes compiled with eclipse 4.6:
+			/*-
+				package test1;
+				
+				import org.eclipse.jdt.annotation.DefaultLocation;
+				import org.eclipse.jdt.annotation.NonNullByDefault;
+				import org.eclipse.jdt.annotation.Nullable;
+				
+				public abstract class Base<B> {
+				   static public class Static {
+				    public class Middle1 {
+				     public class Middle2<M> {
+				       public class Middle3 {
+				        public class GenericInner<T> {
+				        }
+				       }
+				     }
+				   }
+				  }
+				
+				  @NonNullByDefault(DefaultLocation.PARAMETER)
+				  public Object method( Static.Middle1.Middle2<Object>.Middle3.@Nullable GenericInner<String> nullable) {
+				    return new Object();
+				  }
+				}
+			 */
+
+			this.createFolder("/Bug460491/src/test2");
+			String c2SourceString =
+					"package test2;\n" +
+					"\n" +
+					"import test1.Base;\n" +
+					"\n" +
+					"class Derived extends Base<Object> {\n" +
+					"  void test() {\n" +
+					"    method(null);\n" +
+					"  }\n" +
+					"}\n";
+			this.createFile(
+				"/Bug460491/src/test2/Derived.java",
+	    			c2SourceString);
+
+			char[] c2SourceChars = c2SourceString.toCharArray();
+			this.problemRequestor.initialize(c2SourceChars);
+
+			getCompilationUnit("/Bug460491/src/test2/Derived.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" +
+					"----------\n"
+					);
+		} finally {
+			if (project != null)
+				deleteProject(project);
+		}
+}
+
+	public void testBug460491WithOldBinary_b() throws CoreException, InterruptedException, IOException {
+		IJavaProject project = null;
+    	try {
+			project = createJavaProject("Bug460491", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB, testJarPath("bug460491b-compiled-with-4.6.jar")}, "bin", "1.8");
+			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+
+			// bug460491b-compiled-with-4.6.jar contains classes compiled with eclipse 4.6:
+			/*-
+				package test1;
+				
+				import org.eclipse.jdt.annotation.DefaultLocation;
+				import org.eclipse.jdt.annotation.NonNullByDefault;
+				import org.eclipse.jdt.annotation.Nullable;
+				
+				public abstract class Base<B> {
+				    static public class Static1 {
+				        public static class Static2<X> {
+				            public class Middle1<M> {
+				                public class Middle2 {
+				                    public class GenericInner<T> {
+				                    }
+				                }
+				            }
+				        }
+				    }
+				
+				    @NonNullByDefault(DefaultLocation.PARAMETER)
+				    public Object method( Static1.Static2<Exception>.Middle1<Object>.Middle2.@Nullable GenericInner<String> nullable) {
+				        return new Object();
+				    }
+				}
+			 */
+
+			this.createFolder("/Bug460491/src/test2");
+			String c2SourceString =
+					"package test2;\n" +
+					"\n" +
+					"import test1.Base;\n" +
+					"\n" +
+					"class Derived extends Base<Object> {\n" + 
+					"  void testOK(Static1.Static2<Exception>.Middle1<Object>.Middle2.GenericInner<String> gi) {\n" + 
+					"    method(gi);\n" + 
+					"  }\n" + 
+					"  void testNOK(Static1.Static2<String>.Middle1<Object>.Middle2.GenericInner<String> gi) {\n" + 
+					"    method(gi);\n" + 
+					"  }\n" + 
+					"}\n";
+			this.createFile(
+				"/Bug460491/src/test2/Derived.java",
+	    			c2SourceString);
+
+			char[] c2SourceChars = c2SourceString.toCharArray();
+			this.problemRequestor.initialize(c2SourceChars);
+
+			getCompilationUnit("/Bug460491/src/test2/Derived.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"1. ERROR in /Bug460491/src/test2/Derived.java (at line 10)\n" + 
+					"	method(gi);\n" + 
+					"	^^^^^^\n" + 
+					"The method method(Base.Static1.Static2<Exception>.Middle1<Object>.Middle2.GenericInner<String>) in the type Base<Object> is not applicable for the arguments (Base.Static1.Static2<String>.Middle1<Object>.Middle2.GenericInner<String>)\n" + 
+					"----------\n"
+					);
+		} finally {
+			if (project != null)
+				deleteProject(project);
+		}
+}
 }

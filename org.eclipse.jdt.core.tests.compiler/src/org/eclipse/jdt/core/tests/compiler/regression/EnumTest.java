@@ -3182,7 +3182,7 @@ public void test099() {
 		"1. ERROR in X.java (at line 13)\n" +
 		"	A<Integer>.E e1 = e;\n" +
 		"	^^^^^^^^^^^^\n" +
-		"The member type A<Integer>.E cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type A<Integer>\n" +
+		"The member type A.E cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type A<Integer>\n" +
 		"----------\n");
 }
 /* from JLS

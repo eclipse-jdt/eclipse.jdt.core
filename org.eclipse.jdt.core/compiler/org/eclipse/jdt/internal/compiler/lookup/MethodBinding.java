@@ -1081,7 +1081,7 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
  *
  * See https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
  */
-public final char[] signature(ClassFile classFile) {
+public char[] signature(ClassFile classFile) {
 	if (this.signature != null) {
 		if ((this.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
 			// we need to record inner classes references

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -109,18 +109,26 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 		return this.parent.add(localDeclaration, bracketBalanceValue);
 	}
 	/* method body should have been created */
-	Block block = new Block(0);
-	block.sourceStart = ((Initializer)this.fieldDeclaration).sourceStart;
-	RecoveredElement element = this.add(block, 1);
-	if (this.initializerBody != null) {
-		this.initializerBody.attachPendingModifiers(
+	if (this.initializerBody == null) {
+		Block block = new Block(0);
+		block.sourceStart = ((Initializer)this.fieldDeclaration).sourceStart;
+		RecoveredElement element = this.add(block, 1);
+		if (this.bracketBalance > 0){
+			for (int i = 0; i < this.bracketBalance - 1; i++){
+				element = element.add(new Block(0), 1);
+			}
+			this.bracketBalance = 1;
+		}
+		return element.add(localDeclaration, bracketBalanceValue);
+	}
+	this.initializerBody.attachPendingModifiers(
 				this.pendingAnnotations,
 				this.pendingAnnotationCount,
 				this.pendingModifiers,
 				this.pendingModifersSourceStart);
-	}
 	resetPendingModifiers();
-	return element.add(localDeclaration, bracketBalanceValue);
+
+	return this.initializerBody.add(localDeclaration, bracketBalanceValue, true);
 }
 /*
  * Record a statement - regular method should have been created a block body

@@ -468,8 +468,11 @@ public class InferenceContext18 {
 		if (exprs != null) {
 			int k = exprs.length;
 			int p = method.parameters.length;
-			if (k < (method.isVarargs() ? p-1 : p))
-				return false; // insufficient arguments for parameters!
+			if (method.isVarargs()) {
+				if (k < p - 1) return false;
+			} else if (k != p) {
+				return false;
+			}
 			switch (inferenceKindForMethod) {
 				case CHECK_STRICT:
 				case CHECK_LOOSE:
@@ -1101,7 +1104,7 @@ public class InferenceContext18 {
 	private boolean setUpperBounds(CaptureBinding18 typeVariable, TypeBinding[] substitutedUpperBounds) {
 		// 18.4: ... define the upper bound of Zi as glb(L1θ, ..., Lkθ)
 		if (substitutedUpperBounds.length == 1) {
-			typeVariable.setUpperBounds(substitutedUpperBounds, this.object); // shortcut
+			return typeVariable.setUpperBounds(substitutedUpperBounds, this.object); // shortcut
 		} else {
 			TypeBinding[] glbs = Scope.greaterLowerBound(substitutedUpperBounds, this.scope, this.environment);
 			if (glbs == null)

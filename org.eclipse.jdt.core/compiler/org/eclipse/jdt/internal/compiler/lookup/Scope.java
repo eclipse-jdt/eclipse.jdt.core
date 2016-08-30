@@ -494,7 +494,7 @@ public abstract class Scope {
 					ParameterizedTypeBinding originalParameterizedType = (ParameterizedTypeBinding) originalType;
 					ReferenceBinding originalEnclosing = originalType.enclosingType();
 					ReferenceBinding substitutedEnclosing = originalEnclosing;
-					if (originalEnclosing != null) {
+					if (originalEnclosing != null && !originalType.isStatic()) {
 						substitutedEnclosing = (ReferenceBinding) substitute(substitution, originalEnclosing);
 						if (isMemberTypeOfRaw(originalType, substitutedEnclosing))
 							return originalParameterizedType.environment.createRawType(
@@ -575,7 +575,7 @@ public abstract class Scope {
 					}
 	
 				    // treat as if parameterized with its type variables (non generic type gets 'null' arguments)
-					if (substitutedEnclosing != originalEnclosing) { //$IDENTITY-COMPARISON$
+					if (substitutedEnclosing != originalEnclosing && !originalType.isStatic()) { //$IDENTITY-COMPARISON$
 						return substitution.isRawSubstitution()
 							? substitution.environment().createRawType(originalReferenceType, substitutedEnclosing, originalType.getTypeAnnotations())
 							:  substitution.environment().createParameterizedType(originalReferenceType, null, substitutedEnclosing, originalType.getTypeAnnotations());
@@ -1772,8 +1772,14 @@ public abstract class Scope {
 				findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, null);
 				if (interfaceMethod != null) return interfaceMethod;
 				MethodBinding candidate = candidates[0];
-				return new ProblemMethodBinding(candidates[0], candidates[0].selector, candidates[0].parameters, 
-						candidate.isStatic() && candidate.declaringClass.isInterface() ? ProblemReasons.NonStaticOrAlienTypeReceiver : ProblemReasons.NotVisible);
+				int reason = ProblemReasons.NotVisible;
+				if (candidate.isStatic() && candidate.declaringClass.isInterface()) {
+					if (soureLevel18)
+						reason = ProblemReasons.NonStaticOrAlienTypeReceiver;
+					else
+						reason = ProblemReasons.InterfaceMethodInvocationNotBelow18;
+				}
+				return new ProblemMethodBinding(candidate, candidate.selector, candidate.parameters, reason);
 			case 1 :
 				if (searchForDefaultAbstractMethod)
 					return findDefaultAbstractMethod(receiverType, selector, argumentTypes, invocationSite, classHierarchyStart, found, new MethodBinding [] { candidates[0] });
@@ -1849,7 +1855,7 @@ public abstract class Scope {
 			    switch (selector[0]) {
 			        case 'c':
 			            if (CharOperation.equals(selector, TypeConstants.CLONE)) {
-			            	return environment().computeArrayClone(methodBinding);
+			            	return receiverType.getCloneMethod(methodBinding);
 			            }
 			            break;
 			        case 'g':
@@ -2277,7 +2283,7 @@ public abstract class Scope {
 		
 		if (receiverType.isArrayType()) {
 			if (CharOperation.equals(selector, TypeConstants.CLONE))
-				return environment().computeArrayClone(exactMethod);
+				return ((ArrayBinding) receiverType).getCloneMethod(exactMethod);
 			if (CharOperation.equals(selector, TypeConstants.GETCLASS))
 				return environment().createGetClassMethod(receiverType, exactMethod, this);
 		}
@@ -3387,9 +3393,7 @@ public abstract class Scope {
 			if (typeBinding.isGenericType()) {
 				qualifiedType = environment().createRawType(typeBinding, qualifiedType);
 			} else {
-				qualifiedType = (qualifiedType != null && (qualifiedType.isRawType() || qualifiedType.isParameterizedType()))
-					? environment().createParameterizedType(typeBinding, null, qualifiedType)
-					: typeBinding;
+				qualifiedType = environment().maybeCreateParameterizedType(typeBinding, qualifiedType);
 			}
 		}
 		return qualifiedType;

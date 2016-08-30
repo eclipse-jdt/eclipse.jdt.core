@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -513,7 +513,7 @@ public void test030() throws JavaModelException {
 			"}";
 		completeInJavadoc("/Completion/src/javadoc/fields/tags/BasicTestFields.java", source, true, "oTT");
 		assertResults(
-			"oneTwoThree[FIELD_REF]{oneTwoThree, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, oneTwoThree, null, "+this.positions+"30}"
+			"oneTwoThree[FIELD_REF]{oneTwoThree, Ljavadoc.fields.tags.BasicTestFields;, Ljava.lang.Object;, oneTwoThree, null, "+this.positions+(R_DEFAULT + 25) + "}"
 		);
 	} finally {
 		JavaCore.setOptions(this.oldOptions);

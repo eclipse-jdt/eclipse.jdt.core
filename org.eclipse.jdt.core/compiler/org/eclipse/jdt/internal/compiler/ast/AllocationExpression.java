@@ -563,22 +563,10 @@ public MethodBinding inferConstructorOfElidedParameterizedType(final Scope scope
 		if (cached != null)
 			return cached;
 	}
-	ReferenceBinding genericType = ((ParameterizedTypeBinding) this.resolvedType).genericType();
-	ReferenceBinding enclosingType = this.resolvedType.enclosingType();
-	ParameterizedTypeBinding allocationType = scope.environment().createParameterizedType(genericType, genericType.typeVariables(), enclosingType);
-	
-	// Given the allocation type and the arguments to the constructor, see if we can infer the constructor of the elided parameterized type.
-	MethodBinding factory = scope.getStaticFactory(allocationType, enclosingType, this.argumentTypes, this);
-	if (factory instanceof ParameterizedGenericMethodBinding && factory.isValidBinding()) {
-		ParameterizedGenericMethodBinding genericFactory = (ParameterizedGenericMethodBinding) factory;
-		this.inferredReturnType = genericFactory.inferredReturnType;
-		SyntheticFactoryMethodBinding sfmb = (SyntheticFactoryMethodBinding) factory.original();
-		TypeVariableBinding[] constructorTypeVariables = sfmb.getConstructor().typeVariables();
-		TypeBinding [] constructorTypeArguments = constructorTypeVariables != null ? new TypeBinding[constructorTypeVariables.length] : Binding.NO_TYPES;
-		if (constructorTypeArguments.length > 0)
-			System.arraycopy(((ParameterizedGenericMethodBinding)factory).typeArguments, sfmb.typeVariables().length - constructorTypeArguments.length , 
-												constructorTypeArguments, 0, constructorTypeArguments.length);
-		MethodBinding constructor = sfmb.applyTypeArgumentsOnConstructor(((ParameterizedTypeBinding)factory.returnType).arguments, constructorTypeArguments, genericFactory.inferredWithUncheckedConversion);
+	boolean[] inferredReturnTypeOut = new boolean[1];
+	MethodBinding constructor = inferDiamondConstructor(scope, this, this.resolvedType, this.argumentTypes, inferredReturnTypeOut);
+	if (constructor != null) {
+		this.inferredReturnType = inferredReturnTypeOut[0];
 		if (constructor instanceof ParameterizedGenericMethodBinding && scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8) {
 			// force an inference context to be established for nested poly allocations (to be able to transfer b2), but avoid tunneling through overload resolution. We know this is the MSMB.
 			if (this.expressionContext == INVOCATION_CONTEXT && this.typeExpected == null)
@@ -586,7 +574,27 @@ public MethodBinding inferConstructorOfElidedParameterizedType(final Scope scope
 		}
 		if (this.typeExpected != null)
 			registerResult(this.typeExpected, constructor);
-		return constructor;
+	}
+	return constructor;
+}
+
+public static MethodBinding inferDiamondConstructor(Scope scope, InvocationSite site, TypeBinding type, TypeBinding[] argumentTypes, boolean[] inferredReturnTypeOut) {
+	ReferenceBinding genericType = ((ParameterizedTypeBinding) type).genericType();
+	ReferenceBinding enclosingType = type.enclosingType();
+	ParameterizedTypeBinding allocationType = scope.environment().createParameterizedType(genericType, genericType.typeVariables(), enclosingType);
+	
+	// Given the allocation type and the arguments to the constructor, see if we can infer the constructor of the elided parameterized type.
+	MethodBinding factory = scope.getStaticFactory(allocationType, enclosingType, argumentTypes, site);
+	if (factory instanceof ParameterizedGenericMethodBinding && factory.isValidBinding()) {
+		ParameterizedGenericMethodBinding genericFactory = (ParameterizedGenericMethodBinding) factory;
+		inferredReturnTypeOut[0] = genericFactory.inferredReturnType;
+		SyntheticFactoryMethodBinding sfmb = (SyntheticFactoryMethodBinding) factory.original();
+		TypeVariableBinding[] constructorTypeVariables = sfmb.getConstructor().typeVariables();
+		TypeBinding [] constructorTypeArguments = constructorTypeVariables != null ? new TypeBinding[constructorTypeVariables.length] : Binding.NO_TYPES;
+		if (constructorTypeArguments.length > 0)
+			System.arraycopy(((ParameterizedGenericMethodBinding)factory).typeArguments, sfmb.typeVariables().length - constructorTypeArguments.length , 
+												constructorTypeArguments, 0, constructorTypeArguments.length);
+		return sfmb.applyTypeArgumentsOnConstructor(((ParameterizedTypeBinding)factory.returnType).arguments, constructorTypeArguments, genericFactory.inferredWithUncheckedConversion);
 	}
 	return null;
 }

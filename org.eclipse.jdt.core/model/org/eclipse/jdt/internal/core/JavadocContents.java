@@ -185,14 +185,15 @@ public class JavadocContents {
 		}
 		
 		int fromIndex = this.tempLastAnchorFoundIndex;
-		int index;
+		int[] index;
 		
 		// check each next unknown anchor locations
-		while ((index = CharOperation.indexOf(JavadocConstants.ANCHOR_PREFIX_START, this.content, false, fromIndex)) != -1 && (index < indexOfSectionBottom || indexOfSectionBottom == -1)) {
-			fromIndex = index + 1;
-			
-			int anchorEndStart = index + JavadocConstants.ANCHOR_PREFIX_START_LENGHT;
-			
+		index = getAnchorIndex(fromIndex);
+		while (index[0] != -1 && (index[0] < indexOfSectionBottom || indexOfSectionBottom == -1)) {
+			fromIndex = index[0] + 1;
+
+			int anchorEndStart = index[0] + index[1];
+
 			this.tempLastAnchorFoundIndex = anchorEndStart;
 			
 			if (CharOperation.prefixEquals(anchor, this.content, false, anchorEndStart)) {
@@ -204,11 +205,25 @@ public class JavadocContents {
 				
 				this.tempAnchorIndexes[this.tempAnchorIndexesCount++] = anchorEndStart;
 			}
+			index = getAnchorIndex(fromIndex);
 		}
 		
 		return null;
 	}
-	
+	private int[] getAnchorIndex(int fromIndex) {
+		int index = CharOperation.indexOf(JavadocConstants.ANCHOR_PREFIX_START, this.content, false, fromIndex);
+		if (index != -1) {
+			return new int[]{index, JavadocConstants.ANCHOR_PREFIX_START_LENGTH};
+		}
+		if (index == -1) {
+			index = CharOperation.indexOf(JavadocConstants.ANCHOR_PREFIX_START_2, this.content, false, fromIndex);
+		}
+		if (index == -1) {
+			return new int[]{-1, -1};
+		} else {
+			return new int[]{index, JavadocConstants.ANCHOR_PREFIX_START2_LENGTH};
+		}
+	}
 	private int[] computeChildRange(int anchorEndStart, char[] anchor, int indexOfBottom) {
 		int[] range = null;
 				
@@ -218,7 +233,7 @@ public class JavadocContents {
 			int indexOfEndLink = CharOperation.indexOf(JavadocConstants.ANCHOR_SUFFIX, this.content, false, anchorEndStart + anchor.length);
 			if (indexOfEndLink != -1) {
 				// try to find the next anchor
-				int indexOfNextElement = CharOperation.indexOf(JavadocConstants.ANCHOR_PREFIX_START, this.content, false, indexOfEndLink);
+				int indexOfNextElement = getAnchorIndex(indexOfEndLink)[0];
 				
 				int javadocStart = indexOfEndLink + JavadocConstants.ANCHOR_SUFFIX_LENGTH;
 				int javadocEnd = indexOfNextElement == -1 ? indexOfBottom : Math.min(indexOfNextElement, indexOfBottom);

@@ -213,7 +213,7 @@ public void test006() {
 			"1. ERROR in X.java (at line 12)\n" + 
 			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 
 			"	       ^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The member type Outer<One,Two>.Inner cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Outer<One,Two>\n" + 
+			"The member type Outer.Inner<T3,T4> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Outer<One,Two>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 12)\n" + 
 			"	IX i = Outer<One, Two>.Inner<Three, Four>.Deeper<Five, Six<String>>.Leaf::<Blah, Blah>method;\n" + 

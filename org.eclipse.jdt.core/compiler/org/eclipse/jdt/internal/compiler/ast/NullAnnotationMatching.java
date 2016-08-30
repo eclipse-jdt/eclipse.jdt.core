@@ -311,7 +311,7 @@ public class NullAnnotationMatching {
 						}
 					}
 					severity = severity.max(s);
-					if (!severity.isAnyMismatch() && (providedBits & TagBits.AnnotationNonNull) != 0)
+					if (!severity.isAnyMismatch() && (providedBits & TagBits.AnnotationNullMASK) == TagBits.AnnotationNonNull)
 						okStatus = okNonNullStatus(providedExpression);
 				}
 				if (severity != Severity.MISMATCH && nullStatus != FlowInfo.NULL) {  // null value has no details
@@ -477,6 +477,20 @@ public class NullAnnotationMatching {
 		}
 
 		return 0;
+	}
+
+	/**
+	 * Use only if no suitable flowInfo is available.
+	 */
+	public static int nullStatusFromExpressionType(TypeBinding type) {
+		if (type.isFreeTypeVariable())
+			return FlowInfo.FREE_TYPEVARIABLE;
+		long bits = type.tagBits & TagBits.AnnotationNullMASK;
+		if (bits == 0)
+			return FlowInfo.UNKNOWN;
+		if (bits == TagBits.AnnotationNonNull)
+			return FlowInfo.NON_NULL;
+		return FlowInfo.POTENTIALLY_NON_NULL | FlowInfo.POTENTIALLY_NULL;
 	}
 
 	public static long validNullTagBits(long bits) {
@@ -725,5 +739,5 @@ public class NullAnnotationMatching {
 		buf.append("Analysis result: severity="+this.severity);
 		buf.append(" nullStatus="+this.nullStatus);
 		return buf.toString();
-	} 
+	}
 }

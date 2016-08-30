@@ -62,10 +62,20 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 
 	public char[] computeUniqueKey(boolean isLeaf) {
 	    StringBuffer sig = new StringBuffer(10);
-		if (isMemberType() && enclosingType().isParameterizedType()) {
-		    char[] typeSig = enclosingType().computeUniqueKey(false/*not a leaf*/);
-		    sig.append(typeSig, 0, typeSig.length-1); // copy all but trailing semicolon
-		    sig.append('.').append(sourceName()).append('<').append('>').append(';');
+		if (isMemberType() && (enclosingType().isParameterizedType() || enclosingType().isRawType())) {
+			if (isStatic()) {
+			    char[] typeSig = enclosingType().signature(); // don't consider generics from enclosing of static member
+			    sig.append(typeSig, 0, typeSig.length-1); // copy all but trailing semicolon
+			    sig.append('$'); // for consistency with keys prior to https://bugs.eclipse.org/460491
+			} else {
+				char[] typeSig = enclosingType().computeUniqueKey(false/*not a leaf*/);
+				sig.append(typeSig, 0, typeSig.length-1); // copy all but trailing semicolon
+				sig.append('.');
+			}
+			sig.append(sourceName());
+		    if (genericType().typeVariables() != Binding.NO_TYPE_VARIABLES) // don't show <> if raw only due to a generic enclosing
+		    	sig.append('<').append('>');
+		    sig.append(';');
 		} else {
 		     sig.append(genericType().computeUniqueKey(false/*not a leaf*/));
 		     sig.insert(sig.length()-1, "<>"); //$NON-NLS-1$
@@ -252,10 +262,10 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#readableName()
 	 */
-	public char[] readableName() /*java.lang.Object,  p.X<T> */ {
+	public char[] readableName(boolean showGenerics) /*java.lang.Object,  p.X<T> */ {
 	    char[] readableName;
 		if (isMemberType()) {
-			readableName = CharOperation.concat(enclosingType().readableName(), this.sourceName, '.');
+			readableName = CharOperation.concat(enclosingType().readableName(showGenerics && !isStatic()), this.sourceName, '.');
 		} else {
 			readableName = CharOperation.concatWith(actualType().compoundName, '.');
 		}
@@ -265,10 +275,10 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.Binding#shortReadableName()
 	 */
-	public char[] shortReadableName() /*Object*/ {
+	public char[] shortReadableName(boolean showGenerics) /*Object*/ {
 	    char[] shortReadableName;
 		if (isMemberType()) {
-			shortReadableName = CharOperation.concat(enclosingType().shortReadableName(), this.sourceName, '.');
+			shortReadableName = CharOperation.concat(enclosingType().shortReadableName(showGenerics && !isStatic()), this.sourceName, '.');
 		} else {
 			shortReadableName = actualType().sourceName;
 		}

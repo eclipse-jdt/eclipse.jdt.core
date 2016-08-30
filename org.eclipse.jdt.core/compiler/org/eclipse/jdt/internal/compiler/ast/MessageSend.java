@@ -76,6 +76,7 @@ import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
@@ -400,16 +401,16 @@ public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBind
 		MethodBinding originalBinding = this.binding.original();
 		TypeBinding originalType = originalBinding.returnType;
 	    // extra cast needed if method return type is type variable
-		if (originalType.leafComponentType().isTypeVariable()) {
+		if (ArrayBinding.isArrayClone(this.actualReceiverType, this.binding)
+				&& runtimeTimeType.id != TypeIds.T_JavaLangObject
+				&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
+			// from 1.5 source level on, array#clone() resolves to array type, but codegen to #clone()Object - thus require extra inserted cast
+			this.valueCast = runtimeTimeType;
+		} else if (originalType.leafComponentType().isTypeVariable()) {
 	    	TypeBinding targetType = (!compileTimeType.isBaseType() && runtimeTimeType.isBaseType())
 	    		? compileTimeType  // unboxing: checkcast before conversion
 	    		: runtimeTimeType;
 	        this.valueCast = originalType.genericCast(targetType);
-		} 	else if (this.binding == scope.environment().arrayClone
-				&& runtimeTimeType.id != TypeIds.T_JavaLangObject
-				&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) {
-					// from 1.5 source level on, array#clone() resolves to array type, but codegen to #clone()Object - thus require extra inserted cast
-			this.valueCast = runtimeTimeType;
 		}
         if (this.valueCast instanceof ReferenceBinding) {
 			ReferenceBinding referenceCast = (ReferenceBinding) this.valueCast;
@@ -857,25 +858,20 @@ public TypeBinding resolveType(BlockScope scope) {
 	if (isMethodUseDeprecated(this.binding, scope, true))
 		scope.problemReporter().deprecatedMethod(this.binding, this);
 
-	// from 1.5 source level on, array#clone() returns the array type (but binding still shows Object)
-	if (this.binding == scope.environment().arrayClone && compilerOptions.sourceLevel >= ClassFileConstants.JDK1_5) {
-		this.resolvedType = this.actualReceiverType;
-	} else {
-		TypeBinding returnType;
-		if ((this.bits & ASTNode.Unchecked) != 0 && this.genericTypeArguments == null) {
-			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=277643, align with javac on JLS 15.12.2.6
-			returnType = this.binding.returnType;
-			if (returnType != null) {
-				returnType = scope.environment().convertToRawType(returnType.erasure(), true);
-			}
-		} else {
-			returnType = this.binding.returnType;
-			if (returnType != null) {
-				returnType = returnType.capture(scope, this.sourceStart, this.sourceEnd);
-			}
+	TypeBinding returnType;
+	if ((this.bits & ASTNode.Unchecked) != 0 && this.genericTypeArguments == null) {
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=277643, align with javac on JLS 15.12.2.6
+		returnType = this.binding.returnType;
+		if (returnType != null) {
+			returnType = scope.environment().convertToRawType(returnType.erasure(), true);
 		}
-		this.resolvedType = returnType;
+	} else {
+		returnType = this.binding.returnType;
+		if (returnType != null) {
+			returnType = returnType.capture(scope, this.sourceStart, this.sourceEnd);
+		}
 	}
+	this.resolvedType = returnType;
 	if (this.receiver.isSuper() && compilerOptions.getSeverity(CompilerOptions.OverridingMethodWithoutSuperInvocation) != ProblemSeverities.Ignore) {
 		final ReferenceContext referenceContext = scope.methodScope().referenceContext;
 		if (referenceContext instanceof AbstractMethodDeclaration) {
@@ -994,9 +990,7 @@ public boolean isCompatibleWith(TypeBinding targetType, final Scope scope) {
 		TypeBinding returnType;
 		if (method == null || !method.isValidBinding() || (returnType = method.returnType) == null || !returnType.isValidBinding())
 			return false;
-		if (method == scope.environment().arrayClone)
-			returnType = this.actualReceiverType;
-		return returnType != null && returnType.capture(scope, this.sourceStart, this.sourceEnd).isCompatibleWith(targetType, scope);
+		return returnType.capture(scope, this.sourceStart, this.sourceEnd).isCompatibleWith(targetType, scope);
 	} finally {
 		this.expectedType = originalExpectedType;
 	}

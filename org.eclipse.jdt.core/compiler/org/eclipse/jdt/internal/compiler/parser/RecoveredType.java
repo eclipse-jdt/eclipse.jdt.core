@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -541,8 +541,13 @@ public TypeDeclaration updatedTypeDeclaration(int depth, Set<TypeDeclaration> kn
 		// may need to update the declarationSourceEnd of the last field
 		if (this.fields[this.fieldCount - 1].fieldDeclaration.declarationSourceEnd == 0){
 			int temp = bodyEnd();
-			this.fields[this.fieldCount - 1].fieldDeclaration.declarationSourceEnd = temp;
-			this.fields[this.fieldCount - 1].fieldDeclaration.declarationEnd = temp;
+			FieldDeclaration fieldDeclaration = this.fields[this.fieldCount - 1].fieldDeclaration;
+			if (temp == 0 && fieldDeclaration.sourceEnd > 0) {
+				temp = fieldDeclaration.sourceEnd;
+				if (lastEnd > temp) lastEnd = temp;
+			}
+			fieldDeclaration.declarationSourceEnd = temp;
+			fieldDeclaration.declarationEnd = temp;
 		}
 		for (int i = 0; i < this.fieldCount; i++){
 			fieldDeclarations[existingCount + i] = this.fields[i].updatedFieldDeclaration(depth, knownTypes);

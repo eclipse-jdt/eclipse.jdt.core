@@ -105,8 +105,6 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private CompilationUnitDeclaration[] units = new CompilationUnitDeclaration[4];
 	private MethodVerifier verifier;
 
-	public MethodBinding arrayClone;
-
 	private ArrayList missingTypes;
 	Set<SourceTypeBinding> typesBeingConnected;
 	public boolean isProcessingAnnotations = false;
@@ -406,23 +404,6 @@ public void completeTypeBindings(CompilationUnitDeclaration[] parsedUnits, boole
 
 	this.unitBeingCompleted = null;
 }
-/**
- * NB: for source >= 1.5 the return type is not correct: shows j.l.Object but should show T[].
- * See references to {@link #arrayClone} for code that compensates for this mismatch.
- */
-public MethodBinding computeArrayClone(MethodBinding objectClone) {
-	if (this.arrayClone == null) {
-		this.arrayClone = new MethodBinding(
-				(objectClone.modifiers & ~ClassFileConstants.AccProtected) | ClassFileConstants.AccPublic,
-				TypeConstants.CLONE,
-				objectClone.returnType,
-				Binding.NO_PARAMETERS,
-				Binding.NO_EXCEPTIONS, // no exception for array specific method
-				(ReferenceBinding)objectClone.returnType);
-	}
-	return this.arrayClone;
-	
-}
 public TypeBinding computeBoxingType(TypeBinding type) {
 	TypeBinding boxedType;
 	switch (type.id) {
@@ -555,13 +536,13 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 public ReferenceBinding convertToParameterizedType(ReferenceBinding originalType) {
 	if (originalType != null) {
 		boolean isGeneric = originalType.isGenericType();
+		if (!isGeneric && originalType.isStatic())
+			return originalType;
 		ReferenceBinding originalEnclosingType = originalType.enclosingType();
 		ReferenceBinding convertedEnclosingType = originalEnclosingType;
 		boolean needToConvert = isGeneric;
-		if (originalEnclosingType != null) {
-			convertedEnclosingType = originalType.isStatic()
-				? (ReferenceBinding) convertToRawType(originalEnclosingType, false /*do not force conversion of enclosing types*/)
-				: convertToParameterizedType(originalEnclosingType);
+		if (originalEnclosingType != null && !originalType.isStatic()) {
+			convertedEnclosingType = convertToParameterizedType(originalEnclosingType);
 			needToConvert |= TypeBinding.notEquals(originalEnclosingType, convertedEnclosingType);
 		}
 		if (needToConvert) {
@@ -612,6 +593,7 @@ public TypeBinding convertToRawType(TypeBinding type, boolean forceRawEnclosingT
 			needToConvert = false;
 			break;
 	}
+	forceRawEnclosingType &= !type.isStatic();
 	ReferenceBinding originalEnclosing = originalType.enclosingType();
 	TypeBinding convertedType;
 	if (originalEnclosing == null) {
@@ -631,7 +613,7 @@ public TypeBinding convertToRawType(TypeBinding type, boolean forceRawEnclosingT
 		}
 		if (needToConvert) {
 			convertedType = createRawType((ReferenceBinding) originalType.erasure(), convertedEnclosing);
-		} else if (TypeBinding.notEquals(originalEnclosing, convertedEnclosing)) {
+		} else if (TypeBinding.notEquals(originalEnclosing, convertedEnclosing) && !originalType.isStatic()) {
 			convertedType = createParameterizedType((ReferenceBinding) originalType.erasure(), null, convertedEnclosing);
 		} else {
 			convertedType = originalType;
@@ -706,14 +688,15 @@ public TypeBinding convertUnresolvedBinaryToRawType(TypeBinding type) {
 	if (originalEnclosing == null) {
 		convertedType = needToConvert ? createRawType((ReferenceBinding)originalType.erasure(), null) : originalType;
 	} else {
+		if (!needToConvert && originalType.isStatic())
+			return originalType;
+
 		ReferenceBinding convertedEnclosing = (ReferenceBinding) convertUnresolvedBinaryToRawType(originalEnclosing);
 		if (TypeBinding.notEquals(convertedEnclosing, originalEnclosing)) {
-			needToConvert |= !((ReferenceBinding)originalType).isStatic();
+			needToConvert = true;
 		}
 		if (needToConvert) {
 			convertedType = createRawType((ReferenceBinding) originalType.erasure(), convertedEnclosing);
-		} else if (TypeBinding.notEquals(originalEnclosing, convertedEnclosing)) {
-			convertedType = createParameterizedType((ReferenceBinding) originalType.erasure(), null, convertedEnclosing);
 		} else {
 			convertedType = originalType;
 		}
@@ -1069,6 +1052,14 @@ public ParameterizedTypeBinding createParameterizedType(ReferenceBinding generic
 
 public ParameterizedTypeBinding createParameterizedType(ReferenceBinding genericType, TypeBinding[] typeArguments, ReferenceBinding enclosingType, AnnotationBinding [] annotations) {
 	return this.typeSystem.getParameterizedType(genericType, typeArguments, enclosingType, annotations);
+}
+public ReferenceBinding maybeCreateParameterizedType(ReferenceBinding nonGenericType, ReferenceBinding enclosingType) {
+	boolean canSeeEnclosingTypeParameters = enclosingType != null 
+			&& (enclosingType.isParameterizedType() | enclosingType.isRawType())
+			&& !nonGenericType.isStatic();
+	if (canSeeEnclosingTypeParameters)
+		return createParameterizedType(nonGenericType, null, enclosingType);
+	return nonGenericType;
 }
 
 public TypeBinding createAnnotatedType(TypeBinding type, AnnotationBinding[][] annotations) {
@@ -1530,14 +1521,7 @@ private TypeBinding annotateType(TypeBinding binding, ITypeAnnotationWalker walk
 		// need to count non-static nesting levels, resolved binding required for precision
 		if (binding.isUnresolvedType())
 			binding = ((UnresolvedReferenceBinding) binding).resolve(this, true);
-		TypeBinding currentBinding = binding;
-		depth = 0;
-		while (currentBinding != null) {
-			depth++;
-			if (currentBinding.isStatic())
-				break;
-			currentBinding = currentBinding.enclosingType();
-		}
+		depth = countNonStaticNestingLevels(binding) + 1;
 	}
 	AnnotationBinding [][] annotations = null;
 	for (int i = 0; i < depth; i++) {
@@ -1552,6 +1536,22 @@ private TypeBinding annotateType(TypeBinding binding, ITypeAnnotationWalker walk
 	if (annotations != null)
 		binding = createAnnotatedType(binding, annotations);
 	return binding;
+}
+
+// compute depth below lowest static enclosingType
+private int countNonStaticNestingLevels(TypeBinding binding) {
+	if (binding.isUnresolvedType()) {
+		throw new IllegalStateException();
+	}
+	int depth = -1;
+	TypeBinding currentBinding = binding;
+	while (currentBinding != null) {
+		depth++;
+		if (currentBinding.isStatic())
+			break;
+		currentBinding = currentBinding.enclosingType();
+	}
+	return depth;
 }
 
 boolean qualifiedNameMatchesSignature(char[][] name, char[] signature) {
@@ -1625,37 +1625,57 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 	// type must be a ReferenceBinding at this point, cannot be a BaseTypeBinding or ArrayTypeBinding
 	ReferenceBinding actualType = (ReferenceBinding) type;
 	if (actualType instanceof UnresolvedReferenceBinding)
-		if (CharOperation.indexOf('$', actualType.compoundName[actualType.compoundName.length - 1]) > 0)
+		if (actualType.depth() > 0)
 			actualType = (ReferenceBinding) BinaryTypeBinding.resolveType(actualType, this, false /* no raw conversion */); // must resolve member types before asking for enclosingType
 	ReferenceBinding actualEnclosing = actualType.enclosingType();
-	if (actualEnclosing != null) { // convert needed if read some static member type
-		actualEnclosing = (ReferenceBinding) convertToRawType(actualEnclosing, false /*do not force conversion of enclosing types*/);
+
+	ITypeAnnotationWalker savedWalker = walker;
+	if(actualType.depth() > 0) {
+		int nonStaticNestingLevels = countNonStaticNestingLevels(actualType);
+		for (int i = 0; i < nonStaticNestingLevels; i++) {
+			walker = walker.toNextNestedType();
+		}
 	}
-	AnnotationBinding [] annotations = BinaryTypeBinding.createAnnotations(walker.getAnnotationsAtCursor(actualType.id), this, missingTypeNames);
+
 	TypeBinding[] typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, actualType, missingTypeNames, walker);
-	ParameterizedTypeBinding parameterizedType = createParameterizedType(actualType, typeArguments, actualEnclosing, annotations);
+	ReferenceBinding currentType = createParameterizedType(actualType, typeArguments, actualEnclosing);
+	ReferenceBinding plainCurrent = actualType;
 
 	while (wrapper.signature[wrapper.start] == '.') {
 		wrapper.start++; // skip '.'
 		int memberStart = wrapper.start;
 		char[] memberName = wrapper.nextWord();
-		BinaryTypeBinding.resolveType(parameterizedType, this, false);
-		ReferenceBinding memberType = parameterizedType.genericType().getMemberType(memberName);
+		plainCurrent = (ReferenceBinding) BinaryTypeBinding.resolveType(plainCurrent, this, false);
+		ReferenceBinding memberType = plainCurrent.getMemberType(memberName);
 		// need to protect against the member type being null when the signature is invalid
 		if (memberType == null)
-			this.problemReporter.corruptedSignature(parameterizedType, wrapper.signature, memberStart); // aborts
-		walker = walker.toNextNestedType();
-		annotations = BinaryTypeBinding.createAnnotations(walker.getAnnotationsAtCursor(memberType.id), this, missingTypeNames);
+			this.problemReporter.corruptedSignature(currentType, wrapper.signature, memberStart); // aborts
+		if(memberType.isStatic()) {
+			// may happen for class files generated by eclipse before bug 460491 was fixed. 
+			walker = savedWalker;
+		} else {
+			walker = walker.toNextNestedType();
+		}
 		if (wrapper.signature[wrapper.start] == '<') {
 			wrapper.start++; // skip '<'
 			typeArguments = getTypeArgumentsFromSignature(wrapper, staticVariables, enclosingType, memberType, missingTypeNames, walker);
 		} else {
 			typeArguments = null;
 		}
-		parameterizedType = createParameterizedType(memberType, typeArguments, parameterizedType, annotations);
+		if (typeArguments != null || 											// has type arguments, or ... 
+				(!memberType.isStatic() && currentType.isParameterizedType())) 	// ... can see type arguments of enclosing
+		{
+			if (memberType.isStatic())
+				currentType = plainCurrent; // ignore bogus parameterization of enclosing
+			currentType = createParameterizedType(memberType, typeArguments, currentType);
+		} else {
+			currentType = memberType;
+		}
+		plainCurrent = memberType;
 	}
 	wrapper.start++; // skip ';'
-	return dimension == 0 ? (TypeBinding) parameterizedType : createArrayType(parameterizedType, dimension, AnnotatableTypeSystem.flattenedAnnotations(annotationsOnDimensions));
+	currentType=(ParameterizedTypeBinding) annotateType(currentType, savedWalker, missingTypeNames);
+	return dimension == 0 ? (TypeBinding) currentType : createArrayType(currentType, dimension, AnnotatableTypeSystem.flattenedAnnotations(annotationsOnDimensions));
 }
 
 private TypeBinding getTypeFromTypeVariable(TypeVariableBinding typeVariableBinding, int dimension, AnnotationBinding [][] annotationsOnDimensions, ITypeAnnotationWalker walker, char [][][] missingTypeNames) {

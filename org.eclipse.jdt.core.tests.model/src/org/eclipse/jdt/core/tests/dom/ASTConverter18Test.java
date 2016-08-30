@@ -5302,5 +5302,4 @@ public void testBug497719_0001() throws JavaModelException {
 		TryStatement tryStatement = (TryStatement)methodDeclaration.getBody().statements().get(2);
 		assertEquals("Try Statement should be malformed", ASTNode.MALFORMED, (tryStatement.getFlags() & ASTNode.MALFORMED));
 }
-
 }

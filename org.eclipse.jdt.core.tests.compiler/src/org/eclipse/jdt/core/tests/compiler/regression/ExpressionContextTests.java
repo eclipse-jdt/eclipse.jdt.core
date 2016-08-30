@@ -299,7 +299,7 @@ public void test010() {
 			"1. ERROR in X.java (at line 9)\n" + 
 			"	I<X> i2 = (Map<String, String>.Entry & I<X> & Serializable) null;\n" + 
 			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-			"The member type Map<String,String>.Entry cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Map<String,String>\n" + 
+			"The member type Map.Entry<K,V> cannot be qualified with a parameterized type, since it is static. Remove arguments from qualifying type Map<String,String>\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 9)\n" + 
 			"	I<X> i2 = (Map<String, String>.Entry & I<X> & Serializable) null;\n" + 

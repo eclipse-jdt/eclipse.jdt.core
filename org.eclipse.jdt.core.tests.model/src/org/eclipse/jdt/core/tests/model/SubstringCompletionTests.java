@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Gábor Kövesdán and others.
+ * Copyright (c) 2015, 2016 Gábor Kövesdán and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,59 +17,20 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 import junit.framework.Test;
-import junit.framework.TestSuite;
 
 public class SubstringCompletionTests extends AbstractJavaModelCompletionTests {
 
 public static Test suite() {
-	if (TESTS_PREFIX != null || TESTS_NAMES != null || TESTS_NUMBERS != null || TESTS_RANGE != null) {
-		return buildModelTestSuite(SubstringCompletionTests.class);
-	}
-	TestSuite suite = new Suite(SubstringCompletionTests.class.getName());
-	suite.addTest(new SubstringCompletionTests("testQualifiedNonStaticMethod"));
-	suite.addTest(new SubstringCompletionTests("testQualifiedStaticMethod"));
-	suite.addTest(new SubstringCompletionTests("testUnqualifiedNonStaticMethod"));
-	suite.addTest(new SubstringCompletionTests("testUnqualifiedStaticMethod"));
-	suite.addTest(new SubstringCompletionTests("testQualifiedNonStaticField"));
-	suite.addTest(new SubstringCompletionTests("testQualifiedStaticField"));
-	suite.addTest(new SubstringCompletionTests("testUnqualifiedNonStaticField"));
-	suite.addTest(new SubstringCompletionTests("testUnqualifiedStaticField"));
-	suite.addTest(new SubstringCompletionTests("testLocalVariable"));
-	suite.addTest(new SubstringCompletionTests("testMethodParamVariable"));
-	suite.addTest(new SubstringCompletionTests("testClassTypeInstantiation"));
-	suite.addTest(new SubstringCompletionTests("testClassTypeFieldDeclaration"));
-	suite.addTest(new SubstringCompletionTests("testClassTypeParamDeclaration"));
-	suite.addTest(new SubstringCompletionTests("testClassTypeLocalVarDeclaration"));
-	suite.addTest(new SubstringCompletionTests("testClassTypeThrowsDeclaration"));
-	suite.addTest(new SubstringCompletionTests("testClassTypeExtends"));
-	suite.addTest(new SubstringCompletionTests("testClassTypeImplements"));
-	suite.addTest(new SubstringCompletionTests("testInnerClassTypeInstantiation"));
-	suite.addTest(new SubstringCompletionTests("testInnerClassTypeFieldDeclaration"));
-	suite.addTest(new SubstringCompletionTests("testInnerClassTypeParamDeclaration"));
-	suite.addTest(new SubstringCompletionTests("testInnerClassTypeLocalVarDeclaration"));
-	suite.addTest(new SubstringCompletionTests("testInnerClassTypeThrowsDeclaration"));
-	suite.addTest(new SubstringCompletionTests("testInnerClassTypeExtends"));
-	suite.addTest(new SubstringCompletionTests("testInnerClassTypeImplements"));
-	suite.addTest(new SubstringCompletionTests("testStaticNestedClassTypeInstantiation"));
-	suite.addTest(new SubstringCompletionTests("testStaticNestedClassTypeFieldDeclaration"));
-	suite.addTest(new SubstringCompletionTests("testStaticNestedClassTypeParamDeclaration"));
-	suite.addTest(new SubstringCompletionTests("testStaticNestedClassTypeLocalVarDeclaration"));
-	suite.addTest(new SubstringCompletionTests("testStaticNestedClassTypeThrowsDeclaration"));
-	suite.addTest(new SubstringCompletionTests("testStaticNestedClassTypeExtends"));
-	suite.addTest(new SubstringCompletionTests("testStaticNestedClassTypeImplements"));
-	suite.addTest(new SubstringCompletionTests("testLocalClassTypeInstantiation"));
-	suite.addTest(new SubstringCompletionTests("testLocalClassTypeLocalVarDeclaration"));
-	suite.addTest(new SubstringCompletionTests("testLocalClassTypeExtends"));
-	return suite;
+	return buildModelTestSuite(SubstringCompletionTests.class, BYTECODE_DECLARATION_ORDER);
 }
 public SubstringCompletionTests(String name) {
 	super(name);
 }
 public void setUpSuite() throws Exception {
 	if (COMPLETION_PROJECT == null)  {
-		COMPLETION_PROJECT = setUpJavaProject("Completion");
+		COMPLETION_PROJECT = setUpJavaProject("Completion", "1.8", true);
 	} else {
-		setUpProjectCompliance(COMPLETION_PROJECT, "1.8");
+		setUpProjectCompliance(COMPLETION_PROJECT, "1.8", true);
 	}
 	super.setUpSuite();
 	Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
@@ -202,24 +163,24 @@ public void testQualifiedNonStaticField() throws JavaModelException {
 		"/Completion/src/test/Test.java",
 		"package test;"+
 		"public class Test {\n" +
-		"  int element;\n" +
-		"  int otherElement;\n" +
-		"  long elementCount;\n" +
+		"  int items;\n" +
+		"  int otherItems;\n" +
+		"  long itemsCount;\n" +
 		"  void foo() {\n" +
-		"    this.elem\n" +
+		"    this.item\n" +
 		"  }\n" +
 		"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
-	String completeBehind = "this.elem";
+	String completeBehind = "this.item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_STATIC + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
-			"element[FIELD_REF]{element, Ltest.Test;, I, element, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
-			"elementCount[FIELD_REF]{elementCount, Ltest.Test;, J, elementCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			"otherItems[FIELD_REF]{otherItems, Ltest.Test;, I, otherItems, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_STATIC + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"items[FIELD_REF]{items, Ltest.Test;, I, items, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
+			"itemsCount[FIELD_REF]{itemsCount, Ltest.Test;, J, itemsCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 
@@ -229,25 +190,24 @@ public void testUnqualifiedNonStaticField() throws JavaModelException {
 			"/Completion/src/test/Test.java",
 			"package test;"+
 			"public class Test {\n" +
-			"  int element;\n" +
-			"  int otherElement;\n" +
-			"  long elementCount;\n" +
+			"  int items;\n" +
+			"  int otherItems;\n" +
+			"  long itemsCount;\n" +
 			"  void foo() {\n" +
-			"    elem\n" +
+			"    item\n" +
 			"  }\n" +
 			"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
-	String completeBehind = "elem";
+	String completeBehind = "item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"ElementType[TYPE_REF]{java.lang.annotation.ElementType, java.lang.annotation, Ljava.lang.annotation.ElementType;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
-			"element[FIELD_REF]{element, Ltest.Test;, I, element, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"elementCount[FIELD_REF]{elementCount, Ltest.Test;, J, elementCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"otherItems[FIELD_REF]{otherItems, Ltest.Test;, I, otherItems, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"items[FIELD_REF]{items, Ltest.Test;, I, items, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"itemsCount[FIELD_REF]{itemsCount, Ltest.Test;, J, itemsCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testQualifiedStaticField() throws JavaModelException {
@@ -256,23 +216,23 @@ public void testQualifiedStaticField() throws JavaModelException {
 			"/Completion/src/test/Test.java",
 			"package test;"+
 			"public class Test {\n" +
-			"  static int element;\n" +
-			"  int otherElement;\n" +
-			"  static long elementCount;\n" +
+			"  static int items;\n" +
+			"  int otherItems;\n" +
+			"  static long itemsCount;\n" +
 			"  void foo() {\n" +
-			"    Test.elem\n" +
+			"    Test.item\n" +
 			"  }\n" +
 			"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
-	String completeBehind = "Test.elem";
+	String completeBehind = "Test.item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"element[FIELD_REF]{element, Ltest.Test;, I, element, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_NON_INHERITED) + "}\n" +
-			"elementCount[FIELD_REF]{elementCount, Ltest.Test;, J, elementCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_NON_INHERITED) + "}",
+			"items[FIELD_REF]{items, Ltest.Test;, I, items, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_NON_INHERITED) + "}\n" +
+			"itemsCount[FIELD_REF]{itemsCount, Ltest.Test;, J, itemsCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_NON_INHERITED) + "}",
 			requestor.getResults());
 }
 public void testUnqualifiedStaticField() throws JavaModelException {
@@ -281,25 +241,24 @@ public void testUnqualifiedStaticField() throws JavaModelException {
 			"/Completion/src/test/Test.java",
 			"package test;"+
 			"public class Test {\n" +
-			"  static int element;\n" +
-			"  int otherElement;\n" +
-			"  static long elementCount;\n" +
+			"  static int items;\n" +
+			"  int otherItems;\n" +
+			"  static long itemsCount;\n" +
 			"  void foo() {\n" +
-			"    elem\n" +
+			"    item\n" +
 			"  }\n" +
 			"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
-	String completeBehind = "elem";
+	String completeBehind = "item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"ElementType[TYPE_REF]{java.lang.annotation.ElementType, java.lang.annotation, Ljava.lang.annotation.ElementType;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
-			"element[FIELD_REF]{element, Ltest.Test;, I, element, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"elementCount[FIELD_REF]{elementCount, Ltest.Test;, J, elementCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"otherItems[FIELD_REF]{otherItems, Ltest.Test;, I, otherItems, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"items[FIELD_REF]{items, Ltest.Test;, I, items, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"itemsCount[FIELD_REF]{itemsCount, Ltest.Test;, J, itemsCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testLocalVariable() throws JavaModelException {
@@ -308,27 +267,26 @@ public void testLocalVariable() throws JavaModelException {
 			"/Completion/src/test/Test.java",
 			"package test;"+
 			"public class Test {\n" +
-			"  static int element;\n" +
-			"  int otherElement;\n" +
-			"  static long elementCount;\n" +
+			"  static int items;\n" +
+			"  int otherItems;\n" +
+			"  static long itemsCount;\n" +
 			"  void foo() {\n" +
-			"    int temporaryElement = 0;\n" +
-			"    elem\n" +
+			"    int temporaryItem = 0;\n" +
+			"    item\n" +
 			"  }\n" +
 			"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
-	String completeBehind = "elem";
+	String completeBehind = "item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"ElementType[TYPE_REF]{java.lang.annotation.ElementType, java.lang.annotation, Ljava.lang.annotation.ElementType;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
-			"temporaryElement[LOCAL_VARIABLE_REF]{temporaryElement, null, I, temporaryElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
-			"element[FIELD_REF]{element, Ltest.Test;, I, element, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"elementCount[FIELD_REF]{elementCount, Ltest.Test;, J, elementCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"otherItems[FIELD_REF]{otherItems, Ltest.Test;, I, otherItems, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"temporaryItem[LOCAL_VARIABLE_REF]{temporaryItem, null, I, temporaryItem, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"items[FIELD_REF]{items, Ltest.Test;, I, items, null, " + (R_DEFAULT + R_RESOLVED + R_CASE + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"itemsCount[FIELD_REF]{itemsCount, Ltest.Test;, J, itemsCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testMethodParamVariable() throws JavaModelException {
@@ -337,26 +295,25 @@ public void testMethodParamVariable() throws JavaModelException {
 			"/Completion/src/test/Test.java",
 			"package test;"+
 			"public class Test {\n" +
-			"  static int element;\n" +
-			"  int otherElement;\n" +
-			"  static long elementCount;\n" +
-			"  void foo(int initElement) {\n" +
-			"    elem\n" +
+			"  static int items;\n" +
+			"  int otherItems;\n" +
+			"  static long itemsCount;\n" +
+			"  void foo(int initItems) {\n" +
+			"    item\n" +
 			"  }\n" +
 			"}\n");
 
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	String str = this.workingCopies[0].getSource();
-	String completeBehind = "elem";
+	String completeBehind = "item";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"ElementType[TYPE_REF]{java.lang.annotation.ElementType, java.lang.annotation, Ljava.lang.annotation.ElementType;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
-			"initElement[LOCAL_VARIABLE_REF]{initElement, null, I, initElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
-			"otherElement[FIELD_REF]{otherElement, Ltest.Test;, I, otherElement, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
-			"element[FIELD_REF]{element, Ltest.Test;, I, element, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
-			"elementCount[FIELD_REF]{elementCount, Ltest.Test;, J, elementCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			"initItems[LOCAL_VARIABLE_REF]{initItems, null, I, initItems, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"otherItems[FIELD_REF]{otherItems, Ltest.Test;, I, otherItems, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_UNQUALIFIED + R_NON_RESTRICTED + R_SUBSTRING) + "}\n" +
+			"items[FIELD_REF]{items, Ltest.Test;, I, items, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+			"itemsCount[FIELD_REF]{itemsCount, Ltest.Test;, J, itemsCount, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 public void testClassTypeInstantiation() throws JavaModelException {
@@ -897,6 +854,259 @@ public void testLocalClassTypeExtends() throws JavaModelException {
 
 	assertResults(
 			"FooBar[TYPE_REF]{FooBar, test, LFooBar;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE + R_NON_RESTRICTED + R_UNQUALIFIED + R_SUBSTRING) + "}",
+			requestor.getResults());
+}
+public void testBug488441_1() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	String content = "public class Try18 {\n" +
+						"	public void main(String[] args) {\n" +
+						"		\"s\".st\n" +
+						"	}\n" +
+						"}\n" +
+						"}\n";
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			content);
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = ".st";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_STATIC + R_NON_RESTRICTED;
+	assertResults(
+			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (I)I, lastIndexOf, (arg0), "+ (relevance + R_SUBSTRING) +"}\n" +
+			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (II)I, lastIndexOf, (arg0, arg1), "+ (relevance + R_SUBSTRING) +"}\n" +
+			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;)I, lastIndexOf, (arg0), "+ (relevance + R_SUBSTRING) +"}\n" +
+			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;I)I, lastIndexOf, (arg0, arg1), "+ (relevance + R_SUBSTRING) +"}\n" +
+			"replaceFirst[METHOD_REF]{replaceFirst(), Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceFirst, (arg0, arg1), "+ (relevance + R_SUBSTRING) +"}\n" +
+			"substring[METHOD_REF]{substring(), Ljava.lang.String;, (I)Ljava.lang.String;, substring, (arg0), "+ (relevance + R_SUBSTRING) +"}\n" +
+			"substring[METHOD_REF]{substring(), Ljava.lang.String;, (II)Ljava.lang.String;, substring, (arg0, arg1), "+ (relevance + R_SUBSTRING) +"}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.String;, ()Ljava.lang.String;, toString, null, "+ (relevance + R_SUBSTRING) +"}\n" +
+			"startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, startsWith, (arg0), "+ (relevance + R_CASE) +"}\n" +
+			"startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;I)Z, startsWith, (arg0, arg1), "+ (relevance + R_CASE) +"}",
+			requestor.getResults());
+}
+public void testBug488441_2() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	String content = "public class Try18 {\n" +
+						"	public void main(String[] args) {\n" +
+						"		int i = \"s\".st\n" +
+						"	}\n" +
+						"}\n";
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			content);
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = ".st";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_STATIC + R_NON_RESTRICTED;
+	assertResults(
+			"replaceFirst[METHOD_REF]{replaceFirst(), Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceFirst, (arg0, arg1), "+ (relevance + R_SUBSTRING) +"}\n" +
+			"substring[METHOD_REF]{substring(), Ljava.lang.String;, (I)Ljava.lang.String;, substring, (arg0), "+ (relevance + R_SUBSTRING) +"}\n" +
+			"substring[METHOD_REF]{substring(), Ljava.lang.String;, (II)Ljava.lang.String;, substring, (arg0, arg1), "+ (relevance + R_SUBSTRING) +"}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.String;, ()Ljava.lang.String;, toString, null, "+ (relevance + R_SUBSTRING) +"}\n" +
+			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (I)I, lastIndexOf, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (II)I, lastIndexOf, (arg0, arg1), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;)I, lastIndexOf, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;I)I, lastIndexOf, (arg0, arg1), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, startsWith, (arg0), "+ (relevance + R_CASE) +"}\n" +
+			"startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;I)Z, startsWith, (arg0, arg1), "+ (relevance + R_CASE) +"}",
+			requestor.getResults());
+}
+public void testBug488441_3() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	String content = "public class Try18 {\n" +
+						"	public void main(String[] args) {\n" +
+						"		String s = \"s\".st\n" +
+						"	}\n" +
+						"}\n";
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			content);
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = ".st";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_STATIC + R_NON_RESTRICTED;
+	assertResults(
+			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (I)I, lastIndexOf, (arg0), "+ (relevance + R_SUBSTRING) +"}\n" +
+			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (II)I, lastIndexOf, (arg0, arg1), "+ (relevance + R_SUBSTRING) +"}\n" +
+			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;)I, lastIndexOf, (arg0), "+ (relevance + R_SUBSTRING) +"}\n" +
+			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;I)I, lastIndexOf, (arg0, arg1), "+ (relevance + R_SUBSTRING) +"}\n" +
+			"replaceFirst[METHOD_REF]{replaceFirst(), Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceFirst, (arg0, arg1), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, startsWith, (arg0), "+ (relevance + R_CASE) +"}\n" +
+			"startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;I)Z, startsWith, (arg0, arg1), "+ (relevance + R_CASE) +"}\n" +
+			"substring[METHOD_REF]{substring(), Ljava.lang.String;, (I)Ljava.lang.String;, substring, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"substring[METHOD_REF]{substring(), Ljava.lang.String;, (II)Ljava.lang.String;, substring, (arg0, arg1), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.String;, ()Ljava.lang.String;, toString, null, "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}",
+			requestor.getResults());
+}
+public void testBug488441_4() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	String content = "public class Try18 {\n" +
+						"	public void main(String[] args) {\n" +
+						"		boolean s = \"s\".st\n" +
+						"	}\n" +
+						"}\n";
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			content);
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = ".st";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_STATIC + R_NON_RESTRICTED;
+	assertResults(
+			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (I)I, lastIndexOf, (arg0), " + (relevance + R_SUBSTRING) + "}\n" +
+			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (II)I, lastIndexOf, (arg0, arg1), " + (relevance + R_SUBSTRING) + "}\n" +
+			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;)I, lastIndexOf, (arg0), " + (relevance + R_SUBSTRING) + "}\n" +
+			"lastIndexOf[METHOD_REF]{lastIndexOf(), Ljava.lang.String;, (Ljava.lang.String;I)I, lastIndexOf, (arg0, arg1), " + (relevance + R_SUBSTRING) + "}\n" +
+			"replaceFirst[METHOD_REF]{replaceFirst(), Ljava.lang.String;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, replaceFirst, (arg0, arg1), " + (relevance + R_SUBSTRING) + "}\n" +
+			"substring[METHOD_REF]{substring(), Ljava.lang.String;, (I)Ljava.lang.String;, substring, (arg0), " + (relevance + R_SUBSTRING) + "}\n" +
+			"substring[METHOD_REF]{substring(), Ljava.lang.String;, (II)Ljava.lang.String;, substring, (arg0, arg1), " + (relevance + R_SUBSTRING) + "}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.String;, ()Ljava.lang.String;, toString, null, " + (relevance + R_SUBSTRING) + "}\n" +
+			"startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, startsWith, (arg0), " + (relevance + R_EXACT_EXPECTED_TYPE + R_CASE) + "}\n" +
+			"startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;I)Z, startsWith, (arg0, arg1), " + (relevance + R_EXACT_EXPECTED_TYPE + R_CASE) + "}",
+			requestor.getResults());
+}
+public void testBug488441_5() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"import java.util.Arrays;\n" +
+			"public class Try18 {\n" +
+			"	public void main(String[] args) {\n" +
+			"	String msg=\"\";\n" +
+			"	String[] parameters = {\"a\"};\n" +
+			"	System.out.println(msg + Arrays.as);\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = ".as";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_NON_INHERITED;
+	assertResults(
+			"asList[METHOD_REF]{asList(), Ljava.util.Arrays;, <T:Ljava.lang.Object;>([TT;)Ljava.util.List<TT;>;, asList, (arg0), "+ (relevance + R_CASE) +"}\n" +
+			"deepHashCode[METHOD_REF]{deepHashCode(), Ljava.util.Arrays;, ([Ljava.lang.Object;)I, deepHashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([B)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([C)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([D)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([F)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([I)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([J)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([Ljava.lang.Object;)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([S)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([Z)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}",
+			requestor.getResults());
+}
+public void testBug488441_6() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"import java.util.Arrays;\n" +
+			"public class Try18 {\n" +
+			"	public void main(String[] args) {\n" +
+			"	String msg=\"\";\n" +
+			"	String[] parameters = {\"a\"};\n" +
+			"	System.out.println(msg + Arrays.aS);\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = ".aS";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_NON_INHERITED;
+	assertResults(
+			"asList[METHOD_REF]{asList(), Ljava.util.Arrays;, <T:Ljava.lang.Object;>([TT;)Ljava.util.List<TT;>;, asList, (arg0), "+ (relevance) +"}\n" +
+			"deepHashCode[METHOD_REF]{deepHashCode(), Ljava.util.Arrays;, ([Ljava.lang.Object;)I, deepHashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([B)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([C)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([D)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([F)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([I)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([J)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([Ljava.lang.Object;)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([S)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([Z)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}",
+			requestor.getResults());
+}
+public void testBug488441_7() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"import java.util.Arrays;\n" +
+			"public class Try18 {\n" +
+			"	public void main(String[] args) {\n" +
+			"	String msg=\"\";\n" +
+			"	String[] parameters = {\"a\"};\n" +
+			"	System.out.println(Arrays.as);\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = ".as";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_NON_INHERITED;
+	assertResults(
+			"deepHashCode[METHOD_REF]{deepHashCode(), Ljava.util.Arrays;, ([Ljava.lang.Object;)I, deepHashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([B)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([C)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([D)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([F)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([I)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([J)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([Ljava.lang.Object;)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([S)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([Z)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"asList[METHOD_REF]{asList(), Ljava.util.Arrays;, <T:Ljava.lang.Object;>([TT;)Ljava.util.List<TT;>;, asList, (arg0), "+ (relevance + R_EXPECTED_TYPE + R_CASE) +"}",
+			requestor.getResults());
+}
+public void testBug488441_8() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/test/Test.java",
+			"import java.util.Arrays;\n" +
+			"public class Try18 {\n" +
+			"	public void main(String[] args) {\n" +
+			"	String msg=\"\";\n" +
+			"	String[] parameters = {\"a\"};\n" +
+			"	int i = Arrays.as;\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = ".as";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED + R_NON_INHERITED;
+	assertResults(
+			"asList[METHOD_REF]{asList(), Ljava.util.Arrays;, <T:Ljava.lang.Object;>([TT;)Ljava.util.List<TT;>;, asList, (arg0), "+ (relevance + R_CASE) +"}\n" +
+			"deepHashCode[METHOD_REF]{deepHashCode(), Ljava.util.Arrays;, ([Ljava.lang.Object;)I, deepHashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([B)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([C)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([D)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([F)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([I)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([J)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([Ljava.lang.Object;)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([S)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.util.Arrays;, ([Z)I, hashCode, (arg0), "+ (relevance + R_SUBSTRING + R_EXACT_EXPECTED_TYPE) +"}",
 			requestor.getResults());
 }
 }

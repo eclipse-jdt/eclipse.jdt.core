@@ -260,18 +260,17 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			ReferenceBinding currentType = (ReferenceBinding) this.resolvedType;
 			if (qualifyingType == null) {
 				qualifyingType = currentType.enclosingType(); // if member type
-				if (qualifyingType != null) {
-					qualifyingType = currentType.isStatic()
-						? (ReferenceBinding) scope.environment().convertToRawType(qualifyingType, false /*do not force conversion of enclosing types*/)
-						: scope.environment().convertToParameterizedType(qualifyingType);
+				if (qualifyingType != null && !currentType.isStatic()) {
+					qualifyingType = scope.environment().convertToParameterizedType(qualifyingType);
 				}
 			} else {
 				if (this.annotations != null)
 					rejectAnnotationsOnStaticMemberQualififer(scope, currentType, this.annotations[i-1]);
 				if (typeIsConsistent && currentType.isStatic()
 						&& (qualifyingType.isParameterizedTypeWithActualArguments() || qualifyingType.isGenericType())) {
-					scope.problemReporter().staticMemberOfParameterizedType(this, scope.environment().createParameterizedType((ReferenceBinding)currentType.erasure(), null, qualifyingType), i);
+					scope.problemReporter().staticMemberOfParameterizedType(this, currentType, qualifyingType, i);
 					typeIsConsistent = false;
+					qualifyingType = qualifyingType.actualType(); // avoid raw/parameterized enclosing of static member
 				}
 				ReferenceBinding enclosingType = currentType.enclosingType();
 				if (enclosingType != null && TypeBinding.notEquals(enclosingType.erasure(), qualifyingType.erasure())) { // qualifier != declaring/enclosing
@@ -328,13 +327,18 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						return null;
 					}
 				}
-				// check parameterizing non-static member type of raw type
-				if (typeIsConsistent && !currentType.isStatic()) {
-					ReferenceBinding actualEnclosing = currentType.enclosingType();
-					if (actualEnclosing != null && actualEnclosing.isRawType()) {
-						scope.problemReporter().rawMemberTypeCannotBeParameterized(
-								this, scope.environment().createRawType(currentOriginal, actualEnclosing), argTypes);
-						typeIsConsistent = false;
+				// check parameterizing (non-)static member type of raw type
+				if (typeIsConsistent) {
+					if (currentType.isStatic()) {
+						if (qualifyingType != null && qualifyingType.isRawType())
+							this.typesPerToken[i-1] = qualifyingType = qualifyingType.actualType(); // revert rawification of enclosing, since its generics are inaccessible
+					} else {
+						ReferenceBinding actualEnclosing = currentType.enclosingType();
+						if (actualEnclosing != null && actualEnclosing.isRawType()) {
+							scope.problemReporter().rawMemberTypeCannotBeParameterized(
+									this, scope.environment().createRawType(currentOriginal, actualEnclosing), argTypes);
+							typeIsConsistent = false;
+						}
 					}
 				}
 				ParameterizedTypeBinding parameterizedType = scope.environment().createParameterizedType(currentOriginal, argTypes, qualifyingType);
@@ -360,9 +364,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					}
 	   			    qualifyingType = scope.environment().createRawType(currentOriginal, qualifyingType); // raw type
 				} else {
-					qualifyingType = (qualifyingType != null && qualifyingType.isParameterizedType())
-													? scope.environment().createParameterizedType(currentOriginal, null, qualifyingType)
-													: currentType;
+					qualifyingType = scope.environment().maybeCreateParameterizedType(currentOriginal, qualifyingType);
 				}
 			}
 			if (isTypeUseDeprecated(qualifyingType, scope))
