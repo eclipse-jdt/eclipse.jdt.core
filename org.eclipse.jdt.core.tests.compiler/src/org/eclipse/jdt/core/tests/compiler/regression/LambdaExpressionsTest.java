@@ -6208,6 +6208,85 @@ public void testBug499258() {
 		}
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=500374 Using a method reference to a generic method in a Base class gives me NoSuchMethodError
+public void test500374() {
+	this.runConformTest(
+		new String[] {
+			"client/Client.java",
+			"package client;\n" + 
+			"import lib.Sub;\n" + 
+			"public class Client {\n" + 
+			"    public static void main(String[] args) throws Throwable {\n" + 
+			"        Sub s1 = new Sub();\n" + 
+			"        doSomething(() -> s1.m());\n" + 
+			"        doSomething(s1::m);\n" + 
+			"    }\n" + 
+			"    interface Aaa {\n" + 
+			"        Object f() throws Throwable;\n" + 
+			"    }\n" + 
+			"    public static void doSomething(Aaa a) throws Throwable {\n" + 
+			"        System.out.println(\"Done\");\n" + 
+			"    }\n" + 
+			"}\n",
+			"lib/Sub.java",
+			"package lib;\n" + 
+			"public class Sub extends Base<Sub> {}",
+			"lib/Base.java",
+			"package lib;\n" + 
+			"class Base<T> {\n" + 
+			"    public T m() {\n" + 
+			"        System.out.println(\"m\");\n" + 
+			"        return thisInstance();\n" + 
+			"    }\n" + 
+			"    @SuppressWarnings(\"unchecked\")\n" + 
+			"    T thisInstance() {\n" + 
+			"        return (T) this;\n" + 
+			"    }\n" + 
+			"}"
+	},
+	"Done\n" +
+	"Done");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=500374 Using a method reference to a generic method in a Base class gives me NoSuchMethodError
+public void test500374a() {
+	this.runConformTest(
+		new String[] {
+			"client/Client.java",
+			"package client;\n" + 
+			"import java.lang.invoke.MethodHandle;\n" + 
+			"import java.lang.invoke.MethodHandles;\n" + 
+			"import java.lang.invoke.MethodType;\n" + 
+			"import lib.Sub;\n" + 
+			"public class Client {\n" + 
+			"    public static void main(String[] args) throws Throwable {\n" + 
+			"        MethodHandle mh = MethodHandles.lookup().findVirtual(Sub.class, \"m\", MethodType.methodType(Object.class));\n" + 
+			"        doSomething(mh::invoke);\n" + 
+			"    }\n" + 
+			"    interface Aaa {\n" + 
+			"        Object f() throws Throwable;\n" + 
+			"    }\n" + 
+			"    public static void doSomething(Aaa a) throws Throwable {\n" + 
+			"        System.out.println(\"Done\");\n" + 
+			"    }\n" + 
+			"}\n",
+			"lib/Sub.java",
+			"package lib;\n" + 
+			"public class Sub extends Base<Sub> {}",
+			"lib/Base.java",
+			"package lib;\n" + 
+			"class Base<T> {\n" + 
+			"    public T m() {\n" + 
+			"        System.out.println(\"m\");\n" + 
+			"        return thisInstance();\n" + 
+			"    }\n" + 
+			"    @SuppressWarnings(\"unchecked\")\n" + 
+			"    T thisInstance() {\n" + 
+			"        return (T) this;\n" + 
+			"    }\n" + 
+			"}"
+	},
+	"Done");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
