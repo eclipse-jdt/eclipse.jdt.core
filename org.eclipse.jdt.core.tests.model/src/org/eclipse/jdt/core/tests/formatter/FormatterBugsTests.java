@@ -12515,4 +12515,17 @@ public void testBug500443() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/500135 - [formatter] 'Parenthesis positions' ignores single member annotations
+ */
+public void testBug500135() {
+	this.formatterPrefs.parenthesis_positions_in_annotation = DefaultCodeFormatterConstants.SEPARATE_LINES;
+	String source =
+		"@SomeAnnotation(\n" + 
+		"	\"some value\"\n" + 
+		")\n" + 
+		"public class Test {\n" + 
+		"}";
+	formatSource(source);
+}
 }

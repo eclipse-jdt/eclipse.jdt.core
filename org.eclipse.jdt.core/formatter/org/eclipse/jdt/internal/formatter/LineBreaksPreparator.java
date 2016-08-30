@@ -427,10 +427,6 @@ public class LineBreaksPreparator extends ASTVisitor {
 	@Override
 	public boolean visit(NormalAnnotation node) {
 		handleAnnotation(node);
-
-		int lParen = this.tm.firstIndexAfter(node.getTypeName(), TokenNameLPAREN);
-		int rParen = this.tm.lastIndexIn(node, TokenNameRPAREN);
-		handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_annotation);
 		return true;
 	}
 
@@ -530,6 +526,12 @@ public class LineBreaksPreparator extends ASTVisitor {
 		}
 		if (breakAfter)
 			this.tm.lastTokenIn(node, -1).breakAfter();
+
+		if (!(node instanceof MarkerAnnotation)) {
+			int lParen = this.tm.firstIndexAfter(node.getTypeName(), TokenNameLPAREN);
+			int rParen = this.tm.lastIndexIn(node, TokenNameRPAREN);
+			handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_annotation);
+		}
 	}
 
 	@Override
