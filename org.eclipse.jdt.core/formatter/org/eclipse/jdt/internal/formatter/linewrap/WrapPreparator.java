@@ -864,7 +864,7 @@ public class WrapPreparator extends ASTVisitor {
 		if (policy == null)
 			return;
 
-		setTokenWrapPolicy(this.wrapIndexes.get(0), policy, true);
+		setTokenWrapPolicy(0, policy, true);
 
 		boolean wrapPreceedingComments = !(parentNode instanceof InfixExpression)
 				|| !this.options.wrap_before_binary_operator;
@@ -872,7 +872,7 @@ public class WrapPreparator extends ASTVisitor {
 			penalty = this.wrapPenalties.size() > i ? this.wrapPenalties.get(i) : 1;
 			if (penalty != policy.penaltyMultiplier || i == 1)
 				policy = getWrapPolicy(wrappingOption, penalty, false, parentNode);
-			setTokenWrapPolicy(this.wrapIndexes.get(i), policy, wrapPreceedingComments);
+			setTokenWrapPolicy(i, policy, wrapPreceedingComments);
 		}
 
 		boolean forceWrap = (wrappingOption & Alignment.M_FORCE) != 0;
@@ -904,7 +904,8 @@ public class WrapPreparator extends ASTVisitor {
 		}
 	}
 
-	private void setTokenWrapPolicy(int index, WrapPolicy policy, boolean wrapPreceedingComments) {
+	private void setTokenWrapPolicy(int wrapIndexesIndex, WrapPolicy policy, boolean wrapPreceedingComments) {
+		int index = this.wrapIndexes.get(wrapIndexesIndex);
 		if (wrapPreceedingComments) {
 			for (int i = index - 1; i >= 0; i--) {
 				Token previous = this.tm.get(i);
@@ -915,6 +916,7 @@ public class WrapPreparator extends ASTVisitor {
 				if (previous.getLineBreaksBefore() > 0)
 					previous.setWrapPolicy(policy);
 			}
+			this.wrapIndexes.set(wrapIndexesIndex, index);
 		}
 
 		Token token = this.tm.get(index);
