@@ -24,7 +24,7 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassWithExternalAnnotations;
+import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
@@ -273,9 +273,9 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 				ZipFile zip = classpathEntry instanceof ClasspathJar ? ((ClasspathJar) classpathEntry).zipFile : null;
 				try {
 					if (zip == null) {
-						zip = ClassWithExternalAnnotations.getAnnotationZipFile(classpathEntry.getPath(), null);
+						zip = ExternalAnnotationDecorator.getAnnotationZipFile(classpathEntry.getPath(), null);
 					}
-					answer.setBinaryType(ClassWithExternalAnnotations.create(answer.getBinaryType(), classpathEntry.getPath(), 
+					answer.setBinaryType(ExternalAnnotationDecorator.create(answer.getBinaryType(), classpathEntry.getPath(), 
 							qualifiedTypeName, zip));
 					break;
 				} catch (IOException e) {

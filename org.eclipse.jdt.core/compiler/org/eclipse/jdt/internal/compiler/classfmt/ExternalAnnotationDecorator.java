@@ -32,7 +32,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
  * A decorator for {@link IBinaryType} that allows external annotations to be attached. This can be used to change the
  * result of {@link #enrichWithExternalAnnotationsFor} or {@link #getExternalAnnotationStatus}.
  */
-public class ClassWithExternalAnnotations implements IBinaryType {
+public class ExternalAnnotationDecorator implements IBinaryType {
 	private IBinaryType inputType;
 	private ExternalAnnotationProvider annotationProvider;
 	private boolean isFromSource;
@@ -40,12 +40,12 @@ public class ClassWithExternalAnnotations implements IBinaryType {
 	/** Auxiliary interface for {@link #getAnnotationZipFile(String, ZipFileProducer)}. */
 	public interface ZipFileProducer { ZipFile produce() throws IOException; }
 
-	public ClassWithExternalAnnotations(IBinaryType toDecorate, ExternalAnnotationProvider externalAnnotationProvider) {
+	public ExternalAnnotationDecorator(IBinaryType toDecorate, ExternalAnnotationProvider externalAnnotationProvider) {
 		this.inputType = toDecorate;
 		this.annotationProvider = externalAnnotationProvider;
 	}
 
-	public ClassWithExternalAnnotations(IBinaryType toDecorate, boolean isFromSource) {
+	public ExternalAnnotationDecorator(IBinaryType toDecorate, boolean isFromSource) {
 		this.isFromSource = isFromSource;
 		this.inputType = toDecorate;
 	}
@@ -243,7 +243,7 @@ public class ClassWithExternalAnnotations implements IBinaryType {
 		ExternalAnnotationProvider externalAnnotationProvider = externalAnnotationProvider(basePath, qualifiedBinaryTypeName, zipFile);
 		if (externalAnnotationProvider == null)
 			return toDecorate;
-		return new ClassWithExternalAnnotations(toDecorate, externalAnnotationProvider);
+		return new ExternalAnnotationDecorator(toDecorate, externalAnnotationProvider);
 	}
 
 	@Override

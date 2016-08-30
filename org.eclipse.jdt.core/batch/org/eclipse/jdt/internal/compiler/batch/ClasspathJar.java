@@ -27,7 +27,7 @@ import java.util.zip.ZipFile;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassWithExternalAnnotations;
+import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
@@ -112,9 +112,9 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 				for (String annotationPath : this.annotationPaths) {
 					try {
 						if (this.annotationZipFile == null) {
-							this.annotationZipFile = ClassWithExternalAnnotations.getAnnotationZipFile(annotationPath, null);
+							this.annotationZipFile = ExternalAnnotationDecorator.getAnnotationZipFile(annotationPath, null);
 						}
-						reader = ClassWithExternalAnnotations.create(reader, annotationPath, qualifiedClassName, this.annotationZipFile);
+						reader = ExternalAnnotationDecorator.create(reader, annotationPath, qualifiedClassName, this.annotationZipFile);
 
 						if (reader.getExternalAnnotationStatus() == ExternalAnnotationStatus.TYPE_IS_ANNOTATED) {
 							break;

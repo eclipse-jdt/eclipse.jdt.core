@@ -35,7 +35,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassWithExternalAnnotations;
+import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -378,7 +378,7 @@ private IBinaryType getJarBinaryTypeInfo() throws CoreException, IOException, Cl
 					result = setupExternalAnnotationProvider(project, externalAnnotationPath, null, result, 
 						entryName.substring(0, entryName.length() - SuffixConstants.SUFFIX_CLASS.length));
 				} else if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-					result = new ClassWithExternalAnnotations(result, true);
+					result = new ExternalAnnotationDecorator(result, true);
 				}
 			}
 		}
@@ -414,7 +414,7 @@ private IBinaryType setupExternalAnnotationProvider(IProject project, final IPat
 	}
 	try {
 		if (annotationZip == null) {
-			annotationZip = ClassWithExternalAnnotations.getAnnotationZipFile(resolvedPath, new ClassWithExternalAnnotations.ZipFileProducer() {
+			annotationZip = ExternalAnnotationDecorator.getAnnotationZipFile(resolvedPath, new ExternalAnnotationDecorator.ZipFileProducer() {
 				@Override public ZipFile produce() throws IOException {
 					try {
 						return JavaModelManager.getJavaModelManager().getZipFile(externalAnnotationPath); // use (absolute, but) unresolved path here
@@ -424,9 +424,9 @@ private IBinaryType setupExternalAnnotationProvider(IProject project, final IPat
 				}});
 		}
 
-		ExternalAnnotationProvider annotationProvider = ClassWithExternalAnnotations
+		ExternalAnnotationProvider annotationProvider = ExternalAnnotationDecorator
 				.externalAnnotationProvider(resolvedPath, typeName, annotationZip);
-		result = new ClassWithExternalAnnotations(reader, annotationProvider);
+		result = new ExternalAnnotationDecorator(reader, annotationProvider);
 	} catch (IOException e) {
 		Util.log(e);
 		return result;

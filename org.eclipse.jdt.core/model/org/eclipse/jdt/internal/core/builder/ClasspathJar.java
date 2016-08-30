@@ -25,7 +25,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassWithExternalAnnotations;
+import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
@@ -176,11 +176,11 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 			if (this.externalAnnotationPath != null) {
 				try {
 					if (this.annotationZipFile == null) {
-						this.annotationZipFile = ClassWithExternalAnnotations
+						this.annotationZipFile = ExternalAnnotationDecorator
 								.getAnnotationZipFile(this.externalAnnotationPath, null);
 					}
 
-					reader = ClassWithExternalAnnotations.create(reader, this.externalAnnotationPath,
+					reader = ExternalAnnotationDecorator.create(reader, this.externalAnnotationPath,
 							fileNameWithoutExtension, this.annotationZipFile);
 				} catch (IOException e) {
 					// don't let error on annotations fail class reading
