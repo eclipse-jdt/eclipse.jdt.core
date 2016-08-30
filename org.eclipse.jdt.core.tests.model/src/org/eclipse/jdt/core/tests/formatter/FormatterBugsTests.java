@@ -12515,4 +12515,22 @@ public void testBug500443() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/500092 - [formatter] Blank lines at beginning of method body doesn't work in constructors
+ */
+public void testBug500092() {
+	this.formatterPrefs.blank_lines_at_beginning_of_method_body = 1;
+	String source =
+		"public class Test {\n" + 
+		"	public Test() { int a; }\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	public Test() {\n" + 
+		"\n" + 
+		"		int a;\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
 }
