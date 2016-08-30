@@ -12499,4 +12499,20 @@ public void testBug497245b() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/500443 - [formatter] NPE on block comment before 'force-wrap' element
+ */
+public void testBug500443() {
+	this.formatterPrefs.alignment_for_enum_constants = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	this.formatterPrefs.alignment_for_superclass_in_type_declaration = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	String source =
+		"public class SomeClass\n" + 
+		"		/* */ extends\n" + 
+		"		Object {\n" + 
+		"	enum MyEnum {\n" + 
+		"		/* 1 */ ONE\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
+}
 }
