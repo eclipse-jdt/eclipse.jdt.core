@@ -6886,4 +6886,32 @@ public void testBug497239() {
 		}
 	);
 }
+public void testBug472851() {
+	runNegativeTest(
+		new String[] {
+			"Test.java",
+			"import java.util.*;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"    public static void main(String... arg) {\n" + 
+			"    List<Integer> l1=Arrays.asList(0, 1, 2);\n" + 
+			"    List<String>  l2=Arrays.asList(\"0\", \"1\", \"2\");\n" + 
+			"    a(Arrays.asList(l1, l2));\n" + 
+			"}\n" + 
+			"static final void a(List<? extends List<?>> type) {\n" + 
+			"    test(type);\n" + 
+			"}\n" + 
+			"static final <Y,L extends List<Y>> void test(List<L> type) {\n" + 
+			"    L l1=type.get(0), l2=type.get(1);\n" + 
+			"    l2.set(0, l1.get(0));\n" + 
+			"}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 10)\n" + 
+		"	test(type);\n" + 
+		"	^^^^\n" + 
+		"The method test(List<L>) in the type Test is not applicable for the arguments (List<capture#1-of ? extends List<?>>)\n" + 
+		"----------\n");
+}
 }

@@ -394,7 +394,11 @@ protected static class JavacTestOptions {
 					}
 				} : null,
 			EclipseBug177715 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=177715
-				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) : null,
+				new EclipseHasABug(MismatchType.JavacErrorsEclipseNone) {
+					Excuse excuseFor(JavacCompiler compiler) {
+						return compiler.compliance < ClassFileConstants.JDK1_8 ? this : null; // in 1.8 rejected by both compilers
+					}
+				} : null,
 			EclipseBug207935 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=207935
 				new EclipseHasABug(MismatchType.EclipseErrorsJavacNone | MismatchType.EclipseWarningsJavacNone) : null,
 			EclipseBug216558 = RUN_JAVAC ? // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216558

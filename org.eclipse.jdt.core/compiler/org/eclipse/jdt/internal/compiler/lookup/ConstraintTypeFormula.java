@@ -108,6 +108,9 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				if (this.left.kind() != Binding.WILDCARD_TYPE) {
 					return ConstraintTypeFormula.create(this.left, this.right, SAME, this.isSoft);						
 				} else {
+					// TODO: speculative addition:
+					if (this.right instanceof InferenceVariable)
+						return new TypeBound((InferenceVariable) this.right, this.left, SAME, this.isSoft);
 					return FALSE;
 				}
 			} else {

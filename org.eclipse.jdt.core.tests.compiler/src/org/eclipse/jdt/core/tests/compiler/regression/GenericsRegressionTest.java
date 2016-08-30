@@ -5954,5 +5954,30 @@ public void testBug499126() {
 			null
 	);
 }
+public void testBug441905() {
+	runConformTest(
+		new String[] {
+			"EclipseJava8Generics.java",
+			"import java.util.List;\n" + 
+			"\n" + 
+			"public class EclipseJava8Generics {\n" + 
+			"\n" + 
+			"  public interface Foo<V> {\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  public static class FooBar<V, T extends Foo<V>> {\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  protected void doFoos(List<FooBar<?, ? extends Foo<?>>> fooBars) {\n" + 
+			"    FooBar<?, ? extends Foo<?>> fooBar = fooBars.iterator().next();\n" + 
+			"    doFoo(fooBar);\n" + 
+			"  }\n" + 
+			"\n" + 
+			"  protected static <F> void doFoo(FooBar<F, ? extends Foo<F>> fooBar) {\n" + 
+			"  }\n" + 
+			"\n" + 
+			"}\n"
+		});
+}
 }
 

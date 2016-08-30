@@ -144,6 +144,7 @@ public class CaptureBinding extends TypeVariableBinding {
 	 * e.g. given X<U, V extends X<U, V>>,     capture(X<E,?>) = X<E,capture>, where capture extends X<E,capture>
 	 */
 	public void initializeBounds(Scope scope, ParameterizedTypeBinding capturedParameterizedType) {
+		boolean is18plus = scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_8;
 		TypeVariableBinding wildcardVariable = this.wildcard.typeVariable();
 		if (wildcardVariable == null) {
 			// error resilience when capturing Zork<?>
@@ -152,7 +153,9 @@ public class CaptureBinding extends TypeVariableBinding {
 			switch (this.wildcard.boundKind) {
 				case Wildcard.EXTENDS :
 					// still need to capture bound supertype as well so as not to expose wildcards to the outside (111208)
-					TypeBinding capturedWildcardBound = originalWildcardBound.capture(scope, this.start, this.end);
+					TypeBinding capturedWildcardBound = is18plus
+							? originalWildcardBound // as spec'd
+							: originalWildcardBound.capture(scope, this.start, this.end); // for compatibility with old behavior at 1.7-
 					if (originalWildcardBound.isInterface()) {
 						this.setSuperClass(scope.getJavaLangObject());
 						this.setSuperInterfaces(new ReferenceBinding[] { (ReferenceBinding) capturedWildcardBound });
@@ -204,7 +207,9 @@ public class CaptureBinding extends TypeVariableBinding {
 		switch (this.wildcard.boundKind) {
 			case Wildcard.EXTENDS :
 				// still need to capture bound supertype as well so as not to expose wildcards to the outside (111208)
-				TypeBinding capturedWildcardBound = originalWildcardBound.capture(scope, this.start, this.end);
+				TypeBinding capturedWildcardBound = is18plus
+							? originalWildcardBound // as spec'd
+							: originalWildcardBound.capture(scope, this.start, this.end); // for compatibility with old behavior at 1.7-
 				if (originalWildcardBound.isInterface()) {
 					this.setSuperClass(substitutedVariableSuperclass);
 					// merge wildcard bound into variable superinterfaces using glb

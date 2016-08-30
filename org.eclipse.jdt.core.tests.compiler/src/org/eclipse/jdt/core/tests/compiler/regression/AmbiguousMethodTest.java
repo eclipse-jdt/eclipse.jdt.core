@@ -4361,24 +4361,29 @@ public void test086() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321485
 public void test087() {
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"import java.util.Collection;\n" +
-			"import java.util.List;\n" +
-			"public class X {\n" +
-			"    public static <T> List<T> with(List<? extends T> p) { return null; } \n" +
-			"    public static <T> Collection<T> with(Collection<T> p) { return null; }\n" +
-			"    static { with(null); }\n" +
-			"} \n"
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 6)\n" + 
-		"	static { with(null); }\n" + 
-		"	         ^^^^\n" + 
-		"The method with(List<? extends Object>) is ambiguous for the type X\n" + 
-		"----------\n"
-	);
+	String source =
+		"import java.util.Collection;\n" +
+		"import java.util.List;\n" +
+		"public class X {\n" +
+		"    public static <T> List<T> with(List<? extends T> p) { return null; } \n" +
+		"    public static <T> Collection<T> with(Collection<T> p) { return null; }\n" +
+		"    static { with(null); }\n" +
+		"} \n";
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		this.runNegativeTest( // FIXME: Eclipse has a bug
+			new String[] { "X.java", source },
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	static { with(null); }\n" +
+			"	         ^^^^\n" +
+			"The method with(List<? extends Object>) is ambiguous for the type X\n" + 
+			"----------\n"
+		);
+	} else {
+		this.runConformTest(
+			new String[] { "X.java", source }
+		);
+	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=354579
 public void test088a() {
