@@ -12546,4 +12546,31 @@ public void testBug500135() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/500096 - [formatter] Indent declarations within enum declaration doesn't affect enum constants
+ */
+public void testBug500096a() {
+	this.formatterPrefs.indent_body_declarations_compare_to_enum_declaration_header = false;
+	String source =
+		"public enum Test {\n" + 
+		"AAA, BBB;\n" + 
+		"Test() {\n" + 
+		"}\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/500096 - [formatter] Indent declarations within enum declaration doesn't affect enum constants
+ */
+public void testBug500096b() {
+	this.formatterPrefs.indent_body_declarations_compare_to_enum_declaration_header = false;
+	this.formatterPrefs.alignment_for_enum_constants = Alignment.M_COMPACT_SPLIT + Alignment.M_INDENT_BY_ONE;
+	String source =
+		"public enum Test {\n" + 
+		"	AAA, BBB;\n" + 
+		"Test() {\n" + 
+		"}\n" + 
+		"}";
+	formatSource(source);
+}
 }

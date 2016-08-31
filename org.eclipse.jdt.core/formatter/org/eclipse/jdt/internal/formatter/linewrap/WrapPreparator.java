@@ -939,6 +939,8 @@ public class WrapPreparator extends ASTVisitor {
 		} else if (parentNode instanceof EnumDeclaration) {
 			// special behavior for compatibility with legacy formatter
 			extraIndent = ((wrappingOption & Alignment.M_INDENT_BY_ONE) != 0) ? 2 : 1;
+			if (!this.options.indent_body_declarations_compare_to_enum_declaration_header)
+				extraIndent--;
 			isAlreadyWrapped = isFirst;
 		} else if (parentNode instanceof IfStatement) {
 			extraIndent = 1;
