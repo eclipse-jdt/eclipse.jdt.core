@@ -582,13 +582,18 @@ public class WrapPreparator extends ASTVisitor {
 			prepareElementsList(expressions, TokenNameCOMMA, TokenNameLBRACE);
 			handleWrap(this.options.alignment_for_expressions_in_array_initializer, node);
 		}
+		int openingBraceIndex = this.tm.firstIndexIn(node, TokenNameLBRACE);
+		Token openingBrace = this.tm.get(openingBraceIndex);
+		if (openingBrace.isNextLineOnWrap() && openingBrace.getWrapPolicy() == null && openingBraceIndex > 0) {
+			// add fake wrap policy to make sure the brace indentation is right
+			openingBrace.setWrapPolicy(new WrapPolicy(WrapMode.DISABLED, openingBraceIndex - 1, 0));
+		}
 		if (!this.options.join_wrapped_lines
 				&& !this.options.insert_new_line_before_closing_brace_in_array_initializer) {
 			// if there is a line break before the closing brace, formatter should treat it as a valid wrap to preserve
 			int closingBraceIndex = this.tm.lastIndexIn(node, TokenNameRBRACE);
 			Token closingBrace = this.tm.get(closingBraceIndex);
 			if (this.tm.countLineBreaksBetween(this.tm.get(closingBraceIndex - 1), closingBrace) == 1) {
-				int openingBraceIndex = this.tm.firstIndexIn(node, TokenNameLBRACE);
 				closingBrace.setWrapPolicy(new WrapPolicy(WrapMode.WHERE_NECESSARY, openingBraceIndex,
 						closingBraceIndex, 0, this.currentDepth, 1, true, false));
 			}
