@@ -1,5 +1,11 @@
 package org.eclipse.jdt.internal.core.nd.java;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileInfo;
 import org.eclipse.core.filesystem.IFileStore;
@@ -8,12 +14,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.internal.core.nd.StreamHasher;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * @since 3.12
@@ -27,6 +27,10 @@ public class FileFingerprint {
 
 	public static final FileFingerprint getEmpty() {
 		return EMPTY;
+	}
+
+	public static final FileFingerprint create(IPath path, IProgressMonitor monitor) throws CoreException {
+		return getEmpty().test(path, monitor).getNewFingerprint();
 	}
 
 	public FileFingerprint(long time, long size, long hash) {
@@ -187,5 +191,10 @@ public class FileFingerprint {
 			bytesRead += thisRead;
 		}
 		return bytesRead;
+	}
+
+	@Override
+	public String toString() {
+		return "FileFingerprint [time=" + this.time + ", size=" + this.size + ", hash=" + this.hash + "]";    //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 	}
 }
