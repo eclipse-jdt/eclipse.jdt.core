@@ -14300,4 +14300,31 @@ public void testBug467776_regression() {
 		},
 		compilerOptions);
 }
+public void testBug500673() {
+	runNegativeTest(
+		new String[] {
+			"mfi.java",
+			"interface mfi {\n" + 
+			"    public transient void a(Throwable throwable);\n" + 
+			"}\n",
+			"mfa.java",
+			"final class mfa implements mfi {\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in mfi.java (at line 2)\n" + 
+		"	public transient void a(Throwable throwable);\n" + 
+		"	                      ^^^^^^^^^^^^^^^^^^^^^^\n" +
+		(this.complianceLevel < ClassFileConstants.JDK1_8
+		? "Illegal modifier for the interface method a; only public & abstract are permitted\n"
+		: "Illegal modifier for the interface method a; only public, abstract, default, static and strictfp are permitted\n"
+		) +
+		"----------\n" + 
+		"----------\n" + 
+		"1. ERROR in mfa.java (at line 1)\n" + 
+		"	final class mfa implements mfi {\n" + 
+		"	            ^^^\n" + 
+		"The type mfa must implement the inherited abstract method mfi.a(Throwable)\n" + 
+		"----------\n");
+}
 }
