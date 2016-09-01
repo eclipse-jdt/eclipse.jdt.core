@@ -66,6 +66,19 @@ public final class Indexer {
 	public static boolean DEBUG_ALLOCATIONS;
 	public static boolean DEBUG_TIMING;
 	public static boolean DEBUG_INSERTIONS;
+
+	/**
+	 * True iff automatic reindexing (that is, the {@link #rescanAll()} method) is disabled
+	 * Synchronize on {@#automaticIndexingMutex} while accessing.
+	 */
+	private boolean enableAutomaticIndexing = true;
+	/**
+	 * True iff any code tried to schedule reindexing while automatic reindexing was disabled.
+	 * Synchronize on {@#automaticIndexingMutex} while accessing.
+	 */
+	private boolean indexerDirtiedWhileDisabled = false;
+	private final Object automaticIndexingMutex = new Object();
+
 	/**
 	 * Enable this to index the content of output folders, in cases where that content exists and
 	 * is up-to-date. This is much faster than indexing source files directly.
@@ -101,6 +114,46 @@ public final class Indexer {
 	}
 
 	/**
+	 * Enables or disables the "rescanAll" method. When set to false, rescanAll does nothing
+	 * and indexing will only be triggered when invoking {@link #waitForIndex}.
+	 * <p>
+	 * Normally the indexer runs automatically and asynchronously when resource changes occur.
+	 * However, if this variable is set to false the indexer only runs when someone invokes
+	 * {@link #waitForIndex(IProgressMonitor)}. This can be used to eliminate race conditions
+	 * when running the unit tests, since indexing will not occur unless it is triggered
+	 * explicitly.
+	 * <p>
+	 * Synchronize on {@link #automaticIndexingMutex} before accessing. 
+	 */
+	public void enableAutomaticIndexing(boolean enabled) {
+		boolean runRescan = false;
+		synchronized (this.automaticIndexingMutex) {
+			if (this.enableAutomaticIndexing == enabled) {
+				return;
+			}
+			this.enableAutomaticIndexing = enabled;
+			if (enabled && this.indexerDirtiedWhileDisabled) {
+				runRescan = true;
+			}
+		}
+
+		if (runRescan) {
+			// Force a rescan when re-enabling automatic indexing since we may have missed an update
+			this.rescanJob.schedule();
+		}
+
+		if (!enabled) {
+			// Wait for any existing indexing operations to finish when disabling automatic indexing since
+			// we only want explicitly-triggered indexing operations to run after the method returns
+			try {
+				this.rescanJob.join(0, null);
+			} catch (OperationCanceledException | InterruptedException e) {
+				// Don't care
+			}
+		}
+	}
+
+	/**
 	 * Amount of time (milliseconds) unreferenced files are allowed to sit in the index before they are discarded.
 	 * Making this too short will cause some operations (classpath modifications, closing/reopening projects, etc.)
 	 * to become more expensive. Making this too long will waste space in the database.
@@ -125,6 +178,10 @@ public final class Indexer {
 
 	public void rescan(IProgressMonitor monitor) throws CoreException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
+
+		synchronized (this.automaticIndexingMutex) {
+			this.indexerDirtiedWhileDisabled = false;
+		}
 
 		long startTimeNs = System.nanoTime();
 		long currentTimeMs = System.currentTimeMillis();
@@ -858,6 +915,14 @@ public final class Indexer {
 		if (DEBUG) {
 			Package.logInfo("Scheduling rescanAll now"); //$NON-NLS-1$
 		}
+		synchronized (this.automaticIndexingMutex) {
+			if (!this.enableAutomaticIndexing) {
+				if (!this.indexerDirtiedWhileDisabled) {
+					this.indexerDirtiedWhileDisabled = true;
+				}
+				return;
+			}
+		}
 		this.rescanJob.schedule();
 	}
 
@@ -897,6 +962,23 @@ public final class Indexer {
 		}
 	}
 
+	public void waitForIndex(IProgressMonitor monitor) {
+		try {
+			boolean shouldRescan = false;
+			synchronized (this.automaticIndexingMutex) {
+				if (!this.enableAutomaticIndexing && this.indexerDirtiedWhileDisabled) {
+					shouldRescan = true;
+				}
+			}
+			if (shouldRescan) {
+				this.rescanJob.schedule();
+			}
+			this.rescanJob.join(0, monitor);
+		} catch (InterruptedException e) {
+			throw new OperationCanceledException();
+		}
+	}
+
 	public void waitForIndex(int waitingPolicy, IProgressMonitor monitor) {
 		switch (waitingPolicy) {
 			case IJob.ForceImmediate: {
@@ -909,11 +991,7 @@ public final class Indexer {
 				break;
 			}
 			case IJob.WaitUntilReady: {
-				try {
-					this.rescanJob.join(0, monitor);
-				} catch (InterruptedException e) {
-					throw new OperationCanceledException();
-				}
+				waitForIndex(monitor);
 				break;
 			}
 		}
