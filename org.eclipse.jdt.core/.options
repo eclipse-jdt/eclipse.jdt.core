@@ -56,6 +56,9 @@ org.eclipse.jdt.core/debug/javamodel/cache=false
 # Prints information about when the indexer runs and what files are being indexed
 org.eclipse.jdt.core/debug/newindex/indexer=false
 
+# Prints a line whenever a class is added to or removed from the index
+org.eclipse.jdt.core/debug/newindex/insertions=false
+
 # Prints diagnostic information about index database locks
 org.eclipse.jdt.core/debug/newindex/locks=false
 

@@ -49,7 +49,9 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint.FingerprintTestResult;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
+import org.eclipse.jdt.internal.core.nd.java.NdBinding;
 import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
+import org.eclipse.jdt.internal.core.nd.java.NdType;
 import org.eclipse.jdt.internal.core.nd.java.NdWorkspaceLocation;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeDescriptor;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
@@ -63,6 +65,7 @@ public final class Indexer {
 	public static boolean DEBUG;
 	public static boolean DEBUG_ALLOCATIONS;
 	public static boolean DEBUG_TIMING;
+	public static boolean DEBUG_INSERTIONS;
 	/**
 	 * Enable this to index the content of output folders, in cases where that content exists and
 	 * is up-to-date. This is much faster than indexing source files directly.
@@ -177,6 +180,10 @@ public final class Indexer {
 		}
 
 		fireDelta(indexablesWithChanges, subMonitor.split(1));
+
+		if (DEBUG) {
+			Package.logInfo("Rescan finished"); //$NON-NLS-1$
+		}
 
 		long endResourceMappingNs = System.nanoTime();
 
@@ -383,7 +390,15 @@ public final class Indexer {
 					break;
 				}
 
-				toDelete.getBinding(numChildren - 1).delete();
+				NdBinding nextDeletion = toDelete.getBinding(numChildren - 1);
+				if (DEBUG_INSERTIONS) {
+					if (nextDeletion instanceof NdType) {
+						NdType type = (NdType)nextDeletion;
+						Package.logInfo("Deleting " + type.getTypeId().getFieldDescriptor().getString() + " from "  //$NON-NLS-1$//$NON-NLS-2$
+								+ new String(toDelete.getLocation().getString()) + " " + toDelete.address); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+					}
+				}
+				nextDeletion.delete();
 			} finally {
 				this.nd.releaseWriteLock();
 			}
@@ -493,7 +508,7 @@ public final class Indexer {
 		}
 
 		if (DEBUG) {
-			Package.logInfo("rescanning " + thePath.toString()); //$NON-NLS-1$
+			Package.logInfo("rescanning " + thePath.toString() + ", " + fingerprint); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		int result;
 		try {
@@ -629,6 +644,9 @@ public final class Indexer {
 						return classesIndexed;
 					}
 
+					if (DEBUG_INSERTIONS) {
+						Package.logInfo("Inserting " + new String(descriptor.fieldDescriptor) + " into " + new String(descriptor.location) + " " + resourceFile.address); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+					}
 					converter.addType(binaryType, descriptor.fieldDescriptor, iterationMonitor.split(45));
 					classesIndexed++;
 				} finally {

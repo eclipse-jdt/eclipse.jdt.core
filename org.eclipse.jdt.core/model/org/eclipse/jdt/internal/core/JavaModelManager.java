@@ -359,6 +359,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String SOURCE_MAPPER_DEBUG_VERBOSE = JavaCore.PLUGIN_ID + "/debug/sourcemapper" ; //$NON-NLS-1$
 	private static final String FORMATTER_DEBUG = JavaCore.PLUGIN_ID + "/debug/formatter" ; //$NON-NLS-1$
 	private static final String NEWINDEX_INDEXER_DEBUG = JavaCore.PLUGIN_ID + "/debug/newindex/indexer" ; //$NON-NLS-1$
+	private static final String NEWINDEX_INDEXER_INSERTIONS = JavaCore.PLUGIN_ID + "/debug/newindex/insertions" ; //$NON-NLS-1$
 	private static final String NEWINDEX_LOCKS_DEBUG = JavaCore.PLUGIN_ID + "/debug/newindex/locks" ; //$NON-NLS-1$
 	private static final String NEWINDEX_INDEXER_SPACE = JavaCore.PLUGIN_ID + "/debug/newindex/space" ; //$NON-NLS-1$
 	private static final String NEWINDEX_INDEXER_TIMING = JavaCore.PLUGIN_ID + "/debug/newindex/timing" ; //$NON-NLS-1$
@@ -1808,6 +1809,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				SourceMapper.VERBOSE = debug && options.getBooleanOption(SOURCE_MAPPER_DEBUG_VERBOSE, false);
 				DefaultCodeFormatter.DEBUG = debug && options.getBooleanOption(FORMATTER_DEBUG, false);
 				Indexer.DEBUG = debug && options.getBooleanOption(NEWINDEX_INDEXER_DEBUG, false);
+				Indexer.DEBUG_INSERTIONS = debug  && options.getBooleanOption(NEWINDEX_INDEXER_INSERTIONS, false);
 				Indexer.DEBUG_ALLOCATIONS = debug && options.getBooleanOption(NEWINDEX_INDEXER_SPACE, false);
 				Indexer.DEBUG_TIMING = debug && options.getBooleanOption(NEWINDEX_INDEXER_TIMING, false);
 				Nd.sDEBUG_LOCKS = debug && options.getBooleanOption(NEWINDEX_LOCKS_DEBUG, false);
