@@ -1478,6 +1478,8 @@ void setSourceStart(int sourceStart);
     int InterfaceSuperInvocationNotBelow18 = Internal + Syntax + 667;
     /** @since 3.13*/
     int InterfaceStaticMethodInvocationNotBelow18 = Internal + Syntax + 668;
+	/** @since 3.13 */
+	int FieldMustBeFinal = Internal + 669;
 
 
 	/**

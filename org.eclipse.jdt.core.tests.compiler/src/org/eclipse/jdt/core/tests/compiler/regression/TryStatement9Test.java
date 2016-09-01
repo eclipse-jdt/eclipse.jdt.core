@@ -596,12 +596,12 @@ public void testBug488569_018() {
 		"1. ERROR in X.java (at line 10)\n" + 
 		"	try (this.y2; super.yz;y2)  {  \n" + 
 		"	          ^^\n" + 
-		"Local variable y2 defined in an enclosing scope must be final or effectively final\n" + 
+		"Field y2 must be final\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 10)\n" + 
 		"	try (this.y2; super.yz;y2)  {  \n" + 
 		"	                    ^^\n" + 
-		"Local variable yz defined in an enclosing scope must be final or effectively final\n" + 
+		"Field yz must be final\n" + 
 		"----------\n" + 
 		"3. ERROR in X.java (at line 10)\n" + 
 		"	try (this.y2; super.yz;y2)  {  \n" + 

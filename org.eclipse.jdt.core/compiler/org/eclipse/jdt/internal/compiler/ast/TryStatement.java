@@ -551,9 +551,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 					} else if (stmt instanceof FieldReference) {
 						FieldReference fieldReference = (FieldReference) stmt;
 						if (!fieldReference.binding.isFinal())
-							this.scope.problemReporter().cannotReferToNonEffectivelyFinalOuterLocal(fieldReference.binding, fieldReference);
-						// effective finality maybe tricky to find here.
-						
+							this.scope.problemReporter().cannotReferToNonFinalField(fieldReference.binding, fieldReference);
 					}
 					stmt.generateCode(this.scope, codeStream); // Initialize resources ...
 				}

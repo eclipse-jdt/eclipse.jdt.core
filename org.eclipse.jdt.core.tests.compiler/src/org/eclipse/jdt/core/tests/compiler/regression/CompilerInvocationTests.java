@@ -527,6 +527,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("FieldHidingField", new ProblemAttributes(CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT));
 		expectedProblemAttributes.put("FieldHidingLocalVariable", new ProblemAttributes(CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT));
 		expectedProblemAttributes.put("FieldMissingDeprecatedAnnotation", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
+		expectedProblemAttributes.put("FieldMustBeFinal", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("FieldTypeAmbiguous", DEPRECATED);
 		expectedProblemAttributes.put("FieldTypeInheritedNameHidesEnclosingName", DEPRECATED);
 		expectedProblemAttributes.put("FieldTypeInternalNameProvided", DEPRECATED);
@@ -1376,6 +1377,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("FieldHidingField", new ProblemAttributes(JavaCore.COMPILER_PB_FIELD_HIDING));
 		expectedProblemAttributes.put("FieldHidingLocalVariable", new ProblemAttributes(JavaCore.COMPILER_PB_FIELD_HIDING));
 		expectedProblemAttributes.put("FieldMissingDeprecatedAnnotation", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_DEPRECATED_ANNOTATION));
+		expectedProblemAttributes.put("FieldMustBeFinal", SKIP);
 		expectedProblemAttributes.put("FieldTypeAmbiguous", SKIP);
 		expectedProblemAttributes.put("FieldTypeInheritedNameHidesEnclosingName", SKIP);
 		expectedProblemAttributes.put("FieldTypeInternalNameProvided", SKIP);
