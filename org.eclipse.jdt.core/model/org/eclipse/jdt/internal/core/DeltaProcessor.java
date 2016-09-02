@@ -502,8 +502,24 @@ public class DeltaProcessor {
 
 				break;
 			case IResource.FOLDER:
-				if (delta.getKind() == IResourceDelta.CHANGED) { // look for .jar file change to update classpath
-					children = delta.getAffectedChildren();
+				switch (delta.getKind()) {
+					case IResourceDelta.ADDED:
+					case IResourceDelta.REMOVED:
+						// Close the containing package fragment root to reset its cached children.
+						// See http://bugs.eclipse.org/500714
+						IPackageFragmentRoot root = findContainingPackageFragmentRoot(resource);
+						if (root != null && root.isOpen()) {
+							try {
+								root.close();
+							} catch (JavaModelException e) {
+								Util.log(e);
+							}
+						}
+						break;
+
+					case IResourceDelta.CHANGED: // look for .jar file change to update classpath
+						children = delta.getAffectedChildren();
+						break;
 				}
 				break;
 			case IResource.FILE :
@@ -546,6 +562,27 @@ public class DeltaProcessor {
 				checkProjectsAndClasspathChanges(children[i]);
 			}
 		}
+	}
+
+	private IPackageFragmentRoot findContainingPackageFragmentRoot(IResource resource) {
+		IProject project = resource.getProject();
+		if (JavaProject.hasJavaNature(project)) {
+			IJavaProject javaProject = JavaCore.create(project);
+			try {
+				IPath path = resource.getProjectRelativePath();
+				IPackageFragmentRoot[] roots = javaProject.getPackageFragmentRoots();
+				for (IPackageFragmentRoot root : roots) {
+					IResource rootResource = root.getUnderlyingResource();
+					if (rootResource != null && !resource.equals(rootResource) &&
+							rootResource.getProjectRelativePath().isPrefixOf(path)) {
+						return root;
+					}
+				}
+			} catch (JavaModelException e) {
+				Util.log(e);
+			}
+		}
+		return null;
 	}
 
 	private void checkExternalFolderChange(IProject project, JavaProject javaProject) {
@@ -1908,7 +1945,7 @@ public class DeltaProcessor {
 	 * caches and their dependents
 	 */
 	public void resetProjectCaches() {
-		if (this.projectCachesToReset.size() == 0)
+		if (this.projectCachesToReset.isEmpty())
 			return;
 
 		JavaModelManager.getJavaModelManager().resetJarTypeCache();

@@ -289,11 +289,15 @@ public void testCreateExcludedPackage() throws CoreException {
 		root.getNonJavaResources());
 }
 /*
- * Ensure that crearing an excluded package doesn't make it appear as a child of its package fragment root but it is a non-java resource.
+ * Ensure that creating an excluded package doesn't make it appear as a child of its package fragment root but it is a non-java resource.
  * (regression test for bug 65637 [model] Excluded package still in Java model)
  */
 public void testCreateExcludedPackage2() throws CoreException {
 	setClasspath(new String[] {"/P/src", "org/*|org/eclipse/*"});
+
+	// Trigger population of cache to check if it is properly invalidated by the delta processor.
+	// See http://bugs.eclipse.org/500714
+	getPackageFragmentRoot("/P/src").getChildren();
 
 	clearDeltas();
 	createFolder("/P/src/org/eclipse/mypack");
