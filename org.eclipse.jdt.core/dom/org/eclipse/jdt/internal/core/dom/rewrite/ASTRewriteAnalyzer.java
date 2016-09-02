@@ -4311,9 +4311,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	final void handleException(Throwable e) {
-		IllegalArgumentException runtimeException= new IllegalArgumentException("Document does not match the AST"); //$NON-NLS-1$
-		runtimeException.initCause(e);
-		throw runtimeException;
+		throw new IllegalArgumentException("Document does not match the AST", e); //$NON-NLS-1$
 	}
 
 }

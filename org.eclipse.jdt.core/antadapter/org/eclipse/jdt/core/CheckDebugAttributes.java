@@ -60,7 +60,7 @@ public final class CheckDebugAttributes extends Task {
 				try {
 					jarFile = new ZipFile(this.file);
 				} catch (ZipException e) {
-					throw new BuildException(AntAdapterMessages.getString("checkDebugAttributes.file.argument.must.be.a.classfile.or.a.jarfile")); //$NON-NLS-1$
+					throw new BuildException(AntAdapterMessages.getString("checkDebugAttributes.file.argument.must.be.a.classfile.or.a.jarfile"), e); //$NON-NLS-1$
 				} finally {
 					if (jarFile != null) {
 						jarFile.close();
@@ -78,7 +78,7 @@ public final class CheckDebugAttributes extends Task {
 				getProject().setUserProperty(this.property, "has debug"); //$NON-NLS-1$
 			}
 		} catch (IOException e) {
-			throw new BuildException(AntAdapterMessages.getString("checkDebugAttributes.ioexception.occured") + this.file); //$NON-NLS-1$
+			throw new BuildException(AntAdapterMessages.getString("checkDebugAttributes.ioexception.occured") + this.file, e); //$NON-NLS-1$
 		}
 	}
 

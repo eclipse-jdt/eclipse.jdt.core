@@ -48,7 +48,7 @@ public class BuildJarIndex extends Task {
 		try {
 			JavaIndexer.generateIndexForJar(this.jarPath, this.indexPath);
 		} catch (IOException e) {
-			throw new BuildException(AntAdapterMessages.getString("buildJarIndex.ioexception.occured", e.getLocalizedMessage())); //$NON-NLS-1$
+			throw new BuildException(AntAdapterMessages.getString("buildJarIndex.ioexception.occured", e.getLocalizedMessage()), e); //$NON-NLS-1$
 		}
 	}
 

@@ -452,7 +452,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					}
 					uri2 = new URI(uri.getScheme(), uri.getHost(), path, uri.getFragment());
 				} catch (URISyntaxException e) {
-					throw new IllegalArgumentException("invalid sibling");//$NON-NLS-1$
+					throw new IllegalArgumentException("invalid sibling", e);//$NON-NLS-1$
 				}
 				return new EclipseFileObject(className, uri2, kind, this.charset);
 			} else {

@@ -155,7 +155,7 @@ public abstract class Statement extends ASTNode {
 					throw new IllegalArgumentException();
 				}
 			} catch (InvalidInputException e) {
-				throw new IllegalArgumentException();
+				throw new IllegalArgumentException(e);
 			}
 		}
 		// we do not consider the obsolete comment as a structureal property

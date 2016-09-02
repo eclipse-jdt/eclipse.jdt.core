@@ -111,7 +111,7 @@ public class BinaryFileOutputStream extends ByteArrayOutputStream {
 			}
 			else {
 				AptPlugin.log(ce, "Could not create generated file"); //$NON-NLS-1$
-				throw new IOException(ce.getMessage());
+				throw new IOException(ce.getMessage(), ce);
 			}
 		}
 	}

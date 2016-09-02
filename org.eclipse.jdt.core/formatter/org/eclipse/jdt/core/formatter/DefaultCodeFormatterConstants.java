@@ -4408,7 +4408,7 @@ public class DefaultCodeFormatterConstants {
 			int existingValue = Integer.parseInt(value);
 			return (existingValue & Alignment.M_FORCE) != 0;
 		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value, e); //$NON-NLS-1$
 		}
 	}
 
@@ -4435,7 +4435,7 @@ public class DefaultCodeFormatterConstants {
 				return INDENT_DEFAULT;
 			}
 		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value, e); //$NON-NLS-1$
 		}
 	}
 
@@ -4478,7 +4478,7 @@ public class DefaultCodeFormatterConstants {
 					return WRAP_NO_SPLIT;
 			}
 		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value, e); //$NON-NLS-1$
 		}
 	}
 	/**
@@ -4504,7 +4504,7 @@ public class DefaultCodeFormatterConstants {
 			}
 			return String.valueOf(existingValue);
 		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value, e); //$NON-NLS-1$
 		}
 	}
 
@@ -4547,7 +4547,7 @@ public class DefaultCodeFormatterConstants {
 			}
 			return String.valueOf(existingValue);
 		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value, e); //$NON-NLS-1$
 		}
 	}
 	/**
@@ -4605,7 +4605,7 @@ public class DefaultCodeFormatterConstants {
 			}
 			return String.valueOf(existingValue);
 		} catch (NumberFormatException e) {
-			throw new IllegalArgumentException("Alignment value is not an integer: " + value); //$NON-NLS-1$
+			throw new IllegalArgumentException("Alignment value is not an integer: " + value, e); //$NON-NLS-1$
 		}
 	}
 }

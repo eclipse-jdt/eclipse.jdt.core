@@ -262,7 +262,7 @@ public class ASTParser {
 				throw new IllegalStateException("invalid environment settings"); //$NON-NLS-1$
 			}
 		} catch (IllegalArgumentException e) {
-			throw new IllegalStateException("invalid environment settings"); //$NON-NLS-1$
+			throw new IllegalStateException("invalid environment settings", e); //$NON-NLS-1$
 		}
 		return allClasspaths;
 	}

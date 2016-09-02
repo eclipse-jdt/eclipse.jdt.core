@@ -28,7 +28,7 @@ public class JavaElementInfo implements Cloneable {
 			return super.clone();
 		}
 		catch (CloneNotSupportedException e) {
-			throw new Error();
+			throw new Error(e);
 		}
 	}
 	public IJavaElement[] getChildren() {

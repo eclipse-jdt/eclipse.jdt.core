@@ -54,9 +54,7 @@ public abstract class FilerImpl implements Filer {
         try {
 			pw = new JavaSourceFilePrintWriter( typeName, new StringWriter(), getEnv() );
 		} catch (CoreException e) {
-			IOException ioe = new IOException();
-			ioe.initCause(e);
-			throw ioe;
+			throw new IOException(e);
 		} 
 		return pw;
     }
@@ -79,7 +77,7 @@ public abstract class FilerImpl implements Filer {
     		catch ( JavaModelException e )
     		{
     			AptPlugin.log(e, "Failure getting the output file"); //$NON-NLS-1$
-    			throw new IOException();
+    			throw new IOException(e);
     		}
     	}
     	else if ( loc == Filer.Location.SOURCE_TREE ) {
