@@ -239,7 +239,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		}
 		
 		// Process the lambda, taking care not to double report diagnostics. Don't expect any from resolve, Any from code generation should surface, but not those from flow analysis.
-		implicitLambda.resolve(currentScope);
+		implicitLambda.resolveType(currentScope, true);
 		IErrorHandlingPolicy oldPolicy = currentScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
 		try {
 			implicitLambda.analyseCode(currentScope, 

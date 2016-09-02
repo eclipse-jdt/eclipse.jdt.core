@@ -6339,6 +6339,38 @@ public void testBug502871() {
 		"----------\n"
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=490469 Internal compiler error: java.lang.NullPointerException at org.eclipse.jdt.internal.compiler.ast.LambdaExpression.analyseCode(LambdaExpression.java:512)
+public void testBUg490469() {
+	this.runConformTest(
+		new String[] {
+			"AbstractClientProxy.java",
+			"import java.util.function.Supplier;\n" + 
+			"public abstract class AbstractClientProxy {\n" + 
+			"	protected <T> T getRemoteObject(String url, Class<T> responseType, Object... urlVariables) {\n" + 
+			"		return handleException(this.bindGet(REST::getForObject, url, responseType, urlVariables));\n" + 
+			"	}\n" + 
+			"	private <T> T handleException(Supplier<T> s){\n" + 
+			"		T t = null;\n" + 
+			"		try{\n" + 
+			"			t= s.get();\n" + 
+			"		}catch(Exception e){\n" + 
+			"		}\n" + 
+			"		return t;\n" + 
+			"	}\n" + 
+			"	private  <T> Supplier<T> bindGet(GetFunc fn, String url, Class<T> responseType, Object... uriVariables) {\n" + 
+			"		return () -> fn.invoke(url, responseType, uriVariables);\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"class REST {\n" + 
+			"	static <T> T getForObject(String url, Class<T> respType, Object... vars) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface GetFunc {\n" + 
+			"	<T> T invoke(String url, Class<T> responseType, Object... uriVariables);\n" + 
+			"}\n"
+	});
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
