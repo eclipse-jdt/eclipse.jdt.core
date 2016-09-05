@@ -16,6 +16,13 @@ package org.eclipse.jdt.internal.compiler.env;
 
 /**
  * This interface denotes a compilation unit, providing its name and content.
+ * 
+ * <p>
+ * Note: This internal interface has been implemented illegally by the
+ * org.apache.jasper.glassfish bundle from Orbit, see
+ * <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=500211">bug 500211</a>.
+ * Avoid changing the API or supply default methods to avoid breaking the Eclipse Help system.
+ * </p>
  */
 public interface ICompilationUnit extends IDependent {
 /**
@@ -43,11 +50,15 @@ char[][] getPackageName();
 * Answer if optional problems should be ignored for this compilation unit.
 * Implementors should return <code>false</code> if there is no preference.
 */
-boolean ignoreOptionalProblems();
+default boolean ignoreOptionalProblems() {
+	return false;
+}
 /**
  * Returns the name of the module that this compilation unit belongs to.
  *
  * @return the name of the module as a char array.
  */
-public char[] module();
+default char[] module() {
+	return null;
+}
 }
