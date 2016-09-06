@@ -79,7 +79,7 @@ public class ModuleInfo extends SourceTypeElementInfo implements IModule {
 		}
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();
-			buffer.append("provides"); //$NON-NLS-1$
+			buffer.append("provides "); //$NON-NLS-1$
 			buffer.append(this.provides);
 			buffer.append(" with "); //$NON-NLS-1$
 			buffer.append(this.with);
@@ -184,21 +184,22 @@ public class ModuleInfo extends SourceTypeElementInfo implements IModule {
 		buffer.append("\nmodule "); //$NON-NLS-1$
 		buffer.append(this.name).append(' ');
 		buffer.append('{').append('\n');
-		if (this.requires != null) {
+		if (this.requires != null && this.requires.length > 0) {
+			buffer.append('\n');
 			for(int i = 0; i < this.requires.length; i++) {
 				buffer.append("\trequires "); //$NON-NLS-1$
 				if (this.requires[i].isPublic) {
-					buffer.append(" public "); //$NON-NLS-1$
+					buffer.append("public "); //$NON-NLS-1$
 				}
 				buffer.append(this.requires[i].name);
 				buffer.append(';').append('\n');
 			}
 		}
-		if (this.exports != null) {
+		if (this.exports != null && this.exports.length > 0) {
 			buffer.append('\n');
 			for(int i = 0; i < this.exports.length; i++) {
 				buffer.append("\texports "); //$NON-NLS-1$
-				buffer.append(this.exports[i].toString());
+				buffer.append(this.exports[i].toString()).append('\n');
 			}
 		}
 		if (this.uses != null) {
@@ -211,7 +212,7 @@ public class ModuleInfo extends SourceTypeElementInfo implements IModule {
 		if (this.provides != null) {
 			buffer.append('\n');
 			for(Service ser : this.provides) {
-				buffer.append(ser.toString());
+				buffer.append('\t').append(ser.toString()).append('\n');
 			}
 		}
 		buffer.append('\n').append('}').toString();
