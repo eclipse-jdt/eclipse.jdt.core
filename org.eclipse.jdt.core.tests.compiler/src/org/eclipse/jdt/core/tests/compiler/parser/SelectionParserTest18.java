@@ -17,7 +17,7 @@ import junit.framework.Test;
 public class SelectionParserTest18 extends AbstractSelectionTest {
 static {
 //		TESTS_NUMBERS = new int[] { 53 };
-		TESTS_NAMES = new String[] { "test495912" };
+//		TESTS_NAMES = new String[] { "test495912" };
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(SelectionParserTest18.class, F_1_8);
@@ -306,6 +306,150 @@ public void test495912() {
 			expectedCompletionNodeToString,
 			expectedUnitDisplayString,
 			completionIdentifier,
+			expectedReplacedSource,
+			testName);
+}
+public void test495912a() {
+	String string = 
+			"package xy;\n" +
+			"public class Test {\n" +
+			"	{\n" +
+			"		Runnable r = () -> {\n" +
+			"		      Integer i= 1;\n" +
+			"		      byte b= i.byteValue();\n" +
+			"		      if (true) {\n" +
+			"		          if (false) {\n" +
+			"		          }\n" +
+			"		      }\n" +
+			"		      for (int i1 = 0; i1 < 42; i1++) {\n" +
+			"		      }\n" +
+			"		};\n" +
+			"	}\n" +
+			"    public void foo(Runnable r) {\n" +
+			"    }\n" +
+			"}";
+
+	String expectedCompletionNodeToString = "<SelectOnMessageSend:i.byteValue()>";
+
+	String completionIdentifier = "byteValue";
+	String expectedUnitDisplayString =
+					"package xy;\n" + 
+					"public class Test {\n" + 
+					"  {\n" + 
+					"    Runnable r = () ->     {\n" + 
+					"      Integer i;\n" + 
+					"      byte b = <SelectOnMessageSend:i.byteValue()>;\n" + 
+					"      if (true)\n" + 
+					"          {\n" + 
+					"            if (false)\n" + 
+					"                {\n" + 
+					"                }\n" + 
+					"          }\n" + 
+					"      for (int i1;; (i1 < 42); i1 ++) \n" + 
+					"        {\n" + 
+					"        }\n" + 
+					"    };\n" + 
+					"  }\n" + 
+					"  public Test() {\n" + 
+					"  }\n" + 
+					"  public void foo(Runnable r) {\n" + 
+					"  }\n" + 
+					"}\n";
+	String expectedReplacedSource = "i.byteValue()";
+	String testName = "<select>";
+
+	int selectionStart = string.indexOf("byteValue");
+	int selectionEnd = selectionStart + completionIdentifier.length() - 1;
+
+	this.checkMethodParse(
+			string.toCharArray(),
+			selectionStart,
+			selectionEnd,
+			expectedCompletionNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			testName);
+}
+public void test495912b() {
+	String string = 
+			"package xy;\n" +
+			"import org.eclipse.e4.ui.internal.workbench.PartServiceImpl;\n" +
+			"import org.eclipse.e4.ui.model.application.ui.basic.MPart;\n" +
+			"import org.eclipse.swt.widgets.Table;\n" +
+			"import org.eclipse.ui.IWorkbenchWindow;\n" +
+			"public abstract class CycleViewHandler extends CycleBaseHandler {\n" +
+			"	@Override\n" +
+			"	protected void addItems(Table table, WorkbenchPage page) {\n" +
+			"		List<MPart> parts = null;\n" +
+			"		parts.stream().sorted((firstPart, secondPart) -> {\n" +
+			"			Long firstPartActivationTime = (Long) firstPart.getTransientData()\n" +
+			"					.getOrDefault(PartServiceImpl.PART_ACTIVATION_TIME, Long.MIN_VALUE);\n" +
+			"			Long secondPartActivationTime = (Long) secondPart.getTransientData()\n" +
+			"					.getOrDefault(PartServiceImpl.PART_ACTIVATION_TIME, Long.MIN_VALUE);\n" +
+			"			return 0;\n" +
+			"		}).forEach(part -> {\n" +
+			"			if (true) {\n" +
+			"				if (true) {\n" +
+			"				}\n" +
+			"			} \n" +
+			"			else {\n" +
+			"				IWorkbenchWindow iwbw = page.getWorkbenchWindow();\n" +
+			"				if (true){\n" +
+			"				}\n" +
+			"			}\n" +
+			"		});\n" +
+			"	}\n" +
+			"}";
+
+	String expectedSelectionNodeToString = "<SelectOnMessageSend:firstPart.getTransientData()>";
+
+	String selectionIdentifier = "getTransientData";
+	String expectedUnitDisplayString =
+			"package xy;\n" + 
+					"import org.eclipse.e4.ui.internal.workbench.PartServiceImpl;\n" + 
+					"import org.eclipse.e4.ui.model.application.ui.basic.MPart;\n" + 
+					"import org.eclipse.swt.widgets.Table;\n" + 
+					"import org.eclipse.ui.IWorkbenchWindow;\n" + 
+					"public abstract class CycleViewHandler extends CycleBaseHandler {\n" + 
+					"  public CycleViewHandler() {\n" + 
+					"  }\n" + 
+					"  protected @Override void addItems(Table table, WorkbenchPage page) {\n" + 
+					"    List<MPart> parts;\n" + // this is the missing part without the fix in RecoveredMethod#add(Block....)
+					"    parts.stream().sorted((<no type> firstPart, <no type> secondPart) -> {\n" + 
+					"  Long firstPartActivationTime = (Long) <SelectOnMessageSend:firstPart.getTransientData()>.getOrDefault(PartServiceImpl.PART_ACTIVATION_TIME, Long.MIN_VALUE);\n" + 
+					"  Long secondPartActivationTime;\n" + 
+					"  return 0;\n" + 
+					"}).forEach((<no type> part) -> {\n" + 
+					"  if (true)\n" + 
+					"      {\n" + 
+					"        if (true)\n" + 
+					"            {\n" + 
+					"            }\n" + 
+					"      }\n" + 
+					"  else\n" + 
+					"      {\n" + 
+					"        IWorkbenchWindow iwbw;\n" + 
+					"        if (true)\n" + 
+					"            {\n" + 
+					"            }\n" + 
+					"      }\n" + 
+					"});\n" + 
+					"  }\n" + 
+					"}\n";
+	String expectedReplacedSource = "firstPart.getTransientData()";
+	String testName = "<select>";
+
+	int selectionStart = string.indexOf("getTransientData");
+	int selectionEnd = selectionStart + selectionIdentifier.length() - 1;
+
+	this.checkMethodParse(
+			string.toCharArray(),
+			selectionStart,
+			selectionEnd,
+			expectedSelectionNodeToString,
+			expectedUnitDisplayString,
+			selectionIdentifier,
 			expectedReplacedSource,
 			testName);
 }

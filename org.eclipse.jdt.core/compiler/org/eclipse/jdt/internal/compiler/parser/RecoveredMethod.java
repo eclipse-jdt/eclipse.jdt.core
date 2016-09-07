@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -96,7 +96,11 @@ public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValu
 		this.bracketBalance++;
 	}
 
-	this.methodBody = new RecoveredBlock(nestedBlockDeclaration, this, bracketBalanceValue);
+	if (this.methodBody != null) {
+		this.methodBody.addBlockStatement(new RecoveredBlock(nestedBlockDeclaration, this, bracketBalanceValue));
+	} else {
+		this.methodBody = new RecoveredBlock(nestedBlockDeclaration, this, bracketBalanceValue);
+	}
 	if (nestedBlockDeclaration.sourceEnd == 0) return this.methodBody;
 	return this;
 }
