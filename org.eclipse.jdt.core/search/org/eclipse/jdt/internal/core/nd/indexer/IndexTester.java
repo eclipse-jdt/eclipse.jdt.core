@@ -1,9 +1,17 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Google, Inc and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   Stefan Xenos (Google) - Initial implementation
+ *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.indexer;
 
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 import org.eclipse.jdt.internal.compiler.env.ClassSignature;
 import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
@@ -228,6 +236,13 @@ public class IndexTester {
 			return true;
 		}
 
+		if (o1 instanceof IBinaryTypeAnnotation) {
+			IBinaryTypeAnnotation binaryAnnotation = (IBinaryTypeAnnotation)o1;
+			IBinaryTypeAnnotation otherBinaryAnnotation = (IBinaryTypeAnnotation)o2;
+
+			return new TypeAnnotationWrapper(binaryAnnotation).equals(new TypeAnnotationWrapper(otherBinaryAnnotation));
+		}
+
 		if (o1 instanceof Constant) {
 			if (!(o2 instanceof Constant)) {
 				return false;
@@ -373,33 +388,20 @@ public class IndexTester {
 
 	private static void compareTypeAnnotations(String contextPrefix, IBinaryTypeAnnotation[] expectedTypeAnnotations,
 			IBinaryTypeAnnotation[] actualTypeAnnotations) {
-		Set<TypeAnnotationWrapper> expectedAnnotations = new HashSet<>();
-		if (expectedTypeAnnotations != null) {
-			for (IBinaryTypeAnnotation next : expectedTypeAnnotations) {
-				expectedAnnotations.add(new TypeAnnotationWrapper(next));
+		if (expectedTypeAnnotations == null) {
+			if (actualTypeAnnotations != null) {
+				throw new IllegalStateException(contextPrefix + ": Expected null for the annotation list but found: " //$NON-NLS-1$
+						+ actualTypeAnnotations.toString());
 			}
+			return;
 		}
 
-		Set<TypeAnnotationWrapper> actualAnnotations = new HashSet<>();
+		assertEquals(contextPrefix + ": The expected and actual number of type annotations did not match", //$NON-NLS-1$
+				expectedTypeAnnotations.length, actualTypeAnnotations.length);
 
-		if (actualTypeAnnotations != null) {
-			for (IBinaryTypeAnnotation next : actualTypeAnnotations) {
-				actualAnnotations.add(new TypeAnnotationWrapper(next));
-			}
-		}
-
-		for (TypeAnnotationWrapper nextExpected : expectedAnnotations) {
-			if (!actualAnnotations.contains(nextExpected)) {
-				throw new IllegalStateException(contextPrefix + ": The index was missing an expected type annotation: " //$NON-NLS-1$
-						+ nextExpected.toString());
-			}
-		}
-
-		for (TypeAnnotationWrapper nextActual : actualAnnotations) {
-			if (!expectedAnnotations.contains(nextActual)) {
-				throw new IllegalStateException(contextPrefix + ": The index contained an unexpected type annotation: " //$NON-NLS-1$
-						+ nextActual.toString());
-			}
+		for (int idx = 0; idx < expectedTypeAnnotations.length; idx++) {
+			assertEquals(contextPrefix + ": Type annotation number " + idx + " did not match", //$NON-NLS-1$//$NON-NLS-2$
+					expectedTypeAnnotations[idx], actualTypeAnnotations[idx]);
 		}
 	}
 

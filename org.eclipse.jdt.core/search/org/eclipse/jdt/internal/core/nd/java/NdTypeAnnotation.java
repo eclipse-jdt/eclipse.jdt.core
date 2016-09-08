@@ -72,7 +72,10 @@ public class NdTypeAnnotation extends NdAnnotation {
 	}
 
 	public int getTarget() {
-		return (TARGET_ARG0.get(getNd(), this.address) << 8) & TARGET_ARG1.get(getNd(), this.address);
+		int arg0 = TARGET_ARG0.get(getNd(), this.address) & 0xff;
+		int arg1 = TARGET_ARG1.get(getNd(), this.address) & 0xff;
+		int result = (arg0 << 8) | arg1;
+		return result;
 	}
 
 	public void setTargetInfo(byte arg0, byte arg1) {

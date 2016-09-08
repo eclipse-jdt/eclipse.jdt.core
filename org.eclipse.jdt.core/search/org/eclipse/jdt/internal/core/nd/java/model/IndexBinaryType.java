@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Google, Inc and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   Stefan Xenos (Google) - Initial implementation
+ *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.java.model;
 
 import java.util.ArrayList;
@@ -384,6 +394,9 @@ public class IndexBinaryType implements IBinaryType {
 	}
 
 	private static IBinaryTypeAnnotation[] createBinaryTypeAnnotations(List<? extends NdTypeAnnotation> typeAnnotations) {
+		if (typeAnnotations.isEmpty()) {
+			return null;
+		}
 		IBinaryTypeAnnotation[] result = new IBinaryTypeAnnotation[typeAnnotations.size()];
 		int idx = 0;
 		for (NdTypeAnnotation next : typeAnnotations) {

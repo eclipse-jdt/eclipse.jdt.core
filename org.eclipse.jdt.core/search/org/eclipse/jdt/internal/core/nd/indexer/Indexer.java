@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Google, Inc and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   Stefan Xenos (Google) - Initial implementation
+ *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.indexer;
 
 import java.io.File;
@@ -52,9 +62,12 @@ import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.nd.java.NdBinding;
 import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.nd.java.NdType;
+import org.eclipse.jdt.internal.core.nd.java.NdTypeId;
 import org.eclipse.jdt.internal.core.nd.java.NdWorkspaceLocation;
+import org.eclipse.jdt.internal.core.nd.java.TypeRef;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeDescriptor;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
+import org.eclipse.jdt.internal.core.nd.java.model.IndexBinaryType;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 
 public final class Indexer {
@@ -66,6 +79,7 @@ public final class Indexer {
 	public static boolean DEBUG_ALLOCATIONS;
 	public static boolean DEBUG_TIMING;
 	public static boolean DEBUG_INSERTIONS;
+	public static boolean DEBUG_SELFTEST;
 
 	/**
 	 * True iff automatic reindexing (that is, the {@link #rescanAll()} method) is disabled
@@ -708,6 +722,35 @@ public final class Indexer {
 					classesIndexed++;
 				} finally {
 					this.nd.releaseWriteLock();
+				}
+
+				if (DEBUG_SELFTEST) {
+					// When this debug flag is on, we test everything written to the index by reading it back immediately after indexing
+					// and comparing it with the original class file.
+					JavaIndex index = JavaIndex.getIndex(this.nd);
+					try (IReader readLock = this.nd.acquireReadLock()) {
+						NdTypeId typeId = index.findType(descriptor.fieldDescriptor);
+						NdType targetType = null;
+						if (typeId != null) {
+							List<NdType> implementations = typeId.getTypes();
+							for (NdType nextType : implementations) {
+								NdResourceFile nextResourceFile = nextType.getResourceFile();
+								if (nextResourceFile.equals(resourceFile)) {
+									targetType = nextType;
+									break;
+								}
+							}
+						}
+
+						if (targetType != null) {
+							IndexBinaryType actualType = new IndexBinaryType(TypeRef.create(targetType), descriptor.indexPath);
+							IndexTester.testType(binaryType, actualType);
+						} else {
+							Package.logInfo("Could not find class in index immediately after indexing it: " + next.toString()); //$NON-NLS-1$
+						}
+					} catch (RuntimeException e) {
+						Package.log("Error during indexing: " + next.toString(), e); //$NON-NLS-1$
+					}
 				}
 			} catch (CoreException | ClassFormatException e) {
 				Package.log("Unable to index " + next.toString(), e); //$NON-NLS-1$

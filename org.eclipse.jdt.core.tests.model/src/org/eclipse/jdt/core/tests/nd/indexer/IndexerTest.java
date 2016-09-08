@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Google, Inc and others.
+ * Copyright (c) 2015, 2016 Google, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,19 +14,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IParent;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.core.PackageFragment;
@@ -58,37 +54,31 @@ public class IndexerTest extends AbstractJavaModelTests {
 	private static JavaIndex index;
 
 	@Override
-	public void setUpSuite() throws Exception {
-		super.setUpSuite();
-		index = createIndex(new NullProgressMonitor());
+	protected void setUp() throws Exception {
+		String testName = getName();
+		index = JavaIndexTestUtil.createTempIndex(testName);
+		super.setUp();
 	}
 
 	@Override
-	public void tearDownSuite() throws Exception {
+	protected void tearDown() throws Exception {
 		deleteProject(PROJECT_NAME);
+		index.getNd().getPath().delete();
 		index = null;
-		super.tearDownSuite();
+		super.tearDown();
 	}
 
 	public static Test suite() {
 		return buildModelTestSuite(IndexerTest.class);
 	}
 
-	private JavaIndex createIndex(IProgressMonitor monitor) throws CoreException {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
-		String testName = getName();
-		JavaIndex localIndex = JavaIndexTestUtil.createTempIndex(testName);
-
+	public void testSubclassesOfGenericTypeCanBeFound() throws Exception {
 		createJavaProject(PROJECT_NAME, new String[] {"src"}, new String[] {"JCL18_FULL"}, "bin", "1.8", true);
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		Indexer indexer = new Indexer(localIndex.getNd(), root);
+		Indexer indexer = new Indexer(index.getNd(), root);
 
-		indexer.rescan(subMonitor.split(1));
+		indexer.rescan(SubMonitor.convert(null));
 
-		return localIndex;
-	}
-
-	public void testSubclassesOfGenericTypeCanBeFound() throws Exception {
 		try (IReader reader = IndexerTest.index.getNd().acquireReadLock()) {
 			NdTypeId javaUtilList = IndexerTest.index.findType("Ljava/util/List;".toCharArray());
 			NdTypeId javaUtilArrayList = IndexerTest.index.findType("Ljava/util/ArrayList;".toCharArray());
@@ -120,14 +110,42 @@ public class IndexerTest extends AbstractJavaModelTests {
 	}
 
 	public void testReadingAllClassesInIndexAreEquivalentToOriginalJarFiles() throws Exception {
+		IJavaProject javaProject = createJavaProject(PROJECT_NAME, new String[] {"src"}, new String[] {"JCL18_FULL"}, "bin", "1.8", true);
+		addClassFolder(javaProject, "lib", new String[] {
+				"p/Outer.java",
+				"import java.lang.annotation.*;\n" +
+				"\n" +
+				"@Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE_USE) @interface A {}\n" +
+				"@Retention(RetentionPolicy.RUNTIME) @Target(ElementType.METHOD) @interface M {}\n" +
+				"@Retention(RetentionPolicy.RUNTIME) @Target(ElementType.PARAMETER) @interface P {}\n" +
+				"\n" +
+				"class Outer {\n" +
+				"    class Middle1 {\n" +
+				"        class Inner {}\n" +
+				"    }\n" +
+				"    static class Middle2 {\n" +
+				"        class Inner {}\n" +
+				"        static class Middle3 {\n" +
+				"            class Inner2{};\n" +
+				"        }\n" +
+				"    }\n" +
+				"    Middle1.@A Inner e1;\n" +
+				"    Middle2.@A Inner e2;\n" +
+				"    Middle2.Middle3.@A Inner2 e3;\n" +
+				"    @M void foo(@P Middle2.Middle3.@A Inner2 e3) {};\n" +
+				"    class Middle4 extends @A Middle1 {}\n" +
+				"}\n",
+			}, "1.8");
+
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		Indexer indexer = new Indexer(index.getNd(), root);
+
+		indexer.rescan(SubMonitor.convert(null));
+
 		boolean foundAtLeastOneClass = false;
 		SubMonitor subMonitor = SubMonitor.convert(null);
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		JavaIndex localIndex = IndexerTest.index;
 		try (IReader reader = localIndex.getNd().acquireReadLock()) {
-			IProject project = root.getProject(PROJECT_NAME);
-
-			IJavaProject javaProject = JavaCore.create(project);
 			IPackageFragmentRoot[] roots = javaProject.getAllPackageFragmentRoots();
 			subMonitor.setWorkRemaining(roots.length);
 			for (IPackageFragmentRoot next : roots) {
