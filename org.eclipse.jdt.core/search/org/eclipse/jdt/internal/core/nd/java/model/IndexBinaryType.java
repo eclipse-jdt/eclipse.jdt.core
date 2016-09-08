@@ -6,6 +6,7 @@ import java.util.List;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.BinaryTypeFormatter;
 import org.eclipse.jdt.internal.compiler.classfmt.ElementValuePairInfo;
+import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.env.ClassSignature;
 import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
@@ -34,8 +35,7 @@ import org.eclipse.jdt.internal.core.nd.java.NdMethodId;
 import org.eclipse.jdt.internal.core.nd.java.NdMethodParameter;
 import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.nd.java.NdType;
-import org.eclipse.jdt.internal.core.nd.java.NdTypeArgument;
-import org.eclipse.jdt.internal.core.nd.java.NdTypeBound;
+import org.eclipse.jdt.internal.core.nd.java.NdTypeAnnotation;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeId;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeInterface;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeParameter;
@@ -66,6 +66,7 @@ public class IndexBinaryType implements IBinaryType {
 	private char[] binaryTypeName;
 
 	private static final IBinaryAnnotation[] NO_ANNOTATIONS = new IBinaryAnnotation[0];
+	private static final int[] NO_PATH = new int[0];
 
 	public IndexBinaryType(TypeRef type, char[] indexPath) {
 		this.typeRef = type;
@@ -105,7 +106,7 @@ public class IndexBinaryType implements IBinaryType {
 		}
 	}
 
-	private static IBinaryAnnotation[] toAnnotationArray(List<NdAnnotation> annotations) {
+	private static IBinaryAnnotation[] toAnnotationArray(List<? extends NdAnnotation> annotations) {
 		if (annotations.isEmpty()) {
 			return NO_ANNOTATIONS;
 		}
@@ -119,26 +120,13 @@ public class IndexBinaryType implements IBinaryType {
 
 	@Override
 	public IBinaryTypeAnnotation[] getTypeAnnotations() {
-		List<IBinaryTypeAnnotation> result = new ArrayList<>();
-		ITypeAnnotationBuilder annotationBuilder = TypeAnnotationBuilder.create();
 		try (IReader rl = this.typeRef.lock()) {
 			NdType type = this.typeRef.get();
 			if (type != null) {
-				NdTypeSignature superclass = type.getSuperclass();
-				if (superclass != null) {
-					buildAnnotations(result, annotationBuilder.toSupertype((short)-1), superclass);
-				}
-
-				List<NdTypeInterface> interfaces = type.getInterfaces();
-
-				for (short interfaceIdx = 0; interfaceIdx < interfaces.size(); interfaceIdx++) {
-					NdTypeInterface next = interfaces.get(interfaceIdx);
-
-					buildAnnotations(result, annotationBuilder.toSupertype(interfaceIdx), next.getInterface());
-				}
+				return createBinaryTypeAnnotations(type.getTypeAnnotations());
 			}
 		}
-		return toTypeAnnotationArray(result);
+		return null;
 	}
 
 	@Override
@@ -384,43 +372,6 @@ public class IndexBinaryType implements IBinaryType {
 	private IBinaryMethod createBinaryMethod(NdMethod ndMethod) {
 		NdMethodId methodId = ndMethod.getMethodId();
 
-		List<IBinaryTypeAnnotation> typeAnnotations = new ArrayList<>();
-		ITypeAnnotationBuilder annotationBuilder = TypeAnnotationBuilder.create();
-
-		List<NdTypeParameter> typeParameters = ndMethod.getTypeParameters();
-		for (int parameterIdx = 0; parameterIdx < typeParameters.size(); parameterIdx++) {
-			NdTypeParameter next = typeParameters.get(parameterIdx);
-
-			List<NdTypeBound> bounds = next.getBounds();
-			for (int boundsIdx = 0; boundsIdx < bounds.size(); boundsIdx++) {
-				NdTypeBound nextBound = bounds.get(boundsIdx);
-
-				NdTypeSignature type = nextBound.getType();
-
-				if (type != null) {
-					buildAnnotations(typeAnnotations,
-							annotationBuilder.toTypeParameter(false, parameterIdx).toTypeBound((short) boundsIdx),
-							type);
-				}
-			}
-		}
-
-		List<NdMethodParameter> args = ndMethod.getMethodParameters();
-		for (int argIdx = 0; argIdx < args.size(); argIdx++) {
-			buildAnnotations(typeAnnotations, annotationBuilder.toMethodParameter((short) argIdx),
-					args.get(argIdx).getType().getAnnotations());
-		}
-
-		buildAnnotations(typeAnnotations, annotationBuilder.toMethodReturn(), ndMethod.getReturnType());
-
-		List<NdMethodException> exceptions = ndMethod.getExceptions();
-
-		for (int exceptionIdx = 0; exceptionIdx < exceptions.size(); exceptionIdx++) {
-			NdMethodException next = exceptions.get(exceptionIdx);
-
-			buildAnnotations(typeAnnotations, annotationBuilder.toThrows(exceptionIdx), next.getExceptionType());
-		}
-
 		return IndexBinaryMethod.create().setAnnotations(toAnnotationArray(ndMethod.getAnnotations()))
 				.setModifiers(ndMethod.getModifiers()).setIsConstructor(methodId.isConstructor())
 				.setArgumentNames(getArgumentNames(ndMethod)).setDefaultValue(unpackValue(ndMethod.getDefaultValue()))
@@ -429,7 +380,58 @@ public class IndexBinaryType implements IBinaryType {
 				.setMethodDescriptor(methodId.getMethodDescriptor())
 				.setParameterAnnotations(getParameterAnnotations(ndMethod))
 				.setSelector(ndMethod.getMethodId().getSelector()).setTagBits(ndMethod.getTagBits())
-				.setIsClInit(methodId.isClInit()).setTypeAnnotations(toTypeAnnotationArray(typeAnnotations));
+				.setIsClInit(methodId.isClInit()).setTypeAnnotations(createBinaryTypeAnnotations(ndMethod.getTypeAnnotations()));
+	}
+
+	private static IBinaryTypeAnnotation[] createBinaryTypeAnnotations(List<? extends NdTypeAnnotation> typeAnnotations) {
+		IBinaryTypeAnnotation[] result = new IBinaryTypeAnnotation[typeAnnotations.size()];
+		int idx = 0;
+		for (NdTypeAnnotation next : typeAnnotations) {
+			IBinaryAnnotation annotation = createBinaryAnnotation(next);
+			int[] typePath = getTypePath(next.getTypePath());
+			int info = 0;
+			int info2 = 0;
+			switch (next.getTargetType()) {
+				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER:
+				case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER:
+					info = next.getTargetInfoArg0();
+					break;
+				case AnnotationTargetTypeConstants.CLASS_EXTENDS:
+					info = next.getTarget();
+					break;
+				case AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER_BOUND:
+				case AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER_BOUND:
+					info = next.getTargetInfoArg0();
+					info2 = next.getTargetInfoArg1();
+					break;
+				case AnnotationTargetTypeConstants.FIELD:
+				case AnnotationTargetTypeConstants.METHOD_RETURN:
+				case AnnotationTargetTypeConstants.METHOD_RECEIVER:
+					break;
+				case AnnotationTargetTypeConstants.METHOD_FORMAL_PARAMETER :
+					info = next.getTargetInfoArg0();
+					break;
+				case AnnotationTargetTypeConstants.THROWS :
+					info = next.getTarget();
+					break;
+
+				default:
+					throw new IllegalStateException("Target type not handled " + next.getTargetType()); //$NON-NLS-1$
+			}
+			result[idx++] = new IndexBinaryTypeAnnotation(next.getTargetType(), info, info2, typePath, annotation);
+		}
+		return result;
+	}
+
+	private static int[] getTypePath(byte[] typePath) {
+		if (typePath.length == 0) {
+			return NO_PATH;
+		}
+		int[] result = new int[typePath.length];
+		for (int idx = 0; idx < typePath.length; idx++) {
+			result[idx] = typePath[idx];
+		}
+		return result;
 	}
 
 	private static char[] getGenericSignatureFor(NdMethod method) {
@@ -458,11 +460,6 @@ public class IndexBinaryType implements IBinaryType {
 			return newResult;
 		}
 		return result;
-	}
-
-	private IBinaryTypeAnnotation[] toTypeAnnotationArray(List<IBinaryTypeAnnotation> result) {
-		return result.isEmpty() ? null
-				: (IBinaryTypeAnnotation[]) result.toArray(new IBinaryTypeAnnotation[result.size()]);
 	}
 
 	private IBinaryAnnotation[][] getParameterAnnotations(NdMethod ndMethod) {
@@ -527,11 +524,9 @@ public class IndexBinaryType implements IBinaryType {
 			constant = Constant.NotAConstant;
 		}
 
-		List<IBinaryTypeAnnotation> typeAnnotations = new ArrayList<>();
 		NdTypeSignature type = ndVariable.getType();
-		buildAnnotations(typeAnnotations, TypeAnnotationBuilder.create(), type);
-		IBinaryTypeAnnotation[] typeAnnotationArray = typeAnnotations.isEmpty() ? null
-				: (IBinaryTypeAnnotation[]) typeAnnotations.toArray(new IBinaryTypeAnnotation[typeAnnotations.size()]);
+
+		IBinaryTypeAnnotation[] typeAnnotationArray = createBinaryTypeAnnotations(ndVariable.getTypeAnnotations());
 
 		IBinaryAnnotation[] annotations = toAnnotationArray(ndVariable.getAnnotations());
 
@@ -575,36 +570,6 @@ public class IndexBinaryType implements IBinaryType {
 				return BinaryTypeFormatter.annotationToString(this);
 			}
 		};
-	}
-
-	private static void buildAnnotations(List<IBinaryTypeAnnotation> result, ITypeAnnotationBuilder builder,
-			NdTypeSignature signature) {
-		if (signature == null) {
-			return;
-		}
-		ITypeAnnotationBuilder nextAnnotations = builder;
-		List<NdTypeSignature> declaringTypes = signature.getDeclaringTypeChain();
-
-		for (NdTypeSignature next : declaringTypes) {
-			buildAnnotations(result, nextAnnotations, next.getAnnotations());
-
-			NdTypeSignature arrayArgument = next.getArrayDimensionType();
-			if (arrayArgument != null) {
-				buildAnnotations(result, nextAnnotations.toNextArrayDimension(), arrayArgument);
-			}
-
-			List<NdTypeArgument> typeArguments = next.getTypeArguments();
-			for (int rank = 0; rank < typeArguments.size(); rank++) {
-				NdTypeArgument argument = typeArguments.get(rank);
-
-				NdTypeSignature argumentType = argument.getType();
-				if (argumentType != null) {
-					buildAnnotations(result, nextAnnotations.toTypeArgument(rank), argumentType);
-				}
-			}
-
-			nextAnnotations = nextAnnotations.toNextNestedType();
-		}
 	}
 
 	private static void buildAnnotations(List<IBinaryTypeAnnotation> result, ITypeAnnotationBuilder builder,

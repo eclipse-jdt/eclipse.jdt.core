@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Google, Inc and others.
+ * Copyright (c) 2015, 2016 Google, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -104,11 +104,6 @@ public abstract class NdTypeSignature extends NdNode {
 	 * of this signature doesn't have a raw type, for example if it is a type variable.
 	 */
 	public abstract NdTypeId getRawType();
-
-	/**
-	 * Returns the set of type annotations attached to this type signature
-	 */
-	public abstract List<NdAnnotation> getAnnotations();
 
 	public final void getSignature(CharArrayBuffer result) {
 		getSignature(result, true);

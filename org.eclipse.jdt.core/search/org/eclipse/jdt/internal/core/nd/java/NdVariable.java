@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Google, Inc and others.
+ * Copyright (c) 2015, 2016 Google, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,12 +10,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.java;
 
+import java.util.List;
+
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.IString;
 import org.eclipse.jdt.internal.core.nd.field.FieldByte;
 import org.eclipse.jdt.internal.core.nd.field.FieldInt;
 import org.eclipse.jdt.internal.core.nd.field.FieldLong;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
+import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldString;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
@@ -32,6 +35,8 @@ public class NdVariable extends NdBinding {
 	public static final FieldOneToOne<NdConstant> CONSTANT;
 	public static final FieldLong TAG_BITS;
 	public static final FieldByte VARIABLE_FLAGS;
+	public static final FieldOneToMany<NdAnnotationInVariable> ANNOTATIONS;
+	public static final FieldOneToMany<NdTypeAnnotationInVariable> TYPE_ANNOTATIONS;
 
 	@SuppressWarnings("hiding")
 	public static StructDef<NdVariable> type;
@@ -48,6 +53,8 @@ public class NdVariable extends NdBinding {
 		CONSTANT = FieldOneToOne.create(type, NdConstant.class, NdConstant.PARENT_VARIABLE);
 		TAG_BITS = type.addLong();
 		VARIABLE_FLAGS = type.addByte();
+		ANNOTATIONS = FieldOneToMany.create(type, NdAnnotationInVariable.OWNER);
+		TYPE_ANNOTATIONS = FieldOneToMany.create(type, NdTypeAnnotationInVariable.OWNER);
 		type.done();
 	}
 
@@ -100,6 +107,14 @@ public class NdVariable extends NdBinding {
 
 	public void setTagBits(long tagBits) {
 		TAG_BITS.put(getNd(), this.address, tagBits);
+	}
+
+	public List<NdTypeAnnotationInVariable> getTypeAnnotations() {
+		return TYPE_ANNOTATIONS.asList(getNd(), this.address);
+	}
+
+	public List<NdAnnotationInVariable> getAnnotations() {
+		return ANNOTATIONS.asList(getNd(), this.address);
 	}
 
 	public String toString() {

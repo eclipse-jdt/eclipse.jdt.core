@@ -9,14 +9,14 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
  * @since 3.12
  */
 public final class NdConstantAnnotation extends NdConstant {
-	public static final FieldOneToOne<NdAnnotation> VALUE;
+	public static final FieldOneToOne<NdAnnotationInConstant> VALUE;
 
 	@SuppressWarnings("hiding")
 	public static StructDef<NdConstantAnnotation> type;
 
 	static {
 		type = StructDef.create(NdConstantAnnotation.class, NdConstant.type);
-		VALUE = FieldOneToOne.create(type, NdAnnotation.class, NdAnnotation.PARENT_CONSTANT);
+		VALUE = FieldOneToOne.create(type, NdAnnotationInConstant.class, NdAnnotationInConstant.OWNER);
 		type.done();
 	}
 
@@ -28,13 +28,13 @@ public final class NdConstantAnnotation extends NdConstant {
 		super(nd);
 	}
 
-	public static NdConstantAnnotation create(Nd nd, NdAnnotation value) {
+	public static NdConstantAnnotation create(Nd nd, NdAnnotationInConstant value) {
 		NdConstantAnnotation result = new NdConstantAnnotation(nd);
 		result.setValue(value);
 		return result;
 	}
 
-	public void setValue(NdAnnotation value) {
+	public void setValue(NdAnnotationInConstant value) {
 		VALUE.put(getNd(), this.address, value);
 	}
 

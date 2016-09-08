@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Google, Inc and others.
+ * Copyright (c) 2015, 2016 Google, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -37,9 +37,9 @@ import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
  */
 public class JavaIndex {
 	// Version constants
-	static final int CURRENT_VERSION = Nd.version(1, 36);
-	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 36);
-	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 36);
+	static final int CURRENT_VERSION = Nd.version(1, 37);
+	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 37);
+	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 37);
 
 	// Fields for the search header
 	public static final FieldSearchIndex<NdResourceFile> FILES;
@@ -252,10 +252,15 @@ public class JavaIndex {
 	static NdNodeTypeRegistry<NdNode> createTypeRegistry() {
 		NdNodeTypeRegistry<NdNode> registry = new NdNodeTypeRegistry<>();
 		registry.register(0x0001, NdAnnotation.type.getFactory());
-		registry.register(0x0010, NdAnnotationValuePair.type.getFactory());
-		registry.register(0x0020, NdBinding.type.getFactory());
-		registry.register(0x0028, NdComplexTypeSignature.type.getFactory());
-		registry.register(0x0030, NdConstant.type.getFactory());
+		registry.register(0x0004, NdAnnotationInConstant.type.getFactory());
+		registry.register(0x0008, NdAnnotationInMethod.type.getFactory());
+		registry.register(0x000c, NdAnnotationInMethodParameter.type.getFactory());
+		registry.register(0x0010, NdAnnotationInType.type.getFactory());
+		registry.register(0x0014, NdAnnotationInVariable.type.getFactory());
+		registry.register(0x0020, NdAnnotationValuePair.type.getFactory());
+		registry.register(0x0028, NdBinding.type.getFactory());
+		registry.register(0x0030, NdComplexTypeSignature.type.getFactory());
+		registry.register(0x0038, NdConstant.type.getFactory());
 		registry.register(0x0040, NdConstantAnnotation.type.getFactory());
 		registry.register(0x0050, NdConstantArray.type.getFactory());
 		registry.register(0x0060, NdConstantBoolean.type.getFactory());
@@ -276,8 +281,12 @@ public class JavaIndex {
 		registry.register(0x0150, NdResourceFile.type.getFactory());
 		registry.register(0x0160, NdTreeNode.type.getFactory());
 		registry.register(0x0170, NdType.type.getFactory());
-		registry.register(0x0180, NdTypeArgument.type.getFactory());
-		registry.register(0x0190, NdTypeBound.type.getFactory());
+		registry.register(0x0180, NdTypeAnnotation.type.getFactory());
+		registry.register(0x0184, NdTypeAnnotationInMethod.type.getFactory());
+		registry.register(0x0188, NdTypeAnnotationInType.type.getFactory());
+		registry.register(0x018c, NdTypeAnnotationInVariable.type.getFactory());
+		registry.register(0x0190, NdTypeArgument.type.getFactory());
+		registry.register(0x0194, NdTypeBound.type.getFactory());
 		registry.register(0x01A0, NdTypeInterface.type.getFactory());
 		registry.register(0x01B0, NdTypeParameter.type.getFactory());
 		registry.register(0x01C0, NdTypeSignature.type.getFactory());

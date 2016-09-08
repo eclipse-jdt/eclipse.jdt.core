@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Google, Inc and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   Stefan Xenos (Google) - Initial implementation
+ *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.java;
 
 import java.util.ArrayList;
@@ -26,7 +36,6 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 public class NdComplexTypeSignature extends NdTypeSignature {
 	public static final FieldString VARIABLE_IDENTIFIER;
 	public static final FieldManyToOne<NdTypeId> RAW_TYPE;
-	public static final FieldOneToMany<NdAnnotation> ANNOTATIONS;
 	public static final FieldOneToMany<NdTypeArgument> TYPE_ARGUMENTS;
 	public static final FieldManyToOne<NdComplexTypeSignature> DECLARING_TYPE;
 	public static final FieldOneToMany<NdComplexTypeSignature> DECLARED_TYPES;
@@ -38,7 +47,6 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 		type = StructDef.create(NdComplexTypeSignature.class, NdTypeSignature.type);
 		VARIABLE_IDENTIFIER = type.addString();
 		RAW_TYPE = FieldManyToOne.create(type, NdTypeId.USED_AS_COMPLEX_TYPE);
-		ANNOTATIONS = FieldOneToMany.create(type, NdAnnotation.PARENT_TYPE_SIGNATURE);
 		TYPE_ARGUMENTS = FieldOneToMany.create(type, NdTypeArgument.PARENT);
 		DECLARING_TYPE = FieldManyToOne.create(type, null);
 		DECLARED_TYPES = FieldOneToMany.create(type, DECLARING_TYPE);
@@ -93,11 +101,6 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 	@Override
 	public List<NdTypeArgument> getTypeArguments() {
 		return TYPE_ARGUMENTS.asList(getNd(), this.address);
-	}
-
-	@Override
-	public List<NdAnnotation> getAnnotations() {
-		return ANNOTATIONS.asList(getNd(), this.address);
 	}
 
 	@Override

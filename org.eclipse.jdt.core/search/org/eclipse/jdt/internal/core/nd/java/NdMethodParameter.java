@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Google, Inc and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *   Stefan Xenos (Google) - Initial implementation
+ *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.java;
 
 import java.util.List;
@@ -19,7 +29,7 @@ public class NdMethodParameter extends NdNode {
 	public static final FieldManyToOne<NdMethod> PARENT;
 	public static final FieldManyToOne<NdTypeSignature> ARGUMENT_TYPE;
 	public static final FieldString NAME;
-	public static final FieldOneToMany<NdAnnotation> ANNOTATIONS;
+	public static final FieldOneToMany<NdAnnotationInMethodParameter> ANNOTATIONS;
 	public static final FieldByte FLAGS;
 
 	private static final byte FLG_COMPILER_DEFINED = 0x01;
@@ -32,7 +42,7 @@ public class NdMethodParameter extends NdNode {
 		PARENT = FieldManyToOne.create(type, NdMethod.PARAMETERS);
 		ARGUMENT_TYPE = FieldManyToOne.create(type, NdTypeSignature.USED_AS_METHOD_ARGUMENT);
 		NAME = type.addString();
-		ANNOTATIONS = FieldOneToMany.create(type, NdAnnotation.PARENT_METHOD_PARAMETER);
+		ANNOTATIONS = FieldOneToMany.create(type, NdAnnotationInMethodParameter.OWNER);
 		FLAGS = type.addByte();
 		type.done();
 	}
@@ -60,7 +70,7 @@ public class NdMethodParameter extends NdNode {
 		return NAME.get(getNd(), this.address);
 	}
 
-	public List<NdAnnotation> getAnnotations() {
+	public List<NdAnnotationInMethodParameter> getAnnotations() {
 		return ANNOTATIONS.asList(getNd(), this.address);
 	}
 

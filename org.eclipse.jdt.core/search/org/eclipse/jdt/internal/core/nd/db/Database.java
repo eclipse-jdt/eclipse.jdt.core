@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 QNX Software Systems and others.
+ * Copyright (c) 2005, 2016 QNX Software Systems and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -510,6 +510,9 @@ public class Database {
 	 */
 	public void free(long address, short poolId) throws IndexException {
 		assert this.fExclusiveLock;
+		if (address == 0) {
+			return;
+		}
 		// TODO Look for opportunities to merge blocks
 		long block = address - BLOCK_HEADER_SIZE;
 		Chunk chunk = getChunk(block);

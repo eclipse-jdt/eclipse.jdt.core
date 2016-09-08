@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Google, Inc and others.
+ * Copyright (c) 2015, 2016 Google, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,6 +35,8 @@ public class NdMethod extends NdBinding {
 	public static final FieldOneToMany<NdMethodException> EXCEPTIONS;
 	public static final FieldManyToOne<NdTypeSignature> RETURN_TYPE;
 	public static final FieldLong TAG_BITS;
+	public static final FieldOneToMany<NdAnnotationInMethod> ANNOTATIONS;
+	public static final FieldOneToMany<NdTypeAnnotationInMethod> TYPE_ANNOTATIONS;
 
 	@SuppressWarnings("hiding")
 	public static final StructDef<NdMethod> type;
@@ -50,6 +52,8 @@ public class NdMethod extends NdBinding {
 		EXCEPTIONS = FieldOneToMany.create(type, NdMethodException.PARENT);
 		RETURN_TYPE = FieldManyToOne.create(type, NdTypeSignature.USED_AS_RETURN_TYPE);
 		TAG_BITS = type.addLong();
+		ANNOTATIONS = FieldOneToMany.create(type, NdAnnotationInMethod.OWNER);
+		TYPE_ANNOTATIONS = FieldOneToMany.create(type, NdTypeAnnotationInMethod.OWNER);
 		type.done();
 	}
 
@@ -93,6 +97,10 @@ public class NdMethod extends NdBinding {
 		return PARAMETERS.asList(getNd(), this.address);
 	}
 
+	public List<NdAnnotationInMethod> getAnnotations() {
+		return ANNOTATIONS.asList(getNd(), this.address);
+	}
+
 	public void setDefaultValue(NdConstant value) {
 		DEFAULT_VALUE.put(getNd(), this.address, value);
 	}
@@ -107,6 +115,10 @@ public class NdMethod extends NdBinding {
 
 	public void setMethodId(NdMethodId methodId) {
 		METHOD_ID.put(getNd(), this.address, methodId);
+	}
+
+	public List<NdTypeAnnotationInMethod> getTypeAnnotations() {
+		return TYPE_ANNOTATIONS.asList(getNd(), this.address);
 	}
 
 	public List<NdMethodException> getExceptions() {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Google, Inc and others.
+ * Copyright (c) 2015, 2016 Google, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -34,6 +34,8 @@ public class NdType extends NdBinding {
 	public static final FieldManyToOne<NdTypeId> DECLARING_TYPE;
 	public static final FieldManyToOne<NdMethodId> DECLARING_METHOD;
 	public static final FieldOneToMany<NdMethod> METHODS;
+	public static final FieldOneToMany<NdTypeAnnotationInType> TYPE_ANNOTATIONS;
+	public static final FieldOneToMany<NdAnnotationInType> ANNOTATIONS;
 	public static final FieldString MISSING_TYPE_NAMES;
 	public static final FieldString SOURCE_FILE_NAME;
 	public static final FieldString INNER_CLASS_SOURCE_NAME;
@@ -57,6 +59,8 @@ public class NdType extends NdBinding {
 		SUPERCLASS = FieldManyToOne.create(type, NdTypeSignature.SUBCLASSES);
 		DECLARING_METHOD = FieldManyToOne.create(type, NdMethodId.DECLARED_TYPES);
 		METHODS = FieldOneToMany.create(type, NdMethod.PARENT, 6);
+		TYPE_ANNOTATIONS = FieldOneToMany.create(type, NdTypeAnnotationInType.OWNER);
+		ANNOTATIONS = FieldOneToMany.create(type, NdAnnotationInType.OWNER);
 		MISSING_TYPE_NAMES = type.addString();
 		SOURCE_FILE_NAME = type.addString();
 		INNER_CLASS_SOURCE_NAME = type.addString();
@@ -215,6 +219,14 @@ public class NdType extends NdBinding {
 	@Override
 	public List<NdTypeParameter> getTypeParameters() {
 		return TYPE_PARAMETERS.asList(getNd(), this.address);
+	}
+
+	public List<NdTypeAnnotationInType> getTypeAnnotations() {
+		return TYPE_ANNOTATIONS.asList(getNd(), this.address);
+	}
+
+	public List<NdAnnotationInType> getAnnotations() {
+		return ANNOTATIONS.asList(getNd(), this.address);
 	}
 
 	public List<NdMethod> getMethods() {

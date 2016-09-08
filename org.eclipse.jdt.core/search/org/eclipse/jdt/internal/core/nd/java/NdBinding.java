@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Google, Inc and others.
+ * Copyright (c) 2015, 2016 Google, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -28,7 +28,6 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
  * @since 3.12
  */
 public abstract class NdBinding extends NdNode implements IAdaptable {
-	public static final FieldOneToMany<NdAnnotation> ANNOTATIONS;
 	public static final FieldInt MODIFIERS;
 	public static final FieldOneToMany<NdTypeParameter> TYPE_PARAMETERS;
 	public static final FieldManyToOne<NdResourceFile> FILE;
@@ -39,7 +38,6 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 
 	static {
 		type = StructDef.create(NdBinding.class, NdNode.type);
-		ANNOTATIONS = FieldOneToMany.create(type, NdAnnotation.PARENT_BINDING);
 		MODIFIERS = type.addInt();
 		TYPE_PARAMETERS = FieldOneToMany.create(type, NdTypeParameter.PARENT);
 		FILE = FieldManyToOne.createOwner(type, NdResourceFile.ALL_NODES);
@@ -77,10 +75,6 @@ public abstract class NdBinding extends NdNode implements IAdaptable {
 
 	public int getModifiers() {
 		return MODIFIERS.get(getNd(), this.address);
-	}
-
-	public List<NdAnnotation> getAnnotations() {
-		return ANNOTATIONS.asList(getNd(), this.address);
 	}
 
 	@Override
