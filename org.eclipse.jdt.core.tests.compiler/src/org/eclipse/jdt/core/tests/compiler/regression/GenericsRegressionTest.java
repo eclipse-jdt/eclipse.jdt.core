@@ -5979,5 +5979,39 @@ public void testBug441905() {
 			"}\n"
 		});
 }
+public void testBug469297() {
+	String source = "    import java.util.List;\n" + 
+			"    \n" + 
+			"    public class Test {\n" + 
+			"    \n" + 
+			"        static final void a(Class<? extends List<?>> type) {\n" + 
+			"            b(newList(type));\n" + 
+			"        }\n" + 
+			"    \n" + 
+			"        static final <T> List<T> b(List<T> list) {\n" + 
+			"            return list;\n" + 
+			"        }\n" + 
+			"    \n" + 
+			"        static final <L extends List<?>> L newList(Class<L> type) {\n" + 
+			"            try {\n" + 
+			"                return type.newInstance();\n" + 
+			"            }\n" + 
+			"            catch (Exception e) {\n" + 
+			"                throw new RuntimeException(e);\n" + 
+			"            }\n" + 
+			"        }\n" + 
+			"    }\n";
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		runConformTest(new String[] { "Test.java", source });
+	} else {
+		runNegativeTest(new String[] { "Test.java", source },
+			"----------\n" + 
+			"1. ERROR in Test.java (at line 6)\n" + 
+			"	b(newList(type));\n" + 
+			"	^\n" + 
+			"The method b(List<T>) in the type Test is not applicable for the arguments (capture#1-of ? extends List<?>)\n" + 
+			"----------\n");
+	}
+}
 }
 
