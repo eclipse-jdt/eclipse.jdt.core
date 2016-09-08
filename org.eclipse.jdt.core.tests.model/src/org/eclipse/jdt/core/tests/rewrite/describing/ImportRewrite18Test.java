@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 IBM Corporation and others.
+ * Copyright (c) 2014, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -86,7 +86,12 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 
 		waitUntilIndexesReady();
 	}
-
+	/**
+	 * @deprecated
+	 */
+	protected static int getJLS8() {
+		return AST.JLS8;
+	}
 	protected void tearDown() throws Exception {
 		deleteProject(PROJECT);
 		super.tearDown();
@@ -110,7 +115,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		createFolder("/" + PROJECT + "/src/pack2/pack3");
 		createFile("/" + PROJECT + "/src/pack2/pack3/B.java", contents);
 
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setSource(getCompilationUnit("/" + PROJECT + "/src/pack1/A.java"));
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);
@@ -168,7 +173,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		createFolder("/" + PROJECT + "/src/pack3/pack4");
 		createFile("/" + PROJECT + "/src/pack3/pack4/B.java", contents);
 
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setSource(getCompilationUnit("/" + PROJECT + "/src/pack1/A.java"));
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);
@@ -225,7 +230,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		createFolder("/" + PROJECT + "/src/pack3/pack4");
 		createFile("/" + PROJECT + "/src/pack3/pack4/B.java", contents);
 
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setSource(getCompilationUnit("/" + PROJECT + "/src/pack1/A.java"));
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);
@@ -286,7 +291,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		createFolder("/" + PROJECT + "/src/pack2");
 		createFile("/" + PROJECT + "/src/pack2/B1.java", contents);
 
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		ICompilationUnit cu = getCompilationUnit("/" + PROJECT + "/src/pack1/X.java");
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
@@ -400,7 +405,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		createFolder("/" + PROJECT + "/src/pack4");
 		createFile("/" + PROJECT + "/src/pack4/D1.java", contents);
 
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		ICompilationUnit cu = getCompilationUnit("/" + PROJECT + "/src/pack1/X.java");
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
@@ -471,7 +476,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		createFolder("/" + PROJECT + "/src/pack4");
 		createFile("/" + PROJECT + "/src/pack4/D1.java", contents);
 
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		ICompilationUnit cu = getCompilationUnit("/" + PROJECT + "/src/pack1/X.java");
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
@@ -525,7 +530,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		createFolder("/" + PROJECT + "/src/pack2");
 		createFile("/" + PROJECT + "/src/pack2/B1.java", contents);
 
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		ICompilationUnit cu = getCompilationUnit("/" + PROJECT + "/src/pack1/X.java");
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
@@ -579,7 +584,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		createFolder("/" + PROJECT + "/src/pack2");
 		createFile("/" + PROJECT + "/src/pack2/B.java", contents);
 
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		ICompilationUnit cu = getCompilationUnit("/" + PROJECT + "/src/pack1/X.java");
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
@@ -686,7 +691,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 				"}";
 		createFile("/" + PROJECT + "/src/pack2/Annot2.java", contents);
 
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		ICompilationUnit cu = getCompilationUnit("/" + PROJECT + "/src/pack1/X.java");
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
@@ -774,7 +779,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		createFile("/" + PROJECT + "/src/pack1/X.java", contents);
 
 		ICompilationUnit cu = getCompilationUnit("/" + PROJECT + "/src/pack1/X.java");
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);

@@ -114,7 +114,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(AST.JLS8);
+		this.ast = AST.newAST(getJLS8());
 	}
 
 	public ASTConverterTestAST8_2(String name) {
@@ -149,7 +149,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0401() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0401", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
@@ -175,7 +175,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0402() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0402", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 1, 0, 0);
 		assertEquals("Wrong number of problems", 0, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		assertNotNull(node);
@@ -188,7 +188,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0403() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0403", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 1, 0, 1);
 		assertEquals("Wrong number of problems", 1, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		assertNotNull(node);
@@ -222,7 +222,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0404() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0404", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
 		assertEquals("Wrong number of problems", 1, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		assertNotNull(node);
@@ -253,7 +253,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0405() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0405", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		ASTNode node = getASTNode((CompilationUnit) result, 1, 0, 1);
 		assertEquals("Wrong number of problems", 1, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		assertNotNull(node);
@@ -284,7 +284,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0406() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0406", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		CompilationUnit unit = (CompilationUnit) result;
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 1);
 		assertEquals("Wrong number of problems", 1, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
@@ -317,7 +317,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0407() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0407", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("Wrong number of problems", 0, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		CompilationUnit unit = (CompilationUnit) result;
@@ -348,7 +348,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0408() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0408", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("Wrong number of problems", 0, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
 		assertNotNull(node);
@@ -382,7 +382,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
 			JavaCore.setOptions(newOptions);
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0409", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+			ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 			assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 			CompilationUnit compilationUnit = (CompilationUnit) result;
 			assertProblemsSize(compilationUnit, 0);
@@ -469,7 +469,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0410() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0410", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("Wrong number of problems", 0, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
 		assertNotNull(node);
@@ -486,7 +486,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0411() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0411", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("Wrong number of problems", 0, ((CompilationUnit) result).getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
 		assertNotNull(node);
@@ -503,7 +503,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0412() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0412", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
@@ -533,7 +533,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0413() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0413", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true, false, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true, false, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
@@ -542,7 +542,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertTrue("Not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION); //$NON-NLS-1$
 		MethodDeclaration methodDeclaration = (MethodDeclaration) node;
 		IBinding binding;
-		if (node.getAST().apiLevel() < AST.JLS8) {
+		if (node.getAST().apiLevel() < getJLS8()) {
 			List throwsException = internalThrownExceptions(methodDeclaration);
 			assertEquals("wrong size", 2, throwsException.size()); //$NON-NLS-1$
 			Name name = (Name) throwsException.get(0);
@@ -563,7 +563,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0414() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0414", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
@@ -589,7 +589,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 
 		ICompilationUnit sourceUnit2 = getCompilationUnit("Converter" , "src", "test0414", "B.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
-		result = runConversion(AST.JLS8, sourceUnit2, true);
+		result = runConversion(getJLS8(), sourceUnit2, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit2 = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit2.getProblems().length); //$NON-NLS-1$
@@ -606,7 +606,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0415() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0415", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -628,7 +628,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0416() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0416", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -661,7 +661,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0417() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0417", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -686,7 +686,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0418() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0418", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -707,7 +707,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0419() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0419", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -730,7 +730,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0420() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0420", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -757,7 +757,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0421() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0421", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -785,7 +785,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0422() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0422", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -813,7 +813,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0423() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0423", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -840,7 +840,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0424() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0424", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -864,7 +864,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0425() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0425", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -891,7 +891,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0426() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0426", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true, false, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true, false, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -912,7 +912,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0427() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0427", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -937,7 +937,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0428() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0428", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -962,7 +962,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0429() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0429", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -988,7 +988,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0430() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0430", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -1011,7 +1011,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0431() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0431", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -1032,7 +1032,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0432() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0432", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -1054,7 +1054,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0433() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0433", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -1083,7 +1083,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0434() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0434", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -1107,7 +1107,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0435() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0435", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -1131,7 +1131,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0436() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0436", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true, false, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true, false, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertProblemsSize(unit, 1, "The type A.CInner is not visible"); //$NON-NLS-1$
@@ -1157,7 +1157,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0437() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0437", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true, false, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true, false, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertProblemsSize(unit, 1, "The type CInner is not visible"); //$NON-NLS-1$
@@ -1179,7 +1179,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0438() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0438", "D.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true, false, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true, false, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -1195,7 +1195,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0439() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0439", "E.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true, false, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true, false, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -1216,7 +1216,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0440() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0440", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -1256,7 +1256,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0441() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0441", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -1284,7 +1284,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0442() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0442", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -1313,7 +1313,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0443() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0443", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 3, unit.getProblems().length); //$NON-NLS-1$<
@@ -1337,7 +1337,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0444() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0444", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 2, unit.getProblems().length); //$NON-NLS-1$<
@@ -1360,7 +1360,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0445() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0445", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$<
@@ -1371,7 +1371,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0446() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0446", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 2, unit.getProblems().length); //$NON-NLS-1$<
@@ -1382,7 +1382,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0447() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0447", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 3, unit.getProblems().length); //$NON-NLS-1$<
@@ -1393,7 +1393,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0448() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0448", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -1412,7 +1412,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0449() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0449", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -1430,7 +1430,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0450() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0450", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
@@ -1518,7 +1518,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0451() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0451", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 2, unit.getProblems().length); //$NON-NLS-1$
@@ -1535,7 +1535,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0452() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "", "NO_WORKING.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
@@ -1551,7 +1551,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0453() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0453", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0,0);
@@ -1571,7 +1571,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0454() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0454", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0,1);
@@ -1596,7 +1596,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0455() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0455", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
@@ -1624,7 +1624,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0456() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0456", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
@@ -1645,7 +1645,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0457() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0457", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
@@ -1672,7 +1672,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0458() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0458", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
@@ -1701,7 +1701,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0459() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0459", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
@@ -1729,7 +1729,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0460() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0460", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertTrue("Has error", compilationUnit.getProblems().length == 0); //$NON-NLS-1$
@@ -1743,7 +1743,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0461() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0461", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		char[] source = sourceUnit.getSource().toCharArray();
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -1780,7 +1780,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0462() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "", "Test462.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertTrue("Has error", compilationUnit.getProblems().length == 0); //$NON-NLS-1$
@@ -1799,7 +1799,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0463() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0463", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		char[] source = sourceUnit.getSource().toCharArray();
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
@@ -1820,7 +1820,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0464() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0464", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("No error", 1, compilationUnit.getProblems().length); //$NON-NLS-1$
@@ -1842,7 +1842,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0465() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0465", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
 		assertEquals("No error", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
@@ -1874,7 +1874,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
 			JavaCore.setOptions(newOptions);
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0466", "Assert.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+			ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 			CompilationUnit compilationUnit = (CompilationUnit) result;
 			char[] source = sourceUnit.getSource().toCharArray();
 			ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
@@ -1898,7 +1898,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			newOptions.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
 			JavaCore.setOptions(newOptions);
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0467", "Assert.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+			ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 			CompilationUnit compilationUnit = (CompilationUnit) result;
 			char[] source = sourceUnit.getSource().toCharArray();
 			ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
@@ -1923,7 +1923,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0468() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0468", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
 		assertEquals("No error", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
@@ -1962,7 +1962,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0469() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "codeManipulation", "bug.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 2, 0);
 		assertEquals("No error", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
@@ -1979,7 +1979,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0470() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0470", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
 		assertEquals("No error", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
@@ -2006,7 +2006,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0471() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0471", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("No error", 1, compilationUnit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 0);
@@ -2027,7 +2027,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0472() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "junit.textui", "ResultPrinter.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("No error", 2, compilationUnit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 2);
@@ -2050,7 +2050,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0473", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			char[] source = sourceUnit.getSource().toCharArray();
-			ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+			ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 			CompilationUnit compilationUnit = (CompilationUnit) result;
 			assertEquals("No error", 2, compilationUnit.getProblems().length); //$NON-NLS-1$
 			ASTNode node = getASTNode(compilationUnit, 0, 0, 0);
@@ -2071,7 +2071,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0474() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0474", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("No error", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
@@ -2095,7 +2095,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0475() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0475", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("No error", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
@@ -2119,7 +2119,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0476() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0476", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("No error", 0, compilationUnit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
@@ -2144,7 +2144,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0477() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0477", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		assertEquals("No error", 1, compilationUnit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(compilationUnit, 0, 1, 0);
@@ -2173,7 +2173,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, methods.length);
 		IMethod method = methods[0];
 		ISourceRange sourceRange = method.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 1, 0);
@@ -2222,7 +2222,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, methods.length);
 		IMethod method = methods[0];
 		ISourceRange sourceRange = method.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 1, 0);
@@ -2261,7 +2261,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, methods.length);
 		IMethod method = methods[0];
 		ISourceRange sourceRange = method.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -2289,7 +2289,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, methods.length);
 		IMethod method = methods[0];
 		ISourceRange sourceRange = method.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -2329,7 +2329,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, methods.length);
 		IMethod method = methods[0];
 		ISourceRange sourceRange = method.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -2367,7 +2367,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, methods.length);
 		IMethod method = methods[0];
 		ISourceRange sourceRange = method.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -2410,7 +2410,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, memberTypes.length);
 		IType memberType = memberTypes[0];
 		ISourceRange sourceRange = memberType.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -2441,7 +2441,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, memberTypes.length);
 		IType memberType = memberTypes[0];
 		ISourceRange sourceRange = memberType.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -2471,7 +2471,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 2, methods.length);
 		IMethod method = methods[1];
 		ISourceRange sourceRange = method.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 2);
@@ -2502,7 +2502,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 3, methods.length);
 		IMethod method = methods[1];
 		ISourceRange sourceRange = method.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 
@@ -2575,7 +2575,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 2, initializers.length);
 		IInitializer init = initializers[1];
 		ISourceRange sourceRange = init.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 
@@ -2639,7 +2639,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0489() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0489", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 3, unit.getProblems().length); //$NON-NLS-1$<
@@ -2655,7 +2655,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0490() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0490", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -2672,7 +2672,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			JavaCore.setOptions(newOptions);
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0491", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			char[] source = sourceUnit.getSource().toCharArray();
-			ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+			ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 			assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 			CompilationUnit unit = (CompilationUnit) result;
 			assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -2698,7 +2698,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			JavaCore.setOptions(newOptions);
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0492", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			char[] source = sourceUnit.getSource().toCharArray();
-			ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+			ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 			assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 			CompilationUnit unit = (CompilationUnit) result;
 			assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -2718,7 +2718,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0493() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0493", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -2729,7 +2729,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		checkSourceRange(type, "Class[][]", source);
 		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			Type componentType = componentType(arrayType);
 			assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
 			checkSourceRange(componentType, "Class[]", source);
@@ -2749,7 +2749,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0494() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0494", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -2760,7 +2760,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		checkSourceRange(type, "Class[][][]", source);
 		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			Type componentType = componentType(arrayType);
 			assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
 			checkSourceRange(componentType, "Class[][]", source);
@@ -2784,7 +2784,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0495() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0495", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -2795,7 +2795,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		checkSourceRange(type, "Class[][]", source);
 		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			Type componentType = componentType(arrayType);
 			assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
 			checkSourceRange(componentType, "Class[]", source);
@@ -2819,7 +2819,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0496() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0496", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -2830,7 +2830,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		checkSourceRange(type, "Class[][][][]", source);
 		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			Type componentType = componentType(arrayType);
 			assertTrue("not an array type", componentType.isArrayType()); //$NON-NLS-1$
 			checkSourceRange(componentType, "Class[][][]", source);
@@ -2858,7 +2858,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0497() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0497", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$<
@@ -2869,7 +2869,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		checkSourceRange(type, "Class[]", source);
 		assertTrue("not an array type", type.isArrayType()); //$NON-NLS-1$
 		ArrayType arrayType = (ArrayType) type;
-		type = this.ast.apiLevel() < AST.JLS8 ? componentType(arrayType) : arrayType.getElementType();
+		type = this.ast.apiLevel() < getJLS8() ? componentType(arrayType) : arrayType.getElementType();
 		assertTrue("is an array type", !type.isArrayType()); //$NON-NLS-1$
 		checkSourceRange(type, "Class", source);
 	}
@@ -2878,7 +2878,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0498() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0498", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 	}
 
@@ -2887,7 +2887,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0499() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0499", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
@@ -2925,7 +2925,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			project.setOption(JavaCore.COMPILER_PB_INVALID_JAVADOC, JavaCore.ERROR);
 			project.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_TAGS, JavaCore.ERROR);
 			project.setOption(JavaCore.COMPILER_PB_MISSING_JAVADOC_COMMENTS, JavaCore.ERROR);
-			CompilationUnit result = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+			CompilationUnit result = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 			IProblem[] problems= result.getProblems();
 			assertTrue(problems.length == 1);
 			assertEquals("Invalid warning", "Javadoc: Missing tag for parameter a", problems[0].getMessage());
@@ -2939,7 +2939,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0501() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0501", "JavaEditor.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		assertNotNull(result);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 	}
@@ -2949,7 +2949,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0502a() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// 'i' in initializer
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement)getASTNode(unit, 0, 0, 0);
@@ -2963,7 +2963,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0502b() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// 'j' in 'then' block in initializer
 		IfStatement ifStatement = (IfStatement) getASTNode(unit, 0, 0, 1);
@@ -2979,7 +2979,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0502c() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// 'i' in 'foo()'
 		VariableDeclarationStatement variableDeclarationStatement = (VariableDeclarationStatement)getASTNode(unit, 0, 1, 0);
@@ -2993,7 +2993,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0502d() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// 'j' in 'then' block in 'foo()'
 		IfStatement ifStatement = (IfStatement) getASTNode(unit, 0, 1, 1);
@@ -3009,7 +3009,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0502e() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// 'j' in 'else' block in 'foo()'
 		IfStatement ifStatement = (IfStatement) getASTNode(unit, 0, 1, 1);
@@ -3025,7 +3025,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0502f() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// first 'new Object(){...}' in 'foo()'
 		ExpressionStatement expressionStatement = (ExpressionStatement) getASTNode(unit, 0, 1, 2);
@@ -3040,7 +3040,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0502g() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// 'B' in 'foo()'
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 3);
@@ -3054,7 +3054,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0502h() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// second 'new Object(){...}' in 'foo()'
 		ExpressionStatement expressionStatement = (ExpressionStatement) getASTNode(unit, 0, 1, 4);
@@ -3069,7 +3069,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0502i() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// 'field' in 'B' in 'foo()'
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 3);
@@ -3087,7 +3087,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0502j() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0502", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// 'bar()' in 'B' in 'foo()'
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 3);
@@ -3104,7 +3104,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0503a() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// top level type A
 		TypeDeclaration type = (TypeDeclaration)getASTNode(unit, 0);
@@ -3117,7 +3117,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0503b() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// member type B in A
 		TypeDeclaration type = (TypeDeclaration)getASTNode(unit, 0, 0);
@@ -3130,7 +3130,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0503c() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// local type E in foo() in A
 		TypeDeclarationStatement typeDeclarationStatement = (TypeDeclarationStatement) getASTNode(unit, 0, 1, 0);
@@ -3144,7 +3144,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0503d() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// anonymous type new Object() {...} in foo() in A
 		ExpressionStatement expressionStatement = (ExpressionStatement) getASTNode(unit, 0, 1, 1);
@@ -3159,7 +3159,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0503e() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// type F in anonymous type new Object() {...} in foo() in A
 		ExpressionStatement expressionStatement = (ExpressionStatement) getASTNode(unit, 0, 1, 1);
@@ -3175,7 +3175,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0503f() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// local type C in bar() in B in A
 		MethodDeclaration method = (MethodDeclaration) getASTNode(unit, 0, 0, 0);
@@ -3190,7 +3190,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0503g() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// anonymous type new Object() {...} in bar() in B in A
 		MethodDeclaration method = (MethodDeclaration) getASTNode(unit, 0, 0, 0);
@@ -3206,7 +3206,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0503h() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// type D in anonymous type new Object() {...} in bar() in B in A
 		MethodDeclaration method = (MethodDeclaration) getASTNode(unit, 0, 0, 0);
@@ -3223,7 +3223,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0503i() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0503", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		CompilationUnit unit = (CompilationUnit)runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit unit = (CompilationUnit)runConversion(getJLS8(), sourceUnit, true);
 
 		// unreachable type G in foo() in A
 		IfStatement ifStatement = (IfStatement) getASTNode(unit, 0, 1, 2);
@@ -3240,7 +3240,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0504() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0504", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
@@ -3258,7 +3258,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0505() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0505", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
@@ -3275,7 +3275,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0506() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0506", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertEquals("Wrong number of problems", 0, (unit).getProblems().length); //$NON-NLS-1$
@@ -3295,7 +3295,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0507() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0507", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertEquals("Wrong number of problems", 0, (unit).getProblems().length); //$NON-NLS-1$
@@ -3315,7 +3315,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0508() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0508", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		ASTNode node = getASTNode(unit, 0, 1, 0);
 		assertEquals("Wrong number of problems", 0, (unit).getProblems().length); //$NON-NLS-1$
@@ -3335,7 +3335,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0509() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0509", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertEquals("Wrong number of problems", 0, (unit).getProblems().length); //$NON-NLS-1$
@@ -3355,7 +3355,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0510() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0510", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertEquals("Wrong number of problems", 0, (unit).getProblems().length); //$NON-NLS-1$
@@ -3375,7 +3375,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0511() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0511", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertEquals("Wrong number of problems", 0, (unit).getProblems().length); //$NON-NLS-1$
@@ -3396,7 +3396,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0512() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0512", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		ASTNode node = getASTNode(unit, 0, 0);
 		assertEquals("Wrong number of problems", 2, unit.getProblems().length); //$NON-NLS-1$
@@ -3412,7 +3412,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0513() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0513", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
 	}
@@ -3423,7 +3423,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0514() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0514", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
 	}
@@ -3434,7 +3434,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0515() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0515", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0, 0);
@@ -3458,14 +3458,14 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0516() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0516", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0);
 		assertNotNull("No node", node);
 		assertTrue("not a method declaration", node.getNodeType() == ASTNode.METHOD_DECLARATION);
 		MethodDeclaration declaration = (MethodDeclaration) node;
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
@@ -3492,7 +3492,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0517() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0517", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		assertNotNull("No comments", unit.getCommentList());
@@ -3501,7 +3501,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertNotNull("No node", node);
 		assertTrue("not a field declaration", node.getNodeType() == ASTNode.FIELD_DECLARATION);
 		FieldDeclaration declaration = (FieldDeclaration) node;
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
@@ -3528,14 +3528,14 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0518() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0518", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0);
 		assertNotNull("No node", node);
 		assertTrue("not an initializer", node.getNodeType() == ASTNode.INITIALIZER);
 		Initializer declaration = (Initializer) node;
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		parser.setSourceRange(declaration.getStartPosition(), declaration.getLength());
@@ -3562,7 +3562,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0519() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0519", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		assertNotNull("No comments", unit.getCommentList());
@@ -3570,7 +3570,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertNotNull("No node", node);
 		ASTNode statement = node;
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_STATEMENTS);
 		parser.setSource(source);
 		parser.setSourceRange(statement.getStartPosition(), statement.getLength());
@@ -3597,7 +3597,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0520() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0520", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		assertNotNull("No comments", unit.getCommentList());
@@ -3607,7 +3607,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertTrue("not a block", node.getNodeType() == ASTNode.EXPRESSION_STATEMENT);
 		ExpressionStatement expressionStatement = (ExpressionStatement) node;
 		Expression expression = expressionStatement.getExpression();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_EXPRESSION);
 		parser.setSource(source);
 		parser.setSourceRange(expression.getStartPosition(), expression.getLength());
@@ -3677,7 +3677,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 2, methods.length);
 		IMethod method = methods[1];
 		ISourceRange sourceRange = method.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
+		ASTNode result = runConversion(getJLS8(), classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 1, 0);
@@ -3726,7 +3726,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 2, methods.length);
 		IMethod method = methods[1];
 		ISourceRange sourceRange = method.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		ASTNode result = runConversion(getJLS8(), classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 1, 0);
@@ -3765,7 +3765,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 2, methods.length);
 		IMethod method = methods[1];
 		ISourceRange sourceRange = method.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		ASTNode result = runConversion(getJLS8(), classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -3793,7 +3793,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 2, methods.length);
 		IMethod method = methods[1];
 		ISourceRange sourceRange = method.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
+		ASTNode result = runConversion(getJLS8(), classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -3832,7 +3832,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 2, methods.length);
 		IMethod method = methods[1];
 		ISourceRange sourceRange = method.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
+		ASTNode result = runConversion(getJLS8(), classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0, 0);
@@ -3870,7 +3870,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, methods.length);
 		IMethod method = methods[0];
 		ISourceRange sourceRange = method.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
+		ASTNode result = runConversion(getJLS8(), classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -3911,7 +3911,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, memberTypes.length);
 		IType memberType = memberTypes[0];
 		ISourceRange sourceRange = memberType.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
+		ASTNode result = runConversion(getJLS8(), classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, true);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -3940,7 +3940,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 1, memberTypes.length);
 		IType memberType = memberTypes[0];
 		ISourceRange sourceRange = memberType.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		ASTNode result = runConversion(getJLS8(), classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 0);
@@ -3969,7 +3969,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 3, methods.length);
 		IMethod method = methods[2];
 		ISourceRange sourceRange = method.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		ASTNode result = runConversion(getJLS8(), classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		ASTNode node = getASTNode((CompilationUnit) result, 0, 2);
@@ -3998,7 +3998,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("wrong size", 5, methods.length);
 		IMethod method = methods[3];
 		ISourceRange sourceRange = method.getSourceRange();
-		ASTNode result = runConversion(AST.JLS8, classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		ASTNode result = runConversion(getJLS8(), classFile, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 
@@ -4079,7 +4079,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		type = classFile.getType();
 		initializers = type.getInitializers();
 		assertEquals("wrong size", 0, initializers.length);
-		ASTNode result = runConversion(AST.JLS8, classFile, position, false);
+		ASTNode result = runConversion(getJLS8(), classFile, position, false);
 		assertNotNull(result);
 		assertTrue("Not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 
@@ -4145,7 +4145,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0533() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0533", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0);
@@ -4170,7 +4170,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0534() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0534", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0);
@@ -4195,7 +4195,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0535() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0535", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0);
@@ -4218,7 +4218,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0536() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0536", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		assertNotNull("No compilation unit", result);
 	}
 	/**
@@ -4226,7 +4226,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0537a() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0537", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		assertNotNull("No compilation unit", result);
 	}
 	/**
@@ -4234,7 +4234,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0537b() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0537", "B.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		assertNotNull("No compilation unit", result);
 	}
 	/**
@@ -4242,7 +4242,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0537c() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0537", "C.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		assertNotNull("No compilation unit", result);
 	}
 	/**
@@ -4262,7 +4262,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, false, null, null);
 			assertNotNull("No level 2 compilation unit", unit);
 			assertEquals("Compilation unit has wrong AST level (2)", AST.JLS2, unit.getAST().apiLevel());
-			// TODO improve test for AST.JLS8
+			// TODO improve test for getJLS8()
 		} finally {
 			sourceUnit.discardWorkingCopy();
 		}
@@ -4296,7 +4296,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			sourceUnit.becomeWorkingCopy(null, null);
 			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, false, null, null);
 			assertNull("Unexpected compilation unit", unit);
-			// TODO improve test for AST.JLS8
+			// TODO improve test for getJLS8()
 		} finally {
 			sourceUnit.discardWorkingCopy();
 		}
@@ -4316,7 +4316,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"  Object field;\n" +
 				"}"
 			);
-			// TODO improve test for AST.JLS8
+			// TODO improve test for getJLS8()
 			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, false, null, null);
 			ASTNode node = getASTNode(unit, 0, 0);
 			assertNotNull("No node", node);
@@ -4340,7 +4340,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		try {
 			ReconcilerTests.ProblemRequestor pbRequestor = new ReconcilerTests.ProblemRequestor();
 			sourceUnit.becomeWorkingCopy(pbRequestor, null);
-			// TODO improve test for AST.JLS8
+			// TODO improve test for getJLS8()
 			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, true/*force pb detection*/, null, null);
 			ASTNode node = getASTNode(unit, 0);
 			assertNotNull("No node", node);
@@ -4375,7 +4375,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"  }\n" +
 				"}"
 			);
-			// TODO improve test for AST.JLS8
+			// TODO improve test for getJLS8()
 			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, true/*force pb detection*/, null, null);
 			ASTNode node = getASTNode(unit, 0);
 			assertNotNull("No node", node);
@@ -4406,7 +4406,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"}"
 			);
 			sourceUnit.reconcile(ICompilationUnit.NO_AST, false/* don't force pb detection*/, null, null);
-			// TODO improve test for AST.JLS8
+			// TODO improve test for getJLS8()
 			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, true/*force pb detection*/, null, null);
 			ASTNode node = getASTNode(unit, 0);
 			assertNotNull("No node", node);
@@ -4434,7 +4434,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"  Object field;\n" +
 				"}"
 			);
-			// TODO improve test for AST.JLS8
+			// TODO improve test for getJLS8()
 			CompilationUnit unit = sourceUnit.reconcile(AST.JLS2, false, null, null);
 			assertEquals("Unexpected well known type", null, unit.getAST().resolveWellKnownType("void"));
 		} finally {
@@ -4447,7 +4447,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0539() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0539", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 1, 0);
@@ -4486,7 +4486,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
 		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_4);
 		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-		ASTNode result = runConversion(AST.JLS8, source, "Test.java", project, options, true); //$NON-NLS-1$
+		ASTNode result = runConversion(getJLS8(), source, "Test.java", project, options, true); //$NON-NLS-1$
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -4506,7 +4506,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0541() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0541", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0);
@@ -4535,7 +4535,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0542() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0542", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0);
@@ -4703,7 +4703,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0543() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0543", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		unit.accept(new GetKeyVisitor());
@@ -4714,7 +4714,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0544() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0544", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0);
@@ -4731,7 +4731,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0545() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0545", "First.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0);
@@ -4741,7 +4741,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("Wrong key", "Ltest0545/First$Test;", typeBinding.getKey());
 
 		sourceUnit = getCompilationUnit("Converter", "src", "test0545", "Second.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		result = runConversion(AST.JLS8, sourceUnit, true);
+		result = runConversion(getJLS8(), sourceUnit, true);
 		unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		node = getASTNode(unit, 0, 0);
@@ -4751,7 +4751,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		assertEquals("Wrong key", "Ltest0545/Second$Test;", typeBinding.getKey());
 
 		sourceUnit = getCompilationUnit("Converter", "src", "test0545", "Third.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		result = runConversion(AST.JLS8, sourceUnit, true);
+		result = runConversion(getJLS8(), sourceUnit, true);
 		unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		node = getASTNode(unit, 0, 0);
@@ -4762,7 +4762,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 
 
 		sourceUnit = getCompilationUnit("Converter", "src", "test0545", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		result = runConversion(AST.JLS8, sourceUnit, true);
+		result = runConversion(getJLS8(), sourceUnit, true);
 		unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		node = getASTNode(unit, 0);
@@ -4777,7 +4777,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0546() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0546", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 0, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 1, 0, 0);
@@ -4820,7 +4820,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0547() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0547", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
 		ASTNode node = getASTNode(unit, 0, 0, 0);
@@ -4845,7 +4845,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0548() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0548", "PaletteStackEditPart.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 	}
 
@@ -4854,7 +4854,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0549() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0549", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 	}
 
@@ -4863,7 +4863,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0550() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0550", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 	}
 
@@ -4873,7 +4873,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0551() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0551", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -4885,7 +4885,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0552() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0552", "Test.java");
 		char[] source = sourceUnit.getSource().toCharArray();
-		CompilationUnit result = (CompilationUnit) runConversion(AST.JLS8, sourceUnit, true);
+		CompilationUnit result = (CompilationUnit) runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("Got errors", 0, result.getProblems().length);
 		TypeDeclaration declaration = (TypeDeclaration) result.types().get(0);
 		Block body = declaration.getMethods()[0].getBody();
@@ -4916,7 +4916,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0553() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0553", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -4939,7 +4939,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0554() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0554", "B.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -4968,7 +4968,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0555() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0555", "B.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -4997,7 +4997,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0556() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0556", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -5022,7 +5022,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0557() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0557", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -5066,7 +5066,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0559() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0559", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -5094,7 +5094,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0560() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0560", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -5122,7 +5122,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0561() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0561", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -5150,7 +5150,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0562() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0562", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -5178,7 +5178,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0563() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0563", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -5205,7 +5205,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0564() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0564", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -5232,7 +5232,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0565() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0565", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -5259,7 +5259,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0566() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0566", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -5275,7 +5275,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0567() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0567", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -5290,7 +5290,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0568() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0568", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 	}
 
@@ -5299,7 +5299,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0570() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0570", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -5310,7 +5310,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 * No binding when there is no unit name set
 	 */
 	public void test0571() throws JavaModelException {
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		String source = "public class A {public boolean foo() {}}";
 		parser.setSource(source.toCharArray());
 		parser.setProject(getJavaProject("Converter"));
@@ -5327,7 +5327,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 * No binding when there is no unit name set
 	 */
 	public void test0572() throws JavaModelException {
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		String source = "public class A {public boolean foo() {}}";
 		parser.setSource(source.toCharArray());
 		parser.setProject(getJavaProject("Converter"));
@@ -5347,7 +5347,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0573", "Z.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		String source = sourceUnit.getSource();
 		int pos = source.indexOf("his.ba");
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, pos, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, pos, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		ASTNode node = getASTNode(unit, 0, 0, 0);
@@ -5366,7 +5366,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0574() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0574", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -5395,7 +5395,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0575() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0575", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		final IProblem[] problems = unit.getProblems();
@@ -5432,7 +5432,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0578() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0578", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertProblemsSize(unit, 0);
@@ -6435,7 +6435,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0607() throws JavaModelException {
 		final char[] source = "private static Category[] values = new Category[]{v1, v2, v3};".toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(source);
 		ASTNode root = parser.createAST(null);
@@ -6506,7 +6506,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0610() throws JavaModelException {
 		final ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0610", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		final ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		final ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertProblemsSize(unit, 1, "The type Test is deprecated");
@@ -6742,7 +6742,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"}";
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			workingCopy.getBuffer().setContents(contents.toCharArray());
-			ASTNode node = runConversion(AST.JLS8, workingCopy, true);
+			ASTNode node = runConversion(getJLS8(), workingCopy, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
 			assertProblemsSize(unit, 1, "Dead code");
@@ -6777,7 +6777,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"}";
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			workingCopy.getBuffer().setContents(contents.toCharArray());
-			ASTNode node = runConversion(AST.JLS8, workingCopy, true);			
+			ASTNode node = runConversion(getJLS8(), workingCopy, true);			
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
 			String expectedOutput = "Dead code";
@@ -6852,13 +6852,13 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0619() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0619", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, false);
 		final CompilationUnit unit = (CompilationUnit) result;
 		assertProblemsSize(unit, 0);
 		ASTNode node = getASTNode(unit, 0, 0, 0);
 		assertNotNull("No node", node);
 		ASTNode statement = node;
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_STATEMENTS);
 		parser.setSource(source);
 		parser.setSourceRange(statement.getStartPosition(), statement.getLength());
@@ -7125,7 +7125,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"	public void foo(int arg) {}\n" +  //$NON-NLS-1$
 				"}").toCharArray(); //$NON-NLS-1$
 		IJavaProject project = getJavaProject("Converter"); //$NON-NLS-1$
-		ASTNode result = runConversion(AST.JLS8, source, "Test.java", project); //$NON-NLS-1$
+		ASTNode result = runConversion(getJLS8(), source, "Test.java", project); //$NON-NLS-1$
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -7147,7 +7147,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"	public void foo(int arg) {}\n" +  //$NON-NLS-1$
 				"}").toCharArray(); //$NON-NLS-1$
 		IJavaProject project = getJavaProject("Converter"); //$NON-NLS-1$
-		ASTNode result = runConversion(AST.JLS8, source, "Object.java", project); //$NON-NLS-1$
+		ASTNode result = runConversion(getJLS8(), source, "Object.java", project); //$NON-NLS-1$
 		assertNotNull("No compilation unit", result); //$NON-NLS-1$
 		assertTrue("result is not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
@@ -7222,7 +7222,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 * http://dev.eclipse.org/bugs/show_bug.cgi?id=125270
 	 */
 	public void test0628() throws JavaModelException {
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_EXPRESSION);
 		String source = "{\"red\", \"yellow\"}";
 		parser.setSource(source.toCharArray());
@@ -7243,7 +7243,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0629() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0629", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		String expectedOutput =
@@ -7262,7 +7262,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0630() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0630", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		String expectedOutput =
@@ -7275,7 +7275,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0631() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0631", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType()); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
 		String expectedOutput =
@@ -7336,7 +7336,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0633() {
 		String src = "switch (state) {case 4:double M0,M1;}";
 		char[] source = src.toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind (ASTParser.K_STATEMENTS);
 		parser.setSource (source);
 		ASTNode result = parser.createAST (null);
@@ -7380,7 +7380,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 					"}";
 
 			char[] source = src.toCharArray();
-			ASTParser parser = ASTParser.newParser(AST.JLS8);
+			ASTParser parser = ASTParser.newParser(getJLS8());
 			parser.setKind (ASTParser.K_COMPILATION_UNIT);
 			parser.setSource (source);
 			parser.setStatementsRecovery(true);
@@ -8092,7 +8092,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0653() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0653", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, result.getNodeType());
 		CompilationUnit unit = (CompilationUnit) result;
 
@@ -8239,7 +8239,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"        int d;\n" +
 				"    }";
 		char[] source = src.toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind (ASTParser.K_STATEMENTS);
 		parser.setStatementsRecovery(true);
 		parser.setSource (source);
@@ -8272,7 +8272,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"        int d;\n" +
 				"    }";
 		char[] source = src.toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind (ASTParser.K_STATEMENTS);
 		parser.setStatementsRecovery(false);
 		parser.setSource (source);
@@ -8333,7 +8333,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"        int d;\n" +
 				"    }";
 		char[] source = src.toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind (ASTParser.K_STATEMENTS);
 		parser.setStatementsRecovery(true);
 		parser.setSource (source);
@@ -8359,7 +8359,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0659() throws CoreException, JavaModelException {
 		IJavaProject javaProject = createJavaProject("P659", new String[] { "src" }, new String[0], "bin");
 		try {
-			ASTParser parser = ASTParser.newParser(AST.JLS8);
+			ASTParser parser = ASTParser.newParser(getJLS8());
 			parser.setKind(ASTParser.K_COMPILATION_UNIT);
 			parser.setStatementsRecovery(true);
 			parser.setBindingsRecovery(true);
@@ -8961,7 +8961,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0669() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0669", "UIPerformChangeOperation.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true, true);
 		assertNotNull(result);
 	}
 
@@ -8983,7 +8983,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"}";
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			workingCopy.getBuffer().setContents(contents);
-			ASTNode node = runConversion(AST.JLS8, workingCopy, true, true, true);
+			ASTNode node = runConversion(getJLS8(), workingCopy, true, true, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
 			String expectedError =
@@ -9026,7 +9026,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"}";
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			workingCopy.getBuffer().setContents(contents);
-			ASTNode node = runConversion(AST.JLS8, workingCopy, true, true, true);
+			ASTNode node = runConversion(getJLS8(), workingCopy, true, true, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
 			String expectedError =
@@ -9096,7 +9096,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"}";
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			workingCopy.getBuffer().setContents(contents);
-			ASTNode node = runConversion(AST.JLS8, workingCopy, true, true, true);
+			ASTNode node = runConversion(getJLS8(), workingCopy, true, true, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
 			String expectedError =
@@ -9188,7 +9188,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"}";
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			workingCopy.getBuffer().setContents(contents);
-			ASTNode node = runConversion(AST.JLS8, workingCopy, true, true, true);
+			ASTNode node = runConversion(getJLS8(), workingCopy, true, true, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
 			assertTrue("no binding recovery", unit.getAST().hasBindingsRecovery());
@@ -9254,7 +9254,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"}";
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			workingCopy.getBuffer().setContents(contents);
-			ASTNode node = runConversion(AST.JLS8, workingCopy, true, true, true);
+			ASTNode node = runConversion(getJLS8(), workingCopy, true, true, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
 			assertProblemsSize(unit, 0);
@@ -9294,7 +9294,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"}";
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			workingCopy.getBuffer().setContents(contents);
-			ASTNode node = runConversion(AST.JLS8, workingCopy, true, true, true);
+			ASTNode node = runConversion(getJLS8(), workingCopy, true, true, true);
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
 			String expectedError = "Constructor call must be the first statement in a constructor";
@@ -9321,7 +9321,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0676() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0676", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runConversion(AST.JLS8, sourceUnit, true, true, true);
+		ASTNode node = runConversion(getJLS8(), sourceUnit, true, true, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		assertTrue("no binding recovery", unit.getAST().hasBindingsRecovery());
@@ -9375,7 +9375,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0677() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0677", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode node = runConversion(getJLS8(), sourceUnit, true);
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType()); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) node;
 		node = getASTNode(unit, 0);
@@ -9409,7 +9409,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"}";
 			workingCopy = getWorkingCopy("/Converter/src/X.java", true/*resolve*/);
 			workingCopy.getBuffer().setContents(contents.toCharArray());
-			ASTNode node = runConversion(AST.JLS8, workingCopy, true);			
+			ASTNode node = runConversion(getJLS8(), workingCopy, true);			
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
 			String expectedOutput = "Dead code";
@@ -9495,7 +9495,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0680() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0680", "SAMPLE_UTF8.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode node = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("Not a compilation unit", node.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) node;
 		assertProblemsSize(compilationUnit, 0);
@@ -9512,7 +9512,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0681() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "Sample", "Sample.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode node = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("Not a compilation unit", node.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) node;
 		assertProblemsSize(compilationUnit, 0);
@@ -9527,7 +9527,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0682() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0682", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runConversion(AST.JLS8, sourceUnit, true, true);
+		ASTNode node = runConversion(getJLS8(), sourceUnit, true, true);
 		assertTrue("Not a compilation unit", node.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(
@@ -9555,7 +9555,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0683() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0683", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runConversion(AST.JLS8, sourceUnit, true, true);
+		ASTNode node = runConversion(getJLS8(), sourceUnit, true, true);
 		assertTrue("Not a compilation unit", node.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -9572,7 +9572,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		ArrayCreation arrayCreation = (ArrayCreation) node;
 		ArrayType arrayType = arrayCreation.getType();
 		checkSourceRange(arrayType, "String[0][b[10]][]", sourceUnit.getSource());
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			node = componentType(arrayType);
 			assertEquals("Not an array type", ASTNode.ARRAY_TYPE, node.getNodeType());
 			arrayType = (ArrayType)node;
@@ -9592,7 +9592,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0684() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0684", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runConversion(AST.JLS8, sourceUnit, true, true);
+		ASTNode node = runConversion(getJLS8(), sourceUnit, true, true);
 		assertTrue("Not a compilation unit", node.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -9617,7 +9617,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0685() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0685", "C.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ASTNode node = runConversion(AST.JLS8, sourceUnit, true, true);
+		ASTNode node = runConversion(getJLS8(), sourceUnit, true, true);
 		assertTrue("Not a compilation unit", node.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
@@ -9744,7 +9744,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		IField field = type.getField("i");
 		assertNotNull("No field", field);
 		ISourceRange sourceRange = field.getNameRange();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, sourceRange.getOffset() + sourceRange.getLength() / 2, false);
 		assertNotNull(result);
 	}
 	/**
@@ -9769,7 +9769,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			newClasspathEntries.toArray(newClasspath);
 			project.setRawClasspath(newClasspath, null);
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0689", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			ASTNode result = runConversion(AST.JLS8, sourceUnit, true, true);
+			ASTNode result = runConversion(getJLS8(), sourceUnit, true, true);
 			assertNotNull(result);
 			ITypeBinding typeBinding = result.getAST().resolveWellKnownType("java.lang.Boolean");
 			assertNull("Should be null", typeBinding);
@@ -9799,7 +9799,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			newClasspathEntries.toArray(newClasspath);
 			project.setRawClasspath(newClasspath, null);
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0690", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-			ASTNode result = runConversion(AST.JLS8, sourceUnit, true, true, true);
+			ASTNode result = runConversion(getJLS8(), sourceUnit, true, true, true);
 			assertNotNull(result);
 			ITypeBinding typeBinding = result.getAST().resolveWellKnownType("java.lang.Boolean");
 			assertNull("Should be null", typeBinding);
@@ -9816,7 +9816,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		IType type = unit.getType("X");
 		IMethod method = type.getMethod("foo", new String[0]);
 		
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setSource(unit);
 		Hashtable options = JavaCore.getOptions();
@@ -9861,7 +9861,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "test0693", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ICompilationUnit unit2 = getCompilationUnit("Converter" , "src", "test0693", "Y.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		ASTRequestor requestor = new ASTRequestor() {};
 		ICompilationUnit[] cus = new ICompilationUnit[2];
 		cus[0] = unit;
@@ -9882,7 +9882,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "test0694", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ICompilationUnit unit2 = getCompilationUnit("Converter" , "src", "test0694", "Y.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		ASTRequestor requestor = new ASTRequestor() {};
 		ICompilationUnit[] cus = new ICompilationUnit[2];
 		cus[0] = unit;
@@ -9902,7 +9902,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0695() throws JavaModelException {
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "test0695", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setSource(unit.getSource().toCharArray());
 		Map options = JavaCore.getOptions();
@@ -9927,7 +9927,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0696() throws JavaModelException {
 		ICompilationUnit unit = getCompilationUnit("Converter" , "src", "test0696", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setSource(unit.getSource().toCharArray());
 		Map options = JavaCore.getOptions();
@@ -10045,7 +10045,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment) buildAST(contents, workingCopy, false, true, true);
 			IVariableBinding variableBinding = fragment.resolveBinding();
 			final String key = variableBinding.getKey();
-			ASTParser parser = ASTParser.newParser(AST.JLS8);
+			ASTParser parser = ASTParser.newParser(getJLS8());
 			parser.setProject(workingCopy.getJavaProject());
 			parser.setResolveBindings(true);
 			parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -10087,7 +10087,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment) buildAST(contents, workingCopy, false, true, true);
 			IVariableBinding variableBinding = fragment.resolveBinding();
 			final String key = variableBinding.getKey();
-			ASTParser parser = ASTParser.newParser(AST.JLS8);
+			ASTParser parser = ASTParser.newParser(getJLS8());
 			parser.setProject(workingCopy.getJavaProject());
 			parser.setResolveBindings(true);
 			parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -10130,7 +10130,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 			VariableDeclarationFragment fragment = (VariableDeclarationFragment) buildAST(contents, workingCopy, false, true, true);
 			IVariableBinding variableBinding = fragment.resolveBinding();
 			final String key = variableBinding.getKey();
-			ASTParser parser = ASTParser.newParser(AST.JLS8);
+			ASTParser parser = ASTParser.newParser(getJLS8());
 			parser.setProject(workingCopy.getJavaProject());
 			parser.setResolveBindings(true);
 			parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -10161,7 +10161,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		final char[] source = ("void foo() {\n" + 
 				"	Integer I = new ${cursor}\n" +
 				"}").toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setStatementsRecovery(true);
 		parser.setSource(source);
@@ -10185,7 +10185,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"		Integer I = new ${cursor}\n" + 
 				"	}\n" + 
 				"}").toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setStatementsRecovery(true);
 		parser.setSource(source);
@@ -10207,7 +10207,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		final char[] source = ("{\n" + 
 				"	Integer I = new ${cursor}\n" +
 				"}").toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setStatementsRecovery(true);
 		parser.setSource(source);
@@ -10232,7 +10232,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"{\n" + 
 				"	Integer I = new ${cursor}\n" +
 				"}").toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setStatementsRecovery(true);
 		parser.setSource(source);
@@ -10261,7 +10261,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"		Integer I = new ${cursor}\n" + 
 				"	};\"\n" + 
 				"}").toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setStatementsRecovery(true);
 		parser.setSource(source);
@@ -10278,7 +10278,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 		final char[] source = ("Integer i = new Integer() {\n" + 
 				"	Integer I = new ${cursor}\n" + 
 				"};").toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setStatementsRecovery(true);
 		parser.setSource(source);
@@ -10292,7 +10292,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0708() throws JavaModelException {
 		final char[] source = ("System.out.println()\nint i;\n").toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_STATEMENTS);
 		parser.setStatementsRecovery(true);
 		parser.setSource(source);
@@ -10337,7 +10337,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0710() throws JavaModelException {
 		final char[] source = (";").toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setStatementsRecovery(true);
 		parser.setSource(source);
@@ -10352,7 +10352,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0711() throws JavaModelException {
 		final char[] source = (";void foo() {}").toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setStatementsRecovery(true);
 		parser.setSource(source);
@@ -10367,7 +10367,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0712() throws JavaModelException {
 		final char[] source = (";void foo() {};").toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setStatementsRecovery(true);
 		parser.setSource(source);
@@ -10390,7 +10390,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"      if (condition) appendAndExecute(new AddCommand(...));\n" + 
 				"    }\n" + 
 				"  }").toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setStatementsRecovery(false);
 		parser.setSource(source);
@@ -10439,7 +10439,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"      }\n" + 
 				"    }\n" + 
 				"  }").toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setStatementsRecovery(false);
 		parser.setSource(source);
@@ -10453,7 +10453,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 */
 	public void test0715() throws JavaModelException {
 		final char[] source = ("System.out.println()\nint i;\n").toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_STATEMENTS);
 		parser.setStatementsRecovery(true);
 		parser.setIgnoreMethodBodies(true);
@@ -10470,7 +10470,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0716() {
 		String src = "switch (state) {case 4:double M0,M1;}";
 		char[] source = src.toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind (ASTParser.K_STATEMENTS);
 		parser.setIgnoreMethodBodies(true);
 		parser.setSource (source);
@@ -10502,7 +10502,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"      if (condition) appendAndExecute(new AddCommand());\n" + 
 				"    }\n" + 
 				"  }").toCharArray();
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind(ASTParser.K_CLASS_BODY_DECLARATIONS);
 		parser.setStatementsRecovery(false);
 		parser.setIgnoreMethodBodies(true);
@@ -10615,7 +10615,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	public void test0720() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0720", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		char[] source = sourceUnit.getSource().toCharArray();
-		ASTNode result = runConversion(AST.JLS8, sourceUnit, true);
+		ASTNode result = runConversion(getJLS8(), sourceUnit, true);
 		assertTrue("not a compilation unit", result.getNodeType() == ASTNode.COMPILATION_UNIT); //$NON-NLS-1$
 		CompilationUnit unit = (CompilationUnit) result;
 		assertEquals("Wrong number of problems", 1, unit.getProblems().length); //$NON-NLS-1$
@@ -10696,7 +10696,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=347396
 	 */
 	public void test0723() {
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind (ASTParser.K_STATEMENTS);
 		String src = "int j;\nfor {};\nj=1000;";
 		char[] source = src.toCharArray();
@@ -10718,7 +10718,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=347396
 	 */
 	public void test0724() {
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setKind (ASTParser.K_COMPILATION_UNIT);
 		String src = "public class X { void foo() {int j;\nfor {};\nj=1000;}}";
 		char[] source = src.toCharArray();
@@ -10797,8 +10797,8 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 				"  public static final native long /*int*/ realpath(byte[] path, byte[] realPath);\n" +
 				"}"
 			);
-			// TODO improve test for AST.JLS8
-			CompilationUnit unit = sourceUnit.reconcile(AST.JLS8, false, null, null);
+			// TODO improve test for getJLS8()
+			CompilationUnit unit = sourceUnit.reconcile(getJLS8(), false, null, null);
 			assertEquals("Unexpected well known type", null, unit.getAST().resolveWellKnownType("void"));
 		} finally {
 			sourceUnit.discardWorkingCopy();

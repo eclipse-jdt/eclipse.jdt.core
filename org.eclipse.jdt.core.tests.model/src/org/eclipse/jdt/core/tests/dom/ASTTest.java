@@ -748,7 +748,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				suite.addTest(new ASTTest(methods[i].getName(), AST.JLS2));
 				suite.addTest(new ASTTest(methods[i].getName(), JLS3_INTERNAL));
 				suite.addTest(new ASTTest(methods[i].getName(), AST.JLS4));
-				suite.addTest(new ASTTest(methods[i].getName(), AST.JLS8));
+				suite.addTest(new ASTTest(methods[i].getName(), getJLS8()));
 			}
 		}
 		return suite;
@@ -756,6 +756,13 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 	AST ast;
 	int API_LEVEL;
+
+	/**
+	 * @deprecated
+	 */
+	static int getJLS8() {
+		return AST.JLS8;
+	}
 
 	public ASTTest(String name) {
 		super(name.substring(0, name.indexOf(" - JLS")));
@@ -2084,7 +2091,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		previousCount = this.ast.modificationCount();
 		assertTrue(x.getAST() == this.ast);
 		assertTrue(x.getParent() == null);
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			assertTrue(getArrayComponentType(x).getParent() == x);
 		} else {
 			assertTrue(x.getElementType().getParent() == x);
@@ -2103,7 +2110,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getDimensions() == 1);
 		assertTrue(x.getElementType() == x2);
 
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			genericPropertyTest(x, new Property("ComponentType", true, Type.class) { //$NON-NLS-1$
 				public ASTNode sample(AST targetAst, boolean parented) {
 					SimpleType result = targetAst.newSimpleType(
@@ -3218,7 +3225,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		}
 
 		previousCount = this.ast.modificationCount();
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			x.setExtraDimensions(1);
 		} else {
 			x.extraDimensions().add(this.ast.newDimension());
@@ -3227,7 +3234,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getExtraDimensions() == 1);
 
 		previousCount = this.ast.modificationCount();
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			x.setExtraDimensions(0);
 		} else {
 			x.extraDimensions().remove(0);
@@ -3330,7 +3337,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 
-		if (this.ast.apiLevel() >= AST.JLS8) {
+		if (this.ast.apiLevel() >= getJLS8()) {
 			genericPropertyListTest(x, x.extraDimensions(),
 					new Property("ExtraDimensions", true, Dimension.class) { //$NON-NLS-1$
 						public ASTNode sample(AST targetAst, boolean parented) {
@@ -3388,7 +3395,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(this.ast.modificationCount() == previousCount);
 
 		previousCount = this.ast.modificationCount();
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			setExtraDimensions(x, 1);
 		} else {
 			x.extraDimensions().add(this.ast.newDimension());
@@ -3397,7 +3404,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getExtraDimensions() == 1);
 
 		previousCount = this.ast.modificationCount();
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			setExtraDimensions(x, 0);
 		} else {
 			x.extraDimensions().remove(0);
@@ -3406,7 +3413,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getExtraDimensions() == 0);
 
 		// check that property cannot be set negative
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			try {
 				setExtraDimensions(x, -1);
 				fail();
@@ -3431,7 +3438,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 
-		if (this.ast.apiLevel() >= AST.JLS8) {
+		if (this.ast.apiLevel() >= getJLS8()) {
 			genericPropertyListTest(x, x.extraDimensions(),
 					new Property("ExtraDimensions", true, Dimension.class) { //$NON-NLS-1$
 						public ASTNode sample(AST targetAst, boolean parented) {
@@ -3510,7 +3517,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getExtraDimensions() == 0);
 		assertTrue(x.getJavadoc() == null);
 		assertTrue(x.parameters().size() == 0);
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			assertTrue(x.thrownExceptions().size() == 0);			
 		} else {
 			assertTrue(x.thrownExceptionTypes().size() == 0);			
@@ -3550,7 +3557,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		}
 
 		previousCount = this.ast.modificationCount();
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			x.setExtraDimensions(1);
 		} else {
 			x.extraDimensions().add(this.ast.newDimension());
@@ -3559,7 +3566,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		assertTrue(x.getExtraDimensions() == 1);
 
 		previousCount = this.ast.modificationCount();
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			x.setExtraDimensions(0);
 		} else {
 			x.extraDimensions().remove(0);
@@ -3637,7 +3644,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			});
 		}
 
-		if (this.ast.apiLevel() >= AST.JLS8) {
+		if (this.ast.apiLevel() >= getJLS8()) {
 			genericPropertyListTest(x, x.extraDimensions(),
 					new Property("ExtraDimensions", true, Dimension.class) { //$NON-NLS-1$
 						public ASTNode sample(AST targetAst, boolean parented) {
@@ -3675,7 +3682,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 		});
 
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			genericPropertyListTest(x, x.thrownExceptions(),
 					  new Property("ThrownExceptions", true, Name.class) { //$NON-NLS-1$
 						public ASTNode sample(AST targetAst, boolean parented) {
@@ -3742,7 +3749,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			x.parameters().add(this.ast.newSingleVariableDeclaration());
 			assertTrue(!x.isVarargs()); // only last param counts
 		}
-		if (this.ast.apiLevel() < AST.JLS8) {
+		if (this.ast.apiLevel() < getJLS8()) {
 			try {
 				x.setExtraDimensions(-1);
 				fail("Should fail");
@@ -8855,7 +8862,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			try {
 				node = this.ast.createInstance(nodeType);
 			} catch (IllegalArgumentException e) {
-				if (this.API_LEVEL < AST.JLS8 && e.getCause() instanceof UnsupportedOperationException) {
+				if (this.API_LEVEL < getJLS8() && e.getCause() instanceof UnsupportedOperationException) {
 					continue;
 				} else {
 					throw new AssertionFailedError("missing node type: " + nodeType);

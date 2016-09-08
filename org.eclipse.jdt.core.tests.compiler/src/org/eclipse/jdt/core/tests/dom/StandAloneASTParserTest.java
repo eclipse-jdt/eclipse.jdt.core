@@ -53,7 +53,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 		super(name);
 	}
 	
-	private static final int JLS_LATEST = AST.JLS8;
+	private static final int JLS_LATEST = AST.JLS9;
 
 	public ASTNode runConversion(
 			int astLevel,
@@ -602,7 +602,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 				"}\n";
 		Map<String, String> options = JavaCore.getOptions();
 		JavaCore.setComplianceOptions(JavaCore.VERSION_1_7, options);
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(AST.JLS9);
 		parser.setCompilerOptions(options);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setSource(source.toCharArray());
@@ -626,7 +626,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 				"}\n";
 		Map<String, String> options = JavaCore.getOptions();
 		JavaCore.setComplianceOptions(JavaCore.VERSION_1_7, options);
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(AST.JLS9);
 		parser.setCompilerOptions(options);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setSource(source.toCharArray());
@@ -649,7 +649,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 	 */
 	public void testBug480545() {
 	    String input = "class Test2 { void f(Test2... xs) {} }";
-	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    ASTParser parser = ASTParser.newParser(AST.JLS9);
 	    parser.setSource(input.toCharArray());
 	    Map<String, String> options = JavaCore.getOptions();
 	    JavaCore.setComplianceOptions(JavaCore.VERSION_1_8, options);
@@ -662,7 +662,7 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
                        "    public static final if ËŠ = new if(null, null, null, null);\n"+
                        "  }\n" +
                         "}";	    		
-	    ASTParser parser = ASTParser.newParser(AST.JLS8);
+	    ASTParser parser = ASTParser.newParser(AST.JLS9);
 	    parser.setSource(input.toCharArray());
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(true);

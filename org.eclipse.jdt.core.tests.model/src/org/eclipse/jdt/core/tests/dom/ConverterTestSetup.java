@@ -46,6 +46,13 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	 */
 	/*package*/ static final int JLS4_INTERNAL = AST.JLS4;
 
+	/**
+	 * Internal synonym for deprecated constant AST.JSL8
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int JLS8_INTERNAL = AST.JLS8;
+
 	static int getJLS3() {
 		return JLS3_INTERNAL;
 	}
@@ -53,7 +60,10 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	static int getJLS4() {
 		return JLS4_INTERNAL;
 	}
-	
+
+	static int getJLS8() {
+		return JLS8_INTERNAL;
+	}	
 	protected AST ast;
 	public static List TEST_SUITES = null;
 	public static boolean PROJECT_SETUP = false;
@@ -559,6 +569,9 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		return runJLS8Conversion(unit, resolveBindings, checkJLS2, false);
 	}
 
+	/**
+	 * @deprecated references deprecated old AST level
+	 */
 	public ASTNode runJLS8Conversion(ICompilationUnit unit, boolean resolveBindings, boolean checkJLS2, boolean bindingRecovery) {
 
 		// Create parser

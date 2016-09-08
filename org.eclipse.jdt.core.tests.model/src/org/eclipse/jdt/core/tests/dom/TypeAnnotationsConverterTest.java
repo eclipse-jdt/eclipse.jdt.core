@@ -23,7 +23,7 @@ public class TypeAnnotationsConverterTest extends ConverterTestSetup {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(AST.JLS8);
+		this.ast = AST.newAST(AST.JLS9);
 	}
 
 	public TypeAnnotationsConverterTest(String name) {

@@ -157,6 +157,13 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	}
 
 	/**
+	 * @deprecated
+	 */
+	static int getJLS8() {
+		return AST.JLS8;
+	}
+
+	/**
 	 * @deprecated indirectly uses deprecated class PackageAdmin
 	 */
 	protected Bundle[] getAnnotationBundles() {
@@ -402,7 +409,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			}, null);
 		IPackageFragment fragment = this.root.getPackageFragment("test1");
 		ICompilationUnit unit = fragment.getCompilationUnit("Test1.java").getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
 		assertNoProblems(problems);
 	}
@@ -465,7 +472,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"	}\n" + 
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
 		assertNoProblems(problems);
 	}
@@ -531,7 +538,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"	}\n" + 
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
 		assertProblems(problems, new String[] {
 				"Pb(980) Unsafe interpretation of method return type as '@NonNull' based on the receiver type 'Iterator<@NonNull capture#of ?>'. Type 'Iterator<E>' doesn't seem to be designed with null type annotations in mind",
@@ -592,7 +599,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"	}\n" + 
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
 		assertProblems(problems, new String[] {
 			"Pb(955) Null type safety (type annotations): The expression of type 'String[]' needs unchecked conversion to conform to '@Nullable String @Nullable[]'",
@@ -638,7 +645,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"	}\n" +
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
 		assertProblems(problems, new String[] {
 			"Pb(953) Null type mismatch (type annotations): required '@NonNull String' but this expression has type '@Nullable String'",
@@ -689,7 +696,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"	}\n" +
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
 		assertProblems(problems, new String[] {
 			"Pb(953) Null type mismatch (type annotations): required '@NonNull String' but this expression has type '@Nullable String'",
@@ -740,7 +747,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"	}\n" +
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
 		assertProblems(problems, new String[] {
 			"Pb(953) Null type mismatch (type annotations): required '@NonNull String' but this expression has type '@Nullable String'",
@@ -794,7 +801,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"	}\n" +
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
 		assertProblems(problems, new String[] {
 			"Pb(953) Null type mismatch (type annotations): required '@NonNull String' but this expression has type '@Nullable String'",
@@ -841,7 +848,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"	}\n" +
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
 		assertProblems(problems, new String[] {
 			"Pb(953) Null type mismatch (type annotations): required '@NonNull Exception' but this expression has type '@Nullable Exception'",
@@ -918,7 +925,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"	}\n" +
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		assertProblems(reconciled.getProblems(), new String[] {
 				"Pb(955) Null type safety (type annotations): The expression of type 'String' needs unchecked conversion to conform to '@NonNull String'",
 		}, new int[] { 8 });
@@ -926,7 +933,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		// acquire library AST:
 		IType type = this.project.findType("libs.Lib1");
 		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setSource(libWorkingCopy);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(false);
@@ -955,7 +962,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		assertTrue("file should exist", annotationFile.exists());
 
 		// check that the error is even worse now:
-		reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		assertProblems(reconciled.getProblems(), new String[] {
 				"Pb(953) Null type mismatch (type annotations): required '@NonNull String' but this expression has type '@Nullable String'",
 		}, new int[] { 8 });
@@ -989,7 +996,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"	}\n" +
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		assertProblems(reconciled.getProblems(), new String[] {
 				"Pb(953) Null type mismatch (type annotations): required 'Lib1<Lib1.X,@Nullable String>' but this expression has type 'Lib1<Lib1.@Nullable X,@NonNull String>'",
 		}, new int[] { 7 });
@@ -997,7 +1004,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		// acquire library AST:
 		IType type = this.project.findType("libs.Lib1");
 		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setSource(libWorkingCopy);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(false);
@@ -1027,7 +1034,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		assertTrue("file should exist", annotationFile.exists());
 
 		// check that the error is resolved now:
-		reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		assertNoProblems(reconciled.getProblems());
 	}
 	
@@ -1059,7 +1066,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"	}\n" +
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		assertProblems(reconciled.getProblems(), new String[] {
 				"Pb(910) Null type mismatch: required '@NonNull String' but the provided value is null",
 		}, new int[] { 7 });
@@ -1067,7 +1074,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		// acquire library AST:
 		IType type = this.project.findType("libs.Lib1");
 		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setSource(libWorkingCopy);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(false);
@@ -1097,7 +1104,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		assertTrue("file should exist", annotationFile.exists());
 
 		// check that the error is resolved now:
-		reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		assertNoProblems(reconciled.getProblems());
 		
 		// invert annotation:
@@ -1110,7 +1117,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		assertTrue("file should exist", annotationFile.exists());
 
 		// check that the error is back now:
-		reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		assertProblems(reconciled.getProblems(), new String[] {
 				"Pb(910) Null type mismatch: required '@NonNull String' but the provided value is null",
 		}, new int[] { 7 });
@@ -1146,7 +1153,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		// acquire library AST:
 		IType type = this.project.findType("libs.Collectors");
 		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setSource(libWorkingCopy);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(false);
@@ -1201,7 +1208,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		// acquire library AST:
 		IType type = this.project.findType("libs.Collectors");
 		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setSource(libWorkingCopy);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(false);
@@ -1253,7 +1260,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		// acquire library AST:
 		IType type = this.project.findType("libs.Collections");
 		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setSource(libWorkingCopy);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(false);
@@ -1307,7 +1314,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		// acquire library AST:
 		IType type = this.project.findType("libs.Collections");
 		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setSource(libWorkingCopy);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(false);
@@ -1362,7 +1369,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		// acquire library AST:
 		IType type = this.project.findType("libs.Thread");
 		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setSource(libWorkingCopy);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(false);
@@ -1417,7 +1424,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		// acquire library AST:
 		IType type = this.project.findType("libs.Thread");
 		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setSource(libWorkingCopy);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(false);
@@ -1472,7 +1479,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		// acquire library AST:
 		IType type = this.project.findType("libs.Thread");
 		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setSource(libWorkingCopy);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(false);
@@ -1558,7 +1565,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 					"	}\n" + 
 					"}\n",
 					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-			CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+			CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			IProblem[] problems = reconciled.getProblems();
 			assertEquals("number of problems", 4, problems.length);
 
@@ -1573,7 +1580,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 					"	}\n" + 
 					"}\n",
 					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-			CompilationUnit reconciled2 = unit2.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+			CompilationUnit reconciled2 = unit2.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			assertNoProblems(reconciled2.getProblems());
 			
 			assertEquals("number of log entries", 0, listener.loggedStatus.size());
@@ -1609,7 +1616,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			addProjectDependencyWithExternalAnnotations(this.project, "/Lib", "annots", null);
 			IPackageFragment fragment = this.root.getPackageFragment("test1");
 			ICompilationUnit unit = fragment.getCompilationUnit("Test1.java").getWorkingCopy(new NullProgressMonitor());
-			CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+			CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			IProblem[] problems = reconciled.getProblems();
 			assertNoProblems(problems);
 		} finally {
@@ -1652,7 +1659,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			addProjectDependencyWithExternalAnnotations(this.project, "/Lib", "annots.zip", null);
 			IPackageFragment fragment = this.root.getPackageFragment("test1");
 			ICompilationUnit unit = fragment.getCompilationUnit("Reconcile2.java").getWorkingCopy(new NullProgressMonitor());
-			CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+			CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			IProblem[] problems = reconciled.getProblems();
 			assertNoProblems(problems);
 		} finally {
@@ -1686,7 +1693,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			addProjectDependencyWithExternalAnnotations(this.project, "/Lib", "annots.zip", null);
 			IPackageFragment fragment = this.root.getPackageFragment("test1");
 			ICompilationUnit unit = fragment.getCompilationUnit("Reconcile3.java").getWorkingCopy(new NullProgressMonitor());
-			CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+			CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			assertProblems(reconciled.getProblems(), new String[] {
 					"Pb(964) Null constraint mismatch: The type '@Nullable B' is not a valid substitute for the type parameter '@NonNull R'",
 					"Pb(964) Null constraint mismatch: The type '@Nullable String' is not a valid substitute for the type parameter '@NonNull V'",
@@ -1722,7 +1729,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"	}\n" + 
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		assertProblems(reconciled.getProblems(), new String[] {
 				"Pb(953) Null type mismatch (type annotations): required '@NonNull String' but this expression has type '@Nullable String'",
 				"Pb(980) Unsafe interpretation of method return type as '@NonNull' based on the receiver type 'Lib1<@NonNull String>'. Type 'Lib1<T>' doesn't seem to be designed with null type annotations in mind",
@@ -1733,7 +1740,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				" <T:Ljava/lang/Object;>\n" + 
 				" <T:Ljava/lang/Object;>\n" + 
 				"\n");
-		reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		assertProblems(reconciled.getProblems(), new String[] {
 				"Pb(953) Null type mismatch (type annotations): required '@NonNull String' but this expression has type '@Nullable String'",
 		}, new int[] { 8 });
@@ -1786,7 +1793,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"	}\n" + 
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		assertProblems(reconciled.getProblems(), new String[] {
 				"Pb(980) Unsafe interpretation of method return type as '@NonNull' based on the receiver type 'Lib1<@NonNull String>'. Type 'Lib1<T>' doesn't seem to be designed with null type annotations in mind",
 				"Pb(980) Unsafe interpretation of method return type as '@NonNull' based on the receiver type 'Lib2<@NonNull String>'. Type 'Lib2<T>' doesn't seem to be designed with null type annotations in mind",
@@ -1834,7 +1841,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"}\n" +
 				"",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
 		assertProblems(problems, new String[] {
 				"Pb(149) Dead code"

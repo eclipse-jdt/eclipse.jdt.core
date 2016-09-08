@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 GK Software AG, and others.
+ * Copyright (c) 2015, 2016 GK Software AG, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -55,6 +55,13 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ExternalAnnotations17Test.class, BYTECODE_DECLARATION_ORDER);
+	}
+
+	/**
+	 * @deprecated
+	 */
+	static int getJLS8() {
+		return AST.JLS8;
 	}
 
 	/**
@@ -148,7 +155,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 				"	}\n" +
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
 		assertProblems(problems, new String[] {
 			"Pb(933) Null type mismatch: required '@NonNull String' but the provided value is specified as @Nullable",
@@ -165,7 +172,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 			}, null);
 		IPackageFragment fragment = this.root.getPackageFragment("test1");
 		ICompilationUnit unit = fragment.getCompilationUnit("Test1.java").getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
 		assertProblems(problems,
 					new String[] {
@@ -214,7 +221,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 				"	}\n" +
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
 		assertProblems(problems, new String[] {
 			"Pb(933) Null type mismatch: required '@NonNull String' but the provided value is specified as @Nullable",
@@ -250,7 +257,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 				"}\n";
 		ICompilationUnit cu = fragment.createCompilationUnit("Test1.java", test1Content,
 						true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(false);
@@ -282,7 +289,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		assertTrue("file should exist", annotationFile.exists());
 
 		// check that the error is gone:
-		CompilationUnit reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		assertNoProblems(reconciled.getProblems());		
 	}
 
@@ -312,7 +319,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 				"}\n";
 		ICompilationUnit cu = fragment.createCompilationUnit("Test1.java", test1Content,
 						true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setSource(cu);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(false);
@@ -344,7 +351,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		assertTrue("file should exist", annotationFile.exists());
 
 		// check that the error is even worse now:
-		CompilationUnit reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		problems = reconciled.getProblems();
 		assertProblems(problems, new String[] {
 				"Pb(933) Null type mismatch: required '@NonNull Lib1<String>' but the provided value is specified as @Nullable",
@@ -378,7 +385,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 				"	}\n" +
 				"}\n",
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-		CompilationUnit reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
 		assertProblems(problems, new String[] {
 				"Pb(912) Null type safety: The expression of type 'Lib1<String>' needs unchecked conversion to conform to '@NonNull Lib1<String>'",
@@ -387,7 +394,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		// acquire library AST:
 		IType type = this.project.findType("libs.Lib1");
 		ICompilationUnit libWorkingCopy = type.getClassFile().getWorkingCopy(this.wcOwner, null);
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(getJLS8());
 		parser.setSource(libWorkingCopy);
 		parser.setResolveBindings(true);
 		parser.setStatementsRecovery(false);
@@ -417,7 +424,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		assertTrue("file should exist", annotationFile.exists());
 
 		// check that the error has gone:
-		reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		assertNoProblems(reconciled.getProblems());
 	}
 
@@ -457,7 +464,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 					"	}\n" +
 					"}\n",
 					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-			CompilationUnit reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+			CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			IProblem[] problems = reconciled.getProblems();
 			assertProblems(problems, new String[] {
 					"Pb(912) Null type safety: The expression of type 'Lib1<String>' needs unchecked conversion to conform to '@NonNull Lib1<String>'",
@@ -505,7 +512,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 					"	}\n" +
 					"}\n",
 					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
-			CompilationUnit reconciled = cu.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+			CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 			IProblem[] problems = reconciled.getProblems();
 			assertProblems(problems, new String[] {
 					"Pb(912) Null type safety: The expression of type 'Lib1<String>' needs unchecked conversion to conform to '@NonNull Lib1<String>'",
