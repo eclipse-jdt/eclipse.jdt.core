@@ -12499,4 +12499,112 @@ public void testBug497245b() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/500443 - [formatter] NPE on block comment before 'force-wrap' element
+ */
+public void testBug500443() {
+	this.formatterPrefs.alignment_for_enum_constants = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	this.formatterPrefs.alignment_for_superclass_in_type_declaration = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	String source =
+		"public class SomeClass\n" + 
+		"		/* */ extends\n" + 
+		"		Object {\n" + 
+		"	enum MyEnum {\n" + 
+		"		/* 1 */ ONE\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/500092 - [formatter] Blank lines at beginning of method body doesn't work in constructors
+ */
+public void testBug500092() {
+	this.formatterPrefs.blank_lines_at_beginning_of_method_body = 1;
+	String source =
+		"public class Test {\n" + 
+		"	public Test() { int a; }\n" + 
+		"}";
+	formatSource(source,
+		"public class Test {\n" + 
+		"	public Test() {\n" + 
+		"\n" + 
+		"		int a;\n" + 
+		"	}\n" + 
+		"}"
+	);
+}
+/**
+ * https://bugs.eclipse.org/500135 - [formatter] 'Parenthesis positions' ignores single member annotations
+ */
+public void testBug500135() {
+	this.formatterPrefs.parenthesis_positions_in_annotation = DefaultCodeFormatterConstants.SEPARATE_LINES;
+	String source =
+		"@SomeAnnotation(\n" + 
+		"	\"some value\"\n" + 
+		")\n" + 
+		"public class Test {\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/500096 - [formatter] Indent declarations within enum declaration doesn't affect enum constants
+ */
+public void testBug500096a() {
+	this.formatterPrefs.indent_body_declarations_compare_to_enum_declaration_header = false;
+	String source =
+		"public enum Test {\n" + 
+		"AAA, BBB;\n" + 
+		"Test() {\n" + 
+		"}\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/500096 - [formatter] Indent declarations within enum declaration doesn't affect enum constants
+ */
+public void testBug500096b() {
+	this.formatterPrefs.indent_body_declarations_compare_to_enum_declaration_header = false;
+	this.formatterPrefs.alignment_for_enum_constants = Alignment.M_COMPACT_SPLIT + Alignment.M_INDENT_BY_ONE;
+	String source =
+		"public enum Test {\n" + 
+		"	AAA, BBB;\n" + 
+		"Test() {\n" + 
+		"}\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/500093 - [formatter] AssertionError with 'Next line on wrap' for array initializers
+ */
+public void testBug500093() {
+	this.formatterPrefs.brace_position_for_array_initializer = DefaultCodeFormatterConstants.NEXT_LINE_ON_WRAP;
+	this.formatterPrefs.page_width = 60;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	String source =
+		"public class SomeClass {\n" + 
+		"	void foo() {\n" + 
+		"		Arrays.asList(new String[] { \"ddd\", \"eee\", \"fff\" });\n" + 
+		"		Arrays.asList(new String[] { \"a\", \"b\", \"c\" },\n" + 
+		"		        new String[]\n" + 
+		"		        { \"a\", \"b\", \"c\", });\n" + 
+		"		Arrays.asList(//\n" + 
+		"		        new String[]\n" + 
+		"		        { \"ddd\", \"eee\", \"fff\" });\n" + 
+		"		Arrays.asList(\n" + 
+		"		        new String[]\n" + 
+		"		        { \"eedd\", \"eee\", \"fff\" });\n" + 
+		"		Arrays.asList(\n" + 
+		"		        new String[]\n" + 
+		"		        { \"aa\", \"bb\", \"cc\", \"dd\", \"ee\", \"ff\", \"gg\",\n" + 
+		"		                \"hh\", \"ii\" });\n" + 
+		"		String[][] test = { { \"aaaaaa\", \"bbbbb\", \"ccccc\" },\n" + 
+		"		        { \"aaaa\", \"bb\", \"ccc\" } };\n" + 
+		"		test[123456 //\n" + 
+		"		        * (234567 + 345678 + 456789 - 567890\n" + 
+		"		                - 678901)] = new String[]\n" + 
+		"		                { \"a\", \"b\", \"c\" };\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
+}
 }

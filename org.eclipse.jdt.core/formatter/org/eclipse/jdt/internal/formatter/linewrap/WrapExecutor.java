@@ -122,6 +122,7 @@ public class WrapExecutor {
 		 */
 		public int analyzeLine(int startIndex, int indent) {
 			Token startToken = WrapExecutor.this.tm.get(startIndex);
+			assert startToken.getLineBreaksBefore() > 0;
 			this.counter = WrapExecutor.this.tm.toIndent(indent, startToken.isWrappable());
 			this.lineIndent = indent;
 			this.firstPotentialWrap = -1;
@@ -170,11 +171,11 @@ public class WrapExecutor {
 			if (this.lineExceeded && this.firstPotentialWrap >= 0) {
 				return false;
 			}
-			if (!token.isNextLineOnWrap())
-				token.setIndent(this.lineIndent);
+			token.setIndent(this.lineIndent);
 
-			boolean isLineEnd = getLineBreaksAfter() > 0 || getNext() == null;
-			assert !(token.isNextLineOnWrap() && !isLineEnd);
+			boolean isLineEnd = getLineBreaksAfter() > 0 || getNext() == null
+					|| (getNext().isNextLineOnWrap() && WrapExecutor.this.tm
+							.get(WrapExecutor.this.tm.findFirstTokenInLine(index)).isWrappable());
 			return !isLineEnd;
 		}
 

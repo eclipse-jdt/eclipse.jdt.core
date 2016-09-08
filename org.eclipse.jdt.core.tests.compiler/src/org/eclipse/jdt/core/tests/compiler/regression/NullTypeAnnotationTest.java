@@ -12238,6 +12238,101 @@ public void testBug489245() {
 		"----------\n"
 	);
 }
+public void testBug489674() {
+	Map options = new HashMap<>(getCompilerOptions());
+	options.put(JavaCore.COMPILER_NONNULL_ANNOTATION_SECONDARY_NAMES, "org.foo.NonNull");
+	options.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_SECONDARY_NAMES, "org.foo.Nullable");
+	runConformTest(
+		new String[] {
+			"org/foo/Nullable.java",
+			"package org.foo;\n" +
+			"import java.lang.annotation.*;\n" +
+			"import static java.lang.annotation.ElementType.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ FIELD, METHOD, PARAMETER, LOCAL_VARIABLE })\n" + 
+			"public @interface Nullable {}\n",
+			"org/foo/NonNull.java",
+			"package org.foo;\n" +
+			"import java.lang.annotation.*;\n" +
+			"import static java.lang.annotation.ElementType.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"@Target({ FIELD, METHOD, PARAMETER, LOCAL_VARIABLE })\n" + 
+			"public @interface NonNull {}\n",
+			"}"
+		},
+		options);
+	runConformTestWithLibs(
+			new String[] {
+				"with_other_nullable/P1.java",
+				"package with_other_nullable;\n" +
+				"\n" +
+				"import org.foo.Nullable;\n" +
+				"\n" +
+				"public class P1 {\n" +
+				"	public static @Nullable String f0() {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"\n" +
+				"	public static <T> T check(T t) {\n" +
+				"		return t;\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+				"with_other_nullable/P2.java",
+				"package with_other_nullable;\n" +
+				"\n" +
+				"import org.foo.NonNull;\n" +
+				"\n" +
+				"public class P2 {\n" +
+				"	public static void f(@NonNull String s) {\n" +
+				"	}\n" +
+				"\n" +
+				"	public static <T> T check(T t) {\n" +
+				"		return t;\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+			}, 
+			options,
+			""
+	);
+	runNegativeTestWithLibs(
+			new String[] {
+				"test/Test4.java",
+				"package test;\n" +
+				"\n" +
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+				"\n" +
+				"import with_other_nullable.P1;\n" +
+				"import with_other_nullable.P2;\n" +
+				"\n" +
+				"@NonNullByDefault\n" +
+				"public class Test4 {\n" +
+				"	void m1(String s) {\n" +
+				"		P1.f0().hashCode();\n" +
+				"		s = P1.check(s);\n" +
+				"	}\n" +
+				"	void m2(String s) {\n" +
+				"		P2.f(null);\n" +
+				"		s = P2.check(s);\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+			}, 
+			options,
+			"----------\n" + 
+			"1. ERROR in test\\Test4.java (at line 11)\n" + 
+			"	P1.f0().hashCode();\n" + 
+			"	^^^^^^^\n" + 
+			"Potential null pointer access: The method f0() may return null\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\Test4.java (at line 15)\n" + 
+			"	P2.f(null);\n" + 
+			"	     ^^^^\n" + 
+			"Null type mismatch: required \'String\' but the provided value is null\n" + 
+			"----------\n"
+		);
+}
 public void testBug492327() {
 	runConformTestWithLibs(
 		new String[] {
@@ -12723,5 +12818,77 @@ public void testBug499862c() {
 		"	                   ^\n" + 
 		"Potential null pointer access: this expression has type \'T\', a free type variable that may represent a \'@Nullable\' type\n" + 
 		"----------\n");
+}
+public void testBug499597simplified() {
+	runConformTestWithLibs(
+		new String[] {
+			"Foo2.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"class Foo2 {\n" +
+			"	static <T> T of(T t) {\n" +
+			"		return t;\n" +
+			"	}\n" +
+			"\n" +
+			"	static String foo() {\n" +
+			"		return Foo2.<String>of(\"\"); // <-- warning here\n" +
+			"	}\n" +
+			"\n" +
+			"	static String bar() {\n" +
+			"		return Foo2.<@NonNull String>of(\"\"); // <-- no warning\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+public void testBug499597original() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Foo.java",
+			"import static org.eclipse.jdt.annotation.DefaultLocation.*;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"\n" +
+			"import java.util.Collection;\n" +
+			"import java.util.Collections;\n" +
+			"\n" +
+			"class Foo {\n" +
+			"	static @NonNull String @NonNull [] X = { \"A\" };\n" +
+			"\n" +
+			"	@NonNullByDefault({ PARAMETER, RETURN_TYPE, FIELD, TYPE_PARAMETER, TYPE_BOUND, TYPE_ARGUMENT, ARRAY_CONTENTS })\n" +
+			"	@SafeVarargs\n" +
+			"	static <T> Collection<T> of(@NonNull T @NonNull... elements) {\n" +
+			"		return Collections.singleton(elements[0]);\n" +
+			"	}\n" +
+			"\n" +
+			"	@NonNullByDefault({ PARAMETER, RETURN_TYPE, FIELD, TYPE_PARAMETER, TYPE_BOUND, TYPE_ARGUMENT, ARRAY_CONTENTS })\n" +
+			"	static Collection<String[]> foo() {\n" +
+			"		return Foo.<String[]>of(X); // <-- warning here\n" +
+			"	}\n" +
+			"\n" +
+			"	@NonNullByDefault({ PARAMETER, RETURN_TYPE, FIELD, TYPE_PARAMETER, TYPE_BOUND, TYPE_ARGUMENT, ARRAY_CONTENTS })\n" +
+			"	static Collection<String[]> bar() {\n" +
+			"		return Foo.<String @NonNull []>of(X); // <-- no warning\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in Foo.java (at line 12)\n" + 
+		"	static <T> Collection<T> of(@NonNull T @NonNull... elements) {\n" + 
+		"	                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"The nullness annotation is redundant with a default that applies to this location\n" + 
+		"----------\n" + 
+		"2. WARNING in Foo.java (at line 13)\n" + 
+		"	return Collections.singleton(elements[0]);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'Set<T>\' needs unchecked conversion to conform to \'@NonNull Collection<T>\', corresponding supertype is \'Collection<T>\'\n" + 
+		"----------\n"
+	);
 }
 }

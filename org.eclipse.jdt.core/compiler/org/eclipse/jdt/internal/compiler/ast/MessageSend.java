@@ -652,7 +652,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			this.genericTypeArguments = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
 				TypeReference typeReference = this.typeArguments[i];
-				if ((this.genericTypeArguments[i] = typeReference.resolveType(scope, true /* check bounds*/)) == null) {
+				if ((this.genericTypeArguments[i] = typeReference.resolveType(scope, true /* check bounds*/, Binding.DefaultLocationTypeArgument)) == null) {
 					this.argumentsHaveErrors = true;
 				}
 				if (this.argumentsHaveErrors && typeReference instanceof Wildcard) {

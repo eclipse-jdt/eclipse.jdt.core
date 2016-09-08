@@ -288,7 +288,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			if (this.binding != null && isMethodReference()) {
 				if (TypeBinding.notEquals(this.binding.declaringClass, this.lhs.resolvedType.erasure())) {
 					if (!this.binding.declaringClass.canBeSeenBy(currentScope)) {
-						this.binding = new MethodBinding(this.binding, (ReferenceBinding) this.lhs.resolvedType.erasure());
+						this.binding = new MethodBinding(this.binding.original(), (ReferenceBinding) this.lhs.resolvedType.erasure());
 					}
 				}
 			}

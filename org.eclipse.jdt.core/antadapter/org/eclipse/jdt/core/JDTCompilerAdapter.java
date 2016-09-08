@@ -305,6 +305,7 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		String source = this.attributes.getSource();
 		if (source != null) {
 			this.customDefaultOptions.put(CompilerOptions.OPTION_Source, source);
+			this.customDefaultOptions.put(CompilerOptions.OPTION_Compliance, source);
 		}
 
 		if (compilerArgs != null) {
