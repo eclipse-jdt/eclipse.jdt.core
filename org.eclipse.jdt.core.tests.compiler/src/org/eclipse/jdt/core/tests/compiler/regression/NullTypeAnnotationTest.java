@@ -6889,7 +6889,6 @@ public void testBug434582a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=443467, [1.8][null]InternalError: Unexpected binding type
 public void test443467() throws Exception {
-	if (isJRE9) return;
 	runNegativeTestWithLibs(
 		new String[] {
 			"BuildIdeMain.java",

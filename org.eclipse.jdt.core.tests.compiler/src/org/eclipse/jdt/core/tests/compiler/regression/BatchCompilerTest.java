@@ -14285,7 +14285,6 @@ public void test408038e() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=419351
 public void testBug419351() {
-	if (isJRE9) return;
 	String backup = System.getProperty("java.endorsed.dirs");
 	String currentWorkingDirectoryPath = System.getProperty("user.dir");
 	if (currentWorkingDirectoryPath == null) {

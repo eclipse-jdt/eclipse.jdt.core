@@ -4426,7 +4426,6 @@ public void test434297() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=436542 : Eclipse 4.4 compiler generates "bad class file" according to javac
 public void test436542() throws Exception {
-	if (isJRE9) return;
 	this.runConformTest(
 		new String[] {
 			"Utility.java",
