@@ -41,7 +41,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(AST.JLS8);
+		this.ast = AST.newAST(getAST8());
 	}
 
 	public ASTConverter18Test(String name) {
@@ -56,7 +56,12 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverter18Test.class);
 	}
-
+	/**
+	 * @deprecated
+	 */
+	static int getAST8() {
+		return AST.JLS8;
+	}
 	protected void tearDown() throws Exception {
 		super.tearDown();
 		if (this.workingCopy != null) {
@@ -3926,7 +3931,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 				"}\n";
 		this.workingCopy = getWorkingCopy("/Converter18/src/test/X.java", true/*resolve*/);
 		this.workingCopy.getBuffer().setContents(contents);
-		CompilationUnit compilationUnit = this.workingCopy.reconcile(AST.JLS8, ICompilationUnit.FORCE_PROBLEM_DETECTION, null, null);
+		CompilationUnit compilationUnit = this.workingCopy.reconcile(getAST8(), ICompilationUnit.FORCE_PROBLEM_DETECTION, null, null);
 		ASTNode node = getASTNode(compilationUnit, 0);
 		FieldDeclaration[] field = ((TypeDeclaration) node).getFields();
 		List fragments = field[0].fragments();
@@ -4365,7 +4370,7 @@ public void testBug432051() throws JavaModelException {
 		}
 	}
 	final BindingRequestor requestor = new BindingRequestor();
-	final ASTParser parser = ASTParser.newParser(AST.JLS8);
+	final ASTParser parser = ASTParser.newParser(getAST8());
 	parser.setResolveBindings(false);
 	parser.setProject(javaProject);
 	try {
@@ -4394,7 +4399,7 @@ public void testBug426977() throws JavaModelException {
 			"@interface TU { }";
 	this.workingCopy = getWorkingCopy("/Converter18/src/com/test/todo/Test.java", true/*computeProblems*/);
 	try {
-		buildAST(AST.JLS8, contents, this.workingCopy, false, true, true);
+		buildAST(getAST8(), contents, this.workingCopy, false, true, true);
 	} catch (ClassCastException e) {
 		fail(e.getMessage());
 	}
@@ -4438,7 +4443,7 @@ public void test406805() throws CoreException, IOException {
 	};
 	addLibrary(javaProject, jarName, srcName, contents, JavaCore.VERSION_1_8);
 
-	ASTParser parser = ASTParser.newParser(AST.JLS8);
+	ASTParser parser = ASTParser.newParser(getAST8());
 	parser.setIgnoreMethodBodies(true);
 	parser.setProject(javaProject);
 	IType type = javaProject.findType("test406805.TestEnum");
@@ -4501,7 +4506,7 @@ public void test406805a() throws CoreException, IOException {
 	};
 	addLibrary(javaProject, jarName, srcName, contents, JavaCore.VERSION_1_8, null);
 
-	ASTParser parser = ASTParser.newParser(AST.JLS8);
+	ASTParser parser = ASTParser.newParser(getAST8());
 	parser.setIgnoreMethodBodies(true);
 	parser.setProject(javaProject);
 	IType type = javaProject.findType("test406805a.NestedTestEnum");
@@ -4562,7 +4567,7 @@ public void test406805b() throws CoreException, IOException {
 	};
 	addLibrary(javaProject, jarName, srcName, contents, JavaCore.VERSION_1_8);
 
-	ASTParser parser = ASTParser.newParser(AST.JLS8);
+	ASTParser parser = ASTParser.newParser(getAST8());
 	parser.setIgnoreMethodBodies(true);
 	parser.setProject(javaProject);
 	IType type = javaProject.findType("test406805b.TestEnum");
@@ -4624,7 +4629,7 @@ public void test406805d() throws CoreException, IOException {
 	};
 	addLibrary(javaProject, jarName, srcName, contents, JavaCore.VERSION_1_8, null);
 
-	ASTParser parser = ASTParser.newParser(AST.JLS8);
+	ASTParser parser = ASTParser.newParser(getAST8());
 	parser.setIgnoreMethodBodies(true);
 	parser.setProject(javaProject);
 	IType type = javaProject.findType("test406805d.NestedTestEnum");
@@ -4690,7 +4695,7 @@ public void test436347() throws CoreException, IOException {
 	};
 	addLibrary(javaProject, jarName, srcName, contents, JavaCore.VERSION_1_8);
 
-	ASTParser parser = ASTParser.newParser(AST.JLS8);
+	ASTParser parser = ASTParser.newParser(getAST8());
 	parser.setIgnoreMethodBodies(true);
 	parser.setProject(javaProject);
 	IType type = javaProject.findType("test436347.TestEnum");
@@ -4730,7 +4735,7 @@ public void testBug433879() throws JavaModelException {
 			"}\n";
 	this.workingCopy = getWorkingCopy("/Converter18/src/Bug433879/X.java", true/*computeProblems*/);
 	try {
-		buildAST(AST.JLS8, contents, this.workingCopy, false, true, true);
+		buildAST(getAST8(), contents, this.workingCopy, false, true, true);
 	} catch (ClassCastException e) {
 		fail(e.getMessage());
 	}
@@ -4752,7 +4757,7 @@ public void testBug433879a() throws JavaModelException {
 			"}\n";
 	this.workingCopy = getWorkingCopy("/Converter18/src/Bug433879a/X.java", true/*computeProblems*/);
 	try {
-		buildAST(AST.JLS8, contents, this.workingCopy, false, true, true);
+		buildAST(getAST8(), contents, this.workingCopy, false, true, true);
 	} catch (ClassCastException e) {
 		fail(e.getMessage());
 	}
@@ -4773,7 +4778,7 @@ public void testBug433879b() throws JavaModelException {
 			"}\n";
 	this.workingCopy = getWorkingCopy("/Converter18/src/Bug433879c/X.java", true/*computeProblems*/);
 	try {
-		buildAST(AST.JLS8, contents, this.workingCopy, false, true, true);
+		buildAST(getAST8(), contents, this.workingCopy, false, true, true);
 	} catch (ClassCastException e) {
 		fail(e.getMessage());
 	}
@@ -4800,7 +4805,7 @@ public void testBug433879c() throws JavaModelException {
 			"}\n";
 	this.workingCopy = getWorkingCopy("/Converter18/src/Bug433879d/X.java", true/*computeProblems*/);
 	try {
-		buildAST(AST.JLS8, contents, this.workingCopy, false, true, true);
+		buildAST(getAST8(), contents, this.workingCopy, false, true, true);
 	} catch (ClassCastException e) {
 		fail(e.getMessage());
 	}
@@ -4829,7 +4834,7 @@ public void testBug433879d() throws JavaModelException {
 			"}\n";
 	this.workingCopy = getWorkingCopy("/Converter18/src/Bug433879e/X.java", true/*computeProblems*/);
 	try {
-		buildAST(AST.JLS8, contents, this.workingCopy, false, true, true);
+		buildAST(getAST8(), contents, this.workingCopy, false, true, true);
 	} catch (ClassCastException e) {
 		fail(e.getMessage());
 	}
@@ -4933,7 +4938,7 @@ public void testBug447062() throws JavaModelException {
 		}
 	}
 	final BindingRequestor requestor = new BindingRequestor();
-	final ASTParser parser = ASTParser.newParser(AST.JLS8);
+	final ASTParser parser = ASTParser.newParser(getAST8());
 	parser.setResolveBindings(false);
 	parser.setProject(javaProject);
 	parser.setIgnoreMethodBodies(true);
@@ -5103,7 +5108,7 @@ public void testBug460186() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/test460186/NPE.java", contents, false/*computeProblems*/);
 	IJavaProject javaProject = this.workingCopy.getJavaProject();
 
-	final ASTParser parser = ASTParser.newParser(AST.JLS8);
+	final ASTParser parser = ASTParser.newParser(getAST8());
 	parser.setResolveBindings(false);
 	parser.setProject(javaProject);
 	parser.setIgnoreMethodBodies(false);
@@ -5128,7 +5133,7 @@ public void testBug443232() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/test443232/E21.java", contents, false/*computeProblems*/);
 	IJavaProject javaProject = this.workingCopy.getJavaProject();
 
-	final ASTParser parser = ASTParser.newParser(AST.JLS8);
+	final ASTParser parser = ASTParser.newParser(getAST8());
 	parser.setResolveBindings(false);
 	parser.setProject(javaProject);
 	parser.setIgnoreMethodBodies(false);
