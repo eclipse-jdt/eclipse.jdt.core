@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 
 /**
@@ -46,7 +47,7 @@ public interface IOpenable {
  * Closes this element and its buffer (if any).
  * Closing an element which is not open has no effect.
  *
- * <p>Note: although {@link #close} is exposed in the API, clients are
+ * <p>Note: Although {@link #close} is exposed in the API, clients are
  * not expected to open and close elements - the Java model does this automatically
  * as elements are accessed.
  *
@@ -114,6 +115,13 @@ boolean hasUnsavedChanges() throws JavaModelException;
 boolean isConsistent() throws JavaModelException;
 /**
  * Returns whether this openable is open. This is a handle-only method.
+ * 
+ * <p>Note: This method doesn't tell whether an {@link IJavaProject}'s {@link IJavaProject#getProject() getProject()} is open.
+ * It is <b>not</b> equivalent to {@link IProject#isOpen()}!</p>
+ * 
+ * <p>Note: Although {@link #isOpen} is exposed in the API, clients
+ * rarely have a need to rely on this internal state of the Java model.</p>
+
  * @return true if this openable is open, false otherwise
  */
 boolean isOpen();
@@ -142,7 +150,7 @@ void makeConsistent(IProgressMonitor progress) throws JavaModelException;
  * Opens this element and all parent elements that are not already open.
  * For compilation units, a buffer is opened on the contents of the underlying resource.
  *
- * <p>Note: although {@link #open} is exposed in the API, clients are
+ * <p>Note: Although {@link #open} is exposed in the API, clients are
  * not expected to open and close elements - the Java model does this automatically
  * as elements are accessed.
  *

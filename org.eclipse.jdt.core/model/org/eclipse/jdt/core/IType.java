@@ -36,6 +36,11 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * <code>IMethod</code>, <code>IInitializer</code> and <code>IType</code>.
  * The children are listed in the order in which they appear in the source or class file.
  * </p>
+ * <p>
+ * Caveat: The {@link #getChildren() children} of a {@link #isBinary() binary} type include
+ * nested types. However, the {@link #getParent() parent} of such a nested binary type is
+ * <em>not</em> the enclosing type, but that nested type's {@link IClassFile}!
+ * </p>
  *
  * @noimplement This interface is not intended to be implemented by clients.
  */
