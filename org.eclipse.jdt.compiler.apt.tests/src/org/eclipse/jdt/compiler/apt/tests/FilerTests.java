@@ -48,7 +48,7 @@ public class FilerTests extends TestCase {
 	 * Attempt to read various elements of the Element hierarchy.
 	 * @throws IOException 
 	 */
-	public void testElementWithEclipseCompiler() throws IOException {
+	public void _testElementWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTestCreateResource(compiler, false);
 	}
