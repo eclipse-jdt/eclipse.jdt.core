@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -27,7 +31,8 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
  *
  * The structural investigation includes: - package statement - import
  * statements - top-level types: package member, member types (member types of
- * member types...) - fields - methods
+ * member types...) - fields - methods. From Java 9 onwards it includes the 
+ * module name in a module declaration
  *
  * If reference information is requested, then all source constructs are
  * investigated and type, field & method references are provided as well.
@@ -52,7 +57,7 @@ public interface ISourceElementRequestor {
 		public PackageExportInfo[] exports;
 	}
 	public static class RequiresInfo {
-		public char[][] moduleName;
+		public char[] moduleName;
 		public int modifiers;
 	}
 	public static class PackageExportInfo {

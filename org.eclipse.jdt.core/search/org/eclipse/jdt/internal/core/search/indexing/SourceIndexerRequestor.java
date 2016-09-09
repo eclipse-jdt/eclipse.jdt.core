@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -299,6 +303,24 @@ private void enterInterface(TypeInfo typeInfo) {
 	addDefaultConstructorIfNecessary(typeInfo);
 	pushTypeName(typeInfo.name);
 }
+public void enterModule(ModuleInfo moduleInfo) {
+	this.indexer.addModuleDeclaration(moduleInfo.moduleName);
+	if (moduleInfo.requires != null) {
+		for (ISourceElementRequestor.RequiresInfo req : moduleInfo.requires) {
+			if (req == null || req.moduleName == null || req.moduleName.equals(CharOperation.NO_CHAR)) continue;
+			this.indexer.addModuleReference(req.moduleName);
+		}
+	}
+	if (moduleInfo.exports != null) {
+		for (ISourceElementRequestor.PackageExportInfo packInfo : moduleInfo.exports) {
+			if (packInfo == null || packInfo.pkgName == null || packInfo.pkgName.equals(CharOperation.NO_CHAR)) continue;
+			this.indexer.addModuleExportedPackages(packInfo.pkgName);
+			char[] tgt = packInfo.targetModule;
+			if (tgt != null && tgt == CharOperation.NO_CHAR) 
+				this.indexer.addModuleReference(tgt);
+		}
+	}
+}
 /**
  * @see ISourceElementRequestor#enterMethod(ISourceElementRequestor.MethodInfo)
  */
@@ -370,6 +392,9 @@ public void enterType(TypeInfo typeInfo) {
 			break;
 		case TypeDeclaration.ENUM_DECL:
 			enterEnum(typeInfo);
+			break;
+		case TypeDeclaration.MODULE_DECL:
+			enterModule((ModuleInfo) typeInfo);
 			break;
 	}
 }

@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 IBM Corporation and others.
+ * Copyright (c) 2008, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -637,6 +641,7 @@ protected void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boo
 			typeInfo.annotations = typeDeclaration.annotations;
 			typeInfo.extraFlags = ExtraFlags.getExtraFlags(typeDeclaration);
 			typeInfo.node = typeDeclaration;
+			fillModuleInfo(typeDeclaration, typeInfo, kind);
 			this.requestor.enterType(typeInfo);
 			switch (kind) {
 				case TypeDeclaration.CLASS_DECL :
@@ -651,28 +656,6 @@ protected void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boo
 					break;
 				case TypeDeclaration.ANNOTATION_TYPE_DECL :
 					implicitSuperclassName = TypeConstants.CharArray_JAVA_LANG_ANNOTATION_ANNOTATION;
-					break;
-				case TypeDeclaration.MODULE_DECL:
-					ModuleDeclaration mod = (ModuleDeclaration)typeDeclaration;
-					ModuleInfo modInfo = (ModuleInfo)typeInfo;
-					modInfo.moduleName = mod.moduleName;
-					if (mod.requiresCount > 0) {
-						ISourceElementRequestor.RequiresInfo reqs[] = new ISourceElementRequestor.RequiresInfo[mod.requiresCount];
-						for (int i = 0; i < mod.requiresCount; i++) {
-							ISourceElementRequestor.RequiresInfo req = new ISourceElementRequestor.RequiresInfo();
-							req.moduleName = mod.requires[i].tokens;
-							req.modifiers = mod.requires[i].modifiers;
-						}
-						modInfo.requires = reqs;
-					}
-					if (mod.exportsCount > 0) {
-						ISourceElementRequestor.PackageExportInfo exports[] = new ISourceElementRequestor.PackageExportInfo[mod.exportsCount];
-						for (int i = 0; i < mod.exportsCount; i++) {
-							ISourceElementRequestor.PackageExportInfo exp = new ISourceElementRequestor.PackageExportInfo();
-							exp.pkgName = mod.exports[i].pkgName;
-							modInfo.exports = exports;
-						}					
-					}
 					break;
 			}
 		}
@@ -733,6 +716,31 @@ protected void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boo
 			this.requestor.exitType(typeDeclaration.declarationSourceEnd);
 		}
 		this.nestedTypeIndex--;
+	}
+}
+private void fillModuleInfo(TypeDeclaration typeDeclaration, ISourceElementRequestor.TypeInfo typeInfo, int kind) {
+	if (kind != TypeDeclaration.MODULE_DECL) return;
+	ModuleDeclaration mod = (ModuleDeclaration)typeDeclaration;
+	ModuleInfo modInfo = (ModuleInfo)typeInfo;
+	modInfo.moduleName = mod.moduleName;
+	if (mod.requiresCount > 0) {
+		ISourceElementRequestor.RequiresInfo reqs[] = new ISourceElementRequestor.RequiresInfo[mod.requiresCount];
+		for (int i = 0; i < mod.requiresCount; i++) {
+			ISourceElementRequestor.RequiresInfo req = new ISourceElementRequestor.RequiresInfo();
+			req.moduleName = CharOperation.concatWith(mod.requires[i].tokens, '.');
+			req.modifiers = mod.requires[i].modifiers;
+			reqs[i] = req;
+		}
+		modInfo.requires = reqs;
+	}
+	if (mod.exportsCount > 0) {
+		ISourceElementRequestor.PackageExportInfo exps[] = new ISourceElementRequestor.PackageExportInfo[mod.exportsCount];
+		for (int i = 0; i < mod.exportsCount; i++) {
+			ISourceElementRequestor.PackageExportInfo exp = new ISourceElementRequestor.PackageExportInfo();
+			exp.pkgName = mod.exports[i].pkgName;
+			exps[i] = exp;
+		}					
+		modInfo.exports = exps;
 	}
 }
 /*

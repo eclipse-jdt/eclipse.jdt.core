@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -25,6 +29,10 @@ import org.eclipse.jdt.internal.compiler.env.ClassSignature;
 import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
+import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
+import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
+import org.eclipse.jdt.internal.compiler.env.IModule.IService;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -632,6 +640,12 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			if (contents == null) return;
 			final String path = this.document.getPath();
 			ClassFileReader reader = new ClassFileReader(contents, path == null ? null : path.toCharArray());
+			
+			IModule module = reader.getModuleDeclaration();
+			if (module != null) {
+				indexModule(module);
+				return;
+			}
 
 			// first add type references
 			char[] className = replace('/', '.', reader.getName()); // looks like java/lang/String
@@ -823,6 +837,43 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			this.document.removeAllIndexEntries();
 			Util.log(IStatus.WARNING, "The Java indexing could not index " + this.document.getPath() + ". This .class file doesn't follow the class file format specification. Please report this issue against the .class file vendor"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
+	}
+	
+	private void indexModule(IModule module) {
+		addModuleDeclaration(module.name());
+		IModuleReference[] requiredModules = module.requires();
+		if (requiredModules != null) {
+			for (IModuleReference req : requiredModules) {
+				addModuleReference(req.name());
+			}
+		}
+		IPackageExport[] exportedPackages = module.exports();
+		if (exportedPackages != null) {
+			for (IPackageExport pack : exportedPackages) {
+				addModuleExportedPackages(pack.name());
+				char[][] tgtTokens = pack.exportedTo();
+				char[] tgt = tgtTokens != null ? CharOperation.concatWith(tgtTokens, '.') : CharOperation.NO_CHAR;
+				if (!tgt.equals(CharOperation.NO_CHAR)) addModuleExportedPackages(tgt);
+			}
+		}
+		char[][] refUsed = module.uses();
+		if (refUsed != null) {
+			for (char[] ref : refUsed) {
+				indexTypeReference(ref);
+			}
+		}
+		IService[] services = module.provides();
+		if (services != null) {
+			for (IService service : services) {
+				indexTypeReference(service.name());
+				indexTypeReference(service.with());
+			}
+		}
+	}
+	private void indexTypeReference(char[] ref) {
+		if (ref == null || ref.equals(CharOperation.NO_CHAR))
+			return;
+		addTypeReference(ref);
 	}
 	
 	private char[] removeFirstSyntheticParameter(char[] descriptor) {
