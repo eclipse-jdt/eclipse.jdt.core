@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2580,6 +2580,34 @@ public void testBug246594a() throws CoreException {
 			typeParameters[0].getBoundsSignatures());
 	
 }
-
-
+public void testBug495598_001() throws CoreException {
+	try {
+		createFolder("/P/src/a/b/C");
+		createFile("/P/src/a/b/C/readme.txt", "This is not a Java file");
+	
+		createFile(
+				"/P/src/a/b/C.java",
+				"package a.b;\n" +
+				"public class C{};\n"
+			);
+		
+		createFile("/P/src/X.java", 
+				"import a.b.C;\n" +
+				"public class X {}\n");
+		ICompilationUnit cuD = getCompilationUnit("/P/src/X.java");
+		
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setProject(this.testProject);
+		parser.setSource(cuD);
+		parser.setResolveBindings(true);
+		org.eclipse.jdt.core.dom.CompilationUnit cuAST = (org.eclipse.jdt.core.dom.CompilationUnit) parser.createAST(null);
+		IProblem[] problems = cuAST.getProblems();
+		assertEquals("Should have 1 problem", 1, problems.length);
+		assertEquals("Should have only an unused warning", "The import a.b.C is never used", problems[0].getMessage());
+	} finally {
+		deleteFile("/P/src/X.java");
+		deleteFile("/P/src/a/b/C.java");
+		deleteFolder("/P/src/a");
+	}
+}
 }

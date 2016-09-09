@@ -29,8 +29,9 @@ public class PackageBindingTest extends AbstractCompilerTest
 	/**
 	 * This test checks if it is searched for packages before searching for types.
 	 * The search for packages is much faster than searching for types, therefore it should get executed before searching for types.
+	 * Commented since reverted to original behaviour as per bug 495598
 	 */
-	public void test01() {
+	public void _test01() {
 		NameEnvironmentDummy nameEnv = new NameEnvironmentDummy(true);
 
 		PackageBinding packageBinding = new PackageBinding(new LookupEnvironment(null, new CompilerOptions(), null, nameEnv));
