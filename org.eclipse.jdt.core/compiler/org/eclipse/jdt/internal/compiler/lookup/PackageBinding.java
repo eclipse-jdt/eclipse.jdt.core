@@ -227,16 +227,6 @@ public Binding getTypeOrPackage(char[] name, char[] mod) {
 		addNotFoundType(name);
 	}
 
-	if (packageBinding == null) { // have not looked for it before
-		if ((packageBinding = findPackage(name, mod)) != null) {
-			return packageBinding;
-		}
-		if (referenceBinding != null && referenceBinding != LookupEnvironment.TheNotFoundType) {
-			return referenceBinding; // found cached missing type - check if package conflict
-		}
-		addNotFoundPackage(name);
-	}
-
 	return null;
 }
 public final boolean isViewedAsDeprecated() {
