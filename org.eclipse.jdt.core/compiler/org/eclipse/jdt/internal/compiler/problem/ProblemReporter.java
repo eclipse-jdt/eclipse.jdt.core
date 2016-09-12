@@ -9640,11 +9640,11 @@ public void expressionPotentialNullReference(ASTNode location) {
 		location.sourceEnd);
 }
 
-public void cannotImplementIncompatibleNullness(MethodBinding currentMethod, MethodBinding inheritedMethod, boolean showReturn) {
+public void cannotImplementIncompatibleNullness(ReferenceContext context, MethodBinding currentMethod, MethodBinding inheritedMethod, boolean showReturn) {
 	int sourceStart = 0, sourceEnd = 0;
-	if (this.referenceContext instanceof TypeDeclaration) {
-		sourceStart = ((TypeDeclaration) this.referenceContext).sourceStart;
-		sourceEnd =   ((TypeDeclaration) this.referenceContext).sourceEnd;
+	if (context instanceof TypeDeclaration) {
+		sourceStart = ((TypeDeclaration) context).sourceStart;
+		sourceEnd =   ((TypeDeclaration) context).sourceEnd;
 	}
 	String[] problemArguments = {
 			showReturn 

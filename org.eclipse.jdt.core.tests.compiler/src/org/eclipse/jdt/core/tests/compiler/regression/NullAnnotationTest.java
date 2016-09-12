@@ -8973,4 +8973,64 @@ public void testBug502113b() {
 		"----------\n"
 	);
 }
+public void testBug502214() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/X.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"class A {\n" +
+			"	public boolean m1(Object obj) {\n" +
+			"		return this == obj;\n" +
+			"	}\n" +
+			"	public @Nullable String m2() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"interface I {\n" +
+			"	public boolean m1(@Nullable Object obj);\n" +
+			"	public @NonNull String m2(); \n" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			"	I f() {\n" +
+			"		class Y extends A implements I {\n" +
+			"		}\n" +
+			"		return new Y();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		(this.complianceLevel < ClassFileConstants.JDK1_8 ? 
+		"----------\n" + 
+		"1. ERROR in test\\X.java (at line 22)\n" + 
+		"	class Y extends A implements I {\n" + 
+		"	      ^\n" + 
+		"The method m2() from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\X.java (at line 22)\n" + 
+		"	class Y extends A implements I {\n" + 
+		"	      ^\n" + 
+		"The method m1(Object) from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" + 
+		"----------\n"		
+		:
+		"----------\n" + 
+		"1. ERROR in test\\X.java (at line 22)\n" + 
+		"	class Y extends A implements I {\n" + 
+		"	      ^\n" + 
+		"The method @Nullable String m2() from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\X.java (at line 22)\n" + 
+		"	class Y extends A implements I {\n" + 
+		"	      ^\n" + 
+		"The method m1(Object) from A cannot implement the corresponding method from I due to incompatible nullness constraints\n" + 
+		"----------\n"
+		)
+	);
+}
 }
