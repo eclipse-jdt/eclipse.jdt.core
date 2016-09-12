@@ -12874,9 +12874,95 @@ public void testBug499597original() {
 		"2. WARNING in Foo.java (at line 13)\n" + 
 		"	return Collections.singleton(elements[0]);\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Null type safety (type annotations): The expression of type \'Set<T>\' needs unchecked conversion to conform to \'@NonNull Collection<T>\', corresponding supertype is \'Collection<T>\'\n" + 
+		"Null type safety (type annotations): The expression of type \'Set<@NonNull T>\' needs unchecked conversion to conform to \'@NonNull Collection<@NonNull T>\', corresponding supertype is \'Collection<@NonNull T>\'\n" + 
 		"----------\n"
 	);
+}
+public void testBug501031() {
+	runConformTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.DefaultLocation;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault(DefaultLocation.TYPE_PARAMETER)\n" +
+			"class X {\n" +
+			"	<T> @NonNull Object identity(T t) {\n" +
+			"		return t;\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+
+public void testBug501031return() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.DefaultLocation;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault(DefaultLocation.TYPE_PARAMETER)\n" +
+			"class X {\n" +
+			"	<T> T identity() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in X.java (at line 7)\n" + 
+		"	return null;\n" + 
+		"	       ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull T\' but the provided value is null\n" + 
+		"----------\n"
+	);
+}
+public void testBug501031btb() {
+	// this already worked without the patch for bug 501031.
+	runConformTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.DefaultLocation;\n" +
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+				"\n" +
+				"@NonNullByDefault(DefaultLocation.TYPE_PARAMETER)\n" +
+				"class X {\n" +
+				"	<T> void identity(T t) {\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+			}, 
+			getCompilerOptions(),
+			""
+		);
+	runNegativeTestWithLibs(
+			new String[] {
+				"Y.java",
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"\n" +
+				"@NonNullByDefault\n" +
+				"class Y {\n" +
+				"	void test(X x, @Nullable String string) {\n" +
+				"		x.identity(string);\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+			}, 
+			getCompilerOptions(),
+			"----------\n" + 
+			"1. ERROR in Y.java (at line 7)\n" + 
+			"	x.identity(string);\n" + 
+			"	           ^^^^^^\n" + 
+			"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
+			"----------\n"
+		);
 }
 public void testBug501449() {
 	runNegativeTestWithLibs(
