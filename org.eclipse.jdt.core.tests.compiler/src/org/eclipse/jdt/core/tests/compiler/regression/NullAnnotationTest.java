@@ -8782,7 +8782,6 @@ public void testMultipleAnnotations() {
 	options3.put(JavaCore.COMPILER_NONNULL_ANNOTATION_SECONDARY_NAMES, "org.foo1.NonNull,org.foo2.NonNull2");
 	options3.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_SECONDARY_NAMES, " org.foo1.Nullable , org.foo2.Nullable2 "); // some spaces to test trimming
 	options3.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_SECONDARY_NAMES, "org.foo2.NoNulls2");
-	String specifiedOrInferred = (this.complianceLevel < ClassFileConstants.JDK1_8 ? "specified" : "inferred");
 	runNegativeTestWithLibs(
 			new String[] {
 				"p3/Test.java",
@@ -8811,7 +8810,7 @@ public void testMultipleAnnotations() {
 				"1. ERROR in p3\\Test.java (at line 8)\n" + 
 				"	return test.weaken(input);\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^\n" + 
-				"Null type mismatch: required \'@NonNull String\' but the provided value is "+specifiedOrInferred+" as @Nullable\n" +
+				mismatch_NonNull_Nullable("String") +
 				"----------\n" + 
 				"2. ERROR in p3\\Test.java (at line 8)\n" + 
 				"	return test.weaken(input);\n" + 
@@ -8821,7 +8820,7 @@ public void testMultipleAnnotations() {
 				"3. ERROR in p3\\Test.java (at line 11)\n" + 
 				"	return test.weaken(input);\n" + 
 				"	       ^^^^^^^^^^^^^^^^^^\n" + 
-				"Null type mismatch: required \'@NonNull String\' but the provided value is "+specifiedOrInferred+" as @Nullable\n" +
+				mismatch_NonNull_Nullable("String") +
 				"----------\n" + 
 				"4. ERROR in p3\\Test.java (at line 11)\n" + 
 				"	return test.weaken(input);\n" + 

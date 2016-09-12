@@ -12317,7 +12317,7 @@ public void testBug489674() {
 			"2. ERROR in test\\Test4.java (at line 15)\n" + 
 			"	P2.f(null);\n" + 
 			"	     ^^^^\n" + 
-			"Null type mismatch: required \'String\' but the provided value is null\n" + 
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
 			"----------\n"
 		);
 }
@@ -12906,6 +12906,151 @@ public void testBug501449() {
 		"	^^^^^^^^^^\n" + 
 		"Null type mismatch (type annotations): required \'T\' but this expression has type \'@Nullable T\', where \'T\' is a free type variable\n" + 
 		"----------\n" 
+	);
+}
+public void testBug502112() {
+	runConformTest(
+		new String[] {
+			"org/foo/Nullable.java",
+			"package org.foo;\n" +
+			"import java.lang.annotation.*;\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" + 
+			"public @interface Nullable {}\n",
+		},
+		getCompilerOptions());
+	runConformTestWithLibs(
+			new String[] {
+				"util/Optional.java",
+				"package util;\n" +
+				"\n" +
+				"import org.foo.Nullable;\n" +
+				"\n" +
+				"public class Optional {\n" +
+				"	public static <T> T fromNullable(@Nullable T nullableReference, @Nullable T nullableReference2) {\n" +
+				"		return nullableReference;\n" +
+				"	}\n" +
+				"	@Nullable\n" +
+				"	public static <T> T returnNull(T nullableReference) {\n" +
+				"		return nullableReference;\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+			}, 
+			getCompilerOptions(),
+			""
+		);
+	Map options = new HashMap<>(getCompilerOptions());
+	options.put(JavaCore.COMPILER_NONNULL_ANNOTATION_SECONDARY_NAMES, "org.foo.NonNull");
+	options.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_SECONDARY_NAMES, "org.foo.Nullable");
+	runNegativeTestWithLibs(
+	new String[] {
+		"test/Test.java",
+		"package test;\n" +
+		"\n" +
+		"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+		"import org.eclipse.jdt.annotation.Nullable;\n" +
+		"\n" +
+		"import util.Optional;\n" +
+		"\n" +
+		"@NonNullByDefault\n" +
+		"public class Test {\n" +
+		"	void f(@Nullable String s) {\n" +
+		"		Optional.<String>fromNullable(s, null);\n" +
+		"	}\n" +
+		"	String g(@Nullable String s) {\n" +
+		"		return Optional.<String>returnNull(s);\n" +
+		"	}\n" +
+		"}\n" +
+		"",
+	}, 
+	options,
+	"----------\n" + 
+	"1. ERROR in test\\Test.java (at line 14)\n" + 
+	"	return Optional.<String>returnNull(s);\n" + 
+	"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+	"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
+	"----------\n" + 
+	"2. ERROR in test\\Test.java (at line 14)\n" + 
+	"	return Optional.<String>returnNull(s);\n" + 
+	"	                                   ^\n" + 
+	"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
+	"----------\n"
+);
+}
+public void testBug502112b() {
+	runConformTest(
+		new String[] {
+		"org/foo/NonNull.java",
+		"package org.foo;\n" +
+		"import java.lang.annotation.*;\n" +
+		"@Retention(RetentionPolicy.CLASS)\n" + 
+		"public @interface NonNull {}\n",
+		"org/foo/Nullable.java",
+		"package org.foo;\n" +
+		"import java.lang.annotation.*;\n" +
+		"@Retention(RetentionPolicy.CLASS)\n" + 
+		"public @interface Nullable {}\n",
+		},
+		getCompilerOptions());
+	runConformTestWithLibs(
+			new String[] {
+				"util/X.java",
+				"package util;\n" +
+				"\n" +
+				"import org.foo.NonNull;\n" +
+				"import org.foo.Nullable;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	@NonNull\n" +
+				"	public <T> T nonNull(@Nullable T t, @Nullable T t2) {\n" +
+				"		return java.util.Objects.requireNonNull(t);\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+			}, 
+			getCompilerOptions(),
+			""
+		);
+	Map options = new HashMap<>(getCompilerOptions());
+	options.put(JavaCore.COMPILER_NONNULL_ANNOTATION_SECONDARY_NAMES, "org.foo.NonNull");
+	options.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_SECONDARY_NAMES, "org.foo.Nullable");
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"import util.X;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Test extends X{\n" +
+			"	@Override\n" +
+			"	public <T> @Nullable T nonNull(@NonNull T t, T t2) {\n" +
+			"		return t;\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		options,
+		"----------\n" + 
+		"1. ERROR in test\\Test.java (at line 12)\n" + 
+		"	public <T> @Nullable T nonNull(@NonNull T t, T t2) {\n" + 
+		"	           ^^^^^^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull T extends Object\' returned from X.nonNull(T, T) (mismatching null constraints)\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\Test.java (at line 12)\n" + 
+		"	public <T> @Nullable T nonNull(@NonNull T t, T t2) {\n" + 
+		"	                               ^^^^^^^^^^\n" + 
+		"Illegal redefinition of parameter t, inherited method from X declares this parameter as @Nullable\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\Test.java (at line 12)\n" + 
+		"	public <T> @Nullable T nonNull(@NonNull T t, T t2) {\n" + 
+		"	                                             ^\n" + 
+		"Missing nullable annotation: inherited method from X specifies this parameter as @Nullable\n" + 
+		"----------\n"
 	);
 }
 }
