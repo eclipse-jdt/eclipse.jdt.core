@@ -1324,4 +1324,8 @@ public boolean redeclaresPublicObjectMethod(Scope scope) {
 public boolean isVoidMethod() {
 	return this.returnType == TypeBinding.VOID;
 }
+public boolean doesParameterLengthMatch(int suggestedParameterLength) {
+	int len = this.parameters.length;
+	return len <= suggestedParameterLength || (isVarargs() && len == suggestedParameterLength + 1);
+}
 }

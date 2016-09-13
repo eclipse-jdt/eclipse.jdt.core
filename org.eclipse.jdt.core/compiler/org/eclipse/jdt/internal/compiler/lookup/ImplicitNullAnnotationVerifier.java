@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
@@ -190,11 +191,15 @@ public class ImplicitNullAnnotationVerifier {
 	private void collectOverriddenMethods(MethodBinding original, char[] selector, int suggestedParameterLength,
 			ReferenceBinding superType, Set ifcsSeen, List result) 
 	{
-		MethodBinding [] ifcMethods = superType.getMethods(selector, suggestedParameterLength);
+		MethodBinding [] ifcMethods = superType.unResolvedMethods();
 		int length = ifcMethods.length;
 		boolean added = false;
 		for  (int i=0; i<length; i++) {
 			MethodBinding currentMethod = ifcMethods[i];
+			if (!CharOperation.equals(selector, currentMethod.selector))
+				continue;
+			if (!currentMethod.doesParameterLengthMatch(suggestedParameterLength))
+				continue;
 			if (currentMethod.isStatic())
 				continue;
 			if (MethodVerifier.doesMethodOverride(original, currentMethod, this.environment)) {
