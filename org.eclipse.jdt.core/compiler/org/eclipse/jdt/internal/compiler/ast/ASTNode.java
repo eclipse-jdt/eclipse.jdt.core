@@ -695,8 +695,11 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				} else {
 					updatedArgumentType = argument.resolveType(scope);
 				}
-				if (updatedArgumentType != null && updatedArgumentType.kind() != Binding.POLY_TYPE)
+				if (updatedArgumentType != null && updatedArgumentType.kind() != Binding.POLY_TYPE) {
 					argumentTypes[i] = updatedArgumentType;
+					if (candidateMethod.isPolymorphic())
+						candidateMethod.parameters[i] = updatedArgumentType;
+				}
 			}
 		}
 	}
