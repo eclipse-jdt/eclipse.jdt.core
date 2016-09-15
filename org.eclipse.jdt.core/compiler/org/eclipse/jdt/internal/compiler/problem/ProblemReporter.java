@@ -9327,7 +9327,11 @@ public void nullityMismatch(Expression expression, TypeBinding providedType, Typ
 			nullityMismatchSpecdNullable(expression, requiredType, annotationName);
 			return;
 		}
-		nullityMismatchPotentiallyNull(expression, requiredType, annotationName);
+			if (expression instanceof ArrayReference && expression.resolvedType.isFreeTypeVariable()) {
+				nullityMismatchingTypeAnnotation(expression, providedType, requiredType, NullAnnotationMatching.NULL_ANNOTATIONS_MISMATCH);
+				return;
+			}
+			nullityMismatchPotentiallyNull(expression, requiredType, annotationName);
 		return;
 	}
 	if (this.options.usesNullTypeAnnotations())

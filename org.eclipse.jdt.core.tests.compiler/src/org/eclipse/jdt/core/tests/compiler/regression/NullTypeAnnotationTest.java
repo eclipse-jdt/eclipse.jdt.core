@@ -12878,4 +12878,34 @@ public void testBug499597original() {
 		"----------\n"
 	);
 }
+public void testBug501449() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Test.java",
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class Test {\n" +
+			"	<T, S extends T> void f(T[] objects, @Nullable T nullableValue, T value, S subclassValue) {\n" +
+			"		objects[0] = null;\n" +
+			"		objects[1] = nullableValue;\n" +
+			"		objects[2] = value;\n" +
+			"		objects[3] = subclassValue;\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in Test.java (at line 5)\n" + 
+		"	objects[0] = null;\n" + 
+		"	^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): \'null\' is not compatible to the free type variable \'T\'\n" + 
+		"----------\n" + 
+		"2. ERROR in Test.java (at line 6)\n" + 
+		"	objects[1] = nullableValue;\n" + 
+		"	^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'T\' but this expression has type \'@Nullable T\', where \'T\' is a free type variable\n" + 
+		"----------\n" 
+	);
+}
 }
