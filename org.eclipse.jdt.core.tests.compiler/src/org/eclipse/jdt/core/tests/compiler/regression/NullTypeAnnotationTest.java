@@ -13289,4 +13289,51 @@ public void testBug501564interface() {
 		"----------\n"
 	);
 }
+public void testBug501464() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Foo.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"\n" +
+			"interface MyList<T> { @NonNull T getAny(); }\n" +
+			"\n" +
+			"@NonNullByDefault({})\n" +
+			"class Foo {\n" +
+			"    @Nullable Object b;\n" +
+			"    \n" +
+			"    void foo() {\n" +
+			"        @Nullable Object f = b;\n" +
+			"        ((@NonNull Object)f).hashCode(); // Error (unexpected): Potential null pointer access: this expression has a '@Nullable' type\n" +
+			"    }\n" +
+			"    \n" +
+			"    void workaround() {\n" +
+			"        @Nullable Object f = b;\n" +
+			"        @NonNull Object g = (@NonNull Object)f; // Warning (expected): Null type safety: Unchecked cast from @Nullable Object to @NonNull Object\n" +
+			"        g.hashCode();\n" +
+			"    }\n" +
+			"	 String three(@NonNull MyList<@Nullable String> list) {\n" +
+			"		return ((@NonNull MyList<@NonNull String>) list).getAny().toUpperCase();\n" +
+			"	 }\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in Foo.java (at line 11)\n" + 
+		"	((@NonNull Object)f).hashCode(); // Error (unexpected): Potential null pointer access: this expression has a \'@Nullable\' type\n" + 
+		"	^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type safety: Unchecked cast from @Nullable Object to @NonNull Object\n" + 
+		"----------\n" + 
+		"2. WARNING in Foo.java (at line 16)\n" + 
+		"	@NonNull Object g = (@NonNull Object)f; // Warning (expected): Null type safety: Unchecked cast from @Nullable Object to @NonNull Object\n" + 
+		"	                    ^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type safety: Unchecked cast from @Nullable Object to @NonNull Object\n" + 
+		"----------\n" + 
+		"3. WARNING in Foo.java (at line 20)\n" + 
+		"	return ((@NonNull MyList<@NonNull String>) list).getAny().toUpperCase();\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type safety: Unchecked cast from @NonNull MyList<@Nullable String> to @NonNull MyList<@NonNull String>\n" + 
+		"----------\n"
+	);
+}
 }

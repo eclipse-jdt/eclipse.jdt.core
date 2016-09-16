@@ -267,6 +267,9 @@ public static void checkNeedForArgumentCasts(BlockScope scope, int operator, int
 }
 
 public boolean checkNPE(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, int ttlForFieldCheck) {
+	if((this.resolvedType.tagBits & TagBits.AnnotationNonNull) != 0) {
+		return true;
+	}
 	checkNPEbyUnboxing(scope, flowContext, flowInfo);
 	return this.expression.checkNPE(scope, flowContext, flowInfo, ttlForFieldCheck);
 }
