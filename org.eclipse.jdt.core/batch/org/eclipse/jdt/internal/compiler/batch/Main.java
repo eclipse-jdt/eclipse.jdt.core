@@ -89,12 +89,12 @@ import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration;
+import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration.IPackageExport;
 import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
-import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.CompilerStats;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
@@ -3012,12 +3012,12 @@ private IModule extractModuleDesc(String fileName, Parser parser) {
 		CompilationResult compilationResult = new CompilationResult(cu, 0, 1, 10);
 		CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
 		if (unit.isModuleInfo() && unit.moduleDeclaration != null) {
-			mod = ModuleEnvironment.createModule(unit.moduleDeclaration);
+			mod = new SourceModule(unit.moduleDeclaration, null);
 		}
 	} else if (fileName.toLowerCase().endsWith(IModuleLocation.MODULE_INFO_CLASS)) {
 		try {
 			ClassFileReader reader = ClassFileReader.read(fileName); // Check the absolute path?
-			mod = reader.getModuleDeclaration();
+			mod = new BinaryModule(null, reader);
 		} catch (ClassFormatException | IOException e) {
 			e.printStackTrace();
 			throw new IllegalArgumentException(
@@ -3284,7 +3284,7 @@ protected ArrayList handleBootclasspath(ArrayList bootclasspaths, String customE
 private void processAddonModuleOptions(FileSystem env) {
 	Map<String, IPackageExport[]> exports = new HashMap<>();
 	for (String option : this.addonExports) {
-		IModule mod = ModuleFinder.extractAddonExport(option);
+		IModuleDeclaration mod = ModuleFinder.extractAddonExport(option);
 		if (mod != null) {
 			String modName = new String(mod.name());
 			IPackageExport export = mod.exports()[0];
@@ -3302,13 +3302,13 @@ private void processAddonModuleOptions(FileSystem env) {
 				IPackageExport[] updated = new IPackageExport[existing.length + 1];
 				System.arraycopy(existing, 0, updated, 0, existing.length);
 				updated[existing.length] = export;
-				exports.put(new String(modName), updated);
+				exports.put(modName, updated);
 			}
-			env.setAddonExports(exports);
 		} else {
 			throw new IllegalArgumentException(this.bind("configure.invalidModuleOption", "--add-exports " + option)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
+	env.setAddonExports(exports);
 	for (String option : this.addonReads) {
 		String[] result = ModuleFinder.extractAddonRead(option);
 		if (result != null && result.length == 2) {

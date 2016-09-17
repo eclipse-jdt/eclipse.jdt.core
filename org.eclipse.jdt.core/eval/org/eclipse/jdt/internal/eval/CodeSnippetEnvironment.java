@@ -19,10 +19,8 @@ import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 
 /**
  * An environment that wraps the client's name environment.
@@ -30,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
  * not found, it search in the code snippet support. This includes the super class
  * org.eclipse.jdt.internal.eval.target.CodeSnippet as well as the global variable classes.
  */
-public class CodeSnippetEnvironment extends ModuleEnvironment implements EvaluationConstants {
+public class CodeSnippetEnvironment implements INameEnvironment, EvaluationConstants {
 	INameEnvironment env;
 	EvaluationContext context;
 /**
@@ -41,10 +39,10 @@ public CodeSnippetEnvironment(INameEnvironment env, EvaluationContext context) {
 	this.context = context;
 }
 /**
- * @see INameEnvironment#findType(char[][], char[])
+ * @see INameEnvironment#findType(char[][])
  */
-public NameEnvironmentAnswer findType(char[][] compoundTypeName, char[] module) {
-	NameEnvironmentAnswer result = this.env.findType(compoundTypeName, module);
+public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
+	NameEnvironmentAnswer result = this.env.findType(compoundTypeName);
 	if (result != null) {
 		return result;
 	}
@@ -74,39 +72,22 @@ public NameEnvironmentAnswer findType(char[][] compoundTypeName, char[] module) 
 	return null;
 }
 /**
- * @see INameEnvironment#findType(char[], char[][], char[])
+ * @see INameEnvironment#findType(char[], char[][])
  */
-public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] module) {
-	NameEnvironmentAnswer result = this.env.findType(typeName, packageName, module);
+public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
+	NameEnvironmentAnswer result = this.env.findType(typeName, packageName);
 	if (result != null) {
 		return result;
 	}
-	return findType(CharOperation.arrayConcat(packageName, typeName), module);
+	return findType(CharOperation.arrayConcat(packageName, typeName));
 }
 /**
- * @see INameEnvironment#isPackage(char[][], char[], char[])
+ * @see INameEnvironment#isPackage(char[][], char[])
  */
-public boolean isPackage(char[][] parentPackageName, char[] packageName, char[] module) {
-	return this.env.isPackage(parentPackageName, packageName, module);
+public boolean isPackage(char[][] parentPackageName, char[] packageName) {
+	return this.env.isPackage(parentPackageName, packageName);
 }
 public void cleanup() {
 	this.env.cleanup();
-}
-@Override
-public NameEnvironmentAnswer findType(char[][] compoundTypeName, IModule[] modules) {
-	return null;
-}
-@Override
-public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, IModule[] modules) {
-	return null;
-}
-@Override
-public boolean isPackage(char[][] parentPackageName, char[] packageName, IModule[] module) {
-	return false;
-}
-@Override
-public IModule getModule(char[] name) {
-	// TODO Auto-generated method stub
-	return null;
 }
 }

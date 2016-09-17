@@ -158,7 +158,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			this.currentProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = this.currentProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", 
-					"The import java.sql.Connection cannot be resolved\n" + 
+					"The import java.sql cannot be resolved\n" + 
 					"Connection cannot be resolved to a type", markers);
 		} finally {
 		}
@@ -263,7 +263,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			project.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", 
-					"The import com.greetings cannot be resolved\n" + 
+					"The import com cannot be resolved\n" + 
 					"Main cannot be resolved", 
 					markers);
 		} finally {
@@ -295,7 +295,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", 
 					"Main cannot be resolved\n" + 
-					"The import com.greetings.Main cannot be resolved", 
+					"The import com cannot be resolved", 
 					markers);
 		} finally {
 			deleteProject("P2");
@@ -400,7 +400,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",
-					"The import com.greetings cannot be resolved\n" +
+					"The import com cannot be resolved\n" +
 					"Main cannot be resolved",
 					markers);
 		} finally {
@@ -433,7 +433,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			assertMarkers("Unexpected markers", "",  markers);
 			markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", 
-					"The import com.greetings cannot be resolved\n" + 
+					"The import com cannot be resolved\n" + 
 					"Main cannot be resolved", 
 					markers);
 		} finally {
@@ -579,7 +579,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
 			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",
-					"The import com.greetings cannot be resolved\n" + 
+					"The import com cannot be resolved\n" + 
 					"Main cannot be resolved",  markers);
 		} finally {
 			deleteProject("P2");
@@ -611,7 +611,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
 			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",
-					"The import com.greetings.Main cannot be resolved\n" + 
+					"The import com cannot be resolved\n" + 
 					"Main cannot be resolved",  markers);
 		} finally {
 			deleteProject("P2");
@@ -1027,7 +1027,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",	
-					"The import org.astro.World cannot be resolved\n" +
+					"The import org cannot be resolved\n" +
 					"World cannot be resolved to a type",
 					markers);
 		} finally {
@@ -1343,6 +1343,86 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", "",  markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("some.mod");
+			deleteProject("com.greetings");
+		}
+	}
+	public void test_Cycle_In_Module_Dependency() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module some.mod {\n" +
+				"	requires org.astro;\n" +
+				"}"
+			};
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			setupModuleProject("some.mod", sources, new IClasspathEntry[]{dep});
+			sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports org.astro;\n" +
+				"	requires com.greetings;\n" +
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	requires some.mod;\n" +
+				"	exports com.greetings;\n" +
+				"}"
+			};
+			
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			assertTrue("Should detect cycle", p2.hasClasspathCycle(null));
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("some.mod");
+			deleteProject("com.greetings");
+		}
+	}
+	public void test_Cycle_In_Implicit_Module_Dependency() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module some.mod {\n" +
+				"	requires public org.astro;\n" +
+				"}"
+			};
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			setupModuleProject("some.mod", sources, new IClasspathEntry[]{dep});
+			sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports org.astro;\n" +
+				"	requires public com.greetings;\n" +
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	requires some.mod;\n" +
+				"	exports com.greetings;\n" +
+				"}"
+			};
+			
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			assertTrue("Should detect cycle", p2.hasClasspathCycle(null));
 		} finally {
 			deleteProject("org.astro");
 			deleteProject("some.mod");

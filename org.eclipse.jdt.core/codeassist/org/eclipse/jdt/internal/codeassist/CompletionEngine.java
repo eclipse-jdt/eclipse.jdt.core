@@ -10105,7 +10105,7 @@ public final class CompletionEngine
 					sourceType = (ISourceType) type;
 				}
 			} else {
-				NameEnvironmentAnswer answer = this.nameEnvironment.findType(bindingType.compoundName, (char[]) null);
+				NameEnvironmentAnswer answer = this.nameEnvironment.findType(bindingType.compoundName);
 				if(answer != null && answer.isSourceType()) {
 					sourceType = answer.getSourceTypes()[0];
 					this.typeCache.put(compoundName, sourceType);

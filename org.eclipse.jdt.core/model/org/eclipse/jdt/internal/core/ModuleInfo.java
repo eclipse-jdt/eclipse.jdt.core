@@ -19,16 +19,16 @@ import org.eclipse.jdt.internal.compiler.ast.ExportReference;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration;
 
-public class ModuleInfo extends SourceTypeElementInfo implements IModule {
+public class ModuleInfo extends SourceTypeElementInfo implements IModuleDeclaration {
 
 	protected static final IModuleReference[] NO_REQUIRES = new IModuleReference[0];
 	protected static final IPackageExport[] NO_EXPORTS = new IPackageExport[0];
 	protected static final IService[] NO_SERVICES = new IService[0];
 	protected static final char[][] NO_USES = new char[0][0];
 
-	static class ModuleReferenceImpl implements IModule.IModuleReference {
+	static class ModuleReferenceImpl implements IModuleDeclaration.IModuleReference {
 		char[] name;
 		boolean isPublic = false;
 		@Override
@@ -41,7 +41,7 @@ public class ModuleInfo extends SourceTypeElementInfo implements IModule {
 		}
 		
 	}
-	static class PackageExport implements IModule.IPackageExport {
+	static class PackageExport implements IModuleDeclaration.IPackageExport {
 		char[] pack;
 		char[][] exportedTo;
 		@Override
@@ -65,7 +65,7 @@ public class ModuleInfo extends SourceTypeElementInfo implements IModule {
 			return buffer.toString();
 		}
 	}
-	static class Service implements IModule.IService {
+	static class Service implements IModuleDeclaration.IService {
 		char[] provides;
 		char[] with;
 		@Override
@@ -92,11 +92,11 @@ public class ModuleInfo extends SourceTypeElementInfo implements IModule {
 	PackageExport[] exports;
 	char[][] uses;
 	Service[] provides;
+
 	@Override
 	public char[] name() {
 		return this.name;
 	}
-
 	public static ModuleInfo createModule(ModuleDeclaration module) {
 		ModuleInfo mod = new ModuleInfo();
 		mod.name = module.moduleName;
@@ -160,7 +160,7 @@ public class ModuleInfo extends SourceTypeElementInfo implements IModule {
 	}
 
 	@Override
-	public IModule.IModuleReference[] requires() {
+	public IModuleDeclaration.IModuleReference[] requires() {
 		return this.requires;
 	}
 	@Override

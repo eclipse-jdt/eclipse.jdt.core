@@ -19,12 +19,16 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
+import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
+import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
@@ -36,7 +40,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * @see org.eclipse.jdt.core.IPackageFragmentRoot
  * @see org.eclipse.jdt.internal.core.JarPackageFragmentRootInfo
  */
-public class JrtPackageFragmentRoot extends JarPackageFragmentRoot {
+public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IModulePathEntry, IModuleEnvironment {
 
 	String moduleName;
 	
@@ -117,5 +121,29 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot {
 		if (info == null) {
 			buffer.append(" (not open)"); //$NON-NLS-1$
 		}
+	}
+
+	@Override
+	public IModuleEnvironment getLookupEnvironment() {
+		// 
+		return this;
+	}
+
+	@Override
+	public IModuleEnvironment getLookupEnvironmentFor(IModule module) {
+		// 
+		return getModule() == module ? this : null;
+	}
+
+	@Override
+	public ITypeLookup typeLookup() {
+		// No direct way to lookup, use the java model APIs instead
+		return ITypeLookup.Dummy;
+	}
+
+	@Override
+	public IPackageLookup packageLookup() {
+		// No direct way to lookup, use the java model APIs instead
+		return IPackageLookup.Dummy;
 	}
 }

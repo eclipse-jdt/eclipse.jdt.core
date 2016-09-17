@@ -20,12 +20,8 @@ package org.eclipse.jdt.internal.compiler.batch;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Path;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -39,37 +35,36 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
-import org.eclipse.jdt.internal.compiler.util.JRTUtil;
+import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
+import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class ClasspathJar extends ClasspathLocation {
+public class ClasspathJar extends ClasspathLocation implements IModuleEnvironment {
 
 protected File file;
 protected ZipFile zipFile;
 protected ZipFile annotationZipFile;
 protected boolean closeZipFileAtEnd;
-private static HashMap<String, Set<IModule>> ModulesCache = new HashMap<>();
 private Set<String> packageCache;
 protected List<String> annotationPaths;
-protected boolean isJrt;
+protected IModule module;
 
 public ClasspathJar(File file, boolean closeZipFileAtEnd,
-		AccessRuleSet accessRuleSet, String destinationPath, boolean isJrt) {
+		AccessRuleSet accessRuleSet, String destinationPath) {
 	super(accessRuleSet, destinationPath);
 	this.file = file;
-	this.isJrt = isJrt;
 	this.closeZipFileAtEnd = closeZipFileAtEnd;
 }
 
 public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemReporter) {
 	// expected to be called once only - if multiple calls desired, consider
 	// using a cache
-	if (this.isJrt) return null;
 	InputStream inputStream = null;
 	try {
 		initialize();
@@ -93,7 +88,7 @@ public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemRe
 				int lastSeparator = directoryPath.lastIndexOf(File.separatorChar);
 				directoryPath = directoryPath.substring(0, lastSeparator + 1); // potentially empty (see bug 214731)
 				while (calledFilesIterator.hasNext()) {
-					result.add(new ClasspathJar(new File(directoryPath + (String) calledFilesIterator.next()), this.closeZipFileAtEnd, this.accessRuleSet, this.destinationPath, false));
+					result.add(new ClasspathJar(new File(directoryPath + (String) calledFilesIterator.next()), this.closeZipFileAtEnd, this.accessRuleSet, this.destinationPath));
 				}
 			}
 		}
@@ -112,20 +107,15 @@ public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemRe
 		}
 	}
 }
-public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, IModule mod) {
-	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false, mod);
+public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
+	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
 }
-public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly, IModule mod) {
+public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
 	if (!isPackage(qualifiedPackageName))
 		return null; // most common case
 
 	try {
-		ClassFileReader reader = null;
-		if (this.isJrt) {
-			reader = ClassFileReader.readFromJrt(this.file, qualifiedBinaryFileName, mod);
-		} else {
-			reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
-		}
+		ClassFileReader reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		if (reader != null) {
 			if (reader.moduleName == null) {
 				reader.moduleName = this.module == null ? null : this.module.name();
@@ -153,7 +143,6 @@ public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageN
 }
 @Override
 public boolean hasAnnotationFileFor(String qualifiedTypeName) {
-	if (this.isJrt) return false; // TODO: Revisit
 	return this.zipFile.getEntry(qualifiedTypeName+ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX) != null; 
 }
 public char[][][] findTypeNames(final String qualifiedPackageName, final IModule mod) {
@@ -161,44 +150,7 @@ public char[][][] findTypeNames(final String qualifiedPackageName, final IModule
 		return null; // most common case
 	final char[] packageArray = qualifiedPackageName.toCharArray();
 	final ArrayList answers = new ArrayList();
-	if (this.isJrt) {
-		try {
-			JRTUtil.walkModuleImage(this.file, new JRTUtil.JrtFileVisitor<java.nio.file.Path>() {
-
-				@Override
-				public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path modPath, BasicFileAttributes attrs) throws IOException {
-					if (qualifiedPackageName.startsWith(dir.toString())) {
-						return FileVisitResult.CONTINUE;	
-					}
-					return FileVisitResult.SKIP_SUBTREE;
-				}
-
-				@Override
-				public FileVisitResult visitFile(java.nio.file.Path dir, java.nio.file.Path modPath, BasicFileAttributes attrs) throws IOException {
-					if (!dir.getParent().toString().equals(qualifiedPackageName)) {
-						return FileVisitResult.CONTINUE;
-					}
-					String fileName = dir.getName(dir.getNameCount() - 1).toString();
-					// The path already excludes the folders and all the '/', hence the -1 for last index of '/'
-					addTypeName(answers, fileName, -1, packageArray);
-					return FileVisitResult.CONTINUE;
-				}
-
-				@Override
-				public FileVisitResult visitModule(java.nio.file.Path modPath) throws IOException {
-					if (mod == ModuleEnvironment.UNNAMED_MODULE)
-						return FileVisitResult.CONTINUE;
-					if (!CharOperation.equals(mod.name(), modPath.toString().toCharArray())) {
-						return FileVisitResult.SKIP_SUBTREE;
-					}
-					return FileVisitResult.CONTINUE;
-				}
-
-			}, JRTUtil.NOTIFY_ALL);
-		} catch (IOException e) {
-			// Ignore and move on
-		}
-	} else {
+	
 		nextEntry : for (Enumeration e = this.zipFile.entries(); e.hasMoreElements(); ) {
 			String fileName = ((ZipEntry) e.nextElement()).getName();
 
@@ -212,7 +164,6 @@ public char[][][] findTypeNames(final String qualifiedPackageName, final IModule
 				addTypeName(answers, fileName, last, packageArray);
 			}
 		}
-	}
 	int size = answers.size();
 	if (size != 0) {
 		char[][][] result = new char[size][][];
@@ -233,79 +184,28 @@ protected void addTypeName(final ArrayList answers, String fileName, int last, c
 	}
 }
 public void initialize() throws IOException {
-	if (this.isJrt) {
-		loadModules();
-	} else if (this.zipFile == null) {
+	if (this.zipFile == null) {
 		this.zipFile = new ZipFile(this.file);
 	}
 }
 public void acceptModule(IModule mod) {
-	if (this.isJrt) 
-		return;
 	this.module = mod;
-}
-public void loadModules() {
-	Set<IModule> cache = ModulesCache.get(this.file);
-
-	if (cache == null) {
-		try {
-			org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(this.file,
-					new org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor<Path>() {
-
-				@Override
-				public FileVisitResult visitPackage(Path dir, Path mod, BasicFileAttributes attrs)
-						throws IOException {
-					return FileVisitResult.CONTINUE;
-				}
-
-				@Override
-				public FileVisitResult visitFile(Path f, Path mod, BasicFileAttributes attrs)
-						throws IOException {
-					return FileVisitResult.CONTINUE;
-				}
-
-				@Override
-				public FileVisitResult visitModule(Path mod) throws IOException {
-					try {
-						ClasspathJar.this.acceptModule(JRTUtil.getClassfileContent(ClasspathJar.this.file, MODULE_INFO_CLASS, mod.toString()));
-					} catch (ClassFormatException e) {
-						e.printStackTrace();
-					}
-					return FileVisitResult.SKIP_SUBTREE;
-				}
-			}, JRTUtil.NOTIFY_MODULES);
-		} catch (IOException e) {
-			// TODO: BETA_JAVA9 Should report better
-		}
-	}
 }
 void acceptModule(ClassFileReader reader) {
 	if (reader != null) {
-		if (this.isJrt) {
-			IModule moduleDecl = reader.getModuleDeclaration();
-			if (moduleDecl != null) {
-				Set<IModule> cache = ModulesCache.get(this.file);
-				if (cache == null) {
-					ModulesCache.put(new String(moduleDecl.name()), cache = new HashSet<IModule>());
-				}
-				cache.add(moduleDecl);
-			}
-		} else {
-			this.module = reader.getModuleDeclaration();
-		}
+		this.module = new BinaryModule(this, reader);
 	}
-	
 }
 void acceptModule(byte[] content) {
 	if (content == null) 
 		return;
 	ClassFileReader reader = null;
 	try {
-		reader = new ClassFileReader(content, MODULE_INFO_CLASS.toCharArray(), null);
+		reader = new ClassFileReader(content, IModuleLocation.MODULE_INFO_CLASS.toCharArray(), null);
 	} catch (ClassFormatException e) {
 		e.printStackTrace();
 	}
-	if (reader != null) {
+	if (reader != null && reader.getModuleDeclaration() != null) {
 		acceptModule(reader);
 	}
 }
@@ -326,35 +226,10 @@ public synchronized boolean isPackage(String qualifiedPackageName) {
 
 	this.packageCache = new HashSet<>(41);
 	this.packageCache.add(Util.EMPTY_STRING);
-	if (this.isJrt) {
-		try {
-			JRTUtil.walkModuleImage(this.file, new JRTUtil.JrtFileVisitor<java.nio.file.Path>() {
-
-				@Override
-				public FileVisitResult visitPackage(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
-					addToPackageCache(dir.toString(), true);
-					return FileVisitResult.CONTINUE;
-				}
-
-				@Override
-				public FileVisitResult visitFile(java.nio.file.Path dir, java.nio.file.Path mod, BasicFileAttributes attrs) throws IOException {
-					return FileVisitResult.CONTINUE;
-				}
-
-				@Override
-				public FileVisitResult visitModule(java.nio.file.Path mod) throws IOException {
-					return FileVisitResult.CONTINUE;
-				}
-
-			}, JRTUtil.NOTIFY_PACKAGES);
-		} catch (IOException e) {
-			// Ignore and move on
-		}
-	} else {
-		for (Enumeration e = this.zipFile.entries(); e.hasMoreElements(); ) {
-			String fileName = ((ZipEntry) e.nextElement()).getName();
-			addToPackageCache(fileName, false);
-		}
+	
+	for (Enumeration e = this.zipFile.entries(); e.hasMoreElements(); ) {
+		String fileName = ((ZipEntry) e.nextElement()).getName();
+		addToPackageCache(fileName, false);
 	}
 	return this.packageCache.contains(qualifiedPackageName);
 }
@@ -377,7 +252,7 @@ public void reset() {
 			this.annotationZipFile = null;
 		}
 	}
-	if (!this.isJrt || this.annotationPaths != null) {
+	if (this.annotationPaths != null) {
 		this.packageCache = null;
 		this.annotationPaths = null;
 	}
@@ -411,30 +286,38 @@ public int getMode() {
 	return BINARY;
 }
 
+public IModule getModule() {
+	return this.module;
+}
+//@Override
+//public boolean servesModule(IModule mod) {
+//	if (!this.isJrt) {
+//		return super.servesModule(mod);
+//	}
+//	if (mod == null) 
+//		return false;
+//	if (mod == ModuleEnvironment.UNNAMED_MODULE)
+//		return true;
+//	return ModulesCache.containsKey(new String(mod.name()));
+//}
 @Override
-public IModule getModule(char[] moduleName) {
-	if (this.isJrt) {
-		Set<IModule> modules = ModulesCache.get(new String(moduleName));
-		if (modules != null) {
-			for (IModule mod : modules) {
-				if (CharOperation.equals(mod.name(), moduleName))
-						return mod;
-			}
-		}
-	} else if (this.module != null && CharOperation.equals(moduleName,  this.module.name())) {
-		return this.module;
-	}
-	return null;
+public ITypeLookup typeLookup() {
+	return this::findClass;
 }
 @Override
-public boolean servesModule(IModule mod) {
-	if (!this.isJrt) {
-		return super.servesModule(mod);
-	}
-	if (mod == null) 
-		return false;
-	if (mod == ModuleEnvironment.UNNAMED_MODULE)
-		return true;
-	return ModulesCache.containsKey(new String(mod.name()));
+public IPackageLookup packageLookup() {
+	return this::isPackage;
+}
+
+@Override
+public IModuleEnvironment getLookupEnvironmentFor(IModule mod) {
+	// 
+	return servesModule(mod.name()) ? this : null;
+}
+
+@Override
+public IModuleEnvironment getLookupEnvironment() {
+	// 
+	return this;
 }
 }

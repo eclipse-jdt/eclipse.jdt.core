@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,11 +16,10 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
-public class InMemoryNameEnvironment extends ModuleEnvironment {
+public class InMemoryNameEnvironment implements INameEnvironment {
 	INameEnvironment[] classLibs;
 	HashtableOfObject compilationUnits = new HashtableOfObject();
 public InMemoryNameEnvironment(String[] compilationUnits, INameEnvironment[] classLibs) {
@@ -44,40 +43,40 @@ public InMemoryNameEnvironment(String[] compilationUnits, INameEnvironment[] cla
 		cus.put(cuName, unit);
 	}
 }
-public NameEnvironmentAnswer findType(char[][] compoundTypeName, char[] module) {
+public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
 	return findType(
 		compoundTypeName[compoundTypeName.length - 1],
-		CharOperation.subarray(compoundTypeName, 0, compoundTypeName.length - 1), module);
+		CharOperation.subarray(compoundTypeName, 0, compoundTypeName.length - 1));
 }
-public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] module) {
+public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 	HashtableOfObject cus = (HashtableOfObject)this.compilationUnits.get(CharOperation.concatWith(packageName, '.'));
 	if (cus == null) {
-		return findTypeFromClassLibs(typeName, packageName, module);
+		return findTypeFromClassLibs(typeName, packageName);
 	}
 	CompilationUnit unit = (CompilationUnit)cus.get(typeName);
 	if (unit == null) {
-		return findTypeFromClassLibs(typeName, packageName, module);
+		return findTypeFromClassLibs(typeName, packageName);
 	}
 	return new NameEnvironmentAnswer(unit, null /*no access restriction*/);
 }
-private NameEnvironmentAnswer findTypeFromClassLibs(char[] typeName, char[][] packageName, char[] module) {
+private NameEnvironmentAnswer findTypeFromClassLibs(char[] typeName, char[][] packageName) {
 	for (int i = 0; i < this.classLibs.length; i++) {
-		NameEnvironmentAnswer answer = this.classLibs[i].findType(typeName, packageName, module);
+		NameEnvironmentAnswer answer = this.classLibs[i].findType(typeName, packageName);
 		if (answer != null) {
 			return answer;
 		}
 	}
 	return null;
 }
-public boolean isPackage(char[][] parentPackageName, char[] packageName, char[] module) {
+public boolean isPackage(char[][] parentPackageName, char[] packageName) {
 	char[] pkg = CharOperation.concatWith(parentPackageName, packageName, '.');
 	return
 		this.compilationUnits.get(pkg) != null ||
-		isPackageFromClassLibs(parentPackageName, packageName, module);
+		isPackageFromClassLibs(parentPackageName, packageName);
 }
-public boolean isPackageFromClassLibs(char[][] parentPackageName, char[] packageName, char[] module) {
+public boolean isPackageFromClassLibs(char[][] parentPackageName, char[] packageName) {
 	for (int i = 0; i < this.classLibs.length; i++) {
-		if (this.classLibs[i].isPackage(parentPackageName, packageName, module)) {
+		if (this.classLibs[i].isPackage(parentPackageName, packageName)) {
 			return true;
 		}
 	}
@@ -88,24 +87,5 @@ public void cleanup() {
 		this.classLibs[i].cleanup();
 	}
 	this.compilationUnits = new HashtableOfObject();
-}
-@Override
-public NameEnvironmentAnswer findType(char[][] compoundTypeName, IModule[] modules) {
-	// TODO BETA_JAVA9
-	return null;
-}
-@Override
-public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, IModule[] modules) {
-	// TODO BETA_JAVA9
-	return null;
-}
-@Override
-public boolean isPackage(char[][] parentPackageName, char[] packageName, IModule[] module) {
-	return false;
-}
-@Override
-public IModule getModule(char[] name) {
-	// TODO Auto-generated method stub
-	return null;
 }
 }

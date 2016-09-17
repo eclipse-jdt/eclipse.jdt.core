@@ -170,7 +170,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 			"enclosing method = public void X.test() throws java.lang.NoSuchMethodException,java.lang.IllegalAccessException,java.lang.reflect.InvocationTargetException");
 
 		INameEnvironment nameEnvironment = getNameEnvironment(new String[]{}, null);
-		nameEnvironment.findType(new char[][] {new char[0], "X$1LocalClass".toCharArray()}, null);
+		nameEnvironment.findType(new char[][] {new char[0], "X$1LocalClass".toCharArray()});
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  + "X$1LocalClass.class"));
 		String actualOutput =

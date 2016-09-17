@@ -226,10 +226,7 @@ private void buildForProject(JavaProject project, ArrayList potentialSubtypes, o
 					char[] typeQualifiedName = focusType.getTypeQualifiedName('.').toCharArray();
 					PackageFragment fragment = (PackageFragment) focusType.getPackageFragment();
 					String[] packageName = fragment.names;
-					IPackageFragmentRoot root = fragment.getPackageFragmentRoot();
-					String modName = root.isModule() ? root.getElementName() : null;
-					if (searchableEnvironment.findType(typeQualifiedName, Util.toCharArrays(packageName), 
-							modName != null ? modName.toCharArray() : null) == null) {
+					if (searchableEnvironment.findType(typeQualifiedName, Util.toCharArrays(packageName)) == null) {
 						// focus type is not visible in this project: no need to go further
 						return;
 					}

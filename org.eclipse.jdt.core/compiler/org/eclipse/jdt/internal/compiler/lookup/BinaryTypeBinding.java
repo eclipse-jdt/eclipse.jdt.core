@@ -308,7 +308,10 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	if (needFieldsAndMethods)
 		cachePartsFrom(binaryType, true);
 }
-
+public boolean canBeSeenBy(Scope sco) {
+	ModuleBinding mod = this.environment.getModule(sco.module());
+	return mod.canSee(this.fPackage) && super.canBeSeenBy(sco);
+}
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#availableFields()
  */

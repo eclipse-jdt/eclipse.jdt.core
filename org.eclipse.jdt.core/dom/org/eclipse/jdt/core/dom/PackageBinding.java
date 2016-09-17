@@ -104,7 +104,7 @@ class PackageBinding implements IPackageBinding {
 						break;
 					case IPackageFragmentRoot.K_BINARY:
 						NameEnvironmentAnswer answer =
-							nameEnvironment.findType(TypeConstants.PACKAGE_INFO_NAME, this.binding.compoundName, null);
+							nameEnvironment.findType(TypeConstants.PACKAGE_INFO_NAME, this.binding.compoundName);
 						if (answer != null && answer.isBinaryType()) {
 							IBinaryType type = answer.getBinaryType();
 							char[][][] missingTypeNames = type.getMissingTypeNames();

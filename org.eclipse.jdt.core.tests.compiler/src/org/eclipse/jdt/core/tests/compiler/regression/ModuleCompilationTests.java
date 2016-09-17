@@ -84,8 +84,8 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 	        "----------\n" + 
     		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 4)\n" + 
     		"	java.sql.Connection con = null;\n" + 
-    		"	^^^^^^^^^^^^^^^^^^^\n" + 
-    		"java.sql.Connection cannot be resolved to a type\n" + 
+    		"	^^^^^^^^\n" + 
+    		"java.sql cannot be resolved to a type\n" + 
     		"----------\n" + 
     		"1 problem (1 error)\n",
 	        true);
@@ -283,7 +283,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	exports q;\n" +
-						"	requires java.base;\n" +
+						"	requires java.sql;\n" +
 						"}");
 		writeFile(moduleLoc + File.separator + "q", "Y.java", 
 						"package q;\n" +
@@ -535,8 +535,6 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		writeFile(moduleLoc + File.separator + "r", "Z.java", 
 						"package r;\n" +
 						"public class Z extends Object {\n" +
-						"	p.X x = null;\n" +
-						"	q.Y y = null;\n" +
 						"}");
 
 		StringBuffer buffer = new StringBuffer();
@@ -717,6 +715,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.two { \n" +
 						"	requires java.base;\n" +
+						"	requires java.sql;\n" +
 						"}");
 		writeFile(moduleLoc + File.separator + "q", "Y.java", 
 						"package q;\n" +
@@ -1207,10 +1206,175 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				"----------\n" + 
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/r/Z.java (at line 4)\n"+
 				"	p1.X1 x1 = null;\n" + 
-				"	^^^^^\n" + 
-				"p1.X1 cannot be resolved to a type\n" + 
+				"	^^\n" + 
+				"p1 cannot be resolved to a type\n" + 
 				"----------\n" + 
 				"1 problem (1 error)\n",
 				false);
+	}
+	public void test029() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"	requires java.sql;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p", "X.java", 
+						"package p;\n" +
+						"public class X {\n" +
+						"	public static java.sql.Connection getConnection() {\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}");
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+						"	requires java.base;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+						"package q;\n" +
+						"public class Y {\n" +
+						"   java.sql.Connection con = p.X.getConnection();\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --add-exports mod.one/p=mod.two,mod.three")
+			.append(" --add-reads mod.two=mod.one");
+
+		runNegativeTest(new String[]{}, 
+			buffer.toString(), 
+			"",
+			"----------\n"+
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 3)\n"+
+			"	java.sql.Connection con = p.X.getConnection();\n"+
+			"	^^^^^^^^\n"+
+			"java.sql cannot be resolved to a type\n"+
+			"----------\n"+
+			"1 problem (1 error)\n",
+			false);
+	}
+	public void test030() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"	requires java.sql;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p", "X.java", 
+						"package p;\n" +
+						"public class X {\n" +
+						"	public static java.sql.Connection getConnection() {\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}");
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+						"	requires java.base;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+						"package q;\n" +
+						"import java.sql.*;\n" +
+						"public class Y {\n" +
+						"   Connection con = null;\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --add-exports mod.one/p=mod.two,mod.three")
+			.append(" --add-reads mod.two=mod.one");
+
+		runNegativeTest(new String[]{}, 
+			buffer.toString(), 
+			"",
+			"----------\n"+
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 2)\n"+
+			"	import java.sql.*;\n"+
+			"	       ^^^^^^^^\n"+
+			"The import java.sql cannot be resolved\n"+
+			"----------\n"+
+			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 4)\n"+
+			"	Connection con = null;\n"+
+			"	^^^^^^^^^^\n"+
+			"Connection cannot be resolved to a type\n"+
+			"----------\n"+
+			"2 problems (2 errors)\n",
+			false);
+	}
+	public void test031() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"	requires java.sql;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p", "X.java", 
+						"package p;\n" +
+						"public class X {\n" +
+						"	public static java.sql.Connection getConnection() {\n" +
+						"		return null;\n" +
+						"	}\n" +
+						"}");
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+						"	requires java.base;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "q", "Y.java", 
+						"package q;\n" +
+						"import java.sql.Connection;\n" +
+						"public class Y {\n" +
+						"   Connection con = null;\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --add-exports mod.one/p=mod.two,mod.three")
+			.append(" --add-reads mod.two=mod.one");
+
+		runNegativeTest(new String[]{}, 
+			buffer.toString(), 
+			"",
+			"----------\n"+
+			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 2)\n"+
+			"	import java.sql.Connection;\n"+
+			"	       ^^^^^^^^\n"+
+			"The import java.sql cannot be resolved\n"+
+			"----------\n"+
+			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 4)\n"+
+			"	Connection con = null;\n"+
+			"	^^^^^^^^^^\n"+
+			"Connection cannot be resolved to a type\n"+
+			"----------\n"+
+			"2 problems (2 errors)\n",
+			false);
 	}
 }

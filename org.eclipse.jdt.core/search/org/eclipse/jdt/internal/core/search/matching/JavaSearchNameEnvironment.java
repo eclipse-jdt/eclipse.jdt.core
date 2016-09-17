@@ -29,9 +29,8 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModel;
@@ -47,7 +46,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  * A name environment based on the classpath of a Java project.
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class JavaSearchNameEnvironment extends ModuleEnvironment implements SuffixConstants {
+public class JavaSearchNameEnvironment implements INameEnvironment, SuffixConstants {
 
 	LinkedHashSet<ClasspathLocation> locationSet;
 
@@ -133,7 +132,7 @@ private ClasspathLocation mapToClassPathLocation( JavaModelManager manager, Pack
 	return cp;
 }
 
-private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName, IModule[] modules) {
+private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName) {
 	String
 		binaryFileName = null, qBinaryFileName = null,
 		sourceFileName = null, qSourceFileName = null,
@@ -158,13 +157,10 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 			if (workingCopy != null) {
 				answer = new NameEnvironmentAnswer(workingCopy, null /*no access restriction*/);
 			} else {
-				mods: for (IModule iModule : modules) {
 					answer = location.findClass(
 							sourceFileName, // doesn't include the file extension
 							qPackageName,
-							qSourceFileName, iModule);  // doesn't include the file extension
-					if (answer != null) break mods;
-				}
+							qSourceFileName);  // doesn't include the file extension
 			}
 		} else {
 			if (binaryFileName == null) {
@@ -177,14 +173,11 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 					binaryFileName = qBinaryFileName.substring(typeNameStart);
 				}
 			}
-			mods: for (IModule iModule : modules) {
-				answer =
-						location.findClass(
-								binaryFileName,
-								qPackageName,
-								qBinaryFileName, iModule);
-				if (answer != null) break mods;
-			}
+			answer =
+					location.findClass(
+							binaryFileName,
+							qPackageName,
+							qBinaryFileName);
 		}
 		if (answer != null) {
 			if (!answer.ignoreIfBetter()) {
@@ -201,38 +194,31 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 	return null;
 }
 
-public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, IModule[] modules) {
+public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 	if (typeName != null)
 		return findClass(
 			new String(CharOperation.concatWith(packageName, typeName, '/')),
-			typeName, modules);
+			typeName);
 	return null;
 }
 
-public NameEnvironmentAnswer findType(char[][] compoundName, IModule[] modules) {
+public NameEnvironmentAnswer findType(char[][] compoundName) {
 	if (compoundName != null)
 		return findClass(
 			new String(CharOperation.concatWith(compoundName, '/')),
-			compoundName[compoundName.length - 1], modules);
+			compoundName[compoundName.length - 1]);
 	return null;
 }
 
-public boolean isPackage(char[][] compoundName, char[] packageName, IModule[] modules) {
-	return isPackage(new String(CharOperation.concatWith(compoundName, packageName, '/')), modules);
+public boolean isPackage(char[][] compoundName, char[] packageName) {
+	return isPackage(new String(CharOperation.concatWith(compoundName, packageName, '/')));
 }
 
-public boolean isPackage(String qualifiedPackageName, IModule[] modules) {
+public boolean isPackage(String qualifiedPackageName) {
 	Iterator<ClasspathLocation> iter = this.locationSet.iterator();
 	while (iter.hasNext()) {
 		if (iter.next().isPackage(qualifiedPackageName)) return true;
 	}
 	return false;
 }
-
-@Override
-public IModule getModule(char[] name) {
-	// TODO Auto-generated method stub
-	return null;
-}
-
 }

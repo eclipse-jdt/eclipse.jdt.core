@@ -26,10 +26,11 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
+import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.builder.ClasspathLocation;
@@ -37,7 +38,7 @@ import org.eclipse.jdt.internal.core.util.ResourceCompilationUnit;
 import org.eclipse.jdt.internal.core.util.Util;
 
 @SuppressWarnings("rawtypes")
-public class ClasspathSourceDirectory extends ClasspathLocation {
+public class ClasspathSourceDirectory extends ClasspathLocation implements IModuleEnvironment {
 
 	IContainer sourceFolder;
 	SimpleLookupTable directoryCache;
@@ -114,16 +115,16 @@ public boolean equals(Object o) {
 	return this.sourceFolder.equals(((ClasspathSourceDirectory) o).sourceFolder);
 }
 
-public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly, IModule mod) {
-	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, mod);
+public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
+	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName);
 }
-public NameEnvironmentAnswer findClass(String sourceFileWithoutExtension, String qualifiedPackageName, String qualifiedSourceFileWithoutExtension, IModule mod) {
+public NameEnvironmentAnswer findClass(String sourceFileWithoutExtension, String qualifiedPackageName, String qualifiedSourceFileWithoutExtension) {
 	SimpleLookupTable dirTable = directoryTable(qualifiedPackageName);
 	if (dirTable != null && dirTable.elementSize > 0) {
 		IFile file = (IFile) dirTable.get(sourceFileWithoutExtension);
 		if (file != null) {
 			return new NameEnvironmentAnswer(new ResourceCompilationUnit(file, 
-					(mod != null ? mod.name() : null)), null /* no access restriction */);
+					this.module == null ? null : this.module.name()), null /* no access restriction */);
 		}
 	}
 	return null;
@@ -154,20 +155,32 @@ public String debugPathString() {
 }
 
 @Override
-public boolean servesModule(IModule mod) {
-	if (mod == null) 
-		return false;
-	if (this.module == null || mod == this || mod == ModuleEnvironment.UNNAMED_MODULE)
-		return true;
-	return CharOperation.equals(this.module.name(), mod.name());
+public IModule getModule() {
+	// 
+	return this.module;
 }
 
 @Override
-public IModule getModule(char[] moduleName) {
+public IModuleEnvironment getLookupEnvironment() {
 	// 
-	if (this.module != null && CharOperation.equals(this.module.name(), moduleName)) {
-		return this.module;
-	}
-	return null;
+	return this;
+}
+
+@Override
+public IModuleEnvironment getLookupEnvironmentFor(IModule other) {
+	//
+	return this.module == other ? this : null;
+}
+
+@Override
+public ITypeLookup typeLookup() {
+	//
+	return this::findClass;
+}
+
+@Override
+public IPackageLookup packageLookup() {
+	//
+	return this::isPackage;
 }
 }

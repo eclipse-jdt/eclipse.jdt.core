@@ -8933,7 +8933,7 @@ public void test217_warn_options() {
 // white-box test for internal API
 public void test218_batch_classpath_apis() {
 	assertFalse("path should be absolute",
-		new ClasspathJar(new File("relative.jar"), true, null, null, false).
+		new ClasspathJar(new File("relative.jar"), true, null, null).
 		getPath().indexOf(File.separator) == -1);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=214731
@@ -8941,7 +8941,7 @@ public void test218_batch_classpath_apis() {
 public void test219_batch_classpath_apis() {
 	assertFalse("path should be absolute",
 		CharOperation.indexOf('/',
-			new ClasspathJar(new File("relative.jar"), true, null, null, false).
+			new ClasspathJar(new File("relative.jar"), true, null, null).
 			normalizedPath()) == -1);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=210524

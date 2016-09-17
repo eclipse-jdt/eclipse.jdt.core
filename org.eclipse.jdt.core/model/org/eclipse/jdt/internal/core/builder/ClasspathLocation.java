@@ -20,12 +20,20 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
-import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
+import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-public abstract class ClasspathLocation implements IModuleLocation {
+public abstract class ClasspathLocation implements IModulePathEntry {
 
+	abstract public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName);
+	abstract public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly);
+	abstract public boolean isPackage(String qualifiedPackageName);
+	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
+		String fileName = new String(typeName);
+		return findClass(fileName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly);
+	}
 	static ClasspathLocation forSourceFolder(IContainer sourceFolder, IContainer outputFolder,
 			char[][] inclusionPatterns, char[][] exclusionPatterns, boolean ignoreOptionalProblems,
 			INameEnvironment env) {

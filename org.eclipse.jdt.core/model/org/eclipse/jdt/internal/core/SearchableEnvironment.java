@@ -25,7 +25,8 @@ import org.eclipse.jdt.internal.codeassist.ISearchRequestor;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
+import org.eclipse.jdt.internal.compiler.env.IModuleContext;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
@@ -41,8 +42,8 @@ import org.eclipse.jdt.internal.core.util.Util;
  *	This class provides a <code>SearchableBuilderEnvironment</code> for code assist which
  *	uses the Java model as a search tool.
  */
-public class SearchableEnvironment extends ModuleEnvironment
-	implements IJavaSearchConstants {
+public class SearchableEnvironment
+	implements IModuleAwareNameEnvironment, IJavaSearchConstants {
 
 	public NameLookup nameLookup;
 	protected ICompilationUnit unitToSkip;
@@ -96,7 +97,7 @@ public class SearchableEnvironment extends ModuleEnvironment
 	 * Returns the given type in the the given package if it exists,
 	 * otherwise <code>null</code>.
 	 */
-	protected NameEnvironmentAnswer find(String typeName, String packageName, IModule[] module) {
+	protected NameEnvironmentAnswer find(String typeName, String packageName, IModuleContext context) {
 		if (packageName == null)
 			packageName = IPackageFragment.DEFAULT_PACKAGE_NAME;
 		if (this.owner != null) {
@@ -113,7 +114,7 @@ public class SearchableEnvironment extends ModuleEnvironment
 				false/*exact match*/,
 				NameLookup.ACCEPT_ALL,
 				this.checkAccessRestrictions,
-				module);
+				context);
 		if (answer != null) {
 			// construct name env answer
 			if (answer.type instanceof BinaryType) { // BinaryType
@@ -295,15 +296,15 @@ public class SearchableEnvironment extends ModuleEnvironment
 	}
 
 	/**
-	 * @see ModuleEnvironment#findType(char[][], IModule[])
+	 * @see ModuleEnvironment#findType(char[][])
 	 */
-	public NameEnvironmentAnswer findType(char[][] compoundTypeName, IModule[] module) {
+	public NameEnvironmentAnswer findType(char[][] compoundTypeName, IModuleContext context) {
 		if (compoundTypeName == null) return null;
 
 		int length = compoundTypeName.length;
 		if (length <= 1) {
 			if (length == 0) return null;
-			return find(new String(compoundTypeName[0]), null, module);
+			return find(new String(compoundTypeName[0]), null, context);
 		}
 
 		int lengthM1 = length - 1;
@@ -312,18 +313,18 @@ public class SearchableEnvironment extends ModuleEnvironment
 
 		return find(
 			new String(compoundTypeName[lengthM1]),
-			CharOperation.toString(packageName), module);
+			CharOperation.toString(packageName), context);
 	}
 
 	/**
-	 * @see ModuleEnvironment#findType(char[], char[][], IModule[])
+	 * @see ModuleEnvironment#findType(char[], char[][])
 	 */
-	public NameEnvironmentAnswer findType(char[] name, char[][] packageName, IModule[] module) {
+	public NameEnvironmentAnswer findType(char[] name, char[][] packageName, IModuleContext context) {
 		if (name == null) return null;
 
 		return find(
 			new String(name),
-			packageName == null || packageName.length == 0 ? null : CharOperation.toString(packageName), module);
+			packageName == null || packageName.length == 0 ? null : CharOperation.toString(packageName), context);
 	}
 
 	/**
@@ -714,9 +715,9 @@ public class SearchableEnvironment extends ModuleEnvironment
 	}
 
 	/**
-	 * @see ModuleEnvironment#isPackage(char[][], char[], IModule[])
+	 * @see ModuleEnvironment#isPackage(char[][], char[])
 	 */
-	public boolean isPackage(char[][] parentPackageName, char[] subPackageName, IModule[] modules) {
+	public boolean isPackage(char[][] parentPackageName, char[] subPackageName, IModuleContext moduleContext) {
 		String[] pkgName;
 		if (parentPackageName == null)
 			pkgName = new String[] {new String(subPackageName)};
@@ -729,7 +730,7 @@ public class SearchableEnvironment extends ModuleEnvironment
 		}
 		return 
 			(this.owner != null && this.owner.isPackage(pkgName))
-			|| this.nameLookup.isPackage(pkgName);
+			|| this.nameLookup.isPackage(pkgName, moduleContext);
 	}
 
 	/**
@@ -756,12 +757,30 @@ public class SearchableEnvironment extends ModuleEnvironment
 	}
 
 	@Override
-	public IModule getModule(char[] name) {
-		IModule module = null;
+	public org.eclipse.jdt.internal.compiler.env.IModule getModule(char[] name) {
+		org.eclipse.jdt.internal.compiler.env.IModule module = null;
 		NameLookup.Answer answer = this.nameLookup.findModule(CharOperation.charToString(name));
 		if (answer != null) {
 			module = answer.module;
 		}
 		return module;
+	}
+
+	@Override
+	public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
+		// 
+		return findType(compoundTypeName, IModuleContext.UNNAMED_MODULE_CONTEXT);
+	}
+
+	@Override
+	public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
+		// 
+		return findType(typeName, packageName, IModuleContext.UNNAMED_MODULE_CONTEXT);
+	}
+
+	@Override
+	public boolean isPackage(char[][] parentPackageName, char[] packageName) {
+		// 
+		return isPackage(parentPackageName, packageName, IModuleContext.UNNAMED_MODULE_CONTEXT);
 	}
 }

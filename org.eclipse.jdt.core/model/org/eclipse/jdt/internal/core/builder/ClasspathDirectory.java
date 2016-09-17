@@ -22,19 +22,22 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
+import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
 
-public class ClasspathDirectory extends ClasspathLocation {
+public class ClasspathDirectory extends ClasspathLocation implements IModuleEnvironment {
 
 IContainer binaryFolder; // includes .class files for a single directory
 boolean isOutputFolder;
@@ -77,7 +80,7 @@ ClasspathDirectory initializeModule() {
 				String name = m.getName();
 				// Note: Look only inside the default package.
 				if (m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
-					if (name.equalsIgnoreCase(MODULE_INFO_CLASS)) {
+					if (name.equalsIgnoreCase(IModuleLocation.MODULE_INFO_CLASS)) {
 						try {
 							this.acceptModule( Util.newClassFileReader(m));
 						} catch (ClassFormatException | IOException e) {
@@ -110,7 +113,7 @@ String[] directoryList(String qualifiedPackageName) {
 				if (m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
 					// add exclusion pattern check here if we want to hide .class files
 					dirList[index++] = name;
-					if (name.equalsIgnoreCase(MODULE_INFO_CLASS)) {
+					if (name.equalsIgnoreCase(IModuleLocation.MODULE_INFO_CLASS)) {
 						try {
 							this.acceptModule( Util.newClassFileReader(m));
 						} catch (ClassFormatException | IOException e) {
@@ -133,7 +136,7 @@ String[] directoryList(String qualifiedPackageName) {
 }
 void acceptModule(ClassFileReader classfile) {
 	if (classfile != null) {
-		this.module = classfile.getModuleDeclaration();
+		this.module = new Module(this, classfile.getModuleDeclaration());
 	}
 }
 boolean doesFileExist(String fileName, String qualifiedPackageName, String qualifiedFullName) {
@@ -159,16 +162,9 @@ public boolean equals(Object o) {
 			return false;
 	return this.binaryFolder.equals(dir.binaryFolder);
 }
-
-public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly, IModule mod) {
-	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false, mod); 
-}
-
-public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName, IModule mod) {
+public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
 	if (!doesFileExist(binaryFileName, qualifiedPackageName, qualifiedBinaryFileName)) return null; // most common case
-//	if (!this.env.isPackageVisible(qualifiedPackageName.toCharArray(), this.module != null ? this.module.name() : null, mod != null ? mod.name() : null)) {
-//		return null;
-//	}
+
 	ClassFileReader reader = null;
 	try {
 		reader = Util.newClassFileReader(this.binaryFolder.getFile(new Path(qualifiedBinaryFileName)));
@@ -231,7 +227,7 @@ public String debugPathString() {
 	return this.binaryFolder.getFullPath().toString();
 }
 
-@Override
+//@Override
 public boolean servesModule(IModule mod) {
 	if (mod == null)
 		return this.module == null || this.module == ModuleEnvironment.UNNAMED_MODULE;
@@ -239,10 +235,37 @@ public boolean servesModule(IModule mod) {
 }
 
 @Override
-public IModule getModule(char[] moduleName) {
+public IModule getModule() {
 	// 
-	if (this.module == null)
-		return null;
-	return CharOperation.equals(this.module.name(), moduleName) ? this.module : null;
+	return this.module;
+}
+
+@Override
+public IModuleEnvironment getLookupEnvironment() {
+	// 
+	return this;
+}
+
+@Override
+public ITypeLookup typeLookup() {
+	//
+	return this::findClass;
+}
+
+@Override
+public IPackageLookup packageLookup() {
+	return this::isPackage;
+}
+
+@Override
+public IModuleEnvironment getLookupEnvironmentFor(IModule mod) {
+	//
+	return this.module == mod ? this : null;
+}
+
+@Override
+public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
+	// 
+	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
 }
 }

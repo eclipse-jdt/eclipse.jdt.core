@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
+import org.eclipse.jdt.internal.compiler.env.IModuleContext;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.BasicCompilationUnit;
@@ -74,8 +75,8 @@ public class ModuleUtil {
 		}
 
 		@Override
-		public NameEnvironmentAnswer findType(char[][] compoundTypeName, org.eclipse.jdt.internal.compiler.env.IModule[] mods) {
-			NameEnvironmentAnswer answer = super.findType(compoundTypeName, mods);
+		public NameEnvironmentAnswer findType(char[][] compoundTypeName, IModuleContext context) {
+			NameEnvironmentAnswer answer = super.findType(compoundTypeName, context);
 			if (answer.moduleName() != null) {
 				this.modules.add(new String(answer.moduleName()));
 			}
@@ -83,8 +84,8 @@ public class ModuleUtil {
 		}
 
 		@Override
-		public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, org.eclipse.jdt.internal.compiler.env.IModule[] mods) {
-			NameEnvironmentAnswer answer = super.findType(typeName, packageName, mods);
+		public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, IModuleContext context) {
+			NameEnvironmentAnswer answer = super.findType(typeName, packageName, context);
 			if (answer != null && answer.moduleName() != null) {
 				this.modules.add(new String(answer.moduleName()));
 			}
@@ -92,8 +93,8 @@ public class ModuleUtil {
 		}
 
 		@Override
-		public boolean isPackage(char[][] parentPackageName, char[] packageName, org.eclipse.jdt.internal.compiler.env.IModule[] module) {
-			return super.isPackage(parentPackageName, packageName, module);
+		public boolean isPackage(char[][] parentPackageName, char[] packageName, IModuleContext context) {
+			return super.isPackage(parentPackageName, packageName, context);
 		}
 	}
 	private static Compiler newCompiler(ModuleAccumulatorEnvironment environment, IJavaProject javaProject) {

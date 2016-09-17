@@ -32,10 +32,12 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.*;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Stream;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class NameEnvironment extends ModuleEnvironment implements SuffixConstants {
@@ -275,7 +277,7 @@ private void createParentFolder(IContainer parent) throws CoreException {
 	}
 }
 
-private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName, IModule[] modules) {
+private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName, IModuleContext moduleContext) {
 	if (this.notifier != null)
 		this.notifier.checkCancelWithinCompiler();
 
@@ -307,77 +309,61 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 	}
 
 	String qBinaryFileName = qualifiedTypeName + SUFFIX_STRING_class;
-	String binaryFileName = qBinaryFileName;
-	String qPackageName =  ""; //$NON-NLS-1$
-	if (qualifiedTypeName.length() > typeName.length) {
-		int typeNameStart = qBinaryFileName.length() - typeName.length - 6; // size of ".class"
-		qPackageName =  qBinaryFileName.substring(0, typeNameStart - 1);
-		binaryFileName = qBinaryFileName.substring(typeNameStart);
+	String qPackageName =  (qualifiedTypeName.length() == typeName.length) ? Util.EMPTY_STRING :
+		qBinaryFileName.substring(0, qBinaryFileName.length() - typeName.length - 7);
+	char[] binaryFileName = CharOperation.concat(typeName, SUFFIX_class);
+	if (IModuleContext.UNNAMED_MODULE_CONTEXT == moduleContext) {
+		return Stream.of(this.binaryLocations)
+				.map(p -> p.getLookupEnvironment().typeLookup())
+				.reduce(ITypeLookup::chain)
+				.map(t -> t.findClass(binaryFileName, qPackageName, qBinaryFileName)).orElse(null);
 	}
-
-	// NOTE: the output folders are added at the beginning of the binaryLocations
-	NameEnvironmentAnswer suggestedAnswer = null;
-	for (int i = 0, l = this.binaryLocations.length; i < l; i++) {
-		NameEnvironmentAnswer answer = null;
-		for (IModule iModule : modules) {
-			if (!this.binaryLocations[i].servesModule(iModule)) continue;
-			answer = this.binaryLocations[i].findClass(binaryFileName, qPackageName, qBinaryFileName, iModule);
-			if (answer != null) {
-				if (!answer.ignoreIfBetter()) {
-					if (answer.isBetter(suggestedAnswer))
-						return answer;
-				} else if (answer.isBetter(suggestedAnswer))
-					// remember suggestion and keep looking
-					suggestedAnswer = answer;
-			}
-		}
-	}
-	if (suggestedAnswer != null)
-		// no better answer was found
-		return suggestedAnswer;
-	return null;
+	return moduleContext.getEnvironment().map(env -> env.typeLookup())
+				.reduce(ITypeLookup::chain)
+				.map(lookup -> lookup.findClass(binaryFileName, qPackageName, qBinaryFileName))
+				.orElse(null);
 }
 
-public NameEnvironmentAnswer findType(char[][] compoundName, IModule[] modules) {
+public NameEnvironmentAnswer findType(char[][] compoundName) {
 	if (compoundName != null)
 		return findClass(
 			new String(CharOperation.concatWith(compoundName, '/')),
-			compoundName[compoundName.length - 1], modules);
+			compoundName[compoundName.length - 1], IModuleContext.UNNAMED_MODULE_CONTEXT);
 	return null;
 }
-
-public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, IModule[] modules) {
+public NameEnvironmentAnswer findType(char[][] compoundName, IModuleContext context) {
+	if (compoundName != null)
+		return findClass(
+			new String(CharOperation.concatWith(compoundName, '/')),
+			compoundName[compoundName.length - 1], context);
+	return null;
+}
+public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName) {
 	if (typeName != null)
 		return findClass(
 			new String(CharOperation.concatWith(packageName, typeName, '/')),
-			typeName, modules);
+			typeName, IModuleContext.UNNAMED_MODULE_CONTEXT);
 	return null;
 }
-
-public boolean isPackage(char[][] compoundName, char[] packageName, IModule[] modules) {
-	return isPackage(new String(CharOperation.concatWith(compoundName, packageName, '/')), modules);
+public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, IModuleContext context) {
+	if (typeName != null)
+		return findClass(
+			new String(CharOperation.concatWith(packageName, typeName, '/')),
+			typeName, context);
+	return null;
+}
+public boolean isPackage(char[][] compoundName, char[] packageName, IModuleContext moduleContext) {
+	return isPackage(new String(CharOperation.concatWith(compoundName, packageName, '/')), moduleContext);
 }
 
-public boolean isPackage(String qualifiedPackageName, IModule[] modules) {
-	if (modules == null) {
-		for (int i = 0, l = this.binaryLocations.length; i < l; i++) {
-			// TODO: BETA_JAVA9 Should really check with the module context.
-			if (this.binaryLocations[i].isPackage(qualifiedPackageName))
-					return true;
-			}
+public boolean isPackage(String qualifiedPackageName, IModuleContext moduleContext) {
+	if (moduleContext == IModuleContext.UNNAMED_MODULE_CONTEXT) {
+		return Stream.of(this.binaryLocations).map(p -> p.getLookupEnvironment().packageLookup())
+				.filter(l -> l.isPackage(qualifiedPackageName)).findAny().isPresent();
 	} else {
-		// NOTE: the output folders are added at the beginning of the binaryLocations
-		for (int i = 0, l = this.binaryLocations.length; i < l; i++) {
-			for (IModule iModule : modules) {
-				if (this.binaryLocations[i].servesModule(iModule)) {
-					// TODO: BETA_JAVA9 Should really check with the module context.
-					if (this.binaryLocations[i].isPackage(qualifiedPackageName))
-						return true;
-				}
-			}
-		}
+		return moduleContext.getEnvironment().map(e -> e.packageLookup())
+				.filter(l -> l.isPackage(qualifiedPackageName)).findAny().isPresent();
 	}
-	return false;
 }
 
 void setNames(String[] typeNames, SourceFile[] additionalFiles) {
@@ -427,13 +413,4 @@ public IModule getModule(char[] name) {
 	}
 	return module;
 }
-
-//@Override
-//public void acceptModule(IModule mod) {
-//	this.ms.acceptModule(mod);
-//}
-//@Override
-//public ModuleSystem getModuleSystem() {
-//	return this.ms;
-//}
 }

@@ -19,14 +19,16 @@ package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
+import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -37,7 +39,7 @@ import java.util.*;
 import java.util.zip.*;
 
 @SuppressWarnings("rawtypes")
-public class ClasspathJar extends ClasspathLocation {
+public class ClasspathJar extends ClasspathLocation implements IModuleEnvironment {
 
 static class PackageCacheEntry {
 	long lastModified;
@@ -86,7 +88,7 @@ static SimpleSet findPackageSet(final ClasspathJar jar) {
 		int folderEnd = fileName.lastIndexOf('/');
 		folderEnd += 1;
 		String className = fileName.substring(folderEnd, fileName.length());
-		if (className.equalsIgnoreCase(MODULE_INFO_CLASS)) {
+		if (className.equalsIgnoreCase(IModuleLocation.MODULE_INFO_CLASS)) {
 			modInfo = fileName;
 		}
 		addToPackageSet(packageSet, fileName, false);
@@ -107,7 +109,7 @@ void acceptModule(ClassFileReader classfile) {
 //		if ((this.module = classfile.getModuleDeclaration()) != null) {
 //			this.env.acceptModule(this.module, this);
 //		}
-		this.module = classfile.getModuleDeclaration();
+		this.module = new Module(this, classfile.getModuleDeclaration());
 	}
 }
 
@@ -195,11 +197,7 @@ public boolean equals(Object o) {
 	return this.zipFilename.equals(jar.zipFilename) && lastModified() == jar.lastModified();
 }
 
-public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly, IModule mod) {
-	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false, mod);
-}
-
-public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName, IModule mod) {
+public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
 	// TOOD: BETA_JAVA9 - Should really check for packages with the module context
 	if (!isPackage(qualifiedPackageName)) return null; // most common case
 
@@ -276,19 +274,38 @@ public String debugPathString() {
 }
 
 @Override
-public boolean servesModule(IModule mod) {
-	if (mod == null) 
-		return false;
-	if (this.module == null || mod == this || mod == ModuleEnvironment.UNNAMED_MODULE) 
-		return true;
-	return this.module.equals(mod);
+public IModule getModule() {
+	//
+	return this.module;
 }
 
 @Override
-public IModule getModule(char[] moduleName) {
+public IModuleEnvironment getLookupEnvironment() {
+	//
+	return this;
+}
+
+@Override
+public ITypeLookup typeLookup() {
 	// 
-	if (this.module != null && CharOperation.equals(moduleName, this.module.name()))
-		return this.module;
-	return null;
+	return this::findClass;
+}
+
+@Override
+public IPackageLookup packageLookup() {
+	//
+	return this::isPackage;
+}
+
+@Override
+public IModuleEnvironment getLookupEnvironmentFor(IModule mod) {
+	//
+	return this.module == mod ? this : null;
+}
+
+@Override
+public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
+	// 
+	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
 }
 }

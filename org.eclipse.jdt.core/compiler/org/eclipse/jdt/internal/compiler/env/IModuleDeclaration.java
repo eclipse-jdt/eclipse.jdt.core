@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation.
+ * Copyright (c) 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,15 +14,36 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
 
-/**
- * Represents Java Module, introduced in JLS 9. A Java module can
- * either be created from the source (module-info.java) or binary.
- */
-public interface IModule {
-
+public interface IModuleDeclaration {
 	public char[] name();
+	public IModuleReference[] requires();
 
-	public IModuleDeclaration getDeclaration();
+	public IPackageExport[] exports();
+
+	public char[][] uses();
+
+	public IService[] provides();
+
+	public interface IModuleReference {
+		public char[] name();
+		public boolean isPublic();
+	}
+
+	public interface IPackageExport {
+		public char[] name();
+		public char[][] exportedTo();
+	}
+
+	public interface IService {
+		public char[] name();
+		char[] with();
+	}
 	
-	IModuleEnvironment getLookupEnvironment();
+	public default void addReads(char[] modName) {
+		// do nothing, would throwing an exception be better?
+	}
+	
+	public default void addExports(IPackageExport[] exports) {
+		// do nothing, would throwing an exception be better?
+	}
 }

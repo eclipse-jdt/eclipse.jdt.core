@@ -17,7 +17,7 @@ package org.eclipse.jdt.internal.compiler.env;
  * on creation.
  * 
  * This name environment adds a method to switch on/off the search for secondary types.
- * Refer {@link #findType(char[], char[][], char[], boolean)}.
+ * Refer {@link #findType(char[], char[][], boolean)}.
  * 
  */
 public interface INameEnvironmentExtension extends INameEnvironment {
@@ -40,10 +40,13 @@ public interface INameEnvironmentExtension extends INameEnvironment {
 	 *
 	 * @param typeName type to find
 	 * @param packageName package of the searched type
-	 * @param client module name
 	 * @param searchWithSecondaryTypes flag to switch on/off the search for secondary types
 	 * @return {@link NameEnvironmentAnswer}
 	 */
-	NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] client, boolean searchWithSecondaryTypes);
+	NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes, IModuleContext moduleContext);
+	default NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes) {
+		return findType(typeName, packageName, searchWithSecondaryTypes, IModuleContext.UNNAMED_MODULE_CONTEXT);
+	}
+	
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation.
+ * Copyright (c) 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,16 +13,18 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
-
 /**
- * Represents Java Module, introduced in JLS 9. A Java module can
- * either be created from the source (module-info.java) or binary.
+ * Functional interface for looking up packages
+ * 
  */
-public interface IModule {
+public interface IPackageLookup {
 
-	public char[] name();
+	IPackageLookup Dummy = qualifiedPackageName -> false;
 
-	public IModuleDeclaration getDeclaration();
-	
-	IModuleEnvironment getLookupEnvironment();
+	/**
+	 * Answer whether qualifiedPackageName is the name of a known package
+	 * The default package is always assumed to exist.
+	 *
+	 */
+	boolean isPackage(String qualifiedPackageName);
 }

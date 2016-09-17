@@ -605,9 +605,9 @@ protected boolean findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDire
 						this.sourceFiles.add(new SourceFile((IFile) resource, md, true));
 						this.sourceFiles.add(new SourceFile((IFile) resource, md, true));
 						String complianceLevel = IncrementalImageBuilder.this.javaBuilder.javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
-						if (CompilerOptions.versionToJdkLevel(complianceLevel) >= ClassFileConstants.JDK9) {
-							md.resetModule(this.nameEnvironment.getModule(md));
-						}
+//						if (CompilerOptions.versionToJdkLevel(complianceLevel) >= ClassFileConstants.JDK9) {
+//							md.resetModule(this.nameEnvironment.getModule(md));
+//						}
 						String typeName = typePath.toString();
 						if (!this.newState.isDuplicateLocator(typeName, typeLocator)) { // adding dependents results in 2 duplicate errors
 							if (JavaBuilder.DEBUG)

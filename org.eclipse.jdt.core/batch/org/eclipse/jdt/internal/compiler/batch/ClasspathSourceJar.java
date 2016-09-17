@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.zip.ZipEntry;
 
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
-import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -30,11 +29,11 @@ public class ClasspathSourceJar extends ClasspathJar {
 	public ClasspathSourceJar(File file, boolean closeZipFileAtEnd,
 			AccessRuleSet accessRuleSet, String encoding,
 			String destinationPath) {
-		super(file, closeZipFileAtEnd, accessRuleSet, destinationPath, false);
+		super(file, closeZipFileAtEnd, accessRuleSet, destinationPath);
 		this.encoding = encoding;
 	}
 
-	public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly, IModule mod) {
+	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
 		if (!isPackage(qualifiedPackageName))
 			return null; // most common case
 
@@ -55,7 +54,7 @@ public class ClasspathSourceJar extends ClasspathJar {
 					qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6) + SUFFIX_STRING_java,
 					this.encoding,
 					this.destinationPath);
-				compilationUnit.module = mod == null ? null : mod.name();
+				compilationUnit.module = this.module == null ? null : this.module.name();
 				return new NameEnvironmentAnswer(
 					compilationUnit,
 					fetchAccessRestriction(qualifiedBinaryFileName));
@@ -65,9 +64,7 @@ public class ClasspathSourceJar extends ClasspathJar {
 		}
 		return null;
 	}
-	public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, IModule mod) {
-		return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false, mod);
-	}
+
 	public int getMode() {
 		return SOURCE;
 	}

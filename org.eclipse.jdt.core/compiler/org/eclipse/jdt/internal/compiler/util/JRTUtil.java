@@ -30,10 +30,14 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IModule;
@@ -152,6 +156,12 @@ public class JRTUtil {
 	public static ClassFileReader getClassfile(File jrt, String fileName, IModule module) throws IOException, ClassFormatException {
 		return getJrtSystem(jrt).getClassfile(fileName, module);
 	}
+	public static ClassFileReader getClassfile(File jrt, String fileName, Optional<Collection<char[]>> modules) throws IOException, ClassFormatException {
+		return getJrtSystem(jrt).getClassfile(fileName, modules);
+	}
+	public static boolean isPackage(File jrt, String qName, Optional<char[]> module) {
+		return getJrtSystem(jrt).isPackage(qName, module);
+	}
 }
 class JrtFileSystem {
 	private final Map<String, String> packageToModule = new HashMap<String, String>();
@@ -187,6 +197,21 @@ class JrtFileSystem {
 		walkModuleImage(null, true, 0 /* doesn't matter */);
 	}
 
+	public boolean isPackage(String qualifiedPackageName, Optional<char[]> moduleName) {
+		qualifiedPackageName = qualifiedPackageName.replace('.', '/');
+		String module = this.packageToModule.get(qualifiedPackageName);
+		if (!moduleName.isPresent())
+			return module != null;
+		if (module != null) {
+			if (module == JRTUtil.MULTIPLE) {
+				List<String> list = this.packageToModules.get(qualifiedPackageName);
+				return list.contains(new String(moduleName.get()));
+			} else {
+				return CharOperation.equals(module.toCharArray(), moduleName.get());
+			}
+		}
+		return false;
+	}
 	public String[] getModules(String fileName) {
 		int idx = fileName.lastIndexOf('/');
 		String pack = null;
@@ -266,7 +291,23 @@ class JrtFileSystem {
 		}
 		return content;
 	}
-	
+	public ClassFileReader getClassfile(String fileName, Optional<Collection<char[]>> modules) throws IOException, ClassFormatException {
+		ClassFileReader reader = null;
+		if (!modules.isPresent()) {
+			reader = getClassfile(fileName);
+		} else {
+			Iterator<char[]> modIterator = modules.get().iterator();
+			while(modIterator.hasNext()) {
+				char[] mod = modIterator.next();
+				byte[] content = getClassfile(fileName, new String(mod));
+				if (content != null) {
+					reader = new ClassFileReader(content, fileName.toCharArray(), mod);
+					break;
+				}
+			}
+		}
+		return reader;
+	}
 	public ClassFileReader getClassfile(String fileName, IModule module) throws IOException, ClassFormatException {
 		ClassFileReader reader = null;
 		if (module == null || module == ModuleEnvironment.UNNAMED_MODULE) {

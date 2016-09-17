@@ -22,7 +22,6 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -877,26 +876,25 @@ public org.eclipse.jdt.internal.compiler.env.IModule getModule() {
 		for (int j = 0, length = pkgs.length; j < length; j++) {
 			// only look in the default package
 			if (pkgs[j].getElementName().length() == 0) {
-				OpenableElementInfo info = null;
 				if (getKind() == IPackageFragmentRoot.K_SOURCE) {
 					ICompilationUnit unit = ((PackageFragment) pkgs[j])
 							.getCompilationUnit(TypeConstants.MODULE_INFO_FILE_NAME_STRING);
-					if (unit instanceof CompilationUnit && unit.exists()) {
-						info = (CompilationUnitElementInfo) ((CompilationUnit) unit)
-								.getElementInfo();
-						if (info != null)
-							return info.getModule();
-					}
+					//if (unit instanceof CompilationUnit && unit.exists()) {
+						IType type = unit.getType(new String(TypeConstants.MODULE_INFO_NAME));
+						if (type != null) {
+							rootInfo.setModule(module = new Module((SourceType)type));
+						}
+					//}
 				} else {
 					IClassFile classFile = ((IPackageFragment)pkgs[j]).getClassFile(TypeConstants.MODULE_INFO_CLASS_NAME_STRING);
 					if (classFile instanceof ClassFile && classFile.exists()) {
-						IType type = classFile.getType();
-						return ((ClassFileReader)(((BinaryType)type).getElementInfo())).getModuleDeclaration();
+						rootInfo.setModule(module = new Module((ClassFile)classFile));
 					}
 				}
 				break;
 			}
 		}
+		return module;
 	} catch (JavaModelException e) {
 		//
 	}

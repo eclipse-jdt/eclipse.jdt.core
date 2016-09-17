@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation.
+ * Copyright (c) 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,14 +15,18 @@
 package org.eclipse.jdt.internal.compiler.env;
 
 /**
- * Represents Java Module, introduced in JLS 9. A Java module can
- * either be created from the source (module-info.java) or binary.
+ * Represents a module path entry that represents a collection of modules
+ * like a jimage or an exploded module directory structure
+ *
  */
-public interface IModule {
+public interface IMultiModuleEntry extends IModulePathEntry {
 
-	public char[] name();
+	default IModule getModule() {
+		return null;
+	}
+	/**
+	 * Get the module named name that this entry contributes to the module path 
+	 */
 
-	public IModuleDeclaration getDeclaration();
-	
-	IModuleEnvironment getLookupEnvironment();
+	IModule getModule(char[] name);
 }

@@ -20,8 +20,6 @@ import org.eclipse.jdt.core.ClasspathContainerInitializer;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ModulePathContainerInitializer extends ClasspathContainerInitializer {
@@ -32,12 +30,9 @@ public class ModulePathContainerInitializer extends ClasspathContainerInitialize
 		if (isModulePathContainer(containerPath)) {
 			if (project instanceof JavaProject) {
 				// TODO: should project compliance level be checked here?
-				IModule module = ((JavaProject) project).getModule();
-				if (module != null && module != ModuleEnvironment.UNNAMED_MODULE) {
-					ModulePathContainer container = new ModulePathContainer(project);
-					JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { project },
-							new IClasspathContainer[] { container }, null);
-				}
+				ModulePathContainer container = new ModulePathContainer(project);
+				JavaCore.setClasspathContainer(containerPath, new IJavaProject[] { project },
+						new IClasspathContainer[] { container }, null);
 			}
 		} else if (JavaModelManager.CP_RESOLVE_VERBOSE || JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
 			verbose_not_a_module_project(project, containerPath);

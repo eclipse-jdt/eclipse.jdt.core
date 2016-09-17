@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2015 IBM Corporation and others.
+ * Copyright (c) 2015, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     Kenneth Olson - initial API and implementation
@@ -28,10 +32,13 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
+import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class ClasspathJsr199 extends ClasspathLocation {
+public class ClasspathJsr199 extends ClasspathLocation implements IModuleEnvironment {
 	private static final Set<JavaFileObject.Kind> fileTypes = new HashSet<>();
 
 	static {
@@ -54,13 +61,8 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	}
 
 	@Override
-	public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, IModule mod) {
-		return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false, mod);
-	}
-
-	@Override
-	public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String aQualifiedBinaryFileName,
-			boolean asBinaryOnly, IModule mod) {
+	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String aQualifiedBinaryFileName,
+			boolean asBinaryOnly) {
 
 		String qualifiedBinaryFileName = File.separatorChar == '/'
 				? aQualifiedBinaryFileName
@@ -82,7 +84,6 @@ public class ClasspathJsr199 extends ClasspathLocation {
 			try (InputStream inputStream = jfo.openInputStream()) {
 				ClassFileReader reader = ClassFileReader.read(inputStream, qualifiedBinaryFileName);
 				if (reader != null) {
-					reader.moduleName = this.module == null ? null : this.module.name();
 					return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName));
 				}
 			}
@@ -139,7 +140,7 @@ public class ClasspathJsr199 extends ClasspathLocation {
 
 	@Override
 	public void acceptModule(IModule mod) {
-		this.module = mod;
+		// do nothing
 	}
 
 	@Override
@@ -211,8 +212,36 @@ public class ClasspathJsr199 extends ClasspathLocation {
 	}
 
 	@Override
-	public IModule getModule(char[] moduleName) {
+	public IModule getModule() {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	@Override
+	public ITypeLookup typeLookup() {
+		return this::findClass;
+	}
+	@Override
+	public IPackageLookup packageLookup() {
+		return this::isPackage;
+	}
+
+	@Override
+	public IModuleEnvironment getLookupEnvironmentFor(IModule mod) {
+		//
+		return servesModule(mod.name()) ? this : null;
+	}
+
+	@Override
+	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName,
+			String qualifiedBinaryFileName) {
+		//
+		return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
+	}
+
+	@Override
+	public IModuleEnvironment getLookupEnvironment() {
+		//
+		return this;
+	}
+
 }

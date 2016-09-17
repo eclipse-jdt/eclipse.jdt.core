@@ -91,7 +91,7 @@ public class ModuleDeclaration extends TypeDeclaration {
 				if (!requiredModules.add(ref.binding)) {
 					this.scope.problemReporter().duplicateModuleReference(IProblem.DuplicateRequires, ref);
 				}
-				Collection<ModuleBinding> deps = ref.binding.getImplicitDependencies();
+				Collection<ModuleBinding> deps = ref.binding.dependencyGraphCollector().get();
 				if (deps.contains(this.moduleBinding))
 					this.scope.problemReporter().cyclicModuleDependency(this.moduleBinding, ref);
 			}

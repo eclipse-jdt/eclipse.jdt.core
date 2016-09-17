@@ -43,6 +43,7 @@ import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -724,9 +725,11 @@ public void exitType(int declarationEnd) {
 		PackageFragmentRoot root= (PackageFragmentRoot) handle.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
 		if (root != null) {
 			try {
-				org.eclipse.jdt.internal.core.ModuleInfo module = createModuleInfo(typeInfo, handle);
-				this.unitInfo.setModule(module);
-				((PackageFragmentRootInfo)(root.getElementInfo())).setModule(module);
+				org.eclipse.jdt.internal.core.ModuleInfo moduleDecl = createModuleInfo(typeInfo, handle);
+				IModule module = ((PackageFragmentRootInfo)(root.getElementInfo())).getModule();
+				if (module != null) {
+					((Module)module).declaration = moduleDecl;
+				}
 			} catch (JavaModelException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

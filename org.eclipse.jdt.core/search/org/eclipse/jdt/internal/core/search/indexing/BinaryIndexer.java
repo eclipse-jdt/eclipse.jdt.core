@@ -29,10 +29,10 @@ import org.eclipse.jdt.internal.compiler.env.ClassSignature;
 import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
-import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
-import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
-import org.eclipse.jdt.internal.compiler.env.IModule.IService;
+import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration;
+import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration.IModuleReference;
+import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration.IPackageExport;
+import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration.IService;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -641,7 +641,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			final String path = this.document.getPath();
 			ClassFileReader reader = new ClassFileReader(contents, path == null ? null : path.toCharArray());
 			
-			IModule module = reader.getModuleDeclaration();
+			IModuleDeclaration module = reader.getModuleDeclaration();
 			if (module != null) {
 				indexModule(module);
 				return;
@@ -839,7 +839,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 		}
 	}
 	
-	private void indexModule(IModule module) {
+	private void indexModule(IModuleDeclaration module) {
 		addModuleDeclaration(module.name());
 		IModuleReference[] requiredModules = module.requires();
 		if (requiredModules != null) {

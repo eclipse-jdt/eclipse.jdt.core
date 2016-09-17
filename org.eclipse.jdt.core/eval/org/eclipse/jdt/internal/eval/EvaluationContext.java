@@ -359,12 +359,12 @@ public void evaluateImports(INameEnvironment environment, IRequestor requestor, 
 						parentName = CharOperation.subarray(splitDeclaration, 0, splitLength - 2);
 						pkgName = splitDeclaration[splitLength - 2];
 				}
-				if (!environment.isPackage(parentName, pkgName, null)) {
+				if (!environment.isPackage(parentName, pkgName)) {
 					String[] arguments = new String[] {new String(importDeclaration)};
 					problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportNotFound, arguments, arguments, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i, 0);
 				}
 			} else {
-				if (environment.findType(splitDeclaration, (char[]) null) == null) {
+				if (environment.findType(splitDeclaration) == null) {
 					String[] arguments = new String[] {new String(importDeclaration)};
 					problems[0] = problemFactory.createProblem(importDeclaration, IProblem.ImportNotFound, arguments, arguments, ProblemSeverities.Warning, 0, importDeclaration.length - 1, i, 0);
 				}
