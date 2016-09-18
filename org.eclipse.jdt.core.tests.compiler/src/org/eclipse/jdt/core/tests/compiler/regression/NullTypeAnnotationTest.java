@@ -13231,4 +13231,62 @@ public void testBug505671() {
 		"----------\n"
 	);
 }
+public void testBug501564() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"xxx/Foo.java",
+			"package xxx;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.DefaultLocation;\n" +
+			"\n" +
+			"class Generic<E1 extends Generic<E1>> { \n" +
+			"}\n" +
+			"class Foo { \n" +
+			"    static <E2 extends Generic<E2>> Bar<E2> foo() {\n" +
+			"        return new Bar<>();\n" +
+			"    }\n" +
+			"\n" +
+			"    @NonNullByDefault(DefaultLocation.TYPE_PARAMETER)\n" +
+			"    static class Bar<E3 extends Generic<E3>> { }\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in xxx\\Foo.java (at line 8)\n" + 
+		"	static <E2 extends Generic<E2>> Bar<E2> foo() {\n" + 
+		"	                                    ^^\n" + 
+		"Null constraint mismatch: The type \'E2 extends Generic<E2>\' is not a valid substitute for the type parameter \'@NonNull E3 extends Generic<E3 extends Generic<E3>>\'\n" + 
+		"----------\n"
+	);
+}
+public void testBug501564interface() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"xxx/Foo.java",
+			"package xxx;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.DefaultLocation;\n" +
+			"\n" +
+			"interface Generic<E1 extends Generic<E1>> { \n" +
+			"}\n" +
+			"class Foo { \n" +
+			"    static <E2 extends Generic<E2>> Bar<E2> foo() {\n" +
+			"        return new Bar<>();\n" +
+			"    }\n" +
+			"\n" +
+			"    @NonNullByDefault(DefaultLocation.TYPE_PARAMETER)\n" +
+			"    static class Bar<E3 extends Generic<E3>> { }\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in xxx\\Foo.java (at line 8)\n" + 
+		"	static <E2 extends Generic<E2>> Bar<E2> foo() {\n" + 
+		"	                                    ^^\n" + 
+		"Null constraint mismatch: The type \'E2 extends Generic<E2>\' is not a valid substitute for the type parameter \'@NonNull E3 extends Generic<E3 extends Generic<E3>>\'\n" + 
+		"----------\n"
+	);
+}
 }
