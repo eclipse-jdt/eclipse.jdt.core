@@ -2773,22 +2773,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				&& (zipFile = zipCache.getCache(path)) != null) {
 			return zipFile;
 		}
-		File localFile = null;
-		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-		IResource file = root.findMember(path);
-		if (file != null) {
-			// internal resource
-			URI location;
-			if (file.getType() != IResource.FILE || (location = file.getLocationURI()) == null) {
-				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.file_notFound, path.toString()), null));
-			}
-			localFile = Util.toLocalFile(location, null/*no progress availaible*/);
-			if (localFile == null)
-				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.file_notFound, path.toString()), null));
-		} else {
-			// external resource -> it is ok to use toFile()
-			localFile= path.toFile();
-		}
+		File localFile = getLocalFile(path);
 
 		try {
 			if (ZIP_ACCESS_VERBOSE) {
@@ -2807,6 +2792,26 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			addInvalidArchive(path, reason);
 			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.status_IOException, e));
 		}
+	}
+
+	public static File getLocalFile(IPath path) throws CoreException {
+		File localFile = null;
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		IResource file = root.findMember(path);
+		if (file != null) {
+			// internal resource
+			URI location;
+			if (file.getType() != IResource.FILE || (location = file.getLocationURI()) == null) {
+				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.file_notFound, path.toString()), null));
+			}
+			localFile = Util.toLocalFile(location, null/*no progress availaible*/);
+			if (localFile == null)
+				throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.bind(Messages.file_notFound, path.toString()), null));
+		} else {
+			// external resource -> it is ok to use toFile()
+			localFile= path.toFile();
+		}
+		return localFile;
 	}
 
 	private void throwExceptionIfArchiveInvalid(IPath path) throws CoreException {

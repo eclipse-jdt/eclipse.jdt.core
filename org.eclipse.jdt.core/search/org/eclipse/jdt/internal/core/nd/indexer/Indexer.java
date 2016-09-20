@@ -11,10 +11,12 @@
 package org.eclipse.jdt.internal.core.nd.indexer;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +25,9 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipException;
+import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
@@ -51,6 +56,9 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.IDependent;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaElementDelta;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -59,6 +67,7 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint.FingerprintTestResult;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
+import org.eclipse.jdt.internal.core.nd.java.JavaNames;
 import org.eclipse.jdt.internal.core.nd.java.NdBinding;
 import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.nd.java.NdType;
@@ -690,78 +699,130 @@ public final class Indexer {
 	 */
 	private int addElement(NdResourceFile resourceFile, IJavaElement element, IProgressMonitor monitor)
 			throws JavaModelException {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
-		List<IJavaElement> bindableElements = getBindableElements(element, subMonitor.split(10));
-		List<IClassFile> classFiles = getClassFiles(bindableElements);
+		SubMonitor subMonitor = SubMonitor.convert(monitor);
 
-		if (DEBUG && classFiles.isEmpty()) {
-			Package.logInfo("The path " + element.getPath() + " contained no class files"); //$NON-NLS-1$ //$NON-NLS-2$
-		}
+		if (element instanceof JarPackageFragmentRoot) {
+			JarPackageFragmentRoot jarRoot = (JarPackageFragmentRoot) element;
 
-		subMonitor.setWorkRemaining(classFiles.size());
+			IPath workspacePath = jarRoot.getPath();
+			IPath location = JavaIndex.getLocationForElement(jarRoot);
 
-		int classesIndexed = 0;
-		ClassFileToIndexConverter converter = new ClassFileToIndexConverter(resourceFile);
-		for (IClassFile next : classFiles) {
-			SubMonitor iterationMonitor = subMonitor.split(1).setWorkRemaining(100);
+			int classesIndexed = 0;
+			try (ZipFile zipFile = new ZipFile(JavaModelManager.getLocalFile(jarRoot.getPath()))) {
+				subMonitor.setWorkRemaining(zipFile.size());
 
-			try {
-				BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(next);
-				ClassFileReader binaryType = BinaryTypeFactory.rawReadType(descriptor, true);
-
-				this.nd.acquireWriteLock(iterationMonitor.split(5));
-				try {
-					if (!resourceFile.isInIndex()) {
-						return classesIndexed;
+				for (Enumeration<? extends ZipEntry> e = zipFile.entries(); e.hasMoreElements();) {
+					SubMonitor nextEntry = subMonitor.split(1).setWorkRemaining(2);
+					ZipEntry member = e.nextElement();
+					if (member.isDirectory()) {
+						continue;
 					}
+					nextEntry.split(1);
+					String fileName = member.getName();
 
-					if (DEBUG_INSERTIONS) {
-						Package.logInfo("Inserting " + new String(descriptor.fieldDescriptor) + " into " + new String(descriptor.location) + " " + resourceFile.address); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
-					}
-					converter.addType(binaryType, descriptor.fieldDescriptor, iterationMonitor.split(45));
-					classesIndexed++;
-				} finally {
-					this.nd.releaseWriteLock();
-				}
-
-				if (DEBUG_SELFTEST) {
-					// When this debug flag is on, we test everything written to the index by reading it back immediately after indexing
-					// and comparing it with the original class file.
-					JavaIndex index = JavaIndex.getIndex(this.nd);
-					try (IReader readLock = this.nd.acquireReadLock()) {
-						NdTypeId typeId = index.findType(descriptor.fieldDescriptor);
-						NdType targetType = null;
-						if (typeId != null) {
-							List<NdType> implementations = typeId.getTypes();
-							for (NdType nextType : implementations) {
-								NdResourceFile nextResourceFile = nextType.getResourceFile();
-								if (nextResourceFile.equals(resourceFile)) {
-									targetType = nextType;
-									break;
-								}
+					boolean classFileName = org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(fileName);
+					if (classFileName) {
+						String binaryName = fileName.substring(0, fileName.length() - SuffixConstants.SUFFIX_STRING_class.length());
+						char[] fieldDescriptor = JavaNames.binaryNameToFieldDescriptor(binaryName.toCharArray());
+						String indexPath = jarRoot.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + binaryName;
+						BinaryTypeDescriptor descriptor = new BinaryTypeDescriptor(location.toString().toCharArray(), fieldDescriptor,
+								workspacePath.toString().toCharArray(), indexPath.toCharArray());
+						try {
+							ClassFileReader classFileReader = BinaryTypeFactory.rawReadType(descriptor, true);
+							if (classFileReader != null && addClassToIndex(resourceFile, descriptor.fieldDescriptor, descriptor.indexPath,
+									classFileReader, nextEntry.split(1))) {
+								classesIndexed++;
 							}
+						} catch (CoreException | ClassFormatException exception) {
+							Package.log("Unable to index " + descriptor.toString(), exception); //$NON-NLS-1$
 						}
-
-						if (targetType != null) {
-							IndexBinaryType actualType = new IndexBinaryType(TypeRef.create(targetType), descriptor.indexPath);
-							IndexTester.testType(binaryType, actualType);
-						} else {
-							Package.logInfo("Could not find class in index immediately after indexing it: " + next.toString()); //$NON-NLS-1$
-						}
-					} catch (RuntimeException e) {
-						Package.log("Error during indexing: " + next.toString(), e); //$NON-NLS-1$
 					}
 				}
-			} catch (CoreException | ClassFormatException e) {
-				Package.log("Unable to index " + next.toString(), e); //$NON-NLS-1$
+			} catch (ZipException e) {
+				Package.log("The zip file " + jarRoot.getPath() + " was corrupt", e);  //$NON-NLS-1$//$NON-NLS-2$
+				// Indicates a corrupt zip file. Treat this like an empty zip file.
+			} catch (IOException ioException) {
+				throw new JavaModelException(ioException, IJavaModelStatusConstants.IO_EXCEPTION);
+			} catch (CoreException coreException) {
+				throw new JavaModelException(coreException);
 			}
 
-//			if (ENABLE_SELF_TEST) {
-//				IndexTester.testType(binaryType, new IndexBinaryType(ReferenceUtil.createTypeRef(type)));
-//			}
+			if (DEBUG && classesIndexed == 0) {
+				Package.logInfo("The path " + element.getPath() + " contained no class files"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			return classesIndexed;
+		} else if (element instanceof IClassFile) {
+			IClassFile classFile = (IClassFile)element;
+
+			SubMonitor iterationMonitor = subMonitor.split(1);
+			BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(classFile);
+
+			boolean indexed = false;
+			try {
+				ClassFileReader classFileReader = BinaryTypeFactory.rawReadType(descriptor, true);
+				if (classFileReader != null) {
+					indexed = addClassToIndex(resourceFile, descriptor.fieldDescriptor, descriptor.indexPath,
+							classFileReader, iterationMonitor);
+				}
+			} catch (CoreException | ClassFormatException e) {
+				Package.log("Unable to index " + classFile.toString(), e); //$NON-NLS-1$
+			}
+
+			return indexed ? 1 : 0;
+		} else {
+			Package.logInfo("Unable to index elements of type " + element); //$NON-NLS-1$
+			return 0;
+		}
+	}
+
+	private boolean addClassToIndex(NdResourceFile resourceFile, char[] fieldDescriptor, char[] indexPath,
+			ClassFileReader binaryType, IProgressMonitor monitor) throws ClassFormatException, CoreException {
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
+		ClassFileToIndexConverter converter = new ClassFileToIndexConverter(resourceFile);
+
+		boolean indexed = false;
+		this.nd.acquireWriteLock(subMonitor.split(5));
+		try {
+			if (resourceFile.isInIndex()) {
+				if (DEBUG_INSERTIONS) {
+					Package.logInfo("Inserting " + new String(fieldDescriptor) + " into " + resourceFile.getLocation().getString() + " " + resourceFile.address); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+				}
+				converter.addType(binaryType, fieldDescriptor, subMonitor.split(45));
+				indexed = true;
+			}
+		} finally {
+			this.nd.releaseWriteLock();
 		}
 
-		return classesIndexed;
+		if (DEBUG_SELFTEST && indexed) {
+			// When this debug flag is on, we test everything written to the index by reading it back immediately after indexing
+			// and comparing it with the original class file.
+			JavaIndex index = JavaIndex.getIndex(this.nd);
+			try (IReader readLock = this.nd.acquireReadLock()) {
+				NdTypeId typeId = index.findType(fieldDescriptor);
+				NdType targetType = null;
+				if (typeId != null) {
+					List<NdType> implementations = typeId.getTypes();
+					for (NdType nextType : implementations) {
+						NdResourceFile nextResourceFile = nextType.getResourceFile();
+						if (nextResourceFile.equals(resourceFile)) {
+							targetType = nextType;
+							break;
+						}
+					}
+				}
+
+				if (targetType != null) {
+					IndexBinaryType actualType = new IndexBinaryType(TypeRef.create(targetType), indexPath);
+					IndexTester.testType(binaryType, actualType);
+				} else {
+					Package.logInfo("Could not find class in index immediately after indexing it: " + new String(indexPath)); //$NON-NLS-1$
+				}
+			} catch (RuntimeException e) {
+				Package.log("Error during indexing: " + new String(indexPath), e); //$NON-NLS-1$
+			}
+		}
+		return indexed;
 	}
 
 	private List<IClassFile> getClassFiles(List<IJavaElement> bindableElements) {
