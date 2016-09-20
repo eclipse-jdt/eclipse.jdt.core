@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaModelCache {
 	public static boolean VERBOSE = false;
+	public static boolean DEBUG_CACHE_INSERTIONS = false;
 
 	public static final int DEFAULT_PROJECT_SIZE = 5;  // average 25552 bytes per project.
 	public static final int DEFAULT_ROOT_SIZE = 50; // average 2590 bytes per root -> maximum size : 25900*BASE_VALUE bytes
@@ -209,6 +210,9 @@ protected Object peekAtInfo(IJavaElement element) {
  * Remember the info for the element.
  */
 protected void putInfo(IJavaElement element, Object info) {
+	if (DEBUG_CACHE_INSERTIONS) {
+		System.out.println(Thread.currentThread() + " cache putInfo (" + getElementType(element) + " " + element.toString() + ", " + info + ")");  //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+	}
 	switch (element.getElementType()) {
 		case IJavaElement.JAVA_MODEL:
 			this.modelInfo = info;
@@ -233,10 +237,39 @@ protected void putInfo(IJavaElement element, Object info) {
 			this.childrenCache.put(element, info);
 	}
 }
+
+public static String getElementType(IJavaElement element) {
+	String elementType;
+	switch (element.getElementType()) {
+		case IJavaElement.JAVA_PROJECT:
+			elementType = "project"; //$NON-NLS-1$
+			break;
+		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
+			elementType = "root"; //$NON-NLS-1$
+			break;
+		case IJavaElement.PACKAGE_FRAGMENT:
+			elementType = "package"; //$NON-NLS-1$
+			break;
+		case IJavaElement.CLASS_FILE:
+			elementType = "class file"; //$NON-NLS-1$
+			break;
+		case IJavaElement.COMPILATION_UNIT:
+			elementType = "compilation unit"; //$NON-NLS-1$
+			break;
+		default:
+			elementType = "element"; //$NON-NLS-1$
+	}
+	return elementType;
+}
+
 /**
  * Removes the info of the element from the cache.
  */
 protected void removeInfo(JavaElement element) {
+	if (DEBUG_CACHE_INSERTIONS) {
+		String elementToString = element.toString();
+		System.out.println(Thread.currentThread() + " cache removeInfo " + getElementType(element) + " " + elementToString);  //$NON-NLS-1$//$NON-NLS-2$
+	}
 	switch (element.getElementType()) {
 		case IJavaElement.JAVA_MODEL:
 			this.modelInfo = null;

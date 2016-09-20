@@ -339,6 +339,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String COMPILER_DEBUG = JavaCore.PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
 	private static final String JAVAMODEL_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel" ; //$NON-NLS-1$
 	private static final String JAVAMODELCACHE_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel/cache" ; //$NON-NLS-1$
+	private static final String JAVAMODELCACHE_INSERTIONS_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel/insertions" ; //$NON-NLS-1$
 	private static final String CP_RESOLVE_DEBUG = JavaCore.PLUGIN_ID + "/debug/cpresolution" ; //$NON-NLS-1$
 	private static final String CP_RESOLVE_ADVANCED_DEBUG = JavaCore.PLUGIN_ID + "/debug/cpresolution/advanced" ; //$NON-NLS-1$
 	private static final String CP_RESOLVE_FAILURE_DEBUG = JavaCore.PLUGIN_ID + "/debug/cpresolution/failure" ; //$NON-NLS-1$
@@ -1802,6 +1803,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				IndexManager.DEBUG = debug && options.getBooleanOption(INDEX_MANAGER_ADVANCED_DEBUG, false);
 				JavaModelManager.VERBOSE = debug && options.getBooleanOption(JAVAMODEL_DEBUG, false);
 				JavaModelCache.VERBOSE = debug && options.getBooleanOption(JAVAMODELCACHE_DEBUG, false);
+				JavaModelCache.DEBUG_CACHE_INSERTIONS = debug && options.getBooleanOption(JAVAMODELCACHE_INSERTIONS_DEBUG, false);
 				JavaModelOperation.POST_ACTION_VERBOSE = debug && options.getBooleanOption(POST_ACTION_DEBUG, false);
 				NameLookup.VERBOSE = debug && options.getBooleanOption(RESOLUTION_DEBUG, false);
 				BasicSearchEngine.VERBOSE = debug && options.getBooleanOption(SEARCH_DEBUG, false);
@@ -4041,26 +4043,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			boolean wasVerbose = false;
 			try {
 				if (JavaModelCache.VERBOSE) {
-					String elementType;
-					switch (element.getElementType()) {
-						case IJavaElement.JAVA_PROJECT:
-							elementType = "project"; //$NON-NLS-1$
-							break;
-						case IJavaElement.PACKAGE_FRAGMENT_ROOT:
-							elementType = "root"; //$NON-NLS-1$
-							break;
-						case IJavaElement.PACKAGE_FRAGMENT:
-							elementType = "package"; //$NON-NLS-1$
-							break;
-						case IJavaElement.CLASS_FILE:
-							elementType = "class file"; //$NON-NLS-1$
-							break;
-						case IJavaElement.COMPILATION_UNIT:
-							elementType = "compilation unit"; //$NON-NLS-1$
-							break;
-						default:
-							elementType = "element"; //$NON-NLS-1$
-					}
+					String elementType = JavaModelCache.getElementType(element);
 					System.out.println(Thread.currentThread() + " CLOSING "+ elementType + " " + element.toStringWithAncestors());  //$NON-NLS-1$//$NON-NLS-2$
 					wasVerbose = true;
 					JavaModelCache.VERBOSE = false;

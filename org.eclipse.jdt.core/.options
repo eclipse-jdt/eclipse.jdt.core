@@ -53,6 +53,9 @@ org.eclipse.jdt.core/debug/javamodel=false
 # Reports Java model elements opening/closing
 org.eclipse.jdt.core/debug/javamodel/cache=false
 
+# Reports all insertions and removals from the java model cache
+org.eclipse.jdt.core/debug/javamodel/insertions=false
+
 # Prints information about when the indexer runs and what files are being indexed
 org.eclipse.jdt.core/debug/index/indexer=false
 
