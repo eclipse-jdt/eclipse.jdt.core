@@ -709,6 +709,13 @@ public final class Indexer {
 
 			int classesIndexed = 0;
 			try (ZipFile zipFile = new ZipFile(JavaModelManager.getLocalFile(jarRoot.getPath()))) {
+				// Used for the error-handling unit tests
+				if (JavaModelManager.throwIoExceptionsInGetZipFile) {
+					if (DEBUG) {
+						Package.logInfo("Throwing simulated IOException for error handling test case"); //$NON-NLS-1$
+					}
+					throw new IOException();
+				}
 				subMonitor.setWorkRemaining(zipFile.size());
 
 				for (Enumeration<? extends ZipEntry> e = zipFile.entries(); e.hasMoreElements();) {
@@ -728,8 +735,9 @@ public final class Indexer {
 						BinaryTypeDescriptor descriptor = new BinaryTypeDescriptor(location.toString().toCharArray(), fieldDescriptor,
 								workspacePath.toString().toCharArray(), indexPath.toCharArray());
 						try {
-							ClassFileReader classFileReader = BinaryTypeFactory.rawReadType(descriptor, true);
-							if (classFileReader != null && addClassToIndex(resourceFile, descriptor.fieldDescriptor, descriptor.indexPath,
+							byte[] contents = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(member, zipFile);
+							ClassFileReader classFileReader = new ClassFileReader(contents, descriptor.indexPath, true);
+							if (addClassToIndex(resourceFile, descriptor.fieldDescriptor, descriptor.indexPath,
 									classFileReader, nextEntry.split(1))) {
 								classesIndexed++;
 							}
