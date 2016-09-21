@@ -35,11 +35,13 @@ public class Token {
 		WHERE_NECESSARY,
 		/** Wrap mode for the "Wrap all elements" policies. */
 		TOP_PRIORITY,
+		/** Wrap mode for tokens that must be wrapped due to "Force wrap" setting. */
+		FORCE,
 		/**
-		 * Wrap mode for tokens that are already in new line before wrapping, but their indentation should be adjusted
-		 * in similar way to wrapping. Used for anonymous class body, lambda body and comments inside code.
+		 * Wrap mode used for lines in anonymous class and lambda body. Means that tokens that are already in new line
+		 * before wrapping, but their indentation should be adjusted in similar way to wrapping.
 		 */
-		FORCED
+		BLOCK_INDENT
 	}
 
 	public static class WrapPolicy {
@@ -89,6 +91,7 @@ public class Token {
 	public final int tokenType;
 	private boolean spaceBefore, spaceAfter;
 	private int lineBreaksBefore, lineBreaksAfter;
+	private boolean wrapped;
 	private int indent;
 	private int emptyLineIndentAdjustment;
 	private int align;
@@ -96,7 +99,6 @@ public class Token {
 
 	private boolean nextLineOnWrap;
 	private WrapPolicy wrapPolicy;
-	private Token separateLinesOnWrapUntil;
 
 	private Token nlsTagToken;
 
@@ -181,7 +183,12 @@ public class Token {
 	}
 
 	public int getLineBreaksBefore() {
-		return this.lineBreaksBefore;
+		return this.wrapped ? 1 : this.lineBreaksBefore;
+	}
+
+	/** Can be used to temporarily force preceding line break without losing the original number of line breaks. */
+	public void setWrapped(boolean wrapped) {
+		this.wrapped = wrapped;
 	}
 
 	public void clearLineBreaksBefore() {
@@ -254,14 +261,6 @@ public class Token {
 		return this.nextLineOnWrap;
 	}
 
-	public void setSeparateLinesOnWrapUntil(Token token) {
-		this.separateLinesOnWrapUntil = token;
-	}
-
-	public Token getSeparateLinesOnWrapUntil() {
-		return this.separateLinesOnWrapUntil;
-	}
-
 	public void setWrapPolicy(WrapPolicy wrapPolicy) {
 		this.wrapPolicy = wrapPolicy;
 	}
@@ -272,7 +271,7 @@ public class Token {
 
 	public boolean isWrappable() {
 		WrapPolicy wp = this.wrapPolicy;
-		return wp != null && wp.wrapMode != WrapMode.DISABLED && wp.wrapMode != WrapMode.FORCED;
+		return wp != null && wp.wrapMode != WrapMode.DISABLED && wp.wrapMode != WrapMode.BLOCK_INDENT;
 	}
 
 	public void setNLSTag(Token nlsTagToken) {

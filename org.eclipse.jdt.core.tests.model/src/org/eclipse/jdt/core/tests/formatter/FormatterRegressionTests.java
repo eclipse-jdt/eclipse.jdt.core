@@ -13910,4 +13910,12 @@ public void testBug488642b() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/493296 - Eclipse formatter hangs when formatting with formatter.join_wrapped_lines=true
+ */
+public void testBug493296() throws JavaModelException {
+	setPageWidth80();
+	String input = getCompilationUnit("Formatter", "", "test493296", "A_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test493296", "A_out.java").getSource());
+}
 }

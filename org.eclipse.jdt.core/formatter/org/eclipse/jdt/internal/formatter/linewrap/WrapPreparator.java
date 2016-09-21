@@ -801,9 +801,9 @@ public class WrapPreparator extends ASTVisitor {
 		for (int i = from; i <= to; i++) {
 			Token token = this.tm.get(i);
 			if ((token.getLineBreaksBefore() > 0 || (previous != null && previous.getLineBreaksAfter() > 0))
-					&& (token.getWrapPolicy() == null || token.getWrapPolicy().wrapMode == WrapMode.FORCED)) {
+					&& (token.getWrapPolicy() == null || token.getWrapPolicy().wrapMode == WrapMode.BLOCK_INDENT)) {
 				int extraIndent = token.getIndent() + indentChange;
-				token.setWrapPolicy(new WrapPolicy(WrapMode.FORCED, parentIndex, extraIndent));
+				token.setWrapPolicy(new WrapPolicy(WrapMode.BLOCK_INDENT, parentIndex, extraIndent));
 				token.setIndent(parentIndent + extraIndent);
 			}
 			previous = token;
@@ -864,10 +864,18 @@ public class WrapPreparator extends ASTVisitor {
 			return;
 		assert this.wrapParentIndex >= 0 && this.wrapParentIndex < this.wrapIndexes.get(0);
 		assert this.wrapGroupEnd >= this.wrapIndexes.get(this.wrapIndexes.size() - 1);
+
 		float penalty = this.wrapPenalties.isEmpty() ? 1 : this.wrapPenalties.get(0);
 		WrapPolicy policy = getWrapPolicy(wrappingOption, penalty, true, parentNode);
-		if (policy == null)
-			return;
+
+		WrapPolicy existing = this.tm.get(this.wrapIndexes.get(0)).getWrapPolicy();
+		if (existing != null && existing.wrapMode == WrapMode.TOP_PRIORITY) {
+			// SEPARATE_LINES_IF_WRAPPED
+			assert existing.wrapParentIndex == this.wrapParentIndex;
+			this.wrapGroupEnd = existing.groupEndIndex;
+			policy = new WrapPolicy(WrapMode.TOP_PRIORITY, policy.wrapParentIndex, this.wrapGroupEnd, policy.extraIndent,
+					policy.structureDepth, policy.penaltyMultiplier, true, policy.indentOnColumn);
+		}
 
 		setTokenWrapPolicy(0, policy, true);
 
@@ -878,24 +886,6 @@ public class WrapPreparator extends ASTVisitor {
 			if (penalty != policy.penaltyMultiplier || i == 1)
 				policy = getWrapPolicy(wrappingOption, penalty, false, parentNode);
 			setTokenWrapPolicy(i, policy, wrapPreceedingComments);
-		}
-
-		boolean forceWrap = (wrappingOption & Alignment.M_FORCE) != 0;
-		if (forceWrap && policy.wrapMode != WrapMode.DISABLED) {
-			boolean satisfied = false;
-			for (int index : this.wrapIndexes) {
-				Token token = this.tm.get(index);
-				if (token.getWrapPolicy().wrapMode == WrapMode.TOP_PRIORITY) {
-					token.breakBefore();
-					satisfied = true;
-				}
-			}
-			if (!satisfied) {
-				boolean canWrapFirst = (wrappingOption
-						& Alignment.M_NEXT_PER_LINE_SPLIT) != Alignment.M_NEXT_PER_LINE_SPLIT;
-				if (canWrapFirst)
-					this.tm.get(this.wrapIndexes.get(0)).breakBefore();
-			}
 		}
 
 		if (!this.secondaryWrapIndexes.isEmpty()) {
@@ -925,10 +915,13 @@ public class WrapPreparator extends ASTVisitor {
 		}
 
 		Token token = this.tm.get(index);
-		if (token.getWrapPolicy() != WrapPolicy.DISABLE_WRAP)
-			token.setWrapPolicy(policy);
+		if (token.getWrapPolicy() == WrapPolicy.DISABLE_WRAP)
+			return;
 
-		if (this.options.join_wrapped_lines && token.tokenType == TokenNameCOMMENT_BLOCK) {
+		token.setWrapPolicy(policy);
+		if (policy.wrapMode == WrapMode.FORCE) {
+			token.breakBefore();
+		} else if (this.options.join_wrapped_lines && token.tokenType == TokenNameCOMMENT_BLOCK) {
 			// allow wrap preparator to decide if this comment should be wrapped
 			token.clearLineBreaksBefore();
 		}
@@ -938,6 +931,7 @@ public class WrapPreparator extends ASTVisitor {
 		assert this.wrapParentIndex >= 0 && this.wrapGroupEnd >= 0;
 		int extraIndent = this.options.continuation_indentation;
 		boolean indentOnColumn = (wrappingOption & Alignment.M_INDENT_ON_COLUMN) != 0;
+		boolean isForceWrap = (wrappingOption & Alignment.M_FORCE) != 0;
 		boolean isAlreadyWrapped = false;
 		if (indentOnColumn) {
 			extraIndent = 0;
@@ -954,6 +948,7 @@ public class WrapPreparator extends ASTVisitor {
 			extraIndent = 1;
 		} else if (parentNode instanceof ArrayInitializer) {
 			extraIndent = this.options.continuation_indentation_for_array_initializer;
+			isAlreadyWrapped = isFirst && this.options.insert_new_line_after_opening_brace_in_array_initializer;
 		}
 
 		WrapMode wrapMode = WrapMode.WHERE_NECESSARY;
@@ -961,9 +956,11 @@ public class WrapPreparator extends ASTVisitor {
 		switch (wrappingOption & Alignment.SPLIT_MASK) {
 			case Alignment.M_NO_ALIGNMENT:
 				wrapMode = WrapMode.DISABLED;
+				isForceWrap = false;
 				break;
 			case Alignment.M_COMPACT_FIRST_BREAK_SPLIT:
 				isTopPriority = isFirst;
+				isForceWrap &= isFirst;
 				break;
 			case Alignment.M_ONE_PER_LINE_SPLIT:
 				isTopPriority = true;
@@ -975,13 +972,17 @@ public class WrapPreparator extends ASTVisitor {
 				break;
 			case Alignment.M_NEXT_PER_LINE_SPLIT:
 				isTopPriority = !isFirst;
+				isForceWrap &= !isFirst;
 				break;
 		}
 
-		if (isAlreadyWrapped)
-			isTopPriority = false; // to avoid triggering top priority wrapping
-		if (isTopPriority)
+		if (isForceWrap) {
+			wrapMode = WrapMode.FORCE;
+		} else if (isAlreadyWrapped) {
+			wrapMode = WrapMode.DISABLED; // to avoid triggering top priority wrapping
+		} else if (isTopPriority) { 
 			wrapMode = WrapMode.TOP_PRIORITY;
+		}
 		extraIndent *= this.options.indentation_size;
 		return new WrapPolicy(wrapMode, this.wrapParentIndex, this.wrapGroupEnd, extraIndent, this.currentDepth,
 				penaltyMultiplier, isFirst, indentOnColumn);
@@ -1005,22 +1006,15 @@ public class WrapPreparator extends ASTVisitor {
 		first.putLineBreaksBefore(startingBreaks - 1);
 
 		this.tm.traverse(0, new TokenTraverser() {
-			DefaultCodeFormatterOptions options2 = WrapPreparator.this.options;
+			boolean join_wrapped_lines = WrapPreparator.this.options.join_wrapped_lines;
 
 			@Override
 			protected boolean token(Token token, int index) {
 				boolean isBetweenImports = index > WrapPreparator.this.importsStart
 						&& index < WrapPreparator.this.importsEnd;
 				int lineBreaks = getLineBreaksToPreserve(getPrevious(), token, isBetweenImports);
-				if (lineBreaks <= getLineBreaksBefore())
-					return true;
-
-				if (lineBreaks == 1) {
-					if ((!this.options2.join_wrapped_lines && token.isWrappable()) || index == 0)
-						token.breakBefore();
-				} else if (lineBreaks > 1) {
+				if (lineBreaks > 1 || (!this.join_wrapped_lines && token.isWrappable()) || index == 0)
 					token.putLineBreaksBefore(lineBreaks);
-				}
 				return true;
 			}
 

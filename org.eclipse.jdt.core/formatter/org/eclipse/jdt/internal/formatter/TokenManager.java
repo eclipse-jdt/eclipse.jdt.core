@@ -388,13 +388,13 @@ public class TokenManager implements Iterable<Token> {
 		return findFirstTokenInLine(startIndex, false, false);
 	}
 
-	public int findFirstTokenInLine(int startIndex, boolean includeWraps, boolean includeForced) {
+	public int findFirstTokenInLine(int startIndex, boolean includeWraps, boolean includeIndents) {
 		Token previous = get(startIndex); // going backwards, previous has higher index than current
 		for (int i = startIndex - 1; i >= 0; i--) {
 			Token token = get(i);
 			if (token.getLineBreaksAfter() > 0 || previous.getLineBreaksBefore() > 0) {
 				boolean include = previous.getWrapPolicy() != null
-						&& (previous.getWrapPolicy().wrapMode == WrapMode.FORCED ? includeForced : includeWraps);
+						&& (previous.getWrapPolicy().wrapMode == WrapMode.BLOCK_INDENT ? includeIndents : includeWraps);
 				if (!include)
 					return i + 1;
 			}
