@@ -53,8 +53,14 @@ org.eclipse.jdt.core/debug/javamodel=false
 # Reports Java model elements opening/closing
 org.eclipse.jdt.core/debug/javamodel/cache=false
 
+# Reports changes in the Java classpath and classpath resolution
+org.eclipse.jdt.core/debug/javamodel/classpath=false
+
 # Reports all insertions and removals from the java model cache
 org.eclipse.jdt.core/debug/javamodel/insertions=false
+
+# Records information about the invalid archive cache
+org.eclipse.jdt.core/debug/javamodel/invalid_archives=false
 
 # Prints information about when the indexer runs and what files are being indexed
 org.eclipse.jdt.core/debug/index/indexer=false

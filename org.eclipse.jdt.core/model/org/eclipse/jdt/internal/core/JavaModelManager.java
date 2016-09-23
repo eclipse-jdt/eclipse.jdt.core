@@ -337,7 +337,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String INDEX_MANAGER_DEBUG = JavaCore.PLUGIN_ID + "/debug/indexmanager" ; //$NON-NLS-1$
 	private static final String INDEX_MANAGER_ADVANCED_DEBUG = JavaCore.PLUGIN_ID + "/debug/indexmanager/advanced" ; //$NON-NLS-1$
 	private static final String COMPILER_DEBUG = JavaCore.PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
+	private static final String JAVAMODEL_CLASSPATH = JavaCore.PLUGIN_ID + "/debug/javamodel/classpath" ; //$NON-NLS-1$
 	private static final String JAVAMODEL_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel" ; //$NON-NLS-1$
+	private static final String JAVAMODEL_INVALID_ARCHIVES = JavaCore.PLUGIN_ID + "/debug/javamodel/invalid_archives" ; //$NON-NLS-1$
 	private static final String JAVAMODELCACHE_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel/cache" ; //$NON-NLS-1$
 	private static final String JAVAMODELCACHE_INSERTIONS_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel/insertions" ; //$NON-NLS-1$
 	private static final String CP_RESOLVE_DEBUG = JavaCore.PLUGIN_ID + "/debug/cpresolution" ; //$NON-NLS-1$
@@ -1301,6 +1303,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 
 		private ClasspathChange setClasspath(IClasspathEntry[] newRawClasspath, IClasspathEntry[] referencedEntries, IPath newOutputLocation, IJavaModelStatus newRawClasspathStatus, IClasspathEntry[] newResolvedClasspath, Map newRootPathToRawEntries, Map newRootPathToResolvedEntries, IJavaModelStatus newUnresolvedEntryStatus, boolean addClasspathChange) {
+			if (DEBUG_CLASSPATH) {
+				System.out.println("Setting resolved classpath for " + this.project.getFullPath()); //$NON-NLS-1$
+				if (newResolvedClasspath == null) {
+					System.out.println("New classpath = null"); //$NON-NLS-1$
+				} else { 
+					for (IClasspathEntry next : newResolvedClasspath) {
+						System.out.println("    " + next); //$NON-NLS-1$
+					}
+				}
+			}
 			ClasspathChange classpathChange = addClasspathChange ? addClasspathChange() : null;
 
 			if (referencedEntries != null)	this.referencedEntries = referencedEntries;
@@ -1521,6 +1533,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	public static boolean VERBOSE = false;
+	public static boolean DEBUG_CLASSPATH = false;
+	public static boolean DEBUG_INVALID_ARCHIVES = false;
 	public static boolean CP_RESOLVE_VERBOSE = false;
 	public static boolean CP_RESOLVE_VERBOSE_ADVANCED = false;
 	public static boolean CP_RESOLVE_VERBOSE_FAILURE = false;
@@ -1729,6 +1743,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 	
 	public void addInvalidArchive(IPath path, ArchiveValidity reason) {
+		if (DEBUG_INVALID_ARCHIVES) {
+			System.out.println("Invalid JAR cache: adding " + path + ", reason: " + reason);  //$NON-NLS-1$//$NON-NLS-2$
+		}
 		synchronized (this.invalidArchivesMutex) {
 			this.invalidArchives.put(path, new InvalidArchiveInfo(System.currentTimeMillis() + INVALID_ARCHIVE_TTL_MILLISECONDS, reason));
 		}
@@ -1801,6 +1818,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				TypeHierarchy.DEBUG = debug && options.getBooleanOption(HIERARCHY_DEBUG, false);
 				JobManager.VERBOSE = debug && options.getBooleanOption(INDEX_MANAGER_DEBUG, false);
 				IndexManager.DEBUG = debug && options.getBooleanOption(INDEX_MANAGER_ADVANCED_DEBUG, false);
+				JavaModelManager.DEBUG_CLASSPATH = debug && options.getBooleanOption(JAVAMODEL_CLASSPATH, false);
+				JavaModelManager.DEBUG_INVALID_ARCHIVES = debug && options.getBooleanOption(JAVAMODEL_INVALID_ARCHIVES, false);
 				JavaModelManager.VERBOSE = debug && options.getBooleanOption(JAVAMODEL_DEBUG, false);
 				JavaModelCache.VERBOSE = debug && options.getBooleanOption(JAVAMODELCACHE_DEBUG, false);
 				JavaModelCache.DEBUG_CACHE_INSERTIONS = debug && options.getBooleanOption(JAVAMODELCACHE_INSERTIONS_DEBUG, false);
@@ -3274,6 +3293,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public void removeFromInvalidArchiveCache(IPath path) {
 		synchronized(this.invalidArchivesMutex) {
 			if (this.invalidArchives.remove(path) != null) {
+				if (DEBUG_INVALID_ARCHIVES) {
+					System.out.println("Invalid JAR cache: removed " + path);  //$NON-NLS-1$//$NON-NLS-2$
+				}
 				try {
 					// Bug 455042: Force an update of the JavaProjectElementInfo project caches.
 					for (IJavaProject project : getJavaModel().getJavaProjects()) {
@@ -4129,6 +4151,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public void resetClasspathListCache() {
 		if (this.nonChainingJars != null) 
 			this.nonChainingJars.clear();
+		if (DEBUG_INVALID_ARCHIVES) {
+			synchronized(this.invalidArchivesMutex) {
+				if (!this.invalidArchives.isEmpty()) {
+					System.out.println("Invalid JAR cache: clearing cache"); //$NON-NLS-1$
+				}
+			}
+		}
 		synchronized(this.invalidArchivesMutex) {
 			this.invalidArchives.clear();
 		}
