@@ -19,7 +19,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
-import org.eclipse.jdt.internal.compiler.classfmt.TypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.env.ClassSignature;
 import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
@@ -29,7 +28,6 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
-import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.SignatureWrapper;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
@@ -788,13 +786,6 @@ public final class ClassFileToIndexConverter {
 		}
 
 		return result;
-	}
-
-	private ITypeAnnotationWalker getTypeAnnotationWalker(IBinaryTypeAnnotation[] typeAnnotations) {
-		if (typeAnnotations == null) {
-			return ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER;
-		}
-		return new TypeAnnotationWalker(typeAnnotations);
 	}
 
 	private NdTypeId createTypeIdFromFieldDescriptor(char[] typeName) {

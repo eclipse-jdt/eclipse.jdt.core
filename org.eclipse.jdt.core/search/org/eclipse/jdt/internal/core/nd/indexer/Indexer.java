@@ -92,12 +92,12 @@ public final class Indexer {
 
 	/**
 	 * True iff automatic reindexing (that is, the {@link #rescanAll()} method) is disabled
-	 * Synchronize on {@#automaticIndexingMutex} while accessing.
+	 * Synchronize on {@link #automaticIndexingMutex} while accessing.
 	 */
 	private boolean enableAutomaticIndexing = true;
 	/**
 	 * True iff any code tried to schedule reindexing while automatic reindexing was disabled.
-	 * Synchronize on {@#automaticIndexingMutex} while accessing.
+	 * Synchronize on {@link #automaticIndexingMutex} while accessing.
 	 */
 	private boolean indexerDirtiedWhileDisabled = false;
 	private final Object automaticIndexingMutex = new Object();
@@ -475,7 +475,7 @@ public final class Indexer {
 					if (nextDeletion instanceof NdType) {
 						NdType type = (NdType)nextDeletion;
 						Package.logInfo("Deleting " + type.getTypeId().getFieldDescriptor().getString() + " from "  //$NON-NLS-1$//$NON-NLS-2$
-								+ new String(toDelete.getLocation().getString()) + " " + toDelete.address); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+								+ new String(toDelete.getLocation().getString()) + " " + toDelete.address); //$NON-NLS-1$
 					}
 				}
 				nextDeletion.delete();
@@ -648,53 +648,6 @@ public final class Indexer {
 	}
 
 	/**
-	 * Returns the set of IClassFile and ICompilationUnits contained within the given IJavaElement
-	 *
-	 * @throws JavaModelException
-	 */
-	private List<IJavaElement> getBindableElements(IJavaElement input, IProgressMonitor monitor)
-			throws JavaModelException {
-		List<IJavaElement> result = new ArrayList<>();
-		SubMonitor subMonitor = SubMonitor.convert(monitor);
-		ArrayDeque<IJavaElement> queue = new ArrayDeque<IJavaElement>();
-
-		enqueue(result, queue, input);
-
-		while (!queue.isEmpty()) {
-			subMonitor.setWorkRemaining(Math.max(queue.size(), 10)).split(1);
-
-			IJavaElement next = queue.removeFirst();
-
-			enqueue(result, queue, next);
-		}
-		return result;
-	}
-
-	/**
-	 * If toEnqueue has children, they are enqueued in the given queue. If it is directly indexable,
-	 * it is added to the result.
-	 */
-	private void enqueue(List<IJavaElement> result, ArrayDeque<IJavaElement> queue,
-			IJavaElement toEnqueue) throws JavaModelException {
-		if (toEnqueue.getElementType() == IJavaElement.COMPILATION_UNIT
-				|| toEnqueue.getElementType() == IJavaElement.CLASS_FILE) {
-			result.add(toEnqueue);
-		} else if (toEnqueue instanceof IParent) {
-			IParent parent = (IParent) toEnqueue;
-
-			for (IJavaElement child : parent.getChildren()) {
-				queue.add(child);
-			}
-
-			// We need to call isInvalidArchive after the call to getChildren, since the invalid state
-			// is only initialized in the call to getChildren.
-			if (!JavaModelManager.getJavaModelManager().getArchiveValidity(toEnqueue.getPath()).isValid()) {
-				throw new JavaModelException(new RuntimeException(), IJavaModelStatusConstants.IO_EXCEPTION);
-			}
-		}
-	}
-
-	/**
 	 * Adds an archive to the index, under the given NdResourceFile.
 	 */
 	private int addElement(NdResourceFile resourceFile, IJavaElement element, IProgressMonitor monitor)
@@ -831,17 +784,6 @@ public final class Indexer {
 			}
 		}
 		return indexed;
-	}
-
-	private List<IClassFile> getClassFiles(List<IJavaElement> bindableElements) {
-		List<IClassFile> result = new ArrayList<>();
-
-		for (IJavaElement next : bindableElements) {
-			if (next.getElementType() == IJavaElement.CLASS_FILE) {
-				result.add((IClassFile)next);
-			}
-		}
-		return result;
 	}
 
 	private List<IJavaElement> getAllIndexableObjectsInWorkspace(IProgressMonitor monitor) throws CoreException {

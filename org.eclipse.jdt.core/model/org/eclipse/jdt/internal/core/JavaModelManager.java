@@ -3294,7 +3294,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		synchronized(this.invalidArchivesMutex) {
 			if (this.invalidArchives.remove(path) != null) {
 				if (DEBUG_INVALID_ARCHIVES) {
-					System.out.println("Invalid JAR cache: removed " + path);  //$NON-NLS-1$//$NON-NLS-2$
+					System.out.println("Invalid JAR cache: removed " + path);  //$NON-NLS-1$
 				}
 				try {
 					// Bug 455042: Force an update of the JavaProjectElementInfo project caches.
