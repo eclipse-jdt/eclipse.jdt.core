@@ -19,11 +19,30 @@ import org.eclipse.jdt.internal.core.nd.StreamHasher;
  * @since 3.12
  */
 public class FileFingerprint {
+	/**
+	 * Sentinel value for {@link #time} indicating a nonexistent fingerprint. This is used for the timestamp of
+	 * nonexistent files and for the {@link #getEmpty()} singleton.
+	 */
+	public static final long NEVER_MODIFIED = 0;
+
+	/**
+	 * Sentinel value for {@link #time} indicating that the timestamp is was not recorded as part of the fingerprint.
+	 * This is normally used to indicate that the file's timestamp was so close to the current system time at the time
+	 * the fingerprint was computed that subsequent changes in the file might not be detected. In such cases, timestamps
+	 * are an unreliable method for determining if the file has changed and so are not included as part of the fingerprint.
+	 */
+	public static final long UNKNOWN = 1;
+
+	/**
+	 * Worst-case accuracy of filesystem timestamps, among all supported platforms (this is currently 1s on linux).
+	 */
+	private static final long WORST_FILESYSTEM_TIMESTAMP_ACCURACY_MS = 1000;
+
 	private long time;
 	private long hash;
 	private long size;
 
-	private static final FileFingerprint EMPTY = new FileFingerprint(0,0,0);
+	private static final FileFingerprint EMPTY = new FileFingerprint(NEVER_MODIFIED,0,0);
 
 	public static final FileFingerprint getEmpty() {
 		return EMPTY;
@@ -103,6 +122,12 @@ public class FileFingerprint {
 		public FileFingerprint getNewFingerprint() {
 			return this.newFingerprint;
 		}
+
+		@Override
+		public String toString() {
+			return "FingerprintTestResult [matches=" + this.matches + ", needsNewFingerprint="  //$NON-NLS-1$//$NON-NLS-2$
+					+ this.needsNewFingerprint + ", newFingerprint=" + this.newFingerprint + "]";  //$NON-NLS-1$//$NON-NLS-2$
+		}
 	}
 
 	/**
@@ -110,27 +135,35 @@ public class FileFingerprint {
 	 */
 	public FingerprintTestResult test(IPath path, IProgressMonitor monitor) throws CoreException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
+		long currentTime = System.currentTimeMillis();
 		IFileStore store = EFS.getLocalFileSystem().getStore(path);
 		IFileInfo fileInfo = store.fetchInfo();
 
 		long lastModified = fileInfo.getLastModified();
+		if (Math.abs(currentTime - lastModified) < WORST_FILESYSTEM_TIMESTAMP_ACCURACY_MS) {
+			// If the file was modified so recently that it's within our ability to measure it, don't include
+			// the timestamp as part of the fingerprint. If another change were to happen to the file immediately
+			// afterward, we might not be able to detect it using the timestamp.
+			lastModified = UNKNOWN;
+		}
 		subMonitor.split(5);
 
 		long fileSize = fileInfo.getLength();
 		subMonitor.split(5);
-		if (lastModified == this.time && fileSize == this.size) {
+		if (lastModified != UNKNOWN && lastModified == this.time && fileSize == this.size) {
 			return new FingerprintTestResult(true, false, this);
 		}
 
 		long hashCode;
 		try {
-			hashCode = computeHashCode(path.toFile(), fileSize, subMonitor.split(90));
+			hashCode = fileSize == 0 ? 0 : computeHashCode(path.toFile(), fileSize, subMonitor.split(90));
 		} catch (IOException e) {
 			throw new CoreException(Package.createStatus("An error occurred computing a hash code", e)); //$NON-NLS-1$
 		}
 		boolean matches = (hashCode == this.hash && fileSize == this.size);
 
-		return new FingerprintTestResult(matches, true, new FileFingerprint(lastModified, fileSize, hashCode));
+		FileFingerprint newFingerprint = new FileFingerprint(lastModified, fileSize, hashCode);
+		return new FingerprintTestResult(matches, !equals(newFingerprint), newFingerprint);
 	}
 
 	private long computeHashCode(File toTest, long fileSize, IProgressMonitor monitor) throws IOException {
@@ -193,8 +226,17 @@ public class FileFingerprint {
 		return bytesRead;
 	}
 
+	private static String getTimeString(long timestamp) {
+		if (timestamp == UNKNOWN) {
+			return "UNKNOWN"; //$NON-NLS-1$
+		} else if (timestamp == NEVER_MODIFIED) {
+			return "NEVER_MODIFIED"; //$NON-NLS-1$
+		}
+		return Long.toString(timestamp);
+	}
+
 	@Override
 	public String toString() {
-		return "FileFingerprint [time=" + this.time + ", size=" + this.size + ", hash=" + this.hash + "]";    //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
+		return "FileFingerprint [time=" + getTimeString(this.time) + ", size=" + this.size + ", hash=" + this.hash + "]";    //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 	}
 }

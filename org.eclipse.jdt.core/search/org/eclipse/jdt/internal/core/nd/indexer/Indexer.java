@@ -1000,13 +1000,12 @@ public final class Indexer {
 		JavaIndex javaIndex = JavaIndex.getIndex(this.nd);
 		String pathString = thePath.toString();
 
-		// Package.log("Indexer testing: " + pathString, null);
-
 		subMonitor.split(50);
+		NdResourceFile resourceFile = null;
 		FileFingerprint fingerprint = FileFingerprint.getEmpty();
 		this.nd.acquireReadLock();
 		try {
-			NdResourceFile resourceFile = javaIndex.getResourceFile(pathString.toCharArray());
+			resourceFile = javaIndex.getResourceFile(pathString.toCharArray());
 
 			if (resourceFile != null) {
 				fingerprint = resourceFile.getFingerprint();
@@ -1015,7 +1014,25 @@ public final class Indexer {
 			this.nd.releaseReadLock();
 		}
 
-		return fingerprint.test(thePath, subMonitor.split(50));
+		FingerprintTestResult result = fingerprint.test(thePath, subMonitor.split(40));
+
+		// If this file hasn't changed but its timestamp has, write an updated fingerprint to the database
+		if (resourceFile != null && result.matches() && result.needsNewFingerprint()) {
+			this.nd.acquireWriteLock(subMonitor.split(10));
+			try {
+				if (resourceFile.isInIndex()) {
+					if (DEBUG) {
+						Package.logInfo(
+								"Writing updated fingerprint for " + thePath + ": " + result.getNewFingerprint()); //$NON-NLS-1$//$NON-NLS-2$
+					}
+					resourceFile.setFingerprint(result.getNewFingerprint());
+				}
+			} finally {
+				this.nd.releaseWriteLock();
+			}
+		}
+
+		return result;
 	}
 
 	public Indexer(Nd toPopulate, IWorkspaceRoot workspaceRoot) {
