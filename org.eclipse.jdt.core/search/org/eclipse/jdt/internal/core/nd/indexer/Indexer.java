@@ -973,7 +973,6 @@ public final class Indexer {
 				this.nd.releaseWriteLock();
 			}
 		}
-
 		return result;
 	}
 

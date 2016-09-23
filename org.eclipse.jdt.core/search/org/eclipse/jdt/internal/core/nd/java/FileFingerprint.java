@@ -26,7 +26,7 @@ public class FileFingerprint {
 	public static final long NEVER_MODIFIED = 0;
 
 	/**
-	 * Sentinel value for {@link #time} indicating that the timestamp is was not recorded as part of the fingerprint.
+	 * Sentinel value for {@link #time} indicating that the timestamp was not recorded as part of the fingerprint.
 	 * This is normally used to indicate that the file's timestamp was so close to the current system time at the time
 	 * the fingerprint was computed that subsequent changes in the file might not be detected. In such cases, timestamps
 	 * are an unreliable method for determining if the file has changed and so are not included as part of the fingerprint.
@@ -34,9 +34,10 @@ public class FileFingerprint {
 	public static final long UNKNOWN = 1;
 
 	/**
-	 * Worst-case accuracy of filesystem timestamps, among all supported platforms (this is currently 1s on linux).
+	 * Worst-case accuracy of filesystem timestamps, among all supported platforms (this is currently 1s on linux, 2s on
+	 * FAT systems).
 	 */
-	private static final long WORST_FILESYSTEM_TIMESTAMP_ACCURACY_MS = 1000;
+	private static final long WORST_FILESYSTEM_TIMESTAMP_ACCURACY_MS = 2000;
 
 	private long time;
 	private long hash;
