@@ -8896,4 +8896,82 @@ public void testBug489486negative() {
 		"----------\n"
 	);
 }
+public void testBug502113() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/I.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"public interface I {\n" +
+			"	String method();\n" +
+			"\n" +
+			"	boolean equals(@Nullable Object obj);\n" +
+			"	@NonNull String toString();\n" +
+			"}\n" +
+			"",
+			"test/X.java",
+			"package test;\n" +
+			"\n" +
+			"public class X implements I {\n" +
+			"	public String method() {\n" +
+			"		return \"\";\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+public void testBug502113b() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/I.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"public interface I {\n" +
+			"	String method();\n" +
+			"\n" +
+			"	boolean equals(@Nullable Object obj);\n" +
+			"	@NonNull String toString();\n" +
+			"}\n" +
+			"",
+			"test/X.java",
+			"package test;\n" +
+			"\n" +
+			"public class X implements I {\n" +
+			"	public String method() {\n" +
+			"		return \"\";\n" +
+			"	}\n" +
+			"	@Override\n" +
+			"	public boolean equals(Object other) {\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"	@Override\n" +
+			"	public String toString() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\X.java (at line 8)\n" + 
+		"	public boolean equals(Object other) {\n" + 
+		"	                      ^^^^^^\n" + 
+		"Missing nullable annotation: inherited method from I specifies this parameter as @Nullable\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\X.java (at line 12)\n" + 
+		"	public String toString() {\n" + 
+		"	       ^^^^^^\n" + 
+		"The return type is incompatible with \'@NonNull String\' returned from I.toString() (mismatching null constraints)\n" + 
+		"----------\n"
+	);
+}
 }
