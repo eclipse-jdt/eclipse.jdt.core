@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.nd;
 
+import java.io.File;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Plugin;
 import org.eclipse.jdt.core.tests.Activator;
@@ -18,17 +20,11 @@ import org.eclipse.jdt.internal.core.nd.NdNode;
 import org.eclipse.jdt.internal.core.nd.NdNodeTypeRegistry;
 import org.eclipse.jdt.internal.core.nd.db.ChunkCache;
 
-import java.io.File;
-
 /**
  * 
  */
 public class DatabaseTestUtil {
 
-	/**
-	 * @param plugin
-	 * @return
-	 */
 	public static IPath getTestDir() {
 		Plugin plugin = Activator.getInstance();
 		
@@ -39,10 +35,6 @@ public class DatabaseTestUtil {
 		return path;
 	}
 
-	/**
-	 * @param testName
-	 * @return
-	 */
 	public static File getTempDbName(String testName) {
 		return DatabaseTestUtil.getTestDir().append(testName + System.currentTimeMillis() + ".dat").toFile();
 	}

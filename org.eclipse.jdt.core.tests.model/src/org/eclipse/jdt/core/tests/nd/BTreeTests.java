@@ -50,19 +50,19 @@ public class BTreeTests extends BaseTestCase {
 	// setUp is not used since we need to parameterize this method,
 	// and invoke it multiple times per Junit test
 	protected void init(int degree) throws Exception {
-		dbFile = File.createTempFile("ndtest", "db");
-		nd = DatabaseTestUtil.createEmptyNd(getName());
-		db = nd.getDB();
-		db.setExclusiveLock();
-		rootRecord = Database.DATA_AREA_OFFSET;
-		comparator = new BTMockRecordComparator();
-		btree = new BTree(nd, rootRecord, degree, comparator);
+		this.dbFile = File.createTempFile("ndtest", "db");
+		this.nd = DatabaseTestUtil.createEmptyNd(getName());
+		this.db = this.nd.getDB();
+		this.db.setExclusiveLock();
+		this.rootRecord = Database.DATA_AREA_OFFSET;
+		this.comparator = new BTMockRecordComparator();
+		this.btree = new BTree(this.nd, this.rootRecord, degree, this.comparator);
 	}
 
 	// tearDown is not used for the same reason as above
 	protected void finish() throws Exception {
-		db.close();
-		dbFile.deleteOnExit();
+		this.db.close();
+		this.dbFile.deleteOnExit();
 	}
 
 
@@ -108,11 +108,11 @@ public class BTreeTests extends BaseTestCase {
 	public void testEquivalentRecordInsert_Bug402177() throws Exception {
 		init(8);
 		try {
-			BTMockRecord value1 = new BTMockRecord(db, 42);
-			BTMockRecord value2 = new BTMockRecord(db, 42);
+			BTMockRecord value1 = new BTMockRecord(this.db, 42);
+			BTMockRecord value2 = new BTMockRecord(this.db, 42);
 
-			long insert1 = btree.insert(value1.getRecord());
-			long insert2 = btree.insert(value2.getRecord());
+			long insert1 = this.btree.insert(value1.getRecord());
+			long insert2 = this.btree.insert(value2.getRecord());
 			assertEquals(insert1, insert2);
 		} finally {
 			finish();
@@ -139,8 +139,8 @@ public class BTreeTests extends BaseTestCase {
 			double pInsert) throws Exception {
 		final int degree = 2 + random.nextInt(11);
 		final int nIterations = random.nextInt(100000);
-		final SortedSet expected = new TreeSet();
-		final List history = new ArrayList();
+		final SortedSet<Integer> expected = new TreeSet<>();
+		final List<BTMockRecord> history = new ArrayList<>();
 
 		init(degree);
 
@@ -151,50 +151,50 @@ public class BTreeTests extends BaseTestCase {
 				Integer value = new Integer(random.nextInt(Integer.MAX_VALUE));
 				boolean newEntry = expected.add(value);
 				if (newEntry) {
-					BTMockRecord btValue = new BTMockRecord(db, value.intValue());
+					BTMockRecord btValue = new BTMockRecord(this.db, value.intValue());
 					history.add(btValue);
 					if (DEBUG > 1)
 						System.out.println("Add: " + value + " @ " + btValue.record);
-					btree.insert(btValue.getRecord());
+					this.btree.insert(btValue.getRecord());
 				}
 			} else {
 				if (!history.isEmpty()) {
 					int index = random.nextInt(history.size());
-					BTMockRecord btValue = (BTMockRecord) history.get(index);
+					BTMockRecord btValue = history.get(index);
 					history.remove(index);
 					expected.remove(new Integer(btValue.intValue()));
 					if (DEBUG > 1)
 						System.out.println("Remove: " + btValue.intValue() + " @ " + btValue.record);
-					btree.delete(btValue.getRecord());
+					this.btree.delete(btValue.getRecord());
 				}
 			}
 			if (i % 1000 == 0 && DEBUG > 0) {
 				System.out.print(".");
 			}
 			if (checkCorrectnessEachIteration) {
-				assertBTreeMatchesSortedSet("[iteration " + i + "] ", btree, expected);
+				assertBTreeMatchesSortedSet("[iteration " + i + "] ", this.btree, expected);
 				assertBTreeInvariantsHold("[iteration " + i + "] ");
 			}
 		}
 		if (DEBUG > 0)
 			System.out.println();
 
-		assertBTreeMatchesSortedSet("[Trial end] ", btree, expected);
+		assertBTreeMatchesSortedSet("[Trial end] ", this.btree, expected);
 		assertBTreeInvariantsHold("[Trial end]");
 
 		finish();
 	}
 
 	public void assertBTreeInvariantsHold(String msg) throws CoreException {
-		String errorReport = btree.getInvariantsErrorReport();
+		String errorReport = this.btree.getInvariantsErrorReport();
 		if (!errorReport.equals("")) {
 			fail("Invariants do not hold: " + errorReport);
 		}
 	}
 
-	public void assertBTreeMatchesSortedSet(final String msg, BTree actual, SortedSet expected) throws CoreException {
-		final Iterator i = expected.iterator();
-		btree.accept(new IBTreeVisitor() {
+	public void assertBTreeMatchesSortedSet(final String msg, BTree actual, SortedSet<Integer> expected) throws CoreException {
+		final Iterator<Integer> i = expected.iterator();
+		this.btree.accept(new IBTreeVisitor() {
 			int k;
 			@Override
 			public int compare(long record) {
@@ -204,11 +204,11 @@ public class BTreeTests extends BaseTestCase {
 			@Override
 			public boolean visit(long record) {
 				if (record != 0) {
-					BTMockRecord btValue = new BTMockRecord(record, db);
+					BTMockRecord btValue = new BTMockRecord(record, BTreeTests.this.db);
 					if (i.hasNext()) {
-						Integer exp = ((Integer)i.next());
-						assertEquals(msg + " Differ at index: " + k, btValue.intValue(), exp.intValue());
-						k++;
+						Integer exp = i.next();
+						assertEquals(msg + " Differ at index: " + this.k, btValue.intValue(), exp.intValue());
+						this.k++;
 					} else {
 						fail("Sizes different");
 						return false;
@@ -230,8 +230,8 @@ public class BTreeTests extends BaseTestCase {
 		 */
 		public BTMockRecord(Database db, int value) throws CoreException {
 			this.db = db;
-			record = db.malloc(BTMockRecord.RECORD_SIZE, Database.POOL_MISC);
-			db.putInt(record + VALUE_PTR, value);
+			this.record = db.malloc(BTMockRecord.RECORD_SIZE, Database.POOL_MISC);
+			db.putInt(this.record + VALUE_PTR, value);
 		}
 
 		/**
@@ -243,19 +243,22 @@ public class BTreeTests extends BaseTestCase {
 		}
 
 		public int intValue() {
-			return db.getInt(record);
+			return this.db.getInt(this.record);
 		}
 
 		public long getRecord() {
-			return record;
+			return this.record;
 		}
 	}
 
 	private class BTMockRecordComparator implements IBTreeComparator {
+		public BTMockRecordComparator() {
+		}
+
 		@Override
-		public int compare(Nd nd, long record1, long record2) {
-			Database db = nd.getDB();
-			return db.getInt(record1) - db.getInt(record2);
+		public int compare(Nd ndToCompare, long record1, long record2) {
+			Database dbToCompare = ndToCompare.getDB();
+			return dbToCompare.getInt(record1) - dbToCompare.getInt(record2);
 		}
 	}
 }

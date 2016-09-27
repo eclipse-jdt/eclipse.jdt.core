@@ -12,22 +12,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.nd.util;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.jobs.Job;
-import org.junit.Assert;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -42,6 +26,21 @@ import java.nio.charset.Charset;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.junit.Assert;
 
 /**
  * This class contains utility methods for creating resources
@@ -556,23 +555,10 @@ public class ResourceHelper {
 		resourcesCreated.clear();
 	}
 
-	private static void waitForProjectRefreshToFinish() {
-		try {
-			// CDT opens the Project with BACKGROUND_REFRESH enabled which causes the
-			// refresh manager to refresh the project 200ms later.  This Job interferes
-			// with the resource change handler firing see: bug 271264
-			Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_REFRESH, null);
-		} catch (Exception e) {
-			// Ignore
-		}
-	}
-
 	/**
 	 * Recursively delete a directory / file
 	 *
 	 * For safety this method only deletes files created under the workspace
-	 *
-	 * @param file
 	 */
 	private static final void deleteRecursive(File f) throws IllegalArgumentException {
 		// Ensure that the file being deleted is a child of the workspace

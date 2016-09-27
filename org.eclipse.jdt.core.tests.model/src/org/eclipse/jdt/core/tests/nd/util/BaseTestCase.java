@@ -74,7 +74,7 @@ public class BaseTestCase extends TestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
-		for (File file; (file = filesToDeleteOnTearDown.pollLast()) != null;) {
+		for (File file; (file = this.filesToDeleteOnTearDown.pollLast()) != null;) {
 			file.delete();
 		}
 		ResourceHelper.cleanUp();
@@ -83,27 +83,27 @@ public class BaseTestCase extends TestCase {
 	}
 
 	protected void deleteOnTearDown(File file) {
-		filesToDeleteOnTearDown.add(file);
+		this.filesToDeleteOnTearDown.add(file);
 	}
 
 	protected File createTempFile(String prefix, String suffix) throws IOException {
 		File file = File.createTempFile(prefix, suffix);
-		filesToDeleteOnTearDown.add(file);
+		this.filesToDeleteOnTearDown.add(file);
 		return file;
 	}
 
 	protected File nonExistentTempFile(String prefix, String suffix) {
 		File file= new File(System.getProperty("java.io.tmpdir"),
 				prefix + System.currentTimeMillis() + suffix);
-		filesToDeleteOnTearDown.add(file);
+		this.filesToDeleteOnTearDown.add(file);
 		return file;
 	}
 
-	public static TestSuite suite(Class clazz) {
+	public static TestSuite suite(Class<? extends BaseTestCase> clazz) {
 		return suite(clazz, null);
 	}
 
-	protected static TestSuite suite(Class clazz, String failingTestPrefix) {
+	protected static TestSuite suite(Class<? extends BaseTestCase> clazz, String failingTestPrefix) {
 		TestSuite suite= new TestSuite(clazz);
 		Test failing= getFailingTests(clazz, failingTestPrefix);
 		if (failing != null) {
@@ -112,10 +112,10 @@ public class BaseTestCase extends TestCase {
 		return suite;
 	}
 
-	private static Test getFailingTests(Class clazz, String prefix) {
+	private static Test getFailingTests(Class<? extends BaseTestCase> clazz, String prefix) {
 		TestSuite suite= new TestSuite("Failing Tests");
-		HashSet names= new HashSet();
-		Class superClass= clazz;
+		HashSet<String> names= new HashSet<>();
+		Class<?> superClass= clazz;
 		while (Test.class.isAssignableFrom(superClass) && !TestCase.class.equals(superClass)) {
 			Method[] methods= superClass.getDeclaredMethods();
 			for (Method method : methods) {
@@ -129,8 +129,9 @@ public class BaseTestCase extends TestCase {
 		return suite;
 	}
 
-	private static void addFailingMethod(TestSuite suite, Method m, Set names, Class clazz, String prefix) {
-		String name= m.getName();
+	private static void addFailingMethod(TestSuite suite, Method m, Set<String> names,
+			Class<? extends BaseTestCase> clazz, String prefix) {
+		String name = m.getName();
 		if (!names.add(name)) {
 			return;
 		}
@@ -141,10 +142,10 @@ public class BaseTestCase extends TestCase {
 			return;
 		}
 		if (Modifier.isPublic(m.getModifiers())) {
-			Class[] parameters= m.getParameterTypes();
-			Class returnType= m.getReturnType();
+			Class<?>[] parameters = m.getParameterTypes();
+			Class<?> returnType = m.getReturnType();
 			if (parameters.length == 0 && returnType.equals(Void.TYPE)) {
-				Test test= TestSuite.createTest(clazz, name);
+				Test test = TestSuite.createTest(clazz, name);
 				((BaseTestCase) test).setExpectFailure(0);
 				suite.addTest(test);
 			}
@@ -153,7 +154,7 @@ public class BaseTestCase extends TestCase {
 
 	@Override
 	public void runBare() throws Throwable {
-		final List<IStatus> statusLog= Collections.synchronizedList(new ArrayList());
+		final List<IStatus> statusLog= Collections.synchronizedList(new ArrayList<>());
 		ILogListener logListener= new ILogListener() {
 			@Override
 			public void logging(IStatus status, String plugin) {
@@ -183,8 +184,8 @@ public class BaseTestCase extends TestCase {
 				testThrowable= e;
 			}
 
-			if (statusLog.size() != fExpectedLoggedNonOK) {
-				StringBuilder msg= new StringBuilder("Expected number (" + fExpectedLoggedNonOK + ") of ");
+			if (statusLog.size() != this.fExpectedLoggedNonOK) {
+				StringBuilder msg= new StringBuilder("Expected number (" + this.fExpectedLoggedNonOK + ") of ");
 				msg.append("Non-OK status objects in log differs from actual (" + statusLog.size() + ").\n");
 				Throwable cause= null;
 				if (!statusLog.isEmpty()) {
@@ -223,7 +224,7 @@ public class BaseTestCase extends TestCase {
 
     @Override
 	public void run(TestResult result) {
-    	if (!fExpectFailure || Boolean.parseBoolean(System.getProperty("SHOW_EXPECTED_FAILURES"))) {
+    	if (!this.fExpectFailure || Boolean.parseBoolean(System.getProperty("SHOW_EXPECTED_FAILURES"))) {
     		super.run(result);
     		return;
     	}
@@ -240,8 +241,8 @@ public class BaseTestCase extends TestCase {
         	}
         } else if (r.errorCount() == 0 && r.failureCount() == 0) {
             String err = "Unexpected success of " + getName();
-            if (fBugNumber > 0) {
-                err += ", bug #" + fBugNumber;
+            if (this.fBugNumber > 0) {
+                err += ", bug #" + this.fBugNumber;
             }
             result.addFailure(this, new AssertionFailedError(err));
         }
@@ -250,8 +251,8 @@ public class BaseTestCase extends TestCase {
     }
 
     public void setExpectFailure(int bugNumber) {
-    	fExpectFailure= true;
-    	fBugNumber= bugNumber;
+    	this.fExpectFailure= true;
+    	this.fBugNumber= bugNumber;
     }
 
     /**
@@ -263,6 +264,6 @@ public class BaseTestCase extends TestCase {
      * @param count the expected number of logged error and warning messages
      */
     public void setExpectedNumberOfLoggedNonOKStatusObjects(int count) {
-    	fExpectedLoggedNonOK= count;
+    	this.fExpectedLoggedNonOK= count;
     }
 }

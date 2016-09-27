@@ -141,7 +141,7 @@ public void testJavaCoreAPI() throws CoreException, IllegalArgumentException, Il
 
 	// fetch JavaCore source file
 	// 1. attempt: workspace relative location in project org.eclipse.jdt.core:
-	@SuppressWarnings("deprecation")Bundle bundle = org.eclipse.jdt.core.tests.Activator.getInstance().getBundle();
+	Bundle bundle = org.eclipse.jdt.core.tests.Activator.getInstance().getBundle();
 	URL url = bundle.getEntry("/");
 	IPath path = new Path(FileLocator.toFileURL(url).getPath());
 	path = path.removeLastSegments(1).append(ORG_ECLIPSE_JDT_CORE);

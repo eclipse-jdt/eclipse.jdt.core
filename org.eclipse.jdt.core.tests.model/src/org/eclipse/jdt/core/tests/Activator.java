@@ -16,21 +16,20 @@ import org.eclipse.core.runtime.Status;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceReference;
 
-/**
- * Make the PackageAdmin service accessible to tests.
- * 
- * @deprecated uses deprecated class PackageAdmin.
- */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class Activator extends Plugin {
 
 	private static final String PLUGIN_ID = "org.eclipse.jdt.core.tests.model";
 
+	/**
+	 * @deprecated uses deprecated class PackageAdmin.
+	 */
 	static org.osgi.service.packageadmin.PackageAdmin packageAdmin = null;
 
 	static Plugin instance;
 
 
+	@SuppressWarnings("deprecation")
 	public void start(BundleContext context) throws Exception {
 		
 		ServiceReference ref= context.getServiceReference(org.osgi.service.packageadmin.PackageAdmin.class.getName());
@@ -46,6 +45,11 @@ public class Activator extends Plugin {
 		// nothing
 	}
 
+	/**
+	 * Make the PackageAdmin service accessible to tests.
+	 * 
+	 * @deprecated uses deprecated class PackageAdmin.
+	 */
 	public static org.osgi.service.packageadmin.PackageAdmin getPackageAdmin() {
 		return packageAdmin;
 	}

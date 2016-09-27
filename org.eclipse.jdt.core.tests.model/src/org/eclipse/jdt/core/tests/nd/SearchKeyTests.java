@@ -30,7 +30,6 @@ public class SearchKeyTests extends BaseTestCase {
 		public static final FieldSearchIndex<Element> NICKNAME_INDEX;
 		public static final FieldSearchIndex<Element> NAME_INDEX;
 
-		@SuppressWarnings("hiding")
 		public static final StructDef<TestSearchIndex> type;
 
 		static {
