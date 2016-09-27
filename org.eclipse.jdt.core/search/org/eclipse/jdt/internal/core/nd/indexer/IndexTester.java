@@ -135,7 +135,7 @@ public class IndexTester {
 
 		// Commented this out because the "expected" values often appear to be invalid paths when the "actual"
 		// ones are correct.
-		// assertEquals("The file name did not match", expected.getFileName(), actual.getFileName()); //$NON-NLS-1$
+		assertEquals("The file name did not match", expected.getFileName(), actual.getFileName()); //$NON-NLS-1$
 		assertEquals("The interface names did not match", expected.getInterfaceNames(), actual.getInterfaceNames()); //$NON-NLS-1$
 
 		// Member types are not expected to match during indexing since the index uses discovered cross-references,

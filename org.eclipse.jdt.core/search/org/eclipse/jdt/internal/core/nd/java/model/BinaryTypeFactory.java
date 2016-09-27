@@ -74,10 +74,14 @@ public class BinaryTypeFactory {
 		}
 
 		if (root instanceof JarPackageFragmentRoot) {
+			// The old version returned this, but it doesn't conform to the spec on IBinaryType.getFileName():
 			indexPath = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
+			// Version that conforms to the JavaDoc spec on IBinaryType.getFileName() -- note that this breaks
+			// InlineMethodTests in the JDT UI project. Need to investigate why before using it.
+			//indexPath = workspacePath.toString() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
 		} else {
 			location = location.append(entryName);
-			indexPath = location.toString();
+			indexPath = workspacePath.append(entryName).toString();
 			workspacePath = classFile.resource().getFullPath();
 		}
 
@@ -96,19 +100,9 @@ public class BinaryTypeFactory {
 		return createDescriptor(type.getClassFile());
 	}
 
-	public static IBinaryType create(IJavaElement javaElement, String binaryName) {
-		return create(JavaIndex.getIndex(), javaElement, binaryName);
-	}
-
-	public static IBinaryType create(JavaIndex index, IJavaElement javaElement, String binaryName) {
-		IPath filesystemLocation = JavaIndex.getLocationForElement(javaElement);
-
-		TypeRef typeRef = TypeRef.create(index.getNd(),
-				filesystemLocation.toString().toCharArray(),
-				JavaNames.binaryNameToFieldDescriptor(binaryName.toCharArray()));
-
-		char[] indexPath = (javaElement.getPath().toString() + "|" + binaryName + ".class").toCharArray(); //$NON-NLS-1$//$NON-NLS-2$
-		return new IndexBinaryType(typeRef, indexPath);
+	public static IBinaryType create(IClassFile classFile, IProgressMonitor monitor) throws JavaModelException, ClassFormatException {
+		BinaryTypeDescriptor descriptor = createDescriptor(classFile);
+		return readType(descriptor, monitor);
 	}
 
 	/**

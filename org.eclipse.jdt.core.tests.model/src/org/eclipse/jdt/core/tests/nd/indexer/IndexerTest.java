@@ -24,20 +24,17 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.core.PackageFragment;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.db.Database;
-import org.eclipse.jdt.internal.core.nd.indexer.ClassFileToIndexConverter;
 import org.eclipse.jdt.internal.core.nd.indexer.IndexTester;
 import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
-import org.eclipse.jdt.internal.core.nd.java.JavaNames;
 import org.eclipse.jdt.internal.core.nd.java.NdType;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeId;
+import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeDescriptor;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
 import org.eclipse.jdt.internal.core.nd.java.model.IndexBinaryType;
-import org.eclipse.jdt.internal.core.util.Util;
 
 import junit.framework.Test;
 
@@ -153,16 +150,15 @@ public class IndexerTest extends AbstractJavaModelTests {
 				if (next.getKind() == IPackageFragmentRoot.K_BINARY) {
 					List<IClassFile> result = new ArrayList<>();
 					collectAllClassFiles(result, next);
+					iterationMon.setWorkRemaining(result.size());
 					for (IClassFile nextClass : result) {
-						IBinaryType originalBinaryType = ClassFileToIndexConverter.getTypeFromClassFile(nextClass, iterationMon);
-						PackageFragment pkg = (PackageFragment) nextClass.getParent();
-						String classFilePath = Util.concatWith(pkg.names, nextClass.getElementName(), '/');
-
-						IndexBinaryType indexedBinaryType = (IndexBinaryType)BinaryTypeFactory.create(localIndex, nextClass,
-								JavaNames.classFilePathToBinaryName(classFilePath));
+						SubMonitor classMon = iterationMon.split(1);
+						BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(nextClass);
+						IndexBinaryType indexedBinaryType = (IndexBinaryType)BinaryTypeFactory.readFromIndex(descriptor, classMon);
+						ClassFileReader originalBinaryType = BinaryTypeFactory.rawReadType(descriptor, true);
 
 						if (!indexedBinaryType.exists()) {
-							throw new IllegalStateException("Unable to find class in index " + classFilePath);
+							throw new IllegalStateException("Unable to find class in index " + new String(descriptor.indexPath));
 						}
 						IndexTester.testType(originalBinaryType, indexedBinaryType);
 						foundAtLeastOneClass = true;
