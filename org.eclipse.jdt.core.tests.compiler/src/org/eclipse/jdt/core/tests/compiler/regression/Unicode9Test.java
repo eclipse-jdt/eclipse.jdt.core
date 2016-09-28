@@ -27,58 +27,18 @@ public Unicode9Test(String name) {
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(testClass(), F_9);
 }
-public void test481000() {
+public void test1() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_9);
 	this.runConformTest(
 		new String[] {
 			"X.java",
 			"public class X {\n" + 
-			"		public int a\u037F; // new unicode character in 7.0 \n" + 
+			"		public int a\u20BE; // new unicode character in unicode 8.0 \n" + 
 			"}",
 		},
 		"",
 		options);
-}
-public void test481000_2() {
-	Map<String, String> options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
-	this.runNegativeTest(
-		new String[] {
-			"X.java",
-			"public class X {\n" + 
-			"		public int a\u037F; // new unicode character in 7.0 \n" + 
-			"}",
-		},
-		"----------\n" + 
-		"1. ERROR in X.java (at line 2)\n" + 
-		"	public int a" + '\u037F' + "; // new unicode character in 7.0 \n" + 
-		"	            ^\n" +
-		"Syntax error on token \"Invalid Character\", delete this token\n" + 
-		"----------\n",
-		null,
-		true,
-		options);
-}
-public void test481000_3() {
-	Map<String, String> options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
-	this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n" + 
-				"		public int a" + '\u037F' + "; // new unicode character in 7.0 \n" + 
-				"}",
-			},
-			"----------\n" + 
-			"1. ERROR in X.java (at line 2)\n" + 
-			"	public int aͿ; // new unicode character in 7.0 \n" + 
-			"	            ^\n" +
-			"Syntax error on token \"Invalid Character\", delete this token\n" + 
-			"----------\n",
-			null,
-			true,
-			options);
 }
 public static Class<Unicode9Test> testClass() {
 	return Unicode9Test.class;

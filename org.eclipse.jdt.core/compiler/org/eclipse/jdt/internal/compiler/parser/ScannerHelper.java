@@ -146,7 +146,7 @@ static void initializeTable18() {
 	Tables8 = initializeTables("unicode6_2"); //$NON-NLS-1$
 }
 static void initializeTable19() {
-	Tables9 = initializeTables("unicode7"); //$NON-NLS-1$
+	Tables9 = initializeTables("unicode8"); //$NON-NLS-1$
 }
 static long[][][] initializeTables(String unicode_path) {
 	long[][][] tempTable = new long[2][][];
@@ -310,7 +310,7 @@ public static boolean isJavaIdentifierPart(long complianceLevel, int codePoint) 
 				return isBitSet(Tables8[PART_INDEX][3], codePoint & 0xFFFF);
 		}
 	} else {
-		// java 9 supports Unicode 7
+		// java 9 supports Unicode 8
 		if (Tables9 == null) {
 			initializeTable19();
 		}
