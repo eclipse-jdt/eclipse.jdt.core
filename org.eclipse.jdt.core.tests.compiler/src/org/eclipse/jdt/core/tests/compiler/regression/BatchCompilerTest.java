@@ -14286,13 +14286,9 @@ public void test408038e() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=419351
 public void testBug419351() {
 	String backup = System.getProperty("java.endorsed.dirs");
-	String currentWorkingDirectoryPath = System.getProperty("user.dir");
-	if (currentWorkingDirectoryPath == null) {
-		fail("BatchCompilerTest#testBug419351 could not access the current working directory " + currentWorkingDirectoryPath);
-	} else if (!new File(currentWorkingDirectoryPath).isDirectory()) {
-		fail("BatchCompilerTest#testBug419351 current working directory is not a directory " + currentWorkingDirectoryPath);
-	}
-	String endorsedPath = currentWorkingDirectoryPath + File.separator + "endorsed";
+	if (backup == null)
+		return; // Don't bother running if it is JRE9, where there's no endorsed.dir
+	String endorsedPath = LIB_DIR + File.separator + "endorsed";
 	new File(endorsedPath).mkdir();
 	String lib1Path = endorsedPath + File.separator + "lib1.jar";
 	try {
@@ -14325,7 +14321,6 @@ public void testBug419351() {
 				"",
 		        true);
 	} catch (IOException e) {
-		System.err.println("BatchCompilerTest#testBug419351 could not write to current working directory " + currentWorkingDirectoryPath);
 	} finally {
 		System.setProperty("java.endorsed.dirs", backup);
 		new File(endorsedPath).delete();

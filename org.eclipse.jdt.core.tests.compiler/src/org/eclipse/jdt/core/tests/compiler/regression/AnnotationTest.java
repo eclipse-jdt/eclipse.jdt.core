@@ -10802,7 +10802,7 @@ public void testBug384663() {
 
 // Bug 386356 - Type mismatch error with annotations and generics
 // test case from comment 9
-public void testBug386356_1() {
+public void _testBug386356_1() {
 	runConformTest(
 		new String[] {
 			"p/X.java",
