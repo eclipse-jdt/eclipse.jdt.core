@@ -201,20 +201,7 @@ public Binding getTypeOrPackage(char[] name, char[] mod) {
 	if (packageBinding != null && packageBinding != LookupEnvironment.TheNotFoundPackage) {
 		return packageBinding;
 	}
-
-	if (packageBinding == null) { // have not looked for it before
-		if ((packageBinding = findPackage(name, mod)) != null) {
-			return packageBinding;
-		}
-		if (referenceBinding != null && referenceBinding != LookupEnvironment.TheNotFoundType) {
-			return referenceBinding; // found cached missing type - check if package conflict
-		}
-		addNotFoundPackage(name);
-	}
-
 	if (referenceBinding == null) { // have not looked for it before
-		//This call (to askForType) should be the last option to call, because the call is very expensive regarding performance
-		// (a search for secondary types may get triggered which requires to parse all classes of a package).
 		if ((referenceBinding = this.environment.askForType(this, name, mod)) != null) {
 			if (referenceBinding.isNestedType()) {
 				return new ProblemReferenceBinding(new char[][]{name}, referenceBinding, ProblemReasons.InternalNameProvided);
@@ -225,6 +212,16 @@ public Binding getTypeOrPackage(char[] name, char[] mod) {
 		// Since name could not be found, add a problem binding
 		// to the collections so it will be reported as an error next time.
 		addNotFoundType(name);
+	}
+
+	if (packageBinding == null) { // have not looked for it before
+		if ((packageBinding = findPackage(name, mod)) != null) {
+			return packageBinding;
+		}
+		if (referenceBinding != null && referenceBinding != LookupEnvironment.TheNotFoundType) {
+			return referenceBinding; // found cached missing type - check if package conflict
+		}
+		addNotFoundPackage(name);
 	}
 
 	return null;

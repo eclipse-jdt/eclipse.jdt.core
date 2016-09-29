@@ -12607,4 +12607,16 @@ public void testBug500093() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/500853 - [Formatter] java code formatter doesn't honour new parentheses settings
+ */
+public void testBug500853() {
+	this.formatterPrefs.parenthesis_positions_in_method_declaration = new String(DefaultCodeFormatterConstants.PRESERVE_POSITIONS);
+	String source =
+		"public class SomeClass {\n" + 
+		"	void foo() {\n" + 
+		"	}\n" + 
+		"}";
+	formatSource(source);
+}
 }

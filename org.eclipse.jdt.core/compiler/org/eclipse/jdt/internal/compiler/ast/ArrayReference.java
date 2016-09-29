@@ -50,8 +50,9 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			currentScope,
 			flowContext,
 			analyseCode(currentScope, flowContext, flowInfo).unconditionalInits());
-	if ((this.resolvedType.tagBits & TagBits.AnnotationNonNull) != 0) {
-		int nullStatus = assignment.expression.nullStatus(flowInfo, flowContext);
+		if ((this.resolvedType.tagBits & TagBits.AnnotationNonNull) != 0 || 
+				(this.resolvedType.isFreeTypeVariable() && !assignment.expression.resolvedType.isFreeTypeVariable())) {
+			int nullStatus = assignment.expression.nullStatus(flowInfo, flowContext);
 		if (nullStatus != FlowInfo.NON_NULL) {
 			currentScope.problemReporter().nullityMismatch(this, assignment.expression.resolvedType, this.resolvedType, nullStatus, currentScope.environment().getNonNullAnnotationName());
 		}
@@ -60,8 +61,8 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 }
 
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-	this.receiver.checkNPE(currentScope, flowContext, flowInfo, 1);
 	flowInfo = this.receiver.analyseCode(currentScope, flowContext, flowInfo);
+	this.receiver.checkNPE(currentScope, flowContext, flowInfo, 1);
 	flowInfo = this.position.analyseCode(currentScope, flowContext, flowInfo);
 	this.position.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 	// account for potential ArrayIndexOutOfBoundsException:

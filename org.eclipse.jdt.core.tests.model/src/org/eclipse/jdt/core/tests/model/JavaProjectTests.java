@@ -2809,4 +2809,75 @@ public void testBug491354() throws CoreException {
 			deleteProject(project15);
 	}
 }
+
+public void testBug501220() throws CoreException {
+	IJavaProject jdkPrj = null, swtPrj = null, egitPrj = null;
+	try {
+		jdkPrj = createJavaProject("JDK8", new String[]{"src"}, new String[] {"JCL_LIB"}, null, null, "bin", new String[]{"bin"}, null, null, "1.8");
+		createFolder("/JDK8/src/jdk8");
+		createFile("/JDK8/src/jdk8/MyConsumer.java",
+				"package jdk8;\n" + 
+				"@FunctionalInterface\n" + 
+				"public interface MyConsumer<T> {\n" + 
+				"    void accept(T t);\n" + 
+				"}\n");
+	
+		swtPrj = createJavaProject("SWT", new String[]{"src"}, new String[] {"JCL_LIB"}, new String[]{"/JDK8"}, null, "bin", new String[]{"bin"}, null, null, "1.8");
+		createFolder("/SWT/src/swt");
+		createFile("/SWT/src/swt/EventObject.java",
+				"package swt;\n" + 
+				"\n" + 
+				"import jdk8.MyConsumer;\n" + 
+				"\n" + 
+				"public class EventObject {\n" + 
+				"}");
+		createFile("/SWT/src/swt/SelectionListener.java",
+				"package swt;\n" + 
+				"\n" + 
+				"import java.util.EventObject;\n" + 
+				"\n" + 
+				"import jdk8.MyConsumer;\n" + 
+				"\n" + 
+				"public interface SelectionListener {\n" + 
+				"	void widgetSelected(EventObject event);\n" + 
+				"\n" + 
+				"	static SelectionListener widgetSelected(MyConsumer<EventObject> c) {\n" + 
+				"		return new SelectionListener() {\n" + 
+				"			public void widgetSelected(EventObject e) {\n" + 
+				"				c.accept(e);\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"	}\n" + 
+				"}");
+		egitPrj = createJavaProject("EGit", new String[]{"src"}, new String[] {"JCL_LIB"}, new String[]{"/SWT"}, null, "bin", new String[]{"bin"}, null, null, "1.8");
+		egitPrj.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+		createFolder("/EGit/src/egit");
+		createFile("/EGit/src/egit/UIUtils.java",
+				"package egit; // Error: The type jdk8.MyConsumer cannot be resolved. It is indirectly referenced from required .class files\n" + 
+				"\n" + 
+				"import swt.EventObject;\n" + 
+				"\n" + 
+				"import swt.SelectionListener;\n" + 
+				"\n" + 
+				"public class UIUtils {\n" + 
+				"	void foo() {\n" + 
+				"		SelectionListener listener = new SelectionListener() {\n" + 
+				"			public void widgetSelected(EventObject event) {\n" + 
+				"			}\n" + 
+				"		};\n" + 
+				"		listener.toString();\n" + 
+				"	}\n" + 
+				"}\n");
+		egitPrj.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
+		IMarker[] markers = egitPrj.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("Unexpected markers", "",  markers);
+	} finally {
+		if (jdkPrj != null)
+			deleteProject(jdkPrj);
+		if (swtPrj != null)
+			deleteProject(swtPrj);
+		if (egitPrj != null)
+			deleteProject(egitPrj);
+	}
+}
 }

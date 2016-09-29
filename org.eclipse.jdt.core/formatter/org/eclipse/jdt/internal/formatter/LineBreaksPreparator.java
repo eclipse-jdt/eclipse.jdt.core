@@ -756,7 +756,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 				//$FALL-THROUGH$
 			case DefaultCodeFormatterConstants.SEPARATE_LINES:
 			case DefaultCodeFormatterConstants.PRESERVE_POSITIONS:
-				boolean always = positionsSetting != DefaultCodeFormatterConstants.PRESERVE_POSITIONS;
+				boolean always = !positionsSetting.equals(DefaultCodeFormatterConstants.PRESERVE_POSITIONS);
 				Token afterOpening = this.tm.get(openingParenIndex + 1);
 				if (always || this.tm.countLineBreaksBetween(this.tm.get(openingParenIndex), afterOpening) > 0) {
 					afterOpening.setWrapPolicy(

@@ -29841,6 +29841,9 @@ public void test0909() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=127583
 public void test0910() {
+	int[] capIds = this.complianceLevel < ClassFileConstants.JDK1_8
+			? new int[]{ 1, 3, 4, 6, 13}
+			: new int[]{ 1, 2, 3, 4, 8};
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -29893,12 +29896,12 @@ public void test0910() {
 		"4. ERROR in X.java (at line 13)\n" +
 		"	lc1 = lc3; //2 ko\n" +
 		"	      ^^^\n" +
-		"Type mismatch: cannot convert from List<capture#1-of ? extends Collection<?>> to List<Collection>\n" +
+		"Type mismatch: cannot convert from List<capture#"+capIds[0]+"-of ? extends Collection<?>> to List<Collection>\n" +
 		"----------\n" +
 		"5. ERROR in X.java (at line 14)\n" +
 		"	lc1 = lc4; //3 ko\n" +
 		"	      ^^^\n" +
-		"Type mismatch: cannot convert from List<capture#3-of ? extends Collection> to List<Collection>\n" +
+		"Type mismatch: cannot convert from List<capture#"+capIds[1]+"-of ? extends Collection> to List<Collection>\n" +
 		"----------\n" +
 		"6. ERROR in X.java (at line 15)\n" +
 		"	lc2 = lc1; //4 ko\n" +
@@ -29908,12 +29911,12 @@ public void test0910() {
 		"7. ERROR in X.java (at line 16)\n" +
 		"	lc2 = lc3; //5 ko\n" +
 		"	      ^^^\n" +
-		"Type mismatch: cannot convert from List<capture#4-of ? extends Collection<?>> to List<Collection<?>>\n" +
+		"Type mismatch: cannot convert from List<capture#"+capIds[2]+"-of ? extends Collection<?>> to List<Collection<?>>\n" +
 		"----------\n" +
 		"8. ERROR in X.java (at line 17)\n" +
 		"	lc2 = lc4; //6 ko\n" +
 		"	      ^^^\n" +
-		"Type mismatch: cannot convert from List<capture#6-of ? extends Collection> to List<Collection<?>>\n" +
+		"Type mismatch: cannot convert from List<capture#"+capIds[3]+"-of ? extends Collection> to List<Collection<?>>\n" +
 		"----------\n" +
 		"9. ERROR in X.java (at line 18)\n" +
 		"	lc3 = lc1; //7 ko\n" +
@@ -29923,7 +29926,7 @@ public void test0910() {
 		"10. ERROR in X.java (at line 20)\n" +
 		"	lc3 = lc4; //9 ko\n" +
 		"	      ^^^\n" +
-		"Type mismatch: cannot convert from List<capture#13-of ? extends Collection> to List<? extends Collection<?>>\n" +
+		"Type mismatch: cannot convert from List<capture#"+capIds[4]+"-of ? extends Collection> to List<? extends Collection<?>>\n" +
 		"----------\n" +
 		"11. WARNING in X.java (at line 25)\n" +
 		"	private final List<Collection> aList = new ArrayList<Collection>();\n" +
@@ -38756,11 +38759,7 @@ public void test1117() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=177715
 public void test1118() {
-	runConformTest(
-		// test directory preparation
-		new String[] { /* test files */
-			"X.java",
-			"import java.util.List;\n" +
+	String source = "import java.util.List;\n" +
 			"\n" +
 			"public class X {\n" +
 			"	X() {\n" +
@@ -38771,10 +38770,21 @@ public void test1118() {
 			"	<I, T extends List<I>> T foo(Class<T> pClass) {\n" +
 			"		return null;\n" +
 			"	}\n" +
-			"}\n", // =================
-		},
-		// javac options
-		JavacTestOptions.EclipseHasABug.EclipseBug177715 /* javac test options */);
+			"}\n";
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		runConformTest(
+				new String[] { "X.java", source },
+				JavacTestOptions.EclipseHasABug.EclipseBug177715 /* javac test options */);
+	} else {
+		runNegativeTest(
+			new String[] { "X.java", source },
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	foo(cls);\n" +
+			"	^^^\n" +
+			"The method foo(Class<T>) in the type X is not applicable for the arguments (Class<capture#1-of ? extends List<?>>)\n" + 
+			"----------\n");
+	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=169728
 public void test1119() {

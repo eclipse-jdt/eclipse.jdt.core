@@ -415,8 +415,8 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		// static methods with receiver value never get here
 		if (this.haveReceiver) {
-			this.lhs.checkNPE(currentScope, flowContext, flowInfo);
 			this.lhs.analyseCode(currentScope, flowContext, flowInfo, true);
+			this.lhs.checkNPE(currentScope, flowContext, flowInfo);
 		} else if (isConstructorReference()) {
 			TypeBinding type = this.receiverType.leafComponentType();
 			if (type.isNestedType() &&

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 BEA Systems, Inc.
+ * Copyright (c) 2005, 2016 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -232,7 +232,7 @@ public class AptConfig {
     				IJavaProject otherJavaProject = JavaCore.create(otherProject);
     				
     				// If it doesn't exist, ignore it
-    				if (otherJavaProject != null && otherJavaProject.isOpen()) {
+    				if (otherJavaProject != null && otherJavaProject.getProject().isOpen()) {
     					addProjectClasspath(root, otherJavaProject, projectsProcessed, classpath);
     				}
     			}

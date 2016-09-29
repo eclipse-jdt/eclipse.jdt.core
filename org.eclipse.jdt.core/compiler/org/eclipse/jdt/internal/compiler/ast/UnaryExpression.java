@@ -34,18 +34,18 @@ public FlowInfo analyseCode(
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo) {
-	this.expression.checkNPE(currentScope, flowContext, flowInfo);
 	if (((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT) {
 		flowContext.tagBits ^= FlowContext.INSIDE_NEGATION;
 		flowInfo = this.expression.
 			analyseCode(currentScope, flowContext, flowInfo).
 			asNegatedCondition();
 		flowContext.tagBits ^= FlowContext.INSIDE_NEGATION;
-		return flowInfo;
 	} else {
-		return this.expression.
+		flowInfo = this.expression.
 			analyseCode(currentScope, flowContext, flowInfo);
 	}
+	this.expression.checkNPE(currentScope, flowContext, flowInfo);
+	return flowInfo;
 }
 
 	public Constant optimizedBooleanConstant() {
