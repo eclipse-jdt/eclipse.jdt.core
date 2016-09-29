@@ -116,7 +116,7 @@ public class BinaryTypeFactory {
 		
 		if (JavaIndex.isEnabled()) {
 			try {
-				return readFromIndex(descriptor, monitor);
+				return readFromIndex(JavaIndex.getIndex(), descriptor, monitor);
 			} catch (NotInIndexException e) {
 				// fall back to reading the zip file, below
 			}
@@ -174,14 +174,13 @@ public class BinaryTypeFactory {
 	 * requested file. Returns null if the index contains an up-to-date cache of the requested file and it was
 	 * able to determine that the requested class does not exist in that file.
 	 */
-	public static IBinaryType readFromIndex(BinaryTypeDescriptor descriptor, IProgressMonitor monitor) throws JavaModelException, NotInIndexException {
+	public static IBinaryType readFromIndex(JavaIndex index, BinaryTypeDescriptor descriptor, IProgressMonitor monitor) throws JavaModelException, NotInIndexException {
 		char[] className = JavaNames.fieldDescriptorToSimpleName(descriptor.fieldDescriptor);
 
 		// If the new index is enabled, check if we have this class file cached in the index already		
 		char[] fieldDescriptor = descriptor.fieldDescriptor;
 
 		if (!CharArrayUtils.equals(PACKAGE_INFO, className)) {
-			JavaIndex index = JavaIndex.getIndex();
 			Nd nd = index.getNd();
 
 			// We don't currently cache package-info files in the index
