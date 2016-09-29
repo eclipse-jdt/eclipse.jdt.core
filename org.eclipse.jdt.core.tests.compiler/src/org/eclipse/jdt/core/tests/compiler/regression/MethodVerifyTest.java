@@ -14323,7 +14323,9 @@ public void testBug500673() {
 		"	                      ^^^^^^^^^^^^^^^^^^^^^^\n" +
 		(this.complianceLevel < ClassFileConstants.JDK1_8
 		? "Illegal modifier for the interface method a; only public & abstract are permitted\n"
-		: "Illegal modifier for the interface method a; only public, abstract, default, static and strictfp are permitted\n"
+		: this.complianceLevel < ClassFileConstants.JDK9 ? 
+				"Illegal modifier for the interface method a; only public, abstract, default, static and strictfp are permitted\n" :
+				"Illegal modifier for the interface method a; only public, private, abstract, default, static and strictfp are permitted\n"
 		) +
 		"----------\n" + 
 		"----------\n" + 
