@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 
 public class ModifyingResourceTests extends AbstractJavaModelTests {
 
@@ -102,6 +103,7 @@ protected IFile createFile(String path, InputStream content) throws CoreExceptio
 	} catch (IOException e) {
 		e.printStackTrace();
 	}
+	Indexer.getInstance().waitForIndex(null);
 	return file;
 }
 

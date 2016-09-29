@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
 import org.eclipse.jdt.internal.core.ResolvedSourceType;
+import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -2425,6 +2426,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void refreshExternalArchives(IJavaProject p) throws JavaModelException {
 		waitForAutoBuild(); // ensure that the auto-build job doesn't interfere with external jar refreshing
 		getJavaModel().refreshExternalArchives(new IJavaElement[] {p}, null);
+		Indexer.getInstance().waitForIndex(null);
 	}
 
 	protected void removeJavaNature(String projectName) throws CoreException {
@@ -3142,6 +3144,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		do {
 			try {
 				Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+				Indexer.getInstance().waitForIndex(null);
 				wasInterrupted = false;
 			} catch (OperationCanceledException e) {
 				e.printStackTrace();
@@ -3156,6 +3159,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		do {
 			try {
 				Job.getJobManager().join(ResourcesPlugin.FAMILY_MANUAL_REFRESH, null);
+				Indexer.getInstance().waitForIndex(null);
 				wasInterrupted = false;
 			} catch (OperationCanceledException e) {
 				e.printStackTrace();
@@ -3170,6 +3174,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		SearchEngine engine = new SearchEngine();
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 		try {
+			Indexer.getInstance().waitForIndex(null);
 			engine.searchAllTypeNames(
 				null,
 				SearchPattern.R_EXACT_MATCH,
