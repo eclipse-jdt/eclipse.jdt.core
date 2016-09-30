@@ -315,8 +315,9 @@ public class Database {
 			Chunk chunk= this.fChunks[index];
 			if (chunk == null) {
 				this.cacheMisses++;
-				chunk = this.fChunks[index] = new Chunk(this, index);
+				chunk = new Chunk(this, index);
 				chunk.read();
+				this.fChunks[index] = chunk;
 			} else {
 				this.cacheHits++;
 			}

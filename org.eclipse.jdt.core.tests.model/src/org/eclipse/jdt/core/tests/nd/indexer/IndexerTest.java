@@ -13,6 +13,7 @@ package org.eclipse.jdt.core.tests.nd.indexer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Semaphore;
 
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -26,7 +27,9 @@ import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.core.nd.IReader;
+import org.eclipse.jdt.internal.core.nd.db.ChunkCache;
 import org.eclipse.jdt.internal.core.nd.db.Database;
+import org.eclipse.jdt.internal.core.nd.db.IndexException;
 import org.eclipse.jdt.internal.core.nd.indexer.IndexTester;
 import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
@@ -67,6 +70,46 @@ public class IndexerTest extends AbstractJavaModelTests {
 
 	public static Test suite() {
 		return buildModelTestSuite(IndexerTest.class);
+	}
+
+	/**
+	 * Verifies that if the index fails a read due to call to {@link Thread#interrupt()}, subsequent reads will
+	 * still succeed.
+	 */
+	public void testInterruptedException() throws Exception {
+		createJavaProject(PROJECT_NAME, new String[] {"src"}, new String[] {"JCL18_FULL"}, "bin", "1.8", true);
+		// Create an index
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		Indexer indexer = new Indexer(index.getNd(), root);
+		indexer.rescan(SubMonitor.convert(null));
+		// Ensure we're starting with an empty page cache by creating a new
+		// Index accessor object on the same database
+		JavaIndex testIndex = JavaIndex
+				.getIndex(JavaIndex.createNd(index.getNd().getDB().getLocation(), new ChunkCache()));
+
+		Semaphore semaphore = new Semaphore(0);
+
+		boolean[] wasInterrupted = new boolean[1];
+		Thread newThread = new Thread(() -> {
+			try (IReader reader = testIndex.getNd().acquireReadLock()) {
+				Thread.currentThread().interrupt();
+				testIndex.findType("Ljava/util/List;".toCharArray());
+			} catch (IndexException e) {
+				wasInterrupted[0] = true;
+			} finally {
+				semaphore.release();
+			}
+		});
+
+		newThread.start();
+
+		semaphore.acquire();
+
+		assertTrue(wasInterrupted[0]);
+		try (IReader reader = testIndex.getNd().acquireReadLock()) {
+			NdTypeId type = testIndex.findType("Ljava/util/List;".toCharArray());
+			assertNotNull(type);
+		}
 	}
 
 	public void testSubclassesOfGenericTypeCanBeFound() throws Exception {
