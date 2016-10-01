@@ -6287,6 +6287,58 @@ public void test500374a() {
 	},
 	"Done");
 }
+public void testBug502871() {
+	runNegativeTest(
+		new String[] {
+			"test/GryoMapper.java",
+			"package test;\n" +
+			"\n" +
+			"interface Generic<A> {\n" +
+			"}\n" +
+			"\n" +
+			"interface SAM<B> {\n" +
+			"	B m();\n" +
+			"}\n" +
+			"\n" +
+			"public final class GryoMapper {\n" +
+			"	public void addCustom(Generic c) {\n" +
+			"		addOrOverrideRegistration(() -> GryoTypeReg.of(c));\n" +
+			"	}\n" +
+			"\n" +
+			"	private <C> void addOrOverrideRegistration(SAM<GryoTypeReg<C>> newRegistrationBuilder) {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class GryoTypeReg<D> {\n" +
+			"		static <E> GryoTypeReg<E> of(Generic<E> clazz) {\n" +
+			"			return null;\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		"----------\n" + 
+		"1. WARNING in test\\GryoMapper.java (at line 11)\n" + 
+		"	public void addCustom(Generic c) {\n" + 
+		"	                      ^^^^^^^\n" + 
+		"Generic is a raw type. References to generic type Generic<A> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in test\\GryoMapper.java (at line 12)\n" + 
+		"	addOrOverrideRegistration(() -> GryoTypeReg.of(c));\n" + 
+		"	                                ^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation of(Generic) of the generic method of(Generic<E>) of type GryoMapper.GryoTypeReg\n" + 
+		"----------\n" + 
+		"3. WARNING in test\\GryoMapper.java (at line 12)\n" + 
+		"	addOrOverrideRegistration(() -> GryoTypeReg.of(c));\n" + 
+		"	                                ^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: The expression of type GryoMapper.GryoTypeReg needs unchecked conversion to conform to GryoMapper.GryoTypeReg<Object>\n" + 
+		"----------\n" + 
+		"4. WARNING in test\\GryoMapper.java (at line 12)\n" + 
+		"	addOrOverrideRegistration(() -> GryoTypeReg.of(c));\n" + 
+		"	                                               ^\n" + 
+		"Type safety: The expression of type Generic needs unchecked conversion to conform to Generic<Object>\n" + 
+		"----------\n"
+	);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

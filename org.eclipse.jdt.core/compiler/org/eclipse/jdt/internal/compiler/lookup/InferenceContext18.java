@@ -516,7 +516,7 @@ public class InferenceContext18 {
 					}
 					if (!t.isProperType(true) && t.isParameterizedType()) {
 						// prevent already resolved inference variables from leaking into the lambda
-						t = (ReferenceBinding) Scope.substitute(getResultSubstitution(this.currentBounds, false), t);
+						t = (ReferenceBinding) Scope.substitute(getResultSubstitution(this.currentBounds), t);
 					}
 					MethodBinding functionType;
 					if (t != null && (functionType = t.getSingleAbstractMethod(skope, true)) != null && (lambda = lambda.resolveExpressionExpecting(t, this.scope, this)) != null) {
@@ -1458,7 +1458,7 @@ public class InferenceContext18 {
 		this.usesUncheckedConversion = record.usesUncheckedConversion;
 	}
 
-	private Substitution getResultSubstitution(final BoundSet result, final boolean full) {
+	private Substitution getResultSubstitution(final BoundSet result) {
 		return new Substitution() {
 			public LookupEnvironment environment() { 
 				return InferenceContext18.this.environment;
@@ -1469,7 +1469,7 @@ public class InferenceContext18 {
 			public TypeBinding substitute(TypeVariableBinding typeVariable) {
 				if (typeVariable instanceof InferenceVariable) {
 					TypeBinding instantiation = result.getInstantiation((InferenceVariable) typeVariable, InferenceContext18.this.environment);
-					if (instantiation != null || full)
+					if (instantiation != null)
 						return instantiation;
 				}
 				return typeVariable;
@@ -1595,7 +1595,7 @@ public class InferenceContext18 {
 	void reportUncheckedConversions(BoundSet solution) {
 		if (this.constraintsWithUncheckedConversion != null) {
 			int len = this.constraintsWithUncheckedConversion.size();
-			Substitution substitution = getResultSubstitution(solution, true);
+			Substitution substitution = getResultSubstitution(solution);
 			for (int i = 0; i < len; i++) {
 				ConstraintTypeFormula constraint = (ConstraintTypeFormula) this.constraintsWithUncheckedConversion.get(i);
 				TypeBinding expectedType = constraint.right;
