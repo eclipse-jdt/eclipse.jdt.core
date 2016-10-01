@@ -16,7 +16,6 @@ import org.eclipse.jdt.internal.core.nd.db.Database;
 /**
  * Declares a Nd field of type short. Can be used in place of  {@link Field}&lt{@link Short}&gt in order to
  * avoid extra GC overhead.
- * @since 3.12
  */
 public class FieldShort implements IField {
 	private int offset;

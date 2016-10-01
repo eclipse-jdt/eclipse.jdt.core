@@ -24,7 +24,6 @@ import org.eclipse.core.runtime.CoreException;
  * for storing strings in Database. Which means that a linear lookup is needed to find strings in the list. An
  * in-memory, lazily-loaded, cache is provided so the list will only be fully retrieved once in the lifetime
  * of this instance. A BTree will be more efficient for larger sets.
- * @since 3.12
  */
 public class NdStringSet {
 	private final Database db;

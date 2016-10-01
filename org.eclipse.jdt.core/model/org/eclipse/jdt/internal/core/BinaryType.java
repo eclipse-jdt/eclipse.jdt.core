@@ -284,11 +284,8 @@ public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	Object info = manager.getInfo(this);
 	if (info != null && info != JavaModelCache.NON_EXISTING_JAR_TYPE_INFO) return info;
-
 	return openWhenClosed(createElementInfo(), false, monitor);
 }
-
-
 /*
  * @see IJavaElement
  */

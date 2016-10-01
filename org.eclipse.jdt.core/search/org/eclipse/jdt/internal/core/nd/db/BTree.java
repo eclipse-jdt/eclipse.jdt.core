@@ -22,8 +22,7 @@ import org.eclipse.jdt.internal.core.nd.ITypeFactory;
 import org.eclipse.jdt.internal.core.nd.Nd;
 
 /**
- * Implements B-Tree search structure
- * @since 3.12
+ * Implements B-Tree search structure.
  */
 public class BTree {
 	private static final int DEFAULT_DEGREE = 8;

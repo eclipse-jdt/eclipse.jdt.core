@@ -11,8 +11,7 @@
 package org.eclipse.jdt.internal.core.nd;
 
 /**
- * Represents an array of long
- * @since 3.12
+ * Represents an array of long.
  */
 public class LongArray {
 	private static final int MIN_CAPACITY = 8;

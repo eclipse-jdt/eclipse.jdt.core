@@ -18,7 +18,6 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 /**
  * DBProperties is a bare-bones implementation of a String->String mapping. It is neither
  * a Map or a Properties subclass, because of their more general applications.
- * @since 3.12
  */
 public class DBProperties {
 	static final int PROP_INDEX = 0;

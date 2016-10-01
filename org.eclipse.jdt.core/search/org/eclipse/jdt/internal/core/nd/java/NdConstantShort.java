@@ -16,9 +16,6 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.field.FieldShort;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
-/**
- * @since 3.12
- */
 public final class NdConstantShort extends NdConstant {
 	public static final FieldShort VALUE;
 

@@ -50,8 +50,6 @@ import org.junit.Assert;
  * Some classes with similar idea worth to look at:
  * org.eclipse.core.filebuffers.tests.ResourceHelper,
  * org.eclipse.cdt.ui.tests.text.ResourceHelper.
- *
- * @since 6.0
  */
 public class ResourceHelper {
 	private final static IProgressMonitor NULL_MONITOR = new NullProgressMonitor();

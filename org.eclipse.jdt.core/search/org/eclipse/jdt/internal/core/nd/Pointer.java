@@ -16,7 +16,6 @@ import org.eclipse.jdt.internal.core.nd.db.Database;
  * Points to a concrete type, NOT one of its subclasses. This should not be used for node
  * pointers, since they are stored as a pointer to the base class. If you want a pointer to
  * a node, use a NodeFieldDefinition instead.
- * @since 3.12
  */
 public class Pointer<T> {
 	private final Nd nd;

@@ -15,9 +15,6 @@ import java.io.IOException;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
-/**
- * @since 3.12
- */
 public class DBStatus extends Status {
 	/**
 	 * @param exception

@@ -16,7 +16,6 @@ import org.eclipse.jdt.internal.core.nd.db.Database;
 
 /**
  * Represents a 1-to-0..1 relationship in a Nd database.
- * @since 3.12
  */
 public class FieldOneToOne<T extends NdNode> implements IField, IDestructableField, IRefCountedField {
 	private int offset;

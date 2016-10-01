@@ -39,8 +39,6 @@ import org.eclipse.jdt.internal.core.nd.Nd;
  * Structs deleted by refcounting and owner pointers are not intended to inherit from one another, but anything may
  * inherit from a struct that uses manual deletion and anything may inherit from a struct that uses the same deletion
  * mechanism.
- * 
- * @since 3.12
  */
 public final class StructDef<T> {
 	Class<T> clazz;

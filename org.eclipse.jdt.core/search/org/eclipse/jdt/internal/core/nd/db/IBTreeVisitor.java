@@ -12,8 +12,7 @@
 package org.eclipse.jdt.internal.core.nd.db;
 
 /** 
- * The visitor visits all records where compare returns 0. 
- * @since 3.12
+ * The visitor visits all records where compare returns 0.
  */
 public interface IBTreeVisitor {
 	/**

@@ -19,8 +19,6 @@ import org.eclipse.jdt.internal.core.nd.NdNode;
  * type. {@link FieldManyToOne} forms a one-to-many relationship with {@link FieldOneToMany}. Whenever a
  * {@link FieldManyToOne} points to an object, the inverse pointer is automatically inserted into the matching back
  * pointer list.
- * 
- * @since 3.12
  */
 public class FieldManyToOne<T extends NdNode> implements IDestructableField, IField, IRefCountedField {
 	public final static FieldPointer TARGET;

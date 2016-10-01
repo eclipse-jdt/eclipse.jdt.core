@@ -25,7 +25,6 @@ import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
  * along with pointers to all methods that have this fully-qualified name. Note that this isn't the class declaration
  * itself. If there are multiple jar files containing a class of the same fully-qualified name, there may also be
  * multiple methods with the same method ID.
- * @since 3.12
  */
 public class NdMethodId extends NdNode {
 	public static final FieldSearchKey<JavaIndex> METHOD_NAME;

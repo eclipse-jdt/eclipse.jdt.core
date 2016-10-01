@@ -24,9 +24,6 @@ import org.eclipse.jdt.internal.core.nd.field.FieldString;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 
-/**
- * @since 3.12
- */
 public class NdType extends NdBinding {
 	public static final FieldManyToOne<NdTypeId> TYPENAME;
 	public static final FieldManyToOne<NdTypeSignature> SUPERCLASS;

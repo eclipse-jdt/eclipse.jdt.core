@@ -13,8 +13,7 @@ package org.eclipse.jdt.internal.core.nd;
 import java.net.URI;
 
 /**
- * An implementation of IIndexFileLocation
- * @since 3.12
+ * An implementation of IIndexFileLocation.
  */
 public class IndexFileLocation implements IIndexFileLocation {
 	private final URI uri;

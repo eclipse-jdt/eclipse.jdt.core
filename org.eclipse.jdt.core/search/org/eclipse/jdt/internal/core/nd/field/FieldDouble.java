@@ -16,8 +16,6 @@ import org.eclipse.jdt.internal.core.nd.db.Database;
 /**
  * Declares a Nd field of type double. Can be used in place of  {@link Field}&lt{@link Double}&gt in order to
  * avoid extra GC overhead.
- * 
- * @since 3.12
  */
 public class FieldDouble implements IField {
 	private int offset;

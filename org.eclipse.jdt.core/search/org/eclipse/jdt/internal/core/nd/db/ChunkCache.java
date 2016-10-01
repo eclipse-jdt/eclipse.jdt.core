@@ -10,9 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.db;
 
-/**
- * @since 3.12
- */
 public final class ChunkCache {
 	private static ChunkCache sSharedInstance= new ChunkCache();
 

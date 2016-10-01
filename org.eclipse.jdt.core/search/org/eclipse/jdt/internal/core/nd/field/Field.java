@@ -27,7 +27,6 @@ import org.eclipse.jdt.internal.core.nd.Nd;
  * end up being autoboxed unnecessarily.
  * 
  * @param <T>
- * @since 3.12
  */
 public final class Field<T> implements IField, IDestructableField {
 	private int offset;

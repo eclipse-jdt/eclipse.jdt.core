@@ -23,9 +23,6 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
-/**
- * @since 3.12
- */
 public class NdTypeId extends NdTypeSignature {
 	public static final FieldSearchKey<JavaIndex> FIELD_DESCRIPTOR;
 	public static final FieldSearchKey<JavaIndex> SIMPLE_NAME;

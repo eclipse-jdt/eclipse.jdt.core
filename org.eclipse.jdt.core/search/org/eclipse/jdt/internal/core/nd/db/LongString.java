@@ -18,7 +18,6 @@ package org.eclipse.jdt.internal.core.nd.db;
  * reassembled when necessary.
  *
  * @author Doug Schaefer
- * @since 3.12
  */
 public class LongString implements IString {
 	private final Database db;

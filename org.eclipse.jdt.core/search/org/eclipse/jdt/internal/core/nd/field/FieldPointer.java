@@ -13,9 +13,6 @@ package org.eclipse.jdt.internal.core.nd.field;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 
-/**
- * @since 3.12
- */
 public class FieldPointer implements IField {
 	private int offset;
 

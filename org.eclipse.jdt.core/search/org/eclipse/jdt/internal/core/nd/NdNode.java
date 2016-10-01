@@ -17,8 +17,6 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
 /**
  * This is a basic node in the network database.
- *
- * @since 3.12
  */
 public abstract class NdNode implements IDestructable {
 	public static final FieldShort NODE_TYPE;

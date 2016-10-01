@@ -15,9 +15,6 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToOne;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
-/**
- * @since 3.12
- */
 public final class NdConstantAnnotation extends NdConstant {
 	public static final FieldOneToOne<NdAnnotationInConstant> VALUE;
 

@@ -12,9 +12,6 @@ package org.eclipse.jdt.internal.core.nd.field;
 
 import org.eclipse.jdt.internal.core.nd.Nd;
 
-/**
- * @since 3.12
- */
 public interface IRefCountedField {
 	/**
 	 * Returns true if this field knows of any remaining incoming references to this object. This is

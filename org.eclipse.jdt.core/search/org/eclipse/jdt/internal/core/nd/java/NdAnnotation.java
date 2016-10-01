@@ -18,9 +18,6 @@ import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
-/**
- * @since 3.12
- */
 public class NdAnnotation extends NdNode {
 	public static final FieldManyToOne<NdTypeSignature> ANNOTATION_TYPE;
 	public static final FieldOneToMany<NdAnnotationValuePair> ELEMENT_VALUE_PAIRS;

@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.Status;
 
 /**
  * This exception indicates corruption in the JDT index database.
- * @since 3.12
  */
 public class IndexException extends RuntimeException {
 

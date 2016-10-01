@@ -13,8 +13,7 @@ package org.eclipse.jdt.internal.core.nd;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 
 /**
- * Holds type factories for all primitive types known to the Database
- * @since 3.12
+ * Holds type factories for all primitive types known to the Database.
  */
 public class PrimitiveTypes {
 	public static final ITypeFactory<Long> Pointer = new AbstractTypeFactory<Long>() {

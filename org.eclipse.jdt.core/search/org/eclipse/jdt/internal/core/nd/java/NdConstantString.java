@@ -17,9 +17,6 @@ import org.eclipse.jdt.internal.core.nd.db.IString;
 import org.eclipse.jdt.internal.core.nd.field.FieldString;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
-/**
- * @since 3.12
- */
 public final class NdConstantString extends NdConstant {
 	public static final FieldString VALUE;
 

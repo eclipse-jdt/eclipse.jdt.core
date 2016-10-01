@@ -30,8 +30,6 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
  * <p>
  * Arrays are encoded in a special way. The RAW_TYPE points to a sentinel type called '['
  * and the first type argument holds the array type.
- *
- * @since 3.12
  */
 public class NdComplexTypeSignature extends NdTypeSignature {
 	public static final FieldString VARIABLE_IDENTIFIER;

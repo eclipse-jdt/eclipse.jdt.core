@@ -17,7 +17,6 @@ package org.eclipse.jdt.internal.core.nd.db;
  * format. This interface hides that fact. 
  * 
  * @author Doug Schaefer
- * @since 3.12
  */
 public interface IString {
 	/**

@@ -24,8 +24,6 @@ import org.eclipse.jdt.internal.core.nd.db.IndexException;
 
 /**
  * Network Database for storing semantic information.
- *
- * @since 3.12
  */
 public class Nd {
 	private static final int CANCELLATION_CHECK_INTERVAL = 500;

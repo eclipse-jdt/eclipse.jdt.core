@@ -33,8 +33,6 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
  * classes refer to their enclosing class directly since they live in the same file and there is no possibility for the
  * enclosing class to change based on the classpath. Classes refer to their base class via its TypeId since the parent
  * class might live in a different jar and need to be resolved on the classpath.
- *
- * @since 3.12
  */
 public abstract class NdTypeSignature extends NdNode {
 	public static final FieldOneToMany<NdType> SUBCLASSES;

@@ -25,9 +25,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.internal.core.nd.StreamHasher;
 
-/**
- * @since 3.12
- */
 public class FileFingerprint {
 	/**
 	 * Sentinel value for {@link #time} indicating a nonexistent fingerprint. This is used for the timestamp of

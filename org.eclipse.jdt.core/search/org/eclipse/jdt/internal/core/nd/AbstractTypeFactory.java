@@ -12,9 +12,6 @@ package org.eclipse.jdt.internal.core.nd;
 
 import org.eclipse.jdt.internal.core.nd.field.StructDef.DeletionSemantics;
 
-/**
- * @since 3.12
- */
 public abstract class AbstractTypeFactory<T> implements ITypeFactory<T> {
 	@Override
 	public void destructFields(Nd dom, long address) {

@@ -22,9 +22,7 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
- * Represents a TypeParameter, as described in Section 4.7.9.1 of
- * the java VM specification, Java SE 8 edititon.
- * @since 3.12
+ * Represents a TypeParameter, as described in Section 4.7.9.1 of the java VM specification, Java SE 8 edititon.
  */
 public class NdTypeParameter extends NdNode {
 	public static final FieldManyToOne<NdBinding> PARENT;

@@ -32,9 +32,6 @@ import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex.SearchCriteria;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 
-/**
- * @since 3.12
- */
 public class JavaIndex {
 	// Version constants
 	static final int CURRENT_VERSION = Nd.version(1, 37);

@@ -16,9 +16,7 @@ package org.eclipse.jdt.internal.core.nd.util;
 import java.util.Arrays;
 
 /**
- * A static utility class for char arrays
- * @author dschaefe
- * @since 3.12
+ * A static utility class for char arrays.
  */
 public class CharArrayUtils {
 	/** @since 5.4 */

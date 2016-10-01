@@ -12,9 +12,6 @@ package org.eclipse.jdt.internal.core.nd.db;
 
 import org.eclipse.jdt.internal.core.nd.Nd;
 
-/**
- * @since 3.12
- */
 public interface IBTreeComparator {
 	/**
 	 * Compare two records. Used for insert.

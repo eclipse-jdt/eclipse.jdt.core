@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.core.nd;
 /**
  * This mix-in interface is implemented by database objects that require a custom
  * destruction step.
- * @since 3.12
  */
 public interface IDestructable {
 	/**

@@ -17,7 +17,6 @@ import org.eclipse.jdt.core.dom.IBinding;
 
 /**
  * Can be subclassed and used for queries in the index.
- * @since 3.12
  */
 public class IndexFilter {
 	public static final IndexFilter ALL = new IndexFilter();

@@ -32,7 +32,6 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
 /**
  * Represents a source of java classes (such as a .jar or .class file).
- * @since 3.12
  */
 public class NdResourceFile extends NdTreeNode {
 	public static final FieldSearchKey<JavaIndex> FILENAME;

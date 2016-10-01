@@ -12,10 +12,6 @@ package org.eclipse.jdt.internal.core.nd;
 
 import org.eclipse.core.runtime.CoreException;
 
-/**
- * @since 3.12
- *
- */
 public interface INdVisitor {
 
 	/**

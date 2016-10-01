@@ -24,8 +24,6 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
  * Base class for bindings in the {@link Nd}.
- *
- * @since 3.12
  */
 public abstract class NdBinding extends NdNode implements IAdaptable {
 	public static final FieldInt MODIFIERS;

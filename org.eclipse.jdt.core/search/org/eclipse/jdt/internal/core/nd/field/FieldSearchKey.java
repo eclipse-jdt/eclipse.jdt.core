@@ -19,7 +19,6 @@ import org.eclipse.jdt.internal.core.nd.db.IString;
 
 /**
  * Represents a search key into a global search index.
- * @since 3.12
  */
 public class FieldSearchKey<T> implements IField, IDestructableField {
 	private int offset;

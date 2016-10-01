@@ -17,9 +17,6 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
 
-/**
- * @since 3.12
- */
 public abstract class TagTreeReader {
 	public static final int[] UNUSED_RESULT = new int[1];
 

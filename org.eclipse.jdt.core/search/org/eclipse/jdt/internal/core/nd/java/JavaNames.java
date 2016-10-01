@@ -16,9 +16,6 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
-/**
- * @since 3.12
- */
 public class JavaNames {
 	private static final char[] CLASS_FILE_SUFFIX = ".class".toCharArray(); //$NON-NLS-1$
 	public static final char[] FIELD_DESCRIPTOR_PREFIX = new char[] { 'L' };

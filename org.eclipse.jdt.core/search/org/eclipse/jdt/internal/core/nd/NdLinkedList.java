@@ -12,9 +12,6 @@ package org.eclipse.jdt.internal.core.nd;
 
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
 
-/**
- * @since 3.12
- */
 public final class NdLinkedList<T> {
 	private final NdRawLinkedList rawList;
 	final ITypeFactory<T> elementFactory;

@@ -93,7 +93,6 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
  * block numbers).
  * <li>blockCount - holds a number of blocks
  * </ul>
- * @since 3.12
  */
 public final class RawGrowableArray {
 	private static final FieldPointer GROWABLE_BLOCK_ADDRESS;

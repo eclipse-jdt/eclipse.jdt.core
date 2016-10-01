@@ -18,11 +18,8 @@ import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
 /**
- * {@link NdTreeNode} elements form a tree of nodes rooted at a
- * {@link NdResourceFile}. Each node contains a list of children
- * which it declares and has a pointer to the most specific node which
- * declares it.
- * @since 3.12
+ * {@link NdTreeNode} elements form a tree of nodes rooted at a {@link NdResourceFile}. Each node contains a list of
+ * children which it declares and has a pointer to the most specific node which declares it.
  */
 public abstract class NdTreeNode extends NdNode {
 	public static final FieldManyToOne<NdTreeNode> PARENT;

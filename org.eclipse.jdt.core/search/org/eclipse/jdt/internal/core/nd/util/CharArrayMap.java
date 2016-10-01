@@ -42,7 +42,6 @@ import java.util.TreeMap;
  * @author Mike Kucera
  *
  * @param <V>
- * @since 3.12
  */
 public final class CharArrayMap<V> {
 

@@ -38,7 +38,6 @@ import org.eclipse.jdt.internal.core.nd.db.IndexException;
  * The size of the blocks are generally hardcoded. All blocks are the same size except for the first block whose size
  * may be configured independently. The size of the first block may be zero, in which case the first "block" is
  * simply a pointer to the following block or null.
- * @since 3.12
  */
 public class NdRawLinkedList {
 	private static final int NEXT_MEMBER_BLOCK = 0;

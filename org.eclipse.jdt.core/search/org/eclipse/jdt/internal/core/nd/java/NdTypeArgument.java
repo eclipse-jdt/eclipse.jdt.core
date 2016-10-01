@@ -17,9 +17,6 @@ import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
-/**
- * @since 3.12
- */
 public class NdTypeArgument extends NdNode {
 	public static final FieldManyToOne<NdComplexTypeSignature> PARENT;
 	public static final FieldManyToOne<NdTypeSignature> TYPE_SIGNATURE;

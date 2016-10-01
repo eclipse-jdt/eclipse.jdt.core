@@ -14,9 +14,6 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef.DeletionSemantics;
 
 // TODO(sxenos): rename this to something like "StructDescriptor" -- it's more than a factory and the word
 // type is overloaded in JDT.
-/**
- * @since 3.12
- */
 public interface ITypeFactory<T> {
 	/**
 	 * Invokes the delete method on all the fields of the object, and calls deleteFields on the superclass' type (if

@@ -22,9 +22,6 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
-/**
- * @since 3.12
- */
 public class NdMethod extends NdBinding {
 	public static final FieldManyToOne<NdMethodId> METHOD_ID;
 	public static final FieldShort METHOD_FLAGS;

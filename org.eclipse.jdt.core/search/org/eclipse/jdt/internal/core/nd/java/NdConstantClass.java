@@ -15,9 +15,6 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
-/**
- * @since 3.12
- */
 public final class NdConstantClass extends NdConstant {
 	public static final FieldManyToOne<NdTypeSignature> VALUE;
 

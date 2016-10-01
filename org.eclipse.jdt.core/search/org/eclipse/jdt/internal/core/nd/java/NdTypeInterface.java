@@ -19,8 +19,6 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
  * Represents one interface implemented by a specific type. This is an intermediate object between a {@link NdType} and
  * the {@link NdTypeId}s corresponding to its interfaces, which is necessary in order to implement the many-to-many
  * relationship between them.
- * 
- * @since 3.12
  */
 public class NdTypeInterface extends NdNode {
 	public static final FieldManyToOne<NdType> APPLIES_TO;

@@ -33,8 +33,6 @@ import com.ibm.icu.text.MessageFormat;
 /**
  * Database encapsulates access to a flat binary format file with a memory-manager-like API for
  * obtaining and releasing areas of storage (memory).
- *
- * @since 3.12
  */
 /*
  * The file encapsulated is divided into Chunks of size CHUNK_SIZE, and a table of contents

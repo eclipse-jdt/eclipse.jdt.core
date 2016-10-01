@@ -58,7 +58,6 @@ package org.eclipse.jdt.internal.core.nd;
  * </pre>
  *
  * Based on lookup3.c by Bob Jenkins from {@link "http://burtleburtle.net/bob/c/lookup3.c"}
- * @since 3.12
  */
 public final class StreamHasher {
 	private static final long SEED = 3141592653589793238L;  // PI

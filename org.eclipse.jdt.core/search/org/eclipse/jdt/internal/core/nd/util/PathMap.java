@@ -20,7 +20,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 /**
- * Maps IPath keys onto values
+ * Maps IPath keys onto values.
  */
 public class PathMap<T> {
 	private static class Node<T> {

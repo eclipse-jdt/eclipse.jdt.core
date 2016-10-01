@@ -16,9 +16,6 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.field.FieldDouble;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
-/**
- * @since 3.12
- */
 public final class NdConstantDouble extends NdConstant {
 	public static final FieldDouble VALUE;
 

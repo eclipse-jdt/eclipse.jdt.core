@@ -11,8 +11,7 @@
 package org.eclipse.jdt.internal.core.nd.java;
 
 /**
- * Used for filtering and disambiguating bindings in the index to match the classpath
- * @since 3.12
+ * Used for filtering and disambiguating bindings in the index to match the classpath.
  */
 public interface ClasspathResolver {
 	public static final int NOT_ON_CLASSPATH = -1;

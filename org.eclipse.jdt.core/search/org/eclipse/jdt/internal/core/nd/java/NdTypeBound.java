@@ -18,9 +18,7 @@ import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
  * Represents the bound on a generic parameter (a ClassBound or InterfaceBound in
- * the sense of the Java VM spec Java SE 8 Edition, section 4.7.9.1)
- *
- * @since 3.12
+ * the sense of the Java VM spec Java SE 8 Edition, section 4.7.9.1).
  */
 public class NdTypeBound extends NdNode {
 	public static final FieldManyToOne<NdTypeParameter> PARENT;

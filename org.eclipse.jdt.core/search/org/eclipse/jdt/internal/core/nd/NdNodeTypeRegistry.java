@@ -17,8 +17,7 @@ import java.util.Map;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
 
 /**
- * Maps integer constants onto factories for {@link NdNode} objects
- * @since 3.12
+ * Maps integer constants onto factories for {@link NdNode} objects.
  */
 public class NdNodeTypeRegistry<R> {
 	private final Map<Short, ITypeFactory<? extends R>> types = new HashMap<>();

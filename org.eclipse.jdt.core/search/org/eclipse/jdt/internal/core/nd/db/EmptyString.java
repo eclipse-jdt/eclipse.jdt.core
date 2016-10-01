@@ -12,8 +12,6 @@ package org.eclipse.jdt.internal.core.nd.db;
 
 /**
  * Represents an empty string.
- *
- * @since 3.12
  */
 public class EmptyString implements IString {
 

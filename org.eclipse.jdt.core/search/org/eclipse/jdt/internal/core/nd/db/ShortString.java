@@ -16,8 +16,6 @@ import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 
 /**
  * This is for strings that fit inside a single chunk.
- *
- * @since 3.12
  */
 public class ShortString implements IString {
 	private final Database db;

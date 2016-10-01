@@ -24,8 +24,6 @@ import org.eclipse.jdt.internal.core.nd.db.IndexException;
 
 /**
  * Declares a field representing a case-insensitive search tree over elements which are a subtype of NdNode.
- *
- * @since 3.12
  */
 public class FieldSearchIndex<T extends NdNode> implements IField, IDestructableField {
 	private int offset;
