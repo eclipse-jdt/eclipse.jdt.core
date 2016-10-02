@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2016 GK Software AG.
+ * Copyright (c) 2013, 2017 GK Software AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -744,7 +744,11 @@ class BoundSet {
 									return false;
 							}
 						}
-						if (three.subBounds != null && pi.firstBound != null) {
+						if (three.subBounds != null) {
+							TypeBinding bi1 = pi.firstBound;
+							if (bi1 == null) {
+								bi1 = context.object; // implicit bound
+							}
 							// If Bi is Object, α <: R implies ⟨T <: R⟩	(extends wildcard)
 							// α <: R implies ⟨θ Bi <: R⟩				(else) 
 							it = three.subBounds.iterator();
@@ -752,7 +756,6 @@ class BoundSet {
 								TypeBound bound = it.next();
 								if (!(bound.right instanceof InferenceVariable)) {
 									TypeBinding r = bound.right;
-									TypeBinding bi1 = pi.firstBound;
 									ReferenceBinding[] otherBounds = pi.superInterfaces;
 									TypeBinding bi;
 									if (otherBounds == Binding.NO_SUPERINTERFACES) {
@@ -765,13 +768,6 @@ class BoundSet {
 										bi = context.environment.createIntersectionType18(allBounds);
 									}
 									addTypeBoundsFromWildcardBound(context, theta, wildcardBinding.boundKind, t, r, bi);
-									//										if (otherBounds != null) {
-									//											for (int j = 0; j < otherBounds.length; j++) {
-									//												TypeBinding tj = otherBounds[j];
-									//												if (TypeBinding.notEquals(tj, t))
-									//													addTypeBoundsFromWildcardBound(context, wildcardBinding, tj, r, bij);
-									//											}
-									//										}
 								}
 							}
 						}

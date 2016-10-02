@@ -7986,4 +7986,28 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	public void testBug506021() {
+	runConformTest(
+		new String[] {
+			"test/__.java",
+			"package test;\n" +
+			"\n" +
+			"interface Result {}\n" +
+			"\n" +
+			"interface Property<V> {}\n" +
+			"\n" +
+			"interface GraphTraversal<E> {}\n" +
+			"\n" +
+			"public class __ {\n" +
+			"	public static <E> GraphTraversal<? extends Property<E>> properties2() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public static GraphTraversal<? extends Property<Result>> properties() {\n" +
+			"		return properties2();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}
+	);
+}
 }
