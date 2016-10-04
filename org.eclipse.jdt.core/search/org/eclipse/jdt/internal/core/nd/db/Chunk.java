@@ -44,14 +44,20 @@ final class Chunk {
 		}
 	}
 
-	void flush() throws IndexException {
+	/**
+	 * Uninterruptable. Returns true iff an attempt was made to interrupt the flush with
+	 * {@link Thread#interrupt()}.
+	 */
+	boolean flush() throws IndexException {
+		boolean wasCanceled = false;
 		try {
 			final ByteBuffer buf= ByteBuffer.wrap(this.fBuffer);
-			this.fDatabase.write(buf, (long) this.fSequenceNumber * Database.CHUNK_SIZE);
+			wasCanceled = this.fDatabase.write(buf, (long) this.fSequenceNumber * Database.CHUNK_SIZE);
 		} catch (IOException e) {
 			throw new IndexException(new DBStatus(e));
 		}
 		this.fDirty= false;
+		return wasCanceled;
 	}
 
 	private static int recPtrToIndex(final long offset) {

@@ -303,6 +303,7 @@ public class Nd {
 
 	@SuppressWarnings("nls")
 	public void releaseWriteLock(int establishReadLocks, boolean flush) {
+		boolean wasInterrupted = false;
 		// When all locks are released we can clear the result cache.
 		if (establishReadLocks == 0) {
 			processDeletions();
@@ -310,7 +311,7 @@ public class Nd {
 			clearResultCache();
 		}
 		try {
-			this.db.giveUpExclusiveLock(flush);
+			wasInterrupted = this.db.giveUpExclusiveLock(flush) || wasInterrupted;
 		} catch (IndexException e) {
 			Package.log(e);
 		}
@@ -329,6 +330,10 @@ public class Nd {
 				this.lockCount= establishReadLocks;
 			this.mutex.notifyAll();
 			this.db.setLocked(this.lockCount != 0);
+		}
+
+		if (wasInterrupted) {
+			throw new OperationCanceledException();
 		}
 	}
 

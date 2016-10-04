@@ -25,6 +25,7 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.util.NLS;
 
@@ -188,33 +189,68 @@ public class Database {
 				this.fFile.getChannel().read(buf, position);
 				return;
 			} catch (ClosedChannelException e) {
-				// Bug 219834 file may have be closed by interrupting a thread during an I/O operation.
-				reopen(e, ++retries);
+				// Always reopen the file if possible or subsequent reads will fail.
+				openFile();
+
+				// This is the most common type of interruption. If another thread called Thread.interrupt,
+				// throw an OperationCanceledException.
+				if (e instanceof ClosedByInterruptException) {
+					throw new OperationCanceledException();
+				}
+
+				// If we've retried too many times, just rethrow the exception.
+				if (++retries >= 20) {
+					throw e;
+				}
+
+				// Otherwise, retry
 			}
 		} while (true);
 	}
 
-	void write(ByteBuffer buf, long position) throws IOException {
+	/**
+	 * Attempts to write to the given position in the file. Will retry if interrupted by Thread.interrupt() until,
+	 * the write succeeds. It will return true if any call to Thread.interrupt() was detected.
+	 *
+	 * @return true iff a call to Thread.interrupt() was detected at any point during the operation.
+	 * @throws IOException
+	 */
+	boolean write(ByteBuffer buf, long position) throws IOException {
+		return performUninterruptableWrite(() -> {this.fFile.getChannel().write(buf, position);});
+	}
+
+	private static interface IORunnable {
+		void run() throws IOException;
+	}
+
+	/**
+	 * Attempts to perform an uninterruptable write operation on the database. Returns true if an attempt was made
+	 * to interrupt it. 
+	 * 
+	 * @throws IOException
+	 */
+	private boolean performUninterruptableWrite(IORunnable runnable) throws IOException {
+		boolean interrupted = false;
 		int retries= 0;
 		while (true) {
 			try {
-				this.fFile.getChannel().write(buf, position);
-				return;
+				runnable.run();
+				return interrupted;
 			} catch (ClosedChannelException e) {
-				// Bug 219834 file may have be closed by interrupting a thread during an I/O operation.
-				reopen(e, ++retries);
+				openFile();
+
+				if (e instanceof ClosedByInterruptException) {
+					// Retry forever if necessary as long as another thread is calling Thread.interrupt
+					interrupted = true;
+				} else {
+					if (++retries > 20) {
+						throw e;
+					}
+				}
 			}
 		}
 	}
-
-	private void reopen(ClosedChannelException e, int attempt) throws ClosedChannelException, FileNotFoundException {
-		// Only if the current thread was not interrupted we try to reopen the file.
-		if (e instanceof ClosedByInterruptException || attempt >= 20) {
-			throw e;
-		}
-		openFile();
-	}
-
+	
 	public void transferTo(FileChannel target) throws IOException {
 		assert this.fLocked;
         final FileChannel from= this.fFile.getChannel();
@@ -242,11 +278,15 @@ public class Database {
 	}
 
 	/**
-	 * Empty the contents of the Database, make it ready to start again
+	 * Empty the contents of the Database, make it ready to start again. Interrupting the thread with
+	 * {@link Thread#interrupt()} won't interrupt the write. Returns true iff the thread was interrupted
+	 * with {@link Thread#interrupt()}.
+	 * 
 	 * @throws IndexException
 	 */
-	public void clear(int version) throws IndexException {
+	public boolean clear(int version) throws IndexException {
 		assert this.fExclusiveLock;
+		boolean wasCanceled = false;
 		removeChunksFromCache();
 
 		this.fVersion= version;
@@ -256,8 +296,10 @@ public class Database {
 		this.fChunks = new Chunk[] {null};
 		this.fChunksUsed = this.fChunksAllocated = this.fChunks.length;
 		try {
-			this.fHeaderChunk.flush();	// Zero out header chunk.
-			this.fFile.getChannel().truncate(CHUNK_SIZE);	// Truncate database.
+			wasCanceled = this.fHeaderChunk.flush() || wasCanceled; // Zero out header chunk.
+			wasCanceled = performUninterruptableWrite(() -> {
+				this.fFile.getChannel().truncate(CHUNK_SIZE);
+			}) || wasCanceled;
 		} catch (IOException e) {
 			Package.log(e);
 		}
@@ -275,9 +317,10 @@ public class Database {
 		if (setasideChunks != 0) {
 			setVersion(getVersion());
 			createNewChunks((int) setasideChunks);
-			flush();
+			wasCanceled = flush() || wasCanceled;
 		}
 		this.memoryUsage.refresh();
+		return wasCanceled;
 	}
 
 	private void removeChunksFromCache() {
@@ -750,7 +793,8 @@ public class Database {
 		this.fLocked= val;
 	}
 
-	public void giveUpExclusiveLock(final boolean flush) throws IndexException {
+	public boolean giveUpExclusiveLock(final boolean flush) throws IndexException {
+		boolean wasInterrupted = false;
 		if (this.fExclusiveLock) {
 			try {
 				ArrayList<Chunk> dirtyChunks= new ArrayList<>();
@@ -782,22 +826,24 @@ public class Database {
 					}
 				}
 				// Also handles header chunk.
-				flushAndUnlockChunks(dirtyChunks, flush);
+				wasInterrupted = flushAndUnlockChunks(dirtyChunks, flush) || wasInterrupted;
 			} finally {
 				this.fExclusiveLock= false;
 			}
 		}
+		return wasInterrupted;
 	}
 
-	public void flush() throws IndexException {
+	public boolean flush() throws IndexException {
+		boolean wasInterrupted = false;
 		assert this.fLocked;
 		if (this.fExclusiveLock) {
 			try {
-				giveUpExclusiveLock(true);
+				wasInterrupted = giveUpExclusiveLock(true) || wasInterrupted;
 			} finally {
 				setExclusiveLock();
 			}
-			return;
+			return wasInterrupted;
 		}
 
 		// Be careful as other readers may access chunks concurrently.
@@ -812,20 +858,27 @@ public class Database {
 		}
 
 		// Also handles header chunk.
-		flushAndUnlockChunks(dirtyChunks, true);
+		return flushAndUnlockChunks(dirtyChunks, true) || wasInterrupted;
 	}
 
-	private void flushAndUnlockChunks(final ArrayList<Chunk> dirtyChunks, boolean isComplete) throws IndexException {
+	/**
+	 * Interrupting the thread with {@link Thread#interrupt()} won't interrupt the write. Returns true iff an attempt
+	 * was made to interrupt the thread with {@link Thread#interrupt()}.
+	 * 
+	 * @throws IndexException
+	 */
+	private boolean flushAndUnlockChunks(final ArrayList<Chunk> dirtyChunks, boolean isComplete) throws IndexException {
+		boolean wasInterrupted = false;
 		assert !Thread.holdsLock(this.fCache);
 		synchronized (this.fHeaderChunk) {
 			final boolean haveDirtyChunks = !dirtyChunks.isEmpty();
 			if (haveDirtyChunks || this.fHeaderChunk.fDirty) {
-				markFileIncomplete();
+				wasInterrupted = markFileIncomplete() || wasInterrupted;
 			}
 			if (haveDirtyChunks) {
 				for (Chunk chunk : dirtyChunks) {
 					if (chunk.fDirty) {
-						chunk.flush();
+						wasInterrupted = chunk.flush() || wasInterrupted;
 					}
 				}
 
@@ -843,23 +896,26 @@ public class Database {
 			if (isComplete) {
 				if (this.fHeaderChunk.fDirty || this.fIsMarkedIncomplete) {
 					this.fHeaderChunk.putInt(VERSION_OFFSET, this.fVersion);
-					this.fHeaderChunk.flush();
+					wasInterrupted = this.fHeaderChunk.flush() || wasInterrupted;
 					this.fIsMarkedIncomplete= false;
 				}
 			}
 		}
+		return wasInterrupted;
 	}
 
-	private void markFileIncomplete() throws IndexException {
+	private boolean markFileIncomplete() throws IndexException {
+		boolean wasInterrupted = false;
 		if (!this.fIsMarkedIncomplete) {
 			this.fIsMarkedIncomplete= true;
 			try {
 				final ByteBuffer buf= ByteBuffer.wrap(new byte[4]);
-				this.fFile.getChannel().write(buf, 0);
+				wasInterrupted = performUninterruptableWrite(() -> this.fFile.getChannel().write(buf, 0));
 			} catch (IOException e) {
 				throw new IndexException(new DBStatus(e));
 			}
 		}
+		return wasInterrupted;
 	}
 
 	public void resetCacheCounters() {
