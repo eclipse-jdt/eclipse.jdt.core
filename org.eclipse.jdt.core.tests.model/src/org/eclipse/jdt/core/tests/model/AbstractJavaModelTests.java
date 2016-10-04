@@ -240,11 +240,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			return this.stackTraces.toString();
 		}
 		public synchronized String toString() {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			for (int i=0, length= this.deltas.length; i<length; i++) {
 				IJavaElementDelta delta = this.deltas[i];
 				if (((JavaElementDelta) delta).ignoreFromTests) {
 					continue;
+				}
+				if (buffer.length() != 0) {
+					buffer.append("\n\n");
 				}
 				IJavaElementDelta[] children = delta.getAffectedChildren();
 				int childrenLength=children.length;
@@ -269,9 +272,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 							buffer.append("\n");
 						}
 					}
-				}
-				if (i != length-1) {
-					buffer.append("\n\n");
 				}
 			}
 			return buffer.toString();
