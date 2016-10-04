@@ -18,6 +18,7 @@ import java.util.concurrent.Semaphore;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
@@ -29,7 +30,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.db.ChunkCache;
 import org.eclipse.jdt.internal.core.nd.db.Database;
-import org.eclipse.jdt.internal.core.nd.db.IndexException;
 import org.eclipse.jdt.internal.core.nd.indexer.IndexTester;
 import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
@@ -94,7 +94,7 @@ public class IndexerTest extends AbstractJavaModelTests {
 			try (IReader reader = testIndex.getNd().acquireReadLock()) {
 				Thread.currentThread().interrupt();
 				testIndex.findType("Ljava/util/List;".toCharArray());
-			} catch (IndexException e) {
+			} catch (OperationCanceledException e) {
 				wasInterrupted[0] = true;
 			} finally {
 				semaphore.release();
