@@ -439,7 +439,7 @@ public class IndexBinaryType implements IBinaryType {
 	private char[][] getArgumentNames(NdMethod ndMethod) {
 		// Unlike what its JavaDoc says, IBinaryType returns an empty array if no argument names are available, so
 		// we replicate this weird undocumented corner case here.
-		char[][] result = ndMethod.getArgumentNames();
+		char[][] result = ndMethod.getParameterNames();
 		int lastNonEmpty = -1;
 		for (int idx = 0; idx < result.length; idx++) {
 			if (result[idx] != null && result[idx].length != 0) {

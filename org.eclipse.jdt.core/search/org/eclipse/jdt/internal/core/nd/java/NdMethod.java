@@ -19,6 +19,7 @@ import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldShort;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
+import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 
 /**
@@ -69,14 +70,23 @@ public class NdMethod extends NdBinding {
 		return METHOD_ID.get(getNd(), this.address);
 	}
 
-	public char[][] getArgumentNames() {
+	/**
+	 * Returns method parameter names that were not defined by the compiler.
+	 */
+	public char[][] getParameterNames() {
 		List<NdMethodParameter> params = getMethodParameters();
 
+		// Use index to count the "real" parameters.
+		int index = 0;
 		char[][] result = new char[params.size()][];
 		for (int idx = 0; idx < result.length; idx++) {
-			result[idx] = params.get(idx).getName().getChars();
+			NdMethodParameter param = params.get(idx);
+			if (!param.isCompilerDefined()) {
+				result[index] = param.getName().getChars();
+				index++;
+			}
 		}
-		return result;
+		return CharArrayUtils.subarray(result, 0, index);
 	}
 
 	public List<NdMethodParameter> getMethodParameters() {
@@ -121,7 +131,7 @@ public class NdMethod extends NdBinding {
 	}
 
 	public void setFlags(int flags) {
-		METHOD_FLAGS.put(getNd(), this.address, (short)(getFlags() | flags));
+		METHOD_FLAGS.put(getNd(), this.address, (short) (getFlags() | flags));
 	}
 
 	public void setTagBits(long bits) {
