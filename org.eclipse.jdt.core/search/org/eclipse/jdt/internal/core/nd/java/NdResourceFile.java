@@ -41,6 +41,7 @@ public class NdResourceFile extends NdTreeNode {
 	public static final FieldLong TIME_LAST_SCANNED;
 	public static final FieldLong SIZE_LAST_SCANNED;
 	public static final FieldLong HASHCODE_LAST_SCANNED;
+	public static final FieldLong TIME_LAST_USED;
 	public static final FieldOneToMany<NdWorkspaceLocation> WORKSPACE_MAPPINGS;
 	public static final FieldString JAVA_ROOT;
 
@@ -54,6 +55,7 @@ public class NdResourceFile extends NdTreeNode {
 		TIME_LAST_SCANNED = type.addLong();
 		SIZE_LAST_SCANNED = type.addLong();
 		HASHCODE_LAST_SCANNED = type.addLong();
+		TIME_LAST_USED = type.addLong();
 		WORKSPACE_MAPPINGS = FieldOneToMany.create(type, NdWorkspaceLocation.RESOURCE);
 		JAVA_ROOT = type.addString();
 		type.done();
@@ -200,6 +202,14 @@ public class NdResourceFile extends NdTreeNode {
 
 	public long getSizeLastScanned() {
 		return SIZE_LAST_SCANNED.get(getNd(), this.address);
+	}
+
+	public long getTimeLastUsed() {
+		return TIME_LAST_USED.get(getNd(), this.address);
+	}
+
+	public void setTimeLastUsed(long timeLastUsed) {
+		TIME_LAST_USED.put(getNd(), this.address, timeLastUsed);
 	}
 
 	public void setFingerprint(FileFingerprint newFingerprint) {
