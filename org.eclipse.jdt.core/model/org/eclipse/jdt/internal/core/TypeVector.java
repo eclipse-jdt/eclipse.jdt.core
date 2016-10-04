@@ -15,10 +15,6 @@ import java.util.HashMap;
 
 import org.eclipse.jdt.core.IType;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-
 public final class TypeVector {
 	static int INITIAL_SIZE = 10;
 	static int MIN_ELEMENTS_FOR_HASHSET = 8;

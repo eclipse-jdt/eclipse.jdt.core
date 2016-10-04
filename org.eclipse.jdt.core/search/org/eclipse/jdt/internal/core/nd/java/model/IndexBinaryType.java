@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.db.IString;
@@ -662,5 +663,10 @@ public class IndexBinaryType implements IBinaryType {
 		}
 
 		return value.getConstant();
+	}
+
+	@Override
+	public ExternalAnnotationStatus getExternalAnnotationStatus() {
+		return ExternalAnnotationStatus.NOT_EEA_CONFIGURED;
 	}
 }

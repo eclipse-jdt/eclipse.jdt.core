@@ -476,7 +476,7 @@ public static void searchAllPossibleSubTypes(
 	final Map binariesFromIndexMatches,
 	final IPathRequestor pathRequestor,
 	int waitingPolicy,	// WaitUntilReadyToSearch | ForceImmediateSearch | CancelIfNotReadyToSearch
-	final IProgressMonitor progressMonitor) {
+	final IProgressMonitor monitor) {
 
 	if (JavaIndex.isEnabled()) {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
@@ -571,9 +571,10 @@ private static void legacySearchAllPossibleSubTypes(
 	final Map binariesFromIndexMatches,
 	final IPathRequestor pathRequestor,
 	int waitingPolicy,	// WaitUntilReadyToSearch | ForceImmediateSearch | CancelIfNotReadyToSearch
-	final IProgressMonitor monitor) {
+	final IProgressMonitor progressMonitor) {
 
-	SubMonitor subMonitor = SubMonitor.convert(monitor);
+	SubMonitor subMonitor = SubMonitor.convert(progressMonitor, 100);
+
 	/* embed constructs inside arrays so as to pass them to (inner) collector */
 	final Queue queue = new Queue();
 	final HashtableOfObject foundSuperNames = new HashtableOfObject(5);
