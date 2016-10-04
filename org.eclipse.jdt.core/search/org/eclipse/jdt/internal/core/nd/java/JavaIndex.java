@@ -48,6 +48,8 @@ public class JavaIndex {
 
 	public static final StructDef<JavaIndex> type;
 
+	private static final boolean ENABLED;
+
 	static {
 		type = StructDef.create(JavaIndex.class);
 		FILES = FieldSearchIndex.create(type, NdResourceFile.FILENAME);
@@ -58,6 +60,8 @@ public class JavaIndex {
 
 		// This struct needs to fit within the first database chunk.
 		assert type.getFactory().getRecordSize() <= Database.CHUNK_SIZE;
+
+		ENABLED = !System.getProperty("jdt.newindex").equals("0"); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	private final static class BestResourceFile implements FieldSearchIndex.IResultRank {
@@ -194,7 +198,8 @@ public class JavaIndex {
 	}
 
 	public static boolean isEnabled() {
-		return Platform.getPreferencesService().getBoolean("org.eclipse.jdt.ui", "enableNewJavaIndex", false, //$NON-NLS-1$ //$NON-NLS-2$
+		// We allow the new index to be enabled either via a preference or via a system property
+		return ENABLED || Platform.getPreferencesService().getBoolean("org.eclipse.jdt.ui", "enableNewJavaIndex", false, //$NON-NLS-1$ //$NON-NLS-2$
 				null);
 	}
 
