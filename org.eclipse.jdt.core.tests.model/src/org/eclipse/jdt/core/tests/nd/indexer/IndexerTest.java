@@ -58,12 +58,16 @@ public class IndexerTest extends AbstractJavaModelTests {
 	private static JavaIndex index;
 
 	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	public void setUpSuite() throws Exception {
+		super.setUpSuite();
+		index = createIndex(new NullProgressMonitor());
+	}
 
-		if (IndexerTest.index == null) {
-			IndexerTest.index = createIndex(new NullProgressMonitor());
-		}
+	@Override
+	public void tearDownSuite() throws Exception {
+		deleteProject(PROJECT_NAME);
+		index = null;
+		super.tearDownSuite();
 	}
 
 	public static Test suite() {
