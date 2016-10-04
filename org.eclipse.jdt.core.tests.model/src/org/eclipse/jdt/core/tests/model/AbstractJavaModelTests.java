@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.JavaElementDelta;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.NameLookup;
@@ -242,6 +243,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			StringBuffer buffer = new StringBuffer();
 			for (int i=0, length= this.deltas.length; i<length; i++) {
 				IJavaElementDelta delta = this.deltas[i];
+				if (((JavaElementDelta) delta).ignoreFromTests) {
+					continue;
+				}
 				IJavaElementDelta[] children = delta.getAffectedChildren();
 				int childrenLength=children.length;
 				IResourceDelta[] resourceDeltas = delta.getResourceDeltas();

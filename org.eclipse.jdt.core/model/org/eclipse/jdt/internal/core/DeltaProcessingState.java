@@ -650,7 +650,9 @@ public class DeltaProcessingState implements IResourceChangeListener, Indexer.Li
 	public void consume(IndexerEvent event) {
 		if (JavaIndex.isEnabled()) {
 			DeltaProcessor processor = getDeltaProcessor();
-			processor.notifyAndFire(event.getDelta());
+			JavaElementDelta delta = (JavaElementDelta) event.getDelta();
+			delta.ignoreFromTests = true;
+			processor.notifyAndFire(delta);
 			this.deltaProcessors.set(null);
 		}
 	}

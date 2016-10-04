@@ -81,6 +81,8 @@ public class JavaElementDelta extends SimpleDelta implements IJavaElementDelta {
 	 */
 	Map<Key, Integer> childIndex;
 
+	public boolean ignoreFromTests = false;
+
 	/**
 	 * The delta key
 	 */
