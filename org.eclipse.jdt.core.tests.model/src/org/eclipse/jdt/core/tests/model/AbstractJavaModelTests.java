@@ -239,9 +239,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		public synchronized String stackTraces() {
 			return this.stackTraces.toString();
 		}
+
 		public synchronized String toString() {
 			StringBuilder buffer = new StringBuilder();
-			for (int i=0, length= this.deltas.length; i<length; i++) {
+			for (int i = 0, length= this.deltas.length; i < length; i++) {
 				IJavaElementDelta delta = this.deltas[i];
 				if (((JavaElementDelta) delta).ignoreFromTests) {
 					continue;
@@ -257,25 +258,23 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					buffer.append(delta);
 				} else {
 					sortDeltas(children);
-					for (int j=0; j<childrenLength; j++) {
-						buffer.append(children[j]);
-						if (j != childrenLength-1) {
-							buffer.append("\n");
+					for (int j = 0; j < childrenLength; j++) {
+						if (buffer.length() != 0 && buffer.charAt(buffer.length() - 1) != '\n') {
+							buffer.append('\n');
 						}
+						buffer.append(children[j]);
 					}
-					for (int j=0; j<resourceDeltasLength; j++) {
-						if (j == 0 && buffer.length() != 0) {
-							buffer.append("\n");
+					for (int j = 0; j < resourceDeltasLength; j++) {
+						if (buffer.length() != 0 && buffer.charAt(buffer.length() - 1) != '\n') {
+							buffer.append('\n');
 						}
 						buffer.append(resourceDeltas[j]);
-						if (j != resourceDeltasLength-1) {
-							buffer.append("\n");
-						}
 					}
 				}
 			}
 			return buffer.toString();
 		}
+
 		public void waitForResourceDelta() {
 			long start = System.currentTimeMillis();
 			while (!this.gotResourceDelta) {
