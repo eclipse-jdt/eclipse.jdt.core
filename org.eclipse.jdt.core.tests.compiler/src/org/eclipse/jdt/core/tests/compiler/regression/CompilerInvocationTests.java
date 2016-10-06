@@ -518,6 +518,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ExplicitThisParameterNotInLambda", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ExplicitThisParameterNotBelow18", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ExplicitlyClosedAutoCloseable", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
+		expectedProblemAttributes.put("ExportedPackageDoesNotExistOrIsEmpty", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ExpressionShouldBeAVariable", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ExternalProblemFixable", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ExternalProblemNotFixable", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -838,6 +839,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("NeedToEmulateFieldReadAccess", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("NeedToEmulateFieldWriteAccess", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("NeedToEmulateMethodAccess", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
+		expectedProblemAttributes.put("NestedServiceImpl", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("NoAdditionalBoundAfterTypeVariable", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("NoFieldOnBaseType", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("NoGenericLambda", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -980,6 +982,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("SafeVarargsOnFixedArityMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("SafeVarargsOnNonFinalInstanceMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("ServiceImplDefaultConstructorNotPublic", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("ServiceImplNotDefinedByModule", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ShouldImplementHashcode", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ShouldReturnValue", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("ShouldReturnValueHintMissingDefault", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -1368,6 +1371,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ExplicitThisParameterNotInLambda", SKIP);
 		expectedProblemAttributes.put("ExplicitThisParameterNotBelow18", SKIP);
 		expectedProblemAttributes.put("ExplicitlyClosedAutoCloseable", new ProblemAttributes(JavaCore.COMPILER_PB_EXPLICITLY_CLOSED_AUTOCLOSEABLE));
+		expectedProblemAttributes.put("ExportedPackageDoesNotExistOrIsEmpty", SKIP);
 		expectedProblemAttributes.put("ExpressionShouldBeAVariable", SKIP);
 		expectedProblemAttributes.put("ExternalProblemFixable", SKIP);
 		expectedProblemAttributes.put("ExternalProblemNotFixable", SKIP);
@@ -1688,6 +1692,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("NeedToEmulateFieldReadAccess", new ProblemAttributes(JavaCore.COMPILER_PB_SYNTHETIC_ACCESS_EMULATION));
 		expectedProblemAttributes.put("NeedToEmulateFieldWriteAccess", new ProblemAttributes(JavaCore.COMPILER_PB_SYNTHETIC_ACCESS_EMULATION));
 		expectedProblemAttributes.put("NeedToEmulateMethodAccess", new ProblemAttributes(JavaCore.COMPILER_PB_SYNTHETIC_ACCESS_EMULATION));
+		expectedProblemAttributes.put("NestedServiceImpl", SKIP);
 		expectedProblemAttributes.put("NoAdditionalBoundAfterTypeVariable", SKIP);
 		expectedProblemAttributes.put("NoFieldOnBaseType", SKIP);
 		expectedProblemAttributes.put("NoGenericLambda", SKIP);
@@ -1830,6 +1835,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("SafeVarargsOnFixedArityMethod", SKIP);
 		expectedProblemAttributes.put("SafeVarargsOnNonFinalInstanceMethod", SKIP);
 		expectedProblemAttributes.put("ServiceImplDefaultConstructorNotPublic", SKIP);
+		expectedProblemAttributes.put("ServiceImplNotDefinedByModule", SKIP);
 		expectedProblemAttributes.put("ShouldImplementHashcode", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_HASHCODE_METHOD));
 		expectedProblemAttributes.put("ShouldReturnValue", SKIP);
 		expectedProblemAttributes.put("ShouldReturnValueHintMissingDefault", SKIP);

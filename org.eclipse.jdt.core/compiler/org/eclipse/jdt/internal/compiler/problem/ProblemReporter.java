@@ -115,6 +115,7 @@ import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.EqualExpression;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
+import org.eclipse.jdt.internal.compiler.ast.ExportReference;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ExpressionContext;
 import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
@@ -10486,6 +10487,12 @@ public void invalidModule(ModuleReference ref) {
 		NoArgument, new String[] { CharOperation.charToString(ref.moduleName) },
 		ref.sourceStart, ref.sourceEnd);
 }
+public void invalidExportReference(int problem, ExportReference ref) {
+	this.handle(problem, 
+		NoArgument, new String[] { CharOperation.charToString(ref.pkgName) },
+		ref.sourceStart, ref.sourceEnd);
+}
+
 public void duplicateModuleReference(int problem, ModuleReference ref) {
 	this.handle(problem, 
 		NoArgument, new String[] { CharOperation.charToString(ref.moduleName) },
@@ -10525,6 +10532,11 @@ public void invalidServiceImpl(int problem, TypeReference impl) {
 		case ProblemReasons.ServiceImplDefaultConstructorNotPublic:
 			problemId = IProblem.ServiceImplDefaultConstructorNotPublic;
 			break;
+		case ProblemReasons.ServiceImplCannotbeNested:
+			problemId = IProblem.NestedServiceImpl;
+			break;
+		case ProblemReasons.ServiceImplNotDefinedByModule:
+			problemId = IProblem.ServiceImplNotDefinedByModule;
 	}
 	if (problemId != ProblemReasons.NoError) {
 		this.handle(problemId, NoArgument, args, impl.sourceStart, impl.sourceEnd);

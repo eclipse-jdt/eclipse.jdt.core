@@ -89,7 +89,6 @@ public class SourceTypeBinding extends ReferenceBinding {
 	public ClassScope scope;
 	protected SourceTypeBinding prototype;
 	LookupEnvironment environment;
-	//char[] module; //TODO: Should be replaced by ModuleBinding
 	public ModuleBinding module;
 	// Synthetics are separated into 4 categories: methods, super methods, fields, class literals and bridge methods
 	// if a new category is added, also increment MAX_SYNTHETICS
@@ -2656,5 +2655,8 @@ public void tagIndirectlyAccessibleMembers() {
 	if (this.superclass.isPrivate()) 
 		if (this.superclass instanceof SourceTypeBinding)  // should always be true because private super type can only be accessed in same CU
 			((SourceTypeBinding) this.superclass).tagIndirectlyAccessibleMembers();
+}
+public ModuleBinding module() {
+	return this.module;
 }
 }

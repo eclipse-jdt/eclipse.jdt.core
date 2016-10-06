@@ -1898,6 +1898,12 @@ void setSourceStart(int sourceStart);
 	int DefaultConstructorRequiredForServiceImpl = TypeRelated + 1207;
 	/** @since 3.13 BETA_JAVA9 */
 	int ServiceImplDefaultConstructorNotPublic = TypeRelated + 1208;
+	/** @since 3.13 BETA_JAVA9 */
+	int NestedServiceImpl = TypeRelated + 1209;
+	/** @since 3.13 BETA_JAVA9 */
+	int ServiceImplNotDefinedByModule = TypeRelated + 1210;
+	/** @since 3.13 BETA_JAVA9 */
+	int ExportedPackageDoesNotExistOrIsEmpty = TypeRelated + 1211;
 
 	/** @since 3.13 BETA_JAVA9 */
 	int DuplicateResource = Internal + 1251;

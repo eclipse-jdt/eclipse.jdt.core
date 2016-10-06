@@ -2068,4 +2068,7 @@ public FieldBinding[] unResolvedFields() {
 	
 	return this.fields;
 }
+public ModuleBinding module() {
+	return this.module;
+}
 }

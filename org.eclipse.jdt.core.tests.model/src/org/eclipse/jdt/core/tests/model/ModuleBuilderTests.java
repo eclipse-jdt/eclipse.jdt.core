@@ -849,7 +849,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",
-					"The service implementation com.greetings.MyWorld does not have a default constructor",  markers);
+					"The service implementation com.greetings.MyWorld does not have a no-arg constructor",  markers);
 		} finally {
 			deleteProject("org.astro");
 			deleteProject("com.greetings");
@@ -892,7 +892,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",
-					"The default constructor of service implementation com.greetings.MyWorld is not public",  markers);
+					"The no-arg constructor of service implementation com.greetings.MyWorld is not public",  markers);
 		} finally {
 			deleteProject("org.astro");
 			deleteProject("com.greetings");
@@ -941,7 +941,213 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("com.greetings");
 		}
 	}
-
+	public void test_services_NestedClass() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports org.astro;\n" + 
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", sources);
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	requires org.astro;\n" +
+				"	exports com.greetings;\n" +
+				"	provides org.astro.World with com.greetings.MyWorld.Nested;\n" +
+				"}",
+				"src/com/greetings/MyWorld.java",
+				"package com.greetings;\n" +
+				"import org.astro.World;\n" +
+				"public class MyWorld {\n" +
+				"	public static class Nested implements World {\n" +
+				"		public String name() {\n" +
+				"			return \" My World!!\";\n" +
+				"		}\n" +
+				"	}\n" +
+				"}"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",	"",  markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("com.greetings");
+		}
+	}
+	public void test_services_NonStatic_NestedClass() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports org.astro;\n" + 
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", sources);
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	requires org.astro;\n" +
+				"	exports com.greetings;\n" +
+				"	provides org.astro.World with com.greetings.MyWorld.Nested;\n" +
+				"}",
+				"src/com/greetings/MyWorld.java",
+				"package com.greetings;\n" +
+				"import org.astro.World;\n" +
+				"public class MyWorld {\n" +
+				"	public class Nested implements World {\n" +
+				"		public String name() {\n" +
+				"			return \" My World!!\";\n" +
+				"		}\n" +
+				"	}\n" +
+				"}"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"Invalid service implementation, the type com.greetings.MyWorld.Nested is an inner class",  markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("com.greetings");
+		}
+	}
+	public void test_services_ImplDefinedInAnotherModule() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports org.astro;\n" + 
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}",
+				"src/org/astro/AstroWorld.java",
+				"package org.astro;\n" +
+				"public class AstroWorld implements World{\n" +
+				"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", sources);
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	requires org.astro;\n" +
+				"	provides org.astro.World with org.astro.AstroWorld;\n" +
+				"}"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",
+					"Service implementation org.astro.AstroWorld is not defined in the module with the provides directive",  markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("com.greetings");
+		}
+	}
+	public void test_Exports_Error() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	exports com.greetings;\n" +
+				"}"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src);
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",	
+					"The exported package com.greetings does not exist or is empty",  markers);
+		} finally {
+			deleteProject("com.greetings");
+		}
+	}
+	public void test_DuplicateExports() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports org.astro;\n" + 
+				"	exports org.astro;\n" + 
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", sources);
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",	
+					"Duplicate exports entry: org.astro",  markers);
+		} finally {
+			deleteProject("org.astro");
+		}
+	}
+	public void test_TargetedExports_Duplicates() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports org.astro to com.greetings, com.greetings;\n" + 
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", sources);
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	requires org.astro;\n" +
+				"	exports com.greetings;\n" +
+				"}",
+				"src/com/greetings/MyWorld.java",
+				"package com.greetings;\n" +
+				"import org.astro.World;\n" +
+				"public class MyWorld implements World {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers",	
+					"Duplicate exports entry: com.greetings",  markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("com.greetings");
+		}
+	}
 	// Types from source module should be resolved in target module
 	// when package is exported specifically to the target module
 	public void test_TargetedExports() throws CoreException {

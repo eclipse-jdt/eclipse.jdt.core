@@ -50,4 +50,6 @@ public interface ProblemReasons {
 	final int DefaultConstructorRequiredForServiceImpl = 30;
 	final int ServiceImplDefaultConstructorNotPublic = 31;
 	final int InterfaceMethodInvocationNotBelow18 = 32;
+	final int ServiceImplCannotbeNested = 33;
+	final int ServiceImplNotDefinedByModule = 34;
 }

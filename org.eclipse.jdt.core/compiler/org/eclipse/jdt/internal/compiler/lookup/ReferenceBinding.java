@@ -2158,4 +2158,7 @@ public static boolean isConsistentIntersection(TypeBinding[] intersectingTypes) 
 	}
 	return true;
 }
+public ModuleBinding module() {
+	return null;
+}
 }

@@ -21,6 +21,7 @@ import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 
 public class ExportReference extends ASTNode {
@@ -31,6 +32,7 @@ public class ExportReference extends ASTNode {
 	public int declarationSourceEnd;
 	public ModuleReference[] targets;
 	public char[] pkgName;
+	public PackageBinding resolvedPackage;
 
 	public ExportReference(char[][] tokens, long[] sourcePositions) {
 		this.tokens = tokens;
@@ -50,6 +52,14 @@ public class ExportReference extends ASTNode {
 
 	public boolean resolve(Scope scope) {
 		boolean errorsExist = false;
+		ModuleDeclaration exportingModule = (ModuleDeclaration)scope.referenceContext();
+		ModuleBinding src = exportingModule.moduleBinding;
+		PackageBinding pkg = this.resolvedPackage = src.getExportedPackage(this.pkgName);
+		if (pkg == null) {
+			// TODO: need a check for empty package as well
+			scope.problemReporter().invalidExportReference(IProblem.ExportedPackageDoesNotExistOrIsEmpty, this);
+			return false;
+		}
 		if (this.isTargeted()) {
 			Set<ModuleBinding> modules = new HashSet<ModuleBinding>();
 			for (int i = 0; i < this.targets.length; i++) {

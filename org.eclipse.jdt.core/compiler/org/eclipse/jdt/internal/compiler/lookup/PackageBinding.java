@@ -97,7 +97,7 @@ public char[] computeUniqueKey(boolean isLeaf) {
 }
 private PackageBinding findPackage(char[] name, char[] mod) {
 	ModuleBinding module = this.environment.getModule(mod);
-	PackageBinding sub = module.getPackage(this.compoundName, name);
+	PackageBinding sub = module == null ? null : module.getPackage(this.compoundName, name);
 	if (sub == null)
 		return null;
 

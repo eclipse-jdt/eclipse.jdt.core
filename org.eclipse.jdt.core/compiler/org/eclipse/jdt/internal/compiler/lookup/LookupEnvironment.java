@@ -220,7 +220,8 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name, char[] m
 	NameEnvironmentAnswer answer = null;
 	if (this.nameEnvironment instanceof IModuleAwareNameEnvironment) {
 		ModuleBinding module = getModule(mod);
-		answer = ((IModuleAwareNameEnvironment)this.nameEnvironment).findType(name, packageBinding.compoundName, module.getDependencyClosureContext());
+		if (module != null)
+			answer = ((IModuleAwareNameEnvironment)this.nameEnvironment).findType(name, packageBinding.compoundName, module.getDependencyClosureContext());
 	} else {
 		answer = this.nameEnvironment.findType(name, packageBinding.compoundName);
 	}

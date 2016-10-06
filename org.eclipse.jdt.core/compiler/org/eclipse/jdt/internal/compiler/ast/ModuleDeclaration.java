@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -96,8 +97,14 @@ public class ModuleDeclaration extends TypeDeclaration {
 					this.scope.problemReporter().cyclicModuleDependency(this.moduleBinding, ref);
 			}
 		}
+		Set<PackageBinding> exportedPkgs = new HashSet<>();
 		for (int i = 0; i < this.exportsCount; i++) {
-			this.exports[i].resolve(this.scope);
+			ExportReference ref = this.exports[i];
+			if (ref.resolve(this.scope)) {
+				if (!exportedPkgs.add(ref.resolvedPackage)) {
+					this.scope.problemReporter().invalidExportReference(IProblem.DuplicateExports, ref);
+				}
+			}
 		}
 		for(int i = 0; i < this.usesCount; i++) {
 			Set<TypeBinding> allTypes = new HashSet<TypeBinding>();
@@ -131,16 +138,22 @@ public class ModuleDeclaration extends TypeDeclaration {
 		ReferenceBinding intf = (ReferenceBinding) serviceInf.resolvedType;
 		ReferenceBinding impl = (ReferenceBinding) serviceImpl.resolvedType;
 		int problemId = ProblemReasons.NoError;
-		if (impl.isAbstract()) {
+		ModuleBinding declaringModule = impl.module();
+		if (declaringModule != this.moduleBinding) {
+			problemId = ProblemReasons.ServiceImplNotDefinedByModule;
+		} else if (impl.isNestedType() && !impl.isStatic()) {
+			problemId = ProblemReasons.ServiceImplCannotbeNested;
+		} else if (impl.isAbstract()) {
 			problemId = ProblemReasons.ServiceImplCannotbeAbstract;
 		} else if(impl.findSuperTypeOriginatingFrom(intf) == null) {
 			this.scope.problemReporter().typeMismatchError(impl, intf, serviceImpl, null);
-		}
-		MethodBinding defaultConstructor = impl.getExactConstructor(new TypeBinding[0]);
-		if (defaultConstructor == null || !defaultConstructor.isValidBinding()) {
-			problemId = ProblemReasons.DefaultConstructorRequiredForServiceImpl;
-		} else if (!defaultConstructor.isPublic()) {
-			problemId = ProblemReasons.ServiceImplDefaultConstructorNotPublic;
+		} else {
+			MethodBinding defaultConstructor = impl.getExactConstructor(new TypeBinding[0]);
+			if (defaultConstructor == null || !defaultConstructor.isValidBinding()) {
+				problemId = ProblemReasons.DefaultConstructorRequiredForServiceImpl;
+			} else if (!defaultConstructor.isPublic()) {
+				problemId = ProblemReasons.ServiceImplDefaultConstructorNotPublic;
+			}
 		}
 		if (problemId != ProblemReasons.NoError) {
 			this.scope.problemReporter().invalidServiceImpl(problemId, serviceImpl);
