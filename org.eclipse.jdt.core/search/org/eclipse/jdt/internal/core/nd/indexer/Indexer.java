@@ -36,7 +36,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.ICoreRunnable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -91,20 +90,20 @@ public final class Indexer {
 	public static boolean DEBUG_SELFTEST;
 
 	/**
-	 * True iff automatic reindexing (that is, the {@link #rescanAll()} method) is disabled
-	 * Synchronize on {@link #automaticIndexingMutex} while accessing.
+	 * True iff automatic reindexing (that is, the {@link #rescanAll()} method) is disabled Synchronize on
+	 * {@link #automaticIndexingMutex} while accessing.
 	 */
 	private boolean enableAutomaticIndexing = true;
 	/**
-	 * True iff any code tried to schedule reindexing while automatic reindexing was disabled.
-	 * Synchronize on {@link #automaticIndexingMutex} while accessing.
+	 * True iff any code tried to schedule reindexing while automatic reindexing was disabled. Synchronize on
+	 * {@link #automaticIndexingMutex} while accessing.
 	 */
 	private boolean indexerDirtiedWhileDisabled = false;
 	private final Object automaticIndexingMutex = new Object();
 
 	/**
-	 * Enable this to index the content of output folders, in cases where that content exists and
-	 * is up-to-date. This is much faster than indexing source files directly.
+	 * Enable this to index the content of output folders, in cases where that content exists and is up-to-date. This is
+	 * much faster than indexing source files directly.
 	 */
 	public static boolean EXPERIMENTAL_INDEX_OUTPUT_FOLDERS;
 	private static final Object mutex = new Object();
@@ -116,11 +115,8 @@ public final class Indexer {
 	 */
 	private Set<Listener> listeners = Collections.newSetFromMap(new WeakHashMap<Listener, Boolean>());
 
-	private Job rescanJob = Job.create(Messages.Indexer_updating_index_job_name, new ICoreRunnable() {
-		@Override
-		public void run(IProgressMonitor monitor) throws CoreException {
-			rescan(monitor);
-		}
+	private Job rescanJob = Job.create(Messages.Indexer_updating_index_job_name, monitor -> {
+		rescan(monitor);
 	});
 
 	public static interface Listener {
@@ -227,15 +223,16 @@ public final class Indexer {
 		long startFingerprintTestNs = System.nanoTime();
 
 		Map<IPath, FingerprintTestResult> fingerprints = testFingerprints(allIndexables.keySet(), subMonitor.split(7));
-		Set<IPath> indexablesWithChanges = new HashSet<>(getIndexablesThatHaveChanged(allIndexables.keySet(), fingerprints));
+		Set<IPath> indexablesWithChanges = new HashSet<>(
+				getIndexablesThatHaveChanged(allIndexables.keySet(), fingerprints));
 
 		long startIndexingNs = System.nanoTime();
 
 		int classesIndexed = 0;
 		SubMonitor loopMonitor = subMonitor.split(80).setWorkRemaining(indexablesWithChanges.size());
 		for (IPath next : indexablesWithChanges) {
-			classesIndexed += rescanArchive(currentTimeMs, next, allIndexables.get(next), fingerprints.get(next).getNewFingerprint(),
-					loopMonitor.split(1));
+			classesIndexed += rescanArchive(currentTimeMs, next, allIndexables.get(next),
+					fingerprints.get(next).getNewFingerprint(), loopMonitor.split(1));
 		}
 
 		long endIndexingNs = System.nanoTime();
@@ -273,10 +270,12 @@ public final class Indexer {
 		long indexingTimeMs = (endIndexingNs - startIndexingNs) / MS_TO_NS;
 		long resourceMappingTimeMs = (endResourceMappingNs - endIndexingNs) / MS_TO_NS;
 
-		double averageGcTimeMs = gcFiles == 0 ? 0 : (double)garbageCollectionMs / (double)gcFiles;
-		double averageIndexTimeMs = classesIndexed == 0 ? 0 : (double)indexingTimeMs / (double)classesIndexed;
-		double averageFingerprintTimeMs = allIndexables.size() == 0 ? 0 : (double)fingerprintTimeMs / (double)allIndexables.size();
-		double averageResourceMappingMs = pathsToUpdate.size() == 0 ? 0 : (double)resourceMappingTimeMs / (double)pathsToUpdate.size();
+		double averageGcTimeMs = gcFiles == 0 ? 0 : (double) garbageCollectionMs / (double) gcFiles;
+		double averageIndexTimeMs = classesIndexed == 0 ? 0 : (double) indexingTimeMs / (double) classesIndexed;
+		double averageFingerprintTimeMs = allIndexables.size() == 0 ? 0
+				: (double) fingerprintTimeMs / (double) allIndexables.size();
+		double averageResourceMappingMs = pathsToUpdate.size() == 0 ? 0
+				: (double) resourceMappingTimeMs / (double) pathsToUpdate.size();
 
 		if (DEBUG_TIMING) {
 			Package.logInfo(
@@ -682,13 +681,16 @@ public final class Indexer {
 
 					boolean classFileName = org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(fileName);
 					if (classFileName) {
-						String binaryName = fileName.substring(0, fileName.length() - SuffixConstants.SUFFIX_STRING_class.length());
+						String binaryName = fileName.substring(0,
+								fileName.length() - SuffixConstants.SUFFIX_STRING_class.length());
 						char[] fieldDescriptor = JavaNames.binaryNameToFieldDescriptor(binaryName.toCharArray());
-						String indexPath = jarRoot.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + binaryName;
-						BinaryTypeDescriptor descriptor = new BinaryTypeDescriptor(location.toString().toCharArray(), fieldDescriptor,
-								workspacePath.toString().toCharArray(), indexPath.toCharArray());
+						String indexPath = jarRoot.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR
+								+ binaryName;
+						BinaryTypeDescriptor descriptor = new BinaryTypeDescriptor(location.toString().toCharArray(),
+								fieldDescriptor, workspacePath.toString().toCharArray(), indexPath.toCharArray());
 						try {
-							byte[] contents = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(member, zipFile);
+							byte[] contents = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(member,
+									zipFile);
 							ClassFileReader classFileReader = new ClassFileReader(contents, descriptor.indexPath, true);
 							if (addClassToIndex(resourceFile, descriptor.fieldDescriptor, descriptor.indexPath,
 									classFileReader, nextEntry.split(1))) {
@@ -746,7 +748,8 @@ public final class Indexer {
 		try {
 			if (resourceFile.isInIndex()) {
 				if (DEBUG_INSERTIONS) {
-					Package.logInfo("Inserting " + new String(fieldDescriptor) + " into " + resourceFile.getLocation().getString() + " " + resourceFile.address); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+					Package.logInfo("Inserting " + new String(fieldDescriptor) + " into " //$NON-NLS-1$//$NON-NLS-2$
+							+ resourceFile.getLocation().getString() + " " + resourceFile.address); //$NON-NLS-1$
 				}
 				converter.addType(binaryType, fieldDescriptor, subMonitor.split(45));
 				indexed = true;
@@ -756,8 +759,8 @@ public final class Indexer {
 		}
 
 		if (DEBUG_SELFTEST && indexed) {
-			// When this debug flag is on, we test everything written to the index by reading it back immediately after indexing
-			// and comparing it with the original class file.
+			// When this debug flag is on, we test everything written to the index by reading it back immediately after
+			// indexing and comparing it with the original class file.
 			JavaIndex index = JavaIndex.getIndex(this.nd);
 			try (IReader readLock = this.nd.acquireReadLock()) {
 				NdTypeId typeId = index.findType(fieldDescriptor);
@@ -777,7 +780,8 @@ public final class Indexer {
 					IndexBinaryType actualType = new IndexBinaryType(TypeRef.create(targetType), indexPath);
 					IndexTester.testType(binaryType, actualType);
 				} else {
-					Package.logInfo("Could not find class in index immediately after indexing it: " + new String(indexPath)); //$NON-NLS-1$
+					Package.logInfo(
+							"Could not find class in index immediately after indexing it: " + new String(indexPath)); //$NON-NLS-1$
 				}
 			} catch (RuntimeException e) {
 				Package.log("Error during indexing: " + new String(indexPath), e); //$NON-NLS-1$
@@ -1003,7 +1007,7 @@ public final class Indexer {
 	public void addListener(Listener newListener) {
 		synchronized (this.listenersMutex) {
 			Set<Listener> oldListeners = this.listeners;
-			this.listeners = Collections.newSetFromMap(new WeakHashMap<Listener, Boolean>());
+			this.listeners = Collections.newSetFromMap(new WeakHashMap<>());
 			this.listeners.addAll(oldListeners);
 			this.listeners.add(newListener);
 		}
@@ -1015,7 +1019,7 @@ public final class Indexer {
 				return;
 			}
 			Set<Listener> oldListeners = this.listeners;
-			this.listeners = Collections.newSetFromMap(new WeakHashMap<Listener, Boolean>());
+			this.listeners = Collections.newSetFromMap(new WeakHashMap<>());
 			this.listeners.addAll(oldListeners);
 			this.listeners.remove(oldListener);
 		}
