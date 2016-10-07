@@ -58,7 +58,6 @@ import org.eclipse.jdt.internal.compiler.parser.RecoveredField;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredInitializer;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredLocalVariable;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredMethod;
-import org.eclipse.jdt.internal.compiler.parser.RecoveredModule;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredStatement;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredUnit;
@@ -382,28 +381,13 @@ private void initModuleInfo(RecoveredElement element) {
 		RecoveredUnit unit = (RecoveredUnit) element;
 		if (unit.unitDeclaration.isModuleInfo()) {
 			ASTNode node = null;
-			RecoveredModule module = null;
 			int i = 0;
 			for (; i <= this.astPtr; i++) {
 				if ((node = this.astStack[i]) instanceof ModuleDeclaration) {
-					/*
-					 * Just add this module declaration - let the element
-					 * be the Recovered unit itself. 
-					 * TODO: To check the viabilitiy of making RecoveredModule as the current element
-					 */
-					module = (RecoveredModule) unit.add((ModuleDeclaration) node, this.bracketDepth); 
+					unit.add((ModuleDeclaration) node, this.bracketDepth); 
 					break;
 				}
 			}
-			if (module != null) {
-				for (; i <= this.astPtr; i++) {
-					node = this.astStack[i];
-					if (node instanceof ExportReference) {
-						module.add((ExportReference) node, 0);
-					}
-				}
-			}
-			
 		}
 	}
 }

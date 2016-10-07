@@ -54,10 +54,15 @@ public class ModuleSourcePathManager {
 		}
 		this.knownModules.put(moduleName, new ProjectEntry(project));
 	}
+	
+	interface IPrefixMatcherCharArray {
+		boolean matches(char[] prefix, char[] name);
+	}
 	public void seekModule(char[] name, boolean prefixMatch, IJavaElementRequestor requestor) throws JavaModelException {
 		if (name == null)
 			return;
-		
+		IPrefixMatcherCharArray prefixMatcher = prefixMatch ? CharOperation.equals(name, CharOperation.ALL_PREFIX) ?
+				(x, y) -> true : CharOperation::prefixEquals : CharOperation :: equals;
 		IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
 		for (int i = 0; i < projects.length; i++) {
 			IJavaProject project = projects[i];
@@ -66,13 +71,9 @@ public class ModuleSourcePathManager {
 			if (project instanceof JavaProject) {
 				IModule module = ((JavaProject) project).getModule();
 				if (module != null) {
-					char[] moduleName = module.name();
-					boolean match = prefixMatch ? CharOperation.prefixEquals(moduleName, name)
-							: CharOperation.equals(moduleName, name);
-					if (match) {
+					if (prefixMatcher.matches(name, module.name())) {
 						addEntry(module, (JavaProject) project);
 						requestor.acceptModule(module);
-						break;
 					}
 				}
 			}

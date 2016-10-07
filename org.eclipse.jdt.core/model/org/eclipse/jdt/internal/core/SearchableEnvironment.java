@@ -175,9 +175,7 @@ public class SearchableEnvironment
 	 *    ISearchRequestor.acceptModule(char[][] moduleName)
 	 */
 	public void findModules(char[] prefix, ISearchRequestor requestor, IJavaProject javaProject) {
-		this.nameLookup.seekModuleReferences(
-				new String(prefix),
-				new SearchableEnvironmentRequestor(requestor), javaProject);
+		this.nameLookup.seekModule(prefix, true, new SearchableEnvironmentRequestor(requestor));
 	}
 
 	/**
@@ -194,6 +192,19 @@ public class SearchableEnvironment
 			new SearchableEnvironmentRequestor(requestor));
 	}
 
+	/**
+	 * Find the packages that start with the given prefix.
+	 * A valid prefix is a qualified name separated by periods
+	 * (ex. java.util).
+	 * The packages found are passed to:
+	 *    ISearchRequestor.acceptPackage(char[][] packageName)
+	 */
+	public void findPackages(char[] prefix, ISearchRequestor requestor, IModuleContext context) {
+		this.nameLookup.seekPackageFragments(
+			new String(prefix),
+			true,
+			new SearchableEnvironmentRequestor(requestor), context);
+	}
 	/**
 	 * Find the top-level types that are defined
 	 * in the current environment and whose simple name matches the given name.

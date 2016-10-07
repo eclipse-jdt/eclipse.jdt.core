@@ -74,4 +74,9 @@ public class Module implements org.eclipse.jdt.internal.compiler.env.IModule {
 		}
 		return null;
 	}
+	
+	public String toString() {
+		return new String(this.name());
+		
+	}
 }

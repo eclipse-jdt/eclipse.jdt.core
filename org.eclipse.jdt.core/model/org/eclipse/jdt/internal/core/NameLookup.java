@@ -1037,6 +1037,11 @@ public class NameLookup implements SuffixConstants {
 			seekPackageFragments(name, partialMatch, requestor);
 			return;
 		}
+		if (partialMatch) {
+			seekModuleAwarePartialPackageFragmentsPartial(name, requestor, context);
+			return;
+		}
+		
 		String[] splittedName = Util.splitOn('.', name, 0, name.length());
 		int pkgIndex = this.packageFragments.getIndex(splittedName);
 		if (pkgIndex == -1)
@@ -1073,7 +1078,59 @@ public class NameLookup implements SuffixConstants {
 				}
 			}
 		});
+
+		//checkModulePackages(requestor, context, pkgIndex);
 		
+	}
+	
+	private void seekModuleAwarePartialPackageFragmentsPartial(String name, IJavaElementRequestor requestor, IModuleContext context) {
+		boolean allPrefixMatch = CharOperation.equals(name.toCharArray(), CharOperation.ALL_PREFIX);
+		Arrays.stream(this.packageFragments.keyTable)
+		.filter(k -> k != null)
+		.filter(k -> allPrefixMatch || Util.concatWith((String[])k, '.').startsWith(name))
+		.forEach(k -> {
+			checkModulePackages(requestor, context, this.packageFragments.getIndex(k));
+		});
+	}
+
+	private void checkModulePackages(IJavaElementRequestor requestor, IModuleContext context, int pkgIndex) {
+		Object value = this.packageFragments.valueTable[pkgIndex];
+		// reuse existing String[]
+		String[] pkgName = (String[]) this.packageFragments.keyTable[pkgIndex];
+		context.getEnvironment().forEach(r -> {
+			if (value instanceof PackageFragmentRoot) {
+				Object toCompare = value;
+				// TODO: need better representation of IModuleEnvironment and IModulePathEntry
+				// in the model to avoid comparison based on instance
+				if (r instanceof JavaProject) {
+					toCompare  = ((PackageFragmentRoot)value).getJavaProject();
+				}
+				if (r.equals(toCompare)) {
+					PackageFragmentRoot root = (PackageFragmentRoot) value;
+					requestor.acceptPackageFragment(root.getPackageFragment(pkgName));
+				}
+			} else {
+				IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
+				if (roots != null) {
+					for (int i = 0, length = roots.length; i < length; i++) {
+						if (requestor.isCanceled())
+							return;
+						PackageFragmentRoot root = (PackageFragmentRoot) roots[i];
+						Object toCompare = root;
+						if (r instanceof JavaProject) {
+							toCompare  = root.getJavaProject();
+						}
+						if (r.equals(toCompare))
+							requestor.acceptPackageFragment(root.getPackageFragment(pkgName));
+					}
+				}
+			}
+		});
+	}
+
+	@FunctionalInterface
+	interface IPrefixMatcherCharArray { // note the reversal in the order of params wrt to the string version.
+		boolean matches(char[] prefix, char[] name);
 	}
 	/**
 	 * Notifies the given requestor of all package fragments with the
@@ -1144,74 +1201,14 @@ public class NameLookup implements SuffixConstants {
 		seekTypes(name, pkg, partialMatch, acceptFlags, requestor, true);
 	}
 
-	private boolean isMatching(char[] needle, char[] haystack, boolean partialMatch) {
-		return partialMatch ? CharOperation.prefixEquals(needle, haystack, false)
-				:  CharOperation.equals(needle, haystack);
-	}
-	
-	/**
-	 * Assumption is that project dependencies are setup already so that the required projects of a 
-	 * given project will include this project - module search will be done only in those projects.
-	 * Note that this does not check for cycles in module dependency graph.
-	 * @param name
-	 * @param requestor
-	 * @param javaProject
-	 */
-	public void seekTargettedModuleReferences(String name, IJavaElementRequestor requestor, IJavaProject javaProject) {
-		//seekModule(name, true /* prefix */, requestor);
-		List<IJavaProject> dependentJavaProjects = new ArrayList<>();
-		String myName = javaProject.getElementName();
-		IProject[] projects = ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		for (IProject project : projects) {
-			if (!JavaProject.hasJavaNature(project)) continue;
-			IJavaProject jProject = JavaCore.create (project);
-			if (jProject.equals(javaProject)) continue;
-			try {
-				String[] requiredPojects = jProject.getRequiredProjectNames();
-				for (String s : requiredPojects) {
-					if (s == null) continue;
-					if (s.equals(myName)) {
-						dependentJavaProjects.add(jProject);
-						break;
-					}
-				}
-			} catch (JavaModelException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		if (dependentJavaProjects.isEmpty()) return;
-		// At this point we have all the projects dependent on this project.
-		
-		for (IJavaProject jP : dependentJavaProjects) {
-			try {
-				if (!jP.isOpen()) continue;
-				IPackageFragmentRoot[] roots = jP.getPackageFragmentRoots();
-				for (IPackageFragmentRoot root : roots) {
-					if (root instanceof JarPackageFragmentRoot)  continue; // TODO: Add support for JPFRs?
-					root.open(null);
-					PackageFragmentRootInfo pFRI = ((PackageFragmentRootInfo) ((PackageFragmentRoot) root).getElementInfo());
-					IModule module = pFRI.getModule();
-					if (module == null) continue;
-					char[] moduleName = module.name();
-					if (moduleName == null || moduleName.equals(CharOperation.NO_CHAR) || moduleName.equals(ModuleEnvironment.UNNAMED)) continue;
-					requestor.acceptModule(module);
-				}
-			} catch (JavaModelException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-	}
-
 	public void seekModuleReferences(String name, IJavaElementRequestor requestor, IJavaProject javaProject) {
-		if (javaProject != null) {
-			seekTargettedModuleReferences(name, requestor, javaProject);			
-		} else {
-			seekModule(name.toCharArray(), true /* prefix */, requestor);
-		}
+		seekModule(name.toCharArray(), true /* prefix */, requestor);
 	}
-	public void seekModule(char[] name, boolean prefix, IJavaElementRequestor requestor) {
+	public void seekModule(char[] name, boolean prefixMatch, IJavaElementRequestor requestor) {
+
+		IPrefixMatcherCharArray prefixMatcher = prefixMatch ? CharOperation.equals(name, CharOperation.ALL_PREFIX) ?
+				(x, y) -> true : CharOperation::prefixEquals : CharOperation :: equals;
+
 		int count= this.packageFragmentRoots.length;
 		for (int i= 0; i < count; i++) {
 			if (requestor.isCanceled())
@@ -1219,12 +1216,12 @@ public class NameLookup implements SuffixConstants {
 			IPackageFragmentRoot root= this.packageFragmentRoots[i];
 			IModule module = null;
 			if (root instanceof JrtPackageFragmentRoot) {
-				if (!isMatching(name, root.getElementName().toCharArray(), prefix)) {
+				if (!prefixMatcher.matches(name, root.getElementName().toCharArray())) {
 					continue;
 				}
 			}
 			module = getModule((PackageFragmentRoot) root);
-			if (module != null && isMatching(name, module.name(), prefix))
+			if (module != null && prefixMatcher.matches(name, module.name()))
 				requestor.acceptModule(module);
 		}
 	}

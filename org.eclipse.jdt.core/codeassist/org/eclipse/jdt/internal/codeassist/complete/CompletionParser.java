@@ -86,6 +86,11 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_BETWEEN_INSTANCEOF_AND_RPAREN = COMPLETION_PARSER + 41;
 	protected static final int K_INSIDE_IMPORT_STATEMENT = COMPLETION_PARSER + 43;
 	protected static final int K_INSIDE_EXPORTS_STATEMENT = COMPLETION_PARSER + 44;
+	protected static final int K_INSIDE_REQUIRES_STATEMENT = COMPLETION_PARSER + 45;
+	protected static final int K_INSIDE_USES_STATEMENT = COMPLETION_PARSER + 46;
+	protected static final int K_INSIDE_PROVIDES_STATEMENT = COMPLETION_PARSER + 47;
+	protected static final int K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT = COMPLETION_PARSER + 48;
+	protected static final int K_AFTER_NAME_IN_PROVIDES_STATEMENT = COMPLETION_PARSER + 49;
 
 
 	public final static char[] FAKE_TYPE_NAME = new char[]{' '};
@@ -1533,7 +1538,57 @@ private boolean checkKeyword() {
 	}
 	return false;
 }
+
+private enum ModuleKeyword {
+	FIRST_ALL,
+	EXPORTS_MID,
+	PROVIDES_MID,
+	NOT_A_KEYWORD
+}
+
+private ModuleKeyword getKeyword() {
+	ModuleKeyword keyword = ModuleKeyword.FIRST_ALL;
+	if (isInModuleStatements()) {
+		if (foundToken(K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT)) keyword = ModuleKeyword.EXPORTS_MID;
+		else if (foundToken(K_AFTER_NAME_IN_PROVIDES_STATEMENT)) keyword = ModuleKeyword.PROVIDES_MID;
+		else keyword = ModuleKeyword.NOT_A_KEYWORD;
+	}
+	return keyword;
+}
+private char[][] getModuleKeywords(ModuleKeyword keyword) {
+	if (keyword == ModuleKeyword.EXPORTS_MID) return new char[][]{Keywords.TO};
+	else if (keyword == ModuleKeyword.PROVIDES_MID) return new char[][]{Keywords.WITH};
+	else return new char[][]{Keywords.EXPORTS, Keywords.REQUIRES, Keywords.PROVIDES, Keywords.USES};
+}
 private boolean checkModuleInfoConstructs() {
+	
+	if (!isInsideModuleInfo()) return false;
+	if (!(this.currentElement instanceof RecoveredModule)) return false;
+	RecoveredModule module = (RecoveredModule) this.currentElement;
+
+	ModuleKeyword keyword = getKeyword();
+	if (keyword == ModuleKeyword.NOT_A_KEYWORD) return false;
+	
+	int index = -1;
+	if ((index = this.indexOfAssistIdentifier()) > -1) {
+		int length = this.identifierLengthStack[this.identifierLengthPtr];
+		int ptr = this.identifierPtr - length + index + 1;
+		
+		char[] ident = this.identifierStack[ptr];
+		long pos = this.identifierPositionStack[ptr];		
+		char[][] keywords = getModuleKeywords(keyword);		
+		module.add(new CompletionOnKeywordModuleInfo(ident, pos, keywords), 0);
+		return true;
+	}
+	return false;
+}
+
+/**
+ * TODO: remove this code once all constructs are implemented
+ * @return
+ */
+@SuppressWarnings("unused")
+private boolean _checkModuleInfoConstructs() {
 	
 	if (!(this.currentElement instanceof RecoveredUnit)) return false;
 
@@ -2163,7 +2218,8 @@ public void completionIdentifierCheck(){
 	// if not in a method in non diet mode and if not inside a field initializer, only record references attached to types
 	if (!(isInsideMethod() && !this.diet)
 		&& !isIndirectlyInsideFieldInitialization()
-		&& !isInsideAttributeValue()) return;
+		&& !isInsideAttributeValue()
+		&& !isInsideModuleInfo()) return;
 
 	/*
 	 	In some cases, the completion identifier may not have yet been consumed,
@@ -2192,6 +2248,7 @@ public void completionIdentifierCheck(){
 	// no need to check further if we are not at the cursor location
 	if (this.indexOfAssistIdentifier() < 0) return;
 
+	if (checkModuleInfoConstructs()) return;
 	if (checkClassInstanceCreation()) return;
 	if (checkMemberAccess()) return;
 	if (checkClassLiteralAccess()) return;
@@ -3488,6 +3545,8 @@ protected void consumeModuleHeader() {
 protected void consumeProvidesStatement() {
 	super.consumeProvidesStatement();
 	this.moduleStatementId = MIStatementIdentity.DEFAULT_MI_STATEMENT;
+	popElement(K_AFTER_NAME_IN_PROVIDES_STATEMENT);
+	popElement(K_INSIDE_PROVIDES_STATEMENT);
 }
 
 protected void consumeReferenceType() {
@@ -3501,6 +3560,7 @@ protected void consumeReferenceType() {
 protected void consumeRequiresStatement() {
 	super.consumeRequiresStatement();
 	this.moduleStatementId = MIStatementIdentity.DEFAULT_MI_STATEMENT;
+	popElement(K_INSIDE_REQUIRES_STATEMENT);
 }
 protected void consumeRestoreDiet() {
 	super.consumeRestoreDiet();
@@ -3511,10 +3571,12 @@ protected void consumeRestoreDiet() {
 protected void consumeExportsStatement() {
 	super.consumeExportsStatement();
 	this.moduleStatementId = MIStatementIdentity.DEFAULT_MI_STATEMENT;
+	popElement(K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT);
 	popElement(K_INSIDE_EXPORTS_STATEMENT);
 }
 protected void consumeSingleExportsPkgName() {
 	super.consumeSingleExportsPkgName();
+	pushOnElementStack(K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT);
 	this.moduleStatementId = MIStatementIdentity.SINGLE_EXPORTS_PACKAGE;
 //	this.inModuleExportsSinglePkg = false;
 }
@@ -3723,14 +3785,19 @@ protected void consumeToken(int token) {
 		this.moduleStatementId = MIStatementIdentity.SINGLE_EXPORTS;
 		pushOnElementStack(K_INSIDE_EXPORTS_STATEMENT);
 	}	else if (token == TokenNameto && this.moduleStatementId == MIStatementIdentity.SINGLE_EXPORTS) {
+		popElement(K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT);
 		this.moduleStatementId = MIStatementIdentity.SINGLE_EXPORTS_TARGET;
 	}	else if (token == TokenNamerequires) {
+		pushOnElementStack(K_INSIDE_REQUIRES_STATEMENT);
 		this.moduleStatementId = MIStatementIdentity.REQUIRES_STATEMENT;
 	} else if (token == TokenNameprovides) {
+		pushOnElementStack(K_INSIDE_PROVIDES_STATEMENT);
 		this.moduleStatementId = MIStatementIdentity.PROVIDES_STATEMENT;
 	} else if (token == TokenNameuses) {
+		pushOnElementStack(K_INSIDE_USES_STATEMENT);
 		this.moduleStatementId = MIStatementIdentity.USES_STATEMENT;
 	}	else if (token == TokenNamewith && this.moduleStatementId == MIStatementIdentity.PROVIDES_STATEMENT) {
+		popElement(K_AFTER_NAME_IN_PROVIDES_STATEMENT);
 		this.moduleStatementId = MIStatementIdentity.PROVIDES_STATEMENT_WITH;
 	} 
 
@@ -4369,6 +4436,7 @@ protected void consumeUnionTypeAsClassType() {
 protected void consumeUsesStatement() {
 	super.consumeUsesStatement();
 	this.moduleStatementId = MIStatementIdentity.DEFAULT_MI_STATEMENT;
+	popElement(K_INSIDE_USES_STATEMENT);
 }
 
 protected void consumeWildcard() {
@@ -5293,7 +5361,7 @@ public void resetAfterCompletion() {
 	this.cursorLocation = 0;
 	flushAssistState();
 }
-public void restoreAssistParser(Object parserState) {
+public void restoreAssistParser(Object parserState) { 	
 	int[] state = (int[]) parserState;
 	
 	CompletionScanner completionScanner = (CompletionScanner)this.scanner;
@@ -5512,4 +5580,20 @@ protected boolean isInImportStatement() {
 protected boolean isInExportsStatement() {
 	return foundToken(K_INSIDE_EXPORTS_STATEMENT);
 }
+protected boolean isInRequiresStatement() {
+	return foundToken(K_INSIDE_REQUIRES_STATEMENT);
+}
+protected boolean isInUsessStatement() {
+	return foundToken(K_INSIDE_USES_STATEMENT);
+}
+protected boolean isInProvidesStatement() {
+	return foundToken(K_INSIDE_PROVIDES_STATEMENT);
+}
+protected boolean isInModuleStatements() {
+	return isInExportsStatement() ||
+			isInRequiresStatement() ||
+			isInProvidesStatement() ||
+			isInUsessStatement();
+}
+
 }

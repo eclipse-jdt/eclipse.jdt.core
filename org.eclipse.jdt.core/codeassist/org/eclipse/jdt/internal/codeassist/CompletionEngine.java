@@ -22,6 +22,7 @@ package org.eclipse.jdt.internal.codeassist;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -70,7 +71,10 @@ import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.BasicCompilationUnit;
 import org.eclipse.jdt.internal.core.INamingRequestor;
 import org.eclipse.jdt.internal.core.InternalNamingConventions;
+import org.eclipse.jdt.internal.core.JavaElementRequestor;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.ModuleSourcePathManager;
 import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.SourceMethodElementInfo;
 import org.eclipse.jdt.internal.core.SourceType;
@@ -550,6 +554,7 @@ public final class CompletionEngine
 	ProblemReporter problemReporter;
 	private JavaSearchNameEnvironment noCacheNameEnvironment;
 	char[] source;
+	ModuleDeclaration moduleDeclaration;
 	char[] completionToken;
 	char[] qualifiedCompletionToken;
 	boolean resolvingImports = false;
@@ -1128,6 +1133,8 @@ public final class CompletionEngine
 	 */
 	public void acceptModule(char[] moduleName) {
 		if (this.knownModules.containsKey(moduleName)) return;
+		if (CharOperation.equals(moduleName, this.moduleDeclaration.moduleName)) return;
+		if (CharOperation.equals(moduleName, CharOperation.NO_CHAR)) return;
 		this.knownModules.put(moduleName, this);
 		char[] completion = moduleName;
 		int relevance = computeBaseRelevance();
@@ -1875,9 +1882,9 @@ public final class CompletionEngine
 				}
 
 				if (parsedUnit.isModuleInfo()) {
-					ModuleDeclaration moduleDeclaration = parsedUnit.moduleDeclaration;
-					if (moduleDeclaration == null) return;
-					if (moduleDeclaration instanceof CompletionOnModuleDeclaration) {
+					this.moduleDeclaration = parsedUnit.moduleDeclaration;
+					if (this.moduleDeclaration == null) return;
+					if (this.moduleDeclaration instanceof CompletionOnModuleDeclaration) {
 						contextAccepted = true;
 						buildContext(parsedUnit.moduleDeclaration, null, parsedUnit, null, null);
 						this.requestor.setIgnored(CompletionProposal.MODULE_DECLARATION, false); //TODO: Hack until ui fixes this issue.
@@ -1887,12 +1894,12 @@ public final class CompletionEngine
 						debugPrintf(); 
 						return;
 					}
-					if (moduleDeclaration instanceof CompletionOnKeywordModuleDeclaration) {
+					if (this.moduleDeclaration instanceof CompletionOnKeywordModuleDeclaration) {
 						contextAccepted = true;
-						processModuleKeywordCompletion(parsedUnit, moduleDeclaration, (CompletionOnKeyword) moduleDeclaration);
+						processModuleKeywordCompletion(parsedUnit, this.moduleDeclaration, (CompletionOnKeyword) this.moduleDeclaration);
 						return;								
 					}
-					ExportReference[] exports = moduleDeclaration.exports;
+					ExportReference[] exports = this.moduleDeclaration.exports;
 					if (exports != null) {
 						for (int i = 0, l = exports.length; i < l; ++i) {
 							ExportReference exportReference = exports[i];
@@ -1917,10 +1924,10 @@ public final class CompletionEngine
 								if (target == null) break;
 								if (target instanceof CompletionOnModuleReference) {
 									buildContext(target, null, parsedUnit, null, null);
-									this.requestor.setIgnored(CompletionProposal.MODULE_REF, false); //TODO: Hack until ui fixes this issue.
+									this.requestor.setIgnored(CompletionProposal.MODULE_REF, false); //TODO: Remove once jdt.ui allows
 									if(!this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
 										contextAccepted = true;
-										findModules((CompletionOnModuleReference) target, true /* targetted */);
+										findTargettedModules((CompletionOnModuleReference) target);
 									}
 									debugPrintf();
 									return;
@@ -1931,14 +1938,14 @@ public final class CompletionEngine
 							}
 						}
 					}
-					ModuleReference[] moduleRefs = moduleDeclaration.requires;
+					ModuleReference[] moduleRefs = this.moduleDeclaration.requires;
 					if (moduleRefs != null) {
 						for (int i = 0, l = moduleRefs.length; i < l; ++i) {
 							ModuleReference reference = moduleRefs[i];
 							if (reference instanceof CompletionOnModuleReference) {
 								contextAccepted = true;
 								buildContext(reference, null, parsedUnit, null, null);
-								this.requestor.setIgnored(CompletionProposal.MODULE_REF, false); //TODO: Hack until ui fixes this issue.
+								this.requestor.setIgnored(CompletionProposal.MODULE_REF, false); //TODO: Remove once jdt.ui allows
 								if(!this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
 									findModules((CompletionOnModuleReference) reference, false /* targetted */);
 								}
@@ -10396,8 +10403,6 @@ public final class CompletionEngine
 	}
 
 	private void findModuleName(CompilationUnitDeclaration parsedUnit) {
-
-		CompletionOnModuleDeclaration moduleDeclaration = (CompletionOnModuleDeclaration) parsedUnit.moduleDeclaration;
 		char[] fileName1 = parsedUnit.getFileName();
 		if (fileName1 == null || !CharOperation.endsWith(fileName1, MODULE_INFO_FILE_NAME)) return;
 		int lastFileSeparatorIndex = fileName1.length - (MODULE_INFO_FILE_NAME.length + 1);
@@ -10406,7 +10411,7 @@ public final class CompletionEngine
 		prevFileSeparatorIndex = prevFileSeparatorIndex < 0 ? 0 : prevFileSeparatorIndex + 1;
 		char[] moduleName = CharOperation.subarray(fileName1, prevFileSeparatorIndex, lastFileSeparatorIndex);
 		if (moduleName == null || moduleName.length == 0) return;
-		this.completionToken = CharOperation.concatWith(moduleDeclaration.tokens, '.');
+		this.completionToken = CharOperation.concatWith(this.moduleDeclaration.tokens, '.');
 		if (this.completionToken.length > 0 && !CharOperation.prefixEquals(this.completionToken, moduleName)) return;
 
 		InternalCompletionProposal proposal =  createProposal(CompletionProposal.MODULE_DECLARATION, this.actualCompletionPosition);
@@ -10420,34 +10425,61 @@ public final class CompletionEngine
 			this.printDebug(proposal);
 		}
 	}
-	private void findModules(CompletionOnModuleReference moduleReference, boolean targetted) {
-
-		this.completionToken = CharOperation.concatWith(moduleReference.tokens, '.');
+	
+	private void findTargettedModules(char[] prefix) {
+		ModuleSourcePathManager mManager = JavaModelManager.getModulePathManager();
+		JavaElementRequestor javaElementRequestor = new JavaElementRequestor();
+		try {
+			mManager.seekModule(this.completionToken, true, javaElementRequestor);
+			IModule[] modules = javaElementRequestor.getModules();
+			for (IModule module : modules) {
+				char[] name = module.name();
+				if (name == null || CharOperation.equals(name, CharOperation.NO_CHAR))
+					continue;
+				this.acceptModule(name);
+			}
+		} catch (JavaModelException e) {
+			// TODO ignore for now
+		}
+	}
+	private void findTargettedModules(CompletionOnModuleReference moduleReference) {
+		setCompletionToken(moduleReference.tokens, moduleReference.sourceStart, moduleReference.sourceEnd, moduleReference.sourcePositions);
+		findTargettedModules(CharOperation.toLowerCase(this.completionToken));
+	}
+	
+	private void setCompletionToken(char[][] tokens, int sourceStart, int sourceEnd, long[] sourcePositions, boolean without) {
+		this.completionToken = without ? CharOperation.concatWith(tokens, '.') : CharOperation.concatWithAll(tokens, '.');
 		if (this.completionToken.length == 0)
-			return;
-
-		setSourceRange(moduleReference.sourceStart, moduleReference.sourceEnd);
-		long completionPosition = moduleReference.sourcePositions[moduleReference.sourcePositions.length - 1];
+			this.completionToken = CharOperation.ALL_PREFIX;
+		setSourceRange(sourceStart, sourceEnd);
+		long completionPosition = sourcePositions[sourcePositions.length - 1];
 		setTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
+	}
+	private void setCompletionToken(char[][] tokens, int sourceStart, int sourceEnd, long[] sourcePositions) {
+		setCompletionToken(tokens, sourceStart, sourceEnd, sourcePositions, true);
+	}
+	private void findModules(CompletionOnModuleReference moduleReference, boolean targetted) {
+		setCompletionToken(moduleReference.tokens, moduleReference.sourceStart, moduleReference.sourceEnd, moduleReference.sourcePositions);
+		findTargettedModules(moduleReference);
 		this.nameEnvironment.findModules(CharOperation.toLowerCase(this.completionToken), this, targetted ? this.javaProject : null);
 	}
 	private void findPackages(CompletionOnExportReference exportStatement) {
-
-		this.completionToken = CharOperation.concatWithAll(exportStatement.tokens, '.');
-		if (this.completionToken.length == 0)
-			return;
-
-		setSourceRange(exportStatement.sourceStart, exportStatement.sourceEnd);
-		long completionPosition = exportStatement.sourcePositions[exportStatement.sourcePositions.length - 1];
-		setTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
-		this.nameEnvironment.findPackages(CharOperation.toLowerCase(this.completionToken), this);
+		setCompletionToken(exportStatement.tokens, exportStatement.sourceStart, exportStatement.sourceEnd, exportStatement.sourcePositions, false);
+//		TODO: Enable the code once NameLookup supports moduleContext when module-info.java file is still in flux
+// 		ModuleBinding moduleBinding = this.lookupEnvironment.getModule(this.moduleDeclaration.moduleName);
+//		if (moduleBinding == null) return;
+//		IModuleContext moduleContext = moduleBinding.getModuleLookupContext();
+		IModuleContext moduleContext = () -> {
+			return Stream.of((JavaProject)this.javaProject);
+		};
+		this.nameEnvironment.findPackages(CharOperation.toLowerCase(this.completionToken), this, moduleContext);
+	
+//		this.nameEnvironment.findPackages(CharOperation.toLowerCase(this.completionToken), this);
 	}
 	private void findPackages(CompletionOnPackageReference packageStatement) {
-
 		this.completionToken = CharOperation.concatWithAll(packageStatement.tokens, '.');
 		if (this.completionToken.length == 0)
 			return;
-
 		setSourceRange(packageStatement.sourceStart, packageStatement.sourceEnd);
 		long completionPosition = packageStatement.sourcePositions[packageStatement.sourcePositions.length - 1];
 		setTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
