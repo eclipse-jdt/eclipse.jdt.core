@@ -932,7 +932,7 @@ protected static class JavacTestOptions {
 			buffer.append("\" -1.8 " + processAnnot);
 		}
 		buffer
-			.append(" -preserveAllLocals -nowarn -g -classpath \"")
+			.append(" -preserveAllLocals -proceedOnError -nowarn -g -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append(SOURCE_DIRECTORY)
 			.append("\"");
