@@ -13182,4 +13182,53 @@ public void testBug500885() {
 		options,
 		"");
 }
+public void testBug505671() {
+	runConformTestWithLibs(
+		new String[] {
+			"snippet/Pair.java",
+			"package snippet;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Pair {\n" +
+			"	public static <S, T> S make(S left, T right, Object x) {\n" +
+			"		throw new RuntimeException();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		},
+	getCompilerOptions(),
+	""
+	);
+	runNegativeTestWithLibs(
+		new String[] {
+			"snippet/Snippet.java",
+			"package snippet;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"public class Snippet {\n" +
+			"	public static final @NonNull Object FALSE = new Object();\n" +
+			"\n" +
+			"	public static @NonNull Object abbreviateExplained0() {\n" +
+			"		return Pair.<String, @NonNull Object>make(null, FALSE, null);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in snippet\\Snippet.java (at line 9)\n" + 
+		"	return Pair.<String, @NonNull Object>make(null, FALSE, null);\n" + 
+		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
+		"----------\n" + 
+		"2. ERROR in snippet\\Snippet.java (at line 9)\n" + 
+		"	return Pair.<String, @NonNull Object>make(null, FALSE, null);\n" + 
+		"	                                                       ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Object\' but the provided value is null\n" + 
+		"----------\n"
+	);
+}
 }
