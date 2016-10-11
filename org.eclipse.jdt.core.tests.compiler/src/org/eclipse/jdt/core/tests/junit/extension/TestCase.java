@@ -949,4 +949,12 @@ static public void failNotSame(String message, int expected, int actual) {
 	formatted.append("expected same:<").append(expected).append("> was not:<").append(actual).append(">");
 	fail(String.valueOf(formatted));
 }
+protected void runTest() throws Throwable {
+	try {
+		super.runTest();
+	} finally {
+		// clear interrupt status.
+		Thread.interrupted();
+	}
+}
 }
