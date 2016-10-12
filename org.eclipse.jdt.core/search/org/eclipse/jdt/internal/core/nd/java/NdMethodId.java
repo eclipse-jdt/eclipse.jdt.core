@@ -82,7 +82,7 @@ public class NdMethodId extends NdNode {
 	}
 
 	public boolean isConstructor() {
-		return JavaNames.isConstructor(getSelector());
+		return org.eclipse.jdt.internal.compiler.classfmt.JavaBinaryNames.isConstructor(getSelector());
 	}
 
 	public char[] getMethodDescriptor() {
@@ -92,7 +92,7 @@ public class NdMethodId extends NdNode {
 	}
 
 	public boolean isClInit() {
-		return JavaNames.isClinit(getSelector());
+		return org.eclipse.jdt.internal.compiler.classfmt.JavaBinaryNames.isClinit(getSelector());
 	}
 
 	public String toString() {

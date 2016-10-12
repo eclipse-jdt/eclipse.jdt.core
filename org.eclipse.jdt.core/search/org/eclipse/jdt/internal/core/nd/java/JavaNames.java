@@ -199,20 +199,6 @@ public class JavaNames {
 		return CharArrayUtils.subarray(chars, startPosition);
 	}
 
-	/**
-	 * Returns true iff the given method selector is a constructor.
-	 */
-	public static boolean isConstructor(char[] selector) {
-		return selector[0] == '<' && selector.length == 6; // Can only match <init>
-	}
-
-	/**
-	 * Returns true iff the given method selector is clinit.
-	 */
-	public static boolean isClinit(char[] selector) {
-		return selector[0] == '<' && selector.length == 8; // Can only match <clinit>
-	}
-
 	public static String classFilePathToBinaryName(String classFilePath) {
 		if (classFilePath.endsWith(".class")) { //$NON-NLS-1$
 			return classFilePath.substring(0, classFilePath.length() - 6);

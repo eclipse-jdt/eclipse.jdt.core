@@ -20,7 +20,6 @@ import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
-import org.eclipse.jdt.internal.core.nd.java.JavaNames;
 
 @SuppressWarnings("rawtypes")
 public class MethodInfo extends ClassFileStruct implements IBinaryMethod, Comparable {
@@ -356,14 +355,14 @@ protected void initialize() {
  * @return boolean
  */
 public boolean isClinit() {
-	return JavaNames.isClinit(getSelector());
+	return org.eclipse.jdt.internal.compiler.classfmt.JavaBinaryNames.isClinit(getSelector());
 }
 /**
  * Answer true if the method is a constructor, false otherwise.
  * @return boolean
  */
 public boolean isConstructor() {
-	return JavaNames.isConstructor(getSelector());
+	return org.eclipse.jdt.internal.compiler.classfmt.JavaBinaryNames.isConstructor(getSelector());
 }
 /**
  * Return true if the field is a synthetic method, false otherwise.
