@@ -54,7 +54,7 @@ public class ExportReference extends ASTNode {
 		boolean errorsExist = false;
 		ModuleDeclaration exportingModule = (ModuleDeclaration)scope.referenceContext();
 		ModuleBinding src = exportingModule.moduleBinding;
-		PackageBinding pkg = this.resolvedPackage = src.getExportedPackage(this.pkgName);
+		PackageBinding pkg = this.resolvedPackage = src != null ? src.getExportedPackage(this.pkgName) : null;
 		if (pkg == null) {
 			// TODO: need a check for empty package as well
 			scope.problemReporter().invalidExportReference(IProblem.ExportedPackageDoesNotExistOrIsEmpty, this);

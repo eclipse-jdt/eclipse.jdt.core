@@ -1038,7 +1038,7 @@ public class NameLookup implements SuffixConstants {
 			return;
 		}
 		if (partialMatch) {
-			seekModuleAwarePartialPackageFragmentsPartial(name, requestor, context);
+			seekModuleAwarePartialPackageFragments(name, requestor, context);
 			return;
 		}
 		
@@ -1046,44 +1046,11 @@ public class NameLookup implements SuffixConstants {
 		int pkgIndex = this.packageFragments.getIndex(splittedName);
 		if (pkgIndex == -1)
 			return;
-		Object value = this.packageFragments.valueTable[pkgIndex];
-		// reuse existing String[]
-		String[] pkgName = (String[]) this.packageFragments.keyTable[pkgIndex];
-		context.getEnvironment().forEach(r -> {
-			if (value instanceof PackageFragmentRoot) {
-				Object toCompare = value;
-				// TODO: need better representation of IModuleEnvironment and IModulePathEntry
-				// in the model to avoid comparison based on instance
-				if (r instanceof JavaProject) {
-					toCompare  = ((PackageFragmentRoot)value).getJavaProject();
-				}
-				if (value.equals(toCompare)) {
-					PackageFragmentRoot root = (PackageFragmentRoot) value;
-					requestor.acceptPackageFragment(root.getPackageFragment(pkgName));
-				}
-			} else {
-				IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
-				if (roots != null) {
-					for (int i = 0, length = roots.length; i < length; i++) {
-						if (requestor.isCanceled())
-							return;
-						PackageFragmentRoot root = (PackageFragmentRoot) roots[i];
-						Object toCompare = root;
-						if (r instanceof JavaProject) {
-							toCompare  = root.getJavaProject();
-						}
-						if (root.equals(toCompare))
-							requestor.acceptPackageFragment(root.getPackageFragment(pkgName));
-					}
-				}
-			}
-		});
-
-		//checkModulePackages(requestor, context, pkgIndex);
+		checkModulePackages(requestor, context, pkgIndex);
 		
 	}
 	
-	private void seekModuleAwarePartialPackageFragmentsPartial(String name, IJavaElementRequestor requestor, IModuleContext context) {
+	private void seekModuleAwarePartialPackageFragments(String name, IJavaElementRequestor requestor, IModuleContext context) {
 		boolean allPrefixMatch = CharOperation.equals(name.toCharArray(), CharOperation.ALL_PREFIX);
 		Arrays.stream(this.packageFragments.keyTable)
 		.filter(k -> k != null)

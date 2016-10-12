@@ -88,7 +88,7 @@ public class ModuleDeclaration extends TypeDeclaration {
 		Set<ModuleBinding> requiredModules = new HashSet<ModuleBinding>();
 		for(int i = 0; i < this.requiresCount; i++) {
 			ModuleReference ref = this.requires[i];
-			if (ref.resolve(this.scope) != null) {
+			if (ref != null && ref.resolve(this.scope) != null) {
 				if (!requiredModules.add(ref.binding)) {
 					this.scope.problemReporter().duplicateModuleReference(IProblem.DuplicateRequires, ref);
 				}
@@ -100,7 +100,7 @@ public class ModuleDeclaration extends TypeDeclaration {
 		Set<PackageBinding> exportedPkgs = new HashSet<>();
 		for (int i = 0; i < this.exportsCount; i++) {
 			ExportReference ref = this.exports[i];
-			if (ref.resolve(this.scope)) {
+ 			if (ref != null && ref.resolve(this.scope)) {
 				if (!exportedPkgs.add(ref.resolvedPackage)) {
 					this.scope.problemReporter().invalidExportReference(IProblem.DuplicateExports, ref);
 				}
@@ -108,7 +108,7 @@ public class ModuleDeclaration extends TypeDeclaration {
 		}
 		for(int i = 0; i < this.usesCount; i++) {
 			Set<TypeBinding> allTypes = new HashSet<TypeBinding>();
-			if (this.uses[i].resolveType(this.scope) != null) {
+			if (this.uses[i] != null && this.uses[i].resolveType(this.scope) != null) {
 				if (!allTypes.add(this.uses[i].resolvedType)) {
 					this.scope.problemReporter().duplicateTypeReference(IProblem.DuplicateUses, this.uses[i]);
 				}
@@ -116,9 +116,9 @@ public class ModuleDeclaration extends TypeDeclaration {
 		}
 		Map<TypeBinding, TypeBinding> services = new HashMap<TypeBinding, TypeBinding>(this.servicesCount); 
 		for(int i = 0; i < this.servicesCount; i++) {
-			if (this.interfaces[i].resolveType(this.scope) != null) {
+			if (this.interfaces[i] != null && this.interfaces[i].resolveType(this.scope) != null) {
 				TypeBinding inf = this.interfaces[i].resolvedType;
-				if (this.implementations[i].resolveType(this.scope) != null) {
+				if (this.implementations[i] != null && this.implementations[i].resolveType(this.scope) != null) {
 					ReferenceBinding imp = (ReferenceBinding) this.implementations[i].resolvedType;
 					if (inf.isValidBinding() && imp.isValidBinding()) {
 						validate(this.interfaces[i], this.implementations[i]);
