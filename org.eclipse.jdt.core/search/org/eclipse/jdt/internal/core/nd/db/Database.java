@@ -29,8 +29,6 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.osgi.util.NLS;
 
-import com.ibm.icu.text.MessageFormat;
-
 /**
  * Database encapsulates access to a flat binary format file with a memory-manager-like API for
  * obtaining and releasing areas of storage (memory).
@@ -374,8 +372,7 @@ public class Database {
 	}
 
 	private void databaseCorruptionDetected() throws IndexException {
-		String msg = MessageFormat.format("Corrupted database: {0}", //$NON-NLS-1$
-				new Object[] { this.fLocation.getName() });
+		String msg = "Corrupted database: " + this.fLocation.getName(); //$NON-NLS-1$
 		throw new IndexException(new DBStatus(msg));
 	}
 
