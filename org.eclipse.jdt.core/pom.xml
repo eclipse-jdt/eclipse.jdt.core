@@ -138,6 +138,12 @@
 					<include>ecj.1</include>
                   </includes>
                 </fileSet>
+                <fileSet>
+                  <directory>${project.basedir}</directory>
+                  <includes>
+                    <include>scripts/binary/**</include>
+                  </includes>
+                </fileSet>
               </fileSets>
             </configuration>
           </execution>
