@@ -182,7 +182,12 @@ public class InferenceContext18 {
 			if (i >= len)
 				System.arraycopy(interned, 0, outermostContext.internedVariables = new InferenceVariable[len+10], 0, len);
 		}
-		return outermostContext.internedVariables[i] = new InferenceVariable(typeParameter, rank, this.nextVarId++, site, this.environment, this.object);
+		boolean differentContext = outermostContext != this;
+		int id = differentContext ? Math.max(this.nextVarId, outermostContext.nextVarId) : this.nextVarId;
+		this.nextVarId = id + 1;
+		if (differentContext)
+			outermostContext.nextVarId = this.nextVarId;
+		return outermostContext.internedVariables[i] = new InferenceVariable(typeParameter, rank, id, site, this.environment, this.object);
 	}
 	
 	boolean isSameSite(InvocationSite site1, InvocationSite site2) {
@@ -327,15 +332,20 @@ public class InferenceContext18 {
 		InferenceVariable[] newVariables = new InferenceVariable[len];
 		for (int i = 0; i < len; i++)
 			newVariables[i] = getInferenceVariable(typeVariables[i], i, this.currentInvocation);
+		addInferenceVariables(newVariables);
+		return newVariables;
+	}
+
+	private void addInferenceVariables(InferenceVariable[] newVariables) {
 		if (this.inferenceVariables == null || this.inferenceVariables.length == 0) {
 			this.inferenceVariables = newVariables;
 		} else {
 			// merge into this.inferenceVariables:
+			int len = newVariables.length;
 			int prev = this.inferenceVariables.length;
 			System.arraycopy(this.inferenceVariables, 0, this.inferenceVariables = new InferenceVariable[len+prev], 0, prev);
 			System.arraycopy(newVariables, 0, this.inferenceVariables, prev, len);
 		}
-		return newVariables;
 	}
 
 	/** Add new inference variables for the given type variables. */
@@ -1490,7 +1500,17 @@ public class InferenceContext18 {
 		innerCtx.outerContext = this;
 		this.usesUncheckedConversion = innerCtx.usesUncheckedConversion;
 		for (InferenceVariable variable : this.inferenceVariables)
-			variable.updateSourceName(this.nextVarId++);
+			if (!isInterned(variable))
+				variable.updateSourceName(this.nextVarId++);
+	}
+	
+	boolean isInterned(InferenceVariable iv) {
+		if (this.internedVariables != null)
+			for (int i = 0; i < this.internedVariables.length; i++) {
+				if (this.internedVariables[i] == iv) //$IDENTITY-COMPARISON$
+					return true;
+			}
+		return false;
 	}
 
 	public void resumeSuspendedInference(SuspendedInferenceRecord record) {
@@ -1503,6 +1523,8 @@ public class InferenceContext18 {
 			// move to back, add previous to front:
 			System.arraycopy(this.inferenceVariables, 0, this.inferenceVariables=new InferenceVariable[l1+l2], l2, l1);
 			System.arraycopy(record.inferenceVariables, 0, this.inferenceVariables, 0, l2);
+			for (int i=l1;i<l1+l2;i++)
+				this.inferenceVariables[i].updateSourceName(this.nextVarId++);
 		}
 
 		// replace invocation site & arguments:
