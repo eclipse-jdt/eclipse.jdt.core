@@ -1904,6 +1904,8 @@ void setSourceStart(int sourceStart);
 	int ServiceImplNotDefinedByModule = TypeRelated + 1210;
 	/** @since 3.13 BETA_JAVA9 */
 	int ExportedPackageDoesNotExistOrIsEmpty = TypeRelated + 1211;
+	/** @since 3.13 BETA_JAVA9 */
+	int NonDenotableTypeArgumentForAnonymousDiamond = TypeRelated + 1212;
 
 	/** @since 3.13 BETA_JAVA9 */
 	int DuplicateResource = Internal + 1251;

@@ -849,6 +849,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("NoSuperInInterfaceContext", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("NonBlankFinalLocalAssignment", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("NonConstantExpression", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("NonDenotableTypeArgumentForAnonymousDiamond", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("NonExternalizedStringLiteral", new ProblemAttributes(CategorizedProblem.CAT_NLS));
 		expectedProblemAttributes.put("NonGenericConstructor", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("NonGenericMethod", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
@@ -1702,6 +1703,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("NoSuperInInterfaceContext", SKIP);
 		expectedProblemAttributes.put("NonBlankFinalLocalAssignment", SKIP);
 		expectedProblemAttributes.put("NonConstantExpression", SKIP);
+		expectedProblemAttributes.put("NonDenotableTypeArgumentForAnonymousDiamond", SKIP);
 		expectedProblemAttributes.put("NonExternalizedStringLiteral", new ProblemAttributes(JavaCore.COMPILER_PB_NON_NLS_STRING_LITERAL));
 		expectedProblemAttributes.put("NonGenericConstructor", SKIP);
 		expectedProblemAttributes.put("NonGenericMethod", SKIP);

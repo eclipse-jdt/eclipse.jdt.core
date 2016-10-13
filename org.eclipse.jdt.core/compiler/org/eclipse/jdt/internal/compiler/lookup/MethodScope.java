@@ -179,12 +179,11 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 
 	// after this point, tests on the 16 bits reserved.
 	int realModifiers = modifiers & ExtraCompilerModifiers.AccJustFlag;
-
+	long sourceLevel = compilerOptions().sourceLevel;
 	// set the requested modifiers for a method in an interface/annotation
 	if (declaringClass.isInterface()) {
 		int expectedModifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract;
 		boolean isDefaultMethod = (modifiers & ExtraCompilerModifiers.AccDefaultMethod) != 0; // no need to check validity, is done by the parser
-		long sourceLevel = compilerOptions().sourceLevel;
 		if (sourceLevel >= ClassFileConstants.JDK1_8 && !declaringClass.isAnnotationType()) {
 			expectedModifiers |= ClassFileConstants.AccStrictfp
 					| ExtraCompilerModifiers.AccDefaultMethod | ClassFileConstants.AccStatic;
@@ -219,6 +218,18 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 			methodBinding.modifiers &= (expectedModifiers | ~ExtraCompilerModifiers.AccJustFlag);
 		}
 		return;
+	} else if (declaringClass.isAnonymousType() && sourceLevel >= ClassFileConstants.JDK9) {
+		// If the class instance creation expression elides the supertype's type arguments using '<>',
+		// then for all non-private methods declared in the class body, it is as if the method declaration
+		// is annotated with @Override - https://bugs.openjdk.java.net/browse/JDK-8073593
+		LocalTypeBinding local = (LocalTypeBinding) declaringClass;
+		TypeReference ref = local.scope.referenceContext.allocation.type;
+		if (ref != null && (ref.bits & ASTNode.IsDiamond) != 0) {
+			// 
+			if ((realModifiers & (ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic )) == 0) {
+				methodBinding.tagBits |= TagBits.AnnotationOverride;
+			}
+		}
 	}
 
 	// check for abnormal modifiers

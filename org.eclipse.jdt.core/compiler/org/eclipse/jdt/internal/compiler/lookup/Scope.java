@@ -4910,8 +4910,10 @@ public abstract class Scope {
 				break;
 			currentType = currentType.enclosingType();
 		}
+		boolean isInterface = allocationType.isInterface();
+		ReferenceBinding typeToSearch = isInterface ? getJavaLangObject() : allocationType;
 	
-		MethodBinding[] methods = allocationType.getMethods(TypeConstants.INIT, argumentTypes.length);
+		MethodBinding[] methods = typeToSearch.getMethods(TypeConstants.INIT, argumentTypes.length);
 		MethodBinding [] staticFactories = new MethodBinding[methods.length];
 		int sfi = 0;
 		for (int i = 0, length = methods.length; i < length; i++) {
@@ -4929,8 +4931,8 @@ public abstract class Scope {
 			int methodTypeVariablesArity = methodTypeVariables.length;
 			final int factoryArity = classTypeVariablesArity + methodTypeVariablesArity;
 			final LookupEnvironment environment = environment();
-			
-			MethodBinding staticFactory = new SyntheticFactoryMethodBinding(method.original(), environment, originalEnclosingType);
+			MethodBinding targetMethod = isInterface ? new MethodBinding(method.original(), genericType) : method.original();
+			MethodBinding staticFactory = new SyntheticFactoryMethodBinding(targetMethod, environment, originalEnclosingType);
 			staticFactory.typeVariables = new TypeVariableBinding[factoryArity];
 			final SimpleLookupTable map = new SimpleLookupTable(factoryArity);
 			
@@ -5007,7 +5009,7 @@ public abstract class Scope {
 			if (staticFactory.thrownExceptions == null) { 
 				staticFactory.thrownExceptions = Binding.NO_EXCEPTIONS;
 			}
-			staticFactories[sfi++] = new ParameterizedMethodBinding((ParameterizedTypeBinding) environment.convertToParameterizedType(staticFactory.declaringClass),
+			staticFactories[sfi++] = new ParameterizedMethodBinding((ParameterizedTypeBinding) environment.convertToParameterizedType(isInterface ? allocationType : staticFactory.declaringClass),
 																												staticFactory);
 		}
 		if (sfi == 0)

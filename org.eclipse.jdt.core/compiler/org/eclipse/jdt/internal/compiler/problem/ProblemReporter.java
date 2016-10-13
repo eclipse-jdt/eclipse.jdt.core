@@ -9283,6 +9283,14 @@ public void diamondNotWithAnoymousClasses(TypeReference type) {
 			type.sourceStart, 
 			type.sourceEnd);
 }
+public void anonymousDiamondWithNonDenotableTypeArguments(TypeReference type, TypeBinding tb) {
+	this.handle(
+			IProblem.NonDenotableTypeArgumentForAnonymousDiamond,
+			new String[]{new String(tb.leafComponentType().shortReadableName()), type.toString()},
+			new String[]{new String(tb.leafComponentType().shortReadableName()), type.toString()},
+			type.sourceStart, 
+			type.sourceEnd);
+}
 public void redundantSpecificationOfTypeArguments(ASTNode location, TypeBinding[] argumentTypes) {
 	int severity = computeSeverity(IProblem.RedundantSpecificationOfTypeArguments);
 	if (severity != ProblemSeverities.Ignore) {

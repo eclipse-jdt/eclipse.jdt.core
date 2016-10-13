@@ -594,15 +594,21 @@ public static MethodBinding inferDiamondConstructor(Scope scope, InvocationSite 
 		if (constructorTypeArguments.length > 0)
 			System.arraycopy(((ParameterizedGenericMethodBinding)factory).typeArguments, sfmb.typeVariables().length - constructorTypeArguments.length , 
 												constructorTypeArguments, 0, constructorTypeArguments.length);
+		if (allocationType.isInterface()) {
+			ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) factory.returnType;
+			return new ParameterizedMethodBinding(parameterizedType, sfmb.getConstructor());
+		}
 		return sfmb.applyTypeArgumentsOnConstructor(((ParameterizedTypeBinding)factory.returnType).arguments, constructorTypeArguments, genericFactory.inferredWithUncheckedConversion);
 	}
 	return null;
 }
-
 public TypeBinding[] inferElidedTypes(final Scope scope) {
+	return inferElidedTypes((ParameterizedTypeBinding) this.resolvedType, scope);
+}
+public TypeBinding[] inferElidedTypes(ParameterizedTypeBinding parameterizedType, final Scope scope) {
 	
-	ReferenceBinding genericType = ((ParameterizedTypeBinding) this.resolvedType).genericType();
-	ReferenceBinding enclosingType = this.resolvedType.enclosingType();
+	ReferenceBinding genericType = parameterizedType.genericType();
+	ReferenceBinding enclosingType = parameterizedType.enclosingType();
 	ParameterizedTypeBinding allocationType = scope.environment().createParameterizedType(genericType, genericType.typeVariables(), enclosingType);
 	
 	/* Given the allocation type and the arguments to the constructor, see if we can synthesize a generic static factory
@@ -646,7 +652,7 @@ public void checkTypeArgumentRedundancy(ParameterizedTypeBinding allocationType,
 		// checking for redundant type parameters must fake a diamond, 
 		// so we infer the same results as we would get with a diamond in source code:
 		this.type.bits |= IsDiamond;
-		inferredTypes = inferElidedTypes(scope);
+		inferredTypes = inferElidedTypes(allocationType, scope);
 	} finally {
 		// reset effects of inference
 		this.type.bits = previousBits;
