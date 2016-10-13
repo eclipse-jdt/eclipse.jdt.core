@@ -25,7 +25,7 @@
 
   <properties>
     <defaultSigning-excludeInnerJars>true</defaultSigning-excludeInnerJars>
-    <code.ignoredWarnings>-warn:-fieldHiding,unavoidableGenericProblems</code.ignoredWarnings>
+    <code.ignoredWarnings>-warn:+fieldHiding,-unavoidableGenericProblems</code.ignoredWarnings>
   </properties>
 
   <build>
