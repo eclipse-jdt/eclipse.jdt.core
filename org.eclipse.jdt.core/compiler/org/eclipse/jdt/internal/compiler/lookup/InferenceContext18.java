@@ -111,6 +111,8 @@ public class InferenceContext18 {
 	*/
 	static final boolean SHOULD_WORKAROUND_BUG_JDK_8054721 = true; // See https://bugs.eclipse.org/bugs/show_bug.cgi?id=437444#c24 onwards
 	
+	static final boolean SHOULD_WORKAROUND_BUG_JDK_8153748 = true; // emulating javac behaviour after private email communication
+	
 	/**
 	 * Detail flag to control the extent of {@link #SIMULATE_BUG_JDK_8026527}.
 	 * A setting of 'false' implements the advice from http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000447.html
@@ -390,6 +392,10 @@ public class InferenceContext18 {
 			substitute(method.returnType); // result is ignore, the only effect is on InferenceVariable.nullHints
 		
 		this.currentBounds = this.b2.copy();
+		if (SHOULD_WORKAROUND_BUG_JDK_8153748) {
+			if (addJDK_8153748ConstraintsFromInvocation(this.invocationArguments, method) == ReductionResult.TRUE) // TODO: return null on answer false?
+				this.currentBounds.incorporate(this);
+		}
 		try {
 			// bullets 1&2: definitions only.
 			if (expectedType != null
@@ -406,12 +412,8 @@ public class InferenceContext18 {
 			Set<ConstraintFormula> c = new HashSet<ConstraintFormula>();
 			if (!addConstraintsToC(this.invocationArguments, c, method, this.inferenceKind, false, invocationSite))
 				return null;
-			// not spec'd:
-			BoundSet connectivityBoundSet = this.currentBounds.copy();
-			for(ConstraintFormula cf : c)
-				connectivityBoundSet.reduceOneConstraint(this, cf);
 			// 5. bullet: determine B4 from C
-			List<Set<InferenceVariable>> components = connectivityBoundSet.computeConnectedComponents(this.inferenceVariables);
+			List<Set<InferenceVariable>> components = this.currentBounds.computeConnectedComponents(this.inferenceVariables);
 			while (!c.isEmpty()) {
 				// *
 				Set<ConstraintFormula> bottomSet = findBottomSet(c, allOutputVariables(c), components);
@@ -459,6 +461,74 @@ public class InferenceContext18 {
 		} finally {
 			this.stepCompleted = TYPE_INFERRED;
 		}
+	}
+
+	private ReductionResult addJDK_8153748ConstraintsFromInvocation(Expression[] arguments, MethodBinding method) throws InferenceFailureException {
+		// not per JLS, trying to mimic javac behavior
+		boolean constraintAdded = false;
+		if (arguments != null) {
+			for (int i = 0; i < arguments.length; i++) {
+				Expression argument = arguments[i];
+				TypeBinding parameter = getParameter(method.parameters, i, method.isVarargs());
+				parameter = this.substitute(parameter);
+				ReductionResult result = addJDK_8153748ConstraintsFromExpression(argument, parameter, method);
+				if (result == ReductionResult.FALSE)
+					return ReductionResult.FALSE;
+				if (result == ReductionResult.TRUE)
+					constraintAdded = true;
+			}
+		}
+		return constraintAdded ? ReductionResult.TRUE : null;
+	}
+
+	private ReductionResult addJDK_8153748ConstraintsFromExpression(Expression argument, TypeBinding parameter, MethodBinding method) throws InferenceFailureException {
+		if (argument instanceof LambdaExpression) {
+			return addJDK_8153748ConstraintsFromLambda((LambdaExpression) argument, parameter, method);
+		} else if (argument instanceof Invocation) {
+			Invocation invocation = (Invocation) argument;
+			Expression[] innerArgs = invocation.arguments();
+			MethodBinding innerMethod = invocation.binding();
+			if (innerMethod != null && innerMethod.isValidBinding()) {
+				return addJDK_8153748ConstraintsFromInvocation(innerArgs, innerMethod.original());
+			}
+		}
+		return null;
+	}
+
+	private ReductionResult addJDK_8153748ConstraintsFromLambda(LambdaExpression lambda, TypeBinding targetType, MethodBinding method) throws InferenceFailureException {
+		if (!lambda.isPertinentToApplicability(targetType, method)) {
+// -- simple version:
+//			lambda = lambda.resolveExpressionExpecting(targetType, this.scope, this);
+//			if (lambda != null && lambda.descriptor != null && lambda.descriptor.isValidBinding()) {
+//				MethodBinding sam = lambda.descriptor.declaringClass.getSingleAbstractMethod(this.scope, true);
+//				if (sam != null && sam.isValidBinding()) {
+// -- more sophisticated version:
+			BlockScope skope = lambda.enclosingScope;
+			if (targetType.isFunctionalInterface(skope)) { // could be an inference variable.
+				ReferenceBinding t = (ReferenceBinding) targetType;
+				ParameterizedTypeBinding withWildCards = InferenceContext18.parameterizedWithWildcard(t);
+				if (withWildCards != null) {
+					t = ConstraintExpressionFormula.findGroundTargetType(this, skope, lambda, withWildCards);
+				}
+				MethodBinding functionType;
+				if (t != null 
+						&& (functionType = t.getSingleAbstractMethod(skope, true)) != null 
+						&& (lambda = lambda.resolveExpressionExpecting(t, this.scope, this)) != null)
+				{
+// --
+					for (TypeBinding samParam : functionType.parameters) {
+						if (!samParam.isProperType(true))
+//						if (samParam instanceof InferenceVariable)
+							return null;
+					}
+					ConstraintFormula newConstraint = new ConstraintExpressionFormula(lambda, targetType, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT);
+					if (!reduceAndIncorporate(newConstraint))
+						return ReductionResult.FALSE;
+					return ReductionResult.TRUE;
+				}
+			}
+		}
+		return null;
 	}
 
 	private boolean addConstraintsToC(Expression[] exprs, Set<ConstraintFormula> c, MethodBinding method, int inferenceKindForMethod, boolean interleaved, InvocationSite site)
