@@ -23,7 +23,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug434483" };
+//	TESTS_NAMES = new String[] { "testBug496574_small" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -6450,6 +6450,29 @@ public void testBug496574() {
 			"	    public void setValue(String value) {\n" + 
 			"	        this.value = value;\n" + 
 			"	    }\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
+public void testBug496574_small() {
+	runConformTest(
+		new String[] {
+			"Small.java",
+			"import java.util.*;\n" + 
+			"import java.util.stream.*;\n" + 
+			"\n" + 
+			"interface KeyValueObj {\n" + 
+			"    String getKey();\n" + 
+			"    String getValue();\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class Small {\n" + 
+			"\n" + 
+			"	public void test(Optional<List<KeyValueObj>> optList) {\n" + 
+			"		Optional<Map<String, String>> mses = optList\n" + 
+			"                .map(ms -> ms.stream().collect(Collectors.toMap(\n" + 
+			"                    metafield -> metafield.getKey(),\n" + 
+			"                    metafield -> metafield.getValue())));\n" + 
 			"	}\n" + 
 			"}\n"
 		});
