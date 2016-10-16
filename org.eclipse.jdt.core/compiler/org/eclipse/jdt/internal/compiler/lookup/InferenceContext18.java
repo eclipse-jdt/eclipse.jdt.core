@@ -403,8 +403,10 @@ public class InferenceContext18 {
 		
 		this.currentBounds = this.b2.copy();
 		if (SHOULD_WORKAROUND_BUG_JDK_8153748) {
-			if (addJDK_8153748ConstraintsFromInvocation(this.invocationArguments, method) == ReductionResult.TRUE) // TODO: return null on answer false?
+			ReductionResult jdk8153748result = addJDK_8153748ConstraintsFromInvocation(this.invocationArguments, method);
+			if (jdk8153748result != null) {
 				this.currentBounds.incorporate(this);
+			}
 		}
 		try {
 			// bullets 1&2: definitions only.
@@ -420,7 +422,7 @@ public class InferenceContext18 {
 			}
 			// 4. bullet: assemble C:
 			Set<ConstraintFormula> c = new HashSet<ConstraintFormula>();
-			if (!addConstraintsToC(this.invocationArguments, c, method, this.inferenceKind, false, invocationSite))
+			if (!addConstraintsToC(this.invocationArguments, c, method, this.inferenceKind, false, false, invocationSite))
 				return null;
 			// 5. bullet: determine B4 from C
 			List<Set<InferenceVariable>> components = this.currentBounds.computeConnectedComponents(this.inferenceVariables);
@@ -525,7 +527,7 @@ public class InferenceContext18 {
 		return null;
 	}
 
-	private boolean addConstraintsToC(Expression[] exprs, Set<ConstraintFormula> c, MethodBinding method, int inferenceKindForMethod, boolean interleaved, InvocationSite site)
+	private boolean addConstraintsToC(Expression[] exprs, Set<ConstraintFormula> c, MethodBinding method, int inferenceKindForMethod, boolean interleaved, boolean isInnerIc18, InvocationSite site)
 			throws InferenceFailureException
 	{
 		TypeBinding[] fs;
@@ -552,16 +554,20 @@ public class InferenceContext18 {
 				TypeBinding fsi = fs[Math.min(i, p-1)];
 				InferenceSubstitution inferenceSubstitution = new InferenceSubstitution(this.environment, this.inferenceVariables, site);
 				TypeBinding substF = inferenceSubstitution.substitute(inferenceSubstitution,fsi);
-				if (!addConstraintsToC_OneExpr(exprs[i], c, fsi, substF, method, interleaved))
+				if (!addConstraintsToC_OneExpr(exprs[i], c, fsi, substF, method, interleaved, isInnerIc18))
 					return false;
 	        }
 		}
 		return true;
 	}
 
-	private boolean addConstraintsToC_OneExpr(Expression expri, Set<ConstraintFormula> c, TypeBinding fsi, TypeBinding substF, MethodBinding method, boolean interleaved)
+	private boolean addConstraintsToC_OneExpr(Expression expri, Set<ConstraintFormula> c, TypeBinding fsi, TypeBinding substF, MethodBinding method, boolean interleaved, boolean isInnerIc18)
 			throws InferenceFailureException
-	{	
+	{
+		// -- not per JLS, emulate javac behavior:
+		substF = Scope.substitute(getResultSubstitution(isInnerIc18 ? this.b2 : this.currentBounds), substF); // TODO: B3, rather than B2?!
+		// --
+
 		// For all i (1 ≤ i ≤ k), if ei is not pertinent to applicability, the set contains ⟨ei → θ Fi⟩.
 		if (!expri.isPertinentToApplicability(fsi, method)) {
 			c.add(new ConstraintExpressionFormula(expri, substF, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT));
@@ -578,27 +584,23 @@ public class InferenceContext18 {
 					if (withWildCards != null) {
 						t = ConstraintExpressionFormula.findGroundTargetType(this, skope, lambda, withWildCards);
 					}
-					if (!t.isProperType(true) && t.isParameterizedType()) {
-						// prevent already resolved inference variables from leaking into the lambda
-						t = (ReferenceBinding) Scope.substitute(getResultSubstitution(this.currentBounds), t);
-					}
 					MethodBinding functionType;
 					if (t != null && (functionType = t.getSingleAbstractMethod(skope, true)) != null && (lambda = lambda.resolveExpressionExpecting(t, this.scope, this)) != null) {
 						TypeBinding r = functionType.returnType;
 						Expression[] resultExpressions = lambda.resultExpressions();
 						for (int i = 0, length = resultExpressions == null ? 0 : resultExpressions.length; i < length; i++) {
 							Expression resultExpression = resultExpressions[i];
-							if (!addConstraintsToC_OneExpr(resultExpression, c, r.original(), r, method, true))
+							if (!addConstraintsToC_OneExpr(resultExpression, c, r.original(), r, method, true, isInnerIc18))
 								return false;
 						}
 					}
 				}
 			}
 		} else if (expri instanceof Invocation && expri.isPolyExpression()) {
-			
+
 			if (substF.isProperType(true)) // https://bugs.openjdk.java.net/browse/JDK-8052325 
 				return true;
-			
+
 			Invocation invocation = (Invocation) expri;
 			MethodBinding innerMethod = invocation.binding();
 			if (innerMethod == null)
@@ -619,15 +621,15 @@ public class InferenceContext18 {
 					innerContext.inferInvocationApplicability(shallowMethod, argumentTypes, shallowMethod.isConstructor());
 				if (!ConstraintExpressionFormula.inferPolyInvocationType(innerContext, invocation, substF, shallowMethod))
 					return false;
-				return innerContext.addConstraintsToC(arguments, c, innerMethod.genericMethod(), innerContext.inferenceKind, interleaved, invocation);
+				return innerContext.addConstraintsToC(arguments, c, innerMethod.genericMethod(), innerContext.inferenceKind, interleaved, true, invocation);
 			} else {
 				int applicabilityKind = getInferenceKind(innerMethod, argumentTypes);
-				return this.addConstraintsToC(arguments, c, innerMethod.genericMethod(), applicabilityKind, interleaved, invocation);
+				return this.addConstraintsToC(arguments, c, innerMethod.genericMethod(), applicabilityKind, interleaved, isInnerIc18, invocation);
 			}
 		} else if (expri instanceof ConditionalExpression) {
 			ConditionalExpression ce = (ConditionalExpression) expri;
-			return addConstraintsToC_OneExpr(ce.valueIfTrue, c, fsi, substF, method, interleaved)
-					&& addConstraintsToC_OneExpr(ce.valueIfFalse, c, fsi, substF, method, interleaved);
+			return addConstraintsToC_OneExpr(ce.valueIfTrue, c, fsi, substF, method, interleaved, isInnerIc18)
+					&& addConstraintsToC_OneExpr(ce.valueIfFalse, c, fsi, substF, method, interleaved, isInnerIc18);
 		}
 		return true;
 	}

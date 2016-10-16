@@ -4543,6 +4543,47 @@ public void test439594() {
 	},
 	"");
 }
+// reduced version for analysis (no need to run during normal tests)
+public void _test439594_small() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"import java.util.function.Function;\n" +
+			"import java.util.function.Predicate;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"import java.util.stream.Stream;\n" +
+			"public class X {\n" +
+			"	protected static interface IListEntry {\n" +
+			"		public <T> T visitRecordsWithResult(Function<Stream<Record>,T> func);		\n" +
+			"	}\n" +
+			"	protected static final class ImmutableRecord {\n" +
+			"		public ImmutableRecord(Record r) { }\n" +
+			"	}\n" +
+			"	protected static final class Record {}\n" +
+			"	public List<ImmutableRecord> compilesWithJavacButNotEclipse1() \n" +
+			"	{\n" +
+			"		return visitEntriesWithResult( stream -> {\n" +
+			"			return stream.map( entry -> {\n" +
+			"				return entry.visitRecordsWithResult( stream2 -> stream2\n" +
+			"						.filter( somePredicate() )\n" +
+			"						.map( ImmutableRecord::new )\n" +
+			"						.collect( Collectors.toList() )\n" +
+			"					);	\n" +
+			"			}).flatMap( List::stream ).collect( Collectors.toCollection( ArrayList::new ) );\n" +
+			"		});		\n" +
+			"	}		\n" +
+			"	private static Predicate<Record> somePredicate() {\n" +
+			"		return record -> true;\n" +
+			"	}		\n" +
+			"	private <T> T visitEntriesWithResult(Function<Stream<IListEntry>,T> func) {\n" +
+			"		return func.apply( new ArrayList<IListEntry>().stream() );\n" +
+			"	}\n" +
+			"}\n"
+	},
+	"");
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=433852, [1.8][compiler] Javac rejects type inference results that ECJ accepts
 public void test433852() {
 	this.runNegativeTest(
@@ -6977,5 +7018,142 @@ public void testBug502350() {
 		"Type mismatch: cannot convert from Comparator<Comparable<Comparable<B>>> to Comparator<T>\n" + 
 		"----------\n"
 	);
+}
+public void testBug499351() {
+	runConformTest(
+		new String[] {
+			"Bug.java",
+			"import java.util.HashMap;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Map;\n" + 
+			"import java.util.Set;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"public class Bug {\n" + 
+			"    private static final Validator VALIDATOR = new Validator();\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        Map<String, List<Promotion>> promotions = new HashMap<>();\n" + 
+			"\n" + 
+			"        Set<ConstraintViolation> cvs = promotions.entrySet().stream()\n" + 
+			"            .flatMap(e -> e.getValue().stream()\n" + 
+			"                .flatMap(promotion -> VALIDATOR.validate(promotion).stream())\n" + 
+			"            )\n" + 
+			"            .collect(Collectors.toSet());\n" + 
+			"\n" + 
+			"        Set<ExtendedConstraintViolation> ecvs = promotions.entrySet().stream()\n" + 
+			"                .flatMap(e -> e.getValue().stream()\n" + 
+			"                    .map(constraintViolation -> new ExtendedConstraintViolation(\"\", null))\n" + 
+			"                )\n" + 
+			"                .collect(Collectors.toSet());\n" + 
+			"\n" + 
+			"        Set<ExtendedConstraintViolation> ecvs2 = promotions.entrySet().stream()\n" + 
+			"                .flatMap(e -> e.getValue().stream())\n" + 
+			"                .flatMap(promotion -> VALIDATOR.validate(promotion).stream())\n" + 
+			"                .map(constraintViolation -> new ExtendedConstraintViolation(\"promotions/2\", constraintViolation))\n" + 
+			"                .collect(Collectors.toSet());\n" + 
+			"\n" + 
+			"        // Below does not compile with 4.7M1, but worked fine in 4.5 (also compiles fine with Oracle/JDK8)\n" + 
+			"        //\n" + 
+			"        // --> Type mismatch: cannot convert from Set<Object> to Set<Bug.ExtendedConstraintViolation>\n" + 
+			"        //\n" + 
+			"        Set<ExtendedConstraintViolation> ecvs3 = promotions.entrySet().stream()\n" + 
+			"                .flatMap(e -> e.getValue().stream()\n" + 
+			"                    .flatMap(promotion -> VALIDATOR.validate(promotion).stream()\n" + 
+			"                        .map(constraintViolation -> new ExtendedConstraintViolation(\"promotions/\" + e.getKey(), constraintViolation))\n" + 
+			"                    )\n" + 
+			"                )\n" + 
+			"                .collect(Collectors.toSet());\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private static class ExtendedConstraintViolation {\n" + 
+			"        public ExtendedConstraintViolation(String key, ConstraintViolation cv) {\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private static class ConstraintViolation {\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private static class Promotion {\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private static class Validator {\n" + 
+			"        public Set<ConstraintViolation> validate(Object o) {\n" + 
+			"            return null;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+// reduced version for analysis (no need to run during normal tests)
+public void _testBug499351_small() {
+	runConformTest(
+		new String[] {
+			"Small.java",
+			"import java.util.*;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"public class Small {\n" + 
+			"\n" + 
+			"    public static void test(Map<String, List<Promotion>> promotions, Validator validator) {\n" + 
+			"\n" + 
+			"        Set<ExtendedConstraintViolation> ecvs = promotions.entrySet().stream()\n" + 
+			"                .flatMap(e -> e.getValue().stream()\n" + 
+			"                    .flatMap(promotion -> validator.validate(promotion).stream()\n" + 
+			"                        .map(constraintViolation -> new ExtendedConstraintViolation(\"promotions/\" + e.getKey(), constraintViolation))\n" + 
+			"                    )\n" + 
+			"                )\n" + 
+			"                .collect(Collectors.toSet());\n" + 
+			"    }\n" + 
+			"\n" + 
+			"}\n" + 
+			"class ExtendedConstraintViolation {\n" + 
+			"    public ExtendedConstraintViolation(String key, ConstraintViolation cv) { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class ConstraintViolation { }\n" + 
+			"class Promotion { }\n" + 
+			"class Validator {\n" + 
+			"    public Set<ConstraintViolation> validate(Object o) { return null; }\n" + 
+			"}\n"
+		});
+}
+public void test499351_extra1() {
+	runConformTest(
+		new String[] {
+			"Example.java",
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"public class Example {\n" + 
+			"   static <T> T id(T t) { return t; }\n" + 
+			"   static <T,X> T f1 (X x) { return null; }\n" + 
+			"   \n" + 
+			"   String test() {\n" + 
+			"	   return f3(y -> y.f2(Example::f1, id(y)));\n" +
+			"   }\n" + 
+			"   <U,V> V f2(Function<U, V> f, U u) {return f.apply(null);}\n" + 
+			"   <R> R f3(Function<Example,R> f) { return null; }\n" + 
+			"}\n"
+		});
+}
+public void test499351_extra2() {
+	runConformTest(
+		new String[] {
+			"BadInferenceMars451.java",
+			"import java.util.*;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"public class BadInferenceMars451 {\n" + 
+			"	public static Map<Object, List<X>> BadInferenceMars451Casus1() {\n" + 
+			"		List<X> stuff = new ArrayList<>();\n" + 
+			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451::sum));\n" + 
+			"	}\n" + 
+			"	public static <T> List<T> sum(List<T> l1, List<T> l2) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public static class X {\n" + 
+			"	}\n" + 
+			"}"
+		});
 }
 }
