@@ -448,7 +448,15 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			}
 			if (this.right.isFunctionalInterface(context.scope)) {
 				LambdaExpression lambda = (LambdaExpression) this.left;
-				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope, true); // TODO derive with target type?
+				ReferenceBinding targetType = (ReferenceBinding) this.right;
+				ParameterizedTypeBinding withWildCards = InferenceContext18.parameterizedWithWildcard(targetType);
+				if (withWildCards != null) {
+					targetType = ConstraintExpressionFormula.findGroundTargetType(context, lambda.enclosingScope, lambda, withWildCards);
+				}
+				if (targetType == null) {
+					return EMPTY_VARIABLE_LIST;
+				}
+				MethodBinding sam = targetType.getSingleAbstractMethod(context.scope, true);
 				final Set<InferenceVariable> variables = new HashSet<>();
 				if (lambda.argumentsTypeElided()) {
 					// i)

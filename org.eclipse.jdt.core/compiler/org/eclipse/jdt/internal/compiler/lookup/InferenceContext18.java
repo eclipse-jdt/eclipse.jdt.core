@@ -482,50 +482,34 @@ public class InferenceContext18 {
 	}
 
 	private ReductionResult addJDK_8153748ConstraintsFromExpression(Expression argument, TypeBinding parameter, MethodBinding method) throws InferenceFailureException {
-		if (argument instanceof LambdaExpression) {
-			return addJDK_8153748ConstraintsFromLambda((LambdaExpression) argument, parameter, method);
-		} else if (argument instanceof Invocation) {
+		if (argument instanceof FunctionalExpression) {
+			return addJDK_8153748ConstraintsFromFunctionalExpr((FunctionalExpression) argument, parameter, method);
+		} else if (argument instanceof Invocation && argument.isPolyExpression(method)) {
 			Invocation invocation = (Invocation) argument;
 			Expression[] innerArgs = invocation.arguments();
 			MethodBinding innerMethod = invocation.binding();
 			if (innerMethod != null && innerMethod.isValidBinding()) {
 				return addJDK_8153748ConstraintsFromInvocation(innerArgs, innerMethod.original());
 			}
+		} else if (argument instanceof ConditionalExpression) {
+			ConditionalExpression ce = (ConditionalExpression) argument;
+			if (addJDK_8153748ConstraintsFromExpression(ce.valueIfTrue, parameter, method) == ReductionResult.FALSE)
+				return ReductionResult.FALSE;
+			return addJDK_8153748ConstraintsFromExpression(ce.valueIfFalse, parameter, method);
 		}
 		return null;
 	}
 
-	private ReductionResult addJDK_8153748ConstraintsFromLambda(LambdaExpression lambda, TypeBinding targetType, MethodBinding method) throws InferenceFailureException {
-		if (!lambda.isPertinentToApplicability(targetType, method)) {
-// -- simple version:
-//			lambda = lambda.resolveExpressionExpecting(targetType, this.scope, this);
-//			if (lambda != null && lambda.descriptor != null && lambda.descriptor.isValidBinding()) {
-//				MethodBinding sam = lambda.descriptor.declaringClass.getSingleAbstractMethod(this.scope, true);
-//				if (sam != null && sam.isValidBinding()) {
-// -- more sophisticated version:
-			BlockScope skope = lambda.enclosingScope;
-			if (targetType.isFunctionalInterface(skope)) { // could be an inference variable.
-				ReferenceBinding t = (ReferenceBinding) targetType;
-				ParameterizedTypeBinding withWildCards = InferenceContext18.parameterizedWithWildcard(t);
-				if (withWildCards != null) {
-					t = ConstraintExpressionFormula.findGroundTargetType(this, skope, lambda, withWildCards);
-				}
-				MethodBinding functionType;
-				if (t != null 
-						&& (functionType = t.getSingleAbstractMethod(skope, true)) != null 
-						&& (lambda = lambda.resolveExpressionExpecting(t, this.scope, this)) != null)
-				{
-// --
-					for (TypeBinding samParam : functionType.parameters) {
-						if (!samParam.isProperType(true))
-//						if (samParam instanceof InferenceVariable)
-							return null;
-					}
-					ConstraintFormula newConstraint = new ConstraintExpressionFormula(lambda, targetType, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT);
-					if (!reduceAndIncorporate(newConstraint))
-						return ReductionResult.FALSE;
-					return ReductionResult.TRUE;
-				}
+	private ReductionResult addJDK_8153748ConstraintsFromFunctionalExpr(FunctionalExpression functionalExpr, TypeBinding targetType, MethodBinding method) throws InferenceFailureException {
+		if (!functionalExpr.isPertinentToApplicability(targetType, method)) {
+			ConstraintFormula newConstraint = new ConstraintExpressionFormula(functionalExpr, targetType, ReductionResult.COMPATIBLE, ARGUMENT_CONSTRAINTS_ARE_SOFT);
+			if (newConstraint.inputVariables(this).isEmpty()) { // input variable would signal: not ready for inference
+				if (!reduceAndIncorporate(newConstraint))
+					return ReductionResult.FALSE;
+				newConstraint = new ConstraintExceptionFormula(functionalExpr, targetType); // ??
+				if (!reduceAndIncorporate(newConstraint))
+					return ReductionResult.FALSE;
+				return ReductionResult.TRUE;
 			}
 		}
 		return null;
