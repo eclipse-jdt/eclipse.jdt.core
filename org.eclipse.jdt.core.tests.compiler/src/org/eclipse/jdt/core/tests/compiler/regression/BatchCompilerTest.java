@@ -872,6 +872,9 @@ public void test012b(){
         "      unavoidableGenericProblems + ignore unavoidable type safety problems\n" + 
         "                                   due to raw APIs\n" + 
         "      unchecked          + unchecked type operation\n" + 
+        "      unlikelyCollectionMethodArgumentType unlikely argument type for collection\n" + 
+        "                           methods using Object\n" + 
+        "      unlikelyEqualsArgumentType unlikely argument type for equals()\n" + 
         "      unnecessaryElse      unnecessary else clause\n" + 
         "      unqualifiedField     unqualified reference to field\n" + 
         "      unused               macro for unusedAllocation, unusedArgument,\n" + 
@@ -1066,6 +1069,9 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.undocumentedEmptyBlock\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unhandledWarningToken\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.uninternedIdentityComparison\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unlikelyCollectionMethodArgumentType\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unlikelyCollectionMethodArgumentTypeStrict\" value=\"disabled\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unlikelyEqualsArgumentType\" value=\"info\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryElse\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unnecessaryTypeCheck\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unqualifiedFieldAccess\" value=\"ignore\"/>\n" + 
@@ -1971,7 +1977,6 @@ public void test032(){
 				"	public void foo5(final Map<XX<?, ?>, XY> p1) {\n" +
 				"		p1.putAll(m1);\n" +
 				"	}\n" +
-				"\n" +
 				"	public void foo6(final Map<XX<?, ?>, XY> p1) {\n" +
 				"		m1.keySet().retainAll(p1.keySet());\n" +
 				"		m2.keySet().retainAll(p1.keySet());\n" +
@@ -2152,7 +2157,6 @@ public void test032(){
 			"	public void foo5(final Map<XX<?, ?>, XY> p1) {\n" +
 			"		p1.putAll(m1);\n" +
 			"	}\n" +
-			"\n" +
 			"	public void foo6(final Map<XX<?, ?>, XY> p1) {\n" +
 			"		m1.keySet().retainAll(p1.keySet());\n" +
 			"		m2.keySet().retainAll(p1.keySet());\n" +
@@ -12118,6 +12122,49 @@ public void test329_nowarn_options() {
 			"----------\n" +
 			"1 problem (1 warning)\n",
 			true);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=408815
+// -warn option - regression tests to check option unlikelyCollectionMethodArgumentType
+public void test330_warn_options() {
+	this.runConformTest(
+		new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"import java.util.Map;\n" +
+				"public class X {\n" +
+				"  Integer foo(Map<String,Integer> map) {\n" +
+				"	 return map.get(3);\n" +
+				"  }\n" +
+				"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -1.5"
+		+ " -warn:-unlikelyCollectionMethodArgumentType -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
+}//https://bugs.eclipse.org/bugs/show_bug.cgi?id=408815
+//-warn option - regression tests to check option unlikelyEqualsArgumentType
+public void test331_warn_options() {
+	this.runConformTest(
+		new String[] {
+				"p/X.java",
+				"package p;\n" +
+				"public class X {\n" +
+				"  boolean foo() {\n" +
+				"	 return \"three\".equals(3);\n" +
+				"  }\n" +
+				"}\n",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
+		+ " -sourcepath \"" + OUTPUT_DIR + "\""
+		+ " -1.5"
+		+ " -info:-unlikelyEqualsArgumentType -proc:none -d \"" + OUTPUT_DIR + "\"",
+		"",
+		"",
+		true);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=375409
