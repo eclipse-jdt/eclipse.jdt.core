@@ -1887,7 +1887,7 @@ public final class CompletionEngine
 					if (this.moduleDeclaration instanceof CompletionOnModuleDeclaration) {
 						contextAccepted = true;
 						buildContext(parsedUnit.moduleDeclaration, null, parsedUnit, null, null);
-						this.requestor.setIgnored(CompletionProposal.MODULE_DECLARATION, false); //TODO: Hack until ui fixes this issue.
+						//this.requestor.setIgnored(CompletionProposal.MODULE_DECLARATION, false); //TODO: Hack until ui fixes this issue.
 						if(!this.requestor.isIgnored(CompletionProposal.MODULE_DECLARATION)) {
 							findModuleName(parsedUnit);
 						}
@@ -1924,7 +1924,6 @@ public final class CompletionEngine
 								if (target == null) break;
 								if (target instanceof CompletionOnModuleReference) {
 									buildContext(target, null, parsedUnit, null, null);
-									this.requestor.setIgnored(CompletionProposal.MODULE_REF, false); //TODO: Remove once jdt.ui allows
 									if(!this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
 										contextAccepted = true;
 										findTargettedModules((CompletionOnModuleReference) target);
@@ -1945,7 +1944,6 @@ public final class CompletionEngine
 							if (reference instanceof CompletionOnModuleReference) {
 								contextAccepted = true;
 								buildContext(reference, null, parsedUnit, null, null);
-								this.requestor.setIgnored(CompletionProposal.MODULE_REF, false); //TODO: Remove once jdt.ui allows
 								if(!this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
 									findModules((CompletionOnModuleReference) reference, false /* targetted */);
 								}
