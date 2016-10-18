@@ -14,13 +14,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 
 public class Module implements org.eclipse.jdt.internal.compiler.env.IModule {
 
@@ -58,21 +56,6 @@ public class Module implements org.eclipse.jdt.internal.compiler.env.IModule {
 			}
 		}
 		return this.declaration;
-	}
-	@Override
-	public IModuleEnvironment getLookupEnvironment() {
-		// TODO: this should refer to the ModuleSourcePathManager to map this module to
-		// an IModuelePathEntry
-		if (this.isBinary) {
-			PackageFragmentRoot root = (PackageFragmentRoot) this.binaryDecl
-					.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-			if (root instanceof JrtPackageFragmentRoot)
-				return (JrtPackageFragmentRoot) root;
-		} else {
-			return (JavaProject) this.sourceDecl.getAncestor(IJavaElement.JAVA_PROJECT);
-
-		}
-		return null;
 	}
 	
 	public String toString() {

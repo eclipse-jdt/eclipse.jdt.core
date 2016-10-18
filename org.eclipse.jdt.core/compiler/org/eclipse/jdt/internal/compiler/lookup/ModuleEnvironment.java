@@ -22,7 +22,6 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModuleContext;
 import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
@@ -52,12 +51,6 @@ public abstract class ModuleEnvironment implements IModuleAwareNameEnvironment {
 
 		@Override
 		public IModuleDeclaration getDeclaration() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public IModuleEnvironment getLookupEnvironment() {
 			// TODO Auto-generated method stub
 			return null;
 		}

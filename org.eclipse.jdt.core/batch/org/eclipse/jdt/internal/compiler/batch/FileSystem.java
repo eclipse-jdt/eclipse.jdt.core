@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModuleContext;
+import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration.IPackageExport;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
@@ -471,6 +472,9 @@ public IModule getModule(char[] name) {
 	}
 	return Stream.of(this.classpaths).map(cp -> cp.getModule(name)).filter(m -> m != null).findAny().orElse(null);
 	
+}
+public IModuleEnvironment getModuleEnvironmentFor(char[] moduleName) {
+	return (IModuleEnvironment) Stream.of(this.classpaths).filter(cp -> cp.getModule(moduleName) != null).findAny().orElse(null);
 }
 private NameEnvironmentAnswer internalFindClass(String qualifiedTypeName, char[] typeName, boolean asBinaryOnly, IModuleContext moduleContext) {
 	if (this.knownFileNames.contains(qualifiedTypeName)) return null; // looking for a file which we know was provided at the beginning of the compilation

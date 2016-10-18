@@ -67,8 +67,6 @@ public class ModuleBinding extends Binding {
 	public TypeBinding[] implementations;
 	public CompilationUnitScope scope;
 	public LookupEnvironment environment;
-	public IModuleEnvironment moduleEnviroment;
-	public INameEnvironment nameEnvironment;
 	public int tagBits;
 	private ModuleBinding[] requiredModules = null;
 	
@@ -84,7 +82,6 @@ public class ModuleBinding extends Binding {
 		this.environment = env;
 		this.requires = NO_MODULE_REFS;
 		this.exports = NO_EXPORTS;
-		this.nameEnvironment = env.nameEnvironment;
 		this.declaredPackages = new HashtableOfPackage(0);
 		this.exportedPackages = new HashtableOfPackage(0);
 	}
@@ -101,8 +98,6 @@ public class ModuleBinding extends Binding {
 		this.uses = Binding.NO_TYPES;
 		this.services = Binding.NO_TYPES;
 		this.implementations = Binding.NO_TYPES;
-		this.moduleEnviroment = module.getLookupEnvironment();
-		this.nameEnvironment = environment.nameEnvironment;
 		this.declaredPackages = new HashtableOfPackage(5);
 		this.exportedPackages = new HashtableOfPackage(5);
 	}
@@ -321,10 +316,11 @@ public class ModuleBinding extends Binding {
 			else
 				return true;
 		}
-		if (this.nameEnvironment instanceof IModuleAwareNameEnvironment) {
-			return ((IModuleAwareNameEnvironment)this.nameEnvironment).isPackage(parentPackageName, name, getModuleLookupContext());
+		INameEnvironment nameEnvironment = this.environment.nameEnvironment;
+		if (nameEnvironment instanceof IModuleAwareNameEnvironment) {
+			return ((IModuleAwareNameEnvironment)nameEnvironment).isPackage(parentPackageName, name, getModuleLookupContext());
 		} else {
-			return this.nameEnvironment.isPackage(parentPackageName, name);
+			return nameEnvironment.isPackage(parentPackageName, name);
 		}
 	}
 	public PackageBinding getPackage(char[][] parentPackageName, char[] packageName) {
@@ -374,7 +370,9 @@ public class ModuleBinding extends Binding {
 	}
 	// A context representing just this module
  	public IModuleContext getModuleLookupContext() {
- 		return () -> this.moduleEnviroment == null ? Stream.empty() : Stream.of(this.moduleEnviroment);
+ 		IModuleAwareNameEnvironment env = (IModuleAwareNameEnvironment) this.environment.nameEnvironment;
+ 		IModuleEnvironment moduleEnvironment = env.getModuleEnvironmentFor(this.moduleName);
+ 		return () -> moduleEnvironment == null ? Stream.empty() : Stream.of(moduleEnvironment);
  	}
  	// A context including this module and all it's required modules
  	public IModuleContext getDependencyClosureContext() {

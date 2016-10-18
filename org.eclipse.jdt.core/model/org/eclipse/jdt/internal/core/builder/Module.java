@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 
 public class Module implements IModule {
@@ -37,10 +36,5 @@ public class Module implements IModule {
 	public IModuleDeclaration getDeclaration() {
 		// 
 		return this.declaration;
-	}
-	@Override
-	public IModuleEnvironment getLookupEnvironment() {
-		// 
-		return this.entry == null ? null : this.entry.getLookupEnvironment();
 	}
 }

@@ -413,4 +413,16 @@ public IModule getModule(char[] name) {
 	}
 	return module;
 }
+public IModuleEnvironment getModuleEnvironmentFor(char[] moduleName) {
+	IModule module = null;
+	for (int i = 0, l = this.sourceLocations.length; i < l; i++) {
+		if ((module = this.sourceLocations[i].getModule(moduleName)) != null)
+			return this.sourceLocations[i].getLookupEnvironmentFor(module);
+	}
+	for (int i = 0, l = this.binaryLocations.length; i < l; i++) {
+		if ((module = this.binaryLocations[i].getModule(moduleName)) != null)
+			return this.binaryLocations[i].getLookupEnvironmentFor(module);
+	}
+	return null;
+}
 }

@@ -23,6 +23,4 @@ public interface IModule {
 	public char[] name();
 
 	public IModuleDeclaration getDeclaration();
-	
-	IModuleEnvironment getLookupEnvironment();
 }

@@ -37,6 +37,8 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleContext;
+import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
@@ -1191,6 +1193,24 @@ public class NameLookup implements SuffixConstants {
 			if (module != null && prefixMatcher.matches(name, module.name()))
 				requestor.acceptModule(module);
 		}
+	}
+	public IModuleEnvironment getModuleEnvironmentFor(char[] moduleName) throws JavaModelException {
+		String name = CharOperation.charToString(moduleName);
+		IModulePathEntry entry = JavaModelManager.getModulePathManager().getModuleRoot(name);
+		if (entry != null) {
+			IModule module = JavaModelManager.getModulePathManager().getModule(moduleName);
+			return entry.getLookupEnvironmentFor(module);
+		}
+		int count= this.packageFragmentRoots.length;
+		for (int i= 0; i < count; i++) {
+			IPackageFragmentRoot root= this.packageFragmentRoots[i];
+			if (root instanceof JrtPackageFragmentRoot) {
+				if (CharOperation.equals(moduleName, root.getElementName().toCharArray())) {
+					return (IModuleEnvironment) root;
+				}
+			}
+		}
+		return null;
 	}
 	public void seekModules(char[] name, JavaElementRequestor requestor) {
 		seekModule(name, false, requestor);

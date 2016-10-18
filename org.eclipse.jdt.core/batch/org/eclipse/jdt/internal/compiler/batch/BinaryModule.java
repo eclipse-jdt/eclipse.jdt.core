@@ -17,7 +17,6 @@ package org.eclipse.jdt.internal.compiler.batch;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 
 public class BinaryModule implements IModule {
@@ -38,12 +37,6 @@ public class BinaryModule implements IModule {
 	public IModuleDeclaration getDeclaration() {
 		// 
 		return this.declaration;
-	}
-
-	@Override
-	public IModuleEnvironment getLookupEnvironment() {
-		// 
-		return this.entry.getLookupEnvironment();
 	}
 
 }

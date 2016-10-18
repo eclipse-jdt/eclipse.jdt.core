@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModuleContext;
+import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
@@ -776,7 +777,16 @@ public class SearchableEnvironment
 		}
 		return module;
 	}
-
+	public IModuleEnvironment getModuleEnvironmentFor(char[] moduleName) {
+		IModuleEnvironment env = null;
+		try {
+			env = this.nameLookup.getModuleEnvironmentFor(moduleName);
+		} catch (JavaModelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return env;
+	}
 	@Override
 	public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
 		// 
