@@ -7156,4 +7156,101 @@ public void test499351_extra2() {
 			"}"
 		});
 }
+public void testBug501949() {
+	runConformTest(
+		new String[] {
+			"DefaultClientRequestsV2.java",
+			"import java.io.IOException;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.function.Supplier;\n" + 
+			"\n" + 
+			"\n" + 
+			"interface Flux<T> extends Publisher<T> {\n" + 
+			"	<R> Flux<R> flatMap(Function<? super T, ? extends Publisher<? extends R>> f);\n" + 
+			"	<V> Flux<V> map(Function<T,V> mapper);\n" + 
+			"	Mono<List<T>> collectList();\n" + 
+			"}\n" + 
+			"abstract class Mono<T> implements Publisher<T> {\n" + 
+			"	abstract T block();\n" + 
+			"	abstract <R> Flux<R> flatMap(Function<? super T, ? extends Publisher<? extends R>> f);\n" + 
+			"}\n" + 
+			"interface Publisher<T> {}\n" + 
+			"interface CloudFoundryOperations {\n" + 
+			"	Flux<SpaceSummary> list();\n" + 
+			"}\n" + 
+			"class SpaceSummary { }\n" + 
+			"class OrganizationSummary {\n" + 
+			"	String getId() { return \"\"; }\n" + 
+			"}\n" + 
+			"interface CFSpace {}\n" + 
+			"public class DefaultClientRequestsV2 {\n" + 
+			"\n" + 
+			"	private Flux<OrganizationSummary> _orglist;\n" + 
+			"\n" + 
+			"	private Mono<CloudFoundryOperations> operationsFor(OrganizationSummary org) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public List<CFSpace> getSpaces() {\n" + 
+			"		return get(\n" + 
+			"			_orglist\n" + 
+			"			.flatMap((OrganizationSummary org) -> {\n" + 
+			"				return operationsFor(org).flatMap((operations) ->\n" + 
+			"					operations\n" + 
+			"					.list()\n" + 
+			"					.map((space) -> wrap(org, space)\n" + 
+			"					)\n" + 
+			"				);\n" + 
+			"			})\n" + 
+			"			.collectList()\n" + 
+			"		);\n" + 
+			"	}\n" + 
+			"	public static <T> T get(Mono<T> mono)  {\n" + 
+			"		return mono.block();\n" + 
+			"	}\n" + 
+			"	public static CFSpace wrap(OrganizationSummary org, SpaceSummary space) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
+public void testBug502568() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Optional;\n" + 
+			"import java.util.UUID;\n" + 
+			"import java.util.concurrent.CompletableFuture;\n" + 
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public CompletableFuture<UUID> test() {\n" + 
+			"		UUID id = UUID.randomUUID();\n" + 
+			"		\n" + 
+			"		return transaction(conn -> {\n" + 
+			"			return query().thenCompose(rs1 -> {\n" + 
+			"				return query().thenCompose(rs2 -> {\n" + 
+			"					return query();\n" + 
+			"				});\n" + 
+			"			});\n" + 
+			"		})\n" + 
+			"		.thenApply(rs -> id);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public <T> CompletableFuture<T> transaction(Function<String,CompletableFuture<T>> param1) {\n" + 
+			"		return param1.apply(\"test\");\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public CompletableFuture<Optional<List<String>>> query() {\n" + 
+			"		return CompletableFuture.completedFuture(Optional.of(new ArrayList<String>()));\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
 }
