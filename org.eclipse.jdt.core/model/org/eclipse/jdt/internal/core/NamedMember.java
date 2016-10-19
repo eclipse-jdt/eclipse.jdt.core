@@ -304,6 +304,10 @@ public abstract class NamedMember extends Member {
 			public void acceptMethodTypeParameter(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, int selectorStart, int selcetorEnd, char[] typeParameterName, boolean isDeclaration, int start, int end) {
 				// ignore
 			}
+			@Override
+			public void acceptModule(char[] moduleName, char[] uniqueKey, int start, int end) {
+				// ignore
+			}
 
 		}
 		TypeResolveRequestor requestor = new TypeResolveRequestor();

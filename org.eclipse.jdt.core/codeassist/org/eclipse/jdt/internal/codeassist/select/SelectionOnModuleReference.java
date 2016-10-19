@@ -16,13 +16,25 @@
 package org.eclipse.jdt.internal.codeassist.select;
 
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 
 public class SelectionOnModuleReference extends ModuleReference {
 
 	public SelectionOnModuleReference(char[][] tokens, long[] sourcePositions) {
 		super(tokens, sourcePositions);
 	}
-	public StringBuffer print(int tab, StringBuffer output, boolean withOnDemand) {
+
+	public ModuleBinding resolve(Scope scope) {
+		super.resolve(scope);
+		if (this.binding != null) {
+			throw new SelectionNodeFound(this.binding);
+		} else {
+			throw new SelectionNodeFound();
+		}
+	}
+
+	public StringBuffer print(int tab, StringBuffer output) {
 		printIndent(tab, output).append("<SelectOnModuleReference:"); //$NON-NLS-1$
 		for (int i = 0; i < this.tokens.length; i++) {
 			if (i > 0) output.append('.');

@@ -207,6 +207,8 @@ private static Class[] getAllTestClasses() {
 
 		// Java model changes related to Java 8
 		JavaElement8Tests.class,
+
+		Java9ElementTests.class,
 	};
 
 	Class[] deprecatedClasses = getDeprecatedJDOMTestClasses();

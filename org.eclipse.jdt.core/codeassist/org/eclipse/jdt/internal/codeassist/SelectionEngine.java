@@ -964,6 +964,19 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						}
 					}
 				}
+				if (parsedUnit.isModuleInfo()) {
+					ModuleDeclaration module = (ModuleDeclaration) parsedUnit.types[0];//TODO, could be null
+					ExportReference[] exports = module.exports;
+					if (exports != null) {
+						for (ExportReference exportReference : exports) {
+							if (exportReference instanceof SelectionOnExportReference) {
+								char[][] tokens = ((SelectionOnExportReference) exportReference).tokens;
+								this.noProposal = false;
+								this.requestor.acceptPackage(CharOperation.concatWith(tokens, '.'));
+							}
+						}
+					}
+				} 
 				if (parsedUnit.types != null || parsedUnit.isPackageInfo()) {
 					if(selectDeclaration(parsedUnit))
 						return;
@@ -1298,6 +1311,14 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			this.acceptedAnswer = true;
 		} else if(binding instanceof BaseTypeBinding) {
 			this.acceptedAnswer = true;
+		} else if (binding instanceof ModuleBinding) {
+			this.noProposal = false;
+			ModuleBinding moduleBinding = (ModuleBinding) binding;
+			this.requestor.acceptModule(
+					moduleBinding.moduleName,
+					moduleBinding.computeUniqueKey(),
+					this.actualSelectionStart,
+					this.actualSelectionEnd);
 		}
 	}
 	/*

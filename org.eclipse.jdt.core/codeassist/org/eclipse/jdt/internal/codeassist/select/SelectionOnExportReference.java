@@ -35,9 +35,9 @@ public class SelectionOnExportReference extends ExportReference {
 
 	public SelectionOnExportReference(char[][] tokens, long[] sourcePositions) {
 		super(tokens, sourcePositions);
-		// TODO Auto-generated constructor stub
 	}
-	public StringBuffer print(int indent, StringBuffer output, boolean withOnDemand) {
+
+	public StringBuffer print(int indent, StringBuffer output) {
 
 		printIndent(indent, output).append("<SelectOnExport:"); //$NON-NLS-1$
 		for (int i = 0; i < this.tokens.length; i++) {
