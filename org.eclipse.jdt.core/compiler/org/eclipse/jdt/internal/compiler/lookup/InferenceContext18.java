@@ -158,6 +158,7 @@ public class InferenceContext18 {
 	LookupEnvironment environment;
 	ReferenceBinding object; // java.lang.Object
 	public BoundSet b2;
+	private BoundSet b3;
 	
 	// InferenceVariable interning:
 	private InferenceVariable[] internedVariables;
@@ -402,12 +403,7 @@ public class InferenceContext18 {
 			substitute(method.returnType); // result is ignore, the only effect is on InferenceVariable.nullHints
 		
 		this.currentBounds = this.b2.copy();
-		if (SHOULD_WORKAROUND_BUG_JDK_8153748) {
-			ReductionResult jdk8153748result = addJDK_8153748ConstraintsFromInvocation(this.invocationArguments, method);
-			if (jdk8153748result != null) {
-				this.currentBounds.incorporate(this);
-			}
-		}
+		
 		try {
 			// bullets 1&2: definitions only.
 			if (expectedType != null
@@ -420,9 +416,18 @@ public class InferenceContext18 {
 					return null;
 				}
 			}
+			this.b3 = this.currentBounds.copy();
+
+			if (SHOULD_WORKAROUND_BUG_JDK_8153748) { // "before 18.5.2", but should not spill into b3 ... (heuristically)
+				ReductionResult jdk8153748result = addJDK_8153748ConstraintsFromInvocation(this.invocationArguments, method);
+				if (jdk8153748result != null) {
+					this.currentBounds.incorporate(this);
+				}
+			}
+
 			// 4. bullet: assemble C:
 			Set<ConstraintFormula> c = new HashSet<ConstraintFormula>();
-			if (!addConstraintsToC(this.invocationArguments, c, method, this.inferenceKind, false, false, invocationSite))
+			if (!addConstraintsToC(this.invocationArguments, c, method, this.inferenceKind, false, invocationSite))
 				return null;
 			// 5. bullet: determine B4 from C
 			List<Set<InferenceVariable>> components = this.currentBounds.computeConnectedComponents(this.inferenceVariables);
@@ -527,7 +532,7 @@ public class InferenceContext18 {
 		return null;
 	}
 
-	private boolean addConstraintsToC(Expression[] exprs, Set<ConstraintFormula> c, MethodBinding method, int inferenceKindForMethod, boolean interleaved, boolean isInnerIc18, InvocationSite site)
+	private boolean addConstraintsToC(Expression[] exprs, Set<ConstraintFormula> c, MethodBinding method, int inferenceKindForMethod, boolean interleaved, InvocationSite site)
 			throws InferenceFailureException
 	{
 		TypeBinding[] fs;
@@ -554,18 +559,18 @@ public class InferenceContext18 {
 				TypeBinding fsi = fs[Math.min(i, p-1)];
 				InferenceSubstitution inferenceSubstitution = new InferenceSubstitution(this.environment, this.inferenceVariables, site);
 				TypeBinding substF = inferenceSubstitution.substitute(inferenceSubstitution,fsi);
-				if (!addConstraintsToC_OneExpr(exprs[i], c, fsi, substF, method, interleaved, isInnerIc18))
+				if (!addConstraintsToC_OneExpr(exprs[i], c, fsi, substF, method, interleaved))
 					return false;
 	        }
 		}
 		return true;
 	}
 
-	private boolean addConstraintsToC_OneExpr(Expression expri, Set<ConstraintFormula> c, TypeBinding fsi, TypeBinding substF, MethodBinding method, boolean interleaved, boolean isInnerIc18)
+	private boolean addConstraintsToC_OneExpr(Expression expri, Set<ConstraintFormula> c, TypeBinding fsi, TypeBinding substF, MethodBinding method, boolean interleaved)
 			throws InferenceFailureException
 	{
 		// -- not per JLS, emulate javac behavior:
-		substF = Scope.substitute(getResultSubstitution(isInnerIc18 ? this.b2 : this.currentBounds), substF); // TODO: B3, rather than B2?!
+		substF = Scope.substitute(getResultSubstitution(this.b3), substF);
 		// --
 
 		// For all i (1 ≤ i ≤ k), if ei is not pertinent to applicability, the set contains ⟨ei → θ Fi⟩.
@@ -590,7 +595,7 @@ public class InferenceContext18 {
 						Expression[] resultExpressions = lambda.resultExpressions();
 						for (int i = 0, length = resultExpressions == null ? 0 : resultExpressions.length; i < length; i++) {
 							Expression resultExpression = resultExpressions[i];
-							if (!addConstraintsToC_OneExpr(resultExpression, c, r.original(), r, method, true, isInnerIc18))
+							if (!addConstraintsToC_OneExpr(resultExpression, c, r.original(), r, method, true))
 								return false;
 						}
 					}
@@ -621,15 +626,15 @@ public class InferenceContext18 {
 					innerContext.inferInvocationApplicability(shallowMethod, argumentTypes, shallowMethod.isConstructor());
 				if (!ConstraintExpressionFormula.inferPolyInvocationType(innerContext, invocation, substF, shallowMethod))
 					return false;
-				return innerContext.addConstraintsToC(arguments, c, innerMethod.genericMethod(), innerContext.inferenceKind, interleaved, true, invocation);
+				return innerContext.addConstraintsToC(arguments, c, innerMethod.genericMethod(), innerContext.inferenceKind, interleaved, invocation);
 			} else {
 				int applicabilityKind = getInferenceKind(innerMethod, argumentTypes);
-				return this.addConstraintsToC(arguments, c, innerMethod.genericMethod(), applicabilityKind, interleaved, isInnerIc18, invocation);
+				return this.addConstraintsToC(arguments, c, innerMethod.genericMethod(), applicabilityKind, interleaved, invocation);
 			}
 		} else if (expri instanceof ConditionalExpression) {
 			ConditionalExpression ce = (ConditionalExpression) expri;
-			return addConstraintsToC_OneExpr(ce.valueIfTrue, c, fsi, substF, method, interleaved, isInnerIc18)
-					&& addConstraintsToC_OneExpr(ce.valueIfFalse, c, fsi, substF, method, interleaved, isInnerIc18);
+			return addConstraintsToC_OneExpr(ce.valueIfTrue, c, fsi, substF, method, interleaved)
+					&& addConstraintsToC_OneExpr(ce.valueIfFalse, c, fsi, substF, method, interleaved);
 		}
 		return true;
 	}
