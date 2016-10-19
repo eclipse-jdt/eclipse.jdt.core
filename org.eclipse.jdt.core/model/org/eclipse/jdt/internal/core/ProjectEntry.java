@@ -18,14 +18,12 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
-import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
-import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 
 /**
  * Represents a project
  *
  */
-public class ProjectEntry implements IModulePathEntry, IModuleEnvironment {
+public class ProjectEntry implements IModulePathEntry {
 
 	JavaProject project;
 	
@@ -48,25 +46,14 @@ public class ProjectEntry implements IModulePathEntry, IModuleEnvironment {
 	@Override
 	public IModuleEnvironment getLookupEnvironment() {
 		// 
-		return this;
+		return this.project;
 	}
 
 	@Override
 	public IModuleEnvironment getLookupEnvironmentFor(IModule module) {
 		//
 		if (getModule() == module)
-			return this;
+			return this.project;
 		return null;
 	}
-	@Override
-	public ITypeLookup typeLookup() {
-		// 
-		return ITypeLookup.Dummy;
-	}
-	@Override
-	public IPackageLookup packageLookup() {
-		// 
-		return IPackageLookup.Dummy;
-	}
-
 }
