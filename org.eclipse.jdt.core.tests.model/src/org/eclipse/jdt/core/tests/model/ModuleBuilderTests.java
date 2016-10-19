@@ -31,7 +31,6 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -46,7 +45,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	static {
-//		 TESTS_NAMES = new String[] { "test_ModuleSourcePathContainer" };
+//		 TESTS_NAMES = new String[] { "testConvertToModule" };
 	}
 	private static boolean isJRE9 = false;
 	public static Test suite() {
@@ -63,7 +62,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		System.setProperty("modules.to.load", "java.baserequires java.desktop;java.rmi;java.sql;");
+		System.setProperty("modules.to.load", "java.base,java.desktop;java.rmi;java.sql;");
 		this.currentProject = createJava9Project("P1");
 		this.createFile("P1/src/module-info.java", "");
 		this.createFolder("P1/src/com/greetings");
@@ -690,19 +689,27 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				}
 			}
 			assertNotNull("should not be null", theRoot);
-			IModuleDescription mod = JavaCore.createModuleFromPackageRoot(null, project);
-			assertEquals("incorrect value", "ConvertToModule", mod.getElementName());
-			IModuleDescription.IPackageExport[] exports = mod.getExportedPackages();
-			assertEquals("incorrect value", 2, exports.length);
-			assertEquals("incorrect value", "org.eclipse.jdt.test", exports[0].getPackageName());
-			assertEquals("incorrect value", "org.eclipse.test", exports[1].getPackageName());
-			
-			IModuleDescription.IModuleReference[] mods = mod.getRequiredModules();
-			assertEquals("incorrect value", 4, mods.length);
-			assertEquals("incorrect value", "java.base", mods[0].getModuleName());
-			assertEquals("incorrect value", "java.desktop", mods[1].getModuleName());
-			assertEquals("incorrect value", "java.rmi", mods[2].getModuleName());
-			assertEquals("incorrect value", "java.sql", mods[3].getModuleName());
+			String mod = JavaCore.createModuleFromPackageRoot(null, theRoot);
+			String lineDelimiter = System.getProperty("line.separator", "\n");
+			assertEquals("module-info is incorrect", 
+					"module ConvertToModule {" + lineDelimiter + "" +
+					"	exports org.eclipse.jdt.test;" + lineDelimiter +
+					"	exports org.eclipse.test;" + lineDelimiter + lineDelimiter +
+					"	requires java.base;" + lineDelimiter +
+					"	requires java.desktop;" + lineDelimiter +
+					"	requires java.rmi;" + lineDelimiter +
+					"	requires java.sql;" + lineDelimiter + lineDelimiter +
+					"}" ,mod);
+			mod = JavaCore.createModuleFromPackageRoot("my.module", theRoot);
+			assertEquals("module-info is incorrect", 
+					"module my.module {" + lineDelimiter +
+					"	exports org.eclipse.jdt.test;" + lineDelimiter +
+					"	exports org.eclipse.test;" + lineDelimiter + lineDelimiter +
+					"	requires java.base;" + lineDelimiter +
+					"	requires java.desktop;" + lineDelimiter +
+					"	requires java.rmi;" + lineDelimiter +
+					"	requires java.sql;" + lineDelimiter + lineDelimiter +
+					"}" ,mod);
 
 		} finally {
 			this.deleteProject("ConvertToModule");

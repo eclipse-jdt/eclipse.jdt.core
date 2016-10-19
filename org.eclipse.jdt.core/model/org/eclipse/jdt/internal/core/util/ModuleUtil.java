@@ -55,6 +55,22 @@ import org.eclipse.jdt.internal.core.builder.ProblemFactory;
 
 public class ModuleUtil {
 
+	public static String createModuleFromPackageRoot(String moduleName, IPackageFragmentRoot root) throws CoreException {
+		IJavaProject project = root.getJavaProject();
+		String lineDelimiter = null;
+		if (project != null) {
+			IScopeContext[] scopeContext;
+			// project preference
+			scopeContext = new IScopeContext[] { new ProjectScope(project.getProject()) };
+			lineDelimiter = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
+		}
+		if (lineDelimiter == null) {
+			lineDelimiter = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		LocalModuleImpl module = (LocalModuleImpl) createModuleFromPackageFragmentRoot(moduleName, project);
+		return module.toString(lineDelimiter);
+	}
+
 	public static IModuleDescription createModuleFromPackageRoot(String moduleName, IJavaProject root) throws CoreException {
 		return createModuleFromPackageFragmentRoot(moduleName, root.getJavaProject());
 	}
@@ -123,16 +139,7 @@ public class ModuleUtil {
 		return newCompiler;
 	}
 	private static IModuleDescription createModuleFromPackageFragmentRoot(String moduleName, IJavaProject project) throws CoreException {
-		String lineDelimiter = null;
-		if (project != null) {
-			IScopeContext[] scopeContext;
-			// project preference
-			scopeContext = new IScopeContext[] { new ProjectScope(project.getProject()) };
-			lineDelimiter = Platform.getPreferencesService().getString(Platform.PI_RUNTIME, Platform.PREF_LINE_SEPARATOR, null, scopeContext);
-		}
-		if (lineDelimiter == null) {
-			lineDelimiter = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-		}
+
 		ModuleAccumulatorEnvironment environment = new ModuleAccumulatorEnvironment(project);
 		Compiler compiler = newCompiler(environment, project);
 		LocalModuleImpl module = new LocalModuleImpl(moduleName == null ? project.getElementName() : moduleName);
