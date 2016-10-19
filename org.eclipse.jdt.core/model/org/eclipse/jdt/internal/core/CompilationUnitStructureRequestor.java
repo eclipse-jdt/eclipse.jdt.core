@@ -43,7 +43,7 @@ import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
-import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -255,6 +255,10 @@ protected PackageDeclaration createPackageDeclaration(JavaElement parent, String
 protected SourceType createTypeHandle(JavaElement parent, TypeInfo typeInfo) {
 	String nameString= new String(typeInfo.name);
 	return new SourceType(parent, nameString);
+}
+protected SourceModule createModuldHandle(JavaElement parent, ModuleInfo modInfo) {
+	String nameString= new String(modInfo.moduleName);
+	return new org.eclipse.jdt.internal.core.SourceModule(parent, nameString);
 }
 protected TypeParameter createTypeParameter(JavaElement parent, String name) {
 	return new TypeParameter(parent, name);
@@ -502,8 +506,14 @@ public void enterType(TypeInfo typeInfo) {
 
 	Object parentInfo = this.infoStack.peek();
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
-	SourceType handle = createTypeHandle(parentHandle, typeInfo); //NB: occurenceCount is computed in resolveDuplicates
-	resolveDuplicates(handle);
+	JavaElement handle = null;
+	if (typeInfo instanceof ModuleInfo) {
+		handle = createModuldHandle(parentHandle, (ModuleInfo) typeInfo);
+	} else {
+		handle = createTypeHandle(parentHandle, typeInfo);
+		 //NB: occurenceCount is computed in resolveDuplicates
+		resolveDuplicates((SourceType) handle);
+	}
 
 	this.infoStack.push(typeInfo);
 	this.handleStack.push(handle);
@@ -512,14 +522,77 @@ public void enterType(TypeInfo typeInfo) {
 		((TypeInfo) parentInfo).childrenCategories.put(handle, typeInfo.categories);
 	addToChildren(parentInfo, handle);
 }
-private org.eclipse.jdt.internal.core.ModuleInfo createModuleInfo(TypeInfo typeInfo, SourceType handle) {
-	org.eclipse.jdt.internal.core.ModuleInfo info = org.eclipse.jdt.internal.core.ModuleInfo.createModule((ModuleDeclaration) typeInfo.node);
-	info.setHandle(handle);
-	info.setSourceRangeStart(typeInfo.declarationStart);
-	info.setFlags(typeInfo.modifiers);
-	info.setNameSourceStart(typeInfo.nameSourceStart);
-	info.setNameSourceEnd(typeInfo.nameSourceEnd);
+private void acceptModuleRequirement(RequiresInfo requiresInfo, JavaElementInfo parentInfo) {
+	JavaElement parentHandle = (JavaElement) this.handleStack.peek();
+	String pkgName = new String(requiresInfo.moduleName);
+	ModuleRequirement handle = new ModuleRequirement(parentHandle, pkgName);
+	resolveDuplicates(handle); // TODO: really necessary?
+
+	org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ModuleReferenceInfo info = new org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ModuleReferenceInfo();
+	info.name = requiresInfo.moduleName;
+	info.isPublic = (requiresInfo.modifiers == ClassFileConstants.AccPublic);
 	this.newElements.put(handle, info);
+	addToChildren(parentInfo, handle);
+}
+private void acceptPackageExport(PackageExportInfo exportInfo, JavaElementInfo parentInfo) {
+	JavaElement parentHandle = (JavaElement) this.handleStack.peek();
+	String pkgName = new String(exportInfo.pkgName);
+	PackageExport handle = new PackageExport(parentHandle, pkgName);
+	resolveDuplicates(handle); // TODO: really necessary?
+
+	org.eclipse.jdt.internal.core.ModuleDescriptionInfo.PackageExportInfo info = new org.eclipse.jdt.internal.core.ModuleDescriptionInfo.PackageExportInfo();
+	info.pack = exportInfo.pkgName;
+	info.target = new char[][]{exportInfo.targetModule};
+	this.newElements.put(handle, info);
+	addToChildren(parentInfo, handle);
+}
+private void acceptProvidedServices(ServicesInfo serInfo, JavaElementInfo parentInfo) {
+	JavaElement parentHandle = (JavaElement) this.handleStack.peek();
+	String serviceName = new String(serInfo.serviceName);
+	String implName = new String(serInfo.implName);
+	ProvidedService handle = new ProvidedService(parentHandle, serviceName, implName);
+	resolveDuplicates(handle); // TODO: really necessary?
+
+	org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ServiceInfo info = new org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ServiceInfo();
+	info.serviceName = serInfo.serviceName;
+	info.implName = serInfo.implName;
+	this.newElements.put(handle, info);
+	addToChildren(parentInfo, handle);
+}
+private org.eclipse.jdt.internal.core.ModuleDescriptionInfo createModuleInfo(ModuleInfo modInfo, org.eclipse.jdt.internal.core.SourceModule handle) {
+	org.eclipse.jdt.internal.core.ModuleDescriptionInfo info = org.eclipse.jdt.internal.core.ModuleDescriptionInfo.createModule((ModuleDeclaration) modInfo.node);
+	info.setHandle(handle);
+	info.setSourceRangeStart(modInfo.declarationStart);
+	info.setFlags(modInfo.modifiers);
+	info.setNameSourceStart(modInfo.nameSourceStart);
+	info.setNameSourceEnd(modInfo.nameSourceEnd);
+	this.newElements.put(handle, info);
+
+	if (modInfo.requires != null) {
+		for (int i = 0, length = modInfo.requires.length; i < length; i++) {
+			RequiresInfo reqInfo = modInfo.requires[i];
+			acceptModuleRequirement(reqInfo, info);
+		}
+	}
+	if (modInfo.exports != null) {
+		for (int i = 0, length = modInfo.exports.length; i < length; i++) {
+			PackageExportInfo expInfo = modInfo.exports[i];
+			acceptPackageExport(expInfo, info);
+		}
+	}
+	if (modInfo.services != null) {
+		for (int i = 0, length = modInfo.services.length; i < length; i++) {
+			ServicesInfo serInfo = modInfo.services[i];
+			acceptProvidedServices(serInfo, info);
+		}
+	}
+	if (modInfo.usedServices != null) {
+		char[][] services = new char[modInfo.usedServices.length][];
+		for (int i = 0, length = modInfo.usedServices.length; i < length; i++) {
+			services[i] = modInfo.usedServices[i];
+		}
+		info.usedServices = services;
+	}
 	return info;
 }
 private SourceTypeElementInfo createTypeInfo(TypeInfo typeInfo, SourceType handle) {
@@ -719,23 +792,24 @@ public void exitMethod(int declarationEnd, Expression defaultValue) {
  * @see ISourceElementRequestor
  */
 public void exitType(int declarationEnd) {
-	SourceType handle = (SourceType) this.handleStack.peek();
 	TypeInfo typeInfo = (TypeInfo) this.infoStack.peek();
 	if (typeInfo instanceof ModuleInfo) {
-		PackageFragmentRoot root= (PackageFragmentRoot) handle.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-		if (root != null) {
+		SourceModule handle = (SourceModule) this.handleStack.peek();
+		JavaProject proj = (JavaProject) handle.getAncestor(IJavaElement.JAVA_PROJECT);
+		if (proj != null) {
 			try {
-				org.eclipse.jdt.internal.core.ModuleInfo moduleDecl = createModuleInfo(typeInfo, handle);
-				IModule module = ((PackageFragmentRootInfo)(root.getElementInfo())).getModule();
-				if (module != null) {
-					((Module)module).declaration = moduleDecl;
-				}
+				org.eclipse.jdt.internal.core.SourceModule moduleDecl = handle;
+				org.eclipse.jdt.internal.core.ModuleDescriptionInfo info = createModuleInfo((ModuleInfo) typeInfo, moduleDecl);
+				info.setSourceRangeEnd(declarationEnd);
+				info.children = getChildren(info);
+				this.unitInfo.setModule(moduleDecl);
+				((JavaProjectElementInfo)(proj.getElementInfo())).setModule(moduleDecl);
 			} catch (JavaModelException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				// Unexpected while creating
 			}
 		}
 	} else {
+		SourceType handle = (SourceType) this.handleStack.peek();
 		SourceTypeElementInfo info = createTypeInfo(typeInfo, handle);
 		info.setSourceRangeEnd(declarationEnd);
 		info.children = getChildren(typeInfo);

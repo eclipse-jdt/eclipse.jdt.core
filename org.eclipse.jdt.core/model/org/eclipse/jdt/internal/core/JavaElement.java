@@ -120,6 +120,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	protected JavaElement parent;
 
+	protected static final String[] NO_STRINGS = new String[0];
 	protected static final JavaElement[] NO_ELEMENTS = new JavaElement[0];
 	protected static final Object NO_INFO = new Object();
 	

@@ -16,15 +16,11 @@ package org.eclipse.jdt.internal.compiler.batch;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration;
-import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 
 public class BinaryModule implements IModule {
 
-	public IModulePathEntry entry;
-	public IModuleDeclaration declaration;
-	public BinaryModule(IModulePathEntry entry, ClassFileReader moduleInfoClass) {
-		this.entry = entry;
+	public IModule declaration;
+	public BinaryModule(ClassFileReader moduleInfoClass) {
 		this.declaration = moduleInfoClass.getModuleDeclaration();
 	}
 	@Override
@@ -34,9 +30,23 @@ public class BinaryModule implements IModule {
 	}
 
 	@Override
-	public IModuleDeclaration getDeclaration() {
-		// 
-		return this.declaration;
+	public IModuleReference[] requires() {
+		return this.declaration.requires();
+	}
+	@Override
+	public IPackageExport[] exports() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public char[][] uses() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	@Override
+	public IService[] provides() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

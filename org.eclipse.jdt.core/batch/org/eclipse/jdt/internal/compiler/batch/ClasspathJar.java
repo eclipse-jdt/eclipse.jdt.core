@@ -193,7 +193,7 @@ public void acceptModule(IModule mod) {
 }
 void acceptModule(ClassFileReader reader) {
 	if (reader != null) {
-		this.module = new BinaryModule(this, reader);
+		this.module = reader.getModuleDeclaration();
 	}
 }
 void acceptModule(byte[] content) {

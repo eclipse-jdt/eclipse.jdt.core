@@ -34,7 +34,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
@@ -186,7 +185,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 	public void initialize() throws IOException {
 		loadModules();
 	}
-//	public void acceptModule(IModule mod) {
+//	public void acceptModule(IModuleDeclaration mod) {
 //		if (this.isJrt) 
 //			return;
 //		this.module = mod;
@@ -228,13 +227,13 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 	}
 	void acceptModule(ClassFileReader reader) {
 		if (reader != null) {
-			IModuleDeclaration moduleDecl = reader.getModuleDeclaration();
+			IModule moduleDecl = reader.getModuleDeclaration();
 			if (moduleDecl != null) {
 				Set<IModule> cache = ModulesCache.get(this.file);
 				if (cache == null) {
 					ModulesCache.put(new String(moduleDecl.name()), cache = new HashSet<IModule>());
 				}
-				cache.add(new BinaryModule(this, reader));
+				cache.add(reader.getModuleDeclaration());
 			}
 		}
 		

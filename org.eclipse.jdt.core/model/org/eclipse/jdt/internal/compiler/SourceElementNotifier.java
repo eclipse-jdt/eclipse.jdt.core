@@ -742,6 +742,23 @@ private void fillModuleInfo(TypeDeclaration typeDeclaration, ISourceElementReque
 		}					
 		modInfo.exports = exps;
 	}
+	if (mod.servicesCount > 0) {
+		ISourceElementRequestor.ServicesInfo[] services = new ISourceElementRequestor.ServicesInfo[mod.servicesCount];
+		for (int i = 0; i < services.length; i++) {
+			ISourceElementRequestor.ServicesInfo ser = new ISourceElementRequestor.ServicesInfo();
+			ser.serviceName = CharOperation.concatWith(mod.interfaces[i].getParameterizedTypeName(), '.');
+			ser.implName = CharOperation.concatWith(mod.implementations[i].getParameterizedTypeName(), '.');
+			services[i] = ser;
+		}
+		modInfo.services = services;
+	}
+	if (mod.usesCount > 0) {
+		char[][] uses = new char[mod.usesCount][];
+		for (int i = 0; i < uses.length; i++) {
+			uses[i] = CharOperation.concatWith(mod.uses[i].getParameterizedTypeName(), '.');
+		}
+		modInfo.usedServices = uses;
+	}
 }
 /*
  * Sort the given ast nodes by their positions.

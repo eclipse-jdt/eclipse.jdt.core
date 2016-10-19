@@ -17,11 +17,11 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Set;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModuleContext;
-import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
@@ -32,7 +32,7 @@ public abstract class ModuleEnvironment implements IModuleAwareNameEnvironment {
 	 * Knows how to get modules
 	 * Understands modules
 	 * Understand module dependencies and restrictions
-	 * Given a ModuleDeclaration, creates an IModule
+	 * Given a ModuleDeclaration, creates an IModuleDeclaration
 	 * TODO: This should kick-in only when source level is >= 9
 	 */
 	public static final char[] UNNAMED = "".toCharArray(); //$NON-NLS-1$
@@ -50,12 +50,28 @@ public abstract class ModuleEnvironment implements IModuleAwareNameEnvironment {
 		}
 
 		@Override
-		public IModuleDeclaration getDeclaration() {
-			// TODO Auto-generated method stub
+		public IModuleReference[] requires() {
 			return null;
 		}
+
+		@Override
+		public IPackageExport[] exports() {
+			return null;
+		}
+
+		@Override
+		public char[][] uses() {
+			return null;
+		}
+
+		@Override
+		public IService[] provides() {
+			return null;
+		}
+
 	};
 	public static IModule[] UNNAMED_MODULE_ARRAY = new IModule[]{UNNAMED_MODULE};
+
 	private HashMap<String, IModule> modulesCache = null;
 	private static HashMap<IModuleLocation, IModule> ModuleLocationMap = new HashMap<>();
 	
@@ -117,9 +133,9 @@ public abstract class ModuleEnvironment implements IModuleAwareNameEnvironment {
 	 * @return whether or not the specified package is exported from the module to the client
 	 */
 	protected boolean isPackageExportedTo(IModule module, char[] pack, IModule client) {
-		IModuleDeclaration.IPackageExport[] exports = module.getDeclaration().exports();
+		IModule.IPackageExport[] exports = module.exports();
 		if (exports != null && exports.length > 0) {
-			for (IModuleDeclaration.IPackageExport iPackageExport : exports) {
+			for (IModule.IPackageExport iPackageExport : exports) {
 				if (CharOperation.equals(iPackageExport.name(), pack)) {
 					char[][] exportedTo = iPackageExport.exportedTo();
 					if (exportedTo == null || exportedTo.length == 0) {
@@ -157,9 +173,9 @@ public abstract class ModuleEnvironment implements IModuleAwareNameEnvironment {
 
 	protected void collectAllVisibleModules(IModule module, Set<IModule> targets, boolean onlyPublic) {
 		if (module != null) {
-			IModuleDeclaration.IModuleReference[] requires = module.getDeclaration().requires();
+			IModule.IModuleReference[] requires = module.requires();
 			if (requires != null && requires.length > 0) {
-				for (IModuleDeclaration.IModuleReference ref : requires) {
+				for (IModule.IModuleReference ref : requires) {
 					IModule refModule = getModule(ref.name());
 					if (refModule != null) {
 						if (!onlyPublic || ref.isPublic()) {
@@ -177,10 +193,10 @@ public abstract class ModuleEnvironment implements IModuleAwareNameEnvironment {
 	 * @param name the name of the module to lookup
 	 * @return the module with the given name
 	 */
-//	public IModule getModule(final char[] name) {
+//	public IModuleDeclaration getModule(final char[] name) {
 ////		if (name == null) return null;
 ////		String mod = new String(name);
-////		IModule module = this.modulesCache.get(mod);
+////		IModuleDeclaration module = this.modulesCache.get(mod);
 ////		return module;
 //		return name == null ? null : getModule(CharOperation.charToString(name));
 //	}

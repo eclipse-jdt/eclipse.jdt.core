@@ -30,9 +30,10 @@ import org.eclipse.core.runtime.preferences.IScopeContext;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IModule;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -43,15 +44,19 @@ import org.eclipse.jdt.internal.compiler.env.IModuleContext;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.BasicCompilationUnit;
+import org.eclipse.jdt.internal.core.ModuleRequirement;
+import org.eclipse.jdt.internal.core.NamedMember;
 import org.eclipse.jdt.internal.core.OpenableElementInfo;
+import org.eclipse.jdt.internal.core.PackageExport;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
+import org.eclipse.jdt.internal.core.SourceRefElement;
 import org.eclipse.jdt.internal.core.builder.NameEnvironment;
 import org.eclipse.jdt.internal.core.builder.ProblemFactory;
 
 public class ModuleUtil {
 
-	public static String createModuleFromPackageRoot(String moduleName, IPackageFragmentRoot root) throws CoreException {
-		return createModuleFromPackageFragmentRoot(moduleName, root, root.getJavaProject());
+	public static IModuleDescription createModuleFromPackageRoot(String moduleName, IJavaProject root) throws CoreException {
+		return createModuleFromPackageFragmentRoot(moduleName, root.getJavaProject());
 	}
 
 	static class ModuleAccumulatorEnvironment extends NameEnvironment {
@@ -117,7 +122,7 @@ public class ModuleUtil {
 
 		return newCompiler;
 	}
-	private static String createModuleFromPackageFragmentRoot(String moduleName, IPackageFragmentRoot root, IJavaProject project) throws CoreException {
+	private static IModuleDescription createModuleFromPackageFragmentRoot(String moduleName, IJavaProject project) throws CoreException {
 		String lineDelimiter = null;
 		if (project != null) {
 			IScopeContext[] scopeContext;
@@ -128,97 +133,102 @@ public class ModuleUtil {
 		if (lineDelimiter == null) {
 			lineDelimiter = System.getProperty("line.separator", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		if (!root.isArchive()) {
-			ModuleAccumulatorEnvironment environment = new ModuleAccumulatorEnvironment(project);
-			Compiler compiler = newCompiler(environment, project);
-			LocalModuleImpl module = new LocalModuleImpl(moduleName == null ? root.getElementName() : moduleName);
-			List<IModule.IPackageExport> exports = new ArrayList<>();
-			// First go over the binary roots and see if any of them are modules
-			List<IModule.IModuleReference> required = new ArrayList<>();
-			IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
-			for (IPackageFragmentRoot binRoot : roots) {
-				if (binRoot.isArchive()) {
-					PackageFragmentRoot lib = (PackageFragmentRoot) binRoot;
-					org.eclipse.jdt.internal.compiler.env.IModule mod = ((OpenableElementInfo) lib.getElementInfo()).getModule();
-					if (mod != null) {
-						LocalModuleReferenceImpl ref = new LocalModuleReferenceImpl(mod.name(), false);
-						required.add(ref);
-					}
+		ModuleAccumulatorEnvironment environment = new ModuleAccumulatorEnvironment(project);
+		Compiler compiler = newCompiler(environment, project);
+		LocalModuleImpl module = new LocalModuleImpl(moduleName == null ? project.getElementName() : moduleName);
+		List<IModuleDescription.IPackageExport> exports = new ArrayList<>();
+		// First go over the binary roots and see if any of them are modules
+		List<IModuleDescription.IModuleReference> required = new ArrayList<>();
+		Set<org.eclipse.jdt.internal.compiler.env.ICompilationUnit> toCompile = new HashSet<>();
+		IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
+		for (IPackageFragmentRoot root : roots) {
+			if (root.isArchive()) {
+				PackageFragmentRoot lib = (PackageFragmentRoot) root;
+				IModuleDescription mod = ((OpenableElementInfo) lib.getElementInfo()).getModule();
+				if (mod != null) {
+					ModuleRequirement ref = new ModuleRequirement(module, mod.getElementName());
+					required.add(ref);
 				}
 			}
-			Set<org.eclipse.jdt.internal.compiler.env.ICompilationUnit> toCompile = new HashSet<>();
-			IJavaElement[] children = root.getChildren();
-			for (IJavaElement child : children) {
-				if (child instanceof IPackageFragment) {
-					IPackageFragment fragment = (IPackageFragment) child;
-					if (fragment.isDefaultPackage()) continue;
-					ICompilationUnit[] units = fragment.getCompilationUnits();
-					if (units.length != 0) {
-						String pack = fragment.getElementName();
-						exports.add(new LocalPackageExportImpl(fragment, null));
-						for (ICompilationUnit iUnit : units) {
-							org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceFile = 
-									new BasicCompilationUnit(iUnit.getSource().toCharArray(), CharOperation.splitOn('.', pack.toCharArray()), iUnit.getPath().toOSString());
-							toCompile.add(sourceFile);
+			if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
+				IJavaElement[] children = root.getChildren();
+				for (IJavaElement child : children) {
+					if (child instanceof IPackageFragment) {
+						IPackageFragment fragment = (IPackageFragment) child;
+						if (fragment.isDefaultPackage()) continue;
+						ICompilationUnit[] units = fragment.getCompilationUnits();
+						if (units.length != 0) {
+							String pack = fragment.getElementName();
+							exports.add(new PackageExport(module, fragment.getElementName()));
+							for (ICompilationUnit iUnit : units) {
+								org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceFile = 
+										new BasicCompilationUnit(iUnit.getSource().toCharArray(), CharOperation.splitOn('.', pack.toCharArray()), iUnit.getPath().toOSString());
+								toCompile.add(sourceFile);
+							}
 						}
 					}
 				}
 			}
-			org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] sources = new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[toCompile.size()];
-			toCompile.toArray(sources);
-			compiler.compile(sources);
-			Collections.sort(exports, new Comparator<IModule.IPackageExport>() {
-				@Override
-				public int compare(IModule.IPackageExport o1, IModule.IPackageExport o2) {
-					return o1.getExportedPackage().getElementName().compareTo(
-							o2.getExportedPackage().getElementName());
-				}
-			});
-			IModule.IPackageExport[] packs = new IModule.IPackageExport[exports.size()];
-			packs = exports.toArray(packs);
-			module.setExports(packs);
-			String[] mods = environment.getModules();
-			for (String string : mods) {
-				required.add(new LocalModuleReferenceImpl(string.toCharArray(), false));
-			}
-			Collections.sort(required, new Comparator<IModule.IModuleReference>() {
-				@Override
-				public int compare(IModule.IModuleReference o1, IModule.IModuleReference o2) {
-					return new String(o1.module().name()).compareTo(new String(o2.module().name()));
-				}
-			});
-			IModule.IModuleReference[] refs = new IModule.IModuleReference[required.size()];
-			refs = required.toArray(refs);
-			module.setRequiredModules(refs);
-			return module.toString(lineDelimiter);
 		}
-		return null;
+
+		org.eclipse.jdt.internal.compiler.env.ICompilationUnit[] sources = new org.eclipse.jdt.internal.compiler.env.ICompilationUnit[toCompile.size()];
+		toCompile.toArray(sources);
+		compiler.compile(sources);
+		Collections.sort(exports, new Comparator<IModuleDescription.IPackageExport>() {
+			@Override
+			public int compare(IModuleDescription.IPackageExport o1, IModuleDescription.IPackageExport o2) {
+				return o1.getPackageName().compareTo(
+						o2.getPackageName());
+			}
+		});
+		IModuleDescription.IPackageExport[] packs = new IModuleDescription.IPackageExport[exports.size()];
+		packs = exports.toArray(packs);
+		module.setExports(packs);
+		String[] mods = environment.getModules();
+		for (String string : mods) {
+			required.add(new ModuleRequirement(module, string));
+		}
+		Collections.sort(required, new Comparator<IModuleDescription.IModuleReference>() {
+			@Override
+			public int compare(IModuleDescription.IModuleReference o1, IModuleDescription.IModuleReference o2) {
+				return new String(o1.getModuleName()).compareTo(new String(o2.getModuleName()));
+			}
+		});
+		IModuleDescription.IModuleReference[] refs = new IModuleDescription.IModuleReference[required.size()];
+		refs = required.toArray(refs);
+		module.setRequiredModules(refs);
+		return module;
 	}
 }
-class LocalModuleImpl implements IModule {
-	IModule.IPackageExport[] exports = null;
-	IModule.IModuleReference[] requires = null;
-	char[] name = null;
+class LocalModuleImpl extends NamedMember implements IModuleDescription {
+	IModuleDescription.IPackageExport[] exports = null;
+	IModuleDescription.IModuleReference[] requires = null;
+	IModuleDescription.IProvidedService[] services = null;
+	String[] used = null;
 	LocalModuleImpl(String name) {
-		this.name = name.toCharArray();
+		super(null, name);
 	}
 	@Override
-	public char[] name() {
-		return this.name;
+	public IModuleReference[] getRequiredModules() throws JavaModelException {
+		return this.requires;
 	}
-	@Override
-	public IModuleReference requires() throws JavaModelException {
-		return this.requires();
-	}
-	public void setRequiredModules(IModule.IModuleReference[] requires) {
+	public void setRequiredModules(IModuleDescription.IModuleReference[] requires) {
 		this.requires = requires;
 	}
 	@Override
-	public IPackageExport[] exports() {
+	public IPackageExport[] getExportedPackages() {
 		return this.exports;
 	}
 	public void setExports(IPackageExport[] exports) {
 		this.exports = exports;
+	}
+	@Override
+	public IProvidedService[] getProvidedServices() {
+		return this.services;
+	}
+	@Override
+	public String[] getUsedServices() {
+		return this.used;
 	}
 
 	public String toString(String lineDelimiter) {
@@ -241,62 +251,86 @@ class LocalModuleImpl implements IModule {
 		if (this.requires != null) {
 			for(int i = 0; i < this.requires.length; i++) {
 				buffer.append("\trequires "); //$NON-NLS-1$
-				if (this.requires[i].isPublic()) {
-					buffer.append(" public "); //$NON-NLS-1$
+				try {
+					if (this.requires[i].isPublic()) {
+						buffer.append(" public "); //$NON-NLS-1$
+					}
+				} catch (JavaModelException e) {
+					// Ignore as it is unlikely to get a JME
 				}
-				buffer.append(this.requires[i].module().name());
+				buffer.append(this.requires[i].getModuleName());
 				buffer.append(';').append(lineDelimiter);
 			}
 		}
 		buffer.append(lineDelimiter).append('}').toString();
 	}
+	@Override
+	public int getElementType() {
+		return JAVA_MODULE;
+	}
 }
-class LocalModuleReferenceImpl implements IModule.IModuleReference {
-	IModule ref;
+class LocalModuleReferenceImpl extends SourceRefElement implements IModuleDescription.IModuleReference {
+	String name;
 	boolean isPublic = false;
-	LocalModuleReferenceImpl(final char[] name, boolean isPublic) {
-		this.ref = new IModule(){
-			@Override
-			public char[] name() {
-				return name;
-			}
-			@Override
-			public IPackageExport[] exports() throws JavaModelException {
-				return null;
-			}
-			@Override
-			public IModuleReference requires() throws JavaModelException {
-				return null;
-			}};
-			this.isPublic = isPublic;
+	LocalModuleReferenceImpl(char[] name, boolean isPublic) {
+		super(null);
+		this.name = new String(name);
+		this.isPublic = isPublic;
 	}
 	@Override
 	public boolean isPublic() {
 		return this.isPublic;
 	}
 	@Override
-	public IModule module() {
-		return this.ref;
+	public int getElementType() {
+		return MODULE_REFERENCE;
 	}
+	@Override
+	public String getModuleName() {
+		return this.name;
+	}
+	@Override
+	public ISourceRange getNameRange() throws JavaModelException {
+		return null;
+	}
+	@Override
+	protected char getHandleMementoDelimiter() {
+		return 0;
+	}
+	
 }
-class LocalPackageExportImpl implements IModule.IPackageExport {
-	private IPackageFragment pack;
-	private IModule target;
-	LocalPackageExportImpl(IPackageFragment pack, IModule target) {
-		this.pack = pack;
+class LocalPackageExportImpl extends SourceRefElement implements IModuleDescription.IPackageExport {
+	private String pkgName;
+	private String[] targets;
+	LocalPackageExportImpl(String pkgName, String[] targets) {
+		super(null);
+		this.pkgName = pkgName;
+		this.targets = targets;
 	}
 	@Override
-	public IPackageFragment getExportedPackage() {
-		return this.pack;
+	public String getPackageName() {
+		return this.pkgName;
 	}
 	@Override
-	public IModule getTargetModule() {
-		return this.target;
+	public String[] getTargetModules() {
+		return this.targets;
 	}
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
-		buffer.append(this.pack.getElementName());
+		buffer.append(this.pkgName);
 		buffer.append(';');
 		return buffer.toString();
+	}
+	@Override
+	public int getElementType() {
+		return PACKAGE_EXPORT;
+	}
+	@Override
+	public ISourceRange getNameRange() throws JavaModelException {
+		return null;
+	}
+	@Override
+	protected char getHandleMementoDelimiter() {
+		return 0;
 	}
 }

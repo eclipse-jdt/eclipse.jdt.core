@@ -33,7 +33,15 @@ public interface ITypeRoot extends IJavaElement, IParent, IOpenable, ISourceRefe
  * @return the found primary type of this Java type root, or <code>null</code> if no such a type exists
  */
 IType findPrimaryType();
-
+/**
+ * Returns the module description contained in this type root or null if there is no module
+ * in this type root.
+ *
+ * @throws JavaModelException 
+ * @since 3.13 BETA_JAVA9
+ * @return the module description contained in the type root or null.
+ */
+IModuleDescription getModule() throws JavaModelException;
 /**
  * Returns the smallest element within this Java type root that
  * includes the given source position (that is, a method, field, etc.), or

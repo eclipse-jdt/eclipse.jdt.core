@@ -25,10 +25,12 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -44,13 +46,6 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class JarPackageFragmentRoot extends PackageFragmentRoot {
-
-	@Override
-	public boolean isModule() {
-		//
-		ClassFile clsFile = new ClassFile((PackageFragment)getPackageFragment(""), String.valueOf(TypeConstants.MODULE_INFO_NAME)); //$NON-NLS-1$
-		return clsFile.existsUsingJarTypeCache();
-	}
 
 	protected final static ArrayList EMPTY_LIST = new ArrayList();
 

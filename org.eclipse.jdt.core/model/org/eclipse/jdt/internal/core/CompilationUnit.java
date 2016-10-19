@@ -1356,8 +1356,7 @@ public ISourceRange getNameRange() {
 
 
 @Override
-public char[] module() {
-	org.eclipse.jdt.internal.compiler.env.IModule module = (this.getPackageFragmentRoot()).getModule();
-	return (module == null) ? null : module.name();
+public IModuleDescription getModule() throws JavaModelException {
+	return ((CompilationUnitElementInfo) getElementInfo()).getModule();
 }
 }

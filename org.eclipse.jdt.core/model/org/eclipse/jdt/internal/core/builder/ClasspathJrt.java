@@ -32,7 +32,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
@@ -160,7 +159,7 @@ public static void loadModules(final ClasspathJrt jrt) {
 			// TODO: BETA_JAVA9 Should report better
 		}
 	} else {
-//		for (IModule iModule : cache) {
+//		for (IModuleDeclaration iModule : cache) {
 //			jimage.env.acceptModule(iModule, jimage);
 //		}
 	}
@@ -175,14 +174,13 @@ void acceptModule(byte[] content) {
 		e.printStackTrace();
 	}
 	if (reader != null) {
-		IModuleDeclaration moduleDecl = reader.getModuleDeclaration();
+		IModule moduleDecl = reader.getModuleDeclaration();
 		if (moduleDecl != null) {
 			Set<IModule> cache = ModulesCache.get(this.zipFilename);
 			if (cache == null) {
 				ModulesCache.put(this.zipFilename, cache = new HashSet<IModule>());
 			}
-			IModule module = new Module(this, moduleDecl);
-			cache.add(module);
+			cache.add(moduleDecl);
 		}
 	}
 }

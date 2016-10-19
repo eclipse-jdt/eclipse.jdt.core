@@ -842,59 +842,35 @@ protected void verifyAttachSource(IPath sourcePath) throws JavaModelException {
 	}
 }
 
-@Override
-public boolean isModule() {
-	// Only kind source handled here. Roots of Other kinds should answer appropriately, without actually opening the
-	// root whenever possible
-	try {
-		if (getKind() == IPackageFragmentRoot.K_SOURCE) {
-			IPackageFragment fragment = getPackageFragment(""); //$NON-NLS-1$
-			ICompilationUnit[] units = fragment.getCompilationUnits();
-			for (ICompilationUnit unit : units) {
-				if (unit.getElementName().toLowerCase().indexOf(new String(TypeConstants.MODULE_INFO_NAME)) != -1) {
-					return true;
-				}
-			}
-		}
-	} catch(JavaModelException jme) {
-		//
-	}
-	return false;
-}
-
-
-public org.eclipse.jdt.internal.compiler.env.IModule getModule() {
-	if (!this.isModule()) {
-		return null;
-	}
+public IModuleDescription getModuleDescription() {
 	try {
 		PackageFragmentRootInfo rootInfo = (PackageFragmentRootInfo) getElementInfo();
-		org.eclipse.jdt.internal.compiler.env.IModule module = rootInfo.getModule();
+		IModuleDescription module = rootInfo.getModule();
 		if (module != null)
 			return module;
 		IJavaElement[] pkgs = getChildren();
 		for (int j = 0, length = pkgs.length; j < length; j++) {
 			// only look in the default package
 			if (pkgs[j].getElementName().length() == 0) {
+				OpenableElementInfo info = null;
 				if (getKind() == IPackageFragmentRoot.K_SOURCE) {
 					ICompilationUnit unit = ((PackageFragment) pkgs[j])
 							.getCompilationUnit(TypeConstants.MODULE_INFO_FILE_NAME_STRING);
-					//if (unit instanceof CompilationUnit && unit.exists()) {
-						IType type = unit.getType(new String(TypeConstants.MODULE_INFO_NAME));
-						if (type != null) {
-							rootInfo.setModule(module = new Module((SourceType)type));
-						}
-					//}
+					if (unit instanceof CompilationUnit && unit.exists()) {
+						info = (CompilationUnitElementInfo) ((CompilationUnit) unit)
+								.getElementInfo();
+						if (info != null)
+							return info.getModule();
+					}
 				} else {
 					IClassFile classFile = ((IPackageFragment)pkgs[j]).getClassFile(TypeConstants.MODULE_INFO_CLASS_NAME_STRING);
 					if (classFile instanceof ClassFile && classFile.exists()) {
-						rootInfo.setModule(module = new Module((ClassFile)classFile));
+						return classFile.getModule();
 					}
 				}
 				break;
 			}
 		}
-		return module;
 	} catch (JavaModelException e) {
 		//
 	}

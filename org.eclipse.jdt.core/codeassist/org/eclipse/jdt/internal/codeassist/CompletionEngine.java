@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaCore;
@@ -10429,9 +10430,9 @@ public final class CompletionEngine
 		JavaElementRequestor javaElementRequestor = new JavaElementRequestor();
 		try {
 			mManager.seekModule(this.completionToken, true, javaElementRequestor);
-			IModule[] modules = javaElementRequestor.getModules();
-			for (IModule module : modules) {
-				char[] name = module.name();
+			IModuleDescription[] modules = javaElementRequestor.getModules();
+			for (IModuleDescription module : modules) {
+				char[] name = module.getElementName().toCharArray();
 				if (name == null || CharOperation.equals(name, CharOperation.NO_CHAR))
 					continue;
 				this.acceptModule(name);
@@ -10467,9 +10468,11 @@ public final class CompletionEngine
 // 		ModuleBinding moduleBinding = this.lookupEnvironment.getModule(this.moduleDeclaration.moduleName);
 //		if (moduleBinding == null) return;
 //		IModuleContext moduleContext = moduleBinding.getModuleLookupContext();
+		char[] modName = this.moduleDeclaration.name;
 		IModuleContext moduleContext = () -> {
 			return Stream.of((JavaProject)this.javaProject);
 		};
+		
 		this.nameEnvironment.findPackages(CharOperation.toLowerCase(this.completionToken), this, moduleContext);
 	
 //		this.nameEnvironment.findPackages(CharOperation.toLowerCase(this.completionToken), this);

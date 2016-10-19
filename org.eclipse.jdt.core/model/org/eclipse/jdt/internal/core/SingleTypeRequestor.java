@@ -13,9 +13,9 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.internal.compiler.env.IModule;
 
 /**
  * The SingleTypeRequestor is an IJavaElementRequestor that
@@ -53,7 +53,7 @@ public void acceptMethod(IMethod method) {
 /**
  * @see IJavaElementRequestor
  */
-public void acceptModule(IModule module) {
+public void acceptModule(IModuleDescription module) {
 	// implements interface method	
 }
 /**

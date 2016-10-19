@@ -452,12 +452,17 @@ public interface IPackageFragmentRoot
 	void move(IPath destination, int updateResourceFlags, int updateModelFlags, IClasspathEntry sibling, IProgressMonitor monitor) throws JavaModelException;
 
 	/**
-	 * Specifies whether this package fragment root represents a module or not.
+	 * Returns the <code>IModuleDescription</code> that this package fragment root contains 
+	 * or <code>null</code> if the root doesn't contain any named module. The package fragment
+	 * root may contain the module descriptor directly in its default package or in the case
+	 * of a source package fragment root, it may come from any of the other source package
+	 * fragment roots in the Java project.
 	 * 
-	 * A package fragment root is said to be a module if it contains a <code>module-info.java</code>
-	 * or <code>module-info.class</code> depending on whether this is a source or binary fragment root.
+	 * Note that only one of the source package fragment roots in a Java Project can legally
+	 * contain a module descriptor.
 	 *
+	 * @return the <code>IModuleDescription</code> this root contains.
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public boolean isModule();
+	public IModuleDescription getModuleDescription();
 }

@@ -53,7 +53,7 @@ public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 	private AnnotationInfo[] annotations;
 	private TypeAnnotationInfo[] typeAnnotations;
 	private FieldInfo[] fields;
-	private IModuleDeclaration moduleDeclaration;
+	private IModule moduleDeclaration;
 	public char[] moduleName;
 	private int fieldsCount;
 
@@ -681,7 +681,7 @@ public char[] getModule() {
  * 
  * @return the module declaration this represents
  */
-public IModuleDeclaration getModuleDeclaration() {
+public IModule getModuleDeclaration() {
 	return this.moduleDeclaration;
 }
 

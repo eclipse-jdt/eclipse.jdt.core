@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
@@ -32,6 +33,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
@@ -68,19 +70,19 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class NameLookup implements SuffixConstants {
 	public static class Answer {
 		public IType type;
-		public IModule module;
+		public IModuleDescription module;
 		AccessRestriction restriction;
 		IClasspathEntry entry;
 		Answer(IType type, AccessRestriction restriction, IClasspathEntry entry) {
-			this(type, restriction, entry, ModuleEnvironment.UNNAMED_MODULE);
+			this(type, restriction, entry, null);
 		}
-		Answer(IType type, AccessRestriction restriction, IClasspathEntry entry, IModule module) {
+		Answer(IType type, AccessRestriction restriction, IClasspathEntry entry, IModuleDescription module) {
 			this.type = type;
 			this.restriction = restriction;
 			this.entry = entry;
 			this.module = module;
 		}
-		Answer(IModule module) {
+		Answer(IModuleDescription module) {
 			this.module = module;
 			this.restriction = null;
 		}
@@ -646,7 +648,7 @@ public class NameLookup implements SuffixConstants {
 	public Answer findType(String typeName, String packageName, boolean partialMatch, int acceptFlags, boolean checkRestrictions, IModuleContext context) {
 		Answer suggestedAnswer = null;
 		if (context != IModuleContext.UNNAMED_MODULE_CONTEXT) {
-//			for (IModule module : modules) {
+//			for (IModuleDeclaration module : modules) {
 				suggestedAnswer = findType(typeName, packageName, partialMatch, acceptFlags,
 						true/* consider secondary types */, false/* do NOT wait for indexes */, checkRestrictions,
 						null, context);
@@ -812,9 +814,26 @@ public class NameLookup implements SuffixConstants {
 		return type == null ? null : new Answer(type, null, null);
 	}
 
-	private IModule getModule(PackageFragmentRoot root) {
-		IModule module = root.getModule();
-		return module == null ? ModuleEnvironment.UNNAMED_MODULE : module;
+	public IModule getModuleDescriptionInfo(IModuleDescription moduleDesc) {
+		if (moduleDesc != null) {
+			try {
+				if (moduleDesc instanceof BinaryModule) {
+					ClassFileReader info = (ClassFileReader)((BinaryModule) moduleDesc).getElementInfo();
+					return info.getModuleDeclaration();
+				} else {
+					ModuleDescriptionInfo info = (ModuleDescriptionInfo)((SourceModule) moduleDesc).getElementInfo();
+					return info;
+				}
+			} catch (JavaModelException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		return ModuleEnvironment.UNNAMED_MODULE;
+	}
+
+	private IModuleDescription getModule(PackageFragmentRoot root) {
+		return root.getModuleDescription();
 	}
 	private AccessRestriction getViolatedRestriction(String typeName, String packageName, ClasspathEntry entry, AccessRestriction accessRestriction) {
 		AccessRuleSet accessRuleSet = entry.getAccessRuleSet();
@@ -935,7 +954,7 @@ public class NameLookup implements SuffixConstants {
 		JavaElementRequestor requestor = new JavaElementRequestor();
 		char[] nameArray = moduleName.toCharArray();
 		seekModules(nameArray, requestor);
-		org.eclipse.jdt.internal.compiler.env.IModule[] modules = requestor.getModules();
+		IModuleDescription[] modules = requestor.getModules();
 		if (modules.length == 0) {
 			try {
 				JavaModelManager.getModulePathManager().seekModule(nameArray, false, requestor);
@@ -1183,14 +1202,14 @@ public class NameLookup implements SuffixConstants {
 			if (requestor.isCanceled())
 				return;
 			IPackageFragmentRoot root= this.packageFragmentRoots[i];
-			IModule module = null;
+			IModuleDescription module = null;
 			if (root instanceof JrtPackageFragmentRoot) {
 				if (!prefixMatcher.matches(name, root.getElementName().toCharArray())) {
 					continue;
 				}
 			}
 			module = getModule((PackageFragmentRoot) root);
-			if (module != null && prefixMatcher.matches(name, module.name()))
+			if (module != null && prefixMatcher.matches(name, module.getElementName().toCharArray()))
 				requestor.acceptModule(module);
 		}
 	}
@@ -1201,6 +1220,9 @@ public class NameLookup implements SuffixConstants {
 			IModule module = JavaModelManager.getModulePathManager().getModule(moduleName);
 			return entry.getLookupEnvironmentFor(module);
 		}
+		// revisit PackageFragmentRoot being a IModuleEnvironment
+		// It is not ideal to expect a java model element to cater to type lookup.
+		// Besides, the JrtPFR seemed to have only bogus implementation anyway.
 		int count= this.packageFragmentRoots.length;
 		for (int i= 0; i < count; i++) {
 			IPackageFragmentRoot root= this.packageFragmentRoots[i];

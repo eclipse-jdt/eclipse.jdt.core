@@ -12,7 +12,7 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.core.IModuleDescription;
 
 
 
@@ -25,7 +25,7 @@ public class OpenableElementInfo extends JavaElementInfo {
 	 * no children.
 	 */
 	protected volatile IJavaElement[] children = JavaElement.NO_ELEMENTS;
-	protected IModule module;
+	protected IModuleDescription module;
 	/**
 	 * Is the structure of this element known
 	 * @see IJavaElement#isStructureKnown()
@@ -82,10 +82,10 @@ public class OpenableElementInfo extends JavaElementInfo {
 		this.children = children;
 	}
 
-	public void setModule(IModule module) {
+	public void setModule(IModuleDescription module) {
 		this.module = module;
 	}
-	public IModule getModule() {
+	public IModuleDescription getModule() {
 		return this.module;
 	}
 	/**

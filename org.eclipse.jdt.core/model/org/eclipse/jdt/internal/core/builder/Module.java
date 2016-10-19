@@ -12,29 +12,29 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.jdt.internal.core.builder;
-
-import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration;
-import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
-
-public class Module implements IModule {
-	public IModulePathEntry entry;
-	public IModuleDeclaration declaration;
-
-	public Module(IModulePathEntry entry, IModuleDeclaration declaration) {
-		this.entry = entry;
-		this.declaration = declaration;
-	}
-
-	@Override
-	public char[] name() {
-		//
-		return this.declaration.name();
-	}
-	@Override
-	public IModuleDeclaration getDeclaration() {
-		// 
-		return this.declaration;
-	}
-}
+//package org.eclipse.jdt.internal.core.builder;
+//
+//import org.eclipse.jdt.internal.compiler.env.IModule;
+//import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration;
+//import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
+//
+//public class Module implements IModule {
+//	public IModulePathEntry entry;
+//	public IModuleDeclaration declaration;
+//
+//	public Module(IModulePathEntry entry, IModuleDeclaration declaration) {
+//		this.entry = entry;
+//		this.declaration = declaration;
+//	}
+//
+//	@Override
+//	public char[] name() {
+//		//
+//		return this.declaration.name();
+//	}
+//	@Override
+//	public IModuleDeclaration getDeclaration() {
+//		// 
+//		return this.declaration;
+//	}
+//}

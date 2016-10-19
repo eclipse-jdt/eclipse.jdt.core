@@ -24,12 +24,11 @@ import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModuleContext;
-import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration;
-import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration.IModuleReference;
-import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration.IPackageExport;
+import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
+import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
@@ -87,7 +86,7 @@ public class ModuleBinding extends Binding {
 	}
 	public ModuleBinding(IModule module, LookupEnvironment environment) {
 		this.moduleName = module.name();
-		IModuleDeclaration decl = module.getDeclaration();
+		IModule decl = module;
 		this.requires = decl.requires();
 		if (this.requires == null)
 			this.requires = NO_MODULE_REFS;

@@ -64,6 +64,7 @@ import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaModelStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IRegion;
@@ -75,7 +76,6 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
-import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
 import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
@@ -3335,8 +3335,8 @@ public class JavaProject
 		return JavaModelStatus.VERIFIED_OK;
 	}
 
-	public IModule getModule() throws JavaModelException {
-		IModule module = null;
+	public IModuleDescription getModuleDescription() throws JavaModelException {
+		IModuleDescription module = null;
 		JavaProjectElementInfo info = (JavaProjectElementInfo) getElementInfo();
 		module = info.getModule();
 		if (module != null)
@@ -3345,7 +3345,7 @@ public class JavaProject
 		for (IPackageFragmentRoot root : children) {
 			if (root.getKind() != IPackageFragmentRoot.K_SOURCE)
 				continue;
-			module = ((PackageFragmentRoot)root).getModule();
+			module = ((PackageFragmentRoot) root).getModuleDescription();
 			if (module != null) {
 				info.setModule(module);
 				break;

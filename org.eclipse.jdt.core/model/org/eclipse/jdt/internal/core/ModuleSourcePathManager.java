@@ -14,12 +14,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
@@ -45,8 +44,8 @@ public class ModuleSourcePathManager {
 		root = this.knownModules.get(name);
 		return root;
 	}
-	public void addEntry(IModule module, JavaProject project) throws JavaModelException {
-		String moduleName = new String(module.name());
+	public void addEntry(IModuleDescription module, JavaProject project) throws JavaModelException {
+		String moduleName = new String(module.getElementName().toCharArray());
 		IModulePathEntry entry = getModuleRoot0(moduleName);
 		if (entry != null) {
 			// TODO : Should we signal error via JavaModelException
@@ -69,9 +68,9 @@ public class ModuleSourcePathManager {
 			if (!project.getProject().isAccessible())
 				continue;
 			if (project instanceof JavaProject) {
-				IModule module = ((JavaProject) project).getModule();
+				IModuleDescription module = ((JavaProject) project).getModuleDescription();
 				if (module != null) {
-					if (prefixMatcher.matches(name, module.name())) {
+					if (prefixMatcher.matches(name, module.getElementName().toCharArray())) {
 						addEntry(module, (JavaProject) project);
 						requestor.acceptModule(module);
 					}
@@ -94,22 +93,30 @@ public class ModuleSourcePathManager {
 		} catch (JavaModelException e) {
 			// 
 		}
-		IModule[] modules = requestor.getModules();
-		return modules.length > 0 ? modules[0] : null; 
-	}
-	public IModule[] getModules() {
-		if (this.knownModules.size() == 0) {
-			return new IModule[0];
-		}
-		List<IModule> modules = new ArrayList<IModule>();
-		for (IModulePathEntry val : this.knownModules.values()) {
+		IModuleDescription[] modules = requestor.getModules();
+		if (modules.length > 0) {
+			IModuleDescription module = modules[0];
 			try {
-				modules.add(val.getModule());
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
+				return (ModuleDescriptionInfo) ((JavaElement) module).getElementInfo();
+			} catch (JavaModelException e) {
 				e.printStackTrace();
 			}
 		}
-		return modules.toArray(new IModule[modules.size()]);
+		return null; 
 	}
+//	public IModuleDeclaration[] getModules() {
+//		if (this.knownModules.size() == 0) {
+//			return new IModuleDeclaration[0];
+//		}
+//		List<IModuleDeclaration> modules = new ArrayList<IModuleDeclaration>();
+//		for (IModulePathEntry val : this.knownModules.values()) {
+//			try {
+//				modules.add(val.getModule());
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		}
+//		return modules.toArray(new IModuleDeclaration[modules.size()]);
+//	}
 }

@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModuleContext;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
-import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration.IPackageExport;
+import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
@@ -452,14 +452,14 @@ public boolean isPackage(char[][] compoundName, char[] packageName, IModuleConte
 void addReads(String source, String target) {
 	IModule src = getModule(source.toCharArray());
 	if (src != null) {
-		src.getDeclaration().addReads(target.toCharArray());
+		src.addReads(target.toCharArray());
 	}
 }
 void setAddonExports(Map<String, IPackageExport[]> exports) {
 	exports.entrySet().forEach((entry) -> {
 		IModule src = getModule(entry.getKey().toCharArray());
 		if (src != null) {
-			src.getDeclaration().addExports(entry.getValue());
+			src.addExports(entry.getValue());
 		}
 	});
 }

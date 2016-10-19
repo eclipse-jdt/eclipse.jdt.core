@@ -136,7 +136,7 @@ String[] directoryList(String qualifiedPackageName) {
 }
 void acceptModule(ClassFileReader classfile) {
 	if (classfile != null) {
-		this.module = new Module(this, classfile.getModuleDeclaration());
+		this.module = classfile.getModuleDeclaration();
 	}
 }
 boolean doesFileExist(String fileName, String qualifiedPackageName, String qualifiedFullName) {

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
@@ -104,10 +105,6 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 	public String getElementName() {
 		return this.moduleName;
 	}
-	@Override
-	public boolean isModule() {
-		return true;
-	}
 	public PackageFragment getPackageFragment(String[] pkgName) {
 		// NOTE: Do we need a different kind of package fragment?
 		return new JarPackageFragment(this, pkgName);
@@ -146,4 +143,18 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 		// No direct way to lookup, use the java model APIs instead
 		return IPackageLookup.Dummy;
 	}
+
+	@Override
+	public IModule getModule() {
+		IModuleDescription desc = getModuleDescription();
+		if (desc != null) {
+			try {
+				return (ModuleDescriptionInfo)((JavaElement) desc).getElementInfo();
+			} catch (JavaModelException e) {
+				e.printStackTrace();
+			}
+		}
+		return null;
+	}
+
 }

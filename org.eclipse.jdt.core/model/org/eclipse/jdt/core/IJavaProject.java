@@ -576,6 +576,18 @@ public interface IJavaProject extends IParent, IJavaElement, IOpenable {
 	IProject getProject();
 
 	/**
+	 * Returns the <code>IModuleDescription</code> this project represents or 
+	 * null if the Java project doesn't represent any named module. A Java 
+	 * project is said to represent a module if any of its source package 
+	 * fragment roots (see {@link IPackageFragmentRoot#K_SOURCE}) contains a 
+	 * valid Java module descriptor.
+	 * 
+	 * @return the <code>IModule</code> this project represents.
+	 * @since 3.13 BETA_JAVA9
+	 */
+	IModuleDescription getModuleDescription() throws JavaModelException;
+
+	/**
 	 * Returns the raw classpath for the project, as a list of classpath
 	 * entries. This corresponds to the exact set of entries which were assigned
 	 * using <code>setRawClasspath</code>, in particular such a classpath may

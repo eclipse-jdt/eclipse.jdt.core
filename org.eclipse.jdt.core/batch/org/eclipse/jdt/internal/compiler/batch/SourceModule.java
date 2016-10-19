@@ -27,12 +27,11 @@ import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 
-public class SourceModule implements IModule, IModuleDeclaration {
-	static class ModuleReferenceImpl implements IModuleDeclaration.IModuleReference {
+public class SourceModule implements IModule {
+	static class ModuleReferenceImpl implements IModule.IModuleReference {
 		char[] name;
 		boolean isPublic = false;
 		@Override
@@ -46,9 +45,9 @@ public class SourceModule implements IModule, IModuleDeclaration {
 		public boolean equals(Object o) {
 			if (this == o) 
 				return true;
-			if (!(o instanceof IModuleDeclaration.IModuleReference))
+			if (!(o instanceof IModule.IModuleReference))
 				return false;
-			IModuleDeclaration.IModuleReference mod = (IModuleDeclaration.IModuleReference) o;
+			IModule.IModuleReference mod = (IModule.IModuleReference) o;
 			if (this.isPublic != mod.isPublic())
 				return false;
 			return CharOperation.equals(this.name, mod.name());
@@ -58,7 +57,7 @@ public class SourceModule implements IModule, IModuleDeclaration {
 			return this.name.hashCode();
 		}
 	}
-	static class PackageExport implements IModuleDeclaration.IPackageExport {
+	static class PackageExport implements IModule.IPackageExport {
 		char[] pack;
 		char[][] exportedTo;
 		@Override
@@ -82,7 +81,7 @@ public class SourceModule implements IModule, IModuleDeclaration {
 			return buffer.toString();
 		}
 	}
-	static class Service implements IModuleDeclaration.IService {
+	static class Service implements IModule.IService {
 		char[] provides;
 		char[] with;
 		@Override
@@ -177,11 +176,11 @@ public class SourceModule implements IModule, IModuleDeclaration {
 		return this.name;
 	}
 	@Override
-	public IModuleDeclaration.IModuleReference[] requires() {
+	public IModule.IModuleReference[] requires() {
 		return this.requires;
 	}
 	@Override
-	public IModuleDeclaration.IPackageExport[] exports() {
+	public IModule.IPackageExport[] exports() {
 		return this.exports;
 	}
 	@Override
@@ -203,7 +202,7 @@ public class SourceModule implements IModule, IModuleDeclaration {
 			info.name = modName;
 		}		
 	}
-	public void addExports(IModuleDeclaration.IPackageExport[] toAdd) {
+	public void addExports(IModule.IPackageExport[] toAdd) {
 		Predicate<char[]> shouldAdd = m -> {
 			return Stream.of(this.exports).map(ref -> ref.pack).noneMatch(n -> CharOperation.equals(m, n));
 		};
@@ -232,7 +231,7 @@ public class SourceModule implements IModule, IModuleDeclaration {
 		IModule mod = (IModule) o;
 		if (!CharOperation.equals(this.name, mod.name()))
 			return false;
-		return Arrays.equals(this.requires, mod.getDeclaration().requires());
+		return Arrays.equals(this.requires, mod.requires());
 	}
 	@Override
 	public int hashCode() {
@@ -283,10 +282,5 @@ public class SourceModule implements IModule, IModuleDeclaration {
 			}
 		}
 		buffer.append('\n').append('}').toString();
-	}
-	@Override
-	public IModuleDeclaration getDeclaration() {
-		//
-		return this;
 	}
 }

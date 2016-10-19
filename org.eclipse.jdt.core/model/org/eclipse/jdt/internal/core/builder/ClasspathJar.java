@@ -109,7 +109,7 @@ void acceptModule(ClassFileReader classfile) {
 //		if ((this.module = classfile.getModuleDeclaration()) != null) {
 //			this.env.acceptModule(this.module, this);
 //		}
-		this.module = new Module(this, classfile.getModuleDeclaration());
+		this.module = classfile.getModuleDeclaration();
 	}
 }
 

@@ -56,6 +56,7 @@ public class ClassFile extends Openable implements IClassFile, SuffixConstants {
 
 	protected String name;
 	protected BinaryType binaryType = null;
+	protected BinaryModule module = null;
 
 	private IPath externalAnnotationBase;
 
@@ -106,14 +107,14 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 	// Make the type
 	IType type = getType();
 	info.setChildren(new IJavaElement[] {type});
-//	org.eclipse.jdt.internal.compiler.env.IModuleDeclaration moduleInfo = ((ClassFileReader)typeInfo).getModuleDeclaration();
 	newElements.put(type, typeInfo);
-//	if (TypeDeclaration.kind(typeInfo.getModifiers()) == TypeDeclaration.MODULE_DECL) {
-//		((PackageFragmentRootInfo)getPackageFragmentRoot().getElementInfo()).setModule(moduleInfo);
-//	}
 	// Read children
 	((ClassFileInfo) info).readBinaryChildren(this, (HashMap) newElements, typeInfo);
-
+	BinaryModule mod = (BinaryModule) ((ClassFileInfo) info).getModule();
+	if (mod != null) {
+		this.module = mod;
+		((PackageFragmentRootInfo) getPackageFragmentRoot().getElementInfo()).setModule(mod);
+	}
 	return true;
 }
 /**
@@ -947,5 +948,10 @@ protected IStatus validateExistence(IResource underlyingResource) {
 }
 public ISourceRange getNameRange() {
 	return null;
+}
+
+@Override
+public IModuleDescription getModule() {
+	return this.module;
 }
 }

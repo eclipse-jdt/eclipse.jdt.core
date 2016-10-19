@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -15,6 +19,9 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.jdt.core.IModuleDescription.IModuleReference;
+import org.eclipse.jdt.core.IModuleDescription.IPackageExport;
+import org.eclipse.jdt.core.IModuleDescription.IProvidedService;
 
 /**
  * Common protocol for all elements provided by the Java model.
@@ -130,6 +137,38 @@ public interface IJavaElement extends IAdaptable {
 	 * @since 3.4
 	 */
 	int ANNOTATION = 16;
+
+	/**
+	 * Constant represents a module descriptor.
+	 * A Java element with this type can be safely cast to {@link IModuleDescription}.
+	 *
+	 * @since 3.13 BETA_JAVA9
+	 */
+	int JAVA_MODULE = 17;
+
+	/**
+	 * Constant represents a package export statement in a module descriptor.
+	 * A Java element with this type can be safely cast to {@link IPackageExport}.
+	 *
+	 * @since 3.13 BETA_JAVA9
+	 */
+	int PACKAGE_EXPORT = 18;
+
+	/**
+	 * Constant represents a <code>requires</code> statement in a module descriptor.
+	 * A Java element with this type can be safely cast to {@link IModuleReference}.
+	 *
+	 * @since 3.13 BETA_JAVA9
+	 */
+	int MODULE_REFERENCE = 19;
+
+	/**
+	 * Constant represents services provided by a Java module. A Java element with this type
+	 * can be safely cast to {@link IProvidedService}.
+	 *
+	 *@since 3.13 BETA_JAVA9
+	 */
+	int SERVICE = 20;
 
 	/**
 	 * Returns whether this Java element exists in the model.

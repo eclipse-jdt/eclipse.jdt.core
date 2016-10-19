@@ -5825,25 +5825,24 @@ public final class JavaCore extends Plugin {
 		return Long.compare(CompilerOptions.versionToJdkLevel(first), CompilerOptions.versionToJdkLevel(second));
 	}
 	/**
-	 * Creates a corresponding module-info as a String for the given source package fragment root and with
-	 * the given name. The module name is optional and a null argument can be passed to indicate that the
-	 * package fragment root's element name to be used as the module name.
+	 * Creates a {@link IModuleDescription} for the given Java project and with the given 
+	 * name. The module name is optional and a null argument can be passed to indicate that the
+	 * project's name to be used as the module name.
 	 *
-	 * This is a utility method and computes a module configuration by looking at the source files inside
-	 * the package fragment root and what modules within the project's build path are needed in order to 
-	 * successfully compile the source files. For non-source package fragment roots
-	 * (i.e., {@link IPackageFragmentRoot#isArchive()} returns true), this method returns null.
+	 * This is a utility method and computes the module description by looking at the source files inside
+	 * the project and which modules within the project's build path are needed in order to 
+	 * successfully compile the source files.
 	 *
-	 * Note this is a long-running operation and it is preferable that clients run this in a background thread.
+	 * Note this is a long-running operation and it is recommended that clients run this in a background thread.
 	 *
 	 * @param moduleName name to be used for the new module. A null indicates that the package fragment root element's name to be used
-	 * @param root the package fragment root for which the module is sought
-	 * @return the module-info content as a String
+	 * @param project the Java project for which the module is sought
+	 * @return the module-info content as a {@link IModuleDescription}
 	 * @throws CoreException
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public static String createModuleFromPackageRoot(String moduleName, IPackageFragmentRoot root) throws CoreException {
-		return ModuleUtil.createModuleFromPackageRoot(moduleName, root);
+	public static IModuleDescription createModuleFromPackageRoot(String moduleName, IJavaProject project) throws CoreException {
+		return ModuleUtil.createModuleFromPackageRoot(moduleName, project);
 	}
 
 	/* (non-Javadoc)

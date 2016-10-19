@@ -55,6 +55,8 @@ public interface ISourceElementRequestor {
 		public char[] moduleName;
 		public RequiresInfo[] requires;
 		public PackageExportInfo[] exports;
+		public ServicesInfo[] services;
+		public char[][] usedServices;
 	}
 	public static class RequiresInfo {
 		public char[] moduleName;
@@ -63,6 +65,10 @@ public interface ISourceElementRequestor {
 	public static class PackageExportInfo {
 		public char[] pkgName;
 		public char[] targetModule;
+	}
+	public static class ServicesInfo {
+		public char[] serviceName;
+		public char[] implName;
 	}
 	public static class TypeInfo {
 		public boolean typeAnnotated;

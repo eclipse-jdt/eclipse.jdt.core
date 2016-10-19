@@ -15,10 +15,9 @@ import java.util.ArrayList;
 import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IMethod;
-
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.internal.compiler.env.IModule;
 
 /**
  * @see IJavaElementRequestor
@@ -82,7 +81,7 @@ public class JavaElementRequestor implements IJavaElementRequestor {
 	protected static final IType[] EMPTY_TYPE_ARRAY= new IType[0];
 	protected static final IPackageFragment[] EMPTY_PACKAGE_FRAGMENT_ARRAY= new IPackageFragment[0];
 	protected static final IMethod[] EMPTY_METHOD_ARRAY= new IMethod[0];
-	protected static final IModule[] EMPTY_MODULE_ARRAY= new IModule[0];
+	protected static final IModuleDescription[] EMPTY_MODULE_ARRAY= new IModuleDescription[0];
 /**
  * @see IJavaElementRequestor
  */
@@ -140,7 +139,7 @@ public void acceptType(IType type) {
 /**
  * @see IJavaElementRequestor
  */
-public void acceptModule(IModule module) {
+public void acceptModule(IModuleDescription module) {
 	if (this.modules == null) {
 		this.modules= new ArrayList();
 	}
@@ -222,12 +221,12 @@ public IType[] getTypes() {
 /**
  * @see IJavaElementRequestor
  */
-public IModule[] getModules() {
+public IModuleDescription[] getModules() {
 	if (this.modules == null) {
 		return EMPTY_MODULE_ARRAY;
 	}
 	int size = this.modules.size();
-	IModule[] results = new IModule[size];
+	IModuleDescription[] results = new IModuleDescription[size];
 	this.modules.toArray(results);
 	return results;
 }

@@ -15,15 +15,23 @@ import java.util.HashMap;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
+import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
+import org.eclipse.jdt.internal.compiler.env.IModule.IService;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ModuleReferenceInfo;
+import org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ServiceInfo;
 
 /**
  * Element info for <code>ClassFile</code> handles.
@@ -240,6 +248,65 @@ private void generateInnerClassHandles(IType type, IBinaryType typeInfo, ArrayLi
 		}
 	}
 }
+private void generateModuleInfos(ClassFile classFile, ClassFileReader info, HashMap newElements, ArrayList childrenHandles) {
+	IModule modDecl = info.getModuleDeclaration();
+	if (modDecl != null) {
+		char[] modName = modDecl.name();
+		BinaryModule handle = new BinaryModule(classFile, new String(modName));
+		ModuleDescriptionInfo moduleInfo = new ModuleDescriptionInfo();
+		moduleInfo.name = modName;
+		childrenHandles.add(handle);
+		// Rest of the construction goes here
+		IPackageExport[] exportedPackages = modDecl.exports();
+		if (exportedPackages != null) {
+			for (IPackageExport iPackageExport : exportedPackages) {
+				generatePackageExportInfos(handle, newElements, iPackageExport.name(), iPackageExport.exportedTo(), childrenHandles);
+			}
+		}
+		IModuleReference[] requiredModules = modDecl.requires();
+		if (requiredModules != null) {
+			for (IModuleReference iModuleReference : requiredModules) {
+				generateModuleRequirementInfos(handle, newElements, iModuleReference.name(), iModuleReference.isPublic(), childrenHandles);
+			}
+		}
+		IService[] provides = modDecl.provides();
+		if (provides != null) {
+			for (IService iSer : provides) {
+				generateServiceInfos(handle, newElements, iSer.name(), iSer.with(), childrenHandles);
+			}
+		}
+		moduleInfo.usedServices = modDecl.uses();
+		setModule(handle);
+		newElements.put(handle, info);
+	}
+}
+private void generateServiceInfos(BinaryModule parentHandle, HashMap newElements, char[] serviceName, char[] implName, ArrayList requiresHandles) {
+	ProvidedService service = new ProvidedService(parentHandle, new String(serviceName), new String(implName));
+	ServiceInfo info = new ServiceInfo();
+	info.serviceName = serviceName;
+	info.implName = implName;
+	while (newElements.containsKey(service))
+		service.occurrenceCount++;
+	newElements.put(service, info);
+} 
+private void generateModuleRequirementInfos(BinaryModule parentHandle, HashMap newElements, char[] moduleName, boolean isPublic, ArrayList requiresHandles) {
+	ModuleRequirement requirement = new ModuleRequirement(parentHandle, new String(moduleName));
+	ModuleReferenceInfo info = new ModuleReferenceInfo();
+	info.name = moduleName;
+	info.isPublic = isPublic;
+	while (newElements.containsKey(requirement))
+		requirement.occurrenceCount++;
+	newElements.put(requirement, info);
+}
+private void generatePackageExportInfos(BinaryModule parentHandle, HashMap newElements, char[] pkgName, char[][] target, ArrayList requiresHandles) {
+	PackageExport exportStmt = new PackageExport(parentHandle, new String(pkgName));
+	ModuleDescriptionInfo.PackageExportInfo info = new ModuleDescriptionInfo.PackageExportInfo();
+	info.pack = pkgName;
+	info.target = target;
+	while (newElements.containsKey(exportStmt))
+		exportStmt.occurrenceCount++;
+	newElements.put(exportStmt, info);
+}
 /**
  * Creates the handles and infos for the methods of the given binary type.
  * Adds new handles to the given vector.
@@ -420,6 +487,9 @@ protected void readBinaryChildren(ClassFile classFile, HashMap newElements, IBin
 		generateFieldInfos(type, typeInfo, newElements, childrenHandles);
 		generateMethodInfos(type, typeInfo, newElements, childrenHandles, typeParameterHandles);
 		generateInnerClassHandles(type, typeInfo, childrenHandles); // Note inner class are separate openables that are not opened here: no need to pass in newElements
+		if (TypeDeclaration.kind(typeInfo.getModifiers()) == TypeDeclaration.MODULE_DECL) {
+			generateModuleInfos(classFile, ((ClassFileReader) typeInfo), newElements, childrenHandles);
+		}
 	}
 
 	this.binaryChildren = new JavaElement[childrenHandles.size()];

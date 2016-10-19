@@ -21,9 +21,9 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.env.IModuleDeclaration;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 
-public class ModuleInfo extends ClassFileStruct implements IModuleDeclaration {
+public class ModuleInfo extends ClassFileStruct implements IModule {
 	protected int requiresCount;
 	protected int exportsCount;
 	protected int usesCount;
@@ -32,7 +32,7 @@ public class ModuleInfo extends ClassFileStruct implements IModuleDeclaration {
 	protected ModuleReferenceInfo[] requires;
 	protected PackageExportInfo[] exports;
 	char[][] uses;
-	IModuleDeclaration.IService[] provides;
+	IModule.IService[] provides;
 
 	public int requiresCount() {
 		return this.requiresCount;
@@ -54,11 +54,11 @@ public class ModuleInfo extends ClassFileStruct implements IModuleDeclaration {
 		this.name = name;
 	}
 	@Override
-	public IModuleDeclaration.IModuleReference[] requires() {
+	public IModule.IModuleReference[] requires() {
 		return this.requires;
 	}
 	@Override
-	public IModuleDeclaration.IPackageExport[] exports() {
+	public IModule.IPackageExport[] exports() {
 		return this.exports;
 	}
 	@Override
@@ -164,7 +164,7 @@ public class ModuleInfo extends ClassFileStruct implements IModuleDeclaration {
 		}
 		return module;
 	}
-	class ModuleReferenceInfo implements IModuleDeclaration.IModuleReference {
+	class ModuleReferenceInfo implements IModule.IModuleReference {
 		char[] refName;
 		boolean isPublic = false;
 		@Override
@@ -178,9 +178,9 @@ public class ModuleInfo extends ClassFileStruct implements IModuleDeclaration {
 		public boolean equals(Object o) {
 			if (this == o) 
 				return true;
-			if (!(o instanceof IModuleDeclaration.IModuleReference))
+			if (!(o instanceof IModule.IModuleReference))
 				return false;
-			IModuleDeclaration.IModuleReference mod = (IModuleDeclaration.IModuleReference) o;
+			IModule.IModuleReference mod = (IModule.IModuleReference) o;
 			if (this.isPublic != mod.isPublic())
 				return false;
 			return CharOperation.equals(this.refName, mod.name(), false);
@@ -190,7 +190,7 @@ public class ModuleInfo extends ClassFileStruct implements IModuleDeclaration {
 			return this.refName.hashCode();
 		}
 	}
-	class PackageExportInfo implements IModuleDeclaration.IPackageExport {
+	class PackageExportInfo implements IModule.IPackageExport {
 		char[] packageName;
 		char[][] exportedTo;
 		int exportedToCount;
@@ -220,7 +220,7 @@ public class ModuleInfo extends ClassFileStruct implements IModuleDeclaration {
 			buffer.append(';').append('\n');
 		}
 	}
-	class ServiceInfo implements IModuleDeclaration.IService {
+	class ServiceInfo implements IModule.IService {
 		char[] serviceName;
 		char[] with;
 		@Override
@@ -236,9 +236,9 @@ public class ModuleInfo extends ClassFileStruct implements IModuleDeclaration {
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (!(o instanceof IModuleDeclaration))
+		if (!(o instanceof IModule))
 			return false;
-		IModuleDeclaration mod = (IModuleDeclaration) o;
+		IModule mod = (IModule) o;
 		if (!CharOperation.equals(this.name, mod.name()))
 			return false;
 		return Arrays.equals(this.requires, mod.requires());

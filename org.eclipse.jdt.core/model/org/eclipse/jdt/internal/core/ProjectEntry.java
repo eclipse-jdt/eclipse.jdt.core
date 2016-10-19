@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
@@ -33,12 +34,13 @@ public class ProjectEntry implements IModulePathEntry {
 	}
 	@Override
 	public IModule getModule() {
-		// 
 		try {
-			return this.project.getModule();
+			IModuleDescription module = this.project.getModuleDescription();
+			if (module != null) {
+				return (ModuleDescriptionInfo) ((JavaElement) module) .getElementInfo();
+			}
 		} catch (JavaModelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// Proceed with null;
 		}
 		return null;
 	}

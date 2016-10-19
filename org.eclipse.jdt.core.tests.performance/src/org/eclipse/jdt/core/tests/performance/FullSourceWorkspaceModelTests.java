@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModel;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IProblemRequestor;
@@ -60,7 +61,6 @@ import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests.ProblemRequestor;
-import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.IJavaElementRequestor;
 import org.eclipse.jdt.internal.core.JavaElement;
@@ -1124,7 +1124,7 @@ public void testSeekPackageFragments() throws CoreException {
 			return false;
 		}
 		@Override
-		public void acceptModule(IModule module) {}
+		public void acceptModule(IModuleDescription module) {}
 	}
 
 	// first pass: ensure all class are loaded, and ensure that the test works as expected
