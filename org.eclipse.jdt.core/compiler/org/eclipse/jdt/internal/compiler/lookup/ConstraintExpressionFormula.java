@@ -121,7 +121,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 						inferInvocationApplicability(inferenceContext, method, argumentTypes, isDiamond, inferenceContext.inferenceKind);
 						// b2 has been lifted, inferring poly invocation type amounts to lifting b3.
 					}
-					if (!inferPolyInvocationType(inferenceContext, invocation, this.right, method))
+					if (!inferenceContext.computeB3(invocation, this.right, method))
 						return FALSE;
 					return null; // already incorporated
 				} finally {
@@ -296,7 +296,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					InferenceContext18 innerContext = reference.getInferenceContext((ParameterizedMethodBinding) compileTimeDecl);
 					int innerInferenceKind = determineInferenceKind(compileTimeDecl, argumentTypes, innerContext);
 					inferInvocationApplicability(inferenceContext, original, argumentTypes, original.isConstructor()/*mimic a diamond?*/, innerInferenceKind);
-					if (!inferPolyInvocationType(inferenceContext, reference, r, original))
+					if (!inferenceContext.computeB3(reference, r, original))
 						return FALSE;
 					return null; // already incorporated
 				} catch (InferenceFailureException e) {
