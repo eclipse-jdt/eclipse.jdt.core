@@ -8576,7 +8576,7 @@ public void test428177() {
 		"5. ERROR in X.java (at line 38)\n" + 
 		"	return stream.collect(Collectors.toList()); // NO ERROR\n" + 
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-		"Type mismatch: cannot convert from List<capture#18-of ? extends String> to Stream<String>\n" + 
+		"Type mismatch: cannot convert from List<capture#19-of ? extends String> to Stream<String>\n" + 
 		"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428795, - [1.8]Internal compiler error: java.lang.NullPointerException at org.eclipse.jdt.internal.compiler.ast.MessageSend.analyseCode
