@@ -28,6 +28,7 @@ import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -1357,6 +1358,20 @@ public ISourceRange getNameRange() {
 
 @Override
 public IModuleDescription getModule() throws JavaModelException {
-	return ((CompilationUnitElementInfo) getElementInfo()).getModule();
+	if (TypeConstants.MODULE_INFO_FILE_NAME_STRING.equals(getElementName()))
+		return ((CompilationUnitElementInfo) getElementInfo()).getModule();
+	JavaProject project = (JavaProject) getAncestor(IJavaElement.JAVA_PROJECT);
+	return project.getModuleDescription();
+}
+public char[] module() {
+	try {
+		IModuleDescription module = getModule();
+		if (module != null)
+			return module.getElementName().toCharArray();
+	} catch (JavaModelException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	return null;
 }
 }

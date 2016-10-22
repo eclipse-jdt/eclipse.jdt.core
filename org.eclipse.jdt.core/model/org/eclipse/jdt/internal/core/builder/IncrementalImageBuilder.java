@@ -645,10 +645,12 @@ protected boolean findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDire
 							return true; // skip it since it really isn't changed
 						if (JavaBuilder.DEBUG)
 							System.out.println("Compile this changed source file " + typeLocator); //$NON-NLS-1$
-						this.sourceFiles.add(new SourceFile((IFile) resource, md, true));
+						SourceFile unit = new SourceFile((IFile) resource, md, true);
+						this.sourceFiles.add(unit);
 						complianceLevel = IncrementalImageBuilder.this.javaBuilder.javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 						if (CompilerOptions.versionToJdkLevel(complianceLevel) >= ClassFileConstants.JDK9) {
 							//md.resetModule(this.nameEnvironment.getModule(md)); TODO: revisit why this is needed
+							md.acceptModuleInfo(unit, this.compiler.parser);
 						}
 				}
 				return true;
