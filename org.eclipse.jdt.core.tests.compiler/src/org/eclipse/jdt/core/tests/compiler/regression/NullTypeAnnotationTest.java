@@ -2189,22 +2189,22 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"1. ERROR in X.java (at line 4)\n" + 
 			"	@NonNull X.Inner f;\n" + 
 			"	^^^^^^^^\n" + 
-			"The nullness annotation \'NonNull\' is not applicable at this location\n" + 
+			"The nullness annotation \'NonNull\' is not applicable at this location, it must be placed directly before the nested type name.\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 5)\n" + 
 			"	@NonNull X.Inner foo(@NonNull X.Inner arg) {\n" + 
 			"	^^^^^^^^\n" + 
-			"The nullness annotation \'NonNull\' is not applicable at this location\n" + 
+			"The nullness annotation \'NonNull\' is not applicable at this location, it must be placed directly before the nested type name.\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 5)\n" + 
 			"	@NonNull X.Inner foo(@NonNull X.Inner arg) {\n" + 
 			"	                     ^^^^^^^^\n" + 
-			"The nullness annotation \'NonNull\' is not applicable at this location\n" + 
+			"The nullness annotation \'NonNull\' is not applicable at this location, it must be placed directly before the nested type name.\n" + 
 			"----------\n" + 
 			"4. ERROR in X.java (at line 6)\n" + 
 			"	@NonNull X.Inner local = arg;\n" + 
 			"	^^^^^^^^\n" + 
-			"The nullness annotation \'NonNull\' is not applicable at this location\n" + 
+			"The nullness annotation \'NonNull\' is not applicable at this location, it must be placed directly before the nested type name.\n" + 
 			"----------\n");
 	}
 

@@ -241,16 +241,21 @@ public void test008() {
 			"1. ERROR in X.java (at line 10)\n" + 
 			"	Object p = (@Marker java.lang. @Readonly String & I & J) () -> {};\n" + 
 			"	            ^^^^^^^\n" + 
-			"Syntax error, type annotations are illegal here\n" + 
+			"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 10)\n" + 
+			"	Object p = (@Marker java.lang. @Readonly String & I & J) () -> {};\n" + 
+			"	             ^^^^^^\n" + 
+			"Marker cannot be resolved to a type\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 10)\n" + 
 			"	Object p = (@Marker java.lang. @Readonly String & I & J) () -> {};\n" + 
 			"	                                ^^^^^^^^\n" + 
 			"Readonly cannot be resolved to a type\n" + 
 			"----------\n" + 
-			"3. ERROR in X.java (at line 10)\n" + 
+			"4. ERROR in X.java (at line 10)\n" + 
 			"	Object p = (@Marker java.lang. @Readonly String & I & J) () -> {};\n" + 
-			"	                                                         ^^^^^\n" +
+			"	                                                         ^^^^^\n" + 
 			"The target type of this expression must be a functional interface\n" + 
 			"----------\n");
 }

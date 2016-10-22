@@ -6939,17 +6939,17 @@ public void testTypeAnnotationProblemNotIn17() {
 			"1. ERROR in X.java (at line 3)\n" + 
 			"	public @NonNull java.lang.String test(@NonNull java.lang.String arg) {\n" + 
 			"	       ^^^^^^^^\n" + 
-			"The annotation @NonNull is disallowed for this location\n" + 
+			"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 			"----------\n" + 
 			"2. ERROR in X.java (at line 3)\n" + 
 			"	public @NonNull java.lang.String test(@NonNull java.lang.String arg) {\n" + 
 			"	                                      ^^^^^^^^\n" + 
-			"The annotation @NonNull is disallowed for this location\n" + 
+			"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 			"----------\n" + 
 			"3. ERROR in X.java (at line 4)\n" + 
 			"	@NonNull java.lang.String local = arg;\n" + 
 			"	^^^^^^^^\n" + 
-			"The annotation @NonNull is disallowed for this location\n" + 
+			"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 			"----------\n");
 }
 public void testBug420313() {
