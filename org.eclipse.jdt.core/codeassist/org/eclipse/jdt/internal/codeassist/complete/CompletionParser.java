@@ -1585,7 +1585,6 @@ private boolean checkModuleInfoConstructs() {
 
 /**
  * TODO: remove this code once all constructs are implemented
- * @return
  */
 @SuppressWarnings("unused")
 private boolean _checkModuleInfoConstructs() {
@@ -4588,8 +4587,22 @@ public ExportReference createAssistExportReference(char[][] tokens, long[] posit
 public ImportReference createAssistImportReference(char[][] tokens, long[] positions, int mod){
 	return new CompletionOnImportReference(tokens, positions, mod);
 }
-public ModuleReference createAssistModuleReference(char[][] tokens, long[] positions, int mod){
-	return new CompletionOnModuleReference(tokens, positions, mod);
+@Override
+public ModuleReference createAssistModuleReference(int index) {
+	/* retrieve identifiers subset and whole positions, the assist node positions
+	should include the entire replaced source. */
+	int length = this.identifierLengthStack[this.identifierLengthPtr];
+	char[][] subset = identifierSubSet(index+1); // include the assistIdentifier
+	this.identifierLengthPtr--;
+	this.identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(
+			this.identifierPositionStack,
+			this.identifierPtr + 1,
+			positions,
+			0,
+			length);
+	return new CompletionOnModuleReference(subset, positions);
 }
 @Override
 public ModuleDeclaration createAssistModuleDeclaration(CompilationResult compilationResult, char[][] tokens,
@@ -5595,5 +5608,4 @@ protected boolean isInModuleStatements() {
 			isInProvidesStatement() ||
 			isInUsessStatement();
 }
-
 }

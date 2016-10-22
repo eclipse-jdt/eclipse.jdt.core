@@ -1603,7 +1603,16 @@ public  String toString() {
 	return s + super.toString();
 }
 @Override
-public ModuleReference createAssistModuleReference(char[][] tokens, long[] positions, int mod) {
+public ModuleReference createAssistModuleReference(int index) {
+	// ignore index, all segments of the module name are part of a single identifier.
+	/* retrieve identifiers subset and whole positions, the assist node positions
+	should include the entire replaced source. */
+	int length;
+	char[][] tokens = new char[length = this.identifierLengthStack[this.identifierLengthPtr--]][];
+	this.identifierPtr -= length;
+	long[] positions = new long[length];
+	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
+	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
 	return new SelectionOnModuleReference(tokens, positions);
 }
 }

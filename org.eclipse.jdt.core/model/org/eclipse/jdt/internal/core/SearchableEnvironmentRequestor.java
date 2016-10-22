@@ -13,6 +13,7 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -21,7 +22,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.codeassist.ISearchRequestor;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 
 /**
@@ -86,8 +86,8 @@ public void acceptInitializer(IInitializer initializer) {
 public void acceptPackageFragment(IPackageFragment packageFragment) {
 	this.requestor.acceptPackage(packageFragment.getElementName().toCharArray());
 }
-public void acceptModule(IModule module) {
-	this.requestor.acceptModule(module.name());
+public void acceptModule(IModuleDescription module) {
+	this.requestor.acceptModule(module.getElementName().toCharArray());
 }
 /**
  * @see IJavaElementRequestor

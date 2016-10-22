@@ -10468,7 +10468,6 @@ public final class CompletionEngine
 // 		ModuleBinding moduleBinding = this.lookupEnvironment.getModule(this.moduleDeclaration.moduleName);
 //		if (moduleBinding == null) return;
 //		IModuleContext moduleContext = moduleBinding.getModuleLookupContext();
-		char[] modName = this.moduleDeclaration.name;
 		IModuleContext moduleContext = () -> {
 			return Stream.of((JavaProject)this.javaProject);
 		};

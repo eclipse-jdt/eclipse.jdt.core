@@ -46,14 +46,13 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.BasicCompilationUnit;
 import org.eclipse.jdt.internal.core.ModuleRequirement;
 import org.eclipse.jdt.internal.core.NamedMember;
-import org.eclipse.jdt.internal.core.OpenableElementInfo;
 import org.eclipse.jdt.internal.core.PackageExport;
-import org.eclipse.jdt.internal.core.PackageFragmentRoot;
-import org.eclipse.jdt.internal.core.SourceRefElement;
 import org.eclipse.jdt.internal.core.builder.NameEnvironment;
 import org.eclipse.jdt.internal.core.builder.ProblemFactory;
 
 public class ModuleUtil {
+
+	private static String[] EMPTRY_STRING_ARRAY = new String[0];
 
 	public static String createModuleFromPackageRoot(String moduleName, IPackageFragmentRoot root) throws CoreException {
 		IJavaProject project = root.getJavaProject();
@@ -149,14 +148,6 @@ public class ModuleUtil {
 		Set<org.eclipse.jdt.internal.compiler.env.ICompilationUnit> toCompile = new HashSet<>();
 		IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
 		for (IPackageFragmentRoot root : roots) {
-			if (root.isArchive()) {
-				PackageFragmentRoot lib = (PackageFragmentRoot) root;
-				IModuleDescription mod = ((OpenableElementInfo) lib.getElementInfo()).getModule();
-				if (mod != null) {
-					ModuleRequirement ref = new ModuleRequirement(module, mod.getElementName());
-					required.add(ref);
-				}
-			}
 			if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
 				IJavaElement[] children = root.getChildren();
 				for (IJavaElement child : children) {
@@ -166,7 +157,7 @@ public class ModuleUtil {
 						ICompilationUnit[] units = fragment.getCompilationUnits();
 						if (units.length != 0) {
 							String pack = fragment.getElementName();
-							exports.add(new PackageExport(module, fragment.getElementName()));
+							exports.add(new LocalPackageExportImpl(pack, EMPTRY_STRING_ARRAY));
 							for (ICompilationUnit iUnit : units) {
 								org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceFile = 
 										new BasicCompilationUnit(iUnit.getSource().toCharArray(), CharOperation.splitOn('.', pack.toCharArray()), iUnit.getPath().toOSString());
@@ -193,7 +184,7 @@ public class ModuleUtil {
 		module.setExports(packs);
 		String[] mods = environment.getModules();
 		for (String string : mods) {
-			required.add(new ModuleRequirement(module, string));
+			required.add(new LocalModuleReferenceImpl(string, false));
 		}
 		Collections.sort(required, new Comparator<IModuleDescription.IModuleReference>() {
 			@Override
@@ -276,12 +267,12 @@ class LocalModuleImpl extends NamedMember implements IModuleDescription {
 		return JAVA_MODULE;
 	}
 }
-class LocalModuleReferenceImpl extends SourceRefElement implements IModuleDescription.IModuleReference {
+class LocalModuleReferenceImpl extends ModuleRequirement {
 	String name;
 	boolean isPublic = false;
-	LocalModuleReferenceImpl(char[] name, boolean isPublic) {
-		super(null);
-		this.name = new String(name);
+	LocalModuleReferenceImpl(String name, boolean isPublic) {
+		super(null, name);
+		this.name = name;
 		this.isPublic = isPublic;
 	}
 	@Override
@@ -304,13 +295,19 @@ class LocalModuleReferenceImpl extends SourceRefElement implements IModuleDescri
 	protected char getHandleMementoDelimiter() {
 		return 0;
 	}
+	public boolean equals(Object o) {
+		if (!(o instanceof LocalModuleReferenceImpl)) {
+			return false;
+		}
+		return this.name.equals(((LocalModuleReferenceImpl) o).name);
+	}
 	
 }
-class LocalPackageExportImpl extends SourceRefElement implements IModuleDescription.IPackageExport {
+class LocalPackageExportImpl extends PackageExport {
 	private String pkgName;
 	private String[] targets;
 	LocalPackageExportImpl(String pkgName, String[] targets) {
-		super(null);
+		super(null, pkgName);
 		this.pkgName = pkgName;
 		this.targets = targets;
 	}
@@ -339,5 +336,11 @@ class LocalPackageExportImpl extends SourceRefElement implements IModuleDescript
 	@Override
 	protected char getHandleMementoDelimiter() {
 		return 0;
+	}
+	public boolean equals(Object o) {
+		if (!(o instanceof LocalPackageExportImpl)) {
+			return false;
+		}
+		return this.pkgName.equals(((LocalPackageExportImpl) o).pkgName);
 	}
 }

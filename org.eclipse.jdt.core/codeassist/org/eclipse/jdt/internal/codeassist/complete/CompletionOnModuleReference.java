@@ -16,8 +16,10 @@
 package org.eclipse.jdt.internal.codeassist.complete;
 
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 
-public class CompletionOnModuleReference extends ModuleReference implements CompletionOnKeyword {
+public class CompletionOnModuleReference extends ModuleReference {
 
 	public CompletionOnModuleReference(char[] ident, long pos) {
 		this(new char[][]{ident}, new long[]{pos});
@@ -25,19 +27,14 @@ public class CompletionOnModuleReference extends ModuleReference implements Comp
 	public CompletionOnModuleReference(char[][] tokens, long[] sourcePositions) {
 		super(tokens, sourcePositions);
 	}
-	public CompletionOnModuleReference(char[][] tokens, long[] sourcePositions, int modifiers) {
-		this(tokens, sourcePositions);
-		this.modifiers = modifiers;
-	}
-	@Override
-	public char[] getToken() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public char[][] getPossibleKeywords() {
-		// TODO Auto-generated method stub
-		return null;
+
+	public ModuleBinding resolve(Scope scope) {
+		super.resolve(scope);
+		if (this.binding != null) {
+			throw new CompletionNodeFound(this, this.binding, scope);
+		} else {
+			throw new CompletionNodeFound();
+		}
 	}
 	public StringBuffer print(int indent, StringBuffer output) {
 

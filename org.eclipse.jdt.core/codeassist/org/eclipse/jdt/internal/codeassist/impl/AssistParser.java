@@ -1027,22 +1027,9 @@ protected void consumeSingleExportsTargetName() {
 		super.consumeSingleExportsTargetName();
 		return;
 	}
-	/* retrieve identifiers subset and whole positions, the assist node positions
-	should include the entire replaced source. */
-	int length = this.identifierLengthStack[this.identifierLengthPtr];
-	char[][] subset = identifierSubSet(index+1); // include the assistIdentifier
-	this.identifierLengthPtr--;
-	this.identifierPtr -= length;
-	long[] positions = new long[length];
-	System.arraycopy(
-			this.identifierPositionStack,
-			this.identifierPtr + 1,
-			positions,
-			0,
-			length);
-		
+
 	/* build specific assist node on targetted exports statement */
-	ModuleReference reference = createAssistModuleReference(subset, positions, 0 /* no modifiers */);
+	ModuleReference reference = createAssistModuleReference(index);
 	this.assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
 	pushOnAstStack(reference);
@@ -1074,23 +1061,8 @@ protected void consumeSingleRequiresModuleName() {
 		return;
 	}
 
-	/* retrieve identifiers subset and whole positions, the assist node positions
-	should include the entire replaced source. */
-	int length = this.identifierLengthStack[this.identifierLengthPtr];
-	char[][] subset = identifierSubSet(index+1); // include the assistIdentifier
-	this.identifierLengthPtr--;
-	this.identifierPtr -= length;
-	long[] positions = new long[length];
-	System.arraycopy(
-			this.identifierPositionStack,
-			this.identifierPtr + 1,
-			positions,
-			0,
-			length);
-		
-	int modifiers1 = this.intStack[this.intPtr--];
 	/* build specific assist node on requires statement */
-	ModuleReference reference = createAssistModuleReference(subset, positions, modifiers1);
+	ModuleReference reference = createAssistModuleReference(index);
 	this.assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
 	pushOnAstStack(reference);
@@ -1098,7 +1070,7 @@ protected void consumeSingleRequiresModuleName() {
 	if (this.currentToken == TokenNameSEMICOLON){
 		reference.declarationSourceEnd = this.scanner.currentPosition - 1;
 	} else {
-		reference.declarationSourceEnd = (int) positions[length-1];
+		reference.declarationSourceEnd = (int) reference.sourcePositions[reference.tokens.length-1];
 	}
 	//endPosition is just before the ;
 	reference.declarationSourceStart = this.intStack[this.intPtr--];
@@ -1362,7 +1334,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 }
 public abstract ExportReference createAssistExportReference(char[][] tokens, long[] positions);
 public abstract ImportReference createAssistImportReference(char[][] tokens, long[] positions, int mod);
-public abstract ModuleReference createAssistModuleReference(char[][] tokens, long[] positions, int mod);
+public abstract ModuleReference createAssistModuleReference(int index);
 public abstract ImportReference createAssistPackageReference(char[][] tokens, long[] positions);
 public abstract NameReference createQualifiedAssistNameReference(char[][] previousIdentifiers, char[] assistName, long[] positions);
 public abstract TypeReference createQualifiedAssistTypeReference(char[][] previousIdentifiers, char[] assistName, long[] positions);

@@ -28,7 +28,7 @@ import junit.framework.Test;
 public class Java9ElementTests extends AbstractJavaModelTests { 
 
 	static {
-//		TESTS_NAMES = new String[] {"test001"};
+//		TESTS_NAMES = new String[] {"test009"};
 	}
 
 	public Java9ElementTests(String name) {
@@ -41,8 +41,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
 			project.open(null);
-				String fileContent =  "module my.mod{\n" +
-						 "}";
+				String fileContent =  "module my.mod{}\n";
 				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
 				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
@@ -99,7 +98,8 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
 			project.open(null);
-				String fileContent =  "module my.mod{\n" +
+				String fileContent =  
+						"module my.mod{\n" +
 						 "	exports p.q.r;" +
 						 "	exports a.b.c;\n" +
 						 "}";
@@ -136,7 +136,8 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
 			project.open(null);
-				String fileContent =  "module my.mod{\n" +
+				String fileContent =  
+						"module my.mod{\n" +
 						 "	provides com.socket.spi.NetworkSocketProvider\n" +
 						 "      with org.fastsocket.FastNetworkSocketProvider;\n" +
 						 "}";
@@ -169,7 +170,8 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
 			project.open(null);
-				String fileContent =  "module my.mod{\n" +
+				String fileContent =  
+						"module my.mod{\n" +
 						 "	uses com.socket.spi.NetworkSocketProvider;\n" +
 						 "}";
 				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
@@ -194,5 +196,123 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		finally {
 			deleteProject("Java9Elements");
 		}
+	}
+	public void test006() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
+			project.open(null);
+			String fileContent =  
+					"module my.mod{\n" +
+					"	exports p.q.r;" +
+					"	exports a.b.c;\n" +
+					"	requires java.sql;\n" +
+					"	requires public java.desktop;\n" +
+					"}";
+			createFile(	"/Java9Elements/src/module-info.java",	fileContent);
+
+			project = createJavaProject("Java9Elements2", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
+			project.open(null);
+			fileContent =  "module your.mod{\n" +
+					"	requires my.mod;\n" +
+					"	requires public java.desktop;\n" +
+					"}";
+			createFile(	"/Java9Elements2/src/module-info.java",	fileContent);
+
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements2/src/module-info.java");
+			int start = fileContent.indexOf("y.mod");
+			IJavaElement[] elements = unit.codeSelect(start, 0);
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			assertEquals("Incorrect element type", IJavaElement.JAVA_MODULE, elements[0].getElementType());
+			assertEquals("incorrect element name", "my.mod", elements[0].getElementName());
+		}
+		finally {
+			deleteProject("Java9Elements");
+			deleteProject("Java9Elements2");
+		}
+	}
+	public void test007() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
+			project.open(null);
+			String fileContent =  
+					"module my.mod{\n" +
+					"	exports p.q.r;" +
+					"	exports a.b.c;\n" +
+					"}";
+			createFile(	"/Java9Elements/src/module-info.java",	fileContent);
+
+			project = createJavaProject("Java9Elements2", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
+			project.open(null);
+			fileContent =  
+					"module your.mod{\n" +
+					"	requires my.mod;\n" +
+					"}";
+			createFile(	"/Java9Elements2/src/module-info.java",	fileContent);
+
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements2/src/module-info.java");
+			int start = fileContent.lastIndexOf(".mod");
+			IJavaElement[] elements = unit.codeSelect(start, 0);
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			assertEquals("Incorrect element type", IJavaElement.JAVA_MODULE, elements[0].getElementType());
+			assertEquals("incorrect element name", "my.mod", elements[0].getElementName());
+		}
+		finally {
+			deleteProject("Java9Elements");
+			deleteProject("Java9Elements2");
+		}	
+	}
+	public void test008() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
+			project.open(null);
+			String fileContent =  "module my.mod {\n" +
+					"	exports p.q.r to your.mod;" +
+					"}";
+			createFolder("/Java9Elements/src/p/q/r");
+			createFile(	"/Java9Elements/src/module-info.java",	fileContent);
+			int start = fileContent.indexOf("your.mod");
+
+			project = createJavaProject("Java9Elements2", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
+			project.open(null);
+			fileContent =  "module your.mod{\n" +
+					"	requires my.mod;\n" +
+					"}";
+			createFile(	"/Java9Elements2/src/module-info.java",	fileContent);
+
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+
+			IJavaElement[] elements = unit.codeSelect(start, 0);
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			assertEquals("Incorrect element type", IJavaElement.JAVA_MODULE, elements[0].getElementType());
+			assertEquals("incorrect element name", "your.mod", elements[0].getElementName());
+		}
+		finally {
+			deleteProject("Java9Elements");
+			deleteProject("Java9Elements2");
+		}	
+	}
+	public void test009() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
+			project.open(null);
+			String fileContent =  "module my.mod {\n" +
+					"	exports p.q.r;" +
+					"}";
+			createFolder("/Java9Elements/src/p/q/r");
+			createFile("/Java9Elements/src/package-info.java",
+					"package p.q.r;");
+			createFile("/Java9Elements/src/module-info.java",	fileContent);
+			int start = fileContent.indexOf("r;");
+
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+
+			IJavaElement[] elements = unit.codeSelect(start, 0);
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			assertEquals("Incorrect element type", IJavaElement.PACKAGE_FRAGMENT, elements[0].getElementType());
+			assertEquals("incorrect element name", "p.q.r", elements[0].getElementName());
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}	
 	}
 }

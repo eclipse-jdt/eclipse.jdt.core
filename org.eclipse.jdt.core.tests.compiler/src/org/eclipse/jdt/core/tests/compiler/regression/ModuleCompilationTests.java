@@ -957,7 +957,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		runNegativeTest(new String[]{}, 
 				buffer.toString(),
 				"",
-				"incorrectly formatted option: --add-exports mod.one=mod.two,mod.three\r\n",
+				"incorrectly formatted option: --add-exports mod.one=mod.two,mod.three\n",
 				false);
 	}
 	public void test021() {
@@ -991,7 +991,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		runNegativeTest(new String[]{}, 
 				buffer.toString(), 
 				"",
-				"incorrectly formatted option: --add-reads mod.one/mod.two\r\n",
+				"incorrectly formatted option: --add-reads mod.one/mod.two\n",
 				false);
 	}
 	public void test022() {
