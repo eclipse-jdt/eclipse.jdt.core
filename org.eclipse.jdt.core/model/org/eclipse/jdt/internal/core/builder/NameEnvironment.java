@@ -355,7 +355,9 @@ public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, IMo
 public boolean isPackage(char[][] compoundName, char[] packageName, IModuleContext moduleContext) {
 	return isPackage(new String(CharOperation.concatWith(compoundName, packageName, '/')), moduleContext);
 }
-
+public boolean isPackage(String qualifiedPackageName) {
+	return isPackage(qualifiedPackageName, IModuleContext.UNNAMED_MODULE_CONTEXT);
+}
 public boolean isPackage(String qualifiedPackageName, IModuleContext moduleContext) {
 	if (moduleContext == IModuleContext.UNNAMED_MODULE_CONTEXT) {
 		return Stream.of(this.binaryLocations).map(p -> p.getLookupEnvironment().packageLookup())

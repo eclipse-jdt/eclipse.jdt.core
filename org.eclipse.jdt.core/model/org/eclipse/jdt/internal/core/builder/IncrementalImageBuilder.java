@@ -423,7 +423,7 @@ protected void findAffectedSourceFiles(IResourceDelta binaryDelta, int segmentCo
 							System.out.println("Skipped dependents of added package " + packageName); //$NON-NLS-1$
 					} else {
 						// see if the package still exists on the classpath
-						if (!this.nameEnvironment.isPackage(packageName, null)) {
+						if (!this.nameEnvironment.isPackage(packageName)) {
 							if (JavaBuilder.DEBUG)
 								System.out.println("Found removed package " + packageName); //$NON-NLS-1$
 							addDependentsOf(packagePath, false);
