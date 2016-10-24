@@ -13139,4 +13139,47 @@ public void testBug502112b() {
 		"----------\n"
 	);
 }
+public void testBug500885() {
+	runConformTest(
+		new String[] {
+			"annot/NonNull.java",
+			"package annot;\n" +
+			"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)\n" +
+			"public @interface NonNull {}\n",
+			"annot/NonNullByDefault.java",
+			"package annot;\n" +
+			"@annot.NonNull\n" +
+			"@java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME)\n" +
+			"public @interface NonNullByDefault {}\n",
+			"annot/package-info.java",
+			"@annot.NonNullByDefault package annot;\n",
+			"test/package-info.java",
+			"@annot.NonNullByDefault package test;\n",
+			"test/X.java",
+			"package test;\n" +
+			"public interface X {\n" +
+			"	public String get();\n" +
+			"}\n"
+		},
+		getCompilerOptions(),
+		"");
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_SECONDARY_NAMES, "annot.NonNullByDefault");
+	options.put(JavaCore.COMPILER_NONNULL_ANNOTATION_SECONDARY_NAMES, "annot.NonNull");
+	runConformTestWithLibs(
+		new String[] {
+			"test2/package-info.java",
+			"@org.eclipse.jdt.annotation.NonNullByDefault package test2;\n",
+			"test2/Y.java",
+			"package test2;\n" +
+			"import test.X;\n" +
+			"public class Y implements X {\n" +
+			"	public String get() {\n" +
+			"		return \"\";\n" +
+			"	}\n" +
+			"}\n"
+		},
+		options,
+		"");
+}
 }

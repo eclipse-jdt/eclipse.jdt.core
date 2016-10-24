@@ -1797,7 +1797,9 @@ private void scanTypeForNullDefaultAnnotation(IBinaryType binaryType, PackageBin
 	}
 	// no annotation found on the type or its enclosing types
 	// check the package-info for default annotation if not already done before
-	if (packageBinding.defaultNullness == Binding.NO_NULL_DEFAULT && !isPackageInfo) {
+	if (packageBinding.defaultNullness == Binding.NO_NULL_DEFAULT && !isPackageInfo
+			&& ((this.typeBits & (TypeIds.BitAnyNullAnnotation)) == 0))
+	{
 		// this will scan the annotations in package-info
 		ReferenceBinding packageInfo = packageBinding.getType(TypeConstants.PACKAGE_INFO_NAME);
 		if (packageInfo == null) {

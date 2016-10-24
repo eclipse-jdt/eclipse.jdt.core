@@ -251,6 +251,7 @@ public interface TypeIds {
 	final int BitNullableAnnotation = 64;
 	/** Bit for a type configured as a @NonNullByDefault annotation. */
 	final int BitNonNullByDefaultAnnotation = 128;
+	final int BitAnyNullAnnotation = BitNonNullAnnotation | BitNullableAnnotation | BitNonNullByDefaultAnnotation;
 
 	/**
 	 * Set of type bits that should be inherited by any sub types.
