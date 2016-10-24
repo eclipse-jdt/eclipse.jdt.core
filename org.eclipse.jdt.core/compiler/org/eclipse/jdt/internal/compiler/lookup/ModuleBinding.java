@@ -251,6 +251,10 @@ public class ModuleBinding extends Binding {
 	}
 	public PackageBinding getDeclaredPackage(char[][] name) {
 		// return package binding if there exists a package named name in this module
+		if (name == null || name.length == 0) {
+			return this.environment.getDefaultPackage(this.moduleName);
+		}
+
 		PackageBinding parent = null;
 		PackageBinding existing = this.environment.getPackage0(name[0]); 
 		if (existing != null) { // known top level package

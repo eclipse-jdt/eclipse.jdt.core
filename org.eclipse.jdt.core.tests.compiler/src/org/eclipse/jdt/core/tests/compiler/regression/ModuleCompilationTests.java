@@ -1377,4 +1377,34 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			"2 problems (2 errors)\n",
 			false);
 	}
+	public void test032() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"}");
+		writeFile(moduleLoc, "X.java", 
+						"public class X {\n" +
+						"	public static class Inner {\n" +
+						"	}\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" -modulesourcepath " + "\"" + directory + "\"");
+
+		runConformTest(new String[]{}, 
+			buffer.toString(), 
+			"",
+			"",
+			false);
+	}
 }
