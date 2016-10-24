@@ -28,7 +28,7 @@ import junit.framework.Test;
 public class Java9ElementTests extends AbstractJavaModelTests { 
 
 	static {
-//		TESTS_NAMES = new String[] {"test009"};
+//		TESTS_NAMES = new String[] {"test010"};
 	}
 
 	public Java9ElementTests(String name) {
@@ -314,5 +314,26 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		finally {
 			deleteProject("Java9Elements");
 		}	
+	}
+	public void test010() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
+			project.open(null);
+			String fileContent =  "// A very simple module"
+					+ "module my.mod {\n" +
+					"	exports p.q.r;" +
+					"}";
+			createFolder("/Java9Elements/src/p/q/r");
+			createFile("/Java9Elements/src/module-info.java",	fileContent);
+			int start = fileContent.lastIndexOf("module");
+
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+
+			IJavaElement[] elements = unit.codeSelect(start, "module".length());
+			assertEquals("Incorrect no of elements", 0, elements.length);
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
 	}
 }

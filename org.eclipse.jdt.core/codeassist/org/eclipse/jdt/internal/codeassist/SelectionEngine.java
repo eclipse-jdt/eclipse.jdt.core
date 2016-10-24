@@ -964,7 +964,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						}
 					}
 				}
-				if (parsedUnit.isModuleInfo()) {
+				if (parsedUnit.isModuleInfo() && parsedUnit.types != null &&
+						parsedUnit.types.length > 0) {
 					ModuleDeclaration module = (ModuleDeclaration) parsedUnit.types[0];//TODO, could be null
 					ExportReference[] exports = module.exports;
 					if (exports != null) {
