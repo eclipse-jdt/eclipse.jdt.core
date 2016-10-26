@@ -475,8 +475,18 @@ public class JavaProject
 		IClasspathEntry[] resolvedClasspath = getResolvedClasspath();
 
 		// compute the pkg fragment roots
-		info.setChildren(computePackageFragmentRoots(resolvedClasspath, false, null /*no reverse map*/));
-
+		IPackageFragmentRoot[] roots = computePackageFragmentRoots(resolvedClasspath, false, null /*no reverse map*/);
+		info.setChildren(roots);
+		IModuleDescription module = null;
+		for (IPackageFragmentRoot root : roots) {
+			if (root.getKind() != IPackageFragmentRoot.K_SOURCE)
+				continue;
+			module = root.getModuleDescription();
+			if (module != null) {
+				JavaModelManager.getModulePathManager().addEntry(module, this);
+				break;
+			}
+		}
 		return true;
 	}
 
@@ -3336,23 +3346,8 @@ public class JavaProject
 	}
 
 	public IModuleDescription getModuleDescription() throws JavaModelException {
-		IModuleDescription module = null;
-		JavaProjectElementInfo info = (JavaProjectElementInfo) getElementInfo();
-		module = info.getModule();
-		if (module != null)
-			return module;
-		List<IPackageFragmentRoot> children = getChildrenOfType(IJavaElement.PACKAGE_FRAGMENT_ROOT);
-		for (IPackageFragmentRoot root : children) {
-			if (root.getKind() != IPackageFragmentRoot.K_SOURCE)
-				continue;
-			module = ((PackageFragmentRoot) root).getModuleDescription();
-			if (module != null) {
-				info.setModule(module);
-				break;
-			}
-		}
-		
-		return module;
+		JavaProjectElementInfo info = (JavaProjectElementInfo) getElementInfo();	
+		return info.getModule();
 	}
 
 	@Override

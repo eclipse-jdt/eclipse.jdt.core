@@ -71,7 +71,7 @@ public class ModuleSourcePathManager {
 				IModuleDescription module = ((JavaProject) project).getModuleDescription();
 				if (module != null) {
 					if (prefixMatcher.matches(name, module.getElementName().toCharArray())) {
-						addEntry(module, (JavaProject) project);
+						//addEntry(module, (JavaProject) project);
 						requestor.acceptModule(module);
 					}
 				}

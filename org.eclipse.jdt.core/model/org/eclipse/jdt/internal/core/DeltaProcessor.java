@@ -560,12 +560,14 @@ public class DeltaProcessor {
 							int flags = delta.getFlags();
 							if ((flags & IResourceDelta.CONTENT) == 0)
 								break;
-							//$FALL-THROUGH$
-						case IResourceDelta.ADDED :
-						case IResourceDelta.REMOVED :
 							javaProject = (JavaProject)JavaCore.create(file.getProject());
 							this.manager.removePerProjectInfo(javaProject, false);
 							this.state.rootsAreStale = true;
+							break;
+							//$FALL-THROUGH$
+						case IResourceDelta.ADDED :
+						case IResourceDelta.REMOVED :
+							break;
 					}
 				}
 				break;

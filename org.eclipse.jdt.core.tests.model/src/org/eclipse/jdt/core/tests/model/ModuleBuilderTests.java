@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -1612,6 +1613,36 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("org.astro");
 			deleteProject("some.mod");
 			deleteProject("com.greetings");
+		}
+	}
+	public void test_bug506479() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+					"src/module-info.java",
+					"module org.astro {\n" +
+					"	exports org.astro;\n" +
+					"}",
+					"src/org/astro/World.java",
+					"package org.astro;\n" +
+					"public interface World {\n" +
+					"	public String name();\n" +
+					"}"
+				};
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			IJavaProject p1 = setupModuleProject("org.astro", sources, new IClasspathEntry[]{dep});
+			IWorkspaceDescription desc = p1.getProject().getWorkspace().getDescription();
+			desc.setAutoBuilding(false);
+			p1.getProject().getWorkspace().setDescription(desc);
+			this.deleteFile("org.astro/src/module-info.java");
+			this.createFile(
+					"org.astro/src/module-info.java",
+					"module org.astro {\n" +
+					"	exports org.astro;\n" +
+					"}");
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		} finally {
+			deleteProject("org.astro");
 		}
 	}
 	private IJavaProject setupModuleProject(String name, String[] sources) throws CoreException {
