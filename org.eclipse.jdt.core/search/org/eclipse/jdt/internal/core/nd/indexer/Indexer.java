@@ -983,6 +983,7 @@ public final class Indexer {
 	public Indexer(Nd toPopulate, IWorkspaceRoot workspaceRoot) {
 		this.nd = toPopulate;
 		this.root = workspaceRoot;
+		this.rescanJob.setSystem(true);
 	}
 
 	public void rescanAll() {
