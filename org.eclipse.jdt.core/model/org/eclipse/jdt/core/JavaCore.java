@@ -4181,14 +4181,14 @@ public final class JavaCore extends Plugin {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
 			SubMonitor subMonitor = mainMonitor.split(50).setWorkRemaining(100); // 50% of the time is spent in initializing containers and variables
-			subMonitor.step(5); // give feedback to the user that something is happening
+			subMonitor.split(5); // give feedback to the user that something is happening
 			manager.batchContainerInitializationsProgress.initializeAfterLoadMonitor.set(subMonitor);
 			if (manager.forceBatchInitializations(true/*initAfterLoad*/)) { // if no other thread has started the batch container initializations
 				manager.getClasspathContainer(Path.EMPTY, null); // force the batch initialization
 			} else { // else wait for the batch initialization to finish
 				while (manager.batchContainerInitializations == JavaModelManager.BATCH_INITIALIZATION_IN_PROGRESS) {
 					subMonitor.subTask(manager.batchContainerInitializationsProgress.subTaskName);
-					subMonitor.step(manager.batchContainerInitializationsProgress.getWorked());
+					subMonitor.split(manager.batchContainerInitializationsProgress.getWorked());
 					synchronized(manager) {
 						try {
 							manager.wait(100);
