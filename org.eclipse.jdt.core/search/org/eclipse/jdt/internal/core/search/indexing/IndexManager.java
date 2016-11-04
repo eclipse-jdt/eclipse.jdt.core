@@ -874,14 +874,16 @@ public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFol
 /**
  * Flush current state
  */
-public synchronized void reset() {
+public void reset() {
 	super.reset();
-	if (this.indexes != null) {
-		this.indexes = new SimpleLookupTable();
-		this.indexStates = null;
+	synchronized (this) {
+		if (this.indexes != null) {
+			this.indexes = new SimpleLookupTable();
+			this.indexStates = null;
+		}
+		this.indexLocations = new SimpleLookupTable();
+		this.javaPluginLocation = null;
 	}
-	this.indexLocations = new SimpleLookupTable();
-	this.javaPluginLocation = null;
 }
 /**
  * Resets the index for a given path.
