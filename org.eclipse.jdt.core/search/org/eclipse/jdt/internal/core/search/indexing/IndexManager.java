@@ -28,6 +28,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -164,7 +165,7 @@ public void cleanUpIndexes() {
 		if (count > 0)
 			removeIndexesState(locations);
 	}
-	deleteIndexFiles(knownPaths);
+	deleteIndexFiles(knownPaths, null);
 }
 /**
  * Compute the pre-built index location for a specified URL
@@ -212,17 +213,25 @@ public synchronized IndexLocation computeIndexLocation(IPath containerPath) {
 	}
 	return indexLocation;
 }
-public void deleteIndexFiles() {
+/**
+ * Use {@link #deleteIndexFiles(IProgressMonitor)}
+ */
+public final void deleteIndexFiles() {
+	deleteIndexFiles(null);
+}
+public void deleteIndexFiles(IProgressMonitor monitor) {
 	if (DEBUG)
 		Util.verbose("Deleting index files"); //$NON-NLS-1$
 	this.savedIndexNamesFile.delete(); // forget saved indexes & delete each index file
-	deleteIndexFiles(null);
+	deleteIndexFiles(null, monitor);
 }
-private void deleteIndexFiles(SimpleSet pathsToKeep) {
+private void deleteIndexFiles(SimpleSet pathsToKeep, IProgressMonitor monitor) {
 	File[] indexesFiles = getSavedIndexesDirectory().listFiles();
 	if (indexesFiles == null) return;
 
+	SubMonitor subMonitor = SubMonitor.convert(monitor, indexesFiles.length);
 	for (int i = 0, l = indexesFiles.length; i < l; i++) {
+		subMonitor.split(1);
 		String fileName = indexesFiles[i].getAbsolutePath();
 		if (pathsToKeep != null && pathsToKeep.includes(new FileIndexLocation(indexesFiles[i]))) continue;
 		String suffix = ".index"; //$NON-NLS-1$
