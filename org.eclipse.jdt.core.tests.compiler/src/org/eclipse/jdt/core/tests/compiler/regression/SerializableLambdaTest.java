@@ -2199,6 +2199,33 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		null,true,
 		new String[]{"-Ddummy"});
 	}
+	public void testbug507011() {
+		this.runConformTest(
+			new String[]{
+				"VerifyErrorDerived.java",
+				"import java.io.Serializable;\n" + 
+				"import java.util.function.Function;\n" + 
+				"public class VerifyErrorDerived extends VerifyErrorBase {\n" + 
+				"	public static void main(String [] args) {\n" + 
+				"		System.out.println(\"hello world\");\n" + 
+				"	}\n" + 
+				"	public int derivedMethod(String param) {\n" + 
+				"		SerializableFunction<String, Integer> f = super::baseMethod;\n" + 
+				"		return f.apply(param);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface SerializableFunction<T, R> extends Function<T, R>, Serializable {}",
+				"VerifyErrorBase.java",
+				"public class VerifyErrorBase {\n" + 
+				"	public int baseMethod(String param) {\n" + 
+				"		return 7;\n" + 
+				"	}\n" + 
+				"}\n"
+		},
+		"hello world",
+		null,true,
+		new String[]{"-Ddummy"});
+	}
 	// ---
 	
 	private void checkExpected(String expected, String actual) {
