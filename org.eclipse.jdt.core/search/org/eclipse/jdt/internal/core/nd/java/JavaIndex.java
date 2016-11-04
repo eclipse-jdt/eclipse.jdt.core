@@ -293,8 +293,4 @@ public class JavaIndex {
 		registry.register(0x0200, NdWorkspaceLocation.type.getFactory());
 		return registry;
 	}
-
-	public void rebuildIndex() {
-		// TODO: delete and recreate the index
-	}
 }

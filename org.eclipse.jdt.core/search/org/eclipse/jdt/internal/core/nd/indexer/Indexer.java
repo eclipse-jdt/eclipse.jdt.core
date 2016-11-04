@@ -43,6 +43,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobGroup;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
@@ -115,8 +116,14 @@ public final class Indexer {
 	 */
 	private Set<Listener> listeners = Collections.newSetFromMap(new WeakHashMap<Listener, Boolean>());
 
+	private JobGroup group = new JobGroup(Messages.Indexer_updating_index_job_name, 1, 1);
+
 	private Job rescanJob = Job.create(Messages.Indexer_updating_index_job_name, monitor -> {
 		rescan(monitor);
+	});
+
+	private Job rebuildIndexJob = Job.create(Messages.Indexer_updating_index_job_name, monitor -> {
+		rebuildIndex(monitor);
 	});
 
 	public static interface Listener {
@@ -984,6 +991,9 @@ public final class Indexer {
 		this.nd = toPopulate;
 		this.root = workspaceRoot;
 		this.rescanJob.setSystem(true);
+		this.rescanJob.setJobGroup(this.group);
+		this.rebuildIndexJob.setSystem(true);
+		this.rebuildIndexJob.setJobGroup(this.group);
 	}
 
 	public void rescanAll() {
@@ -1070,5 +1080,21 @@ public final class Indexer {
 				break;
 			}
 		}
+	}
+
+	public void rebuildIndex(IProgressMonitor monitor) throws CoreException {
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
+
+		this.nd.acquireWriteLock(subMonitor.split(1));
+		try {
+			this.nd.clear(subMonitor.split(2));
+		} finally {
+			this.nd.releaseWriteLock();
+		}
+		rescan(subMonitor.split(98));
+	}
+
+	public void requestRebuildIndex() {
+		this.rebuildIndexJob.schedule();
 	}
 }

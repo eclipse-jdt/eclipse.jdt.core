@@ -599,4 +599,8 @@ public class Nd {
 	public NdNodeTypeRegistry<NdNode> getTypeRegistry() {
 		return this.fNodeTypeRegistry;
 	}
+
+	public void clear(IProgressMonitor monitor) {
+		getDB().clear(getDefaultVersion());
+	}
 }

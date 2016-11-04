@@ -37,6 +37,7 @@ import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
+import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.nd.java.JavaNames;
 import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
@@ -217,8 +218,8 @@ public class BinaryTypeFactory {
 						throw new JavaModelException(e);
 					}
 				} catch (IndexException e) {
-					// Index corrupted. Rebuild it.
-					index.rebuildIndex();
+					Package.log("Index corruption detected. Rebuilding index.", e); //$NON-NLS-1$
+					Indexer.getInstance().requestRebuildIndex();
 				}
 			}
 		}

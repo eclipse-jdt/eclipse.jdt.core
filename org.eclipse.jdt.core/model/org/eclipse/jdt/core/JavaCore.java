@@ -114,19 +114,6 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IConfigurationElement;
-import org.eclipse.core.runtime.IExtension;
-import org.eclipse.core.runtime.IExtensionPoint;
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.OperationCanceledException;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Plugin;
-import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -140,6 +127,19 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IConfigurationElement;
+import org.eclipse.core.runtime.IExtension;
+import org.eclipse.core.runtime.IExtensionPoint;
+import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.Plugin;
+import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -150,10 +150,27 @@ import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.BatchOperation;
+import org.eclipse.jdt.internal.core.BufferFactoryWrapper;
+import org.eclipse.jdt.internal.core.BufferManager;
+import org.eclipse.jdt.internal.core.ClasspathAccessRule;
+import org.eclipse.jdt.internal.core.ClasspathAttribute;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
+import org.eclipse.jdt.internal.core.ClasspathValidation;
+import org.eclipse.jdt.internal.core.CreateTypeHierarchyOperation;
+import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
+import org.eclipse.jdt.internal.core.ExternalFoldersManager;
+import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
+import org.eclipse.jdt.internal.core.JavaModel;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.Region;
+import org.eclipse.jdt.internal.core.SetContainerOperation;
+import org.eclipse.jdt.internal.core.SetVariablesOperation;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.builder.State;
 import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -4264,38 +4281,8 @@ public final class JavaCore extends Plugin {
 
 		// dummy query for waiting until the indexes are ready
 		mainMonitor.subTask(Messages.javamodel_configuring_searchengine);
-		SearchEngine engine = new SearchEngine();
-		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
-		try {
-			engine.searchAllTypeNames(
-				null,
-				SearchPattern.R_EXACT_MATCH,
-				"!@$#!@".toCharArray(), //$NON-NLS-1$
-				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
-				IJavaSearchConstants.CLASS,
-				scope,
-				new TypeNameRequestor() {
-					public void acceptType(
-						int modifiers,
-						char[] packageName,
-						char[] simpleTypeName,
-						char[][] enclosingTypeNames,
-						String path) {
-						// no type to accept
-					}
-				},
-				// will not activate index query caches if indexes are not ready, since it would take to long
-				// to wait until indexes are fully rebuild
-				IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
-				mainMonitor.split(47) // 47% of the time is spent in the dummy search
-			);
-		} catch (JavaModelException e) {
-			// /search failed: ignore
-		} catch (OperationCanceledException e) {
-			if (mainMonitor.isCanceled())
-				throw e;
-			// else indexes were not ready: catch the exception so that jars are still refreshed
-		}
+		// 47% of the time is spent in the dummy search
+		updateLegacyIndex(mainMonitor.split(47));
 
 		// check if the build state version number has changed since last session
 		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=98969)
@@ -4339,6 +4326,41 @@ public final class JavaCore extends Plugin {
 			} catch (CoreException e) {
 				Util.log(e, "Could not persist build state version number"); //$NON-NLS-1$
 			}
+		}
+	}
+
+	private static void updateLegacyIndex(IProgressMonitor monitor) {
+		SearchEngine engine = new SearchEngine();
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+		try {
+			engine.searchAllTypeNames(
+				null,
+				SearchPattern.R_EXACT_MATCH,
+				"!@$#!@".toCharArray(), //$NON-NLS-1$
+				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+				IJavaSearchConstants.CLASS,
+				scope,
+				new TypeNameRequestor() {
+					public void acceptType(
+						int modifiers,
+						char[] packageName,
+						char[] simpleTypeName,
+						char[][] enclosingTypeNames,
+						String path) {
+						// no type to accept
+					}
+				},
+				// will not activate index query caches if indexes are not ready, since it would take to long
+				// to wait until indexes are fully rebuild
+				IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
+				monitor
+			);
+		} catch (JavaModelException e) {
+			// /search failed: ignore
+		} catch (OperationCanceledException e) {
+			if (monitor.isCanceled())
+				throw e;
+			// else indexes were not ready: catch the exception so that jars are still refreshed
 		}
 	}
 
@@ -5439,7 +5461,23 @@ public final class JavaCore extends Plugin {
 		JavaModelManager.getDeltaState().removePreResourceChangedListener(listener);
 	}
 
-
+	/**
+	 * Deletes and rebuilds the java index.
+	 * 
+	 * @param monitor a progress monitor, or <code>null</code> if progress
+	 *    reporting and cancellation are not desired
+	 * @throws CoreException 
+	 * @since 3.14
+	 */
+	public static void rebuildIndex(IProgressMonitor monitor) throws CoreException {
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
+		IndexManager manager = JavaModelManager.getIndexManager();
+		subMonitor.split(1);
+		manager.deleteIndexFiles();
+		manager.reset();
+		Indexer.getInstance().rebuildIndex(subMonitor.split(7));
+		updateLegacyIndex(subMonitor.split(2));
+	}
 
 	/**
 	 * Runs the given action as an atomic Java model operation.
