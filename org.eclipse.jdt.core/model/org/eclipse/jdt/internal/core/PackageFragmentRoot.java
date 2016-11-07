@@ -841,13 +841,41 @@ protected void verifyAttachSource(IPath sourcePath) throws JavaModelException {
 		throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.RELATIVE_PATH, sourcePath));
 	}
 }
-
+/**
+ * return true if this package fragment root contains a module description, false otherwise
+ *
+ */
+boolean isModuleDescriptionRoot() {
+	// TODO: Ideally, for source roots, we should get this information from the raw classpath
+	// by marking the entry that contains module-info as such. For binary roots, the implementation
+	// should go into the respective sub classes
+	try {
+		IJavaElement[] pkgs = getChildren();
+		for (int j = 0, length = pkgs.length; j < length; j++) {
+			// only look in the default package
+			if (pkgs[j].getElementName().length() == 0) {
+				if (getKind() == IPackageFragmentRoot.K_SOURCE) {
+					ICompilationUnit unit = ((PackageFragment) pkgs[j])
+							.getCompilationUnit(TypeConstants.MODULE_INFO_FILE_NAME_STRING);
+					if (unit instanceof CompilationUnit && unit.exists()) {
+						return true;
+					}
+				} else {
+					IClassFile classFile = ((IPackageFragment)pkgs[j]).getClassFile(TypeConstants.MODULE_INFO_CLASS_NAME_STRING);
+					if (classFile instanceof ClassFile && classFile.exists()) {
+						return true;
+					}
+				}
+				break;
+			}
+		}
+	} catch (JavaModelException e) {
+		//
+	}
+	return false;
+}
 public IModuleDescription getModuleDescription() {
 	try {
-		PackageFragmentRootInfo rootInfo = (PackageFragmentRootInfo) getElementInfo();
-		IModuleDescription module = rootInfo.getModule();
-		if (module != null)
-			return module;
 		IJavaElement[] pkgs = getChildren();
 		for (int j = 0, length = pkgs.length; j < length; j++) {
 			// only look in the default package

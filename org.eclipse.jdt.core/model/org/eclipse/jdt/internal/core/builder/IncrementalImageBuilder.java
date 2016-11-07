@@ -21,7 +21,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.classfmt.*;
-import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -604,10 +603,6 @@ protected boolean findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDire
 							System.out.println("Compile this added source file " + typeLocator); //$NON-NLS-1$
 						this.sourceFiles.add(new SourceFile((IFile) resource, md, true));
 						this.sourceFiles.add(new SourceFile((IFile) resource, md, true));
-						String complianceLevel = IncrementalImageBuilder.this.javaBuilder.javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
-//						if (CompilerOptions.versionToJdkLevel(complianceLevel) >= ClassFileConstants.JDK9) {
-//							md.resetModule(this.nameEnvironment.getModule(md));
-//						}
 						String typeName = typePath.toString();
 						if (!this.newState.isDuplicateLocator(typeName, typeLocator)) { // adding dependents results in 2 duplicate errors
 							if (JavaBuilder.DEBUG)
@@ -647,11 +642,6 @@ protected boolean findSourceFiles(IResourceDelta sourceDelta, ClasspathMultiDire
 							System.out.println("Compile this changed source file " + typeLocator); //$NON-NLS-1$
 						SourceFile unit = new SourceFile((IFile) resource, md, true);
 						this.sourceFiles.add(unit);
-						complianceLevel = IncrementalImageBuilder.this.javaBuilder.javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
-						if (CompilerOptions.versionToJdkLevel(complianceLevel) >= ClassFileConstants.JDK9) {
-							//md.resetModule(this.nameEnvironment.getModule(md)); TODO: revisit why this is needed
-							md.acceptModuleInfo(unit, this.compiler.parser);
-						}
 				}
 				return true;
 			} else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(resourceName)) {

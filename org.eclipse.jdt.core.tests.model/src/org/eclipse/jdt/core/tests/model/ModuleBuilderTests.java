@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Hashtable;
 
 import org.eclipse.core.resources.IFile;
@@ -31,12 +32,15 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.util.Messages;
 
 import junit.framework.Test;
 
@@ -72,9 +76,12 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		waitForAutoBuild();
 	}
 	private IJavaProject createJava9Project(String name) throws CoreException {
+		return createJava9Project(name, new String[]{"src"});
+	}
+	private IJavaProject createJava9Project(String name, String[] srcFolders) throws CoreException {
 		String bootModPath = System.getProperty("java.home") + File.separator +"jrt-fs.jar";
 		IClasspathEntry jrtEntry = JavaCore.newLibraryEntry(new Path(bootModPath), null, null, null, null, false);
-		IJavaProject project = this.createJavaProject(name, new String[] { "src" }, new String[0],
+		IJavaProject project = this.createJavaProject(name, srcFolders, new String[0],
 				new String[0], "bin", "9");
 		IClasspathEntry[] old = project.getRawClasspath();
 		IClasspathEntry[] newPath = new IClasspathEntry[old.length +1];
@@ -158,6 +165,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			waitForManualRefresh();
 			this.currentProject.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = this.currentProject.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
 					"The import java.sql cannot be resolved\n" + 
 					"Connection cannot be resolved to a type", markers);
@@ -263,6 +271,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			waitForManualRefresh();
 			project.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
 					"The import com cannot be resolved\n" + 
 					"Main cannot be resolved", 
@@ -294,9 +303,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			waitForManualRefresh();
 			project.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
-					"Main cannot be resolved\n" + 
-					"The import com cannot be resolved", 
+					"The import com cannot be resolved\n" + 
+					"Main cannot be resolved", 
 					markers);
 		} finally {
 			deleteProject("P2");
@@ -350,6 +360,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			waitForManualRefresh();
 			project.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
 					"The import com.greetings.Main cannot be resolved\n" + 
 					"Main cannot be resolved", 
@@ -400,6 +411,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			waitForManualRefresh();
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("Unexpected markers",
 					"The import com cannot be resolved\n" +
 					"Main cannot be resolved",
@@ -433,6 +445,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", "",  markers);
 			markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
 					"The import com cannot be resolved\n" + 
 					"Main cannot be resolved", 
@@ -558,6 +571,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			waitForManualRefresh();
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
 			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("Unexpected markers",
 					"The import com cannot be resolved\n" + 
 					"Main cannot be resolved",  markers);
@@ -590,6 +604,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			waitForManualRefresh();
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
 			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("Unexpected markers",
 					"The import com cannot be resolved\n" + 
 					"Main cannot be resolved",  markers);
@@ -1212,6 +1227,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("Unexpected markers",	
 					"The import org cannot be resolved\n" +
 					"World cannot be resolved to a type",
@@ -1471,6 +1487,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"}");
 			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
 					"The import org cannot be resolved\n" +
 					"World cannot be resolved to a type",  markers);
@@ -1645,11 +1662,209 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("org.astro");
 		}
 	}
+	public void test_Multiple_SourceFolders() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports org.astro;\n" + 
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}",
+				"othersrc/org/astro/OtherWorld.java",
+				"package org.astro;\n" +
+				"import org.astro.World;\n" +
+				"public interface OtherWorld {\n" +
+				"	default public String name() {\n" +
+				"		return \" Other World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			setupModuleProject("org.astro", new String[]{"src", "othersrc"}, sources, null);
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	requires org.astro;\n" +
+				"	exports com.greetings;\n" +
+				"}",
+				"src/com/greetings/MyWorld.java",
+				"package com.greetings;\n" +
+				"import org.astro.World;\n" +
+				"public class MyWorld implements World {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}",
+				"othersrc/com/greetings/AnotherWorld.java",
+				"package com.greetings;\n" +
+				"import org.astro.OtherWorld;\n" +
+				"public class AnotherWorld implements OtherWorld {\n" +
+				"	public String name() {\n" +
+				"		return \" Another World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			IJavaProject p2 = setupModuleProject("com.greetings", new String[]{"src", "othersrc"}, src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "",  markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("com.greetings");
+		}
+	}
+	public void test_Multiple_SourceFolders_WithModuleInfo() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports org.astro;\n" + 
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}",
+				"othersrc/org/astro/OtherWorld.java",
+				"package org.astro;\n" +
+				"import org.astro.World;\n" +
+				"public interface OtherWorld {\n" +
+				"	default public String name() {\n" +
+				"		return \" Other World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			setupModuleProject("org.astro", new String[]{"src", "othersrc"}, sources, null);
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	requires org.astro;\n" +
+				"	exports com.greetings;\n" +
+				"}",
+				"src/com/greetings/MyWorld.java",
+				"package com.greetings;\n" +
+				"import org.astro.World;\n" +
+				"public class MyWorld implements World {\n" +
+				"	public String name() {\n" +
+				"		return \" My World!!\";\n" +
+				"	}\n" +
+				"}",
+				"othersrc/module-info.java",
+				"module com.greetings1 {\n" +
+				"	requires org.astro;\n" +
+				"	exports com.greetings;\n" +
+				"}",
+				"othersrc/com/greetings/AnotherWorld.java",
+				"package com.greetings;\n" +
+				"import org.astro.OtherWorld;\n" +
+				"public class AnotherWorld implements OtherWorld {\n" +
+				"	public String name() {\n" +
+				"		return \" Another World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			IJavaProject p2 = setupModuleProject("com.greetings", new String[]{"src", "othersrc"}, src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
+			assertEquals(1, markers.length);
+			String msg = markers[0].getAttribute(IMarker.MESSAGE, "");
+			String expected = Messages.bind(Messages.classpath_duplicateEntryPath, TypeConstants.MODULE_INFO_FILE_NAME_STRING, p2.getElementName());
+			assertTrue("Unexpected result", msg.indexOf(expected) != -1);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("com.greetings");
+		}
+	}
+	public void test_Multiple_SourceFolders_addModuleInfo() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports org.astro;\n" + 
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}",
+				"othersrc/org/astro/OtherWorld.java",
+				"package org.astro;\n" +
+				"import org.astro.World;\n" +
+				"public interface OtherWorld {\n" +
+				"	default public String name() {\n" +
+				"		return \" Other World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", new String[]{"src", "othersrc"}, sources, null);
+			this.createFile("org.astro/othersrc/module-info.java", 
+					"module org.astro1 {\n" +
+					"	exports org.astro;\n" + 
+					"}");
+			waitForAutoBuild();
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
+			assertEquals(1, markers.length);
+			String msg = markers[0].getAttribute(IMarker.MESSAGE, "");
+			String expected = Messages.bind(Messages.classpath_duplicateEntryPath, TypeConstants.MODULE_INFO_FILE_NAME_STRING, p1.getElementName());
+			assertTrue("Unexpected result", msg.indexOf(expected) != -1);
+		} finally {
+			deleteProject("org.astro");
+		}
+	}
+	public void test_Multiple_SourceFolders_removeModuleInfo() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] {
+				"src/module-info.java",
+				"module org.astro {\n" +
+				"	exports org.astro;\n" + 
+				"}",
+				"src/org/astro/World.java",
+				"package org.astro;\n" +
+				"public interface World {\n" +
+				"	public String name();\n" +
+				"}",
+				"othersrc/module-info.java",
+				"module org.astro1 {\n" +
+				"	exports org.astro;\n" + 
+				"}",
+				"othersrc/org/astro/OtherWorld.java",
+				"package org.astro;\n" +
+				"import org.astro.World;\n" +
+				"public interface OtherWorld {\n" +
+				"	default public String name() {\n" +
+				"		return \" Other World!!\";\n" +
+				"	}\n" +
+				"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", new String[]{"src", "othersrc"}, sources, null);
+			waitForAutoBuild();
+			this.deleteFile("org.astro/othersrc/module-info.java");
+			waitForAutoBuild();
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_ZERO);
+			assertEquals(0, markers.length);
+		} finally {
+			deleteProject("org.astro");
+		}
+	}
 	private IJavaProject setupModuleProject(String name, String[] sources) throws CoreException {
 		return setupModuleProject(name, sources, null);
 	}
 	private IJavaProject setupModuleProject(String name, String[] sources, IClasspathEntry[] deps) throws CoreException {
-		IJavaProject project = createJava9Project(name);
+		return setupModuleProject(name, new String[]{"src"}, sources, deps);
+	}
+	private IJavaProject setupModuleProject(String name, String[] srcFolders, String[] sources, IClasspathEntry[] deps) throws CoreException {
+		IJavaProject project = createJava9Project(name, srcFolders);
 		IProgressMonitor monitor = new NullProgressMonitor();
 		for (int i = 0; i < sources.length; i+= 2) {
 			IPath path = new Path(sources[i]);
@@ -1668,6 +1883,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			project.setRawClasspath(newPath, null);
 		}
 		return project;
+	}
+	// sort by line number
+	protected void sortMarkers(IMarker[] markers) {
+		Arrays.sort(markers, (a,b) -> a.getAttribute(IMarker.LINE_NUMBER, 0) - b.getAttribute(IMarker.LINE_NUMBER, 0)); 
 	}
 	public void tearDownSuite() throws Exception {
 		super.tearDownSuite();

@@ -28,19 +28,17 @@ import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
 import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
 
 
-public class ClasspathDirectory extends ClasspathLocation implements IModuleEnvironment {
+public class ClasspathDirectory extends ClasspathLocation {
 
 IContainer binaryFolder; // includes .class files for a single directory
 boolean isOutputFolder;
@@ -237,25 +235,6 @@ public String debugPathString() {
 	return this.binaryFolder.getFullPath().toString();
 }
 
-//@Override
-public boolean servesModule(IModule mod) {
-	if (mod == null)
-		return this.module == null || this.module == ModuleEnvironment.UNNAMED_MODULE;
-	return this.module == null ? mod == ModuleEnvironment.UNNAMED_MODULE : this.module.equals(mod);
-}
-
-@Override
-public IModule getModule() {
-	// 
-	return this.module;
-}
-
-@Override
-public IModuleEnvironment getLookupEnvironment() {
-	// 
-	return this;
-}
-
 @Override
 public ITypeLookup typeLookup() {
 	//
@@ -265,12 +244,6 @@ public ITypeLookup typeLookup() {
 @Override
 public IPackageLookup packageLookup() {
 	return this::isPackage;
-}
-
-@Override
-public IModuleEnvironment getLookupEnvironmentFor(IModule mod) {
-	//
-	return this.module == mod ? this : null;
 }
 
 @Override

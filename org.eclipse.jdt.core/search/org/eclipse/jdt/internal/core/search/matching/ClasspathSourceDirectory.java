@@ -27,7 +27,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
 import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
@@ -38,7 +37,7 @@ import org.eclipse.jdt.internal.core.util.ResourceCompilationUnit;
 import org.eclipse.jdt.internal.core.util.Util;
 
 @SuppressWarnings("rawtypes")
-public class ClasspathSourceDirectory extends ClasspathLocation implements IModuleEnvironment {
+public class ClasspathSourceDirectory extends ClasspathLocation {
 
 	IContainer sourceFolder;
 	SimpleLookupTable directoryCache;
@@ -152,24 +151,6 @@ public String toString() {
 
 public String debugPathString() {
 	return this.sourceFolder.getFullPath().toString();
-}
-
-@Override
-public IModule getModule() {
-	// 
-	return this.module;
-}
-
-@Override
-public IModuleEnvironment getLookupEnvironment() {
-	// 
-	return this;
-}
-
-@Override
-public IModuleEnvironment getLookupEnvironmentFor(IModule other) {
-	//
-	return this.module == other ? this : null;
 }
 
 @Override

@@ -803,7 +803,7 @@ public void exitType(int declarationEnd) {
 				info.setSourceRangeEnd(declarationEnd);
 				info.children = getChildren(info);
 				this.unitInfo.setModule(moduleDecl);
-				((JavaProjectElementInfo)(proj.getElementInfo())).setModule(moduleDecl);
+				proj.setModuleDescription(moduleDecl);
 			} catch (JavaModelException e) {
 				// Unexpected while creating
 			}

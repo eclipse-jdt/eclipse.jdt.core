@@ -47,7 +47,7 @@ import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
-public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry, IModuleEnvironment {
+public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry {
 
 //private HashMap<String, SimpleSet> packagesInModule = null;
 private static HashMap<String, HashMap<String, SimpleSet>> PackageCache = new HashMap<>();

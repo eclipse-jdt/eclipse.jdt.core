@@ -52,6 +52,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.content.IContentDescription;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.IScopeContext;
@@ -79,6 +80,7 @@ import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
 import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -478,18 +480,35 @@ public class JavaProject
 		IPackageFragmentRoot[] roots = computePackageFragmentRoots(resolvedClasspath, false, null /*no reverse map*/);
 		info.setChildren(roots);
 		IModuleDescription module = null;
+		IModuleDescription current = null;
 		for (IPackageFragmentRoot root : roots) {
 			if (root.getKind() != IPackageFragmentRoot.K_SOURCE)
 				continue;
 			module = root.getModuleDescription();
 			if (module != null) {
+				if (current != null) {
+					throw new JavaModelException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, 
+							Messages.bind(Messages.classpath_duplicateEntryPath, TypeConstants.MODULE_INFO_FILE_NAME_STRING, getElementName())));
+				}
+				current = module;
 				JavaModelManager.getModulePathManager().addEntry(module, this);
-				break;
+				//break; continue looking, there may be other roots containing module-info
+				info.setModule(module);
 			}
 		}
 		return true;
 	}
 
+	public boolean isModuleProject() throws JavaModelException {
+		IPackageFragmentRoot[] roots = getPackageFragmentRoots();
+		for (IPackageFragmentRoot root : roots) {
+			if (root.getKind() != IPackageFragmentRoot.K_SOURCE)
+				continue;
+			if (((PackageFragmentRoot)root).isModuleDescriptionRoot())
+				return true;
+		}
+		return false;
+	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.JavaElement#close()
 	 */
@@ -3346,10 +3365,22 @@ public class JavaProject
 	}
 
 	public IModuleDescription getModuleDescription() throws JavaModelException {
-		JavaProjectElementInfo info = (JavaProjectElementInfo) getElementInfo();	
+		JavaProjectElementInfo info = (JavaProjectElementInfo) getElementInfo();
 		return info.getModule();
 	}
 
+	public void setModuleDescription(IModuleDescription module) throws JavaModelException {
+		JavaProjectElementInfo info = (JavaProjectElementInfo) getElementInfo();	
+		IModuleDescription current = info.getModule();
+		if (current != null) {
+			IPackageFragmentRoot root = (IPackageFragmentRoot) current.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+			IPackageFragmentRoot newRoot = (IPackageFragmentRoot) module.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
+			if (!root.equals(newRoot))
+				throw new JavaModelException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID,
+						Messages.bind(Messages.classpath_duplicateEntryPath, TypeConstants.MODULE_INFO_FILE_NAME_STRING, getElementName())));
+		}
+		info.setModule(module);
+	}
 	@Override
 	public ITypeLookup typeLookup() {
 		// No direct way to lookup, use the java model APIs instead

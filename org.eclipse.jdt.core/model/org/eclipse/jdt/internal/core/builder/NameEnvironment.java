@@ -26,7 +26,6 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.*;
-import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -45,6 +44,7 @@ public class NameEnvironment extends ModuleEnvironment implements SuffixConstant
 boolean isIncrementalBuild;
 ClasspathMultiDirectory[] sourceLocations;
 ClasspathLocation[] binaryLocations;
+IModulePathEntry[] modulePathEntries;
 BuildNotifier notifier;
 
 SimpleSet initialTypeNames; // assumed that each name is of the form "a/b/ClassName"
@@ -108,6 +108,9 @@ private void computeClasspathLocations(
 	IClasspathEntry[] classpathEntries = javaProject.getExpandedClasspath();
 	ArrayList sLocations = new ArrayList(classpathEntries.length);
 	ArrayList bLocations = new ArrayList(classpathEntries.length);
+	List<IModulePathEntry> entries = new ArrayList<>(classpathEntries.length);
+	IModuleDescription mod = null;
+	
 	nextEntry : for (int i = 0, l = classpathEntries.length; i < l; i++) {
 		ClasspathEntry entry = (ClasspathEntry) classpathEntries[i];
 		IPath path = entry.getPath();
@@ -146,6 +149,7 @@ private void computeClasspathLocations(
 				JavaProject prereqJavaProject = (JavaProject) JavaCore.create(prereqProject);
 				IClasspathEntry[] prereqClasspathEntries = prereqJavaProject.getRawClasspath();
 				ArrayList seen = new ArrayList();
+				List<ClasspathLocation> projectLocations = new ArrayList<ClasspathLocation>();
 				nextPrereqEntry: for (int j = 0, m = prereqClasspathEntries.length; j < m; j++) {
 					IClasspathEntry prereqEntry = prereqClasspathEntries[j];
 					if (prereqEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
@@ -161,6 +165,7 @@ private void computeClasspathLocations(
 							seen.add(binaryFolder);
 							ClasspathLocation bLocation = ClasspathLocation.forBinaryFolder(binaryFolder, true, entry.getAccessRuleSet(), externalAnnotationPath, this);
 							bLocations.add(bLocation);
+							projectLocations.add(bLocation);
 							if (binaryLocationsPerProject != null) { // normal builder mode
 								ClasspathLocation[] existingLocations = (ClasspathLocation[]) binaryLocationsPerProject.get(prereqProject);
 								if (existingLocations == null) {
@@ -174,6 +179,11 @@ private void computeClasspathLocations(
 							}
 						}
 					}
+				}
+				if ((mod = prereqJavaProject.getModuleDescription()) != null && projectLocations.size() > 0) {
+					ModuleDescriptionInfo info = (ModuleDescriptionInfo) ((SourceModule)mod).getElementInfo();
+					ModulePathEntry projectEntry = new ModulePathEntry(prereqJavaProject.getPath(), info, projectLocations.toArray(new ClasspathLocation[projectLocations.size()]));
+					entries.add(projectEntry);
 				}
 				continue nextEntry;
 
@@ -197,6 +207,11 @@ private void computeClasspathLocations(
 						bLocation = ClasspathLocation.forBinaryFolder((IContainer) target, false, accessRuleSet, externalAnnotationPath, this);	 // is library folder not output folder
 					}
 					bLocations.add(bLocation);
+					// TODO: Ideally we need to do something like mapToModulePathEntry using the path and if it is indeed
+					// a module path entry, then add the corresponding entry here, but that would need the target platform
+					if (bLocation instanceof IModulePathEntry) {
+						entries.add((IModulePathEntry) bLocation);
+					}
 					if (binaryLocationsPerProject != null) { // normal builder mode
 						IProject p = resource.getProject(); // can be the project being built
 						ClasspathLocation[] existingLocations = (ClasspathLocation[]) binaryLocationsPerProject.get(p);
@@ -215,7 +230,13 @@ private void computeClasspathLocations(
 							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
 								? null
 								: entry.getAccessRuleSet();
-					bLocations.add(ClasspathLocation.forLibrary(path.toString(), accessRuleSet, externalAnnotationPath, this));
+					ClasspathLocation bLocation = ClasspathLocation.forLibrary(path.toString(), accessRuleSet, externalAnnotationPath, this);
+					bLocations.add(bLocation);
+					// TODO: Ideally we need to do something like mapToModulePathEntry using the path and if it is indeed
+					// a module path entry, then add the corresponding entry here, but that would need the target platform
+					if (bLocation instanceof IModulePathEntry) {
+						entries.add((IModulePathEntry) bLocation);
+					}
 				}
 				continue nextEntry;
 		}
@@ -226,7 +247,11 @@ private void computeClasspathLocations(
 	this.sourceLocations = new ClasspathMultiDirectory[sLocations.size()];
 	if (!sLocations.isEmpty()) {
 		sLocations.toArray(this.sourceLocations);
-
+		if ((mod = javaProject.getModuleDescription()) != null) {
+			ModuleDescriptionInfo info = (ModuleDescriptionInfo) ((SourceModule)mod).getElementInfo();
+			ModulePathEntry projectEntry = new ModulePathEntry(javaProject.getPath(), info, this.sourceLocations);
+			entries.add(0, projectEntry);
+		}
 		// collect the output folders, skipping duplicates
 		next : for (int i = 0, l = this.sourceLocations.length; i < l; i++) {
 			ClasspathMultiDirectory md = this.sourceLocations[i];
@@ -254,6 +279,8 @@ private void computeClasspathLocations(
 		this.binaryLocations[index++] = (ClasspathLocation) outputFolders.get(i);
 	for (int i = 0, l = bLocations.size(); i < l; i++)
 		this.binaryLocations[index++] = (ClasspathLocation) bLocations.get(i);
+	
+	this.modulePathEntries = entries.toArray(new IModulePathEntry[entries.size()]);
 }
 
 public void cleanup() {
@@ -263,6 +290,7 @@ public void cleanup() {
 		this.sourceLocations[i].cleanup();
 	for (int i = 0, l = this.binaryLocations.length; i < l; i++)
 		this.binaryLocations[i].cleanup();
+	this.modulePathEntries = null;
 }
 
 private void createOutputFolder(IContainer outputFolder) throws CoreException {
@@ -314,7 +342,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 	char[] binaryFileName = CharOperation.concat(typeName, SUFFIX_class);
 	if (IModuleContext.UNNAMED_MODULE_CONTEXT == moduleContext) {
 		return Stream.of(this.binaryLocations)
-				.map(p -> p.getLookupEnvironment().typeLookup())
+				.map(p -> p.typeLookup())
 				.reduce(ITypeLookup::chain)
 				.map(t -> t.findClass(binaryFileName, qPackageName, qBinaryFileName)).orElse(null);
 	}
@@ -360,7 +388,7 @@ public boolean isPackage(String qualifiedPackageName) {
 }
 public boolean isPackage(String qualifiedPackageName, IModuleContext moduleContext) {
 	if (moduleContext == IModuleContext.UNNAMED_MODULE_CONTEXT) {
-		return Stream.of(this.binaryLocations).map(p -> p.getLookupEnvironment().packageLookup())
+		return Stream.of(this.binaryLocations).map(p -> p.packageLookup())
 				.filter(l -> l.isPackage(qualifiedPackageName)).findAny().isPresent();
 	} else {
 		return moduleContext.getEnvironment().map(e -> e.packageLookup())
@@ -400,30 +428,17 @@ public IModule getModule(char[] name) {
 	if (name == null)
 		return null;
 	IModule module = null;
-	for (int i = 0, l = this.sourceLocations.length; i < l; i++) {
-		if ((module = this.sourceLocations[i].getModule(name)) != null)
+	for (int i = 0; i < this.modulePathEntries.length; i++) {
+		if ((module = this.modulePathEntries[i].getModule(name)) != null)
 			break;
-	}
-	if (module == null) {
-		for (int i = 0, l = this.binaryLocations.length; i < l; i++) {
-			if ((module = this.binaryLocations[i].getModule(name)) != null)
-				break;
-		}
-	}
-	if (module == null) {
-		module = JavaModelManager.getModulePathManager().getModule(name);
 	}
 	return module;
 }
 public IModuleEnvironment getModuleEnvironmentFor(char[] moduleName) {
 	IModule module = null;
-	for (int i = 0, l = this.sourceLocations.length; i < l; i++) {
-		if ((module = this.sourceLocations[i].getModule(moduleName)) != null)
-			return this.sourceLocations[i].getLookupEnvironmentFor(module);
-	}
-	for (int i = 0, l = this.binaryLocations.length; i < l; i++) {
-		if ((module = this.binaryLocations[i].getModule(moduleName)) != null)
-			return this.binaryLocations[i].getLookupEnvironmentFor(module);
+	for (int i = 0; i < this.modulePathEntries.length; i++) {
+		if ((module = this.modulePathEntries[i].getModule(moduleName)) != null)
+			return this.modulePathEntries[i].getLookupEnvironmentFor(module);
 	}
 	return null;
 }

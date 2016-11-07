@@ -56,8 +56,7 @@ public class ModulePathContainer implements IClasspathContainer{
 				entries.add(JavaCore.newProjectEntry(path, ref.isPublic()));
 			}
 		} catch (JavaModelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// ignore
 		}
 		return entries.toArray(new IClasspathEntry[entries.size()]);
 	}

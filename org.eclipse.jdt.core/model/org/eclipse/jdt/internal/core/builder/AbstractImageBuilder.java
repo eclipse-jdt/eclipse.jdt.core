@@ -23,8 +23,6 @@ import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.*;
@@ -63,7 +61,6 @@ private boolean inCompiler;
 
 protected boolean keepStoringProblemMarkers;
 protected SimpleSet filesWithAnnotations = null;
-IModule module = null;
 
 //2000 is best compromise between space used and speed
 public static int MAX_AT_ONCE = Integer.getInteger(JavaModelManager.MAX_COMPILED_UNITS_AT_ONCE, 2000).intValue();
@@ -216,10 +213,6 @@ public void acceptResult(CompilationResult result) {
 protected void acceptSecondaryType(ClassFile classFile) {
 	// noop
 }
-public void acceptModule(IModule mod) {
-	//TODO: If module was already part of another source folder, flag an error?
-	this.module = mod;
-}
 protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreException {
 	for (int i = 0, l = this.sourceLocations.length; i < l; i++) {
 		final ClasspathMultiDirectory sourceLocation = this.sourceLocations[i];
@@ -240,16 +233,6 @@ protected void addAllSourceFiles(final ArrayList sourceFiles) throws CoreExcepti
 									if (Util.isExcluded(resource.getFullPath(), inclusionPatterns, exclusionPatterns, false))
 										return false;
 								SourceFile unit = new SourceFile((IFile) resource, sourceLocation);
-								String complianceLevel = AbstractImageBuilder.this.javaBuilder.javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
-								if (AbstractImageBuilder.this.module != null && sourceLocation.getModule() == null) {
-									sourceLocation.resetModule(AbstractImageBuilder.this.module);
-								} else {
-									if (CompilerOptions.versionToJdkLevel(complianceLevel) >= ClassFileConstants.JDK9 &&
-											resource.getName().equalsIgnoreCase(IModuleLocation.MODULE_INFO_JAVA)) {
-										sourceLocation.acceptModuleInfo(unit, AbstractImageBuilder.this.compiler.parser);
-										acceptModule(sourceLocation.getModule());
-									}
-								}
 								sourceFiles.add(unit);
 							}
 							return false;

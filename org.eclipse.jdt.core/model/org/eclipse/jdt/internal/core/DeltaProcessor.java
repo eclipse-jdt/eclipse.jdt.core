@@ -567,6 +567,13 @@ public class DeltaProcessor {
 							//$FALL-THROUGH$
 						case IResourceDelta.ADDED :
 						case IResourceDelta.REMOVED :
+							javaProject = (JavaProject)JavaCore.create(file.getProject());
+							try {
+								// Make sure module description is read
+								javaProject.close();
+							} catch (JavaModelException e) {
+								// do nothing
+							}
 							break;
 					}
 				}

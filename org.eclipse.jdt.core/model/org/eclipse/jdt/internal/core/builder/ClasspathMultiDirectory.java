@@ -87,7 +87,7 @@ public void acceptModuleInfo(ICompilationUnit cu, Parser parser) {
 		}
 	}
 }
-public void resetModule(IModule mod) {
+public void setModule(IModule mod) {
 	this.module = mod;
 }
 
