@@ -23,7 +23,7 @@ import junit.framework.Test;
 public class GenericsRegressionTest_1_8 extends AbstractRegressionTest {
 
 static {
-//	TESTS_NAMES = new String[] { "testBug434483" };
+//	TESTS_NAMES = new String[] { "testBug496574_small" };
 //	TESTS_NUMBERS = new int[] { 40, 41, 43, 45, 63, 64 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
@@ -4543,6 +4543,47 @@ public void test439594() {
 	},
 	"");
 }
+// reduced version for analysis (no need to run during normal tests)
+public void _test439594_small() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java", 
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"import java.util.function.Function;\n" +
+			"import java.util.function.Predicate;\n" +
+			"import java.util.stream.Collectors;\n" +
+			"import java.util.stream.Stream;\n" +
+			"public class X {\n" +
+			"	protected static interface IListEntry {\n" +
+			"		public <T> T visitRecordsWithResult(Function<Stream<Record>,T> func);		\n" +
+			"	}\n" +
+			"	protected static final class ImmutableRecord {\n" +
+			"		public ImmutableRecord(Record r) { }\n" +
+			"	}\n" +
+			"	protected static final class Record {}\n" +
+			"	public List<ImmutableRecord> compilesWithJavacButNotEclipse1() \n" +
+			"	{\n" +
+			"		return visitEntriesWithResult( stream -> {\n" +
+			"			return stream.map( entry -> {\n" +
+			"				return entry.visitRecordsWithResult( stream2 -> stream2\n" +
+			"						.filter( somePredicate() )\n" +
+			"						.map( ImmutableRecord::new )\n" +
+			"						.collect( Collectors.toList() )\n" +
+			"					);	\n" +
+			"			}).flatMap( List::stream ).collect( Collectors.toCollection( ArrayList::new ) );\n" +
+			"		});		\n" +
+			"	}		\n" +
+			"	private static Predicate<Record> somePredicate() {\n" +
+			"		return record -> true;\n" +
+			"	}		\n" +
+			"	private <T> T visitEntriesWithResult(Function<Stream<IListEntry>,T> func) {\n" +
+			"		return func.apply( new ArrayList<IListEntry>().stream() );\n" +
+			"	}\n" +
+			"}\n"
+	},
+	"");
+}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=433852, [1.8][compiler] Javac rejects type inference results that ECJ accepts
 public void test433852() {
 	this.runNegativeTest(
@@ -6489,6 +6530,29 @@ public void testBug496574() {
 			"}\n"
 		});
 }
+public void testBug496574_small() {
+	runConformTest(
+		new String[] {
+			"Small.java",
+			"import java.util.*;\n" + 
+			"import java.util.stream.*;\n" + 
+			"\n" + 
+			"interface KeyValueObj {\n" + 
+			"    String getKey();\n" + 
+			"    String getValue();\n" + 
+			"}\n" + 
+			"\n" + 
+			"public class Small {\n" + 
+			"\n" + 
+			"	public void test(Optional<List<KeyValueObj>> optList) {\n" + 
+			"		Optional<Map<String, String>> mses = optList\n" + 
+			"                .map(ms -> ms.stream().collect(Collectors.toMap(\n" + 
+			"                    metafield -> metafield.getKey(),\n" + 
+			"                    metafield -> metafield.getValue())));\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
 public void testBug496579() {
 	runConformTest(
 		new String[] {
@@ -6913,5 +6977,336 @@ public void testBug472851() {
 		"	^^^^\n" + 
 		"The method test(List<L>) in the type Test is not applicable for the arguments (List<capture#1-of ? extends List<?>>)\n" + 
 		"----------\n");
+}
+public void testBug502350() {
+	runNegativeTest(
+		new String[] {
+			"makeCompilerFreeze/EclipseJava8Bug.java",
+			"package makeCompilerFreeze;\n" +
+			"\n" +
+			"interface Comparable<E> {} \n" +
+			"\n" +
+			"interface Comparator<A> {\n" +
+			"  public static <B extends Comparable<B>> Comparator<B> naturalOrder() {\n" +
+			"    return null;\n" +
+			"  }\n" +
+			"}\n" +
+			"\n" +
+			"\n" +
+			"class Stuff {\n" +
+			"  public static <T, S extends T> Object func(Comparator<T> comparator) {\n" +
+			"    return null;\n" +
+			"  }\n" +
+			"}\n" +
+			"\n" +
+			"public class EclipseJava8Bug {\n" +
+			"  static final Object BORKED =\n" +
+			"      Stuff.func(Comparator.naturalOrder());\n" +
+			"}\n" +
+			"\n" +
+			"",
+		},
+		"----------\n" + 
+		"1. ERROR in makeCompilerFreeze\\EclipseJava8Bug.java (at line 20)\n" + 
+		"	Stuff.func(Comparator.naturalOrder());\n" + 
+		"	      ^^^^\n" + 
+		"The method func(Comparator<T>) in the type Stuff is not applicable for the arguments (Comparator<Comparable<Comparable<B>>>)\n" + 
+		"----------\n" + 
+		"2. ERROR in makeCompilerFreeze\\EclipseJava8Bug.java (at line 20)\n" + 
+		"	Stuff.func(Comparator.naturalOrder());\n" + 
+		"	           ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type mismatch: cannot convert from Comparator<Comparable<Comparable<B>>> to Comparator<T>\n" + 
+		"----------\n"
+	);
+}
+public void testBug499351() {
+	runConformTest(
+		new String[] {
+			"Bug.java",
+			"import java.util.HashMap;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Map;\n" + 
+			"import java.util.Set;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"public class Bug {\n" + 
+			"    private static final Validator VALIDATOR = new Validator();\n" + 
+			"\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        Map<String, List<Promotion>> promotions = new HashMap<>();\n" + 
+			"\n" + 
+			"        Set<ConstraintViolation> cvs = promotions.entrySet().stream()\n" + 
+			"            .flatMap(e -> e.getValue().stream()\n" + 
+			"                .flatMap(promotion -> VALIDATOR.validate(promotion).stream())\n" + 
+			"            )\n" + 
+			"            .collect(Collectors.toSet());\n" + 
+			"\n" + 
+			"        Set<ExtendedConstraintViolation> ecvs = promotions.entrySet().stream()\n" + 
+			"                .flatMap(e -> e.getValue().stream()\n" + 
+			"                    .map(constraintViolation -> new ExtendedConstraintViolation(\"\", null))\n" + 
+			"                )\n" + 
+			"                .collect(Collectors.toSet());\n" + 
+			"\n" + 
+			"        Set<ExtendedConstraintViolation> ecvs2 = promotions.entrySet().stream()\n" + 
+			"                .flatMap(e -> e.getValue().stream())\n" + 
+			"                .flatMap(promotion -> VALIDATOR.validate(promotion).stream())\n" + 
+			"                .map(constraintViolation -> new ExtendedConstraintViolation(\"promotions/2\", constraintViolation))\n" + 
+			"                .collect(Collectors.toSet());\n" + 
+			"\n" + 
+			"        // Below does not compile with 4.7M1, but worked fine in 4.5 (also compiles fine with Oracle/JDK8)\n" + 
+			"        //\n" + 
+			"        // --> Type mismatch: cannot convert from Set<Object> to Set<Bug.ExtendedConstraintViolation>\n" + 
+			"        //\n" + 
+			"        Set<ExtendedConstraintViolation> ecvs3 = promotions.entrySet().stream()\n" + 
+			"                .flatMap(e -> e.getValue().stream()\n" + 
+			"                    .flatMap(promotion -> VALIDATOR.validate(promotion).stream()\n" + 
+			"                        .map(constraintViolation -> new ExtendedConstraintViolation(\"promotions/\" + e.getKey(), constraintViolation))\n" + 
+			"                    )\n" + 
+			"                )\n" + 
+			"                .collect(Collectors.toSet());\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private static class ExtendedConstraintViolation {\n" + 
+			"        public ExtendedConstraintViolation(String key, ConstraintViolation cv) {\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private static class ConstraintViolation {\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private static class Promotion {\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    private static class Validator {\n" + 
+			"        public Set<ConstraintViolation> validate(Object o) {\n" + 
+			"            return null;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
+// reduced version for analysis (no need to run during normal tests)
+public void _testBug499351_small() {
+	runConformTest(
+		new String[] {
+			"Small.java",
+			"import java.util.*;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"public class Small {\n" + 
+			"\n" + 
+			"    public static void test(Map<String, List<Promotion>> promotions, Validator validator) {\n" + 
+			"\n" + 
+			"        Set<ExtendedConstraintViolation> ecvs = promotions.entrySet().stream()\n" + 
+			"                .flatMap(e -> e.getValue().stream()\n" + 
+			"                    .flatMap(promotion -> validator.validate(promotion).stream()\n" + 
+			"                        .map(constraintViolation -> new ExtendedConstraintViolation(\"promotions/\" + e.getKey(), constraintViolation))\n" + 
+			"                    )\n" + 
+			"                )\n" + 
+			"                .collect(Collectors.toSet());\n" + 
+			"    }\n" + 
+			"\n" + 
+			"}\n" + 
+			"class ExtendedConstraintViolation {\n" + 
+			"    public ExtendedConstraintViolation(String key, ConstraintViolation cv) { }\n" + 
+			"}\n" + 
+			"\n" + 
+			"class ConstraintViolation { }\n" + 
+			"class Promotion { }\n" + 
+			"class Validator {\n" + 
+			"    public Set<ConstraintViolation> validate(Object o) { return null; }\n" + 
+			"}\n"
+		});
+}
+public void test499351_extra1() {
+	runConformTest(
+		new String[] {
+			"Example.java",
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"public class Example {\n" + 
+			"   static <T> T id(T t) { return t; }\n" + 
+			"   static <T,X> T f1 (X x) { return null; }\n" + 
+			"   \n" + 
+			"   String test() {\n" + 
+			"	   return f3(y -> y.f2(Example::f1, id(y)));\n" +
+			"   }\n" + 
+			"   <U,V> V f2(Function<U, V> f, U u) {return f.apply(null);}\n" + 
+			"   <R> R f3(Function<Example,R> f) { return null; }\n" + 
+			"}\n"
+		});
+}
+public void test499351_extra2() {
+	runConformTest(
+		new String[] {
+			"BadInferenceMars451.java",
+			"import java.util.*;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"public class BadInferenceMars451 {\n" + 
+			"	public static Map<Object, List<X>> BadInferenceMars451Casus1() {\n" + 
+			"		List<X> stuff = new ArrayList<>();\n" + 
+			"		return stuff.stream().collect(Collectors.toMap(Function.identity(), t -> Arrays.asList(t), BadInferenceMars451::sum));\n" + 
+			"	}\n" + 
+			"	public static <T> List<T> sum(List<T> l1, List<T> l2) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public static class X {\n" + 
+			"	}\n" + 
+			"}"
+		});
+}
+public void testBug501949() {
+	runConformTest(
+		new String[] {
+			"DefaultClientRequestsV2.java",
+			"import java.io.IOException;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.function.Supplier;\n" + 
+			"\n" + 
+			"\n" + 
+			"interface Flux<T> extends Publisher<T> {\n" + 
+			"	<R> Flux<R> flatMap(Function<? super T, ? extends Publisher<? extends R>> f);\n" + 
+			"	<V> Flux<V> map(Function<T,V> mapper);\n" + 
+			"	Mono<List<T>> collectList();\n" + 
+			"}\n" + 
+			"abstract class Mono<T> implements Publisher<T> {\n" + 
+			"	abstract T block();\n" + 
+			"	abstract <R> Flux<R> flatMap(Function<? super T, ? extends Publisher<? extends R>> f);\n" + 
+			"}\n" + 
+			"interface Publisher<T> {}\n" + 
+			"interface CloudFoundryOperations {\n" + 
+			"	Flux<SpaceSummary> list();\n" + 
+			"}\n" + 
+			"class SpaceSummary { }\n" + 
+			"class OrganizationSummary {\n" + 
+			"	String getId() { return \"\"; }\n" + 
+			"}\n" + 
+			"interface CFSpace {}\n" + 
+			"public class DefaultClientRequestsV2 {\n" + 
+			"\n" + 
+			"	private Flux<OrganizationSummary> _orglist;\n" + 
+			"\n" + 
+			"	private Mono<CloudFoundryOperations> operationsFor(OrganizationSummary org) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	public List<CFSpace> getSpaces() {\n" + 
+			"		return get(\n" + 
+			"			_orglist\n" + 
+			"			.flatMap((OrganizationSummary org) -> {\n" + 
+			"				return operationsFor(org).flatMap((operations) ->\n" + 
+			"					operations\n" + 
+			"					.list()\n" + 
+			"					.map((space) -> wrap(org, space)\n" + 
+			"					)\n" + 
+			"				);\n" + 
+			"			})\n" + 
+			"			.collectList()\n" + 
+			"		);\n" + 
+			"	}\n" + 
+			"	public static <T> T get(Mono<T> mono)  {\n" + 
+			"		return mono.block();\n" + 
+			"	}\n" + 
+			"	public static CFSpace wrap(OrganizationSummary org, SpaceSummary space) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
+public void testBug502568() {
+	runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.util.ArrayList;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.Optional;\n" + 
+			"import java.util.UUID;\n" + 
+			"import java.util.concurrent.CompletableFuture;\n" + 
+			"import java.util.function.Function;\n" + 
+			"\n" + 
+			"public class Test {\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public CompletableFuture<UUID> test() {\n" + 
+			"		UUID id = UUID.randomUUID();\n" + 
+			"		\n" + 
+			"		return transaction(conn -> {\n" + 
+			"			return query().thenCompose(rs1 -> {\n" + 
+			"				return query().thenCompose(rs2 -> {\n" + 
+			"					return query();\n" + 
+			"				});\n" + 
+			"			});\n" + 
+			"		})\n" + 
+			"		.thenApply(rs -> id);\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public <T> CompletableFuture<T> transaction(Function<String,CompletableFuture<T>> param1) {\n" + 
+			"		return param1.apply(\"test\");\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public CompletableFuture<Optional<List<String>>> query() {\n" + 
+			"		return CompletableFuture.completedFuture(Optional.of(new ArrayList<String>()));\n" + 
+			"	}\n" + 
+			"}\n"
+		});
+}
+public void testBug499725() {
+	runConformTest(
+		new String[] {
+			"Try22.java",
+			"import java.rmi.RemoteException;\n" + 
+			"import java.util.Arrays;\n" + 
+			"import java.util.Collection;\n" + 
+			"import java.util.Collections;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"\n" + 
+			"public class Try22 {\n" + 
+			"    public static class RemoteExceptionWrapper {\n" + 
+			"        @FunctionalInterface\n" + 
+			"        public static interface FunctionRemote<T, R> {\n" + 
+			"            R apply(T t) throws RemoteException;\n" + 
+			"        }\n" + 
+			"        \n" + 
+			"        public static <T, R> Function<T, R> wrapFunction(FunctionRemote<T, R> f) {\n" + 
+			"            return x -> {\n" + 
+			"                try {\n" + 
+			"                    return f.apply(x);\n" + 
+			"                }\n" + 
+			"                catch(RemoteException  e) {\n" + 
+			"                    throw new RuntimeException(e);\n" + 
+			"                }\n" + 
+			"            };\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"\n" + 
+			"    private static class ThrowingThingy {\n" + 
+			"        public Collection<String> listStuff(String in) throws RemoteException {\n" + 
+			"            return Collections.emptyList();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    \n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        List<String> stagedNodes = Arrays.asList(\"a\", \"b\", \"c\");\n" + 
+			"        ThrowingThingy remoteThing = new ThrowingThingy();  // simulation of a rmi remote, hence the exceptio\n" + 
+			"        \n" + 
+			"        List<String> resultingStuff = stagedNodes.stream()\n" + 
+			"            .flatMap(RemoteExceptionWrapper.wrapFunction(\n" + 
+			"                node -> remoteThing.listStuff(node)    // HERE\n" + 
+			"                    .stream()\n" + 
+			"                    .map(sub -> node + \"/\" + sub)))\n" + 
+			"            .collect(Collectors.toList());\n" + 
+			"        \n" + 
+			"        System.out.println(resultingStuff);\n" + 
+			"    }\n" + 
+			"}\n"
+		});
 }
 }

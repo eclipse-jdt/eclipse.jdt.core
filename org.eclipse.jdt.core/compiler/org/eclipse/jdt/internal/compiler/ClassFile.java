@@ -3808,8 +3808,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 
 		int annotationAttributeOffset = this.contentsOffset;
-		int constantPOffset = this.constantPool.currentOffset;
-		int constantPoolIndex = this.constantPool.currentIndex;
 		if (invisibleAnnotationsCounter != 0) {
 			if (this.contentsOffset + 10 >= this.contents.length) {
 				resizeContents(10);
@@ -3854,14 +3852,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 				attributesNumber++;
 			} else {
 				this.contentsOffset = annotationAttributeOffset;
-				// reset the constant pool to its state before the clinit
-				this.constantPool.resetForAttributeName(AttributeNamesConstants.RuntimeInvisibleAnnotationsName, constantPoolIndex, constantPOffset);
 			}
 		}
 
 		annotationAttributeOffset = this.contentsOffset;
-		constantPOffset = this.constantPool.currentOffset;
-		constantPoolIndex = this.constantPool.currentIndex;
 		if (visibleAnnotationsCounter != 0) {
 			if (this.contentsOffset + 10 >= this.contents.length) {
 				resizeContents(10);
@@ -3906,7 +3900,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 				attributesNumber++;
 			} else {
 				this.contentsOffset = annotationAttributeOffset;
-				this.constantPool.resetForAttributeName(AttributeNamesConstants.RuntimeVisibleAnnotationsName, constantPoolIndex, constantPOffset);
 			}
 		}
 		return attributesNumber;
@@ -4081,8 +4074,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int visibleTypeAnnotationsCounter = visibleTypeAnnotationsNumber;
 		int invisibleTypeAnnotationsCounter = invisibleTypeAnnotationsNumber;
 		int annotationAttributeOffset = this.contentsOffset;
-		int constantPOffset = this.constantPool.currentOffset;
-		int constantPoolIndex = this.constantPool.currentIndex;
 		if (invisibleTypeAnnotationsCounter != 0) {
 			if (this.contentsOffset + 10 >= this.contents.length) {
 				resizeContents(10);
@@ -4122,14 +4113,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 				attributesNumber++;
 			} else {
 				this.contentsOffset = annotationAttributeOffset;
-				// reset the constant pool to its state before the clinit
-				this.constantPool.resetForAttributeName(AttributeNamesConstants.RuntimeInvisibleTypeAnnotationsName, constantPoolIndex, constantPOffset);
 			}
 		}
 
 		annotationAttributeOffset = this.contentsOffset;
-		constantPOffset = this.constantPool.currentOffset;
-		constantPoolIndex = this.constantPool.currentIndex;
 		if (visibleTypeAnnotationsCounter != 0) {
 			if (this.contentsOffset + 10 >= this.contents.length) {
 				resizeContents(10);
@@ -4169,7 +4156,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 				attributesNumber++;
 			} else {
 				this.contentsOffset = annotationAttributeOffset;
-				this.constantPool.resetForAttributeName(AttributeNamesConstants.RuntimeVisibleTypeAnnotationsName, constantPoolIndex, constantPOffset);
 			}
 		}
 		return attributesNumber;

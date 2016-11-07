@@ -14327,6 +14327,27 @@ public void testBug419351() {
 		new File(lib1Path).delete();
 	}
 }
+
+public void test501457() throws IOException {
+	this.runConformTest(new String[] {
+			"FailingClass.java",
+			"import java.lang.invoke.MethodHandle;\n" +
+			"import java.util.ArrayList;\n" +
+			"public class FailingClass {\n" +
+			"  protected void test(MethodHandle handle) throws Throwable {\n" +
+			"        handle.invoke(null, new ArrayList<>());\n" +
+			"    }\n" +
+			"}\n"
+		},
+		" -1.8 " +
+		" -sourcepath \"" + OUTPUT_DIR + "\" " +
+		"\"" + OUTPUT_DIR +  File.separator + "FailingClass.java",
+		"",
+		"",
+		true
+	);
+}
+
 // Bug 440477 - [null] Infrastructure for feeding external annotations into compilation
 // - single external annotation directory
 public void test440477() throws IOException {

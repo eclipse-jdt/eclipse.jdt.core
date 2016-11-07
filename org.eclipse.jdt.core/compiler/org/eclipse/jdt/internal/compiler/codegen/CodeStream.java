@@ -2648,6 +2648,8 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 				methodKind = ClassFileConstants.MethodHandleRefKindInvokeSpecial;
 			} else if (mb.isConstructor()) {
 				methodKind = ClassFileConstants.MethodHandleRefKindNewInvokeSpecial;
+			} else if (mb.declaringClass.isInterface()) {
+				methodKind = ClassFileConstants.MethodHandleRefKindInvokeInterface;
 			} else {
 				methodKind = ClassFileConstants.MethodHandleRefKindInvokeVirtual;
 			}
@@ -2727,7 +2729,7 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 				invoke(Opcodes.OPC_invokevirtual, 1, 1,
 						ConstantPool.JavaLangInvokeSerializedLambdaConstantPoolName,
 						ConstantPool.GetCapturedArg, ConstantPool.GetCapturedArgSignature);
-				checkcast(isLambda ? mb.declaringClass : ((ReferenceExpression)funcEx).receiverType);
+				checkcast(mb.declaringClass);
 				sig.append(mb.declaringClass.signature());
 			}
 			for (int p = 0, max = outerLocalVariables == null ? 0 : outerLocalVariables.length; p < max; p++) {

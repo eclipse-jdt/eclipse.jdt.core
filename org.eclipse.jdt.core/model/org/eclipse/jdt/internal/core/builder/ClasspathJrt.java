@@ -31,6 +31,8 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
@@ -205,17 +207,20 @@ private NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedP
 	if (!isPackage(qualifiedPackageName)) return null; // most common case
 
 	try {
-		ClassFileReader reader = ClassFileReader.readFromModules(new File(this.zipFilename), qualifiedBinaryFileName, moduleNames);
+		IBinaryType reader = ClassFileReader.readFromModules(new File(this.zipFilename), qualifiedBinaryFileName, moduleNames);
 		if (reader != null) {
 			if (this.externalAnnotationPath != null) {
 				String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
 				try {
-					this.annotationZipFile = reader.setExternalAnnotationProvider(this.externalAnnotationPath, fileNameWithoutExtension, this.annotationZipFile, null);
+					if (this.annotationZipFile == null) {
+						this.annotationZipFile = ExternalAnnotationDecorator.getAnnotationZipFile(this.externalAnnotationPath, null);
+					}
+					reader = ExternalAnnotationDecorator.create(reader, this.externalAnnotationPath, fileNameWithoutExtension, this.annotationZipFile);
 				} catch (IOException e) {
 					// don't let error on annotations fail class reading
 				}
 			}
-			return new NameEnvironmentAnswer(reader, null, reader.moduleName);
+			return new NameEnvironmentAnswer(reader, null, reader.getModule());
 		}
 	} catch (IOException e) { // treat as if class file is missing
 	} catch (ClassFormatException e) { // treat as if class file is missing

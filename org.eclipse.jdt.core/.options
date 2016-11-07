@@ -53,6 +53,33 @@ org.eclipse.jdt.core/debug/javamodel=false
 # Reports Java model elements opening/closing
 org.eclipse.jdt.core/debug/javamodel/cache=false
 
+# Reports changes in the Java classpath and classpath resolution
+org.eclipse.jdt.core/debug/javamodel/classpath=false
+
+# Reports all insertions and removals from the java model cache
+org.eclipse.jdt.core/debug/javamodel/insertions=false
+
+# Records information about the invalid archive cache
+org.eclipse.jdt.core/debug/javamodel/invalid_archives=false
+
+# Prints information about when the indexer runs and what files are being indexed
+org.eclipse.jdt.core/debug/index/indexer=false
+
+# Prints a line whenever a class is added to or removed from the index
+org.eclipse.jdt.core/debug/index/insertions=false
+
+# Prints diagnostic information about index database locks
+org.eclipse.jdt.core/debug/index/locks=false
+
+# Prints statistics about database memory usage
+org.eclipse.jdt.core/debug/index/space=false
+
+# Performs self-testing during indexing by reading back every class and comparing it with the original .class file
+org.eclipse.jdt.core/debug/index/selftest=false
+
+# Prints statistics about indexing time
+org.eclipse.jdt.core/debug/index/timing=false
+
 # Reports post actions addition/run
 org.eclipse.jdt.core/debug/postaction=false
 

@@ -36,11 +36,13 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaCorePreferenceInitializer;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.JavaElementDelta;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.ResolvedSourceMethod;
 import org.eclipse.jdt.internal.core.ResolvedSourceType;
+import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -242,10 +244,17 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		public synchronized String stackTraces() {
 			return this.stackTraces.toString();
 		}
+
 		public synchronized String toString() {
-			StringBuffer buffer = new StringBuffer();
-			for (int i=0, length= this.deltas.length; i<length; i++) {
+			StringBuilder buffer = new StringBuilder();
+			for (int i = 0, length= this.deltas.length; i < length; i++) {
 				IJavaElementDelta delta = this.deltas[i];
+				if (((JavaElementDelta) delta).ignoreFromTests) {
+					continue;
+				}
+				if (buffer.length() != 0) {
+					buffer.append("\n\n");
+				}
 				IJavaElementDelta[] children = delta.getAffectedChildren();
 				int childrenLength=children.length;
 				IResourceDelta[] resourceDeltas = delta.getResourceDeltas();
@@ -254,28 +263,23 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					buffer.append(delta);
 				} else {
 					sortDeltas(children);
-					for (int j=0; j<childrenLength; j++) {
-						buffer.append(children[j]);
-						if (j != childrenLength-1) {
-							buffer.append("\n");
+					for (int j = 0; j < childrenLength; j++) {
+						if (buffer.length() != 0 && buffer.charAt(buffer.length() - 1) != '\n') {
+							buffer.append('\n');
 						}
+						buffer.append(children[j]);
 					}
-					for (int j=0; j<resourceDeltasLength; j++) {
-						if (j == 0 && buffer.length() != 0) {
-							buffer.append("\n");
+					for (int j = 0; j < resourceDeltasLength; j++) {
+						if (buffer.length() != 0 && buffer.charAt(buffer.length() - 1) != '\n') {
+							buffer.append('\n');
 						}
 						buffer.append(resourceDeltas[j]);
-						if (j != resourceDeltasLength-1) {
-							buffer.append("\n");
-						}
 					}
-				}
-				if (i != length-1) {
-					buffer.append("\n\n");
 				}
 			}
 			return buffer.toString();
 		}
+
 		public void waitForResourceDelta() {
 			long start = System.currentTimeMillis();
 			while (!this.gotResourceDelta) {
@@ -2431,6 +2435,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void refreshExternalArchives(IJavaProject p) throws JavaModelException {
 		waitForAutoBuild(); // ensure that the auto-build job doesn't interfere with external jar refreshing
 		getJavaModel().refreshExternalArchives(new IJavaElement[] {p}, null);
+		Indexer.getInstance().waitForIndex(null);
 	}
 
 	protected void removeJavaNature(String projectName) throws CoreException {
@@ -3154,6 +3159,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		do {
 			try {
 				Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+				Indexer.getInstance().waitForIndex(null);
 				wasInterrupted = false;
 			} catch (OperationCanceledException e) {
 				e.printStackTrace();
@@ -3168,6 +3174,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		do {
 			try {
 				Job.getJobManager().join(ResourcesPlugin.FAMILY_MANUAL_REFRESH, null);
+				Indexer.getInstance().waitForIndex(null);
 				wasInterrupted = false;
 			} catch (OperationCanceledException e) {
 				e.printStackTrace();
@@ -3182,6 +3189,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		SearchEngine engine = new SearchEngine();
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 		try {
+			Indexer.getInstance().waitForIndex(null);
 			engine.searchAllTypeNames(
 				null,
 				SearchPattern.R_EXACT_MATCH,

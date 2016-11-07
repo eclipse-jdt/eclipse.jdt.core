@@ -230,6 +230,10 @@ public class ImplicitNullAnnotationVerifier {
 			boolean hasReturnNonNullDefault, boolean hasParameterNonNullDefault, boolean shouldComplain,
 			MethodBinding inheritedMethod, MethodBinding[] allInheritedMethods, Scope scope, InheritedNonNullnessInfo[] inheritedNonNullnessInfos) 
 	{
+		if(currentMethod.declaringClass.id == TypeIds.T_JavaLangObject) {
+			// all method implementations in java.lang.Object return non-null results and accept nullable as parameter.
+			return;
+		}
 		// Note that basically two different flows lead into this method:
 		// (1) during MethodVerifyer15.checkMethods() we want to report errors (against srcMethod or against the current type)
 		//     In this case this method is directly called from MethodVerifier15 (checkAgainstInheritedMethod / checkConcreteInheritedMethod)

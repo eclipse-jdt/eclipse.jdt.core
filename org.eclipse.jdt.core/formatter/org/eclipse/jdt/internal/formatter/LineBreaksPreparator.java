@@ -742,15 +742,20 @@ public class LineBreaksPreparator extends ASTVisitor {
 	}
 
 	private void handleParenthesesPositions(int openingParenIndex, int closingParenIndex, String positionsSetting) {
+		boolean isEmpty = openingParenIndex + 1 == closingParenIndex;
 		switch (positionsSetting) {
 			case DefaultCodeFormatterConstants.COMMON_LINES:
 				// nothing to do
 				break;
 			case DefaultCodeFormatterConstants.SEPARATE_LINES_IF_WRAPPED:
-				this.tm.get(openingParenIndex).setSeparateLinesOnWrapUntil(this.tm.get(closingParenIndex));
+				if (isEmpty)
+					break;
+				this.tm.get(openingParenIndex + 1).setWrapPolicy(new WrapPolicy(WrapMode.TOP_PRIORITY,
+						openingParenIndex, closingParenIndex, this.options.indentation_size, 1, 1, true, false));
+				this.tm.get(closingParenIndex).setWrapPolicy(new WrapPolicy(WrapMode.TOP_PRIORITY,
+						openingParenIndex, closingParenIndex, 0, 1, 1, false, false));
 				break;
 			case DefaultCodeFormatterConstants.SEPARATE_LINES_IF_NOT_EMPTY:
-				boolean isEmpty = openingParenIndex + 1 == closingParenIndex;
 				if (isEmpty)
 					break;
 				//$FALL-THROUGH$

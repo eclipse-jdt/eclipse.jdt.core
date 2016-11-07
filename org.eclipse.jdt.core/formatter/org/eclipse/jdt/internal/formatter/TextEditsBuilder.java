@@ -157,9 +157,9 @@ public class TextEditsBuilder extends TokenTraverser {
 					if (index == 0) {
 						indentToken = token;
 					} else {
-						boolean isForced = token.getWrapPolicy() != null
-								&& token.getWrapPolicy().wrapMode == WrapMode.FORCED;
-						Token previous = this.tm.get(this.tm.findFirstTokenInLine(index - 1, true, !isForced));
+						boolean isBlockIndent = token.getWrapPolicy() != null
+								&& token.getWrapPolicy().wrapMode == WrapMode.BLOCK_INDENT;
+						Token previous = this.tm.get(this.tm.findFirstTokenInLine(index - 1, true, !isBlockIndent));
 						indentToken = (token.getIndent() > previous.getIndent()) ? token : previous;
 					}
 				}
@@ -238,7 +238,7 @@ public class TextEditsBuilder extends TokenTraverser {
 			}
 			while (wrapPolicy != null) {
 				Token parentLineStart = this.tm.get(this.tm.findFirstTokenInLine(wrapPolicy.wrapParentIndex));
-				if (wrapPolicy.wrapMode != WrapMode.FORCED)
+				if (wrapPolicy.wrapMode != WrapMode.BLOCK_INDENT)
 					spaces += token.getIndent() - parentLineStart.getIndent();
 				token = parentLineStart;
 				wrapPolicy = token.getWrapPolicy();

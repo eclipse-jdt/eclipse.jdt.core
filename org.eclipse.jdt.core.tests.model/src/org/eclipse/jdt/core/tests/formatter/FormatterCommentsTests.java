@@ -76,20 +76,6 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 }
 
-/**
- * Reset the jar placeholder and delete project.
- */
-public void tearDownSuite() throws Exception {
-	if (ALL_TEST_SUITES == null) {
-		deleteProject(JAVA_PROJECT); //$NON-NLS-1$
-	} else {
-		ALL_TEST_SUITES.remove(getClass());
-		if (ALL_TEST_SUITES.size() == 0) {
-			deleteProject(JAVA_PROJECT); //$NON-NLS-1$
-		}
-	}
-}
-
 void compareFormattedSource(ICompilationUnit compilationUnit) throws JavaModelException {
 	DefaultCodeFormatter codeFormatter = codeFormatter();
 	String source = compilationUnit.getSource();

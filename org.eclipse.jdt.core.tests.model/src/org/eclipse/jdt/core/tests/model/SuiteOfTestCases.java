@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Set;
 
+import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 import org.eclipse.test.internal.performance.PerformanceMeterFactory;
 
 import junit.extensions.TestSetup;
@@ -28,6 +29,12 @@ import junit.framework.TestSuite;
  */
 @SuppressWarnings("rawtypes")
 public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension.TestCase {
+
+	/**
+	 * Number of milliseconds that a test case can run for before we consider it to be potentially
+	 * deadlocked and dump out a stack trace. Currently set to 5 minutes.
+	 */
+	private static final long FROZEN_TEST_TIMEOUT_MS = 1000 * 60 * 5;
 
 	/*
 	 * A test suite that initialize the test case's fields once, then that copies the values
@@ -118,12 +125,27 @@ public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension
 	 * Setup the test suite once before all test cases run.
 	 */
 	public void setUpSuite() throws Exception {
+		Indexer.getInstance().enableAutomaticIndexing(false);
+		//Indexer.getInstance().waitForIndex(null);
 	}
 
 	/**
 	 * Tear down the test suite once after all test cases have run.
 	 */
 	public void tearDownSuite() throws Exception {
+		Indexer.getInstance().enableAutomaticIndexing(true);
+	}
+
+	@Override
+	protected void setUp() throws Exception {
+		FreezeMonitor.expectCompletionIn(FROZEN_TEST_TIMEOUT_MS);
+		super.setUp();
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		FreezeMonitor.done();
+		super.tearDown();
 	}
 
 	/**

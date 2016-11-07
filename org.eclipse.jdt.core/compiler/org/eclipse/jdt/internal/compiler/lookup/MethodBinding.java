@@ -1328,4 +1328,14 @@ public boolean doesParameterLengthMatch(int suggestedParameterLength) {
 	int len = this.parameters.length;
 	return len <= suggestedParameterLength || (isVarargs() && len == suggestedParameterLength + 1);
 }
+public void updateTypeVariableBinding(TypeVariableBinding previousBinding, TypeVariableBinding updatedBinding) {
+	TypeVariableBinding[] bindings = this.typeVariables;
+	if (bindings != null) {
+		for (int i = 0; i < bindings.length; i++) {
+			if (bindings[i] == previousBinding) { //$IDENTITY-COMPARISON$
+				bindings[i] = updatedBinding;
+			}
+		}
+	}
+}
 }

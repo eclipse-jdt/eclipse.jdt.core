@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2009 BEA Systems, Inc.
+ * Copyright (c) 2005, 2016 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -92,24 +92,5 @@ AnnotationMethodInfo(MethodInfo methodInfo, Object defaultValue) {
 }
 public Object getDefaultValue() {
 	return this.defaultValue;
-}
-protected void toStringContent(StringBuffer buffer) {
-	super.toStringContent(buffer);
-	if (this.defaultValue != null) {
-		buffer.append(" default "); //$NON-NLS-1$
-		if (this.defaultValue instanceof Object[]) {
-			buffer.append('{');
-			Object[] elements = (Object[]) this.defaultValue;
-			for (int i = 0, len = elements.length; i < len; i++) {
-				if (i > 0)
-					buffer.append(", "); //$NON-NLS-1$
-				buffer.append(elements[i]);
-			}
-			buffer.append('}');
-		} else {
-			buffer.append(this.defaultValue);
-		}
-		buffer.append('\n');
-	}
 }
 }

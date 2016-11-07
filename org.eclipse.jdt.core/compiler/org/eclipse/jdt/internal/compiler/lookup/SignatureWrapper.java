@@ -192,6 +192,15 @@ public class SignatureWrapper {
 		return CharOperation.subarray(this.signature, this.start, this.signature.length);
 	}
 	public String toString() {
+		if (this.start >= 0 && this.start <= this.signature.length) {
+			return new String(CharOperation.subarray(this.signature, 0, this.start)) + " ^ " //$NON-NLS-1$
+					+ new String(CharOperation.subarray(this.signature, this.start, this.signature.length));
+		}
+
 		return new String(this.signature) + " @ " + this.start; //$NON-NLS-1$
+	}
+
+	public char charAtStart() {
+		return this.signature[this.start];
 	}
 }

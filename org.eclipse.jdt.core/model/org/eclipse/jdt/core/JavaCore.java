@@ -157,6 +157,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.builder.State;
+import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.ModuleUtil;
@@ -4189,176 +4190,170 @@ public final class JavaCore extends Plugin {
 	 * @since 3.1
 	 */
 	public static void initializeAfterLoad(IProgressMonitor monitor) throws CoreException {
+		SubMonitor mainMonitor = SubMonitor.convert(monitor, Messages.javamodel_initialization, 100);
+		mainMonitor.subTask(Messages.javamodel_configuring_classpath_containers);
+
+		// initialize all containers and variables
+		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		try {
-			SubMonitor mainMonitor = SubMonitor.convert(monitor, Messages.javamodel_initialization, 100);
-			mainMonitor.subTask(Messages.javamodel_configuring_classpath_containers);
-	
-			// initialize all containers and variables
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			try {
-				SubMonitor subMonitor = mainMonitor.split(50).setWorkRemaining(100); // 50% of the time is spent in initializing containers and variables
-				subMonitor.worked(5); // give feedback to the user that something is happening
-				manager.batchContainerInitializationsProgress.initializeAfterLoadMonitor.set(subMonitor);
-				if (manager.forceBatchInitializations(true/*initAfterLoad*/)) { // if no other thread has started the batch container initializations
-					manager.getClasspathContainer(Path.EMPTY, null); // force the batch initialization
-				} else { // else wait for the batch initialization to finish
-					while (manager.batchContainerInitializations == JavaModelManager.BATCH_INITIALIZATION_IN_PROGRESS) {
-						subMonitor.subTask(manager.batchContainerInitializationsProgress.subTaskName);
-						subMonitor.worked(manager.batchContainerInitializationsProgress.getWorked());
-						synchronized(manager) {
-							try {
-								manager.wait(100);
-							} catch (InterruptedException e) {
-								// continue
-							}
+			SubMonitor subMonitor = mainMonitor.split(50).setWorkRemaining(100); // 50% of the time is spent in initializing containers and variables
+			subMonitor.split(5); // give feedback to the user that something is happening
+			manager.batchContainerInitializationsProgress.initializeAfterLoadMonitor.set(subMonitor);
+			if (manager.forceBatchInitializations(true/*initAfterLoad*/)) { // if no other thread has started the batch container initializations
+				manager.getClasspathContainer(Path.EMPTY, null); // force the batch initialization
+			} else { // else wait for the batch initialization to finish
+				while (manager.batchContainerInitializations == JavaModelManager.BATCH_INITIALIZATION_IN_PROGRESS) {
+					subMonitor.subTask(manager.batchContainerInitializationsProgress.subTaskName);
+					subMonitor.split(manager.batchContainerInitializationsProgress.getWorked());
+					synchronized(manager) {
+						try {
+							manager.wait(100);
+						} catch (InterruptedException e) {
+							// continue
 						}
 					}
-				}
-			} finally {
-				manager.batchContainerInitializationsProgress.initializeAfterLoadMonitor.set(null);
-			}
-	
-			// avoid leaking source attachment properties (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=183413 )
-			// and recreate links for external folders if needed
-			mainMonitor.subTask(Messages.javamodel_resetting_source_attachment_properties);
-			final IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
-			HashSet visitedPaths = new HashSet();
-			ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
-			for (int i = 0, length = projects.length; i < length; i++) {
-				JavaProject javaProject = (JavaProject) projects[i];
-				IClasspathEntry[] classpath;
-				try {
-					classpath = javaProject.getResolvedClasspath();
-				} catch (JavaModelException e) {
-					// project no longer exist: ignore
-					continue;
-				}
-				if (classpath != null) {
-					for (int j = 0, length2 = classpath.length; j < length2; j++) {
-						IClasspathEntry entry = classpath[j];
-						if (entry.getSourceAttachmentPath() != null) {
-							IPath entryPath = entry.getPath();
-							if (visitedPaths.add(entryPath)) {
-								Util.setSourceAttachmentProperty(entryPath, null);
-							}
-						}
-						// else source might have been attached by IPackageFragmentRoot#attachSource(...), we keep it
-						if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-							IPath entryPath = entry.getPath();
-							if (ExternalFoldersManager.isExternalFolderPath(entryPath) && externalFoldersManager.getFolder(entryPath) == null) {
-								externalFoldersManager.addFolder(entryPath, true);
-							}
-						}
-					}
-				}
-			}
-			try {
-				externalFoldersManager.createPendingFolders(mainMonitor.split(1));
-			}
-			catch(JavaModelException jme) {
-				// Creation of external folder project failed. Log it and continue;
-				Util.log(jme, "Error while processing external folders"); //$NON-NLS-1$
-			}
-	
-			// ensure external jars are refreshed (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
-			// before search is initialized (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=405051)
-			final JavaModel model = manager.getJavaModel();
-			try {
-				mainMonitor.subTask(Messages.javamodel_refreshing_external_jars);
-				model.refreshExternalArchives(
-					null/*refresh all projects*/,
-					mainMonitor.split(1) // 1% of the time is spent in jar refresh
-				);
-			} catch (JavaModelException e) {
-				// refreshing failed: ignore
-			}
-	
-			// initialize delta state
-			mainMonitor.subTask(Messages.javamodel_initializing_delta_state);
-			manager.deltaState.rootsAreStale = true; // in case it was already initialized before we cleaned up the source attachment properties
-			manager.deltaState.initializeRoots(true/*initAfteLoad*/);
-	
-			// dummy query for waiting until the indexes are ready
-			mainMonitor.subTask(Messages.javamodel_configuring_searchengine);
-			SearchEngine engine = new SearchEngine();
-			IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
-			try {
-				engine.searchAllTypeNames(
-					null,
-					SearchPattern.R_EXACT_MATCH,
-					"!@$#!@".toCharArray(), //$NON-NLS-1$
-					SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
-					IJavaSearchConstants.CLASS,
-					scope,
-					new TypeNameRequestor() {
-						public void acceptType(
-							int modifiers,
-							char[] packageName,
-							char[] simpleTypeName,
-							char[][] enclosingTypeNames,
-							String path) {
-							// no type to accept
-						}
-					},
-					// will not activate index query caches if indexes are not ready, since it would take to long
-					// to wait until indexes are fully rebuild
-					IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
-					mainMonitor.split(47) // 47% of the time is spent in the dummy search
-				);
-			} catch (JavaModelException e) {
-				// /search failed: ignore
-			} catch (OperationCanceledException e) {
-				if (mainMonitor.isCanceled())
-					throw e;
-				// else indexes were not ready: catch the exception so that jars are still refreshed
-			}
-	
-			// check if the build state version number has changed since last session
-			// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=98969)
-			mainMonitor.subTask(Messages.javamodel_getting_build_state_number);
-			QualifiedName qName = new QualifiedName(JavaCore.PLUGIN_ID, "stateVersionNumber"); //$NON-NLS-1$
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			String versionNumber = null;
-			try {
-				versionNumber = root.getPersistentProperty(qName);
-			} catch (CoreException e) {
-				// could not read version number: consider it is new
-			}
-			String newVersionNumber = Byte.toString(State.VERSION);
-			if (!newVersionNumber.equals(versionNumber)) {
-				// build state version number has changed: touch every projects to force a rebuild
-				if (JavaBuilder.DEBUG)
-					System.out.println("Build state version number has changed"); //$NON-NLS-1$
-				IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
-					public void run(IProgressMonitor progressMonitor2) throws CoreException {
-						for (int i = 0, length = projects.length; i < length; i++) {
-							IJavaProject project = projects[i];
-							try {
-								if (JavaBuilder.DEBUG)
-									System.out.println("Touching " + project.getElementName()); //$NON-NLS-1$
-								new ClasspathValidation((JavaProject) project).validate(); // https://bugs.eclipse.org/bugs/show_bug.cgi?id=287164
-								project.getProject().touch(progressMonitor2);
-							} catch (CoreException e) {
-								// could not touch this project: ignore
-							}
-						}
-					}
-				};
-				mainMonitor.subTask(Messages.javamodel_building_after_upgrade);
-				try {
-					ResourcesPlugin.getWorkspace().run(runnable, mainMonitor.split(1));
-				} catch (CoreException e) {
-					// could not touch all projects
-				}
-				try {
-					root.setPersistentProperty(qName, newVersionNumber);
-				} catch (CoreException e) {
-					Util.log(e, "Could not persist build state version number"); //$NON-NLS-1$
 				}
 			}
 		} finally {
-			if (monitor != null) {
-				monitor.done();
+			manager.batchContainerInitializationsProgress.initializeAfterLoadMonitor.set(null);
+		}
+
+		// avoid leaking source attachment properties (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=183413 )
+		// and recreate links for external folders if needed
+		mainMonitor.subTask(Messages.javamodel_resetting_source_attachment_properties);
+		final IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
+		HashSet visitedPaths = new HashSet();
+		ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
+		for (int i = 0, length = projects.length; i < length; i++) {
+			JavaProject javaProject = (JavaProject) projects[i];
+			IClasspathEntry[] classpath;
+			try {
+				classpath = javaProject.getResolvedClasspath();
+			} catch (JavaModelException e) {
+				// project no longer exist: ignore
+				continue;
+			}
+			if (classpath != null) {
+				for (int j = 0, length2 = classpath.length; j < length2; j++) {
+					IClasspathEntry entry = classpath[j];
+					if (entry.getSourceAttachmentPath() != null) {
+						IPath entryPath = entry.getPath();
+						if (visitedPaths.add(entryPath)) {
+							Util.setSourceAttachmentProperty(entryPath, null);
+						}
+					}
+					// else source might have been attached by IPackageFragmentRoot#attachSource(...), we keep it
+					if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+						IPath entryPath = entry.getPath();
+						if (ExternalFoldersManager.isExternalFolderPath(entryPath) && externalFoldersManager.getFolder(entryPath) == null) {
+							externalFoldersManager.addFolder(entryPath, true);
+						}
+					}
+				}
+			}
+		}
+		try {
+			externalFoldersManager.createPendingFolders(mainMonitor.split(1));
+		}
+		catch(JavaModelException jme) {
+			// Creation of external folder project failed. Log it and continue;
+			Util.log(jme, "Error while processing external folders"); //$NON-NLS-1$
+		}
+
+		// ensure external jars are refreshed (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=93668)
+		// before search is initialized (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=405051)
+		final JavaModel model = manager.getJavaModel();
+		try {
+			mainMonitor.subTask(Messages.javamodel_refreshing_external_jars);
+			model.refreshExternalArchives(
+				null/*refresh all projects*/,
+				mainMonitor.split(1) // 1% of the time is spent in jar refresh
+			);
+		} catch (JavaModelException e) {
+			// refreshing failed: ignore
+		}
+
+		// initialize delta state
+		mainMonitor.subTask(Messages.javamodel_initializing_delta_state);
+		manager.deltaState.rootsAreStale = true; // in case it was already initialized before we cleaned up the source attachment properties
+		manager.deltaState.initializeRoots(true/*initAfteLoad*/);
+
+		// dummy query for waiting until the indexes are ready
+		mainMonitor.subTask(Messages.javamodel_configuring_searchengine);
+		SearchEngine engine = new SearchEngine();
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+		try {
+			engine.searchAllTypeNames(
+				null,
+				SearchPattern.R_EXACT_MATCH,
+				"!@$#!@".toCharArray(), //$NON-NLS-1$
+				SearchPattern.R_PATTERN_MATCH | SearchPattern.R_CASE_SENSITIVE,
+				IJavaSearchConstants.CLASS,
+				scope,
+				new TypeNameRequestor() {
+					public void acceptType(
+						int modifiers,
+						char[] packageName,
+						char[] simpleTypeName,
+						char[][] enclosingTypeNames,
+						String path) {
+						// no type to accept
+					}
+				},
+				// will not activate index query caches if indexes are not ready, since it would take to long
+				// to wait until indexes are fully rebuild
+				IJavaSearchConstants.CANCEL_IF_NOT_READY_TO_SEARCH,
+				mainMonitor.split(47) // 47% of the time is spent in the dummy search
+			);
+		} catch (JavaModelException e) {
+			// /search failed: ignore
+		} catch (OperationCanceledException e) {
+			if (mainMonitor.isCanceled())
+				throw e;
+			// else indexes were not ready: catch the exception so that jars are still refreshed
+		}
+
+		// check if the build state version number has changed since last session
+		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=98969)
+		mainMonitor.subTask(Messages.javamodel_getting_build_state_number);
+		QualifiedName qName = new QualifiedName(JavaCore.PLUGIN_ID, "stateVersionNumber"); //$NON-NLS-1$
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		String versionNumber = null;
+		try {
+			versionNumber = root.getPersistentProperty(qName);
+		} catch (CoreException e) {
+			// could not read version number: consider it is new
+		}
+		String newVersionNumber = Byte.toString(State.VERSION);
+		if (!newVersionNumber.equals(versionNumber)) {
+			// build state version number has changed: touch every projects to force a rebuild
+			if (JavaBuilder.DEBUG)
+				System.out.println("Build state version number has changed"); //$NON-NLS-1$
+			IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
+				public void run(IProgressMonitor progressMonitor2) throws CoreException {
+					for (int i = 0, length = projects.length; i < length; i++) {
+						IJavaProject project = projects[i];
+						try {
+							if (JavaBuilder.DEBUG)
+								System.out.println("Touching " + project.getElementName()); //$NON-NLS-1$
+							new ClasspathValidation((JavaProject) project).validate(); // https://bugs.eclipse.org/bugs/show_bug.cgi?id=287164
+							project.getProject().touch(progressMonitor2);
+						} catch (CoreException e) {
+							// could not touch this project: ignore
+						}
+					}
+				}
+			};
+			mainMonitor.subTask(Messages.javamodel_building_after_upgrade);
+			try {
+				ResourcesPlugin.getWorkspace().run(runnable, mainMonitor.split(1));
+			} catch (CoreException e) {
+				// could not touch all projects
+			}
+			try {
+				root.setPersistentProperty(qName, newVersionNumber);
+			} catch (CoreException e) {
+				Util.log(e, "Could not persist build state version number"); //$NON-NLS-1$
 			}
 		}
 	}
@@ -5876,5 +5871,6 @@ public final class JavaCore extends Plugin {
 		super.start(context);
 		JavaModelManager.registerDebugOptionsListener(context);
 		JavaModelManager.getJavaModelManager().startup();
+		Indexer.getInstance().rescanAll();
 	}
 }

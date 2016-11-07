@@ -25,6 +25,9 @@ import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
@@ -117,18 +120,40 @@ public class TypeParameter extends AbstractVariableDeclaration {
 		BlockScope resolutionScope = Scope.typeAnnotationsResolutionScope(scope);
 		if (resolutionScope != null) {
 			AnnotationBinding [] annotationBindings = resolveAnnotations(resolutionScope, this.annotations, this.binding, false);
-			boolean isAnnotationBasedNullAnalysisEnabled = scope.environment().globalOptions.isAnnotationBasedNullAnalysisEnabled;
+			LookupEnvironment environment = scope.environment();
+			boolean isAnnotationBasedNullAnalysisEnabled = environment.globalOptions.isAnnotationBasedNullAnalysisEnabled;
 			if (annotationBindings != null && annotationBindings.length > 0) {
 				this.binding.setTypeAnnotations(annotationBindings, isAnnotationBasedNullAnalysisEnabled);
 				scope.referenceCompilationUnit().compilationResult.hasAnnotations = true;
 			}
 			if (isAnnotationBasedNullAnalysisEnabled) {
 				if (this.binding != null && this.binding.isValidBinding()) {
+					if (!this.binding.hasNullTypeAnnotations()
+							&& scope.hasDefaultNullnessFor(Binding.DefaultLocationTypeParameter)) {
+						AnnotationBinding[] annots = new AnnotationBinding[] { environment.getNonNullAnnotation() };
+						TypeVariableBinding previousBinding = this.binding;
+						this.binding = (TypeVariableBinding) environment.createAnnotatedType(this.binding, annots);
+
+						if (scope instanceof MethodScope) {
+							/*
+							 * for method type parameters, references to the bindings have already been copied into
+							 * MethodBinding.typeVariables - update them.
+							 */
+							MethodScope methodScope = (MethodScope) scope;
+							if (methodScope.referenceContext instanceof AbstractMethodDeclaration) {
+								MethodBinding methodBinding = ((AbstractMethodDeclaration) methodScope.referenceContext).binding;
+								if (methodBinding != null) {
+									methodBinding.updateTypeVariableBinding(previousBinding, this.binding);
+								}
+							}
+						}
+					}
 					this.binding.evaluateNullAnnotations(scope, this);
 				}
 			}
 		}	
 	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.compiler.ast.AstNode#print(int, java.lang.StringBuffer)
 	 */

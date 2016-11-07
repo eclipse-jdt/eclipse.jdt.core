@@ -10922,12 +10922,11 @@ public void testBug465669() throws Exception {
 		"    dddd = (aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff) new dddddddddddddddd()\r\n" + 
 		"        .ttt(null, aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff.class)\r\n" + 
 		"        .ttt(\"bbbbbbb\", xxxxxxxxx.class)\r\n" + 
-		"        .ttt(\"sssssssvvvvvvv\",\r\n" + 
-		"            new fffffffffff(\"xxxx\")\r\n" + 
-		"                .add(\"eeeeeeee\",\r\n" + 
-		"                    aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff.ssssssssssssss.class)\r\n" + 
-		"                .add(\"cccccccccc\",\r\n" + 
-		"                    aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff.wwwwwwwwwwwwwwww.class))\r\n" + 
+		"        .ttt(\"sssssssvvvvvvv\", new fffffffffff(\"xxxx\")\r\n" + 
+		"            .add(\"eeeeeeee\",\r\n" + 
+		"                aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff.ssssssssssssss.class)\r\n" + 
+		"            .add(\"cccccccccc\",\r\n" + 
+		"                aaaaaaaaaaaaaaaaaaaaaaa.ffffffffffffffffff.wwwwwwwwwwwwwwww.class))\r\n" + 
 		"        .bbbbbbbbbbb(s);\r\n" + 
 		"  }\r\n" + 
 		"\r\n" + 

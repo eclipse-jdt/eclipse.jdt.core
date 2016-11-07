@@ -24,13 +24,16 @@ import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
+import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
+import org.eclipse.jdt.internal.core.nd.indexer.IndexerEvent;
+import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  * Keep the global states used during Java element delta processing.
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
-public class DeltaProcessingState implements IResourceChangeListener {
+public class DeltaProcessingState implements IResourceChangeListener, Indexer.Listener {
 
 	/*
 	 * Collection of listeners for Java element deltas
@@ -640,6 +643,17 @@ public class DeltaProcessingState implements IResourceChangeListener {
 					}
 				}
 			}
+		}
+	}
+
+	@Override
+	public void consume(IndexerEvent event) {
+		if (JavaIndex.isEnabled()) {
+			DeltaProcessor processor = getDeltaProcessor();
+			JavaElementDelta delta = (JavaElementDelta) event.getDelta();
+			delta.ignoreFromTests = true;
+			processor.notifyAndFire(delta);
+			this.deltaProcessors.set(null);
 		}
 	}
 

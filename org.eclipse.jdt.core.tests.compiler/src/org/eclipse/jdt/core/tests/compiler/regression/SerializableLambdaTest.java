@@ -2158,6 +2158,74 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		null,true,
 		new String[]{"-Ddummy"});
 	}
+	public void testbug503118() {
+		this.runConformTest(
+			new String[]{
+				"lambdabug/App.java",
+				"package lambdabug;\n" + 
+				"import java.io.ByteArrayInputStream;\n" + 
+				"import java.io.ByteArrayOutputStream;\n" + 
+				"import java.io.ObjectInputStream;\n" + 
+				"import java.io.ObjectOutputStream;\n" + 
+				"import java.io.Serializable;\n" + 
+				"import java.util.function.Function;\n" + 
+				"public class App {\n" + 
+				"	public static interface SerialFunction<T, R> extends Function<T, R>, Serializable {\n" + 
+				"	}\n" + 
+				"	public static interface TestInterface extends Serializable {\n" + 
+				"		public Integer method(Integer i);\n" + 
+				"	}\n" + 
+				"	public static class TestClass implements TestInterface {\n" + 
+				"		private static final long serialVersionUID = 1L;\n" + 
+				"		@Override\n" + 
+				"		public Integer method(Integer i) {\n" + 
+				"			return i;\n" + 
+				"		}\n" + 
+				"	}\n" + 
+				"	public static void main(String[] args) throws Exception {\n" + 
+				"		TestInterface testService = getService();\n" + 
+				"		SerialFunction<Integer, Integer> sf = testService::method;\n" + 
+				"		ByteArrayOutputStream bos = new ByteArrayOutputStream();\n" + 
+				"		new ObjectOutputStream(bos).writeObject(sf);\n" + 
+				"		Object o = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray())).readObject();\n" + 
+				"		System.out.println(o.getClass().getInterfaces()[0]);\n" + 
+				"	}\n" + 
+				"	private static TestInterface getService() {\n" + 
+				"		return new TestClass();\n" + 
+				"	}\n" + 
+				"}\n"
+		},
+		"interface lambdabug.App$SerialFunction",
+		null,true,
+		new String[]{"-Ddummy"});
+	}
+	public void testbug507011() {
+		this.runConformTest(
+			new String[]{
+				"VerifyErrorDerived.java",
+				"import java.io.Serializable;\n" + 
+				"import java.util.function.Function;\n" + 
+				"public class VerifyErrorDerived extends VerifyErrorBase {\n" + 
+				"	public static void main(String [] args) {\n" + 
+				"		System.out.println(\"hello world\");\n" + 
+				"	}\n" + 
+				"	public int derivedMethod(String param) {\n" + 
+				"		SerializableFunction<String, Integer> f = super::baseMethod;\n" + 
+				"		return f.apply(param);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"interface SerializableFunction<T, R> extends Function<T, R>, Serializable {}",
+				"VerifyErrorBase.java",
+				"public class VerifyErrorBase {\n" + 
+				"	public int baseMethod(String param) {\n" + 
+				"		return 7;\n" + 
+				"	}\n" + 
+				"}\n"
+		},
+		"hello world",
+		null,true,
+		new String[]{"-Ddummy"});
+	}
 	// ---
 	
 	private void checkExpected(String expected, String actual) {

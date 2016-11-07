@@ -19,7 +19,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -139,7 +139,7 @@ private String getSourceFileName() {
 	this.sourceFileName = NO_SOURCE_FILE_NAME;
 	if (this.openable.getSourceMapper() != null) {
 		BinaryType type = (BinaryType) ((ClassFile) this.openable).getType();
-		ClassFileReader reader = MatchLocator.classFileReader(type);
+		IBinaryType reader = MatchLocator.classFileReader(type);
 		if (reader != null) {
 			String fileName = type.sourceFileName(reader);
 			this.sourceFileName = fileName == null ? NO_SOURCE_FILE_NAME : fileName;

@@ -1663,8 +1663,20 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 				}
 			} else if (typeBit == TypeIds.BitNonNullAnnotation) {
 				methodBinding.tagBits |= TagBits.AnnotationNonNull;
+				if (this.environment.usesNullTypeAnnotations()) {
+					if (methodBinding.returnType != null && !methodBinding.returnType.hasNullTypeAnnotations()) {
+						methodBinding.returnType = this.environment.createAnnotatedType(methodBinding.returnType,
+								new AnnotationBinding[] { this.environment.getNonNullAnnotation() });
+					}
+				}
 			} else if (typeBit == TypeIds.BitNullableAnnotation) {
 				methodBinding.tagBits |= TagBits.AnnotationNullable;
+				if (this.environment.usesNullTypeAnnotations()) {
+					if (methodBinding.returnType != null && !methodBinding.returnType.hasNullTypeAnnotations()) {
+						methodBinding.returnType = this.environment.createAnnotatedType(methodBinding.returnType,
+								new AnnotationBinding[] { this.environment.getNullableAnnotation() });
+					}
+				}
 			}
 		}
 	}
@@ -1693,11 +1705,27 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 							if (methodBinding.parameterNonNullness == null)
 								methodBinding.parameterNonNullness = new Boolean[numVisibleParams];
 							methodBinding.parameterNonNullness[j] = Boolean.TRUE;
+							if (this.environment.usesNullTypeAnnotations()) {
+								if (methodBinding.parameters[j] != null
+										&& !methodBinding.parameters[j].hasNullTypeAnnotations()) {
+									methodBinding.parameters[j] = this.environment.createAnnotatedType(
+											methodBinding.parameters[j],
+											new AnnotationBinding[] { this.environment.getNonNullAnnotation() });
+								}
+							}
 							break;
 						} else if (typeBit == TypeIds.BitNullableAnnotation) {
 							if (methodBinding.parameterNonNullness == null)
 								methodBinding.parameterNonNullness = new Boolean[numVisibleParams];
 							methodBinding.parameterNonNullness[j] = Boolean.FALSE;
+							if (this.environment.usesNullTypeAnnotations()) {
+								if (methodBinding.parameters[j] != null
+										&& !methodBinding.parameters[j].hasNullTypeAnnotations()) {
+									methodBinding.parameters[j] = this.environment.createAnnotatedType(
+											methodBinding.parameters[j],
+											new AnnotationBinding[] { this.environment.getNullableAnnotation() });
+								}
+							}
 							break;
 						}
 					}
@@ -1776,7 +1804,9 @@ private void scanTypeForNullDefaultAnnotation(IBinaryType binaryType, PackageBin
 	}
 	// no annotation found on the type or its enclosing types
 	// check the package-info for default annotation if not already done before
-	if (packageBinding.defaultNullness == Binding.NO_NULL_DEFAULT && !isPackageInfo) {
+	if (packageBinding.defaultNullness == Binding.NO_NULL_DEFAULT && !isPackageInfo
+			&& ((this.typeBits & (TypeIds.BitAnyNullAnnotation)) == 0))
+	{
 		// this will scan the annotations in package-info
 		ReferenceBinding packageInfo = packageBinding.getType(TypeConstants.PACKAGE_INFO_NAME, null);
 		if (packageInfo == null) {

@@ -121,7 +121,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 						inferInvocationApplicability(inferenceContext, method, argumentTypes, isDiamond, inferenceContext.inferenceKind);
 						// b2 has been lifted, inferring poly invocation type amounts to lifting b3.
 					}
-					if (!inferPolyInvocationType(inferenceContext, invocation, this.right, method))
+					if (!inferenceContext.computeB3(invocation, this.right, method))
 						return FALSE;
 					return null; // already incorporated
 				} finally {
@@ -296,7 +296,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					InferenceContext18 innerContext = reference.getInferenceContext((ParameterizedMethodBinding) compileTimeDecl);
 					int innerInferenceKind = determineInferenceKind(compileTimeDecl, argumentTypes, innerContext);
 					inferInvocationApplicability(inferenceContext, original, argumentTypes, original.isConstructor()/*mimic a diamond?*/, innerInferenceKind);
-					if (!inferPolyInvocationType(inferenceContext, reference, r, original))
+					if (!inferenceContext.computeB3(reference, r, original))
 						return FALSE;
 					return null; // already incorporated
 				} catch (InferenceFailureException e) {
@@ -448,7 +448,15 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			}
 			if (this.right.isFunctionalInterface(context.scope)) {
 				LambdaExpression lambda = (LambdaExpression) this.left;
-				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope, true); // TODO derive with target type?
+				ReferenceBinding targetType = (ReferenceBinding) this.right;
+				ParameterizedTypeBinding withWildCards = InferenceContext18.parameterizedWithWildcard(targetType);
+				if (withWildCards != null) {
+					targetType = ConstraintExpressionFormula.findGroundTargetType(context, lambda.enclosingScope, lambda, withWildCards);
+				}
+				if (targetType == null) {
+					return EMPTY_VARIABLE_LIST;
+				}
+				MethodBinding sam = targetType.getSingleAbstractMethod(context.scope, true);
 				final Set<InferenceVariable> variables = new HashSet<>();
 				if (lambda.argumentsTypeElided()) {
 					// i)

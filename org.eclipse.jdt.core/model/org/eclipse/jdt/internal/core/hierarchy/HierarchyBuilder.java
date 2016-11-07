@@ -22,15 +22,25 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IGenericType;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
-import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.ClassFile;
+import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.NameLookup;
+import org.eclipse.jdt.internal.core.Openable;
+import org.eclipse.jdt.internal.core.ResolvedBinaryType;
+import org.eclipse.jdt.internal.core.SearchableEnvironment;
+import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
+import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
 import org.eclipse.jdt.internal.core.util.ResourceCompilationUnit;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -267,14 +277,15 @@ public abstract class HierarchyBuilder {
 /**
  * Create an ICompilationUnit info from the given compilation unit on disk.
  */
-protected ICompilationUnit createCompilationUnitFromPath(Openable handle, IFile file) {
-	final char[] elementName = handle.getElementName().toCharArray();
-	return new ResourceCompilationUnit(file, null) {
-		public char[] getFileName() {
-			return elementName;
-		}
-	};
-}
+	protected ICompilationUnit createCompilationUnitFromPath(Openable handle, IFile file) {
+		final char[] elementName = handle.getElementName().toCharArray();
+		return new ResourceCompilationUnit(file, null) {
+			@Override
+			public char[] getFileName() {
+				return elementName;
+			}
+		};
+	}
 	/**
  * Creates the type info from the given class file on disk and
  * adds it to the given list of infos.
@@ -306,33 +317,17 @@ protected IBinaryType createInfoFromClassFile(Openable handle, IResource file) {
  * Create a type info from the given class file in a jar and adds it to the given list of infos.
  */
 protected IBinaryType createInfoFromClassFileInJar(Openable classFile) {
-	PackageFragment pkg = (PackageFragment) classFile.getParent();
-	String classFilePath = Util.concatWith(pkg.names, classFile.getElementName(), '/');
-	IBinaryType info = null;
-	java.util.zip.ZipFile zipFile = null;
+	IClassFile cf = (IClassFile)classFile;
+	IBinaryType info;
 	try {
-		zipFile = ((JarPackageFragmentRoot)pkg.getParent()).getJar();
-		info = org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader.read(
-			zipFile,
-			classFilePath);
-	} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException e) {
+		info = BinaryTypeFactory.create(cf, null);
+	} catch (JavaModelException | ClassFormatException e) {
 		if (TypeHierarchy.DEBUG) {
 			e.printStackTrace();
 		}
 		return null;
-	} catch (java.io.IOException e) {
-		if (TypeHierarchy.DEBUG) {
-			e.printStackTrace();
-		}
-		return null;
-	} catch (CoreException e) {
-		if (TypeHierarchy.DEBUG) {
-			e.printStackTrace();
-		}
-		return null;
-	} finally {
-		JavaModelManager.getJavaModelManager().closeZipFile(zipFile);
 	}
+
 	this.infoToHandle.put(info, classFile);
 	return info;
 }

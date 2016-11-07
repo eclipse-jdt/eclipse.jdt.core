@@ -44,7 +44,7 @@ public class AsMemberOf<T> {
 }
 
 interface IAsMemberOf<T> {
-    // Types.asMemberOf() should not find members in superinterfaces
+    // Types.asMemberOf() should find members in superinterfaces
     void m2();
 }
 

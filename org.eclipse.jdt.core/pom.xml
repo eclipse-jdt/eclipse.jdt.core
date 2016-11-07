@@ -23,6 +23,7 @@
 
   <properties>
     <defaultSigning-excludeInnerJars>true</defaultSigning-excludeInnerJars>
+    <code.ignoredWarnings>-warn:+fieldHiding,-unavoidableGenericProblems</code.ignoredWarnings>
   </properties>
 
   <build>
@@ -135,6 +136,12 @@
 				    <include>about.html</include>
 					<include>build.xml</include>
 					<include>ecj.1</include>
+                  </includes>
+                </fileSet>
+                <fileSet>
+                  <directory>${project.basedir}</directory>
+                  <includes>
+                    <include>scripts/binary/**</include>
                   </includes>
                 </fileSet>
               </fileSets>

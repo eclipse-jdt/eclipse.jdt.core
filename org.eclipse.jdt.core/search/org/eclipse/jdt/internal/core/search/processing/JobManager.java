@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2011 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -201,7 +201,7 @@ public abstract class JobManager implements Runnable {
 
 					case IJob.WaitUntilReady :
 						int totalWork = 1000;
-						SubMonitor subProgress = subMonitor.setWorkRemaining(10).split(8).setWorkRemaining(totalWork);
+						SubMonitor waitMonitor = subMonitor.setWorkRemaining(10).split(8).setWorkRemaining(totalWork);
 						// use local variable to avoid potential NPE (see bug 20435 NPE when searching java method
 						// and bug 42760 NullPointerException in JobManager when searching)
 						Thread t = this.processingThread;
@@ -218,30 +218,28 @@ public abstract class JobManager implements Runnable {
 							float lastWorked = 0;
 							float totalWorked = 0;
 							while ((awaitingJobsCount = awaitingJobsCount()) > 0) {
-								if (subProgress.isCanceled() || this.processingThread == null)
+								if (waitMonitor.isCanceled() || this.processingThread == null)
 									throw new OperationCanceledException();
 								IJob currentJob = currentJob();
 								// currentJob can be null when jobs have been added to the queue but job manager is not enabled
 								if (currentJob != null && currentJob != previousJob) {
 									if (VERBOSE)
 										Util.verbose("-> NOT READY - waiting until ready - " + searchJob);//$NON-NLS-1$
-									if (subProgress != null) {
-										String indexing = Messages.bind(Messages.jobmanager_filesToIndex, currentJob.getJobFamily(), Integer.toString(awaitingJobsCount));
-										subProgress.subTask(indexing);
-										// ratio of the amount of work relative to the total work
-										float ratio = awaitingJobsCount < totalWork ? 1 : ((float) totalWork) / awaitingJobsCount;
-										if (lastJobsCount > awaitingJobsCount) {
-											totalWorked += (lastJobsCount - awaitingJobsCount) * ratio;
-										} else {
-											// more jobs were added, just increment by the ratio
-											totalWorked += ratio;
-										}
-										if (totalWorked - lastWorked >= 1) {
-											subProgress.worked((int) (totalWorked - lastWorked));
-											lastWorked = totalWorked;
-										}
-										lastJobsCount = awaitingJobsCount;
+									String indexing = Messages.bind(Messages.jobmanager_filesToIndex, currentJob.getJobFamily(), Integer.toString(awaitingJobsCount));
+									waitMonitor.subTask(indexing);
+									// ratio of the amount of work relative to the total work
+									float ratio = awaitingJobsCount < totalWork ? 1 : ((float) totalWork) / awaitingJobsCount;
+									if (lastJobsCount > awaitingJobsCount) {
+										totalWorked += (lastJobsCount - awaitingJobsCount) * ratio;
+									} else {
+										// more jobs were added, just increment by the ratio
+										totalWorked += ratio;
 									}
+									if (totalWorked - lastWorked >= 1) {
+										waitMonitor.worked((int) (totalWorked - lastWorked));
+										lastWorked = totalWorked;
+									}
+									lastJobsCount = awaitingJobsCount;
 									previousJob = currentJob;
 								}
 								try {

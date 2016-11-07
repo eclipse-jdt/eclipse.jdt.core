@@ -49,6 +49,7 @@ public CompilationUnitTests(String name) {
  * @deprecated
  */
 /*package*/ static final int JLS3_INTERNAL = AST.JLS3;
+/*package*/ static final int JLS9_INTERNAL = AST.JLS9;
 
 public void setUpSuite() throws Exception {
 	super.setUpSuite();
@@ -2596,7 +2597,7 @@ public void testBug495598_001() throws CoreException {
 				"public class X {}\n");
 		ICompilationUnit cuD = getCompilationUnit("/P/src/X.java");
 		
-		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		ASTParser parser = ASTParser.newParser(JLS9_INTERNAL);
 		parser.setProject(this.testProject);
 		parser.setSource(cuD);
 		parser.setResolveBindings(true);

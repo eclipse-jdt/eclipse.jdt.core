@@ -32,7 +32,9 @@ import java.util.zip.ZipFile;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
@@ -43,6 +45,7 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
 import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
@@ -92,22 +95,27 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 			return null; // most common case
 
 		try {
-			ClassFileReader reader = ClassFileReader.readFromModules(this.file, qualifiedBinaryFileName, mods);
+			IBinaryType reader = ClassFileReader.readFromModules(this.file, qualifiedBinaryFileName, mods);
 
 			if (reader != null) {
 				if (this.annotationPaths != null) {
 					String qualifiedClassName = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length()-SuffixConstants.EXTENSION_CLASS.length()-1);
 					for (String annotationPath : this.annotationPaths) {
 						try {
-							this.annotationZipFile = reader.setExternalAnnotationProvider(annotationPath, qualifiedClassName, this.annotationZipFile, null);
-							if (reader.hasAnnotationProvider())
+							if (this.annotationZipFile == null) {
+								this.annotationZipFile = ExternalAnnotationDecorator.getAnnotationZipFile(annotationPath, null);
+							}
+							reader = ExternalAnnotationDecorator.create(reader, annotationPath, qualifiedClassName, this.annotationZipFile);
+
+							if (reader.getExternalAnnotationStatus() == ExternalAnnotationStatus.TYPE_IS_ANNOTATED) {
 								break;
+							}
 						} catch (IOException e) {
 							// don't let error on annotations fail class reading
 						}
 					}
 				}
-				return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName));
+				return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName), reader.getModule());
 			}
 		} catch(ClassFormatException e) {
 			// treat as if class file is missing

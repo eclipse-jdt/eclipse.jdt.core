@@ -95,9 +95,8 @@ public class Example
 			);
 		}
 		
-		this.getWriter()
-				.println("aaaaa" + //
-						"bbbbbb" + //
+		this.getWriter().println("aaaaa" + //
+				"bbbbbb" + //
 						"ccc");
 	}
 }

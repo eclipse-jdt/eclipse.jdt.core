@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2012 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,10 +15,9 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.FieldInfo;
-import org.eclipse.jdt.internal.compiler.classfmt.MethodInfo;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
 
@@ -349,10 +348,10 @@ private void matchAnnotations(SearchPattern pattern, MatchLocator locator, Class
 	}
 
 	// Look for references in methods annotations
-	MethodInfo[] methods = (MethodInfo[]) binaryType.getMethods();
+	IBinaryMethod[] methods = binaryType.getMethods();
 	if (methods != null) {
 		for (int i = 0, max = methods.length; i < max; i++) {
-			MethodInfo method = methods[i];
+			IBinaryMethod method = methods[i];
 			if (checkAnnotations(typeReferencePattern, method.getAnnotations(), method.getTagBits())) {
 					binaryTypeBinding = locator.cacheBinaryType(classFileBinaryType, binaryType);
 					IMethod methodHandle = classFileBinaryType.getMethod(
@@ -367,10 +366,10 @@ private void matchAnnotations(SearchPattern pattern, MatchLocator locator, Class
 	}
 
 	// Look for references in fields annotations
-	FieldInfo[] fields = (FieldInfo[]) binaryType.getFields();
+	IBinaryField[] fields = binaryType.getFields();
 	if (fields != null) {
 		for (int i = 0, max = fields.length; i < max; i++) {
-			FieldInfo field = fields[i];
+			IBinaryField field = fields[i];
 			if (checkAnnotations(typeReferencePattern, field.getAnnotations(), field.getTagBits())) {
 					IField fieldHandle = classFileBinaryType.getField(new String(field.getName()));
 					TypeReferenceMatch match = new TypeReferenceMatch(fieldHandle, SearchMatch.A_ACCURATE, -1, 0, false, locator.getParticipant(), locator.currentPossibleMatch.resource);

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
@@ -808,17 +809,16 @@ public class ASTParser {
 	 * are insufficient, contradictory, or otherwise unsupported
 	 */
 	public ASTNode createAST(IProgressMonitor monitor) {
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 1);
 		ASTNode result = null;
-		if (monitor != null) monitor.beginTask("", 1); //$NON-NLS-1$
 		try {
 			if (this.rawSource == null && this.typeRoot == null) {
 				throw new IllegalStateException("source not specified"); //$NON-NLS-1$
 			}
-			result = internalCreateAST(monitor);
+			result = internalCreateAST(subMonitor.split(1));
 		} finally {
 			// reset to defaults to allow reuse (and avoid leaking)
 			initializeDefaults();
-			if (monitor != null) monitor.done();
 		}
 		return result;
 	}
