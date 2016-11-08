@@ -85,8 +85,9 @@ public abstract class JarFactoryContainer extends FactoryContainer
                 InputStream is = jarFile.getInputStream(provider);
                 readServiceProvider(is, serviceName, classNames);
             }
-        }
-        finally {
+        } catch (IOException ioe) {
+        	AptPlugin.log(ioe, Messages.AnnotationProcessorFactoryLoader_ioError + jar.getAbsolutePath());
+        } finally {
         	try {if (jarFile != null) jarFile.close();} catch (IOException ioe) {}
         }
         return classNames;
