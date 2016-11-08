@@ -1222,8 +1222,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("com.greetings");
 		}
 	}
-	// Report an error when the target module of a targeted exports statement
-	// cannot be resolved
+	// It is permitted for the to clause of an exports or opens statement to 
+	// specify a module which is not observable
 	public void test_TargetedExports_Unresolved() throws CoreException {
 		if (!isJRE9) return;
 		try {
@@ -1241,7 +1241,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject p1 = setupModuleProject("org.astro", sources);
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers",	"some.mod cannot be resolved to a module",  markers);
+			assertMarkers("Unexpected markers",	"",  markers);
 		} finally {
 			deleteProject("org.astro");
 		}

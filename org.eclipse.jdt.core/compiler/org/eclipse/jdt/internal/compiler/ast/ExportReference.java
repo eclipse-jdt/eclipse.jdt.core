@@ -15,14 +15,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
 public class ExportReference extends ASTNode {
 	public char[][] tokens;
@@ -61,14 +59,14 @@ public class ExportReference extends ASTNode {
 			return false;
 		}
 		if (this.isTargeted()) {
-			Set<ModuleBinding> modules = new HashSet<ModuleBinding>();
+			HashtableOfObject modules = new HashtableOfObject(this.targets.length);
 			for (int i = 0; i < this.targets.length; i++) {
 				ModuleReference ref = this.targets[i];
-				if (ref.resolve(scope) != null) {
-					if (!modules.add(ref.binding)) {
-						scope.problemReporter().duplicateModuleReference(IProblem.DuplicateExports, ref);
-						errorsExist = true;
-					}
+				if (modules.containsKey(ref.moduleName)) {
+					scope.problemReporter().duplicateModuleReference(IProblem.DuplicateExports, ref);
+					errorsExist = true;
+				} else {
+					modules.put(ref.moduleName, ref);
 				}
 			}
 		}
