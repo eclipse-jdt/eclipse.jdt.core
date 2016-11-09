@@ -1909,14 +1909,6 @@ public final class CompletionEngine
 			completionOnMethodReturnType(astNode, scope);
 		} else if (astNode instanceof CompletionOnSingleNameReference) {
 			completionOnSingleNameReference(astNode, astNodeParent, scope, insideTypeAnnotation);
-		} else if (astNode instanceof CompletionOnSingleTypeReference) {
-			completionOnSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
-		} else if (astNode instanceof CompletionOnQualifiedNameReference) {
-			completionOnQualifiedNameReference(astNode, enclosingNode, qualifiedBinding, scope, insideTypeAnnotation);
-		} else if (astNode instanceof CompletionOnUsesQualifiedTypeReference) {
-			completionOnUsesQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
-		} else if (astNode instanceof CompletionOnUsesSingleTypeReference) {
-			completionOnUsesSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnProvidesInterfacesQualifiedTypeReference) {
 			completionOnProvidesInterfacesQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnProvidesInterfacesSingleTypeReference) {
@@ -1925,6 +1917,10 @@ public final class CompletionEngine
 			completionOnProvidesImplementationsQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnProvidesImplementationsSingleTypeReference) {
 			completionOnProvidesImplementationsSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
+		} else if (astNode instanceof CompletionOnSingleTypeReference) {
+			completionOnSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
+		} else if (astNode instanceof CompletionOnQualifiedNameReference) {
+			completionOnQualifiedNameReference(astNode, enclosingNode, qualifiedBinding, scope, insideTypeAnnotation);
 		} else if (astNode instanceof CompletionOnQualifiedTypeReference) {
 			completionOnQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnMemberAccess) {
@@ -2099,6 +2095,24 @@ public final class CompletionEngine
 							}
 						}
 					}
+					TypeReference[] uses = this.moduleDeclaration.uses;
+					if (uses != null) {
+						for (int i = 0, l = uses.length; i < l; ++i) {
+							TypeReference usesReference = uses[i];
+							if (usesReference instanceof CompletionOnUsesSingleTypeReference ||
+									usesReference instanceof CompletionOnUsesQualifiedTypeReference) {
+								this.lookupEnvironment.buildTypeBindings(parsedUnit, null);
+								if ((this.unitScope = parsedUnit.scope) != null) {
+									contextAccepted = true;
+									buildContext(usesReference, null, parsedUnit, null, null);
+									findTypeReferences(usesReference, true);
+									debugPrintf();
+									return;
+								}
+							}
+						}
+					}
+
 				}
 				// scan the package & import statements first
 				if (parsedUnit.currentPackage instanceof CompletionOnPackageReference) {
@@ -3540,11 +3554,6 @@ public final class CompletionEngine
 		}
 	}
 	
-	private void completionOnUsesQualifiedTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
-		// TODO: Filter the results wrt accessibility and add relevance to the results.
-		completionOnQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
-	}
-
 	private void completionOnProvidesInterfacesQualifiedTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
 		// TODO: Filter the results wrt accessibility and add relevance to the results.
 		completionOnQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
@@ -3677,10 +3686,6 @@ public final class CompletionEngine
 				null,
 				false);
 		}
-	}
-	private void completionOnUsesSingleTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
-		// TODO : filter the results.
-		completionOnSingleTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
 	}
 
 	private void completionOnProvidesInterfacesSingleTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
@@ -10610,17 +10615,10 @@ public final class CompletionEngine
 	}
 	private void findPackages(CompletionOnExportReference exportStatement) {
 		setCompletionToken(exportStatement.tokens, exportStatement.sourceStart, exportStatement.sourceEnd, exportStatement.sourcePositions, false);
-//		TODO: Enable the code once NameLookup supports moduleContext when module-info.java file is still in flux
-// 		ModuleBinding moduleBinding = this.lookupEnvironment.getModule(this.moduleDeclaration.moduleName);
-//		if (moduleBinding == null) return;
-//		IModuleContext moduleContext = moduleBinding.getModuleLookupContext();
 		IModuleContext moduleContext = () -> {
 			return Stream.of((JavaProject)this.javaProject);
 		};
-		
 		this.nameEnvironment.findPackages(CharOperation.toLowerCase(this.completionToken), this, moduleContext);
-	
-//		this.nameEnvironment.findPackages(CharOperation.toLowerCase(this.completionToken), this);
 	}
 	private void findPackages(CompletionOnPackageReference packageStatement) {
 		this.completionToken = CharOperation.concatWithAll(packageStatement.tokens, '.');
@@ -10963,16 +10961,17 @@ public final class CompletionEngine
 								hasMemberTypesInEnclosingScope(sourceType, scope)) ||
 								hasArrayTypeAsExpectedSuperTypes()) {
 					char[] typeName = sourceType.sourceName();
-					createTypeProposal(
-							sourceType,
-							typeName,
-							IAccessRule.K_ACCESSIBLE,
-							typeName,
-							relevance,
-							null,
-							null,
-							null,
-							false);
+					if (!sourceType.isModule())
+						createTypeProposal(
+								sourceType,
+								typeName,
+								IAccessRule.K_ACCESSIBLE,
+								typeName,
+								relevance,
+								null,
+								null,
+								null,
+								false);
 				}
 				
 				if (proposeConstructor) {
@@ -11540,6 +11539,7 @@ public final class CompletionEngine
 	
 	private void findTypesFromStaticImports(char[] token, Scope scope, boolean proposeAllMemberTypes, ObjectVector typesFound) {
 		ImportBinding[] importBindings = scope.compilationUnitScope().imports;
+		if (importBindings == null) return;
 		for (int i = 0; i < importBindings.length; i++) {
 			ImportBinding importBinding = importBindings[i];
 			if(importBinding.isValidBinding() && importBinding.isStatic()) {
@@ -11777,6 +11777,28 @@ public final class CompletionEngine
 		}
 
 		return null;
+	}
+
+	private void findTypeReferences(TypeReference reference, boolean findMembers) {
+		char[][] tokens = reference.getTypeName();
+
+		char[] typeName = CharOperation.concatWithAll(tokens, '.');
+
+		if (typeName.length == 0) {
+			this.completionToken = new char[] {'*'};
+		} else if (reference instanceof CompletionOnUsesQualifiedTypeReference) {
+			CompletionOnUsesQualifiedTypeReference uQReference = (CompletionOnUsesQualifiedTypeReference) reference;
+			if (uQReference.completionIdentifier != null) {
+				this.completionToken = CharOperation.concatAll(typeName, uQReference.completionIdentifier, '.');
+			}
+		 } else {
+			 char[] lastToken = tokens[tokens.length - 1];
+			 if(lastToken != null && lastToken.length == 0)
+				 typeName = CharOperation.concat(typeName, new char[]{'.'});
+			 this.completionToken =  lastToken;
+		 }
+		setSourceRange(reference.sourceStart, reference.sourceEnd);
+		findTypesAndPackages(this.completionToken, this.unitScope, true, true, new ObjectVector());
 	}
 
 	private char[][] findVariableFromUnresolvedReference(LocalDeclaration variable, BlockScope scope, final char[][] discouragedNames) {

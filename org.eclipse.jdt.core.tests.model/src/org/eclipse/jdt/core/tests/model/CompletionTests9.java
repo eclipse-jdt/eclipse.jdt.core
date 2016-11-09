@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.util.Hashtable;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -343,6 +344,103 @@ public void test486988_0010() throws Exception {
 		deleteProject(project1);
 		deleteProject(project2);
 	}
+}
+public void test486988_0011() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	IJavaProject project2 = createJavaProject("Completion9_2", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	try {
+		project1.open(null);
+		createType("/Completion9_1/src/", "pack11", "X11");
+		createType("/Completion9_1/src/", "pack12", "X12");
+		String filePath1 = "/Completion9_1/src/module-info.java";
+		String completeBehind = "pack";
+		String fileContent1 =  "module first {\n"
+				+ "requires second;\n"
+				+ "uses " + completeBehind
+				+ "}\n";
+		createFile(filePath1, fileContent1);
+
+		project2.open(null);
+		createType("/Completion9_2/src/", "pack21", "X21");
+		createType("/Completion9_2/src/", "pack22", "X22");
+
+		String fileContent2 =  "module second { "
+				+ "exports pack21 to first;\n"
+				+ "}\n";
+		String filePath2 = "/Completion9_2/src/module-info.java";
+		createFile(filePath2, fileContent2);
+
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+
+		int cursorLocation = fileContent1.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		ICompilationUnit unit = getCompilationUnit(filePath1);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "pack11[PACKAGE_REF]{pack11, pack11, null, null, 49}\n"
+				+ "pack12[PACKAGE_REF]{pack12, pack12, null, null, 49}";
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+		deleteProject(project2);
+	}
+}
+public void test486988_0012() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	IJavaProject project2 = createJavaProject("Completion9_2", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	try {
+		project1.open(null);
+		createType("/Completion9_1/src/", "pack11", "X11");
+		createType("/Completion9_1/src/", "pack12", "X12");
+		String filePath1 = "/Completion9_1/src/module-info.java";
+		String completeBehind = "X1";
+		String fileContent1 =  "module first {\n"
+				+ "requires second;\n"
+				+ "uses " + completeBehind
+				+ "}\n";
+		createFile(filePath1, fileContent1);
+
+		project2.open(null);
+		createType("/Completion9_2/src/", "pack21", "X21");
+		createType("/Completion9_2/src/", "pack22", "X22");
+
+		String fileContent2 =  "module second { "
+				+ "exports pack21 to first;"
+				+ "}\n";
+		String filePath2 = "/Completion9_2/src/module-info.java";
+		createFile(filePath2, fileContent2);
+
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+
+		int cursorLocation = fileContent1.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		ICompilationUnit unit = getCompilationUnit(filePath1);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "X11[TYPE_REF]{pack11.X11, pack11, Lpack11.X11;, null, 49}\n"
+				+ "X12[TYPE_REF]{pack12.X12, pack12, Lpack12.X12;, null, 49}";
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+		deleteProject(project2);
+	}
+}
+private void createType(String folder, String pack, String typeName) throws CoreException {
+	String filePath;
+	String fileContent;
+	createFolder(folder + pack);
+	filePath = folder + pack + "/" + typeName + ".java";
+	fileContent = "package " + pack + ";\n" +
+	"public class " + typeName + " {}\n";
+	createFile(filePath, fileContent);
 }
 
 }

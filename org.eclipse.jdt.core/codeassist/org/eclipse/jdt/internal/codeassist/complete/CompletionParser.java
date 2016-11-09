@@ -177,7 +177,6 @@ public class CompletionParser extends AssistParser {
 	private IProgressMonitor monitor;
 	private int resumeOnSyntaxError = 0;
 	
-	private TypeReference pendingProvidesInterface = null;
 
 	enum MIStatementIdentity {
 		SINGLE_EXPORTS,
@@ -190,7 +189,6 @@ public class CompletionParser extends AssistParser {
 		DEFAULT_MI_STATEMENT, // denoting that still within module-info
 		NOT_A_MI_STATEMENT
 	}
-	private MIStatementIdentity moduleStatementId = MIStatementIdentity.NOT_A_MI_STATEMENT;
 
 public CompletionParser(ProblemReporter problemReporter, boolean storeExtraSourceEnds) {
 	super(problemReporter);
@@ -258,6 +256,17 @@ protected ASTNode assistNodeParent() {
 protected ASTNode enclosingNode() {
 	return this.enclosingNode;
 }
+private boolean attachOrphanInModuleInfo(RecoveredType type, TypeReference orphan) {
+	if (type instanceof RecoveredModule) {
+		RecoveredModule rModule = (RecoveredModule) type;
+		if (isInUsesStatement()) {
+			rModule.addUses(orphan, 0);
+			return true;
+		}
+	}
+		
+	return false;
+}
 protected void attachOrphanCompletionNode(){
 	if(this.assistNode == null || this.isAlreadyAttached) return;
 
@@ -279,6 +288,8 @@ protected void attachOrphanCompletionNode(){
 			if (recoveredType.foundOpeningBrace) {
 				/* generate a pseudo field with a completion on type reference */
 				if (orphan instanceof TypeReference){
+					if (attachOrphanInModuleInfo(recoveredType, (TypeReference) orphan)) return;
+
 					TypeReference fieldType;
 
 					int kind = topKnownElementKind(COMPLETION_OR_ASSIST_PARSER);
@@ -1566,128 +1577,24 @@ private boolean checkModuleInfoConstructs() {
 	if (!(this.currentElement instanceof RecoveredModule)) return false;
 	RecoveredModule module = (RecoveredModule) this.currentElement;
 
+	int index = -1;
+	if ((index = this.indexOfAssistIdentifier()) <= -1) return false;
+	if (checkModuleInfoKeyword(module, index)) return true;
+	
+	return false;
+}
+private boolean checkModuleInfoKeyword(RecoveredModule module, int index) {
 	ModuleKeyword keyword = getKeyword();
 	if (keyword == ModuleKeyword.NOT_A_KEYWORD) return false;
 	
-	int index = -1;
-	if ((index = this.indexOfAssistIdentifier()) > -1) {
-		int length = this.identifierLengthStack[this.identifierLengthPtr];
-		int ptr = this.identifierPtr - length + index + 1;
-		
-		char[] ident = this.identifierStack[ptr];
-		long pos = this.identifierPositionStack[ptr];		
-		char[][] keywords = getModuleKeywords(keyword);		
-		module.add(new CompletionOnKeywordModuleInfo(ident, pos, keywords), 0);
-		return true;
-	}
-	return false;
-}
-
-/**
- * TODO: remove this code once all constructs are implemented
- */
-@SuppressWarnings("unused")
-private boolean _checkModuleInfoConstructs() {
+	int length = this.identifierLengthStack[this.identifierLengthPtr];
+	int ptr = this.identifierPtr - length + index + 1;
 	
-	if (!(this.currentElement instanceof RecoveredUnit)) return false;
-
-	int index = -1;
-	RecoveredUnit unit = (RecoveredUnit) this.currentElement;
-	if ((index = this.indexOfAssistIdentifier()) > -1) {
-		int length = this.identifierLengthStack[this.identifierLengthPtr];
-		int ptr = this.identifierPtr - length + index + 1;
-		
-		char[] ident = this.identifierStack[ptr];
-		long pos = this.identifierPositionStack[ptr];
-		
-		char[][] keywords = new char[Keywords.COUNT][];
-		
-		int count = 0;
-		if (this.bracketDepth <= 0 && this.compilationUnit.moduleDeclaration == null) {
-			keywords[count++] = Keywords.MODULE;
-			System.arraycopy(keywords, 0, keywords = new char[count][], 0, count); //Need not do this copy; but for the sake of generality
-			ModuleDeclaration moduleDecl = new CompletionOnKeywordModuleDeclaration(ident, pos, keywords);
-			unit.add(moduleDecl, 0);
-			return true;
-		} else if (unit.module != null) { //inside the module-info declaration itself
-			RecoveredModule module = unit.module;
-			this.currentElement = module;
-			switch (this.moduleStatementId) {
-				case SINGLE_EXPORTS:
-					module.add(new CompletionOnExportReference(ident, pos), 0);
-					return true;
-				case SINGLE_EXPORTS_TARGET:
-					if (module.exportCount > 0) {
-						module.exports[module.exportCount - 1].add(new CompletionOnModuleReference(ident, pos), 0);
-						return true;
-					}
-					break;
-				case REQUIRES_STATEMENT:
-//					module.add(new CompletionOnModuleReference(ident, pos), 0);
-//					return true;
-					break;
-				case USES_STATEMENT:
-					formCompletionOnUsesTypeRef(index, length, module);
-					return true;
-				case PROVIDES_STATEMENT:
-					formCompletionOnProvidesInterfacesTypeRef(index, length, module);
-					return true;
-				case PROVIDES_STATEMENT_WITH:
-					formCompletionOnProvidesImplementationsTypeRef(index, length, module);
-					return true;
-				case DEFAULT_MI_STATEMENT:
-					keywords[count++] = Keywords.EXPORTS;
-					keywords[count++] = Keywords.REQUIRES;
-					keywords[count++] = Keywords.PROVIDES;
-					keywords[count++] = Keywords.USES;
-					System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
-					module.add(new CompletionOnKeywordModuleInfo(ident, pos, keywords), 0);
-					return true;
-				default:
-					break;
-			}
-		}
-	}
-	return false;
-}
-private void formCompletionOnUsesTypeRef(int index, int length, RecoveredModule module) {
-	long[] positions = new long[length];
-	System.arraycopy(
-		this.identifierPositionStack,
-		this.identifierPtr - length + 1,
-		positions,
-		0,
-		length);
-	TypeReference reference = index == 0 ? new CompletionOnUsesSingleTypeReference(assistIdentifier(), positions[0]) :
-		new CompletionOnUsesQualifiedTypeReference(identifierSubSet(index),	assistIdentifier(),	positions);
-	module.addUses(reference, 0);
-	this.assistNodeParent = module.typeDeclaration;
-}
-private void formCompletionOnProvidesInterfacesTypeRef(int index, int length, RecoveredModule module) {
-	long[] positions = new long[length];
-	System.arraycopy(
-		this.identifierPositionStack,
-		this.identifierPtr - length + 1,
-		positions,
-		0,
-		length);
-	TypeReference reference = index == 0 ? new CompletionOnProvidesInterfacesSingleTypeReference(assistIdentifier(), positions[0]) :
-		new CompletionOnProvidesInterfacesQualifiedTypeReference(identifierSubSet(index),	assistIdentifier(),	positions);
-	module.addProvidesInterfaces(reference, 0);
-	this.assistNodeParent = module.typeDeclaration;
-}
-private void formCompletionOnProvidesImplementationsTypeRef(int index, int length, RecoveredModule module) {
-	long[] positions = new long[length];
-	System.arraycopy(
-		this.identifierPositionStack,
-		this.identifierPtr - length + 1,
-		positions,
-		0,
-		length);
-	TypeReference reference = index == 0 ? new CompletionOnProvidesImplementationsSingleTypeReference(assistIdentifier(), positions[0]) :
-		new CompletionOnProvidesImplementationsQualifiedTypeReference(identifierSubSet(index),	assistIdentifier(),	positions);
-	module.addProvidesImplementations(this.pendingProvidesInterface, reference, 0);
-	this.assistNodeParent = module.typeDeclaration;
+	char[] ident = this.identifierStack[ptr];
+	long pos = this.identifierPositionStack[ptr];		
+	char[][] keywords = getModuleKeywords(keyword);		
+	module.add(new CompletionOnKeywordModuleInfo(ident, pos, keywords), 0);
+	return true;
 }
 
 private boolean checkInstanceofKeyword() {
@@ -3539,11 +3446,9 @@ protected void consumeModifiers() {
 }
 protected void consumeModuleHeader() {
 	super.consumeModuleHeader();
-	this.moduleStatementId = MIStatementIdentity.DEFAULT_MI_STATEMENT;
 }
 protected void consumeProvidesStatement() {
 	super.consumeProvidesStatement();
-	this.moduleStatementId = MIStatementIdentity.DEFAULT_MI_STATEMENT;
 	popElement(K_AFTER_NAME_IN_PROVIDES_STATEMENT);
 	popElement(K_INSIDE_PROVIDES_STATEMENT);
 }
@@ -3558,7 +3463,6 @@ protected void consumeReferenceType() {
 }
 protected void consumeRequiresStatement() {
 	super.consumeRequiresStatement();
-	this.moduleStatementId = MIStatementIdentity.DEFAULT_MI_STATEMENT;
 	popElement(K_INSIDE_REQUIRES_STATEMENT);
 }
 protected void consumeRestoreDiet() {
@@ -3569,15 +3473,12 @@ protected void consumeRestoreDiet() {
 }
 protected void consumeExportsStatement() {
 	super.consumeExportsStatement();
-	this.moduleStatementId = MIStatementIdentity.DEFAULT_MI_STATEMENT;
 	popElement(K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT);
 	popElement(K_INSIDE_EXPORTS_STATEMENT);
 }
 protected void consumeSingleExportsPkgName() {
 	super.consumeSingleExportsPkgName();
 	pushOnElementStack(K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT);
-	this.moduleStatementId = MIStatementIdentity.SINGLE_EXPORTS_PACKAGE;
-//	this.inModuleExportsSinglePkg = false;
 }
 protected void consumeSingleExportsTargetName() {
 	super.consumeSingleExportsTargetName();
@@ -3781,23 +3682,17 @@ protected void consumeToken(int token) {
 	if (token == TokenNameimport) {
 		pushOnElementStack(K_INSIDE_IMPORT_STATEMENT);
 	}	else if (token == TokenNameexports) {
-		this.moduleStatementId = MIStatementIdentity.SINGLE_EXPORTS;
 		pushOnElementStack(K_INSIDE_EXPORTS_STATEMENT);
-	}	else if (token == TokenNameto && this.moduleStatementId == MIStatementIdentity.SINGLE_EXPORTS) {
+	}	else if (token == TokenNameto) {
 		popElement(K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT);
-		this.moduleStatementId = MIStatementIdentity.SINGLE_EXPORTS_TARGET;
 	}	else if (token == TokenNamerequires) {
 		pushOnElementStack(K_INSIDE_REQUIRES_STATEMENT);
-		this.moduleStatementId = MIStatementIdentity.REQUIRES_STATEMENT;
 	} else if (token == TokenNameprovides) {
 		pushOnElementStack(K_INSIDE_PROVIDES_STATEMENT);
-		this.moduleStatementId = MIStatementIdentity.PROVIDES_STATEMENT;
 	} else if (token == TokenNameuses) {
 		pushOnElementStack(K_INSIDE_USES_STATEMENT);
-		this.moduleStatementId = MIStatementIdentity.USES_STATEMENT;
-	}	else if (token == TokenNamewith && this.moduleStatementId == MIStatementIdentity.PROVIDES_STATEMENT) {
+	}	else if (token == TokenNamewith) {
 		popElement(K_AFTER_NAME_IN_PROVIDES_STATEMENT);
-		this.moduleStatementId = MIStatementIdentity.PROVIDES_STATEMENT_WITH;
 	} 
 
 	// if in a method or if in a field initializer
@@ -4434,7 +4329,6 @@ protected void consumeUnionTypeAsClassType() {
 }
 protected void consumeUsesStatement() {
 	super.consumeUsesStatement();
-	this.moduleStatementId = MIStatementIdentity.DEFAULT_MI_STATEMENT;
 	popElement(K_INSIDE_USES_STATEMENT);
 }
 
@@ -4512,43 +4406,6 @@ protected void consumeWildcardBounds3Extends() {
 			this.assistNodeParent = wildcard;
 	}
 	popElement(K_EXTENDS_KEYWORD);
-}
-protected TypeReference getProvidesInterfaceTypeReference() {
-	/* build a Reference on a variable that may be qualified or not */
-
-    TypeReference ref = null;
-	int length = this.identifierLengthStack[this.identifierLengthPtr];
-	if (length > 0) {
-		if (length == 1) {
-			ref = new SingleTypeReference(this.identifierStack[this.identifierPtr],
-							this.identifierPositionStack[this.identifierPtr]);
-		} else {
-			//Qualified type reference
-			char[][] tokens = new char[length][];
-			long[] positions = new long[length];
-			int start = this.identifierPtr - length + 1;
-			System.arraycopy(this.identifierStack, start, tokens, 0, length);
-			System.arraycopy(
-				this.identifierPositionStack,
-				start,
-				positions,
-				0,
-				length);
-			ref = new QualifiedTypeReference(tokens, positions);
-		}
-	}
-	return ref;
-}
-
-protected void consumeWithClause() {
-	super.consumeWithClause();
-	ModuleDeclaration module = (ModuleDeclaration) this.astStack[this.astPtr];
-	if (module.implementations != null && module.implementations.length > 0) {
-		TypeReference impl = module.implementations[module.implementations.length - 1];
-		if (impl instanceof CompletionOnSingleTypeReference || impl instanceof CompletionOnQualifiedTypeReference) {
-			this.pendingProvidesInterface = getProvidesInterfaceTypeReference();
-		}		
-	}
 }
 protected void consumeUnaryExpression(int op) {
 	super.consumeUnaryExpression(op);
@@ -4642,7 +4499,8 @@ public TypeReference createQualifiedAssistTypeReference(char[][] previousIdentif
 					positions,
 					CompletionOnQualifiedTypeReference.K_INTERFACE);
 		default :
-			return new CompletionOnQualifiedTypeReference(
+			return isInUsesStatement() ? new CompletionOnUsesQualifiedTypeReference(previousIdentifiers, assistName, positions) :
+				new CompletionOnQualifiedTypeReference(
 					previousIdentifiers,
 					assistName,
 					positions);
@@ -4816,7 +4674,8 @@ public TypeReference createSingleAssistTypeReference(char[] assistName, long pos
 		case K_NEXT_TYPEREF_IS_INTERFACE :
 			return new CompletionOnSingleTypeReference(assistName, position, CompletionOnSingleTypeReference.K_INTERFACE);
 		default :
-			return new CompletionOnSingleTypeReference(assistName, position);
+			return isInUsesStatement() ? new CompletionOnUsesSingleTypeReference(assistName, position) :
+					new CompletionOnSingleTypeReference(assistName, position);
 	}
 }
 public TypeReference createParameterizedSingleAssistTypeReference(TypeReference[] typeArguments, char[] assistName, long position) {
@@ -5596,7 +5455,7 @@ protected boolean isInExportsStatement() {
 protected boolean isInRequiresStatement() {
 	return foundToken(K_INSIDE_REQUIRES_STATEMENT);
 }
-protected boolean isInUsessStatement() {
+protected boolean isInUsesStatement() {
 	return foundToken(K_INSIDE_USES_STATEMENT);
 }
 protected boolean isInProvidesStatement() {
@@ -5606,6 +5465,6 @@ protected boolean isInModuleStatements() {
 	return isInExportsStatement() ||
 			isInRequiresStatement() ||
 			isInProvidesStatement() ||
-			isInUsessStatement();
+			isInUsesStatement();
 }
 }

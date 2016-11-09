@@ -1172,6 +1172,77 @@ public static final char[] concat(
 }
 
 /**
+ * Answers the concatenation of the two arrays inserting the separator character between the two arrays. Differs from
+ * {@link CharOperation#contains(char, char[])} in case second array is a zero length array.
+ * It answers null if the two arrays are null.
+ * If the first array is null, then the second array is returned.
+ * If the second array is null, then the first array is returned.
+ * if the second array is zero length array, the separator is appended.
+ * <br>
+ * <br>
+ * For example:
+ * <ol>
+ * <li><pre>
+ *    first = null
+ *    second = { 'a' }
+ *    separator = '/'
+ *    => result = { ' a' }
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    first = { ' a' }
+ *    second = null
+ *    separator = '/'
+ *    => result = { ' a' }
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    first = { ' a' }
+ *    second = { ' b' }
+ *    separator = '/'
+ *    => result = { ' a' , '/', 'b' }
+ * </pre>
+ * </li>
+ * <li><pre>
+ *    first = { ' a' }
+ *    second = { '' }
+ *    separator = '.'
+ *    => result = { ' a' , '.', }
+ * </pre>
+ * </li>
+ * </ol>
+ *
+ * @param first the first array to concatenate
+ * @param second the second array to concatenate
+ * @param separator the character to insert
+ * @return the concatenation of the two arrays inserting the separator character
+ * between the two arrays , or null if the two arrays are null. If second array
+ * is of zero length, the separator is appended to the first array and returned.
+ * @since 3.13 BETA_JAVA9
+ */
+public static final char[] concatAll(
+	char[] first,
+	char[] second,
+	char separator) {
+	if (first == null)
+		return second;
+	if (second == null)
+		return first;
+
+	int length1 = first.length;
+	if (length1 == 0)
+		return second;
+	int length2 = second.length;
+
+	char[] result = new char[length1 + length2 + 1];
+	System.arraycopy(first, 0, result, 0, length1);
+	result[length1] = separator;
+	if (length2 > 0)
+		System.arraycopy(second, 0, result, length1 + 1, length2);
+	return result;
+}
+
+/**
  * Answers the concatenation of the three arrays inserting the sep1 character between the
  * first two arrays and sep2 between the last two.
  * It answers null if the three arrays are null.
