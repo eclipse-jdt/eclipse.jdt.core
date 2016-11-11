@@ -5467,7 +5467,7 @@ public final class JavaCore extends Plugin {
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting and cancellation are not desired
 	 * @throws CoreException 
-	 * @since 3.14
+	 * @since 3.13
 	 */
 	public static void rebuildIndex(IProgressMonitor monitor) throws CoreException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 10);
