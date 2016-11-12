@@ -1839,4 +1839,41 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		assertProblems(problems, new String[] {
 				"Pb(149) Dead code"
 			}, new int[] { 7 });
-	}}
+	}
+	public void testBug507256() throws Exception {
+		myCreateJavaProject("TestLibs");
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+				"/UnannotatedLib/libs/Lib1.java",
+				"package libs;\n" + 
+				"\n" + 
+				"public interface Lib1 {\n" + 
+				"	void methodWithParamAfterWildcard(Class<?> c, Object s);\n" + 
+				"}\n"
+			}, null);
+		// annotations directly on a wildcard (*, +, -)
+		createFileInProject("annots/libs", "Lib1.eea",
+				"class libs/Lib1\n" + 
+				"\n" + 
+				"methodWithParamAfterWildcard\n" + 
+				" (Ljava/lang/Class<*>;Ljava/lang/Object;)V\n" + 
+				" (L1java/lang/Class<*>;L1java/lang/Object;)V\n" +
+				"\n" + 
+				"\n");
+		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+		ICompilationUnit unit = fragment.createCompilationUnit("Test1.java", 
+				"package tests;\n" + 
+				"import libs.Lib1;\n" + 
+				"\n" + 
+				"public class Test1 {\n" + 
+				"	void test1(Lib1 lib) {\n" + 
+				"		 lib.methodWithParamAfterWildcard(Object.class, null);\n" + // error, second param must not be null
+				"	}\n" + 
+				"}\n",
+				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		IProblem[] problems = reconciled.getProblems();
+		assertProblems(problems, new String[] {
+				"Pb(910) Null type mismatch: required '@NonNull Object' but the provided value is null"
+			}, new int[] { 6 });
+	}
+}
