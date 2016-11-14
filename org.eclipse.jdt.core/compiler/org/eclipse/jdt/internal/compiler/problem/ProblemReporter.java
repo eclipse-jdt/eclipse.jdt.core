@@ -1589,6 +1589,8 @@ public int computeSeverity(int problemID){
 			return ProblemSeverities.Warning;
 		case IProblem.IllegalUseOfUnderscoreAsAnIdentifier:
 			return this.underScoreIsLambdaParameter ? ProblemSeverities.Error : ProblemSeverities.Warning;
+		case IProblem.ProblemNotAnalysed:
+			return ProblemSeverities.Info; // Not configurable
 	}
 	int irritant = getIrritant(problemID);
 	if (irritant != 0) {
@@ -8957,6 +8959,14 @@ public void unusedWarningToken(Expression token) {
 		IProblem.UnusedWarningToken,
 		arguments,
 		arguments,
+		token.sourceStart,
+		token.sourceEnd);
+}
+public void problemNotAnalysed(Expression token, String optionKey) {
+	this.handle(
+		IProblem.ProblemNotAnalysed,
+		optionKey != null ? new String[]{optionKey} : new String[]{},
+		new String[] { token.constant.stringValue() },
 		token.sourceStart,
 		token.sourceEnd);
 }

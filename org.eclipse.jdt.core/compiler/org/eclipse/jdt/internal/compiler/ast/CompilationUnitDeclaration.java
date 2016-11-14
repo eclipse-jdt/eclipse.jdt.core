@@ -299,22 +299,28 @@ public void finalizeProblems() {
 										Constant cst = inits[iToken].constant;
 										if (cst != Constant.NotAConstant && cst.typeID() == TypeIds.T_JavaLangString) {
 											IrritantSet tokenIrritants = CompilerOptions.warningTokenToIrritants(cst.stringValue());
-											if (tokenIrritants != null
-													&& !tokenIrritants.areAllSet() // no complaint against @SuppressWarnings("all")
-													&& options.isAnyEnabled(tokenIrritants) // if irritant is effectively enabled
-													&& (foundIrritants[iSuppress] == null || !foundIrritants[iSuppress].isAnySet(tokenIrritants))) { // if irritant had no matching problem
-												if (unusedWarningTokenIsWarning) {
-													int start = value.sourceStart, end = value.sourceEnd;
-													nextSuppress: for (int jSuppress = iSuppress - 1; jSuppress >= 0; jSuppress--) {
-														long position = this.suppressWarningScopePositions[jSuppress];
-														int startSuppress = (int) (position >>> 32);
-														int endSuppress = (int) position;
-														if (start < startSuppress) continue nextSuppress;
-														if (end > endSuppress) continue nextSuppress;
-														if (this.suppressWarningIrritants[jSuppress].areAllSet()) break pairLoop; // suppress all?
+											if (tokenIrritants != null) {
+												if (!tokenIrritants.areAllSet() // no complaint against @SuppressWarnings("all")
+														&& (foundIrritants[iSuppress] == null || !foundIrritants[iSuppress].isAnySet(tokenIrritants))) { // if irritant had no matching problem
+													if (unusedWarningTokenIsWarning) {
+														int start = value.sourceStart, end = value.sourceEnd;
+														nextSuppress: for (int jSuppress = iSuppress - 1; jSuppress >= 0; jSuppress--) {
+															long position = this.suppressWarningScopePositions[jSuppress];
+															int startSuppress = (int) (position >>> 32);
+															int endSuppress = (int) position;
+															if (start < startSuppress) continue nextSuppress;
+															if (end > endSuppress) continue nextSuppress;
+															if (this.suppressWarningIrritants[jSuppress].areAllSet()) break pairLoop; // suppress all?
+														}
+													}
+													int id = options.getIgnoredIrritant(tokenIrritants);
+													if (id > 0) {
+														String key = CompilerOptions.optionKeyFromIrritant(id);
+														this.scope.problemReporter().problemNotAnalysed(inits[iToken], key);
+													} else {
+														this.scope.problemReporter().unusedWarningToken(inits[iToken]);														
 													}
 												}
-												this.scope.problemReporter().unusedWarningToken(inits[iToken]);
 											}
 										}
 									}
@@ -323,22 +329,28 @@ public void finalizeProblems() {
 								Constant cst = value.constant;
 								if (cst != Constant.NotAConstant && cst.typeID() == T_JavaLangString) {
 									IrritantSet tokenIrritants = CompilerOptions.warningTokenToIrritants(cst.stringValue());
-									if (tokenIrritants != null
-											&& !tokenIrritants.areAllSet() // no complaint against @SuppressWarnings("all")
-											&& options.isAnyEnabled(tokenIrritants) // if irritant is effectively enabled
-											&& (foundIrritants[iSuppress] == null || !foundIrritants[iSuppress].isAnySet(tokenIrritants))) { // if irritant had no matching problem
-										if (unusedWarningTokenIsWarning) {
-											int start = value.sourceStart, end = value.sourceEnd;
-											nextSuppress: for (int jSuppress = iSuppress - 1; jSuppress >= 0; jSuppress--) {
-												long position = this.suppressWarningScopePositions[jSuppress];
-												int startSuppress = (int) (position >>> 32);
-												int endSuppress = (int) position;
-												if (start < startSuppress) continue nextSuppress;
-												if (end > endSuppress) continue nextSuppress;
-												if (this.suppressWarningIrritants[jSuppress].areAllSet()) break pairLoop; // suppress all?
+									if (tokenIrritants != null) {
+										if (!tokenIrritants.areAllSet() // no complaint against @SuppressWarnings("all")
+												&& (foundIrritants[iSuppress] == null || !foundIrritants[iSuppress].isAnySet(tokenIrritants))) { // if irritant had no matching problem
+											if (unusedWarningTokenIsWarning) {
+												int start = value.sourceStart, end = value.sourceEnd;
+												nextSuppress: for (int jSuppress = iSuppress - 1; jSuppress >= 0; jSuppress--) {
+													long position = this.suppressWarningScopePositions[jSuppress];
+													int startSuppress = (int) (position >>> 32);
+													int endSuppress = (int) position;
+													if (start < startSuppress) continue nextSuppress;
+													if (end > endSuppress) continue nextSuppress;
+													if (this.suppressWarningIrritants[jSuppress].areAllSet()) break pairLoop; // suppress all?
+												}
+											}
+											int id = options.getIgnoredIrritant(tokenIrritants);
+											if (id > 0) {
+												String key = CompilerOptions.optionKeyFromIrritant(id);
+												this.scope.problemReporter().problemNotAnalysed(value, key);
+											} else {
+												this.scope.problemReporter().unusedWarningToken(value);
 											}
 										}
-										this.scope.problemReporter().unusedWarningToken(value);
 									}
 								}
 							}

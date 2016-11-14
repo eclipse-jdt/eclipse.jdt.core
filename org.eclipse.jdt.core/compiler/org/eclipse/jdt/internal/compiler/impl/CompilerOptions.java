@@ -1270,6 +1270,22 @@ public class CompilerOptions {
 		return this.warningThreshold.isAnySet(irritants) || this.errorThreshold.isAnySet(irritants)
 					|| this.infoThreshold.isAnySet(irritants);
 	}
+	/*
+	 * Just return the first irritant id that is set to 'ignored'.
+	 */
+	public int getIgnoredIrritant(IrritantSet irritants) {
+		int[] bits = irritants.getBits();
+		for (int i = 0; i < IrritantSet.GROUP_MAX; i++) {
+			int bit = bits[i];
+			if (bit > 0) {
+				bit |= (i << IrritantSet.GROUP_SHIFT);
+				if (!(this.warningThreshold.isSet(bit) || this.errorThreshold.isSet(bit) || this.infoThreshold.isSet(bit))) {
+					return bit;
+				}
+			}
+		}
+		return 0;
+	}
 
 	protected void resetDefaults() {
 		// problem default severities defined on IrritantSet

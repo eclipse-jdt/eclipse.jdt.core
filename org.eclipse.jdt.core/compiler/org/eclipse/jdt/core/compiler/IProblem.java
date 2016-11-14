@@ -1881,5 +1881,6 @@ void setSourceStart(int sourceStart);
 	/** @deprecated - problem is no longer generated (implementation issue has been resolved)
 	 * @since 3.10 */
 	int LambdaShapeComputationError = 1101;
-	
+	/** @since 3.13 */
+	int ProblemNotAnalysed = 1102;
 }

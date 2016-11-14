@@ -1100,6 +1100,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("lambdaSignatureMismatched", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalArrayOfUnionType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalArrayTypeInIntersectionCast", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("ProblemNotAnalysed", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
@@ -1939,6 +1940,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("DisallowedExplicitThisParameter", SKIP);
 		expectedProblemAttributes.put("IllegalArrayOfUnionType", SKIP);
 		expectedProblemAttributes.put("IllegalArrayTypeInIntersectionCast", SKIP);
+		expectedProblemAttributes.put("ProblemNotAnalysed", SKIP);
 		Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();
 		for (int i = 0, length = fields.length; i < length; i++) {

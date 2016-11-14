@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -59,7 +59,7 @@ public class AnnotationTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which do not belong to the class are skipped...
 	static {
-//		TESTS_NAMES = new String[] { "testBug384663" };
+//		TESTS_NAMES = new String[] { "testBug506888c" };
 //		TESTS_NUMBERS = new int[] { 297 };
 //		TESTS_RANGE = new int[] { 294, -1 };
 	}
@@ -4902,7 +4902,7 @@ public void test143() {
     public void test153() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.WARNING);
-        this.runNegativeTest(
+        this.runConformTest(
             new String[] {
                 "X.java",
                 "enum E { A, B, C }\n" +
@@ -4919,9 +4919,6 @@ public void test143() {
 				"	 }\n" +
 				"}",
             },
-			"",
-			null,
-			true,
 			options
 		);
     }
@@ -8135,11 +8132,16 @@ public void test245() {
 				"}	\n",
 		},
 		null, options,
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	@SuppressWarnings({\"unchecked\",\"unused\"})\n" +
-		"	                               ^^^^^^^^\n" +
-		"Unnecessary @SuppressWarnings(\"unused\")\n" +
+		"----------\n" + 
+		"1. INFO in X.java (at line 3)\n" + 
+		"	@SuppressWarnings({\"unchecked\",\"unused\"})\n" + 
+		"	                   ^^^^^^^^^^^\n" + 
+		"At least one of the problems in category \'unchecked\' is not analysed due to a compiler option being ignored\n" + 
+		"----------\n" + 
+		"2. ERROR in X.java (at line 3)\n" + 
+		"	@SuppressWarnings({\"unchecked\",\"unused\"})\n" + 
+		"	                               ^^^^^^^^\n" + 
+		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
 		"----------\n",
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
@@ -11649,5 +11651,123 @@ public void testBug470665() throws Exception {
 	} finally {
 		this.enableAPT = apt;
 	}
+}
+public void testBug506888a() throws Exception {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_5) {
+		return;
+	}
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.WARNING);
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	\n" +
+				"	@SuppressWarnings({\"incomplete-switch\"})\n" +
+				"	void foo() {\n" +
+				"	}\n" +
+				"}	\n",
+		},
+		"----------\n" + 
+		"1. INFO in X.java (at line 3)\n" + 
+		"	@SuppressWarnings({\"incomplete-switch\"})\n" + 
+		"	                   ^^^^^^^^^^^^^^^^^^^\n" + 
+		"At least one of the problems in category \'incomplete-switch\' is not analysed due to a compiler option being ignored\n" + 
+		"----------\n", 
+		null, true, options);
+}
+public void testBug506888b() throws Exception {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_5) {
+		return;
+	}
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.IGNORE);
+	this.runConformTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	\n" +
+				"	@SuppressWarnings({\"incomplete-switch\"})\n" +
+				"	void foo(Color c) {\n" +
+				"		switch(c) {\n" + 
+				"		}\n" +
+				"	}\n" +
+				"	enum Color { BLUE, RED; } \n" +
+				"}	\n",
+		},
+		options);
+}
+public void testBug506888c() throws Exception {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_5) {
+		return;
+	}
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.WARNING);
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	\n" +
+				"	@SuppressWarnings({\"incomplete-switch\", \"unchecked\"})\n" +
+				"	void foo(Color c) {\n" +
+				"		switch(c) {\n" + 
+				"		}\n" +
+				"	}\n" +
+				"	enum Color { BLUE, RED; } \n" +
+				"}	\n",
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 3)\n" + 
+		"	@SuppressWarnings({\"incomplete-switch\", \"unchecked\"})\n" + 
+		"	                                        ^^^^^^^^^^^\n" + 
+		"Unnecessary @SuppressWarnings(\"unchecked\")\n" + 
+		"----------\n", 
+		null, true, options);
+}
+public void testBug506888d() throws Exception {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_5) {
+		return;
+	}
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.IGNORE);
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	\n" +
+				"	@SuppressWarnings({\"incomplete-switch\"})\n" +
+				"	void foo() {\n" +
+				"	}\n" +
+				"}	\n",
+		},
+		"", 
+		null, true, options);
+}
+public void testBug506888e() throws Exception {
+	if (this.complianceLevel <= ClassFileConstants.JDK1_5) {
+		return;
+	}
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportUnusedLabel, CompilerOptions.WARNING);
+	this.runNegativeTest(
+		new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	\n" +
+				"	@SuppressWarnings({\"unused\"})\n" +
+				"	void foo() {}\n" +
+				"}	\n",
+		},
+		"", 
+		null, true, options);
 }
 }
