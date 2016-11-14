@@ -112,7 +112,11 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 								}
 							);
 						}
-						member.delete(IResource.FORCE, null);
+						try {
+							member.delete(IResource.FORCE, null);
+						} catch(CoreException e) {
+							Util.log(e, "Error occurred while deleting: " + member.getFullPath()); //$NON-NLS-1$
+						}
 					}
 				}
 				this.notifier.checkCancel();
@@ -139,7 +143,11 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 											return false;
 									if (!resource.isDerived())
 										resource.setDerived(true, null);
-									resource.delete(IResource.FORCE, null);
+									try {
+										resource.delete(IResource.FORCE, null);
+									} catch(CoreException e) {
+										Util.log(e, "Error occurred while deleting: " + resource.getFullPath()); //$NON-NLS-1$
+									}
 								}
 								return false;
 							}
