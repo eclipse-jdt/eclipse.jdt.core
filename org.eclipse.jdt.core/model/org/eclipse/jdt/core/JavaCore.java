@@ -151,7 +151,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.BatchOperation;
-import org.eclipse.jdt.internal.core.BufferFactoryWrapper;
 import org.eclipse.jdt.internal.core.BufferManager;
 import org.eclipse.jdt.internal.core.ClasspathAccessRule;
 import org.eclipse.jdt.internal.core.ClasspathAttribute;
@@ -4133,7 +4132,7 @@ public final class JavaCore extends Plugin {
 		// if factory is null, default factory must be used
 		if (factory == null) factory = BufferManager.getDefaultBufferManager().getDefaultBufferFactory();
 
-		return getWorkingCopies(BufferFactoryWrapper.create(factory));
+		return getWorkingCopies(org.eclipse.jdt.internal.core.BufferFactoryWrapper.create(factory));
 	}
 
 	/**
