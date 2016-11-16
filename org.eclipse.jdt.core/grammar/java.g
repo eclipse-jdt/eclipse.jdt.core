@@ -481,9 +481,12 @@ UsesStatement ::=  'uses' Name ';'
 /:$compliance 1.9:/
 /.$putCase consumeUsesStatement(); $break ./
 
-ProvidesStatement ::= 'provides' Name WithClause ';'
+ProvidesStatement ::= ProvidesInterface WithClause ';'
 /:$compliance 1.9:/
 /.$putCase consumeProvidesStatement(); $break ./
+ProvidesInterface ::= 'provides' Name
+/:$compliance 1.9:/
+/.$putCase consumeProvideInterface(); $break ./
 WithClause ::= 'with' Name
 /:$compliance 1.9:/
 /.$putCase consumeWithClause(); $break ./
