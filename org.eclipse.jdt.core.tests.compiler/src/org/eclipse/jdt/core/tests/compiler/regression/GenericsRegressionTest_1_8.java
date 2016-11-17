@@ -7309,4 +7309,60 @@ public void testBug499725() {
 			"}\n"
 		});
 }
+public void testBug499725a() {
+	runConformTest(
+		new String[] {
+			"Try22.java",
+			"import java.rmi.RemoteException;\n" + 
+			"import java.util.Arrays;\n" + 
+			"import java.util.Collection;\n" + 
+			"import java.util.Collections;\n" + 
+			"import java.util.List;\n" + 
+			"import java.util.function.Function;\n" + 
+			"import java.util.stream.Collectors;\n" + 
+			"\n" + 
+			"\n" + 
+			"public class Try22 {\n" + 
+			"    public static class RemoteExceptionWrapper {\n" + 
+			"        @FunctionalInterface\n" + 
+			"        public static interface FunctionRemote<T, R> {\n" + 
+			"            R apply(T t) throws RemoteException;\n" + 
+			"        }\n" + 
+			"        \n" + 
+			"        public static <T, R> Function<T, R> wrapFunction(FunctionRemote<T, R> f) {\n" + 
+			"            return x -> {\n" + 
+			"                try {\n" + 
+			"                    return f.apply(x);\n" + 
+			"                }\n" + 
+			"                catch(RemoteException  e) {\n" + 
+			"                    throw new RuntimeException(e);\n" + 
+			"                }\n" + 
+			"            };\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"\n" + 
+			"    private static class ThrowingThingy {\n" + 
+			"        public Collection<String> listStuff(String in) throws RemoteException {\n" + 
+			"            return Collections.emptyList();\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"\n" + 
+			"    \n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        List<String> stagedNodes = Arrays.asList(\"a\", \"b\", \"c\");\n" + 
+			"        ThrowingThingy remoteThing = new ThrowingThingy();  // simulation of a rmi remote, hence the exceptio\n" + 
+			"        \n" + 
+			"        List<String> resultingStuff = stagedNodes.stream()\n" + 
+			"            .flatMap(RemoteExceptionWrapper.wrapFunction(\n" + 
+			"                (String node) -> remoteThing.listStuff(node)    // HERE\n" + 
+			"                    .stream()\n" + 
+			"                    .map(sub -> node + \"/\" + sub)))\n" + 
+			"            .collect(Collectors.toList());\n" + 
+			"        \n" + 
+			"        System.out.println(resultingStuff);\n" + 
+			"    }\n" + 
+			"}\n"
+		});
+}
 }
