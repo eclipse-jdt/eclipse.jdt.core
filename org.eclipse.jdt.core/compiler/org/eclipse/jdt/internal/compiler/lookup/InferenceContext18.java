@@ -130,7 +130,6 @@ public class InferenceContext18 {
 	
 	/** The inference variables for which as solution is sought. */
 	InferenceVariable[] inferenceVariables;
-	int nextVarId;
 
 	/** Constraints that have not yet been reduced and incorporated. */
 	ConstraintFormula[] initialConstraints;
@@ -165,39 +164,13 @@ public class InferenceContext18 {
 	boolean directlyAcceptingInnerBounds = false;
 	/** Not per JLS: pushing bounds from inner to outer may have to be deferred till after overload resolution, store here a runnable to perform the push. */
 	private Runnable pushToOuterJob = null;
-	
-	// InferenceVariable interning:
-	private InferenceVariable[] internedVariables;
-	
-	private InferenceVariable getInferenceVariable(TypeBinding typeParameter, int rank, InvocationSite site) {
-		InferenceContext18 outermostContext = this.environment.currentInferenceContext;
-		if (outermostContext == null)
-			outermostContext = this;
-		int i = 0;
-		InferenceVariable[] interned = outermostContext.internedVariables;
-		if (interned == null) {
-			outermostContext.internedVariables = new InferenceVariable[10];
-		} else {
-			int len = interned.length;
-			for (i = 0; i < len; i++) {
-				InferenceVariable var = interned[i];
-				if (var == null)
-					break;
-				if (var.typeParameter == typeParameter && var.rank == rank && isSameSite(var.site, site)) //$IDENTITY-COMPARISON$
-					return var;
-			}
-			if (i >= len)
-				System.arraycopy(interned, 0, outermostContext.internedVariables = new InferenceVariable[len+10], 0, len);
-		}
-		return outermostContext.internedVariables[i] = new InferenceVariable(typeParameter, rank, this.nextVarId++, site, this.environment, this.object);
-	}
-	
-	boolean isSameSite(InvocationSite site1, InvocationSite site2) {
+
+	public static boolean isSameSite(InvocationSite site1, InvocationSite site2) {
 		if (site1 == site2)
 			return true;
 		if (site1 == null || site2 == null)
 			return false;
-		if (site1.sourceStart() == site2.sourceStart() && site1.sourceEnd() == site2.sourceEnd() && site1.toString().equals(site2.toString()))
+		if (site1.sourceStart() == site2.sourceStart() && site1.sourceEnd() == site2.sourceEnd())
 			return true;
 		return false;
 	}
@@ -333,7 +306,7 @@ public class InferenceContext18 {
 		}
 		InferenceVariable[] newVariables = new InferenceVariable[len];
 		for (int i = 0; i < len; i++)
-			newVariables[i] = getInferenceVariable(typeVariables[i], i, this.currentInvocation);
+			newVariables[i] = InferenceVariable.get(typeVariables[i], i, this.currentInvocation, this.scope, this.object);
 		if (this.inferenceVariables == null || this.inferenceVariables.length == 0) {
 			this.inferenceVariables = newVariables;
 		} else {
@@ -356,7 +329,7 @@ public class InferenceContext18 {
 				newVariables[i] = (InferenceVariable) typeVariables[i]; // prevent double substitution of an already-substituted inferenceVariable
 			else
 				toAdd[numToAdd++] =
-					newVariables[i] = getInferenceVariable(typeVariables[i], i, this.currentInvocation);
+					newVariables[i] = InferenceVariable.get(typeVariables[i], i, this.currentInvocation, this.scope, this.object);
 		}
 		if (numToAdd > 0) {
 			int start = 0;
@@ -1587,8 +1560,6 @@ public class InferenceContext18 {
 		if (!isSameSite(innerCtx.currentInvocation, this.currentInvocation))
 			innerCtx.outerContext = this;
 		this.usesUncheckedConversion = innerCtx.usesUncheckedConversion;
-		for (InferenceVariable variable : this.inferenceVariables)
-			variable.updateSourceName(this.nextVarId++);
 	}
 
 	public void resumeSuspendedInference(SuspendedInferenceRecord record) {
