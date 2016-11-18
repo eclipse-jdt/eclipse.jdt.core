@@ -13336,6 +13336,40 @@ public void testBug501464() {
 		"----------\n"
 	);
 }
+public void testBug507840() {
+	runConformTestWithLibs(
+		new String[] {
+			"nnbd_on_typevar/AtomicReference.java",
+			"package nnbd_on_typevar;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"class AtomicReference<T> {\n" +
+			"	public void set(T t) {\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runConformTestWithLibs(
+		new String[] {
+			"nnbd_on_typevar/Usage.java",
+			"package nnbd_on_typevar;\n" +
+			"\n" +
+			"public class Usage {\n" +
+			"	void m(AtomicReference<String> ref) {\n" +
+			"		ref.set(null);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
 public void testBug508497() {
 	runConformTestWithLibs(
 		new String[] {

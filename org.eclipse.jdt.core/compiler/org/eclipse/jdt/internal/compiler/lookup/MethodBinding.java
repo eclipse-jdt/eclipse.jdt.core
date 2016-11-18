@@ -521,12 +521,16 @@ protected void fillInDefaultNonNullness(AbstractMethodDeclaration sourceMethod) 
 
 //pre: null annotation analysis is enabled
 protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod, LookupEnvironment env) {
+	MethodBinding original = original();
+	if(original == null) {
+		return;
+	}
 	if (hasNonNullDefaultFor(DefaultLocationParameter, true)) {
 		boolean added = false;
 		int length = this.parameters.length;
 		for (int i = 0; i < length; i++) {
 			TypeBinding parameter = this.parameters[i];
-			if (!parameter.acceptsNonNullDefault())
+			if (!original.parameters[i].acceptsNonNullDefault())
 				continue;
 			long existing = parameter.tagBits & TagBits.AnnotationNullMASK;
 			if (existing == 0L) {
@@ -544,7 +548,7 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 		if (added)
 			this.tagBits |= TagBits.HasParameterAnnotations;
 	}
-	if (this.returnType != null && hasNonNullDefaultFor(DefaultLocationReturnType, true) && this.returnType.acceptsNonNullDefault()) {
+	if (original.returnType != null && hasNonNullDefaultFor(DefaultLocationReturnType, true) && original.returnType.acceptsNonNullDefault()) {
 		if ((this.returnType.tagBits & TagBits.AnnotationNullMASK) == 0) {
 			this.returnType = env.createAnnotatedType(this.returnType, new AnnotationBinding[]{env.getNonNullAnnotation()});
 		} else if (sourceMethod instanceof MethodDeclaration && (this.returnType.tagBits & TagBits.AnnotationNonNull) != 0 
