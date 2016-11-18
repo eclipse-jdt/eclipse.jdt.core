@@ -7309,4 +7309,23 @@ public void testBug499725() {
 			"}\n"
 		});
 }
+// Redundant type argument specification error for anonymous types should not occur below source level 9 
+public void testBug488663() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
+	this.runConformTest(
+		new String[] {
+			"C.java",
+			"import java.util.Comparator;\n" + 
+			"public class C {\n" + 
+			"	Comparator<String> comparator = new Comparator<String>() { //\n" + 
+			"		@Override\n" + 
+			"		public int compare(String o1, String o2) {\n" + 
+			"			return 0;\n" + 
+			"		}\n" + 
+			"	};\n" + 
+			"}"
+		},
+		"", options);
+}
 }

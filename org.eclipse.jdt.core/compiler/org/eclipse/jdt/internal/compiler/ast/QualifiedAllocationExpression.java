@@ -581,7 +581,8 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			}
 			this.enclosingInstance.computeConversion(scope, targetEnclosing, enclosingInstanceType);
 		}
-		if (!isDiamond && receiverType.isParameterizedTypeWithActualArguments()) {
+		if (!isDiamond && receiverType.isParameterizedTypeWithActualArguments() && 
+				(this.anonymousType == null || sourceLevel >= ClassFileConstants.JDK9)) {
 			checkTypeArgumentRedundancy((ParameterizedTypeBinding) receiverType, scope);
 		}
 		if (this.anonymousType != null) {
