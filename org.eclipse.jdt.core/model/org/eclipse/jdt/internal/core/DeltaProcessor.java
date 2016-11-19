@@ -591,8 +591,8 @@ public class DeltaProcessor {
 	}
 
 	private void checkProjectReferenceChange(IProject project, JavaProject javaProject) {
-		ClasspathChange change = this.state.getClasspathChange(project);
-		this.state.addProjectReferenceChange(javaProject, change == null ? null : change.oldResolvedClasspath);
+		project.clearCachedDynamicReferences();
+		this.state.addProjectReferenceChange(javaProject);
 	}
 
 	private void readRawClasspath(JavaProject javaProject) {
@@ -2080,7 +2080,8 @@ public class DeltaProcessor {
 										this.state.addClasspathValidation(change.project);
 									}
 									if ((result & ClasspathChange.HAS_PROJECT_CHANGE) != 0) {
-										this.state.addProjectReferenceChange(change.project, change.oldResolvedClasspath);
+										change.project.getProject().clearCachedDynamicReferences();
+										this.state.addProjectReferenceChange(change.project);
 									}
 									if ((result & ClasspathChange.HAS_LIBRARY_CHANGE) != 0) {
 										this.state.addExternalFolderChange(change.project, change.oldResolvedClasspath);
@@ -2145,20 +2146,13 @@ public class DeltaProcessor {
 				}
 
 				// update project references if necessary
-			    ProjectReferenceChange[] projectRefChanges = this.state.removeProjectReferenceChanges();
-				if (projectRefChanges != null) {
-				    for (int i = 0, length = projectRefChanges.length; i < length; i++) {
-				        try {
-					        projectRefChanges[i].updateProjectReferencesIfNecessary();
-				        } catch(JavaModelException e) {
-				            // project doesn't exist any longer, continue with next one
-				        	if (!e.isDoesNotExist())
-				        		Util.log(e, "Exception while updating project references"); //$NON-NLS-1$
-				        }
-				    }
-				}
+				Set<IJavaProject> referencedProjects = this.state.removeProjectReferenceChanges();
+				needCycleValidation = needCycleValidation || !referencedProjects.isEmpty();
 
-				if (needCycleValidation || projectRefChanges != null) {
+				if (needCycleValidation) {
+					for (IJavaProject next : referencedProjects) {
+						next.getProject().clearCachedDynamicReferences();
+					}
 					// update all cycle markers since the project references changes may have affected cycles
 					try {
 						JavaProject.validateCycles(null);

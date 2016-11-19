@@ -5663,7 +5663,7 @@ public void testUpdateProjectReferences() throws CoreException {
 		createJavaProject("P1");
 		IJavaProject p = createJavaProject("P2");
 		p.setRawClasspath(new IClasspathEntry[] {JavaCore.newProjectEntry(new Path("/P1"))}, null);
-		IProject[] references = p.getProject().getDescription().getDynamicReferences();
+		IProject[] references = p.getProject().getReferencedProjects();
 		assertResourcesEqual(
 			"Unexpected resources",
 			"/P1",

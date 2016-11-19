@@ -1030,7 +1030,7 @@ public void testContainerInitializer25() throws CoreException {
 		assertResourcesEqual(
 			"Unexpected project references on startup",
 			"/P1",
-			p2.getProject().getDescription().getDynamicReferences());
+			p2.getProject().getReferencedProjects());
 	} finally {
 		deleteProject("P1");
 		deleteProject("P2");

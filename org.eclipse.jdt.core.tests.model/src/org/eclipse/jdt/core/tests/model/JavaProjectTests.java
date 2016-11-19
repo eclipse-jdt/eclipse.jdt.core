@@ -1797,7 +1797,7 @@ public void testProjectOpen() throws CoreException {
 		p2.open(null);
 		waitForManualRefresh();
 		waitForAutoBuild();
-		IProject[] references = p2.getDescription().getDynamicReferences();
+		IProject[] references = p2.getReferencedProjects();
 		assertResourcesEqual(
 			"Unexpected referenced projects",
 			"/P1",
