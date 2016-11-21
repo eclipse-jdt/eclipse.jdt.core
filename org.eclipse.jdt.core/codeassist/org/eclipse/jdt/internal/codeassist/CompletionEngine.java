@@ -2112,7 +2112,36 @@ public final class CompletionEngine
 							}
 						}
 					}
-
+					TypeReference[] pInterfaces = this.moduleDeclaration.interfaces;
+					for (int i = 0, l = pInterfaces.length; i < l; ++i) {
+						TypeReference pInterface = pInterfaces[i];
+						if (pInterface instanceof CompletionOnProvidesInterfacesSingleTypeReference ||
+								pInterface instanceof CompletionOnProvidesInterfacesQualifiedTypeReference) {
+							this.lookupEnvironment.buildTypeBindings(parsedUnit, null);
+							if ((this.unitScope = parsedUnit.scope) != null) {
+								contextAccepted = true;
+								buildContext(pInterface, null, parsedUnit, null, null);
+								findTypeReferences(pInterface, true);
+								debugPrintf();
+								return;
+							}
+						}
+					}
+					TypeReference[] implementations = this.moduleDeclaration.implementations;
+					for (int i = 0, l = implementations.length; i < l; ++i) {
+						TypeReference implementation = implementations[i];
+						if (implementation instanceof CompletionOnProvidesInterfacesSingleTypeReference ||
+								implementation instanceof CompletionOnProvidesInterfacesQualifiedTypeReference) {
+							this.lookupEnvironment.buildTypeBindings(parsedUnit, null);
+							if ((this.unitScope = parsedUnit.scope) != null) {
+								contextAccepted = true;
+								buildContext(implementation, null, parsedUnit, null, null);
+								findTypeReferences(implementation, true);
+								debugPrintf();
+								return;
+							}
+						}
+					}
 				}
 				// scan the package & import statements first
 				if (parsedUnit.currentPackage instanceof CompletionOnPackageReference) {
@@ -11786,10 +11815,12 @@ public final class CompletionEngine
 
 		if (typeName.length == 0) {
 			this.completionToken = new char[] {'*'};
-		} else if (reference instanceof CompletionOnUsesQualifiedTypeReference) {
-			CompletionOnUsesQualifiedTypeReference uQReference = (CompletionOnUsesQualifiedTypeReference) reference;
-			if (uQReference.completionIdentifier != null) {
-				this.completionToken = CharOperation.concatAll(typeName, uQReference.completionIdentifier, '.');
+		} else if (reference instanceof CompletionOnUsesQualifiedTypeReference ||
+				reference instanceof CompletionOnProvidesInterfacesQualifiedTypeReference ||
+				reference instanceof CompletionOnProvidesImplementationsQualifiedTypeReference) {
+			CompletionOnQualifiedTypeReference qReference = (CompletionOnQualifiedTypeReference) reference;
+			if (qReference.completionIdentifier != null) {
+				this.completionToken = CharOperation.concatAll(typeName, qReference.completionIdentifier, '.');
 			}
 		 } else {
 			 char[] lastToken = tokens[tokens.length - 1];

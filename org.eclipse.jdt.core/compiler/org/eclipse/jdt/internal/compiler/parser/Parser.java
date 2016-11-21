@@ -5805,10 +5805,7 @@ protected void consumeUsesStatement() {
 		this.lastCheckPoint = siName.sourceEnd + 1;
 	}
 }
-private void consumeProvideInterface() {
-	// do nothing
-}
-protected void consumeProvidesStatement() {
+protected void consumeProvidesInterface() {
 	pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
 	pushOnGenericsLengthStack(0);
 	TypeReference siName = getTypeReference(0);
@@ -5829,12 +5826,15 @@ protected void consumeProvidesStatement() {
 	if (module.servicesCount + 1 > module.interfaces.length) {
 		System.arraycopy(module.interfaces, 0, module.interfaces = new TypeReference[module.servicesCount + 1], 0, module.servicesCount);
 	}
-	module.interfaces[module.servicesCount++] = siName;
+	module.interfaces[module.servicesCount] = siName;
 
 	// recovery
 	if (this.currentElement != null){
 		this.lastCheckPoint = siName.sourceEnd + 1;
 	}
+}
+protected void consumeProvidesStatement() {
+	// do nothing
 }
 protected void consumeWithClause() {
 	pushOnGenericsIdentifiersLengthStack(this.identifierLengthStack[this.identifierLengthPtr]);
@@ -5857,7 +5857,7 @@ protected void consumeWithClause() {
 	if (module.servicesCount + 1 > module.implementations.length) {
 		System.arraycopy(module.implementations, 0, module.implementations = new TypeReference[module.servicesCount + 1], 0, module.servicesCount);
 	}
-	module.implementations[module.servicesCount] = siName;
+	module.implementations[module.servicesCount++] = siName;
 	
 	// recovery
 	if (this.currentElement != null){
@@ -6554,7 +6554,7 @@ protected void consumeRule(int act) {
 			break;
  
     case 120 : if (DEBUG) { System.out.println("ProvidesInterface ::= provides Name"); }  //$NON-NLS-1$
-		    consumeProvideInterface();  
+		    consumeProvidesInterface();  
 			break;
  
     case 121 : if (DEBUG) { System.out.println("WithClause ::= with Name"); }  //$NON-NLS-1$

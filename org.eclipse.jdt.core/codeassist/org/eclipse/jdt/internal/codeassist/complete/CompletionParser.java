@@ -91,6 +91,7 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_INSIDE_PROVIDES_STATEMENT = COMPLETION_PARSER + 47;
 	protected static final int K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT = COMPLETION_PARSER + 48;
 	protected static final int K_AFTER_NAME_IN_PROVIDES_STATEMENT = COMPLETION_PARSER + 49;
+	protected static final int K_AFTER_WITH_IN_PROVIDES_STATEMENT = COMPLETION_PARSER + 50;
 
 
 	public final static char[] FAKE_TYPE_NAME = new char[]{' '};
@@ -176,19 +177,6 @@ public class CompletionParser extends AssistParser {
 	private boolean inReferenceExpression;
 	private IProgressMonitor monitor;
 	private int resumeOnSyntaxError = 0;
-	
-
-	enum MIStatementIdentity {
-		SINGLE_EXPORTS,
-		SINGLE_EXPORTS_PACKAGE,
-		SINGLE_EXPORTS_TARGET,
-		REQUIRES_STATEMENT,
-		PROVIDES_STATEMENT,
-		PROVIDES_STATEMENT_WITH,
-		USES_STATEMENT,
-		DEFAULT_MI_STATEMENT, // denoting that still within module-info
-		NOT_A_MI_STATEMENT
-	}
 
 public CompletionParser(ProblemReporter problemReporter, boolean storeExtraSourceEnds) {
 	super(problemReporter);
@@ -1552,23 +1540,23 @@ private boolean checkKeyword() {
 
 private enum ModuleKeyword {
 	FIRST_ALL,
-	EXPORTS_MID,
-	PROVIDES_MID,
+	EXPORTS_TO,
+	PROVIDES_WITH,
 	NOT_A_KEYWORD
 }
 
 private ModuleKeyword getKeyword() {
 	ModuleKeyword keyword = ModuleKeyword.FIRST_ALL;
 	if (isInModuleStatements()) {
-		if (foundToken(K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT)) keyword = ModuleKeyword.EXPORTS_MID;
-		else if (foundToken(K_AFTER_NAME_IN_PROVIDES_STATEMENT)) keyword = ModuleKeyword.PROVIDES_MID;
+		if (foundToken(K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT)) keyword = ModuleKeyword.EXPORTS_TO;
+		else if (foundToken(K_AFTER_NAME_IN_PROVIDES_STATEMENT)) keyword = ModuleKeyword.PROVIDES_WITH;
 		else keyword = ModuleKeyword.NOT_A_KEYWORD;
 	}
 	return keyword;
 }
 private char[][] getModuleKeywords(ModuleKeyword keyword) {
-	if (keyword == ModuleKeyword.EXPORTS_MID) return new char[][]{Keywords.TO};
-	else if (keyword == ModuleKeyword.PROVIDES_MID) return new char[][]{Keywords.WITH};
+	if (keyword == ModuleKeyword.EXPORTS_TO) return new char[][]{Keywords.TO};
+	else if (keyword == ModuleKeyword.PROVIDES_WITH) return new char[][]{Keywords.WITH};
 	else return new char[][]{Keywords.EXPORTS, Keywords.REQUIRES, Keywords.PROVIDES, Keywords.USES};
 }
 private boolean checkModuleInfoConstructs() {
@@ -3447,10 +3435,17 @@ protected void consumeModifiers() {
 protected void consumeModuleHeader() {
 	super.consumeModuleHeader();
 }
+protected void consumeProvidesInterface() {
+	super.consumeProvidesInterface();
+	pushOnElementStack(K_AFTER_NAME_IN_PROVIDES_STATEMENT);
+}
 protected void consumeProvidesStatement() {
 	super.consumeProvidesStatement();
-	popElement(K_AFTER_NAME_IN_PROVIDES_STATEMENT);
 	popElement(K_INSIDE_PROVIDES_STATEMENT);
+}
+protected void consumeWithClause() {
+	super.consumeWithClause();
+	popElement(K_AFTER_WITH_IN_PROVIDES_STATEMENT);
 }
 
 protected void consumeReferenceType() {
@@ -4476,6 +4471,14 @@ public NameReference createQualifiedAssistNameReference(char[][] previousIdentif
 					positions,
 					isInsideAttributeValue());
 }
+private TypeReference checkAndCreateModuleQualifiedAssistTypeReference(char[][] previousIdentifiers, char[] assistName, long[] positions) {
+	if (isInUsesStatement()) return new CompletionOnUsesQualifiedTypeReference(previousIdentifiers, assistName, positions);
+	if (isInProvidesStatement()) {
+		if (isAfterWithClause()) return new CompletionOnProvidesImplementationsQualifiedTypeReference(previousIdentifiers, assistName, positions);
+		return new CompletionOnProvidesInterfacesQualifiedTypeReference(previousIdentifiers, assistName, positions);
+	}
+	return new CompletionOnQualifiedTypeReference(previousIdentifiers,	assistName,	positions);
+}
 public TypeReference createQualifiedAssistTypeReference(char[][] previousIdentifiers, char[] assistName, long[] positions){
 	switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
 		case K_NEXT_TYPEREF_IS_EXCEPTION :
@@ -4499,8 +4502,7 @@ public TypeReference createQualifiedAssistTypeReference(char[][] previousIdentif
 					positions,
 					CompletionOnQualifiedTypeReference.K_INTERFACE);
 		default :
-			return isInUsesStatement() ? new CompletionOnUsesQualifiedTypeReference(previousIdentifiers, assistName, positions) :
-				new CompletionOnQualifiedTypeReference(
+			return checkAndCreateModuleQualifiedAssistTypeReference(
 					previousIdentifiers,
 					assistName,
 					positions);
@@ -4663,6 +4665,14 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 		}
 	}
 }
+private TypeReference checkAndCreateModuleSingleAssistTypeReference(char[] assistName, long position) {
+	if (isInUsesStatement()) return new CompletionOnUsesSingleTypeReference(assistName, position);
+	if (isInProvidesStatement()) {
+		if (isAfterWithClause()) return new CompletionOnProvidesImplementationsSingleTypeReference(assistName, position);
+		return new CompletionOnProvidesInterfacesSingleTypeReference(assistName, position);
+	}
+	return new CompletionOnSingleTypeReference(assistName,position);
+}
 public TypeReference createSingleAssistTypeReference(char[] assistName, long position) {
 	switch (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER)) {
 		case K_NEXT_TYPEREF_IS_EXCEPTION :
@@ -4674,8 +4684,7 @@ public TypeReference createSingleAssistTypeReference(char[] assistName, long pos
 		case K_NEXT_TYPEREF_IS_INTERFACE :
 			return new CompletionOnSingleTypeReference(assistName, position, CompletionOnSingleTypeReference.K_INTERFACE);
 		default :
-			return isInUsesStatement() ? new CompletionOnUsesSingleTypeReference(assistName, position) :
-					new CompletionOnSingleTypeReference(assistName, position);
+			return checkAndCreateModuleSingleAssistTypeReference(assistName, position);
 	}
 }
 public TypeReference createParameterizedSingleAssistTypeReference(TypeReference[] typeArguments, char[] assistName, long position) {
@@ -5460,6 +5469,9 @@ protected boolean isInUsesStatement() {
 }
 protected boolean isInProvidesStatement() {
 	return foundToken(K_INSIDE_PROVIDES_STATEMENT);
+}
+protected boolean isAfterWithClause() {
+	return foundToken(K_AFTER_WITH_IN_PROVIDES_STATEMENT);
 }
 protected boolean isInModuleStatements() {
 	return isInExportsStatement() ||

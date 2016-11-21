@@ -486,7 +486,7 @@ ProvidesStatement ::= ProvidesInterface WithClause ';'
 /.$putCase consumeProvidesStatement(); $break ./
 ProvidesInterface ::= 'provides' Name
 /:$compliance 1.9:/
-/.$putCase consumeProvideInterface(); $break ./
+/.$putCase consumeProvidesInterface(); $break ./
 WithClause ::= 'with' Name
 /:$compliance 1.9:/
 /.$putCase consumeWithClause(); $break ./

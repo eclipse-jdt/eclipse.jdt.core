@@ -737,7 +737,7 @@ protected void consumeUsesStatement() {
 protected void consumeWithClause() {
 	super.consumeWithClause();
 	ModuleDeclaration module = (ModuleDeclaration) this.astStack[this.astPtr];
-	TypeReference ref = module.implementations[module.servicesCount];
+	TypeReference ref = module.implementations[module.servicesCount - 1];
 	this.requestor.acceptTypeReference(ref.getTypeName(), ref.sourceStart, ref.sourceEnd);
 }
 public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, CompilationResult compilationResult) {
