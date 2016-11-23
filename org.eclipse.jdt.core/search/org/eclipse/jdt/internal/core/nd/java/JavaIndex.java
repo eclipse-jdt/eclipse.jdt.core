@@ -131,6 +131,16 @@ public class JavaIndex {
 		return TYPES.findBest(this.nd, this.address, searchCriteria, this.anyResult);
 	}
 
+	public List<NdTypeId> findTypesBySimpleName(char[] query) {
+		SearchCriteria searchCriteria = SearchCriteria.create(query).prefix(true);
+		return SIMPLE_INDEX.findAll(this.nd, this.address, searchCriteria);
+	}
+
+	public List<NdTypeId> findTypesBySimpleName(char[] query, int count) {
+		SearchCriteria searchCriteria = SearchCriteria.create(query).prefix(true);
+		return SIMPLE_INDEX.findAll(this.nd, this.address, searchCriteria, count);
+	}
+
 	public boolean visitFieldDescriptorsStartingWith(char[] fieldDescriptorPrefix, FieldSearchIndex.Visitor<NdTypeId> visitor) {
 		SearchCriteria searchCriteria = SearchCriteria.create(fieldDescriptorPrefix).prefix(true);
 		return TYPES.visitAll(this.nd, this.address, searchCriteria, visitor);
