@@ -90,7 +90,7 @@ public class Database {
 	public static final int MIN_BLOCK_DELTAS = (FREE_BLOCK_HEADER_SIZE + BLOCK_SIZE_DELTA - 1) /
 			BLOCK_SIZE_DELTA; // Must be enough multiples of BLOCK_SIZE_DELTA in order to fit the free block header
 	public static final int MAX_BLOCK_DELTAS = CHUNK_SIZE / BLOCK_SIZE_DELTA;
-	public static final int MAX_MALLOC_SIZE = MAX_BLOCK_DELTAS * BLOCK_SIZE_DELTA - BLOCK_HEADER_SIZE;
+	public static final int MAX_MALLOC_SIZE = MAX_BLOCK_DELTAS * BLOCK_SIZE_DELTA - BLOCK_HEADER_SIZE; 
 	public static final int PTR_SIZE = 4;  // size of a pointer in the database in bytes
 	public static final int STRING_SIZE = PTR_SIZE;
 	public static final int FLOAT_SIZE = INT_SIZE;
@@ -128,7 +128,6 @@ public class Database {
 	private final Chunk fHeaderChunk;
 	private Chunk[] fChunks;
 	private int fChunksUsed;
-	private int fChunksAllocated;
 	private ChunkCache fCache;
 
 	private long malloced;
@@ -159,12 +158,12 @@ public class Database {
 			if (nChunksOnDisk <= 0) {
 				this.fVersion= version;
 				this.fChunks= new Chunk[1];
-				this.fChunksUsed = this.fChunksAllocated = this.fChunks.length;
+				this.fChunksUsed = this.fChunks.length;
 			} else {
 				this.fHeaderChunk.read();
 				this.fVersion= this.fHeaderChunk.getInt(VERSION_OFFSET);
 				this.fChunks = new Chunk[nChunksOnDisk];	// chunk[0] is unused.
-				this.fChunksUsed = this.fChunksAllocated = nChunksOnDisk;
+				this.fChunksUsed = nChunksOnDisk;
 			}
 		} catch (IOException e) {
 			throw new IndexException(new DBStatus(e));
@@ -292,7 +291,7 @@ public class Database {
 		this.fHeaderChunk.clear(0, CHUNK_SIZE);
 		// Chunks have been removed from the cache, so we may just reset the array of chunks.
 		this.fChunks = new Chunk[] {null};
-		this.fChunksUsed = this.fChunksAllocated = this.fChunks.length;
+		this.fChunksUsed = this.fChunks.length;
 		try {
 			wasCanceled = this.fHeaderChunk.flush() || wasCanceled; // Zero out header chunk.
 			wasCanceled = performUninterruptableWrite(() -> {
@@ -414,7 +413,7 @@ public class Database {
 		Chunk chunk;
 		if (freeblock == 0) {
 			// Allocate a new chunk.
-			freeblock= createNewChunk();
+			freeblock= createNewChunks(1);
 			useDeltas = MAX_BLOCK_DELTAS;
 			chunk = getChunk(freeblock);
 		} else {
@@ -442,27 +441,27 @@ public class Database {
 		return result;
 	}
 
-	private long createNewChunk() throws IndexException {
+	private long createNewChunks(int numChunks) throws IndexException {
 		assert this.fExclusiveLock;
 		synchronized (this.fCache) {
-			final int newChunkIndex = this.fChunksUsed; // fChunks.length;
+			final int firstChunkIndex = this.fChunksUsed;
+			final int lastChunkIndex = firstChunkIndex + numChunks - 1;
 
-			final Chunk chunk = new Chunk(this, newChunkIndex);
-			chunk.fDirty = true;
+			final Chunk lastChunk = new Chunk(this, lastChunkIndex);
+			lastChunk.fDirty = true;
 
-			if (newChunkIndex >= this.fChunksAllocated) {
-				int increment = Math.max(1024, this.fChunksAllocated / 20);
-				Chunk[] newchunks = new Chunk[this.fChunksAllocated + increment];
-				System.arraycopy(this.fChunks, 0, newchunks, 0, this.fChunksAllocated);
-
-				this.fChunks = newchunks;
-				this.fChunksAllocated += increment;
+			if (lastChunkIndex >= this.fChunks.length) {
+				int increment = Math.max(1024, this.fChunks.length / 20);
+				int newNumChunks = Math.max(lastChunkIndex + 1, this.fChunks.length + increment);
+				Chunk[] newChunks = new Chunk[newNumChunks];
+				System.arraycopy(this.fChunks, 0, newChunks, 0, this.fChunks.length);
+				this.fChunks = newChunks;
 			}
-			this.fChunksUsed += 1;
-			this.fChunks[newChunkIndex] = chunk;
 
-			this.fCache.add(chunk, true);
-			long address = (long) newChunkIndex * CHUNK_SIZE;
+			this.fChunksUsed = lastChunkIndex + 1;
+			this.fChunks[lastChunkIndex] = lastChunk;
+			this.fCache.add(lastChunk, true);
+			long result = (long) firstChunkIndex * CHUNK_SIZE;
 
 			/*
 			 * Non-dense pointers are at most 31 bits dense pointers are at most 35 bits Check the sizes here and throw
@@ -470,33 +469,15 @@ public class Database {
 			 * indexing operation should be stopped. This is desired since generally, once the max size is exceeded,
 			 * there are lots of errors.
 			 */
-			if (address >= MAX_DB_SIZE) {
+			long endAddress = result + (numChunks * CHUNK_SIZE);
+			if (endAddress > MAX_DB_SIZE) {
 				Object bindings[] = { this.getLocation().getAbsolutePath(), MAX_DB_SIZE };
 				throw new IndexException(new Status(IStatus.ERROR, Package.PLUGIN_ID, Package.STATUS_DATABASE_TOO_LARGE,
-						NLS.bind("Database too large! Address = " + address + ", max size = " + MAX_DB_SIZE, bindings), //$NON-NLS-1$ //$NON-NLS-2$
-						null));
+						NLS.bind("Database too large! Address = " + endAddress + ", max size = " + MAX_DB_SIZE, //$NON-NLS-1$ //$NON-NLS-2$
+								bindings), null));
 			}
-			return address;
-		}
-	}
 
-	/**
-	 * For testing purposes, only.
-	 */
-	private long createNewChunks(int numChunks) throws IndexException {
-		assert this.fExclusiveLock;
-		synchronized (this.fCache) {
-			final int oldLen= this.fChunks.length;
-			Chunk[] newchunks = new Chunk[oldLen + numChunks];
-			System.arraycopy(this.fChunks, 0, newchunks, 0, oldLen);
-			final Chunk chunk= new Chunk(this, oldLen + numChunks - 1);
-			chunk.fDirty= true;
-			newchunks[ oldLen + numChunks - 1 ] = chunk;
-			this.fChunks= newchunks;
-			this.fCache.add(chunk, true);
-			this.fChunksAllocated=oldLen + numChunks;
-			this.fChunksUsed=oldLen + numChunks;
-			return (long) (oldLen + numChunks - 1) * CHUNK_SIZE;
+			return result;
 		}
 	}
 
@@ -745,7 +726,7 @@ public class Database {
 		this.memoryUsage.refresh();
 		this.fHeaderChunk.fDirty= false;
 		this.fChunks= new Chunk[] { null };
-		this.fChunksUsed = this.fChunksAllocated = this.fChunks.length;
+		this.fChunksUsed = this.fChunks.length;
 		try {
 			this.fFile.close();
 		} catch (IOException e) {
