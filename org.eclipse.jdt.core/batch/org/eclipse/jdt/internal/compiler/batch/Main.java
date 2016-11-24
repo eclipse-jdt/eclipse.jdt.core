@@ -90,7 +90,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
-import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
+import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.CompilerStats;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -3005,15 +3005,15 @@ private Parser getNewParser() {
 }
 private IModule extractModuleDesc(String fileName, Parser parser) {
 	IModule mod = null;
-	if (fileName.toLowerCase().endsWith(IModuleLocation.MODULE_INFO_JAVA)) {
+	if (fileName.toLowerCase().endsWith(IModuleEnvironment.MODULE_INFO_JAVA)) {
 		
 		ICompilationUnit cu = new CompilationUnit(null, fileName, null);
 		CompilationResult compilationResult = new CompilationResult(cu, 0, 1, 10);
 		CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
 		if (unit.isModuleInfo() && unit.moduleDeclaration != null) {
-			mod = new SourceModule(unit.moduleDeclaration, null);
+			mod = new BasicModule(unit.moduleDeclaration, null);
 		}
-	} else if (fileName.toLowerCase().endsWith(IModuleLocation.MODULE_INFO_CLASS)) {
+	} else if (fileName.toLowerCase().endsWith(IModuleEnvironment.MODULE_INFO_CLASS)) {
 		try {
 			ClassFileReader reader = ClassFileReader.read(fileName); // Check the absolute path?
 			mod = reader.getModuleDeclaration();
@@ -3329,7 +3329,7 @@ protected ArrayList handleModulepath(String arg) {
 			File dir = new File(paths[i]);
 			if (dir.isDirectory()) {
 			modulePaths =
-					(ArrayList) ModuleFinder.findModules(dir, null, getNewParser(), this.options, false);
+					(ArrayList) ModuleFinder.findModules(dir, null, getNewParser(), this.options, true);
 			}
 		}
 	}
@@ -3361,7 +3361,7 @@ protected ArrayList handleModuleSourcepath(String arg) {
 				// 2. Iterator each module in case of directory for source files and add to this.fileNames
 
 				modulePaths =
-						(ArrayList) ModuleFinder.findModules(dir, this.destinationPath, getNewParser(), this.options, true);
+						(ArrayList) ModuleFinder.findModules(dir, this.destinationPath, getNewParser(), this.options, false);
 				for (Object obj : modulePaths) {
 					Classpath classpath = (Classpath) obj;
 					File modLocation = new File(classpath.getPath());

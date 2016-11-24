@@ -35,7 +35,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
-import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
 import org.eclipse.jdt.internal.compiler.env.IMultiModulePackageLookup;
 import org.eclipse.jdt.internal.compiler.env.IMultiModuleTypeLookup;
@@ -107,7 +106,7 @@ static HashMap<String, SimpleSet> findPackagesInModules(final ClasspathJrt jrt) 
 			public FileVisitResult visitModule(Path mod) throws IOException {
 				String name = mod.toString();
 				try {
-					jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, IModuleLocation.MODULE_INFO_CLASS, name));
+					jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, IModuleEnvironment.MODULE_INFO_CLASS, name));
 				} catch (ClassFormatException e) {
 					e.printStackTrace();
 				}
@@ -150,7 +149,7 @@ public static void loadModules(final ClasspathJrt jrt) {
 				@Override
 				public FileVisitResult visitModule(Path mod) throws IOException {
 					try {
-						jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, IModuleLocation.MODULE_INFO_CLASS, mod.toString()));
+						jrt.acceptModule(JRTUtil.getClassfileContent(imageFile, IModuleEnvironment.MODULE_INFO_CLASS, mod.toString()));
 					} catch (ClassFormatException e) {
 						e.printStackTrace();
 					}
@@ -171,7 +170,7 @@ void acceptModule(byte[] content) {
 		return;
 	ClassFileReader reader = null;
 	try {
-		reader = new ClassFileReader(content, IModuleLocation.MODULE_INFO_CLASS.toCharArray(), null);
+		reader = new ClassFileReader(content, IModuleEnvironment.MODULE_INFO_CLASS.toCharArray(), null);
 	} catch (ClassFormatException e) {
 		e.printStackTrace();
 	}
@@ -302,20 +301,20 @@ public IModuleEnvironment getLookupEnvironment() {
 	return this;
 }
 @Override
-public IModuleEnvironment getLookupEnvironmentFor(IModule module) {
+public IModuleEnvironment getLookupEnvironmentFor(IModule mod) {
 	// 
 	return new IModuleEnvironment() {
 		
 		@Override
 		public ITypeLookup typeLookup() {
 			//
-			return servesModule(module.name()) ? ClasspathJrt.this.typeLookupForModule.apply(module.name()) : ITypeLookup.Dummy;
+			return servesModule(mod.name()) ? ClasspathJrt.this.typeLookupForModule.apply(mod.name()) : ITypeLookup.Dummy;
 		}
 		
 		@Override
 		public IPackageLookup packageLookup() {
 			//
-			return servesModule(module.name()) ? ClasspathJrt.this.pkgLookupForModule.apply(module.name()) : IPackageLookup.Dummy;
+			return servesModule(mod.name()) ? ClasspathJrt.this.pkgLookupForModule.apply(mod.name()) : IPackageLookup.Dummy;
 		}
 	};
 }

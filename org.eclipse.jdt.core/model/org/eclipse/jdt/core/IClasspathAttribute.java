@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 IBM Corporation and others.
+ * Copyright (c) 2005, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -113,6 +117,16 @@ public interface IClasspathAttribute {
 	 * @since 3.2
 	 */
 	String OPTIONAL = "optional"; //$NON-NLS-1$
+	/**
+	 * Constant for the name of automatic module. The possible values
+	 * for this attribute are <code>"true"</code> or <code>"false"</code>.
+	 * When not present, <code>"false"</code> is assumed.
+	 * If the value of this attribute is <code>"true"</code>, the classpath entry
+	 * is considered to be an automatic module.
+	 *
+	 * @since 3.13 BETA_JAVA9
+	 */
+	String AUTOMATIC_MODULE = "module"; //$NON-NLS-1$
 
 	/**
 	 * Constant for the name of the external annotation path attribute. 

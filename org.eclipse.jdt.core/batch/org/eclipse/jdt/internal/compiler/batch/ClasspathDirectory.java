@@ -56,7 +56,6 @@ private int mode; // ability to only consider one kind of files (source vs. bina
 private String encoding; // only useful if referenced in the source path
 private Hashtable<String, Hashtable<String, String>> packageSecondaryTypes = null;
 Map options;
-private IModule module;
 
 ClasspathDirectory(File directory, String encoding, int mode,
 		AccessRuleSet accessRuleSet, String destinationPath, Map options) {
@@ -73,9 +72,6 @@ ClasspathDirectory(File directory, String encoding, int mode,
 		this.path += File.separator;
 	this.directoryCache = new Hashtable(11);
 	this.encoding = encoding;
-}
-public void acceptModule(IModule mod) {
-	this.module = mod;
 }
 String[] directoryList(String qualifiedPackageName) {
 	String[] dirList = (String[]) this.directoryCache.get(qualifiedPackageName);
@@ -309,6 +305,9 @@ public int getMode() {
 	return this.mode;
 }
 public IModule getModule() {
+	if (this.isAutoModule && this.module == null) {
+		return this.module = new BasicModule(this.path.toCharArray(), this, true);
+	}
 	return this.module;
 }
 @Override

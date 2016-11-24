@@ -163,7 +163,7 @@ private void computeClasspathLocations(
 							: (IContainer) root.getFolder(prereqOutputPath);
 						if (binaryFolder.exists() && !seen.contains(binaryFolder)) {
 							seen.add(binaryFolder);
-							ClasspathLocation bLocation = ClasspathLocation.forBinaryFolder(binaryFolder, true, entry.getAccessRuleSet(), externalAnnotationPath, this);
+							ClasspathLocation bLocation = ClasspathLocation.forBinaryFolder(binaryFolder, true, entry.getAccessRuleSet(), externalAnnotationPath, this, entry.isAutomaticModule());
 							bLocations.add(bLocation);
 							projectLocations.add(bLocation);
 							if (binaryLocationsPerProject != null) { // normal builder mode
@@ -197,14 +197,14 @@ private void computeClasspathLocations(
 							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
 								? null
 								: entry.getAccessRuleSet();
-						bLocation = ClasspathLocation.forLibrary((IFile) resource, accessRuleSet, externalAnnotationPath, this);
+						bLocation = ClasspathLocation.forLibrary((IFile) resource, accessRuleSet, externalAnnotationPath, this, entry.isAutomaticModule());
 					} else if (resource instanceof IContainer) {
 						AccessRuleSet accessRuleSet =
 							(JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true))
 							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
 								? null
 								: entry.getAccessRuleSet();
-						bLocation = ClasspathLocation.forBinaryFolder((IContainer) target, false, accessRuleSet, externalAnnotationPath, this);	 // is library folder not output folder
+						bLocation = ClasspathLocation.forBinaryFolder((IContainer) target, false, accessRuleSet, externalAnnotationPath, this, entry.isAutomaticModule());	 // is library folder not output folder
 					}
 					bLocations.add(bLocation);
 					// TODO: Ideally we need to do something like mapToModulePathEntry using the path and if it is indeed
@@ -230,7 +230,7 @@ private void computeClasspathLocations(
 							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
 								? null
 								: entry.getAccessRuleSet();
-					ClasspathLocation bLocation = ClasspathLocation.forLibrary(path.toString(), accessRuleSet, externalAnnotationPath, this);
+					ClasspathLocation bLocation = ClasspathLocation.forLibrary(path.toString(), accessRuleSet, externalAnnotationPath, this, entry.isAutomaticModule());
 					bLocations.add(bLocation);
 					// TODO: Ideally we need to do something like mapToModulePathEntry using the path and if it is indeed
 					// a module path entry, then add the corresponding entry here, but that would need the target platform
@@ -346,10 +346,19 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 				.reduce(ITypeLookup::chain)
 				.map(t -> t.findClass(binaryFileName, qPackageName, qBinaryFileName)).orElse(null);
 	}
-	return moduleContext.getEnvironment().map(env -> env.typeLookup())
+	NameEnvironmentAnswer answer = moduleContext.getEnvironment().map(env -> env.typeLookup())
 				.reduce(ITypeLookup::chain)
 				.map(lookup -> lookup.findClass(binaryFileName, qPackageName, qBinaryFileName))
 				.orElse(null);
+	if (answer != null)
+		return answer;
+	
+	return Stream.of(this.modulePathEntries).filter(mod ->
+				(mod instanceof ClasspathLocation && ((ClasspathLocation) mod).isAutoModule))
+			.map(p -> p.getLookupEnvironment().typeLookup())
+			.reduce(ITypeLookup::chain)
+			.map(t -> t.findClass(binaryFileName, qPackageName, qBinaryFileName)).orElse(null);
+
 }
 
 public NameEnvironmentAnswer findType(char[][] compoundName) {
@@ -442,4 +451,19 @@ public IModuleEnvironment getModuleEnvironmentFor(char[] moduleName) {
 	}
 	return null;
 }
+@Override
+public IModule[] getAllAutomaticModules() {
+	if (this.modulePathEntries == null)
+		return IModule.NO_MODULES;
+	Set<IModule> set = new HashSet<>();
+	for (int i = 0, l = this.modulePathEntries.length; i < l; i++) {
+		if (this.modulePathEntries[i] instanceof ClasspathLocation) {
+			if (((ClasspathLocation) this.modulePathEntries[i]).isAutoModule) {
+				set.add(this.modulePathEntries[i].getModule());
+			}
+		}
+	}
+	return set.toArray(new IModule[set.size()]);
+}
+
 }

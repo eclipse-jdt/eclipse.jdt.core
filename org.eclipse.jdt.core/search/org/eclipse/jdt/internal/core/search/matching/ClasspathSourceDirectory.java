@@ -26,7 +26,6 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
 import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
@@ -44,7 +43,6 @@ public class ClasspathSourceDirectory extends ClasspathLocation {
 	SimpleLookupTable missingPackageHolder = new SimpleLookupTable();
 	char[][] fullExclusionPatternChars;
 	char[][] fulInclusionPatternChars;
-	IModule module = null;
 
 ClasspathSourceDirectory(IContainer sourceFolder, char[][] fullExclusionPatternChars, char[][] fulInclusionPatternChars) {
 	this.sourceFolder = sourceFolder;

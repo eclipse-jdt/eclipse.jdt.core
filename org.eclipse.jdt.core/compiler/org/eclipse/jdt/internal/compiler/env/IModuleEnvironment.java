@@ -23,6 +23,9 @@ package org.eclipse.jdt.internal.compiler.env;
  * @see IModulePathEntry#getLookupEnvironmentFor(IModule)
  */
 public interface IModuleEnvironment {
+	String MODULE_INFO_JAVA = "module-info.java"; //$NON-NLS-1$
+	String MODULE_INFO_CLASS = "module-info.class"; //$NON-NLS-1$
+
 	/**
 	 * A way to lookup types in a module
 	 * 

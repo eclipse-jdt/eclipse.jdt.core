@@ -58,4 +58,8 @@ public class ProjectEntry implements IModulePathEntry {
 			return this.project;
 		return null;
 	}
+	@Override
+	public boolean isAutomaticModule() {
+		return false;
+	}
 }

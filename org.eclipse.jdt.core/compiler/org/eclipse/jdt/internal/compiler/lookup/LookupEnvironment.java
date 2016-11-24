@@ -58,7 +58,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.ITypeRequestor;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfModule;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
@@ -97,7 +97,8 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private SimpleLookupTable uniqueGetClassMethodBinding; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=300734
 
 	// key is a string with the module name value is a module binding
-	private HashtableOfObject knownModules;
+	HashtableOfModule knownModules;
+	HashtableOfModule autoModules;
 
 	public CompilationUnitDeclaration unitBeingCompleted = null; // only set while completing units
 	public Object missingClassFileLocation = null; // only set when resolving certain references, to help locating problems
@@ -148,17 +149,27 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.classFilePool = ClassFilePool.newInstance();
 	this.typesBeingConnected = new HashSet<>();
 	this.typeSystem = this.globalOptions.sourceLevel >= ClassFileConstants.JDK1_8 && this.globalOptions.storeAnnotations ? new AnnotatableTypeSystem(this) : new TypeSystem(this);
-	this.knownModules = new HashtableOfObject(5);
+	this.knownModules = new HashtableOfModule(5);
+	this.autoModules = new HashtableOfModule(5);
 	this.UnNamedModule = new ModuleBinding.UnNamedModule(this);
+	initAutomaticModules();
 }
 
 public ReferenceBinding askForType(char[][] compoundName) {
 	return askForType(compoundName, null);
 }
+private void initAutomaticModules() {
+	if (this.nameEnvironment instanceof IModuleAwareNameEnvironment) {
+		IModule[] mods = ((IModuleAwareNameEnvironment) this.nameEnvironment).getAllAutomaticModules();
+		for (IModule iModule : mods) {
+			this.autoModules.put(iModule.name(), new ModuleBinding(iModule, this));
+		}
+	}
+}
 public ModuleBinding getModule(char[] name) {
 	if (name == null || name.length == 0 || CharOperation.equals(name, ModuleEnvironment.UNNAMED))
 		return this.UnNamedModule;
-	ModuleBinding module = (ModuleBinding) this.knownModules.get(name);
+	ModuleBinding module = this.knownModules.get(name);
 	if (module == null) {
 		if (this.nameEnvironment instanceof IModuleAwareNameEnvironment) {
 			IModule mod = ((IModuleAwareNameEnvironment) this.nameEnvironment).getModule(name);
@@ -220,8 +231,10 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name, char[] m
 	NameEnvironmentAnswer answer = null;
 	if (this.nameEnvironment instanceof IModuleAwareNameEnvironment) {
 		ModuleBinding module = getModule(mod);
-		if (module != null)
-			answer = ((IModuleAwareNameEnvironment)this.nameEnvironment).findType(name, packageBinding.compoundName, module.getDependencyClosureContext());
+		if (module != null) {
+				answer = ((IModuleAwareNameEnvironment) this.nameEnvironment).findType(name,
+						packageBinding.compoundName, module.getDependencyClosureContext());
+		}
 	} else {
 		answer = this.nameEnvironment.findType(name, packageBinding.compoundName);
 	}

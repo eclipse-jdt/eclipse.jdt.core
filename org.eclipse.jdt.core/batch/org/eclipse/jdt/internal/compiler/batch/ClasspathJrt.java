@@ -37,7 +37,6 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
-import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
 import org.eclipse.jdt.internal.compiler.env.IMultiModulePackageLookup;
 import org.eclipse.jdt.internal.compiler.env.IMultiModuleTypeLookup;
@@ -81,8 +80,8 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 	public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemReporter) {
 		return null;
 	}
-	public boolean isPackage(String qualifiedPackageName, Optional<char[]> module) {
-		return JRTUtil.isPackage(this.file, qualifiedPackageName, module);
+	public boolean isPackage(String qualifiedPackageName, Optional<char[]> mod) {
+		return JRTUtil.isPackage(this.file, qualifiedPackageName, mod);
 	}
 	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
 		return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false, Optional.empty());
@@ -221,7 +220,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 					@Override
 					public FileVisitResult visitModule(Path mod) throws IOException {
 						try {
-							ClasspathJrt.this.acceptModule(JRTUtil.getClassfileContent(ClasspathJrt.this.file, IModuleLocation.MODULE_INFO_CLASS, mod.toString()));
+							ClasspathJrt.this.acceptModule(JRTUtil.getClassfileContent(ClasspathJrt.this.file, IModuleEnvironment.MODULE_INFO_CLASS, mod.toString()));
 						} catch (ClassFormatException e) {
 							e.printStackTrace();
 						}
@@ -251,7 +250,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 			return;
 		ClassFileReader reader = null;
 		try {
-			reader = new ClassFileReader(content, IModuleLocation.MODULE_INFO_CLASS.toCharArray(), null);
+			reader = new ClassFileReader(content, IModuleEnvironment.MODULE_INFO_CLASS.toCharArray(), null);
 		} catch (ClassFormatException e) {
 			e.printStackTrace();
 		}
@@ -378,26 +377,22 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 		return ModulesCache.containsKey(new String(mod));
 	}
 
-	@Override
-	public void acceptModule(IModule module) {
-		// do nothing
-	}
 
 	@Override
-	public IModuleEnvironment getLookupEnvironmentFor(IModule module) {
+	public IModuleEnvironment getLookupEnvironmentFor(IModule mod) {
 		// 
 		return new IModuleEnvironment() {
 			
 			@Override
 			public ITypeLookup typeLookup() {
 				//
-				return servesModule(module.name()) ? typeLookupForModule(module.name()) : ITypeLookup.Dummy;
+				return servesModule(mod.name()) ? typeLookupForModule(mod.name()) : ITypeLookup.Dummy;
 			}
 			
 			@Override
 			public IPackageLookup packageLookup() {
 				//
-				return servesModule(module.name()) ? pkgLookupForModule(module.name()) : IPackageLookup.Dummy;
+				return servesModule(mod.name()) ? pkgLookupForModule(mod.name()) : IPackageLookup.Dummy;
 			}
 		};
 	}

@@ -275,13 +275,16 @@ static State read(IProject project, DataInputStream in) throws IOException {
 				IContainer outputFolder = path.segmentCount() == 1
 					? (IContainer) root.getProject(path.toString())
 					: (IContainer) root.getFolder(path);
-				newState.binaryLocations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean(), readRestriction(in), new Path(in.readUTF()), newState.environment);
+					newState.binaryLocations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean(),
+							readRestriction(in), new Path(in.readUTF()), newState.environment, in.readBoolean());
 				break;
 			case EXTERNAL_JAR :
-				newState.binaryLocations[i] = ClasspathLocation.forLibrary(in.readUTF(), in.readLong(), readRestriction(in), new Path(in.readUTF()), newState.environment);
+					newState.binaryLocations[i] = ClasspathLocation.forLibrary(in.readUTF(), in.readLong(),
+							readRestriction(in), new Path(in.readUTF()), newState.environment, in.readBoolean());
 				break;
 			case INTERNAL_JAR :
-				newState.binaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(new Path(in.readUTF())), readRestriction(in), new Path(in.readUTF()), newState.environment);
+					newState.binaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(new Path(in.readUTF())),
+							readRestriction(in), new Path(in.readUTF()), newState.environment, in.readBoolean());
 		}
 	}
 
@@ -462,6 +465,7 @@ void write(DataOutputStream out) throws IOException {
 			out.writeBoolean(cd.isOutputFolder);
 			writeRestriction(cd.accessRuleSet, out);
 			out.writeUTF(cd.externalAnnotationPath != null ? cd.externalAnnotationPath : ""); //$NON-NLS-1$
+			out.writeBoolean(cd.isAutomaticModule());
 		} else if (c instanceof ClasspathJar) {
 			ClasspathJar jar = (ClasspathJar) c;
 			if (jar.resource == null) {
@@ -474,6 +478,7 @@ void write(DataOutputStream out) throws IOException {
 			}
 			writeRestriction(jar.accessRuleSet, out);
 			out.writeUTF(jar.externalAnnotationPath != null ? jar.externalAnnotationPath : ""); //$NON-NLS-1$
+			out.writeBoolean(jar.isAutomaticModule());
 		} else {
 			ClasspathJrt jrt = (ClasspathJrt) c;
 			out.writeByte(EXTERNAL_JAR);

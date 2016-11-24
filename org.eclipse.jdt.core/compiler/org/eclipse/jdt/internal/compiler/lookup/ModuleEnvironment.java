@@ -22,7 +22,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModuleContext;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
+import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 
@@ -73,7 +73,7 @@ public abstract class ModuleEnvironment implements IModuleAwareNameEnvironment {
 	public static IModule[] UNNAMED_MODULE_ARRAY = new IModule[]{UNNAMED_MODULE};
 
 	private HashMap<String, IModule> modulesCache = null;
-	private static HashMap<IModuleLocation, IModule> ModuleLocationMap = new HashMap<>();
+	private static HashMap<IModuleEnvironment, IModule> ModuleLocationMap = new HashMap<>();
 	
 	public ModuleEnvironment() {
 		this.modulesCache = new HashMap<>();
@@ -207,7 +207,7 @@ public abstract class ModuleEnvironment implements IModuleAwareNameEnvironment {
 	 *
 	 * @param mod the module to be stored in memory
 	 */
-	public void acceptModule(IModule mod, IModuleLocation location) {
+	public void acceptModule(IModule mod, IModuleEnvironment location) {
 		IModule existing = ModuleEnvironment.ModuleLocationMap.get(location);
 		if (existing != null) {
 			if (existing.equals(mod))
@@ -222,7 +222,7 @@ public abstract class ModuleEnvironment implements IModuleAwareNameEnvironment {
 	}
 
 	//@Override
-	public IModule getModule(IModuleLocation location) {
+	public IModule getModule(IModuleEnvironment location) {
 		IModule module = ModuleEnvironment.ModuleLocationMap.get(location);
 		if (module == null) 
 			return null;

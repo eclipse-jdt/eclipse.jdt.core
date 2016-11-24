@@ -37,7 +37,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
-import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
 import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
@@ -56,7 +55,6 @@ protected ZipFile annotationZipFile;
 protected boolean closeZipFileAtEnd;
 private Set<String> packageCache;
 protected List<String> annotationPaths;
-protected IModule module;
 
 public ClasspathJar(File file, boolean closeZipFileAtEnd,
 		AccessRuleSet accessRuleSet, String destinationPath) {
@@ -91,7 +89,8 @@ public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemRe
 				int lastSeparator = directoryPath.lastIndexOf(File.separatorChar);
 				directoryPath = directoryPath.substring(0, lastSeparator + 1); // potentially empty (see bug 214731)
 				while (calledFilesIterator.hasNext()) {
-					result.add(new ClasspathJar(new File(directoryPath + (String) calledFilesIterator.next()), this.closeZipFileAtEnd, this.accessRuleSet, this.destinationPath));
+						result.add(new ClasspathJar(new File(directoryPath + (String) calledFilesIterator.next()),
+								this.closeZipFileAtEnd, this.accessRuleSet, this.destinationPath));
 				}
 			}
 		}
@@ -199,12 +198,9 @@ public void initialize() throws IOException {
 		this.zipFile = new ZipFile(this.file);
 	}
 }
-public void acceptModule(IModule mod) {
-	this.module = mod;
-}
 void acceptModule(ClassFileReader reader) {
 	if (reader != null) {
-		this.module = reader.getModuleDeclaration();
+		acceptModule(reader.getModuleDeclaration());
 	}
 }
 void acceptModule(byte[] content) {
@@ -212,7 +208,7 @@ void acceptModule(byte[] content) {
 		return;
 	ClassFileReader reader = null;
 	try {
-		reader = new ClassFileReader(content, IModuleLocation.MODULE_INFO_CLASS.toCharArray(), null);
+		reader = new ClassFileReader(content, IModuleEnvironment.MODULE_INFO_CLASS.toCharArray(), null);
 	} catch (ClassFormatException e) {
 		e.printStackTrace();
 	}
@@ -298,19 +294,11 @@ public int getMode() {
 }
 
 public IModule getModule() {
+	if (this.isAutoModule && this.module == null) {
+		return this.module = new BasicModule(this.file.getName().toCharArray(), this, true);
+	}
 	return this.module;
 }
-//@Override
-//public boolean servesModule(IModule mod) {
-//	if (!this.isJrt) {
-//		return super.servesModule(mod);
-//	}
-//	if (mod == null) 
-//		return false;
-//	if (mod == ModuleEnvironment.UNNAMED_MODULE)
-//		return true;
-//	return ModulesCache.containsKey(new String(mod.name()));
-//}
 @Override
 public ITypeLookup typeLookup() {
 	return this::findClass;

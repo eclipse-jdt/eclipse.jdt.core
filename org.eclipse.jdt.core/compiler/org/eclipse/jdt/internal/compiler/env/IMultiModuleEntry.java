@@ -21,9 +21,6 @@ package org.eclipse.jdt.internal.compiler.env;
  */
 public interface IMultiModuleEntry extends IModulePathEntry {
 
-	default IModule getModule() {
-		return null;
-	}
 	/**
 	 * Get the module named name that this entry contributes to the module path 
 	 */

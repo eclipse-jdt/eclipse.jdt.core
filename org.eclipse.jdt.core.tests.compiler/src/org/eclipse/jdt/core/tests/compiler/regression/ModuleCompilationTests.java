@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.Util;
 
 import junit.framework.Test;
@@ -26,7 +27,7 @@ import junit.framework.Test;
 public class ModuleCompilationTests extends BatchCompilerTest {
 
 	static {
-//		 TESTS_NAMES = new String[] { "test022" };
+//		 TESTS_NAMES = new String[] { "test034" };
 		// TESTS_NUMBERS = new int[] { 1 };
 		// TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -1406,5 +1407,109 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			"",
 			"",
 			false);
+	}
+	/**
+	 * Test that a module can't access types/packages in a plain Jar put in classpath
+	 */
+	public void test033() {
+		File libDir = new File(LIB_DIR);
+		Util.delete(libDir); // make sure we recycle the libs
+ 		libDir.mkdirs();
+		try {
+			Util.createJar(
+				new String[] {
+					"a/A.java",
+					"package a;\n" +
+					"public class A {\n" +
+					"}"
+				},
+				LIB_DIR + "/lib1.jar",
+				JavaCore.VERSION_9);
+		} catch (IOException e) {
+			// ignore
+		}
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"	requires java.sql;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p", "X.java", 
+						"package p;\n" +
+						"public class X extends a.A {\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append(LIB_DIR).append(File.separator).append("lib1.jar").append(File.pathSeparator).append("\" ")
+			.append(" -modulesourcepath " + "\"" + directory + "\"");
+		runNegativeTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/p/X.java (at line 2)\n" + 
+				"	public class X extends a.A {\n" + 
+				"	                       ^\n" + 
+				"a cannot be resolved to a type\n" + 
+				"----------\n" + 
+				"1 problem (1 error)\n",
+				false);
+	}
+	/**
+	 * Test that a module can access types/packages in a plain Jar put in modulepath,
+	 * this upgrading it to an automatic module
+	 */
+	public void test034() {
+		File libDir = new File(LIB_DIR);
+		Util.delete(libDir); // make sure we recycle the libs
+ 		libDir.mkdirs();
+		try {
+			Util.createJar(
+				new String[] {
+					"a/A.java",
+					"package a;\n" +
+					"public class A {\n" +
+					"}"
+				},
+				LIB_DIR + "/lib1.jar",
+				JavaCore.VERSION_9);
+		} catch (IOException e) {
+			// ignore
+		}
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	requires java.base;\n" +
+						"	requires java.sql;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "p", "X.java", 
+						"package p;\n" +
+						"public class X extends a.A {\n" +
+						"}");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString()).append("\" ")
+			.append("-mp \"")
+			.append(LIB_DIR).append("\" ")
+			.append(" -modulesourcepath " + "\"" + directory + "\"");
+		runConformTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"",
+				false);
 	}
 }

@@ -34,4 +34,5 @@ public interface IModuleAwareNameEnvironment extends INameEnvironment {
 	boolean isPackage(char[][] parentPackageName, char[] packageName, IModuleContext moduleContext);
 	IModule getModule(char[] moduleName);
 	IModuleEnvironment getModuleEnvironmentFor(char[] moduleName);
+	IModule[] getAllAutomaticModules();
 }

@@ -508,4 +508,14 @@ private NameEnvironmentAnswer internalFindClass(String qualifiedTypeName, char[]
 				.map(lookup -> lookup.findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly))
 				.orElse(null);
 }
+@Override
+public IModule[] getAllAutomaticModules() {
+	Set<IModule> set = new HashSet<>();
+	for (int i = 0, l = this.classpaths.length; i < l; i++) {
+		if (this.classpaths[i].isAutomaticModule()) {
+			set.add(this.classpaths[i].getModule());
+		}
+	}
+	return set.toArray(new IModule[set.size()]);
+}
 }

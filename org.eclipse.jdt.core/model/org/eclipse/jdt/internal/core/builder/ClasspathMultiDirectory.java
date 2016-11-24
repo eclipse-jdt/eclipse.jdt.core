@@ -34,7 +34,7 @@ boolean hasIndependentOutputFolder; // if output folder is not equal to any of t
 public boolean ignoreOptionalProblems;
 
 ClasspathMultiDirectory(IContainer sourceFolder, IContainer binaryFolder, char[][] inclusionPatterns, char[][] exclusionPatterns, boolean ignoreOptionalProblems, INameEnvironment env) {
-	super(binaryFolder, true, null, null, env);
+	super(binaryFolder, true, null, null, env, false /* source never an automatic module*/);
 
 	this.sourceFolder = sourceFolder;
 	this.inclusionPatterns = inclusionPatterns;

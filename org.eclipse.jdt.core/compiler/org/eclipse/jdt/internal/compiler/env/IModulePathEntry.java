@@ -29,7 +29,9 @@ public interface IModulePathEntry {
 	 * 
 	 * @return The module that this entry contributes or null
 	 */
-	IModule getModule();
+	default IModule getModule() {
+		return null;
+	}
 	
 	/**
 	 * Get the module named name from this entry. May be null
@@ -70,4 +72,12 @@ public interface IModulePathEntry {
 	 * does not know any such module
 	 */
 	IModuleEnvironment getLookupEnvironmentFor(IModule module);
+	/**
+	 * Specifies whether this entry represents an automatic module.
+	 * 
+	 * @return true if this is an automatic module, false otherwise
+	 */
+	public default boolean isAutomaticModule() {
+		return false;
+	}
 }

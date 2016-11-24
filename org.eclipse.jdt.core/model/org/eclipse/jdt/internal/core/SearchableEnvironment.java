@@ -807,4 +807,9 @@ public class SearchableEnvironment
 		// 
 		return isPackage(parentPackageName, packageName, IModuleContext.UNNAMED_MODULE_CONTEXT);
 	}
+
+	@Override
+	public IModule[] getAllAutomaticModules() {
+		return new IModule[0];
+	}
 }

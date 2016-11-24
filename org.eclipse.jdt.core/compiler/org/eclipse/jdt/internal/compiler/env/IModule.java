@@ -15,6 +15,11 @@
 package org.eclipse.jdt.internal.compiler.env;
 
 public interface IModule {
+
+	public static IModuleReference[] NO_MODULE_REFS = new IModuleReference[0];
+	public static IPackageExport[] NO_EXPORTS = new IPackageExport[0];
+	public static IModule[] NO_MODULES = new IModule[0];
+
 	public char[] name();
 
 	public IModuleReference[] requires();
@@ -46,5 +51,9 @@ public interface IModule {
 	
 	public default void addExports(IPackageExport[] exports) {
 		// do nothing, would throwing an exception be better?
+	}
+
+	public default boolean isAutomatic() {
+		return false;
 	}
 }

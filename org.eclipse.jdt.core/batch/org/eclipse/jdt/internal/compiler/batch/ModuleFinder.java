@@ -26,19 +26,19 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.batch.BasicModule.PackageExport;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
-import org.eclipse.jdt.internal.compiler.env.IModuleLocation;
+import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ModuleFinder {
 
-	protected static List<FileSystem.Classpath> findModules(File f, String destinationPath, Parser parser, Map<String, String> options, boolean sourceOnly) {
+	protected static List<FileSystem.Classpath> findModules(File f, String destinationPath, Parser parser, Map<String, String> options, boolean isModulepath) {
 		List<FileSystem.Classpath> collector = new ArrayList<>();
 		if (f.isDirectory()) {
 			File[] files = f.listFiles();
@@ -48,7 +48,7 @@ public class ModuleFinder {
 				FileSystem.Classpath modulePath = FileSystem.getClasspath(
 						file.getAbsolutePath(),
 						null,
-						sourceOnly,
+						!isModulepath,
 						null,
 						destinationPath == null ? null : (destinationPath + File.separator + file.getName()), 
 						options);
@@ -59,8 +59,8 @@ public class ModuleFinder {
 						String[] list = file.list(new FilenameFilter() {
 							@Override
 							public boolean accept(File dir, String name) {
-								if (dir == file && (name.equalsIgnoreCase(IModuleLocation.MODULE_INFO_CLASS)
-										|| name.equalsIgnoreCase(IModuleLocation.MODULE_INFO_JAVA))) {
+								if (dir == file && (name.equalsIgnoreCase(IModuleEnvironment.MODULE_INFO_CLASS)
+										|| name.equalsIgnoreCase(IModuleEnvironment.MODULE_INFO_JAVA))) {
 									return true;
 								}
 								return false;
@@ -69,10 +69,10 @@ public class ModuleFinder {
 						if (list.length > 0) {
 							String fileName = list[0];
 							switch (fileName) {
-								case IModuleLocation.MODULE_INFO_CLASS:
+								case IModuleEnvironment.MODULE_INFO_CLASS:
 									module = ModuleFinder.extractModuleFromClass(new File(file, fileName), modulePath);
 									break;
-								case IModuleLocation.MODULE_INFO_JAVA:
+								case IModuleEnvironment.MODULE_INFO_JAVA:
 									module = ModuleFinder.extractModuleFromSource(new File(file, fileName), parser, modulePath);
 									break;
 							}
@@ -80,20 +80,13 @@ public class ModuleFinder {
 					} else if (isJar(file)) {
 						module = extractModuleFromJar(file, modulePath);
 					}
+					if (isModulepath && module == null) {
+						 // The name includes the file's extension, but it shouldn't matter.
+						module = new BasicModule(file.getName().toCharArray(), modulePath, true);
+					}
 					if (module != null)
 						modulePath.acceptModule(module);
 				}
-//				FileSystem.Classpath modulePath = FileSystem.getClasspath(
-//						file.getAbsolutePath(),
-//						null,
-//						sourceOnly,
-//						null,
-//						destinationPath == null ? null : (destinationPath + File.separator + file.getName()), 
-//						options);
-//				if (modulePath != null)
-//					collector.add(modulePath);
-//				if (module != null)
-//					modulePath.acceptModule(module);
 			}
 		}
 		return collector;
@@ -155,58 +148,70 @@ public class ModuleFinder {
 		while (tokenizer.hasMoreTokens()) {
 			targets.add(tokenizer.nextToken("=,")); //$NON-NLS-1$
 		}
-		PackageExport export = new PackageExport(pack.toCharArray());
+		BasicModule.PackageExport export = new PackageExport();
+		export.pack = pack.toCharArray();
 		export.exportedTo = new char[targets.size()][];
 		for(int i = 0; i < export.exportedTo.length; i++) {
 			export.exportedTo[i] = targets.get(i).toCharArray();
 		}
-		return new Module(source.toCharArray(), export);
+		BasicModule module = new BasicModule(source.toCharArray(), null, false);
+		module.exports = new IModule.IPackageExport[]{export};
+		return module;
 	}
-
-	static class PackageExport implements IPackageExport {
-		char[] name;
-		char[][] exportedTo;
-		PackageExport(char[] name) {
-			this.name = name;
-		}
-		@Override
-		public char[] name() {
-			return this.name;
-		}
-		@Override
-		public char[][] exportedTo() {
-			return this.exportedTo;
-		}
-	}
-	
-	static class Module implements IModule {
-		char[] name;
-		IPackageExport[] export;
-		Module(char[] name, IPackageExport export) {
-			this.name = name;
-			this.export = new IPackageExport[]{export};
-		}
-		@Override
-		public char[] name() {
-			return this.name;
-		}
-		@Override
-		public IModuleReference[] requires() {
-			return null;
-		}
-		@Override
-		public IPackageExport[] exports() {
-			return this.export;
-		}
-		@Override
-		public char[][] uses() {
-			return null;
-		}
-		@Override
-		public IService[] provides() {
-			return null;
-		}
-	}
+//
+//	static class PackageExport implements IPackageExport {
+//		char[] name;
+//		char[][] exportedTo;
+//		PackageExport(char[] name) {
+//			this.name = name;
+//		}
+//		@Override
+//		public char[] name() {
+//			return this.name;
+//		}
+//		@Override
+//		public char[][] exportedTo() {
+//			return this.exportedTo;
+//		}
+//	}
+//	
+//	static class Module implements IModule {
+//		char[] name;
+//		IPackageExport[] export;
+//		boolean isAuto;
+//		Module(char[] name, IPackageExport export, boolean isAuto) {
+//			this.name = name;
+//			this.export = new IPackageExport[]{export};
+//			this.isAuto = isAuto;
+//		}
+//		@Override
+//		public char[] name() {
+//			return this.name;
+//		}
+//		@Override
+//		public IModuleReference[] requires() {
+//			return null;
+//		}
+//		@Override
+//		public IPackageExport[] exports() {
+//			return this.export;
+//		}
+//		@Override
+//		public char[][] uses() {
+//			return null;
+//		}
+//		@Override
+//		public IService[] provides() {
+//			return null;
+//		}
+//		@Override
+//		public void setAutomatic(boolean isAuto) {
+//			this.isAuto = isAuto;
+//		}
+//		public boolean isAutomatic() {
+//			return this.isAuto;
+//		}
+//	}
 	
 	private static boolean isJar(File file) {
 		int format = Util.archiveFormat(file.getAbsolutePath());
@@ -216,7 +221,7 @@ public class ModuleFinder {
 		ZipFile zipFile = null;
 		try {
 			zipFile = new ZipFile(file);
-			ClassFileReader reader = ClassFileReader.read(zipFile, IModuleLocation.MODULE_INFO_CLASS);
+			ClassFileReader reader = ClassFileReader.read(zipFile, IModuleEnvironment.MODULE_INFO_CLASS);
 			IModule module = getModule(reader);
 			if (module != null) {
 				return reader.getModuleDeclaration();
@@ -260,7 +265,7 @@ public class ModuleFinder {
 		CompilationResult compilationResult = new CompilationResult(cu, 0, 1, 10);
 		CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
 		if (unit.isModuleInfo() && unit.moduleDeclaration != null) {
-			return new SourceModule(unit.moduleDeclaration, pathEntry);
+			return new BasicModule(unit.moduleDeclaration, pathEntry);
 		}
 		return null;
 	}

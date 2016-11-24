@@ -28,6 +28,8 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public abstract class ClasspathLocation implements IModuleEnvironment {
 
+	protected boolean isAutoModule;
+	protected IModule module;
 	abstract public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName);
 	abstract public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly);
 	abstract public boolean isPackage(String qualifiedPackageName);
@@ -44,28 +46,29 @@ public abstract class ClasspathLocation implements IModuleEnvironment {
 		return new ClasspathMultiDirectory(sourceFolder, outputFolder, inclusionPatterns, exclusionPatterns,
 				ignoreOptionalProblems, env);
 	}
-public static ClasspathLocation forBinaryFolder(IContainer binaryFolder, boolean isOutputFolder, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, INameEnvironment env) {
-	return new ClasspathDirectory(binaryFolder, isOutputFolder, accessRuleSet, externalAnnotationPath, env);
+public static ClasspathLocation forBinaryFolder(IContainer binaryFolder, boolean isOutputFolder, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, INameEnvironment env, boolean autoModule) {
+	return new ClasspathDirectory(binaryFolder, isOutputFolder, accessRuleSet, externalAnnotationPath, env, autoModule);
 }
 
 static ClasspathLocation forLibrary(String libraryPathname, 
 										long lastModified, 
 										AccessRuleSet accessRuleSet, 
 										IPath annotationsPath,
-										INameEnvironment env) {
+										INameEnvironment env,
+										boolean autoModule) {
 	return Util.isJrt(libraryPathname) ?
 			new ClasspathJrt(libraryPathname, annotationsPath, env) :
-			new ClasspathJar(libraryPathname, lastModified, accessRuleSet, annotationsPath, env);
+			new ClasspathJar(libraryPathname, lastModified, accessRuleSet, annotationsPath, env, autoModule);
 }
 
 public static ClasspathLocation forLibrary(String libraryPathname, AccessRuleSet accessRuleSet, IPath annotationsPath,
-											INameEnvironment env) {
-	return forLibrary(libraryPathname, 0, accessRuleSet, annotationsPath, env);
+											INameEnvironment env, boolean autoModule) {
+	return forLibrary(libraryPathname, 0, accessRuleSet, annotationsPath, env, autoModule);
 }
 
 static ClasspathLocation forLibrary(IFile library, AccessRuleSet accessRuleSet, IPath annotationsPath,
-										INameEnvironment env) {
-	return new ClasspathJar(library, accessRuleSet, annotationsPath, env);
+										INameEnvironment env, boolean autoModule) {
+	return new ClasspathJar(library, accessRuleSet, annotationsPath, env, autoModule);
 }
 
 public abstract IPath getProjectRelativePath();
@@ -83,4 +86,20 @@ public void reset() {
 
 public abstract String debugPathString();
 
+void acceptModule(IModule mod) {
+	if (mod != null) {
+		this.module = mod;
+	}
+}
+public IModule getModule() {
+	return this.module;
+}
+/**
+ * Specifies whether this entry represents an automatic module.
+ * 
+ * @return true if this is an automatic module, false otherwise
+ */
+public boolean isAutomaticModule() {
+	return this.isAutoModule;
+}
 }

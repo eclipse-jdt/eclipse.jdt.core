@@ -27,10 +27,9 @@ import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 
-public class SourceModule implements IModule {
+public class BasicModule implements IModule {
 	static class ModuleReferenceImpl implements IModule.IModuleReference {
 		char[] name;
 		boolean isPublic = false;
@@ -123,23 +122,24 @@ public class SourceModule implements IModule {
 		return ser;
 	}
 
+	boolean isAutomodule;
 	char[] name;
-	ModuleReferenceImpl[] requires;
-	PackageExport[] exports;
+	IModule.IModuleReference[] requires;
+	IModule.IPackageExport[] exports;
 	char[][] uses;
 	Service[] provides;
 	IModulePathEntry root;
-
-	public SourceModule(ModuleDeclaration descriptor, Classpath root) {
+	public BasicModule(ModuleDeclaration descriptor, IModulePathEntry root) {
 		this.name = descriptor.moduleName;
 		this.root = root;
 		if (descriptor.requiresCount > 0) {
 			ModuleReference[] refs = descriptor.requires;
 			this.requires = new ModuleReferenceImpl[refs.length];
 			for (int i = 0; i < refs.length; i++) {
-				this.requires[i] = new ModuleReferenceImpl();
-				this.requires[i].name = CharOperation.concatWith(refs[i].tokens, '.');
-				this.requires[i].isPublic = refs[i].isPublic();
+				ModuleReferenceImpl ref = new ModuleReferenceImpl();
+				ref.name = CharOperation.concatWith(refs[i].tokens, '.');
+				ref.isPublic = refs[i].isPublic();
+				this.requires[i] = ref;
 			}
 		} else {
 			this.requires = new ModuleReferenceImpl[0];
@@ -169,7 +169,14 @@ public class SourceModule implements IModule {
 				this.provides[i] = createService(services[i], with[i]);
 			}
 		}
-		
+		this.isAutomodule = false; // Just to be explicit
+	}
+	public BasicModule(char[] name, Classpath root, boolean isAuto) {
+		this.name = name;
+		this.root = root;
+		this.exports = IModule.NO_EXPORTS;
+		this.requires = IModule.NO_MODULE_REFS;
+		this.isAutomodule = isAuto;
 	}
 	@Override
 	public char[] name() {
@@ -191,6 +198,10 @@ public class SourceModule implements IModule {
 	public IService[] provides() {
 		return this.provides();
 	}
+	@Override
+	public boolean isAutomatic() {
+		return this.isAutomodule;
+	}
 	public void addReads(char[] modName) {
 		Predicate<char[]> shouldAdd = m -> {
 			return Stream.of(this.requires).map(ref -> ref.name()).noneMatch(n -> CharOperation.equals(modName, n));
@@ -198,20 +209,21 @@ public class SourceModule implements IModule {
 		if (shouldAdd.test(modName)) {
 			int len = this.requires.length;
 			this.requires = Arrays.copyOf(this.requires, len + 1);
-			ModuleReferenceImpl info = this.requires[len] = new ModuleReferenceImpl();
+			ModuleReferenceImpl info = new ModuleReferenceImpl();
 			info.name = modName;
+			this.requires[len] = info;
 		}		
 	}
 	public void addExports(IModule.IPackageExport[] toAdd) {
 		Predicate<char[]> shouldAdd = m -> {
-			return Stream.of(this.exports).map(ref -> ref.pack).noneMatch(n -> CharOperation.equals(m, n));
+			return Stream.of(this.exports).map(ref -> ((PackageExport) ref).pack).noneMatch(n -> CharOperation.equals(m, n));
 		};
-		Collection<PackageExport> merged = Stream.concat(Stream.of(this.exports), Stream.of(toAdd)
+		Collection<IPackageExport> merged = Stream.concat(Stream.of(this.exports), Stream.of(toAdd)
 				.filter(e -> shouldAdd.test(e.name()))
 				.map(e -> {
 					PackageExport exp = new PackageExport();
-					exp.pack = e.name();
-					exp.exportedTo = e.exportedTo();
+					exp.pack = ((PackageExport )e).name();
+					exp.exportedTo = ((PackageExport )e).exportedTo();
 					return exp;
 				}))
 			.collect(
@@ -219,9 +231,6 @@ public class SourceModule implements IModule {
 				ArrayList::add,
 				ArrayList::addAll);
 		this.exports = merged.toArray(new PackageExport[merged.size()]);
-	}
-	public IModuleEnvironment getLookupEnvironment() {
-		return this.root == null ? null : this.root.getLookupEnvironmentFor(this);
 	}
 	public boolean equals(Object o) {
 		if (this == o)
@@ -254,10 +263,10 @@ public class SourceModule implements IModule {
 		if (this.requires != null) {
 			for(int i = 0; i < this.requires.length; i++) {
 				buffer.append("\trequires "); //$NON-NLS-1$
-				if (this.requires[i].isPublic) {
+				if (this.requires[i].isPublic()) {
 					buffer.append(" public "); //$NON-NLS-1$
 				}
-				buffer.append(this.requires[i].name);
+				buffer.append(this.requires[i].name());
 				buffer.append(';').append('\n');
 			}
 		}
