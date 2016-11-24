@@ -159,6 +159,8 @@ public static Test suite() {
 	ArrayList since_9 = new ArrayList();
 	since_9.add(Unicode9Test.class);
 	since_9.add(ModuleCompilationTests.class);
+	since_9.add(GenericsRegressionTest_9.class);
+	since_9.add(InterfaceMethodsTest_9.class);
 	
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());

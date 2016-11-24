@@ -17,13 +17,12 @@ package org.eclipse.jdt.core.tests;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.eclipse.jdt.core.tests.compiler.parser.ModuleDeclarationSyntaxTest;
-import org.eclipse.jdt.core.tests.compiler.regression.InterfaceMethodsTest_9;
-import org.eclipse.jdt.core.tests.compiler.regression.Unicode9Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverter9Test;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.model.CompletionTests9;
+import org.eclipse.jdt.core.tests.model.Java9ElementTests;
 import org.eclipse.jdt.core.tests.model.JavaSearchBugs9Tests;
+import org.eclipse.jdt.core.tests.model.ModuleBuilderTests;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 import junit.framework.Test;
@@ -38,11 +37,10 @@ public class RunAllJava9Tests extends TestCase {
 	}
 	public static Class[] getAllTestClasses() {
 		return new Class[] {
-			ModuleDeclarationSyntaxTest.class,
+			ModuleBuilderTests.class,
+			Java9ElementTests.class,
 			JavaSearchBugs9Tests.class,
-			Unicode9Test.class,
 			CompletionTests9.class,
-			InterfaceMethodsTest_9.class,
 		};
 	}
 
