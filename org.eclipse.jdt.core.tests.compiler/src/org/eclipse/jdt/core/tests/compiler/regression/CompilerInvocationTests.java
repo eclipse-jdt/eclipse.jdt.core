@@ -1905,10 +1905,10 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("UnsafeTypeConversion", new ProblemAttributes(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION));
 		expectedProblemAttributes.put("UnterminatedComment", SKIP);
 		expectedProblemAttributes.put("UnterminatedString", SKIP);
-		expectedProblemAttributes.put("UnusedConstructorDeclaredThrownException", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_WHEN_OVERRIDING));
+		expectedProblemAttributes.put("UnusedConstructorDeclaredThrownException", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION));
 		expectedProblemAttributes.put("UnusedImport", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_IMPORT));
 		expectedProblemAttributes.put("UnusedLabel", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_LABEL));
-		expectedProblemAttributes.put("UnusedMethodDeclaredThrownException", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION_WHEN_OVERRIDING));
+		expectedProblemAttributes.put("UnusedMethodDeclaredThrownException", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_DECLARED_THROWN_EXCEPTION));
 		expectedProblemAttributes.put("UnusedObjectAllocation", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_OBJECT_ALLOCATION));
 		expectedProblemAttributes.put("UnusedPrivateConstructor", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER));
 		expectedProblemAttributes.put("UnusedPrivateField", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER));

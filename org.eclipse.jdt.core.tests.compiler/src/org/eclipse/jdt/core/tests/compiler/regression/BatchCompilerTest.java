@@ -11668,7 +11668,7 @@ public void test299(){
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
 		"	@SuppressWarnings(\"unused\")\n" + 
 		"	                  ^^^^^^^^\n" + 
-		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
+		"At least one of the problems in category 'unused' is not analysed due to a compiler option being ignored\n" + 
 		"----------\n" + 
 		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
 		"	private int i;\n" + 
@@ -11759,7 +11759,7 @@ public void test303(){
 		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
 		"	@SuppressWarnings(\"unused\")\n" + 
 		"	                  ^^^^^^^^\n" + 
-		"Unnecessary @SuppressWarnings(\"unused\")\n" + 
+		"At least one of the problems in category 'unused' is not analysed due to a compiler option being ignored\n" + 
 		"----------\n" + 
 		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" + 
 		"	private int i;\n" + 

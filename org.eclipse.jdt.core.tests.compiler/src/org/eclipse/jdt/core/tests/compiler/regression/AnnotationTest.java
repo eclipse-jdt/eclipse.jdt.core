@@ -34,10 +34,14 @@ import java.util.Map;
 
 import junit.framework.Test;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -49,6 +53,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
@@ -7689,6 +7694,7 @@ public void test229() {
 public void test230() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
+	enableAllWarningsForIrritants(options, IrritantSet.UNUSED);
 	this.runNegativeTest(
 		true,
 		new String[] {
@@ -7727,6 +7733,7 @@ public void test230() {
 public void test231() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
+	enableAllWarningsForIrritants(options, IrritantSet.UNUSED);
 	this.runNegativeTest(
 		true,
 		new String[] {
@@ -8119,6 +8126,7 @@ public void test245() {
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);
+	enableAllWarningsForIrritants(options, IrritantSet.UNUSED);
 	this.runNegativeTest(
 		true,
 		new String[] {
@@ -10199,6 +10207,7 @@ public void testBug366003e() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
 public void testBug365437a() {
 	Map customOptions = getCompilerOptions();
+	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	String testFiles [] = new String[] {
 			"p/A.java",
@@ -10297,6 +10306,7 @@ public void testBug365437b() {
 public void testBug365437c() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
 	Map customOptions = getCompilerOptions();
+	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	String testFiles [] = new String[] {
 			"p/A.java",
@@ -10346,6 +10356,7 @@ public void testBug365437c() {
 // unused constructor
 public void testBug365437d() {
 	Map customOptions = getCompilerOptions();
+	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, CompilerOptions.ENABLED);
@@ -10425,6 +10436,7 @@ public void testBug365437d() {
 // unused field
 public void testBug365437e() {
 	Map customOptions = getCompilerOptions();
+	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, CompilerOptions.ENABLED);
@@ -10497,6 +10509,7 @@ public void testBug365437e() {
 // unused type
 public void testBug365437f() {
 	Map customOptions = getCompilerOptions();
+	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, CompilerOptions.ENABLED);
@@ -11769,5 +11782,59 @@ public void testBug506888e() throws Exception {
 		},
 		"", 
 		null, true, options);
+}
+public void testBug506888f() throws Exception {
+
+	class MyCompilerRequestor implements ICompilerRequestor {
+		String[] problemArguments = null;
+
+		@Override
+		public void acceptResult(CompilationResult result) {
+			for (CategorizedProblem problem : result.getAllProblems()) {
+				String[] arguments = problem.getArguments();
+				if (arguments != null && arguments.length > 0) {
+					this.problemArguments = arguments;
+					return;
+				}
+			}
+		}
+	}
+
+	if (this.complianceLevel <= ClassFileConstants.JDK1_5) {
+		return;
+	}
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	MyCompilerRequestor requestor = new MyCompilerRequestor();
+	runTest(new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	\n" +
+				"	@SuppressWarnings({\"unused\"})\n" +
+				"	void foo() {\n" +
+				"	}\n" +
+				"}	\n",
+			},
+			false,
+			"----------\n" + 
+			"1. INFO in X.java (at line 3)\n" + 
+			"	@SuppressWarnings({\"unused\"})\n" + 
+			"	                   ^^^^^^^^\n" + 
+			"At least one of the problems in category \'unused\' is not analysed due to a compiler option being ignored\n" + 
+			"----------\n",
+			"" /*expectedOutputString */,
+			"" /* expectedErrorString */,
+			false /* forceExecution */,
+			null /* classLib */,
+			true /* shouldFlushOutputDirectory */,
+			null /* vmArguments */,
+			options,
+			new Requestor(true, requestor, false, true),
+			JavacTestOptions.DEFAULT);
+	assertNotNull(requestor.problemArguments);
+	assertEquals(1, requestor.problemArguments.length);
+	assertEquals(JavaCore.COMPILER_PB_UNUSED_PARAMETER, requestor.problemArguments[0]);
 }
 }

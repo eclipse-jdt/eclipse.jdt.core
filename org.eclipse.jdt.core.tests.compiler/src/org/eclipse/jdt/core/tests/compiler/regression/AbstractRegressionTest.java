@@ -82,6 +82,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
@@ -1150,6 +1151,23 @@ protected static class JavacTestOptions {
 		defaultOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.WARNING );
 		defaultOptions.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.WARNING);
 		return defaultOptions;
+	}
+
+	protected void enableAllWarningsForIrritants(Map<String, String> options, IrritantSet irritants) {
+		int[] bits = irritants.getBits();
+		for (int i = 0; i < bits.length; i++) {
+			int bit = bits[i];
+			for (int b = 0; b < IrritantSet.GROUP_SHIFT; b++) {
+				int single = bit & (1 << b);
+				if (single != 0) {
+					single |= (i<<IrritantSet.GROUP_SHIFT);
+					if (single == CompilerOptions.MissingNonNullByDefaultAnnotation)
+						continue;
+					String optionKey = CompilerOptions.optionKeyFromIrritant(single);
+					options.put(optionKey, CompilerOptions.WARNING);
+				}
+			}
+		}
 	}
 
 	protected String[] getDefaultClassPaths() {
