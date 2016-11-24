@@ -7313,8 +7313,7 @@ public void testBug499725() {
 public void testBug488663() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	String[] testFiles = new String[] {
 			"C.java",
 			"import java.util.Comparator;\n" + 
 			"public class C {\n" + 
@@ -7325,7 +7324,21 @@ public void testBug488663() {
 			"		}\n" + 
 			"	};\n" + 
 			"}"
-		},
+		};
+	if (this.complianceLevel < ClassFileConstants.JDK9) {
+	this.runConformTest(
+		testFiles,
 		"", options);
+	} else {
+		this.runNegativeTest(
+			testFiles, 
+			"----------\n" + 
+			"1. ERROR in C.java (at line 3)\n" + 
+			"	Comparator<String> comparator = new Comparator<String>() { //\n" + 
+			"	                                    ^^^^^^^^^^\n" + 
+			"Redundant specification of type arguments <String>\n" + 
+			"----------\n",
+			null, true, options);
+	}
 }
 }

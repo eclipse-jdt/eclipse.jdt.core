@@ -2063,6 +2063,21 @@ public void test339478n() {
 		"----------\n");
 }
 public void test339478o() {
+	String log_18 = 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 3)\n" + 
+			"	new X<>(){\n" + 
+			"	    ^\n" + 
+			"\'<>\' cannot be used with anonymous classes\n" + 
+			"----------\n";
+	String log_9 = 
+			"----------\n" + 
+			"1. ERROR in X.java (at line 4)\n" + 
+			"	void newMethod(){\n" + 
+			"	     ^^^^^^^^^^^\n" + 
+			"The method newMethod() of type new X<Object>(){} must override or implement a supertype method\n" + 
+			"----------\n";
+	String errorMsg = this.complianceLevel < ClassFileConstants.JDK9 ? log_18 : log_9;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -2090,14 +2105,42 @@ public void test339478o() {
 		"	    ^\n" + 
 		"\'<>\' cannot be used with anonymous classes\n" + 
 		"----------\n":
-			"----------\n" + 
-			"1. ERROR in X.java (at line 3)\n" + 
-			"	new X<>(){\n" + 
-			"	    ^\n" + 
-			"\'<>\' cannot be used with anonymous classes\n" + 
-			"----------\n");
+			errorMsg);
 }
 public void test339478p() {
+	String log_18 = 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	X Test = new X<>(){\n" + 
+			"	^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	X Test = new X<>(){\n" + 
+			"	             ^\n" + 
+			"\'<>\' cannot be used with anonymous classes\n" + 
+			"----------\n";
+	String log_9 = 
+			"----------\n" + 
+			"1. WARNING in X.java (at line 3)\n" + 
+			"	X Test = new X<>(){\n" + 
+			"	^\n" + 
+			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
+			"----------\n" + 
+			"2. ERROR in X.java (at line 3)\n" + 
+			"	X Test = new X<>(){\n" + 
+			"			void newMethod(){\n" + 
+			"			}\n" + 
+			"		}.testFunction(\"SUCCESS\");\n" + 
+			"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from void to X\n" + 
+			"----------\n" + 
+			"3. ERROR in X.java (at line 4)\n" + 
+			"	void newMethod(){\n" + 
+			"	     ^^^^^^^^^^^\n" + 
+			"The method newMethod() of type new X<Object>(){} must override or implement a supertype method\n" + 
+			"----------\n";
+	String errorMsg = this.complianceLevel < ClassFileConstants.JDK9 ? log_18 : log_9;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -2130,17 +2173,7 @@ public void test339478p() {
 		"	             ^\n" + 
 		"\'<>\' cannot be used with anonymous classes\n" + 
 		"----------\n" : 
-			"----------\n" + 
-			"1. WARNING in X.java (at line 3)\n" + 
-			"	X Test = new X<>(){\n" + 
-			"	^\n" + 
-			"X is a raw type. References to generic type X<T> should be parameterized\n" + 
-			"----------\n" + 
-			"2. ERROR in X.java (at line 3)\n" + 
-			"	X Test = new X<>(){\n" + 
-			"	             ^\n" + 
-			"\'<>\' cannot be used with anonymous classes\n" + 
-			"----------\n");
+			errorMsg);
 }
 public void test339478q() {
 	this.runNegativeTest(
@@ -5998,6 +6031,7 @@ public void testBug469297() {
 			"            return list;\n" + 
 			"        }\n" + 
 			"    \n" + 
+			" @SuppressWarnings(\"deprecation\")\n" +
 			"        static final <L extends List<?>> L newList(Class<L> type) {\n" + 
 			"            try {\n" + 
 			"                return type.newInstance();\n" + 
