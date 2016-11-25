@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2014 IBM Corporation and others.
+ * Copyright (c) 2005, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2700,6 +2700,50 @@ public void testBug415997c() {
 			"}"
 		},
 		"test");
+}
+public void testBug499809() {
+	this.runConformTest(
+		new String[] {
+			"Foo.java",
+			"public class Foo {\n" + 
+			"	static void foo( ) {\n" + 
+			"		String _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, a, b,\n" + 
+			"		c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, s0, s1, s2, s3, s4, s5, s6, s7;\n" + 
+			"		Object ob = new Object();\n" + 
+			"		int int1 = 0, int2 = 2, int3, int4;\n" + 
+			"		if (ob != null) {\n" + 
+			"			int4 = 1;\n" + 
+			"		}\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"Done\");\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"Done");
+}
+public void testBug499809a() {
+	this.runConformTest(
+		new String[] {
+			"Foo.java",
+			"public class Foo {\n" + 
+			"	static void foo( ) {\n" + 
+			"		String _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z, a, b,\n" + 
+			"		c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, s0, s1, s2, s3, s4, s5, s6, s7;\n" + 
+			"		Object ob = new Object();\n" + 
+			"		int int1 = 0, int2 = 2, int3, int4;\n" +  
+			"		if (ob == null) {\n" + 
+			"			int1 = 1;\n" + 
+			"		} else {\n" + 
+			"			int4 = 1;\n" +
+			"		}\n" +
+			"	}\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"		System.out.println(\"Done\");\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"Done");
 }
 public static Class testClass() {
 	return FlowAnalysisTest.class;
