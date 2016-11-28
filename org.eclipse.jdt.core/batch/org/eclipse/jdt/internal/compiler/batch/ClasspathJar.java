@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
 import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment.AutoModule;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -295,7 +296,7 @@ public int getMode() {
 
 public IModule getModule() {
 	if (this.isAutoModule && this.module == null) {
-		return this.module = new BasicModule(this.file.getName().toCharArray(), this, true);
+		return this.module = new AutoModule(this.file.getName().toCharArray());
 	}
 	return this.module;
 }

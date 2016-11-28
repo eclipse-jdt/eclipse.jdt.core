@@ -18,7 +18,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
@@ -184,10 +183,6 @@ public class ModuleBinding extends Binding {
 		return this.requiredModules = allRequires.size() > 0 ? allRequires.toArray(new ModuleBinding[allRequires.size()]) : NO_REQUIRES;
 	}
 
-	private Stream<ModuleBinding> getAllAutomaticModules() {
-		return Stream.of(this.environment.autoModules.valueTable).filter(m -> m != null);
-	}
-
 	public char[] name() {
 		return this.moduleName;
 	}
@@ -207,8 +202,6 @@ public class ModuleBinding extends Binding {
 	public boolean isPackageExportedTo(PackageBinding pkg, ModuleBinding client) {
 		PackageBinding resolved = getExportedPackage(pkg.readableName());
 		if (resolved == pkg) {
-			if (this.isAuto)
-				return true;
 			Predicate<IPackageExport> isTargeted = e -> e.exportedTo() != null;
 			Predicate<IPackageExport> isExportedTo = e -> 
 				Stream.of(e.exportedTo()).map(ref -> this.environment.getModule(ref)).filter(m -> m != null).anyMatch(client::equals);
@@ -229,8 +222,11 @@ public class ModuleBinding extends Binding {
 		if (declaresPackage(null, name)) {
 			return new PackageBinding(name, this.environment);
 		} else {
-			PackageBinding pack = Stream.of(getAllRequiredModules()).sorted((m1, m2) -> m1.requires.length - m2.requires.length)
+			return Stream.of(getAllRequiredModules()).sorted((m1, m2) -> m1.requires.length - m2.requires.length)
 					.map(m -> {
+						if (m.isAuto) {
+							return m.getTopLevelPackage(name);
+						}
 						PackageBinding binding = m.getExportedPackage(name);
 						if (binding != null && m.isPackageExportedTo(binding, this)) {
 							return m.declaredPackages.get(name);
@@ -238,19 +234,6 @@ public class ModuleBinding extends Binding {
 						return null;
 					})
 			.filter(p -> p != null).findFirst().orElse(null);
-			if (pack != null || this.isAuto) {
-				return pack;
-			}
-			// This will only work if the automatic modules already have all their packages loaded,
-			// remember there's no module-info
-			return getAllAutomaticModules().
-					map(new Function<ModuleBinding, PackageBinding>() {
-						@Override
-						public PackageBinding apply(ModuleBinding m) {
-							return m.getTopLevelPackage(name);
-						}
-					}).
-						filter(p -> p != null).findFirst().orElse(null);
 		}
 	}
 	// Given parent is declared in this module, see if there is sub package named name declared in this module
@@ -362,8 +345,11 @@ public class ModuleBinding extends Binding {
 		}
 		if (binding == null) {
 			char[] qualifiedPackageName = CharOperation.concatWith(parentPackageName, packageName, '.');
-			PackageBinding pack = Stream.of(getAllRequiredModules())
+			return Stream.of(getAllRequiredModules())
 					.map(m -> {
+						if (m.isAuto) {
+							return m.getPackage(parentPackageName, packageName);
+						}
 						PackageBinding p = m.getExportedPackage(qualifiedPackageName);
 						if (p != null && m.isPackageExportedTo(p, this)) {
 							return m.declaredPackages.get(qualifiedPackageName);
@@ -371,15 +357,6 @@ public class ModuleBinding extends Binding {
 						return null;
 					})
 			.filter(p -> p != null).findFirst().orElse(null);
-
-			if (pack != null || this.isAuto) {
-				return pack;
-			}
-			// This will only work if the automatic modules already have all their packages loaded,
-			// remember there's no module-info
-			return getAllAutomaticModules().filter(mod -> (mod.isAuto)).
-					map(m -> m.getPackage(parentPackageName, packageName)).
-						filter(p -> p != null).findFirst().orElse(null);
 		}
 		return binding;
 	}
@@ -393,10 +370,10 @@ public class ModuleBinding extends Binding {
 	 * @return True, if the package is visible to this module, false otherwise
 	 */
 	public boolean canSee(PackageBinding pkg) {
-		ModuleBinding[] mods = getAllRequiredModules();
-		return declaresPackage(pkg) || 
-			Stream.of(mods).anyMatch(dep -> dep.isPackageExportedTo(pkg, ModuleBinding.this)) || 
-				getAllAutomaticModules().anyMatch(dep -> dep.declaresPackage(pkg));
+		return declaresPackage(pkg) || Stream.of(getAllRequiredModules()).anyMatch(
+				dep -> (dep.isAuto && dep.declaresPackage(pkg)) ||
+						dep.isPackageExportedTo(pkg, ModuleBinding.this)
+		);
 	}
 	public boolean dependsOn(ModuleBinding other) {
  		if (other == this)
@@ -411,15 +388,10 @@ public class ModuleBinding extends Binding {
  	}
  	// A context including this module and all it's required modules
  	public IModuleContext getDependencyClosureContext() {
- 		Stream<ModuleBinding> stream = null;
- 		if (this.isAuto) {
- 			stream = getAllAutomaticModules();
- 		} else {
- 			stream = Stream.of(getAllRequiredModules());
- 		}
-		return getModuleLookupContext().includeAll(stream.map(m -> m.getModuleLookupContext()))
-			.includeAll(getAllAutomaticModules().
-					map(m -> m.getModuleLookupContext()));
+ 		if (this.isAuto)
+ 			return IModuleContext.UNNAMED_MODULE_CONTEXT;
+ 		ModuleBinding[] deps = getAllRequiredModules();
+ 		return getModuleLookupContext().includeAll(Stream.of(deps).map(m -> m.getModuleLookupContext()));
  	}
  	// A context that includes the entire module graph starting from this module
  	public IModuleContext getModuleGraphContext() {

@@ -70,6 +70,40 @@ public abstract class ModuleEnvironment implements IModuleAwareNameEnvironment {
 		}
 
 	};
+	public static final class AutoModule implements IModule {
+		char[] name;
+		public AutoModule(char[] name) {
+			this.name = name;
+		}
+		@Override
+		public char[] name() {
+			return this.name;
+		}
+
+		@Override
+		public IModuleReference[] requires() {
+			return IModule.NO_MODULE_REFS;
+		}
+
+		@Override
+		public IPackageExport[] exports() {
+			return IModule.NO_EXPORTS;
+		}
+
+		@Override
+		public char[][] uses() {
+			return IModule.NO_USES;
+		}
+
+		@Override
+		public IService[] provides() {
+			return IModule.NO_PROVIDES;
+		}
+
+		public boolean isAutomatic() {
+			return true;
+		}
+	}
 	public static IModule[] UNNAMED_MODULE_ARRAY = new IModule[]{UNNAMED_MODULE};
 
 	private HashMap<String, IModule> modulesCache = null;

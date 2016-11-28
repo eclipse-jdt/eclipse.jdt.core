@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
 import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment.AutoModule;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -63,7 +64,7 @@ ClasspathDirectory(IContainer binaryFolder, boolean isOutputFolder, AccessRuleSe
 
 void setAutomaticModule() {
 	this.isAutoModule = true;
-	acceptModule(new BasicModule(this.binaryFolder.getName().toCharArray(), this, true));
+	acceptModule(new AutoModule(this.binaryFolder.getName().toCharArray()));
 }
 
 public void cleanup() {

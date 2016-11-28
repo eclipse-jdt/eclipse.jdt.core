@@ -162,7 +162,10 @@ private void initAutomaticModules() {
 	if (this.nameEnvironment instanceof IModuleAwareNameEnvironment) {
 		IModule[] mods = ((IModuleAwareNameEnvironment) this.nameEnvironment).getAllAutomaticModules();
 		for (IModule iModule : mods) {
-			this.autoModules.put(iModule.name(), new ModuleBinding(iModule, this));
+			if (this.knownModules.get(iModule.name()) != null) {
+				continue; // TODO: ideally we want to report an error.
+			}
+			this.knownModules.put(iModule.name(), new ModuleBinding(iModule, this));
 		}
 	}
 }

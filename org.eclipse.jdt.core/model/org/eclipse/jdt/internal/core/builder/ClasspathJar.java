@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
 import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment.AutoModule;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -177,9 +178,17 @@ public ClasspathJar(String fileName, AccessRuleSet accessRuleSet, IPath external
 
 void setAutomaticModule() {
 	this.isAutoModule = true;
-	acceptModule(new BasicModule(this.zipFilename.toCharArray(), this, true));
+	acceptModule(new AutoModule(getFileName(this.zipFilename).toCharArray()));
 }
-
+private static String getFileName(String name) {
+	int index = name.lastIndexOf('.');
+	if (index != -1)
+		name = name.substring(0, index);
+	index = name.lastIndexOf(File.separatorChar);
+	if (index == -1)
+		return name;
+	return name.substring(index + 1);
+}
 public void cleanup() {
 	if (this.closeZipFileAtEnd) {
 		if (this.zipFile != null) {

@@ -25,7 +25,6 @@ import org.eclipse.jdt.internal.compiler.ast.ExportReference;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 
@@ -128,10 +127,8 @@ public class BasicModule implements IModule {
 	IModule.IPackageExport[] exports;
 	char[][] uses;
 	Service[] provides;
-	IModulePathEntry root;
 	public BasicModule(ModuleDeclaration descriptor, IModulePathEntry root) {
 		this.name = descriptor.moduleName;
-		this.root = root;
 		if (descriptor.requiresCount > 0) {
 			ModuleReference[] refs = descriptor.requires;
 			this.requires = new ModuleReferenceImpl[refs.length];
@@ -171,9 +168,8 @@ public class BasicModule implements IModule {
 		}
 		this.isAutomodule = false; // Just to be explicit
 	}
-	public BasicModule(char[] name, Classpath root, boolean isAuto) {
+	public BasicModule(char[] name, boolean isAuto) {
 		this.name = name;
-		this.root = root;
 		this.exports = IModule.NO_EXPORTS;
 		this.requires = IModule.NO_MODULE_REFS;
 		this.isAutomodule = isAuto;

@@ -18,6 +18,8 @@ public interface IModule {
 
 	public static IModuleReference[] NO_MODULE_REFS = new IModuleReference[0];
 	public static IPackageExport[] NO_EXPORTS = new IPackageExport[0];
+	public static char[][] NO_USES = new char[0][];
+	public static IService[] NO_PROVIDES = new IService[0];
 	public static IModule[] NO_MODULES = new IModule[0];
 
 	public char[] name();

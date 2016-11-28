@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
 import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment.AutoModule;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
@@ -306,7 +307,7 @@ public int getMode() {
 }
 public IModule getModule() {
 	if (this.isAutoModule && this.module == null) {
-		return this.module = new BasicModule(this.path.toCharArray(), this, true);
+		return this.module = new AutoModule(this.path.toCharArray());
 	}
 	return this.module;
 }

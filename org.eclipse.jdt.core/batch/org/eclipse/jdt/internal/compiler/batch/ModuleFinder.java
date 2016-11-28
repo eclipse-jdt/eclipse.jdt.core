@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -82,7 +83,7 @@ public class ModuleFinder {
 					}
 					if (isModulepath && module == null) {
 						 // The name includes the file's extension, but it shouldn't matter.
-						module = new BasicModule(file.getName().toCharArray(), modulePath, true);
+						module = new ModuleEnvironment.AutoModule(getFileName(file).toCharArray());
 					}
 					if (module != null)
 						modulePath.acceptModule(module);
@@ -90,6 +91,13 @@ public class ModuleFinder {
 			}
 		}
 		return collector;
+	}
+	private static String getFileName(File file) {
+		String name = file.getName();
+		int index = name.lastIndexOf('.');
+		if (index == -1)
+			return name;
+		return name.substring(0, index);
 	}
 	/**
 	 * Extracts the single reads clause from the given
@@ -154,65 +162,11 @@ public class ModuleFinder {
 		for(int i = 0; i < export.exportedTo.length; i++) {
 			export.exportedTo[i] = targets.get(i).toCharArray();
 		}
-		BasicModule module = new BasicModule(source.toCharArray(), null, false);
+		BasicModule module = new BasicModule(source.toCharArray(), false);
 		module.exports = new IModule.IPackageExport[]{export};
 		return module;
 	}
-//
-//	static class PackageExport implements IPackageExport {
-//		char[] name;
-//		char[][] exportedTo;
-//		PackageExport(char[] name) {
-//			this.name = name;
-//		}
-//		@Override
-//		public char[] name() {
-//			return this.name;
-//		}
-//		@Override
-//		public char[][] exportedTo() {
-//			return this.exportedTo;
-//		}
-//	}
-//	
-//	static class Module implements IModule {
-//		char[] name;
-//		IPackageExport[] export;
-//		boolean isAuto;
-//		Module(char[] name, IPackageExport export, boolean isAuto) {
-//			this.name = name;
-//			this.export = new IPackageExport[]{export};
-//			this.isAuto = isAuto;
-//		}
-//		@Override
-//		public char[] name() {
-//			return this.name;
-//		}
-//		@Override
-//		public IModuleReference[] requires() {
-//			return null;
-//		}
-//		@Override
-//		public IPackageExport[] exports() {
-//			return this.export;
-//		}
-//		@Override
-//		public char[][] uses() {
-//			return null;
-//		}
-//		@Override
-//		public IService[] provides() {
-//			return null;
-//		}
-//		@Override
-//		public void setAutomatic(boolean isAuto) {
-//			this.isAuto = isAuto;
-//		}
-//		public boolean isAutomatic() {
-//			return this.isAuto;
-//		}
-//	}
-	
+
 	private static boolean isJar(File file) {
 		int format = Util.archiveFormat(file.getAbsolutePath());
 		return format >= Util.ZIP_FILE;

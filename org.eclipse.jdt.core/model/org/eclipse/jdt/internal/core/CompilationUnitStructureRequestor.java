@@ -256,7 +256,7 @@ protected SourceType createTypeHandle(JavaElement parent, TypeInfo typeInfo) {
 	String nameString= new String(typeInfo.name);
 	return new SourceType(parent, nameString);
 }
-protected SourceModule createModuldHandle(JavaElement parent, ModuleInfo modInfo) {
+protected SourceModule createModuleHandle(JavaElement parent, ModuleInfo modInfo) {
 	String nameString= new String(modInfo.moduleName);
 	return new org.eclipse.jdt.internal.core.SourceModule(parent, nameString);
 }
@@ -508,7 +508,7 @@ public void enterType(TypeInfo typeInfo) {
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
 	JavaElement handle = null;
 	if (typeInfo instanceof ModuleInfo) {
-		handle = createModuldHandle(parentHandle, (ModuleInfo) typeInfo);
+		handle = createModuleHandle(parentHandle, (ModuleInfo) typeInfo);
 	} else {
 		handle = createTypeHandle(parentHandle, typeInfo);
 		 //NB: occurenceCount is computed in resolveDuplicates
