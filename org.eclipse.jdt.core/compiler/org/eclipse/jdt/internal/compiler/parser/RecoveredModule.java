@@ -15,6 +15,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ExportReference;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
@@ -136,6 +137,44 @@ public class RecoveredModule extends RecoveredType {
 			}
 		}
 	}
+	public String toString(int tab) {
+		StringBuffer result = new StringBuffer(tabString(tab));
+		result.append("Recovered module:\n"); //$NON-NLS-1$
+		result.append("module ");//$NON-NLS-1$
+		result.append(CharOperation.charToString(((ModuleDeclaration) this.typeDeclaration).moduleName));
+		result.append(" {");//$NON-NLS-1$
+		if (this.exportCount > 0) {
+			for (int i = 0; i < this.exportCount; ++i) {
+				result.append("\n"); //$NON-NLS-1$
+				result.append(this.exports[i].toString(tab + 1));
+			}
+		}
+		if (this.requiresCount > 0) {
+			for (int i = 0; i < this.requiresCount; ++i) {
+				result.append("\n"); //$NON-NLS-1$
+				result.append("requires "); //$NON-NLS-1$
+				result.append(this.requires[i].toString(tab + 1));
+			}
+		}
+		if (this.usesCount > 0) {
+			for (int i = 0; i < this.usesCount; ++i) {
+				result.append("\n"); //$NON-NLS-1$
+				result.append("uses "); //$NON-NLS-1$
+				result.append(this.uses[i].toString(tab + 1));	
+			}
+		}
+		if (this.servicesCount > 0) {
+			for (int i = 0; i < this.servicesCount; ++i) {
+				result.append("\n"); //$NON-NLS-1$
+				result.append("provides "); //$NON-NLS-1$
+				result.append(this.interfaces[i].toString(tab + 1));
+				result.append(" with "); //$NON-NLS-1$
+				result.append(this.implementations[i].toString(tab + 1));				
+			}
+		}
+		result.append("\n}");//$NON-NLS-1$
+		return result.toString();
+	}
 	public ModuleDeclaration updatedModuleDeclaration() {
 
 		ModuleDeclaration moduleDeclaration = (ModuleDeclaration) this.typeDeclaration;
@@ -153,10 +192,25 @@ public class RecoveredModule extends RecoveredType {
 			moduleDeclaration.exports = exports1;
 			moduleDeclaration.exportsCount = actualCount;
 		}
-		/* update uses */
+		updateRequires(moduleDeclaration);
 		updateUses(moduleDeclaration);
 		updateServices(moduleDeclaration);
 		return moduleDeclaration;
+	}
+	private void updateRequires(ModuleDeclaration moduleDeclaration) {
+		if (this.requiresCount > 0) {
+			int existingCount = moduleDeclaration.requiresCount, actualCount = 0;
+			ModuleReference[] mRef1 = new ModuleReference[existingCount + this.requiresCount];
+			if (existingCount > 0){
+				System.arraycopy(moduleDeclaration.requires, 0, mRef1, 0, existingCount);
+				actualCount = existingCount;
+			}
+			for (int i = 0; i < this.requiresCount; i++){
+				mRef1[actualCount++] = this.requires[i].updatedModuleReference();
+			}
+			moduleDeclaration.requires = mRef1;
+			moduleDeclaration.requiresCount = actualCount;
+		}
 	}
 	private void updateUses(ModuleDeclaration moduleDeclaration) {
 		if (this.usesCount > 0) {

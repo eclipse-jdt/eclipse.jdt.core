@@ -3688,6 +3688,7 @@ protected void consumeToken(int token) {
 		pushOnElementStack(K_INSIDE_USES_STATEMENT);
 	}	else if (token == TokenNamewith) {
 		popElement(K_AFTER_NAME_IN_PROVIDES_STATEMENT);
+		pushOnElementStack(K_AFTER_WITH_IN_PROVIDES_STATEMENT);
 	} 
 
 	// if in a method or if in a field initializer

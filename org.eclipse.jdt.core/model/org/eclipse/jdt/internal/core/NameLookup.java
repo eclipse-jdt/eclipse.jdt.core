@@ -22,8 +22,11 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -105,6 +108,57 @@ public class NameLookup implements SuffixConstants {
 			builder.append("from ") //$NON-NLS-1$
 			.append(this.module);
 			return builder.toString();
+		}
+	}
+	
+	private class Selector implements IJavaElementRequestor {
+		public List<IPackageFragment> pkgFragments;
+		String moduleName;
+		
+		public Selector(String moduleName) {
+			this.pkgFragments = new ArrayList<>();
+			this.moduleName = moduleName != null && moduleName.length() != 0 ? moduleName : null;
+		}
+
+		@Override
+		public void acceptField(IField field) {
+			// do nothing
+		}
+
+		@Override
+		public void acceptInitializer(IInitializer initializer) {
+			// do nothing
+		}
+
+		@Override
+		public void acceptMemberType(IType type) {
+			// do nothing
+		}
+
+		@Override
+		public void acceptMethod(IMethod method) {
+			// do nothing
+		}
+
+		@Override
+		public void acceptPackageFragment(IPackageFragment packageFragment) {
+			this.pkgFragments.add(packageFragment);
+		}
+
+		@Override
+		public void acceptType(IType type) {
+			// do nothing
+		}
+
+		@Override
+		public void acceptModule(IModuleDescription module) {
+			// do nothing
+		}
+
+		@Override
+		public boolean isCanceled() {
+			// TODO Auto-generated method stub
+			return false;
 		}
 	}
 
@@ -1069,6 +1123,25 @@ public class NameLookup implements SuffixConstants {
 			return;
 		checkModulePackages(requestor, context, pkgIndex);
 		
+	}
+	/**
+	 * Notifies the given requestor of all package fragments with the
+	 * given name. Checks the requestor at regular intervals to see if the
+	 * requestor has canceled. The domain of
+	 * the search is bounded by the <code>IJavaProject</code>
+	 * this <code>NameLookup</code> was obtained from.
+	 *
+	 * @param partialMatch partial name matches qualify when <code>true</code>;
+	 *	only exact name matches qualify when <code>false</code>
+	 */
+	public void seekTypes(String pkgName, String name, boolean partialMatch, IJavaElementRequestor requestor, 
+			int acceptFlags, IModuleContext context, String moduleName) {
+		Selector selector = new Selector(moduleName);
+		seekPackageFragments(pkgName, true /*partialMatch*/, selector, context);	
+		if (selector.pkgFragments.size() == 0) return;
+		for (IPackageFragment pkg : selector.pkgFragments) {
+			seekTypes(name, pkg, partialMatch, acceptFlags, requestor);
+		}
 	}
 	
 	private void seekModuleAwarePartialPackageFragments(String name, IJavaElementRequestor requestor, IModuleContext context) {

@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.tests.model;
 import java.util.Hashtable;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
@@ -47,6 +48,22 @@ public void setUpSuite() throws Exception {
 
 public static Test suite() {
 	return buildModelTestSuite(CompletionTests9.class);
+}
+
+
+private void createTypePlus(String folder, String pack, String typeName, String plus, boolean isClass, boolean createFolder) throws CoreException {
+	String filePath;
+	String fileContent;
+	fileContent = "package " + pack + ";\n" + "public " + (isClass ? "class " : "interface ");
+	if (plus != null) fileContent = fileContent + plus;
+	fileContent = fileContent + typeName + " {}\n";
+	if (createFolder)  createFolder(folder + pack);
+	filePath = folder + pack + "/" + typeName + ".java";
+	createFile(filePath, fileContent);
+}
+
+private void createType(String folder, String pack, String typeName) throws CoreException {
+	createTypePlus(folder, pack, typeName, null, true /* isClass */, true /*createFolder */);
 }
 
 public void test486988_0001() throws Exception {
@@ -520,14 +537,57 @@ public void test486988_0014() throws Exception {
 		deleteProject(project2);
 	}
 }
-private void createType(String folder, String pack, String typeName) throws CoreException {
-	String filePath;
-	String fileContent;
-	createFolder(folder + pack);
-	filePath = folder + pack + "/" + typeName + ".java";
-	fileContent = "package " + pack + ";\n" +
-	"public class " + typeName + " {}\n";
-	createFile(filePath, fileContent);
-}
+public void test486988_0015() throws Exception {
+	IJavaProject project1 = createJavaProject("Completion9_1", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	IJavaProject project2 = createJavaProject("Completion9_2", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+	try {
+		project1.open(null);
+		createType("/Completion9_1/src/", "pack11", "X11");
+		createType("/Completion9_1/src/", "pack11.packinternal", "Z11");
+		createTypePlus("/Completion9_1/src/", "pack11.packinternal", "Z12", "implements pack22.I22", true /* isClass */, false /* createFolder */);
+		createType("/Completion9_1/src/", "pack12", "X12");
+		createTypePlus("/Completion9_1/src/", "pack12", "Y12", "implements pack22.I22", true /* isClass */, false /* createFolder */);
+		String filePath1 = "/Completion9_1/src/module-info.java";
+		String completeBehind = "with p";
+		String fileContent1 =  "module first {\n"
+				+ "requires second;\n"
+				+ "provides pack22.I22 " + completeBehind
+				+ "}\n";
+		createFile(filePath1, fileContent1);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 
+		project2.open(null);
+		createType("/Completion9_2/src/", "pack21", "X21");
+		createType("/Completion9_2/src/", "pack22", "X22");
+		createTypePlus("/Completion9_2/src/", "pack22", "I22", null, false /* isClass */, false /* createFolder */);
+
+		String fileContent2 =  "module second { "
+				+ "exports pack21 to first;\n"
+				+ "exports pack22 to first;\n" 
+				+ "}\n";
+		String filePath2 = "/Completion9_2/src/module-info.java";
+		createFile(filePath2, fileContent2);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+
+		int cursorLocation = fileContent1.lastIndexOf(completeBehind) + completeBehind.length();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
+
+		ICompilationUnit unit = getCompilationUnit(filePath1);
+		unit.codeComplete(cursorLocation, requestor);
+
+		String expected = "pack11[PACKAGE_REF]{pack11, pack11, null, null, 49}\n" + 
+				"pack12[PACKAGE_REF]{pack12, pack12, null, null, 49}"
+				//+ "\nShow me the type Honey!!"
+				;
+		assertResults(expected,	requestor.getResults());
+	} finally {
+		deleteProject(project1);
+		deleteProject(project2);
+	}
+}
 }
