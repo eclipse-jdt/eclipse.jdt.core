@@ -26,13 +26,13 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.batch.BasicModule.PackageExport;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.env.PackageExportImpl;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -156,7 +156,7 @@ public class ModuleFinder {
 		while (tokenizer.hasMoreTokens()) {
 			targets.add(tokenizer.nextToken("=,")); //$NON-NLS-1$
 		}
-		BasicModule.PackageExport export = new PackageExport();
+		PackageExportImpl export = new PackageExportImpl();
 		export.pack = pack.toCharArray();
 		export.exportedTo = new char[targets.size()][];
 		for(int i = 0; i < export.exportedTo.length; i++) {

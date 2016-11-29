@@ -16,7 +16,8 @@
 
 package org.eclipse.jdt.internal.codeassist.complete;
 
-import org.eclipse.jdt.internal.compiler.ast.ExportReference;
+import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 /*
  * Completion node build by the parser in any case it was intending to
  * reduce an exports reference containing the cursor location.
@@ -35,21 +36,15 @@ import org.eclipse.jdt.internal.compiler.ast.ExportReference;
  * before the cursor.
  */
 
-public class CompletionOnExportReference extends ExportReference {
+public class CompletionOnExportReference extends ExportsStatement {
 
-	public CompletionOnExportReference(char[] ident, long pos) {
-		this(new char[][]{ident}, new long[]{pos});
-	}
-	public CompletionOnExportReference(char[][]  tokens, long[] positions) {
-		super(tokens, positions);
+	public CompletionOnExportReference(ImportReference ref) {
+		super(ref, null);
 	}
 	public StringBuffer print(int indent, StringBuffer output) {
 
 		printIndent(indent, output).append("<CompleteOnExport:"); //$NON-NLS-1$
-		for (int i = 0; i < this.tokens.length; i++) {
-			if (i > 0) output.append('.');
-			output.append(this.tokens[i]);
-		}
+		output.append(this.pkgName);
 		return output.append('>');
 	}
 

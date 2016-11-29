@@ -16,36 +16,33 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
-import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class ModuleDeclaration extends TypeDeclaration {
 
-	public ExportReference[] exports;
-	public ModuleReference[] requires;
-	public TypeReference[] uses;
-	public TypeReference[] interfaces;
-	public TypeReference[] implementations;
+	public ExportsStatement[] exports;
+	public RequiresStatement[] requires;
+	public UsesStatement[] uses;
+	public ProvidesStatement[] services;
+	public OpensStatement[] opens;
 	public int exportsCount;
 	public int requiresCount;
 	public int usesCount;
 	public int servicesCount;
+	public int opensCount;
 	public ModuleBinding moduleBinding;
 
 	public char[][] tokens;
@@ -87,82 +84,74 @@ public class ModuleDeclaration extends TypeDeclaration {
 		this.binding.compoundName = CharOperation.arrayConcat(this.tokens, this.name);
 		Set<ModuleBinding> requiredModules = new HashSet<ModuleBinding>();
 		for(int i = 0; i < this.requiresCount; i++) {
-			ModuleReference ref = this.requires[i];
+			RequiresStatement ref = this.requires[i];
 			if (ref != null && ref.resolve(this.scope) != null) {
-				if (!requiredModules.add(ref.binding)) {
-					this.scope.problemReporter().duplicateModuleReference(IProblem.DuplicateRequires, ref);
+				if (!requiredModules.add(ref.resolvedBinding)) {
+					this.scope.problemReporter().duplicateModuleReference(IProblem.DuplicateRequires, ref.module);
 				}
-				Collection<ModuleBinding> deps = ref.binding.dependencyGraphCollector().get();
+				Collection<ModuleBinding> deps = ref.resolvedBinding.dependencyGraphCollector().get();
 				if (deps.contains(this.moduleBinding))
-					this.scope.problemReporter().cyclicModuleDependency(this.moduleBinding, ref);
+					this.scope.problemReporter().cyclicModuleDependency(this.moduleBinding, ref.module);
 			}
 		}
 		Set<PackageBinding> exportedPkgs = new HashSet<>();
 		for (int i = 0; i < this.exportsCount; i++) {
-			ExportReference ref = this.exports[i];
+			ExportsStatement ref = this.exports[i];
  			if (ref != null && ref.resolve(this.scope)) {
 				if (!exportedPkgs.add(ref.resolvedPackage)) {
-					this.scope.problemReporter().invalidExportReference(IProblem.DuplicateExports, ref);
+					this.scope.problemReporter().invalidPackageReference(IProblem.DuplicateExports, ref);
 				}
 			}
 		}
-		for(int i = 0; i < this.usesCount; i++) {
-			Set<TypeBinding> allTypes = new HashSet<TypeBinding>();
-			if (this.uses[i] != null && this.uses[i].resolveType(this.scope) != null) {
-				if (!allTypes.add(this.uses[i].resolvedType)) {
-					this.scope.problemReporter().duplicateTypeReference(IProblem.DuplicateUses, this.uses[i]);
-				}
-			}
-		}
-		Map<TypeBinding, TypeBinding> services = new HashMap<TypeBinding, TypeBinding>(this.servicesCount); 
-		for(int i = 0; i < this.servicesCount; i++) {
-			if (this.interfaces[i] != null && this.interfaces[i].resolveType(this.scope) != null) {
-				TypeBinding inf = this.interfaces[i].resolvedType;
-				if (this.implementations[i] != null && this.implementations[i].resolveType(this.scope) != null) {
-					ReferenceBinding imp = (ReferenceBinding) this.implementations[i].resolvedType;
-					if (inf.isValidBinding() && imp.isValidBinding()) {
-						validate(this.interfaces[i], this.implementations[i]);
-						if (services.get(inf) == imp) { //$IDENTITY-COMPARISON$
-							this.scope.problemReporter().duplicateTypeReference(IProblem.DuplicateServices,
-									this.interfaces[i], this.implementations[i]);
-						} else {
-							services.put(inf, imp);
-						}
+		Set<PackageBinding> openedPkgs = new HashSet<>();
+		for (int i = 0; i < this.opensCount; i++) {
+			OpensStatement ref = this.opens[i];
+			if (isOpen()) {
+				this.scope.problemReporter().invalidOpensStatement(ref, this);
+			} else {
+				if (ref.resolve(this.scope)) {
+					if (!openedPkgs.add(ref.resolvedPackage)) {
+						this.scope.problemReporter().invalidPackageReference(IProblem.DuplicateOpens, ref);
 					}
+				}
+			}
+		}
+		Set<TypeBinding> allTypes = new HashSet<TypeBinding>();
+		for(int i = 0; i < this.usesCount; i++) {
+			TypeBinding serviceBinding = this.uses[i].serviceInterface.resolveType(this.scope);
+			if (serviceBinding != null && serviceBinding.isValidBinding()) {
+				if (!(serviceBinding.isClass() || serviceBinding.isInterface() || serviceBinding.isAnnotationType())) {
+					this.scope.problemReporter().invalidServiceRef(IProblem.InvalidServiceIntfType, this.uses[i].serviceInterface);
+				}
+				if (!allTypes.add(this.uses[i].serviceInterface.resolvedType)) {
+					this.scope.problemReporter().duplicateTypeReference(IProblem.DuplicateUses, this.uses[i].serviceInterface);
+				}
+			}
+		}
+		Set<TypeBinding> interfaces = new HashSet<>();
+		for(int i = 0; i < this.servicesCount; i++) {
+			this.services[i].resolve(this.scope);
+			TypeBinding infBinding = this.services[i].serviceInterface.resolvedType;
+			if (infBinding != null && infBinding.isValidBinding()) {
+				if (!interfaces.add(this.services[i].serviceInterface.resolvedType)) { 
+					this.scope.problemReporter().duplicateTypeReference(IProblem.DuplicateServices,
+							this.services[i].serviceInterface);
 				}
 			}
 		}
 	}
 
-	private void validate(TypeReference serviceInf, TypeReference serviceImpl) {
-		ReferenceBinding intf = (ReferenceBinding) serviceInf.resolvedType;
-		ReferenceBinding impl = (ReferenceBinding) serviceImpl.resolvedType;
-		int problemId = ProblemReasons.NoError;
-		ModuleBinding declaringModule = impl.module();
-		if (declaringModule != this.moduleBinding) {
-			problemId = ProblemReasons.ServiceImplNotDefinedByModule;
-		} else if (impl.isNestedType() && !impl.isStatic()) {
-			problemId = ProblemReasons.ServiceImplCannotbeNested;
-		} else if (impl.isAbstract()) {
-			problemId = ProblemReasons.ServiceImplCannotbeAbstract;
-		} else if(impl.findSuperTypeOriginatingFrom(intf) == null) {
-			this.scope.problemReporter().typeMismatchError(impl, intf, serviceImpl, null);
-		} else {
-			MethodBinding defaultConstructor = impl.getExactConstructor(new TypeBinding[0]);
-			if (defaultConstructor == null || !defaultConstructor.isValidBinding()) {
-				problemId = ProblemReasons.DefaultConstructorRequiredForServiceImpl;
-			} else if (!defaultConstructor.isPublic()) {
-				problemId = ProblemReasons.ServiceImplDefaultConstructorNotPublic;
-			}
-		}
-		if (problemId != ProblemReasons.NoError) {
-			this.scope.problemReporter().invalidServiceImpl(problemId, serviceImpl);
-		}
-	}
+	
 	public StringBuffer printHeader(int indent, StringBuffer output) {
+		if (isOpen()) {
+			output.append("open "); //$NON-NLS-1$
+		}
 		output.append("module "); //$NON-NLS-1$
 		output.append(CharOperation.charToString(this.moduleName));
 		return output;
+	}
+	private boolean isOpen() {
+		return (this.modifiers & ClassFileConstants.ACC_OPEN) != 0;
 	}
 	public StringBuffer printBody(int indent, StringBuffer output) {
 		output.append(" {"); //$NON-NLS-1$
@@ -181,26 +170,22 @@ public class ModuleDeclaration extends TypeDeclaration {
 				this.exports[i].print(indent + 1, output);
 			}
 		}
+		if (this.opens != null) {
+			for(int i = 0; i < this.opensCount; i++) {
+				output.append('\n');
+				this.opens[i].print(indent + 1, output);
+			}
+		}
 		if (this.uses != null) {
 			for(int i = 0; i < this.usesCount; i++) {
 				output.append('\n');
-				printIndent(indent + 1, output);
-				output.append("uses "); //$NON-NLS-1$
-				this.uses[i].print(0, output);
-				output.append(";"); //$NON-NLS-1$
+				this.uses[i].print(indent + 1, output);
 			}
 		}
 		if (this.servicesCount != 0) {
 			for(int i = 0; i < this.servicesCount; i++) {
 				output.append('\n');
-				printIndent(indent + 1, output);
-				output.append("provides "); //$NON-NLS-1$
-				this.interfaces[i].print(0, output);
-				output.append('\n');
-				printIndent(indent + 2, output);
-				output.append("with "); //$NON-NLS-1$
-				this.implementations[i].print(0, output);
-				output.append(";"); //$NON-NLS-1$
+				this.services[i].print(indent + 1, output);
 			}
 		}
 		output.append('\n');

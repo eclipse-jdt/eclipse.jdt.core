@@ -68,7 +68,7 @@ public interface ISourceElementRequestor {
 	}
 	public static class ServicesInfo {
 		public char[] serviceName;
-		public char[] implName;
+		public char[][] implNames;
 	}
 	public static class TypeInfo {
 		public boolean typeAnnotated;

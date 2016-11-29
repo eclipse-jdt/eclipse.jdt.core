@@ -33,7 +33,7 @@ import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
-import org.eclipse.jdt.internal.compiler.ast.ExportReference;
+import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
@@ -1261,8 +1261,8 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 protected SelectionParser createSnapShotParser() {
 	return new SelectionParser(this.problemReporter);
 }
-public ExportReference createAssistExportReference(char[][] tokens, long[] positions){
-	return new SelectionOnExportReference(tokens, positions);
+public ExportsStatement createAssistExportReference(ImportReference pkgRef){
+	return new SelectionOnExportReference(pkgRef);
 }
 public ImportReference createAssistImportReference(char[][] tokens, long[] positions, int mod){
 	return new SelectionOnImportReference(tokens, positions, mod);

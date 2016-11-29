@@ -219,7 +219,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
-						"	requires public java.sql;\n" +
+						"	requires transitive java.sql;\n" +
 						"}");
 		writeFile(moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
@@ -270,7 +270,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 						"module mod.one { \n" +
 						"	exports p;\n" +
 						"	requires mod.two;\n" +
-						"	requires public java.sql;\n" +
+						"	requires transitive java.sql;\n" +
 						"}");
 		writeFile(moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
@@ -316,7 +316,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 						"module mod.one { \n" +
 						"	exports p;\n" +
 						"	requires java.base;\n" +
-						"	requires public java.sql;\n" +
+						"	requires transitive java.sql;\n" +
 						"}");
 		writeFile(moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
@@ -361,7 +361,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 						"module mod.one { \n" +
 						"	exports p;\n" +
 						"	requires java.base;\n" +
-						"	requires public java.sql;\n" +
+						"	requires transitive java.sql;\n" +
 						"}");
 		writeFile(moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
@@ -399,7 +399,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 						"module mod.one { \n" +
 						"	exports p;\n" +
 						"	requires java.base;\n" +
-						"	requires public java.sql;\n" +
+						"	requires transitive java.sql;\n" +
 						"}");
 		writeFile(moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
@@ -658,7 +658,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
-						"	requires public java.sql;\n" +
+						"	requires transitive java.sql;\n" +
 						"}");
 		writeFile(moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
@@ -703,7 +703,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
-						"	requires public java.sql;\n" +
+						"	requires transitive java.sql;\n" +
 						"}");
 		writeFile(moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
@@ -754,7 +754,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
-						"	requires public java.sql;\n" +
+						"	requires transitive java.sql;\n" +
 						"}");
 		writeFile(moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
@@ -799,7 +799,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
-						"	requires public java.sql;\n" +
+						"	requires transitive java.sql;\n" +
 						"}");
 		writeFile(moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
@@ -850,7 +850,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
-						"	requires public java.sql;\n" +
+						"	requires transitive java.sql;\n" +
 						"}");
 		writeFile(moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
@@ -936,7 +936,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
-						"	requires public java.sql;\n" +
+						"	requires transitive java.sql;\n" +
 						"}");
 		writeFile(moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
@@ -970,7 +970,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
-						"	requires public java.sql;\n" +
+						"	requires transitive java.sql;\n" +
 						"}");
 		writeFile(moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
@@ -1004,7 +1004,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
-						"	requires public java.sql;\n" +
+						"	requires transitive java.sql;\n" +
 						"}");
 		writeFile(moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
@@ -1039,7 +1039,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
-						"	requires public java.sql;\n" +
+						"	requires transitive java.sql;\n" +
 						"}");
 
 		StringBuffer buffer = new StringBuffer();
@@ -1066,7 +1066,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
-						"	requires public java.sql;\n" +
+						"	requires transitive java.sql;\n" +
 						"}");
 
 		StringBuffer buffer = new StringBuffer();
@@ -1093,7 +1093,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
-						"	requires public java.sql;\n" +
+						"	requires transitive java.sql;\n" +
 						"}");
 
 		StringBuffer buffer = new StringBuffer();
@@ -1120,7 +1120,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
 						"	requires java.base;\n" +
-						"	requires public java.sql;\n" +
+						"	requires transitive java.sql;\n" +
 						"}");
 		String javaHome = System.getProperty("java.home");
 		StringBuffer buffer = new StringBuffer();

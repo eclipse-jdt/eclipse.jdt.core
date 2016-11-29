@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 IBM Corporation and others.
+ * Copyright (c) 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,25 +22,18 @@ import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
-public class ExportReference extends ASTNode {
-	public char[][] tokens;
-	public long[] sourcePositions; //each entry is using the code : (start<<32) + end
-	public int declarationEnd; // doesn't include an potential trailing comment
-	public int declarationSourceStart;
-	public int declarationSourceEnd;
+public abstract class PackageVisibilityStatement extends ModuleStatement {
+	public ImportReference pkgRef;
 	public ModuleReference[] targets;
 	public char[] pkgName;
 	public PackageBinding resolvedPackage;
 
-	public ExportReference(char[][] tokens, long[] sourcePositions) {
-		this.tokens = tokens;
-		this.sourcePositions = sourcePositions;
-		this.sourceEnd = (int) (sourcePositions[sourcePositions.length - 1] & 0x00000000FFFFFFFF);
-		this.sourceStart = (int) (sourcePositions[0] >>> 32);
-		this.pkgName = CharOperation.concatWith(tokens, '.');
+	public PackageVisibilityStatement(ImportReference pkgRef, ModuleReference[] targets) {
+		this.pkgRef = pkgRef;
+		this.pkgName = CharOperation.concatWith(this.pkgRef.tokens, '.');
+		this.targets = targets;
 	}
-	
-	public boolean isTargeted() {
+	public boolean isQualified() {
 		return this.targets != null && this.targets.length > 0;
 	}
 	
@@ -49,21 +42,13 @@ public class ExportReference extends ASTNode {
 	}
 
 	public boolean resolve(Scope scope) {
-		boolean errorsExist = false;
-		ModuleDeclaration exportingModule = (ModuleDeclaration)scope.referenceContext();
-		ModuleBinding src = exportingModule.moduleBinding;
-		PackageBinding pkg = this.resolvedPackage = src != null ? src.getExportedPackage(this.pkgName) : null;
-		if (pkg == null) {
-			// TODO: need a check for empty package as well
-			scope.problemReporter().invalidExportReference(IProblem.ExportedPackageDoesNotExistOrIsEmpty, this);
-			return false;
-		}
-		if (this.isTargeted()) {
+		boolean errorsExist = resolvePackageReference(scope) == null;
+		if (this.isQualified()) {
 			HashtableOfObject modules = new HashtableOfObject(this.targets.length);
 			for (int i = 0; i < this.targets.length; i++) {
 				ModuleReference ref = this.targets[i];
 				if (modules.containsKey(ref.moduleName)) {
-					scope.problemReporter().duplicateModuleReference(IProblem.DuplicateExports, ref);
+					scope.problemReporter().duplicateModuleReference(IProblem.DuplicateModuleRef, ref);
 					errorsExist = true;
 				} else {
 					modules.put(ref.moduleName, ref);
@@ -72,23 +57,30 @@ public class ExportReference extends ASTNode {
 		}
 		return !errorsExist;
 	}
+	protected PackageBinding resolvePackageReference(Scope scope) {
+		if (this.resolvedPackage != null)
+			return this.resolvedPackage;
+		ModuleDeclaration exportingModule = (ModuleDeclaration)scope.referenceContext();
+		ModuleBinding src = exportingModule.moduleBinding;
+		this.resolvedPackage = src != null ? src.getDeclaredPackage(this.pkgRef.tokens) : null;
+		if (this.resolvedPackage == null) {
+			// TODO: need a check for empty package as well
+			scope.problemReporter().invalidPackageReference(IProblem.PackageDoesNotExistOrIsEmpty, this);
+		}
+		
+		return this.resolvedPackage;
+	}
+
 	@Override
 	public StringBuffer print(int indent, StringBuffer output) {
-		printIndent(indent, output);
-		output.append("exports "); //$NON-NLS-1$
-		for (int i = 0; i < this.tokens.length; i++) {
-			if (i > 0) output.append('.');
-			output.append(this.tokens[i]);
-		}
-		if (this.isTargeted()) {
+		this.pkgRef.print(indent, output);
+		if (this.isQualified()) {
 			output.append(" to "); //$NON-NLS-1$
 			for (int i = 0; i < this.targets.length; i++) {
 				if (i > 0) output.append(", "); //$NON-NLS-1$
 				this.targets[i].print(0, output);
 			}
 		}
-		output.append(";"); //$NON-NLS-1$
 		return output;
 	}
-
 }

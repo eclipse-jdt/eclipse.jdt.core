@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ExportReference;
+import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
@@ -130,7 +130,7 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 	}
 	return this; // ignore
 }
-public RecoveredElement add(ExportReference exportReference, int bracketBalanceValue) {
+public RecoveredElement add(ExportsStatement exportReference, int bracketBalanceValue) {
 	return this.module != null ? this.module.add(exportReference, bracketBalanceValue) : null;
 }
 

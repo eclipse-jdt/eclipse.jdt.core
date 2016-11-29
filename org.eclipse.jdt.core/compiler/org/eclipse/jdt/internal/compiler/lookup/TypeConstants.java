@@ -319,7 +319,8 @@ public interface TypeConstants {
 	// ... methods:
 	char[] IS_TRUE = "isTrue".toCharArray(); //$NON-NLS-1$
 	char[] NOT_NULL = "notNull".toCharArray(); //$NON-NLS-1$
-	
+	char[] PROVIDER = "provider".toCharArray(); //$NON-NLS-1$
+
 	char[][] COM_GOOGLE_COMMON_BASE_PRECONDITIONS = new char[][] { 
 			COM, GOOGLE, "common".toCharArray(), "base".toCharArray(), "Preconditions".toCharArray() }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	// ... methods:

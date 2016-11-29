@@ -66,7 +66,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 						 "	exports p.q.r;" +
 						 "	exports a.b.c;\n" +
 						 "	requires java.sql;\n" +
-						 "	requires public java.desktop;\n" +
+						 "	requires transitive java.desktop;\n" +
 						 "}";
 				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
@@ -157,7 +157,9 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				assertEquals("Incorrect no of services", 1, providedServices.length);
 				IProvidedService service = providedServices[0];
 				assertEquals("Incorrect value", "com.socket.spi.NetworkSocketProvider", service.getServiceName());
-				assertEquals("Incorrect value", "org.fastsocket.FastNetworkSocketProvider", service.getImplementationName());
+				String[] impls = service.getImplementationNames();
+				assertEquals("Incorrect value", 1, impls.length);
+				assertEquals("Incorrect value", "org.fastsocket.FastNetworkSocketProvider", impls[0]);
 				String[] usedServices = mod.getUsedServices();
 				assertNotNull("should not be null", usedServices);
 				assertEquals("Incorrect no of required modules", 0, usedServices.length);
@@ -206,7 +208,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 					"	exports p.q.r;" +
 					"	exports a.b.c;\n" +
 					"	requires java.sql;\n" +
-					"	requires public java.desktop;\n" +
+					"	requires transitive java.desktop;\n" +
 					"}";
 			createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
@@ -214,7 +216,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			project.open(null);
 			fileContent =  "module your.mod{\n" +
 					"	requires my.mod;\n" +
-					"	requires public java.desktop;\n" +
+					"	requires transitive java.desktop;\n" +
 					"}";
 			createFile(	"/Java9Elements2/src/module-info.java",	fileContent);
 
@@ -319,8 +321,8 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		try {
 			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
 			project.open(null);
-			String fileContent =  "// A very simple module"
-					+ "module my.mod {\n" +
+			String fileContent =  "// A very simple module" +
+					 "module my.mod {\n" +
 					"	exports p.q.r;" +
 					"}";
 			createFolder("/Java9Elements/src/p/q/r");

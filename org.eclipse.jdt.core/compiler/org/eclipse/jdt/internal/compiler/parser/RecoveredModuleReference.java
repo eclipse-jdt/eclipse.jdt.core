@@ -35,7 +35,7 @@ public ASTNode parseTree(){
  * Answer the very source end of the corresponding parse node
  */
 public int sourceEnd(){
-	return this.moduleReference.declarationSourceEnd;
+	return this.moduleReference.sourceEnd;
 }
 public String toString(int tab) {
 	return tabString(tab) + "Recovered ModuleReference: " + this.moduleReference.toString(); //$NON-NLS-1$
@@ -50,11 +50,11 @@ public void updateParseTree(){
 /*
  * Update the declarationSourceEnd of the corresponding parse node
  */
-public void updateSourceEndIfNecessary(int bodyStart, int bodyEnd){
-	if (this.moduleReference.declarationSourceEnd == 0) {
-		this.moduleReference.declarationSourceEnd = bodyEnd;
-		this.moduleReference.declarationEnd = bodyEnd;
-	}
-}
+//public void updateSourceEndIfNecessary(int bodyStart, int bodyEnd){
+//	if (this.moduleReference.declarationSourceEnd == 0) {
+//		this.moduleReference.declarationSourceEnd = bodyEnd;
+//		this.moduleReference.declarationEnd = bodyEnd;
+//	}
+//}
 
 }

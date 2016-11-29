@@ -458,7 +458,6 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("CorruptedSignature", new ProblemAttributes(CategorizedProblem.CAT_BUILDPATH));
 		expectedProblemAttributes.put("DanglingReference", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("DeadCode", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
-		expectedProblemAttributes.put("DefaultConstructorRequiredForServiceImpl", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DefaultMethodNotBelow18", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("DefaultMethodOverridesObjectMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("DereferencingNullableExpression", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -490,7 +489,9 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("DuplicateModifierForMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("DuplicateModifierForType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DuplicateModifierForVariable", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("DuplicateModuleRef", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DuplicateNestedType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("DuplicateOpens", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DuplicateParameterizedMethods", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("DuplicateRequires", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("DuplicateResource", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -518,7 +519,6 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ExplicitThisParameterNotInLambda", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ExplicitThisParameterNotBelow18", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ExplicitlyClosedAutoCloseable", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
-		expectedProblemAttributes.put("ExportedPackageDoesNotExistOrIsEmpty", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ExpressionShouldBeAVariable", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("ExternalProblemFixable", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ExternalProblemNotFixable", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -688,9 +688,12 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("InvalidLocationForModifiers", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidNullToSynchronized", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidOctal", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("InvalidOpensStatement", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidOperator", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidParameterizedExceptionType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidParenthesizedExpression", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
+		expectedProblemAttributes.put("InvalidServiceIntfType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("InvalidServiceImplType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidTypeExpression", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("InvalidTypeArguments", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("InvalidTypeForCollection", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -901,6 +904,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("OverridingMethodWithoutSuperInvocation", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("OverridingNonVisibleMethod", new ProblemAttributes(CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT));
 		expectedProblemAttributes.put("PackageCollidesWithType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
+		expectedProblemAttributes.put("PackageDoesNotExistOrIsEmpty", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("PackageIsNotExpectedPackage", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("ParameterAssignment", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("ParameterLackingNonNullAnnotation", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -934,6 +938,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("PotentialNullExpressionReference", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("PotentialNullMessageSendReference", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("PotentialNullUnboxing", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("ProviderMethodOrConstructorRequiredForServiceImpl", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("PublicClassMustMatchFileName", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("RawMemberTypeCannotBeParameterized", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("RawTypeReference", new ProblemAttributes(CategorizedProblem.CAT_UNCHECKED_RAW));
@@ -1313,7 +1318,6 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("CyclicModuleDependency", SKIP);
 		expectedProblemAttributes.put("DanglingReference", SKIP);
 		expectedProblemAttributes.put("DeadCode", new ProblemAttributes(JavaCore.COMPILER_PB_DEAD_CODE));
-		expectedProblemAttributes.put("DefaultConstructorRequiredForServiceImpl", SKIP);
 		expectedProblemAttributes.put("DefaultMethodNotBelow18", SKIP);
 		expectedProblemAttributes.put("DefaultMethodOverridesObjectMethod", SKIP);
 		expectedProblemAttributes.put("DereferencingNullableExpression", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE));
@@ -1344,7 +1348,9 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("DuplicateModifierForMethod", SKIP);
 		expectedProblemAttributes.put("DuplicateModifierForType", SKIP);
 		expectedProblemAttributes.put("DuplicateModifierForVariable", SKIP);
+		expectedProblemAttributes.put("DuplicateModuleRef", SKIP);
 		expectedProblemAttributes.put("DuplicateNestedType", SKIP);
+		expectedProblemAttributes.put("DuplicateOpens", SKIP);
 		expectedProblemAttributes.put("DuplicateParameterizedMethods", SKIP);
 		expectedProblemAttributes.put("DuplicateRequires", SKIP);
 		expectedProblemAttributes.put("DuplicateResource", SKIP);
@@ -1541,9 +1547,12 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("InvalidLocationForModifiers", SKIP);
 		expectedProblemAttributes.put("InvalidNullToSynchronized", SKIP);
 		expectedProblemAttributes.put("InvalidOctal", SKIP);
+		expectedProblemAttributes.put("InvalidOpensStatement", SKIP);
 		expectedProblemAttributes.put("InvalidOperator", SKIP);
 		expectedProblemAttributes.put("InvalidParameterizedExceptionType", SKIP);
 		expectedProblemAttributes.put("InvalidParenthesizedExpression", SKIP);
+		expectedProblemAttributes.put("InvalidServiceIntfType", SKIP);
+		expectedProblemAttributes.put("InvalidServiceImplType", SKIP);
 		expectedProblemAttributes.put("InvalidTypeArguments", SKIP);
 		expectedProblemAttributes.put("InvalidTypeExpression", SKIP);
 		expectedProblemAttributes.put("InvalidTypeForCollection", SKIP);
@@ -1755,6 +1764,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("OverridingMethodWithoutSuperInvocation", new ProblemAttributes(JavaCore.COMPILER_PB_OVERRIDING_METHOD_WITHOUT_SUPER_INVOCATION));
 		expectedProblemAttributes.put("OverridingNonVisibleMethod", new ProblemAttributes(JavaCore.COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD));
 		expectedProblemAttributes.put("PackageCollidesWithType", SKIP);
+		expectedProblemAttributes.put("PackageDoesNotExistOrIsEmpty", SKIP);
 		expectedProblemAttributes.put("PackageIsNotExpectedPackage", SKIP);
 		expectedProblemAttributes.put("ParameterAssignment", new ProblemAttributes(JavaCore.COMPILER_PB_PARAMETER_ASSIGNMENT));
 		expectedProblemAttributes.put("ParameterLackingNonNullAnnotation", new ProblemAttributes(JavaCore.COMPILER_PB_NONNULL_PARAMETER_ANNOTATION_DROPPED));
@@ -1788,6 +1798,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("PotentialNullLocalVariableReference", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE));
 		expectedProblemAttributes.put("PotentialNullUnboxing", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE));
 		expectedProblemAttributes.put("PotentialNullMessageSendReference", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE));
+		expectedProblemAttributes.put("ProviderMethodOrConstructorRequiredForServiceImpl", SKIP);
 		expectedProblemAttributes.put("PublicClassMustMatchFileName", SKIP);
 		expectedProblemAttributes.put("RawMemberTypeCannotBeParameterized", SKIP);
 		expectedProblemAttributes.put("RawTypeReference", new ProblemAttributes(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE));

@@ -16,16 +16,16 @@
 package org.eclipse.jdt.internal.compiler.parser;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.ast.ExportReference;
+import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 
 public class RecoveredExport extends RecoveredElement {
 
-	public ExportReference exportReference;
+	public ExportsStatement exportReference;
 	RecoveredModuleReference[] targets;
 	int targetCount = 0;
 	
-	public RecoveredExport(ExportReference exportReference, RecoveredElement parent, int bracketBalance) {
+	public RecoveredExport(ExportsStatement exportReference, RecoveredElement parent, int bracketBalance) {
 		super(parent, bracketBalance);
 		this.exportReference = exportReference;
 	}
@@ -48,7 +48,7 @@ public class RecoveredExport extends RecoveredElement {
 		this.targets[this.targetCount++] = element;
 
 		/* if target not finished, then target becomes current */
-		if (target.declarationSourceEnd == 0) return element;
+		if (target.sourceEnd == 0) return element;
 		return this;
 		
 	}
@@ -67,7 +67,7 @@ public class RecoveredExport extends RecoveredElement {
 	public String toString(int tab) {
 		return tabString(tab) + "Recovered export: " + this.exportReference.toString(); //$NON-NLS-1$
 	}
-	public ExportReference updatedExportReference(){
+	public ExportsStatement updatedExportReference(){
 		if (this.targetCount > 0) {
 			int existingCount = this.exportReference.targets != null ? this.exportReference.targets.length : 0, actualCount = 0;
 			ModuleReference[] moduleRef1 = new ModuleReference[existingCount + this.targetCount];

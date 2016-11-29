@@ -866,8 +866,15 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 		if (services != null) {
 			for (IService service : services) {
 				indexTypeReference(service.name());
-				indexTypeReference(service.with());
+				indexTypeReferences(service.with());
 			}
+		}
+	}
+	private void indexTypeReferences(char[][] ref) {
+		if (ref == null || ref.equals(CharOperation.NO_CHAR))
+			return;
+		for (int i = 0; i < ref.length; i++) {
+			addTypeReference(ref[i]);
 		}
 	}
 	private void indexTypeReference(char[] ref) {

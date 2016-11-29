@@ -22,8 +22,8 @@ import org.eclipse.jdt.internal.core.util.Util;
 public class ProvidedService extends SourceRefElement implements IModuleDescription.IProvidedService {
 
 	private String service;
-	private String impl;
-	public ProvidedService(JavaElement parent, String service, String impl) {
+	private String[] impl;
+	public ProvidedService(JavaElement parent, String service, String[] impl) {
 		super(parent);
 		this.service = service;
 		this.impl = impl;
@@ -33,7 +33,7 @@ public class ProvidedService extends SourceRefElement implements IModuleDescript
 		return this.service;
 	}
 	@Override
-	public String getImplementationName() {
+	public String[] getImplementationNames() {
 		return this.impl;
 	}
 	public String toString() {
@@ -41,7 +41,11 @@ public class ProvidedService extends SourceRefElement implements IModuleDescript
 		buffer.append("provides "); //$NON-NLS-1$
 		buffer.append(this.service);
 		buffer.append(" with "); //$NON-NLS-1$
-		buffer.append(this.impl);
+		for (int i = 0; i < this.impl.length; i++) {
+			buffer.append(this.impl[i]);
+			if (i < this.impl.length - 1)
+				buffer.append(", "); //$NON-NLS-1$
+		}
 		buffer.append(';');
 		return buffer.toString();
 	}

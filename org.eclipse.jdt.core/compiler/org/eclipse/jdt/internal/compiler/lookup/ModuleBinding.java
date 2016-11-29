@@ -101,22 +101,22 @@ public class ModuleBinding extends Binding {
 		this.isAuto = module.isAutomatic();
 	}
 
-	private Stream<ModuleBinding> getRequiredModules(boolean implicitOnly) {
-		return Stream.of(this.requires).filter(ref -> implicitOnly ? ref.isPublic() : true)
+	private Stream<ModuleBinding> getRequiredModules(boolean transitiveOnly) {
+		return Stream.of(this.requires).filter(ref -> transitiveOnly ? ref.isTransitive() : true)
 			.map(ref -> this.environment.getModule(ref.name()))
 			.filter(mod -> mod != null);
 	}
-	private void collectAllDependencies(Set<ModuleBinding> deps, ModuleBinding mod) {
-		mod.getRequiredModules(false).forEach(m -> {
+	private void collectAllDependencies(Set<ModuleBinding> deps) {
+		getRequiredModules(false).forEach(m -> {
 			if (deps.add(m)) {
-				collectAllDependencies(deps, m);
+				collectAllDependencies(deps);
 			}
 		});
 	}
-	private void collectImplicitDependencies(Set<ModuleBinding> deps, ModuleBinding mod) {
-		mod.getRequiredModules(true).forEach(m -> {
+	private void collectTransitiveDependencies(Set<ModuleBinding> deps) {
+		getRequiredModules(true).forEach(m -> {
 			if (deps.add(m)) {
-				collectImplicitDependencies(deps, m);
+				collectTransitiveDependencies(deps);
 			}
 		});
 	}
@@ -126,40 +126,40 @@ public class ModuleBinding extends Binding {
 			.collect(HashSet::new,
 				(set, mod) -> {
 					set.add(mod);
-					collectAllDependencies(set, mod);
+					mod.collectAllDependencies(set);
 				},
 				HashSet::addAll);
 	}
-	// All direct and implicit dependencies of this module
+	// All direct and transitive dependencies of this module
 	public Supplier<Collection<ModuleBinding>> dependencyCollector() {
 		return () -> getRequiredModules(false)
 			.collect(HashSet::new,
 				(set, mod) -> {
 					set.add(mod);
-					collectImplicitDependencies(set, mod);
+					mod.collectTransitiveDependencies(set);
 				},
 				HashSet::addAll);
 	}
-	// All implicit dependencies offered by this module
-	public Supplier<Collection<ModuleBinding>> implicitDependencyCollector() {
+	// All transitive dependencies offered by this module
+	public Supplier<Collection<ModuleBinding>> transitiveDependencyCollector() {
 		return () -> getRequiredModules(true)
 			.collect(HashSet::new,
 				(set, mod) -> {
 					if (set.add(mod)) {
-						collectImplicitDependencies(set, mod);
+						mod.collectTransitiveDependencies(set);
 					}
 				},
 			HashSet::addAll);
 	}
 	/**
-	 * Collect all implicit dependencies offered by this module
+	 * Collect all transitive dependencies offered by this module
 	 * Any module dependent on this module will have an implicit dependence on all other modules
-	 * specified as ' requires public '
+	 * specified as ' requires transitive '
 	 * @return
-	 *  collection of implicit dependencies
+	 *  collection of transitive dependencies
 	 */
-	public Collection<ModuleBinding> getImplicitDependencies() {
-		return implicitDependencyCollector().get();
+	public Collection<ModuleBinding> getTransitiveDependencies() {
+		return transitiveDependencyCollector().get();
 	}
 
 	/**
@@ -202,7 +202,7 @@ public class ModuleBinding extends Binding {
 	public boolean isPackageExportedTo(PackageBinding pkg, ModuleBinding client) {
 		PackageBinding resolved = getExportedPackage(pkg.readableName());
 		if (resolved == pkg) {
-			Predicate<IPackageExport> isTargeted = e -> e.exportedTo() != null;
+			Predicate<IPackageExport> isTargeted = IPackageExport::isQualified;
 			Predicate<IPackageExport> isExportedTo = e -> 
 				Stream.of(e.exportedTo()).map(ref -> this.environment.getModule(ref)).filter(m -> m != null).anyMatch(client::equals);
 			
@@ -417,7 +417,7 @@ public class ModuleBinding extends Binding {
 			buffer.append("\n/*    requires    */\n"); //$NON-NLS-1$
 			for (int i = 0; i < this.requires.length; i++) {
 				buffer.append("\n\t"); //$NON-NLS-1$
-				if (this.requires[i].isPublic())
+				if (this.requires[i].isTransitive())
 					buffer.append("public "); //$NON-NLS-1$
 				buffer.append(this.requires[i].name());
 			}

@@ -13,37 +13,41 @@
  *     IBM Corporation - initial API and implementation
  *     
  *******************************************************************************/
-package org.eclipse.jdt.internal.codeassist.complete;
+package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 
-public class CompletionOnModuleReference extends ModuleReference {
+public class RequiresStatement extends ModuleStatement {
 
-	public CompletionOnModuleReference(char[] ident, long pos) {
-		this(new char[][]{ident}, new long[]{pos});
-	}
-	public CompletionOnModuleReference(char[][] tokens, long[] sourcePositions) {
-		super(tokens, sourcePositions);
-	}
+	public ModuleReference module;
+	public ModuleBinding resolvedBinding;
+	public int modifiers = ClassFileConstants.AccDefault;
+	public int modifiersSourceStart;
 
-	public ModuleBinding resolve(Scope scope) {
-		super.resolve(scope);
-//		if (this.binding != null) {
-//			throw new CompletionNodeFound(this, this.binding, scope);
-//		} else {
-			throw new CompletionNodeFound();
-		//}
+	public RequiresStatement(ModuleReference module) {
+		this.module = module;
 	}
+	public boolean isTransitive() {
+		return (this.modifiers & ClassFileConstants.ACC_TRANSITIVE) != 0;
+	}
+	public boolean isStatic() {
+		return (this.modifiers & ClassFileConstants.ACC_STATIC_PHASE) != 0;
+	}
+	@Override
 	public StringBuffer print(int indent, StringBuffer output) {
-
-		printIndent(indent, output).append("<CompleteOnModuleReference:"); //$NON-NLS-1$
-		for (int i = 0; i < this.tokens.length; i++) {
-			if (i > 0) output.append('.');
-			output.append(this.tokens[i]);
-		}
-		return output.append('>');
+		if (isTransitive())
+			output.append("transitive "); //$NON-NLS-1$
+		if (isStatic())
+			output.append("static "); //$NON-NLS-1$
+		this.module.print(indent, output);
+		return output;
+	}
+	public ModuleBinding resolve(Scope scope) {
+		if (this.resolvedBinding != null)
+			return this.resolvedBinding;
+		return this.resolvedBinding = this.module.resolve(scope);
 	}
 
 }

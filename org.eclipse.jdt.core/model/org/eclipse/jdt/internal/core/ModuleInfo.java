@@ -15,11 +15,16 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.ExportReference;
+import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
+import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
+import org.eclipse.jdt.internal.compiler.ast.ProvidesStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.UsesStatement;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.ModuleReferenceImpl;
+import org.eclipse.jdt.internal.compiler.env.PackageExportImpl;
 
 public class ModuleInfo extends SourceTypeElementInfo implements IModule {
 
@@ -28,53 +33,16 @@ public class ModuleInfo extends SourceTypeElementInfo implements IModule {
 	protected static final IService[] NO_SERVICES = new IService[0];
 	protected static final char[][] NO_USES = new char[0][0];
 
-	static class ModuleReferenceImpl implements IModule.IModuleReference {
-		char[] name;
-		boolean isPublic = false;
-		@Override
-		public char[] name() {
-			return this.name;
-		}
-		@Override
-		public boolean isPublic() {
-			return this.isPublic;
-		}
-		
-	}
-	static class PackageExport implements IModule.IPackageExport {
-		char[] pack;
-		char[][] exportedTo;
-		@Override
-		public char[] name() {
-			return this.pack;
-		}
-
-		@Override
-		public char[][] exportedTo() {
-			return this.exportedTo;
-		}
-		public String toString() {
-			StringBuffer buffer = new StringBuffer();
-			buffer.append(this.pack);
-			if (this.exportedTo != null) {
-				for (char[] cs : this.exportedTo) {
-					buffer.append(cs);
-				}
-			}
-			buffer.append(';');
-			return buffer.toString();
-		}
-	}
 	static class Service implements IModule.IService {
 		char[] provides;
-		char[] with;
+		char[][] with;
 		@Override
 		public char[] name() {
 			return this.provides;
 		}
 
 		@Override
-		public char[] with() {
+		public char[][] with() {
 			return this.with;
 		}
 		public String toString() {
@@ -89,7 +57,7 @@ public class ModuleInfo extends SourceTypeElementInfo implements IModule {
 	}
 	char[] name;
 	ModuleReferenceImpl[] requires;
-	PackageExport[] exports;
+	PackageExportImpl[] exports;
 	char[][] uses;
 	Service[] provides;
 
@@ -101,48 +69,47 @@ public class ModuleInfo extends SourceTypeElementInfo implements IModule {
 		ModuleInfo mod = new ModuleInfo();
 		mod.name = module.moduleName;
 		if (module.requiresCount > 0) {
-			ModuleReference[] refs = module.requires;
+			RequiresStatement[] refs = module.requires;
 			mod.requires = new ModuleReferenceImpl[refs.length];
 			for (int i = 0; i < refs.length; i++) {
 				mod.requires[i] = new ModuleReferenceImpl();
-				mod.requires[i].name = CharOperation.concatWith(refs[i].tokens, '.');
-				mod.requires[i].isPublic = refs[i].isPublic();
+				mod.requires[i].name = CharOperation.concatWith(refs[i].module.tokens, '.');
+				mod.requires[i].modifiers = refs[i].modifiers;
 			}
 		} else {
 			mod.requires = new ModuleReferenceImpl[0];
 		}
 		if (module.exportsCount > 0) {
-			ExportReference[] refs = module.exports;
-			mod.exports = new PackageExport[refs.length];
+			ExportsStatement[] refs = module.exports;
+			mod.exports = new PackageExportImpl[refs.length];
 			for (int i = 0; i < refs.length; i++) {
-				PackageExport exp = createPackageExport(refs, i);
+				PackageExportImpl exp = createPackageExport(refs, i);
 				mod.exports[i] = exp;
 			}
 		} else {
-			mod.exports = new PackageExport[0];
+			mod.exports = new PackageExportImpl[0];
 		}
 		if (module.usesCount > 0) {
-			TypeReference[] uses = module.uses;
+			UsesStatement[] uses = module.uses;
 			mod.uses = new char[uses.length][];
 			for(int i = 0; i < uses.length; i++) {
-				mod.uses[i] = CharOperation.concatWith(uses[i].getTypeName(), '.');
+				mod.uses[i] = CharOperation.concatWith(uses[i].serviceInterface.getTypeName(), '.');
 			}
 		}
 		if (module.servicesCount > 0) {
-			TypeReference[] services = module.interfaces;
-			TypeReference[] with = module.implementations;
+			ProvidesStatement[] services = module.services;
 			mod.provides = new Service[module.servicesCount];
 			for (int i = 0; i < module.servicesCount; i++) {
-				mod.provides[i] = createService(services[i], with[i]);
+				mod.provides[i] = createService(services[i].serviceInterface, services[i].implementations);
 			}
 		}
 		return mod;
 	}
 
-	private static PackageExport createPackageExport(ExportReference[] refs, int i) {
-		ExportReference ref = refs[i];
-		PackageExport exp = new PackageExport();
-		exp.pack = CharOperation.concatWith(ref.tokens, '.');
+	private static PackageExportImpl createPackageExport(ExportsStatement[] refs, int i) {
+		ExportsStatement ref = refs[i];
+		PackageExportImpl exp = new PackageExportImpl();
+		exp.pack = ref.pkgName;
 		ModuleReference[] imp = ref.targets;
 		if (imp != null) {
 			exp.exportedTo = new char[imp.length][];
@@ -152,10 +119,13 @@ public class ModuleInfo extends SourceTypeElementInfo implements IModule {
 		}
 		return exp;
 	}
-	private static Service createService(TypeReference service, TypeReference with) {
+	private static Service createService(TypeReference service, TypeReference[] with) {
 		Service ser = new Service();
 		ser.provides = CharOperation.concatWith(service.getTypeName(), '.');
-		ser.with = CharOperation.concatWith(with.getTypeName(), '.');
+		ser.with = new char[with.length][];
+		for (int i = 0; i < with.length; i++) {
+			ser.with[i] = CharOperation.concatWith(with[i].getTypeName(), '.');
+		}
 		return ser;
 	}
 
@@ -188,7 +158,7 @@ public class ModuleInfo extends SourceTypeElementInfo implements IModule {
 			buffer.append('\n');
 			for(int i = 0; i < this.requires.length; i++) {
 				buffer.append("\trequires "); //$NON-NLS-1$
-				if (this.requires[i].isPublic) {
+				if (this.requires[i].isTransitive()) {
 					buffer.append("public "); //$NON-NLS-1$
 				}
 				buffer.append(this.requires[i].name);

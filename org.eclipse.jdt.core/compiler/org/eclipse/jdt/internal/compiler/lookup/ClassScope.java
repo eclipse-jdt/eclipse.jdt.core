@@ -650,6 +650,9 @@ public class ClassScope extends Scope {
 			if (sourceType.sourceName == TypeConstants.MODULE_INFO_NAME) {
 				// TBD - allowed only at source level 9 or above
 				modifiers = ClassFileConstants.AccModule;
+				if ((realModifiers & ClassFileConstants.ACC_OPEN) != 0) {
+					modifiers |= ClassFileConstants.ACC_OPEN;
+				}
 			} else
 			// detect abnormal cases for classes
 			if (isMemberType) { // includes member types defined inside local types

@@ -212,7 +212,7 @@ public abstract class ModuleEnvironment implements IModuleAwareNameEnvironment {
 				for (IModule.IModuleReference ref : requires) {
 					IModule refModule = getModule(ref.name());
 					if (refModule != null) {
-						if (!onlyPublic || ref.isPublic()) {
+						if (!onlyPublic || ref.isTransitive()) {
 							targets.add(refModule);
 							collectAllVisibleModules(refModule, targets, true);
 						}

@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 import junit.framework.Test;
 
@@ -39,15 +40,16 @@ public CompletionTests9(String name) {
 
 public void setUpSuite() throws Exception {
 	if (COMPLETION_PROJECT == null)  {
-		COMPLETION_PROJECT = setUpJavaProject("Completion", "1.8", true);
+		COMPLETION_PROJECT = setUpJavaProject("Completion", "9", true);
 	} else {
-		setUpProjectCompliance(COMPLETION_PROJECT, "1.8", true);
+		setUpProjectCompliance(COMPLETION_PROJECT, "9", true);
 	}
 	super.setUpSuite();
 }
 
 public static Test suite() {
-	return buildModelTestSuite(CompletionTests9.class);
+	// TODO: change to compliance 9 once tests run with 9
+	return buildModelTestSuite(AbstractCompilerTest.F_1_8, CompletionTests9.class);
 }
 
 

@@ -130,6 +130,6 @@ public interface IModuleDescription extends IMember {
 		 *
 		 * @return the name of the implementation
 		 */
-		public String getImplementationName();
+		public String[] getImplementationNames();
 	}
 }

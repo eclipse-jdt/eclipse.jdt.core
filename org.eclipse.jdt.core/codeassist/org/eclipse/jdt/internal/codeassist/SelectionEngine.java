@@ -40,7 +40,6 @@ import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
 import org.eclipse.jdt.internal.codeassist.impl.Engine;
 import org.eclipse.jdt.internal.codeassist.select.SelectionJavadocParser;
 import org.eclipse.jdt.internal.codeassist.select.SelectionNodeFound;
-import org.eclipse.jdt.internal.codeassist.select.SelectionOnExportReference;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnImportReference;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnPackageReference;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnQualifiedTypeReference;
@@ -53,7 +52,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ExportReference;
+import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
@@ -1022,11 +1021,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				if (parsedUnit.isModuleInfo() && parsedUnit.types != null &&
 						parsedUnit.types.length > 0) {
 					ModuleDeclaration module = (ModuleDeclaration) parsedUnit.types[0];//TODO, could be null
-					ExportReference[] exports = module.exports;
+					ExportsStatement[] exports = module.exports;
 					if (exports != null) {
-						for (ExportReference exportReference : exports) {
-							if (exportReference instanceof SelectionOnExportReference) {
-								char[][] tokens = ((SelectionOnExportReference) exportReference).tokens;
+						for (ExportsStatement exportReference : exports) {
+							if (exportReference.pkgRef instanceof SelectionOnImportReference) {
+								char[][] tokens = ((SelectionOnImportReference) exportReference.pkgRef).tokens;
 								this.noProposal = false;
 								this.requestor.acceptPackage(CharOperation.concatWith(tokens, '.'));
 							}

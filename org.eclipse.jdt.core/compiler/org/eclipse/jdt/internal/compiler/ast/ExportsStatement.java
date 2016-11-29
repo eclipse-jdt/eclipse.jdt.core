@@ -13,35 +13,21 @@
  *     IBM Corporation - initial API and implementation
  *     
  *******************************************************************************/
-package org.eclipse.jdt.internal.codeassist.select;
+package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
-import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+public class ExportsStatement extends PackageVisibilityStatement {
 
-/*
- * Selection node build by the parser in any case it was intending to
- * reduce an export reference containing the assist identifier.
- * e.g.
- *
- *	module myModule {
- *  exports packageo[cursor];
- *  }
- *
- *	module myModule {
- *	---> <SelectionOnExport:packageo>
- *  }
- *
- */
-public class SelectionOnExportReference extends ExportsStatement {
-
-	public SelectionOnExportReference(ImportReference pkgRef) {
-		super(pkgRef, null);
+	public ExportsStatement(ImportReference pkgRef, ModuleReference[] targets) {
+		super(pkgRef, targets);
 	}
 
+	@Override
 	public StringBuffer print(int indent, StringBuffer output) {
-
-		printIndent(indent, output).append("<SelectOnExport:"); //$NON-NLS-1$
-		output.append(this.pkgName);
-		return output.append('>');
+		printIndent(indent, output);
+		output.append("exports "); //$NON-NLS-1$
+		super.print(0, output);
+		output.append(";"); //$NON-NLS-1$
+		return output;
 	}
+
 }

@@ -727,7 +727,7 @@ private void fillModuleInfo(TypeDeclaration typeDeclaration, ISourceElementReque
 		ISourceElementRequestor.RequiresInfo reqs[] = new ISourceElementRequestor.RequiresInfo[mod.requiresCount];
 		for (int i = 0; i < mod.requiresCount; i++) {
 			ISourceElementRequestor.RequiresInfo req = new ISourceElementRequestor.RequiresInfo();
-			req.moduleName = CharOperation.concatWith(mod.requires[i].tokens, '.');
+			req.moduleName = CharOperation.concatWith(mod.requires[i].module.tokens, '.');
 			req.modifiers = mod.requires[i].modifiers;
 			reqs[i] = req;
 		}
@@ -746,8 +746,11 @@ private void fillModuleInfo(TypeDeclaration typeDeclaration, ISourceElementReque
 		ISourceElementRequestor.ServicesInfo[] services = new ISourceElementRequestor.ServicesInfo[mod.servicesCount];
 		for (int i = 0; i < services.length; i++) {
 			ISourceElementRequestor.ServicesInfo ser = new ISourceElementRequestor.ServicesInfo();
-			ser.serviceName = CharOperation.concatWith(mod.interfaces[i].getParameterizedTypeName(), '.');
-			ser.implName = CharOperation.concatWith(mod.implementations[i].getParameterizedTypeName(), '.');
+			ser.serviceName = CharOperation.concatWith(mod.services[i].serviceInterface.getParameterizedTypeName(), '.');
+			ser.implNames = new char[mod.services[i].implementations.length][];
+			for (int j = 0; j < ser.implNames.length; j++) {
+				ser.implNames[j] = CharOperation.concatWith(mod.services[i].implementations[j].getParameterizedTypeName(), '.');
+			}
 			services[i] = ser;
 		}
 		modInfo.services = services;
@@ -755,7 +758,7 @@ private void fillModuleInfo(TypeDeclaration typeDeclaration, ISourceElementReque
 	if (mod.usesCount > 0) {
 		char[][] uses = new char[mod.usesCount][];
 		for (int i = 0; i < uses.length; i++) {
-			uses[i] = CharOperation.concatWith(mod.uses[i].getParameterizedTypeName(), '.');
+			uses[i] = CharOperation.concatWith(mod.uses[i].serviceInterface.getParameterizedTypeName(), '.');
 		}
 		modInfo.usedServices = uses;
 	}

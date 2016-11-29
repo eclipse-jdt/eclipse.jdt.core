@@ -3302,6 +3302,25 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 					return TokenNameIdentifier;
 			}
 
+		case 'o':
+			switch (length) {
+				case 4 :
+					if (isInModuleDeclaration() && (data[++index] == 'p') && (data[++index] == 'e') && (data[++index] == 'n'))
+						return TokenNameopen;
+					else
+						return TokenNameIdentifier;
+				case 5 :
+					if (isInModuleDeclaration()
+							&& (data[++index] == 'p')
+							&& (data[++index] == 'e')
+							&& (data[++index] == 'n')
+							&& (data[++index] == 's'))
+						return TokenNameopens;
+					else
+						return TokenNameIdentifier;
+				default :
+					return TokenNameIdentifier;
+			}
 		case 'p' : //package private protected public provides
 			switch (length) {
 				case 6 :
@@ -3505,7 +3524,19 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 						return TokenNametransient;
 					} else
 						return TokenNameIdentifier;
-
+				case 10:
+					if (isInModuleDeclaration() && (data[++index] == 'r')
+						&& (data[++index] == 'a')
+						&& (data[++index] == 'n')
+						&& (data[++index] == 's')
+						&& (data[++index] == 'i')
+						&& (data[++index] == 't')
+						&& (data[++index] == 'i')
+						&& (data[++index] == 'v')
+						&& (data[++index] == 'e')) {
+						return TokenNametransitive;
+					} else
+						return TokenNameIdentifier;
 				default :
 					return TokenNameIdentifier;
 			}

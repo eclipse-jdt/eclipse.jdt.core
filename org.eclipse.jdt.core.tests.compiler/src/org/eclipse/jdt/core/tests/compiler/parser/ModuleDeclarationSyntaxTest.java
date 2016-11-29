@@ -321,4 +321,174 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), errorMsg, "module-info", null, null, options);
 	}
+	public void test0015() throws IOException {
+		String source = 
+				"module com.greetings {\n" +
+				    "requires transitive org.astro;" +
+				"}\n";
+		String expectedUnitToString = 
+				"module com.greetings {\n" +
+				"  requires transitive org.astro;\n" +
+				"}\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK9;
+		options.sourceLevel = ClassFileConstants.JDK9;
+		options.targetJDK = ClassFileConstants.JDK9;
+		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
+	}
+	public void test0016() throws IOException {
+		String source = 
+				"module com.greetings {\n" +
+				    "requires static org.astro;" +
+				"}\n";
+		String expectedUnitToString = 
+				"module com.greetings {\n" +
+				"  requires static org.astro;\n" +
+				"}\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK9;
+		options.sourceLevel = ClassFileConstants.JDK9;
+		options.targetJDK = ClassFileConstants.JDK9;
+		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
+	}
+	public void test0017() throws IOException {
+		String source = 
+				"module com.greetings {\n" +
+				    "requires transitive static org.astro;" +
+				"}\n";
+		String expectedUnitToString = 
+				"module com.greetings {\n" +
+				"  requires transitive static org.astro;\n" +
+				"}\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK9;
+		options.sourceLevel = ClassFileConstants.JDK9;
+		options.targetJDK = ClassFileConstants.JDK9;
+		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
+	}
+	public void test0018() throws IOException {
+		String source = 
+				"import com.socket.spi.NetworkSocketProvider;\n" +
+				"module org.fastsocket {\n" +
+				"    requires com.socket;\n" +
+				"    provides NetworkSocketProvider\n" +
+				"      with org.fastsocket.FastNetworkSocketProvider;\n" +
+				"}\n";
+		String expectedUnitToString = 
+				"import com.socket.spi.NetworkSocketProvider;\n" +
+				"module org.fastsocket {\n" +
+				"  requires com.socket;\n" +
+				"  provides NetworkSocketProvider\n" +
+				"    with org.fastsocket.FastNetworkSocketProvider;\n" +
+				"}\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK9;
+		options.sourceLevel = ClassFileConstants.JDK9;
+		options.targetJDK = ClassFileConstants.JDK9;
+		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
+	}
+	public void test0019() throws IOException {
+		String source = 
+				"import com.socket.spi.*;\n" +
+				"module org.fastsocket {\n" +
+				"    requires com.socket;\n" +
+				"    provides NetworkSocketProvider\n" +
+				"      with org.fastsocket.FastNetworkSocketProvider;\n" +
+				"}\n";
+		String expectedUnitToString = 
+				"import com.socket.spi.*;\n" +
+				"module org.fastsocket {\n" +
+				"  requires com.socket;\n" +
+				"  provides NetworkSocketProvider\n" +
+				"    with org.fastsocket.FastNetworkSocketProvider;\n" +
+				"}\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK9;
+		options.sourceLevel = ClassFileConstants.JDK9;
+		options.targetJDK = ClassFileConstants.JDK9;
+		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
+	}
+	public void test0020() throws IOException {
+		String source = 
+				"open module com.greetings {\n" +
+				    "requires transitive static org.astro;" +
+				"}\n";
+		String expectedUnitToString = 
+				"open module com.greetings {\n" +
+				"  requires transitive static org.astro;\n" +
+				"}\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK9;
+		options.sourceLevel = ClassFileConstants.JDK9;
+		options.targetJDK = ClassFileConstants.JDK9;
+		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
+	}
+	public void test0021() throws IOException {
+		String source = 
+				"module org.fastsocket {\n" +
+				"    requires com.socket;\n" +
+				"    provides com.socket.spi.NetworkSocketProvider\n" +
+				"      with org.fastsocket.FastNetworkSocketProvider, org.fastSocket.SlowNetworkSocketProvider;\n" +
+				"}\n";
+		String expectedUnitToString = 
+				"module org.fastsocket {\n" +
+				"  requires com.socket;\n" +
+				"  provides com.socket.spi.NetworkSocketProvider\n" +
+				"    with org.fastsocket.FastNetworkSocketProvider, org.fastSocket.SlowNetworkSocketProvider;\n" +
+				"}\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK9;
+		options.sourceLevel = ClassFileConstants.JDK9;
+		options.targetJDK = ClassFileConstants.JDK9;
+		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
+	}
+	public void test0022() throws IOException {
+		String source = 
+				"module org.astro {\n" +
+				"    opens org.astro;\n" +
+				"}\n";
+		String expectedUnitToString = 
+				"module org.astro {\n" +
+				"  opens org.astro;\n" +
+				"}\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK9;
+		options.sourceLevel = ClassFileConstants.JDK9;
+		options.targetJDK = ClassFileConstants.JDK9;
+		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
+	}
+	public void test0023() throws IOException {
+		String source = 
+				"module org.astro {\n" +
+				"    opens org.astro to com.greetings, com.example1, com.example2;\n" +
+				"}\n";
+		String expectedUnitToString = 
+				"module org.astro {\n" +
+				"  opens org.astro to com.greetings, com.example1, com.example2;\n" +
+				"}\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK9;
+		options.sourceLevel = ClassFileConstants.JDK9;
+		options.targetJDK = ClassFileConstants.JDK9;
+		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
+	}
+	public void test0024() throws IOException {
+		String source = 
+				"module org.astro {\n" +
+				"    exports org.astro to com.greetings, com.example1, com.example2;\n" +
+				"    opens org.astro to com.greetings, com.example1, com.example2;\n" +
+				"    opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
+				"}\n";
+		String expectedUnitToString = 
+				"module org.astro {\n" +
+				"  exports org.astro to com.greetings, com.example1, com.example2;\n" +
+				"  opens org.astro to com.greetings, com.example1, com.example2;\n" +
+				"  opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
+				"}\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK9;
+		options.sourceLevel = ClassFileConstants.JDK9;
+		options.targetJDK = ClassFileConstants.JDK9;
+		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
+	}
 }

@@ -16,17 +16,19 @@
 package org.eclipse.jdt.internal.compiler.parser;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.ExportReference;
+import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
+import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 
 public class RecoveredModule extends RecoveredType {
 
 	public RecoveredExport[] exports;
 	public int exportCount;
+	// TODO: This should be replaced with RecoveredRequiresStatement ala. RecoveredImport
 	public RecoveredModuleReference[] requires;
 	public int requiresCount;
+	// TODO replace with RecoveredUsesStatement
 	public RecoveredTypeReference[] uses;
 	public int usesCount;
 	public RecoveredTypeReference[] interfaces;
@@ -37,7 +39,7 @@ public class RecoveredModule extends RecoveredType {
 	public RecoveredModule(ModuleDeclaration moduleDeclaration, RecoveredElement parent, int bracketBalance) {
 		super(moduleDeclaration, parent, bracketBalance);
 	}
-	public RecoveredElement add(ExportReference exportReference, int bracketBalanceValue) {
+	public RecoveredElement add(ExportsStatement exportReference, int bracketBalanceValue) {
 		resetPendingModifiers();
 
 		if (this.exports == null) {
@@ -60,7 +62,7 @@ public class RecoveredModule extends RecoveredType {
 		if (exportReference.declarationSourceEnd == 0) return element;
 		return this;
 	}
-	public RecoveredElement add(ModuleReference moduleReference, int bracketBalanceValue) {
+	public RecoveredElement add(RequiresStatement moduleReference, int bracketBalanceValue) {
 		if (this.requires == null) {
 			this.requires = new RecoveredModuleReference[5];
 			this.requiresCount = 0;
@@ -74,7 +76,7 @@ public class RecoveredModule extends RecoveredType {
 					this.requiresCount);
 			}
 		}
-		RecoveredModuleReference element = new RecoveredModuleReference(moduleReference, this, bracketBalanceValue);
+		RecoveredModuleReference element = new RecoveredModuleReference(moduleReference.module, this, bracketBalanceValue);
 		this.requires[this.requiresCount++] = element;
 
 		if (moduleReference.declarationSourceEnd == 0) return element;
@@ -181,7 +183,7 @@ public class RecoveredModule extends RecoveredType {
 		/* update exports */
 		if (this.exportCount > 0) {
 			int existingCount = moduleDeclaration.exportsCount, actualCount = 0;
-			ExportReference[] exports1 = new ExportReference[existingCount + this.exportCount];
+			ExportsStatement[] exports1 = new ExportsStatement[existingCount + this.exportCount];
 			if (existingCount > 0){
 				System.arraycopy(moduleDeclaration.exports, 0, exports1, 0, existingCount);
 				actualCount = existingCount;
@@ -200,14 +202,15 @@ public class RecoveredModule extends RecoveredType {
 	private void updateRequires(ModuleDeclaration moduleDeclaration) {
 		if (this.requiresCount > 0) {
 			int existingCount = moduleDeclaration.requiresCount, actualCount = 0;
-			ModuleReference[] mRef1 = new ModuleReference[existingCount + this.requiresCount];
+			RequiresStatement[] mRef1 = new RequiresStatement[existingCount + this.requiresCount];
 			if (existingCount > 0){
 				System.arraycopy(moduleDeclaration.requires, 0, mRef1, 0, existingCount);
 				actualCount = existingCount;
 			}
-			for (int i = 0; i < this.requiresCount; i++){
-				mRef1[actualCount++] = this.requires[i].updatedModuleReference();
-			}
+			// TODO: to be uncommented once RecoveredRequiresStatement is introduced
+//			for (int i = 0; i < this.requiresCount; i++){
+//				mRef1[actualCount++] = this.requires[i].updatedModuleReference();
+//			}
 			moduleDeclaration.requires = mRef1;
 			moduleDeclaration.requiresCount = actualCount;
 		}
@@ -223,7 +226,8 @@ public class RecoveredModule extends RecoveredType {
 			for (int i = 0; i < this.usesCount; ++i) {
 				ref1[actualCount++] = this.uses[i].updateTypeReference();
 			}
-			moduleDeclaration.uses = ref1;
+			// TODO uncomment once RecoveredUsesStatement is in place
+			//moduleDeclaration.uses = ref1;
 			moduleDeclaration.usesCount = actualCount;
   			
 		}
@@ -234,20 +238,20 @@ public class RecoveredModule extends RecoveredType {
 			int totalCount = existingCount + this.servicesCount;
 			TypeReference[] ref1 = new TypeReference[totalCount];
 			TypeReference[] ref2 = new TypeReference[totalCount];
-			if (existingCount > 0) {
-				System.arraycopy(moduleDeclaration.interfaces, 0, ref1, 0, existingCount);
-				System.arraycopy(moduleDeclaration.implementations, 0, ref2, 0, existingCount);
-				actualCount = existingCount;
-			}
-			for (int i = 0; i < this.servicesCount; ++i) {
-				TypeReference interfaceRef = this.interfaces[i] != null ? this.interfaces[i].updateTypeReference() : this.pendingInterface;
-				if (interfaceRef == null) break; // something wrong
-				ref1[actualCount] = interfaceRef;
-				ref2[actualCount] = this.implementations[i] != null ? this.implementations[i].updateTypeReference() : null;
-				++actualCount;
-			}
-			moduleDeclaration.interfaces = ref1;
-			moduleDeclaration.implementations = ref2;
+//			if (existingCount > 0) {
+//				System.arraycopy(moduleDeclaration.interfaces, 0, ref1, 0, existingCount);
+//				System.arraycopy(moduleDeclaration.implementations, 0, ref2, 0, existingCount);
+//				actualCount = existingCount;
+//			}
+//			for (int i = 0; i < this.servicesCount; ++i) {
+//				TypeReference interfaceRef = this.interfaces[i] != null ? this.interfaces[i].updateTypeReference() : this.pendingInterface;
+//				if (interfaceRef == null) break; // something wrong
+//				ref1[actualCount] = interfaceRef;
+//				ref2[actualCount] = this.implementations[i] != null ? this.implementations[i].updateTypeReference() : null;
+//				++actualCount;
+//			}
+//			moduleDeclaration.interfaces = ref1;
+//			moduleDeclaration.implementations = ref2;
 			moduleDeclaration.servicesCount = actualCount;
   			
 		}

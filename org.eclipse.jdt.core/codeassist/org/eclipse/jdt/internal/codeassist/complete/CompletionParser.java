@@ -1581,7 +1581,8 @@ private boolean checkModuleInfoKeyword(RecoveredModule module, int index) {
 	char[] ident = this.identifierStack[ptr];
 	long pos = this.identifierPositionStack[ptr];		
 	char[][] keywords = getModuleKeywords(keyword);		
-	module.add(new CompletionOnKeywordModuleInfo(ident, pos, keywords), 0);
+	//TODO
+	//module.add(new CompletionOnKeywordModuleInfo(ident, pos, keywords), 0);
 	return true;
 }
 
@@ -3471,12 +3472,12 @@ protected void consumeExportsStatement() {
 	popElement(K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT);
 	popElement(K_INSIDE_EXPORTS_STATEMENT);
 }
-protected void consumeSingleExportsPkgName() {
-	super.consumeSingleExportsPkgName();
+protected void consumeSinglePkgName() {
+	super.consumeSinglePkgName();
 	pushOnElementStack(K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT);
 }
-protected void consumeSingleExportsTargetName() {
-	super.consumeSingleExportsTargetName();
+protected void consumeSingleTargetModuleName() {
+	super.consumeSingleTargetModuleName();
 }
 protected void consumeSingleMemberAnnotation(boolean isTypeAnnotation) {
 	if (this.topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_ANNOTATION_NAME_AND_RPAREN &&
@@ -4434,8 +4435,8 @@ public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, Co
 	}
 	return methodDeclaration;
 }
-public ExportReference createAssistExportReference(char[][] tokens, long[] positions){
-	return new CompletionOnExportReference(tokens, positions);
+public ExportsStatement createAssistExportReference(ImportReference ref){
+	return new CompletionOnExportReference(ref);
 }
 public ImportReference createAssistImportReference(char[][] tokens, long[] positions, int mod){
 	return new CompletionOnImportReference(tokens, positions, mod);

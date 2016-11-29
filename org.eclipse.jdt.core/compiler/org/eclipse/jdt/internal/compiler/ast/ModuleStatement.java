@@ -13,26 +13,15 @@
  *     IBM Corporation - initial API and implementation
  *     
  *******************************************************************************/
-package org.eclipse.jdt.internal.codeassist.complete;
+package org.eclipse.jdt.internal.compiler.ast;
 
-public class CompletionOnKeywordModuleInfo implements CompletionOnKeyword {
-	private char[] token;
-	private char[][] possibleKeywords;
-	private long pos;
+/**
+ * Just a marker class to represent statements that can occur in a module declaration
+ *
+ */
+public abstract class ModuleStatement extends ASTNode {
 
-	public CompletionOnKeywordModuleInfo(char[] token, long pos, char[][] possibleKeywords) {
-		this.token = token;
-		this.pos = pos;
-		this.possibleKeywords = possibleKeywords;
-	}
-
-	@Override
-	public char[] getToken() {
-		return this.token;
-	}
-
-	@Override
-	public char[][] getPossibleKeywords() {
-		return this.possibleKeywords;
-	}
+	public int declarationEnd;
+	public int declarationSourceStart;
+	public int declarationSourceEnd;
 }

@@ -16,20 +16,13 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 
 public class ModuleReference extends ASTNode {
 	public char[][] tokens;
 	public long[] sourcePositions; //each entry is using the code : (start<<32) + end
-	public int declarationEnd; // doesn't include an potential trailing comment
-	public int declarationSourceStart;
-	public int declarationSourceEnd;
-	public int modifiers = ClassFileConstants.AccDefault;
-	public int modifiersSourceStart;
 	public char[] moduleName;
-	public ModuleBinding binding;
 
 	public ModuleReference(char[][] tokens, long[] sourcePositions) {
 		this.tokens = tokens;
@@ -39,9 +32,6 @@ public class ModuleReference extends ASTNode {
 		this.moduleName = CharOperation.concatWith(tokens, '.');
 	}
 	
-	public boolean isPublic() {
-		return (this.modifiers & ClassFileConstants.AccPublic) != 0;
-	}
 	@Override
 	public StringBuffer print(int indent, StringBuffer output) {
 		for (int i = 0; i < this.tokens.length; i++) {
@@ -52,9 +42,10 @@ public class ModuleReference extends ASTNode {
 	}
 
 	public ModuleBinding resolve(Scope scope) {
-		if ((this.binding = scope.environment().getModule(this.moduleName)) == null) {
+		ModuleBinding binding = null;
+		if ((binding = scope.environment().getModule(this.moduleName)) == null) {
 			scope.problemReporter().invalidModule(this);
 		}
-		return this.binding;
+		return binding;
 	}
 }

@@ -30,7 +30,7 @@ public class ModuleRequirement extends SourceRefElement implements IModuleDescri
 	@Override
 	public boolean isPublic() throws JavaModelException {
 		ModuleReferenceInfo info = (ModuleReferenceInfo) getElementInfo();
-		return info.isPublic();
+		return info.isTransitive();
 	}
 	@Override
 	public String getModuleName() {

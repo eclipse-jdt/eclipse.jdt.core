@@ -17,9 +17,10 @@ package org.eclipse.jdt.internal.core;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.ExportReference;
+import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
+import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 
 public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
@@ -37,12 +38,12 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 
 	static class ModuleReferenceInfo extends MemberElementInfo implements IModule.IModuleReference {
 		char[] name;
-		boolean isPublic;
+		int modifiers;
 		public char[] name() {
 			return this.name;
 		}
-		public boolean isPublic() {
-			return this.isPublic;
+		public int getModifiers() {
+			return this.modifiers;
 		}
 	}
 	static class PackageExportInfo extends MemberElementInfo implements IModule.IPackageExport {
@@ -71,21 +72,25 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 	}
 	static class ServiceInfo extends MemberElementInfo implements IModule.IService {
 		char[] serviceName;
-		char[] implName;
+		char[][] implNames;
 		@Override
 		public char[] name() {
 			return this.serviceName;
 		}
 		@Override
-		public char[] with() {
-			return this.implName;
+		public char[][] with() {
+			return this.implNames;
 		}
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();
 			buffer.append("provides "); //$NON-NLS-1$
 			buffer.append(this.serviceName);
 			buffer.append(" with "); //$NON-NLS-1$
-			buffer.append(this.implName);
+			for (int i = 0; i < this.implNames.length; i++) {
+				buffer.append(this.implNames[i]);
+				if (i < this.implNames.length - 1)
+					buffer.append(", "); //$NON-NLS-1$
+			}
 			buffer.append(';');
 			return buffer.toString();
 		}
@@ -95,18 +100,18 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 		ModuleDescriptionInfo mod = new ModuleDescriptionInfo();
 		mod.name = module.moduleName;
 		if (module.requiresCount > 0) {
-			ModuleReference[] refs = module.requires;
+			RequiresStatement[] refs = module.requires;
 			mod.requires = new ModuleReferenceInfo[refs.length];
 			for (int i = 0; i < refs.length; i++) {
 				mod.requires[i] = new ModuleReferenceInfo();
-				mod.requires[i].name = CharOperation.concatWith(refs[i].tokens, '.'); // Check why ModuleReference#tokens must be a char[][] and not a char[] or String;
-				mod.requires[i].isPublic = refs[i].isPublic();
+				mod.requires[i].name = CharOperation.concatWith(refs[i].module.tokens, '.'); // Check why ModuleReference#tokens must be a char[][] and not a char[] or String;
+				mod.requires[i].modifiers = refs[i].modifiers;
 			}
 		} else {
 			mod.requires = new ModuleReferenceInfo[0];
 		}
 		if (module.exportsCount > 0) {
-			ExportReference[] refs = module.exports;
+			ExportsStatement[] refs = module.exports;
 			mod.exports = new PackageExportInfo[refs.length];
 			for (int i = 0; i < refs.length; i++) {
 				PackageExportInfo exp = createPackageExport(refs, i);
@@ -118,10 +123,10 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 		return mod;
 	}
 
-	private static PackageExportInfo createPackageExport(ExportReference[] refs, int i) {
-		ExportReference ref = refs[i];
+	private static PackageExportInfo createPackageExport(ExportsStatement[] refs, int i) {
+		ExportsStatement ref = refs[i];
 		PackageExportInfo exp = new PackageExportInfo();
-		exp.pack = CharOperation.concatWith(ref.tokens, '.');
+		exp.pack = ref.pkgName;
 		ModuleReference[] imp = ref.targets;
 		if (imp != null) {
 			exp.target = new char[imp.length][];
@@ -177,8 +182,11 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 			buffer.append('\n');
 			for(int i = 0; i < this.requires.length; i++) {
 				buffer.append("\trequires "); //$NON-NLS-1$
-				if (this.requires[i].isPublic) {
-					buffer.append("public "); //$NON-NLS-1$
+				if (this.requires[i].isTransitive()) {
+					buffer.append("transitive "); //$NON-NLS-1$
+				}
+				if (this.requires[i].isStatic()) {
+					buffer.append("static "); //$NON-NLS-1$
 				}
 				buffer.append(this.requires[i].name);
 				buffer.append(';').append('\n');

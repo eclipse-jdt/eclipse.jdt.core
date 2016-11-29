@@ -266,7 +266,7 @@ private void generateModuleInfos(ClassFile classFile, ClassFileReader info, Hash
 		IModuleReference[] requiredModules = modDecl.requires();
 		if (requiredModules != null) {
 			for (IModuleReference iModuleReference : requiredModules) {
-				generateModuleRequirementInfos(handle, newElements, iModuleReference.name(), iModuleReference.isPublic(), childrenHandles);
+				generateModuleRequirementInfos(handle, newElements, iModuleReference.name(), iModuleReference.getModifiers(), childrenHandles);
 			}
 		}
 		IService[] provides = modDecl.provides();
@@ -280,20 +280,24 @@ private void generateModuleInfos(ClassFile classFile, ClassFileReader info, Hash
 		newElements.put(handle, info);
 	}
 }
-private void generateServiceInfos(BinaryModule parentHandle, HashMap newElements, char[] serviceName, char[] implName, ArrayList requiresHandles) {
-	ProvidedService service = new ProvidedService(parentHandle, new String(serviceName), new String(implName));
+private void generateServiceInfos(BinaryModule parentHandle, HashMap newElements, char[] serviceName, char[][] implNames, ArrayList requiresHandles) {
 	ServiceInfo info = new ServiceInfo();
 	info.serviceName = serviceName;
-	info.implName = implName;
+	String[] implementations = new String[implNames.length];
+	for (int i = 0; i < implNames.length; i++) {
+		implementations[i] = new String(implNames[i]);
+	}
+	info.implNames = implNames;
+	ProvidedService service = new ProvidedService(parentHandle, new String(serviceName), implementations);
 	while (newElements.containsKey(service))
 		service.occurrenceCount++;
 	newElements.put(service, info);
 } 
-private void generateModuleRequirementInfos(BinaryModule parentHandle, HashMap newElements, char[] moduleName, boolean isPublic, ArrayList requiresHandles) {
+private void generateModuleRequirementInfos(BinaryModule parentHandle, HashMap newElements, char[] moduleName, int modifiers, ArrayList requiresHandles) {
 	ModuleRequirement requirement = new ModuleRequirement(parentHandle, new String(moduleName));
 	ModuleReferenceInfo info = new ModuleReferenceInfo();
 	info.name = moduleName;
-	info.isPublic = isPublic;
+	info.modifiers = modifiers;
 	while (newElements.containsKey(requirement))
 		requirement.occurrenceCount++;
 	newElements.put(requirement, info);

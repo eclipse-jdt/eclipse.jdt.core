@@ -21,74 +21,29 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.ExportReference;
+import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
+import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
+import org.eclipse.jdt.internal.compiler.ast.ProvidesStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.UsesStatement;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
+import org.eclipse.jdt.internal.compiler.env.ModuleReferenceImpl;
+import org.eclipse.jdt.internal.compiler.env.PackageExportImpl;
 
 public class BasicModule implements IModule {
-	static class ModuleReferenceImpl implements IModule.IModuleReference {
-		char[] name;
-		boolean isPublic = false;
-		@Override
-		public char[] name() {
-			return this.name;
-		}
-		@Override
-		public boolean isPublic() {
-			return this.isPublic;
-		}
-		public boolean equals(Object o) {
-			if (this == o) 
-				return true;
-			if (!(o instanceof IModule.IModuleReference))
-				return false;
-			IModule.IModuleReference mod = (IModule.IModuleReference) o;
-			if (this.isPublic != mod.isPublic())
-				return false;
-			return CharOperation.equals(this.name, mod.name());
-		}
-		@Override
-		public int hashCode() {
-			return this.name.hashCode();
-		}
-	}
-	static class PackageExport implements IModule.IPackageExport {
-		char[] pack;
-		char[][] exportedTo;
-		@Override
-		public char[] name() {
-			return this.pack;
-		}
-
-		@Override
-		public char[][] exportedTo() {
-			return this.exportedTo;
-		}
-		public String toString() {
-			StringBuffer buffer = new StringBuffer();
-			buffer.append(this.pack);
-			if (this.exportedTo != null) {
-				for (char[] cs : this.exportedTo) {
-					buffer.append(cs);
-				}
-			}
-			buffer.append(';');
-			return buffer.toString();
-		}
-	}
 	static class Service implements IModule.IService {
 		char[] provides;
-		char[] with;
+		char[][] with;
 		@Override
 		public char[] name() {
 			return this.provides;
 		}
 
 		@Override
-		public char[] with() {
+		public char[][] with() {
 			return this.with;
 		}
 		public String toString() {
@@ -101,10 +56,10 @@ public class BasicModule implements IModule {
 			return buffer.toString();
 		}
 	}
-	private static PackageExport createPackageExport(ExportReference[] refs, int i) {
-		ExportReference ref = refs[i];
-		PackageExport exp = new PackageExport();
-		exp.pack = CharOperation.concatWith(ref.tokens, '.');
+	private static PackageExportImpl createPackageExport(ExportsStatement[] refs, int i) {
+		ExportsStatement ref = refs[i];
+		PackageExportImpl exp = new PackageExportImpl();
+		exp.pack = ref.pkgName;
 		ModuleReference[] imp = ref.targets;
 		if (imp != null) {
 			exp.exportedTo = new char[imp.length][];
@@ -114,10 +69,13 @@ public class BasicModule implements IModule {
 		}
 		return exp;
 	}
-	private static Service createService(TypeReference service, TypeReference with) {
+	private static Service createService(TypeReference service, TypeReference[] with) {
 		Service ser = new Service();
 		ser.provides = CharOperation.concatWith(service.getTypeName(), '.');
-		ser.with = CharOperation.concatWith(with.getTypeName(), '.');
+		ser.with = new char[with.length][];
+		for (int i = 0; i < with.length; i++) {
+			ser.with[i] = CharOperation.concatWith(with[i].getTypeName(), '.');
+		}
 		return ser;
 	}
 
@@ -130,40 +88,39 @@ public class BasicModule implements IModule {
 	public BasicModule(ModuleDeclaration descriptor, IModulePathEntry root) {
 		this.name = descriptor.moduleName;
 		if (descriptor.requiresCount > 0) {
-			ModuleReference[] refs = descriptor.requires;
+			RequiresStatement[] refs = descriptor.requires;
 			this.requires = new ModuleReferenceImpl[refs.length];
 			for (int i = 0; i < refs.length; i++) {
 				ModuleReferenceImpl ref = new ModuleReferenceImpl();
-				ref.name = CharOperation.concatWith(refs[i].tokens, '.');
-				ref.isPublic = refs[i].isPublic();
+				ref.name = CharOperation.concatWith(refs[i].module.tokens, '.');
+				ref.modifiers = refs[i].modifiers;
 				this.requires[i] = ref;
 			}
 		} else {
 			this.requires = new ModuleReferenceImpl[0];
 		}
 		if (descriptor.exportsCount > 0) {
-			ExportReference[] refs = descriptor.exports;
-			this.exports = new PackageExport[refs.length];
+			ExportsStatement[] refs = descriptor.exports;
+			this.exports = new PackageExportImpl[refs.length];
 			for (int i = 0; i < refs.length; i++) {
-				PackageExport exp = createPackageExport(refs, i);
+				PackageExportImpl exp = createPackageExport(refs, i);
 				this.exports[i] = exp;
 			}
 		} else {
-			this.exports = new PackageExport[0];
+			this.exports = new PackageExportImpl[0];
 		}
 		if (descriptor.usesCount > 0) {
-			TypeReference[] u = descriptor.uses;
+			UsesStatement[] u = descriptor.uses;
 			this.uses = new char[u.length][];
 			for(int i = 0; i < u.length; i++) {
-				this.uses[i] = CharOperation.concatWith(u[i].getTypeName(), '.');
+				this.uses[i] = CharOperation.concatWith(u[i].serviceInterface.getTypeName(), '.');
 			}
 		}
 		if (descriptor.servicesCount > 0) {
-			TypeReference[] services = descriptor.interfaces;
-			TypeReference[] with = descriptor.implementations;
+			ProvidesStatement[] services = descriptor.services;
 			this.provides = new Service[descriptor.servicesCount];
 			for (int i = 0; i < descriptor.servicesCount; i++) {
-				this.provides[i] = createService(services[i], with[i]);
+				this.provides[i] = createService(services[i].serviceInterface, services[i].implementations);
 			}
 		}
 		this.isAutomodule = false; // Just to be explicit
@@ -212,21 +169,21 @@ public class BasicModule implements IModule {
 	}
 	public void addExports(IModule.IPackageExport[] toAdd) {
 		Predicate<char[]> shouldAdd = m -> {
-			return Stream.of(this.exports).map(ref -> ((PackageExport) ref).pack).noneMatch(n -> CharOperation.equals(m, n));
+			return Stream.of(this.exports).map(ref -> ((PackageExportImpl) ref).pack).noneMatch(n -> CharOperation.equals(m, n));
 		};
 		Collection<IPackageExport> merged = Stream.concat(Stream.of(this.exports), Stream.of(toAdd)
 				.filter(e -> shouldAdd.test(e.name()))
 				.map(e -> {
-					PackageExport exp = new PackageExport();
-					exp.pack = ((PackageExport )e).name();
-					exp.exportedTo = ((PackageExport )e).exportedTo();
+					PackageExportImpl exp = new PackageExportImpl();
+					exp.pack = ((PackageExportImpl )e).name();
+					exp.exportedTo = ((PackageExportImpl )e).exportedTo();
 					return exp;
 				}))
 			.collect(
 				ArrayList::new,
 				ArrayList::add,
 				ArrayList::addAll);
-		this.exports = merged.toArray(new PackageExport[merged.size()]);
+		this.exports = merged.toArray(new PackageExportImpl[merged.size()]);
 	}
 	public boolean equals(Object o) {
 		if (this == o)
@@ -259,7 +216,7 @@ public class BasicModule implements IModule {
 		if (this.requires != null) {
 			for(int i = 0; i < this.requires.length; i++) {
 				buffer.append("\trequires "); //$NON-NLS-1$
-				if (this.requires[i].isPublic()) {
+				if (this.requires[i].isTransitive()) {
 					buffer.append(" public "); //$NON-NLS-1$
 				}
 				buffer.append(this.requires[i].name());

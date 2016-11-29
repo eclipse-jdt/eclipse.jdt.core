@@ -78,7 +78,6 @@ import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocTypeParam
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnKeyword;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnKeyword3;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnKeywordModuleDeclaration;
-import org.eclipse.jdt.internal.codeassist.complete.CompletionOnKeywordModuleInfo;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnLocalName;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnMarkerAnnotationName;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnMemberAccess;
@@ -129,7 +128,7 @@ import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ExportReference;
+import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ExpressionContext;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
@@ -159,7 +158,9 @@ import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
+import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
+import org.eclipse.jdt.internal.compiler.ast.ProvidesStatement;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.SuperReference;
@@ -171,6 +172,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
 import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.UsesStatement;
 import org.eclipse.jdt.internal.compiler.ast.WhileStatement;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -2056,10 +2058,10 @@ public final class CompletionEngine
 						processModuleKeywordCompletion(parsedUnit, this.moduleDeclaration, (CompletionOnKeyword) this.moduleDeclaration);
 						return;								
 					}
-					ExportReference[] exports = this.moduleDeclaration.exports;
+					ExportsStatement[] exports = this.moduleDeclaration.exports;
 					if (exports != null) {
 						for (int i = 0, l = exports.length; i < l; ++i) {
-							ExportReference exportReference = exports[i];
+							ExportsStatement exportReference = exports[i];
 							if (exportReference instanceof CompletionOnExportReference) {
 								contextAccepted = true;
 								buildContext(exportReference, null, parsedUnit, null, null);
@@ -2069,11 +2071,12 @@ public final class CompletionEngine
 								debugPrintf();
 								return;
 							}
-							if (exportReference instanceof CompletionOnKeywordModuleInfo) {
-								contextAccepted = true;
-								processModuleKeywordCompletion(parsedUnit, exportReference, (CompletionOnKeyword) exportReference);
-								return;								
-							} 
+							// TODO
+//							if (exportReference instanceof CompletionOnKeywordModuleInfo) {
+//								contextAccepted = true;
+//								processModuleKeywordCompletion(parsedUnit, exportReference, (CompletionOnKeyword) exportReference);
+//								return;								
+//							} 
 							ModuleReference[] targets = exportReference.targets;
 							if (targets == null) continue;
 							for (int j = 0, lj = targets.length; j < lj; j++) {
@@ -2094,10 +2097,10 @@ public final class CompletionEngine
 							}
 						}
 					}
-					ModuleReference[] moduleRefs = this.moduleDeclaration.requires;
+					RequiresStatement[] moduleRefs = this.moduleDeclaration.requires;
 					if (moduleRefs != null) {
 						for (int i = 0, l = moduleRefs.length; i < l; ++i) {
-							ModuleReference reference = moduleRefs[i];
+							ModuleReference reference = moduleRefs[i].module;
 							if (reference instanceof CompletionOnModuleReference) {
 								contextAccepted = true;
 								buildContext(reference, null, parsedUnit, null, null);
@@ -2109,10 +2112,10 @@ public final class CompletionEngine
 							}
 						}
 					}
-					TypeReference[] uses = this.moduleDeclaration.uses;
+					UsesStatement[] uses = this.moduleDeclaration.uses;
 					if (uses != null) {
 						for (int i = 0, l = uses.length; i < l; ++i) {
-							TypeReference usesReference = uses[i];
+							TypeReference usesReference = uses[i].serviceInterface;
 							if (usesReference instanceof CompletionOnUsesSingleTypeReference ||
 									usesReference instanceof CompletionOnUsesQualifiedTypeReference) {
 								this.lookupEnvironment.buildTypeBindings(parsedUnit, null);
@@ -2126,9 +2129,9 @@ public final class CompletionEngine
 							}
 						}
 					}
-					TypeReference[] pInterfaces = this.moduleDeclaration.interfaces;
-					for (int i = 0, l = pInterfaces.length; i < l; ++i) {
-						TypeReference pInterface = pInterfaces[i];
+					ProvidesStatement[] services = this.moduleDeclaration.services;
+					for (int i = 0, l = services.length; i < l; ++i) {
+						TypeReference pInterface = services[i].serviceInterface;
 						if (pInterface instanceof CompletionOnProvidesInterfacesSingleTypeReference ||
 								pInterface instanceof CompletionOnProvidesInterfacesQualifiedTypeReference) {
 							this.lookupEnvironment.buildTypeBindings(parsedUnit, null);
@@ -2140,21 +2143,19 @@ public final class CompletionEngine
 								return;
 							}
 						}
-					}
-					TypeReference[] implementations = this.moduleDeclaration.implementations;
-					for (int i = 0, l = implementations.length; i < l; ++i) {
-						TypeReference implementation = implementations[i];
-						if (implementation instanceof CompletionOnProvidesImplementationsSingleTypeReference ||
-								implementation instanceof CompletionOnProvidesImplementationsQualifiedTypeReference) {
-							this.lookupEnvironment.buildTypeBindings(parsedUnit, null);
-							if ((this.unitScope = parsedUnit.scope) != null) {
-								contextAccepted = true;
-								buildContext(implementation, null, parsedUnit, null, null);
-								findImplementations(this.moduleDeclaration, i);
-								debugPrintf();
-								return;
-							}
-						}
+					
+//						TypeReference implementation = services[i].serviceImpl;
+//						if (implementation instanceof CompletionOnProvidesImplementationsSingleTypeReference ||
+//								implementation instanceof CompletionOnProvidesImplementationsQualifiedTypeReference) {
+//							this.lookupEnvironment.buildTypeBindings(parsedUnit, null);
+//							if ((this.unitScope = parsedUnit.scope) != null) {
+//								contextAccepted = true;
+//								buildContext(implementation, null, parsedUnit, null, null);
+//								findImplementations(this.moduleDeclaration, i);
+//								debugPrintf();
+//								return;
+//							}
+//						}
 					}
 				}
 				// scan the package & import statements first
@@ -10657,7 +10658,7 @@ public final class CompletionEngine
 		this.nameEnvironment.findModules(CharOperation.toLowerCase(this.completionToken), this, targetted ? this.javaProject : null);
 	}
 	private void findPackages(CompletionOnExportReference exportStatement) {
-		setCompletionToken(exportStatement.tokens, exportStatement.sourceStart, exportStatement.sourceEnd, exportStatement.sourcePositions, false);
+		setCompletionToken(exportStatement.pkgRef.tokens, exportStatement.sourceStart, exportStatement.sourceEnd, exportStatement.pkgRef.sourcePositions, false);
 		findPackagesInCurrentModule();
 	}
 
@@ -11847,29 +11848,29 @@ public final class CompletionEngine
 
 	private void findImplementations(ModuleDeclaration module, int index) {
 		
-		TypeReference reference = module.implementations[index];
-		char[][] tokens = reference.getTypeName();
-		char[] typeName = CharOperation.concatWithAll(tokens, '.');
-
-		if (typeName.length == 0) {
-			this.completionToken = CharOperation.ALL_PREFIX;
-		} else if (reference instanceof CompletionOnProvidesImplementationsQualifiedTypeReference) {
-			CompletionOnQualifiedTypeReference qReference = (CompletionOnQualifiedTypeReference) reference;
-			if (qReference.completionIdentifier != null) {
-				this.completionToken = CharOperation.concatAll(typeName, qReference.completionIdentifier, '.');
-			}
-		} else {
-			 char[] lastToken = tokens[tokens.length - 1];
-			 this.completionToken = lastToken != null && lastToken.length == 0 ? 
-					 CharOperation.concat(typeName, new char[]{'.'}) :lastToken;
-		}
-		setSourceRange(reference.sourceStart, reference.sourceEnd);
-		findImplementations(this.completionToken, this.unitScope, module, index);
+//		TypeReference reference = module.services[index].serviceImpl;
+//		char[][] tokens = reference.getTypeName();
+//		char[] typeName = CharOperation.concatWithAll(tokens, '.');
+//
+//		if (typeName.length == 0) {
+//			this.completionToken = CharOperation.ALL_PREFIX;
+//		} else if (reference instanceof CompletionOnProvidesImplementationsQualifiedTypeReference) {
+//			CompletionOnQualifiedTypeReference qReference = (CompletionOnQualifiedTypeReference) reference;
+//			if (qReference.completionIdentifier != null) {
+//				this.completionToken = CharOperation.concatAll(typeName, qReference.completionIdentifier, '.');
+//			}
+//		} else {
+//			 char[] lastToken = tokens[tokens.length - 1];
+//			 this.completionToken = lastToken != null && lastToken.length == 0 ? 
+//					 CharOperation.concat(typeName, new char[]{'.'}) :lastToken;
+//		}
+//		setSourceRange(reference.sourceStart, reference.sourceEnd);
+//		findImplementations(this.completionToken, this.unitScope, module, index);
 	}
 
 	private void findImplementations(char[] token, Scope scope, ModuleDeclaration module, int index) {
 
-		TypeReference theInterface = module.interfaces[index];
+		TypeReference theInterface = module.services[index].serviceInterface;
 
 		if (token == null)
 			return;
@@ -11912,12 +11913,12 @@ public final class CompletionEngine
 			try {
 				List<String> existingImpl = new ArrayList<>();
 				char[][] theInterfaceName = theInterface.getTypeName();
-				for (int i = 0, l = this.moduleDeclaration.implementations.length; i < l; ++i) {
+				for (int i = 0, l = this.moduleDeclaration.servicesCount; i < l; ++i) {
 					if (i == index) continue;
- 					if (!CharOperation.equals(theInterfaceName, this.moduleDeclaration.interfaces[i].getTypeName())) continue;
-					char[][] typeName = this.moduleDeclaration.implementations[i].getTypeName();
-					if (typeName.equals(CharOperation.NO_CHAR_CHAR)) continue;
-					existingImpl.add(CharOperation.toString(typeName));
+ 					if (!CharOperation.equals(theInterfaceName, this.moduleDeclaration.services[i].serviceInterface.getTypeName())) continue;
+//					char[][] typeName = this.moduleDeclaration.services[i].serviceImpl.getTypeName();
+//					if (typeName.equals(CharOperation.NO_CHAR_CHAR)) continue;
+//					existingImpl.add(CharOperation.toString(typeName));
 				}
 				ImplSearchRequestor searchRequestor = new ImplSearchRequestor(this.completionToken, existingImpl);
 				new SearchEngine(this.owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(this.owner, true/*add primary WCs*/)).search(

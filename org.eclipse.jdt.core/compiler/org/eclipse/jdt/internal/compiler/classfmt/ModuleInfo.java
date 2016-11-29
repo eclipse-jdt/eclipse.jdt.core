@@ -133,8 +133,9 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 			module.requires[i] = module.new ModuleReferenceInfo();
 			module.requires[i].refName = requiresNames;
 			moduleOffset += 2;
-			int pub = module.u2At(moduleOffset);
-			module.requires[i].isPublic = (ClassFileConstants.ACC_PUBLIC == pub); // Access modifier
+			int modifiers = module.u2At(moduleOffset);
+			module.requires[i].modifiers = modifiers;
+			module.requires[i].isTransitive = (ClassFileConstants.ACC_TRANSITIVE & modifiers) != 0; // Access modifier
 			moduleOffset += 2;
 		}
 		count = module.u2At(moduleOffset);
@@ -166,14 +167,15 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 	}
 	class ModuleReferenceInfo implements IModule.IModuleReference {
 		char[] refName;
-		boolean isPublic = false;
+		boolean isTransitive = false;
+		int modifiers;
 		@Override
 		public char[] name() {
 			return this.refName;
 		}
 		@Override
-		public boolean isPublic() {
-			return this.isPublic;
+		public boolean isTransitive() {
+			return this.isTransitive;
 		}
 		public boolean equals(Object o) {
 			if (this == o) 
@@ -181,13 +183,17 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 			if (!(o instanceof IModule.IModuleReference))
 				return false;
 			IModule.IModuleReference mod = (IModule.IModuleReference) o;
-			if (this.isPublic != mod.isPublic())
+			if (this.modifiers != mod.getModifiers())
 				return false;
 			return CharOperation.equals(this.refName, mod.name(), false);
 		}
 		@Override
 		public int hashCode() {
 			return this.refName.hashCode();
+		}
+		@Override
+		public int getModifiers() {
+			return this.modifiers;
 		}
 	}
 	class PackageExportInfo implements IModule.IPackageExport {
@@ -222,14 +228,14 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 	}
 	class ServiceInfo implements IModule.IService {
 		char[] serviceName;
-		char[] with;
+		char[][] with;
 		@Override
 		public char[] name() {
 			return this.serviceName;
 		}
 
 		@Override
-		public char[] with() {
+		public char[][] with() {
 			return this.with;
 		}
 	}
@@ -264,7 +270,7 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 		if (this.requiresCount > 0) {
 			for(int i = 0; i < this.requiresCount; i++) {
 				buffer.append("\trequires "); //$NON-NLS-1$
-				if (this.requires[i].isPublic) {
+				if (this.requires[i].isTransitive) {
 					buffer.append(" public "); //$NON-NLS-1$
 				}
 				buffer.append(this.requires[i].refName);

@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
-import org.eclipse.jdt.internal.compiler.ast.ExportReference;
+import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
@@ -974,11 +974,11 @@ protected void consumeSingleStaticImportDeclarationName() {
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
-protected void consumeSingleExportsPkgName() {
+protected void consumeSinglePkgName() {
 	int index;
 	/* no need to take action if not inside assist identifiers */
 	if ((index = indexOfAssistIdentifier()) < 0) {
-		super.consumeSingleExportsPkgName();
+		super.consumeSinglePkgName();
 		return;
 	}
 	/* retrieve identifiers subset and whole positions, the assist node positions
@@ -996,7 +996,7 @@ protected void consumeSingleExportsPkgName() {
 			length);
 
 	/* build specific assist node on import statement */
-	ExportReference reference = createAssistExportReference(subset, positions);
+	ImportReference reference = createAssistImportReference(subset, positions, 0);
 	this.assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
 
@@ -1007,11 +1007,6 @@ protected void consumeSingleExportsPkgName() {
 	} else {
 		reference.declarationSourceEnd = (int) positions[length-1];
 	}
-	//endPosition is just before the ;
-	reference.declarationSourceStart = this.intStack[this.intPtr--];
-	// flush comments defined prior to import statements
-	reference.declarationSourceEnd = flushCommentsDefinedPriorTo(reference.declarationSourceEnd);
-
 	// recovery
 	if (this.currentElement != null){
 		this.lastCheckPoint = reference.declarationSourceEnd+1;
@@ -1020,11 +1015,11 @@ protected void consumeSingleExportsPkgName() {
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
-protected void consumeSingleExportsTargetName() {
+protected void consumeSingleTargetModuleName() {
 	int index;
 	/* no need to take action if not inside assist identifiers */
 	if ((index = indexOfAssistIdentifier()) < 0) {
-		super.consumeSingleExportsTargetName();
+		super.consumeSingleTargetModuleName();
 		return;
 	}
 
@@ -1034,9 +1029,9 @@ protected void consumeSingleExportsTargetName() {
 	this.lastCheckPoint = reference.sourceEnd + 1;
 	pushOnAstStack(reference);
 
-	reference.declarationSourceEnd = reference.sourceEnd;
-	reference.declarationEnd = reference.declarationSourceEnd;
-	reference.declarationSourceStart = reference.sourceStart;
+//	reference.declarationSourceEnd = reference.sourceEnd;
+//	reference.declarationEnd = reference.declarationSourceEnd;
+//	reference.declarationSourceStart = reference.sourceStart;
 //	if (this.currentToken == TokenNameSEMICOLON){
 //		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
 //	} else {
@@ -1045,8 +1040,9 @@ protected void consumeSingleExportsTargetName() {
 //	impt.declarationSourceStart = this.intStack[this.intPtr--];
 	// recovery - TBD
 	if (this.currentElement != null){
-		this.lastCheckPoint = reference.declarationSourceEnd+1;
-		this.currentElement = this.currentElement.add(reference, 0);
+		// TODO
+//		this.lastCheckPoint = reference.declarationSourceEnd+1;
+//		this.currentElement = this.currentElement.add(reference, 0);
 		this.lastIgnoredToken = -1;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
@@ -1067,29 +1063,30 @@ protected void consumeSingleRequiresModuleName() {
 	this.lastCheckPoint = reference.sourceEnd + 1;
 	pushOnAstStack(reference);
 
-	if (this.currentToken == TokenNameSEMICOLON){
-		reference.declarationSourceEnd = this.scanner.currentPosition - 1;
-	} else {
-		reference.declarationSourceEnd = (int) reference.sourcePositions[reference.tokens.length-1];
-	}
+//	if (this.currentToken == TokenNameSEMICOLON){
+//		reference.declarationSourceEnd = this.scanner.currentPosition - 1;
+//	} else {
+//		reference.declarationSourceEnd = (int) reference.sourcePositions[reference.tokens.length-1];
+//	}
 	//endPosition is just before the ;
-	reference.declarationSourceStart = this.intStack[this.intPtr--];
-	// flush comments defined prior to import statements
-	reference.declarationSourceEnd = flushCommentsDefinedPriorTo(reference.declarationSourceEnd);
-
-	reference.declarationEnd = reference.declarationSourceEnd;
-	//this.endPosition is just before the ;
-	reference.modifiersSourceStart = this.intStack[this.intPtr--];
-//	reference.modifiers = modifiers; // already set in the constructor
-	reference.declarationSourceStart = reference.sourceStart;
-
-	if (reference.modifiersSourceStart >= 0) {
-		reference.declarationSourceStart = reference.modifiersSourceStart;
-	}
+//	reference.declarationSourceStart = this.intStack[this.intPtr--];
+//	// flush comments defined prior to import statements
+//	reference.declarationSourceEnd = flushCommentsDefinedPriorTo(reference.declarationSourceEnd);
+//
+//	reference.declarationEnd = reference.declarationSourceEnd;
+//	//this.endPosition is just before the ;
+//	reference.modifiersSourceStart = this.intStack[this.intPtr--];
+////	reference.modifiers = modifiers; // already set in the constructor
+//	reference.declarationSourceStart = reference.sourceStart;
+//
+//	if (reference.modifiersSourceStart >= 0) {
+//		reference.declarationSourceStart = reference.modifiersSourceStart;
+//	}
 	// recovery TBD
 	if (this.currentElement != null){
-		this.lastCheckPoint = reference.declarationSourceEnd+1;
-		this.currentElement = this.currentElement.add(reference, 0);
+		//TODO refer super.consumeSingleRequiresModuleName
+		//this.lastCheckPoint = reference.declarationSourceEnd+1;
+		//this.currentElement = this.currentElement.add(reference, 0);
 		this.lastIgnoredToken = -1;
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
@@ -1332,7 +1329,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
-public abstract ExportReference createAssistExportReference(char[][] tokens, long[] positions);
+public abstract ExportsStatement createAssistExportReference(ImportReference pkgRef);
 public abstract ImportReference createAssistImportReference(char[][] tokens, long[] positions, int mod);
 public abstract ModuleReference createAssistModuleReference(int index);
 public abstract ImportReference createAssistPackageReference(char[][] tokens, long[] positions);

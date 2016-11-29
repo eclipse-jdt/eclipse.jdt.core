@@ -17,11 +17,11 @@ package org.eclipse.jdt.internal.compiler.parser;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Block;
-import org.eclipse.jdt.internal.compiler.ast.ExportReference;
+import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
+import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -77,7 +77,7 @@ public RecoveredElement add(Block nestedBlockDeclaration, int bracketBalanceValu
 /*
  *	Record an e reference
  */
-public RecoveredElement add(ExportReference exportReference, int bracketBalanceValue){
+public RecoveredElement add(ExportsStatement exportReference, int bracketBalanceValue){
 
 	/* default behavior is to delegate recording to parent if any */
 	resetPendingModifiers();
@@ -121,7 +121,7 @@ public RecoveredElement add(LocalDeclaration localDeclaration, int bracketBalanc
 /*
  *	Record a module reference
  */
-public RecoveredElement add(ModuleReference moduleReference, int bracketBalanceValue){
+public RecoveredElement add(RequiresStatement moduleReference, int bracketBalanceValue){
 
 	/* default behavior is to delegate recording to parent if any */
 	resetPendingModifiers();

@@ -216,7 +216,7 @@ public void createPackageInfoType() {
 public void createModuleInfoType(ModuleDeclaration declaration) {
 	//TypeDeclaration declaration = new TypeDeclaration(this.compilationResult);
 	declaration.name = TypeConstants.MODULE_INFO_NAME;
-	declaration.modifiers = ClassFileConstants.AccModule;
+	declaration.modifiers |= ClassFileConstants.AccModule;
 	declaration.javadoc = this.javadoc;
 	this.types[0] = declaration; // Assumes the first slot is meant for this type
 }

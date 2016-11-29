@@ -22,34 +22,9 @@ import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
+import org.eclipse.jdt.internal.compiler.env.ModuleReferenceImpl;
 
 public class BasicModule implements IModule {
-	static class ModuleReferenceImpl implements IModule.IModuleReference {
-		char[] name;
-		boolean isPublic = false;
-		@Override
-		public char[] name() {
-			return this.name;
-		}
-		@Override
-		public boolean isPublic() {
-			return this.isPublic;
-		}
-		public boolean equals(Object o) {
-			if (this == o) 
-				return true;
-			if (!(o instanceof IModule.IModuleReference))
-				return false;
-			IModule.IModuleReference mod = (IModule.IModuleReference) o;
-			if (this.isPublic != mod.isPublic())
-				return false;
-			return CharOperation.equals(this.name, mod.name());
-		}
-		@Override
-		public int hashCode() {
-			return this.name.hashCode();
-		}
-	}
 	static class PackageExport implements IModule.IPackageExport {
 		char[] pack;
 		char[][] exportedTo;
@@ -76,14 +51,14 @@ public class BasicModule implements IModule {
 	}
 	static class Service implements IModule.IService {
 		char[] provides;
-		char[] with;
+		char[][] with;
 		@Override
 		public char[] name() {
 			return this.provides;
 		}
 
 		@Override
-		public char[] with() {
+		public char[][] with() {
 			return this.with;
 		}
 		public String toString() {
@@ -91,7 +66,11 @@ public class BasicModule implements IModule {
 			buffer.append("provides"); //$NON-NLS-1$
 			buffer.append(this.provides);
 			buffer.append(" with "); //$NON-NLS-1$
-			buffer.append(this.with);
+			for (int i = 0; i < this.with.length; i++) {
+				buffer.append(this.with[i]);
+				if (i < this.with.length - 1)
+					buffer.append(", "); //$NON-NLS-1$
+			}
 			buffer.append(';');
 			return buffer.toString();
 		}
@@ -196,7 +175,7 @@ public class BasicModule implements IModule {
 		if (this.requires != null) {
 			for(int i = 0; i < this.requires.length; i++) {
 				buffer.append("\trequires "); //$NON-NLS-1$
-				if (this.requires[i].isPublic()) {
+				if (this.requires[i].isTransitive()) {
 					buffer.append(" public "); //$NON-NLS-1$
 				}
 				buffer.append(this.requires[i].name());

@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+
 public interface IModule {
 
 	public static IModuleReference[] NO_MODULE_REFS = new IModuleReference[0];
@@ -34,17 +36,27 @@ public interface IModule {
 
 	public interface IModuleReference {
 		public char[] name();
-		public boolean isPublic();
+		public default boolean isTransitive() {
+			return (getModifiers() & ClassFileConstants.ACC_TRANSITIVE) != 0;
+		}
+		public int getModifiers();
+		public default boolean isStatic() {
+			return (getModifiers() & ClassFileConstants.ACC_STATIC_PHASE) != 0;
+		}
 	}
 
 	public interface IPackageExport {
 		public char[] name();
 		public char[][] exportedTo();
+		public default boolean isQualified() {
+			char[][] targets = exportedTo();
+			return targets != null && targets.length > 0;
+		}
 	}
 
 	public interface IService {
 		public char[] name();
-		char[] with();
+		char[][] with();
 	}
 	
 	public default void addReads(char[] modName) {

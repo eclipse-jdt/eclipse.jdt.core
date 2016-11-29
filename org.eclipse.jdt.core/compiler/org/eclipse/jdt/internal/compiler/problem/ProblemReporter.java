@@ -115,7 +115,6 @@ import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.EqualExpression;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
-import org.eclipse.jdt.internal.compiler.ast.ExportReference;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ExpressionContext;
 import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
@@ -132,10 +131,13 @@ import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.ast.NullLiteral;
+import org.eclipse.jdt.internal.compiler.ast.OpensStatement;
+import org.eclipse.jdt.internal.compiler.ast.PackageVisibilityStatement;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
@@ -10495,7 +10497,12 @@ public void invalidModule(ModuleReference ref) {
 		NoArgument, new String[] { CharOperation.charToString(ref.moduleName) },
 		ref.sourceStart, ref.sourceEnd);
 }
-public void invalidExportReference(int problem, ExportReference ref) {
+public void invalidOpensStatement(OpensStatement statement, ModuleDeclaration module) {
+	this.handle(IProblem.InvalidOpensStatement,
+		NoArgument, new String[] { CharOperation.charToString(module.moduleName) },
+		statement.declarationSourceStart, statement.declarationSourceEnd);
+}
+public void invalidPackageReference(int problem, PackageVisibilityStatement ref) {
 	this.handle(problem, 
 		NoArgument, new String[] { CharOperation.charToString(ref.pkgName) },
 		ref.sourceStart, ref.sourceEnd);
@@ -10527,27 +10534,9 @@ public void cyclicModuleDependency(ModuleBinding binding, ModuleReference ref) {
 		NoArgument, new String[] { CharOperation.charToString(binding.moduleName), CharOperation.charToString(ref.moduleName) },
 		ref.sourceStart, ref.sourceEnd);
 }
-public void invalidServiceImpl(int problem, TypeReference impl) {
-	String[] args = new String[]{CharOperation.charToString(impl.resolvedType.readableName())};
-	int problemId = ProblemReasons.NoError;
-	switch(problem) {
-		case ProblemReasons.ServiceImplCannotbeAbstract:
-			problemId = IProblem.AbstractServiceImplementation;
-			break;
-		case ProblemReasons.DefaultConstructorRequiredForServiceImpl:
-			problemId = IProblem.DefaultConstructorRequiredForServiceImpl;
-			break;
-		case ProblemReasons.ServiceImplDefaultConstructorNotPublic:
-			problemId = IProblem.ServiceImplDefaultConstructorNotPublic;
-			break;
-		case ProblemReasons.ServiceImplCannotbeNested:
-			problemId = IProblem.NestedServiceImpl;
-			break;
-		case ProblemReasons.ServiceImplNotDefinedByModule:
-			problemId = IProblem.ServiceImplNotDefinedByModule;
-	}
-	if (problemId != ProblemReasons.NoError) {
-		this.handle(problemId, NoArgument, args, impl.sourceStart, impl.sourceEnd);
-	}
+public void invalidServiceRef(int problem, TypeReference type) {
+	this.handle(problem,
+		NoArgument, new String[] { CharOperation.charToString(type.resolvedType.readableName()) },
+		type.sourceStart, type.sourceEnd);
 }
 }

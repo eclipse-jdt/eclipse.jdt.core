@@ -43,7 +43,6 @@ import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -530,7 +529,7 @@ private void acceptModuleRequirement(RequiresInfo requiresInfo, JavaElementInfo 
 
 	org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ModuleReferenceInfo info = new org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ModuleReferenceInfo();
 	info.name = requiresInfo.moduleName;
-	info.isPublic = (requiresInfo.modifiers == ClassFileConstants.AccPublic);
+	info.modifiers = requiresInfo.modifiers;
 	this.newElements.put(handle, info);
 	addToChildren(parentInfo, handle);
 }
@@ -549,13 +548,17 @@ private void acceptPackageExport(PackageExportInfo exportInfo, JavaElementInfo p
 private void acceptProvidedServices(ServicesInfo serInfo, JavaElementInfo parentInfo) {
 	JavaElement parentHandle = (JavaElement) this.handleStack.peek();
 	String serviceName = new String(serInfo.serviceName);
-	String implName = new String(serInfo.implName);
-	ProvidedService handle = new ProvidedService(parentHandle, serviceName, implName);
-	resolveDuplicates(handle); // TODO: really necessary?
+//	String implName = new String(serInfo.implName);
+	String[] implNames = new String[serInfo.implNames.length];
+	for (int i = 0; i < implNames.length; i++) {
+		implNames[i] = new String(serInfo.implNames[i]);
+	}
+	ProvidedService handle = new ProvidedService(parentHandle, serviceName, implNames);
+//	resolveDuplicates(handle); // TODO: really necessary?
 
 	org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ServiceInfo info = new org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ServiceInfo();
 	info.serviceName = serInfo.serviceName;
-	info.implName = serInfo.implName;
+	info.implNames = serInfo.implNames;
 	this.newElements.put(handle, info);
 	addToChildren(parentInfo, handle);
 }

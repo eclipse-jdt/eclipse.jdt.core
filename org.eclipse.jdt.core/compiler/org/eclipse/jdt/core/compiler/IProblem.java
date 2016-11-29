@@ -1895,7 +1895,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.13 BETA_JAVA9 */
 	int AbstractServiceImplementation = TypeRelated + 1206;
 	/** @since 3.13 BETA_JAVA9 */
-	int DefaultConstructorRequiredForServiceImpl = TypeRelated + 1207;
+	int ProviderMethodOrConstructorRequiredForServiceImpl = TypeRelated + 1207;
 	/** @since 3.13 BETA_JAVA9 */
 	int ServiceImplDefaultConstructorNotPublic = TypeRelated + 1208;
 	/** @since 3.13 BETA_JAVA9 */
@@ -1903,9 +1903,19 @@ void setSourceStart(int sourceStart);
 	/** @since 3.13 BETA_JAVA9 */
 	int ServiceImplNotDefinedByModule = TypeRelated + 1210;
 	/** @since 3.13 BETA_JAVA9 */
-	int ExportedPackageDoesNotExistOrIsEmpty = TypeRelated + 1211;
+	int PackageDoesNotExistOrIsEmpty = TypeRelated + 1211;
 	/** @since 3.13 BETA_JAVA9 */
 	int NonDenotableTypeArgumentForAnonymousDiamond = TypeRelated + 1212;
+	/** @since 3.13 BETA_JAVA9 */
+	int DuplicateOpens = TypeRelated + 1213;
+	/** @since 3.13 BETA_JAVA9 */
+	int DuplicateModuleRef = TypeRelated + 1214;
+	/** @since 3.13 BETA_JAVA9 */
+	int InvalidOpensStatement = TypeRelated + 1215;
+	/** @since 3.13 BETA_JAVA9 */
+	int InvalidServiceIntfType = TypeRelated + 1216;
+	/** @since 3.13 BETA_JAVA9 */
+	int InvalidServiceImplType = TypeRelated + 1217;
 
 	/** @since 3.13 BETA_JAVA9 */
 	int DuplicateResource = Internal + 1251;

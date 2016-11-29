@@ -26,9 +26,9 @@ public class SelectionOnModuleReference extends ModuleReference {
 	}
 
 	public ModuleBinding resolve(Scope scope) {
-		super.resolve(scope);
-		if (this.binding != null) {
-			throw new SelectionNodeFound(this.binding);
+		ModuleBinding binding = super.resolve(scope);
+		if (binding != null) {
+			throw new SelectionNodeFound(binding);
 		} else {
 			throw new SelectionNodeFound();
 		}

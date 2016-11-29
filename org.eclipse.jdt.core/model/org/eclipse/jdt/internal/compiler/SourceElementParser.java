@@ -542,8 +542,8 @@ protected void consumeNormalAnnotation(boolean isTypeAnnotation) {
 }
 protected void consumeProvidesStatement() {
 	super.consumeProvidesStatement();
-	ModuleDeclaration module = (ModuleDeclaration) this.astStack[this.astPtr];
-	TypeReference ref = module.interfaces[module.servicesCount - 1];
+	ProvidesStatement service = (ProvidesStatement) this.astStack[this.astPtr];
+	TypeReference ref = service.serviceInterface;
 	this.requestor.acceptTypeReference(ref.getTypeName(), ref.sourceStart, ref.sourceEnd);
 }
 protected void consumeSingleMemberAnnotation(boolean isTypeAnnotation) {
@@ -730,15 +730,16 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 }
 protected void consumeUsesStatement() {
 	super.consumeUsesStatement();
-	ModuleDeclaration module = (ModuleDeclaration) this.astStack[this.astPtr];
-	TypeReference ref = module.uses[module.usesCount - 1];
-	this.requestor.acceptTypeReference(ref.getTypeName(), ref.sourceStart, ref.sourceEnd);
+	UsesStatement ref = (UsesStatement) this.astStack[this.astPtr];
+	this.requestor.acceptTypeReference(ref.serviceInterface.getTypeName(), ref.sourceStart, ref.sourceEnd);
 }
 protected void consumeWithClause() {
 	super.consumeWithClause();
-	ModuleDeclaration module = (ModuleDeclaration) this.astStack[this.astPtr];
-	TypeReference ref = module.implementations[module.servicesCount - 1];
-	this.requestor.acceptTypeReference(ref.getTypeName(), ref.sourceStart, ref.sourceEnd);
+	ProvidesStatement service = (ProvidesStatement) this.astStack[this.astPtr];
+		for (int i = 0; i < service.implementations.length; i++) {
+			TypeReference ref = service.implementations[i];
+			this.requestor.acceptTypeReference(ref.getTypeName(), ref.sourceStart, ref.sourceEnd);
+		}
 }
 public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, CompilationResult compilationResult) {
 	MethodDeclaration methodDeclaration = super.convertToMethodDeclaration(c, compilationResult);
