@@ -13336,4 +13336,52 @@ public void testBug501464() {
 		"----------\n"
 	);
 }
+public void testBug508497() {
+	runConformTestWithLibs(
+		new String[] {
+			"Reference.java",
+			"interface Fluent<SELF extends Fluent<SELF>> {\n" +
+			"	SELF self();\n" +
+			"}\n" +
+			"abstract class Reference<T> {\n" +
+			"	abstract T get();\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runConformTestWithLibs(
+		new String[] {
+			"B2.java",
+			"class B2 {\n" +
+			"	void b1(Fluent f) {\n" +
+			"		f.self();\n" +
+			"	}\n" +
+			"\n" +
+			"	void b2(Reference<@org.eclipse.jdt.annotation.NonNull Fluent> ref) {\n" +
+			"		ref.get().self();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in B2.java (at line 2)\n" + 
+		"	void b1(Fluent f) {\n" + 
+		"	        ^^^^^^\n" + 
+		"Fluent is a raw type. References to generic type Fluent<SELF> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in B2.java (at line 6)\n" + 
+		"	void b2(Reference<@org.eclipse.jdt.annotation.NonNull Fluent> ref) {\n" + 
+		"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Fluent is a raw type. References to generic type Fluent<SELF> should be parameterized\n" + 
+		"----------\n" + 
+		"3. INFO in B2.java (at line 7)\n" + 
+		"	ref.get().self();\n" + 
+		"	^^^^^^^^^\n" + 
+		"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'Reference<@NonNull Fluent>\'. Type \'Reference<T>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
+		"----------\n"
+	);
+}
 }
