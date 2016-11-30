@@ -2185,19 +2185,9 @@ public UnconditionalFlowInfo unconditionalInitsWithoutSideEffect() {
 }
 public UnconditionalFlowInfo mergeDefiniteInitsWith(UnconditionalFlowInfo otherInits) {
 	if ((otherInits.tagBits & UNREACHABLE_OR_DEAD) != 0 && this != DEAD_END) {
-		if (COVERAGE_TEST_FLAG) {
-			if(CoverageTestId == 28) {
-				throw new AssertionFailedException("COVERAGE 28"); //$NON-NLS-1$
-			}
-		}
 		return this;
 	}
 	if ((this.tagBits & UNREACHABLE_OR_DEAD) != 0) {
-		if (COVERAGE_TEST_FLAG) {
-			if(CoverageTestId == 29) {
-				throw new AssertionFailedException("COVERAGE 29"); //$NON-NLS-1$
-			}
-		}
 		return (UnconditionalFlowInfo) otherInits.copy(); // make sure otherInits won't be affected
 	}
 
