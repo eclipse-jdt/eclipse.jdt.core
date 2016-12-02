@@ -31,6 +31,7 @@ public static Class[] getAllTestClasses() {
 		FieldBackPointerTest.class,
 		IndexerTest.class,
 		InheritenceTests.class,
+		LargeBlockTest.class,
 		SearchKeyTests.class
 	};
 }

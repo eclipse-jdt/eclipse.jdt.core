@@ -25,7 +25,7 @@ public class ShortString implements IString {
 	private static final int LENGTH = 0;
 	private static final int CHARS = 4;
 
-	public static final int MAX_BYTE_LENGTH = Database.MAX_MALLOC_SIZE - CHARS;
+	public static final int MAX_BYTE_LENGTH = Database.MAX_SINGLE_BLOCK_MALLOC_SIZE - CHARS;
 
 	public ShortString(Database db, long offset) {
 		this.db = db;

@@ -126,7 +126,7 @@ public final class RawGrowableArray {
 
 			GROWABLE_BLOCK_HEADER_BYTES = type.size();
 
-			MAX_GROWABLE_SIZE = (Database.MAX_MALLOC_SIZE - GROWABLE_BLOCK_HEADER_BYTES)
+			MAX_GROWABLE_SIZE = (Database.MAX_SINGLE_BLOCK_MALLOC_SIZE - GROWABLE_BLOCK_HEADER_BYTES)
 					/ Database.PTR_SIZE;
 		}
 	}
