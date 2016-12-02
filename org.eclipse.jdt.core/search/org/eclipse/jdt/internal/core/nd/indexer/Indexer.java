@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.indexer;
 
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -567,14 +567,6 @@ public final class Indexer {
 		String pathString = thePath.toString();
 		JavaIndex javaIndex = JavaIndex.getIndex(this.nd);
 
-		File theFile = thePath.toFile();
-		if (!(theFile.exists() && theFile.isFile())) {
-			if (DEBUG) {
-				Package.log("the file " + pathString + " does not exist", null); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			return 0;
-		}
-
 		NdResourceFile resourceFile;
 
 		this.nd.acquireWriteLock(subMonitor.split(5));
@@ -596,9 +588,11 @@ public final class Indexer {
 		if (DEBUG) {
 			Package.logInfo("rescanning " + thePath.toString() + ", " + fingerprint); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		int result;
+		int result = 0;
 		try {
-			result = addElement(resourceFile, element, subMonitor.split(50));
+			if (fingerprint.fileExists()) {
+				result = addElement(resourceFile, element, subMonitor.split(50));
+			}
 		} catch (JavaModelException e) {
 			if (DEBUG) {
 				Package.log("the file " + pathString + " cannot be indexed due to a recoverable error", null); //$NON-NLS-1$ //$NON-NLS-2$
@@ -618,6 +612,12 @@ public final class Indexer {
 				Package.log("A RuntimeException occurred while indexing " + pathString, e); //$NON-NLS-1$
 			}
 			throw e;
+		} catch (FileNotFoundException e) {
+			fingerprint = FileFingerprint.getEmpty();
+		}
+
+		if (DEBUG && !fingerprint.fileExists()) {
+			Package.log("the file " + pathString + " was not indexed because it does not exist", null); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		List<NdResourceFile> allResourcesWithThisPath = Collections.emptyList();
@@ -655,9 +655,10 @@ public final class Indexer {
 
 	/**
 	 * Adds an archive to the index, under the given NdResourceFile.
+	 * @throws FileNotFoundException if the file does not exist
 	 */
 	private int addElement(NdResourceFile resourceFile, IJavaElement element, IProgressMonitor monitor)
-			throws JavaModelException {
+			throws JavaModelException, FileNotFoundException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor);
 
 		if (element instanceof JarPackageFragmentRoot) {
@@ -711,6 +712,8 @@ public final class Indexer {
 			} catch (ZipException e) {
 				Package.log("The zip file " + jarRoot.getPath() + " was corrupt", e);  //$NON-NLS-1$//$NON-NLS-2$
 				// Indicates a corrupt zip file. Treat this like an empty zip file.
+			} catch (FileNotFoundException e) {
+				throw e;
 			} catch (IOException ioException) {
 				throw new JavaModelException(ioException, IJavaModelStatusConstants.IO_EXCEPTION);
 			} catch (CoreException coreException) {
@@ -729,7 +732,7 @@ public final class Indexer {
 
 			boolean indexed = false;
 			try {
-				ClassFileReader classFileReader = BinaryTypeFactory.rawReadType(descriptor, true);
+				ClassFileReader classFileReader = BinaryTypeFactory.rawReadTypeTestForExists(descriptor, true, false);
 				if (classFileReader != null) {
 					indexed = addClassToIndex(resourceFile, descriptor.fieldDescriptor, descriptor.indexPath,
 							classFileReader, iterationMonitor);

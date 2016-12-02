@@ -16,9 +16,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.env.ClassSignature;
 import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
@@ -69,8 +67,6 @@ import org.eclipse.jdt.internal.core.nd.java.NdTypeInterface;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeParameter;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeSignature;
 import org.eclipse.jdt.internal.core.nd.java.NdVariable;
-import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeDescriptor;
-import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.CharArrayBuffer;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -95,12 +91,6 @@ public final class ClassFileToIndexConverter {
 
 	private Nd getNd() {
 		return this.resource.getNd();
-	}
-
-	public static IBinaryType getTypeFromClassFile(IClassFile iClassFile, IProgressMonitor monitor)
-			throws CoreException, ClassFormatException {
-		BinaryTypeDescriptor descriptor = BinaryTypeFactory.createDescriptor(iClassFile);
-		return BinaryTypeFactory.rawReadType(descriptor, true);
 	}
 
 	/**

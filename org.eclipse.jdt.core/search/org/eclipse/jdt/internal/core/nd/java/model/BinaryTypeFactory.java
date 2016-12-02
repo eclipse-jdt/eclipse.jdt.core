@@ -10,15 +10,19 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.java.model;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IResourceStatus;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
@@ -112,9 +116,8 @@ public class BinaryTypeFactory {
 	 * no such type exists.
 	 * @throws ClassFormatException 
 	 */
-	public static IBinaryType readType(BinaryTypeDescriptor descriptor, 
-			IProgressMonitor monitor) throws JavaModelException, ClassFormatException {
-		
+	public static IBinaryType readType(BinaryTypeDescriptor descriptor, IProgressMonitor monitor) throws JavaModelException, ClassFormatException {
+
 		if (JavaIndex.isEnabled()) {
 			try {
 				return readFromIndex(JavaIndex.getIndex(), descriptor, monitor);
@@ -126,6 +129,14 @@ public class BinaryTypeFactory {
 		return rawReadType(descriptor, true);
 	}
 
+	public static ClassFileReader rawReadType(BinaryTypeDescriptor descriptor, boolean fullyInitialize) throws JavaModelException, ClassFormatException {
+		try {
+			return rawReadTypeTestForExists(descriptor, fullyInitialize, true);
+		} catch (FileNotFoundException e) {
+			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+		}
+	}
+
 	/**
 	 * Read the class file from disk, circumventing the index's cache. This should only be used by callers
 	 * that need to read information from the class file which aren't present in the index (such as method bodies).
@@ -133,15 +144,18 @@ public class BinaryTypeFactory {
 	 * @return the newly-created ClassFileReader or null if the given class file does not exist.
 	 * @throws ClassFormatException if the class file existed but was corrupt
 	 * @throws JavaModelException if unable to read the class file due to a transient failure
+	 * @throws FileNotFoundException if the file does not exist
 	 */
-	public static ClassFileReader rawReadType(BinaryTypeDescriptor descriptor, boolean fullyInitialize) throws JavaModelException, ClassFormatException {
+	public static ClassFileReader rawReadTypeTestForExists(BinaryTypeDescriptor descriptor, boolean fullyInitialize,
+			boolean useInvalidArchiveCache) throws JavaModelException, ClassFormatException, FileNotFoundException {
 		if (descriptor == null) {
 			return null;
 		}
 		if (descriptor.isInJarFile()) {
 			ZipFile zip = null;
 			try {
-				zip = JavaModelManager.getJavaModelManager().getZipFile(new Path(new String(descriptor.workspacePath)));
+				zip = JavaModelManager.getJavaModelManager().getZipFile(new Path(new String(descriptor.workspacePath)),
+						useInvalidArchiveCache);
 				char[] entryNameCharArray = CharArrayUtils.concat(
 						JavaNames.fieldDescriptorToBinaryName(descriptor.fieldDescriptor), SuffixConstants.SUFFIX_class);
 				String entryName = new String(entryNameCharArray);
@@ -162,7 +176,18 @@ public class BinaryTypeFactory {
 			}
 		} else {
 			IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(new Path(new String(descriptor.workspacePath)));
-			byte[] contents = Util.getResourceContentsAsByteArray(file);
+			byte[] contents;
+			try (InputStream stream = file.getContents(true)) {
+				contents = org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream, -1);
+			} catch (CoreException e) {
+				IStatus status = e.getStatus();
+				if (status.getCode() == IResourceStatus.RESOURCE_NOT_FOUND) {
+					throw new FileNotFoundException();
+				}
+				throw new JavaModelException(e);
+			} catch (IOException e) {
+				throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+			}
 			return new ClassFileReader(contents, file.getFullPath().toString().toCharArray(), fullyInitialize);
 		}
 		return null;

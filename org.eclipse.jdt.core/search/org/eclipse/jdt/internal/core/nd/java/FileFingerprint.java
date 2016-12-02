@@ -139,6 +139,15 @@ public class FileFingerprint {
 	}
 
 	/**
+	 * Returns true iff the file existed at the time the fingerprint was computed.
+	 * 
+	 * @return true iff the file existed at the time the fingerprint was computed.
+	 */
+	public boolean fileExists() {
+		return !equals(EMPTY);
+	}
+
+	/**
 	 * Compares the given File with the receiver. If the fingerprint matches (ie: the file
 	 */
 	public FingerprintTestResult test(IPath path, IProgressMonitor monitor) throws CoreException {

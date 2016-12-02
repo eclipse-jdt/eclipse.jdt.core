@@ -27,6 +27,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
@@ -173,7 +174,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String ASSUMED_EXTERNAL_FILES_CACHE = "assumedExternalFilesCache";  //$NON-NLS-1$
 
 	public static enum ArchiveValidity {
-		BAD_FORMAT, UNABLE_TO_READ, VALID;
+		BAD_FORMAT, UNABLE_TO_READ, FILE_NOT_FOUND, VALID;
 
 		public boolean isValid() {
 			return this == VALID;
@@ -2767,7 +2768,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * zip/jar, or it must be an absolute workspace relative path if
 	 * representing a zip/jar inside the workspace.
 	 *
-	 * @exception CoreException If unable to create/open the ZipFile
+	 * @exception CoreException If unable to create/open the ZipFile. The
+	 * cause will be a {@link ZipException} if the file was corrupt, a
+	 * {@link FileNotFoundException} if the file does not exist, or a
+	 * {@link IOException} if we were unable to read the file.
 	 */
 	public ZipFile getZipFile(IPath path) throws CoreException {
 		return getZipFile(path, true);
@@ -2782,7 +2786,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	public static boolean throwIoExceptionsInGetZipFile = false;
 
-	private ZipFile getZipFile(IPath path, boolean checkInvalidArchiveCache) throws CoreException {
+	public ZipFile getZipFile(IPath path, boolean checkInvalidArchiveCache) throws CoreException {
 		if (checkInvalidArchiveCache) {
 			throwExceptionIfArchiveInvalid(path);
 		}
@@ -2807,7 +2811,15 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 			return zipFile;
 		} catch (IOException e) {
-			ArchiveValidity reason = (e instanceof ZipException) ? ArchiveValidity.BAD_FORMAT : ArchiveValidity.UNABLE_TO_READ;
+			ArchiveValidity reason; 
+			
+			if (e instanceof ZipException) {
+				reason = ArchiveValidity.BAD_FORMAT;
+			} else if (e instanceof FileNotFoundException) {
+				reason = ArchiveValidity.FILE_NOT_FOUND;
+			} else {
+				reason = ArchiveValidity.UNABLE_TO_READ;
+			}
 			addInvalidArchive(path, reason);
 			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.status_IOException, e));
 		}
@@ -2835,13 +2847,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	private void throwExceptionIfArchiveInvalid(IPath path) throws CoreException {
 		ArchiveValidity validity = getArchiveValidity(path);
-		if (!validity.isValid()) {
-			IOException reason;
-			if (validity == ArchiveValidity.BAD_FORMAT) {
-				reason = new ZipException();
-			} else {
-				reason = new IOException();
-			}
+		IOException reason;
+		switch (validity) {
+			case BAD_FORMAT: reason = new ZipException(); break;
+			case FILE_NOT_FOUND: reason = new FileNotFoundException(); break;
+			case UNABLE_TO_READ: reason = new IOException(); break;
+			default: reason = null;
+		}
+		if (reason != null) {
 			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1, Messages.status_IOException, reason));
 		}
 	}
