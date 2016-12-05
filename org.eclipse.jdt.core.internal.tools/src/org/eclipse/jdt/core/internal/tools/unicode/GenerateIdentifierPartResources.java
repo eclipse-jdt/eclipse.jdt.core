@@ -6,6 +6,6 @@ public class GenerateIdentifierPartResources {
 
 	public static void main(String[] args) throws IOException {
 		UnicodeResourceGenerator generator = new UnicodeResourceGenerator(args, true);
-		generator.generate(new PartEnvironment());
+		generator.generate();
 	}
 }

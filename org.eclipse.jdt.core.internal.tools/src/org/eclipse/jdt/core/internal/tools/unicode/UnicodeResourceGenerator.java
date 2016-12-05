@@ -25,7 +25,13 @@ public class UnicodeResourceGenerator {
 		this.generateParts = doPart;
 	}
 
-	public void generate(Environment environment) throws IOException {
+	public void generate() throws IOException {
+		Environment environment = null;
+		if (this.generateParts) {
+			environment = new PartEnvironment();
+		} else {
+			environment = new StartEnvironment();
+		}
 		if (this.args == null) {
 			// wrong settings
 			return;
