@@ -4627,7 +4627,7 @@ protected void setPaths(ArrayList bootclasspaths,
 		}
 	}
 }
-private static boolean shouldIgnoreOptionalProblems(char[][] folderNames, char[] fileName) {
+protected final static boolean shouldIgnoreOptionalProblems(char[][] folderNames, char[] fileName) {
 	if (folderNames == null || fileName == null) {
 		return false;
 	}

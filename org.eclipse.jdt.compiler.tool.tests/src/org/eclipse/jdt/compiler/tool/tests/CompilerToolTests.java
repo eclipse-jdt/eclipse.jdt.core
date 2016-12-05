@@ -1043,6 +1043,59 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		assertTrue("delete failed", inputFile.delete());
 		assertTrue("delete failed", dir.delete());
 	}
+	
+	
+	public void testCompilerUnusedVariable() throws Exception {
+		String tmpFolder = new File(System.getProperty("java.io.tmpdir")).getCanonicalPath();
+		File inputFile = new File(tmpFolder, "NoWarn.java");
+		BufferedWriter writer = null;
+		try {
+			writer = new BufferedWriter(new FileWriter(inputFile));
+			writer.write(
+				"package p;\n" +
+				"public class NoWarn {"
+				+ "private String unused=\"testUnused\";}");
+			writer.flush();
+			writer.close();
+		} catch (IOException e) {
+			// ignore
+		} finally {
+			if (writer != null) {
+				try {
+					writer.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+		
+		// System compiler
+		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
+
+		// create new list containing inputfile
+		List<File> files = new ArrayList<File>();
+		files.add(inputFile);
+		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
+		StringWriter stringWriter = new StringWriter();
+		PrintWriter printWriter = new PrintWriter(stringWriter);
+
+		List<String> options = new ArrayList<String>();
+		options.add("-d");
+		options.add(tmpFolder);
+		
+		//Add warnings to the compiler
+		options.add("-warn:+unused");
+		//Add nowarn to prevent warnings in the created directory
+		options.add("-nowarn:["+ inputFile.getParent() + "]");
+		
+ 		CompilationTask task = compiler.getTask(printWriter, manager, null, options, null, units);
+		task.call();
+		printWriter.flush();
+		printWriter.close();
+		
+		//passing in the directory to no warn should ignore the path - resulting in no warnings.
+		assertEquals("Expected no warnings to be generated.", "", stringWriter.toString());
+	}
 	/*
 	 * Clean up the compiler
 	 */

@@ -115,10 +115,11 @@ public class EclipseCompilerImpl extends Main {
 				throw new IllegalArgumentException();
 			}
 			String name = javaFileObject.getName();
-			name = name.replace('\\', '/');
 			CompilationUnit compilationUnit = new CompilationUnit(null,
 				name,
-				null) {
+				null, 
+				null,
+				shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, name.toCharArray())) {
 
 				@Override
 				public char[] getContents() {
