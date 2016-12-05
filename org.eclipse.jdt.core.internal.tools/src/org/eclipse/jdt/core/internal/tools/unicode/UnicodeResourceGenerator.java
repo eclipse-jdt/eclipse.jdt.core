@@ -6,8 +6,9 @@ public class UnicodeResourceGenerator {
 
 	double unicodeValue = -1.0;
 	String[] args = null;
+	boolean generateParts;
 
-	UnicodeResourceGenerator(String[] args) {
+	UnicodeResourceGenerator(String[] args, boolean doPart) {
 		if (args.length != 3) {
 			System.err.println("Usage: " + GenerateIdentifierStartResources.class + " <unicode version> <path to ucd.all.flat.xml> <export directory>"); //$NON-NLS-1$ //$NON-NLS-2$
 			return;
@@ -21,6 +22,7 @@ public class UnicodeResourceGenerator {
 			return;
 		}
 		this.args = args;
+		this.generateParts = doPart;
 	}
 
 	public void generate(Environment environment) throws IOException {
@@ -28,7 +30,7 @@ public class UnicodeResourceGenerator {
 			// wrong settings
 			return;
 		}
-		String[] codePointTable = TableBuilder.buildTables(this.unicodeValue, true, environment, this.args[1]);
+		String[] codePointTable = TableBuilder.buildTables(this.unicodeValue, this.generateParts, environment, this.args[1]);
 		if (codePointTable == null) {
 			System.err.println("Generation failed"); //$NON-NLS-1$
 			return;
