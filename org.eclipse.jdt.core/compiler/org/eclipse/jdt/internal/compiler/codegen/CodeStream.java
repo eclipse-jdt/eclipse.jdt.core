@@ -4122,14 +4122,6 @@ public void imul() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_imul;
 }
 
-public int indexOfSameLineEntrySincePC(int pc, int line) {
-	for (int index = pc, max = this.pcToSourceMapSize; index < max; index+=2) {
-		if (this.pcToSourceMap[index+1] == line)
-			return index;
-	}
-	return -1;
-}
-
 public void ineg() {
 	this.countLabels = 0;
 	if (this.classFileOffset >= this.bCodeStream.length) {
@@ -6350,26 +6342,26 @@ public void recordPositionsFrom(int startPC, int sourcePos, boolean widen) {
 				int insertionIndex = insertionIndex(this.pcToSourceMap, this.pcToSourceMapSize, startPC);
 				if (insertionIndex != -1) {
 					// there is no existing entry starting with startPC.
-					int existingEntryIndex = indexOfSameLineEntrySincePC(startPC, lineNumber); // index for PC
-					/* the existingEntryIndex corresponds to an entry with the same line and a PC >= startPC.
-						in this case it is relevant to widen this entry instead of creating a new one.
-						line1: this(a,
-						  b,
-						  c);
-						with this code we generate each argument. We generate a aload0 to invoke the constructor. There is no entry for this
-						aload0 bytecode. The first entry is the one for the argument a.
-						But we want the constructor call to start at the aload0 pc and not just at the pc of the first argument.
-						So we widen the existing entry (if there is one) or we create a new entry with the startPC.
-					*/
-					if (existingEntryIndex != -1) {
-						// widen existing entry
-						this.pcToSourceMap[existingEntryIndex] = startPC;
-					} else if (insertionIndex < 1 || this.pcToSourceMap[insertionIndex - 1] != lineNumber) {
-						// we have to add an entry that won't be sorted. So we sort the pcToSourceMap.
-						System.arraycopy(this.pcToSourceMap, insertionIndex, this.pcToSourceMap, insertionIndex + 2, this.pcToSourceMapSize - insertionIndex);
-						this.pcToSourceMap[insertionIndex++] = startPC;
-						this.pcToSourceMap[insertionIndex] = lineNumber;
-						this.pcToSourceMapSize += 2;
+					if (!((insertionIndex > 1) && (this.pcToSourceMap[insertionIndex - 1] == lineNumber))) {
+						if(insertionIndex< this.pcToSourceMapSize && this.pcToSourceMap[insertionIndex + 1] == lineNumber) {
+							/* the entry at insertionIndex corresponds to an entry with the same line and a PC >= startPC.
+							in this case it is relevant to widen this entry instead of creating a new one.
+							line1: this(a,
+							  b,
+							  c);
+							with this code we generate each argument. We generate a aload0 to invoke the constructor. There is no entry for this
+							aload0 bytecode. The first entry is the one for the argument a.
+							But we want the constructor call to start at the aload0 pc and not just at the pc of the first argument.
+							So we widen the existing entry
+							 */
+							this.pcToSourceMap[insertionIndex] = startPC;
+						} else {
+							// we have to add an entry that won't be sorted. So we sort the pcToSourceMap.
+							System.arraycopy(this.pcToSourceMap, insertionIndex, this.pcToSourceMap, insertionIndex + 2, this.pcToSourceMapSize - insertionIndex);
+							this.pcToSourceMap[insertionIndex++] = startPC;
+							this.pcToSourceMap[insertionIndex] = lineNumber;
+							this.pcToSourceMapSize += 2;
+						}
 					}
 				} else if (this.position != this.lastEntryPC) { // no bytecode since last entry pc
 					if (this.lastEntryPC == startPC || this.lastEntryPC == this.pcToSourceMap[this.pcToSourceMapSize - 2]) {

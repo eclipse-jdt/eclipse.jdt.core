@@ -211,6 +211,63 @@ public void test002() throws Exception {
 		assertEquals("Wrong contents", expectedOutput, actualOutput);
 	}
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=509027
+public void testBug509027() throws Exception {
+	runConformTest(
+		new String[] {
+			"linenumber/Test.java",
+			"package linenumber;\n" +
+			"\n" +
+			"public class Test {\n" +
+			"	int[] f = { 1, // linebreak\n" +
+			"			2 };\n" +
+			"}\n" +
+			""
+		}
+	);
+
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator + "linenumber"+ File.separator  +"Test.class"));
+	String actualOutput =
+		disassembler.disassemble(
+			classFileBytes,
+			"\n",
+			ClassFileBytesDisassembler.DETAILED);
+
+	String expectedOutput =
+		"  // Method descriptor #8 ()V\n" + 
+		"  // Stack: 5, Locals: 1\n" + 
+		"  public Test();\n" + 
+		"     0  aload_0 [this]\n" + 
+		"     1  invokespecial java.lang.Object() [10]\n" + 
+		"     4  aload_0 [this]\n" + 
+		"     5  iconst_2\n" + 
+		"     6  newarray int [10]\n" + 
+		"     8  dup\n" + 
+		"     9  iconst_0\n" + 
+		"    10  iconst_1\n" + 
+		"    11  iastore\n" + 
+		"    12  dup\n" + 
+		"    13  iconst_1\n" + 
+		"    14  iconst_2\n" + 
+		"    15  iastore\n" + 
+		"    16  putfield linenumber.Test.f : int[] [12]\n" + 
+		"    19  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 3]\n" + 
+		"        [pc: 4, line: 4]\n" + 
+		"        [pc: 14, line: 5]\n" + 
+		"        [pc: 19, line: 3]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 20] local: this index: 0 type: linenumber.Test\n"; 
+	int index = actualOutput.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(actualOutput, 2));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, actualOutput);
+	}
+}
 public static Class testClass() {
 	return LineNumberAttributeTest.class;
 }
