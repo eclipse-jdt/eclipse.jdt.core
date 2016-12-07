@@ -25742,4 +25742,30 @@ public void testBug421469a() throws JavaModelException {
 		COMPLETION_PROJECT.setOptions(options);	
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=508951, Stackoverflow in RecoveredBlock.add during content assist
+public void testBug508951() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/XXABC.java",
+			"public class XXABC {\n" +
+			"	\n" +
+			"	public void m(XXAB) {\n" +
+			"		if (true) {\n" +
+			"			new Cloneable() {\n" +
+			"			};\n" +
+			"		}\n" +
+			"		new Object() {\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n" +
+			"");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "XXAB";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+		"XXABC[TYPE_REF]{XXABC, , LXXABC;, null, null, " + (R_DEFAULT + 22) + "}",
+		requestor.getResults());
+}
 }
