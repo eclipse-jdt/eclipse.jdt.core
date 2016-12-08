@@ -169,8 +169,8 @@ public class Nd {
 
 		this.db.setLocked(lockDB);
 		if (!isSupportedVersion()) {
-			Package.log("Index database is uses an unsupported version " + this.db.getVersion() //$NON-NLS-1$
-				+ " Deleting and recreating.", null); //$NON-NLS-1$
+			Package.logInfo("Index database uses the unsupported version " + this.db.getVersion() //$NON-NLS-1$
+				+ ". Deleting and recreating."); //$NON-NLS-1$
 			this.db.close();
 			this.fPath.delete();
 			this.db = new Database(this.fPath, cache, getDefaultVersion(), isPermanentlyReadOnly());

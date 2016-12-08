@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2013 IBM Corporation and others.
+ * Copyright (c) 2004, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -427,6 +427,9 @@ class DocCommentParser extends AbstractCommentParser {
 						if (length == TAG_CATEGORY_LENGTH && CharOperation.equals(TAG_CATEGORY, tagName)) {
 							this.tagValue = TAG_CATEGORY_VALUE;
 							valid = parseIdentifierTag(false); // TODO (frederic) reconsider parameter value when @category will be significant in spec
+						} else if (length == TAG_CODE_LENGTH && CharOperation.equals(TAG_CODE, tagName)) {
+							this.tagValue = TAG_CODE_VALUE;
+							createTag();
 						} else {
 							this.tagValue = TAG_OTHERS_VALUE;
 							createTag();
@@ -490,8 +493,11 @@ class DocCommentParser extends AbstractCommentParser {
 							this.tagValue = TAG_LINK_VALUE;
 						} else if (length == TAG_LINKPLAIN_LENGTH && CharOperation.equals(TAG_LINKPLAIN, tagName)) {
 							this.tagValue = TAG_LINKPLAIN_VALUE;
+						} else if (length == TAG_LITERAL_LENGTH && CharOperation.equals(TAG_LITERAL, tagName)) {
+							this.tagValue = TAG_LITERAL_VALUE;
 						}
-						if (this.tagValue != NO_TAG_VALUE)  {
+						
+						if (this.tagValue != NO_TAG_VALUE && this.tagValue != TAG_LITERAL_VALUE)  {
 							if (this.inlineTagStarted) {
 								valid = parseReference();
 							} else {
@@ -500,7 +506,7 @@ class DocCommentParser extends AbstractCommentParser {
 								valid = false;
 							}
 						} else {
-							this.tagValue = TAG_OTHERS_VALUE;
+							if (this.tagValue == NO_TAG_VALUE) this.tagValue = TAG_OTHERS_VALUE;
 							createTag();
 						}
 					break;

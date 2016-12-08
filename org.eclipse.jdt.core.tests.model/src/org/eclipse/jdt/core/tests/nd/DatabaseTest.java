@@ -18,8 +18,6 @@ import java.util.Random;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.tests.nd.util.BaseTestCase;
 import org.eclipse.jdt.internal.core.nd.Nd;
-import org.eclipse.jdt.internal.core.nd.NdNode;
-import org.eclipse.jdt.internal.core.nd.NdNodeTypeRegistry;
 import org.eclipse.jdt.internal.core.nd.db.BTree;
 import org.eclipse.jdt.internal.core.nd.db.ChunkCache;
 import org.eclipse.jdt.internal.core.nd.db.Database;
@@ -40,22 +38,18 @@ public class DatabaseTest extends BaseTestCase {
 	private static final long TEST_OFFSET = 0;
 	private Nd nd;
 	protected Database db;
-	private static final int CURRENT_VERSION = 10;
-
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		String testName = getName();
-		NdNodeTypeRegistry<NdNode> registry = new NdNodeTypeRegistry<>();
-		this.nd = new Nd(DatabaseTestUtil.getTempDbName(testName), new ChunkCache(), registry,
-				0, 100, CURRENT_VERSION);
+		this.nd = DatabaseTestUtil.createWithoutNodeRegistry(testName);
 		this.db = this.nd.getDB();
 		this.db.setExclusiveLock();
 
 		// Allocate all database chunks up to TEST_OFFSET.
 		int count = 0;
 		for (long offset = 0; offset < TEST_OFFSET;) {
-			offset = this.db.malloc(Database.MAX_MALLOC_SIZE, Database.POOL_MISC);
+			offset = this.db.malloc(Database.MAX_SINGLE_BLOCK_MALLOC_SIZE, Database.POOL_MISC);
 			if (++count >= 1000) {
 				this.db.flush();
 				count = 0;
@@ -70,27 +64,34 @@ public class DatabaseTest extends BaseTestCase {
 
 	@Override
 	protected void tearDown() throws Exception {
-		this.db.close();
-		if (!this.db.getLocation().delete()) {
-			this.db.getLocation().deleteOnExit();
-		}
-		this.db= null;
+		DatabaseTestUtil.deleteDatabase(this.db);
+		this.db = null;
+	}
+
+	public void testBytesNeededForChunks() throws Exception {
+		int numChunks = 10;
+		long bytes = Database.getBytesThatFitInChunks(numChunks);
+		int measuredChunks = Database.getChunksNeededForBytes(bytes);
+		assertEquals(numChunks, measuredChunks);
 	}
 
 	public void testBlockSizeAndFirstBlock() throws Exception {
-		assertEquals(CURRENT_VERSION, this.db.getVersion());
+		assertEquals(DatabaseTestUtil.CURRENT_VERSION, this.db.getVersion());
 
 		final int realsize = 42;
-		final int deltas = (realsize + Database.BLOCK_HEADER_SIZE + Database.BLOCK_SIZE_DELTA - 1) / Database.BLOCK_SIZE_DELTA;
+		final int deltas = (realsize + Database.BLOCK_HEADER_SIZE + Database.BLOCK_SIZE_DELTA - 1)
+				/ Database.BLOCK_SIZE_DELTA;
 		final int blocksize = deltas * Database.BLOCK_SIZE_DELTA;
-		final int freeDeltas= Database.CHUNK_SIZE / Database.BLOCK_SIZE_DELTA - deltas;
+		final int freeDeltas = Database.MAX_BLOCK_DELTAS - deltas;
 
 		long mem = this.db.malloc(realsize, Database.POOL_MISC);
 		assertEquals(-blocksize, this.db.getShort(mem - Database.BLOCK_HEADER_SIZE));
 		this.db.free(mem, Database.POOL_MISC);
 		assertEquals(blocksize, this.db.getShort(mem - Database.BLOCK_HEADER_SIZE));
-		assertEquals(mem, this.db.getRecPtr((deltas - Database.MIN_BLOCK_DELTAS +1 ) * Database.INT_SIZE));
-		assertEquals(mem + blocksize, this.db.getRecPtr((freeDeltas - Database.MIN_BLOCK_DELTAS + 1) * Database.INT_SIZE));
+		assertEquals(mem, this.db
+				.getRecPtr((deltas - Database.MIN_BLOCK_DELTAS) * Database.PTR_SIZE + Database.MALLOC_TABLE_OFFSET));
+		assertEquals(mem + blocksize, this.db.getRecPtr(
+				(freeDeltas - Database.MIN_BLOCK_DELTAS) * Database.PTR_SIZE + Database.MALLOC_TABLE_OFFSET));
 	}
 
 	public void testBug192437() throws Exception {

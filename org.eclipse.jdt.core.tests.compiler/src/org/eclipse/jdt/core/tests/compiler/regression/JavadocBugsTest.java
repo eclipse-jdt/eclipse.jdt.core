@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8880,6 +8880,367 @@ public void testBug382606() {
 				"}\n"
 			}
 		);
+}
+
+/**
+ * @bug 206345: [javadoc] compiler should not interpret contents of {@literal}
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345"
+ */
+public void testBug206345a() {
+	// @litteral tags display text without interpreting the text as HTML markup or nested javadoc tags
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X extends Object {\n" +
+		"	/**\n" +
+		"	 * This is {@literal raw text:\n" +
+		"	 * 			{@link BadLink} is just text}\n" +
+		"	 * 			{@link expected_error}\n" +
+		"	 * }\n" +
+		"	 */\n" +
+		"	public String toString() { \n" +
+		"		return \"foo\";\n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.ERROR;
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runNegativeTest(units,
+		//warning - Tag @link: reference not found: expected_error
+		"----------\n" + 
+		"1. ERROR in pkg\\X.java (at line 7)\r\n" + 
+		"	* 			{@link expected_error}\r\n" + 
+		"	  			       ^^^^^^^^^^^^^^\n" + 
+		"Javadoc: expected_error cannot be resolved to a type\n" + 
+		"----------\n");
+}	
+public void testBug206345b() {
+	// same for @code tags
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X extends Object {\n" +
+		"	/**\n" +
+		"	 * This is {@code raw text:\n" +
+		"	 * 			{@link BadLink} is just text}\n" +
+		"	 * 			{@link expected_error}\n" +
+		"	 * }\n" +
+		"	 */\n" +
+		"	public String toString() { \n" +
+		"		return \"foo\";\n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.ERROR;
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runNegativeTest(units,
+		// warning - Tag @link: reference not found: expected_error
+		"----------\n" + 
+		"1. ERROR in pkg\\X.java (at line 7)\r\n" + 
+		"	* 			{@link expected_error}\r\n" + 
+		"	  			       ^^^^^^^^^^^^^^\n" + 
+		"Javadoc: expected_error cannot be resolved to a type\n" + 
+		"----------\n");
+}	
+public void testBug206345c() {
+	// verify we still validate other syntax
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X extends Object {\n" +
+		"	/**\n" +
+		"	 * This is {@link raw text:\n" +
+		"	 * 			{@link BadLink} is just text}\n" +
+		"	 * 			{@link expected_error}\n" +
+		"	 * }\n" +
+		"	 */\n" +
+		"	public String toString() { \n" +
+		"		return \"foo\";\n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.ERROR;
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runNegativeTest(units,
+		// warning - Tag @link: reference not found: raw text: {@link BadLink} is just text
+		// warning - Tag @link: reference not found: expected_error
+		//
+		"----------\n" + 
+		"1. ERROR in pkg\\X.java (at line 5)\n" + 
+		"	* This is {@link raw text:\n" + 
+		"	          ^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: Missing closing brace for inline tag\n" + 
+		"----------\n" + 
+		"2. ERROR in pkg\\X.java (at line 5)\n" + 
+		"	* This is {@link raw text:\n" + 
+		"	                 ^^^\n" + 
+		"Javadoc: raw cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"3. ERROR in pkg\\X.java (at line 6)\n" + 
+		"	* 			{@link BadLink} is just text}\n" + 
+		"	  			       ^^^^^^^\n" + 
+		"Javadoc: BadLink cannot be resolved to a type\n" + 
+		"----------\n" + 
+		"4. ERROR in pkg\\X.java (at line 7)\n" + 
+		"	* 			{@link expected_error}\n" + 
+		"	  			       ^^^^^^^^^^^^^^\n" + 
+		"Javadoc: expected_error cannot be resolved to a type\n" + 
+		"----------\n");
+}	
+public void testBug206345d() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X extends Object {\n" +
+		"	/**\n" +
+		"	 * This is {@literal raw text:\n" +
+		"	 * 			{@link BadLink}}}} is just text}\n" +
+		"	 * 			{@link expected_error}\n" +
+		"	 * }\n" +
+		"	 */\n" +
+		"	public String toString() { \n" +
+		"		return \"foo\";\n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.ERROR;
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runNegativeTest(units,
+		// warning - Tag @link: reference not found: expected_error
+		"----------\n" + 
+		"1. ERROR in pkg\\X.java (at line 7)\n" + 
+		"	* 			{@link expected_error}\n" + 
+		"	  			       ^^^^^^^^^^^^^^\n" + 
+		"Javadoc: expected_error cannot be resolved to a type\n" + 
+		"----------\n");
+}	
+public void testBug206345e() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X extends Object {\n" +
+		"	/**\n" +
+		"	 * This is {@code raw text:\n" +
+		"	 * 			{{{{{{@link BadLink}}} is just text}\n" +
+		"	 * @since 4.2\n" +
+		"	 */\n" +
+		"	public String toString() { \n" +
+		"		return \"foo\";\n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.ERROR;
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runNegativeTest(units,
+		// warning - End Delimiter } missing for possible See Tag in comment string: "This is {@code raw text: {{{{{{@link BadLink}}} is just text}"
+		"----------\n" + 
+		"1. ERROR in pkg\\X.java (at line 5)\r\n" + 
+		"	* This is {@code raw text:\n" + 
+		"	 * 			{{{{{{@link BadLink}}} is just text}\r\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: Missing closing brace for inline tag\n" + 
+		"----------\n");
+}
+public void testBug206345f() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X extends Object {\n" +
+		"	/**\n" +
+		"	 * This is {@code raw text:\n" +
+		"	 * 			{@link BadLink}\n" +
+		"	 * @since 4.2\n" +
+		"	 */\n" +
+		"	public String toString() { \n" +
+		"		return \"foo\";\n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.ERROR;
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runNegativeTest(units,
+		// warning - End Delimiter } missing for possible See Tag in comment string: "This is {@code raw text: {@link BadLink}"
+		"----------\n" + 
+		"1. ERROR in pkg\\X.java (at line 5)\r\n" + 
+		"	* This is {@code raw text:\n" + 
+		"	 * 			{@link BadLink}\r\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: Missing closing brace for inline tag\n" + 
+		"----------\n");
+	}
+public void testBug206345g() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X extends Object {\n" +
+		"	/**\n" +
+		"	 * This is {@code raw text:\n" +
+		"	 * 			{@link BadLink\n" +
+		"	 * @since 4.2\n" +
+		"	 */\n" +
+		"	public String toString() { \n" +
+		"		return \"foo\";\n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.ERROR;
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runNegativeTest(units,
+		"----------\n" + 
+		"1. ERROR in pkg\\X.java (at line 5)\n" + 
+		"	* This is {@code raw text:\n" + 
+		"	          ^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: Missing closing brace for inline tag\n" + 
+		"----------\n");
+}
+public void testBug206345h() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X extends Object {\n" +
+		"	/**\n" +
+		"	 * This is {@code raw text:\n" +
+		"	 * @since 4.2\n" +
+		"	 */\n" +
+		"	public String toString() { \n" +
+		"		return \"foo\";\n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.ERROR;
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runNegativeTest(units,
+		"----------\n" + 
+		"1. ERROR in pkg\\X.java (at line 5)\r\n" + 
+		"	* This is {@code raw text:\r\n" + 
+		"	          ^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: Missing closing brace for inline tag\n" + 
+		"----------\n");
+}
+public void testBug206345i() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X extends Object {\n" +
+		"	/**\n" +
+		"	 * This is {@code raw text:\n" +
+		"	 */\n" +
+		"	public String toString() { \n" +
+		"		return \"foo\";\n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.ERROR;
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runNegativeTest(units,
+		"----------\n" + 
+		"1. ERROR in pkg\\X.java (at line 5)\r\n" + 
+		"	* This is {@code raw text:\r\n" + 
+		"	          ^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: Missing closing brace for inline tag\n" + 
+		"----------\n");
+}
+public void testBug206345j() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X extends Object {\n" +
+		"	/**\n" +
+		"	 * This is {@literal raw text:\n" +
+		"	 * 			{@link BadLink} is just text}\n" +
+		"	 */\n" +
+		"	public String toString() { \n" +
+		"		return \"foo\";\n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.ERROR;
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runConformReferenceTest(units);
+}	
+public void testBug206345k() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X extends Object {\n" +
+		"	/**\n" +
+		"	 * This is {@code raw text:\n" +
+		"	 * 			{@link BadLink} is just text}\n" +
+		"	 * }\n" +
+		"	 */\n" +
+		"	public String toString() { \n" +
+		"		return \"foo\";\n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.ERROR;
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runConformReferenceTest(units);
+}
+public void testBug206345l() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X extends Object {\n" +
+		"	/**\n" +
+		"	 * This is {@literal raw text:\n" +
+		"	 * 			{@link BadLink}\n" +
+		"	 */\n" +
+		"	public String toString() { \n" +
+		"		return \"foo\";\n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.ERROR;
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runNegativeTest(units,
+		// warning - End Delimiter } missing for possible See Tag in comment string: "This is {@literal raw text: {@link BadLink}"
+		"----------\n" + 
+		"1. ERROR in pkg\\X.java (at line 5)\n" + 
+		"	* This is {@literal raw text:\n" + 
+		"	 * 			{@link BadLink}\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: Missing closing brace for inline tag\n" + 
+		"----------\n");
+}	
+public void testBug206345m() {
+	String[] units = new String[] {
+		"pkg/X.java",
+		"package pkg;\n" +
+		"\n" +
+		"public class X extends Object {\n" +
+		"	/**\n" +
+		"	 * This is {@code raw text:\n" +
+		"	 * 			{@link BadLink}\n" +
+		"	 */\n" +
+		"	public String toString() { \n" +
+		"		return \"foo\";\n" +
+		"	}\n" +
+		"}\n"
+	};
+	this.reportInvalidJavadoc = CompilerOptions.ERROR;
+	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
+	runNegativeTest(units,
+		// warning - End Delimiter } missing for possible See Tag in comment string: "This is {@code raw text: {@link BadLink}"
+		"----------\n" + 
+		"1. ERROR in pkg\\X.java (at line 5)\n" + 
+		"	* This is {@code raw text:\n" + 
+		"	 * 			{@link BadLink}\n" + 
+		"	          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Javadoc: Missing closing brace for inline tag\n" + 
+		"----------\n");
 }
 }
 
