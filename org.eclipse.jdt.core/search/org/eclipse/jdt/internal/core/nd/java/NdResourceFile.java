@@ -81,7 +81,7 @@ public class NdResourceFile extends NdTreeNode {
 			Nd nd = getNd();
 			// In the common case where the resource file was deleted and the memory hasn't yet been reused,
 			// this will fail.
-			if (NODE_TYPE.get(nd, this.address) != nd.getNodeType(getClass())) {
+			if (!nd.isValidAddress(this.address) || NODE_TYPE.get(nd, this.address) != nd.getNodeType(getClass())) {
 				return false;
 			}
 

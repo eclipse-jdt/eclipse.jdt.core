@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.core.nd.db.IndexException;
 /**
  * Network Database for storing semantic information.
  */
-public class Nd {
+public final class Nd {
 	private static final int CANCELLATION_CHECK_INTERVAL = 500;
 	private static final int BLOCKED_WRITE_LOCK_OUTPUT_INTERVAL = 30000;
 	private static final int LONG_WRITE_LOCK_REPORT_THRESHOLD = 1000;
@@ -614,5 +614,9 @@ public class Nd {
 
 	public void clear(IProgressMonitor monitor) {
 		getDB().clear(getDefaultVersion());
+	}
+
+	public boolean isValidAddress(long address) {
+		return address > 0 && address < getDB().getChunkCount() * Database.CHUNK_SIZE;
 	}
 }
