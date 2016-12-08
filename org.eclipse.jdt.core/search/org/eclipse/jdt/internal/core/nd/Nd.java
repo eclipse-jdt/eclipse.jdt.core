@@ -192,6 +192,7 @@ public class Nd {
 	private long lastWriteAccess= 0;
 	//private long lastReadAccess= 0;
 	private long timeWriteLockAcquired;
+	private Thread writeLockOwner;
 
 	public IReader acquireReadLock() {
 		try {
@@ -281,7 +282,7 @@ public class Nd {
 
 			// Let the readers go first
 			long start= sDEBUG_LOCKS ? System.currentTimeMillis() : 0;
-			while (this.lockCount > giveupReadLocks || this.waitingReaders > 0) {
+			while (this.lockCount > giveupReadLocks || this.waitingReaders > 0 || (this.lockCount < 0)) {
 				this.mutex.wait(CANCELLATION_CHECK_INTERVAL);
 				if (monitor != null && monitor.isCanceled()) {
 					throw new OperationCanceledException();
@@ -294,6 +295,10 @@ public class Nd {
 			if (sDEBUG_LOCKS)
 				this.timeWriteLockAcquired = System.currentTimeMillis();
 			this.db.setExclusiveLock();
+			if (this.writeLockOwner != null && this.writeLockOwner != Thread.currentThread()) {
+				throw new IllegalStateException("We somehow managed to acquire a write lock while another thread already holds it."); //$NON-NLS-1$
+			}
+			this.writeLockOwner = Thread.currentThread();
 		}
 	}
 
@@ -303,6 +308,13 @@ public class Nd {
 
 	@SuppressWarnings("nls")
 	public void releaseWriteLock(int establishReadLocks, boolean flush) {
+		synchronized (this.mutex) {
+			Thread current = Thread.currentThread();
+			if (current != this.writeLockOwner) {
+				throw new IllegalStateException("Index wasn't locked by this thread!!!");
+			}
+			this.writeLockOwner = null;
+		}
 		boolean wasInterrupted = false;
 		// When all locks are released we can clear the result cache.
 		if (establishReadLocks == 0) {
