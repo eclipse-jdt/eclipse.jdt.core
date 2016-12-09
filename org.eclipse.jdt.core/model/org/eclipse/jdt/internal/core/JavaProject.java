@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -367,7 +368,6 @@ public class JavaProject
 	 * @throws JavaModelException
 	 */
 	public static void validateCycles(Map preferredClasspaths) throws JavaModelException {
-
 		//long start = System.currentTimeMillis();
 
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
@@ -375,7 +375,7 @@ public class JavaProject
 		int length = rscProjects.length;
 		JavaProject[] projects = new JavaProject[length];
 
-		LinkedHashSet cycleParticipants = new LinkedHashSet();
+		LinkedHashSet<IPath> cycleParticipants = new LinkedHashSet<>();
 		HashSet traversed = new HashSet();
 
 		// compute cycle participants
@@ -391,50 +391,46 @@ public class JavaProject
 		}
 		//System.out.println("updateAllCycleMarkers: " + (System.currentTimeMillis() - start) + " ms");
 
-		for (int i = 0; i < length; i++){
-			JavaProject project = projects[i];
-			if (project != null) {
-				if (cycleParticipants.contains(project.getPath())){
-					IMarker cycleMarker = project.getCycleMarker();
-					String circularCPOption = project.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH, true);
-					int circularCPSeverity = JavaCore.ERROR.equals(circularCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING;
-					if (cycleMarker != null) {
-						// update existing cycle marker if needed
-						try {
-							int existingSeverity = ((Integer)cycleMarker.getAttribute(IMarker.SEVERITY)).intValue();
-							if (existingSeverity != circularCPSeverity) {
-								cycleMarker.setAttribute(IMarker.SEVERITY, circularCPSeverity);
+		if (!cycleParticipants.isEmpty()) {
+			String cycleString = cycleParticipants.stream()
+				.map(path -> workspaceRoot.findMember(path))
+				.filter(r -> r != null)
+				.map(r -> JavaCore.create((IProject)r))
+				.filter(p -> p != null)
+				.map(p -> p.getElementName())
+				.collect(Collectors.joining(", ")); //$NON-NLS-1$
+
+			for (int i = 0; i < length; i++){
+				JavaProject project = projects[i];
+				if (project != null) {
+					if (cycleParticipants.contains(project.getPath())){
+						IMarker cycleMarker = project.getCycleMarker();
+						String circularCPOption = project.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH, true);
+						int circularCPSeverity = JavaCore.ERROR.equals(circularCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING;
+						if (cycleMarker != null) {
+							// update existing cycle marker if needed
+							try {
+								int existingSeverity = ((Integer)cycleMarker.getAttribute(IMarker.SEVERITY)).intValue();
+								if (existingSeverity != circularCPSeverity) {
+									cycleMarker.setAttribute(IMarker.SEVERITY, circularCPSeverity);
+								}
+								String existingMessage = cycleMarker.getAttribute(IMarker.MESSAGE, "");
+								String newMessage = new JavaModelStatus(IJavaModelStatusConstants.CLASSPATH_CYCLE,
+										project, cycleString).getMessage();
+								if (!newMessage.equals(existingMessage)) {
+									cycleMarker.setAttribute(IMarker.MESSAGE, newMessage);
+								}
+							} catch (CoreException e) {
+								throw new JavaModelException(e);
 							}
-						} catch (CoreException e) {
-							throw new JavaModelException(e);
+						} else {
+							// create new marker
+							project.createClasspathProblemMarker(
+								new JavaModelStatus(IJavaModelStatusConstants.CLASSPATH_CYCLE, project, cycleString));
 						}
 					} else {
-						IJavaProject[] projectsInCycle;
-						String cycleString = "";	 //$NON-NLS-1$
-						if (cycleParticipants.isEmpty()) {
-							projectsInCycle = null;
-						} else {
-							projectsInCycle = new IJavaProject[cycleParticipants.size()];
-							Iterator it = cycleParticipants.iterator();
-							int k = 0;
-							while (it.hasNext()) {
-								//projectsInCycle[i++] = (IPath) it.next();
-								IResource member = workspaceRoot.findMember((IPath) it.next());
-								if (member != null && member.getType() == IResource.PROJECT){
-									projectsInCycle[k] = JavaCore.create((IProject)member);
-									if (projectsInCycle[k] != null) {
-										if (k != 0) cycleString += ", "; //$NON-NLS-1$
-										cycleString += projectsInCycle[k++].getElementName();
-									}
-								}
-							}
-						}
-						// create new marker
-						project.createClasspathProblemMarker(
-							new JavaModelStatus(IJavaModelStatusConstants.CLASSPATH_CYCLE, project, cycleString));
+						project.flushClasspathProblemMarkers(true, false, false);
 					}
-				} else {
-					project.flushClasspathProblemMarkers(true, false, false);
 				}
 			}
 		}

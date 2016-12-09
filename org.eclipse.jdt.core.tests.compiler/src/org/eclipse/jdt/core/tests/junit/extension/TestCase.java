@@ -37,6 +37,7 @@ import junit.framework.TestSuite;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 import org.eclipse.test.OrderedTestSuite;
 import org.eclipse.test.internal.performance.PerformanceMeterFactory;
 import org.eclipse.test.performance.Performance;
@@ -816,6 +817,7 @@ protected boolean isFirst() {
 }
 
 protected void setUp() throws Exception {
+	Indexer.getInstance().enableAutomaticIndexing(false);
 	super.setUp();
 
 	// Store test class and its name when changing
@@ -903,6 +905,8 @@ public void stopMeasuring() {
 
 protected void tearDown() throws Exception {
 	super.tearDown();
+
+	Indexer.getInstance().enableAutomaticIndexing(true);
 
 	// Memory storage if specified
 	if (STORE_MEMORY != null && MEM_LOG_FILE != null) {
