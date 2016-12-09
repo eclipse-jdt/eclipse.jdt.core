@@ -6402,12 +6402,13 @@ public void recordPositionsFrom(int startPC, int sourcePos, boolean widen) {
 					 * we want to check if it is worth doing an arraycopy. If not we simply update the recorded pc.
 					 */
 					if (!((insertionIndex > 1) && (this.pcToSourceMap[insertionIndex - 1] == lineNumber))) {
-						if ((this.pcToSourceMapSize > 4) && (this.pcToSourceMap[this.pcToSourceMapSize - 4] > startPC)) {
-							System.arraycopy(this.pcToSourceMap, insertionIndex, this.pcToSourceMap, insertionIndex + 2, this.pcToSourceMapSize - 2 - insertionIndex);
+						if (this.pcToSourceMap[insertionIndex + 1] != lineNumber) {
+							System.arraycopy(this.pcToSourceMap, insertionIndex, this.pcToSourceMap, insertionIndex + 2, this.pcToSourceMapSize - insertionIndex);
 							this.pcToSourceMap[insertionIndex++] = startPC;
 							this.pcToSourceMap[insertionIndex] = lineNumber;
+							this.pcToSourceMapSize += 2;
 						} else {
-							this.pcToSourceMap[this.pcToSourceMapSize - 2] = startPC;
+							this.pcToSourceMap[insertionIndex] = startPC;
 						}
 					}
 				}
