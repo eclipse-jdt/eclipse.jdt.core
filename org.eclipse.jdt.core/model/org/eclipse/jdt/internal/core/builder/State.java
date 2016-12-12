@@ -24,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
+import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.ClasspathAccessRule;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
@@ -279,8 +280,9 @@ static State read(IProject project, DataInputStream in) throws IOException {
 							readRestriction(in), new Path(in.readUTF()), newState.environment, in.readBoolean());
 				break;
 			case EXTERNAL_JAR :
-					newState.binaryLocations[i] = ClasspathLocation.forLibrary(in.readUTF(), in.readLong(),
-							readRestriction(in), new Path(in.readUTF()), newState.environment, in.readBoolean());
+				String jarPath = in.readUTF();
+				newState.binaryLocations[i] = ClasspathLocation.forLibrary(jarPath, in.readLong(),
+							readRestriction(in), new Path(in.readUTF()), newState.environment, Util.isJrt(jarPath) ? false : in.readBoolean());
 				break;
 			case INTERNAL_JAR :
 					newState.binaryLocations[i] = ClasspathLocation.forLibrary(root.getFile(new Path(in.readUTF())),
