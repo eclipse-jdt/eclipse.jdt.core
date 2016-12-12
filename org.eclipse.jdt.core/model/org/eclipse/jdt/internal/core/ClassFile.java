@@ -39,10 +39,12 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.nd.java.JavaNames;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeDescriptor;
@@ -382,27 +384,38 @@ private IBinaryType getJarBinaryTypeInfo() throws CoreException, IOException, Cl
 	if (descriptor == null) {
 		return null;
 	}
+	IBinaryType result = null;
 
-	IBinaryType result = BinaryTypeFactory.readType(descriptor, null);
+	if (getPackageFragmentRoot() instanceof JarPackageFragmentRoot) {
+		PackageFragment pkg = (PackageFragment) getParent();
+		JarPackageFragmentRoot root = (JarPackageFragmentRoot) getPackageFragmentRoot();
+		String entryName = Util.concatWith(pkg.names, getElementName(), '/');
+		if (root instanceof JrtPackageFragmentRoot) {
+			byte[] contents = getClassFileContent(root, entryName);
+			if (contents != null) {
+				String fileName;
+				String rootPath = root.getPath().toOSString();
+				if (org.eclipse.jdt.internal.compiler.util.Util.isJrt(rootPath)) {
+					fileName = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + 
+							root.getElementName() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
+				} else {
+					fileName = root.getHandleIdentifier() + IDependent.JAR_FILE_ENTRY_SEPARATOR + entryName;
+				}
+				result = new ClassFileReader(contents, fileName.toCharArray(), false);
+			}
+		} else {
+			result = BinaryTypeFactory.readType(descriptor, null);
+		}
 
-	if (result == null) {
-		return null;
-	}
-
-	// TODO(sxenos): setup the external annotation provider if the IBinaryType came from the index
-	// TODO(sxenos): the old code always passed null as the third argument to setupExternalAnnotationProvider,
-	// but this looks like a bug. I've preserved it for now but we need to figure out what was supposed to go
-	// there.
-	PackageFragment pkg = (PackageFragment) getParent();
-	IJavaElement grandparent = pkg.getParent();
-	if (grandparent instanceof JarPackageFragmentRoot) {
-		JarPackageFragmentRoot root = (JarPackageFragmentRoot) grandparent;
-
+		// TODO(sxenos): setup the external annotation provider if the IBinaryType came from the index
+		// TODO(sxenos): the old code always passed null as the third argument to setupExternalAnnotationProvider,
+		// but this looks like a bug. I've preserved it for now but we need to figure out what was supposed to go
+		// there.
 		if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
 			JavaProject javaProject = (JavaProject) getAncestor(IJavaElement.JAVA_PROJECT);
 			IClasspathEntry entry = javaProject.getClasspathEntryFor(getPath());
 			if (entry != null) {
-				String entryName = new String(CharArrayUtils.concat(
+				entryName = new String(CharArrayUtils.concat(
 						JavaNames.fieldDescriptorToBinaryName(descriptor.fieldDescriptor), SuffixConstants.SUFFIX_CLASS));
 				IProject project = javaProject.getProject();
 				IPath externalAnnotationPath = ClasspathEntry.getExternalAnnotationPath(entry, project, false); // unresolved for use in ExternalAnnotationTracker
