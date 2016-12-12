@@ -385,13 +385,13 @@ private IBinaryType getJarBinaryTypeInfo() throws CoreException, IOException, Cl
 		return null;
 	}
 	IBinaryType result = null;
-
+	IPackageFragmentRoot root = getPackageFragmentRoot();
 	if (getPackageFragmentRoot() instanceof JarPackageFragmentRoot) {
 		PackageFragment pkg = (PackageFragment) getParent();
-		JarPackageFragmentRoot root = (JarPackageFragmentRoot) getPackageFragmentRoot();
+		JarPackageFragmentRoot jarRoot = (JarPackageFragmentRoot) getPackageFragmentRoot();
 		String entryName = Util.concatWith(pkg.names, getElementName(), '/');
 		if (root instanceof JrtPackageFragmentRoot) {
-			byte[] contents = getClassFileContent(root, entryName);
+			byte[] contents = getClassFileContent(jarRoot, entryName);
 			if (contents != null) {
 				String fileName;
 				String rootPath = root.getPath().toOSString();
@@ -406,25 +406,33 @@ private IBinaryType getJarBinaryTypeInfo() throws CoreException, IOException, Cl
 		} else {
 			result = BinaryTypeFactory.readType(descriptor, null);
 		}
+	} else {
+		result = BinaryTypeFactory.readType(descriptor, null);
+	}
+		
+	if (result == null) {
+		return null;
+	}
 
-		// TODO(sxenos): setup the external annotation provider if the IBinaryType came from the index
-		// TODO(sxenos): the old code always passed null as the third argument to setupExternalAnnotationProvider,
-		// but this looks like a bug. I've preserved it for now but we need to figure out what was supposed to go
-		// there.
-		if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
-			JavaProject javaProject = (JavaProject) getAncestor(IJavaElement.JAVA_PROJECT);
-			IClasspathEntry entry = javaProject.getClasspathEntryFor(getPath());
-			if (entry != null) {
-				entryName = new String(CharArrayUtils.concat(
-						JavaNames.fieldDescriptorToBinaryName(descriptor.fieldDescriptor), SuffixConstants.SUFFIX_CLASS));
-				IProject project = javaProject.getProject();
-				IPath externalAnnotationPath = ClasspathEntry.getExternalAnnotationPath(entry, project, false); // unresolved for use in ExternalAnnotationTracker
-				if (externalAnnotationPath != null) {
-					result = setupExternalAnnotationProvider(project, externalAnnotationPath, null, result, 
+	// TODO(sxenos): setup the external annotation provider if the IBinaryType came from the index
+	// TODO(sxenos): the old code always passed null as the third argument to setupExternalAnnotationProvider,
+	// but this looks like a bug. I've preserved it for now but we need to figure out what was supposed to go
+	// there.
+	if (root.getKind() == IPackageFragmentRoot.K_BINARY) {
+		JavaProject javaProject = (JavaProject) getAncestor(IJavaElement.JAVA_PROJECT);
+		IClasspathEntry entry = javaProject.getClasspathEntryFor(getPath());
+		if (entry != null) {
+			PackageFragment pkg = (PackageFragment) getParent();
+			String entryName = Util.concatWith(pkg.names, getElementName(), '/');
+			entryName = new String(CharArrayUtils.concat(
+					JavaNames.fieldDescriptorToBinaryName(descriptor.fieldDescriptor), SuffixConstants.SUFFIX_CLASS));
+			IProject project = javaProject.getProject();
+			IPath externalAnnotationPath = ClasspathEntry.getExternalAnnotationPath(entry, project, false); // unresolved for use in ExternalAnnotationTracker
+			if (externalAnnotationPath != null) {
+				result = setupExternalAnnotationProvider(project, externalAnnotationPath, null, result, 
 						entryName.substring(0, entryName.length() - SuffixConstants.SUFFIX_CLASS.length));
-				} else if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-					result = new ExternalAnnotationDecorator(result, true);
-				}
+			} else if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+				result = new ExternalAnnotationDecorator(result, true);
 			}
 		}
 	}
