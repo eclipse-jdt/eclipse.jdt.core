@@ -957,4 +957,20 @@ protected void runTest() throws Throwable {
 		Thread.interrupted();
 	}
 }
+
+public static void resetForgottenFilters(List<Class<?>> testClasses) {
+	for (Class<?> clazz : testClasses) {
+		try {
+			Class.forName(clazz.getName(), true, clazz.getClassLoader()); // force initialization
+		} catch (ClassNotFoundException e) {
+			// "cannot happen"
+		}
+	}
+	// Reset forgotten subsets tests
+	TESTS_PREFIX = null;
+	TESTS_NAMES = null;
+	TESTS_NUMBERS= null;
+	TESTS_RANGE = null;
+	RUN_ONLY_ID = null;
+}
 }
