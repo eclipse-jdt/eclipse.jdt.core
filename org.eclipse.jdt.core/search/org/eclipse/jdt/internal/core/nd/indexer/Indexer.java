@@ -42,8 +42,8 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
-import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobGroup;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
@@ -116,17 +116,7 @@ public final class Indexer {
 	 */
 	private Set<Listener> listeners = Collections.newSetFromMap(new WeakHashMap<Listener, Boolean>());
 
-	private ISchedulingRule schedulingRule = new ISchedulingRule() {
-		@Override
-		public boolean isConflicting(ISchedulingRule rule) {
-			return rule == this;
-		}
-		
-		@Override
-		public boolean contains(ISchedulingRule rule) {
-			return rule == this;
-		}
-	};
+	private JobGroup group = new JobGroup(Messages.Indexer_updating_index_job_name, 1, 1);
 
 	private Job rescanJob = Job.create(Messages.Indexer_updating_index_job_name, monitor -> {
 		rescan(monitor);
@@ -1004,9 +994,9 @@ public final class Indexer {
 		this.nd = toPopulate;
 		this.root = workspaceRoot;
 		this.rescanJob.setSystem(true);
-		this.rescanJob.setRule(this.schedulingRule);
+		this.rescanJob.setJobGroup(this.group);
 		this.rebuildIndexJob.setSystem(true);
-		this.rebuildIndexJob.setRule(this.schedulingRule);
+		this.rebuildIndexJob.setJobGroup(this.group);
 	}
 
 	public void rescanAll() {
