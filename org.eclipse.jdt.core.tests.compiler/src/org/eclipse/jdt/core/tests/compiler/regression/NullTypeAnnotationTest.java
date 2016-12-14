@@ -13418,4 +13418,44 @@ public void testBug508497() {
 		"----------\n"
 	);
 }
+public void testBug509025() {
+	runConformTestWithLibs(
+		new String[] {
+			"MyAnno.java",
+			"import java.lang.annotation.Retention;\n" +
+			"import java.lang.annotation.RetentionPolicy;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@Retention(RetentionPolicy.RUNTIME)\n" +
+			"@NonNullByDefault\n" +
+			"public @interface MyAnno {\n" +
+			"	@NonNull String[] items();\n" +
+			"\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runConformTestWithLibs(
+		new String[] {
+			"AnnoLoop.java",
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class AnnoLoop {\n" +
+			"	@NonNull\n" +
+			"	String[] test(MyAnno anno) {\n" +
+			"		return anno.items();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
 }
