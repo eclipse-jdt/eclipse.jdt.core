@@ -2687,6 +2687,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 					System.out.println(testFiles[i + 1]);
 					System.out.println("]"); //$NON-NLS-1$
 				}
+				assertEquals(this.verifier.failureReason, expectedErrorString == null ? "" : expectedErrorString, execErrorString);
+				assertEquals(this.verifier.failureReason, expectedOutputString == null ? "" : expectedOutputString, execOutputString);
 			}
 			assertTrue(this.verifier.failureReason, // computed by verifyClassFiles(...) action
 					passed);

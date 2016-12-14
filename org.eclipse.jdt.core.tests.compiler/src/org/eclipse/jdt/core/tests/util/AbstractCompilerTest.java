@@ -509,6 +509,16 @@ public class AbstractCompilerTest extends TestCase {
 		return (AbstractCompilerTest.getPossibleComplianceLevels() & compliance) != 0;
 	}
 
+	public String decorateAnnotationValueLiteral(String val) {
+		if (!isJRE9) {
+			return val;
+		}
+		StringBuilder builder = new StringBuilder(val);
+		builder.insert(0, "\"");
+		builder.append("\"");
+		return builder.toString();
+	}
+
 	public AbstractCompilerTest(String name) {
 		super(name);
 	}
