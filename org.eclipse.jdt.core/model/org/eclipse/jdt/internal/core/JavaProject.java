@@ -391,46 +391,44 @@ public class JavaProject
 		}
 		//System.out.println("updateAllCycleMarkers: " + (System.currentTimeMillis() - start) + " ms");
 
-		if (!cycleParticipants.isEmpty()) {
-			String cycleString = cycleParticipants.stream()
-				.map(path -> workspaceRoot.findMember(path))
-				.filter(r -> r != null)
-				.map(r -> JavaCore.create((IProject)r))
-				.filter(p -> p != null)
-				.map(p -> p.getElementName())
-				.collect(Collectors.joining(", ")); //$NON-NLS-1$
+		String cycleString = cycleParticipants.stream()
+			.map(path -> workspaceRoot.findMember(path))
+			.filter(r -> r != null)
+			.map(r -> JavaCore.create((IProject)r))
+			.filter(p -> p != null)
+			.map(p -> p.getElementName())
+			.collect(Collectors.joining(", ")); //$NON-NLS-1$
 
-			for (int i = 0; i < length; i++){
-				JavaProject project = projects[i];
-				if (project != null) {
-					if (cycleParticipants.contains(project.getPath())){
-						IMarker cycleMarker = project.getCycleMarker();
-						String circularCPOption = project.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH, true);
-						int circularCPSeverity = JavaCore.ERROR.equals(circularCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING;
-						if (cycleMarker != null) {
-							// update existing cycle marker if needed
-							try {
-								int existingSeverity = ((Integer)cycleMarker.getAttribute(IMarker.SEVERITY)).intValue();
-								if (existingSeverity != circularCPSeverity) {
-									cycleMarker.setAttribute(IMarker.SEVERITY, circularCPSeverity);
-								}
-								String existingMessage = cycleMarker.getAttribute(IMarker.MESSAGE, "");
-								String newMessage = new JavaModelStatus(IJavaModelStatusConstants.CLASSPATH_CYCLE,
-										project, cycleString).getMessage();
-								if (!newMessage.equals(existingMessage)) {
-									cycleMarker.setAttribute(IMarker.MESSAGE, newMessage);
-								}
-							} catch (CoreException e) {
-								throw new JavaModelException(e);
+		for (int i = 0; i < length; i++){
+			JavaProject project = projects[i];
+			if (project != null) {
+				if (cycleParticipants.contains(project.getPath())) {
+					IMarker cycleMarker = project.getCycleMarker();
+					String circularCPOption = project.getOption(JavaCore.CORE_CIRCULAR_CLASSPATH, true);
+					int circularCPSeverity = JavaCore.ERROR.equals(circularCPOption) ? IMarker.SEVERITY_ERROR : IMarker.SEVERITY_WARNING;
+					if (cycleMarker != null) {
+						// update existing cycle marker if needed
+						try {
+							int existingSeverity = ((Integer)cycleMarker.getAttribute(IMarker.SEVERITY)).intValue();
+							if (existingSeverity != circularCPSeverity) {
+								cycleMarker.setAttribute(IMarker.SEVERITY, circularCPSeverity);
 							}
-						} else {
-							// create new marker
-							project.createClasspathProblemMarker(
-								new JavaModelStatus(IJavaModelStatusConstants.CLASSPATH_CYCLE, project, cycleString));
+							String existingMessage = cycleMarker.getAttribute(IMarker.MESSAGE, "");
+							String newMessage = new JavaModelStatus(IJavaModelStatusConstants.CLASSPATH_CYCLE,
+									project, cycleString).getMessage();
+							if (!newMessage.equals(existingMessage)) {
+								cycleMarker.setAttribute(IMarker.MESSAGE, newMessage);
+							}
+						} catch (CoreException e) {
+							throw new JavaModelException(e);
 						}
 					} else {
-						project.flushClasspathProblemMarkers(true, false, false);
+						// create new marker
+						project.createClasspathProblemMarker(
+							new JavaModelStatus(IJavaModelStatusConstants.CLASSPATH_CYCLE, project, cycleString));
 					}
+				} else {
+					project.flushClasspathProblemMarkers(true, false, false);
 				}
 			}
 		}
