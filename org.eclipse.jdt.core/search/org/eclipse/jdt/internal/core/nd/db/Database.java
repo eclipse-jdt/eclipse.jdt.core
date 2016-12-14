@@ -386,7 +386,8 @@ public class Database {
 	 */
 	public void memcpy(long dest, long source, int numBytes) {
 		assert numBytes >= 0;
-		assert numBytes <= MAX_SINGLE_BLOCK_MALLOC_SIZE;
+		long endAddress = source + numBytes;
+		assert endAddress <= this.fChunksUsed * CHUNK_SIZE;
 		// TODO: make use of lower-level System.arrayCopy
 		for (int count = 0; count < numBytes; count++) {
 			putByte(dest + count, getByte(source + count));
@@ -1105,6 +1106,22 @@ public class Database {
 
 	public long getDatabaseSize() {
 		return this.fChunksUsed * CHUNK_SIZE;
+	}
+
+	/**
+	 * Returns the number of bytes freed by {@link #free(long, short)} since this {@link Database} instance was
+	 * instantiated. Intended for use in unit tests.
+	 */
+	public long getBytesFreed() {
+		return this.freed;
+	}
+
+	/**
+	 * Returns the number of bytes allocated by {@link #malloc(long, short)} since this {@link Database} instance was
+	 * instantiated. Intended for use in unit tests.
+	 */
+	public long getBytesAllocated() {
+		return this.malloced;
 	}
 
 	/**
