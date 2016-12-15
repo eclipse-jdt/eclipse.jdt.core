@@ -13484,4 +13484,48 @@ public void testBug501598() {
 		"----------\n"
 	);
 }
+public void testBug509328() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Feature.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Feature {\n" +
+			"	public Feature(String name) {\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Test {\n" +
+			"	public static void f() {\n" +
+			"		new Feature(null) {\n" +
+			"			// anonymous subclass\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\Test.java (at line 8)\n" + 
+		"	new Feature(null) {\n" + 
+		"	            ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
+		"----------\n"
+	);
+}
 }

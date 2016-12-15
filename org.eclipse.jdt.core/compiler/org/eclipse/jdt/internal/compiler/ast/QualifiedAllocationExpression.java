@@ -49,6 +49,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.ImplicitNullAnnotationVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
@@ -542,6 +543,15 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 					scope.problemReporter().unnecessaryTypeArgumentsForMethodInvocation(inheritedBinding, this.genericTypeArguments, this.typeArguments);
 				}
 				// Update the anonymous inner class : superclass, interface
+				LookupEnvironment environment=scope.environment();
+				if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+					if ((inheritedBinding.tagBits & TagBits.IsNullnessKnown) == 0) {
+						// ensure nullness of originalMethod is known (but we are not interested in reporting problems against originalMethod)
+						new ImplicitNullAnnotationVerifier(environment, environment.globalOptions.inheritNullAnnotations)
+								.checkImplicitNullAnnotations(inheritedBinding, null/*srcMethod*/, false, scope);
+					}
+				}
+
 				this.binding = this.anonymousType.createDefaultConstructorWithBinding(inheritedBinding, 	(this.bits & ASTNode.Unchecked) != 0 && this.genericTypeArguments == null);
 				return this.resolvedType;
 			}
