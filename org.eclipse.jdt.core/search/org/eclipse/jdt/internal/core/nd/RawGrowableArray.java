@@ -132,6 +132,7 @@ public final class RawGrowableArray {
 		}
 	}
 
+	@SuppressWarnings("synthetic-access")
 	private static final class MetaBlockHeader extends GrowableBlockHeader {
 		/**
 		 * Holds the number of pages used for the metablock. Note that the start of the metablock array needs to be

@@ -44,7 +44,7 @@ public class PackageBindingTest extends AbstractCompilerTest
 
 	/**
 	 * This test checks if it is searched for types when no package was found.
-	 * The test {@link #test01()} checks if the package search is executed before the type search.
+	 * The test {@link #_test01()} checks if the package search is executed before the type search.
 	 * The search for packages is much faster than searching for types, therefore it should get executed before searching for types.
 	 */
 	public void test02() {

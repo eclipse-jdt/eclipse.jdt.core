@@ -413,7 +413,7 @@ public class JavaProject
 							if (existingSeverity != circularCPSeverity) {
 								cycleMarker.setAttribute(IMarker.SEVERITY, circularCPSeverity);
 							}
-							String existingMessage = cycleMarker.getAttribute(IMarker.MESSAGE, "");
+							String existingMessage = cycleMarker.getAttribute(IMarker.MESSAGE, ""); //$NON-NLS-1$
 							String newMessage = new JavaModelStatus(IJavaModelStatusConstants.CLASSPATH_CYCLE,
 									project, cycleString).getMessage();
 							if (!newMessage.equals(existingMessage)) {
