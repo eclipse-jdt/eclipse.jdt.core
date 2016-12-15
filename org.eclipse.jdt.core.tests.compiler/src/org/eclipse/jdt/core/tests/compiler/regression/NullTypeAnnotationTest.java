@@ -13458,4 +13458,30 @@ public void testBug509025() {
 		""
 	);
 }
+public void testBug501598() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"Foo.java",
+			"import java.util.List;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"class Foo {\n" +
+			"	static <T> @NonNull List<?> f() {\n" +
+			"		throw new Error();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in Foo.java (at line 8)\n" + 
+		"	static <T> @NonNull List<?> f() {\n" + 
+		"	           ^^^^^^^^^^^^^\n" + 
+		"The nullness annotation is redundant with a default that applies to this location\n" + 
+		"----------\n"
+	);
+}
 }
