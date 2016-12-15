@@ -1745,7 +1745,7 @@ public class DeltaProcessor {
 			JavaElementInfo info = (JavaElementInfo)element.getElementInfo();
 			switch (element.getElementType()) {
 				case IJavaElement.JAVA_MODEL :
-					((JavaModelInfo) info).nonJavaResources = null;
+					((JavaModelInfo) info).setNonJavaResources(null);
 					if (!ExternalFoldersManager.isInternalPathForExternalFolder(delta.getFullPath()))
 						currentDelta().addResourceDelta(delta);
 					return;
