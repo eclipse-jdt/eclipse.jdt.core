@@ -1551,7 +1551,7 @@ public class NameLookup implements SuffixConstants {
 			IPackageFragmentRoot root= this.packageFragmentRoots[i];
 			IModuleDescription module = null;
 			if (root instanceof JrtPackageFragmentRoot) {
-				if (!prefixMatcher.matches(name, root.getElementName().toCharArray())) {
+				if (!CharOperation.equals(name, root.getElementName().toCharArray())) {
 					continue;
 				}
 			}

@@ -32,10 +32,13 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -50,9 +53,10 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 
 	static {
-//		 TESTS_NAMES = new String[] { "test_services" };
+//		 TESTS_NAMES = new String[] { "test_ReconcilerModuleLookup" };
 	}
 	private static boolean isJRE9 = false;
+	protected ProblemRequestor problemRequestor;
 	public static Test suite() {
 		String javaVersion = System.getProperty("java.version");
 		if (javaVersion.length() > 3) {
@@ -64,7 +68,15 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 		return buildModelTestSuite(ModuleBuilderTests.class, BYTECODE_DECLARATION_ORDER);
 	}
-
+	public void setUp() throws Exception {
+		super.setUp();
+		this.problemRequestor =  new ProblemRequestor();
+		this.wcOwner = new WorkingCopyOwner() {
+			public IProblemRequestor getProblemRequestor(ICompilationUnit unit) {
+				return ModuleBuilderTests.this.problemRequestor;
+			}
+		};
+	}
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		System.setProperty("modules.to.load", "java.base,java.desktop;java.rmi;java.sql;");
@@ -2483,6 +2495,54 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers",
 					"Invalid service interface com.greetings.MyEnum, must be a class, interface or annotation type",  markers);
+		} finally {
+			deleteProject("com.greetings");
+		}
+	}
+	public void test_ReconcilerModuleLookup1() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	requires java.sql;\n" +
+				"}"};
+			setupModuleProject("com.greetings", src);
+			this.workingCopies = new ICompilationUnit[1];
+			char[] sourceChars = src[1].toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			this.workingCopies[0] = getCompilationUnit("/com.greetings/src/module-info.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"----------\n",
+					this.problemRequestor);
+		} finally {
+			deleteProject("com.greetings");
+		}
+	}
+	public void test_ReconcilerModuleLookup2() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module com.greetings {\n" +
+				"	requires java.sq;\n" +
+				"}"};
+			setupModuleProject("com.greetings", src);
+			this.workingCopies = new ICompilationUnit[1];
+			char[] sourceChars = src[1].toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			this.workingCopies[0] = getCompilationUnit("/com.greetings/src/module-info.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+					"Unexpected problems",
+					"----------\n" + 
+					"1. ERROR in /com.greetings/src/module-info.java (at line 2)\n" + 
+					"	requires java.sq;\n" + 
+					"	         ^^^^^^^\n" + 
+					"java.sq cannot be resolved to a module\n" + 
+					"----------\n",
+					this.problemRequestor);
 		} finally {
 			deleteProject("com.greetings");
 		}
