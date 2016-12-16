@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class BinaryModule extends BinaryMember implements IModuleDescription {
@@ -58,7 +57,7 @@ public class BinaryModule extends BinaryMember implements IModuleDescription {
 	}
 	@Override
 	public int getFlags() throws JavaModelException {
-		ClassFileReader info = (ClassFileReader) getElementInfo();
+		ModuleDescriptionInfo info = (ModuleDescriptionInfo) getElementInfo();
 		return info.getModifiers();
 	}
 	public String getKey(boolean forceOpen) throws JavaModelException {

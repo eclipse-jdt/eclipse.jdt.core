@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -91,6 +92,18 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 		info.setChildren(createChildren(rawPackageInfo));
 		((JarPackageFragmentRootInfo) info).rawPackageInfo = rawPackageInfo;
 		return true;
+	}
+	SourceMapper createSourceMapper(IPath sourcePath, IPath rootPath) throws JavaModelException {
+		IClasspathEntry entry = ((JavaProject) getParent()).getClasspathEntryFor(getPath());
+		String encoding = (entry== null) ? null : ((ClasspathEntry) entry).getSourceAttachmentEncoding();
+		IModule mod = getModule();
+		String modName = mod == null ? null : new String(mod.name());
+		SourceMapper mapper = new SourceMapper(
+			sourcePath,
+			rootPath == null ? modName : rootPath.toOSString(),
+			getJavaProject().getOptions(true),// cannot use workspace options if external jar is 1.5 jar and workspace options are 1.4 options
+			encoding);
+		return mapper;
 	}
 	public boolean equals(Object o) {
 		if (this == o)

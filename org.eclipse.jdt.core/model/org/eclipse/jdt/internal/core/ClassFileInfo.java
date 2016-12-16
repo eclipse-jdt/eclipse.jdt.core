@@ -277,7 +277,7 @@ private void generateModuleInfos(ClassFile classFile, ClassFileReader info, Hash
 		}
 		moduleInfo.usedServices = modDecl.uses();
 		setModule(handle);
-		newElements.put(handle, info);
+		newElements.put(handle, moduleInfo);
 	}
 }
 private void generateServiceInfos(BinaryModule parentHandle, HashMap newElements, char[] serviceName, char[][] implNames, ArrayList requiresHandles) {

@@ -42,7 +42,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
@@ -1137,11 +1136,9 @@ public class NameLookup implements SuffixConstants {
 		if (moduleDesc != null) {
 			try {
 				if (moduleDesc instanceof BinaryModule) {
-					ClassFileReader info = (ClassFileReader)((BinaryModule) moduleDesc).getElementInfo();
-					return info.getModuleDeclaration();
+					return (ModuleDescriptionInfo)((BinaryModule) moduleDesc).getElementInfo();
 				} else if (moduleDesc instanceof SourceModule) {
-					ModuleDescriptionInfo info = (ModuleDescriptionInfo)((SourceModule) moduleDesc).getElementInfo();
-					return info;
+					return(ModuleDescriptionInfo)((SourceModule) moduleDesc).getElementInfo();
 				} else {
 					return new ModuleEnvironment.AutoModule(moduleDesc.getElementName().toCharArray());
 				}
