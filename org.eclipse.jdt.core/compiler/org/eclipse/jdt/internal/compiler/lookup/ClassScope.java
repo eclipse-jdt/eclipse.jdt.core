@@ -52,6 +52,7 @@ import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -522,6 +523,13 @@ public class ClassScope extends Scope {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		sourceType.module = module();
 		environment().setAccessRestriction(sourceType, accessRestriction);
+		ICompilationUnit compilationUnit = this.referenceContext.compilationResult.getCompilationUnit();
+		if (compilationUnit != null && compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
+			String externalAnnotationPath = compilationUnit.getExternalAnnotationPath();
+			if (externalAnnotationPath != null) {
+				ExternalAnnotationSuperimposer.apply(sourceType, externalAnnotationPath);
+			}
+		}
 
 		TypeParameter[] typeParameters = this.referenceContext.typeParameters;
 		sourceType.typeVariables = typeParameters == null || typeParameters.length == 0 ? Binding.NO_TYPE_VARIABLES : null;

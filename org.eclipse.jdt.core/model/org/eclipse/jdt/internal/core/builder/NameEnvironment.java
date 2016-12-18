@@ -181,7 +181,8 @@ private void computeClasspathLocations(
 								outputFolder,
 								entry.fullInclusionPatternChars(),
 								entry.fullExclusionPatternChars(),
-								entry.ignoreOptionalProblems());
+								entry.ignoreOptionalProblems(),
+								externalAnnotationPath);
 					if (patchedModule != null) {
 						ModuleEntryProcessor.combinePatchIntoModuleEntry(sourceLocation, patchedModule, moduleEntries);
 					}
