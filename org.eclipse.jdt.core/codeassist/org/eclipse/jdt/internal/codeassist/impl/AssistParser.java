@@ -31,7 +31,6 @@ import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
-import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
@@ -44,6 +43,7 @@ import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
+import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.SuperReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -54,6 +54,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredBlock;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredElement;
+import org.eclipse.jdt.internal.compiler.parser.RecoveredExportsStatement;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredField;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredInitializer;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredLocalVariable;
@@ -103,7 +104,7 @@ public abstract class AssistParser extends Parser {
 	protected static final int K_ATTRIBUTE_VALUE_DELIMITER = ASSIST_PARSER + 5; // whether we are inside a annotation attribute valuer
 	protected static final int K_ENUM_CONSTANT_DELIMITER = ASSIST_PARSER + 6; // whether we are inside a field initializer
 	protected static final int K_LAMBDA_EXPRESSION_DELIMITER = ASSIST_PARSER + 7; // whether we are inside a lambda expression
-	protected static final int K_MODULE_INFO_DELIMITER = ASSIST_PARSER + 7; // whether we are inside a module info declaration
+	protected static final int K_MODULE_INFO_DELIMITER = ASSIST_PARSER + 8; // whether we are inside a module info declaration
 
 	// selector constants
 	protected static final int THIS_CONSTRUCTOR = -1;
@@ -112,7 +113,7 @@ public abstract class AssistParser extends Parser {
 	// enum constant constants
 	protected static final int NO_BODY = 0;
 	protected static final int WITH_BODY = 1;
-	
+
 	protected static final int EXPRESSION_BODY = 0;
 	protected static final int BLOCK_BODY = 1;
 
@@ -996,7 +997,7 @@ protected void consumeSinglePkgName() {
 			length);
 
 	/* build specific assist node on import statement */
-	ImportReference reference = createAssistImportReference(subset, positions, 0);
+	ImportReference reference = createAssistPackageVisibilityReference(subset, positions);
 	this.assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
 
@@ -1006,13 +1007,6 @@ protected void consumeSinglePkgName() {
 		reference.declarationSourceEnd = this.scanner.currentPosition - 1;
 	} else {
 		reference.declarationSourceEnd = (int) positions[length-1];
-	}
-	// recovery
-	if (this.currentElement != null){
-		this.lastCheckPoint = reference.declarationSourceEnd+1;
-		this.currentElement = this.currentElement.add(reference, 0);
-		this.lastIgnoredToken = -1;
-		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
 protected void consumeSingleTargetModuleName() {
@@ -1029,22 +1023,13 @@ protected void consumeSingleTargetModuleName() {
 	this.lastCheckPoint = reference.sourceEnd + 1;
 	pushOnAstStack(reference);
 
-//	reference.declarationSourceEnd = reference.sourceEnd;
-//	reference.declarationEnd = reference.declarationSourceEnd;
-//	reference.declarationSourceStart = reference.sourceStart;
-//	if (this.currentToken == TokenNameSEMICOLON){
-//		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
-//	} else {
-//	}
-//	//this.endPosition is just before the ;
-//	impt.declarationSourceStart = this.intStack[this.intPtr--];
 	// recovery - TBD
-	if (this.currentElement != null){
+	if (this.currentElement instanceof RecoveredExportsStatement){
 		// TODO
-//		this.lastCheckPoint = reference.declarationSourceEnd+1;
-//		this.currentElement = this.currentElement.add(reference, 0);
+		this.lastCheckPoint = reference.sourceEnd+1;
+		this.currentElement = ((RecoveredExportsStatement) this.currentElement).add(reference, 0);
 		this.lastIgnoredToken = -1;
-		this.restartRecovery = true; // used to avoid branching back into the regular automaton
+		//this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 
 }
@@ -1061,34 +1046,29 @@ protected void consumeSingleRequiresModuleName() {
 	ModuleReference reference = createAssistModuleReference(index);
 	this.assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
-	pushOnAstStack(reference);
+	RequiresStatement req = new RequiresStatement(reference);
+	if (this.currentToken == TokenNameSEMICOLON){
+		req.declarationSourceEnd = this.scanner.currentPosition - 1;
+	} else {
+		req.declarationSourceEnd = reference.sourceEnd;
+	}
+	req.sourceStart = req.declarationSourceStart;
+	req.declarationEnd = req.declarationSourceEnd;
+	req.modifiersSourceStart = this.intStack[this.intPtr--];
+	req.modifiers |= this.intStack[this.intPtr--];
+	req.declarationSourceStart = this.intStack[this.intPtr--];
+	if (req.modifiersSourceStart >= 0) {
+		req.declarationSourceStart = req.modifiersSourceStart;
+	}
+	req.sourceEnd = reference.sourceEnd;
+	pushOnAstStack(req);
 
-//	if (this.currentToken == TokenNameSEMICOLON){
-//		reference.declarationSourceEnd = this.scanner.currentPosition - 1;
-//	} else {
-//		reference.declarationSourceEnd = (int) reference.sourcePositions[reference.tokens.length-1];
-//	}
-	//endPosition is just before the ;
-//	reference.declarationSourceStart = this.intStack[this.intPtr--];
-//	// flush comments defined prior to import statements
-//	reference.declarationSourceEnd = flushCommentsDefinedPriorTo(reference.declarationSourceEnd);
-//
-//	reference.declarationEnd = reference.declarationSourceEnd;
-//	//this.endPosition is just before the ;
-//	reference.modifiersSourceStart = this.intStack[this.intPtr--];
-////	reference.modifiers = modifiers; // already set in the constructor
-//	reference.declarationSourceStart = reference.sourceStart;
-//
-//	if (reference.modifiersSourceStart >= 0) {
-//		reference.declarationSourceStart = reference.modifiersSourceStart;
-//	}
 	// recovery TBD
+
 	if (this.currentElement != null){
-		//TODO refer super.consumeSingleRequiresModuleName
-		//this.lastCheckPoint = reference.declarationSourceEnd+1;
-		//this.currentElement = this.currentElement.add(reference, 0);
+		this.lastCheckPoint = req.declarationSourceEnd + 1;
+		this.currentElement = this.currentElement.add(req, 0);
 		this.lastIgnoredToken = -1;
-		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 
 }
@@ -1329,7 +1309,9 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		this.restartRecovery = true; // used to avoid branching back into the regular automaton
 	}
 }
-public abstract ExportsStatement createAssistExportReference(ImportReference pkgRef);
+
+// TODO : Change to ExportsReference/PackageReference once we have the new compiler ast.node
+public abstract ImportReference createAssistPackageVisibilityReference(char[][] tokens, long[] positions);
 public abstract ImportReference createAssistImportReference(char[][] tokens, long[] positions, int mod);
 public abstract ModuleReference createAssistModuleReference(int index);
 public abstract ImportReference createAssistPackageReference(char[][] tokens, long[] positions);
@@ -2278,13 +2260,13 @@ protected int resumeAfterRecovery() {
 			prepareForBlockStatements();
 			goForBlockStatementsopt();
 		} else {
+			prepareForHeaders();
 			if (this.referenceContext instanceof CompilationUnitDeclaration) {
 				CompilationUnitDeclaration unit = (CompilationUnitDeclaration) this.referenceContext;
 				if (unit.isModuleInfo()) {
-					return RESTART;
-				}		
+					pushOnElementStack(K_MODULE_INFO_DELIMITER);
+				}
 			}
-			prepareForHeaders();
 			goForHeaders();
 			this.diet = true; // passed this point, will not consider method bodies
 			this.dietInt = 0;

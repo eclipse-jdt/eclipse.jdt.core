@@ -482,12 +482,13 @@ RequiresModifiers ::= RequiresModifiers RequiresModifier
 /.$putCase consumeModifiers2(); $break ./
 RequiresModifier -> 'transitive'
 RequiresModifier -> 'static'
-ExportsStatement ::=  'exports' SinglePkgName TargetModuleListopt ';'
+ExportsStatement ::=  ExportsHeader TargetModuleListopt ';'
 /:$compliance 1.9:/
 /.$putCase consumeExportsStatement(); $break ./
-TargetModuleListopt ::= $empty
+ExportsHeader ::= 'exports' SinglePkgName
 /:$compliance 1.9:/
-/.$putCase consumeEmptyTargetModuleListopt(); $break ./
+/.$putCase consumeExportsHeader(); $break ./
+TargetModuleListopt ::= $empty
 TargetModuleListopt ::= 'to' TargetModuleNameList
 /:$compliance 1.9:/
 /.$putCase consumeTargetModuleList(); $break ./
@@ -501,14 +502,17 @@ TargetModuleNameList ::= TargetModuleNameList ',' TargetModuleName
 SinglePkgName ::= UnannotatableName
 /:$compliance 1.9:/
 /.$putCase consumeSinglePkgName(); $break ./
-OpensStatement ::=  'opens' SinglePkgName TargetModuleListopt ';'
+OpensStatement ::=  OpensHeader TargetModuleListopt ';'
 /:$compliance 1.9:/
 /.$putCase consumeOpensStatement(); $break ./
-
-UsesStatement ::=  'uses' Name ';'
+OpensHeader ::= 'opens' SinglePkgName
+/:$compliance 1.9:/
+/.$putCase consumeOpensHeader(); $break ./
+UsesStatement ::=  UsesHeader ';'
 /:$compliance 1.9:/
 /.$putCase consumeUsesStatement(); $break ./
-
+UsesHeader ::= 'uses' Name
+/.$putCase consumeUsesHeader(); $break ./
 ProvidesStatement ::= ProvidesInterface WithClause ';'
 /:$compliance 1.9:/
 /.$putCase consumeProvidesStatement(); $break ./
@@ -551,6 +555,7 @@ Header -> RequiresStatement
 Header -> ExportsStatement
 Header -> UsesStatement
 Header -> ProvidesStatement
+Header -> OpensStatement
 /:$readableName Header:/
 
 Header1 -> Header

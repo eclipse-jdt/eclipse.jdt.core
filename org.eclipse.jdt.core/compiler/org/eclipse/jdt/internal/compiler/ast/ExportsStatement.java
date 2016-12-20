@@ -17,6 +17,9 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 public class ExportsStatement extends PackageVisibilityStatement {
 
+	public ExportsStatement(ImportReference pkgRef) {
+		this(pkgRef, null);
+	}
 	public ExportsStatement(ImportReference pkgRef, ModuleReference[] targets) {
 		super(pkgRef, targets);
 	}

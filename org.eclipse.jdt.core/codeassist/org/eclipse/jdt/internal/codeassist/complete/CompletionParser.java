@@ -89,9 +89,10 @@ public class CompletionParser extends AssistParser {
 	protected static final int K_INSIDE_REQUIRES_STATEMENT = COMPLETION_PARSER + 45;
 	protected static final int K_INSIDE_USES_STATEMENT = COMPLETION_PARSER + 46;
 	protected static final int K_INSIDE_PROVIDES_STATEMENT = COMPLETION_PARSER + 47;
-	protected static final int K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT = COMPLETION_PARSER + 48;
+	protected static final int K_AFTER_PACKAGE_IN_PACKAGE_VISIBILITY_STATEMENT = COMPLETION_PARSER + 48;
 	protected static final int K_AFTER_NAME_IN_PROVIDES_STATEMENT = COMPLETION_PARSER + 49;
 	protected static final int K_AFTER_WITH_IN_PROVIDES_STATEMENT = COMPLETION_PARSER + 50;
+	protected static final int K_INSIDE_OPENS_STATEMENT = COMPLETION_PARSER + 51;
 
 
 	public final static char[] FAKE_TYPE_NAME = new char[]{' '};
@@ -244,17 +245,6 @@ protected ASTNode assistNodeParent() {
 protected ASTNode enclosingNode() {
 	return this.enclosingNode;
 }
-private boolean attachOrphanInModuleInfo(RecoveredType type, TypeReference orphan) {
-	if (type instanceof RecoveredModule) {
-		RecoveredModule rModule = (RecoveredModule) type;
-		if (isInUsesStatement()) {
-			rModule.addUses(orphan, 0);
-			return true;
-		}
-	}
-		
-	return false;
-}
 protected void attachOrphanCompletionNode(){
 	if(this.assistNode == null || this.isAlreadyAttached) return;
 
@@ -276,7 +266,7 @@ protected void attachOrphanCompletionNode(){
 			if (recoveredType.foundOpeningBrace) {
 				/* generate a pseudo field with a completion on type reference */
 				if (orphan instanceof TypeReference){
-					if (attachOrphanInModuleInfo(recoveredType, (TypeReference) orphan)) return;
+					if (isInsideModuleInfo()) return; //taken care elsewhere
 
 					TypeReference fieldType;
 
@@ -1540,7 +1530,7 @@ private boolean checkKeyword() {
 
 private enum ModuleKeyword {
 	FIRST_ALL,
-	EXPORTS_TO,
+	TO,
 	PROVIDES_WITH,
 	NOT_A_KEYWORD
 }
@@ -1548,41 +1538,62 @@ private enum ModuleKeyword {
 private ModuleKeyword getKeyword() {
 	ModuleKeyword keyword = ModuleKeyword.FIRST_ALL;
 	if (isInModuleStatements()) {
-		if (foundToken(K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT)) keyword = ModuleKeyword.EXPORTS_TO;
+		if (foundToken(K_AFTER_PACKAGE_IN_PACKAGE_VISIBILITY_STATEMENT)) keyword = ModuleKeyword.TO;
 		else if (foundToken(K_AFTER_NAME_IN_PROVIDES_STATEMENT)) keyword = ModuleKeyword.PROVIDES_WITH;
 		else keyword = ModuleKeyword.NOT_A_KEYWORD;
 	}
 	return keyword;
 }
 private char[][] getModuleKeywords(ModuleKeyword keyword) {
-	if (keyword == ModuleKeyword.EXPORTS_TO) return new char[][]{Keywords.TO};
+	if (keyword == ModuleKeyword.TO) return new char[][]{Keywords.TO};
 	else if (keyword == ModuleKeyword.PROVIDES_WITH) return new char[][]{Keywords.WITH};
-	else return new char[][]{Keywords.EXPORTS, Keywords.REQUIRES, Keywords.PROVIDES, Keywords.USES};
+	else return new char[][]{Keywords.EXPORTS, Keywords.OPENS, Keywords.REQUIRES, Keywords.PROVIDES, Keywords.USES};
 }
 private boolean checkModuleInfoConstructs() {
-	
+
 	if (!isInsideModuleInfo()) return false;
-	if (!(this.currentElement instanceof RecoveredModule)) return false;
-	RecoveredModule module = (RecoveredModule) this.currentElement;
 
 	int index = -1;
 	if ((index = this.indexOfAssistIdentifier()) <= -1) return false;
-	if (checkModuleInfoKeyword(module, index)) return true;
 	
+	if (this.currentElement instanceof RecoveredModule) {
+		RecoveredModule module = (RecoveredModule) this.currentElement;
+		if (checkModuleInfoKeyword(module, index)) return true;
+	} else  {
+		ModuleKeyword keyword = ModuleKeyword.NOT_A_KEYWORD;
+		if (isInModuleStatements()) {
+			if (foundToken(K_AFTER_PACKAGE_IN_PACKAGE_VISIBILITY_STATEMENT)) keyword =  ModuleKeyword.TO;
+			if (foundToken(K_AFTER_NAME_IN_PROVIDES_STATEMENT)) keyword = ModuleKeyword.PROVIDES_WITH;
+		}
+		if (keyword == ModuleKeyword.NOT_A_KEYWORD) return false;
+		
+		int length = this.identifierLengthStack[this.identifierLengthPtr];
+		int ptr = this.identifierPtr - length + index + 1;
+		
+		char[] ident = this.identifierStack[ptr];
+		long pos = this.identifierPositionStack[ptr];		
+		char[][] keywords = getModuleKeywords(keyword);		
+		if (this.currentElement instanceof RecoveredPackageVisibilityStatement) {
+			RecoveredPackageVisibilityStatement rPvs = (RecoveredPackageVisibilityStatement) this.currentElement;
+			rPvs.add(new CompletionOnKeywordModule2(ident, pos, keywords), 0);
+		} else if (this.currentElement instanceof RecoveredProvidesStatement) {
+			RecoveredProvidesStatement rPs = (RecoveredProvidesStatement) this.currentElement;
+			rPs.add(new CompletionOnKeyword1(ident, pos, keywords), 0);
+		}
+	} 
 	return false;
 }
 private boolean checkModuleInfoKeyword(RecoveredModule module, int index) {
 	ModuleKeyword keyword = getKeyword();
 	if (keyword == ModuleKeyword.NOT_A_KEYWORD) return false;
-	
+
 	int length = this.identifierLengthStack[this.identifierLengthPtr];
 	int ptr = this.identifierPtr - length + index + 1;
-	
+
 	char[] ident = this.identifierStack[ptr];
-	long pos = this.identifierPositionStack[ptr];		
-	char[][] keywords = getModuleKeywords(keyword);		
-	//TODO
-	//module.add(new CompletionOnKeywordModuleInfo(ident, pos, keywords), 0);
+	long pos = this.identifierPositionStack[ptr];
+	char[][] keywords = getModuleKeywords(keyword);
+	module.add(new CompletionOnKeywordModuleInfo(ident, pos, keywords), 0);
 	return true;
 }
 
@@ -3469,15 +3480,12 @@ protected void consumeRestoreDiet() {
 }
 protected void consumeExportsStatement() {
 	super.consumeExportsStatement();
-	popElement(K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT);
+	popElement(K_AFTER_PACKAGE_IN_PACKAGE_VISIBILITY_STATEMENT);
 	popElement(K_INSIDE_EXPORTS_STATEMENT);
 }
 protected void consumeSinglePkgName() {
 	super.consumeSinglePkgName();
-	pushOnElementStack(K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT);
-}
-protected void consumeSingleTargetModuleName() {
-	super.consumeSingleTargetModuleName();
+	pushOnElementStack(K_AFTER_PACKAGE_IN_PACKAGE_VISIBILITY_STATEMENT);
 }
 protected void consumeSingleMemberAnnotation(boolean isTypeAnnotation) {
 	if (this.topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_ANNOTATION_NAME_AND_RPAREN &&
@@ -3679,8 +3687,10 @@ protected void consumeToken(int token) {
 		pushOnElementStack(K_INSIDE_IMPORT_STATEMENT);
 	}	else if (token == TokenNameexports) {
 		pushOnElementStack(K_INSIDE_EXPORTS_STATEMENT);
+	}	else if (token == TokenNameopens) {
+		pushOnElementStack(K_INSIDE_OPENS_STATEMENT);
 	}	else if (token == TokenNameto) {
-		popElement(K_AFTER_PACKAGE_IN_EXPORTS_STATEMENT);
+		popElement(K_AFTER_PACKAGE_IN_PACKAGE_VISIBILITY_STATEMENT);
 	}	else if (token == TokenNamerequires) {
 		pushOnElementStack(K_INSIDE_REQUIRES_STATEMENT);
 	} else if (token == TokenNameprovides) {
@@ -3690,7 +3700,7 @@ protected void consumeToken(int token) {
 	}	else if (token == TokenNamewith) {
 		popElement(K_AFTER_NAME_IN_PROVIDES_STATEMENT);
 		pushOnElementStack(K_AFTER_WITH_IN_PROVIDES_STATEMENT);
-	} 
+	}
 
 	// if in a method or if in a field initializer
 	if (isInsideMethod() || isInsideFieldInitialization() || isInsideAttributeValue()) {
@@ -4200,6 +4210,12 @@ protected void consumeOpenFakeBlock() {
 	super.consumeOpenFakeBlock();
 	pushOnElementStack(K_BLOCK_DELIMITER);
 }
+@Override
+protected void consumeOpensStatement() {
+	super.consumeOpensStatement();
+	popElement(K_AFTER_PACKAGE_IN_PACKAGE_VISIBILITY_STATEMENT);
+	popElement(K_INSIDE_OPENS_STATEMENT);
+}
 protected void consumeRightParen() {
 	super.consumeRightParen();
 }
@@ -4435,8 +4451,8 @@ public MethodDeclaration convertToMethodDeclaration(ConstructorDeclaration c, Co
 	}
 	return methodDeclaration;
 }
-public ExportsStatement createAssistExportReference(ImportReference ref){
-	return new CompletionOnExportReference(ref);
+public ImportReference createAssistPackageVisibilityReference(char[][] tokens, long[] positions){
+	return new CompletionOnPackageVisibilityReference(tokens, positions);
 }
 public ImportReference createAssistImportReference(char[][] tokens, long[] positions, int mod){
 	return new CompletionOnImportReference(tokens, positions, mod);
@@ -5463,6 +5479,9 @@ protected boolean isInImportStatement() {
 protected boolean isInExportsStatement() {
 	return foundToken(K_INSIDE_EXPORTS_STATEMENT);
 }
+protected boolean isInOpensStatement() {
+	return foundToken(K_INSIDE_OPENS_STATEMENT);
+}
 protected boolean isInRequiresStatement() {
 	return foundToken(K_INSIDE_REQUIRES_STATEMENT);
 }
@@ -5477,6 +5496,7 @@ protected boolean isAfterWithClause() {
 }
 protected boolean isInModuleStatements() {
 	return isInExportsStatement() ||
+			isInOpensStatement() ||
 			isInRequiresStatement() ||
 			isInProvidesStatement() ||
 			isInUsesStatement();

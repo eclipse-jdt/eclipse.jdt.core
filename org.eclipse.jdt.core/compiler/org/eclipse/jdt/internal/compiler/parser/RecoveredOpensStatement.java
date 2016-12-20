@@ -11,25 +11,18 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *
  *******************************************************************************/
-package org.eclipse.jdt.internal.compiler.ast;
+package org.eclipse.jdt.internal.compiler.parser;
 
-public class OpensStatement extends PackageVisibilityStatement {
+import org.eclipse.jdt.internal.compiler.ast.OpensStatement;
 
-	public OpensStatement(ImportReference pkgRef) {
-		this(pkgRef, null);
-	}
-	public OpensStatement(ImportReference pkgRef, ModuleReference[] targets) {
-		super(pkgRef, targets);
-	}
-	
-	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
-		printIndent(indent, output);
-		output.append("opens "); //$NON-NLS-1$
-		super.print(0, output);
-		output.append(";"); //$NON-NLS-1$
-		return output;
-	}
+public class RecoveredOpensStatement extends RecoveredPackageVisibilityStatement {
 
+	public RecoveredOpensStatement(OpensStatement opensStatement, RecoveredElement parent, int bracketBalance) {
+		super(opensStatement, parent, bracketBalance);
+	}
+	public String toString(int tab) {
+		return tabString(tab) + "Recovered opens stmt: " + super.toString(); //$NON-NLS-1$
+	}
 }

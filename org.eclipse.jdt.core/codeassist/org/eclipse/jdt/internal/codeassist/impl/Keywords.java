@@ -11,7 +11,7 @@
 package org.eclipse.jdt.internal.codeassist.impl;
 
 public interface Keywords {
-	int COUNT = 48;
+	int COUNT = 49;
 
 	char[] ABSTRACT = "abstract".toCharArray(); //$NON-NLS-1$
 	char[] ASSERT = "assert".toCharArray(); //$NON-NLS-1$
@@ -37,6 +37,7 @@ public interface Keywords {
 	char[] INTERFACE = "interface".toCharArray(); //$NON-NLS-1$
 	char[] NATIVE = "native".toCharArray(); //$NON-NLS-1$
 	char[] NEW = "new".toCharArray(); //$NON-NLS-1$
+	char[] OPENS= "opens".toCharArray(); //$NON-NLS-1$
 	char[] PACKAGE = "package".toCharArray(); //$NON-NLS-1$
 	char[] PRIVATE = "private".toCharArray(); //$NON-NLS-1$
 	char[] PROTECTED = "protected".toCharArray(); //$NON-NLS-1$

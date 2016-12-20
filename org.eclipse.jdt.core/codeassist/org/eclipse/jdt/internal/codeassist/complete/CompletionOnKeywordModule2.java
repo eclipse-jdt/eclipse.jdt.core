@@ -11,25 +11,31 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *
  *******************************************************************************/
-package org.eclipse.jdt.internal.compiler.ast;
+package org.eclipse.jdt.internal.codeassist.complete;
 
-public class OpensStatement extends PackageVisibilityStatement {
+import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 
-	public OpensStatement(ImportReference pkgRef) {
-		this(pkgRef, null);
+public class CompletionOnKeywordModule2 extends ModuleReference implements CompletionOnKeyword {
+	private char[] token;
+	private char[][] possibleKeywords;
+
+	public CompletionOnKeywordModule2(char[] token, long pos, char[][] possibleKeywords) {
+		super(new char[][] {token}, new long[] {pos}); // dummy
+		this.token = token;
+		this.possibleKeywords = possibleKeywords;
+		this.sourceStart = (int) (pos>>>32)  ;
+		this.sourceEnd = (int) (pos & 0x00000000FFFFFFFFL);
 	}
-	public OpensStatement(ImportReference pkgRef, ModuleReference[] targets) {
-		super(pkgRef, targets);
-	}
-	
+
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
-		printIndent(indent, output);
-		output.append("opens "); //$NON-NLS-1$
-		super.print(0, output);
-		output.append(";"); //$NON-NLS-1$
-		return output;
+	public char[] getToken() {
+		return this.token;
 	}
 
+	@Override
+	public char[][] getPossibleKeywords() {
+		return this.possibleKeywords;
+	}
 }

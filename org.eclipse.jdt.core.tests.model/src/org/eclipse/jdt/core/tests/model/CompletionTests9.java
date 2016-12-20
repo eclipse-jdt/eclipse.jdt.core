@@ -85,6 +85,7 @@ public void test486988_0001() throws Exception {
 		unit.codeComplete(cursorLocation, requestor);
 
 		String expected = "exports[KEYWORD]{exports, null, null, exports, 49}\n"
+				+ "opens[KEYWORD]{opens, null, null, opens, 49}\n"
 				+ "provides[KEYWORD]{provides, null, null, provides, 49}\n"
 				+ "requires[KEYWORD]{requires, null, null, requires, 49}\n"
 				+ "uses[KEYWORD]{uses, null, null, uses, 49}";
@@ -108,6 +109,7 @@ public void test486988_0002() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String expected = "exports[KEYWORD]{exports, null, null, exports, null, 49}\n"
+			+ "opens[KEYWORD]{opens, null, null, opens, null, 49}\n"
 			+ "provides[KEYWORD]{provides, null, null, provides, null, 49}\n"
 			+ "requires[KEYWORD]{requires, null, null, requires, null, 49}\n"
 			+ "uses[KEYWORD]{uses, null, null, uses, null, 49}";
@@ -507,7 +509,7 @@ public void test486988_0014() throws Exception {
 		String completeBehind = "w";
 		String fileContent1 =  "module first {\n"
 				+ "requires second;\n"
-				+ "provides X11 " + completeBehind
+				+ "provides pack11.X11 " + completeBehind
 				+ "}\n";
 		createFile(filePath1, fileContent1);
 

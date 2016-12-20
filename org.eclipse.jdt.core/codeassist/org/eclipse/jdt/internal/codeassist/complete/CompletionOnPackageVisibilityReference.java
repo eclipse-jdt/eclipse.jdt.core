@@ -8,40 +8,48 @@
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *
  *******************************************************************************/
-package org.eclipse.jdt.internal.codeassist.select;
+
+package org.eclipse.jdt.internal.codeassist.complete;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 
 /*
- * Selection node build by the parser in any case it was intending to
- * reduce an export reference containing the assist identifier.
+ * Completion node build by the parser in any case it was intending to
+ * reduce an exports or an opens reference containing the cursor location.
  * e.g.
  *
  *	module myModule {
  *  exports packageo[cursor];
+ *  opens packageo[cursor];
+
  *  }
  *
  *	module myModule {
- *	---> <SelectionOnExport:packageo>
+ *	---> <CompleteOnPackageVisibilityReference:packageo>
  *  }
  *
- */ 
-public class SelectionOnExportReference extends ImportReference {
+ * The source range is always of length 0.
+ * The arguments of the allocation expression are all the arguments defined
+ * before the cursor.
+ */
 
-	public SelectionOnExportReference(char[][] tokens, long[] positions) {
-		super(tokens, positions, false, 0);
+public class CompletionOnPackageVisibilityReference extends CompletionOnImportReference {
+
+	String pkgName;
+	public CompletionOnPackageVisibilityReference(char[][] ident, long[] pos) {
+		super(ident, pos, 0);
+		this.pkgName = new String(CharOperation.concatWith(ident, '.'));
 	}
 
 	public StringBuffer print(int indent, StringBuffer output) {
-
-		printIndent(indent, output).append("<SelectOnExport:"); //$NON-NLS-1$
-		output.append(new String(CharOperation.concatWith(this.tokens, '.')));
+		printIndent(indent, output).append("<CompleteOnPackageVisibilityReference:"); //$NON-NLS-1$
+		output.append(this.pkgName);
 		return output.append('>');
 	}
+
 }

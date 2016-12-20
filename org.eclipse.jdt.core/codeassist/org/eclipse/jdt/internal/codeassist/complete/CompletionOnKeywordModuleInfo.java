@@ -4,26 +4,36 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     
+ *
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.complete;
 
-public class CompletionOnKeywordModuleInfo implements CompletionOnKeyword {
+import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+
+/**
+ * 
+ * This class is independent of its parent class and is in fact a dummy ExportsStatement. Used to hook
+ * into the existing module declaration type and is used as a placeholder for keyword completion. This can
+ * be any module keyword completion and not necessarily related to exports statement.
+ */
+public class CompletionOnKeywordModuleInfo extends ExportsStatement implements CompletionOnKeyword {
 	private char[] token;
 	private char[][] possibleKeywords;
-	private long pos;
 
 	public CompletionOnKeywordModuleInfo(char[] token, long pos, char[][] possibleKeywords) {
+		super(new ImportReference(new char[][] {token}, new long[] {pos}, false, 0), null); // dummy
 		this.token = token;
-		this.pos = pos;
 		this.possibleKeywords = possibleKeywords;
+		this.sourceStart = (int) (pos>>>32)  ;
+		this.sourceEnd = (int) (pos & 0x00000000FFFFFFFFL);
 	}
 
 	@Override

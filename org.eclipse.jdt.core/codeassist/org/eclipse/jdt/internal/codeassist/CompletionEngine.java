@@ -21,6 +21,7 @@ package org.eclipse.jdt.internal.codeassist;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -62,7 +63,6 @@ import org.eclipse.jdt.internal.codeassist.complete.CompletionOnArgumentName;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnBranchStatementLabel;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnClassLiteralAccess;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnExplicitConstructorCall;
-import org.eclipse.jdt.internal.codeassist.complete.CompletionOnExportReference;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnFieldName;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnFieldType;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnImportReference;
@@ -78,6 +78,7 @@ import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocTypeParam
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnKeyword;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnKeyword3;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnKeywordModuleDeclaration;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnKeywordModuleInfo;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnLocalName;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnMarkerAnnotationName;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnMemberAccess;
@@ -89,6 +90,7 @@ import org.eclipse.jdt.internal.codeassist.complete.CompletionOnMethodReturnType
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnModuleDeclaration;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnModuleReference;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnPackageReference;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnPackageVisibilityReference;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnProvidesImplementationsQualifiedTypeReference;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnProvidesImplementationsSingleTypeReference;
@@ -128,7 +130,6 @@ import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ExpressionContext;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
@@ -153,6 +154,7 @@ import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.OperatorExpression;
 import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
+import org.eclipse.jdt.internal.compiler.ast.PackageVisibilityStatement;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
@@ -2056,46 +2058,15 @@ public final class CompletionEngine
 					if (this.moduleDeclaration instanceof CompletionOnKeywordModuleDeclaration) {
 						contextAccepted = true;
 						processModuleKeywordCompletion(parsedUnit, this.moduleDeclaration, (CompletionOnKeyword) this.moduleDeclaration);
-						return;								
+						return;
 					}
-					ExportsStatement[] exports = this.moduleDeclaration.exports;
-					if (exports != null) {
-						for (int i = 0, l = exports.length; i < l; ++i) {
-							ExportsStatement exportReference = exports[i];
-							if (exportReference instanceof CompletionOnExportReference) {
-								contextAccepted = true;
-								buildContext(exportReference, null, parsedUnit, null, null);
-								if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
-									findPackages((CompletionOnExportReference) exportReference);
-								}
-								debugPrintf();
-								return;
-							}
-							// TODO
-//							if (exportReference instanceof CompletionOnKeywordModuleInfo) {
-//								contextAccepted = true;
-//								processModuleKeywordCompletion(parsedUnit, exportReference, (CompletionOnKeyword) exportReference);
-//								return;								
-//							} 
-							ModuleReference[] targets = exportReference.targets;
-							if (targets == null) continue;
-							for (int j = 0, lj = targets.length; j < lj; j++) {
-								ModuleReference target = targets[j];
-								if (target == null) break;
-								if (target instanceof CompletionOnModuleReference) {
-									buildContext(target, null, parsedUnit, null, null);
-									if(!this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
-										contextAccepted = true;
-										findTargettedModules((CompletionOnModuleReference) target);
-									}
-									debugPrintf();
-									return;
-								} else if (target instanceof CompletionOnKeyword) {
-									contextAccepted = true;
-									//TODO
-								}
-							}
-						}
+					if (this.moduleDeclaration.exports != null) {
+						contextAccepted = completeOnPackageVisibilityStatements(contextAccepted, parsedUnit, this.moduleDeclaration.exports);
+						if (contextAccepted) return;
+					}
+					if (this.moduleDeclaration.opens != null) {
+						contextAccepted = completeOnPackageVisibilityStatements(contextAccepted, parsedUnit, this.moduleDeclaration.opens);
+						if (contextAccepted) return;
 					}
 					RequiresStatement[] moduleRefs = this.moduleDeclaration.requires;
 					if (moduleRefs != null) {
@@ -2129,9 +2100,10 @@ public final class CompletionEngine
 							}
 						}
 					}
-					ProvidesStatement[] services = this.moduleDeclaration.services;
-					for (int i = 0, l = services.length; i < l; ++i) {
-						TypeReference pInterface = services[i].serviceInterface;
+					ProvidesStatement[] providesStmts = this.moduleDeclaration.services;
+					for (int i = 0, l = providesStmts != null ? providesStmts.length : 0; i < l; ++i) {
+						ProvidesStatement providesStmt = providesStmts[i];
+						TypeReference pInterface = providesStmt.serviceInterface;
 						if (pInterface instanceof CompletionOnProvidesInterfacesSingleTypeReference ||
 								pInterface instanceof CompletionOnProvidesInterfacesQualifiedTypeReference) {
 							this.lookupEnvironment.buildTypeBindings(parsedUnit, null);
@@ -2143,19 +2115,22 @@ public final class CompletionEngine
 								return;
 							}
 						}
-					
-//						TypeReference implementation = services[i].serviceImpl;
-//						if (implementation instanceof CompletionOnProvidesImplementationsSingleTypeReference ||
-//								implementation instanceof CompletionOnProvidesImplementationsQualifiedTypeReference) {
-//							this.lookupEnvironment.buildTypeBindings(parsedUnit, null);
-//							if ((this.unitScope = parsedUnit.scope) != null) {
-//								contextAccepted = true;
-//								buildContext(implementation, null, parsedUnit, null, null);
-//								findImplementations(this.moduleDeclaration, i);
-//								debugPrintf();
-//								return;
-//							}
-//						}
+						TypeReference[] implementations = providesStmt.implementations;
+						for (int j = 0, k = implementations.length; j < k; ++j) {
+							TypeReference implementation = implementations[i];
+							
+							if (implementation instanceof CompletionOnProvidesImplementationsSingleTypeReference ||
+									implementation instanceof CompletionOnProvidesImplementationsQualifiedTypeReference) {
+								this.lookupEnvironment.buildTypeBindings(parsedUnit, null);
+								if ((this.unitScope = parsedUnit.scope) != null) {
+									contextAccepted = true;
+									buildContext(implementation, null, parsedUnit, null, null);
+									findImplementations(providesStmt, i/* stmtIndex */, j/* implIndex */);
+									debugPrintf();
+									return;
+								}
+							}
+						}
 					}
 				}
 				// scan the package & import statements first
@@ -2332,6 +2307,50 @@ public final class CompletionEngine
 			if (this.monitor != null) this.monitor.done();
 			reset();
 		}
+	}
+
+	private boolean completeOnPackageVisibilityStatements(boolean contextAccepted,
+			CompilationUnitDeclaration parsedUnit, PackageVisibilityStatement[] pvsStmts) {
+		for (int i = 0, l = pvsStmts.length; i < l; ++i) {
+			PackageVisibilityStatement pvs = pvsStmts[i];
+			if (pvs instanceof CompletionOnKeywordModuleInfo) { // dummy pvs statement
+				contextAccepted = true;
+				processModuleKeywordCompletion(parsedUnit, pvs, (CompletionOnKeyword) pvs);
+				return contextAccepted;
+			}
+			if (pvs.pkgRef instanceof CompletionOnPackageVisibilityReference) {
+				contextAccepted = true;
+				buildContext(pvs, null, parsedUnit, null, null);
+				if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
+					findPackages((CompletionOnPackageVisibilityReference) pvs.pkgRef);
+				}
+				debugPrintf();
+				return contextAccepted;
+			}
+			ModuleReference[] targets = pvs.targets;
+			if (targets == null) continue;
+			HashSet<String> skipSet = new HashSet<>();
+			for (int j = 0, lj = targets.length; j < lj; j++) {
+				ModuleReference target = targets[j];
+				if (target == null) break;
+				if (target instanceof CompletionOnModuleReference) {
+					buildContext(target, null, parsedUnit, null, null);
+					contextAccepted = true;
+					if(!this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
+						findTargettedModules((CompletionOnModuleReference) target, skipSet);
+					}
+					debugPrintf();
+					return contextAccepted;
+				} else if (target instanceof CompletionOnKeyword) {
+					contextAccepted = true;
+					processModuleKeywordCompletion(parsedUnit, target, (CompletionOnKeyword) target);
+				} else {
+					if (target.moduleName != null || target.moduleName.equals(CharOperation.NO_CHAR))
+						skipSet.add(new String(target.moduleName));
+				}
+			}
+		}
+		return contextAccepted;
 	}
 
 	private void debugPrintf() {
@@ -10619,28 +10638,28 @@ public final class CompletionEngine
 			this.printDebug(proposal);
 		}
 	}
-	
-	private void findTargettedModules(char[] prefix) {
+
+	private void findTargettedModules(char[] prefix, HashSet<String> skipSet) {
 		ModuleSourcePathManager mManager = JavaModelManager.getModulePathManager();
 		JavaElementRequestor javaElementRequestor = new JavaElementRequestor();
 		try {
 			mManager.seekModule(this.completionToken, true, javaElementRequestor);
 			IModuleDescription[] modules = javaElementRequestor.getModules();
 			for (IModuleDescription module : modules) {
-				char[] name = module.getElementName().toCharArray();
-				if (name == null || CharOperation.equals(name, CharOperation.NO_CHAR))
+				String name = module.getElementName();
+				if (name == null || name.equals("") || skipSet.contains(name)) //$NON-NLS-1$
 					continue;
-				this.acceptModule(name);
+				this.acceptModule(name.toCharArray());
 			}
 		} catch (JavaModelException e) {
 			// TODO ignore for now
 		}
 	}
-	private void findTargettedModules(CompletionOnModuleReference moduleReference) {
+	private void findTargettedModules(CompletionOnModuleReference moduleReference, HashSet<String> skipSet) {
 		setCompletionToken(moduleReference.tokens, moduleReference.sourceStart, moduleReference.sourceEnd, moduleReference.sourcePositions);
-		findTargettedModules(CharOperation.toLowerCase(this.completionToken));
+		findTargettedModules(CharOperation.toLowerCase(this.completionToken), skipSet);
 	}
-	
+
 	private void setCompletionToken(char[][] tokens, int sourceStart, int sourceEnd, long[] sourcePositions, boolean without) {
 		this.completionToken = without ? CharOperation.concatWith(tokens, '.') : CharOperation.concatWithAll(tokens, '.');
 		if (this.completionToken.length == 0)
@@ -10654,11 +10673,11 @@ public final class CompletionEngine
 	}
 	private void findModules(CompletionOnModuleReference moduleReference, boolean targetted) {
 		setCompletionToken(moduleReference.tokens, moduleReference.sourceStart, moduleReference.sourceEnd, moduleReference.sourcePositions);
-		findTargettedModules(moduleReference);
+		findTargettedModules(moduleReference, new HashSet<>()); // empty skipSet passed
 		this.nameEnvironment.findModules(CharOperation.toLowerCase(this.completionToken), this, targetted ? this.javaProject : null);
 	}
-	private void findPackages(CompletionOnExportReference exportStatement) {
-		setCompletionToken(exportStatement.pkgRef.tokens, exportStatement.sourceStart, exportStatement.sourceEnd, exportStatement.pkgRef.sourcePositions, false);
+	private void findPackages(CompletionOnPackageVisibilityReference reference) {
+		setCompletionToken(reference.tokens, reference.sourceStart, reference.sourceEnd, reference.sourcePositions, false);
 		findPackagesInCurrentModule();
 	}
 
@@ -11839,38 +11858,37 @@ public final class CompletionEngine
 			}
 		} else {
 			 char[] lastToken = tokens[tokens.length - 1];
-			 this.completionToken = lastToken != null && lastToken.length == 0 ? 
+			 this.completionToken = lastToken != null && lastToken.length == 0 ?
 					 CharOperation.concat(typeName, new char[]{'.'}) :lastToken;
 		}
 		setSourceRange(reference.sourceStart, reference.sourceEnd);
 		findTypesAndPackages(this.completionToken, this.unitScope, true, true, new ObjectVector());
 	}
 
-	private void findImplementations(ModuleDeclaration module, int index) {
-		
-//		TypeReference reference = module.services[index].serviceImpl;
-//		char[][] tokens = reference.getTypeName();
-//		char[] typeName = CharOperation.concatWithAll(tokens, '.');
-//
-//		if (typeName.length == 0) {
-//			this.completionToken = CharOperation.ALL_PREFIX;
-//		} else if (reference instanceof CompletionOnProvidesImplementationsQualifiedTypeReference) {
-//			CompletionOnQualifiedTypeReference qReference = (CompletionOnQualifiedTypeReference) reference;
-//			if (qReference.completionIdentifier != null) {
-//				this.completionToken = CharOperation.concatAll(typeName, qReference.completionIdentifier, '.');
-//			}
-//		} else {
-//			 char[] lastToken = tokens[tokens.length - 1];
-//			 this.completionToken = lastToken != null && lastToken.length == 0 ? 
-//					 CharOperation.concat(typeName, new char[]{'.'}) :lastToken;
-//		}
-//		setSourceRange(reference.sourceStart, reference.sourceEnd);
-//		findImplementations(this.completionToken, this.unitScope, module, index);
+	private void findImplementations(ProvidesStatement providesStmt, int stmtIndex, int implIndex) {
+		TypeReference reference = providesStmt.implementations[implIndex];
+		char[][] tokens = reference.getTypeName();
+		char[] typeName = CharOperation.concatWithAll(tokens, '.');
+
+		if (typeName.length == 0) {
+			this.completionToken = CharOperation.ALL_PREFIX;
+		} else if (reference instanceof CompletionOnProvidesImplementationsQualifiedTypeReference) {
+			CompletionOnQualifiedTypeReference qReference = (CompletionOnQualifiedTypeReference) reference;
+			if (qReference.completionIdentifier != null) {
+				this.completionToken = CharOperation.concatAll(typeName, qReference.completionIdentifier, '.');
+			}
+		} else {
+			 char[] lastToken = tokens[tokens.length - 1];
+			 this.completionToken = lastToken != null && lastToken.length == 0 ?
+					 CharOperation.concat(typeName, new char[]{'.'}) :lastToken;
+		}
+		setSourceRange(reference.sourceStart, reference.sourceEnd);
+		findImplementations(this.completionToken, this.unitScope, providesStmt, stmtIndex);
 	}
 
-	private void findImplementations(char[] token, Scope scope, ModuleDeclaration module, int index) {
+	private void findImplementations(char[] token, Scope scope, ProvidesStatement providesStmt, int stmtIndex) {
 
-		TypeReference theInterface = module.services[index].serviceInterface;
+		TypeReference theInterface = providesStmt.serviceInterface;
 
 		if (token == null)
 			return;
@@ -11909,17 +11927,23 @@ public final class CompletionEngine
 						this.types.add(type);
 					}
 				}
-			};
+			}
 			try {
 				List<String> existingImpl = new ArrayList<>();
 				char[][] theInterfaceName = theInterface.getTypeName();
+				// filter out existing implementations of the same interfaces
 				for (int i = 0, l = this.moduleDeclaration.servicesCount; i < l; ++i) {
-					if (i == index) continue;
- 					if (!CharOperation.equals(theInterfaceName, this.moduleDeclaration.services[i].serviceInterface.getTypeName())) continue;
-//					char[][] typeName = this.moduleDeclaration.services[i].serviceImpl.getTypeName();
-//					if (typeName.equals(CharOperation.NO_CHAR_CHAR)) continue;
-//					existingImpl.add(CharOperation.toString(typeName));
+					if (i == stmtIndex) continue;
+					ProvidesStatement prevProvides = this.moduleDeclaration.services[i];
+ 					if (!CharOperation.equals(theInterfaceName, prevProvides.serviceInterface.getTypeName())) continue;
+ 					TypeReference[] prevImpls = prevProvides.implementations;
+ 					for (TypeReference prevImpl : prevImpls) {
+ 						char[][] typeName = prevImpl.getTypeName();
+ 						if (typeName.equals(CharOperation.NO_CHAR_CHAR)) continue;
+ 						existingImpl.add(CharOperation.toString(typeName));
+ 					}
 				}
+				// use search infrastructure - faster than using model
 				ImplSearchRequestor searchRequestor = new ImplSearchRequestor(this.completionToken, existingImpl);
 				new SearchEngine(this.owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(this.owner, true/*add primary WCs*/)).search(
 						pattern,

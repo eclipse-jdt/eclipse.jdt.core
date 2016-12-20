@@ -374,14 +374,12 @@ public class NameLookup implements SuffixConstants {
 			return builder.toString();
 		}
 	}
-	
+
 	private class Selector implements IJavaElementRequestor {
 		public List<IPackageFragment> pkgFragments;
-		String moduleName;
-		
+
 		public Selector(String moduleName) {
 			this.pkgFragments = new ArrayList<>();
-			this.moduleName = moduleName != null && moduleName.length() != 0 ? moduleName : null;
 		}
 
 		@Override
