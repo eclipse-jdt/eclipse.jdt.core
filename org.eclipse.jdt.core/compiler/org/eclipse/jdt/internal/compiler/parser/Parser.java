@@ -5526,7 +5526,7 @@ protected void consumeInternalCompilationUnitWithModuleDeclaration() {
 }
 protected void consumeRequiresStatement() {
 	RequiresStatement req = (RequiresStatement) this.astStack[this.astPtr];
-	req.declarationSourceEnd = this.endStatementPosition;
+	req.declarationEnd = req.declarationSourceEnd = this.endStatementPosition;
 	// recovery
 	if (this.currentElement instanceof RecoveredModule) {
 		this.lastCheckPoint = req.declarationSourceEnd + 1;
@@ -5545,34 +5545,24 @@ protected void consumeSingleRequiresModuleName() {
 	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
 	RequiresStatement req = new RequiresStatement(impt = new ModuleReference(tokens, positions));
 	if (this.currentToken == TokenNameSEMICOLON){
-		req.declarationSourceEnd = this.scanner.currentPosition - 1;
+		req.declarationSourceEnd = impt.sourceEnd + 1;
 	} else {
 		req.declarationSourceEnd = impt.sourceEnd;
 	}
-	req.sourceStart = req.declarationSourceStart;
 	req.declarationEnd = req.declarationSourceEnd;
 	req.modifiersSourceStart = this.intStack[this.intPtr--];
 	req.modifiers |= this.intStack[this.intPtr--];
-	req.declarationSourceStart = this.intStack[this.intPtr--];
-	if (req.modifiersSourceStart >= 0) {
-		req.declarationSourceStart = req.modifiersSourceStart;
-	}
+	req.sourceStart = req.declarationSourceStart = this.intStack[this.intPtr--];
 	req.sourceEnd = impt.sourceEnd;
 	pushOnAstStack(req);
 	// recovery
 	if (this.currentElement instanceof RecoveredModule){
-		this.lastCheckPoint = impt.sourceEnd + 1;
+		this.lastCheckPoint = req.declarationSourceEnd;
 	}
 }
 protected void consumeExportsStatement() {
 	ExportsStatement expt = (ExportsStatement) this.astStack[this.astPtr];
-	if (this.currentToken == TokenNameSEMICOLON){
-		expt.declarationSourceEnd = this.scanner.currentPosition - 1;
-	} else {
-		expt.declarationSourceEnd = expt.sourceEnd;
-	}
-	expt.declarationSourceEnd =
-		flushCommentsDefinedPriorTo(expt.declarationSourceEnd);
+	expt.declarationSourceEnd = this.endStatementPosition;
 	expt.declarationEnd = expt.declarationSourceEnd;
 	// recovery
 	if (this.currentElement instanceof RecoveredPackageVisibilityStatement) {
@@ -5588,14 +5578,12 @@ protected void consumeExportsHeader() {
 	ExportsStatement expt = new ExportsStatement(impt);
 	expt.declarationSourceStart = this.intStack[this.intPtr--];
 	expt.sourceStart = expt.declarationSourceStart;
-	expt.sourceEnd = impt.sourceEnd + 1;
+	expt.sourceEnd = impt.sourceEnd;
 	if (this.currentToken == TokenNameSEMICOLON){
 		expt.declarationSourceEnd = this.scanner.currentPosition - 1;
 	} else {
 		expt.declarationSourceEnd = expt.sourceEnd;
 	}
-	expt.declarationSourceEnd =
-		flushCommentsDefinedPriorTo(expt.declarationSourceEnd);
 	expt.declarationEnd = expt.declarationSourceEnd;
 	this.astStack[this.astPtr] = expt; // replace with ExportsStatement
 	// recovery
@@ -5609,14 +5597,12 @@ protected void consumeOpensHeader() {
 	OpensStatement stmt = new OpensStatement(impt);
 	stmt.declarationSourceStart = this.intStack[this.intPtr--];
 	stmt.sourceStart = stmt.declarationSourceStart;
-	stmt.sourceEnd = impt.sourceEnd + 1;
+	stmt.sourceEnd = impt.sourceEnd;
 	if (this.currentToken == TokenNameSEMICOLON){
 		stmt.declarationSourceEnd = this.scanner.currentPosition - 1;
 	} else {
 		stmt.declarationSourceEnd = stmt.sourceEnd;
 	}
-	stmt.declarationSourceEnd =
-		flushCommentsDefinedPriorTo(stmt.declarationSourceEnd);
 	stmt.declarationEnd = stmt.declarationSourceEnd;
 	this.astStack[this.astPtr] = stmt; // replace with OpensStatement
 	// recovery
@@ -5628,16 +5614,8 @@ protected void consumeOpensHeader() {
 }
 protected void consumeOpensStatement() {
 	OpensStatement expt = (OpensStatement) this.astStack[this.astPtr];
-	if (this.currentToken == TokenNameSEMICOLON){
-		expt.declarationSourceEnd = this.scanner.currentPosition - 1;
-	} else {
-		expt.declarationSourceEnd = expt.sourceEnd;
-	}
-	expt.declarationSourceEnd =
-		flushCommentsDefinedPriorTo(expt.declarationSourceEnd);
+	expt.declarationSourceEnd = this.endStatementPosition;
 	expt.declarationEnd = expt.declarationSourceEnd;
-	expt.sourceStart = expt.declarationSourceStart;
-	this.astStack[this.astPtr] = expt;
 	// recovery
 	if (this.currentElement instanceof RecoveredPackageVisibilityStatement) {
 		this.lastCheckPoint = expt.declarationSourceEnd + 1;
@@ -5675,6 +5653,11 @@ protected void consumeTargetModuleList() {
 		0,
 		length);
 		node.sourceEnd = node.targets[length - 1].sourceEnd;
+		if (this.currentToken == TokenNameSEMICOLON){
+			node.declarationSourceEnd = node.sourceEnd + 1;
+		} else {
+			node.declarationSourceEnd = node.sourceEnd;
+		}
 	}
 	
 	this.listLength = 0; // reset after having read target modules list
@@ -5704,7 +5687,7 @@ protected void consumeSinglePkgName() {
 }
 protected void consumeUsesStatement() {
 	UsesStatement stmt = (UsesStatement) this.astStack[this.astPtr];
-	stmt.declarationSourceEnd = this.endStatementPosition;
+	stmt.declarationEnd = stmt.declarationSourceEnd = this.endStatementPosition;
 	// recovery
 	if (this.currentElement instanceof RecoveredModule){
 		this.lastCheckPoint = stmt.declarationSourceEnd;
@@ -5727,12 +5710,13 @@ protected void consumeUsesHeader() {
 	}
 	UsesStatement stmt = new UsesStatement(siName);
 	if (this.currentToken == TokenNameSEMICOLON){
-		stmt.declarationSourceEnd = this.scanner.currentPosition - 1;
+		stmt.declarationSourceEnd = siName.sourceEnd + 1;
 	} else {
 		stmt.declarationSourceEnd = siName.sourceEnd;
 	}
 	stmt.declarationEnd = stmt.declarationSourceEnd;
-	stmt.declarationSourceStart = this.intStack[this.intPtr--];
+	stmt.sourceStart = stmt.declarationSourceStart = this.intStack[this.intPtr--];
+	stmt.sourceEnd = siName.sourceEnd;
 	pushOnAstStack(stmt);
 	// recovery
 	if (this.currentElement instanceof RecoveredModule){
@@ -5758,6 +5742,8 @@ protected void consumeProvidesInterface() {
 	pushOnAstStack(ref);
 	ref.declarationSourceStart = this.intStack[this.intPtr--];
 	ref.sourceStart = ref.declarationSourceStart;
+	ref.sourceEnd = siName.sourceEnd;
+	ref.declarationSourceEnd = ref.sourceEnd;
 	// recovery
 	if (this.currentElement != null){
 		this.lastCheckPoint = siName.sourceEnd + 1;
@@ -5791,9 +5777,7 @@ protected void consumeServiceImplNameList() {
 }
 protected void consumeProvidesStatement() {
 	ProvidesStatement ref = (ProvidesStatement) this.astStack[this.astPtr];
-	ref.declarationEnd = this.endStatementPosition;
-	ref.declarationSourceEnd =
-		flushCommentsDefinedPriorTo(ref.declarationSourceEnd);
+	ref.declarationEnd = ref.declarationSourceEnd = this.endStatementPosition;
 	//recovery
 	if (this.currentElement != null) {
 		this.lastIgnoredToken = -1;
@@ -5812,8 +5796,14 @@ protected void consumeWithClause() {
 		service.implementations = new TypeReference[length],
 		0,
 		length);
-	service.declarationSourceEnd = service.implementations[length - 1].sourceEnd + 1;
+
 	service.sourceEnd = service.implementations[length - 1].sourceEnd;
+
+	if (this.currentToken == TokenNameSEMICOLON){
+		service.declarationSourceEnd = service.sourceEnd + 1;
+	} else {
+		service.declarationSourceEnd = service.sourceEnd;
+	}
 	this.listLength = 0; // reset after having read super-interfaces
 	// recovery
 	if (this.currentElement != null) { // is recovering
