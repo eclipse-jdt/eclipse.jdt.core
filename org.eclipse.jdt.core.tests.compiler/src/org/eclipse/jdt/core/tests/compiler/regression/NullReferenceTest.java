@@ -18151,4 +18151,41 @@ public void testBug447695g() {
 		"----------\n"
 	);
 }
+public void testBug509188() {
+	runConformTest(
+		new String[] {
+			"test/Bug509188.java",
+			"package test;\n" +
+			"\n" +
+			"public class Bug509188 {\n" +
+			"	public static class QuinamidCell {\n" +
+			"		public QuinamidCell next;\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void drawBoardElements() {\n" +
+			"		Object _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r, _s, _t, _u, _v, _w, _x, _y, _z,\n" +
+			"				_a1, _b1, _c1, _d1, _e1, _f1, _g1, _h1, _i1, _j1, _k1, _l1, _m1, _n1, _o1, _p1, _q1, _r1, _s1, _t1, _u1,\n" +
+			"				_v1, _w1, _x1, _y1, _z_1, _a2, _b2, _c2, _d2, _e2, _f2, _g2, _h2, _i2, _j2, _k2;\n" +
+			"\n" +
+			"		QuinamidCell hitCell = null;\n" +
+			"\n" +
+			"		int level = 0; while (level < 1) {\n" +
+			"			for (QuinamidCell c = new QuinamidCell(); c != null; c = c.next) {\n" +
+			"				hitCell = c;\n" +
+			"			} level++;\n" +
+			"		}\n" +
+			"		if (hitCell != null) {\n" +
+			"			System.out.println(\"not dead\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String[] args) {\n" +
+			"		drawBoardElements();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		"not dead"
+	);
+}
 }
