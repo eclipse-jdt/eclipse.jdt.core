@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -897,6 +901,53 @@ public abstract class ASTNode {
 	public static final int TYPE_METHOD_REFERENCE = 92;
 
 	/**
+	 * Node type constant indicating a node of type
+	 * <code>ModuleDeclaration</code>.
+	 * @see ModuleDeclaration
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int MODULE_DECLARATION = 93;
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>ExportsStatement</code>.
+	 * @see ExportsStatement
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int EXPORTS_STATEMENT = 94;
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>RequiresStatement</code>.
+	 * @see RequiresStatement
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int REQUIRES_STATEMENT = 95;
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>UsesStatement</code>.
+	 * @see UsesStatement
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int USES_STATEMENT = 96;
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>ProvidesStatement</code>.
+	 * @see ProvidesStatement
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int PROVIDES_STATEMENT = 97;
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>OpensStatement</code>.
+	 * @see OpensStatement
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int OPENS_STATEMENT = 98;
+	/**
 	 * Returns the node class for the corresponding node type.
 	 *
 	 * @param nodeType AST node type
@@ -964,6 +1015,8 @@ public abstract class ASTNode {
 				return EnumConstantDeclaration.class;
 			case ENUM_DECLARATION :
 				return EnumDeclaration.class;
+			case EXPORTS_STATEMENT :
+				return ExportsStatement.class;
 			case EXPRESSION_METHOD_REFERENCE :
 				return ExpressionMethodReference.class;
 			case EXPRESSION_STATEMENT :
@@ -1010,6 +1063,8 @@ public abstract class ASTNode {
 				return MethodRefParameter.class;
 			case MODIFIER :
 				return Modifier.class;
+			case MODULE_DECLARATION :
+				return ModuleDeclaration.class;
 			case NAME_QUALIFIED_TYPE :
 				return NameQualifiedType.class;
 			case NORMAL_ANNOTATION :
@@ -1018,6 +1073,8 @@ public abstract class ASTNode {
 				return NullLiteral.class;
 			case NUMBER_LITERAL :
 				return NumberLiteral.class;
+			case OPENS_STATEMENT :
+				return OpensStatement.class;
 			case PACKAGE_DECLARATION :
 				return PackageDeclaration.class;
 			case PARAMETERIZED_TYPE :
@@ -1030,10 +1087,14 @@ public abstract class ASTNode {
 				return PrefixExpression.class;
 			case PRIMITIVE_TYPE :
 				return PrimitiveType.class;
+			case PROVIDES_STATEMENT :
+				return ProvidesStatement.class;
 			case QUALIFIED_NAME :
 				return QualifiedName.class;
 			case QUALIFIED_TYPE :
 				return QualifiedType.class;
+			case REQUIRES_STATEMENT :
+				return RequiresStatement.class;
 			case RETURN_STATEMENT :
 				return ReturnStatement.class;
 			case SIMPLE_NAME :
@@ -1082,6 +1143,8 @@ public abstract class ASTNode {
 				return TypeParameter.class;
 			case UNION_TYPE :
 				return UnionType.class;
+			case USES_STATEMENT :
+				return UsesStatement.class;
 			case VARIABLE_DECLARATION_EXPRESSION :
 				return VariableDeclarationExpression.class;
 			case VARIABLE_DECLARATION_FRAGMENT :
@@ -1968,14 +2031,29 @@ public abstract class ASTNode {
 			throw new UnsupportedOperationException("Operation only supported in JLS8 and later AST"); //$NON-NLS-1$
 		}
 	}
-	
+
+	/**
+     * Checks that this AST operation is not used when
+     * building JLS2, JLS3, JLS4 or JLS8 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties that have been added in JLS9.
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is used below JLS9
+	 * @since 3.13 BETA_JAVA9
+	 */
+	final void unsupportedBelow9() {
+		if (this.ast.apiLevel < AST.JLS9) {
+			throw new UnsupportedOperationException("Operation only supported in JLS9 and later AST"); //$NON-NLS-1$
+		}
+	}
 	/**
      * Checks that this AST operation is only used when
      * building JLS2 level ASTs.
      * <p>
      * Use this method to prevent access to deprecated properties (deprecated in JLS3).
      * </p>
-     * 
+     *
 	 * @exception UnsupportedOperationException if this operation is used in an AST later than JLS2
 	 * @since 3.0
      */
