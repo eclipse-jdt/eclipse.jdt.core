@@ -48,12 +48,6 @@ public final class CharOperation {
 	 */
 	public static final char[] ALL_PREFIX = new char[] {'*'};
 
-	/**
-	 * Constant for comma
-	 * @since 3.13 BETA_JAVA9
-	 */
-	public static final char[] COMMA_SEPARATOR = new char[] {','};
-
 /**
  * Answers a new array with appending the suffix character at the end of the array.
  * <br>

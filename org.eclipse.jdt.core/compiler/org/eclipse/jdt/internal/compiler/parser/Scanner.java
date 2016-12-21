@@ -5,10 +5,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for bug 186342 - [compiler][null] Using annotations for null checking
@@ -203,8 +199,7 @@ public class Scanner implements TerminalTokens {
 	private VanguardParser vanguardParser;
 	ConflictedParser activeParser = null;
 	private boolean consumingEllipsisAnnotations = false;
-	public boolean fakeInModule = false;
-
+	
 	public static final int RoundBracket = 0;
 	public static final int SquareBracket = 1;
 	public static final int CurlyBracket = 2;
@@ -2536,7 +2531,6 @@ final char[] optimizedCurrentTokenSource6() {
 	return table[this.newEntry6 = max] = r; //(r = new char[] {c0, c1, c2, c3, c4, c5});
 }
 private boolean isInModuleDeclaration() {
-	if (this.fakeInModule) return true;
 	return this.activeParser != null ? this.activeParser.isParsingModuleDeclaration() : false;
 }
 private void parseTags() {

@@ -5,10 +5,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -8851,20 +8847,14 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ASTNode.CREATION_REFERENCE,
 			ASTNode.EXPRESSION_METHOD_REFERENCE,
 			ASTNode.SUPER_METHOD_REFERENCE,
-			ASTNode.TYPE_METHOD_REFERENCE,
-			ASTNode.MODULE_DECLARATION,
-			ASTNode.EXPORTS_STATEMENT,
-			ASTNode.REQUIRES_STATEMENT,
-			ASTNode.USES_STATEMENT,
-			ASTNode.PROVIDES_STATEMENT,
-			ASTNode.OPENS_STATEMENT
+			ASTNode.TYPE_METHOD_REFERENCE
 		};
-
+		
 		// assert that nodeType values are correct:
 		for (int i= 0; i < nodeTypes.length; i++) {
 			assertSame(i + 1, nodeTypes[i]);
 		}
-
+		
 		// test nodeClassForType:
 		for (int i= 0; i < nodeTypes.length; i++) {
 			int nodeType = nodeTypes[i];
@@ -8872,7 +8862,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			try {
 				node = this.ast.createInstance(nodeType);
 			} catch (IllegalArgumentException e) {
-				if (this.API_LEVEL < AST.JLS9 && e.getCause() instanceof UnsupportedOperationException) {
+				if (this.API_LEVEL < getJLS8() && e.getCause() instanceof UnsupportedOperationException) {
 					continue;
 				} else {
 					throw new AssertionFailedError("missing node type: " + nodeType);

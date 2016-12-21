@@ -239,10 +239,6 @@ public class Util implements SuffixConstants {
 	public static final String LINE_SEPARATOR = System.getProperty("line.separator"); //$NON-NLS-1$
 
 	public static final String EMPTY_STRING = new String(CharOperation.NO_CHAR);
-	/**
-	 * @since 3.13 BETA_JAVA9
-	 */
-	public static final String COMMA_SEPARATOR = new String(CharOperation.COMMA_SEPARATOR);
 	public static final int[] EMPTY_INT_ARRAY= new int[0];
 
 	/**
