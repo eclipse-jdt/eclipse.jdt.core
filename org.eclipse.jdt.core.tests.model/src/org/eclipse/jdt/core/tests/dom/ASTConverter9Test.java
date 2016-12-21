@@ -130,7 +130,50 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			checkSourceRange(fieldAccess, "this.y2", contents);
 			expr = resources.get(5);
 			VariableDeclarationExpression variableDeclarationExpression = (VariableDeclarationExpression) expr;
-			checkSourceRange(variableDeclarationExpression, "Y y4 = new Y()", contents);			
+			checkSourceRange(variableDeclarationExpression, "Y y4 = new Y()", contents);
 	}
-
+	public void testBug496123_0001() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		String content =  "module first {"
+				+ "  requires second;\n"
+				+ "  exports pack11 to third, fourth;\n"
+				+ "  uses NewType;\n"
+				+ "  provides pack22.I22 with pack11.packinternal.Z11;\n"
+				+ "}";
+		this.workingCopies[0] = getWorkingCopy(
+				"/Converter9/src/module-info.java", content);
+		
+		CompilationUnit unit = (CompilationUnit) runConversion(AST.JLS9, this.workingCopies[0], false/*no bindings*/);
+		ModuleDeclaration moduleDecl = unit.getModule();
+		
+		checkSourceRange(moduleDecl, content, content);
+		List<ModuleStatement> stmts = moduleDecl.moduleStatements();
+		assertTrue(stmts.size() > 0);
+		
+		RequiresStatement req = (RequiresStatement) stmts.get(0);
+		checkSourceRange(req, "requires second;", content);
+		
+		ExportsStatement exp = (ExportsStatement) stmts.get(1);
+		checkSourceRange(exp, "exports pack11 to third, fourth;", content);
+		checkSourceRange(exp.getName(), "pack11", content);
+		List<Name> modules = exp.modules();
+		assertTrue(modules.size() == 2);
+		checkSourceRange(modules.get(0), "third", content);
+		checkSourceRange(modules.get(1), "fourth", content);
+		
+		UsesStatement u = (UsesStatement) stmts.get(2);
+		checkSourceRange(u, "uses NewType;", content);
+		Type type = u.getType();
+		checkSourceRange(type, "NewType", content);
+		
+		ProvidesStatement p = (ProvidesStatement) stmts.get(3);
+		checkSourceRange(p, "provides pack22.I22 with pack11.packinternal.Z11;", content);
+		type = p.getType();
+		checkSourceRange(type, "pack22.I22", content);
+		List<Type> impls = p.implementations();
+		assertTrue(impls.size() > 0);
+		type = impls.get(0);
+		checkSourceRange(type, "pack11.packinternal.Z11", content);		
+	}
+// Add new tests here 
 }

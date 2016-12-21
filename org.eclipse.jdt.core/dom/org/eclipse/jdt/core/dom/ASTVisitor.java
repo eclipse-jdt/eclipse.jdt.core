@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -655,6 +659,23 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public boolean visit(ExportsStatement node) {
+		return true;
+	}
+
+	/**
+	 * Visits the given type-specific AST node.
+	 * <p>
+	 * The default implementation does nothing and return true.
+	 * Subclasses may re-implement.
+	 * </p>
+	 *
+	 * @param node the node to visit
+	 * @return <code>true</code> if the children of this node should be
+	 * visited, and <code>false</code> if the children of this node should
+	 * be skipped
 	 * @since 3.10
 	 */
 	public boolean visit(ExpressionMethodReference node) {
@@ -1052,6 +1073,23 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public boolean visit(ModuleDeclaration node) {
+		return true;
+	}
+
+	/**
+	 * Visits the given type-specific AST node.
+	 * <p>
+	 * The default implementation does nothing and return true.
+	 * Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param node the node to visit
+	 * @return <code>true</code> if the children of this node should be
+	 * visited, and <code>false</code> if the children of this node should
+	 * be skipped
 	 * @since 3.10
 	 */
 	public boolean visit(NameQualifiedType node) {
@@ -1104,6 +1142,23 @@ public abstract class ASTVisitor {
 	 * be skipped
 	 */
 	public boolean visit(NumberLiteral node) {
+		return true;
+	}
+
+	/**
+	 * Visits the given type-specific AST node.
+	 * <p>
+	 * The default implementation does nothing and return true.
+	 * Subclasses may re-implement.
+	 * </p>
+	 *
+	 * @param node the node to visit
+	 * @return <code>true</code> if the children of this node should be
+	 * visited, and <code>false</code> if the children of this node should
+	 * be skipped
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public boolean visit(OpensStatement node) {
 		return true;
 	}
 
@@ -1192,6 +1247,23 @@ public abstract class ASTVisitor {
 	 * Visits the given type-specific AST node.
 	 * <p>
 	 * The default implementation does nothing and return true.
+	 * Subclasses may re-implement.
+	 * </p>
+	 *
+	 * @param node the node to visit
+	 * @return <code>true</code> if the children of this node should be
+	 * visited, and <code>false</code> if the children of this node should
+	 * be skipped
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public boolean visit(ProvidesStatement node) {
+		return true;
+	}
+
+	/**
+	 * Visits the given type-specific AST node.
+	 * <p>
+	 * The default implementation does nothing and return true.
 	 * Subclasses may reimplement.
 	 * </p>
 	 *
@@ -1234,6 +1306,23 @@ public abstract class ASTVisitor {
 	 * @since 3.1
 	 */
 	public boolean visit(QualifiedType node) {
+		return true;
+	}
+
+	/**
+	 * Visits the given type-specific AST node.
+	 * <p>
+	 * The default implementation does nothing and return true.
+	 * Subclasses may re-implement.
+	 * </p>
+	 *
+	 * @param node the node to visit
+	 * @return <code>true</code> if the children of this node should be
+	 * visited, and <code>false</code> if the children of this node should
+	 * be skipped
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public boolean visit(RequiresStatement node) {
 		return true;
 	}
 
@@ -1630,6 +1719,23 @@ public abstract class ASTVisitor {
 	 * @since 3.7.1
 	 */
 	public boolean visit(UnionType node) {
+		return true;
+	}
+
+	/**
+	 * Visits the given type-specific AST node.
+	 * <p>
+	 * The default implementation does nothing and return true.
+	 * Subclasses may re-implement.
+	 * </p>
+	 *
+	 * @param node the node to visit
+	 * @return <code>true</code> if the children of this node should be
+	 * visited, and <code>false</code> if the children of this node should
+	 * be skipped
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public boolean visit(UsesStatement node) {
 		return true;
 	}
 
@@ -2057,6 +2163,19 @@ public abstract class ASTVisitor {
 	 * </p>
 	 *
 	 * @param node the node to visit
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public void endVisit(ExportsStatement node) {
+		// default implementation: do nothing
+	}
+
+	/**
+	 * End of visit the given type-specific AST node.
+	 * <p>
+	 * The default implementation does nothing. Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param node the node to visit
 	 * @since 3.10
 	 */
 	public void endVisit(ExpressionMethodReference node) {
@@ -2348,6 +2467,19 @@ public abstract class ASTVisitor {
 	 * </p>
 	 *
 	 * @param node the node to visit
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public void endVisit(ModuleDeclaration node) {
+		// default implementation: do nothing
+	}
+
+	/**
+	 * End of visit the given type-specific AST node.
+	 * <p>
+	 * The default implementation does nothing. Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param node the node to visit
 	 * @since 3.10
 	 */
 	public void endVisit(NameQualifiedType node) {
@@ -2388,6 +2520,19 @@ public abstract class ASTVisitor {
 	 * @param node the node to visit
 	 */
 	public void endVisit(NumberLiteral node) {
+		// default implementation: do nothing
+	}
+
+	/**
+	 * End of visit the given type-specific AST node.
+	 * <p>
+	 * The default implementation does nothing. Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param node the node to visit
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public void endVisit(OpensStatement node) {
 		// default implementation: do nothing
 	}
 
@@ -2471,6 +2616,19 @@ public abstract class ASTVisitor {
 	 * </p>
 	 *
 	 * @param node the node to visit
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public void endVisit(ProvidesStatement node) {
+		// default implementation: do nothing
+	}
+
+	/**
+	 * End of visit the given type-specific AST node.
+	 * <p>
+	 * The default implementation does nothing. Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param node the node to visit
 	 */
 	public void endVisit(QualifiedName node) {
 		// default implementation: do nothing
@@ -2486,6 +2644,19 @@ public abstract class ASTVisitor {
 	 * @since 3.1
 	 */
 	public void endVisit(QualifiedType node) {
+		// default implementation: do nothing
+	}
+
+	/**
+	 * End of visit the given type-specific AST node.
+	 * <p>
+	 * The default implementation does nothing. Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param node the node to visit
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public void endVisit(RequiresStatement node) {
 		// default implementation: do nothing
 	}
 
@@ -2781,6 +2952,19 @@ public abstract class ASTVisitor {
 	 * @since 3.7.1
 	 */
 	public void endVisit(UnionType node) {
+		// default implementation: do nothing
+	}
+
+	/**
+	 * End of visit the given type-specific AST node.
+	 * <p>
+	 * The default implementation does nothing. Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param node the node to visit
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public void endVisit(UsesStatement node) {
 		// default implementation: do nothing
 	}
 

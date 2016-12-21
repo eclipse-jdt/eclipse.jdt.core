@@ -1504,10 +1504,23 @@ public final class AST {
 	}
 
 	/**
+	 * Creates and returns a new unparented exports statement
+	 * node for an unspecified, but legal, name; no target modules
+	 *
+	 * @return a new unparented exports statement node
+	 * @exception UnsupportedOperationException if this operation is used in level less than JLS9
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public ExportsStatement newExportsStatement() {
+		ExportsStatement result = new ExportsStatement(this);
+		return result;
+	}
+
+	/**
 	 * Creates an unparented expression method reference node owned by this AST.
 	 * By default, the expression and method name are unspecified (but legal),
 	 * and there are no type arguments.
-	 * 
+	 *
 	 * @return a new unparented expression method reference expression node
 	 * @exception UnsupportedOperationException if this operation is used in a JLS2, JLS3 or JLS4 AST
 	 * @since 3.10
@@ -1924,6 +1937,20 @@ public final class AST {
 	}
 
 	/**
+	 * Creates and returns a new unparented module declaration
+	 * node for an unspecified, but legal, name; no modifiers; no javadoc;
+	 * and an empty list of statements.
+	 *
+	 * @return a new unparented module declaration node
+	 * @exception UnsupportedOperationException if this operation is used in level less than JLS9
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public ModuleDeclaration newModuleDeclaration() {
+		ModuleDeclaration result = new ModuleDeclaration(this);
+		return result;
+	}
+
+	/**
 	 * Creates and returns a new unparented name node for the given name.
 	 * The name string must consist of 1 or more name segments separated
 	 * by single dots '.'. Returns a {@link QualifiedName} if the name has
@@ -2087,6 +2114,19 @@ public final class AST {
 	}
 
 	/**
+	 * Creates and returns a new unparented opens statement
+	 * node for an unspecified, but legal, name; no target modules
+	 *
+	 * @return a new unparented opens statement node
+	 * @exception UnsupportedOperationException if this operation is used in level less than JLS9
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public OpensStatement newOpensStatement() {
+		OpensStatement result = new OpensStatement(this);
+		return result;
+	}
+
+	/**
 	 * Creates an unparented package declaration node owned by this AST.
 	 * The package declaration initially declares a package with an
 	 * unspecified name.
@@ -2170,6 +2210,19 @@ public final class AST {
 	}
 
 	/**
+	 * Creates and returns a new unparented provides statement
+	 * node for an unspecified, but legal, type; no target types
+	 *
+	 * @return a new unparented provides statement node
+	 * @exception UnsupportedOperationException if this operation is used in level less than JLS9
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public ProvidesStatement newProvidesStatement() {
+		ProvidesStatement result = new ProvidesStatement(this);
+		return result;
+	}
+
+	/**
 	 * Creates and returns a new unparented qualified name node for the given
 	 * qualifier and simple name child node.
 	 *
@@ -2212,6 +2265,19 @@ public final class AST {
 		QualifiedType result = new QualifiedType(this);
 		result.setQualifier(qualifier);
 		result.setName(name);
+		return result;
+	}
+
+	/**
+	 * Creates and returns a new unparented requires statement
+	 * node for an unspecified, but legal, name;
+	 *
+	 * @return a new unparented requires statement node
+	 * @exception UnsupportedOperationException if this operation is used in level less than JLS9
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public RequiresStatement newRequiresStatement() {
+		RequiresStatement result = new RequiresStatement(this);
 		return result;
 	}
 
@@ -2580,6 +2646,19 @@ public final class AST {
 	 */
 	public UnionType newUnionType() {
 		return new UnionType(this);
+	}
+
+	/**
+	 * Creates and returns a new unparented uses statement
+	 * node for an unspecified, but legal, name;
+	 *
+	 * @return a new unparented uses statement node
+	 * @exception UnsupportedOperationException if this operation is used in level less than JLS9
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public UsesStatement newUsesStatement() {
+		UsesStatement result = new UsesStatement(this);
+		return result;
 	}
 
 	/**

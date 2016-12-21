@@ -207,11 +207,24 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 	}
 
+	private void printTypes(List<Type> types, String prefix) {
+		if (types.size() > 0) {
+			this.buffer.append(" " + prefix + " ");//$NON-NLS-1$ //$NON-NLS-2$
+			Type type = types.get(0);
+			type.accept(this);
+			for (int i = 1, l = types.size(); i < l; ++i) {
+				this.buffer.append(","); //$NON-NLS-1$
+				type = types.get(0);
+				type.accept(this);
+			}
+		}
+	}
+
 	/**
 	 * reference node helper function that is common to all
 	 * the difference reference nodes.
-	 * 
-	 * @param typeArguments list of type arguments 
+	 *
+	 * @param typeArguments list of type arguments
 	 */
 	private void visitReferenceTypeArguments(List typeArguments) {
 		this.buffer.append("::");//$NON-NLS-1$
@@ -744,9 +757,14 @@ public class NaiveASTFlattener extends ASTVisitor {
 		return false;
 	}
 
+	@Override
+	public boolean visit(ExportsStatement node) {
+		return visit(node, "exports"); //$NON-NLS-1$
+	}
+
 	/*
 	 * @see ASTVisitor#visit(ExpressionMethodReference)
-	 * 
+	 *
 	 * @since 3.10
 	 */
 	public boolean visit(ExpressionMethodReference node) {
@@ -1207,6 +1225,32 @@ public class NaiveASTFlattener extends ASTVisitor {
 		return false;
 	}
 
+	@Override
+	public boolean visit(ModuleDeclaration node) {
+		printModifiers(node.modifiers());
+		this.buffer.append("module"); //$NON-NLS-1$
+		this.buffer.append(" "); //$NON-NLS-1$
+		node.getName().accept(this);
+		this.buffer.append(" {\n"); //$NON-NLS-1$
+		this.indent++;
+		for (ModuleStatement stmt : (List<ModuleStatement>)node.moduleStatements()) {
+			stmt.accept(this);
+		}
+		this.indent--;
+		this.buffer.append("}"); //$NON-NLS-1$
+		return false;
+	}
+
+	private boolean visit(ModulePackageAccess node, String keyword) {
+		printIndent();
+		this.buffer.append(keyword);
+		this.buffer.append(" ");//$NON-NLS-1$
+		node.getName().accept(this);
+		printTypes(node.modules(), "to"); //$NON-NLS-1$
+		this.buffer.append(";\n");//$NON-NLS-1$
+		return false;
+	}
+
 	/*
 	 * @see ASTVisitor#visit(NameQualifiedType)
 	 * @since 3.10
@@ -1252,6 +1296,11 @@ public class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(NumberLiteral node) {
 		this.buffer.append(node.getToken());
 		return false;
+	}
+
+	@Override
+	public boolean visit(OpensStatement node) {
+		return visit(node, "opens"); //$NON-NLS-1$
 	}
 
 	/*
@@ -1330,6 +1379,17 @@ public class NaiveASTFlattener extends ASTVisitor {
 		return false;
 	}
 
+	@Override
+	public boolean visit(ProvidesStatement node) {
+		printIndent();
+		this.buffer.append("provides");//$NON-NLS-1$
+		this.buffer.append(" ");//$NON-NLS-1$
+		node.getType().accept(this);
+		printTypes(node.implementations(), "with"); //$NON-NLS-1$
+		this.buffer.append(";\n");//$NON-NLS-1$
+		return false;
+	}
+
 	/*
 	 * @see ASTVisitor#visit(QualifiedName)
 	 */
@@ -1349,6 +1409,16 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append(".");//$NON-NLS-1$
 		visitTypeAnnotations(node);
 		node.getName().accept(this);
+		return false;
+	}
+
+	@Override
+	public boolean visit(RequiresStatement node) {
+		printIndent();
+		this.buffer.append("requires");//$NON-NLS-1$
+		this.buffer.append(" ");//$NON-NLS-1$
+		node.getName().accept(this);
+		this.buffer.append(";\n");//$NON-NLS-1$
 		return false;
 	}
 
@@ -1848,6 +1918,16 @@ public class NaiveASTFlattener extends ASTVisitor {
 				this.buffer.append('|');
 			}
 		}
+		return false;
+	}
+
+	@Override
+	public boolean visit(UsesStatement node) {
+		printIndent();
+		this.buffer.append("uses");//$NON-NLS-1$
+		this.buffer.append(" ");//$NON-NLS-1$
+		node.getType().accept(this);
+		this.buffer.append(";\n");//$NON-NLS-1$
 		return false;
 	}
 
