@@ -24,13 +24,16 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 
 public class ModuleInfo extends ClassFileStruct implements IModule {
+	protected int flags;
 	protected int requiresCount;
 	protected int exportsCount;
 	protected int usesCount;
 	protected int providesCount;
+	protected int opensCount;
 	protected char[] name;
 	protected ModuleReferenceInfo[] requires;
 	protected PackageExportInfo[] exports;
+	protected PackageExportInfo[] opens;
 	char[][] uses;
 	IModule.IService[] provides;
 
@@ -99,30 +102,29 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 		this.exports = merged.toArray(new PackageExportInfo[merged.size()]);
 	}
 	/**
-	 * @param name char[]
 	 * @param classFileBytes byte[]
 	 * @param offsets int[]
 	 * @param offset int
 	 */
-	protected ModuleInfo (char[] name, byte classFileBytes[], int offsets[], int offset) {
+	protected ModuleInfo (byte classFileBytes[], int offsets[], int offset) {
 		super(classFileBytes, offsets, offset);
-		this.name = name;
 	}
 
-	private static final char[] MODULE_INFO_SUFFIX = "/module-info".toCharArray(); //$NON-NLS-1$
-	private static final int MODULE_SUFFIX_LENGTH = MODULE_INFO_SUFFIX.length;
-
 	public static ModuleInfo createModule(char[] className, byte classFileBytes[], int offsets[], int offset) {
-		if (CharOperation.endsWith(className, MODULE_INFO_SUFFIX)) {
-			className = CharOperation.subarray(className, 0, className.length - MODULE_SUFFIX_LENGTH);
-			CharOperation.replace(className, '/', '.');
-		}
 
-		ModuleInfo module = new ModuleInfo(className, classFileBytes, offsets, 0);
 		int readOffset = offset;
-		int utf8Offset = module.constantPoolOffsets[module.u2At(readOffset)];
 //		module.name = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1)); // returns 'Module' 
 		int moduleOffset = readOffset + 6;
+		int utf8Offset;
+		ModuleInfo module = new ModuleInfo(classFileBytes, offsets, 0);
+		utf8Offset = module.constantPoolOffsets[module.u2At(moduleOffset)];
+		module.name = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1));
+		CharOperation.replace(module.name, '/', '.');
+		moduleOffset += 2;
+		module.flags = module.u2At(moduleOffset);
+		moduleOffset += 2;
+
+		utf8Offset = module.constantPoolOffsets[module.u2At(readOffset)];
 		int count = module.u2At(moduleOffset);
 		module.requiresCount = count;
 		module.requires = new ModuleReferenceInfo[count];
@@ -131,6 +133,7 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 			utf8Offset = module.constantPoolOffsets[module.u2At(moduleOffset)];
 			char[] requiresNames = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1));
 			module.requires[i] = module.new ModuleReferenceInfo();
+			CharOperation.replace(requiresNames, '/', '.');
 			module.requires[i].refName = requiresNames;
 			moduleOffset += 2;
 			int modifiers = module.u2At(moduleOffset);
@@ -149,6 +152,35 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 			PackageExportInfo pack = module.new PackageExportInfo();
 			module.exports[i] = pack;
 			pack.packageName = exported;
+			moduleOffset += 2;
+			pack.modifiers = module.u2At(moduleOffset);
+			moduleOffset += 2;
+			int exportedtoCount = module.u2At(moduleOffset);
+			moduleOffset += 2;
+			if (exportedtoCount > 0) {
+				pack.exportedTo = new char[exportedtoCount][];
+				pack.exportedToCount = exportedtoCount;
+				for(int k = 0; k < exportedtoCount; k++) {
+					utf8Offset = module.constantPoolOffsets[module.u2At(moduleOffset)];
+					char[] exportedToName = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1));
+					pack.exportedTo[k] = exportedToName;
+					moduleOffset += 2;
+				}
+			}
+		}
+		count = module.u2At(moduleOffset);
+		moduleOffset += 2;
+		module.opensCount = count;
+		module.opens = new PackageExportInfo[count];
+		for (int i = 0; i < count; i++) {
+			utf8Offset = module.constantPoolOffsets[module.u2At(moduleOffset)];
+			char[] exported = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1));
+			CharOperation.replace(exported, '/', '.');
+			PackageExportInfo pack = module.new PackageExportInfo();
+			module.opens[i] = pack;
+			pack.packageName = exported;
+			moduleOffset += 2;
+			pack.modifiers = module.u2At(moduleOffset);
 			moduleOffset += 2;
 			int exportedtoCount = module.u2At(moduleOffset);
 			moduleOffset += 2;
@@ -200,6 +232,7 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 		char[] packageName;
 		char[][] exportedTo;
 		int exportedToCount;
+		int modifiers;
 		@Override
 		public char[] name() {
 			return this.packageName;

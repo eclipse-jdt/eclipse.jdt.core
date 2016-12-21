@@ -283,7 +283,9 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 
 		// Read the classname, use exception handlers to catch bad format
 		this.classNameIndex = u2At(readOffset);
-		this.className = getConstantClassNameAt(this.classNameIndex);
+		if (this.classNameIndex != 0) {
+			this.className = getConstantClassNameAt(this.classNameIndex);
+		}
 		readOffset += 2;
 
 		// Read the superclass name, can be null for java.lang.Object
