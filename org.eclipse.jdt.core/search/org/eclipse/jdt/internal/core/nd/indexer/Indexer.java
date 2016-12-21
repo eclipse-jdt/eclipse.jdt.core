@@ -762,6 +762,7 @@ public final class Indexer {
 							+ resourceFile.getLocation().getString() + " " + resourceFile.address); //$NON-NLS-1$
 				}
 				converter.addType(binaryType, fieldDescriptor, subMonitor.split(45));
+				resourceFile.setJdkLevel(binaryType.getVersion());
 				indexed = true;
 			}
 		} finally {
