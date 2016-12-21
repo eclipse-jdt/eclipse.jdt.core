@@ -1576,9 +1576,11 @@ private boolean checkModuleInfoConstructs() {
 		if (this.currentElement instanceof RecoveredPackageVisibilityStatement) {
 			RecoveredPackageVisibilityStatement rPvs = (RecoveredPackageVisibilityStatement) this.currentElement;
 			rPvs.add(new CompletionOnKeywordModule2(ident, pos, keywords), 0);
+			return true;
 		} else if (this.currentElement instanceof RecoveredProvidesStatement) {
 			RecoveredProvidesStatement rPs = (RecoveredProvidesStatement) this.currentElement;
 			rPs.add(new CompletionOnKeyword1(ident, pos, keywords), 0);
+			return true;
 		}
 	} 
 	return false;
