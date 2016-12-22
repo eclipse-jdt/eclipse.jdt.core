@@ -69,7 +69,8 @@ public class ModuleBinding extends Binding {
 	public int tagBits;
 	private ModuleBinding[] requiredModules = null;
 	private boolean isAuto;
-	
+	private char[] constantPoolName;
+
 	HashtableOfPackage declaredPackages;
 	HashtableOfPackage exportedPackages;
 
@@ -119,6 +120,11 @@ public class ModuleBinding extends Binding {
 				collectTransitiveDependencies(deps);
 			}
 		});
+	}
+	public char[] constantPoolName() /* java/lang/Object */ {
+		if (this.constantPoolName == null)
+			this.constantPoolName = CharOperation.replaceOnCopy(this.moduleName, '.', '/');
+		return this.constantPoolName;
 	}
 	// All modules required by this module, either directly or indirectly
 	public Supplier<Collection<ModuleBinding>> dependencyGraphCollector() {

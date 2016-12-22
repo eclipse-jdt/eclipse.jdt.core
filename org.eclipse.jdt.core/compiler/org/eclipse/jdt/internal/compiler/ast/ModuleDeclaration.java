@@ -81,7 +81,6 @@ public class ModuleDeclaration extends TypeDeclaration {
 			return;
 		}
 		this.moduleBinding = this.scope.environment().getModule(this.moduleName);
-		this.binding.compoundName = CharOperation.arrayConcat(this.tokens, this.name);
 		Set<ModuleBinding> requiredModules = new HashSet<ModuleBinding>();
 		for(int i = 0; i < this.requiresCount; i++) {
 			RequiresStatement ref = this.requires[i];

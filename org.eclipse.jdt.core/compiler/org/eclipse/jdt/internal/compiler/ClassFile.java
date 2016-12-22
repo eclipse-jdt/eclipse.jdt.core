@@ -98,6 +98,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
@@ -2358,7 +2359,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	public char[] fileName() {
 		// TODO Is there a better way of doing this?
 		char[] name = this.constantPool.UTF8Cache.returnKeyFor(2);
-		if (CharOperation.endsWith(name, TypeConstants.MODULE_INFO_NAME))
+		if (CharOperation.endsWith(name, TypeConstants.MODULE_INFO_FILE_NAME))
 			return TypeConstants.MODULE_INFO_NAME;
 		return name;
 	}
@@ -2600,6 +2601,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	}
 	private int generateModuleAttribute() {
 		ModuleDeclaration module = (ModuleDeclaration)this.referenceBinding.scope.referenceContext;
+		ModuleBinding binding = module.moduleBinding;
 		int localContentsOffset = this.contentsOffset;
 		if (localContentsOffset + 10 >= this.contents.length) {
 			resizeContents(10);
@@ -2611,10 +2613,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int attrLengthOffset = localContentsOffset;
 		localContentsOffset += 4;
 		int moduleNameIndex =
-				this.constantPool.literalIndex(module.moduleName);
+				this.constantPool.literalIndex(binding.constantPoolName());
 		this.contents[localContentsOffset++] = (byte) (moduleNameIndex >> 8);
 		this.contents[localContentsOffset++] = (byte) moduleNameIndex;
-		int flags = module.modifiers;
+		int flags = module.modifiers & ~(ClassFileConstants.AccModule);
 		this.contents[localContentsOffset++] = (byte) (flags >> 8);
 		this.contents[localContentsOffset++] = (byte) flags;
 		int attrLength = 4;
@@ -2633,24 +2635,26 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		
 		localContentsOffset += 2;
-		boolean javabaseSeen = false;
+		ModuleBinding javaBaseBinding = null;
 		for(int i = 0; i < module.requiresCount; i++) {
 			RequiresStatement req = module.requires[i];
+			ModuleBinding reqBinding = binding.environment.getModule(req.module.moduleName);
 			if (CharOperation.equals(req.module.moduleName, TypeConstants.JAVA_BASE)) {
-				javabaseSeen = true;
+				javaBaseBinding = reqBinding;
 			}
-			int nameIndex = this.constantPool.literalIndex(req.module.moduleName);
+			int nameIndex = this.constantPool.literalIndex(reqBinding.constantPoolName());
 			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) (nameIndex);
 			flags = req.modifiers;
 			this.contents[localContentsOffset++] = (byte) (flags >> 8);
 			this.contents[localContentsOffset++] = (byte) (flags);
 		}
-		if (!javabaseSeen) {
+		if (javaBaseBinding == null) {
 			if (localContentsOffset + 4 >= this.contents.length) {
 				resizeContents(4);
 			}
-			int javabase_index = this.constantPool.literalIndex(TypeConstants.JAVA_BASE);
+			javaBaseBinding = binding.environment.getModule(TypeConstants.JAVA_BASE);
+			int javabase_index = this.constantPool.literalIndex(javaBaseBinding.constantPoolName());
 			this.contents[localContentsOffset++] = (byte) (javabase_index >> 8);
 			this.contents[localContentsOffset++] = (byte) (javabase_index);
 			flags = ClassFileConstants.AccMandated;
@@ -2680,7 +2684,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) module.exportsCount;
 		for (int i = 0; i < module.exportsCount; i++) {
 			ExportsStatement ref = module.exports[i];
-			int nameIndex = this.constantPool.literalIndex(ref.pkgName);
+			int nameIndex = this.constantPool.literalIndex(CharOperation.replaceOnCopy(ref.pkgName, '.', '/'));
 			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) (nameIndex);
 			// TODO exports_flags - check when they are set
@@ -2696,7 +2700,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					resizeContents(targetSize);
 				}
 				for(int j = 0; j < exportsToCount; j++) {
-					nameIndex = this.constantPool.literalIndex(ref.targets[j].moduleName);
+					nameIndex = this.constantPool.literalIndex(CharOperation.replaceOnCopy(ref.targets[j].moduleName, '.', '/'));
 					this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 					this.contents[localContentsOffset++] = (byte) (nameIndex);
 				}
@@ -2723,7 +2727,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) module.opensCount;
 		for (int i = 0; i < module.opensCount; i++) {
 			OpensStatement ref = module.opens[i];
-			int nameIndex = this.constantPool.literalIndex(ref.pkgName);
+			int nameIndex = this.constantPool.literalIndex(CharOperation.replaceOnCopy(ref.pkgName, '.', '/'));
 			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) (nameIndex);
 			// TODO opens_flags - check when they are set
@@ -2739,14 +2743,14 @@ public class ClassFile implements TypeConstants, TypeIds {
 					resizeContents(targetSize);
 				}
 				for(int j = 0; j < opensToCount; j++) {
-					nameIndex = this.constantPool.literalIndex(ref.targets[j].moduleName);
+					nameIndex = this.constantPool.literalIndex(CharOperation.replaceOnCopy(ref.targets[j].moduleName, '.', '/'));
 					this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 					this.contents[localContentsOffset++] = (byte) (nameIndex);
 				}
 				attrLength += targetSize;
 			}
 		}
-		attrLength += exportsSize;
+		attrLength += opensSize;
 		// ================= end opens section =================
 
 		// ================= uses section =================
@@ -5198,7 +5202,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// now we continue to generate the bytes inside the contents array
 		this.contents[this.contentsOffset++] = (byte) (accessFlags >> 8);
 		this.contents[this.contentsOffset++] = (byte) accessFlags;
-		int classNameIndex = this.constantPool.literalIndexForType(aType);
+		int classNameIndex = aType.isModule() ? 0 : this.constantPool.literalIndexForType(aType);
 		this.contents[this.contentsOffset++] = (byte) (classNameIndex >> 8);
 		this.contents[this.contentsOffset++] = (byte) classNameIndex;
 		int superclassNameIndex;
