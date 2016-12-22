@@ -1232,9 +1232,9 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					this.log.println("# " + dateFormat.format(date));//$NON-NLS-1$
 				}
 			} catch (FileNotFoundException e) {
-				throw new IllegalArgumentException(this.main.bind("configure.cannotOpenLog", logFileName)); //$NON-NLS-1$
+				throw new IllegalArgumentException(this.main.bind("configure.cannotOpenLog", logFileName), e); //$NON-NLS-1$
 			} catch (UnsupportedEncodingException e) {
-				throw new IllegalArgumentException(this.main.bind("configure.cannotOpenLogInvalidEncoding", logFileName)); //$NON-NLS-1$
+				throw new IllegalArgumentException(this.main.bind("configure.cannotOpenLogInvalidEncoding", logFileName), e); //$NON-NLS-1$
 			}
 		}
 		private void startLoggingExtraProblems(int count) {
@@ -1962,7 +1962,7 @@ public void configure(String[] argv) {
 								new InputStreamReader(new ByteArrayInputStream(new byte[0]), customEncoding);
 							} catch (UnsupportedEncodingException e) {
 								throw new IllegalArgumentException(
-									this.bind("configure.unsupportedEncoding", customEncoding)); //$NON-NLS-1$
+									this.bind("configure.unsupportedEncoding", customEncoding), e); //$NON-NLS-1$
 							}
 						}
 						currentArg = currentArg.substring(0, encodingStart - 1);
@@ -2605,7 +2605,7 @@ public void configure(String[] argv) {
 						throw new IllegalArgumentException(this.bind("configure.repetition", currentArg)); //$NON-NLS-1$
 					}
 				} catch (NumberFormatException e) {
-					throw new IllegalArgumentException(this.bind("configure.repetition", currentArg)); //$NON-NLS-1$
+					throw new IllegalArgumentException(this.bind("configure.repetition", currentArg), e); //$NON-NLS-1$
 				}
 				mode = DEFAULT;
 				continue;
@@ -2617,7 +2617,7 @@ public void configure(String[] argv) {
 					}
 					this.options.put(CompilerOptions.OPTION_MaxProblemPerUnit, currentArg);
 				} catch (NumberFormatException e) {
-					throw new IllegalArgumentException(this.bind("configure.maxProblems", currentArg)); //$NON-NLS-1$
+					throw new IllegalArgumentException(this.bind("configure.maxProblems", currentArg), e); //$NON-NLS-1$
 				}
 				mode = DEFAULT;
 				continue;
@@ -2669,7 +2669,7 @@ public void configure(String[] argv) {
 					new InputStreamReader(new ByteArrayInputStream(new byte[0]), currentArg);
 				} catch (UnsupportedEncodingException e) {
 					throw new IllegalArgumentException(
-						this.bind("configure.unsupportedEncoding", currentArg)); //$NON-NLS-1$
+						this.bind("configure.unsupportedEncoding", currentArg), e); //$NON-NLS-1$
 				}
 				specifiedEncodings.add(currentArg);
 				this.options.put(CompilerOptions.OPTION_Encoding, currentArg);
@@ -4958,7 +4958,7 @@ protected void setPaths(ArrayList bootclasspaths,
 		}
 	}
 }
-private static boolean shouldIgnoreOptionalProblems(char[][] folderNames, char[] fileName) {
+protected final static boolean shouldIgnoreOptionalProblems(char[][] folderNames, char[] fileName) {
 	if (folderNames == null || fileName == null) {
 		return false;
 	}

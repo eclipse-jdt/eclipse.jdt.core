@@ -759,7 +759,7 @@ class CompilationUnitResolver extends Compiler {
 						throw new IllegalArgumentException(element + " has an unexpected type"); //$NON-NLS-1$
 					binaryElementPositions.put(key, i);
 				} catch (JavaModelException e) {
-					throw new IllegalArgumentException(element + " does not exist"); //$NON-NLS-1$
+					throw new IllegalArgumentException(element + " does not exist", e); //$NON-NLS-1$
 				}
 			}
 		}
@@ -782,7 +782,7 @@ class CompilationUnitResolver extends Compiler {
 					try {
 						finder.search();
 					} catch (JavaModelException e) {
-						throw new IllegalArgumentException(element + " does not exist"); //$NON-NLS-1$
+						throw new IllegalArgumentException(element + " does not exist", e); //$NON-NLS-1$
 					}
 					this.bindings[index] = finder.foundBinding;
 				}

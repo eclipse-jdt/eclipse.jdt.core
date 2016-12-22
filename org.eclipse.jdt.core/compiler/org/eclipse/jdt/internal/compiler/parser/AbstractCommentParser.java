@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -172,7 +172,13 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			}
 			this.lineEnd = (this.linePtr == this.lastLinePtr) ? this.javadocEnd: this.scanner.getLineEnd(this.linePtr) - 1;
 			this.javadocTextEnd = this.javadocEnd - 2; // supposed text end, it will be refined later...
-
+						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345
+						// when parsing tags such as @code and @literal,
+						// any tag should be discarded and considered as plain text until
+						// properly closed with closing brace
+						boolean considerTagAsPlainText = false;
+						// internal counter for opening braces
+						int openingBraces = 0;
 			// Loop on each comment character
 			int textEndPosition = -1;
 			while (!this.abort && this.index < this.javadocEnd) {
@@ -208,7 +214,20 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				switch (nextCharacter) {
 					case '@' :
 						// Start tag parsing only if we are on line beginning or at inline tag beginning
-						if ((!this.lineStarted || previousChar == '{')) {
+						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: ignore all tags when inside @literal or @code tags
+						if (considerTagAsPlainText) {
+							// new tag found
+							if (!this.lineStarted) {
+								// we may want to report invalid syntax when no closing brace found,
+								// or when incoherent number of closing braces found
+								if (openingBraces > 0 && this.reportProblems) {
+									this.sourceParser.problemReporter().javadocUnterminatedInlineTag(this.inlineTagStart, invalidInlineTagLineEnd);
+								}
+								considerTagAsPlainText = false;
+								this.inlineTagStarted = false;
+								openingBraces = 0;
+							}
+						} else if ((!this.lineStarted || previousChar == '{')) {
 							if (this.inlineTagStarted) {
 								setInlineTagStarted(false);
 								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
@@ -252,6 +271,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 									invalidTagLineEnd  = this.lineEnd;
 									textEndPosition = this.index;
 								}
+								// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345
+								// dealing with @literal or @code tags: ignore next tags
+								if (!isFormatterParser && (this.tagValue == TAG_LITERAL_VALUE || this.tagValue == TAG_CODE_VALUE)) {
+									considerTagAsPlainText = true;
+									openingBraces++;
+								}
 							} catch (InvalidInputException e) {
 								consumeToken();
 							}
@@ -284,13 +309,24 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						if (verifText && this.tagValue == TAG_RETURN_VALUE && this.returnStatement != null) {
 							refreshReturnStatement();
 						}
+						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: when ignoring tags, only decrement the opening braces counter
+						if (considerTagAsPlainText) {
+							invalidInlineTagLineEnd = this.lineEnd;
+							if (--openingBraces == 0) {
+								considerTagAsPlainText = false; // re-enable tag validation
+							}
+						}
 						if (this.inlineTagStarted) {
 							textEndPosition = this.index - 1;
-							if (this.lineStarted && this.textStart != -1 && this.textStart < textEndPosition) {
-								pushText(this.textStart, textEndPosition);
+							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: do not push text yet if ignoring tags
+							if (!considerTagAsPlainText) {
+								if (this.lineStarted && this.textStart != -1 && this.textStart < textEndPosition) {
+									pushText(this.textStart, textEndPosition);
+								}
+								refreshInlineTagPosition(previousPosition);
 							}
-							refreshInlineTagPosition(previousPosition);
-							if (!isFormatterParser) this.textStart = this.index;
+							if (!isFormatterParser && !considerTagAsPlainText) 
+								this.textStart = this.index;
 							setInlineTagStarted(false);
 						} else {
 							if (!this.lineStarted) {
@@ -304,7 +340,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						if (verifText && this.tagValue == TAG_RETURN_VALUE && this.returnStatement != null) {
 							refreshReturnStatement();
 						}
-						if (this.inlineTagStarted) {
+												// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: count opening braces when ignoring tags
+						if (considerTagAsPlainText) {
+							openingBraces++;
+						} else if (this.inlineTagStarted) {
 							setInlineTagStarted(false);
 							// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
 							// Cannot have opening brace in inline comment
@@ -325,7 +364,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							this.textStart = previousPosition;
 						}
 						this.lineStarted = true;
-						this.inlineTagStart = previousPosition;
+						// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: do not update tag start position when ignoring tags
+						if (!considerTagAsPlainText) this.inlineTagStart = previousPosition;
 						break;
 					case '*' :
 						// Store the star position as text start while formatting
@@ -395,7 +435,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 
 			// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
 			// Cannot leave comment inside inline comment
-			if (this.inlineTagStarted) {
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345: handle unterminated @code or @literal tag
+			if (this.inlineTagStarted || considerTagAsPlainText) {
 				if (this.reportProblems) {
 					int end = this.javadocTextEnd<invalidInlineTagLineEnd ? this.javadocTextEnd : invalidInlineTagLineEnd;
 					if (this.index >= this.javadocEnd) end = invalidInlineTagLineEnd;

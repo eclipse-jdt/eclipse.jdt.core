@@ -34,9 +34,9 @@ import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 
 public class JavaIndex {
 	// Version constants
-	static final int CURRENT_VERSION = Nd.version(1, 37);
-	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 37);
-	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 37);
+	static final int CURRENT_VERSION = Nd.version(1, 40);
+	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 40);
+	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 40);
 
 	// Fields for the search header
 	public static final FieldSearchIndex<NdResourceFile> FILES;
@@ -129,6 +129,16 @@ public class JavaIndex {
 	public NdTypeId findType(char[] fieldDescriptor) {
 		SearchCriteria searchCriteria = SearchCriteria.create(fieldDescriptor);
 		return TYPES.findBest(this.nd, this.address, searchCriteria, this.anyResult);
+	}
+
+	public List<NdTypeId> findTypesBySimpleName(char[] query) {
+		SearchCriteria searchCriteria = SearchCriteria.create(query).prefix(true);
+		return SIMPLE_INDEX.findAll(this.nd, this.address, searchCriteria);
+	}
+
+	public List<NdTypeId> findTypesBySimpleName(char[] query, int count) {
+		SearchCriteria searchCriteria = SearchCriteria.create(query).prefix(true);
+		return SIMPLE_INDEX.findAll(this.nd, this.address, searchCriteria, count);
 	}
 
 	public boolean visitFieldDescriptorsStartingWith(char[] fieldDescriptorPrefix, FieldSearchIndex.Visitor<NdTypeId> visitor) {
@@ -292,9 +302,5 @@ public class JavaIndex {
 		registry.register(0x01F0, NdVariable.type.getFactory());
 		registry.register(0x0200, NdWorkspaceLocation.type.getFactory());
 		return registry;
-	}
-
-	public void rebuildIndex() {
-		// TODO: delete and recreate the index
 	}
 }

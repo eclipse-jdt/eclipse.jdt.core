@@ -365,9 +365,14 @@ void setSourceStart(int sourceStart);
 	 */
 	int IgnoreCategoriesMask = 0xFFFFFF;
 
-	/**
+	/*
 	 * Below are listed all available problem IDs. Note that this list could be augmented in the future,
 	 * as new features are added to the Java core implementation.
+	 *
+	 * Problem IDs must be kept unique even when their mask is stripped, since
+	 * the bare integer literal is used for message lookup in
+	 * /org.eclipse.jdt.core/compiler/org/eclipse/jdt/internal/compiler/problem/messages.properties.
+	 * Use this regex to find duplicates: (?s)(\+ \d+)\b.*\1\b
 	 */
 
 	/**
@@ -1876,10 +1881,18 @@ void setSourceStart(int sourceStart);
 	int IllegalDefaultModifierSpecification = MethodRelated + 1058;
 	/** @since 3.13 */
 	int CannotInferInvocationType = TypeRelated + 1059;
+	
+	
+	/** @since 3.13 */
+	int TypeAnnotationAtQualifiedName = Internal + Syntax + 1060;
+
+	/** @since 3.13 */
+	int NullAnnotationAtQualifyingType = Internal + Syntax + 1061;
+	
 	/** @since 3.13 BETA_JAVA9*/
-	int IllegalModifierForInterfaceMethod9 = MethodRelated + 1061;
+	int IllegalModifierForInterfaceMethod9 = MethodRelated + 1071;
 	/** @since 3.13 BETA_JAVA9*/
-	int IllegalModifierCombinationForPrivateInterfaceMethod9 = MethodRelated + 1060;
+	int IllegalModifierCombinationForPrivateInterfaceMethod9 = MethodRelated + 1070;
 	/** @since 3.13 BETA_JAVA9 */
 	int UndefinedModule = TypeRelated + 1200;
 	/** @since 3.13 BETA_JAVA9 */
@@ -1926,4 +1939,6 @@ void setSourceStart(int sourceStart);
 	/** @deprecated - problem is no longer generated (implementation issue has been resolved)
 	 * @since 3.10 */
 	int LambdaShapeComputationError = 1101;
+	/** @since 3.13 */
+	int ProblemNotAnalysed = 1102;
 }

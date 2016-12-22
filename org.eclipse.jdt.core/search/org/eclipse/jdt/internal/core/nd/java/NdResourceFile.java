@@ -42,6 +42,7 @@ public class NdResourceFile extends NdTreeNode {
 	public static final FieldLong HASHCODE_LAST_SCANNED;
 	public static final FieldOneToMany<NdWorkspaceLocation> WORKSPACE_MAPPINGS;
 	public static final FieldString JAVA_ROOT;
+	public static final FieldLong JDK_LEVEL;
 
 	@SuppressWarnings("hiding")
 	public static final StructDef<NdResourceFile> type;
@@ -56,8 +57,11 @@ public class NdResourceFile extends NdTreeNode {
 		HASHCODE_LAST_SCANNED = type.addLong();
 		WORKSPACE_MAPPINGS = FieldOneToMany.create(type, NdWorkspaceLocation.RESOURCE);
 		JAVA_ROOT = type.addString();
+		JDK_LEVEL = type.addLong();
 		type.done();
 	}
+
+	private long jdkLevel; 
 
 	public NdResourceFile(Nd dom, long address) {
 		super(dom, address);
@@ -65,6 +69,19 @@ public class NdResourceFile extends NdTreeNode {
 
 	public NdResourceFile(Nd nd) {
 		super(nd, null);
+	}
+
+	public long getJdkLevel() {
+		if (this.jdkLevel == 0) {
+			this.jdkLevel = JDK_LEVEL.get(getNd(), this.address);
+		}
+		return this.jdkLevel;
+	}
+
+	public void setJdkLevel(long jdkLevel) {
+		if (getJdkLevel() != jdkLevel) {
+			JDK_LEVEL.put(getNd(), this.address, jdkLevel);
+		}
 	}
 
 	public List<NdTreeNode> getChildren() {
@@ -81,7 +98,7 @@ public class NdResourceFile extends NdTreeNode {
 			Nd nd = getNd();
 			// In the common case where the resource file was deleted and the memory hasn't yet been reused,
 			// this will fail.
-			if (NODE_TYPE.get(nd, this.address) != nd.getNodeType(getClass())) {
+			if (!nd.isValidAddress(this.address) || NODE_TYPE.get(nd, this.address) != nd.getNodeType(getClass())) {
 				return false;
 			}
 

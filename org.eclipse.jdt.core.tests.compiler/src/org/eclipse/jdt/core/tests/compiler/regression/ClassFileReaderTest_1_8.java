@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2014 GoPivotal, Inc. All Rights Reserved.
+ * Copyright (c) 2013, 2016 GoPivotal, Inc. All Rights Reserved.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -381,6 +381,52 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 		assertEquals(2,typeAnnotations.length);
 		assertEquals("@LFoo; THROWS(throws_type_index=0)",printTypeAnnotation(typeAnnotations[0]));
 		assertEquals("@LBar;(value=(int)1) THROWS(throws_type_index=1)",printTypeAnnotation(typeAnnotations[1]));
+	}
+	public void test012_annotationMethodReturn() throws Exception {
+		String source =
+			"import java.lang.annotation.*;\n" +
+			"import java.util.Map;\n" +
+			"public @interface X{\n" +
+			"	@Bar(3) @Foo int foo();\n" + 
+			"	@Bar(3) int @Foo [] foo2();\n" + 
+			"	@Bar(7) @Foo String value() default \"aaa\";\n" + 
+			"}\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface Foo {\n" +
+			"}\n" +
+			"@Retention(RetentionPolicy.CLASS)\n" +
+			"@Target(ElementType.TYPE_USE)\n" +
+			"@interface Bar {\n" +
+			"        int value() default -1;\n" +
+			"}";
+
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = getInternalClassFile("", "X", "X", source);
+
+		IBinaryMethod method = getMethod(cfr,"foo");
+		assertNotNull(method);
+		IBinaryTypeAnnotation[] typeAnnotations = method.getTypeAnnotations();
+		assertNotNull(typeAnnotations);
+		assertEquals(2,typeAnnotations.length);
+		assertEquals("@LBar;(value=(int)3) METHOD_RETURN",printTypeAnnotation(typeAnnotations[0]));
+		assertEquals("@LFoo; METHOD_RETURN", printTypeAnnotation(typeAnnotations[1]));
+		
+		method = getMethod(cfr,"foo2");
+		assertNotNull(method);
+		typeAnnotations = method.getTypeAnnotations();
+		assertNotNull(typeAnnotations);
+		assertEquals(2,typeAnnotations.length);
+		assertEquals("@LBar;(value=(int)3) METHOD_RETURN, location=[ARRAY]",printTypeAnnotation(typeAnnotations[0]));
+		assertEquals("@LFoo; METHOD_RETURN", printTypeAnnotation(typeAnnotations[1]));
+		
+		method = getMethod(cfr,"value");
+		assertNotNull(method);
+		typeAnnotations = method.getTypeAnnotations();
+		assertNotNull(typeAnnotations);
+		assertEquals(2,typeAnnotations.length);
+		assertEquals("@LBar;(value=(int)7) METHOD_RETURN",printTypeAnnotation(typeAnnotations[0]));
+		assertEquals("@LFoo; METHOD_RETURN", printTypeAnnotation(typeAnnotations[1]));
+		assertEquals(((org.eclipse.jdt.internal.compiler.impl.Constant)method.getDefaultValue()).stringValue(), "aaa");
 	}
 
 	/**

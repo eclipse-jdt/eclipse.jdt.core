@@ -11,9 +11,12 @@
 package org.eclipse.jdt.core.tests.nd.indexer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Semaphore;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -78,7 +81,7 @@ public class IndexerTest extends AbstractJavaModelTests {
 	 */
 	public void testInterruptedException() throws Exception {
 		createJavaProject(PROJECT_NAME, new String[] {"src"}, new String[] {"JCL18_FULL"}, "bin", "1.8", true);
-		// Create an index
+		// Create an indexfa
 		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 		Indexer indexer = new Indexer(index.getNd(), root);
 		indexer.rescan(SubMonitor.convert(null));
@@ -140,7 +143,7 @@ public class IndexerTest extends AbstractJavaModelTests {
 			int type = child.getElementType();
 
 			if (type == IJavaElement.CLASS_FILE) {
-				result.add((IClassFile)child);
+				result.add((IClassFile) child);
 			} else if (child instanceof IParent) {
 				IParent parent = (IParent) child;
 
@@ -210,5 +213,70 @@ public class IndexerTest extends AbstractJavaModelTests {
 			}
 		}
 		assertTrue("No classes found in the index", foundAtLeastOneClass);
+	}
+
+	public void testFindTypesBySimpleName() throws CoreException {
+		createJavaProject(PROJECT_NAME, new String[] {"src"}, new String[] {"JCL18_FULL"}, "bin", "1.8", true);
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		Indexer indexer = new Indexer(index.getNd(), root);
+
+		indexer.rescan(SubMonitor.convert(null));
+
+		try (IReader reader = IndexerTest.index.getNd().acquireReadLock()) {
+			List<Object> javaUtilList = IndexerTest.index.findTypesBySimpleName("ArrayList".toCharArray()).stream()
+					.map(new Function<NdTypeId, String>() {
+						@Override
+						public String apply(NdTypeId typeId) {
+							return typeId.toString();
+						}
+					}).collect(Collectors.toList());
+			System.out.println(javaUtilList);
+			assertTrue("Test failed", javaUtilList.contains("Ljava/util/ArrayList;"));
+		}
+	}
+
+	public void testFindTypesBySimpleNameFirstWord() throws CoreException {
+		createJavaProject(PROJECT_NAME, new String[] {"src"}, new String[] {"JCL18_FULL"}, "bin", "1.8", true);
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		Indexer indexer = new Indexer(index.getNd(), root);
+
+		indexer.rescan(SubMonitor.convert(null));
+
+		try (IReader reader = IndexerTest.index.getNd().acquireReadLock()) {
+			List<Object> javaUtilList = IndexerTest.index.findTypesBySimpleName("Array".toCharArray()).stream()
+					.map(new Function<NdTypeId, String>() {
+						@Override
+						public String apply(NdTypeId typeId) {
+							return typeId.toString();
+						}
+					}).collect(Collectors.toList());
+			System.out.println(javaUtilList);
+			assertTrue("Test failed",
+					javaUtilList.containsAll(Arrays.asList("Ljava/sql/Array;", "Ljava/lang/reflect/Array;",
+							"Ljava/util/concurrent/ArrayBlockingQueue;", "Ljava/util/ArrayDeque;",
+							"Ljava/lang/ArrayIndexOutOfBoundsException;", "Ljava/util/ArrayList;",
+							"Ljava/util/ArrayPrefixHelpers;", "Ljava/util/Arrays;",
+							"Ljava/util/ArraysParallelSortHelpers;", "Ljava/lang/ArrayStoreException;")));
+		}
+	}
+
+	public void testFindTypesBySimpleNameFirstLetterCount10() throws CoreException {
+		createJavaProject(PROJECT_NAME, new String[] {"src"}, new String[] {"JCL18_FULL"}, "bin", "1.8", true);
+		IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+		Indexer indexer = new Indexer(index.getNd(), root);
+
+		indexer.rescan(SubMonitor.convert(null));
+
+		try (IReader reader = IndexerTest.index.getNd().acquireReadLock()) {
+			List<Object> javaUtilList = IndexerTest.index.findTypesBySimpleName("A".toCharArray(), 10).stream()
+					.map(new Function<NdTypeId, String>() {
+						@Override
+						public String apply(NdTypeId typeId) {
+							return typeId.toString();
+						}
+					}).collect(Collectors.toList());
+			System.out.println(javaUtilList);
+			assertTrue("Test failed", javaUtilList.size() == 10);
+		}
 	}
 }

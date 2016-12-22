@@ -611,7 +611,7 @@ public class CompilerOptions {
 			case UnqualifiedFieldAccess :
 				return OPTION_ReportUnqualifiedFieldAccess;
 			case UnusedDeclaredThrownException :
-				return OPTION_ReportUnusedDeclaredThrownExceptionWhenOverriding;
+				return OPTION_ReportUnusedDeclaredThrownException;
 			case FinallyBlockNotCompleting :
 				return OPTION_ReportFinallyBlockNotCompletingNormally;
 			case InvalidJavadoc :
@@ -1279,6 +1279,27 @@ public class CompilerOptions {
 	public boolean isAnyEnabled(IrritantSet irritants) {
 		return this.warningThreshold.isAnySet(irritants) || this.errorThreshold.isAnySet(irritants)
 					|| this.infoThreshold.isAnySet(irritants);
+	}
+	/*
+	 * Just return the first irritant id that is set to 'ignored'.
+	 */
+	public int getIgnoredIrritant(IrritantSet irritants) {
+		int[] bits = irritants.getBits();
+		for (int i = 0; i < IrritantSet.GROUP_MAX; i++) {
+			int bit = bits[i];
+			for (int b = 0; b < IrritantSet.GROUP_SHIFT; b++) {
+				int single = bit & (1 << b);
+				if (single > 0) {
+					single |= (i << IrritantSet.GROUP_SHIFT);
+					if (single == MissingNonNullByDefaultAnnotation)
+						continue;
+					if (!(this.warningThreshold.isSet(single) || this.errorThreshold.isSet(single) || this.infoThreshold.isSet(single))) {
+						return single;
+					}
+				}
+			}
+		}
+		return 0;
 	}
 
 	protected void resetDefaults() {

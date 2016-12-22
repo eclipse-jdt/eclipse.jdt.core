@@ -59,9 +59,7 @@ public class BuildFilerImpl extends FilerImpl {
     	try {
 			_env.validateTypeName(typeName);
 		} catch (CoreException e) {
-			IOException ioe = new IOException();
-			ioe.initCause(e);
-			throw ioe;
+			throw new IOException(e);
 		}
 		_generatedClassFiles = true;
 		
@@ -80,7 +78,7 @@ public class BuildFilerImpl extends FilerImpl {
     	{
     		// TODO - stop throwing this exception
     		AptPlugin.log(e, "Failure getting the output file"); //$NON-NLS-1$
-    		throw new IOException();
+    		throw new IOException(e);
     	}
     	
     	path = path.append(typeName.replace('.', File.separatorChar) + ".class"); //$NON-NLS-1$
@@ -182,9 +180,7 @@ public class BuildFilerImpl extends FilerImpl {
     	IStatus status = file.getWorkspace().validatePath(file.getFullPath().toOSString(), IResource.FILE);
     	if (!status.isOK()) {
         	CoreException ce = new CoreException(status);
-        	IOException ioe = new IOException("Invalid file name"); //$NON-NLS-1$
-        	ioe.initCause(ce);
-        	throw ioe;
+        	throw new IOException("Invalid file name", ce); //$NON-NLS-1$
         }
 	}
 

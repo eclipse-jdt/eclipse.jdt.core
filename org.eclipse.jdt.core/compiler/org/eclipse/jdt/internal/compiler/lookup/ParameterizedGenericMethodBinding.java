@@ -60,6 +60,12 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 	 */
 	public static MethodBinding computeCompatibleMethod(MethodBinding originalMethod, TypeBinding[] arguments, Scope scope,	InvocationSite invocationSite)
 	{
+		LookupEnvironment environment = scope.environment();
+		if ((originalMethod.tagBits & TagBits.IsNullnessKnown) == 0) {
+			// ensure nullness of originalMethod is known (but we are not interested in reporting problems against originalMethod)
+			new ImplicitNullAnnotationVerifier(environment, environment.globalOptions.inheritNullAnnotations)
+					.checkImplicitNullAnnotations(originalMethod, null/*srcMethod*/, false, scope);
+		}
 		ParameterizedGenericMethodBinding methodSubstitute;
 		TypeVariableBinding[] typeVariables = originalMethod.typeVariables;
 		TypeBinding[] substitutes = invocationSite.genericTypeArguments();
@@ -72,7 +78,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			        // incompatible due to wrong arity
 			        return new ProblemMethodBinding(originalMethod, originalMethod.selector, substitutes, ProblemReasons.TypeParameterArityMismatch);
 				}
-				methodSubstitute = scope.environment().createParameterizedGenericMethod(originalMethod, substitutes);
+				methodSubstitute = environment.createParameterizedGenericMethod(originalMethod, substitutes);
 				break computeSubstitutes;
 			}
 			// perform type argument inference (15.12.2.7)

@@ -20,6 +20,7 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.NdNode;
 import org.eclipse.jdt.internal.core.nd.NdNodeTypeRegistry;
 import org.eclipse.jdt.internal.core.nd.RawGrowableArray;
+import org.eclipse.jdt.internal.core.nd.db.Database;
 import org.eclipse.jdt.internal.core.nd.field.FieldInt;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
@@ -72,7 +73,7 @@ public class FieldBackPointerTest extends BaseTestCase {
 		public static final FieldOneToMany<ForwardPointerStruct> BACK;
 		public static final FieldOneToMany<ForwardPointerStruct> OWNED;
 		public static final FieldInt SOMEINT;
-		
+
 		@SuppressWarnings("hiding")
 		public static final StructDef<BackPointerStruct> type;
 
@@ -102,6 +103,10 @@ public class FieldBackPointerTest extends BaseTestCase {
 
 		public int getBackPointerCapacity() {
 			return BACK.getCapacity(getNd(), this.address);
+		}
+
+		public long getBackpointerAddress(int idx) {
+			return BACK.getAddressOf(getNd(), this.address, idx);
 		}
 
 		public List<ForwardPointerStruct> getBackPointers() {
@@ -166,6 +171,35 @@ public class FieldBackPointerTest extends BaseTestCase {
 		assertEquals(desired, backPointers);
 	}
 
+	public void testLargeBlockBackPointerTest() throws Exception {
+		this.nd.getDB().giveUpExclusiveLock(true);
+		// Allocate enough entries to cause the metablock array to resize twice
+		int totalSize = Database.CHUNK_SIZE * 0x400;
+
+		long initialAllocations = this.nd.getDB().getBytesAllocated() - this.nd.getDB().getBytesFreed();
+		this.nd.acquireWriteLock(null);
+		ForwardPointerStruct[] forwardPointer = new ForwardPointerStruct[totalSize];
+		for (int idx = 0; idx < totalSize; idx++) {
+			forwardPointer[idx] = new ForwardPointerStruct(this.nd);
+			forwardPointer[idx].setBp(this.ba);
+		}
+
+		for (int idx = 0; idx < totalSize; idx++) {
+			assertEquals(forwardPointer[idx].getAddress(), this.ba.getBackpointerAddress(idx));
+		}
+
+		for (int idx = 0; idx < totalSize; idx++) {
+			forwardPointer[idx].delete();
+		}
+
+		this.nd.releaseWriteLock();
+
+		long finalAllocations = this.nd.getDB().getBytesAllocated() - this.nd.getDB().getBytesFreed();
+
+		// Verify no memory leaks
+		assertEquals(initialAllocations, finalAllocations);
+	}
+
 	public void testWriteFollowedByReadReturnsSameThing() throws Exception {
 		this.fa.setBp(this.ba);
 		BackPointerStruct backpointer = this.fa.getBp();
@@ -180,7 +214,7 @@ public class FieldBackPointerTest extends BaseTestCase {
 	public void testReadNull() throws Exception {
 		assertEquals(null, this.fa.getBp());
 	}
-	
+
 	public void testAssigningTheSamePointerTwiceIsANoop() throws Exception {
 		this.fa.setBp(this.ba);
 
@@ -191,7 +225,7 @@ public class FieldBackPointerTest extends BaseTestCase {
 
 		assertBackPointers(this.ba, this.fa);
 	}
-	
+
 	public void testAssigningForwardPointerInsertsBackPointer() throws Exception {
 		this.fa.setBp(this.ba);
 
@@ -329,7 +363,7 @@ public class FieldBackPointerTest extends BaseTestCase {
 		this.fb.setBp(this.ba);
 		this.fc.setBp(this.ba);
 		assertEquals(maxBlockSize + 2, this.ba.getBackPointerCapacity());
-		
+
 		this.fb.setBp(null);
 		this.fc.setBp(null);
 
@@ -340,7 +374,7 @@ public class FieldBackPointerTest extends BaseTestCase {
 		// We need enough instances to fill several full blocks since we don't reclaim
 		// memory until there are two unused blocks.
 		int numToAllocate = RawGrowableArray.getMaxGrowableBlockSize() * 4 + 1;
-		
+
 		List<ForwardPointerStruct> allocated = new ArrayList<>();
 
 		for (int count = 0; count < numToAllocate; count++) {
@@ -354,7 +388,7 @@ public class FieldBackPointerTest extends BaseTestCase {
 
 		assertEquals(allocated.get(numToAllocate - 1), this.ba.getBackPointer(numToAllocate - 1));
 		assertEquals(numToAllocate, this.ba.backPointerSize());
-		
+
 		int correctSize = numToAllocate;
 		for (ForwardPointerStruct next : allocated) {
 			next.setBp(null);

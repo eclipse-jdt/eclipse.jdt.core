@@ -29,13 +29,13 @@ public class LongString implements IString {
 	private static final int NEXT1 = 4;
 	private static final int CHARS1 = 8;
 
-	private static final int NUM_CHARS1 = (Database.MAX_MALLOC_SIZE - CHARS1) / 2;
+	private static final int NUM_CHARS1 = (Database.MAX_SINGLE_BLOCK_MALLOC_SIZE - CHARS1) / 2;
 
 	// Additional fields of subsequent records.
 	private static final int NEXTN = 0;
 	private static final int CHARSN = 4;
 
-	private static final int NUM_CHARSN = (Database.MAX_MALLOC_SIZE - CHARSN) / 2;
+	private static final int NUM_CHARSN = (Database.MAX_SINGLE_BLOCK_MALLOC_SIZE - CHARSN) / 2;
 
 	public LongString(Database db, long record) {
 		this.db = db;
@@ -47,7 +47,7 @@ public class LongString implements IString {
 		final int numCharsn = useBytes ? NUM_CHARSN * 2 : NUM_CHARSN;
 
 		this.db = db;
-		this.record = db.malloc(Database.MAX_MALLOC_SIZE, Database.POOL_STRING_LONG);
+		this.record = db.malloc(Database.MAX_SINGLE_BLOCK_MALLOC_SIZE, Database.POOL_STRING_LONG);
 
 		// Write the first record.
 		final int length = chars.length;
@@ -64,7 +64,7 @@ public class LongString implements IString {
 		long lastNext = this.record + NEXT1;
 		int start = numChars1;
 		while (length - start > numCharsn) {
-			long nextRecord = db.malloc(Database.MAX_MALLOC_SIZE, Database.POOL_STRING_LONG);
+			long nextRecord = db.malloc(Database.MAX_SINGLE_BLOCK_MALLOC_SIZE, Database.POOL_STRING_LONG);
 			db.putRecPtr(lastNext, nextRecord);
 			chunk= db.getChunk(nextRecord);
 			if (useBytes) {

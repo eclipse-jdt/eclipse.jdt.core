@@ -297,22 +297,29 @@ public abstract class JobManager implements Runnable {
 	/**
 	 * Flush current state
 	 */
-	public synchronized void reset() {
+	public void reset() {
 		if (VERBOSE)
 			Util.verbose("Reset"); //$NON-NLS-1$
 
-		if (this.processingThread != null) {
+		Thread thread;
+		synchronized (this) {
+			thread = this.processingThread;
+		}
+
+		if (thread != null) {
 			discardJobs(null); // discard all jobs
 		} else {
-			/* initiate background processing */
-			this.processingThread = new Thread(this, processName());
-			this.processingThread.setDaemon(true);
-			// less prioritary by default, priority is raised if clients are actively waiting on it
-			this.processingThread.setPriority(Thread.NORM_PRIORITY-1);
-			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=296343
-			// set the context loader to avoid leaking the current context loader
-			this.processingThread.setContextClassLoader(this.getClass().getClassLoader());
-			this.processingThread.start();
+			synchronized (this) {
+				/* initiate background processing */
+				this.processingThread = new Thread(this, processName());
+				this.processingThread.setDaemon(true);
+				// less prioritary by default, priority is raised if clients are actively waiting on it
+				this.processingThread.setPriority(Thread.NORM_PRIORITY-1);
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=296343
+				// set the context loader to avoid leaking the current context loader
+				this.processingThread.setContextClassLoader(this.getClass().getClassLoader());
+				this.processingThread.start();
+			}
 		}
 	}
 	/**

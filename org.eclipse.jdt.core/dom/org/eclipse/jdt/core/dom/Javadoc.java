@@ -264,7 +264,7 @@ public class Javadoc extends Comment {
 				throw new IllegalArgumentException();
 			}
 		} catch (InvalidInputException e) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(e);
 		}
 		preValueChange(COMMENT_PROPERTY);
 		this.comment = docComment;

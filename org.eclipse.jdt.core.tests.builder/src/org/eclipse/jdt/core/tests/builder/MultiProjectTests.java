@@ -299,6 +299,46 @@ public class MultiProjectTests extends BuilderTests {
 		env.removeProject(p3);
 	}
 
+	public void testCyclesCleared() throws JavaModelException {
+		IPath p1 = env.addProject("P1"); //$NON-NLS-1$
+		IPath p2 = env.addProject("P2"); //$NON-NLS-1$
+		try {
+			env.addRequiredProject(p1, p2);
+			env.addRequiredProject(p2, p1);
+
+			fullBuild();
+			env.waitForAutoBuild();
+
+			printProblems();
+			expectingOnlySpecificProblemsFor(p1, new Problem[] {
+					new Problem("p1",
+							"A cycle was detected in the build path of project 'P1'. The cycle consists of projects {P1, P2}",
+							p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),
+					new Problem("p1",
+							"The project cannot be built until build path errors are resolved",
+							p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)
+			});//$NON-NLS-1$ //$NON-NLS-2$
+			expectingOnlySpecificProblemsFor(p2, new Problem[] {
+					new Problem("p2",
+							"A cycle was detected in the build path of project 'P2'. The cycle consists of projects {P1, P2}",
+							p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),
+					new Problem("p2",
+							"The project cannot be built until build path errors are resolved",
+							p2, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)
+			});//$NON-NLS-1$ //$NON-NLS-2$
+
+			env.removeRequiredProject(p1, p2);
+
+			fullBuild();
+			env.waitForAutoBuild();
+
+			expectingNoProblems();
+		} finally {
+			env.removeProject(p1);
+			env.removeProject(p2);
+		}
+	}
+
 	public void testCycle1() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();

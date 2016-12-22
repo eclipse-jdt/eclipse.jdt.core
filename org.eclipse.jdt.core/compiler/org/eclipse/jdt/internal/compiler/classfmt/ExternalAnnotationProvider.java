@@ -586,7 +586,8 @@ public class ExternalAnnotationProvider {
 				if (an == NULLABLE || an == NONNULL)
 					start++;
 			}
-			int end = wrapperWithStart(start).computeEnd();
+			SignatureWrapper wrapper1 = wrapperWithStart(start);
+			int end = wrapper1.skipAngleContents(wrapper1.computeEnd());
 			return end;
 		}
 		

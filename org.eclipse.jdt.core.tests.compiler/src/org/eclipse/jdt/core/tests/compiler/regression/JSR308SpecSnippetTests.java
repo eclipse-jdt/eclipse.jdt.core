@@ -1402,7 +1402,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"1. ERROR in X.java (at line 13)\n" + 
 		"	@TAnno java.lang.Object field8; // illegal\n" + 
 		"	^^^^^^\n" + 
-		"The annotation @TAnno is disallowed for this location\n" + 
+		"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 		"----------\n" + 
 		"2. ERROR in X.java (at line 15)\n" + 
 		"	java.lang. @FAnno Object field10; // illegal\n" + 
@@ -1417,7 +1417,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 		"4. ERROR in X.java (at line 25)\n" + 
 		"	@TAnno java.lang.Object myMethod8() {  } // illegal\n" + 
 		"	^^^^^^\n" + 
-		"The annotation @TAnno is disallowed for this location\n" + 
+		"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 		"----------\n" + 
 		"5. ERROR in X.java (at line 27)\n" + 
 		"	java.lang. @MAnno Object myMethod10() { } // illegal\n" + 

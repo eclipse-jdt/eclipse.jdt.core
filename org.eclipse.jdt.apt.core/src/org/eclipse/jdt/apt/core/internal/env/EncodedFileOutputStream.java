@@ -54,9 +54,7 @@ public class EncodedFileOutputStream extends BinaryFileOutputStream {
 				}
 			}
 			catch (CoreException ce) {
-				IOException ioe = new IOException("Could not set charset: " + _charsetName); //$NON-NLS-1$
-				ioe.initCause(ce);
-				throw ioe;
+				throw new IOException("Could not set charset: " + _charsetName, ce); //$NON-NLS-1$
 			}
 		}
 	}

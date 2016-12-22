@@ -75,8 +75,15 @@ public class QualifiedTypeReference extends TypeReference {
 		for (int j = 0; j < i; j++) {
 			Annotation[] qualifierAnnot = this.annotations[j];
 			if (qualifierAnnot != null && qualifierAnnot.length > 0) {
-				scope.problemReporter().misplacedTypeAnnotations(qualifierAnnot[0], qualifierAnnot[qualifierAnnot.length - 1]);
-				this.annotations[j] = null;
+				if (j == 0) {
+					for (int k = 0; k < qualifierAnnot.length; k++) {
+						scope.problemReporter().typeAnnotationAtQualifiedName(qualifierAnnot[k]);
+					}
+				} else {
+					scope.problemReporter().misplacedTypeAnnotations(qualifierAnnot[0],
+							qualifierAnnot[qualifierAnnot.length - 1]);
+					this.annotations[j] = null;
+				}
 			}
 		}
 	}

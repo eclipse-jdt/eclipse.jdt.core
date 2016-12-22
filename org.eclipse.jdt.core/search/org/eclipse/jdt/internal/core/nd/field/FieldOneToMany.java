@@ -113,6 +113,10 @@ public class FieldOneToMany<T extends NdNode> implements IDestructableField, IRe
 		return NdNode.load(nd, nextPointer, this.targetType);
 	}
 
+	public long getAddressOf(Nd nd, long address, int index) {
+		return this.backPointerArray.get(nd, address + this.offset, index);
+	}
+
 	/**
 	 * Removes the given index from the list. If another element is swapped into the removed element's
 	 * location, that element's index will be updated. The removed element itself will not be modified. The

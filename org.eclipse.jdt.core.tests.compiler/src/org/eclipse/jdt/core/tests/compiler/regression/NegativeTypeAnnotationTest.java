@@ -2408,7 +2408,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"1. ERROR in X.java (at line 4)\n" + 
 				"	Object o1 = (@Marker java.lang.Integer) null;   // 1. Right.\n" + 
 				"	             ^^^^^^^\n" + 
-				"Syntax error, type annotations are illegal here\n" + 
+				"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 				"----------\n" + 
 				"2. ERROR in X.java (at line 5)\n" + 
 				"	Object o2 = (java. @Marker lang.Integer) null;  // 2. Wrong.\n" + 
@@ -2423,7 +2423,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"4. ERROR in X.java (at line 9)\n" + 
 				"	public void foobar(@Marker java.lang.Integer arg) {}\n" + 
 				"	                   ^^^^^^^\n" + 
-				"The annotation @Marker is disallowed for this location\n" + 
+				"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 				"----------\n");
 	}
 	public void test0390882a() {
@@ -2505,18 +2505,28 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n" + 
 				"1. ERROR in X.java (at line 4)\n" + 
 				"	Object o1 = (@Marker @Annot java.util.List<String>) null; 	// 1. Wrong.\n" + 
-				"	             ^^^^^^^^^^^^^^\n" + 
-				"Syntax error, type annotations are illegal here\n" + 
+				"	             ^^^^^^^\n" + 
+				"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 				"----------\n" + 
-				"2. ERROR in X.java (at line 5)\n" + 
+				"2. ERROR in X.java (at line 4)\n" + 
+				"	Object o1 = (@Marker @Annot java.util.List<String>) null; 	// 1. Wrong.\n" + 
+				"	                     ^^^^^^\n" + 
+				"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
+				"----------\n" + 
+				"3. ERROR in X.java (at line 5)\n" + 
 				"	Object o2 = (java. @Marker @Annot lang.Integer[]) null;		// 2. Wrong.\n" + 
 				"	                   ^^^^^^^^^^^^^^\n" + 
 				"Syntax error, type annotations are illegal here\n" + 
 				"----------\n" + 
-				"3. ERROR in X.java (at line 6)\n" + 
+				"4. ERROR in X.java (at line 6)\n" + 
 				"	Object o3 = (@Marker @Annot java.util.List<String>[]) null; // 3. Wrong.\n" + 
-				"	             ^^^^^^^^^^^^^^\n" + 
-				"Syntax error, type annotations are illegal here\n" + 
+				"	             ^^^^^^^\n" + 
+				"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
+				"----------\n" + 
+				"5. ERROR in X.java (at line 6)\n" + 
+				"	Object o3 = (@Marker @Annot java.util.List<String>[]) null; // 3. Wrong.\n" + 
+				"	                     ^^^^^^\n" + 
+				"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385137
@@ -2574,7 +2584,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"4. ERROR in A.java (at line 7)\n" + 
 					"	Object o2 = (@Marker p.@Marker A.@Marker B.@Marker C) null;\n" + 
 					"	             ^^^^^^^\n" + 
-					"Syntax error, type annotations are illegal here\n" + 
+					"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 					"----------\n" + 
 					"5. WARNING in A.java (at line 7)\n" + 
 					"	Object o2 = (@Marker p.@Marker A.@Marker B.@Marker C) null;\n" + 
@@ -2633,7 +2643,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"1. ERROR in A.java (at line 6)\n" + 
 					"	Object o1 = (@Marker p.@Marker A.@Marker B.@Marker C[]) null;\n" + 
 					"	             ^^^^^^^\n" + 
-					"Syntax error, type annotations are illegal here\n" + 
+					"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 					"----------\n" + 
 					"2. ERROR in A.java (at line 6)\n" + 
 					"	Object o1 = (@Marker p.@Marker A.@Marker B.@Marker C[]) null;\n" + 
@@ -3389,12 +3399,12 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"1. ERROR in p\\X.java (at line 6)\n" + 
 				"	@A @B p.X.Y field4;\n" + 
 				"	   ^^\n" + 
-				"The annotation @B is disallowed for this location\n" + 
+				"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 				"----------\n" + 
 				"2. ERROR in p\\X.java (at line 7)\n" + 
 				"	@B(1) @A(1) java.lang.@A(1) @B(1) String field2;\n" + 
 				"	^^\n" + 
-				"The annotation @B is disallowed for this location\n" + 
+				"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 				"----------\n" + 
 				"3. ERROR in p\\X.java (at line 7)\n" + 
 				"	@B(1) @A(1) java.lang.@A(1) @B(1) String field2;\n" + 
@@ -3404,7 +3414,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"4. ERROR in p\\X.java (at line 8)\n" + 
 				"	public @B(1) @A(1) java.lang. @A(1) @B(1)  String foo(@A(1) @B(1) java.lang. @A(1) @B(1) String str1) {\n" + 
 				"	       ^^\n" + 
-				"The annotation @B is disallowed for this location\n" + 
+				"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 				"----------\n" + 
 				"5. ERROR in p\\X.java (at line 8)\n" + 
 				"	public @B(1) @A(1) java.lang. @A(1) @B(1)  String foo(@A(1) @B(1) java.lang. @A(1) @B(1) String str1) {\n" + 
@@ -3414,7 +3424,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"6. ERROR in p\\X.java (at line 8)\n" + 
 				"	public @B(1) @A(1) java.lang. @A(1) @B(1)  String foo(@A(1) @B(1) java.lang. @A(1) @B(1) String str1) {\n" + 
 				"	                                                            ^^\n" + 
-				"The annotation @B is disallowed for this location\n" + 
+				"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 				"----------\n" + 
 				"7. ERROR in p\\X.java (at line 8)\n" + 
 				"	public @B(1) @A(1) java.lang. @A(1) @B(1)  String foo(@A(1) @B(1) java.lang. @A(1) @B(1) String str1) {\n" + 
@@ -3424,7 +3434,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"8. ERROR in p\\X.java (at line 10)\n" + 
 				"	@A(1) @B(1) java.lang.  @B(1) @A(1) String local2;\n" + 
 				"	      ^^\n" + 
-				"The annotation @B is disallowed for this location\n" + 
+				"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 				"----------\n" + 
 				"9. ERROR in p\\X.java (at line 10)\n" + 
 				"	@A(1) @B(1) java.lang.  @B(1) @A(1) String local2;\n" + 
@@ -3434,7 +3444,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"10. ERROR in p\\X.java (at line 12)\n" + 
 				"	@B @A p.X.Y local4;\n" + 
 				"	^^\n" + 
-				"The annotation @B is disallowed for this location\n" + 
+				"Illegally placed annotation: type annotations must directly precede the simple name of the type they are meant to affect (or the [] for arrays)\n" + 
 				"----------\n" + 
 				"11. ERROR in p\\X.java (at line 13)\n" + 
 				"	@B @A p.q.X local5;\n" + 

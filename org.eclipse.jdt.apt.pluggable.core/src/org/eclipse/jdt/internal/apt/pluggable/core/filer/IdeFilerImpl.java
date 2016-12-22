@@ -176,9 +176,7 @@ public class IdeFilerImpl implements Filer {
     		catch ( JavaModelException e )
     		{
     			Apt6Plugin.log(e, "Failure getting the binary output location"); //$NON-NLS-1$
-    			IOException ioe = new IOException();
-    			ioe.initCause(e);
-    			throw ioe;
+    			throw new IOException(e);
     		}
     	}
     	else if ( loc == StandardLocation.SOURCE_OUTPUT ) {
@@ -210,9 +208,7 @@ public class IdeFilerImpl implements Filer {
     	IStatus status = _env.getProject().getWorkspace().validatePath(file.getFullPath().toOSString(), IResource.FILE);
     	if (!status.isOK()) {
         	CoreException ce = new CoreException(status);
-        	IOException ioe = new IOException("Invalid path: " + file.toString()); //$NON-NLS-1$
-        	ioe.initCause(ce);
-        	throw ioe;
+        	throw new IOException("Invalid path: " + file.toString(), ce); //$NON-NLS-1$
         }
 	}
 

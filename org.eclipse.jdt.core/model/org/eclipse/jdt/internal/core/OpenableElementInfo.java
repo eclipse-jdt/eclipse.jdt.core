@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,11 @@ public class OpenableElementInfo extends JavaElementInfo {
 	 * @see IJavaElement#isStructureKnown()
 	 */
 	protected boolean isStructureKnown = false;
+
+	/**
+	 * A array with all the non-java resources contained by this element
+	 */
+	protected Object[] nonJavaResources;
 
 	public void addChild(IJavaElement child) {
 		IJavaElement[] oldChildren = this.children;
@@ -94,5 +99,11 @@ public class OpenableElementInfo extends JavaElementInfo {
 	 */
 	public void setIsStructureKnown(boolean newIsStructureKnown) {
 		this.isStructureKnown = newIsStructureKnown;
+	}
+	/**
+	 * Sets the nonJavaResources
+	 */
+	void setNonJavaResources(Object[] resources) {
+		this.nonJavaResources = resources;
 	}
 }

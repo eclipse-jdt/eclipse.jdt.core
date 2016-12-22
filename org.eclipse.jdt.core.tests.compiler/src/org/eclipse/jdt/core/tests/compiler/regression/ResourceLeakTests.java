@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ResourceLeakTests extends AbstractRegressionTest {
@@ -266,6 +267,7 @@ public void test056d() {
 public void test056d_suppress() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // annotations used
 	Map options = getCompilerOptions();
+	enableAllWarningsForIrritants(options, IrritantSet.RESOURCE);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);

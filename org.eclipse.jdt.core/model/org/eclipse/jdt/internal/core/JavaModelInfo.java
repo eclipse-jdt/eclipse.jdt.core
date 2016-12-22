@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2006 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,11 +20,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
  * @see org.eclipse.jdt.core.IJavaModel
  */
 public class JavaModelInfo extends OpenableElementInfo {
-
-	/**
-	 * A array with all the non-java projects contained by this model
-	 */
-	Object[] nonJavaResources;
 
 /**
  * Compute the non-java resources contained in this java project.
@@ -54,10 +49,11 @@ private Object[] computeNonJavaResources() {
  * Returns an array of non-java resources contained in the receiver.
  */
 Object[] getNonJavaResources() {
-
-	if (this.nonJavaResources == null) {
-		this.nonJavaResources = computeNonJavaResources();
+	Object[] resources = this.nonJavaResources;
+	if (resources == null) {
+		resources = computeNonJavaResources();
+		this.nonJavaResources = resources;
 	}
-	return this.nonJavaResources;
+	return resources;
 }
 }

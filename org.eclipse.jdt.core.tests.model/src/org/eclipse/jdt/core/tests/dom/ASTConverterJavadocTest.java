@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2016 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -117,6 +117,9 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	private String chars;
 	// List of tags contained in each comment read from test source.
 	List allTags = new ArrayList();
+	// tags inhibiting inline tags
+	static final String TAG_CODE = "code";
+	static final String TAG_LITERAL = "literal";
 	// Current compilation unit
 	protected ICompilationUnit sourceUnit;
 	// Test package binding
@@ -342,6 +345,12 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		String tag = null;
 		List tags = new ArrayList();
 		int length = source.length;
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345
+		// when parsing tags such as @code and @literal,
+		// any tag should be discarded and considered as plain text until
+		// properly closed with closing brace
+		boolean considerTagAsPlainText = false;
+		int openingBraces = 0;
 		char previousChar=0, currentChar=0;
 		for (int i=0; i<length;) {
 			previousChar = currentChar;
@@ -440,6 +449,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 						if (currentChar >= 'a' && currentChar <= 'z') {
 							tag += currentChar;
 						} else {
+							if (tag.equalsIgnoreCase(TAG_LITERAL) || tag.equalsIgnoreCase(TAG_CODE)) considerTagAsPlainText = true;
 							tags.add(tag);
 							tag = null;
 						}
@@ -447,9 +457,17 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 					// Some characters are special in javadoc comments
 					switch (currentChar) {
 						case '@':
-							if (!lineStarted || previousChar == '{') {
+							if (!lineStarted) {
 								tag = "";
 								lineStarted = true;
+							} else if (previousChar == '{') {
+								// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345
+								if (considerTagAsPlainText) {
+									openingBraces++;
+								} else {
+									tag = "";
+									lineStarted = true;
+								}
 							}
 							break;
 						case '\r':
@@ -457,6 +475,16 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 							lineStarted = false;
 							break;
 						case '*':
+							break;
+						case '}':
+							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345
+							if (considerTagAsPlainText) {
+								if (openingBraces > 0) {
+									openingBraces--;
+								} else {
+									considerTagAsPlainText = false;
+								}
+							}
 							break;
 						default:
 							if (!Character.isWhitespace(currentChar)) {
@@ -928,7 +956,8 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 			tagStart += fragment.getLength();
 			previousFragment = fragment;
 		}
-		if (tagElement.isNested()) {
+		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345
+		if (!(TAG_CODE.equalsIgnoreCase(tagName) || !TAG_LITERAL.equalsIgnoreCase(tagName)) && tagElement.isNested()) {
 			assumeEquals(this.prefix+"Wrong end character at <"+tagStart+"> for "+tagElement, '}', source[tagStart++]);
 		}
 	}
@@ -3413,5 +3442,102 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		);
 		CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), this.workingCopies[0], true);
 		assumeEquals(this.prefix+"Wrong number of comments", 1, unit.getCommentList().size());
+	}
+	
+	/**
+	 * @bug 206345: [javadoc] compiler should not interpret contents of {@literal}
+	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345"
+	 * @deprecated
+	 */
+	public void testBug206345a() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.astLevel = AST.JLS3;
+		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b206345/X.java",
+			"package javadoc.b206345;\n" + 
+			"\n" +
+			"public class X extends Object {\n" +
+			"	/**\n" +
+			"	 * This is {@literal raw text:\n" +
+			"	 * 			{@link BadLink} is just text}\n" +
+			"	 */\n" +
+			"	public String toString() { \n" +
+			"		return \"foo\";\n" +
+			"	}\n" +
+			"}\n"
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		verifyWorkingCopiesComments();
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Verify comment type
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 1, unitComments.size());
+			Comment comment = (Comment) unitComments.get(0);
+			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0);
+			assumeEquals(this.prefix+"Wrong number of tags", 1, docComment.tags().size());
+			TagElement tagElement = (TagElement) docComment.tags().get(0);
+			assumeNull(this.prefix+"Wrong type of tag ["+tagElement+"]", tagElement.getTagName());
+			assumeEquals(this.prefix+"Wrong number of fragments in tag ["+tagElement+"]", 3, tagElement.fragments().size());
+			ASTNode fragment = (ASTNode) tagElement.fragments().get(0);
+			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
+			fragment = (ASTNode) tagElement.fragments().get(1);
+			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TAG_ELEMENT, fragment.getNodeType());
+			TagElement inlineTag = (TagElement) fragment;
+			assumeEquals(this.prefix+"Wrong number of fragments in tag ["+inlineTag+"]", 1, inlineTag.fragments().size());
+			fragment = (ASTNode) inlineTag.fragments().get(0);
+			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
+			fragment = (ASTNode) tagElement.fragments().get(2);
+			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
+			TextElement textElement = (TextElement) fragment;
+			assumeEquals(this.prefix+"Invalid content for text element ", "{@link BadLink} is just text}", textElement.getText());
+		}
+	}
+	/**
+	 * 
+	 * @throws JavaModelException
+	 * @deprecated
+	 */
+	public void testBug206345b() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.astLevel = AST.JLS3;
+		this.workingCopies[0] = getWorkingCopy("/Converter15/src/javadoc/b206345/X.java",
+			"package javadoc.b206345;\n" + 
+			"\n" +
+			"public class X extends Object {\n" +
+			"	/**\n" +
+			"	 * This is {@code raw text:\n" +
+			"	 * 			{@link BadLink} is just text}\n" +
+			"	 */\n" +
+			"	public String toString() { \n" +
+			"		return \"foo\";\n" +
+			"	}\n" +
+			"}\n"
+		);
+		CompilationUnit compilUnit = (CompilationUnit) runConversion(this.workingCopies[0], true);
+		verifyWorkingCopiesComments();
+		if (this.docCommentSupport.equals(JavaCore.ENABLED)) {
+			// Verify comment type
+			List unitComments = compilUnit.getCommentList();
+			assertEquals("Wrong number of comments", 1, unitComments.size());
+			Comment comment = (Comment) unitComments.get(0);
+			assertEquals("Comment should be javadoc", comment.getNodeType(), ASTNode.JAVADOC);
+			Javadoc docComment = (Javadoc) compilUnit.getCommentList().get(0);
+			assumeEquals(this.prefix+"Wrong number of tags", 1, docComment.tags().size());
+			TagElement tagElement = (TagElement) docComment.tags().get(0);
+			assumeNull(this.prefix+"Wrong type of tag ["+tagElement+"]", tagElement.getTagName());
+			assumeEquals(this.prefix+"Wrong number of fragments in tag ["+tagElement+"]", 3, tagElement.fragments().size());
+			ASTNode fragment = (ASTNode) tagElement.fragments().get(0);
+			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
+			fragment = (ASTNode) tagElement.fragments().get(1);
+			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TAG_ELEMENT, fragment.getNodeType());
+			TagElement inlineTag = (TagElement) fragment;
+			assumeEquals(this.prefix+"Wrong number of fragments in tag ["+inlineTag+"]", 1, inlineTag.fragments().size());
+			fragment = (ASTNode) inlineTag.fragments().get(0);
+			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
+			fragment = (ASTNode) tagElement.fragments().get(2);
+			assumeEquals(this.prefix+"Invalid type for fragment ["+fragment+"]", ASTNode.TEXT_ELEMENT, fragment.getNodeType());
+			TextElement textElement = (TextElement) fragment;
+			assumeEquals(this.prefix+"Invalid content for text element ", "{@link BadLink} is just text}", textElement.getText());
+		}
 	}
 }

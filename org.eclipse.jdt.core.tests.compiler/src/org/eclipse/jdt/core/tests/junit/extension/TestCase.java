@@ -37,6 +37,7 @@ import junit.framework.TestSuite;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 import org.eclipse.test.OrderedTestSuite;
 import org.eclipse.test.internal.performance.PerformanceMeterFactory;
 import org.eclipse.test.performance.Performance;
@@ -816,6 +817,7 @@ protected boolean isFirst() {
 }
 
 protected void setUp() throws Exception {
+	Indexer.getInstance().enableAutomaticIndexing(false);
 	super.setUp();
 
 	// Store test class and its name when changing
@@ -904,6 +906,8 @@ public void stopMeasuring() {
 protected void tearDown() throws Exception {
 	super.tearDown();
 
+	Indexer.getInstance().enableAutomaticIndexing(true);
+
 	// Memory storage if specified
 	if (STORE_MEMORY != null && MEM_LOG_FILE != null) {
 		if ((this.first || ALL_TESTS_LOG) && MEM_LOG_FILE.exists()) {
@@ -956,5 +960,21 @@ protected void runTest() throws Throwable {
 		// clear interrupt status.
 		Thread.interrupted();
 	}
+}
+
+public static void resetForgottenFilters(List<Class<?>> testClasses) {
+	for (Class<?> clazz : testClasses) {
+		try {
+			Class.forName(clazz.getName(), true, clazz.getClassLoader()); // force initialization
+		} catch (ClassNotFoundException e) {
+			// "cannot happen"
+		}
+	}
+	// Reset forgotten subsets tests
+	TESTS_PREFIX = null;
+	TESTS_NAMES = null;
+	TESTS_NUMBERS= null;
+	TESTS_RANGE = null;
+	RUN_ONLY_ID = null;
 }
 }

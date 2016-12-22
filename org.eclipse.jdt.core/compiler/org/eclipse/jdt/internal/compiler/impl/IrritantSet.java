@@ -259,7 +259,9 @@ public class IrritantSet {
 		int group = (singleGroupIrritants & GROUP_MASK) >> GROUP_SHIFT;
 		return (this.bits[group] & singleGroupIrritants) != 0;
 	}
-
+	public int[] getBits() {
+		return this.bits;
+	}
 	public IrritantSet set(int singleGroupIrritants) {
 		int group = (singleGroupIrritants & GROUP_MASK) >> GROUP_SHIFT;
 		this.bits[group] |= (singleGroupIrritants & ~GROUP_MASK); // erase the group bits

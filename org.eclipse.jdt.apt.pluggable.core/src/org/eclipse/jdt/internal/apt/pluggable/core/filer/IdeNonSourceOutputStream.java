@@ -114,9 +114,7 @@ public class IdeNonSourceOutputStream  extends ByteArrayOutputStream
 			}
 			else {
 				Apt6Plugin.log(ce, "Could not create generated non-Java file " + _file.getName()); //$NON-NLS-1$
-				IOException ioe = new IOException();
-				ioe.initCause(ce);
-				throw ioe;
+				throw new IOException(ce);
 			}
 		}
 	}

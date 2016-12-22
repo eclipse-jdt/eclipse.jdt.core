@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.core.nd.db.IndexException;
 /**
  * Network Database for storing semantic information.
  */
-public class Nd {
+public final class Nd {
 	private static final int CANCELLATION_CHECK_INTERVAL = 500;
 	private static final int BLOCKED_WRITE_LOCK_OUTPUT_INTERVAL = 30000;
 	private static final int LONG_WRITE_LOCK_REPORT_THRESHOLD = 1000;
@@ -169,8 +169,8 @@ public class Nd {
 
 		this.db.setLocked(lockDB);
 		if (!isSupportedVersion()) {
-			Package.log("Index database is uses an unsupported version " + this.db.getVersion() //$NON-NLS-1$
-				+ " Deleting and recreating.", null); //$NON-NLS-1$
+			Package.logInfo("Index database uses the unsupported version " + this.db.getVersion() //$NON-NLS-1$
+				+ ". Deleting and recreating."); //$NON-NLS-1$
 			this.db.close();
 			this.fPath.delete();
 			this.db = new Database(this.fPath, cache, getDefaultVersion(), isPermanentlyReadOnly());
@@ -192,6 +192,7 @@ public class Nd {
 	private long lastWriteAccess= 0;
 	//private long lastReadAccess= 0;
 	private long timeWriteLockAcquired;
+	private Thread writeLockOwner;
 
 	public IReader acquireReadLock() {
 		try {
@@ -281,7 +282,7 @@ public class Nd {
 
 			// Let the readers go first
 			long start= sDEBUG_LOCKS ? System.currentTimeMillis() : 0;
-			while (this.lockCount > giveupReadLocks || this.waitingReaders > 0) {
+			while (this.lockCount > giveupReadLocks || this.waitingReaders > 0 || (this.lockCount < 0)) {
 				this.mutex.wait(CANCELLATION_CHECK_INTERVAL);
 				if (monitor != null && monitor.isCanceled()) {
 					throw new OperationCanceledException();
@@ -294,6 +295,10 @@ public class Nd {
 			if (sDEBUG_LOCKS)
 				this.timeWriteLockAcquired = System.currentTimeMillis();
 			this.db.setExclusiveLock();
+			if (this.writeLockOwner != null && this.writeLockOwner != Thread.currentThread()) {
+				throw new IllegalStateException("We somehow managed to acquire a write lock while another thread already holds it."); //$NON-NLS-1$
+			}
+			this.writeLockOwner = Thread.currentThread();
 		}
 	}
 
@@ -303,6 +308,13 @@ public class Nd {
 
 	@SuppressWarnings("nls")
 	public void releaseWriteLock(int establishReadLocks, boolean flush) {
+		synchronized (this.mutex) {
+			Thread current = Thread.currentThread();
+			if (current != this.writeLockOwner) {
+				throw new IllegalStateException("Index wasn't locked by this thread!!!");
+			}
+			this.writeLockOwner = null;
+		}
 		boolean wasInterrupted = false;
 		// When all locks are released we can clear the result cache.
 		if (establishReadLocks == 0) {
@@ -598,5 +610,13 @@ public class Nd {
 
 	public NdNodeTypeRegistry<NdNode> getTypeRegistry() {
 		return this.fNodeTypeRegistry;
+	}
+
+	public void clear(IProgressMonitor monitor) {
+		getDB().clear(getDefaultVersion());
+	}
+
+	public boolean isValidAddress(long address) {
+		return address > 0 && address < getDB().getChunkCount() * Database.CHUNK_SIZE;
 	}
 }

@@ -525,7 +525,7 @@ public final class AST {
 			return (CompilationUnit) result;
 		} catch (IllegalStateException e) {
 			// convert ASTParser's complaints into old form
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(e);
 		}
 	}
 
@@ -599,7 +599,7 @@ public final class AST {
 			return (CompilationUnit) result;
 		} catch (IllegalStateException e) {
 			// convert ASTParser's complaints into old form
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(e);
 		}
 	}
 
@@ -850,21 +850,19 @@ public final class AST {
 		} catch (NoSuchMethodException e) {
 			// all AST node classes have a Foo(AST) constructor
 			// therefore nodeClass is not legit
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(e);
 		} catch (InstantiationException e) {
 			// all concrete AST node classes can be instantiated
 			// therefore nodeClass is not legit
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(e);
 		} catch (IllegalAccessException e) {
 			// all AST node classes have an accessible Foo(AST) constructor
 			// therefore nodeClass is not legit
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(e);
 		} catch (InvocationTargetException e) {
 			// concrete AST node classes do not die in the constructor
 			// therefore nodeClass is not legit
-			IllegalArgumentException iae = new IllegalArgumentException();
-			iae.initCause(e.getCause());
-			throw iae;
+			throw new IllegalArgumentException(e.getCause());
 		}
 	}
 

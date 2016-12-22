@@ -1275,7 +1275,7 @@ public class Util implements SuffixConstants {
 				count++;
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException(e);
 		}
 	}
 

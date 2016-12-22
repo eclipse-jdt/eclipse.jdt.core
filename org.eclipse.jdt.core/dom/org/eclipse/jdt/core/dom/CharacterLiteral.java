@@ -286,7 +286,7 @@ public class CharacterLiteral extends Expression {
 							throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
 						}
 					} catch (InvalidInputException e) {
-						throw new IllegalArgumentException("illegal character literal");//$NON-NLS-1$
+						throw new IllegalArgumentException("illegal character literal", e);//$NON-NLS-1$
 					}
 			}
 			nextChar = scanner.getNextChar();

@@ -199,9 +199,7 @@ public class SimpleName extends Name {
 					throw new IllegalArgumentException("Invalid identifier : >" + identifier + "<");  //$NON-NLS-1$//$NON-NLS-2$
 				}
 			} catch (InvalidInputException e) {
-				IllegalArgumentException iae = new IllegalArgumentException("Invalid identifier : >" + identifier + "<"); //$NON-NLS-1$//$NON-NLS-2$
-				iae.initCause(e);
-				throw iae; 
+				throw new IllegalArgumentException("Invalid identifier : >" + identifier + "<", e); //$NON-NLS-1$//$NON-NLS-2$
 			}
 		} finally {
 			this.ast.scanner.sourceLevel = sourceLevel;
