@@ -2957,7 +2957,7 @@ class ASTConverter {
 					return convertToAnnotationDeclaration(typeDeclaration);
 				}
 			case org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.MODULE_DECL :
-				if (this.ast.apiLevel < AST.JLS9) {
+				if (this.ast.apiLevel < AST.JLS9_INTERNAL) {
 					return null;
 				} else {
 					return convertToModuleDeclaration(typeDeclaration);

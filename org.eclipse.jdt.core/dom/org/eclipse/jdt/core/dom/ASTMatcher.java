@@ -619,7 +619,7 @@ public class ASTMatcher {
 		}
 		CompilationUnit o = (CompilationUnit) other;
 		return (
-			safeSubtreeMatch(node.getModule(), o.getModule())
+			(node.getAST().apiLevel >= AST.JLS9_INTERNAL ? safeSubtreeMatch(node.getModule(), o.getModule()) : true)
 				&& safeSubtreeMatch(node.getPackage(), o.getPackage())
 				&& safeSubtreeListMatch(node.imports(), o.imports())
 				&& safeSubtreeListMatch(node.types(), o.types()));

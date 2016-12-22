@@ -2043,7 +2043,7 @@ public abstract class ASTNode {
 	 * @since 3.13 BETA_JAVA9
 	 */
 	final void unsupportedBelow9() {
-		if (this.ast.apiLevel < AST.JLS9) {
+		if (this.ast.apiLevel < AST.JLS9_INTERNAL) {
 			throw new UnsupportedOperationException("Operation only supported in JLS9 and later AST"); //$NON-NLS-1$
 		}
 	}

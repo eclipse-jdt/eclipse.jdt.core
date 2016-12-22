@@ -30,7 +30,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(AST.JLS9);
+		this.ast = AST.newAST(AST_INTERNAL_JLS9);
 	}
 
 	public ASTConverter9Test(String name) {
@@ -143,7 +143,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Converter9/src/module-info.java", content);
 		
-		CompilationUnit unit = (CompilationUnit) runConversion(AST.JLS9, this.workingCopies[0], false/*no bindings*/);
+		CompilationUnit unit = (CompilationUnit) runConversion(AST_INTERNAL_JLS9, this.workingCopies[0], false/*no bindings*/);
 		ModuleDeclaration moduleDecl = unit.getModule();
 		
 		checkSourceRange(moduleDecl, content, content);

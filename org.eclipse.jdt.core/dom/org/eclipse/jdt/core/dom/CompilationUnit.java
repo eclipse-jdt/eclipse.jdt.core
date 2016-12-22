@@ -78,7 +78,7 @@ public class CompilationUnit extends ASTNode {
 		new ChildPropertyDescriptor(CompilationUnit.class, "package", PackageDeclaration.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "module" structural property of this node type (child type: {@link ModuleDeclaration}).
+	 * The "module" structural property of this node type (child type: {@link ModuleDeclaration}) (added in JLS9 API).
 	 *
 	 * @since 3.13 BETA_JAVA9
 	 */
@@ -138,7 +138,7 @@ public class CompilationUnit extends ASTNode {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel < AST.JLS9)
+		if (apiLevel < AST.JLS9_INTERNAL)
 			return PROPERTY_DESCRIPTORS;
 		else
 			return PROPERTY_DESCRIPTORS_9_0;
@@ -245,7 +245,9 @@ public class CompilationUnit extends ASTNode {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			acceptChild(visitor, getModule());
+			if (this.ast.apiLevel >= AST.JLS9_INTERNAL) {
+				acceptChild(visitor, getModule());
+			}
 			acceptChild(visitor, getPackage());
 			acceptChildren(visitor, this.imports);
 			acceptChildren(visitor, this.types);
@@ -260,7 +262,9 @@ public class CompilationUnit extends ASTNode {
 		CompilationUnit result = new CompilationUnit(target);
 		// n.b do not copy line number table or messages
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setModule((ModuleDeclaration) ASTNode.copySubtree(target, getModule()));
+		if (this.ast.apiLevel >= AST.JLS9_INTERNAL) {
+			result.setModule((ModuleDeclaration) ASTNode.copySubtree(target, getModule()));
+		}
 		result.setPackage(
 			(PackageDeclaration) ASTNode.copySubtree(target, getPackage()));
 		result.imports().addAll(ASTNode.copySubtrees(target, imports()));
@@ -578,12 +582,13 @@ public class CompilationUnit extends ASTNode {
 
 	/**
 	 * Returns the node for the module declaration of this compilation
-	 * unit, or <code>null</code> if this compilation unit has a module
+	 * unit, or <code>null</code> if this compilation unit is not a module info.
 	 *
 	 * @return the module declaration node, or <code>null</code> if none
 	 * @since 3.13 BETA_JAVA9
 	 */
 	public ModuleDeclaration getModule() {
+		unsupportedBelow9();
 		return this.module;
 	}
 

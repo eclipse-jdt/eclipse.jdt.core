@@ -216,6 +216,13 @@ public final class AST {
 	 */
 	public static final int JLS9 = 9;
 
+	/**
+	 * Internal synonym for {@link #JLS9}. Use to alleviate
+	 * deprecation warnings once JLS9 is deprecated
+	 * @since 3.13 BETA_JAVA9
+	 */
+	/*package*/ static final int JLS9_INTERNAL = JLS9;
+
 	/*
 	 * Must not collide with a value for ICompilationUnit constants
 	 */

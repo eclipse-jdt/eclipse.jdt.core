@@ -189,7 +189,7 @@ public class TryStatement extends Statement {
 	 */
 	TryStatement(AST ast) {
 		super(ast);
-		if (ast.apiLevel >= AST.JLS9) {
+		if (ast.apiLevel >= AST.JLS9_INTERNAL) {
 			this.resources = new ASTNode.NodeList(RESOURCES2_PROPERTY);
 		} else if (ast.apiLevel >= AST.JLS4_INTERNAL) {
 			this.resources = new ASTNode.NodeList(RESOURCES_PROPERTY);

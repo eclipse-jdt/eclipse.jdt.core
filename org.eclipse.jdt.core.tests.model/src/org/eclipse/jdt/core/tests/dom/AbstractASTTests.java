@@ -79,6 +79,12 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 	 * @deprecated
 	 */
 	/*package*/ static final int AST_INTERNAL_JLS4 = AST.JLS4;
+	/**
+	 * Internal synonym for deprecated constant AST.JSL8
+	 * to alleviate deprecation warnings.
+	 * @deprecated
+	 */
+	/*package*/ static final int AST_INTERNAL_JLS8 = AST.JLS8;
 	public static final int astInternalJLS2() {
 		return AST_INTERNAL_JLS2;
 	}
@@ -483,17 +489,14 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 			return new ASTNode[] {unit};
 		return nodes;
 	}
-	/**
-	 * @deprecated references deprecated old AST level
-	 */
 	protected ASTNode[] buildASTs(String newContents, ICompilationUnit cu, boolean reportErrors, boolean enableStatementRecovery, boolean bindingRecovery) throws JavaModelException {
 		String option = cu.getJavaProject().getOption(JavaCore.COMPILER_COMPLIANCE, true);
 		long jdkLevel = CompilerOptions.versionToJdkLevel(option);
 		int JLSLevel = AST_INTERNAL_JLS3;
 		if (jdkLevel >= ClassFileConstants.JDK9) {
-			JLSLevel = AST.JLS9;			
+			JLSLevel = AST_INTERNAL_JLS9;			
 		} else if (jdkLevel >= ClassFileConstants.JDK1_8) {
-			JLSLevel = AST.JLS8;
+			JLSLevel = AST_INTERNAL_JLS8;
 		} else if (jdkLevel >= ClassFileConstants.JDK1_7) {
 			JLSLevel = AST_INTERNAL_JLS4;
 		}

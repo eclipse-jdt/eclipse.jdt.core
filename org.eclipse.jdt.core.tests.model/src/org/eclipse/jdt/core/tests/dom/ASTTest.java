@@ -41,7 +41,12 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	 * @deprecated
 	 */
 	/*package*/ static final int JLS3_INTERNAL = AST.JLS3;
-	
+	/**
+	 * Internal synonym for constant AST.JSL9
+	 * to alleviate deprecation warnings once AST.JLS9 is deprecated in future.
+	 */
+	protected static final int AST_INTERNAL_JLS9 = AST.JLS9;
+
 	class CheckPositionsMatcher extends ASTMatcher {
 
 		public CheckPositionsMatcher() {
@@ -8872,7 +8877,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			try {
 				node = this.ast.createInstance(nodeType);
 			} catch (IllegalArgumentException e) {
-				if (this.API_LEVEL < AST.JLS9 && e.getCause() instanceof UnsupportedOperationException) {
+				if (this.API_LEVEL < AST_INTERNAL_JLS9 && e.getCause() instanceof UnsupportedOperationException) {
 					continue;
 				} else {
 					throw new AssertionFailedError("missing node type: " + nodeType);

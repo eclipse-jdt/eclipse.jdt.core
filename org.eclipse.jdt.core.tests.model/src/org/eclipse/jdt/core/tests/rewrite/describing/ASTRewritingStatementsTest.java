@@ -5055,7 +5055,7 @@ public class ASTRewritingStatementsTest extends ASTRewritingTest {
 	 * @deprecated
 	 */
 	protected ChildListPropertyDescriptor getResourcesProperty() {
-		return this.apiLevel < AST.JLS9 ? TryStatement.RESOURCES_PROPERTY : TryStatement.RESOURCES2_PROPERTY;
+		return this.apiLevel < AST_INTERNAL_JLS9 ? TryStatement.RESOURCES_PROPERTY : TryStatement.RESOURCES2_PROPERTY;
 	}
 
 	public void testTryStatementWithResources2_since_4() throws Exception {
