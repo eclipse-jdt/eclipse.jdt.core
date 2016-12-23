@@ -91,7 +91,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		return createJava9Project(name, new String[]{"src"});
 	}
 	private IJavaProject createJava9Project(String name, String[] srcFolders) throws CoreException {
-		String bootModPath = System.getProperty("java.home") + File.separator +"jrt-fs.jar";
+		String bootModPath = System.getProperty("java.home") + File.separator +"/lib/jrt-fs.jar";
 		IClasspathEntry jrtEntry = JavaCore.newLibraryEntry(new Path(bootModPath), null, null, null, null, false);
 		IJavaProject project = this.createJavaProject(name, srcFolders, new String[0],
 				new String[0], "bin", "9");

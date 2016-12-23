@@ -163,6 +163,7 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 				for(int k = 0; k < exportedtoCount; k++) {
 					utf8Offset = module.constantPoolOffsets[module.u2At(moduleOffset)];
 					char[] exportedToName = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1));
+					CharOperation.replace(exportedToName, '/', '.');
 					pack.exportedTo[k] = exportedToName;
 					moduleOffset += 2;
 				}
@@ -190,7 +191,48 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 				for(int k = 0; k < exportedtoCount; k++) {
 					utf8Offset = module.constantPoolOffsets[module.u2At(moduleOffset)];
 					char[] exportedToName = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1));
+					CharOperation.replace(exportedToName, '/', '.');
 					pack.exportedTo[k] = exportedToName;
+					moduleOffset += 2;
+				}
+			}
+		}
+		count = module.u2At(moduleOffset);
+		moduleOffset += 2;
+		module.usesCount = count;
+		module.uses = new char[count][];
+		for (int i = 0; i < count; i++) {
+			int classIndex = module.constantPoolOffsets[module.u2At(moduleOffset)];
+			utf8Offset = module.constantPoolOffsets[module.u2At(classIndex + 1)];
+			char[] inf = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1));
+			CharOperation.replace(inf, '/', '.');
+			module.uses[i] = inf;
+			moduleOffset += 2;
+		}
+		count = module.u2At(moduleOffset);
+		moduleOffset += 2;
+		module.providesCount = count;
+		module.provides = new ServiceInfo[count];
+		for (int i = 0; i < count; i++) {
+			int classIndex = module.constantPoolOffsets[module.u2At(moduleOffset)];
+			utf8Offset = module.constantPoolOffsets[module.u2At(classIndex + 1)];
+			char[] inf = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1));
+			CharOperation.replace(inf, '/', '.');
+			ServiceInfo service = module.new ServiceInfo();
+			module.provides[i] = service;
+			service.serviceName = inf;
+			moduleOffset += 2;
+			int implCount = module.u2At(moduleOffset);
+			moduleOffset += 2;
+			service.with = new char[implCount][];
+			if (implCount > 0) {
+				service.with = new char[implCount][];
+				for(int k = 0; k < implCount; k++) {
+					classIndex = module.constantPoolOffsets[module.u2At(moduleOffset)];
+					utf8Offset = module.constantPoolOffsets[module.u2At(classIndex + 1)];
+					char[] implName = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1));
+					CharOperation.replace(implName, '/', '.');
+					service.with[k] = implName;
 					moduleOffset += 2;
 				}
 			}
