@@ -7365,4 +7365,22 @@ public void testBug499725a() {
 			"}\n"
 		});
 }
+public void testBug508834() {
+	runConformTest(
+		new String[] {
+			"FlatMapper.java",
+			"import java.util.stream.Stream;\n" + 
+			"public class FlatMapper {\n" + 
+			"\n" + 
+			"	private String[] stuff;\n" + 
+			"	\n" + 
+			"	public static void main(String[] args) {\n" + 
+			"	    Stream.of(new FlatMapper[]{})\n" + 
+			"	        .flatMap(fl -> Stream.of(fl.stuff)) //\n" + 
+			"	        .filter(st -> !st.isEmpty()); //\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"");
+}
 }
