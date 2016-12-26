@@ -7433,4 +7433,121 @@ public void testBug508834_comment0() {
 		},
 		"");
 	}
+	public void testBug509694() {
+		runConformTest(
+			new String[] {
+				"NfaUtil.java",
+				"/*******************************************************************************\n" + 
+				" * Copyright (c) 2011 itemis AG (http://www.itemis.eu) and others.\n" + 
+				" * All rights reserved. This program and the accompanying materials\n" + 
+				" * are made available under the terms of the Eclipse Public License v1.0\n" + 
+				" * which accompanies this distribution, and is available at\n" + 
+				" * http://www.eclipse.org/legal/epl-v10.html\n" + 
+				" *******************************************************************************/\n" + 
+				"import java.util.*;\n" + 
+				"\n" + 
+				"class Lists {\n" + 
+				"	public static <E> LinkedList<E> newLinkedList() {\n" + 
+				"		return new LinkedList<E>();\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static <E> LinkedList<E> newLinkedList(Iterable<? extends E> elements) {\n" + 
+				"		return newLinkedList();\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Maps {\n" + 
+				"	public static <K, V> HashMap<K, V> newHashMap() {\n" + 
+				"		return new HashMap<K, V>();\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static <K, V> LinkedHashMap<K, V> newLinkedHashMap() {\n" + 
+				"		return new LinkedHashMap<K, V>();\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static <K, V> LinkedHashMap<K, V> newLinkedHashMap(Map<? extends K, ? extends V> map) {\n" + 
+				"		return new LinkedHashMap<K, V>(map);\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"class Sets {\n" + 
+				"	public static <E> HashSet<E> newHashSet(Iterable<? extends E> elements) {\n" + 
+				"		return new HashSet<E>();\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public static <E> HashSet<E> newHashSet(E... elements) {\n" + 
+				"		HashSet<E> set = new HashSet<>();\n" + 
+				"		Collections.addAll(set, elements);\n" + 
+				"		return set;\n" + 
+				"	}\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface IAcceptor<T> {\n" + 
+				"	void accept(T t);\n" + 
+				"}\n" + 
+				"\n" + 
+				"interface Nfa<STATE> extends DirectedGraph<STATE> {\n" + 
+				"	STATE getStop();\n" + 
+				"	STATE getStart();\n" + 
+				"}\n" + 
+				"interface DirectedGraph<NODE> {\n" + 
+				"	Iterable<NODE> getFollowers(NODE state);\n" + 
+				"}\n" + 
+				"\n" + 
+				"/**\n" + 
+				" * @author Moritz Eysholdt - Initial contribution and API\n" + 
+				" */\n" + 
+				"public class NfaUtil {\n" + 
+				"\n" + 
+				"	public <S> Map<S, Set<S>> findCycles(Nfa<S> nfa) {\n" + 
+				"		Map<S, Set<S>> cycles = Maps.newLinkedHashMap();\n" + 
+				"		findCycles(nfa, nfa.getStart(), (List<S> t) -> {\n" + 
+				"			Set<S> cycle = Sets.newHashSet(t);\n" + 
+				"			for (S cycleNode : t) {\n" + 
+				"				// We have two cycles that are connected via at least\n" + 
+				"				// one node. Treat them as one cycle.\n" + 
+				"				Set<S> existingCycle = cycles.get(cycleNode);\n" + 
+				"				if (existingCycle != null) {\n" + 
+				"					cycle.addAll(existingCycle);\n" + 
+				"				}\n" + 
+				"			}\n" + 
+				"			for (S n : cycle) {\n" + 
+				"				cycles.put(n, cycle);\n" + 
+				"			}\n" + 
+				"		}, Maps.newHashMap(), Lists.newLinkedList());\n" + 
+				"		return cycles;\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public <S> void findCycles(Nfa<S> nfa, IAcceptor<List<S>> cycleAcceptor) {\n" + 
+				"		findCycles(nfa, nfa.getStart(), cycleAcceptor, Maps.newHashMap(), Lists.newLinkedList());\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	private static final int DFS_VISITED = 1;\n" + 
+				"	private static final int DFS_ON_STACK = 2;\n" + 
+				"\n" + 
+				"	protected <S> void findCycles(Nfa<S> nfa, S node, IAcceptor<List<S>> cycleAcceptor, Map<S, Integer> dfsMark,\n" + 
+				"			LinkedList<S> dfsStack) {\n" + 
+				"		dfsStack.push(node);\n" + 
+				"		dfsMark.put(node, DFS_ON_STACK);\n" + 
+				"		for (S follower : nfa.getFollowers(node)) {\n" + 
+				"			Integer followerMark = dfsMark.get(follower);\n" + 
+				"			if (followerMark == null) {\n" + 
+				"				findCycles(nfa, follower, cycleAcceptor, dfsMark, dfsStack);\n" + 
+				"			} else if (followerMark == DFS_ON_STACK) {\n" + 
+				"				LinkedList<S> cycle = Lists.newLinkedList();\n" + 
+				"				Iterator<S> stackIter = dfsStack.iterator();\n" + 
+				"				S cycleNode;\n" + 
+				"				do {\n" + 
+				"					cycleNode = stackIter.next();\n" + 
+				"					cycle.addFirst(cycleNode);\n" + 
+				"				} while (cycleNode != follower && stackIter.hasNext());\n" + 
+				"				cycleAcceptor.accept(cycle);\n" + 
+				"			}\n" + 
+				"		}\n" + 
+				"		dfsStack.pop();\n" + 
+				"		dfsMark.put(node, DFS_VISITED);\n" + 
+				"	}\n" + 
+				"}\n"
+			});
+	}
 }
