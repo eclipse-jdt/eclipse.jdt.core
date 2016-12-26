@@ -7383,4 +7383,54 @@ public void testBug508834() {
 		},
 		"");
 }
+public void testBug508834_comment0() {
+	runConformTest(
+		new String[] {
+			"test/TypeB.java",
+			"package test;\n" + 
+			"public class TypeB {\n" + 
+			"    public String getText() {\n" + 
+			"        return \"\";\n" + 
+			"    }\n" + 
+			"\n" + 
+			"}\n",
+			"test/TypeA.java",
+			"package test;\n" + 
+			"public class TypeA {\n" + 
+			"    public TypeB[] getArrayOfB() {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"    public TypeB getB() {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n",
+			"test/Test1.java",
+			"package test;\n" + 
+			"import java.util.stream.Stream;\n" + 
+			"public class Test1 {\n" + 
+			"    private TypeA[] arrayOfType() {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"    private String[] test1() {\n" + 
+			"        return Stream\n" + 
+			"                .of(arrayOfType())\n" + 
+			"                .filter(a -> a.getB() != null)\n" + 
+			"                .flatMap(a -> Stream.of(a.getB()))\n" + 
+			"                .map(TypeB::getText)\n" + 
+			"                .sorted()\n" + 
+			"                .toArray(String[]::new);\n" + 
+			"    }\n" + 
+			"    private String[] test2() {\n" + 
+			"        return Stream\n" + 
+			"                .of(arrayOfType())\n" + 
+			"                .filter(a -> a.getArrayOfB() != null)\n" + 
+			"                .flatMap(a -> Stream.of(a.getArrayOfB()))\n" + 
+			"                .map(TypeB::getText)\n" + 
+			"                .sorted()\n" + 
+			"                .toArray(String[]::new);\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		"");
+	}
 }
