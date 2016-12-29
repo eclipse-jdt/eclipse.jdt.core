@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.core.*;
 
 import java.io.*;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -455,14 +456,8 @@ public IModuleEnvironment getModuleEnvironmentFor(char[] moduleName) {
 public IModule[] getAllAutomaticModules() {
 	if (this.modulePathEntries == null)
 		return IModule.NO_MODULES;
-	Set<IModule> set = new HashSet<>();
-	for (int i = 0, l = this.modulePathEntries.length; i < l; i++) {
-		if (this.modulePathEntries[i] instanceof ClasspathLocation) {
-			if (((ClasspathLocation) this.modulePathEntries[i]).isAutoModule) {
-				set.add(this.modulePathEntries[i].getModule());
-			}
-		}
-	}
+	Set<IModule> set = Stream.of(this.modulePathEntries).map(e -> e.getModule()).filter(m -> m.isAutomatic())
+			.collect(Collectors.toSet());
 	return set.toArray(new IModule[set.size()]);
 }
 

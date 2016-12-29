@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
 import org.eclipse.jdt.internal.codeassist.impl.Engine;
 import org.eclipse.jdt.internal.codeassist.select.SelectionJavadocParser;
 import org.eclipse.jdt.internal.codeassist.select.SelectionNodeFound;
+import org.eclipse.jdt.internal.codeassist.select.SelectionOnExportReference;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnImportReference;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnPackageReference;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnQualifiedTypeReference;
@@ -1024,8 +1025,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					ExportsStatement[] exports = module.exports;
 					if (exports != null) {
 						for (ExportsStatement exportReference : exports) {
-							if (exportReference.pkgRef instanceof SelectionOnImportReference) {
-								char[][] tokens = ((SelectionOnImportReference) exportReference.pkgRef).tokens;
+							if (exportReference.pkgRef instanceof SelectionOnExportReference) {
+								char[][] tokens = ((SelectionOnExportReference) exportReference.pkgRef).tokens;
 								this.noProposal = false;
 								this.requestor.acceptPackage(CharOperation.concatWith(tokens, '.'));
 							}

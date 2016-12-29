@@ -110,14 +110,14 @@ public class ModuleBinding extends Binding {
 	private void collectAllDependencies(Set<ModuleBinding> deps) {
 		getRequiredModules(false).forEach(m -> {
 			if (deps.add(m)) {
-				collectAllDependencies(deps);
+				m.collectAllDependencies(deps);
 			}
 		});
 	}
 	private void collectTransitiveDependencies(Set<ModuleBinding> deps) {
 		getRequiredModules(true).forEach(m -> {
 			if (deps.add(m)) {
-				collectTransitiveDependencies(deps);
+				m.collectTransitiveDependencies(deps);
 			}
 		});
 	}
@@ -146,27 +146,6 @@ public class ModuleBinding extends Binding {
 				},
 				HashSet::addAll);
 	}
-	// All transitive dependencies offered by this module
-	public Supplier<Collection<ModuleBinding>> transitiveDependencyCollector() {
-		return () -> getRequiredModules(true)
-			.collect(HashSet::new,
-				(set, mod) -> {
-					if (set.add(mod)) {
-						mod.collectTransitiveDependencies(set);
-					}
-				},
-			HashSet::addAll);
-	}
-	/**
-	 * Collect all transitive dependencies offered by this module
-	 * Any module dependent on this module will have an implicit dependence on all other modules
-	 * specified as ' requires transitive '
-	 * @return
-	 *  collection of transitive dependencies
-	 */
-	public Collection<ModuleBinding> getTransitiveDependencies() {
-		return transitiveDependencyCollector().get();
-	}
 
 	/**
 	 * Get all the modules required by this module
@@ -193,10 +172,6 @@ public class ModuleBinding extends Binding {
 		return this.moduleName;
 	}
 
-	public boolean isPackageExported(char[] pkgName) {
-		Predicate<IPackageExport> isExported = e -> CharOperation.prefixEquals(pkgName, e.name());
-		return Stream.of(this.exports).anyMatch(isExported);
-	}
 	/**
 	 * Check if the specified package is exported to the client module by this module. True if the package appears
 	 * in the list of exported packages and when the export is targeted, the module appears in the targets of the
@@ -208,6 +183,9 @@ public class ModuleBinding extends Binding {
 	public boolean isPackageExportedTo(PackageBinding pkg, ModuleBinding client) {
 		PackageBinding resolved = getExportedPackage(pkg.readableName());
 		if (resolved == pkg) {
+			if (this.isAuto) { // all packages are exported by an automatic module
+				return true;
+			}
 			Predicate<IPackageExport> isTargeted = IPackageExport::isQualified;
 			Predicate<IPackageExport> isExportedTo = e -> 
 				Stream.of(e.exportedTo()).map(ref -> this.environment.getModule(ref)).filter(m -> m != null).anyMatch(client::equals);
@@ -230,9 +208,6 @@ public class ModuleBinding extends Binding {
 		} else {
 			return Stream.of(getAllRequiredModules()).sorted((m1, m2) -> m1.requires.length - m2.requires.length)
 					.map(m -> {
-						if (m.isAuto) {
-							return m.getTopLevelPackage(name);
-						}
 						PackageBinding binding = m.getExportedPackage(name);
 						if (binding != null && m.isPackageExportedTo(binding, this)) {
 							return m.declaredPackages.get(name);
@@ -296,6 +271,9 @@ public class ModuleBinding extends Binding {
 		PackageBinding existing = this.exportedPackages.get(qualifiedPackageName);
 		if (existing != null && existing != LookupEnvironment.TheNotFoundPackage)
 			return existing;
+		if (this.isAuto) { // all packages are exported by an automatic module
+			return getDeclaredPackage(CharOperation.splitOn('.', qualifiedPackageName));
+		}
 		//Resolve exports to see if the package or a sub package is exported
 		return Stream.of(this.exports).sorted((e1, e2) -> e1.name().length - e2.name().length)
 		.filter(e -> CharOperation.prefixEquals(qualifiedPackageName, e.name())) // TODO: improve this
@@ -377,8 +355,7 @@ public class ModuleBinding extends Binding {
 	 */
 	public boolean canSee(PackageBinding pkg) {
 		return declaresPackage(pkg) || Stream.of(getAllRequiredModules()).anyMatch(
-				dep -> (dep.isAuto && dep.declaresPackage(pkg)) ||
-						dep.isPackageExportedTo(pkg, ModuleBinding.this)
+				dep -> dep.isPackageExportedTo(pkg, ModuleBinding.this)
 		);
 	}
 	public boolean dependsOn(ModuleBinding other) {
