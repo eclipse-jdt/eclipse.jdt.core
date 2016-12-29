@@ -493,16 +493,6 @@ public class JavaProject
 		return true;
 	}
 
-	public boolean isModuleProject() throws JavaModelException {
-		IPackageFragmentRoot[] roots = getPackageFragmentRoots();
-		for (IPackageFragmentRoot root : roots) {
-			if (root.getKind() != IPackageFragmentRoot.K_SOURCE)
-				continue;
-			if (((PackageFragmentRoot)root).isModuleDescriptionRoot())
-				return true;
-		}
-		return false;
-	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.internal.core.JavaElement#close()
 	 */
