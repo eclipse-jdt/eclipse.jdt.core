@@ -11890,79 +11890,84 @@ public final class CompletionEngine
 
 		TypeReference theInterface = providesStmt.serviceInterface;
 
-		if (token == null)
-			return;
+		if (token == null) return;
 		char[][] theInterfaceType = theInterface.getTypeName();
 		if (theInterfaceType == null) return;
+		SearchPattern pattern  = null;
 		NameEnvironmentAnswer answer =  this.nameEnvironment.findType(theInterfaceType);
-		IType typeHandle = null;
-		if (answer != null && answer.isSourceType()) {
-			typeHandle = ((SourceTypeElementInfo) answer.getSourceTypes()[0]).getHandle();
-			SearchPattern pattern = SearchPattern.createPattern(typeHandle, IJavaSearchConstants.IMPLEMENTORS, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
-			IJavaSearchScope searchScope = BasicSearchEngine.createJavaSearchScope(new IJavaElement[] {this.javaProject});
-			class ImplSearchRequestor extends SearchRequestor {
-				String prefix;
-				List<String> filter;
-				public List<IType> types = new ArrayList<>();
-				public ImplSearchRequestor(char[] prefixToken, List<String> filter) {
-					this.prefix = (prefixToken == CharOperation.ALL_PREFIX) ? null : new String(prefixToken);
-					this.filter = filter;
-				}
-				@Override
-				public void acceptSearchMatch(SearchMatch match) throws CoreException {
-					checkCancel();
-					IJavaElement element = ((IJavaElement) match.getElement());
-					if (element.getElementType() == IJavaElement.TYPE) {
-						IType type = (IType) element;
-						if (this.prefix != null) {
-							String fullTypeName = type.getPackageFragment().getElementName();
-							if (fullTypeName != null) {
-								fullTypeName = fullTypeName.concat(".").concat(type.getElementName()); //$NON-NLS-1$
-							} else {
-								fullTypeName = type.getElementName();
-							}
-							if (!fullTypeName.startsWith(this.prefix)) return;
-							if (this.filter.contains(fullTypeName)) return;
+		if (answer != null ) {
+			if (answer.isSourceType()) {
+				IType typeHandle = ((SourceTypeElementInfo) answer.getSourceTypes()[0]).getHandle();
+				pattern = SearchPattern.createPattern(typeHandle, IJavaSearchConstants.IMPLEMENTORS, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
+			} else if (answer.isBinaryType()) {
+				String typeName = new String(CharOperation.replaceOnCopy(answer.getBinaryType().getName(), '/', '.'));
+				pattern = SearchPattern.createPattern(typeName,
+						IJavaSearchConstants.CLASS_AND_INTERFACE,
+						IJavaSearchConstants.IMPLEMENTORS, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
+			}
+		}
+		if (pattern == null) return;
+		IJavaSearchScope searchScope = BasicSearchEngine.createJavaSearchScope(new IJavaElement[] {this.javaProject});
+		class ImplSearchRequestor extends SearchRequestor {
+			String prefix;
+			List<String> filter;
+			public List<IType> types = new ArrayList<>();
+			public ImplSearchRequestor(char[] prefixToken, List<String> filter) {
+				this.prefix = (prefixToken == CharOperation.ALL_PREFIX) ? null : new String(prefixToken);
+				this.filter = filter;
+			}
+			@Override
+			public void acceptSearchMatch(SearchMatch match) throws CoreException {
+				checkCancel();
+				IJavaElement element = ((IJavaElement) match.getElement());
+				if (element.getElementType() == IJavaElement.TYPE) {
+					IType type = (IType) element;
+					if (this.prefix != null) {
+						String fullTypeName = type.getPackageFragment().getElementName();
+						if (fullTypeName != null) {
+							fullTypeName = fullTypeName.concat(".").concat(type.getElementName()); //$NON-NLS-1$
+						} else {
+							fullTypeName = type.getElementName();
 						}
-						this.types.add(type);
+						if (!fullTypeName.startsWith(this.prefix) || this.filter.contains(fullTypeName)) return;
 					}
+					this.types.add(type);
 				}
 			}
-			try {
-				List<String> existingImpl = new ArrayList<>();
-				char[][] theInterfaceName = theInterface.getTypeName();
-				// filter out existing implementations of the same interfaces
-				for (int i = 0, l = this.moduleDeclaration.servicesCount; i < l; ++i) {
-					if (i == stmtIndex) continue;
-					ProvidesStatement prevProvides = this.moduleDeclaration.services[i];
- 					if (!CharOperation.equals(theInterfaceName, prevProvides.serviceInterface.getTypeName())) continue;
- 					TypeReference[] prevImpls = prevProvides.implementations;
- 					for (TypeReference prevImpl : prevImpls) {
- 						char[][] typeName = prevImpl.getTypeName();
- 						if (typeName.equals(CharOperation.NO_CHAR_CHAR)) continue;
- 						existingImpl.add(CharOperation.toString(typeName));
- 					}
+		}
+		try {
+			List<String> existingImpl = new ArrayList<>();
+			char[][] theInterfaceName = theInterface.getTypeName();
+			// filter out existing implementations of the same interfaces
+			for (int i = 0, l = this.moduleDeclaration.servicesCount; i < l; ++i) {
+				if (i == stmtIndex) continue;
+				ProvidesStatement prevProvides = this.moduleDeclaration.services[i];
+				if (!CharOperation.equals(theInterfaceName, prevProvides.serviceInterface.getTypeName())) continue;
+				TypeReference[] prevImpls = prevProvides.implementations;
+				for (TypeReference prevImpl : prevImpls) {
+					char[][] typeName = prevImpl.getTypeName();
+					if (typeName.equals(CharOperation.NO_CHAR_CHAR)) continue;
+					existingImpl.add(CharOperation.toString(typeName));
 				}
-				// use search infrastructure - faster than using model
-				ImplSearchRequestor searchRequestor = new ImplSearchRequestor(this.completionToken, existingImpl);
-				new SearchEngine(this.owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(this.owner, true/*add primary WCs*/)).search(
-						pattern,
-						new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
-						searchScope,
-						searchRequestor,
-						null
+			}
+			// use search infrastructure - faster than using model
+			ImplSearchRequestor searchRequestor = new ImplSearchRequestor(this.completionToken, existingImpl);
+			new SearchEngine(this.owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(this.owner, true/*add primary WCs*/)).search(
+					pattern,
+					new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()},
+					searchScope,
+					searchRequestor,
+					null
 					);
-				for (IType type : searchRequestor.types) {
-					String pkg = type.getPackageFragment().getElementName();
-					String name = type.getElementName();
-					this.acceptType(pkg.toCharArray(), name.toCharArray(), CharOperation.NO_CHAR_CHAR, type.getFlags(), null);
-					acceptTypes(scope);
-				}
-			} catch (CoreException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			for (IType type : searchRequestor.types) {
+				String pkg = type.getPackageFragment().getElementName();
+				String name = type.getElementName();
+				this.acceptType(pkg.toCharArray(), name.toCharArray(), CharOperation.NO_CHAR_CHAR, type.getFlags(), null);
+				acceptTypes(scope);
 			}
-
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
 			checkCancel();
