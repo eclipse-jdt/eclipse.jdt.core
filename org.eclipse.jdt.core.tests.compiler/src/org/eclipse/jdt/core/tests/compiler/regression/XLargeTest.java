@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2012 IBM Corporation and others.
+ * Copyright (c) 2005, 2013 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Jesper Steen Moller - Contributions for
+ *								bug 404146 - [1.7][compiler] nested try-catch-finally-blocks leads to unrunnable Java byte code
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -3909,6 +3911,8 @@ public void test014() {
 	"");
 }
 public void test015() {
+	Map settings = getCompilerOptions();
+	settings.put(CompilerOptions.OPTION_ShareCommonFinallyBlocks, CompilerOptions.ENABLED);
 	runConformTest(
 		true,
 		new String[] {
@@ -11933,6 +11937,8 @@ public void test015() {
 		"		System.out.println(foo(1));\n" +
 		"	}\n" +
 		"}"},
+		null,
+		settings,
 		null,
 		"Enter finally block\n" +
 		"Inside finally block\n" +

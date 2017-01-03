@@ -10,6 +10,8 @@
  *     Stephan Herrmann - Contributions for
  *     							bug 332637 - Dead Code detection removing code that isn't dead
  *     							bug 358827 - [1.7] exception analysis for t-w-r spoils null analysis
+ *     Jesper Steen Moller - Contributions for
+ *								bug 404146 - [1.7][compiler] nested try-catch-finally-blocks leads to unrunnable Java byte code
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -18,6 +20,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
@@ -857,7 +860,8 @@ public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream 
 			return false;
 	}
 	// optimize subroutine invocation sequences, using the targetLocation (if any)
-	if (targetLocation != null) {
+	CompilerOptions options = this.scope.compilerOptions();
+	if (options.shareCommonFinallyBlocks && targetLocation != null) {
 		boolean reuseTargetLocation = true;
 		if (this.reusableJSRTargetsCount > 0) {
 			nextReusableTarget: for (int i = 0, count = this.reusableJSRTargetsCount; i < count; i++) {
