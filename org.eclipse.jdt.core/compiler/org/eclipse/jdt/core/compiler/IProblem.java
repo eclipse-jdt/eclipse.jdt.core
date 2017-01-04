@@ -1931,6 +1931,8 @@ void setSourceStart(int sourceStart);
 	int InvalidServiceIntfType = TypeRelated + 1316;
 	/** @since 3.13 BETA_JAVA9 */
 	int InvalidServiceImplType = TypeRelated + 1317;
+	/** @since 3.13 BETA_JAVA9 */
+	int IllegalModifierForModule = TypeRelated + 1318;
 
 	/** @since 3.13 BETA_JAVA9 */
 	int DuplicateResource = Internal + 1251;

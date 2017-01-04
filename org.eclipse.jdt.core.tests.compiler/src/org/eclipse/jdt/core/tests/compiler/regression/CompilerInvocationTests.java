@@ -591,6 +591,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("IllegalModifierForMemberEnum", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalModifierForMemberInterface", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalModifierForMethod", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
+		expectedProblemAttributes.put("IllegalModifierForModule", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalModifierForInterfaceMethod9", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalModifierForVariable", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("IllegalModifiersForElidedType", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -1458,6 +1459,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("IllegalModifierForMemberEnum", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForMemberInterface", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForMethod", SKIP);
+		expectedProblemAttributes.put("IllegalModifierForModule", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForInterfaceMethod9", SKIP);
 		expectedProblemAttributes.put("IllegalModifierForVariable", SKIP);
 		expectedProblemAttributes.put("IllegalModifiersForElidedType", SKIP);

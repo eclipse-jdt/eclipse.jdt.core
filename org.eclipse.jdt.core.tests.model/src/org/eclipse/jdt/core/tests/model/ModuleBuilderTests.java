@@ -2616,6 +2616,250 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("Test");
 		}
 	}
+	public void test_annotations_in_moduleinfo() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] { 
+					"src/module-info.java",
+					"module org.astro {\n" +
+					"	exports org.astro;\n" +
+					"}",
+					"src/org/astro/World.java",
+					"package org.astro;\n" +
+					"public interface World {\n" +
+					"	public String name();\n" +
+					"}",
+					"src/org/astro/Foo.java",
+					"package org.astro;\n" +
+					"public @interface Foo {}" 
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", sources);
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			String[] src = new String[] { 
+					"src/module-info.java",
+					"import org.astro.Foo;\n" +
+					"import org.astro.World;\n" +
+					"@Foo\n" +
+					"module com.greetings {\n" +
+					"	requires org.astro;\n" +
+					"	exports com.greetings;\n" +
+					"	provides World with com.greetings.MyWorld;\n" +
+					"}",
+					"src/com/greetings/MyWorld.java",
+					"package com.greetings;\n" +
+					"import org.astro.World;\n"	+
+					"public class MyWorld implements World {\n" +
+					"	public String name() {\n" +
+					"		return \" My World!!\";\n" +
+					"	}\n" +
+					"}"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("com.greetings");
+		}
+	}
+	public void test_unresolved_annotations() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] { 
+					"src/module-info.java",
+					"module org.astro {\n" +
+					"	exports org.astro;\n" +
+					"}",
+					"src/org/astro/World.java",
+					"package org.astro;\n" +
+					"public interface World {\n" +
+					"	public String name();\n" +
+					"}",
+					"src/org/astro/Foo.java",
+					"package org.astro;\n" +
+					"public @interface Foo {}" 
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", sources);
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			String[] src = new String[] { 
+					"src/module-info.java",
+					"import org.astro.Foo;\n" +
+					"import org.astro.World;\n" +
+					"@Foo @Bar\n" +
+					"module com.greetings {\n" +
+					"	requires org.astro;\n" +
+					"	exports com.greetings;\n" +
+					"	provides World with com.greetings.MyWorld;\n" +
+					"}",
+					"src/com/greetings/MyWorld.java",
+					"package com.greetings;\n" +
+					"import org.astro.World;\n"	+
+					"public class MyWorld implements World {\n" +
+					"	public String name() {\n" +
+					"		return \" My World!!\";\n" +
+					"	}\n" +
+					"}"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", 
+					"Bar cannot be resolved to a type", markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("com.greetings");
+		}
+	}
+	public void test_illegal_modifiers() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] { 
+					"src/module-info.java",
+					"module org.astro {\n" +
+					"	exports org.astro;\n" +
+					"}",
+					"src/org/astro/World.java",
+					"package org.astro;\n" +
+					"public interface World {\n" +
+					"	public String name();\n" +
+					"}",
+					"src/org/astro/Foo.java",
+					"package org.astro;\n" +
+					"public @interface Foo {}" 
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", sources);
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			String[] src = new String[] { 
+					"src/module-info.java",
+					"import org.astro.Foo;\n" +
+					"import org.astro.World;\n" +
+					"@Foo\n" +
+					"private static module com.greetings {\n" +
+					"	requires org.astro;\n" +
+					"	exports com.greetings;\n" +
+					"	provides World with com.greetings.MyWorld;\n" +
+					"}",
+					"src/com/greetings/MyWorld.java",
+					"package com.greetings;\n" +
+					"import org.astro.World;\n"	+
+					"public class MyWorld implements World {\n" +
+					"	public String name() {\n" +
+					"		return \" My World!!\";\n" +
+					"	}\n" +
+					"}"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", 
+					"Illegal modifier for module com.greetings; only open is permitted", markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("com.greetings");
+		}
+	}
+	public void test_annotations_with_target() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] { 
+					"src/module-info.java",
+					"module org.astro {\n" +
+					"	exports org.astro;\n" +
+					"}",
+					"src/org/astro/World.java",
+					"package org.astro;\n" +
+					"public interface World {\n" +
+					"	public String name();\n" +
+					"}",
+					"src/org/astro/Foo.java",
+					"package org.astro;\n" +
+					"import java.lang.annotation.ElementType;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"@Target(ElementType.MODULE)\n" +
+					"public @interface Foo {}" 
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", sources);
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			String[] src = new String[] { 
+					"src/module-info.java",
+					"import org.astro.Foo;\n" +
+					"import org.astro.World;\n" +
+					"@Foo\n" +
+					"module com.greetings {\n" +
+					"	requires org.astro;\n" +
+					"	exports com.greetings;\n" +
+					"	provides World with com.greetings.MyWorld;\n" +
+					"}",
+					"src/com/greetings/MyWorld.java",
+					"package com.greetings;\n" +
+					"import org.astro.World;\n"	+
+					"public class MyWorld implements World {\n" +
+					"	public String name() {\n" +
+					"		return \" My World!!\";\n" +
+					"	}\n" +
+					"}"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("com.greetings");
+		}
+	}
+	public void test_annotations_with_wrong_target() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] { 
+					"src/module-info.java",
+					"module org.astro {\n" +
+					"	exports org.astro;\n" +
+					"}",
+					"src/org/astro/World.java",
+					"package org.astro;\n" +
+					"public interface World {\n" +
+					"	public String name();\n" +
+					"}",
+					"src/org/astro/Foo.java",
+					"package org.astro;\n" +
+					"import java.lang.annotation.ElementType;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"@Target({ElementType.TYPE_PARAMETER, ElementType.TYPE})\n" +
+					"public @interface Foo {}" 
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", sources);
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			String[] src = new String[] { 
+					"src/module-info.java",
+					"import org.astro.Foo;\n" +
+					"import org.astro.World;\n" +
+					"@Foo\n" +
+					"module com.greetings {\n" +
+					"	requires org.astro;\n" +
+					"	exports com.greetings;\n" +
+					"	provides World with com.greetings.MyWorld;\n" +
+					"}",
+					"src/com/greetings/MyWorld.java",
+					"package com.greetings;\n" +
+					"import org.astro.World;\n"	+
+					"public class MyWorld implements World {\n" +
+					"	public String name() {\n" +
+					"		return \" My World!!\";\n" +
+					"	}\n" +
+					"}"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", 
+					"The annotation @Foo is disallowed for this location", markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("com.greetings");
+		}
+	}
 	// sort by CHAR_START
 	protected void sortMarkers(IMarker[] markers) {
 		Arrays.sort(markers, (a,b) -> a.getAttribute(IMarker.CHAR_START, 0) - b.getAttribute(IMarker.CHAR_START, 0)); 

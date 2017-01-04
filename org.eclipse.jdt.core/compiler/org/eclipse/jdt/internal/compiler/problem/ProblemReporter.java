@@ -2778,6 +2778,15 @@ public void illegalModifierForClass(SourceTypeBinding type) {
 		type.sourceStart(),
 		type.sourceEnd());
 }
+public void illegalModifierForModule(ModuleDeclaration module) {
+	String[] arguments = new String[] {new String(module.moduleName)};
+	this.handle(
+		IProblem.IllegalModifierForModule,
+		arguments,
+		arguments,
+		module.sourceStart(),
+		module.sourceEnd());
+}
 public void illegalModifierForEnum(SourceTypeBinding type) {
 	String[] arguments = new String[] {new String(type.sourceName())};
 	this.handle(

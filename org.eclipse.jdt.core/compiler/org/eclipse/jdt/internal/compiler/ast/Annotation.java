@@ -4,6 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -286,6 +290,8 @@ public abstract class Annotation extends Expression {
 			case 'M' :
 				if (CharOperation.equals(elementName, TypeConstants.UPPER_METHOD))
 					return TagBits.AnnotationForMethod;
+				else if (CharOperation.equals(elementName, TypeConstants.UPPER_MODULE))
+					return TagBits.AnnotationForModule;
 				break;
 			case 'P' :
 				if (CharOperation.equals(elementName, TypeConstants.UPPER_PARAMETER))
@@ -634,6 +640,7 @@ public abstract class Annotation extends Expression {
 			builder.check(TagBits.AnnotationForPackage, TypeConstants.UPPER_PACKAGE);
 			builder.check(TagBits.AnnotationForTypeParameter, TypeConstants.TYPE_PARAMETER_TARGET);
 			builder.check(TagBits.AnnotationForTypeUse, TypeConstants.TYPE_USE_TARGET);
+			builder.check(TagBits.AnnotationForModule, TypeConstants.UPPER_MODULE);
 			if (builder.hasError()) {
 				repeatableAnnotationType.tagAsHavingDefectiveContainerType();
 				scope.problemReporter().repeatableAnnotationTypeTargetMismatch(culpritNode, repeatableAnnotationType, containerType, builder.toString());
@@ -1064,6 +1071,13 @@ public abstract class Annotation extends Expression {
 				}
 				break;
 			case Binding.TYPE :
+				if (((ReferenceBinding)recipient).isModule()) {
+					if ((metaTagBits & (TagBits.AnnotationForModule)) != 0) {
+						return AnnotationTargetAllowed.YES;
+					}
+					break;
+				}
+				//$FALL-THROUGH$
 			case Binding.GENERIC_TYPE :
 				if (((ReferenceBinding)recipient).isAnnotationType()) {
 					if ((metaTagBits & (TagBits.AnnotationForAnnotationType | TagBits.AnnotationForType | TagBits.AnnotationForTypeUse)) != 0)
@@ -1150,6 +1164,8 @@ public abstract class Annotation extends Expression {
 		long metaTagBits = annotationType.getAnnotationTagBits(); // could be forward reference
 		if ((metaTagBits & TagBits.AnnotationTargetMASK) == 0) {
 			// does not specify any target restriction - all locations supported in Java 7 and before are possible
+			// TBD - revisit for modules - as per 9.6.4.1, annotation without target is applicable for module declaration
+			// which is listed as a declaration context, but javac does not allow this
 			if (kind == Binding.TYPE_PARAMETER || kind == Binding.TYPE_USE) {
 				scope.problemReporter().explitAnnotationTargetRequired(annotation);
 			}

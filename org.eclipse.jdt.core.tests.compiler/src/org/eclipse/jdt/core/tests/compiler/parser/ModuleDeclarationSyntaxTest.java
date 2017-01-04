@@ -491,4 +491,68 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		options.targetJDK = ClassFileConstants.JDK9;
 		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
 	}
+	public void test0025() throws IOException {
+		String source = 
+				"@Foo\n" +
+				"module org.astro {\n" +
+				"    exports org.astro to com.greetings, com.example1, com.example2;\n" +
+				"    opens org.astro to com.greetings, com.example1, com.example2;\n" +
+				"    opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
+				"}\n";
+		String expectedUnitToString = 
+				"@Foo\n" +
+				"module org.astro {\n" +
+				"  exports org.astro to com.greetings, com.example1, com.example2;\n" +
+				"  opens org.astro to com.greetings, com.example1, com.example2;\n" +
+				"  opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
+				"}\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK9;
+		options.sourceLevel = ClassFileConstants.JDK9;
+		options.targetJDK = ClassFileConstants.JDK9;
+		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
+	}
+	public void test0026() throws IOException {
+		String source = 
+				"@Foo\n" +
+				"open module org.astro {\n" +
+				"    exports org.astro to com.greetings, com.example1, com.example2;\n" +
+				"    opens org.astro to com.greetings, com.example1, com.example2;\n" +
+				"    opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
+				"}\n";
+		String expectedUnitToString = 
+				"@Foo\n" +
+				"open module org.astro {\n" +
+				"  exports org.astro to com.greetings, com.example1, com.example2;\n" +
+				"  opens org.astro to com.greetings, com.example1, com.example2;\n" +
+				"  opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
+				"}\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK9;
+		options.sourceLevel = ClassFileConstants.JDK9;
+		options.targetJDK = ClassFileConstants.JDK9;
+		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
+	}
+
+	public void test0027() throws IOException {
+		String source = 
+				"@Foo @Bar(x = 2) @Baz(\"true\")\n" +
+				"open module org.astro {\n" +
+				"    exports org.astro to com.greetings, com.example1, com.example2;\n" +
+				"    opens org.astro to com.greetings, com.example1, com.example2;\n" +
+				"    opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
+				"}\n";
+		String expectedUnitToString = 
+				"@Foo @Bar(x = 2) @Baz(\"true\")\n" +
+				"open module org.astro {\n" +
+				"  exports org.astro to com.greetings, com.example1, com.example2;\n" +
+				"  opens org.astro to com.greetings, com.example1, com.example2;\n" +
+				"  opens org.astro.galaxy to com.greetings, com.example1, com.example2;\n" +
+				"}\n";
+		CompilerOptions options = new CompilerOptions(getCompilerOptions());
+		options.complianceLevel = ClassFileConstants.JDK9;
+		options.sourceLevel = ClassFileConstants.JDK9;
+		options.targetJDK = ClassFileConstants.JDK9;
+		checkParse(CHECK_PARSER, source.toCharArray(), null, "module-info", expectedUnitToString, null, options);
+	}
 }

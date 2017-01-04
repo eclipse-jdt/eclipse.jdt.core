@@ -146,6 +146,8 @@ private static AnnotationBinding buildTargetAnnotation(long bits, LookupEnvironm
 		arraysize++;
 	if ((bits & TagBits.AnnotationForTypeParameter) != 0)
 		arraysize++;
+	if ((bits & TagBits.AnnotationForModule) != 0)
+		arraysize++;
 	
 	Object[] value = new Object[arraysize];
 	if (arraysize > 0) {

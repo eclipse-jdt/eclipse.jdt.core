@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 IBM Corporation and others.
+ * Copyright (c) 2015, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -142,6 +142,14 @@ public class ModuleDeclaration extends TypeDeclaration {
 
 	
 	public StringBuffer printHeader(int indent, StringBuffer output) {
+		if (this.annotations != null) {
+			for (int i = 0; i < this.annotations.length; i++) {
+				this.annotations[i].print(indent, output);
+				if (i != this.annotations.length - 1)
+					output.append(" "); //$NON-NLS-1$
+			}
+			output.append('\n');
+		}
 		if (isOpen()) {
 			output.append("open "); //$NON-NLS-1$
 		}

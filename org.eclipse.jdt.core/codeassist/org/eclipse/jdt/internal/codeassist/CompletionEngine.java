@@ -12675,6 +12675,11 @@ public final class CompletionEngine
 			if(target != 0 && (target & TagBits.AnnotationForPackage) == 0) {
 				return false;
 			}
+		} else if (this.targetedElement == TagBits.AnnotationForModule) {
+			long target = typeBinding.getAnnotationTagBits() & TagBits.AnnotationTargetMASK;
+			if(target != 0 && (target & TagBits.AnnotationForModule) == 0) {
+				return false;
+			}
 		} else if ((this.targetedElement & (TagBits.AnnotationForType | TagBits.AnnotationForTypeUse)) != 0) {
 			if (scope.parent != null &&
 					scope.parent.parent != null &&

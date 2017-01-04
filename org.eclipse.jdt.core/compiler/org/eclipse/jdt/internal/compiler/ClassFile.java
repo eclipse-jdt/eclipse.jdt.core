@@ -382,6 +382,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 					long targetMask;
 					if (typeDeclaration.isPackageInfo())
 						targetMask = TagBits.AnnotationForPackage;
+					else if (this.referenceBinding.isModule()) // TODO: add isModuleInfo() to TypeDeclaration
+						targetMask = TagBits.AnnotationForModule;
 					else if (this.referenceBinding.isAnnotationType())
 						targetMask = TagBits.AnnotationForType | TagBits.AnnotationForAnnotationType;
 					else

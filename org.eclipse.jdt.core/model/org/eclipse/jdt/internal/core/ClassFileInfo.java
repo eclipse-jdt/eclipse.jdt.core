@@ -159,6 +159,9 @@ private IMemberValuePair[] getTargetElementTypes(long tagBits) {
 	if ((tagBits & TagBits.AnnotationForTypeParameter) != 0) {
 		values.add(elementType + new String(TypeConstants.TYPE_PARAMETER_TARGET));
 	}
+	if ((tagBits & TagBits.AnnotationForModule) != 0) {
+		values.add(elementType + new String(TypeConstants.UPPER_MODULE));
+	}
 	final Object value;
 	if (values.size() == 0) {
 		if ((tagBits & TagBits.AnnotationTarget) != 0)

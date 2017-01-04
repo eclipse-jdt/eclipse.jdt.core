@@ -5818,6 +5818,14 @@ protected void consumeEmptyModuleStatementsOpt() {
 protected void consumeModuleStatements() {
 	concatNodeLists();
 }
+protected void consumeModuleModifiers() {
+	checkComment(); // might update modifiers with AccDeprecated
+	// Merge with other modifiers
+	this.intStack[this.intPtr -1] |= this.modifiers;
+	resetModifiers();
+	// Account for the possible presence of annotations as well
+	this.expressionLengthStack[this.expressionLengthPtr - 1] += this.expressionLengthStack[this.expressionLengthPtr--];
+}
 protected void consumeModuleHeader() {
 	// ModuleHeader ::= 'module' Name
 	
@@ -5842,6 +5850,21 @@ protected void consumeModuleHeader() {
 	typeDecl.modifiers = this.intStack[this.intPtr--];
 	if (typeDecl.modifiersSourceStart >= 0) {
 		typeDecl.declarationSourceStart = typeDecl.modifiersSourceStart;
+	}
+//	int otherModifiersStart = this.intStack[this.intPtr--];
+//	int otherModifiers = this.intStack[this.intPtr--];
+//	if (otherModifiersStart >= 0) {
+//		typeDecl.declarationSourceStart = typeDecl.modifiersSourceStart = otherModifiersStart;
+//	}
+	// Merge with other modifiers
+//	typeDecl.modifiers |= otherModifiers;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack,
+			(this.expressionPtr -= length) + 1,
+			typeDecl.annotations = new Annotation[length],
+			0,
+			length);
 	}
 	pushOnAstStack(typeDecl);
 
@@ -6556,16 +6579,12 @@ protected void consumeRule(int act) {
 		    consumeModuleDeclaration();  
 			break;
  
-    case 100 : if (DEBUG) { System.out.println("ModuleHeader ::= ModuleModifieropt module..."); }  //$NON-NLS-1$
+    case 100 : if (DEBUG) { System.out.println("ModuleHeader ::= Modifiersopt ModuleModifieropt module"); }  //$NON-NLS-1$
 		    consumeModuleHeader();  
 			break;
  
-    case 101 : if (DEBUG) { System.out.println("ModuleModifieropt ::="); }  //$NON-NLS-1$
-		    consumeDefaultModifiers();  
-			break;
- 
     case 102 : if (DEBUG) { System.out.println("ModuleModifieropt ::= ModuleModifier"); }  //$NON-NLS-1$
-		    consumeModifiers();  
+		    consumeModuleModifiers();  
 			break;
  
     case 105 : if (DEBUG) { System.out.println("ModuleStatementsOpt ::="); }  //$NON-NLS-1$
