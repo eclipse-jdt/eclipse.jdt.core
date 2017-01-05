@@ -29,6 +29,7 @@ public static Class[] getAllTestClasses() {
 		BTreeTests.class,
 		DatabaseTest.class,
 		FieldBackPointerTest.class,
+		FieldOneToOneTest.class,
 		IndexerTest.class,
 		InheritenceTests.class,
 		LargeBlockTest.class,
