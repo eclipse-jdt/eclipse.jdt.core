@@ -3332,7 +3332,7 @@ class ASTConverter {
 			for (TypeReference impl : impls) {
 				stmt.implementations().add(convertType(impl));
 			}
-			stmt.setSourceRange(pStmt.declarationSourceStart, pStmt.declarationEnd - pStmt.declarationSourceStart + 1);			
+			stmt.setSourceRange(pStmt.declarationSourceStart, pStmt.declarationSourceEnd - pStmt.declarationSourceStart + 1);			
 			tSet.add(stmt);
 		}
 		// The javadoc comment is now got from 	list store in compilation unit declaration
