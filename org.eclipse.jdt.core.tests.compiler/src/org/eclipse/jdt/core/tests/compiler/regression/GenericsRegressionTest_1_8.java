@@ -7590,4 +7590,40 @@ public void testBug508834_comment0() {
 			"true\n" +
 			"false");
 	}
+	public void testBug510004_a() {
+		runConformTest(
+			new String[] {
+				"BrokenTypeInference.java",
+				"import java.util.Optional;\n" + 
+				"import java.util.stream.Stream;\n" + 
+				"\n" + 
+				"public class BrokenTypeInference {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Optional.of(\"42,43\").map(s -> Stream.of(s.split(\",\")));\n" + 
+				"    }\n" + 
+				"}\n"
+			});
+	}
+	public void testBug510004_b() {
+		runConformTest(
+			new String[] {
+				"BrokenTypeInference.java",
+				"import java.util.List;\n" + 
+				"import java.util.Optional;\n" + 
+				"\n" + 
+				"public class BrokenTypeInference {\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        Optional.of(\"42,43\").map(s -> x(s.split(\",\")));\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private static <X> List<X> x(X ... xs) {\n" + 
+				"        return java.util.Collections.emptyList();\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private static <X> List<X> x(X x) {\n" + 
+				"        return java.util.Collections.emptyList();\n" + 
+				"    }\n" + 
+				"}\n"
+			});
+	}
 }
