@@ -94,24 +94,27 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			if (JavaIndex.isEnabled()) {
 				JavaIndex index = JavaIndex.getIndex();
 				try (IReader reader = index.getNd().acquireReadLock()) {
-					NdResourceFile resourceFile = index.getResourceFile(getPath().toString().toCharArray());
-					if (index.isUpToDate(resourceFile)) {
-						usedIndex = true;
-						long level = resourceFile.getJdkLevel();
-						String compliance = CompilerOptions.versionFromJdkLevel(level);
-						// Locate all the non-classfile entries
-						for (NdZipEntry next : resourceFile.getZipEntries()) {
-							String filename = next.getFileName().getString();
-							initRawPackageInfo(rawPackageInfo, filename, filename.endsWith("/"), compliance); //$NON-NLS-1$
-						}
-
-						// Locate all the classfile entries
-						for (NdBinding binding : resourceFile.getBindings()) {
-							if (binding instanceof NdType) {
-								NdType type = (NdType) binding;
-
-								String path = new String(type.getTypeId().getBinaryName()) + ".class"; //$NON-NLS-1$
-								initRawPackageInfo(rawPackageInfo, path, false, compliance); //$NON-NLS-1$
+					IPath resourcePath = JavaIndex.getLocationForElement(this); 
+					if (!resourcePath.isEmpty()) {
+						NdResourceFile resourceFile = index.getResourceFile(resourcePath.toString().toCharArray());
+						if (index.isUpToDate(resourceFile)) {
+							usedIndex = true;
+							long level = resourceFile.getJdkLevel();
+							String compliance = CompilerOptions.versionFromJdkLevel(level);
+							// Locate all the non-classfile entries
+							for (NdZipEntry next : resourceFile.getZipEntries()) {
+								String filename = next.getFileName().getString();
+								initRawPackageInfo(rawPackageInfo, filename, filename.endsWith("/"), compliance); //$NON-NLS-1$
+							}
+	
+							// Locate all the classfile entries
+							for (NdBinding binding : resourceFile.getBindings()) {
+								if (binding instanceof NdType) {
+									NdType type = (NdType) binding;
+	
+									String path = new String(type.getTypeId().getBinaryName()) + ".class"; //$NON-NLS-1$
+									initRawPackageInfo(rawPackageInfo, path, false, compliance);
+								}
 							}
 						}
 					}
