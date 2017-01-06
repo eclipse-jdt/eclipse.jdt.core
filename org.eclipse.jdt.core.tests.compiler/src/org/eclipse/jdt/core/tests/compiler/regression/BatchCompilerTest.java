@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11665,7 +11665,7 @@ public void test299(){
 		+ " -proceedOnError -err:+unused -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"1. INFO in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
 		"	@SuppressWarnings(\"unused\")\n" + 
 		"	                  ^^^^^^^^\n" + 
 		"At least one of the problems in category 'unused' is not analysed due to a compiler option being ignored\n" + 
@@ -11756,7 +11756,7 @@ public void test303(){
 		+ " -proceedOnError -warn:-suppress -err:+suppress,unused -warn:+suppress -d \"" + OUTPUT_DIR + "\"",
 		"",
 		"----------\n" + 
-		"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
+		"1. INFO in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 2)\n" + 
 		"	@SuppressWarnings(\"unused\")\n" + 
 		"	                  ^^^^^^^^\n" + 
 		"At least one of the problems in category 'unused' is not analysed due to a compiler option being ignored\n" + 

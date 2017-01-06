@@ -167,6 +167,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private static final String TIME = "time"; //$NON-NLS-1$
 		private static final String VALUE = "value"; //$NON-NLS-1$
 		private static final String WARNING = "WARNING"; //$NON-NLS-1$
+		private static final String INFO = "INFO"; //$NON-NLS-1$
+
 		public static final int XML = 1;
 		private static final String XML_DTD_DECLARATION = "<!DOCTYPE compiler PUBLIC \"-//Eclipse.org//DTD Eclipse JDT 3.2.004 Compiler//EN\" \"http://www.eclipse.org/jdt/core/compiler_32_004.dtd\">"; //$NON-NLS-1$
 		static {
@@ -586,26 +588,24 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			char[] originatingFileName = problem.getOriginatingFileName();
 			if (originatingFileName == null) {
 				// simplified message output
-				if (problem.isError()) {
-					printErr(this.main.bind(
-								"requestor.extraerror", //$NON-NLS-1$
+				String severity = problem.isError() ? "requestor.extraerror" //$NON-NLS-1$
+						: problem.isInfo() ? "requestor.extrainfo" : "requestor.extrawarning"; //$NON-NLS-1$ //$NON-NLS-2$
+				printErr(this.main.bind(
+								severity,
 								Integer.toString(globalErrorCount)));
-				} else {
-					// warning / mandatory warning / other
-					printErr(this.main.bind(
-							"requestor.extrawarning", //$NON-NLS-1$
-							Integer.toString(globalErrorCount)));
-				}
 				printErr(" "); //$NON-NLS-1$
 				this.printlnErr(problem.getMessage());
 			} else {
 				String fileName = new String(originatingFileName);
 				if ((this.tagBits & Logger.EMACS) != 0) {
+					String severity = problem.isError() ? "output.emacs.error" : //$NON-NLS-1$
+										problem.isInfo() ? "output.emacs.info" //$NON-NLS-1$
+													: "output.emacs.warning"; //$NON-NLS-1$
 					String result = fileName
 							+ ":" //$NON-NLS-1$
 							+ problem.getSourceLineNumber()
 							+ ": " //$NON-NLS-1$
-							+ (problem.isError() ? this.main.bind("output.emacs.error") : this.main.bind("output.emacs.warning")) //$NON-NLS-1$ //$NON-NLS-2$
+							+ this.main.bind(severity)
 							+ ": " //$NON-NLS-1$
 							+ problem.getMessage();
 					this.printlnErr(result);
@@ -615,15 +615,12 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					if (localErrorCount == 0) {
 						this.printlnErr("----------"); //$NON-NLS-1$
 					}
-					printErr(problem.isError() ?
-							this.main.bind(
-									"requestor.error", //$NON-NLS-1$
-									Integer.toString(globalErrorCount),
-									new String(fileName))
-									: this.main.bind(
-											"requestor.warning", //$NON-NLS-1$
-											Integer.toString(globalErrorCount),
-											new String(fileName)));
+					String severity = problem.isError() ? "requestor.error" //$NON-NLS-1$
+							: problem.isInfo() ? "requestor.info" : "requestor.warning"; //$NON-NLS-1$ //$NON-NLS-2$
+					printErr(this.main.bind(
+								severity,
+								Integer.toString(globalErrorCount),
+								new String(fileName)));
 					final String errorReportSource = errorReportSource(problem, null, 0);
 					this.printlnErr(errorReportSource);
 					this.printlnErr(problem.getMessage());
@@ -775,11 +772,14 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		private void logProblem(CategorizedProblem problem, int localErrorCount,
 			int globalErrorCount, char[] unitSource) {
 			if ((this.tagBits & Logger.EMACS) != 0) {
+				String severity = problem.isError() ? "output.emacs.error" : //$NON-NLS-1$
+									problem.isInfo() ? "output.emacs.info" //$NON-NLS-1$
+											: "output.emacs.warning"; //$NON-NLS-1$
 				String result = (new String(problem.getOriginatingFileName())
 						+ ":" //$NON-NLS-1$
 						+ problem.getSourceLineNumber()
 						+ ": " //$NON-NLS-1$
-						+ (problem.isError() ? this.main.bind("output.emacs.error") : this.main.bind("output.emacs.warning")) //$NON-NLS-1$ //$NON-NLS-2$
+						+ (this.main.bind(severity))
 						+ ": " //$NON-NLS-1$
 						+ problem.getMessage());
 				this.printlnErr(result);
@@ -789,13 +789,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				if (localErrorCount == 0) {
 					this.printlnErr("----------"); //$NON-NLS-1$
 				}
-				printErr(problem.isError() ?
-						this.main.bind(
-								"requestor.error", //$NON-NLS-1$
-								Integer.toString(globalErrorCount),
-								new String(problem.getOriginatingFileName()))
-								: this.main.bind(
-										"requestor.warning", //$NON-NLS-1$
+				String severity = problem.isError() ? "requestor.error" : problem.isInfo() ? "requestor.info" : "requestor.warning";  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+				printErr(this.main.bind(severity,
 										Integer.toString(globalErrorCount),
 										new String(problem.getOriginatingFileName())));
 				try {
@@ -1048,7 +1043,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			final int sourceStart = problem.getSourceStart();
 			final int sourceEnd = problem.getSourceEnd();
 			boolean isError = problem.isError();
-			this.parameters.put(Logger.PROBLEM_SEVERITY, isError ? Logger.ERROR : Logger.WARNING);
+			this.parameters.put(Logger.PROBLEM_SEVERITY, isError ? Logger.ERROR : (problem.isInfo() ? Logger.INFO : Logger.WARNING));
 			this.parameters.put(Logger.PROBLEM_LINE, Integer.valueOf(problem.getSourceLineNumber()));
 			this.parameters.put(Logger.PROBLEM_SOURCE_START, Integer.valueOf(sourceStart));
 			this.parameters.put(Logger.PROBLEM_SOURCE_END, Integer.valueOf(sourceEnd));
@@ -1072,7 +1067,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			this.parameters.put(Logger.PROBLEM_ID, Integer.valueOf(id)); // ID as numeric value
 			boolean isError = problem.isError();
 			int severity = isError ? ProblemSeverities.Error : ProblemSeverities.Warning;
-			this.parameters.put(Logger.PROBLEM_SEVERITY, isError ? Logger.ERROR : Logger.WARNING);
+			this.parameters.put(Logger.PROBLEM_SEVERITY, isError ? Logger.ERROR : (problem.isInfo() ? Logger.INFO : Logger.WARNING));
 			this.parameters.put(Logger.PROBLEM_LINE, Integer.valueOf(problem.getSourceLineNumber()));
 			this.parameters.put(Logger.PROBLEM_SOURCE_START, Integer.valueOf(sourceStart));
 			this.parameters.put(Logger.PROBLEM_SOURCE_END, Integer.valueOf(sourceEnd));
