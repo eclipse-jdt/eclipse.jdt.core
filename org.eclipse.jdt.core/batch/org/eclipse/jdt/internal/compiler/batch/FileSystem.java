@@ -325,17 +325,23 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 			Classpath classpathEntry = this.classpaths[i];
 			if (classpathEntry.hasAnnotationFileFor(qualifiedTypeName)) {
 				// in case of 'this.annotationsFromClasspath' we indeed search for .eea entries inside the main zipFile of the entry:
-				@SuppressWarnings("resource")
 				ZipFile zip = classpathEntry instanceof ClasspathJar ? ((ClasspathJar) classpathEntry).zipFile : null;
+				boolean shouldClose = false; // don't close classpathEntry.zipFile, which we don't own
 				try {
 					if (zip == null) {
 						zip = ExternalAnnotationDecorator.getAnnotationZipFile(classpathEntry.getPath(), null);
+						shouldClose = true;
 					}
 					answer.setBinaryType(ExternalAnnotationDecorator.create(answer.getBinaryType(), classpathEntry.getPath(), 
 							qualifiedTypeName, zip));
 					break;
 				} catch (IOException e) {
 					// ignore broken entry, keep searching
+				} finally {
+					if (shouldClose && zip != null)
+						try {
+							zip.close();
+						} catch (IOException e) { /* nothing */ }
 				}
 			}
 		}

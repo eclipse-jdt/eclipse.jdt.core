@@ -43,6 +43,7 @@ public class NdResourceFile extends NdTreeNode {
 	public static final FieldOneToMany<NdWorkspaceLocation> WORKSPACE_MAPPINGS;
 	public static final FieldString JAVA_ROOT;
 	public static final FieldLong JDK_LEVEL;
+	public static final FieldOneToMany<NdZipEntry> ZIP_ENTRIES;
 
 	@SuppressWarnings("hiding")
 	public static final StructDef<NdResourceFile> type;
@@ -58,6 +59,7 @@ public class NdResourceFile extends NdTreeNode {
 		WORKSPACE_MAPPINGS = FieldOneToMany.create(type, NdWorkspaceLocation.RESOURCE);
 		JAVA_ROOT = type.addString();
 		JDK_LEVEL = type.addLong();
+		ZIP_ENTRIES = FieldOneToMany.create(type, NdZipEntry.JAR_FILE);
 		type.done();
 	}
 
@@ -69,6 +71,15 @@ public class NdResourceFile extends NdTreeNode {
 
 	public NdResourceFile(Nd nd) {
 		super(nd, null);
+	}
+
+	/**
+	 * Returns the set of all leaf zip entries that are not .class files. Does not include non-empty directories
+	 * or .class files, but will contain all other zip entries from the original jar file. Returns the empty list
+	 * for non-jar files.
+	 */
+	public List<NdZipEntry> getZipEntries() {
+		return ZIP_ENTRIES.asList(getNd(), getAddress());
 	}
 
 	public long getJdkLevel() {

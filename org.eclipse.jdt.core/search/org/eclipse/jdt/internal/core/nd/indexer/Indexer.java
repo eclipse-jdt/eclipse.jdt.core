@@ -73,6 +73,7 @@ import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.nd.java.NdType;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeId;
 import org.eclipse.jdt.internal.core.nd.java.NdWorkspaceLocation;
+import org.eclipse.jdt.internal.core.nd.java.NdZipEntry;
 import org.eclipse.jdt.internal.core.nd.java.TypeRef;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeDescriptor;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
@@ -681,13 +682,29 @@ public final class Indexer {
 				for (Enumeration<? extends ZipEntry> e = zipFile.entries(); e.hasMoreElements();) {
 					SubMonitor nextEntry = subMonitor.split(1).setWorkRemaining(2);
 					ZipEntry member = e.nextElement();
+					String fileName = member.getName();
+					boolean classFileName = org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(fileName);
+					if (member.isDirectory() || !classFileName) {
+						this.nd.acquireWriteLock(subMonitor.split(5));
+						try {
+							if (resourceFile.isInIndex()) {
+								if (DEBUG_INSERTIONS) {
+									Package.logInfo("Inserting non-class file " + fileName + " into " //$NON-NLS-1$//$NON-NLS-2$
+											+ resourceFile.getLocation().getString() + " " + resourceFile.address); //$NON-NLS-1$
+								}
+								new NdZipEntry(resourceFile, fileName);
+							}
+						} finally {
+							this.nd.releaseWriteLock();
+						}
+					}
 					if (member.isDirectory()) {
+						// Note that non-empty directories are stored implicitly (as the parent directory of a file
+						// or class within the jar). Empty directories are not currently stored in the index.
 						continue;
 					}
 					nextEntry.split(1);
-					String fileName = member.getName();
 
-					boolean classFileName = org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(fileName);
 					if (classFileName) {
 						String binaryName = fileName.substring(0,
 								fileName.length() - SuffixConstants.SUFFIX_STRING_class.length());
