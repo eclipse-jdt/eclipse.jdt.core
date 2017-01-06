@@ -10,8 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.indexer;
 
+import static org.eclipse.jdt.internal.compiler.util.Util.UTF_8;
+import static org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -693,6 +697,14 @@ public final class Indexer {
 											+ resourceFile.getLocation().getString() + " " + resourceFile.address); //$NON-NLS-1$
 								}
 								new NdZipEntry(resourceFile, fileName);
+
+								if (fileName.equals("META-INF/MANIFEST.MF")) { //$NON-NLS-1$
+									try (InputStream inputStream = zipFile.getInputStream(member)) {
+										char[] chars = getInputStreamAsCharArray(inputStream, -1, UTF_8);
+
+										resourceFile.setManifestContent(chars);
+									}
+								}
 							}
 						} finally {
 							this.nd.releaseWriteLock();

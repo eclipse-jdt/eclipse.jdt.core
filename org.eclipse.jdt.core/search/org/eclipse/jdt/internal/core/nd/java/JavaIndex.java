@@ -34,9 +34,9 @@ import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 
 public class JavaIndex {
 	// Version constants
-	static final int CURRENT_VERSION = Nd.version(1, 43);
-	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 43);
-	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 43);
+	static final int CURRENT_VERSION = Nd.version(1, 44);
+	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 44);
+	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 44);
 
 	// Fields for the search header
 	public static final FieldSearchIndex<NdResourceFile> FILES;

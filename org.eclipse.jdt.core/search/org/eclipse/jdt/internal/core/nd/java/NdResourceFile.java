@@ -44,6 +44,7 @@ public class NdResourceFile extends NdTreeNode {
 	public static final FieldString JAVA_ROOT;
 	public static final FieldLong JDK_LEVEL;
 	public static final FieldOneToMany<NdZipEntry> ZIP_ENTRIES;
+	public static final FieldString MANIFEST_CONTENT;
 
 	@SuppressWarnings("hiding")
 	public static final StructDef<NdResourceFile> type;
@@ -60,6 +61,8 @@ public class NdResourceFile extends NdTreeNode {
 		JAVA_ROOT = type.addString();
 		JDK_LEVEL = type.addLong();
 		ZIP_ENTRIES = FieldOneToMany.create(type, NdZipEntry.JAR_FILE);
+		MANIFEST_CONTENT = type.addString();
+
 		type.done();
 	}
 
@@ -80,6 +83,22 @@ public class NdResourceFile extends NdTreeNode {
 	 */
 	public List<NdZipEntry> getZipEntries() {
 		return ZIP_ENTRIES.asList(getNd(), getAddress());
+	}
+
+	/**
+	 * Returns the content of the JAR's MANIFEST.MF file, or null if either this isn't a .JAR file or it didn't contain
+	 * a MANIFEST.MF file.
+	 */
+	public IString getManifestContent() {
+		return MANIFEST_CONTENT.get(getNd(), getAddress());
+	}
+
+	/**
+	 * Stores the content of the JAR's MANIFEST.MF file. This should only be invoked on resources that correspond to JAR
+	 * files.
+	 */
+	public void setManifestContent(char[] newContent) {
+		MANIFEST_CONTENT.put(getNd(), getAddress(), newContent);
 	}
 
 	public long getJdkLevel() {
