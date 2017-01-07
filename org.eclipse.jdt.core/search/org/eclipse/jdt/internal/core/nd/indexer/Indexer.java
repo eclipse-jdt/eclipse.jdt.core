@@ -741,6 +741,14 @@ public final class Indexer {
 			} catch (ZipException e) {
 				Package.log("The zip file " + jarRoot.getPath() + " was corrupt", e);  //$NON-NLS-1$//$NON-NLS-2$
 				// Indicates a corrupt zip file. Treat this like an empty zip file.
+				this.nd.acquireWriteLock(null);
+				try {
+					if (resourceFile.isInIndex()) {
+						resourceFile.setFlags(NdResourceFile.FLG_CORRUPT_ZIP_FILE);
+					}
+				} finally {
+					this.nd.releaseWriteLock();
+				}
 			} catch (FileNotFoundException e) {
 				throw e;
 			} catch (IOException ioException) {

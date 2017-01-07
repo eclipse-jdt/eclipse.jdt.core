@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany.Visitor;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex.IResultRank;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchIndex.SearchCriteria;
 import org.eclipse.jdt.internal.core.nd.field.FieldSearchKey;
+import org.eclipse.jdt.internal.core.nd.field.FieldShort;
 import org.eclipse.jdt.internal.core.nd.field.FieldString;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
@@ -45,6 +46,12 @@ public class NdResourceFile extends NdTreeNode {
 	public static final FieldLong JDK_LEVEL;
 	public static final FieldOneToMany<NdZipEntry> ZIP_ENTRIES;
 	public static final FieldString MANIFEST_CONTENT;
+	public static final FieldShort FILE_FLAGS;
+
+	/**
+	 * Flag indicating that this is a corrupted zip file.
+	 */
+	public static final int FLG_CORRUPT_ZIP_FILE = 0x0001;
 
 	@SuppressWarnings("hiding")
 	public static final StructDef<NdResourceFile> type;
@@ -62,6 +69,7 @@ public class NdResourceFile extends NdTreeNode {
 		JDK_LEVEL = type.addLong();
 		ZIP_ENTRIES = FieldOneToMany.create(type, NdZipEntry.JAR_FILE);
 		MANIFEST_CONTENT = type.addString();
+		FILE_FLAGS = type.addShort();
 
 		type.done();
 	}
@@ -74,6 +82,24 @@ public class NdResourceFile extends NdTreeNode {
 
 	public NdResourceFile(Nd nd) {
 		super(nd, null);
+	}
+
+	public boolean isCorruptedZipFile() {
+		return hasAllFlags(FLG_CORRUPT_ZIP_FILE);
+	}
+
+	public int getFlags() {
+		return FILE_FLAGS.get(getNd(), this.address);
+	}
+
+	public boolean hasAllFlags(int flags) {
+		int ourFlags = getFlags();
+
+		return (ourFlags & flags) == flags;
+	}
+
+	public void setFlags(int flags) {
+		FILE_FLAGS.put(getNd(), this.address, (short) (getFlags() | flags));
 	}
 
 	/**
