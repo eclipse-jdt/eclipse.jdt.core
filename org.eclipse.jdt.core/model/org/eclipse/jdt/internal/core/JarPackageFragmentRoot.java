@@ -13,7 +13,6 @@ package org.eclipse.jdt.internal.core;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
@@ -22,7 +21,6 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -261,20 +259,6 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	}
 	public int hashCode() {
 		return this.jarPath.hashCode();
-	}
-	private void addPathsAndParentFoldersToPackageInfo(Set<IPath> alreadyScanned,
-			HashtableOfArrayToObject rawPackageInfo, String pathString, boolean isFolder, String compliance) {
-		IPath path = new Path(pathString);
-		while (path.segmentCount() > 0) {
-			if (alreadyScanned.contains(path)) {
-				break;
-			}
-
-			initRawPackageInfo(rawPackageInfo, path.toString(), false, compliance);
-			alreadyScanned.add(path);
-			path = path.removeLastSegments(1);
-			isFolder = true;
-		}
 	}
 	private void initRawPackageInfo(HashtableOfArrayToObject rawPackageInfo, String entryName, boolean isDirectory, String compliance) {
 		int lastSeparator = isDirectory ? entryName.length()-1 : entryName.lastIndexOf('/');
