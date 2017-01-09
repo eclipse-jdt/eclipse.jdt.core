@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -440,10 +440,13 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		return false;
 	}
 
-	/*
-	 * @see ASTVisitor#visit(CompilationUnit)
-	 */
+	@Override
 	public boolean visit(CompilationUnit node) {
+		ASTNode module= getChildNode(node, CompilationUnit.MODULE_PROPERTY);
+		if (module != null) {
+			module.accept(this);
+		}
+
 		ASTNode pack= getChildNode(node, CompilationUnit.PACKAGE_PROPERTY);
 		if (pack != null) {
 			pack.accept(this);
@@ -525,6 +528,19 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 * @see ASTVisitor#visit(EmptyStatement)
 	 */
 	public boolean visit(EmptyStatement node) {
+		this.result.append(';');
+		return false;
+	}
+
+	@Override
+	public boolean visit(ExportsStatement node) {
+		this.result.append("exports "); //$NON-NLS-1$
+		getChildNode(node, ExportsStatement.NAME_PROPERTY).accept(this);
+		List<Name> modules = node.modules();
+		if (modules.size() > 0) {
+			this.result.append(" to "); //$NON-NLS-1$
+			visitList(node, ExportsStatement.MODULES_PROPERTY, Util.COMMA_SEPARATOR, Util.EMPTY_STRING, Util.EMPTY_STRING);
+		}
 		this.result.append(';');
 		return false;
 	}
@@ -782,6 +798,21 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		return false;
 	}
 
+	@Override
+	public boolean visit(ModuleDeclaration node) {
+		ASTNode javadoc= getChildNode(node, ModuleDeclaration.JAVADOC_PROPERTY);
+		if (javadoc != null) {
+			javadoc.accept(this);
+		}
+		visitList(node, ModuleDeclaration.MODIFIERS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
+		this.result.append("module "); //$NON-NLS-1$
+		getChildNode(node, ModuleDeclaration.NAME_PROPERTY).accept(this);
+		this.result.append('{');
+		visitList(node, ModuleDeclaration.MODULE_STATEMENTS_PROPERTY, null);
+		this.result.append('}');
+		return false;
+	}
+
 	/*
 	 * @see ASTVisitor#visit(MethodInvocation)
 	 */
@@ -863,6 +894,16 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		return false;
 	}
 
+	@Override
+	public boolean visit(ProvidesStatement node) {
+		this.result.append("provides "); //$NON-NLS-1$
+		getChildNode(node, ProvidesStatement.TYPE_PROPERTY).accept(this);
+		this.result.append(" with "); //$NON-NLS-1$
+		visitList(node, ProvidesStatement.IMPLEMENTATIONS_PROPERTY, Util.EMPTY_STRING, Util.COMMA_SEPARATOR, Util.EMPTY_STRING);
+		this.result.append(';');
+		return false;
+	}
+
 	/*
 	 * @see ASTVisitor#visit(PrimitiveType)
 	 */
@@ -881,6 +922,15 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		getChildNode(node, QualifiedName.QUALIFIER_PROPERTY).accept(this);
 		this.result.append('.');
 		getChildNode(node, QualifiedName.NAME_PROPERTY).accept(this);
+		return false;
+	}
+
+	@Override
+	public boolean visit(RequiresStatement node) {
+		this.result.append("requires "); //$NON-NLS-1$
+		visitList(node, RequiresStatement.MODIFIERS_PROPERTY, Util.EMPTY_STRING, Util.EMPTY_STRING, String.valueOf(' '));
+		getChildNode(node, RequiresStatement.NAME_PROPERTY).accept(this);
+		this.result.append(';');
 		return false;
 	}
 
@@ -1161,6 +1211,14 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		return false;
 	}
 	
+	@Override
+	public boolean visit(UsesStatement node) {
+		this.result.append("uses "); //$NON-NLS-1$
+		getChildNode(node, UsesStatement.TYPE_PROPERTY).accept(this);
+		this.result.append(';');
+		return false;
+	}
+
 	/*
 	 * @see ASTVisitor#visit(VariableDeclarationExpression)
 	 */

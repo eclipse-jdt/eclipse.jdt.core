@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -97,6 +101,8 @@ public class Scanner implements TerminalTokens {
 	public int[] lineEnds = new int[250];
 	public int linePtr = -1;
 	public boolean wasAcr = false;
+
+	public boolean fakeInModule = false;
 
 	public static final String END_OF_SOURCE = "End_Of_Source"; //$NON-NLS-1$
 
@@ -2530,8 +2536,9 @@ final char[] optimizedCurrentTokenSource6() {
 	//newIdentCount++;
 	return table[this.newEntry6 = max] = r; //(r = new char[] {c0, c1, c2, c3, c4, c5});
 }
-private boolean isInModuleDeclaration() {
-	return this.activeParser != null ? this.activeParser.isParsingModuleDeclaration() : false;
+public boolean isInModuleDeclaration() {
+	return this.fakeInModule || 
+			(this.activeParser != null ? this.activeParser.isParsingModuleDeclaration() : false);
 }
 private void parseTags() {
 	int position = 0;

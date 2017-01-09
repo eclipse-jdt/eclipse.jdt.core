@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1330,19 +1330,22 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 	}
 
-	/*
-	 * Next token is a left brace. Returns the offset after the brace. For incomplete code, return the start offset.
-	 */
-	private int getPosAfterLeftBrace(int pos) {
+	private int getPosAfterToken(int pos, int token) {
 		try {
 			int nextToken= getScanner().readNext(pos, true);
-			if (nextToken == TerminalTokens.TokenNameLBRACE) {
+			if (nextToken == token) {
 				return getScanner().getCurrentEndOffset();
 			}
 		} catch (CoreException e) {
 			handleException(e);
 		}
 		return pos;
+	}
+	/*
+	 * Next token is a left brace. Returns the offset after the brace. For incomplete code, return the start offset.
+	 */
+	private int getPosAfterLeftBrace(int pos) {
+		return getPosAfterToken(pos, TerminalTokens.TokenNameLBRACE);
 	}
 
 	/*
@@ -1694,6 +1697,10 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 
+		if (node.getAST().apiLevel() >= JLS9_INTERNAL && node.getModule() != null) {
+			rewriteNode(node, CompilationUnit.MODULE_PROPERTY, 0, ASTRewriteFormatter.NONE);
+			return false;
+		}
 		int startPos= rewriteNode(node, CompilationUnit.PACKAGE_PROPERTY, 0, ASTRewriteFormatter.NONE);
 
 		if (getChangeKind(node, CompilationUnit.PACKAGE_PROPERTY) == RewriteEvent.INSERTED) {
@@ -2075,6 +2082,22 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return false;
 	}
 
+	@Override
+	public boolean visit(ModuleDeclaration node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		int pos= rewriteJavadoc(node, ModuleDeclaration.JAVADOC_PROPERTY);
+		pos= rewriteModifiers2(node, ModuleDeclaration.MODIFIERS_PROPERTY, pos);
+		pos= rewriteRequiredNode(node, ModuleDeclaration.NAME_PROPERTY);
+		int startPos = getPosAfterLeftBrace(pos);
+		int startIndent= getIndent(node.getStartPosition()) + 1;
+		this.tokenScanner.getScanner().fakeInModule = true;
+		rewriteParagraphList(node, ModuleDeclaration.MODULE_STATEMENTS_PROPERTY, startPos, startIndent, 0, 1);
+		this.tokenScanner.getScanner().fakeInModule = false;
+		return false;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(Block)
 	 */
@@ -2114,6 +2137,15 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return false;
 	}
 
+	@Override
+	public boolean visit(RequiresStatement node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		rewriteModifiers2(node, RequiresStatement.MODIFIERS_PROPERTY, getPosAfterToken(node.getStartPosition(), TerminalTokens.TokenNamerequires));
+		rewriteRequiredNode(node, RequiresStatement.NAME_PROPERTY);
+		return false;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(AnonymousClassDeclaration)
@@ -2652,6 +2684,16 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return false;
 	}
 
+	@Override
+	public boolean visit(ExportsStatement node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		int pos = rewriteRequiredNode(node, ExportsStatement.NAME_PROPERTY);
+		rewriteNodeList(node, ExportsStatement.MODULES_PROPERTY, pos, "to ", ", "); //$NON-NLS-1$ //$NON-NLS-2$ 
+
+		return false;
+	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(ExpressionStatement)
 	 */
@@ -3225,6 +3267,15 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return false;
 	}
 
+	@Override
+	public boolean visit(ProvidesStatement node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		int pos = rewriteRequiredNode(node, ProvidesStatement.TYPE_PROPERTY);
+		pos= rewriteNodeList(node, ProvidesStatement.IMPLEMENTATIONS_PROPERTY, pos, " with ", ", "); //$NON-NLS-1$ //$NON-NLS-2$
+		return false;
+	}
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(QualifiedName)
 	 */
@@ -3690,7 +3741,16 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		rewriteNodeList(node, UnionType.TYPES_PROPERTY, node.getStartPosition(), Util.EMPTY_STRING, " | "); //$NON-NLS-1$
 		return false;
 	}
-	
+
+	@Override
+	public boolean visit(UsesStatement node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		rewriteRequiredNode(node,UsesStatement.TYPE_PROPERTY);
+		return false;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(VariableDeclarationExpression)
 	 */
