@@ -2099,7 +2099,7 @@ public void test012b(){
 			"	<classpaths>NORMALIZED SECTION</classpaths>\n" + 
 			"	<sources>\n" + 
 			"		<source output=\"---OUTPUT_DIR_PLACEHOLDER---\" path=\"---OUTPUT_DIR_PLACEHOLDER---" + File.separator + "X.java\">\n" + 
-			"			<problems errors=\"1\" problems=\"1\" warnings=\"0\">\n" + 
+			"			<problems errors=\"1\" infos=\"0\" problems=\"1\" warnings=\"0\">\n" + 
 			"				<problem categoryID=\"40\" charEnd=\"28\" charStart=\"25\" id=\"UndefinedType\" line=\"3\" problemID=\"16777218\" severity=\"ERROR\">\n" + 
 			"					<message value=\"Zork cannot be resolved to a type\"/>\n" + 
 			"					<source_context sourceEnd=\"3\" sourceStart=\"0\" value=\"Zork z;\"/>\n" + 
@@ -2112,7 +2112,7 @@ public void test012b(){
 			"		</source>\n" + 
 			"	</sources>\n" + 
 			"	<stats>\n" + 
-			"		<problem_summary errors=\"1\" problems=\"1\" tasks=\"0\" warnings=\"0\"/>\n" + 
+			"		<problem_summary errors=\"1\" infos=\"0\" problems=\"1\" tasks=\"0\" warnings=\"0\"/>\n" + 
 			"	</stats>\n" + 
 			"</compiler>\n";
 		String normalizedExpectedLogContents =
@@ -11675,7 +11675,7 @@ public void test299(){
 		"	            ^\n" + 
 		"The value of the field X.i is not used\n" + 
 		"----------\n" + 
-		"2 problems (1 error, 1 warning)\n",
+		"2 problems (1 error, 0 warnings, 1 info)\n",
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
@@ -11766,7 +11766,7 @@ public void test303(){
 		"	            ^\n" + 
 		"The value of the field X.i is not used\n" + 
 		"----------\n" + 
-		"2 problems (1 error, 1 warning)\n",
+		"2 problems (1 error, 0 warnings, 1 info)\n",
 		true);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=295551
