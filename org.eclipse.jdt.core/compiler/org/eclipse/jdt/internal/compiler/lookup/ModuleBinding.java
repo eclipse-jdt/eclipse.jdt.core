@@ -188,7 +188,7 @@ public class ModuleBinding extends Binding {
 			}
 			Predicate<IPackageExport> isTargeted = IPackageExport::isQualified;
 			Predicate<IPackageExport> isExportedTo = e -> 
-				Stream.of(e.exportedTo()).map(ref -> this.environment.getModule(ref)).filter(m -> m != null).anyMatch(client::equals);
+				Stream.of(e.targets()).map(ref -> this.environment.getModule(ref)).filter(m -> m != null).anyMatch(client::equals);
 			
 			return Stream.of(this.exports).filter(e -> CharOperation.equals(pkg.readableName(), e.name()))
 					.anyMatch(isTargeted.negate().or(isExportedTo));
@@ -413,7 +413,7 @@ public class ModuleBinding extends Binding {
 				IPackageExport export = this.exports[i];
 				buffer.append("\n\t"); //$NON-NLS-1$
 				buffer.append(export.name());
-				char[][] targets = export.exportedTo();
+				char[][] targets = export.targets();
 				if (targets != null) {
 					buffer.append("to "); //$NON-NLS-1$
 					for (int j = 0; j < targets.length; j++) {

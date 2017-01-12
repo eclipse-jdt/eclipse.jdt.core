@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.jdt.core.IModuleDescription.IModuleReference;
+import org.eclipse.jdt.core.IModuleDescription.IOpenPackage;
 import org.eclipse.jdt.core.IModuleDescription.IPackageExport;
 import org.eclipse.jdt.core.IModuleDescription.IProvidedService;
 
@@ -169,6 +170,13 @@ public interface IJavaElement extends IAdaptable {
 	 *@since 3.13 BETA_JAVA9
 	 */
 	int SERVICE = 20;
+	/**
+	 * Constant represents packages opened to other modules. A Java element with this type
+	 * can be safely cast to {@link IOpenPackage}.
+	 *
+	 *@since 3.13 BETA_JAVA9
+	 */
+	int OPEN_PACKAGE = 21;
 
 	/**
 	 * Returns whether this Java element exists in the model.

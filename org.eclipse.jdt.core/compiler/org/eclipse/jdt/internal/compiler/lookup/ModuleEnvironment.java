@@ -68,6 +68,10 @@ public abstract class ModuleEnvironment implements IModuleAwareNameEnvironment {
 		public IService[] provides() {
 			return null;
 		}
+		@Override
+		public IPackageExport[] opens() {
+			return null;
+		}
 
 	};
 	public static final class AutoModule implements IModule {
@@ -98,6 +102,11 @@ public abstract class ModuleEnvironment implements IModuleAwareNameEnvironment {
 		@Override
 		public IService[] provides() {
 			return IModule.NO_PROVIDES;
+		}
+
+		@Override
+		public IPackageExport[] opens() {
+			return NO_OPENS;
 		}
 
 		public boolean isAutomatic() {
@@ -171,7 +180,7 @@ public abstract class ModuleEnvironment implements IModuleAwareNameEnvironment {
 		if (exports != null && exports.length > 0) {
 			for (IModule.IPackageExport iPackageExport : exports) {
 				if (CharOperation.equals(iPackageExport.name(), pack)) {
-					char[][] exportedTo = iPackageExport.exportedTo();
+					char[][] exportedTo = iPackageExport.targets();
 					if (exportedTo == null || exportedTo.length == 0) {
 						return true;
 					}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
+import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
@@ -43,6 +44,7 @@ import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.OpensStatement;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -737,7 +739,16 @@ private void fillModuleInfo(TypeDeclaration typeDeclaration, ISourceElementReque
 		ISourceElementRequestor.PackageExportInfo exps[] = new ISourceElementRequestor.PackageExportInfo[mod.exportsCount];
 		for (int i = 0; i < mod.exportsCount; i++) {
 			ISourceElementRequestor.PackageExportInfo exp = new ISourceElementRequestor.PackageExportInfo();
-			exp.pkgName = mod.exports[i].pkgName;
+			ExportsStatement exportsStatement = mod.exports[i];
+			exp.pkgName = exportsStatement.pkgName;
+			if (exportsStatement.targets == null) {
+				exp.targets = CharOperation.NO_CHAR_CHAR;
+			} else {
+				exp.targets = new char[exportsStatement.targets.length][];
+				for(int j = 0; j < exp.targets.length; j++) {
+					exp.targets[j] = CharOperation.concatWith(exportsStatement.targets[j].tokens, '.');
+				}
+			}
 			exps[i] = exp;
 		}					
 		modInfo.exports = exps;
@@ -761,6 +772,24 @@ private void fillModuleInfo(TypeDeclaration typeDeclaration, ISourceElementReque
 			uses[i] = CharOperation.concatWith(mod.uses[i].serviceInterface.getParameterizedTypeName(), '.');
 		}
 		modInfo.usedServices = uses;
+	}
+	if (mod.opensCount > 0) {
+		ISourceElementRequestor.PackageExportInfo opens[] = new ISourceElementRequestor.PackageExportInfo[mod.opensCount];
+		for (int i = 0; i < mod.opensCount; i++) {
+			ISourceElementRequestor.PackageExportInfo op = new ISourceElementRequestor.PackageExportInfo();
+			OpensStatement openStmt = mod.opens[i];
+			op.pkgName = openStmt.pkgName;
+			if (openStmt.targets == null) {
+				op.targets = CharOperation.NO_CHAR_CHAR;
+			} else {
+				op.targets = new char[openStmt.targets.length][];
+				for(int j = 0; j < op.targets.length; j++) {
+					op.targets[j] = CharOperation.concatWith(openStmt.targets[j].tokens, '.');
+				}
+			}
+			opens[i] = op;
+		}
+		modInfo.opens = opens;
 	}
 }
 /*

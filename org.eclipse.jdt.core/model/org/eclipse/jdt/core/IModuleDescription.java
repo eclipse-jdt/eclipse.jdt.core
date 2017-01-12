@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation.
+ * Copyright (c) 2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -68,6 +68,10 @@ public interface IModuleDescription extends IMember {
 	 * @return the services used by this module.
 	 */
 	public String[] getUsedServices() throws JavaModelException;
+	/**
+	 * 
+	 */
+	public IOpenPackage[] getOpenedPackages() throws JavaModelException;
 
 	/**
 	 * Represents a <code>exports</code> statement in a Java module description.
@@ -131,5 +135,11 @@ public interface IModuleDescription extends IMember {
 		 * @return the name of the implementation
 		 */
 		public String[] getImplementationNames();
+	}
+	/**
+	 * 
+	 */
+	public interface IOpenPackage extends IPackageExport {
+		// Essentially same as IPackageExport
 	}
 }

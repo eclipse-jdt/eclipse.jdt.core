@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
+import org.eclipse.jdt.internal.compiler.ast.OpensStatement;
 import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
 import org.eclipse.jdt.internal.compiler.ast.ProvidesStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -78,6 +79,18 @@ public class BasicModule implements IModule {
 		}
 		return ser;
 	}
+	private static PackageExportImpl createPackageOpen(OpensStatement ref) {
+		PackageExportImpl exp = new PackageExportImpl();
+		exp.pack = ref.pkgName;
+		ModuleReference[] imp = ref.targets;
+		if (imp != null) {
+			exp.exportedTo = new char[imp.length][];
+			for(int j = 0; j < imp.length; j++) {
+				exp.exportedTo = imp[j].tokens;
+			}
+		}
+		return exp;
+	}
 
 	boolean isAutomodule;
 	char[] name;
@@ -85,6 +98,7 @@ public class BasicModule implements IModule {
 	IModule.IPackageExport[] exports;
 	char[][] uses;
 	Service[] provides;
+	IModule.IPackageExport[] opens;
 	public BasicModule(ModuleDeclaration descriptor, IModulePathEntry root) {
 		this.name = descriptor.moduleName;
 		if (descriptor.requiresCount > 0) {
@@ -123,6 +137,16 @@ public class BasicModule implements IModule {
 				this.provides[i] = createService(services[i].serviceInterface, services[i].implementations);
 			}
 		}
+		if (descriptor.opensCount > 0) {
+			OpensStatement[] refs = descriptor.opens;
+			this.exports = new PackageExportImpl[refs.length];
+			for (int i = 0; i < refs.length; i++) {
+				PackageExportImpl exp = createPackageOpen(refs[i]);
+				this.exports[i] = exp;
+			}
+		} else {
+			this.exports = new PackageExportImpl[0];
+		}
 		this.isAutomodule = false; // Just to be explicit
 	}
 	public BasicModule(char[] name, boolean isAuto) {
@@ -149,7 +173,11 @@ public class BasicModule implements IModule {
 	}
 	@Override
 	public IService[] provides() {
-		return this.provides();
+		return this.provides;
+	}
+	@Override
+	public IModule.IPackageExport[] opens() {
+		return this.opens;
 	}
 	@Override
 	public boolean isAutomatic() {
@@ -176,7 +204,7 @@ public class BasicModule implements IModule {
 				.map(e -> {
 					PackageExportImpl exp = new PackageExportImpl();
 					exp.pack = ((PackageExportImpl )e).name();
-					exp.exportedTo = ((PackageExportImpl )e).exportedTo();
+					exp.exportedTo = ((PackageExportImpl )e).targets();
 					return exp;
 				}))
 			.collect(

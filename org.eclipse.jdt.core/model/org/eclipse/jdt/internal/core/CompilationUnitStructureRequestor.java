@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -541,7 +545,25 @@ private void acceptPackageExport(PackageExportInfo exportInfo, JavaElementInfo p
 
 	org.eclipse.jdt.internal.core.ModuleDescriptionInfo.PackageExportInfo info = new org.eclipse.jdt.internal.core.ModuleDescriptionInfo.PackageExportInfo();
 	info.pack = exportInfo.pkgName;
-	info.target = new char[][]{exportInfo.targetModule};
+	info.target = new char[exportInfo.targets.length][];
+	for(int i = 0; i < info.targets().length; i++) {
+		info.target[i] = exportInfo.targets[i]; // TODO: confirm if it is okay to use the array as is instead of making a copy.
+	}
+	this.newElements.put(handle, info);
+	addToChildren(parentInfo, handle);
+}
+private void acceptOpensPackage(PackageExportInfo opensInfo, JavaElementInfo parentInfo) {
+	JavaElement parentHandle = (JavaElement) this.handleStack.peek();
+	String pkgName = new String(opensInfo.pkgName);
+	OpenPackageStatement handle = new OpenPackageStatement(parentHandle, pkgName);
+	resolveDuplicates(handle); // TODO: really necessary?
+
+	org.eclipse.jdt.internal.core.ModuleDescriptionInfo.PackageExportInfo info = new org.eclipse.jdt.internal.core.ModuleDescriptionInfo.PackageExportInfo();
+	info.pack = opensInfo.pkgName;
+	info.target = new char[opensInfo.targets.length][];
+	for(int i = 0; i < info.targets().length; i++) {
+		info.target[i] = opensInfo.targets[i]; // TODO: confirm if it is okay to use the array as is instead of making a copy.
+	}
 	this.newElements.put(handle, info);
 	addToChildren(parentInfo, handle);
 }
@@ -595,6 +617,12 @@ private org.eclipse.jdt.internal.core.ModuleDescriptionInfo createModuleInfo(Mod
 			services[i] = modInfo.usedServices[i];
 		}
 		info.usedServices = services;
+	}
+	if (modInfo.opens != null) {
+		for (int i = 0, length = modInfo.opens.length; i < length; i++) {
+			PackageExportInfo expInfo = modInfo.opens[i];
+			acceptOpensPackage(expInfo, info);
+		}
 	}
 	return info;
 }

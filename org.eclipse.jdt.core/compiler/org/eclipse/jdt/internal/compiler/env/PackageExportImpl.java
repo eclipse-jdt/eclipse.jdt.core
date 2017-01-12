@@ -23,7 +23,7 @@ public class PackageExportImpl implements IModule.IPackageExport {
 	}
 
 	@Override
-	public char[][] exportedTo() {
+	public char[][] targets() {
 		return this.exportedTo;
 	}
 	public String toString() {

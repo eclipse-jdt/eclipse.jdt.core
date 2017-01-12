@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IModuleDescription.IModuleReference;
+import org.eclipse.jdt.core.IModuleDescription.IOpenPackage;
 import org.eclipse.jdt.core.IModuleDescription.IPackageExport;
 import org.eclipse.jdt.core.IModuleDescription.IProvidedService;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
@@ -333,6 +334,141 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 
 			IJavaElement[] elements = unit.codeSelect(start, "module".length());
 			assertEquals("Incorrect no of elements", 0, elements.length);
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
+	}
+	public void test011() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
+			project.open(null);
+				String fileContent =  "module my.mod{" +
+									"	provides a.b.C with a.b.CImpl, a.b.DImpl;\n" + 
+									"	opens a.b;" +
+									"}\n";
+				createFolder("/Java9Elements/src/a/b");
+				createFile("/Java9Elements/src/a/b/C.java",
+						"package a.b;\n" + 
+						"public interface C {}");
+				createFile("/Java9Elements/src/a/b/CImpl.java",
+						"package a.b;\n" + 
+						"public class CImpl implements C {}");
+				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
+
+				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+				IModuleDescription mod = unit.getModule();
+				assertNotNull("Module should not be null", mod);
+				IProvidedService[] services = mod.getProvidedServices();
+				assertNotNull("should not be null", services);
+				assertEquals("Incorrect no of services", 1, services.length);
+				assertEquals("incorrect service name", "a.b.C", services[0].getServiceName());
+				
+				String[] implementationNames = services[0].getImplementationNames();
+				assertNotNull("should not be null", implementationNames);
+				assertEquals("Incorrect no of implementations", 2, implementationNames.length);
+				assertEquals("incorrect service implementation name", "a.b.CImpl", implementationNames[0]);
+				assertEquals("incorrect service implementation name", "a.b.DImpl", implementationNames[1]);
+				IOpenPackage[] openedPackages = mod.getOpenedPackages();
+				assertNotNull("should not be null", openedPackages);
+				assertEquals("Incorrect no of open packages", 1, openedPackages.length);
+				assertEquals("incorrect package name", "a.b", openedPackages[0].getPackageName());
+				String[] targetModules = openedPackages[0].getTargetModules();
+				assertNotNull("should not be null", targetModules);
+				assertEquals("Incorrect no of open packages", 0, targetModules.length);
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
+	}
+	public void test012() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
+			project.open(null);
+				String fileContent =  "module my.mod{" +
+									"	provides a.b.C with a.b.CImpl, a.b.DImpl;\n" + 
+									"}\n";
+				createFolder("/Java9Elements/src/a/b");
+				createFile("/Java9Elements/src/a/b/C.java",
+						"package a.b;\n" + 
+						"public interface C {}");
+				createFile("/Java9Elements/src/a/b/CImpl.java",
+						"package a.b;\n" + 
+						"public class CImpl implements C {}");
+				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
+
+				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+				IModuleDescription mod = unit.getModule();
+				assertNotNull("Module should not be null", mod);
+				IProvidedService[] services = mod.getProvidedServices();
+				assertNotNull("should not be null", services);
+				assertEquals("Incorrect no of services", 1, services.length);
+				assertEquals("incorrect service name", "a.b.C", services[0].getServiceName());
+				
+				String[] implementationNames = services[0].getImplementationNames();
+				assertNotNull("should not be null", implementationNames);
+				assertEquals("Incorrect no of implementations", 2, implementationNames.length);
+				assertEquals("incorrect service implementation name", "a.b.CImpl", implementationNames[0]);
+				assertEquals("incorrect service implementation name", "a.b.DImpl", implementationNames[1]);
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
+	}
+	public void test013() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
+			project.open(null);
+				String fileContent =  "module my.mod{" +
+									"	opens a.b to java.base, java.sql;" +
+									"}\n";
+				createFolder("/Java9Elements/src/a/b");
+				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
+
+				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+				IModuleDescription mod = unit.getModule();
+				assertNotNull("Module should not be null", mod);
+				IProvidedService[] services = mod.getProvidedServices();
+				assertNotNull("should not be null", services);
+				assertEquals("Incorrect no of services", 0, services.length);
+				
+				IOpenPackage[] openedPackages = mod.getOpenedPackages();
+				assertNotNull("should not be null", openedPackages);
+				assertEquals("Incorrect no of open packages", 1, openedPackages.length);
+				assertEquals("incorrect package name", "a.b", openedPackages[0].getPackageName());
+				String[] targetModules = openedPackages[0].getTargetModules();
+				assertNotNull("should not be null", targetModules);
+				assertEquals("Incorrect no of open packages", 2, targetModules.length);
+				assertEquals("incorrect module name", "java.base", targetModules[0]);
+				assertEquals("incorrect module name", "java.sql", targetModules[1]);
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
+	}
+	public void test014() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
+			project.open(null);
+				String fileContent =  "module my.mod{" +
+									"	exports a.b to java.base, java.sql;" +
+									"}\n";
+				createFolder("/Java9Elements/src/a/b");
+				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
+
+				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+				IModuleDescription mod = unit.getModule();
+				assertNotNull("Module should not be null", mod);
+				
+				IPackageExport[] exported = mod.getExportedPackages();
+				assertNotNull("should not be null", exported);
+				assertEquals("Incorrect no of open packages", 1, exported.length);
+				assertEquals("incorrect package name", "a.b", exported[0].getPackageName());
+				String[] targetModules = exported[0].getTargetModules();
+				assertNotNull("should not be null", targetModules);
+				assertEquals("Incorrect no of open packages", 2, targetModules.length);
+				assertEquals("incorrect module name", "java.base", targetModules[0]);
+				assertEquals("incorrect module name", "java.sql", targetModules[1]);
 		}
 		finally {
 			deleteProject("Java9Elements");

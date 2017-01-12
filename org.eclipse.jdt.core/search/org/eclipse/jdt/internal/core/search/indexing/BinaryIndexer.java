@@ -851,7 +851,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 		if (exportedPackages != null) {
 			for (IPackageExport pack : exportedPackages) {
 				addModuleExportedPackages(pack.name());
-				char[][] tgtTokens = pack.exportedTo();
+				char[][] tgtTokens = pack.targets();
 				char[] tgt = tgtTokens != null ? CharOperation.concatWith(tgtTokens, '.') : CharOperation.NO_CHAR;
 				if (!tgt.equals(CharOperation.NO_CHAR)) addModuleExportedPackages(tgt);
 			}

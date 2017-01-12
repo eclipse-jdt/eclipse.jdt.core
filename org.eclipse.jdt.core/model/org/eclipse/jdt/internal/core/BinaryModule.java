@@ -56,6 +56,13 @@ public class BinaryModule extends BinaryMember implements IModuleDescription {
 		return CharOperation.toStrings(names);
 	}
 	@Override
+	public IOpenPackage[] getOpenedPackages() throws JavaModelException {
+		ArrayList list = getChildrenOfType(OPEN_PACKAGE);
+		IModuleDescription.IOpenPackage[] array= new IModuleDescription.IOpenPackage[list.size()];
+		list.toArray(array);
+		return array;
+	}
+	@Override
 	public int getFlags() throws JavaModelException {
 		ModuleDescriptionInfo info = (ModuleDescriptionInfo) getElementInfo();
 		return info.getModifiers();

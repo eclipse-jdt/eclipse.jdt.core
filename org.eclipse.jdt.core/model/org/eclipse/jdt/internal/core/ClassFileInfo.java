@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -260,7 +264,7 @@ private void generateModuleInfos(ClassFile classFile, ClassFileReader info, Hash
 		IPackageExport[] exportedPackages = modDecl.exports();
 		if (exportedPackages != null) {
 			for (IPackageExport iPackageExport : exportedPackages) {
-				generatePackageExportInfos(handle, newElements, iPackageExport.name(), iPackageExport.exportedTo(), childrenHandles);
+				generatePackageExportInfos(handle, newElements, iPackageExport.name(), iPackageExport.targets(), childrenHandles);
 			}
 		}
 		IModuleReference[] requiredModules = modDecl.requires();
@@ -276,6 +280,12 @@ private void generateModuleInfos(ClassFile classFile, ClassFileReader info, Hash
 			}
 		}
 		moduleInfo.usedServices = modDecl.uses();
+		IPackageExport[] opens = modDecl.opens();
+		if (opens != null) {
+			for (IPackageExport iPackageExport : exportedPackages) {
+				generatOpensInfos(handle, newElements, iPackageExport.name(), iPackageExport.targets(), childrenHandles);
+			}
+		}
 		setModule(handle);
 		newElements.put(handle, moduleInfo);
 	}
@@ -292,7 +302,7 @@ private void generateServiceInfos(BinaryModule parentHandle, HashMap newElements
 	while (newElements.containsKey(service))
 		service.occurrenceCount++;
 	newElements.put(service, info);
-} 
+}
 private void generateModuleRequirementInfos(BinaryModule parentHandle, HashMap newElements, char[] moduleName, int modifiers, ArrayList requiresHandles) {
 	ModuleRequirement requirement = new ModuleRequirement(parentHandle, new String(moduleName));
 	ModuleReferenceInfo info = new ModuleReferenceInfo();
@@ -310,6 +320,15 @@ private void generatePackageExportInfos(BinaryModule parentHandle, HashMap newEl
 	while (newElements.containsKey(exportStmt))
 		exportStmt.occurrenceCount++;
 	newElements.put(exportStmt, info);
+}
+private void generatOpensInfos(BinaryModule parentHandle, HashMap newElements, char[] pkgName, char[][] target, ArrayList requiresHandles) {
+	OpenPackageStatement openStmt = new OpenPackageStatement(parentHandle, new String(pkgName));
+	ModuleDescriptionInfo.PackageExportInfo info = new ModuleDescriptionInfo.PackageExportInfo();
+	info.pack = pkgName;
+	info.target = target;
+	while (newElements.containsKey(openStmt))
+		openStmt.occurrenceCount++;
+	newElements.put(openStmt, info);
 }
 /**
  * Creates the handles and infos for the methods of the given binary type.

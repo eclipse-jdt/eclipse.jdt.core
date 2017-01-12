@@ -72,6 +72,10 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 	public IService[] provides() {
 		return this.provides;
 	}
+	@Override
+	public IModule.IPackageExport[] opens() {
+		return this.opens;
+	}
 	public void addReads(char[] modName) {
 		Predicate<char[]> shouldAdd = m -> {
 			return Stream.of(this.requires).map(ref -> ref.name()).noneMatch(n -> CharOperation.equals(modName, n));
@@ -92,7 +96,7 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 				.map(e -> {
 					PackageExportInfo exp = new PackageExportInfo();
 					exp.packageName = e.name();
-					exp.exportedTo = e.exportedTo();
+					exp.exportedTo = e.targets();
 					return exp;
 				}))
 			.collect(
@@ -281,7 +285,7 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 		}
 
 		@Override
-		public char[][] exportedTo() {
+		public char[][] targets() {
 			return this.exportedTo;
 		}
 		public String toString() {

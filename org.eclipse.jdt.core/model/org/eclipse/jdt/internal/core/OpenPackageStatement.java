@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation.
+ * Copyright (c) 2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,10 +20,10 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.ModuleDescriptionInfo.PackageExportInfo;
 import org.eclipse.jdt.internal.core.util.Util;
 
-public class PackageExport extends SourceRefElement implements IModuleDescription.IPackageExport {
+public class OpenPackageStatement extends SourceRefElement implements IModuleDescription.IOpenPackage {
 
 	private String pack;
-	public PackageExport(JavaElement parent, String pack) {
+	public OpenPackageStatement(JavaElement parent, String pack) {
 		super(parent);
 		this.pack = pack;
 	}
@@ -51,7 +51,7 @@ public class PackageExport extends SourceRefElement implements IModuleDescriptio
 	}
 	@Override
 	public int getElementType() {
-		return PACKAGE_EXPORT;
+		return OPEN_PACKAGE;
 	}
 	public ISourceRange getNameRange() throws JavaModelException {
 		return null;
@@ -65,8 +65,8 @@ public class PackageExport extends SourceRefElement implements IModuleDescriptio
 		return Util.combineHashCodes(hash, this.pack.hashCode());
 	}
 	public boolean equals(Object o) {
-		if (!(o instanceof PackageExport)) 
+		if (!(o instanceof OpenPackageStatement)) 
 			return false;
-		return super.equals(o) && this.pack.equals(((PackageExport) o).pack);
+		return super.equals(o) && this.pack.equals(((OpenPackageStatement) o).pack);
 	}
 }

@@ -34,7 +34,7 @@ public class BasicModule implements IModule {
 		}
 
 		@Override
-		public char[][] exportedTo() {
+		public char[][] targets() {
 			return this.exportedTo;
 		}
 		public String toString() {
@@ -81,6 +81,7 @@ public class BasicModule implements IModule {
 	IModule.IPackageExport[] exports;
 	char[][] uses;
 	Service[] provides;
+	IModule.IPackageExport[] opens;
 	ClasspathLocation root;
 	boolean isAutomodule;
 	public BasicModule(char[] name, ClasspathLocation root, boolean isAutomodule) {
@@ -108,7 +109,11 @@ public class BasicModule implements IModule {
 	}
 	@Override
 	public IService[] provides() {
-		return this.provides();
+		return this.provides;
+	}
+	@Override
+	public IPackageExport[] opens() {
+		return this.opens;
 	}
 	@Override
 	public boolean isAutomatic() {
@@ -135,7 +140,7 @@ public class BasicModule implements IModule {
 				.map(e -> {
 					PackageExport exp = new PackageExport();
 					exp.pack = ((PackageExport )e).name();
-					exp.exportedTo = ((PackageExport )e).exportedTo();
+					exp.exportedTo = ((PackageExport )e).targets();
 					return exp;
 				}))
 			.collect(

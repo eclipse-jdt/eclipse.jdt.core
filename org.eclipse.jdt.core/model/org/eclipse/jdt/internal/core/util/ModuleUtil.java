@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation.
+ * Copyright (c) 2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -202,6 +202,8 @@ class LocalModuleImpl extends NamedMember implements IModuleDescription {
 	IModuleDescription.IPackageExport[] exports = null;
 	IModuleDescription.IModuleReference[] requires = null;
 	IModuleDescription.IProvidedService[] services = null;
+	IModuleDescription.IOpenPackage[] opened = null;
+
 	String[] used = null;
 	LocalModuleImpl(String name) {
 		super(null, name);
@@ -227,6 +229,10 @@ class LocalModuleImpl extends NamedMember implements IModuleDescription {
 	@Override
 	public String[] getUsedServices() {
 		return this.used;
+	}
+	@Override
+	public IOpenPackage[] getOpenedPackages() throws JavaModelException {
+		return this.opened;
 	}
 
 	public String toString(String lineDelimiter) {

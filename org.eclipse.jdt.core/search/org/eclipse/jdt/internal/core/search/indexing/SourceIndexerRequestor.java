@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -315,9 +315,9 @@ public void enterModule(ModuleInfo moduleInfo) {
 		for (ISourceElementRequestor.PackageExportInfo packInfo : moduleInfo.exports) {
 			if (packInfo == null || packInfo.pkgName == null || packInfo.pkgName.equals(CharOperation.NO_CHAR)) continue;
 			this.indexer.addModuleExportedPackages(packInfo.pkgName);
-			char[] tgt = packInfo.targetModule;
-			if (tgt != null && tgt == CharOperation.NO_CHAR) 
-				this.indexer.addModuleReference(tgt);
+			char[][] tgt = packInfo.targets;
+			if (tgt != null && tgt == CharOperation.NO_CHAR_CHAR) 
+				this.indexer.addModuleReference(CharOperation.concatWith(tgt, '.'));
 		}
 	}
 }

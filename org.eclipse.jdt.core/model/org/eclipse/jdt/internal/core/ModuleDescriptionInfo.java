@@ -20,18 +20,27 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
+import org.eclipse.jdt.internal.compiler.ast.OpensStatement;
+import org.eclipse.jdt.internal.compiler.ast.ProvidesStatement;
 import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.UsesStatement;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 
 public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 
 	protected static final char[][] NO_USES = new char[0][0];
+	protected static final ModuleReferenceInfo[] NO_REQUIRES = new ModuleReferenceInfo[0];
+	protected static final PackageExportInfo[] NO_EXPORTS = new PackageExportInfo[0];
+	protected static final ServiceInfo[] NO_PROVIDES = new ServiceInfo[0];
+	protected static final PackageExportInfo[] NO_OPENS = new PackageExportInfo[0];
 
 	protected IJavaElement[] children = JavaElement.NO_ELEMENTS;
 
 	ModuleReferenceInfo[] requires;
 	PackageExportInfo[] exports;
 	ServiceInfo[] services;
+	PackageExportInfo[] opens;
 	char[][] usedServices;
 	IModuleDescription handle;
 	char[] name;
@@ -51,10 +60,12 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 		char[][] target;
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();
-			
 			buffer.append(this.pack);
 			if (this.target != null) {
-				buffer.append(this.target);
+				buffer.append(" to "); //$NON-NLS-1$
+				for (char[] mod : this.target) {
+					buffer.append(mod);
+				}
 			}
 			buffer.append(';');
 			return buffer.toString();
@@ -66,10 +77,11 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 		}
 
 		@Override
-		public char[][] exportedTo() {
+		public char[][] targets() {
 			return this.target;
 		}
 	}
+
 	static class ServiceInfo extends MemberElementInfo implements IModule.IService {
 		char[] serviceName;
 		char[][] implNames;
@@ -83,7 +95,6 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 		}
 		public String toString() {
 			StringBuffer buffer = new StringBuffer();
-			buffer.append("provides "); //$NON-NLS-1$
 			buffer.append(this.serviceName);
 			buffer.append(" with "); //$NON-NLS-1$
 			for (int i = 0; i < this.implNames.length; i++) {
@@ -108,23 +119,50 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 				mod.requires[i].modifiers = refs[i].modifiers;
 			}
 		} else {
-			mod.requires = new ModuleReferenceInfo[0];
+			mod.requires = NO_REQUIRES;
 		}
 		if (module.exportsCount > 0) {
 			ExportsStatement[] refs = module.exports;
 			mod.exports = new PackageExportInfo[refs.length];
 			for (int i = 0; i < refs.length; i++) {
-				PackageExportInfo exp = createPackageExport(refs, i);
+				PackageExportInfo exp = createPackageExport(refs[i]);
 				mod.exports[i] = exp;
 			}
 		} else {
-			mod.exports = new PackageExportInfo[0];
+			mod.exports = NO_EXPORTS;
+		}
+		if (module.usesCount > 0) {
+			UsesStatement[] uses = module.uses;
+			mod.usedServices = new char[uses.length][];
+			for (int i = 0; i < uses.length; i++) {
+				mod.usedServices[i] = CharOperation.concatWith(uses[i].serviceInterface.getTypeName(), '.');
+			}
+		} else {
+			mod.usedServices = NO_USES;
+		}
+		if (module.servicesCount > 0) {
+			ProvidesStatement[] provides = module.services;
+			mod.services = new ServiceInfo[provides.length];
+			for (int i = 0; i < provides.length; i++) {
+				mod.services[i] = createService(provides[i]);
+			}
+		} else {
+			mod.services = NO_PROVIDES;
+		}
+		if (module.opensCount > 0) {
+			OpensStatement[] opens = module.opens;
+			mod.opens = new PackageExportInfo[opens.length];
+			for (int i = 0; i < opens.length; i++) {
+				PackageExportInfo op = createOpensInfo(opens[i]);
+				mod.opens[i] = op;
+			}
+		} else {
+			mod.opens = NO_OPENS;
 		}
 		return mod;
 	}
 
-	private static PackageExportInfo createPackageExport(ExportsStatement[] refs, int i) {
-		ExportsStatement ref = refs[i];
+	private static PackageExportInfo createPackageExport(ExportsStatement ref) {
 		PackageExportInfo exp = new PackageExportInfo();
 		exp.pack = ref.pkgName;
 		ModuleReference[] imp = ref.targets;
@@ -135,6 +173,29 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 			}
 		}
 		return exp;
+	}
+	private static PackageExportInfo createOpensInfo(OpensStatement opens) {
+		PackageExportInfo open = new PackageExportInfo();
+		open.pack = opens.pkgName;
+		ModuleReference[] imp = opens.targets;
+		if (imp != null) {
+			open.target = new char[imp.length][];
+			for(int j = 0; j < imp.length; j++) {
+				open.target[j] = imp[j].moduleName;
+			}
+		}
+		return open;
+	}
+
+	private static ServiceInfo createService(ProvidesStatement provides) {
+		ServiceInfo info = new ServiceInfo();
+		info.serviceName = CharOperation.concatWith(provides.serviceInterface.getTypeName(), '.');
+		TypeReference[] implementations = provides.implementations;
+		info.implNames = new char[implementations.length][];
+		for(int i = 0; i < implementations.length; i++) {
+			info.implNames[i] = CharOperation.concatWith(implementations[i].getTypeName(), '.');
+		}
+		return info;
 	}
 
 	protected void setHandle(IModuleDescription handle) {
@@ -169,6 +230,11 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 		return this.services;
 	}
 
+	@Override
+	public IPackageExport[] opens() {
+		return this.opens;
+	}
+
 	public String toString() {
 		StringBuffer buffer = new StringBuffer(getClass().getName());
 		toStringContent(buffer);
@@ -199,7 +265,27 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 				buffer.append(this.exports[i].toString()).append('\n');
 			}
 		}
-		//TODO add the rest of the stuff
+		if (this.usedServices != null && this.usedServices.length > 0) {
+			buffer.append('\n');
+			for(int i = 0; i < this.usedServices.length; i++) {
+				buffer.append("\tuses "); //$NON-NLS-1$
+				buffer.append(this.usedServices[i].toString()).append('\n');
+			}
+		}
+		if (this.services != null && this.services.length > 0) {
+			buffer.append('\n');
+			for(int i = 0; i < this.services.length; i++) {
+				buffer.append("\tprovides "); //$NON-NLS-1$
+				buffer.append(this.services[i].toString()).append('\n');
+			}
+		}
+		if (this.opens != null && this.opens.length > 0) {
+			buffer.append('\n');
+			for(int i = 0; i < this.opens.length; i++) {
+				buffer.append("\topens "); //$NON-NLS-1$
+				buffer.append(this.opens[i].toString()).append('\n');
+			}
+		}
 		buffer.append('\n').append('}').toString();
 	}
 }

@@ -60,6 +60,7 @@ public class ModuleInfo extends SourceTypeElementInfo implements IModule {
 	PackageExportImpl[] exports;
 	char[][] uses;
 	Service[] provides;
+	PackageExportImpl[] opens;
 
 	@Override
 	public char[] name() {
@@ -143,7 +144,10 @@ public class ModuleInfo extends SourceTypeElementInfo implements IModule {
 	}
 	@Override
 	public IService[] provides() {
-		return this.provides();
+		return this.provides;
+	}
+	public IPackageExport[] opens() {
+		return this.opens;
 	}
 	public String toString() {
 		StringBuffer buffer = new StringBuffer(getClass().getName());

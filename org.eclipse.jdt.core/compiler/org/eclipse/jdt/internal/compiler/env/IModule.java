@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ public interface IModule {
 	public static char[][] NO_USES = new char[0][];
 	public static IService[] NO_PROVIDES = new IService[0];
 	public static IModule[] NO_MODULES = new IModule[0];
+	public static IPackageExport[] NO_OPENS = new IPackageExport[0];
 
 	public char[] name();
 
@@ -33,6 +34,12 @@ public interface IModule {
 	public char[][] uses();
 
 	public IService[] provides();
+
+	/*
+	 * the opens package statement is very similar to package export statement, hence
+	 * the same internal models are being used here.
+	 */
+	public IPackageExport[] opens();
 
 	public interface IModuleReference {
 		public char[] name();
@@ -47,9 +54,9 @@ public interface IModule {
 
 	public interface IPackageExport {
 		public char[] name();
-		public char[][] exportedTo();
+		public char[][] targets();
 		public default boolean isQualified() {
-			char[][] targets = exportedTo();
+			char[][] targets = targets();
 			return targets != null && targets.length > 0;
 		}
 	}
