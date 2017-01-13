@@ -293,7 +293,16 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		}
 	}
 	protected void initRawPackageInfo(HashtableOfArrayToObject rawPackageInfo, String entryName, boolean isDirectory, String compliance) {
-		int lastSeparator = isDirectory ? entryName.length()-1 : entryName.lastIndexOf('/');
+		int lastSeparator;
+		if (isDirectory) {
+			if (entryName.charAt(entryName.length() - 1) == '/') {
+				lastSeparator = entryName.length() - 1;
+			} else {
+				lastSeparator = entryName.length();
+			}
+		} else {
+			lastSeparator = entryName.lastIndexOf('/');
+		}
 		String[] pkgName = Util.splitOn('/', entryName, 0, lastSeparator);
 		String[] existing = null;
 		int length = pkgName.length;
