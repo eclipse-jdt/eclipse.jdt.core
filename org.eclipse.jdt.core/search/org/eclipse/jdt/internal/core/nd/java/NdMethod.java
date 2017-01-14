@@ -40,7 +40,7 @@ public class NdMethod extends NdBinding {
 		type = StructDef.create(NdMethod.class, NdBinding.type);
 		METHOD_ID = FieldManyToOne.create(type, NdMethodId.METHODS);
 		METHOD_FLAGS = type.addShort();
-		PARENT = FieldManyToOne.create(type, NdType.METHODS);
+		PARENT = FieldManyToOne.createOwner(type, NdType.METHODS);
 		PARAMETERS = FieldOneToMany.create(type, NdMethodParameter.PARENT);
 		DECLARED_VARIABLES = FieldOneToMany.create(type, NdVariable.DECLARING_METHOD);
 		DEFAULT_VALUE = FieldOneToOne.create(type, NdConstant.class, NdConstant.PARENT_METHOD);
@@ -58,7 +58,7 @@ public class NdMethod extends NdBinding {
 	}
 
 	public NdMethod(NdType parent) {
-		super(parent.getNd(), parent.getFile());
+		super(parent.getNd());
 
 		PARENT.put(getNd(), this.address, parent);
 	}

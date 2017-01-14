@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
  */
 public class NdResourceFile extends NdTreeNode {
 	public static final FieldSearchKey<JavaIndex> FILENAME;
-	public static final FieldOneToMany<NdBinding> ALL_NODES;
+	public static final FieldOneToMany<NdType> TYPES;
 	public static final FieldLong TIME_LAST_USED;
 	public static final FieldLong TIME_LAST_SCANNED;
 	public static final FieldLong SIZE_LAST_SCANNED;
@@ -59,7 +59,7 @@ public class NdResourceFile extends NdTreeNode {
 	static {
 		type = StructDef.create(NdResourceFile.class, NdTreeNode.type);
 		FILENAME = FieldSearchKey.create(type, JavaIndex.FILES);
-		ALL_NODES = FieldOneToMany.create(type, NdBinding.FILE, 16);
+		TYPES = FieldOneToMany.create(type, NdType.FILE, 16);
 		TIME_LAST_USED = type.addLong();
 		TIME_LAST_SCANNED = type.addLong();
 		SIZE_LAST_SCANNED = type.addLong();
@@ -309,16 +309,16 @@ public class NdResourceFile extends NdTreeNode {
 		TIME_LAST_SCANNED.put(getNd(), this.address, 0);
 	}
 
-	public int getBindingCount() {
-		return ALL_NODES.size(getNd(), this.address);
+	public int getTypeCount() {
+		return TYPES.size(getNd(), this.address);
 	}
 
-	public List<NdBinding> getBindings() {
-		return ALL_NODES.asList(getNd(), this.address);
+	public List<NdType> getTypes() {
+		return TYPES.asList(getNd(), this.address);
 	}
 
-	public NdBinding getBinding(int index) {
-		return ALL_NODES.get(getNd(), this.address, index);
+	public NdType getType(int index) {
+		return TYPES.get(getNd(), this.address, index);
 	}
 
 	public String toString() {

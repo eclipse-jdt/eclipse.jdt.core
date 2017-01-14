@@ -72,7 +72,6 @@ import org.eclipse.jdt.internal.core.nd.java.FileFingerprint;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint.FingerprintTestResult;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.nd.java.JavaNames;
-import org.eclipse.jdt.internal.core.nd.java.NdBinding;
 import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.nd.java.NdType;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeId;
@@ -475,19 +474,16 @@ public final class Indexer {
 					break;
 				}
 		
-				int numChildren = toDelete.getBindingCount();
+				int numChildren = toDelete.getTypeCount();
 				deletionMonitor.setWorkRemaining(numChildren + 1);
 				if (numChildren == 0) {
 					break;
 				}
 
-				NdBinding nextDeletion = toDelete.getBinding(numChildren - 1);
+				NdType nextDeletion = toDelete.getType(numChildren - 1);
 				if (DEBUG_INSERTIONS) {
-					if (nextDeletion instanceof NdType) {
-						NdType type = (NdType)nextDeletion;
-						Package.logInfo("Deleting " + type.getTypeId().getFieldDescriptor().getString() + " from "  //$NON-NLS-1$//$NON-NLS-2$
-								+ new String(toDelete.getLocation().getString()) + " " + toDelete.address); //$NON-NLS-1$
-					}
+					Package.logInfo("Deleting " + nextDeletion.getTypeId().getFieldDescriptor().getString() + " from "  //$NON-NLS-1$//$NON-NLS-2$
+							+ new String(toDelete.getLocation().getString()) + " " + toDelete.address); //$NON-NLS-1$
 				}
 				nextDeletion.delete();
 			} finally {

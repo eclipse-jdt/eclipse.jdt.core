@@ -29,7 +29,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
-import org.eclipse.jdt.internal.core.nd.java.NdBinding;
 import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.nd.java.NdType;
 import org.eclipse.jdt.internal.core.nd.java.NdZipEntry;
@@ -106,13 +105,9 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 							}
 	
 							// Locate all the classfile entries
-							for (NdBinding binding : resourceFile.getBindings()) {
-								if (binding instanceof NdType) {
-									NdType type = (NdType) binding;
-	
-									String path = new String(type.getTypeId().getBinaryName()) + ".class"; //$NON-NLS-1$
-									initRawPackageInfo(rawPackageInfo, path, false, compliance);
-								}
+							for (NdType type : resourceFile.getTypes()) {	
+								String path = new String(type.getTypeId().getBinaryName()) + ".class"; //$NON-NLS-1$
+								initRawPackageInfo(rawPackageInfo, path, false, compliance);
 							}
 						}
 					}
