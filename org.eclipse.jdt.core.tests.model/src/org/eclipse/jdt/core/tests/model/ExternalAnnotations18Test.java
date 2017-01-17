@@ -59,6 +59,7 @@ import org.eclipse.jdt.core.util.ExternalAnnotationUtil;
 import org.eclipse.jdt.core.util.ExternalAnnotationUtil.MergeStrategy;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.core.ClasspathAttribute;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.osgi.framework.Bundle;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -69,6 +70,9 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 
 		/** Use this container name in test projects. */
 		private static final String TEST_CONTAINER_NAME = "org.eclipse.jdt.core.tests.model.TEST_CONTAINER";
+		
+		/** Simulate workspace-settings for rt.jar. */
+		public static String RT_JAR_ANNOTATION_PATH = null;
 		
 		static class TestContainer implements IClasspathContainer {
 			IPath path;
@@ -86,8 +90,15 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 			String[] jars = Util.getJavaClassLibs();
 			IClasspathEntry[] entries = new IClasspathEntry[jars.length];
-			for (int i = 0; i < jars.length; i++)
-				entries[i] = JavaCore.newLibraryEntry(new Path(jars[i]), null, null);
+			for (int i = 0; i < jars.length; i++) {
+				IClasspathAttribute[] extraAttributes;
+				if (RT_JAR_ANNOTATION_PATH != null && jars[i].endsWith("rt.jar"))
+					extraAttributes = externalAnnotationExtraAttributes(RT_JAR_ANNOTATION_PATH);
+				else
+					extraAttributes = ClasspathEntry.NO_EXTRA_ATTRIBUTES;
+				entries[i] = JavaCore.newLibraryEntry(new Path(jars[i]), null, null,
+						ClasspathEntry.NO_ACCESS_RULES, extraAttributes, false/*not exported*/);
+			}
 			JavaCore.setClasspathContainer(
 					new Path(TEST_CONTAINER_NAME),
 					new IJavaProject[]{ project },
@@ -97,6 +108,12 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		public boolean allowFailureContainer() {
 			return false;
 		}
+	}
+
+	static IClasspathAttribute[] externalAnnotationExtraAttributes(String path) {
+		return new IClasspathAttribute[] {
+				new ClasspathAttribute(IClasspathAttribute.EXTERNAL_ANNOTATION_PATH, path)	
+		};
 	}
 	
 	static class LogListener implements ILogListener {
@@ -240,13 +257,12 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	{
 		createLibrary(javaProject, jarName, "src.zip", pathAndContents, null, this.compliance, options);
 		String jarPath = '/' + javaProject.getProject().getName() + '/' + jarName;
-		IClasspathAttribute[] extraAttributes = new IClasspathAttribute[] { new ClasspathAttribute(IClasspathAttribute.EXTERNAL_ANNOTATION_PATH, externalAnnotationPath) };
 		IClasspathEntry entry = JavaCore.newLibraryEntry(
 				new Path(jarPath),
 				new Path('/'+javaProject.getProject().getName()+"/src.zip"),
 				null/*src attach root*/,
 				null/*access rules*/,
-				extraAttributes,
+				externalAnnotationExtraAttributes(externalAnnotationPath),
 				false/*exported*/);
 		addClasspathEntry(this.project, entry);
 	}
@@ -257,12 +273,11 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			String externalAnnotationPath,
 			Map options) throws CoreException, IOException
 	{
-		IClasspathAttribute[] extraAttributes = new IClasspathAttribute[] { new ClasspathAttribute(IClasspathAttribute.EXTERNAL_ANNOTATION_PATH, externalAnnotationPath) };
 		IClasspathEntry entry = JavaCore.newProjectEntry(
 				new Path(referencedProjectName),
 				null/*access rules*/,
 				false/*combine access rules*/,
-				extraAttributes,
+				externalAnnotationExtraAttributes(externalAnnotationPath),
 				false/*exported*/);
 		addClasspathEntry(this.project, entry);
 	}
@@ -1875,5 +1890,68 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		assertProblems(problems, new String[] {
 				"Pb(910) Null type mismatch: required '@NonNull Object' but the provided value is null"
 			}, new int[] { 6 });
+	}
+	
+	/** assert that per-workspace configuration re rt.jar is overridden by per-project configuration for JRE container. */
+	public void testBug465296() throws Exception {
+		// library type used: j.u.Map (no need for JRE8)
+		Hashtable options = JavaCore.getOptions();
+		TestContainerInitializer.RT_JAR_ANNOTATION_PATH = "/MissingPrj/missing";
+		try {
+			setupJavaProject("Test2");
+			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+			assertNoMarkers(markers);
+		} finally {
+			// project using a full JRE container initializes global options to 1.8 -- must reset now:
+			JavaCore.setOptions(options);
+			TestContainerInitializer.RT_JAR_ANNOTATION_PATH = null;
+		}
+	}
+
+	/**
+	 * Assert that external annotations configured for project A's library are considered also while compiling dependent project B.
+	 * Full build.
+	 */
+	public void testBug509715fullBuild() throws Exception {
+		try {
+			setupJavaProject("Bug509715ProjA");
+			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+	
+			setupJavaProject("Bug509715ProjB");
+			// local eea should not shadow those configured in ProjA:
+			addProjectDependencyWithExternalAnnotations(this.project, "/Bug509715ProjA", "/Bug509715ProjB/eea", null);
+			
+			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+			assertNoMarkers(markers);
+		} finally {
+			deleteProject("Bug509715ProjA");
+			deleteProject("Bug509715ProjB");
+		}
+	}
+
+	/**
+	 * Assert that external annotations configured for project A's library are considered also while compiling dependent project B. 
+	 * Reconcile.
+	 */
+	public void testBug509715reconcile() throws Exception {
+		try {
+			setupJavaProject("Bug509715ProjA");
+			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+	
+			setupJavaProject("Bug509715ProjB");
+			// local eea should not shadow those configured in ProjA:
+			addProjectDependencyWithExternalAnnotations(this.project, "/Bug509715ProjA", "/Bug509715ProjB/eea", null);
+
+			IPackageFragment fragment = this.root.getPackageFragment("b");
+			ICompilationUnit unit = fragment.getCompilationUnit("User.java").getWorkingCopy(new NullProgressMonitor());
+			CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+			IProblem[] problems = reconciled.getProblems();
+			assertNoProblems(problems);
+		} finally {
+			deleteProject("Bug509715ProjA");
+			deleteProject("Bug509715ProjB");
+		}
 	}
 }

@@ -1,0 +1,4 @@
+class castle/extdata/autosar/v403/org/autosar/schema/r4/IDENTIFIER
+getValue
+ ()Ljava/lang/String;
+ ()L1java/lang/String;

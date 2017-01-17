@@ -354,8 +354,15 @@ public class ClasspathEntry implements IClasspathEntry {
 			int lenRefer = referringExtraAttributes.length;
 			if (lenRefer > 0) {
 				int lenEntry = combinedAttributes.length;
-				System.arraycopy(combinedAttributes, 0, combinedAttributes=new IClasspathAttribute[lenEntry+lenRefer], lenRefer, lenEntry);
-				System.arraycopy(referringExtraAttributes, 0, combinedAttributes, 0, lenRefer);
+				if (referringEntry.path.isPrefixOf(this.path)) {
+					// consider prefix location as less specific, put to back (e.g.: referring to a library via a project):
+					System.arraycopy(combinedAttributes, 0, combinedAttributes=new IClasspathAttribute[lenEntry+lenRefer], 0, lenEntry);
+					System.arraycopy(referringExtraAttributes, 0, combinedAttributes, lenEntry, lenRefer);
+				} else {
+					// otherwise consider the referring entry as more specific than the referee:
+					System.arraycopy(combinedAttributes, 0, combinedAttributes=new IClasspathAttribute[lenEntry+lenRefer], lenRefer, lenEntry);
+					System.arraycopy(referringExtraAttributes, 0, combinedAttributes, 0, lenRefer);
+				}
 			}
 			return new ClasspathEntry(
 								getContentKind(),
