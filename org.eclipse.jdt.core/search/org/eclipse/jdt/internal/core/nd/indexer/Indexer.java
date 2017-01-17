@@ -16,7 +16,6 @@ import static org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharAr
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,15 +25,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-import org.eclipse.core.resources.IContainer;
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -49,13 +45,11 @@ import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobGroup;
 import org.eclipse.jdt.core.IClassFile;
-import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
@@ -95,7 +89,7 @@ public final class Indexer {
 	public static boolean DEBUG_SELFTEST;
 
 	/**
-	 * True iff automatic reindexing (that is, the {@link #rescanAll()} method) is disabled Synchronize on
+	 * True iff automatic reindexing (that is, the {@link #rescanAll()} method) is disabled. Synchronize on
 	 * {@link #automaticIndexingMutex} while accessing.
 	 */
 	private boolean enableAutomaticIndexing = true;
@@ -106,13 +100,7 @@ public final class Indexer {
 	private boolean indexerDirtiedWhileDisabled = false;
 	private final Object automaticIndexingMutex = new Object();
 
-	/**
-	 * Enable this to index the content of output folders, in cases where that content exists and is up-to-date. This is
-	 * much faster than indexing source files directly.
-	 */
-	public static boolean EXPERIMENTAL_INDEX_OUTPUT_FOLDERS;
 	private static final Object mutex = new Object();
-	private static final long MS_TO_NS = 1000000;
 
 	private Object listenersMutex = new Object();
 	/**
@@ -213,46 +201,41 @@ public final class Indexer {
 			this.indexerDirtiedWhileDisabled = false;
 		}
 
-		long startTimeNs = System.nanoTime();
 		long currentTimeMs = System.currentTimeMillis();
 		if (DEBUG) {
 			Package.logInfo("Indexer running rescan"); //$NON-NLS-1$
 		}
 
-		// Gather all the IPackageFragmentRoots in the workspace
-		List<IJavaElement> unfilteredIndexables = getAllIndexableObjectsInWorkspace(subMonitor.split(3));
+		WorkspaceSnapshot snapshot = WorkspaceSnapshot.create(this.root, subMonitor.split(4));
+		Set<IPath> locations = snapshot.allLocations();
 
-		int totalIndexables = unfilteredIndexables.size();
-		// Remove all duplicate indexables (jars which are referenced by more than one project)
-		Map<IPath, List<IJavaElement>> allIndexables = removeDuplicatePaths(unfilteredIndexables);
-
-		long startGarbageCollectionNs = System.nanoTime();
+		long startGarbageCollectionMs = System.currentTimeMillis();
 
 		// Remove all files in the index which aren't referenced in the workspace
-		int gcFiles = cleanGarbage(currentTimeMs, allIndexables.keySet(), subMonitor.split(4));
+		int gcFiles = cleanGarbage(currentTimeMs, locations, subMonitor.split(1));
 
-		long startFingerprintTestNs = System.nanoTime();
+		long startFingerprintTestMs = System.currentTimeMillis();
 
-		Map<IPath, FingerprintTestResult> fingerprints = testFingerprints(allIndexables.keySet(), subMonitor.split(7));
+		Map<IPath, FingerprintTestResult> fingerprints = testFingerprints(locations, subMonitor.split(5));
 		Set<IPath> indexablesWithChanges = new HashSet<>(
-				getIndexablesThatHaveChanged(allIndexables.keySet(), fingerprints));
+				getIndexablesThatHaveChanged(locations, fingerprints));
 
-		long startIndexingNs = System.nanoTime();
+		long startIndexingMs = System.currentTimeMillis();
 
 		int classesIndexed = 0;
 		SubMonitor loopMonitor = subMonitor.split(80).setWorkRemaining(indexablesWithChanges.size());
 		for (IPath next : indexablesWithChanges) {
-			classesIndexed += rescanArchive(currentTimeMs, next, allIndexables.get(next),
+			classesIndexed += rescanArchive(currentTimeMs, next, snapshot.get(next),
 					fingerprints.get(next).getNewFingerprint(), loopMonitor.split(1));
 		}
 
-		long endIndexingNs = System.nanoTime();
+		long endIndexingMs = System.currentTimeMillis();
 
 		Map<IPath, List<IJavaElement>> pathsToUpdate = new HashMap<>();
 
-		for (IPath next : allIndexables.keySet()) {
+		for (IPath next : locations) {
 			if (!indexablesWithChanges.contains(next)) {
-				pathsToUpdate.put(next, allIndexables.get(next));
+				pathsToUpdate.put(next, snapshot.get(next));
 				continue;
 			}
 		}
@@ -273,27 +256,27 @@ public final class Indexer {
 			Package.logInfo("Rescan finished"); //$NON-NLS-1$
 		}
 
-		long endResourceMappingNs = System.nanoTime();
+		long endResourceMappingMs = System.currentTimeMillis();
 
-		long fingerprintTimeMs = (startIndexingNs - startFingerprintTestNs) / MS_TO_NS;
-		long locateIndexablesTimeMs = (startGarbageCollectionNs - startTimeNs) / MS_TO_NS;
-		long garbageCollectionMs = (startFingerprintTestNs - startGarbageCollectionNs) / MS_TO_NS;
-		long indexingTimeMs = (endIndexingNs - startIndexingNs) / MS_TO_NS;
-		long resourceMappingTimeMs = (endResourceMappingNs - endIndexingNs) / MS_TO_NS;
+		long locateIndexablesTimeMs = startGarbageCollectionMs - currentTimeMs;
+		long garbageCollectionMs = startFingerprintTestMs - startGarbageCollectionMs;
+		long fingerprintTimeMs = startIndexingMs - startFingerprintTestMs;
+		long indexingTimeMs = endIndexingMs - startIndexingMs;
+		long resourceMappingTimeMs = endResourceMappingMs - endIndexingMs;
 
 		double averageGcTimeMs = gcFiles == 0 ? 0 : (double) garbageCollectionMs / (double) gcFiles;
 		double averageIndexTimeMs = classesIndexed == 0 ? 0 : (double) indexingTimeMs / (double) classesIndexed;
-		double averageFingerprintTimeMs = allIndexables.size() == 0 ? 0
-				: (double) fingerprintTimeMs / (double) allIndexables.size();
+		double averageFingerprintTimeMs = locations.size() == 0 ? 0
+				: (double) fingerprintTimeMs / (double) locations.size();
 		double averageResourceMappingMs = pathsToUpdate.size() == 0 ? 0
 				: (double) resourceMappingTimeMs / (double) pathsToUpdate.size();
 
 		if (DEBUG_TIMING) {
 			Package.logInfo(
 					"Indexing done.\n" //$NON-NLS-1$
-					+ "  Located " + totalIndexables + " indexables in " + locateIndexablesTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					+ "  Located " + locations.size() + " indexables in " + locateIndexablesTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					+ "  Collected garbage from " + gcFiles + " files in " +  garbageCollectionMs + "ms, average time = " + averageGcTimeMs + "ms\n" //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
-					+ "  Tested " + allIndexables.size() + " fingerprints in " + fingerprintTimeMs + "ms, average time = " + averageFingerprintTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+					+ "  Tested " + locations.size() + " fingerprints in " + fingerprintTimeMs + "ms, average time = " + averageFingerprintTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					+ "  Indexed " + classesIndexed + " classes in " + indexingTimeMs + "ms, average time = " + averageIndexTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					+ "  Updated " + pathsToUpdate.size() + " paths in " + resourceMappingTimeMs + "ms, average time = " + averageResourceMappingMs + "ms\n"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 		}
@@ -499,45 +482,6 @@ public final class Indexer {
 		} finally {
 			this.nd.releaseWriteLock();
 		}
-	}
-
-	private Map<IPath, List<IJavaElement>> removeDuplicatePaths(List<IJavaElement> allIndexables) {
-		Map<IPath, List<IJavaElement>> paths = new HashMap<>();
-
-		HashSet<IPath> workspacePaths = new HashSet<IPath>();
-		for (IJavaElement next : allIndexables) {
-			IPath nextPath = JavaIndex.getLocationForElement(next);
-			IPath workspacePath = getWorkspacePathForRoot(next);
-
-			List<IJavaElement> value = paths.get(nextPath);
-
-			if (value == null) {
-				value = new ArrayList<IJavaElement>();
-				paths.put(nextPath, value);
-			} else {
-				if (workspacePath != null) {
-					if (workspacePaths.contains(workspacePath)) {
-						continue;
-					}
-					if (!workspacePath.isEmpty()) {
-						Package.logInfo("Found duplicate workspace path for " + workspacePath.toString()); //$NON-NLS-1$
-					}
-					workspacePaths.add(workspacePath);
-				}
-			}
-
-			value.add(next);
-		}
-
-		return paths;
-	}
-
-	private IPath getWorkspacePathForRoot(IJavaElement next) {
-		IResource resource = next.getResource();
-		if (resource != null) {
-			return resource.getFullPath();
-		}
-		return Path.EMPTY;
 	}
 
 	private Map<IPath, FingerprintTestResult> testFingerprints(Collection<IPath> allIndexables,
@@ -832,140 +776,6 @@ public final class Indexer {
 			}
 		}
 		return indexed;
-	}
-
-	private List<IJavaElement> getAllIndexableObjectsInWorkspace(IProgressMonitor monitor) throws CoreException {
-		SubMonitor subMonitor = SubMonitor.convert(monitor, 2);
-		List<IJavaElement> allIndexables = new ArrayList<>();
-		IProject[] projects = this.root.getProjects();
-
-		List<IProject> projectsToScan = new ArrayList<>();
-
-		for (IProject next : projects) {
-			if (next.isOpen()) {
-				projectsToScan.add(next);
-			}
-		}
-
-		Set<IPath> scannedPaths = new HashSet<>();
-		Set<IResource> resourcesToScan = new HashSet<>();
-		SubMonitor projectLoopMonitor = subMonitor.split(1).setWorkRemaining(projectsToScan.size());
-		for (IProject project : projectsToScan) {
-			SubMonitor iterationMonitor = projectLoopMonitor.split(1);
-			try {
-				if (project.isOpen() && project.isNatureEnabled(JavaCore.NATURE_ID)) {
-					IJavaProject javaProject = JavaCore.create(project);
-
-					IClasspathEntry[] entries = javaProject.getRawClasspath();
-
-					if (EXPERIMENTAL_INDEX_OUTPUT_FOLDERS) {
-						IPath defaultOutputLocation = javaProject.getOutputLocation();
-						for (IClasspathEntry next : entries) {
-							IPath nextOutputLocation = next.getOutputLocation();
-	
-							if (nextOutputLocation == null) {
-								nextOutputLocation = defaultOutputLocation;
-							}
-	
-							IResource resource = this.root.findMember(nextOutputLocation);
-							if (resource != null) {
-								resourcesToScan.add(resource);
-							}
-						}
-					}
-
-					IPackageFragmentRoot[] projectRoots = javaProject.getAllPackageFragmentRoots();
-					SubMonitor rootLoopMonitor = iterationMonitor.setWorkRemaining(projectRoots.length);
-					for (IPackageFragmentRoot nextRoot : projectRoots) {
-						rootLoopMonitor.split(1);
-						if (!nextRoot.exists()) {
-							continue;
-						}
-						IPath filesystemPath = JavaIndex.getLocationForElement(nextRoot);
-						if (scannedPaths.contains(filesystemPath)) {
-							continue;
-						}
-						scannedPaths.add(filesystemPath);
-						if (nextRoot.getKind() == IPackageFragmentRoot.K_BINARY) {
-							if (nextRoot.isArchive()) {
-								allIndexables.add(nextRoot);
-							} else {
-								collectAllClassFiles(allIndexables, nextRoot);
-							}
-						} else {
-							collectAllClassFiles(allIndexables, nextRoot);
-						}
-					}
-				}
-			} catch (CoreException e) {
-				Package.log(e);
-			}
-		}
-
-		collectAllClassFiles(allIndexables, resourcesToScan, subMonitor.split(1));
-		return allIndexables;
-	}
-
-	private void collectAllClassFiles(List<? super IClassFile> result, Collection<? extends IResource> toScan,
-			IProgressMonitor monitor) {
-		SubMonitor subMonitor = SubMonitor.convert(monitor);
-
-		ArrayDeque<IResource> resources = new ArrayDeque<>();
-		resources.addAll(toScan);
-
-		while (!resources.isEmpty()) {
-			subMonitor.setWorkRemaining(Math.max(resources.size(), 3000)).split(1);
-			IResource next = resources.removeFirst();
-
-			if (next instanceof IContainer) {
-				IContainer container = (IContainer)next;
-
-				try {
-					for (IResource nextChild : container.members()) {
-						resources.addLast(nextChild);
-					}
-				} catch (CoreException e) {
-					// If an error occurs in one resource, skip it and move on to the next
-					Package.log(e);
-				}
-			} else if (next instanceof IFile) {
-				IFile file = (IFile) next;
-
-				String extension = file.getFileExtension();
-				if (Objects.equals(extension, "class")) { //$NON-NLS-1$
-					IJavaElement element = JavaCore.create(file);
-
-					if (element instanceof IClassFile) {
-						result.add((IClassFile)element);
-					}
-				}
-			}
-		}
-	}
-
-	private void collectAllClassFiles(List<? super IClassFile> result, IParent nextRoot) throws CoreException {
-		for (IJavaElement child : nextRoot.getChildren()) {
-			try {
-				int type = child.getElementType();
-				if (!child.exists()) {
-					continue;
-				}
-				if (type == IJavaElement.COMPILATION_UNIT) {
-					continue;
-				}
-
-				if (type == IJavaElement.CLASS_FILE) {
-					result.add((IClassFile)child);
-				} else if (child instanceof IParent) {
-					IParent parent = (IParent) child;
-
-					collectAllClassFiles(result, parent);
-				}
-			} catch (CoreException e) {
-				// Log exceptions, then continue with the next child
-				Package.log(e);
-			}
-		}
 	}
 
 	/**
