@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008 - 2015 Walter Harley and others
+ * Copyright (c) 2008 - 2017 Walter Harley and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,6 +19,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug468893Processor;
+import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug510118Processor;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.BugsProc;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.InheritedAnnoProc;
 import org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.TestFinalRoundProc;
@@ -349,5 +350,17 @@ public class BuilderTests extends TestBase
 			env.removeClass(packagePath, "FooGen");
 			
 		}
+	}
+	public void testBugbug510118() throws Throwable {
+		ProcessorTestStatus.reset();
+		IJavaProject jproj = createJavaProject(_projectName);
+		disableJava5Factories(jproj);
+		IProject proj = jproj.getProject();
+		IdeTestUtils.copyResources(proj, "targets/bug510118", "src/targets/bug510118");
+
+		AptConfig.setEnabled(jproj, true);
+		fullBuild();
+		expectingNoProblems();
+		assertTrue("Incorrect status received from annotation processor", Bug510118Processor.status());
 	}
 }

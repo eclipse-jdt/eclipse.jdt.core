@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2919,4 +2919,98 @@ public void testBug462158() throws CoreException, IOException {
 			deleteProject(prj);
 	}
 }
+public void testBug507954_0001() throws JavaModelException, CoreException {
+	IJavaProject javaProject = null; 
+	try {
+		String projectName = "507954";
+		javaProject = createJavaProject(projectName, new String[] {"src"}, "bin");
+		String packA = "/" + projectName + "/src/a/";
+		createFolder(packA);
+		String fileA = 				"package a;\n" +
+				"public abstract class A {\n"+
+				"  protected abstract void foo2();\n" +
+				"  public void baz2() {\n" +
+				"    foo2();\n" +
+			"}";
+		createFile(packA + "A.java", fileA);
+		createFile(
+				packA + "B.java",
+				"package a;\n" +
+				"public class B {\n" +
+				"  public void a() {\n" +
+				"    new A() {\n" +
+				"      @Override\n" +
+				"      protected void foo2() {}\n" +
+				"    }.baz2();\n" +
+				"  }\n" +
+				"}"
+				);
+		createFile(
+				packA + "C.java",
+				"package a;\n" +
+				"public abstract class C {\n" +
+				"  protected abstract void foo1();\n" +
+				"  public void baz1() {\n" +
+				"    foo1();\n" +
+				"  }\n" +
+				"}"
+				);
+		String packD = "/" + projectName + "/src/b/";
+		createFolder(packD);
+
+		String fileD = "package d;\n" +
+				"import a.A;\n" +
+				"import a.C;\n" +
+				"public final class D {\n" +
+				"\n" +
+				"	protected void c() {\n" +
+				"		new C() {\n" +
+				"			@Override\n" +
+				"			protected void foo1() {\n" +
+				"				a();\n" +
+				"				b();\n" +
+				"			}\n" +
+				"			private void a() {\n" +
+				"				new A() {\n" +
+				"					@Override\n" +
+				"					protected void foo2() {\n" +
+				"					}\n" +
+				"				}.baz2();\n" +
+				"			}\n" +
+				"			private void b() {\n" +
+				"				new A() {\n" +
+				"					@Override\n" +
+				"					protected void foo2() {\n" +
+				"					}\n" +
+				"				}.baz2();\n" +
+				"			}\n" +
+				"		}.baz1();\n" +
+				"	}\n" +
+				"\n" +
+				"}\n";
+
+		createFile(packA + "D.java", fileD);
+		
+		String classA = "A";
+		int start = fileA.indexOf(classA);
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(packA + "A.java", fileA);
+
+		IJavaElement[] elements = this.workingCopies[0].codeSelect(start, classA.length());
+		assertEquals("Incorrect elements", 1, elements.length);
+		IType focus = (IType) elements[0];
+		ITypeHierarchy hierarchy = focus.newTypeHierarchy(this.workingCopies, null);
+		IType[] allSubTypes = hierarchy.getAllSubtypes(focus);
+		assertTypesEqual("Incorrect hierarchy",
+				"a.B$1\n" + 
+				"a.D$1$1\n" + 
+				"a.D$1$1\n",
+				allSubTypes,
+				false);
+	}
+	finally{
+		if (javaProject != null) deleteProject(javaProject);
+	}
+}
+
 }

@@ -23,6 +23,8 @@ import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -109,6 +111,7 @@ public class Database {
 	public static final int WRITE_NUMBER_OFFSET = FREE_BLOCK_OFFSET + PTR_SIZE;
 	public static final int MALLOC_STATS_OFFSET = WRITE_NUMBER_OFFSET + LONG_SIZE;
 	public static final int DATA_AREA_OFFSET = MALLOC_STATS_OFFSET + MemoryStats.SIZE;
+	private static final int NUM_HEADER_CHUNKS = 1;
 
 	// Malloc pool IDs (used for classifying memory allocations and recording statistics about them)
 	/** Misc pool -- may be used for any purpose that doesn't fit the IDs below. */
@@ -132,7 +135,16 @@ public class Database {
 
 	private int fVersion;
 	private final Chunk fHeaderChunk;
+	/**
+	 * Stores the {@link Chunk} associated with each page number or null if the chunk isn't loaded. Synchronize on
+	 * {@link #fCache} before accessing.
+	 */
 	private Chunk[] fChunks;
+
+	/**
+	 * Holds all the non-null entries from {@link #fChunks}. Synchronize on {@link #fCache} before accessing.
+	 */
+	private HashSet<Chunk> allocatedChunks = new HashSet<>();
 	private int fChunksUsed;
 	private ChunkCache fCache;
 
@@ -328,11 +340,12 @@ public class Database {
 
 	private void removeChunksFromCache() {
 		synchronized (this.fCache) {
-			for (int i= 1; i < this.fChunks.length; i++) {
-				Chunk chunk= this.fChunks[i];
-				if (chunk != null) {
+			for (Iterator<Chunk> next = this.allocatedChunks.iterator(); next.hasNext();) {
+				Chunk chunk = next.next();
+				if (chunk.fSequenceNumber >= NUM_HEADER_CHUNKS) {
 					this.fCache.remove(chunk);
-					this.fChunks[i]= null;
+					this.fChunks[chunk.fSequenceNumber] = null;
+					next.remove();
 				}
 			}
 		}
@@ -362,6 +375,7 @@ public class Database {
 				chunk = new Chunk(this, index);
 				chunk.read();
 				this.fChunks[index] = chunk;
+				this.allocatedChunks.add(chunk);
 			} else {
 				this.cacheHits++;
 			}
@@ -831,6 +845,7 @@ public class Database {
 
 			this.fChunksUsed = lastChunkIndex + 1;
 			this.fChunks[lastChunkIndex] = lastChunk;
+			this.allocatedChunks.add(lastChunk);
 			this.fCache.add(lastChunk, true);
 			long result = (long) firstChunkIndex * CHUNK_SIZE;
 
@@ -1182,6 +1197,7 @@ public class Database {
 	void releaseChunk(final Chunk chunk) {
 		if (!chunk.fLocked) {
 			this.fChunks[chunk.fSequenceNumber]= null;
+			this.allocatedChunks.remove(chunk);
 		}
 	}
 
@@ -1212,16 +1228,17 @@ public class Database {
 			try {
 				ArrayList<Chunk> dirtyChunks= new ArrayList<>();
 				synchronized (this.fCache) {
-					for (int i= 1; i < this.fChunksUsed; i++) {
-						Chunk chunk= this.fChunks[i];
-						if (chunk != null) {
+					for (Iterator<Chunk> iter = this.allocatedChunks.iterator(); iter.hasNext();) {
+						Chunk chunk = iter.next();
+						if (chunk.fSequenceNumber >= NUM_HEADER_CHUNKS) {
 							if (chunk.fCacheIndex < 0) {
 								// Locked chunk that has been removed from cache.
 								if (chunk.fDirty) {
 									dirtyChunks.add(chunk); // Keep in fChunks until it is flushed.
 								} else {
 									chunk.fLocked= false;
-									this.fChunks[i]= null;
+									this.fChunks[chunk.fSequenceNumber]= null;
+									iter.remove();
 								}
 							} else if (chunk.fLocked) {
 								// Locked chunk, still in cache.
@@ -1238,6 +1255,7 @@ public class Database {
 						}
 					}
 				}
+				sortBySequenceNumber(dirtyChunks);
 				// Also handles header chunk.
 				wasInterrupted = flushAndUnlockChunks(dirtyChunks, flush) || wasInterrupted;
 			} finally {
@@ -1245,6 +1263,10 @@ public class Database {
 			}
 		}
 		return wasInterrupted;
+	}
+
+	private void sortBySequenceNumber(ArrayList<Chunk> dirtyChunks) {
+		dirtyChunks.sort((a, b) -> {return a.fSequenceNumber - b.fSequenceNumber;});
 	}
 
 	public boolean flush() throws IndexException {
@@ -1262,13 +1284,14 @@ public class Database {
 		// Be careful as other readers may access chunks concurrently.
 		ArrayList<Chunk> dirtyChunks= new ArrayList<>();
 		synchronized (this.fCache) {
-			for (int i= 1; i < this.fChunksUsed ; i++) {
-				Chunk chunk= this.fChunks[i];
-				if (chunk != null && chunk.fDirty) {
+			for (Chunk chunk : this.allocatedChunks) {
+				if (chunk.fSequenceNumber >= 1 && chunk.fDirty) {
 					dirtyChunks.add(chunk);
 				}
 			}
 		}
+
+		sortBySequenceNumber(dirtyChunks);
 
 		// Also handles header chunk.
 		return flushAndUnlockChunks(dirtyChunks, true) || wasInterrupted;
@@ -1301,6 +1324,7 @@ public class Database {
 						chunk.fLocked= false;
 						if (chunk.fCacheIndex < 0) {
 							this.fChunks[chunk.fSequenceNumber]= null;
+							this.allocatedChunks.remove(chunk);
 						}
 					}
 				}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 - 2015 BEA Systems, Inc. and others
+ * Copyright (c) 2007 - 2017 BEA Systems, Inc. and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -96,6 +96,33 @@ public class TypesImpl implements Types {
 								&& (method.original() == methodBinding
 										|| method.areParameterErasuresEqual(methodBinding))) {
 							return TypesImpl.this._env.getFactory().newTypeMirror(method);
+						}
+					}
+					return null;
+				}
+			});
+
+			if (typeMirror != null) {
+				return typeMirror;
+			}
+			break;
+		case TYPE_PARAMETER:
+			typeMirror = findMemberInHierarchy(referenceBinding, elementImpl._binding, new MemberInTypeFinder() {
+				@Override
+				public TypeMirror find(ReferenceBinding typeBinding, Binding memberBinding) {
+					if (typeBinding instanceof ParameterizedTypeBinding) {
+						TypeVariableBinding variableBinding = ((TypeVariableBinding) memberBinding);
+						ReferenceBinding binding = ((ParameterizedTypeBinding) typeBinding).genericType();
+						if (variableBinding.declaringElement == binding) { // check in advance avoid looking into type parameters unnecessarily.
+							TypeVariableBinding[] typeVariables = binding.typeVariables();
+							TypeBinding[] typeArguments = ((ParameterizedTypeBinding) typeBinding).typeArguments();
+							if (typeVariables.length == typeArguments.length) {
+								for(int i = 0; i < typeVariables.length; i++) {
+									if (typeVariables[i] == memberBinding) {
+										return TypesImpl.this._env.getFactory().newTypeMirror(typeArguments[i]); 
+									}
+								}
+							}
 						}
 					}
 					return null;

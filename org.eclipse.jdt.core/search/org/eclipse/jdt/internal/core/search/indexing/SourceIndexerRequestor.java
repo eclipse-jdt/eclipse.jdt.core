@@ -328,7 +328,10 @@ public void enterMethod(MethodInfo methodInfo) {
 	this.indexer.addMethodDeclaration(methodInfo.name, methodInfo.parameterTypes, methodInfo.returnType, methodInfo.exceptionTypes);
 	int argCount = methodInfo.parameterTypes == null ? 0 : methodInfo.parameterTypes.length;
 	char[] typeName = methodInfo.enclosingType != null ? methodInfo.enclosingType.name : null;
-	if (typeName == null || typeName.length == 0) return;
+	if (typeName == null || typeName.length == 0)  {
+		this.methodDepth++;
+		return;
+	}
 	this.indexer.addMethodDeclaration(
 			typeName,
 			getDeclaringQualification(methodInfo.enclosingType),

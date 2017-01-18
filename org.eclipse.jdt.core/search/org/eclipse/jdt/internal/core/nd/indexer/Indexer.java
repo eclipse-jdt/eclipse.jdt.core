@@ -10,8 +10,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.indexer;
 
+import static org.eclipse.jdt.internal.compiler.util.Util.UTF_8;
+import static org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -68,7 +72,6 @@ import org.eclipse.jdt.internal.core.nd.java.FileFingerprint;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint.FingerprintTestResult;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.nd.java.JavaNames;
-import org.eclipse.jdt.internal.core.nd.java.NdBinding;
 import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.nd.java.NdType;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeId;
@@ -471,19 +474,16 @@ public final class Indexer {
 					break;
 				}
 		
-				int numChildren = toDelete.getBindingCount();
+				int numChildren = toDelete.getTypeCount();
 				deletionMonitor.setWorkRemaining(numChildren + 1);
 				if (numChildren == 0) {
 					break;
 				}
 
-				NdBinding nextDeletion = toDelete.getBinding(numChildren - 1);
+				NdType nextDeletion = toDelete.getType(numChildren - 1);
 				if (DEBUG_INSERTIONS) {
-					if (nextDeletion instanceof NdType) {
-						NdType type = (NdType)nextDeletion;
-						Package.logInfo("Deleting " + type.getTypeId().getFieldDescriptor().getString() + " from "  //$NON-NLS-1$//$NON-NLS-2$
-								+ new String(toDelete.getLocation().getString()) + " " + toDelete.address); //$NON-NLS-1$
-					}
+					Package.logInfo("Deleting " + nextDeletion.getTypeId().getFieldDescriptor().getString() + " from "  //$NON-NLS-1$//$NON-NLS-2$
+							+ new String(toDelete.getLocation().getString()) + " " + toDelete.address); //$NON-NLS-1$
 				}
 				nextDeletion.delete();
 			} finally {
@@ -693,6 +693,14 @@ public final class Indexer {
 											+ resourceFile.getLocation().getString() + " " + resourceFile.address); //$NON-NLS-1$
 								}
 								new NdZipEntry(resourceFile, fileName);
+
+								if (fileName.equals("META-INF/MANIFEST.MF")) { //$NON-NLS-1$
+									try (InputStream inputStream = zipFile.getInputStream(member)) {
+										char[] chars = getInputStreamAsCharArray(inputStream, -1, UTF_8);
+
+										resourceFile.setManifestContent(chars);
+									}
+								}
 							}
 						} finally {
 							this.nd.releaseWriteLock();
@@ -729,6 +737,14 @@ public final class Indexer {
 			} catch (ZipException e) {
 				Package.log("The zip file " + jarRoot.getPath() + " was corrupt", e);  //$NON-NLS-1$//$NON-NLS-2$
 				// Indicates a corrupt zip file. Treat this like an empty zip file.
+				this.nd.acquireWriteLock(null);
+				try {
+					if (resourceFile.isInIndex()) {
+						resourceFile.setFlags(NdResourceFile.FLG_CORRUPT_ZIP_FILE);
+					}
+				} finally {
+					this.nd.releaseWriteLock();
+				}
 			} catch (FileNotFoundException e) {
 				throw e;
 			} catch (IOException ioException) {

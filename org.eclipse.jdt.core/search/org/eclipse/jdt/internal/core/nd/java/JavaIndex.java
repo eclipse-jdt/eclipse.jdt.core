@@ -34,9 +34,9 @@ import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 
 public class JavaIndex {
 	// Version constants
-	static final int CURRENT_VERSION = Nd.version(1, 41);
-	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 41);
-	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 41);
+	static final int CURRENT_VERSION = Nd.version(1, 46);
+	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 46);
+	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 46);
 
 	// Fields for the search header
 	public static final FieldSearchIndex<NdResourceFile> FILES;
@@ -282,6 +282,7 @@ public class JavaIndex {
 		registry.register(0x00F0, NdConstantShort.type.getFactory());
 		registry.register(0x0100, NdConstantString.type.getFactory());
 		registry.register(0x0110, NdMethod.type.getFactory());
+		registry.register(0x0118, NdMethodAnnotationData.type.getFactory());
 		registry.register(0x0120, NdMethodException.type.getFactory());
 		registry.register(0x0130, NdMethodId.type.getFactory());
 		registry.register(0x0140, NdMethodParameter.type.getFactory());

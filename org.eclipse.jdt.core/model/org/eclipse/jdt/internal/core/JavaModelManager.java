@@ -136,8 +136,11 @@ import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.dom.SourceRangeVerifier;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
+import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
+import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
+import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.search.AbstractSearchScope;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
@@ -2796,6 +2799,24 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			return;
 		}
 		throwExceptionIfArchiveInvalid(path);
+		// Check if we can determine the archive's validity by examining the index
+		if (JavaIndex.isEnabled()) {
+			JavaIndex index = JavaIndex.getIndex();
+			String location = JavaModelManager.getLocalFile(path).getAbsolutePath();
+			try (IReader reader = index.getNd().acquireReadLock()) {
+				NdResourceFile resourceFile = index.getResourceFile(location.toCharArray());
+				if (index.isUpToDate(resourceFile)) {
+					// We have this file in the index and the index is up-to-date, so we can determine the file's
+					// validity without touching the filesystem.
+					if (resourceFile.isCorruptedZipFile()) {
+						throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, -1,
+								Messages.status_IOException, new ZipException()));
+					}
+					return;
+				}
+			}
+		}
+
 		ZipFile file = getZipFile(path);
 		closeZipFile(file);
 	}
