@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2016 IBM Corporation and others.
+ * Copyright (c) 2011, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -6370,6 +6370,28 @@ public void testBUg490469() {
 			"	<T> T invoke(String url, Class<T> responseType, Object... uriVariables);\n" + 
 			"}\n"
 	});
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=509804 Incorrect Enclosing Method Attribute generated for anonymous class in lambda after method reference
+public void test509804() {
+	this.runConformTest(
+		new String[] {
+			"Test.java",
+			"import java.lang.reflect.Method;\n" + 
+			"import java.util.function.Supplier;\n" + 
+			"public enum Test {\n" + 
+			"	A(Object::new),\n" + 
+			"	B(() -> new Object(){}),\n" + 
+			"	;\n" + 
+			"	private final Supplier<Object> s;\n" + 
+			"	Test(Supplier<Object> e){\n" + 
+			"		this.s = e;\n" + 
+			"	}\n" + 
+			"	public static void main(String[] args) throws NoSuchMethodException, SecurityException {\n" + 
+			"		System.out.println(B.s.get().getClass().getEnclosingMethod());\n" + 
+			"	}\n" + 
+			"}\n"
+	},
+	"private static java.lang.Object Test.lambda$1()");
 }
 public static Class testClass() {
 	return LambdaExpressionsTest.class;

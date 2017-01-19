@@ -896,10 +896,10 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 					true,
 					new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 		String expectedOutput =
-				"static lambda$0()I\n"+
-				"static lambda$1()I\n"+
 				"static lambda$2()I\n"+
 				"static lambda$3()I\n"+
+				"static lambda$0()I\n"+
+				"static lambda$1()I\n"+
 				"static lambda$4(I)I\n"+
 				"static lambda$5(I)I\n"+
 				"static lambda$6()I\n"+
@@ -1587,12 +1587,12 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 				"1: invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n"+
 				"  Method arguments:\n"+
 				"    (Ljava/lang/Object;)Z\n"+
-				"    invokestatic Testbed.lambda$0:(Ljava/lang/invoke/SerializedLambda;Ljava/lang/reflect/Method;)Z\n"+
+				"    invokestatic Testbed.lambda$2:(Ljava/lang/invoke/SerializedLambda;Ljava/lang/reflect/Method;)Z\n"+
 				"    (Ljava/lang/reflect/Method;)Z\n"+
 				"2: invokestatic java/lang/invoke/LambdaMetafactory.metafactory:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodType;Ljava/lang/invoke/MethodHandle;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;\n"+
 				"  Method arguments:\n"+
 				"    (I)Ljava/lang/Object;\n"+
-				"    invokestatic Testbed.lambda$1:(I)[Ljava/lang/reflect/Method;\n"+
+				"    invokestatic Testbed.lambda$3:(I)[Ljava/lang/reflect/Method;\n"+
 				"    (I)[Ljava/lang/reflect/Method;\n";
 
 		checkExpected(expectedOutput, bootstrapEntries);
