@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,7 +27,7 @@ public void tearDownSuite() throws Exception {
 	super.tearDownSuite();
 }
 static {
-//	TESTS_NAMES = new String[] { "testBug338398a" };
+//	TESTS_NAMES = new String[] { "testBug504095" };
 }
 public static Test suite() {
 	return buildModelTestSuite(CompletionTests3.class);
@@ -115,6 +115,35 @@ public void _testBug338398c() throws CoreException {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
 				"MY_STring[JAVADOC_PARAM_REF]{MY_STring, null, null, MY_STring, null, 18}",
+				requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug504095() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/a/Bug504095.java",
+			"package a;\n" +
+			"import java.lang.reflect.Field;\n" +
+			"public class Bug504095 {\n" +
+			"	static @interface Parameter {}\n" +
+			"	void method(Class<?> clazz) {\n"  +
+			"		for (Field member : clazz.getDeclaredFields()) {\n" +
+			"			Parameter parameter = memb\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n");
+		
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "memb";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"member[LOCAL_VARIABLE_REF]{member, null, LField;, member, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
 		deleteProject("P");
