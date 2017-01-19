@@ -100,6 +100,7 @@ public final class Indexer {
 	private boolean indexerDirtiedWhileDisabled = false;
 	private final Object automaticIndexingMutex = new Object();
 
+	private final FileStateCache fileStateCache;
 	private static final Object mutex = new Object();
 
 	private Object listenersMutex = new Object();
@@ -206,6 +207,7 @@ public final class Indexer {
 			Package.logInfo("Indexer running rescan"); //$NON-NLS-1$
 		}
 
+		this.fileStateCache.clear();
 		WorkspaceSnapshot snapshot = WorkspaceSnapshot.create(this.root, subMonitor.split(4));
 		Set<IPath> locations = snapshot.allLocations();
 
@@ -572,6 +574,10 @@ public final class Indexer {
 			if (resourceFile.isInIndex()) {
 				resourceFile.setFingerprint(fingerprint);
 				allResourcesWithThisPath = javaIndex.findResourcesWithPath(pathString);
+				// Remove this file from the file state cache, since the act of indexing it may have changed its
+				// up-to-date status. Note that it isn't necessarily up-to-date now -- it may have changed again
+				// while we were indexing it.
+				this.fileStateCache.remove(resourceFile.getLocation().getString());
 			}
 		} finally {
 			this.nd.releaseWriteLock();
@@ -831,6 +837,7 @@ public final class Indexer {
 				this.nd.releaseWriteLock();
 			}
 		}
+
 		return result;
 	}
 
@@ -841,6 +848,7 @@ public final class Indexer {
 		this.rescanJob.setJobGroup(this.group);
 		this.rebuildIndexJob.setSystem(true);
 		this.rebuildIndexJob.setJobGroup(this.group);
+		this.fileStateCache = FileStateCache.getCache(toPopulate);
 	}
 
 	public void rescanAll() {
@@ -943,5 +951,36 @@ public final class Indexer {
 
 	public void requestRebuildIndex() {
 		this.rebuildIndexJob.schedule();
+	}
+
+	/**
+	 * Dirties the given filesystem location. This must point to a single file (not a folder) that needs to be
+	 * rescanned. The file may have been added, removed, or changed.
+	 * 
+	 * @param location an absolute filesystem location
+	 */
+	public void makeDirty(IPath location) {
+		this.fileStateCache.remove(location.toString());
+		rescanAll();
+	}
+
+	/**
+	 * Schedules a rescan of the given project.
+	 */
+	public void makeDirty(IProject project) {
+		this.fileStateCache.clear();
+		rescanAll();
+	}
+
+	/**
+	 * Schedules a rescan of the given path (which may be either a workspace path or an absolute path on the local
+	 * filesystem). This may point to either a single file or a folder that needs to be rescanned. Any resource that
+	 * has this path as a prefix will be rescanned.
+	 * 
+	 * @param pathToRescan
+	 */
+	public void makeWorkspacePathDirty(IPath pathToRescan) {
+		this.fileStateCache.clear();
+		rescanAll();
 	}
 }
