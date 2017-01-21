@@ -12,6 +12,8 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Target;
 import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.Hashtable;
@@ -26,10 +28,14 @@ import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMemberValuePair;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -937,5 +943,22 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			if (project != null)
 				deleteProject(project);
 		}
-}
+	}
+
+	public void testTargetTypeUse() throws CoreException {
+		IJavaProject project = null;
+    	try {
+			project = createJavaProject("TargetTypeUse", new String[] {"src"}, new String[] {"JCL18_LIB", this.ANNOTATION_LIB}, "bin", "1.8");
+			IType nonNull = project.findType(NonNull.class.getName());
+			IAnnotation annot = nonNull.getAnnotation(Target.class.getName());
+			for (IMemberValuePair memberValuePair : annot.getMemberValuePairs()) {
+				if (memberValuePair.getValue().equals(ElementType.class.getName()+'.'+ElementType.TYPE_USE))
+					return;
+			}
+			fail("TYPE_USE target not found");
+		} finally {
+			if (project != null)
+				deleteProject(project);
+		}
+	}
 }
