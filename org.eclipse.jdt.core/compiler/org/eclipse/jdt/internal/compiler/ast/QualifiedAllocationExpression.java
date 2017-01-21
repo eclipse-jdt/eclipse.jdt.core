@@ -546,7 +546,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				LookupEnvironment environment=scope.environment();
 				if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
 					if ((inheritedBinding.tagBits & TagBits.IsNullnessKnown) == 0) {
-						// ensure nullness of originalMethod is known (but we are not interested in reporting problems against originalMethod)
+						// ensure nullness of inheritedBinding is known (but we are not interested in reporting problems against inheritedBinding)
 						new ImplicitNullAnnotationVerifier(environment, environment.globalOptions.inheritNullAnnotations)
 								.checkImplicitNullAnnotations(inheritedBinding, null/*srcMethod*/, false, scope);
 					}
