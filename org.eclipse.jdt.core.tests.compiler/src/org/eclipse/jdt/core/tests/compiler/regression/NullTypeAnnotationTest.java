@@ -13528,4 +13528,24 @@ public void testBug509328() {
 		"----------\n"
 	);
 }
+public void testBug510799() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/TestNNBDBreaksDimensionAnnotation.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"class TestNNBDBreaksDimensionAnnotation {\n" +
+			"	Object f(String[] @NonNull [] a) {\n" +
+			"		return a[0];\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
 }

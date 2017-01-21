@@ -1024,6 +1024,8 @@ public TypeBinding createAnnotatedType(TypeBinding type, AnnotationBinding[] new
 		for (int i = 0; i < newbies.length; i++) {
 			if (newbies[i] == null) {
 				filtered[count++] = null;
+				// reset tagBitsSeen for next array dimension
+				tagBitsSeen = 0;
 				continue;
 			}
 			long tagBits = 0;
