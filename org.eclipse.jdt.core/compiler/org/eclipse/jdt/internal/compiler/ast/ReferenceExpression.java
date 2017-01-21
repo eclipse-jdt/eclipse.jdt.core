@@ -755,11 +755,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		CompilerOptions compilerOptions = scope.compilerOptions();
 		if (compilerOptions.isAnnotationBasedNullAnalysisEnabled) {
         	if (this.expectedType == null || !NullAnnotationMatching.hasContradictions(this.expectedType)) { // otherwise assume it has been reported and we can do nothing here
-        		if ((this.binding.tagBits & TagBits.IsNullnessKnown) == 0) {
-        			// not interested in reporting problems against this.binding:
-        			new ImplicitNullAnnotationVerifier(scope.environment(), compilerOptions.inheritNullAnnotations)
-        					.checkImplicitNullAnnotations(this.binding, null/*srcMethod*/, false, scope);
-        		}
+        		ImplicitNullAnnotationVerifier.ensureNullnessIsKnown(this.binding, scope);
 	        	// TODO: simplify by using this.freeParameters?
 	        	int len;
 	        	int expectedlen = this.binding.parameters.length;

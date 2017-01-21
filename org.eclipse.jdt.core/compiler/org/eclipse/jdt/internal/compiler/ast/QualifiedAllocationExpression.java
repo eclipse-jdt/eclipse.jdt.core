@@ -289,10 +289,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		if (result != null && !result.isPolyType() && this.binding != null) {
 			final CompilerOptions compilerOptions = scope.compilerOptions();
 			if (compilerOptions.isAnnotationBasedNullAnalysisEnabled) {
-				if ((this.binding.tagBits & TagBits.IsNullnessKnown) == 0) {
-					new ImplicitNullAnnotationVerifier(scope.environment(), compilerOptions.inheritNullAnnotations)
-							.checkImplicitNullAnnotations(this.binding, null/*srcMethod*/, false, scope);
-				}
+				ImplicitNullAnnotationVerifier.ensureNullnessIsKnown(this.binding, scope);
 				if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8) {
 					if (this.binding instanceof ParameterizedGenericMethodBinding && this.typeArguments != null) {
 						TypeVariableBinding[] typeVariables = this.binding.original().typeVariables();
@@ -308,7 +305,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 		}
 		return result;
 	}
-	
+
 	private TypeBinding resolveTypeForQualifiedAllocationExpression(BlockScope scope) {
 		// Propagate the type checking to the arguments, and checks if the constructor is defined.
 		// ClassInstanceCreationExpression ::= Primary '.' 'new' SimpleName '(' ArgumentListopt ')' ClassBodyopt
@@ -545,11 +542,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				// Update the anonymous inner class : superclass, interface
 				LookupEnvironment environment=scope.environment();
 				if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
-					if ((inheritedBinding.tagBits & TagBits.IsNullnessKnown) == 0) {
-						// ensure nullness of inheritedBinding is known (but we are not interested in reporting problems against inheritedBinding)
-						new ImplicitNullAnnotationVerifier(environment, environment.globalOptions.inheritNullAnnotations)
-								.checkImplicitNullAnnotations(inheritedBinding, null/*srcMethod*/, false, scope);
-					}
+					ImplicitNullAnnotationVerifier.ensureNullnessIsKnown(inheritedBinding, scope);
 				}
 
 				this.binding = this.anonymousType.createDefaultConstructorWithBinding(inheritedBinding, 	(this.bits & ASTNode.Unchecked) != 0 && this.genericTypeArguments == null);

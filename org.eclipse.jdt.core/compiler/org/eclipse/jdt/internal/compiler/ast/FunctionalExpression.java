@@ -46,7 +46,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.RawTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
@@ -202,10 +201,7 @@ public abstract class FunctionalExpression extends Expression {
 			}
 			LookupEnvironment environment = blockScope.environment();
 			if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
-				if ((sam.tagBits & TagBits.IsNullnessKnown) == 0) {
-					new ImplicitNullAnnotationVerifier(environment, environment.globalOptions.inheritNullAnnotations)
-							.checkImplicitNullAnnotations(sam, null, false, blockScope);
-				}
+				ImplicitNullAnnotationVerifier.ensureNullnessIsKnown(sam, blockScope);
 				NullAnnotationMatching.checkForContradictions(sam, this, blockScope);
 			}
 			return this.resolvedType = this.expectedType;		
