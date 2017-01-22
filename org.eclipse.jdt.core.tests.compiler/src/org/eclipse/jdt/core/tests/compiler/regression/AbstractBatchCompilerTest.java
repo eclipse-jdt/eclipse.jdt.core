@@ -139,8 +139,13 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 	protected static final String JRE_HOME_DIR = Util.getJREDirectory();
 	protected static final Main MAIN = new Main(null/*outWriter*/, null/*errWriter*/, false/*systemExit*/, null/*options*/, null/*progress*/);
 
-
 	private static boolean CASCADED_JARS_CREATED;
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		CASCADED_JARS_CREATED = false; // initialization needed for each subclass individually
+	}
+	
 	protected void createCascadedJars() {
 		if (!CASCADED_JARS_CREATED) {
 			File libDir = new File(LIB_DIR);

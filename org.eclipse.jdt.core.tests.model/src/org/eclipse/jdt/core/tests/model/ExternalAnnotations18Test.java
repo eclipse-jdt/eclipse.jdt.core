@@ -43,6 +43,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -195,7 +196,11 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	}
 
 	void setupJavaProject(String name) throws CoreException, IOException {
-		this.project = setUpJavaProject(name, this.compliance); //$NON-NLS-1$
+		setupJavaProject(name, false);
+	}
+
+	void setupJavaProject(String name, boolean useFullJCL) throws CoreException, IOException {
+		this.project = setUpJavaProject(name, this.compliance, useFullJCL); //$NON-NLS-1$
 		addLibraryEntry(this.project, this.ANNOTATION_LIB, false);
 		Map options = this.project.getOptions(true);
 		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
@@ -282,6 +287,29 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		addClasspathEntry(this.project, entry);
 	}
 
+	protected void addEeaToVariableEntry(String variableName, String annotationPath) throws JavaModelException {
+		IClasspathEntry[] rawClasspath = this.project.getRawClasspath();
+		boolean found = false;
+		for (int i = 0; i < rawClasspath.length; i++) {
+			IClasspathEntry entry = rawClasspath[i];
+			if (entry.getPath().toString().equals(variableName)) {
+				rawClasspath[i] = JavaCore.newVariableEntry(
+						entry.getPath(),
+						entry.getSourceAttachmentPath(),
+						entry.getSourceAttachmentRootPath(),
+						entry.getAccessRules(),
+						new IClasspathAttribute[] {
+							new ClasspathAttribute(IClasspathAttribute.EXTERNAL_ANNOTATION_PATH, annotationPath)	
+						},
+						entry.isExported());
+				found = true;
+				break;
+			}
+		}
+		assertTrue("Should find classpath entry "+variableName, found);
+		this.project.setRawClasspath(rawClasspath, new NullProgressMonitor());
+	}
+
 	protected void createFileInProject(String projectRelativeFolder, String fileName, String content) throws CoreException {
 		String folderPath = this.project.getProject().getName()+'/'+projectRelativeFolder;
 		createFolder(folderPath);
@@ -330,25 +358,37 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		for (int i = 0; i < problems.length; i++) {
 			for (int j = 0; j < messages.length; j++) {
 				if (messages[j] == null) continue;
-				if (problems[i].toString().equals(messages[j])
-						&& problems[i].getSourceLineNumber() == lines[j]) {
-					switch(severities[j] & ProblemSeverities.CoreSeverityMASK ) {
-					case ProblemSeverities.Error:
-						if (!problems[i].isError()) continue;
+				if (problems[i].toString().equals(messages[j])) {
+					if (problems[i].getSourceLineNumber() == lines[j]) {
+						switch(severities[j] & ProblemSeverities.CoreSeverityMASK ) {
+						case ProblemSeverities.Error:
+							if (!problems[i].isError()) {
+								System.err.println("Not an error as expected: "+messages[j]);					
+								continue;
+							}
+							break;
+						case ProblemSeverities.Warning:
+							if (!problems[i].isWarning()) {
+								System.err.println("Not a warning as expected: "+messages[j]);					
+								continue;
+							}
+							break;
+						case ProblemSeverities.Info:
+							if (!problems[i].isInfo()) {
+								System.err.println("Not an info as expected: "+messages[j]);					
+								continue;
+							}
+							break;
+						default:
+							throw new IllegalArgumentException("Bad severity expected: "+severities[j]);
+						}
+						messages[j] = null;
+						problems[i] = null;
+						nMatch++;
 						break;
-					case ProblemSeverities.Warning:
-						if (!problems[i].isWarning()) continue;
-						break;
-					case ProblemSeverities.Info:
-						if (!problems[i].isInfo()) continue;
-						break;
-					default:
-						throw new IllegalArgumentException("Bad severity expected: "+severities[j]);
+					} else {
+						System.err.println("Match at wrong line: "+problems[i].getSourceLineNumber()+" vs. "+lines[j]+": "+messages[j]);
 					}
-					messages[j] = null;
-					problems[i] = null;
-					nMatch++;
-					break;
 				}
 			}
 		}
@@ -1952,6 +1992,90 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		} finally {
 			deleteProject("Bug509715ProjA");
 			deleteProject("Bug509715ProjB");
+		}
+	}
+
+	public void testBug500024dir() throws CoreException, IOException {
+		try {
+			String projectName = "Bug500024";
+			setupJavaProject(projectName, true);
+			
+			addEeaToVariableEntry("JCL18_FULL", "/"+projectName+"/annots");
+			IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("test1", true, null);
+			ICompilationUnit unit = fragment.getCompilationUnit("Test1.java").getWorkingCopy(new NullProgressMonitor());
+			CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+			IProblem[] problems = reconciled.getProblems();
+			assertProblems(problems, 
+					new String[] {
+						"Pb(980) Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull Map<@NonNull String,@NonNull Test1>\'. Type \'Map<K,V>\' doesn\'t seem to be designed with null type annotations in mind",
+						"Pb(149) Dead code", 
+						"Pb(915) Illegal redefinition of parameter other, inherited method from Object declares this parameter as @Nullable" 
+					},
+					new int[] {9, 11, 13},
+					new int[] { ProblemSeverities.Warning, ProblemSeverities.Warning, ProblemSeverities.Error });
+			
+			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Markers after full build", 
+					"Dead code\n" +
+					"Illegal redefinition of parameter other, inherited method from Object declares this parameter as @Nullable\n" +
+					"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull Map<@NonNull String,@NonNull Test1>\'. Type \'Map<K,V>\' doesn\'t seem to be designed with null type annotations in mind",
+					markers);
+			int[] severities = new int[] { IMarker.SEVERITY_WARNING, IMarker.SEVERITY_ERROR, IMarker.SEVERITY_WARNING };
+			for (int i = 0; i < markers.length; i++) {
+				IMarker marker = markers[i];
+				assertEquals("severity of "+marker.getAttribute(IMarker.MESSAGE),
+						severities[i], marker.getAttribute(IMarker.SEVERITY));
+			}
+		} finally {
+			deleteProject("Bug500024");
+		}
+	}
+
+	public void testBug500024jar() throws CoreException, IOException {
+		try {
+			String projectName = "Bug500024";
+			setupJavaProject(projectName, true);
+			
+			String projectLoc = this.project.getResource().getLocation().toString();
+			String annotsZip = "/annots.zip";
+			String zipFile = projectLoc + annotsZip;
+			String tmpFolder = projectLoc+"/annots";
+			Util.zip(new File(tmpFolder), zipFile);
+			Util.delete(tmpFolder);
+			this.project.getProject().refreshLocal(1, new NullProgressMonitor());
+			addEeaToVariableEntry("JCL18_FULL", "/"+projectName+annotsZip);
+			IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("test1", true, null);
+			ICompilationUnit unit = fragment.getCompilationUnit("Test1.java").getWorkingCopy(new NullProgressMonitor());
+			
+			CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+			IProblem[] problems = reconciled.getProblems();
+			assertProblems(problems, 
+					new String[] {
+						"Pb(980) Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull Map<@NonNull String,@NonNull Test1>\'. Type \'Map<K,V>\' doesn\'t seem to be designed with null type annotations in mind",
+						"Pb(149) Dead code", 
+						"Pb(915) Illegal redefinition of parameter other, inherited method from Object declares this parameter as @Nullable" 
+					},
+					new int[] {9, 11, 13},
+					new int[] { ProblemSeverities.Warning, ProblemSeverities.Warning, ProblemSeverities.Error });
+			
+			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Markers after full build", 
+					"Dead code\n" +
+					"Illegal redefinition of parameter other, inherited method from Object declares this parameter as @Nullable\n" +
+					"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull Map<@NonNull String,@NonNull Test1>\'. Type \'Map<K,V>\' doesn\'t seem to be designed with null type annotations in mind",
+					markers);
+			int[] severities = new int[] { IMarker.SEVERITY_WARNING, IMarker.SEVERITY_ERROR, IMarker.SEVERITY_WARNING };
+			for (int i = 0; i < markers.length; i++) {
+				IMarker marker = markers[i];
+				assertEquals("severity of "+marker.getAttribute(IMarker.MESSAGE),
+						severities[i], marker.getAttribute(IMarker.SEVERITY));
+			}
+		} finally {
+			deleteProject("Bug500024");
 		}
 	}
 }

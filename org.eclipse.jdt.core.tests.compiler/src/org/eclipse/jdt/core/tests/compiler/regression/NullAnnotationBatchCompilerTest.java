@@ -120,6 +120,12 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 		super(name);
 	}
 
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		Util.delete(OUTPUT_DIR);
+	}
+
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=325342
 	// -err option - regression tests to check option nullAnnot
 	// Null warnings because of annotations, null spec violations plus one specific problem configured as errors
@@ -823,11 +829,14 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 					"Illegal redefinition of parameter other, inherited method from Object declares this parameter as @Nullable\n" +
 					"----------\n" +
 					"1 problem (1 warning)\n";
-
-		if (isSuccess)
-			this.runConformTest(testFiles, commandLine, "", expectedCompilerMessage, true);
-		else
-			this.runNegativeTest(testFiles, commandLine, "", expectedCompilerMessage, true);
+		try {
+			if (isSuccess)
+				this.runConformTest(testFiles, commandLine, "", expectedCompilerMessage, true);
+			else
+				this.runNegativeTest(testFiles, commandLine, "", expectedCompilerMessage, true);
+		} finally {
+			Util.delete(Util.getOutputDirectory());
+		}
 	}
 	// Bug 440687 - [compiler][batch][null] improve command line option for external annotations
 	// - two external annotation directories as part of the sourcepath/classpath
@@ -901,5 +910,113 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 						"",
 						"Missing argument to -annotationpath at \'-sourcepath\'\n",
 						false);
+	}
+
+	// project is configured for eea (directory on classpath), but no specific file for Map found
+	public void test490010NoEeaFile1() throws IOException {
+
+		String annots_dir1 = Util.getOutputDirectory() + File.separator + "annots1";
+		new File(annots_dir1).mkdirs();
+
+		String annots_dir2 = Util.getOutputDirectory() + File.separator + "annots2";
+		String annots_java_lang = annots_dir2 + File.separator + "java/lang";
+		new File(annots_java_lang).mkdirs();
+		Util.createFile(annots_java_lang + File.separator + "Object.eea",
+				TEST_440687_OBJECT_EEA_CONTENT);
+
+		runTest440687("-annotationpath CLASSPATH -classpath \"" + annots_dir2 + "\"", 
+				File.pathSeparator + annots_dir1, // extra source path 
+				"----------\n" + 
+				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 9)\n" + 
+				"	Test1 v = map.get(key);\n" + 
+				"	          ^^^^^^^^^^^^\n" + 
+				"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull Map<@NonNull String,@NonNull Test1>\'. Type \'Map<K,V>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
+				"----------\n" + 
+				"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 11)\n" + 
+				"	throw new RuntimeException(); // should not be reported as dead code, although V is a \'@NonNull Test1\'\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Dead code\n" + 
+				"----------\n" + 
+				"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 13)\n" + 
+				"	public boolean equals(@NonNull Object other) { return false; }\n" + 
+				"	                      ^^^^^^^^^^^^^^^\n" + 
+				"Illegal redefinition of parameter other, inherited method from Object declares this parameter as @Nullable\n" + 
+				"----------\n" + 
+				"3 problems (3 warnings)\n",
+				true);
+	}
+
+	// project is configured for eea (jar on classpath), but no specific file for Map found
+	public void test490010NoEeaFile2() throws IOException {
+
+		String annots_dir1 = Util.getOutputDirectory() + File.separator + "annots1";
+		new File(annots_dir1).mkdirs();
+
+		String annots_dir2 = Util.getOutputDirectory() + File.separator + "annots2";
+		String annots_java_lang = annots_dir2 + File.separator + "java/lang";
+		new File(annots_java_lang).mkdirs();
+		Util.createFile(annots_java_lang + File.separator + "Object.eea",
+				TEST_440687_OBJECT_EEA_CONTENT);
+		String zipName = Util.getOutputDirectory() + File.separator + "annots2.zip";
+		Util.zip(new File(annots_dir2), zipName);
+		Util.delete(annots_dir2);
+
+		runTest440687("-annotationpath CLASSPATH -classpath \"" + zipName + "\"", 
+				File.pathSeparator + annots_dir1, // extra source path 
+				"----------\n" + 
+				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 9)\n" + 
+				"	Test1 v = map.get(key);\n" + 
+				"	          ^^^^^^^^^^^^\n" + 
+				"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull Map<@NonNull String,@NonNull Test1>\'. Type \'Map<K,V>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
+				"----------\n" + 
+				"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 11)\n" + 
+				"	throw new RuntimeException(); // should not be reported as dead code, although V is a \'@NonNull Test1\'\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Dead code\n" + 
+				"----------\n" + 
+				"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 13)\n" + 
+				"	public boolean equals(@NonNull Object other) { return false; }\n" + 
+				"	                      ^^^^^^^^^^^^^^^\n" + 
+				"Illegal redefinition of parameter other, inherited method from Object declares this parameter as @Nullable\n" + 
+				"----------\n" + 
+				"3 problems (3 warnings)\n",
+				true);
+	}
+
+	// project is configured for eea (dedicated annotation zip), but no specific file for Map found
+	public void test490010NoEeaFile3() throws IOException {
+
+		String annots_dir1 = Util.getOutputDirectory() + File.separator + "annots1";
+		new File(annots_dir1).mkdirs();
+
+		String annots_dir2 = Util.getOutputDirectory() + File.separator + "annots2";
+		String annots_java_lang = annots_dir2 + File.separator + "java/lang";
+		new File(annots_java_lang).mkdirs();
+		Util.createFile(annots_java_lang + File.separator + "Object.eea",
+				TEST_440687_OBJECT_EEA_CONTENT);
+		String zipName = Util.getOutputDirectory() + File.separator + "annots2.zip";
+		Util.zip(new File(annots_dir2), zipName);
+		Util.delete(annots_dir2);
+
+		runTest440687("-annotationpath \"" + zipName + "\"", 
+				File.pathSeparator + annots_dir1, // extra source path 
+				"----------\n" + 
+				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 9)\n" + 
+				"	Test1 v = map.get(key);\n" + 
+				"	          ^^^^^^^^^^^^\n" + 
+				"Unsafe interpretation of method return type as \'@NonNull\' based on the receiver type \'@NonNull Map<@NonNull String,@NonNull Test1>\'. Type \'Map<K,V>\' doesn\'t seem to be designed with null type annotations in mind\n" + 
+				"----------\n" + 
+				"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 11)\n" + 
+				"	throw new RuntimeException(); // should not be reported as dead code, although V is a \'@NonNull Test1\'\n" + 
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"Dead code\n" + 
+				"----------\n" + 
+				"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 13)\n" + 
+				"	public boolean equals(@NonNull Object other) { return false; }\n" + 
+				"	                      ^^^^^^^^^^^^^^^\n" + 
+				"Illegal redefinition of parameter other, inherited method from Object declares this parameter as @Nullable\n" + 
+				"----------\n" + 
+				"3 problems (3 warnings)\n",
+				true);
 	}
 }

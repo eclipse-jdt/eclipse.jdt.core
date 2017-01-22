@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -279,7 +279,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 					}
 					answer.setBinaryType(ExternalAnnotationDecorator.create(answer.getBinaryType(), classpathEntry.getPath(), 
 							qualifiedTypeName, zip));
-					break;
+					return answer;
 				} catch (IOException e) {
 					// ignore broken entry, keep searching
 				} finally {
@@ -290,6 +290,8 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 				}
 			}
 		}
+		// globally configured (annotationsFromClasspath), but no .eea found, decorate in order to answer NO_EEA_FILE:
+		answer.setBinaryType(new ExternalAnnotationDecorator(answer.getBinaryType(), null));
 	}
 	return answer;
 }

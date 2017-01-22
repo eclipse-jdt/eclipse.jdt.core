@@ -1,0 +1,5 @@
+class java/lang/Object
+
+equals
+ (Ljava/lang/Object;)Z
+ (L0java/lang/Object;)Z
