@@ -662,6 +662,6 @@ public final class Nd {
 	}
 
 	public boolean isValidAddress(long address) {
-		return address > 0 && address < getDB().getChunkCount() * Database.CHUNK_SIZE;
+		return address > 0 && address < (long) getDB().getChunkCount() * Database.CHUNK_SIZE;
 	}
 }

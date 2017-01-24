@@ -25,7 +25,7 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-
+import java.util.Set;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
@@ -126,6 +126,11 @@ public class Database {
 	/** Id for the first node type. All node types will record their stats in a pool whose ID is POOL_FIRST_NODE_TYPE + node_id*/
 	public static final short POOL_FIRST_NODE_TYPE	= 0x0100;
 
+	/**
+	 * True iff large chunk self-diagnostics should be enabled.
+	 */
+	public static boolean DEBUG_LARGE_CHUNKS;
+
 	private final File fLocation;
 	private final boolean fReadOnly;
 	private RandomAccessFile fFile;
@@ -189,7 +194,7 @@ public class Database {
 		this.memoryUsage = new MemoryStats(this.fHeaderChunk, MALLOC_STATS_OFFSET);
 	}
 
-	private static int divideRoundingUp(long num, int den) {
+	private static int divideRoundingUp(long num, long den) {
 		return (int) ((num + den - 1) / den);
 	}
 
@@ -421,7 +426,7 @@ public class Database {
 		if (datasize >= MAX_SINGLE_BLOCK_MALLOC_SIZE) {
 			int newChunkNum = createLargeBlock(datasize);
 			usedSize = Math.abs(getBlockHeaderForChunkNum(newChunkNum)) * CHUNK_SIZE;
-			result = newChunkNum * CHUNK_SIZE + LargeBlock.HEADER_SIZE;
+			result = (long) newChunkNum * CHUNK_SIZE + LargeBlock.HEADER_SIZE;
 			// Note that we identify large blocks by setting their block size to 0.
 			clearRange(result, usedSize - LargeBlock.HEADER_SIZE - LargeBlock.FOOTER_SIZE);
 			result = result + BLOCK_HEADER_SIZE;
@@ -470,6 +475,11 @@ public class Database {
 
 		this.malloced += usedSize;
 		this.memoryUsage.recordMalloc(poolId, usedSize);
+
+		if (DEBUG_LARGE_CHUNKS) {
+			validateFreeSpaceTries();
+		}
+
 		return result;
 	}
 
@@ -479,14 +489,14 @@ public class Database {
 	 * @param startAddress first address to clear
 	 * @param bytesToClear number of addresses to clear
 	 */
-	public void clearRange(long startAddress, int bytesToClear) {
+	public void clearRange(long startAddress, long bytesToClear) {
 		if (bytesToClear == 0) {
 			return;
 		}
 		long endAddress = startAddress + bytesToClear;
-		assert endAddress <= this.fChunksUsed * CHUNK_SIZE;
+		assert endAddress <= (long) this.fChunksUsed * CHUNK_SIZE;
 		int blockNumber = (int) (startAddress / CHUNK_SIZE);
-		int firstBlockBytesToClear = Math.min((int) (((blockNumber + 1) * CHUNK_SIZE) - startAddress), bytesToClear);
+		int firstBlockBytesToClear = (int) Math.min((((long) (blockNumber + 1) * CHUNK_SIZE) - startAddress), bytesToClear);
 
 		Chunk firstBlock = getChunk(startAddress);
 		firstBlock.clear(startAddress, firstBlockBytesToClear);
@@ -501,7 +511,7 @@ public class Database {
 
 		if (bytesToClear > 0) {
 			Chunk nextBlock = getChunk(startAddress);
-			nextBlock.clear(startAddress, bytesToClear);
+			nextBlock.clear(startAddress, (int) bytesToClear);
 		}
 	}
 
@@ -547,7 +557,7 @@ public class Database {
 			// choice of using either half of the block. In the interest of leaving more
 			// opportunities of merging large blocks, we leave the unused half of the block
 			// next to the larger adjacent block.
-			final long nextBlockChunkNum = freeBlockChunkNum + numChunks;
+			final int nextBlockChunkNum = freeBlockChunkNum + numChunks;
 
 			final int nextBlockSize = Math.abs(getBlockHeaderForChunkNum(nextBlockChunkNum));
 			final int prevBlockSize = Math.abs(getBlockFooterForChunkBefore(freeBlockChunkNum));
@@ -648,7 +658,7 @@ public class Database {
 
 		// Try not to return the trie node itself if there is a linked list entry available, since unlinking
 		// something from the linked list is faster than unlinking a trie node.
-		int nextResultChunkNum = getInt(resultChunkNum * CHUNK_SIZE + LargeBlock.NEXT_BLOCK_OFFSET);
+		int nextResultChunkNum = getInt((long) resultChunkNum * CHUNK_SIZE + LargeBlock.NEXT_BLOCK_OFFSET);
 		if (nextResultChunkNum != 0) {
 			return nextResultChunkNum;
 		}
@@ -681,7 +691,7 @@ public class Database {
 		for (int testPosition = firstDifference; testPosition < LargeBlock.ENTRIES_IN_CHILD_TABLE; testPosition++) {
 			if (((currentSize & bitMask) != 0) == lookingForSmallerChild) {
 				int nextChildChunkNum = getInt(
-						trieNodeChunkNum * CHUNK_SIZE + LargeBlock.CHILD_TABLE_OFFSET + (testPosition * PTR_SIZE));
+						(long) trieNodeChunkNum * CHUNK_SIZE + LargeBlock.CHILD_TABLE_OFFSET + (testPosition * PTR_SIZE));
 				int childResultChunkNum = getSmallestChildNoSmallerThan(nextChildChunkNum, numChunks);
 				if (childResultChunkNum != 0) {
 					return childResultChunkNum;
@@ -706,7 +716,7 @@ public class Database {
 	 */
 	private void linkFreeBlockToTrie(int freeBlockChunkNum, int numChunks) {
 		setBlockHeader(freeBlockChunkNum, numChunks);
-		long freeBlockAddress = freeBlockChunkNum * CHUNK_SIZE;
+		long freeBlockAddress = (long) freeBlockChunkNum * CHUNK_SIZE;
 		Chunk chunk = getChunk(freeBlockAddress);
 		chunk.clear(freeBlockAddress + LargeBlock.HEADER_SIZE,
 				LargeBlock.UNALLOCATED_HEADER_SIZE - LargeBlock.HEADER_SIZE);
@@ -714,6 +724,51 @@ public class Database {
 		insertChild(getInt(FREE_BLOCK_OFFSET), freeBlockChunkNum);
 	}
 
+	private void validateFreeSpaceTries() {
+		int currentChunkNum = getInt(FREE_BLOCK_OFFSET);
+
+		if (currentChunkNum == 0) {
+			return;
+		}
+
+		Set<Integer> visited = new HashSet<>();
+		validateFreeSpaceNode(visited, currentChunkNum, 0);
+	}
+
+	private void validateFreeSpaceNode(Set<Integer> visited, int chunkNum, int parent) {
+		if (visited.contains(chunkNum)) {
+			throw new IndexException("Chunk " + chunkNum + "(parent = " + parent //$NON-NLS-1$//$NON-NLS-2$
+					+ " appeared twice in the free space tree"); //$NON-NLS-1$
+		}
+		
+		long chunkStart = chunkNum * CHUNK_SIZE;
+		int parentChunk = getInt(chunkStart + LargeBlock.PARENT_OFFSET);
+		if (parentChunk != parent) {
+			throw new IndexException("Chunk " + chunkNum + " has the wrong parent. Expected " + parent  //$NON-NLS-1$//$NON-NLS-2$
+					+ " but found  " + parentChunk); //$NON-NLS-1$
+		}
+		
+		visited.add(chunkNum);
+		int numChunks = getBlockHeaderForChunkNum(chunkNum);
+		for (int testPosition = 0; testPosition < LargeBlock.ENTRIES_IN_CHILD_TABLE; testPosition++) {
+			int nextChildChunkNum = getInt(
+					chunkStart + LargeBlock.CHILD_TABLE_OFFSET + (testPosition * PTR_SIZE));
+
+			int nextSize = getBlockHeaderForChunkNum(nextChildChunkNum);
+			int sizeDifference = nextSize ^ numChunks;
+			int firstDifference = LargeBlock.SIZE_OF_SIZE_FIELD * 8 - Integer.numberOfLeadingZeros(
+					Integer.highestOneBit(sizeDifference)) - 1;
+			
+			if (firstDifference != testPosition) {
+				throw new IndexException("Chunk " + nextChildChunkNum + " contained an incorrect size of "  //$NON-NLS-1$//$NON-NLS-2$
+						+ nextSize + ". It was at position " + testPosition + " in parent " + chunkNum //$NON-NLS-1$ //$NON-NLS-2$
+						+ " which had size " + numChunks); //$NON-NLS-1$
+			}
+
+			validateFreeSpaceNode(visited, nextChildChunkNum, chunkNum);
+		}
+	}
+	
 	/**
 	 * Adds the given child block to the given parent subtree of the free space trie. Any existing
 	 * subtree under the given child block will be retained.
@@ -723,7 +778,7 @@ public class Database {
 	 */
 	private void insertChild(int parentChunkNum, int newChildChunkNum) {
 		if (parentChunkNum == 0) {
-			putInt(newChildChunkNum * CHUNK_SIZE + LargeBlock.PARENT_OFFSET, parentChunkNum);
+			putInt((long) newChildChunkNum * CHUNK_SIZE + LargeBlock.PARENT_OFFSET, parentChunkNum);
 			putInt(FREE_BLOCK_OFFSET, newChildChunkNum);
 			return;
 		}
@@ -738,12 +793,12 @@ public class Database {
 			}
 
 			int firstDifference = LargeBlock.SIZE_OF_SIZE_FIELD * 8 - Integer.numberOfLeadingZeros(difference) - 1;
-			long locationOfChildPointer = parentChunkNum * CHUNK_SIZE + LargeBlock.CHILD_TABLE_OFFSET
+			long locationOfChildPointer = (long) parentChunkNum * CHUNK_SIZE + LargeBlock.CHILD_TABLE_OFFSET
 					+ (firstDifference * INT_SIZE);
 			int childChunkNum = getInt(locationOfChildPointer);
 			if (childChunkNum == 0) {
 				putInt(locationOfChildPointer, newChildChunkNum);
-				putInt(newChildChunkNum * CHUNK_SIZE + LargeBlock.PARENT_OFFSET, parentChunkNum);
+				putInt((long) newChildChunkNum * CHUNK_SIZE + LargeBlock.PARENT_OFFSET, parentChunkNum);
 				return;
 			}
 			parentChunkNum = childChunkNum;
@@ -807,11 +862,11 @@ public class Database {
 	 * Returns the size of the block (in number of chunks) starting at the given address. The return value is positive
 	 * if the block is free and negative if the block is allocated.
 	 */
-	private int getBlockHeaderForChunkNum(long firstChunkNum) {
+	private int getBlockHeaderForChunkNum(int firstChunkNum) {
 		if (firstChunkNum >= this.fChunksUsed) {
 			return 0;
 		}
-		return getInt(firstChunkNum * CHUNK_SIZE);
+		return getInt((long) firstChunkNum * CHUNK_SIZE);
 	}
 
 	/**
@@ -823,7 +878,7 @@ public class Database {
 			// Don't report the database header as a normal chunk.
 			return 0;
 		}
-		return getInt(chunkNum * CHUNK_SIZE - LargeBlock.FOOTER_SIZE);
+		return getInt((long) chunkNum * CHUNK_SIZE - LargeBlock.FOOTER_SIZE);
 	}
 
 	private int createNewChunks(int numChunks) throws IndexException {
@@ -855,7 +910,7 @@ public class Database {
 			 * indexing operation should be stopped. This is desired since generally, once the max size is exceeded,
 			 * there are lots of errors.
 			 */
-			long endAddress = result + (numChunks * CHUNK_SIZE);
+			long endAddress = result + ((long) numChunks * CHUNK_SIZE);
 			if (endAddress > MAX_DB_SIZE) {
 				Object bindings[] = { this.getLocation().getAbsolutePath(), MAX_DB_SIZE };
 				throw new IndexException(new Status(IStatus.ERROR, Package.PLUGIN_ID, Package.STATUS_DATABASE_TOO_LARGE,
@@ -938,8 +993,11 @@ public class Database {
 				throw new IndexException(new Status(IStatus.ERROR, Package.PLUGIN_ID, 0,
 						"Already freed large block " + address, new Exception())); //$NON-NLS-1$
 			}
-			blockSize = numChunks * CHUNK_SIZE;
+			blockSize = (long) numChunks * CHUNK_SIZE;
 			freeLargeChunk(chunkNum, numChunks);
+			if (DEBUG_LARGE_CHUNKS) {
+				validateFreeSpaceTries();
+			}
 		} else {
 			// Deallocating a normal block
 			// TODO Look for opportunities to merge small blocks
@@ -1120,7 +1178,7 @@ public class Database {
 	}
 
 	public long getDatabaseSize() {
-		return this.fChunksUsed * CHUNK_SIZE;
+		return (long) this.fChunksUsed * CHUNK_SIZE;
 	}
 
 	/**
@@ -1402,7 +1460,7 @@ public class Database {
 	 * Returns the number of bytes that can fit in the payload of the given number of chunks.
 	 */
 	public static long getBytesThatFitInChunks(int numChunks) {
-		return CHUNK_SIZE * numChunks - LargeBlock.HEADER_SIZE - LargeBlock.FOOTER_SIZE - BLOCK_HEADER_SIZE;
+		return CHUNK_SIZE * (long) numChunks - LargeBlock.HEADER_SIZE - LargeBlock.FOOTER_SIZE - BLOCK_HEADER_SIZE;
 	}
 
 	/**
