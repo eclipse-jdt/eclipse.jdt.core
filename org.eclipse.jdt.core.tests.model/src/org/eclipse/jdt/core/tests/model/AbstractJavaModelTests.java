@@ -365,8 +365,19 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void assertSearchResults(String message, String expected, Object collector) {
 		assertSearchResults(message, expected, collector, true /* assertion */);
 	}
-	protected void assertSearchResults(String message, String expected, Object collector, boolean assertion) {
-		String actual = collector.toString();
+	private static String sortLines(String toSplit) {
+		String[] split = toSplit.split("\n");
+		Arrays.sort(split);
+		StringBuilder reJoined = new StringBuilder();
+		for (int i = 0; i < split.length; i++) {
+			reJoined.append(split[i]);
+			if (i < split.length -1) reJoined.append('\n');
+		}
+		return reJoined.toString();
+	}
+	protected void assertSearchResults(String message, String expectedString, Object collector, boolean assertion) {
+		String expected = sortLines(expectedString);
+		String actual = sortLines(collector.toString());
 		if (!expected.equals(actual)) {
 			if (this.displayName) System.out.println(getName()+" actual result is:");
 			System.out.print(displayString(actual, this.tabs));
@@ -656,6 +667,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		assertElementsEqual(message, expected, elements, false/*don't show key*/);
 	}
 	protected void assertElementsEqual(String message, String expected, IJavaElement[] elements, boolean showResolvedInfo) {
+		assertElementsEqual(message, expected, elements, showResolvedInfo, false);
+	}
+	protected void assertElementsEqual(String message, String expected, IJavaElement[] elements, boolean showResolvedInfo, boolean sorted) {
 		StringBuffer buffer = new StringBuffer();
 		if (elements != null) {
 			for (int i = 0, length = elements.length; i < length; i++){
@@ -671,6 +685,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			buffer.append("<null>");
 		}
 		String actual = buffer.toString();
+		if (sorted) {
+			actual = sortLines(actual);
+		}
 		if (!expected.equals(actual)) {
 			if (this.displayName) System.out.println(getName()+" actual result is:");
 			System.out.println(displayString(actual, this.tabs) + this.endChar);

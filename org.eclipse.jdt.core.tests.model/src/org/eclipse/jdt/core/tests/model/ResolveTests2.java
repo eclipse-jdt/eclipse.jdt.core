@@ -926,7 +926,9 @@ public void testBug232880i() throws Exception {
 			"Unexpected elements",
 			"IResource [in IResource.class [in test1 [in "+outputDirectory+File.separator+"bug232880a.jar]]]\n" + 
 			"IResource [in IResource.class [in test2 [in "+outputDirectory+File.separator+"bug232880a.jar]]]",
-			elements
+			elements,
+			false,
+			true
 		);
 	} finally {
 		this.deleteExternalFile(externalJar1);
