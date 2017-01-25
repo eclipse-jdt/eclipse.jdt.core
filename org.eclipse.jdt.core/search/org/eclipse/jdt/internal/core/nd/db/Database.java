@@ -754,6 +754,10 @@ public class Database {
 			int nextChildChunkNum = getInt(
 					chunkStart + LargeBlock.CHILD_TABLE_OFFSET + (testPosition * PTR_SIZE));
 
+			if (nextChildChunkNum == 0) {
+				continue;
+			}
+
 			int nextSize = getBlockHeaderForChunkNum(nextChildChunkNum);
 			int sizeDifference = nextSize ^ numChunks;
 			int firstDifference = LargeBlock.SIZE_OF_SIZE_FIELD * 8 - Integer.numberOfLeadingZeros(
