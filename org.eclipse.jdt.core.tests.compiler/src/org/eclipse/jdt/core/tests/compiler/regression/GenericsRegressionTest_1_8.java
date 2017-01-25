@@ -7853,4 +7853,55 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	public void testBug511071() {
+		runNegativeTest(
+			new String[] {
+				"test/ATestClass.java",
+				"package test;\n" +
+				"\n" +
+				"interface Functional<T> {\n" +
+				"	void test(T t);\n" +
+				"}\n" +
+				"\n" +
+				"public abstract class ATestClass {\n" +
+				"	abstract void f(Functional<? super ClassWithMethodWithMissingArgType> predicate);\n" +
+				"\n" +
+				"	public void m() {\n" +
+				"		f(e -> e.matches(\"\"));\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+				"test/ClassWithMethodWithMissingArgType.java",
+				"package test;\n" +
+				"\n" +
+				"import java.util.List;\n" +
+				"\n" +
+				"import missing.Type;\n" +
+				"\n" +
+				"public class ClassWithMethodWithMissingArgType {\n" +
+				"	public void matches(Type arg) {\n" +
+				"		arg.hashCode();\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+			}, 
+			"----------\n" + 
+			"1. ERROR in test\\ATestClass.java (at line 11)\n" + 
+			"	f(e -> e.matches(\"\"));\n" + 
+			"	         ^^^^^^^\n" + 
+			"The method matches(Type) from the type ClassWithMethodWithMissingArgType refers to the missing type Type\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in test\\ClassWithMethodWithMissingArgType.java (at line 5)\n" + 
+			"	import missing.Type;\n" + 
+			"	       ^^^^^^^\n" + 
+			"The import missing cannot be resolved\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\ClassWithMethodWithMissingArgType.java (at line 8)\n" + 
+			"	public void matches(Type arg) {\n" + 
+			"	                    ^^^^\n" + 
+			"Type cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	}
 }
