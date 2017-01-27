@@ -441,10 +441,10 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				  "        maybeStrings.content()[0] = null; // no problem\n" +
 				  "    }\n" +
 				  "}\n"},
-		    "----------\n" + 
+			"----------\n" + 
 			"1. ERROR in A.java (at line 5)\n" + 
 			"	realStrings.content()[0] = null; // problem: cannot assign null as @NonNull element\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	                           ^^^^\n" + 
 			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
 			"----------\n" + 
 			"2. ERROR in A.java (at line 6)\n" + 
@@ -476,10 +476,10 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				  "        maybeStrings.content()[0][0] = null; // no problem\n" +
 				  "    }\n" +
 				  "}\n"},
-		    "----------\n" + 
+			"----------\n" + 
 			"1. ERROR in A.java (at line 5)\n" + 
 			"	realStrings.content()[0][0] = null; // problem: cannot assign null as @NonNull element\n" + 
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"	                              ^^^^\n" + 
 			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
 			"----------\n" + 
 			"2. ERROR in A.java (at line 6)\n" + 
@@ -578,41 +578,41 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				  "        maybeArrays[0][0] = null; // problem: indexing nullable array\n" +
 				  "    }\n" +
 				  "}\n"},
-		    "----------\n" + 
-    		"1. WARNING in A.java (at line 5)\n" + 
-    		"	array = realArrays; 		// problem: unchecked conversion\n" + 
-    		"	        ^^^^^^^^^^\n" + 
-    		"Null type safety (type annotations): The expression of type 'String [] @NonNull[]' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
-		    "----------\n" + 
+			"----------\n" + 
+			"1. WARNING in A.java (at line 5)\n" + 
+			"	array = realArrays; 		// problem: unchecked conversion\n" + 
+			"	        ^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'String [] @NonNull[]\' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
+			"----------\n" + 
 			"2. WARNING in A.java (at line 7)\n" + 
-    		"	array = maybeArrays; 	// problem: unchecked conversion\n" + 
-    		"	        ^^^^^^^^^^^\n" + 
-    		"Null type safety (type annotations): The expression of type 'String [] @Nullable[]' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
+			"	array = maybeArrays; 	// problem: unchecked conversion\n" + 
+			"	        ^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'String [] @Nullable[]\' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
 			"----------\n" + 
 			"3. ERROR in A.java (at line 13)\n" + 
 			"	realArrays[0] = null; 	// problem: cannot assign null to @NonNull array\n" + 
-			"	^^^^^^^^^^^^^\n" + 
+			"	                ^^^^\n" + 
 			"Null type mismatch: required \'String @NonNull[]\' but the provided value is null\n" + 
 			"----------\n" + 
-			"4. ERROR in A.java (at line 14)\n" +
-			"	array = maybeArrays[0]; 	// problem: element can be null\n" +
+			"4. ERROR in A.java (at line 14)\n" + 
+			"	array = maybeArrays[0]; 	// problem: element can be null\n" + 
 			"	        ^^^^^^^^^^^^^^\n" + 
-			"Null type mismatch (type annotations): required '@NonNull Object' but this expression has type 'String @Nullable[]'\n" + 
+			"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'String @Nullable[]\'\n" + 
 			"----------\n" + 
-			"5. WARNING in A.java (at line 19)\n" +
-			"	array = realArrays[0][0]; // problem: unchecked conversion\n" +
-			"	        ^^^^^^^^^^^^^^^^\n" +
-    		"Null type safety (type annotations): The expression of type 'String' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
+			"5. WARNING in A.java (at line 19)\n" + 
+			"	array = realArrays[0][0]; // problem: unchecked conversion\n" + 
+			"	        ^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
 			"----------\n" + 
-			"6. ERROR in A.java (at line 21)\n" +
-			"	array = maybeArrays[0][0]; // problems: indexing nullable array & unchecked conversion\n" +
-			"	        ^^^^^^^^^^^^^^\n" +
-    		"Potential null pointer access: array element may be null\n" + 
+			"6. ERROR in A.java (at line 21)\n" + 
+			"	array = maybeArrays[0][0]; // problems: indexing nullable array & unchecked conversion\n" + 
+			"	        ^^^^^^^^^^^^^^\n" + 
+			"Potential null pointer access: array element may be null\n" + 
 			"----------\n" + 
-			"7. WARNING in A.java (at line 21)\n" +
-			"	array = maybeArrays[0][0]; // problems: indexing nullable array & unchecked conversion\n" +
-			"	        ^^^^^^^^^^^^^^^^^\n" +
-			"Null type safety (type annotations): The expression of type 'String' needs unchecked conversion to conform to \'@NonNull Object\'\n" +
+			"7. WARNING in A.java (at line 21)\n" + 
+			"	array = maybeArrays[0][0]; // problems: indexing nullable array & unchecked conversion\n" + 
+			"	        ^^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
 			"----------\n" + 
 			"8. ERROR in A.java (at line 22)\n" + 
 			"	maybeArrays[0][0] = null; // problem: indexing nullable array\n" + 
@@ -644,18 +644,18 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n" + 
 			"1. ERROR in A.java (at line 4)\n" + 
 			"	realArrays[0] = maybeArrays[0];		// problem: inner array can be null\n" + 
-			"	^^^^^^^^^^^^^\n" + 
-			"Null type mismatch: required \'String @NonNull[]\' but the provided value is inferred as @Nullable\n" + 
+			"	                ^^^^^^^^^^^^^^\n" + 
+			"Null type mismatch (type annotations): required \'String @NonNull[]\' but this expression has type \'String @Nullable[]\'\n" + 
 			"----------\n" + 
-			"2. WARNING in A.java (at line 5)\n" + 
-			"	realArrays[0] = unknownArrays[0];	// problems: inner array is unspecified, outer can be null\n" + 
-			"	^^^^^^^^^^^^^\n" + 
-			"Null type safety (type annotations): The expression of type 'String[]' needs unchecked conversion to conform to \'String @NonNull[]\'\n" + 
-			"----------\n" + 
-			"3. ERROR in A.java (at line 5)\n" + 
+			"2. ERROR in A.java (at line 5)\n" + 
 			"	realArrays[0] = unknownArrays[0];	// problems: inner array is unspecified, outer can be null\n" + 
 			"	                ^^^^^^^^^^^^^\n" + 
 			"Potential null pointer access: this expression has a \'@Nullable\' type\n" + 
+			"----------\n" + 
+			"3. WARNING in A.java (at line 5)\n" + 
+			"	realArrays[0] = unknownArrays[0];	// problems: inner array is unspecified, outer can be null\n" + 
+			"	                ^^^^^^^^^^^^^^^^\n" + 
+			"Null type safety (type annotations): The expression of type \'String[]\' needs unchecked conversion to conform to \'String @NonNull[]\'\n" + 
 			"----------\n" + 
 			"4. ERROR in A.java (at line 8)\n" + 
 			"	String @NonNull[] s = maybeStrings;\n" + 
@@ -1428,8 +1428,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"----------\n" + 
 				"1. ERROR in Y1.java (at line 7)\n" + 
 				"	x.arrays(a)[0] = null; // illegal\n" + 
-				"	^^^^^^^^^^^^^^\n" + 
-				"Null type mismatch: required \'Object @NonNull[]\' but the provided value is null\n" +
+				"	                 ^^^^\n" + 
+				"Null type mismatch: required \'Object @NonNull[]\' but the provided value is null\n" + 
 				"----------\n" + 
 				"2. ERROR in Y1.java (at line 8)\n" + 
 				"	x.nesting(null, null); // 1st null is illegal\n" + 
@@ -1508,8 +1508,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"----------\n" + 
 				"1. ERROR in Y1.java (at line 7)\n" + 
 				"	x.arrays(a)[0] = null; // illegal\n" + 
-				"	^^^^^^^^^^^^^^\n" + 
-				"Null type mismatch: required \'Object @NonNull[]\' but the provided value is null\n" +
+				"	                 ^^^^\n" + 
+				"Null type mismatch: required \'Object @NonNull[]\' but the provided value is null\n" + 
 				"----------\n" + 
 				"2. ERROR in Y1.java (at line 8)\n" + 
 				"	x.nesting(null, null); // 1st null is illegal\n" + 
@@ -1601,7 +1601,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"----------\n" + 
 				"4. ERROR in Y.java (at line 6)\n" + 
 				"	x.f[0][0] = null;\n" + 
-				"	^^^^^^^^^\n" + 
+				"	            ^^^^\n" + 
 				"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" + 
 				"----------\n");
 }
@@ -12984,14 +12984,14 @@ public void testBug501449() {
 		"----------\n" + 
 		"1. ERROR in Test.java (at line 5)\n" + 
 		"	objects[0] = null;\n" + 
-		"	^^^^^^^^^^\n" + 
+		"	             ^^^^\n" + 
 		"Null type mismatch (type annotations): \'null\' is not compatible to the free type variable \'T\'\n" + 
 		"----------\n" + 
 		"2. ERROR in Test.java (at line 6)\n" + 
 		"	objects[1] = nullableValue;\n" + 
-		"	^^^^^^^^^^\n" + 
+		"	             ^^^^^^^^^^^^^\n" + 
 		"Null type mismatch (type annotations): required \'T\' but this expression has type \'@Nullable T\', where \'T\' is a free type variable\n" + 
-		"----------\n" 
+		"----------\n"
 	);
 }
 public void testBug502112() {
@@ -13546,6 +13546,146 @@ public void testBug510799() {
 		}, 
 		getCompilerOptions(),
 		""
+	);
+}
+public void testBug490403() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/TestNullInt.java",
+			"package test;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"public class TestNullInt {\n" +
+			"\n" +
+			"	public void test() {\n" +
+			"		@NonNull Integer[] keys = new @NonNull Integer[12];\n" +
+			"		@NonNull Integer index = 0;\n" +
+			"		for (int i = 0; i < 10; i++) {\n" +
+			"			keys[index] = index;\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+public void testBug490403while() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/TestNullInt.java",
+			"package test;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"public abstract class TestNullInt {\n" +
+			"	public abstract boolean b();\n" +
+			"\n" +
+			"	public void test(@NonNull Object[] keys, @NonNull String o) {\n" +
+			"		while (b()) {\n" +
+			"			keys[0] = o;\n" +
+			"			keys[1] = b() ? o : o;\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+
+public void testBug490403negative() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/TestNullInt.java",
+			"package test;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"\n" +
+			"public abstract class TestNullInt {\n" +
+			"	public abstract boolean b();\n" +
+			"\n" +
+			"	public void warning(@NonNull Object[] keys, String o) {\n" +
+			"		while (b()) {\n" +
+			"			keys[0] = o;\n" +
+			"			keys[1] = b() ? o : \"\";\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public void error(@NonNull Object[] keys, @Nullable String o) {\n" +
+			"		while (b()) {\n" +
+			"			keys[0] = o;\n" +
+			"			keys[1] = b() ? \"\" : o;\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. WARNING in test\\TestNullInt.java (at line 9)\n" + 
+		"	keys[0] = o;\n" + 
+		"	          ^\n" + 
+		"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
+		"----------\n" + 
+		"2. WARNING in test\\TestNullInt.java (at line 10)\n" + 
+		"	keys[1] = b() ? o : \"\";\n" + 
+		"	                ^\n" + 
+		"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull Object\'\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\TestNullInt.java (at line 15)\n" + 
+		"	keys[0] = o;\n" + 
+		"	          ^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'@Nullable String\'\n" + 
+		"----------\n" + 
+		"4. ERROR in test\\TestNullInt.java (at line 16)\n" + 
+		"	keys[1] = b() ? \"\" : o;\n" + 
+		"	                     ^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'@Nullable String\'\n" + 
+		"----------\n"
+	);
+}
+public void testBug490403typeArgAnnotationMismatch() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"class Ref<T> {\n" +
+			"}\n" +
+			"\n" +
+			"public abstract class Test {\n" +
+			"    abstract boolean b();\n" +
+			"\n" +
+			"    public void testAnnotationMismatch(@NonNull Ref<@Nullable String> x, @NonNull Ref<@NonNull String>[] keys) {\n" +
+			"        keys[0] = x;\n" +
+			"        while (b()) {\n" +
+			"            keys[0] = x;\n" +
+			"            keys[1] = b() ? keys[0] : x;\n" +
+			"        }\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\Test.java (at line 13)\n" + 
+		"	keys[0] = x;\n" + 
+		"	          ^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Ref<@NonNull String>\' but this expression has type \'@NonNull Ref<@Nullable String>\'\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\Test.java (at line 15)\n" + 
+		"	keys[0] = x;\n" + 
+		"	          ^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Ref<@NonNull String>\' but this expression has type \'@NonNull Ref<@Nullable String>\'\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\Test.java (at line 16)\n" + 
+		"	keys[1] = b() ? keys[0] : x;\n" + 
+		"	                          ^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Ref<@NonNull String>\' but this expression has type \'@NonNull Ref<@Nullable String>\'\n" + 
+		"----------\n"
 	);
 }
 }
