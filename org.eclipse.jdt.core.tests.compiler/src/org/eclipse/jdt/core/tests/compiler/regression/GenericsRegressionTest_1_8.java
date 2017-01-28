@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2016 GK Software AG, and others.
+ * Copyright (c) 2013, 2017 GK Software AG, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7623,6 +7623,56 @@ public void testBug508834_comment0() {
 				"    private static <X> List<X> x(X x) {\n" + 
 				"        return java.util.Collections.emptyList();\n" + 
 				"    }\n" + 
+				"}\n"
+			});
+	}
+	public void testBug509324() {
+		runConformTest(
+			new String[] {
+				"testgenerics/TestGenerics.java",
+				"package testgenerics;\n" + 
+				"\n" + 
+				"import java.time.Duration;\n" + 
+				"import java.util.function.Function;\n" + 
+				"import java.util.function.Supplier;\n" + 
+				"\n" + 
+				"interface Publisher<T> {}\n" + 
+				"\n" + 
+				"abstract class Mono<T> implements Publisher<T> {\n" + 
+				"	public static <T> Mono<T> just(T data) { return null; }\n" + 
+				"	public static <T> Mono<T> empty() { return null; }\n" + 
+				"	public final <R> Mono<R> then(Function<? super T, ? extends Mono<? extends R>> transformer) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	public T block() { return null; }\n" + 
+				"	public final T block(Duration timeout) { return null; }\n" + 
+				"}\n" + 
+				"class Info {\n" + 
+				"	public String getApplicationSshEndpoint() { return null; }\n" + 
+				"}\n" + 
+				"class SshHost {\n" + 
+				"	public SshHost(String host, int port, String fingerPrint) { }\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class TestGenerics {\n" + 
+				"\n" + 
+				"	private Mono<Info> info = Mono.just(new Info());\n" + 
+				"\n" + 
+				"	public static <T> T ru_get(Mono<T> mono) throws Exception {\n" + 
+				"		return mono.block();\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public SshHost getSshHost() throws Exception {\n" + 
+				"		return ru_get(\n" + 
+				"			info.then((i) -> {\n" + 
+				"				String host = i.getApplicationSshEndpoint();\n" + 
+				"				if (host!=null) {\n" + 
+				"					return Mono.just(new SshHost(host, 0, host));\n" + 
+				"				}\n" + 
+				"				return Mono.empty();\n" + 
+				"			})\n" + 
+				"		);\n" + 
+				"	}\n" +
 				"}\n"
 			});
 	}

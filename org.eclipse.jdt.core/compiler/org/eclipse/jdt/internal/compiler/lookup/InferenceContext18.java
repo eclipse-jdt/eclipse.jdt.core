@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2016 GK Software AG, and others.
+ * Copyright (c) 2013, 2017 GK Software AG, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -408,7 +408,7 @@ public class InferenceContext18 {
 			}
 
 			if (SHOULD_WORKAROUND_BUG_JDK_8153748) { // "before 18.5.2", but should not spill into b3 ... (heuristically)
-				ReductionResult jdk8153748result = addJDK_8153748ConstraintsFromInvocation(this.invocationArguments, method);
+				ReductionResult jdk8153748result = addJDK_8153748ConstraintsFromInvocation(this.invocationArguments, method, new InferenceSubstitution(this));
 				if (jdk8153748result != null) {
 					this.currentBounds.incorporate(this);
 				}
@@ -524,15 +524,17 @@ public class InferenceContext18 {
 	}
 	// ---
 
-	private ReductionResult addJDK_8153748ConstraintsFromInvocation(Expression[] arguments, MethodBinding method) throws InferenceFailureException {
+	private ReductionResult addJDK_8153748ConstraintsFromInvocation(Expression[] arguments, MethodBinding method, InferenceSubstitution substitution)
+			throws InferenceFailureException
+	{
 		// not per JLS, trying to mimic javac behavior
 		boolean constraintAdded = false;
 		if (arguments != null) {
 			for (int i = 0; i < arguments.length; i++) {
 				Expression argument = arguments[i];
 				TypeBinding parameter = getParameter(method.parameters, i, method.isVarargs());
-				parameter = this.substitute(parameter);
-				ReductionResult result = addJDK_8153748ConstraintsFromExpression(argument, parameter, method);
+				parameter = substitution.substitute(substitution, parameter); 
+				ReductionResult result = addJDK_8153748ConstraintsFromExpression(argument, parameter, method, substitution);
 				if (result == ReductionResult.FALSE)
 					return ReductionResult.FALSE;
 				if (result == ReductionResult.TRUE)
@@ -542,7 +544,10 @@ public class InferenceContext18 {
 		return constraintAdded ? ReductionResult.TRUE : null;
 	}
 
-	private ReductionResult addJDK_8153748ConstraintsFromExpression(Expression argument, TypeBinding parameter, MethodBinding method) throws InferenceFailureException {
+	private ReductionResult addJDK_8153748ConstraintsFromExpression(Expression argument, TypeBinding parameter, MethodBinding method,
+			InferenceSubstitution substitution)
+			throws InferenceFailureException
+	{
 		if (argument instanceof FunctionalExpression) {
 			return addJDK_8153748ConstraintsFromFunctionalExpr((FunctionalExpression) argument, parameter, method);
 		} else if (argument instanceof Invocation && argument.isPolyExpression(method)) {
@@ -550,13 +555,14 @@ public class InferenceContext18 {
 			Expression[] innerArgs = invocation.arguments();
 			MethodBinding innerMethod = invocation.binding();
 			if (innerMethod != null && innerMethod.isValidBinding()) {
-				return addJDK_8153748ConstraintsFromInvocation(innerArgs, innerMethod.original());
+				substitution = enrichSubstitution(substitution, invocation, innerMethod);
+				return addJDK_8153748ConstraintsFromInvocation(innerArgs, innerMethod.original(), substitution);
 			}
 		} else if (argument instanceof ConditionalExpression) {
 			ConditionalExpression ce = (ConditionalExpression) argument;
-			if (addJDK_8153748ConstraintsFromExpression(ce.valueIfTrue, parameter, method) == ReductionResult.FALSE)
+			if (addJDK_8153748ConstraintsFromExpression(ce.valueIfTrue, parameter, method, substitution) == ReductionResult.FALSE)
 				return ReductionResult.FALSE;
-			return addJDK_8153748ConstraintsFromExpression(ce.valueIfFalse, parameter, method);
+			return addJDK_8153748ConstraintsFromExpression(ce.valueIfFalse, parameter, method, substitution);
 		}
 		return null;
 	}
@@ -574,6 +580,15 @@ public class InferenceContext18 {
 			}
 		}
 		return null;
+	}
+	
+	InferenceSubstitution enrichSubstitution(InferenceSubstitution substitution, Invocation innerInvocation, MethodBinding innerMethod) {
+		if (innerMethod instanceof ParameterizedGenericMethodBinding) {
+			InferenceContext18 innerContext = innerInvocation.getInferenceContext((ParameterizedMethodBinding) innerMethod);
+			if (innerContext != null)
+				return substitution.addContext(innerContext);
+		}
+		return substitution;
 	}
 
 	private boolean addConstraintsToC(Expression[] exprs, Set<ConstraintFormula> c, MethodBinding method, int inferenceKindForMethod, InvocationSite site)
