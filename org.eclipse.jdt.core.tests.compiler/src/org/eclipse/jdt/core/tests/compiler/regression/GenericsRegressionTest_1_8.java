@@ -7676,4 +7676,59 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	public void testBug469014() {
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"import java.util.stream.Stream;\n" + 
+				"\n" + 
+				"public class Test {\n" + 
+				"    public static <T> Field<T> coalesce(T value, T... values) {\n" + 
+				"        return coalesce(field(value), fields(values));\n" + 
+				"    }\n" + 
+				"    public static <T> Field<T> coalesce(Field<T> field, T value) {\n" + 
+				"        return coalesce(field, field(value));\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static <T> Field<T> coalesce(Field<T> field, Field<?>... fields) {\n" + 
+				"        // irrelevant\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    static <T> Field<T> field(T value) {\n" + 
+				"        return new Field<T>(value);\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    static <T> Field<T>[] fields(T... values) {\n" + 
+				"        return Stream.of(values).map(Test::field).toArray(Field[]::new);\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    static class Field<T> {\n" + 
+				"        public Field(T t) {\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in Test.java (at line 4)\n" + 
+			"	public static <T> Field<T> coalesce(T value, T... values) {\n" + 
+			"	                                                  ^^^^^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter values\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 5)\n" + 
+			"	return coalesce(field(value), fields(values));\n" + 
+			"	       ^^^^^^^^\n" + 
+			"The method coalesce(Test.Field<T>, Test.Field<T>[]) is ambiguous for the type Test\n" + 
+			"----------\n" + 
+			"3. WARNING in Test.java (at line 20)\n" + 
+			"	static <T> Field<T>[] fields(T... values) {\n" + 
+			"	                                  ^^^^^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter values\n" + 
+			"----------\n" + 
+			"4. WARNING in Test.java (at line 21)\n" + 
+			"	return Stream.of(values).map(Test::field).toArray(Field[]::new);\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Test.Field[] needs unchecked conversion to conform to Test.Field<T>[]\n" + 
+			"----------\n");
+	}
 }
