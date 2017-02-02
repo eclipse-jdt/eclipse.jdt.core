@@ -1611,8 +1611,8 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 		plainCurrent = memberType;
 	}
 	wrapper.start++; // skip ';'
-	currentType=(ParameterizedTypeBinding) annotateType(currentType, savedWalker, missingTypeNames);
-	return dimension == 0 ? (TypeBinding) currentType : createArrayType(currentType, dimension, AnnotatableTypeSystem.flattenedAnnotations(annotationsOnDimensions));
+	TypeBinding annotatedType = annotateType(currentType, savedWalker, missingTypeNames);
+	return dimension == 0 ? annotatedType : createArrayType(annotatedType, dimension, AnnotatableTypeSystem.flattenedAnnotations(annotationsOnDimensions));
 }
 
 private TypeBinding getTypeFromTypeVariable(TypeVariableBinding typeVariableBinding, int dimension, AnnotationBinding [][] annotationsOnDimensions, ITypeAnnotationWalker walker, char [][][] missingTypeNames) {
