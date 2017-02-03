@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2613,13 +2613,16 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int attrLengthOffset = localContentsOffset;
 		localContentsOffset += 4;
 		int moduleNameIndex =
-				this.constantPool.literalIndex(binding.constantPoolName());
+				this.constantPool.literalIndexForModule(binding.moduleName);
 		this.contents[localContentsOffset++] = (byte) (moduleNameIndex >> 8);
 		this.contents[localContentsOffset++] = (byte) moduleNameIndex;
 		int flags = module.modifiers & ~(ClassFileConstants.AccModule);
 		this.contents[localContentsOffset++] = (byte) (flags >> 8);
 		this.contents[localContentsOffset++] = (byte) flags;
-		int attrLength = 4;
+		int module_version = 0;
+		this.contents[localContentsOffset++] = (byte) (module_version >> 8);
+		this.contents[localContentsOffset++] = (byte) module_version;
+		int attrLength = 6;
 		
 		// ================= requires section =================
 		/** u2 requires_count;
@@ -2629,7 +2632,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	    **/
 		int requiresCountOffset = localContentsOffset;
 		int requiresCount = module.requiresCount;
-		int requiresSize = 2 + requiresCount * 4;
+		int requiresSize = 2 + requiresCount * 6;
 		if (localContentsOffset + requiresSize >= this.contents.length) {
 			resizeContents(requiresSize);
 		}
@@ -2642,29 +2645,35 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (CharOperation.equals(req.module.moduleName, TypeConstants.JAVA_BASE)) {
 				javaBaseBinding = reqBinding;
 			}
-			int nameIndex = this.constantPool.literalIndex(reqBinding.constantPoolName());
+			int nameIndex = this.constantPool.literalIndexForModule(reqBinding.moduleName);
 			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) (nameIndex);
 			flags = req.modifiers;
 			this.contents[localContentsOffset++] = (byte) (flags >> 8);
 			this.contents[localContentsOffset++] = (byte) (flags);
+			int required_version = 0;
+			this.contents[localContentsOffset++] = (byte) (required_version >> 8);
+			this.contents[localContentsOffset++] = (byte) (required_version);
 		}
 		if (javaBaseBinding == null) {
-			if (localContentsOffset + 4 >= this.contents.length) {
-				resizeContents(4);
+			if (localContentsOffset + 6 >= this.contents.length) {
+				resizeContents(6);
 			}
 			javaBaseBinding = binding.environment.getModule(TypeConstants.JAVA_BASE);
-			int javabase_index = this.constantPool.literalIndex(javaBaseBinding.constantPoolName());
+			int javabase_index = this.constantPool.literalIndexForModule(javaBaseBinding.moduleName);
 			this.contents[localContentsOffset++] = (byte) (javabase_index >> 8);
 			this.contents[localContentsOffset++] = (byte) (javabase_index);
 			flags = ClassFileConstants.AccMandated;
 			this.contents[localContentsOffset++] = (byte) (flags >> 8);
 			this.contents[localContentsOffset++] = (byte) flags;
+			int required_version = 0;
+			this.contents[localContentsOffset++] = (byte) (required_version >> 8);
+			this.contents[localContentsOffset++] = (byte) (required_version);
 			requiresCount++;
 		}
 		this.contents[requiresCountOffset++] = (byte) (requiresCount >> 8);
 		this.contents[requiresCountOffset++] = (byte) requiresCount;
-		attrLength += 2 + 4 * requiresCount;
+		attrLength += 2 + 6 * requiresCount;
 		// ================= end requires section =================
 
 		// ================= exports section =================
@@ -2684,7 +2693,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) module.exportsCount;
 		for (int i = 0; i < module.exportsCount; i++) {
 			ExportsStatement ref = module.exports[i];
-			int nameIndex = this.constantPool.literalIndex(CharOperation.replaceOnCopy(ref.pkgName, '.', '/'));
+			int nameIndex = this.constantPool.literalIndexForPackage(CharOperation.replaceOnCopy(ref.pkgName, '.', '/'));
 			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) (nameIndex);
 			// TODO exports_flags - check when they are set
@@ -2700,7 +2709,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					resizeContents(targetSize);
 				}
 				for(int j = 0; j < exportsToCount; j++) {
-					nameIndex = this.constantPool.literalIndex(CharOperation.replaceOnCopy(ref.targets[j].moduleName, '.', '/'));
+					nameIndex = this.constantPool.literalIndexForModule(ref.targets[j].moduleName);
 					this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 					this.contents[localContentsOffset++] = (byte) (nameIndex);
 				}
@@ -2727,7 +2736,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) module.opensCount;
 		for (int i = 0; i < module.opensCount; i++) {
 			OpensStatement ref = module.opens[i];
-			int nameIndex = this.constantPool.literalIndex(CharOperation.replaceOnCopy(ref.pkgName, '.', '/'));
+			int nameIndex = this.constantPool.literalIndexForPackage(CharOperation.replaceOnCopy(ref.pkgName, '.', '/'));
 			this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 			this.contents[localContentsOffset++] = (byte) (nameIndex);
 			// TODO opens_flags - check when they are set
@@ -2743,7 +2752,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					resizeContents(targetSize);
 				}
 				for(int j = 0; j < opensToCount; j++) {
-					nameIndex = this.constantPool.literalIndex(CharOperation.replaceOnCopy(ref.targets[j].moduleName, '.', '/'));
+					nameIndex = this.constantPool.literalIndexForModule(ref.targets[j].moduleName);
 					this.contents[localContentsOffset++] = (byte) (nameIndex >> 8);
 					this.contents[localContentsOffset++] = (byte) (nameIndex);
 				}
@@ -5202,7 +5211,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// now we continue to generate the bytes inside the contents array
 		this.contents[this.contentsOffset++] = (byte) (accessFlags >> 8);
 		this.contents[this.contentsOffset++] = (byte) accessFlags;
-		int classNameIndex = aType.isModule() ? 0 : this.constantPool.literalIndexForType(aType);
+		int classNameIndex = this.constantPool.literalIndexForType(aType);
 		this.contents[this.contentsOffset++] = (byte) (classNameIndex >> 8);
 		this.contents[this.contentsOffset++] = (byte) classNameIndex;
 		int superclassNameIndex;

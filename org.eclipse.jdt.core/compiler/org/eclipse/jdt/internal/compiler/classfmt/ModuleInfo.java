@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation.
+ * Copyright (c) 2016, 2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -31,6 +31,7 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 	protected int providesCount;
 	protected int opensCount;
 	protected char[] name;
+	protected char[] version;
 	protected ModuleReferenceInfo[] requires;
 	protected PackageExportInfo[] exports;
 	protected PackageExportInfo[] opens;
@@ -121,11 +122,18 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 		int moduleOffset = readOffset + 6;
 		int utf8Offset;
 		ModuleInfo module = new ModuleInfo(classFileBytes, offsets, 0);
-		utf8Offset = module.constantPoolOffsets[module.u2At(moduleOffset)];
+		int name_index = module.constantPoolOffsets[module.u2At(moduleOffset)];
+		utf8Offset = module.constantPoolOffsets[module.u2At(name_index + 1)];
 		module.name = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1));
 		CharOperation.replace(module.name, '/', '.');
 		moduleOffset += 2;
 		module.flags = module.u2At(moduleOffset);
+		moduleOffset += 2;
+		int version_index = module.u2At(moduleOffset);
+		if (version_index > 0) {
+			utf8Offset = module.constantPoolOffsets[version_index];
+			module.version = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1));
+		}
 		moduleOffset += 2;
 
 		utf8Offset = module.constantPoolOffsets[module.u2At(readOffset)];
@@ -134,7 +142,8 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 		module.requires = new ModuleReferenceInfo[count];
 		moduleOffset += 2;
 		for (int i = 0; i < count; i++) {
-			utf8Offset = module.constantPoolOffsets[module.u2At(moduleOffset)];
+			name_index = module.constantPoolOffsets[module.u2At(moduleOffset)];
+			utf8Offset = module.constantPoolOffsets[module.u2At(name_index + 1)];
 			char[] requiresNames = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1));
 			module.requires[i] = module.new ModuleReferenceInfo();
 			CharOperation.replace(requiresNames, '/', '.');
@@ -144,13 +153,20 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 			module.requires[i].modifiers = modifiers;
 			module.requires[i].isTransitive = (ClassFileConstants.ACC_TRANSITIVE & modifiers) != 0; // Access modifier
 			moduleOffset += 2;
+			version_index = module.u2At(moduleOffset);
+			if (version_index > 0) {
+				utf8Offset = module.constantPoolOffsets[version_index];
+				module.requires[i].required_version = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1));
+			}
+			moduleOffset += 2;
 		}
 		count = module.u2At(moduleOffset);
 		moduleOffset += 2;
 		module.exportsCount = count;
 		module.exports = new PackageExportInfo[count];
 		for (int i = 0; i < count; i++) {
-			utf8Offset = module.constantPoolOffsets[module.u2At(moduleOffset)];
+			name_index = module.constantPoolOffsets[module.u2At(moduleOffset)];
+			utf8Offset = module.constantPoolOffsets[module.u2At(name_index + 1)];
 			char[] exported = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1));
 			CharOperation.replace(exported, '/', '.');
 			PackageExportInfo pack = module.new PackageExportInfo();
@@ -165,7 +181,8 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 				pack.exportedTo = new char[exportedtoCount][];
 				pack.exportedToCount = exportedtoCount;
 				for(int k = 0; k < exportedtoCount; k++) {
-					utf8Offset = module.constantPoolOffsets[module.u2At(moduleOffset)];
+					name_index = module.constantPoolOffsets[module.u2At(moduleOffset)];
+					utf8Offset = module.constantPoolOffsets[module.u2At(name_index + 1)];
 					char[] exportedToName = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1));
 					CharOperation.replace(exportedToName, '/', '.');
 					pack.exportedTo[k] = exportedToName;
@@ -178,7 +195,8 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 		module.opensCount = count;
 		module.opens = new PackageExportInfo[count];
 		for (int i = 0; i < count; i++) {
-			utf8Offset = module.constantPoolOffsets[module.u2At(moduleOffset)];
+			name_index = module.constantPoolOffsets[module.u2At(moduleOffset)];
+			utf8Offset = module.constantPoolOffsets[module.u2At(name_index + 1)];
 			char[] exported = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1));
 			CharOperation.replace(exported, '/', '.');
 			PackageExportInfo pack = module.new PackageExportInfo();
@@ -193,7 +211,8 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 				pack.exportedTo = new char[exportedtoCount][];
 				pack.exportedToCount = exportedtoCount;
 				for(int k = 0; k < exportedtoCount; k++) {
-					utf8Offset = module.constantPoolOffsets[module.u2At(moduleOffset)];
+					name_index = module.constantPoolOffsets[module.u2At(moduleOffset)];
+					utf8Offset = module.constantPoolOffsets[module.u2At(name_index + 1)];
 					char[] exportedToName = module.utf8At(utf8Offset + 3, module.u2At(utf8Offset + 1));
 					CharOperation.replace(exportedToName, '/', '.');
 					pack.exportedTo[k] = exportedToName;
@@ -247,6 +266,7 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 		char[] refName;
 		boolean isTransitive = false;
 		int modifiers;
+		char[] required_version;
 		@Override
 		public char[] name() {
 			return this.refName;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -69,7 +69,6 @@ public class ModuleBinding extends Binding {
 	public int tagBits;
 	private ModuleBinding[] requiredModules = null;
 	private boolean isAuto;
-	private char[] constantPoolName;
 
 	HashtableOfPackage declaredPackages;
 	HashtableOfPackage exportedPackages;
@@ -121,11 +120,7 @@ public class ModuleBinding extends Binding {
 			}
 		});
 	}
-	public char[] constantPoolName() /* java/lang/Object */ {
-		if (this.constantPoolName == null)
-			this.constantPoolName = CharOperation.replaceOnCopy(this.moduleName, '.', '/');
-		return this.constantPoolName;
-	}
+
 	// All modules required by this module, either directly or indirectly
 	public Supplier<Collection<ModuleBinding>> dependencyGraphCollector() {
 		return () -> getRequiredModules(false)
