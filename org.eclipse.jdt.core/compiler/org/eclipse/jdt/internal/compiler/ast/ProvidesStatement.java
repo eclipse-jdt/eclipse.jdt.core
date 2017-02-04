@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -108,9 +108,9 @@ public class ProvidesStatement extends ModuleStatement {
 		printIndent(indent, output);
 		output.append("provides "); //$NON-NLS-1$
 		this.serviceInterface.print(0, output);
-		output.append("\n"); //$NON-NLS-1$
-		printIndent(indent + 1, output);
-		output.append("with "); //$NON-NLS-1$
+		//output.append(" "); //$NON-NLS-1$
+		//printIndent(indent + 1, output);
+		output.append(" with "); //$NON-NLS-1$
 		for (int i = 0; i < this.implementations.length; i++) {
 			this.implementations[i].print(0, output);
 			if (i < this.implementations.length - 1)

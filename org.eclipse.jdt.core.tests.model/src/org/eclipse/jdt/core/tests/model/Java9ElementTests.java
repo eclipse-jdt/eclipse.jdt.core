@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -22,14 +23,17 @@ import org.eclipse.jdt.core.IModuleDescription.IModuleReference;
 import org.eclipse.jdt.core.IModuleDescription.IOpenPackage;
 import org.eclipse.jdt.core.IModuleDescription.IPackageExport;
 import org.eclipse.jdt.core.IModuleDescription.IProvidedService;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 
 import junit.framework.Test;
 
-public class Java9ElementTests extends AbstractJavaModelTests { 
+public class Java9ElementTests extends AbstractJavaModelTests {
 
 	static {
-//		TESTS_NAMES = new String[] {"test010"};
+//		TESTS_NAMES = new String[] {"testBug510339_002"};
 	}
 
 	public Java9ElementTests(String name) {
@@ -469,6 +473,390 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				assertEquals("Incorrect no of open packages", 2, targetModules.length);
 				assertEquals("incorrect module name", "java.base", targetModules[0]);
 				assertEquals("incorrect module name", "java.sql", targetModules[1]);
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
+	}
+	public void testBug510339_001_since_9() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
+			addClasspathEntry(project, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			project.open(null);
+			String fileContent =
+				"module first {\n" +
+				"    exports pack1 to second;\n" +
+				"}\n";
+			createFile("/Java9Elements/src/module-info.java",	fileContent);
+			int start = fileContent.lastIndexOf("pack1");
+			createFolder("/Java9Elements/src/pack1");
+			createFile("/Java9Elements/src/pack1/X11.java",
+					"package pack1;\n" +
+					"public class X11 {}\n");
+
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+
+			IJavaElement[] elements = unit.codeSelect(start, "pack1".length());
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			IPackageFragment fragment = (IPackageFragment) elements[0];
+			assertEquals("pack1", fragment.getElementName());
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
+	}
+	public void testBug510339_002_since_9() throws Exception {
+		try {
+
+			IJavaProject project1 = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String fileContent =
+				"module first {\n" +
+				"    exports pack1 to second;\n" +
+				"}\n";
+			createFile("/Java9Elements/src/module-info.java",	fileContent);
+			String selection = "second";
+			int start = fileContent.lastIndexOf(selection);
+			createFolder("/Java9Elements/src/pack1");
+			createFile("/Java9Elements/src/pack1/X11.java",
+					"package pack1;\n" +
+					"public class X11 {}\n");
+
+			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project2.open(null);
+			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String secondFile =
+					"module second {\n" +
+					"    requires first;\n" +
+					"}\n";
+			createFile("/second/src/module-info.java",	secondFile);
+
+			addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+			project1.close(); // sync
+			project2.close();
+			project2.open(null);
+			project1.open(null);
+
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+			IJavaElement[] elements = unit.codeSelect(start, selection.length());
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			IModuleDescription ref = (IModuleDescription) elements[0];
+			assertEquals("second", ref.getElementName());
+		}
+		finally {
+			deleteProject("Java9Elements");
+			deleteProject("second");
+		}
+	}
+	public void testBug510339_003_since_9() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.9");
+			addClasspathEntry(project, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			project.open(null);
+			String fileContent =
+				"module first {\n" +
+				"    opens pack1 to second;\n" +
+				"}\n";
+			createFile("/Java9Elements/src/module-info.java",	fileContent);
+			int start = fileContent.lastIndexOf("pack1");
+			createFolder("/Java9Elements/src/pack1");
+			createFile("/Java9Elements/src/pack1/X11.java",
+					"package pack1;\n" +
+					"public class X11 {}\n");
+
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+
+			IJavaElement[] elements = unit.codeSelect(start, "pack1".length());
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			IPackageFragment fragment = (IPackageFragment) elements[0];
+			assertEquals("pack1", fragment.getElementName());
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
+	}
+	public void testBug510339_004_since_9() throws Exception {
+		try {
+
+			IJavaProject project1 = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String fileContent =
+				"module first {\n" +
+				"    exports pack1 to second;\n" +
+				"}\n";
+			createFile("/Java9Elements/src/module-info.java",	fileContent);
+			createFolder("/Java9Elements/src/pack1");
+			createFile("/Java9Elements/src/pack1/X11.java",
+					"package pack1;\n" +
+					"public class X11 {}\n");
+
+			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project2.open(null);
+			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String secondFile =
+					"module second {\n" +
+					"    requires first;\n" +
+					"}\n";
+			createFile("/second/src/module-info.java",	secondFile);
+
+			addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+			project1.close(); // sync
+			project2.close();
+			project2.open(null);
+			project1.open(null);
+
+			ICompilationUnit unit = getCompilationUnit("/second/src/module-info.java");
+			String selection = "first";
+			int start = secondFile.lastIndexOf(selection);
+			IJavaElement[] elements = unit.codeSelect(start, selection.length());
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			IModuleDescription ref = (IModuleDescription) elements[0];
+			assertEquals("first", ref.getElementName());
+		}
+		finally {
+			deleteProject("Java9Elements");
+			deleteProject("second");
+		}
+	}
+	public void testBug510339_005_since_9() throws Exception {
+		try {
+
+			IJavaProject project1 = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String fileContent =
+				"module first {\n" +
+				"    requires second;\n" +
+				"    provides pack22.I22 with pack11.X11;\n" +
+				"}\n";
+			createFile("/Java9Elements/src/module-info.java", fileContent);
+			createFolder("/Java9Elements/src/pack11");
+			createFile("/Java9Elements/src/pack11/X11.java",
+					"package pack11;\n" +
+					"public class X11 implements pack22.I22 {}\n");
+
+			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project2.open(null);
+			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String secondFile =
+					"module second {\n" +
+					"    exports pack22 to first;\n" +
+					"}\n";
+			createFile("/second/src/module-info.java",	secondFile);
+			createFolder("/second/src/pack22");
+			createFile("/second/src/pack22/I22.java",
+					"package pack22;\n" +
+					"public interface I22 {}\n");
+
+			addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+			project1.close(); // sync
+			project2.close();
+			project2.open(null);
+			project1.open(null);
+
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+			String selection = "pack22";
+			int start = fileContent.lastIndexOf(selection);
+			IJavaElement[] elements = unit.codeSelect(start, selection.length());
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			IPackageFragment fragment = (IPackageFragment) elements[0];
+			assertEquals("pack22", fragment.getElementName());
+		}
+		finally {
+			deleteProject("Java9Elements");
+			deleteProject("second");
+		}
+	}
+	public void testBug510339_006_since_9() throws Exception {
+		try {
+
+			IJavaProject project1 = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String fileContent =
+				"module first {\n" +
+				"    requires second;\n" +
+				"    provides pack22.I22 with pack11.X11;\n" +
+				"}\n";
+			createFile("/Java9Elements/src/module-info.java", fileContent);
+			createFolder("/Java9Elements/src/pack11");
+			createFile("/Java9Elements/src/pack11/X11.java",
+					"package pack11;\n" +
+					"public class X11 implements pack22.I22 {}\n");
+
+			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project2.open(null);
+			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String secondFile =
+					"module second {\n" +
+					"    exports pack22 to first;\n" +
+					"}\n";
+			createFile("/second/src/module-info.java",	secondFile);
+			createFolder("/second/src/pack22");
+			createFile("/second/src/pack22/I22.java",
+					"package pack22;\n" +
+					"public interface I22 {}\n");
+
+			addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+			project1.close(); // sync
+			project2.close();
+			project2.open(null);
+			project1.open(null);
+
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+			String selection = "pack11";
+			int start = fileContent.lastIndexOf(selection);
+			IJavaElement[] elements = unit.codeSelect(start, selection.length());
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			IPackageFragment fragment = (IPackageFragment) elements[0];
+			assertEquals("pack11", fragment.getElementName());
+		}
+		finally {
+			deleteProject("Java9Elements");
+			deleteProject("second");
+		}
+	}
+	public void testBug510339_007_since_9() throws Exception {
+		try {
+
+			IJavaProject project1 = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String fileContent =
+				"module first {\n" +
+				"    requires second;\n" +
+				"    uses pack11.X11;\n" +
+				"}\n";
+			createFile("/Java9Elements/src/module-info.java", fileContent);
+			createFolder("/Java9Elements/src/pack11");
+			createFile("/Java9Elements/src/pack11/X11.java",
+					"package pack11;\n" +
+					"public class X11 implements pack22.I22 {}\n");
+
+			project1.close(); // sync
+			project1.open(null);
+
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+			String selection = "pack11";
+			int start = fileContent.lastIndexOf(selection);
+			IJavaElement[] elements = unit.codeSelect(start, selection.length());
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			IPackageFragment fragment = (IPackageFragment) elements[0];
+			assertEquals("pack11", fragment.getElementName());
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
+	}
+	public void testBug510339_008_since_9() throws Exception {
+		try {
+
+			IJavaProject project1 = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String fileContent =
+				"module first {\n" +
+				"    requires second;\n" +
+				"    provides pack22.I22 with pack11.X11;\n" +
+				"}\n";
+			createFile("/Java9Elements/src/module-info.java", fileContent);
+			createFolder("/Java9Elements/src/pack11");
+			createFile("/Java9Elements/src/pack11/X11.java",
+					"package pack11;\n" +
+					"public class X11 implements pack22.I22 {}\n");
+
+			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project2.open(null);
+			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String secondFile =
+					"module second {\n" +
+					"    exports pack22 to first;\n" +
+					"}\n";
+			createFile("/second/src/module-info.java",	secondFile);
+			createFolder("/second/src/pack22");
+			createFile("/second/src/pack22/I22.java",
+					"package pack22;\n" +
+					"public interface I22 {}\n");
+
+			addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+			project1.close(); // sync
+			project2.close();
+			project2.open(null);
+			project1.open(null);
+
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+			String selection = "X11";
+			int start = fileContent.lastIndexOf(selection);
+			IJavaElement[] elements = unit.codeSelect(start, selection.length());
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			IType type = (IType) elements[0];
+			assertEquals("X11", type.getElementName());
+		}
+		finally {
+			deleteProject("Java9Elements");
+			deleteProject("second");
+		}
+	}
+	public void testBug510339_009_since_9() throws Exception {
+		try {
+
+			IJavaProject project1 = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String fileContent =
+				"module first {\n" +
+				"    requires second;\n" +
+				"    uses pack11.X11;\n" +
+				"}\n";
+			createFile("/Java9Elements/src/module-info.java", fileContent);
+			createFolder("/Java9Elements/src/pack11");
+			createFile("/Java9Elements/src/pack11/X11.java",
+					"package pack11;\n" +
+					"public class X11 implements pack22.I22 {}\n");
+
+			project1.close(); // sync
+			project1.open(null);
+
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+			String selection = "X11";
+			int start = fileContent.lastIndexOf(selection);
+			IJavaElement[] elements = unit.codeSelect(start, selection.length());
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			IType type = (IType) elements[0];
+			assertEquals("X11", type.getElementName());
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
+	}
+	public void testBug510339_010_since_9() throws Exception {
+		try {
+			IJavaProject project1 = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String fileContent =
+				"module first {\n" +
+				"    requires second;\n" +
+				"    uses pack11.X11;\n" +
+				"}\n";
+			createFile("/Java9Elements/src/module-info.java", fileContent);
+			createFolder("/Java9Elements/src/pack11");
+			createFile("/Java9Elements/src/pack11/X11.java",
+					"package pack11;\n" +
+					"public class X11 implements pack22.I22 {}\n");
+
+			project1.close(); // sync
+			project1.open(null);
+
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+			String selection = "X11";
+			int start = fileContent.lastIndexOf(selection);
+			IJavaElement[] elements = unit.codeSelect(start, selection.length());
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			IType type = (IType) elements[0];
+			assertEquals("X11", type.getElementName());
 		}
 		finally {
 			deleteProject("Java9Elements");

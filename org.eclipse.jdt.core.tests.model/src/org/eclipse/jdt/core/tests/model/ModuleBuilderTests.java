@@ -14,7 +14,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -28,8 +27,6 @@ import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -86,21 +83,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		this.createFile("P1/src/com/greetings/Main.java", "");
 		waitForManualRefresh();
 		waitForAutoBuild();
-	}
-	private IJavaProject createJava9Project(String name) throws CoreException {
-		return createJava9Project(name, new String[]{"src"});
-	}
-	private IJavaProject createJava9Project(String name, String[] srcFolders) throws CoreException {
-		String bootModPath = System.getProperty("java.home") + File.separator +"/lib/jrt-fs.jar";
-		IClasspathEntry jrtEntry = JavaCore.newLibraryEntry(new Path(bootModPath), null, null, null, null, false);
-		IJavaProject project = this.createJavaProject(name, srcFolders, new String[0],
-				new String[0], "bin", "9");
-		IClasspathEntry[] old = project.getRawClasspath();
-		IClasspathEntry[] newPath = new IClasspathEntry[old.length +1];
-		System.arraycopy(old, 0, newPath, 0, old.length);
-		newPath[old.length] = jrtEntry;
-		project.setRawClasspath(newPath, null);
-		return project;
 	}
 	// Test that the java.base found as a module package fragment root in the project 
 	public void test001() throws CoreException {
@@ -2546,41 +2528,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		} finally {
 			deleteProject("com.greetings");
 		}
-	}
-	private IJavaProject setupModuleProject(String name, String[] sources) throws CoreException {
-		return setupModuleProject(name, sources, false);
-	}
-	private IJavaProject setupModuleProject(String name, String[] sources, boolean addModulePathContainer) throws CoreException {
-		IClasspathEntry[] deps = null;
-		if (addModulePathContainer) {
-			IClasspathEntry containerEntry = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
-			deps = new IClasspathEntry[] {containerEntry};
-		}
-		return setupModuleProject(name, sources, deps);
-	}
-	private IJavaProject setupModuleProject(String name, String[] sources, IClasspathEntry[] deps) throws CoreException {
-		return setupModuleProject(name, new String[]{"src"}, sources, deps);
-	}
-	private IJavaProject setupModuleProject(String name, String[] srcFolders, String[] sources, IClasspathEntry[] deps) throws CoreException {
-		IJavaProject project = createJava9Project(name, srcFolders);
-		IProgressMonitor monitor = new NullProgressMonitor();
-		for (int i = 0; i < sources.length; i+= 2) {
-			IPath path = new Path(sources[i]);
-			IPath parentPath = path.removeLastSegments(1);
-			IFolder folder = project.getProject().getFolder(parentPath);
-			if (!folder.exists())
-				this.createFolder(folder.getFullPath());
-			IFile file = project.getProject().getFile(new Path(sources[i]));
-			file.create(new ByteArrayInputStream(sources[i+1].getBytes()), true, monitor);
-		}
-		if (deps != null) {
-			IClasspathEntry[] old = project.getRawClasspath();
-			IClasspathEntry[] newPath = new IClasspathEntry[old.length + deps.length];
-			System.arraycopy(old, 0, newPath, 0, old.length);
-			System.arraycopy(deps, 0, newPath, old.length, deps.length);
-			project.setRawClasspath(newPath, null);
-		}
-		return project;
 	}
 	// sort by CHAR_START
 	protected void sortMarkers(IMarker[] markers) {

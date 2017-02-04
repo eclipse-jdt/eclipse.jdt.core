@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -130,6 +130,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		tests_9.add(TypeAnnotationSyntaxTest.class);
 		tests_9.add(CompletionParserTest18.class);
 		tests_9.add(SelectionParserTest18.class);
+		tests_9.add(SelectionParserTest9.class);
 		tests_9.add(ModuleDeclarationSyntaxTest.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;

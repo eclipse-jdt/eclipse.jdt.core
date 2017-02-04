@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.tests;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.eclipse.jdt.core.tests.compiler.parser.SelectionParserTest9;
 import org.eclipse.jdt.core.tests.dom.ASTConverter9Test;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.model.CompletionTests9;
@@ -31,7 +32,7 @@ import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RunAllJava9Tests extends TestCase {
-	
+
 	public RunAllJava9Tests(String name) {
 		super(name);
 	}
@@ -41,6 +42,7 @@ public class RunAllJava9Tests extends TestCase {
 			Java9ElementTests.class,
 			JavaSearchBugs9Tests.class,
 			CompletionTests9.class,
+			SelectionParserTest9.class,
 		};
 	}
 

@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -40,7 +44,7 @@ import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
 import org.eclipse.jdt.internal.codeassist.impl.Engine;
 import org.eclipse.jdt.internal.codeassist.select.SelectionJavadocParser;
 import org.eclipse.jdt.internal.codeassist.select.SelectionNodeFound;
-import org.eclipse.jdt.internal.codeassist.select.SelectionOnExportReference;
+import org.eclipse.jdt.internal.codeassist.select.SelectionOnPackageVisibilityReference;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnImportReference;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnPackageReference;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnQualifiedTypeReference;
@@ -53,11 +57,12 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
+import org.eclipse.jdt.internal.compiler.ast.PackageVisibilityStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -85,6 +90,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -1022,17 +1028,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				if (parsedUnit.isModuleInfo() && parsedUnit.types != null &&
 						parsedUnit.types.length > 0) {
 					ModuleDeclaration module = (ModuleDeclaration) parsedUnit.types[0];//TODO, could be null
-					ExportsStatement[] exports = module.exports;
-					if (exports != null) {
-						for (ExportsStatement exportReference : exports) {
-							if (exportReference.pkgRef instanceof SelectionOnExportReference) {
-								char[][] tokens = ((SelectionOnExportReference) exportReference.pkgRef).tokens;
-								this.noProposal = false;
-								this.requestor.acceptPackage(CharOperation.concatWith(tokens, '.'));
-							}
-						}
-					}
-				} 
+					this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
+					acceptPackageVisibilityStatements(module.exports, parsedUnit.scope);
+					acceptPackageVisibilityStatements(module.opens, parsedUnit.scope);
+				}
 				if (parsedUnit.types != null || parsedUnit.isPackageInfo()) {
 					if(selectDeclaration(parsedUnit))
 						return;
@@ -1040,7 +1039,6 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					if ((this.unitScope = parsedUnit.scope)  != null) {
 						try {
 							this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
-							
 							CompilationUnitDeclaration previousUnitBeingCompleted = this.lookupEnvironment.unitBeingCompleted;
 							this.lookupEnvironment.unitBeingCompleted = parsedUnit;
 							parsedUnit.scope.faultInTypes();
@@ -1102,6 +1100,30 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		}
 	}
 
+	private void acceptPackageVisibilityStatements(PackageVisibilityStatement[] pvs, Scope scope) {
+		if (pvs != null) {
+			for (PackageVisibilityStatement pv : pvs) {
+				if (pv.pkgRef instanceof SelectionOnPackageVisibilityReference) {
+					this.noProposal = false;
+					this.requestor.acceptPackage(CharOperation.concatWith(((SelectionOnPackageVisibilityReference) pv.pkgRef).tokens, '.'));
+				}
+				if (pv.targets == null || pv.targets.length == 0) continue;
+				for (ModuleReference ref : pv.targets) {
+					acceptModuleReference(ref, scope);
+				}
+			}
+		}
+	}
+	private void acceptModuleReference(ModuleReference ref, Scope scope) {
+		try {
+			ref.resolve(scope);
+		} catch (SelectionNodeFound e) {
+			if (e.binding != null) {
+				this.noProposal = false;
+				this.requestor.acceptModule(ref.moduleName, e.binding.computeUniqueKey(), ref.sourceStart, ref.sourceEnd);
+			}
+		}
+	}
 	private void selectMemberTypeFromImport(CompilationUnitDeclaration parsedUnit, char[] lastToken, ReferenceBinding ref, boolean staticOnly) {
 		int fieldLength = lastToken.length;
 		ReferenceBinding[] memberTypes = ref.memberTypes();
