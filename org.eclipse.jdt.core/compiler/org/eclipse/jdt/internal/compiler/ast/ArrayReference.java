@@ -220,4 +220,11 @@ public void traverse(ASTVisitor visitor, BlockScope scope) {
 	}
 	visitor.endVisit(this, scope);
 }
+
+public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
+	if (this.resolvedType != null && (this.resolvedType.tagBits & TagBits.AnnotationNullMASK) == 0L && this.resolvedType.isFreeTypeVariable()) {
+		return FlowInfo.FREE_TYPEVARIABLE;
+	}
+	return super.nullStatus(flowInfo, flowContext);
+}
 }

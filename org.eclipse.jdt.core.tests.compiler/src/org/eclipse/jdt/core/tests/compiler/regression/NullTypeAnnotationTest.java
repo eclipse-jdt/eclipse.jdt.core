@@ -14225,4 +14225,44 @@ public void testBug490403typeArgAnnotationMismatch() {
 		"----------\n"
 	);
 }
+public void testBug511723() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/ArrayVsList.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"public class ArrayVsList {\n" +
+			"	static interface List<T> {\n" +
+			"		T get(int i);\n" +
+			"	}\n" +
+			"	public static <T> void f(List<T> list) {\n" +
+			"		@NonNull\n" +
+			"		Object o = list.get(0); // problem\n" +
+			"		o.hashCode();\n" +
+			"	}\n" +
+			"\n" +
+			"	public static <T> void g(T[] array) {\n" +
+			"		@NonNull\n" +
+			"		Object o = array[0]; // problem\n" +
+			"		o.hashCode();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\ArrayVsList.java (at line 11)\n" + 
+		"	Object o = list.get(0); // problem\n" + 
+		"	           ^^^^^^^^^^^\n" + 
+		"Null type safety: required \'@NonNull\' but this expression has type \'T\', a free type variable that may represent a \'@Nullable\' type\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\ArrayVsList.java (at line 17)\n" + 
+		"	Object o = array[0]; // problem\n" + 
+		"	           ^^^^^^^^\n" + 
+		"Null type safety: required \'@NonNull\' but this expression has type \'T\', a free type variable that may represent a \'@Nullable\' type\n" + 
+		"----------\n"
+	);
+}
 }
