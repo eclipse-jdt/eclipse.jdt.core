@@ -3004,7 +3004,7 @@ public void testBug507954_0001() throws JavaModelException, CoreException {
 		assertTypesEqual("Incorrect hierarchy",
 				"a.B$1\n" + 
 				"a.D$1$1\n" + 
-				"a.D$1$1\n",
+				"a.D$1$2\n",
 				allSubTypes,
 				true);
 	}
