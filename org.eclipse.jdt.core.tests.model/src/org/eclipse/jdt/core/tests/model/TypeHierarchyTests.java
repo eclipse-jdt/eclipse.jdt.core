@@ -2923,7 +2923,7 @@ public void testBug507954_0001() throws JavaModelException, CoreException {
 	IJavaProject javaProject = null; 
 	try {
 		String projectName = "507954";
-		javaProject = createJavaProject(projectName, new String[] {"src"}, "bin");
+		javaProject = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL15_LIB"}, "bin", "1.5");
 		String packA = "/" + projectName + "/src/a/";
 		createFolder(packA);
 		String fileA = 				"package a;\n" +
@@ -3004,9 +3004,9 @@ public void testBug507954_0001() throws JavaModelException, CoreException {
 		assertTypesEqual("Incorrect hierarchy",
 				"a.B$1\n" + 
 				"a.D$1$1\n" + 
-				"a.D$1$1\n",
+				"a.D$1$2\n",
 				allSubTypes,
-				false);
+				true);
 	}
 	finally{
 		if (javaProject != null) deleteProject(javaProject);
