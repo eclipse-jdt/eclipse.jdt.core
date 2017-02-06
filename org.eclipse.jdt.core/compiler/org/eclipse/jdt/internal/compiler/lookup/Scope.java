@@ -5189,7 +5189,7 @@ public abstract class Scope {
 		while (methodScope != null) {
 			while (methodScope != null && methodScope.referenceContext instanceof LambdaExpression) {
 				LambdaExpression lambda = (LambdaExpression) methodScope.referenceContext;
-				if (!typeVariableAccess)
+				if (!typeVariableAccess && !lambda.scope.isStatic)
 					lambda.shouldCaptureInstance = true;  // lambda can still be static, only when `this' is touched (implicitly or otherwise) it cannot be.
 				methodScope = methodScope.enclosingMethodScope();
 			}

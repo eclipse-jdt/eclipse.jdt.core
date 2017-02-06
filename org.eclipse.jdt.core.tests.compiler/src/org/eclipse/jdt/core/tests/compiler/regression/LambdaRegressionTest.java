@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 IBM Corporation and others.
+ * Copyright (c) 2015, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1051,6 +1051,61 @@ public void testBug473432() {
 	"false\n" +
 	"Handled: null\n" +
 	"null");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=511676 [1.8] Lambda with inner class defs causes java.lang.VerifyError: Bad type on operand stack
+public void testBug511676() {
+	this.runConformTest(new String [] {
+			"A.java",
+			"import java.util.function.Function;\n" + 
+			"public class A {\n" + 
+			"    interface C<T> { }\n" + 
+			"    interface O<T> {\n" + 
+			"        Object r(C<T> s);\n" + 
+			"    }\n" + 
+			"    static <T, R> O<R> m(O<T> source, Function<T, O<R>> mapper) {\n" + 
+			"        return o -> {\n" + 
+			"            class D {\n" + 
+			"            	class E {\n" + 
+			"                }\n" + 
+			"                E e = new E();\n" + 
+			"            }\n" + 
+			"            D d = new D();\n" + 
+			"            return d.e;\n" + 
+			"        };\n" + 
+			"    }\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        m(null, null);\n" + 
+			"        System.out.println(\" Done\");\n" +
+			"    }\n" + 
+			"}\n"
+		},
+		"Done");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=511676 [1.8] Lambda with inner class defs causes java.lang.VerifyError: Bad type on operand stack
+public void testBug511676a() {
+	this.runConformTest(new String [] {
+			"A.java",
+			"public class A {\n" + 
+			"    interface C<T> { }\n" + 
+			"    interface O<T> {\n" + 
+			"        Object r(C<T> s);\n" + 
+			"    }\n" + 
+			"    static O<Object> def = o -> {\n" + 
+			"        class D {\n" + 
+			"        	class E {\n" + 
+			"            }\n" + 
+			"            E e = new E();\n" + 
+			"        }\n" + 
+			"        D d = new D();\n" + 
+			"        return d.e;\n" + 
+			"    };\n" + 
+			"    public static void main(String[] args) {\n" + 
+			"        O<Object> o = A.def;\n" +
+			"        System.out.println(\" Done\");\n" +
+			"    }\n" + 
+			"}\n"
+		},
+		"Done");
 }
 public static Class testClass() {
 	return LambdaRegressionTest.class;
