@@ -7791,4 +7791,33 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+
+	public void testBug510111() {
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.Collections;\n" + 
+				"import java.util.Comparator;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class Test {\n" + 
+				"\n" + 
+				"        public static final class Entity {\n" + 
+				"\n" + 
+				"                public int getIndex() {\n" + 
+				"                        return 1;\n" + 
+				"                }\n" + 
+				"        }\n" + 
+				"\n" + 
+				"        public static void main(String[] args) {\n" + 
+				"\n" + 
+				"                final List<Entity> list = new ArrayList<>();\n" + 
+				"                // Eclipse fails to compile the next line with error\n" + 
+				"                // Type mismatch: cannot convert from int to Comparable<? super Comparable<? super U>>\n" + 
+				"                Collections.sort( list , Comparator.comparing( a -> a.getIndex() ) ); \n" + 
+				"        }\n" + 
+				"}"
+			});
+	}
 }

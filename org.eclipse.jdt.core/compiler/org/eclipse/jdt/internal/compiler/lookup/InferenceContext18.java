@@ -628,6 +628,7 @@ public class InferenceContext18 {
 	private boolean addConstraintsToC_OneExpr(Expression expri, Set<ConstraintFormula> c, TypeBinding fsi, TypeBinding substF, MethodBinding method)
 			throws InferenceFailureException
 	{
+		boolean substFIsProperType = substF.isProperType(true);
 		// -- not per JLS, emulate javac behavior:
 		substF = Scope.substitute(getResultSubstitution(this.b3), substF);
 		// --
@@ -662,7 +663,7 @@ public class InferenceContext18 {
 			}
 		} else if (expri instanceof Invocation && expri.isPolyExpression()) {
 
-			if (substF.isProperType(true)) // https://bugs.openjdk.java.net/browse/JDK-8052325 
+			if (substFIsProperType) // https://bugs.openjdk.java.net/browse/JDK-8052325
 				return true;
 
 			Invocation invocation = (Invocation) expri;
