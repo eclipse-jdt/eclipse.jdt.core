@@ -361,32 +361,31 @@ public final class Nd {
 			this.writeLockOwner = null;
 		}
 		boolean wasInterrupted = false;
-		// When all locks are released we can clear the result cache.
-		if (establishReadLocks == 0) {
-			processDeletions();
-			this.db.putLong(Database.WRITE_NUMBER_OFFSET, ++this.fWriteNumber);
-			clearResultCache();
-		}
 		try {
-			wasInterrupted = this.db.giveUpExclusiveLock(flush) || wasInterrupted;
-		} catch (IndexException e) {
-			Package.log(e);
-		}
-		assert this.lockCount == -1;
-		this.lastWriteAccess= System.currentTimeMillis();
-		synchronized (this.mutex) {
-			if (sDEBUG_LOCKS) {
-				long timeHeld = this.lastWriteAccess - this.timeWriteLockAcquired;
-				if (timeHeld >= LONG_WRITE_LOCK_REPORT_THRESHOLD) {
-					System.out.println("Index write lock held for " + timeHeld + " ms");
-				}
-				decWriteLock(establishReadLocks);
+			// When all locks are released we can clear the result cache.
+			if (establishReadLocks == 0) {
+				processDeletions();
+				this.db.putLong(Database.WRITE_NUMBER_OFFSET, ++this.fWriteNumber);
+				clearResultCache();
 			}
-
-			if (this.lockCount < 0)
-				this.lockCount= establishReadLocks;
-			this.mutex.notifyAll();
-			this.db.setLocked(this.lockCount != 0);
+			wasInterrupted = this.db.giveUpExclusiveLock(flush) || wasInterrupted;
+		} finally {
+			assert this.lockCount == -1;
+			this.lastWriteAccess= System.currentTimeMillis();
+			synchronized (this.mutex) {
+				if (sDEBUG_LOCKS) {
+					long timeHeld = this.lastWriteAccess - this.timeWriteLockAcquired;
+					if (timeHeld >= LONG_WRITE_LOCK_REPORT_THRESHOLD) {
+						System.out.println("Index write lock held for " + timeHeld + " ms");
+					}
+					decWriteLock(establishReadLocks);
+				}
+	
+				if (this.lockCount < 0)
+					this.lockCount= establishReadLocks;
+				this.mutex.notifyAll();
+				this.db.setLocked(this.lockCount != 0);
+			}
 		}
 
 		if (wasInterrupted) {

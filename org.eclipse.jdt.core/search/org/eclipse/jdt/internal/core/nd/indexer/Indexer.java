@@ -62,6 +62,7 @@ import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.Nd;
+import org.eclipse.jdt.internal.core.nd.db.IndexException;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint.FingerprintTestResult;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
@@ -112,7 +113,14 @@ public final class Indexer {
 	private JobGroup group = new JobGroup(Messages.Indexer_updating_index_job_name, 1, 1);
 
 	private Job rescanJob = Job.create(Messages.Indexer_updating_index_job_name, monitor -> {
-		rescan(monitor);
+		SubMonitor subMonitor = SubMonitor.convert(monitor);
+		try {
+			rescan(subMonitor);
+		} catch (IndexException e) {
+			Package.log("Database corruption detected during indexing. Deleting and rebuilding the index.", e); //$NON-NLS-1$
+			// If we detect corruption during indexing, delete and rebuild the entire index
+			rebuildIndex(subMonitor);
+		}
 	});
 
 	private Job rebuildIndexJob = Job.create(Messages.Indexer_updating_index_job_name, monitor -> {
