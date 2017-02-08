@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -15,10 +15,13 @@
 package org.eclipse.jdt.core.tests.model;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -35,7 +38,7 @@ public class JavaSearchBugs9Tests extends AbstractJavaSearchTests {
 
 	static {
 //	 org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
-//	TESTS_NAMES = new String[] {"testBug429012"};
+//	TESTS_NAMES = new String[] {"testBug501162_003"};
 }
 
 public JavaSearchBugs9Tests(String name) {
@@ -125,7 +128,7 @@ protected void setUp () throws Exception {
 	this.resultCollector.showAccuracy(true);
 }
 
-public void testBug499338_001() throws CoreException {
+public void _testBug499338_001() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
 			"public class X {\n" +
@@ -160,4 +163,167 @@ public void testBug499338_001() throws CoreException {
 			"src/X.java void X.main(String[]) [z1] EXACT_MATCH");	
 }
 
+public void testBug501162_001() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module first {\n" +
+			"    exports pack1 to second;\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X11.java",
+				"package pack1;\n" +
+				"public class X11 {}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module second {\n" +
+				"    requires first;\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+		
+		IPackageFragment pkg = getPackageFragment("JavaSearchBugs9", "src", "pack1");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] 
+				{getJavaProject("JavaSearchBugs9")});
+
+		search(
+			pkg,
+			ALL_OCCURRENCES,
+			scope,
+			this.resultCollector);
+		assertSearchResults(
+			"src/module-info.java [pack1] EXACT_MATCH\n" +
+			"src/pack1 pack1 EXACT_MATCH",
+			this.resultCollector);
+
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+	}
+}
+public void testBug501162_002() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module first {\n" +
+			"    exports pack1 to second;\n" +
+			"    exports pack1 to third;\n" +
+			"    opens pack1 to fourth;\n" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X11.java",
+				"package pack1;\n" +
+				"public class X11 {}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module second {\n" +
+				"    requires first;\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+		
+		IPackageFragment pkg = getPackageFragment("JavaSearchBugs9", "src", "pack1");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] 
+				{getJavaProject("JavaSearchBugs9")});
+
+		search(
+			pkg,
+			ALL_OCCURRENCES,
+			scope,
+			this.resultCollector);
+		assertSearchResults(
+			"src/module-info.java [pack1] EXACT_MATCH\n" +
+			"src/module-info.java [pack1] EXACT_MATCH\n" +
+			"src/module-info.java [pack1] EXACT_MATCH\n" +
+			"src/pack1 pack1 EXACT_MATCH",
+			this.resultCollector);
+
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+	}
+}
+public void testBug501162_003() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module first {\n" +
+			"    requires second;" +
+			"    provides pack22.I22 with pack1.X11;" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X11.java",
+				"package pack1;\n" +
+				"public class X11 implements pack22.I22{}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module second {\n" +
+				"    exports pack22 to first;\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+		createFolder("/second/src/pack1");
+		createFile("/second/src/pack1/I22.java",
+				"package pack22;\n" +
+				"public interface I22 {}\n");
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+
+		IPackageFragment pkg = getPackageFragment("second", "src", "pack22");
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] 
+				{getJavaProject("JavaSearchBugs9")});
+
+		search(
+			pkg,
+			REFERENCES,
+			scope,
+			this.resultCollector);
+		assertSearchResults(
+			"src/module-info.java [pack22] EXACT_MATCH\n" +
+			"src/pack1/X11.java pack1.X11 [pack22] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+	}
+}
+
+// Add more tests here
 }

@@ -5575,6 +5575,7 @@ protected void consumeExportsStatement() {
 }
 protected void consumeExportsHeader() {
 	ImportReference impt = (ImportReference) this.astStack[this.astPtr];
+	impt.bits |= ASTNode.inModule;
 	ExportsStatement expt = new ExportsStatement(impt);
 	expt.declarationSourceStart = this.intStack[this.intPtr--];
 	expt.sourceStart = expt.declarationSourceStart;
@@ -5594,6 +5595,7 @@ protected void consumeExportsHeader() {
 }
 protected void consumeOpensHeader() {
 	ImportReference impt = (ImportReference) this.astStack[this.astPtr];
+	impt.bits |= ASTNode.inModule;
 	OpensStatement stmt = new OpensStatement(impt);
 	stmt.declarationSourceStart = this.intStack[this.intPtr--];
 	stmt.sourceStart = stmt.declarationSourceStart;

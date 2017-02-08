@@ -522,7 +522,7 @@ private Binding findSingleImport(char[][] compoundName, int mask, boolean findSt
 	if (compoundName.length == 1) {
 		// findType records the reference
 		// the name cannot be a package
-		if (compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
+		if (compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4 && !this.referenceContext.isModuleInfo())
 			return new ProblemReferenceBinding(compoundName, null, ProblemReasons.NotFound);
 		ReferenceBinding typeBinding = findType(compoundName[0], this.environment.getDefaultPackage(module()), this.fPackage);
 		if (typeBinding == null)

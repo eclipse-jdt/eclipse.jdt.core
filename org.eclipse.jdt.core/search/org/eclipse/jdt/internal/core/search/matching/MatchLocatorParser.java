@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -318,6 +322,10 @@ protected void consumeExplicitConstructorInvocationWithTypeArguments(int flag, i
 	super.consumeExplicitConstructorInvocationWithTypeArguments(flag, recFlag);
 	this.patternLocator.match(this.astStack[this.astPtr], this.nodeSet);
 }
+protected void consumeExportsHeader() {
+	super.consumeExportsHeader();
+	this.patternLocator.match(((ExportsStatement) this.astStack[this.astPtr]).pkgRef, this.nodeSet);
+}
 protected void consumeFieldAccess(boolean isSuperAccess) {
 	super.consumeFieldAccess(isSuperAccess);
 
@@ -504,7 +512,23 @@ protected void consumeOnlyTypeArguments() {
 		}
 	}
 }
-
+protected void consumeOpensHeader() {
+	super.consumeOpensHeader();
+	this.patternLocator.match(((OpensStatement) this.astStack[this.astPtr]).pkgRef, this.nodeSet);
+}
+protected void consumeProvidesInterface() {
+	super.consumeProvidesInterface();
+	ProvidesStatement ref = (ProvidesStatement) this.astStack[this.astPtr];
+	this.patternLocator.match(ref.serviceInterface, this.nodeSet);
+}
+protected void consumeProvidesStatement() {
+	super.consumeProvidesStatement();
+	ProvidesStatement ref = (ProvidesStatement) this.astStack[this.astPtr];
+	TypeReference[] impls = ref.implementations;
+	for (TypeReference impl : impls) {
+		this.patternLocator.match(impl, this.nodeSet);
+	}
+}
 protected void consumePrimaryNoNewArrayWithName() {
 	// PrimaryNoNewArray ::=  PushLPAREN Expression PushRPAREN
 	pushOnExpressionStack(getUnspecifiedReferenceOptimized());

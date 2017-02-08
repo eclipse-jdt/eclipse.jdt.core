@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,6 +39,9 @@ import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IModuleDescription;
+import org.eclipse.jdt.core.IModuleDescription.IPackageExport;
+import org.eclipse.jdt.core.IModuleDescription.IProvidedService;
 import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -2639,10 +2642,16 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 				if (this.hierarchyResolver != null) continue;
 
 				ImportReference importRef = (ImportReference) node;
-				Binding binding = (importRef.bits & ASTNode.OnDemand) != 0
+				boolean inModule = (importRef.bits & ASTNode.inModule) != 0;
+				boolean getOnDemand = (importRef.bits & ASTNode.OnDemand) != 0 || inModule;
+				Binding binding = getOnDemand
 					? this.unitScope.getImport(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length), true, importRef.isStatic())
 					: this.unitScope.getImport(importRef.tokens, false, importRef.isStatic());
-				this.patternLocator.matchLevelAndReportImportRef(importRef, binding, this);
+				if (inModule) {
+					nodeSet.addMatch(node, this.patternLocator.resolveLevel(binding)); // report all module-info together
+				} else {
+					this.patternLocator.matchLevelAndReportImportRef(importRef, binding, this);
+				}
 			} else {
 				nodeSet.addMatch(node, this.patternLocator.resolveLevel(node));
 			}
@@ -2850,10 +2859,103 @@ protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFi
 	}
 }
 /**
+ * Visit the given module declaration and report the nodes that match exactly the
+ * search pattern (i.e. the ones in the matching nodes set)
+ */
+protected void reportMatching(ModuleDeclaration module, IJavaElement parent, int accuracy, MatchingNodeSet nodeSet, int occurrenceCount) throws CoreException {
+	IModuleDescription moduleDesc =  null;
+	Openable openable = this.currentPossibleMatch.openable;
+	if (openable instanceof CompilationUnit) {
+		CompilationUnit cu = (CompilationUnit) openable;
+		try {
+			moduleDesc =  cu.getModule();
+		} catch (JavaModelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	reportMatching(module.requires, module,  nodeSet, moduleDesc);
+	reportMatching(module.exports, nodeSet, moduleDesc);
+	reportMatching(module.opens, nodeSet, moduleDesc);
+	reportMatching(module.services, module, nodeSet, moduleDesc);
+	reportMatching(module.uses, module, nodeSet, moduleDesc);
+}
+
+private void reportMatching(RequiresStatement[] reqs, ModuleDeclaration module, MatchingNodeSet nodeSet, IModuleDescription moduleDesc) {
+	// TODO:
+}
+
+private void reportMatching(PackageVisibilityStatement[] psvs, MatchingNodeSet nodeSet, IModuleDescription moduleDesc)
+		throws JavaModelException, CoreException {
+	if (psvs != null && psvs.length > 0) {
+		IPackageExport[] pkgExports = moduleDesc.getExportedPackages();
+		for (int i = 0, l = psvs.length; i < l; i++) {
+			PackageVisibilityStatement psv = psvs[i];
+			ImportReference importRef = psv.pkgRef;
+			Integer level = (Integer) nodeSet.matchingNodes.removeKey(importRef);
+			if (level != null) {
+				Binding binding = this.unitScope.getImport(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length), true, false);
+				this.patternLocator.matchReportImportRef(importRef, binding, pkgExports[i], level.intValue(), this);
+			}
+		}
+	}
+}
+private void reportMatching(ProvidesStatement[] provides, ModuleDeclaration module, MatchingNodeSet nodeSet, IModuleDescription moduleDesc) throws JavaModelException, CoreException {
+	if (provides != null && provides.length > 0) {
+		IProvidedService[] ipss = moduleDesc.getProvidedServices();
+		for (int i = 0, l = provides.length; i < l; ++i) {
+			ProvidesStatement service = provides[i];
+			IProvidedService ips = ipss[i];
+
+			TypeReference intf = service.serviceInterface;
+			if (intf != null) {
+				Integer level = (Integer) nodeSet.matchingNodes.removeKey(intf);
+				if (level != null)
+					this.patternLocator.matchReportReference(intf, ips, null, null, module.binding, level.intValue(), this);
+			}
+			TypeReference[] impls = service.implementations;
+			for (TypeReference impl : impls) {
+				if (impl != null) {
+					Integer level = (Integer) nodeSet.matchingNodes.removeKey(impl);
+					if (level != null)
+						this.patternLocator.matchReportReference(impl, ips, null, null, module.binding, level.intValue(), this);
+				}
+			}
+		}
+	}
+}
+private void reportMatching(UsesStatement[] uses, ModuleDeclaration module, MatchingNodeSet nodeSet, IModuleDescription moduleDesc) {
+	if (uses != null && uses.length > 0) {
+		try {
+			String[] usedServices = moduleDesc.getUsedServices();
+			for (int i = 0, l = uses.length; i < l; ++i) {
+				UsesStatement service = uses[i];
+				String usedService = usedServices[i];
+
+				TypeReference intf = service.serviceInterface;
+				if (intf != null) {
+					Integer level = (Integer) nodeSet.matchingNodes.removeKey(intf);
+					if (level != null) {
+						this.patternLocator.matchReportReference(intf, moduleDesc, null, null, module.binding, level.intValue(), this);
+					}
+				}
+			}
+		} catch (CoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+}
+
+/**
  * Visit the given type declaration and report the nodes that match exactly the
  * search pattern (i.e. the ones in the matching nodes set)
  */
 protected void reportMatching(TypeDeclaration type, IJavaElement parent, int accuracy, MatchingNodeSet nodeSet, int occurrenceCount) throws CoreException {
+	if (TypeDeclaration.kind(type.modifiers) == TypeDeclaration.MODULE_DECL) {
+		reportMatching((ModuleDeclaration) type, parent, accuracy, nodeSet, occurrenceCount);
+		return;
+	}
 	// create type handle
 	IJavaElement enclosingElement = parent;
 	if (enclosingElement == null) {
