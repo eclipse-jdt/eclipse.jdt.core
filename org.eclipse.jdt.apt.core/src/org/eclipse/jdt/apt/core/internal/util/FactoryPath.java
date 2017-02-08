@@ -13,13 +13,9 @@
 package org.eclipse.jdt.apt.core.internal.util;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -93,7 +89,7 @@ public class FactoryPath implements IFactoryPath {
 	}
 	
 	/**
-	 * The factory path. Stored in reverse order.
+	 * The factory path.  
 	 */
 	private final Map<FactoryContainer, Attributes> _path = Collections.synchronizedMap(
 			new LinkedHashMap<FactoryContainer, Attributes>());
@@ -187,7 +183,7 @@ public class FactoryPath implements IFactoryPath {
 		Attributes a = new Attributes(enabled, runInBatchMode);
 		internalAdd(fc, a);
 	}
-
+	
 	/**
 	 * Set the factory path based on the contents of an ordered map.
 	 * @param map should be an ordered map, such as LinkedHashMap; should contain no
@@ -196,12 +192,10 @@ public class FactoryPath implements IFactoryPath {
 	public void setContainers(Map<FactoryContainer, Attributes> map) {
 		synchronized(_path) {
 			_path.clear();
-			for (Entry<FactoryContainer, Attributes> entry : getReversed(_path.entrySet())) {
-				_path.put(entry.getKey(), entry.getValue());
-			}
+			_path.putAll(map);
 		}
 	}
-
+	
 	/**
 	 * Add a factory container, and attributes, to the head of the list.
 	 * If it already existed in the list, remove the old instance before
@@ -213,14 +207,22 @@ public class FactoryPath implements IFactoryPath {
 	private void internalAdd(FactoryContainer fc, Attributes a) {
 		synchronized(_path) {
 			_path.remove(fc);
-			_path.put(fc, a);
+			// LinkedHashMap doesn't have any way to add to the head,
+			// so we're forced to do two copies.  Make the new map
+			// large enough that we don't have to rehash midway through the putAll().
+			Map<FactoryContainer, Attributes> newPath = 
+				new LinkedHashMap<>(1 + 4*(_path.size() + 1)/3);
+			newPath.put(fc, a);
+			newPath.putAll(_path);
+			_path.clear();
+			_path.putAll(newPath);
 		}
 	}
 
 	public Map<FactoryContainer, Attributes> getEnabledContainers() {
 		Map<FactoryContainer, Attributes> map = new LinkedHashMap<>();
 		synchronized(_path) {
-			for (Map.Entry<FactoryContainer, Attributes> entry : getReversed(_path.entrySet())) {
+			for (Map.Entry<FactoryContainer, Attributes> entry : _path.entrySet()) {
 				Attributes attr = entry.getValue();
 				if (attr.isEnabled()) {
 					Attributes attrClone = new Attributes(attr);
@@ -231,21 +233,14 @@ public class FactoryPath implements IFactoryPath {
 		return map;
 	}
 
-	private static <T> List<T> getReversed(Collection<T> collection) {
-		ArrayList<T> result = new ArrayList<>();
-		result.addAll(collection);
-		Collections.reverse(result);
-		return result;
-	}
-
 	/**
 	 * @return a copy of the path
 	 */
 	public Map<FactoryContainer, Attributes> getAllContainers() {
 		Map<FactoryContainer, Attributes> map = new LinkedHashMap<>(_path.size());
-		synchronized (_path) {
-			for (Map.Entry<FactoryContainer, Attributes> entry : getReversed(_path.entrySet())) {
-				map.put(entry.getKey(), new Attributes(entry.getValue()));
+		synchronized(_path) {
+			for( Map.Entry<FactoryContainer, Attributes> entry : _path.entrySet() ){
+				map.put( entry.getKey(), new Attributes(entry.getValue()) );
 			}
 		}
 		return map;
