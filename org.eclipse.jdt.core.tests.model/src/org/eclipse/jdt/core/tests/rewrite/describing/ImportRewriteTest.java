@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2083,6 +2083,33 @@ public class ImportRewriteTest extends AbstractJavaModelTests {
 		buf.append("public class T {\n");
 		buf.append("}\n");
 		assertEqualString(cuT.getSource(), buf.toString());
+	}
+
+	public void testRemoveImportWithSyntaxError_bug494691() throws Exception {
+	
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("pack1", false, null);
+		StringBuffer buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("import java.util.*;\n");
+		buf.append("\n");
+		buf.append("syntaxError\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("C.java", buf.toString(), false, null);
+	
+		ImportRewrite imports= newImportsRewrite(cu, new String[0], 2, 2, true);
+		imports.removeImport("java.util.*");
+	
+		apply(imports);
+	
+		buf= new StringBuffer();
+		buf.append("package pack1;\n");
+		buf.append("\n");
+		buf.append("syntaxError\n");
+		buf.append("public class C {\n");
+		buf.append("}\n");
+		assertEqualString(cu.getSource(), buf.toString());
 	}
 
 	public void testAddImports_bug23078() throws Exception {
