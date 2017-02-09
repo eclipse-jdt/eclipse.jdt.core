@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.StringTokenizer;
 
@@ -199,10 +198,8 @@ public static void main(String[] args) throws IOException {
 	verify.run();
 }
 public void run() throws IOException {
-	ServerSocket server = new ServerSocket(this.portNumber);
-	this.socket = server.accept();
+	this.socket = new Socket("localhost", this.portNumber);
 	this.socket.setTcpNoDelay(true);
-	server.close();
 
 	DataInputStream in = new DataInputStream(this.socket.getInputStream());
 	final DataOutputStream out = new DataOutputStream(this.socket.getOutputStream());

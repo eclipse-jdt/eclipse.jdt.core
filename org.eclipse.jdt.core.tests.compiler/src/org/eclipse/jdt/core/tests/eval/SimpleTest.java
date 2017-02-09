@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2010 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,8 @@
 package org.eclipse.jdt.core.tests.eval;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.ServerSocket;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.runtime.LocalVMLauncher;
@@ -239,58 +241,62 @@ protected IProblemFactory getProblemFactory() {
 	return new DefaultProblemFactory(java.util.Locale.getDefault());
 }
 protected void startEvaluationContext() throws TargetException {
-	LocalVMLauncher launcher = LocalVMLauncher.getLauncher();
-	launcher.setVMPath(JRE_PATH);
-	launcher.setClassPath(RUNTIME_CLASSPATH);
-	int evalPort = Util.getFreePort();
-	launcher.setEvalPort(evalPort);
-	launcher.setEvalTargetPath(TARGET_PATH);
-	this.launchedVM = launcher.launch();
-
-	(new Thread() {
-		public void run() {
-			try {
-				java.io.InputStream in = SimpleTest.this.launchedVM.getInputStream();
-				int read = 0;
-				while (read != -1) {
-					try {
-						read = in.read();
-					} catch (java.io.IOException e) {
-						read = -1;
+	try (ServerSocket server = new ServerSocket(0)) {
+		LocalVMLauncher launcher = LocalVMLauncher.getLauncher();
+		launcher.setVMPath(JRE_PATH);
+		launcher.setClassPath(RUNTIME_CLASSPATH);
+		int evalPort = server.getLocalPort();
+		launcher.setEvalPort(evalPort);
+		launcher.setEvalTargetPath(TARGET_PATH);
+		this.launchedVM = launcher.launch();
+	
+		(new Thread() {
+			public void run() {
+				try {
+					java.io.InputStream in = SimpleTest.this.launchedVM.getInputStream();
+					int read = 0;
+					while (read != -1) {
+						try {
+							read = in.read();
+						} catch (java.io.IOException e) {
+							read = -1;
+						}
+						if (read != -1) {
+							System.out.print((char)read);
+						}
 					}
-					if (read != -1) {
-						System.out.print((char)read);
-					}
+				} catch (TargetException e) {
 				}
-			} catch (TargetException e) {
 			}
-		}
-	}).start();
-
-	(new Thread() {
-		public void run() {
-			try {
-				java.io.InputStream in = SimpleTest.this.launchedVM.getErrorStream();
-				int read = 0;
-				while (read != -1) {
-					try {
-						read = in.read();
-					} catch (java.io.IOException e) {
-						read = -1;
+		}).start();
+	
+		(new Thread() {
+			public void run() {
+				try {
+					java.io.InputStream in = SimpleTest.this.launchedVM.getErrorStream();
+					int read = 0;
+					while (read != -1) {
+						try {
+							read = in.read();
+						} catch (java.io.IOException e) {
+							read = -1;
+						}
+						if (read != -1) {
+							System.out.print((char)read);
+						}
 					}
-					if (read != -1) {
-						System.out.print((char)read);
-					}
+				} catch (TargetException e) {
 				}
-			} catch (TargetException e) {
 			}
-		}
-	}).start();
-
-	this.requestor = new Requestor();
-	this.target = new TargetInterface();
-	this.target.connect("localhost", evalPort, 30000); // allow 30s max to connect (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=188127)
-	this.context = new EvaluationContext();
+		}).start();
+	
+		this.requestor = new Requestor();
+		this.target = new TargetInterface();
+		this.target.connect(server, 30000); // allow 30s max to connect (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=188127)
+		this.context = new EvaluationContext();
+	} catch (IOException e) {
+		throw new Error("Failed to open socket", e);
+	}
 }
 protected void stopEvaluationContext() {
 	try {

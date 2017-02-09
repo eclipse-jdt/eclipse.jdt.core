@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2008 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,8 +11,10 @@
 package org.eclipse.jdt.core.tests.eval;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.ServerSocket;
 
 import org.eclipse.jdt.core.tests.runtime.LocalVirtualMachine;
 
@@ -41,39 +43,43 @@ public class EvaluationSetup extends CompilerTestSetup {
 
 	protected void setUp() {
 		if (this.context == null) { // non null if called from subclass
-			// Launch VM in evaluation mode
-			int evalPort = Util.getFreePort();
-			try {
-				LocalVMLauncher launcher = LocalVMLauncher.getLauncher();
-				launcher.setVMPath(JRE_PATH);
-				launcher.setEvalPort(evalPort);
-				launcher.setEvalTargetPath(EVAL_DIRECTORY);
-				this.launchedVM = launcher.launch();
-			} catch (TargetException e) {
-				throw new Error(e.getMessage());
+			try (ServerSocket server = new ServerSocket(0)) {
+				// Launch VM in evaluation mode
+				int evalPort = server.getLocalPort();
+				try {
+					LocalVMLauncher launcher = LocalVMLauncher.getLauncher();
+					launcher.setVMPath(JRE_PATH);
+					launcher.setEvalPort(evalPort);
+					launcher.setEvalTargetPath(EVAL_DIRECTORY);
+					this.launchedVM = launcher.launch();
+				} catch (TargetException e) {
+					throw new Error(e.getMessage());
+				}
+	
+				// Thread that read the stout of the VM so that the VM doesn't block
+				try {
+					startReader("VM's stdout reader", this.launchedVM.getInputStream(), System.out);
+				} catch (TargetException e) {
+				}
+	
+				// Thread that read the sterr of the VM so that the VM doesn't block
+				try {
+					startReader("VM's sterr reader", this.launchedVM.getErrorStream(), System.err);
+				} catch (TargetException e) {
+				}
+	
+				// Create context
+				this.context = new EvaluationContext();
+	
+				// Create target
+				this.target = new TargetInterface();
+				this.target.connect(server, 30000); // allow 30s max to connect (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=188127)
+	
+				// Create name environment
+				this.env = new FileSystem(Util.getJavaClassLibs(), new String[0], null);
+			} catch (IOException e1) {
+				throw new Error("Failed to open socket", e1);
 			}
-
-			// Thread that read the stout of the VM so that the VM doesn't block
-			try {
-				startReader("VM's stdout reader", this.launchedVM.getInputStream(), System.out);
-			} catch (TargetException e) {
-			}
-
-			// Thread that read the sterr of the VM so that the VM doesn't block
-			try {
-				startReader("VM's sterr reader", this.launchedVM.getErrorStream(), System.err);
-			} catch (TargetException e) {
-			}
-
-			// Create context
-			this.context = new EvaluationContext();
-
-			// Create target
-			this.target = new TargetInterface();
-			this.target.connect("localhost", evalPort, 30000); // allow 30s max to connect (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=188127)
-
-			// Create name environment
-			this.env = new FileSystem(Util.getJavaClassLibs(), new String[0], null);
 		}
 		super.setUp();
 	}
