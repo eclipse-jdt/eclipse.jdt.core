@@ -62,10 +62,7 @@ public final class ChunkCache {
 		this.fPageTable= new Chunk[computeLength(maxSize)];
 	}
 
-	public synchronized void add(Chunk chunk, boolean locked) {
-		if (locked) {
-			chunk.fLocked= true;
-		}
+	public synchronized void add(Chunk chunk) {
 		if (chunk.fCacheIndex >= 0) {
 			chunk.fCacheHitFlag= true;
 			return;
