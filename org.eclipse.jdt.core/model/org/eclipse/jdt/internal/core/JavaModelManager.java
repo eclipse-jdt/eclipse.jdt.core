@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5270,7 +5270,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					| IResourceChangeEvent.PRE_REFRESH);
 
 			Indexer.getInstance().addListener(this.deltaState);
-
+			
 			// listen to resource changes affecting external annotations
 			ExternalAnnotationTracker.start(workspace);
 
@@ -5306,7 +5306,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			processSavedState.setPriority(Job.SHORT); // process asap
 			processSavedState.schedule();
 		} catch (RuntimeException e) {
-			shutdown();
+			try {
+				shutdown();
+			} catch (RuntimeException e2) {
+				e.addSuppressed(e2);
+			}
 			throw e;
 		}
 	}
