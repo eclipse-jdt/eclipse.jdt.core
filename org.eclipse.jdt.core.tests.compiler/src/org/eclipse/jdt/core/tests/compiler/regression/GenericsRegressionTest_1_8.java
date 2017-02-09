@@ -7820,4 +7820,37 @@ public void testBug508834_comment0() {
 				"}"
 			});
 	}
+	
+	public void testBug511750() {
+		runConformTest(
+			new String[] {
+				"SomeClass.java",
+				"import java.util.Collections;\n" + 
+				"import java.util.Set;\n" + 
+				"import java.util.stream.Collectors;\n" + 
+				"\n" + 
+				"public class SomeClass {\n" + 
+				"\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        System.out.println(foo().iterator().next().getBaz());\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public interface Baz {\n" + 
+				"        public String getBaz();\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static Set<Baz> foo() {\n" + 
+				"        Set<String> stringSet = Collections.singleton(\"someString\");\n" + 
+				"        return stringSet.stream().map(s -> new Baz() {\n" + 
+				"\n" + 
+				"            @Override\n" + 
+				"            public String getBaz() {\n" + 
+				"                return s;\n" + 
+				"            }\n" + 
+				"\n" + 
+				"        }).collect(Collectors.toSet());\n" + 
+				"    }\n" + 
+				"}\n"
+			});
+	}
 }
