@@ -7731,4 +7731,64 @@ public void testBug508834_comment0() {
 			"Type safety: The expression of type Test.Field[] needs unchecked conversion to conform to Test.Field<T>[]\n" + 
 			"----------\n");
 	}
+
+	public void testBug511876() {
+		runConformTest(
+			new String[] {
+				"util/ClasspathScanner.java",
+				"package util;\n" + 
+				"\n" + 
+				"import java.io.*;\n" + 
+				"import java.lang.reflect.Method;\n" + 
+				"import java.util.*;\n" + 
+				"import java.util.stream.Stream;\n" + 
+				"\n" + 
+				"class ClassPath {\n" + 
+				"    public static ClassPath from(ClassLoader classloader) throws IOException {\n" +
+				"        return new ClassPath();\n" + 
+				"    }\n" + 
+				"    public Set<ClassInfo> getTopLevelClasses() {\n" + 
+				"        return Collections.emptySet();\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class ClassInfo {\n" + 
+				"    public Class<?> load() { return null; }\n" + 
+				"    public String getPackageName() { return \"\"; }\n" + 
+				"}\n" + 
+				"\n" + 
+				"/**\n" + 
+				" * @see https://blog.jooq.org/2016/04/21/the-parameterless-generic-method-antipattern/\n" + 
+				" */\n" + 
+				"public class ClasspathScanner {\n" + 
+				"    /**\n" + 
+				"     * This will produce all the generic, parameterless methods on your class path.\n" + 
+				"     */\n" + 
+				"    public static void main(String[] args) throws Exception {\n" +
+				"        ClassPath.from(Thread.currentThread().getContextClassLoader())\n" + 
+				"                .getTopLevelClasses()\n" + 
+				"                .stream()\n" + 
+				"                .filter(info -> !info.getPackageName().startsWith(\"akka\") && !info.getPackageName().startsWith(\"scala\") && !info.getPackageName().startsWith(\"java\"))\n" + 
+				"                .flatMap(info -> {\n" + 
+				"                    try {\n" + 
+				"                        return Stream.of(info.load());\n" + 
+				"                    }\n" + 
+				"                    catch (Throwable ignore) {\n" + 
+				"                        return Stream.empty();\n" + 
+				"                    }\n" + 
+				"                }).flatMap(c -> {\n" + 
+				"                    try {\n" + 
+				"                        return Stream.of(c.getMethods());\n" + 
+				"                    }\n" + 
+				"                    catch (Throwable ignore) {\n" + 
+				"                        return Stream.<Method> of();\n" + 
+				"                    }\n" + 
+				"                })\n" + 
+				"                .filter(m -> m.getTypeParameters().length > 0 && m.getParameterCount() == 0)\n" + 
+				"                .sorted(Comparator.comparing(Method::toString))\n" + 
+				"                .map(Method::toGenericString)\n" + 
+				"                .forEach(System.out::println);\n" + 
+				"    }\n" + 
+				"}\n"
+			});
+	}
 }
