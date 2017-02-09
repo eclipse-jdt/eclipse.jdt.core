@@ -472,7 +472,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 			
 			assertEquals("number of log entries", 1, listener.loggedStatus.size());
 			final Throwable exception = listener.loggedStatus.get(0).getException();
-			assertEquals("logged message", "missing class header in annotation file", exception.getMessage());
+			assertEquals("logged message", "missing class header in annotation file for libs/Lib1", exception.getMessage());
 		} finally {
 			Platform.removeLogListener(listener);
 		}
@@ -520,7 +520,7 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 
 			assertEquals("number of log entries", 1, listener.loggedStatus.size());
 			final Throwable exception = listener.loggedStatus.get(0).getException();
-			assertEquals("logged message", "missing class header in annotation file", exception.getMessage());
+			assertEquals("logged message", "missing class header in annotation file for libs/Lib1", exception.getMessage());
 		} finally {
 			Platform.removeLogListener(listener);
 		}

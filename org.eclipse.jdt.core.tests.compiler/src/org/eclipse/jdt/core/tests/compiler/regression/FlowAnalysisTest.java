@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2016 IBM Corporation and others.
+ * Copyright (c) 2005, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2744,6 +2744,44 @@ public void testBug499809a() {
 			"}\n"
 		},
 		"Done");
+}
+//Bug 506315 - ASTParser.createASTs() in StackMapFrame.addStackItem throws IllegalArgumentException
+public void testBug506315() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	this.runNegativeTest(
+		new String[] {
+			"Test.java",
+			"import java.util.function.Consumer;\n" + 
+			"public class Test {\n" + 
+			"    public void test(String method) {\n" + 
+			"        String str;\n" + 
+			"        if (!method.equals(\"\")) {\n" + 
+			"        	str = \"String\";\n" + 
+			"        	str.concat(method);\n" + 
+			"        }\n" + 
+			"        new Consumer<String>() {\n" + 
+			"            public void accept(String s) {\n" + 
+			"            	str = \"String\";\n" + 
+			"            }\n" + 
+			"        };\n" + 
+			"    }\n" + 
+			"}\n"
+		},
+		this.complianceLevel < ClassFileConstants.JDK1_8 ?
+			"----------\n" +
+			"1. ERROR in Test.java (at line 11)\n" +
+			"	str = \"String\";\n" +
+			"	^^^\n" +
+			"Cannot refer to the non-final local variable str defined in an enclosing scope\n" +
+			"----------\n"
+				:
+			"----------\n" +
+			"1. ERROR in Test.java (at line 11)\n" +
+			"	str = \"String\";\n" +
+			"	^^^\n" +
+			"Local variable str defined in an enclosing scope must be final or effectively final\n" +
+			"----------\n");
 }
 public static Class testClass() {
 	return FlowAnalysisTest.class;

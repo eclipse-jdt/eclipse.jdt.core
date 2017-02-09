@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -105,7 +105,6 @@ public class SourceTypeBinding extends ReferenceBinding {
 
 	public int defaultNullness;
 	private int nullnessDefaultInitialized = 0; // 0: nothing; 1: type; 2: package
-	private int lambdaOrdinal = 0;
 	private ReferenceBinding containerAnnotationType = null;
 
 	public ExternalAnnotationProvider externalAnnotationProvider;
@@ -148,7 +147,6 @@ public SourceTypeBinding(SourceTypeBinding prototype) {
 	this.storedAnnotations = prototype.storedAnnotations;
 	this.defaultNullness = prototype.defaultNullness;
 	this.nullnessDefaultInitialized= prototype.nullnessDefaultInitialized;
-	this.lambdaOrdinal = prototype.lambdaOrdinal;
 	this.containerAnnotationType = prototype.containerAnnotationType;
 	this.tagBits |= TagBits.HasUnresolvedMemberTypes; // see memberTypes()
 }
@@ -611,7 +609,7 @@ public SyntheticMethodBinding addSyntheticMethod(LambdaExpression lambda) {
 	SyntheticMethodBinding lambdaMethod = null;
 	SyntheticMethodBinding[] lambdaMethods = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(lambda);
 	if (lambdaMethods == null) {
-		lambdaMethod = new SyntheticMethodBinding(lambda, CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.lambdaOrdinal++).toCharArray()), this);
+		lambdaMethod = new SyntheticMethodBinding(lambda, CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(lambda.ordinal).toCharArray()), this);
 		this.synthetics[SourceTypeBinding.METHOD_EMUL].put(lambda, lambdaMethods = new SyntheticMethodBinding[1]);
 		lambdaMethods[0] = lambdaMethod;
 	} else {
@@ -695,7 +693,7 @@ public SyntheticMethodBinding addSyntheticMethod(MethodBinding targetMethod, boo
 	}
 	return accessMethod;
 }
-public SyntheticMethodBinding addSyntheticArrayMethod(ArrayBinding arrayType, int purpose) {
+public SyntheticMethodBinding addSyntheticArrayMethod(ArrayBinding arrayType, int purpose, char[] selector) {
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
@@ -705,27 +703,24 @@ public SyntheticMethodBinding addSyntheticArrayMethod(ArrayBinding arrayType, in
 	SyntheticMethodBinding arrayMethod = null;
 	SyntheticMethodBinding[] arrayMethods = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(arrayType);
 	if (arrayMethods == null) {
-		char [] selector = CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.lambdaOrdinal++).toCharArray());
 		arrayMethod = new SyntheticMethodBinding(purpose, arrayType, selector, this);
 		this.synthetics[SourceTypeBinding.METHOD_EMUL].put(arrayType, arrayMethods = new SyntheticMethodBinding[2]);
 		arrayMethods[purpose == SyntheticMethodBinding.ArrayConstructor ? 0 : 1] = arrayMethod;
 	} else {
 		if ((arrayMethod = arrayMethods[purpose == SyntheticMethodBinding.ArrayConstructor ? 0 : 1]) == null) {
-			char [] selector = CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.lambdaOrdinal++).toCharArray());
 			arrayMethod = new SyntheticMethodBinding(purpose, arrayType, selector, this);
 			arrayMethods[purpose == SyntheticMethodBinding.ArrayConstructor ? 0 : 1] = arrayMethod;
 		}
 	}
 	return arrayMethod;
 }
-public SyntheticMethodBinding addSyntheticFactoryMethod(MethodBinding privateConstructor, MethodBinding publicConstructor, TypeBinding [] enclosingInstances) {
+public SyntheticMethodBinding addSyntheticFactoryMethod(MethodBinding privateConstructor, MethodBinding publicConstructor, TypeBinding [] enclosingInstances, char[] selector) {
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.synthetics == null)
 		this.synthetics = new HashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
 		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
 
-	char [] selector = CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.lambdaOrdinal++).toCharArray());
 	SyntheticMethodBinding factory = new SyntheticMethodBinding(privateConstructor, publicConstructor, selector, enclosingInstances, this);
 	this.synthetics[SourceTypeBinding.METHOD_EMUL].put(selector, new SyntheticMethodBinding[] { factory });
 	return factory;
@@ -1806,7 +1801,7 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 					// enum constants neither have a type declaration nor can they be null
 					field.tagBits |= TagBits.AnnotationNonNull;
 				} else {
-					if (hasNonNullDefaultFor(DefaultLocationField, this.environment.usesNullTypeAnnotations())) {
+					if (hasNonNullDefaultFor(DefaultLocationField, this.environment.usesNullTypeAnnotations(), fieldDecl.sourceStart)) {
 						field.fillInDefaultNonNullness(fieldDecl, initializationScope);
 					}
 					// validate null annotation:
@@ -2136,7 +2131,10 @@ public void evaluateNullAnnotations() {
 				pkg.defaultNullness = this.defaultNullness;
 			} else {
 				TypeDeclaration typeDecl = this.scope.referenceContext;
-				checkRedundantNullnessDefaultRecurse(typeDecl, typeDecl.annotations, this.defaultNullness, true);
+				Binding target = this.scope.parent.checkRedundantDefaultNullness(this.defaultNullness, typeDecl.declarationSourceStart);
+				if(target != null) {
+					this.scope.problemReporter().nullDefaultAnnotationIsRedundant(typeDecl, typeDecl.annotations, target);
+				}
 			}
 		} else if (isPackageInfo || (isInDefaultPkg && !(this instanceof NestedTypeBinding))) {
 			this.scope.problemReporter().missingNonNullByDefaultAnnotation(this.scope.referenceContext);
@@ -2180,10 +2178,10 @@ public void evaluateNullAnnotations() {
 }
 
 private void maybeMarkTypeParametersNonNull() {
-	// when creating type variables we didn't yet have the defaultNullness, fill it in now:
-	if (this.scope == null || !this.scope.hasDefaultNullnessFor(DefaultLocationTypeParameter))
-		return;
 	if (this.typeVariables != null && this.typeVariables.length > 0) {
+	// when creating type variables we didn't yet have the defaultNullness, fill it in now:
+		if (this.scope == null || !this.scope.hasDefaultNullnessFor(DefaultLocationTypeParameter, this.sourceStart()))
+		return;
 		AnnotationBinding[] annots = new AnnotationBinding[]{ this.environment.getNonNullAnnotation() };
 		for (int i = 0; i < this.typeVariables.length; i++) {
 			TypeVariableBinding tvb = this.typeVariables[i];
@@ -2236,7 +2234,8 @@ protected boolean checkRedundantNullnessDefaultOne(ASTNode location, Annotation[
 	return true;
 }
 
-boolean hasNonNullDefaultFor(int location, boolean useTypeAnnotations) {
+@Override
+boolean hasNonNullDefaultFor(int location, boolean useTypeAnnotations, int sourceStart) {
 	
 	if (!isPrototype()) throw new IllegalStateException();
 	
@@ -2245,7 +2244,10 @@ boolean hasNonNullDefaultFor(int location, boolean useTypeAnnotations) {
 		if (this.scope == null) {
 			return (this.defaultNullness & location) != 0;
 		}
-		return this.scope.hasDefaultNullnessFor(location);
+		Scope skope = this.scope.referenceContext.initializerScope; // for @NNBD on a field
+		if (skope == null)
+			skope = this.scope;
+		return skope.hasDefaultNullnessFor(location, sourceStart);
 	}
 
 	// find the applicable default inside->out:

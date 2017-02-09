@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2016 GK Software AG, and others.
+ * Copyright (c) 2013, 2017 GK Software AG, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7659,5 +7659,110 @@ public void testBug508834_comment0() {
 				"    }\n" + 
 				"}\n"
 			});
+	}
+	public void testBug509324() {
+		runConformTest(
+			new String[] {
+				"testgenerics/TestGenerics.java",
+				"package testgenerics;\n" + 
+				"\n" + 
+				"import java.time.Duration;\n" + 
+				"import java.util.function.Function;\n" + 
+				"import java.util.function.Supplier;\n" + 
+				"\n" + 
+				"interface Publisher<T> {}\n" + 
+				"\n" + 
+				"abstract class Mono<T> implements Publisher<T> {\n" + 
+				"	public static <T> Mono<T> just(T data) { return null; }\n" + 
+				"	public static <T> Mono<T> empty() { return null; }\n" + 
+				"	public final <R> Mono<R> then(Function<? super T, ? extends Mono<? extends R>> transformer) {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	public T block() { return null; }\n" + 
+				"	public final T block(Duration timeout) { return null; }\n" + 
+				"}\n" + 
+				"class Info {\n" + 
+				"	public String getApplicationSshEndpoint() { return null; }\n" + 
+				"}\n" + 
+				"class SshHost {\n" + 
+				"	public SshHost(String host, int port, String fingerPrint) { }\n" + 
+				"}\n" + 
+				"\n" + 
+				"public class TestGenerics {\n" + 
+				"\n" + 
+				"	private Mono<Info> info = Mono.just(new Info());\n" + 
+				"\n" + 
+				"	public static <T> T ru_get(Mono<T> mono) throws Exception {\n" + 
+				"		return mono.block();\n" + 
+				"	}\n" + 
+				"\n" + 
+				"	public SshHost getSshHost() throws Exception {\n" + 
+				"		return ru_get(\n" + 
+				"			info.then((i) -> {\n" + 
+				"				String host = i.getApplicationSshEndpoint();\n" + 
+				"				if (host!=null) {\n" + 
+				"					return Mono.just(new SshHost(host, 0, host));\n" + 
+				"				}\n" + 
+				"				return Mono.empty();\n" + 
+				"			})\n" + 
+				"		);\n" + 
+				"	}\n" +
+				"}\n"
+			});
+	}
+	public void testBug469014() {
+		runNegativeTest(
+			new String[] {
+				"Test.java",
+				"import java.util.stream.Stream;\n" + 
+				"\n" + 
+				"public class Test {\n" + 
+				"    public static <T> Field<T> coalesce(T value, T... values) {\n" + 
+				"        return coalesce(field(value), fields(values));\n" + 
+				"    }\n" + 
+				"    public static <T> Field<T> coalesce(Field<T> field, T value) {\n" + 
+				"        return coalesce(field, field(value));\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static <T> Field<T> coalesce(Field<T> field, Field<?>... fields) {\n" + 
+				"        // irrelevant\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    static <T> Field<T> field(T value) {\n" + 
+				"        return new Field<T>(value);\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    static <T> Field<T>[] fields(T... values) {\n" + 
+				"        return Stream.of(values).map(Test::field).toArray(Field[]::new);\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    static class Field<T> {\n" + 
+				"        public Field(T t) {\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"}\n"
+			},
+			"----------\n" + 
+			"1. WARNING in Test.java (at line 4)\n" + 
+			"	public static <T> Field<T> coalesce(T value, T... values) {\n" + 
+			"	                                                  ^^^^^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter values\n" + 
+			"----------\n" + 
+			"2. ERROR in Test.java (at line 5)\n" + 
+			"	return coalesce(field(value), fields(values));\n" + 
+			"	       ^^^^^^^^\n" + 
+			"The method coalesce(Test.Field<T>, Test.Field<T>[]) is ambiguous for the type Test\n" + 
+			"----------\n" + 
+			"3. WARNING in Test.java (at line 20)\n" + 
+			"	static <T> Field<T>[] fields(T... values) {\n" + 
+			"	                                  ^^^^^^\n" + 
+			"Type safety: Potential heap pollution via varargs parameter values\n" + 
+			"----------\n" + 
+			"4. WARNING in Test.java (at line 21)\n" + 
+			"	return Stream.of(values).map(Test::field).toArray(Field[]::new);\n" + 
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type Test.Field[] needs unchecked conversion to conform to Test.Field<T>[]\n" + 
+			"----------\n");
 	}
 }

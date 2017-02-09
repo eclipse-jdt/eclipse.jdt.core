@@ -1113,6 +1113,8 @@ public TypeBinding createAnnotatedType(TypeBinding type, AnnotationBinding[] new
 		for (int i = 0; i < newbies.length; i++) {
 			if (newbies[i] == null) {
 				filtered[count++] = null;
+				// reset tagBitsSeen for next array dimension
+				tagBitsSeen = 0;
 				continue;
 			}
 			long tagBits = 0;
@@ -1710,8 +1712,8 @@ public TypeBinding getTypeFromTypeSignature(SignatureWrapper wrapper, TypeVariab
 		plainCurrent = memberType;
 	}
 	wrapper.start++; // skip ';'
-	currentType=(ParameterizedTypeBinding) annotateType(currentType, savedWalker, missingTypeNames);
-	return dimension == 0 ? (TypeBinding) currentType : createArrayType(currentType, dimension, AnnotatableTypeSystem.flattenedAnnotations(annotationsOnDimensions));
+	TypeBinding annotatedType = annotateType(currentType, savedWalker, missingTypeNames);
+	return dimension == 0 ? annotatedType : createArrayType(annotatedType, dimension, AnnotatableTypeSystem.flattenedAnnotations(annotationsOnDimensions));
 }
 
 private TypeBinding getTypeFromTypeVariable(TypeVariableBinding typeVariableBinding, int dimension, AnnotationBinding [][] annotationsOnDimensions, ITypeAnnotationWalker walker, char [][][] missingTypeNames) {

@@ -7540,4 +7540,41 @@ public void testBug93459() {
 		"}"
 	);
 }
+/**
+ * https://bugs.eclipse.org/510995 - NPE at CommentsPreparator.translateFormattedTokens when using $NON-NLS-1$ in Javadoc
+ */
+public void testBug510995() {
+	String source = 
+		"/**\n" + 
+		" * <pre>\n" + 
+		" * NAME = &quot;org.test....&quot; //$NON-NLS-1$\n" + 
+		" * </pre>\n" + 
+		" */\n" + 
+		"class Test {\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/510995 - NPE at CommentsPreparator.translateFormattedTokens when using $NON-NLS-1$ in Javadoc
+ */
+public void testBug510995b() {
+	String source = 
+		"/**\n" + 
+		" * <pre>\n" + 
+		" * NAME = \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\" + \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"; //$NON-NLS-1$ //$NON-NLS-2$\n" + 
+		" * </pre>\n" + 
+		" */\n" + 
+		"class Test {\n" + 
+		"}";
+	formatSource(source,
+		"/**\n" + 
+		" * <pre>\n" + 
+		" * NAME = \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\" //$NON-NLS-1$\n" + 
+		" * 		+ \"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\"; //$NON-NLS-1$\n" + 
+		" * </pre>\n" + 
+		" */\n" + 
+		"class Test {\n" + 
+		"}"
+	);
+}
 }

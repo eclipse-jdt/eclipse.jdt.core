@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry exported="true" kind="lib" path="libs/autosar-jaxbobjs2.jar">
+		<attributes>
+			<attribute name="annotationpath" value="/Bug509715ProjA/eea"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="var" path="JCL18_LIB">
+	</classpathentry>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

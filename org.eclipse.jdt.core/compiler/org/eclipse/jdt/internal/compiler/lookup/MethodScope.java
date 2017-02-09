@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ *  * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -184,17 +184,21 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 	if (declaringClass.isInterface()) {
 		int expectedModifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract;
 		boolean isDefaultMethod = (modifiers & ExtraCompilerModifiers.AccDefaultMethod) != 0; // no need to check validity, is done by the parser
+		boolean reportIllegalModifierCombination = false;
+		boolean isJDK18orGreater = false;
 		if (sourceLevel >= ClassFileConstants.JDK1_8 && !declaringClass.isAnnotationType()) {
 			expectedModifiers |= ClassFileConstants.AccStrictfp
 					| ExtraCompilerModifiers.AccDefaultMethod | ClassFileConstants.AccStatic;
-			expectedModifiers |= sourceLevel >= ClassFileConstants.JDK9 ? ClassFileConstants.AccPrivate : 0;
-			if (methodBinding.isAbstract()) {
-				if (methodBinding.isStrictfp())
+			isJDK18orGreater = true;
+			if (!methodBinding.isAbstract()) {
+				reportIllegalModifierCombination = isDefaultMethod && methodBinding.isStatic();
+			} else {
+				reportIllegalModifierCombination = isDefaultMethod || methodBinding.isStatic();
+				if (methodBinding.isStrictfp()) {
 					problemReporter().illegalAbstractModifierCombinationForMethod((AbstractMethodDeclaration) this.referenceContext);
-				if (isDefaultMethod || methodBinding.isStatic()) {
-					problemReporter().illegalModifierCombinationForInterfaceMethod((AbstractMethodDeclaration) this.referenceContext);
 				}
-			} else if (isDefaultMethod && methodBinding.isStatic()) {
+			}
+			if (reportIllegalModifierCombination) {
 				problemReporter().illegalModifierCombinationForInterfaceMethod((AbstractMethodDeclaration) this.referenceContext);
 			} 
 			if (sourceLevel >= ClassFileConstants.JDK9 && (methodBinding.modifiers & ClassFileConstants.AccPrivate) != 0) {
@@ -595,12 +599,33 @@ void resolveTypeParameter(TypeParameter typeParameter) {
 	typeParameter.resolve(this);
 }
 @Override
-public boolean hasDefaultNullnessFor(int location) {
-	if (this.referenceContext instanceof AbstractMethodDeclaration) {
-		MethodBinding binding = ((AbstractMethodDeclaration) this.referenceContext).binding;
-		if (binding != null && binding.defaultNullness != 0)
-			return (binding.defaultNullness & location) != 0;
+public boolean hasDefaultNullnessFor(int location, int sourceStart) {
+	int nonNullByDefaultValue = localNonNullByDefaultValue(sourceStart);
+	if(nonNullByDefaultValue != 0) {
+		return (nonNullByDefaultValue & location) != 0;
 	}
-	return this.parent.hasDefaultNullnessFor(location);
+	AbstractMethodDeclaration referenceMethod = referenceMethod();
+	if (referenceMethod != null) {
+		MethodBinding binding = referenceMethod.binding;
+		if (binding != null && binding.defaultNullness != 0) {
+			return (binding.defaultNullness & location) != 0;
+		}
+	}
+	return this.parent.hasDefaultNullnessFor(location, sourceStart);
+}
+@Override
+public Binding checkRedundantDefaultNullness(int nullBits, int sourceStart) {
+	Binding target = localCheckRedundantDefaultNullness(nullBits, sourceStart);
+	if (target != null) {
+		return target;
+	}
+	AbstractMethodDeclaration referenceMethod = referenceMethod();
+	if (referenceMethod != null) {
+		MethodBinding binding = referenceMethod.binding;
+		if (binding != null && binding.defaultNullness != 0) {
+			return (binding.defaultNullness == nullBits) ? binding : null;
+		}
+	}
+	return this.parent.checkRedundantDefaultNullness(nullBits, sourceStart);
 }
 }

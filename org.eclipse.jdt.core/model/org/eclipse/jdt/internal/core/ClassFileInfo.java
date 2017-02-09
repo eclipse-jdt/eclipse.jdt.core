@@ -158,6 +158,12 @@ private IMemberValuePair[] getTargetElementTypes(long tagBits) {
 	if ((tagBits & TagBits.AnnotationForPackage) != 0) {
 		values.add(elementType + new String(TypeConstants.UPPER_PACKAGE));
 	}
+	if ((tagBits & TagBits.AnnotationForTypeUse) != 0) {
+		values.add(elementType + new String(TypeConstants.TYPE_USE_TARGET));
+	}
+	if ((tagBits & TagBits.AnnotationForTypeParameter) != 0) {
+		values.add(elementType + new String(TypeConstants.TYPE_PARAMETER_TARGET));
+	}
 	final Object value;
 	if (values.size() == 0) {
 		if ((tagBits & TagBits.AnnotationTarget) != 0)

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2015 GK Software AG, IBM Corporation and others.
+ * Copyright (c) 2012, 2017 GK Software AG, IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,6 +32,15 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ImplicitNullAnnotationVerifier {
+	public static void ensureNullnessIsKnown(MethodBinding methodBinding, Scope scope) {
+		if ((methodBinding.tagBits & TagBits.IsNullnessKnown) == 0) {
+			LookupEnvironment environment2 = scope.environment();
+			// ensure nullness of methodBinding is known (but we are not interested in reporting problems against methodBinding)
+			new ImplicitNullAnnotationVerifier(environment2, environment2.globalOptions.inheritNullAnnotations)
+					.checkImplicitNullAnnotations(methodBinding, null/*srcMethod*/, false, scope);
+		}
+	}
+
 
 	/**
 	 * Simple record to store nullness info for one argument or return type
@@ -77,9 +86,9 @@ public class ImplicitNullAnnotationVerifier {
 			}
 			boolean usesTypeAnnotations = scope.environment().usesNullTypeAnnotations();
 			boolean needToApplyReturnNonNullDefault =
-					currentMethod.hasNonNullDefaultFor(Binding.DefaultLocationReturnType, usesTypeAnnotations);
+					currentMethod.hasNonNullDefaultFor(Binding.DefaultLocationReturnType, usesTypeAnnotations, srcMethod);
 			boolean needToApplyParameterNonNullDefault =
-					currentMethod.hasNonNullDefaultFor(Binding.DefaultLocationParameter, usesTypeAnnotations);
+					currentMethod.hasNonNullDefaultFor(Binding.DefaultLocationParameter, usesTypeAnnotations, srcMethod);
 			boolean needToApplyNonNullDefault = needToApplyReturnNonNullDefault | needToApplyParameterNonNullDefault;
 			// compatibility & inheritance do not consider constructors / static methods:
 			boolean isInstanceMethod = !currentMethod.isConstructor() && !currentMethod.isStatic();
