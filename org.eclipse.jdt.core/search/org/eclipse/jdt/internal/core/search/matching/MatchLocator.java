@@ -2927,10 +2927,8 @@ private void reportMatching(ProvidesStatement[] provides, ModuleDeclaration modu
 private void reportMatching(UsesStatement[] uses, ModuleDeclaration module, MatchingNodeSet nodeSet, IModuleDescription moduleDesc) {
 	if (uses != null && uses.length > 0) {
 		try {
-			String[] usedServices = moduleDesc.getUsedServices();
 			for (int i = 0, l = uses.length; i < l; ++i) {
 				UsesStatement service = uses[i];
-				String usedService = usedServices[i];
 
 				TypeReference intf = service.serviceInterface;
 				if (intf != null) {

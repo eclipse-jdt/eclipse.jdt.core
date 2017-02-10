@@ -1902,6 +1902,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"Pb(149) Dead code"
 			}, new int[] { 7 });
 	}
+	@SuppressWarnings("deprecation")
 	public void testBug507256() throws Exception {
 		myCreateJavaProject("TestLibs");
 		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
@@ -1982,6 +1983,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	 * Assert that external annotations configured for project A's library are considered also while compiling dependent project B. 
 	 * Reconcile.
 	 */
+	@SuppressWarnings("deprecation")
 	public void testBug509715reconcile() throws Exception {
 		try {
 			setupJavaProject("Bug509715ProjA");
@@ -2002,6 +2004,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	public void testBug500024dir() throws CoreException, IOException {
 		try {
 			String projectName = "Bug500024";
@@ -2040,6 +2043,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	public void testBug500024jar() throws CoreException, IOException {
 		try {
 			String projectName = "Bug500024";

@@ -185,11 +185,9 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 		int expectedModifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract;
 		boolean isDefaultMethod = (modifiers & ExtraCompilerModifiers.AccDefaultMethod) != 0; // no need to check validity, is done by the parser
 		boolean reportIllegalModifierCombination = false;
-		boolean isJDK18orGreater = false;
 		if (sourceLevel >= ClassFileConstants.JDK1_8 && !declaringClass.isAnnotationType()) {
 			expectedModifiers |= ClassFileConstants.AccStrictfp
 					| ExtraCompilerModifiers.AccDefaultMethod | ClassFileConstants.AccStatic;
-			isJDK18orGreater = true;
 			if (!methodBinding.isAbstract()) {
 				reportIllegalModifierCombination = isDefaultMethod && methodBinding.isStatic();
 			} else {

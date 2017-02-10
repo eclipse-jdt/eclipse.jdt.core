@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1694,12 +1694,16 @@ class ASTConverter {
 			org.eclipse.jdt.internal.compiler.ast.PackageVisibilityStatement pvsStmt, ModulePackageAccess stmt) {
 		int sourceEnd = pvsStmt.declarationSourceEnd;
 		if (pvsStmt.declarationEnd > sourceEnd) sourceEnd = pvsStmt.declarationEnd; // TODO: working around a compiler issue
-		stmt.setName(getUpdatedName(pvsStmt.pkgName, pvsStmt.pkgRef.sourceStart, pvsStmt.pkgRef.sourceEnd));
+		Name name = getImportName(pvsStmt.pkgRef);
+		stmt.setName(name);
+		if (this.resolveBindings) {
+			recordNodes(name, pvsStmt.pkgRef);
+		}
 		int tmp = sourceEnd;
 		if (pvsStmt.targets != null && pvsStmt.targets.length > 0) {
 			List<Name> modules = stmt.modules();
 			for (ModuleReference moduleRef : pvsStmt.getTargetedModules()) {
-				modules.add(getUpdatedName(moduleRef.moduleName, moduleRef.sourceStart, moduleRef.sourceEnd));
+				modules.add(getName(moduleRef, CharOperation.splitOn('.', moduleRef.moduleName), moduleRef.sourcePositions));
 				if (tmp < moduleRef.sourceEnd) tmp = moduleRef.sourceEnd;
 			}
 		}
@@ -3125,24 +3129,9 @@ class ASTConverter {
 
 	public ImportDeclaration convertImport(org.eclipse.jdt.internal.compiler.ast.ImportReference importReference) {
 		final ImportDeclaration importDeclaration = new ImportDeclaration(this.ast);
+		Name name = getImportName(importReference);
+		importDeclaration.setName(name);
 		final boolean onDemand = (importReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OnDemand) != 0;
-		final char[][] tokens = importReference.tokens;
-		int length = importReference.tokens.length;
-		final long[] positions = importReference.sourcePositions;
-		if (length > 1) {
-			importDeclaration.setName(setQualifiedNameNameAndSourceRanges(tokens, positions, importReference));
-		} else {
-			final SimpleName name = new SimpleName(this.ast);
-			name.internalSetIdentifier(new String(tokens[0]));
-			final int start = (int)(positions[0]>>>32);
-			final int end = (int)(positions[0] & 0xFFFFFFFF);
-			name.setSourceRange(start, end - start + 1);
-			name.index = 1;
-			importDeclaration.setName(name);
-			if (this.resolveBindings) {
-				recordNodes(name, importReference);
-			}
-		}
 		importDeclaration.setSourceRange(importReference.declarationSourceStart, importReference.declarationEnd - importReference.declarationSourceStart + 1);
 		importDeclaration.setOnDemand(onDemand);
 		int modifiers = importReference.modifiers;
@@ -3163,6 +3152,30 @@ class ASTConverter {
 			recordNodes(importDeclaration, importReference);
 		}
 		return importDeclaration;
+	}
+
+	public Name getImportName(org.eclipse.jdt.internal.compiler.ast.ImportReference importReference) {
+		return getName(importReference, importReference.tokens, importReference.sourcePositions);
+	}
+
+	private Name getName(org.eclipse.jdt.internal.compiler.ast.ASTNode node, final char[][] tokens,
+			final long[] positions) {
+		Name name;
+		int length = tokens != null ? tokens.length : 0;
+		if (length > 1) {
+			name = setQualifiedNameNameAndSourceRanges(tokens, positions, node);
+		} else {
+			name = new SimpleName(this.ast);
+			((SimpleName)name).internalSetIdentifier(new String(tokens[0]));
+			final int start = (int)(positions[0]>>>32);
+			final int end = (int)(positions[0] & 0xFFFFFFFF);
+			name.setSourceRange(start, end - start + 1);
+			name.index = 1;
+			if (this.resolveBindings) {
+				recordNodes(name, node);
+			}
+		}
+		return name;
 	}
 
 	public PackageDeclaration convertPackage(org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration compilationUnitDeclaration) {
@@ -3286,10 +3299,13 @@ class ASTConverter {
 		ModuleDeclaration moduleDecl = this.ast.newModuleDeclaration();
 		convert(moduleDeclaration.javadoc, moduleDecl);
 		setModifiers(moduleDecl, moduleDeclaration);
-		Name moduleName = getUpdatedName(moduleDeclaration.moduleName, moduleDeclaration.sourceStart, moduleDeclaration.sourceEnd);
+		Name moduleName = getName(moduleDeclaration, CharOperation.splitOn('.', moduleDeclaration.moduleName), moduleDeclaration.sourcePositions);
 		moduleDecl.setName(moduleName);
 		moduleDecl.setSourceRange(moduleDeclaration.declarationSourceStart, moduleDeclaration.declarationSourceEnd - moduleDeclaration.declarationSourceStart + 1);
 
+		if (this.resolveBindings) {
+			this.recordNodes(moduleDecl, moduleDeclaration);
+		}
 		List<ModuleStatement> stmts = moduleDecl.moduleStatements();
 		TreeSet<ModuleStatement> tSet = new TreeSet<> (new Comparator() {
 			public int compare(Object o1, Object o2) {
@@ -3308,7 +3324,7 @@ class ASTConverter {
 			org.eclipse.jdt.internal.compiler.ast.RequiresStatement req = moduleDeclaration.requires[i];
 			ModuleReference moduleRef = req.module;
 			RequiresStatement stmt = new RequiresStatement(this.ast);
-			Name name = getUpdatedName(moduleRef.moduleName, moduleRef.sourceStart, moduleRef.sourceEnd);
+			Name name = getName(moduleRef, CharOperation.splitOn('.', moduleRef.moduleName), moduleRef.sourcePositions);
 			stmt.setName(name);
 
 			addModifierToRequires(req, req.isTransitive(), Modifier.ModifierKeyword.TRANSIENT_KEYWORD, stmt);
@@ -4372,11 +4388,6 @@ class ASTConverter {
 				return false;
 		}
 		return false;
-	}
-	private Name getUpdatedName(char[] s, int sourceStart, int sourceEnd) {
-		Name name = this.ast.newName(new String(s));
-		name.setSourceRange(sourceStart, sourceEnd - sourceStart  + 1);
-		return name;
 	}
 	private void lookupForScopes() {
 		if (this.pendingNameScopeResolution != null) {

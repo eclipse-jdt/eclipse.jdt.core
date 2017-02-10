@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,7 +20,10 @@ import org.eclipse.jdt.core.dom.*;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
 @SuppressWarnings({"rawtypes"})
@@ -40,7 +43,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 	static {
 //		TESTS_NUMBERS = new int[] { 19 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] {"testBug497719_0001"};
+//		TESTS_NAMES = new String[] {"testBug512023_0001"};
 	}
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverter9Test.class);
@@ -175,5 +178,55 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		type = impls.get(0);
 		checkSourceRange(type, "pack11.packinternal.Z11", content);		
 	}
+
+	public void testBug512023_0001() throws Exception {
+		try {
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String content = 
+				"module first {\n" +
+				"    requires second.third;\n" +
+				"    exports pack1.X11 to org.eclipse.jdt;\n" +
+				"}";
+			createFile("/ConverterTests9/src/module-info.java",	content);
+			createFolder("/ConverterTests9/src/pack1");
+			createFile("/ConverterTests9/src/pack1/X11.java",
+					"package pack1;\n" +
+					"public class X11 {}\n");
+			this.workingCopy = getWorkingCopy("/ConverterTests9/src/module-info.java", false);
+			ASTNode node = buildAST(content, this.workingCopy, false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			ModuleDeclaration moduleDecl = unit.getModule();
+
+			checkSourceRange(moduleDecl, content, content);
+			List<ModuleStatement> stmts = moduleDecl.moduleStatements();
+			assertTrue(stmts.size() > 0);
+
+			QualifiedName qName;
+			RequiresStatement req = (RequiresStatement) stmts.get(0);
+			qName = (QualifiedName) req.getName();
+			checkSourceRange(qName, "second.third", content);
+			checkSourceRange(qName.getName(), "third", content);
+			checkSourceRange(qName.getQualifier(), "second", content);
+
+			ExportsStatement exp = (ExportsStatement) stmts.get(1);
+			checkSourceRange(exp, "exports pack1.X11 to org.eclipse.jdt;", content);
+			qName = (QualifiedName) exp.getName();
+			checkSourceRange(qName, "pack1.X11", content);
+			checkSourceRange(qName.getName(), "X11", content);
+			checkSourceRange(qName.getQualifier(), "pack1", content);
+
+			List<Name> modules = exp.modules();
+			qName = (QualifiedName) modules.get(0);
+			checkSourceRange(qName, "org.eclipse.jdt", content);
+			checkSourceRange(qName.getName(), "jdt", content);
+			checkSourceRange(qName.getQualifier(), "org.eclipse", content);
+		} finally {
+			deleteProject("ConverterTests9");
+		}
+	}
+
 // Add new tests here 
 }
