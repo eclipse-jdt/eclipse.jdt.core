@@ -7904,4 +7904,46 @@ public void testBug508834_comment0() {
 			"----------\n"
 		);
 	}
+
+	public void testBug511252orig() {
+		runConformTest(
+			new String[] {
+				"ConfigurationServiceLocator.java",
+				"import java.util.*;\n" +
+				"import java.util.function.*;\n" +
+				"import java.util.concurrent.*;\n" +
+				"import java.net.URI;\n" +
+				"public class ConfigurationServiceLocator {\n" + 
+				"\n" + 
+				"  private final Map<String, URI> services = new HashMap<>();\n" + 
+				"\n" + 
+				"  public <T> CompletionStage<Optional<T>> doWithService(String name, Function<URI, CompletionStage<T>> block) {\n" + 
+				"      return Optional.ofNullable(services.get(name))\n" + 
+				"              .map(block.andThen(cs -> cs.thenApply(Optional::ofNullable)))\n" + 
+				"              .orElse(CompletableFuture.completedFuture(Optional.empty()));\n" + 
+				"  }\n" + 
+				"\n" + 
+				"}\n"
+			});
+	}
+	
+	public void testBug511252simplified() {
+		runConformTest(
+			new String[] {
+				"ConfigurationServiceLocator.java",
+				"import java.util.*;\n" +
+				"import java.util.function.*;\n" +
+				"import java.util.concurrent.*;\n" +
+				"import java.net.URI;\n" +
+				"public class ConfigurationServiceLocator {\n" + 
+				"\n" + 
+				"  public <T> CompletionStage<Optional<T>> doWithService(Optional<URI> uriopt, Function<URI, CompletionStage<T>> block) {\n" + 
+				"      return uriopt\n" + 
+				"              .map(block.andThen(cs -> cs.thenApply(Optional::ofNullable)))\n" + 
+				"              .orElse(CompletableFuture.completedFuture(Optional.empty()));\n" + 
+				"  }\n" + 
+				"\n" + 
+				"}\n"
+			});
+	}
 }

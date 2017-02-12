@@ -148,6 +148,7 @@ public class InferenceContext18 {
 	public static final int APPLICABILITY_INFERRED = 1;
 	/** Invocation Type Inference (18.5.2) has been completed (for some target type). */
 	public static final int TYPE_INFERRED = 2;
+	public static final int TYPE_INFERRED_FINAL = 3; // as above plus asserting that target type was a proper type
 	
 	/** Signals whether any type compatibility makes use of unchecked conversion. */
 	public List<ConstraintFormula> constraintsWithUncheckedConversion;
@@ -391,6 +392,8 @@ public class InferenceContext18 {
 		
 		this.currentBounds = this.b2.copy();
 		
+		int step = (expectedType == null || expectedType.isProperType(true)) ? TYPE_INFERRED_FINAL : TYPE_INFERRED;
+
 		try {
 			// bullets 1&2: definitions only.
 			if (expectedType != null
@@ -466,9 +469,11 @@ public class InferenceContext18 {
 			}
 			// we're done, start reporting:
 			reportUncheckedConversions(solution);
-			return this.currentBounds = solution; // this is final, keep the result:
+			if (step == TYPE_INFERRED_FINAL)
+				this.currentBounds = solution; // this is final, keep the result:
+			return solution;
 		} finally {
-			this.stepCompleted = TYPE_INFERRED;
+			this.stepCompleted = step;
 		}
 	}
 
@@ -681,12 +686,25 @@ public class InferenceContext18 {
 			
 			if (innerContext != null) {
 				MethodBinding shallowMethod = innerMethod.shallowOriginal();
+				if (looksLikeVarargs(innerMethod, argumentTypes)) {
+					InferenceContext18 varArgsCtx = invocation.freshInferenceContext(innerContext.scope); // start over
+					varArgsCtx.inferenceKind = InferenceContext18.CHECK_VARARG;
+					varArgsCtx.inferInvocationApplicability(shallowMethod, argumentTypes, shallowMethod.isConstructor());
+					if (varArgsCtx.solve(true) != null) {
+						varArgsCtx.stepCompleted = InferenceContext18.APPLICABILITY_INFERRED;
+						innerContext = varArgsCtx;
+					}
+				}
 				innerContext.outerContext = this;
 				if (innerContext.stepCompleted < InferenceContext18.APPLICABILITY_INFERRED) // shouldn't happen, but let's play safe
 					innerContext.inferInvocationApplicability(shallowMethod, argumentTypes, shallowMethod.isConstructor());
 				if (!innerContext.computeB3(invocation, substF, shallowMethod))
 					return false;
-				return innerContext.addConstraintsToC(arguments, c, innerMethod.genericMethod(), innerContext.inferenceKind, invocation);
+				if (innerContext.addConstraintsToC(arguments, c, innerMethod.genericMethod(), innerContext.inferenceKind, invocation)) {
+					this.currentBounds.addBounds(innerContext.currentBounds, this.environment);
+					return true;
+				}
+				return false;
 			} else {
 				int applicabilityKind = getInferenceKind(innerMethod, argumentTypes);
 				return this.addConstraintsToC(arguments, c, innerMethod.genericMethod(), applicabilityKind, invocation);
@@ -699,7 +717,22 @@ public class InferenceContext18 {
 		return true;
 	}
 
-	
+	private boolean looksLikeVarargs(MethodBinding method, TypeBinding[] argumentTypes) {
+		if (method.isVarargs()) {
+			if (argumentTypes.length == 0)
+				return true;
+			TypeBinding lastArg = argumentTypes[argumentTypes.length-1];
+			if (lastArg == null) // argument still has a PolyTypeBinding (which is not stored in a.resolvedType)? 
+				return true; // TODO: which way to interpret?
+			if (!lastArg.isArrayType()) // TODO: what if argtype is ivar that should resolve to array??
+				return true;
+			// TODO: also consider (T[] ...)!
+			TypeBinding lastParam = method.parameters[method.parameters.length-1];
+			return !lastArg.isCompatibleWith(lastParam);
+		}
+		return false;
+	}
+
 	protected int getInferenceKind(MethodBinding nonGenericMethod, TypeBinding[] argumentTypes) {
 		switch (this.scope.parameterCompatibilityLevel(nonGenericMethod, argumentTypes)) {
 			case Scope.AUTOBOX_COMPATIBLE:
@@ -1652,6 +1685,7 @@ public class InferenceContext18 {
 			case NOT_INFERRED: buf.append(" (initial)");break; //$NON-NLS-1$
 			case APPLICABILITY_INFERRED: buf.append(" (applicability inferred)");break; //$NON-NLS-1$
 			case TYPE_INFERRED: buf.append(" (type inferred)");break; //$NON-NLS-1$
+			case TYPE_INFERRED_FINAL: buf.append(" (type inferred final)");break; //$NON-NLS-1$
 		}
 		switch (this.inferenceKind) {
 			case CHECK_STRICT: buf.append(" (strict)");break; //$NON-NLS-1$
