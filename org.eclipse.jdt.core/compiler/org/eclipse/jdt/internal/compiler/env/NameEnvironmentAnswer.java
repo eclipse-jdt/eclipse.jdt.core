@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,7 +27,9 @@ public class NameEnvironmentAnswer {
 	String externalAnnotationPath; // should be an absolute file system path
 
 	public NameEnvironmentAnswer(IBinaryType binaryType, AccessRestriction accessRestriction) {
-		this(binaryType, accessRestriction, binaryType.getModule());
+		this.binaryType = binaryType;
+		this.accessRestriction = accessRestriction;
+		this.module = binaryType.getModule() != null ? binaryType.getModule().name() : null;
 	}
 
 	public NameEnvironmentAnswer(IBinaryType binaryType, AccessRestriction accessRestriction, char[] module) {

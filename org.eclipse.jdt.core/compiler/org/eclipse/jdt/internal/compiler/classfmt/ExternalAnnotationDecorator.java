@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 Google, Inc. and others.
+ * Copyright (c) 2016, 2017 Google, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -289,7 +290,7 @@ public class ExternalAnnotationDecorator implements IBinaryType {
 	}
 
 	@Override
-	public char[] getModule() {
+	public IModule getModule() {
 		// TODO Auto-generated method stub
 		return null;
 	}

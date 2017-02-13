@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -63,11 +63,11 @@ char[] getEnclosingTypeName();
 
 IBinaryField[] getFields();
 /**
- * Answer the name of the module to which this type belongs.
+ * Answer the module to which this type belongs.
  *
- * @return the name of the module as char array
+ * @return the module
  */
-char[] getModule();
+IModule getModule();
 /**
  * Answer the receiver's ClassSignature, which describes the type parameters,
  * super class, and super interfaces as specified in section "4.7.9.1 Signatures"

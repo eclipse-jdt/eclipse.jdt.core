@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,8 +23,8 @@ package org.eclipse.jdt.internal.compiler.env;
  * @see IModulePathEntry#getLookupEnvironmentFor(IModule)
  */
 public interface IModuleEnvironment {
-	String MODULE_INFO_JAVA = "module-info.java"; //$NON-NLS-1$
-	String MODULE_INFO_CLASS = "module-info.class"; //$NON-NLS-1$
+	static String MODULE_INFO_JAVA = "module-info.java"; //$NON-NLS-1$
+	static String MODULE_INFO_CLASS = "module-info.class"; //$NON-NLS-1$
 
 	/**
 	 * A way to lookup types in a module

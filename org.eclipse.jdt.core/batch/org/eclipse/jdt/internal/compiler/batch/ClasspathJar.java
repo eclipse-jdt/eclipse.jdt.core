@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -120,10 +120,11 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 	try {
 		IBinaryType reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		if (reader != null) {
+			char[] modName = this.module == null ? null : this.module.name();
 			if (reader instanceof ClassFileReader) {
 				ClassFileReader classReader = (ClassFileReader) reader;
 				if (classReader.moduleName == null) {
-					classReader.moduleName = this.module == null ? null : this.module.name();
+					classReader.moduleName = modName;
 				}
 			}
 			searchPaths:
@@ -146,7 +147,7 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 				// location is configured for external annotations, but no .eea found, decorate in order to answer NO_EEA_FILE:
 				reader = new ExternalAnnotationDecorator(reader, null);
 			}
-			return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName), reader.getModule());
+			return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName), modName);
 		}
 	} catch(ClassFormatException e) {
 		// treat as if class file is missing

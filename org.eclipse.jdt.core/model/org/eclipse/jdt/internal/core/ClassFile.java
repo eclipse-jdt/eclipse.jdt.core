@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
+import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.nd.java.JavaNames;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeDescriptor;
@@ -388,7 +389,7 @@ private IBinaryType getJarBinaryTypeInfo() throws CoreException, IOException, Cl
 		PackageFragment pkg = (PackageFragment) getParent();
 		JarPackageFragmentRoot jarRoot = (JarPackageFragmentRoot) getPackageFragmentRoot();
 		String entryName = Util.concatWith(pkg.names, getElementName(), '/');
-		if (root instanceof JrtPackageFragmentRoot) {
+		if (root instanceof JrtPackageFragmentRoot || entryName.equals(IModuleEnvironment.MODULE_INFO_CLASS)) {
 			byte[] contents = getClassFileContent(jarRoot, entryName);
 			if (contents != null) {
 				String fileName;

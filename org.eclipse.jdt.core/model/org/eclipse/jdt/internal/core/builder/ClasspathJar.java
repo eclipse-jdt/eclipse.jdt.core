@@ -61,7 +61,8 @@ static class PackageCacheEntry {
 	}
 }
 
-private static SimpleLookupTable PackageCache = new SimpleLookupTable();
+protected static SimpleLookupTable PackageCache = new SimpleLookupTable();
+protected static SimpleLookupTable ModuleCache = new SimpleLookupTable();
 INameEnvironment env = null;
 
 protected static void addToPackageSet(SimpleSet packageSet, String fileName, boolean endsWithSep) {
@@ -77,34 +78,24 @@ protected static void addToPackageSet(SimpleSet packageSet, String fileName, boo
 
 /**
  * Calculate and cache the package list available in the zipFile.
- * @param jar The ClasspathJar to use
  * @return A SimpleSet with the all the package names in the zipFile.
  */
-static SimpleSet findPackageSet(final ClasspathJar jar) {
-	String zipFileName = jar.zipFilename;
+protected SimpleSet findPackageSet() {
+	String zipFileName = this.zipFilename;
 	PackageCacheEntry cacheEntry = (PackageCacheEntry) PackageCache.get(zipFileName);
-	long lastModified = jar.lastModified();
+	long timestamp = this.lastModified();
 	long fileSize = new File(zipFileName).length();
-	if (cacheEntry != null && cacheEntry.lastModified == lastModified && cacheEntry.fileSize == fileSize)
+	if (cacheEntry != null && cacheEntry.lastModified == timestamp && cacheEntry.fileSize == fileSize) {
+		this.module = (IModule) ModuleCache.get(zipFileName);
 		return cacheEntry.packageSet;
+	}
 	final SimpleSet packageSet = new SimpleSet(41);
 	packageSet.add(""); //$NON-NLS-1$
-	String modInfo = null;
-	for (Enumeration e = jar.zipFile.entries(); e.hasMoreElements(); ) {
-		String fileName = ((ZipEntry) e.nextElement()).getName();
-		int folderEnd = fileName.lastIndexOf('/');
-		folderEnd += 1;
-		String className = fileName.substring(folderEnd, fileName.length());
-		if (className.equalsIgnoreCase(IModuleEnvironment.MODULE_INFO_CLASS)) {
-			modInfo = fileName;
-		}
-		addToPackageSet(packageSet, fileName, false);
-	}
-	PackageCache.put(zipFileName, new PackageCacheEntry(lastModified, fileSize, packageSet));
+	String modInfo = readJarContent(packageSet);
+	PackageCache.put(zipFileName, new PackageCacheEntry(timestamp, fileSize, packageSet));
 	if (modInfo != null) {
 		try {
-			jar.acceptModule(ClassFileReader.read(jar.zipFile, modInfo));
-			jar.isAutoModule = false; // TODO: check with spec on what the behavior should be
+			this.acceptModule(ClassFileReader.read(this.zipFile, modInfo));
 		} catch (ClassFormatException | IOException e) {
 			// TODO BETA_JAVA9 Auto-generated catch block
 			e.printStackTrace();
@@ -112,9 +103,27 @@ static SimpleSet findPackageSet(final ClasspathJar jar) {
 	}
 	return packageSet;
 }
+protected String readJarContent(final SimpleSet packageSet) {
+	String modInfo = null;
+	for (Enumeration e = this.zipFile.entries(); e.hasMoreElements(); ) {
+		String fileName = ((ZipEntry) e.nextElement()).getName();
+		if (modInfo == null) {
+			int folderEnd = fileName.lastIndexOf('/');
+			folderEnd += 1;
+			String className = fileName.substring(folderEnd, fileName.length());
+			if (className.equalsIgnoreCase(MODULE_INFO_CLASS)) {
+				modInfo = fileName;
+			}
+		}
+		addToPackageSet(packageSet, fileName, false);
+	}
+	return modInfo;
+}
 void acceptModule(ClassFileReader classfile) {
 	if (classfile != null) {
-		acceptModule(classfile.getModuleDeclaration());
+		IModule mod = classfile.getModuleDeclaration();
+		ModuleCache.put(this.zipFilename, mod);
+		acceptModule(mod);
 	}
 }
 
@@ -229,10 +238,11 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	try {
 		IBinaryType reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 		if (reader != null) {
+			char[] modName = this.module == null ? null : this.module.name();
 			if (reader instanceof ClassFileReader) {
 				ClassFileReader classReader = (ClassFileReader) reader;
 				if (classReader.moduleName == null) {
-					classReader.moduleName = this.module == null ? null : this.module.name();
+					classReader.moduleName = modName;
 				}
 			}
 			String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
@@ -255,7 +265,9 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 			}
 			if (this.accessRuleSet == null)
 				return new NameEnvironmentAnswer(reader, null);
-			return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()), reader.getModule());
+			return new NameEnvironmentAnswer(reader, 
+					this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()), 
+					modName);
 		}
 	} catch (IOException e) { // treat as if class file is missing
 	} catch (ClassFormatException e) { // treat as if class file is missing
@@ -283,9 +295,9 @@ public boolean isPackage(String qualifiedPackageName) {
 			}
 			this.zipFile = new ZipFile(this.zipFilename);
 			this.closeZipFileAtEnd = true;
-			this.knownPackageNames = findPackageSet(this);
+			this.knownPackageNames = findPackageSet();
 		} else {
-			this.knownPackageNames = findPackageSet(this);
+			this.knownPackageNames = findPackageSet();
 		}
 	} catch(Exception e) {
 		this.knownPackageNames = new SimpleSet(); // assume for this build the zipFile is empty

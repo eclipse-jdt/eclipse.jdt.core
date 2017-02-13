@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
+import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
@@ -203,7 +204,7 @@ public ITypeAnnotationWalker enrichWithExternalAnnotationsFor(ITypeAnnotationWal
 	return walker;
 }
 @Override
-public char[] getModule() {
+public IModule getModule() {
 	// TODO BETA_JAVA9 Auto-generated method stub
 	return null;
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.JavaCore;
@@ -39,7 +40,6 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.util.Messages;
 
 import junit.framework.Test;
@@ -88,18 +88,26 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void test001() throws CoreException {
 		if (!isJRE9) return;
 		try {
-			IPackageFragmentRoot[] roots = this.currentProject.getPackageFragmentRoots();
+			IJavaProject project = createJava9Project("Test01", new String[]{"src"});
+			this.createFile("Test01/src/module-info.java", "");
+			this.createFolder("Test01/src/com/greetings");
+			this.createFile("Test01/src/com/greetings/Main.java", "");
+			waitForManualRefresh();
+			waitForAutoBuild();
+			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
 			IPackageFragmentRoot base = null;
 			for (IPackageFragmentRoot iRoot : roots) {
-				if (iRoot.getElementName().equals("java.base")) {
+				IModuleDescription moduleDescription = iRoot.getModuleDescription();
+				if (moduleDescription != null) {
 					base = iRoot;
 					break;
 				}
 			}
 			assertNotNull("Java.base module should not null", base);
-			assertTrue("Java.base should be a module package fragment root", (base instanceof JrtPackageFragmentRoot));
-			assertMarkers("Unexpected markers", "", this.currentProject);
+			assertMarkers("Unexpected markers", "", project);
 		} finally {
+			deleteProject("Test01");
 		}
 	}
 	// Test the project compiles without errors with a simple module-info.java
@@ -130,7 +138,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					"package com.greetings;\n" +
 					"public class Main {\n" +
 					"	public static void main(String[] args) {\n" +
-					"		System.out.println(\"Hello\");\n" +
 					"	}\n" +
 					"}");
 			waitForManualRefresh();
@@ -225,7 +232,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				"package com.greetings;\n" +
 				"public class Main {\n" +
 				"	public static void main(String[] args) {\n" +
-				"		System.out.println(\"Hello\");\n" +
 				"	}\n" +
 				"}");
 		this.createFile("P2/src/module-info.java",
@@ -249,7 +255,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * module M2 has no 'requires' M1. Should report unresolved type, import etc.  
 	 *
 	 */
-	public void test007() throws CoreException {
+	public void test007() throws Exception {
 		if (!isJRE9) return;
 		try {
 			IJavaProject project = setupP2();
@@ -281,7 +287,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * the types in unexported packages.
 	 *
 	 */
-	public void test008() throws CoreException {
+	public void test008() throws Exception {
 		if (!isJRE9) return;
 		try {
 			IJavaProject project = setupP2();
@@ -311,7 +317,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * Module M2 has "requires M1" in module-info and all packages used by M2 
 	 * are exported by M1. No errors expected. 
 	 */
-	public void test009() throws CoreException {
+	public void test009() throws Exception {
 		if (!isJRE9) return;
 		try {
 			IJavaProject project = setupP2();
@@ -338,7 +344,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * Module M1 exports a package to a specific module, which is not M2.
 	 * Usage of types from M1 in M2 should be reported.
 	 */
-	public void _test010() throws CoreException {
+	public void _test010() throws Exception {
 		if (!isJRE9) return;
 		try {
 			IJavaProject project = setupP2();
@@ -393,7 +399,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * Module M1 exports a package (to all), M2 requires M1 and M3 requires M2. Usage of types from
 	 * M1 in M3 should be reported as errors.
 	 */
-	public void test011() throws CoreException {
+	public void test011() throws Exception {
 		if (!isJRE9) return;
 		try {
 			this.editFile("P1/src/module-info.java",
@@ -420,7 +426,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * Module M1 exports a package only to M2, M2 requires M1 and M3 requires M2. Usage of types from
 	 * M1 in M3 should not be allowed.
 	 */
-	public void test012() throws CoreException {
+	public void test012() throws Exception {
 		if (!isJRE9) return;
 		try {
 			this.editFile("P1/src/module-info.java",
@@ -454,7 +460,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * Module M1 exports a package (to all), M2 requires 'public' M1 and M3 requires M2. Usage of types from
 	 * M1 in M3 should be allowed.
 	 */
-	public void test013() throws CoreException {
+	public void test013() throws Exception {
 		if (!isJRE9) return;
 		try {
 			IJavaProject p2 = setupP2();
@@ -478,7 +484,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * Module M1 exports a package only to M2, M2 requires 'public' M1 and M3 requires M2. Usage of types from
 	 * M1 in M3 should be allowed. And no errors reported on M2.
 	 */
-	public void test014() throws CoreException {
+	public void test014() throws Exception {
 		if (!isJRE9) return;
 		try {
 			this.editFile("P1/src/module-info.java",

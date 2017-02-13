@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -219,7 +219,8 @@ private NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedP
 					// don't let error on annotations fail class reading
 				}
 			}
-			return new NameEnvironmentAnswer(reader, null, reader.getModule());
+			char[] modName = reader.getModule() == null ? null : reader.getModule().name();
+			return new NameEnvironmentAnswer(reader, null, modName);
 		}
 	} catch (IOException e) { // treat as if class file is missing
 	} catch (ClassFormatException e) { // treat as if class file is missing

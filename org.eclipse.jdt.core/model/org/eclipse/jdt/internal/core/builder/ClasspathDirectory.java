@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -177,8 +177,9 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 		return null;
 	}
 	if (reader != null) {
+		char[] modName = this.module == null ? null : this.module.name();
 		if (reader instanceof ClassFileReader) {
-			((ClassFileReader) reader).moduleName = this.module == null ? null : this.module.name();
+			((ClassFileReader) reader).moduleName = modName;
 		}
 		String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
 		if (this.externalAnnotationPath != null) {
@@ -194,8 +195,8 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 			}
 		}
 		if (this.accessRuleSet == null)
-			return this.module == null ? new NameEnvironmentAnswer(reader, null) : new NameEnvironmentAnswer(reader, null, reader.getModule());
-		return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()), reader.getModule());
+			return this.module == null ? new NameEnvironmentAnswer(reader, null) : new NameEnvironmentAnswer(reader, null, modName);
+		return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()), modName);
 	}
 	return null;
 }
