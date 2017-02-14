@@ -219,8 +219,7 @@ private NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedP
 					// don't let error on annotations fail class reading
 				}
 			}
-			char[] modName = reader.getModule() == null ? null : reader.getModule().name();
-			return new NameEnvironmentAnswer(reader, null, modName);
+			return new NameEnvironmentAnswer(reader, null, reader.getModule());
 		}
 	} catch (IOException e) { // treat as if class file is missing
 	} catch (ClassFormatException e) { // treat as if class file is missing

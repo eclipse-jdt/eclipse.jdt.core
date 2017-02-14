@@ -215,7 +215,7 @@ public static Classpath getClasspath(String classpathName, String encoding,
 		}
 	} else {
 		int format = Util.archiveFormat(classpathName);
-		if (format >= Util.ZIP_FILE) {
+		if (format == Util.ZIP_FILE) {
 			if (isSourceOnly) {
 				// source only mode
 				result = new ClasspathSourceJar(file, true, accessRuleSet,
@@ -244,7 +244,10 @@ public static Classpath getClasspath(String classpathName, String encoding,
 					result = new ClasspathJar(file, true, accessRuleSet, null);
 				}
 			}
+		} else if (format == Util.JMOD_FILE) {
+			// TODO BETA_JAVA9: we need new type of classpath to handle Jmod files in batch compiler.
 		}
+
 	}
 	return result;
 }

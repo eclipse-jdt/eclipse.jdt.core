@@ -330,6 +330,7 @@ public byte[] getBytes() throws JavaModelException {
 		JarPackageFragmentRoot root = (JarPackageFragmentRoot) pkg.getParent();
 		try {
 			String entryName = Util.concatWith(((PackageFragment) pkg).names, getElementName(), '/');
+			entryName = root.getClassFilePath(entryName);
 			return getClassFileContent(root, entryName);
 			// BETA_JAVA9 - The below exception is not thrown in new scheme of things. Could cause issues?
 //			throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST, this));
@@ -386,10 +387,10 @@ private IBinaryType getJarBinaryTypeInfo() throws CoreException, IOException, Cl
 	IBinaryType result = null;
 	IPackageFragmentRoot root = getPackageFragmentRoot();
 	if (getPackageFragmentRoot() instanceof JarPackageFragmentRoot) {
-		PackageFragment pkg = (PackageFragment) getParent();
-		JarPackageFragmentRoot jarRoot = (JarPackageFragmentRoot) getPackageFragmentRoot();
-		String entryName = Util.concatWith(pkg.names, getElementName(), '/');
-		if (root instanceof JrtPackageFragmentRoot || entryName.equals(IModuleEnvironment.MODULE_INFO_CLASS)) {
+		if (root instanceof JrtPackageFragmentRoot || this.name.equals(IModuleEnvironment.MODULE_INFO)) {
+			PackageFragment pkg = (PackageFragment) getParent();
+			JarPackageFragmentRoot jarRoot = (JarPackageFragmentRoot) getPackageFragmentRoot();
+			String entryName = jarRoot.getClassFilePath(Util.concatWith(pkg.names, getElementName(), '/'));
 			byte[] contents = getClassFileContent(jarRoot, entryName);
 			if (contents != null) {
 				String fileName;

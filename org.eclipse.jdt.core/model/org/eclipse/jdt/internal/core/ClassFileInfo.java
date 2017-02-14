@@ -258,15 +258,18 @@ private void generateInnerClassHandles(IType type, IBinaryType typeInfo, ArrayLi
 		}
 	}
 }
-private void generateModuleInfos(ClassFile classFile, ClassFileReader info, HashMap newElements, ArrayList childrenHandles) {
-	IModule modDecl = info.getModuleDeclaration();
+private void generateModuleInfos(ClassFile classFile, IBinaryType info, HashMap newElements, ArrayList childrenHandles) {
+	// TODO: The following needs fix once we can get ModuleDeclaration from IndexBinaryType
+	IModule modDecl = (info instanceof ClassFileReader) ? ((ClassFileReader) info).getModuleDeclaration() : null;
 	if (modDecl != null) {
 		char[] modName = modDecl.name();
 		BinaryModule handle = new BinaryModule(classFile, new String(modName));
 		ModuleDescriptionInfo moduleInfo = new ModuleDescriptionInfo();
 		moduleInfo.name = modName;
-		childrenHandles.add(handle);
-		// Rest of the construction goes here
+		// It is illegal to add module to ClassFile's children because
+		// we use ClassFile itself to store binary children of BinaryModule,
+		// which means module can't be part of its own children list.
+		// childrenHandles.add(handle); 
 		IPackageExport[] exportedPackages = modDecl.exports();
 		if (exportedPackages != null) {
 			for (IPackageExport iPackageExport : exportedPackages) {
@@ -296,7 +299,7 @@ private void generateModuleInfos(ClassFile classFile, ClassFileReader info, Hash
 		newElements.put(handle, moduleInfo);
 	}
 }
-private void generateServiceInfos(BinaryModule parentHandle, HashMap newElements, char[] serviceName, char[][] implNames, ArrayList requiresHandles) {
+private void generateServiceInfos(BinaryModule parentHandle, HashMap newElements, char[] serviceName, char[][] implNames, ArrayList childrenHandles) {
 	ServiceInfo info = new ServiceInfo();
 	info.serviceName = serviceName;
 	String[] implementations = new String[implNames.length];
@@ -308,8 +311,10 @@ private void generateServiceInfos(BinaryModule parentHandle, HashMap newElements
 	while (newElements.containsKey(service))
 		service.occurrenceCount++;
 	newElements.put(service, info);
+	childrenHandles.add(service);
+	
 }
-private void generateModuleRequirementInfos(BinaryModule parentHandle, HashMap newElements, char[] moduleName, int modifiers, ArrayList requiresHandles) {
+private void generateModuleRequirementInfos(BinaryModule parentHandle, HashMap newElements, char[] moduleName, int modifiers, ArrayList childrenHandles) {
 	ModuleRequirement requirement = new ModuleRequirement(parentHandle, new String(moduleName));
 	ModuleReferenceInfo info = new ModuleReferenceInfo();
 	info.name = moduleName;
@@ -317,8 +322,9 @@ private void generateModuleRequirementInfos(BinaryModule parentHandle, HashMap n
 	while (newElements.containsKey(requirement))
 		requirement.occurrenceCount++;
 	newElements.put(requirement, info);
+	childrenHandles.add(requirement);
 }
-private void generatePackageExportInfos(BinaryModule parentHandle, HashMap newElements, char[] pkgName, char[][] target, ArrayList requiresHandles) {
+private void generatePackageExportInfos(BinaryModule parentHandle, HashMap newElements, char[] pkgName, char[][] target, ArrayList childrenHandles) {
 	PackageExport exportStmt = new PackageExport(parentHandle, new String(pkgName));
 	ModuleDescriptionInfo.PackageExportInfo info = new ModuleDescriptionInfo.PackageExportInfo();
 	info.pack = pkgName;
@@ -326,8 +332,9 @@ private void generatePackageExportInfos(BinaryModule parentHandle, HashMap newEl
 	while (newElements.containsKey(exportStmt))
 		exportStmt.occurrenceCount++;
 	newElements.put(exportStmt, info);
+	childrenHandles.add(exportStmt);
 }
-private void generatOpensInfos(BinaryModule parentHandle, HashMap newElements, char[] pkgName, char[][] target, ArrayList requiresHandles) {
+private void generatOpensInfos(BinaryModule parentHandle, HashMap newElements, char[] pkgName, char[][] target, ArrayList childrenHandles) {
 	OpenPackageStatement openStmt = new OpenPackageStatement(parentHandle, new String(pkgName));
 	ModuleDescriptionInfo.PackageExportInfo info = new ModuleDescriptionInfo.PackageExportInfo();
 	info.pack = pkgName;
@@ -335,6 +342,7 @@ private void generatOpensInfos(BinaryModule parentHandle, HashMap newElements, c
 	while (newElements.containsKey(openStmt))
 		openStmt.occurrenceCount++;
 	newElements.put(openStmt, info);
+	childrenHandles.add(openStmt);
 }
 /**
  * Creates the handles and infos for the methods of the given binary type.
@@ -517,7 +525,7 @@ protected void readBinaryChildren(ClassFile classFile, HashMap newElements, IBin
 		generateMethodInfos(type, typeInfo, newElements, childrenHandles, typeParameterHandles);
 		generateInnerClassHandles(type, typeInfo, childrenHandles); // Note inner class are separate openables that are not opened here: no need to pass in newElements
 		if (TypeDeclaration.kind(typeInfo.getModifiers()) == TypeDeclaration.MODULE_DECL) {
-			generateModuleInfos(classFile, ((ClassFileReader) typeInfo), newElements, childrenHandles);
+			generateModuleInfos(classFile, typeInfo, newElements, childrenHandles);
 		}
 	}
 

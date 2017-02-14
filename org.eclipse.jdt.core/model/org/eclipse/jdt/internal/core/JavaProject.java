@@ -651,7 +651,10 @@ public class JavaProject
 							} else {
 								accumulatedRoots.addAll(info.jrtRoots.get(entryPath));
 							}
-						} else {
+						} else if (JavaModel.isJmod((File) target)) {
+							root = new JModPackageFragmentRoot(entryPath, this);
+						}
+						else {
 							root = new JarPackageFragmentRoot(entryPath, this);
 						}
 					} else if (((File) target).isDirectory()) {
@@ -1941,6 +1944,12 @@ public class JavaProject
 			return new ExternalPackageFragmentRoot(linkedFolder, externalLibraryPath, this);
 		if (JavaModelManager.isJrt(externalLibraryPath)) {
 			return this.new JImageModuleFragmentBridge(externalLibraryPath);
+		}
+		Object target = JavaModel.getTarget(externalLibraryPath, true/*check existency*/);
+		if (target instanceof File && JavaModel.isFile(target)) {
+			if (JavaModel.isJmod((File) target)) {
+				return new JModPackageFragmentRoot(externalLibraryPath, this);
+			}
 		}
 		return new JarPackageFragmentRoot(externalLibraryPath, this);
 	}

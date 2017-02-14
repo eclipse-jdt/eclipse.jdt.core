@@ -30,7 +30,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
@@ -39,7 +38,8 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ClasspathJMod extends ClasspathJar {
 
-	private static char[] CLASSES = "classes".toCharArray(); //$NON-NLS-1$
+	public static char[] CLASSES = "classes".toCharArray(); //$NON-NLS-1$
+	public static char[] CLASSES_FOLDER = "classes/".toCharArray(); //$NON-NLS-1$
 	private static int MODULE_DESCRIPTOR_NAME_LENGTH = MODULE_INFO_CLASS.length();
 
 	ClasspathJMod(String zipFilename, long lastModified, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, INameEnvironment env) {
@@ -47,11 +47,12 @@ public class ClasspathJMod extends ClasspathJar {
 	}
 
 
-	public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName, IModule mod) {
+	public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
 		// TOOD: BETA_JAVA9 - Should really check for packages with the module context
 		if (!isPackage(qualifiedPackageName)) return null; // most common case
 
 		try {
+			qualifiedBinaryFileName = new String(CharOperation.append(CLASSES_FOLDER, qualifiedBinaryFileName.toCharArray()));
 			IBinaryType reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 			if (reader != null) {
 				if (reader instanceof ClassFileReader) {

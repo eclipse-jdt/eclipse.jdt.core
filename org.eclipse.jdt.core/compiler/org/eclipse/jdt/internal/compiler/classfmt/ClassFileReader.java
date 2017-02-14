@@ -616,8 +616,8 @@ public IBinaryField[] getFields() {
 /**
  * @see IBinaryType#getModule()
  */
-public IModule getModule() {
-	return this.moduleDeclaration;
+public char[] getModule() {
+	return this.moduleName;
 }
 /**
  * Returns the module declaration that this class file represents. This will be 

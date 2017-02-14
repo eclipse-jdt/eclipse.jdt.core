@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 
@@ -367,6 +368,13 @@ public static boolean isFile(Object target) {
 
 public static boolean isJimage(File file) {
 	return JavaModelManager.isJrt(file.getPath());
+}
+public static boolean isJmod(File file) {
+	IPath path = Path.fromOSString(file.getPath());
+	if (path.getFileExtension().equalsIgnoreCase(SuffixConstants.EXTENSION_jmod)) {
+		return true;
+	}
+	return false;
 }
 
 /**

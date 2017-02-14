@@ -58,7 +58,10 @@ static ClasspathLocation forLibrary(String libraryPathname,
 										boolean autoModule) {
 	return Util.isJrt(libraryPathname) ?
 			new ClasspathJrt(libraryPathname, annotationsPath, env) :
-			new ClasspathJar(libraryPathname, lastModified, accessRuleSet, annotationsPath, env, autoModule);
+				Util.archiveFormat(libraryPathname) == Util.JMOD_FILE ?
+					new ClasspathJMod(libraryPathname, lastModified, accessRuleSet, annotationsPath, env) :
+			new ClasspathJar(libraryPathname, lastModified, accessRuleSet, annotationsPath, env, false);
+
 }
 
 public static ClasspathLocation forLibrary(String libraryPathname, AccessRuleSet accessRuleSet, IPath annotationsPath,

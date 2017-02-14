@@ -755,10 +755,11 @@ public class Util implements SuffixConstants {
 	}
 	
 	public static final int ZIP_FILE = 0;
+	public static final int JMOD_FILE = 1;
 	
 	/**
-	 * Returns whether the given name is potentially a zip archive file name
-	 * (it has a file extension and it is not ".java" nor ".class")
+	 * Returns the kind of archive this file is. The format is one of
+	 * #ZIP_FILE or {@link #JMOD_FILE}
 	 */
 	public final static int archiveFormat(String name) {
 		int lastDot = name.lastIndexOf('.');
@@ -786,6 +787,14 @@ public class Util implements SuffixConstants {
 				}
 			}
 			return -1; // it is a ".class" file, it cannot be a zip archive name
+		}
+		if (extensionLength == EXTENSION_jmod.length()) {
+			for (int i = extensionLength-1; i >=0; i--) {
+				if (Character.toLowerCase(name.charAt(length - extensionLength + i)) != EXTENSION_jmod.charAt(i)) {
+					return ZIP_FILE; // not a ".jmod" file, so this is a potential archive name
+				}
+			}
+			return JMOD_FILE;
 		}
 		return ZIP_FILE; // it is neither a ".java" file nor a ".class" file, so this is a potential archive name
 	}

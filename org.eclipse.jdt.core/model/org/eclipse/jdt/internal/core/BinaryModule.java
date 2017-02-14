@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation.
+ * Copyright (c) 2016, 2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
 
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -61,6 +62,14 @@ public class BinaryModule extends BinaryMember implements IModuleDescription {
 		IModuleDescription.IOpenPackage[] array= new IModuleDescription.IOpenPackage[list.size()];
 		list.toArray(array);
 		return array;
+	}
+	/*
+	 * @see IParent#getChildren()
+	 */
+	public IJavaElement[] getChildren() throws JavaModelException {
+		ClassFile cf = (ClassFile) this.parent;
+		ClassFileInfo cfi = (ClassFileInfo) cf.getElementInfo();
+		return cfi.binaryChildren;
 	}
 	@Override
 	public int getFlags() throws JavaModelException {

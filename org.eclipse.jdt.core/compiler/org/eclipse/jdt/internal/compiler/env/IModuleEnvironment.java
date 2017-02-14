@@ -23,6 +23,7 @@ package org.eclipse.jdt.internal.compiler.env;
  * @see IModulePathEntry#getLookupEnvironmentFor(IModule)
  */
 public interface IModuleEnvironment {
+	static String MODULE_INFO = "module-info"; //$NON-NLS-1$
 	static String MODULE_INFO_JAVA = "module-info.java"; //$NON-NLS-1$
 	static String MODULE_INFO_CLASS = "module-info.class"; //$NON-NLS-1$
 

@@ -114,8 +114,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 						}
 					}
 				}
-				char[] modName = reader.getModule() == null ? null : reader.getModule().name();
-				return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName), modName);
+				return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName), reader.getModule());
 			}
 		} catch(ClassFormatException e) {
 			// treat as if class file is missing

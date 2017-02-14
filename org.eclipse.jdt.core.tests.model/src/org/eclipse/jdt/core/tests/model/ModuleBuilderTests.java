@@ -99,7 +99,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IPackageFragmentRoot base = null;
 			for (IPackageFragmentRoot iRoot : roots) {
 				IModuleDescription moduleDescription = iRoot.getModuleDescription();
-				if (moduleDescription != null) {
+				if (moduleDescription != null && moduleDescription.getElementName().equals("java.base")) {
 					base = iRoot;
 					break;
 				}
@@ -2533,6 +2533,41 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 					this.problemRequestor);
 		} finally {
 			deleteProject("com.greetings");
+		}
+	}
+	public void testSystemLibAsJMod() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			IJavaProject project = createJava9Project("Test01", new String[]{"src"});
+			IClasspathEntry[] rawClasspath = project.getRawClasspath();
+			for (int i = 0; i < rawClasspath.length; i++) {
+				IPath path = rawClasspath[i].getPath();
+				if (path.lastSegment().equals("jrt-fs.jar")) {
+					path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
+					rawClasspath[i] = newEntry;
+				}
+			}
+			project.setRawClasspath(rawClasspath, null);
+			this.createFile("Test01/src/module-info.java", "");
+			this.createFolder("Test01/src/com/greetings");
+			this.createFile("Test01/src/com/greetings/Main.java", "");
+			waitForManualRefresh();
+			waitForAutoBuild();
+			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
+			IPackageFragmentRoot base = null;
+			for (IPackageFragmentRoot iRoot : roots) {
+				IModuleDescription moduleDescription = iRoot.getModuleDescription();
+				if (moduleDescription != null) {
+					base = iRoot;
+					break;
+				}
+			}
+			assertNotNull("Java.base module should not null", base);
+			assertMarkers("Unexpected markers", "", project);
+		} finally {
+			deleteProject("Test01");
 		}
 	}
 	// sort by CHAR_START

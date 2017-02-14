@@ -29,7 +29,7 @@ public class NameEnvironmentAnswer {
 	public NameEnvironmentAnswer(IBinaryType binaryType, AccessRestriction accessRestriction) {
 		this.binaryType = binaryType;
 		this.accessRestriction = accessRestriction;
-		this.module = binaryType.getModule() != null ? binaryType.getModule().name() : null;
+		this.module = binaryType.getModule();
 	}
 
 	public NameEnvironmentAnswer(IBinaryType binaryType, AccessRestriction accessRestriction, char[] module) {

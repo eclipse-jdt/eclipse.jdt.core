@@ -67,7 +67,7 @@ IBinaryField[] getFields();
  *
  * @return the module
  */
-IModule getModule();
+char[] getModule();
 /**
  * Answer the receiver's ClassSignature, which describes the type parameters,
  * super class, and super interfaces as specified in section "4.7.9.1 Signatures"
