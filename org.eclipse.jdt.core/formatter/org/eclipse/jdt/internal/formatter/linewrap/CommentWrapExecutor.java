@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 Mateusz Matela and others.
+ * Copyright (c) 2014, 2017 Mateusz Matela and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,6 +36,7 @@ public class CommentWrapExecutor extends TokenTraverser {
 	private final ArrayList<Token> nlsTags = new ArrayList<>();
 
 	private int lineStartPosition;
+	private int lineLimit;
 	private boolean simulation;
 	private boolean wrapDisabled;
 	private boolean newLinesAtBoundries;
@@ -63,6 +64,7 @@ public class CommentWrapExecutor extends TokenTraverser {
 		this.counter = startPosition;
 		commentToken.setIndent(this.tm.toIndent(startPosition, true));
 		this.lineStartPosition = commentToken.getIndent();
+		this.lineLimit = getLineLimit(startPosition);
 		this.simulation = simulate;
 		this.wrapDisabled = noWrap;
 		this.potentialWrapToken = this.potentialWrapTokenSubstitute = null;
@@ -109,7 +111,7 @@ public class CommentWrapExecutor extends TokenTraverser {
 			if (i > 1 && (policy == null || policy == WrapPolicy.SUBSTITUTE_ONLY))
 				hasWrapPotential = true;
 		}
-		if (position <= this.options.comment_line_length || noWrap || !hasWrapPotential)
+		if (position <= this.lineLimit || noWrap || !hasWrapPotential)
 			return position;
 		return -1;
 	}
@@ -136,6 +138,7 @@ public class CommentWrapExecutor extends TokenTraverser {
 			this.lineCounter += lineBreaksBefore;
 			this.counter = positionIfNewLine;
 			this.potentialWrapToken = this.potentialWrapTokenSubstitute = null;
+			this.lineLimit = getLineLimit(this.lineStartPosition);
 
 			boolean isFormattedCode = token.getWrapPolicy() != null
 					&& token.getWrapPolicy() != WrapPolicy.SUBSTITUTE_ONLY;
@@ -177,6 +180,7 @@ public class CommentWrapExecutor extends TokenTraverser {
 			this.counter = this.counterIfWrapped;
 			this.lineCounter++;
 			this.potentialWrapToken = this.potentialWrapTokenSubstitute = null;
+			this.lineLimit = getLineLimit(this.lineStartPosition);
 		}
 
 		if (isSpaceAfter()) {
@@ -188,8 +192,7 @@ public class CommentWrapExecutor extends TokenTraverser {
 	}
 
 	private boolean shouldWrap() {
-		int lineLenght = this.options.comment_line_length;
-		if (this.wrapDisabled || this.counter <= lineLenght)
+		if (this.wrapDisabled || this.counter <= this.lineLimit)
 			return false;
 		if (getLineBreaksAfter() == 0 && getNext() != null && getNext().getWrapPolicy() == WrapPolicy.DISABLE_WRAP) {
 			// The next token cannot be wrapped, so there's no need to wrap now.
@@ -197,7 +200,7 @@ public class CommentWrapExecutor extends TokenTraverser {
 			return false;
 		}
 		if (this.potentialWrapToken != null && this.potentialWrapTokenSubstitute != null
-				&& this.counterIfWrapped > lineLenght && this.counterIfWrappedSubstitute < this.counterIfWrapped) {
+				&& this.counterIfWrapped > this.lineLimit && this.counterIfWrappedSubstitute < this.counterIfWrapped) {
 			// there is a normal token to wrap, but the line would overflow anyway - better use substitute
 			this.potentialWrapToken = null;
 		}
@@ -222,6 +225,7 @@ public class CommentWrapExecutor extends TokenTraverser {
 		int position = startPosition;
 		startPosition = this.tm.toIndent(startPosition, true);
 		int indent = startPosition;
+		int limit = getLineLimit(position);
 
 		for (Token token : structure) {
 			if (token.hasNLSTag()) {
@@ -261,6 +265,7 @@ public class CommentWrapExecutor extends TokenTraverser {
 				position++;
 			if (token.getLineBreaksBefore() > 0) {
 				position = startPosition;
+				limit = getLineLimit(position);
 				lineStartIndex = whitespace == null ? i : i + 1;
 				if (whitespace != null && token != whitespace) {
 					token.clearLineBreaksBefore();
@@ -269,7 +274,9 @@ public class CommentWrapExecutor extends TokenTraverser {
 				}
 			}
 			position += this.tm.getLength(token, position);
-			if (position > this.options.comment_line_length && i > lineStartIndex + 1) {
+			if (token.tokenType == TokenNameWHITESPACE)
+				limit = getLineLimit(position);
+			if (position > limit && i > lineStartIndex + 1) {
 				structure.add(i, prefix);
 				if (whitespace != null)
 					structure.add(i, whitespace);
@@ -281,5 +288,16 @@ public class CommentWrapExecutor extends TokenTraverser {
 			}
 		}
 		this.nlsTags.clear();
+	}
+
+	private int getLineLimit(int startPosition) {
+		final int commentLength = this.options.comment_line_length;
+		if (!this.options.comment_count_line_length_from_starting_position)
+			return commentLength;
+		final int pageWidth = this.options.page_width;
+		int lineLength = startPosition + commentLength;
+		if (lineLength > pageWidth && commentLength <= pageWidth)
+			lineLength = pageWidth;
+		return lineLength;
 	}
 }

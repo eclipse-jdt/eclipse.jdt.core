@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13917,5 +13917,84 @@ public void testBug493296() throws JavaModelException {
 	setPageWidth80();
 	String input = getCompilationUnit("Formatter", "", "test493296", "A_in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test493296", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/362260 - [formatter] New feature: count comment width from starting position
+ */
+public void testBug362260a() throws JavaModelException {
+	setPageWidth80();
+	this.formatterPrefs.comment_line_length = 40;
+	this.formatterPrefs.comment_format_header = true;
+	this.formatterPrefs.comment_count_line_length_from_starting_position = true;
+	String input = getCompilationUnit("Formatter", "", "test362260", "A_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test362260", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/362260 - [formatter] New feature: count comment width from starting position
+ */
+public void testBug362260b() throws JavaModelException {
+	setPageWidth80();
+	this.formatterPrefs.comment_line_length = 40;
+	this.formatterPrefs.comment_format_header = true;
+	this.formatterPrefs.comment_count_line_length_from_starting_position = true;
+	String input = getCompilationUnit("Formatter", "", "test362260", "B_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test362260", "B_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/362260 - [formatter] New feature: count comment width from starting position
+ */
+public void testBug362260c() throws JavaModelException {
+	setPageWidth80();
+	this.formatterPrefs.comment_line_length = 40;
+	this.formatterPrefs.comment_format_header = true;
+	this.formatterPrefs.comment_count_line_length_from_starting_position = true;
+	this.formatterPrefs.comment_new_lines_at_block_boundaries = false;
+	String input = getCompilationUnit("Formatter", "", "test362260", "C_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test362260", "C_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/362260 - [formatter] New feature: count comment width from starting position
+ */
+public void testBug362260d() throws JavaModelException {
+	setPageWidth80();
+	this.formatterPrefs.comment_line_length = 40;
+	this.formatterPrefs.comment_format_header = true;
+	this.formatterPrefs.comment_count_line_length_from_starting_position = true;
+	String input = getCompilationUnit("Formatter", "", "test362260", "D_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test362260", "D_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/362260 - [formatter] New feature: count comment width from starting position
+ */
+public void testBug362260e() throws JavaModelException {
+	setPageWidth80();
+	this.formatterPrefs.comment_line_length = 40;
+	this.formatterPrefs.comment_format_header = true;
+	this.formatterPrefs.comment_count_line_length_from_starting_position = true;
+	this.formatterPrefs.comment_new_lines_at_javadoc_boundaries = false;
+	String input = getCompilationUnit("Formatter", "", "test362260", "E_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test362260", "E_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/362260 - [formatter] New feature: count comment width from starting position
+ */
+public void testBug362260f() throws JavaModelException {
+	setPageWidth80();
+	this.formatterPrefs.comment_line_length = 40;
+	this.formatterPrefs.comment_count_line_length_from_starting_position = true;
+	this.formatterPrefs.comment_preserve_white_space_between_code_and_line_comments = true;
+	String input = getCompilationUnit("Formatter", "", "test362260", "F_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test362260", "F_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/362260 - [formatter] New feature: count comment width from starting position
+ */
+public void testBug362260g() throws JavaModelException {
+	setPageWidth80();
+	this.formatterPrefs.comment_line_length = 40;
+	this.formatterPrefs.comment_format_header = true;
+	this.formatterPrefs.comment_count_line_length_from_starting_position = true;
+	String input = getCompilationUnit("Formatter", "", "test362260", "G_in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test362260", "G_out.java").getSource());
 }
 }
