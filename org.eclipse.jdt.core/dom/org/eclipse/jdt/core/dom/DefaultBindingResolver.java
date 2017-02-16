@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1155,6 +1159,8 @@ class DefaultBindingResolver extends BindingResolver {
 				}
 			}
 		} else if (node instanceof ImportReference) {
+			if ((node.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.inModule) != 0)
+				return null;
 			ImportReference importReference = (ImportReference) node;
 			int importReferenceLength = importReference.tokens.length;
 			if (index >= 0) {
@@ -1373,10 +1379,11 @@ class DefaultBindingResolver extends BindingResolver {
 		} else if (node instanceof ImportReference) {
 			ImportReference importReference = (ImportReference) node;
 			int importReferenceLength = importReference.tokens.length;
+			boolean inModule = (importReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.inModule) != 0;
 			if (index >= 0) {
 				Binding binding = null;
 				if (this.scope == null) return null;
-				if (importReferenceLength == index) {
+				if (importReferenceLength == index && !inModule) {
 					try {
 						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), (importReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OnDemand) != 0, importReference.isStatic());
 					} catch (AbortCompilation e) {
@@ -1384,7 +1391,7 @@ class DefaultBindingResolver extends BindingResolver {
 					}
 				} else {
 					try {
-						binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, index), true, importReference.isStatic());
+						binding = this.scope.getImport(inModule ? importReference.tokens : CharOperation.subarray(importReference.tokens, 0, index), true, importReference.isStatic());
 					} catch (AbortCompilation e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
