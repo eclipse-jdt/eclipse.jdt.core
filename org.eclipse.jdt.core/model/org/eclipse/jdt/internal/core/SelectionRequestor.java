@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -918,10 +918,8 @@ public IJavaElement[] getElements() {
 	return this.elements;
 }
 protected IModuleDescription resolveModule(char[] moduleName) {
-	if (this.openable instanceof CompilationUnit) {
-		// Do what's needed. Question is, how are we going to look up for modules somewhere else in a workspace?
-		// The question is esp. when the usecase is about completing on a module name in a requires clause.
-		Answer answer = this.nameLookup.findModule(new String(moduleName));
+	Answer answer = this.nameLookup.findModule(new String(moduleName));
+	if (answer != null) {
 		return answer.module;
 	}
 	return null;
