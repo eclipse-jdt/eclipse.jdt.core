@@ -176,6 +176,7 @@ ClasspathJar(String zipFilename, long lastModified, AccessRuleSet accessRuleSet,
 public ClasspathJar(ZipFile zipFile, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, INameEnvironment env, boolean isAutomodule) {
 	this(zipFile.getName(), accessRuleSet, externalAnnotationPath, env, isAutomodule);
 	this.zipFile = zipFile;
+	this.closeZipFileAtEnd = true;
 }
 
 public ClasspathJar(String fileName, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, INameEnvironment env, boolean isAutomodule) {
