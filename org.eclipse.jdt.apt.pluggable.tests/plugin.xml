@@ -9,6 +9,7 @@
    
     Contributors:
         IBM Corporation - initial API and implementation
+        Fabian Steeg <steeg@hbz-nrw.de> - Pass automatically provided options to Java 6 processors - https://bugs.eclipse.org/341298
  -->
 
 <plugin>
@@ -51,6 +52,9 @@
          </java6processor>
          <java6processor
                class="org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug510118Processor">
+         </java6processor>
+         <java6processor
+               class="org.eclipse.jdt.apt.pluggable.tests.processors.buildertester.Bug341298Processor">
          </java6processor>
       </java6processors>
    </extension>
