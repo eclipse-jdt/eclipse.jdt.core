@@ -686,15 +686,6 @@ public class InferenceContext18 {
 			
 			if (innerContext != null) {
 				MethodBinding shallowMethod = innerMethod.shallowOriginal();
-				if (looksLikeVarargs(innerMethod, argumentTypes)) {
-					InferenceContext18 varArgsCtx = invocation.freshInferenceContext(innerContext.scope); // start over
-					varArgsCtx.inferenceKind = InferenceContext18.CHECK_VARARG;
-					varArgsCtx.inferInvocationApplicability(shallowMethod, argumentTypes, shallowMethod.isConstructor());
-					if (varArgsCtx.solve(true) != null) {
-						varArgsCtx.stepCompleted = InferenceContext18.APPLICABILITY_INFERRED;
-						innerContext = varArgsCtx;
-					}
-				}
 				innerContext.outerContext = this;
 				if (innerContext.stepCompleted < InferenceContext18.APPLICABILITY_INFERRED) // shouldn't happen, but let's play safe
 					innerContext.inferInvocationApplicability(shallowMethod, argumentTypes, shallowMethod.isConstructor());
@@ -717,22 +708,7 @@ public class InferenceContext18 {
 		return true;
 	}
 
-	private boolean looksLikeVarargs(MethodBinding method, TypeBinding[] argumentTypes) {
-		if (method.isVarargs()) {
-			if (argumentTypes.length == 0)
-				return true;
-			TypeBinding lastArg = argumentTypes[argumentTypes.length-1];
-			if (lastArg == null) // argument still has a PolyTypeBinding (which is not stored in a.resolvedType)? 
-				return true; // TODO: which way to interpret?
-			if (!lastArg.isArrayType()) // TODO: what if argtype is ivar that should resolve to array??
-				return true;
-			// TODO: also consider (T[] ...)!
-			TypeBinding lastParam = method.parameters[method.parameters.length-1];
-			return !lastArg.isCompatibleWith(lastParam);
-		}
-		return false;
-	}
-
+	
 	protected int getInferenceKind(MethodBinding nonGenericMethod, TypeBinding[] argumentTypes) {
 		switch (this.scope.parameterCompatibilityLevel(nonGenericMethod, argumentTypes)) {
 			case Scope.AUTOBOX_COMPATIBLE:
