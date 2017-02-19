@@ -2310,6 +2310,59 @@ public void configure(String[] argv) {
 					throw new IllegalArgumentException(
 						this.bind("configure.invalidDebugOption", debugOption)); //$NON-NLS-1$
 				}
+				if (currentArg.startsWith("-info")) { //$NON-NLS-1$
+					mode = DEFAULT;
+					String infoOption = currentArg;
+					int length = currentArg.length();
+					if (length == 10 && infoOption.equals("-info:" + NONE)) { //$NON-NLS-1$
+						disableAll(ProblemSeverities.Info);
+						continue;
+					}
+					if (length <= 6) {
+						throw new IllegalArgumentException(
+							this.bind("configure.invalidInfoConfiguration", infoOption)); //$NON-NLS-1$
+					}
+					int infoTokenStart;
+					boolean isEnabling;
+					switch (infoOption.charAt(6)) {
+						case '+' :
+							infoTokenStart = 7;
+							isEnabling = true;
+							break;
+						case '-' :
+							infoTokenStart = 7;
+							isEnabling = false; // specified warnings are disabled
+							break;
+						default:
+							disableAll(ProblemSeverities.Info);
+							infoTokenStart = 6;
+							isEnabling = true;
+					}
+
+					StringTokenizer tokenizer =
+						new StringTokenizer(infoOption.substring(infoTokenStart, infoOption.length()), ","); //$NON-NLS-1$
+					int tokenCounter = 0;
+
+					while (tokenizer.hasMoreTokens()) {
+						String token = tokenizer.nextToken();
+						tokenCounter++;
+						switch(token.charAt(0)) {
+							case '+' :
+								isEnabling = true;
+								token = token.substring(1);
+								break;
+							case '-' :
+								isEnabling = false;
+								token = token.substring(1);
+						}
+						handleInfoToken(token, isEnabling);
+					}
+					if (tokenCounter == 0) {
+						throw new IllegalArgumentException(
+							this.bind("configure.invalidInfoOption", currentArg)); //$NON-NLS-1$
+					}
+					continue;
+				}
 				if (currentArg.startsWith("-warn")) { //$NON-NLS-1$
 					mode = DEFAULT;
 					String warningOption = currentArg;
@@ -3010,6 +3063,9 @@ protected void disableAll(int severity) {
 		case ProblemSeverities.Warning :
 			checkedValue = CompilerOptions.WARNING;
 			break;
+		case ProblemSeverities.Info :
+			checkedValue = CompilerOptions.INFO;
+			break;
 	}
 	Object[] entries = this.options.entrySet().toArray();
 	for (int i = 0, max = entries.length; i < max; i++) {
@@ -3021,6 +3077,9 @@ protected void disableAll(int severity) {
 		if (((String) entry.getValue()).equals(checkedValue)) {
 			this.options.put((String) entry.getKey(), CompilerOptions.IGNORE);
 		}
+	}
+	if (severity == ProblemSeverities.Warning) {
+		disableAll(ProblemSeverities.Info);
 	}
 }
 public String extractDestinationPathFromSourceFile(CompilationResult result) {
@@ -3340,6 +3399,9 @@ protected ArrayList handleExtdirs(ArrayList extdirsClasspaths) {
  * External API
  * Handle a single warning token.
 */
+protected void handleInfoToken(String token, boolean isEnabling) {
+	handleErrorOrWarningToken(token, isEnabling, ProblemSeverities.Info);
+}
 protected void handleWarningToken(String token, boolean isEnabling) {
 	handleErrorOrWarningToken(token, isEnabling, ProblemSeverities.Warning);
 }
@@ -3355,6 +3417,9 @@ private void setSeverity(String compilerOptions, int severity, boolean isEnablin
 			case ProblemSeverities.Warning :
 				this.options.put(compilerOptions, CompilerOptions.WARNING);
 				break;
+			case ProblemSeverities.Info :
+				this.options.put(compilerOptions, CompilerOptions.INFO);
+				break;
 			default:
 				this.options.put(compilerOptions, CompilerOptions.IGNORE);
 		}
@@ -3369,6 +3434,12 @@ private void setSeverity(String compilerOptions, int severity, boolean isEnablin
 			case ProblemSeverities.Warning :
 				currentValue = this.options.get(compilerOptions);
 				if (CompilerOptions.WARNING.equals(currentValue)) {
+					this.options.put(compilerOptions, CompilerOptions.IGNORE);
+				}
+				break;
+			case ProblemSeverities.Info :
+				currentValue = this.options.get(compilerOptions);
+				if (CompilerOptions.INFO.equals(currentValue)) {
 					this.options.put(compilerOptions, CompilerOptions.IGNORE);
 				}
 				break;
@@ -4024,6 +4095,9 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 	}
 	String message = null;
 	switch(severity) {
+		case ProblemSeverities.Info:
+			message = this.bind("configure.invalidInfo", token); //$NON-NLS-1$
+			break;
 		case ProblemSeverities.Warning :
 			message = this.bind("configure.invalidWarning", token); //$NON-NLS-1$
 			break;

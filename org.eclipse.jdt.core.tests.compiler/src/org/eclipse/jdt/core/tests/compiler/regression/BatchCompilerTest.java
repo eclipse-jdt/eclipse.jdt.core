@@ -652,11 +652,19 @@ public void test012(){
         "    -err:-<warnings separated by ,>   disable specific warnings to be\n" + 
         "                                      reported as errors\n" + 
         " \n" + 
-        " Setting warning or error options using properties file:\n" + 
-        "    -properties <file>   set warnings/errors option based on the properties\n" + 
+        " Info options:\n" + 
+        "    -info:<warnings separated by ,>    convert exactly the listed warnings\n" + 
+        "                                      to be reported as infos\n" + 
+        "    -info:+<warnings separated by ,>   enable additional warnings to be\n" + 
+        "                                      reported as infos\n" + 
+        "    -info:-<warnings separated by ,>   disable specific warnings to be\n" + 
+        "                                      reported as infos\n" + 
+        " \n" + 
+        " Setting warning, error or info options using properties file:\n" + 
+        "    -properties <file>   set warnings/errors/info option based on the properties\n" + 
         "                          file contents. This option can be used with -nowarn,\n" + 
-        "                          -err:.. or -warn:.. options, but the last one on the\n" + 
-        "                          command line sets the options to be used.\n" + 
+        "                          -err:.., -info: or -warn:.. options, but the last one\n" + 
+        "                          on the command line sets the options to be used.\n" + 
         " \n" + 
         " Debug options:\n" +
         "    -g[:lines,vars,source] custom debug info\n" +
@@ -759,7 +767,7 @@ public void test012b(){
         " \n" +
         " Warning options:\n" + 
         "    -deprecation         + deprecation outside deprecated code\n" + 
-        "    -nowarn -warn:none disable all warnings\n" + 
+        "    -nowarn -warn:none disable all warnings and infos\n" + 
         "    -nowarn:[<directories separated by " + File.pathSeparator+ ">]\n" +
         "                       specify directories from which optional problems should\n" +
         "                       be ignored\n" +
@@ -12833,5 +12841,147 @@ public void testFileSystem_findSecondaryInClass() {
 			Util.delete(testScratchAreaFile);
 		}
 	}
+}
+//same as test293, but for -info: instead of -err:
+public void test496137a(){
+	createCascadedJars();
+	this.runConformTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[~p/A]\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo -info:+discouraged"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"----------\n" + 
+		"1. INFO in ---OUTPUT_DIR_PLACEHOLDER---/src/p/X.java (at line 4)\n" + 
+		"	A a;\n" + 
+		"	^\n" + 
+		"Discouraged access: The type \'A\' is not API (restriction on classpath entry \'---LIB_DIR_PLACEHOLDER---/lib3.jar\')\n" + 
+		"----------\n" + 
+		"1 problem (1 info)\n",
+		true);
+}
+//same as test294, but for -info: instead of -err:
+public void test496137b(){
+	this.runConformTest(
+		new String[] {
+			"src/X.java",
+			"public class X {\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
+		+ " -cp \"" + LIB_DIR + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo -info:+discouraged2"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"invalid info token: \'discouraged2\'. Ignoring this info token and compiling\n",
+		true);
+}
+//same as test296, but for -info: instead of -err:
+public void test496137c(){
+	this.runNegativeTest(
+		new String[] {
+			"src/X.java",
+			"public class X {\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
+		+ " -cp \"" + LIB_DIR + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo -info:"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"invalid info configuration: \'-info:\'\n",
+		true);
+}
+//same as test297, but for -info: instead of -err:
+public void test496137d(){
+	this.runNegativeTest(
+		new String[] {
+			"src/X.java",
+			"public class X {\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/X.java\""
+		+ " -cp \"" + LIB_DIR + "\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo -info"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"invalid info configuration: \'-info\'\n",
+		true);
+}
+//same as testBug375366b, but for =info: instead of =warning:
+public void test496137e() throws IOException {
+	createOutputTestDirectory("regression/.settings");
+	Util.createFile(OUTPUT_DIR+"/.settings/org.eclipse.jdt.core.prefs",
+			"eclipse.preferences.version=1\n" + 
+			"org.eclipse.jdt.core.compiler.problem.unusedParameter=info\n" +
+			"org.eclipse.jdt.core.compiler.doc.comment.support=disabled\n");
+	this.runTest(
+		true, // compile OK, expecting only warning
+		new String[] {
+			"bugs/warning/ShowBug.java",
+			"package bugs.warning;\n" + 
+			"\n" + 
+			"public class ShowBug {\n" + 
+			"	/**\n" + 
+			"	 * \n" + 
+			"	 * @param unusedParam\n" + 
+			"	 */\n" + 
+			"	public void foo(Object unusedParam) {\n" + 
+			"		\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "bugs" + File.separator + "warning" + File.separator + "ShowBug.java\""
+		+ " -1.5"
+		+ " -properties " + OUTPUT_DIR + File.separator +".settings" + File.separator + "org.eclipse.jdt.core.prefs "
+		+ " -d \"" + OUTPUT_DIR + "\"",
+		"", 
+		"----------\n" + 
+		"1. INFO in ---OUTPUT_DIR_PLACEHOLDER---/bugs/warning/ShowBug.java (at line 8)\n" + 
+		"	public void foo(Object unusedParam) {\n" + 
+		"	                       ^^^^^^^^^^^\n" + 
+		"The value of the parameter unusedParam is not used\n" + 
+		"----------\n" + 
+		"1 problem (1 info)\n",
+		false /*don't flush output dir*/,
+		null /* progress */);
+}
+// variation of test496137a to test that -warn:none turns off all info, too
+public void test496137f(){
+	createCascadedJars();
+	this.runConformTest(
+		new String[] {
+			"src/p/X.java",
+			"package p;\n" +
+			"/** */\n" +
+			"public class X {\n" +
+			"  A a;\n" +
+			"}",
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "src/p/X.java\""
+		+ " -cp \"" + LIB_DIR + File.separator + "lib3.jar[~p/A]\""
+		+ " -sourcepath \"" + OUTPUT_DIR +  File.separator + "src\""
+		+ " -1.5 -g -preserveAllLocals"
+		+ " -proceedOnError -referenceInfo -info:+discouraged -warn:none"
+		+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+		"",
+		"",
+		true);
 }
 }
