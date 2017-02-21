@@ -188,6 +188,7 @@ private void checkAndSetModifiersForMethod(MethodBinding methodBinding) {
 		if (sourceLevel >= ClassFileConstants.JDK1_8 && !declaringClass.isAnnotationType()) {
 			expectedModifiers |= ClassFileConstants.AccStrictfp
 					| ExtraCompilerModifiers.AccDefaultMethod | ClassFileConstants.AccStatic;
+			expectedModifiers |= sourceLevel >= ClassFileConstants.JDK9 ? ClassFileConstants.AccPrivate : 0;
 			if (!methodBinding.isAbstract()) {
 				reportIllegalModifierCombination = isDefaultMethod && methodBinding.isStatic();
 			} else {
