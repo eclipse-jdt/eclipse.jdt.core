@@ -139,13 +139,13 @@ public class BasicModule implements IModule {
 		}
 		if (descriptor.opensCount > 0) {
 			OpensStatement[] refs = descriptor.opens;
-			this.exports = new PackageExportImpl[refs.length];
+			this.opens = new PackageExportImpl[refs.length];
 			for (int i = 0; i < refs.length; i++) {
 				PackageExportImpl exp = createPackageOpen(refs[i]);
-				this.exports[i] = exp;
+				this.opens[i] = exp;
 			}
 		} else {
-			this.exports = new PackageExportImpl[0];
+			this.opens = new PackageExportImpl[0];
 		}
 		this.isAutomodule = false; // Just to be explicit
 	}
