@@ -21,37 +21,41 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
-import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.flow.FlowContext;
-import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public class ModuleDeclaration extends TypeDeclaration {
+public class ModuleDeclaration extends ASTNode {
 
 	public ExportsStatement[] exports;
 	public RequiresStatement[] requires;
 	public UsesStatement[] uses;
 	public ProvidesStatement[] services;
 	public OpensStatement[] opens;
+	public Annotation[] annotations;
 	public int exportsCount;
 	public int requiresCount;
 	public int usesCount;
 	public int servicesCount;
 	public int opensCount;
 	public ModuleBinding moduleBinding;
-
+	public int declarationSourceStart;
+	public int declarationSourceEnd;
+	public int bodyStart;
+	public int bodyEnd; // doesn't include the trailing comment if any.
+	public int modifiersSourceStart;
+	//public ClassScope scope;
 	public char[][] tokens;
 	public char[] moduleName;
 	public long[] sourcePositions;
+	public int modifiers = ClassFileConstants.AccDefault;
 
 	public ModuleDeclaration(CompilationResult compilationResult, char[][] tokens, long[] positions) {
-		super(compilationResult);
-		this.compilationResult = compilationResult;
+//		super(compilationResult);
+//		this.compilationResult = compilationResult;
 		this.exportsCount = 0;
 		this.requiresCount = 0;
 		this.tokens = tokens;
@@ -60,45 +64,41 @@ public class ModuleDeclaration extends TypeDeclaration {
 		this.sourceEnd = (int) (positions[positions.length-1] & 0x00000000FFFFFFFF);
 		this.sourceStart = (int) (positions[0] >>> 32);
 	}
-	@Override
-	public void generateCode(ClassFile enclosingClassFile) {
-		if (this.ignoreFurtherInvestigation) {
-			return;
-		}
-		super.generateCode(enclosingClassFile);
-	}
-	@Override
-	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+//	@Override
+//	public void generateCode(ClassFile enclosingClassFile) {
+//		if (this.ignoreFurtherInvestigation) {
+//			return;
+//		}
+//		super.generateCode(enclosingClassFile);
+//	}
 
-	@Override
-	public void resolve() {
+	//@Override
+	public void resolve(ClassScope scope) {
 		//
-		if (this.binding == null) {
-			this.ignoreFurtherInvestigation = true;
-			return;
-		}
-		this.moduleBinding = this.scope.environment().getModule(this.moduleName);
+//		if (this.binding == null) {
+//			this.ignoreFurtherInvestigation = true;
+//			return;
+//		}
+		this.moduleBinding = scope.environment().getModule(this.moduleName);
+		ASTNode.resolveAnnotations(scope.referenceContext.staticInitializerScope, this.annotations, this.moduleBinding);
 		Set<ModuleBinding> requiredModules = new HashSet<ModuleBinding>();
 		for(int i = 0; i < this.requiresCount; i++) {
 			RequiresStatement ref = this.requires[i];
-			if (ref != null && ref.resolve(this.scope) != null) {
+			if (ref != null && ref.resolve(scope) != null) {
 				if (!requiredModules.add(ref.resolvedBinding)) {
-					this.scope.problemReporter().duplicateModuleReference(IProblem.DuplicateRequires, ref.module);
+					scope.problemReporter().duplicateModuleReference(IProblem.DuplicateRequires, ref.module);
 				}
 				Collection<ModuleBinding> deps = ref.resolvedBinding.dependencyGraphCollector().get();
 				if (deps.contains(this.moduleBinding))
-					this.scope.problemReporter().cyclicModuleDependency(this.moduleBinding, ref.module);
+					scope.problemReporter().cyclicModuleDependency(this.moduleBinding, ref.module);
 			}
 		}
 		Set<PackageBinding> exportedPkgs = new HashSet<>();
 		for (int i = 0; i < this.exportsCount; i++) {
 			ExportsStatement ref = this.exports[i];
- 			if (ref != null && ref.resolve(this.scope)) {
+ 			if (ref != null && ref.resolve(scope)) {
 				if (!exportedPkgs.add(ref.resolvedPackage)) {
-					this.scope.problemReporter().invalidPackageReference(IProblem.DuplicateExports, ref);
+					scope.problemReporter().invalidPackageReference(IProblem.DuplicateExports, ref);
 				}
 			}
 		}
@@ -106,34 +106,34 @@ public class ModuleDeclaration extends TypeDeclaration {
 		for (int i = 0; i < this.opensCount; i++) {
 			OpensStatement ref = this.opens[i];
 			if (isOpen()) {
-				this.scope.problemReporter().invalidOpensStatement(ref, this);
+				scope.problemReporter().invalidOpensStatement(ref, this);
 			} else {
-				if (ref.resolve(this.scope)) {
+				if (ref.resolve(scope)) {
 					if (!openedPkgs.add(ref.resolvedPackage)) {
-						this.scope.problemReporter().invalidPackageReference(IProblem.DuplicateOpens, ref);
+						scope.problemReporter().invalidPackageReference(IProblem.DuplicateOpens, ref);
 					}
 				}
 			}
 		}
 		Set<TypeBinding> allTypes = new HashSet<TypeBinding>();
 		for(int i = 0; i < this.usesCount; i++) {
-			TypeBinding serviceBinding = this.uses[i].serviceInterface.resolveType(this.scope);
+			TypeBinding serviceBinding = this.uses[i].serviceInterface.resolveType(scope);
 			if (serviceBinding != null && serviceBinding.isValidBinding()) {
 				if (!(serviceBinding.isClass() || serviceBinding.isInterface() || serviceBinding.isAnnotationType())) {
-					this.scope.problemReporter().invalidServiceRef(IProblem.InvalidServiceIntfType, this.uses[i].serviceInterface);
+					scope.problemReporter().invalidServiceRef(IProblem.InvalidServiceIntfType, this.uses[i].serviceInterface);
 				}
 				if (!allTypes.add(this.uses[i].serviceInterface.resolvedType)) {
-					this.scope.problemReporter().duplicateTypeReference(IProblem.DuplicateUses, this.uses[i].serviceInterface);
+					scope.problemReporter().duplicateTypeReference(IProblem.DuplicateUses, this.uses[i].serviceInterface);
 				}
 			}
 		}
 		Set<TypeBinding> interfaces = new HashSet<>();
 		for(int i = 0; i < this.servicesCount; i++) {
-			this.services[i].resolve(this.scope);
+			this.services[i].resolve(scope);
 			TypeBinding infBinding = this.services[i].serviceInterface.resolvedType;
 			if (infBinding != null && infBinding.isValidBinding()) {
 				if (!interfaces.add(this.services[i].serviceInterface.resolvedType)) { 
-					this.scope.problemReporter().duplicateTypeReference(IProblem.DuplicateServices,
+					scope.problemReporter().duplicateTypeReference(IProblem.DuplicateServices,
 							this.services[i].serviceInterface);
 				}
 			}
@@ -197,5 +197,13 @@ public class ModuleDeclaration extends TypeDeclaration {
 		}
 		output.append('\n');
 		return printIndent(indent, output).append('}');
+	}
+
+	@Override
+	public StringBuffer print(int indent, StringBuffer output) {
+		//
+		printIndent(indent, output);
+		printHeader(0, output);
+		return printBody(indent, output);
 	}
 }

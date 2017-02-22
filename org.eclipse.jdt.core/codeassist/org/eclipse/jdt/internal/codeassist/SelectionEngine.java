@@ -1027,7 +1027,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				}
 				if (parsedUnit.isModuleInfo() && parsedUnit.types != null &&
 						parsedUnit.types.length > 0) {
-					ModuleDeclaration module = (ModuleDeclaration) parsedUnit.types[0];//TODO, could be null
+					//TypeDeclaration modInfo = parsedUnit.types[0];
+					ModuleDeclaration module = parsedUnit.moduleDeclaration;//modInfo.scope.compilationUnitScope().referenceContext.moduleDeclaration ;//TODO, could be null
 					this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 					acceptPackageVisibilityStatements(module.exports, parsedUnit.scope);
 					acceptPackageVisibilityStatements(module.opens, parsedUnit.scope);

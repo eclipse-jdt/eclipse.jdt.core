@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -214,11 +214,11 @@ public void createPackageInfoType() {
 }
 
 public void createModuleInfoType(ModuleDeclaration declaration) {
-	//TypeDeclaration declaration = new TypeDeclaration(this.compilationResult);
-	declaration.name = TypeConstants.MODULE_INFO_NAME;
-	declaration.modifiers |= ClassFileConstants.AccModule;
-	declaration.javadoc = this.javadoc;
-	this.types[0] = declaration; // Assumes the first slot is meant for this type
+	TypeDeclaration type = new TypeDeclaration(this.compilationResult);
+	type.name = TypeConstants.MODULE_INFO_NAME;
+	type.modifiers = declaration.modifiers | ClassFileConstants.AccModule;
+	type.javadoc = this.javadoc;
+	this.types[0] = type; // Assumes the first slot is meant for this type
 }
 
 /*
@@ -485,8 +485,9 @@ public StringBuffer print(int indent, StringBuffer output) {
 			}
 			currentImport.print(0, output).append(";\n"); //$NON-NLS-1$
 		}
-
-	if (this.types != null) {
+	if (this.moduleDeclaration != null) {
+		this.moduleDeclaration.print(indent, output).append("\n"); //$NON-NLS-1$
+	} else if (this.types != null) {
 		for (int i = 0; i < this.types.length; i++) {
 			this.types[i].print(indent, output).append("\n"); //$NON-NLS-1$
 		}

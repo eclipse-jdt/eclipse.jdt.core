@@ -43,7 +43,6 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
@@ -652,7 +651,7 @@ public class ClassScope extends Scope {
 				// TBD - allowed only at source level 9 or above
 				modifiers = ClassFileConstants.AccModule;
 				if ((realModifiers & ~(ClassFileConstants.ACC_OPEN | ClassFileConstants.AccModule)) != 0) {
-					problemReporter().illegalModifierForModule((ModuleDeclaration) this.referenceContext);
+					problemReporter().illegalModifierForModule(compilationUnitScope().referenceContext.moduleDeclaration);
 				}
 				if ((realModifiers & ClassFileConstants.ACC_OPEN) != 0) {
 					modifiers |= ClassFileConstants.ACC_OPEN;

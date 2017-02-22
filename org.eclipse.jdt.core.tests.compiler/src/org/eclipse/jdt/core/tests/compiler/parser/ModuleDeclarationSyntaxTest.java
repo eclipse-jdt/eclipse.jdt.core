@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -132,8 +132,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		String expectedUnitToString = 
 				"module org.fastsocket {\n" +
 				"  requires com.socket;\n" +
-				"  provides com.socket.spi.NetworkSocketProvider\n" +
-				"    with org.fastsocket.FastNetworkSocketProvider;\n" +
+				"  provides com.socket.spi.NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider;\n" +
 				"}\n";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
@@ -378,8 +377,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"import com.socket.spi.NetworkSocketProvider;\n" +
 				"module org.fastsocket {\n" +
 				"  requires com.socket;\n" +
-				"  provides NetworkSocketProvider\n" +
-				"    with org.fastsocket.FastNetworkSocketProvider;\n" +
+				"  provides NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider;\n" +
 				"}\n";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
@@ -399,8 +397,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"import com.socket.spi.*;\n" +
 				"module org.fastsocket {\n" +
 				"  requires com.socket;\n" +
-				"  provides NetworkSocketProvider\n" +
-				"    with org.fastsocket.FastNetworkSocketProvider;\n" +
+				"  provides NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider;\n" +
 				"}\n";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
@@ -433,8 +430,7 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 		String expectedUnitToString = 
 				"module org.fastsocket {\n" +
 				"  requires com.socket;\n" +
-				"  provides com.socket.spi.NetworkSocketProvider\n" +
-				"    with org.fastsocket.FastNetworkSocketProvider, org.fastSocket.SlowNetworkSocketProvider;\n" +
+				"  provides com.socket.spi.NetworkSocketProvider with org.fastsocket.FastNetworkSocketProvider, org.fastSocket.SlowNetworkSocketProvider;\n" +
 				"}\n";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;

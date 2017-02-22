@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 
 /*
@@ -51,13 +52,20 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 @SuppressWarnings("rawtypes")
 public interface ISourceElementRequestor {
 
-	public static class ModuleInfo extends TypeInfo {
+	public static class ModuleInfo {
+		public int declarationStart;
+		public int modifiers;
+		public char[] name;
+		public int nameSourceStart;
+		public int nameSourceEnd;
 		public char[] moduleName;
 		public RequiresInfo[] requires;
 		public PackageExportInfo[] exports;
 		public ServicesInfo[] services;
 		public PackageExportInfo[] opens;
 		public char[][] usedServices;
+		public Annotation[] annotations;
+		public ModuleDeclaration node;
 	}
 	public static class RequiresInfo {
 		public char[] moduleName;
@@ -225,4 +233,11 @@ public interface ISourceElementRequestor {
 	void exitMethod(int declarationEnd, Expression defaultValue);
 
 	void exitType(int declarationEnd);
+	
+	default void enterModule(ModuleInfo info) {
+		// do nothing
+	}
+	default void exitModule(int declarationEnd) {
+		// do nothing
+	}
 }

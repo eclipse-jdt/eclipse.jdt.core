@@ -396,9 +396,6 @@ public void enterType(TypeInfo typeInfo) {
 		case TypeDeclaration.ENUM_DECL:
 			enterEnum(typeInfo);
 			break;
-		case TypeDeclaration.MODULE_DECL:
-			enterModule((ModuleInfo) typeInfo);
-			break;
 	}
 }
 

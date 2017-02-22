@@ -183,6 +183,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 	 * @param unitResult org.eclipse.jdt.internal.compiler.CompilationUnitResult
 	 */
 	public static void createProblemType(TypeDeclaration typeDeclaration, CompilationResult unitResult) {
+		if (typeDeclaration.isModuleInfo())
+			return; //TODO No idea what a problem module declaration should look like
 		SourceTypeBinding typeBinding = typeDeclaration.binding;
 		ClassFile classFile = ClassFile.getNewInstance(typeBinding);
 		classFile.initialize(typeBinding, null, true);
@@ -2602,7 +2604,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		return 1;
 	}
 	private int generateModuleAttribute() {
-		ModuleDeclaration module = (ModuleDeclaration)this.referenceBinding.scope.referenceContext;
+		ModuleDeclaration module = this.referenceBinding.scope.compilationUnitScope().referenceContext.moduleDeclaration;
 		ModuleBinding binding = module.moduleBinding;
 		int localContentsOffset = this.contentsOffset;
 		if (localContentsOffset + 10 >= this.contents.length) {

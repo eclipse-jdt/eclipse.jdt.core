@@ -23,7 +23,6 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModuleContext;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
@@ -377,7 +376,7 @@ public class ModuleBinding extends Binding {
 	@Override
 	public int kind() {
 		//
-		return ClassFileConstants.AccModule;
+		return Binding.MODULE;
 	}
 
 	@Override

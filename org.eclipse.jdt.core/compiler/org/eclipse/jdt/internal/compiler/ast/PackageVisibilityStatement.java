@@ -61,7 +61,7 @@ public abstract class PackageVisibilityStatement extends ModuleStatement {
 	protected PackageBinding resolvePackageReference(Scope scope) {
 		if (this.resolvedPackage != null)
 			return this.resolvedPackage;
-		ModuleDeclaration exportingModule = (ModuleDeclaration)scope.referenceContext();
+		ModuleDeclaration exportingModule = scope.compilationUnitScope().referenceContext.moduleDeclaration;
 		ModuleBinding src = exportingModule.moduleBinding;
 		this.resolvedPackage = src != null ? src.getDeclaredPackage(this.pkgRef.tokens) : null;
 		if (this.resolvedPackage == null) {

@@ -28,6 +28,7 @@ public abstract class Binding {
 	public static final int METHOD = ASTNode.Bit4;
 	public static final int PACKAGE = ASTNode.Bit5;
 	public static final int IMPORT = ASTNode.Bit6;
+	public static final int MODULE = ASTNode.Bit7;
 	public static final int ARRAY_TYPE = TYPE | ASTNode.Bit7;
 	public static final int BASE_TYPE = TYPE | ASTNode.Bit8;
 	public static final int PARAMETERIZED_TYPE = TYPE | ASTNode.Bit9;

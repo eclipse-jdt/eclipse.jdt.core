@@ -35,7 +35,7 @@ public class ProvidesStatement extends ModuleStatement {
 	public TypeReference[] implementations;
 
 	public boolean resolve(ClassScope scope) {
-		ModuleDeclaration module = (ModuleDeclaration)scope.referenceContext();
+		ModuleDeclaration module = scope.compilationUnitScope().referenceContext.moduleDeclaration;
 		ModuleBinding src = module.moduleBinding;
 		TypeBinding infBinding = this.serviceInterface.resolveType(scope);
 		boolean hasErrors = false;

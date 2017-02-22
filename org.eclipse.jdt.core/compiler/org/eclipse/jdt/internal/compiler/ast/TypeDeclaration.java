@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -1308,6 +1312,11 @@ public void resolve(ClassScope upperScope) {
  */
 public void resolve(CompilationUnitScope upperScope) {
 	// top level : scope are already created
+	if (isModuleInfo()) {
+		ModuleDeclaration module = upperScope.referenceContext.moduleDeclaration;
+		module.resolve(this.scope);
+		return;
+	}
 	resolve();
 	updateMaxFieldCount();
 }
@@ -1510,6 +1519,9 @@ void updateMaxFieldCount() {
 
 public boolean isPackageInfo() {
 	return CharOperation.equals(this.name,  TypeConstants.PACKAGE_INFO_NAME);
+}
+public boolean isModuleInfo() {
+	return CharOperation.equals(this.name,  TypeConstants.MODULE_INFO_NAME);
 }
 /**
  * Returns whether the type is a secondary one or not.

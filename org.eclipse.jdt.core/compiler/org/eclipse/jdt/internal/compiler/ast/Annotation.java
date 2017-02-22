@@ -1071,13 +1071,6 @@ public abstract class Annotation extends Expression {
 				}
 				break;
 			case Binding.TYPE :
-				if (((ReferenceBinding)recipient).isModule()) {
-					if ((metaTagBits & (TagBits.AnnotationForModule)) != 0) {
-						return AnnotationTargetAllowed.YES;
-					}
-					break;
-				}
-				//$FALL-THROUGH$
 			case Binding.GENERIC_TYPE :
 				if (((ReferenceBinding)recipient).isAnnotationType()) {
 					if ((metaTagBits & (TagBits.AnnotationForAnnotationType | TagBits.AnnotationForType | TagBits.AnnotationForTypeUse)) != 0)
@@ -1147,6 +1140,12 @@ public abstract class Annotation extends Expression {
 				if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) != 0) {
 					return AnnotationTargetAllowed.YES;
 				}
+				break;
+			case Binding.MODULE:
+				if ((metaTagBits & (TagBits.AnnotationForModule)) != 0) {
+					return AnnotationTargetAllowed.YES;
+				}
+				break;
 		}
 		return AnnotationTargetAllowed.NO;
 	}

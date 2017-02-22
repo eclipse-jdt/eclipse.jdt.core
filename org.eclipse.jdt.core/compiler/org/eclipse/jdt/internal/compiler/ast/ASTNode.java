@@ -66,6 +66,7 @@ import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
@@ -777,6 +778,11 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 				case Binding.TYPE_USE :
 					// deliberately don't set the annotation resolved tagbits, it is not material and also we are working with a dummy static object.
 					annotations = new AnnotationBinding[length];
+					break;
+				case Binding.MODULE:
+					ModuleBinding module = (ModuleBinding)recipient;
+					if ((module.tagBits & TagBits.AnnotationResolved) != 0) return annotations;
+					module.tagBits |= (TagBits.AnnotationResolved | TagBits.DeprecatedAnnotationResolved);
 					break;
 				default :
 					return annotations;

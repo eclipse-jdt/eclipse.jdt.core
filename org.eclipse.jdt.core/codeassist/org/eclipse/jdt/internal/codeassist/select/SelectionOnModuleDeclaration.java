@@ -17,14 +17,15 @@ package org.eclipse.jdt.internal.codeassist.select;
 
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 
 public class SelectionOnModuleDeclaration extends ModuleDeclaration {
 
 	public SelectionOnModuleDeclaration(CompilationResult compilationResult, char[][] tokens, long[] positions) {
 		super(compilationResult, tokens, positions);
 	}
-	public void resolve() {
-		super.resolve();
+	public void resolve(ClassScope scope) {
+		super.resolve(scope);
 		throw new SelectionNodeFound(this.moduleBinding);
 	}
 

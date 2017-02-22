@@ -2877,7 +2877,7 @@ protected void reportMatching(ModuleDeclaration module, IJavaElement parent, int
 	if (moduleDesc == null) // should not happen - safety net.
 		return;
 	if (accuracy > -1) { // report module declaration
-		SearchMatch match = this.patternLocator.newDeclarationMatch(module, moduleDesc, module.binding, accuracy, module.moduleName.length, this);
+		SearchMatch match = this.patternLocator.newDeclarationMatch(module, moduleDesc, module.moduleBinding, accuracy, module.moduleName.length, this);
 		report(match);
 	}
 	reportMatching(module.requires, module,  nodeSet, moduleDesc);
@@ -2930,14 +2930,14 @@ private void reportMatching(ProvidesStatement[] provides, ModuleDeclaration modu
 			if (intf != null) {
 				Integer level = (Integer) nodeSet.matchingNodes.removeKey(intf);
 				if (level != null)
-					this.patternLocator.matchReportReference(intf, moduleDesc, null, null, module.binding, level.intValue(), this);
+					this.patternLocator.matchReportReference(intf, moduleDesc, null, null, module.moduleBinding, level.intValue(), this);
 			}
 			TypeReference[] impls = service.implementations;
 			for (TypeReference impl : impls) {
 				if (impl != null) {
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(impl);
 					if (level != null)
-						this.patternLocator.matchReportReference(impl, moduleDesc, null, null, module.binding, level.intValue(), this);
+						this.patternLocator.matchReportReference(impl, moduleDesc, null, null, module.moduleBinding, level.intValue(), this);
 				}
 			}
 		}
@@ -2951,7 +2951,7 @@ private void reportMatching(UsesStatement[] uses, ModuleDeclaration module, Matc
 				if (intf != null) {
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(intf);
 					if (level != null) {
-						this.patternLocator.matchReportReference(intf, moduleDesc, null, null, module.binding, level.intValue(), this);
+						this.patternLocator.matchReportReference(intf, moduleDesc, null, null, module.moduleBinding, level.intValue(), this);
 					}
 				}
 			}
@@ -2967,8 +2967,9 @@ private void reportMatching(UsesStatement[] uses, ModuleDeclaration module, Matc
  * search pattern (i.e. the ones in the matching nodes set)
  */
 protected void reportMatching(TypeDeclaration type, IJavaElement parent, int accuracy, MatchingNodeSet nodeSet, int occurrenceCount) throws CoreException {
-	if (TypeDeclaration.kind(type.modifiers) == TypeDeclaration.MODULE_DECL) {
-		reportMatching((ModuleDeclaration) type, parent, accuracy, nodeSet, occurrenceCount);
+	if (type.isModuleInfo()) {
+		ModuleDeclaration mod = type.scope.compilationUnitScope().referenceContext.moduleDeclaration;
+		reportMatching(mod, parent, accuracy, nodeSet, occurrenceCount);
 		return;
 	}
 	// create type handle

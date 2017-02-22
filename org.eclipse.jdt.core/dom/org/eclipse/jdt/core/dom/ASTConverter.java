@@ -1371,22 +1371,32 @@ class ASTConverter {
 				}
 			}
 	
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = unit.types;
-			if (types != null) {
-				int typesLength = types.length;
-				for (int i = 0; i < typesLength; i++) {
-					org.eclipse.jdt.internal.compiler.ast.TypeDeclaration declaration = types[i];
-					if (CharOperation.equals(declaration.name, TypeConstants.PACKAGE_INFO_NAME)) {
-						continue;
-					}
-					ASTNode type = convert(declaration);
-					if (type == null) {
-						compilationUnit.setFlags(compilationUnit.getFlags() | ASTNode.MALFORMED);
-					} else {
-						if (type instanceof ModuleDeclaration)
-							compilationUnit.setModule((ModuleDeclaration) type);
-						else
-							compilationUnit.types().add(type);
+			org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration mod = unit.moduleDeclaration;
+			if (mod != null) {
+				ASTNode declaration = convertToModuleDeclaration(mod);
+				if (declaration == null) {
+					compilationUnit.setFlags(compilationUnit.getFlags() | ASTNode.MALFORMED);
+				} else {
+					compilationUnit.setModule((ModuleDeclaration) declaration);
+				}
+			} else {
+				org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = unit.types;
+				if (types != null) {
+					int typesLength = types.length;
+					for (int i = 0; i < typesLength; i++) {
+						org.eclipse.jdt.internal.compiler.ast.TypeDeclaration declaration = types[i];
+						if (CharOperation.equals(declaration.name, TypeConstants.PACKAGE_INFO_NAME)) {
+							continue;
+						}
+						ASTNode type = convert(declaration);
+						if (type == null) {
+							compilationUnit.setFlags(compilationUnit.getFlags() | ASTNode.MALFORMED);
+						} else {
+							if (type instanceof ModuleDeclaration)
+								compilationUnit.setModule((ModuleDeclaration) type);
+							else
+								compilationUnit.types().add(type);
+						}
 					}
 				}
 			}
@@ -2960,12 +2970,6 @@ class ASTConverter {
 				} else {
 					return convertToAnnotationDeclaration(typeDeclaration);
 				}
-			case org.eclipse.jdt.internal.compiler.ast.TypeDeclaration.MODULE_DECL :
-				if (this.ast.apiLevel < AST.JLS9_INTERNAL) {
-					return null;
-				} else {
-					return convertToModuleDeclaration(typeDeclaration);
-				}
 		}
 
 		checkCanceled();
@@ -3292,12 +3296,12 @@ class ASTConverter {
 		return fieldDeclaration;
 	}
 
-	public ModuleDeclaration convertToModuleDeclaration(org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
+	public ModuleDeclaration convertToModuleDeclaration(org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration) {
 		checkCanceled();
 		if (this.scanner.sourceLevel < ClassFileConstants.JDK9) return null;
-		org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration = (org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration) typeDeclaration;
 		ModuleDeclaration moduleDecl = this.ast.newModuleDeclaration();
-		convert(moduleDeclaration.javadoc, moduleDecl);
+		// TODO
+		//convert(moduleDeclaration.javadoc, moduleDecl);
 		setModifiers(moduleDecl, moduleDeclaration);
 		Name moduleName = getName(moduleDeclaration, CharOperation.splitOn('.', moduleDeclaration.moduleName), moduleDeclaration.sourcePositions);
 		moduleDecl.setName(moduleName);
@@ -5283,9 +5287,9 @@ class ASTConverter {
 		}
 	}
 
-	protected void setModifiers(ModuleDeclaration moduleDecl, org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
-		this.scanner.resetTo(typeDeclaration.declarationSourceStart, typeDeclaration.sourceStart);
-		this.setModifiers(moduleDecl.modifiers(), typeDeclaration.annotations, typeDeclaration.sourceStart);
+	protected void setModifiers(ModuleDeclaration moduleDecl, org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration) {
+		this.scanner.resetTo(moduleDeclaration.declarationSourceStart, moduleDeclaration.sourceStart);
+		this.setModifiers(moduleDecl.modifiers(), moduleDeclaration.annotations, moduleDeclaration.sourceStart);
 	}
 	/**
 	 * @param variableDecl

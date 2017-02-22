@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.compiler.ast.ProvidesStatement;
 import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
 import org.eclipse.jdt.internal.compiler.ast.UsesStatement;
 
-public class RecoveredModule extends RecoveredType {
+public class RecoveredModule extends RecoveredElement {
 	
 	public RecoveredExportsStatement[] exports;
 	public int exportCount;
@@ -36,9 +36,11 @@ public class RecoveredModule extends RecoveredType {
 	public int usesCount;
 	public RecoveredProvidesStatement[] services;
 	public int servicesCount;
+	public ModuleDeclaration moduleDeclaration;
 
 	public RecoveredModule(ModuleDeclaration moduleDeclaration, RecoveredElement parent, int bracketBalance) {
-		super(moduleDeclaration, parent, bracketBalance);
+		super(parent, bracketBalance);
+		this.moduleDeclaration = moduleDeclaration;
 	}
 	public RecoveredElement add(ModuleStatement moduleStatement, int bracketBalanceValue) {
 		
@@ -166,7 +168,7 @@ public class RecoveredModule extends RecoveredType {
 		StringBuffer result = new StringBuffer(tabString(tab));
 		result.append("Recovered module:\n"); //$NON-NLS-1$
 		result.append("module ");//$NON-NLS-1$
-		result.append(CharOperation.charToString(((ModuleDeclaration) this.typeDeclaration).moduleName));
+		result.append(CharOperation.charToString(this.moduleDeclaration.moduleName));
 		result.append(" {");//$NON-NLS-1$
 		if (this.exportCount > 0) {
 			for (int i = 0; i < this.exportCount; ++i) {
@@ -197,87 +199,86 @@ public class RecoveredModule extends RecoveredType {
 	}
 	public ModuleDeclaration updatedModuleDeclaration() {
 
-		ModuleDeclaration moduleDeclaration = (ModuleDeclaration) this.typeDeclaration;
-		updateExports(moduleDeclaration);
-		updateOpens(moduleDeclaration);
-		updateRequires(moduleDeclaration);
-		updateUses(moduleDeclaration);
-		updateServices(moduleDeclaration);
-		return moduleDeclaration;
+		updateExports(this.moduleDeclaration);
+		updateOpens(this.moduleDeclaration);
+		updateRequires(this.moduleDeclaration);
+		updateUses(this.moduleDeclaration);
+		updateServices(this.moduleDeclaration);
+		return this.moduleDeclaration;
 	}
-	private void updateExports(ModuleDeclaration moduleDeclaration) {
+	private void updateExports(ModuleDeclaration mod) {
 		if (this.exportCount > 0) {
-			int existingCount = moduleDeclaration.exportsCount, actualCount = 0;
+			int existingCount = mod.exportsCount, actualCount = 0;
 			ExportsStatement[] exports1 = new ExportsStatement[existingCount + this.exportCount];
 			if (existingCount > 0){
-				System.arraycopy(moduleDeclaration.exports, 0, exports1, 0, existingCount);
+				System.arraycopy(mod.exports, 0, exports1, 0, existingCount);
 				actualCount = existingCount;
 			}
 			for (int i = 0; i < this.exportCount; i++){
 				exports1[actualCount++] = (ExportsStatement)this.exports[i].updatedPackageVisibilityStatement();
 			}
-			moduleDeclaration.exports = exports1;
-			moduleDeclaration.exportsCount = actualCount;
+			mod.exports = exports1;
+			mod.exportsCount = actualCount;
 		}
 	}
-	private void updateOpens(ModuleDeclaration moduleDeclaration) {
+	private void updateOpens(ModuleDeclaration mod) {
 		if (this.opensCount > 0) {
-			int existingCount = moduleDeclaration.opensCount, actualCount = 0;
+			int existingCount = mod.opensCount, actualCount = 0;
 			OpensStatement[] opens1 = new OpensStatement[existingCount + this.opensCount];
 			if (existingCount > 0){
-				System.arraycopy(moduleDeclaration.exports, 0, opens1, 0, existingCount);
+				System.arraycopy(mod.exports, 0, opens1, 0, existingCount);
 				actualCount = existingCount;
 			}
 			for (int i = 0; i < this.opensCount; i++){
 				opens1[actualCount++] = (OpensStatement)this.opens[i].updatedPackageVisibilityStatement();
 			}
-			moduleDeclaration.opens = opens1;
-			moduleDeclaration.opensCount = actualCount;
+			mod.opens = opens1;
+			mod.opensCount = actualCount;
 		}
 	}
-	private void updateRequires(ModuleDeclaration moduleDeclaration) {
+	private void updateRequires(ModuleDeclaration mod) {
 		if (this.requiresCount > 0) {
-			int existingCount = moduleDeclaration.requiresCount, actualCount = 0;
+			int existingCount = mod.requiresCount, actualCount = 0;
 			RequiresStatement[] requiresStmts = new RequiresStatement[existingCount + this.requiresCount];
 			if (existingCount > 0){
-				System.arraycopy(moduleDeclaration.requires, 0, requiresStmts, 0, existingCount);
+				System.arraycopy(mod.requires, 0, requiresStmts, 0, existingCount);
 				actualCount = existingCount;
 			}
 			for (int i = 0; i < this.requiresCount; i++){
 				requiresStmts[actualCount++] = this.requires[i].updatedRequiresStatement();
 			}
-			moduleDeclaration.requires = requiresStmts;
-			moduleDeclaration.requiresCount = actualCount;
+			mod.requires = requiresStmts;
+			mod.requiresCount = actualCount;
 		}
 	}
-	private void updateUses(ModuleDeclaration moduleDeclaration) {
+	private void updateUses(ModuleDeclaration mod) {
 		if (this.usesCount > 0) {
-			int existingCount = moduleDeclaration.usesCount, actualCount = 0;
+			int existingCount = mod.usesCount, actualCount = 0;
 			UsesStatement[] usesStmts = new UsesStatement[existingCount + this.usesCount];
 			if (existingCount > 0){
-				System.arraycopy(moduleDeclaration.uses, 0, usesStmts, 0, existingCount);
+				System.arraycopy(mod.uses, 0, usesStmts, 0, existingCount);
 				actualCount = existingCount;
 			}
 			for (int i = 0; i < this.usesCount; ++i) {
 				usesStmts[actualCount++] = this.uses[i].updatedUsesStatement();
 			}
-			moduleDeclaration.uses = usesStmts;
-			moduleDeclaration.usesCount = actualCount;
+			mod.uses = usesStmts;
+			mod.usesCount = actualCount;
 		}
 	}
-	private void updateServices(ModuleDeclaration moduleDeclaration) {
+	private void updateServices(ModuleDeclaration mod) {
 		if (this.servicesCount > 0) {
-			int existingCount = moduleDeclaration.servicesCount, actualCount = 0;
+			int existingCount = mod.servicesCount, actualCount = 0;
 			ProvidesStatement[] providesStmts = new ProvidesStatement[existingCount + this.servicesCount];
 			if (existingCount > 0){
-				System.arraycopy(moduleDeclaration.services, 0, providesStmts, 0, existingCount);
+				System.arraycopy(mod.services, 0, providesStmts, 0, existingCount);
 				actualCount = existingCount;
 			}
 			for (int i = 0; i < this.servicesCount; ++i) {
 				providesStmts[actualCount++] = this.services[i].updatedProvidesStatement();
 			}
-			moduleDeclaration.services = providesStmts;
-			moduleDeclaration.servicesCount = actualCount;  			
+			mod.services = providesStmts;
+			mod.servicesCount = actualCount;  			
 		}
 	}
 	public void updateParseTree(){
