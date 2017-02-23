@@ -16,9 +16,11 @@ import static org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharAr
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -282,13 +284,23 @@ public final class Indexer {
 				: (double) resourceMappingTimeMs / (double) pathsToUpdate.size();
 
 		if (DEBUG_TIMING) {
-			Package.logInfo(
-					"Indexing done.\n" //$NON-NLS-1$
-					+ "  Located " + locations.size() + " indexables in " + locateIndexablesTimeMs + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-					+ "  Collected garbage from " + gcFiles + " files in " +  garbageCollectionMs + "ms, average time = " + String.format("%.3g", averageGcTimeMs) + "ms\n" //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$ //$NON-NLS-5$
-					+ "  Tested " + locations.size() + " fingerprints in " + fingerprintTimeMs + "ms, average time = " + String.format("%.3g", averageFingerprintTimeMs) + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-					+ "  Indexed " + classesIndexed + " classes in " + indexingTimeMs + "ms, average time = " + String.format("%.3g", averageIndexTimeMs) + "ms\n" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
-					+ "  Updated " + pathsToUpdate.size() + " paths in " + resourceMappingTimeMs + "ms, average time = " + String.format("%.3g", averageResourceMappingMs) + "ms\n"); //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$ //$NON-NLS-5$
+			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS\n"); //$NON-NLS-1$
+			System.out.println("Indexing done at " + format.format(new Date(endResourceMappingMs)) //$NON-NLS-1$
+					+ "  Located " + locations.size() + " indexables in " + locateIndexablesTimeMs + "ms"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			if (gcFiles != 0) {
+				System.out.println("  Collected garbage from " + gcFiles + " files in " + garbageCollectionMs //$NON-NLS-1$//$NON-NLS-2$
+						+ "ms, average time = " + String.format("%.3g", averageGcTimeMs) + "ms"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+			}
+			System.out.println("  Tested " + locations.size() + " fingerprints in " + fingerprintTimeMs //$NON-NLS-1$ //$NON-NLS-2$
+					+ "ms, average time = " + String.format("%.3g", averageFingerprintTimeMs) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			if (classesIndexed != 0) {
+				System.out.println("  Indexed " + classesIndexed + " classes in " + indexingTimeMs //$NON-NLS-1$ //$NON-NLS-2$
+						+ "ms, average time = " + String.format("%.3g", averageIndexTimeMs) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
+			if (pathsToUpdate.size() != 0) {
+				System.out.println("  Updated " + pathsToUpdate.size() + " paths in " + resourceMappingTimeMs //$NON-NLS-1$//$NON-NLS-2$
+						+ "ms, average time = " + String.format("%.3g", averageResourceMappingMs) + "ms"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+			}
 		}
 
 		if (DEBUG_ALLOCATIONS) {
