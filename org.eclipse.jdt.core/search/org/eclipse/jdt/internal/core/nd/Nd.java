@@ -31,6 +31,14 @@ public final class Nd {
 	private static final int BLOCKED_WRITE_LOCK_OUTPUT_INTERVAL = 30000;
 	private static final int LONG_WRITE_LOCK_REPORT_THRESHOLD = 1000;
 	private static final int LONG_READ_LOCK_WAIT_REPORT_THRESHOLD = 1000;
+
+	/**
+	 * Controls the number of pages that are allowed to be dirty before a
+	 * flush will occur. Specified as a ratio of the total cache size. For
+	 * example, a ration of 0.5 would mean that a flush is forced if half
+	 * of the cache is dirty.
+	 */
+	private static final double MAX_DIRTY_CACHE_RATIO = 0.25;
 	public static boolean sDEBUG_LOCKS= false;
 	public static boolean DEBUG_DUPLICATE_DELETIONS = false;
 
@@ -348,7 +356,7 @@ public final class Nd {
 	}
 
 	public final void releaseWriteLock() {
-		releaseWriteLock(0, true);
+		releaseWriteLock(0, false);
 	}
 
 	@SuppressWarnings("nls")
@@ -392,6 +400,14 @@ public final class Nd {
 	}
 
 	private void releaseWriteLockAndFlush(int establishReadLocks, boolean flush) throws AssertionError {
+		int dirtyPages = this.getDB().getDirtyChunkCount();
+
+		// If there are too many dirty pages, force a flush now.
+		int totalCacheSize = (int) (this.db.getCache().getMaxSize() / Database.CHUNK_SIZE);
+		if (dirtyPages > totalCacheSize * MAX_DIRTY_CACHE_RATIO) {
+			flush = true;
+		}
+
 		int initialReadLocks = flush ? establishReadLocks + 1 : establishReadLocks;
 		// Convert this write lock to a read lock while we flush the page cache to disk. That will prevent
 		// other writers from dirtying more pages during the flush but will allow reads to proceed.

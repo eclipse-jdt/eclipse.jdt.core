@@ -163,6 +163,12 @@ public class Database {
 
 	private MemoryStats memoryUsage;
 	public Chunk fMostRecentlyFetchedChunk;
+	/**
+	 * Contains the set of Chunks in this Database for which the Chunk.dirty flag is set to true.
+	 * Protected by the database write lock. This set does not contain the header chunk, which is
+	 * always handled as a special case by the code that flushes chunks.
+	 */
+	private HashSet<Chunk> dirtyChunkSet = new HashSet<>();
 
 	/**
 	 * Construct a new Database object, creating a backing file if necessary.
@@ -317,6 +323,7 @@ public class Database {
 		this.fHeaderChunk.clear(0, CHUNK_SIZE);
 		// Chunks have been removed from the cache, so we may just reset the array of chunks.
 		this.fChunks = new Chunk[] {null};
+		this.dirtyChunkSet.clear();
 		this.fChunksUsed = this.fChunks.length;
 		try {
 			wasCanceled = this.fHeaderChunk.flush() || wasCanceled; // Zero out header chunk.
@@ -1281,6 +1288,7 @@ public class Database {
 		this.fHeaderChunk.clear(0, CHUNK_SIZE);
 		this.memoryUsage.refresh();
 		this.fHeaderChunk.fDirty= false;
+		this.dirtyChunkSet.clear();
 		this.fChunks= new Chunk[] { null };
 		this.fChunksUsed = this.fChunks.length;
 		try {
@@ -1300,14 +1308,29 @@ public class Database {
 	/**
 	 * Called from any thread via the cache, protected by {@link #fCache}.
 	 */
-	void releaseChunk(final Chunk chunk) {
-		if (!chunk.fDirty) {
+	void checkIfChunkReleased(final Chunk chunk) {
+		if (!chunk.fDirty && chunk.fCacheIndex < 0) {
 			if (DEBUG_PAGE_CACHE) {
 				System.out.println("CHUNK " + chunk.fSequenceNumber //$NON-NLS-1$
 						+ ": removing from vector in releaseChunk - instance " + System.identityHashCode(chunk)); //$NON-NLS-1$
 			}
 			this.fChunks[chunk.fSequenceNumber]= null;
 		}
+	}
+
+	void chunkDirtied(final Chunk chunk) {
+		if (chunk.fSequenceNumber < NUM_HEADER_CHUNKS) {
+			return;
+		}
+		this.dirtyChunkSet.add(chunk);
+	}
+
+	void chunkCleaned(final Chunk chunk) {
+		if (chunk.fSequenceNumber < NUM_HEADER_CHUNKS) {
+			return;
+		}
+		this.dirtyChunkSet.remove(chunk);
+		checkIfChunkReleased(chunk);
 	}
 
 	/**
@@ -1339,34 +1362,19 @@ public class Database {
 		boolean wasInterrupted = false;
 		assert this.fLocked;
 		ArrayList<Chunk> dirtyChunks= new ArrayList<>();
-		int scanIndex = NUM_HEADER_CHUNKS;
-
-		while (scanIndex < this.fChunksUsed) {
-			synchronized (this.fCache) {
-				int countMax = Math.min(MAX_ITERATIONS_PER_LOCK, this.fChunksUsed - scanIndex);
-				for (int count = 0; count < countMax; count++) {
-					Chunk chunk = this.fChunks[scanIndex++];
-
-					if (chunk != null) {
-						if (chunk.fDirty) {
-							dirtyChunks.add(chunk); // Keep in fChunks until it is flushed.
-						} else if (chunk.fCacheIndex < 0) {
-							if (DEBUG_PAGE_CACHE) {
-								System.out.println(
-										"CHUNK " + chunk.fSequenceNumber + ": removing from vector in flush - instance " //$NON-NLS-1$//$NON-NLS-2$
-												+ System.identityHashCode(chunk));
-							}
-							// Non-dirty chunk that has been removed from cache.
-							this.fChunks[chunk.fSequenceNumber]= null;
-						}
-					}
-				}
-			}
+		synchronized (this.fCache) {
+			dirtyChunks.addAll(this.dirtyChunkSet);
 		}
+		sortBySequenceNumber(dirtyChunks);
+
 		// Also handles header chunk.
 		wasInterrupted = flushAndUnlockChunks(dirtyChunks, true) || wasInterrupted;
 
 		return wasInterrupted;
+	}
+
+	private void sortBySequenceNumber(ArrayList<Chunk> dirtyChunks) {
+		dirtyChunks.sort((a, b) -> {return a.fSequenceNumber - b.fSequenceNumber;});
 	}
 
 	/**
@@ -1395,6 +1403,7 @@ public class Database {
 						synchronized (this.fCache) {
 							buf = ByteBuffer.wrap(chunk.getBytes());
 							chunk.fDirty = false;
+							chunkCleaned(chunk);
 						}
 						wasCanceled = write(buf, (long) chunk.fSequenceNumber * Database.CHUNK_SIZE);
 					} catch (IOException e) {
@@ -1402,29 +1411,6 @@ public class Database {
 					}
 
 					wasInterrupted = wasCanceled || wasInterrupted;
-				}
-			}
-
-			// Only after the chunks are flushed we may unlock and release them.
-			int totalSize = dirtyChunks.size();
-			int scanIndex = 0;
-			while (scanIndex < totalSize) {
-				synchronized (this.fCache) {
-					int countMax = Math.min(MAX_ITERATIONS_PER_LOCK, totalSize - scanIndex);
-					for (int count = 0; count < countMax; count++) {
-						Chunk chunk = this.fChunks[scanIndex++];
-
-						if (chunk != null) {
-							if (chunk.fCacheIndex < 0) {
-								if (DEBUG_PAGE_CACHE) {
-									System.out.println("CHUNK " + chunk.fSequenceNumber //$NON-NLS-1$
-											+ ": removing from vector in flushAndUnlockChunks - instance " //$NON-NLS-1$
-											+ System.identityHashCode(chunk));
-								}
-								this.fChunks[chunk.fSequenceNumber]= null;
-							}
-						}
-					}
 				}
 			}
 		}
@@ -1513,5 +1499,9 @@ public class Database {
 
 	public ChunkCache getCache() {
 		return this.fCache;
+	}
+
+	public int getDirtyChunkCount() {
+		return this.dirtyChunkSet.size();
 	}
 }

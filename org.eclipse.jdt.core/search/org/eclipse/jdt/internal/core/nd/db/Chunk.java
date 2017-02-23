@@ -68,6 +68,7 @@ final class Chunk {
 						+ " dirtied out of order: Only the most-recently-fetched chunk is allowed to be dirtied"); //$NON-NLS-1$
 			}
 			this.fDirty = true;
+			this.fDatabase.chunkDirtied(this);
 		}
 	}
 
@@ -96,7 +97,8 @@ final class Chunk {
 		} catch (IOException e) {
 			throw new IndexException(new DBStatus(e));
 		}
-		this.fDirty= false;
+		this.fDirty = false;
+		this.fDatabase.chunkCleaned(this);
 		return wasCanceled;
 	}
 
