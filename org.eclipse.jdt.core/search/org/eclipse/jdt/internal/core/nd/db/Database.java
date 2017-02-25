@@ -22,6 +22,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.FileChannel;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -160,6 +161,7 @@ public class Database {
 	private long freed;
 	private long cacheHits;
 	private long cacheMisses;
+	private long bytesWritten;
 
 	private MemoryStats memoryUsage;
 	public Chunk fMostRecentlyFetchedChunk;
@@ -169,6 +171,7 @@ public class Database {
 	 * always handled as a special case by the code that flushes chunks.
 	 */
 	private HashSet<Chunk> dirtyChunkSet = new HashSet<>();
+	private long totalFlushTime;
 
 	/**
 	 * Construct a new Database object, creating a backing file if necessary.
@@ -245,6 +248,7 @@ public class Database {
 	 * @throws IOException
 	 */
 	boolean write(ByteBuffer buf, long position) throws IOException {
+		this.bytesWritten += buf.limit();
 		return performUninterruptableWrite(() -> {this.fFile.getChannel().write(buf, position);});
 	}
 
@@ -330,6 +334,7 @@ public class Database {
 			wasCanceled = performUninterruptableWrite(() -> {
 				this.fFile.getChannel().truncate(CHUNK_SIZE);
 			}) || wasCanceled;
+			this.bytesWritten += CHUNK_SIZE;
 		} catch (IOException e) {
 			Package.log(e);
 		}
@@ -1256,10 +1261,10 @@ public class Database {
 	 * For debugging purposes, only.
 	 */
 	public void reportFreeBlocks() throws IndexException {
-		System.out.println("Allocated size: " + getDatabaseSize() + " bytes"); //$NON-NLS-1$ //$NON-NLS-2$
-		System.out.println("malloc'ed: " + this.malloced); //$NON-NLS-1$
-		System.out.println("free'd: " + this.freed); //$NON-NLS-1$
-		System.out.println("wasted: " + (getDatabaseSize() - (this.malloced - this.freed))); //$NON-NLS-1$
+		System.out.println("Allocated size: " + formatByteString(getDatabaseSize())); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("malloc'ed: " + formatByteString(this.malloced)); //$NON-NLS-1$
+		System.out.println("free'd: " + formatByteString(this.freed)); //$NON-NLS-1$
+		System.out.println("wasted: " + formatByteString((getDatabaseSize() - (this.malloced - this.freed)))); //$NON-NLS-1$
 		System.out.println("Free blocks"); //$NON-NLS-1$
 		for (int bs = MIN_BLOCK_DELTAS*BLOCK_SIZE_DELTA; bs <= CHUNK_SIZE; bs += BLOCK_SIZE_DELTA) {
 			int count = 0;
@@ -1367,8 +1372,11 @@ public class Database {
 		}
 		sortBySequenceNumber(dirtyChunks);
 
+		long startTime = System.currentTimeMillis();
 		// Also handles header chunk.
 		wasInterrupted = flushAndUnlockChunks(dirtyChunks, true) || wasInterrupted;
+		long elapsedTime = System.currentTimeMillis() - startTime;
+		this.totalFlushTime += elapsedTime;
 
 		return wasInterrupted;
 	}
@@ -1432,6 +1440,7 @@ public class Database {
 			try {
 				final ByteBuffer buf= ByteBuffer.wrap(new byte[4]);
 				wasInterrupted = performUninterruptableWrite(() -> this.fFile.getChannel().write(buf, 0));
+				this.bytesWritten += 4;
 			} catch (IOException e) {
 				throw new IndexException(new DBStatus(e));
 			}
@@ -1440,7 +1449,18 @@ public class Database {
 	}
 
 	public void resetCacheCounters() {
-		this.cacheHits= this.cacheMisses= 0;
+		this.cacheHits = 0;
+		this.cacheMisses = 0;
+		this.bytesWritten = 0;
+		this.totalFlushTime = 0;
+	}
+
+	public long getBytesWritten() {
+		return this.bytesWritten;
+	}
+
+	public long getBytesRead() {
+		return this.cacheMisses * CHUNK_SIZE;
 	}
 
 	public long getCacheHits() {
@@ -1449,6 +1469,10 @@ public class Database {
 
 	public long getCacheMisses() {
 		return this.cacheMisses;
+	}
+
+	public long getCumulativeFlushTimeMs() {
+		return this.totalFlushTime;
 	}
 
 	public long getSizeBytes() throws IOException {
@@ -1503,5 +1527,19 @@ public class Database {
 
 	public int getDirtyChunkCount() {
 		return this.dirtyChunkSet.size();
+	}
+
+	public static String formatByteString(long valueInBytes) {
+		final double MB = 1024 * 1024;
+		double value = valueInBytes;
+		String suffix = "B"; //$NON-NLS-1$
+
+		if (value > 1024) {
+			suffix = "MiB"; //$NON-NLS-1$
+			value /= MB;
+		}
+
+		DecimalFormat mbFormat = new DecimalFormat("#0.###"); //$NON-NLS-1$
+		return mbFormat.format(value) + suffix;
 	}
 }

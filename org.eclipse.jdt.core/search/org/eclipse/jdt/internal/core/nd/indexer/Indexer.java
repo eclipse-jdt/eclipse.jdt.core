@@ -16,6 +16,7 @@ import static org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharAr
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -64,6 +65,7 @@ import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.Nd;
+import org.eclipse.jdt.internal.core.nd.db.Database;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint.FingerprintTestResult;
@@ -90,6 +92,11 @@ public final class Indexer {
 	public static boolean DEBUG_TIMING;
 	public static boolean DEBUG_INSERTIONS;
 	public static boolean DEBUG_SELFTEST;
+
+	// This is an arbitrary constant that is larger than the maximum number of ticks
+	// reported by SubMonitor and small enough that it won't overflow a long when multiplied by a large
+	// database size.
+	private final static int TOTAL_TICKS_TO_REPORT_DURING_INDEXING = 1000;
 
 	/**
 	 * True iff automatic reindexing (that is, the {@link #rescanAll()} method) is disabled. Synchronize on
@@ -207,6 +214,8 @@ public final class Indexer {
 
 	public void rescan(IProgressMonitor monitor) throws CoreException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
+		Database db = this.nd.getDB();
+		db.resetCacheCounters();
 
 		synchronized (this.automaticIndexingMutex) {
 			this.indexerDirtiedWhileDisabled = false;
@@ -218,7 +227,7 @@ public final class Indexer {
 		}
 
 		this.fileStateCache.clear();
-		WorkspaceSnapshot snapshot = WorkspaceSnapshot.create(this.root, subMonitor.split(4));
+		WorkspaceSnapshot snapshot = WorkspaceSnapshot.create(this.root, subMonitor.split(1));
 		Set<IPath> locations = snapshot.allLocations();
 
 		long startGarbageCollectionMs = System.currentTimeMillis();
@@ -228,17 +237,27 @@ public final class Indexer {
 
 		long startFingerprintTestMs = System.currentTimeMillis();
 
-		Map<IPath, FingerprintTestResult> fingerprints = testFingerprints(locations, subMonitor.split(5));
+		Map<IPath, FingerprintTestResult> fingerprints = testFingerprints(locations, subMonitor.split(1));
 		Set<IPath> indexablesWithChanges = new HashSet<>(
 				getIndexablesThatHaveChanged(locations, fingerprints));
 
+		// Compute the total number of bytes to be read in and indexed
 		long startIndexingMs = System.currentTimeMillis();
+		long totalSizeToIndex = 0;
+		for (IPath next : indexablesWithChanges) {
+			FingerprintTestResult nextFingerprint = fingerprints.get(next);
+			totalSizeToIndex += nextFingerprint.getNewFingerprint().getSize();
+		}
+		long tickDenominator = totalSizeToIndex / TOTAL_TICKS_TO_REPORT_DURING_INDEXING;
 
 		int classesIndexed = 0;
-		SubMonitor loopMonitor = subMonitor.split(80).setWorkRemaining(indexablesWithChanges.size());
+		SubMonitor loopMonitor = subMonitor.split(94).setWorkRemaining(TOTAL_TICKS_TO_REPORT_DURING_INDEXING);
 		for (IPath next : indexablesWithChanges) {
+			FingerprintTestResult nextFingerprint = fingerprints.get(next);
+			int ticks = (int) (nextFingerprint.getNewFingerprint().getSize() / tickDenominator);
+
 			classesIndexed += rescanArchive(currentTimeMs, next, snapshot.get(next),
-					fingerprints.get(next).getNewFingerprint(), loopMonitor.split(1));
+					fingerprints.get(next).getNewFingerprint(), loopMonitor.split(ticks));
 		}
 
 		long endIndexingMs = System.currentTimeMillis();
@@ -252,10 +271,10 @@ public final class Indexer {
 			}
 		}
 
-		updateResourceMappings(pathsToUpdate, subMonitor.split(5));
+		updateResourceMappings(pathsToUpdate, subMonitor.split(1));
 
 		// Flush the database to disk
-		this.nd.acquireWriteLock(subMonitor.split(4));
+		this.nd.acquireWriteLock(subMonitor.split(1));
 		try {
 			this.nd.getDB().flush();
 		} finally {
@@ -284,23 +303,43 @@ public final class Indexer {
 				: (double) resourceMappingTimeMs / (double) pathsToUpdate.size();
 
 		if (DEBUG_TIMING) {
+			DecimalFormat msFormat = new DecimalFormat("#0.###"); //$NON-NLS-1$
+			DecimalFormat percentFormat = new DecimalFormat("#0.###"); //$NON-NLS-1$
 			SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS\n"); //$NON-NLS-1$
 			System.out.println("Indexing done at " + format.format(new Date(endResourceMappingMs)) //$NON-NLS-1$
 					+ "  Located " + locations.size() + " indexables in " + locateIndexablesTimeMs + "ms"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			if (gcFiles != 0) {
 				System.out.println("  Collected garbage from " + gcFiles + " files in " + garbageCollectionMs //$NON-NLS-1$//$NON-NLS-2$
-						+ "ms, average time = " + String.format("%.3g", averageGcTimeMs) + "ms"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+						+ "ms, average time = " + msFormat.format(averageGcTimeMs) + "ms"); //$NON-NLS-1$//$NON-NLS-2$
 			}
 			System.out.println("  Tested " + locations.size() + " fingerprints in " + fingerprintTimeMs //$NON-NLS-1$ //$NON-NLS-2$
-					+ "ms, average time = " + String.format("%.3g", averageFingerprintTimeMs) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					+ "ms, average time = " + msFormat.format(averageFingerprintTimeMs) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
 			if (classesIndexed != 0) {
-				System.out.println("  Indexed " + classesIndexed + " classes in " + indexingTimeMs //$NON-NLS-1$ //$NON-NLS-2$
-						+ "ms, average time = " + String.format("%.3g", averageIndexTimeMs) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				System.out.println("  Indexed " + classesIndexed + " classes (from " + indexablesWithChanges.size() //$NON-NLS-1$//$NON-NLS-2$
+						+ " files containing " + Database.formatByteString(totalSizeToIndex) + ") in " + indexingTimeMs //$NON-NLS-1$ //$NON-NLS-2$
+						+ "ms, average time per class = " + msFormat.format(averageIndexTimeMs) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			if (pathsToUpdate.size() != 0) {
 				System.out.println("  Updated " + pathsToUpdate.size() + " paths in " + resourceMappingTimeMs //$NON-NLS-1$//$NON-NLS-2$
-						+ "ms, average time = " + String.format("%.3g", averageResourceMappingMs) + "ms"); //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+						+ "ms, average time = " + msFormat.format(averageResourceMappingMs) + "ms"); //$NON-NLS-1$//$NON-NLS-2$
 			}
+			long cacheHits = db.getCacheHits();
+			long cacheMisses = db.getCacheMisses();
+			long totalReads = cacheMisses + cacheHits;
+			double cacheMissPercent = totalReads == 0 ? 0 : (cacheMisses * 100.0) / totalReads;
+			System.out.println("  Cache misses = " + cacheMisses + " (" //$NON-NLS-1$//$NON-NLS-2$
+					+ percentFormat.format(cacheMissPercent) + "%)"); //$NON-NLS-1$
+
+			long bytesRead = db.getBytesRead();
+			long bytesWritten = db.getBytesWritten();
+			double totalTimeMs = endResourceMappingMs - currentTimeMs;
+			long flushTimeMs = db.getCumulativeFlushTimeMs();
+			double flushPercent = totalTimeMs == 0 ? 0 : flushTimeMs * 100.0 / totalTimeMs;
+			System.out.println("  Reads = " + Database.formatByteString(bytesRead) + ", writes = " + Database.formatByteString(bytesWritten)); //$NON-NLS-1$//$NON-NLS-2$
+			System.out.println("  Time spent performing flushes = " //$NON-NLS-1$
+					+ msFormat.format(flushTimeMs) + "ms (" //$NON-NLS-1$
+					+ percentFormat.format(flushPercent) + "%)"); //$NON-NLS-1$
+			System.out.println("  Total indexing time = " + msFormat.format(totalTimeMs) + "ms"); //$NON-NLS-1$//$NON-NLS-2$
 		}
 
 		if (DEBUG_ALLOCATIONS) {
@@ -524,12 +563,12 @@ public final class Indexer {
 	 */
 	private int rescanArchive(long currentTimeMillis, IPath thePath, List<IJavaElement> elementsMappingOntoLocation,
 			FileFingerprint fingerprint, IProgressMonitor monitor) throws JavaModelException {
+		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 		if (elementsMappingOntoLocation.isEmpty()) {
 			return 0;
 		}
 
 		IJavaElement element = elementsMappingOntoLocation.get(0);
-		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 
 		String pathString = thePath.toString();
 		JavaIndex javaIndex = JavaIndex.getIndex(this.nd);
