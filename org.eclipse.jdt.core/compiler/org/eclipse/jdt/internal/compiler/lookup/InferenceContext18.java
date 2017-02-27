@@ -561,7 +561,7 @@ public class InferenceContext18 {
 			MethodBinding innerMethod = invocation.binding();
 			if (innerMethod != null && innerMethod.isValidBinding()) {
 				substitution = enrichSubstitution(substitution, invocation, innerMethod);
-				return addJDK_8153748ConstraintsFromInvocation(innerArgs, innerMethod.original(), substitution);
+				return addJDK_8153748ConstraintsFromInvocation(innerArgs, innerMethod.shallowOriginal(), substitution);
 			}
 		} else if (argument instanceof ConditionalExpression) {
 			ConditionalExpression ce = (ConditionalExpression) argument;

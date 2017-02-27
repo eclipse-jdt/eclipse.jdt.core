@@ -7946,4 +7946,44 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+
+	public void testBug511878() {
+		// note: type variables renamed to facilitate debugging
+		runConformTest(
+			new String[] {
+				"SimpleParser.java",
+				"import java.util.function.Function;\n" + 
+				"\n" + 
+				"\n" + 
+				"public interface SimpleParser<T> {\n" + 
+				"\n" + 
+				"    static class Tuple<A,B> {\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    /** the type of the functional interface: Parser<T> :: CharSequence -> Tuple<T, CharSequence>> */\n" + 
+				"    abstract Tuple<T, CharSequence> parse(CharSequence cs);\n" + 
+				"    \n" + 
+				"    default <V> SimpleParser<V> andThenBinding(Function<? super T, SimpleParser<V>> f) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    default <W> SimpleParser<W> andThen(SimpleParser<W> p) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"   \n" + 
+				"    static <X> SimpleParser<X> output(X v) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    static SimpleParser<String> space() {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    static <Y> SimpleParser<Y> token(SimpleParser<Y> p) {\n" + 
+				"        return space().andThen(p.andThenBinding(v -> space().andThen(output(v))));\n" + 
+				"    }\n" + 
+				"\n" + 
+				"}\n"
+			});
+	}
 }
