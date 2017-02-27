@@ -11,6 +11,7 @@
  *     Markus Schorn (Wind River Systems)
  *     IBM Corporation
  *     Sergey Prigogin (Google)
+ *     Stefan Xenos (Google)
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.db;
 
@@ -132,6 +133,7 @@ public class Database {
 	 * release the chunk cache mutex.
 	 */
 	private static final int MAX_ITERATIONS_PER_LOCK = 256;
+	private static final int WRITE_BUFFER_SIZE = CHUNK_SIZE * 32;
 
 	/**
 	 * True iff large chunk self-diagnostics should be enabled.
@@ -162,6 +164,7 @@ public class Database {
 	private long cacheHits;
 	private long cacheMisses;
 	private long bytesWritten;
+	private long totalReadTimeMs;
 
 	private MemoryStats memoryUsage;
 	public Chunk fMostRecentlyFetchedChunk;
@@ -172,6 +175,9 @@ public class Database {
 	 */
 	private HashSet<Chunk> dirtyChunkSet = new HashSet<>();
 	private long totalFlushTime;
+	private long totalWriteTimeMs;
+	private long pageWritesBytes;
+	public static final double MIN_BYTES_PER_MILLISECOND = 20480.0;
 
 	/**
 	 * Construct a new Database object, creating a backing file if necessary.
@@ -403,15 +409,25 @@ public class Database {
 			chunk = this.fChunks[index];
 		}
 
+		long readStartMs = 0;
+		long readEndMs = 0;
 		// Read the new chunk outside of any synchronized block (this allows parallel reads and prevents background
 		// threads from retaining a lock that blocks the UI while the background thread performs I/O).
 		boolean cacheMiss = (chunk == null);
 		if (cacheMiss) {
+			readStartMs = System.currentTimeMillis();
 			chunk = new Chunk(this, index);
 			chunk.read();
+			readEndMs = System.currentTimeMillis();
 		}
 
 		synchronized (this.fCache) {
+			if (cacheMiss) {
+				this.cacheMisses++;
+				this.totalReadTimeMs += (readEndMs - readStartMs);
+			} else {
+				this.cacheHits++;
+			}
 			Chunk newChunk = this.fChunks[index];
 			if (newChunk != chunk && newChunk != null) {
 				// Another thread fetched this chunk in the meantime. In this case, we should use the chunk fetched
@@ -421,17 +437,13 @@ public class Database {
 							+ ": already fetched by another thread - instance " //$NON-NLS-1$
 							+ System.identityHashCode(chunk));
 				}
-				this.cacheMisses++;
 				chunk = newChunk;
 			} else if (cacheMiss) {
 				if (DEBUG_PAGE_CACHE) {
 					System.out.println("CHUNK " + chunk.fSequenceNumber + ": inserted into vector - instance " //$NON-NLS-1$//$NON-NLS-2$
 							+ System.identityHashCode(chunk));
 				}
-				this.cacheMisses++;
 				this.fChunks[index] = chunk;
-			} else {
-				this.cacheHits++;
 			}
 			this.fCache.add(chunk);
 			this.fMostRecentlyFetchedChunk = chunk;
@@ -1261,7 +1273,7 @@ public class Database {
 	 * For debugging purposes, only.
 	 */
 	public void reportFreeBlocks() throws IndexException {
-		System.out.println("Allocated size: " + formatByteString(getDatabaseSize())); //$NON-NLS-1$ //$NON-NLS-2$
+		System.out.println("Allocated size: " + formatByteString(getDatabaseSize())); //$NON-NLS-1$
 		System.out.println("malloc'ed: " + formatByteString(this.malloced)); //$NON-NLS-1$
 		System.out.println("free'd: " + formatByteString(this.freed)); //$NON-NLS-1$
 		System.out.println("wasted: " + formatByteString((getDatabaseSize() - (this.malloced - this.freed)))); //$NON-NLS-1$
@@ -1399,27 +1411,43 @@ public class Database {
 			wasInterrupted = markFileIncomplete() || wasInterrupted;
 		}
 		if (haveDirtyChunks) {
-			for (Chunk chunk : dirtyChunks) {
-				if (chunk.fDirty) {
-					boolean wasCanceled = false;
-					if (DEBUG_PAGE_CACHE) {
-						System.out.println("CHUNK " + chunk.fSequenceNumber + ": flushing - instance "  //$NON-NLS-1$//$NON-NLS-2$
-								+ System.identityHashCode(chunk));
+			double desiredWriteBytesPerMs = Database.MIN_BYTES_PER_MILLISECOND;
+			synchronized (this.fCache) {
+				if (this.cacheMisses > 100) {
+					double measuredReadBytesPerMs = getAverageReadBytesPerMs();
+					if (measuredReadBytesPerMs > 0) {
+						desiredWriteBytesPerMs = measuredReadBytesPerMs / 2;
 					}
-					try {
-						final ByteBuffer buf;
+				}
+			}
+			desiredWriteBytesPerMs = Math.max(desiredWriteBytesPerMs, Database.MIN_BYTES_PER_MILLISECOND);
+			ChunkWriter writer = new ChunkWriter(WRITE_BUFFER_SIZE, desiredWriteBytesPerMs, this::write);
+			try {
+				for (Chunk chunk : dirtyChunks) {
+					if (chunk.fDirty) {
+						boolean wasCanceled = false;
+						if (DEBUG_PAGE_CACHE) {
+							System.out.println("CHUNK " + chunk.fSequenceNumber + ": flushing - instance " //$NON-NLS-1$//$NON-NLS-2$
+									+ System.identityHashCode(chunk));
+						}
+						byte[] nextBytes;
 						synchronized (this.fCache) {
-							buf = ByteBuffer.wrap(chunk.getBytes());
+							nextBytes = chunk.getBytes();
 							chunk.fDirty = false;
 							chunkCleaned(chunk);
 						}
-						wasCanceled = write(buf, (long) chunk.fSequenceNumber * Database.CHUNK_SIZE);
-					} catch (IOException e) {
-						throw new IndexException(new DBStatus(e));
-					}
+						wasCanceled = writer.write((long) chunk.fSequenceNumber * Database.CHUNK_SIZE, nextBytes);
 
-					wasInterrupted = wasCanceled || wasInterrupted;
+						wasInterrupted = wasCanceled || wasInterrupted;
+					}
 				}
+				writer.flush();
+				synchronized (this.fCache) {
+					this.pageWritesBytes += writer.getBytesWritten();
+					this.totalWriteTimeMs += writer.getTotalWriteTimeMs();
+				}
+			} catch (IOException e) {
+				throw new IndexException(new DBStatus(e));
 			}
 		}
 
@@ -1453,10 +1481,31 @@ public class Database {
 		this.cacheMisses = 0;
 		this.bytesWritten = 0;
 		this.totalFlushTime = 0;
+		this.pageWritesBytes = 0;
+		this.totalWriteTimeMs = 0;
+		this.totalReadTimeMs = 0;
 	}
 
 	public long getBytesWritten() {
 		return this.bytesWritten;
+	}
+
+	public double getAverageReadBytesPerMs() {
+		long reads = this.cacheMisses;
+		long time = this.totalReadTimeMs;
+
+		if (time == 0) {
+			return 0;
+		}
+
+		return (double)(reads * CHUNK_SIZE) / (double) time;
+	}
+
+	public double getAverageWriteBytesPerMs() {
+		long time = this.totalWriteTimeMs;
+		long writes = this.pageWritesBytes;
+
+		return ((double) writes / (double) time);
 	}
 
 	public long getBytesRead() {

@@ -27,6 +27,7 @@ public RunIndexTests(String name) {
 public static Class[] getAllTestClasses() {
 	return new Class[] {
 		BTreeTests.class,
+		ChunkWriterTests.class,
 		DatabaseTest.class,
 		FieldBackPointerTest.class,
 		FieldOneToOneTest.class,

@@ -337,6 +337,17 @@ public final class Indexer {
 			long flushTimeMs = db.getCumulativeFlushTimeMs();
 			double flushPercent = totalTimeMs == 0 ? 0 : flushTimeMs * 100.0 / totalTimeMs;
 			System.out.println("  Reads = " + Database.formatByteString(bytesRead) + ", writes = " + Database.formatByteString(bytesWritten)); //$NON-NLS-1$//$NON-NLS-2$
+			double averageReadBytesPerSecond = db.getAverageReadBytesPerMs() * 1000;
+			double averageWriteBytesPerSecond = db.getAverageWriteBytesPerMs() * 1000;
+			if (bytesRead > Database.CHUNK_SIZE * 100) {
+				System.out.println(
+						"  Read speed = " + Database.formatByteString((long) averageReadBytesPerSecond) + "/s"); //$NON-NLS-1$//$NON-NLS-2$
+			}
+			if (bytesWritten > Database.CHUNK_SIZE * 100) {
+				System.out.println(
+						"  Write speed = " + Database.formatByteString((long) averageWriteBytesPerSecond) + "/s"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+
 			System.out.println("  Time spent performing flushes = " //$NON-NLS-1$
 					+ msFormat.format(flushTimeMs) + "ms (" //$NON-NLS-1$
 					+ percentFormat.format(flushPercent) + "%)"); //$NON-NLS-1$
