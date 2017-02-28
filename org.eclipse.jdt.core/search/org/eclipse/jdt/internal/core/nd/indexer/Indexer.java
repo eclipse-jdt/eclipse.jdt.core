@@ -248,13 +248,14 @@ public final class Indexer {
 			FingerprintTestResult nextFingerprint = fingerprints.get(next);
 			totalSizeToIndex += nextFingerprint.getNewFingerprint().getSize();
 		}
-		long tickDenominator = totalSizeToIndex / TOTAL_TICKS_TO_REPORT_DURING_INDEXING;
+		double tickCoefficient = totalSizeToIndex == 0 ? 0.0
+				: (double) TOTAL_TICKS_TO_REPORT_DURING_INDEXING / (double) totalSizeToIndex;
 
 		int classesIndexed = 0;
 		SubMonitor loopMonitor = subMonitor.split(94).setWorkRemaining(TOTAL_TICKS_TO_REPORT_DURING_INDEXING);
 		for (IPath next : indexablesWithChanges) {
 			FingerprintTestResult nextFingerprint = fingerprints.get(next);
-			int ticks = (int) (nextFingerprint.getNewFingerprint().getSize() / tickDenominator);
+			int ticks = (int) (nextFingerprint.getNewFingerprint().getSize() * tickCoefficient);
 
 			classesIndexed += rescanArchive(currentTimeMs, next, snapshot.get(next),
 					fingerprints.get(next).getNewFingerprint(), loopMonitor.split(ticks));
