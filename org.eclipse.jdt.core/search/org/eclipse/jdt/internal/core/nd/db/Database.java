@@ -128,6 +128,25 @@ public class Database {
 	/** Id for the first node type. All node types will record their stats in a pool whose ID is POOL_FIRST_NODE_TYPE + node_id*/
 	public static final short POOL_FIRST_NODE_TYPE	= 0x0100;
 
+	public static class ChunkStats {
+		public final int totalChunks;
+		public final int chunksInMemory;
+		public final int dirtyChunks;
+		public final int nonDirtyChunksNotInCache;
+
+		public ChunkStats(int totalChunks, int chunksInMemory, int dirtyChunks, int nonDirtyChunksNotInCache) {
+			this.totalChunks = totalChunks;
+			this.chunksInMemory = chunksInMemory;
+			this.dirtyChunks = dirtyChunks;
+			this.nonDirtyChunksNotInCache = nonDirtyChunksNotInCache;
+		}
+
+		public String toString() {
+			return "Chunks: total = " + this.totalChunks + ", in memory = " + this.chunksInMemory //$NON-NLS-1$//$NON-NLS-2$
+					+ ", dirty = " + this.dirtyChunks + ", not in cache = " + this.nonDirtyChunksNotInCache;  //$NON-NLS-1$//$NON-NLS-2$
+		}
+	}
+
 	/**
 	 * For loops that scan through the chunks list, this imposes a maximum number of iterations before the loop must
 	 * release the chunk cache mutex.
@@ -1590,5 +1609,24 @@ public class Database {
 
 		DecimalFormat mbFormat = new DecimalFormat("#0.###"); //$NON-NLS-1$
 		return mbFormat.format(value) + suffix;
+	}
+
+	public ChunkStats getChunkStats() {
+		synchronized (this.fCache) {
+			int count = 0;
+			int dirtyChunks = 0;
+			int nonDirtyChunksNotInCache = 0;
+			for (Chunk next : this.fChunks) {
+				if (next != null) {
+					count++;
+					if (next.fDirty) {
+						dirtyChunks++;
+					} else if (next.fCacheIndex < 0) {
+						nonDirtyChunksNotInCache++;
+					}
+				}
+			}
+			return new ChunkStats(this.fChunks.length, count, dirtyChunks, nonDirtyChunksNotInCache);
+		}
 	}
 }

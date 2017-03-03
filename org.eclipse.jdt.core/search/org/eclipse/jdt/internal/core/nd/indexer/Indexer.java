@@ -67,6 +67,7 @@ import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
+import org.eclipse.jdt.internal.core.nd.db.Database.ChunkStats;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint.FingerprintTestResult;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
@@ -324,6 +325,7 @@ public final class Indexer {
 				System.out.println("  Updated " + pathsToUpdate.size() + " paths in " + resourceMappingTimeMs //$NON-NLS-1$//$NON-NLS-2$
 						+ "ms, average time = " + msFormat.format(averageResourceMappingMs) + "ms"); //$NON-NLS-1$//$NON-NLS-2$
 			}
+			System.out.println("  " + db.getChunkStats()); //$NON-NLS-1$
 			long cacheHits = db.getCacheHits();
 			long cacheMisses = db.getCacheMisses();
 			long totalReads = cacheMisses + cacheHits;

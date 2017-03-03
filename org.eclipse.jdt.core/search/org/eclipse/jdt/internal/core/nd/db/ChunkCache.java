@@ -102,8 +102,8 @@ public final class ChunkCache {
 				chunk.fCacheHitFlag= false;
 				this.fPointer= (this.fPointer + 1) % this.fPageTable.length;
 			} else {
-				chunk.fDatabase.checkIfChunkReleased(chunk);
 				chunk.fCacheIndex= -1;
+				chunk.fDatabase.checkIfChunkReleased(chunk);
 				this.fPageTable[this.fPointer] = null;
 				return;
 			}
