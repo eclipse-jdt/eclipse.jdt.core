@@ -24,8 +24,8 @@ public final class ChunkCache {
 	public static final String CHUNK_CACHE_SIZE_MB = "chunkCacheSizeMb"; //$NON-NLS-1$
 	public static final String CHUNK_CACHE_SIZE_PERCENT = "chunkCacheSizePercent"; //$NON-NLS-1$
 
-	public static final double CHUNK_CACHE_SIZE_MB_DEFAULT = 256.0;
-	public static final double CHUNK_CACHE_SIZE_PERCENT_DEFAULT = 10.0;
+	public static final double CHUNK_CACHE_SIZE_MB_DEFAULT = 128.0;
+	public static final double CHUNK_CACHE_SIZE_PERCENT_DEFAULT = 5.0;
 
 	static {
 		IEclipsePreferences node = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
