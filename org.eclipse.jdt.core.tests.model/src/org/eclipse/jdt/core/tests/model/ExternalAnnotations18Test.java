@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 GK Software AG, and others.
+ * Copyright (c) 2014, 2017 GK Software AG, and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2077,5 +2077,107 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		} finally {
 			deleteProject("Bug500024");
 		}
+	}
+
+	public void testBug508955() throws CoreException, IOException {
+		myCreateJavaProject("TestLibs");
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots",
+			new String[] {
+				"/UnannotatedLib/libs/Collectors.java",
+				"package libs;\n" + 
+				"public interface Collectors {\n" + 
+				"    Collector<CharSequence, ?, String> joining(CharSequence delimiter);\n" + 
+				"\n" + 
+				"}\n",
+				"/UnannotatedLib/libs/Stream.java",
+				"package libs;\n" +
+				"public interface Stream<T> {\n" +
+				"    <R, A> R collect(Collector<? super T, A, R> collector);\n" + 
+				"}\n",
+				"/UnannotatedLib/libs/List.java",
+				"package libs;\n" +
+				"public interface List<T> extends java.util.Collection<T> {\n" +
+				"	Stream<T> stream();\n" +
+				"}\n",
+				"Collector.java",
+				"package libs;\n" +
+				"public interface Collector<T, A, R> { }\n"
+			}, null);
+		createFileInProject("annots/libs", "Collectors.eea",
+				"class libs/Collectors\n" + 
+				"\n" + 
+				"joining\n" + 
+				" (Ljava/lang/CharSequence;)Llibs/Collector<Ljava/lang/CharSequence;*Ljava/lang/String;>;\n" + 
+				" (Ljava/lang/CharSequence;)L1libs/Collector<L1java/lang/CharSequence;*1L1java/lang/String;>;\n" +
+				"\n" + 
+				"\n");
+		createFile(this.project.getElementName()+"/annots/libs/Stream.eea",
+				"class libs/Stream\n" + 
+				"\n");
+		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+		ICompilationUnit unit = fragment.createCompilationUnit("Example.java", 
+				"package tests;\n" + 
+				"import libs.*;\n" +
+				"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+				"public class Example {\n" + 
+				"	public String func(List<String> list, Collectors collectors){\n" + 
+				"		return list.stream().collect(collectors.joining(\",\"));\n" + 
+				"	}\n" + 
+				"}\n",
+				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		IProblem[] problems = reconciled.getProblems();
+		assertNoProblems(problems);
+	}
+
+	public void testBug508955b() throws CoreException, IOException {
+		myCreateJavaProject("TestLibs");
+		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots",
+			new String[] {
+				"/UnannotatedLib/libs/Collectors.java",
+				"package libs;\n" + 
+				"public interface Collectors {\n" + 
+				"    Collector<CharSequence, ? extends Object, String> joining(CharSequence delimiter);\n" + 
+				"\n" + 
+				"}\n",
+				"/UnannotatedLib/libs/Stream.java",
+				"package libs;\n" +
+				"public interface Stream<T> {\n" +
+				"    <R, A> R collect(Collector<? super T, A, R> collector);\n" + 
+				"}\n",
+				"/UnannotatedLib/libs/List.java",
+				"package libs;\n" +
+				"public interface List<T> extends java.util.Collection<T> {\n" +
+				"	Stream<T> stream();\n" +
+				"}\n",
+				"Collector.java",
+				"package libs;\n" +
+				"public interface Collector<T, A, R> { }\n"
+			}, null);
+		createFileInProject("annots/libs", "Collectors.eea",
+				"class libs/Collectors\n" + 
+				"\n" + 
+				"joining\n" + 
+				" (Ljava/lang/CharSequence;)Llibs/Collector<Ljava/lang/CharSequence;+Ljava/lang/Object;Ljava/lang/String;>;\n" + 
+				" (Ljava/lang/CharSequence;)L1libs/Collector<L1java/lang/CharSequence;+1L1java/lang/Object;L1java/lang/String;>;\n" +
+				"\n" + 
+				"\n");
+		createFile(this.project.getElementName()+"/annots/libs/Stream.eea",
+				"class libs/Stream\n" + 
+				"\n");
+		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+		ICompilationUnit unit = fragment.createCompilationUnit("Example.java", 
+				"package tests;\n" + 
+				"import libs.*;\n" +
+				"@org.eclipse.jdt.annotation.NonNullByDefault\n" + 
+				"public class Example {\n" + 
+				"	public String func(List<String> list, Collectors collectors){\n" + 
+				"		return list.stream().collect(collectors.joining(\",\"));\n" + 
+				"	}\n" + 
+				"}\n",
+				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(AST.JLS8, true, null, new NullProgressMonitor());
+		IProblem[] problems = reconciled.getProblems();
+		assertNoProblems(problems);
 	}
 }
