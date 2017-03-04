@@ -67,7 +67,6 @@ import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
-import org.eclipse.jdt.internal.core.nd.db.Database.ChunkStats;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint.FingerprintTestResult;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
