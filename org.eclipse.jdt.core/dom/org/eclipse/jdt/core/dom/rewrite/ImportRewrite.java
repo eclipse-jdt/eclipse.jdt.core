@@ -185,16 +185,16 @@ public final class ImportRewrite {
 		 * @since 3.13
 		 */
 		INSTANCEOF,
-		
+
 		/**
-		 * The special value {@link #NEW_} is used for {@code new} expressions (object allocations). 
+		 * The special value {@link #NEW} is used for {@code new} expressions (object allocations). 
 		 * Null annotations are not supported in this location.
 		 * Does not correspond to a value in org.eclipse.jdt.annotation.DefaultLocation.
 		 * 
 		 * @since 3.13
 		 */
-		NEW_,		
-		
+		NEW,
+
 		/**
 		 * The special value {@link #RECEIVER} is used for the receiver type in a method declaration or method reference.
 		 * Null annotations are not supported in this location.
