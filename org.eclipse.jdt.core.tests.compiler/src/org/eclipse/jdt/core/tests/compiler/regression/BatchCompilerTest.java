@@ -861,7 +861,7 @@ public void test012b(){
         "      staticReceiver     + non-static reference to static member\n" + 
         "      super                overriding a method without making a super invocation\n" + 
         "      suppress           + enable @SuppressWarnings\n" + 
-        "                           When used with -err:, it can also silent optional\n" + 
+        "                           When used with -err:, it can also silence optional\n" + 
         "                           errors and warnings\n" + 
         "      switchDefault        switch statement lacking a default case\n" +
         "      syncOverride         missing synchronized in synchr. method override\n" + 
@@ -872,9 +872,10 @@ public void test012b(){
         "      unavoidableGenericProblems + ignore unavoidable type safety problems\n" + 
         "                                   due to raw APIs\n" + 
         "      unchecked          + unchecked type operation\n" + 
-        "      unlikelyCollectionMethodArgumentType unlikely argument type for collection\n" + 
-        "                           methods using Object\n" + 
-        "      unlikelyEqualsArgumentType unlikely argument type for equals()\n" + 
+        "      unlikelyCollectionMethodArgumentType\n" +
+        "                         + unlikely argument type for collection method\n" + 
+        "                           declaring an Object parameter\n" + 
+        "      unlikelyEqualsArgumentType unlikely argument type for method equals()\n" + 
         "      unnecessaryElse      unnecessary else clause\n" + 
         "      unqualifiedField     unqualified reference to field\n" + 
         "      unused               macro for unusedAllocation, unusedArgument,\n" + 
