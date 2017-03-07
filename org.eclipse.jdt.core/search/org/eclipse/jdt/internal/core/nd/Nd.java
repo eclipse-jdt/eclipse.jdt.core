@@ -215,20 +215,19 @@ public final class Nd {
 
 	private void loadDatabase(File dbPath, ChunkCache cache) throws IndexException {
 		this.fPath= dbPath;
-		final boolean lockDB= this.db == null || this.lockCount != 0;
 
 		clearCaches();
 		this.db = new Database(this.fPath, cache, getDefaultVersion(), isPermanentlyReadOnly());
-
-		this.db.setLocked(lockDB);
+		this.db.setExclusiveLock();
 		if (!isSupportedVersion()) {
 			Package.logInfo("Index database uses the unsupported version " + this.db.getVersion() //$NON-NLS-1$
 				+ ". Deleting and recreating."); //$NON-NLS-1$
 			this.db.close();
 			this.fPath.delete();
 			this.db = new Database(this.fPath, cache, getDefaultVersion(), isPermanentlyReadOnly());
-			this.db.setLocked(lockDB);
+			this.db.setExclusiveLock();
 		}
+		this.db.giveUpExclusiveLock();
 		this.fWriteNumber = this.db.getLong(Database.WRITE_NUMBER_OFFSET);
 		this.db.setLocked(this.lockCount != 0);
 	}
