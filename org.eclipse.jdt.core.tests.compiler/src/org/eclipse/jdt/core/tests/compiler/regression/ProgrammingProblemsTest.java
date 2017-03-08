@@ -3221,4 +3221,25 @@ public void testBug410218f() {
 		true/*shouldFlushOutputDirectory*/,
 		customOptions);
 }
+// mixture of raw type an parametrized type
+public void testBug513310() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	runConformTest(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"import java.util.List;\n" +
+			"import java.util.Set;\n" +
+			"\n" +
+			"public class Test {\n" +
+			"	void f(List dependencyList, Set<Object> set) {\n" +
+			"		dependencyList.removeAll(set);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		} 
+	);
+}
 }

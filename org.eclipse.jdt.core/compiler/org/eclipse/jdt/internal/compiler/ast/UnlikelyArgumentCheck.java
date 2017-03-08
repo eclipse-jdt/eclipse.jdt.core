@@ -130,7 +130,8 @@ public class UnlikelyArgumentCheck {
 						ReferenceBinding argumentCollectionType = argumentType
 								.findSuperTypeOriginatingFrom(TypeIds.T_JavaUtilCollection, false);
 						if (collectionType != null && argumentCollectionType != null
-								&& argumentCollectionType.isParameterizedTypeWithActualArguments()) {
+								&& argumentCollectionType.isParameterizedTypeWithActualArguments() 
+								&& collectionType.isParameterizedTypeWithActualArguments()) {
 							return new UnlikelyArgumentCheck(suspect,
 									((ParameterizedTypeBinding) argumentCollectionType).typeArguments()[0],
 									((ParameterizedTypeBinding) collectionType).typeArguments()[0], collectionType);
