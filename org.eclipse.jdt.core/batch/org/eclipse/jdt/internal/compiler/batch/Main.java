@@ -2002,7 +2002,7 @@ public void configure(String[] argv) {
 						// If the module-info.java was supplied via command line, that will be the
 						// de facto module for the other source files supplied via command line.
 						// TODO: This needs revisit in case a source file specified in command line is
-						// part of a -modulesourcepath
+						// part of a --module-source-path
 						IModule mod = extractModuleDesc(currentArg, getNewParser());
 						if (mod != null) {
 							moduleName = new String(mod.name());
@@ -2181,15 +2181,15 @@ public void configure(String[] argv) {
 					mode = INSIDE_BOOTCLASSPATH_start;
 					continue;
 				}
-				if (currentArg.equals("-system")) { //$NON-NLS-1$
+				if (currentArg.equals("--system")) { //$NON-NLS-1$
 					mode = INSIDE_SYSTEM;
 					continue;
 				}
-				if (currentArg.equals("-modulepath") || currentArg.equals("-mp")) { //$NON-NLS-1$ //$NON-NLS-2$
+				if (currentArg.equals("--module-path") || currentArg.equals("-p")) { //$NON-NLS-1$ //$NON-NLS-2$
 					mode = INSIDE_MODULEPATH_start;
 					continue;
 				}
-				if (currentArg.equals("-modulesourcepath")) { //$NON-NLS-1$
+				if (currentArg.equals("--module-source-path")) { //$NON-NLS-1$
 					mode = INSIDE_MODULESOURCEPATH_start;
 					continue;
 				}
@@ -2948,7 +2948,7 @@ public void configure(String[] argv) {
 			CompilerOptions.OPTION_ReportMissingJavadocTagsVisibility,
 			CompilerOptions.PRIVATE);
 	}
-	// We don't add the source files from -modulesourcepath yet to the final list. So,
+	// We don't add the source files from --module-source-path yet to the final list. So,
 	// don't report it if that's the case.
 	if (printUsageRequired || (filesCount == 0 && classCount == 0 && moduleSourcepathArg == null)) {
 		if (usageSection ==  null) {

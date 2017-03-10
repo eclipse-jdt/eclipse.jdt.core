@@ -51,7 +51,6 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry, IModuleEnvironment {
 	protected File file;
-	protected ZipFile zipFile;
 	protected ZipFile annotationZipFile;
 	protected boolean closeZipFileAtEnd;
 	private static HashMap<String, Set<IModule>> ModulesCache = new HashMap<>();
@@ -303,14 +302,6 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 //	}
 	public void reset() {
 		if (this.closeZipFileAtEnd) {
-			if (this.zipFile != null) {
-				try {
-					this.zipFile.close();
-				} catch(IOException e) {
-					// ignore
-				}
-				this.zipFile = null;
-			}
 			if (this.annotationZipFile != null) {
 				try {
 					this.annotationZipFile.close();
@@ -326,7 +317,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 		}
 	}
 	public String toString() {
-		return "Classpath for jar file " + this.file.getPath(); //$NON-NLS-1$
+		return "Classpath for JRT System " + this.file.getPath(); //$NON-NLS-1$
 	}
 	public char[] normalizedPath() {
 		if (this.normalizedPath == null) {

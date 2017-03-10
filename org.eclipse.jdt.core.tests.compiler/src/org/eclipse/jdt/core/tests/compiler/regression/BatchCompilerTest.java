@@ -629,11 +629,11 @@ public void test012(){
         " \n" +
         " Module compilation options:\n" +
         "   These options are meaningful only in Java 9 environment or later.\n" +
-        "    -modulesourcepath <directories separated by " + File.pathSeparator + ">\n" +
+        "    --module-source-path <directories separated by " + File.pathSeparator + ">\n" +
         "                       specify where to find source files for multiple modules\n" +
-        "    -mp -modulepath <directories separated by " + File.pathSeparator + ">\n" +
+        "    -p --module-path <directories separated by " + File.pathSeparator + ">\n" +
         "                       specify where to find application modules\n" +
-        "    -system <jdk>      Override location of system modules \n" +
+        "    --system <jdk>      Override location of system modules \n" +
         " Compliance options:\n" +
         "    -1.3               use 1.3 compliance (-source 1.3 -target 1.1)\n" +
         "    -1.4             + use 1.4 compliance (-source 1.3 -target 1.2)\n" +
@@ -10067,7 +10067,7 @@ public void test279_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "Y.java\""
 		+ " -sourcepath \"" + OUTPUT_DIR + File.separator + "src2[?**/*]" + "\""
-		+ " -modulesourcepath \"" + OUTPUT_DIR + File.separator + "src2" + "\""
+		+ " --module-source-path \"" + OUTPUT_DIR + File.separator + "src2" + "\""
 		+ " -classpath \"" + OUTPUT_DIR + File.separator + "bin1" + "\""
 		+ " -proc:none -d \"" + OUTPUT_DIR + "\"",
 		"",

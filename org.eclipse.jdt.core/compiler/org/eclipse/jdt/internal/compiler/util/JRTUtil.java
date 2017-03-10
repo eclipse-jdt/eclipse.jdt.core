@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 IBM Corporation.
+ * Copyright (c) 2015, 2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,8 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -27,7 +25,6 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
-import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -181,19 +178,18 @@ class JrtFileSystem {
 		initialize(jrt);
 	}
 	void initialize(File jrt) throws IOException {
-		URL url = null;
+		String jdkHome = null;
 		if (jrt.toString().endsWith(JRTUtil.JRT_FS_JAR)) {
-			url = jrt.toPath().toUri().toURL();
+			jdkHome = jrt.getParentFile().getParent();
 		} else if (jrt.isDirectory()) {
-			url = jrt.toPath().toUri().toURL();
+			jdkHome = jrt.toPath().toString();
 		} else {
-			String jdkHome = jrt.getParentFile().getParentFile().getParent();
-			url = Paths.get(jdkHome, JRTUtil.JRT_FS_JAR).toUri().toURL();
+			return;
 		}
 		JRTUtil.MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
-		URLClassLoader loader = new URLClassLoader(new URL[] { url });
-		HashMap<String, ?> env = new HashMap<>();
-		this.jrtSystem = FileSystems.newFileSystem(JRTUtil.JRT_URI, env, loader);
+		HashMap<String, String> env = new HashMap<>();
+		env.put("java.home", jdkHome); //$NON-NLS-1$
+		this.jrtSystem = FileSystems.newFileSystem(JRTUtil.JRT_URI, env);
 		walkModuleImage(null, true, 0 /* doesn't matter */);
 	}
 

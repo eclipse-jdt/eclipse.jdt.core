@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -207,7 +207,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		buffer.append(" -classpath \"")
 		.append(Util.getJavaClassLibsAsString())
 		.append("\" ");
-		buffer.append(" -modulesourcepath " + "\"" + directory + "\"");
+		buffer.append(" --module-source-path " + "\"" + directory + "\"");
 		runConformTest(new String[]{}, buffer.toString(), "", "", false);
 	}
 	public void test007() {
@@ -246,7 +246,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		buffer.append(" -classpath \"")
 		.append(Util.getJavaClassLibsAsString())
 		.append("\" ");
-		buffer.append(" -modulesourcepath " + "\"" + directory + "\"");
+		buffer.append(" --module-source-path " + "\"" + directory + "\"");
 		
 		runNegativeTest(new String[]{}, 
 				buffer.toString(), 
@@ -298,7 +298,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"");
+			.append(" --module-source-path " + "\"" + directory + "\"");
 
 		runConformTest(new String[]{}, 
 				buffer.toString(), 
@@ -314,12 +314,12 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		String moduleLoc = directory + File.separator + "mod.one";
 		writeFile(moduleLoc, "module-info.java", 
 						"module mod.one { \n" +
-						"	exports p;\n" +
+						"	exports p.q;\n" +
 						"	requires java.base;\n" +
 						"	requires transitive java.sql;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "p", "X.java", 
-						"package p;\n" +
+		writeFile(moduleLoc + File.separator + "p" + File.separator + "q", "X.java", 
+						"package p.q;\n" +
 						"public class X {\n" +
 						"	public static java.sql.Connection getConnection() {\n" +
 						"		return null;\n" +
@@ -331,19 +331,20 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 						"	requires java.base;\n" +
 						"	requires mod.one;\n" +
 						"}");
-		writeFile(moduleLoc + File.separator + "q", "Y.java", 
-						"package q;\n" +
+		writeFile(moduleLoc + File.separator + "q" + File.separator + "r", "Y.java", 
+						"package q.r;\n" +
 						"public class Y {\n" +
-						"   java.sql.Connection con = p.X.getConnection();\n" +
+						"   java.sql.Connection con = p.q.X.getConnection();\n" +
 						"}");
 
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
+			.append("--system ").append("C:\\Java\\jdk-9-ea+153")
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"");
+			.append(" --module-source-path " + "\"" + directory + "\"");
 
 		runConformTest(new String[]{}, 
 				buffer.toString(), 
@@ -385,7 +386,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"");
+			.append(" --module-source-path " + "\"" + directory + "\"");
 
 		runConformTest(new String[]{}, 
 				buffer.toString(), 
@@ -433,10 +434,10 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		StringBuffer buffer = new StringBuffer();
 			buffer.append("-d " + outDir )
 			.append(" -9 ")
-			.append(" -modulepath \"")
+			.append(" --module-path \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + srcDir + "\"");
+			.append(" --module-source-path " + "\"" + srcDir + "\"");
 
 		runConformTest(new String[]{}, 
 				buffer.toString(), 
@@ -487,11 +488,11 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		StringBuffer buffer = new StringBuffer();
 			buffer.append("-d " + outDir )
 			.append(" -9 ")
-			.append(" -mp \"")
+			.append(" -p \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append(modDir.getAbsolutePath())
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + srcDir + "\"");
+			.append(" --module-source-path " + "\"" + srcDir + "\"");
 
 		runConformTest(new String[]{}, 
 				buffer.toString(), 
@@ -519,7 +520,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 	        "",
 	        true);
 	}
-	// Modules used as regular -classpath (as opposed to -modulepath) and module-info referencing
+	// Modules used as regular -classpath (as opposed to --module-path) and module-info referencing
 	// those modules are reported as missing.
 	public void test012() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
@@ -546,7 +547,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(modDir + File.separator + "mod.one.jar").append(File.pathSeparator)
 			.append(modDir + File.separator + "mod.two").append(File.pathSeparator)
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + srcDir + "\"");
+			.append(" --module-source-path " + "\"" + srcDir + "\"");
 
 		runNegativeTest(new String[]{},
 				buffer.toString(), 
@@ -565,7 +566,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				"2 problems (2 errors)\n",
 				false);
 	}
-	// Modules used as regular -classpath as opposed to -modulepath. The files being compiled
+	// Modules used as regular -classpath as opposed to --module-path. The files being compiled
 	// aren't part of any modules (i.e. module-info is missing). The files should be able to
 	// reference the types from referenced classpath.
 	public void test013() {
@@ -590,7 +591,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(modDir + File.separator + "mod.one.jar").append(File.pathSeparator)
 			.append(modDir + File.separator + "mod.two").append(File.pathSeparator)
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + srcDir + "\"");
+			.append(" --module-source-path " + "\"" + srcDir + "\"");
 		runConformTest(new String[]{},
 				buffer.toString(), 
 				"",
@@ -685,7 +686,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --module-source-path " + "\"" + directory + "\"")
 			.append(" --add-exports mod.one/p=mod.two");
 
 		runConformTest(new String[]{}, 
@@ -730,7 +731,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --module-source-path " + "\"" + directory + "\"")
 			.append(" --add-exports mod.one/p=mod.two");
 
 		runNegativeTest(new String[]{}, 
@@ -780,7 +781,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --module-source-path " + "\"" + directory + "\"")
 			.append(" --add-exports mod.one/p=mod.two")
 			.append(" --add-reads mod.two=mod.one");
 
@@ -825,7 +826,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --module-source-path " + "\"" + directory + "\"")
 			.append(" --add-exports mod.one/p=mod.three")
 			.append(" --add-reads mod.two=mod.one");
 
@@ -887,7 +888,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --module-source-path " + "\"" + directory + "\"")
 			.append(" --add-exports mod.one/p=mod.two,mod.three")
 			.append(" --add-reads mod.two=mod.one")
 			.append(" --add-reads mod.three=mod.one");
@@ -909,7 +910,11 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		String moduleLoc = directory + File.separator + "mod.one";
 		writeFile(moduleLoc + File.separator + "p", "X.java", 
 						"package p;\n" +
-						"public abstract class X extends sun.management.FileSystem {\n" +
+						"public abstract class X extends com.sun.security.ntlm.Server {\n" +
+						"	//public X() {}\n" +
+						"	public X(String arg0, String arg1) throws com.sun.security.ntlm.NTLMException {\n" +
+						"		super(arg0, arg1);\n" +
+						"	}\n" +
 						"}");
 
 		StringBuffer buffer = new StringBuffer();
@@ -952,7 +957,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --module-source-path " + "\"" + directory + "\"")
 			.append(" --add-exports mod.one=mod.two,mod.three");
 
 		runNegativeTest(new String[]{}, 
@@ -986,7 +991,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --module-source-path " + "\"" + directory + "\"")
 			.append(" --add-reads mod.one/mod.two");
 
 		runNegativeTest(new String[]{}, 
@@ -1020,7 +1025,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --module-source-path " + "\"" + directory + "\"")
 			.append(" --add-exports mod.one/p=mod.three")
 			.append(" --add-exports mod.one/p=mod.three");
 
@@ -1126,7 +1131,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
-			.append(" -system \"").append(javaHome).append("\"")
+			.append(" --system \"").append(javaHome).append("\"")
 			.append(" \"" + moduleLoc +  File.separator + "module-info.java\" ");
 
 		runConformTest(new String[]{}, 
@@ -1149,7 +1154,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
-			.append(" -system \"").append(javaHome).append(File.separator)
+			.append(" --system \"").append(javaHome).append(File.separator)
 			.append("lib\"")
 			.append(" \"" + moduleLoc +  File.separator + "module-info.java\" ");
 
@@ -1195,11 +1200,11 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("-d " + outDir )
 		.append(" -9 ")
-		.append(" -mp \"")
+		.append(" -p \"")
 		.append(Util.getJavaClassLibsAsString())
 		.append(modDir.getAbsolutePath())
 		.append("\" ")
-		.append(" -modulesourcepath " + "\"" + srcDir + "\"");
+		.append(" --module-source-path " + "\"" + srcDir + "\"");
 
 		runNegativeTest(new String[]{},
 				buffer.toString(), 
@@ -1248,7 +1253,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --module-source-path " + "\"" + directory + "\"")
 			.append(" --add-exports mod.one/p=mod.two,mod.three")
 			.append(" --add-reads mod.two=mod.one");
 
@@ -1300,7 +1305,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --module-source-path " + "\"" + directory + "\"")
 			.append(" --add-exports mod.one/p=mod.two,mod.three")
 			.append(" --add-reads mod.two=mod.one");
 
@@ -1357,7 +1362,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"")
+			.append(" --module-source-path " + "\"" + directory + "\"")
 			.append(" --add-exports mod.one/p=mod.two,mod.three")
 			.append(" --add-reads mod.two=mod.one");
 
@@ -1400,7 +1405,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append("\" ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"");
+			.append(" --module-source-path " + "\"" + directory + "\"");
 
 		runConformTest(new String[]{}, 
 			buffer.toString(), 
@@ -1449,7 +1454,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString())
 			.append(LIB_DIR).append(File.separator).append("lib1.jar").append(File.pathSeparator).append("\" ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"");
+			.append(" --module-source-path " + "\"" + directory + "\"");
 		runNegativeTest(new String[]{}, 
 				buffer.toString(), 
 				"",
@@ -1503,9 +1508,9 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(" -9 ")
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString()).append("\" ")
-			.append("-mp \"")
+			.append("-p \"")
 			.append(LIB_DIR).append("\" ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"");
+			.append(" --module-source-path " + "\"" + directory + "\"");
 		runNegativeTest(new String[]{}, 
 				buffer.toString(), 
 				"",
@@ -1560,9 +1565,9 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			.append(" -9 ")
 			.append(" -classpath \"")
 			.append(Util.getJavaClassLibsAsString()).append("\" ")
-			.append("-mp \"")
+			.append("-p \"")
 			.append(LIB_DIR).append("\" ")
-			.append(" -modulesourcepath " + "\"" + directory + "\"");
+			.append(" --module-source-path " + "\"" + directory + "\"");
 		runConformTest(new String[]{}, 
 				buffer.toString(), 
 				"",

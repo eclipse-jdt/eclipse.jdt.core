@@ -198,6 +198,9 @@ public static Classpath getClasspath(String classpathName, String encoding, Acce
 public static Classpath getClasspath(String classpathName, String encoding, AccessRuleSet accessRuleSet, Map options) {
 	return getClasspath(classpathName, encoding, false, accessRuleSet, null, options);
 }
+public static Classpath getJrtClasspath(String jdkHome, String encoding, AccessRuleSet accessRuleSet, Map options) {
+	return new ClasspathJrt(new File(convertPathSeparators(jdkHome)), true, accessRuleSet, null);
+}
 public static Classpath getClasspath(String classpathName, String encoding,
 		boolean isSourceOnly, AccessRuleSet accessRuleSet,
 		String destinationPath, Map options) {

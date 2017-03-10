@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -41,6 +42,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -1158,12 +1160,8 @@ public class Util implements SuffixConstants {
 	}
 
 	public static void collectVMBootclasspath(List bootclasspaths, File javaHome) {
-		for (String filePath : collectFilesNames(javaHome)) {
-			FileSystem.Classpath currentClasspath = FileSystem.getClasspath(filePath, null, null, null);
-			if (currentClasspath != null) {
-				bootclasspaths.add(currentClasspath);
-			}
-		}
+		List<Classpath> classpaths = collectFilesNames(javaHome);
+		bootclasspaths.addAll(classpaths);
 	}
 	public static void collectRunningVMBootclasspath(List bootclasspaths) {
 		collectVMBootclasspath(bootclasspaths, null);
@@ -1182,10 +1180,10 @@ public class Util implements SuffixConstants {
 		}
 		return null;
 	}
-	public static List<String> collectFilesNames() {
+	public static List<FileSystem.Classpath> collectFilesNames() {
 		return collectFilesNames(null);
 	}
-	public static List<String> collectFilesNames(File javaHome) {
+	public static List<FileSystem.Classpath> collectFilesNames(File javaHome) {
 		/* no bootclasspath specified
 		 * we can try to retrieve the default librairies of the VM used to run
 		 * the batch compiler
@@ -1201,12 +1199,12 @@ public class Util implements SuffixConstants {
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaversion);
 		if (jdkLevel >= ClassFileConstants.JDK9) {
-			List<String> filePaths = new ArrayList<>();
+			List<FileSystem.Classpath> filePaths = new ArrayList<>();
 			if (javaHome == null) {
 				javaHome = getJavaHome();
 			}
 			if (javaHome != null) {
-				filePaths.add((new File(javaHome, "/" + JRTUtil.JRT_FS_JAR)).getAbsolutePath()); //$NON-NLS-1$
+				filePaths.add(FileSystem.getJrtClasspath(javaHome.getAbsolutePath(), null, null, null));
 				return filePaths;
 			}
 		}
@@ -1224,7 +1222,7 @@ public class Util implements SuffixConstants {
 				bootclasspathProperty = System.getProperty("org.apache.harmony.boot.class.path"); //$NON-NLS-1$
 			}
 		}
-		List<String> filePaths = new ArrayList<>();
+		Set<String> filePaths = new HashSet<>();
 		if ((bootclasspathProperty != null) && (bootclasspathProperty.length() != 0)) {
 			StringTokenizer tokenizer = new StringTokenizer(bootclasspathProperty, File.pathSeparator);
 			while (tokenizer.hasMoreTokens()) {
@@ -1260,7 +1258,14 @@ public class Util implements SuffixConstants {
 				}
 			}
 		}
-		return filePaths;
+		List<FileSystem.Classpath> classpaths = new ArrayList<>();
+		for (String filePath : filePaths) {
+			FileSystem.Classpath currentClasspath = FileSystem.getClasspath(filePath, null, null, null);
+			if (currentClasspath != null) {
+				classpaths.add(currentClasspath);
+			}
+		}
+		return classpaths;
 	}
 	public static int getParameterCount(char[] methodSignature) {
 		try {
