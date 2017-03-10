@@ -15108,4 +15108,36 @@ public void testBug498084b() {
 		"----------\n"
 	);
 }
+public void testBug513495() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/Test3.java",
+			"package test;\n" +
+			"\n" +
+			"import java.util.function.Function;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class Test3 {\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Function<@Nullable Integer, Object> sam = Integer::intValue;\n" +
+			"		sam.apply(null); // <- NullPointerExpection\n" +
+			"		Function<Integer, Object> sam2 = Integer::intValue;\n" +
+			"		sam2.apply(null); // variation: unchecked, so intentionally no warning reported, but would give NPE too \n" +
+			"	}\n" +
+			"	void wildcards(Class<?>[] params) { // unchecked case with wildcards\n" +
+			"		java.util.Arrays.stream(params).map(Class::getName).toArray(String[]::new);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\Test3.java (at line 9)\n" + 
+		"	Function<@Nullable Integer, Object> sam = Integer::intValue;\n" + 
+		"	                                          ^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch at parameter 'this': required \'@NonNull Integer\' but provided \'@Nullable Integer\' via method descriptor Function<Integer,Object>.apply(Integer)\n" + 
+		"----------\n"
+	);
+}
 }

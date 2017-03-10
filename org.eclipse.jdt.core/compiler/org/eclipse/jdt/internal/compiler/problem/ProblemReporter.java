@@ -9592,11 +9592,11 @@ public void referenceExpressionArgumentNullityMismatch(ReferenceExpression locat
 		.append(descriptorMethod.shortReadableName());
 	this.handle(
 			status.isUnchecked() ? IProblem.ReferenceExpressionParameterNullityUnchecked : IProblem.ReferenceExpressionParameterNullityMismatch,
-			new String[] { String.valueOf(idx+1), 
+			new String[] { idx == -1 ? "'this'" : String.valueOf(idx + 1), //$NON-NLS-1$
 							String.valueOf(requiredType.nullAnnotatedReadableName(this.options, false)),
 							String.valueOf(providedType.nullAnnotatedReadableName(this.options, false)),
 							methodSignature.toString() },
-			new String[] { String.valueOf(idx+1), 
+			new String[] { idx == -1 ? "'this'" : String.valueOf(idx + 1), //$NON-NLS-1$
 							String.valueOf(requiredType.nullAnnotatedReadableName(this.options, true)),
 							String.valueOf(providedType.nullAnnotatedReadableName(this.options, true)),
 							shortSignature.toString() },
