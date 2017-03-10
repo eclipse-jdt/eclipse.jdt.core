@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5257,6 +5257,39 @@ public void testBug470794_001() throws JavaModelException {
 			assertTrue("Unexpected Intersection Type", expectedTypes[i].equals(intersectionBindings[i].getName()));
 		}
 	}
+}
+public void testBug500503() throws JavaModelException {
+	String contents =
+			"package test432051;\n" +
+			"public class Colon\n" + 
+			"{\n" + 
+			"   void foo()\n" + 
+			"   {\n" + 
+			"   }\n" + 
+			"\n" + 
+			"   void bar()\n" + 
+			"   {\n" + 
+			"      run( this:foo );\n" + 
+			"   }\n" + 
+			"   \n" + 
+			"   void run( Runnable r ) { }\n" + 
+			"}\n";
+	this.workingCopy = getWorkingCopy("/Converter18/src/test432051/Colon.java", contents, true/*computeProblems*/);
+	IJavaProject javaProject = this.workingCopy.getJavaProject();
+	class BindingRequestor extends ASTRequestor {
+		ITypeBinding _result = null;
+		public void acceptBinding(String bindingKey, IBinding binding) {
+			if (this._result == null && binding != null && binding.getKind() == IBinding.TYPE)
+				this._result = (ITypeBinding) binding;
+		}
+	}
+	final BindingRequestor requestor = new BindingRequestor();
+	final ASTParser parser = ASTParser.newParser(AST.JLS8);
+	parser.setResolveBindings(true);
+	parser.setProject(javaProject);
+	parser.setBindingsRecovery(true);
+	parser.setStatementsRecovery(true);
+	parser.createASTs(new ICompilationUnit[] {this.workingCopy}, new String[0], requestor, null);
 }
 
 }

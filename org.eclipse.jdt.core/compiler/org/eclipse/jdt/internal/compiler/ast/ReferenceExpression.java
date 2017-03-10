@@ -89,6 +89,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
 public class ReferenceExpression extends FunctionalExpression implements IPolyExpression, InvocationSite {
 	// secret variable name
@@ -118,10 +119,15 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	private HashMap<TypeBinding, ReferenceExpression> copiesPerTargetType;
 	public char[] text; // source representation of the expression.
 	private HashMap<ParameterizedGenericMethodBinding, InferenceContext18> inferenceContexts;
+
+	// the scanner used when creating this expression, may be a RecoveryScanner (with proper RecoveryScannerData),
+	// need to keep it so copy() can parse in the same mode (normal/recovery):
+	private Scanner scanner; 
 	
-	public ReferenceExpression() {
+	public ReferenceExpression(Scanner scanner) {
 		super();
 		this.original = this;
+		this.scanner = scanner;
 	}
 	
 	public void initialize(CompilationResult result, Expression expression, TypeReference [] optionalTypeArguments, char [] identifierOrNew, int sourceEndPosition) {
@@ -137,6 +143,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		final Parser parser = new Parser(this.enclosingScope.problemReporter(), false);
 		final ICompilationUnit compilationUnit = this.compilationResult.getCompilationUnit();
 		final char[] source = compilationUnit != null ? compilationUnit.getContents() : this.text;
+		parser.scanner = this.scanner;
 		ReferenceExpression copy =  (ReferenceExpression) parser.parseExpression(source, compilationUnit != null ? this.sourceStart : 0, this.sourceEnd - this.sourceStart + 1, 
 										this.enclosingScope.referenceCompilationUnit(), false /* record line separators */);
 		copy.original = this;
