@@ -6013,5 +6013,53 @@ public void testBug469297() {
 			"----------\n");
 	}
 }
+public void testBug508799() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
+	runConformTest(
+		new String[] {
+			"test/A.java",
+			"package test;\n" +
+			"\n" +
+			"public interface A<T extends Iterable> {\n" +
+			"    void a();\n" +
+			"}\n" +
+			"",
+			"test/B1.java",
+			"package test;\n" +
+			"\n" +
+			"public interface B1 extends A<Iterable> {\n" +
+			"    void b1();\n" +
+			"}\n" +
+			"",
+			"test/B2.java",
+			"package test;\n" +
+			"\n" +
+			"public interface B2 extends A<Iterable> {\n" +
+			"    void b2();\n" +
+			"}\n" +
+			"",
+		},
+		customOptions
+	);
+	runConformTest(false,
+		new String[] {
+			"test/C.java",
+			"package test;\n" +
+			"\n" +
+			"public class C implements B1, B2 {\n" +
+			"    public void a() {\n" +
+			"    }\n" +
+			"\n" +
+			"    public void b1() {\n" +
+			"    }\n" +
+			"\n" +
+			"    public void b2() {\n" +
+			"    }\n" +
+			"}\n" +
+			"",
+		}, null, customOptions, "", "", "", null
+	);
+}
 }
 
