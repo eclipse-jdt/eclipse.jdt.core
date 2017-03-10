@@ -811,20 +811,30 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	    		for (int i = 0; i < len; i++) {
 	    			TypeBinding descriptorParameter = this.descriptor.parameters[i + (this.receiverPrecedesParameters ? 1 : 0)];
 	    			TypeBinding bindingParameter = InferenceContext18.getParameter(this.binding.parameters, i, isVarArgs);
-	    			NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(bindingParameter, descriptorParameter, FlowInfo.UNKNOWN);
+					TypeBinding bindingParameterToCheck;
+					if (bindingParameter.isPrimitiveType() && !descriptorParameter.isPrimitiveType()) {
+						// replace primitive types by boxed equivalent for checking, e.g. int -> @NonNull Integer
+						bindingParameterToCheck = scope.environment().createAnnotatedType(scope.boxing(bindingParameter),
+								new AnnotationBinding[] { scope.environment().getNonNullAnnotation() });
+					} else {
+						bindingParameterToCheck = bindingParameter;
+					}
+	    			NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(bindingParameterToCheck, descriptorParameter, FlowInfo.UNKNOWN);
 	    			if (annotationStatus.isAnyMismatch()) {
 	    				// immediate reporting:
 	    				scope.problemReporter().referenceExpressionArgumentNullityMismatch(this, bindingParameter, descriptorParameter, this.descriptor, i, annotationStatus);
 	    			}
 	    		}
 	    		TypeBinding returnType = this.binding.returnType;
-	    		if (this.binding.isConstructor()) {
-	    			returnType = scope.environment().createAnnotatedType(this.receiverType, new AnnotationBinding[]{ scope.environment().getNonNullAnnotation() });
+	    		if(!returnType.isPrimitiveType()) {
+		    		if (this.binding.isConstructor()) {
+		    			returnType = scope.environment().createAnnotatedType(this.receiverType, new AnnotationBinding[]{ scope.environment().getNonNullAnnotation() });
+		    		}
+		    		NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(this.descriptor.returnType, returnType, FlowInfo.UNKNOWN);
+		        	if (annotationStatus.isAnyMismatch()) {
+	        			scope.problemReporter().illegalReturnRedefinition(this, this.descriptor, annotationStatus.isUnchecked(), returnType);
+		        	}
 	    		}
-	    		NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(this.descriptor.returnType, returnType, FlowInfo.UNKNOWN);
-	        	if (annotationStatus.isAnyMismatch()) {
-        			scope.problemReporter().illegalReturnRedefinition(this, this.descriptor, annotationStatus.isUnchecked(), returnType);
-	        	}
         	}
         }
 	}

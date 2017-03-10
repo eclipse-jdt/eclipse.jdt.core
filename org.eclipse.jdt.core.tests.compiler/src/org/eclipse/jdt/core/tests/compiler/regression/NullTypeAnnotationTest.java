@@ -4123,6 +4123,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=420456, [1.8][null] AIOOB in null analysis code.
 	public void test420456() {
+		final Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.IGNORE);
 		runConformTestWithLibs(
 			new String[] {
 				"X.java",
@@ -4135,7 +4137,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	}\n" +
 				"}\n"
 			}, 
-			getCompilerOptions(),
+			compilerOptions,
 			"",
 			"78912345678");		
 	}
@@ -15029,6 +15031,80 @@ public void testBug511723() {
 		"	Object o = array[0]; // problem\n" + 
 		"	           ^^^^^^^^\n" + 
 		"Null type safety: required \'@NonNull\' but this expression has type \'T\', a free type variable that may represent a \'@Nullable\' type\n" + 
+		"----------\n"
+	);
+}
+public void testBug498084() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"import java.util.HashMap;\n" +
+			"import java.util.Map;\n" +
+			"import java.util.function.Function;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Test {\n" +
+			"\n" +
+			"	protected static final <K, V> V cache(final Map<K, V> cache, final V value, final Function<V, K> keyFunction) {\n" +
+			"		cache.put(keyFunction.apply(value), value);\n" +
+			"		return value;\n" +
+			"	}\n" +
+			"\n" +
+			"	public static final void main(final String[] args) {\n" +
+			"		Map<Integer, String> cache = new HashMap<>();\n" +
+			"		cache(cache, \"test\", String::length); // Warning: Null type safety at\n" +
+			"											// method return type: Method\n" +
+			"											// descriptor\n" +
+			"											// Function<String,Integer>.apply(String)\n" +
+			"											// promises '@NonNull Integer'\n" +
+			"											// but referenced method\n" +
+			"											// provides 'int'\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+public void testBug498084b() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/Test2.java",
+			"package test;\n" +
+			"\n" +
+			"import java.util.function.Consumer;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class Test2 {\n" +
+			"	static void f(int i) {\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Consumer<@Nullable Integer> sam = Test2::f;\n" +
+			"		sam.accept(null); // <- NullPointerExpection when run\n" +
+			"		Consumer<Integer> sam2 = Test2::f;\n" +
+			"		sam2.accept(null); // variation: unchecked \n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\Test2.java (at line 12)\n" + 
+		"	Consumer<@Nullable Integer> sam = Test2::f;\n" + 
+		"	                                  ^^^^^^^^\n" + 
+		"Null type mismatch at parameter 1: required \'int\' but provided \'@Nullable Integer\' via method descriptor Consumer<Integer>.accept(Integer)\n" + 
+		"----------\n" + 
+		"2. WARNING in test\\Test2.java (at line 14)\n" + 
+		"	Consumer<Integer> sam2 = Test2::f;\n" + 
+		"	                         ^^^^^^^^\n" + 
+		"Null type safety: parameter 1 provided via method descriptor Consumer<Integer>.accept(Integer) needs unchecked conversion to conform to \'int\'\n" + 
 		"----------\n"
 	);
 }
