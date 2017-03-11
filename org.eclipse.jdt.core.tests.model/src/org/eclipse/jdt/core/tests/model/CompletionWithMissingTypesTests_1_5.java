@@ -369,7 +369,7 @@ public void test0007() throws JavaModelException {
 	int start2 = str.lastIndexOf("MissingType");
 	int end2 = start2 + "MissingType".length();
 	assertResults(
-			"bar[METHOD_REF]{bar(), Ltest.AType<!+Lmissing.MissingType;>;, (!+Lmissing.MissingType;)V, bar, (t), ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
+			"bar[METHOD_REF]{bar(), Ltest.AType<Lmissing.MissingType;>;, (Lmissing.MissingType;)V, bar, (t), ["+start1+", "+end1+"], " + (relevance1) + "}\n" +
 			"   MissingType[TYPE_REF]{missing.MissingType, missing, Lmissing.MissingType;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 			requestor.getResults());
 }
