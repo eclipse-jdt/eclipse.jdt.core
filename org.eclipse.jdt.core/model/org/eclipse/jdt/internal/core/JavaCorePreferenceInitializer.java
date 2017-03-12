@@ -40,6 +40,13 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 		// Compiler settings
 		Map defaultOptionsMap = new CompilerOptions().getMap(); // compiler defaults
 
+		String testDefaults = System.getProperty("jdt.default.test.compliance"); //$NON-NLS-1$
+		if (testDefaults != null) {
+			defaultOptionsMap.put(JavaCore.COMPILER_SOURCE, testDefaults);
+			defaultOptionsMap.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, testDefaults);
+			defaultOptionsMap.put(JavaCore.COMPILER_COMPLIANCE, testDefaults);
+		}
+
 		// Override some compiler defaults
 		defaultOptionsMap.put(JavaCore.COMPILER_LOCAL_VARIABLE_ATTR, JavaCore.GENERATE);
 		defaultOptionsMap.put(JavaCore.COMPILER_CODEGEN_UNUSED_LOCAL, JavaCore.PRESERVE);

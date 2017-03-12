@@ -35,6 +35,7 @@
       	<artifactId>tycho-surefire-plugin</artifactId>
       	<version>${tycho.version}</version>
       	<configuration>
+      	  <appArgLine>-Djdt.default.test.compliance=1.8</appArgLine>
       	  <includes>
       	  	<include>org/eclipse/jdt/core/tests/model/AllJavaModelTests.class</include>
       	  	<include>org/eclipse/jdt/core/tests/dom/RunAllTests.class</include>
