@@ -7765,4 +7765,259 @@ public void testBug508834_comment0() {
 			"Type safety: The expression of type Test.Field[] needs unchecked conversion to conform to Test.Field<T>[]\n" + 
 			"----------\n");
 	}
+
+	public void testBug511876() {
+		runConformTest(
+			new String[] {
+				"util/ClasspathScanner.java",
+				"package util;\n" + 
+				"\n" + 
+				"import java.io.*;\n" + 
+				"import java.lang.reflect.Method;\n" + 
+				"import java.util.*;\n" + 
+				"import java.util.stream.Stream;\n" + 
+				"\n" + 
+				"class ClassPath {\n" + 
+				"    public static ClassPath from(ClassLoader classloader) throws IOException {\n" +
+				"        return new ClassPath();\n" + 
+				"    }\n" + 
+				"    public Set<ClassInfo> getTopLevelClasses() {\n" + 
+				"        return Collections.emptySet();\n" + 
+				"    }\n" + 
+				"}\n" + 
+				"class ClassInfo {\n" + 
+				"    public Class<?> load() { return null; }\n" + 
+				"    public String getPackageName() { return \"\"; }\n" + 
+				"}\n" + 
+				"\n" + 
+				"/**\n" + 
+				" * @see https://blog.jooq.org/2016/04/21/the-parameterless-generic-method-antipattern/\n" + 
+				" */\n" + 
+				"public class ClasspathScanner {\n" + 
+				"    /**\n" + 
+				"     * This will produce all the generic, parameterless methods on your class path.\n" + 
+				"     */\n" + 
+				"    public static void main(String[] args) throws Exception {\n" +
+				"        ClassPath.from(Thread.currentThread().getContextClassLoader())\n" + 
+				"                .getTopLevelClasses()\n" + 
+				"                .stream()\n" + 
+				"                .filter(info -> !info.getPackageName().startsWith(\"akka\") && !info.getPackageName().startsWith(\"scala\") && !info.getPackageName().startsWith(\"java\"))\n" + 
+				"                .flatMap(info -> {\n" + 
+				"                    try {\n" + 
+				"                        return Stream.of(info.load());\n" + 
+				"                    }\n" + 
+				"                    catch (Throwable ignore) {\n" + 
+				"                        return Stream.empty();\n" + 
+				"                    }\n" + 
+				"                }).flatMap(c -> {\n" + 
+				"                    try {\n" + 
+				"                        return Stream.of(c.getMethods());\n" + 
+				"                    }\n" + 
+				"                    catch (Throwable ignore) {\n" + 
+				"                        return Stream.<Method> of();\n" + 
+				"                    }\n" + 
+				"                })\n" + 
+				"                .filter(m -> m.getTypeParameters().length > 0 && m.getParameterCount() == 0)\n" + 
+				"                .sorted(Comparator.comparing(Method::toString))\n" + 
+				"                .map(Method::toGenericString)\n" + 
+				"                .forEach(System.out::println);\n" + 
+				"    }\n" + 
+				"}\n"
+			});
+	}
+
+	public void testBug510111() {
+		runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.util.ArrayList;\n" + 
+				"import java.util.Collections;\n" + 
+				"import java.util.Comparator;\n" + 
+				"import java.util.List;\n" + 
+				"\n" + 
+				"public class Test {\n" + 
+				"\n" + 
+				"        public static final class Entity {\n" + 
+				"\n" + 
+				"                public int getIndex() {\n" + 
+				"                        return 1;\n" + 
+				"                }\n" + 
+				"        }\n" + 
+				"\n" + 
+				"        public static void main(String[] args) {\n" + 
+				"\n" + 
+				"                final List<Entity> list = new ArrayList<>();\n" + 
+				"                // Eclipse fails to compile the next line with error\n" + 
+				"                // Type mismatch: cannot convert from int to Comparable<? super Comparable<? super U>>\n" + 
+				"                Collections.sort( list , Comparator.comparing( a -> a.getIndex() ) ); \n" + 
+				"        }\n" + 
+				"}"
+			});
+	}
+	
+	public void testBug511750() {
+		runConformTest(
+			new String[] {
+				"SomeClass.java",
+				"import java.util.Collections;\n" + 
+				"import java.util.Set;\n" + 
+				"import java.util.stream.Collectors;\n" + 
+				"\n" + 
+				"public class SomeClass {\n" + 
+				"\n" + 
+				"    public static void main(String[] args) {\n" + 
+				"        System.out.println(foo().iterator().next().getBaz());\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public interface Baz {\n" + 
+				"        public String getBaz();\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    public static Set<Baz> foo() {\n" + 
+				"        Set<String> stringSet = Collections.singleton(\"someString\");\n" + 
+				"        return stringSet.stream().map(s -> new Baz() {\n" + 
+				"\n" + 
+				"            @Override\n" + 
+				"            public String getBaz() {\n" + 
+				"                return s;\n" + 
+				"            }\n" + 
+				"\n" + 
+				"        }).collect(Collectors.toSet());\n" + 
+				"    }\n" + 
+				"}\n"
+			});
+	}
+	public void testBug511071() {
+		runNegativeTest(
+			new String[] {
+				"test/ATestClass.java",
+				"package test;\n" +
+				"\n" +
+				"interface Functional<T> {\n" +
+				"	void test(T t);\n" +
+				"}\n" +
+				"\n" +
+				"public abstract class ATestClass {\n" +
+				"	abstract void f(Functional<? super ClassWithMethodWithMissingArgType> predicate);\n" +
+				"\n" +
+				"	public void m() {\n" +
+				"		f(e -> e.matches(\"\"));\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+				"test/ClassWithMethodWithMissingArgType.java",
+				"package test;\n" +
+				"\n" +
+				"import java.util.List;\n" +
+				"\n" +
+				"import missing.Type;\n" +
+				"\n" +
+				"public class ClassWithMethodWithMissingArgType {\n" +
+				"	public void matches(Type arg) {\n" +
+				"		arg.hashCode();\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+			}, 
+			"----------\n" + 
+			"1. ERROR in test\\ATestClass.java (at line 11)\n" + 
+			"	f(e -> e.matches(\"\"));\n" + 
+			"	         ^^^^^^^\n" + 
+			"The method matches(Type) from the type ClassWithMethodWithMissingArgType refers to the missing type Type\n" + 
+			"----------\n" + 
+			"----------\n" + 
+			"1. ERROR in test\\ClassWithMethodWithMissingArgType.java (at line 5)\n" + 
+			"	import missing.Type;\n" + 
+			"	       ^^^^^^^\n" + 
+			"The import missing cannot be resolved\n" + 
+			"----------\n" + 
+			"2. ERROR in test\\ClassWithMethodWithMissingArgType.java (at line 8)\n" + 
+			"	public void matches(Type arg) {\n" + 
+			"	                    ^^^^\n" + 
+			"Type cannot be resolved to a type\n" + 
+			"----------\n"
+		);
+	}
+
+	public void testBug511252orig() {
+		runConformTest(
+			new String[] {
+				"ConfigurationServiceLocator.java",
+				"import java.util.*;\n" +
+				"import java.util.function.*;\n" +
+				"import java.util.concurrent.*;\n" +
+				"import java.net.URI;\n" +
+				"public class ConfigurationServiceLocator {\n" + 
+				"\n" + 
+				"  private final Map<String, URI> services = new HashMap<>();\n" + 
+				"\n" + 
+				"  public <T> CompletionStage<Optional<T>> doWithService(String name, Function<URI, CompletionStage<T>> block) {\n" + 
+				"      return Optional.ofNullable(services.get(name))\n" + 
+				"              .map(block.andThen(cs -> cs.thenApply(Optional::ofNullable)))\n" + 
+				"              .orElse(CompletableFuture.completedFuture(Optional.empty()));\n" + 
+				"  }\n" + 
+				"\n" + 
+				"}\n"
+			});
+	}
+	
+	public void testBug511252simplified() {
+		runConformTest(
+			new String[] {
+				"ConfigurationServiceLocator.java",
+				"import java.util.*;\n" +
+				"import java.util.function.*;\n" +
+				"import java.util.concurrent.*;\n" +
+				"import java.net.URI;\n" +
+				"public class ConfigurationServiceLocator {\n" + 
+				"\n" + 
+				"  public <T> CompletionStage<Optional<T>> doWithService(Optional<URI> uriopt, Function<URI, CompletionStage<T>> block) {\n" + 
+				"      return uriopt\n" + 
+				"              .map(block.andThen(cs -> cs.thenApply(Optional::ofNullable)))\n" + 
+				"              .orElse(CompletableFuture.completedFuture(Optional.empty()));\n" + 
+				"  }\n" + 
+				"\n" + 
+				"}\n"
+			});
+	}
+
+	public void testBug511878() {
+		// note: type variables renamed to facilitate debugging
+		runConformTest(
+			new String[] {
+				"SimpleParser.java",
+				"import java.util.function.Function;\n" + 
+				"\n" + 
+				"\n" + 
+				"public interface SimpleParser<T> {\n" + 
+				"\n" + 
+				"    static class Tuple<A,B> {\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    /** the type of the functional interface: Parser<T> :: CharSequence -> Tuple<T, CharSequence>> */\n" + 
+				"    abstract Tuple<T, CharSequence> parse(CharSequence cs);\n" + 
+				"    \n" + 
+				"    default <V> SimpleParser<V> andThenBinding(Function<? super T, SimpleParser<V>> f) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    default <W> SimpleParser<W> andThen(SimpleParser<W> p) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"   \n" + 
+				"    static <X> SimpleParser<X> output(X v) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    static SimpleParser<String> space() {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    static <Y> SimpleParser<Y> token(SimpleParser<Y> p) {\n" + 
+				"        return space().andThen(p.andThenBinding(v -> space().andThen(output(v))));\n" + 
+				"    }\n" + 
+				"\n" + 
+				"}\n"
+			});
+	}
 }

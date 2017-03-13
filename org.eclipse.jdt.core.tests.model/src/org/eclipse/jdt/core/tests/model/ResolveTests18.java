@@ -2189,7 +2189,7 @@ public void test428968() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"comparing(java.util.function.Function<? super T,? extends U>) {key=Ljava/util/Comparator<>;.comparing<T:Ljava/lang/Object;U::Ljava/lang/Comparable<-TU;>;>(Ljava/util/function/Function<-TT;+TU;>;)Ljava/util/Comparator<TT;>;%<LX~Person;^{260#0};>} [in Comparator [in Comparator.class [in java.util [in "+ getExternalPath() + "jclFull1.8.jar]]]]",
+		"comparing(java.util.function.Function<? super T,? extends U>) {key=Ljava/util/Comparator<>;.comparing<T:Ljava/lang/Object;U::Ljava/lang/Comparable<-TU;>;>(Ljava/util/function/Function<-TT;+TU;>;)Ljava/util/Comparator<TT;>;%<LX~Person;Ljava/lang/String;>} [in Comparator [in Comparator.class [in java.util [in "+ getExternalPath() + "jclFull1.8.jar]]]]",
 		elements, true
 	);
 }
@@ -2222,6 +2222,32 @@ public void test428968a() throws JavaModelException {
 	assertElementsEqual(
 		"Unexpected elements",
 		"comparing(java.util.function.Function<? super T,? extends U>) {key=Ljava/util/Comparator<>;.comparing<T:Ljava/lang/Object;U::Ljava/lang/Comparable<-TU;>;>(Ljava/util/function/Function<-TT;+TU;>;)Ljava/util/Comparator<TT;>;%<LX~Person;Ljava/lang/String;>} [in Comparator [in Comparator.class [in java.util [in "+ getExternalPath() + "jclFull1.8.jar]]]]",
+		elements, true
+	);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=428968, [1.8] NPE while computing a text hover
+public void test428968b() throws JavaModelException {
+	this.wc = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.Collections;\n" +
+			"import java.util.Comparator;\n" +
+			"import java.util.List;\n" +
+			"public class X {\n" +
+			"	private void foo() {\n" +
+			"		Comparator.reverseOrder();\n" +
+			"	}\n" +
+			"}\n");
+
+	String str = this.wc.getSource();
+	String selection = "reverseOrder";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"reverseOrder() {key=Ljava/util/Comparator<>;.reverseOrder<T::Ljava/lang/Comparable<-TT;>;>()Ljava/util/Comparator<TT;>;%<^{175#0};>} [in Comparator [in Comparator.class [in java.util [in "+ getExternalPath() + "jclFull1.8.jar]]]]",
 		elements, true
 	);
 }

@@ -63,6 +63,7 @@
  *								Bug 458361 - [1.8][null] reconciler throws NPE in ProblemReporter.illegalReturnRedefinition()
  *								Bug 459967 - [null] compiler should know about nullness of special methods like MyEnum.valueOf()
  *								Bug 461878 - [1.7][1.8][compiler][null] ECJ compiler does not allow to use null annotations on annotations
+ *								Bug 410218 - Optional warning for arguments of "unexpected" types to Map#get(Object), Collection#remove(Object) et al.
  *      Jesper S Moller <jesper@selskabet.org> -  Contributions for
  *								bug 382701 - [1.8][compiler] Implement semantic analysis of Lambda expressions & Reference expression
  *								bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
@@ -186,6 +187,7 @@ import org.eclipse.jdt.internal.compiler.lookup.SyntheticArgumentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants.DangerousMethod;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
@@ -618,6 +620,11 @@ public static int getIrritant(int problemID) {
 			
 		case IProblem.UnusedTypeParameter:
 			return CompilerOptions.UnusedTypeParameter;
+
+		case IProblem.UnlikelyCollectionMethodArgumentType:
+			return CompilerOptions.UnlikelyCollectionMethodArgumentType;
+		case IProblem.UnlikelyEqualsArgumentType:
+			return CompilerOptions.UnlikelyEqualsArgumentType;
 }
 	return 0;
 }
@@ -677,6 +684,8 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.PotentiallyUnclosedCloseable :
 			case CompilerOptions.PessimisticNullAnalysisForFreeTypeVariables :
 			case CompilerOptions.NonNullTypeVariableFromLegacyInvocation :
+			case CompilerOptions.UnlikelyCollectionMethodArgumentType :
+			case CompilerOptions.UnlikelyEqualsArgumentType:
 				return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 			
 			case CompilerOptions.OverriddenPackageDefaultMethod :
@@ -10573,5 +10582,24 @@ public void invalidServiceRef(int problem, TypeReference type) {
 	this.handle(problem,
 		NoArgument, new String[] { CharOperation.charToString(type.resolvedType.readableName()) },
 		type.sourceStart, type.sourceEnd);
+}
+
+public void unlikelyArgumentType(Expression argument, MethodBinding method, TypeBinding argumentType,
+							TypeBinding receiverType, DangerousMethod dangerousMethod)
+{
+	this.handle(
+			dangerousMethod == DangerousMethod.Equals ? IProblem.UnlikelyEqualsArgumentType : IProblem.UnlikelyCollectionMethodArgumentType,
+			new String[] {
+				new String(argumentType.readableName()),
+				new String(method.readableName()),
+				new String(receiverType.readableName())
+			}, 
+			new String[] {
+				new String(argumentType.shortReadableName()),
+				new String(method.shortReadableName()),
+				new String(receiverType.shortReadableName())
+			}, 
+			argument.sourceStart, 
+			argument.sourceEnd);
 }
 }

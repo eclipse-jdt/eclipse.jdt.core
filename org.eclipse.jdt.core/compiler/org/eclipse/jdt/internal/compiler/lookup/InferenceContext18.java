@@ -148,6 +148,7 @@ public class InferenceContext18 {
 	public static final int APPLICABILITY_INFERRED = 1;
 	/** Invocation Type Inference (18.5.2) has been completed (for some target type). */
 	public static final int TYPE_INFERRED = 2;
+	public static final int TYPE_INFERRED_FINAL = 3; // as above plus asserting that target type was a proper type
 	
 	/** Signals whether any type compatibility makes use of unchecked conversion. */
 	public List<ConstraintFormula> constraintsWithUncheckedConversion;
@@ -391,6 +392,8 @@ public class InferenceContext18 {
 		
 		this.currentBounds = this.b2.copy();
 		
+		int step = (expectedType == null || expectedType.isProperType(true)) ? TYPE_INFERRED_FINAL : TYPE_INFERRED;
+
 		try {
 			// bullets 1&2: definitions only.
 			if (expectedType != null
@@ -466,9 +469,11 @@ public class InferenceContext18 {
 			}
 			// we're done, start reporting:
 			reportUncheckedConversions(solution);
-			return this.currentBounds = solution; // this is final, keep the result:
+			if (step == TYPE_INFERRED_FINAL)
+				this.currentBounds = solution; // this is final, keep the result:
+			return solution;
 		} finally {
-			this.stepCompleted = TYPE_INFERRED;
+			this.stepCompleted = step;
 		}
 	}
 
@@ -556,7 +561,7 @@ public class InferenceContext18 {
 			MethodBinding innerMethod = invocation.binding();
 			if (innerMethod != null && innerMethod.isValidBinding()) {
 				substitution = enrichSubstitution(substitution, invocation, innerMethod);
-				return addJDK_8153748ConstraintsFromInvocation(innerArgs, innerMethod.original(), substitution);
+				return addJDK_8153748ConstraintsFromInvocation(innerArgs, innerMethod.shallowOriginal(), substitution);
 			}
 		} else if (argument instanceof ConditionalExpression) {
 			ConditionalExpression ce = (ConditionalExpression) argument;
@@ -628,6 +633,7 @@ public class InferenceContext18 {
 	private boolean addConstraintsToC_OneExpr(Expression expri, Set<ConstraintFormula> c, TypeBinding fsi, TypeBinding substF, MethodBinding method)
 			throws InferenceFailureException
 	{
+		boolean substFIsProperType = substF.isProperType(true);
 		// -- not per JLS, emulate javac behavior:
 		substF = Scope.substitute(getResultSubstitution(this.b3), substF);
 		// --
@@ -662,7 +668,7 @@ public class InferenceContext18 {
 			}
 		} else if (expri instanceof Invocation && expri.isPolyExpression()) {
 
-			if (substF.isProperType(true)) // https://bugs.openjdk.java.net/browse/JDK-8052325 
+			if (substFIsProperType) // https://bugs.openjdk.java.net/browse/JDK-8052325
 				return true;
 
 			Invocation invocation = (Invocation) expri;
@@ -685,7 +691,11 @@ public class InferenceContext18 {
 					innerContext.inferInvocationApplicability(shallowMethod, argumentTypes, shallowMethod.isConstructor());
 				if (!innerContext.computeB3(invocation, substF, shallowMethod))
 					return false;
-				return innerContext.addConstraintsToC(arguments, c, innerMethod.genericMethod(), innerContext.inferenceKind, invocation);
+				if (innerContext.addConstraintsToC(arguments, c, innerMethod.genericMethod(), innerContext.inferenceKind, invocation)) {
+					this.currentBounds.addBounds(innerContext.currentBounds, this.environment);
+					return true;
+				}
+				return false;
 			} else {
 				int applicabilityKind = getInferenceKind(innerMethod, argumentTypes);
 				return this.addConstraintsToC(arguments, c, innerMethod.genericMethod(), applicabilityKind, invocation);
@@ -1651,6 +1661,7 @@ public class InferenceContext18 {
 			case NOT_INFERRED: buf.append(" (initial)");break; //$NON-NLS-1$
 			case APPLICABILITY_INFERRED: buf.append(" (applicability inferred)");break; //$NON-NLS-1$
 			case TYPE_INFERRED: buf.append(" (type inferred)");break; //$NON-NLS-1$
+			case TYPE_INFERRED_FINAL: buf.append(" (type inferred final)");break; //$NON-NLS-1$
 		}
 		switch (this.inferenceKind) {
 			case CHECK_STRICT: buf.append(" (strict)");break; //$NON-NLS-1$

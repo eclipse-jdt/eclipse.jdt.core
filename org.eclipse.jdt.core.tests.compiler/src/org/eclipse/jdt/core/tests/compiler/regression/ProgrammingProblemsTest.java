@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2001, 2014 IBM Corporation and others.
+ * Copyright (c) 2001, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,6 +10,7 @@
  *     Stephan Herrmann <stephan@cs.tu-berlin.de> - Contributions for
  *     						bug 185682 - Increment/decrement operators mark local variables as read
  *     						bug 328281 - visibility leaks not detected when analyzing unused field in private class
+ *							Bug 410218 - Optional warning for arguments of "unexpected" types to Map#get(Object), Collection#remove(Object) et al.
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -2702,5 +2703,543 @@ public void test0063() throws Exception {
 		null/*classLibraries*/,
 		true/*shouldFlushOutputDirectory*/,
 		customOptions);
+}
+// Collection: contains & remove & get
+public void testBug410218a() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"class X {\n" +
+			"  void test() {\n" +
+			"	Set<Short> set = new HashSet<Short>();\n" + 
+			"	short one = 1;\n" + 
+			"	set.add(one);\n" + 
+			"\n" + 
+			"	if (set.contains(\"ONE\")) // bad\n" +
+			"		set.remove(\"ONE\"); // bad\n" + 
+			"	if (set.contains(1)) // bad\n" +
+			"		set.remove(1); // bad (tries to remove \"Integer 1\")\n" + 
+			"	System.out.println(set); // shows that the \"Short 1\" is still in!\n" + 
+			"\n" + 
+			"	if (set.contains(one)) // ok\n" +
+			"		set.remove(one); // ok\n" + 
+			"	if (set.contains(Short.valueOf(one))) // ok\n" +
+			"		set.remove(Short.valueOf(one)); // ok\n" + 
+			"	System.out.println(set);\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 8)\n" + 
+		"	if (set.contains(\"ONE\")) // bad\n" + 
+		"	                 ^^^^^\n" + 
+		"Unlikely argument type String for contains(Object) on a Collection<Short>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 9)\n" + 
+		"	set.remove(\"ONE\"); // bad\n" + 
+		"	           ^^^^^\n" + 
+		"Unlikely argument type String for remove(Object) on a Collection<Short>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 10)\n" + 
+		"	if (set.contains(1)) // bad\n" + 
+		"	                 ^\n" + 
+		"Unlikely argument type int for contains(Object) on a Collection<Short>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 11)\n" + 
+		"	set.remove(1); // bad (tries to remove \"Integer 1\")\n" + 
+		"	           ^\n" + 
+		"Unlikely argument type int for remove(Object) on a Collection<Short>\n" + 
+		"----------\n");
+}
+// HashSet vs. TreeSet
+public void testBug410218b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"class X {\n" +
+			"  <T> void test(Set<HashSet<T>> hss, TreeSet<T> ts, LinkedHashSet<T> lhs) {\n" +
+			"	if (hss.contains(ts)) // bad\n" +
+			"		hss.remove(ts); // bad\n" + 
+			"	if (hss.contains((Set<T>)ts)) // ok\n" +
+			"		hss.remove((Set<T>)ts); // ok\n" + 
+			"	if (hss.contains(lhs)) // ok\n" +
+			"		hss.remove(lhs); // ok\n" + 
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	if (hss.contains(ts)) // bad\n" + 
+		"	                 ^^\n" + 
+		"Unlikely argument type TreeSet<T> for contains(Object) on a Collection<HashSet<T>>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	hss.remove(ts); // bad\n" + 
+		"	           ^^\n" + 
+		"Unlikely argument type TreeSet<T> for remove(Object) on a Collection<HashSet<T>>\n" + 
+		"----------\n");
+}
+// HashSet vs. TreeSet or: strict
+public void testBug410218b2() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_COLLECTION_METHOD_ARGUMENT_TYPE_STRICT, JavaCore.ENABLED);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"class X {\n" +
+			"  <T> void test(Set<HashSet<T>> hss, TreeSet<T> ts, LinkedHashSet<T> lhs) {\n" +
+			"	if (hss.contains(ts)) // bad\n" +
+			"		hss.remove(ts); // bad\n" + 
+			"	if (hss.contains((Set<T>)ts)) // bad (because of strict check)\n" +
+			"		hss.remove((Set<T>)ts); // bad (because of strict check)\n" + 
+			"	if (hss.contains(lhs)) // ok\n" +
+			"		hss.remove(lhs); // ok\n" + 
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	if (hss.contains(ts)) // bad\n" + 
+		"	                 ^^\n" + 
+		"Unlikely argument type TreeSet<T> for contains(Object) on a Collection<HashSet<T>>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	hss.remove(ts); // bad\n" + 
+		"	           ^^\n" + 
+		"Unlikely argument type TreeSet<T> for remove(Object) on a Collection<HashSet<T>>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 6)\n" + 
+		"	if (hss.contains((Set<T>)ts)) // bad (because of strict check)\n" + 
+		"	                 ^^^^^^^^^^\n" + 
+		"Unlikely argument type Set<T> for contains(Object) on a Collection<HashSet<T>>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 7)\n" + 
+		"	hss.remove((Set<T>)ts); // bad (because of strict check)\n" + 
+		"	           ^^^^^^^^^^\n" + 
+		"Unlikely argument type Set<T> for remove(Object) on a Collection<HashSet<T>>\n" + 
+		"----------\n",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		customOptions);
+}
+// Map: contains* & remove & get
+public void testBug410218c() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"class X {\n" +
+			"  Number test(Map<? extends Number, Number> m, boolean f) {\n" +
+			"	if (m.containsKey(\"ONE\")) // bad\n" + 
+			"		m.remove(\"ONE\"); // bad\n" +
+			"	if (m.containsValue(\"ONE\")) // bad\n" + 
+			"		m.remove(\"ONE\"); // bad\n" + 
+			"	short one = 1;\n" +
+			"	if (m.containsKey(one)) // almost ok\n" +
+			"		m.remove(one); // almost ok\n" +
+			"	if (m.containsValue(Short.valueOf(one))) // ok\n" + 
+			"		m.remove(Short.valueOf(one)); // almost ok\n" + 
+			"	if (f)\n" +
+			"		return m.get(\"ONE\"); // bad\n" +
+			"	return m.get(one);\n // almost ok\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	if (m.containsKey(\"ONE\")) // bad\n" + 
+		"	                  ^^^^^\n" + 
+		"Unlikely argument type String for containsKey(Object) on a Map<capture#1-of ? extends Number,Number>\n" + 
+		"----------\n" + 
+		"2. WARNING in X.java (at line 5)\n" + 
+		"	m.remove(\"ONE\"); // bad\n" + 
+		"	         ^^^^^\n" + 
+		"Unlikely argument type String for remove(Object) on a Map<capture#2-of ? extends Number,Number>\n" + 
+		"----------\n" + 
+		"3. WARNING in X.java (at line 6)\n" + 
+		"	if (m.containsValue(\"ONE\")) // bad\n" + 
+		"	                    ^^^^^\n" + 
+		"Unlikely argument type String for containsValue(Object) on a Map<capture#3-of ? extends Number,Number>\n" + 
+		"----------\n" + 
+		"4. WARNING in X.java (at line 7)\n" + 
+		"	m.remove(\"ONE\"); // bad\n" + 
+		"	         ^^^^^\n" + 
+		"Unlikely argument type String for remove(Object) on a Map<capture#4-of ? extends Number,Number>\n" + 
+		"----------\n" + 
+		"5. WARNING in X.java (at line 14)\n" + 
+		"	return m.get(\"ONE\"); // bad\n" + 
+		"	             ^^^^^\n" + 
+		"Unlikely argument type String for get(Object) on a Map<capture#9-of ? extends Number,Number>\n" + 
+		"----------\n");
+}
+// Collection: {contains,remove,retain}All, non-generic sub type of Collection, configured to be ERROR
+public void testBug410218d() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_COLLECTION_METHOD_ARGUMENT_TYPE, JavaCore.ERROR);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"interface NumberCollection extends Collection<Number> {}\n" +
+			"class X {\n" +
+			"  void test(NumberCollection numbers, List<Integer> ints, Set<String> stringSet) {\n" +
+			"	if (numbers.containsAll(ints)) // ok\n" +
+			"		numbers.removeAll(ints); // ok\n" + 
+			"	else\n" +
+			"		numbers.retainAll(ints); // ok\n" + 
+			"\n" + 
+			"	numbers.removeAll(stringSet); // bad\n" + 
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in X.java (at line 10)\n" + 
+		"	numbers.removeAll(stringSet); // bad\n" + 
+		"	                  ^^^^^^^^^\n" + 
+		"Unlikely argument type Set<String> for removeAll(Collection<?>) on a Collection<Number>\n" + 
+		"----------\n",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		customOptions);
+}
+// List.indexOf: w/ and w/o @SuppressWarnings
+public void testBug410218e() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_COLLECTION_METHOD_ARGUMENT_TYPE, JavaCore.WARNING);
+	runNegativeTest(
+		new String[] {
+			"X.java",
+			"import java.util.*;\n" +
+			"class X {\n" +
+			"  int test1(List<Integer> ints, Object o) {\n" +
+			"	return ints.indexOf(\"ONE\"); // bad\n" + 
+			"  }\n" +
+			"  @SuppressWarnings(\"unlikely-arg-type\")\n" +
+			"  int test2(List<Integer> ints, boolean f, Object o) {\n" +
+			"	if (f)\n" +
+			"		return ints.indexOf(\"ONE\"); // bad but suppressed\n" +
+			"	return ints.indexOf(o); // supertype\n" + 
+			"  }\n" +
+			"}\n"
+		},
+		"----------\n" + 
+		"1. WARNING in X.java (at line 4)\n" + 
+		"	return ints.indexOf(\"ONE\"); // bad\n" + 
+		"	                    ^^^^^\n" + 
+		"Unlikely argument type String for indexOf(Object) on a List<Integer>\n" + 
+		"----------\n",
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		customOptions);
+}
+
+// Method references, equals, wildcards
+public void testBug410218f() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_COLLECTION_METHOD_ARGUMENT_TYPE, JavaCore.WARNING);
+	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE, JavaCore.INFO);
+	runNegativeTest(
+		new String[] {
+			"test/TestUnlikely.java",
+			"package test;\n" +
+			"\n" +
+			"import java.util.Collection;\n" +
+			"import java.util.Iterator;\n" +
+			"import java.util.List;\n" +
+			"import java.util.Map;\n" +
+			"import java.util.Objects;\n" +
+			"import java.util.Set;\n" +
+			"import java.util.function.BiPredicate;\n" +
+			"import java.util.function.Predicate;\n" +
+			"\n" +
+			"public class TestUnlikely {\n" +
+			"	interface Interface {\n" +
+			"	}\n" +
+			"\n" +
+			"	interface OtherInterface {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class NonFinal implements Interface {\n" +
+			"	}\n" +
+			"\n" +
+			"	static class Sub extends NonFinal implements OtherInterface {\n" +
+			"	}\n" +
+			"\n" +
+			"	static final class Final implements Interface {\n" +
+			"	}\n" +
+			"\n" +
+			"	void f1(List<Interface> c, Interface i, OtherInterface o, Final f, NonFinal nf, Sub s) {\n" +
+			"		c.remove(i);\n" +
+			"		c.remove(o); // warning: unrelated interface\n" +
+			"		c.remove(f);\n" +
+			"		c.remove(nf);\n" +
+			"		c.remove(s);\n" +
+			"	}\n" +
+			"\n" +
+			"	void f2(List<OtherInterface> c, Interface i, OtherInterface o, Final f, NonFinal nf, Sub s) {\n" +
+			"		c.remove(i); // warning: unrelated interface\n" +
+			"		c.remove(o);\n" +
+			"		c.remove(f); // warning: impossible\n" +
+			"		c.remove(nf); // warning: castable, but not supertype\n" +
+			"		c.remove(s);\n" +
+			"	}\n" +
+			"\n" +
+			"	void f3(List<Final> c, Interface i, OtherInterface o, Final f, NonFinal nf, Sub s) {\n" +
+			"		c.remove(i); // supertype\n" +
+			"		c.remove(o); // warning: impossible\n" +
+			"		c.remove(f);\n" +
+			"		c.remove(nf); // warning: impossible\n" +
+			"		c.remove(s); // warning: impossible\n" +
+			"	}\n" +
+			"\n" +
+			"	void f4(List<NonFinal> c, Interface i, OtherInterface o, Final f, NonFinal nf, Sub s) {\n" +
+			"		c.remove(i); // supertype\n" +
+			"		c.remove(o); // warning: unrelated interface\n" +
+			"		c.remove(f); // warning: impossible\n" +
+			"		c.remove(nf);\n" +
+			"		c.remove(s);\n" +
+			"	}\n" +
+			"\n" +
+			"	void f5(List<Sub> c, Interface i, OtherInterface o, Final f, NonFinal nf, Sub s) {\n" +
+			"		c.remove(i); // supertype\n" +
+			"		c.remove(o); // supertype\n" +
+			"		c.remove(f); // warning: impossible\n" +
+			"		c.remove(nf); // supertype\n" +
+			"		c.remove(s);\n" +
+			"	}\n" +
+			"\n" +
+			"	<K, V> void map(Map<K, V> map, K key, V value) {\n" +
+			"		map.containsKey(key);\n" +
+			"		map.containsKey(value); // warning\n" +
+			"		map.containsValue(key); // warning\n" +
+			"		map.containsValue(value);\n" +
+			"	}\n" +
+			"\n" +
+			"	boolean wildcards(Collection<?> c, Iterable<?> s) {\n" +
+			"		for (Iterator<?> iterator = s.iterator(); iterator.hasNext();) {\n" +
+			"			if (c.contains(iterator.next())) {\n" +
+			"				return true;\n" +
+			"			}\n" +
+			"		}\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"\n" +
+			"	<T, U extends T> boolean relatedTypeVariables(Collection<T> c, Iterable<U> s) {\n" +
+			"		for (Iterator<?> iterator = s.iterator(); iterator.hasNext();) {\n" +
+			"			if (c.contains(iterator.next())) {\n" +
+			"				return true;\n" +
+			"			}\n" +
+			"		}\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"\n" +
+			"	<T, U> boolean unrelatedTypeVariables(Collection<T> c, Iterable<U> s) {\n" +
+			"		for (Iterator<U> iterator = s.iterator(); iterator.hasNext();) {\n" +
+			"			if (c.contains(iterator.next())) { // warning\n" +
+			"				return true;\n" +
+			"			}\n" +
+			"		}\n" +
+			"		return false;\n" +
+			"	}\n" +
+			"\n" +
+			"	void all(List<NonFinal> c, Collection<Sub> s, Set<Final> other) {\n" +
+			"		c.removeAll(s);\n" +
+			"		s.removeAll(c);\n" +
+			"		c.removeAll(other); // warning\n" +
+			"	}\n" +
+			"\n" +
+			"	void methodRef(Set<Interface> c, Interface i, OtherInterface o, Final f, NonFinal nf, Sub s) {\n" +
+			"		Predicate<Interface> p1 = c::contains;\n" +
+			"		BiPredicate<Collection<Interface>, Interface> bp1 = Collection<Interface>::contains;\n" +
+			"		Predicate<OtherInterface> p2 = c::contains; // warning\n" +
+			"		BiPredicate<Collection<Interface>, OtherInterface> bp2 = Collection<Interface>::contains; // warning\n" +
+			"		p1.test(i);\n" +
+			"		bp1.test(c, i);\n" +
+			"		p2.test(o);\n" +
+			"		bp2.test(c, o);\n" +
+			"	}\n" +
+			"\n" +
+			"	void equals(String s, Integer i, Number n) {\n" +
+			"		s.equals(i); // info\n" +
+			"		i.equals(s); // info\n" +
+			"		i.equals(n);\n" +
+			"		n.equals(i);\n" +
+			"\n" +
+			"		Predicate<String> p1 = i::equals; // info\n" +
+			"		p1.test(s);\n" +
+			"\n" +
+			"		BiPredicate<String, Integer> bp2 = Object::equals; // info\n" +
+			"		bp2.test(s, i);\n" +
+			"\n" +
+			"		Objects.equals(s, i); // info\n" +
+			"		Objects.equals(i, s); // info\n" +
+			"		Objects.equals(n, i);\n" +
+			"		Objects.equals(i, n);\n" +
+			"\n" +
+			"		BiPredicate<String, Integer> bp3 = Objects::equals; // info\n" +
+			"		bp3.test(s, i);\n" +
+			"	}\n" +
+			"\n" +
+			"}\n" +
+			"",
+		}, 
+		"----------\n" + 
+		"1. WARNING in test\\TestUnlikely.java (at line 30)\n" + 
+		"	c.remove(o); // warning: unrelated interface\n" + 
+		"	         ^\n" + 
+		"Unlikely argument type TestUnlikely.OtherInterface for remove(Object) on a Collection<TestUnlikely.Interface>\n" + 
+		"----------\n" + 
+		"2. WARNING in test\\TestUnlikely.java (at line 37)\n" + 
+		"	c.remove(i); // warning: unrelated interface\n" + 
+		"	         ^\n" + 
+		"Unlikely argument type TestUnlikely.Interface for remove(Object) on a Collection<TestUnlikely.OtherInterface>\n" + 
+		"----------\n" + 
+		"3. WARNING in test\\TestUnlikely.java (at line 39)\n" + 
+		"	c.remove(f); // warning: impossible\n" + 
+		"	         ^\n" + 
+		"Unlikely argument type TestUnlikely.Final for remove(Object) on a Collection<TestUnlikely.OtherInterface>\n" + 
+		"----------\n" + 
+		"4. WARNING in test\\TestUnlikely.java (at line 40)\n" + 
+		"	c.remove(nf); // warning: castable, but not supertype\n" + 
+		"	         ^^\n" + 
+		"Unlikely argument type TestUnlikely.NonFinal for remove(Object) on a Collection<TestUnlikely.OtherInterface>\n" + 
+		"----------\n" + 
+		"5. WARNING in test\\TestUnlikely.java (at line 46)\n" + 
+		"	c.remove(o); // warning: impossible\n" + 
+		"	         ^\n" + 
+		"Unlikely argument type TestUnlikely.OtherInterface for remove(Object) on a Collection<TestUnlikely.Final>\n" + 
+		"----------\n" + 
+		"6. WARNING in test\\TestUnlikely.java (at line 48)\n" + 
+		"	c.remove(nf); // warning: impossible\n" + 
+		"	         ^^\n" + 
+		"Unlikely argument type TestUnlikely.NonFinal for remove(Object) on a Collection<TestUnlikely.Final>\n" + 
+		"----------\n" + 
+		"7. WARNING in test\\TestUnlikely.java (at line 49)\n" + 
+		"	c.remove(s); // warning: impossible\n" + 
+		"	         ^\n" + 
+		"Unlikely argument type TestUnlikely.Sub for remove(Object) on a Collection<TestUnlikely.Final>\n" + 
+		"----------\n" + 
+		"8. WARNING in test\\TestUnlikely.java (at line 54)\n" + 
+		"	c.remove(o); // warning: unrelated interface\n" + 
+		"	         ^\n" + 
+		"Unlikely argument type TestUnlikely.OtherInterface for remove(Object) on a Collection<TestUnlikely.NonFinal>\n" + 
+		"----------\n" + 
+		"9. WARNING in test\\TestUnlikely.java (at line 55)\n" + 
+		"	c.remove(f); // warning: impossible\n" + 
+		"	         ^\n" + 
+		"Unlikely argument type TestUnlikely.Final for remove(Object) on a Collection<TestUnlikely.NonFinal>\n" + 
+		"----------\n" + 
+		"10. WARNING in test\\TestUnlikely.java (at line 63)\n" + 
+		"	c.remove(f); // warning: impossible\n" + 
+		"	         ^\n" + 
+		"Unlikely argument type TestUnlikely.Final for remove(Object) on a Collection<TestUnlikely.Sub>\n" + 
+		"----------\n" + 
+		"11. WARNING in test\\TestUnlikely.java (at line 70)\n" + 
+		"	map.containsKey(value); // warning\n" + 
+		"	                ^^^^^\n" + 
+		"Unlikely argument type V for containsKey(Object) on a Map<K,V>\n" + 
+		"----------\n" + 
+		"12. WARNING in test\\TestUnlikely.java (at line 71)\n" + 
+		"	map.containsValue(key); // warning\n" + 
+		"	                  ^^^\n" + 
+		"Unlikely argument type K for containsValue(Object) on a Map<K,V>\n" + 
+		"----------\n" + 
+		"13. WARNING in test\\TestUnlikely.java (at line 95)\n" + 
+		"	if (c.contains(iterator.next())) { // warning\n" + 
+		"	               ^^^^^^^^^^^^^^^\n" + 
+		"Unlikely argument type U for contains(Object) on a Collection<T>\n" + 
+		"----------\n" + 
+		"14. WARNING in test\\TestUnlikely.java (at line 105)\n" + 
+		"	c.removeAll(other); // warning\n" + 
+		"	            ^^^^^\n" + 
+		"Unlikely argument type Set<TestUnlikely.Final> for removeAll(Collection<?>) on a Collection<TestUnlikely.NonFinal>\n" + 
+		"----------\n" + 
+		"15. WARNING in test\\TestUnlikely.java (at line 111)\n" + 
+		"	Predicate<OtherInterface> p2 = c::contains; // warning\n" + 
+		"	                               ^^^^^^^^^^^\n" + 
+		"Unlikely argument type TestUnlikely.OtherInterface for contains(Object) on a Collection<TestUnlikely.Interface>\n" + 
+		"----------\n" + 
+		"16. WARNING in test\\TestUnlikely.java (at line 112)\n" + 
+		"	BiPredicate<Collection<Interface>, OtherInterface> bp2 = Collection<Interface>::contains; // warning\n" + 
+		"	                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Unlikely argument type TestUnlikely.OtherInterface for contains(Object) on a Collection<TestUnlikely.Interface>\n" + 
+		"----------\n" + 
+		"17. INFO in test\\TestUnlikely.java (at line 120)\n" + 
+		"	s.equals(i); // info\n" + 
+		"	         ^\n" + 
+		"Unlikely argument type for equals(): Integer seems to be unrelated to String\n" + 
+		"----------\n" + 
+		"18. INFO in test\\TestUnlikely.java (at line 121)\n" + 
+		"	i.equals(s); // info\n" + 
+		"	         ^\n" + 
+		"Unlikely argument type for equals(): String seems to be unrelated to Integer\n" + 
+		"----------\n" + 
+		"19. INFO in test\\TestUnlikely.java (at line 125)\n" + 
+		"	Predicate<String> p1 = i::equals; // info\n" + 
+		"	                       ^^^^^^^^^\n" + 
+		"Unlikely argument type for equals(): String seems to be unrelated to Integer\n" + 
+		"----------\n" + 
+		"20. INFO in test\\TestUnlikely.java (at line 128)\n" + 
+		"	BiPredicate<String, Integer> bp2 = Object::equals; // info\n" + 
+		"	                                   ^^^^^^^^^^^^^^\n" + 
+		"Unlikely argument type for equals(): Integer seems to be unrelated to String\n" + 
+		"----------\n" + 
+		"21. INFO in test\\TestUnlikely.java (at line 131)\n" + 
+		"	Objects.equals(s, i); // info\n" + 
+		"	                  ^\n" + 
+		"Unlikely argument type for equals(): Integer seems to be unrelated to String\n" + 
+		"----------\n" + 
+		"22. INFO in test\\TestUnlikely.java (at line 132)\n" + 
+		"	Objects.equals(i, s); // info\n" + 
+		"	                  ^\n" + 
+		"Unlikely argument type for equals(): String seems to be unrelated to Integer\n" + 
+		"----------\n" + 
+		"23. INFO in test\\TestUnlikely.java (at line 136)\n" + 
+		"	BiPredicate<String, Integer> bp3 = Objects::equals; // info\n" + 
+		"	                                   ^^^^^^^^^^^^^^^\n" + 
+		"Unlikely argument type for equals(): Integer seems to be unrelated to String\n" + 
+		"----------\n"
+		,
+		null/*classLibraries*/,
+		true/*shouldFlushOutputDirectory*/,
+		customOptions);
+}
+// mixture of raw type an parametrized type
+public void testBug513310() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	runConformTest(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"import java.util.List;\n" +
+			"import java.util.Set;\n" +
+			"\n" +
+			"public class Test {\n" +
+			"	void f(List dependencyList, Set<Object> set) {\n" +
+			"		dependencyList.removeAll(set);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		} 
+	);
 }
 }

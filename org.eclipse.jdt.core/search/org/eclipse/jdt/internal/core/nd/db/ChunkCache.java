@@ -62,10 +62,7 @@ public final class ChunkCache {
 		this.fPageTable= new Chunk[computeLength(maxSize)];
 	}
 
-	public synchronized void add(Chunk chunk, boolean locked) {
-		if (locked) {
-			chunk.fLocked= true;
-		}
+	public synchronized void add(Chunk chunk) {
 		if (chunk.fCacheIndex >= 0) {
 			chunk.fCacheHitFlag= true;
 			return;
@@ -105,8 +102,8 @@ public final class ChunkCache {
 				chunk.fCacheHitFlag= false;
 				this.fPointer= (this.fPointer + 1) % this.fPageTable.length;
 			} else {
-				chunk.fDatabase.releaseChunk(chunk);
 				chunk.fCacheIndex= -1;
+				chunk.fDatabase.checkIfChunkReleased(chunk);
 				this.fPageTable[this.fPointer] = null;
 				return;
 			}
@@ -154,7 +151,7 @@ public final class ChunkCache {
 		} else {
 			for (int i= newLength; i < oldLength; i++) {
 				final Chunk chunk= this.fPageTable[i];
-				chunk.fDatabase.releaseChunk(chunk);
+				chunk.fDatabase.checkIfChunkReleased(chunk);
 				chunk.fCacheIndex= -1;
 			}
 			Chunk[] newTable= new Chunk[newLength];

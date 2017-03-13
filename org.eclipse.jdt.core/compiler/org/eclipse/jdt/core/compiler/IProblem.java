@@ -200,6 +200,8 @@
  *									IllegalParameterNullityRedefinition
  *									ContradictoryNullAnnotationsInferredFunctionType
  *									IllegalReturnNullityRedefinitionFreeTypeVariable
+ *									UnlikelyCollectionMethodArgumentType
+ *									UnlikelyEqualsArgumentType
  *      Jesper S Moller  - added the following constants
  *									TargetTypeNotAFunctionalInterface
  *									OuterLocalMustBeEffectivelyFinal
@@ -1947,4 +1949,9 @@ void setSourceStart(int sourceStart);
 	int LambdaShapeComputationError = 1101;
 	/** @since 3.13 */
 	int ProblemNotAnalysed = 1102;
+	
+	/** @since 3.13 */
+	int UnlikelyCollectionMethodArgumentType = 1200;
+	/** @since 3.13 */
+	int UnlikelyEqualsArgumentType = 1201;
 }

@@ -3001,6 +3001,71 @@ public void test425632() throws Exception {
 			},
 			"1\n2\n3");
 }
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=508215
+public void testBug508215() throws Exception {
+	this.runConformTest(
+		new String[] {
+				"linenumber/DebugErrorVarargs1Arg.java",
+				"package linenumber;\n" +
+				"import java.util.Arrays;\n" +
+				"\n" +
+				"public class DebugErrorVarargs1Arg {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		for (Integer i : Arrays.asList(1)) {\n" +
+				"			System.out.println(i);\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+		}
+	); 
+
+	String expectedOutput =
+		"  public static void main(java.lang.String[] args);\n" + 
+		"     0  iconst_1\n" + 
+		"     1  anewarray java.lang.Integer [16]\n" + 
+		"     4  dup\n" + 
+		"     5  iconst_0\n" + 
+		"     6  iconst_1\n" + 
+		"     7  invokestatic java.lang.Integer.valueOf(int) : java.lang.Integer [18]\n" + 
+		"    10  aastore\n" + 
+		"    11  invokestatic java.util.Arrays.asList(java.lang.Object[]) : java.util.List [22]\n" + 
+		"    14  invokeinterface java.util.List.iterator() : java.util.Iterator [28] [nargs: 1]\n" + 
+		"    19  astore_2\n" + 
+		"    20  goto 40\n" + 
+		"    23  aload_2\n" + 
+		"    24  invokeinterface java.util.Iterator.next() : java.lang.Object [34] [nargs: 1]\n" + 
+		"    29  checkcast java.lang.Integer [16]\n" + 
+		"    32  astore_1 [i]\n" + 
+		"    33  getstatic java.lang.System.out : java.io.PrintStream [40]\n" + 
+		"    36  aload_1 [i]\n" + 
+		"    37  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [46]\n" + 
+		"    40  aload_2\n" + 
+		"    41  invokeinterface java.util.Iterator.hasNext() : boolean [52] [nargs: 1]\n" + 
+		"    46  ifne 23\n" + 
+		"    49  return\n" + 
+		"      Line numbers:\n" + 
+		"        [pc: 0, line: 6]\n" + 
+		"        [pc: 33, line: 7]\n" + 
+		"        [pc: 40, line: 6]\n" + 
+		"        [pc: 49, line: 9]\n" + 
+		"      Local variable table:\n" + 
+		"        [pc: 0, pc: 50] local: args index: 0 type: java.lang.String[]\n" + 
+		"        [pc: 33, pc: 40] local: i index: 1 type: java.lang.Integer\n" + 
+		"";
+
+	File f = new File(OUTPUT_DIR + File.separator + "linenumber" + File.separator + "DebugErrorVarargs1Arg.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
 public static Class testClass() {
 	return ForeachStatementTest.class;
 }

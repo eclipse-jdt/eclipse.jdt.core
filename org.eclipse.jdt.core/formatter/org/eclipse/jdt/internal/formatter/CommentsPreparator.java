@@ -1008,11 +1008,14 @@ public class CommentsPreparator extends ASTVisitor {
 		boolean newLinesAtBoundries = commentToken.tokenType == TokenNameCOMMENT_JAVADOC
 				? this.options.comment_new_lines_at_javadoc_boundaries
 				: this.options.comment_new_lines_at_block_boundaries;
-		if (newLinesAtBoundries && this.tm.countLineBreaksBetween(first, last) > 0) {
+		if (!newLinesAtBoundries) {
+			structure.get(1).clearLineBreaksBefore();
+			last.clearLineBreaksBefore();
+		} else if (this.tm.countLineBreaksBetween(first, last) > 0) {
 			first.breakAfter();
 			last.breakBefore();
-			last.setAlign(1);
 		}
+		last.setAlign(1);
 
 		if (structure.size() == 2)
 			return false;

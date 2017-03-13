@@ -61,6 +61,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -88,6 +89,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
 public class ReferenceExpression extends FunctionalExpression implements IPolyExpression, InvocationSite {
 	// secret variable name
@@ -117,10 +119,15 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	private HashMap<TypeBinding, ReferenceExpression> copiesPerTargetType;
 	public char[] text; // source representation of the expression.
 	private HashMap<ParameterizedGenericMethodBinding, InferenceContext18> inferenceContexts;
+
+	// the scanner used when creating this expression, may be a RecoveryScanner (with proper RecoveryScannerData),
+	// need to keep it so copy() can parse in the same mode (normal/recovery):
+	private Scanner scanner; 
 	
-	public ReferenceExpression() {
+	public ReferenceExpression(Scanner scanner) {
 		super();
 		this.original = this;
+		this.scanner = scanner;
 	}
 	
 	public void initialize(CompilationResult result, Expression expression, TypeReference [] optionalTypeArguments, char [] identifierOrNew, int sourceEndPosition) {
@@ -136,6 +143,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		final Parser parser = new Parser(this.enclosingScope.problemReporter(), false);
 		final ICompilationUnit compilationUnit = this.compilationResult.getCompilationUnit();
 		final char[] source = compilationUnit != null ? compilationUnit.getContents() : this.text;
+		parser.scanner = this.scanner;
 		ReferenceExpression copy =  (ReferenceExpression) parser.parseExpression(source, compilationUnit != null ? this.sourceStart : 0, this.sourceEnd - this.sourceStart + 1, 
 										this.enclosingScope.referenceCompilationUnit(), false /* record line separators */);
 		copy.original = this;
@@ -432,6 +440,33 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 				}
 			}
 		}
+		if (currentScope.compilerOptions().isAnyEnabled(IrritantSet.UNLIKELY_ARGUMENT_TYPE) && this.binding.isValidBinding()
+				&& this.binding != null && this.binding.parameters != null) {
+			if (this.binding.parameters.length == 1
+					&& this.descriptor.parameters.length == (this.receiverPrecedesParameters ? 2 : 1)
+					&& !this.binding.isStatic()) {
+				final TypeBinding argumentType = this.descriptor.parameters[this.receiverPrecedesParameters ? 1 : 0];
+				final TypeBinding actualReceiverType = this.receiverPrecedesParameters ? this.descriptor.parameters[0] : this.binding.declaringClass;
+				UnlikelyArgumentCheck argumentCheck = UnlikelyArgumentCheck
+						.determineCheckForNonStaticSingleArgumentMethod(argumentType, currentScope, this.selector,
+								actualReceiverType, this.binding.parameters);
+				if (argumentCheck != null && argumentCheck.isDangerous(currentScope)) {
+					currentScope.problemReporter().unlikelyArgumentType(this, this.binding, argumentType,
+							argumentCheck.typeToReport, argumentCheck.dangerousMethod);
+				}
+			} else if (this.binding.parameters.length == 2 && this.descriptor.parameters.length == 2 && this.binding.isStatic()) {
+				final TypeBinding argumentType1 = this.descriptor.parameters[0];
+				final TypeBinding argumentType2 = this.descriptor.parameters[1];
+				UnlikelyArgumentCheck argumentCheck = UnlikelyArgumentCheck
+						.determineCheckForStaticTwoArgumentMethod(argumentType2, currentScope, this.selector,
+								argumentType1, this.binding.parameters, this.receiverType);
+				if (argumentCheck != null && argumentCheck.isDangerous(currentScope)) {
+					currentScope.problemReporter().unlikelyArgumentType(this, this.binding, argumentType2,
+							argumentCheck.typeToReport, argumentCheck.dangerousMethod);
+				}			
+			}
+		}
+		
 		manageSyntheticAccessIfNecessary(currentScope, flowInfo);
 		return flowInfo;
 	}
@@ -776,20 +811,30 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	    		for (int i = 0; i < len; i++) {
 	    			TypeBinding descriptorParameter = this.descriptor.parameters[i + (this.receiverPrecedesParameters ? 1 : 0)];
 	    			TypeBinding bindingParameter = InferenceContext18.getParameter(this.binding.parameters, i, isVarArgs);
-	    			NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(bindingParameter, descriptorParameter, FlowInfo.UNKNOWN);
+					TypeBinding bindingParameterToCheck;
+					if (bindingParameter.isPrimitiveType() && !descriptorParameter.isPrimitiveType()) {
+						// replace primitive types by boxed equivalent for checking, e.g. int -> @NonNull Integer
+						bindingParameterToCheck = scope.environment().createAnnotatedType(scope.boxing(bindingParameter),
+								new AnnotationBinding[] { scope.environment().getNonNullAnnotation() });
+					} else {
+						bindingParameterToCheck = bindingParameter;
+					}
+	    			NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(bindingParameterToCheck, descriptorParameter, FlowInfo.UNKNOWN);
 	    			if (annotationStatus.isAnyMismatch()) {
 	    				// immediate reporting:
 	    				scope.problemReporter().referenceExpressionArgumentNullityMismatch(this, bindingParameter, descriptorParameter, this.descriptor, i, annotationStatus);
 	    			}
 	    		}
 	    		TypeBinding returnType = this.binding.returnType;
-	    		if (this.binding.isConstructor()) {
-	    			returnType = scope.environment().createAnnotatedType(this.receiverType, new AnnotationBinding[]{ scope.environment().getNonNullAnnotation() });
+	    		if(!returnType.isPrimitiveType()) {
+		    		if (this.binding.isConstructor()) {
+		    			returnType = scope.environment().createAnnotatedType(this.receiverType, new AnnotationBinding[]{ scope.environment().getNonNullAnnotation() });
+		    		}
+		    		NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(this.descriptor.returnType, returnType, FlowInfo.UNKNOWN);
+		        	if (annotationStatus.isAnyMismatch()) {
+	        			scope.problemReporter().illegalReturnRedefinition(this, this.descriptor, annotationStatus.isUnchecked(), returnType);
+		        	}
 	    		}
-	    		NullAnnotationMatching annotationStatus = NullAnnotationMatching.analyse(this.descriptor.returnType, returnType, FlowInfo.UNKNOWN);
-	        	if (annotationStatus.isAnyMismatch()) {
-        			scope.problemReporter().illegalReturnRedefinition(this, this.descriptor, annotationStatus.isUnchecked(), returnType);
-	        	}
         	}
         }
 	}

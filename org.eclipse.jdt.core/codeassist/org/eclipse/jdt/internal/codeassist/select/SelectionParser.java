@@ -795,7 +795,7 @@ protected void consumeReferenceExpression(ReferenceExpression referenceExpressio
 	this.colonColonStart = -1;
 	if (this.selectionStart == kolonKolonStart || this.selectionStart == kolonKolonEnd) {
 		if (this.selectionEnd == kolonKolonStart || this.selectionEnd == kolonKolonEnd) {
-			referenceExpression = new SelectionOnReferenceExpression(referenceExpression);
+			referenceExpression = new SelectionOnReferenceExpression(referenceExpression, this.scanner);
 		}
 	}
 	super.consumeReferenceExpression(referenceExpression);
@@ -1431,7 +1431,7 @@ public ReferenceExpression newReferenceExpression() {
 	if (selector != assistIdentifier()){
 		return super.newReferenceExpression();
 	}
-	ReferenceExpression referenceExpression = new SelectionOnReferenceExpressionName();
+	ReferenceExpression referenceExpression = new SelectionOnReferenceExpressionName(this.scanner);
 	this.assistNode = referenceExpression;
 	return referenceExpression;
 }

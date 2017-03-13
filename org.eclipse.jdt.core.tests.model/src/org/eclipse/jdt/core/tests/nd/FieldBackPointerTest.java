@@ -172,7 +172,7 @@ public class FieldBackPointerTest extends BaseTestCase {
 	}
 
 	public void testLargeBlockBackPointerTest() throws Exception {
-		this.nd.getDB().giveUpExclusiveLock(true);
+		this.nd.getDB().giveUpExclusiveLock();
 		// Allocate enough entries to cause the metablock array to resize twice
 		int totalSize = Database.CHUNK_SIZE * 0x400;
 

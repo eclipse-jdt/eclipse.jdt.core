@@ -56,6 +56,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
@@ -73,6 +74,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -1819,8 +1821,18 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 	}
 	return null; // should never reach this point
 }
+
 public MethodBinding resolveTypesFor(MethodBinding method) {
-	
+	ProblemReporter problemReporter = this.scope.problemReporter();
+	IErrorHandlingPolicy suspendedPolicy = problemReporter.suspendTempErrorHandlingPolicy();
+	try {
+		return resolveTypesWithSuspendedTempErrorHandlingPolicy(method);
+	} finally {
+		problemReporter.resumeTempErrorHandlingPolicy(suspendedPolicy);
+	}
+}
+
+private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBinding method) {
 	if (!isPrototype())
 		return this.prototype.resolveTypesFor(method);
 	

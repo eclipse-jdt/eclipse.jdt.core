@@ -4127,6 +4127,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=420456, [1.8][null] AIOOB in null analysis code.
 	public void test420456() {
+		final Map compilerOptions = getCompilerOptions();
+		compilerOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.IGNORE);
 		runConformTestWithLibs(
 			new String[] {
 				"X.java",
@@ -4139,7 +4141,7 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 				"	}\n" +
 				"}\n"
 			}, 
-			getCompilerOptions(),
+			compilerOptions,
 			"",
 			"78912345678");		
 	}
@@ -14237,6 +14239,773 @@ public void testBug490403typeArgAnnotationMismatch() {
 		"----------\n"
 	);
 }
+public void testBug499589() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/BogusWarning.java",
+			"package test;\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.ARRAY_CONTENTS;\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.PARAMETER;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault({ PARAMETER, ARRAY_CONTENTS })\n" +
+			"class BogusWarning {\n" +
+			"	static void a(String[] array) {\n" +
+			"		x(array[0]); // <----- bogus warning\n" +
+			"	}\n" +
+			"\n" +
+			"	static void x(String s) {\n" +
+			"		System.out.println(s);\n" +
+			"	}\n" +
+			"\n" +
+			"	static void b(String[][] array) {\n" +
+			"		y(array[0]); // <----- bogus warning\n" +
+			"	}\n" +
+			"\n" +
+			"	static void y(String[] s) {\n" +
+			"		System.out.println(s[0]);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+public void testBug499589multidim() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/BogusWarning.java",
+			"package test;\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.ARRAY_CONTENTS;\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.PARAMETER;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"@NonNullByDefault({ PARAMETER, ARRAY_CONTENTS })\n" +
+			"class BogusWarning {\n" +
+			"	static void foo(String[] @Nullable [] array) {\n" +
+			"		x(array[0]);\n" +
+			"	}\n" +
+			"	static void x(String[] s) {\n" +
+			"		System.out.println(s[0]);\n" +
+			"	}\n" +
+			"\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\BogusWarning.java (at line 11)\n" + 
+		"	x(array[0]);\n" + 
+		"	  ^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String @NonNull[]\' but this expression has type \'@NonNull String @Nullable[]\'\n" + 
+		"----------\n"
+	);
+}
+
+public void testBug499589leafTypeNullable() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/BogusWarning.java",
+			"package test;\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.ARRAY_CONTENTS;\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.PARAMETER;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"@NonNullByDefault({ PARAMETER, ARRAY_CONTENTS })\n" +
+			"class BogusWarning {\n" +
+			"	static void foo(@Nullable String[] array) {\n" +
+			"		x(array[0]);\n" +
+			"	}\n" +
+			"\n" +
+			"	static void x(String s) {\n" +
+			"		System.out.println(s);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\BogusWarning.java (at line 11)\n" + 
+		"	x(array[0]);\n" + 
+		"	  ^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
+		"----------\n"
+	);
+}
+
+public void testBug499589qualified() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/BogusWarning.java",
+			"package test;\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.ARRAY_CONTENTS;\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.PARAMETER;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault({ PARAMETER, ARRAY_CONTENTS })\n" +
+			"class BogusWarning {\n" +
+			"	static void foo(java.lang.String[] array) {\n" +
+			"		x(array[0]);\n" +
+			"	}\n" +
+			"\n" +
+			"	static void x(String s) {\n" +
+			"		System.out.println(s);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+
+public void testBug499589qualified_leafTypeNullable() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/BogusWarning.java",
+			"package test;\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.ARRAY_CONTENTS;\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.PARAMETER;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"@NonNullByDefault({ PARAMETER, ARRAY_CONTENTS })\n" +
+			"class BogusWarning {\n" +
+			"	static void foo(java.lang.@Nullable String[] array) {\n" +
+			"		x(array[0]);\n" +
+			"	}\n" +
+			"\n" +
+			"	static void x(String s) {\n" +
+			"		System.out.println(s);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\BogusWarning.java (at line 11)\n" + 
+		"	x(array[0]);\n" + 
+		"	  ^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" + 
+		"----------\n"
+	);
+}
+public void testBug499589qualified_multidim() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/BogusWarning.java",
+			"package test;\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.ARRAY_CONTENTS;\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.PARAMETER;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"@NonNullByDefault({ PARAMETER, ARRAY_CONTENTS })\n" +
+			"class BogusWarning {\n" +
+			"	static void foo(java.lang.String[] @Nullable [] array) {\n" +
+			"		x(array[0]);\n" +
+			"	}\n" +
+			"	static void x(java.lang.String[] s) {\n" +
+			"		System.out.println(s[0]);\n" +
+			"	}\n" +
+			"\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\BogusWarning.java (at line 11)\n" + 
+		"	x(array[0]);\n" + 
+		"	  ^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String @NonNull[]\' but this expression has type \'@NonNull String @Nullable[]\'\n" + 
+		"----------\n"
+	);
+}
+public void testBug499589STB() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/Ref.java",
+			"package test;\n" +
+			"\n" +
+			"public class Ref<T> {\n" +
+			"	T get() {\n" +
+			"		throw new RuntimeException();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+			"test/X.java",
+			"package test;\n" +
+			"\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.*;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"\n" +
+			"@SuppressWarnings({ \"unchecked\" })\n" +
+			"@NonNullByDefault({ FIELD, RETURN_TYPE, PARAMETER, ARRAY_CONTENTS, TYPE_ARGUMENT })\n" +
+			"public abstract class X {\n" +
+			"	public final String[][] field = {};\n" +
+			"	public final @Nullable String[][] fieldWithNullable1 = {};\n" +
+			"	public final String[] @Nullable [] fieldWithNullable2 = {};\n" +
+			"\n" +
+			"	public final Ref<String[][]> list = new Ref<>();\n" +
+			"	public final Ref<@Nullable String[][]> listWithNullable1 = new Ref<>();\n" +
+			"	public final Ref<String[] @Nullable []> listWithNullable2 = new Ref<>();\n" +
+			"\n" +
+			"	public abstract String[][] method();\n" +
+			"	public abstract @Nullable String[][] methodWithNullable1();\n" +
+			"	public abstract String[] @Nullable [] methodWithNullable2();\n" +
+			"\n" +
+			"	public final Ref<String[][]>[][] genericField = new Ref[0][];\n" +
+			"	public final @Nullable Ref<@Nullable String[][]>[][] genericFieldWithNullable1 = new Ref[0][];\n" +
+			"	public final Ref<String[] @Nullable []>[] @Nullable [] genericFieldWithNullable2 = new Ref[0][];\n" +
+			"}\n" +
+			"\n" +
+			"class SourceUsage {\n" +
+			"	void check(@NonNull String @NonNull [] @NonNull [] s) {\n" +
+			"	}\n" +
+			"\n" +
+			"	void checkGeneric(@NonNull Ref<@NonNull String @NonNull [] @NonNull []> @NonNull [] @NonNull [] s) {\n" +
+			"	}\n" +
+			"\n" +
+			"	void f(X x) {\n" +
+			"		check(x.field);\n" +
+			"		check(x.fieldWithNullable1);\n" +
+			"		check(x.fieldWithNullable2);\n" +
+			"		check(x.list.get());\n" +
+			"		check(x.listWithNullable1.get());\n" +
+			"		check(x.listWithNullable2.get());\n" +
+			"		check(x.method());\n" +
+			"		check(x.methodWithNullable1());\n" +
+			"		check(x.methodWithNullable2());\n" +
+			"		checkGeneric(x.genericField);\n" +
+			"		checkGeneric(x.genericFieldWithNullable1);\n" +
+			"		checkGeneric(x.genericFieldWithNullable2);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\X.java (at line 36)\n" + 
+		"	check(x.fieldWithNullable1);\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String @NonNull[] @NonNull[]\' but this expression has type \'@Nullable String @NonNull[] @NonNull[]\'\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\X.java (at line 37)\n" + 
+		"	check(x.fieldWithNullable2);\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String @NonNull[] @NonNull[]\' but this expression has type \'@NonNull String @NonNull[] @Nullable[]\'\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\X.java (at line 39)\n" + 
+		"	check(x.listWithNullable1.get());\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String @NonNull[] @NonNull[]\' but this expression has type \'@Nullable String @NonNull[] @NonNull[]\'\n" + 
+		"----------\n" + 
+		"4. ERROR in test\\X.java (at line 40)\n" + 
+		"	check(x.listWithNullable2.get());\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String @NonNull[] @NonNull[]\' but this expression has type \'@NonNull String @NonNull[] @Nullable[]\'\n" + 
+		"----------\n" + 
+		"5. ERROR in test\\X.java (at line 42)\n" + 
+		"	check(x.methodWithNullable1());\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String @NonNull[] @NonNull[]\' but this expression has type \'@Nullable String @NonNull[] @NonNull[]\'\n" + 
+		"----------\n" + 
+		"6. ERROR in test\\X.java (at line 43)\n" + 
+		"	check(x.methodWithNullable2());\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String @NonNull[] @NonNull[]\' but this expression has type \'@NonNull String @NonNull[] @Nullable[]\'\n" + 
+		"----------\n" + 
+		"7. ERROR in test\\X.java (at line 45)\n" + 
+		"	checkGeneric(x.genericFieldWithNullable1);\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Ref<@NonNull String @NonNull[] @NonNull[]> @NonNull[] @NonNull[]\' but this expression has type \'@Nullable Ref<@Nullable String @NonNull[] @NonNull[]> @NonNull[] @NonNull[]\'\n" + 
+		"----------\n" + 
+		"8. ERROR in test\\X.java (at line 46)\n" + 
+		"	checkGeneric(x.genericFieldWithNullable2);\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Ref<@NonNull String @NonNull[] @NonNull[]> @NonNull[] @NonNull[]\' but this expression has type \'@NonNull Ref<@NonNull String @NonNull[] @Nullable[]> @NonNull[] @Nullable[]\'\n" + 
+		"----------\n"
+	);
+}
+public void testBug499589BTB() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Ref.java",
+			"package test;\n" +
+			"\n" +
+			"public class Ref<T> {\n" +
+			"	T get() {\n" +
+			"		throw new RuntimeException();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+			"test/X.java",
+			"package test;\n" +
+			"\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.ARRAY_CONTENTS;\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.FIELD;\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.PARAMETER;\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.RETURN_TYPE;\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.TYPE_ARGUMENT;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"\n" +
+			"@SuppressWarnings({ \"unchecked\" })\n" +
+			"@NonNullByDefault({ FIELD, RETURN_TYPE, PARAMETER, ARRAY_CONTENTS, TYPE_ARGUMENT })\n" +
+			"public abstract class X {\n" +
+			"	public final String[][] field = {};\n" +
+			"	public final @Nullable String[][] fieldWithNullable1 = {};\n" +
+			"	public final String[] @Nullable [] fieldWithNullable2 = {};\n" +
+			"\n" +
+			"	public final Ref<String[][]> list = new Ref<>();\n" +
+			"	public final Ref<@Nullable String[][]> listWithNullable1 = new Ref<>();\n" +
+			"	public final Ref<String[] @Nullable []> listWithNullable2 = new Ref<>();\n" +
+			"\n" +
+			"	public abstract String[][] method();\n" +
+			"	public abstract @Nullable String[][] methodWithNullable1();\n" +
+			"	public abstract String[] @Nullable [] methodWithNullable2();\n" +
+			"\n" +
+			"	public final Ref<String[][]>[][] genericField = new Ref[0][];\n" +
+			"	public final @Nullable Ref<@Nullable String[][]>[][] genericFieldWithNullable1 = new Ref[0][];\n" +
+			"	public final Ref<String[] @Nullable []>[] @Nullable [] genericFieldWithNullable2 = new Ref[0][];\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/BinaryUsage.java",
+			"package test;\n" +
+			"\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"class BinaryUsage {\n" +
+			"	void check(@NonNull String @NonNull [] @NonNull [] s) {\n" +
+			"	}\n" +
+			"\n" +
+			"	void checkGeneric(@NonNull Ref<@NonNull String @NonNull [] @NonNull []> @NonNull [] @NonNull [] s) {\n" +
+			"	}\n" +
+			"\n" +
+			"	void f(X x) {\n" +
+			"		check(x.field);\n" +
+			"		check(x.fieldWithNullable1);\n" +
+			"		check(x.fieldWithNullable2);\n" +
+			"		check(x.list.get());\n" +
+			"		check(x.listWithNullable1.get());\n" +
+			"		check(x.listWithNullable2.get());\n" +
+			"		check(x.method());\n" +
+			"		check(x.methodWithNullable1());\n" +
+			"		check(x.methodWithNullable2());\n" +
+			"		checkGeneric(x.genericField);\n" +
+			"		checkGeneric(x.genericFieldWithNullable1);\n" +
+			"		checkGeneric(x.genericFieldWithNullable2);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\BinaryUsage.java (at line 15)\n" + 
+		"	check(x.fieldWithNullable1);\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String @NonNull[] @NonNull[]\' but this expression has type \'@Nullable String @NonNull[] @NonNull[]\'\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\BinaryUsage.java (at line 16)\n" + 
+		"	check(x.fieldWithNullable2);\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String @NonNull[] @NonNull[]\' but this expression has type \'@NonNull String @NonNull[] @Nullable[]\'\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\BinaryUsage.java (at line 18)\n" + 
+		"	check(x.listWithNullable1.get());\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String @NonNull[] @NonNull[]\' but this expression has type \'@Nullable String @NonNull[] @NonNull[]\'\n" + 
+		"----------\n" + 
+		"4. ERROR in test\\BinaryUsage.java (at line 19)\n" + 
+		"	check(x.listWithNullable2.get());\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String @NonNull[] @NonNull[]\' but this expression has type \'@NonNull String @NonNull[] @Nullable[]\'\n" + 
+		"----------\n" + 
+		"5. ERROR in test\\BinaryUsage.java (at line 21)\n" + 
+		"	check(x.methodWithNullable1());\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String @NonNull[] @NonNull[]\' but this expression has type \'@Nullable String @NonNull[] @NonNull[]\'\n" + 
+		"----------\n" + 
+		"6. ERROR in test\\BinaryUsage.java (at line 22)\n" + 
+		"	check(x.methodWithNullable2());\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull String @NonNull[] @NonNull[]\' but this expression has type \'@NonNull String @NonNull[] @Nullable[]\'\n" + 
+		"----------\n" + 
+		"7. ERROR in test\\BinaryUsage.java (at line 24)\n" + 
+		"	checkGeneric(x.genericFieldWithNullable1);\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Ref<@NonNull String @NonNull[] @NonNull[]> @NonNull[] @NonNull[]\' but this expression has type \'@Nullable Ref<@Nullable String @NonNull[] @NonNull[]> @NonNull[] @NonNull[]\'\n" + 
+		"----------\n" + 
+		"8. ERROR in test\\BinaryUsage.java (at line 25)\n" + 
+		"	checkGeneric(x.genericFieldWithNullable2);\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Ref<@NonNull String @NonNull[] @NonNull[]> @NonNull[] @NonNull[]\' but this expression has type \'@NonNull Ref<@NonNull String @NonNull[] @Nullable[]> @NonNull[] @Nullable[]\'\n" + 
+		"----------\n"
+	);
+}
+
+public void testBug499589STBqualified() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/Ref.java",
+			"package test;\n" +
+			"\n" +
+			"public class Ref<T> {\n" +
+			"	T get() {\n" +
+			"		throw new RuntimeException();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+			"test/A.java",
+			"package test;\n" +
+			"\n" +
+			"public class A {\n" +
+			"	class B {\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+			"test/X.java",
+			"package test;\n" +
+			"\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.*;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"\n" +
+			"@SuppressWarnings({ \"unchecked\" })\n" +
+			"@NonNullByDefault({ FIELD, RETURN_TYPE, PARAMETER, ARRAY_CONTENTS, TYPE_ARGUMENT })\n" +
+			"public abstract class X {\n" +
+			"	public final test.A.B[][] field = {};\n" +
+			"	public final test.A.@Nullable B[][] fieldWithNullable1 = {};\n" +
+			"	public final test.A.B[] @Nullable [] fieldWithNullable2 = {};\n" +
+			"\n" +
+			"	public final test.Ref<test.A.B[][]> list = new Ref<>();\n" +
+			"	public final test.Ref<test.A.@Nullable B[][]> listWithNullable1 = new Ref<>();\n" +
+			"	public final test.Ref<test.A.B[] @Nullable []> listWithNullable2 = new Ref<>();\n" +
+			"\n" +
+			"	public abstract test.A.B[][] method();\n" +
+			"	public abstract test.A.@Nullable B[][] methodWithNullable1();\n" +
+			"	public abstract test.A.B[] @Nullable [] methodWithNullable2();\n" +
+			"\n" +
+			"	public final test.Ref<test.A.B[][]>[][] genericField = new Ref[0][];\n" +
+			"	public final test.@Nullable Ref<test.A.@Nullable B[][]>[][] genericFieldWithNullable1 = new Ref[0][];;\n" +
+			"	public final test.Ref<test.A.B[] @Nullable []>[] @Nullable[] genericFieldWithNullable2 = new Ref[0][];;\n" +
+			"}\n" +
+			"\n" +
+			"class SourceUsage {\n" +
+			"	void check(test.A.@NonNull B @NonNull [] @NonNull [] s) {\n" +
+			"	}\n" +
+			"	void checkGeneric(test.@NonNull Ref<test.A.@NonNull B @NonNull [] @NonNull []> @NonNull [] @NonNull [] s) {\n" +
+			"	}\n" +
+			"\n" +
+			"	void f(X x) {\n" +
+			"		check(x.field);\n" +
+			"		check(x.fieldWithNullable1);\n" +
+			"		check(x.fieldWithNullable2);\n" +
+			"		check(x.list.get());\n" +
+			"		check(x.listWithNullable1.get());\n" +
+			"		check(x.listWithNullable2.get());\n" +
+			"		check(x.method());\n" +
+			"		check(x.methodWithNullable1());\n" +
+			"		check(x.methodWithNullable2());\n" +
+			"		checkGeneric(x.genericField);\n" +
+			"		checkGeneric(x.genericFieldWithNullable1);\n" +
+			"		checkGeneric(x.genericFieldWithNullable2);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\X.java (at line 35)\n" + 
+		"	check(x.fieldWithNullable1);\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'A.@NonNull B @NonNull[] @NonNull[]\' but this expression has type \'A.@Nullable B @NonNull[] @NonNull[]\'\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\X.java (at line 36)\n" + 
+		"	check(x.fieldWithNullable2);\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'A.@NonNull B @NonNull[] @NonNull[]\' but this expression has type \'A.@NonNull B @NonNull[] @Nullable[]\'\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\X.java (at line 38)\n" + 
+		"	check(x.listWithNullable1.get());\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'A.@NonNull B @NonNull[] @NonNull[]\' but this expression has type \'A.@Nullable B @NonNull[] @NonNull[]\'\n" + 
+		"----------\n" + 
+		"4. ERROR in test\\X.java (at line 39)\n" + 
+		"	check(x.listWithNullable2.get());\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'A.@NonNull B @NonNull[] @NonNull[]\' but this expression has type \'A.@NonNull B @NonNull[] @Nullable[]\'\n" + 
+		"----------\n" + 
+		"5. ERROR in test\\X.java (at line 41)\n" + 
+		"	check(x.methodWithNullable1());\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'A.@NonNull B @NonNull[] @NonNull[]\' but this expression has type \'A.@Nullable B @NonNull[] @NonNull[]\'\n" + 
+		"----------\n" + 
+		"6. ERROR in test\\X.java (at line 42)\n" + 
+		"	check(x.methodWithNullable2());\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'A.@NonNull B @NonNull[] @NonNull[]\' but this expression has type \'A.@NonNull B @NonNull[] @Nullable[]\'\n" + 
+		"----------\n" + 
+		"7. ERROR in test\\X.java (at line 44)\n" + 
+		"	checkGeneric(x.genericFieldWithNullable1);\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Ref<A.@NonNull B @NonNull[] @NonNull[]> @NonNull[] @NonNull[]\' but this expression has type \'@Nullable Ref<A.@Nullable B @NonNull[] @NonNull[]> @NonNull[] @NonNull[]\'\n" + 
+		"----------\n" + 
+		"8. ERROR in test\\X.java (at line 45)\n" + 
+		"	checkGeneric(x.genericFieldWithNullable2);\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Ref<A.@NonNull B @NonNull[] @NonNull[]> @NonNull[] @NonNull[]\' but this expression has type \'@NonNull Ref<A.@NonNull B @NonNull[] @Nullable[]> @NonNull[] @Nullable[]\'\n" + 
+		"----------\n"
+	);
+}
+public void testBug499589BTBqualified() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Ref.java",
+			"package test;\n" +
+			"\n" +
+			"public class Ref<T> {\n" +
+			"	T get() {\n" +
+			"		throw new RuntimeException();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+			"test/A.java",
+			"package test;\n" +
+			"\n" +
+			"public class A {\n" +
+			"	class B {\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+			"test/X.java",
+			"package test;\n" +
+			"\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.*;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"\n" +
+			"@SuppressWarnings({ \"unchecked\" })\n" +
+			"@NonNullByDefault({ FIELD, RETURN_TYPE, PARAMETER, ARRAY_CONTENTS, TYPE_ARGUMENT })\n" +
+			"public abstract class X {\n" +
+			"	public final test.A.B[][] field = {};\n" +
+			"	public final test.A.@Nullable B[][] fieldWithNullable1 = {};\n" +
+			"	public final test.A.B[] @Nullable [] fieldWithNullable2 = {};\n" +
+			"\n" +
+			"	public final test.Ref<test.A.B[][]> list = new Ref<>();\n" +
+			"	public final test.Ref<test.A.@Nullable B[][]> listWithNullable1 = new Ref<>();\n" +
+			"	public final test.Ref<test.A.B[] @Nullable []> listWithNullable2 = new Ref<>();\n" +
+			"\n" +
+			"	public abstract test.A.B[][] method();\n" +
+			"	public abstract test.A.@Nullable B[][] methodWithNullable1();\n" +
+			"	public abstract test.A.B[] @Nullable [] methodWithNullable2();\n" +
+			"\n" +
+			"	public final test.Ref<test.A.B[][]>[][] genericField = new Ref[0][];\n" +
+			"	public final test.@Nullable Ref<test.A.@Nullable B[][]>[][] genericFieldWithNullable1 = new Ref[0][];;\n" +
+			"	public final test.Ref<test.A.B[] @Nullable []>[] @Nullable[] genericFieldWithNullable2 = new Ref[0][];;\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/BinaryUsage.java",
+			"package test;\n" +
+			"\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"class BinaryUsage {\n" +
+			"	void check(test.A.@NonNull B @NonNull [] @NonNull [] s) {\n" +
+			"	}\n" +
+			"	void checkGeneric(test.@NonNull Ref<test.A.@NonNull B @NonNull [] @NonNull []> @NonNull [] @NonNull [] s) {\n" +
+			"	}\n" +
+			"\n" +
+			"	void f(X x) {\n" +
+			"		check(x.field);\n" +
+			"		check(x.fieldWithNullable1);\n" +
+			"		check(x.fieldWithNullable2);\n" +
+			"		check(x.list.get());\n" +
+			"		check(x.listWithNullable1.get());\n" +
+			"		check(x.listWithNullable2.get());\n" +
+			"		check(x.method());\n" +
+			"		check(x.methodWithNullable1());\n" +
+			"		check(x.methodWithNullable2());\n" +
+			"		checkGeneric(x.genericField);\n" +
+			"		checkGeneric(x.genericFieldWithNullable1);\n" +
+			"		checkGeneric(x.genericFieldWithNullable2);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\BinaryUsage.java (at line 14)\n" + 
+		"	check(x.fieldWithNullable1);\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'A.@NonNull B @NonNull[] @NonNull[]\' but this expression has type \'A.@Nullable B @NonNull[] @NonNull[]\'\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\BinaryUsage.java (at line 15)\n" + 
+		"	check(x.fieldWithNullable2);\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'A.@NonNull B @NonNull[] @NonNull[]\' but this expression has type \'A.@NonNull B @NonNull[] @Nullable[]\'\n" + 
+		"----------\n" + 
+		"3. ERROR in test\\BinaryUsage.java (at line 17)\n" + 
+		"	check(x.listWithNullable1.get());\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'A.@NonNull B @NonNull[] @NonNull[]\' but this expression has type \'A.@Nullable B @NonNull[] @NonNull[]\'\n" + 
+		"----------\n" + 
+		"4. ERROR in test\\BinaryUsage.java (at line 18)\n" + 
+		"	check(x.listWithNullable2.get());\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'A.@NonNull B @NonNull[] @NonNull[]\' but this expression has type \'A.@NonNull B @NonNull[] @Nullable[]\'\n" + 
+		"----------\n" + 
+		"5. ERROR in test\\BinaryUsage.java (at line 20)\n" + 
+		"	check(x.methodWithNullable1());\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'A.@NonNull B @NonNull[] @NonNull[]\' but this expression has type \'A.@Nullable B @NonNull[] @NonNull[]\'\n" + 
+		"----------\n" + 
+		"6. ERROR in test\\BinaryUsage.java (at line 21)\n" + 
+		"	check(x.methodWithNullable2());\n" + 
+		"	      ^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'A.@NonNull B @NonNull[] @NonNull[]\' but this expression has type \'A.@NonNull B @NonNull[] @Nullable[]\'\n" + 
+		"----------\n" + 
+		"7. ERROR in test\\BinaryUsage.java (at line 23)\n" + 
+		"	checkGeneric(x.genericFieldWithNullable1);\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Ref<A.@NonNull B @NonNull[] @NonNull[]> @NonNull[] @NonNull[]\' but this expression has type \'@Nullable Ref<A.@Nullable B @NonNull[] @NonNull[]> @NonNull[] @NonNull[]\'\n" + 
+		"----------\n" + 
+		"8. ERROR in test\\BinaryUsage.java (at line 24)\n" + 
+		"	checkGeneric(x.genericFieldWithNullable2);\n" + 
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+		"Null type mismatch (type annotations): required \'@NonNull Ref<A.@NonNull B @NonNull[] @NonNull[]> @NonNull[] @NonNull[]\' but this expression has type \'@NonNull Ref<A.@NonNull B @NonNull[] @Nullable[]> @NonNull[] @Nullable[]\'\n" + 
+		"----------\n"
+	);
+}
+public void testBug499589arrayAllocation() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/ArrayAllocation.java",
+			"package test;\n" +
+			"\n" +
+			"import static org.eclipse.jdt.annotation.DefaultLocation.ARRAY_CONTENTS;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault({ ARRAY_CONTENTS })\n" +
+			"public class ArrayAllocation {\n" +
+			"	public Integer[] x1 = { 1, 2, 3, null };\n" +
+			"	public Integer[] x2 = new Integer[] { 1, 2, 3 };\n" +
+			"	public Integer[] x3 = new Integer[] { 1, 2, 3, null };\n" +
+			"	public Integer[] x4 = new Integer[3];\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\ArrayAllocation.java (at line 9)\n" + 
+		"	public Integer[] x1 = { 1, 2, 3, null };\n" + 
+		"	                                 ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Integer\' but the provided value is null\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\ArrayAllocation.java (at line 11)\n" + 
+		"	public Integer[] x3 = new Integer[] { 1, 2, 3, null };\n" + 
+		"	                                               ^^^^\n" + 
+		"Null type mismatch: required \'@NonNull Integer\' but the provided value is null\n" + 
+		"----------\n" + 
+		"3. WARNING in test\\ArrayAllocation.java (at line 12)\n" + 
+		"	public Integer[] x4 = new Integer[3];\n" + 
+		"	                      ^^^^^^^^^^^^^^\n" + 
+		"Null type safety (type annotations): The expression of type \'Integer[]\' needs unchecked conversion to conform to \'@NonNull Integer []\'\n" + 
+		"----------\n"
+	);
+}
+public void testBug499589generics() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/Methods.java",
+			"package test;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.DefaultLocation;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault({ DefaultLocation.TYPE_ARGUMENT, DefaultLocation.ARRAY_CONTENTS })\n" +
+			"public class Methods {\n" +
+			"	static interface List<T> {\n" +
+			"		T get(int i);\n" +
+			"	}\n" +
+			"\n" +
+			"	public static List<String> f0(List<String> list) {\n" +
+			"		@NonNull\n" +
+			"		Object o = list.get(0);\n" +
+			"		return list;\n" +
+			"	}\n" +
+			"\n" +
+			"	public static String[] f1(String[] array) {\n" +
+			"		@NonNull\n" +
+			"		Object o = array[0];\n" +
+			"		return array;\n" +
+			"	}\n" +
+			"\n" +
+			"	public static <T> List<T> g0(List<T> list) {\n" +
+			"		@NonNull\n" +
+			"		Object o = list.get(0); // problem\n" +
+			"		return list;\n" +
+			"	}\n" +
+			"\n" +
+			"	public static <T> T[] g1(T[] array) {\n" +
+			"		@NonNull\n" +
+			"		Object o = array[0]; // problem\n" +
+			"		return array;\n" +
+			"	}\n" +
+			"\n" +
+			"	public static <@NonNull T> List<@NonNull T> h0(List<T> list) {\n" +
+			"		@NonNull\n" +
+			"		Object o = list.get(0);\n" +
+			"		return list;\n" +
+			"	}\n" +
+			"\n" +
+			"	public static <@NonNull T> @NonNull T[] h1(T[] array) {\n" +
+			"		@NonNull\n" +
+			"		Object o = array[0];\n" +
+			"		return array;\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\Methods.java (at line 26)\n" + 
+		"	Object o = list.get(0); // problem\n" + 
+		"	           ^^^^^^^^^^^\n" + 
+		"Null type safety: required \'@NonNull\' but this expression has type \'T\', a free type variable that may represent a \'@Nullable\' type\n" + 
+		"----------\n" + 
+		"2. ERROR in test\\Methods.java (at line 32)\n" + 
+		"	Object o = array[0]; // problem\n" + 
+		"	           ^^^^^^^^\n" + 
+		"Null type safety: required \'@NonNull\' but this expression has type \'T\', a free type variable that may represent a \'@Nullable\' type\n" + 
+		"----------\n"
+	);
+}
 public void testBug511723() {
 	runNegativeTestWithLibs(
 		new String[] {
@@ -14274,6 +15043,80 @@ public void testBug511723() {
 		"	Object o = array[0]; // problem\n" + 
 		"	           ^^^^^^^^\n" + 
 		"Null type safety: required \'@NonNull\' but this expression has type \'T\', a free type variable that may represent a \'@Nullable\' type\n" + 
+		"----------\n"
+	);
+}
+public void testBug498084() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"import java.util.HashMap;\n" +
+			"import java.util.Map;\n" +
+			"import java.util.function.Function;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Test {\n" +
+			"\n" +
+			"	protected static final <K, V> V cache(final Map<K, V> cache, final V value, final Function<V, K> keyFunction) {\n" +
+			"		cache.put(keyFunction.apply(value), value);\n" +
+			"		return value;\n" +
+			"	}\n" +
+			"\n" +
+			"	public static final void main(final String[] args) {\n" +
+			"		Map<Integer, String> cache = new HashMap<>();\n" +
+			"		cache(cache, \"test\", String::length); // Warning: Null type safety at\n" +
+			"											// method return type: Method\n" +
+			"											// descriptor\n" +
+			"											// Function<String,Integer>.apply(String)\n" +
+			"											// promises '@NonNull Integer'\n" +
+			"											// but referenced method\n" +
+			"											// provides 'int'\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+public void testBug498084b() {
+	runNegativeTestWithLibs(
+		new String[] {
+			"test/Test2.java",
+			"package test;\n" +
+			"\n" +
+			"import java.util.function.Consumer;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public class Test2 {\n" +
+			"	static void f(int i) {\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String[] args) {\n" +
+			"		Consumer<@Nullable Integer> sam = Test2::f;\n" +
+			"		sam.accept(null); // <- NullPointerExpection when run\n" +
+			"		Consumer<Integer> sam2 = Test2::f;\n" +
+			"		sam2.accept(null); // variation: unchecked \n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		"----------\n" + 
+		"1. ERROR in test\\Test2.java (at line 12)\n" + 
+		"	Consumer<@Nullable Integer> sam = Test2::f;\n" + 
+		"	                                  ^^^^^^^^\n" + 
+		"Null type mismatch at parameter 1: required \'int\' but provided \'@Nullable Integer\' via method descriptor Consumer<Integer>.accept(Integer)\n" + 
+		"----------\n" + 
+		"2. WARNING in test\\Test2.java (at line 14)\n" + 
+		"	Consumer<Integer> sam2 = Test2::f;\n" + 
+		"	                         ^^^^^^^^\n" + 
+		"Null type safety: parameter 1 provided via method descriptor Consumer<Integer>.accept(Integer) needs unchecked conversion to conform to \'int\'\n" + 
 		"----------\n"
 	);
 }
