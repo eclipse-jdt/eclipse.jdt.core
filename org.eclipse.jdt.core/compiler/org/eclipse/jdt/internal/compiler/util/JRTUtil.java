@@ -18,6 +18,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -25,6 +27,7 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -178,18 +181,35 @@ class JrtFileSystem {
 		initialize(jrt);
 	}
 	void initialize(File jrt) throws IOException {
-		String jdkHome = null;
-		if (jrt.toString().endsWith(JRTUtil.JRT_FS_JAR)) {
-			jdkHome = jrt.getParentFile().getParent();
-		} else if (jrt.isDirectory()) {
-			jdkHome = jrt.toPath().toString();
+		String javaVersion = System.getProperty("java.version"); //$NON-NLS-1$
+		if (javaVersion != null && javaVersion.startsWith("1.8")) { //$NON-NLS-1$
+			URL url = null;
+			if (jrt.toString().endsWith(JRTUtil.JRT_FS_JAR)) {
+				url = jrt.toPath().toUri().toURL();
+			} else if (jrt.isDirectory()) {
+				url = jrt.toPath().toUri().toURL();
+			} else {
+				String jdkHome = jrt.getParentFile().getParentFile().getParent();
+				url = Paths.get(jdkHome, JRTUtil.JRT_FS_JAR).toUri().toURL();
+			}
+			JRTUtil.MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
+			URLClassLoader loader = new URLClassLoader(new URL[] { url });
+			HashMap<String, ?> env = new HashMap<>();
+			this.jrtSystem = FileSystems.newFileSystem(JRTUtil.JRT_URI, env, loader);
 		} else {
-			return;
+			String jdkHome = null;
+			if (jrt.toString().endsWith(JRTUtil.JRT_FS_JAR)) {
+				jdkHome = jrt.getParentFile().getParent();
+			} else if (jrt.isDirectory()) {
+				jdkHome = jrt.toPath().toString();
+			} else {
+				return;
+			}
+			JRTUtil.MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
+			HashMap<String, String> env = new HashMap<>();
+			env.put("java.home", jdkHome); //$NON-NLS-1$
+			this.jrtSystem = FileSystems.newFileSystem(JRTUtil.JRT_URI, env);
 		}
-		JRTUtil.MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
-		HashMap<String, String> env = new HashMap<>();
-		env.put("java.home", jdkHome); //$NON-NLS-1$
-		this.jrtSystem = FileSystems.newFileSystem(JRTUtil.JRT_URI, env);
 		walkModuleImage(null, true, 0 /* doesn't matter */);
 	}
 
