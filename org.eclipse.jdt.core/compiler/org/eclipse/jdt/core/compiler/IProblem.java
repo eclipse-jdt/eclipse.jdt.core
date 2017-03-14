@@ -1896,41 +1896,41 @@ void setSourceStart(int sourceStart);
 	/** @since 3.13 BETA_JAVA9*/
 	int IllegalModifierCombinationForPrivateInterfaceMethod9 = MethodRelated + 1070;
 	/** @since 3.13 BETA_JAVA9 */
-	int UndefinedModule = TypeRelated + 1200;
+	int UndefinedModule = TypeRelated + 1300;
 	/** @since 3.13 BETA_JAVA9 */
-	int DuplicateRequires = TypeRelated + 1201;
+	int DuplicateRequires = TypeRelated + 1301;
 	/** @since 3.13 BETA_JAVA9 */
-	int DuplicateExports = TypeRelated + 1202;
+	int DuplicateExports = TypeRelated + 1302;
 	/** @since 3.13 BETA_JAVA9 */
-	int DuplicateUses = TypeRelated + 1203;
+	int DuplicateUses = TypeRelated + 1303;
 	/** @since 3.13 BETA_JAVA9 */
-	int DuplicateServices = TypeRelated + 1204;
+	int DuplicateServices = TypeRelated + 1304;
 	/** @since 3.13 BETA_JAVA9 */
-	int CyclicModuleDependency = TypeRelated + 1205;
+	int CyclicModuleDependency = TypeRelated + 1305;
 	/** @since 3.13 BETA_JAVA9 */
-	int AbstractServiceImplementation = TypeRelated + 1206;
+	int AbstractServiceImplementation = TypeRelated + 1306;
 	/** @since 3.13 BETA_JAVA9 */
-	int ProviderMethodOrConstructorRequiredForServiceImpl = TypeRelated + 1207;
+	int ProviderMethodOrConstructorRequiredForServiceImpl = TypeRelated + 1307;
 	/** @since 3.13 BETA_JAVA9 */
-	int ServiceImplDefaultConstructorNotPublic = TypeRelated + 1208;
+	int ServiceImplDefaultConstructorNotPublic = TypeRelated + 1308;
 	/** @since 3.13 BETA_JAVA9 */
-	int NestedServiceImpl = TypeRelated + 1209;
+	int NestedServiceImpl = TypeRelated + 1309;
 	/** @since 3.13 BETA_JAVA9 */
-	int ServiceImplNotDefinedByModule = TypeRelated + 1210;
+	int ServiceImplNotDefinedByModule = TypeRelated + 1310;
 	/** @since 3.13 BETA_JAVA9 */
-	int PackageDoesNotExistOrIsEmpty = TypeRelated + 1211;
+	int PackageDoesNotExistOrIsEmpty = TypeRelated + 1311;
 	/** @since 3.13 BETA_JAVA9 */
-	int NonDenotableTypeArgumentForAnonymousDiamond = TypeRelated + 1212;
+	int NonDenotableTypeArgumentForAnonymousDiamond = TypeRelated + 1312;
 	/** @since 3.13 BETA_JAVA9 */
-	int DuplicateOpens = TypeRelated + 1213;
+	int DuplicateOpens = TypeRelated + 1313;
 	/** @since 3.13 BETA_JAVA9 */
-	int DuplicateModuleRef = TypeRelated + 1214;
+	int DuplicateModuleRef = TypeRelated + 1314;
 	/** @since 3.13 BETA_JAVA9 */
-	int InvalidOpensStatement = TypeRelated + 1215;
+	int InvalidOpensStatement = TypeRelated + 1315;
 	/** @since 3.13 BETA_JAVA9 */
-	int InvalidServiceIntfType = TypeRelated + 1216;
+	int InvalidServiceIntfType = TypeRelated + 1316;
 	/** @since 3.13 BETA_JAVA9 */
-	int InvalidServiceImplType = TypeRelated + 1217;
+	int InvalidServiceImplType = TypeRelated + 1317;
 
 	/** @since 3.13 BETA_JAVA9 */
 	int DuplicateResource = Internal + 1251;
