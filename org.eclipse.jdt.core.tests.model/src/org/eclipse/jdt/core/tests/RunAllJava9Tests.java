@@ -17,7 +17,6 @@ package org.eclipse.jdt.core.tests;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.eclipse.jdt.core.tests.compiler.parser.SelectionParserTest9;
 import org.eclipse.jdt.core.tests.dom.ASTConverter9Test;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
 import org.eclipse.jdt.core.tests.model.CompletionTests9;
@@ -42,7 +41,6 @@ public class RunAllJava9Tests extends TestCase {
 			Java9ElementTests.class,
 			JavaSearchBugs9Tests.class,
 			CompletionTests9.class,
-			SelectionParserTest9.class,
 		};
 	}
 

@@ -198,8 +198,9 @@ public class ModuleBinding extends Binding {
 			if (existing == LookupEnvironment.TheNotFoundPackage)
 				return null;
 		}
-		if (declaresPackage(null, name)) {
-			return new PackageBinding(name, this.environment);
+		existing = getDeclaredPackage(new char[][] {name});
+		if (existing != null) {
+			return existing;
 		} else {
 			return Stream.of(getAllRequiredModules()).sorted((m1, m2) -> m1.requires.length - m2.requires.length)
 					.map(m -> {
