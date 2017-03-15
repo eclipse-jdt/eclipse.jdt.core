@@ -294,8 +294,8 @@ public void testBug501162_003() throws Exception {
 				"    exports pack22 to first;\n" +
 				"}\n";
 		createFile("/second/src/module-info.java",	secondFile);
-		createFolder("/second/src/pack1");
-		createFile("/second/src/pack1/I22.java",
+		createFolder("/second/src/pack22");
+		createFile("/second/src/pack22/I22.java",
 				"package pack22;\n" +
 				"public interface I22 {}\n");
 
@@ -315,8 +315,9 @@ public void testBug501162_003() throws Exception {
 			scope,
 			this.resultCollector);
 		assertSearchResults(
-			"src/module-info.java [pack22] EXACT_MATCH\n" +
-			"src/pack1/X11.java pack1.X11 [pack22] EXACT_MATCH",
+			"src/module-info.java [pack22] EXACT_MATCH\n" + 
+			"src/pack1/X11.java pack1.X11 [pack22] EXACT_MATCH\n" + 
+			"src/module-info.java [pack22] EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {
