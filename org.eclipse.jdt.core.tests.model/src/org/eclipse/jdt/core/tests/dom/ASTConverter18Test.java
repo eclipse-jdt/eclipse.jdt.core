@@ -5267,6 +5267,7 @@ public void testBug470794_001() throws JavaModelException {
 		}
 	}
 }
+@SuppressWarnings("deprecation")
 public void testBug500503() throws JavaModelException {
 	String contents =
 			"package test432051;\n" +

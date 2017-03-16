@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
  *******************************************************************************/
@@ -2090,6 +2094,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		}
 	}
 
+		@SuppressWarnings("deprecation")
 	public void testBug508955() throws CoreException, IOException {
 		myCreateJavaProject("TestLibs");
 		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots",
@@ -2141,6 +2146,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		assertNoProblems(problems);
 	}
 
+	@SuppressWarnings("deprecation")
 	public void testBug508955b() throws CoreException, IOException {
 		myCreateJavaProject("TestLibs");
 		addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots",
