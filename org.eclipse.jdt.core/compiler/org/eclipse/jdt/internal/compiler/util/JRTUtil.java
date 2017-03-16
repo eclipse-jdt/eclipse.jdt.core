@@ -181,31 +181,24 @@ class JrtFileSystem {
 		initialize(jrt);
 	}
 	void initialize(File jrt) throws IOException {
+		URL jrtPath = null;
+		String jdkHome = null;
+		if (jrt.toString().endsWith(JRTUtil.JRT_FS_JAR)) {
+			jrtPath = jrt.toPath().toUri().toURL();
+			jdkHome = jrt.getParentFile().getParent();
+		} else {
+			jdkHome = jrt.toPath().toString();
+			jrtPath = Paths.get(jdkHome, "lib", JRTUtil.JRT_FS_JAR).toUri().toURL(); //$NON-NLS-1$
+
+		}
+		JRTUtil.MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
 		String javaVersion = System.getProperty("java.version"); //$NON-NLS-1$
 		if (javaVersion != null && javaVersion.startsWith("1.8")) { //$NON-NLS-1$
-			URL url = null;
-			if (jrt.toString().endsWith(JRTUtil.JRT_FS_JAR)) {
-				url = jrt.toPath().toUri().toURL();
-			} else if (jrt.isDirectory()) {
-				url = jrt.toPath().toUri().toURL();
-			} else {
-				String jdkHome = jrt.getParentFile().getParentFile().getParent();
-				url = Paths.get(jdkHome, JRTUtil.JRT_FS_JAR).toUri().toURL();
-			}
 			JRTUtil.MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
-			URLClassLoader loader = new URLClassLoader(new URL[] { url });
+			URLClassLoader loader = new URLClassLoader(new URL[] { jrtPath });
 			HashMap<String, ?> env = new HashMap<>();
 			this.jrtSystem = FileSystems.newFileSystem(JRTUtil.JRT_URI, env, loader);
 		} else {
-			String jdkHome = null;
-			if (jrt.toString().endsWith(JRTUtil.JRT_FS_JAR)) {
-				jdkHome = jrt.getParentFile().getParent();
-			} else if (jrt.isDirectory()) {
-				jdkHome = jrt.toPath().toString();
-			} else {
-				return;
-			}
-			JRTUtil.MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
 			HashMap<String, String> env = new HashMap<>();
 			env.put("java.home", jdkHome); //$NON-NLS-1$
 			this.jrtSystem = FileSystems.newFileSystem(JRTUtil.JRT_URI, env);
