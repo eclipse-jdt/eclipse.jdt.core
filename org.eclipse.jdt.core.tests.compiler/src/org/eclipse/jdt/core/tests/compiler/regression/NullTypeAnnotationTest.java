@@ -15140,4 +15140,67 @@ public void testBug513495() {
 		"----------\n"
 	);
 }
+public void testBug513855() {
+	runConformTestWithLibs(
+		new String[] {
+			"test1/X.java",
+			"package test1;\n" +
+			"\n" +
+			"import java.math.BigDecimal;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class X {\n" +
+			"	interface Sink<T extends Number> {\n" +
+			"		void receive(T t);\n" +
+			"	}\n" +
+			"\n" +
+			"	interface Source<U extends BigDecimal> {\n" +
+			"		U get();\n" +
+			"	}\n" +
+			"\n" +
+			"	void nn(Object x) {\n" +
+			"	}\n" +
+			"\n" +
+			"	void f(Source<?> source) {\n" +
+			"		nn(source.get());\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
+public void testBug513855lambda() {
+	runConformTestWithLibs(
+		new String[] {
+			"test1/Lambda3.java",
+			"package test1;\n" +
+			"\n" +
+			"import java.math.BigDecimal;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"\n" +
+			"@NonNullByDefault\n" +
+			"public class Lambda3 {\n" +
+			"	interface Sink<T extends Number> {\n" +
+			"		void receive(T t);\n" +
+			"	}\n" +
+			"\n" +
+			"	interface Source<U extends BigDecimal> {\n" +
+			"		void sendTo(Sink<? super U> c);\n" +
+			"	}\n" +
+			"\n" +
+			"	void f(Source<?> source) {\n" +
+			"		source.sendTo(a -> a.scale());\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
 }

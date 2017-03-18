@@ -60,8 +60,11 @@ public class CaptureBinding extends TypeVariableBinding {
 			super.setTypeAnnotations(wildcard.getTypeAnnotations(), wildcard.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled);
 			if (wildcard.hasNullTypeAnnotations())
 				this.tagBits |= TagBits.HasNullTypeAnnotation;
-		} else {			
+		} else {
 			computeId(this.environment);
+			if(wildcard.hasNullTypeAnnotations()) {
+				this.tagBits |= (wildcard.tagBits & TagBits.AnnotationNullMASK) | TagBits.HasNullTypeAnnotation;
+			}
 		}
 	}
 	
