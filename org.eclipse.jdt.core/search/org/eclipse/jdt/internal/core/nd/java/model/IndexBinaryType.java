@@ -423,7 +423,7 @@ public class IndexBinaryType implements IBinaryType {
 				case AnnotationTargetTypeConstants.METHOD_RECEIVER:
 					break;
 				case AnnotationTargetTypeConstants.METHOD_FORMAL_PARAMETER :
-					info = next.getTargetInfoArg0();
+					info = next.getTarget();
 					break;
 				case AnnotationTargetTypeConstants.THROWS :
 					info = next.getTarget();

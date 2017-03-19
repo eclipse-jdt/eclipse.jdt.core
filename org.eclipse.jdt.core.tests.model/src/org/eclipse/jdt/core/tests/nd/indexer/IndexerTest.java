@@ -158,6 +158,7 @@ public class IndexerTest extends AbstractJavaModelTests {
 				"p/Outer.java",
 				"import java.lang.annotation.*;\n" +
 				"\n" +
+				"@Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE_USE) @interface A0 {}\n" +
 				"@Retention(RetentionPolicy.RUNTIME) @Target(ElementType.TYPE_USE) @interface A {}\n" +
 				"@Retention(RetentionPolicy.RUNTIME) @Target(ElementType.METHOD) @interface M {}\n" +
 				"@Retention(RetentionPolicy.RUNTIME) @Target(ElementType.PARAMETER) @interface P {}\n" +
@@ -175,7 +176,7 @@ public class IndexerTest extends AbstractJavaModelTests {
 				"    Middle1.@A Inner e1;\n" +
 				"    Middle2.@A Inner e2;\n" +
 				"    Middle2.Middle3.@A Inner2 e3;\n" +
-				"    @M void foo(@P Middle2.Middle3.@A Inner2 e3) {};\n" +
+				"    @M void foo(@A0 Object p0, @P Middle2.Middle3.@A Inner2 e3) {};\n" +
 				"    class Middle4 extends @A Middle1 {}\n" +
 				"}\n",
 			}, "1.8");
