@@ -37,6 +37,7 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.rewrite.ImportRewrite;
+import org.eclipse.jdt.core.dom.rewrite.ImportRewrite.TypeLocation;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.tests.model.AbstractJavaModelTests;
 import org.eclipse.jface.text.BadLocationException;
@@ -544,7 +545,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		assertTrue(actualType.isParameterizedType());
 	}
 
-	private Type runTest426094andGetType(int i) throws Exception {
+	private Type runTest426094andGetType(int i, boolean testNullImportRewriteContext) throws Exception {
 		String contents = "package pack1;\n" +
 				"public class X{\n" +
 				this.bug426094TestInput[i][0] + "\n" +
@@ -594,7 +595,12 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		ITypeBinding typeBinding = variableBinding.getType();
 		cu = getCompilationUnit("/" + PROJECT + "/src/pack1/A.java");
 		ImportRewrite rewrite = newImportsRewrite(cu, new String[0], 99, 99, true);
-		Type actualType = rewrite.addImport(typeBinding, astRoot.getAST());
+		Type actualType;
+		if(testNullImportRewriteContext) {
+			actualType = rewrite.addImport(typeBinding, astRoot.getAST(), null, TypeLocation.UNKNOWN);
+		} else {
+			actualType = rewrite.addImport(typeBinding, astRoot.getAST());			
+		}
 		return actualType;
 	}
 
@@ -613,7 +619,7 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 	};
 
 	private Type bug426094_runi_since_8(int i) throws Exception {
-		Type actualType = runTest426094andGetType(i);
+		Type actualType = runTest426094andGetType(i, false);
 		assertEquals(this.bug426094TestInput[i][1], actualType.toString());
 		return actualType;
 	}
@@ -825,5 +831,10 @@ public class ImportRewrite18Test extends AbstractJavaModelTests {
 		Document document= new Document(compilationUnit.getSource());
 		edit.apply(document);
 		compilationUnit.getBuffer().setContents(document.get());
+	}
+	
+	public void testBug513869() throws Exception {
+		Type actualType = runTest426094andGetType(0, true);
+		assertEquals(this.bug426094TestInput[0][1], actualType.toString());
 	}
 }
