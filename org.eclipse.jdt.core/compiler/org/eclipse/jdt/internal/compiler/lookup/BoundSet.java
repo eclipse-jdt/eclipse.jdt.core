@@ -1256,8 +1256,8 @@ class BoundSet {
 			}
 		}
 		for (InferenceVariable iv : outerVariables) {
-			three = this.boundsPerVariable.get(outerVariables);
-			if (three != null) {
+			three = this.boundsPerVariable.get(iv);
+			if (three != null && three.sameBounds != null) {
 				for (TypeBound bound : three.sameBounds)
 					if (TypeBinding.equalsEquals(bound.right, variable))
 						return iv;
