@@ -205,7 +205,7 @@ public void movePositive(IJavaElement[] elements, IJavaElement[] destinations, I
 public void setUp() throws Exception {
 	super.setUp();
 
-	this.createJavaProject("P", new String[] {"src", "src2"}, "bin");
+	this.createJavaProject("P", new String[] {"src", "src2"}, new String[] { "JCL_LIB" }, "bin", "1.4");
 }
 static {
 //	TESTS_NAMES = new String[] { "testCopyWorkingCopyDestination"};

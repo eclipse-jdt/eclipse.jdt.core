@@ -8586,8 +8586,8 @@ public class ASTConverterTest extends ConverterTestSetup {
 			ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0344", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			preferences = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
 			pb_assert = preferences.get(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, "");
-			compiler_source = preferences.get(JavaCore.COMPILER_SOURCE, "");
-			compiler_compliance = preferences.get(JavaCore.COMPILER_COMPLIANCE, "");
+			compiler_source = preferences.get(JavaCore.COMPILER_SOURCE, null);
+			compiler_compliance = preferences.get(JavaCore.COMPILER_COMPLIANCE, null);
 
 			preferences.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
 			preferences.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
@@ -8601,8 +8601,16 @@ public class ASTConverterTest extends ConverterTestSetup {
 		} finally {
 			if (preferences != null) {
 				preferences.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, pb_assert);
-				preferences.put(JavaCore.COMPILER_SOURCE, compiler_source);
-				preferences.put(JavaCore.COMPILER_COMPLIANCE, compiler_compliance);
+				if (compiler_source != null) {
+					preferences.put(JavaCore.COMPILER_SOURCE, compiler_source);
+				} else {
+					preferences.remove(JavaCore.COMPILER_SOURCE);
+				}
+				if (compiler_compliance != null) {
+					preferences.put(JavaCore.COMPILER_COMPLIANCE, compiler_compliance);
+				} else {
+					preferences.remove(JavaCore.COMPILER_COMPLIANCE);
+				}
 			}
 		}
 	}

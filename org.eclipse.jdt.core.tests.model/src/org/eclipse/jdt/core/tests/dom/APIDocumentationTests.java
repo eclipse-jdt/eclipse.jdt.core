@@ -202,6 +202,10 @@ public void testJavaCoreAPI() throws CoreException, IllegalArgumentException, Il
 			Map.Entry optionID = (Map.Entry) optionIDs.next();
 			realOptionNames.put(optionID.getValue(), optionID.getKey());
 		}
+		// tests have specific defaults for these:
+		realOptionNames.remove(JavaCore.COMPILER_SOURCE);
+		realOptionNames.remove(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM);
+		realOptionNames.remove(JavaCore.COMPILER_COMPLIANCE);
 
 		// fetch default option values
 		Hashtable realDefaultValues = JavaCore.getDefaultOptions();
@@ -284,7 +288,7 @@ public void testJavaCoreAPI() throws CoreException, IllegalArgumentException, Il
 			Map.Entry entry = (Map.Entry) check.next();
 			key = (String) entry.getKey();
 			value = (String) entry.getValue();
-			if (!value.equals(realDefaultValues.get(key)) &&
+			if (realOptionNames.containsKey(key) && !value.equals(realDefaultValues.get(key)) &&
 					!"org.eclipse.jdt.core.compiler.problem.booleanMethodThrowingException".equals(key)) { // will remove once bug 216571 is fixed
 				expected = value;
 				actual = (String) realDefaultValues.get(key);

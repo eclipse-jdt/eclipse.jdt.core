@@ -5254,7 +5254,7 @@ public void testBug281598c() throws Exception {
 	IndexManager indexManager = JavaModelManager.getIndexManager();
 	try {
 		// Create project
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.4");
 		waitUntilIndexesReady();
 		
 		// Disable indexing
@@ -5302,7 +5302,7 @@ public void testBug281598c() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=151500
 public void testBug151500a() throws Exception {
 	try {
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib151500.jar"}, "bin", "1.4");
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib151500.jar"}, "bin", "1.4");
 		createJar(
 				new String[] {
 						"foo/Foo.java",
@@ -5514,7 +5514,7 @@ public void testBug317264b() throws CoreException {
 	IJavaProject project = null;
 	try
 	{
-		project = createJavaProject("P2");
+		project = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, "", "1.4");
 		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/Completion/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
 		
 		createFile(
@@ -5577,7 +5577,7 @@ public void testBug317264d() throws CoreException {
 	IJavaProject project = null;
 	try
 	{
-		project = createJavaProject("P2");
+		project = createJavaProject("P2", new String[] {""}, new String[] {"JCL_LIB"}, "", "1.4");
 		addClasspathEntry(project, JavaCore.newLibraryEntry(new Path("/Completion/b317264/org.apache.commons.lang_2.modified.jar"), null, null));
 		
 		createFile(
