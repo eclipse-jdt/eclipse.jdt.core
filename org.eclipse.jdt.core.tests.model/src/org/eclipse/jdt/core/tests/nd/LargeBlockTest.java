@@ -269,6 +269,25 @@ public class LargeBlockTest extends BaseTestCase {
 		assertEquals("A chunk should have been reused", chunkCount, this.db.getChunkCount());
 	}
 
+	public void testEndOfFreeBlockIsUsedIfThePreviousBlockIsLargerThanTheNextBlock() throws Exception {
+		long prevChunk = mallocChunks(4);
+		long middleChunk = mallocChunks(4);
+		long nextChunk = mallocChunks(2);
+
+		free(middleChunk);
+		// This should be taken from the end of "middleChunk", since that's closer to the smaller neighbor
+		long smallChunk1 = mallocChunks(1);
+		// This should also be taken from the end of the remaining portion of "middleChunk"
+		long smallChunk2 = mallocChunks(1);
+
+		assertTrue("The small chunks should have been allocated from space after 'prevChunk'",
+				prevChunk < smallChunk2);
+		assertTrue("The small chunks should have been allocated from the end of the free block",
+				smallChunk2 < smallChunk1);
+		assertTrue("The small chunks should have been allocated from space before 'nextChunk'",
+				smallChunk1 < nextChunk);
+	}
+
 	/**
 	 * Tests various corner cases in the trie map.
 	 */

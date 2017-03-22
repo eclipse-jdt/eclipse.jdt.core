@@ -653,7 +653,7 @@ public class Database {
 				linkFreeBlockToTrie(freeBlockChunkNum + neededChunks, unusedChunks);
 			} else {
 				// Use the end of the block
-				resultChunkNum = freeBlockChunkNum + neededChunks;
+				resultChunkNum = freeBlockChunkNum + unusedChunks;
 				// Return the first half of the block to the free block pool
 				linkFreeBlockToTrie(freeBlockChunkNum, unusedChunks);
 			}
