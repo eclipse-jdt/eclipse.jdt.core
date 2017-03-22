@@ -15203,4 +15203,38 @@ public void testBug513855lambda() {
 		""
 	);
 }
+public void testBug514091() {
+	runConformTestWithLibs(
+		new String[] {
+			"test1/SAM.java",
+			"package test1;\n" +
+			"\n" +
+			"@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+			"interface SAM<A> {\n" +
+			"	void f(A[] a);\n" +
+			"}\n" +
+			""
+		}, 
+		getCompilerOptions(),
+		""
+	);
+	runConformTestWithLibs(
+		new String[] {
+			"test1/LambdaNN.java",
+			"package test1;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"\n" +
+			"public class LambdaNN {\n" +
+			"	void g1() {\n" +
+			"		SAM<? super Number> sam = (Number @NonNull [] a) -> {};\n" +
+			"		sam.f(new Number[0]);\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
 }

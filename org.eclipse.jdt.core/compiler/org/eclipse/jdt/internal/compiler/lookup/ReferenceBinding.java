@@ -1997,6 +1997,9 @@ protected MethodBinding [] getInterfaceAbstractContracts(Scope scope, boolean re
 		if (contractsCount == contractsLength) {
 			System.arraycopy(contracts, 0, contracts = new MethodBinding[contractsLength += 16], 0, contractsCount);
 		}
+		if(environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+			ImplicitNullAnnotationVerifier.ensureNullnessIsKnown(method, scope);
+		}
 		contracts[contractsCount++] = method;
 	}
 	// check mutual overriding of inherited methods (i.e., not from current type):
