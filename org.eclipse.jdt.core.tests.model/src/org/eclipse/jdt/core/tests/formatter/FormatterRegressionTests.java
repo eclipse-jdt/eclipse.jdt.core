@@ -107,6 +107,14 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	private void setFormatterOptions80() {
 		this.formatterOptions.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, Integer.toString(80));
 	}
+
+	/**
+	 * Helper function for tests that are expect comment width counted from the
+	 * beginning of the line, not from comment's starting position.
+	 */
+	protected void useOldCommentWidthCounting() {
+		this.formatterPrefs.comment_count_line_length_from_starting_position = false;
+	}
 	/**
 	 * Returns the OS path to the directory that contains this plugin.
 	 *

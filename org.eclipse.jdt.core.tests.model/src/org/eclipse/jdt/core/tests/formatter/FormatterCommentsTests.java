@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -239,6 +239,7 @@ private Map getDefaultCompilerOptions() {
 }
 
 void formatUnit(String packageName, String unitName) throws JavaModelException{
+	useOldCommentWidthCounting();
 	formatUnit(packageName, unitName, CodeFormatter.K_COMPILATION_UNIT | CodeFormatter.F_INCLUDE_COMMENTS, 0, false, 0, -1, null);
 }
 
@@ -732,6 +733,7 @@ public void testLineComments01() throws JavaModelException {
 	formatUnit("comments.line", "X01.java");
 }
 public void testLineComments02() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source =
 		"public class X02 {\r\n" + 
 		"	int field; // This is a long comment that should be split in multiple line comments in case the line comment formatting is enabled\r\n" + 
@@ -745,6 +747,7 @@ public void testLineComments02() throws JavaModelException {
 	);
 }
 public void testLineComments02b() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source =
 		"public interface X02b {\r\n" + 
 		"\r\n" + 
@@ -776,6 +779,7 @@ public void testLineComments06() throws JavaModelException {
 	formatUnit("comments.line", "X06.java");
 }
 public void testLineComments07() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source =
 		"package test.comments.line;\r\n" + 
 		"\r\n" + 
@@ -826,6 +830,7 @@ public void testLineComments10() throws JavaModelException {
 	formatUnit("comments.line", "X10.java");
 }
 public void testLineComments11() throws JavaModelException {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.comment_line_length = 40;
 	String source = 
 		"package test.comments.line;\r\n" + 

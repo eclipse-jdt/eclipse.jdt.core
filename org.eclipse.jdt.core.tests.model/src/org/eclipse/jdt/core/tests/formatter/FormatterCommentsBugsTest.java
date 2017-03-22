@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1628,6 +1628,7 @@ public void testBug233259a() throws JavaModelException {
 	);
 }
 public void testBug233259b() throws JavaModelException {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.comment_line_length = 40;
 	// difference with 3.3 formatter:
 	// split html reference as this allow not to go over the max line width
@@ -2484,6 +2485,7 @@ public void testBug237051c() throws JavaModelException {
 	);
 }
 public void testBug237051d() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source =
 		"public class X {\n" +
 		"\n" +
@@ -2898,6 +2900,7 @@ public void testBug238210_X01() throws JavaModelException {
 	);
 }
 public void testBug238210_X02() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source = 
 		"package eclipse30;\n" + 
 		"\n" + 
@@ -2915,6 +2918,7 @@ public void testBug238210_X02() throws JavaModelException {
 	);
 }
 public void testBug238210_X03() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source = 
 		"package eclipse30;\n" + 
 		"\n" + 
@@ -3161,6 +3165,7 @@ public void testBug239130_clearBlankLines_preserveLineBreaks() throws JavaModelE
 }
 // duplicate bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=196124
 public void testBug239130_196124_default() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source = 
 		"public class X {\n" + 
 		"\n" + 
@@ -3247,6 +3252,7 @@ public void testBug239130_96696_block_default() throws JavaModelException {
 	formatSource(source, source);
 }
 public void testBug239130_96696_block_clearBlankLines() throws JavaModelException {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.join_wrapped_lines = false;
 	this.formatterPrefs.comment_clear_blank_lines_in_block_comment = true;
 	String source = 
@@ -3325,6 +3331,7 @@ public void testBug239130_96696_javadoc_default() throws JavaModelException {
 	formatSource(source, source);
 }
 public void testBug239130_96696_javadoc_clearBlankLines() throws JavaModelException {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.comment_clear_blank_lines_in_javadoc_comment = true;
 	String source = 
 		"public class Test {\n" + 
@@ -3426,6 +3433,7 @@ public void testBug239719() throws JavaModelException {
 	);
 }
 public void testBug239719b() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source = 
 		"public class X01 {\n" + 
 		"	\n" + 
@@ -4282,6 +4290,7 @@ public void testBug260011_05() throws JavaModelException {
 	);
 }
 public void testBug260011_06() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source = 
 		"public interface Test {\n" + 
 		"\n" + 
@@ -4525,6 +4534,7 @@ public void testBug260274d() throws JavaModelException {
 	);
 }
 public void testBug260274e() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source = 
 		"class X {\n" + 
 		"/*\n" + 
@@ -4544,6 +4554,7 @@ public void testBug260274e() throws JavaModelException {
 	);
 }
 public void testBug260274f() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source = 
 		"class X {\n" + 
 		"/* *****************************************************************************\n" + 
@@ -4564,6 +4575,7 @@ public void testBug260274f() throws JavaModelException {
 	);
 }
 public void testBug260274g() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source = 
 		"class X {\n" + 
 		"/*\n" + 
@@ -4894,6 +4906,7 @@ public void testBug260381k() throws JavaModelException {
 	formatSource(source);
 }
 public void testBug260381_wksp1_01() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source =
 		"package wksp1;\n" +
 		"\n" +
@@ -5067,6 +5080,7 @@ public void testBug260381_wksp2_01c() throws JavaModelException {
 	);
 }
 public void testBug260381_wksp2_02() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -5099,6 +5113,7 @@ public void testBug260381_wksp2_02() throws JavaModelException {
 	);
 }
 public void testBug260381_wksp2_03() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -5177,6 +5192,7 @@ public void testBug260381_wksp2_03b() throws JavaModelException {
 	);
 }
 public void testBug260381_wksp2_04() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -5238,6 +5254,7 @@ public void testBug260381_wksp2_04() throws JavaModelException {
 	);
 }
 public void testBug260381_wksp2_05() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -5321,6 +5338,7 @@ public void testBug260381_wksp2_05() throws JavaModelException {
 	);
 }
 public void testBug260381_wksp2_06() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -5383,6 +5401,7 @@ public void testBug260381_wksp2_06() throws JavaModelException {
 	);
 }
 public void testBug260381_wksp2_07() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -5427,6 +5446,7 @@ public void testBug260381_wksp2_07() throws JavaModelException {
 	);
 }
 public void testBug260381_wksp2_08() throws JavaModelException {
+	useOldCommentWidthCounting();
 	String source =
 		"package wksp2;\n" +
 		"\n" +
@@ -6420,6 +6440,7 @@ public void testBug305518() {
 	    "}\n");
 }
 public void testBug305518_wksp2_01() {
+	useOldCommentWidthCounting();
 	String source = 
 		"public class X01 {\n" + 
 		"/**\n" + 
@@ -6750,6 +6771,7 @@ public void testBug309835_wksp1_01() {
 	);
 }
 public void testBug309835_wksp1_02() {
+	useOldCommentWidthCounting();
 	String source = 
 		"public class X02 {\n" + 
 		"\n" + 
@@ -6814,6 +6836,7 @@ public void testBug309835_wksp2_01() {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=311864"
  */
 public void testBug311864() throws JavaModelException {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.use_tags = true;
 	String source =
 		"public class Test {\n" + 
@@ -7110,6 +7133,7 @@ public void testBug313651_wksp3_02() {
 	);
 }
 public void testBug348338() {
+	useOldCommentWidthCounting();
 	String source = 
 		"public class X03 {\n" + 
 		"	/**\n" + 
@@ -7201,6 +7225,7 @@ public void testBug471918() {
  * https://bugs.eclipse.org/474011 - [formatter] non-nls strings are duplicated by formatter
  */
 public void testBug474011() {
+	useOldCommentWidthCounting();
 	String source = 
 		"class A {\n" + 
 		"	String aaaaaaaaaaaaaaaa = \"11111111111111111111111111111111111111\"; //$NON-NLS-1$ aaa bbb ccc\n" + 
@@ -7228,6 +7253,7 @@ public void testBug474011() {
  * https://bugs.eclipse.org/475294 - [formatter] "Preserve whitespace..." problems with wrapped line comments
  */
 public void testBug475294() {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.comment_preserve_white_space_between_code_and_line_comments = true;
 	String source = 
 		"public class A {\n" + 
@@ -7277,6 +7303,7 @@ public void testBug475294() {
  * https://bugs.eclipse.org/475294 - [formatter] "Preserve whitespace..." problems with wrapped line comments
  */
 public void testBug475294b() {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.comment_preserve_white_space_between_code_and_line_comments = true;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
 	String source = 
@@ -7581,6 +7608,7 @@ public void testBug510995b() {
  * https://bugs.eclipse.org/512095 - [formatter] Unstable wrap on a line with wrapped code and wrapped block comment
  */
 public void testBug512095() {
+	useOldCommentWidthCounting();
 	String source = 
 		"class Test1 {\n" + 
 		"	void f() {\n" + 
