@@ -34,7 +34,7 @@ public class NdMethodAnnotationData extends NdNode {
 
 	static {
 		type = StructDef.create(NdMethodAnnotationData.class, NdNode.type);
-		METHOD = FieldOneToOne.createOwner(type, NdMethod.class, NdMethod.ANNOTATION_DATA);
+		METHOD = FieldOneToOne.createOwner(type, NdMethod.type, NdMethod.ANNOTATION_DATA);
 		TAG_BITS = type.addLong();
 		ANNOTATIONS = FieldOneToMany.create(type, NdAnnotationInMethod.OWNER);
 		TYPE_ANNOTATIONS = FieldOneToMany.create(type, NdTypeAnnotationInMethod.OWNER);

@@ -706,4 +706,12 @@ public final class Nd {
 	public boolean isValidAddress(long address) {
 		return address > 0 && address < (long) getDB().getChunkCount() * Database.CHUNK_SIZE;
 	}
+
+	/**
+	 * Creates a {@link ProblemBuilder} object that collects information about database corruption after it is 
+	 * detected.
+	 */
+	public ProblemBuilder describeProblem() {
+		return this.db.describeProblem();
+	}
 }

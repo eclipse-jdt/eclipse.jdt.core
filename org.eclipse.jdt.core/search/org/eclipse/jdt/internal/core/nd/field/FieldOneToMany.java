@@ -21,10 +21,9 @@ import org.eclipse.jdt.internal.core.nd.RawGrowableArray;
  * Holds the 1 side of a 1..n relationship between two objects. FieldNodePointer and FieldBackPointer fields always go
  * together in pairs.
  */
-public class FieldOneToMany<T extends NdNode> implements IDestructableField, IRefCountedField, IField {
-	private int offset;
-	public Class<T> targetType;
-	public final Class<? extends NdNode> localType;
+public class FieldOneToMany<T extends NdNode> extends BaseField implements IDestructableField, IRefCountedField, IField {
+	public StructDef<T> targetType;
+	public final StructDef<? extends NdNode> localType;
 	private final RawGrowableArray backPointerArray;
 	FieldManyToOne<?> forwardPointer;
 
@@ -33,7 +32,7 @@ public class FieldOneToMany<T extends NdNode> implements IDestructableField, IRe
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private FieldOneToMany(Class<? extends NdNode> localType, FieldManyToOne<? extends NdNode> forwardPointer,
+	private FieldOneToMany(StructDef<? extends NdNode> localType, FieldManyToOne<? extends NdNode> forwardPointer,
 			int inlineElements) {
 		this.localType = localType;
 
@@ -43,11 +42,13 @@ public class FieldOneToMany<T extends NdNode> implements IDestructableField, IRe
 					"Attempted to construct a FieldBackPointer referring to a forward pointer that is already in use" //$NON-NLS-1$
 						+ " by another field"); //$NON-NLS-1$
 			}
-			forwardPointer.targetType = (Class)localType;
-			this.targetType = (Class)forwardPointer.localType;
+			forwardPointer.targetType = (StructDef)localType;
+			this.targetType = (StructDef)forwardPointer.localType;
 			forwardPointer.backPointer = this;
 		}
 		this.forwardPointer = forwardPointer;
+		setFieldName("field " + localType.getNumFields() + ", a " + getClass().getSimpleName() //$NON-NLS-1$//$NON-NLS-2$
+				+ " in struct " + localType.getStructName()); //$NON-NLS-1$
 		this.backPointerArray = new RawGrowableArray(inlineElements);
 	}
 
@@ -65,8 +66,7 @@ public class FieldOneToMany<T extends NdNode> implements IDestructableField, IRe
 	 */
 	public static <T extends NdNode, B extends NdNode> FieldOneToMany<T> create(StructDef<B> builder, 
 			FieldManyToOne<B> forwardPointer, int inlineElementCount) {
-		FieldOneToMany<T> result = new FieldOneToMany<T>(builder.getStructClass(), forwardPointer,
-				inlineElementCount);
+		FieldOneToMany<T> result = new FieldOneToMany<T>(builder, forwardPointer, inlineElementCount);
 		builder.add(result);
 		builder.addDestructableField(result);
 		builder.addRefCountedField(result);
@@ -183,10 +183,5 @@ public class FieldOneToMany<T extends NdNode> implements IDestructableField, IRe
 			return false;
 		}
 		return !isEmpty(nd, address);
-	}
-
-	@Override
-	public void setOffset(int offset) {
-		this.offset = offset;
 	}
 }

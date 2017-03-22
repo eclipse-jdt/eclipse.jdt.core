@@ -30,7 +30,7 @@ public class NdAnnotationValuePair extends NdNode {
 		type = StructDef.create(NdAnnotationValuePair.class, NdNode.type);
 		APPLIES_TO = FieldManyToOne.createOwner(type, NdAnnotation.ELEMENT_VALUE_PAIRS);
 		NAME = type.addString();
-		VALUE = FieldOneToOne.create(type, NdConstant.class, NdConstant.PARENT_ANNOTATION_VALUE);
+		VALUE = FieldOneToOne.create(type, NdConstant.type, NdConstant.PARENT_ANNOTATION_VALUE);
 		type.done();
 	}
 

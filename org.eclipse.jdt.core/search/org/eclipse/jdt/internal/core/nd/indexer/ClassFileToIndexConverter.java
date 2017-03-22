@@ -33,7 +33,6 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.nd.Nd;
-import org.eclipse.jdt.internal.core.nd.db.IndexException;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.nd.java.JavaNames;
 import org.eclipse.jdt.internal.core.nd.java.NdAnnotation;
@@ -507,7 +506,7 @@ public final class ClassFileToIndexConverter {
 		skipChar(wrapper, '>');
 	}
 
-	private char[] readNextFieldDescriptor(SignatureWrapper genericSignature) {
+	private char[] readNextFieldDescriptor(SignatureWrapper genericSignature) throws CoreException {
 		int endPosition = findEndOfFieldDescriptor(genericSignature);
 
 		char[] result = CharArrayUtils.subarray(genericSignature.signature, genericSignature.start, endPosition);
@@ -515,7 +514,7 @@ public final class ClassFileToIndexConverter {
 		return result;
 	}
 
-	private int findEndOfFieldDescriptor(SignatureWrapper genericSignature) {
+	private int findEndOfFieldDescriptor(SignatureWrapper genericSignature) throws CoreException {
 		char[] signature = genericSignature.signature;
 
 		if (signature == null || signature.length == 0) {
@@ -544,7 +543,7 @@ public final class ClassFileToIndexConverter {
 				case 'Z':
 					return current + 1;
 				default:
-					throw new IndexException(Package.createStatus("Field descriptor starts with unknown character: " //$NON-NLS-1$
+					throw new CoreException(Package.createStatus("Field descriptor starts with unknown character: " //$NON-NLS-1$
 							+ genericSignature.toString()));
 			}
 		}

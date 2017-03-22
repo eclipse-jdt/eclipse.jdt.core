@@ -90,8 +90,10 @@ public final class Indexer {
 	public static boolean DEBUG;
 	public static boolean DEBUG_ALLOCATIONS;
 	public static boolean DEBUG_TIMING;
+	public static boolean DEBUG_SCHEDULING;
 	public static boolean DEBUG_INSERTIONS;
 	public static boolean DEBUG_SELFTEST;
+	public static int DEBUG_LOG_SIZE_MB;
 
 	// This is an arbitrary constant that is larger than the maximum number of ticks
 	// reported by SubMonitor and small enough that it won't overflow a long when multiplied by a large
@@ -216,6 +218,7 @@ public final class Indexer {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 		Database db = this.nd.getDB();
 		db.resetCacheCounters();
+		db.getLog().setBufferSize(DEBUG_LOG_SIZE_MB);
 
 		synchronized (this.automaticIndexingMutex) {
 			this.indexerDirtiedWhileDisabled = false;
@@ -924,7 +927,7 @@ public final class Indexer {
 	}
 
 	public void rescanAll() {
-		if (DEBUG) {
+		if (DEBUG_SCHEDULING) {
 			Package.logInfo("Scheduling rescanAll now"); //$NON-NLS-1$
 		}
 		synchronized (this.automaticIndexingMutex) {

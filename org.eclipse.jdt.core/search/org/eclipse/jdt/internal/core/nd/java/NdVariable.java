@@ -47,7 +47,7 @@ public class NdVariable extends NdBinding {
 		DECLARING_METHOD = FieldManyToOne.create(type, NdMethod.DECLARED_VARIABLES);
 		PARENT = FieldManyToOne.createOwner(type, NdBinding.VARIABLES);
 		NAME = type.addString();
-		CONSTANT = FieldOneToOne.create(type, NdConstant.class, NdConstant.PARENT_VARIABLE);
+		CONSTANT = FieldOneToOne.create(type, NdConstant.type, NdConstant.PARENT_VARIABLE);
 		TAG_BITS = type.addLong();
 		VARIABLE_FLAGS = type.addByte();
 		ANNOTATIONS = FieldOneToMany.create(type, NdAnnotationInVariable.OWNER);

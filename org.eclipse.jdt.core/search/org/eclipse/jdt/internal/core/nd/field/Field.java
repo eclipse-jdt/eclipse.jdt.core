@@ -28,11 +28,12 @@ import org.eclipse.jdt.internal.core.nd.Nd;
  * 
  * @param <T>
  */
-public final class Field<T> implements IField, IDestructableField {
-	private int offset;
+public final class Field<T> extends BaseField implements IDestructableField {
 	public final ITypeFactory<T> factory;
 
-	public Field(ITypeFactory<T> objectFactory) {
+	public Field(ITypeFactory<T> objectFactory, String structName, int fieldNumber) {
+		setFieldName("field " + fieldNumber + ", a " + getClass().getSimpleName() //$NON-NLS-1$//$NON-NLS-2$
+				+ " in struct " + structName); //$NON-NLS-1$
 		this.factory = objectFactory;
 	}
 
@@ -47,11 +48,6 @@ public final class Field<T> implements IField, IDestructableField {
 	@Override
 	public void destruct(Nd nd, long address) {
 		this.factory.destruct(nd, address + this.offset);
-	}
-
-	@Override
-	public void setOffset(int offset) {
-		this.offset = offset;
 	}
 
 	@Override

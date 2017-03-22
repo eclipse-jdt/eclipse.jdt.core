@@ -22,7 +22,7 @@ public class NdAnnotationInConstant extends NdAnnotation {
 
 	static {
 		type = StructDef.create(NdAnnotationInConstant.class, NdAnnotation.type);
-		OWNER = FieldOneToOne.createOwner(type, NdConstantAnnotation.class, NdConstantAnnotation.VALUE);
+		OWNER = FieldOneToOne.createOwner(type, NdConstantAnnotation.type, NdConstantAnnotation.VALUE);
 		type.done();
 	}
 

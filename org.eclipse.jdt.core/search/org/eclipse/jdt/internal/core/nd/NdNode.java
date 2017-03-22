@@ -53,19 +53,36 @@ public abstract class NdNode implements IDestructable {
 			return null;
 		}
 
-		return nd.getNode(address, NODE_TYPE.get(nd, address));
+		try {
+			return nd.getNode(address, NODE_TYPE.get(nd, address));
+		} catch (IndexException e) {
+			// Add metadata to the exception describing where we obtained the node type from
+			nd.describeProblem().addProblemAddress(NODE_TYPE, address).attachTo(e);
+			throw e;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends NdNode> T load(Nd nd, long address, Class<T> clazz) {
+	public static <T extends NdNode> T load(Nd nd, long address, StructDef<T> targetType) {
 		if (address == 0) {
 			return null;
 		}
 
-		NdNode result = nd.getNode(address, NODE_TYPE.get(nd, address));
+		NdNode result;
+		try {
+			// Polymorphic types (that subclass NdNode) store a header with their type ID
+			result = nd.getNode(address, NODE_TYPE.get(nd, address));
+		} catch (IndexException e) {
+			// Add metadata to the exception describing where we obtained the node type from
+			nd.describeProblem().addProblemAddress(NODE_TYPE, address).attachTo(e);
+			throw e;
+		}
 
+		Class<T> clazz = targetType.getStructClass();
 		if (!clazz.isAssignableFrom(result.getClass())) {
-			throw new IndexException("Found wrong data type at address " + address + ". Expected a subclass of " +  //$NON-NLS-1$//$NON-NLS-2$
+			nd.describeProblem()
+				.addProblemAddress(NODE_TYPE, address)
+				.throwException("Found wrong data type at address " + address + ". Expected a subclass of " +  //$NON-NLS-1$//$NON-NLS-2$
 					clazz + " but found " + result.getClass()); //$NON-NLS-1$
 		}
 

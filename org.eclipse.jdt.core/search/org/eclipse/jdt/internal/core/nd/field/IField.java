@@ -10,7 +10,29 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.field;
 
+/**
+ * Represents a single field of a struct in the {@link Nd} database. Holds metadata for that field
+ * and permits laziy initialization of the field offset.
+ */
 public interface IField {
+	/**
+	 * Sets the field offset (bytes from the start of the struct). This is invoked some time after field construction,
+	 * after the sizes of all preceeding fields are known.
+	 */
 	void setOffset(int offset);
+	/**
+	 * Returns the size of the field, in bytes.
+	 */
 	int getRecordSize();
+
+	/**
+	 * Returns the name of the field. This is mainly used for error messages, debug output, and diagnostic tools.
+	 * Meant to be programmer-readable but not user-readable.
+	 */
+	String getFieldName();
+
+	/**
+	 * Returns the field offset, in bytes from the start of the struct.
+	 */
+	int getOffset();
 }

@@ -23,7 +23,7 @@ public final class NdConstantAnnotation extends NdConstant {
 
 	static {
 		type = StructDef.create(NdConstantAnnotation.class, NdConstant.type);
-		VALUE = FieldOneToOne.create(type, NdAnnotationInConstant.class, NdAnnotationInConstant.OWNER);
+		VALUE = FieldOneToOne.create(type, NdAnnotationInConstant.type, NdAnnotationInConstant.OWNER);
 		type.done();
 	}
 

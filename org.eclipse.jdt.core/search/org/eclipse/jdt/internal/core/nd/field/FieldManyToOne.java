@@ -13,6 +13,9 @@ package org.eclipse.jdt.internal.core.nd.field;
 import org.eclipse.jdt.internal.core.nd.ITypeFactory;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.NdNode;
+import org.eclipse.jdt.internal.core.nd.db.ModificationLog;
+import org.eclipse.jdt.internal.core.nd.db.Database;
+import org.eclipse.jdt.internal.core.nd.db.ModificationLog.Tag;
 
 /**
  * Holds the n side of a n..1 relationship. Declares a Nd field which is a pointer of a NdNode of the specified
@@ -20,13 +23,12 @@ import org.eclipse.jdt.internal.core.nd.NdNode;
  * {@link FieldManyToOne} points to an object, the inverse pointer is automatically inserted into the matching back
  * pointer list.
  */
-public class FieldManyToOne<T extends NdNode> implements IDestructableField, IField, IRefCountedField {
+public class FieldManyToOne<T extends NdNode> extends BaseField implements IDestructableField, IRefCountedField {
 	public final static FieldPointer TARGET;
 	public final static FieldInt BACKPOINTER_INDEX;
 
-	private int offset;
-	Class<T> targetType;
-	final Class<? extends NdNode> localType;
+	StructDef<T> targetType;
+	final StructDef<? extends NdNode> localType;
 	FieldOneToMany<?> backPointer;
 	@SuppressWarnings("rawtypes")
 	private final static StructDef<FieldManyToOne> type;
@@ -34,6 +36,8 @@ public class FieldManyToOne<T extends NdNode> implements IDestructableField, IFi
 	 * True iff the other end of this pointer should delete this object when its end of the pointer is cleared.
 	 */
 	public final boolean pointsToOwner;
+	private final Tag putTag;
+	private final Tag destructTag;
 
 	static {
 		type = StructDef.createAbstract(FieldManyToOne.class);
@@ -43,7 +47,7 @@ public class FieldManyToOne<T extends NdNode> implements IDestructableField, IFi
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private FieldManyToOne(Class<? extends NdNode> localType, FieldOneToMany<?> backPointer, boolean pointsToOwner) {
+	private FieldManyToOne(StructDef<? extends NdNode> localType, FieldOneToMany<?> backPointer, boolean pointsToOwner) {
 		this.localType = localType;
 		this.pointsToOwner = pointsToOwner;
 
@@ -53,16 +57,20 @@ public class FieldManyToOne<T extends NdNode> implements IDestructableField, IFi
 						"Attempted to construct a FieldNodePointer referring to a backpointer list that is already in use" //$NON-NLS-1$
 								+ " by another field"); //$NON-NLS-1$
 			}
-			backPointer.targetType = (Class) localType;
-			this.targetType = (Class) backPointer.localType;
+			backPointer.targetType = (StructDef) localType;
+			this.targetType = (StructDef) backPointer.localType;
 			backPointer.forwardPointer = this;
 		}
 		this.backPointer = backPointer;
+		setFieldName("field " + localType.getNumFields() + ", a " + getClass().getSimpleName() //$NON-NLS-1$//$NON-NLS-2$
+				+ " in struct " + localType.getStructName()); //$NON-NLS-1$
+		this.putTag = ModificationLog.createTag("Writing " + getFieldName()); //$NON-NLS-1$
+		this.destructTag = ModificationLog.createTag("Destructing " + getFieldName()); //$NON-NLS-1$
 	}
 
 	public static <T extends NdNode, B extends NdNode> FieldManyToOne<T> create(StructDef<B> builder,
 			FieldOneToMany<B> forwardPointer) {
-		FieldManyToOne<T> result = new FieldManyToOne<T>(builder.getStructClass(), forwardPointer, false);
+		FieldManyToOne<T> result = new FieldManyToOne<T>(builder, forwardPointer, false);
 		builder.add(result);
 		builder.addDestructableField(result);
 		return result;
@@ -79,7 +87,7 @@ public class FieldManyToOne<T extends NdNode> implements IDestructableField, IFi
 	public static <T extends NdNode, B extends NdNode> FieldManyToOne<T> createOwner(StructDef<B> builder,
 			FieldOneToMany<B> forwardPointer) {
 
-		FieldManyToOne<T> result = new FieldManyToOne<T>(builder.getStructClass(), forwardPointer, true);
+		FieldManyToOne<T> result = new FieldManyToOne<T>(builder, forwardPointer, true);
 		builder.add(result);
 		builder.addDestructableField(result);
 		builder.addOwnerField(result);
@@ -100,34 +108,41 @@ public class FieldManyToOne<T extends NdNode> implements IDestructableField, IFi
 	 */
 	public void put(Nd nd, long address, T value) {
 		if (value != null) {
-			put(nd, address, value.address);
+			put(nd, address, value.getAddress());
 		} else {
 			put(nd, address, 0);
 		}
 	}
 
 	public void put(Nd nd, long address, long newTargetAddress) {
-		long fieldStart = address + this.offset;
-		if (this.backPointer == null) {
-			throw new IllegalStateException("FieldNodePointer must be associated with a FieldBackPointer"); //$NON-NLS-1$
-		}
-		
-		long oldTargetAddress = TARGET.get(nd, fieldStart);
-		if (oldTargetAddress == newTargetAddress) {
-			return;
-		}
-
-		detachFromOldTarget(nd, address, oldTargetAddress);
-
-		TARGET.put(nd, fieldStart, newTargetAddress);
-		if (newTargetAddress != 0) {
-			// Note that newValue is the address of the backpointer list and record (the address of the struct
-			// containing the forward pointer) is the value being inserted into the list.
-			BACKPOINTER_INDEX.put(nd, fieldStart, this.backPointer.add(nd, newTargetAddress, address));
-		} else {
-			if (this.pointsToOwner) {
-				nd.scheduleDeletion(address);
+		Database db = nd.getDB();
+		db.getLog().start(this.putTag);
+		try {
+			long fieldStart = address + this.offset;
+			if (this.backPointer == null) {
+				throw new IllegalStateException(
+						getClass().getSimpleName() + " must be associated with a " + FieldOneToMany.class.getSimpleName()); //$NON-NLS-1$
 			}
+	
+			long oldTargetAddress = TARGET.get(nd, fieldStart);
+			if (oldTargetAddress == newTargetAddress) {
+				return;
+			}
+	
+			detachFromOldTarget(nd, address, oldTargetAddress);
+	
+			TARGET.put(nd, fieldStart, newTargetAddress);
+			if (newTargetAddress != 0) {
+				// Note that newValue is the address of the backpointer list and record (the address of the struct
+				// containing the forward pointer) is the value being inserted into the list.
+				BACKPOINTER_INDEX.put(nd, fieldStart, this.backPointer.add(nd, newTargetAddress, address));
+			} else {
+				if (this.pointsToOwner) {
+					nd.scheduleDeletion(address);
+				}
+			}
+		} finally {
+			db.getLog().end(this.putTag);
 		}
 	}
 
@@ -161,21 +176,22 @@ public class FieldManyToOne<T extends NdNode> implements IDestructableField, IFi
 
 	@Override
 	public void destruct(Nd nd, long address) {
-		long fieldStart = address + this.offset;
-		long oldTargetAddress = TARGET.get(nd, fieldStart);
-		detachFromOldTarget(nd, address, oldTargetAddress);
-		TARGET.put(nd, fieldStart, 0);
+		Database db = nd.getDB();
+		db.getLog().start(this.destructTag);
+		try {
+			long fieldStart = address + this.offset;
+			long oldTargetAddress = TARGET.get(nd, fieldStart);
+			detachFromOldTarget(nd, address, oldTargetAddress);
+			TARGET.put(nd, fieldStart, 0);
+		} finally {
+			db.getLog().end(this.destructTag);
+		}
 	}
 
 	void clearedByBackPointer(Nd nd, long address) {
 		long fieldStart = this.offset + address;
 		FieldManyToOne.TARGET.put(nd, fieldStart, 0);
 		FieldManyToOne.BACKPOINTER_INDEX.put(nd, fieldStart, 0);
-	}
-
-	@Override
-	public void setOffset(int offset) {
-		this.offset = offset;
 	}
 
 	@Override

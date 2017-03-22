@@ -43,10 +43,10 @@ public class NdMethod extends NdBinding {
 		PARENT = FieldManyToOne.createOwner(type, NdType.METHODS);
 		PARAMETERS = FieldOneToMany.create(type, NdMethodParameter.PARENT);
 		DECLARED_VARIABLES = FieldOneToMany.create(type, NdVariable.DECLARING_METHOD);
-		DEFAULT_VALUE = FieldOneToOne.create(type, NdConstant.class, NdConstant.PARENT_METHOD);
+		DEFAULT_VALUE = FieldOneToOne.create(type, NdConstant.type, NdConstant.PARENT_METHOD);
 		EXCEPTIONS = FieldOneToMany.create(type, NdMethodException.PARENT);
 		RETURN_TYPE = FieldManyToOne.create(type, NdTypeSignature.USED_AS_RETURN_TYPE);
-		ANNOTATION_DATA = FieldOneToOne.create(type, NdMethodAnnotationData.class, NdMethodAnnotationData.METHOD);
+		ANNOTATION_DATA = FieldOneToOne.create(type, NdMethodAnnotationData.type, NdMethodAnnotationData.METHOD);
 		type.done();
 	}
 

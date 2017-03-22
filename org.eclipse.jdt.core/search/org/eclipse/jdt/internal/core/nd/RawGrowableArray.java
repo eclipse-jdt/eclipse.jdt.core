@@ -204,10 +204,17 @@ public final class RawGrowableArray {
 		int insertionIndex = size(nd, address);
 		int newSize = insertionIndex + 1;
 
-		ensureCapacity(nd, address, newSize);
-		long recordAddress = getAddressOfRecord(nd, address, insertionIndex);
-		db.putRecPtr(recordAddress, value);
-		setSize(nd, address, newSize);
+		try {
+			ensureCapacity(nd, address, newSize);
+			long recordAddress = getAddressOfRecord(nd, address, insertionIndex);
+			db.putRecPtr(recordAddress, value);
+			setSize(nd, address, newSize);
+		} catch (IndexException e) {
+			ProblemBuilder descriptor = nd.describeProblem();
+			addSizeTo(nd, address, descriptor);
+			descriptor.attachTo(e);
+			throw e;
+		}
 		return insertionIndex;
 	}
 
@@ -378,7 +385,12 @@ public final class RawGrowableArray {
 
 			// We use reads of 1 past the end of the array to handle insertions.
 			if (index > size) {
-				throw new IndexException(
+				ProblemBuilder builder = nd.describeProblem();
+
+				addSizeTo(nd, address, builder);
+
+				builder.addProblemAddress(GROWABLE_BLOCK_ADDRESS, address);
+				builder.throwException(
 						"Record index " + index + " out of range. Array contains " + size + " elements"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 
@@ -390,8 +402,15 @@ public final class RawGrowableArray {
 				int blockRelativeIndex = growableBlockRelativeIndex % GrowableBlockHeader.MAX_GROWABLE_SIZE;
 				int block = growableBlockRelativeIndex / GrowableBlockHeader.MAX_GROWABLE_SIZE;
 
-				growableBlockAddress = db.getRecPtr(growableBlockAddress + MetaBlockHeader.META_BLOCK_HEADER_BYTES
-						+ block * Database.PTR_SIZE);
+				long dataBlockAddress = growableBlockAddress + MetaBlockHeader.META_BLOCK_HEADER_BYTES
+						+ block * Database.PTR_SIZE;
+				growableBlockAddress = db.getRecPtr(dataBlockAddress);
+				if (growableBlockAddress == 0) {
+					nd.describeProblem()
+						.addProblemAddress("backpointer number " + block, dataBlockAddress, Database.PTR_SIZE) //$NON-NLS-1$
+						.addProblemAddress(GROWABLE_BLOCK_ADDRESS, address)
+						.throwException("Null data block found in metablock"); //$NON-NLS-1$
+				}
 				growableBlockRelativeIndex = blockRelativeIndex;
 			}
 
@@ -400,6 +419,13 @@ public final class RawGrowableArray {
 		} else {
 			// This record is one of the ones inlined in the header
 			return address + ARRAY_HEADER_BYTES + index * Database.PTR_SIZE;
+		}
+	}
+
+	private void addSizeTo(Nd nd, long address, ProblemBuilder builder) {
+		long growableBlockAddress = GROWABLE_BLOCK_ADDRESS.get(nd, address);
+		if (growableBlockAddress != 0) {
+			builder.addProblemAddress(GrowableBlockHeader.ARRAY_SIZE, growableBlockAddress);
 		}
 	}
 
@@ -415,7 +441,9 @@ public final class RawGrowableArray {
 
 		Database db = nd.getDB();
 		if (index > lastElementIndex || index < 0) {
-			throw new IndexException("Attempt to remove nonexistent element " + index //$NON-NLS-1$
+			ProblemBuilder descriptor = nd.describeProblem().addProblemAddress(GROWABLE_BLOCK_ADDRESS, address);
+			addSizeTo(nd, address, descriptor);
+			descriptor.throwException("Attempt to remove nonexistent element " + index //$NON-NLS-1$
 					+ " from an array of size " + (lastElementIndex + 1)); //$NON-NLS-1$
 		}
 

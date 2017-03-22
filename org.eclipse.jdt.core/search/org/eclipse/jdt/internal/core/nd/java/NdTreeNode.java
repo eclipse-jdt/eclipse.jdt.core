@@ -73,9 +73,9 @@ public abstract class NdTreeNode extends NdNode {
 				if (ancestorType.isInstance(result)) {
 					return (T) result;
 				} else {
-					throw new IndexException("The node at address " + current +  //$NON-NLS-1$
-							" should have been an instance of " + ancestorType.getName() +  //$NON-NLS-1$
-							" but was an instance of " + result.getClass().getName()); //$NON-NLS-1$
+					nd.describeProblem().addProblemAddress(NODE_TYPE, current).throwException("The node at address " //$NON-NLS-1$
+							+ current + " should have been an instance of " + ancestorType.getName() //$NON-NLS-1$
+							+  " but was an instance of " + result.getClass().getName()); //$NON-NLS-1$
 				}
 			}
 

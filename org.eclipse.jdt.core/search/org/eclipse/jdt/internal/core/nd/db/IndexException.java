@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.db;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 
@@ -19,9 +22,9 @@ import org.eclipse.core.runtime.Status;
 public class IndexException extends RuntimeException {
 
 	private IStatus status;
+	private List<RelatedAddress> relatedAddresses = new ArrayList<>();
 
 	public IndexException(IStatus status) {
-		super(status.getMessage());
 		this.status = status;
 	}
 
@@ -43,4 +46,32 @@ public class IndexException extends RuntimeException {
 
 	private static final long serialVersionUID = -6561893929558916225L;
 
+	public void addRelatedAddress(RelatedAddress related) {
+		// Don't include dupes
+		for (RelatedAddress next : this.relatedAddresses) {
+			if (next.isSameAddressAs(related)) {
+				return;
+			}
+		}
+		this.relatedAddresses.add(related);
+	}
+
+	@Override
+	public String getMessage() {
+		StringBuilder result = new StringBuilder();
+		result.append(this.status.getMessage());
+
+		if (!this.relatedAddresses.isEmpty()) {
+			boolean isFirst = true;
+			result.append("\nRelated addresses:\n"); //$NON-NLS-1$
+			for (RelatedAddress next : this.relatedAddresses) {
+				if (!isFirst) {
+					result.append("\n"); //$NON-NLS-1$
+				}
+				isFirst = false;
+				result.append(next.toString());
+			}
+		}
+		return result.toString();
+	}
 }
