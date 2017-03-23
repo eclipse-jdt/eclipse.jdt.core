@@ -6393,6 +6393,29 @@ public void test509804() {
 	},
 	"private static java.lang.Object Test.lambda$1()");
 }
+public void testBug514105() {
+	runConformTest(
+		new String[] {
+			"FunctionalInterfaceBug.java",
+			"import java.util.function.Function;\n" + 
+			"import java.util.function.UnaryOperator;\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface BaseFunction<S, T> extends Function<S, T> {\n" + 
+			"\n" + 
+			"    T foo(final S s);\n" + 
+			"\n" + 
+			"    default T apply(final S s) {\n" + 
+			"        return null;\n" + 
+			"    }\n" + 
+			"}\n" + 
+			"\n" + 
+			"@FunctionalInterface\n" + 
+			"interface SubFunction<T> extends UnaryOperator<T>, BaseFunction<T, T> {\n" + 
+			"}\n" +
+			"public class FunctionalInterfaceBug {}\n"
+		});
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
