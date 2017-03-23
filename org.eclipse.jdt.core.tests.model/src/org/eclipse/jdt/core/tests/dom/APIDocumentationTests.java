@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2015 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -300,5 +300,13 @@ public void testJavaCoreAPI() throws CoreException, IllegalArgumentException, Il
 	} else {
 		System.err.println("JavaCore.java not found, skipping APIDocumentationTests#test001");
 	}
+}
+// see https://bugs.eclipse.org/482991
+// check that tests are run with -Djdt.default.test.compliance=1.8 in effect
+public void testTestDefaultCompliance() {
+	Hashtable<String,String> defaultValues = JavaCore.getDefaultOptions();
+	assertEquals("Tests should run at default compliance 1.8", "1.8", defaultValues.get(JavaCore.COMPILER_COMPLIANCE));
+	assertEquals("Tests should run at default source level 1.8", "1.8", defaultValues.get(JavaCore.COMPILER_SOURCE));
+	assertEquals("Tests should run at default target level 1.8", "1.8", defaultValues.get(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM));
 }
 }
