@@ -2570,6 +2570,72 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("Test01");
 		}
 	}
+	public void testBug510617() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] src = new String[] {
+				"src/module-info.java",
+				"module Test {\n" +
+				"	exports p;\n" +
+				"	requires java.sql;\n" + 
+				"	provides java.sql.Driver with p.C;\n" +
+				"}",
+				"src/p/C.java",
+				"package p;\n" + 
+				"import java.lang.SecurityManager;\n" + 
+				"import java.sql.Connection;\n" + 
+				"import java.sql.Driver;\n" + 
+				"import java.sql.DriverPropertyInfo;\n" + 
+				"import java.sql.SQLException;\n" + 
+				"import java.sql.SQLFeatureNotSupportedException;\n" + 
+				"import java.util.Properties;\n" + 
+				"import java.util.logging.Logger;\n" + 
+				"public class C implements Driver {\n" + 
+				"	SecurityManager s;\n" + 
+				"	@Override\n" + 
+				"	public boolean acceptsURL(String arg0) throws SQLException {\n" + 
+				"		return false;\n" + 
+				"	}\n" + 
+				"	@Override\n" + 
+				"	public Connection connect(String arg0, Properties arg1) throws SQLException {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	@Override\n" + 
+				"	public int getMajorVersion() {\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"	@Override\n" + 
+				"	public int getMinorVersion() {\n" + 
+				"		return 0;\n" + 
+				"	}\n" + 
+				"	@Override\n" + 
+				"	public Logger getParentLogger() throws SQLFeatureNotSupportedException {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	@Override\n" + 
+				"	public DriverPropertyInfo[] getPropertyInfo(String arg0, Properties arg1) throws SQLException {\n" + 
+				"		return null;\n" + 
+				"	}\n" + 
+				"	@Override\n" + 
+				"	public boolean jdbcCompliant() {\n" + 
+				"		return false;\n" + 
+				"	} \n" + 
+				"}"
+			};
+			setupModuleProject("Test", src);
+			this.workingCopies = new ICompilationUnit[1];
+			char[] sourceChars = src[1].toCharArray();
+			this.problemRequestor.initialize(sourceChars);
+			this.workingCopies[0] = getCompilationUnit("/Test/src/module-info.java").getWorkingCopy(this.wcOwner, null);
+			assertProblems(
+				"Unexpected problems",
+				"----------\n" + 
+				"----------\n",
+				this.problemRequestor);
+		} finally {
+			deleteProject("Test");
+		}
+	}
 	// sort by CHAR_START
 	protected void sortMarkers(IMarker[] markers) {
 		Arrays.sort(markers, (a,b) -> a.getAttribute(IMarker.CHAR_START, 0) - b.getAttribute(IMarker.CHAR_START, 0)); 
