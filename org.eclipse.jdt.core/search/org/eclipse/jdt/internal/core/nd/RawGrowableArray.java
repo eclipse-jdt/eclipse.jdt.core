@@ -16,6 +16,7 @@ import org.eclipse.jdt.internal.core.nd.field.FieldInt;
 import org.eclipse.jdt.internal.core.nd.field.FieldPointer;
 import org.eclipse.jdt.internal.core.nd.field.FieldShort;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
+import org.eclipse.jdt.internal.core.nd.util.MathUtils;
 
 /**
  * Implements a growable array of pointers that supports constant-time insertions and removals. Items are inserted at
@@ -585,7 +586,7 @@ public final class RawGrowableArray {
 
 			// For sizes larger than the max block size, we need to use a metablock. In this case, the allocated size
 			// will be a multiple of the max block size.
-			return roundUpToMultipleOf(GrowableBlockHeader.MAX_GROWABLE_SIZE, growableRegionSize);
+			return MathUtils.roundUpToNearestMultiple(growableRegionSize, GrowableBlockHeader.MAX_GROWABLE_SIZE);
 		}
 
 		return nextGrowableSize;
@@ -615,15 +616,6 @@ public final class RawGrowableArray {
 			nextGrowableSize <<= 1;
 		}
 		return nextGrowableSize;
-	}
-
-	/**
-	 * Rounds a value up to the nearest multiple of another value
-	 */
-	private static int roundUpToMultipleOf(int unit, int valueToRound) {
-		int numberOfMetablocks = (valueToRound + unit - 1) / unit;
-
-		return numberOfMetablocks * unit;
 	}
 
 	/**

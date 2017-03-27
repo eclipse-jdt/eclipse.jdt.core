@@ -36,11 +36,6 @@ import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 import org.eclipse.jdt.internal.core.nd.java.JavaNames;
 import org.eclipse.jdt.internal.core.nd.java.NdAnnotation;
-import org.eclipse.jdt.internal.core.nd.java.NdAnnotationInConstant;
-import org.eclipse.jdt.internal.core.nd.java.NdAnnotationInMethod;
-import org.eclipse.jdt.internal.core.nd.java.NdAnnotationInMethodParameter;
-import org.eclipse.jdt.internal.core.nd.java.NdAnnotationInType;
-import org.eclipse.jdt.internal.core.nd.java.NdAnnotationInVariable;
 import org.eclipse.jdt.internal.core.nd.java.NdAnnotationValuePair;
 import org.eclipse.jdt.internal.core.nd.java.NdBinding;
 import org.eclipse.jdt.internal.core.nd.java.NdComplexTypeSignature;
@@ -50,17 +45,12 @@ import org.eclipse.jdt.internal.core.nd.java.NdConstantArray;
 import org.eclipse.jdt.internal.core.nd.java.NdConstantClass;
 import org.eclipse.jdt.internal.core.nd.java.NdConstantEnum;
 import org.eclipse.jdt.internal.core.nd.java.NdMethod;
-import org.eclipse.jdt.internal.core.nd.java.NdMethodException;
 import org.eclipse.jdt.internal.core.nd.java.NdMethodId;
 import org.eclipse.jdt.internal.core.nd.java.NdMethodParameter;
 import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.nd.java.NdType;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeAnnotation;
-import org.eclipse.jdt.internal.core.nd.java.NdTypeAnnotationInMethod;
-import org.eclipse.jdt.internal.core.nd.java.NdTypeAnnotationInType;
-import org.eclipse.jdt.internal.core.nd.java.NdTypeAnnotationInVariable;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeArgument;
-import org.eclipse.jdt.internal.core.nd.java.NdTypeBound;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeId;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeInterface;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeParameter;
@@ -77,7 +67,7 @@ public final class ClassFileToIndexConverter {
 	private static final char[] COMMA = new char[]{','};
 	private static final char[][] EMPTY_CHAR_ARRAY_ARRAY = new char[0][];
 	private static final boolean ENABLE_LOGGING = false;
-	private static final char[] EMPTY_CHAR_ARRAY = new char[0];
+	static final char[] EMPTY_CHAR_ARRAY = new char[0];
 	private static final char[] PATH_SEPARATOR = new char[]{'/'};
 	private static final char[] ARRAY_FIELD_DESCRIPTOR_PREFIX = new char[] { '[' };
 	private NdResourceFile resource;
@@ -135,8 +125,9 @@ public final class ClassFileToIndexConverter {
 
 		IBinaryTypeAnnotation[] typeAnnotations = binaryType.getTypeAnnotations();
 		if (typeAnnotations != null) {
+			type.allocateTypeAnnotations(typeAnnotations.length);
 			for (IBinaryTypeAnnotation typeAnnotation : typeAnnotations) {
-				NdTypeAnnotationInType annotation = new NdTypeAnnotationInType(getNd(), type);
+				NdTypeAnnotation annotation = type.createTypeAnnotation();
 
 				initTypeAnnotation(annotation, typeAnnotation);
 			}
@@ -194,6 +185,7 @@ public final class ClassFileToIndexConverter {
 		IBinaryField[] fields = binaryType.getFields();
 
 		if (fields != null) {
+			type.allocateVariables(fields.length);
 			for (IBinaryField nextField : fields) {
 				addField(type, nextField);
 			}
@@ -251,8 +243,9 @@ public final class ClassFileToIndexConverter {
 
 	private void attachAnnotations(NdMethod method, IBinaryAnnotation[] annotations) {
 		if (annotations != null) {
+			method.allocateAnnotations(annotations.length);
 			for (IBinaryAnnotation next : annotations) {
-				NdAnnotationInMethod annotation = new NdAnnotationInMethod(getNd(), method);
+				NdAnnotation annotation = method.createAnnotation();
 				initAnnotation(annotation, next);
 			}
 		}
@@ -260,8 +253,9 @@ public final class ClassFileToIndexConverter {
 
 	private void attachAnnotations(NdType type, IBinaryAnnotation[] annotations) {
 		if (annotations != null) {
+			type.allocateAnnotations(annotations.length);
 			for (IBinaryAnnotation next : annotations) {
-				NdAnnotationInType annotation = new NdAnnotationInType(getNd(), type);
+				NdAnnotation annotation = type.createAnnotation();
 				initAnnotation(annotation, next);
 			}
 		}
@@ -269,8 +263,9 @@ public final class ClassFileToIndexConverter {
 
 	private void attachAnnotations(NdVariable variable, IBinaryAnnotation[] annotations) {
 		if (annotations != null) {
+			variable.allocateAnnotations(annotations.length);
 			for (IBinaryAnnotation next : annotations) {
-				NdAnnotationInVariable annotation = new NdAnnotationInVariable(getNd(), variable);
+				NdAnnotation annotation = variable.createAnnotation();
 				initAnnotation(annotation, next);
 			}
 		}
@@ -278,8 +273,9 @@ public final class ClassFileToIndexConverter {
 
 	private void attachAnnotations(NdMethodParameter variable, IBinaryAnnotation[] annotations) {
 		if (annotations != null) {
+			variable.allocateAnnotations(annotations.length);
 			for (IBinaryAnnotation next : annotations) {
-				NdAnnotationInMethodParameter annotation = new NdAnnotationInMethodParameter(getNd(), variable);
+				NdAnnotation annotation = variable.createAnnotation();
 				initAnnotation(annotation, next);
 			}
 		}
@@ -306,8 +302,9 @@ public final class ClassFileToIndexConverter {
 
 		IBinaryTypeAnnotation[] typeAnnotations = next.getTypeAnnotations();
 		if (typeAnnotations != null) {
+			method.allocateTypeAnnotations(typeAnnotations.length);
 			for (IBinaryTypeAnnotation typeAnnotation : typeAnnotations) {
-				NdTypeAnnotationInMethod annotation = new NdTypeAnnotationInMethod(getNd(), method);
+				NdTypeAnnotation annotation = method.createTypeAnnotation();
 
 				initTypeAnnotation(annotation, typeAnnotation);
 			}
@@ -349,6 +346,10 @@ public final class ClassFileToIndexConverter {
 
 		int parameterNameIdx = 0;
 		int annotatedParametersCount = next.getAnnotatedParametersCount();
+		int namedParameterCount = parameterNames == null ? 0 : parameterNames.length;
+		int estimatedParameterCount = Math.max(Math.max(Math.max(numArgumentsInGenericSignature, namedParameterCount),
+				annotatedParametersCount), parameterFieldDescriptors.size());
+		method.allocateParameters(estimatedParameterCount);
 
 		short descriptorParameterIdx = 0;
 		char[] binaryTypeName = binaryType.getName();
@@ -367,8 +368,8 @@ public final class ClassFileToIndexConverter {
 			if (isCompilerDefined && !compilerDefinedParametersAreIncludedInSignature) {
 				nextFieldSignature = new SignatureWrapper(nextFieldDescriptor);
 			}
-			NdMethodParameter parameter = new NdMethodParameter(method,
-					createTypeSignature(nextFieldSignature, nextFieldDescriptor));
+			NdMethodParameter parameter = method.createNewParameter();
+			parameter.setType(createTypeSignature(nextFieldSignature, nextFieldDescriptor));
 
 			parameter.setCompilerDefined(isCompilerDefined);
 
@@ -378,7 +379,7 @@ public final class ClassFileToIndexConverter {
 
 				attachAnnotations(parameter, parameterAnnotations);
 			}
-			if (!isCompilerDefined && parameterNames != null && parameterNames.length > parameterNameIdx) {
+			if (!isCompilerDefined && namedParameterCount > parameterNameIdx) {
 				parameter.setName(parameterNames[parameterNameIdx++]);
 			}
 			descriptorParameterIdx++;
@@ -393,11 +394,12 @@ public final class ClassFileToIndexConverter {
 		if (exceptionTypes == null) {
 			exceptionTypes = CharArrayUtils.EMPTY_ARRAY_OF_CHAR_ARRAYS;
 		}
+		method.allocateExceptions(exceptionTypes.length);
 		int throwsIdx = 0;
 		if (hasExceptionsInSignature) {
 			while (hasAnotherException(signature)) {
 				signature.start++;
-				new NdMethodException(method, createTypeSignature(signature,
+				method.createException(createTypeSignature(signature,
 						JavaNames.binaryNameToFieldDescriptor(exceptionTypes[throwsIdx])));
 				throwsIdx++;
 			}
@@ -405,7 +407,7 @@ public final class ClassFileToIndexConverter {
 			for (;throwsIdx < exceptionTypes.length; throwsIdx++) {
 				char[] fieldDescriptor = JavaNames.binaryNameToFieldDescriptor(exceptionTypes[throwsIdx]);
 				SignatureWrapper convertedWrapper = new SignatureWrapper(fieldDescriptor);
-				new NdMethodException(method, createTypeSignature(convertedWrapper,
+				method.createException(createTypeSignature(convertedWrapper,
 						JavaNames.binaryNameToFieldDescriptor(exceptionTypes[throwsIdx])));
 			}
 		}
@@ -439,7 +441,7 @@ public final class ClassFileToIndexConverter {
 	 * Adds the given field to the given type
 	 */
 	private void addField(NdType type, IBinaryField nextField) throws CoreException {
-		NdVariable variable = new NdVariable(type);
+		NdVariable variable = type.createVariable();
 
 		variable.setName(nextField.getName());
 
@@ -455,18 +457,23 @@ public final class ClassFileToIndexConverter {
 
 		IBinaryTypeAnnotation[] typeAnnotations = nextField.getTypeAnnotations();
 		if (typeAnnotations != null) {
+			variable.allocateTypeAnnotations(typeAnnotations.length);
 			for (IBinaryTypeAnnotation next : typeAnnotations) {
-				NdTypeAnnotationInVariable annotation = new NdTypeAnnotationInVariable(getNd(), variable);
+				NdTypeAnnotation annotation = variable.createTypeAnnotation();
 	
 				initTypeAnnotation(annotation, next);
 			}
 		}
 		variable.setType(createTypeSignature(nextTypeSignature, nextField.getTypeName()));
 		variable.setTagBits(nextField.getTagBits());
+	}
 
-		// char[] fieldDescriptor = nextField.getTypeName();
-		// // DO NOT SUBMIT:
-		// IBinaryField bf = IndexBinaryType.createBinaryField(variable);
+	private static class TypeParameter {
+		public TypeParameter() {
+		}
+		public List<NdTypeSignature> bounds = new ArrayList<>();
+		public char[] identifier = ClassFileToIndexConverter.EMPTY_CHAR_ARRAY;
+		public boolean firstBoundIsClass;
 	}
 
 	/**
@@ -482,25 +489,40 @@ public final class ClassFileToIndexConverter {
 			return;
 		}
 
+		List<TypeParameter> typeParameters = new ArrayList<>();
+
 		int indexOfClosingBracket = wrapper.skipAngleContents(wrapper.start) - 1;
 		wrapper.start++;
-		NdTypeParameter parameter = null;
+		TypeParameter parameter = null;
 		while (wrapper.start < indexOfClosingBracket) {
 			int colonPos = CharOperation.indexOf(':', genericSignature, wrapper.start, indexOfClosingBracket);
 
 			if (colonPos > wrapper.start) {
 				char[] identifier = CharOperation.subarray(genericSignature, wrapper.start, colonPos);
-				parameter = new NdTypeParameter(type, identifier);
+				parameter = new TypeParameter();
+				typeParameters.add(parameter);
+				parameter.identifier = identifier;
 				wrapper.start = colonPos + 1;
 				// The first bound is a class as long as it doesn't start with a double-colon
-				parameter.setFirstBoundIsClass(wrapper.charAtStart() != ':');
+				parameter.firstBoundIsClass = (wrapper.charAtStart() != ':');
 			}
 
 			skipChar(wrapper, ':');
 
 			NdTypeSignature boundSignature = createTypeSignature(wrapper, JAVA_LANG_OBJECT_FIELD_DESCRIPTOR);
 
-			new NdTypeBound(parameter, boundSignature);
+			parameter.bounds.add(boundSignature);
+		}
+
+		type.allocateTypeParameters(typeParameters.size());
+		for (TypeParameter param : typeParameters) {
+			NdTypeParameter ndParam = type.createTypeParameter();
+			ndParam.setIdentifier(param.identifier);
+			ndParam.setFirstBoundIsClass(param.firstBoundIsClass);
+			ndParam.allocateBounds(param.bounds.size());
+			for (NdTypeSignature bound : param.bounds) {
+				ndParam.createBound(bound);
+			}
 		}
 
 		skipChar(wrapper, '>');
@@ -854,8 +876,9 @@ public final class ClassFileToIndexConverter {
 		IBinaryElementValuePair[] pairs = next.getElementValuePairs();
 
 		if (pairs != null) {
+			annotation.allocateValuePairs(pairs.length);
 			for (IBinaryElementValuePair element : pairs) {
-				NdAnnotationValuePair nextPair = new NdAnnotationValuePair(annotation, element.getName());
+				NdAnnotationValuePair nextPair = annotation.createValuePair(element.getName());
 				nextPair.setValue(createConstantFromMixedType(element.getValue()));
 			}
 		}
@@ -894,9 +917,9 @@ public final class ClassFileToIndexConverter {
 		} else if (value instanceof IBinaryAnnotation) {
 			IBinaryAnnotation binaryAnnotation = (IBinaryAnnotation) value;
 
-			NdAnnotationInConstant annotation = new NdAnnotationInConstant(getNd());
-			initAnnotation(annotation, binaryAnnotation);
-			return NdConstantAnnotation.create(getNd(), annotation);
+			NdConstantAnnotation constant = new NdConstantAnnotation(getNd());
+			initAnnotation(constant.getValue(), binaryAnnotation);
+			return constant;
 		} else if (value instanceof Object[]) {
 			NdConstantArray result = new NdConstantArray(getNd());
 			Object[] array = (Object[]) value;

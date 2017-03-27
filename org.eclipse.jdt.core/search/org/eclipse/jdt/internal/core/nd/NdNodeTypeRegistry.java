@@ -75,7 +75,11 @@ public class NdNodeTypeRegistry<R> {
 		return typeFactory.create(nd, address);
 	}
 
-	public short getTypeForClass(Class<? extends R> toQuery) {
+	public boolean isRegisteredClass(Class<?> toQuery) {
+		return this.registeredClasses.containsKey(toQuery);
+	}
+
+	public short getTypeForClass(Class<?> toQuery) {
 		Short classId = this.registeredClasses.get(toQuery);
 
 		if (classId == null) {

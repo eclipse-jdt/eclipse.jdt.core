@@ -23,6 +23,7 @@ public class IndexException extends RuntimeException {
 
 	private IStatus status;
 	private List<RelatedAddress> relatedAddresses = new ArrayList<>();
+	private long time = -1;
 
 	public IndexException(IStatus status) {
 		this.status = status;
@@ -30,6 +31,16 @@ public class IndexException extends RuntimeException {
 
 	public IndexException(String message) {
 		this(new Status(IStatus.ERROR, "org.eclipse.jdt.core", message)); //$NON-NLS-1$
+	}
+
+	/**
+	 * Sets the time that the exception occurred at (in terms of the write number
+	 * from the modification log)
+	 * 
+	 * @param writeNumber 
+	 */
+	public void setTime(long writeNumber) {
+		this.time = writeNumber;
 	}
 
 	@Override
@@ -59,6 +70,11 @@ public class IndexException extends RuntimeException {
 	@Override
 	public String getMessage() {
 		StringBuilder result = new StringBuilder();
+		if (this.time != -1) {
+			result.append("(time "); //$NON-NLS-1$
+			result.append(this.time);
+			result.append(") "); //$NON-NLS-1$
+		}
 		result.append(this.status.getMessage());
 
 		if (!this.relatedAddresses.isEmpty()) {

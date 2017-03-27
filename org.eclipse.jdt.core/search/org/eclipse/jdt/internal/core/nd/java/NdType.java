@@ -12,11 +12,10 @@ package org.eclipse.jdt.internal.core.nd.java;
 
 import java.util.List;
 
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.internal.core.nd.INdVisitor;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.db.IString;
 import org.eclipse.jdt.internal.core.nd.field.FieldByte;
+import org.eclipse.jdt.internal.core.nd.field.FieldList;
 import org.eclipse.jdt.internal.core.nd.field.FieldLong;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
@@ -32,8 +31,9 @@ public class NdType extends NdBinding {
 	public static final FieldManyToOne<NdTypeId> DECLARING_TYPE;
 	public static final FieldManyToOne<NdMethodId> DECLARING_METHOD;
 	public static final FieldOneToMany<NdMethod> METHODS;
-	public static final FieldOneToMany<NdTypeAnnotationInType> TYPE_ANNOTATIONS;
-	public static final FieldOneToMany<NdAnnotationInType> ANNOTATIONS;
+	public static final FieldList<NdTypeAnnotation> TYPE_ANNOTATIONS;
+	public static final FieldList<NdAnnotation> ANNOTATIONS;
+	public static final FieldList<NdVariable> VARIABLES;
 	public static final FieldString MISSING_TYPE_NAMES;
 	public static final FieldString SOURCE_FILE_NAME;
 	public static final FieldString INNER_CLASS_SOURCE_NAME;
@@ -58,8 +58,9 @@ public class NdType extends NdBinding {
 		SUPERCLASS = FieldManyToOne.create(type, NdTypeSignature.SUBCLASSES);
 		DECLARING_METHOD = FieldManyToOne.create(type, NdMethodId.DECLARED_TYPES);
 		METHODS = FieldOneToMany.create(type, NdMethod.PARENT, 6);
-		TYPE_ANNOTATIONS = FieldOneToMany.create(type, NdTypeAnnotationInType.OWNER);
-		ANNOTATIONS = FieldOneToMany.create(type, NdAnnotationInType.OWNER);
+		TYPE_ANNOTATIONS = FieldList.create(type, NdTypeAnnotation.type);
+		ANNOTATIONS = FieldList.create(type, NdAnnotation.type);
+		VARIABLES = FieldList.create(type, NdVariable.type);
 		MISSING_TYPE_NAMES = type.addString();
 		SOURCE_FILE_NAME = type.addString();
 		INNER_CLASS_SOURCE_NAME = type.addString();
@@ -82,13 +83,6 @@ public class NdType extends NdBinding {
 		super(nd);
 
 		FILE.put(nd, this.address, resource);
-	}
-
-	/**
-	 * Called to populate the cache for the bindings in the class scope.
-	 */
-	public void acceptUncached(INdVisitor visitor) throws CoreException {
-		super.accept(visitor);
 	}
 
 	public NdTypeId getTypeId() {
@@ -221,6 +215,10 @@ public class NdType extends NdBinding {
 		return JavaNames.simpleNameToSourceName(simpleName);
 	}
 
+	public List<NdVariable> getVariables() {
+		return VARIABLES.asList(getNd(), this.address);
+	}
+
 	public NdMethodId getDeclaringMethod() {
 		return DECLARING_METHOD.get(getNd(), this.address);
 	}
@@ -230,12 +228,20 @@ public class NdType extends NdBinding {
 		return TYPE_PARAMETERS.asList(getNd(), this.address);
 	}
 
-	public List<NdTypeAnnotationInType> getTypeAnnotations() {
+	public List<NdTypeAnnotation> getTypeAnnotations() {
 		return TYPE_ANNOTATIONS.asList(getNd(), this.address);
 	}
 
-	public List<NdAnnotationInType> getAnnotations() {
+	public List<NdAnnotation> getAnnotations() {
 		return ANNOTATIONS.asList(getNd(), this.address);
+	}
+
+	public NdAnnotation createAnnotation() {
+		return ANNOTATIONS.append(getNd(), getAddress());
+	}
+
+	public void allocateAnnotations(int length) {
+		ANNOTATIONS.allocate(getNd(), getAddress(), length);
 	}
 
 	public List<NdMethod> getMethods() {
@@ -274,5 +280,21 @@ public class NdType extends NdBinding {
 			return getTypeId().getFieldDescriptor();
 		}
 		return descriptorFromClass;
+	}
+
+	public NdTypeAnnotation createTypeAnnotation() {
+		return TYPE_ANNOTATIONS.append(getNd(), getAddress());
+	}
+
+	public void allocateTypeAnnotations(int length) {
+		TYPE_ANNOTATIONS.allocate(getNd(), getAddress(), length);
+	}
+
+	public NdVariable createVariable() {
+		return VARIABLES.append(getNd(), getAddress());
+	}
+
+	public void allocateVariables(int length) {
+		VARIABLES.allocate(getNd(), getAddress(), length);
 	}
 }

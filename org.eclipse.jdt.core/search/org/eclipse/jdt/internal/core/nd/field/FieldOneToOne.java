@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.field;
 
+import org.eclipse.jdt.internal.core.nd.INdStruct;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.NdNode;
 import org.eclipse.jdt.internal.core.nd.db.ModificationLog;
@@ -19,7 +20,7 @@ import org.eclipse.jdt.internal.core.nd.db.Database;
 /**
  * Represents a 1-to-0..1 relationship in a Nd database.
  */
-public class FieldOneToOne<T extends NdNode> extends BaseField implements IDestructableField, IRefCountedField {
+public class FieldOneToOne<T extends INdStruct> extends BaseField implements IDestructableField, IRefCountedField {
 	public final StructDef<T> nodeType; 
 	FieldOneToOne<?> backPointer;
 	private boolean pointsToOwner;
@@ -49,7 +50,7 @@ public class FieldOneToOne<T extends NdNode> extends BaseField implements IDestr
 		this.destructTag = ModificationLog.createTag("Destructing " + getFieldName()); //$NON-NLS-1$
 	}
 
-	public static <T extends NdNode, B extends NdNode> FieldOneToOne<T> create(StructDef<B> builder,
+	public static <T extends INdStruct, B extends INdStruct> FieldOneToOne<T> create(StructDef<B> builder,
 			StructDef<T> nodeType, FieldOneToOne<B> forwardPointer) {
 
 		FieldOneToOne<T> result = new FieldOneToOne<T>(nodeType, forwardPointer, false);
@@ -58,7 +59,7 @@ public class FieldOneToOne<T extends NdNode> extends BaseField implements IDestr
 		return result;
 	}
 
-	public static <T extends NdNode, B extends NdNode> FieldOneToOne<T> createOwner(StructDef<B> builder,
+	public static <T extends INdStruct, B extends INdStruct> FieldOneToOne<T> createOwner(StructDef<B> builder,
 			StructDef<T> nodeType, FieldOneToOne<B> forwardPointer) {
 
 		FieldOneToOne<T> result = new FieldOneToOne<T>(nodeType, forwardPointer, true);
@@ -84,8 +85,8 @@ public class FieldOneToOne<T extends NdNode> extends BaseField implements IDestr
 					nd.scheduleDeletion(address);
 				}
 			} else {
-				db.putRecPtr(address + this.offset, target.address);
-				db.putRecPtr(target.address + this.backPointer.offset, address);
+				db.putRecPtr(address + this.offset, target.getAddress());
+				db.putRecPtr(target.getAddress() + this.backPointer.offset, address);
 			}
 		} finally {
 			db.getLog().end(this.putTag);

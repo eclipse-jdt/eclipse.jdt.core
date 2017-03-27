@@ -650,7 +650,7 @@ public final class Nd {
 	/**
 	 * Returns the type ID for the given class
 	 */
-	public short getNodeType(Class<? extends NdNode> toQuery) {
+	public short getNodeType(Class<?> toQuery) {
 		return this.fNodeTypeRegistry.getTypeForClass(toQuery);
 	}
 

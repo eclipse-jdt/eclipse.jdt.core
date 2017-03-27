@@ -72,6 +72,9 @@ public final class IndexExceptionBuilder {
 	 */
 	public IndexException build(String description) {
 		IndexException toThrow = new IndexException(description);
+		if (this.db.getLog().enabled()) {
+			toThrow.setTime(this.db.getLog().getWriteCount());
+		}
 		attachTo(toThrow);
 		return toThrow;
 	}

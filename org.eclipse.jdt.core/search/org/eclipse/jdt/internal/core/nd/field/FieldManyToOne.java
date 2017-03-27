@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.field;
 
+import org.eclipse.jdt.internal.core.nd.INdStruct;
 import org.eclipse.jdt.internal.core.nd.ITypeFactory;
 import org.eclipse.jdt.internal.core.nd.Nd;
 import org.eclipse.jdt.internal.core.nd.NdNode;
@@ -23,12 +24,12 @@ import org.eclipse.jdt.internal.core.nd.db.ModificationLog.Tag;
  * {@link FieldManyToOne} points to an object, the inverse pointer is automatically inserted into the matching back
  * pointer list.
  */
-public class FieldManyToOne<T extends NdNode> extends BaseField implements IDestructableField, IRefCountedField {
+public class FieldManyToOne<T extends INdStruct> extends BaseField implements IDestructableField, IRefCountedField {
 	public final static FieldPointer TARGET;
 	public final static FieldInt BACKPOINTER_INDEX;
 
 	StructDef<T> targetType;
-	final StructDef<? extends NdNode> localType;
+	final StructDef<? extends INdStruct> localType;
 	FieldOneToMany<?> backPointer;
 	@SuppressWarnings("rawtypes")
 	private final static StructDef<FieldManyToOne> type;
@@ -38,6 +39,7 @@ public class FieldManyToOne<T extends NdNode> extends BaseField implements IDest
 	public final boolean pointsToOwner;
 	private final Tag putTag;
 	private final Tag destructTag;
+	private boolean permitsNull = true;
 
 	static {
 		type = StructDef.createAbstract(FieldManyToOne.class);
@@ -47,7 +49,7 @@ public class FieldManyToOne<T extends NdNode> extends BaseField implements IDest
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private FieldManyToOne(StructDef<? extends NdNode> localType, FieldOneToMany<?> backPointer, boolean pointsToOwner) {
+	private FieldManyToOne(StructDef<? extends INdStruct> localType, FieldOneToMany<?> backPointer, boolean pointsToOwner) {
 		this.localType = localType;
 		this.pointsToOwner = pointsToOwner;
 
@@ -68,7 +70,14 @@ public class FieldManyToOne<T extends NdNode> extends BaseField implements IDest
 		this.destructTag = ModificationLog.createTag("Destructing " + getFieldName()); //$NON-NLS-1$
 	}
 
-	public static <T extends NdNode, B extends NdNode> FieldManyToOne<T> create(StructDef<B> builder,
+	public static <T extends INdStruct, B extends INdStruct> FieldManyToOne<T> createNonNull(StructDef<B> builder,
+			FieldOneToMany<B> forwardPointer) {
+		FieldManyToOne<T> result = create(builder, forwardPointer);
+		result.permitsNull = false;
+		return result;
+	}
+
+	public static <T extends INdStruct, B extends INdStruct> FieldManyToOne<T> create(StructDef<B> builder,
 			FieldOneToMany<B> forwardPointer) {
 		FieldManyToOne<T> result = new FieldManyToOne<T>(builder, forwardPointer, false);
 		builder.add(result);
@@ -84,8 +93,17 @@ public class FieldManyToOne<T extends NdNode> extends BaseField implements IDest
 	 * @param forwardPointer the field which holds the pointer in the other direction
 	 * @return a newly constructed field
 	 */
-	public static <T extends NdNode, B extends NdNode> FieldManyToOne<T> createOwner(StructDef<B> builder,
+	public static <T extends INdStruct, B extends INdStruct> FieldManyToOne<T> createOwner(StructDef<B> builder,
 			FieldOneToMany<B> forwardPointer) {
+		// Although it would work to have a non-NdNode owned in this manner, we currently have no legitimate use-cases
+		// for this to occur. If this happens it is almost certainly an accidental copy-paste error where someone
+		// intended to call create but called this method instead. If we ever discover a legitimate use-case for it,
+		// this could be removed and things would probably still work.
+		if (!NdNode.class.isAssignableFrom(builder.getStructClass())) {
+			throw new IllegalArgumentException(FieldManyToOne.class.getSimpleName() + " can't be the owner of " //$NON-NLS-1$
+					+ builder.getStructClass().getSimpleName() + " because the latter isn't a subclass of " //$NON-NLS-1$
+					+ NdNode.class.getSimpleName()); 
+		}
 
 		FieldManyToOne<T> result = new FieldManyToOne<T>(builder, forwardPointer, true);
 		builder.add(result);
@@ -94,12 +112,29 @@ public class FieldManyToOne<T extends NdNode> extends BaseField implements IDest
 		return result;
 	}
 
+	/**
+	 * Sets whether or not this field permits nulls to be assigned.
+	 * 
+	 * @param permitted true iff the field permits nulls
+	 * @return this
+	 */
+	public FieldManyToOne<T> permitNull(boolean permitted) {
+		this.permitsNull = permitted;
+		return this;
+	}
+
 	public T get(Nd nd, long address) {
 		return NdNode.load(nd, getAddress(nd, address), this.targetType);
 	}
 
 	public long getAddress(Nd nd, long address) {
-		return nd.getDB().getRecPtr(address + this.offset);
+		long result = nd.getDB().getRecPtr(address + this.offset);
+		if (!this.permitsNull && result == 0) {
+			throw nd.describeProblem()
+				.addProblemAddress(this, address)
+				.build("Database contained a null in a non-null field"); //$NON-NLS-1$
+		}
+		return result;
 	}
 
 	/**
@@ -109,8 +144,10 @@ public class FieldManyToOne<T extends NdNode> extends BaseField implements IDest
 	public void put(Nd nd, long address, T value) {
 		if (value != null) {
 			put(nd, address, value.getAddress());
-		} else {
+		} else if (this.permitsNull) {
 			put(nd, address, 0);
+		} else {
+			throw new IllegalArgumentException("Attempted to write a null into a non-null field"); //$NON-NLS-1$
 		}
 	}
 
@@ -153,13 +190,14 @@ public class FieldManyToOne<T extends NdNode> extends BaseField implements IDest
 
 			this.backPointer.remove(nd, oldTargetAddress, oldIndex);
 
-			short targetTypeId = NdNode.NODE_TYPE.get(nd, oldTargetAddress);
+			if (this.targetType.isNdNode()) {
+				short targetTypeId = NdNode.NODE_TYPE.get(nd, oldTargetAddress);
+				ITypeFactory<? extends NdNode> typeFactory = nd.getTypeFactory(targetTypeId);
 
-			ITypeFactory<T> typeFactory = nd.getTypeFactory(targetTypeId);
-
-			if (typeFactory.getDeletionSemantics() == StructDef.DeletionSemantics.REFCOUNTED 
-					&& typeFactory.isReadyForDeletion(nd, oldTargetAddress)) {
-				nd.scheduleDeletion(oldTargetAddress);
+				if (typeFactory.getDeletionSemantics() == StructDef.DeletionSemantics.REFCOUNTED 
+						&& typeFactory.isReadyForDeletion(nd, oldTargetAddress)) {
+					nd.scheduleDeletion(oldTargetAddress);
+				}
 			}
 		}
 	}

@@ -311,7 +311,7 @@ public class ModificationLog {
 		}
 	}
 
-	private boolean enabled() {
+	public boolean enabled() {
 		return this.buffer0 != null;
 	}
 

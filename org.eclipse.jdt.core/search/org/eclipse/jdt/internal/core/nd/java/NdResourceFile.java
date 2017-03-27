@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.core.nd.NdNode;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 import org.eclipse.jdt.internal.core.nd.db.IString;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
+import org.eclipse.jdt.internal.core.nd.field.FieldList;
 import org.eclipse.jdt.internal.core.nd.field.FieldLong;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany.Visitor;
@@ -45,7 +46,7 @@ public class NdResourceFile extends NdNode {
 	public static final FieldOneToMany<NdWorkspaceLocation> WORKSPACE_MAPPINGS;
 	public static final FieldString JAVA_ROOT;
 	public static final FieldLong JDK_LEVEL;
-	public static final FieldOneToMany<NdZipEntry> ZIP_ENTRIES;
+	public static final FieldList<NdZipEntry> ZIP_ENTRIES;
 	public static final FieldString MANIFEST_CONTENT;
 	public static final FieldShort FILE_FLAGS;
 
@@ -68,7 +69,7 @@ public class NdResourceFile extends NdNode {
 		WORKSPACE_MAPPINGS = FieldOneToMany.create(type, NdWorkspaceLocation.RESOURCE);
 		JAVA_ROOT = type.addString();
 		JDK_LEVEL = type.addLong();
-		ZIP_ENTRIES = FieldOneToMany.create(type, NdZipEntry.JAR_FILE);
+		ZIP_ENTRIES = FieldList.create(type, NdZipEntry.type, 1);
 		MANIFEST_CONTENT = type.addString();
 		FILE_FLAGS = type.addShort();
 
@@ -148,16 +149,16 @@ public class NdResourceFile extends NdNode {
 	 */
 	public boolean isInIndex() {
 		try {
-			Nd nd = getNd();
 			// In the common case where the resource file was deleted and the memory hasn't yet been reused,
 			// this will fail.
-			if (!nd.isValidAddress(this.address) || NODE_TYPE.get(nd, this.address) != nd.getNodeType(getClass())) {
+			if (!this.nd.isValidAddress(this.address)
+					|| NODE_TYPE.get(this.nd, this.address) != this.nd.getNodeType(getClass())) {
 				return false;
 			}
 
 			char[] filename = FILENAME.get(getNd(), this.address).getChars();
 
-			NdResourceFile result = JavaIndex.FILES.findBest(nd, Database.DATA_AREA_OFFSET,
+			NdResourceFile result = JavaIndex.FILES.findBest(this.nd, Database.DATA_AREA_OFFSET,
 					SearchCriteria.create(filename), new IResultRank() {
 						@Override
 						public long getRank(Nd testNd, long testAddress) {
@@ -326,5 +327,15 @@ public class NdResourceFile extends NdNode {
 			// if the code is buggy, the database is corrupt, or we don't have a read lock.
 			return super.toString();
 		}
+	}
+
+	public void allocateZipEntries(int expectedNumberOfZipEntries) {
+		ZIP_ENTRIES.allocate(this.nd, this.address, expectedNumberOfZipEntries);
+	}
+
+	public NdZipEntry addZipEntry(String fileName) {
+		NdZipEntry result = ZIP_ENTRIES.append(getNd(), getAddress());
+		result.setFilename(fileName);
+		return result;
 	}
 }

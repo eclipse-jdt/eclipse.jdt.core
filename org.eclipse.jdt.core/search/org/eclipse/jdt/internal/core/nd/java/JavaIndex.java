@@ -38,9 +38,9 @@ import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 
 public class JavaIndex {
 	// Version constants
-	static final int CURRENT_VERSION = Nd.version(1, 47);
-	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 47);
-	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 47);
+	static final int CURRENT_VERSION = Nd.version(1, 48);
+	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 48);
+	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 48);
 
 	// Fields for the search header
 	public static final FieldSearchIndex<NdResourceFile> FILES;
@@ -289,13 +289,7 @@ public class JavaIndex {
 
 	static NdNodeTypeRegistry<NdNode> createTypeRegistry() {
 		NdNodeTypeRegistry<NdNode> registry = new NdNodeTypeRegistry<>();
-		registry.register(0x0001, NdAnnotation.type.getFactory());
-		registry.register(0x0004, NdAnnotationInConstant.type.getFactory());
-		registry.register(0x0008, NdAnnotationInMethod.type.getFactory());
-		registry.register(0x000c, NdAnnotationInMethodParameter.type.getFactory());
-		registry.register(0x0010, NdAnnotationInType.type.getFactory());
-		registry.register(0x0014, NdAnnotationInVariable.type.getFactory());
-		registry.register(0x0020, NdAnnotationValuePair.type.getFactory());
+
 		registry.register(0x0028, NdBinding.type.getFactory());
 		registry.register(0x0030, NdComplexTypeSignature.type.getFactory());
 		registry.register(0x0038, NdConstant.type.getFactory());
@@ -314,25 +308,16 @@ public class JavaIndex {
 		registry.register(0x0100, NdConstantString.type.getFactory());
 		registry.register(0x0110, NdMethod.type.getFactory());
 		registry.register(0x0118, NdMethodAnnotationData.type.getFactory());
-		registry.register(0x0120, NdMethodException.type.getFactory());
 		registry.register(0x0130, NdMethodId.type.getFactory());
-		registry.register(0x0140, NdMethodParameter.type.getFactory());
 		registry.register(0x0150, NdResourceFile.type.getFactory());
 		registry.register(0x0170, NdType.type.getFactory());
-		registry.register(0x0180, NdTypeAnnotation.type.getFactory());
-		registry.register(0x0184, NdTypeAnnotationInMethod.type.getFactory());
-		registry.register(0x0188, NdTypeAnnotationInType.type.getFactory());
-		registry.register(0x018c, NdTypeAnnotationInVariable.type.getFactory());
 		registry.register(0x0190, NdTypeArgument.type.getFactory());
-		registry.register(0x0194, NdTypeBound.type.getFactory());
 		registry.register(0x01A0, NdTypeInterface.type.getFactory());
-		registry.register(0x01B0, NdTypeParameter.type.getFactory());
 		registry.register(0x01C0, NdTypeSignature.type.getFactory());
 		registry.register(0x01D0, NdTypeId.type.getFactory());
 		registry.register(0x01E0, NdTypeInterface.type.getFactory());
 		registry.register(0x01F0, NdVariable.type.getFactory());
 		registry.register(0x0200, NdWorkspaceLocation.type.getFactory());
-		registry.register(0x0210, NdZipEntry.type.getFactory());
 		return registry;
 	}
 }

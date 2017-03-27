@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.jdt.internal.core.nd.Nd;
+import org.eclipse.jdt.internal.core.nd.field.FieldList;
 import org.eclipse.jdt.internal.core.nd.field.FieldManyToOne;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToMany;
 import org.eclipse.jdt.internal.core.nd.field.FieldOneToOne;
@@ -27,9 +28,9 @@ public class NdMethod extends NdBinding {
 	public static final FieldShort METHOD_FLAGS;
 	public static final FieldManyToOne<NdType> PARENT;
 	public static final FieldOneToMany<NdVariable> DECLARED_VARIABLES;
-	public static final FieldOneToMany<NdMethodParameter> PARAMETERS;
+	public static final FieldList<NdMethodParameter> PARAMETERS;
 	public static final FieldOneToOne<NdConstant> DEFAULT_VALUE;
-	public static final FieldOneToMany<NdMethodException> EXCEPTIONS;
+	public static final FieldList<NdMethodException> EXCEPTIONS;
 	public static final FieldManyToOne<NdTypeSignature> RETURN_TYPE;
 	public static final FieldOneToOne<NdMethodAnnotationData> ANNOTATION_DATA;
 
@@ -41,10 +42,10 @@ public class NdMethod extends NdBinding {
 		METHOD_ID = FieldManyToOne.create(type, NdMethodId.METHODS);
 		METHOD_FLAGS = type.addShort();
 		PARENT = FieldManyToOne.createOwner(type, NdType.METHODS);
-		PARAMETERS = FieldOneToMany.create(type, NdMethodParameter.PARENT);
+		PARAMETERS = FieldList.create(type, NdMethodParameter.type);
 		DECLARED_VARIABLES = FieldOneToMany.create(type, NdVariable.DECLARING_METHOD);
 		DEFAULT_VALUE = FieldOneToOne.create(type, NdConstant.type, NdConstant.PARENT_METHOD);
-		EXCEPTIONS = FieldOneToMany.create(type, NdMethodException.PARENT);
+		EXCEPTIONS = FieldList.create(type, NdMethodException.type);
 		RETURN_TYPE = FieldManyToOne.create(type, NdTypeSignature.USED_AS_RETURN_TYPE);
 		ANNOTATION_DATA = FieldOneToOne.create(type, NdMethodAnnotationData.type, NdMethodAnnotationData.METHOD);
 		type.done();
@@ -61,6 +62,14 @@ public class NdMethod extends NdBinding {
 		super(parent.getNd());
 
 		PARENT.put(getNd(), this.address, parent);
+	}
+
+	public NdMethodParameter createNewParameter() {
+		return PARAMETERS.append(getNd(), getAddress());
+	}
+
+	public void allocateParameters(int numParameters) {
+		PARAMETERS.allocate(this.nd, this.address, numParameters);
 	}
 
 	public NdMethodId getMethodId() {
@@ -90,7 +99,7 @@ public class NdMethod extends NdBinding {
 		return PARAMETERS.asList(getNd(), this.address);
 	}
 
-	public List<NdAnnotationInMethod> getAnnotations() {
+	public List<NdAnnotation> getAnnotations() {
 		NdMethodAnnotationData annotationData = getAnnotationData();
 		if (annotationData != null) {
 			return annotationData.getAnnotations();
@@ -114,7 +123,7 @@ public class NdMethod extends NdBinding {
 		METHOD_ID.put(getNd(), this.address, methodId);
 	}
 
-	public List<NdTypeAnnotationInMethod> getTypeAnnotations() {
+	public List<NdTypeAnnotation> getTypeAnnotations() {
 		NdMethodAnnotationData annotationData = getAnnotationData();
 		if (annotationData != null) {
 			return annotationData.getTypeAnnotations();
@@ -219,5 +228,35 @@ public class NdMethod extends NdBinding {
 
 	private NdMethodAnnotationData getAnnotationData() {
 		return ANNOTATION_DATA.get(getNd(), getAddress());
+	}
+
+	public NdMethodException createException(NdTypeSignature createTypeSignature) {
+		NdMethodException result = EXCEPTIONS.append(getNd(), getAddress());
+		result.setExceptionType(createTypeSignature);
+		return result;
+	}
+
+	public void allocateExceptions(int length) {
+		EXCEPTIONS.allocate(this.nd, this.address, length);
+	}
+
+	public NdAnnotation createAnnotation() {
+		return createAnnotationData().createAnnotation();
+	}
+
+	public NdTypeAnnotation createTypeAnnotation() {
+		return createAnnotationData().createTypeAnnotation();
+	}
+
+	public void allocateAnnotations(int length) {
+		if (length > 0) {
+			createAnnotationData().allocateAnnotations(length);
+		}
+	}
+
+	public void allocateTypeAnnotations(int length) {
+		if (length > 0) {
+			createAnnotationData().allocateTypeAnnotations(length);
+		}
 	}
 }

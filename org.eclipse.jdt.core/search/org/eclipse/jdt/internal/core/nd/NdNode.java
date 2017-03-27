@@ -16,27 +16,20 @@ import org.eclipse.jdt.internal.core.nd.field.FieldShort;
 import org.eclipse.jdt.internal.core.nd.field.StructDef;
 
 /**
- * This is a basic node in the network database.
+ * This is a basic polymorphic node in the network database. Pointers to NdNode or any of their
+ * subclasses will be resolved to the correct subclass of NdNode such that the correct version of an
+ * overloaded method will be invoked.
  */
-public abstract class NdNode implements IDestructable {
+public abstract class NdNode extends NdStruct implements IDestructable {
 	public static final FieldShort NODE_TYPE;
 
+	@SuppressWarnings("hiding")
 	public static final StructDef<NdNode> type;
 
 	static {
-		type = StructDef.create(NdNode.class);
+		type = StructDef.create(NdNode.class, NdStruct.type);
 		NODE_TYPE = type.addShort();
 		type.done();
-	}
-
-	public final long address;
-	private Nd nd;
-
-	public static long addressOf(NdNode nullable) {
-		if (nullable == null) {
-			return 0;
-		}
-		return nullable.address;
 	}
 
 	/**
@@ -63,7 +56,7 @@ public abstract class NdNode implements IDestructable {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T extends NdNode> T load(Nd nd, long address, StructDef<T> targetType) {
+	public static <T extends INdStruct> T load(Nd nd, long address, StructDef<T> typeToLoad) {
 		if (address == 0) {
 			return null;
 		}
@@ -78,7 +71,7 @@ public abstract class NdNode implements IDestructable {
 			throw e;
 		}
 
-		Class<T> clazz = targetType.getStructClass();
+		Class<T> clazz = typeToLoad.getStructClass();
 		if (!clazz.isAssignableFrom(result.getClass())) {
 			throw nd.describeProblem()
 				.addProblemAddress(NODE_TYPE, address)
@@ -86,7 +79,7 @@ public abstract class NdNode implements IDestructable {
 					clazz + " but found " + result.getClass()); //$NON-NLS-1$
 		}
 
-		return (T)result;
+		return (T) result;
 	}
 
 	/**
@@ -97,13 +90,12 @@ public abstract class NdNode implements IDestructable {
 	}
 
 	protected NdNode(Nd nd, long address) {
-		this.nd = nd;
-		this.address = address;
+		super(nd, address);
 	}
 
 	protected NdNode(Nd nd) {
+		super(nd, 0);
 		Database db = nd.getDB();
-		this.nd = nd;
 
 		short nodeType = nd.getNodeType(getClass());
 		ITypeFactory<? extends NdNode> factory1 = nd.getTypeFactory(nodeType);
@@ -111,14 +103,6 @@ public abstract class NdNode implements IDestructable {
 		this.address = db.malloc(factory1.getRecordSize(), (short)(Database.POOL_FIRST_NODE_TYPE + nodeType));
 
 		NODE_TYPE.put(nd, this.address, nodeType);
-	}
-
-	protected Database getDB() {
-		return this.nd.getDB();
-	}
-
-	public final Nd getNd() {
-		return this.nd;
 	}
 
 	/**
@@ -153,10 +137,6 @@ public abstract class NdNode implements IDestructable {
 	@Override
 	public final int hashCode() {
 		return (int) (this.address >> Database.BLOCK_SIZE_DELTA_BITS);
-	}
-
-	public void accept(INdVisitor visitor) {
-		// No children here.
 	}
 
 	/**

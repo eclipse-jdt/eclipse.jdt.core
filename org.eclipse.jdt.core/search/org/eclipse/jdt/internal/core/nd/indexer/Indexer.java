@@ -75,7 +75,6 @@ import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.nd.java.NdType;
 import org.eclipse.jdt.internal.core.nd.java.NdTypeId;
 import org.eclipse.jdt.internal.core.nd.java.NdWorkspaceLocation;
-import org.eclipse.jdt.internal.core.nd.java.NdZipEntry;
 import org.eclipse.jdt.internal.core.nd.java.TypeRef;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeDescriptor;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
@@ -704,6 +703,13 @@ public final class Indexer {
 				}
 				subMonitor.setWorkRemaining(zipFile.size());
 
+				// Preallocate memory for the zipfile entries
+				this.nd.acquireWriteLock(subMonitor.split(5));
+				try {
+					resourceFile.allocateZipEntries(zipFile.size());
+				} finally {
+					this.nd.releaseWriteLock();
+				}
 				for (Enumeration<? extends ZipEntry> e = zipFile.entries(); e.hasMoreElements();) {
 					SubMonitor nextEntry = subMonitor.split(1).setWorkRemaining(2);
 					ZipEntry member = e.nextElement();
@@ -717,7 +723,7 @@ public final class Indexer {
 									Package.logInfo("Inserting non-class file " + fileName + " into " //$NON-NLS-1$//$NON-NLS-2$
 											+ resourceFile.getLocation().getString() + " " + resourceFile.address); //$NON-NLS-1$
 								}
-								new NdZipEntry(resourceFile, fileName);
+								resourceFile.addZipEntry(fileName);
 
 								if (fileName.equals("META-INF/MANIFEST.MF")) { //$NON-NLS-1$
 									try (InputStream inputStream = zipFile.getInputStream(member)) {
