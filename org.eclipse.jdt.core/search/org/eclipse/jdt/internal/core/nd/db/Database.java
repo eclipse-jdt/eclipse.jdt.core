@@ -927,7 +927,7 @@ public class Database {
 
 			if (nextChildChunkNum == targetChunkNum) {
 				describeProblem()
-					.addProblemAddress("trie child address", chunkAddress, INT_SIZE)
+					.addProblemAddress("trie child address", chunkAddress, INT_SIZE) //$NON-NLS-1$
 					.throwException("Chunk number " + nextChildChunkNum  //$NON-NLS-1$
 						+ " was found in the free space trie even though it was in use"); //$NON-NLS-1$
 			}
@@ -1136,7 +1136,7 @@ public class Database {
 		if (firstChunkNum >= this.fChunksUsed) {
 			return;
 		}
-		builder.addProblemAddress("block header for chunk " + firstChunkNum, ((long) firstChunkNum * CHUNK_SIZE),
+		builder.addProblemAddress("block header for chunk " + firstChunkNum, ((long) firstChunkNum * CHUNK_SIZE), //$NON-NLS-1$
 				Database.INT_SIZE);
 	}
 

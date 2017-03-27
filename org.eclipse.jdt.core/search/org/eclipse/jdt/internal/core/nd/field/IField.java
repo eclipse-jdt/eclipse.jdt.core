@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.field;
 
+import org.eclipse.jdt.internal.core.nd.db.Database;
+
 /**
- * Represents a single field of a struct in the {@link Nd} database. Holds metadata for that field
+ * Represents a single field of a struct in the {@link Database}. Holds metadata for that field
  * and permits laziy initialization of the field offset.
  */
 public interface IField {

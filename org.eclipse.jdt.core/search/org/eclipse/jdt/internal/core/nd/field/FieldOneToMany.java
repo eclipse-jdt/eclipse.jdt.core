@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.core.nd.RawGrowableArray;
  * Holds the 1 side of a 1..n relationship between two objects. FieldNodePointer and FieldBackPointer fields always go
  * together in pairs.
  */
-public class FieldOneToMany<T extends NdNode> extends BaseField implements IDestructableField, IRefCountedField, IField {
+public class FieldOneToMany<T extends NdNode> extends BaseField implements IDestructableField, IRefCountedField {
 	public StructDef<T> targetType;
 	public final StructDef<? extends NdNode> localType;
 	private final RawGrowableArray backPointerArray;
