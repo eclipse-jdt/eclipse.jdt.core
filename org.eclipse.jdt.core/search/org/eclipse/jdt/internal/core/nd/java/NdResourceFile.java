@@ -18,6 +18,7 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.internal.core.nd.Nd;
+import org.eclipse.jdt.internal.core.nd.NdNode;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 import org.eclipse.jdt.internal.core.nd.db.IString;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
@@ -34,7 +35,7 @@ import org.eclipse.jdt.internal.core.nd.field.StructDef;
 /**
  * Represents a source of java classes (such as a .jar or .class file).
  */
-public class NdResourceFile extends NdTreeNode {
+public class NdResourceFile extends NdNode {
 	public static final FieldSearchKey<JavaIndex> FILENAME;
 	public static final FieldOneToMany<NdType> TYPES;
 	public static final FieldLong TIME_LAST_USED;
@@ -57,7 +58,7 @@ public class NdResourceFile extends NdTreeNode {
 	public static final StructDef<NdResourceFile> type;
 
 	static {
-		type = StructDef.create(NdResourceFile.class, NdTreeNode.type);
+		type = StructDef.create(NdResourceFile.class, NdNode.type);
 		FILENAME = FieldSearchKey.create(type, JavaIndex.FILES);
 		TYPES = FieldOneToMany.create(type, NdType.FILE, 16);
 		TIME_LAST_USED = type.addLong();
@@ -81,7 +82,7 @@ public class NdResourceFile extends NdTreeNode {
 	}
 
 	public NdResourceFile(Nd nd) {
-		super(nd, null);
+		super(nd);
 	}
 
 	public boolean isCorruptedZipFile() {
@@ -138,10 +139,6 @@ public class NdResourceFile extends NdTreeNode {
 		if (getJdkLevel() != jdkLevel) {
 			JDK_LEVEL.put(getNd(), this.address, jdkLevel);
 		}
-	}
-
-	public List<NdTreeNode> getChildren() {
-		return CHILDREN.asList(this.getNd(), this.address);
 	}
 
 	/**
