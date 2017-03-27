@@ -743,7 +743,8 @@ public static int getProblemCategory(int severity, int problemID) {
 		case IProblem.IsClassPathCorrect :
 		case IProblem.CorruptedSignature :
 			return CategorizedProblem.CAT_BUILDPATH;
-
+		case IProblem.ProblemNotAnalysed :
+			return CategorizedProblem.CAT_UNNECESSARY_CODE;
 		default :
 			if ((problemID & IProblem.Syntax) != 0)
 				return CategorizedProblem.CAT_SYNTAX;
