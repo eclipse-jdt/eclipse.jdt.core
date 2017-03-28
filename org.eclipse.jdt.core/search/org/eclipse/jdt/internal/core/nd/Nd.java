@@ -708,10 +708,10 @@ public final class Nd {
 	}
 
 	/**
-	 * Creates a {@link ProblemBuilder} object that collects information about database corruption after it is 
+	 * Creates a {@link IndexExceptionBuilder} object that collects information about database corruption after it is 
 	 * detected.
 	 */
-	public ProblemBuilder describeProblem() {
+	public IndexExceptionBuilder describeProblem() {
 		return this.db.describeProblem();
 	}
 }

@@ -106,9 +106,9 @@ public class NdComplexTypeSignature extends NdTypeSignature {
 			long size = TYPE_ARGUMENTS.size(getNd(), this.address);
 
 			if (size != 1) {
-				getNd().describeProblem()
+				throw getNd().describeProblem()
 					.addProblemAddress(TYPE_ARGUMENTS, this.address)
-					.throwException("Array types should have exactly one argument"); //$NON-NLS-1$
+					.build("Array types should have exactly one argument"); //$NON-NLS-1$
 			}
 
 			return TYPE_ARGUMENTS.get(getNd(), this.address, 0).getType();

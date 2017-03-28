@@ -22,14 +22,14 @@ import org.eclipse.jdt.internal.core.nd.field.IField;
 /**
  * Given a set of memory ranges, this class constructs detailed error messages.
  */
-public final class ProblemBuilder {
+public final class IndexExceptionBuilder {
 	private final Database db;
 	private final List<RelatedAddress> relatedAddresses = new ArrayList<>();
 
 	/**
-	 * Constructs a new {@link ProblemBuilder}
+	 * Constructs a new {@link IndexExceptionBuilder}
 	 */
-	public ProblemBuilder(Database db) {
+	public IndexExceptionBuilder(Database db) {
 		this.db = db;
 	}
 
@@ -38,7 +38,7 @@ public final class ProblemBuilder {
 	 * the size of the possibly-corrupt address range, and a custom description for the memory at this
 	 * address range.
 	 */
-	public ProblemBuilder addProblemAddress(String description, long dataBlockAddress, int rangeSize) {
+	public IndexExceptionBuilder addProblemAddress(String description, long dataBlockAddress, int rangeSize) {
 		MemoryAccessLog lastWrite = this.db.getLog().getReportFor(dataBlockAddress, rangeSize);
 		this.relatedAddresses.add(new RelatedAddress(description, dataBlockAddress, rangeSize, lastWrite));
 		return this;
@@ -50,7 +50,7 @@ public final class ProblemBuilder {
 	 * 
 	 * @return this
 	 */
-	public ProblemBuilder addProblemAddress(String description, IField field, long address) {
+	public IndexExceptionBuilder addProblemAddress(String description, IField field, long address) {
 		long offset = field.getOffset();
 		int size = field.getRecordSize();
 		return addProblemAddress(description, address + offset, size);
@@ -62,18 +62,18 @@ public final class ProblemBuilder {
 	 * 
 	 * @return this
 	 */
-	public ProblemBuilder addProblemAddress(IField field, long address) {
+	public IndexExceptionBuilder addProblemAddress(IField field, long address) {
 		return addProblemAddress(field.getFieldName(), field, address);
 	}
 
 	/**
-	 * Throws an {@link IndexException} containing the given message and all the addresses collected
-	 * by this object. 
+	 * Returns a newly constructed {@link IndexException} containing the given message and all the addresses collected
+	 * by this object.
 	 */
-	public void throwException(String description) {
+	public IndexException build(String description) {
 		IndexException toThrow = new IndexException(description);
 		attachTo(toThrow);
-		throw toThrow;
+		return toThrow;
 	}
 
 	/**

@@ -80,9 +80,9 @@ public abstract class NdNode implements IDestructable {
 
 		Class<T> clazz = targetType.getStructClass();
 		if (!clazz.isAssignableFrom(result.getClass())) {
-			nd.describeProblem()
+			throw nd.describeProblem()
 				.addProblemAddress(NODE_TYPE, address)
-				.throwException("Found wrong data type at address " + address + ". Expected a subclass of " +  //$NON-NLS-1$//$NON-NLS-2$
+				.build("Found wrong data type at address " + address + ". Expected a subclass of " +  //$NON-NLS-1$//$NON-NLS-2$
 					clazz + " but found " + result.getClass()); //$NON-NLS-1$
 		}
 

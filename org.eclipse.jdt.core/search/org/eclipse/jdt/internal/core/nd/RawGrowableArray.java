@@ -210,7 +210,7 @@ public final class RawGrowableArray {
 			db.putRecPtr(recordAddress, value);
 			setSize(nd, address, newSize);
 		} catch (IndexException e) {
-			ProblemBuilder descriptor = nd.describeProblem();
+			IndexExceptionBuilder descriptor = nd.describeProblem();
 			addSizeTo(nd, address, descriptor);
 			descriptor.attachTo(e);
 			throw e;
@@ -385,12 +385,12 @@ public final class RawGrowableArray {
 
 			// We use reads of 1 past the end of the array to handle insertions.
 			if (index > size) {
-				ProblemBuilder builder = nd.describeProblem();
+				IndexExceptionBuilder builder = nd.describeProblem();
 
 				addSizeTo(nd, address, builder);
 
 				builder.addProblemAddress(GROWABLE_BLOCK_ADDRESS, address);
-				builder.throwException(
+				throw builder.build(
 						"Record index " + index + " out of range. Array contains " + size + " elements"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 
@@ -406,10 +406,10 @@ public final class RawGrowableArray {
 						+ block * Database.PTR_SIZE;
 				growableBlockAddress = db.getRecPtr(dataBlockAddress);
 				if (growableBlockAddress == 0) {
-					nd.describeProblem()
+					throw nd.describeProblem()
 						.addProblemAddress("backpointer number " + block, dataBlockAddress, Database.PTR_SIZE) //$NON-NLS-1$
 						.addProblemAddress(GROWABLE_BLOCK_ADDRESS, address)
-						.throwException("Null data block found in metablock"); //$NON-NLS-1$
+						.build("Null data block found in metablock"); //$NON-NLS-1$
 				}
 				growableBlockRelativeIndex = blockRelativeIndex;
 			}
@@ -422,7 +422,7 @@ public final class RawGrowableArray {
 		}
 	}
 
-	private void addSizeTo(Nd nd, long address, ProblemBuilder builder) {
+	private void addSizeTo(Nd nd, long address, IndexExceptionBuilder builder) {
 		long growableBlockAddress = GROWABLE_BLOCK_ADDRESS.get(nd, address);
 		if (growableBlockAddress != 0) {
 			builder.addProblemAddress(GrowableBlockHeader.ARRAY_SIZE, growableBlockAddress);
@@ -441,9 +441,9 @@ public final class RawGrowableArray {
 
 		Database db = nd.getDB();
 		if (index > lastElementIndex || index < 0) {
-			ProblemBuilder descriptor = nd.describeProblem().addProblemAddress(GROWABLE_BLOCK_ADDRESS, address);
+			IndexExceptionBuilder descriptor = nd.describeProblem().addProblemAddress(GROWABLE_BLOCK_ADDRESS, address);
 			addSizeTo(nd, address, descriptor);
-			descriptor.throwException("Attempt to remove nonexistent element " + index //$NON-NLS-1$
+			throw descriptor.build("Attempt to remove nonexistent element " + index //$NON-NLS-1$
 					+ " from an array of size " + (lastElementIndex + 1)); //$NON-NLS-1$
 		}
 
