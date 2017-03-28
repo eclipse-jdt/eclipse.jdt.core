@@ -745,9 +745,15 @@ public class Database {
 			putInt(prevBlockChunkNum * CHUNK_SIZE + LargeBlock.NEXT_BLOCK_OFFSET, nextBlockChunkNum);
 		}
 
+		/**
+		 * True iff this block was a block in the trie. False if it was attached to to the list of siblings but some
+		 * other node in the list is the one in the trie.
+		 */
+		boolean wasInTrie = false;
 		long root = getInt(FREE_BLOCK_OFFSET);
 		if (root == freeBlockChunkNum) {
 			putInt(FREE_BLOCK_OFFSET, 0);
+			wasInTrie = true;
 		}
 
 		int freeBlockSize = getBlockHeaderForChunkNum(freeBlockChunkNum);
@@ -759,18 +765,31 @@ public class Database {
 				int firstDifference = LargeBlock.SIZE_OF_SIZE_FIELD * 8 - Integer.numberOfLeadingZeros(difference) - 1;
 				long locationOfChildPointer = parentChunkNum * CHUNK_SIZE + LargeBlock.CHILD_TABLE_OFFSET
 						+ (firstDifference * INT_SIZE);
-				putInt(locationOfChildPointer, 0);
+				int childChunkNum = getInt(locationOfChildPointer);
+				if (childChunkNum == freeBlockChunkNum) {
+					wasInTrie = true;
+					putInt(locationOfChildPointer, 0);
+				}
 			}
 		}
 
-		if (anotherBlockOfSameSize != 0) {
+		// If the removed block was the head of the linked list, we need to reinsert the following entry as the
+		// new head.
+		if (wasInTrie && anotherBlockOfSameSize != 0) {
 			insertChild(parentChunkNum, anotherBlockOfSameSize);
 		}
 
 		int currentParent = parentChunkNum;
 		for (int childIdx = 0; childIdx < LargeBlock.ENTRIES_IN_CHILD_TABLE; childIdx++) {
-			int nextChildChunkNum = getInt(freeBlockAddress + LargeBlock.CHILD_TABLE_OFFSET + (childIdx * INT_SIZE));
+			long childAddress = freeBlockAddress + LargeBlock.CHILD_TABLE_OFFSET + (childIdx * INT_SIZE);
+			int nextChildChunkNum = getInt(childAddress);
 			if (nextChildChunkNum != 0) {
+				if (!wasInTrie) {
+					throw describeProblem()
+						.addProblemAddress("non-null child pointer", childAddress, INT_SIZE) //$NON-NLS-1$
+						.build("All child pointers should be null for a free chunk that is in the sibling list but" //$NON-NLS-1$
+								+ " not part of the trie. Problematic chunk number: " + freeBlockChunkNum); //$NON-NLS-1$
+				}
 				insertChild(currentParent, nextChildChunkNum);
 				// Parent all subsequent children under the child that was most similar to the old parent
 				if (currentParent == parentChunkNum) {
@@ -865,7 +884,7 @@ public class Database {
 		insertChild(getInt(FREE_BLOCK_OFFSET), freeBlockChunkNum);
 	}
 
-	private void validateFreeSpace() {
+	public void validateFreeSpace() {
 		validateFreeSpaceLists();
 		validateFreeSpaceTries();
 	}
