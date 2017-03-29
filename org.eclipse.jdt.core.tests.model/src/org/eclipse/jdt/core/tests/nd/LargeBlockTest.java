@@ -354,7 +354,7 @@ public class LargeBlockTest extends BaseTestCase {
 
 	/**
 	 * Tests removals from the large chunk sibling list. Ensures that such removals don't interfere with
-	 * the 
+	 * the trie itself.
 	 */
 	public void testUnlinkedBlockNotInTrieGetsRelinked() throws Exception {
 		long rootChunk = mallocChunks(1);
