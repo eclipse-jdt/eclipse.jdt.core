@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 IBM Corporation and others.
+ * Copyright (c) 2014, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 public class CompletionTests18 extends AbstractJavaModelCompletionTests {
 
 static {
-//		TESTS_NAMES = new String[] {"test001"};
+//		TESTS_NAMES = new String[] {"test492947"};
 }
 
 public CompletionTests18(String name) {
@@ -2755,6 +2755,113 @@ public void test489962() throws JavaModelException {
 	assertResults(
 			"disperse[METHOD_REF]{disperse(), LI2;, ()V, null, null, disperse, null, [46, 50], " + (relevance + R_VOID) + "}\n" +
 			"dispose[METHOD_REF]{dispose(), LI2;, ()I, null, null, dispose, null, [46, 50], " + (relevance + R_EXACT_EXPECTED_TYPE) + "}"
+			, requestor.getResults());
+}
+public void test492947() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public class X {\n" +
+			"	public interface SomeInterface {\n" +
+			"		public void someMethod(String builder);\n" +
+			"}\n" +
+			"	public enum SomeEnum {\n" +
+			"		SOME_ENUM((String bui) -> {\n" +
+			"			bui.toCh\n" +
+			"		});\n" +
+			"		SomeEnum(SomeInterface callable) {}\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "bui.toCh";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	assertResults(
+			"toCharArray[METHOD_REF]{toCharArray(), Ljava.lang.String;, ()[C, null, null, toCharArray, null, [156, 160], " + relevance + "}"
+			, requestor.getResults());
+}
+public void test492947b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public class X {\n" +
+			"	public interface SomeInterface {\n" +
+			"		public void someMethod(StringBuilder builder);\n" +
+			"}\n" +
+			"	public enum SomeEnum {\n" +
+			"		SOME_ENUM((StringBui bui) -> {\n" +
+			"		});\n" +
+			"		SomeEnum(SomeInterface callable) {}\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "StringBui";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED;
+	assertResults(
+			"StringBuilder[TYPE_REF]{StringBuilder, java.lang, Ljava.lang.StringBuilder;, null, null, null, null, [139, 148], " + relevance + "}",
+			 requestor.getResults());
+}
+/**
+ * Bug - No proposal yet for types on lambda arguments
+ * @throws JavaModelException
+ */
+public void _test492947c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public class X {\n" +
+			"	public interface SomeInterface {\n" +
+			"		public void someMethod(StringBuilder builder);\n" +
+			"}\n" +
+			"	public enum SomeEnum {\n" +
+			"		SOME_ENUM((StringBui) -> {\n" +
+			"		});\n" +
+			"		SomeEnum(SomeInterface callable) {}\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "StringBui";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED;
+	assertResults(
+			"StringBuilder[TYPE_REF]{StringBuilder, java.lang, Ljava.lang.StringBuilder;, null, null, null, null, [139, 148], " + relevance + "}"
+			, requestor.getResults());
+}
+public void _test492947d() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public class X {\n" +
+			"	public Main(SomeInterface arg) {}\n" +
+			"	public interface SomeInterface {\n" +
+			"		public void someMethod(StringBuilder builder);\n" +
+			"}\n" +
+			"	Main m = new Main((StringBui) -> {\n" +
+			"		});\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "StringBui";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED;
+	assertResults(
+			"StringBuilder[TYPE_REF]{StringBuilder, java.lang, Ljava.lang.StringBuilder;, null, null, null, null, [139, 148], " + relevance + "}"
 			, requestor.getResults());
 }
 }

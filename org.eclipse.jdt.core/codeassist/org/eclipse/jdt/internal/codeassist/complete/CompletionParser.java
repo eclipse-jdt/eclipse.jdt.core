@@ -2043,6 +2043,7 @@ public void completionIdentifierCheck(){
 	// if not in a method in non diet mode and if not inside a field initializer, only record references attached to types
 	if (!(isInsideMethod() && !this.diet)
 		&& !isIndirectlyInsideFieldInitialization()
+		&& !isIndirectlyInsideEnumConstantnitialization()
 		&& !isInsideAttributeValue()) return;
 
 	/*
@@ -3568,7 +3569,7 @@ protected void consumeToken(int token) {
 			&& this.identifierStack[this.identifierPtr] == assistIdentifier()
 			&& this.currentElement == null
 			&& (!isIndirectlyInsideLambdaExpression() || isIndirectlyInsideLambdaBlock())
-			&& isIndirectlyInsideFieldInitialization()) {
+			&& (isIndirectlyInsideFieldInitialization() || isIndirectlyInsideEnumConstantnitialization())) {
 		this.scanner.eofPosition = this.cursorLocation < Integer.MAX_VALUE ? this.cursorLocation+1 : this.cursorLocation;
 	}
 	if (token == TokenNameimport) {
