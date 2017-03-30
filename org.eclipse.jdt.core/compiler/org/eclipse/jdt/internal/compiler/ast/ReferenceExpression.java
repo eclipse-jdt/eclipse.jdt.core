@@ -280,8 +280,10 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		// Handle some special cases up front and transform them into implicit lambdas.
 		if (shouldGenerateImplicitLambda(currentScope)) {
 			generateImplicitLambda(currentScope, codeStream, valueRequired);
+			cleanUp();
 			return;
 		}
+		cleanUp();
 		SourceTypeBinding sourceType = currentScope.enclosingSourceType();
 		if (this.receiverType.isArrayType()) {
 			char [] lambdaName = CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.ordinal).toCharArray());
@@ -367,6 +369,18 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		codeStream.recordPositionsFrom(pc, this.sourceStart);
 	}
 	
+	private void cleanUp() {
+		// no more rescanning needed beyond this point, so free the memory:
+		if (this.copiesPerTargetType != null) {
+			for (ReferenceExpression copy : this.copiesPerTargetType.values())
+				copy.scanner = null;
+		}
+		if (this.original != null && this.original != this) {
+			this.original.cleanUp();
+		}
+		this.scanner = null;
+	}
+
 	public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo flowInfo) {
 		
 		if ((flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0 || this.binding == null || !this.binding.isValidBinding()) 
