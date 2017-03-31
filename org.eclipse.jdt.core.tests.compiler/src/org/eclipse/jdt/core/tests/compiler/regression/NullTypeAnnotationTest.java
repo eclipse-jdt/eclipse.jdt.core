@@ -15237,4 +15237,29 @@ public void testBug514091() {
 		""
 	);
 }
+public void testBug514570() {
+	final Map compilerOptions = getCompilerOptions();
+	compilerOptions.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
+	runConformTestWithLibs(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"import java.util.List;\n" +
+			"\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"\n" +
+			"public class Test {\n" +
+			"	/**\n" +
+			"	 * {@link #bug()}\n" +
+			"	 */\n" +
+			"	<E, T extends List<@NonNull E>> void bug() {\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		compilerOptions,
+		""
+	);
+}
 }
