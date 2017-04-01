@@ -38,16 +38,14 @@ import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 
 public class JavaIndex {
 	// Version constants
-	static final int CURRENT_VERSION = Nd.version(1, 48);
-	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 48);
-	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 48);
+	static final int CURRENT_VERSION = Nd.version(1, 49);
+	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 49);
+	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 49);
 
 	// Fields for the search header
 	public static final FieldSearchIndex<NdResourceFile> FILES;
 	public static final FieldSearchIndex<NdTypeId> SIMPLE_INDEX;
 	public static final FieldSearchIndex<NdTypeId> TYPES;
-	public static final FieldSearchIndex<NdMethodId> METHODS;
-
 	public static final StructDef<JavaIndex> type;
 
 	static {
@@ -55,7 +53,6 @@ public class JavaIndex {
 		FILES = FieldSearchIndex.create(type, NdResourceFile.FILENAME);
 		SIMPLE_INDEX = FieldSearchIndex.create(type, NdTypeId.SIMPLE_NAME);
 		TYPES = FieldSearchIndex.create(type, NdTypeId.FIELD_DESCRIPTOR);
-		METHODS = FieldSearchIndex.create(type, NdMethodId.METHOD_NAME);
 		type.done();
 
 		// This struct needs to fit within the first database chunk.
@@ -185,22 +182,6 @@ public class JavaIndex {
 		return this.nd;
 	}
 
-	public NdMethodId findMethodId(char[] methodId) {
-		SearchCriteria searchCriteria = SearchCriteria.create(methodId);
-
-		return METHODS.findBest(this.nd, this.address, searchCriteria, this.anyResult);
-	}
-
-	public NdMethodId createMethodId(char[] methodId) {
-		NdMethodId existingMethod = findMethodId(methodId);
-
-		if (existingMethod != null) {
-			return existingMethod;
-		}
-
-		return new NdMethodId(this.nd, methodId);
-	}
-
 	/**
 	 * Converts a JDT-style path (which may be a resource-relative path or absolute filesystem location) into a location
 	 * (which is unconditionally a filesystem location) or null if none.
@@ -308,7 +289,6 @@ public class JavaIndex {
 		registry.register(0x0100, NdConstantString.type.getFactory());
 		registry.register(0x0110, NdMethod.type.getFactory());
 		registry.register(0x0118, NdMethodAnnotationData.type.getFactory());
-		registry.register(0x0130, NdMethodId.type.getFactory());
 		registry.register(0x0150, NdResourceFile.type.getFactory());
 		registry.register(0x0170, NdType.type.getFactory());
 		registry.register(0x0190, NdTypeArgument.type.getFactory());

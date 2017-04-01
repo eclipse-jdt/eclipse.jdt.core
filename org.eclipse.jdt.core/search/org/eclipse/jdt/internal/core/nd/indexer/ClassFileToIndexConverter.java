@@ -12,6 +12,7 @@ package org.eclipse.jdt.internal.core.nd.indexer;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
@@ -45,7 +46,6 @@ import org.eclipse.jdt.internal.core.nd.java.NdConstantArray;
 import org.eclipse.jdt.internal.core.nd.java.NdConstantClass;
 import org.eclipse.jdt.internal.core.nd.java.NdConstantEnum;
 import org.eclipse.jdt.internal.core.nd.java.NdMethod;
-import org.eclipse.jdt.internal.core.nd.java.NdMethodId;
 import org.eclipse.jdt.internal.core.nd.java.NdMethodParameter;
 import org.eclipse.jdt.internal.core.nd.java.NdResourceFile;
 import org.eclipse.jdt.internal.core.nd.java.NdType;
@@ -180,7 +180,7 @@ public final class ClassFileToIndexConverter {
 		IBinaryAnnotation[] annotations = binaryType.getAnnotations();
 		attachAnnotations(type, annotations);
 
-		type.setDeclaringMethod(createMethodId(binaryType.getEnclosingTypeName(), binaryType.getEnclosingMethod()));
+		type.setDeclaringMethod(binaryType.getEnclosingMethod());
 
 		IBinaryField[] fields = binaryType.getFields();
 
@@ -194,8 +194,26 @@ public final class ClassFileToIndexConverter {
 		IBinaryMethod[] methods = binaryType.getMethods();
 
 		if (methods != null) {
-			for (IBinaryMethod next : methods) {
-				addMethod(type, next, binaryType);
+			char[][] methodNames = new char[methods.length][];
+			Integer[] sortedElementIndices = new Integer[methods.length];
+
+			for (int idx = 0; idx < sortedElementIndices.length; idx++) {
+				sortedElementIndices[idx] = idx;
+				methodNames[idx] = getSelectorAndDescriptor(methods[idx]);
+			}
+
+			Arrays.sort(sortedElementIndices, (Integer i1, Integer i2) -> {
+				return CharArrayUtils.compare(methodNames[i1], methodNames[i2]);
+			});
+
+			type.allocateMethods(methods.length);
+			for (int idx = 0; idx < methods.length; idx++) {
+				NdMethod newMethod = type.createMethod();
+				int position = sortedElementIndices[idx];
+				newMethod.setDeclarationPosition(position);
+				newMethod.setMethodName(methodNames[position]);
+				IBinaryMethod nextMethod = methods[position];
+				addMethod(newMethod, nextMethod, binaryType);
 			}
 		}
 
@@ -211,6 +229,10 @@ public final class ClassFileToIndexConverter {
 		type.setSourceNameOverride(binaryType.getSourceName());
 
 		return type;
+	}
+
+	private char[] getSelectorAndDescriptor(IBinaryMethod binaryMethod) {
+		return CharArrayUtils.concat(binaryMethod.getSelector(), binaryMethod.getMethodDescriptor());
 	}
 
 	private static char[] getMissingTypeString(char[][][] missingTypeNames) {
@@ -286,10 +308,9 @@ public final class ClassFileToIndexConverter {
 	 *
 	 * @throws CoreException
 	 */
-	private void addMethod(NdType type, IBinaryMethod next, IBinaryType binaryType)
+	private void addMethod(NdMethod method, IBinaryMethod next, IBinaryType binaryType)
 			throws CoreException {
 		int flags = 0;
-		NdMethod method = new NdMethod(type);
 
 		attachAnnotations(method, next.getAnnotations());
 
@@ -421,7 +442,6 @@ public final class ClassFileToIndexConverter {
 			method.setDefaultValue(createConstantFromMixedType(defaultValue));
 		}
 
-		method.setMethodId(createMethodId(binaryType.getName(), next.getSelector(), next.getMethodDescriptor()));
 		method.setModifiers(next.getModifiers());
 		method.setTagBits(next.getTagBits());
 		method.setFlags(flags);
@@ -804,30 +824,6 @@ public final class ClassFileToIndexConverter {
 			return null;
 		}
 		return this.index.createTypeId(typeName);
-	}
-
-	/**
-	 * Creates a method ID given a method selector, method descriptor, and binary type name
-	 */
-	private NdMethodId createMethodId(char[] binaryTypeName, char[] methodSelector, char[] methodDescriptor) {
-		if (methodSelector == null || binaryTypeName == null || methodDescriptor == null) {
-			return null;
-		}
-
-		char[] methodId = JavaNames.getMethodId(binaryTypeName, methodSelector, methodDescriptor);
-		return this.index.createMethodId(methodId);
-	}
-
-	/**
-	 * Creates a method ID given a method name (which is a method selector followed by a method descriptor.
-	 */
-	private NdMethodId createMethodId(char[] binaryTypeName, char[] methodName) {
-		if (methodName == null || binaryTypeName == null) {
-			return null;
-		}
-
-		char[] methodId = JavaNames.getMethodId(binaryTypeName, methodName);
-		return this.index.createMethodId(methodId);
 	}
 
 	private void initTypeAnnotation(NdTypeAnnotation annotation, IBinaryTypeAnnotation next) {

@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.nd.java;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jdt.internal.core.nd.Nd;
@@ -29,8 +30,7 @@ public class NdType extends NdBinding {
 	public static final FieldManyToOne<NdTypeSignature> SUPERCLASS;
 	public static final FieldOneToMany<NdTypeInterface> INTERFACES;
 	public static final FieldManyToOne<NdTypeId> DECLARING_TYPE;
-	public static final FieldManyToOne<NdMethodId> DECLARING_METHOD;
-	public static final FieldOneToMany<NdMethod> METHODS;
+	public static final FieldList<NdMethod> METHODS;
 	public static final FieldList<NdTypeAnnotation> TYPE_ANNOTATIONS;
 	public static final FieldList<NdAnnotation> ANNOTATIONS;
 	public static final FieldList<NdVariable> VARIABLES;
@@ -39,6 +39,7 @@ public class NdType extends NdBinding {
 	public static final FieldString INNER_CLASS_SOURCE_NAME;
 	public static final FieldByte FLAGS;
 	public static final FieldLong TAG_BITS;
+	public static final FieldString ENCLOSING_METHOD;
 	/**
 	 * Binary name that was recorded in the .class file if different from the binary
 	 * name that was determined by the .class's name and location. This is only set for
@@ -56,8 +57,7 @@ public class NdType extends NdBinding {
 		DECLARING_TYPE = FieldManyToOne.create(type, NdTypeId.DECLARED_TYPES);
 		INTERFACES = FieldOneToMany.create(type, NdTypeInterface.APPLIES_TO);
 		SUPERCLASS = FieldManyToOne.create(type, NdTypeSignature.SUBCLASSES);
-		DECLARING_METHOD = FieldManyToOne.create(type, NdMethodId.DECLARED_TYPES);
-		METHODS = FieldOneToMany.create(type, NdMethod.PARENT, 6);
+		METHODS = FieldList.create(type, NdMethod.type);
 		TYPE_ANNOTATIONS = FieldList.create(type, NdTypeAnnotation.type);
 		ANNOTATIONS = FieldList.create(type, NdAnnotation.type);
 		VARIABLES = FieldList.create(type, NdVariable.type);
@@ -67,6 +67,7 @@ public class NdType extends NdBinding {
 		FLAGS = type.addByte();
 		TAG_BITS = type.addLong();
 		FIELD_DESCRIPTOR_FROM_CLASS = type.addString();
+		ENCLOSING_METHOD = type.addString();
 		type.done();
 	}
 
@@ -133,10 +134,6 @@ public class NdType extends NdBinding {
 
 	public NdResourceFile getResourceFile() {
 		return FILE.get(getNd(), this.address);
-	}
-
-	public void setDeclaringMethod(NdMethodId createMethodId) {
-		DECLARING_METHOD.put(getNd(), this.address, createMethodId);
 	}
 
 	/**
@@ -219,10 +216,6 @@ public class NdType extends NdBinding {
 		return VARIABLES.asList(getNd(), this.address);
 	}
 
-	public NdMethodId getDeclaringMethod() {
-		return DECLARING_METHOD.get(getNd(), this.address);
-	}
-
 	@Override
 	public List<NdTypeParameter> getTypeParameters() {
 		return TYPE_PARAMETERS.asList(getNd(), this.address);
@@ -244,8 +237,41 @@ public class NdType extends NdBinding {
 		ANNOTATIONS.allocate(getNd(), getAddress(), length);
 	}
 
+	/**
+	 * Returns the list of methods, sorted by ascending method name (selector + descriptor).
+	 */
 	public List<NdMethod> getMethods() {
 		return METHODS.asList(getNd(), this.address);
+	}
+
+	/**
+	 * Returns the list of methods, in declaration order.
+	 */
+	public List<NdMethod> getMethodsInDeclarationOrder() {
+		List<NdMethod> unsorted = getMethods();
+		NdMethod[] sorted = new NdMethod[unsorted.size()];
+		for (NdMethod next : unsorted) {
+			int pos = next.getDeclarationPosition();
+
+			if (pos < 0 || pos >= sorted.length) {
+				throw getNd().describeProblem()
+					.addProblemAddress(NdMethod.DECLARATION_POSITION, next.getAddress())
+					.build("Method " + next.getMethodName().getString() + " reports invalid position of " + pos); //$NON-NLS-1$//$NON-NLS-2$
+			}
+
+			NdMethod oldMethodAtThisPosition = sorted[pos];
+			if (oldMethodAtThisPosition != null) {
+				throw getNd().describeProblem()
+					.addProblemAddress(NdMethod.DECLARATION_POSITION, next.getAddress())
+					.addProblemAddress(NdMethod.DECLARATION_POSITION, oldMethodAtThisPosition.getAddress())
+					.build("Method " + oldMethodAtThisPosition.getMethodName().getString()  //$NON-NLS-1$
+							+ " and method " + next.getMethodName().getString() + " both claim to be at position "  //$NON-NLS-1$//$NON-NLS-2$
+							+ pos);
+			}
+			sorted[pos] = next;
+		}
+
+		return Arrays.asList(sorted);
 	}
 
 	@Override
@@ -296,5 +322,21 @@ public class NdType extends NdBinding {
 
 	public void allocateVariables(int length) {
 		VARIABLES.allocate(getNd(), getAddress(), length);
+	}
+
+	public void allocateMethods(int length) {
+		METHODS.allocate(getNd(), getAddress(), length);
+	}
+
+	public NdMethod createMethod() {
+		return METHODS.append(getNd(), getAddress());
+	}
+
+	public void setDeclaringMethod(char[] enclosingMethod) {
+		ENCLOSING_METHOD.put(getNd(), getAddress(), enclosingMethod);
+	}
+
+	public IString getDeclaringMethod() {
+		return ENCLOSING_METHOD.get(getNd(), getAddress());
 	}
 }

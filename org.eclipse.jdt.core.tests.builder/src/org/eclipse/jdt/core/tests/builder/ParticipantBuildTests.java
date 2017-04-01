@@ -432,9 +432,21 @@ public class ParticipantBuildTests extends BuilderTests {
 						AbstractTypeDeclaration typeDecl = (AbstractTypeDeclaration) types.get(t);
 						ITypeBinding typeBinding = typeDecl.resolveBinding();
 						if (typeBinding == null) continue;
-						typeBinding = typeBinding.getAnnotations()[0].getAnnotationType();
-						IAnnotationBinding targetValue = typeBinding.getAnnotations()[0];
-						IMethodBinding method = targetValue.getDeclaredMemberValuePairs()[0].getMethodBinding();
+						IAnnotationBinding[] annotations = typeBinding.getAnnotations();
+						if (annotations == null || annotations.length == 0) {
+							throw new IllegalStateException(
+									"Expected at least one annotation in binding " + typeBinding);
+						}
+						IAnnotationBinding targetValue = annotations[0];
+						typeBinding = targetValue.getAnnotationType();
+
+						IMemberValuePairBinding[] pairs = targetValue.getAllMemberValuePairs();
+						if (pairs == null || pairs.length == 0) {
+							throw new IllegalStateException(
+									"Expected at least one member value pair in " + targetValue
+									+ ", binding was: " + typeBinding);
+						}
+						IMethodBinding method = pairs[0].getMethodBinding();
 						if (!"value".equals(method.getName()))
 							problems.add(new ParticipantProblem("method " + method.getName() + " not found", file.getName()));
 					}
