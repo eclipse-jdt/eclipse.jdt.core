@@ -146,14 +146,14 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 	@Override
 	protected void setUp() throws Exception {
 		ServiceLoader<JavaCompiler> javaCompilerLoader = ServiceLoader.load(JavaCompiler.class);//, EclipseCompiler.class.getClassLoader());
-		int compilerCounter = 0;
+//		int compilerCounter = 0;
 		for (JavaCompiler javaCompiler : javaCompilerLoader) {
-			compilerCounter++;
+//			compilerCounter++;
 			if (javaCompiler instanceof EclipseCompiler) {
 				compiler = javaCompiler;
 			}
 		}
-		assertEquals("Only one compiler available", 1, compilerCounter);
+//		assertEquals("Only one compiler available", 1, compilerCounter);
 	}
 
 	@Override

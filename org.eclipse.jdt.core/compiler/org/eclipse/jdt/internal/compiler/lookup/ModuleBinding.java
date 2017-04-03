@@ -296,11 +296,8 @@ public class ModuleBinding extends Binding {
 	public boolean declaresPackage(char[][] parentPackageName, char[] name) {
 		char[] qualifiedName = CharOperation.concatWith(parentPackageName, name, '.');
 		PackageBinding declared = this.declaredPackages.get(qualifiedName);
-		if (declared != null) {
-			if (declared == LookupEnvironment.TheNotFoundPackage)
-				return false;
-			else
-				return true;
+		if (declared != null && declared != LookupEnvironment.TheNotFoundPackage) {
+ 				return true;
 		}
 		INameEnvironment nameEnvironment = this.environment.nameEnvironment;
 		if (nameEnvironment instanceof IModuleAwareNameEnvironment) {

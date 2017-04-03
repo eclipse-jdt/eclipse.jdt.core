@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2016 IBM Corporation and others.
+ * Copyright (c) 2007, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,6 +22,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -40,10 +41,12 @@ import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
+import org.eclipse.jdt.internal.compiler.batch.ClasspathJrt;
 import org.eclipse.jdt.internal.compiler.batch.ClasspathJsr199;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
@@ -51,6 +54,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class EclipseCompilerImpl extends Main {
 	private static final CompilationUnit[] NO_UNITS = new CompilationUnit[0];
@@ -441,19 +445,31 @@ public class EclipseCompilerImpl extends Main {
 			location = standardJavaFileManager.getLocation(StandardLocation.PLATFORM_CLASS_PATH);
 			if (location != null) {
 				for (File file : location) {
-					Classpath classpath = FileSystem.getClasspath(
-						file.getAbsolutePath(),
-						null,
-						null, this.options);
-					if (classpath != null) {
-						fileSystemClasspaths.add(classpath);
-						havePlatformPaths = true;
+					if (file.isDirectory()) {
+						setPlatformLocations(fileSystemClasspaths, file);
+						break; // Only possible scenario is, we have one and only entry representing the Java home.
+					} else {
+						Classpath classpath = FileSystem.getClasspath(
+								file.getAbsolutePath(),
+								null,
+								null, this.options);
+							if (classpath != null) {
+								fileSystemClasspaths.add(classpath);
+								havePlatformPaths = true;
+							}
 					}
 				}
 			}
 		} else if (javaFileManager != null) {
-			Classpath classpath = new ClasspathJsr199(this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
-			fileSystemClasspaths.add(classpath);
+			File javaHome = Util.getJavaHome();
+			if (Util.getJDKLevel(javaHome) >= ClassFileConstants.JDK9) { 
+				ClasspathJrt jrt = (ClasspathJrt) FileSystem.getJrtClasspath(javaHome.toString(), null, null, null);
+				Classpath classpath = new ClasspathJsr199(jrt, this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
+				fileSystemClasspaths.add(classpath);
+			} else {
+				Classpath classpath = new ClasspathJsr199(this.fileManager, StandardLocation.PLATFORM_CLASS_PATH);
+				fileSystemClasspaths.add(classpath);
+			}
 			havePlatformPaths = true;
 		}
 		if (eclipseJavaFileManager != null) {
@@ -515,6 +531,11 @@ public class EclipseCompilerImpl extends Main {
 				this.checkedClasspaths[i++] = classpath;
 			}
 		}
+	}
+
+	protected void setPlatformLocations(ArrayList<FileSystem.Classpath> fileSystemClasspaths, File file) {
+		List<Classpath> platformLibraries = Util.collectPlatformLibraries(file);
+		fileSystemClasspaths.addAll(platformLibraries);
 	}
 	@Override
 	protected void loggingExtraProblems() {

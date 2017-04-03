@@ -1160,13 +1160,20 @@ public class Util implements SuffixConstants {
 	}
 
 	public static void collectVMBootclasspath(List bootclasspaths, File javaHome) {
-		List<Classpath> classpaths = collectFilesNames(javaHome);
+		List<Classpath> classpaths = collectPlatformLibraries(javaHome);
 		bootclasspaths.addAll(classpaths);
 	}
 	public static void collectRunningVMBootclasspath(List bootclasspaths) {
 		collectVMBootclasspath(bootclasspaths, null);
 	}
-	private static String getJavaVersion(File javaHome) {
+	public static long getJDKLevel(File javaHome) {
+		String version = getJavaVersion(javaHome);
+		return CompilerOptions.versionToJdkLevel(version);
+	}
+	public static String getJavaVersion(File javaHome) {
+		if (javaHome == null) {
+			return System.getProperty("java.version"); //$NON-NLS-1$
+		}
 		File release = new File(javaHome, "release"); //$NON-NLS-1$
 		Properties prop = new Properties();
 		try {
@@ -1181,19 +1188,15 @@ public class Util implements SuffixConstants {
 		return null;
 	}
 	public static List<FileSystem.Classpath> collectFilesNames() {
-		return collectFilesNames(null);
+		return collectPlatformLibraries(null);
 	}
-	public static List<FileSystem.Classpath> collectFilesNames(File javaHome) {
+	public static List<FileSystem.Classpath> collectPlatformLibraries(File javaHome) {
 		/* no bootclasspath specified
 		 * we can try to retrieve the default librairies of the VM used to run
 		 * the batch compiler
 		 */
 		String javaversion = null;
-		if (javaHome != null) {
-			javaversion = getJavaVersion(javaHome);
-		} else {
-			javaversion = System.getProperty("java.version"); //$NON-NLS-1$
-		}
+		javaversion = getJavaVersion(javaHome);
 		if (javaversion != null && javaversion.equalsIgnoreCase("1.1.8")) { //$NON-NLS-1$
 			throw new IllegalStateException();
 		}

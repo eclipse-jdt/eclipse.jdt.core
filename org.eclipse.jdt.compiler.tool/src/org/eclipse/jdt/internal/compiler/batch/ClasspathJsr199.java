@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2016 IBM Corporation and others.
+ * Copyright (c) 2015, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -47,10 +47,17 @@ public class ClasspathJsr199 extends ClasspathLocation implements IModuleEnviron
 
 	private JavaFileManager fileManager;
 	private JavaFileManager.Location location;
+	private ClasspathJrt jrt;
 
 	public ClasspathJsr199(JavaFileManager file, JavaFileManager.Location location) {
 		super(null, null);
 		this.fileManager = file;
+		this.location = location;
+	}
+	public ClasspathJsr199(ClasspathJrt jrt, JavaFileManager file, JavaFileManager.Location location) {
+		super(null, null);
+		this.fileManager = file;
+		this.jrt = jrt;
 		this.location = location;
 	}
 
@@ -63,7 +70,9 @@ public class ClasspathJsr199 extends ClasspathLocation implements IModuleEnviron
 	@Override
 	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String aQualifiedBinaryFileName,
 			boolean asBinaryOnly) {
-
+		if (this.jrt != null) {
+			return this.jrt.findClass(typeName, qualifiedPackageName, aQualifiedBinaryFileName, asBinaryOnly);
+		}
 		String qualifiedBinaryFileName = File.separatorChar == '/'
 				? aQualifiedBinaryFileName
 				: aQualifiedBinaryFileName.replace(File.separatorChar, '/');
@@ -97,6 +106,9 @@ public class ClasspathJsr199 extends ClasspathLocation implements IModuleEnviron
 
 	@Override
 	public char[][][] findTypeNames(String aQualifiedPackageName, IModule mod) {
+		if (this.jrt != null) {
+			return this.jrt.findTypeNames(aQualifiedPackageName, mod);
+		}
 		String qualifiedPackageName = File.separatorChar == '/' ? aQualifiedPackageName : aQualifiedPackageName.replace(
 				File.separatorChar, '/');
 
@@ -145,6 +157,9 @@ public class ClasspathJsr199 extends ClasspathLocation implements IModuleEnviron
 
 	@Override
 	public boolean isPackage(String aQualifiedPackageName) {
+		if (this.jrt != null) {
+			return this.jrt.isPackage(aQualifiedPackageName);
+		}
 		String qualifiedPackageName = File.separatorChar == '/' ? aQualifiedPackageName : aQualifiedPackageName.replace(
 				File.separatorChar, '/');
 
