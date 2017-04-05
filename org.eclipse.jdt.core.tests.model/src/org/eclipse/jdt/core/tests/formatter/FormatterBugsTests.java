@@ -12645,4 +12645,42 @@ public void testBug500853() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/500853 - [formatter] Errors around formatter:off regions with "use space to indent wrapped lines"
+ * @test no {@code IndexOutOfBoundsException} is thrown
+ */
+public void testBug512791a() {
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"	void f() {\n" + 
+		"		int a = 1 + 2 + 3 + 4;\n" + 
+		"		f  (   ;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	Object o = new Object() {\n" + 
+		"	};\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/500853 - [formatter] Errors around formatter:off regions with "use space to indent wrapped lines"
+ * @test formatter doesn't get stuck in an infinite loop
+ */
+public void testBug512791b() {
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"	void f() {\n" + 
+		"		f  (   ;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	Object o = new Object() {\n" + 
+		"		int a;\n" + 
+		"	};\n" + 
+		"}";
+	formatSource(source);
+}
 }
