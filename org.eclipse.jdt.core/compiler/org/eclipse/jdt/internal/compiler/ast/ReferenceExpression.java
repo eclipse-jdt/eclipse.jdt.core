@@ -247,20 +247,21 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		}
 		
 		// Process the lambda, taking care not to double report diagnostics. Don't expect any from resolve, Any from code generation should surface, but not those from flow analysis.
-		implicitLambda.resolveType(currentScope, true);
-		IErrorHandlingPolicy oldPolicy = currentScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
+		BlockScope lambdaScope = this.receiverVariable != null ? this.receiverVariable.declaringScope : currentScope;
+		implicitLambda.resolveType(lambdaScope, true);
+		IErrorHandlingPolicy oldPolicy = lambdaScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
 		try {
-			implicitLambda.analyseCode(currentScope, 
-					new FieldInitsFakingFlowContext(null, this, Binding.NO_EXCEPTIONS, null, currentScope, FlowInfo.DEAD_END), 
-					UnconditionalFlowInfo.fakeInitializedFlowInfo(currentScope.outerMostMethodScope().analysisIndex, currentScope.referenceType().maxFieldCount));
+			implicitLambda.analyseCode(lambdaScope, 
+					new FieldInitsFakingFlowContext(null, this, Binding.NO_EXCEPTIONS, null, lambdaScope, FlowInfo.DEAD_END), 
+					UnconditionalFlowInfo.fakeInitializedFlowInfo(lambdaScope.outerMostMethodScope().analysisIndex, lambdaScope.referenceType().maxFieldCount));
 		} finally {
-			currentScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
+			lambdaScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 		}
 		SyntheticArgumentBinding[] outerLocals = this.receiverType.syntheticOuterLocalVariables();
 		for (int i = 0, length = outerLocals == null ? 0 : outerLocals.length; i < length; i++)
 			implicitLambda.addSyntheticArgument(outerLocals[i].actualOuterLocalVariable);
 		
-		implicitLambda.generateCode(currentScope, codeStream, valueRequired);
+		implicitLambda.generateCode(lambdaScope, codeStream, valueRequired);
 		if (generateSecretReceiverVariable) {
 			codeStream.removeVariable(this.receiverVariable);
 			this.receiverVariable = null;

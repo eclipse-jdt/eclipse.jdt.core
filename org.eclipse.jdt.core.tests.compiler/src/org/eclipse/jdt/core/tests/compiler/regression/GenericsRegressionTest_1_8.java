@@ -8090,4 +8090,23 @@ public void testBug508834_comment0() {
 			"----------\n"
 		);
 	}
+	public void testBug514884() {
+		runConformTest(
+			new String[] {
+				"Minimal.java",
+				"import java.io.*;\n" + 
+				"public class Minimal {\n" + 
+				"    public void iCrash() throws IOException {\n" + 
+				"        try (Closeable o = consumes(sneaky()::withVarargs)) {\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private Minimal sneaky() { return this; }\n" + 
+				"\n" + 
+				"    private void withVarargs(String... test) {}\n" + 
+				"\n" + 
+				"    private Closeable consumes(Runnable r) { return null; }\n" + 
+				"}\n"
+			});
+	}
 }
