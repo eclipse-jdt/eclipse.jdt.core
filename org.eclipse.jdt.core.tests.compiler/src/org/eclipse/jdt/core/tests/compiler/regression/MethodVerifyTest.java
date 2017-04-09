@@ -14327,4 +14327,44 @@ public void testBug500673() {
 		"The type mfa must implement the inherited abstract method mfi.a(Throwable)\n" + 
 		"----------\n");
 }
+public void testBug506653() {
+	runConformTest(
+		false, // flushOutputDirectory
+		new String[] {
+			"A.java",
+			"   public class A {\n" + 
+			"    public class B {\n" + 
+			"        <E extends Object, F extends E> E bar(F x) {\n" + 
+			"            return null;\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    public class C extends B {\n" +
+			"		 @Override\n" + 
+			"        public String bar(Object x) {\n" + 
+			"            return \"Oops\";\n" + 
+			"        }\n" + 
+			"    }\n" + 
+			"    public static void main(String... args) {\n" + 
+			"        new A().test();\n" + 
+			"    }\n" + 
+			"    void test() {\n" + 
+			"        B b = new C();\n" +
+			"		 try {\n" + 
+			"        	Integer i = b.bar(1);\n" +
+			"		 } catch (ClassCastException cce) {\n" +
+			"			System.out.print(\"cce\");\n" +
+			"		 }\n" + 
+			"    }\n" + 
+			"   }\n"
+		},
+		"----------\n" + 
+		"1. WARNING in A.java (at line 9)\n" + 
+		"	public String bar(Object x) {\n" + 
+		"	       ^^^^^^\n" + 
+		"Type safety: The return type String for bar(Object) from the type A.C needs unchecked conversion to conform to E from the type A.B\n" + 
+		"----------\n",
+		"cce",
+		"",
+		JavacTestOptions.DEFAULT);
+}
 }
