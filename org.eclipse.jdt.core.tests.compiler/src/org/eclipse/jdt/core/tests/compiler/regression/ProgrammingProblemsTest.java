@@ -3221,6 +3221,82 @@ public void testBug410218f() {
 		true/*shouldFlushOutputDirectory*/,
 		customOptions);
 }
+public void testBug514956a() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_COLLECTION_METHOD_ARGUMENT_TYPE, JavaCore.WARNING);
+	customOptions.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.ERROR);
+	runConformTest(
+		new String[] {
+			"Unlikely.java",
+			"import java.util.Map;\n" + 
+			"\n" + 
+			"interface MApplicationElement {}\n" + 
+			"interface EObject {}\n" + 
+			"public class Unlikely {\n" + 
+			"	void m(Map<MApplicationElement, MApplicationElement> map, EObject key) {\n" + 
+			"		map.get((MApplicationElement)key);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		customOptions);
+}
+public void testBug514956b() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE, JavaCore.WARNING);
+	customOptions.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.ERROR);
+	runConformTest(
+		new String[] {
+			"Unlikely.java",
+			"interface EObject {}\n" + 
+			"public class Unlikely {\n" + 
+			"	boolean m(EObject key) {\n" + 
+			"		return this.equals((Unlikely)key);\n" + 
+			"	}\n" + 
+			"}\n"
+		},
+		customOptions);
+}
+public void testBug514956c() {
+	Map customOptions = getCompilerOptions();
+	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE, JavaCore.WARNING);
+	customOptions.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.ERROR);
+	runNegativeTest(
+		new String[] {
+			"Unlikely.java",
+			"interface I1 {}\n" + 
+			"interface I2 {}\n" + 
+			"interface I3 {}\n" + 
+			"public class Unlikely implements I1 {\n" + 
+			"	boolean m1(I1 i1) {\n" + 
+			"		return i1.equals((I1)this);\n" + // not a downcast
+			"	}\n" + 
+			"	boolean m2(I1 i1, I2 i2) {\n" + 
+			"		return i1.equals((I3)i2);\n" + // cast doesn't fix a problem
+			"	}\n" + 
+			"}\n"
+		},
+		"----------\n" + 
+		"1. ERROR in Unlikely.java (at line 6)\n" + 
+		"	return i1.equals((I1)this);\n" + 
+		"	                 ^^^^^^^^\n" + 
+		"Unnecessary cast from Unlikely to I1\n" + 
+		"----------\n" + 
+		"2. ERROR in Unlikely.java (at line 9)\n" + 
+		"	return i1.equals((I3)i2);\n" + 
+		"	                 ^^^^^^\n" + 
+		"Unnecessary cast from I2 to I3\n" + 
+		"----------\n" + 
+		"3. WARNING in Unlikely.java (at line 9)\n" + 
+		"	return i1.equals((I3)i2);\n" + 
+		"	                 ^^^^^^\n" + 
+		"Unlikely argument type for equals(): I3 seems to be unrelated to I1\n" + 
+		"----------\n",
+		null, // classlibs
+		false, // flush output dir
+		customOptions);
+}
 // mixture of raw type an parametrized type
 public void testBug513310() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5)
