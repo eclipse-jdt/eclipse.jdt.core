@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2016 QNX Software Systems and others.
+ * Copyright (c) 2005, 2017 QNX Software Systems and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -220,7 +220,7 @@ public class DatabaseTest extends BaseTestCase {
 			assertTrue(record != 0);
 			assertEquals(i, this.db.getInt(record));
 			IString rname = this.db.getString(this.db.getRecPtr(record + 4));
-			assertTrue(rname.equals(name));
+			assertTrue(rname.toString().equals(name));
 		}
 	}
 

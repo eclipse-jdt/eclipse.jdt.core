@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2015 BEA Systems, Inc.
+ * Copyright (c) 2006, 2017 BEA Systems, Inc. and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
+ *    IBM Corporation - Bug 513790
  *******************************************************************************/
 package org.eclipse.jdt.apt.core.internal.util;
 
@@ -312,7 +313,7 @@ public class ManyToMany<T1, T2> {
 	 * @see #keyHasOtherValues(Object, Object)
 	 */
 	public synchronized boolean valueHasOtherKeys(T2 value, T1 key) {
-		Set<T1> keys = _reverse.get(key);
+		Set<T1> keys = _reverse.get(value);
 		if (keys == null)
 			return false;
 		int size = keys.size();

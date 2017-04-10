@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -2877,7 +2877,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			IClasspathEntry entry = classpath[i];
 			final IPath path = entry.getPath();
 			// Choose the new JCL path only if the current JCL path is different
-			if (isJCLPath(path) && !path.equals(newJclLibString)) {
+			if (isJCLPath(path) && !path.toString().equals(newJclLibString)) {
 					classpath[i] = JavaCore.newVariableEntry(
 							new Path(newJclLibString),
 							new Path(newJclSrcString),

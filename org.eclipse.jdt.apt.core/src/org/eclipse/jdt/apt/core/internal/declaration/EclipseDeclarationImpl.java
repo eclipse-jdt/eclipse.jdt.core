@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2015 BEA Systems, Inc.
+ * Copyright (c) 2005, 2017 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -173,7 +173,7 @@ public abstract class EclipseDeclarationImpl implements Declaration, EclipseMirr
 			if( declName == null ) return node;
 			for(Object obj : ((FieldDeclaration)node).fragments() ){
 				 VariableDeclarationFragment frag = (VariableDeclarationFragment)obj;
-				 if( declName.equals(frag.getName()) ){
+				 if( declName.equals(frag.getName().toString()) ){
 					 name = frag.getName();
 					 break;
 				 }	 

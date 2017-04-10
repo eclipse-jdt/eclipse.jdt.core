@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2017 BEA Systems, Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -173,7 +173,7 @@ public class APIAnnotationProcessorFactory extends BaseFactory {
 		 */
 		private AnnotationMirror findMirror(Declaration decl, AnnotationTypeDeclaration at) {
 			for (AnnotationMirror mirror : decl.getAnnotationMirrors()) {
-				if (mirror.getAnnotationType().equals(at)) {
+				if (mirror.getAnnotationType().getDeclaration().equals(at)) {
 					return mirror;
 				}
 			}
