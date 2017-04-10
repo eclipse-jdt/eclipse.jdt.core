@@ -906,6 +906,12 @@ public class WrapPreparator extends ASTVisitor {
 				Token previous = this.tm.get(i);
 				if (!previous.isComment())
 					break;
+				if (this.options.never_indent_line_comments_on_first_column
+						&& previous.tokenType == TokenNameCOMMENT_LINE && previous.getIndent() == 0)
+					break;
+				if (this.options.never_indent_block_comments_on_first_column
+						&& previous.tokenType == TokenNameCOMMENT_BLOCK && previous.getIndent() == 0)
+					break;
 				if (previous.getLineBreaksAfter() == 0 && i == index - 1)
 					index = i;
 				if (previous.getLineBreaksBefore() > 0)

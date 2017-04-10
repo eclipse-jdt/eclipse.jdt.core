@@ -12683,4 +12683,36 @@ public void testBug512791b() {
 		"}";
 	formatSource(source);
 }
+/**
+ * https://bugs.eclipse.org/514591 - [formatter] NegativeArraySizeException with "Never indent line comments on first column"
+ * + "Use spaces to indent wrapped lines"
+ */
+public void testBug514591a() {
+	this.formatterPrefs.never_indent_line_comments_on_first_column = true;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"	String s = new StringBuilder()\n" + 
+		"// .append(\"aa\")\n" + 
+		"	        .toString();\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/514591 - [formatter] NegativeArraySizeException with "Never indent line comments on first column"
+ * + "Use spaces to indent wrapped lines"
+ */
+public void testBug514591b() {
+	this.formatterPrefs.never_indent_block_comments_on_first_column = true;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"	String s = new StringBuilder()\n" + 
+		"/* .append(\"aa\") */\n" + 
+		"	        .toString();\n" + 
+		"}";
+	formatSource(source);
+}
 }
