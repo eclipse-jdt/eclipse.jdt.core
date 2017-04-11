@@ -19764,11 +19764,7 @@ public void test0617() {
     		"1. ERROR in X.java (at line 9)\n" +
     		"	String s = foo(l1, l2);\n" +
     		"	           ^^^^^^^^^^^\n" +
-    		(this.complianceLevel < ClassFileConstants.JDK1_8 ? 
-    		"Type mismatch: cannot convert from List<capture#2-of ? extends Object&Serializable&Comparable<?>> to String\n"
-			:
-			"Type mismatch: cannot convert from List<capture#3-of ? extends Object&Serializable&Comparable<?>> to String\n"
-    		) +
+    		"Type mismatch: cannot convert from List<capture#2-of ? extends Object&Serializable&Comparable<?>> to String\n" +
     		"----------\n");
 	}
 	// check capture for conditional operator
@@ -19800,7 +19796,7 @@ public void test0617() {
 	    			"1. ERROR in X.java (at line 10)\n" + 
 	    			"	String s = l1 != null ? foo(l1, l2) : l3;\n" + 
 		    		"	                        ^^^^^^^^^^^\n" +
-		    		"Type mismatch: cannot convert from List<capture#3-of ? extends Number&Comparable<?>> to String\n" +
+		    		"Type mismatch: cannot convert from List<capture#2-of ? extends Number&Comparable<?>> to String\n" +
 	    			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=92556

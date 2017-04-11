@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2016 GK Software AG.
+ * Copyright (c) 2013, 2017 GK Software AG.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.compiler.ast.Invocation;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
+import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18.SuspendedInferenceRecord;
 
 /**
@@ -396,12 +397,17 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 						parameterizedType.genericType(), betas, parameterizedType.enclosingType(), parameterizedType.getTypeAnnotations());
 				inferenceContext.currentBounds.captures.put(gbeta, parameterizedType); // established: both types have nonnull arguments
 				if (InferenceContext18.SHOULD_WORKAROUND_BUG_JDK_8054721) {
-					parameterizedType = parameterizedType.capture(inferenceContext.scope, invocationSite.sourceStart(), invocationSite.sourceEnd());
-					arguments = parameterizedType.arguments;
 					for (int i = 0, length = arguments.length; i < length; i++) {
-						if (arguments[i].isCapture() && arguments[i].isProperType(true)) {
-							CaptureBinding capture = (CaptureBinding) arguments[i];
-							inferenceContext.currentBounds.addBound(new TypeBound(betas[i], capture, SAME), inferenceContext.environment);
+						if (arguments[i].isWildcard()) {
+							WildcardBinding wc = (WildcardBinding) arguments[i];
+							switch (wc.boundKind) {
+								case Wildcard.EXTENDS:
+									inferenceContext.currentBounds.addBound(new TypeBound(betas[i], wc.bound(), SUBTYPE), inferenceContext.environment);
+									break;
+								case Wildcard.SUPER:
+									inferenceContext.currentBounds.addBound(new TypeBound(betas[i], wc.bound(), SUPERTYPE), inferenceContext.environment);
+									break;
+							}
 						}
 					}
 				}

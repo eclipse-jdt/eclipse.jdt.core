@@ -8007,7 +8007,87 @@ public void testBug508834_comment0() {
 			"	}\n" +
 			"}\n" +
 			"",
-		}
-	);
-}
+		});
+	}
+
+	public void testBug506022() {
+		// extracted from problem compiling org.apache.tinkerpop.gremlin.giraph.structure.io.GiraphVertexOutputFormat
+		// changing the return type of getClass to Class<U> fixes the problem
+		runConformTest(
+			new String[] {
+				"test2/Test2.java",
+				"package test2;\n" +
+				"\n" +
+				"abstract class OutputFormat {\n" +
+				"	public abstract int getOutputCommitter();\n" +
+				"}\n" +
+				"\n" +
+				"public abstract class Test2 {\n" +
+				"	public static <T> T newInstance(Class<T> theClass) {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"\n" +
+				"	abstract <U> Class<? extends U> getClass(Class<U> xface);\n" +
+				"\n" +
+				"	int f() {\n" +
+				"		return newInstance(getClass(OutputFormat.class)).getOutputCommitter();\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+			} 
+		);
+	}
+
+	public void testBug506022b() {
+		// extracted from a problem in org.apache.tinkerpop.gremlin.process.computer.util.ComputerGraph
+		// replacing this.properties() by this.<I>properties() fixes the problem
+		runNegativeTest(
+			new String[] {
+				"test/Test.java",
+				"package test;\n" +
+				"\n" +
+				"interface Iterator<A> {\n" +
+				"}\n" +
+				"\n" +
+				"interface Function<B, C> {\n" +
+				"	C applyTo(B b);\n" +
+				"}\n" +
+				"\n" +
+				"interface Property<D> {\n" +
+				"}\n" +
+				"\n" +
+				"class ComputerProperty<E> implements Property<E> {\n" +
+				"	public ComputerProperty(final Property<E> property) {\n" +
+				"	}\n" +
+				"}\n" +
+				"\n" +
+				"public abstract class Test {\n" +
+				"	public abstract <F, G> Iterator<G> map(final Iterator<F> iterator, final Function<F, G> function);\n" +
+				"\n" +
+				"	public abstract <H> Iterator<? extends Property<H>> properties();\n" +
+				"\n" +
+				"	public <I> Iterator<Property<I>> test() {\n" +
+				"		return map(this.properties(), property -> new ComputerProperty(property));\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+			}, 
+			"----------\n" + 
+			"1. WARNING in test\\Test.java (at line 24)\n" + 
+			"	return map(this.properties(), property -> new ComputerProperty(property));\n" + 
+			"	                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The constructor ComputerProperty(Property) belongs to the raw type ComputerProperty. References to generic type ComputerProperty<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in test\\Test.java (at line 24)\n" + 
+			"	return map(this.properties(), property -> new ComputerProperty(property));\n" + 
+			"	                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type ComputerProperty needs unchecked conversion to conform to Property<I>\n" + 
+			"----------\n" + 
+			"3. WARNING in test\\Test.java (at line 24)\n" + 
+			"	return map(this.properties(), property -> new ComputerProperty(property));\n" + 
+			"	                                              ^^^^^^^^^^^^^^^^\n" + 
+			"ComputerProperty is a raw type. References to generic type ComputerProperty<E> should be parameterized\n" + 
+			"----------\n"
+		);
+	}
 }

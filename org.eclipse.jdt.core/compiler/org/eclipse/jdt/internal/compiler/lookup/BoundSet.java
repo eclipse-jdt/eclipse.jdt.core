@@ -736,10 +736,6 @@ class BoundSet {
 							it = three.sameBounds.iterator();
 							while (it.hasNext()) {
 								TypeBound bound = it.next();
-								if (InferenceContext18.SHOULD_WORKAROUND_BUG_JDK_8054721) {
-									if (bound.right instanceof CaptureBinding && bound.right.isProperType(true))
-										continue;
-								}
 								if (!(bound.right instanceof InferenceVariable))
 									return false;
 							}
