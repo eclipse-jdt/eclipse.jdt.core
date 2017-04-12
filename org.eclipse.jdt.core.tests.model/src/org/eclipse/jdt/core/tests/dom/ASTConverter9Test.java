@@ -17,12 +17,18 @@ package org.eclipse.jdt.core.tests.dom;
 import junit.framework.Test;
 
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 
@@ -30,6 +36,7 @@ import org.eclipse.jdt.core.JavaModelException;
 public class ASTConverter9Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
+	private static boolean isJRE9 = false;
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
@@ -46,6 +53,14 @@ public class ASTConverter9Test extends ConverterTestSetup {
 //		TESTS_NAMES = new String[] {"testBug512023_0001"};
 	}
 	public static Test suite() {
+		String javaVersion = System.getProperty("java.version");
+		if (javaVersion.length() > 3) {
+			javaVersion = javaVersion.substring(0, 3);
+		}
+		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK9) {
+			isJRE9 = true;
+		}
 		return buildModelTestSuite(ASTConverter9Test.class);
 	}
 
@@ -227,6 +242,45 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			deleteProject("ConverterTests9");
 		}
 	}
-
+	public void testBug514417() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			createJava9Project("Bug514417", new String[]{"src"});
+			createFolder("/Bug514417/src/pack1");
+			String content =  "package pack1;\n" +
+					"import java.lang.String;\n" +
+					"public class X { \n" +
+					"	java.lang.String str = null;\n" +
+					"}\n";
+			createFile("/Bug514417/src/pack1/X.java", content);
+			ICompilationUnit sourceUnit = getCompilationUnit("Bug514417" , "src", "pack1", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode unit = runConversion(AST_INTERNAL_JLS9, sourceUnit, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit.getNodeType());
+			List imps = ((CompilationUnit) unit).imports();
+			assertEquals("import missing", 1, imps.size());
+			ImportDeclaration impo = (ImportDeclaration) imps.get(0);
+			IBinding bind = impo.resolveBinding();
+			assertNotNull("binding null", bind);
+			IJavaElement element = bind.getJavaElement();
+			assertNotNull(element);
+			assertEquals("Incorrect element type", IJavaElement.TYPE, element.getElementType());
+			IType type = (IType) element;
+			assertEquals("Incorrect name", "java.lang.String", type.getFullyQualifiedName());
+			element = element.getParent();
+			assertNotNull(element);
+			assertEquals("Incorrect element type", IJavaElement.CLASS_FILE, element.getElementType());
+			element = element.getParent();
+			assertNotNull(element);
+			assertEquals("Incorrect element type", IJavaElement.PACKAGE_FRAGMENT, element.getElementType());
+			element = element.getParent();
+			assertNotNull(element);
+			assertEquals("Incorrect element type", IJavaElement.PACKAGE_FRAGMENT_ROOT, element.getElementType());
+			assertTrue("incorrect root type", (element instanceof JrtPackageFragmentRoot));
+			JrtPackageFragmentRoot root = (JrtPackageFragmentRoot) element;
+			assertEquals("incorrect module name", "java.base", root.getElementName());
+		} finally {
+			deleteProject("Bug514417");
+		}
+	}
 // Add new tests here 
 }
