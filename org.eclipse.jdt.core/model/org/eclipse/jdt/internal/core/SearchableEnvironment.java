@@ -776,7 +776,7 @@ public class SearchableEnvironment
 		NameLookup.Answer answer = this.nameLookup.findModule(CharOperation.charToString(name));
 		IModule module = null;
 		if (answer != null) {
-			module = this.nameLookup.getModuleDescriptionInfo(answer.module);
+			module = NameLookup.getModuleDescriptionInfo(answer.module);
 		}
 		return module;
 	}

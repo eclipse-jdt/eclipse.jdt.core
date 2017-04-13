@@ -172,6 +172,9 @@ public String toString() {
 }
 @Override
 public char[] module() {
+	if (this.openable instanceof CompilationUnit) {
+		return ((CompilationUnit) this.openable).module();
+	}
 	// TODO BETA_JAVA9 Auto-generated method stub
 	return null;
 }

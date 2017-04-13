@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -23,6 +23,7 @@ public class ModuleReference extends ASTNode {
 	public char[][] tokens;
 	public long[] sourcePositions; //each entry is using the code : (start<<32) + end
 	public char[] moduleName;
+	ModuleBinding binding = null;
 
 	public ModuleReference(char[][] tokens, long[] sourcePositions) {
 		this.tokens = tokens;
@@ -42,10 +43,9 @@ public class ModuleReference extends ASTNode {
 	}
 
 	public ModuleBinding resolve(Scope scope) {
-		ModuleBinding binding = null;
-		if ((binding = scope.environment().getModule(this.moduleName)) == null) {
+		if (scope != null && (this.binding = scope.environment().getModule(this.moduleName)) == null) {
 			scope.problemReporter().invalidModule(this);
 		}
-		return binding;
+		return this.binding;
 	}
 }

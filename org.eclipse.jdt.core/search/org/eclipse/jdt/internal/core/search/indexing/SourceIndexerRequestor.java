@@ -316,7 +316,7 @@ public void enterModule(ModuleInfo moduleInfo) {
 			if (packInfo == null || packInfo.pkgName == null || packInfo.pkgName.equals(CharOperation.NO_CHAR)) continue;
 			this.indexer.addModuleExportedPackages(packInfo.pkgName);
 			char[][] tgt = packInfo.targets;
-			if (tgt != null && tgt == CharOperation.NO_CHAR_CHAR) 
+			if (tgt != null && !tgt.equals(CharOperation.NO_CHAR_CHAR)) 
 				this.indexer.addModuleReference(CharOperation.concatWith(tgt, '.'));
 		}
 	}

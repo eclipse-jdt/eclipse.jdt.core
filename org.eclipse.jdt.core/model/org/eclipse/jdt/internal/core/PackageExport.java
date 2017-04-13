@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation.
+ * Copyright (c) 2016, 2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,6 +46,21 @@ public class PackageExport extends SourceRefElement implements IModuleDescriptio
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(this.pack);
+		String[] s;
+		try {
+			s = getTargetModules();
+			if (s != null && s.length > 0) {
+				buffer.append(" to "); //$NON-NLS-1$
+				int l = s.length - 1;
+				for (int i = 0; i < l; ++i) {
+					buffer.append(s[i] + ',');
+				}
+				buffer.append(s[l]);  // no comma
+			}
+		} catch (JavaModelException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		buffer.append(';');
 		return buffer.toString();
 	}

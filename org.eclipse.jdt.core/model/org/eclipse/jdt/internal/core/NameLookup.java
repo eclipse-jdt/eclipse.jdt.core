@@ -1136,7 +1136,7 @@ public class NameLookup implements SuffixConstants {
 		return type == null ? null : new Answer(type, null, null);
 	}
 
-	public IModule getModuleDescriptionInfo(IModuleDescription moduleDesc) {
+	public static IModule getModuleDescriptionInfo(IModuleDescription moduleDesc) {
 		if (moduleDesc != null) {
 			try {
 				if (moduleDesc instanceof BinaryModule) {

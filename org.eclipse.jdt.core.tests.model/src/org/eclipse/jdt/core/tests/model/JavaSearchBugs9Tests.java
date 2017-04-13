@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -28,6 +29,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.ReferenceMatch;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
+import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
 import junit.framework.Test;
 
@@ -38,7 +40,7 @@ public class JavaSearchBugs9Tests extends AbstractJavaSearchTests {
 
 	static {
 //	 org.eclipse.jdt.internal.core.search.BasicSearchEngine.VERBOSE = true;
-//	TESTS_NAMES = new String[] {"testBug501162_003"};
+//	TESTS_NAMES = new String[] {"testBug501162_001"};
 }
 
 public JavaSearchBugs9Tests(String name) {
@@ -318,6 +320,172 @@ public void testBug501162_003() throws Exception {
 			"src/module-info.java [pack22] EXACT_MATCH\n" + 
 			"src/pack1/X11.java pack1.X11 [pack22] EXACT_MATCH\n" + 
 			"src/module-info.java [pack22] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+	}
+}
+public void testBug501162_005() throws CoreException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/module-info.java",
+			"module first {\n" +
+			"    requires second;" +
+			"    provides pack22.I22 with pack1.X11;" +
+			"}\n"
+			);
+	String str = this.workingCopies[0].getSource();
+	String selection = "first";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+	IModuleDescription module = (IModuleDescription) elements[0];
+	search(module, ALL_OCCURRENCES, EXACT_RULE);
+	assertSearchResults(	
+			"src/module-info.java first [first] EXACT_MATCH");
+}
+public void testBug501162_006() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module first {\n" +
+			"    requires second;" +
+			"    provides pack22.I22 with pack1.X11;" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X11.java",
+				"package pack1;\n" +
+				"public class X11 implements pack22.I22{}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module second {\n" +
+				"    exports pack22 to first;\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+		createFolder("/second/src/pack1");
+		createFile("/second/src/pack1/I22.java",
+				"package pack22;\n" +
+				"public interface I22 {}\n");
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+
+		SearchPattern pattern = SearchPattern.createPattern("first", IJavaElement.JAVA_MODULE, REFERENCES, ERASURE_RULE);
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+		search(pattern, scope, this.resultCollector);
+
+		assertSearchResults(
+			"src/module-info.java [first] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+	}
+}
+public void testBug501162_007() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module first.test.org {\n" +
+			"    requires second;" +
+			"    provides pack22.I22 with pack1.X11;" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X11.java",
+				"package pack1;\n" +
+				"public class X11 implements pack22.I22{}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module second {\n" +
+				"    exports pack22 to first.test.org;\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+		createFolder("/second/src/pack1");
+		createFile("/second/src/pack1/I22.java",
+				"package pack22;\n" +
+				"public interface I22 {}\n");
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+
+		SearchPattern pattern = SearchPattern.createPattern("first.test.org", IJavaElement.JAVA_MODULE, REFERENCES, ERASURE_RULE);
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearchBugs9")});
+		search(pattern, scope, this.resultCollector);
+
+		assertSearchResults(
+			"src/module-info.java [first.test.org] EXACT_MATCH",
+			this.resultCollector);
+	}
+	finally {
+		deleteProject("JavaSearchBugs9");
+		deleteProject("second");
+	}
+}
+public void testBug501162_008() throws Exception {
+	try {
+
+		IJavaProject project1 = createJavaProject("JavaSearchBugs9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		project1.open(null);
+		addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String fileContent = 
+			"module first {\n" +
+			"    requires second;" +
+			"    provides pack22.I22 with pack1.X11;" +
+			"}\n";
+		createFile("/JavaSearchBugs9/src/module-info.java",	fileContent);
+		createFolder("/JavaSearchBugs9/src/pack1");
+		createFile("/JavaSearchBugs9/src/pack1/X11.java",
+				"package pack1;\n" +
+				"public class X11 implements pack22.I22{}\n");
+
+		IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+		project2.open(null);
+		addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+		String secondFile = 
+				"module second {\n" +
+				"    exports pack22 to first;\n" +
+				"}\n";
+		createFile("/second/src/module-info.java",	secondFile);
+		createFolder("/second/src/pack1");
+		createFile("/second/src/pack1/I22.java",
+				"package pack22;\n" +
+				"public interface I22 {}\n");
+
+		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		project1.close(); // sync
+		project2.close();
+		project2.open(null);
+		project1.open(null);
+
+		SearchPattern pattern = SearchPattern.createPattern("second", IJavaElement.JAVA_MODULE, REFERENCES, ERASURE_RULE);
+		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
+		search(pattern, scope, this.resultCollector);
+
+		assertSearchResults(
+			"src/module-info.java [second] EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {

@@ -217,7 +217,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 		addIndexEntry(METHOD_REF, MethodPattern.createIndexKey(methodName, argCount));
 	}
 	public void addModuleDeclaration(char[] moduleName) {
-		addIndexEntry(MODULE_DECL, moduleName);
+		addIndexEntry(MODULE_DECL, ModulePattern.createIndexKey(moduleName));
 	}
 	public void addModuleExportedPackages(char[] packageName) {
 		char[][] tokens = CharOperation.splitOn('.', packageName);
@@ -225,7 +225,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 			addNameReference(tokens[i]);
 	}
 	public void addModuleReference(char[] moduleName) {
-		addIndexEntry(MODULE_REF, moduleName);
+		addIndexEntry(MODULE_REF, ModulePattern.createIndexKey(moduleName));
 	}
 	public void addNameReference(char[] name) {
 		addIndexEntry(REF, name);

@@ -38,7 +38,7 @@ public abstract class ClasspathLocation implements IModuleEnvironment {
 		return findClass(fileName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly);
 	}
 	public void setModule (IModule mod) {
-		// do nothing
+		this.module = mod;
 	}
 	static ClasspathLocation forSourceFolder(IContainer sourceFolder, IContainer outputFolder,
 			char[][] inclusionPatterns, char[][] exclusionPatterns, boolean ignoreOptionalProblems,

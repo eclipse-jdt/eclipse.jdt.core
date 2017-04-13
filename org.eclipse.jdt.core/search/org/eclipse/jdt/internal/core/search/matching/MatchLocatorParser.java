@@ -491,6 +491,11 @@ protected void consumeMethodInvocationSuperWithTypeArguments() {
 	}
 }
 
+@Override
+protected void consumeModuleHeader() {
+	super.consumeModuleHeader();
+	this.patternLocator.match(((ModuleDeclaration) this.astStack[this.astPtr]), this.nodeSet);
+}
 protected void consumeNormalAnnotation(boolean isTypeAnnotation) {
 	super.consumeNormalAnnotation(isTypeAnnotation);
 	if (this.patternFineGrain == 0 || (this.patternFineGrain & IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE) != 0) {
@@ -512,15 +517,18 @@ protected void consumeOnlyTypeArguments() {
 		}
 	}
 }
+@Override
 protected void consumeOpensHeader() {
 	super.consumeOpensHeader();
 	this.patternLocator.match(((OpensStatement) this.astStack[this.astPtr]).pkgRef, this.nodeSet);
 }
+@Override
 protected void consumeProvidesInterface() {
 	super.consumeProvidesInterface();
 	ProvidesStatement ref = (ProvidesStatement) this.astStack[this.astPtr];
 	this.patternLocator.match(ref.serviceInterface, this.nodeSet);
 }
+@Override
 protected void consumeProvidesStatement() {
 	super.consumeProvidesStatement();
 	ProvidesStatement ref = (ProvidesStatement) this.astStack[this.astPtr];
@@ -567,6 +575,24 @@ protected void consumeSingleMemberAnnotation(boolean isTypeAnnotation) {
 		Annotation annotation = (Annotation) (isTypeAnnotation ? this.typeAnnotationStack[this.typeAnnotationPtr] : this.expressionStack[this.expressionPtr]);
 		this.patternLocator.match(annotation, this.nodeSet);
 	}
+}
+@Override
+protected void consumeSingleRequiresModuleName() {
+	super.consumeSingleRequiresModuleName();
+	RequiresStatement req = (RequiresStatement) this.astStack[this.astPtr];
+	this.patternLocator.match(req.module, this.nodeSet);
+}
+private void setTarget(boolean flag) {
+	if (this.patternLocator instanceof ModuleLocator) {
+		((ModuleLocator) this.patternLocator).target = flag;
+	}
+}
+@Override
+protected void consumeSingleTargetModuleName() {
+	super.consumeSingleTargetModuleName();
+	setTarget(true);
+	this.patternLocator.match((ModuleReference)this.astStack[this.astPtr], this.nodeSet);
+	setTarget(false);
 }
 
 protected void consumeStatementCatch() {

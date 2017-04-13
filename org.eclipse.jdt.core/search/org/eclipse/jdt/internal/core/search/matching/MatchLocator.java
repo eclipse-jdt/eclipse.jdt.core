@@ -40,6 +40,7 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IModuleDescription;
+import org.eclipse.jdt.core.IModuleDescription.IModuleReference;
 import org.eclipse.jdt.core.IModuleDescription.IPackageExport;
 import org.eclipse.jdt.core.IModuleDescription.IProvidedService;
 import org.eclipse.jdt.core.IOpenable;
@@ -47,6 +48,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.ISourceRange;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.*;
@@ -1654,6 +1656,8 @@ public SearchMatch newDeclarationMatch(
 			return new PackageDeclarationMatch(element, accuracy, offset, length, participant, resource);
 		case IJavaElement.TYPE_PARAMETER:
 			return new TypeParameterDeclarationMatch(element, accuracy, offset, length, participant, resource);
+		case IJavaElement.JAVA_MODULE:
+			return new ModuleDeclarationMatch(binding == null ? element : ((JavaElement) element).resolved(binding), accuracy, offset, length, participant, resource);
 		default:
 			return null;
 	}
@@ -2865,14 +2869,19 @@ protected void reportMatching(FieldDeclaration field, FieldDeclaration[] otherFi
 protected void reportMatching(ModuleDeclaration module, IJavaElement parent, int accuracy, MatchingNodeSet nodeSet, int occurrenceCount) throws CoreException {
 	IModuleDescription moduleDesc =  null;
 	Openable openable = this.currentPossibleMatch.openable;
-	if (openable instanceof CompilationUnit) {
-		CompilationUnit cu = (CompilationUnit) openable;
+	if (openable instanceof ITypeRoot) {
+		ITypeRoot typeRoot = (ITypeRoot) openable;
 		try {
-			moduleDesc =  cu.getModule();
+			moduleDesc =  typeRoot.getModule();
 		} catch (JavaModelException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// do nothing
 		}
+	}
+	if (moduleDesc == null) // should not happen - safety net.
+		return;
+	if (accuracy > -1) { // report module declaration
+		SearchMatch match = this.patternLocator.newDeclarationMatch(module, moduleDesc, module.binding, accuracy, module.moduleName.length, this);
+		report(match);
 	}
 	reportMatching(module.requires, module,  nodeSet, moduleDesc);
 	reportMatching(module.exports, nodeSet, moduleDesc);
@@ -2882,7 +2891,20 @@ protected void reportMatching(ModuleDeclaration module, IJavaElement parent, int
 }
 
 private void reportMatching(RequiresStatement[] reqs, ModuleDeclaration module, MatchingNodeSet nodeSet, IModuleDescription moduleDesc) {
-	// TODO:
+	if (reqs == null || reqs.length == 0)
+		return;
+	try {
+		IModuleReference[] refs = moduleDesc.getRequiredModules();
+		for (int i = 0, l = refs.length; i < l; ++i) {
+			RequiresStatement req = reqs[i];
+			Integer level = (Integer) nodeSet.matchingNodes.removeKey(req.module);
+			if (level != null) {
+				this.patternLocator.matchReportReference(req.module, refs[i], req.resolvedBinding, level.intValue(), this);
+			}
+		}
+	} catch (CoreException e) {
+		// do nothing
+	}
 }
 
 private void reportMatching(PackageVisibilityStatement[] psvs, MatchingNodeSet nodeSet, IModuleDescription moduleDesc)
@@ -2896,6 +2918,14 @@ private void reportMatching(PackageVisibilityStatement[] psvs, MatchingNodeSet n
 			if (level != null) {
 				Binding binding = this.unitScope.getImport(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length), true, false);
 				this.patternLocator.matchReportImportRef(importRef, binding, pkgExports[i], level.intValue(), this);
+			}
+			ModuleReference[] tgts = psv.targets;
+			if (tgts == null || tgts.length == 0) return;
+			for (ModuleReference tgt : tgts) {
+				level = (Integer) nodeSet.matchingNodes.removeKey(tgt);
+				if (level != null) {
+					this.patternLocator.matchReportReference(tgt, pkgExports[i], tgt.resolve(this.unitScope), level.intValue(), this);
+				}
 			}
 		}
 	}
