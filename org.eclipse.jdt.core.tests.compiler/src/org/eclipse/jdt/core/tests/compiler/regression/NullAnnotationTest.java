@@ -5372,6 +5372,53 @@ public void test_nullable_field_15() {
 		potNPE_nullable("The field nullable") + 
 		"----------\n");
 }
+// access to a nullable field - dereference after check in while loop
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=414761
+public void test_nullable_field_16() {
+	// currently no flow analysis for fields is implemented,
+	// but the direct sequence of null-check + dereference is optionally supported as a special case
+	Map options = getCompilerOptions();
+	options.put(JavaCore.COMPILER_PB_SYNTACTIC_NULL_ANALYSIS_FOR_FIELDS, JavaCore.ENABLED);
+	runNegativeTestWithLibs(
+		new String[] {
+			"X.java",
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"public class X {\n" +
+			"    @Nullable Object prop;\n" +
+			"    void testWhileAlone(){\n" + 
+			"        while(this.prop != null) {\n" + 
+			"          test(this.prop);\n" + 
+			"        }\n" + 
+			"    }\n" +
+			"	 @Nullable Object other;\n" +
+			"	 void testTwoFields() {\n" +
+			"		 boolean b = this.other != null;\n" + // we had funny interaction between analyses of other & prop
+			"        while(this.prop != null) {\n" + 
+			"          test(this.prop);\n" + 
+			"        }\n" + 
+			"    }\n" +
+			"	 void testWhileInIf() {\n" +
+			"		 if (this.prop != null) {\n" +
+			"       	 while(this.other != null) {\n" + 
+			"       	   test(this.prop);\n" + // no longer protected by outer if
+			"       	 }\n" + 
+			"		 }\n" +
+			"	 }\n" +
+			"    void test(@NonNull Object param){\n" + 
+			"        assert param != null;\n" + 
+			"    }" +
+			"}\n"
+		},
+		options /*customOptions*/,
+		"----------\n" + 
+		"1. ERROR in X.java (at line 19)\n" + 
+		"	test(this.prop);\n" + 
+		"	     ^^^^^^^^^\n" + 
+		(this.complianceLevel < ClassFileConstants.JDK1_8
+		? "Null type mismatch: required '@NonNull Object' but the provided value is specified as @Nullable\n"
+		: "Null type mismatch (type annotations): required \'@NonNull Object\' but this expression has type \'@Nullable Object\'\n") +
+		"----------\n");
+}
 // an enum is declared within the scope of a null-default
 // https://bugs.eclipse.org/331649#c61
 public void test_enum_field_01() {
