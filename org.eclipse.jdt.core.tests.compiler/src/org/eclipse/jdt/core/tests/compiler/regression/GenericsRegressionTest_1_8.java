@@ -8109,4 +8109,60 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+
+	public void testBug494733_comment0() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" + 
+				"        List<Integer> integerList = new ArrayList<>();\n" + 
+				"        Set<List<Number>> numbetListSet = Collections.singleton(toWildcardGeneric(integerList));\n" + 
+				"        numbetListSet.iterator().next().add(new Float(1.0));\n" + 
+				"        Integer i = integerList.get(0); // Throws ClassCastException\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    static <T> List<? extends T> toWildcardGeneric(List<T> l) {\n" + 
+				"        return l;\n" + 
+				"    }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	Set<List<Number>> numbetListSet = Collections.singleton(toWildcardGeneric(integerList));\n" + 
+			"	                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Set<List<Integer>> to Set<List<Number>>\n" + 
+			"----------\n");
+	}
+
+	public void testBug494733_comment1() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" +
+				"public class X {\n" +
+				"public static void main(String[] args) {\n" + 
+				"    List<Integer> integerList = new ArrayList<>();\n" + 
+				"    List<Object> objectList = id(toWildcardGeneric(integerList));\n" + 
+				"    objectList.add(\"Woo?\");\n" + 
+				"    Integer i = integerList.get(0);\n" + 
+				"}\n" + 
+				"\n" + 
+				"static <T> T id(T o) {\n" + 
+				"    return o;\n" + 
+				"}\n" + 
+				"\n" + 
+				"static <T> List<? extends T> toWildcardGeneric(List<T> l) {\n" + 
+				"    return l;\n" + 
+				"}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	List<Object> objectList = id(toWildcardGeneric(integerList));\n" + 
+			"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from List<Integer> to List<Object>\n" + 
+			"----------\n");
+	}
 }
