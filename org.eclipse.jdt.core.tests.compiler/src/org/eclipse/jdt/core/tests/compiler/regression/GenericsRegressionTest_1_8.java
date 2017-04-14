@@ -8165,4 +8165,39 @@ public void testBug508834_comment0() {
 			"Type mismatch: cannot convert from List<Integer> to List<Object>\n" + 
 			"----------\n");
 	}
+
+	public void test483952_bare () {
+		runNegativeTest(
+			new String[] {
+				"test/Test.java",
+				"package test;\n" +
+				"import java.util.function.Function;\n" +
+				"public class Test {\n" +
+				"	void test1() {\n" +
+				"		Function function = x -> x;\n" +
+				"		String [] z = test2(function, \"\");\n" +
+				"	}\n" +
+				"	<T> T [] test2(Function<T, T> function, T t) {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}"
+
+			},
+			"----------\n" + 
+			"1. WARNING in test\\Test.java (at line 5)\n" + 
+			"	Function function = x -> x;\n" + 
+			"	^^^^^^^^\n" + 
+			"Function is a raw type. References to generic type Function<T,R> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in test\\Test.java (at line 6)\n" + 
+			"	String [] z = test2(function, \"\");\n" + 
+			"	              ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation test2(Function, String) of the generic method test2(Function<T,T>, T) of type Test\n" + 
+			"----------\n" + 
+			"3. WARNING in test\\Test.java (at line 6)\n" + 
+			"	String [] z = test2(function, \"\");\n" + 
+			"	                    ^^^^^^^^\n" + 
+			"Type safety: The expression of type Function needs unchecked conversion to conform to Function<String,String>\n" + 
+			"----------\n");
+	}
 }

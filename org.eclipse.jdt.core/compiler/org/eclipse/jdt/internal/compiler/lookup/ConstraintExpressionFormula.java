@@ -383,8 +383,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				throw new InferenceFailureException("expression has no value"); //$NON-NLS-1$
 
 			if (inferenceContext.usesUncheckedConversion) {
-				// spec says erasure, but we don't really have compatibility rules for erasure, use raw type instead:
-				TypeBinding erasure = inferenceContext.environment.convertToRawType(returnType, false);
+				TypeBinding erasure = getRealErasure(returnType, inferenceContext.environment);
 				ConstraintTypeFormula newConstraint = ConstraintTypeFormula.create(erasure, targetType, COMPATIBLE);
 				return inferenceContext.reduceAndIncorporate(newConstraint);
 			}
@@ -444,6 +443,17 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				return false;
 		}
 		return true;
+	}
+
+	private static TypeBinding getRealErasure(TypeBinding type, LookupEnvironment environment) {
+		TypeBinding erasure = type.erasure();
+		// could still be / contain a generic type that needs to be converted to raw:
+		TypeBinding erasedLeaf = erasure.leafComponentType();
+		if (erasedLeaf.isGenericType())
+			erasedLeaf = environment.convertToRawType(erasedLeaf, false);
+		if (erasure.isArrayType())
+			return environment.createArrayType(erasedLeaf, erasure.dimensions());
+		return erasedLeaf;
 	}
 
 	Collection<InferenceVariable> inputVariables(final InferenceContext18 context) {

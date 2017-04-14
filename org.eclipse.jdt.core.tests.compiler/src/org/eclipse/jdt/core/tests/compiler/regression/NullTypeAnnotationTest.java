@@ -9323,6 +9323,16 @@ public void test483952 () {
 		"	Function function = x -> x;\n" + 
 		"	^^^^^^^^\n" + 
 		"Function is a raw type. References to generic type Function<T,R> should be parameterized\n" + 
+		"----------\n" + 
+		"2. WARNING in test\\Test.java (at line 7)\n" + 
+		"	String @Nullable [] z = test2(function, \"\");\n" + 
+		"	                        ^^^^^^^^^^^^^^^^^^^\n" + 
+		"Type safety: Unchecked invocation test2(Function, String) of the generic method test2(Function<T,T>, T) of type Test\n" + 
+		"----------\n" + 
+		"3. WARNING in test\\Test.java (at line 7)\n" + 
+		"	String @Nullable [] z = test2(function, \"\");\n" + 
+		"	                              ^^^^^^^^\n" + 
+		"Type safety: The expression of type Function needs unchecked conversion to conform to Function<String,String>\n" + 
 		"----------\n");
 }
 public void test484055() {
