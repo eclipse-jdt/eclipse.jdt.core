@@ -894,7 +894,9 @@ public abstract class Scope {
 							break;
 						default :
 							if (((ReferenceBinding) superType).isFinal()) {
-								problemReporter().finalVariableBound(typeVariable, typeRef);
+								if (!environment().usesNullTypeAnnotations() || (superType.tagBits & TagBits.AnnotationNullable) == 0) {
+									problemReporter().finalVariableBound(typeVariable, typeRef);
+								}
 							}
 							break;
 					}

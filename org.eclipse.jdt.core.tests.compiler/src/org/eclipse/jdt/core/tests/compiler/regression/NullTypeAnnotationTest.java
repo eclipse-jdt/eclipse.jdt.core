@@ -15349,4 +15349,30 @@ public void testBug514977() {
 		"----------\n"
 	);
 }
+public void testBug515292() {
+	runConformTestWithLibs(
+		new String[] {
+			"test/BoundedByFinal.java",
+			"package test;\n" +
+			"import org.eclipse.jdt.annotation.NonNull;\n" +
+			"import org.eclipse.jdt.annotation.Nullable;\n" +
+			"\n" +
+			"public abstract class BoundedByFinal {\n" +
+			"	abstract <T extends @Nullable String> void setSelection(T[] selectedObjects);\n" +
+			"\n" +
+			"	abstract @NonNull String @NonNull [] toArray1();\n" +
+			"\n" +
+			"	abstract @Nullable String @NonNull [] toArray2();\n" +
+			"\n" +
+			"	void test() {\n" +
+			"		setSelection(toArray1());\n" +
+			"		setSelection(toArray2());\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}, 
+		getCompilerOptions(),
+		""
+	);
+}
 }
