@@ -47,6 +47,10 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.jobs.JobGroup;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.IPreferenceChangeListener;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences.PreferenceChangeEvent;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
@@ -65,6 +69,7 @@ import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.nd.IReader;
 import org.eclipse.jdt.internal.core.nd.Nd;
+import org.eclipse.jdt.internal.core.nd.db.ChunkCache;
 import org.eclipse.jdt.internal.core.nd.db.Database;
 import org.eclipse.jdt.internal.core.nd.db.IndexException;
 import org.eclipse.jdt.internal.core.nd.java.FileFingerprint;
@@ -93,6 +98,18 @@ public final class Indexer {
 	public static boolean DEBUG_INSERTIONS;
 	public static boolean DEBUG_SELFTEST;
 	public static int DEBUG_LOG_SIZE_MB;
+	private static IPreferenceChangeListener listener = new IPreferenceChangeListener() {
+		@Override
+		public void preferenceChange(PreferenceChangeEvent event) {
+			if (JavaIndex.DISABLE_NEW_JAVA_INDEX.equals(event.getKey())) {
+				if (JavaIndex.isEnabled()) {
+					getInstance().rescanAll();
+				} else {
+					ChunkCache.getSharedInstance().clear();
+				}
+			}
+		}
+	};
 
 	// This is an arbitrary constant that is larger than the maximum number of ticks
 	// reported by SubMonitor and small enough that it won't overflow a long when multiplied by a large
@@ -145,6 +162,8 @@ public final class Indexer {
 		synchronized (mutex) {
 			if (indexer == null) {
 				indexer = new Indexer(JavaIndex.getGlobalNd(), ResourcesPlugin.getWorkspace().getRoot());
+				IEclipsePreferences preferences = InstanceScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
+				preferences.addPreferenceChangeListener(listener);
 			}
 			return indexer;
 		}
@@ -174,18 +193,20 @@ public final class Indexer {
 			}
 		}
 
-		if (runRescan) {
-			// Force a rescan when re-enabling automatic indexing since we may have missed an update
-			this.rescanJob.schedule();
-		}
-
-		if (!enabled) {
-			// Wait for any existing indexing operations to finish when disabling automatic indexing since
-			// we only want explicitly-triggered indexing operations to run after the method returns
-			try {
-				this.rescanJob.join(0, null);
-			} catch (OperationCanceledException | InterruptedException e) {
-				// Don't care
+		if (JavaIndex.isEnabled()) {
+			if (runRescan) {
+				// Force a rescan when re-enabling automatic indexing since we may have missed an update
+				this.rescanJob.schedule();
+			}
+	
+			if (!enabled) {
+				// Wait for any existing indexing operations to finish when disabling automatic indexing since
+				// we only want explicitly-triggered indexing operations to run after the method returns
+				try {
+					this.rescanJob.join(0, null);
+				} catch (OperationCanceledException | InterruptedException e) {
+					// Don't care
+				}
 			}
 		}
 	}
@@ -944,6 +965,9 @@ public final class Indexer {
 				return;
 			}
 		}
+		if (!JavaIndex.isEnabled()) {
+			return;
+		}
 		this.rescanJob.schedule();
 	}
 
@@ -1001,6 +1025,9 @@ public final class Indexer {
 	}
 
 	public void waitForIndex(int waitingPolicy, IProgressMonitor monitor) {
+		if (!JavaIndex.isEnabled()) {
+			return;
+		}
 		switch (waitingPolicy) {
 			case IJob.ForceImmediate: {
 				break;
@@ -1019,6 +1046,9 @@ public final class Indexer {
 	}
 
 	public void rebuildIndex(IProgressMonitor monitor) throws CoreException {
+		if (!JavaIndex.isEnabled()) {
+			return;
+		}
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 
 		this.nd.acquireWriteLock(subMonitor.split(1));

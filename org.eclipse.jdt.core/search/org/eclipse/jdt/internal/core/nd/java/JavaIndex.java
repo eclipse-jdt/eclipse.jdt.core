@@ -37,6 +37,7 @@ import org.eclipse.jdt.internal.core.nd.indexer.FileStateCache;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 
 public class JavaIndex {
+	public static final String DISABLE_NEW_JAVA_INDEX = "disableNewJavaIndex"; //$NON-NLS-1$
 	// Version constants
 	static final int CURRENT_VERSION = Nd.version(1, 49);
 	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 49);
@@ -222,7 +223,7 @@ public class JavaIndex {
 		if (preferenceService == null) {
 			return true;
 		}
-		return !preferenceService.getBoolean(JavaCore.PLUGIN_ID, "disableNewJavaIndex", false, //$NON-NLS-1$
+		return !preferenceService.getBoolean(JavaCore.PLUGIN_ID, DISABLE_NEW_JAVA_INDEX, false, //$NON-NLS-1$
 				null);
 	}
 
