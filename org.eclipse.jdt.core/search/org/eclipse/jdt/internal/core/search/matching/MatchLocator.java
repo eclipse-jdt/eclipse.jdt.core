@@ -2890,16 +2890,28 @@ protected void reportMatching(ModuleDeclaration module, IJavaElement parent, int
 	reportMatching(module.uses, module, nodeSet, moduleDesc);
 }
 
+private IModuleReference getExplicitModuleReference(IModuleReference[] refs, RequiresStatement req) {
+	String needle = new String(req.module.moduleName);
+	for (IModuleReference ref : refs) {
+		if (needle.equals(ref.getModuleName()))
+			return ref;
+	}
+	return null;
+}
 private void reportMatching(RequiresStatement[] reqs, ModuleDeclaration module, MatchingNodeSet nodeSet, IModuleDescription moduleDesc) {
 	if (reqs == null || reqs.length == 0)
 		return;
 	try {
 		IModuleReference[] refs = moduleDesc.getRequiredModules();
-		for (int i = 0, l = refs.length; i < l; ++i) {
+		if (refs == null || refs.length == 0)
+			return;
+		for (int i = 0, l = reqs.length; i < l; ++i) {
 			RequiresStatement req = reqs[i];
+			IModuleReference ref = getExplicitModuleReference(refs, req);
+			if (ref == null) continue;
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(req.module);
 			if (level != null) {
-				this.patternLocator.matchReportReference(req.module, refs[i], req.resolvedBinding, level.intValue(), this);
+				this.patternLocator.matchReportReference(req.module, ref, req.resolvedBinding, level.intValue(), this);
 			}
 		}
 	} catch (CoreException e) {

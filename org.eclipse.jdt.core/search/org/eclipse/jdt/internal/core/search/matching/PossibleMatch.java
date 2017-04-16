@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,6 +21,7 @@ import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -148,7 +149,7 @@ private String getSourceFileName() {
 	return this.sourceFileName;
 }
 boolean hasSimilarMatch() {
-	return this.similarMatch != null && this.source == NO_SOURCE_FILE;
+	return this.similarMatch != null && (this.source == NO_SOURCE_FILE || isModuleInfo(this));
 }
 public int hashCode() {
 	if (this.compoundName == null) return super.hashCode();
@@ -161,10 +162,13 @@ public int hashCode() {
 public boolean ignoreOptionalProblems() {
 	return false;
 }
+private boolean isModuleInfo(PossibleMatch possibleMatch) {
+	return CharOperation.equals(getMainTypeName(), TypeConstants.MODULE_INFO_NAME);
+}
 void setSimilarMatch(PossibleMatch possibleMatch) {
 	// source does not matter on similar match as it is read on
 	// the first stored possible match
-	possibleMatch.source = NO_SOURCE_FILE;
+	possibleMatch.source = isModuleInfo(possibleMatch) ? null : NO_SOURCE_FILE;
 	this.similarMatch = possibleMatch;
 }
 public String toString() {
