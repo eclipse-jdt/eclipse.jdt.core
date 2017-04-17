@@ -40,9 +40,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMember;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IModuleDescription;
-import org.eclipse.jdt.core.IModuleDescription.IModuleReference;
-import org.eclipse.jdt.core.IModuleDescription.IPackageExport;
-import org.eclipse.jdt.core.IModuleDescription.IProvidedService;
 import org.eclipse.jdt.core.IOpenable;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -2890,28 +2887,14 @@ protected void reportMatching(ModuleDeclaration module, IJavaElement parent, int
 	reportMatching(module.uses, module, nodeSet, moduleDesc);
 }
 
-private IModuleReference getExplicitModuleReference(IModuleReference[] refs, RequiresStatement req) {
-	String needle = new String(req.module.moduleName);
-	for (IModuleReference ref : refs) {
-		if (needle.equals(ref.getModuleName()))
-			return ref;
-	}
-	return null;
-}
 private void reportMatching(RequiresStatement[] reqs, ModuleDeclaration module, MatchingNodeSet nodeSet, IModuleDescription moduleDesc) {
 	if (reqs == null || reqs.length == 0)
 		return;
 	try {
-		IModuleReference[] refs = moduleDesc.getRequiredModules();
-		if (refs == null || refs.length == 0)
-			return;
-		for (int i = 0, l = reqs.length; i < l; ++i) {
-			RequiresStatement req = reqs[i];
-			IModuleReference ref = getExplicitModuleReference(refs, req);
-			if (ref == null) continue;
+		for (RequiresStatement req : reqs) {
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(req.module);
 			if (level != null) {
-				this.patternLocator.matchReportReference(req.module, ref, req.resolvedBinding, level.intValue(), this);
+				this.patternLocator.matchReportReference(req.module, moduleDesc, req.resolvedBinding, level.intValue(), this);
 			}
 		}
 	} catch (CoreException e) {
@@ -2922,21 +2905,19 @@ private void reportMatching(RequiresStatement[] reqs, ModuleDeclaration module, 
 private void reportMatching(PackageVisibilityStatement[] psvs, MatchingNodeSet nodeSet, IModuleDescription moduleDesc)
 		throws JavaModelException, CoreException {
 	if (psvs != null && psvs.length > 0) {
-		IPackageExport[] pkgExports = moduleDesc.getExportedPackages();
-		for (int i = 0, l = psvs.length; i < l; i++) {
-			PackageVisibilityStatement psv = psvs[i];
+		for (PackageVisibilityStatement psv : psvs) {
 			ImportReference importRef = psv.pkgRef;
 			Integer level = (Integer) nodeSet.matchingNodes.removeKey(importRef);
 			if (level != null) {
 				Binding binding = this.unitScope.getImport(CharOperation.subarray(importRef.tokens, 0, importRef.tokens.length), true, false);
-				this.patternLocator.matchReportImportRef(importRef, binding, pkgExports[i], level.intValue(), this);
+				this.patternLocator.matchReportImportRef(importRef, binding, moduleDesc, level.intValue(), this);
 			}
 			ModuleReference[] tgts = psv.targets;
 			if (tgts == null || tgts.length == 0) return;
 			for (ModuleReference tgt : tgts) {
 				level = (Integer) nodeSet.matchingNodes.removeKey(tgt);
 				if (level != null) {
-					this.patternLocator.matchReportReference(tgt, pkgExports[i], tgt.resolve(this.unitScope), level.intValue(), this);
+					this.patternLocator.matchReportReference(tgt, moduleDesc, tgt.resolve(this.unitScope), level.intValue(), this);
 				}
 			}
 		}
@@ -2944,23 +2925,19 @@ private void reportMatching(PackageVisibilityStatement[] psvs, MatchingNodeSet n
 }
 private void reportMatching(ProvidesStatement[] provides, ModuleDeclaration module, MatchingNodeSet nodeSet, IModuleDescription moduleDesc) throws JavaModelException, CoreException {
 	if (provides != null && provides.length > 0) {
-		IProvidedService[] ipss = moduleDesc.getProvidedServices();
-		for (int i = 0, l = provides.length; i < l; ++i) {
-			ProvidesStatement service = provides[i];
-			IProvidedService ips = ipss[i];
-
+		for (ProvidesStatement service : provides) {
 			TypeReference intf = service.serviceInterface;
 			if (intf != null) {
 				Integer level = (Integer) nodeSet.matchingNodes.removeKey(intf);
 				if (level != null)
-					this.patternLocator.matchReportReference(intf, ips, null, null, module.binding, level.intValue(), this);
+					this.patternLocator.matchReportReference(intf, moduleDesc, null, null, module.binding, level.intValue(), this);
 			}
 			TypeReference[] impls = service.implementations;
 			for (TypeReference impl : impls) {
 				if (impl != null) {
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(impl);
 					if (level != null)
-						this.patternLocator.matchReportReference(impl, ips, null, null, module.binding, level.intValue(), this);
+						this.patternLocator.matchReportReference(impl, moduleDesc, null, null, module.binding, level.intValue(), this);
 				}
 			}
 		}
@@ -2969,9 +2946,7 @@ private void reportMatching(ProvidesStatement[] provides, ModuleDeclaration modu
 private void reportMatching(UsesStatement[] uses, ModuleDeclaration module, MatchingNodeSet nodeSet, IModuleDescription moduleDesc) {
 	if (uses != null && uses.length > 0) {
 		try {
-			for (int i = 0, l = uses.length; i < l; ++i) {
-				UsesStatement service = uses[i];
-
+			for (UsesStatement service : uses) {
 				TypeReference intf = service.serviceInterface;
 				if (intf != null) {
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(intf);

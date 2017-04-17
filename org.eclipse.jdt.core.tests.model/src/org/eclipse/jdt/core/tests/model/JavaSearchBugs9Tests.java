@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.ReferenceMatch;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -206,7 +207,7 @@ public void testBug501162_001() throws Exception {
 			scope,
 			this.resultCollector);
 		assertSearchResults(
-			"src/module-info.java [pack1] EXACT_MATCH\n" +
+			"src/module-info.java first [pack1] EXACT_MATCH\n" + 
 			"src/pack1 pack1 EXACT_MATCH",
 			this.resultCollector);
 
@@ -259,9 +260,9 @@ public void testBug501162_002() throws Exception {
 			scope,
 			this.resultCollector);
 		assertSearchResults(
-			"src/module-info.java [pack1] EXACT_MATCH\n" +
-			"src/module-info.java [pack1] EXACT_MATCH\n" +
-			"src/module-info.java [pack1] EXACT_MATCH\n" +
+			"src/module-info.java first [pack1] EXACT_MATCH\n" + 
+			"src/module-info.java first [pack1] EXACT_MATCH\n" + 
+			"src/module-info.java first [pack1] EXACT_MATCH\n" + 
 			"src/pack1 pack1 EXACT_MATCH",
 			this.resultCollector);
 
@@ -317,9 +318,9 @@ public void testBug501162_003() throws Exception {
 			scope,
 			this.resultCollector);
 		assertSearchResults(
-			"src/module-info.java [pack22] EXACT_MATCH\n" + 
+			"src/module-info.java first [pack22] EXACT_MATCH\n" + 
 			"src/pack1/X11.java pack1.X11 [pack22] EXACT_MATCH\n" + 
-			"src/module-info.java [pack22] EXACT_MATCH",
+			"src/module-info.java second [pack22] EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {
@@ -382,12 +383,12 @@ public void testBug501162_006() throws Exception {
 		project2.open(null);
 		project1.open(null);
 
-		SearchPattern pattern = SearchPattern.createPattern("first", IJavaElement.JAVA_MODULE, REFERENCES, ERASURE_RULE);
+		SearchPattern pattern = SearchPattern.createPattern("first", IJavaSearchConstants.MODULE, REFERENCES, ERASURE_RULE);
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-			"src/module-info.java [first] EXACT_MATCH",
+				"src/module-info.java second [first] EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {
@@ -431,12 +432,12 @@ public void testBug501162_007() throws Exception {
 		project2.open(null);
 		project1.open(null);
 
-		SearchPattern pattern = SearchPattern.createPattern("first.test.org", IJavaElement.JAVA_MODULE, REFERENCES, ERASURE_RULE);
+		SearchPattern pattern = SearchPattern.createPattern("first.test.org", IJavaSearchConstants.MODULE, REFERENCES, ERASURE_RULE);
 		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[] {getJavaProject("JavaSearchBugs9")});
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-			"src/module-info.java [first.test.org] EXACT_MATCH",
+			"src/module-info.java second [first.test.org] EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {
@@ -480,12 +481,12 @@ public void testBug501162_008() throws Exception {
 		project2.open(null);
 		project1.open(null);
 
-		SearchPattern pattern = SearchPattern.createPattern("second", IJavaElement.JAVA_MODULE, REFERENCES, ERASURE_RULE);
+		SearchPattern pattern = SearchPattern.createPattern("second", IJavaSearchConstants.MODULE, REFERENCES, ERASURE_RULE);
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 		search(pattern, scope, this.resultCollector);
 
 		assertSearchResults(
-			"src/module-info.java [second] EXACT_MATCH",
+			"src/module-info.java first [second] EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {

@@ -1648,7 +1648,7 @@ public static SearchPattern createPattern(String stringPattern, int searchFor, i
 			return createFieldPattern(stringPattern, limitTo, matchRule);
 		case IJavaSearchConstants.PACKAGE:
 			return createPackagePattern(stringPattern, limitTo, matchRule);
-		case IJavaElement.JAVA_MODULE :
+		case IJavaSearchConstants.MODULE :
 			return createModulePattern(stringPattern, limitTo, matchRule);
 	}
 	return null;
