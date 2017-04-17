@@ -37,8 +37,8 @@
       	<configuration>
       	  <argLine>-Djdt.default.test.compliance=1.8</argLine>
       	  <includes>
-      	  	<include>org/eclipse/jdt/core/tests/model/AllJavaModelTests.class</include>
-      	  	<include>org/eclipse/jdt/core/tests/dom/RunAllTests.class</include>
+      	  	<include>org/eclipse/jdt/core/tests/model/AllJavaModelTestsTracing.class</include>
+      	  	<include>org/eclipse/jdt/core/tests/dom/RunAllTestsTracing.class</include>
       	  	<include>org/eclipse/jdt/core/tests/RunFormatterTests.class</include>
       	  </includes>
       	</configuration>
