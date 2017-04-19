@@ -6416,6 +6416,36 @@ public void testBug514105() {
 			"public class FunctionalInterfaceBug {}\n"
 		});
 }
+public void testBug515473() {
+	runConformTest(
+		new String[] {
+			"test/LambdaResourceLeak.java",
+			"package test;\n" +
+			"\n" +
+			"class X implements AutoCloseable {\n" +
+			"	@Override\n" +
+			"	public void close() {\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"interface SAM {\n" +
+			"	Object m();\n" +
+			"}\n" +
+			"\n" +
+			"public class LambdaResourceLeak {\n" +
+			"	void f() {\n" +
+			"		X x1 = new X();\n" +
+			"		SAM sam = () -> {\n" +
+			"			return \"\";\n" +
+			"		};\n" +
+			"		sam.m();\n" +
+			"		x1.close();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		}
+	);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
