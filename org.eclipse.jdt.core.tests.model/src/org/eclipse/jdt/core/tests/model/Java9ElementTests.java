@@ -901,4 +901,61 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			deleteProject("Java9Elements");
 		}
 	}
+	public void test515342a() throws Exception {
+		try {
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			project.open(null);
+				String fileContent =  "module my.mod{}\n";
+				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
+
+				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+				IModuleDescription mod = unit.getModule();
+				String id = mod.getHandleIdentifier();
+				assertEquals("incorrect id", "=Java9Elements/src<{module-info.java`my.mod", id);
+				IJavaElement element = JavaCore.create(id);
+				assertEquals("incorrect element type", IJavaElement.JAVA_MODULE, element.getElementType());
+				assertEquals("incorrect module name", "my.mod", element.getElementName());
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
+	}
+	public void test515342b() throws Exception {
+		try {
+			IJavaProject project1 = createJava9Project("Java9Elements", new String[] {"src"});
+			project1.open(null);
+			IClasspathEntry[] rawClasspath = project1.getRawClasspath();
+			for (int i = 0; i < rawClasspath.length; i++) {
+				IPath path = rawClasspath[i].getPath();
+				if (path.lastSegment().equals("jrt-fs.jar")) {
+					path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
+					IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
+					rawClasspath[i] = newEntry;
+				}
+			}
+			project1.setRawClasspath(rawClasspath, null);
+			String fileContent =
+					"module first {\n" +
+							"    requires java.base;\n" +
+							"    uses pack11.X11;\n" +
+							"}\n";
+			createFile("/Java9Elements/src/module-info.java", fileContent);
+
+			ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
+			String selection = "java.base";
+			int start = fileContent.lastIndexOf(selection);
+			IJavaElement[] elements = unit.codeSelect(start, selection.length());
+			assertEquals("Incorrect no of elements", 1, elements.length);
+			assertTrue("Invalid selection result", (elements[0] instanceof BinaryModule));
+			IModuleDescription mod = (IModuleDescription) elements[0];
+			String id = mod.getHandleIdentifier();
+			assertEquals("incorrect id", "=Java9Elements/C:\\/Java\\/jdk-9-ea+160\\/jmods\\/java.base.jmod<(module-info.class`java.base", id);
+			IJavaElement element = JavaCore.create(id);
+			assertEquals("incorrect element type", IJavaElement.JAVA_MODULE, element.getElementType());
+			assertEquals("incorrect module name", "java.base", element.getElementName());
+		}
+		finally {
+			deleteProject("Java9Elements");
+		}
+	}
 }

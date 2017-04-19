@@ -14,55 +14,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.ArrayList;
-
-import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.compiler.CharOperation;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
-public class SourceModule extends NamedMember implements IModuleDescription {
+public class SourceModule extends AbstractModule {
 	public SourceModule(JavaElement parent, String name) {
 		super(parent, name);
 	}
-	@Override
-	public IModuleDescription.IModuleReference[] getRequiredModules() throws JavaModelException {
-		ArrayList list = getChildrenOfType(MODULE_REFERENCE);
-		IModuleDescription.IModuleReference[] array= new IModuleDescription.IModuleReference[list.size()];
-		list.toArray(array);
-		return array;
-	}
-	@Override
-	public IModuleDescription.IPackageExport[] getExportedPackages() throws JavaModelException {
-		ArrayList list = getChildrenOfType(PACKAGE_EXPORT);
-		IModuleDescription.IPackageExport[] array= new IModuleDescription.IPackageExport[list.size()];
-		list.toArray(array);
-		return array;
-	}
-	@Override
-	public IModuleDescription.IProvidedService[] getProvidedServices() throws JavaModelException {
-		ArrayList list = getChildrenOfType(SERVICE);
-		IModuleDescription.IProvidedService[] array= new IModuleDescription.IProvidedService[list.size()];
-		list.toArray(array);
-		return array;
-	}
-	@Override
-	public String[] getUsedServices() throws JavaModelException {
-		ModuleDescriptionInfo info = (ModuleDescriptionInfo) getElementInfo();
-		char[][] names= info.uses();
-		if (names == null || names.length == 0) {
-			return NO_STRINGS;
-		}
-		return CharOperation.toStrings(names);
-	}
-	@Override
-	public IOpenPackage[] getOpenedPackages() throws JavaModelException {
-		ArrayList list = getChildrenOfType(OPEN_PACKAGE);
-		IModuleDescription.IOpenPackage[] array= new IModuleDescription.IOpenPackage[list.size()];
-		list.toArray(array);
-		return array;
-	}
-	
 	@Override
 	public int getFlags() throws JavaModelException {
 		ModuleDescriptionInfo info = (ModuleDescriptionInfo) getElementInfo();
@@ -77,15 +34,5 @@ public class SourceModule extends NamedMember implements IModuleDescription {
 			e.printStackTrace();
 		}
 		return buffer.toString();
-	}
-	protected void toStringContent(StringBuffer buffer, String lineDelimiter) throws JavaModelException {
-		buffer.append("module "); //$NON-NLS-1$
-		buffer.append(this.name).append(' ');
-		buffer.append('{').append(lineDelimiter);
-		buffer.append(lineDelimiter).append('}').toString();
-	}
-	@Override
-	public int getElementType() {
-		return JAVA_MODULE;
 	}
 }

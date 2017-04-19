@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -747,6 +747,11 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 			String typeName = memento.nextToken();
 			JavaElement type = (JavaElement)getType(typeName);
 			return type.getHandleFromMemento(memento, workingCopyOwner);
+		case JEM_MODULE:
+			if (!memento.hasMoreTokens()) return this;
+			String modName = memento.nextToken();
+			JavaElement mod = new SourceModule(this, modName);
+			return mod.getHandleFromMemento(memento, workingCopyOwner);
 	}
 	return null;
 }

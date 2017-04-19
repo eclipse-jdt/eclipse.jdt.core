@@ -29,8 +29,13 @@ public class PackageExportImpl implements IModule.IPackageExport {
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append(this.pack);
+		buffer.append(" to "); //$NON-NLS-1$
 		if (this.exportedTo != null) {
-			for (char[] cs : this.exportedTo) {
+			for (int i = 0; i < this.exportedTo.length; i++) {
+				if (i > 0) {
+					buffer.append(", "); //$NON-NLS-1$
+				}
+				char[] cs = this.exportedTo[i];
 				buffer.append(cs);
 			}
 		}

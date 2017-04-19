@@ -631,6 +631,11 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 			String typeName = memento.nextToken();
 			JavaElement type = new BinaryType(this, typeName);
 			return type.getHandleFromMemento(memento, owner);
+		case JEM_MODULE:
+			if (!memento.hasMoreTokens()) return this;
+			String modName = memento.nextToken();
+			JavaElement mod = new BinaryModule(this, modName);
+			return mod.getHandleFromMemento(memento, owner);
 	}
 	return null;
 }

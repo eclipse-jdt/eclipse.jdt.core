@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2017 IBM Corporation.
+ * Copyright (c) 2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,26 +14,53 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import org.eclipse.jdt.core.IJavaElement;
+import java.util.ArrayList;
+
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CharOperation;
 
-public class BinaryModule extends AbstractModule {
-	public BinaryModule(JavaElement parent, String name) {
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public abstract class AbstractModule extends BinaryMember implements IModuleDescription {
+	protected AbstractModule(JavaElement parent, String name) {
 		super(parent, name);
 	}
-	/*
-	 * @see IParent#getChildren()
-	 */
-	public IJavaElement[] getChildren() throws JavaModelException {
-		ClassFile cf = (ClassFile) this.parent;
-		ClassFileInfo cfi = (ClassFileInfo) cf.getElementInfo();
-		return cfi.binaryChildren;
+	@Override
+	public IModuleDescription.IModuleReference[] getRequiredModules() throws JavaModelException {
+		ArrayList list = getChildrenOfType(MODULE_REFERENCE);
+		IModuleDescription.IModuleReference[] array= new IModuleDescription.IModuleReference[list.size()];
+		list.toArray(array);
+		return array;
 	}
 	@Override
-	public int getFlags() throws JavaModelException {
+	public IModuleDescription.IPackageExport[] getExportedPackages() throws JavaModelException {
+		ArrayList list = getChildrenOfType(PACKAGE_EXPORT);
+		IModuleDescription.IPackageExport[] array= new IModuleDescription.IPackageExport[list.size()];
+		list.toArray(array);
+		return array;
+	}
+	@Override
+	public IModuleDescription.IProvidedService[] getProvidedServices() throws JavaModelException {
+		ArrayList list = getChildrenOfType(SERVICE);
+		IModuleDescription.IProvidedService[] array= new IModuleDescription.IProvidedService[list.size()];
+		list.toArray(array);
+		return array;
+	}
+	@Override
+	public String[] getUsedServices() throws JavaModelException {
 		ModuleDescriptionInfo info = (ModuleDescriptionInfo) getElementInfo();
-		return info.getModifiers();
+		char[][] names= info.uses();
+		if (names == null || names.length == 0) {
+			return NO_STRINGS;
+		}
+		return CharOperation.toStrings(names);
+	}
+	@Override
+	public IOpenPackage[] getOpenedPackages() throws JavaModelException {
+		ArrayList list = getChildrenOfType(OPEN_PACKAGE);
+		IModuleDescription.IOpenPackage[] array= new IModuleDescription.IOpenPackage[list.size()];
+		list.toArray(array);
+		return array;
 	}
 	public String getKey(boolean forceOpen) throws JavaModelException {
 		return getKey(this, forceOpen);
@@ -73,5 +100,15 @@ public class BinaryModule extends AbstractModule {
 			}
 		}
 		buffer.append(lineDelimiter).append('}').toString();
+	}
+	@Override
+	public int getElementType() {
+		return JAVA_MODULE;
+	}
+	/**
+	 * @see JavaElement#getHandleMemento()
+	 */
+	protected char getHandleMementoDelimiter() {
+		return JavaElement.JEM_MODULE;
 	}
 }
