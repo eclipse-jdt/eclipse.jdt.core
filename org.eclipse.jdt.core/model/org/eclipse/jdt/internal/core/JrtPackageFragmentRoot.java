@@ -121,6 +121,11 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 		return new JarPackageFragment(this, pkgName);
 	}
 	@Override
+	protected IStatus validateExistence(IResource underlyingResource) {
+		// check whether this pkg fragment root can be opened
+		return validateOnClasspath();
+	}
+	@Override
 	public int hashCode() {
 		return this.jarPath.hashCode() + this.moduleName.hashCode();
 	}

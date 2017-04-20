@@ -137,7 +137,8 @@ private void computeClasspathLocations(
 		IPath path = entry.getPath();
 		Object target = JavaModel.getTarget(path, true);
 		IPath externalAnnotationPath = ClasspathEntry.getExternalAnnotationPath(entry, javaProject.getProject(), true);
-		if (target == null) continue nextEntry;
+		if (target == null && entry.getEntryKind() != IClasspathEntry.CPE_JRT_SYSTEM)
+			continue nextEntry;
 		boolean isOnModulePath = isOnModulePath(entry);
 
 		Set<String> limitModules = ModuleEntryProcessor.computeLimitModules(entry);
@@ -150,6 +151,23 @@ private void computeClasspathLocations(
 			this.moduleUpdater.computeModuleUpdates(entry);
 
 		switch(entry.getEntryKind()) {
+			case IClasspathEntry.CPE_JRT_SYSTEM :
+				//TODO: Some of the code in case CPE_LIBRARY is handled here. Revisit when confirmed
+				// a CPE_LIBRARY need not handle multi module entry.
+				ClasspathJrt jrtClasspath = 
+				ClasspathLocation.forJrtSystem(entry.getPath().toOSString(), entry.getAccessRuleSet(), externalAnnotationPath);
+				AccessRuleSet accessRuleSet =
+						(JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true))
+							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
+								? null
+								: entry.getAccessRuleSet();
+				bLocations.add(jrtClasspath);
+				if (moduleEntries != null) {
+					Set<String> libraryLimitModules = (limitModules == null && projectModule != null) ? ClasspathJrt.NO_LIMIT_MODULES : limitModules;
+					patchedModule = collectModuleEntries(jrtClasspath, path, isOnModulePath,
+							libraryLimitModules, patchedModuleName, patchedModule, moduleEntries);
+				}
+				break;
 			case IClasspathEntry.CPE_SOURCE :
 				if (!(target instanceof IContainer)) continue nextEntry;
 				IPath outputPath = entry.getOutputLocation() != null
@@ -262,14 +280,14 @@ private void computeClasspathLocations(
 					IResource resource = (IResource) target;
 					ClasspathLocation bLocation = null;
 					if (resource instanceof IFile) {
-						AccessRuleSet accessRuleSet =
+						accessRuleSet =
 							(JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true))
 							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
 								? null
 								: entry.getAccessRuleSet();
 						bLocation = ClasspathLocation.forLibrary((IFile) resource, accessRuleSet, externalAnnotationPath, isOnModulePath);
 					} else if (resource instanceof IContainer) {
-						AccessRuleSet accessRuleSet =
+						accessRuleSet =
 							(JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true))
 							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
 								? null
@@ -296,7 +314,7 @@ private void computeClasspathLocations(
 						binaryLocationsPerProject.put(p, existingLocations);
 					}
 				} else if (target instanceof File) {
-					AccessRuleSet accessRuleSet =
+					accessRuleSet =
 						(JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, true))
 							&& JavaCore.IGNORE.equals(javaProject.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true)))
 								? null
@@ -304,9 +322,8 @@ private void computeClasspathLocations(
 					ClasspathLocation bLocation = ClasspathLocation.forLibrary(path.toOSString(), accessRuleSet, externalAnnotationPath, isOnModulePath);
 					bLocations.add(bLocation);
 					if (moduleEntries != null) {
-						Set<String> libraryLimitModules = (limitModules == null && projectModule != null) ? ClasspathJrt.NO_LIMIT_MODULES : limitModules;
 						patchedModule = collectModuleEntries(bLocation, path, isOnModulePath,
-											libraryLimitModules, patchedModuleName, patchedModule, moduleEntries);
+											limitModules, patchedModuleName, patchedModule, moduleEntries);
 					}
 				}
 				continue nextEntry;

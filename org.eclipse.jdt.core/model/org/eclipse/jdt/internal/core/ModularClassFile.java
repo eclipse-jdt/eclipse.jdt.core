@@ -168,9 +168,8 @@ public class ModularClassFile extends AbstractClassFile implements IModularClass
 				byte[] contents = getClassFileContent(jarRoot, entryName);
 				if (contents != null) {
 					String fileName;
-					String rootPath = root.getPath().toOSString();
 					String rootIdentifier = root.getHandleIdentifier();
-					if (org.eclipse.jdt.internal.compiler.util.Util.isJrt(rootPath)) {
+					if (root instanceof JrtPackageFragmentRoot) {
 						int slash = rootIdentifier.lastIndexOf('/');
 						if (slash != -1)
 							rootIdentifier = rootIdentifier.substring(0, slash);

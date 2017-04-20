@@ -74,6 +74,7 @@ import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
+import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.LambdaFactory;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.ModularClassFile;
@@ -260,7 +261,7 @@ public static IBinaryType classFileReader(IType type) {
 			return Util.newClassFileReader(((JavaElement) type).resource());
 
 		String rootPath = root.getPath().toOSString();
-		if (org.eclipse.jdt.internal.compiler.util.Util.isJrt(rootPath)) {
+		if (root instanceof JrtPackageFragmentRoot) {
 			String classFileName = classFile.getElementName();
 			String path = Util.concatWith(pkg.names, classFileName, '/');
 			return ClassFileReader.readFromJrt(new File(rootPath), null, path);

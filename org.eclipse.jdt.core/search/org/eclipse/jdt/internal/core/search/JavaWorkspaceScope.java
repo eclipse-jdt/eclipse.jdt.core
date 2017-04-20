@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -96,7 +96,7 @@ public IPath[] enclosingProjectsAndJars() {
 			IClasspathEntry[] entries = javaProject.getResolvedClasspath();
 			for (int j = 0, eLength = entries.length; j < eLength; j++) {
 				IClasspathEntry entry = entries[j];
-				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
+				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY || entry.getEntryKind() == IClasspathEntry.CPE_JRT_SYSTEM) {
 					IPath path = entry.getPath();
 					Object target = JavaModel.getTarget(path, false/*don't check existence*/);
 					if (target instanceof IFolder) // case of an external folder

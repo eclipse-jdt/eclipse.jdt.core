@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -119,7 +119,7 @@ public class ClasspathEntry implements IClasspathEntry {
 
 	/**
 	 * Describes the kind of classpath entry - one of
-	 * CPE_PROJECT, CPE_LIBRARY, CPE_SOURCE, CPE_VARIABLE or CPE_CONTAINER
+	 * CPE_PROJECT, CPE_LIBRARY, CPE_SOURCE, CPE_VARIABLE, CPE_CONTAINER or CPE_JRT_SYSTEM
 	 */
 	public int entryKind;
 
@@ -131,27 +131,12 @@ public class ClasspathEntry implements IClasspathEntry {
 	public int contentKind;
 
 	/**
-	 * The meaning of the path of a classpath entry depends on its entry kind:<ul>
-	 *	<li>Source code in the current project (<code>CPE_SOURCE</code>) -
-	 *      The path associated with this entry is the absolute path to the root folder. </li>
-	 *	<li>A binary library in the current project (<code>CPE_LIBRARY</code>) - the path
-	 *		associated with this entry is the absolute path to the JAR (or root folder), and
-	 *		in case it refers to an external JAR, then there is no associated resource in
-	 *		the workbench.
-	 *	<li>A required project (<code>CPE_PROJECT</code>) - the path of the entry denotes the
-	 *		path to the corresponding project resource.</li>
-	 *  <li>A variable entry (<code>CPE_VARIABLE</code>) - the first segment of the path
-	 *      is the name of a classpath variable. If this classpath variable
-	 *		is bound to the path <it>P</it>, the path of the corresponding classpath entry
-	 *		is computed by appending to <it>P</it> the segments of the returned
-	 *		path without the variable.</li>
-	 *  <li> A container entry (<code>CPE_CONTAINER</code>) - the first segment of the path is denoting
-	 *     the unique container identifier (for which a <code>ClasspathContainerInitializer</code> could be
-	 * 	registered), and the remaining segments are used as additional hints for resolving the container entry to
-	 * 	an actual <code>IClasspathContainer</code>.</li>
+	 * The meaning of the path of a classpath entry depends on its entry kind. For
+	 * more details, see {@link IClasspathEntry#getPath()}.
 	 */
 	public IPath path;
 
+	
 	/**
 	 * Patterns allowing to include/exclude portions of the resource tree denoted by this entry path.
 	 */
@@ -816,6 +801,18 @@ public class ClasspathEntry implements IClasspathEntry {
 												accessRules,
 												extraAttributes,
 												isExported);
+				break;
+			case IClasspathEntry.CPE_JRT_SYSTEM :
+				// Caveat: This is meant to be a resolved classpath entry.
+				// Only required for tests that will put a CPE_JRT_SYSTEM in the raw classpath.
+				// But this also allows anyone to use this in the .classpath directly instead of JRE_CONTAINER
+				entry = JavaCore.newJrtEntry(
+											path,
+											sourceAttachmentPath,
+											sourceAttachmentRootPath,
+											accessRules,
+											extraAttributes,
+											isExported);
 				break;
 			case IClasspathEntry.CPE_SOURCE :
 				// must be an entry in this project or specify another project
@@ -1489,6 +1486,8 @@ public class ClasspathEntry implements IClasspathEntry {
 			return IClasspathEntry.CPE_LIBRARY;
 		if (kindStr.equalsIgnoreCase("output")) //$NON-NLS-1$
 			return ClasspathEntry.K_OUTPUT;
+		if (kindStr.equalsIgnoreCase("jrt")) //$NON-NLS-1$
+			return IClasspathEntry.CPE_JRT_SYSTEM;
 		return -1;
 	}
 
@@ -1508,6 +1507,8 @@ public class ClasspathEntry implements IClasspathEntry {
 				return "var"; //$NON-NLS-1$
 			case IClasspathEntry.CPE_CONTAINER :
 				return "con"; //$NON-NLS-1$
+			case IClasspathEntry.CPE_JRT_SYSTEM :
+				return "jrt"; //$NON-NLS-1$
 			case ClasspathEntry.K_OUTPUT :
 				return "output"; //$NON-NLS-1$
 			default :
@@ -1561,6 +1562,8 @@ public class ClasspathEntry implements IClasspathEntry {
 			case IClasspathEntry.CPE_CONTAINER :
 				buffer.append("CPE_CONTAINER"); //$NON-NLS-1$
 				break;
+			case IClasspathEntry.CPE_JRT_SYSTEM :
+				buffer.append("CPE_JRT_SYSTEM"); //$NON-NLS-1$
 		}
 		buffer.append("]["); //$NON-NLS-1$
 		switch (getContentKind()) {
@@ -1712,6 +1715,9 @@ public class ClasspathEntry implements IClasspathEntry {
 				case IClasspathEntry.CPE_CONTAINER :
 					this.rootID = "[CON]"+this.path;  //$NON-NLS-1$
 					break;
+				case IClasspathEntry.CPE_JRT_SYSTEM :
+					this.rootID = "[JRT]"+this.path; //$NON-NLS-1$
+					break;
 				default :
 					this.rootID = "";  //$NON-NLS-1$
 					break;
@@ -1738,6 +1744,7 @@ public class ClasspathEntry implements IClasspathEntry {
 		switch(getEntryKind()) {
 			case IClasspathEntry.CPE_LIBRARY :
 			case IClasspathEntry.CPE_VARIABLE :
+			case IClasspathEntry.CPE_JRT_SYSTEM :
 				break;
 			default :
 				return null;

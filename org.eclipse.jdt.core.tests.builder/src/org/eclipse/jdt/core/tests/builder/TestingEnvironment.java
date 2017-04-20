@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.nd.indexer.Indexer;
 
@@ -296,7 +297,11 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 	public void addExternalJars(IPath projectPath, String[] jars, boolean isExported) throws JavaModelException {
 		for (int i = 0, max = jars.length; i < max; i++) {
 			String jar = jars[i];
-			addEntry(projectPath, JavaCore.newLibraryEntry(new Path(jar), null, null, isExported));
+			if (JavaModelManager.isJrtInstallation(jar) || jar.endsWith("jrt-fs.jar")) {
+				addEntry(projectPath, JavaCore.newJrtEntry(new Path(jar), null, null, null, null, isExported));
+			} else {
+				addEntry(projectPath, JavaCore.newLibraryEntry(new Path(jar), null, null, isExported));
+			}
 		}
 	}
 

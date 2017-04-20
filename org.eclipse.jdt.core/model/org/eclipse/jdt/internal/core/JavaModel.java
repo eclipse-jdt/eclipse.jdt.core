@@ -383,9 +383,6 @@ public static boolean isFile(Object target) {
 	return false;
 }
 
-public static boolean isJimage(File file) {
-	return JavaModelManager.isJrt(file.getPath());
-}
 public static boolean isJmod(File file) {
 	IPath path = Path.fromOSString(file.getPath());
 	if (path.getFileExtension().equalsIgnoreCase(SuffixConstants.EXTENSION_jmod)) {

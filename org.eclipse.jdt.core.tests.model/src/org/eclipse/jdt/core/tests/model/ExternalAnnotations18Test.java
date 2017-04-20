@@ -61,6 +61,7 @@ import org.eclipse.jdt.core.util.ExternalAnnotationUtil.MergeStrategy;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.core.ClasspathAttribute;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.osgi.framework.Bundle;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -83,7 +84,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				this.entries = entries;
 			}
 			public IPath getPath() { return this.path; }
-			public IClasspathEntry[] getClasspathEntries() { return this.entries;	}
+			public IClasspathEntry[] getClasspathEntries() { return this.entries; }
 			public String getDescription() { return this.path.toString(); 	}
 			public int getKind() { return 0; }
 		}
@@ -91,15 +92,29 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
 			String[] jars = Util.getJavaClassLibs();
 			IClasspathEntry[] entries = new IClasspathEntry[jars.length];
-			for (int i = 0; i < jars.length; i++) {
-				IClasspathAttribute[] extraAttributes;
-				if (RT_JAR_ANNOTATION_PATH != null && jars[i].endsWith("rt.jar"))
+			IClasspathAttribute[] extraAttributes;
+			if (jars.length == 1 && 
+					(jars[0].endsWith("jrt-fs.jar") || JavaModelManager.isJrtInstallation(jars[0]))) {
+				if (RT_JAR_ANNOTATION_PATH != null) {
 					extraAttributes = externalAnnotationExtraAttributes(RT_JAR_ANNOTATION_PATH);
-				else
+				} else {
 					extraAttributes = ClasspathEntry.NO_EXTRA_ATTRIBUTES;
-				entries[i] = JavaCore.newLibraryEntry(new Path(jars[i]), null, null,
+				}
+				extraAttributes = externalAnnotationExtraAttributes(RT_JAR_ANNOTATION_PATH);
+				entries[0] = JavaCore.newJrtEntry((new Path(jars[0])).removeLastSegments(2), null, null,
 						ClasspathEntry.NO_ACCESS_RULES, extraAttributes, false/*not exported*/);
+			} else {
+				for (int i = 0; i < jars.length; i++) {
+					if (RT_JAR_ANNOTATION_PATH != null && jars[i].endsWith("rt.jar")) {
+						extraAttributes = externalAnnotationExtraAttributes(RT_JAR_ANNOTATION_PATH);
+					} else {
+						extraAttributes = ClasspathEntry.NO_EXTRA_ATTRIBUTES;
+					}
+					entries[i] = JavaCore.newLibraryEntry(new Path(jars[i]), null, null,
+							ClasspathEntry.NO_ACCESS_RULES, extraAttributes, false/*not exported*/);
+				}
 			}
+			
 			JavaCore.setClasspathContainer(
 					new Path(TEST_CONTAINER_NAME),
 					new IJavaProject[]{ project },

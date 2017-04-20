@@ -742,6 +742,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			
 			entry= root.getRawClasspathEntry();
 			switch (entry.getEntryKind()) {
+				case IClasspathEntry.CPE_JRT_SYSTEM:
 				case IClasspathEntry.CPE_LIBRARY:
 				case IClasspathEntry.CPE_VARIABLE:
 					return getLibraryJavadocLocation(entry);
@@ -754,6 +755,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 
 	protected static URL getLibraryJavadocLocation(IClasspathEntry entry) throws JavaModelException {
 		switch(entry.getEntryKind()) {
+			case IClasspathEntry.CPE_JRT_SYSTEM :
 			case IClasspathEntry.CPE_LIBRARY :
 			case IClasspathEntry.CPE_VARIABLE :
 				break;
