@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.nd.db.ChunkCache;
+import org.eclipse.jdt.internal.core.nd.java.JavaIndex;
 
 /**
  * JavaCore eclipse preferences initializer.
@@ -107,6 +108,7 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 		defaultOptionsMap.put(ChunkCache.CHUNK_CACHE_SIZE_MB, Double.toString(ChunkCache.CHUNK_CACHE_SIZE_MB_DEFAULT));
 		defaultOptionsMap.put(ChunkCache.CHUNK_CACHE_SIZE_PERCENT,
 				Double.toString(ChunkCache.CHUNK_CACHE_SIZE_PERCENT_DEFAULT));
+		defaultOptionsMap.put(JavaIndex.DISABLE_NEW_JAVA_INDEX, "true"); //$NON-NLS-1$
 
 		// Time out for parameter names
 		defaultOptionsMap.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "50"); //$NON-NLS-1$

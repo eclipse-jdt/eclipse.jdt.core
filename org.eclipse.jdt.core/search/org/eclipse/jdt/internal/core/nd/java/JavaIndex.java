@@ -223,8 +223,7 @@ public class JavaIndex {
 		if (preferenceService == null) {
 			return true;
 		}
-		return !preferenceService.getBoolean(JavaCore.PLUGIN_ID, DISABLE_NEW_JAVA_INDEX, false, //$NON-NLS-1$
-				null);
+		return !preferenceService.getBoolean(JavaCore.PLUGIN_ID, DISABLE_NEW_JAVA_INDEX, false, null);
 	}
 
 	public static Nd createNd(File databaseFile, ChunkCache chunkCache) {
