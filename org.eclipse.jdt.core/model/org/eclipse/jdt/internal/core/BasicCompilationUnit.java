@@ -119,7 +119,7 @@ public char[] getMainTypeName() {
 		int start = CharOperation.lastIndexOf('/', this.fileName) + 1;
 		if (start == 0 || start < CharOperation.lastIndexOf('\\', this.fileName))
 			start = CharOperation.lastIndexOf('\\', this.fileName) + 1;
-		int separator = CharOperation.indexOf('|', this.fileName) + 1;
+		int separator = CharOperation.lastIndexOf('|', this.fileName) + 1;
 		if (separator > start) // case of a .class file in a default package in a jar
 			start = separator;
 
