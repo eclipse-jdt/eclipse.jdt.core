@@ -95,13 +95,17 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			IClasspathAttribute[] extraAttributes;
 			if (jars.length == 1 && 
 					(jars[0].endsWith("jrt-fs.jar") || JavaModelManager.isJrtInstallation(jars[0]))) {
+				IPath jar = new Path(jars[0]);
+				if (jar.lastSegment().equals("jrt-fs.jar")) {
+					jar.removeLastSegments(2);
+				}
 				if (RT_JAR_ANNOTATION_PATH != null) {
 					extraAttributes = externalAnnotationExtraAttributes(RT_JAR_ANNOTATION_PATH);
 				} else {
 					extraAttributes = ClasspathEntry.NO_EXTRA_ATTRIBUTES;
 				}
 				extraAttributes = externalAnnotationExtraAttributes(RT_JAR_ANNOTATION_PATH);
-				entries[0] = JavaCore.newJrtEntry((new Path(jars[0])).removeLastSegments(2), null, null,
+				entries[0] = JavaCore.newJrtEntry((jar).removeLastSegments(2), null, null,
 						ClasspathEntry.NO_ACCESS_RULES, extraAttributes, false/*not exported*/);
 			} else {
 				for (int i = 0; i < jars.length; i++) {

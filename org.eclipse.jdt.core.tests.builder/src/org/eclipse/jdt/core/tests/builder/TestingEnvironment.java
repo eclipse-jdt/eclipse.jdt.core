@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2018 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -298,7 +298,11 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 		for (int i = 0, max = jars.length; i < max; i++) {
 			String jar = jars[i];
 			if (JavaModelManager.isJrtInstallation(jar) || jar.endsWith("jrt-fs.jar")) {
-				addEntry(projectPath, JavaCore.newJrtEntry(new Path(jar), null, null, null, null, isExported));
+				IPath path = new Path(jar);
+				if (jar.endsWith("jrt-fs.jar")) {
+					path = path.removeLastSegments(2);
+				}
+				addEntry(projectPath, JavaCore.newJrtEntry(path, null, null, null, null, isExported));
 			} else {
 				addEntry(projectPath, JavaCore.newLibraryEntry(new Path(jar), null, null, isExported));
 			}

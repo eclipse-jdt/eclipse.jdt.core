@@ -2672,9 +2672,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IClasspathEntry[] newClasspath = new IClasspathEntry[rawClasspath.length + 1];
 			IClasspathEntry desktop = null;
 			for (int i = 0; i < rawClasspath.length; i++) {
-				IPath path = rawClasspath[i].getPath();
-				if (path.lastSegment().equals("jrt-fs.jar")) {
-					path = path.removeLastSegments(2).append("jmods").append("java.base.jmod");
+				if (rawClasspath[i].getEntryKind() == IClasspathEntry.CPE_JRT_SYSTEM) {
+					IPath path = rawClasspath[i].getPath().append("jmods").append("java.base.jmod");
 					IClasspathAttribute[] attributes = {
 							JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true") };
 					IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(),

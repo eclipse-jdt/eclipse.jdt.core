@@ -1578,9 +1578,9 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			IClasspathEntry[] rawClasspath = project1.getRawClasspath();
 			IPath jdkRootPath = null;
 			for (int i = 0; i < rawClasspath.length; i++) {
-				IPath path = rawClasspath[i].getPath();
-				if (path.lastSegment().equals("jrt-fs.jar")) {
-					jdkRootPath = path.removeLastSegments(2);
+				if (rawClasspath[i].getEntryKind() == IClasspathEntry.CPE_JRT_SYSTEM) {
+					IPath path = rawClasspath[i].getPath();
+					jdkRootPath = path;
 					path = jdkRootPath.append("jmods").append("java.base.jmod");
 					IClasspathEntry newEntry = JavaCore.newLibraryEntry(path, rawClasspath[i].getSourceAttachmentPath(), new Path("java.base"));
 					rawClasspath[i] = newEntry;
@@ -1695,7 +1695,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 		finally {
 			deleteProject("Java9Elements");
 		}
-		}
+	}
 	public void testIsOnClasspath2() throws CoreException {
 		try {
 			IJavaProject project1 = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");

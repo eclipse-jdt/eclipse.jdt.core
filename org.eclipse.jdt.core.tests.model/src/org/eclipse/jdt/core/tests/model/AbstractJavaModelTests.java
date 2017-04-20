@@ -1772,8 +1772,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 								new IClasspathAttribute[0],
 								false);
 					} else if (JavaModelManager.isJrtInstallation((new Path(lib)).toString()) || lib.endsWith("jrt-fs.jar")) {
+						Path path = new Path(lib);
+						if (lib.endsWith("jrt-fs.jar")) {
+							path.removeLastSegments(2);
+						}
 						entries[sourceLength+i] = JavaCore.newJrtEntry(
-								new Path(lib),
+								path,
 								null,
 								null,
 								ClasspathEntry.getAccessRules(accessibleFiles, nonAccessibleFiles),
@@ -3295,7 +3299,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 
 	protected IPath getJRE9Path() {
-		return new Path(System.getProperty("java.home") + "/lib/jrt-fs.jar");
+		return new Path(System.getProperty("java.home"));
 	}
 
 	/**

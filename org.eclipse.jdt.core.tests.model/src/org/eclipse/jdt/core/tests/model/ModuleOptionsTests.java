@@ -697,7 +697,7 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 		IClasspathEntry[] newEntries= Arrays.copyOf(oldClasspath, nEntries);
 		for (int i = 0; i < newEntries.length; i++) {
 			if (newEntries[i].getPath().equals(getJRE9Path())) {
-				newEntries[i] = JavaCore.newLibraryEntry(getJRE9Path(), newEntries[i].getSourceAttachmentPath(), null, null, attributes, false);
+				newEntries[i] = JavaCore.newJrtEntry(getJRE9Path(), newEntries[i].getSourceAttachmentPath(), null, null, attributes, false);
 				break;
 			}
 		}
