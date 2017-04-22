@@ -6061,5 +6061,29 @@ public void testBug508799() {
 		}, null, customOptions, "", "", "", null
 	);
 }
+public void testBug515614() {
+	runConformTest(
+		new String[] {
+			"test/Test.java",
+			"package test;\n" +
+			"\n" +
+			"abstract class Generic<E> {\n" +
+			"	interface NestedInterface {\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"abstract class X<V> {\n" +
+			"	public static <W> X<W> create(Class<W> vclass) {\n" +
+			"		return vclass == null ? null : null;\n" +
+			"	}\n" +
+			"}\n" +
+			"\n" +
+			"public class Test {\n" +
+			"	X<Generic.NestedInterface[]> x = X.create(Generic.NestedInterface[].class);\n" +
+			"}\n" +
+			"",
+		}
+	);
+}
 }
 
