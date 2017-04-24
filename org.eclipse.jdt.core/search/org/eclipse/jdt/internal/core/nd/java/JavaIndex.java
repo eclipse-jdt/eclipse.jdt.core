@@ -37,11 +37,13 @@ import org.eclipse.jdt.internal.core.nd.indexer.FileStateCache;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 
 public class JavaIndex {
-	public static final String DISABLE_NEW_JAVA_INDEX = "disableNewJavaIndex"; //$NON-NLS-1$
 	// Version constants
 	static final int CURRENT_VERSION = Nd.version(1, 49);
 	static final int MAX_SUPPORTED_VERSION = Nd.version(1, 49);
 	static final int MIN_SUPPORTED_VERSION = Nd.version(1, 49);
+
+	public static final String ENABLE_NEW_JAVA_INDEX = "enableNewJavaIndex"; //$NON-NLS-1$
+	public static final boolean ENABLE_NEW_JAVA_INDEX_DEFAULT = false;
 
 	// Fields for the search header
 	public static final FieldSearchIndex<NdResourceFile> FILES;
@@ -223,7 +225,8 @@ public class JavaIndex {
 		if (preferenceService == null) {
 			return true;
 		}
-		return !preferenceService.getBoolean(JavaCore.PLUGIN_ID, DISABLE_NEW_JAVA_INDEX, false, null);
+		return preferenceService.getBoolean(JavaCore.PLUGIN_ID, ENABLE_NEW_JAVA_INDEX, ENABLE_NEW_JAVA_INDEX_DEFAULT,
+				null);
 	}
 
 	public static Nd createNd(File databaseFile, ChunkCache chunkCache) {

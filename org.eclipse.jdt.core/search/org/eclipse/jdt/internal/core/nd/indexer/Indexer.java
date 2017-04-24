@@ -101,7 +101,7 @@ public final class Indexer {
 	private static IPreferenceChangeListener listener = new IPreferenceChangeListener() {
 		@Override
 		public void preferenceChange(PreferenceChangeEvent event) {
-			if (JavaIndex.DISABLE_NEW_JAVA_INDEX.equals(event.getKey())) {
+			if (JavaIndex.ENABLE_NEW_JAVA_INDEX.equals(event.getKey())) {
 				if (JavaIndex.isEnabled()) {
 					getInstance().rescanAll();
 				} else {

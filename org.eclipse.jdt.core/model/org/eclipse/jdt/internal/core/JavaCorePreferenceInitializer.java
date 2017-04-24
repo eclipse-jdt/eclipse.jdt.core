@@ -108,7 +108,8 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 		defaultOptionsMap.put(ChunkCache.CHUNK_CACHE_SIZE_MB, Double.toString(ChunkCache.CHUNK_CACHE_SIZE_MB_DEFAULT));
 		defaultOptionsMap.put(ChunkCache.CHUNK_CACHE_SIZE_PERCENT,
 				Double.toString(ChunkCache.CHUNK_CACHE_SIZE_PERCENT_DEFAULT));
-		defaultOptionsMap.put(JavaIndex.DISABLE_NEW_JAVA_INDEX, "true"); //$NON-NLS-1$
+		defaultOptionsMap.put(JavaIndex.ENABLE_NEW_JAVA_INDEX,
+				Boolean.toString(JavaIndex.ENABLE_NEW_JAVA_INDEX_DEFAULT));
 
 		// Time out for parameter names
 		defaultOptionsMap.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "50"); //$NON-NLS-1$
