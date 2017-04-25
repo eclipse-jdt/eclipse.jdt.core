@@ -705,28 +705,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				}
 			}
 			assertNotNull("should not be null", theRoot);
-			String mod = JavaCore.createModuleFromPackageRoot(null, theRoot);
-			String lineDelimiter = System.getProperty("line.separator", "\n");
-			assertEquals("module-info is incorrect", 
-					"module ConvertToModule {" + lineDelimiter + "" +
-					"	exports org.eclipse.jdt.test;" + lineDelimiter +
-					"	exports org.eclipse.test;" + lineDelimiter + lineDelimiter +
-					"	requires java.base;" + lineDelimiter +
-					"	requires java.desktop;" + lineDelimiter +
-					"	requires java.rmi;" + lineDelimiter +
-					"	requires java.sql;" + lineDelimiter + lineDelimiter +
-					"}" ,mod);
-			mod = JavaCore.createModuleFromPackageRoot("my.module", theRoot);
-			assertEquals("module-info is incorrect", 
-					"module my.module {" + lineDelimiter +
-					"	exports org.eclipse.jdt.test;" + lineDelimiter +
-					"	exports org.eclipse.test;" + lineDelimiter + lineDelimiter +
-					"	requires java.base;" + lineDelimiter +
-					"	requires java.desktop;" + lineDelimiter +
-					"	requires java.rmi;" + lineDelimiter +
-					"	requires java.sql;" + lineDelimiter + lineDelimiter +
-					"}" ,mod);
-
+			String[] modules = JavaCore.getReferencedModules(project);
+			assertStringsEqual("incorrect result", new String[]{"java.base", "java.desktop", "java.rmi", "java.sql"}, modules);
 		} finally {
 			this.deleteProject("ConvertToModule");
 			 JavaCore.setOptions(javaCoreOptions);

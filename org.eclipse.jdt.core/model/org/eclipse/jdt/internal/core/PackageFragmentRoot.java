@@ -879,6 +879,7 @@ public IModuleDescription getModuleDescription() {
 			}
 		}
 	} catch (JavaModelException e) {
+		e.printStackTrace();
 		//
 	}
 	return null;

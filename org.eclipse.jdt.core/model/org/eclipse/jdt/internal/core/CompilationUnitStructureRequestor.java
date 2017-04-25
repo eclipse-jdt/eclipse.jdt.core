@@ -525,65 +525,6 @@ public void enterType(TypeInfo typeInfo) {
 		((TypeInfo) parentInfo).childrenCategories.put(handle, typeInfo.categories);
 	addToChildren(parentInfo, handle);
 }
-private void acceptModuleRequirement(RequiresInfo requiresInfo, JavaElementInfo parentInfo) {
-	JavaElement parentHandle = (JavaElement) this.handleStack.peek();
-	String pkgName = new String(requiresInfo.moduleName);
-	ModuleRequirement handle = new ModuleRequirement(parentHandle, pkgName);
-	resolveDuplicates(handle); // TODO: really necessary?
-
-	org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ModuleReferenceInfo info = new org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ModuleReferenceInfo();
-	info.name = requiresInfo.moduleName;
-	info.modifiers = requiresInfo.modifiers;
-	this.newElements.put(handle, info);
-	addToChildren(parentInfo, handle);
-}
-private void acceptPackageExport(PackageExportInfo exportInfo, JavaElementInfo parentInfo) {
-	JavaElement parentHandle = (JavaElement) this.handleStack.peek();
-	String pkgName = new String(exportInfo.pkgName);
-	PackageExport handle = new PackageExport(parentHandle, pkgName);
-	resolveDuplicates(handle); // TODO: really necessary?
-
-	org.eclipse.jdt.internal.core.ModuleDescriptionInfo.PackageExportInfo info = new org.eclipse.jdt.internal.core.ModuleDescriptionInfo.PackageExportInfo();
-	info.pack = exportInfo.pkgName;
-	info.target = new char[exportInfo.targets.length][];
-	for(int i = 0; i < info.targets().length; i++) {
-		info.target[i] = exportInfo.targets[i]; // TODO: confirm if it is okay to use the array as is instead of making a copy.
-	}
-	this.newElements.put(handle, info);
-	addToChildren(parentInfo, handle);
-}
-private void acceptOpensPackage(PackageExportInfo opensInfo, JavaElementInfo parentInfo) {
-	JavaElement parentHandle = (JavaElement) this.handleStack.peek();
-	String pkgName = new String(opensInfo.pkgName);
-	OpenPackageStatement handle = new OpenPackageStatement(parentHandle, pkgName);
-	resolveDuplicates(handle); // TODO: really necessary?
-
-	org.eclipse.jdt.internal.core.ModuleDescriptionInfo.PackageExportInfo info = new org.eclipse.jdt.internal.core.ModuleDescriptionInfo.PackageExportInfo();
-	info.pack = opensInfo.pkgName;
-	info.target = new char[opensInfo.targets.length][];
-	for(int i = 0; i < info.targets().length; i++) {
-		info.target[i] = opensInfo.targets[i]; // TODO: confirm if it is okay to use the array as is instead of making a copy.
-	}
-	this.newElements.put(handle, info);
-	addToChildren(parentInfo, handle);
-}
-private void acceptProvidedServices(ServicesInfo serInfo, JavaElementInfo parentInfo) {
-	JavaElement parentHandle = (JavaElement) this.handleStack.peek();
-	String serviceName = new String(serInfo.serviceName);
-//	String implName = new String(serInfo.implName);
-	String[] implNames = new String[serInfo.implNames.length];
-	for (int i = 0; i < implNames.length; i++) {
-		implNames[i] = new String(serInfo.implNames[i]);
-	}
-	ProvidedService handle = new ProvidedService(parentHandle, serviceName, implNames);
-//	resolveDuplicates(handle); // TODO: really necessary?
-
-	org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ServiceInfo info = new org.eclipse.jdt.internal.core.ModuleDescriptionInfo.ServiceInfo();
-	info.serviceName = serInfo.serviceName;
-	info.implNames = serInfo.implNames;
-	this.newElements.put(handle, info);
-	addToChildren(parentInfo, handle);
-}
 private org.eclipse.jdt.internal.core.ModuleDescriptionInfo createModuleInfo(ModuleInfo modInfo, org.eclipse.jdt.internal.core.SourceModule handle) {
 	org.eclipse.jdt.internal.core.ModuleDescriptionInfo info = org.eclipse.jdt.internal.core.ModuleDescriptionInfo.createModule((ModuleDeclaration) modInfo.node);
 	info.setHandle(handle);
@@ -593,37 +534,6 @@ private org.eclipse.jdt.internal.core.ModuleDescriptionInfo createModuleInfo(Mod
 	info.setNameSourceEnd(modInfo.nameSourceEnd);
 	this.newElements.put(handle, info);
 
-	if (modInfo.requires != null) {
-		for (int i = 0, length = modInfo.requires.length; i < length; i++) {
-			RequiresInfo reqInfo = modInfo.requires[i];
-			acceptModuleRequirement(reqInfo, info);
-		}
-	}
-	if (modInfo.exports != null) {
-		for (int i = 0, length = modInfo.exports.length; i < length; i++) {
-			PackageExportInfo expInfo = modInfo.exports[i];
-			acceptPackageExport(expInfo, info);
-		}
-	}
-	if (modInfo.services != null) {
-		for (int i = 0, length = modInfo.services.length; i < length; i++) {
-			ServicesInfo serInfo = modInfo.services[i];
-			acceptProvidedServices(serInfo, info);
-		}
-	}
-	if (modInfo.usedServices != null) {
-		char[][] services = new char[modInfo.usedServices.length][];
-		for (int i = 0, length = modInfo.usedServices.length; i < length; i++) {
-			services[i] = modInfo.usedServices[i];
-		}
-		info.usedServices = services;
-	}
-	if (modInfo.opens != null) {
-		for (int i = 0, length = modInfo.opens.length; i < length; i++) {
-			PackageExportInfo expInfo = modInfo.opens[i];
-			acceptOpensPackage(expInfo, info);
-		}
-	}
 	return info;
 }
 private SourceTypeElementInfo createTypeInfo(TypeInfo typeInfo, SourceType handle) {

@@ -5912,25 +5912,25 @@ public final class JavaCore extends Plugin {
 		return Long.compare(CompilerOptions.versionToJdkLevel(first), CompilerOptions.versionToJdkLevel(second));
 	}
 	/**
-	 * Creates a corresponding module-info as a String for the given source package fragment root and with
-	 * the given name. The module name is optional and a null argument can be passed to indicate that the
-	 * package fragment root's element name to be used as the module name.
+	 * Returns an array of module names referenced by this project indirectly. 
+	 * This is a helper method that can be used to construct a Java module 
+	 * description of an existing project. The referenced modules can either be 
+	 * system modules or user modules found in project build path in the form of 
+	 * libraries.
+	 * The prerequisites for this to be effective are:
+	 * <ul>
+	 * <li>the project is already in compliance level 9 or above.
+	 * <li>the system library on the build path of the project is a modularized Java Runtime.
+	 * </ul>
 	 *
-	 * This is a utility method and computes a module configuration by looking at the source files inside
-	 * the package fragment root and what modules within the project's build path are needed in order to 
-	 * successfully compile the source files. For non-source package fragment roots
-	 * (i.e., {@link IPackageFragmentRoot#isArchive()} returns true), this method returns null.
-	 *
-	 * Note this is a long-running operation and it is preferable that clients run this in a background thread.
-	 *
-	 * @param moduleName name to be used for the new module. A null indicates that the package fragment root element's name to be used
-	 * @param root the package fragment root for which the module is sought
-	 * @return the module-info content as a String
+	 * @param project
+	 *            the project whose referenced modules to be computed
+	 * @return an array of String containing module names
 	 * @throws CoreException
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public static String createModuleFromPackageRoot(String moduleName, IPackageFragmentRoot root) throws CoreException {
-		return ModuleUtil.createModuleFromPackageRoot(moduleName, root);
+	public static String[] getReferencedModules(IJavaProject project) throws CoreException {
+		return ModuleUtil.getReferencedModules(project);
 	}
 
 	/* (non-Javadoc)

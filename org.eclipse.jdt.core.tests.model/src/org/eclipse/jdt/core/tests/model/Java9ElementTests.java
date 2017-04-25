@@ -21,14 +21,11 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IModuleDescription;
-import org.eclipse.jdt.core.IModuleDescription.IModuleReference;
-import org.eclipse.jdt.core.IModuleDescription.IOpenPackage;
-import org.eclipse.jdt.core.IModuleDescription.IPackageExport;
-import org.eclipse.jdt.core.IModuleDescription.IProvidedService;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
+import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.core.BinaryModule;
 
 import junit.framework.Test;
@@ -55,12 +52,6 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
 				IModuleDescription mod = unit.getModule();
 				assertNotNull("Module should not be null", mod);
-				IPackageExport[] exportedPackages = mod.getExportedPackages();
-				assertNotNull("should not be null", exportedPackages);
-				assertEquals("Incorrect no of exports", 0, exportedPackages.length);
-				IModuleReference[] requiredModules = mod.getRequiredModules();
-				assertNotNull("should not be null", requiredModules);
-				assertEquals("Incorrect no of required modules", 0, requiredModules.length);
 		}
 		finally {
 			deleteProject("Java9Elements");
@@ -81,22 +72,6 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
 				IModuleDescription mod = unit.getModule();
 				assertNotNull("Module should not be null", mod);
-				IPackageExport[] exportedPackages = mod.getExportedPackages();
-				assertNotNull("should not be null", exportedPackages);
-				assertEquals("Incorrect no of exports", 2, exportedPackages.length);
-				IPackageExport export = exportedPackages[0];
-				assertEquals("Incorrect package name", "p.q.r", export.getPackageName());
-				export = exportedPackages[1];
-				assertEquals("Incorrect package name", "a.b.c", export.getPackageName());
-				IModuleReference[] requiredModules = mod.getRequiredModules();
-				assertNotNull("should not be null", requiredModules);
-				assertEquals("Incorrect no of required modules", 2, requiredModules.length);
-				IModuleReference ref = requiredModules[0];
-				assertEquals("Incorrect package name", "java.sql", ref.getModuleName());
-				assertFalse("Module requires should not be public", ref.isPublic());
-				ref = requiredModules[1];
-				assertEquals("Incorrect package name", "java.desktop", ref.getModuleName());
-				assertTrue("Module requires should be public", ref.isPublic());
 		}
 		finally {
 			deleteProject("Java9Elements");
@@ -154,23 +129,6 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
 				IModuleDescription mod = unit.getModule();
 				assertNotNull("Module should not be null", mod);
-				IPackageExport[] exportedPackages = mod.getExportedPackages();
-				assertNotNull("should not be null", exportedPackages);
-				assertEquals("Incorrect no of exports", 0, exportedPackages.length);
-				IModuleReference[] requiredModules = mod.getRequiredModules();
-				assertNotNull("should not be null", requiredModules);
-				assertEquals("Incorrect no of required modules", 0, requiredModules.length);
-				IProvidedService[] providedServices = mod.getProvidedServices();
-				assertNotNull("should not be null", providedServices);
-				assertEquals("Incorrect no of services", 1, providedServices.length);
-				IProvidedService service = providedServices[0];
-				assertEquals("Incorrect value", "com.socket.spi.NetworkSocketProvider", service.getServiceName());
-				String[] impls = service.getImplementationNames();
-				assertEquals("Incorrect value", 1, impls.length);
-				assertEquals("Incorrect value", "org.fastsocket.FastNetworkSocketProvider", impls[0]);
-				String[] usedServices = mod.getUsedServices();
-				assertNotNull("should not be null", usedServices);
-				assertEquals("Incorrect no of required modules", 0, usedServices.length);
 		}
 		finally {
 			deleteProject("Java9Elements");
@@ -189,19 +147,6 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
 				IModuleDescription mod = unit.getModule();
 				assertNotNull("Module should not be null", mod);
-				IPackageExport[] exportedPackages = mod.getExportedPackages();
-				assertNotNull("should not be null", exportedPackages);
-				assertEquals("Incorrect no of exports", 0, exportedPackages.length);
-				IModuleReference[] requiredModules = mod.getRequiredModules();
-				assertNotNull("should not be null", requiredModules);
-				assertEquals("Incorrect no of required modules", 0, requiredModules.length);
-				IProvidedService[] providedServices = mod.getProvidedServices();
-				assertNotNull("should not be null", providedServices);
-				assertEquals("Incorrect no of services", 0, providedServices.length);
-				String[] usedServices = mod.getUsedServices();
-				assertNotNull("should not be null", usedServices);
-				assertEquals("Incorrect no of services", 1, usedServices.length);
-				assertEquals("incorrect value", "com.socket.spi.NetworkSocketProvider", usedServices[0]);
 		}
 		finally {
 			deleteProject("Java9Elements");
@@ -366,23 +311,6 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
 				IModuleDescription mod = unit.getModule();
 				assertNotNull("Module should not be null", mod);
-				IProvidedService[] services = mod.getProvidedServices();
-				assertNotNull("should not be null", services);
-				assertEquals("Incorrect no of services", 1, services.length);
-				assertEquals("incorrect service name", "a.b.C", services[0].getServiceName());
-				
-				String[] implementationNames = services[0].getImplementationNames();
-				assertNotNull("should not be null", implementationNames);
-				assertEquals("Incorrect no of implementations", 2, implementationNames.length);
-				assertEquals("incorrect service implementation name", "a.b.CImpl", implementationNames[0]);
-				assertEquals("incorrect service implementation name", "a.b.DImpl", implementationNames[1]);
-				IOpenPackage[] openedPackages = mod.getOpenedPackages();
-				assertNotNull("should not be null", openedPackages);
-				assertEquals("Incorrect no of open packages", 1, openedPackages.length);
-				assertEquals("incorrect package name", "a.b", openedPackages[0].getPackageName());
-				String[] targetModules = openedPackages[0].getTargetModules();
-				assertNotNull("should not be null", targetModules);
-				assertEquals("Incorrect no of open packages", 0, targetModules.length);
 		}
 		finally {
 			deleteProject("Java9Elements");
@@ -407,16 +335,6 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
 				IModuleDescription mod = unit.getModule();
 				assertNotNull("Module should not be null", mod);
-				IProvidedService[] services = mod.getProvidedServices();
-				assertNotNull("should not be null", services);
-				assertEquals("Incorrect no of services", 1, services.length);
-				assertEquals("incorrect service name", "a.b.C", services[0].getServiceName());
-				
-				String[] implementationNames = services[0].getImplementationNames();
-				assertNotNull("should not be null", implementationNames);
-				assertEquals("Incorrect no of implementations", 2, implementationNames.length);
-				assertEquals("incorrect service implementation name", "a.b.CImpl", implementationNames[0]);
-				assertEquals("incorrect service implementation name", "a.b.DImpl", implementationNames[1]);
 		}
 		finally {
 			deleteProject("Java9Elements");
@@ -435,19 +353,6 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
 				IModuleDescription mod = unit.getModule();
 				assertNotNull("Module should not be null", mod);
-				IProvidedService[] services = mod.getProvidedServices();
-				assertNotNull("should not be null", services);
-				assertEquals("Incorrect no of services", 0, services.length);
-				
-				IOpenPackage[] openedPackages = mod.getOpenedPackages();
-				assertNotNull("should not be null", openedPackages);
-				assertEquals("Incorrect no of open packages", 1, openedPackages.length);
-				assertEquals("incorrect package name", "a.b", openedPackages[0].getPackageName());
-				String[] targetModules = openedPackages[0].getTargetModules();
-				assertNotNull("should not be null", targetModules);
-				assertEquals("Incorrect no of open packages", 2, targetModules.length);
-				assertEquals("incorrect module name", "java.base", targetModules[0]);
-				assertEquals("incorrect module name", "java.sql", targetModules[1]);
 		}
 		finally {
 			deleteProject("Java9Elements");
@@ -466,16 +371,6 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 				ICompilationUnit unit = getCompilationUnit("/Java9Elements/src/module-info.java");
 				IModuleDescription mod = unit.getModule();
 				assertNotNull("Module should not be null", mod);
-				
-				IPackageExport[] exported = mod.getExportedPackages();
-				assertNotNull("should not be null", exported);
-				assertEquals("Incorrect no of open packages", 1, exported.length);
-				assertEquals("incorrect package name", "a.b", exported[0].getPackageName());
-				String[] targetModules = exported[0].getTargetModules();
-				assertNotNull("should not be null", targetModules);
-				assertEquals("Incorrect no of open packages", 2, targetModules.length);
-				assertEquals("incorrect module name", "java.base", targetModules[0]);
-				assertEquals("incorrect module name", "java.sql", targetModules[1]);
 		}
 		finally {
 			deleteProject("Java9Elements");

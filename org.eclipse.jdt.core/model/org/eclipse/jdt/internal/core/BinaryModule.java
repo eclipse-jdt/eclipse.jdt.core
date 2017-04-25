@@ -15,7 +15,6 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaModelException;
 
 public class BinaryModule extends AbstractModule {
@@ -47,31 +46,5 @@ public class BinaryModule extends AbstractModule {
 			e.printStackTrace();
 		}
 		return buffer.toString();
-	}
-	protected void toStringContent(StringBuffer buffer, String lineDelimiter) throws JavaModelException {
-		IModuleDescription.IPackageExport[] exports = getExportedPackages();
-		IModuleDescription.IModuleReference[] requires = getRequiredModules();
-		buffer.append("module "); //$NON-NLS-1$
-		buffer.append(this.name).append(' ');
-		buffer.append('{').append(lineDelimiter);
-		if (exports != null) {
-			for(int i = 0; i < exports.length; i++) {
-				buffer.append("\texports "); //$NON-NLS-1$
-				buffer.append(exports[i].toString());
-				buffer.append(lineDelimiter);
-			}
-		}
-		buffer.append(lineDelimiter);
-		if (requires != null) {
-			for(int i = 0; i < requires.length; i++) {
-				buffer.append("\trequires "); //$NON-NLS-1$
-				if (requires[i].isPublic()) {
-					buffer.append(" public "); //$NON-NLS-1$
-				}
-				buffer.append(requires[i].getElementName());
-				buffer.append(';').append(lineDelimiter);
-			}
-		}
-		buffer.append(lineDelimiter).append('}').toString();
 	}
 }

@@ -14,53 +14,35 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.ArrayList;
-
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
+import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
+import org.eclipse.jdt.internal.compiler.env.IModule.IService;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
-public abstract class AbstractModule extends BinaryMember implements IModuleDescription {
+public abstract class AbstractModule extends NamedMember implements IModuleDescription {
 	protected AbstractModule(JavaElement parent, String name) {
 		super(parent, name);
 	}
-	@Override
-	public IModuleDescription.IModuleReference[] getRequiredModules() throws JavaModelException {
-		ArrayList list = getChildrenOfType(MODULE_REFERENCE);
-		IModuleDescription.IModuleReference[] array= new IModuleDescription.IModuleReference[list.size()];
-		list.toArray(array);
-		return array;
-	}
-	@Override
-	public IModuleDescription.IPackageExport[] getExportedPackages() throws JavaModelException {
-		ArrayList list = getChildrenOfType(PACKAGE_EXPORT);
-		IModuleDescription.IPackageExport[] array= new IModuleDescription.IPackageExport[list.size()];
-		list.toArray(array);
-		return array;
-	}
-	@Override
-	public IModuleDescription.IProvidedService[] getProvidedServices() throws JavaModelException {
-		ArrayList list = getChildrenOfType(SERVICE);
-		IModuleDescription.IProvidedService[] array= new IModuleDescription.IProvidedService[list.size()];
-		list.toArray(array);
-		return array;
-	}
-	@Override
-	public String[] getUsedServices() throws JavaModelException {
+	public IModuleReference[] getRequiredModules() throws JavaModelException {
 		ModuleDescriptionInfo info = (ModuleDescriptionInfo) getElementInfo();
-		char[][] names= info.uses();
-		if (names == null || names.length == 0) {
-			return NO_STRINGS;
-		}
-		return CharOperation.toStrings(names);
+		return info.requires();
 	}
-	@Override
-	public IOpenPackage[] getOpenedPackages() throws JavaModelException {
-		ArrayList list = getChildrenOfType(OPEN_PACKAGE);
-		IModuleDescription.IOpenPackage[] array= new IModuleDescription.IOpenPackage[list.size()];
-		list.toArray(array);
-		return array;
+	public IPackageExport[] getExportedPackages() throws JavaModelException {
+		ModuleDescriptionInfo info = (ModuleDescriptionInfo) getElementInfo();
+		return info.exports();
+	}
+	public IService[] getProvidedServices() throws JavaModelException {
+		ModuleDescriptionInfo info = (ModuleDescriptionInfo) getElementInfo();
+		return info.provides();
+	}
+	public char[][] getUsedServices() throws JavaModelException {
+		ModuleDescriptionInfo info = (ModuleDescriptionInfo) getElementInfo();
+		return info.uses();
+	}
+	public IPackageExport[] getOpenedPackages() throws JavaModelException {
+		ModuleDescriptionInfo info = (ModuleDescriptionInfo) getElementInfo();
+		return info.opens();
 	}
 	public String getKey(boolean forceOpen) throws JavaModelException {
 		return getKey(this, forceOpen);
@@ -76,8 +58,8 @@ public abstract class AbstractModule extends BinaryMember implements IModuleDesc
 		return buffer.toString();
 	}
 	protected void toStringContent(StringBuffer buffer, String lineDelimiter) throws JavaModelException {
-		IModuleDescription.IPackageExport[] exports = getExportedPackages();
-		IModuleDescription.IModuleReference[] requires = getRequiredModules();
+		IPackageExport[] exports = getExportedPackages();
+		IModuleReference[] requires = getRequiredModules();
 		buffer.append("module "); //$NON-NLS-1$
 		buffer.append(this.name).append(' ');
 		buffer.append('{').append(lineDelimiter);
@@ -92,23 +74,24 @@ public abstract class AbstractModule extends BinaryMember implements IModuleDesc
 		if (requires != null) {
 			for(int i = 0; i < requires.length; i++) {
 				buffer.append("\trequires "); //$NON-NLS-1$
-				if (requires[i].isPublic()) {
+				if (requires[i].isTransitive()) {
 					buffer.append(" public "); //$NON-NLS-1$
 				}
-				buffer.append(requires[i].getElementName());
+				buffer.append(requires[i].name());
 				buffer.append(';').append(lineDelimiter);
 			}
 		}
 		buffer.append(lineDelimiter).append('}').toString();
 	}
-	@Override
-	public int getElementType() {
-		return JAVA_MODULE;
-	}
+
 	/**
 	 * @see JavaElement#getHandleMemento()
 	 */
 	protected char getHandleMementoDelimiter() {
 		return JavaElement.JEM_MODULE;
+	}
+	@Override
+	public int getElementType() {
+		return JAVA_MODULE;
 	}
 }

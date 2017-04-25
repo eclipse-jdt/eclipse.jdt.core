@@ -309,36 +309,6 @@ public class NameLookup implements SuffixConstants {
 			// TODO Auto-generated method stub
 			return null;
 		}
-
-		@Override
-		public String[] getUsedServices() throws JavaModelException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public IModuleReference[] getRequiredModules() throws JavaModelException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public IProvidedService[] getProvidedServices() throws JavaModelException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public IPackageExport[] getExportedPackages() throws JavaModelException {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		@Override
-		public IOpenPackage[] getOpenedPackages() throws JavaModelException {
-			// TODO Auto-generated method stub
-			return null;
-		}
 	}
 
 	public static class Answer {
@@ -1292,7 +1262,7 @@ public class NameLookup implements SuffixConstants {
 				// TODO Auto-generated catch block
 			}
 		}
-		if (modules.length == 1) { // TODO what to do??
+		if (modules.length > 0) { // TODO what to do??
 			return new Answer(modules[0]);
 		}
 		return null;

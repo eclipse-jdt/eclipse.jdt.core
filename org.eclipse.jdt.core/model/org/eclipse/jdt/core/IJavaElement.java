@@ -19,10 +19,6 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
-import org.eclipse.jdt.core.IModuleDescription.IModuleReference;
-import org.eclipse.jdt.core.IModuleDescription.IOpenPackage;
-import org.eclipse.jdt.core.IModuleDescription.IPackageExport;
-import org.eclipse.jdt.core.IModuleDescription.IProvidedService;
 
 /**
  * Common protocol for all elements provided by the Java model.
@@ -146,37 +142,6 @@ public interface IJavaElement extends IAdaptable {
 	 * @since 3.13 BETA_JAVA9
 	 */
 	int JAVA_MODULE = 17;
-
-	/**
-	 * Constant represents a package export statement in a module descriptor.
-	 * A Java element with this type can be safely cast to {@link IPackageExport}.
-	 *
-	 * @since 3.13 BETA_JAVA9
-	 */
-	int PACKAGE_EXPORT = 18;
-
-	/**
-	 * Constant represents a <code>requires</code> statement in a module descriptor.
-	 * A Java element with this type can be safely cast to {@link IModuleReference}.
-	 *
-	 * @since 3.13 BETA_JAVA9
-	 */
-	int MODULE_REFERENCE = 19;
-
-	/**
-	 * Constant represents services provided by a Java module. A Java element with this type
-	 * can be safely cast to {@link IProvidedService}.
-	 *
-	 *@since 3.13 BETA_JAVA9
-	 */
-	int SERVICE = 20;
-	/**
-	 * Constant represents packages opened to other modules. A Java element with this type
-	 * can be safely cast to {@link IOpenPackage}.
-	 *
-	 *@since 3.13 BETA_JAVA9
-	 */
-	int OPEN_PACKAGE = 21;
 
 	/**
 	 * Returns whether this Java element exists in the model.
