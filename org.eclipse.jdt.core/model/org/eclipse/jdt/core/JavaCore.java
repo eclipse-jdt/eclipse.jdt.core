@@ -5517,7 +5517,8 @@ public final class JavaCore extends Plugin {
 	}
 
 	/**
-	 * Deletes and rebuilds the java index.
+	 * Deletes the index, then rebuilds any portions of the index that are
+	 * currently needed by the workspace.
 	 * 
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting and cancellation are not desired

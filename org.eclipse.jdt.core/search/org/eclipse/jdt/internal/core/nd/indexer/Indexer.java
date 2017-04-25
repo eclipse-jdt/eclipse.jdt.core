@@ -1046,18 +1046,24 @@ public final class Indexer {
 	}
 
 	public void rebuildIndex(IProgressMonitor monitor) throws CoreException {
-		if (!JavaIndex.isEnabled()) {
-			return;
-		}
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 
+		this.rescanJob.cancel();
+		try {
+			this.rescanJob.join(0, subMonitor.split(1));
+		} catch (InterruptedException e) {
+			// Nothing to do.
+		}
 		this.nd.acquireWriteLock(subMonitor.split(1));
 		try {
 			this.nd.clear(subMonitor.split(2));
 		} finally {
 			this.nd.releaseWriteLock();
 		}
-		rescan(subMonitor.split(98));
+		if (!JavaIndex.isEnabled()) {
+			return;
+		}
+		rescan(subMonitor.split(97));
 	}
 
 	public void requestRebuildIndex() {
