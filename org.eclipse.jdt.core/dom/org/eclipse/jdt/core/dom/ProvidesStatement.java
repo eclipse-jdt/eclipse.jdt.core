@@ -24,6 +24,8 @@ import java.util.List;
  * </pre>
  *
  * @since 3.13 BETA_JAVA9
+ * 
+ * @noextend This class is not intended to be subclassed by clients.
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 @SuppressWarnings({"rawtypes", "unchecked"})

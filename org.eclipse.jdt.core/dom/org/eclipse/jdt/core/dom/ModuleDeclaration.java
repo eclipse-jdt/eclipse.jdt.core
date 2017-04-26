@@ -23,13 +23,15 @@ import java.util.List;
  * <pre>
  * ModuleDeclaration:
  *  [ Javadoc ] { ExtendedModifier } <b>module</b> Name <b>{</b>
- *        [ ExportsStatement | RequiresStatement | UsesStatement | ProvidesStatement ]
+ *        [ ExportsStatement | OpensStatement | RequiresStatement | UsesStatement | ProvidesStatement ]
  *  <b>}</b>
  * </pre>
  * <p>
  * </p>
  *
  * @since 3.13 BETA_JAVA9
+ * 
+ * @noextend This class is not intended to be subclassed by clients.
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 @SuppressWarnings("rawtypes")

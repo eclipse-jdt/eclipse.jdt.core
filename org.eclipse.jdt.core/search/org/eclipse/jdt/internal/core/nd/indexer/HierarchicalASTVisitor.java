@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1135,5 +1139,76 @@ public abstract class HierarchicalASTVisitor extends ASTVisitor {
 	}
 
 //---- End VariableDeclaration Hierarchy -----------------------------
+//---- Begin Module Hierarchy -----------------------------------------
+	@Override
+	public boolean visit(ModuleDeclaration node) {
+		return visit((ASTNode) node);
+	}
+
+	@Override
+	public void endVisit(ModuleDeclaration node) {
+		endVisit((ASTNode) node);
+	}
+
+	public boolean visit(ModuleStatement node) {
+		return visit((ASTNode) node);
+	}
+
+	public void endVisit(ModuleStatement node) {
+		endVisit((ASTNode) node);
+	}
+
+	@Override
+	public boolean visit(ExportsStatement node) {
+		return visit((ModuleStatement) node);
+	}
+
+	@Override
+	public void endVisit(ExportsStatement node) {
+		endVisit((ModuleStatement) node);
+	}
+
+	@Override
+	public boolean visit(OpensStatement node) {
+		return visit((ModuleStatement) node);
+	}
+
+	@Override
+	public void endVisit(OpensStatement node) {
+		endVisit((ModuleStatement) node);
+	}
+
+	@Override
+	public boolean visit(RequiresStatement node) {
+		return visit((ModuleStatement) node);
+	}
+
+	@Override
+	public void endVisit(RequiresStatement node) {
+		endVisit((ModuleStatement) node);
+	}
+
+	@Override
+	public boolean visit(ProvidesStatement node) {
+		return visit((ModuleStatement) node);
+	}
+
+	@Override
+	public void endVisit(ProvidesStatement node) {
+		endVisit((ModuleStatement) node);
+	}
+
+	@Override
+	public boolean visit(UsesStatement node) {
+		return visit((ModuleStatement) node);
+	}
+
+	@Override
+	public void endVisit(UsesStatement node) {
+		endVisit((ModuleStatement) node);
+	}
+
+//---- End Module Hierarchy -------------------------------------------
+
 //---- End ASTNode Hierarchy -----------------------------------------
 }

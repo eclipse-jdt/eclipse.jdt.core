@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2008, 2016 IBM Corporation and others.
+ * Copyright (c) 2008, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -249,6 +253,8 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 					buffer.append("ENUM_DECLARATION");break;
 				case ASTNode.EXPRESSION_STATEMENT :
 					buffer.append("EXPRESSION_STATEMENT");break;
+				case ASTNode.EXPORTS_STATEMENT :
+					buffer.append("EXPORTS_STATEMENT");break;
 				case ASTNode.FIELD_ACCESS :
 					buffer.append("FIELD_ACCESS");break;
 				case ASTNode.FIELD_DECLARATION :
@@ -287,12 +293,16 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 					buffer.append("METHOD_REF_PARAMETER");break;
 				case ASTNode.MODIFIER :
 					buffer.append("MODIFIER");break;
+				case ASTNode.MODULE_DECLARATION :
+					buffer.append("MODULE_DECLARATION");break;
 				case ASTNode.NORMAL_ANNOTATION :
 					buffer.append("NORMAL_ANNOTATION");break;
 				case ASTNode.NULL_LITERAL :
 					buffer.append("NULL_LITERAL");break;
 				case ASTNode.NUMBER_LITERAL :
 					buffer.append("NUMBER_LITERAL");break;
+				case ASTNode.OPENS_STATEMENT :
+					buffer.append("OPENS_STATEMENT");break;
 				case ASTNode.PACKAGE_DECLARATION :
 					buffer.append("PACKAGE_DECLARATION");break;
 				case ASTNode.PARAMETERIZED_TYPE :
@@ -305,10 +315,14 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 					buffer.append("PREFIX_EXPRESSION");break;
 				case ASTNode.PRIMITIVE_TYPE :
 					buffer.append("PRIMITIVE_TYPE");break;
+				case ASTNode.PROVIDES_STATEMENT :
+					buffer.append("PROVIDES_STATEMENT");break;
 				case ASTNode.QUALIFIED_NAME :
 					buffer.append("QUALIFIED_NAME");break;
 				case ASTNode.QUALIFIED_TYPE :
 					buffer.append("QUALIFIED_TYPE");break;
+				case ASTNode.REQUIRES_STATEMENT :
+					buffer.append("REQUIRES_STATEMENT");break;
 				case ASTNode.RETURN_STATEMENT :
 					buffer.append("RETURN_STATEMENT");break;
 				case ASTNode.SIMPLE_NAME :
@@ -351,6 +365,8 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 					buffer.append("TYPE_LITERAL");break;
 				case ASTNode.TYPE_PARAMETER :
 					buffer.append("TYPE_PARAMETER");break;
+				case ASTNode.USES_STATEMENT :
+					buffer.append("USES_STATEMENT");break;
 				case ASTNode.VARIABLE_DECLARATION_EXPRESSION :
 					buffer.append("VARIABLE_DECLARATION_EXPRESSION");break;
 				case ASTNode.VARIABLE_DECLARATION_FRAGMENT :
