@@ -2944,4 +2944,30 @@ public void testBug493705() throws JavaModelException {
 			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, null, null, wait, (millis, nanos), [853, 853], "+relevance2+"}"
 			, requestor.getResults());
 }
+// https://bugs.eclipse.org/515809 - Syso shortcut lambda expression
+public void test515809() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public class X {\n" +
+			"	void test() {\n" +
+			"		new Thread(() -> sysout);\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "sysout";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("", requestor.getResults());
+	assertEquals("completion offset=57\n" +
+			"completion range=[51, 56]\n" +
+			"completion token=\"sysout\"\n" +
+			"completion token kind=TOKEN_KIND_NAME\n" +
+			"expectedTypesSignatures=null\n" +
+			"expectedTypesKeys=null\n" +
+			"completion token location={STATEMENT_START}", requestor.getContext());
+}
 }
