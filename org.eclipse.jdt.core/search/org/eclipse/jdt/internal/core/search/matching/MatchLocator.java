@@ -2719,10 +2719,18 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 		for (int i = 0, l = types.length; i < l; i++) {
 			if (nodeSet.matchingNodes.elementSize == 0) return; // reported all the matching nodes
 			TypeDeclaration type = types[i];
-			Integer level = (Integer) nodeSet.matchingNodes.removeKey(type);
-			int accuracy = (level != null && matchedUnitContainer) ? level.intValue() : -1;
-			this.inTypeOccurrencesCounts = new HashtableOfIntValues();
-			reportMatching(type, null, accuracy, nodeSet, 1);
+			if (type.isModuleInfo()) {
+				ModuleDeclaration mod = type.scope.compilationUnitScope().referenceContext.moduleDeclaration;
+				Integer level = (Integer) nodeSet.matchingNodes.removeKey(mod);
+				int accuracy = (level != null && matchedUnitContainer) ? level.intValue() : -1;
+				reportMatching(mod, null, accuracy, nodeSet, 1);
+				return;
+			} else {
+				Integer level = (Integer) nodeSet.matchingNodes.removeKey(type);
+				int accuracy = (level != null && matchedUnitContainer) ? level.intValue() : -1;
+				this.inTypeOccurrencesCounts = new HashtableOfIntValues();
+				reportMatching(type, null, accuracy, nodeSet, 1);
+			}
 		}
 	}
 
@@ -2967,11 +2975,6 @@ private void reportMatching(UsesStatement[] uses, ModuleDeclaration module, Matc
  * search pattern (i.e. the ones in the matching nodes set)
  */
 protected void reportMatching(TypeDeclaration type, IJavaElement parent, int accuracy, MatchingNodeSet nodeSet, int occurrenceCount) throws CoreException {
-	if (type.isModuleInfo()) {
-		ModuleDeclaration mod = type.scope.compilationUnitScope().referenceContext.moduleDeclaration;
-		reportMatching(mod, parent, accuracy, nodeSet, occurrenceCount);
-		return;
-	}
 	// create type handle
 	IJavaElement enclosingElement = parent;
 	if (enclosingElement == null) {
