@@ -803,7 +803,13 @@ protected void resetCollections() {
 protected void updateProblemsFor(SourceFile sourceFile, CompilationResult result) throws CoreException {
 	if (CharOperation.equals(sourceFile.getMainTypeName(), TypeConstants.PACKAGE_INFO_NAME)) {
 		IResource pkgResource = sourceFile.resource.getParent();
-		pkgResource.deleteMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
+		IMarker[] findMarkers = pkgResource.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false,
+				IResource.DEPTH_ZERO);
+		if (findMarkers.length > 0) {
+			// markers must be from the time when no package-info.java existed.
+			// trigger a full build, so marker is cleared also from packages in other source folders
+			throw new AbortCompilation(true, new AbortIncrementalBuildException(new String(TypeConstants.PACKAGE_INFO_NAME)));
+		}
 	}
 	IMarker[] markers = JavaBuilder.getProblemsFor(sourceFile.resource);
 	CategorizedProblem[] problems = result.getProblems();

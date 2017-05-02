@@ -641,6 +641,68 @@ public void testBug382960() throws JavaModelException, IOException, CoreExceptio
 	// verify that only package-info was recompiled
 	expectingUniqueCompiledClasses(new String[] { "p1.package-info" });
 }
+// test that when a package-info.java has been created, markers on the 
+// package fragments in all source folders are removed.
+public void testBug525469() throws JavaModelException, IOException {
+	
+	IPath projectPath = env.addProject("Project", "1.5"); 
+	env.addExternalJars(projectPath, Util.getJavaClassLibs());
+	fullBuild(projectPath);
+
+	// remove old package fragment root so that names don't collide
+	env.removePackageFragmentRoot(projectPath, ""); 
+
+	IPath srcRoot1 = env.addPackageFragmentRoot(projectPath, "src1");
+	IPath srcRoot2 = env.addPackageFragmentRoot(projectPath, "src2");
+	env.setOutputFolder(projectPath, "bin"); 
+	// prepare the project:
+	setupProjectForNullAnnotations(projectPath);
+	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_MISSING_NONNULL_BY_DEFAULT_ANNOTATION, JavaCore.ERROR);
+	env.getJavaProject(projectPath).setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.ERROR);
+
+	String test1Code = "package p1;\n"	+
+		"public class Test1 {\n" +
+		"}";
+	env.addClass(srcRoot1, "p1", "Test1", test1Code);
+
+	String otherClassCode = "package p2;\n"	+
+		"public class OtherClass {\n" +
+		"}";
+	env.addClass(srcRoot1, "p2", "OtherClass", otherClassCode);
+	
+	String packageInfoCode2 = "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+		"package p2;\n";
+	env.addClass(srcRoot1, "p2", "package-info", packageInfoCode2);
+
+	fullBuild(projectPath);
+	
+	String test2Code = "package p1;\n"	+
+		"public class Test2 {\n" +
+		"}";
+
+	env.addClass(srcRoot2, "p1", "Test2", test2Code);
+	incrementalBuild(projectPath);
+	
+	// after the incremental build, as there is no package-info.java for p1, the error is visible in both source directories on the directory for the package p1
+	expectingProblemsFor(projectPath, 
+			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src1/p1> range : <8,10> category : <90> severity : <2>]\n" + 
+			"Problem : A default nullness annotation has not been specified for the package p1 [ resource : </Project/src2/p1> range : <8,10> category : <90> severity : <2>]"); 
+
+	// add package-info.java with default annotation
+	String packageInfoCode1 = "@org.eclipse.jdt.annotation.NonNullByDefault\n" +
+		"package p1;\n";
+	env.addClass(srcRoot1, "p1", "package-info", packageInfoCode1);
+	
+	// an incremental build is requested, but it will switch to a full build
+	incrementalBuild(projectPath);
+	
+	// verify the expected behaviour: the error marker in the src2 directory must be gone, too
+	expectingProblemsFor(projectPath,
+			"");
+
+	// verify the implementation by doing a full build: all files have been recompiled
+	expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.Test2", "p1.package-info", "p2.OtherClass", "p2.package-info" });
+}
 
 void setupProjectForNullAnnotations(IPath projectPath) throws IOException, JavaModelException {
 	// add the org.eclipse.jdt.annotation library (bin/ folder or jar) to the project:
