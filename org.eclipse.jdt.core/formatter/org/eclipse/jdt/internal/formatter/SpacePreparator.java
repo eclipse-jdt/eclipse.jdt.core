@@ -40,6 +40,7 @@ import org.eclipse.jdt.core.dom.DoStatement;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.ExportsStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionMethodReference;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
@@ -56,12 +57,16 @@ import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MemberValuePair;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.ModuleDeclaration;
+import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.OpensStatement;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
+import org.eclipse.jdt.core.dom.ProvidesStatement;
 import org.eclipse.jdt.core.dom.PrefixExpression.Operator;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
@@ -949,6 +954,37 @@ public class SpacePreparator extends ASTVisitor {
 	public boolean visit(InstanceofExpression node) {
 		handleTokenAfter(node.getLeftOperand(), TokenNameinstanceof, true, true);
 		return true;
+	}
+
+	@Override
+	public boolean visit(ModuleDeclaration node) {
+		handleToken(node.getName(), TokenNameLBRACE,
+				this.options.insert_space_before_opening_brace_in_type_declaration, false);
+		return true;
+	}
+
+	@Override
+	public boolean visit(ExportsStatement node) {
+		handleModuleStatementCommas(node.modules());
+		return true;
+	}
+	
+	@Override
+	public boolean visit(OpensStatement node) {
+		handleModuleStatementCommas(node.modules());
+		return true;
+	}
+
+	@Override
+	public boolean visit(ProvidesStatement node) {
+		handleModuleStatementCommas(node.implementations());
+		return true;
+	}
+
+	private void handleModuleStatementCommas(List<Name> names) {
+		// using settings for fields for now, add new settings if necessary
+		handleCommas(names, this.options.insert_space_before_comma_in_multiple_field_declarations,
+				this.options.insert_space_after_comma_in_multiple_field_declarations);
 	}
 
 	private void handleCommas(List<? extends ASTNode> nodes, boolean spaceBefore, boolean spaceAfter) {

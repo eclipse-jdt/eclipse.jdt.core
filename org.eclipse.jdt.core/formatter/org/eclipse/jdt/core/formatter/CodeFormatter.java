@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -109,6 +109,17 @@ public abstract class CodeFormatter {
 	public static final int K_JAVA_DOC = 0x40;
 
 	/**
+	 * Kind used to format a module description (a module-info.java file).
+	 * <p>
+	 * If the corresponding comment option is set to <code>true</code> then it is
+	 * also possible to format the comments on the fly by adding the
+	 * {@link #F_INCLUDE_COMMENTS} flag to this kind of format.
+	 * </p>
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int K_MODULE_INFO = 0x80;
+
+	/**
 	 * Flag used to include the comments during the formatting of the code
 	 * snippet.
 	 * <p>
@@ -119,6 +130,7 @@ public abstract class CodeFormatter {
 	 * 		<li>{@link #K_CLASS_BODY_DECLARATIONS} <i>(since 3.6)</i></li>
 	 * 		<li>{@link #K_EXPRESSION} <i>(since 3.6)</i></li>
 	 * 		<li>{@link #K_STATEMENTS} <i>(since 3.6)</i></li>
+	 * 		<li>{@link #K_MODULE_INFO}</li>
 	 * </ul>
 	 * </p><p>
 	 * Note also that it has an effect only when one or several format comments
@@ -201,7 +213,8 @@ public abstract class CodeFormatter {
 	 * 	<li>{@link #K_EXPRESSION}</li>
 	 * 	<li>{@link #K_STATEMENTS}</li>
 	 * 	<li>{@link #K_CLASS_BODY_DECLARATIONS}</li>
-	 * 	<li>{@link #K_COMPILATION_UNIT}<br>
+	 * 	<li>{@link #K_COMPILATION_UNIT}</li>
+	 * 	<li>{@link #K_MODULE_INFO}<br>
 	 * 		<b>Since 3.4</b>, the comments can be formatted on the fly while
 	 * 		using this kind of code snippet<br>
 	 * 		(see {@link #F_INCLUDE_COMMENTS} for more detailed explanation on
@@ -244,7 +257,8 @@ public abstract class CodeFormatter {
 	 * 	<li>{@link #K_EXPRESSION}</li>
 	 * 	<li>{@link #K_STATEMENTS}</li>
 	 * 	<li>{@link #K_CLASS_BODY_DECLARATIONS}</li>
-	 * 	<li>{@link #K_COMPILATION_UNIT}<br>
+	 * 	<li>{@link #K_COMPILATION_UNIT}</li>
+	 * 	<li>{@link #K_MODULE_INFO}<br>
 	 * 		<b>Since 3.4</b>, the comments can be formatted on the fly while
 	 * 		using this kind of code snippet<br>
 	 * 		(see {@link #F_INCLUDE_COMMENTS} for more detailed explanation on
