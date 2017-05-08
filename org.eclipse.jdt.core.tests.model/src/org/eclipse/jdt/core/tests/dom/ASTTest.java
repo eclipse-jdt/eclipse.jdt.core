@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -6484,6 +6484,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			}
 			public boolean visit(MethodDeclaration node) {
 				assertTrue(node.resolveBinding() == null);
+				return true;
+			}
+			public boolean visit(ModuleDeclaration node) {
+//				assertTrue(node.resolveBinding() == null);//TODO: enable after bug 515875 enables module binding
 				return true;
 			}
 			public boolean visit(TypeDeclaration node) {

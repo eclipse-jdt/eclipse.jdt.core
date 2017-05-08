@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 20157IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -223,6 +227,9 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 		public boolean visit(MethodDeclaration node) {
 			return visitNode(node);
 		}
+		public boolean visit(ModuleDeclaration node) {
+			return visitNode(node);
+		}
 		public boolean visit(MethodInvocation node) {
 			return visitNode(node);
 		}
@@ -429,6 +436,9 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 			endVisitNode(node);
 		}
 		public void endVisit(MethodDeclaration node) {
+			endVisitNode(node);
+		}
+		public void endVisit(ModuleDeclaration node) {
 			endVisitNode(node);
 		}
 		public void endVisit(MethodInvocation node) {

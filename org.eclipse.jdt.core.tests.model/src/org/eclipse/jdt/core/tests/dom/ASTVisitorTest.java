@@ -811,6 +811,14 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			ASTVisitorTest.this.b.append("eMI)"); //$NON-NLS-1$
 		}
 
+		public boolean visit(ModuleDeclaration node) {
+			ASTVisitorTest.this.b.append("(MoD"); //$NON-NLS-1$
+			return isVisitingChildren();
+		}
+		public void endVisit(ModuleDeclaration node) {
+			ASTVisitorTest.this.b.append("MoD)"); //$NON-NLS-1$
+		}
+
 		public boolean visit(NullLiteral node) {
 			ASTVisitorTest.this.b.append("(eNL"); //$NON-NLS-1$
 			return isVisitingChildren();
