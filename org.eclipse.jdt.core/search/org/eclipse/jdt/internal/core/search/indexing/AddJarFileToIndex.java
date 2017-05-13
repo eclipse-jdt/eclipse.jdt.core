@@ -141,6 +141,8 @@ class AddJarFileToIndex extends IndexRequest {
 							org.eclipse.jdt.internal.core.util.Util.verbose("-> failed to index " + location.getPath() + " because the file could not be fetched"); //$NON-NLS-1$ //$NON-NLS-2$
 						return false;
 					}
+					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
+						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
 					zip = new ZipFile(file);
 					zipFilePath = (Path) this.resource.getFullPath().makeRelative();
 					// absolute path relative to the workspace
@@ -249,19 +251,12 @@ class AddJarFileToIndex extends IndexRequest {
 			} finally {
 				if (zip != null) {
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
-						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Closing ZipFile " + zip); //$NON-NLS-1$	//$NON-NLS-2$
+						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Closing ZipFile " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
 					zip.close();
 				}
 				monitor.exitWrite(); // free write lock
 			}
-		} catch (IOException e) {
-			if (JobManager.VERBOSE) {
-				org.eclipse.jdt.internal.core.util.Util.verbose("-> failed to index " + this.containerPath + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
-				e.printStackTrace();
-			}
-			this.manager.removeIndex(this.containerPath);
-			return false;
-		} catch (ZipError e) { // merge with the code above using '|' when we move to 1.7
+		} catch (IOException | ZipError e) {
 			if (JobManager.VERBOSE) {
 				org.eclipse.jdt.internal.core.util.Util.verbose("-> failed to index " + this.containerPath + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 				e.printStackTrace();

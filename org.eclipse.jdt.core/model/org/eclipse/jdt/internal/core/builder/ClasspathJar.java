@@ -23,6 +23,9 @@ import java.util.zip.ZipFile;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
@@ -141,16 +144,33 @@ public void cleanup() {
 		if (this.zipFile != null) {
 			try {
 				this.zipFile.close();
+				if (org.eclipse.jdt.internal.core.JavaModelManager.ZIP_ACCESS_VERBOSE) {
+					System.out.println("(" + Thread.currentThread() + ") [ClasspathJar.cleanup()] Closed ZipFile on " + this.zipFilename); //$NON-NLS-1$	//$NON-NLS-2$
+				}
 			} catch(IOException e) { // ignore it
+				JavaCore.getPlugin().getLog().log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, "Error closing " + this.zipFile.getName(), e)); //$NON-NLS-1$
 			}
 			this.zipFile = null;
 		}
 		if (this.annotationZipFile != null) {
 			try {
 				this.annotationZipFile.close();
+				if (org.eclipse.jdt.internal.core.JavaModelManager.ZIP_ACCESS_VERBOSE) {
+					System.out.println("(" + Thread.currentThread() + ") [ClasspathJar.cleanup()] Closed Annotation ZipFile on " + this.zipFilename); //$NON-NLS-1$	//$NON-NLS-2$
+				}
 			} catch(IOException e) { // ignore it
+				JavaCore.getPlugin().getLog().log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, "Error closing " + this.annotationZipFile.getName(), e)); //$NON-NLS-1$
 			}
 			this.annotationZipFile = null;
+		}
+	} else {
+		if (this.zipFile != null && org.eclipse.jdt.internal.core.JavaModelManager.ZIP_ACCESS_VERBOSE) {
+			try {
+				this.zipFile.size();
+				System.out.println("(" + Thread.currentThread() + ") [ClasspathJar.cleanup()] ZipFile NOT closed on " + this.zipFilename); //$NON-NLS-1$	//$NON-NLS-2$
+			} catch (IllegalStateException e) {
+				// OK: the file was already closed
+			}
 		}
 	}
 	this.knownPackageNames = null;

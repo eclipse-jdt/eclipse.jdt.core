@@ -254,8 +254,9 @@ public static IBinaryType classFileReader(IType type) {
 		ZipFile zipFile = null;
 		try {
 			IPath zipPath = root.getPath();
-			if (JavaModelManager.ZIP_ACCESS_VERBOSE)
-				System.out.println("(" + Thread.currentThread() + ") [MatchLocator.classFileReader()] Creating ZipFile on " + zipPath); //$NON-NLS-1$	//$NON-NLS-2$
+			if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+				System.out.println("(" + Thread.currentThread() + ") [MatchLocator.classFileReader()] Requesting ZipFile on " + zipPath); //$NON-NLS-1$	//$NON-NLS-2$
+			}
 			zipFile = manager.getZipFile(zipPath);
 			String classFileName = classFile.getElementName();
 			String path = Util.concatWith(pkg.names, classFileName, '/');
