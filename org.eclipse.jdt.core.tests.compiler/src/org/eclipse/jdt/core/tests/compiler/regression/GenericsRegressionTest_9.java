@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation.
+ * Copyright (c) 2016, 2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -452,6 +452,83 @@ public void testBug488663_014() {
 		"	public String toString(String s) {\n" + 
 		"	              ^^^^^^^^^^^^^^^^^^\n" + 
 		"The method toString(String) of type new Z<X>(){} must override or implement a supertype method\n" + 
+		"----------\n");
+}
+// Inaccessible type inferred for anonymous diamond is an error
+public void testBug488663_015() {
+	this.runNegativeTest(
+		new String[] {
+			"Test.java",
+			"public class Test<T> {\n" + 
+			"	private static class Inner {" +
+			"		public Inner(){}\n" +	
+			"	}\n" + 
+			"	<R> void print(I<R> i) {}\n" + 
+			"	public Inner get() {\n" + 
+			"		return new Inner();\n" + 
+			"	}\n" + 
+			"}\n",
+			"Z.java",
+			"class Z<T> implements I<T> {\n" + 
+			"	public Z(T t1) {}\n" + 
+			"	public String toString (T t) {\n" + 
+			"		return t.toString();\n" + 
+			"	}\n" + 
+			"}",
+			"X.java",
+			"public class X {\n" +  
+			"	public static void main(String[] args) {\n" + 
+			"		Test<String> t = new Test<>();\n" + 
+			"		t.print(new Z<>(t.get()) {\n" + 
+			"			\n" + 
+			"		});\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface I<T> {\n" + 
+			"	String toString();\n" + 
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	t.print(new Z<>(t.get()) {\n" + 
+		"	            ^^^^^^^^^^^^\n" + 
+		"The type Test$Inner is not visible\n" + 
+		"----------\n");
+}
+// Inaccessible type inferred for anonymous diamond is an error - interface case
+public void testBug488663_016() {
+	this.runNegativeTest(
+		new String[] {
+			"Test.java",
+			"public class Test<T> {\n" + 
+			"	private static class Inner {" +
+			"		public Inner(){}\n" +	
+			"	}\n" + 
+			"	<R extends Inner> void print(I<R> i) {}\n" + 
+			"	public Inner get() {\n" + 
+			"		return new Inner();\n" + 
+			"	}\n" + 
+			"}\n",
+			"X.java",
+			"public class X {\n" +  
+			"	public static void main(String[] args) {\n" + 
+			"		Test<String> t = new Test<>();\n" + 
+			"		t.print(new I<>() {\n" + 
+			"			public String toString() {\n" + 
+			"				return \"\";\n" + 
+			"			}\n" + 
+			"		});\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"interface I<T> {\n" + 
+			"	String toString();\n" + 
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 4)\n" + 
+		"	t.print(new I<>() {\n" + 
+		"	            ^^^^^\n" + 
+		"The type Test$Inner is not visible\n" + 
 		"----------\n");
 }
 public static Class testClass() {
