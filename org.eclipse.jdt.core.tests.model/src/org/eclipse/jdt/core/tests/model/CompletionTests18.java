@@ -2970,4 +2970,72 @@ public void test515809() throws JavaModelException {
 			"expectedTypesKeys=null\n" +
 			"completion token location={STATEMENT_START}", requestor.getContext());
 }
+//https://bugs.eclipse.org/485492
+public void test485492a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Foo.java",
+			"import java.util.function.Function;\n" +
+			"public enum Foo {\n" +
+			"	BAR((z) -> {\n" +
+			"	z.has\n" +
+			"		return z;\n" +
+			"	});\n" +
+			"	Foo(Function<String, String> func) { }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "z.has";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.String;, ()I, null, null, hashCode, null, [71, 74], 60}",
+			requestor.getResults());
+}
+public void test485492b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Foo.java",
+			"import java.util.function.Function;\n" +
+			"public enum Foo {\n" +
+			"	BAR((zilch) -> {\n" +
+			"		return zil;\n" +
+			"	});\n" +
+			"	Foo(Function<String, String> func) { }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "return zil";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"zilch[LOCAL_VARIABLE_REF]{zilch, null, Ljava.lang.String;, null, null, zilch, null, [81, 84], 52}",
+			requestor.getResults());
+}
+public void test485492c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Foo.java",
+			"import java.util.function.Function;\n" +
+			"public enum Foo {\n" +
+			"	BAR((z) -> {\n" +
+			"		return z.has;\n" +
+			"	});\n" +
+			"	Foo(Function<String, String> func) { }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "z.has";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.String;, ()I, null, null, hashCode, null, [79, 82], 60}",
+			requestor.getResults());
+}
 }
