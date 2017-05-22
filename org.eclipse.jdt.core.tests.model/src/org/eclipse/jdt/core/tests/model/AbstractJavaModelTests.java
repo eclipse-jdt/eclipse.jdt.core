@@ -1332,7 +1332,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				"1.4"
+				""
 			);
 	}
 	/*
@@ -1355,7 +1355,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				sourceOutputs,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				"1.4"
+				""
 			);
 	}
 	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String output) throws CoreException {
@@ -1375,7 +1375,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				"1.4",
+				"",
 				false/*don't import*/
 			);
 	}
@@ -1436,7 +1436,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				"1.4"
+				""
 			);
 	}
 	protected SearchPattern createPattern(IJavaElement element, int limitTo) {
@@ -1465,7 +1465,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				null/*no source outputs*/,
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
-				"1.4"
+				""
 			);
 	}
 	protected IJavaProject createJavaProject(String projectName, String[] sourceFolders, String[] libraries, String[] projects, String projectOutput, String compliance) throws CoreException {
@@ -1792,7 +1792,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					javaProject.setRawClasspath(entries, projectPath.append(outputPath), monitor);
 
 				// set compliance level options
-				if ("1.5".equals(compliance)) {
+				if ("1.4".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_4);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
+					javaProject.setOptions(options);
+				} else if ("1.5".equals(compliance)) {
 					Map options = new HashMap();
 					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
@@ -2940,7 +2946,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			IClasspathEntry entry = classpath[i];
 			final IPath path = entry.getPath();
 			// Choose the new JCL path only if the current JCL path is different
-			if (isJCLPath(path) && !path.equals(newJclLibString)) {
+			if (isJCLPath(path) && !path.toString().equals(newJclLibString)) {
 					classpath[i] = JavaCore.newVariableEntry(
 							new Path(newJclLibString),
 							new Path(newJclSrcString),

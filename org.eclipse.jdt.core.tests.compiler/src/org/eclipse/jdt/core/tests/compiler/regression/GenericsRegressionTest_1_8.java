@@ -8020,4 +8020,218 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	public void testBug506021() {
+	runConformTest(
+		new String[] {
+			"test/__.java",
+			"package test;\n" +
+			"\n" +
+			"interface Result {}\n" +
+			"\n" +
+			"interface Property<V> {}\n" +
+			"\n" +
+			"interface GraphTraversal<E> {}\n" +
+			"\n" +
+			"public class __ {\n" +
+			"	public static <E> GraphTraversal<? extends Property<E>> properties2() {\n" +
+			"		return null;\n" +
+			"	}\n" +
+			"	public static GraphTraversal<? extends Property<Result>> properties() {\n" +
+			"		return properties2();\n" +
+			"	}\n" +
+			"}\n" +
+			"",
+		});
+	}
+
+	public void testBug506022() {
+		// extracted from problem compiling org.apache.tinkerpop.gremlin.giraph.structure.io.GiraphVertexOutputFormat
+		// changing the return type of getClass to Class<U> fixes the problem
+		runConformTest(
+			new String[] {
+				"test2/Test2.java",
+				"package test2;\n" +
+				"\n" +
+				"abstract class OutputFormat {\n" +
+				"	public abstract int getOutputCommitter();\n" +
+				"}\n" +
+				"\n" +
+				"public abstract class Test2 {\n" +
+				"	public static <T> T newInstance(Class<T> theClass) {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"\n" +
+				"	abstract <U> Class<? extends U> getClass(Class<U> xface);\n" +
+				"\n" +
+				"	int f() {\n" +
+				"		return newInstance(getClass(OutputFormat.class)).getOutputCommitter();\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+			} 
+		);
+	}
+
+	public void testBug506022b() {
+		// extracted from a problem in org.apache.tinkerpop.gremlin.process.computer.util.ComputerGraph
+		// replacing this.properties() by this.<I>properties() fixes the problem
+		runNegativeTest(
+			new String[] {
+				"test/Test.java",
+				"package test;\n" +
+				"\n" +
+				"interface Iterator<A> {\n" +
+				"}\n" +
+				"\n" +
+				"interface Function<B, C> {\n" +
+				"	C applyTo(B b);\n" +
+				"}\n" +
+				"\n" +
+				"interface Property<D> {\n" +
+				"}\n" +
+				"\n" +
+				"class ComputerProperty<E> implements Property<E> {\n" +
+				"	public ComputerProperty(final Property<E> property) {\n" +
+				"	}\n" +
+				"}\n" +
+				"\n" +
+				"public abstract class Test {\n" +
+				"	public abstract <F, G> Iterator<G> map(final Iterator<F> iterator, final Function<F, G> function);\n" +
+				"\n" +
+				"	public abstract <H> Iterator<? extends Property<H>> properties();\n" +
+				"\n" +
+				"	public <I> Iterator<Property<I>> test() {\n" +
+				"		return map(this.properties(), property -> new ComputerProperty(property));\n" +
+				"	}\n" +
+				"}\n" +
+				"",
+			}, 
+			"----------\n" + 
+			"1. WARNING in test\\Test.java (at line 24)\n" + 
+			"	return map(this.properties(), property -> new ComputerProperty(property));\n" + 
+			"	                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The constructor ComputerProperty(Property) belongs to the raw type ComputerProperty. References to generic type ComputerProperty<E> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in test\\Test.java (at line 24)\n" + 
+			"	return map(this.properties(), property -> new ComputerProperty(property));\n" + 
+			"	                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: The expression of type ComputerProperty needs unchecked conversion to conform to Property<I>\n" + 
+			"----------\n" + 
+			"3. WARNING in test\\Test.java (at line 24)\n" + 
+			"	return map(this.properties(), property -> new ComputerProperty(property));\n" + 
+			"	                                              ^^^^^^^^^^^^^^^^\n" + 
+			"ComputerProperty is a raw type. References to generic type ComputerProperty<E> should be parameterized\n" + 
+			"----------\n"
+		);
+	}
+	public void testBug514884() {
+		runConformTest(
+			new String[] {
+				"Minimal.java",
+				"import java.io.*;\n" + 
+				"public class Minimal {\n" + 
+				"    public void iCrash() throws IOException {\n" + 
+				"        try (Closeable o = consumes(sneaky()::withVarargs)) {\n" + 
+				"        }\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private Minimal sneaky() { return this; }\n" + 
+				"\n" + 
+				"    private void withVarargs(String... test) {}\n" + 
+				"\n" + 
+				"    private Closeable consumes(Runnable r) { return null; }\n" + 
+				"}\n"
+			});
+	}
+
+	public void testBug494733_comment0() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" + 
+				"        List<Integer> integerList = new ArrayList<>();\n" + 
+				"        Set<List<Number>> numbetListSet = Collections.singleton(toWildcardGeneric(integerList));\n" + 
+				"        numbetListSet.iterator().next().add(new Float(1.0));\n" + 
+				"        Integer i = integerList.get(0); // Throws ClassCastException\n" + 
+				"    }\n" + 
+				"    \n" + 
+				"    static <T> List<? extends T> toWildcardGeneric(List<T> l) {\n" + 
+				"        return l;\n" + 
+				"    }\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	Set<List<Number>> numbetListSet = Collections.singleton(toWildcardGeneric(integerList));\n" + 
+			"	                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from Set<List<Integer>> to Set<List<Number>>\n" + 
+			"----------\n");
+	}
+
+	public void testBug494733_comment1() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.*;\n" +
+				"public class X {\n" +
+				"public static void main(String[] args) {\n" + 
+				"    List<Integer> integerList = new ArrayList<>();\n" + 
+				"    List<Object> objectList = id(toWildcardGeneric(integerList));\n" + 
+				"    objectList.add(\"Woo?\");\n" + 
+				"    Integer i = integerList.get(0);\n" + 
+				"}\n" + 
+				"\n" + 
+				"static <T> T id(T o) {\n" + 
+				"    return o;\n" + 
+				"}\n" + 
+				"\n" + 
+				"static <T> List<? extends T> toWildcardGeneric(List<T> l) {\n" + 
+				"    return l;\n" + 
+				"}\n" +
+				"}\n"
+			},
+			"----------\n" + 
+			"1. ERROR in X.java (at line 5)\n" + 
+			"	List<Object> objectList = id(toWildcardGeneric(integerList));\n" + 
+			"	                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type mismatch: cannot convert from List<Integer> to List<Object>\n" + 
+			"----------\n");
+	}
+
+	public void test483952_bare () {
+		runNegativeTest(
+			new String[] {
+				"test/Test.java",
+				"package test;\n" +
+				"import java.util.function.Function;\n" +
+				"public class Test {\n" +
+				"	void test1() {\n" +
+				"		Function function = x -> x;\n" +
+				"		String [] z = test2(function, \"\");\n" +
+				"	}\n" +
+				"	<T> T [] test2(Function<T, T> function, T t) {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"}"
+
+			},
+			"----------\n" + 
+			"1. WARNING in test\\Test.java (at line 5)\n" + 
+			"	Function function = x -> x;\n" + 
+			"	^^^^^^^^\n" + 
+			"Function is a raw type. References to generic type Function<T,R> should be parameterized\n" + 
+			"----------\n" + 
+			"2. WARNING in test\\Test.java (at line 6)\n" + 
+			"	String [] z = test2(function, \"\");\n" + 
+			"	              ^^^^^^^^^^^^^^^^^^^\n" + 
+			"Type safety: Unchecked invocation test2(Function, String) of the generic method test2(Function<T,T>, T) of type Test\n" + 
+			"----------\n" + 
+			"3. WARNING in test\\Test.java (at line 6)\n" + 
+			"	String [] z = test2(function, \"\");\n" + 
+			"	                    ^^^^^^^^\n" + 
+			"Type safety: The expression of type Function needs unchecked conversion to conform to Function<String,String>\n" + 
+			"----------\n");
+	}
 }

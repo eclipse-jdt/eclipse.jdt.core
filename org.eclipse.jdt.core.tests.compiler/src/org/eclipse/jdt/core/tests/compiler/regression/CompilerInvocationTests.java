@@ -1132,7 +1132,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("lambdaSignatureMismatched", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalArrayOfUnionType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("IllegalArrayTypeInIntersectionCast", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
-		expectedProblemAttributes.put("ProblemNotAnalysed", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("ProblemNotAnalysed", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();

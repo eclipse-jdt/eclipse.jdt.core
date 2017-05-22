@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,6 +25,7 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameC
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -93,7 +94,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 
 	private String sourceString;
 	char[] sourceArray;
-	private IRegion[] formatRegions;
+	private List<IRegion> formatRegions;
 
 	private ASTNode astRoot;
 	private List<Token> tokens = new ArrayList<>();
@@ -166,7 +167,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		if (!regionsSatisfiesPreconditions(regions, source.length())) {
 			throw new IllegalArgumentException();
 		}
-		this.formatRegions = regions;
+		this.formatRegions = Arrays.asList(regions);
 
 		updateWorkingOptions(indentationLevel, lineSeparator, kind);
 
@@ -177,7 +178,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 			return this.tokens.isEmpty() ? new MultiTextEdit() : null;
 
 		MultiTextEdit result = new MultiTextEdit();
-		TextEditsBuilder resultBuilder = new TextEditsBuilder(this.sourceString, regions, this.tokenManager,
+		TextEditsBuilder resultBuilder = new TextEditsBuilder(this.sourceString, this.formatRegions, this.tokenManager,
 				this.workingOptions);
 		this.tokenManager.traverse(0, resultBuilder);
 		for (TextEdit edit : resultBuilder.getEdits()) {
@@ -200,7 +201,12 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		return !this.tokens.isEmpty();
 	}
 
-	List<Token> prepareFormattedCode(String source, int kind) {
+	List<Token> prepareFormattedCode(String source) {
+		this.formatRegions = Arrays.asList(new Region(0, source.length()));
+		return prepareFormattedCode(source, CodeFormatter.K_UNKNOWN);
+	}
+
+	private List<Token> prepareFormattedCode(String source, int kind) {
 		if (!init(source, kind))
 			return null;
 
@@ -215,8 +221,6 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		prepareLineBreaks();
 		prepareComments();
 		prepareWraps(kind);
-
-		this.tokenManager.applyFormatOff();
 
 		return this.tokens;
 	}
@@ -282,7 +286,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 				throw new AssertionError(String.valueOf(kind));
 		}
 
-		this.tokenManager.applyFormatOff();
+		applyFormatOff();
 
 		TextEditsBuilder resultBuilder = new TextEditsBuilder(source, this.formatRegions, this.tokenManager,
 				this.workingOptions);
@@ -400,7 +404,35 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	private void prepareWraps(int kind) {
 		WrapPreparator wrapPreparator = new WrapPreparator(this.tokenManager, this.workingOptions, kind);
 		this.astRoot.accept(wrapPreparator);
+		applyFormatOff();
 		wrapPreparator.finishUp(this.astRoot, this.formatRegions);
+	}
+
+	private void applyFormatOff() {
+		for (Token[] offPair : this.tokenManager.getDisableFormatTokenPairs()) {
+			final int offStart = offPair[0].originalStart;
+			final int offEnd = offPair[1].originalEnd;
+
+			offPair[0].setWrapPolicy(null);
+			offPair[0]
+					.setIndent(Math.min(offPair[0].getIndent(), this.tokenManager.findSourcePositionInLine(offStart)));
+
+			final List<IRegion> result = new ArrayList<>();
+			for (IRegion region : this.formatRegions) {
+				final int start = region.getOffset(), end = region.getOffset() + region.getLength() - 1;
+				if (offEnd < start || end < offStart) {
+					result.add(region);
+				} else if (offStart <= start && end <= offEnd) {
+					// whole region off
+				} else {
+					if (start < offStart)
+						result.add(new Region(start, offStart - start));
+					if (offEnd < end)
+						result.add(new Region(offEnd + 1, end - offEnd));
+				}
+			}
+			this.formatRegions = result;
+		}
 	}
 
 	/**

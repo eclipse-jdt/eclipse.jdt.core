@@ -30,6 +30,7 @@ public static Class[] getAllTestClasses() {
 		ChunkWriterTests.class,
 		DatabaseTest.class,
 		FieldBackPointerTest.class,
+		FieldListTest.class,
 		FieldOneToOneTest.class,
 		IndexerTest.class,
 		InheritenceTests.class,

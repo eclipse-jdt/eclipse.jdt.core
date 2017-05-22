@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc.
+ * Copyright (c) 2005, 2007 BEA Systems, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *   wharley@bea.com - initial API and implementation
+ *   Fabian Steeg <steeg@hbz-nrw.de> - Update APT options documentation - https://bugs.eclipse.org/515329
  *******************************************************************************/
 
 package org.eclipse.jdt.apt.ui.internal.preferences;
@@ -21,7 +22,7 @@ import org.eclipse.jdt.apt.ui.internal.util.IAptHelpContextIds;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.DialogField;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.IDialogFieldListener;
 import org.eclipse.jdt.internal.ui.wizards.dialogfields.SelectionButtonDialogField;
-import org.eclipse.jface.dialogs.Dialog;
+import org.eclipse.jface.dialogs.StatusDialog;
 import org.eclipse.jface.viewers.ListViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -38,7 +39,7 @@ import org.eclipse.ui.PlatformUI;
  * be configured, and which may require deeper-than-usual
  * understanding of the annotation processing architecture.
  */
-public class AdvancedFactoryPathOptionsDialog extends Dialog {
+public class AdvancedFactoryPathOptionsDialog extends StatusDialog {
 	
 	private final static int LIST_WIDTH= 70; // width (in chars) of factory list
 	private final static int LIST_HEIGHT= 10; // number of lines in factory list

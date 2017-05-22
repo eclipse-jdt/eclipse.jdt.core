@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 BEA Systems, Inc. 
+ * Copyright (c) 2007 - 2017 BEA Systems, Inc and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,15 +7,22 @@
  *
  * Contributors:
  *    wharley@bea.com - initial API and implementation
- *    
+ *    Fabian Steeg <steeg@hbz-nrw.de> - Pass automatically provided options to Java 6 processors - https://bugs.eclipse.org/341298
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.apt.pluggable.core.dispatch;
 
+import static java.util.stream.Collectors.partitioningBy;
+import static java.util.stream.Collectors.toMap;
+
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.lang.model.element.Element;
 
@@ -72,16 +79,34 @@ public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
 			// -classpath, etc., but Java 6 options only include the options specified
 			// with -A, which will have been parsed into key/value pairs with no dash.
 			Map<String, String> allOptions = AptConfig.getProcessorOptions(_javaProject);
-			Map<String, String> procOptions = new HashMap<String, String>();
-			for (Map.Entry<String, String> entry : allOptions.entrySet()) {
-				if (!entry.getKey().startsWith("-")) { //$NON-NLS-1$
-					procOptions.put(entry.getKey(), entry.getValue());
-				}
-			}
-			procOptions.put("phase", getPhase().toString()); //$NON-NLS-1$
-			_processorOptions = Collections.unmodifiableMap(procOptions);
+
+			// But we make them available as variables in processor options configured by users
+			// (e.g. %classpath% in an option value is replaced with the value of -classpath):
+			Map<Boolean, List<Entry<String, String>>> isCommandLineOption = allOptions.entrySet().stream()
+					.collect(partitioningBy(option -> option.getKey().startsWith("-")));
+
+			Map<String, String> commandLineOptions = isCommandLineOption.get(true).stream()
+					.collect(toMap(e -> e.getKey().substring(1), Entry::getValue));
+
+			Map<String, String> processorOptions = isCommandLineOption.get(false).stream()
+					.collect(toMap(Entry::getKey, replacePlaceholdersUsing(commandLineOptions)));
+
+			processorOptions.put("phase", getPhase().toString()); //$NON-NLS-1$
+			_processorOptions = Collections.unmodifiableMap(processorOptions);
 		}
 		return _processorOptions;
+	}
+
+	private Function<Entry<String, String>, String> replacePlaceholdersUsing(Map<String, String> commandLineOptions) {
+		return option -> {
+			String variable, replacement, optionValue = option.getValue();
+			Matcher placeholder = Pattern.compile("%([^%]+)%").matcher(optionValue);
+			if (placeholder.find() && (variable = placeholder.group(1)) != null
+					&& (replacement = commandLineOptions.get(variable)) != null) {
+				optionValue = optionValue.replace("%" + variable + "%", replacement);
+			}
+			return optionValue;
+		};
 	}
 	
 	public AptProject getAptProject() {

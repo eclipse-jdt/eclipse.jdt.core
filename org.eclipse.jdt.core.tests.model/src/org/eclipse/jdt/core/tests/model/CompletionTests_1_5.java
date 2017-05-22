@@ -5969,8 +5969,8 @@ public void test0187() throws JavaModelException {
             result.context);
 
     assertResults(
-            "zzz1[FIELD_REF]{zzz1, Ltest0187.ZZClass1<!+TU;>;, [Ltest0187.ZZClass2<!+TU;>;, zzz1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
-            "zzz2[METHOD_REF]{zzz2(), Ltest0187.ZZClass1<!+TU;>;, ()[Ltest0187.ZZClass2<!+TU;>;, zzz2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+            "zzz1[FIELD_REF]{zzz1, Ltest0187.ZZClass1<Ljava.lang.Object;>;, [Ltest0187.ZZClass2<Ljava.lang.Object;>;, zzz1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
+            "zzz2[METHOD_REF]{zzz2(), Ltest0187.ZZClass1<Ljava.lang.Object;>;, ()[Ltest0187.ZZClass2<Ljava.lang.Object;>;, zzz2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_NON_STATIC + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 // completion test with capture
@@ -6058,8 +6058,8 @@ public void test0190() throws JavaModelException {
             result.context);
 
     assertResults(
-            "zzz1[FIELD_REF]{zzz1, Ltest0190.ZZClass1<!+Ljava.lang.Object;>;, [Ltest0190.ZZClass2<!+Ljava.lang.Object;>;, zzz1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC+ R_NON_RESTRICTED) + "}\n" +
-            "zzz2[METHOD_REF]{zzz2(), Ltest0190.ZZClass1<!+Ljava.lang.Object;>;, ()[Ltest0190.ZZClass2<!+Ljava.lang.Object;>;, zzz2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+            "zzz1[FIELD_REF]{zzz1, Ltest0190.ZZClass1<Ljava.lang.Object;>;, [Ltest0190.ZZClass2<Ljava.lang.Object;>;, zzz1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC+ R_NON_RESTRICTED) + "}\n" +
+            "zzz2[METHOD_REF]{zzz2(), Ltest0190.ZZClass1<Ljava.lang.Object;>;, ()[Ltest0190.ZZClass2<Ljava.lang.Object;>;, zzz2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + + R_NON_STATIC + R_NON_RESTRICTED) + "}",
             result.proposals);
 }
 // completion test with capture
@@ -9270,7 +9270,7 @@ public void test0295() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"compareTo[METHOD_REF]{compareTo, Ltest.ComparableTest<!*>;, (!*)I, compareTo, (t), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			"compareTo[METHOD_REF]{compareTo, Ltest.ComparableTest<Ljava.lang.Object;>;, (Ljava.lang.Object;)I, compareTo, (t), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99928
@@ -9325,7 +9325,7 @@ public void test0296() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
-			"compareTo[METHOD_REF]{compareTo(), Ltest.ComparableTest<!*>;, (!*)I, compareTo, (t), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			"compareTo[METHOD_REF]{compareTo(), Ltest.ComparableTest<Ljava.lang.Object;>;, (Ljava.lang.Object;)I, compareTo, (t), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=154993
@@ -11478,7 +11478,7 @@ public void test0356() throws JavaModelException {
 
 	assertResults(
 			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
-			"get[METHOD_REF]{get(), Ltest.util.List<!*>;, (I)!*, get, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			"get[METHOD_REF]{get(), Ltest.util.List<Ljava.lang.Object;>;, (I)Ljava.lang.Object;, get, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96604
@@ -11510,7 +11510,7 @@ public void test0357() throws JavaModelException {
 
 	assertResults(
 			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
-			"get[METHOD_REF]{get(), Ltest.X<!*>;, ()!*, get, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			"get[METHOD_REF]{get(), Ltest.X<Ltest.X<Ljava.lang.Object;>;>;, ()Ltest.X<Ltest.X<Ljava.lang.Object;>;>;, get, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96604

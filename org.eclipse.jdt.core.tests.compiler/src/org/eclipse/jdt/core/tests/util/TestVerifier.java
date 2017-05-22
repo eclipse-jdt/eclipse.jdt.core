@@ -146,7 +146,7 @@ public String getExecutionError(){
 private String getVerifyTestsCode() {
 	return
 		"/*******************************************************************************\n" + 
-		" * Copyright (c) 2000, 2011 IBM Corporation and others.\n" + 
+		" * Copyright (c) 2000, 2017 IBM Corporation and others.\n" + 
 		" * All rights reserved. This program and the accompanying materials\n" + 
 		" * are made available under the terms of the Eclipse Public License v1.0\n" + 
 		" * which accompanies this distribution, and is available at\n" + 
@@ -166,7 +166,6 @@ private String getVerifyTestsCode() {
 		"import java.io.InputStream;\n" + 
 		"import java.lang.reflect.InvocationTargetException;\n" + 
 		"import java.lang.reflect.Method;\n" + 
-		"import java.net.ServerSocket;\n" + 
 		"import java.net.Socket;\n" + 
 		"import java.util.StringTokenizer;\n" + 
 		"\n" + 
@@ -345,10 +344,8 @@ private String getVerifyTestsCode() {
 		"	verify.run();\n" + 
 		"}\n" + 
 		"public void run() throws IOException {\n" + 
-		"	ServerSocket server = new ServerSocket(this.portNumber);\n" + 
-		"	this.socket = server.accept();\n" + 
+		"	this.socket = new Socket(\"localhost\", this.portNumber);\n" + 
 		"	this.socket.setTcpNoDelay(true);\n" + 
-		"	server.close();\n" + 
 		"\n" + 
 		"	DataInputStream in = new DataInputStream(this.socket.getInputStream());\n" + 
 		"	final DataOutputStream out = new DataOutputStream(this.socket.getOutputStream());\n" + 
@@ -496,62 +493,66 @@ private void launchVerifyTestsIfNeeded(String[] classpaths, String[] vmArguments
 		launcher.setVMArguments(new String[] {"-verify"});
 	}
 	launcher.setProgramClass(VerifyTests.class.getName());
-	int portNumber = Util.getFreePort();
-	launcher.setProgramArguments(new String[] {Integer.toString(portNumber)});
-	try {
-		this.vm = launcher.launch();
-		final InputStream input = this.vm.getInputStream();
-		Thread outputThread = new Thread(new Runnable() {
-			public void run() {
-				try {
-					int c = input.read();
-					while (c != -1) {
-						TestVerifier.this.outputBuffer.append((char) c);
-						c = input.read();
+	try (ServerSocket server = new ServerSocket(0)) {
+		int portNumber = server.getLocalPort();
+
+		launcher.setProgramArguments(new String[] {Integer.toString(portNumber)});
+		try {
+			this.vm = launcher.launch();
+			final InputStream input = this.vm.getInputStream();
+			Thread outputThread = new Thread(new Runnable() {
+				public void run() {
+					try {
+						int c = input.read();
+						while (c != -1) {
+							TestVerifier.this.outputBuffer.append((char) c);
+							c = input.read();
+						}
+					} catch(IOException ioEx) {
 					}
-				} catch(IOException ioEx) {
 				}
-			}
-		});
-		final InputStream errorStream = this.vm.getErrorStream();
-		Thread errorThread = new Thread(new Runnable() {
-			public void run() {
-				try {
-					int c = errorStream.read();
-					while (c != -1) {
-						TestVerifier.this.errorBuffer.append((char) c);
-						c = errorStream.read();
+			});
+			final InputStream errorStream = this.vm.getErrorStream();
+			Thread errorThread = new Thread(new Runnable() {
+				public void run() {
+					try {
+						int c = errorStream.read();
+						while (c != -1) {
+							TestVerifier.this.errorBuffer.append((char) c);
+							c = errorStream.read();
+						}
+					} catch(IOException ioEx) {
 					}
-				} catch(IOException ioEx) {
 				}
+			});
+			outputThread.start();
+			errorThread.start();
+		} catch(TargetException e) {
+			throw new Error(e.getMessage());
+		}
+	
+		// connect to the vm
+		this.socket = null;
+		boolean isVMRunning = false;
+		do {
+			try {
+				this.socket = server.accept();
+				this.socket.setTcpNoDelay(true);
+				break;
+			} catch (UnknownHostException e) {
+			} catch (IOException e) {
 			}
-		});
-		outputThread.start();
-		errorThread.start();
-	} catch(TargetException e) {
+			if (this.socket == null) {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+				}
+				isVMRunning = this.vm.isRunning();
+			}
+		} while (this.socket == null && isVMRunning);
+	} catch (IOException e) {
 		throw new Error(e.getMessage());
 	}
-
-	// connect to the vm
-	this.socket = null;
-	boolean isVMRunning = false;
-	do {
-		try {
-			this.socket = new Socket("localhost", portNumber);
-			this.socket.setTcpNoDelay(true);
-			break;
-		} catch (UnknownHostException e) {
-		} catch (IOException e) {
-		}
-		if (this.socket == null) {
-			try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-			}
-			isVMRunning = this.vm.isRunning();
-		}
-	} while (this.socket == null && isVMRunning);
-
 }
 /**
  * Loads and runs the given class.

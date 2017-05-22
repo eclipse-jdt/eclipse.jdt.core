@@ -8,6 +8,7 @@
  * Contributors:
  *     BEA Systems Inc. - initial API and implementation
  *     IBM Corporation  - fix deprecation warnings
+ *     Fabian Steeg <steeg@hbz-nrw.de> - Update APT options documentation - https://bugs.eclipse.org/515329
  *******************************************************************************/
 package org.eclipse.jdt.apt.ui.internal.preferences;
 
@@ -30,7 +31,6 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.swt.widgets.Label;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
@@ -324,13 +324,6 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 		GridData reconcileGD= (GridData)fReconcileEnabledField.getSelectionButton(parent).getLayoutData();
 		reconcileGD.horizontalIndent = indent;
 		fReconcileEnabledField.getSelectionButton(parent).setLayoutData(reconcileGD);
-		
-		Label description= new Label(fBlockControl, SWT.WRAP);
-		description.setText(Messages.AptConfigurationBlock_classpathAddedAutomaticallyNote);
-		GridData gdLabel= new GridData(GridData.HORIZONTAL_ALIGN_FILL);
-		gdLabel.horizontalSpan= 2;
-		gdLabel.widthHint= fPixelConverter.convertWidthInCharsToPixels(60);
-		description.setLayoutData(gdLabel);
 		
 		Dialog.applyDialogFont(fBlockControl);
 		

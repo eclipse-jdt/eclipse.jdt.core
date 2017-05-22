@@ -33,8 +33,8 @@ public class FieldOneToOneTest extends BaseTestCase {
 		static {
 			type = StructDef.create(TestStruct.class, NdNode.type);
 
-			ANOTHER_STRUCT = FieldOneToOne.create(type, TestStruct2.class, TestStruct2.ANOTHER_STRUCT);
-			OWNED = FieldOneToOne.create(type, TestStruct2.class, TestStruct2.OWNER);
+			ANOTHER_STRUCT = FieldOneToOne.create(type, TestStruct2.type, TestStruct2.ANOTHER_STRUCT);
+			OWNED = FieldOneToOne.create(type, TestStruct2.type, TestStruct2.OWNER);
 			type.done();
 		}
 
@@ -79,8 +79,8 @@ public class FieldOneToOneTest extends BaseTestCase {
 		static {
 			type = StructDef.create(TestStruct2.class, NdNode.type);
 
-			OWNER = FieldOneToOne.createOwner(type, TestStruct.class, TestStruct.OWNED);
-			ANOTHER_STRUCT = FieldOneToOne.create(type, TestStruct.class, TestStruct.ANOTHER_STRUCT);
+			OWNER = FieldOneToOne.createOwner(type, TestStruct.type, TestStruct.OWNED);
+			ANOTHER_STRUCT = FieldOneToOne.create(type, TestStruct.type, TestStruct.ANOTHER_STRUCT);
 
 			type.done();
 		}

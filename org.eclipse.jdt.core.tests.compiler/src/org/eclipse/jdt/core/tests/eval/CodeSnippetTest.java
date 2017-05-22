@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -949,5 +949,17 @@ public void testDiamond() {
 			"};",
 			"new X<>(\"SUCCESS\").foo();\n"}),
 			"SUCCESS".toCharArray());
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=464656
+ */
+public void testBug464656() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		return;
+	}
+	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
+			"java.util.stream.Stream<String> s = java.util.stream.Stream.of(\"a\",\"b\");\n" +
+			"return s.findFirst();"}),
+			"Optional[a]".toCharArray());
 }
 }

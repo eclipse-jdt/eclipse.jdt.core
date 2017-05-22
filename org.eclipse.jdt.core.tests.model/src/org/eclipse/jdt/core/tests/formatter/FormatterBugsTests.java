@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -3281,6 +3281,7 @@ public void testBug290905b() throws JavaModelException {
 	);
 }
 public void testBug290905c() throws JavaModelException {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.MIXED;
 	this.formatterPrefs.tab_size = 0;
 	this.formatterPrefs.indentation_size = 0;
@@ -3304,6 +3305,7 @@ public void testBug290905c() throws JavaModelException {
 	);
 }
 public void testBug290905d() throws JavaModelException {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.MIXED;
 	this.formatterPrefs.tab_size = 0;
 	this.formatterPrefs.indentation_size = 0;
@@ -3327,6 +3329,7 @@ public void testBug290905d() throws JavaModelException {
 	);
 }
 public void testBug290905e() throws JavaModelException {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
 	this.formatterPrefs.tab_size = 0;
 	this.formatterPrefs.indentation_size = 0;
@@ -3350,6 +3353,7 @@ public void testBug290905e() throws JavaModelException {
 	);
 }
 public void testBug290905f() throws JavaModelException {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.TAB;
 	this.formatterPrefs.tab_size = 0;
 	this.formatterPrefs.indentation_size = 0;
@@ -3418,6 +3422,7 @@ public void testBug293240() {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=293300"
  */
 public void testBug293300_wksp1_01() {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp1;\n" + 
 		"\n" + 
@@ -3455,6 +3460,7 @@ public void testBug293300_wksp1_01() {
 	);
 }
 public void testBug293300_wkps1_02() {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp1;\n" + 
 		"\n" + 
@@ -3522,6 +3528,7 @@ public void testBug293300_wkps1_03() {
 	);
 }
 public void testBug293300_wkps1_04() {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp1;\n" + 
 		"\n" + 
@@ -3723,6 +3730,7 @@ public void testBug293300_wksp2_03() {
 	);
 }
 public void testBug293300_wksp2_04() {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -4201,6 +4209,7 @@ public void testBug293300_wksp2_05e_spaces() {
 	formatSource(source, EXPECTED_OUTPUT_WKSP2E3_SPACES);
 }
 public void testBug293300_wksp_06() {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -4408,6 +4417,7 @@ public void testBug293300_wksp2_09() {
 	);
 }
 public void testBug293300_wksp2_10() {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -4493,6 +4503,7 @@ public void testBug293300_wksp2_11() {
 	);
 }
 public void testBug293300_wksp2_12a() {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -4531,6 +4542,7 @@ public void testBug293300_wksp2_12a() {
 	);
 }
 public void testBug293300_wksp2_12b() {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -4569,6 +4581,7 @@ public void testBug293300_wksp2_12b() {
 	);
 }
 public void testBug293300_wksp2_13() {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -4653,6 +4666,7 @@ public void _testBug293300_wksp2_15a() {
 	);
 }
 public void testBug293300_wksp2_15b() {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp2;\n" + 
 		"\n" + 
@@ -5072,6 +5086,7 @@ public void testBug295175d() {
 	);
 }
 public void testBug295175e() {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp3;\n" + 
 		"\n" + 
@@ -5100,6 +5115,7 @@ public void testBug295175e() {
 	);
 }
 public void testBug295175f() {
+	useOldCommentWidthCounting();
 	String source = 
 		"package wksp1;\n" + 
 		"\n" + 
@@ -5137,6 +5153,7 @@ public void testBug295175f() {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=295238"
  */
 public void testBug295238() {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.join_lines_in_comments = false;
 	String source = 
 		"package wksp1;\n" + 
@@ -5173,6 +5190,7 @@ public void testBug295238() {
 }
 // the following test already passed with v_A21, but failed with first version of the patch
 public void testBug295238b1() {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.join_lines_in_comments = false;
 	String source = 
 		"package wksp1;\n" + 
@@ -5206,6 +5224,7 @@ public void testBug295238b1() {
 }
 // the following test failed with v_A21 and with the version v00 of the patch
 public void testBug295238b2() {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.join_lines_in_comments = false;
 	String source = 
 		"package wksp1;\n" + 
@@ -5234,6 +5253,7 @@ public void testBug295238b2() {
 }
 // the following test failed with v_A21 and with the version v00 of the patch
 public void testBug295238b3() {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.join_lines_in_comments = false;
 	String source = 
 		"package wksp1;\n" + 
@@ -7462,6 +7482,7 @@ public void testBug320754_03() throws JavaModelException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=328240"
  */
 public void testBug328240() {
+	useOldCommentWidthCounting();
 	String source =
 		"package com.example;\n" +
 		"\n" +
@@ -8404,6 +8425,7 @@ public void testBug330313_wksp1_14() {
 	);
 }
 public void testBug330313_wksp1_14_njl() {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.join_wrapped_lines = false;
 	String source =
 		"package wksp1;\n" + 
@@ -9627,6 +9649,7 @@ public void testBug330313_wksp1_46_njl() {
 	);
 }
 public void testBug330313_wksp1_47_njl() {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.join_wrapped_lines = false;
 	String source =
 		"package wksp1;\n" + 
@@ -9674,6 +9697,7 @@ public void testBug330313_wksp1_47_njl() {
 	);
 }
 public void testBug330313_wksp1_48_njl() {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.join_wrapped_lines = false;
 	String source =
 		"package wksp1;\n" + 
@@ -11235,6 +11259,7 @@ public void testBug474916() {
  * https://bugs.eclipse.org/474918 - [formatter] doesn't align fields in declarations of annotations, enums and anonymous classes
  */
 public void testBug474918() {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.align_type_members_on_columns = true;
 	String source = 
 		"import java.util.function.Function;\r\n" + 
@@ -11299,6 +11324,7 @@ public void testBug474918() {
  * https://bugs.eclipse.org/474918 - [formatter] doesn't align fields in declarations of annotations, enums and anonymous classes
  */
 public void testBug474918b() {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.align_type_members_on_columns = true;
 	this.formatterPrefs.tab_char = DefaultCodeFormatterOptions.SPACE;
 	String source = 
@@ -11364,6 +11390,7 @@ public void testBug474918b() {
  * https://bugs.eclipse.org/474918 - [formatter] doesn't align fields in declarations of annotations, enums and anonymous classes
  */
 public void testBug474918c() {
+	useOldCommentWidthCounting();
 	this.formatterPrefs.align_type_members_on_columns = true;
 	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
 	String source = 
@@ -12615,6 +12642,76 @@ public void testBug500853() {
 		"public class SomeClass {\n" + 
 		"	void foo() {\n" + 
 		"	}\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/500853 - [formatter] Errors around formatter:off regions with "use space to indent wrapped lines"
+ * @test no {@code IndexOutOfBoundsException} is thrown
+ */
+public void testBug512791a() {
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"	void f() {\n" + 
+		"		int a = 1 + 2 + 3 + 4;\n" + 
+		"		f  (   ;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	Object o = new Object() {\n" + 
+		"	};\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/500853 - [formatter] Errors around formatter:off regions with "use space to indent wrapped lines"
+ * @test formatter doesn't get stuck in an infinite loop
+ */
+public void testBug512791b() {
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"	void f() {\n" + 
+		"		f  (   ;\n" + 
+		"	}\n" + 
+		"\n" + 
+		"	Object o = new Object() {\n" + 
+		"		int a;\n" + 
+		"	};\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/514591 - [formatter] NegativeArraySizeException with "Never indent line comments on first column"
+ * + "Use spaces to indent wrapped lines"
+ */
+public void testBug514591a() {
+	this.formatterPrefs.never_indent_line_comments_on_first_column = true;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"	String s = new StringBuilder()\n" + 
+		"// .append(\"aa\")\n" + 
+		"	        .toString();\n" + 
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/514591 - [formatter] NegativeArraySizeException with "Never indent line comments on first column"
+ * + "Use spaces to indent wrapped lines"
+ */
+public void testBug514591b() {
+	this.formatterPrefs.never_indent_block_comments_on_first_column = true;
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	String source =
+		"public class Test {\n" + 
+		"\n" + 
+		"	String s = new StringBuilder()\n" + 
+		"/* .append(\"aa\") */\n" + 
+		"	        .toString();\n" + 
 		"}";
 	formatSource(source);
 }

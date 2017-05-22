@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2007 BEA Systems, Inc. 
+ * Copyright (c) 2005, 2007 BEA Systems, Inc and others. 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *    jgarms@bea.com - initial API and implementation
+ *    Fabian Steeg <steeg@hbz-nrw.de> - Update APT options documentation - https://bugs.eclipse.org/515329
  *    
  *******************************************************************************/
 package org.eclipse.jdt.apt.ui.internal.preferences;
@@ -63,8 +64,6 @@ public class Messages extends NLS {
 	public static String BaseConfigurationBlock_fullRebuildRequired;
 
 	public static String BaseConfigurationBlock_rebuildRequired;
-
-	public static String AptConfigurationBlock_classpathAddedAutomaticallyNote;
 
 	public static String AptConfigurationBlock_warningIgnoredOptions;
 

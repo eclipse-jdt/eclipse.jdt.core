@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2016 IBM Corporation and others.
+ * Copyright (c) 2014, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,6 +11,7 @@
 
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -26,7 +27,7 @@ import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 public class CompletionTests18 extends AbstractJavaModelCompletionTests {
 
 static {
-//		TESTS_NAMES = new String[] {"test001"};
+//		TESTS_NAMES = new String[] {"test492947"};
 }
 
 public CompletionTests18(String name) {
@@ -1532,13 +1533,18 @@ public void test430441() throws JavaModelException {
 	IJavaProject javaProject = getJavaProject("Completion");
 
 	Map<String, String> options = javaProject.getOptions(true);
-	options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
-	options.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
-	javaProject.setOptions(options);
+	try {
+		Map<String, String> customOptions = new HashMap<String, String>(options);
+		customOptions.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+		customOptions.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
+		javaProject.setOptions(customOptions);
 
-	IEvaluationContext context = javaProject.newEvaluationContext();
-	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-	context.codeComplete(str, cursorLocation, requestor);
+		IEvaluationContext context = javaProject.newEvaluationContext();
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		context.codeComplete(str, cursorLocation, requestor);
+	} finally {
+		javaProject.setOptions(options);
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430656, [1.8][content assist] Content assist does not work for method reference argument 
 public void test430656() throws JavaModelException {
@@ -2756,5 +2762,280 @@ public void test489962() throws JavaModelException {
 			"disperse[METHOD_REF]{disperse(), LI2;, ()V, null, null, disperse, null, [46, 50], " + (relevance + R_VOID) + "}\n" +
 			"dispose[METHOD_REF]{dispose(), LI2;, ()I, null, null, dispose, null, [46, 50], " + (relevance + R_EXACT_EXPECTED_TYPE) + "}"
 			, requestor.getResults());
+}
+public void test492947() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public class X {\n" +
+			"	public interface SomeInterface {\n" +
+			"		public void someMethod(String builder);\n" +
+			"}\n" +
+			"	public enum SomeEnum {\n" +
+			"		SOME_ENUM((String bui) -> {\n" +
+			"			bui.toCh\n" +
+			"		});\n" +
+			"		SomeEnum(SomeInterface callable) {}\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "bui.toCh";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED;
+	assertResults(
+			"toCharArray[METHOD_REF]{toCharArray(), Ljava.lang.String;, ()[C, null, null, toCharArray, null, [156, 160], " + relevance + "}"
+			, requestor.getResults());
+}
+public void test492947b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public class X {\n" +
+			"	public interface SomeInterface {\n" +
+			"		public void someMethod(StringBuilder builder);\n" +
+			"}\n" +
+			"	public enum SomeEnum {\n" +
+			"		SOME_ENUM((StringBui bui) -> {\n" +
+			"		});\n" +
+			"		SomeEnum(SomeInterface callable) {}\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "StringBui";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED;
+	assertResults(
+			"StringBuilder[TYPE_REF]{StringBuilder, java.lang, Ljava.lang.StringBuilder;, null, null, null, null, [139, 148], " + relevance + "}",
+			 requestor.getResults());
+}
+/**
+ * Bug - No proposal yet for types on lambda arguments
+ * @throws JavaModelException
+ */
+public void _test492947c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public class X {\n" +
+			"	public interface SomeInterface {\n" +
+			"		public void someMethod(StringBuilder builder);\n" +
+			"}\n" +
+			"	public enum SomeEnum {\n" +
+			"		SOME_ENUM((StringBui) -> {\n" +
+			"		});\n" +
+			"		SomeEnum(SomeInterface callable) {}\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "StringBui";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED;
+	assertResults(
+			"StringBuilder[TYPE_REF]{StringBuilder, java.lang, Ljava.lang.StringBuilder;, null, null, null, null, [139, 148], " + relevance + "}"
+			, requestor.getResults());
+}
+public void _test492947d() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public class X {\n" +
+			"	public Main(SomeInterface arg) {}\n" +
+			"	public interface SomeInterface {\n" +
+			"		public void someMethod(StringBuilder builder);\n" +
+			"}\n" +
+			"	Main m = new Main((StringBui) -> {\n" +
+			"		});\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "StringBui";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_UNQUALIFIED;
+	assertResults(
+			"StringBuilder[TYPE_REF]{StringBuilder, java.lang, Ljava.lang.StringBuilder;, null, null, null, null, [139, 148], " + relevance + "}"
+			, requestor.getResults());
+}
+public void testBug493705() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/HelloWorld.java",
+			"package b493705;\n" + 
+			"\n" + 
+			"import java.util.function.BiFunction;\n" + 
+			"\n" + 
+			"class Control { }\n" + 
+			"class Composite extends Control { }\n" + 
+			"class Label extends Control {\n" + 
+			"	public Label(Composite p, int i) {}\n" + 
+			"}\n" + 
+			"\n" + 
+			"class Viewer { }\n" + 
+			"interface ViewerSupplier {\n" + 
+			"	ViewerUI<? extends Viewer> getViewerUI();\n" + 
+			"}\n" + 
+			"class ViewerUI<V extends Viewer> extends SwtUI<Control>{\n" + 
+			"\n" + 
+			"}\n" + 
+			"interface ControlSupplier {\n" + 
+			"	SwtUI<? extends Control> getControlUI();\n" + 
+			"}\n" + 
+			"class SwtUI<T> {\n" + 
+			"	public SwtUI<T> child(ControlSupplier supplier) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public SwtUI<T> child(ViewerSupplier supplier) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public static <T extends Control> SwtUI<T> create(BiFunction<Composite, Integer, T> ctor) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"	public SwtUI<T> text(String text) {\n" + 
+			"		return null;\n" + 
+			"	}\n" + 
+			"}\n" + 
+			"public class HelloWorld {\n" + 
+			"	void test(SwtUI<Composite> root) {\n" + 
+			"		root.child(() -> SwtUI.create(Label::new)\n" + 
+			"				.text(\"Selection\").\n" + 
+			"				);\n" + 
+			"	}\n" + 
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = ".text(\"Selection\").";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	// TODO: compute relevances
+	int relevance1 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
+	int relevance2 = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_NON_STATIC;
+	assertResults(
+			"create[METHOD_REF]{create(), LSwtUI<LLabel;>;, <T:LControl;>(Ljava.util.function.BiFunction<LComposite;Ljava.lang.Integer;TT;>;)LSwtUI<TT;>;, null, null, create, (ctor), [853, 853], "+relevance1+"}\n" + 
+			"new[KEYWORD]{new, null, null, null, null, new, null, [853, 853], "+relevance1+"}\n" + 
+			"child[METHOD_REF]{child(), LSwtUI<LLabel;>;, (LControlSupplier;)LSwtUI<LLabel;>;, null, null, child, (supplier), [853, 853], "+relevance2+"}\n" + 
+			"child[METHOD_REF]{child(), LSwtUI<LLabel;>;, (LViewerSupplier;)LSwtUI<LLabel;>;, null, null, child, (supplier), [853, 853], "+relevance2+"}\n" + 
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, null, null, clone, null, [853, 853], "+relevance2+"}\n" + 
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, null, null, equals, (obj), [853, 853], "+relevance2+"}\n" + 
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, null, null, finalize, null, [853, 853], "+relevance2+"}\n" + 
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [853, 853], "+relevance2+"}\n" + 
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, null, null, hashCode, null, [853, 853], "+relevance2+"}\n" + 
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, null, null, notify, null, [853, 853], "+relevance2+"}\n" + 
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, null, null, notifyAll, null, [853, 853], "+relevance2+"}\n" + 
+			"text[METHOD_REF]{text(), LSwtUI<LLabel;>;, (Ljava.lang.String;)LSwtUI<LLabel;>;, null, null, text, (text), [853, 853], "+relevance2+"}\n" + 
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, null, null, toString, null, [853, 853], "+relevance2+"}\n" + 
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, null, null, wait, null, [853, 853], "+relevance2+"}\n" + 
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, null, null, wait, (millis), [853, 853], "+relevance2+"}\n" + 
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, null, null, wait, (millis, nanos), [853, 853], "+relevance2+"}"
+			, requestor.getResults());
+}
+// https://bugs.eclipse.org/515809 - Syso shortcut lambda expression
+public void test515809() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/X.java",
+			"public class X {\n" +
+			"	void test() {\n" +
+			"		new Thread(() -> sysout);\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "sysout";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults("", requestor.getResults());
+	assertEquals("completion offset=57\n" +
+			"completion range=[51, 56]\n" +
+			"completion token=\"sysout\"\n" +
+			"completion token kind=TOKEN_KIND_NAME\n" +
+			"expectedTypesSignatures=null\n" +
+			"expectedTypesKeys=null\n" +
+			"completion token location={STATEMENT_START}", requestor.getContext());
+}
+//https://bugs.eclipse.org/485492
+public void test485492a() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Foo.java",
+			"import java.util.function.Function;\n" +
+			"public enum Foo {\n" +
+			"	BAR((z) -> {\n" +
+			"	z.has\n" +
+			"		return z;\n" +
+			"	});\n" +
+			"	Foo(Function<String, String> func) { }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "z.has";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.String;, ()I, null, null, hashCode, null, [71, 74], 60}",
+			requestor.getResults());
+}
+public void test485492b() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Foo.java",
+			"import java.util.function.Function;\n" +
+			"public enum Foo {\n" +
+			"	BAR((zilch) -> {\n" +
+			"		return zil;\n" +
+			"	});\n" +
+			"	Foo(Function<String, String> func) { }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "return zil";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"zilch[LOCAL_VARIABLE_REF]{zilch, null, Ljava.lang.String;, null, null, zilch, null, [81, 84], 52}",
+			requestor.getResults());
+}
+public void test485492c() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Foo.java",
+			"import java.util.function.Function;\n" +
+			"public enum Foo {\n" +
+			"	BAR((z) -> {\n" +
+			"		return z.has;\n" +
+			"	});\n" +
+			"	Foo(Function<String, String> func) { }\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "z.has";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.String;, ()I, null, null, hashCode, null, [79, 82], 60}",
+			requestor.getResults());
 }
 }

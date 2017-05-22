@@ -66,6 +66,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	Charset charset;
 	Locale locale;
 	Map<String, Iterable<? extends File>> locations;
+	final Map<Location, URLClassLoader> classloaders;
 	int flags;
 	public ResourceBundle bundle;
 	
@@ -73,6 +74,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		this.locale = locale == null ? Locale.getDefault() : locale;
 		this.charset = charset == null ? Charset.defaultCharset() : charset;
 		this.locations = new HashMap<>();
+		this.classloaders = new HashMap<>();
 		this.archivesCache = new HashMap<>();
 		try {
 			this.setLocation(StandardLocation.PLATFORM_CLASS_PATH, getDefaultBootclasspath());
@@ -99,6 +101,10 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			archive.close();
 		}
 		this.archivesCache.clear();
+		for (URLClassLoader cl : this.classloaders.values()) {
+			cl.close();
+		}
+		this.classloaders.clear();
 	}
 	
 	private void collectAllMatchingFiles(File file, String normalizedPackageName, Set<Kind> kinds, boolean recurse, ArrayList<JavaFileObject> collector) {
@@ -222,17 +228,22 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			// location is unknown
 			return null;
 		}
-		ArrayList<URL> allURLs = new ArrayList<>();
-		for (File f : files) {
-			try {
-				allURLs.add(f.toURI().toURL());
-			} catch (MalformedURLException e) {
-				// the url is malformed - this should not happen
-				throw new RuntimeException(e);
+		URLClassLoader cl = this.classloaders.get(location);
+		if (cl == null) {
+			ArrayList<URL> allURLs = new ArrayList<>();
+			for (File f : files) {
+				try {
+					allURLs.add(f.toURI().toURL());
+				} catch (MalformedURLException e) {
+					// the url is malformed - this should not happen
+					throw new RuntimeException(e);
+				}
 			}
+			URL[] result = new URL[allURLs.size()];
+			cl = new URLClassLoader(allURLs.toArray(result), getClass().getClassLoader());
+			this.classloaders.put(location, cl);
 		}
-		URL[] result = new URL[allURLs.size()];
-		return new URLClassLoader(allURLs.toArray(result), getClass().getClassLoader());
+		return cl;
 	}
 
 	private Iterable<? extends File> getPathsFrom(String path) {

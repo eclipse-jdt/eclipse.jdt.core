@@ -269,6 +269,25 @@ public class LargeBlockTest extends BaseTestCase {
 		assertEquals("A chunk should have been reused", chunkCount, this.db.getChunkCount());
 	}
 
+	public void testEndOfFreeBlockIsUsedIfThePreviousBlockIsLargerThanTheNextBlock() throws Exception {
+		long prevChunk = mallocChunks(4);
+		long middleChunk = mallocChunks(4);
+		long nextChunk = mallocChunks(2);
+
+		free(middleChunk);
+		// This should be taken from the end of "middleChunk", since that's closer to the smaller neighbor
+		long smallChunk1 = mallocChunks(1);
+		// This should also be taken from the end of the remaining portion of "middleChunk"
+		long smallChunk2 = mallocChunks(1);
+
+		assertTrue("The small chunks should have been allocated from space after 'prevChunk'",
+				prevChunk < smallChunk2);
+		assertTrue("The small chunks should have been allocated from the end of the free block",
+				smallChunk2 < smallChunk1);
+		assertTrue("The small chunks should have been allocated from space before 'nextChunk'",
+				smallChunk1 < nextChunk);
+	}
+
 	/**
 	 * Tests various corner cases in the trie map.
 	 */
@@ -331,5 +350,57 @@ public class LargeBlockTest extends BaseTestCase {
 			assertEquals("Returned wrong pointer for malloc of " + sizes[idx] + " chunks", pointers[idx], nextPointer);
 			assertEquals("A chunk should have been reused", chunkCount, this.db.getChunkCount());
 		}
+	}
+
+	/**
+	 * Tests removals from the large chunk sibling list. Ensures that such removals don't interfere with
+	 * the trie itself.
+	 */
+	public void testUnlinkedBlockNotInTrieGetsRelinked() throws Exception {
+		long rootChunk = mallocChunks(1);
+		mallocChunks(1);
+		long unusedChunk = mallocChunks(1);
+		mallocChunks(1);
+		long chunkToBeMerged = mallocChunks(1);
+		long chunkThatWillCauseMerging = mallocChunks(1);
+		mallocChunks(1);
+		long followingChunkInFreeSpaceList = mallocChunks(1);
+		mallocChunks(1);
+		long chunkOfSize2 = mallocChunks(2);
+		mallocChunks(1);
+
+		int chunkCount = this.db.getChunkCount();
+
+		free(rootChunk);
+		free(unusedChunk);
+		free(chunkToBeMerged);
+		free(followingChunkInFreeSpaceList);
+		free(chunkOfSize2);
+
+		// At this point, the free space trie looks like this:
+		//
+		// size 1: rootChunk -> unusedChunk -> chunkToBeMerged -> followingChunkInFreeSpaceList
+		//                   -> size 2: chunkOfSize2
+		//
+		// By freeing chunkThatWillCauseMerging, chunkToBeMerged will be removed from the
+		// list of size 1 and inserted into the list of size 2. This test verifies that the
+		// code won't mess with the root pointer by inserting unusedChunk or chunk into the root
+
+		// This call will corrupt the database if we don't do the removal correctly
+		free(chunkThatWillCauseMerging);
+
+		// Now reallocate the original chunks to ensure they can all be found in the list
+		long firstDoubleChunk = mallocChunks(2);
+		long secondDoubleChunk = mallocChunks(2);
+
+		mallocChunks(1);
+		mallocChunks(1);
+		mallocChunks(1);
+
+		assertEquals("A chunk should have been reused", chunkCount, this.db.getChunkCount());
+		assertNotSame("Both new chunks should have been unique", firstDoubleChunk, secondDoubleChunk);
+		assertNotSame("The first chunk should not be null", 0, firstDoubleChunk);
+		assertNotSame("The second chunk should not be null", 0, secondDoubleChunk);
+		this.db.validateFreeSpace();
 	}
 }

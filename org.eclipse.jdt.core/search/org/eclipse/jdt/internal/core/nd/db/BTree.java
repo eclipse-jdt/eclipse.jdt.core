@@ -347,7 +347,7 @@ public class BTree {
 		}
 
 		public void makeWritable() {
-			this.chunk = chunk.getWritableChunk();
+			this.chunk = this.chunk.getWritableChunk();
 		}
 	}
 

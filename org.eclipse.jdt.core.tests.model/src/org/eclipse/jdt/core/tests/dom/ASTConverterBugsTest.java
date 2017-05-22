@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,10 @@ import junit.framework.Test;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.*;
@@ -1292,5 +1295,22 @@ public void testBug277204e() throws JavaModelException {
 			"	^^^^^\n" + 
 			"Syntax error, insert \";\" to complete ClassBodyDeclarations\n",
 			result);
+}
+
+// Verify that the binding for a constructor is a method binding
+public void testBug381503() throws CoreException, IOException {
+	try {
+		IJavaProject javaProject = createJavaProject("P", new String[] { "src" }, new String[] { "CONVERTER_JCL_LIB" }, "bin");
+		IType type = javaProject.findType("java.lang.IllegalMonitorStateException");
+		IMethod javaElement = type.getMethod("IllegalMonitorStateException", new String[]{});
+		ASTParser parser = ASTParser.newParser(AST.JLS8);
+		parser.setResolveBindings(true);
+		parser.setProject(javaProject);
+		IBinding[] bindings = parser.createBindings(new IJavaElement[] { javaElement }, null);
+		assertEquals("Wrong number of bindings", 1, bindings.length);
+		assertTrue("Wrong binding kind: "+bindings[0].getClass().getName(), bindings[0] instanceof IMethodBinding);
+	} finally {
+		deleteProject("P");
+	}
 }
 }

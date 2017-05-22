@@ -108,7 +108,7 @@ public class FactoryPathTests extends TestCase {
 
 		// Will throw an exception if the newly added jar isn't first
 		WkspJarFactoryContainer fc = (WkspJarFactoryContainer) path.getAllContainers().keySet().iterator().next();
-		assertTrue(fc.getJarFile().toString().endsWith(toAdd.toString()));
+		assertTrue(fc.getJarFile().toString().endsWith(toAdd.toOSString()));
 
 		path.removeWkspJar(toAdd);
 

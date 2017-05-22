@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -145,6 +145,7 @@ public class SingleLineTestCase extends CommentTestCase {
 
 	public void testCommentWrapping5() {
 		setUserOption(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.TAB);
+		setUserOption(DefaultCodeFormatterConstants.FORMATTER_COMMENT_COUNT_LINE_LENGTH_FROM_STARTING_POSITION, DefaultCodeFormatterConstants.FALSE);
 		String prefix= "public class Test {" + DELIMITER + "	int test; // test test test test test test test test test test test test";
 		String inputInfix= " ";
 		String expectedInfix= DELIMITER + "\t\t\t\t" + PREFIX;

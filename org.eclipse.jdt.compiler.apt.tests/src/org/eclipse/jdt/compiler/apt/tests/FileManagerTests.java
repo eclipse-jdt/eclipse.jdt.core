@@ -20,6 +20,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -211,4 +212,15 @@ public class FileManagerTests extends TestCase {
 		fileManager.close();
 	}
 
+	public void testBug514121_getClassloader_close() throws Exception {
+		EclipseFileManager fileManager = new EclipseFileManager(Locale.getDefault(), Charset.defaultCharset());
+		List<File> classpath = new ArrayList<>();
+		classpath.add(new File(BatchTestUtils.getPluginDirectoryPath(), "resources/targets/filemanager/dependency.zip"));
+		fileManager.setLocation(javax.tools.StandardLocation.ANNOTATION_PROCESSOR_PATH, classpath);
+		URLClassLoader loader = (URLClassLoader) fileManager
+				.getClassLoader(javax.tools.StandardLocation.ANNOTATION_PROCESSOR_PATH);
+		assertNotNull(loader.findResource("jarresource.txt")); // sanity check
+		fileManager.close();
+		assertNull(loader.findResource("jarresource.txt")); // assert the classloader is closed
+	}
 }

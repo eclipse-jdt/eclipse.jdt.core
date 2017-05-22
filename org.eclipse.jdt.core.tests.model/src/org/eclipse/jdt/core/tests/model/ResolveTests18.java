@@ -1855,7 +1855,7 @@ public void test424198a() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"v2 [in apply(capture-of ? extends java.lang.String) [in <lambda #1> [in processJar(Path) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"v2 [in apply(java.lang.String) [in <lambda #1> [in processJar(Path) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements,
 		true
 	);
@@ -1920,7 +1920,7 @@ public void test424198b() throws JavaModelException {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"s1 [in accept(capture-of ? extends java.lang.String) [in <lambda #1> [in withWildcard(Stream<? extends String>) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
+		"s1 [in accept(java.lang.String) [in <lambda #1> [in withWildcard(Stream<? extends String>) [in InsistentCapture [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]]]",
 		elements,
 		true
 	);
