@@ -250,9 +250,60 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			buf.append("    requires static transient module3;\n");
 			buf.append("    requires transient addedme;\n");
 		buf.append("}");
-			assertEqualString(preview, buf.toString());		
+			assertEqualString(preview, buf.toString());
 		} finally {
 			if (javaProject != null) deleteProject(javaProject);
 		}
 	}
+	public void testBug516731_0001_since_9() throws Exception {
+		IJavaProject javaProject = null;
+		try {
+			javaProject = createProject("P_9", JavaCore.VERSION_9);
+			IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_9", "src");
+			IPackageFragment pack1= currentSourceFolder.getPackageFragment(Util.EMPTY_STRING);
+			StringBuffer buf= new StringBuffer();
+			buf.append("module first {\n");
+			buf.append("    requires existing;\n");
+			buf.append("}");
+			ICompilationUnit cu= pack1.createCompilationUnit("module-info.java", buf.toString(), false, null);
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+			ModuleDeclaration moduleDecl = astRoot.getModule();
+			rewrite.set(moduleDecl, ModuleDeclaration.OPEN_PROPERTY, Boolean.TRUE, null);
+			String preview= evaluateRewrite(cu, rewrite);
+			buf= new StringBuffer();
+			buf.append("open module first {\n");
+			buf.append("    requires existing;\n");
+			buf.append("}");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			if (javaProject != null) deleteProject(javaProject);
+		}
+	}
+	public void testBug516731_0002_since_9() throws Exception {
+		IJavaProject javaProject = null;
+		try {
+			javaProject = createProject("P_9", JavaCore.VERSION_9);
+			IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_9", "src");
+			IPackageFragment pack1= currentSourceFolder.getPackageFragment(Util.EMPTY_STRING);
+			StringBuffer buf= new StringBuffer();
+			buf.append("open module first {\n");
+			buf.append("    requires existing;\n");
+			buf.append("}");
+			ICompilationUnit cu= pack1.createCompilationUnit("module-info.java", buf.toString(), false, null);
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+			ModuleDeclaration moduleDecl = astRoot.getModule();
+			rewrite.set(moduleDecl, ModuleDeclaration.OPEN_PROPERTY, Boolean.FALSE, null);
+			String preview= evaluateRewrite(cu, rewrite);
+			buf= new StringBuffer();
+			buf.append("module first {\n");
+			buf.append("    requires existing;\n");
+			buf.append("}");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			if (javaProject != null) deleteProject(javaProject);
+		}
+	}
+
 }

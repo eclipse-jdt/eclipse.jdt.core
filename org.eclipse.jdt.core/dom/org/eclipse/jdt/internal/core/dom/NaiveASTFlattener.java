@@ -1234,7 +1234,9 @@ public class NaiveASTFlattener extends ASTVisitor {
 		if (node.getJavadoc() != null) {
 			node.getJavadoc().accept(this);
 		}
-		printModifiers(node.modifiers());
+		printModifiers(node.annotations());
+		if (node.isOpen())
+			this.buffer.append("open "); //$NON-NLS-1$
 		this.buffer.append("module"); //$NON-NLS-1$
 		this.buffer.append(" "); //$NON-NLS-1$
 		node.getName().accept(this);

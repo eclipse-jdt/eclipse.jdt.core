@@ -157,7 +157,7 @@ public class ModuleDeclaration extends ASTNode {
 		output.append(CharOperation.charToString(this.moduleName));
 		return output;
 	}
-	private boolean isOpen() {
+	public boolean isOpen() {
 		return (this.modifiers & ClassFileConstants.ACC_OPEN) != 0;
 	}
 	public StringBuffer printBody(int indent, StringBuffer output) {

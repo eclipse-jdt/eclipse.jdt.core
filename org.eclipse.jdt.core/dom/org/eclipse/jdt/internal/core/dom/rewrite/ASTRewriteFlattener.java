@@ -804,7 +804,10 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		if (javadoc != null) {
 			javadoc.accept(this);
 		}
-		visitList(node, ModuleDeclaration.MODIFIERS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
+		visitList(node, ModuleDeclaration.ANNOTATIONS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
+		if (getBooleanAttribute(node, ModuleDeclaration.OPEN_PROPERTY)) {
+			this.result.append("open ");//$NON-NLS-1$
+		}
 		this.result.append("module "); //$NON-NLS-1$
 		getChildNode(node, ModuleDeclaration.NAME_PROPERTY).accept(this);
 		this.result.append('{');

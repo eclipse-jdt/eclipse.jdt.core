@@ -2088,13 +2088,34 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 		int pos= rewriteJavadoc(node, ModuleDeclaration.JAVADOC_PROPERTY);
-		pos= rewriteModifiers2(node, ModuleDeclaration.MODIFIERS_PROPERTY, pos);
+		pos= rewriteModifiers2(node, ModuleDeclaration.ANNOTATIONS_PROPERTY, pos);
+
+		RewriteEvent event= getEvent(node, ModuleDeclaration.OPEN_PROPERTY);
+		if (event != null && event.getChangeKind() != RewriteEvent.UNCHANGED) {
+			boolean fakeInModule = getScanner().getScanner().fakeInModule;
+			try {
+				boolean wasOpen= ((Boolean) event.getOriginalValue()).booleanValue();
+				if (wasOpen) {
+					this.tokenScanner.getScanner().fakeInModule = true;
+					int endPos= getScanner().getTokenStartOffset(TerminalTokens.TokenNamemodule, pos);
+					doTextRemove(pos, endPos - pos, getEditGroup(event));
+				} else {
+					doTextInsert(pos, "open ", getEditGroup(event)); //$NON-NLS-1$
+				}
+			} catch (CoreException e) {
+				handleException(e);
+			} finally {
+				this.tokenScanner.getScanner().fakeInModule = fakeInModule;
+			}
+		}
+
 		pos= rewriteRequiredNode(node, ModuleDeclaration.NAME_PROPERTY);
 		int startPos = getPosAfterLeftBrace(pos);
 		int startIndent= getIndent(node.getStartPosition()) + 1;
+		boolean fakeInModule = this.tokenScanner.getScanner().fakeInModule;
 		this.tokenScanner.getScanner().fakeInModule = true;
 		rewriteParagraphList(node, ModuleDeclaration.MODULE_STATEMENTS_PROPERTY, startPos, startIndent, 0, 1);
-		this.tokenScanner.getScanner().fakeInModule = false;
+		this.tokenScanner.getScanner().fakeInModule = fakeInModule;
 		return false;
 	}
 

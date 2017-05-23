@@ -160,17 +160,18 @@ public class ASTConverter9Test extends ConverterTestSetup {
 				+ "}";
 		this.workingCopies[0] = getWorkingCopy(
 				"/Converter9/src/module-info.java", content);
-		
+
 		CompilationUnit unit = (CompilationUnit) runConversion(AST_INTERNAL_JLS9, this.workingCopies[0], false/*no bindings*/);
 		ModuleDeclaration moduleDecl = unit.getModule();
-		
+
+		assertFalse(moduleDecl.isOpen());
 		checkSourceRange(moduleDecl, content, content);
 		List<ModuleStatement> stmts = moduleDecl.moduleStatements();
 		assertTrue(stmts.size() > 0);
-		
+
 		RequiresStatement req = (RequiresStatement) stmts.get(0);
 		checkSourceRange(req, "requires second;", content);
-		
+
 		ExportsStatement exp = (ExportsStatement) stmts.get(1);
 		checkSourceRange(exp, "exports pack11 to third, fourth;", content);
 		checkSourceRange(exp.getName(), "pack11", content);
@@ -214,7 +215,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 			CompilationUnit unit = (CompilationUnit) node;
 			ModuleDeclaration moduleDecl = unit.getModule();
-
+			assertFalse(moduleDecl.isOpen());
 			checkSourceRange(moduleDecl, content, content);
 			List<ModuleStatement> stmts = moduleDecl.moduleStatements();
 			assertTrue(stmts.size() > 0);

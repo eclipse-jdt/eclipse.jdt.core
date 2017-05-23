@@ -3302,7 +3302,8 @@ class ASTConverter {
 		ModuleDeclaration moduleDecl = this.ast.newModuleDeclaration();
 		// TODO
 		//convert(moduleDeclaration.javadoc, moduleDecl);
-		setModifiers(moduleDecl, moduleDeclaration);
+		setAnnotations(moduleDecl, moduleDeclaration); // only annotations
+		moduleDecl.setOpen(moduleDeclaration.isOpen());
 		Name moduleName = getName(moduleDeclaration, CharOperation.splitOn('.', moduleDeclaration.moduleName), moduleDeclaration.sourcePositions);
 		moduleDecl.setName(moduleName);
 		moduleDecl.setSourceRange(moduleDeclaration.declarationSourceStart, moduleDeclaration.declarationSourceEnd - moduleDeclaration.declarationSourceStart + 1);
@@ -5287,9 +5288,9 @@ class ASTConverter {
 		}
 	}
 
-	protected void setModifiers(ModuleDeclaration moduleDecl, org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration) {
+	protected void setAnnotations(ModuleDeclaration moduleDecl, org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration) {
 		this.scanner.resetTo(moduleDeclaration.declarationSourceStart, moduleDeclaration.sourceStart);
-		this.setModifiers(moduleDecl.modifiers(), moduleDeclaration.annotations, moduleDeclaration.sourceStart);
+		this.setModifiers(moduleDecl.annotations(), moduleDeclaration.annotations, moduleDeclaration.sourceStart);
 	}
 	/**
 	 * @param variableDecl
