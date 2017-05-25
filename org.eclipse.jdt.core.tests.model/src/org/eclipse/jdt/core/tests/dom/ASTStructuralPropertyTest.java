@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2016 IBM Corporation and others.
+ * Copyright (c) 2004, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -373,7 +373,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 				// oops - guess that's not valid
 			}
 		}
-		assertEquals("Wrong last known type", 98, hi); // last known one
+		assertEquals("Wrong last known type", 99, hi); // last known one
 		assertEquals("Wrong number of distinct types",  hi, classes.size()); // all classes are distinct
 	}
 }

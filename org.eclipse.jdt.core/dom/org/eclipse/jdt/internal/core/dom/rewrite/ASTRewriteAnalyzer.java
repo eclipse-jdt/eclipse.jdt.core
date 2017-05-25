@@ -2163,7 +2163,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		rewriteModifiers2(node, RequiresStatement.MODIFIERS_PROPERTY, getPosAfterToken(node.getStartPosition(), TerminalTokens.TokenNamerequires));
+		int pos = getPosAfterToken(node.getStartPosition(), TerminalTokens.TokenNamerequires);
+		rewriteNodeList(node, RequiresStatement.MODIFIERS_PROPERTY, pos, String.valueOf(' '), String.valueOf(' '), String.valueOf(' '));
 		rewriteRequiredNode(node, RequiresStatement.NAME_PROPERTY);
 		return false;
 	}
@@ -4235,6 +4236,18 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 		String newText= getNewValue(node, Modifier.KEYWORD_PROPERTY).toString(); // type Modifier.ModifierKeyword
 		TextEditGroup group = getEditGroup(node, Modifier.KEYWORD_PROPERTY);
+		doTextReplace(node.getStartPosition(), node.getLength(), newText, group);
+		return false;
+	}
+	/* (non-Javadoc)
+	 * @see org.eclipse.jdt.core.dom.ASTVisitor#visit(org.eclipse.jdt.core.dom.ModuleModifier)
+	 */
+	public boolean visit(ModuleModifier node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		String newText= getNewValue(node, ModuleModifier.KEYWORD_PROPERTY).toString(); // type ModuleModifier.ModuleModifierKeyword
+		TextEditGroup group = getEditGroup(node, ModuleModifier.KEYWORD_PROPERTY);
 		doTextReplace(node.getStartPosition(), node.getLength(), newText, group);
 		return false;
 	}

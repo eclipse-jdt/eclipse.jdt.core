@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
+import org.eclipse.jdt.core.dom.ModuleModifier.ModuleModifierKeyword;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
@@ -3332,9 +3333,8 @@ class ASTConverter {
 			Name name = getName(moduleRef, CharOperation.splitOn('.', moduleRef.moduleName), moduleRef.sourcePositions);
 			stmt.setName(name);
 
-			addModifierToRequires(req, req.isTransitive(), Modifier.ModifierKeyword.TRANSIENT_KEYWORD, stmt);
-			addModifierToRequires(req, req.isStatic(), Modifier.ModifierKeyword.STATIC_KEYWORD, stmt);
-			stmt.setSourceRange(req.declarationSourceStart, req.declarationEnd - req.declarationSourceStart + 1);			
+			setModuleModifiers(req, stmt);
+			stmt.setSourceRange(req.declarationSourceStart, req.declarationEnd - req.declarationSourceStart + 1);
 			tSet.add(stmt);
 		}
 		for (int i = 0; i < moduleDeclaration.usesCount; ++i) {
@@ -3366,12 +3366,32 @@ class ASTConverter {
 		return moduleDecl;
 	}
 
-	private void addModifierToRequires(org.eclipse.jdt.internal.compiler.ast.RequiresStatement req, boolean flag, Modifier.ModifierKeyword keyword,
-			RequiresStatement stmt) {
-		if (flag) {
-			Modifier modifier = createModifier(keyword);
-			modifier.setSourceRange(req.modifiersSourceStart, keyword.toString().length());
-			stmt.modifiers().add(modifier);
+	private void setModuleModifiers(org.eclipse.jdt.internal.compiler.ast.RequiresStatement req,	RequiresStatement stmt) {
+		boolean fakeInModule = this.scanner.fakeInModule;
+		this.scanner.fakeInModule = true;
+		this.scanner.resetTo(req.declarationSourceStart, req.sourceEnd);
+		try {
+			int token;
+			ModuleModifier modifier;
+			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
+				switch(token) {
+					case TerminalTokens.TokenNamestatic:
+						modifier = createModuleModifier(ModuleModifier.ModuleModifierKeyword.STATIC_KEYWORD);
+						break;
+					case TerminalTokens.TokenNametransitive:
+						modifier = createModuleModifier(ModuleModifier.ModuleModifierKeyword.TRANSITIVE_KEYWORD);
+						break;
+					default :
+						continue;
+				}
+				if (modifier != null) {
+					stmt.modifiers().add(modifier);
+				}
+			}
+		} catch(InvalidInputException e) {
+			// ignore
+		} finally {
+			this.scanner.fakeInModule = fakeInModule;
 		}
 	}
 
@@ -4191,6 +4211,18 @@ class ASTConverter {
 	 */
 	private Modifier createModifier(ModifierKeyword keyword) {
 		final Modifier modifier = new Modifier(this.ast);
+		modifier.setKeyword(keyword);
+		int start = this.scanner.getCurrentTokenStartPosition();
+		int end = this.scanner.getCurrentTokenEndPosition();
+		modifier.setSourceRange(start, end - start + 1);
+		return modifier;
+	}
+
+	/**
+	 * @return a new module modifier
+	 */
+	private ModuleModifier createModuleModifier(ModuleModifierKeyword keyword) {
+		final ModuleModifier modifier = new ModuleModifier(this.ast);
 		modifier.setKeyword(keyword);
 		int start = this.scanner.getCurrentTokenStartPosition();
 		int end = this.scanner.getCurrentTokenEndPosition();

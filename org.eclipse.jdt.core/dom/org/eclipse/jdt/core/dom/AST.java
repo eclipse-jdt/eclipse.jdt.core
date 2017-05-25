@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1876,6 +1876,23 @@ public final class AST {
 	 */
 	public Modifier newModifier(Modifier.ModifierKeyword keyword) {
 		Modifier result = new Modifier(this);
+		result.setKeyword(keyword);
+		return result;
+	}
+
+	/**
+	 * Creates and returns a new unparented module modifier node for the given
+	 * module modifier.
+	 *
+	 * @param keyword one of the module modifier keyword constants
+	 * @return a new unparented module modifier node
+	 * @exception IllegalArgumentException if the primitive type code is invalid
+	 * @exception UnsupportedOperationException if this operation is used in
+	 * an AST less than 9
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public ModuleModifier newModuleModifier(ModuleModifier.ModuleModifierKeyword keyword) {
+		ModuleModifier result = new ModuleModifier(this);
 		result.setKeyword(keyword);
 		return result;
 	}

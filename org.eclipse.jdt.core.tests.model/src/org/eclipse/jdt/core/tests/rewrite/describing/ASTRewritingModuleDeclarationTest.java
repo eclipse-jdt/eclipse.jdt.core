@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.*;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
+import org.eclipse.jdt.core.dom.ModuleModifier.ModuleModifierKeyword;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -221,34 +221,34 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			ListRewrite listRewrite = rewrite.getListRewrite(moduleDecl, ModuleDeclaration.MODULE_STATEMENTS_PROPERTY);
 			{
 				RequiresStatement reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(0);
-				ASTNode newModifier = ast.newModifier(ModifierKeyword.STATIC_KEYWORD);
+				ASTNode newModifier = ast.newModuleModifier(ModuleModifierKeyword.STATIC_KEYWORD);
 				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).insertFirst(newModifier, null);
 
 				reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(1);
 				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).remove((ASTNode) reqNode.modifiers().get(0), null);
 
 				reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(2);
-				newModifier = ast.newModifier(ModifierKeyword.TRANSIENT_KEYWORD);
+				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
 				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).replace((ASTNode) reqNode.modifiers().get(0), newModifier, null);
 
 				reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(3);
-				newModifier = ast.newModifier(ModifierKeyword.TRANSIENT_KEYWORD);
+				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
 				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).insertLast(newModifier, null);
 
 				RequiresStatement newNode = ast.newRequiresStatement(); // add a new required
 				newNode.setName(ast.newSimpleName("addedme"));
-				newModifier = ast.newModifier(ModifierKeyword.TRANSIENT_KEYWORD);
+				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
 				rewrite.getListRewrite(newNode, RequiresStatement.MODIFIERS_PROPERTY).insertFirst(newModifier, null);
 				listRewrite.insertLast(newNode, null);
 			}
 			String preview= evaluateRewrite(cu, rewrite);
 			buf= new StringBuffer();
 			buf.append("module first {\n");
-			buf.append("    requires static existing;\n");
+			buf.append("    requires static  existing;\n");
 			buf.append("    requires module1;\n");
-			buf.append("    requires transient module2;\n");
-			buf.append("    requires static transient module3;\n");
-			buf.append("    requires transient addedme;\n");
+			buf.append("    requires transitive module2;\n");
+			buf.append("    requires static transitive module3;\n");
+			buf.append("    requires transitive addedme;\n");
 		buf.append("}");
 			assertEqualString(preview, buf.toString());
 		} finally {
@@ -300,6 +300,70 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			buf.append("module first {\n");
 			buf.append("    requires existing;\n");
 			buf.append("}");
+			assertEqualString(preview, buf.toString());
+		} finally {
+			if (javaProject != null) deleteProject(javaProject);
+		}
+	}
+	public void testBug516731_0003_since_9() throws Exception {
+		IJavaProject javaProject = null;
+		try {
+			javaProject = createProject("P_9", JavaCore.VERSION_9);
+			IPackageFragmentRoot currentSourceFolder = getPackageFragmentRoot("P_9", "src");
+			IPackageFragment pack1= currentSourceFolder.getPackageFragment(Util.EMPTY_STRING);
+			StringBuffer buf= new StringBuffer();
+			buf.append("module first {\n");
+			buf.append("    requires existing;\n");
+			buf.append("    requires static module1;\n");
+			buf.append("    requires static module2;\n");
+			buf.append("    requires static module3;\n");
+			buf.append("    requires static module4;\n");
+			buf.append("}");
+			ICompilationUnit cu= pack1.createCompilationUnit("module-info.java", buf.toString(), false, null);
+			CompilationUnit astRoot= createAST(cu);
+			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+			AST ast= astRoot.getAST();
+			ModuleDeclaration moduleDecl = astRoot.getModule();
+			ListRewrite listRewrite = rewrite.getListRewrite(moduleDecl, ModuleDeclaration.MODULE_STATEMENTS_PROPERTY);
+			{
+				int count = 0;
+				RequiresStatement reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(count++);
+				ASTNode newModifier = ast.newModuleModifier(ModuleModifierKeyword.STATIC_KEYWORD);
+				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).insertFirst(newModifier, null);
+				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
+				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).insertLast(newModifier, null);
+
+				reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(count++);
+				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).remove((ASTNode) reqNode.modifiers().get(0), null);
+
+				reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(count++);
+				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
+				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).replace((ASTNode) reqNode.modifiers().get(0), newModifier, null);
+
+				reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(count++);
+				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
+				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).insertLast(newModifier, null);
+
+				reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(count++);
+				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
+				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).insertFirst(newModifier, null);
+
+				RequiresStatement newNode = ast.newRequiresStatement(); // add a new required
+				newNode.setName(ast.newSimpleName("addedme"));
+				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
+				rewrite.getListRewrite(newNode, RequiresStatement.MODIFIERS_PROPERTY).insertFirst(newModifier, null);
+				listRewrite.insertLast(newNode, null);
+			}
+			String preview= evaluateRewrite(cu, rewrite);
+			buf= new StringBuffer();
+			buf.append("module first {\n");
+			buf.append("    requires static  transitive  existing;\n");
+			buf.append("    requires module1;\n");
+			buf.append("    requires transitive module2;\n");
+			buf.append("    requires static transitive module3;\n");
+			buf.append("    requires transitive static module4;\n");
+			buf.append("    requires transitive addedme;\n");
+		buf.append("}");
 			assertEqualString(preview, buf.toString());
 		} finally {
 			if (javaProject != null) deleteProject(javaProject);

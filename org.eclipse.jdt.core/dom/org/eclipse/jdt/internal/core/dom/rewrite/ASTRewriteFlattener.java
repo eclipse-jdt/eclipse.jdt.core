@@ -164,6 +164,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		}
 	}
 
+
 	protected List getChildList(ASTNode parent, StructuralPropertyDescriptor childProperty) {
 		return (List) getAttribute(parent, childProperty);
 	}
@@ -931,7 +932,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	@Override
 	public boolean visit(RequiresStatement node) {
 		this.result.append("requires "); //$NON-NLS-1$
-		visitList(node, RequiresStatement.MODIFIERS_PROPERTY, Util.EMPTY_STRING, Util.EMPTY_STRING, String.valueOf(' '));
+		visitList(node, RequiresStatement.MODIFIERS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
 		getChildNode(node, RequiresStatement.NAME_PROPERTY).accept(this);
 		this.result.append(';');
 		return false;
@@ -1498,6 +1499,15 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 */
 	public boolean visit(Modifier node) {
 		this.result.append(getAttribute(node, Modifier.KEYWORD_PROPERTY).toString());
+		return false;
+	}
+
+	/*
+	 * @see ASTVisitor#visit(ModuleModifier)
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public boolean visit(ModuleModifier node) {
+		this.result.append(getAttribute(node, ModuleModifier.KEYWORD_PROPERTY).toString());
 		return false;
 	}
 

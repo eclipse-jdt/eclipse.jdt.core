@@ -8866,7 +8866,9 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ASTNode.REQUIRES_STATEMENT,
 			ASTNode.USES_STATEMENT,
 			ASTNode.PROVIDES_STATEMENT,
-			ASTNode.OPENS_STATEMENT
+			ASTNode.OPENS_STATEMENT,
+			ASTNode.MODULE_MODIFIER,
+
 		};
 
 		// assert that nodeType values are correct:

@@ -1250,6 +1250,15 @@ public class NaiveASTFlattener extends ASTVisitor {
 		return false;
 	}
 
+	/*
+	 * @see ASTVisitor#visit(ModuleModifier)
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public boolean visit(ModuleModifier node) {
+		this.buffer.append(node.getKeyword().toString());
+		return false;
+	}
+
 	private boolean visit(ModulePackageAccess node, String keyword) {
 		printIndent();
 		this.buffer.append(keyword);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -947,6 +947,15 @@ public abstract class ASTNode {
 	 * @since 3.13 BETA_JAVA9
 	 */
 	public static final int OPENS_STATEMENT = 98;
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>ModuleModifier</code>.
+	 * @see ModuleModifier
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int MODULE_MODIFIER = 99;
+
 	/**
 	 * Returns the node class for the corresponding node type.
 	 *
@@ -1065,6 +1074,8 @@ public abstract class ASTNode {
 				return Modifier.class;
 			case MODULE_DECLARATION :
 				return ModuleDeclaration.class;
+			case MODULE_MODIFIER :
+				return ModuleModifier.class;
 			case NAME_QUALIFIED_TYPE :
 				return NameQualifiedType.class;
 			case NORMAL_ANNOTATION :

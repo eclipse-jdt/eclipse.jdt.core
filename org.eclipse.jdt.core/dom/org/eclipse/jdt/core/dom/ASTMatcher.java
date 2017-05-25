@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1595,6 +1595,29 @@ public class ASTMatcher {
 				&& node.isOpen() == o.isOpen()
 				&& safeSubtreeMatch(node.getName(), o.getName())
 				&& safeSubtreeListMatch(node.moduleStatements(), o.moduleStatements()));
+	}
+
+	/**
+	 * Returns whether the given node and the other object match.
+	 * <p>
+	 * The default implementation provided by this class tests whether the
+	 * other object is a node of the same type with structurally isomorphic
+	 * child subtrees. Subclasses may override this method as needed.
+	 * </p>
+	 *
+	 * @param node the node
+	 * @param other the other object, or <code>null</code>
+	 * @return <code>true</code> if the subtree matches, or
+	 *   <code>false</code> if they do not match or the other object has a
+	 *   different node type or is <code>null</code>
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public boolean match(ModuleModifier node, Object other) {
+		if (!(other instanceof ModuleModifier)) {
+			return false;
+		}
+		ModuleModifier o = (ModuleModifier) other;
+		return (node.getKeyword() == o.getKeyword());
 	}
 
 	/**

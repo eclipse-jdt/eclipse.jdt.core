@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,7 @@ import java.util.List;
  * Requires statement AST node type.
  * <pre>
  * RequiresStatement:
- *     <b>requires</b> { ExtendedModifier } Name <b>;</b>
+ *     <b>requires</b> { ModuleModifier } Name <b>;</b>
  * </pre>
  *
  * @since 3.13 BETA_JAVA9
@@ -31,10 +31,10 @@ import java.util.List;
 public class RequiresStatement extends ModuleStatement {
 
 	/**
-	 * The "modifiers" structural property of this node type (element type: {@link IExtendedModifier}).
+	 * The "modifiers" structural property of this node type (element type: {@link ModuleModifier}).
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS_PROPERTY =
-		new ChildListPropertyDescriptor(RequiresStatement.class, "modifiers", IExtendedModifier.class, NO_CYCLE_RISK); //$NON-NLS-1$
+		new ChildListPropertyDescriptor(RequiresStatement.class, "modifiers", ModuleModifier.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The module structural property of this node type (child type: {@link Name}).
@@ -72,7 +72,7 @@ public class RequiresStatement extends ModuleStatement {
 	}
 
 	/**
-	 * The extended modifiers (element type: {@link IExtendedModifier}).
+	 * The extended modifiers (element type: {@link ModuleModifier}).
 	 * defaults to an empty list
 	 */
 	private ASTNode.NodeList modifiers = new ASTNode.NodeList(MODIFIERS_PROPERTY);
@@ -165,30 +165,30 @@ public class RequiresStatement extends ModuleStatement {
 	 * Note that the not all modifiers are legal.
 	 * </p>
 	 *
-	 * @return the live list of modifiers
-	 *    (element type: {@link IExtendedModifier})
+	 * @return the live list of module modifiers
+	 *    (element type: {@link ModuleModifier})
 	 */
 	public List modifiers() {
 		return this.modifiers;
 	}
 
 	/**
-	 * Returns the modifiers explicitly specified on this declaration.
+	 * Returns the module modifiers explicitly specified on this declaration.
 	 * <p>
 	 * this method is a convenience method that
 	 * computes these flags from <code>modifiers()</code>.
 	 * </p>
 	 *
-	 * @return the bit-wise or of <code>Modifier</code> constants
-	 * @see Modifier
+	 * @return the bit-wise or of <code>ModuleModifier</code> constants
+	 * @see ModuleModifier
 	 */
 	public int getModifiers() {
 		// do not cache - performance could be improved by caching computed flags
 		// but this would require tracking changes to this.modifiers
-		int computedModifierFlags = Modifier.NONE;
+		int computedModifierFlags = ModuleModifier.NONE;
 		for (Iterator it = modifiers().iterator(); it.hasNext(); ) {
 			Object x = it.next();
-			if (x instanceof Modifier) {
+			if (x instanceof ModuleModifier) {
 				computedModifierFlags |= ((Modifier) x).getKeyword().toFlagValue();
 			}
 		}
