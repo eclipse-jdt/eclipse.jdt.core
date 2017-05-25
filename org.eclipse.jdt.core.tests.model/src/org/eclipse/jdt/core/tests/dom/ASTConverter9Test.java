@@ -283,5 +283,49 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			deleteProject("Bug514417");
 		}
 	}
+	public void testBug516785_0001_since_9() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		String content =  "open module first {"
+				+ "  requires one;\n"
+				+ "  requires static two;\n"
+				+ "  requires transitive three;\n"
+				+ "  requires static transitive four;\n"
+				+ "  requires transitive static five;\n"
+				+ "}";
+		this.workingCopies[0] = getWorkingCopy(
+				"/Converter9/src/module-info.java", content);
+		
+		CompilationUnit unit = (CompilationUnit) runConversion(AST_INTERNAL_JLS9, this.workingCopies[0], false/*no bindings*/);
+		ModuleDeclaration moduleDecl = unit.getModule();
+		
+		assertTrue(moduleDecl.isOpen());
+		checkSourceRange(moduleDecl, content, content);
+		List<ModuleStatement> stmts = moduleDecl.moduleStatements();
+		assertTrue(stmts.size() > 0);
+		
+		int count = 0;
+		RequiresStatement req = (RequiresStatement) stmts.get(count++);
+		checkSourceRange(req, "requires one;", content);
+
+		req = (RequiresStatement) stmts.get(count++);
+		checkSourceRange(req, "requires static two;", content);
+		checkSourceRange((ASTNode) req.modifiers().get(0), "static", content);
+
+		req = (RequiresStatement) stmts.get(count++);
+		checkSourceRange(req, "requires transitive three;", content);
+		checkSourceRange((ASTNode) req.modifiers().get(0), "transitive", content);
+
+		req = (RequiresStatement) stmts.get(count++);
+		checkSourceRange(req, "requires static transitive four;", content);
+		checkSourceRange((ASTNode) req.modifiers().get(0), "static", content);
+		checkSourceRange((ASTNode) req.modifiers().get(1), "transitive", content);
+
+		req = (RequiresStatement) stmts.get(count++);
+		checkSourceRange(req, "requires transitive static five;", content);
+		checkSourceRange((ASTNode) req.modifiers().get(0), "transitive", content);
+		checkSourceRange((ASTNode) req.modifiers().get(1), "static", content);
+	}
+
+
 // Add new tests here 
 }
