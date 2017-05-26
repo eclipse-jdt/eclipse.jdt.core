@@ -43,6 +43,7 @@ import org.eclipse.jdt.internal.compiler.ast.Literal;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
+import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
@@ -233,6 +234,8 @@ class DefaultBindingResolver extends BindingResolver {
 				return new TypeBinding(this, (org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
 			case Binding.METHOD:
 				return getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding) binding);
+			case Binding.MODULE:
+				return getModuleBinding((org.eclipse.jdt.internal.compiler.lookup.ModuleBinding) binding);
 			case Binding.FIELD:
 			case Binding.LOCAL:
 				return getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) binding);
@@ -300,6 +303,20 @@ class DefaultBindingResolver extends BindingResolver {
 		return binding;
 	}
 
+	/**
+	 * @see org.eclipse.jdt.core.dom.BindingResolver#getModuleBinding(org.eclipse.jdt.internal.compiler.lookup.ModuleBinding)
+	 */
+	synchronized IModuleBinding getModuleBinding(org.eclipse.jdt.internal.compiler.lookup.ModuleBinding moduleBinding) {
+		if (moduleBinding != null) {
+			IModuleBinding binding = (IModuleBinding) this.bindingTables.compilerBindingsToASTBindings.get(moduleBinding);
+			if (binding == null) {
+				binding = new ModuleBinding(this, moduleBinding);
+				this.bindingTables.compilerBindingsToASTBindings.put(moduleBinding, binding);
+			}
+			return binding;
+		}
+		return null;
+	}
 	/*
 	 * Method declared on BindingResolver.
 	 */
@@ -1432,6 +1449,18 @@ class DefaultBindingResolver extends BindingResolver {
 			if (methodBinding != null) {
 				return methodBinding;
 			}
+		} else if (node instanceof ModuleReference) {
+			ModuleReference moduleReference = (ModuleReference) node;
+			IModuleBinding moduleBinding = getModuleBinding(moduleReference.binding);
+			if (moduleBinding != null) {
+				return moduleBinding;
+			}
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration) {
+			org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration = (org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration) node;
+			IModuleBinding moduleBinding = getModuleBinding(moduleDeclaration.moduleBinding);
+			if (moduleBinding != null) {
+				return moduleBinding;
+			}
 		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
 			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
 			ITypeBinding typeBinding = this.getTypeBinding(typeDeclaration.binding);
@@ -1593,6 +1622,30 @@ class DefaultBindingResolver extends BindingResolver {
 		if (valuePair != null) {
 			return getMemberValuePairBinding(valuePair.compilerElementPair);
 		}
+		return null;
+	}
+
+	/**
+	 * @see BindingResolver#resolveModule(ModuleDeclaration)
+	 * @since 3.13 BETA_JAVA9	
+	 */
+	@Override
+	IModuleBinding resolveModule(ModuleDeclaration module) {
+		Object oldNode = this.newAstToOldAst.get(module);
+		if (oldNode instanceof org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration) {
+			org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration = (org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration) oldNode;
+			IModuleBinding moduleBinding = getModuleBinding(moduleDeclaration.moduleBinding);
+			if (moduleBinding == null) {
+				return null;
+			}
+			this.bindingsToAstNodes.put(moduleBinding, module);
+			String key = moduleBinding.getKey();
+			if (key != null) {
+				this.bindingTables.bindingKeysToBindings.put(key, moduleBinding);
+			}
+			return moduleBinding;
+		}
+
 		return null;
 	}
 

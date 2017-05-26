@@ -350,6 +350,10 @@ public class ModuleBinding extends Binding {
 				dep -> dep.isPackageExportedTo(pkg, ModuleBinding.this)
 		);
 	}
+	@Override
+	public char[] computeUniqueKey(boolean isLeaf) {
+		return this.moduleName; // for now just return the module name - tied to Signature if any.
+	}
 	public boolean dependsOn(ModuleBinding other) {
  		if (other == this)
  			return true;

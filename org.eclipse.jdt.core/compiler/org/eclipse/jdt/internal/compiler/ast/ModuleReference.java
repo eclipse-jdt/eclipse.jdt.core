@@ -23,7 +23,7 @@ public class ModuleReference extends ASTNode {
 	public char[][] tokens;
 	public long[] sourcePositions; //each entry is using the code : (start<<32) + end
 	public char[] moduleName;
-	ModuleBinding binding = null;
+	public ModuleBinding binding = null;
 
 	public ModuleReference(char[][] tokens, long[] sourcePositions) {
 		this.tokens = tokens;
@@ -32,7 +32,7 @@ public class ModuleReference extends ASTNode {
 		this.sourceStart = (int) (sourcePositions[0] >>> 32);
 		this.moduleName = CharOperation.concatWith(tokens, '.');
 	}
-	
+
 	@Override
 	public StringBuffer print(int indent, StringBuffer output) {
 		for (int i = 0; i < this.tokens.length; i++) {

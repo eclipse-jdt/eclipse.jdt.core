@@ -339,6 +339,20 @@ public class ModuleDeclaration extends ASTNode {
 		return this.moduleStatements;
 	}
 
+	/**
+	 * Resolves and returns the binding for the module
+	 * <p>
+	 * Note that bindings are generally unavailable unless requested when the
+	 * AST is being built.
+	 * </p>
+	 *
+	 * @return the binding, or <code>null</code> if the binding cannot be
+	 *    resolved
+	 */
+	public IModuleBinding resolveBinding() {
+		return this.ast.getBindingResolver().resolveModule(this);
+	}
+
 	@Override
 	int memSize() {
 		return BASE_NODE_SIZE + 5 * 4;

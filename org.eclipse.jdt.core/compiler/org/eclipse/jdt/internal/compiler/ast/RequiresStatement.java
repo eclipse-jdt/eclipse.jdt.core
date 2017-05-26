@@ -37,6 +37,7 @@ public class RequiresStatement extends ModuleStatement {
 	}
 	@Override
 	public StringBuffer print(int indent, StringBuffer output) {
+		output.append("requires "); //$NON-NLS-1$
 		if (isTransitive())
 			output.append("transitive "); //$NON-NLS-1$
 		if (isStatic())

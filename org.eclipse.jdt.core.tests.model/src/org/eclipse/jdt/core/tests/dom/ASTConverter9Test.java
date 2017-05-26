@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.dom.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
+import org.eclipse.jdt.internal.core.SourceModule;
 
 import java.util.List;
 
@@ -50,7 +51,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 	static {
 //		TESTS_NUMBERS = new int[] { 19 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] {"testBug512023_0001"};
+//		TESTS_NAMES = new String[] {"testBug515875_003"};
 	}
 	public static Test suite() {
 		String javaVersion = System.getProperty("java.version");
@@ -243,6 +244,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			deleteProject("ConverterTests9");
 		}
 	}
+
 	public void testBug514417() throws CoreException {
 		if (!isJRE9) return;
 		try {
@@ -324,6 +326,189 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		checkSourceRange(req, "requires transitive static five;", content);
 		checkSourceRange((ASTNode) req.modifiers().get(0), "transitive", content);
 		checkSourceRange((ASTNode) req.modifiers().get(1), "static", content);
+	}
+
+	public void testBug515875_001() throws Exception {
+		try {
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String content = 
+				"module first {\n" +
+				"    requires transitive static second.third;\n" +
+				"    exports pack1.X11 to org.eclipse.jdt;\n" +
+				"}";
+			createFile("/ConverterTests9/src/module-info.java",	content);
+			createFolder("/ConverterTests9/src/pack1");
+			createFile("/ConverterTests9/src/pack1/X11.java",
+					"package pack1;\n" +
+					"public class X11 {}\n");
+			this.workingCopy = getWorkingCopy("/ConverterTests9/src/module-info.java", true);
+			ASTNode node = buildAST(content, this.workingCopy, false);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+			CompilationUnit unit = (CompilationUnit) node;
+			ModuleDeclaration moduleDecl = unit.getModule();
+			checkSourceRange(moduleDecl, content, content);
+
+			ModuleBinding moduleBinding = (ModuleBinding) moduleDecl.resolveBinding();
+			assertTrue("Module Binding null", moduleBinding != null);
+			String name = moduleBinding.getName();
+			assertTrue("Module Name null", name != null);
+			assertTrue("Wrong Module Name", name.equals("first"));
+
+			IJavaElement element = moduleBinding.getJavaElement();
+			assertNotNull("Module Java Element Null", element);
+			assertTrue(element instanceof SourceModule);
+			SourceModule sModule = (SourceModule) element;
+			assertTrue("Source module name incorrect", sModule.getElementName().equals("first"));
+
+			String key = moduleBinding.getKey();
+			assertTrue("Unique Key incorrecct", key.equals("first"));
+
+		} finally {
+			deleteProject("ConverterTests9");
+		}
+	}
+
+	public void testBug515875_002() throws Exception {
+		try {
+
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String fileContent = 
+				"module first {\n" +
+				"    requires second;\n" +
+				"    provides pack22.I22 with pack1.X11;\n" +
+				"}";
+			createFile("/ConverterTests9/src/module-info.java",	fileContent);
+			createFolder("/ConverterTests9/src/pack1");
+			createFile("/ConverterTests9/src/pack1/X11.java",
+					"package pack1;\n" +
+					"public class X11 implements pack22.I22{}\n");
+
+			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project2.open(null);
+			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String secondFile = 
+					"module second {\n" +
+					"    exports pack22 to first;\n" +
+					"}";
+			createFile("/second/src/module-info.java",	secondFile);
+			createFolder("/second/src/pack22");
+			createFile("/second/src/pack22/I22.java",
+					"package pack22;\n" +
+					"public interface I22 {}\n");
+
+			addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+			project1.close(); // sync
+			project2.close();
+			project2.open(null);
+			project1.open(null);
+
+			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "", "module-info.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode unit1 = runConversion(AST_INTERNAL_JLS9, sourceUnit1, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
+			ModuleDeclaration moduleDecl1 = ((CompilationUnit) unit1).getModule();
+			checkSourceRange(moduleDecl1, fileContent, fileContent);
+
+			ModuleBinding moduleBinding = (ModuleBinding) moduleDecl1.resolveBinding();
+			assertTrue("Module Binding null", moduleBinding != null);
+			String name = moduleBinding.getName();
+			assertTrue("Module Name null", name != null);
+			assertTrue("Wrong Module Name", name.equals("first"));
+			
+			Name modName1 = moduleDecl1.getName();
+			IBinding binding = modName1.resolveBinding();
+			assertTrue("binding not a module binding", binding instanceof ModuleBinding);
+			moduleBinding = (ModuleBinding) binding;
+			assertTrue("Module Binding null", moduleBinding != null);
+			name = moduleBinding.getName();
+			assertTrue("Module Name null", name != null);
+			assertTrue("Wrong Module Name", name.equals("first"));
+
+			IModuleBinding[] reqs = moduleBinding.getRequiredModules();
+			assertTrue("Null requires", reqs != null);
+			assertTrue("incorrect number of requires modules", reqs.length == 1);
+			ModuleBinding req11 = (ModuleBinding) reqs[0];
+			assertTrue("incorrect name for requires modules", req11.getName().equals("second"));
+
+			IPackageBinding[] secPacks = req11.getExportedPackages();
+			assertTrue("Packages Exported in second module null", secPacks != null);
+			assertTrue("Incorrect number of exported packages in second module", secPacks.length == 1);
+			IPackageBinding pack22 = secPacks[0];
+			assertTrue("Incorrect Package", pack22.getName().equals("pack22"));
+
+/*			ITypeBinding[] services = moduleBinding.getServices();
+			assertTrue("services null", services != null);
+			assertTrue("Incorrect number of services", services.length == 1);
+			assertTrue("Incorrect service", services[0].getName().equals("pack22.I22"));
+
+			ITypeBinding[] implementations = moduleBinding.getImplementations();
+			assertTrue("implementations null", implementations != null);
+			assertTrue("Incorrect number of implementations", implementations.length == 1);
+			assertTrue("Incorrect implementation", implementations[0].getName().equals("pack1.X11"));
+*/		}
+		finally {
+			deleteProject("ConverterTests9");
+			deleteProject("second");
+		}
+	}
+
+	public void testBug515875_003() throws Exception {
+		try {
+
+			IJavaProject project1 = createJavaProject("ConverterTests9", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project1.open(null);
+			addClasspathEntry(project1, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String fileContent = 
+				"module first {\n" +
+				"    requires second;\n" +
+				"    provides pack22.I22 with pack1.X11;\n" +
+				"}";
+			createFile("/ConverterTests9/src/module-info.java",	fileContent);
+			createFolder("/ConverterTests9/src/pack1");
+			createFile("/ConverterTests9/src/pack1/X11.java",
+					"package pack1;\n" +
+					"public class X11 implements pack22.I22{}\n");
+
+			IJavaProject project2 = createJavaProject("second", new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "9");
+			project2.open(null);
+			addClasspathEntry(project2, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
+			String secondFile = 
+					"module second {\n" +
+					"    exports pack22 to first;\n" +
+					"}";
+			createFile("/second/src/module-info.java",	secondFile);
+			createFolder("/second/src/pack22");
+			createFile("/second/src/pack22/I22.java",
+					"package pack22;\n" +
+					"public interface I22 {}\n");
+
+			addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+			project1.close(); // sync
+			project2.close();
+			project2.open(null);
+			project1.open(null);
+
+			ICompilationUnit sourceUnit1 = getCompilationUnit("ConverterTests9" , "src", "", "module-info.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+			ASTNode unit1 = runConversion(AST_INTERNAL_JLS9, sourceUnit1, true);
+			assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, unit1.getNodeType());
+			ModuleDeclaration moduleDecl1 = ((CompilationUnit) unit1).getModule();
+			checkSourceRange(moduleDecl1, fileContent, fileContent);
+
+			RequiresStatement req = (RequiresStatement) moduleDecl1.moduleStatements().get(0);
+			Name reqModule = req.getName();
+			ModuleBinding moduleBinding = (ModuleBinding) reqModule.resolveBinding();
+			assertTrue("Module Binding null", moduleBinding != null);
+			String name = moduleBinding.getName();
+			assertTrue("Module Name null", name != null);
+			assertTrue("Wrong Module Name", name.equals("second"));
+		}
+		finally {
+			deleteProject("ConverterTests9");
+			deleteProject("second");
+		}
 	}
 
 

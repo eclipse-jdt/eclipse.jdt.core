@@ -1714,12 +1714,17 @@ class ASTConverter {
 		if (pvsStmt.targets != null && pvsStmt.targets.length > 0) {
 			List<Name> modules = stmt.modules();
 			for (ModuleReference moduleRef : pvsStmt.getTargetedModules()) {
-				modules.add(getName(moduleRef, CharOperation.splitOn('.', moduleRef.moduleName), moduleRef.sourcePositions));
+				Name target = getName(moduleRef, CharOperation.splitOn('.', moduleRef.moduleName), moduleRef.sourcePositions);
+				modules.add(target);
 				if (tmp < moduleRef.sourceEnd) tmp = moduleRef.sourceEnd;
+				if (this.resolveBindings) {
+					this.recordNodes(target, moduleRef);
+				}
+
 			}
 		}
 		if (tmp > sourceEnd) sourceEnd = tmp;
-		stmt.setSourceRange(pvsStmt.declarationSourceStart, sourceEnd - pvsStmt.declarationSourceStart + 1);			
+		stmt.setSourceRange(pvsStmt.declarationSourceStart, sourceEnd - pvsStmt.declarationSourceStart + 1);
 		return stmt;
 	}
 
@@ -3309,9 +3314,6 @@ class ASTConverter {
 		moduleDecl.setName(moduleName);
 		moduleDecl.setSourceRange(moduleDeclaration.declarationSourceStart, moduleDeclaration.declarationSourceEnd - moduleDeclaration.declarationSourceStart + 1);
 
-		if (this.resolveBindings) {
-			this.recordNodes(moduleDecl, moduleDeclaration);
-		}
 		List<ModuleStatement> stmts = moduleDecl.moduleStatements();
 		TreeSet<ModuleStatement> tSet = new TreeSet<> (new Comparator() {
 			public int compare(Object o1, Object o2) {
@@ -3332,6 +3334,9 @@ class ASTConverter {
 			RequiresStatement stmt = new RequiresStatement(this.ast);
 			Name name = getName(moduleRef, CharOperation.splitOn('.', moduleRef.moduleName), moduleRef.sourcePositions);
 			stmt.setName(name);
+			if (this.resolveBindings) {
+				recordNodes(name, moduleRef);
+			}
 
 			setModuleModifiers(req, stmt);
 			stmt.setSourceRange(req.declarationSourceStart, req.declarationEnd - req.declarationSourceStart + 1);
@@ -3353,7 +3358,7 @@ class ASTConverter {
 			for (TypeReference impl : impls) {
 				stmt.implementations().add(convertType(impl));
 			}
-			stmt.setSourceRange(pStmt.declarationSourceStart, pStmt.declarationSourceEnd - pStmt.declarationSourceStart + 1);			
+			stmt.setSourceRange(pStmt.declarationSourceStart, pStmt.declarationSourceEnd - pStmt.declarationSourceStart + 1);
 			tSet.add(stmt);
 		}
 		// The javadoc comment is now got from 	list store in compilation unit declaration
