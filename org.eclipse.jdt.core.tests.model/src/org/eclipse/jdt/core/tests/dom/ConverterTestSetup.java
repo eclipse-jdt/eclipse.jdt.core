@@ -429,7 +429,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		}
 
 		public void endVisit(ModuleDeclaration node) {
-//			assertNotNull(node+" should have a binding", node.resolveBinding());//TODO: enable after bug 515875 enables module binding
+			assertNotNull(node+" should have a binding", node.resolveBinding());
 			super.endVisit(node);
 		}
 		public void endVisit(MethodRef node) {

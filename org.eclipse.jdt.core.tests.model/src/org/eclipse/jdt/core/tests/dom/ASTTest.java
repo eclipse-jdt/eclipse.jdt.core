@@ -6487,7 +6487,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				return true;
 			}
 			public boolean visit(ModuleDeclaration node) {
-//				assertTrue(node.resolveBinding() == null);//TODO: enable after bug 515875 enables module binding
+				assertTrue(node.resolveBinding() == null);
 				return true;
 			}
 			public boolean visit(TypeDeclaration node) {

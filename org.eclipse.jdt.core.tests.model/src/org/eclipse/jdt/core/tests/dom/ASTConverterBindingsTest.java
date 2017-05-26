@@ -47,6 +47,7 @@ import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
+import org.eclipse.jdt.core.dom.IModuleBinding;
 import org.eclipse.jdt.core.dom.IPackageBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
@@ -288,8 +289,8 @@ public class ASTConverterBindingsTest extends ConverterTestSetup {
 		 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(ModuleDeclaration)
 		 */
 		public void endVisit(ModuleDeclaration node) {
-/*			IModuleBinding moduleBinding = node.resolveBinding(); //TODO: enable after bug 515875 enables module binding
-			collectBindings(node, moduleBinding);*/
+			IModuleBinding moduleBinding = node.resolveBinding();
+			collectBindings(node, moduleBinding);
 		}
 
 		/**

@@ -234,8 +234,8 @@ class BindingsCollectorVisitor extends ASTVisitor {
 	 * @see org.eclipse.jdt.core.dom.ASTVisitor#endVisit(ModuleDeclaration)
 	 */
 	public void endVisit(ModuleDeclaration node) {
-/*		IModuleBinding moduleBinding = node.resolveBinding();//TODO: enable after bug 515875 enables module binding
-		collectBindings(node, moduleBinding);*/
+		IModuleBinding moduleBinding = node.resolveBinding();
+		collectBindings(node, moduleBinding);
 	}
 
 	/**

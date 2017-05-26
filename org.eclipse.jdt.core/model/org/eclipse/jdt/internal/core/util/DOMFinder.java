@@ -161,7 +161,7 @@ public class DOMFinder extends ASTVisitor {
 
 	public boolean visit(ModuleDeclaration node) {
 		if (found(node, node.getName()) && this.resolveBinding) {
-			// this.foundBinding = node.resolveBinding(); TODO: Enable after bug 515875 enables module binding
+			this.foundBinding = node.resolveBinding();
 		}
 		return true;
 	}

@@ -136,11 +136,11 @@ class AnnotationBinding implements IAnnotationBinding {
 				if (methodBinding == null) return null;
 				parentElement = methodBinding.getJavaElement();
 			break;
-/*		case ASTNode.MODULE_DECLARATION:  TODO: Enable after bug 515875 enables module binding
+		case ASTNode.MODULE_DECLARATION:
 			IModuleBinding moduleBinding = ((ModuleDeclaration) parent).resolveBinding();
 			if (moduleBinding == null) return null;
 			parentElement = moduleBinding.getJavaElement();
-		break;*/
+		break;
 		case ASTNode.VARIABLE_DECLARATION_STATEMENT:
 			fragment = (VariableDeclarationFragment) ((VariableDeclarationStatement) parent).fragments().get(0);
 			variableBinding = fragment.resolveBinding();
