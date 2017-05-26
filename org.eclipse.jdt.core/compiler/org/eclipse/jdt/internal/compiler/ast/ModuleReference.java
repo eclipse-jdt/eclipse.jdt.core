@@ -43,9 +43,8 @@ public class ModuleReference extends ASTNode {
 	}
 
 	public ModuleBinding resolve(Scope scope) {
-		if (scope != null && (this.binding = scope.environment().getModule(this.moduleName)) == null) {
-			scope.problemReporter().invalidModule(this);
-		}
-		return this.binding;
+		if (scope == null || this.binding != null)
+			return this.binding;
+		return this.binding = scope.environment().getModule(this.moduleName);
 	}
 }

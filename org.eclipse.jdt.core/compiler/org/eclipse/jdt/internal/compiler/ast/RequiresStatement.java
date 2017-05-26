@@ -47,7 +47,12 @@ public class RequiresStatement extends ModuleStatement {
 	public ModuleBinding resolve(Scope scope) {
 		if (this.resolvedBinding != null)
 			return this.resolvedBinding;
-		return this.resolvedBinding = this.module.resolve(scope);
+		this.resolvedBinding = this.module.resolve(scope);
+		if (this.resolvedBinding == null) {
+			if (scope != null)
+				scope.problemReporter().invalidModule(this.module);
+		}
+		return this.resolvedBinding;
 	}
 
 }
