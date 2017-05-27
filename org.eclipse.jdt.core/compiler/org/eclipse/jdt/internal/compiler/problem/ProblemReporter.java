@@ -245,6 +245,13 @@ public static int getIrritant(int problemID) {
 		case IProblem.UsingDeprecatedField :
 			return CompilerOptions.UsingDeprecatedAPI;
 
+		case IProblem.OverridingTerminallyDeprecatedMethod :
+		case IProblem.UsingTerminallyDeprecatedType :
+		case IProblem.UsingTerminallyDeprecatedMethod :
+		case IProblem.UsingTerminallyDeprecatedConstructor :
+		case IProblem.UsingTerminallyDeprecatedField :
+			return CompilerOptions.UsingTerminallyDeprecatedAPI;
+
 		case IProblem.LocalVariableIsNeverUsed :
 			return CompilerOptions.UnusedLocalVariable;
 
@@ -712,6 +719,7 @@ public static int getProblemCategory(int severity, int problemID) {
 				return CategorizedProblem.CAT_UNNECESSARY_CODE;
 
 			case CompilerOptions.UsingDeprecatedAPI :
+			case CompilerOptions.UsingTerminallyDeprecatedAPI :
 				return CategorizedProblem.CAT_DEPRECATION;
 
 			case CompilerOptions.NonExternalizedString :
@@ -724,6 +732,7 @@ public static int getProblemCategory(int severity, int problemID) {
 			case CompilerOptions.MissingJavadocTags :
 			case CompilerOptions.InvalidJavadoc :
 			case CompilerOptions.InvalidJavadoc|CompilerOptions.UsingDeprecatedAPI :
+			case CompilerOptions.InvalidJavadoc|CompilerOptions.UsingTerminallyDeprecatedAPI :
 				return CategorizedProblem.CAT_JAVADOC;
 
 			case CompilerOptions.UncheckedTypeOperation :
@@ -1688,21 +1697,17 @@ public void defaultModifierIllegallySpecified(int sourceStart, int sourceEnd) {
 }
 
 public void deprecatedField(FieldBinding field, ASTNode location) {
-	int severity = computeSeverity(IProblem.UsingDeprecatedField);
-	if (severity == ProblemSeverities.Ignore) return;
 	this.handle(
-		IProblem.UsingDeprecatedField,
+		(field.tagBits & TagBits.AnnotationTerminallyDeprecated) == 0 ? IProblem.UsingDeprecatedField : IProblem.UsingTerminallyDeprecatedField,
 		new String[] {new String(field.declaringClass.readableName()), new String(field.name)},
 		new String[] {new String(field.declaringClass.shortReadableName()), new String(field.name)},
-		severity,
 		nodeSourceStart(field, location),
 		nodeSourceEnd(field, location));
 }
 
 public void deprecatedMethod(MethodBinding method, ASTNode location) {
 	boolean isConstructor = method.isConstructor();
-	int severity = computeSeverity(isConstructor ? IProblem.UsingDeprecatedConstructor : IProblem.UsingDeprecatedMethod);
-	if (severity == ProblemSeverities.Ignore) return;
+	boolean terminally = (method.tagBits & TagBits.AnnotationTerminallyDeprecated) != 0;
 	if (isConstructor) {
 		int start = -1;
 		if(location instanceof AllocationExpression) {
@@ -1715,10 +1720,9 @@ public void deprecatedMethod(MethodBinding method, ASTNode location) {
 			start = allocationExpression.type.sourceStart;
 		}
 		this.handle(
-			IProblem.UsingDeprecatedConstructor,
+			terminally ? IProblem.UsingTerminallyDeprecatedConstructor : IProblem.UsingDeprecatedConstructor,
 			new String[] {new String(method.declaringClass.readableName()), typesAsString(method, false)},
 			new String[] {new String(method.declaringClass.shortReadableName()), typesAsString(method, true)},
-			severity,
 			(start == -1) ? location.sourceStart : start,
 			location.sourceEnd);
 	} else {
@@ -1729,10 +1733,9 @@ public void deprecatedMethod(MethodBinding method, ASTNode location) {
 			start = (int) (((MessageSend)location).nameSourcePosition >>> 32);
 		}
 		this.handle(
-			IProblem.UsingDeprecatedMethod,
+			terminally ? IProblem.UsingTerminallyDeprecatedMethod : IProblem.UsingDeprecatedMethod,
 			new String[] {new String(method.declaringClass.readableName()), new String(method.selector), typesAsString(method, false)},
 			new String[] {new String(method.declaringClass.shortReadableName()), new String(method.selector), typesAsString(method, true)},
-			severity,
 			(start == -1) ? location.sourceStart : start,
 			location.sourceEnd);
 	}
@@ -1744,8 +1747,6 @@ public void deprecatedType(TypeBinding type, ASTNode location) {
 // a deprecated type in a qualified reference (see bug 292510)
 public void deprecatedType(TypeBinding type, ASTNode location, int index) {
 	if (location == null) return; // 1G828DN - no type ref for synthetic arguments
-	int severity = computeSeverity(IProblem.UsingDeprecatedType);
-	if (severity == ProblemSeverities.Ignore) return;
 	type = type.leafComponentType();
 	int sourceStart = -1;
 	if (location instanceof QualifiedTypeReference) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=300031
@@ -1755,10 +1756,9 @@ public void deprecatedType(TypeBinding type, ASTNode location, int index) {
 		}
 	}
 	this.handle(
-		IProblem.UsingDeprecatedType,
+		((type.tagBits & TagBits.AnnotationTerminallyDeprecated) == 0) ? IProblem.UsingDeprecatedType : IProblem.UsingTerminallyDeprecatedType,
 		new String[] {new String(type.readableName())},
 		new String[] {new String(type.shortReadableName())},
-		severity,
 		(sourceStart == -1) ? location.sourceStart : sourceStart,
 		nodeSourceEnd(null, location, index));
 }
@@ -6889,7 +6889,8 @@ public void operatorOnlyValidOnNumericType(CompoundAssignment  assignment, TypeB
 }
 public void overridesDeprecatedMethod(MethodBinding localMethod, MethodBinding inheritedMethod) {
 	this.handle(
-		IProblem.OverridingDeprecatedMethod,
+		(inheritedMethod.tagBits & TagBits.AnnotationTerminallyDeprecated) != 0
+				? IProblem.OverridingTerminallyDeprecatedMethod : IProblem.OverridingDeprecatedMethod,
 		new String[] {
 			new String(
 					CharOperation.concat(

@@ -369,6 +369,15 @@ public abstract class Annotation extends Expression {
 			// marker annotations
 			case TypeIds.T_JavaLangDeprecated :
 				tagBits |= TagBits.AnnotationDeprecated;
+				if (scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK9) {
+					for (MemberValuePair memberValuePair : memberValuePairs()) {
+						if (CharOperation.equals(memberValuePair.name, TypeConstants.FOR_REMOVAL)) {
+							if (memberValuePair.value instanceof TrueLiteral)
+								tagBits |= TagBits.AnnotationTerminallyDeprecated;
+							break;
+						}
+					}
+				}
 				break;
 			case TypeIds.T_JavaLangAnnotationDocumented :
 				tagBits |= TagBits.AnnotationDocumented;

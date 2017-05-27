@@ -887,8 +887,10 @@ private void checkAnnotationsInType() {
 	// check @Deprecated annotation
 	getAnnotationTagBits(); // marks as deprecated by side effect
 	ReferenceBinding enclosingType = enclosingType();
-	if (enclosingType != null && enclosingType.isViewedAsDeprecated() && !isDeprecated())
+	if (enclosingType != null && enclosingType.isViewedAsDeprecated() && !isDeprecated()) {
 		this.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
+		this.tagBits |= (enclosingType.tagBits & TagBits.AnnotationTerminallyDeprecated);
+	}
 
 	for (int i = 0, length = this.memberTypes.length; i < length; i++)
 		((SourceTypeBinding) this.memberTypes[i]).checkAnnotationsInType();
@@ -1743,8 +1745,10 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 		if ((field.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
 			field.modifiers |= ClassFileConstants.AccDeprecated;
 	}
-	if (isViewedAsDeprecated() && !field.isDeprecated())
+	if (isViewedAsDeprecated() && !field.isDeprecated()) {
 		field.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
+		field.tagBits |= this.tagBits & TagBits.AnnotationTerminallyDeprecated;
+	}
 	if (hasRestrictedAccess())
 		field.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 	FieldDeclaration[] fieldDecls = this.scope.referenceContext.fields;
@@ -1849,8 +1853,10 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 		if ((method.getAnnotationTagBits() & TagBits.AnnotationDeprecated) != 0)
 			method.modifiers |= ClassFileConstants.AccDeprecated;
 	}
-	if (isViewedAsDeprecated() && !method.isDeprecated())
+	if (isViewedAsDeprecated() && !method.isDeprecated()) {
 		method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
+		method.tagBits |= this.tagBits & TagBits.AnnotationTerminallyDeprecated;
+	}
 	if (hasRestrictedAccess())
 		method.modifiers |= ExtraCompilerModifiers.AccRestrictedAccess;
 

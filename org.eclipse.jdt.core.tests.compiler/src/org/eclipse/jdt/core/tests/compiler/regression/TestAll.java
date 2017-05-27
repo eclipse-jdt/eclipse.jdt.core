@@ -162,6 +162,8 @@ public static Test suite() {
 	since_9.add(ModuleCompilationTests.class);
 	since_9.add(GenericsRegressionTest_9.class);
 	since_9.add(InterfaceMethodsTest_9.class);
+	since_9.add(Deprecated9Test.class);
+
 	
 	// Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());

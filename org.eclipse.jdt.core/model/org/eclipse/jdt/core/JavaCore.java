@@ -416,6 +416,19 @@ public final class JavaCore extends Plugin {
 	 */
 	public static final String COMPILER_PB_DEPRECATION = PLUGIN_ID + ".compiler.problem.deprecation"; //$NON-NLS-1$
 	/**
+	 * Compiler option ID: Reporting Terminal Deprecation.
+	 * <p>When enabled, the compiler will signal use of terminally deprecated API either as an
+	 *    error or a warning.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.terminalDeprecation"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
+	 * </dl>
+	 * @since 3.13 BETA_JAVA9
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_TERMINAL_DEPRECATION = PLUGIN_ID + ".compiler.problem.terminalDeprecation"; //$NON-NLS-1$
+	/**
 	 * Compiler option ID: Reporting Deprecation Inside Deprecated Code.
 	 * <p>When enabled, the compiler will signal use of deprecated API inside deprecated code.</p>
 	 * <p>The severity of the problem is controlled with option {@link #COMPILER_PB_DEPRECATION}.</p>

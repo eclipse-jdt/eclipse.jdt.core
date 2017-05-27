@@ -78,6 +78,7 @@ public void initializeDeprecatedAnnotationTagBits() {
 			}
 			if (enclosing.isViewedAsDeprecated()) {
 				this.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
+				this.tagBits |= (enclosing.tagBits & TagBits.AnnotationTerminallyDeprecated);
 			}
 		}
 	}

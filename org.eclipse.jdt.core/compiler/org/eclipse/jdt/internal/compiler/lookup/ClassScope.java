@@ -530,8 +530,10 @@ public class ClassScope extends Scope {
 						// local member
 						if (enclosingType.isStrictfp())
 							modifiers |= ClassFileConstants.AccStrictfp;
-						if (enclosingType.isViewedAsDeprecated() && !sourceType.isDeprecated())
+						if (enclosingType.isViewedAsDeprecated() && !sourceType.isDeprecated()) {
 							modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
+							sourceType.tagBits |= enclosingType.tagBits & TagBits.AnnotationTerminallyDeprecated;
+						}
 						break;
 				}
 				scope = scope.parent;

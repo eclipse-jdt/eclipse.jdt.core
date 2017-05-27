@@ -158,11 +158,14 @@ public interface TagBits {
 	/** From Java 8 */
 	long AnnotationRepeatable = ASTNode.Bit61L; // Only for annotation types and since these cannot have constructors, we can overload HasNonPrivateConstructor.
 
+	/** From Java 9 */
+	long AnnotationTerminallyDeprecated = ASTNode.Bit63L;
 
 	long AllStandardAnnotationsMask =
 				  AnnotationTargetMASK
 				| AnnotationRetentionMASK
 				| AnnotationDeprecated
+				| AnnotationTerminallyDeprecated
 				| AnnotationDocumented
 				| AnnotationInherited
 				| AnnotationOverride

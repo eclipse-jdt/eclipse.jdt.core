@@ -1937,6 +1937,17 @@ void setSourceStart(int sourceStart);
 	/** @since 3.13 BETA_JAVA9 */
 	int DuplicateResource = Internal + 1251;
 
+	/** @since 3.13 BETA_JAVA9 */
+	int UsingTerminallyDeprecatedType = TypeRelated + 1400;
+	/** @since 3.13 BETA_JAVA9 */
+	int UsingTerminallyDeprecatedMethod = MethodRelated + 1401;
+	/** @since 3.13 BETA_JAVA9 */
+	int UsingTerminallyDeprecatedConstructor = MethodRelated + 1402;
+	/** @since 3.13 BETA_JAVA9 */
+	int UsingTerminallyDeprecatedField = FieldRelated + 1403;
+	/** @since 3.13 BETA_JAVA9 */
+	int OverridingTerminallyDeprecatedMethod = MethodRelated + 1404;
+
 	/** @since 3.13 */
 	int RedundantNullDefaultAnnotationLocal = Internal + 1062;
 	

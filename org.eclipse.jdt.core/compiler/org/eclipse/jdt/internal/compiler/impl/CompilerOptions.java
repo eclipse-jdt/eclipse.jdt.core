@@ -61,6 +61,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportMethodWithConstructorName = "org.eclipse.jdt.core.compiler.problem.methodWithConstructorName"; //$NON-NLS-1$
 	public static final String OPTION_ReportOverridingPackageDefaultMethod = "org.eclipse.jdt.core.compiler.problem.overridingPackageDefaultMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeprecation = "org.eclipse.jdt.core.compiler.problem.deprecation"; //$NON-NLS-1$
+	public static final String OPTION_ReportTerminalDeprecation = "org.eclipse.jdt.core.compiler.problem.terminalDeprecation"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeprecationInDeprecatedCode = "org.eclipse.jdt.core.compiler.problem.deprecationInDeprecatedCode"; //$NON-NLS-1$
 	public static final String OPTION_ReportDeprecationWhenOverridingDeprecatedMethod = "org.eclipse.jdt.core.compiler.problem.deprecationWhenOverridingDeprecatedMethod"; //$NON-NLS-1$
 	public static final String OPTION_ReportHiddenCatchBlock = "org.eclipse.jdt.core.compiler.problem.hiddenCatchBlock"; //$NON-NLS-1$
@@ -322,6 +323,8 @@ public class CompilerOptions {
 	public static final int NonNullTypeVariableFromLegacyInvocation = IrritantSet.GROUP2 | ASTNode.Bit21;
 	public static final int UnlikelyCollectionMethodArgumentType = IrritantSet.GROUP2 | ASTNode.Bit22;
 	public static final int UnlikelyEqualsArgumentType = IrritantSet.GROUP2 | ASTNode.Bit23;
+	public static final int UsingTerminallyDeprecatedAPI = IrritantSet.GROUP2 | ASTNode.Bit24;
+
 
 	// Severity level for handlers
 	/** 
@@ -525,6 +528,7 @@ public class CompilerOptions {
 		"nls", //$NON-NLS-1$
 		"null", //$NON-NLS-1$
 		"rawtypes", //$NON-NLS-1$
+		"removal", //$NON-NLS-1$
 		"resource", //$NON-NLS-1$
 		"restriction", //$NON-NLS-1$		
 		"serial", //$NON-NLS-1$
@@ -580,6 +584,9 @@ public class CompilerOptions {
 			case UsingDeprecatedAPI :
 			case (InvalidJavadoc | UsingDeprecatedAPI) :
 				return OPTION_ReportDeprecation;
+			case UsingTerminallyDeprecatedAPI :
+			case (InvalidJavadoc | UsingTerminallyDeprecatedAPI) :
+				return OPTION_ReportTerminalDeprecation;
 			case MaskedCatchBlock  :
 				return OPTION_ReportHiddenCatchBlock;
 			case UnusedLocalVariable :
@@ -947,6 +954,9 @@ public class CompilerOptions {
 			case (InvalidJavadoc | UsingDeprecatedAPI) :
 			case UsingDeprecatedAPI :
 				return "deprecation"; //$NON-NLS-1$
+			case (InvalidJavadoc | UsingTerminallyDeprecatedAPI) :
+			case UsingTerminallyDeprecatedAPI :
+				return "removal"; //$NON-NLS-1$
 			case FinallyBlockNotCompleting :
 				return "finally"; //$NON-NLS-1$
 			case FieldHiding :
@@ -1085,6 +1095,8 @@ public class CompilerOptions {
 					return IrritantSet.RESOURCE;
 				if ("restriction".equals(warningToken)) //$NON-NLS-1$
 					return IrritantSet.RESTRICTION;
+				if ("removal".equals(warningToken)) //$NON-NLS-1$
+					return IrritantSet.TERMINAL_DEPRECATION;
 				break;
 			case 's' :
 				if ("serial".equals(warningToken)) //$NON-NLS-1$
@@ -1128,6 +1140,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportMethodWithConstructorName, getSeverityString(MethodWithConstructorName));
 		optionsMap.put(OPTION_ReportOverridingPackageDefaultMethod, getSeverityString(OverriddenPackageDefaultMethod));
 		optionsMap.put(OPTION_ReportDeprecation, getSeverityString(UsingDeprecatedAPI));
+		optionsMap.put(OPTION_ReportTerminalDeprecation, getSeverityString(UsingTerminallyDeprecatedAPI));
 		optionsMap.put(OPTION_ReportDeprecationInDeprecatedCode, this.reportDeprecationInsideDeprecatedCode ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, this.reportDeprecationWhenOverridingDeprecatedMethod ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportHiddenCatchBlock, getSeverityString(MaskedCatchBlock));
@@ -1692,6 +1705,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportMethodWithConstructorName)) != null) updateSeverity(MethodWithConstructorName, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportOverridingPackageDefaultMethod)) != null) updateSeverity(OverriddenPackageDefaultMethod, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportDeprecation)) != null) updateSeverity(UsingDeprecatedAPI, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportTerminalDeprecation)) != null) updateSeverity(UsingTerminallyDeprecatedAPI, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportHiddenCatchBlock)) != null) updateSeverity(MaskedCatchBlock, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedLocal)) != null) updateSeverity(UnusedLocalVariable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnusedParameter)) != null) updateSeverity(UnusedArgument, optionValue);
@@ -1993,6 +2007,7 @@ public class CompilerOptions {
 		buf.append("\n\t- method with constructor name: ").append(getSeverityString(MethodWithConstructorName)); //$NON-NLS-1$
 		buf.append("\n\t- overridden package default method: ").append(getSeverityString(OverriddenPackageDefaultMethod)); //$NON-NLS-1$
 		buf.append("\n\t- deprecation: ").append(getSeverityString(UsingDeprecatedAPI)); //$NON-NLS-1$
+		buf.append("\n\t- removal: ").append(getSeverityString(UsingTerminallyDeprecatedAPI)); //$NON-NLS-1$
 		buf.append("\n\t- masked catch block: ").append(getSeverityString(MaskedCatchBlock)); //$NON-NLS-1$
 		buf.append("\n\t- unused local variable: ").append(getSeverityString(UnusedLocalVariable)); //$NON-NLS-1$
 		buf.append("\n\t- unused parameter: ").append(getSeverityString(UnusedArgument)); //$NON-NLS-1$

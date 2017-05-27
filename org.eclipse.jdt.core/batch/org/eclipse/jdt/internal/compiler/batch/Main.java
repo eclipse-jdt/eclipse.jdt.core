@@ -3755,6 +3755,7 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 		case 'a' :
 			if (token.equals("allDeprecation")) { //$NON-NLS-1$
 				setSeverity(CompilerOptions.OPTION_ReportDeprecation, severity, isEnabling);
+				setSeverity(CompilerOptions.OPTION_ReportTerminalDeprecation, severity, isEnabling);
 				this.options.put(
 					CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode,
 					isEnabling ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
@@ -4199,6 +4200,15 @@ private void handleErrorOrWarningToken(String token, boolean isEnabling, int sev
 				setSeverity(CompilerOptions.OPTION_ReportUnclosedCloseable, severity, isEnabling);
 				setSeverity(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, severity, isEnabling);
 				setSeverity(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, severity, isEnabling);
+				return;
+			} else if (token.equals("removal")) { //$NON-NLS-1$
+				setSeverity(CompilerOptions.OPTION_ReportTerminalDeprecation, severity, isEnabling);
+				this.options.put(
+					CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode,
+					CompilerOptions.DISABLED);
+				this.options.put(
+					CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod,
+					CompilerOptions.DISABLED);
 				return;
 			}
 			break;

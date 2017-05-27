@@ -1616,8 +1616,13 @@ public final boolean isUsed() {
  * Answer true if the receiver is deprecated (or any of its enclosing types)
  */
 public final boolean isViewedAsDeprecated() {
-	return (this.modifiers & (ClassFileConstants.AccDeprecated | ExtraCompilerModifiers.AccDeprecatedImplicitly)) != 0
-			|| getPackage().isViewedAsDeprecated();
+	if ((this.modifiers & (ClassFileConstants.AccDeprecated | ExtraCompilerModifiers.AccDeprecatedImplicitly)) != 0)
+		return true;
+	if (getPackage().isViewedAsDeprecated()) {
+		this.tagBits |= (getPackage().tagBits & TagBits.AnnotationTerminallyDeprecated);
+		return true;
+	}
+	return false;
 }
 
 public ReferenceBinding[] memberTypes() {

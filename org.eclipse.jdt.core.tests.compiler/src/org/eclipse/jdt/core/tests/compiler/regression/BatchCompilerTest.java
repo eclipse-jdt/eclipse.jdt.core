@@ -864,6 +864,7 @@ public void test012b(){
         "      paramAssign          assignment to a parameter\n" + 
         "      pkgDefaultMethod   + attempt to override package-default method\n" + 
         "      raw                + usage of raw type\n" + 
+        "      removal            + deprecation marked for removal\n" + 
         "      resource           + (pot.) unsafe usage of resource of type Closeable\n" + 
         "      semicolon            unnecessary semicolon, empty statement\n" + 
         "      serial             + missing serialVersionUID\n" + 
@@ -1075,6 +1076,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.syntacticNullAnalysisForFields\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.syntheticAccessEmulation\" value=\"ignore\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.tasks\" value=\"warning\"/>\n" + 
+			"		<option key=\"org.eclipse.jdt.core.compiler.problem.terminalDeprecation\" value=\"warning\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.typeParameterHiding\" value=\"warning\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.unavoidableGenericTypeProblems\" value=\"enabled\"/>\n" + 
 			"		<option key=\"org.eclipse.jdt.core.compiler.problem.uncheckedTypeOperation\" value=\"warning\"/>\n" + 
