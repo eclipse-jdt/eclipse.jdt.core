@@ -14,49 +14,54 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
 
-import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 public class NameEnvironmentAnswer {
 
-	// only one of the three can be set
+	// only one of the four can be set
 	IBinaryType binaryType;
 	ICompilationUnit compilationUnit;
 	ISourceType[] sourceTypes;
+	ReferenceBinding binding;
+
 	AccessRestriction accessRestriction;
-	char[] module;
+	char[] moduleName; // set by name environment
+	public ModuleBinding moduleBinding; // updated by LookupEnvironment
 	String externalAnnotationPath; // should be an absolute file system path
 
 	public NameEnvironmentAnswer(IBinaryType binaryType, AccessRestriction accessRestriction) {
 		this.binaryType = binaryType;
 		this.accessRestriction = accessRestriction;
-		this.module = binaryType.getModule();
+		this.moduleName = binaryType.getModule();
 	}
 
 	public NameEnvironmentAnswer(IBinaryType binaryType, AccessRestriction accessRestriction, char[] module) {
 		this.binaryType = binaryType;
 		this.accessRestriction = accessRestriction;
-		this.module = module;
+		this.moduleName = module;
 	}
 	public NameEnvironmentAnswer(ICompilationUnit compilationUnit, AccessRestriction accessRestriction) {
-		this(compilationUnit, accessRestriction, compilationUnit.module());
+		this(compilationUnit, accessRestriction, compilationUnit.getModuleName());
 	}
 	public NameEnvironmentAnswer(ICompilationUnit compilationUnit, AccessRestriction accessRestriction, char[] module) {
 		this.compilationUnit = compilationUnit;
 		this.accessRestriction = accessRestriction;
-		this.module = module;
-	}
-
-	public NameEnvironmentAnswer(ISourceType[] sourceTypes, AccessRestriction accessRestriction, String externalAnnotationPath) {
-		this(sourceTypes, accessRestriction, externalAnnotationPath, ModuleEnvironment.UNNAMED);
+		this.moduleName = module;
 	}
 
 	public NameEnvironmentAnswer(ISourceType[] sourceTypes, AccessRestriction accessRestriction, String externalAnnotationPath, char[] module) {
 		this.sourceTypes = sourceTypes;
 		this.accessRestriction = accessRestriction;
 		this.externalAnnotationPath = externalAnnotationPath;
-		this.module = module;
+		this.moduleName = module;
 	}
 	
+	public NameEnvironmentAnswer(ReferenceBinding binding, ModuleBinding module) {
+		this.binding = binding;
+		this.moduleBinding = module;
+	}
+
 	@Override
 	public String toString() {
 		String baseString = ""; //$NON-NLS-1$
@@ -123,6 +128,13 @@ public class NameEnvironmentAnswer {
 	}
 
 	/**
+	 * Answer the resolved compiler binding that was late found during askForName().
+	 */
+	public ReferenceBinding getResolvedBinding() {
+		return this.binding;
+	}
+
+	/**
 	 * Answer whether the receiver contains the resolved binary form of the type.
 	 */
 	public boolean isBinaryType() {
@@ -143,11 +155,24 @@ public class NameEnvironmentAnswer {
 		return this.sourceTypes != null;
 	}
 
+	/**
+	 * Answer whether the receiver contains the resolved compiler binding of the type.
+	 */
+	public boolean isResolvedBinding() {
+		return this.binding != null;
+	}
+
 	public boolean ignoreIfBetter() {
 		return this.accessRestriction != null && this.accessRestriction.ignoreIfBetter();
 	}
+	
+	/** 
+	 * Name of the module to which the CU in this answer is associated.
+	 * {@code null} when associated to the unnamed module. 
+	 * @return module name or {@code null}
+	 */
 	public char[] moduleName() {
-		return this.module;
+		return this.moduleName;
 	}
 
 	/*

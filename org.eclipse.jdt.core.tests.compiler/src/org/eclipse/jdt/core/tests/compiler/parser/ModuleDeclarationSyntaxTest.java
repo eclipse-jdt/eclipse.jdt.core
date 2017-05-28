@@ -150,8 +150,8 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"----------\n" +
 				"1. ERROR in module-info (at line 3)\n" +
 				"	provides com.socket.spi.NetworkSocketProvider;\n" +
-				"	                        ^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Syntax error on token \"NetworkSocketProvider\", WithClause expected after this token\n" +
+				"	                       ^\n" +
+				"Syntax error on token \".\", with expected\n" +
 				"----------\n";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;
@@ -173,13 +173,8 @@ public class ModuleDeclarationSyntaxTest extends AbstractSyntaxTreeTest {
 				"----------\n" +
 				"2. ERROR in module-info (at line 1)\n" +
 				"	module @Marker com.greetings {\n"+
-				"	       ^^^^^^^^^^^^^^^^^^^^^\n"+
-				"Syntax error on tokens, ModuleHeader expected instead\n" +
-				"----------\n"+
-				"3. ERROR in module-info (at line 1)\n"+
-				"	module @Marker com.greetings {\n" +
-				"	               ^^^\n" +
-				"Syntax error on token \"com\", delete this token\n" +
+				"	        ^^^^^^\n"+
+				"Syntax error on token \"Marker\", module expected after this token\n" +
 				 "----------\n";
 		CompilerOptions options = new CompilerOptions(getCompilerOptions());
 		options.complianceLevel = ClassFileConstants.JDK9;

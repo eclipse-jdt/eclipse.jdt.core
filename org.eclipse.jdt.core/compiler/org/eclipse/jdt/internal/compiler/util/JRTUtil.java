@@ -30,18 +30,14 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 
 public class JRTUtil {
 
@@ -156,11 +152,11 @@ public class JRTUtil {
 	public static ClassFileReader getClassfile(File jrt, String fileName, IModule module) throws IOException, ClassFormatException {
 		return getJrtSystem(jrt).getClassfile(fileName, module);
 	}
-	public static ClassFileReader getClassfile(File jrt, String fileName, Optional<Collection<char[]>> modules) throws IOException, ClassFormatException {
-		return getJrtSystem(jrt).getClassfile(fileName, modules);
+	public static ClassFileReader getClassfile(File jrt, String fileName, String module) throws IOException, ClassFormatException {
+		return getJrtSystem(jrt).getClassfile(fileName, module);
 	}
-	public static boolean isPackage(File jrt, String qName, Optional<char[]> module) {
-		return getJrtSystem(jrt).isPackage(qName, module);
+	public static List<String> getModulesDeclaringPackage(File jrt, String qName, String moduleName) {
+		return getJrtSystem(jrt).getModulesDeclaringPackage(qName, moduleName);
 	}
 }
 class JrtFileSystem {
@@ -206,20 +202,29 @@ class JrtFileSystem {
 		walkModuleImage(null, true, 0 /* doesn't matter */);
 	}
 
-	public boolean isPackage(String qualifiedPackageName, Optional<char[]> moduleName) {
+	public List<String> getModulesDeclaringPackage(String qualifiedPackageName, String moduleName) {
 		qualifiedPackageName = qualifiedPackageName.replace('.', '/');
 		String module = this.packageToModule.get(qualifiedPackageName);
-		if (!moduleName.isPresent())
-			return module != null;
+		if (moduleName == null) {
+			// wildcard search:
+			if (module == null)
+				return null;
+			if (module == JRTUtil.MULTIPLE)
+				return this.packageToModules.get(qualifiedPackageName);
+			return Collections.singletonList(module);
+		}
 		if (module != null) {
+			// specific search:
 			if (module == JRTUtil.MULTIPLE) {
 				List<String> list = this.packageToModules.get(qualifiedPackageName);
-				return list.contains(new String(moduleName.get()));
+				if (list.contains(moduleName))
+					return Collections.singletonList(moduleName);
 			} else {
-				return CharOperation.equals(module.toCharArray(), moduleName.get());
+				if (module.equals(moduleName))
+					return Collections.singletonList(moduleName);
 			}
 		}
-		return false;
+		return null;
 	}
 	public String[] getModules(String fileName) {
 		int idx = fileName.lastIndexOf('/');
@@ -267,7 +272,9 @@ class JrtFileSystem {
 			}
 		}
 		if (content != null) {
-			return new ClassFileReader(content, fileName.toCharArray(), module.toCharArray());
+			ClassFileReader reader = new ClassFileReader(content, fileName.toCharArray());
+			reader.moduleName = module.toCharArray();
+			return reader;
 		}
 		return null;
 	}
@@ -275,7 +282,7 @@ class JrtFileSystem {
 	byte[] getClassfileContent(String fileName, String module) throws IOException, ClassFormatException {
 		byte[] content = null;
 		if (module != null) {
-			content = getClassfile(fileName, new String(module.toCharArray()));
+			content = getClassfileBytes(fileName, new String(module.toCharArray()));
 		} else {
 			String[] modules = getModules(fileName);
 			for (String mod : modules) {
@@ -291,7 +298,7 @@ class JrtFileSystem {
 		}
 		return content;
 	}
-	private byte[] getClassfile(String fileName, String module) throws IOException, ClassFormatException {
+	private byte[] getClassfileBytes(String fileName, String module) throws IOException, ClassFormatException {
 		byte[] content = null;
 		try {
 			content = Files.readAllBytes(this.jrtSystem.getPath(JRTUtil.MODULES_SUBDIR, module, fileName));
@@ -300,31 +307,27 @@ class JrtFileSystem {
 		}
 		return content;
 	}
-	public ClassFileReader getClassfile(String fileName, Optional<Collection<char[]>> modules) throws IOException, ClassFormatException {
+	public ClassFileReader getClassfile(String fileName, String module) throws IOException, ClassFormatException {
 		ClassFileReader reader = null;
-		if (!modules.isPresent()) {
+		if (module == null) {
 			reader = getClassfile(fileName);
 		} else {
-			Iterator<char[]> modIterator = modules.get().iterator();
-			while(modIterator.hasNext()) {
-				char[] mod = modIterator.next();
-				byte[] content = getClassfile(fileName, new String(mod));
-				if (content != null) {
-					reader = new ClassFileReader(content, fileName.toCharArray(), mod);
-					break;
-				}
+			byte[] content = getClassfileBytes(fileName, module);
+			if (content != null) {
+				reader = new ClassFileReader(content, fileName.toCharArray());
+				reader.moduleName = module.toCharArray();
 			}
 		}
 		return reader;
 	}
 	public ClassFileReader getClassfile(String fileName, IModule module) throws IOException, ClassFormatException {
 		ClassFileReader reader = null;
-		if (module == null || module == ModuleEnvironment.UNNAMED_MODULE) {
+		if (module == null) {
 			reader = getClassfile(fileName);
 		} else {
-			byte[] content = getClassfile(fileName, new String(module.name()));
+			byte[] content = getClassfileBytes(fileName, new String(module.name()));
 			if (content != null) {
-				reader = new ClassFileReader(content, fileName.toCharArray(), module.name());
+				reader = new ClassFileReader(content, fileName.toCharArray());
 			}
 		}
 		return reader;

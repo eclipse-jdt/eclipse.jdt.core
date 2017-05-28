@@ -32,7 +32,7 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
 import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment.AutoModule;
+import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -163,7 +163,7 @@ public boolean equals(Object o) {
 			return false;
 	return this.binaryFolder.equals(dir.binaryFolder);
 }
-public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
+public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
 	if (!doesFileExist(binaryFileName, qualifiedPackageName, qualifiedBinaryFileName)) return null; // most common case
 
 	IBinaryType reader = null;
@@ -179,7 +179,11 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 	if (reader != null) {
 		char[] modName = this.module == null ? null : this.module.name();
 		if (reader instanceof ClassFileReader) {
-			((ClassFileReader) reader).moduleName = modName;
+			ClassFileReader cfReader = (ClassFileReader) reader;
+			if (cfReader.moduleName == null)
+				cfReader.moduleName = modName;
+			else
+				modName = cfReader.moduleName;
 		}
 		String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
 		if (this.externalAnnotationPath != null) {
@@ -217,7 +221,11 @@ public boolean isOutputFolder() {
 	return this.isOutputFolder;
 }
 
-public boolean isPackage(String qualifiedPackageName) {
+public boolean isPackage(String qualifiedPackageName, String moduleName) {
+	if (moduleName != null) {
+		if (this.module == null || !moduleName.equals(String.valueOf(this.module.name())))
+			return false;
+	}
 	return directoryList(qualifiedPackageName) != null;
 }
 
@@ -248,9 +256,9 @@ public IPackageLookup packageLookup() {
 }
 
 @Override
-public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
+public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName) {
 	// 
-	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
+	return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false);
 }
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,6 +18,7 @@
 package org.eclipse.jdt.core.compiler;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
@@ -832,6 +833,22 @@ public static String charToString(char[] charArray) {
 	return new String(charArray);
 }
 
+/**
+ * Converts the given list of strings to an array of equal size,
+ * containing the individual strings converted to char[] each.
+ * 
+ * @param stringList
+ * @return an array of char[], representing the elements in the input list, or {@code null} if the list was {@code null}.
+ * @since 3.13 BETA_JAVA9
+ */
+public static char[][] toCharArrays(List<String> stringList) {
+	if (stringList == null)
+		return null;
+	char[][] result = new char[stringList.size()][];
+	for (int i = 0; i < result.length; i++)
+		result[i] = stringList.get(i).toCharArray();
+	return result;
+}
 /**
  * Answers a new array adding the second array at the end of first array.
  * It answers null if the first and second are null.
@@ -1864,6 +1881,21 @@ public static final boolean contains(char[] characters, char[] array) {
 		for (int j = characters.length; --j >= 0;)
 			if (array[i] == characters[j])
 				return true;
+	return false;
+}
+
+/**
+ * Does the given array contain a char sequence that is equal to the give sequence?
+ * @param array
+ * @param sequence
+ * @return true if sequence is equal to an element in array
+ * @since 3.13 BETA_JAVA9
+ */
+public static boolean containsEqual(char[][] array, char[] sequence) {
+	for (int i = 0; i < array.length; i++) {
+		if (equals(array[i], sequence))
+			return true;
+	}
 	return false;
 }
 

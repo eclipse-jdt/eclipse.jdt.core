@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -19,7 +19,15 @@ package org.eclipse.jdt.internal.compiler.env;
  * can use to look up types, compilation units, and packages in the
  * current environment. The name environment is passed to the compiler
  * on creation.
- * 
+ * <p>
+ * In JLS diction a name environment implements a "host system", with
+ * these responsibilities:
+ * <ul>
+ * <li>Determine which packages and compilation units are "observable" (JLS 7.3 & 7.4.3)</li>
+ * <li>Determine to which module a given compilation unit / package is associated (JLS 7.3)</li>
+ * </ul>
+ * </p>
+ * FIXME(SHMOD): fold methods of sub-interface IModuleAwareNameEnvironment back into this interface? (see also the following note). 
  * <p>
  * Note: This internal interface has been implemented illegally by the
  * org.apache.jasper.glassfish bundle from Orbit, see

@@ -55,7 +55,7 @@ public class ModuleLocator extends PatternLocator {
 	}
 	public int resolveLevel(ASTNode possibleMatchingNode) {
 		if (this.pattern.findDeclarations && possibleMatchingNode instanceof ModuleDeclaration) {
-			return resolveLevel(((ModuleDeclaration) possibleMatchingNode).moduleBinding);
+			return resolveLevel(((ModuleDeclaration) possibleMatchingNode).binding);
 		}
 		if (this.pattern.findReferences && possibleMatchingNode instanceof ModuleReference) {
 			return resolveLevel(((ModuleReference) possibleMatchingNode).resolve(null));

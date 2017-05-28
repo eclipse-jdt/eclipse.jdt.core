@@ -1948,6 +1948,17 @@ void setSourceStart(int sourceStart);
 	/** @since 3.13 BETA_JAVA9 */
 	int OverridingTerminallyDeprecatedMethod = MethodRelated + 1404;
 
+	/** @since 3.13 BETA_JAVA9 */
+	int NotAccessibleType = TypeRelated + 1450;
+	/** @since 3.13 BETA_JAVA9 */
+	int NotAccessibleField = FieldRelated + 1451;
+	/** @since 3.13 BETA_JAVA9 */
+	int NotAccessibleMethod = MethodRelated + 1452;
+	/** @since 3.13 BETA_JAVA9 */
+	int NotAccessibleConstructor = MethodRelated + 1453;
+	/** @since 3.13 BETA_JAVA9 */
+	int NotAccessiblePackage = ImportRelated + 1454;
+
 	/** @since 3.13 */
 	int RedundantNullDefaultAnnotationLocal = Internal + 1062;
 	

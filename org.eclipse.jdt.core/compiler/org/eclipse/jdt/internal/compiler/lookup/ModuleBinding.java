@@ -8,118 +8,264 @@
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
- *
+ * 
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *
+ *     
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
-import org.eclipse.jdt.internal.compiler.env.IModuleContext;
-import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
-import org.eclipse.jdt.internal.compiler.env.IModule;
-import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
-import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
-import org.eclipse.jdt.internal.compiler.env.IModule.IService;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
-import org.eclipse.jdt.internal.compiler.util.JRTUtil;
+import org.eclipse.jdt.internal.compiler.util.SimpleSetOfCharArray;
 
-public class ModuleBinding extends Binding {
+/**
+ * This class serves a dual purpose
+ * <p>
+ * First, it canonically represents modules in the world of bindings.
+ * </p>
+ * <p>
+ * Secondly, it adds a graph layer on top of {@link LookupEnvironment}:
+ * ModuleBindins are linked through "read" edges as per JPMS (see java.lang.module.Configuration).
+ * Additionally, each ModuleBinding holds its own instance of LookupEnviroment,
+ * capturing all packages and types that are visible to the current module.
+ * As a subset of all visible types, the ModuleBinding knows the set of
+ * packages locally declared in this module.
+ * </p>
+ */
+public class ModuleBinding extends Binding implements IUpdatableModule {
+
+	/** Name of the unnamed module. */
+	public static final char[] UNNAMED = "".toCharArray(); //$NON-NLS-1$
+	/** Module name for package/type lookup that doesn't care about modules. */
+	public static final char[] ANY = "".toCharArray(); //$NON-NLS-1$
 
 	public static class UnNamedModule extends ModuleBinding {
 
+		@SuppressWarnings("synthetic-access")
 		UnNamedModule(LookupEnvironment env) {
 			super(env);
 		}
 		public ModuleBinding[] getAllRequiredModules() {
-			return NO_REQUIRES;
+			return Binding.NO_MODULES;
 		}
-		public IModuleContext getModuleLookupContext() {
-			return IModuleContext.UNNAMED_MODULE_CONTEXT;
-		}
-		public IModuleContext getDependencyClosureContext() {
-			return IModuleContext.UNNAMED_MODULE_CONTEXT;
-		}
-		public IModuleContext getModuleGraphContext() {
-			return IModuleContext.UNNAMED_MODULE_CONTEXT;
-		}
-		public boolean canSee(PackageBinding pkg) {
+		public boolean canAccess(PackageBinding pkg) {
 			//TODO - if the package is part of a named module, then we should check if the module exports the package
 			return true;
 		}
+		@Override
+		public boolean isUnnamed() {
+			return true;
+		}
+		@Override
+		public String toString() {
+			return "The Unnamed Module"; //$NON-NLS-1$
+		}
 	}
-	public static class Service {
-		public TypeBinding service;
-		public TypeBinding[] implementations;
-	}
-	public boolean isOpen;
 	public char[] moduleName;
-	public IModuleReference[] requires;
-	public IPackageExport[] exports;
-	public IPackageExport[] opens;
+	protected ModuleBinding[] requires;
+	protected ModuleBinding[] requiresTransitive;
+	protected PackageBinding[] exportedPackages;
+	private Map<PackageBinding,SimpleSetOfCharArray> exportRestrictions; // RHS is unresolved names, because unresolvable names are legal in this position
+	protected PackageBinding[] openedPackages;
+	private Map<PackageBinding,SimpleSetOfCharArray> openRestrictions; // RHS is unresolved names, because unresolvable names are legal in this position
 	public TypeBinding[] uses;
-	Service[] services;
-	public CompilationUnitScope scope;
+	public TypeBinding[] services;
+	public Map<TypeBinding,Collection<TypeBinding>> implementations;
+	public int modifiers;
 	public LookupEnvironment environment;
 	public int tagBits;
-	private ModuleBinding[] requiredModules = null;
-	private boolean isAuto;
-	private char[][] iUses = null;
-	private IService[] iServices = null;
-	HashtableOfPackage declaredPackages;
-	HashtableOfPackage exportedPackages;
+	ModuleBinding[] requiredModules = null;
+	boolean isAuto;
+	private boolean[] isComplete = new boolean[UpdateKind.values().length];
 
-	public static ModuleBinding[] NO_REQUIRES = new ModuleBinding[0];
+	/** Packages declared in this module (indexed by qualified name). */
+	HashtableOfPackage declaredPackages; // TODO(SHMOD): measure if this is worth the memory. LE->PackageBinding basically hold the same information
 
-	ModuleBinding(LookupEnvironment env) {
-		this.moduleName = ModuleEnvironment.UNNAMED;
+	/** Constructor for the unnamed module. */
+	private ModuleBinding(LookupEnvironment env) {
+		this.moduleName = ModuleBinding.UNNAMED;
 		this.environment = env;
-		this.requires = IModule.NO_MODULE_REFS;
-		this.exports = IModule.NO_EXPORTS;
-		this.exports = IModule.NO_OPENS;
-		this.services = new Service[0];
+		this.requires = Binding.NO_MODULES;
+		this.requiresTransitive = Binding.NO_MODULES;
+		this.exportedPackages = Binding.NO_PACKAGES;
+		this.openedPackages = Binding.NO_PACKAGES;
 		this.declaredPackages = new HashtableOfPackage(0);
-		this.exportedPackages = new HashtableOfPackage(0);
+		Arrays.fill(this.isComplete, true);
 	}
-	public ModuleBinding(IModule module, LookupEnvironment environment) {
-		this.isOpen = module.isOpen();
-		this.moduleName = module.name();
-		IModule decl = module;
-		this.requires = decl.requires();
-		if (this.requires == null)
-			this.requires = IModule.NO_MODULE_REFS;
-		this.exports = decl.exports();
-		if (this.exports == null)
-			this.exports = IModule.NO_EXPORTS;
-		this.opens = decl.opens();
-		if (this.opens == null)
-			this.opens = IModule.NO_OPENS;
-		this.environment = environment;
+	/* For error binding and sub class SourceModuleBinding. */
+	ModuleBinding(char[] moduleName) {
+		this.moduleName = moduleName;
+		this.requires = Binding.NO_MODULES;
+		this.requiresTransitive = Binding.NO_MODULES;
+		this.exportedPackages = Binding.NO_PACKAGES;
+		this.openedPackages = Binding.NO_PACKAGES;
 		this.uses = Binding.NO_TYPES;
-		this.services = new Service[0];
-		this.iUses = decl.uses();
-		this.iServices = decl.provides();
+		this.services = Binding.NO_TYPES;
 		this.declaredPackages = new HashtableOfPackage(5);
-		this.exportedPackages = new HashtableOfPackage(5);
-		this.isAuto = module.isAutomatic();
+		this.isAuto = false;
+	}
+
+	/* For sub class BinaryModuleBinding */
+	protected ModuleBinding(char[] moduleName, LookupEnvironment existingEnvironment) {
+		this.moduleName = moduleName;
+		this.requires = Binding.NO_MODULES;
+		this.requiresTransitive = Binding.NO_MODULES;
+		this.environment = new LookupEnvironment(existingEnvironment.root, this);
+		this.declaredPackages = new HashtableOfPackage(5);
+	}
+	
+	public PackageBinding[] getExports() {
+		completeIfNeeded(UpdateKind.PACKAGE);
+		return this.exportedPackages;
+	}
+	public String[] getExportRestrictions(PackageBinding pack) {
+		completeIfNeeded(UpdateKind.PACKAGE);
+		if (this.exportRestrictions != null) {
+			SimpleSetOfCharArray set = this.exportRestrictions.get(pack);
+			if (set != null) {
+				char[][] names = new char[set.elementSize][]; 
+				set.asArray(names);
+				return CharOperation.charArrayToStringArray(names);
+			}
+		}
+		return CharOperation.NO_STRINGS;
+	}
+	public PackageBinding[] getOpens() {
+		completeIfNeeded(UpdateKind.PACKAGE);
+		return this.openedPackages;
+	}
+	public String[] getOpenRestrictions(PackageBinding pack) {
+		completeIfNeeded(UpdateKind.PACKAGE);
+		if (this.openRestrictions != null) {
+			SimpleSetOfCharArray set = this.openRestrictions.get(pack);
+			if (set != null) {
+				char[][] names = new char[set.elementSize][]; 
+				set.asArray(names);
+				return CharOperation.charArrayToStringArray(names);
+			}
+		}
+		return CharOperation.NO_STRINGS;
+	}
+	public TypeBinding[] getImplementations(TypeBinding binding) {
+		if (this.implementations != null) {
+			Collection<TypeBinding> impls = this.implementations.get(binding);
+			if (impls != null)
+				return impls.toArray(new TypeBinding[impls.size()]);
+		}
+		return null;
+	}
+	public ModuleBinding[] getRequires() {
+		completeIfNeeded(UpdateKind.MODULE);
+		return this.requires;
+	}
+	public ModuleBinding[] getRequiresTransitive() {
+		completeIfNeeded(UpdateKind.MODULE);
+		return this.requiresTransitive;
+	}
+	private void completeIfNeeded(IUpdatableModule.UpdateKind kind) {
+		if (!this.isComplete[kind.ordinal()]) {
+			this.isComplete[kind.ordinal()] = true;
+			if (this.environment.nameEnvironment instanceof IModuleAwareNameEnvironment) {
+				((IModuleAwareNameEnvironment) this.environment.nameEnvironment).applyModuleUpdates(this, kind);
+			}
+		}
+	}
+
+	// ---  Implement IUpdatableModule: ---
+
+	@Override
+	public void addReads(char[] requiredModuleName) {
+		ModuleBinding requiredModule = this.environment.getModule(requiredModuleName);
+		if (requiredModule != null) {
+			int len = this.requires.length;
+			if (len == 0) {
+				this.requires = new ModuleBinding[] { requiredModule };
+			} else {
+				System.arraycopy(this.requires, 0, this.requires = new ModuleBinding[len+1], 0, len);
+				this.requires[len] = requiredModule;
+			}
+		} else {
+			// TODO(SHMOD) report error
+		}
+	}
+	@Override
+	public void addExports(char[] packageName, char[][] targetModules) {
+		PackageBinding declaredPackage = getVisiblePackage(CharOperation.splitOn('.', packageName));
+		addResolvedExport(declaredPackage, targetModules);
+	}
+
+	// ---
+
+	public void addResolvedExport(PackageBinding declaredPackage, char[][] targetModules) {
+		int len = this.exportedPackages.length;
+		if (declaredPackage == null || !declaredPackage.isValidBinding()) {
+			// FIXME(SHMOD) error reporting
+			return;
+		}
+		if (len == 0) {
+			this.exportedPackages = new PackageBinding[] { declaredPackage };
+		} else {
+			System.arraycopy(this.exportedPackages, 0, this.exportedPackages = new PackageBinding[len+1], 0, len);
+			this.exportedPackages[len] = declaredPackage;
+		}
+		recordExportRestrictions(declaredPackage, targetModules);
+	}
+
+	public void addResolvedOpens(PackageBinding declaredPackage, char[][] targetModules) {
+		int len = this.openedPackages.length;
+		if (declaredPackage == null || !declaredPackage.isValidBinding()) {
+			// FIXME(SHMOD) error reporting
+			return;
+		}
+		if (len == 0) {
+			this.openedPackages = new PackageBinding[] { declaredPackage };
+		} else {
+			System.arraycopy(this.openedPackages, 0, this.openedPackages = new PackageBinding[len+1], 0, len);
+			this.openedPackages[len] = declaredPackage;
+		}
+		recordOpensRestrictions(declaredPackage, targetModules);
+	}
+
+	protected void recordExportRestrictions(PackageBinding exportedPackage, char[][] targetModules) {
+		if (targetModules != null && targetModules.length > 0) {
+			SimpleSetOfCharArray targetModuleSet = new SimpleSetOfCharArray(targetModules.length);
+			for (int i = 0; i < targetModules.length; i++) {
+				targetModuleSet.add(targetModules[i]);
+			}
+			if (this.exportRestrictions == null)
+				this.exportRestrictions = new HashMap<>();
+			this.exportRestrictions.put(exportedPackage, targetModuleSet);
+		}
+	}
+
+	protected void recordOpensRestrictions(PackageBinding openedPackage, char[][] targetModules) {
+		if (targetModules != null && targetModules.length > 0) {
+			SimpleSetOfCharArray targetModuleSet = new SimpleSetOfCharArray(targetModules.length);
+			for (int i = 0; i < targetModules.length; i++) {
+				targetModuleSet.add(targetModules[i]);
+			}
+			if (this.openRestrictions == null)
+				this.openRestrictions = new HashMap<>();
+			this.openRestrictions.put(openedPackage, targetModuleSet);
+		}
 	}
 
 	private Stream<ModuleBinding> getRequiredModules(boolean transitiveOnly) {
-		return Stream.of(this.requires).filter(ref -> transitiveOnly ? ref.isTransitive() : true)
-			.map(ref -> this.environment.getModule(ref.name()))
-			.filter(mod -> mod != null);
+		return Stream.of(transitiveOnly ? this.getRequiresTransitive() : this.getRequires());
 	}
 	private void collectAllDependencies(Set<ModuleBinding> deps) {
 		getRequiredModules(false).forEach(m -> {
@@ -160,71 +306,49 @@ public class ModuleBinding extends Binding {
 	/**
 	 * Get all the modules required by this module
 	 * All required modules include modules explicitly specified as required in the module declaration
-	 * as well as implicit dependencies - those specified as ' requires public ' by one of the
+	 * as well as implicit dependencies - those specified as ' requires transitive ' by one of the
 	 * dependencies
 	 * 
 	 * @return
 	 *   An array of all required modules
 	 */
 	public ModuleBinding[] getAllRequiredModules() {
-		if (this.requiredModules != null)
-			return this.requiredModules;
+//		if (this.requiredModules != null) // FIXME(SHMOD): for caching: when invoked? must have resolved first)
+//			return this.requiredModules;
 
 		Collection<ModuleBinding> allRequires = dependencyCollector().get();
-		ModuleBinding javaBase = this.environment.getModule(JRTUtil.JAVA_BASE_CHAR);
-		if (!CharOperation.equals(this.moduleName, TypeConstants.JAVA_BASE) && javaBase != null) {
+		if (allRequires.contains(this)) {
+			// TODO(SHMOD): report (when? where?)
+			return NO_MODULES; // avoid entering unbounded recursion due to cyclic requires
+		}
+		ModuleBinding javaBase = this.environment.javaBaseModule();
+																			// add java.base?
+		if (!CharOperation.equals(this.moduleName, TypeConstants.JAVA_BASE)	// ... not if this *is* java.base 
+				&& javaBase != null 										// ... nor when java.base is absent
+				&& javaBase != this.environment.UnNamedModule)				// ..... or faked by the unnamed module 
+		{
 			allRequires.add(javaBase);
 		}
-		return this.requiredModules = allRequires.size() > 0 ? allRequires.toArray(new ModuleBinding[allRequires.size()]) : NO_REQUIRES;
+		return this.requiredModules = allRequires.size() > 0 ? allRequires.toArray(new ModuleBinding[allRequires.size()]) : Binding.NO_MODULES;
 	}
 
-	interface ICharTransType {
-		public TypeBinding[] apply(char[][] t);
-	}
-
-	Function<char[], TypeBinding> mapper = v -> this.environment.getType(CharOperation.splitOn('.', v));
-	ICharTransType cTrans = t -> Stream.of(t).map(e -> this.mapper.apply(e)).toArray(TypeBinding[] :: new);
-
-	public TypeBinding[] getUses() {
-		if (this.iUses == null) // either null or already processed
-			return this.uses;
-		this.uses = this.cTrans.apply(this.iUses);
-		this.iUses = null; //processed
-		return this.uses;
-	}
-	public Service[] getServices() {
-		if (this.iServices != null) {
-			int len = this.iServices.length;
-			this.services = new Service[len];
-			for (int i = 0; i < len; ++i) {
-				IService s = this.iServices[i];
-				Service ts = this.services[i] = new Service();
-				ts.service = this.environment.getType(CharOperation.splitOn('.', s.name()));
-				ts.implementations = this.cTrans.apply(s.with());
-			}
-			this.iServices = null; // done
-		}
-		return this.services;
-	}
+	/** Answer the name of this module. The unnamed module is identified by {@link #UNNAMED}. */
 	public char[] name() {
 		return this.moduleName;
 	}
 
-	private boolean isPackageVisibleTo(PackageBinding pkg, ModuleBinding client, IPackageExport[] pvs) {
-		PackageBinding resolved = getExportedPackage(pkg.readableName());
-		if (resolved == pkg) {
-			if (this.isAuto) { // all packages are exported by an automatic module
-				return true;
-			}
-			Predicate<IPackageExport> isTargeted = IPackageExport::isQualified;
-			Predicate<IPackageExport> isExportedTo = e -> 
-				Stream.of(e.targets()).map(ref -> this.environment.getModule(ref)).filter(m -> m != null).anyMatch(client::equals);
-			
-			return Stream.of(pvs).filter(e -> CharOperation.equals(pkg.readableName(), e.name()))
-					.anyMatch(isTargeted.negate().or(isExportedTo));
-		}
-		return false;
+	/**
+	 * Answer the name of this module as it should be used for package or type lookup.
+	 * Unnamed and automatic modules answer {@link #ANY}, to signal that lookup should
+	 * search in all accessible modules.
+	 */
+	public char[] nameForLookup() {
+		if (this.moduleName == UNNAMED || this.isAuto)
+			return ANY;
+		else
+			return this.moduleName;
 	}
+
 	/**
 	 * Check if the specified package is exported to the client module by this module. True if the package appears
 	 * in the list of exported packages and when the export is targeted, the module appears in the targets of the
@@ -234,213 +358,259 @@ public class ModuleBinding extends Binding {
 	 * @return true if the package is visible to the client module, false otherwise
 	 */
 	public boolean isPackageExportedTo(PackageBinding pkg, ModuleBinding client) {
-		return isPackageVisibleTo(pkg, client, this.exports);
+		// TODO(SHMOD): cache the result?
+		PackageBinding resolved = getVisiblePackage(pkg.compoundName);
+		if (pkg.isEquivalentTo(resolved)) {
+			if (this.isAuto) { // all packages are exported by an automatic module
+				return true;
+			}
+			PackageBinding[] initializedExports = getExports();
+			for (int i = 0; i < initializedExports.length; i++) {
+				PackageBinding export = initializedExports[i];
+				if (export.subsumes(pkg)) {
+					if (this.exportRestrictions != null) {
+						SimpleSetOfCharArray restrictions = this.exportRestrictions.get(export);
+						if (restrictions != null)
+							return restrictions.includes(client.name());
+					}
+					return true;
+				}
+			}
+		}
+		return false;
 	}
+
 	/**
-	 * Check if the specified package is opened to the client module by this module. True if the package appears
-	 * in the list of opened packages and when the opens is targeted, the module appears in the targets of the
-	 * opens statement
-	 * @param pkg - the package whose visibility is to be checked
-	 * @param client - the module that wishes to use the package
-	 * @return true if the package is visible to the client module, false otherwise
+	 * Return a package binding if there exists a package named name in this module's context and it can be seen by this module.
+	 * A package can be seen by this module if it is declared in this module or any other module read by this module 
+	 * (JLS 7.4.3 for packages based on JLS 7.3 for compilation units).
+	 * Package exports are not considered for visibility check (only when checking "uniquely visible" (JLS 7.4.3)).
+	 * <p>
+	 * The returned package may be a {@link SplitPackageBinding}, if more than one package of the given name is visible.
+	 * </p>
+	 * <p>
+	 * When asked via the unnamed module or an automatic module all other named modules are considered visible. 
+	 * </p>
 	 */
-	public boolean isPackageOpenedTo(PackageBinding pkg, ModuleBinding client) {
-		return isPackageVisibleTo(pkg, client, this.opens);
-	}
-	public PackageBinding getTopLevelPackage(char[] name) {
-		// return package binding if there exists a package named name in this module's context and it can be seen by this module
-		// A package can be seen by this module if it declares the package or someone exports that package to it
-		PackageBinding existing = this.environment.getPackage0(name);
-		if (existing != null) {
-			if (existing == LookupEnvironment.TheNotFoundPackage)
-				return null;
-		}
-		existing = getDeclaredPackage(new char[][] {name});
-		if (existing != null) {
-			return existing;
-		} else {
-			return Stream.of(getAllRequiredModules()).sorted((m1, m2) -> m1.requires.length - m2.requires.length)
-					.map(m -> {
-						PackageBinding binding = m.getExportedPackage(name);
-						if (binding != null && m.isPackageExportedTo(binding, this)) {
-							return m.declaredPackages.get(name);
-						}
-						return null;
-					})
-			.filter(p -> p != null).findFirst().orElse(null);
-		}
-	}
-	// Given parent is declared in this module, see if there is sub package named name declared in this module
-	private PackageBinding getDeclaredPackage(PackageBinding parent, char[] name) {
-		PackageBinding pkg = parent.getPackage0(name);
-		if (pkg != null && pkg != LookupEnvironment.TheNotFoundPackage)
-			return pkg;
-		if (declaresPackage(parent.compoundName, name)) {
-			char[][] subPkgCompoundName = CharOperation.arrayConcat(parent.compoundName, name);
-			PackageBinding binding = new PackageBinding(subPkgCompoundName, parent, this.environment);
-			parent.addPackage(binding);
-			this.declaredPackages.put(binding.readableName(), binding);
+	PackageBinding getTopLevelPackage(char[] name) {
+		// check caches:
+		PackageBinding binding = this.declaredPackages.get(name);
+		if (binding != null)
 			return binding;
-		}
-		// TODO: Situation can probably improved by adding NOtFoundPackage to this.declaredPackages 
-		//parent.addNotFoundPackage(name); Not a package in this module does not mean not a package at all
-		return null;
-	}
-	public PackageBinding getDeclaredPackage(char[][] name) {
-		// return package binding if there exists a package named name in this module
-		if (name == null || name.length == 0) {
-			return this.environment.getDefaultPackage(this.moduleName);
+		binding = this.environment.getPackage0(name);
+		if (binding != null)
+			return binding;
+
+		// find declaration in a visible module:
+		if (this.environment.useModuleSystem) {
+			IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.environment.nameEnvironment;
+			char[][] declaringModuleNames = moduleEnv.getModulesDeclaringPackage(null, name, nameForLookup());
+			if (declaringModuleNames != null) {
+				if (CharOperation.containsEqual(declaringModuleNames, this.moduleName)) {
+					// declared here, not yet known, so create it now:
+					binding = new PackageBinding(new char[][] {name}, null, this.environment, this);
+				} else {
+					// visible but foreign (when current is unnamed or auto):
+					for (char[] declaringModuleName : declaringModuleNames) {
+						ModuleBinding declaringModule = this.environment.root.getModule(declaringModuleName);
+						if (declaringModule != null)
+							binding = SplitPackageBinding.combine(declaringModule.getTopLevelPackage(name), binding);
+					}
+				}
+			}
+		} else {
+			if (this.environment.nameEnvironment.isPackage(null, name))
+				binding = new PackageBinding(new char[][] {name}, null, this.environment, this);			
 		}
 
-		PackageBinding parent = null;
-		PackageBinding existing = this.environment.getPackage0(name[0]); 
-		if (existing != null) { // known top level package
-			if (existing == LookupEnvironment.TheNotFoundPackage)
-				return null;
-			parent = existing;
+		// enrich with split-siblings from visible modules:
+		for (ModuleBinding required : getAllRequiredModules()) {
+			if (required == this) continue;
+			binding = SplitPackageBinding.combine(required.getTopLevelPackage(name), binding);
 		}
-		if (parent == null) {
-			if (declaresPackage(null, name[0])) { // unknown as yet, but declared in this module
-				parent = new PackageBinding(name[0], this.environment);
-				this.declaredPackages.put(name[0], parent);
-			} else {
-				this.declaredPackages.put(name[0], LookupEnvironment.TheNotFoundPackage); // not declared in this module
+
+		// remember:
+		if (binding != null) {
+			this.environment.knownPackages.put(name, binding);
+			binding = addPackage(binding, false);
+		} else {
+			this.environment.knownPackages.put(name, LookupEnvironment.TheNotFoundPackage);
+		}
+		return binding;
+	}
+
+	// Given parent is visible in this module, see if there is sub package named name visible in this module
+	private PackageBinding getVisiblePackage(PackageBinding parent, char[] name) {
+		assert parent.compoundName.length > 0 : "shouldn't ask children of a default package"; //$NON-NLS-1$
+
+		// check caches:
+		char[][] subPkgCompoundName = CharOperation.arrayConcat(parent.compoundName, name);
+		char[] fullFlatName = CharOperation.concatWith(subPkgCompoundName, '.');
+		PackageBinding pkg = this.declaredPackages.get(fullFlatName);
+		if (pkg != null)
+			return pkg;
+		pkg = parent.getPackage0(name);
+		if (pkg != null) {
+			if (pkg == LookupEnvironment.TheNotFoundPackage)
 				return null;
-			}
-		} else if (!declaresPackage(null, name[0])) { // already seen before, but not declared in this module
+			else
+				return addPackage(pkg, false);
+		}
+
+		PackageBinding binding = null;
+		if (!parent.isDeclaredIn(this)) {
+			// delegate foreign packages to their declaring modules:
+			if (parent instanceof SplitPackageBinding)
+				return combineWithChildrenOfSplitPackage(binding, (SplitPackageBinding) parent, name);
+			return parent.enclosingModule.getVisiblePackage(parent, name);
+		}
+
+		boolean isPackage = this.environment.useModuleSystem 
+								? isDeclaredPackage(parent.compoundName, name)
+								: this.environment.nameEnvironment.isPackage(parent.compoundName, name);
+		if (!isPackage)
+			return null; 
+
+		// create
+		binding = new PackageBinding(subPkgCompoundName, parent, this.environment, this);
+		
+		// enrich
+		if (parent instanceof SplitPackageBinding)
+			binding = combineWithChildrenOfSplitPackage(binding, (SplitPackageBinding) parent, name);
+
+		// remember
+		if (parent.compoundName.length == 0)
+			this.environment.knownPackages.put(name, binding);
+		else
+			parent.addPackage(binding);
+		return addPackage(binding, false);
+	}
+
+	/**
+	 * Answer the package of the given qualified name and visible in this module,
+	 * or {@code null} if no such package exists.
+	 * Accessibility (based on package exports) is <strong>not</strong> checked.
+	 * <p>
+	 * May answer a {@link SplitPackageBinding}.
+	 * </p>
+	 */
+	public PackageBinding getVisiblePackage(char[][] qualifiedPackageName) {
+		if (qualifiedPackageName == null || qualifiedPackageName.length == 0) {
+			return this.environment.defaultPackage;
+		}
+
+		PackageBinding parent = getTopLevelPackage(qualifiedPackageName[0]);
+		if (parent == null || parent == LookupEnvironment.TheNotFoundPackage)
 			return null;
-		}
+
 		// check each sub package
-		for (int i = 1; i < name.length; i++) {
-			PackageBinding binding = getDeclaredPackage(parent, name[i]); 
-			if (binding == null) {
+		for (int i = 1; i < qualifiedPackageName.length; i++) {
+			PackageBinding binding = getVisiblePackage(parent, qualifiedPackageName[i]); 
+			if (binding == null || binding == LookupEnvironment.TheNotFoundPackage) {
 				return null;
 			}
 			parent = binding;
 		}
 		return parent;
 	}
-	private PackageBinding getVisibilityPackage(char[] qualifiedPackageName, IPackageExport[]  pvs) {
-		PackageBinding existing = this.exportedPackages.get(qualifiedPackageName);
-		if (existing != null && existing != LookupEnvironment.TheNotFoundPackage)
-			return existing;
-		if (this.isAuto) { // all packages are exported by an automatic module
-			return getDeclaredPackage(CharOperation.splitOn('.', qualifiedPackageName));
+
+	private PackageBinding combineWithChildrenOfSplitPackage(PackageBinding childPackage, SplitPackageBinding splitParent, char[] name) {
+		// see if other incarnations contribute to the child package, too:
+		for (PackageBinding incarnation :  splitParent.incarnations) {
+			ModuleBinding moduleBinding = incarnation.enclosingModule;
+			if (moduleBinding == this)
+				continue;
+			PackageBinding next = moduleBinding.getVisiblePackage(incarnation, name);
+			childPackage = SplitPackageBinding.combine(next, childPackage);
 		}
-		//Resolve exports to see if the package or a sub package is exported
-		return Stream.of(pvs).sorted((e1, e2) -> e1.name().length - e2.name().length)
-		.filter(e -> CharOperation.prefixEquals(qualifiedPackageName, e.name())) // TODO: improve this
-		.map(e -> {
-			PackageBinding binding = getDeclaredPackage(CharOperation.splitOn('.', e.name()));
-			if (binding != null) {
-				this.exportedPackages.put(e.name(), binding);
-				return binding;
-			}
-			return null;
-		}).filter(p -> p != null).findFirst().orElse(null);
+		return childPackage;
 	}
-	public PackageBinding getExportedPackage(char[] qualifiedPackageName) {
-		return getVisibilityPackage(qualifiedPackageName, this.exports);
-	}
-	public PackageBinding getOpenedPackage(char[] qualifiedPackageName) {
-		return getVisibilityPackage(qualifiedPackageName, this.opens);
-	}
-	public boolean declaresPackage(PackageBinding p) {
-		PackageBinding pkg = this.declaredPackages.get(p.readableName());
-		if (pkg == null) {
-			pkg = getDeclaredPackage(p.compoundName);
-			if (pkg == p) {
-				this.declaredPackages.put(p.readableName(), p);
-				return true;
-			}
-		}
-		return pkg == p;
-	}
-	public boolean declaresPackage(char[][] parentPackageName, char[] name) {
-		char[] qualifiedName = CharOperation.concatWith(parentPackageName, name, '.');
-		PackageBinding declared = this.declaredPackages.get(qualifiedName);
-		if (declared != null && declared != LookupEnvironment.TheNotFoundPackage) {
- 				return true;
+
+	/**
+	 * Does this module declare a package by the given name and qualified by the given parentPackageName?
+	 * In JLS diction a declared package is "associated" with this module.
+	 */
+	private boolean isDeclaredPackage(char[][] parentPackageName, char[] name) {
+		char[] qualifiedPackageName = CharOperation.concatWith(parentPackageName, name, '.');
+		PackageBinding declared = this.declaredPackages.get(qualifiedPackageName);
+		if (declared != null) {
+			return declared != LookupEnvironment.TheNotFoundPackage;
 		}
 		INameEnvironment nameEnvironment = this.environment.nameEnvironment;
 		if (nameEnvironment instanceof IModuleAwareNameEnvironment) {
-			return ((IModuleAwareNameEnvironment)nameEnvironment).isPackage(parentPackageName, name, getModuleLookupContext());
+			IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment)nameEnvironment;
+			return moduleEnv.getModulesDeclaringPackage(parentPackageName, name, this.moduleName) != null;
 		} else {
 			return nameEnvironment.isPackage(parentPackageName, name);
 		}
 	}
-	public PackageBinding getPackage(char[][] parentPackageName, char[] packageName) {
+
+	/**
+	 * Answer a package, that is a member named <em>packageName</em> of the parent package
+	 * named <em>parentPackageName</em>.
+	 * Considers all packages that are visible to the current module,
+	 * i.e., we consider locally declared packages and packages in all modules
+	 * read by the current module.
+	 * Accessibility (via package exports) is <strong>not</strong> checked.
+	 */
+	PackageBinding getPackage(char[][] parentPackageName, char[] packageName) {
 		// Returns a package binding if there exists such a package in the context of this module and it is observable
 		// A package is observable if it is declared in this module or it is exported by some required module
-		PackageBinding binding = null;
 		if (parentPackageName == null || parentPackageName.length == 0) {
-			binding = getTopLevelPackage(packageName);
-		} else {
-			binding = getDeclaredPackage(parentPackageName);
-			if (binding != null && binding != LookupEnvironment.TheNotFoundPackage) {
-				binding = getDeclaredPackage(binding, packageName);
-				if (binding != null)
-					return binding;
-			}
+			return getTopLevelPackage(packageName);
 		}
-		if (binding == null) {
-			char[] qualifiedPackageName = CharOperation.concatWith(parentPackageName, packageName, '.');
-			return Stream.of(getAllRequiredModules())
-					.map(m -> {
-						if (m.isAuto) {
-							return m.getPackage(parentPackageName, packageName);
-						}
-						PackageBinding p = m.getExportedPackage(qualifiedPackageName);
-						if (p != null && m.isPackageExportedTo(p, this)) {
-							return m.declaredPackages.get(qualifiedPackageName);
-						}
-						return null;
-					})
-			.filter(p -> p != null).findFirst().orElse(null);
+		PackageBinding binding = null;
+		PackageBinding parent = getVisiblePackage(parentPackageName);
+		if (parent != null && parent != LookupEnvironment.TheNotFoundPackage) {
+			binding = getVisiblePackage(parent, packageName);
 		}
-		return binding;
+		if (binding != null)
+			return addPackage(binding, false);
+		return null;
 	}
+	
 	/**
-	 * Check if the given package is visible to this module. True when the package is declared in
+	 * Check if the given package is declared in this module,
+	 * and if so, remember this fact for later.
+	 * The package can be a {@code SplitPackageBinding} in which case
+	 * only one of its incarnations needs to be declared in this module.
+	 * @param packageBinding the package to add
+	 * @param checkForSplit if true then we should try to construct a split package from
+	 * 	same named packages in required modules.
+	 * @return the given package, possibly enriched to a {@link SplitPackageBinding}
+	 */
+	PackageBinding addPackage(PackageBinding packageBinding, boolean checkForSplit) {
+		if (packageBinding.isDeclaredIn(this)) {
+			char[] packageName = packageBinding.readableName();
+			if (checkForSplit) {
+				for (ModuleBinding moduleBinding : getAllRequiredModules())
+					packageBinding = SplitPackageBinding.combine(moduleBinding.getVisiblePackage(packageBinding.compoundName), packageBinding);
+			}
+			this.declaredPackages.put(packageName, packageBinding);
+		}
+		return packageBinding;
+	}
+
+	/**
+	 * Check if the given package is accessible by this module. True when the package is declared in
 	 * this module or exported by some required module to this module.
 	 * See {@link #isPackageExportedTo(PackageBinding, ModuleBinding)}
 	 * 
 	 * @param pkg
 	 * 
-	 * @return True, if the package is visible to this module, false otherwise
+	 * @return True, if the package is accessible by this module, false otherwise
 	 */
-	public boolean canSee(PackageBinding pkg) {
-		return declaresPackage(pkg) || Stream.of(getAllRequiredModules()).anyMatch(
-				dep -> dep.isPackageExportedTo(pkg, ModuleBinding.this)
+	public boolean canAccess(PackageBinding pkg) {
+		boolean answer = pkg.isDeclaredIn(this) || Stream.of(getAllRequiredModules()).anyMatch(
+				dep -> dep.isPackageExportedTo(pkg, ModuleBinding.this) // TODO(SHMOD): store export status in the PackageBinding
 		);
+		return answer;
 	}
 	@Override
 	public char[] computeUniqueKey(boolean isLeaf) {
 		return this.moduleName; // for now just return the module name - tied to Signature if any.
 	}
-	public boolean dependsOn(ModuleBinding other) {
- 		if (other == this)
- 			return true;
-		return Stream.of(getAllRequiredModules()).anyMatch(other::equals);
-	}
-	// A context representing just this module
- 	public IModuleContext getModuleLookupContext() {
- 		IModuleAwareNameEnvironment env = (IModuleAwareNameEnvironment) this.environment.nameEnvironment;
- 		IModuleEnvironment moduleEnvironment = env.getModuleEnvironmentFor(this.moduleName);
- 		return () -> moduleEnvironment == null ? Stream.empty() : Stream.of(moduleEnvironment);
- 	}
- 	// A context including this module and all it's required modules
- 	public IModuleContext getDependencyClosureContext() {
- 		if (this.isAuto)
- 			return IModuleContext.UNNAMED_MODULE_CONTEXT;
- 		ModuleBinding[] deps = getAllRequiredModules();
- 		return getModuleLookupContext().includeAll(Stream.of(deps).map(m -> m.getModuleLookupContext()));
- 	}
- 	// A context that includes the entire module graph starting from this module
- 	public IModuleContext getModuleGraphContext() {
- 		Stream<ModuleBinding> reqs = getRequiredModules(false);
- 		return getModuleLookupContext().includeAll(reqs.map(m -> m.getModuleGraphContext()).distinct());
- 	}
+
 	@Override
 	public int kind() {
 		//
@@ -453,40 +623,80 @@ public class ModuleBinding extends Binding {
 		return this.moduleName;
 	}
 
-	private void printPackageVisibility(StringBuffer buffer, IPackageExport[] pvs, String present, String absent) {
-		int len = pvs.length;
-		buffer.append(len > 0 ? present : absent);
-		for (int i = 0; i < len; i++) {
-			IPackageExport pv = pvs[i];
-			buffer.append("\n\t"); //$NON-NLS-1$
-			buffer.append(pv.name());
-			char[][] targets = pv.targets();
-			if (targets != null) {
-				buffer.append("to "); //$NON-NLS-1$
-				for (int j = 0; j < targets.length; j++) {
-					if (j != 0)
-						buffer.append(", "); //$NON-NLS-1$
-					buffer.append(targets[j]);
-				}
-			}
-		}
-	}
 	public String toString() {
 		StringBuffer buffer = new StringBuffer(30);
+		if (isOpen())
+			buffer.append("open "); //$NON-NLS-1$
 		buffer.append("module " + new String(readableName())); //$NON-NLS-1$
 		if (this.requires.length > 0) {
 			buffer.append("\n/*    requires    */\n"); //$NON-NLS-1$
 			for (int i = 0; i < this.requires.length; i++) {
 				buffer.append("\n\t"); //$NON-NLS-1$
-				if (this.requires[i].isTransitive())
-					buffer.append("public "); //$NON-NLS-1$
-				buffer.append(this.requires[i].name());
+				if (this.requiresTransitive != null) {
+					for (ModuleBinding reqTrans : this.requiresTransitive) {
+						if (reqTrans == this.requires[i]) {
+							buffer.append("transitive "); //$NON-NLS-1$
+							break;
+						}
+					}
+				}
+				buffer.append(this.requires[i].moduleName);
 			}
 		} else {
 			buffer.append("\nNo Requires"); //$NON-NLS-1$
 		}
-		printPackageVisibility(buffer, this.exports, "\n/*    exports    */\n", "\nNo Exports"); //$NON-NLS-1$ //$NON-NLS-2$
-		printPackageVisibility(buffer, this.opens, "\n/*    opens    */\n", "\nNo Opens"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (this.exportedPackages != null && this.exportedPackages.length > 0) {
+			buffer.append("\n/*    exports    */\n"); //$NON-NLS-1$
+			for (int i = 0; i < this.exportedPackages.length; i++) {
+				PackageBinding export = this.exportedPackages[i];
+				buffer.append("\n\t"); //$NON-NLS-1$
+				if (export == null) {
+					buffer.append("<unresolved>"); //$NON-NLS-1$
+					continue;
+				}
+				buffer.append(export.readableName());
+				SimpleSetOfCharArray restrictions = this.exportRestrictions != null ? this.exportRestrictions.get(export) : null;
+				if (restrictions != null) {
+					buffer.append(" to "); //$NON-NLS-1$
+					String sep = ""; //$NON-NLS-1$
+					char[][] allNames = new char[restrictions.elementSize][];
+					restrictions.asArray(allNames);
+					for (char[] targetModule : allNames) {
+						buffer.append(sep);
+						buffer.append(targetModule);
+						sep = ", "; //$NON-NLS-1$
+					}
+				}
+			}
+		} else {
+			buffer.append("\nNo Exports"); //$NON-NLS-1$
+		}
+		if (this.openedPackages != null && this.openedPackages.length > 0) {
+			buffer.append("\n/*    exports    */\n"); //$NON-NLS-1$
+			for (int i = 0; i < this.openedPackages.length; i++) {
+				PackageBinding opens = this.openedPackages[i];
+				buffer.append("\n\t"); //$NON-NLS-1$
+				if (opens == null) {
+					buffer.append("<unresolved>"); //$NON-NLS-1$
+					continue;
+				}
+				buffer.append(opens.readableName());
+				SimpleSetOfCharArray restrictions = this.openRestrictions != null ? this.openRestrictions.get(opens) : null;
+				if (restrictions != null) {
+					buffer.append(" to "); //$NON-NLS-1$
+					String sep = ""; //$NON-NLS-1$
+					char[][] allNames = new char[restrictions.elementSize][];
+					restrictions.asArray(allNames);
+					for (char[] targetModule : allNames) {
+						buffer.append(sep);
+						buffer.append(targetModule);
+						sep = ", "; //$NON-NLS-1$
+					}
+				}
+			}
+		} else {
+			buffer.append("\nNo Opens"); //$NON-NLS-1$
+		}
 		if (this.uses != null && this.uses.length > 0) {
 			buffer.append("\n/*    uses    /*\n"); //$NON-NLS-1$
 			for (int i = 0; i < this.uses.length; i++) {
@@ -498,16 +708,34 @@ public class ModuleBinding extends Binding {
 		}
 		if (this.services != null && this.services.length > 0) {
 			buffer.append("\n/*    Services    */\n"); //$NON-NLS-1$
-			for (Service s : this.services) {
-				buffer.append("\nprovides "); //$NON-NLS-1$
-				buffer.append(s.service.qualifiedSourceName());
+			for (int i = 0; i < this.services.length; i++) {
+				buffer.append("\n\t"); //$NON-NLS-1$
+				buffer.append("provides "); //$NON-NLS-1$
+				buffer.append(this.services[i].debugName());
 				buffer.append(" with "); //$NON-NLS-1$
-				buffer.append(Stream.of(s.implementations).map(t -> new String(t.qualifiedSourceName())).collect(Collectors.joining(", ")));//$NON-NLS-1$
-				buffer.append(";"); //$NON-NLS-1$
+				if (this.implementations != null && this.implementations.containsKey(this.services[i])) {
+					String sep = ""; //$NON-NLS-1$
+					for (TypeBinding impl : this.implementations.get(this.services[i])) {
+						buffer.append(sep).append(impl.debugName());
+						sep = ", "; //$NON-NLS-1$
+					}
+				} else {
+					buffer.append("<missing implementations>"); //$NON-NLS-1$
+				}
 			}
 		} else {
 			buffer.append("\nNo Services"); //$NON-NLS-1$
 		}
 		return buffer.toString();
+	}
+	public boolean isUnnamed() {
+		return false;
+	}
+	public boolean isOpen() {
+		return (this.modifiers & ClassFileConstants.ACC_OPEN) != 0;
+	}
+	public boolean isDeprecated() {
+		// TODO(SHMOD) implement deprecation for modules
+		return false;
 	}
 }

@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.regex.Pattern;
+
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathEntry;
@@ -844,7 +846,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			assertTrue("Invalid selection result", (elements[0] instanceof BinaryModule));
 			IModuleDescription mod = (IModuleDescription) elements[0];
 			String id = mod.getHandleIdentifier();
-			assertEquals("incorrect id", "=Java9Elements/C:\\/Java\\/jdk-9-ea+160\\/jmods\\/java.base.jmod<(module-info.class`java.base", id);
+			assertTrue("incorrect id", id.matches("=Java9Elements/.*"+Pattern.quote("\\/jmods\\/java.base.jmod<(module-info.class`java.base")));
 			IJavaElement element = JavaCore.create(id);
 			assertEquals("incorrect element type", IJavaElement.JAVA_MODULE, element.getElementType());
 			assertEquals("incorrect module name", "java.base", element.getElementName());

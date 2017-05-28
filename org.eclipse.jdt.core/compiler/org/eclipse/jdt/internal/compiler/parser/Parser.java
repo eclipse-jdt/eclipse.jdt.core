@@ -5518,10 +5518,6 @@ protected void consumePackageComment() {
 }
 protected void consumeInternalCompilationUnitWithModuleDeclaration() {
 	this.compilationUnit.moduleDeclaration = (ModuleDeclaration)this.astStack[this.astPtr--];
-	if (this.compilationUnit.isModuleInfo()) {
-		this.compilationUnit.types = new TypeDeclaration[1];
-		this.compilationUnit.createModuleInfoType(this.compilationUnit.moduleDeclaration);
-	}
 	this.astLengthStack[this.astLengthPtr--] = 0;
 }
 protected void consumeRequiresStatement() {

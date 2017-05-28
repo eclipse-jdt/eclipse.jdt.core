@@ -431,11 +431,10 @@ public class ASTConverter9Test extends ConverterTestSetup {
 
 			IModuleBinding[] reqs = moduleBinding.getRequiredModules();
 			assertTrue("Null requires", reqs != null);
-			assertTrue("incorrect number of requires modules", reqs.length == 2);
-			assertTrue("incorrect name for requires modules", reqs[0].getName().equals("java.base"));
-			assertTrue("incorrect name for requires modules", reqs[1].getName().equals("second"));
+			assertTrue("incorrect number of requires modules", reqs.length == 1);
+			assertTrue("incorrect name for requires modules", reqs[0].getName().equals("second"));
 
-			IPackageBinding[] secPacks = reqs[1].getExportedPackages();
+			IPackageBinding[] secPacks = reqs[0].getExportedPackages();
 			assertTrue("Packages Exported in second module null", secPacks != null);
 			assertTrue("Incorrect number of exported packages in second module", secPacks.length == 1);
 			IPackageBinding pack22 = secPacks[0];

@@ -260,8 +260,6 @@ public CompilationUnitDeclaration updatedCompilationUnitDeclaration(){
 	}
 	if (this.module != null) {
 		this.unitDeclaration.moduleDeclaration = this.module.updatedModuleDeclaration();
-		this.unitDeclaration.types = new TypeDeclaration[1];
-		this.unitDeclaration.createModuleInfoType(this.unitDeclaration.moduleDeclaration);
 	}
 	/* update types */
 	if (this.typeCount > 0){

@@ -20,11 +20,11 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Optional;
+import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.zip.ZipFile;
 
 import org.eclipse.core.runtime.IPath;
@@ -36,8 +36,6 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
-import org.eclipse.jdt.internal.compiler.env.IMultiModulePackageLookup;
-import org.eclipse.jdt.internal.compiler.env.IMultiModuleTypeLookup;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
@@ -55,16 +53,6 @@ INameEnvironment env = null;
 private String externalAnnotationPath;
 private ZipFile annotationZipFile;
 String zipFilename; // keep for equals
-
-protected Function<char[], ITypeLookup> typeLookupForModule = modName -> 
-(typeName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly) -> {
-return typeLookup().findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly, modName);
-};
-
-protected Function<char[], IPackageLookup> pkgLookupForModule = modName -> 
-qualifiedPackageName -> {
-return packageLookup().isPackage(qualifiedPackageName, modName);
-};
 
 public ClasspathJrt(String zipFilename, IPath externalAnnotationPath, INameEnvironment env) {
 	this.zipFilename = zipFilename;
@@ -170,7 +158,7 @@ void acceptModule(byte[] content) {
 		return;
 	ClassFileReader reader = null;
 	try {
-		reader = new ClassFileReader(content, IModuleEnvironment.MODULE_INFO_CLASS.toCharArray(), null);
+		reader = new ClassFileReader(content, IModuleEnvironment.MODULE_INFO_CLASS.toCharArray());
 	} catch (ClassFormatException e) {
 		e.printStackTrace();
 	}
@@ -202,11 +190,12 @@ public boolean equals(Object o) {
 	return this.zipFilename.endsWith(jar.zipFilename);
 }
 
-private NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly, Optional<Collection<char[]>> moduleNames) {
-	if (!isPackage(qualifiedPackageName)) return null; // most common case
+@Override
+public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
+	if (!isPackage(qualifiedPackageName, moduleName)) return null; // most common case
 
 	try {
-		IBinaryType reader = ClassFileReader.readFromModules(new File(this.zipFilename), qualifiedBinaryFileName, moduleNames);
+		IBinaryType reader = ClassFileReader.readFromModule(new File(this.zipFilename), moduleName, qualifiedBinaryFileName);
 		if (reader != null) {
 			if (this.externalAnnotationPath != null) {
 				String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
@@ -235,32 +224,13 @@ public int hashCode() {
 	return this.zipFilename == null ? super.hashCode() : this.zipFilename.hashCode();
 }
 @Override
-public boolean isPackage(String qualifiedPackageName) {
-	//
-	return isPackage(qualifiedPackageName, Optional.empty());
+public char[][] getModulesDeclaringPackage(String qualifiedPackageName, String moduleName) {
+	List<String> moduleNames = JRTUtil.getModulesDeclaringPackage(new File(this.zipFilename), qualifiedPackageName, moduleName);
+	return CharOperation.toCharArrays(moduleNames); 
 }
-public boolean isPackage(String qualifiedPackageName, Optional<char[]> moduleName) {
-//	try {
-//		synchronized (this) {
-//			if (this.packagesInModule == null) {
-//				this.packagesInModule = findPackagesInModules(this);
-//			}
-//		}
-//	} catch(Exception e) {
-//		// TODO BETA_JAVA9
-//	}
-//	if (moduleName.isPresent()) {
-//		SimpleSet set = this.packagesInModule.get(moduleName.get());
-//		return set != null && set.includes(qualifiedPackageName);
-//	}
-//	Set<String> keySet = this.packagesInModule.keySet();
-//	for (String string : keySet) {
-//		SimpleSet set = this.packagesInModule.get(string);
-//		if (set.includes(qualifiedPackageName)) return true;
-//	}
-//
-//	return false;
-	return JRTUtil.isPackage(new File(this.zipFilename), qualifiedPackageName, moduleName);
+@Override
+public boolean isPackage(String qualifiedPackageName, String moduleName) {
+	return JRTUtil.getModulesDeclaringPackage(new File(this.zipFilename), qualifiedPackageName, moduleName) != null;
 }
 
 public String toString() {
@@ -271,9 +241,9 @@ public String toString() {
 public String debugPathString() {
 	return this.zipFilename;
 }
-public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly, Optional<Collection<char[]>> moduleNames) {
+public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
 	String fileName = new String(typeName);
-	return findClass(fileName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly, Optional.empty());
+	return findClass(fileName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, asBinaryOnly);
 }
 @Override
 public IModule getModule(char[] moduleName) {
@@ -287,11 +257,18 @@ public IModule getModule(char[] moduleName) {
 	return null;
 }
 @Override
-public IMultiModuleTypeLookup typeLookup() {
+public Collection<String> getModuleNames() {
+	HashMap<String, SimpleSet> cache = findPackagesInModules(this);
+	if (cache != null)
+		return cache.keySet();
+	return Collections.emptyList();
+}
+@Override
+public ITypeLookup typeLookup() {
 	return this::findClass;
 }
 @Override
-public IMultiModulePackageLookup packageLookup() {
+public IPackageLookup packageLookup() {
 	return this::isPackage;
 }
 
@@ -300,34 +277,10 @@ public IModuleEnvironment getLookupEnvironment() {
 	//
 	return this;
 }
-@Override
-public IModuleEnvironment getLookupEnvironmentFor(IModule mod) {
-	// 
-	return new IModuleEnvironment() {
-		
-		@Override
-		public ITypeLookup typeLookup() {
-			//
-			return servesModule(mod.name()) ? ClasspathJrt.this.typeLookupForModule.apply(mod.name()) : ITypeLookup.Dummy;
-		}
-		
-		@Override
-		public IPackageLookup packageLookup() {
-			//
-			return servesModule(mod.name()) ? ClasspathJrt.this.pkgLookupForModule.apply(mod.name()) : IPackageLookup.Dummy;
-		}
-	};
-}
-@Override
-public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
-	// 
-	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false, Optional.empty());
-}
-@Override
-public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName,
-		boolean asBinaryOnly) {
-	//
-	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly, Optional.empty());
-}
 
+@Override
+public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName) {
+	// 
+	return findClass(typeName, qualifiedPackageName, null, qualifiedBinaryFileName, false);
+}
 }

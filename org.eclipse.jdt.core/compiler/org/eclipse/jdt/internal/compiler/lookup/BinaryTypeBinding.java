@@ -309,8 +309,8 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 		cachePartsFrom(binaryType, true);
 }
 public boolean canBeSeenBy(Scope sco) {
-	ModuleBinding mod = this.environment.getModule(sco.module());
-	return mod.canSee(this.fPackage) && super.canBeSeenBy(sco);
+	ModuleBinding mod = sco.module();
+	return mod.canAccess(this.fPackage) && super.canBeSeenBy(sco);
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#availableFields()
@@ -1330,7 +1330,7 @@ private void initializeTypeVariable(TypeVariableBinding variable, TypeVariableBi
 	ReferenceBinding type, firstBound = null;
 	short rank = 0;
 	if (wrapper.signature[wrapper.start] == Util.C_COLON) {
-		type = this.environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null);
+		type = this.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_OBJECT, null);
 		rank++;
 	} else {
 		TypeBinding typeFromTypeSignature = this.environment.getTypeFromTypeSignature(wrapper, existingVariables, this, missingTypeNames, walker.toTypeBound(rank++));
@@ -1338,7 +1338,7 @@ private void initializeTypeVariable(TypeVariableBinding variable, TypeVariableBi
 			type = (ReferenceBinding) typeFromTypeSignature;
 		} else {
 			// this should only happen if the signature is corrupted (332423)
-			type = this.environment.getResolvedType(TypeConstants.JAVA_LANG_OBJECT, null);
+			type = this.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_OBJECT, null);
 		}
 		firstBound = type;
 	}
@@ -1815,7 +1815,7 @@ private void scanTypeForNullDefaultAnnotation(IBinaryType binaryType, PackageBin
 			&& ((this.typeBits & (TypeIds.BitAnyNullAnnotation)) == 0))
 	{
 		// this will scan the annotations in package-info
-		ReferenceBinding packageInfo = packageBinding.getType(TypeConstants.PACKAGE_INFO_NAME, null);
+		ReferenceBinding packageInfo = packageBinding.getType(TypeConstants.PACKAGE_INFO_NAME, packageBinding.enclosingModule);
 		if (packageInfo == null) {
 			packageBinding.defaultNullness = Binding.NO_NULL_DEFAULT;
 		}
@@ -1851,7 +1851,7 @@ int getNonNullByDefaultValue(IBinaryAnnotation annotation) {
 	IBinaryElementValuePair[] elementValuePairs = annotation.getElementValuePairs();
 	if (elementValuePairs == null || elementValuePairs.length == 0 ) {
 		// no argument: apply default default
-		ReferenceBinding annotationType = this.environment.getType(typeName, null);
+		ReferenceBinding annotationType = this.environment.getType(typeName, this.environment.UnNamedModule); // TODO(SHMOD): null annotations from a module?
 		if (annotationType == null) return 0;
 		if (annotationType.isUnresolvedType())
 			annotationType = ((UnresolvedReferenceBinding) annotationType).resolve(this.environment, false);

@@ -19,6 +19,9 @@ import java.io.IOException;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -37,6 +40,8 @@ public class CompilationUnit implements ICompilationUnit {
 		// else: use as the path of the directory into which class files must
 		//       be written.
 	private boolean ignoreOptionalProblems;
+	private CompilationUnit modCU;
+	private ModuleBinding moduleBinding;
 
 public CompilationUnit(char[] contents, String fileName, String encoding) {
 	this(contents, fileName, encoding, null);
@@ -105,8 +110,25 @@ public boolean ignoreOptionalProblems() {
 public String toString() {
 	return "CompilationUnit[" + new String(this.fileName) + "]";  //$NON-NLS-2$ //$NON-NLS-1$
 }
+public void setModule(CompilationUnit compilationUnit) {
+	this.modCU = compilationUnit;
+}
 @Override
-public char[] module() {
+public char[] getModuleName() {
 	return this.module;
+}
+@Override
+public ModuleBinding module(LookupEnvironment rootEnvironment) {
+	if (this.moduleBinding != null)
+		return this.moduleBinding;
+	if (this.modCU != null)
+		return this.moduleBinding = this.modCU.module(rootEnvironment);
+	if (CharOperation.endsWith(this.fileName, TypeConstants.MODULE_INFO_FILE_NAME)) {
+		this.moduleBinding = rootEnvironment.getModule(this.module);
+		if (this.moduleBinding == null)
+			throw new IllegalStateException("Module should be known");
+		return this.moduleBinding;
+	}
+	return rootEnvironment.UnNamedModule;
 }
 }

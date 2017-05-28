@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -180,7 +179,6 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
-import org.eclipse.jdt.internal.compiler.env.IModuleContext;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.ISourceType;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
@@ -234,7 +232,6 @@ import org.eclipse.jdt.internal.core.INamingRequestor;
 import org.eclipse.jdt.internal.core.InternalNamingConventions;
 import org.eclipse.jdt.internal.core.JavaElementRequestor;
 import org.eclipse.jdt.internal.core.JavaModelManager;
-import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.ModuleSourcePathManager;
 import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.SourceMethodElementInfo;
@@ -717,9 +714,6 @@ public final class CompletionEngine
 	char[] source;
 	ModuleDeclaration moduleDeclaration;
 	char[] completionToken;
-	IModuleContext moduleContext = () -> {
-		return Stream.of((JavaProject)this.javaProject);
-	};
 
 	char[] qualifiedCompletionToken;
 	boolean resolvingImports = false;
@@ -10691,7 +10685,7 @@ public final class CompletionEngine
 	}
 
 	private void findPackagesInCurrentModule() {
-		this.nameEnvironment.findPackages(CharOperation.toLowerCase(this.completionToken), this, this.moduleContext);
+		this.nameEnvironment.findPackages(CharOperation.toLowerCase(this.completionToken), this, this.javaProject);
 	}
 	private void findPackages(CompletionOnPackageReference packageStatement) {
 		this.completionToken = CharOperation.concatWithAll(packageStatement.tokens, '.');
@@ -11034,8 +11028,7 @@ public final class CompletionEngine
 								hasMemberTypesInEnclosingScope(sourceType, scope)) ||
 								hasArrayTypeAsExpectedSuperTypes()) {
 					char[] typeName = sourceType.sourceName();
-					if (!sourceType.isModule())
-						createTypeProposal(
+					createTypeProposal(
 								sourceType,
 								typeName,
 								IAccessRule.K_ACCESSIBLE,

@@ -27,7 +27,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
-import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
@@ -115,10 +114,10 @@ public boolean equals(Object o) {
 	return this.sourceFolder.equals(((ClasspathSourceDirectory) o).sourceFolder);
 }
 
-public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
-	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName);
+public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
+	return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName);
 }
-public NameEnvironmentAnswer findClass(String sourceFileWithoutExtension, String qualifiedPackageName, String qualifiedSourceFileWithoutExtension) {
+public NameEnvironmentAnswer findClass(String sourceFileWithoutExtension, String qualifiedPackageName, String moduleName, String qualifiedSourceFileWithoutExtension) {
 	SimpleLookupTable dirTable = directoryTable(qualifiedPackageName);
 	if (dirTable != null && dirTable.elementSize > 0) {
 		IFile file = (IFile) dirTable.get(sourceFileWithoutExtension);
@@ -138,7 +137,11 @@ public int hashCode() {
 	return this.sourceFolder == null ? super.hashCode() : this.sourceFolder.hashCode();
 }
 
-public boolean isPackage(String qualifiedPackageName) {
+public boolean isPackage(String qualifiedPackageName, String moduleName) {
+	if (moduleName != null) {
+		if (this.module == null || !moduleName.equals(String.valueOf(this.module.name())))
+			return false;
+	}
 	return directoryTable(qualifiedPackageName) != null;
 }
 
@@ -171,8 +174,4 @@ public IModuleEnvironment getLookupEnvironment() {
 	return this;
 }
 
-@Override
-public IModuleEnvironment getLookupEnvironmentFor(IModule mod) {
-	return this.module == mod ? this : null;
-}
 }

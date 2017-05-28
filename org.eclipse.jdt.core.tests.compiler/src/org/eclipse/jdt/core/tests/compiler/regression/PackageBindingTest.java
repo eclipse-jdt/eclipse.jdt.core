@@ -1,9 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2016 Sven Strohschein and others.
+ * Copyright (c) 2016, 2017 Sven Strohschein and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
@@ -15,7 +19,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
-import org.eclipse.jdt.internal.compiler.env.IModuleContext;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -54,8 +57,9 @@ public class PackageBindingTest extends AbstractCompilerTest
 	public void test02() {
 		NameEnvironmentDummy nameEnv = new NameEnvironmentDummy(false);
 
-		PackageBinding packageBinding = new PackageBinding(new LookupEnvironment(null, new CompilerOptions(), null, nameEnv));
-		Binding resultBinding = packageBinding.getTypeOrPackage("java.lang.String".toCharArray(), null);
+		LookupEnvironment environment = new LookupEnvironment(null, new CompilerOptions(), null, nameEnv);
+		PackageBinding packageBinding = new PackageBinding(environment);
+		Binding resultBinding = packageBinding.getTypeOrPackage("java.lang.String".toCharArray(), environment.module);
 		assertNull(resultBinding); // (not implemented)
 
 		assertTrue(nameEnv.isPackageSearchExecuted);
@@ -152,7 +156,7 @@ public class PackageBindingTest extends AbstractCompilerTest
 		}
 
 		@Override
-		public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes, IModuleContext context) {
+		public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, boolean searchWithSecondaryTypes, char[] moduleName) {
 			this.isTypeSearchExecutedWithSearchWithSecondaryTypes = true;
 			this.isTypeSearchWithSearchWithSecondaryTypes = searchWithSecondaryTypes;
 			return null;

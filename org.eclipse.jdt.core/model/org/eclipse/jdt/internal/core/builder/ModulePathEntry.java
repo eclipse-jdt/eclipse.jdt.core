@@ -17,6 +17,7 @@ package org.eclipse.jdt.internal.core.builder;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
@@ -43,7 +44,7 @@ public class ModulePathEntry implements IModulePathEntry {
 		@Override
 		public IPackageLookup packageLookup() {
 			// 
-			return name -> Stream.of(ModulePathEntry.this.locations).map(loc -> loc.packageLookup()).anyMatch(p -> p.isPackage(name));
+			return (name, moduleName) -> Stream.of(ModulePathEntry.this.locations).map(loc -> loc.packageLookup()).anyMatch(p -> p.isPackage(name, moduleName));
 		}
 	}
 
@@ -74,14 +75,6 @@ public class ModulePathEntry implements IModulePathEntry {
 		return this.env;
 	}
 
-	@Override
-	public IModuleEnvironment getLookupEnvironmentFor(IModule mod) {
-		//
-		if (this.module.equals(mod)) {
-			return getLookupEnvironment();
-		}
-		return null;
-	}
 	// TODO: This is only needed because SourceFile.module() uses the module set on the location
 	// Once we have a mechanism to map a folder to a module path entry, this should no longer be
 	// needed
@@ -89,5 +82,18 @@ public class ModulePathEntry implements IModulePathEntry {
 		for (int i = 0; i < this.locations.length; i++) {
 			this.locations[i].setModule(this.module);
 		}
+	}
+	@Override
+	public char[][] getModulesDeclaringPackage(String qualifiedPackageName, String moduleName) {
+		if (moduleName != null && ((this.module == null) || !moduleName.equals(String.valueOf(this.module.name()))))
+			return null;
+		// search all locations
+		char[][] names = CharOperation.NO_CHAR_CHAR;
+		for (ClasspathLocation cp : this.locations) {
+			char[][] declaringModules = cp.getModulesDeclaringPackage(qualifiedPackageName, moduleName);
+			if (declaringModules != null)
+				names = CharOperation.arrayConcat(names, declaringModules);
+		}
+		return names == CharOperation.NO_CHAR_CHAR ? null : names;
 	}
 }

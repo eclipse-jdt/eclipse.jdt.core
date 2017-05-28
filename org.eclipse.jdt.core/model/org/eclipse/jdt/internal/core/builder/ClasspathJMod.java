@@ -47,19 +47,20 @@ public class ClasspathJMod extends ClasspathJar {
 	}
 
 
-	public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
-		// TOOD: BETA_JAVA9 - Should really check for packages with the module context
-		if (!isPackage(qualifiedPackageName)) return null; // most common case
+	public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
+		if (!isPackage(qualifiedPackageName, moduleName)) return null; // most common case
 
 		try {
 			qualifiedBinaryFileName = new String(CharOperation.append(CLASSES_FOLDER, qualifiedBinaryFileName.toCharArray()));
 			IBinaryType reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
 			if (reader != null) {
+				char[] modName = this.module == null ? null : this.module.name();
 				if (reader instanceof ClassFileReader) {
 					ClassFileReader classReader = (ClassFileReader) reader;
-					if (classReader.moduleName == null) {
-						classReader.moduleName = this.module == null ? null : this.module.name();
-					}
+					if (classReader.moduleName == null)
+						classReader.moduleName = modName;
+					else
+						modName = classReader.moduleName;
 				}
 				String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
 				if (this.externalAnnotationPath != null) {
@@ -76,8 +77,8 @@ public class ClasspathJMod extends ClasspathJar {
 					}
 				}
 				if (this.accessRuleSet == null)
-					return new NameEnvironmentAnswer(reader, null);
-				return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()));
+					return new NameEnvironmentAnswer(reader, null, modName);
+				return new NameEnvironmentAnswer(reader, this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()), modName);
 			}
 		} catch (IOException e) { // treat as if class file is missing
 		} catch (ClassFormatException e) { // treat as if class file is missing

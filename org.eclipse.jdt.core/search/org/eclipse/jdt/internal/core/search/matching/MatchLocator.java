@@ -262,7 +262,7 @@ public static IBinaryType classFileReader(IType type) {
 		if (org.eclipse.jdt.internal.compiler.util.Util.isJrt(rootPath)) {
 			String classFileName = classFile.getElementName();
 			String path = Util.concatWith(pkg.names, classFileName, '/');
-			return ClassFileReader.readFromJrt(new File(rootPath), path, null);
+			return ClassFileReader.readFromJrt(new File(rootPath), null, path);
 		} else {
 			ZipFile zipFile = null;
 			try {
@@ -1816,7 +1816,11 @@ protected boolean parseAndBuildBindings(PossibleMatch possibleMatch, boolean mus
 		CompilationResult unitResult = new CompilationResult(possibleMatch, 1, 1, this.options.maxProblemsPerUnit);
 		CompilationUnitDeclaration parsedUnit = this.parser.dietParse(possibleMatch, unitResult);
 		if (parsedUnit != null) {
-			if (!parsedUnit.isEmpty()) {
+			if (parsedUnit.isModuleInfo()) {
+				if (mustResolve) {
+					this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
+				}				
+			} else if (!parsedUnit.isEmpty()) {
 				if (mustResolve) {
 					this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 				}
@@ -1869,7 +1873,8 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 					}
 				}
 			}
-			return;
+			if (!unit.isModuleInfo())
+				return;
 		}
 		if (hasAlreadyDefinedType(unit)) return; // skip type has it is hidden so not visible
 
@@ -1894,6 +1899,13 @@ protected void process(PossibleMatch possibleMatch, boolean bindingsWereCreated)
 				if (BasicSearchEngine.VERBOSE)
 					System.out.println("Resolving " + this.currentPossibleMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
 				unit.resolve();
+			} else if (unit.isModuleInfo()) {
+				if (BasicSearchEngine.VERBOSE)
+					System.out.println("Resolving " + this.currentPossibleMatch.openable.toStringWithAncestors()); //$NON-NLS-1$
+				this.lookupEnvironment.unitBeingCompleted = unit;
+				if (unit.scope != null && unit.moduleDeclaration != null) {
+					unit.moduleDeclaration.resolveTypeDirectives(unit.scope);
+				}
 			}
 		}
 		reportMatching(unit, mustResolve);
@@ -2719,19 +2731,16 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 		for (int i = 0, l = types.length; i < l; i++) {
 			if (nodeSet.matchingNodes.elementSize == 0) return; // reported all the matching nodes
 			TypeDeclaration type = types[i];
-			if (type.isModuleInfo()) {
-				ModuleDeclaration mod = type.scope.compilationUnitScope().referenceContext.moduleDeclaration;
-				Integer level = (Integer) nodeSet.matchingNodes.removeKey(mod);
-				int accuracy = (level != null && matchedUnitContainer) ? level.intValue() : -1;
-				reportMatching(mod, null, accuracy, nodeSet, 1);
-				return;
-			} else {
-				Integer level = (Integer) nodeSet.matchingNodes.removeKey(type);
-				int accuracy = (level != null && matchedUnitContainer) ? level.intValue() : -1;
-				this.inTypeOccurrencesCounts = new HashtableOfIntValues();
-				reportMatching(type, null, accuracy, nodeSet, 1);
-			}
+			Integer level = (Integer) nodeSet.matchingNodes.removeKey(type);
+			int accuracy = (level != null && matchedUnitContainer) ? level.intValue() : -1;
+			this.inTypeOccurrencesCounts = new HashtableOfIntValues();
+			reportMatching(type, null, accuracy, nodeSet, 1);
 		}
+	} else if (unit.moduleDeclaration != null) {
+		ModuleDeclaration mod = unit.moduleDeclaration;
+		Integer level = (Integer) nodeSet.matchingNodes.removeKey(mod);
+		int accuracy = (level != null && matchedUnitContainer) ? level.intValue() : -1;
+		reportMatching(mod, null, accuracy, nodeSet, 1);
 	}
 
 	// Clear handle cache
@@ -2885,7 +2894,7 @@ protected void reportMatching(ModuleDeclaration module, IJavaElement parent, int
 	if (moduleDesc == null) // should not happen - safety net.
 		return;
 	if (accuracy > -1) { // report module declaration
-		SearchMatch match = this.patternLocator.newDeclarationMatch(module, moduleDesc, module.moduleBinding, accuracy, module.moduleName.length, this);
+		SearchMatch match = this.patternLocator.newDeclarationMatch(module, moduleDesc, module.binding, accuracy, module.moduleName.length, this);
 		report(match);
 	}
 	reportMatching(module.requires, module,  nodeSet, moduleDesc);
@@ -2938,14 +2947,14 @@ private void reportMatching(ProvidesStatement[] provides, ModuleDeclaration modu
 			if (intf != null) {
 				Integer level = (Integer) nodeSet.matchingNodes.removeKey(intf);
 				if (level != null)
-					this.patternLocator.matchReportReference(intf, moduleDesc, null, null, module.moduleBinding, level.intValue(), this);
+					this.patternLocator.matchReportReference(intf, moduleDesc, null, null, module.binding, level.intValue(), this);
 			}
 			TypeReference[] impls = service.implementations;
 			for (TypeReference impl : impls) {
 				if (impl != null) {
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(impl);
 					if (level != null)
-						this.patternLocator.matchReportReference(impl, moduleDesc, null, null, module.moduleBinding, level.intValue(), this);
+						this.patternLocator.matchReportReference(impl, moduleDesc, null, null, module.binding, level.intValue(), this);
 				}
 			}
 		}
@@ -2959,7 +2968,7 @@ private void reportMatching(UsesStatement[] uses, ModuleDeclaration module, Matc
 				if (intf != null) {
 					Integer level = (Integer) nodeSet.matchingNodes.removeKey(intf);
 					if (level != null) {
-						this.patternLocator.matchReportReference(intf, moduleDesc, null, null, module.moduleBinding, level.intValue(), this);
+						this.patternLocator.matchReportReference(intf, moduleDesc, null, null, module.binding, level.intValue(), this);
 					}
 				}
 			}

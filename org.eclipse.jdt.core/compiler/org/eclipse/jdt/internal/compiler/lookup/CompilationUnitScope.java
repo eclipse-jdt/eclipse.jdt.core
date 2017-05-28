@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.*;
 
@@ -70,13 +71,17 @@ public class CompilationUnitScope extends Scope {
 	Map<InferenceVariable.InferenceVarKey, InferenceVariable> uniqueInferenceVariables = new HashMap<>();
 
 public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment environment) {
-	super(COMPILATION_UNIT_SCOPE, null);
+	this(unit, environment.globalOptions);
 	this.environment = environment;
+}
+
+public CompilationUnitScope(CompilationUnitDeclaration unit, CompilerOptions compilerOptions) {
+	super(COMPILATION_UNIT_SCOPE, null);
 	this.referenceContext = unit;
 	unit.scope = this;
 	this.currentPackageName = unit.currentPackage == null ? CharOperation.NO_CHAR_CHAR : unit.currentPackage.tokens;
 
-	if (compilerOptions().produceReferenceInfo) {
+	if (compilerOptions.produceReferenceInfo) {
 		this.qualifiedReferences = new CompoundNameVector();
 		this.simpleNameReferences = new SimpleNameVector();
 		this.rootReferences = new SimpleNameVector();
@@ -89,13 +94,13 @@ public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment e
 		this.referencedTypes = null;
 		this.referencedSuperTypes = null;
 	}
+	// client still needs to assign #environment
 }
 void buildFieldsAndMethods() {
 	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
 		this.topLevelTypes[i].scope.buildFieldsAndMethods();
 }
 void buildTypeBindings(AccessRestriction accessRestriction) {
-	char[] modName = module();
 	this.topLevelTypes = new SourceTypeBinding[0]; // want it initialized if the package cannot be resolved
 	boolean firstIsSynthetic = false;
 	if (this.referenceContext.compilationResult.compilationUnit != null) {
@@ -114,14 +119,21 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 	}
 	if (this.currentPackageName == CharOperation.NO_CHAR_CHAR) {
 		// environment default package is never null
-		this.fPackage = this.environment.getDefaultPackage(modName);
+		this.fPackage = this.environment.defaultPackage;
+		if (this.referenceContext.isModuleInfo()) { // cannot have a package as per grammar
+			ModuleDeclaration moduleDecl = this.referenceContext.moduleDeclaration;
+			if (moduleDecl != null) {
+				moduleDecl.createScope(this);
+				moduleDecl.checkAndSetModifiers();
+			}
+		}
 	} else {
-		if ((this.fPackage = this.environment.createPackage(this.currentPackageName, modName)) == null) {
+		if ((this.fPackage = this.environment.createPackage(this.currentPackageName)) == null) {
 			if (this.referenceContext.currentPackage != null) {
 				problemReporter().packageCollidesWithType(this.referenceContext); // only report when the unit has a package statement
 			}
 			// ensure fPackage is not null
-			this.fPackage = this.environment.getDefaultPackage(modName);
+			this.fPackage = this.environment.defaultPackage;
 			return;
 		} else if (this.referenceContext.isPackageInfo()) {
 			// resolve package annotations now if this is "package-info.java".
@@ -134,10 +146,6 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 			if (this.referenceContext.currentPackage != null && this.referenceContext.currentPackage.annotations != null) {
 				this.referenceContext.types[0].annotations = this.referenceContext.currentPackage.annotations;
 			}
-		} else if (this.referenceContext.isModuleInfo()) {
-			ModuleDeclaration module = this.referenceContext.moduleDeclaration;
-			if (module != null)
-				module.moduleBinding = this.environment().getModule(module());
 		}
 		recordQualifiedReference(this.currentPackageName); // always dependent on your own package
 	}
@@ -152,22 +160,18 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 		if (this.environment.isProcessingAnnotations && this.environment.isMissingType(typeDecl.name))
 			throw new SourceTypeCollisionException(); // resolved a type ref before APT generated the type
 		ReferenceBinding typeBinding = this.fPackage.getType0(typeDecl.name);
+		if (Binding.isValid(typeBinding) && this.fPackage instanceof SplitPackageBinding && !this.environment.module.canAccess(typeBinding.fPackage))
+			typeBinding = null;
 		recordSimpleReference(typeDecl.name); // needed to detect collision cases
-		if (typeBinding != null && typeBinding.isValidBinding() && !(typeBinding instanceof UnresolvedReferenceBinding)) {
+		if (Binding.isValid(typeBinding) && !(typeBinding instanceof UnresolvedReferenceBinding)) {
 			// if its an unresolved binding - its fixed up whenever its needed, see UnresolvedReferenceBinding.resolve()
 			if (this.environment.isProcessingAnnotations)
 				throw new SourceTypeCollisionException(); // resolved a type ref before APT generated the type
 			// if a type exists, check that its a valid type
 			// it can be a NotFound problem type if its a secondary type referenced before its primary type found in additional units
 			// and it can be an unresolved type which is now being defined
-			if (!typeBinding.isModule()) // Kludge?
-				problemReporter().duplicateTypes(this.referenceContext, typeDecl);
+			problemReporter().duplicateTypes(this.referenceContext, typeDecl);
 			continue nextType;
-		}
-		if (this.fPackage != this.environment.getDefaultPackage(modName) && this.fPackage.getPackage(typeDecl.name, module()) != null) {
-			// if a package exists, it must be a valid package - cannot be a NotFound problem package
-			// this is now a warning since a package does not really 'exist' until it contains a type, see JLS v2, 7.4.3
-			problemReporter().typeCollidesWithPackage(this.referenceContext, typeDecl);
 		}
 
 		if ((typeDecl.modifiers & ClassFileConstants.AccPublic) != 0) {
@@ -192,6 +196,24 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 		System.arraycopy(this.topLevelTypes, 0, this.topLevelTypes = new SourceTypeBinding[count], 0, count);
 }
 void checkAndSetImports() {
+	// TODO(SHMOD): verify: this block moved here from buildTypeBindings.
+	// package resolving may require all modules to be known
+	TypeDeclaration[] types = this.referenceContext.types;
+	if (types != null) {
+		for (int i = 0; i < types.length; i++) {
+			TypeDeclaration typeDecl = types[i];
+			if (this.fPackage != this.environment.defaultPackage && this.fPackage.getPackage(typeDecl.name, module()) != null) {
+				// if a package exists, it must be a valid package - cannot be a NotFound problem package
+				// this is now a warning since a package does not really 'exist' until it contains a type, see JLS v2, 7.4.3
+				problemReporter().typeCollidesWithPackage(this.referenceContext, typeDecl);
+			}
+		}
+	}
+
+	if (this.referenceContext.moduleDeclaration != null) {
+		this.referenceContext.moduleDeclaration.resolveDirectives(this);
+	}
+
 	if (this.referenceContext.imports == null) {
 		this.imports = getDefaultImports();
 		return;
@@ -457,6 +479,9 @@ void faultInImports() {
 }
 public void faultInTypes() {
 	faultInImports();
+	if (this.referenceContext.moduleDeclaration != null) {
+		this.referenceContext.moduleDeclaration.resolveTypeDirectives(this);
+	}
 
 	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
 		this.topLevelTypes[i].faultInTypesForFieldsAndMethods();
@@ -471,13 +496,16 @@ public Binding findImport(char[][] compoundName, boolean findStaticImports, bool
 }
 private Binding findImport(char[][] compoundName, int length) {
 	recordQualifiedReference(compoundName);
-	char[] modName = module();
-	Binding binding = this.environment.getTopLevelPackage(compoundName[0], modName);
+	ModuleBinding module = module();
+	Binding binding = this.environment.getTopLevelPackage(compoundName[0]);
 	int i = 1;
 	foundNothingOrType: if (binding != null) {
 		PackageBinding packageBinding = (PackageBinding) binding;
 		while (i < length) {
-			binding = packageBinding.getTypeOrPackage(compoundName[i++], modName);
+			binding = packageBinding.getTypeOrPackage(compoundName[i++], module);
+			if (binding instanceof ReferenceBinding && binding.problemId() == ProblemReasons.NotAccessible) {
+				return this.environment.convertToRawType((TypeBinding) binding, false /*do not force conversion of enclosing types*/);
+			}
 			if (binding == null || !binding.isValidBinding()) {
 				binding = null;
 				break foundNothingOrType;
@@ -487,6 +515,8 @@ private Binding findImport(char[][] compoundName, int length) {
 
 			packageBinding = (PackageBinding) binding;
 		}
+		if (packageBinding.isValidBinding() && !module.canAccess(packageBinding))
+			return new ProblemPackageBinding(compoundName, ProblemReasons.NotAccessible);
 		return packageBinding;
 	}
 
@@ -494,8 +524,7 @@ private Binding findImport(char[][] compoundName, int length) {
 	if (binding == null) {
 		if (compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4)
 			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), null, ProblemReasons.NotFound);
-		PackageBinding defaultPackage = this.environment.getDefaultPackage(modName);
-		type = findType(compoundName[0], defaultPackage, defaultPackage);
+		type = findType(compoundName[0], this.environment.defaultPackage, this.environment.defaultPackage);
 		if (type == null || !type.isValidBinding())
 			return new ProblemReferenceBinding(CharOperation.subarray(compoundName, 0, i), null, ProblemReasons.NotFound);
 		i = 1; // reset to look for member types inside the default package type
@@ -524,7 +553,7 @@ private Binding findSingleImport(char[][] compoundName, int mask, boolean findSt
 		// the name cannot be a package
 		if (compilerOptions().complianceLevel >= ClassFileConstants.JDK1_4 && !this.referenceContext.isModuleInfo())
 			return new ProblemReferenceBinding(compoundName, null, ProblemReasons.NotFound);
-		ReferenceBinding typeBinding = findType(compoundName[0], this.environment.getDefaultPackage(module()), this.fPackage);
+		ReferenceBinding typeBinding = findType(compoundName[0], this.environment.defaultPackage, this.fPackage);
 		if (typeBinding == null)
 			return new ProblemReferenceBinding(compoundName, null, ProblemReasons.NotFound);
 		return typeBinding;
@@ -594,7 +623,7 @@ ImportBinding[] getDefaultImports() {
 	// initialize the default imports if necessary... share the default java.lang.* import
 	if (this.environment.defaultImports != null) return this.environment.defaultImports;
 
-	Binding importBinding = this.environment.getTopLevelPackage(TypeConstants.JAVA, module());
+	Binding importBinding = this.environment.getTopLevelPackage(TypeConstants.JAVA);
 	if (importBinding != null)
 		importBinding = ((PackageBinding) importBinding).getTypeOrPackage(TypeConstants.JAVA_LANG[1], module());
 

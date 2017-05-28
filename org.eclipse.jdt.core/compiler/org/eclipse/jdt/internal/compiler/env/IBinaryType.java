@@ -64,8 +64,9 @@ char[] getEnclosingTypeName();
 IBinaryField[] getFields();
 /**
  * Answer the module to which this type belongs.
+ * {@code null} if the type is associated to the unnamed module.
  *
- * @return the module
+ * @return the module name or {@code null}
  */
 char[] getModule();
 /**

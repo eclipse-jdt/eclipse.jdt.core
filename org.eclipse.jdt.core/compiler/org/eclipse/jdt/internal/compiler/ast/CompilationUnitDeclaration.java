@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.IrritantSet;
@@ -33,8 +34,9 @@ import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 import org.eclipse.jdt.internal.compiler.lookup.ImportBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.parser.NLSTag;
@@ -89,12 +91,6 @@ public class CompilationUnitDeclaration extends ASTNode implements ProblemSeveri
 	int suppressWarningsCount;
 	public int functionalExpressionsCount;
 	public FunctionalExpression[] functionalExpressions;
-	/*
-	 * Name of the module this compilation unit belongs to. Not to be confused with 
-	 * moduleDeclaration, which represents the module this compilation unit may
-	 * define, i.e. if this unit represents module-info.java.
-	 */
-//	public char[] module;
 
 public CompilationUnitDeclaration(ProblemReporter problemReporter, CompilationResult compilationResult, int sourceLength) {
 	this.problemReporter = problemReporter;
@@ -211,14 +207,6 @@ public void createPackageInfoType() {
 	declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
 	declaration.javadoc = this.javadoc;
 	this.types[0] = declaration; // Assumes the first slot is meant for this type
-}
-
-public void createModuleInfoType(ModuleDeclaration declaration) {
-	TypeDeclaration type = new TypeDeclaration(this.compilationResult);
-	type.name = TypeConstants.MODULE_INFO_NAME;
-	type.modifiers = declaration.modifiers | ClassFileConstants.AccModule;
-	type.javadoc = this.javadoc;
-	this.types[0] = type; // Assumes the first slot is meant for this type
 }
 
 /*
@@ -401,6 +389,9 @@ public void generateCode() {
 		if (this.types != null) {
 			for (int i = 0, count = this.types.length; i < count; i++)
 				this.types[i].generateCode(this.scope);
+		}
+		if (this.moduleDeclaration != null) {
+			this.moduleDeclaration.generateCode();
 		}
 	} catch (AbortCompilationUnit e) {
 		// ignore
@@ -794,12 +785,17 @@ public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope, boolean
 		// ignore
 	}
 }
-public char[] module() {
-	if (this.isModuleInfo()) {
-		return this.moduleDeclaration != null ? this.moduleDeclaration.moduleName : ModuleEnvironment.UNNAMED;
-	} else if (this.compilationResult != null && this.compilationResult.compilationUnit != null) {
-		return this.compilationResult.compilationUnit.module();
+public ModuleBinding module(LookupEnvironment environment) {
+	if (this.moduleDeclaration != null) {
+		ModuleBinding binding = this.moduleDeclaration.binding;
+		if (binding != null)
+			return binding;
 	}
-	return ModuleEnvironment.UNNAMED;
+	if (this.compilationResult != null) {
+		ICompilationUnit compilationUnit = this.compilationResult.compilationUnit;
+		if (compilationUnit != null)
+			return compilationUnit.module(environment);
+	}
+	return environment.module;
 }
 }

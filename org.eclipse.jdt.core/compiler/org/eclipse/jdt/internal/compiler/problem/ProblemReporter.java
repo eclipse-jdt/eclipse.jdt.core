@@ -3146,7 +3146,8 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 		String[] shortArguments = null;
 		switch (expectedImport.problemId()) {
 			case ProblemReasons.NotVisible :
-				id = IProblem.NotVisibleField;
+			case ProblemReasons.NotAccessible :
+				id = (expectedImport.problemId() == ProblemReasons.NotVisible) ? IProblem.NotVisibleField : IProblem.NotAccessibleField;
 				readableArguments = new String[] {CharOperation.toString(importRef.tokens), new String(field.declaringClass.readableName())};
 				shortArguments = new String[] {CharOperation.toString(importRef.tokens), new String(field.declaringClass.shortReadableName())};
 				break;
@@ -3167,6 +3168,17 @@ public void importProblem(ImportReference importRef, Binding expectedImport) {
 			shortArguments,
 			nodeSourceStart(field, importRef),
 			nodeSourceEnd(field, importRef));
+		return;
+	}
+
+	if (expectedImport instanceof PackageBinding && expectedImport.problemId() == ProblemReasons.NotAccessible) {
+		String[] arguments = new String[] {CharOperation.toString(((PackageBinding)expectedImport).compoundName)};
+		this.handleUntagged(
+		        IProblem.NotAccessiblePackage,
+		        arguments,
+		        arguments,
+		        importRef.sourceStart,
+		        (int) importRef.sourcePositions[importRef.tokens.length - 1]);
 		return;
 	}
 
@@ -3655,6 +3667,13 @@ public void invalidConstructor(Statement statement, MethodBinding targetConstruc
 			    shownConstructor = problemConstructor.closestMatch.original();
 		    }
 			break;
+		case ProblemReasons.NotAccessible :
+			id = IProblem.NotAccessibleConstructor;
+			problemConstructor = (ProblemMethodBinding) targetConstructor;
+			if (problemConstructor.closestMatch != null) {
+			    shownConstructor = problemConstructor.closestMatch.original();
+		    }
+			break;
 		case ProblemReasons.Ambiguous :
 			if (insideDefaultConstructor){
 				id = IProblem.AmbiguousConstructorInDefaultConstructor;
@@ -3904,8 +3923,9 @@ public void invalidField(FieldReference fieldRef, TypeBinding searchedType) {
 */
 			break;
 		case ProblemReasons.NotVisible :
+		case ProblemReasons.NotAccessible :
 			this.handle(
-				IProblem.NotVisibleField,
+				(field.problemId() == ProblemReasons.NotVisible) ? IProblem.NotVisibleField : IProblem.NotAccessibleField,
 				new String[] {new String(fieldRef.token), new String(field.declaringClass.readableName())},
 				new String[] {new String(fieldRef.token), new String(field.declaringClass.shortReadableName())},
 				nodeSourceStart(field, fieldRef),
@@ -3979,10 +3999,11 @@ public void invalidField(NameReference nameRef, FieldBinding field) {
 					nodeSourceEnd(field, nameRef));
 			return;
 		case ProblemReasons.NotVisible :
+		case ProblemReasons.NotAccessible :
 			char[] name = field.readableName();
 			name = CharOperation.lastSegment(name, '.');
 			this.handle(
-				IProblem.NotVisibleField,
+				(field.problemId() == ProblemReasons.NotVisible) ? IProblem.NotVisibleField : IProblem.NotAccessibleField,
 				new String[] {new String(name), new String(field.declaringClass.readableName())},
 				new String[] {new String(name), new String(field.declaringClass.shortReadableName())},
 				nodeSourceStart(field, nameRef),
@@ -4070,9 +4091,10 @@ public void invalidField(QualifiedNameReference nameRef, FieldBinding field, int
 					nodeSourceEnd(field, nameRef));
 			return;
 		case ProblemReasons.NotVisible :
+		case ProblemReasons.NotAccessible :
 			fieldName = new String(nameRef.tokens[index]);
 			this.handle(
-				IProblem.NotVisibleField,
+				(field.problemId() == ProblemReasons.NotVisible) ? IProblem.NotVisibleField : IProblem.NotAccessibleField,
 				new String[] {fieldName, new String(field.declaringClass.readableName())},
 				new String[] {fieldName, new String(field.declaringClass.shortReadableName())},
 				nodeSourceStart(field, nameRef),
@@ -4182,7 +4204,8 @@ public void invalidMethod(MessageSend messageSend, MethodBinding method, Scope s
 			}
 			break;
 		case ProblemReasons.NotVisible :
-			id = IProblem.NotVisibleMethod;
+		case ProblemReasons.NotAccessible :
+			id = (method.problemId() == ProblemReasons.NotVisible) ? IProblem.NotVisibleMethod : IProblem.NotAccessibleMethod;
 			problemMethod = (ProblemMethodBinding) method;
 			if (problemMethod.closestMatch != null) {
 			    shownMethod = problemMethod.closestMatch.original();
@@ -4543,6 +4566,9 @@ public void invalidType(ASTNode location, TypeBinding type) {
 			break;
 		case ProblemReasons.NotVisible :
 			id = IProblem.NotVisibleType;
+			break;
+		case ProblemReasons.NotAccessible :
+			id = IProblem.NotAccessibleType;
 			break;
 		case ProblemReasons.Ambiguous :
 			id = IProblem.AmbiguousType;

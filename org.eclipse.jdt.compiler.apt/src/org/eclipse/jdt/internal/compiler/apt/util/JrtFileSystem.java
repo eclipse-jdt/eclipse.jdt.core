@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation.
+ * Copyright (c) 2016, 2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -154,7 +154,7 @@ public class JrtFileSystem extends Archive {
 	}
 	
 	class JrtFileObject extends ArchiveFileObject {
-		IModule module = null;
+		IModule module = null; // FIXME(SHMOD): always null??
 		private JrtFileObject(File file, String fileName, IModule module, Charset charset) {
 			super(file, fileName, charset);
 			this.module = module;
@@ -169,7 +169,7 @@ public class JrtFileSystem extends Archive {
 		protected ClassFileReader getClassReader() {
 			ClassFileReader reader = null;
 			try {
-				reader = ClassFileReader.readFromJrt(this.file, this.entryName, this.module);
+				reader = ClassFileReader.readFromJrt(this.file, this.module, this.entryName);
 			} catch (ClassFormatException e) {
 				e.printStackTrace();
 			} catch (IOException e) {

@@ -5,6 +5,10 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -45,6 +49,8 @@ public abstract class Binding {
 	// In the unlikely event you add a new type binding, remember to update TypeBindingVisitor and Scope.substitute methods. 
 
 	// Shared binding collections
+	public static final ModuleBinding[] NO_MODULES = new ModuleBinding[0];
+	public static final PackageBinding[] NO_PACKAGES = new PackageBinding[0];
 	public static final TypeBinding[] NO_TYPES = new TypeBinding[0];
 	public static final ReferenceBinding[] NO_REFERENCE_TYPES = new ReferenceBinding[0];
 	public static final TypeBinding[] NO_PARAMETERS = new TypeBinding[0];
@@ -156,6 +162,9 @@ public abstract class Binding {
 	*/
 	public final boolean isValidBinding() {
 		return problemId() == ProblemReasons.NoError;
+	}
+	public static boolean isValid(/*@Nullable*/Binding binding) {
+		return binding != null && binding.isValidBinding();
 	}
 	public boolean isVolatile() {
 		return false;

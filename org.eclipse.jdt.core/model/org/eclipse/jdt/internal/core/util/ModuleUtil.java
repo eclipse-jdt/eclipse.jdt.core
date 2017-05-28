@@ -34,7 +34,6 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
 import org.eclipse.jdt.internal.compiler.ICompilerRequestor;
-import org.eclipse.jdt.internal.compiler.env.IModuleContext;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.BasicCompilationUnit;
@@ -53,10 +52,6 @@ public class ModuleUtil {
 			String[] mods = new String[this.modules.size()];
 			return this.modules.toArray(mods);
 		}
-		@Override
-		public org.eclipse.jdt.internal.compiler.env.IModule getModule(char[] name) {
-			return null;
-		}
 
 		@Override
 		public void cleanup() {
@@ -64,26 +59,27 @@ public class ModuleUtil {
 		}
 
 		@Override
-		public NameEnvironmentAnswer findType(char[][] compoundTypeName, IModuleContext context) {
-			NameEnvironmentAnswer answer = super.findType(compoundTypeName, context);
-			if (answer.moduleName() != null) {
-				this.modules.add(new String(answer.moduleName()));
-			}
-			return answer;
-		}
-
-		@Override
-		public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, IModuleContext context) {
-			NameEnvironmentAnswer answer = super.findType(typeName, packageName, context);
+		public NameEnvironmentAnswer findType(char[][] compoundTypeName, char[] moduleName) {
+			NameEnvironmentAnswer answer = super.findType(compoundTypeName, moduleName);
 			if (answer != null && answer.moduleName() != null) {
-				this.modules.add(new String(answer.moduleName()));
+				this.modules.add(String.valueOf(answer.moduleName()));
 			}
 			return answer;
 		}
 
 		@Override
-		public boolean isPackage(char[][] parentPackageName, char[] packageName, IModuleContext context) {
-			return super.isPackage(parentPackageName, packageName, context);
+		public NameEnvironmentAnswer findType(char[] typeName, char[][] packageName, char[] moduleName) {
+			NameEnvironmentAnswer answer = super.findType(typeName, packageName, moduleName);
+			if (answer != null && answer.moduleName() != null) {
+				this.modules.add(String.valueOf(answer.moduleName()));
+			}
+			return answer;
+		}
+
+		@Override
+		public char[][] getModulesDeclaringPackage(char[][] parentPackageName, char[] name, char[] moduleName) {
+			// FIXME(SHMOD): when answering non-null, should we record the module, too?
+			return super.getModulesDeclaringPackage(parentPackageName, name, moduleName);
 		}
 	}
 	private static Compiler newCompiler(ModuleAccumulatorEnvironment environment, IJavaProject javaProject) {

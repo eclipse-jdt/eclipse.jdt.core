@@ -145,8 +145,8 @@ public String toString(){
 }
 
 @Override
-public char[] module() {
-	// TODO Auto-generated method stub
+public char[] getModuleName() {
+	// FIXME(SHMOD) may need a module name also here
 	return null;
 }
 }

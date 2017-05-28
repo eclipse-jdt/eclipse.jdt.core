@@ -21,12 +21,21 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.SourceModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.problem.AbortType;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
 public class ModuleDeclaration extends ASTNode {
 
@@ -41,21 +50,23 @@ public class ModuleDeclaration extends ASTNode {
 	public int usesCount;
 	public int servicesCount;
 	public int opensCount;
-	public ModuleBinding moduleBinding;
+	public SourceModuleBinding binding;
 	public int declarationSourceStart;
 	public int declarationSourceEnd;
 	public int bodyStart;
 	public int bodyEnd; // doesn't include the trailing comment if any.
 	public int modifiersSourceStart;
-	//public ClassScope scope;
+	BlockScope scope;
 	public char[][] tokens;
 	public char[] moduleName;
 	public long[] sourcePositions;
 	public int modifiers = ClassFileConstants.AccDefault;
+	boolean ignoreFurtherInvestigation;
+	boolean hasResolvedDirectives;
+	CompilationResult compilationResult;
 
 	public ModuleDeclaration(CompilationResult compilationResult, char[][] tokens, long[] positions) {
-//		super(compilationResult);
-//		this.compilationResult = compilationResult;
+		this.compilationResult = compilationResult;
 		this.exportsCount = 0;
 		this.requiresCount = 0;
 		this.tokens = tokens;
@@ -64,83 +75,166 @@ public class ModuleDeclaration extends ASTNode {
 		this.sourceEnd = (int) (positions[positions.length-1] & 0x00000000FFFFFFFF);
 		this.sourceStart = (int) (positions[0] >>> 32);
 	}
-//	@Override
-//	public void generateCode(ClassFile enclosingClassFile) {
-//		if (this.ignoreFurtherInvestigation) {
-//			return;
-//		}
-//		super.generateCode(enclosingClassFile);
-//	}
 
-	//@Override
-	public void resolve(ClassScope scope) {
-		//
-//		if (this.binding == null) {
-//			this.ignoreFurtherInvestigation = true;
-//			return;
-//		}
-		this.moduleBinding = scope.environment().getModule(this.moduleName);
-		ASTNode.resolveAnnotations(scope.referenceContext.staticInitializerScope, this.annotations, this.moduleBinding);
+	public ModuleBinding setBinding(SourceModuleBinding sourceModuleBinding) {
+		this.binding = sourceModuleBinding;
+		return sourceModuleBinding;
+	}
+
+	public void checkAndSetModifiers() {
+		int realModifiers = this.modifiers & ExtraCompilerModifiers.AccJustFlag;
+		int expectedModifiers = ClassFileConstants.ACC_OPEN | ClassFileConstants.ACC_SYNTHETIC;
+		if ((realModifiers & ~(expectedModifiers)) != 0) {
+			this.scope.problemReporter().illegalModifierForModule(this);
+			realModifiers &= expectedModifiers;
+		}
+		int effectiveModifiers = ClassFileConstants.AccModule | realModifiers;
+		this.modifiers = this.binding.modifiers = effectiveModifiers;
+	}
+
+	public boolean isOpen() {
+		return (this.modifiers & ClassFileConstants.ACC_OPEN) != 0;
+	}
+
+	public void createScope(final Scope parentScope) {
+		this.scope = new MethodScope(parentScope, null, true) {
+			@Override
+			public ProblemReporter problemReporter() {
+				// this method scope has no reference context so we better deletegate to the 'real' cuScope:
+				return parentScope.problemReporter();
+			}
+		};
+	}
+
+	public void generateCode() {
+		if ((this.bits & ASTNode.HasBeenGenerated) != 0)
+			return;
+		this.bits |= ASTNode.HasBeenGenerated;
+		if (this.ignoreFurtherInvestigation) {
+			return;
+		}
+		try {
+			// create the result for a compiled type
+			LookupEnvironment env = this.scope.environment();
+			ClassFile classFile = env.classFilePool.acquireForModule(this.binding, env.globalOptions);
+			classFile.initializeForModule(this.binding);
+
+			// finalize the compiled type result
+			classFile.addModuleAttributes(this.binding, this.annotations, this.scope.referenceCompilationUnit());
+			this.scope.referenceCompilationUnit().compilationResult.record(
+				this.binding.moduleName,
+				classFile);
+		} catch (AbortType e) {
+			if (this.binding == null)
+				return;
+		}
+	}
+
+	/** Resolve those module directives that relate to modules & packages (requires, exports, opens). */
+	public void resolveDirectives(CompilationUnitScope cuScope) {
+		if (this.binding == null) {
+			this.ignoreFurtherInvestigation = true;
+			return;
+		}
+		if (this.hasResolvedDirectives)
+			return;
+
+		this.hasResolvedDirectives = true;
+
 		Set<ModuleBinding> requiredModules = new HashSet<ModuleBinding>();
+		Set<ModuleBinding> requiredTransitiveModules = new HashSet<ModuleBinding>();
 		for(int i = 0; i < this.requiresCount; i++) {
 			RequiresStatement ref = this.requires[i];
-			if (ref != null && ref.resolve(scope) != null) {
+			if (ref != null && ref.resolve(cuScope) != null) {
 				if (!requiredModules.add(ref.resolvedBinding)) {
-					scope.problemReporter().duplicateModuleReference(IProblem.DuplicateRequires, ref.module);
+					cuScope.problemReporter().duplicateModuleReference(IProblem.DuplicateRequires, ref.module);
 				}
+				if (ref.isTransitive())
+					requiredTransitiveModules.add(ref.resolvedBinding);
 				Collection<ModuleBinding> deps = ref.resolvedBinding.dependencyGraphCollector().get();
-				if (deps.contains(this.moduleBinding))
-					scope.problemReporter().cyclicModuleDependency(this.moduleBinding, ref.module);
+				if (deps.contains(this.binding))
+					cuScope.problemReporter().cyclicModuleDependency(this.binding, ref.module);
 			}
 		}
+		this.binding.setRequires(requiredModules.toArray(new ModuleBinding[requiredModules.size()]),
+								 requiredTransitiveModules.toArray(new ModuleBinding[requiredTransitiveModules.size()]));
+
 		Set<PackageBinding> exportedPkgs = new HashSet<>();
 		for (int i = 0; i < this.exportsCount; i++) {
 			ExportsStatement ref = this.exports[i];
- 			if (ref != null && ref.resolve(scope)) {
+ 			if (ref != null && ref.resolve(cuScope)) {
 				if (!exportedPkgs.add(ref.resolvedPackage)) {
-					scope.problemReporter().invalidPackageReference(IProblem.DuplicateExports, ref);
+					cuScope.problemReporter().invalidPackageReference(IProblem.DuplicateExports, ref);
 				}
 			}
+ 			char[][] targets = null;
+ 			if (ref.targets != null) {
+ 				targets = new char[ref.targets.length][];
+ 				for (int j = 0; j < targets.length; j++)
+					targets[j] = ref.targets[j].moduleName;
+ 			}
+ 			this.binding.addResolvedExport(ref.resolvedPackage, targets);
 		}
+
 		Set<PackageBinding> openedPkgs = new HashSet<>();
 		for (int i = 0; i < this.opensCount; i++) {
 			OpensStatement ref = this.opens[i];
 			if (isOpen()) {
-				scope.problemReporter().invalidOpensStatement(ref, this);
+				cuScope.problemReporter().invalidOpensStatement(ref, this);
 			} else {
-				if (ref.resolve(scope)) {
+				if (ref.resolve(cuScope)) {
 					if (!openedPkgs.add(ref.resolvedPackage)) {
-						scope.problemReporter().invalidPackageReference(IProblem.DuplicateOpens, ref);
+						cuScope.problemReporter().invalidPackageReference(IProblem.DuplicateOpens, ref);
 					}
 				}
 			}
-		}
-		Set<TypeBinding> allTypes = new HashSet<TypeBinding>();
-		for(int i = 0; i < this.usesCount; i++) {
-			TypeBinding serviceBinding = this.uses[i].serviceInterface.resolveType(scope);
-			if (serviceBinding != null && serviceBinding.isValidBinding()) {
-				if (!(serviceBinding.isClass() || serviceBinding.isInterface() || serviceBinding.isAnnotationType())) {
-					scope.problemReporter().invalidServiceRef(IProblem.InvalidServiceIntfType, this.uses[i].serviceInterface);
-				}
-				if (!allTypes.add(this.uses[i].serviceInterface.resolvedType)) {
-					scope.problemReporter().duplicateTypeReference(IProblem.DuplicateUses, this.uses[i].serviceInterface);
-				}
-			}
-		}
-		Set<TypeBinding> interfaces = new HashSet<>();
-		for(int i = 0; i < this.servicesCount; i++) {
-			this.services[i].resolve(scope);
-			TypeBinding infBinding = this.services[i].serviceInterface.resolvedType;
-			if (infBinding != null && infBinding.isValidBinding()) {
-				if (!interfaces.add(this.services[i].serviceInterface.resolvedType)) { 
-					scope.problemReporter().duplicateTypeReference(IProblem.DuplicateServices,
-							this.services[i].serviceInterface);
-				}
-			}
+ 			char[][] targets = null;
+ 			if (ref.targets != null) {
+ 				targets = new char[ref.targets.length][];
+ 				for (int j = 0; j < targets.length; j++)
+					targets[j] = ref.targets[j].moduleName;
+ 			}
+			this.binding.addResolvedOpens(ref.resolvedPackage, targets);
 		}
 	}
 
-	
+	/** Resolve those module directives that relate to types (provides / uses). */
+	public void resolveTypeDirectives(CompilationUnitScope cuScope) {
+		if (this.binding == null) {
+			this.ignoreFurtherInvestigation = true;
+			return;
+		}
+		ASTNode.resolveAnnotations(this.scope, this.annotations, this.binding);
+
+		Set<TypeBinding> allTypes = new HashSet<TypeBinding>();
+		for(int i = 0; i < this.usesCount; i++) {
+			TypeBinding serviceBinding = this.uses[i].serviceInterface.resolveType(this.scope);
+			if (serviceBinding != null && serviceBinding.isValidBinding()) {
+				if (!(serviceBinding.isClass() || serviceBinding.isInterface() || serviceBinding.isAnnotationType())) {
+					cuScope.problemReporter().invalidServiceRef(IProblem.InvalidServiceIntfType, this.uses[i].serviceInterface);
+				}
+				if (!allTypes.add(this.uses[i].serviceInterface.resolvedType)) {
+					cuScope.problemReporter().duplicateTypeReference(IProblem.DuplicateUses, this.uses[i].serviceInterface);
+				}
+			}
+		}
+		this.binding.setUses(allTypes.toArray(new TypeBinding[allTypes.size()]));
+		
+		Set<TypeBinding> interfaces = new HashSet<>();
+		for(int i = 0; i < this.servicesCount; i++) {
+			this.services[i].resolve(this.scope);
+			TypeBinding infBinding = this.services[i].serviceInterface.resolvedType;
+			if (infBinding != null && infBinding.isValidBinding()) {
+				if (!interfaces.add(this.services[i].serviceInterface.resolvedType)) { 
+					cuScope.problemReporter().duplicateTypeReference(IProblem.DuplicateServices,
+							this.services[i].serviceInterface);
+				}
+				this.binding.setImplementations(infBinding, this.services[i].getResolvedImplementations());
+			}
+		}
+		this.binding.setServices(interfaces.toArray(new TypeBinding[interfaces.size()]));
+	}
+
 	public StringBuffer printHeader(int indent, StringBuffer output) {
 		if (this.annotations != null) {
 			for (int i = 0; i < this.annotations.length; i++) {
@@ -156,9 +250,6 @@ public class ModuleDeclaration extends ASTNode {
 		output.append("module "); //$NON-NLS-1$
 		output.append(CharOperation.charToString(this.moduleName));
 		return output;
-	}
-	public boolean isOpen() {
-		return (this.modifiers & ClassFileConstants.ACC_OPEN) != 0;
 	}
 	public StringBuffer printBody(int indent, StringBuffer output) {
 		output.append(" {"); //$NON-NLS-1$

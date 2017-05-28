@@ -140,12 +140,6 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 	}
 
 	@Override
-	public IModuleEnvironment getLookupEnvironmentFor(IModule module) {
-		// 
-		return getModule() == module ? this : null;
-	}
-
-	@Override
 	public ITypeLookup typeLookup() {
 		// No direct way to lookup, use the java model APIs instead
 		return ITypeLookup.Dummy;
@@ -166,6 +160,16 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 			} catch (JavaModelException e) {
 				e.printStackTrace();
 			}
+		}
+		return null;
+	}
+
+	@Override
+	public char[][] getModulesDeclaringPackage(String qualifiedPackageName, String requestedModuleName) {
+		if (requestedModuleName != null && !requestedModuleName.equals(this.moduleName))
+			return null;
+		if (isPackage(qualifiedPackageName, requestedModuleName)) {
+			return new char[][] { requestedModuleName.toCharArray() };
 		}
 		return null;
 	}

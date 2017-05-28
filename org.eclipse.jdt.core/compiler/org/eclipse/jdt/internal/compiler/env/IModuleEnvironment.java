@@ -20,7 +20,6 @@ package org.eclipse.jdt.internal.compiler.env;
  * context of one or modules. A lookup environment for a module can
  * be obtained from the IModulePathEntry that contributes the module
  * 
- * @see IModulePathEntry#getLookupEnvironmentFor(IModule)
  */
 public interface IModuleEnvironment {
 	static String MODULE_INFO = "module-info"; //$NON-NLS-1$
@@ -47,28 +46,9 @@ public interface IModuleEnvironment {
 	  * The default package is always assumed to exist. 
 	  * 
 	  * @param qualifiedName
-	 */
-	default boolean isPackage(String qualifiedName) {
-		return packageLookup().isPackage(qualifiedName);
+	  * @param moduleName
+	  */
+	default boolean isPackage(String qualifiedName, String moduleName) {
+		return packageLookup().isPackage(qualifiedName, moduleName);
 	}
-	
-	/**
-	 * Find class with the given type name and qualified package name from the module this environment represents
-	 *
-	 * @param typeName
-	 * @param qualifiedPackageName
-	 * @param qualifiedBinaryFileName
-	 * @param asBinaryOnly
-	 * 
-	 * @return a NameEnvironmentAnswer or null if no such type exists
-	 */
-//	default NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
-//		return typeLookup().findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly);
-//	}
-//	default NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly, char[] mod) {
-//		if (servesModule(mod))
-//			return typeLookup().findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly);
-//		return null;
-//	}
-
 }

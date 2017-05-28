@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -57,21 +57,16 @@ public interface IModulePathEntry {
 	default boolean servesModule(char[] name) {
 		return getModule(name) != null;
 	}
+
+	char[][] getModulesDeclaringPackage(String qualifiedPackageName, /*@Nullable*/String moduleName);
+
 	/**
 	 * Return the look up environment for this entry. Should be used when one needs to
 	 * look up types/packages in all the modules contributed by this entry
 	 * 
 	 */
 	IModuleEnvironment getLookupEnvironment();
-	/**
-	 * Return the lookup environment for the given module
-	 * 
-	 * @param module
-	 * 
-	 * @return The look up environment for the module, or null if this entry
-	 * does not know any such module
-	 */
-	IModuleEnvironment getLookupEnvironmentFor(IModule module);
+
 	/**
 	 * Specifies whether this entry represents an automatic module.
 	 * 

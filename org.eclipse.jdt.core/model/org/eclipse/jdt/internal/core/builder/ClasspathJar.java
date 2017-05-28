@@ -39,8 +39,8 @@ import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
 import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment.AutoModule;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -217,6 +217,7 @@ public void cleanup() {
 			this.annotationZipFile = null;
 		}
 	}
+	this.module = null; // TODO(SHMOD): is this safe?
 	this.knownPackageNames = null;
 }
 
@@ -232,9 +233,8 @@ public boolean equals(Object o) {
 			&& this.isAutoModule == jar.isAutoModule;
 }
 
-public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
-	// TOOD: BETA_JAVA9 - Should really check for packages with the module context
-	if (!isPackage(qualifiedPackageName)) return null; // most common case
+public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
+	if (!isPackage(qualifiedPackageName, moduleName)) return null; // most common case
 
 	try {
 		IBinaryType reader = ClassFileReader.read(this.zipFile, qualifiedBinaryFileName);
@@ -242,10 +242,11 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 			char[] modName = this.module == null ? null : this.module.name();
 			if (reader instanceof ClassFileReader) {
 				ClassFileReader classReader = (ClassFileReader) reader;
-				if (classReader.moduleName == null) {
+				if (classReader.moduleName == null)
 					classReader.moduleName = modName;
+				else
+					modName = classReader.moduleName;
 				}
-			}
 			String fileNameWithoutExtension = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - SuffixConstants.SUFFIX_CLASS.length);
 			if (this.externalAnnotationPath != null) {
 				try {
@@ -265,7 +266,7 @@ public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPa
 				}
 			}
 			if (this.accessRuleSet == null)
-				return new NameEnvironmentAnswer(reader, null);
+				return new NameEnvironmentAnswer(reader, null, modName);
 			return new NameEnvironmentAnswer(reader, 
 					this.accessRuleSet.getViolatedRestriction(fileNameWithoutExtension.toCharArray()), 
 					modName);
@@ -285,10 +286,18 @@ public int hashCode() {
 	return this.zipFilename == null ? super.hashCode() : this.zipFilename.hashCode();
 }
 
-public boolean isPackage(String qualifiedPackageName) {
-	if (this.knownPackageNames != null)
-		return this.knownPackageNames.includes(qualifiedPackageName);
+public boolean isPackage(String qualifiedPackageName, String moduleName) {
+	if (moduleName != null) {
+		if (this.module == null || !moduleName.equals(String.valueOf(this.module.name())))
+			return false;
+	}
+	if (this.knownPackageNames == null)
+		scanContent();
+	return this.knownPackageNames.includes(qualifiedPackageName);
+}
 
+/** Scan the contained packages and try to locate the module descriptor. */
+private void scanContent() {
 	try {
 		if (this.zipFile == null) {
 			if (org.eclipse.jdt.internal.core.JavaModelManager.ZIP_ACCESS_VERBOSE) {
@@ -303,7 +312,6 @@ public boolean isPackage(String qualifiedPackageName) {
 	} catch(Exception e) {
 		this.knownPackageNames = new SimpleSet(); // assume for this build the zipFile is empty
 	}
-	return this.knownPackageNames.includes(qualifiedPackageName);
 }
 
 public long lastModified() {
@@ -328,7 +336,8 @@ public String debugPathString() {
 
 @Override
 public IModule getModule() {
-	//
+	if (this.knownPackageNames == null)
+		scanContent();
 	return this.module;
 }
 
@@ -351,14 +360,8 @@ public IPackageLookup packageLookup() {
 }
 
 @Override
-public IModuleEnvironment getLookupEnvironmentFor(IModule mod) {
-	//
-	return this.module == mod ? this : null;
-}
-
-@Override
-public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
+public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName) {
 	// 
-	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
+	return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false);
 }
 }

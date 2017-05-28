@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,9 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.env;
+
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 
 /**
  * This interface denotes a compilation unit, providing its name and content.
@@ -54,11 +57,19 @@ default boolean ignoreOptionalProblems() {
 	return false;
 }
 /**
- * Returns the name of the module that this compilation unit belongs to.
+ * Returns the binding of the module that this compilation unit is associated with.
  *
- * @return the name of the module as a char array.
+ * @return the binding representing the module.
  */
-default char[] module() {
+default ModuleBinding module(LookupEnvironment environment) {
+	return environment.getModule(getModuleName());
+}
+/**
+ * Returns the name of the module to which this compilation unit is associated.
+ * A return value of {@code null} signals the unnamed module.
+ * @return module name or {@code null} for the unnamed module.
+ */
+default char[] getModuleName() {
 	return null;
 }
 }

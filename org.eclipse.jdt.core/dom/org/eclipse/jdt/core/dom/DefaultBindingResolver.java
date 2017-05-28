@@ -1457,7 +1457,7 @@ class DefaultBindingResolver extends BindingResolver {
 			}
 		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration) {
 			org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration = (org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration) node;
-			IModuleBinding moduleBinding = getModuleBinding(moduleDeclaration.moduleBinding);
+			IModuleBinding moduleBinding = getModuleBinding(moduleDeclaration.binding);
 			if (moduleBinding != null) {
 				return moduleBinding;
 			}
@@ -1634,7 +1634,7 @@ class DefaultBindingResolver extends BindingResolver {
 		Object oldNode = this.newAstToOldAst.get(module);
 		if (oldNode instanceof org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration) {
 			org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration = (org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration) oldNode;
-			IModuleBinding moduleBinding = getModuleBinding(moduleDeclaration.moduleBinding);
+			IModuleBinding moduleBinding = getModuleBinding(moduleDeclaration.binding);
 			if (moduleBinding == null) {
 				return null;
 			}

@@ -23,10 +23,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.Map;
+import java.util.stream.Collectors;
 import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -38,12 +37,9 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
-import org.eclipse.jdt.internal.compiler.env.IMultiModulePackageLookup;
-import org.eclipse.jdt.internal.compiler.env.IMultiModuleTypeLookup;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
 import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -53,22 +49,10 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 	protected File file;
 	protected ZipFile annotationZipFile;
 	protected boolean closeZipFileAtEnd;
-	private static HashMap<String, Set<IModule>> ModulesCache = new HashMap<>();
+	private static HashMap<String, Map<String,IModule>> ModulesCache = new HashMap<>();
 	//private Set<String> packageCache;
 	protected List<String> annotationPaths;
 
-	protected ITypeLookup typeLookupForModule(char[] modName) {
-		return (typeName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly) -> {
-			return typeLookup().findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly,
-					modName);
-		};
-	}
-
-	protected IPackageLookup pkgLookupForModule(char[] modName) {
-		return qualifiedPackageName -> {
-			return packageLookup().isPackage(qualifiedPackageName, modName);
-		};
-	}
 	public ClasspathJrt(File file, boolean closeZipFileAtEnd,
 			AccessRuleSet accessRuleSet, String destinationPath) {
 		super(accessRuleSet, destinationPath);
@@ -79,23 +63,22 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 	public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemReporter) {
 		return null;
 	}
-	public boolean isPackage(String qualifiedPackageName, Optional<char[]> mod) {
-		return JRTUtil.isPackage(this.file, qualifiedPackageName, mod);
+	public char[][] getModulesDeclaringPackage(String qualifiedPackageName, String moduleName) {
+		List<String> modules = JRTUtil.getModulesDeclaringPackage(this.file, qualifiedPackageName, moduleName);
+		return CharOperation.toCharArrays(modules);
 	}
-	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
-		return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false, Optional.empty());
+	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName) {
+		return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false);
 	}
-	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
-		return typeLookup().findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly, Optional.empty());
-	}
-	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly, Optional<Collection<char[]>> mods) {
-		if (!isPackage(qualifiedPackageName))
+	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
+		if (!isPackage(qualifiedPackageName, moduleName))
 			return null; // most common case
 
 		try {
-			IBinaryType reader = ClassFileReader.readFromModules(this.file, qualifiedBinaryFileName, mods);
+			IBinaryType reader = ClassFileReader.readFromModule(this.file, moduleName, qualifiedBinaryFileName);
 
 			if (reader != null) {
+				searchPaths:
 				if (this.annotationPaths != null) {
 					String qualifiedClassName = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length()-SuffixConstants.EXTENSION_CLASS.length()-1);
 					for (String annotationPath : this.annotationPaths) {
@@ -106,14 +89,19 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 							reader = ExternalAnnotationDecorator.create(reader, annotationPath, qualifiedClassName, this.annotationZipFile);
 
 							if (reader.getExternalAnnotationStatus() == ExternalAnnotationStatus.TYPE_IS_ANNOTATED) {
-								break;
+								break searchPaths;
 							}
 						} catch (IOException e) {
 							// don't let error on annotations fail class reading
 						}
 					}
+					// location is configured for external annotations, but no .eea found, decorate in order to answer NO_EEA_FILE:
+					reader = new ExternalAnnotationDecorator(reader, null);
 				}
-				return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName), reader.getModule());
+				char[] answerModuleName = reader.getModule();
+				if (answerModuleName == null && moduleName != null)
+					answerModuleName = moduleName.toCharArray();
+				return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName), answerModuleName);
 			}
 		} catch(ClassFormatException e) {
 			// treat as if class file is missing
@@ -124,10 +112,10 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 	}
 	@Override
 	public boolean hasAnnotationFileFor(String qualifiedTypeName) {
-		return false; // TODO: Revisit 
+		return false; // TODO(SHMOD): implement
 	}
-	public char[][][] findTypeNames(final String qualifiedPackageName, final IModule mod) {
-		if (!isPackage(qualifiedPackageName))
+	public char[][][] findTypeNames(final String qualifiedPackageName, final String moduleName) {
+		if (!isPackage(qualifiedPackageName, moduleName))
 			return null; // most common case
 		final char[] packageArray = qualifiedPackageName.toCharArray();
 		final ArrayList answers = new ArrayList();
@@ -156,9 +144,9 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 
 				@Override
 				public FileVisitResult visitModule(java.nio.file.Path modPath) throws IOException {
-					if (mod == ModuleEnvironment.UNNAMED_MODULE)
+					if (moduleName == null)
 						return FileVisitResult.CONTINUE;
-					if (!CharOperation.equals(mod.name(), modPath.toString().toCharArray())) {
+					if (!moduleName.equals(modPath.toString())) {
 						return FileVisitResult.SKIP_SUBTREE;
 					}
 					return FileVisitResult.CONTINUE;
@@ -197,7 +185,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 //		this.module = mod;
 //	}
 	public void loadModules() {
-		Set<IModule> cache = ModulesCache.get(this.file);
+		Map<String,IModule> cache = ModulesCache.get(this.file.getPath());
 
 		if (cache == null) {
 			try {
@@ -235,11 +223,11 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 		if (reader != null) {
 			IModule moduleDecl = reader.getModuleDeclaration();
 			if (moduleDecl != null) {
-				Set<IModule> cache = ModulesCache.get(this.file);
+				Map<String, IModule> cache = ModulesCache.get(this.file.getPath());
 				if (cache == null) {
-					ModulesCache.put(new String(moduleDecl.name()), cache = new HashSet<IModule>());
+					ModulesCache.put(this.file.getPath(), cache = new HashMap<String,IModule>());
 				}
-				cache.add(reader.getModuleDeclaration());
+				cache.put(String.valueOf(moduleDecl.name()), moduleDecl);
 			}
 		}
 		
@@ -249,13 +237,20 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 			return;
 		ClassFileReader reader = null;
 		try {
-			reader = new ClassFileReader(content, IModuleEnvironment.MODULE_INFO_CLASS.toCharArray(), null);
+			reader = new ClassFileReader(content, IModuleEnvironment.MODULE_INFO_CLASS.toCharArray());
 		} catch (ClassFormatException e) {
 			e.printStackTrace();
 		}
 		if (reader != null) {
 			acceptModule(reader);
 		}
+	}
+	
+	@Override
+	public Collection<String> getModuleNames() {
+		return ModulesCache.values().stream()
+				.flatMap(entryMap -> entryMap.keySet().stream())
+				.collect(Collectors.toList());
 	}
 //	protected void addToPackageCache(String fileName, boolean endsWithSep) {
 //		int last = endsWithSep ? fileName.length() : fileName.lastIndexOf('/');
@@ -346,46 +341,23 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 	}
 
 	public IModule getModule(char[] moduleName) {
-		Set<IModule> modules = ModulesCache.get(new String(moduleName));
+		Map<String, IModule> modules = ModulesCache.get(this.file.getPath());
 		if (modules != null) {
-			for (IModule mod : modules) {
-				if (CharOperation.equals(mod.name(), moduleName))
-						return mod;
-			}
+			return modules.get(String.valueOf(moduleName));
 		}
 		return null;
 	}
 	@Override
-	public IMultiModuleTypeLookup typeLookup() {
+	public ITypeLookup typeLookup() {
 		return this::findClass;
 	}
 	@Override
-	public IMultiModulePackageLookup packageLookup() {
+	public IPackageLookup packageLookup() {
 		return this::isPackage;
 	}
 	@Override
-	public boolean servesModule(char[] mod) {
-		return ModulesCache.containsKey(new String(mod));
-	}
-
-
-	@Override
-	public IModuleEnvironment getLookupEnvironmentFor(IModule mod) {
-		// 
-		return new IModuleEnvironment() {
-			
-			@Override
-			public ITypeLookup typeLookup() {
-				//
-				return servesModule(mod.name()) ? typeLookupForModule(mod.name()) : ITypeLookup.Dummy;
-			}
-			
-			@Override
-			public IPackageLookup packageLookup() {
-				//
-				return servesModule(mod.name()) ? pkgLookupForModule(mod.name()) : IPackageLookup.Dummy;
-			}
-		};
+	public boolean servesModule(char[] moduleName) {
+		return getModule(moduleName) != null;
 	}
 
 	@Override

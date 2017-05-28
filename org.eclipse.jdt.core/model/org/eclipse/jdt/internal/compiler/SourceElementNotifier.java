@@ -434,7 +434,8 @@ public void notifySourceElementRequestor(
 		length =
 			(currentPackage == null ? 0 : 1)
 			+ (imports == null ? 0 : imports.length)
-			+ (types == null ? 0 : types.length);
+			+ (types == null ? 0 : types.length)
+			+ (parsedUnit.moduleDeclaration == null ? 0 : 1);
 		nodes = new ASTNode[length];
 		int index = 0;
 		if (currentPackage != null) {
@@ -450,6 +451,9 @@ public void notifySourceElementRequestor(
 				nodes[index++] = types[i];
 			}
 		}
+		
+		if (parsedUnit.moduleDeclaration != null)
+			nodes[index++] = parsedUnit.moduleDeclaration;
 
 		// notify the nodes in the syntactical order
 		if (length > 0) {
@@ -463,13 +467,10 @@ public void notifySourceElementRequestor(
 					} else {
 						notifySourceElementRequestor(importRef, false);
 					}
-				} else { // instanceof TypeDeclaration
-					TypeDeclaration type = (TypeDeclaration) node;
-					if (type.isModuleInfo()) {
-						notifySourceElementRequestor(parsedUnit.moduleDeclaration);
-					} else {
-						notifySourceElementRequestor((TypeDeclaration)node, true, null, currentPackage);
-					}
+				} else if (node instanceof TypeDeclaration) {
+					notifySourceElementRequestor((TypeDeclaration)node, true, null, currentPackage);
+				} else if (node instanceof ModuleDeclaration) {
+					notifySourceElementRequestor(parsedUnit.moduleDeclaration);
 				}
 			}
 		}

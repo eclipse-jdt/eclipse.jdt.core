@@ -165,7 +165,7 @@ public void complete(
 			return false;
 		}
 		@Override
-		public char[] module() {
+		public char[] getModuleName() {
 			// TODO BETA_JAVA9 Auto-generated method stub
 			return null;
 		}
@@ -617,7 +617,7 @@ public void select(
 			return false;
 		}
 		@Override
-		public char[] module() {
+		public char[] getModuleName() {
 			return null;
 		}
 	};

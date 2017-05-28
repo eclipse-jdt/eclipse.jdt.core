@@ -121,7 +121,7 @@ public String toString() {
 }
 
 @Override
-public char[] module() {
+public char[] getModuleName() {
 	IModule mod = this.sourceLocation.module();
 	return mod == null ? null : mod.name();
 }

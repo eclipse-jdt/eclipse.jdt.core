@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.IModuleDescription;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
@@ -52,14 +53,22 @@ public class ProjectEntry implements IModulePathEntry {
 	}
 
 	@Override
-	public IModuleEnvironment getLookupEnvironmentFor(IModule module) {
-		//
-		if (getModule() == module)
-			return this.project;
-		return null;
-	}
-	@Override
 	public boolean isAutomaticModule() {
 		return false;
+	}
+
+	@Override
+	public char[][] getModulesDeclaringPackage(String qualifiedPackageName, String moduleName) {
+		// TODO(SHMOD): verify (is unnamed handled correctly?)
+		IModule mod = getModule();
+		if (mod == null) {
+			if (moduleName != null)
+				return null;
+		} else if (!String.valueOf(mod.name()).equals(moduleName)) {
+			return null;
+		}
+		if (this.project.isPackage(qualifiedPackageName, moduleName))
+			return mod != null ? new char[][] { mod.name() } : CharOperation.NO_CHAR_CHAR;
+		return null;
 	}
 }

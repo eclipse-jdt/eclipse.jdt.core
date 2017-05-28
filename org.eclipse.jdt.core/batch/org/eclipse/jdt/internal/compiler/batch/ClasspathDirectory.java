@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.env.IPackageLookup;
 import org.eclipse.jdt.internal.compiler.env.ITypeLookup;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment.AutoModule;
+import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
@@ -118,7 +118,7 @@ public List fetchLinkedJars(FileSystem.ClasspathSectionProblemReporter problemRe
 	return null;
 }
 private NameEnvironmentAnswer findClassInternal(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
-	if (!isPackage(qualifiedPackageName)) return null; // most common case
+	if (!isPackage(qualifiedPackageName, null)) return null; // most common case TODO(SHMOD): use module name from this.module?
 	String fileName = new String(typeName);
 	boolean binaryExists = ((this.mode & BINARY) != 0) && doesFileExist(fileName + SUFFIX_STRING_class, qualifiedPackageName);
 	boolean sourceExists = ((this.mode & SOURCE) != 0) && doesFileExist(fileName + SUFFIX_STRING_java, qualifiedPackageName);
@@ -149,10 +149,11 @@ private NameEnvironmentAnswer findClassInternal(char[] typeName, String qualifie
 				reader = null;
 			}
 			if (reader != null) {
-				reader.moduleName = this.module == null ? null : this.module.name();
+				char[] modName = reader.moduleName != null ? reader.moduleName : this.module != null ? this.module.name() : null;
 				return new NameEnvironmentAnswer(
 						reader,
-						fetchAccessRestriction(qualifiedBinaryFileName));
+						fetchAccessRestriction(qualifiedBinaryFileName),
+						modName);
 			}
 		} catch (IOException e) {
 			// treat as if file is missing
@@ -169,7 +170,8 @@ public NameEnvironmentAnswer findSecondaryInClass(char[] typeName, String qualif
 	}
 
 	String typeNameString = new String(typeName);
-	boolean prereqs = this.options != null && isPackage(qualifiedPackageName) && ((this.mode & SOURCE) != 0) && doesFileExist(typeNameString + SUFFIX_STRING_java, qualifiedPackageName);
+	String moduleName = this.module != null ? String.valueOf(this.module.name()) : null; // TODO(SHMOD): test for ModuleBinding.ANY & UNNAMED
+	boolean prereqs = this.options != null && isPackage(qualifiedPackageName, moduleName) && ((this.mode & SOURCE) != 0) && doesFileExist(typeNameString + SUFFIX_STRING_java, qualifiedPackageName);
 	return prereqs ? null : findSourceSecondaryType(typeNameString, qualifiedPackageName, qualifiedBinaryFileName); /* only secondary types */
 }
 
@@ -182,10 +184,10 @@ public boolean hasAnnotationFileFor(String qualifiedTypeName) {
 	}
 	return false;
 }
-public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
-	return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
+public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName) {
+	return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false);
 }
-public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
+public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
 	if (File.separatorChar == '/')
       return findClassInternal(typeName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly);
 
@@ -250,8 +252,8 @@ private NameEnvironmentAnswer findSourceSecondaryType(String typeName, String qu
 }
 
 
-public char[][][] findTypeNames(String qualifiedPackageName, IModule mod) {
-	if (!isPackage(qualifiedPackageName)) {
+public char[][][] findTypeNames(String qualifiedPackageName, String moduleName) {
+	if (!isPackage(qualifiedPackageName, moduleName)) {
 		return null; // most common case
 	}
 	File dir = new File(this.path + qualifiedPackageName);
@@ -280,9 +282,9 @@ public char[][][] findTypeNames(String qualifiedPackageName, IModule mod) {
 public void initialize() throws IOException {
 	// nothing to do
 }
-public boolean isPackage(String qualifiedPackageName) {
+public char[][] getModulesDeclaringPackage(String qualifiedPackageName, /*@Nullable*/String moduleName) {
 	String qp2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
-	return directoryList(qp2) != null;
+	return singletonModuleNameIf(directoryList(qp2) != null);
 }
 public void reset() {
 	this.directoryCache = new Hashtable(11);
@@ -320,11 +322,7 @@ public ITypeLookup typeLookup() {
 public IPackageLookup packageLookup() {
 	return this::isPackage;
 }
-@Override
-public IModuleEnvironment getLookupEnvironmentFor(IModule mod) {
-	//
-	return this.module == mod ? this : null;
-}
+
 @Override
 public IModuleEnvironment getLookupEnvironment() {
 	// 

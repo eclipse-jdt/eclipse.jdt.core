@@ -1483,10 +1483,6 @@ public boolean isHierarchyConnected() {
 	return true;
 }
 
-public boolean isModule() {
-	return (this.modifiers & ClassFileConstants.AccModule) != 0;
-}
-
 public boolean isInterface() {
 	// consider strict interfaces and annotation types
 	return (this.modifiers & ClassFileConstants.AccInterface) != 0;
@@ -2214,6 +2210,8 @@ public static boolean isConsistentIntersection(TypeBinding[] intersectingTypes) 
 	return true;
 }
 public ModuleBinding module() {
+	if (this.fPackage != null)
+		return this.fPackage.enclosingModule;
 	return null;
 }
 }

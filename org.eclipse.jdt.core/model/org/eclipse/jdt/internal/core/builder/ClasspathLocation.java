@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -24,18 +24,23 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public abstract class ClasspathLocation implements IModuleEnvironment {
 
 	protected boolean isAutoModule;
 	protected IModule module;
-	abstract public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName);
-	abstract public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly);
-	abstract public boolean isPackage(String qualifiedPackageName);
-	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
+	abstract public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName);
+	abstract public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly);
+	abstract public boolean isPackage(String qualifiedPackageName, String moduleName);
+	public char[][] getModulesDeclaringPackage(String qualifiedPackageName, String moduleName) {
+		return singletonModuleNameIf(isPackage(qualifiedPackageName, moduleName));
+	}
+
+	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
 		String fileName = new String(typeName);
-		return findClass(fileName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly);
+		return findClass(fileName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, asBinaryOnly);
 	}
 	public void setModule (IModule mod) {
 		this.module = mod;
@@ -97,6 +102,15 @@ void acceptModule(IModule mod) {
 public IModule getModule() {
 	return this.module;
 }
+
+public char[][] singletonModuleNameIf(boolean condition) {
+	if (!condition)
+		return null;
+	if (this.module != null)
+		return new char[][] { this.module.name() };
+	return new char[][] { ModuleBinding.UNNAMED };
+}
+
 /**
  * Specifies whether this entry represents an automatic module.
  * 

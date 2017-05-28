@@ -61,6 +61,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.MissingResourceException;
 import java.util.Properties;
 import java.util.ResourceBundle;
@@ -91,10 +92,12 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdateKind;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.CompilerStats;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
@@ -3275,28 +3278,48 @@ public CompilationUnit[] getCompilationUnits() {
 	String defaultEncoding = this.options.get(CompilerOptions.OPTION_Encoding);
 	if (Util.EMPTY_STRING.equals(defaultEncoding))
 		defaultEncoding = null;
+	
+	Map<String,CompilationUnit> pathToModCU = new HashMap<>();
 
-	for (int i = 0; i < fileCount; i++) {
-		char[] charName = this.filenames[i].toCharArray();
-		if (knownFileNames.get(charName) != null)
-			throw new IllegalArgumentException(this.bind("unit.more", this.filenames[i])); //$NON-NLS-1$
-		knownFileNames.put(charName, charName);
-		File file = new File(this.filenames[i]);
-		if (!file.exists())
-			throw new IllegalArgumentException(this.bind("unit.missing", this.filenames[i])); //$NON-NLS-1$
-		String encoding = this.encodings[i];
-		if (encoding == null)
-			encoding = defaultEncoding;
-		String fileName;
-		try {
-			fileName = file.getCanonicalPath();
-		} catch (IOException e) {
-			// if we got exception during canonicalization, fall back to the name that was specified
-			fileName = this.filenames[i];
+	for (int round = 0; round < 2; round++) {
+		for (int i = 0; i < fileCount; i++) {
+			char[] charName = this.filenames[i].toCharArray();
+			boolean isModuleInfo = CharOperation.endsWith(charName, TypeConstants.MODULE_INFO_FILE_NAME);
+			if (isModuleInfo == (round==0)) { // 1st round: modules, 2nd round others (to ensure populating pathToModCU well in time)
+				if (knownFileNames.get(charName) != null)
+					throw new IllegalArgumentException(this.bind("unit.more", this.filenames[i])); //$NON-NLS-1$
+				knownFileNames.put(charName, charName);
+				File file = new File(this.filenames[i]);
+				if (!file.exists())
+					throw new IllegalArgumentException(this.bind("unit.missing", this.filenames[i])); //$NON-NLS-1$
+				String encoding = this.encodings[i];
+				if (encoding == null)
+					encoding = defaultEncoding;
+				String fileName;
+				try {
+					fileName = file.getCanonicalPath();
+				} catch (IOException e) {
+					// if we got exception during canonicalization, fall back to the name that was specified
+					fileName = this.filenames[i];
+				}
+				units[i] = new CompilationUnit(null, fileName, encoding, this.destinationPaths[i],
+						shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, fileName.toCharArray()), 
+						this.modNames[i]);
+				if (isModuleInfo) {
+					int lastSlash = CharOperation.lastIndexOf('/', units[i].fileName);
+					if (lastSlash != -1) {
+						pathToModCU.put(String.valueOf(CharOperation.subarray(units[i].fileName, 0, lastSlash)), units[i]);
+					}
+				} else {
+					for (Entry<String, CompilationUnit> entry : pathToModCU.entrySet()) {
+						if (fileName.startsWith(entry.getKey())) { // associate CUs to module by common prefix
+							units[i].setModule(entry.getValue());
+							break;
+						}
+					}
+				}
+			}
 		}
-		units[i] = new CompilationUnit(null, fileName, encoding, this.destinationPaths[i],
-				shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, fileName.toCharArray()), 
-				this.modNames[i]);
 	}
 	return units;
 }
@@ -3396,15 +3419,15 @@ private void processAddonModuleOptions(FileSystem env) {
 				updated[existing.length] = export;
 				exports.put(modName, updated);
 			}
+			env.addModuleUpdate(modName, m -> m.addExports(export.name(), export.targets()), UpdateKind.PACKAGE);
 		} else {
 			throw new IllegalArgumentException(this.bind("configure.invalidModuleOption", "--add-exports " + option)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
-	env.setAddonExports(exports);
 	for (String option : this.addonReads) {
 		String[] result = ModuleFinder.extractAddonRead(option);
 		if (result != null && result.length == 2) {
-			env.addReads(result[0], result[1]);
+			env.addModuleUpdate(result[0], m -> m.addReads(result[1].toCharArray()), UpdateKind.MODULE);
 		} else {
 			throw new IllegalArgumentException(this.bind("configure.invalidModuleOption", "--add-reads " + option)); //$NON-NLS-1$ //$NON-NLS-2$
 		}
@@ -4651,7 +4674,7 @@ private ReferenceBinding[] processClassNames(LookupEnvironment environment) {
 		} else {
 			compoundName = new char[][] { currentName.toCharArray() };
 		}
-		ReferenceBinding type = environment.getType(compoundName, null);
+		ReferenceBinding type = environment.getType(compoundName); // TODO(SHMOD): module? https://bugs.eclipse.org/518295
 		if (type != null && type.isValidBinding()) {
 			if (type.isBinaryBinding()) {
 				referenceBindings[i] = type;
@@ -5042,7 +5065,7 @@ protected void setPaths(ArrayList bootclasspaths,
 
 	if (sourcepathClasspathArg != null) {
 		processPathEntries(DEFAULT_SIZE_CLASSPATH, sourcepathClasspaths,
-			sourcepathClasspathArg, null, true, false);
+			sourcepathClasspathArg, null, true, false); // FIXME(SHMOD): why null encoding??
 	}
 
 	/*
@@ -5079,6 +5102,8 @@ protected void setPaths(ArrayList bootclasspaths,
 		for (FileSystem.Classpath cp : this.checkedClasspaths) {
 			if (cp instanceof ClasspathJar)
 				((ClasspathJar) cp).annotationPaths = this.annotationPaths;
+			else if (cp instanceof ClasspathJrt)
+				((ClasspathJrt) cp).annotationPaths = this.annotationPaths;
 		}
 	}
 }

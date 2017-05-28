@@ -425,7 +425,7 @@ public class ClassScope extends Scope {
 		}
 
 		SourceTypeBinding sourceType = this.referenceContext.binding;
-		sourceType.module = environment().getModule(module());
+		sourceType.module = module();
 		environment().setAccessRestriction(sourceType, accessRestriction);
 		
 		TypeParameter[] typeParameters = this.referenceContext.typeParameters;
@@ -649,16 +649,6 @@ public class ClassScope extends Scope {
 				}
 			}
 		} else {
-			if (sourceType.isModule()) {
-				// TBD - allowed only at source level 9 or above
-				modifiers = ClassFileConstants.AccModule;
-				if ((realModifiers & ~(ClassFileConstants.ACC_OPEN | ClassFileConstants.AccModule)) != 0) {
-					problemReporter().illegalModifierForModule(compilationUnitScope().referenceContext.moduleDeclaration);
-				}
-				if ((realModifiers & ClassFileConstants.ACC_OPEN) != 0) {
-					modifiers |= ClassFileConstants.ACC_OPEN;
-				}
-			} else
 			// detect abnormal cases for classes
 			if (isMemberType) { // includes member types defined inside local types
 				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
@@ -964,8 +954,6 @@ public class ClassScope extends Scope {
 		if (this.referenceContext.superclass == null) {
 			if (sourceType.isEnum() && compilerOptions().sourceLevel >= ClassFileConstants.JDK1_5) // do not connect if source < 1.5 as enum already got flagged as syntax error
 				return connectEnumSuperclass();
-			if (sourceType.isModule())
-				return true;
 			sourceType.setSuperClass(getJavaLangObject());
 			return !detectHierarchyCycle(sourceType, sourceType.superclass, null);
 		}

@@ -150,7 +150,7 @@ ClassFile[] getClasses() {
 			return false;
 		}
 		@Override
-		public char[] module() {
+		public char[] getModuleName() {
 			// TODO BETA_JAVA9 Auto-generated method stub
 			return null;
 		}

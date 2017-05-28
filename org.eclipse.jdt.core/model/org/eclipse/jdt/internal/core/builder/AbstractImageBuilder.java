@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -363,8 +363,12 @@ protected void compile(SourceFile[] units, SourceFile[] additionalUnits, boolean
 			additionalUnits[length + i] = (SourceFile) this.problemSourceFiles.get(i);
 	}
 	String[] initialTypeNames = new String[units.length];
-	for (int i = 0, l = units.length; i < l; i++)
-		initialTypeNames[i] = units[i].initialTypeName;
+	for (int i = 0, l = units.length; i < l; i++) {
+		char[] moduleName = units[i].getModuleName();
+		initialTypeNames[i] = (moduleName == null)
+				? units[i].initialTypeName
+				: new StringBuilder(60).append(moduleName).append(':').append(units[i].initialTypeName).toString();
+	}
 	this.nameEnvironment.setNames(initialTypeNames, additionalUnits);
 	this.notifier.checkCancel();
 	try {

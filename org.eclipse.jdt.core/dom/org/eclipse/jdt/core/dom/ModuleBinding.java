@@ -15,10 +15,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
-import java.util.LinkedHashMap;
+import java.util.Arrays;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.NameLookup;
@@ -43,15 +42,13 @@ class ModuleBinding implements IModuleBinding {
 	private IModuleBinding[] requiredModules;
 	private IPackageBinding[] exports; // cached
 	private IPackageBinding[] opens; // cached
+	private ITypeBinding[] uses; // cached
 	private ITypeBinding[] services; // cached
-	private LinkedHashMap<IPackageBinding, String[]> exportsStore;
-	private LinkedHashMap<IPackageBinding, String[]> opensStore;
-	private LinkedHashMap<ITypeBinding, ITypeBinding[]> servicesStore;
 
 	ModuleBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.ModuleBinding binding) {
 		this.resolver = resolver;
 		this.binding = binding;
-		this.isOpen = binding.isOpen;
+		this.isOpen = binding.isOpen();
 	}
 
 	@Override
@@ -127,7 +124,7 @@ class ModuleBinding implements IModuleBinding {
 		if (!(nameEnvironment instanceof SearchableEnvironment)) return null;
 		NameLookup nameLookup = ((SearchableEnvironment) nameEnvironment).nameLookup;
 		if (nameLookup == null) return null;
-		Answer answer = nameLookup.findModule(this.getName());
+		Answer answer = nameLookup.findModule(this.getName().toCharArray());
 		if (answer == null) return null;
 		return answer.module;
 	}
@@ -164,7 +161,7 @@ class ModuleBinding implements IModuleBinding {
 		if (this.requiredModules != null)
 			return this.requiredModules;
 
-		org.eclipse.jdt.internal.compiler.lookup.ModuleBinding[] reqs = this.binding.getAllRequiredModules();	
+		org.eclipse.jdt.internal.compiler.lookup.ModuleBinding[] reqs = this.binding.getRequires();
 		IModuleBinding[] result = new IModuleBinding[reqs != null ? reqs.length : 0];
 		for (int i = 0, l = result.length; i < l; ++i) {
 			org.eclipse.jdt.internal.compiler.lookup.ModuleBinding req = reqs[i];
@@ -173,49 +170,36 @@ class ModuleBinding implements IModuleBinding {
 		return this.requiredModules = result;
 	}
 
-	interface IVisibilePackage {
-		org.eclipse.jdt.internal.compiler.lookup.PackageBinding getPack(char[] name);
-	}
-	private LinkedHashMap<IPackageBinding, String[]> getPacks(IPackageExport[] packs, IVisibilePackage ivp) {
-		LinkedHashMap<IPackageBinding, String[]> packMap = new LinkedHashMap<>();
-		for (IPackageExport pack : packs) {
-			org.eclipse.jdt.internal.compiler.lookup.PackageBinding packB = ivp.getPack(pack.name());
-			IPackageBinding p = packB != null ? this.resolver.getPackageBinding(packB) : null;	
-			if (p != null) {
-				packMap.put(p, CharOperation.toStrings(pack.targets()));
-			}
-		}
-		return packMap;
-	}
-
 	@Override
 	public IPackageBinding[] getExportedPackages() {
-		if (this.exportsStore == null) {
-			this.exportsStore = getPacks(this.binding.exports, this.binding :: getExportedPackage);
-			this.exports = this.exportsStore.keySet().toArray(new IPackageBinding[0]);
+		if (this.exports == null) {
+			org.eclipse.jdt.internal.compiler.lookup.PackageBinding[] compilerExports = this.binding.getExports();
+			this.exports = Arrays.stream(compilerExports)
+					.map(e -> this.resolver.getPackageBinding(e))
+					.toArray(IPackageBinding[]::new);
 		}
 		return this.exports;
 	}
 
 	@Override
 	public String[] getExportedTo(IPackageBinding packageBinding) {
-		getExportedPackages();
-		return this.exportsStore.get(packageBinding);
+		return this.binding.getExportRestrictions(((PackageBinding) packageBinding).getCompilerBinding());
 	}
 
 	@Override
 	public IPackageBinding[] getOpenedPackages() {
-		if (this.opensStore == null) {
-			this.opensStore = getPacks(this.binding.opens, this.binding :: getOpenedPackage);
-			this.opens = this.opensStore.keySet().toArray(new IPackageBinding[0]);
+		if (this.opens == null) {
+			org.eclipse.jdt.internal.compiler.lookup.PackageBinding[] compilerOpens = this.binding.getOpens();
+			this.opens = Arrays.stream(compilerOpens)
+					.map(o -> this.resolver.getPackageBinding(o))
+					.toArray(IPackageBinding[]::new);
 		}
 		return this.opens;
 	}
 
 	@Override
 	public String[] getOpenedTo(IPackageBinding packageBinding) {
-		getOpenedPackages();
-		return this.opensStore.get(packageBinding);
+		return this.binding.getOpenRestrictions(((PackageBinding) packageBinding).getCompilerBinding());
 	}
 
 	/*
@@ -232,30 +216,21 @@ class ModuleBinding implements IModuleBinding {
 
 	@Override
 	public ITypeBinding[] getUses() {
-		return getTypes(this.binding.getUses());
+		if (this.uses == null)
+			this.uses = getTypes(this.binding.uses);
+		return this.uses;
 	}
 
 	@Override
 	public ITypeBinding[] getServices() {
-		if (this.servicesStore == null) {
-			this.servicesStore = new LinkedHashMap<>();
-			for (org.eclipse.jdt.internal.compiler.lookup.ModuleBinding.Service cs : this.binding.getServices()) {
-				ITypeBinding s = this.resolver.getTypeBinding(cs.service);
-				if (s != null) {
-					this.servicesStore.put(s, getTypes(cs.implementations));
-				}
-			}
-			this.services = this.servicesStore.keySet().toArray(new ITypeBinding[0]);
-		}
+		if (this.services == null)
+			this.services = getTypes(this.binding.services);
 		return this.services;
 	}
 	@Override
 	public ITypeBinding[] getImplementations(ITypeBinding service) {
-		getServices();
-		return this.servicesStore.get(service);
+		return getTypes(this.binding.getImplementations(((TypeBinding) service).binding));
 	}
-
-
 	/**
 	 * For debugging purpose only.
 	 * @see java.lang.Object#toString()

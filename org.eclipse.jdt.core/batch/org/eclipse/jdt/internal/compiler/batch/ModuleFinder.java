@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation.
+ * Copyright (c) 2016, 2017 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.PackageExportImpl;
-import org.eclipse.jdt.internal.compiler.lookup.ModuleEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.AutoModule;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
@@ -83,7 +83,7 @@ public class ModuleFinder {
 					}
 					if (isModulepath && module == null) {
 						 // The name includes the file's extension, but it shouldn't matter.
-						module = new ModuleEnvironment.AutoModule(getFileName(file).toCharArray());
+						module = new AutoModule(getFileName(file).toCharArray());
 					}
 					if (module != null)
 						modulePath.acceptModule(module);

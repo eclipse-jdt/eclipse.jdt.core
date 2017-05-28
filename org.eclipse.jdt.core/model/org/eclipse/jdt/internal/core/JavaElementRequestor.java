@@ -71,7 +71,7 @@ public class JavaElementRequestor implements IJavaElementRequestor {
 	 * A collection of the resulting modules, or <code>null</code>
 	 * if no module results have been received
 	 */
-	protected ArrayList modules = null;
+	protected ArrayList<IModuleDescription> modules = null;
 
 	/**
 	 * Empty arrays used for efficiency

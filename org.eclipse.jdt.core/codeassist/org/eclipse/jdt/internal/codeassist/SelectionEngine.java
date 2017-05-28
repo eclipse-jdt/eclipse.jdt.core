@@ -1025,20 +1025,19 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						}
 					}
 				}
-				if (parsedUnit.isModuleInfo() && parsedUnit.types != null &&
-						parsedUnit.types.length > 0) {
-					//TypeDeclaration modInfo = parsedUnit.types[0];
-					ModuleDeclaration module = parsedUnit.moduleDeclaration;//modInfo.scope.compilationUnitScope().referenceContext.moduleDeclaration ;//TODO, could be null
-					this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
-					acceptPackageVisibilityStatements(module.exports, parsedUnit.scope);
-					acceptPackageVisibilityStatements(module.opens, parsedUnit.scope);
-				}
-				if (parsedUnit.types != null || parsedUnit.isPackageInfo()) {
-					if(selectDeclaration(parsedUnit))
-						return;
-					this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
-					if ((this.unitScope = parsedUnit.scope)  != null) {
-						try {
+				try {
+					if (parsedUnit.isModuleInfo() && parsedUnit.moduleDeclaration != null) {
+						ModuleDeclaration module = parsedUnit.moduleDeclaration;
+						this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
+						module.resolveDirectives(parsedUnit.scope);
+						module.resolveTypeDirectives(parsedUnit.scope);
+						acceptPackageVisibilityStatements(module.exports, parsedUnit.scope);
+						acceptPackageVisibilityStatements(module.opens, parsedUnit.scope);
+					} else if (parsedUnit.types != null || parsedUnit.isPackageInfo()) {
+						if(selectDeclaration(parsedUnit))
+							return;
+						this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
+						if ((this.unitScope = parsedUnit.scope)  != null) {
 							this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
 							CompilationUnitDeclaration previousUnitBeingCompleted = this.lookupEnvironment.unitBeingCompleted;
 							this.lookupEnvironment.unitBeingCompleted = parsedUnit;
@@ -1055,16 +1054,16 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							if (node != null) {
 								selectLocalDeclaration(node);
 							}
-						} catch (SelectionNodeFound e) {
-							if (e.binding != null) {
-								if(DEBUG) {
-									System.out.println("SELECTION - Selection binding:"); //$NON-NLS-1$
-									System.out.println(e.binding.toString());
-								}
-								// if null then we found a problem in the selection node
-								selectFrom(e.binding, parsedUnit, sourceUnit, e.isDeclaration);
-							}
 						}
+					}
+				} catch (SelectionNodeFound e) {
+					if (e.binding != null) {
+						if(DEBUG) {
+							System.out.println("SELECTION - Selection binding:"); //$NON-NLS-1$
+							System.out.println(e.binding.toString());
+						}
+						// if null then we found a problem in the selection node
+						selectFrom(e.binding, parsedUnit, sourceUnit, e.isDeclaration);
 					}
 				}
 			}

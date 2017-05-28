@@ -918,7 +918,7 @@ public IJavaElement[] getElements() {
 	return this.elements;
 }
 protected IModuleDescription resolveModule(char[] moduleName) {
-	Answer answer = this.nameLookup.findModule(new String(moduleName));
+	Answer answer = this.nameLookup.findModule(moduleName);
 	if (answer != null) {
 		return answer.module;
 	}

@@ -24,8 +24,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Optional;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
@@ -132,23 +130,23 @@ public static ClassFileReader readFromJimage(
 		String filename)
 		throws ClassFormatException, java.io.IOException {
 
-		return readFromModules(jrt, filename, Optional.empty());
+		return readFromModule(jrt, null, filename);
 	}
 public static ClassFileReader readFromJrt(
 		File jrt,
-		String filename,
-		IModule module)
+		IModule module,
+		String filename)
 
 		throws ClassFormatException, java.io.IOException {
 		return JRTUtil.getClassfile(jrt, filename, module);
 	}
-public static ClassFileReader readFromModules(
+public static ClassFileReader readFromModule(
 		File jrt,
-		String filename,
-		Optional<Collection<char[]>> moduleNames)
+		String moduleName,
+		String filename)
 
 		throws ClassFormatException, java.io.IOException {
-		return JRTUtil.getClassfile(jrt, filename, moduleNames);
+		return JRTUtil.getClassfile(jrt, filename, moduleName);
 }
 public static ClassFileReader read(
 	java.util.zip.ZipFile zip,
@@ -172,11 +170,6 @@ public static ClassFileReader read(String fileName) throws ClassFormatException,
 
 public static ClassFileReader read(String fileName, boolean fullyInitialize) throws ClassFormatException, java.io.IOException {
 	return read(new File(fileName), fullyInitialize);
-}
-
-public ClassFileReader(byte classFileBytes[], char[] fileName, char[] mod) throws ClassFormatException {
-	this(classFileBytes, fileName, false);
-	this.moduleName = mod;
 }
 
 /**

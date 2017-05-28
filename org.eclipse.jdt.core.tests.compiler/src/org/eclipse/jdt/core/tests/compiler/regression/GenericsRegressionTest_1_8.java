@@ -4,6 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
@@ -8153,7 +8157,7 @@ public void testBug508834_comment0() {
 				"	public static void main(String[] args) {\n" + 
 				"        List<Integer> integerList = new ArrayList<>();\n" + 
 				"        Set<List<Number>> numbetListSet = Collections.singleton(toWildcardGeneric(integerList));\n" + 
-				"        numbetListSet.iterator().next().add(new Float(1.0));\n" + 
+				"        numbetListSet.iterator().next().add(Float.valueOf(1.0f));\n" + 
 				"        Integer i = integerList.get(0); // Throws ClassCastException\n" + 
 				"    }\n" + 
 				"    \n" + 

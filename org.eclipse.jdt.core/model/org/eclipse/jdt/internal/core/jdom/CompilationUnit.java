@@ -62,7 +62,7 @@ public String toString() {
 	return "CompilationUnit[" + new String(this.fFileName) + "]";  //$NON-NLS-2$ //$NON-NLS-1$
 }
 @Override
-public char[] module() {
+public char[] getModuleName() {
 	// TODO BETA_JAVA9 Auto-generated method stub
 	return null;
 }

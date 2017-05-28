@@ -27,7 +27,6 @@ import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IMethodInfo;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.util.BootstrapMethodsAttribute;
 
@@ -1025,9 +1024,11 @@ public void test038() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406641, [1.8][compiler][codegen] Code generation for intersection cast.
 public void test039() {
-	String errMsg = (this.complianceLevel >= ClassFileConstants.JDK9) ?
-			"X (in module: Unnamed Module) cannot be cast to I (in module: Unnamed Module)" :
-				"X cannot be cast to I";
+// FIXME: was differentiating error messages ever implemented?
+//	String errMsg = (this.complianceLevel >= ClassFileConstants.JDK9) ?
+//			"X (in module: Unnamed Module) cannot be cast to I (in module: Unnamed Module)" :
+//				"X cannot be cast to I";
+	String errMsg = "X cannot be cast to I";
 	this.runConformTest(
 			new String[] {
 					"X.java",
@@ -5031,7 +5032,10 @@ public void test447119d() {
 			"[- java.util.List<java.lang.String> noop(java.util.List<java.lang.String>)]",
 			null,
 			true,
-			new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
+			(isJRE9 
+			? new String[] { "--add-opens", "java.base/java.io=ALL-UNNAMED" } 
+			: new String [] { "-Ddummy" }) // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
+			);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=447119, [1.8][compiler] method references lost generic type information (4.4 -> 4.4.1 regression) 
 public void test447119e() {

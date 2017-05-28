@@ -4,6 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -6537,7 +6541,7 @@ public void reset(ClassFile givenClassFile) {
 	this.targetLevel = givenClassFile.targetJDK;
 	int produceAttributes = givenClassFile.produceAttributes;
 	this.generateAttributes = produceAttributes;
-	if ((produceAttributes & ClassFileConstants.ATTR_LINES) != 0) {
+	if ((produceAttributes & ClassFileConstants.ATTR_LINES) != 0 && givenClassFile.referenceBinding != null) {
 		this.lineSeparatorPositions = givenClassFile.referenceBinding.scope.referenceCompilationUnit().compilationResult.getLineSeparatorPositions();
 	} else {
 		this.lineSeparatorPositions = null;

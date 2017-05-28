@@ -54,6 +54,7 @@ import org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
 import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
@@ -183,8 +184,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 	 * @param unitResult org.eclipse.jdt.internal.compiler.CompilationUnitResult
 	 */
 	public static void createProblemType(TypeDeclaration typeDeclaration, CompilationResult unitResult) {
-		if (typeDeclaration.isModuleInfo())
-			return; //TODO No idea what a problem module declaration should look like
 		SourceTypeBinding typeBinding = typeDeclaration.binding;
 		ClassFile classFile = ClassFile.getNewInstance(typeBinding);
 		classFile.initialize(typeBinding, null, true);
@@ -307,7 +306,16 @@ public class ClassFile implements TypeConstants, TypeIds {
 		} else {
 			this.codeStream = new CodeStream(this);
 		}
-		initByteArrays();
+		initByteArrays(this.referenceBinding.methods().length + this.referenceBinding.fields().length);
+	}
+
+	public ClassFile(ModuleBinding moduleBinding, CompilerOptions options) {
+		this.constantPool = new ConstantPool(this);
+		this.targetJDK = options.targetJDK;
+		this.produceAttributes = ClassFileConstants.ATTR_SOURCE;
+		this.isNestedType = false;
+		this.codeStream = new StackMapFrameCodeStream(this);
+		initByteArrays(0);
 	}
 
 	/**
@@ -362,9 +370,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 			// to the @fieldBinding
 			attributesNumber += generateDeprecatedAttribute();
 		}
-		if (this.referenceBinding.isModule()) {
-			attributesNumber += generateModuleAttribute();
-		}
 		// add signature attribute
 		char[] genericSignature = this.referenceBinding.genericSignature();
 		if (genericSignature != null) {
@@ -384,8 +389,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 					long targetMask;
 					if (typeDeclaration.isPackageInfo())
 						targetMask = TagBits.AnnotationForPackage;
-					else if (this.referenceBinding.isModule()) // TODO: add isModuleInfo() to TypeDeclaration
-						targetMask = TagBits.AnnotationForModule;
 					else if (this.referenceBinding.isAnnotationType())
 						targetMask = TagBits.AnnotationForType | TagBits.AnnotationForAnnotationType;
 					else
@@ -456,6 +459,55 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.header[this.constantPoolOffset++] = (byte) (constantPoolCount >> 8);
 		this.header[this.constantPoolOffset] = (byte) constantPoolCount;
 	}
+
+	/**
+	 * INTERNAL USE-ONLY
+	 * This methods generate all the module attributes for the receiver.
+	 */
+	public void addModuleAttributes(ModuleBinding module, Annotation[] annotations, CompilationUnitDeclaration cud) {
+		int attributesNumber = 0;
+		// leave two bytes for the number of attributes and store the current offset
+		int attributeOffset = this.contentsOffset;
+		this.contentsOffset += 2;
+
+		// source attribute
+		if ((this.produceAttributes & ClassFileConstants.ATTR_SOURCE) != 0) {
+			String fullFileName =
+				new String(cud.getFileName());
+			fullFileName = fullFileName.replace('\\', '/');
+			int lastIndex = fullFileName.lastIndexOf('/');
+			if (lastIndex != -1) {
+				fullFileName = fullFileName.substring(lastIndex + 1, fullFileName.length());
+			}
+			attributesNumber += generateSourceAttribute(fullFileName);
+		}
+		// Deprecated attribute
+		if (module.isDeprecated()) {
+			// check that there is enough space to write all the bytes for the field info corresponding
+			// to the @fieldBinding
+			attributesNumber += generateDeprecatedAttribute();
+		}
+		attributesNumber += generateModuleAttribute(cud.moduleDeclaration);
+		if (annotations != null) {
+			long targetMask = TagBits.AnnotationForModule;
+			attributesNumber += generateRuntimeAnnotations(annotations, targetMask); 
+		}
+
+		// update the number of attributes
+		if (attributeOffset + 2 >= this.contents.length) {
+			resizeContents(2);
+		}
+		this.contents[attributeOffset++] = (byte) (attributesNumber >> 8);
+		this.contents[attributeOffset] = (byte) attributesNumber;
+
+		// resynchronize all offsets of the classfile
+		this.header = this.constantPool.poolContent;
+		this.headerOffset = this.constantPool.currentOffset;
+		int constantPoolCount = this.constantPool.currentIndex;
+		this.header[this.constantPoolOffset++] = (byte) (constantPoolCount >> 8);
+		this.header[this.constantPoolOffset] = (byte) constantPoolCount;
+	}
+
 	/**
 	 * INTERNAL USE-ONLY
 	 * This methods generate all the default abstract method infos that correpond to
@@ -2361,11 +2413,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	 * @return char[]
 	 */
 	public char[] fileName() {
-		// TODO Is there a better way of doing this?
-		char[] name = this.constantPool.UTF8Cache.returnKeyFor(2);
-		if (CharOperation.endsWith(name, TypeConstants.MODULE_INFO_FILE_NAME))
-			return TypeConstants.MODULE_INFO_NAME;
-		return name;
+		return this.constantPool.UTF8Cache.returnKeyFor(2);
 	}
 
 	private void generateAnnotation(Annotation annotation, int currentOffset) {
@@ -2603,9 +2651,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contentsOffset = localContentsOffset;
 		return 1;
 	}
-	private int generateModuleAttribute() {
-		ModuleDeclaration module = this.referenceBinding.scope.compilationUnitScope().referenceContext.moduleDeclaration;
-		ModuleBinding binding = module.moduleBinding;
+	private int generateModuleAttribute(ModuleDeclaration module) {
+		ModuleBinding binding = module.binding;
 		int localContentsOffset = this.contentsOffset;
 		if (localContentsOffset + 10 >= this.contents.length) {
 			resizeContents(10);
@@ -2645,7 +2692,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		ModuleBinding javaBaseBinding = null;
 		for(int i = 0; i < module.requiresCount; i++) {
 			RequiresStatement req = module.requires[i];
-			ModuleBinding reqBinding = binding.environment.getModule(req.module.moduleName);
+			ModuleBinding reqBinding = req.resolvedBinding;
 			if (CharOperation.equals(req.module.moduleName, TypeConstants.JAVA_BASE)) {
 				javaBaseBinding = reqBinding;
 			}
@@ -2663,7 +2710,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (localContentsOffset + 6 >= this.contents.length) {
 				resizeContents(6);
 			}
-			javaBaseBinding = binding.environment.getModule(TypeConstants.JAVA_BASE);
+			javaBaseBinding = binding.environment.javaBaseModule();
 			int javabase_index = this.constantPool.literalIndexForModule(javaBaseBinding.moduleName);
 			this.contents[localContentsOffset++] = (byte) (javabase_index >> 8);
 			this.contents[localContentsOffset++] = (byte) (javabase_index);
@@ -5157,13 +5204,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 				+ (reference[position] & 0xFF);
 	}
 
-	protected void initByteArrays() {
-		int members = this.referenceBinding.methods().length + this.referenceBinding.fields().length;
+	protected void initByteArrays(int members) {
 		this.header = new byte[INITIAL_HEADER_SIZE];
 		this.contents = new byte[members < 15 ? INITIAL_CONTENTS_SIZE : INITIAL_HEADER_SIZE];
 	}
 
-	public void initialize(SourceTypeBinding aType, ClassFile parentClassFile, boolean createProblemType) {
+	private void initializeHeader(ClassFile parentClassFile, int accessFlags) {
 		// generate the magic numbers inside the header
 		this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 24);
 		this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 16);
@@ -5179,6 +5225,14 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.constantPoolOffset = this.headerOffset;
 		this.headerOffset += 2;
 		this.constantPool.initialize(this);
+		this.enclosingClassFile = parentClassFile;
+
+		// now we continue to generate the bytes inside the contents array
+		this.contents[this.contentsOffset++] = (byte) (accessFlags >> 8);
+		this.contents[this.contentsOffset++] = (byte) accessFlags;
+	}
+
+	public void initialize(SourceTypeBinding aType, ClassFile parentClassFile, boolean createProblemType) {
 
 		// Modifier manipulations for classfile
 		int accessFlags = aType.getAccessFlags();
@@ -5199,7 +5253,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					| ClassFileConstants.AccNative);
 
 		// set the AccSuper flag (has to be done after clearing AccSynchronized - since same value)
-		if (!aType.isInterface() && !aType.isModule()) { // class or enum
+		if (!aType.isInterface()) { // class or enum
 			accessFlags |= ClassFileConstants.AccSuper;
 		}
 		if (aType.isAnonymousType()) {
@@ -5209,12 +5263,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if ((accessFlags & finalAbstract) == finalAbstract) {
 			accessFlags &= ~finalAbstract;
 		}
-		this.enclosingClassFile = parentClassFile;
+		initializeHeader(parentClassFile, accessFlags);
 		// innerclasses get their names computed at code gen time
 
-		// now we continue to generate the bytes inside the contents array
-		this.contents[this.contentsOffset++] = (byte) (accessFlags >> 8);
-		this.contents[this.contentsOffset++] = (byte) accessFlags;
 		int classNameIndex = this.constantPool.literalIndexForType(aType);
 		this.contents[this.contentsOffset++] = (byte) (classNameIndex >> 8);
 		this.contents[this.contentsOffset++] = (byte) classNameIndex;
@@ -5256,6 +5307,26 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// retrieve the enclosing one guaranteed to be the one matching the propagated flow info
 		// 1FF9ZBU: LFCOM:ALL - Local variable attributes busted (Sanity check)
 		this.codeStream.maxFieldCount = aType.scope.outerMostClassScope().referenceType().maxFieldCount;
+	}
+
+	public void initializeForModule(ModuleBinding module) {
+		initializeHeader(null, module.modifiers);
+		int classNameIndex = this.constantPool.literalIndexForType(TypeConstants.MODULE_INFO_NAME);
+		this.contents[this.contentsOffset++] = (byte) (classNameIndex >> 8);
+		this.contents[this.contentsOffset++] = (byte) classNameIndex;
+		this.codeStream.maxFieldCount = 0;
+		// superclass:
+		this.contents[this.contentsOffset++] = 0;
+		this.contents[this.contentsOffset++] = 0;
+		// superInterfacesCount
+		this.contents[this.contentsOffset++] = 0;
+		this.contents[this.contentsOffset++] = 0;
+		// fieldsCount
+		this.contents[this.contentsOffset++] = 0;
+		this.contents[this.contentsOffset++] = 0;
+		// methodsCount
+		this.contents[this.contentsOffset++] = 0;
+		this.contents[this.contentsOffset++] = 0;
 	}
 
 	private void initializeDefaultLocals(StackMapFrame frame,
@@ -5486,17 +5557,23 @@ public class ClassFile implements TypeConstants, TypeIds {
 		return expression.bootstrapMethodNumber = this.bootstrapMethods.size() - 1;
 	}
 
-	public void reset(SourceTypeBinding typeBinding) {
+	public void reset(/*@Nullable*/SourceTypeBinding typeBinding, CompilerOptions options) {
 		// the code stream is reinitialized for each method
-		final CompilerOptions options = typeBinding.scope.compilerOptions();
-		this.referenceBinding = typeBinding;
-		this.isNestedType = typeBinding.isNestedType();
+		if (typeBinding != null) {
+			this.referenceBinding = typeBinding;
+			this.isNestedType = typeBinding.isNestedType();
+		} else {
+			this.referenceBinding = null;
+			this.isNestedType = false;
+		}
 		this.targetJDK = options.targetJDK;
 		this.produceAttributes = options.produceDebugAttributes;
 		if (this.targetJDK >= ClassFileConstants.JDK1_6) {
 			this.produceAttributes |= ClassFileConstants.ATTR_STACK_MAP_TABLE;
 			if (this.targetJDK >= ClassFileConstants.JDK1_8) {
 				this.produceAttributes |= ClassFileConstants.ATTR_TYPE_ANNOTATION;
+				if (!(this.codeStream instanceof TypeAnnotationCodeStream) && this.referenceBinding != null)
+					this.codeStream = new TypeAnnotationCodeStream(this);
 				if (options.produceMethodParameters) {
 					this.produceAttributes |= ClassFileConstants.ATTR_METHOD_PARAMETERS;
 				}

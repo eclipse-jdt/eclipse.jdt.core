@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -317,7 +317,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			// it is used to add or remove assigned resources during code gen
 			for (int i = 0; i < resourcesLength; i++) {
 				if (this.resources[i] instanceof LocalDeclaration)
-				tryInfo.resetAssignmentInfo(((LocalDeclaration)this.resources[i]).binding);
+					tryInfo.resetAssignmentInfo(((LocalDeclaration)this.resources[i]).binding);
 			}
 		}
 		// check unreachable catch blocks

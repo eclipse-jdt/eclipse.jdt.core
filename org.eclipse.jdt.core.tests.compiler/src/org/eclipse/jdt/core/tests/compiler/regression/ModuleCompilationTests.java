@@ -255,7 +255,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 3)\n" + 
 				"	java.sql.Connection con = p.X.getConnection();\n" + 
 				"	                          ^^^\n" + 
-				"The type p.X is not visible\n" + 
+				"The type p.X is not accessible\n" + 
 				"----------\n" + 
 				"1 problem (1 error)\n",
 				false);
@@ -740,8 +740,8 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				"----------\n" + 
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 3)\n" + 
 				"	java.sql.Connection con = p.X.getConnection();\n" + 
-				"	                          ^^^\n" + 
-				"The type p.X is not visible\n" + 
+				"	                          ^\n" + 
+				"p cannot be resolved\n" + 
 				"----------\n" + 
 				"1 problem (1 error)\n",
 				false);
@@ -837,7 +837,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 3)\n" + 
 				"	java.sql.Connection con = p.X.getConnection();\n" + 
 				"	                          ^^^\n" + 
-				"The type p.X is not visible\n" + 
+				"The type p.X is not accessible\n" + 
 				"----------\n" + 
 				"1 problem (1 error)\n",
 				false);
@@ -1212,8 +1212,8 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				"----------\n" + 
 				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.three/r/Z.java (at line 4)\n"+
 				"	p1.X1 x1 = null;\n" + 
-				"	^^\n" + 
-				"p1 cannot be resolved to a type\n" + 
+				"	^^^^^\n" + 
+				"The type p1.X1 is not accessible\n" + 
 				"----------\n" + 
 				"1 problem (1 error)\n",
 				false);
@@ -1263,8 +1263,8 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			"----------\n"+
 			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 3)\n"+
 			"	java.sql.Connection con = p.X.getConnection();\n"+
-			"	^^^^^^^^\n"+
-			"java.sql cannot be resolved to a type\n"+
+			"	^^^^^^^^^^^^^^^^^^^\n"+
+			"The type java.sql.Connection is not accessible\n"+
 			"----------\n"+
 			"1 problem (1 error)\n",
 			false);
@@ -1316,7 +1316,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 2)\n"+
 			"	import java.sql.*;\n"+
 			"	       ^^^^^^^^\n"+
-			"The import java.sql cannot be resolved\n"+
+			"The package java.sql is not accessible\n"+
 			"----------\n"+
 			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 4)\n"+
 			"	Connection con = null;\n"+
@@ -1372,8 +1372,8 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 			"----------\n"+
 			"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 2)\n"+
 			"	import java.sql.Connection;\n"+
-			"	       ^^^^^^^^\n"+
-			"The import java.sql cannot be resolved\n"+
+			"	       ^^^^^^^^^^^^^^^^^^^\n"+
+			"The type java.sql.Connection is not accessible\n"+
 			"----------\n"+
 			"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/q/Y.java (at line 4)\n"+
 			"	Connection con = null;\n"+
@@ -1572,6 +1572,185 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				buffer.toString(), 
 				"",
 				"",
+				false);
+	}
+	public void testBug515985() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports pm;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "impl", "Other.java", 
+						"package impl;\n" +
+						"public class Other {\n" +
+						"    public void privateMethod() {}" + 
+						"}\n");
+		writeFile(moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"import impl.Other;\n" + 
+						"public class C1 extends Other {\n" + 
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+						"	requires mod.one;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "po", "Client.java", 
+						"package po;\n" + 
+						"import pm.C1;\n" + 
+						"public class Client {\n" + 
+						"    void test1(C1 one) {\n" + 
+						"        one.privateMethod(); // ecj: The method privateMethod() is undefined for the type C1\n" + 
+						"    }\n" + 
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runConformTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"",
+				false);
+	}
+
+	public void testApiLeak1() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports pm;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "impl", "Other.java", 
+						"package impl;\n" +
+						"public class Other {\n" +
+						"}\n");
+		writeFile(moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"import impl.Other;\n" + 
+						"public class C1 extends Other {\n" +
+						"	public void m1(Other o) {}\n" + 
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+						"	requires mod.one;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "impl", "Other.java", 
+						"package impl;\n" +
+						"public class Other {\n" +
+						"}\n");
+		writeFile(moduleLoc + File.separator + "po", "Client.java", 
+						"package po;\n" + 
+						"import pm.C1;\n" + 
+						"public class Client {\n" + 
+						"    void test1(C1 one) {\n" + 
+						"        one.m1(one);\n" + 
+						"    }\n" + 
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runConformTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"",
+				false);
+	}
+
+	/**
+	 * Same-named classes should not conflict, since one is not accessible.
+	 * Still a sub class of the inaccessible class can be accessed and used for a method argument.
+	 */
+	public void testApiLeak2() {
+		File outputDirectory = new File(OUTPUT_DIR);
+		Util.flushDirectoryContent(outputDirectory);
+		String out = "bin";
+		String directory = OUTPUT_DIR + File.separator + "src";
+		
+		String moduleLoc = directory + File.separator + "mod.one";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.one { \n" +
+						"	exports pm;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "impl", "SomeImpl.java", 
+						"package impl;\n" +
+						"public class SomeImpl {\n" +
+						"}\n");
+		writeFile(moduleLoc + File.separator + "pm", "C1.java", 
+						"package pm;\n" +
+						"import impl.SomeImpl;\n" + 
+						"public class C1 {\n" +
+						"	public void m1(SomeImpl o) {}\n" + 
+						"}\n");
+		writeFile(moduleLoc + File.separator + "pm", "Other.java", 
+						"package pm;\n" +
+						"import impl.SomeImpl;\n" + 
+						"public class Other extends SomeImpl {\n" +
+						"}\n");
+
+		moduleLoc = directory + File.separator + "mod.two";
+		writeFile(moduleLoc, "module-info.java", 
+						"module mod.two { \n" +
+						"	requires mod.one;\n" +
+						"}");
+		writeFile(moduleLoc + File.separator + "impl", "SomeImpl.java", 
+						"package impl;\n" +
+						"public class SomeImpl {\n" + // pseudo-conflict to same named, but inaccessible class from mod.one
+						"}\n");
+		writeFile(moduleLoc + File.separator + "po", "Client.java", 
+						"package po;\n" + 
+						"import pm.C1;\n" + 
+						"import pm.Other;\n" +
+						"import impl.SomeImpl;\n" + 
+						"public class Client {\n" + 
+						"    void test1(C1 one) {\n" +
+						"		 SomeImpl impl = new SomeImpl();\n" + // our own version 
+						"        one.m1(impl);\n" + // incompatible to what's required 
+						"		 one.m1(new Other());\n" + // OK
+						"    }\n" + 
+						"}\n");
+
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
+			.append(" -9 ")
+			.append(" -classpath \"")
+			.append(Util.getJavaClassLibsAsString())
+			.append("\" ")
+			.append(" --module-source-path " + "\"" + directory + "\"");
+
+		runNegativeTest(new String[]{}, 
+				buffer.toString(), 
+				"",
+				"----------\n" + 
+				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.two/po/Client.java (at line 8)\n" + 
+				"	one.m1(impl);\n" + 
+				"	    ^^\n" + 
+				"The method m1(impl.SomeImpl) in the type C1 is not applicable for the arguments (impl.SomeImpl)\n" + 
+				"----------\n" + 
+				"1 problem (1 error)\n",
 				false);
 	}
 }

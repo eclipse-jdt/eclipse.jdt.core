@@ -175,9 +175,9 @@ public String toString() {
 	return this.openable == null ? "Fake PossibleMatch" : this.openable.toString(); //$NON-NLS-1$
 }
 @Override
-public char[] module() {
+public char[] getModuleName() {
 	if (this.openable instanceof CompilationUnit) {
-		return ((CompilationUnit) this.openable).module();
+		return ((CompilationUnit) this.openable).getModuleName();
 	}
 	// TODO BETA_JAVA9 Auto-generated method stub
 	return null;

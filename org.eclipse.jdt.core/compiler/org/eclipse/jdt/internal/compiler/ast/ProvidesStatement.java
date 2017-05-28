@@ -14,13 +14,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
-import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -34,9 +36,9 @@ public class ProvidesStatement extends ModuleStatement {
 	public TypeReference serviceInterface;
 	public TypeReference[] implementations;
 
-	public boolean resolve(ClassScope scope) {
-		ModuleDeclaration module = scope.compilationUnitScope().referenceContext.moduleDeclaration;
-		ModuleBinding src = module.moduleBinding;
+	public boolean resolve(BlockScope scope) {
+		ModuleDeclaration module = scope.referenceCompilationUnit().moduleDeclaration;
+		ModuleBinding src = module.binding;
 		TypeBinding infBinding = this.serviceInterface.resolveType(scope);
 		boolean hasErrors = false;
 		if (infBinding == null || !infBinding.isValidBinding()) {
@@ -103,6 +105,18 @@ public class ProvidesStatement extends ModuleStatement {
 		return hasErrors;
 	}
 
+	public List<TypeBinding> getResolvedImplementations() {
+		List<TypeBinding> resolved = new ArrayList<>();
+		if (this.implementations != null) {
+			for (TypeReference implRef : this.implementations) {
+				TypeBinding one = implRef.resolvedType;
+				if (one != null)
+					resolved.add(one);
+			}
+		}
+		return resolved;
+	}
+
 	@Override
 	public StringBuffer print(int indent, StringBuffer output) {
 		printIndent(indent, output);
@@ -119,5 +133,4 @@ public class ProvidesStatement extends ModuleStatement {
 		output.append(";"); //$NON-NLS-1$
 		return output;
 	}
-
 }

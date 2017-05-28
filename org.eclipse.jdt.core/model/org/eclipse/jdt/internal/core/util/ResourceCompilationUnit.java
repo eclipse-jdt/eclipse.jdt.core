@@ -78,7 +78,7 @@ public class ResourceCompilationUnit implements ICompilationUnit {
 	}
 
 	@Override
-	public char[] module() {
+	public char[] getModuleName() {
 		return this.module;
 	}
 }

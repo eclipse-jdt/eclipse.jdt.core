@@ -62,11 +62,17 @@ public abstract class PackageVisibilityStatement extends ModuleStatement {
 		if (this.resolvedPackage != null)
 			return this.resolvedPackage;
 		ModuleDeclaration exportingModule = scope.compilationUnitScope().referenceContext.moduleDeclaration;
-		ModuleBinding src = exportingModule.moduleBinding;
-		this.resolvedPackage = src != null ? src.getDeclaredPackage(this.pkgRef.tokens) : null;
+		ModuleBinding src = exportingModule.binding;
+		this.resolvedPackage = src != null ? src.getVisiblePackage(this.pkgRef.tokens) : null;
 		if (this.resolvedPackage == null) {
 			// TODO: need a check for empty package as well
 			scope.problemReporter().invalidPackageReference(IProblem.PackageDoesNotExistOrIsEmpty, this);
+		} else {
+			if (!this.resolvedPackage.isDeclaredIn(src)) {
+				this.resolvedPackage = null;
+				// TODO(SHMOD): specific error?
+				scope.problemReporter().invalidPackageReference(IProblem.PackageDoesNotExistOrIsEmpty, this);
+			}
 		}
 		
 		return this.resolvedPackage;

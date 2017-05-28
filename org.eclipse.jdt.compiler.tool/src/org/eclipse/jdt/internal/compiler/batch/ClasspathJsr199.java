@@ -68,10 +68,10 @@ public class ClasspathJsr199 extends ClasspathLocation implements IModuleEnviron
 	}
 
 	@Override
-	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String aQualifiedBinaryFileName,
-			boolean asBinaryOnly) {
+	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName,
+			String aQualifiedBinaryFileName, boolean asBinaryOnly) {
 		if (this.jrt != null) {
-			return this.jrt.findClass(typeName, qualifiedPackageName, aQualifiedBinaryFileName, asBinaryOnly);
+			return this.jrt.findClass(typeName, qualifiedPackageName, moduleName, aQualifiedBinaryFileName, asBinaryOnly);
 		}
 		String qualifiedBinaryFileName = File.separatorChar == '/'
 				? aQualifiedBinaryFileName
@@ -105,9 +105,9 @@ public class ClasspathJsr199 extends ClasspathLocation implements IModuleEnviron
 	}
 
 	@Override
-	public char[][][] findTypeNames(String aQualifiedPackageName, IModule mod) {
+	public char[][][] findTypeNames(String aQualifiedPackageName, String moduleName) {
 		if (this.jrt != null) {
-			return this.jrt.findTypeNames(aQualifiedPackageName, mod);
+			return this.jrt.findTypeNames(aQualifiedPackageName, moduleName);
 		}
 		String qualifiedPackageName = File.separatorChar == '/' ? aQualifiedPackageName : aQualifiedPackageName.replace(
 				File.separatorChar, '/');
@@ -154,11 +154,11 @@ public class ClasspathJsr199 extends ClasspathLocation implements IModuleEnviron
 	public void acceptModule(IModule mod) {
 		// do nothing
 	}
-
+	
 	@Override
-	public boolean isPackage(String aQualifiedPackageName) {
+	public char[][] getModulesDeclaringPackage(String aQualifiedPackageName, String moduleName) {
 		if (this.jrt != null) {
-			return this.jrt.isPackage(aQualifiedPackageName);
+			return this.jrt.getModulesDeclaringPackage(aQualifiedPackageName, moduleName);
 		}
 		String qualifiedPackageName = File.separatorChar == '/' ? aQualifiedPackageName : aQualifiedPackageName.replace(
 				File.separatorChar, '/');
@@ -183,7 +183,7 @@ public class ClasspathJsr199 extends ClasspathLocation implements IModuleEnviron
 		} catch (IOException e) {
 			// treat as if missing
 		}
-		return result;
+		return singletonModuleNameIf(result);
 	}
 
 	@Override
@@ -241,16 +241,10 @@ public class ClasspathJsr199 extends ClasspathLocation implements IModuleEnviron
 	}
 
 	@Override
-	public IModuleEnvironment getLookupEnvironmentFor(IModule mod) {
-		//
-		return servesModule(mod.name()) ? this : null;
-	}
-
-	@Override
 	public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName,
-			String qualifiedBinaryFileName) {
+			String moduleName, String qualifiedBinaryFileName) {
 		//
-		return findClass(typeName, qualifiedPackageName, qualifiedBinaryFileName, false);
+		return findClass(typeName, qualifiedPackageName, moduleName, qualifiedBinaryFileName, false);
 	}
 
 	@Override

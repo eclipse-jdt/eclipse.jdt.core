@@ -275,7 +275,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
-					"The import com cannot be resolved\n" + 
+					"The import com.greetings cannot be resolved\n" + 
 					"Main cannot be resolved", 
 					markers);
 		} finally {
@@ -307,7 +307,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = project.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
-					"The import com cannot be resolved\n" + 
+					"The type com.greetings.Main is not accessible\n" + 
 					"Main cannot be resolved", 
 					markers);
 		} finally {
@@ -415,7 +415,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers",
-					"The import com cannot be resolved\n" +
+					"The package com.greetings is not accessible\n" +
 					"Main cannot be resolved",
 					markers);
 		} finally {
@@ -449,7 +449,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			markers = p3.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
-					"The import com cannot be resolved\n" + 
+					"The package com.greetings is not accessible\n" + 
 					"Main cannot be resolved", 
 					markers);
 		} finally {
@@ -459,7 +459,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	/*
 	 * Three Java projects, each with one module. Project P3 depends on P2, which depends on P1.
-	 * Module M1 exports a package (to all), M2 requires 'public' M1 and M3 requires M2. Usage of types from
+	 * Module M1 exports a package (to all), M2 requires 'transitive' M1 and M3 requires M2. Usage of types from
 	 * M1 in M3 should be allowed.
 	 */
 	public void test013() throws Exception {
@@ -575,7 +575,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers",
-					"The import com cannot be resolved\n" + 
+					"The import com.greetings cannot be resolved\n" + 
 					"Main cannot be resolved",  markers);
 		} finally {
 			deleteProject("P2");
@@ -608,7 +608,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers",
-					"The import com cannot be resolved\n" + 
+					"The type com.greetings.Main is not accessible\n" + 
 					"Main cannot be resolved",  markers);
 		} finally {
 			deleteProject("P2");
@@ -1568,7 +1568,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers",	
-					"The import org cannot be resolved\n" +
+					"The type org.astro.World is not accessible\n" +
 					"World cannot be resolved to a type",
 					markers);
 		} finally {
@@ -1828,7 +1828,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			assertMarkers("Unexpected markers", 
-					"The import org cannot be resolved\n" +
+					"The import org.astro.World cannot be resolved\n" +
 					"World cannot be resolved to a type",  markers);
 		} finally {
 			deleteProject("org.astro");
@@ -2938,6 +2938,131 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			deleteProject("com.greetings");
 		}
 	}
+
+	public void test_api_leak_1() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources1 = {
+								"src/module-info.java", 
+								"module mod.one { \n" +
+								"	exports pm;\n" +
+								"}",
+								"src/impl/Other.java", 
+								"package impl;\n" +
+								"public class Other {\n" +
+								"}\n",
+								"src/pm/C1.java", 
+								"package pm;\n" +
+								"import impl.Other;\n" + 
+								"public class C1 extends Other {\n" +
+								"	public void m1(Other o) {}\n" + 
+								"}\n"
+							};
+			IJavaProject p1 = setupModuleProject("mod.one", sources1);
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			String[] sources2 = {
+								"src/module-info.java", 
+								"module mod.two { \n" +
+								"	requires mod.one;\n" +
+								"}",
+								"src/impl/Other.java", 
+								"package impl;\n" +
+								"public class Other {\n" +
+								"}\n",
+								"src/po/Client.java", 
+								"package po;\n" + 
+								"import pm.C1;\n" + 
+								"public class Client {\n" + 
+								"    void test1(C1 one) {\n" + 
+								"        one.m1(one);\n" + 
+								"    }\n" + 
+								"}\n"
+							};
+			IJavaProject p2 = setupModuleProject("mod.two", sources2, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+		} finally {
+			deleteProject("mod.one");
+			deleteProject("mod.two");
+		}
+	}
+
+	/**
+	 * Same-named classes should not conflict, since one is not accessible.
+	 * Still a sub class of the inaccessible class can be accessed and used for a method argument.
+	 */
+	public void test_api_leak_2() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources1 = {
+						"src/module-info.java", 
+						"module mod.one { \n" +
+						"	exports pm;\n" +
+						"}",
+						"src/impl/SomeImpl.java", 
+						"package impl;\n" +
+								"public class SomeImpl {\n" +
+						"}\n",
+						"src/pm/C1.java", 
+						"package pm;\n" +
+						"import impl.SomeImpl;\n" + 
+						"public class C1 {\n" +
+						"	public void m1(SomeImpl o) {}\n" + 
+						"}\n",
+						"src/pm/Other.java", 
+						"package pm;\n" +
+								"import impl.SomeImpl;\n" + 
+								"public class Other extends SomeImpl {\n" +
+						"}\n"
+					};
+			IJavaProject p1 = setupModuleProject("mod.one", sources1);
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			String[] sources2 = {
+						"src/module-info.java",
+						"module mod.two { \n" +
+						"	requires mod.one;\n" +
+						"}",
+						"src/impl/SomeImpl.java", 
+						"package impl;\n" +
+								"public class SomeImpl {\n" + // pseudo-conflict to same named, but inaccessible class from mod.one
+						"}\n",
+						"src/po/Client.java", 
+						"package po;\n" + 
+						"import pm.C1;\n" + 
+						"import pm.Other;\n" +
+						"import impl.SomeImpl;\n" + 
+						"public class Client {\n" + 
+						"    void test1(C1 one) {\n" +
+						"		 SomeImpl impl = new SomeImpl();\n" + // our own version 
+						"        one.m1(impl);\n" + // incompatible to what's required 
+						"		 one.m1(new Other());\n" + // OK
+						"    }\n" + 
+						"}\n",
+					};
+			String expectedError = "The method m1(impl.SomeImpl) in the type C1 is not applicable for the arguments (impl.SomeImpl)";
+			IJavaProject p2 = setupModuleProject("mod.two", sources2, new IClasspathEntry[] { dep });
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", expectedError, markers);
+
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", expectedError, markers);
+		} finally {
+			deleteProject("mod.one");
+			deleteProject("mod.two");
+		}
+	}
+	
 	// sort by CHAR_START
 	protected void sortMarkers(IMarker[] markers) {
 		Arrays.sort(markers, (a,b) -> a.getAttribute(IMarker.CHAR_START, 0) - b.getAttribute(IMarker.CHAR_START, 0)); 

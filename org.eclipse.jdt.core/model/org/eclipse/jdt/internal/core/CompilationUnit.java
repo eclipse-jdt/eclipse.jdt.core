@@ -1372,7 +1372,9 @@ public IModuleDescription getModule() throws JavaModelException {
 	JavaProject project = (JavaProject) getAncestor(IJavaElement.JAVA_PROJECT);
 	return project.getModuleDescription();
 }
-public char[] module() {
+
+@Override
+public char[] getModuleName() {
 	try {
 		IModuleDescription module = getModule();
 		if (module != null)

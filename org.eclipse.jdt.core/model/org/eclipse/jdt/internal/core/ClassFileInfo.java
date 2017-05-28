@@ -19,7 +19,6 @@ import java.util.HashMap;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
@@ -447,7 +446,7 @@ protected void readBinaryChildren(ClassFile classFile, HashMap newElements, IBin
 		generateFieldInfos(type, typeInfo, newElements, childrenHandles);
 		generateMethodInfos(type, typeInfo, newElements, childrenHandles, typeParameterHandles);
 		generateInnerClassHandles(type, typeInfo, childrenHandles); // Note inner class are separate openables that are not opened here: no need to pass in newElements
-		if (TypeDeclaration.kind(typeInfo.getModifiers()) == TypeDeclaration.MODULE_DECL) {
+		if (Flags.isModule(typeInfo.getModifiers())) {
 			generateModuleInfos(classFile, typeInfo, newElements, childrenHandles);
 		}
 	}
