@@ -8234,6 +8234,68 @@ public void testBug508834_comment0() {
 			"Type safety: The expression of type Function needs unchecked conversion to conform to Function<String,String>\n" + 
 			"----------\n");
 	}
+	public void testBug517710() {
+		runConformTest(
+			new String[] {
+				"test/Test.java",
+				"package test;\n" +
+				"\n" +
+				"public class Test {\n" +
+				"	public static class Foo<T> {\n" +
+				"	}\n" +
+				"\n" +
+				"	public static class Bar<U> {\n" +
+				"	}\n" +
+				"\n" +
+				"	public <V> V foo(Foo<V> f) {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"\n" +
+				"	public Foo<Integer> bar(Bar<Integer> b) {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"\n" +
+				"	public Object baz() {\n" +
+				"		Bar b = null;\n" +
+				"		return foo(bar(b));\n" +
+				"	}\n" +
+				"\n" +
+				"}\n" +
+				"",
+			} 
+		);
+	}
+	public void testBug513567() {
+		runConformTest(
+			new String[] {
+				"Foo.java",
+				"import java.util.Collection;\n" + 
+				"import java.util.Optional;\n" + 
+				"\n" + 
+				"public class Foo {\n" + 
+				"	\n" + 
+				"	public static void main(String[] args) {\n" + 
+				"		new Foo().test();\n" + 
+				"	}\n" + 
+				"\n" + 
+				"    private Collection<String> createCollection(Optional<String> foo) {\n" + 
+				"        return null;\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    private <T> void consumeCollection(Collection<T> bar) {\n" + 
+				"        // no-op\n" + 
+				"    }\n" + 
+				"\n" + 
+				"    @SuppressWarnings({\"rawtypes\", \"unchecked\"})\n" + 
+				"    public void test() {\n" + 
+				"        consumeCollection(createCollection((Optional) null));\n" + 
+				"    }\n" + 
+				"\n" + 
+				"}\n" + 
+				"",
+			} 
+		);
+	}
 
 	public void testBug521159() {
 		runConformTest(
