@@ -35,7 +35,7 @@ public class ModuleBinding implements IModuleBinding {
 	ModuleBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.ModuleBinding binding) {
 		this.resolver = resolver;
 		this.binding = binding;
-		// this.open = binding.isOpen; // TODO
+		this.isOpen = binding.isOpen; // TODO
 	}
 
 	@Override
@@ -225,5 +225,12 @@ public class ModuleBinding implements IModuleBinding {
 	@Override
 	public ITypeBinding[] getImplementations() {
 		return getTypes(this.binding.implementations);
+	}
+	/**
+	 * For debugging purpose only.
+	 * @see java.lang.Object#toString()
+	 */
+	public String toString() {
+		return this.binding.toString();
 	}
 }
