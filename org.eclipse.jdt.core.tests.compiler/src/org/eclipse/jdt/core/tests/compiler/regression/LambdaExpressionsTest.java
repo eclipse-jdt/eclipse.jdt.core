@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IMethodInfo;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.util.BootstrapMethodsAttribute;
 
@@ -1024,7 +1025,7 @@ public void test038() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406641, [1.8][compiler][codegen] Code generation for intersection cast.
 public void test039() {
-	String errMsg = isJRE9 ?
+	String errMsg = (this.complianceLevel >= ClassFileConstants.JDK9) ?
 			"X (in module: Unnamed Module) cannot be cast to I (in module: Unnamed Module)" :
 				"X cannot be cast to I";
 	this.runConformTest(
@@ -5191,8 +5192,11 @@ public void test449063() {
 			"    }\n" + 
 			"}"
 			},
-			"Test.Test$Tuple<java.lang.Integer, java.lang.String>\n" +
-			"Test.Test$Tuple<java.lang.String, java.lang.Double>",
+			(isJRE9
+			? "Test$Tuple<java.lang.Integer, java.lang.String>\n" +
+			  "Test$Tuple<java.lang.String, java.lang.Double>"
+			: "Test.Test$Tuple<java.lang.Integer, java.lang.String>\n" +
+			  "Test.Test$Tuple<java.lang.String, java.lang.Double>"),
 			customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions 
@@ -5259,8 +5263,11 @@ public void test449063a() {
 			"    }\n" + 
 			"}"
 			},
-			"Test.Test$Tuple<java.lang.Integer, java.lang.String>\n" +
-			"Test.Test$Tuple<java.lang.String, java.lang.Double>",
+			(isJRE9
+			? "Test$Tuple<java.lang.Integer, java.lang.String>\n" +
+			  "Test$Tuple<java.lang.String, java.lang.Double>"
+			: "Test.Test$Tuple<java.lang.Integer, java.lang.String>\n" +
+			  "Test.Test$Tuple<java.lang.String, java.lang.Double>"),
 			customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions 
@@ -5470,8 +5477,11 @@ public void test449063e() {
 			"    }\n" + 
 			"}"
 			},
-			"Test.Test$Tuple<java.lang.Integer, java.lang.String>\n" +
-			"Test.Test$Tuple<java.lang.String, java.lang.Double>",
+			(isJRE9
+			? "Test$Tuple<java.lang.Integer, java.lang.String>\n" +
+			  "Test$Tuple<java.lang.String, java.lang.Double>"
+			: "Test.Test$Tuple<java.lang.Integer, java.lang.String>\n" +
+			  "Test.Test$Tuple<java.lang.String, java.lang.Double>"),
 			customOptions);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=449063, [1.8][compiler] Bring back generic signatures for Lambda Expressions 

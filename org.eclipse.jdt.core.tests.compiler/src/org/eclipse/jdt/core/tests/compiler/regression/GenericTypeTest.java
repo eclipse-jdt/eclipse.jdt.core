@@ -40282,7 +40282,9 @@ public void test1151() throws Exception {
 			"}\n"
 		},
 		//"java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply>##java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply$Inside<java.lang.Number>>"
-		"java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply>"
+		(isJRE9 
+		? "java.lang.ref.Reference<X<java.lang.String>$Other<java.lang.Thread>$Deeply>"
+		: "java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply>")
 	);
 	String expectedOutput =
 		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" +
@@ -40395,7 +40397,10 @@ public void test1153() {
 			"	}\n" +
 			"}\n"
 		},
-		"java.lang.ref.Reference<p.X$Rather$Deeply>##java.lang.ref.Reference<p.X$Rather>##java.lang.ref.Reference<p.X$Rather$Deeply$Inside>##java.lang.ref.Reference<p.X<java.lang.String>.Other<java.lang.Thread>.Deeply>",
+		"java.lang.ref.Reference<p.X$Rather$Deeply>##java.lang.ref.Reference<p.X$Rather>##java.lang.ref.Reference<p.X$Rather$Deeply$Inside>##"+
+		(isJRE9 
+		? "java.lang.ref.Reference<p.X<java.lang.String>$Other<java.lang.Thread>$Deeply>"
+		: "java.lang.ref.Reference<p.X<java.lang.String>.Other<java.lang.Thread>.Deeply>"),
 		null,
 		false, // do not flush output
 		null);
@@ -40475,7 +40480,9 @@ public void test1155() throws Exception {
 			"	}\n" +
 			"}\n"
 		},
-		"java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply>"	);
+		(isJRE9
+		? "java.lang.ref.Reference<X<java.lang.String>$Other<java.lang.Thread>$Deeply>"
+		: "java.lang.ref.Reference<X<java.lang.String>.Other<java.lang.Thread>.Deeply>")	);
 
 	String expectedOutput =
 		"  // Field descriptor #6 Ljava/lang/ref/Reference;\n" +
