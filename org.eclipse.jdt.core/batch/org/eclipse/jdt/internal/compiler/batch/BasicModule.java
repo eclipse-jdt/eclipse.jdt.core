@@ -93,6 +93,7 @@ public class BasicModule implements IModule {
 	}
 
 	boolean isAutomodule;
+	private boolean isOpen = false;
 	char[] name;
 	IModule.IModuleReference[] requires;
 	IModule.IPackageExport[] exports;
@@ -148,6 +149,7 @@ public class BasicModule implements IModule {
 			this.opens = new PackageExportImpl[0];
 		}
 		this.isAutomodule = false; // Just to be explicit
+		this.isOpen = descriptor.isOpen();
 	}
 	public BasicModule(char[] name, boolean isAuto) {
 		this.name = name;
@@ -182,6 +184,10 @@ public class BasicModule implements IModule {
 	@Override
 	public boolean isAutomatic() {
 		return this.isAutomodule;
+	}
+	@Override
+	public boolean isOpen() {
+		return this.isOpen;
 	}
 	public void addReads(char[] modName) {
 		Predicate<char[]> shouldAdd = m -> {

@@ -44,6 +44,7 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 	char[][] usedServices;
 	IModuleDescription handle;
 	char[] name;
+	boolean isOpen = false;
 
 	static class ModuleReferenceInfo extends MemberElementInfo implements IModule.IModuleReference {
 		char[] name;
@@ -110,6 +111,7 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 	public static ModuleDescriptionInfo createModule(IModule module) {
 		ModuleDescriptionInfo mod = new ModuleDescriptionInfo();
 		mod.name = module.name();
+		mod.isOpen = module.isOpen();
 		if (module.requires().length > 0) {
 			IModuleReference[] refs = module.requires();
 			mod.requires = new ModuleReferenceInfo[refs.length];
@@ -200,6 +202,7 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 	public static ModuleDescriptionInfo createModule(ModuleDeclaration module) {
 		ModuleDescriptionInfo mod = new ModuleDescriptionInfo();
 		mod.name = module.moduleName;
+		mod.isOpen = module.isOpen();
 		if (module.requiresCount > 0) {
 			RequiresStatement[] refs = module.requires;
 			mod.requires = new ModuleReferenceInfo[refs.length];
@@ -297,6 +300,11 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 	}
 
 	@Override
+	public boolean isOpen() {
+		return this.isOpen;
+	}
+
+	@Override
 	public char[] name() {
 		return this.name;
 	}
@@ -331,7 +339,10 @@ public class ModuleDescriptionInfo extends AnnotatableInfo implements IModule {
 		return buffer.toString();
 	}
 	protected void toStringContent(StringBuffer buffer) {
-		buffer.append("\nmodule "); //$NON-NLS-1$
+		buffer.append("\n"); //$NON-NLS-1$
+		if (this.isOpen())
+			buffer.append("open "); //$NON-NLS-1$
+		buffer.append("module "); //$NON-NLS-1$
 		buffer.append(this.name).append(' ');
 		buffer.append('{').append('\n');
 		if (this.requires != null && this.requires.length > 0) {

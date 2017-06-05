@@ -56,6 +56,7 @@ public class ModuleInfo extends SourceTypeElementInfo implements IModule {
 		}
 	}
 	char[] name;
+	boolean isOpen = false;
 	ModuleReferenceImpl[] requires;
 	PackageExportImpl[] exports;
 	char[][] uses;
@@ -63,12 +64,17 @@ public class ModuleInfo extends SourceTypeElementInfo implements IModule {
 	PackageExportImpl[] opens;
 
 	@Override
+	public boolean isOpen() {
+		return this.isOpen;
+	}
+	@Override
 	public char[] name() {
 		return this.name;
 	}
 	public static ModuleInfo createModule(ModuleDeclaration module) {
 		ModuleInfo mod = new ModuleInfo();
 		mod.name = module.moduleName;
+		mod.isOpen = module.isOpen();
 		if (module.requiresCount > 0) {
 			RequiresStatement[] refs = module.requires;
 			mod.requires = new ModuleReferenceImpl[refs.length];

@@ -38,6 +38,10 @@ public class ModuleInfo extends ClassFileStruct implements IModule {
 	char[][] uses;
 	IModule.IService[] provides;
 
+	@Override
+	public boolean isOpen() {
+		return (this.flags & ClassFileConstants.ACC_OPEN) != 0;
+	}
 	public int requiresCount() {
 		return this.requiresCount;
 	}

@@ -57,6 +57,7 @@ public class ModuleBinding extends Binding {
 			return true;
 		}
 	}
+	public boolean isOpen;
 	public char[] moduleName;
 	public IModuleReference[] requires;
 	public IPackageExport[] exports;
@@ -83,6 +84,7 @@ public class ModuleBinding extends Binding {
 		this.exportedPackages = new HashtableOfPackage(0);
 	}
 	public ModuleBinding(IModule module, LookupEnvironment environment) {
+		this.isOpen = module.isOpen();
 		this.moduleName = module.name();
 		IModule decl = module;
 		this.requires = decl.requires();

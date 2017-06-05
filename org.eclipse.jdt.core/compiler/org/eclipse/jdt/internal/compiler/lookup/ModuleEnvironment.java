@@ -44,6 +44,11 @@ public abstract class ModuleEnvironment implements IModuleAwareNameEnvironment {
 		}
 
 		@Override
+		public boolean isOpen() {
+			return false;
+		}
+
+		@Override
 		public char[] name() {
 			//
 			return UNNAMED;
@@ -111,6 +116,9 @@ public abstract class ModuleEnvironment implements IModuleAwareNameEnvironment {
 
 		public boolean isAutomatic() {
 			return true;
+		}
+		public boolean isOpen() {
+			return false;
 		}
 	}
 	public static IModule[] UNNAMED_MODULE_ARRAY = new IModule[]{UNNAMED_MODULE};

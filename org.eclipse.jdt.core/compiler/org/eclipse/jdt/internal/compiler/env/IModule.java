@@ -77,4 +77,5 @@ public interface IModule {
 	public default boolean isAutomatic() {
 		return false;
 	}
+	public abstract boolean isOpen();
 }
