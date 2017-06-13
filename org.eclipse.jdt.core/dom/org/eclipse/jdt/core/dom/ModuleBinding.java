@@ -2,7 +2,6 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
@@ -31,11 +30,12 @@ public class ModuleBinding implements IModuleBinding {
 	private IModuleBinding[] exportTargets;
 	private IPackageBinding[] openPackages;
 	private IModuleBinding[] openTargets;
+	private Service[] services = null;
 
 	ModuleBinding(BindingResolver resolver, org.eclipse.jdt.internal.compiler.lookup.ModuleBinding binding) {
 		this.resolver = resolver;
 		this.binding = binding;
-		this.isOpen = binding.isOpen; // TODO
+		this.isOpen = binding.isOpen;
 	}
 
 	@Override
@@ -214,18 +214,25 @@ public class ModuleBinding implements IModuleBinding {
 
 	@Override
 	public ITypeBinding[] getUses() {
-		return getTypes(this.binding.uses);
+		return getTypes(this.binding.getUses());
 	}
 
 	@Override
-	public ITypeBinding[] getServices() {
-		return getTypes(this.binding.services);
+	public Service[] getServices() {
+		if (this.services == null) {
+			org.eclipse.jdt.internal.compiler.lookup.ModuleBinding.Service[] cServices = this.binding.getServices();
+			int len = cServices.length;
+			this.services = new Service[len];
+			for (int i = 0; i < len; ++i) {
+				org.eclipse.jdt.internal.compiler.lookup.ModuleBinding.Service cs = cServices[i];
+				Service s = this.services[i] = new Service();
+				s.service = this.resolver.getTypeBinding(cs.service);
+				s.implementations = getTypes(cs.implementations);
+			}
+		}
+		return this.services;
 	}
 
-	@Override
-	public ITypeBinding[] getImplementations() {
-		return getTypes(this.binding.implementations);
-	}
 	/**
 	 * For debugging purpose only.
 	 * @see java.lang.Object#toString()

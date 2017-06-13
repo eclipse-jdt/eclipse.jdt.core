@@ -8,18 +8,20 @@
  * This is an implementation of an early-draft specification developed under the Java
  * Community Process (JCP) and is made available for testing and evaluation purposes
  * only. The code is not compatible with any specification of the JCP.
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
- *     
+ *
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -29,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.env.IModuleEnvironment;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModule.IModuleReference;
 import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
+import org.eclipse.jdt.internal.compiler.env.IModule.IService;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfPackage;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
@@ -57,19 +60,24 @@ public class ModuleBinding extends Binding {
 			return true;
 		}
 	}
+	public static class Service {
+		public TypeBinding service;
+		public TypeBinding[] implementations;
+	}
 	public boolean isOpen;
 	public char[] moduleName;
 	public IModuleReference[] requires;
 	public IPackageExport[] exports;
 	public TypeBinding[] uses;
-	public TypeBinding[] services;
-	public TypeBinding[] implementations;
+//	public LinkedHashMap<TypeBinding, TypeBinding[]> services;
+	Service[] services;
 	public CompilationUnitScope scope;
 	public LookupEnvironment environment;
 	public int tagBits;
 	private ModuleBinding[] requiredModules = null;
 	private boolean isAuto;
-
+	private char[][] iUses = null;
+	private IService[] iServices = null;
 	HashtableOfPackage declaredPackages;
 	HashtableOfPackage exportedPackages;
 
@@ -80,6 +88,7 @@ public class ModuleBinding extends Binding {
 		this.environment = env;
 		this.requires = IModule.NO_MODULE_REFS;
 		this.exports = IModule.NO_EXPORTS;
+		this.services = new Service[0];
 		this.declaredPackages = new HashtableOfPackage(0);
 		this.exportedPackages = new HashtableOfPackage(0);
 	}
@@ -95,8 +104,9 @@ public class ModuleBinding extends Binding {
 			this.exports = IModule.NO_EXPORTS;
 		this.environment = environment;
 		this.uses = Binding.NO_TYPES;
-		this.services = Binding.NO_TYPES;
-		this.implementations = Binding.NO_TYPES;
+		this.services = new Service[0];
+		this.iUses = decl.uses();
+		this.iServices = decl.provides();
 		this.declaredPackages = new HashtableOfPackage(5);
 		this.exportedPackages = new HashtableOfPackage(5);
 		this.isAuto = module.isAutomatic();
@@ -164,6 +174,34 @@ public class ModuleBinding extends Binding {
 		return this.requiredModules = allRequires.size() > 0 ? allRequires.toArray(new ModuleBinding[allRequires.size()]) : NO_REQUIRES;
 	}
 
+	interface ICharTransType {
+		public TypeBinding[] apply(char[][] t);
+	}
+
+	Function<char[], TypeBinding> mapper = v -> this.environment.getType(CharOperation.splitOn('.', v));
+	ICharTransType cTrans = t -> Stream.of(t).map(e -> this.mapper.apply(e)).toArray(TypeBinding[] :: new);
+
+	public TypeBinding[] getUses() {
+		if (this.iUses == null) // either null or already processed
+			return this.uses;
+		this.uses = this.cTrans.apply(this.iUses);
+		this.iUses = null; //processed
+		return this.uses;
+	}
+	public Service[] getServices() {
+		if (this.iServices != null) {
+			int len = this.iServices.length;
+			this.services = new Service[len];
+			for (int i = 0; i < len; ++i) {
+				IService s = this.iServices[i];
+				Service ts = this.services[i] = new Service();
+				ts.service = this.environment.getType(CharOperation.splitOn('.', s.name()));
+				ts.implementations = this.cTrans.apply(s.with());
+			}
+			this.iServices = null; // done
+		}
+		return this.services;
+	}
 	public char[] name() {
 		return this.moduleName;
 	}
@@ -435,12 +473,12 @@ public class ModuleBinding extends Binding {
 		}
 		if (this.services != null && this.services.length > 0) {
 			buffer.append("\n/*    Services    */\n"); //$NON-NLS-1$
-			for (int i = 0; i < this.services.length; i++) {
-				buffer.append("\n\t"); //$NON-NLS-1$
-				buffer.append("provides "); //$NON-NLS-1$
-				buffer.append(this.services[i].debugName());
+			for (Service s : this.services) {
+				buffer.append("\nprovides "); //$NON-NLS-1$
+				buffer.append(s.service.qualifiedSourceName());
 				buffer.append(" with "); //$NON-NLS-1$
-				buffer.append(this.implementations[i].debugName());
+				buffer.append(Stream.of(s.implementations).map(t -> new String(t.qualifiedSourceName())).collect(Collectors.joining(", ")));//$NON-NLS-1$
+				buffer.append(";"); //$NON-NLS-1$
 			}
 		} else {
 			buffer.append("\nNo Services"); //$NON-NLS-1$

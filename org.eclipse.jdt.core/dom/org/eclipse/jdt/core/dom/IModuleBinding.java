@@ -16,7 +16,6 @@
 
 package org.eclipse.jdt.core.dom;
 
-
 /**
  * A module binding represents a module.
  *
@@ -24,6 +23,11 @@ package org.eclipse.jdt.core.dom;
  * @noimplement This interface is not intended to be implemented by clients.
  */
 public interface IModuleBinding extends IBinding {
+
+	public static class Service {
+		public ITypeBinding service;
+		public ITypeBinding[] implementations;
+	}
 
 	@Override
 	public default int getKind() {
@@ -79,11 +83,6 @@ public interface IModuleBinding extends IBinding {
 	 *
 	 * @return array of service interfaces
 	 */
-	public abstract ITypeBinding[] getServices();
+	public abstract Service[] getServices();
 
-	/**
-	 *
-	 * @return array of implementations
-	 */
-	public abstract ITypeBinding[] getImplementations();
 }
