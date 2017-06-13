@@ -187,8 +187,8 @@ class AnnotationBinding implements IAnnotationBinding {
 			return fragment.resolveBinding().getKey();
 		case ASTNode.METHOD_DECLARATION:
 			return ((MethodDeclaration) recipient).resolveBinding().getKey();
-/*		case ASTNode.MODULE_DECLARATION: //TODO: Enable after bug 515875 enable module binding
-			return ((ModuleDeclaration) recipient).resolveBinding().getKey();*/
+		case ASTNode.MODULE_DECLARATION:
+			return ((ModuleDeclaration) recipient).resolveBinding().getKey();
 		case ASTNode.VARIABLE_DECLARATION_STATEMENT:
 			fragment = (VariableDeclarationFragment) ((VariableDeclarationStatement) recipient).fragments().get(0);
 			return fragment.resolveBinding().getKey();
