@@ -3304,7 +3304,8 @@ class ASTConverter {
 
 	public ModuleDeclaration convertToModuleDeclaration(org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration) {
 		checkCanceled();
-		if (this.scanner.sourceLevel < ClassFileConstants.JDK9) return null;
+		if (this.scanner.sourceLevel < ClassFileConstants.JDK9
+				|| this.ast.apiLevel < AST.JLS9_INTERNAL) return null;
 		ModuleDeclaration moduleDecl = this.ast.newModuleDeclaration();
 		// TODO
 		//convert(moduleDeclaration.javadoc, moduleDecl);
