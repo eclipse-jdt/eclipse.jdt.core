@@ -166,9 +166,7 @@ public class ModuleDeclaration extends ASTNode {
 			for(int i = 0; i < this.requiresCount; i++) {
 				output.append('\n');
 				printIndent(indent + 1, output);
-				output.append("requires "); //$NON-NLS-1$
 				this.requires[i].print(0, output);
-				output.append(";"); //$NON-NLS-1$
 			}
 		}
 		if (this.exports != null) {

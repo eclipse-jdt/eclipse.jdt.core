@@ -43,7 +43,8 @@ public class RequiresStatement extends ModuleStatement {
 		if (isStatic())
 			output.append("static "); //$NON-NLS-1$
 		this.module.print(indent, output);
-		return output;
+		output.append(";"); //$NON-NLS-1$
+	return output;
 	}
 	public ModuleBinding resolve(Scope scope) {
 		if (this.resolvedBinding != null)
