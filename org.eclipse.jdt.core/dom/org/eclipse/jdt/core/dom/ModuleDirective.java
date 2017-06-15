@@ -14,23 +14,23 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * Abstract base class of AST nodes that represent module statements.
- * There are many kinds of module statements.
+ * Abstract base class of AST nodes that represent module directives.
+ * There are many kinds of module directives.
  *
  * <pre>
- * ModuleStatement: [ {@link ExportsStatement} |
- *    {@link OpensStatement} |
- *    {@link RequiresStatement} |
- *    {@link UsesStatement} |
- *    {@link ProvidesStatement} ]
+ * ModuleStatement: [ {@link ExportsDirective} |
+ *    {@link OpensDirective} |
+ *    {@link RequiresDirective} |
+ *    {@link UsesDirective} |
+ *    {@link ProvidesDirective} ]
  * </pre>
  *
  * @noextend This class is not intended to be subclassed by clients.
  * @since 3.13 BETA_JAVA9
  */
-public abstract class ModuleStatement extends ASTNode {
+public abstract class ModuleDirective extends ASTNode {
 
-	ModuleStatement(AST ast) {
+	ModuleDirective(AST ast) {
 		super(ast);
 		unsupportedBelow9();
 	}

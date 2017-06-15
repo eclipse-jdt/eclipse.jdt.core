@@ -253,7 +253,7 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 					buffer.append("ENUM_DECLARATION");break;
 				case ASTNode.EXPRESSION_STATEMENT :
 					buffer.append("EXPRESSION_STATEMENT");break;
-				case ASTNode.EXPORTS_STATEMENT :
+				case ASTNode.EXPORTS_DIRECTIVE :
 					buffer.append("EXPORTS_STATEMENT");break;
 				case ASTNode.FIELD_ACCESS :
 					buffer.append("FIELD_ACCESS");break;
@@ -301,7 +301,7 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 					buffer.append("NULL_LITERAL");break;
 				case ASTNode.NUMBER_LITERAL :
 					buffer.append("NUMBER_LITERAL");break;
-				case ASTNode.OPENS_STATEMENT :
+				case ASTNode.OPENS_DIRECTIVE :
 					buffer.append("OPENS_STATEMENT");break;
 				case ASTNode.PACKAGE_DECLARATION :
 					buffer.append("PACKAGE_DECLARATION");break;
@@ -315,13 +315,13 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 					buffer.append("PREFIX_EXPRESSION");break;
 				case ASTNode.PRIMITIVE_TYPE :
 					buffer.append("PRIMITIVE_TYPE");break;
-				case ASTNode.PROVIDES_STATEMENT :
+				case ASTNode.PROVIDES_DIRECTIVE :
 					buffer.append("PROVIDES_STATEMENT");break;
 				case ASTNode.QUALIFIED_NAME :
 					buffer.append("QUALIFIED_NAME");break;
 				case ASTNode.QUALIFIED_TYPE :
 					buffer.append("QUALIFIED_TYPE");break;
-				case ASTNode.REQUIRES_STATEMENT :
+				case ASTNode.REQUIRES_DIRECTIVE :
 					buffer.append("REQUIRES_STATEMENT");break;
 				case ASTNode.RETURN_STATEMENT :
 					buffer.append("RETURN_STATEMENT");break;
@@ -365,7 +365,7 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 					buffer.append("TYPE_LITERAL");break;
 				case ASTNode.TYPE_PARAMETER :
 					buffer.append("TYPE_PARAMETER");break;
-				case ASTNode.USES_STATEMENT :
+				case ASTNode.USES_DIRECTIVE :
 					buffer.append("USES_STATEMENT");break;
 				case ASTNode.VARIABLE_DECLARATION_EXPRESSION :
 					buffer.append("VARIABLE_DECLARATION_EXPRESSION");break;

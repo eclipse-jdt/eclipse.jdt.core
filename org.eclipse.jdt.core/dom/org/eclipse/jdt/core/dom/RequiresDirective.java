@@ -18,9 +18,9 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Requires statement AST node type.
+ * Requires directive AST node type.
  * <pre>
- * RequiresStatement:
+ * RequiresDirective:
  *     <b>requires</b> { ModuleModifier } Name <b>;</b>
  * </pre>
  *
@@ -28,19 +28,19 @@ import java.util.List;
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class RequiresStatement extends ModuleStatement {
+public class RequiresDirective extends ModuleDirective {
 
 	/**
 	 * The "modifiers" structural property of this node type (element type: {@link ModuleModifier}).
 	 */
 	public static final ChildListPropertyDescriptor MODIFIERS_PROPERTY =
-		new ChildListPropertyDescriptor(RequiresStatement.class, "modifiers", ModuleModifier.class, NO_CYCLE_RISK); //$NON-NLS-1$
+		new ChildListPropertyDescriptor(RequiresDirective.class, "modifiers", ModuleModifier.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The module structural property of this node type (child type: {@link Name}).
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
-		new ChildPropertyDescriptor(RequiresStatement.class, "name", Name.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
+		new ChildPropertyDescriptor(RequiresDirective.class, "name", Name.class, OPTIONAL, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -51,7 +51,7 @@ public class RequiresStatement extends ModuleStatement {
 
 	static {
 		List propertyList = new ArrayList(3);
-		createPropertyList(RequiresStatement.class, propertyList);
+		createPropertyList(RequiresDirective.class, propertyList);
 		addProperty(MODIFIERS_PROPERTY, propertyList);
 		addProperty(NAME_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_9_0 = reapPropertyList(propertyList);
@@ -84,8 +84,8 @@ public class RequiresStatement extends ModuleStatement {
 	private Name name = null;
 
 	/**
-	 * Creates a new AST node for an requires statement owned by the
-	 * given AST. The requires statement initially is a regular (no modifiers)
+	 * Creates a new AST node for an requires directive owned by the
+	 * given AST. The requires directive initially is a regular (no modifiers)
 	 * requires for an unspecified, but legal, Java module name.
 	 * <p>
 	 * N.B. This constructor is package-private; all subclasses must be
@@ -95,7 +95,7 @@ public class RequiresStatement extends ModuleStatement {
 	 *
 	 * @param ast the AST that is to own this node
 	 */
-	RequiresStatement(AST ast) {
+	RequiresDirective(AST ast) {
 		super(ast);
 	}
 
@@ -131,12 +131,12 @@ public class RequiresStatement extends ModuleStatement {
 
 	@Override
 	final int getNodeType0() {
-		return REQUIRES_STATEMENT;
+		return REQUIRES_DIRECTIVE;
 	}
 
 	@Override
 	ASTNode clone0(AST target) {
-		RequiresStatement result = new RequiresStatement(target);
+		RequiresDirective result = new RequiresDirective(target);
 		result.modifiers().addAll(ASTNode.copySubtrees(target, modifiers()));
 		result.setName((Name) getName().clone(target));
 		return result;
@@ -216,7 +216,7 @@ public class RequiresStatement extends ModuleStatement {
 	}
 
 	/**
-	 * Sets the module name in requires statement to the given name.
+	 * Sets the module name in requires directive to the given name.
 	 *
 	 * @param name the new module name
 	 * @exception IllegalArgumentException if:

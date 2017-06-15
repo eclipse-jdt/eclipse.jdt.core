@@ -534,13 +534,13 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(ExportsStatement node) {
+	public boolean visit(ExportsDirective node) {
 		this.result.append("exports "); //$NON-NLS-1$
-		getChildNode(node, ExportsStatement.NAME_PROPERTY).accept(this);
+		getChildNode(node, ExportsDirective.NAME_PROPERTY).accept(this);
 		List<Name> modules = node.modules();
 		if (modules.size() > 0) {
 			this.result.append(" to "); //$NON-NLS-1$
-			visitList(node, ExportsStatement.MODULES_PROPERTY, Util.COMMA_SEPARATOR, Util.EMPTY_STRING, Util.EMPTY_STRING);
+			visitList(node, ExportsDirective.MODULES_PROPERTY, Util.COMMA_SEPARATOR, Util.EMPTY_STRING, Util.EMPTY_STRING);
 		}
 		this.result.append(';');
 		return false;
@@ -899,11 +899,11 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(ProvidesStatement node) {
+	public boolean visit(ProvidesDirective node) {
 		this.result.append("provides "); //$NON-NLS-1$
-		getChildNode(node, ProvidesStatement.TYPE_PROPERTY).accept(this);
+		getChildNode(node, ProvidesDirective.TYPE_PROPERTY).accept(this);
 		this.result.append(" with "); //$NON-NLS-1$
-		visitList(node, ProvidesStatement.IMPLEMENTATIONS_PROPERTY, Util.EMPTY_STRING, Util.COMMA_SEPARATOR, Util.EMPTY_STRING);
+		visitList(node, ProvidesDirective.IMPLEMENTATIONS_PROPERTY, Util.EMPTY_STRING, Util.COMMA_SEPARATOR, Util.EMPTY_STRING);
 		this.result.append(';');
 		return false;
 	}
@@ -930,10 +930,10 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(RequiresStatement node) {
+	public boolean visit(RequiresDirective node) {
 		this.result.append("requires "); //$NON-NLS-1$
-		visitList(node, RequiresStatement.MODIFIERS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
-		getChildNode(node, RequiresStatement.NAME_PROPERTY).accept(this);
+		visitList(node, RequiresDirective.MODIFIERS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));
+		getChildNode(node, RequiresDirective.NAME_PROPERTY).accept(this);
 		this.result.append(';');
 		return false;
 	}
@@ -1216,9 +1216,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	}
 	
 	@Override
-	public boolean visit(UsesStatement node) {
+	public boolean visit(UsesDirective node) {
 		this.result.append("uses "); //$NON-NLS-1$
-		getChildNode(node, UsesStatement.TYPE_PROPERTY).accept(this);
+		getChildNode(node, UsesDirective.TYPE_PROPERTY).accept(this);
 		this.result.append(';');
 		return false;
 	}

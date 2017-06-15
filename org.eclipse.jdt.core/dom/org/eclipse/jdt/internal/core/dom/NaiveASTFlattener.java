@@ -762,7 +762,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(ExportsStatement node) {
+	public boolean visit(ExportsDirective node) {
 		return visit(node, "exports"); //$NON-NLS-1$
 	}
 
@@ -1242,7 +1242,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 		node.getName().accept(this);
 		this.buffer.append(" {\n"); //$NON-NLS-1$
 		this.indent++;
-		for (ModuleStatement stmt : (List<ModuleStatement>)node.moduleStatements()) {
+		for (ModuleDirective stmt : (List<ModuleDirective>)node.moduleStatements()) {
 			stmt.accept(this);
 		}
 		this.indent--;
@@ -1317,7 +1317,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(OpensStatement node) {
+	public boolean visit(OpensDirective node) {
 		return visit(node, "opens"); //$NON-NLS-1$
 	}
 
@@ -1398,7 +1398,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(ProvidesStatement node) {
+	public boolean visit(ProvidesDirective node) {
 		printIndent();
 		this.buffer.append("provides");//$NON-NLS-1$
 		this.buffer.append(" ");//$NON-NLS-1$
@@ -1431,7 +1431,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(RequiresStatement node) {
+	public boolean visit(RequiresDirective node) {
 		printIndent();
 		this.buffer.append("requires");//$NON-NLS-1$
 		this.buffer.append(" ");//$NON-NLS-1$
@@ -1941,7 +1941,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(UsesStatement node) {
+	public boolean visit(UsesDirective node) {
 		printIndent();
 		this.buffer.append("uses");//$NON-NLS-1$
 		this.buffer.append(" ");//$NON-NLS-1$

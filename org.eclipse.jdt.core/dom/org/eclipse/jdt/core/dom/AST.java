@@ -1516,8 +1516,8 @@ public final class AST {
 	 * @exception UnsupportedOperationException if this operation is used in level less than JLS9
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public ExportsStatement newExportsStatement() {
-		ExportsStatement result = new ExportsStatement(this);
+	public ExportsDirective newExportsStatement() {
+		ExportsDirective result = new ExportsDirective(this);
 		return result;
 	}
 
@@ -2143,8 +2143,8 @@ public final class AST {
 	 * @exception UnsupportedOperationException if this operation is used in level less than JLS9
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public OpensStatement newOpensStatement() {
-		OpensStatement result = new OpensStatement(this);
+	public OpensDirective newOpensStatement() {
+		OpensDirective result = new OpensDirective(this);
 		return result;
 	}
 
@@ -2239,8 +2239,8 @@ public final class AST {
 	 * @exception UnsupportedOperationException if this operation is used in level less than JLS9
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public ProvidesStatement newProvidesStatement() {
-		ProvidesStatement result = new ProvidesStatement(this);
+	public ProvidesDirective newProvidesStatement() {
+		ProvidesDirective result = new ProvidesDirective(this);
 		return result;
 	}
 
@@ -2298,8 +2298,8 @@ public final class AST {
 	 * @exception UnsupportedOperationException if this operation is used in level less than JLS9
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public RequiresStatement newRequiresStatement() {
-		RequiresStatement result = new RequiresStatement(this);
+	public RequiresDirective newRequiresStatement() {
+		RequiresDirective result = new RequiresDirective(this);
 		return result;
 	}
 
@@ -2678,8 +2678,8 @@ public final class AST {
 	 * @exception UnsupportedOperationException if this operation is used in level less than JLS9
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public UsesStatement newUsesStatement() {
-		UsesStatement result = new UsesStatement(this);
+	public UsesDirective newUsesStatement() {
+		UsesDirective result = new UsesDirective(this);
 		return result;
 	}
 

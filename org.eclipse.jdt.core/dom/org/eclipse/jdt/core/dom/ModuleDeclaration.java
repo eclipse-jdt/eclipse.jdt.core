@@ -62,10 +62,10 @@ public class ModuleDeclaration extends ASTNode {
 		new ChildPropertyDescriptor(ModuleDeclaration.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "moduleStatements" structural property of this node type (element type: {@link ModuleStatement}).
+	 * The "moduleStatements" structural property of this node type (element type: {@link ModuleDirective}).
 	 */
 	public static final ChildListPropertyDescriptor MODULE_STATEMENTS_PROPERTY =
-		new ChildListPropertyDescriptor(ModuleDeclaration.class, "moduleStatements", ModuleStatement.class, NO_CYCLE_RISK); //$NON-NLS-1$
+		new ChildListPropertyDescriptor(ModuleDeclaration.class, "moduleStatements", ModuleDirective.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -124,7 +124,7 @@ public class ModuleDeclaration extends ASTNode {
 	private Name name = null;
 
 	/**
-	 * The list of statements (element type: {@link ModuleStatement}).
+	 * The list of statements (element type: {@link ModuleDirective}).
 	 * Defaults to an empty list.
 	 */
 	private ASTNode.NodeList moduleStatements = new ASTNode.NodeList(MODULE_STATEMENTS_PROPERTY);
@@ -333,7 +333,7 @@ public class ModuleDeclaration extends ASTNode {
 	 * exception.
 	 *
 	 * @return the live list of statements in this module declaration
-	 *    (element type: {@link ModuleStatement})
+	 *    (element type: {@link ModuleDirective})
 	 */
 	public List moduleStatements() {
 		return this.moduleStatements;

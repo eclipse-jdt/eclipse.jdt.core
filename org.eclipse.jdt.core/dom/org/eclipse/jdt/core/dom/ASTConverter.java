@@ -3315,24 +3315,24 @@ class ASTConverter {
 		moduleDecl.setName(moduleName);
 		moduleDecl.setSourceRange(moduleDeclaration.declarationSourceStart, moduleDeclaration.declarationSourceEnd - moduleDeclaration.declarationSourceStart + 1);
 
-		List<ModuleStatement> stmts = moduleDecl.moduleStatements();
-		TreeSet<ModuleStatement> tSet = new TreeSet<> (new Comparator() {
+		List<ModuleDirective> stmts = moduleDecl.moduleStatements();
+		TreeSet<ModuleDirective> tSet = new TreeSet<> (new Comparator() {
 			public int compare(Object o1, Object o2) {
-				int p1 = ((ModuleStatement) o1).getStartPosition();
-				int p2 = ((ModuleStatement) o2).getStartPosition();
+				int p1 = ((ModuleDirective) o1).getStartPosition();
+				int p2 = ((ModuleDirective) o2).getStartPosition();
 				return p1 < p2 ? -1 : p1 == p2 ? 0 : 1;
 			}
 		});
 		for (int i = 0; i < moduleDeclaration.exportsCount; ++i) {
-			tSet.add(getPackageVisibilityStatement(moduleDeclaration.exports[i], new ExportsStatement(this.ast)));
+			tSet.add(getPackageVisibilityStatement(moduleDeclaration.exports[i], new ExportsDirective(this.ast)));
 		}
 		for (int i = 0; i < moduleDeclaration.opensCount; ++i) {
-			tSet.add(getPackageVisibilityStatement(moduleDeclaration.opens[i], new OpensStatement(this.ast)));
+			tSet.add(getPackageVisibilityStatement(moduleDeclaration.opens[i], new OpensDirective(this.ast)));
 		}
 		for (int i = 0; i < moduleDeclaration.requiresCount; ++i) {
 			org.eclipse.jdt.internal.compiler.ast.RequiresStatement req = moduleDeclaration.requires[i];
 			ModuleReference moduleRef = req.module;
-			RequiresStatement stmt = new RequiresStatement(this.ast);
+			RequiresDirective stmt = new RequiresDirective(this.ast);
 			Name name = getName(moduleRef, CharOperation.splitOn('.', moduleRef.moduleName), moduleRef.sourcePositions);
 			stmt.setName(name);
 			if (this.resolveBindings) {
@@ -3345,7 +3345,7 @@ class ASTConverter {
 		}
 		for (int i = 0; i < moduleDeclaration.usesCount; ++i) {
 			org.eclipse.jdt.internal.compiler.ast.UsesStatement usesStatement = moduleDeclaration.uses[i];
-			UsesStatement stmt = new UsesStatement(this.ast);
+			UsesDirective stmt = new UsesDirective(this.ast);
 			TypeReference usesRef = usesStatement.serviceInterface;
 			stmt.setType(convertType(usesRef));
 			stmt.setSourceRange(usesStatement.declarationSourceStart, usesStatement.declarationSourceEnd - usesStatement.declarationSourceStart + 1);			
@@ -3353,7 +3353,7 @@ class ASTConverter {
 		}
 		for (int i = 0; i < moduleDeclaration.servicesCount; ++i) {
 			org.eclipse.jdt.internal.compiler.ast.ProvidesStatement pStmt = moduleDeclaration.services[i];
-			ProvidesStatement stmt = new ProvidesStatement(this.ast);
+			ProvidesDirective stmt = new ProvidesDirective(this.ast);
 			stmt.setType(convertType(pStmt.serviceInterface));
 			TypeReference[] impls = pStmt.implementations;
 			for (TypeReference impl : impls) {
@@ -3372,7 +3372,7 @@ class ASTConverter {
 		return moduleDecl;
 	}
 
-	private void setModuleModifiers(org.eclipse.jdt.internal.compiler.ast.RequiresStatement req,	RequiresStatement stmt) {
+	private void setModuleModifiers(org.eclipse.jdt.internal.compiler.ast.RequiresStatement req,	RequiresDirective stmt) {
 		boolean fakeInModule = this.scanner.fakeInModule;
 		this.scanner.fakeInModule = true;
 		this.scanner.resetTo(req.declarationSourceStart, req.sourceEnd);

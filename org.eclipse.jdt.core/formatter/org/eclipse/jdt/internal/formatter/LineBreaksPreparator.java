@@ -61,7 +61,7 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.ModuleDeclaration;
-import org.eclipse.jdt.core.dom.ModuleStatement;
+import org.eclipse.jdt.core.dom.ModuleDirective;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.ReturnStatement;
@@ -684,9 +684,9 @@ public class LineBreaksPreparator extends ASTVisitor {
 				this.options.indent_body_declarations_compare_to_type_header,
 				this.options.insert_new_line_in_empty_type_declaration);
 
-		List<ModuleStatement> statements = node.moduleStatements();
-		ModuleStatement previous = null;
-		for (ModuleStatement statement : statements) {
+		List<ModuleDirective> statements = node.moduleStatements();
+		ModuleDirective previous = null;
+		for (ModuleDirective statement : statements) {
 			int blankLines = previous == null ? this.options.blank_lines_before_first_class_body_declaration
 					: previous.getClass().equals(statement.getClass()) ? this.options.blank_lines_before_field
 							: this.options.blank_lines_before_new_chunk;

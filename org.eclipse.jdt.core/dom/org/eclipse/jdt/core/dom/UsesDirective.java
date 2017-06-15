@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Provides statement AST node type.
+ * Uses directive AST node type.
  * <pre>
- * ProvidesStatement:
- *     <b>provides</b> Name <b>with</b> Name {<b>,</b> Name } <b>;</b>
+ * UsesDirective:
+ *     <b>uses</b> Name <b>;</b>
  * </pre>
  *
  * @since 3.13 BETA_JAVA9
@@ -28,20 +28,14 @@ import java.util.List;
  * @noextend This class is not intended to be subclassed by clients.
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
-public class ProvidesStatement extends ModuleStatement {
+@SuppressWarnings("rawtypes")
+public class UsesDirective extends ModuleDirective {
 
 	/**
-	 * The "interface type" structural property of this node type (child type: {@link Type}).
+	 * The "type" structural property of this node type (child type: {@link Name}).
 	 */
 	public static final ChildPropertyDescriptor TYPE_PROPERTY =
-		new ChildPropertyDescriptor(ProvidesStatement.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
-
-	/**
-	 * The "implementation type" structural property of this node type (element type: {@link Type}).
-	 */
-	public static final ChildListPropertyDescriptor IMPLEMENTATIONS_PROPERTY =
-			new ChildListPropertyDescriptor(ProvidesStatement.class, "implementationType", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
+		new ChildPropertyDescriptor(UsesDirective.class, "type", Type.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -51,10 +45,9 @@ public class ProvidesStatement extends ModuleStatement {
 	private static final List PROPERTY_DESCRIPTORS_9_0;
 
 	static {
-		List properyList = new ArrayList(3);
-		createPropertyList(ProvidesStatement.class, properyList);
+		List properyList = new ArrayList(2);
+		createPropertyList(UsesDirective.class, properyList);
 		addProperty(TYPE_PROPERTY, properyList);
-		addProperty(IMPLEMENTATIONS_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS_9_0 = reapPropertyList(properyList);
 	}
 
@@ -73,22 +66,14 @@ public class ProvidesStatement extends ModuleStatement {
 	}
 
 	/**
-	 * The interface name; lazily initialized; defaults to a unspecified,
+	 * The module name; lazily initialized; defaults to a unspecified,
 	 * legal Java identifier.
 	 */
 	private Type type = null;
 
 	/**
-	 * The implementation names
-	 * (element type: {@link Name}).
-	 * Defaults to an empty list.
-	 */
-	private ASTNode.NodeList implementations =
-		new ASTNode.NodeList(IMPLEMENTATIONS_PROPERTY);
-
-	/**
-	 * Creates a new AST node for an provides statement owned by the
-	 * given AST. The provides statement initially is
+	 * Creates a new AST node for an uses directive owned by the
+	 * given AST. The uses directive initially is
 	 * for an unspecified, but legal, Java type name.
 	 * <p>
 	 * N.B. This constructor is package-private; all subclasses must be
@@ -98,7 +83,7 @@ public class ProvidesStatement extends ModuleStatement {
 	 *
 	 * @param ast the AST that is to own this node
 	 */
-	ProvidesStatement(AST ast) {
+	UsesDirective(AST ast) {
 		super(ast);
 	}
 
@@ -123,25 +108,15 @@ public class ProvidesStatement extends ModuleStatement {
 	}
 
 	@Override
-	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
-		if (property == IMPLEMENTATIONS_PROPERTY) {
-			return implementations();
-		}
-		// allow default implementation to flag the error
-		return super.internalGetChildListProperty(property);
-	}
-
-	@Override
 	final int getNodeType0() {
-		return PROVIDES_STATEMENT;
+		return USES_DIRECTIVE;
 	}
 
 	@Override
 	ASTNode clone0(AST target) {
-		ProvidesStatement result = new ProvidesStatement(target);
+		UsesDirective result = new UsesDirective(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setType((Type) getType().clone(target));
-		result.implementations().addAll(ASTNode.copySubtrees(target, implementations()));
 		return result;
 	}
 
@@ -156,16 +131,15 @@ public class ProvidesStatement extends ModuleStatement {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			acceptChild(visitor, getType());
-			acceptChildren(visitor, this.implementations);
 		}
 		visitor.endVisit(this);
 	}
 
 
 	/**
-	 * Returns the type name in this statement
+	 * Returns the type in this directive
 	 *
-	 * @return the type name
+	 * @return the type
 	 */
 	public Type getType()  {
 		if (this.type == null) {
@@ -173,7 +147,7 @@ public class ProvidesStatement extends ModuleStatement {
 			synchronized (this) {
 				if (this.type == null) {
 					preLazyInit();
-					this.type =this.ast.newPrimitiveType(PrimitiveType.INT);
+					this.type = this.ast.newPrimitiveType(PrimitiveType.INT);
 					postLazyInit(this.type, TYPE_PROPERTY);
 				}
 			}
@@ -182,9 +156,9 @@ public class ProvidesStatement extends ModuleStatement {
 	}
 
 	/**
-	 * Sets the target module name in exports declaration to the given name.
+	 * Sets the type in uses directive
 	 *
-	 * @param type the new target module name
+	 * @param type the new type in uses
 	 * @exception IllegalArgumentException if:
 	 * <ul>
 	 * <li>the node belongs to a different AST</li>
@@ -201,26 +175,16 @@ public class ProvidesStatement extends ModuleStatement {
 		postReplaceChild(oldChild, type, TYPE_PROPERTY);
 	}
 
-	/**
-	 * Returns the live ordered list of implementations for the interface in this provides statement.
-	 *
-	 * @return the live list of implementations for the interface
-	 *    (element type: {@link Name})
-	 */
-	public List implementations() {
-		return this.implementations;
-	}
-
 	@Override
 	int memSize() {
-		return BASE_NODE_SIZE + 2 * 4;
+		return BASE_NODE_SIZE + 1 * 4;
 	}
 
 	@Override
 	int treeSize() {
 		return
 			memSize()
-			+ (this.type == null ? 0 : getType().treeSize())
-			+ this.implementations.listSize();
+			+ (this.type == null ? 0 : getType().treeSize());
 	}
+
 }

@@ -1160,62 +1160,62 @@ public abstract class HierarchicalASTVisitor extends ASTVisitor {
 		endVisit((ASTNode) node);
 	}
 
-	public boolean visit(ModuleStatement node) {
+	public boolean visit(ModuleDirective node) {
 		return visit((ASTNode) node);
 	}
 
-	public void endVisit(ModuleStatement node) {
+	public void endVisit(ModuleDirective node) {
 		endVisit((ASTNode) node);
 	}
 
 	@Override
-	public boolean visit(ExportsStatement node) {
-		return visit((ModuleStatement) node);
+	public boolean visit(ExportsDirective node) {
+		return visit((ModuleDirective) node);
 	}
 
 	@Override
-	public void endVisit(ExportsStatement node) {
-		endVisit((ModuleStatement) node);
+	public void endVisit(ExportsDirective node) {
+		endVisit((ModuleDirective) node);
 	}
 
 	@Override
-	public boolean visit(OpensStatement node) {
-		return visit((ModuleStatement) node);
+	public boolean visit(OpensDirective node) {
+		return visit((ModuleDirective) node);
 	}
 
 	@Override
-	public void endVisit(OpensStatement node) {
-		endVisit((ModuleStatement) node);
+	public void endVisit(OpensDirective node) {
+		endVisit((ModuleDirective) node);
 	}
 
 	@Override
-	public boolean visit(RequiresStatement node) {
-		return visit((ModuleStatement) node);
+	public boolean visit(RequiresDirective node) {
+		return visit((ModuleDirective) node);
 	}
 
 	@Override
-	public void endVisit(RequiresStatement node) {
-		endVisit((ModuleStatement) node);
+	public void endVisit(RequiresDirective node) {
+		endVisit((ModuleDirective) node);
 	}
 
 	@Override
-	public boolean visit(ProvidesStatement node) {
-		return visit((ModuleStatement) node);
+	public boolean visit(ProvidesDirective node) {
+		return visit((ModuleDirective) node);
 	}
 
 	@Override
-	public void endVisit(ProvidesStatement node) {
-		endVisit((ModuleStatement) node);
+	public void endVisit(ProvidesDirective node) {
+		endVisit((ModuleDirective) node);
 	}
 
 	@Override
-	public boolean visit(UsesStatement node) {
-		return visit((ModuleStatement) node);
+	public boolean visit(UsesDirective node) {
+		return visit((ModuleDirective) node);
 	}
 
 	@Override
-	public void endVisit(UsesStatement node) {
-		endVisit((ModuleStatement) node);
+	public void endVisit(UsesDirective node) {
+		endVisit((ModuleDirective) node);
 	}
 
 //---- End Module Hierarchy -------------------------------------------

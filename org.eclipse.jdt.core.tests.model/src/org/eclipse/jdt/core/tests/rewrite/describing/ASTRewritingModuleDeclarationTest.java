@@ -68,35 +68,35 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 
 			ModuleDeclaration moduleDecl = astRoot.getModule();
 			ListRewrite listRewrite = rewrite.getListRewrite(moduleDecl, ModuleDeclaration.MODULE_STATEMENTS_PROPERTY);
-			List<ModuleStatement> moduleStatements = moduleDecl.moduleStatements();
+			List<ModuleDirective> moduleStatements = moduleDecl.moduleStatements();
 			int index = 0;
 			{
-				RequiresStatement req = (RequiresStatement) moduleStatements.get(index++); // replace the module in first required
+				RequiresDirective req = (RequiresDirective) moduleStatements.get(index++); // replace the module in first required
 				Name newName = ast.newSimpleName("newSecond");
 				rewrite.replace(req.getName(), newName, null);
 				listRewrite.remove(moduleStatements.get(index++), null); // remove the second required
 
-				RequiresStatement newNode = ast.newRequiresStatement(); // add a new required
+				RequiresDirective newNode = ast.newRequiresStatement(); // add a new required
 				newNode.setName(ast.newSimpleName("addedme"));
 				listRewrite.insertAfter(newNode, req, null);
 			}
 			{
 				// exports pack11 to third, fourth; -> exports newpack11 to third;
-				ExportsStatement exp = (ExportsStatement) moduleStatements.get(index++);
+				ExportsDirective exp = (ExportsDirective) moduleStatements.get(index++);
 				Name newName = ast.newSimpleName("newpack11");
 				rewrite.replace(exp.getName(), newName, null);
-				ListRewrite expListRewrite = rewrite.getListRewrite(exp, ExportsStatement.MODULES_PROPERTY);
+				ListRewrite expListRewrite = rewrite.getListRewrite(exp, ExportsDirective.MODULES_PROPERTY);
 				expListRewrite.remove((ASTNode) exp.modules().get(1), null); 
 
 				// exports pack12 to fifth -> exports pack12 to fifth, sixth
-				exp = (ExportsStatement) moduleStatements.get(index++);
+				exp = (ExportsDirective) moduleStatements.get(index++);
 				newName = ast.newSimpleName("sixth");
-				expListRewrite = rewrite.getListRewrite(exp, ExportsStatement.MODULES_PROPERTY);
+				expListRewrite = rewrite.getListRewrite(exp, ExportsDirective.MODULES_PROPERTY);
 				expListRewrite.insertLast(newName, null);
 
 				// exports pack12 to remove.mod1 -> exports pack12
-				exp = (ExportsStatement) moduleStatements.get(index++);
-				expListRewrite = rewrite.getListRewrite(exp, ExportsStatement.MODULES_PROPERTY);
+				exp = (ExportsDirective) moduleStatements.get(index++);
+				expListRewrite = rewrite.getListRewrite(exp, ExportsDirective.MODULES_PROPERTY);
 				expListRewrite.remove((ASTNode) exp.modules().get(0), null);
 
 				// exports pack12 to never.to.be.module - remove the export
@@ -111,7 +111,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			}
 			{
 				// uses MyType -> uses MyNewType;
-				UsesStatement usesStatement = (UsesStatement) moduleStatements.get(index++);
+				UsesDirective usesStatement = (UsesDirective) moduleStatements.get(index++);
 				Name newName = ast.newSimpleName("MyNewType");
 				SimpleType type = ast.newSimpleType(newName);
 				rewrite.replace(usesStatement.getType(), type, null);
@@ -128,21 +128,21 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			}
 			{
 				// provides pack22.I22 with pack11.packinternal.Z11 ->  provides pack22.INew22 with pack11.packinternal.NewZ11, pack11.Y11
-				ProvidesStatement providesStatement = (ProvidesStatement) moduleStatements.get(index++);
+				ProvidesDirective providesStatement = (ProvidesDirective) moduleStatements.get(index++);
 				Name newName = ast.newName("pack22.INew22");
 				SimpleType type = ast.newSimpleType(newName);
 				rewrite.replace(providesStatement.getType(), type, null);
 				newName = ast.newName("pack11.packinternal.NewZ11");
 				type = ast.newSimpleType(newName);
-				ListRewrite pListRewrite = rewrite.getListRewrite(providesStatement, ProvidesStatement.IMPLEMENTATIONS_PROPERTY);
+				ListRewrite pListRewrite = rewrite.getListRewrite(providesStatement, ProvidesDirective.IMPLEMENTATIONS_PROPERTY);
 				pListRewrite.replace((ASTNode) providesStatement.implementations().get(0), type ,null);
 
 				newName = ast.newName("pack11.Y11");
 				type = ast.newSimpleType(newName);
 				pListRewrite.insertLast(type, null);
 				// provides pack23.I23 with pack11.Z23, pack12.ZZ23 -> provides pack23.I23 with pack12.ZZ23
-				providesStatement = (ProvidesStatement) moduleStatements.get(index++);
-				pListRewrite = rewrite.getListRewrite(providesStatement, ProvidesStatement.IMPLEMENTATIONS_PROPERTY);
+				providesStatement = (ProvidesDirective) moduleStatements.get(index++);
+				pListRewrite = rewrite.getListRewrite(providesStatement, ProvidesDirective.IMPLEMENTATIONS_PROPERTY);
 				pListRewrite.remove((ASTNode) providesStatement.implementations().get(0), null);
 			}
 			String preview= evaluateRewrite(cu, rewrite);
@@ -184,7 +184,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			ModuleDeclaration moduleDecl = astRoot.getModule();
 			ListRewrite listRewrite = rewrite.getListRewrite(moduleDecl, ModuleDeclaration.MODULE_STATEMENTS_PROPERTY);
 			{
-				RequiresStatement newNode = ast.newRequiresStatement(); // add a new required
+				RequiresDirective newNode = ast.newRequiresStatement(); // add a new required
 				newNode.setName(ast.newSimpleName("addedme"));
 				listRewrite.insertLast(newNode, null);
 			}
@@ -220,25 +220,25 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			ModuleDeclaration moduleDecl = astRoot.getModule();
 			ListRewrite listRewrite = rewrite.getListRewrite(moduleDecl, ModuleDeclaration.MODULE_STATEMENTS_PROPERTY);
 			{
-				RequiresStatement reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(0);
+				RequiresDirective reqNode = (RequiresDirective) moduleDecl.moduleStatements().get(0);
 				ASTNode newModifier = ast.newModuleModifier(ModuleModifierKeyword.STATIC_KEYWORD);
-				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).insertFirst(newModifier, null);
+				rewrite.getListRewrite(reqNode, RequiresDirective.MODIFIERS_PROPERTY).insertFirst(newModifier, null);
 
-				reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(1);
-				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).remove((ASTNode) reqNode.modifiers().get(0), null);
+				reqNode = (RequiresDirective) moduleDecl.moduleStatements().get(1);
+				rewrite.getListRewrite(reqNode, RequiresDirective.MODIFIERS_PROPERTY).remove((ASTNode) reqNode.modifiers().get(0), null);
 
-				reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(2);
+				reqNode = (RequiresDirective) moduleDecl.moduleStatements().get(2);
 				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
-				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).replace((ASTNode) reqNode.modifiers().get(0), newModifier, null);
+				rewrite.getListRewrite(reqNode, RequiresDirective.MODIFIERS_PROPERTY).replace((ASTNode) reqNode.modifiers().get(0), newModifier, null);
 
-				reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(3);
+				reqNode = (RequiresDirective) moduleDecl.moduleStatements().get(3);
 				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
-				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).insertLast(newModifier, null);
+				rewrite.getListRewrite(reqNode, RequiresDirective.MODIFIERS_PROPERTY).insertLast(newModifier, null);
 
-				RequiresStatement newNode = ast.newRequiresStatement(); // add a new required
+				RequiresDirective newNode = ast.newRequiresStatement(); // add a new required
 				newNode.setName(ast.newSimpleName("addedme"));
 				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
-				rewrite.getListRewrite(newNode, RequiresStatement.MODIFIERS_PROPERTY).insertFirst(newModifier, null);
+				rewrite.getListRewrite(newNode, RequiresDirective.MODIFIERS_PROPERTY).insertFirst(newModifier, null);
 				listRewrite.insertLast(newNode, null);
 			}
 			String preview= evaluateRewrite(cu, rewrite);
@@ -327,31 +327,31 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			ListRewrite listRewrite = rewrite.getListRewrite(moduleDecl, ModuleDeclaration.MODULE_STATEMENTS_PROPERTY);
 			{
 				int count = 0;
-				RequiresStatement reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(count++);
+				RequiresDirective reqNode = (RequiresDirective) moduleDecl.moduleStatements().get(count++);
 				ASTNode newModifier = ast.newModuleModifier(ModuleModifierKeyword.STATIC_KEYWORD);
-				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).insertFirst(newModifier, null);
+				rewrite.getListRewrite(reqNode, RequiresDirective.MODIFIERS_PROPERTY).insertFirst(newModifier, null);
 				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
-				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).insertLast(newModifier, null);
+				rewrite.getListRewrite(reqNode, RequiresDirective.MODIFIERS_PROPERTY).insertLast(newModifier, null);
 
-				reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(count++);
-				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).remove((ASTNode) reqNode.modifiers().get(0), null);
+				reqNode = (RequiresDirective) moduleDecl.moduleStatements().get(count++);
+				rewrite.getListRewrite(reqNode, RequiresDirective.MODIFIERS_PROPERTY).remove((ASTNode) reqNode.modifiers().get(0), null);
 
-				reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(count++);
+				reqNode = (RequiresDirective) moduleDecl.moduleStatements().get(count++);
 				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
-				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).replace((ASTNode) reqNode.modifiers().get(0), newModifier, null);
+				rewrite.getListRewrite(reqNode, RequiresDirective.MODIFIERS_PROPERTY).replace((ASTNode) reqNode.modifiers().get(0), newModifier, null);
 
-				reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(count++);
+				reqNode = (RequiresDirective) moduleDecl.moduleStatements().get(count++);
 				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
-				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).insertLast(newModifier, null);
+				rewrite.getListRewrite(reqNode, RequiresDirective.MODIFIERS_PROPERTY).insertLast(newModifier, null);
 
-				reqNode = (RequiresStatement) moduleDecl.moduleStatements().get(count++);
+				reqNode = (RequiresDirective) moduleDecl.moduleStatements().get(count++);
 				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
-				rewrite.getListRewrite(reqNode, RequiresStatement.MODIFIERS_PROPERTY).insertFirst(newModifier, null);
+				rewrite.getListRewrite(reqNode, RequiresDirective.MODIFIERS_PROPERTY).insertFirst(newModifier, null);
 
-				RequiresStatement newNode = ast.newRequiresStatement(); // add a new required
+				RequiresDirective newNode = ast.newRequiresStatement(); // add a new required
 				newNode.setName(ast.newSimpleName("addedme"));
 				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
-				rewrite.getListRewrite(newNode, RequiresStatement.MODIFIERS_PROPERTY).insertFirst(newModifier, null);
+				rewrite.getListRewrite(newNode, RequiresDirective.MODIFIERS_PROPERTY).insertFirst(newModifier, null);
 				listRewrite.insertLast(newNode, null);
 			}
 			String preview= evaluateRewrite(cu, rewrite);

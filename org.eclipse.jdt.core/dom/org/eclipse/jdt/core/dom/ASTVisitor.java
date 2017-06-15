@@ -661,7 +661,7 @@ public abstract class ASTVisitor {
 	 * be skipped
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public boolean visit(ExportsStatement node) {
+	public boolean visit(ExportsDirective node) {
 		return true;
 	}
 
@@ -1175,7 +1175,7 @@ public abstract class ASTVisitor {
 	 * be skipped
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public boolean visit(OpensStatement node) {
+	public boolean visit(OpensDirective node) {
 		return true;
 	}
 
@@ -1273,7 +1273,7 @@ public abstract class ASTVisitor {
 	 * be skipped
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public boolean visit(ProvidesStatement node) {
+	public boolean visit(ProvidesDirective node) {
 		return true;
 	}
 
@@ -1339,7 +1339,7 @@ public abstract class ASTVisitor {
 	 * be skipped
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public boolean visit(RequiresStatement node) {
+	public boolean visit(RequiresDirective node) {
 		return true;
 	}
 
@@ -1752,7 +1752,7 @@ public abstract class ASTVisitor {
 	 * be skipped
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public boolean visit(UsesStatement node) {
+	public boolean visit(UsesDirective node) {
 		return true;
 	}
 
@@ -2182,7 +2182,7 @@ public abstract class ASTVisitor {
 	 * @param node the node to visit
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public void endVisit(ExportsStatement node) {
+	public void endVisit(ExportsDirective node) {
 		// default implementation: do nothing
 	}
 
@@ -2562,7 +2562,7 @@ public abstract class ASTVisitor {
 	 * @param node the node to visit
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public void endVisit(OpensStatement node) {
+	public void endVisit(OpensDirective node) {
 		// default implementation: do nothing
 	}
 
@@ -2648,7 +2648,7 @@ public abstract class ASTVisitor {
 	 * @param node the node to visit
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public void endVisit(ProvidesStatement node) {
+	public void endVisit(ProvidesDirective node) {
 		// default implementation: do nothing
 	}
 
@@ -2686,7 +2686,7 @@ public abstract class ASTVisitor {
 	 * @param node the node to visit
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public void endVisit(RequiresStatement node) {
+	public void endVisit(RequiresDirective node) {
 		// default implementation: do nothing
 	}
 
@@ -2994,7 +2994,7 @@ public abstract class ASTVisitor {
 	 * @param node the node to visit
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public void endVisit(UsesStatement node) {
+	public void endVisit(UsesDirective node) {
 		// default implementation: do nothing
 	}
 

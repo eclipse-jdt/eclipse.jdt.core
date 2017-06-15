@@ -19,15 +19,15 @@ import java.util.List;
  * Abstract base class of AST nodes that represent exports and opens statements.
  *
  * <pre>
- * ModuleStatement: [ {@link ExportsStatement} |
- *    {@link OpensStatement} ]
+ * ModuleStatement: [ {@link ExportsDirective} |
+ *    {@link OpensDirective} ]
  * </pre>
  *
  * @noextend This class is not intended to be subclassed by clients.
  * @since 3.13 BETA_JAVA9
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
-public abstract class ModulePackageAccess extends ModuleStatement {
+public abstract class ModulePackageAccess extends ModuleDirective {
 
 	/**
 	 * The package name; lazily initialized; defaults to a unspecified,

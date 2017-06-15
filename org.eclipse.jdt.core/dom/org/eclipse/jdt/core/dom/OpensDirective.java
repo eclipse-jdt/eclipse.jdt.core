@@ -17,10 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Exports statement AST node type.
+ * opens directive AST node type.
  * <pre>
- * ExportsStatement:
- *     <b>exports</b> PackageName [ <b>to</b>  ModuleName {<b>,</b> ModuleName } ] <b>;</b>
+ * OpensDirective:
+ *     <b>opens</b> PackageName [ <b>to</b>  ModuleName {<b>,</b> ModuleName } ] <b>;</b>
  * </pre>
  *
  * @since 3.13 BETA_JAVA9
@@ -29,19 +29,18 @@ import java.util.List;
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 @SuppressWarnings({"rawtypes"})
-public class ExportsStatement extends ModulePackageAccess {
+public class OpensDirective extends ModulePackageAccess {
 
 	/**
 	 * The "package" structural property of this node type (child type: {@link Name}).
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
-			internalNamePropertyFactory(ExportsStatement.class);
-
+		internalNamePropertyFactory(OpensDirective.class);
 	/**
 	 * The "target" structural property of this node type (element type: {@link Name}).
 	 */
 	public static final ChildListPropertyDescriptor MODULES_PROPERTY =
-			internalModulesPropertyFactory(ExportsStatement.class);
+			internalModulesPropertyFactory(OpensDirective.class);
 
 	/**
 	 * A list of property descriptors (element type:
@@ -52,7 +51,7 @@ public class ExportsStatement extends ModulePackageAccess {
 
 	static {
 		List properyList = new ArrayList(3);
-		createPropertyList(ExportsStatement.class, properyList);
+		createPropertyList(OpensDirective.class, properyList);
 		addProperty(NAME_PROPERTY, properyList);
 		addProperty(MODULES_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS_9_0 = reapPropertyList(properyList);
@@ -73,9 +72,9 @@ public class ExportsStatement extends ModulePackageAccess {
 	}
 
 	/**
-	 * Creates a new AST node for an export statement owned by the
-	 * given AST. The export statement initially is a regular (non-targetted)
-	 * single package export for an unspecified, but legal, Java package name.
+	 * Creates a new AST node for an opens directive owned by the
+	 * given AST. The open directive initially is a regular (non-targetted)
+	 * single package open for an unspecified, but legal, Java package name.
 	 * <p>
 	 * N.B. This constructor is package-private; all subclasses must be
 	 * declared in the same package; clients are unable to declare
@@ -84,7 +83,7 @@ public class ExportsStatement extends ModulePackageAccess {
 	 *
 	 * @param ast the AST that is to own this node
 	 */
-	ExportsStatement(AST ast) {
+	OpensDirective(AST ast) {
 		super(ast);
 	}
 
@@ -105,12 +104,12 @@ public class ExportsStatement extends ModulePackageAccess {
 
 	@Override
 	final int getNodeType0() {
-		return EXPORTS_STATEMENT;
+		return OPENS_DIRECTIVE;
 	}
 
 	@Override
 	ASTNode clone0(AST target) {
-		return cloneHelper(target, new ExportsStatement(target));
+		return cloneHelper(target, new OpensDirective(target));
 	}
 
 	@Override

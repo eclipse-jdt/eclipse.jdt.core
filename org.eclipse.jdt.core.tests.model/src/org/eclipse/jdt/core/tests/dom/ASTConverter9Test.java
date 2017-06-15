@@ -166,13 +166,13 @@ public class ASTConverter9Test extends ConverterTestSetup {
 
 		assertFalse(moduleDecl.isOpen());
 		checkSourceRange(moduleDecl, content, content);
-		List<ModuleStatement> stmts = moduleDecl.moduleStatements();
+		List<ModuleDirective> stmts = moduleDecl.moduleStatements();
 		assertTrue(stmts.size() > 0);
 
-		RequiresStatement req = (RequiresStatement) stmts.get(0);
+		RequiresDirective req = (RequiresDirective) stmts.get(0);
 		checkSourceRange(req, "requires second;", content);
 
-		ExportsStatement exp = (ExportsStatement) stmts.get(1);
+		ExportsDirective exp = (ExportsDirective) stmts.get(1);
 		checkSourceRange(exp, "exports pack11 to third, fourth;", content);
 		checkSourceRange(exp.getName(), "pack11", content);
 		List<Name> modules = exp.modules();
@@ -180,12 +180,12 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		checkSourceRange(modules.get(0), "third", content);
 		checkSourceRange(modules.get(1), "fourth", content);
 		
-		UsesStatement u = (UsesStatement) stmts.get(2);
+		UsesDirective u = (UsesDirective) stmts.get(2);
 		checkSourceRange(u, "uses NewType;", content);
 		Type type = u.getType();
 		checkSourceRange(type, "NewType", content);
 		
-		ProvidesStatement p = (ProvidesStatement) stmts.get(3);
+		ProvidesDirective p = (ProvidesDirective) stmts.get(3);
 		checkSourceRange(p, "provides pack22.I22 with pack11.packinternal.Z11;", content);
 		type = p.getType();
 		checkSourceRange(type, "pack22.I22", content);
@@ -217,17 +217,17 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			ModuleDeclaration moduleDecl = unit.getModule();
 			assertFalse(moduleDecl.isOpen());
 			checkSourceRange(moduleDecl, content, content);
-			List<ModuleStatement> stmts = moduleDecl.moduleStatements();
+			List<ModuleDirective> stmts = moduleDecl.moduleStatements();
 			assertTrue(stmts.size() > 0);
 
 			QualifiedName qName;
-			RequiresStatement req = (RequiresStatement) stmts.get(0);
+			RequiresDirective req = (RequiresDirective) stmts.get(0);
 			qName = (QualifiedName) req.getName();
 			checkSourceRange(qName, "second.third", content);
 			checkSourceRange(qName.getName(), "third", content);
 			checkSourceRange(qName.getQualifier(), "second", content);
 
-			ExportsStatement exp = (ExportsStatement) stmts.get(1);
+			ExportsDirective exp = (ExportsDirective) stmts.get(1);
 			checkSourceRange(exp, "exports pack1.X11 to org.eclipse.jdt;", content);
 			qName = (QualifiedName) exp.getName();
 			checkSourceRange(qName, "pack1.X11", content);
@@ -301,27 +301,27 @@ public class ASTConverter9Test extends ConverterTestSetup {
 		
 		assertTrue(moduleDecl.isOpen());
 		checkSourceRange(moduleDecl, content, content);
-		List<ModuleStatement> stmts = moduleDecl.moduleStatements();
+		List<ModuleDirective> stmts = moduleDecl.moduleStatements();
 		assertTrue(stmts.size() > 0);
 		
 		int count = 0;
-		RequiresStatement req = (RequiresStatement) stmts.get(count++);
+		RequiresDirective req = (RequiresDirective) stmts.get(count++);
 		checkSourceRange(req, "requires one;", content);
 
-		req = (RequiresStatement) stmts.get(count++);
+		req = (RequiresDirective) stmts.get(count++);
 		checkSourceRange(req, "requires static two;", content);
 		checkSourceRange((ASTNode) req.modifiers().get(0), "static", content);
 
-		req = (RequiresStatement) stmts.get(count++);
+		req = (RequiresDirective) stmts.get(count++);
 		checkSourceRange(req, "requires transitive three;", content);
 		checkSourceRange((ASTNode) req.modifiers().get(0), "transitive", content);
 
-		req = (RequiresStatement) stmts.get(count++);
+		req = (RequiresDirective) stmts.get(count++);
 		checkSourceRange(req, "requires static transitive four;", content);
 		checkSourceRange((ASTNode) req.modifiers().get(0), "static", content);
 		checkSourceRange((ASTNode) req.modifiers().get(1), "transitive", content);
 
-		req = (RequiresStatement) stmts.get(count++);
+		req = (RequiresDirective) stmts.get(count++);
 		checkSourceRange(req, "requires transitive static five;", content);
 		checkSourceRange((ASTNode) req.modifiers().get(0), "transitive", content);
 		checkSourceRange((ASTNode) req.modifiers().get(1), "static", content);
@@ -504,7 +504,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			ModuleDeclaration moduleDecl1 = ((CompilationUnit) unit1).getModule();
 			checkSourceRange(moduleDecl1, fileContent, fileContent);
 
-			RequiresStatement req = (RequiresStatement) moduleDecl1.moduleStatements().get(0);
+			RequiresDirective req = (RequiresDirective) moduleDecl1.moduleStatements().get(0);
 			Name reqModule = req.getName();
 			ModuleBinding moduleBinding = (ModuleBinding) reqModule.resolveBinding();
 			assertTrue("Module Binding null", moduleBinding != null);
@@ -565,7 +565,7 @@ public class ASTConverter9Test extends ConverterTestSetup {
 			assertTrue("Module Binding null", moduleBinding != null);
 			assertTrue("Module not open", moduleBinding.isOpen());
 
-			RequiresStatement req = (RequiresStatement) moduleDecl1.moduleStatements().get(0);
+			RequiresDirective req = (RequiresDirective) moduleDecl1.moduleStatements().get(0);
 			name = req.getName();
 			moduleBinding = (ModuleBinding) name.resolveBinding();
 			assertTrue("Module Binding null", moduleBinding != null);

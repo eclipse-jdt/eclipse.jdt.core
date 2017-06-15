@@ -2159,13 +2159,13 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(RequiresStatement node) {
+	public boolean visit(RequiresDirective node) {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
 		int pos = getPosAfterToken(node.getStartPosition(), TerminalTokens.TokenNamerequires);
-		rewriteNodeList(node, RequiresStatement.MODIFIERS_PROPERTY, pos, String.valueOf(' '), String.valueOf(' '), String.valueOf(' '));
-		rewriteRequiredNode(node, RequiresStatement.NAME_PROPERTY);
+		rewriteNodeList(node, RequiresDirective.MODIFIERS_PROPERTY, pos, String.valueOf(' '), String.valueOf(' '), String.valueOf(' '));
+		rewriteRequiredNode(node, RequiresDirective.NAME_PROPERTY);
 		return false;
 	}
 
@@ -2707,12 +2707,12 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(ExportsStatement node) {
+	public boolean visit(ExportsDirective node) {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		int pos = rewriteRequiredNode(node, ExportsStatement.NAME_PROPERTY);
-		rewriteNodeList(node, ExportsStatement.MODULES_PROPERTY, pos, "to ", ", "); //$NON-NLS-1$ //$NON-NLS-2$ 
+		int pos = rewriteRequiredNode(node, ExportsDirective.NAME_PROPERTY);
+		rewriteNodeList(node, ExportsDirective.MODULES_PROPERTY, pos, "to ", ", "); //$NON-NLS-1$ //$NON-NLS-2$ 
 
 		return false;
 	}
@@ -3290,12 +3290,12 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(ProvidesStatement node) {
+	public boolean visit(ProvidesDirective node) {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		int pos = rewriteRequiredNode(node, ProvidesStatement.TYPE_PROPERTY);
-		pos= rewriteNodeList(node, ProvidesStatement.IMPLEMENTATIONS_PROPERTY, pos, " with ", ", "); //$NON-NLS-1$ //$NON-NLS-2$
+		int pos = rewriteRequiredNode(node, ProvidesDirective.TYPE_PROPERTY);
+		pos= rewriteNodeList(node, ProvidesDirective.IMPLEMENTATIONS_PROPERTY, pos, " with ", ", "); //$NON-NLS-1$ //$NON-NLS-2$
 		return false;
 	}
 	/* (non-Javadoc)
@@ -3765,11 +3765,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(UsesStatement node) {
+	public boolean visit(UsesDirective node) {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
-		rewriteRequiredNode(node,UsesStatement.TYPE_PROPERTY);
+		rewriteRequiredNode(node,UsesDirective.TYPE_PROPERTY);
 		return false;
 	}
 

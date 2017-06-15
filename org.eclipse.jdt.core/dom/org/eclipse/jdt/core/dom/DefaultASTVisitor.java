@@ -190,7 +190,7 @@ class DefaultASTVisitor extends ASTVisitor {
 	public void endVisit(ModuleDeclaration node) {
 		endVisitNode(node);
 	}
-	public void endVisit(ModuleStatement node) {
+	public void endVisit(ModuleDirective node) {
 		endVisitNode(node);
 	}
 	public void endVisit(NameQualifiedType node) {
@@ -481,7 +481,7 @@ class DefaultASTVisitor extends ASTVisitor {
 	public boolean visit(ModuleDeclaration node) {
 		return visitNode(node);
 	}
-	public boolean visit(ModuleStatement node) {
+	public boolean visit(ModuleDirective node) {
 		return visitNode(node);
 	}
 	public boolean visit(MethodRefParameter node) {

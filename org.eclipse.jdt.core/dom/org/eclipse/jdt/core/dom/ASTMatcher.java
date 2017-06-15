@@ -894,11 +894,11 @@ public class ASTMatcher {
 	 *   different node type or is <code>null</code>
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public boolean match(ExportsStatement node, Object other) {
-		if (!(other instanceof ExportsStatement)) {
+	public boolean match(ExportsDirective node, Object other) {
+		if (!(other instanceof ExportsDirective)) {
 			return false;
 		}
-		ExportsStatement o = (ExportsStatement) other;
+		ExportsDirective o = (ExportsDirective) other;
 		return (
 			safeSubtreeMatch(node.getName(), o.getName())
 				&& safeSubtreeListMatch(node.modules(), o.modules()));
@@ -1727,11 +1727,11 @@ public class ASTMatcher {
 	 *   different node type or is <code>null</code>
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public boolean match(OpensStatement node, Object other) {
-		if (!(other instanceof OpensStatement)) {
+	public boolean match(OpensDirective node, Object other) {
+		if (!(other instanceof OpensDirective)) {
 			return false;
 		}
-		OpensStatement o = (OpensStatement) other;
+		OpensDirective o = (OpensDirective) other;
 		return (
 			safeSubtreeMatch(node.getName(), o.getName())
 				&& safeSubtreeListMatch(node.modules(), o.modules()));
@@ -1901,11 +1901,11 @@ public class ASTMatcher {
 	 * @since 3.13 BETA_JAVA9
 
 	 */
-	public boolean match(ProvidesStatement node, Object other) {
-		if (!(other instanceof ProvidesStatement)) {
+	public boolean match(ProvidesDirective node, Object other) {
+		if (!(other instanceof ProvidesDirective)) {
 			return false;
 		}
-		ProvidesStatement o = (ProvidesStatement) other;
+		ProvidesDirective o = (ProvidesDirective) other;
 		return (
 				safeSubtreeMatch(node.getType(), o.getType())
 				&& safeSubtreeListMatch(node.implementations(), o.implementations()));
@@ -1976,11 +1976,11 @@ public class ASTMatcher {
 	 *
 	 *   @since 3.13 BETA_JAVA9
 	 */
-	public boolean match(RequiresStatement node, Object other) {
-		if (!(other instanceof RequiresStatement)) {
+	public boolean match(RequiresDirective node, Object other) {
+		if (!(other instanceof RequiresDirective)) {
 			return false;
 		}
-		RequiresStatement o = (RequiresStatement) other;
+		RequiresDirective o = (RequiresDirective) other;
 		return safeSubtreeListMatch(node.modifiers(), o.modifiers())
 				&& safeSubtreeMatch(node.getName(), o.getName());
 	}
@@ -2623,11 +2623,11 @@ public class ASTMatcher {
 	 *   different node type or is <code>null</code>
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public boolean match(UsesStatement node, Object other) {
+	public boolean match(UsesDirective node, Object other) {
 		if (!(other instanceof UnionType)) {
 			return false;
 		}
-		UsesStatement o = (UsesStatement) other;
+		UsesDirective o = (UsesDirective) other;
 		return safeSubtreeMatch(node.getType(), o.getType());
 	}
 

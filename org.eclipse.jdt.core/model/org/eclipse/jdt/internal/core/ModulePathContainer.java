@@ -62,7 +62,7 @@ public class ModulePathContainer implements IClasspathContainer{
 	@Override
 	public String getDescription() {
 		// 
-		return "Module source path"; //$NON-NLS-1$
+		return "Module path"; //$NON-NLS-1$
 	}
 
 	@Override
