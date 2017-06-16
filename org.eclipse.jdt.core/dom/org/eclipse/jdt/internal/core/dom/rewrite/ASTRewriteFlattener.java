@@ -812,7 +812,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		this.result.append("module "); //$NON-NLS-1$
 		getChildNode(node, ModuleDeclaration.NAME_PROPERTY).accept(this);
 		this.result.append('{');
-		visitList(node, ModuleDeclaration.MODULE_STATEMENTS_PROPERTY, null);
+		visitList(node, ModuleDeclaration.MODULE_DIRECTIVES_PROPERTY, null);
 		this.result.append('}');
 		return false;
 	}

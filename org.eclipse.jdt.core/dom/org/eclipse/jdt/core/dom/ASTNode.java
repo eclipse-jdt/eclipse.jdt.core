@@ -910,35 +910,19 @@ public abstract class ASTNode {
 
 	/**
 	 * Node type constant indicating a node of type
-	 * <code>ExportsdIRECTIVE</code>.
-	 * @see ExportsDirective
-	 * @since 3.13 BETA_JAVA9
-	 */
-	public static final int EXPORTS_DIRECTIVE = 94;
-
-	/**
-	 * Node type constant indicating a node of type
 	 * <code>RequiresDirective</code>.
 	 * @see RequiresDirective
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public static final int REQUIRES_DIRECTIVE = 95;
-
+	public static final int REQUIRES_DIRECTIVE = 94;
+	
 	/**
 	 * Node type constant indicating a node of type
-	 * <code>UsesDirective</code>.
-	 * @see UsesDirective
+	 * <code>ExportsDirective</code>.
+	 * @see ExportsDirective
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public static final int USES_DIRECTIVE = 96;
-
-	/**
-	 * Node type constant indicating a node of type
-	 * <code>ProvidesDirective</code>.
-	 * @see ProvidesDirective
-	 * @since 3.13 BETA_JAVA9
-	 */
-	public static final int PROVIDES_DIRECTIVE = 97;
+	public static final int EXPORTS_DIRECTIVE = 95;
 
 	/**
 	 * Node type constant indicating a node of type
@@ -946,7 +930,23 @@ public abstract class ASTNode {
 	 * @see OpensDirective
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public static final int OPENS_DIRECTIVE = 98;
+	public static final int OPENS_DIRECTIVE = 96;
+	
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>UsesDirective</code>.
+	 * @see UsesDirective
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int USES_DIRECTIVE = 97;
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>ProvidesDirective</code>.
+	 * @see ProvidesDirective
+	 * @since 3.13 BETA_JAVA9
+	 */
+	public static final int PROVIDES_DIRECTIVE = 98;
 
 	/**
 	 * Node type constant indicating a node of type

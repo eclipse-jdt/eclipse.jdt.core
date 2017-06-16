@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * Requires directive AST node type.
+ * Requires directive AST node type (added in JLS9 API).
  * <pre>
  * RequiresDirective:
  *     <b>requires</b> { ModuleModifier } Name <b>;</b>
@@ -26,6 +26,7 @@ import java.util.List;
  *
  * @since 3.13 BETA_JAVA9
  * @noinstantiate This class is not intended to be instantiated by clients.
+ * @noextend This class is not intended to be subclassed by clients.
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class RequiresDirective extends ModuleDirective {
@@ -175,7 +176,7 @@ public class RequiresDirective extends ModuleDirective {
 	/**
 	 * Returns the module modifiers explicitly specified on this declaration.
 	 * <p>
-	 * this method is a convenience method that
+	 * This method is a convenience method that
 	 * computes these flags from <code>modifiers()</code>.
 	 * </p>
 	 *

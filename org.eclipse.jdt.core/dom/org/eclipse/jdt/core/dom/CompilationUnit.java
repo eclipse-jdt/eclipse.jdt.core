@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -32,21 +32,29 @@ import org.eclipse.text.edits.TextEdit;
 
 /**
  * Java compilation unit AST node type. This is the type of the root of an AST.
- * From JLS 9 onwards, this can contain a ModuleDeclation. To be noted that not
- * all nodes make sense in all contexts.
+ * In JLS9 and later, this node can also contain a ModuleDeclaration (with a completely different grammar).
  * <p>
  * The source range for this type of node is ordinarily the entire source file,
  * including leading and trailing whitespace and comments.
  * </p>
  * <pre>
  * CompilationUnit:
- *    [ PackageDeclaration ]
- *        { ImportDeclaration }
- *        { TypeDeclaration | EnumDeclaration | AnnotationTypeDeclaration | ModuleDeclaration <b>;</b> }
+ *     OrdinaryCompilationUnit
+ *     ModularCompilationUnit
+ *     
+ * OrdinaryCompilationUnit:
+ *     [ PackageDeclaration ]
+ *         { ImportDeclaration }
+ *         { TypeDeclaration | EnumDeclaration | AnnotationTypeDeclaration | <b>;</b> }
+ * 
+ * ModularCompilationUnit:
+ *     {ImportDeclaration}
+ *         ModuleDeclaration
  * </pre>
  *
  * @since 2.0
  * @noinstantiate This class is not intended to be instantiated by clients.
+ * @noextend This class is not intended to be subclassed by clients.
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class CompilationUnit extends ASTNode {

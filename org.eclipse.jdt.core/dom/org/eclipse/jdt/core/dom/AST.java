@@ -1509,11 +1509,11 @@ public final class AST {
 	}
 
 	/**
-	 * Creates and returns a new unparented exports statement
+	 * Creates and returns a new unparented exports directive
 	 * node for an unspecified, but legal, name; no target modules
 	 *
-	 * @return a new unparented exports statement node
-	 * @exception UnsupportedOperationException if this operation is used in level less than JLS9
+	 * @return a new unparented exports directive node
+	 * @exception UnsupportedOperationException if this operation is used in an AST with level less than JLS9
 	 * @since 3.13 BETA_JAVA9
 	 */
 	public ExportsDirective newExportsStatement() {
@@ -1888,7 +1888,7 @@ public final class AST {
 	 * @return a new unparented module modifier node
 	 * @exception IllegalArgumentException if the primitive type code is invalid
 	 * @exception UnsupportedOperationException if this operation is used in
-	 * an AST less than 9
+	 * an AST with level less than JLS9
 	 * @since 3.13 BETA_JAVA9
 	 */
 	public ModuleModifier newModuleModifier(ModuleModifier.ModuleModifierKeyword keyword) {
@@ -1964,7 +1964,7 @@ public final class AST {
 	 * and an empty list of statements.
 	 *
 	 * @return a new unparented module declaration node
-	 * @exception UnsupportedOperationException if this operation is used in level less than JLS9
+	 * @exception UnsupportedOperationException if this operation is used in an AST with level less than JLS9
 	 * @since 3.13 BETA_JAVA9
 	 */
 	public ModuleDeclaration newModuleDeclaration() {
@@ -2136,14 +2136,14 @@ public final class AST {
 	}
 
 	/**
-	 * Creates and returns a new unparented opens statement
+	 * Creates and returns a new unparented opens directive
 	 * node for an unspecified, but legal, name; no target modules
 	 *
-	 * @return a new unparented opens statement node
-	 * @exception UnsupportedOperationException if this operation is used in level less than JLS9
+	 * @return a new unparented opens directive node
+	 * @exception UnsupportedOperationException if this operation is used in an AST with level less than JLS9
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public OpensDirective newOpensStatement() {
+	public OpensDirective newOpensDirective() {
 		OpensDirective result = new OpensDirective(this);
 		return result;
 	}
@@ -2232,14 +2232,14 @@ public final class AST {
 	}
 
 	/**
-	 * Creates and returns a new unparented provides statement
+	 * Creates and returns a new unparented provides directive
 	 * node for an unspecified, but legal, type; no target types
 	 *
-	 * @return a new unparented provides statement node
-	 * @exception UnsupportedOperationException if this operation is used in level less than JLS9
+	 * @return a new unparented provides directive node
+	 * @exception UnsupportedOperationException if this operation is used in an AST with level less than JLS9
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public ProvidesDirective newProvidesStatement() {
+	public ProvidesDirective newProvidesDirective() {
 		ProvidesDirective result = new ProvidesDirective(this);
 		return result;
 	}
@@ -2291,14 +2291,14 @@ public final class AST {
 	}
 
 	/**
-	 * Creates and returns a new unparented requires statement
+	 * Creates and returns a new unparented requires directive
 	 * node for an unspecified, but legal, name;
 	 *
-	 * @return a new unparented requires statement node
-	 * @exception UnsupportedOperationException if this operation is used in level less than JLS9
+	 * @return a new unparented requires directive node
+	 * @exception UnsupportedOperationException if this operation is used in an AST with level less than JLS9
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public RequiresDirective newRequiresStatement() {
+	public RequiresDirective newRequiresDirective() {
 		RequiresDirective result = new RequiresDirective(this);
 		return result;
 	}
@@ -2671,14 +2671,14 @@ public final class AST {
 	}
 
 	/**
-	 * Creates and returns a new unparented uses statement
+	 * Creates and returns a new unparented uses directive
 	 * node for an unspecified, but legal, name;
 	 *
-	 * @return a new unparented uses statement node
+	 * @return a new unparented uses directive node
 	 * @exception UnsupportedOperationException if this operation is used in level less than JLS9
 	 * @since 3.13 BETA_JAVA9
 	 */
-	public UsesDirective newUsesStatement() {
+	public UsesDirective newUsesDirective() {
 		UsesDirective result = new UsesDirective(this);
 		return result;
 	}

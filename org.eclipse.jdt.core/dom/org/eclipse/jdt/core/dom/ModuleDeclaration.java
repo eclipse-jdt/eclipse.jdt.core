@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,12 +17,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Module declaration AST node type representing the module descriptor file
+ * Module declaration AST node type representing the module descriptor file (added in JLS9 API).
  *
  * <pre>
  * ModuleDeclaration:
  *  [ Javadoc ] { Annotation } [ <b>open</b> ] <b>module</b> Name <b>{</b>
- *        [ ExportsStatement | OpensStatement | RequiresStatement | UsesStatement | ProvidesStatement ]
+ *        { RequiresDirective | ExportsDirective | OpensDirective | UsesDirective | ProvidesDirective }
  *  <b>}</b>
  * </pre>
  * <p>
@@ -46,26 +46,25 @@ public class ModuleDeclaration extends ASTNode {
 	 * The "annotations" structural property of this node type (element type: {@link Annotation}).
 	 */
 	public static final ChildListPropertyDescriptor ANNOTATIONS_PROPERTY =
-		new ChildListPropertyDescriptor(ModuleDeclaration.class, "annotations", Annotation.class, NO_CYCLE_RISK); //$NON-NLS-1$
-
+			new ChildListPropertyDescriptor(ModuleDeclaration.class, "annotations", Annotation.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "open" structural property of this node type (type: {@link Boolean}).
 	 */
 	public static final SimplePropertyDescriptor OPEN_PROPERTY =
-		new SimplePropertyDescriptor(ModuleDeclaration.class, "open", boolean.class, MANDATORY); //$NON-NLS-1$
+			new SimplePropertyDescriptor(ModuleDeclaration.class, "open", boolean.class, MANDATORY); //$NON-NLS-1$
 
 	/**
 	 * The "name" structural property of this node type (child type: {@link Name}).
 	 */
 	public static final ChildPropertyDescriptor NAME_PROPERTY =
-		new ChildPropertyDescriptor(ModuleDeclaration.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+			new ChildPropertyDescriptor(ModuleDeclaration.class, "name", Name.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "moduleStatements" structural property of this node type (element type: {@link ModuleDirective}).
+	 * The "moduleDirectives" structural property of this node type (element type: {@link ModuleDirective}).
 	 */
-	public static final ChildListPropertyDescriptor MODULE_STATEMENTS_PROPERTY =
-		new ChildListPropertyDescriptor(ModuleDeclaration.class, "moduleStatements", ModuleDirective.class, NO_CYCLE_RISK); //$NON-NLS-1$
+	public static final ChildListPropertyDescriptor MODULE_DIRECTIVES_PROPERTY =
+			new ChildListPropertyDescriptor(ModuleDeclaration.class, "moduleDirectives", ModuleDirective.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -81,7 +80,7 @@ public class ModuleDeclaration extends ASTNode {
 		addProperty(ANNOTATIONS_PROPERTY, properyList);
 		addProperty(OPEN_PROPERTY, properyList);
 		addProperty(NAME_PROPERTY, properyList);
-		addProperty(MODULE_STATEMENTS_PROPERTY, properyList);
+		addProperty(MODULE_DIRECTIVES_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS_9_0 = reapPropertyList(properyList);
 	}
 
@@ -106,8 +105,8 @@ public class ModuleDeclaration extends ASTNode {
 	private Javadoc optionalDocComment = null;
 
 	/**
-	 * The extended annotations (element type: {@link Annotation}).
-	 * defaults to an empty list
+	 * The annotations (element type: {@link Annotation}).
+	 * Defaults to an empty list.
 	 *
 	 */
 	private ASTNode.NodeList annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
@@ -127,7 +126,7 @@ public class ModuleDeclaration extends ASTNode {
 	 * The list of statements (element type: {@link ModuleDirective}).
 	 * Defaults to an empty list.
 	 */
-	private ASTNode.NodeList moduleStatements = new ASTNode.NodeList(MODULE_STATEMENTS_PROPERTY);
+	private ASTNode.NodeList moduleStatements = new ASTNode.NodeList(MODULE_DIRECTIVES_PROPERTY);
 
 	ModuleDeclaration(AST ast) {
 		super(ast);
@@ -185,7 +184,7 @@ public class ModuleDeclaration extends ASTNode {
 		if (property == ANNOTATIONS_PROPERTY) {
 			return annotations();
 		}
-		if (property == MODULE_STATEMENTS_PROPERTY) {
+		if (property == MODULE_DIRECTIVES_PROPERTY) {
 			return moduleStatements();
 		}
 		// allow default implementation to flag the error
@@ -253,7 +252,18 @@ public class ModuleDeclaration extends ASTNode {
 	}
 
 	/**
-	 * Returns whether this module declaration is open or not
+	 * Returns the live ordered list of annotations
+	 * of this declaration.
+	 *
+	 * @return the live list of annotations
+	 *    (element type: {@link Annotation})
+	 */
+	public List annotations() {
+		return this.annotations;
+	}
+
+	/**
+	 * Returns whether this module declaration is open or not.
 	 *
 	 * @return <code>true</code> if this is open, else
 	 *    <code>false</code>
@@ -263,9 +273,9 @@ public class ModuleDeclaration extends ASTNode {
 	}
 
 	/**
-	 * Sets whether this module declaration is open or not
+	 * Sets whether this module declaration is open or not.
 	 *
-	 * @param isOpen <code>true</code> if this is open module,
+	 * @param isOpen <code>true</code> if this is an open module,
 	 *    and <code>false</code> if not
 	 */
 	public void setOpen(boolean isOpen) {
@@ -315,20 +325,9 @@ public class ModuleDeclaration extends ASTNode {
 	}
 
 	/**
-	 * Returns the live ordered list of annotations
-	 * of this declaration.
-	 *
-	 * @return the live list of annotations
-	 *    (element type: {@link Annotation})
-	 */
-	public List annotations() {
-		return this.annotations;
-	}
-
-	/**
 	 * Returns the live list of statements in this module. Adding and
 	 * removing nodes from this list affects this node dynamically.
-	 * All nodes in this list must be <code>Statement</code>s;
+	 * All nodes in this list must be <code>ModuleDirective</code>s;
 	 * attempts to add any other type of node will trigger an
 	 * exception.
 	 *
@@ -340,7 +339,7 @@ public class ModuleDeclaration extends ASTNode {
 	}
 
 	/**
-	 * Resolves and returns the binding for the module
+	 * Resolves and returns the binding for the module.
 	 * <p>
 	 * Note that bindings are generally unavailable unless requested when the
 	 * AST is being built.

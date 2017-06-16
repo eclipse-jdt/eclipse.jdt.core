@@ -2114,7 +2114,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		int startIndent= getIndent(node.getStartPosition()) + 1;
 		boolean fakeInModule = this.tokenScanner.getScanner().fakeInModule;
 		this.tokenScanner.getScanner().fakeInModule = true;
-		rewriteParagraphList(node, ModuleDeclaration.MODULE_STATEMENTS_PROPERTY, startPos, startIndent, 0, 1);
+		rewriteParagraphList(node, ModuleDeclaration.MODULE_DIRECTIVES_PROPERTY, startPos, startIndent, 0, 1);
 		this.tokenScanner.getScanner().fakeInModule = fakeInModule;
 		return false;
 	}

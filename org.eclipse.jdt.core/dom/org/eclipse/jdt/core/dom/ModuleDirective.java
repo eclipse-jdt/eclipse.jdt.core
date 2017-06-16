@@ -14,15 +14,15 @@
 package org.eclipse.jdt.core.dom;
 
 /**
- * Abstract base class of AST nodes that represent module directives.
- * There are many kinds of module directives.
+ * Abstract base class of AST nodes that represent module directives (added in JLS9 API).
  *
  * <pre>
- * ModuleStatement: [ {@link ExportsDirective} |
- *    {@link OpensDirective} |
- *    {@link RequiresDirective} |
- *    {@link UsesDirective} |
- *    {@link ProvidesDirective} ]
+ * ModuleDirective:
+ *    {@link RequiresDirective}
+ *    {@link ExportsDirective}
+ *    {@link OpensDirective}
+ *    {@link UsesDirective}
+ *    {@link ProvidesDirective}
  * </pre>
  *
  * @noextend This class is not intended to be subclassed by clients.

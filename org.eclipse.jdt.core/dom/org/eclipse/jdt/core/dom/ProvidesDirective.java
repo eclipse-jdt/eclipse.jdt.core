@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Provides directive AST node type.
+ * Provides directive AST node type (added in JLS9 API).
  * <pre>
  * ProvidesDirective:
  *     <b>provides</b> Name <b>with</b> Name {<b>,</b> Name } <b>;</b>
@@ -41,7 +41,7 @@ public class ProvidesDirective extends ModuleDirective {
 	 * The "implementation type" structural property of this node type (element type: {@link Type}).
 	 */
 	public static final ChildListPropertyDescriptor IMPLEMENTATIONS_PROPERTY =
-			new ChildListPropertyDescriptor(ProvidesDirective.class, "implementationType", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
+			new ChildListPropertyDescriptor(ProvidesDirective.class, "implementations", Type.class, NO_CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -163,7 +163,7 @@ public class ProvidesDirective extends ModuleDirective {
 
 
 	/**
-	 * Returns the type name in this statement
+	 * Returns the type name in this directive.
 	 *
 	 * @return the type name
 	 */
@@ -202,7 +202,7 @@ public class ProvidesDirective extends ModuleDirective {
 	}
 
 	/**
-	 * Returns the live ordered list of implementations for the interface in this provides statement.
+	 * Returns the live ordered list of implementations for the interface in this provides directive.
 	 *
 	 * @return the live list of implementations for the interface
 	 *    (element type: {@link Name})

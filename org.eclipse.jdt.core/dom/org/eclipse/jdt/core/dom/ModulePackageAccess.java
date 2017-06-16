@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2016, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,11 +16,12 @@ package org.eclipse.jdt.core.dom;
 import java.util.List;
 
 /**
- * Abstract base class of AST nodes that represent exports and opens statements.
+ * Abstract base class of AST nodes that represent exports and opens directives (added in JLS9 API).
  *
  * <pre>
- * ModuleStatement: [ {@link ExportsDirective} |
- *    {@link OpensDirective} ]
+ * ModulePackageAccess:
+ *    {@link ExportsDirective}
+ *    {@link OpensDirective}
  * </pre>
  *
  * @noextend This class is not intended to be subclassed by clients.
@@ -126,7 +127,7 @@ public abstract class ModulePackageAccess extends ModuleDirective {
 	}
 
 	/**
-	 * Returns the name of the package
+	 * Returns the name of the package.
 	 *
 	 * @return the package name node
 	 */
@@ -169,7 +170,7 @@ public abstract class ModulePackageAccess extends ModuleDirective {
 
 	/**
 	 * Returns the live ordered list of target modules for this
-	 * statement.
+	 * directive.
 	 *
 	 * @return the live list of target modules
 	 *    (element type: {@link Name})

@@ -67,7 +67,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			AST ast= astRoot.getAST();
 
 			ModuleDeclaration moduleDecl = astRoot.getModule();
-			ListRewrite listRewrite = rewrite.getListRewrite(moduleDecl, ModuleDeclaration.MODULE_STATEMENTS_PROPERTY);
+			ListRewrite listRewrite = rewrite.getListRewrite(moduleDecl, ModuleDeclaration.MODULE_DIRECTIVES_PROPERTY);
 			List<ModuleDirective> moduleStatements = moduleDecl.moduleStatements();
 			int index = 0;
 			{
@@ -76,7 +76,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 				rewrite.replace(req.getName(), newName, null);
 				listRewrite.remove(moduleStatements.get(index++), null); // remove the second required
 
-				RequiresDirective newNode = ast.newRequiresStatement(); // add a new required
+				RequiresDirective newNode = ast.newRequiresDirective(); // add a new required
 				newNode.setName(ast.newSimpleName("addedme"));
 				listRewrite.insertAfter(newNode, req, null);
 			}
@@ -120,7 +120,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 				listRewrite.remove(moduleStatements.get(index++), null);
 
 				// uses MyNewFoundType - add the uses
-				usesStatement = ast.newUsesStatement();
+				usesStatement = ast.newUsesDirective();
 				newName = ast.newSimpleName("MyNewFoundType");
 				type = ast.newSimpleType(newName);
 				usesStatement.setType(type);
@@ -182,9 +182,9 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			AST ast= astRoot.getAST();
 
 			ModuleDeclaration moduleDecl = astRoot.getModule();
-			ListRewrite listRewrite = rewrite.getListRewrite(moduleDecl, ModuleDeclaration.MODULE_STATEMENTS_PROPERTY);
+			ListRewrite listRewrite = rewrite.getListRewrite(moduleDecl, ModuleDeclaration.MODULE_DIRECTIVES_PROPERTY);
 			{
-				RequiresDirective newNode = ast.newRequiresStatement(); // add a new required
+				RequiresDirective newNode = ast.newRequiresDirective(); // add a new required
 				newNode.setName(ast.newSimpleName("addedme"));
 				listRewrite.insertLast(newNode, null);
 			}
@@ -218,7 +218,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 			AST ast= astRoot.getAST();
 			ModuleDeclaration moduleDecl = astRoot.getModule();
-			ListRewrite listRewrite = rewrite.getListRewrite(moduleDecl, ModuleDeclaration.MODULE_STATEMENTS_PROPERTY);
+			ListRewrite listRewrite = rewrite.getListRewrite(moduleDecl, ModuleDeclaration.MODULE_DIRECTIVES_PROPERTY);
 			{
 				RequiresDirective reqNode = (RequiresDirective) moduleDecl.moduleStatements().get(0);
 				ASTNode newModifier = ast.newModuleModifier(ModuleModifierKeyword.STATIC_KEYWORD);
@@ -235,7 +235,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
 				rewrite.getListRewrite(reqNode, RequiresDirective.MODIFIERS_PROPERTY).insertLast(newModifier, null);
 
-				RequiresDirective newNode = ast.newRequiresStatement(); // add a new required
+				RequiresDirective newNode = ast.newRequiresDirective(); // add a new required
 				newNode.setName(ast.newSimpleName("addedme"));
 				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
 				rewrite.getListRewrite(newNode, RequiresDirective.MODIFIERS_PROPERTY).insertFirst(newModifier, null);
@@ -324,7 +324,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 			ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
 			AST ast= astRoot.getAST();
 			ModuleDeclaration moduleDecl = astRoot.getModule();
-			ListRewrite listRewrite = rewrite.getListRewrite(moduleDecl, ModuleDeclaration.MODULE_STATEMENTS_PROPERTY);
+			ListRewrite listRewrite = rewrite.getListRewrite(moduleDecl, ModuleDeclaration.MODULE_DIRECTIVES_PROPERTY);
 			{
 				int count = 0;
 				RequiresDirective reqNode = (RequiresDirective) moduleDecl.moduleStatements().get(count++);
@@ -348,7 +348,7 @@ public class ASTRewritingModuleDeclarationTest extends ASTRewritingTest {
 				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
 				rewrite.getListRewrite(reqNode, RequiresDirective.MODIFIERS_PROPERTY).insertFirst(newModifier, null);
 
-				RequiresDirective newNode = ast.newRequiresStatement(); // add a new required
+				RequiresDirective newNode = ast.newRequiresDirective(); // add a new required
 				newNode.setName(ast.newSimpleName("addedme"));
 				newModifier = ast.newModuleModifier(ModuleModifierKeyword.TRANSITIVE_KEYWORD);
 				rewrite.getListRewrite(newNode, RequiresDirective.MODIFIERS_PROPERTY).insertFirst(newModifier, null);

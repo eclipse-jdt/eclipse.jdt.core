@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Module Modifier node - represents the modifiers for the requires statement in module declaration.
+ * Module Modifier node - represents the modifiers for the requires directive in module declaration (added in JLS9 API).
  * <pre>
  * ModuleModifier:
  *    <b>static</b>
@@ -28,7 +28,8 @@ import java.util.Map;
  * </pre>
  * <p>
  * The numeric values of these flags match the ones for class
- * files as described in the Java Virtual Machine Specification
+ * files as described in the Java Virtual Machine Specification.
+ * Note that the value of <b>static</b> does <b>not</b> correspond to the value of {@link Modifier#STATIC}!
  * </p>
  *
  * @since 3.13 BETA_JAVA9
@@ -166,13 +167,16 @@ public final class ModuleModifier extends ASTNode {
 
 	/**
 	 * "static" module modifier constant (bit mask).
-	 * Applicable to requires statement.
+	 * Applicable to requires directive.
+	 * <p>
+	 * Note that the value of <b>static</b> does <b>not</b> correspond to the value of {@link Modifier#STATIC}!
+	 * </p>
 	 */
 	public static final int STATIC_PHASE = 0x0040;
 
 	/**
 	 * "transitive" module modifier constant (bit mask).
-	 * Applicable only to requires statement.
+	 * Applicable only to requires directive.
 	 */
 	public static final int TRANSITIVE = 0x0080;
 
