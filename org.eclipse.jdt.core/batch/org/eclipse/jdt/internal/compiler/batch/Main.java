@@ -2003,7 +2003,7 @@ public void configure(String[] argv) {
 						// de facto module for the other source files supplied via command line.
 						// TODO: This needs revisit in case a source file specified in command line is
 						// part of a --module-source-path
-						IModule mod = extractModuleDesc(currentArg, getNewParser());
+						IModule mod = extractModuleDesc(currentArg);
 						if (mod != null) {
 							moduleName = new String(mod.name());
 							this.module = mod;
@@ -3084,8 +3084,14 @@ private Parser getNewParser() {
 	return new Parser(new ProblemReporter(getHandlingPolicy(), 
 			new CompilerOptions(this.options), getProblemFactory()), false);
 }
-private IModule extractModuleDesc(String fileName, Parser parser) {
+private IModule extractModuleDesc(String fileName) {
 	IModule mod = null;
+	// this.options may not be completely populated yet, and definitely not
+	// validated. Make sure the source level is set for the parser
+	Map<String,String> opts = new HashMap<String, String>(this.options);
+	opts.put(CompilerOptions.OPTION_Source, this.options.get(CompilerOptions.OPTION_Compliance));
+	Parser parser = new Parser(new ProblemReporter(getHandlingPolicy(), 
+			new CompilerOptions(opts), getProblemFactory()), false);
 	if (fileName.toLowerCase().endsWith(IModuleEnvironment.MODULE_INFO_JAVA)) {
 		
 		ICompilationUnit cu = new CompilationUnit(null, fileName, null);

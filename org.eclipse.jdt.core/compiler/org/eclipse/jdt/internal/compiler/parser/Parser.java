@@ -13178,6 +13178,6 @@ public boolean automatonWillShift(int token, int lastAction) {
 @Override
 public boolean isParsingModuleDeclaration() {
 	// It can be a null in case of a Vanguard parser, which means no module to be dealt with.
-	return (this.compilationUnit != null && this.compilationUnit.isModuleInfo());
+	return (this.parsingJava9Plus && this.compilationUnit != null && this.compilationUnit.isModuleInfo());
 }
 }

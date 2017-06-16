@@ -79,7 +79,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				"	requires java.base;\n" +
 				"}"
 	        },
-			"\"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+			" -9 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
 	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
 	        "",
 	        "----------\n" + 
@@ -108,7 +108,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				"	requires java.sql;\n" +
 				"}"
 	        },
-			"\"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+			" -9 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
 	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
 	        "",
 	        "",
@@ -140,7 +140,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				"	requires java.sql;\n" +
 				"}"
 	        },
-			"\"" + OUTPUT_DIR +  File.separator + "module-info.java\"",
+			"-9 \"" + OUTPUT_DIR +  File.separator + "module-info.java\"",
 	        "",
 	        "",
 	        true);
@@ -168,7 +168,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				"   java.awt.Image image;\n" +
 				"}"
 	        },
-			"\"" + OUTPUT_DIR + File.separator + "module-info.java\" "
+			"-9 \"" + OUTPUT_DIR + File.separator + "module-info.java\" "
 			+ "\"" + OUTPUT_DIR + File.separator + "q/Y.java\" "
 	        + "\"" + OUTPUT_DIR + File.separator + "p/X.java\" "
 	        + "-d " + OUTPUT_DIR + File.separator + out,
@@ -514,7 +514,7 @@ public class ModuleCompilationTests extends BatchCompilerTest {
 				"	requires java.base;\n" +
 				"}"
 	        },
-			"\"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
+			"-9 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" "
 	        + "\"" + OUTPUT_DIR +  File.separator + "p/X.java\"",
 	        "",
 	        "",

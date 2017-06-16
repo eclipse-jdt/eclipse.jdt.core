@@ -17,7 +17,9 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -2855,6 +2857,71 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers", 
 					"The annotation @Foo is disallowed for this location", markers);
+		} finally {
+			deleteProject("org.astro");
+			deleteProject("com.greetings");
+		}
+	}
+	public void testBug518334() throws CoreException, IOException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] { 
+					"src/module-info.java",
+					"module org.astro {\n" +
+					"	requires java.sql;\n" +
+					"}"
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", sources);
+			waitForAutoBuild();
+			// set options
+			Map<String, String> options = new HashMap<>();
+			options.put(CompilerOptions.OPTION_Compliance, "1.8");
+			options.put(CompilerOptions.OPTION_Source, "1.8");
+			options.put(CompilerOptions.OPTION_TargetPlatform, "1.8");
+			p1.setOptions(options);
+//			waitForAutoBuild();
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertTrue("Module declaration incorrectly accepted below 9", markers.length > 0);
+		} finally {
+			deleteProject("org.astro");
+		}
+	}
+	public void testBug518334a() throws CoreException {
+		if (!isJRE9) return;
+		try {
+			String[] sources = new String[] { 
+					"src/module-info.java",
+					"module org.astro {\n" +
+					"	exports org.astro;\n" +
+					"}",
+					"src/org/astro/World.java",
+					"package org.astro;\n" +
+					"public interface World {\n" +
+					"	public String name();\n" +
+					"}" 
+			};
+			IJavaProject p1 = setupModuleProject("org.astro", sources);
+			IClasspathEntry dep = JavaCore.newProjectEntry(p1.getPath());
+			String[] src = new String[] { 
+					"src/module-info.java",
+					"module com.greetings {\n" +
+					"	requires org.astro;\n" +
+					"}"
+			};
+			IJavaProject p2 = setupModuleProject("com.greetings", src, new IClasspathEntry[] { dep });
+			waitForAutoBuild();
+			// set options
+			Map<String, String> options = new HashMap<>();
+			options.put(CompilerOptions.OPTION_Compliance, "1.8");
+			options.put(CompilerOptions.OPTION_Source, "1.8");
+			options.put(CompilerOptions.OPTION_TargetPlatform, "1.8");
+			p1.setOptions(options);
+
+			p2.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", 
+					"org.astro cannot be resolved to a module", markers);
 		} finally {
 			deleteProject("org.astro");
 			deleteProject("com.greetings");

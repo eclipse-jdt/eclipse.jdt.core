@@ -44,7 +44,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void test001() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 				String fileContent =  "module my.mod{}\n";
 				createFile(	"/Java9Elements/src/module-info.java",	fileContent);
@@ -59,7 +59,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void test002() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 				String fileContent =  "module my.mod{\n" +
 						 "	exports p.q.r;" +
@@ -79,7 +79,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void test003() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 				String fileContent =  
 						"module my.mod{\n" +
@@ -117,7 +117,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void test004() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 				String fileContent =  
 						"module my.mod{\n" +
@@ -136,7 +136,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void test005() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 				String fileContent =  
 						"module my.mod{\n" +
@@ -154,7 +154,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void test006() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 			String fileContent =  
 					"module my.mod{\n" +
@@ -165,7 +165,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 					"}";
 			createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
-			project = createJavaProject("Java9Elements2", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			project = createJavaProject("Java9Elements2", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 			fileContent =  "module your.mod{\n" +
 					"	requires my.mod;\n" +
@@ -187,7 +187,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void test007() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 			String fileContent =  
 					"module my.mod{\n" +
@@ -196,7 +196,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 					"}";
 			createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 
-			project = createJavaProject("Java9Elements2", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			project = createJavaProject("Java9Elements2", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 			fileContent =  
 					"module your.mod{\n" +
@@ -218,7 +218,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void test008() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 			String fileContent =  "module my.mod {\n" +
 					"	exports p.q.r to your.mod;" +
@@ -227,7 +227,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			createFile(	"/Java9Elements/src/module-info.java",	fileContent);
 			int start = fileContent.indexOf("your.mod");
 
-			project = createJavaProject("Java9Elements2", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			project = createJavaProject("Java9Elements2", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 			fileContent =  "module your.mod{\n" +
 					"	requires my.mod;\n" +
@@ -248,7 +248,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void test009() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 			String fileContent =  "module my.mod {\n" +
 					"	exports p.q.r;" +
@@ -293,7 +293,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void test011() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 				String fileContent =  "module my.mod{" +
 									"	provides a.b.C with a.b.CImpl, a.b.DImpl;\n" + 
@@ -318,7 +318,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void test012() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 				String fileContent =  "module my.mod{" +
 									"	provides a.b.C with a.b.CImpl, a.b.DImpl;\n" + 
@@ -342,7 +342,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void test013() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 				String fileContent =  "module my.mod{" +
 									"	opens a.b to java.base, java.sql;" +
@@ -360,7 +360,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void test014() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 				String fileContent =  "module my.mod{" +
 									"	exports a.b to java.base, java.sql;" +
@@ -378,7 +378,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void testBug510339_001_since_9() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			addClasspathEntry(project, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			project.open(null);
 			String fileContent =
@@ -449,7 +449,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void testBug510339_003_since_9() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			addClasspathEntry(project, JavaCore.newContainerEntry(new Path("org.eclipse.jdt.MODULE_PATH")));
 			project.open(null);
 			String fileContent =
@@ -798,7 +798,7 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 	}
 	public void test515342a() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "1.9");
+			IJavaProject project = createJavaProject("Java9Elements", new String[] {"src"}, new String[] {"JCL19_LIB"}, "bin", "9");
 			project.open(null);
 				String fileContent =  "module my.mod{}\n";
 				createFile(	"/Java9Elements/src/module-info.java",	fileContent);

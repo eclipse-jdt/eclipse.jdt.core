@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2017 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -182,9 +182,15 @@ private void computeClasspathLocations(
 					}
 				}
 				if ((mod = prereqJavaProject.getModuleDescription()) != null && projectLocations.size() > 0) {
-					ModuleDescriptionInfo info = (ModuleDescriptionInfo) ((SourceModule)mod).getElementInfo();
-					ModulePathEntry projectEntry = new ModulePathEntry(prereqJavaProject.getPath(), info, projectLocations.toArray(new ClasspathLocation[projectLocations.size()]));
-					entries.add(projectEntry);
+					try {
+						ModuleDescriptionInfo info = (ModuleDescriptionInfo) ((SourceModule) mod).getElementInfo();
+						ModulePathEntry projectEntry = new ModulePathEntry(prereqJavaProject.getPath(), info,
+								projectLocations.toArray(new ClasspathLocation[projectLocations.size()]));
+						entries.add(projectEntry);
+
+					} catch (JavaModelException jme) {
+						// do nothing, probably a non module project
+					}
 				}
 				continue nextEntry;
 
@@ -249,9 +255,14 @@ private void computeClasspathLocations(
 	if (!sLocations.isEmpty()) {
 		sLocations.toArray(this.sourceLocations);
 		if ((mod = javaProject.getModuleDescription()) != null) {
-			ModuleDescriptionInfo info = (ModuleDescriptionInfo) ((SourceModule)mod).getElementInfo();
-			ModulePathEntry projectEntry = new ModulePathEntry(javaProject.getPath(), info, this.sourceLocations);
-			entries.add(0, projectEntry);
+			try {
+				ModuleDescriptionInfo info = (ModuleDescriptionInfo) ((SourceModule) mod).getElementInfo();
+				ModulePathEntry projectEntry = new ModulePathEntry(javaProject.getPath(), info,
+						this.sourceLocations);
+				entries.add(0, projectEntry);
+			} catch (JavaModelException jme) {
+				// do nothing, probably a non module project
+			}
 		}
 		// collect the output folders, skipping duplicates
 		next : for (int i = 0, l = this.sourceLocations.length; i < l; i++) {
